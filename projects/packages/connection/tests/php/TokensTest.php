@@ -155,6 +155,95 @@ class TokensTest extends TestCase {
 	}
 
 	/**
+	 * Test that `validate_blog_token` reports the health WordPress.com returns.
+	 */
+	public function test_validate_blog_token_returns_health() {
+		add_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10, 2 );
+
+		$this->assertTrue( $this->validate_blog_token_with_response( 200, array( 'is_healthy' => true ) ) );
+		$this->assertFalse( $this->validate_blog_token_with_response( 200, array( 'is_healthy' => false ) ) );
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10 );
+	}
+
+	/**
+	 * Test that `validate_blog_token` returns a WP_Error, not false, when the check cannot be performed.
+	 */
+	public function test_validate_blog_token_returns_error_when_check_fails() {
+		add_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10, 2 );
+
+		$failed = $this->validate_blog_token_with_response( 500, array( 'dummy_error' => true ) );
+		$this->assertInstanceOf( WP_Error::class, $failed );
+		$this->assertSame( 'blog_token_check_failed', $failed->get_error_code() );
+
+		$transport = $this->validate_blog_token_with_response( new WP_Error( 'http_request_failed' ), null );
+		$this->assertInstanceOf( WP_Error::class, $transport );
+		$this->assertSame( 'http_request_failed', $transport->get_error_code() );
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10 );
+	}
+
+	/**
+	 * Test that `validate_blog_token` reports a missing blog token as unhealthy, not as a failed check.
+	 */
+	public function test_validate_blog_token_without_blog_token() {
+		add_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10, 2 );
+
+		$this->assertFalse( ( new Tokens() )->validate_blog_token() );
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_blog_id' ), 10 );
+	}
+
+	/**
+	 * Run `validate_blog_token` against a mocked `jetpack-token-health/blog` response.
+	 *
+	 * @param int|WP_Error $code The response code, or a WP_Error for a transport failure.
+	 * @param array|null   $body The response body.
+	 * @return bool|WP_Error
+	 */
+	private function validate_blog_token_with_response( $code, $body ) {
+		$intercept = static function ( $response, $args, $url ) use ( $code, $body ) {
+			if ( ! str_contains( $url, 'jetpack-token-health/blog' ) ) {
+				return $response;
+			}
+
+			if ( is_wp_error( $code ) ) {
+				return $code;
+			}
+
+			return array(
+				'headers'  => new CaseInsensitiveDictionary( array( 'content-type' => 'application/json' ) ),
+				'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+				'response' => array(
+					'code'    => $code,
+					'message' => 200 === $code ? 'OK' : 'failed',
+				),
+			);
+		};
+
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Jetpack_Options::update_option( 'blog_token', 'abcd.1234' );
+		add_filter( 'pre_http_request', $intercept, 10, 3 );
+		$result = ( new Tokens() )->validate_blog_token();
+		remove_filter( 'pre_http_request', $intercept, 10 );
+		Jetpack_Options::delete_option( 'blog_token' );
+		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+
+		return $result;
+	}
+
+	/**
+	 * Mock a registered site.
+	 *
+	 * @param mixed  $value The option value.
+	 * @param string $name  The option name.
+	 * @return mixed
+	 */
+	public function mock_blog_id( $value, $name ) {
+		return 'id' === $name ? 123 : $value;
+	}
+
+	/**
 	 * Test the `get_signed_token` functionality.
 	 */
 	public function test_get_signed_token() {

@@ -150,7 +150,7 @@ class Jetpack_Subscriptions {
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
 			function () {
-				return Jetpack::admin_url( array( 'page' => 'jetpack#/newsletter' ) );
+				return Jetpack::admin_url( array( 'page' => 'jetpack-newsletter' ) );
 			}
 		);
 

@@ -120,6 +120,26 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * The grid refreshes from this route, so a hidden feature must stay out of it too.
+	 */
+	public function test_the_features_route_leaves_out_what_a_host_hid() {
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) );
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$this->assertSame( 200, $response->get_status() );
+		$slugs = array_column( $response->get_data()['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * The boost feature's plugin status in a response.
 	 *
 	 * @param \WP_REST_Response $response The response.
@@ -355,6 +375,31 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * A bulk action's fresh state must not hand back a feature a host hid.
+	 */
+	public function test_bulk_state_leaves_out_what_a_host_hid() {
+		$this->activate_jetpack();
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$slugs = array_column( $response->get_data()['state']['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * One refusal must not stop the rest of the batch, and must say why it was refused.
 	 */
 	public function test_bulk_reports_a_refusal_and_carries_on() {
@@ -396,6 +441,30 @@ class Main_Features_Rest_Test extends TestCase {
 
 		$this->assertSame( array(), $response->get_data()['failed'] );
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * A module a host forces on is reported as staying on, not switched off.
+	 */
+	public function test_bulk_reports_a_module_a_host_forced_on() {
+		$this->offer_stats_module();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+		$force = fn( $modules ) => array_values( array_unique( array_merge( $modules, array( 'stats' ) ) ) );
+		add_filter( 'jetpack_active_modules', $force );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		remove_filter( 'jetpack_active_modules', $force );
+
+		$failed = $response->get_data()['failed'];
+		$this->assertCount( 1, $failed );
+		$this->assertStringContainsString( 'enabled by your host or site administrator', $failed[0]['message'] );
 	}
 
 	/**

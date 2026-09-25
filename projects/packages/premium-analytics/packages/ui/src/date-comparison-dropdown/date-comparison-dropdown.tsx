@@ -1,18 +1,23 @@
 /**
  * External dependencies
  */
+import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { check, chevronDown, plus } from '@wordpress/icons';
-import clsx from 'clsx';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { DateControlPopover } from '../date-control-popover';
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	openOnArrowDown,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 import type { ComparisonDateRangePreset } from '../use-comparison-date-presets';
 import type { ComparisonPresetId } from '@jetpack-premium-analytics/datetime';
-import './date-comparison-dropdown.scss';
 
 const NO_COMPARISON_VALUE = 'no-comparison';
 
@@ -35,6 +40,8 @@ type DateComparisonDropdownProps = {
 	label?: string;
 	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
 	disabled?: boolean;
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
 	onPresetChange: ( id: ComparisonPresetId ) => void;
 	onClear: () => void;
 };
@@ -45,6 +52,7 @@ export function DateComparisonDropdown( {
 	presetId,
 	label,
 	disabled = false,
+	triggerProps,
 	onPresetChange,
 	onClear,
 }: DateComparisonDropdownProps ) {
@@ -66,10 +74,14 @@ export function DateComparisonDropdown( {
 		];
 	}, [ noComparisonLabel, presets ] );
 
-	// A preset the current range cannot produce leaves the trigger with nothing
-	// to name, so the control falls back to its additive state.
+	// A preset folded into another entry checks that entry. One the current
+	// range cannot produce leaves the trigger with nothing to name, so the
+	// control falls back to its additive state.
 	const selectedPreset = useMemo(
-		() => ( enabled && presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
+		() =>
+			enabled && presetId
+				? presets.find( preset => preset.id === presetId || preset.aliases.includes( presetId ) )
+				: undefined,
 		[ enabled, presetId, presets ]
 	);
 
@@ -89,6 +101,7 @@ export function DateComparisonDropdown( {
 	);
 
 	const controlLabel = label ?? ( isComparisonActive ? compareToLabel : additiveLabel );
+	const [ isOpen, setIsOpen ] = useState( false );
 
 	/*
 	 * Additive: `Compare +` until a preset is picked, then a trigger naming it —
@@ -96,9 +109,9 @@ export function DateComparisonDropdown( {
 	 * Names the preset, not the period.
 	 */
 	return (
-		<div className={ clsx( 'date-comparison-dropdown', { 'is-disabled': disabled } ) }>
+		<Stack direction="row" align="center" gap="sm">
 			{ selectedPreset ? (
-				<span className="date-comparison-dropdown__prefix">
+				<span>
 					{ _x(
 						'vs',
 						'prefix naming what a report is compared against',
@@ -107,34 +120,34 @@ export function DateComparisonDropdown( {
 				</span>
 			) : null }
 
-			<DropdownMenu
-				className="date-comparison-dropdown__menu"
-				icon={ isComparisonActive ? chevronDown : plus }
-				text={ selectedPreset?.shortLabel ?? additiveLabel }
-				// The window the abbreviation stands for. `label` is the toggle's
-				// tooltip and the menu's name both, so the menu keeps its own.
-				label={ selectedPreset ? formatDateRange( selectedPreset.range ) : controlLabel }
-				menuProps={ { 'aria-label': controlLabel } }
-				popoverProps={ { placement: 'bottom-start' } }
-				// An aria-disabled Button drops clicks but not keys, so the arrow shortcut is shut apart.
-				disableOpenOnArrowDown={ disabled }
-				toggleProps={ {
-					className: clsx( 'date-comparison-dropdown__toggle', {
-						'date-comparison-dropdown__toggle--active': isComparisonActive,
-					} ),
-					disabled,
-					accessibleWhenDisabled: true,
-					iconPosition: 'right',
-					iconSize: 18,
-					// A tooltip only where the trigger's text is an abbreviation.
-					// Over the additive state it would repeat the label beneath it.
-					showTooltip: isComparisonActive,
-					// The trigger shows an abbreviation, so carry the full preset name
-					// for anyone not reading the glyphs — same as the preset pills.
-					'aria-label': selectedPreset?.label,
-				} }
+			<DateControlPopover
+				align="start"
+				title={ controlLabel }
+				open={ isOpen }
+				onOpenChange={ setIsOpen }
+				// The window the abbreviation stands for. Over the additive state
+				// a tooltip would repeat the label, so it stays empty there.
+				tooltip={ selectedPreset && formatDateRange( selectedPreset.range ) }
+				trigger={
+					<Button
+						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+						{ ...triggerProps }
+						disabled={ disabled }
+						onKeyDown={ openOnArrowDown( {
+							isOpen,
+							onToggle: () => setIsOpen( true ),
+							disabled,
+						} ) }
+						// The trigger shows an abbreviation, so carry the full preset name
+						// for anyone not reading the glyphs — same as the preset pills.
+						aria-label={ selectedPreset?.label }
+					>
+						{ selectedPreset?.shortLabel ?? additiveLabel }
+						<Icon icon={ isComparisonActive ? chevronDown : plus } size={ 18 } />
+					</Button>
+				}
 			>
-				{ ( { onClose } ) => (
+				<NavigableMenu role="menu" aria-label={ controlLabel }>
 					<MenuGroup>
 						{ items.map( item => {
 							const isSelected = item.value === selectedValue;
@@ -147,7 +160,7 @@ export function DateComparisonDropdown( {
 									icon={ isSelected ? check : undefined }
 									onClick={ () => {
 										handleSelect( item.value );
-										onClose();
+										setIsOpen( false );
 									} }
 								>
 									{ item.label }
@@ -155,8 +168,8 @@ export function DateComparisonDropdown( {
 							);
 						} ) }
 					</MenuGroup>
-				) }
-			</DropdownMenu>
-		</div>
+				</NavigableMenu>
+			</DateControlPopover>
+		</Stack>
 	);
 }

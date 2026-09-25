@@ -16,13 +16,13 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel } from '../../helpers';
+import { formatComparisonSeriesLabel, type ChartBaseline } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
-import type { DataFormat } from '../../types';
+import type { CountLabel, DataFormat } from '../../types';
 import type {
 	ComparativeLineChartSeries,
 	TooltipExtraSeries,
@@ -53,7 +53,8 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
-	value: number;
+	/** Null for a bucket with no reading, which the chart draws as a gap. */
+	value: number | null;
 }
 
 /**
@@ -74,6 +75,7 @@ export interface MetricTab {
 	previous?: MetricTabDatum[];
 	/** Per-metric format override (e.g. percentage); falls back to the chart-level `dataFormat`. */
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
 	/**
@@ -83,7 +85,7 @@ export interface MetricTab {
 	 */
 	counterpartKey?: string;
 	/**
-	 * Why this metric has no data at the current bucket size. Set it and the card
+	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
 	 * a flat zero line. The tab stays selectable, so the reason is reachable.
 	 */
@@ -127,6 +129,11 @@ export interface MetricTabsChartProps {
 	 * classic WordAds chart lists ads served, CPM and revenue whichever tab is up.
 	 */
 	tooltipMetrics?: 'active' | 'all';
+	/**
+	 * Where a line chart's value axis starts; see `ComparativeLineChart`. Bars
+	 * pick their own baseline; see `ComparativeBarChart`.
+	 */
+	baseline?: ChartBaseline;
 }
 
 /**
@@ -143,7 +150,7 @@ function buildSeries(
 	chartType: MetricTabsChartType
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current },
+		{ label: metric.label, group: metric.key, data: metric.current, countLabel: metric.countLabel },
 	];
 
 	if ( metric.previous?.length ) {
@@ -186,6 +193,7 @@ function MetricChart( {
 	chartId,
 	tickResolution,
 	onDatumClick,
+	baseline,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -193,6 +201,7 @@ function MetricChart( {
 	tooltipMetrics: 'active' | 'all';
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
+	baseline?: ChartBaseline;
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
@@ -212,6 +221,7 @@ function MetricChart( {
 				label: candidate.label,
 				data: candidate.current,
 				dataFormat: candidate.dataFormat ?? dataFormat,
+				countLabel: candidate.countLabel,
 			} ) );
 	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
 
@@ -327,6 +337,7 @@ function MetricChart( {
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
 			tooltipExtras={ tooltipExtras }
+			baseline={ baseline }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -408,6 +419,7 @@ export function MetricTabsChart( {
 	tickResolution,
 	onDatumClick,
 	tooltipMetrics = 'active',
+	baseline,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -498,6 +510,7 @@ export function MetricTabsChart( {
 						counterpart={ counterpartFor( activeMetric ) }
 						metrics={ metrics }
 						tooltipMetrics={ tooltipMetrics }
+						baseline={ baseline }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
@@ -569,6 +582,7 @@ export function MetricTabsChart( {
 							counterpart={ counterpartFor( activeMetric ) }
 							metrics={ metrics }
 							tooltipMetrics={ tooltipMetrics }
+							baseline={ baseline }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
@@ -616,6 +630,7 @@ export function MetricTabsChart( {
 						counterpart={ counterpartFor( metric ) }
 						metrics={ metrics }
 						tooltipMetrics={ tooltipMetrics }
+						baseline={ baseline }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }

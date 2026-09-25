@@ -409,9 +409,7 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
-test( 'Score cards show signed badges, points help, and responsive dividers', async ( {
-	page,
-} ) => {
+test( 'Score cards show gain badges, points help, and responsive dividers', async ( { page } ) => {
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
@@ -442,11 +440,11 @@ test( 'Score cards show signed badges, points help, and responsive dividers', as
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
 	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
-	const negativeBadge = mobile.getByText( '-10 points', { exact: true } );
-	await expect( negativeBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-width', '1px' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-style', 'solid' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	const clampedBadge = mobile.getByText( '0 points', { exact: true } );
+	await expect( clampedBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
 	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
 	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );
@@ -592,3 +590,41 @@ test( 'switches at the narrow breakpoint and pages by the visible number of days
 	await expect( bars ).toHaveCount( 30 );
 	await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 } );
+
+for ( const { width, days } of [
+	{ width: 1280, days: 30 },
+	{ width: 390, days: 15 },
+] ) {
+	test.describe( `first history entry at ${ width }px`, () => {
+		test.afterEach( async ( { page } ) => {
+			if ( process.env.BOOST_HISTORY_EVIDENCE_DIR ) {
+				await page.screenshot( {
+					path: path.join( process.env.BOOST_HISTORY_EVIDENCE_DIR, `first-entry-${ width }.png` ),
+					fullPage: true,
+				} );
+			}
+		} );
+
+		test( `first history entry shows one score per chart at ${ width }px`, async ( { page } ) => {
+			await page.setViewportSize( { width, height: 900 } );
+			await page.goto( 'http://boost-history.test/?firstEntry' );
+			await expect( page.getByText( 'Sep 9, 2026', { exact: true } ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: `Previous ${ days } days` } )
+			).toBeDisabled();
+			await expect( page.getByText( /Jetpack Boost premium has been activated/ ) ).toHaveCount( 0 );
+			await expect( page.getByText( /Your scores will be recorded from now on/ ) ).toHaveCount( 0 );
+			for ( const device of [ 'Desktop', 'Mobile' ] ) {
+				const bars = page
+					.getByRole( 'region', { name: `${ device } score history` } )
+					.locator( '.visx-bar' );
+				await expect( bars ).toHaveCount( days );
+				const heights = await bars.evaluateAll( elements =>
+					elements.map( element => element.getBoundingClientRect().height )
+				);
+				expect( heights.filter( height => height === 4 ) ).toHaveLength( days - 1 );
+				expect( heights[ days - 1 ] ).toBeGreaterThan( 4 );
+			}
+		} );
+	} );
+}

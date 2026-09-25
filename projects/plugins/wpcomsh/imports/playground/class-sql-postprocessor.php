@@ -203,11 +203,13 @@ class SQL_Postprocessor extends \Imports\Backup_Import_Action {
 		// A list of options to save.
 		$whitelist = array(
 			'admin_email',
+			'blog_public',
 			'jetpack_active_modules',
 			'jetpack_options',
 			'jetpack_private_options',
 			'permalink_structure',
 			'db_version',
+			'wpcom_public_coming_soon',
 		);
 
 		// Substitute the options.

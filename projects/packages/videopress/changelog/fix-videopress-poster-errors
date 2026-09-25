@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show poster generation errors and allow retrying a failed video frame.

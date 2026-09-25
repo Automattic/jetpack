@@ -145,6 +145,20 @@ describe( 'DashboardPage', () => {
 		};
 	} );
 
+	test.each( [ true, false ] )(
+		'over-limit Site Chat saving lock when enabled is %s',
+		isEnabled => {
+			mockSelectMethods.isSearchBlocksEnabled.mockReturnValue( true );
+			mockSelectMethods.isOverLimit.mockReturnValue( true );
+			mockSelectMethods.isReaderChatEnabled.mockReturnValue( isEnabled );
+			render( <DashboardPage /> );
+			fireEvent.click( screen.getByRole( 'tab', { name: /settings/i } ) );
+			expect( mockReaderChatControl ).toHaveBeenCalledWith(
+				expect.objectContaining( { isSaving: ! isEnabled } )
+			);
+		}
+	);
+
 	test( 'passes Reader Chat and AI Agent Access settings to the Search settings control', () => {
 		render( <DashboardPage /> );
 

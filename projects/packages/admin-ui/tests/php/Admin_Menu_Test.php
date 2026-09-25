@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Feature_Policy;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -104,6 +105,8 @@ class Admin_Menu_Test extends TestCase {
 		Admin_Menu::set_connection_manager( $connection );
 		Admin_Menu::set_visibility_resolver( null );
 		remove_all_filters( 'jetpack_admin_menu_visibility' );
+		remove_all_filters( Feature_Policy::FILTER );
+		Feature_Policy::reset();
 		Admin_Menu::reset();
 		remove_all_filters( 'jetpack_offline_mode' );
 		if ( class_exists( '\Automattic\Jetpack\Status\Cache' ) ) {
@@ -918,6 +921,72 @@ class Admin_Menu_Test extends TestCase {
 		$this->render_menu();
 
 		$this->assertContains( 'host-forced', $this->get_submenu_slugs() );
+	}
+
+	/**
+	 * A `jetpack_feature_policy` entry reaches the sidebar through the bridge in the status package.
+	 *
+	 * @param array  $args The item's visibility declaration.
+	 * @param string $slug The name the policy uses for it.
+	 *
+	 * @dataProvider policy_slugs_data
+	 */
+	#[DataProvider( 'policy_slugs_data' )]
+	public function test_feature_policy_hides_a_sidebar_item( array $args, $slug ) {
+		wp_set_current_user( self::$admin_user_id );
+
+		add_filter(
+			Feature_Policy::FILTER,
+			function ( $policy ) use ( $slug ) {
+				$policy[ $slug ] = array( 'visibility' => 'hidden' );
+				return $policy;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Policy', 'Policy', 'manage_options', 'policy-hidden', '__return_null', null, $args );
+		Admin_Menu::add_menu( 'Kept', 'Kept', 'manage_options', 'policy-kept', '__return_null' );
+
+		$this->render_menu();
+
+		$slugs = $this->get_submenu_slugs();
+		$this->assertNotContains( 'policy-hidden', $slugs );
+		$this->assertContains( 'policy-kept', $slugs );
+	}
+
+	/**
+	 * The names a policy can hide one sidebar item by.
+	 *
+	 * @return array
+	 */
+	public static function policy_slugs_data() {
+		return array(
+			'item key'    => array( array( 'key' => 'jetpack-policy' ), 'jetpack-policy' ),
+			'menu slug'   => array( array(), 'policy-hidden' ),
+			'product'     => array( array( 'product' => 'stats' ), 'stats' ),
+			'module gate' => array( array( 'module' => 'seo-tools' ), 'seo-tools' ),
+		);
+	}
+
+	/**
+	 * A policy can also put back an item whose gate is unsatisfied.
+	 */
+	public function test_feature_policy_forces_a_sidebar_item_visible() {
+		wp_set_current_user( self::$admin_user_id );
+		Admin_Menu::set_visibility_resolver( '__return_false' );
+
+		add_filter(
+			Feature_Policy::FILTER,
+			function ( $policy ) {
+				$policy['stats'] = array( 'visibility' => 'visible' );
+				return $policy;
+			}
+		);
+
+		Admin_Menu::add_menu( 'Policy', 'Policy', 'manage_options', 'policy-forced', '__return_null', null, array( 'product' => 'stats' ) );
+
+		$this->render_menu();
+
+		$this->assertContains( 'policy-forced', $this->get_submenu_slugs() );
 	}
 
 	/**

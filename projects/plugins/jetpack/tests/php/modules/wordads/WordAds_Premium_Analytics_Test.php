@@ -69,6 +69,7 @@ class WordAds_Premium_Analytics_Test extends WP_UnitTestCase {
 		$this->assertInstanceOf( Dashboard_Section::class, $section );
 		$this->assertSame( 'ads', $section->slug );
 		$this->assertSame( 'Ads', $section->label );
+		$this->assertSame( 'Ads performance', $section->title );
 		$this->assertSame( 50, $section->order );
 		$this->assertSame(
 			array(

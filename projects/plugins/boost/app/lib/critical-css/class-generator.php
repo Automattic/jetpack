@@ -15,6 +15,7 @@ class Generator {
 		if ( static::is_generating_critical_css() ) {
 			add_action( 'wp_head', array( $generator, 'display_generate_meta' ), 0 );
 			add_filter( 'wp_redirect', array( $generator, 'prevent_login_redirect' ), PHP_INT_MAX );
+			add_action( 'shutdown', array( $generator, 'block_login_redirect_header' ), 0 );
 			$generator->force_logged_out_render();
 		}
 	}
@@ -44,10 +45,63 @@ class Generator {
 	 * @return string|false
 	 */
 	public function prevent_login_redirect( $location ) {
-		if ( ! is_string( $location ) ) {
-			return $location;
+		if ( is_string( $location ) && self::is_login_location( $location ) ) {
+			$this->send_login_blocked_response();
 		}
 
+		return $location;
+	}
+
+	/**
+	 * Replace a login redirect that never passed through wp_redirect().
+	 *
+	 * A gate can set the header itself and exit, which no filter sees. PHP holds headers until output
+	 * begins, so the redirect can still be replaced here. A gate that redirects before this guard is
+	 * installed on plugins_loaded stays out of reach.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function block_login_redirect_header() {
+		if ( headers_sent() || ! self::login_redirect_in_headers( headers_list() ) ) {
+			return;
+		}
+
+		header_remove( 'Location' );
+		header( self::BLOCKED_HEADER . ': login-required' );
+		status_header( 403 );
+
+		echo esc_html__( 'Critical CSS cannot be generated for a page that requires login.', 'jetpack-boost' );
+	}
+
+	/**
+	 * Whether a list of response headers redirects to the login page.
+	 *
+	 * @param string[] $headers Headers as headers_list() returns them.
+	 * @return bool
+	 */
+	private static function login_redirect_in_headers( $headers ) {
+		foreach ( $headers as $header ) {
+			if ( ! is_string( $header ) || 0 !== stripos( $header, 'location:' ) ) {
+				continue;
+			}
+
+			$location = trim( substr( $header, strlen( 'location:' ) ) );
+
+			if ( '' !== $location && self::is_login_location( $location ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Whether a redirect target addresses the login page.
+	 *
+	 * @param string $location The path or URL being redirected to.
+	 * @return bool
+	 */
+	private static function is_login_location( $location ) {
 		$targets = array( self::normalize_url( $location ) );
 
 		// A location starting with `//` is protocol-relative, but treat `//wp-login.php` as the login
@@ -67,12 +121,12 @@ class Generator {
 
 			foreach ( $targets as $target ) {
 				if ( is_array( $target ) && self::is_same_endpoint( $target, $login ) ) {
-					$this->send_login_blocked_response();
+					return true;
 				}
 			}
 		}
 
-		return $location;
+		return false;
 	}
 
 	/**
@@ -154,13 +208,35 @@ class Generator {
 	}
 
 	/**
-	 * Resolve a URL path to a single canonical form.
+	 * The path part of a URL or path, without its query or fragment.
 	 *
-	 * @param string $path     Path to normalize.
-	 * @param bool   $has_host Whether the URL the path came from named a host.
+	 * A leading "//" makes wp_parse_url() read the first segment as a host, and both a REQUEST_URI and
+	 * a root install's relative home URL can start that way.
+	 *
+	 * @param string $url URL or path.
 	 * @return string
 	 */
-	private static function normalize_path( $path, $has_host ) {
+	private static function path_from_url( $url ) {
+		$url = (string) strtok( (string) $url, '?#' );
+
+		if ( preg_match( '#^[a-z][a-z0-9+.\-]*://[^/]*#i', $url, $matches ) ) {
+			$url = substr( $url, strlen( $matches[0] ) );
+		}
+
+		return $url;
+	}
+
+	/**
+	 * Resolve a URL path to a single canonical form.
+	 *
+	 * @param string $path         Path to normalize.
+	 * @param bool   $has_host     Whether the URL the path came from named a host.
+	 * @param bool   $resolve_dots Whether to resolve "." and ".." segments. Safe when matching a login
+	 *                             URL, where over-matching only ends a generation request; unsafe when
+	 *                             classifying a request, where "/wp-json/../x" must stay a REST path.
+	 * @return string
+	 */
+	private static function normalize_path( $path, $has_host, $resolve_dots = true ) {
 		$path = rawurldecode( $path );
 
 		if ( '' === $path ) {
@@ -172,18 +248,21 @@ class Generator {
 			if ( $has_host ) {
 				$path = '/' . $path;
 			} else {
-				$request = wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/', PHP_URL_PATH );
-				$request = is_string( $request ) ? $request : '/';
+				$request = self::path_from_url( isset( $_SERVER['REQUEST_URI'] ) ? esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) : '/' );
+				$request = '' === $request ? '/' : $request;
 				$path    = substr( $request, 0, (int) strrpos( $request, '/' ) + 1 ) . $path;
 			}
 		}
 
 		$resolved = array();
 		foreach ( explode( '/', $path ) as $segment ) {
-			if ( '' === $segment || '.' === $segment ) {
+			if ( '' === $segment ) {
 				continue;
 			}
-			if ( '..' === $segment ) {
+			if ( $resolve_dots && '.' === $segment ) {
+				continue;
+			}
+			if ( $resolve_dots && '..' === $segment ) {
 				array_pop( $resolved );
 				continue;
 			}
@@ -243,8 +322,10 @@ class Generator {
 			return true;
 		}
 
-		// A site on plain permalinks reaches the REST API through this query parameter instead.
-		if ( isset( $_GET['rest_route'] ) ) {
+		// A site on plain permalinks reaches the REST API through this parameter instead. WP::parse_request()
+		// reads it from the body before the query, and rest_api_loaded() ignores an empty value.
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- Read to classify the request, never to act on it.
+		if ( ! empty( $_GET['rest_route'] ) || ! empty( $_POST['rest_route'] ) ) {
 			return true;
 		}
 
@@ -252,12 +333,16 @@ class Generator {
 			return false;
 		}
 
-		// REQUEST_URI is a path, so its query is split off by hand: wp_parse_url() would read a leading
-		// "//" as a host. Both sides then go through the same normalization as the login match, so a
-		// repeated slash, a dot segment, an encoded slash or a capital letter cannot hide a REST path.
-		$request_uri  = esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) );
-		$request_path = self::normalize_path( (string) strtok( $request_uri, '?#' ), false );
-		$prefix       = rest_get_url_prefix();
+		// Both sides go through the same extraction and normalization, so a repeated slash, an encoded
+		// slash or a capital letter cannot hide a REST path. A request counts when either form matches:
+		// resolving dot segments catches "/a/../wp-json", keeping them catches "/wp-json/../a", and
+		// WordPress routes both to the REST API.
+		$request_uri   = self::path_from_url( esc_url_raw( wp_unslash( $_SERVER['REQUEST_URI'] ) ) );
+		$request_paths = array(
+			self::normalize_path( $request_uri, false ),
+			self::normalize_path( $request_uri, false, false ),
+		);
+		$prefix        = rest_get_url_prefix();
 
 		if ( '' === trim( $prefix, '/' ) ) {
 			return false;
@@ -266,14 +351,16 @@ class Generator {
 		// get_rest_url() builds REST URLs from home_url(), and puts the prefix behind index.php on
 		// index permalinks. $wp_rewrite does not exist yet, so accept either shape.
 		foreach ( array( $prefix, 'index.php/' . $prefix ) as $route ) {
-			$rest_path = self::normalize_path( (string) wp_parse_url( home_url( $route, 'relative' ), PHP_URL_PATH ), false );
+			$rest_path = self::normalize_path( self::path_from_url( home_url( $route, 'relative' ) ), false );
 
 			if ( '/' === $rest_path ) {
 				continue;
 			}
 
-			if ( 0 === strpos( trailingslashit( $request_path ), trailingslashit( $rest_path ) ) ) {
-				return true;
+			foreach ( $request_paths as $request_path ) {
+				if ( 0 === strpos( trailingslashit( $request_path ), trailingslashit( $rest_path ) ) ) {
+					return true;
+				}
 			}
 		}
 

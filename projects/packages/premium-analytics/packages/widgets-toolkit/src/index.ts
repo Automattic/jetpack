@@ -84,8 +84,12 @@ export {
 	type WidgetBackLinkProps,
 	WidgetFooter,
 	type WidgetFooterProps,
+	WidgetFooterLink,
+	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
+	InfoTip,
+	type InfoTipProps,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
@@ -191,7 +195,11 @@ export {
 /**
  * Constants
  */
-export { WIDGET_ROW_LIMIT } from './constants';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_SECTION_LAYOUTS_KEY,
+	WIDGET_ROW_LIMIT,
+} from './constants';
 
 /**
  * Widget edit fields
@@ -241,8 +249,10 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
+	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	getKnownEmailRate,
 	isEmailRateKnown,
 	type EmailRateSignals,
 	MONTHS_IN_YEAR,
@@ -277,7 +287,9 @@ export {
 	useSegmentStyles,
 	useSeriesStyles,
 	useStoredDetailLayout,
+	useTrackCustomize,
 	useTrackEvent,
+	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -313,7 +325,14 @@ export {
 /**
  * Types
  */
-export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type {
+	CountLabel,
+	MetricKey,
+	OrderMetricKey,
+	OrderMetrics,
+	OrdersSummary,
+	DataFormat,
+} from './types';
 
 /**
  * Charts passthrough. Widgets must import chart components from here, never

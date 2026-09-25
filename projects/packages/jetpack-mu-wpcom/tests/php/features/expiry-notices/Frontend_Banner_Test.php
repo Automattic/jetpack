@@ -172,6 +172,7 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 	public function test_body_class_follows_the_banner(): void {
 		$this->set_purchase( 5 );
 		$this->assertContains( 'has-wpcom-expiry-banner', wpcom_expiry_notices_frontend_banner_body_class( array() ) );
+		$this->assertSame( 'foo', wpcom_expiry_notices_frontend_banner_body_class( 'foo' ) );
 
 		$this->set_purchase( 45 );
 		$this->assertNotContains( 'has-wpcom-expiry-banner', wpcom_expiry_notices_frontend_banner_body_class( array() ) );
@@ -212,5 +213,10 @@ class Frontend_Banner_Test extends \WorDBless\BaseTestCase {
 
 		$this->set_purchase( 45 );
 		$this->assertSame( $others, wpcom_expiry_notices_claim_wpcom_banner_slot( $others ) );
+	}
+
+	public function test_passes_through_banners_another_callback_turned_off(): void {
+		$this->set_purchase( 5 );
+		$this->assertFalse( wpcom_expiry_notices_claim_wpcom_banner_slot( false ) );
 	}
 }

@@ -3,7 +3,7 @@ import { wpcomTrackEvent } from '../../common/tracks';
 import './wpcom-admin-bar.scss';
 
 // Core and WordPress.com top-level nodes
-const TRACKED_TOP_LEVEL_NODE_IDS = new Set( [
+const TRACKED_TOP_LEVEL_NODE_IDS = [
 	// Core
 	'menu-toggle',
 	'wp-logo',
@@ -31,7 +31,7 @@ const TRACKED_TOP_LEVEL_NODE_IDS = new Set( [
 	'agents-manager',
 	'agents-manager-ai-chat',
 	'stats',
-] );
+];
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	const planBadge = document.querySelector( '#wp-admin-bar-site-plan-badge a' );
@@ -71,7 +71,7 @@ document.addEventListener( 'DOMContentLoaded', () => {
 		const topLevelNode = node.closest( '.ab-top-menu > li' );
 		if (
 			! topLevelNode ||
-			! TRACKED_TOP_LEVEL_NODE_IDS.has( topLevelNode.id.replace( /^wp-admin-bar-/, '' ) )
+			TRACKED_TOP_LEVEL_NODE_IDS.indexOf( topLevelNode.id.replace( /^wp-admin-bar-/, '' ) ) === -1
 		) {
 			return;
 		}

@@ -250,7 +250,7 @@ class Twitter_Cards_Test extends BaseTestCase {
 		// imagedestroy() is deprecated in PHP 8.5, but GD resources are only auto-freed since PHP 8.0.
 		// We still need to call it on PHP < 8.0 to avoid memory leaks.
 		if ( PHP_VERSION_ID < 80000 ) {
-			imagedestroy( $img ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.imagedestroyDeprecated,MediaWiki.Usage.ForbiddenFunctions.imagedestroy
+			imagedestroy( $img ); // phpcs:ignore PHPCompatibility.FunctionUse.RemovedFunctions.imagedestroyDeprecated,MediaWiki.Usage.ForbiddenFunctions.imagedestroy,Generic.PHP.DeprecatedFunctions.Deprecated
 		}
 
 		$attachment_id = wp_insert_attachment(
@@ -453,16 +453,13 @@ class Twitter_Cards_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that init() registers all expected filters and actions.
+	 * Test that init() registers all expected filters.
 	 */
-	public function test_init_registers_all_filters_and_actions() {
+	public function test_init_registers_all_filters() {
 		// Remove any existing hooks.
 		remove_all_filters( 'jetpack_open_graph_tags' );
 		remove_all_filters( 'jetpack_open_graph_output' );
 		remove_all_filters( 'jetpack_twitter_cards_site_tag' );
-		remove_all_actions( 'admin_init' );
-		remove_all_actions( 'sharing_global_options' );
-		remove_all_actions( 'sharing_admin_update' );
 
 		Twitter_Cards::init();
 
@@ -470,8 +467,16 @@ class Twitter_Cards_Test extends BaseTestCase {
 		$this->assertSame( 10, has_filter( 'jetpack_open_graph_output', array( Twitter_Cards::class, 'twitter_cards_output' ) ) );
 		$this->assertSame( -99, has_filter( 'jetpack_twitter_cards_site_tag', array( Twitter_Cards::class, 'site_tag' ) ) );
 		$this->assertSame( 99, has_filter( 'jetpack_twitter_cards_site_tag', array( Twitter_Cards::class, 'prioritize_creator_over_default_site' ) ) );
-		$this->assertSame( 10, has_action( 'admin_init', array( Twitter_Cards::class, 'settings_init' ) ) );
-		$this->assertSame( 10, has_action( 'sharing_global_options', array( Twitter_Cards::class, 'sharing_global_options' ) ) );
-		$this->assertSame( 10, has_action( 'sharing_admin_update', array( Twitter_Cards::class, 'settings_validate' ) ) );
+	}
+
+	/**
+	 * Settings > Sharing renders and saves the Site Tag itself, on every screen that shows it.
+	 */
+	public function test_init_leaves_the_site_tag_setting_to_the_sharing_screen() {
+		Twitter_Cards::init();
+
+		$this->assertFalse( has_action( 'admin_init', array( Twitter_Cards::class, 'settings_init' ) ) );
+		$this->assertFalse( has_action( 'sharing_global_options', array( Twitter_Cards::class, 'sharing_global_options' ) ) );
+		$this->assertFalse( has_action( 'sharing_admin_update', array( Twitter_Cards::class, 'settings_validate' ) ) );
 	}
 }

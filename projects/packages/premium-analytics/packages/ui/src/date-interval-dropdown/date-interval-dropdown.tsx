@@ -2,11 +2,20 @@
  * External dependencies
  */
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
-import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
+import { IconButton } from '@jetpack-premium-analytics/externals';
+import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { chartBar, check } from '@wordpress/icons';
-
-import './date-interval-dropdown.scss';
+import { useState } from 'react';
+/**
+ * Internal dependencies
+ */
+import { DateControlPopover } from '../date-control-popover';
+import {
+	DATE_CONTROL_TRIGGER_DEFAULTS,
+	openOnArrowDown,
+	type DateControlTriggerProps,
+} from '../utils/date-control-trigger';
 
 type DateIntervalDropdownProps = {
 	/**
@@ -28,6 +37,9 @@ type DateIntervalDropdownProps = {
 
 	/** Greys the trigger out but keeps it focusable: a passing state, not a missing control. */
 	disabled?: boolean;
+
+	/** The trigger's look, over a neutral outline at the default size. */
+	triggerProps?: DateControlTriggerProps;
 
 	onChange: ( interval: IntervalType ) => void;
 };
@@ -76,23 +88,30 @@ export function DateIntervalDropdown( {
 	value,
 	label,
 	disabled = false,
+	triggerProps,
 	onChange,
 }: DateIntervalDropdownProps ) {
+	const triggerLabel = label ?? getTriggerLabel( value );
+	const [ isOpen, setIsOpen ] = useState( false );
+
 	return (
-		<DropdownMenu
-			className="date-interval-dropdown"
-			icon={ chartBar }
-			label={ label ?? getTriggerLabel( value ) }
-			popoverProps={ { placement: 'bottom-end' } }
-			// An aria-disabled Button drops clicks but not keys, so the arrow shortcut is shut apart.
-			disableOpenOnArrowDown={ disabled }
-			toggleProps={ {
-				className: 'date-interval-dropdown__toggle',
-				disabled,
-				accessibleWhenDisabled: true,
-			} }
+		<DateControlPopover
+			align="end"
+			title={ triggerLabel }
+			open={ isOpen }
+			onOpenChange={ setIsOpen }
+			trigger={
+				<IconButton
+					{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+					{ ...triggerProps }
+					icon={ chartBar }
+					label={ triggerLabel }
+					disabled={ disabled }
+					onKeyDown={ openOnArrowDown( { isOpen, onToggle: () => setIsOpen( true ), disabled } ) }
+				/>
+			}
 		>
-			{ ( { onClose } ) => (
+			<NavigableMenu role="menu" aria-label={ triggerLabel }>
 				<MenuGroup label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }>
 					{ options.map( option => {
 						const isSelected = option === value;
@@ -105,7 +124,7 @@ export function DateIntervalDropdown( {
 								icon={ isSelected ? check : undefined }
 								onClick={ () => {
 									onChange( option );
-									onClose();
+									setIsOpen( false );
 								} }
 							>
 								{ getIntervalLabel( option ) }
@@ -113,7 +132,7 @@ export function DateIntervalDropdown( {
 						);
 					} ) }
 				</MenuGroup>
-			) }
-		</DropdownMenu>
+			</NavigableMenu>
+		</DateControlPopover>
 	);
 }

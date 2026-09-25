@@ -4,6 +4,7 @@ namespace Automattic\Jetpack\Search;
 
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Search\TestCase as Search_TestCase;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WP_REST_Request;
 use WP_REST_Response;
 use WP_REST_Server;
@@ -70,6 +71,68 @@ class REST_Controller_Test extends Search_TestCase {
 		unset( $GLOBALS['jetpack_search_test_internal_env'] );
 		Search_Blocks::reset_supports_paid_search_cache();
 		parent::tearDown();
+	}
+
+	/**
+	 * @dataProvider provide_reader_chat_plans
+	 *
+	 * @param bool $supports_search Whether the plan supports any Search.
+	 * @param bool $is_free         Whether the plan is the free Search plan.
+	 * @param int  $expected_status Expected response status.
+	 */
+	#[DataProvider( 'provide_reader_chat_plans' )]
+	public function test_reader_chat_activation_requires_paid_search( $supports_search, $is_free, $expected_status ) {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+		$this->rest_controller->plan = $this->reader_chat_plan_stub( $supports_search, $is_free );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'reader_chat' => true ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( $expected_status, $response->get_status() );
+		$this->assertSame( 200 === $expected_status, (bool) get_option( 'reader_chat' ) );
+	}
+
+	/**
+	 * Data provider for test_reader_chat_activation_requires_paid_search.
+	 */
+	public static function provide_reader_chat_plans() {
+		return array(
+			'paid Classic' => array( true, false, 200 ),
+			'free'         => array( true, true, 403 ),
+			'no Search'    => array( false, false, 403 ),
+		);
+	}
+
+	public function test_reader_chat_can_be_disabled_without_paid_search() {
+		wp_set_current_user( $this->admin_id );
+		$this->register_reader_chat_setting();
+		update_option( 'reader_chat', true );
+		$this->rest_controller->plan = $this->reader_chat_plan_stub( true, true );
+
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/search/settings' );
+		$request->set_header( 'content-type', 'application/json' );
+		$request->set_body( wp_json_encode( array( 'reader_chat' => false ), JSON_UNESCAPED_SLASHES ) );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertFalse( (bool) get_option( 'reader_chat' ) );
+	}
+
+	/**
+	 * Build a Plan stub for the Site Chat entitlement check.
+	 *
+	 * @param bool $supports_search Whether the plan supports any Search.
+	 * @param bool $is_free         Whether the plan is the free Search plan.
+	 * @return Plan
+	 */
+	private function reader_chat_plan_stub( $supports_search, $is_free ) {
+		$plan = $this->createStub( Plan::class );
+		$plan->method( 'supports_search' )->willReturn( $supports_search );
+		$plan->method( 'is_free_plan' )->willReturn( $is_free );
+		return $plan;
 	}
 
 	/**

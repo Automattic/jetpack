@@ -6,12 +6,11 @@
 
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { useState, useEffect, useCallback, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
-import { getResourceAttributeUpdates, isSameValue } from '../utils/resource-sync';
-import { isNotFound, recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
-import { toast } from '../utils/toast';
-import { getUserFriendlyError } from '../utils/validation';
+import { deleteExistingLink, removeExistingLink } from '../utils/existing-links';
+import { getResourceAttributeUpdates, isBookkeeping, isSameValue } from '../utils/resource-sync';
+import { recordBlockMounted, recordPaymentRead } from '../utils/sync-on-save';
+import { isNotFound } from '../utils/validation';
 
 /**
  * The PayPal payment resource this block points at: reading it back and
@@ -77,7 +76,7 @@ export function usePayPalResource( {
 					return;
 				}
 				// The block now has PayPal's values, so the save can write this payment.
-				recordPaymentRead( clientId, resourceId );
+				recordPaymentRead( clientId, resourceId, response.attributes );
 				// Take PayPal's value only where the attribute still matches what the block had
 				// when the request went out; anything else is the merchant's own edit.
 				const updates = Object.fromEntries(
@@ -88,7 +87,15 @@ export function usePayPalResource( {
 				if ( ! Object.keys( updates ).length ) {
 					return;
 				}
-				setPaymentChanged( true );
+				// The mode, and a first SDK URL, are the block catching up with the payment
+				// rather than a change someone made at PayPal.
+				if (
+					Object.keys( updates ).some(
+						key => ! isBookkeeping( key, atRequest[ key ], atRequest.format )
+					)
+				) {
+					setPaymentChanged( true );
+				}
 				// An ordinary edit, so the post is dirty: the page renders the saved values, and
 				// they are stale until the post is saved again.
 				setAttributes( updates );
@@ -102,6 +109,8 @@ export function usePayPalResource( {
 				// A 404 counts as the read, so the save can run and re-create the payment.
 				recordPaymentRead( clientId, resourceId );
 				setLinkDeleted( true );
+				// Gone from PayPal, so drop it from every block's picker.
+				removeExistingLink( resourceId );
 			} );
 
 		return () => {
@@ -127,28 +136,17 @@ export function usePayPalResource( {
 		setShowDeleteConfirm( false );
 		setIsBusy( true );
 
-		const clearPayment = message => {
-			setAttributes( {
-				isApiManaged: false,
-				resourceId: undefined,
-				paymentLink: undefined,
-			} );
-			toast( 'success', message );
-		};
-
-		apiFetch( {
-			path: `${ API_BASE }/buttons/${ resourceId }`,
-			method: 'DELETE',
-		} )
-			.then( () => clearPayment( __( 'Payment link deleted.', 'jetpack-paypal-payments' ) ) )
-			.catch( err => {
-				// Already deleted on PayPal's side (404), so clear the block anyway.
-				if ( isNotFound( err ) ) {
-					clearPayment(
-						__( 'The payment link was already removed from PayPal.', 'jetpack-paypal-payments' )
-					);
-				} else {
-					toast( 'error', getUserFriendlyError( err ) );
+		deleteExistingLink( resourceId )
+			.then( deleted => {
+				// Also true when PayPal had already deleted the link.
+				if ( deleted ) {
+					setAttributes( {
+						isApiManaged: false,
+						resourceId: undefined,
+						paymentLink: undefined,
+						scriptSrc: undefined,
+						integrationMode: undefined,
+					} );
 				}
 			} )
 			.finally( () => {

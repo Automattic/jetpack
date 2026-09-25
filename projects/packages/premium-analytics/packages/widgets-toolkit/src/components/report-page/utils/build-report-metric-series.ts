@@ -81,6 +81,7 @@ function buildSingleMetricSeries(
 		metricKey: metric.key,
 		zone,
 		label: metric.label,
+		countLabel: metric.countLabel,
 	} );
 
 	// Group by metric rather than the helper's shared `primary`, so each metric on
@@ -134,6 +135,7 @@ export function buildReportMetricSeries( {
 		label: metric.label,
 		group: metric.key,
 		data: toChartPoints( primary, metric.key, zone ),
+		countLabel: metric.countLabel,
 	} ) );
 
 	return series;
