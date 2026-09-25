@@ -9,6 +9,7 @@ import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
 import styles from './styles.module.scss';
+import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
 import type { MyJetpackModule } from '../../../types';
 import type { ReactNode } from 'react';
@@ -20,6 +21,11 @@ import type { ReactNode } from 'react';
  * @return The URL, or undefined.
  */
 export function getModuleSettingsUrl( $module: MyJetpackModule ): string | undefined {
+	// Deprecated modules are offered only to be switched off; the widgets link opens no widgets panel on a block theme.
+	if ( getDeprecatedModules().includes( $module.module ) ) {
+		return undefined;
+	}
+
 	const url = $module.configure_url;
 	// Jetpack's fallback: a settings search, which for a module without options finds only its toggle.
 	const isSettingsSearch = url?.includes( 'page=jetpack-settings#/settings?term=' );

@@ -86,7 +86,9 @@ describe( 'groupMoreFeatures', () => {
 		const slugs = ( inJetpack: boolean ) =>
 			slugsOf(
 				groupMoreFeatures(
-					[ { module: '', product: 'protect', in_jetpack: inJetpack } ] as MainFeature[],
+					[
+						{ slug: 'protect', module: '', product: 'protect', in_jetpack: inJetpack },
+					] as MainFeature[],
 					protectGroups,
 					withProtect,
 					{},
@@ -94,9 +96,10 @@ describe( 'groupMoreFeatures', () => {
 				)
 			)[ 0 ];
 
-		expect( slugs( false ) ).toEqual( [ 'Security', [ 'protect' ] ] );
+		// Keyed apart from the card, so picking one row for a bulk switch does not pick both.
+		expect( slugs( false ) ).toEqual( [ 'Security', [ 'module:protect' ] ] );
 		// Where Jetpack's module is the card's own switch, the card already covers it.
-		expect( slugs( true ) ).not.toEqual( [ 'Security', [ 'protect' ] ] );
+		expect( slugs( true )[ 0 ] ).not.toBe( 'Security' );
 	} );
 
 	it( 'shows the value a switch asked for while its request is out', () => {

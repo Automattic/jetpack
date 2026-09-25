@@ -106,4 +106,14 @@ describe( 'MoreFeatures', () => {
 			'https://example.com/sharing'
 		);
 	} );
+
+	it( 'drops the widgets settings link on a block theme, which has no widget areas', () => {
+		const widgets = { ...sharing, module: 'widgets', configure_url: 'https://example.com/widgets' };
+
+		setSiteEditor( { isBlockTheme: true } );
+		expect( getModuleSettingsUrl( widgets ) ).toBeUndefined();
+
+		setSiteEditor( { isBlockTheme: false } );
+		expect( getModuleSettingsUrl( widgets ) ).toBe( 'https://example.com/widgets' );
+	} );
 } );

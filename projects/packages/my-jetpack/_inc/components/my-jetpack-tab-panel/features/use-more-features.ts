@@ -95,6 +95,8 @@ export function groupMoreFeatures(
 			return feature.in_jetpack || ! groupOf.has( slug ) ? [ slug ] : [];
 		} )
 	);
+	// Selection, ids and keys all run on the slug, so a row sharing one with a card needs its own.
+	const featureSlugs = new Set( features.map( feature => feature.slug ) );
 	const grouped = groups.map( group => ( { label: group.label, states: [] as FeatureState[] } ) );
 	const other: FeatureState[] = [];
 
@@ -104,10 +106,13 @@ export function groupMoreFeatures(
 			continue;
 		}
 
+		const state = getModuleFeatureState( $module, requested );
+		if ( featureSlugs.has( $module.module ) ) {
+			state.feature.slug = moduleSwitchKey( $module.module );
+		}
+
 		const index = groupOf.get( $module.module );
-		( index === undefined ? other : grouped[ index ].states ).push(
-			getModuleFeatureState( $module, requested )
-		);
+		( index === undefined ? other : grouped[ index ].states ).push( state );
 	}
 	// Sorted on the translated label, so the order holds in every locale.
 	grouped.sort( ( a, b ) => a.label.localeCompare( b.label ) );
@@ -178,13 +183,12 @@ let deprecatedActiveOnLoad: ReadonlySet< string > | null = null;
 export function getHiddenModules( modules: Record< string, MyJetpackModule > ): Set< string > {
 	// The store starts out as `{}`, not undefined: taking that as the page-load state would hide
 	// a module the moment it is switched off.
+	const deprecated = getDeprecatedModules();
 	if ( ! deprecatedActiveOnLoad && Object.keys( modules ).length ) {
-		deprecatedActiveOnLoad = new Set(
-			getDeprecatedModules().filter( slug => modules[ slug ]?.activated )
-		);
+		deprecatedActiveOnLoad = new Set( deprecated.filter( slug => modules[ slug ]?.activated ) );
 	}
 
-	return new Set( getDeprecatedModules().filter( slug => ! deprecatedActiveOnLoad?.has( slug ) ) );
+	return new Set( deprecated.filter( slug => ! deprecatedActiveOnLoad?.has( slug ) ) );
 }
 
 /**
