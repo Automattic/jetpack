@@ -19,7 +19,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { postList } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -91,13 +90,7 @@ function AuthorTopPostsInner() {
 										'jetpack-premium-analytics-pkg'
 									),
 								}
-							: {
-									icon: postList,
-									description: __(
-										'No views recorded for this author’s posts in this period.',
-										'jetpack-premium-analytics-pkg'
-									),
-								}
+							: undefined
 					}
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>

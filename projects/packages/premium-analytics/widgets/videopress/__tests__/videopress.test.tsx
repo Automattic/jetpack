@@ -154,7 +154,7 @@ describe( 'VideoPressWidget', () => {
 		);
 	} );
 
-	it( 'shows the empty state when the period has no video plays', async () => {
+	it( 'shows the generic empty state when the period has no video plays', async () => {
 		mockApiFetch.mockResolvedValue( buildResponse( [] ) );
 
 		renderInDashboard(
@@ -162,8 +162,24 @@ describe( 'VideoPressWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No VideoPress plays in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'keeps the View all link when the period has no video plays', async () => {
+		mockApiFetch.mockResolvedValue( buildResponse( [] ) );
+
+		renderInDashboard(
+			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />
+		);
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
+			'href',
+			expect.stringContaining( '/reports/videos' )
+		);
 	} );
 
 	it( 'shows the error state with a retry action when the request fails', async () => {
