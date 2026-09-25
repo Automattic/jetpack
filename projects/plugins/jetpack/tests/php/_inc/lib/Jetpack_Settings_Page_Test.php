@@ -86,6 +86,9 @@ class Jetpack_Settings_Page_Test extends WP_UnitTestCase {
 		// Throw from the redirect so the test never reaches exit.
 		add_filter(
 			'wp_redirect',
+			/**
+			 * @return never
+			 */
 			function ( $location ) {
 				throw new RuntimeException( $location );
 			}
@@ -101,6 +104,9 @@ class Jetpack_Settings_Page_Test extends WP_UnitTestCase {
 		add_filter( 'rest_enabled', '__return_false' );
 		add_filter(
 			'wp_redirect',
+			/**
+			 * @return never
+			 */
 			function () {
 				throw new RuntimeException( 'Unexpected redirect.' );
 			}

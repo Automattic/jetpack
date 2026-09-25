@@ -2,8 +2,8 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { moduleSwitchKey, useRequestedSwitches } from '../../../data/requested-switch-state';
+import { getFeatureModuleSlug } from './feature-state';
 import { PRODUCT_MODULES } from './mappings';
-import { useAllJetpackModules } from './use-all-jetpack-modules';
 import {
 	LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE,
 	compareModulesByName,
@@ -12,7 +12,7 @@ import {
 	rankBy,
 	searchTerms,
 } from './search';
-import { getFeatureModuleSlug } from './feature-state';
+import { useAllJetpackModules } from './use-all-jetpack-modules';
 import { matchesFilter } from './use-feature-filter';
 import type { FeatureState } from './feature-state';
 import type { FeatureFilter } from './use-feature-filter';
