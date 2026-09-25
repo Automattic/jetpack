@@ -133,7 +133,6 @@ describe( 'useWordAdsChart', () => {
 		// Comparison is unsupported regardless of report parameters.
 		expect( metrics[ 0 ].previous ).toBeUndefined();
 		expect( metrics[ 0 ].previousValue ).toBeUndefined();
-		expect( result.current.isEmpty ).toBe( false );
 	} );
 
 	it( 'requests the wordads/stats endpoint honouring the range and granularity', async () => {
@@ -155,7 +154,7 @@ describe( 'useWordAdsChart', () => {
 		expect( requestedPath ).toContain( 'quantity=2' );
 	} );
 
-	it( 'reports the empty state when the period resolves without rows', async () => {
+	it( 'resolves a period without rows to tabs with no points', async () => {
 		mockApiFetch.mockResolvedValue( {
 			unit: 'month',
 			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
@@ -170,13 +169,10 @@ describe( 'useWordAdsChart', () => {
 
 		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
 
-		// Loading (no data yet) is not empty; resolved-with-no-rows is.
 		expect( result.current.isLoading ).toBe( true );
-		expect( result.current.isEmpty ).toBe( false );
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 
-		expect( result.current.isEmpty ).toBe( true );
 		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
 
@@ -221,7 +217,6 @@ describe( 'useWordAdsChart', () => {
 		expect( cpm.unavailable ).toEqual( expect.any( String ) );
 		expect( impressions.unavailable ).toBeUndefined();
 		expect( revenue.unavailable ).toBeUndefined();
-		expect( result.current.isEmpty ).toBe( false );
 	} );
 
 	it( 'draws no comparison even when the params carry one', async () => {

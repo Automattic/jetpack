@@ -150,7 +150,7 @@ describe( 'TrafficChart with an idle window', () => {
 		],
 	} );
 
-	it( 'keeps the tabs and hands the chart the no-results message for its plot', () => {
+	it( 'passes the no-results message to the chart', () => {
 		mockUseTrafficChart.mockReturnValue( {
 			metrics: [ zeroFilled( 'views', 'Views' ), zeroFilled( 'visitors', 'Visitors' ) ],
 			isLoading: false,

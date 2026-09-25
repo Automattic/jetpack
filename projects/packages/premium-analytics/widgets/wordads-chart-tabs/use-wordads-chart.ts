@@ -64,7 +64,6 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 		// `placeholderData` keeps the previous chart while `isError` flips true; gate
 		// the error on having nothing to show, as `useTrafficChart` does.
 		isError: isError && ! primaryData?.data?.length,
-		isEmpty: primaryData !== undefined && ! primaryData.data?.length,
 		refetch,
 	};
 }
