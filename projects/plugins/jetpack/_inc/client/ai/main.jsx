@@ -196,6 +196,7 @@ export default function App() {
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
 		manageUrl = 'admin.php?page=my-jetpack#/products',
 		hasMyJetpack = true,
+		canConnectSite = true,
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
@@ -446,6 +447,7 @@ export default function App() {
 					userConnectionUrl={ userConnectionUrl }
 					manageUrl={ manageUrl }
 					hasMyJetpack={ hasMyJetpack }
+					canConnectSite={ canConnectSite }
 				/>
 
 				{ isMcpContext && (

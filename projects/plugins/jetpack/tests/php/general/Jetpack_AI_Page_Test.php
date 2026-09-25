@@ -291,13 +291,39 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The notice only offers a connect link to a user the site would let connect it.
+	 */
+	public function test_admin_can_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * A user without manage_options cannot connect the site.
+	 */
+	public function test_subscriber_cannot_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['canConnectSite'] );
+	}
+
+	/**
 	 * Every notice input reaches the page. Each one defaults permissive in the
 	 * client, so a dropped key silences the notice instead of erring.
 	 */
 	public function test_notice_inputs_are_injected() {
 		$settings = $this->get_injected_settings();
 
-		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff' ) as $key ) {
+		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff', 'canConnectSite' ) as $key ) {
 			$this->assertArrayHasKey( $key, $settings );
 		}
 
@@ -305,6 +331,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertIsBool( $settings['hostAllowsAi'] );
 		$this->assertIsBool( $settings['masterEnabled'] );
 		$this->assertSame( '', $settings['masterForcedOff'] );
+		$this->assertIsBool( $settings['canConnectSite'] );
 	}
 
 	/**
@@ -363,6 +390,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_ai_admin_config', $filter );
 		$this->assertSame( '', $settings['userConnectionUrl'] );
 		$this->assertSame( '', $settings['manageUrl'] );
+		$this->assertFalse( $settings['canConnectSite'] );
 	}
 
 	/**

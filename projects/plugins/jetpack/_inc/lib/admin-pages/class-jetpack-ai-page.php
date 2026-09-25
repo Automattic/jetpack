@@ -346,6 +346,7 @@ class Jetpack_AI_Page {
 				// The route, not a flag: each one documents a different hook.
 				'masterForcedOff'   => Jetpack_AI_Settings::get_master_forced_off_route(),
 				'isOfflineMode'     => $is_offline_mode,
+				'canConnectSite'    => current_user_can( 'jetpack_connect' ),
 				// These three answer one question; a filter changing one alone leaves
 				// a label pointing at a page that is not there.
 				'hasMyJetpack'      => $has_my_jetpack,
@@ -387,6 +388,7 @@ class Jetpack_AI_Page {
 				true
 			) ? $config['masterForcedOff'] : '',
 			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
+			'canConnectSite'    => ! empty( $config['canConnectSite'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),

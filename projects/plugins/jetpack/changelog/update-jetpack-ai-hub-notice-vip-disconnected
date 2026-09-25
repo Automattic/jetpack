@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Jetpack AI: Point the disconnected-site notice at documentation instead of a connect link when the site would not let the current user connect it, as on VIP and multisite.
