@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Premium Analytics: Show the generic “no results for this time period” state in chart widgets that have no data for the selected period.
