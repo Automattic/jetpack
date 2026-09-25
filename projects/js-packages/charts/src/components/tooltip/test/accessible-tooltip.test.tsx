@@ -138,7 +138,7 @@ const NavigationHarness = ( {
 	const [ selectedIndex, setSelectedIndex ] = useState< number | undefined >();
 	const [ isNavigating, setIsNavigating ] = useState( false );
 	const chartRef = useRef< HTMLDivElement >( null );
-	const { onChartKeyDown, onChartBlur, onPointerTakeover } = useKeyboardNavigation( {
+	const { onChartKeyDown, onChartBlur, onChartPointerMove } = useKeyboardNavigation( {
 		selectedIndex,
 		setSelectedIndex,
 		isNavigating,
@@ -146,7 +146,8 @@ const NavigationHarness = ( {
 		chartRef,
 		totalPoints,
 	} );
-	const takeOverAtFour = useCallback( () => onPointerTakeover( 4 ), [ onPointerTakeover ] );
+	const moveToFour = useCallback( () => onChartPointerMove( 4 ), [ onChartPointerMove ] );
+	const moveToOne = useCallback( () => onChartPointerMove( 1 ), [ onChartPointerMove ] );
 
 	return (
 		<>
@@ -161,7 +162,8 @@ const NavigationHarness = ( {
 					{ selectedIndex ?? 'none' }
 					<button type="button">Inside</button>
 				</div>
-				<div data-testid="point-4" onPointerMove={ takeOverAtFour } />
+				<div data-testid="point-4" onPointerMove={ moveToFour } />
+				<div data-testid="point-1" onPointerMove={ moveToOne } />
 			</div>
 			<button type="button">Outside</button>
 		</>
@@ -233,6 +235,16 @@ describe( 'useKeyboardNavigation', () => {
 		await user.keyboard( '{ArrowRight}' );
 
 		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '5' );
+	} );
+
+	it( 'continues from the last point the pointer reached after taking over', async () => {
+		const { user } = await navigate( 2 );
+
+		await user.hover( screen.getByTestId( 'point-4' ) );
+		await user.hover( screen.getByTestId( 'point-1' ) );
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'selected-index' ) ).toHaveTextContent( '2' );
 	} );
 
 	it( 'restarts from the first point once focus leaves after the pointer took over', async () => {

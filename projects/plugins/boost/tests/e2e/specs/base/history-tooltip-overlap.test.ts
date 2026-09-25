@@ -459,8 +459,10 @@ test( 'Hovering a day ends the keyboard selection, and arrows continue from it',
 	await expect( popoverDate ).toHaveText( 'September 3, 2026' );
 	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
 	await expect( chart.locator( '.visx-bar' ).nth( 5 ) ).toHaveCSS( 'stroke', 'none' );
+	await hoverDay( chart, 22 );
+	await expect( popoverDate ).toHaveText( 'September 2, 2026' );
 	await page.keyboard.press( 'ArrowRight' );
-	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'September 4, 2026' );
+	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'September 3, 2026' );
 	await expect( highlight ).toHaveCSS( 'outline-style', 'solid' );
 } );
 

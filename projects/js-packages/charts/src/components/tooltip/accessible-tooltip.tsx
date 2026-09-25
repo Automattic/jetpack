@@ -345,9 +345,12 @@ export const useKeyboardNavigation = ( {
 	const pointerIndex = useRef< number | undefined >( undefined );
 
 	// The pointer is the latest input, so it ends a keyboard selection instead of competing with it.
-	const onPointerTakeover = useCallback(
+	const onChartPointerMove = useCallback(
 		( index: number ) => {
 			if ( selectedIndex === undefined ) {
+				if ( pointerIndex.current !== undefined ) {
+					pointerIndex.current = index;
+				}
 				return;
 			}
 			const root = getChartRoot();
@@ -425,6 +428,6 @@ export const useKeyboardNavigation = ( {
 		onChartFocus,
 		onChartBlur,
 		onChartKeyDown,
-		onPointerTakeover,
+		onChartPointerMove,
 	};
 };

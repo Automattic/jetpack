@@ -272,7 +272,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const visibleSeriesKey = useMemo( () => JSON.stringify( primaryKeys ), [ primaryKeys ] );
 
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown, onPointerTakeover } =
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown, onChartPointerMove } =
 		useKeyboardNavigation( {
 			selectedIndex,
 			setSelectedIndex,
@@ -284,14 +284,14 @@ const BarChartInternal: FC< BarChartProps > = ( {
 			visibleSeriesKey,
 		} );
 
-	const takeOverKeyboardSelection = useCallback(
+	const handlePointerMove = useCallback(
 		( { key, index }: { key: string; index: number } ) => {
 			const seriesIndex = primaryKeys.indexOf( key );
 			if ( seriesIndex >= 0 ) {
-				onPointerTakeover( index * primaryKeys.length + seriesIndex );
+				onChartPointerMove( index * primaryKeys.length + seriesIndex );
 			}
 		},
-		[ primaryKeys, onPointerTakeover ]
+		[ primaryKeys, onChartPointerMove ]
 	);
 
 	const comparisonEntries = useMemo( () => {
@@ -756,9 +756,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }
 												onPointerUp={ onPointerUp }
-												onPointerMove={
-													selectedIndex === undefined ? undefined : takeOverKeyboardSelection
-												}
+												onPointerMove={ handlePointerMove }
 											/>
 										) }
 

@@ -137,7 +137,7 @@ export function BandTooltip( {
 		},
 		[ getSelections, withTooltips, showTooltip, onPointerDown, onPointerUp, onPointerMove ]
 	);
-	useEventEmitter( 'pointermove', withTooltips || onPointerMove ? handlePointer : undefined );
+	useEventEmitter( 'pointermove', withTooltips ? handlePointer : undefined );
 	useEventEmitter( 'pointerdown', handlePointer );
 	useEventEmitter( 'pointerup', onPointerUp ? handlePointer : undefined );
 	return null;
