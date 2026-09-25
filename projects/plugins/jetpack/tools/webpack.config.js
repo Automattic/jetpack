@@ -212,19 +212,10 @@ module.exports = [
 			],
 		},
 	},
-	// Build admin page JS.
+	// Build the plugins page and Network Admin JS.
 	{
 		...sharedWebpackConfig,
 		entry: {
-			admin: {
-				import: path.join( __dirname, '../_inc/client', 'admin.jsx' ),
-				// I don't know if we really need to export this. We were in the past, maybe some third party uses it.
-				library: {
-					name: 'getRouteName',
-					type: 'window',
-					export: 'getRouteName',
-				},
-			},
 			'plugins-page': path.join( __dirname, '../_inc/client', 'plugins-entry.jsx' ),
 			'network-admin': path.join( __dirname, '../_inc/client', 'network-admin.tsx' ),
 		},

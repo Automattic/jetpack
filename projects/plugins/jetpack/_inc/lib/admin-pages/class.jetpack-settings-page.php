@@ -81,7 +81,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- This is view logic.
 		$current_availability = isset( $_GET['offline_available'] ) ? sanitize_text_field( wp_unslash( $_GET['offline_available'] ) ) : '';
 
-		// We have static.html so let's continue trying to fetch the others.
 		$noscript_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-noscript-notice.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
 		$rest_api_notice = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static-version-notice.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
 

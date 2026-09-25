@@ -8,13 +8,11 @@
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Status;
 
 require_once __DIR__ . '/class.jetpack-admin-page.php';
 require_once __DIR__ . '/class-jetpack-redux-state-helper.php';
 require_once __DIR__ . '/class-jetpack-wp-build-page.php';
-require_once dirname( __DIR__ ) . '/class-jetpack-settings-feature-flags.php';
 
 /**
  * Renders the Settings app, whose connection screens also serve unconnected sites.
@@ -51,17 +49,6 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	private $is_wp_build_loaded = false;
 
 	/**
-	 * Whether Settings renders through wp-build; off serves the webpack page at the same address.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @return bool
-	 */
-	public static function is_wp_build_enabled() {
-		return Feature_Flags::is_enabled( Jetpack_Settings_Feature_Flags::WP_BUILD );
-	}
-
-	/**
 	 * Whether this request should load wp-build.
 	 *
 	 * An IDC-blocked page shows only the IDC banner, which the wp-build template would hide.
@@ -71,7 +58,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * @return bool
 	 */
 	public function should_load_wp_build() {
-		if ( ! is_admin() || ! self::is_wp_build_enabled() ) {
+		if ( ! is_admin() ) {
 			return false;
 		}
 
@@ -272,20 +259,10 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			return;
 		}
 
-		// Fetch static.html.
-		$static_html = @file_get_contents( JETPACK__PLUGIN_DIR . '_inc/build/static.html' ); //phpcs:ignore WordPress.PHP.NoSilencedErrors.Discouraged, WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents, Not fetching a remote file.
-
-		if ( false === $static_html ) {
-
-			// If we still have nothing, display an error.
-			echo '<p>';
-			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
-			echo '<code>pnpm run distclean && pnpm jetpack build plugins/jetpack</code>';
-			echo '</p>';
-		} else {
-			// We got the static.html so let's display it.
-			echo $static_html; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		}
+		echo '<p class="jp-settings-build-error">';
+		esc_html_e( 'Jetpack Settings could not load. Try running: ', 'jetpack' );
+		echo '<code>pnpm jetpack build plugins/jetpack</code>';
+		echo '</p>';
 	}
 
 	/**
@@ -304,38 +281,18 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * Load admin page scripts.
 	 */
 	public function page_admin_scripts() {
-		if ( $this->is_redirecting ) {
-			return; // No need for scripts on a fallback page.
+		// A fallback page, or one without the route (IDC-blocked or unbuilt), renders no app to feed.
+		if ( $this->is_redirecting || ! $this->should_render_wp_build() ) {
+			return;
 		}
 
 		$status          = new Status();
 		$is_offline_mode = $status->is_offline_mode();
 		$site_suffix     = $status->get_site_suffix();
 
-		if ( $this->should_render_wp_build() ) {
-			// wp-build enqueues the route bundle; this handle carries the inline state and classic dependencies.
-			wp_register_script( 'react-plugin', false, $this->get_wp_build_script_dependencies(), JETPACK__VERSION, true );
-			wp_enqueue_script( 'react-plugin' );
-		} else {
-			$script_deps_path    = JETPACK__PLUGIN_DIR . '_inc/build/admin.asset.php';
-			$script_dependencies = array( 'jquery', 'wp-polyfill' );
-			$version             = JETPACK__VERSION;
-			if ( file_exists( $script_deps_path ) ) {
-				$asset_manifest      = include $script_deps_path;
-				$script_dependencies = $asset_manifest['dependencies'];
-				$version             = $asset_manifest['version'];
-			}
-
-			wp_enqueue_script(
-				'react-plugin',
-				plugins_url( '_inc/build/admin.js', JETPACK__PLUGIN_FILE ),
-				$script_dependencies,
-				$version,
-				true
-			);
-
-			wp_set_script_translations( 'react-plugin', 'jetpack' );
-		}
+		// wp-build enqueues the route bundle; this handle carries the inline state and classic dependencies.
+		wp_register_script( 'react-plugin', false, $this->get_wp_build_script_dependencies(), JETPACK__VERSION, true );
+		wp_enqueue_script( 'react-plugin' );
 
 		$blog_id_prop = '';
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
