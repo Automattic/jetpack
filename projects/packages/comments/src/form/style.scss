@@ -15,12 +15,12 @@
 	min-inline-size: 0;
 }
 
+// Grows with its content where supported; elsewhere it scrolls, like core's.
 .jetpack-comments__textarea {
 	display: block;
 	box-sizing: border-box;
 	inline-size: 100%;
-	overflow: hidden;
-	resize: none;
+	field-sizing: content;
 }
 
 // Hidden, not just collapsed, so nothing inside a closed tray can take focus.

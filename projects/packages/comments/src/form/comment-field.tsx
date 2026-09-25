@@ -1,55 +1,15 @@
-import { useContext, useEffect, useRef } from 'preact/hooks';
+import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-
-/**
- * Grow the textarea to fit its content.
- *
- * @param textarea - The element to resize.
- */
-const resize = ( textarea: HTMLTextAreaElement ) => {
-	textarea.style.height = 'auto';
-	// scrollHeight stops at the padding edge; the border is added back for the border-box height.
-	textarea.style.height = `${
-		textarea.scrollHeight + textarea.offsetHeight - textarea.clientHeight
-	}px`;
-};
 
 export const CommentField = () => {
 	const { commentValue, commentParent, isTrayOpen } = useContext( CommentSignals );
 	const { strings, maxLength } = JetpackComments;
-	const textarea = useRef< HTMLTextAreaElement >( null );
-
-	useEffect( () => {
-		const element = textarea.current;
-
-		if ( ! element ) {
-			return;
-		}
-
-		resize( element );
-
-		if ( typeof ResizeObserver === 'undefined' ) {
-			return;
-		}
-
-		let width = element.clientWidth;
-		const observer = new ResizeObserver( () => {
-			if ( element.clientWidth !== width ) {
-				width = element.clientWidth;
-				resize( element );
-			}
-		} );
-		observer.observe( element );
-
-		return () => observer.disconnect();
-	}, [ commentValue ] );
 
 	return (
 		<textarea
 			id="comment"
 			name="comment"
 			className="jetpack-comments__textarea"
-			ref={ textarea }
 			rows={ 2 }
 			required
 			maxLength={ maxLength }
@@ -57,10 +17,7 @@ export const CommentField = () => {
 			value={ commentValue.value }
 			placeholder={ commentParent.value ? strings.replyPlaceholder : strings.placeholder }
 			onFocus={ () => ( isTrayOpen.value = true ) }
-			onInput={ event => {
-				resize( event.currentTarget );
-				commentValue.value = event.currentTarget.value;
-			} }
+			onInput={ event => ( commentValue.value = event.currentTarget.value ) }
 		/>
 	);
 };
