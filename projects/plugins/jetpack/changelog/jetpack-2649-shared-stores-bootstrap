@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Fix Jetpack admin pages and Jetpack blocks in the editor failing to load on WordPress.com-hosted sites.

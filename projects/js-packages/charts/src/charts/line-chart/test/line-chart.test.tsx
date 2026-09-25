@@ -1,14 +1,16 @@
 /* eslint-disable react/jsx-no-bind */
 
-import { render, screen, waitFor, within, act } from '@testing-library/react';
+import { render, screen, waitFor, within, act, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlyphDiamond } from '@visx/glyph';
-import { createElement, createRef } from 'react';
+import { createElement, createRef, type ComponentProps } from 'react';
 import { GlobalChartsProvider, defaultTheme } from '../../../providers';
 import { useGlobalChartsContext } from '../../../providers/chart-context/hooks/use-global-charts-context';
 import LineChart, { LineChartUnresponsive } from '../line-chart';
 import type { GlobalChartsContextValue } from '../../../providers/chart-context/types';
+import type { DataPointDate, SeriesData } from '../../../types';
 import type { ChartInstanceRef } from '../../private/chart-instance-context';
+import type { RenderLineGlyphProps } from '../types';
 
 // Mock useElementSize to return non-zero dimensions in jsdom so charts render
 const mockRefCallback = jest.fn();
@@ -254,23 +256,327 @@ describe( 'LineChart', () => {
 			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
 		} );
 
-		test( 'handles null or undefined values', () => {
+		test( 'renders a bucket with no reading instead of failing the whole chart', () => {
 			renderWithTheme( {
 				data: [
 					{
 						label: 'Series A',
 						data: [
-							{ date: new Date( '2024-01-01' ), value: null as number | null, label: 'Jan 1' },
-							{
-								date: new Date( '2024-01-02' ),
-								value: undefined as number | undefined,
-								label: 'Jan 2',
-							},
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: 20 },
+						],
+					},
+				],
+			} );
+			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'grid', { name: /line chart/i } ) ).toBeInTheDocument();
+		} );
+
+		test( 'tooltip reads No data for a bucket with no reading', async () => {
+			const user = userEvent.setup();
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: 20 },
+						],
+					},
+				],
+			} );
+
+			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+			await user.keyboard( '{ArrowRight}' );
+
+			const tooltip = screen.getByTestId( 'chart-tooltip-0' );
+			expect( tooltip ).toHaveTextContent( 'No data' );
+			expect( tooltip ).not.toHaveTextContent( 'Series A:0' );
+		} );
+
+		test( 'keeps a y axis when every visible bucket has no reading', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: null as number | null },
+							{ date: new Date( '2024-01-03' ), value: null as number | null },
+						],
+					},
+				],
+			} );
+
+			expect( screen.queryByText( /invalid data/i ) ).not.toBeInTheDocument();
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent ?? '' );
+			expect( ticks.length ).toBeGreaterThan( 0 );
+			ticks.forEach( tick => {
+				expect( Number.isFinite( Number( tick.replace( /,/g, '' ) ) ) ).toBe( true );
+			} );
+		} );
+
+		test( 'labels a whole-number range smaller than the tick count once per whole number', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'ignores a hidden fractional series when checking for whole numbers', () => {
+			renderWithTheme( {
+				defaultHiddenSeries: [ 'Series B' ],
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1, 1, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+					{
+						label: 'Series B',
+						data: [ 0.5, 0.5, 0.5, 0.5 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			const ticks = within( chart )
+				.getAllByText( /^-?[\d.,]+$/ )
+				.map( el => el.textContent );
+			expect( ticks.sort() ).toEqual( [ '0', '1' ] );
+		} );
+
+		test( 'keeps fractional ticks when the data has fractions', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0.5, 1 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ).length ).toBeGreaterThan( 2 );
+		} );
+
+		test( "keeps a caller's y tickValues", () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 1 ].map( ( value, i ) => ( { date: new Date( 2024, i + 2, 1 ), value } ) ),
+					},
+				],
+				options: { axis: { y: { tickValues: [ 0, 0.5, 1 ] } } },
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( within( chart ).getAllByText( /^-?[\d.,]+$/ ) ).toHaveLength( 3 );
+		} );
+
+		test( 'keeps every tick on a y domain the caller pinned', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [ 0, 0, 0 ].map( ( value, i ) => ( {
+							date: new Date( 2024, i + 2, 1 ),
+							value,
+						} ) ),
+					},
+				],
+				options: {
+					yScale: { domain: [ 0, 1 ] },
+					axis: { y: { tickFormat: ( value: number ) => `${ Math.round( value * 100 ) }%` } },
+				},
+			} );
+
+			const chart = screen.getByRole( 'grid', { name: /line chart/i } );
+			expect( within( chart ).getAllByText( /^\d+%$/ ) ).toHaveLength( 6 );
+		} );
+
+		test( 'keeps a positive y domain on a log scale when every visible bucket has no reading', () => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					options: { yScale: { type: 'log' } },
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null },
+								{ date: new Date( '2024-01-02' ), value: null as number | null },
+							],
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( domain ).toEqual( [ 1, 10 ] );
+		} );
+
+		test.each( [
+			[ 'a flat reading beside buckets with no reading', [ null, null, 1, 1 ], [ 0, 1 ] ],
+			[ 'a flat positive series', [ 5, 5, 5 ], [ 0, 5 ] ],
+			[ 'a flat negative series', [ -3, -3 ], [ -3, 0 ] ],
+			[ 'an all-zero series', [ 0, 0 ], [ 0, 1 ] ],
+		] )( 'starts the y domain at zero for %s', ( _name, values, expected ) => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					data: [
+						{
+							label: 'Series A',
+							data: values.map( ( value, index ) => ( {
+								date: new Date( 2024, 0, index + 1 ),
+								value: value as number | null,
+							} ) ),
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( domain ).toEqual( expected );
+		} );
+
+		test( 'keeps the y domain off zero for a series that varies', () => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 50 },
+								{ date: new Date( '2024-01-02' ), value: 60 },
+							],
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( Math.min( ...( domain ?? [] ) ) ).toBeGreaterThan( 0 );
+		} );
+
+		test( 'pins the value axis to a hidden series with real values, not the empty-domain fallback, when rescaleYOnVisibilityChange is false', () => {
+			const ref = createRef< ChartInstanceRef >();
+
+			renderUnwrappedWithTheme(
+				{
+					rescaleYOnVisibilityChange: false,
+					defaultHiddenSeries: [ 'Series A' ],
+					data: [
+						{
+							label: 'Series A',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: 10 },
+								{ date: new Date( '2024-01-02' ), value: 20 },
+							],
+						},
+						{
+							label: 'Series B',
+							data: [
+								{ date: new Date( '2024-01-01' ), value: null as number | null },
+								{ date: new Date( '2024-01-02' ), value: null as number | null },
+							],
+						},
+					],
+				},
+				'default',
+				ref
+			);
+
+			const domain = (
+				ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined
+			 )?.domain();
+
+			expect( domain ).toBeDefined();
+			expect( domain ).not.toEqual( [ 0, 1 ] );
+			expect( Math.max( ...( domain ?? [] ) ) ).toBeGreaterThan( 1 );
+		} );
+
+		test( 'still rejects undefined values', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: undefined as number | undefined },
+							{ date: new Date( '2024-01-02' ), value: 20 },
 						],
 					},
 				],
 			} );
 			expect( screen.getByText( /invalid data/i ) ).toBeInTheDocument();
+		} );
+
+		test( 'breaks the line at a bucket with no reading', () => {
+			renderWithTheme( {
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 10 },
+							{ date: new Date( '2024-01-02' ), value: null as number | null },
+							{ date: new Date( '2024-01-03' ), value: 20 },
+							{ date: new Date( '2024-01-04' ), value: 30 },
+						],
+					},
+				],
+			} );
+
+			const grid = screen.getByRole( 'grid', { name: /line chart/i } );
+			// eslint-disable-next-line testing-library/no-node-access -- visx's stroke is a <path class="visx-line">; the axis and grid lines are plain <line> elements sharing that class.
+			const linePath = grid.querySelector( 'path.visx-line' );
+			const gapCount = linePath?.getAttribute( 'd' )?.match( /M/g )?.length;
+			expect( gapCount ).toBe( 2 );
 		} );
 
 		test( 'handles invalid date values', () => {
@@ -1042,6 +1348,42 @@ describe( 'LineChart', () => {
 			const endGlyphs = screen.getAllByTestId( /end-glyph/i );
 			expect( endGlyphs ).toHaveLength( 1 );
 		} );
+
+		test( 'puts the start and end glyphs on the first and last real reading', () => {
+			const recorded: { position?: 'start' | 'end'; value: number | null; y: number }[] = [];
+
+			renderWithTheme( {
+				withStartGlyphs: true,
+				withEndGlyphs: true,
+				renderGlyph: ( props: RenderLineGlyphProps< DataPointDate > ) => {
+					recorded.push( {
+						position: props.position,
+						value: props.datum.value ?? null,
+						y: props.y,
+					} );
+					return null;
+				},
+				data: [
+					{
+						label: 'Series A',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: null as number | null },
+							{ date: new Date( '2024-01-02' ), value: 10 },
+							{ date: new Date( '2024-01-03' ), value: 20 },
+							{ date: new Date( '2024-01-04' ), value: null as number | null },
+						],
+					},
+				],
+			} );
+
+			const start = recorded.find( entry => entry.position === 'start' );
+			const end = recorded.find( entry => entry.position === 'end' );
+
+			expect( start?.value ).toBe( 10 );
+			expect( end?.value ).toBe( 20 );
+			expect( Number.isFinite( start?.y ) ).toBe( true );
+			expect( Number.isFinite( end?.y ) ).toBe( true );
+		} );
 	} );
 
 	describe( 'Legend Glyphs', () => {
@@ -1713,6 +2055,127 @@ describe( 'LineChart', () => {
 		} );
 	} );
 
+	describe( 'pointer events', () => {
+		let screenTransform: PropertyDescriptor | undefined;
+
+		beforeAll( () => {
+			screenTransform = Object.getOwnPropertyDescriptor( SVGElement.prototype, 'getScreenCTM' );
+			// jsdom lacks the SVG transform used by visx to convert pointer coordinates.
+			Object.defineProperty( SVGElement.prototype, 'getScreenCTM', {
+				configurable: true,
+				value: () => null,
+			} );
+		} );
+
+		afterAll( () => {
+			if ( screenTransform ) {
+				Object.defineProperty( SVGElement.prototype, 'getScreenCTM', screenTransform );
+			} else {
+				Reflect.deleteProperty( SVGElement.prototype, 'getScreenCTM' );
+			}
+		} );
+
+		const pointer = ( type: string, clientX: number, clientY: number ) => {
+			// visx owns the pointer capture rect and does not expose an attribute prop for it.
+			// eslint-disable-next-line testing-library/no-node-access
+			const target = screen.getByRole( 'grid' ).querySelector( 'svg > rect[fill="transparent"]' );
+			fireEvent( target, new MouseEvent( type, { bubbles: true, clientX, clientY } ) );
+		};
+
+		const renderWithHandlers = ( data: SeriesData[], props = {} ) => {
+			const handlers = {
+				onPointerDown: jest.fn(),
+				onPointerMove: jest.fn(),
+				onPointerUp: jest.fn(),
+			};
+			mockUseXZoom.mockImplementation( () => ( { ...passthroughZoom(), handlers } ) );
+			const ref = createRef< ChartInstanceRef >();
+			renderUnwrappedWithTheme( { data, ...props }, 'default', ref );
+			const xScale = ref.current?.getScales()?.xScale as ( date: Date ) => number;
+			const yScale = ref.current?.getScales()?.yScale as ( value: number ) => number;
+			return { handlers, xScale, yScale };
+		};
+
+		const series = ( label: string, values: ( number | null )[] ) => ( {
+			label,
+			options: {},
+			data: values.map( ( value, index ) => ( {
+				date: new Date( 2024, 0, index + 1 ),
+				value,
+			} ) ),
+		} );
+
+		test( 'reports a bucket with no reading on pointer down, move and up', () => {
+			const data = [ series( 'Series A', [ null, 10, 20 ] ) ];
+			const { handlers, xScale } = renderWithHandlers( data );
+			const x = xScale( data[ 0 ].data[ 0 ].date );
+
+			for ( const [ type, handler ] of [
+				[ 'pointerdown', handlers.onPointerDown ],
+				[ 'pointermove', handlers.onPointerMove ],
+				[ 'pointerup', handlers.onPointerUp ],
+			] as const ) {
+				pointer( type, x, 150 );
+				expect( handler ).toHaveBeenCalledTimes( 1 );
+				expect( handler ).toHaveBeenLastCalledWith(
+					expect.objectContaining( { key: 'Series A', index: 0, datum: data[ 0 ].data[ 0 ] } )
+				);
+			}
+		} );
+
+		test( 'prefers a series with a reading over one without at the same bucket', () => {
+			const data = [ series( 'Series A', [ null, 10 ] ), series( 'Series B', [ 5, 10 ] ) ];
+			const { handlers, xScale, yScale } = renderWithHandlers( data );
+
+			pointer( 'pointerdown', xScale( data[ 0 ].data[ 0 ].date ), yScale( 10 ) );
+
+			expect( handlers.onPointerDown ).toHaveBeenCalledTimes( 1 );
+			expect( handlers.onPointerDown ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { key: 'Series B', index: 0 } )
+			);
+		} );
+
+		test( 'reports nothing for a reading the log scale cannot place', () => {
+			const data = [ series( 'Series A', [ 0, 10 ] ) ];
+			const { handlers, xScale } = renderWithHandlers( data, {
+				options: { yScale: { type: 'log', domain: [ 1, 100 ] } },
+			} );
+
+			pointer( 'pointerdown', xScale( data[ 0 ].data[ 0 ].date ), 150 );
+
+			expect( handlers.onPointerDown ).not.toHaveBeenCalled();
+		} );
+
+		test( 'reports the nearest bucket in a long series', () => {
+			const data = [
+				series(
+					'Series A',
+					Array.from( { length: 60 }, ( _, i ) => i )
+				),
+			];
+			const { handlers, xScale } = renderWithHandlers( data );
+			const between =
+				( xScale( data[ 0 ].data[ 37 ].date ) * 2 + xScale( data[ 0 ].data[ 38 ].date ) ) / 3;
+
+			pointer( 'pointerdown', between, 150 );
+
+			expect( handlers.onPointerDown ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { index: 37, datum: data[ 0 ].data[ 37 ] } )
+			);
+		} );
+
+		test( 'reports the series nearest the pointer when every series has a reading', () => {
+			const data = [ series( 'Series A', [ 10, 10 ] ), series( 'Series B', [ 20, 20 ] ) ];
+			const { handlers, xScale, yScale } = renderWithHandlers( data );
+
+			pointer( 'pointerdown', xScale( data[ 0 ].data[ 1 ].date ), yScale( 11 ) );
+
+			expect( handlers.onPointerDown ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { key: 'Series A', index: 1 } )
+			);
+		} );
+	} );
+
 	// The line is not animated, so it clips only while actually zoomed.
 	test( 'clips the series to the plot when zoomed', () => {
 		mockUseXZoom.mockImplementation( () => ( {
@@ -1727,6 +2190,138 @@ describe( 'LineChart', () => {
 			'clip-path',
 			'url(#chart-zoom-clip-zoomtest)'
 		);
+	} );
+
+	describe( 'Value axis baseline', () => {
+		const steadySeries = [
+			{
+				label: 'Views',
+				data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, day ) => ( {
+					date: new Date( 2024, 0, day + 1 ),
+					value,
+					label: `Jan ${ day + 1 }`,
+				} ) ),
+				options: {},
+			},
+		];
+		const twoSeries = [
+			{
+				label: 'Views',
+				data: [ { date: new Date( '2024-01-01' ), value: 20, label: 'Jan 1' } ],
+				options: {},
+			},
+			{
+				label: 'Visitors',
+				data: [ { date: new Date( '2024-01-01' ), value: 200, label: 'Jan 1' } ],
+				options: {},
+			},
+		];
+
+		const renderForDomain = (
+			props: Partial< ComponentProps< typeof LineChartUnresponsive > >
+		) => {
+			let context: GlobalChartsContextValue | undefined;
+			const Grab = () => {
+				context = useGlobalChartsContext();
+				return null;
+			};
+			const ref = createRef< ChartInstanceRef >();
+
+			render(
+				<GlobalChartsProvider>
+					<Grab />
+					<LineChartUnresponsive
+						width={ 500 }
+						height={ 300 }
+						withGradientFill={ false }
+						chartId="line-baseline"
+						ref={ ref }
+						data={ steadySeries }
+						{ ...props }
+					/>
+				</GlobalChartsProvider>
+			);
+
+			return {
+				domain: () =>
+					( ref.current?.getScales()?.yScale as { domain: () => number[] } | undefined )?.domain(),
+				hide: ( label: string ) =>
+					act( () => context?.toggleSeriesVisibility( 'line-baseline', label ) ),
+			};
+		};
+
+		it( 'fits the axis to the data by default', () => {
+			expect( renderForDomain( {} ).domain() ).toEqual( [ 920, 990 ] );
+		} );
+
+		it( 'rounds the top of a zero-based axis from zero, not from the data floor', () => {
+			expect( renderForDomain( { options: { yScale: { zero: true } } } ).domain() ).toEqual( [
+				0, 1000,
+			] );
+		} );
+
+		it( 'leaves a log scale to fit the data, since it cannot hold zero', () => {
+			const { domain } = renderForDomain( { options: { yScale: { type: 'log', zero: true } } } );
+			expect( domain() ).toEqual( [ 100, 1000 ] );
+		} );
+
+		it( 'extends a zero-based axis below zero when a series goes negative', () => {
+			const { domain } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				data: [
+					{
+						label: 'Net change',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: -15, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 30, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( domain() ).toEqual( [ -15, 30 ] );
+		} );
+
+		it( 'gives an all-zero series an axis from 0 to 1 instead of a spanless one', () => {
+			const { domain } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				data: [
+					{
+						label: 'Views',
+						data: [
+							{ date: new Date( '2024-01-01' ), value: 0, label: 'Jan 1' },
+							{ date: new Date( '2024-01-02' ), value: 0, label: 'Jan 2' },
+						],
+						options: {},
+					},
+				],
+			} );
+			expect( domain() ).toEqual( [ 0, 1 ] );
+		} );
+
+		it( 'rescales a zero-based axis to the visible series', () => {
+			const { domain, hide } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				data: twoSeries,
+			} );
+			expect( domain() ).toEqual( [ 0, 200 ] );
+
+			hide( 'Visitors' );
+
+			expect( domain() ).toEqual( [ 0, 20 ] );
+		} );
+
+		it( 'pins a zero-based axis when rescaleYOnVisibilityChange is false', () => {
+			const { domain, hide } = renderForDomain( {
+				options: { yScale: { zero: true } },
+				rescaleYOnVisibilityChange: false,
+				data: twoSeries,
+			} );
+
+			hide( 'Visitors' );
+
+			expect( domain() ).toEqual( [ 0, 200 ] );
+		} );
 	} );
 
 	describe( 'Legend group collapsing', () => {

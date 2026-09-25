@@ -397,6 +397,47 @@ test( 'Tabbing between daily charts preserves focus and resets the previous tool
 	await expect( tooltip ).toContainText( 'August 11, 2026' );
 } );
 
+test( 'Rings a keyboard-selected recorded day but not a hovered one', async ( { page } ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const highlight = page.getByTestId( 'history-highlight' );
+	await hoverDay( chart, 21 );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
+	await page.mouse.move( 0, 0 );
+	await chart.getByRole( 'grid' ).focus();
+	// An empty day's details are visible, and the browser rings them.
+	for ( const [ presses, date, outline ] of [
+		[ 1, 'August 11, 2026', 'none' ],
+		[ 21, 'September 1, 2026', 'solid' ],
+	] as const ) {
+		for ( let press = 0; press < presses; press++ ) {
+			await page.keyboard.press( 'ArrowRight' );
+		}
+		await expect( page.getByRole( 'tooltip' ) ).toContainText( date );
+		await expect( highlight ).toHaveCSS( 'outline-style', outline );
+	}
+	await page.keyboard.press( 'Escape' );
+	await expect( highlight ).toHaveCount( 0 );
+} );
+
+test( 'Clicking back into a keyboard-navigated chart moves focus without the ring', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	await chart.getByRole( 'grid' ).focus();
+	for ( let press = 0; press < 22; press++ ) {
+		await page.keyboard.press( 'ArrowRight' );
+	}
+	await expect( page.locator( '[role="tooltip"]:focus-visible' ) ).toHaveCount( 1 );
+	await page.mouse.click( 5, 5 );
+	await hoverDay( chart, 21 );
+	await page.mouse.down();
+	await page.mouse.up();
+	// The chart re-selects its first day, which is empty here, so check the state the ring needs.
+	await expect( page.getByRole( 'tooltip' ).first() ).toBeFocused();
+	await expect( page.locator( '[role="tooltip"]:focus-visible' ) ).toHaveCount( 0 );
+	await expect( page.getByTestId( 'history-highlight' ) ).toHaveCSS( 'outline-style', 'none' );
+} );
+
 test( 'Tab from the paging controls reaches the chart once the day details close', async ( {
 	page,
 } ) => {
@@ -443,9 +484,7 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
-test( 'Score cards show signed badges, points help, and responsive dividers', async ( {
-	page,
-} ) => {
+test( 'Score cards show gain badges, points help, and responsive dividers', async ( { page } ) => {
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
@@ -476,11 +515,11 @@ test( 'Score cards show signed badges, points help, and responsive dividers', as
 	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
 	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
 	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
-	const negativeBadge = mobile.getByText( '-10 points', { exact: true } );
-	await expect( negativeBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-width', '1px' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-style', 'solid' );
-	await expect( negativeBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	const clampedBadge = mobile.getByText( '0 points', { exact: true } );
+	await expect( clampedBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
 	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
 	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );
@@ -654,3 +693,41 @@ test( 'switches at the narrow breakpoint and pages by the visible number of days
 	await expect( bars ).toHaveCount( 30 );
 	await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 } );
+
+for ( const { width, days } of [
+	{ width: 1280, days: 30 },
+	{ width: 390, days: 15 },
+] ) {
+	test.describe( `first history entry at ${ width }px`, () => {
+		test.afterEach( async ( { page } ) => {
+			if ( process.env.BOOST_HISTORY_EVIDENCE_DIR ) {
+				await page.screenshot( {
+					path: path.join( process.env.BOOST_HISTORY_EVIDENCE_DIR, `first-entry-${ width }.png` ),
+					fullPage: true,
+				} );
+			}
+		} );
+
+		test( `first history entry shows one score per chart at ${ width }px`, async ( { page } ) => {
+			await page.setViewportSize( { width, height: 900 } );
+			await page.goto( 'http://boost-history.test/?firstEntry' );
+			await expect( page.getByText( 'Sep 9, 2026', { exact: true } ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: `Previous ${ days } days` } )
+			).toBeDisabled();
+			await expect( page.getByText( /Jetpack Boost premium has been activated/ ) ).toHaveCount( 0 );
+			await expect( page.getByText( /Your scores will be recorded from now on/ ) ).toHaveCount( 0 );
+			for ( const device of [ 'Desktop', 'Mobile' ] ) {
+				const bars = page
+					.getByRole( 'region', { name: `${ device } score history` } )
+					.locator( '.visx-bar' );
+				await expect( bars ).toHaveCount( days );
+				const heights = await bars.evaluateAll( elements =>
+					elements.map( element => element.getBoundingClientRect().height )
+				);
+				expect( heights.filter( height => height === 4 ) ).toHaveLength( days - 1 );
+				expect( heights[ days - 1 ] ).toBeGreaterThan( 4 );
+			}
+		} );
+	} );
+}

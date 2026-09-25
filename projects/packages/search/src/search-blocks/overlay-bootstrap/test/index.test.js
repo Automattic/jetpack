@@ -101,7 +101,7 @@ const isOpen = () => ! document.getElementById( OVERLAY_ID ).hasAttribute( 'hidd
 // redefined. Invoking `reload()` emits a "Not implemented: navigation to
 // another Document" `console.error`. Reload-path tests assert
 // `expect( console ).toHaveErrored()` as evidence the call fired — that doubles
-// as the declaration that satisfies the jest-console strict guard.
+// as the declaration that satisfies the `jetpack-js-tools` strict console guard.
 
 let rafSpy;
 beforeEach( () => {
@@ -219,7 +219,7 @@ describe( 'overlay-bootstrap click dismissal', () => {
 	 * Render the full overlay, open it via the URL trigger, and stub
 	 * `window.scrollTo` (which `closeOverlay` calls when restoring scroll
 	 * position). jsdom doesn't implement scrollTo and the close-path tests
-	 * would otherwise trip the jest-console strict error guard.
+	 * would otherwise trip the `jetpack-js-tools` strict console guard.
 	 *
 	 * @param {string} [initialUrl] - Path+query to load the bootstrap against.
 	 *                              Defaults to `?s=hello` so the overlay opens

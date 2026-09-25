@@ -41,6 +41,8 @@ function wpcomsh_coming_soon_get_atomic_persistent_data( $wpcom_public_coming_so
 
 	return $wpcom_public_coming_soon;
 }
+// need to hook to default_option_* too because if this option doesn't exist, the hook wouldn't run.
+add_filter( 'default_option_wpcom_public_coming_soon', 'wpcomsh_coming_soon_get_atomic_persistent_data' );
 add_filter( 'option_wpcom_public_coming_soon', 'wpcomsh_coming_soon_get_atomic_persistent_data' );
 
 /**

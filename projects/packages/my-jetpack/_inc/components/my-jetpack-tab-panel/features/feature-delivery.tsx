@@ -1,5 +1,6 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Badge, Stack, Text } from '@wordpress/ui';
+import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
@@ -80,6 +81,21 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 
 	if ( state.status === 'active' ) {
 		return null;
+	}
+
+	// Forced off: say why it can't be had here instead of how to get it.
+	const forcedReason = getForcedReason( state );
+	if ( forcedReason ) {
+		return (
+			<section className={ styles[ 'detail-section' ] }>
+				<Text variant="heading-sm" render={ <h3 /> }>
+					{ __( 'How to get it', 'jetpack-my-jetpack' ) }
+				</Text>
+				<Stack direction="row" align="center" gap="sm" wrap="wrap">
+					<Badge intent="medium">{ forcedReason }</Badge>
+				</Stack>
+			</section>
+		);
 	}
 
 	const pluginName = feature.plugin_name || feature.name;

@@ -96,6 +96,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
 
@@ -1157,15 +1158,19 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The customer preview exposes the Traffic and Insights tabs and nothing else.
+	 * The customer preview exposes the Traffic, Insights and Subscribers tabs and nothing else
+	 * of the package's own.
 	 */
-	public function test_preview_scope_leaves_only_the_traffic_and_insights_sections() {
+	public function test_preview_scope_leaves_only_the_preview_sections() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'analytics/traffic', 'analytics/insights' ), $this->available_section_ids() );
+		$this->assertSame(
+			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
+			$this->available_section_ids()
+		);
 	}
 
 	/**
@@ -1221,6 +1226,45 @@ class Dashboard_Section_Test extends BaseTestCase {
 			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
 			$this->available_section_ids()
 		);
+	}
+
+	/**
+	 * Without the WordPress.com gate there is no Automattician, so the flag leaves the preview alone.
+	 */
+	public function test_a11n_all_sections_flag_keeps_the_preview_for_a_site_owner() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		// The package's own preview tabs; Ads is a plugin section, so it is not registered here.
+		$this->assertSame(
+			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
+			$this->available_section_ids()
+		);
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_a11n_all_sections_flag_shows_an_automattician_every_section() {
+		require_once __DIR__ . '/fixtures/class-wpcom-feature-flags.php';
+		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::$is_a11n = true;
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG, '__return_true' );
+
+		register_default_dashboard_sections();
+
+		$registered = Dashboard_Section_Registry::get_instance()->get_all_registered( DASHBOARD_NAME );
+
+		$this->assertSameSize( $registered, $this->available_section_ids() );
+		$this->assertContains( 'woocommerce/store', $this->available_section_ids() );
+		$this->assertSameSize( $registered, get_dashboard_preview_scope_sections() );
 	}
 
 	/**
@@ -1285,7 +1329,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 			'requires_sync'
 		);
 
-		$this->assertSame( array( false, false ), $requires_sync );
+		$this->assertSame( array( false, false, false ), $requires_sync );
 	}
 
 	/**
@@ -1308,7 +1352,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'analytics/subscribers' );
+		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'woocommerce/store' );
 
 		$this->assertInstanceOf( \WP_Error::class, $section );
 		$this->assertSame( 'dashboard_section_unavailable', $section->get_error_code() );
@@ -1323,7 +1367,30 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'traffic', 'insights' ), get_dashboard_preview_scope_sections() );
+		$this->assertSame( array( 'traffic', 'insights', 'subscribers' ), get_dashboard_preview_scope_sections() );
+	}
+
+	/**
+	 * Ads is out of the preview until it shows only on sites that use WordAds (WOOA7S-2208), so a
+	 * registered Ads section stays hidden from a previewing site owner.
+	 */
+	public function test_preview_scope_hides_a_registered_ads_section() {
+		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
+
+		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'wordads/ads',
+			array(
+				'label' => 'Ads',
+				'order' => 50,
+			)
+		);
+
+		$this->assertSame( array( 'traffic', 'insights', 'subscribers' ), get_dashboard_preview_scope_sections() );
+		$this->assertFalse( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'ads' ) );
+		$this->assertFalse( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'store' ) );
 	}
 
 	/**
@@ -1391,7 +1458,10 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
 
-		$this->assertSame( array( 'traffic', 'insights' ), $data['premium_analytics']['preview_sections'] );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			$data['premium_analytics']['preview_sections']
+		);
 	}
 
 	/**
@@ -1408,7 +1478,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame(
 			array(
 				'has_videopress'   => true,
-				'preview_sections' => array( 'traffic', 'insights' ),
+				'preview_sections' => array( 'traffic', 'insights', 'subscribers' ),
 			),
 			$data['premium_analytics']
 		);

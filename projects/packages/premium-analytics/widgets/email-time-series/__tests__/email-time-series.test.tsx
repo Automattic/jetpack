@@ -24,6 +24,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
 	} ) => (
@@ -31,6 +32,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-testid="metric-tabs-chart"
 			data-metric-count={ metrics.length }
 			data-metric-label={ metrics[ 0 ]?.label }
+			data-count-labels={ `${ metrics[ 0 ]?.countLabel?.( 1 ) }|${ metrics[ 0 ]?.countLabel?.( 2 ) }` }
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
@@ -91,6 +93,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Opens' );
+		expect( chart ).toHaveAttribute( 'data-count-labels', '%s Open|%s Opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
@@ -153,6 +156,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Clicks' );
+		expect( chart ).toHaveAttribute( 'data-count-labels', '%s Click|%s Clicks' );
 		expect( chart ).toHaveAttribute( 'data-values', '3' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;

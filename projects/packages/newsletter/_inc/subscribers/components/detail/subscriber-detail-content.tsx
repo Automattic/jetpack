@@ -277,7 +277,10 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Email subscription', 'jetpack-newsletter' ) }
 						value={
 							subscriber.subscription_status ? (
-								<SubscriptionStatusCell status={ subscriber.subscription_status } />
+								<SubscriptionStatusCell
+									status={ subscriber.subscription_status }
+									reason={ subscriber.subscription_status_reason }
+								/>
 							) : null
 						}
 					/>

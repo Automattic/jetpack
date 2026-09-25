@@ -3,7 +3,8 @@
  *
  * Extracted from edit.js for testability. These functions validate
  * form inputs client-side before API submission and map API errors
- * to user-friendly messages.
+ * to user-friendly messages. sanitizePayPalUrl() does the same for a URL held
+ * in a block attribute rather than typed into a field.
  *
  * @package
  * @since 0.8.0
@@ -19,8 +20,8 @@ import { ZERO_DECIMAL_CURRENCIES } from './currency-symbols';
  */
 export const MAX_NAME_LENGTH = 127;
 export const MAX_DESCRIPTION_LENGTH = 2048;
-// PayPal rejects a longer return URL, and an editor URL can run past this.
-export const MAX_RETURN_URL_LENGTH = 127;
+// PayPal rejects a longer return URL with a 400.
+export const MAX_RETURN_URL_LENGTH = 1024;
 // Caps the Product ID input. The server answers a longer one with product_id_too_long.
 export const MAX_PRODUCT_ID_LENGTH = 50;
 // PayPal rejects a third custom checkout field with a 400.
@@ -29,6 +30,16 @@ export const MAX_CUSTOMER_NOTES = 2;
 // Shipping modes that ask the merchant for an amount. The form draws the fee field
 // from this list and the validator checks it from the same one.
 export const SHIPPING_MODES_WITH_FEE = [ 'FLAT', 'QUANTITY' ];
+
+// A copy of `PayPal_API_Client::ALLOWED_PAYPAL_DOMAINS`, under the same name. Exported
+// because test_paypal_host_allow_lists_are_in_sync() reads this declaration out of the
+// file to compare the two.
+export const ALLOWED_PAYPAL_DOMAINS = [
+	'www.paypal.com',
+	'paypal.com',
+	'www.sandbox.paypal.com',
+	'sandbox.paypal.com',
+];
 
 // Shown under a field a merchant turned on and left empty. validateCustomerNotes()
 // reuses it.
@@ -273,9 +284,55 @@ function validateDiscount( type, value, comparisonPrice, currencyCode ) {
 }
 
 /**
+ * A PayPal URL rebuilt from its parsed parts, or '' for anything else.
+ *
+ * Mirrored server-side by `sanitize_paypal_script_url()`. `tests/fixtures/url-parity.json`
+ * pins both sides' output for every URL in it, including the rows where the two part
+ * company. This half takes `https:` and nothing else, because what comes out of it is
+ * injected as a script src inside wp-admin; the published page repairs the scheme instead,
+ * rather than dropping a button a merchant already has.
+ *
+ * Rebuilt rather than returned as given, because a URL is checked on its own and then
+ * used against the document it goes into: `https:www.paypal.com/../../x` parses to a
+ * PayPal host here, and resolves to the site's own origin once it is an href or a
+ * script src.
+ *
+ * `new URL()` does the parsing, so userinfo, backslashes, tabs, case and punycode
+ * follow the browser's rules rather than a second set of ours.
+ *
+ * @param {string} url - A URL from a block attribute.
+ * @return {string} The rebuilt PayPal URL, or '' for anything else.
+ */
+export function sanitizePayPalUrl( url ) {
+	let parsed;
+
+	try {
+		// No base, so a relative or scheme-relative string throws rather than picking up
+		// the editor's own origin.
+		parsed = new URL( url );
+	} catch {
+		return '';
+	}
+
+	const host = parsed.hostname.replace( /\.+$/, '' );
+
+	// `javascript://www.paypal.com/%0aalert(1)` parses with a PayPal hostname, so the
+	// protocol is checked as well as the host.
+	if ( 'https:' !== parsed.protocol || ! ALLOWED_PAYPAL_DOMAINS.includes( host ) ) {
+		return '';
+	}
+
+	// These URLs are block attributes read back out of post content, so an ampersand in
+	// the query can come back HTML-escaped. The PHP unescapes the query and leaves the
+	// rest alone, and this matches it: withPartnerAttribution() re-parses this output,
+	// where a surviving `&amp;` would become a parameter named `amp;…`.
+	return `https://${ host }${ parsed.pathname }${ parsed.search.replace( /&amp;/g, '&' ) }`;
+}
+
+/**
  * Validate a return URL (optional field).
  *
- * HTTPS only - a rule this block has always enforced on its own. Empty means the
+ * Matches what the server accepts: an http or https URL with a host. Empty means the
  * buyer is not redirected anywhere.
  *
  * @param {string} value - The return URL.
@@ -286,9 +343,9 @@ export function validateReturnUrl( value ) {
 		return null;
 	}
 
-	if ( ! /^https:\/\/.+/.test( value ) ) {
+	if ( ! /^https?:\/\/[^/?#@\s]+(?:[/?#]\S*)?$/.test( value ) ) {
 		return __(
-			'Return URL must use HTTPS (e.g., https://example.com/thank-you).',
+			'Return URL must be a valid URL (e.g., https://example.com/thank-you).',
 			'jetpack-paypal-payments'
 		);
 	}
@@ -322,15 +379,6 @@ export function validateCurrency( value ) {
 }
 
 /**
- * Error keys that warn the merchant without blocking the save.
- *
- * A bad return URL has always saved - PayPal takes the button either way, and the
- * merchant is told what is wrong. Everything else getValidationErrors() reports
- * blocks the save.
- */
-export const ADVISORY_ERROR_KEYS = [ 'returnUrl' ];
-
-/**
  * Error keys whose control sits outside the Checkout Options panel.
  *
  * The panel opens itself on an error from one of its own fields. Listing the
@@ -351,7 +399,7 @@ export const NON_CHECKOUT_ERROR_KEYS = [
  * @param {string[]} exclude - Keys to skip.
  * @return {string|null} The message, or null when there is nothing to report.
  */
-export function firstBlockingError( errors, exclude = ADVISORY_ERROR_KEYS ) {
+export function firstBlockingError( errors, exclude = [] ) {
 	const found = Object.entries( errors ).find(
 		( [ field, message ] ) => message && ! exclude.includes( field )
 	);
@@ -457,13 +505,13 @@ export function getValidationErrors( {
 }
 
 /**
- * Whether any error is one that blocks the save.
+ * Whether any field has an error. Any error blocks the save.
  *
  * Derived rather than a hand-written list of fields, so a new key cannot be
  * forgotten on the gate side.
  *
  * @param {object} errors - Errors from getValidationErrors().
- * @return {boolean} True when a blocking field is in error.
+ * @return {boolean} True when a field has an error.
  */
 export function hasBlockingError( errors ) {
 	return null !== firstBlockingError( errors );
@@ -493,4 +541,14 @@ export function getUserFriendlyError( err ) {
 	}
 
 	return __( 'An unexpected error occurred. Please try again.', 'jetpack-paypal-payments' );
+}
+
+/**
+ * Whether an API error says the payment no longer exists at PayPal.
+ *
+ * @param {object} err - The apiFetch error.
+ * @return {boolean} True for a 404.
+ */
+export function isNotFound( err ) {
+	return err?.code === 'paypal_api_resource_not_found' || err?.data?.status === 404;
 }

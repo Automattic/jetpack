@@ -28,7 +28,7 @@ const SubpageFrame = ( { title, children }: SubpageFrameProps ) => (
 			<div className={ styles.visual } aria-hidden="true">
 				<JetpackLogo showText={ false } height={ 20 } />
 			</div>
-			<SubpageBreadcrumbs title={ title } />
+			<SubpageBreadcrumbs title={ title } tone="brand" />
 		</Stack>
 		<div className={ styles.content }>
 			<div className={ styles.column }>{ children }</div>

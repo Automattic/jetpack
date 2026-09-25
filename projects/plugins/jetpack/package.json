@@ -96,7 +96,6 @@
 		"bounding-client-rect": "1.0.5",
 		"clipboard": "2.0.11",
 		"clsx": "2.1.1",
-		"component-uid": "0.0.2",
 		"cookie": "1.0.2",
 		"copy-webpack-plugin": "14.0.0",
 		"date-fns": "4.4.0",
@@ -188,6 +187,12 @@
 		"pages": [
 			{
 				"id": "jetpack-ai-hub",
+				"init": [
+					"@jetpack-plugin/init"
+				]
+			},
+			{
+				"id": "jetpack-settings-dashboard",
 				"init": [
 					"@jetpack-plugin/init"
 				]

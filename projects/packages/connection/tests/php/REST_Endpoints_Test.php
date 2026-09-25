@@ -482,6 +482,200 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * `restore()` with no current user (cron, WP-CLI) still restores the whole site.
+	 */
+	public function test_restore_without_current_user_restores_site() {
+		wp_set_current_user( 0 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$result = ( new Manager() )->restore();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * A non-admin without `jetpack_connect_user` still cannot use `connection/reconnect`.
+	 */
+	public function test_connection_reconnect_rejects_non_admin_without_connect_user() {
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * A non-admin with a healthy blog token gets their own token refreshed, and nothing else.
+	 */
+	public function test_connection_reconnect_non_admin_refreshes_only_own_token() {
+		$unlinked = $this->dispatch_non_admin_reconnect( true );
+
+		$this->assertEquals( 200, $unlinked['response']->get_status() );
+		$this->assertEquals( 'in_progress', $unlinked['response']->get_data()['status'] );
+		$this->assertSame( array( self::$non_admin_user_id ), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin is sent to an administrator when the blog token is unhealthy, before anything is unlinked.
+	 */
+	public function test_connection_reconnect_non_admin_with_broken_blog_token() {
+		$unlinked = $this->dispatch_non_admin_reconnect( false );
+
+		$this->assertEquals( 409, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_requires_administrator', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin is asked to retry, before anything is unlinked, when the blog token check cannot run.
+	 */
+	public function test_connection_reconnect_non_admin_when_blog_token_check_fails() {
+		$unlinked = $this->dispatch_non_admin_reconnect( null );
+
+		$this->assertEquals( 503, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_check_failed', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A failed WordPress.com unlink leaves the non-admin's local token alone instead of stranding them.
+	 */
+	public function test_connection_reconnect_non_admin_keeps_token_when_unlink_fails() {
+		$unlinked = $this->dispatch_non_admin_reconnect( true, 'mock_xmlrpc_failure' );
+
+		$this->assertEquals( 502, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_unlink_failed', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin with no stored token goes straight to authorize.
+	 */
+	public function test_connection_reconnect_non_admin_without_token_skips_unlink() {
+		$unlinked = $this->dispatch_non_admin_reconnect( true, 'mock_xmlrpc_success', 'mock_jetpack_options_broken_owner_token' );
+
+		$this->assertEquals( 200, $unlinked['response']->get_status() );
+		$this->assertEquals( 'in_progress', $unlinked['response']->get_data()['status'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin connection owner is refused: unlinking them would leave the site without an owner.
+	 */
+	public function test_connection_reconnect_non_admin_owner_is_refused() {
+		$owner_is_non_admin = static function ( $value, $name ) {
+			return 'master_user' === $name ? self::$non_admin_user_id : $value;
+		};
+		add_filter( 'jetpack_options', $owner_is_non_admin, 11, 2 );
+
+		$unlinked = $this->dispatch_non_admin_reconnect( true );
+
+		remove_filter( 'jetpack_options', $owner_is_non_admin, 11 );
+
+		$this->assertEquals( 403, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_requires_administrator', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin on a site-only connection is refused rather than re-registering the site.
+	 */
+	public function test_connection_reconnect_non_admin_site_connection_is_refused() {
+		$non_admin = get_user_by( 'id', self::$non_admin_user_id );
+		$non_admin->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( self::$non_admin_user_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		$this->reset_connection_status();
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'restore_requires_administrator', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Dispatch `connection/reconnect` as a non-admin holding `jetpack_connect_user`.
+	 *
+	 * @param bool|null $blog_token_healthy What the blog token health check reports, or null for a failed check.
+	 * @param string    $xmlrpc_mock        The method mocking the WordPress.com unlink response.
+	 * @param string    $options_mock       The method mocking the connection options.
+	 * @return array The response, the IDs passed to `jetpack_unlinked_user`, and the site disconnect count.
+	 */
+	private function dispatch_non_admin_reconnect( $blog_token_healthy, $xmlrpc_mock = 'mock_xmlrpc_success', $options_mock = 'mock_jetpack_options' ) {
+		$non_admin = get_user_by( 'id', self::$non_admin_user_id );
+		$non_admin->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$users            = array();
+		$site_disconnects = 0;
+		$record_unlink    = static function ( $user_id ) use ( &$users ) {
+			$users[] = $user_id;
+		};
+		$record_site      = static function ( $check ) use ( &$site_disconnects ) {
+			++$site_disconnects;
+			return $check;
+		};
+		$blog_token_check = static function ( $response, $args, $url ) use ( $blog_token_healthy ) {
+			if ( ! str_contains( $url, 'jetpack-token-health/blog' ) ) {
+				return $response;
+			}
+
+			if ( null === $blog_token_healthy ) {
+				return array(
+					'body'     => '',
+					'response' => array(
+						'code'    => 500,
+						'message' => 'failed',
+					),
+				);
+			}
+
+			return array(
+				'body'     => wp_json_encode( array( 'is_healthy' => $blog_token_healthy ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+
+		add_action( 'jetpack_unlinked_user', $record_unlink );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', $record_site );
+		add_filter( 'pre_http_request', $blog_token_check, 10, 3 );
+		add_filter( 'pre_http_request', array( $this, $xmlrpc_mock ), 10, 3 );
+		add_filter( 'jetpack_options', array( $this, $options_mock ), 10, 2 );
+		$this->reset_connection_status();
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+
+		remove_filter( 'jetpack_options', array( $this, $options_mock ) );
+		remove_filter( 'pre_http_request', array( $this, $xmlrpc_mock ), 10 );
+		remove_filter( 'pre_http_request', $blog_token_check, 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', $record_site );
+		remove_action( 'jetpack_unlinked_user', $record_unlink );
+
+		return array(
+			'response'         => $response,
+			'users'            => $users,
+			'site_disconnects' => $site_disconnects,
+		);
+	}
+
+	/**
 	 * Testing the `connection/register` endpoint.
 	 */
 	public function test_connection_register() {

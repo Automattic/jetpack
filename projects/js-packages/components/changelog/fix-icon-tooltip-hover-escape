@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+IconTooltip: Close a tooltip opened on hover when Escape is pressed, without moving focus.
