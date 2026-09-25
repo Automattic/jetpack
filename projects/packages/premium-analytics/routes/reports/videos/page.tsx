@@ -133,7 +133,7 @@ function VideosReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! isTableLoading && records.rows.length === 0 ) {
+	} else if ( ! records.isLoading && records.rows.length === 0 ) {
 		tableReplacement = <ReportEmptyState />;
 	}
 

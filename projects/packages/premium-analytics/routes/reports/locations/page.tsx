@@ -193,7 +193,7 @@ export default function LocationsReportPage(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! tableIsLoading && ! countryFilter && records.table.rows.length === 0 ) {
+	} else if ( ! records.table.isLoading && ! countryFilter && records.table.rows.length === 0 ) {
 		// A picked country can scope the rows down to none. The table carries the
 		// filter that clears it, so it has to stay on screen then.
 		tableReplacement = <ReportEmptyState />;

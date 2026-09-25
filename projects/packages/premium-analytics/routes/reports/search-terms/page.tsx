@@ -93,7 +93,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! tableIsLoading && records.table.rows.length === 0 ) {
+	} else if ( ! records.table.isLoading && records.table.rows.length === 0 ) {
 		tableReplacement = <ReportEmptyState />;
 	}
 
