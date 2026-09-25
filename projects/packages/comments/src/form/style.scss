@@ -27,6 +27,7 @@
 	// The post's own surface and text, not the theme's input colours.
 	background: transparent;
 	color: inherit;
+	border: 2px solid currentColor;
 }
 
 // Hidden, not just collapsed, so nothing inside a closed tray can take focus.
