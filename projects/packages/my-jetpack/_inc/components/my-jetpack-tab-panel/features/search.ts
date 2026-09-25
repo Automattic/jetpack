@@ -157,19 +157,3 @@ export function moduleFields( module: MyJetpackModule ): Array< ScoredField > {
 export function compareModulesByName( a: MyJetpackModule, b: MyJetpackModule ): number {
 	return ( a.name || a.module ).localeCompare( b.name || b.module );
 }
-
-/**
- * Filter and sort modules based on their name.
- *
- * @param {Array<MyJetpackModule>} modules - The modules to filter and sort.
- * @return The filtered and sorted modules.
- */
-export function filterAndSortModules(
-	modules: Array< MyJetpackModule >
-): Array< MyJetpackModule > {
-	const $modules = [ ...modules ]
-		.filter( Boolean )
-		.filter( m => ! LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE.includes( m.module ) || m.activated );
-
-	return $modules.sort( compareModulesByName );
-}
