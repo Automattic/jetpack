@@ -37,6 +37,11 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	const CONNECT_ROUTE = 'comments/identity/connect';
 
 	/**
+	 * Route saying whether an email belongs to a WordPress.com account, under the same namespace.
+	 */
+	const EMAIL_ROUTE = 'comments/identity/email';
+
+	/**
 	 * The admin-ajax action that takes the passport back.
 	 */
 	const LOGOUT_ACTION = 'jetpack_comments_identity_logout';
@@ -93,19 +98,55 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	 * @return string
 	 */
 	public static function connect_url() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/%s', Checkpoint::blog_id(), self::CONNECT_ROUTE );
-		}
-
-		return rest_url( 'wpcom/v2/' . self::CONNECT_ROUTE );
+		return self::route_url( self::CONNECT_ROUTE );
 	}
 
 	/**
-	 * Register the route.
+	 * Where the browser asks whether an email belongs to an account, for this host.
+	 *
+	 * @return string
+	 */
+	public static function email_url() {
+		return self::route_url( self::EMAIL_ROUTE );
+	}
+
+	/**
+	 * A route's URL for this host.
+	 *
+	 * @param string $route The route under `wpcom/v2`.
+	 * @return string
+	 */
+	private static function route_url( $route ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/%s', Checkpoint::blog_id(), $route );
+		}
+
+		return rest_url( 'wpcom/v2/' . $route );
+	}
+
+	/**
+	 * Register the routes.
 	 *
 	 * @return void
 	 */
 	public function register_routes() {
+		register_rest_route(
+			$this->namespace,
+			'/' . self::EMAIL_ROUTE,
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'email' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'email' => array(
+						'type'     => 'string',
+						'format'   => 'email',
+						'required' => true,
+					),
+				),
+			)
+		);
+
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
@@ -144,6 +185,34 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 		}
 
 		$response = new WP_REST_Response( $connect );
+		$response->header( 'Cache-Control', 'no-store' );
+
+		return $response;
+	}
+
+	/**
+	 * Whether an email belongs to a WordPress.com account.
+	 *
+	 * WordPress.com turns away a guest comment under an account's email with a
+	 * log-in screen, so the form asks first and can say so in place. Only Simple
+	 * has that rule, and only Simple can answer; every other host says no.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function email( WP_REST_Request $request ) {
+		if ( ! Comments::is_enabled() ) {
+			return new WP_Error( 'not_enabled', __( 'Sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 404 ) );
+		}
+
+		$account = false;
+
+		if ( function_exists( 'is_email_wp_emails' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; add to stub-defs.php.
+			$account = (bool) is_email_wp_emails( $request->get_param( 'email' ) );
+		}
+
+		$response = new WP_REST_Response( array( 'account' => $account ) );
 		$response->header( 'Cache-Control', 'no-store' );
 
 		return $response;

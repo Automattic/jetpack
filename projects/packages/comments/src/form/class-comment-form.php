@@ -547,6 +547,7 @@ class Comment_Form {
 			'name'                => __( 'Name', 'jetpack-comments' ),
 			'email'               => __( 'Email', 'jetpack-comments' ),
 			'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
+			'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
 			'required'            => __( '(required)', 'jetpack-comments' ),
 			'website'             => __( 'Website (optional)', 'jetpack-comments' ),
 			'intro'               => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),

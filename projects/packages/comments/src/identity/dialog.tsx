@@ -29,6 +29,10 @@ export const IdentityDialog = () => {
 	const attempt = useRef( 0 );
 	const [ isSigningIn, setIsSigningIn ] = useState( false );
 	const [ signInError, setSignInError ] = useState( '' );
+	// Whether the email typed belongs to a WordPress.com account, which the site would turn away.
+	const [ emailTaken, setEmailTaken ] = useState( false );
+	const [ checkingEmail, setCheckingEmail ] = useState( false );
+	const emailCheck = useRef( { timer: 0, attempt: 0 } );
 
 	useEffect( () => {
 		const element = dialog.current;
@@ -78,6 +82,41 @@ export const IdentityDialog = () => {
 
 	const update = ( field: keyof Commenter, value: string ) => {
 		commenter.value = { ...commenter.value, [ field ]: value };
+	};
+
+	const checkEmail = async ( email: string ) => {
+		const current = ++emailCheck.current.attempt;
+		window.clearTimeout( emailCheck.current.timer );
+
+		if ( ! identity.emailUrl || ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email ) ) {
+			setEmailTaken( false );
+			setCheckingEmail( false );
+			return;
+		}
+
+		setCheckingEmail( true );
+
+		let account = false;
+
+		try {
+			const url = new URL( identity.emailUrl );
+			url.searchParams.set( 'email', email );
+			const response = await fetch( url.toString(), { credentials: 'omit' } );
+			account =
+				response.ok && ( ( await response.json() ) as { account?: boolean } ).account === true;
+		} catch {
+			// Unreachable: the site still has its own screen for this.
+		}
+
+		if ( current === emailCheck.current.attempt ) {
+			setEmailTaken( account );
+			setCheckingEmail( false );
+		}
+	};
+
+	const onEmailInput = ( email: string ) => {
+		window.clearTimeout( emailCheck.current.timer );
+		emailCheck.current.timer = window.setTimeout( () => checkEmail( email ), 500 );
 	};
 
 	// Writes the cookies core would on the next comment, so an edit outlives the page.
@@ -214,9 +253,20 @@ export const IdentityDialog = () => {
 								className={ `${ kind } wp-block-jetpack-input grunion-field` }
 								required={ input.required }
 								value={ commenter.value[ field ] }
-								onInput={ event => update( field, event.currentTarget.value ) }
+								onInput={ event => {
+									update( field, event.currentTarget.value );
+									if ( field === 'email' ) {
+										onEmailInput( event.currentTarget.value );
+									}
+								} }
+								onBlur={ field === 'email' ? () => checkEmail( commenter.value.email ) : undefined }
 							/>
 							{ hint && <span className="jetpack-comments__hint">{ hint }</span> }
+							{ field === 'email' && emailTaken && (
+								<span className="jetpack-comments__notice" role="alert">
+									{ strings.emailHasAccount }
+								</span>
+							) }
 						</div>
 					) ) }
 				</div>
@@ -255,7 +305,12 @@ export const IdentityDialog = () => {
 			<div className="jetpack-comments__dialog-actions">
 				{ editing && (
 					<span className={ formSettings.submitWrapClass }>
-						<button type="button" className={ formSettings.submitClass } onClick={ save }>
+						<button
+							type="button"
+							className={ formSettings.submitClass }
+							disabled={ emailTaken || checkingEmail }
+							onClick={ save }
+						>
 							{ strings.save }
 						</button>
 					</span>
@@ -273,10 +328,15 @@ export const IdentityDialog = () => {
 								type="submit"
 								name="wp-comment-cookies-consent"
 								className={ formSettings.submitClass }
+								disabled={ emailTaken || checkingEmail }
 								value={ strings.saveAndPost }
 							/>
 						</span>
-						<button type="submit" className="jetpack-comments__link-button">
+						<button
+							type="submit"
+							className="jetpack-comments__link-button"
+							disabled={ emailTaken || checkingEmail }
+						>
 							{ strings.postWithoutSaving }
 						</button>
 					</>

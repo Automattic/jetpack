@@ -28,6 +28,7 @@ export type IdentitySettings = {
 	cookieDomain: string;
 	defaultAvatar: string;
 	refreshUrl: string;
+	emailUrl: string;
 	logoutUrl: string;
 	logoutAction: string;
 };
@@ -68,6 +69,7 @@ export type Strings = {
 	name: string;
 	email: string;
 	emailHint: string;
+	emailHasAccount: string;
 	required: string;
 	website: string;
 	intro: string;

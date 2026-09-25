@@ -44,6 +44,7 @@ class Identity {
 				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
 				'defaultAvatar' => Avatars::default_url( 80 ),
 				'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
+				'emailUrl'      => Checkpoint_Endpoint::email_url(),
 				'logoutUrl'     => admin_url( 'admin-ajax.php' ),
 				'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
 			),
