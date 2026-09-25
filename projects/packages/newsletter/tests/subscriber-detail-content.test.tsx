@@ -1,7 +1,6 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { render, screen, waitFor } from '@testing-library/react';
 import SubscriberDetailContent from '../_inc/subscribers/components/detail/subscriber-detail-content';
-import { formatRate } from '../routes/dashboard/components/helpers/format-metric';
 import type {
 	SubscribedNewsletterCategories,
 	SubscriberDetails,
@@ -197,8 +196,8 @@ describe( 'SubscriberDetailContent', () => {
 		renderPanel();
 
 		await expect( screen.findByText( 'Open rate' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( formatRate( 50 ) ) ).toBeInTheDocument();
-		expect( screen.getByText( formatRate( 10 ) ) ).toBeInTheDocument();
+		expect( screen.getByText( '50%' ) ).toBeInTheDocument();
+		expect( screen.getByText( '10%' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the date the individual endpoint reports', async () => {

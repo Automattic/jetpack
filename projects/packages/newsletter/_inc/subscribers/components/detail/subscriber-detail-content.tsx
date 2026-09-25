@@ -5,14 +5,11 @@ import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
 import {
-	formatMetric,
-	formatRate,
-} from '../../../../routes/dashboard/components/helpers/format-metric';
-import {
 	useSubscribedNewsletterCategories,
 	useSubscriberDetails,
 	useSubscriberStats,
 } from '../../data/use-subscriber-details';
+import { formatMetric, formatRate } from '../../lib/format-metric';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
