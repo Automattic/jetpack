@@ -104,11 +104,14 @@ $accent-hover: #2145e6;
 		// Fonts smaller than 16px make mobile Safari zoom.
 		font-size: 16px;
 		line-height: normal;
+		// Themes outline inputs; the ring below is the focus cue instead.
+		outline: 0;
 
-		&:focus {
+		&:focus,
+		&:focus-visible {
 			border-color: $accent;
 			box-shadow: 0 0 0 1px $accent;
-			outline: 2px solid transparent;
+			outline: 0;
 		}
 
 		&[aria-invalid="true"] {
