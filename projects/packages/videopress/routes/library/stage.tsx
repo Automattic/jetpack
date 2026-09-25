@@ -115,7 +115,7 @@ const StageInner = () => {
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
+	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW, { poll: false } );
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();

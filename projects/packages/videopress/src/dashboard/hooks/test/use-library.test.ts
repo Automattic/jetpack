@@ -10,6 +10,8 @@ import {
 	nextProcessingPoll,
 	toLibraryItem,
 	LIBRARY_POLL_INTERVAL_MS,
+	PROCESSING_POLL_SLOW_INTERVAL_MS,
+	PROCESSING_POLL_BACKOFF_MS,
 	PROCESSING_POLL_MAX_MS,
 } from '../use-library';
 import type { View } from '@wordpress/dataviews';
@@ -77,6 +79,11 @@ describe( 'viewToQueryArgs', () => {
 } );
 
 describe( 'libraryRefetchInterval', () => {
+	it( 'backs off after the first minute', () => {
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS - 1 ) ).toBe( 5000 );
+		expect( libraryRefetchInterval( true, PROCESSING_POLL_BACKOFF_MS ) ).toBe( 15000 );
+	} );
+
 	it( 'does not poll when nothing is processing', () => {
 		expect( libraryRefetchInterval( false, 0 ) ).toBe( false );
 		// Elapsed time is irrelevant once processing has cleared.
@@ -86,7 +93,7 @@ describe( 'libraryRefetchInterval', () => {
 	it( 'polls while processing and under the cap', () => {
 		expect( libraryRefetchInterval( true, 0 ) ).toBe( LIBRARY_POLL_INTERVAL_MS );
 		expect( libraryRefetchInterval( true, PROCESSING_POLL_MAX_MS - 1 ) ).toBe(
-			LIBRARY_POLL_INTERVAL_MS
+			PROCESSING_POLL_SLOW_INTERVAL_MS
 		);
 	} );
 
@@ -108,7 +115,7 @@ describe( 'nextProcessingPoll', () => {
 		const stamped = nextProcessingPoll( null, [ '7' ], 1_000 ).anchor;
 		const underCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS - 1 );
 		expect( underCap.anchor ).toBe( stamped );
-		expect( underCap.interval ).toBe( LIBRARY_POLL_INTERVAL_MS );
+		expect( underCap.interval ).toBe( PROCESSING_POLL_SLOW_INTERVAL_MS );
 		const atCap = nextProcessingPoll( stamped, [ '7' ], 1_000 + PROCESSING_POLL_MAX_MS );
 		expect( atCap.interval ).toBe( false );
 	} );
@@ -436,6 +443,23 @@ describe( 'on WordPress.com Simple', () => {
 			expect( withDimensions( 1080, 1080 ).orientation ).toBeNull();
 			expect( withDimensions( undefined, undefined ).orientation ).toBeNull();
 			expect( withDimensions( 1920, undefined ).orientation ).toBeNull();
+		} );
+
+		it( 'keeps the original upload separate from the rendered playback source', () => {
+			const raw = {
+				id: 11,
+				source_url: 'https://example.com/edited.mp4',
+				media_details: {
+					original: 'https://example.com/simple-original.mov',
+					videopress: { original: 'https://example.com/original.mov' },
+				},
+			};
+			expect( toLibraryItem( raw, false ).originalUrl ).toBe( 'https://example.com/original.mov' );
+			expect(
+				toLibraryItem( { ...raw, media_details: { original: raw.media_details.original } }, true )
+					.originalUrl
+			).toBe( 'https://example.com/simple-original.mov' );
+			expect( toLibraryItem( { ...raw, media_details: {} }, false ).originalUrl ).toBeUndefined();
 		} );
 
 		it( 'picks the best MP4 rendition for playbackUrl (dvd → std → hd)', () => {

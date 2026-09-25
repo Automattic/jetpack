@@ -23,11 +23,13 @@ export type ApiMediaItem = {
 	date?: string;
 	mime_type?: string;
 	media_details?: {
+		original?: string;
 		length?: number;
 		filesize?: number;
 		width?: number;
 		height?: number;
 		videopress?: {
+			original?: string;
 			duration?: number;
 			poster?: string;
 			finished?: boolean;
@@ -266,6 +268,7 @@ export function toLibraryItem( raw: ApiMediaItem, simple: boolean ): LibraryItem
 		allowDownloads: Boolean( vp?.allow_download ),
 		shortcode: buildShortcode( vp?.guid, raw.media_details?.width, raw.media_details?.height ),
 		sourceUrl: raw.source_url,
+		originalUrl: vpDetails?.original || details?.original || undefined,
 		playbackUrl: pickPlaybackUrl( vpDetails ),
 		isProcessing,
 		orientation,
@@ -320,28 +323,15 @@ async function fetchLibrary(
 	};
 }
 
-export const LIBRARY_POLL_INTERVAL_MS = 2000;
+export const LIBRARY_POLL_INTERVAL_MS = 5000;
+export const PROCESSING_POLL_SLOW_INTERVAL_MS = 15000;
+export const PROCESSING_POLL_BACKOFF_MS = 60000;
 
-// VIDP-298: cap how long the "still processing" poll runs. An orphaned
-// wpcom Simple record can be stuck `isProcessing` forever (empty
-// media_details, no backend transcode job to ever finish it), which would
-// otherwise poll /wp/v2/media every 2s without bound. Each distinct set of
-// processing items gets 15 minutes of wall-clock polling — comfortably past
-// a typical transcode — so a stuck record stops polling (and stops implying
-// ongoing work) without starving a later upload of its own budget. A
-// transcode that genuinely outlasts the cap still resolves via the
-// while-processing focus refetch in useLibrary/useVideo.
+// Bound idle polling of orphaned records; returning to the tab still refreshes their status.
 export const PROCESSING_POLL_MAX_MS = 15 * 60 * 1000;
 
 /**
- * Decide the library-list poll interval. Pure so the cap logic is testable
- * without wrangling react-query's timers.
- *
- * Polls every {@link LIBRARY_POLL_INTERVAL_MS} while at least one visible
- * item is still processing AND the current processing run has lasted under
- * {@link PROCESSING_POLL_MAX_MS}; otherwise returns false to stop the
- * interval (VIDP-298).
- *
+ * Back off long-running jobs and stop polling records that never finish.
  * @param hasProcessing - Whether any current item is still processing.
  * @param elapsedMs     - Time since the current processing set was first seen.
  * @return The next poll interval in ms, or false to stop polling.
@@ -353,7 +343,9 @@ export function libraryRefetchInterval(
 	if ( ! hasProcessing || elapsedMs >= PROCESSING_POLL_MAX_MS ) {
 		return false;
 	}
-	return LIBRARY_POLL_INTERVAL_MS;
+	return elapsedMs < PROCESSING_POLL_BACKOFF_MS
+		? LIBRARY_POLL_INTERVAL_MS
+		: PROCESSING_POLL_SLOW_INTERVAL_MS;
 }
 
 export type ProcessingPollAnchor = {
@@ -363,21 +355,7 @@ export type ProcessingPollAnchor = {
 };
 
 /**
- * Advance the processing-poll anchor and decide the next poll interval.
- *
- * The anchor pins when the CURRENT set of processing items was first seen,
- * and re-stamps whenever that set changes — a new upload appearing, or one of
- * several finishing — so every distinct set gets a fresh
- * {@link PROCESSING_POLL_MAX_MS} budget. Without this, a permanently-stuck
- * orphan (the VIDP-298 case) would burn the budget once and then starve every
- * later upload of polling. The budget is keyed by the SET, not the view: the
- * same stuck orphan seen through different filters/pages/searches keeps one
- * budget instead of re-arming on every view change. (Passing through a view
- * with no processing items — or a remount — drops the anchor and re-arms;
- * that's bounded by user action, which is fine: the cap exists to stop
- * unbounded *idle* polling.) Pure so the cap behavior is unit-testable
- * without wrangling react-query's timers.
- *
+ * Give each distinct set of processing items its own bounded polling window.
  * @param anchor        - The previously stored anchor, or null.
  * @param processingIds - Ids of the items currently processing (any order).
  * @param now           - Current epoch ms.
@@ -421,13 +399,7 @@ export function useLibrary( view: View, { poll = true }: { poll?: boolean } = {}
 		queryKey: [ LIBRARY_QUERY_KEY, viewToQueryArgs( view ) ],
 		queryFn: () => fetchLibrary( view ),
 		placeholderData: keepPreviousData,
-		// While any item on the current page is still being processed by the
-		// VideoPress backend (no poster yet / finished=false), re-fetch every
-		// 2s so the placeholder is replaced as soon as the data is ready.
-		// React-query pauses this when the tab is hidden, so it's cheap.
-		// Capped per processing set after PROCESSING_POLL_MAX_MS so an
-		// orphaned/stuck record can't poll forever (VIDP-298); see
-		// nextProcessingPoll for the anchor semantics.
+		// Only visible library items need processing updates; counts change on mutations.
 		refetchInterval: q => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
@@ -445,7 +417,7 @@ export function useLibrary( view: View, { poll = true }: { poll?: boolean } = {}
 		// fired: a transcode that genuinely outlasts the cap flips to ready on
 		// the next focus instead of never.
 		refetchOnWindowFocus: q =>
-			poll && Boolean( q.state.data?.items.some( item => item.isProcessing ) ),
+			poll && q.state.data?.items.some( item => item.isProcessing ) ? 'always' : false,
 	} );
 
 	return {

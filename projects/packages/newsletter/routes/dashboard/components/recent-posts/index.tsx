@@ -1,6 +1,6 @@
 import { __, _x } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
-import { formatMetric, formatRate } from '../helpers/format-metric';
+import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
 import './style.scss';
 
 export type RecentPost = {

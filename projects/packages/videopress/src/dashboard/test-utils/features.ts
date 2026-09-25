@@ -6,8 +6,9 @@
  *
  * @param features                - Gate values to set.
  * @param features.chaptersEditor - Whether the chapters editor is enabled.
+ * @param features.trimCut        - Whether trim and cut is enabled.
  */
-export function setFeatures( features: { chaptersEditor?: boolean } ): void {
+export function setFeatures( features: { chaptersEditor?: boolean; trimCut?: boolean } ): void {
 	const win = window as unknown as {
 		JPVIDEOPRESS_INITIAL_STATE?: { features?: Record< string, boolean > };
 	};
