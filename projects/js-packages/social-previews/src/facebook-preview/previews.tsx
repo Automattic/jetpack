@@ -50,7 +50,7 @@ export const FacebookPreviews: React.FC< FacebookPreviewsProps > = ( {
 					{ hasCustomImage ? (
 						<LinkPreviewDetails { ...props } />
 					) : (
-						<FacebookLinkPreview { ...props } compactDescription customText="" user={ undefined } />
+						<FacebookLinkPreview { ...props } customText="" user={ undefined } />
 					) }
 				</section>
 			) }

@@ -16,4 +16,5 @@ export type MastodonPreviewProps = SocialPreviewBaseProps & {
 	customText?: string;
 	customImage?: string;
 	siteName?: string;
+	author?: string;
 };

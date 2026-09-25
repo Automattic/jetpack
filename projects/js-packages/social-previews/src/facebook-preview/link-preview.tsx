@@ -1,20 +1,19 @@
 import { __ } from '@wordpress/i18n';
-import { TYPE_ARTICLE, PORTRAIT_MODE } from '../constants';
+import { TYPE_ARTICLE } from '../constants';
 import { baseDomain } from '../helpers';
 import { MediaImage } from '../shared/media-image';
 import CustomText from './custom-text';
 import { facebookTitle, facebookDescription } from './helpers';
-import useImage from './hooks/use-image-hook';
 import FacebookPostActions from './post/actions';
 import FacebookPostHeader from './post/header';
-import FacebookPostIcon from './post/icons';
 import type { FacebookPreviewProps } from './types';
 
 import './style.scss';
 
-export type FacebookLinkPreviewProps = FacebookPreviewProps & {
-	compactDescription?: boolean;
-};
+// `imageMode` is still accepted so existing callers (the SEO front-page preview
+// passes imageMode="landscape") keep working, but it is no longer read: Facebook's
+// current link card is always landscape.
+export type FacebookLinkPreviewProps = FacebookPreviewProps;
 
 export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 	url,
@@ -25,30 +24,23 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 	user,
 	customText,
 	type,
-	imageMode,
-	compactDescription,
 } ) => {
-	const [ mode, isLoadingImage, imgProps ] = useImage( { mode: imageMode } );
 	const isArticle = type === TYPE_ARTICLE;
-	const portraitMode = ( isArticle && ! image ) || mode === PORTRAIT_MODE;
-	const modeClass = `is-${ portraitMode ? 'portrait' : 'landscape' }`;
 
 	return (
 		<div className="facebook-preview__post">
 			<FacebookPostHeader user={ user } />
 			<div className="facebook-preview__content">
 				{ customText && <CustomText text={ customText } url={ url } /> }
-				<div
-					className={ `facebook-preview__body ${ modeClass } ${
-						image && isLoadingImage ? 'is-loading' : ''
-					}` }
-				>
+				<div className="facebook-preview__body">
 					{ ( image || isArticle ) && (
-						<div
-							className={ `facebook-preview__image ${ image ? '' : 'is-empty' } ${ modeClass }` }
-						>
+						<div className="facebook-preview__image is-landscape">
 							{ image && (
-								<MediaImage src={ image } focalPoint={ imageFocalPoint } { ...imgProps } />
+								<MediaImage
+									src={ image }
+									alt={ __( 'Facebook Preview Thumbnail', 'social-previews' ) }
+									focalPoint={ imageFocalPoint }
+								/>
 							) }
 						</div>
 					) }
@@ -58,19 +50,12 @@ export const FacebookLinkPreview: React.FC< FacebookLinkPreviewProps > = ( {
 							<div className="facebook-preview__title">
 								{ facebookTitle( title ) || baseDomain( url ) }
 							</div>
-							<div
-								className={ `facebook-preview__description ${
-									compactDescription ? 'is-compact' : ''
-								}` }
-							>
+							<div className="facebook-preview__description">
 								{ description && facebookDescription( description ) }
 								{ isArticle &&
 									! description &&
 									// translators: Default description for a Facebook post
 									__( 'Visit the post for more.', 'social-previews' ) }
-							</div>
-							<div className="facebook-preview__info">
-								<FacebookPostIcon name="info" />
 							</div>
 						</div>
 					</div>
