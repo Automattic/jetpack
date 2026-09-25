@@ -469,12 +469,16 @@ type MainFeaturesState = {
 	features: MainFeature[];
 	// Optional: a plugin carrying an older copy of this package sends none.
 	module_groups?: MainFeatureModuleGroup[];
+	plugin_installs?: MainFeatureInstallAccess;
 };
 
 type MainFeatureModuleGroup = {
 	label: string;
 	modules: string[];
 };
+
+// Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
+type MainFeatureInstallAccess = 'allowed' | 'disabled' | 'not_permitted';
 
 type MainFeature = {
 	slug: string;

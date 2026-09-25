@@ -8,6 +8,7 @@ import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
+import { FeatureInstallNotice } from './feature-install-notice';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
@@ -154,6 +155,8 @@ export function FeatureItem( {
 				<Text variant="body-md" className={ styles[ 'feature-item__description' ] }>
 					{ migration?.notice ?? feature.description }
 				</Text>
+
+				<FeatureInstallNotice state={ state } />
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>

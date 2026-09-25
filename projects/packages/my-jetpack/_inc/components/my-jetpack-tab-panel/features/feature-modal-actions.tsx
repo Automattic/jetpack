@@ -168,7 +168,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				/>
 			) : null }
 
-			{ control.kind === 'install-plugin' ? (
+			{ control.kind === 'install-plugin' && ! control.blocked ? (
 				<InstallButton
 					state={ state }
 					origin="modal"
@@ -179,7 +179,7 @@ export function FeatureModalActions( { state }: FeatureModalActionsProps ) {
 				/>
 			) : null }
 
-			{ control.kind === 'install-jetpack' ? (
+			{ control.kind === 'install-jetpack' && ! control.blocked ? (
 				<JetpackButton state={ state } origin="modal" installed={ control.installed } />
 			) : null }
 		</>

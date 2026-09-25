@@ -170,11 +170,16 @@ class REST_Main_Features {
 			return $refused;
 		}
 
-		if ( 'install' === $action && ! current_user_can( 'install_plugins' ) ) {
-			return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack-my-jetpack' ), array( 'status' => 403 ) );
+		$refused = 'install' === $action ? self::refuse_install() : null;
+		if ( $refused ) {
+			return $refused;
 		}
 
 		$result = self::run( $slug, $action );
+
+		if ( is_wp_error( $result ) && 'install' === $action ) {
+			$result = self::explain_install_error( $result );
+		}
 
 		if ( is_wp_error( $result ) ) {
 			$data = $result->get_error_data();
@@ -286,6 +291,53 @@ class REST_Main_Features {
 		}
 
 		return true;
+	}
+
+	/**
+	 * Refuse an install the current user can't make, saying whether the site or their role is why.
+	 *
+	 * @return WP_Error|null The refusal, or null when the install may go ahead.
+	 */
+	private static function refuse_install() {
+		switch ( Main_Features::get_install_access() ) {
+			case Main_Features::INSTALLS_DISABLED:
+				return new WP_Error(
+					'install_disabled',
+					__( 'Plugin installs are turned off on this site. Ask your host or site administrator to install it.', 'jetpack-my-jetpack' ),
+					array( 'status' => 403 )
+				);
+
+			case Main_Features::INSTALLS_NOT_PERMITTED:
+				return new WP_Error(
+					'not_allowed',
+					__( 'Your account can’t install plugins on this site. Ask a site administrator to install it.', 'jetpack-my-jetpack' ),
+					array( 'status' => 403 )
+				);
+
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Say what to do about an install that failed, where the installer's own message doesn't.
+	 *
+	 * @param WP_Error $error What the installer returned.
+	 * @return WP_Error The same error, reworded when it is a download or filesystem failure.
+	 */
+	private static function explain_install_error( WP_Error $error ) {
+		$code = (string) $error->get_error_code();
+
+		// Plugins_Installer reports a failed download as no_package.
+		if ( in_array( $code, array( 'no_package', 'download_failed' ), true ) ) {
+			$message = __( 'The plugin could not be downloaded from WordPress.org. Check that your site can reach WordPress.org, then try again.', 'jetpack-my-jetpack' );
+		} elseif ( preg_match( '/^(fs_|mkdir_failed|copy_failed)/', $code ) ) {
+			$message = __( 'WordPress could not write to this site’s plugins folder. Install it from the Plugins screen instead, or ask your host for help.', 'jetpack-my-jetpack' );
+		} else {
+			return $error;
+		}
+
+		return new WP_Error( $code, $message, array( 'status' => 400 ) );
 	}
 
 	/**

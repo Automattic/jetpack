@@ -91,10 +91,20 @@ export function InstallButton( {
 		tracking?.trackFeatureAction( { state, action, origin } );
 		run( action );
 	}, [ action, origin, run, state, tracking ] );
+	const busyLabel =
+		action === 'install'
+			? __( 'Installing…', 'jetpack-my-jetpack' )
+			: __( 'Activating…', 'jetpack-my-jetpack' );
 
 	return (
-		<Button variant="outline" size="compact" disabled={ isBusy } onClick={ onClick }>
-			{ label }
+		<Button
+			variant="outline"
+			size="compact"
+			disabled={ isBusy }
+			aria-busy={ isBusy || undefined }
+			onClick={ onClick }
+		>
+			{ isBusy ? busyLabel : label }
 		</Button>
 	);
 }
@@ -183,6 +193,11 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 				);
 			}
 
+			// FeatureInstallNotice says why, under the description.
+			if ( control.blocked ) {
+				return null;
+			}
+
 			return (
 				<InstallButton
 					state={ state }
@@ -195,6 +210,10 @@ export function FeatureAction( { state, describedby, origin = 'card' }: FeatureA
 			);
 
 		case 'install-jetpack':
+			if ( control.blocked ) {
+				return null;
+			}
+
 			return <JetpackButton state={ state } origin={ origin } installed={ control.installed } />;
 
 		default:

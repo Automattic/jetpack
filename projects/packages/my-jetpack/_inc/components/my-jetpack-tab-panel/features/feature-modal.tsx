@@ -10,6 +10,7 @@ import { FeatureBand } from './feature-band';
 import { FeatureDelivery } from './feature-delivery';
 import { FeatureHighlights } from './feature-highlights';
 import { FeatureIcon } from './feature-icon';
+import { FeatureInstallNotice } from './feature-install-notice';
 import { FeatureLinks } from './feature-links';
 import { FeatureModalActions } from './feature-modal-actions';
 import { FeaturePaid } from './feature-paid';
@@ -273,6 +274,7 @@ export function FeatureModal( {
 					</p>
 
 					<FeatureDelivery state={ state } />
+					<FeatureInstallNotice state={ state } errorsOnly />
 
 					<Dialog.Description>
 						{ feature.long_description || product?.longDescription || feature.description }

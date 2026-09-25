@@ -1,3 +1,4 @@
+import { __, sprintf } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import { PRODUCT_STATUSES } from '../../../constants';
 import { useAllProducts } from '../../../data/products/use-all-products';
@@ -29,9 +30,12 @@ const RUNNING_ON_PLAN_STATUSES: string[] = [
 export type FeatureControl =
 	| { kind: 'module'; module: MyJetpackModule }
 	| { kind: 'plugin'; plugin: string; override?: 'active' | 'inactive' }
-	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true }
-	| { kind: 'install-jetpack'; installed: boolean }
+	| { kind: 'install-plugin'; plugin: string; runsWithoutPlugin?: true; blocked?: InstallBlock }
+	| { kind: 'install-jetpack'; installed: boolean; blocked?: InstallBlock }
 	| { kind: 'none' };
+
+// Why the current user can't make an install the card would otherwise offer.
+export type InstallBlock = Exclude< MainFeatureInstallAccess, 'allowed' >;
 
 export type FeatureState = {
 	feature: MainFeature;
@@ -71,6 +75,46 @@ export function getForcedReason( state: FeatureState ): string | null {
 	}
 
 	return null;
+}
+
+/**
+ * Why the current user can't install what a feature needs, and what to do instead.
+ *
+ * @param state - The feature's live state.
+ * @return The reason, or null when nothing blocks the install.
+ */
+export function getInstallBlockReason( state: FeatureState ): string | null {
+	const { control, feature } = state;
+
+	if (
+		( control.kind !== 'install-plugin' && control.kind !== 'install-jetpack' ) ||
+		! control.blocked ||
+		// Already running on the plan, so there is nothing to ask anyone to install.
+		( control.kind === 'install-plugin' && control.runsWithoutPlugin )
+	) {
+		return null;
+	}
+
+	const pluginName =
+		control.kind === 'install-jetpack' ? 'Jetpack' : feature.plugin_name || feature.name;
+
+	return control.blocked === 'disabled'
+		? sprintf(
+				/* translators: %s is a plugin name, such as "Jetpack Boost". */
+				__(
+					'Plugin installs are turned off on this site. Ask your host or site administrator to install %s.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			)
+		: sprintf(
+				/* translators: %s is a plugin name, such as "Jetpack Boost". */
+				__(
+					'Your account can’t install plugins. Ask a site administrator to install %s.',
+					'jetpack-my-jetpack'
+				),
+				pluginName
+			);
 }
 
 /**
@@ -232,6 +276,7 @@ export function useFeatureStates( state: MainFeaturesState ): {
 					)
 				)
 				.map( resolved => applyRequestedModule( resolved, requested ) )
+				.map( resolved => applyInstallAccess( resolved, state.plugin_installs ) )
 				.map( resolved =>
 					requested[ pluginSwitchKey( resolved.feature.plugin ) ] === undefined
 						? resolved
@@ -242,6 +287,33 @@ export function useFeatureStates( state: MainFeaturesState ): {
 	);
 
 	return { states, isLoading: isLoadingModules };
+}
+
+/**
+ * Mark an install the current user can't make, so the card says why rather than offering it.
+ *
+ * @param state  - The feature's resolved state.
+ * @param access - Whether the current user may install plugins here.
+ * @return The state, with the reason on its install control where one applies.
+ */
+function applyInstallAccess(
+	state: FeatureState,
+	access: MainFeaturesState[ 'plugin_installs' ]
+): FeatureState {
+	const { control } = state;
+
+	if ( ! access || access === 'allowed' ) {
+		return state;
+	}
+
+	if (
+		control.kind === 'install-plugin' ||
+		( control.kind === 'install-jetpack' && ! control.installed )
+	) {
+		return { ...state, control: { ...control, blocked: access } };
+	}
+
+	return state;
 }
 
 /**
@@ -269,9 +341,8 @@ function applyRequestedModule(
 /**
  * Show the plugin status a switch asked for, before resolving what the card offers.
  *
- * Applied to the feature rather than to the resolved state, because the plugin's status
- * decides which control the card gets: an install that has been asked for should offer
- * the switch it is about to become, not the Install button it no longer is.
+ * Applied to the feature rather than to the resolved state, because resolving reads the
+ * plugin's status. An install never asks for one: it says "Installing…" until it lands.
  *
  * @param feature   - The feature, as the site last reported it.
  * @param requested - Switch key to the value asked of it.

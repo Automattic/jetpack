@@ -1,6 +1,12 @@
 import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
-import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+	useIsMutating,
+	useMutation,
+	useMutationState,
+	useQuery,
+	useQueryClient,
+} from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
@@ -67,9 +73,19 @@ export function useMainFeatures(): MainFeaturesState & { isPlaceholderData: bool
 }
 
 /**
+ * The key every action on one plugin runs under, so the card and the modal share its progress and errors.
+ *
+ * @param plugin - The plugin's WordPress.org slug, or `jetpack`.
+ * @return The mutation key.
+ */
+const pluginMutationKey = ( plugin: string ) => [ 'my-jetpack-feature-plugin', plugin ];
+
+/**
  * Send one plugin action through the activation queue, holding the asked-for value meanwhile.
  *
  * The response carries the whole site, so it is written straight to the Features tab's state.
+ * An install holds no value: it takes seconds and can fail, so the card says "Installing…"
+ * rather than showing the feature on before it is there.
  *
  * @param queryClient - The query client holding that state.
  * @param plugin      - The plugin's WordPress.org slug, or `jetpack`.
@@ -82,7 +98,7 @@ function requestPluginSwitch(
 	action: PluginAction
 ): Promise< MainFeaturesState > {
 	const key = pluginSwitchKey( plugin );
-	const token = setRequestedSwitch( key, action !== 'deactivate' );
+	const token = action === 'install' ? null : setRequestedSwitch( key, action !== 'deactivate' );
 
 	return queueActivationRequest( () =>
 		apiFetch< MainFeaturesState >( {
@@ -95,7 +111,11 @@ function requestPluginSwitch(
 			queryClient.setQueryData( QUERY_KEY, state );
 			return state;
 		} )
-		.finally( () => clearRequestedSwitch( key, token ) );
+		.finally( () => {
+			if ( token !== null ) {
+				clearRequestedSwitch( key, token );
+			}
+		} );
 }
 
 /**
@@ -110,7 +130,7 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
 	const { invalidateResolution } = useDispatch( modulesStore );
 
-	const mutationKey = [ 'my-jetpack-feature-plugin', plugin ];
+	const mutationKey = pluginMutationKey( plugin );
 	const { mutate } = useMutation( {
 		mutationKey,
 		mutationFn: async ( action: PluginAction ) => {
@@ -146,14 +166,17 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 
 			createSuccessNotice( message );
 		},
-		onError: ( error: { message?: string } ) => {
+		onError: ( error: { message?: string }, action ) => {
 			// Read the site again: the plugin may well have been switched before whatever failed.
 			queryClient.invalidateQueries( { queryKey: QUERY_KEY } );
 			invalidateResolution( 'getJetpackModules', [] );
 
-			// The route hands back what actually failed — a missing plugin, a refused
-			// install, whatever the installer said. Repeating "try again" instead of
-			// saying DISALLOW_FILE_MODS is set just invites the same click.
+			// Shown on the feature itself instead (see useInstallError).
+			if ( action === 'install' ) {
+				return;
+			}
+
+			// The route hands back what actually failed; a generic "try again" just invites the same click.
 			createErrorNotice(
 				error?.message ||
 					sprintf(
@@ -173,4 +196,27 @@ export function useFeaturePlugin( plugin: string, name: string ) {
 	const run = useCallback( ( action: PluginAction ) => mutate( action ), [ mutate ] );
 
 	return { run, isBusy };
+}
+
+/**
+ * Why the last install of a plugin failed, until it is tried again.
+ *
+ * @param plugin - The plugin's WordPress.org slug, or `jetpack`.
+ * @return The server's message, or null when the last attempt did not fail.
+ */
+export function useInstallError( plugin: string ): string | null {
+	const attempts = useMutationState( {
+		filters: { mutationKey: pluginMutationKey( plugin ) },
+		select: mutation => mutation.state,
+	} );
+	const last = attempts[ attempts.length - 1 ];
+
+	if ( last?.status !== 'error' || last.variables !== 'install' ) {
+		return null;
+	}
+
+	return (
+		( last.error as { message?: string } | null )?.message ||
+		__( 'The plugin could not be installed. Please try again.', 'jetpack-my-jetpack' )
+	);
 }
