@@ -10,20 +10,26 @@
 }
 
 // Grows with its content where supported; elsewhere it scrolls, like core's.
-.jetpack-comments .jetpack-comments__textarea {
+// Three classes: block themes reach it with two classes and a tag.
+.jetpack-comments .jetpack-comments__box .jetpack-comments__textarea {
 	display: block;
 	box-sizing: border-box;
 	inline-size: 100%;
 	// Two lines plus the padding; field-sizing ignores rows.
 	min-block-size: 3lh;
 	field-sizing: content;
-	border: 0;
-	border-radius: 0;
-	background: transparent;
-	box-shadow: none;
-	color: inherit;
-	outline: none;
 	resize: none;
+
+	&,
+	&:focus,
+	&:focus-visible {
+		border: 0;
+		border-radius: 0;
+		background: transparent;
+		box-shadow: none;
+		color: inherit;
+		outline: none;
+	}
 }
 
 // Hidden, not just collapsed, so nothing inside a closed tray can take focus.
