@@ -233,6 +233,41 @@ describe( 'DisconnectDialog', () => {
 			}
 		} );
 
+		it( 'uses the proxy before the user data loads when the server says the current user is connected', async () => {
+			const user = userEvent.setup();
+			render( <DisconnectDialog { ...pluginsProps } isCurrentUserConnected /> );
+
+			await user.click( screen.getByRole( 'button', { name: 'Deactivate' } ) );
+			await user.click( screen.getByRole( 'radio', { name: "It's buggy." } ) );
+			await user.click( screen.getByRole( 'button', { name: 'Submit and deactivate' } ) );
+
+			await waitFor( () => expect( deactivate ).toHaveBeenCalled() );
+			expect( mockSubmitSurvey ).toHaveBeenCalled();
+			expect( mockFetch ).not.toHaveBeenCalled();
+		} );
+
+		it( 'ignores Skip while an answer is being sent, then deactivates once', async () => {
+			jest.useFakeTimers();
+			try {
+				mockSubmitSurvey.mockReturnValueOnce( new Promise( () => {} ) );
+				const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+				render( <DisconnectDialog { ...pluginsProps } connectedUser={ { ID: 7, login: 'me' } } /> );
+
+				await user.click( screen.getByRole( 'button', { name: 'Deactivate' } ) );
+				await user.click( screen.getByRole( 'radio', { name: "It's buggy." } ) );
+				await user.click( screen.getByRole( 'button', { name: 'Submit and deactivate' } ) );
+				await user.click( screen.getByRole( 'link', { name: 'Skip and deactivate' } ) );
+				expect( deactivate ).not.toHaveBeenCalled();
+
+				await act( async () => {
+					jest.advanceTimersByTime( 5000 );
+				} );
+				expect( deactivate ).toHaveBeenCalledTimes( 1 );
+			} finally {
+				jest.useRealTimers();
+			}
+		} );
+
 		it( 'deactivates without sending anything when the survey is skipped', async () => {
 			const user = userEvent.setup();
 			render( <DisconnectDialog { ...pluginsProps } hasConnectedUser={ false } /> );

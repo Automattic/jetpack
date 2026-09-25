@@ -66,6 +66,8 @@ interface DisconnectDialogProps {
 	connectedSiteId?: number;
 	/** Whether any user on the site has a WordPress.com connection. Only used when the context is "plugins". */
 	hasConnectedUser?: boolean;
+	/** Whether the current user has a WordPress.com connection. Only used when the context is "plugins". */
+	isCurrentUserConnected?: boolean;
 	/** Whether or not the dialog modal should be open. */
 	isOpen?: boolean;
 	/** Callback function for when the modal closes. */
@@ -98,6 +100,7 @@ const DisconnectDialog = ( {
 	connectedUser = {}, // Pass empty object to avoid undefined errors.
 	connectedSiteId,
 	hasConnectedUser = true,
+	isCurrentUserConnected = false,
 	isOpen,
 	onClose,
 }: DisconnectDialogProps ) => {
@@ -134,6 +137,10 @@ const DisconnectDialog = ( {
 			jetpackAnalytics.initialize( connectedUser.ID, connectedUser.login );
 		}
 	}, [ connectedUser, connectedUser.ID, connectedUser.login ] );
+
+	// On the plugins page the server says up front, so a click before the user data loads still counts.
+	const isUserConnected =
+		!! connectedUser.ID || ( context === 'plugins' && isCurrentUserConnected );
 
 	/**
 	 * Run when the disconnect dialog is opened
@@ -222,7 +229,7 @@ const DisconnectDialog = ( {
 		( surveyData: SurveyData, tracksSurveyData: TracksSurveyData ) => {
 			let request: Promise< SurveyResponse >;
 
-			if ( context === 'plugins' && connectedUser.ID ) {
+			if ( context === 'plugins' && isUserConnected ) {
 				// The site is still connected, so go through the authenticated proxy as the current user.
 				request = restApi.submitSurvey( {
 					site_id: surveyData.site_id,
@@ -263,7 +270,7 @@ const DisconnectDialog = ( {
 					);
 				} );
 		},
-		[ context, connectedUser.ID ]
+		[ context, isUserConnected ]
 	);
 
 	/**
@@ -311,11 +318,11 @@ const DisconnectDialog = ( {
 		if ( ! connectedSiteId ) {
 			return false;
 		}
-		if ( connectedUser.ID ) {
+		if ( isUserConnected ) {
 			return true;
 		}
 		return context === 'plugins' && ! hasConnectedUser;
-	}, [ connectedUser, connectedSiteId, context, hasConnectedUser ] );
+	}, [ isUserConnected, connectedSiteId, context, hasConnectedUser ] );
 
 	/**
 	 * Disconnect - Triggered upon clicking the 'Disconnect' button.
@@ -432,14 +439,17 @@ const DisconnectDialog = ( {
 	);
 
 	/**
-	 * Skip the survey on the plugins page and deactivate.
+	 * Skip the survey on the plugins page and deactivate, unless an answer is already on its way.
 	 */
 	const skipSurveyAndDeactivate = useCallback(
 		( e?: MouseEvent< HTMLElement > ) => {
 			e && e.preventDefault();
+			if ( isSubmittingFeedback ) {
+				return;
+			}
 			pluginScreenDisconnectCallback?.( e );
 		},
-		[ pluginScreenDisconnectCallback ]
+		[ isSubmittingFeedback, pluginScreenDisconnectCallback ]
 	);
 
 	/**

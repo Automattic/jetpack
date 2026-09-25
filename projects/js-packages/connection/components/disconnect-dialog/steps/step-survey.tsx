@@ -48,6 +48,7 @@ const StepSurvey = ( {
 				className="jp-connection__disconnect-dialog__link jp-connection__disconnect-dialog__link--bold"
 				href="#"
 				onClick={ onExit }
+				aria-disabled={ ( isBeforeDeactivation && isSubmittingFeedback ) || undefined }
 			>
 				{ isBeforeDeactivation
 					? __( 'Skip and deactivate', 'jetpack-connection-js' )

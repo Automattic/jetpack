@@ -24,7 +24,7 @@ import PortalSidecar from './utilities/portal-sidecar';
  * @param {string} props.apiRoot      - Root URL for the API, which is required by the <DisconnectDialog/> component.
  * @param {string} props.apiNonce     - Nonce value for the API, which is required by the <DisconnectDialog/> component.
  * @param {Array}  props.siteBenefits - An array of benefits provided by Jetpack.
- * @param {object} props.siteData     - Blog ID and whether any user is connected, for the survey.
+ * @param {object} props.siteData     - Blog ID and user connection state, for the survey.
  * @param {string} props.pluginUrl    - The URL of the plugin directory.
  * @return {import('react').Component} - The PluginDeactivation component.
  */
@@ -105,6 +105,7 @@ const PluginDeactivation = props => {
 				} }
 				connectedSiteId={ siteData?.siteId }
 				hasConnectedUser={ siteData?.hasConnectedUser ?? true }
+				isCurrentUserConnected={ siteData?.isCurrentUserConnected ?? false }
 				context={ 'plugins' }
 				isOpen={ modalOpen }
 				onClose={ toggleVisibility }

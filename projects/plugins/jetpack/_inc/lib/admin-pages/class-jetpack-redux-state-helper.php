@@ -50,9 +50,12 @@ class Jetpack_Redux_State_Helper {
 	public static function get_plugins_page_state() {
 		$state = self::get_minimal_state();
 
+		$connection = new Connection_Manager();
+
 		$state['pluginDeactivation'] = array(
-			'siteId'           => (int) Jetpack_Options::get_option( 'id' ),
-			'hasConnectedUser' => ( new Connection_Manager() )->has_connected_user(),
+			'siteId'                 => (int) Jetpack_Options::get_option( 'id' ),
+			'hasConnectedUser'       => $connection->has_connected_user(),
+			'isCurrentUserConnected' => $connection->is_user_connected(),
 		);
 
 		return $state;

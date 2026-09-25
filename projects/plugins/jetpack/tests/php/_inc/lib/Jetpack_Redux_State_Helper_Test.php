@@ -101,15 +101,16 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 		$this->assertArrayHasKey( 'WP_API_nonce', $state );
 		$this->assertSame(
 			array(
-				'siteId'           => 1234,
-				'hasConnectedUser' => false,
+				'siteId'                 => 1234,
+				'hasConnectedUser'       => false,
+				'isCurrentUserConnected' => false,
 			),
 			$state['pluginDeactivation']
 		);
 	}
 
 	/**
-	 * A site with a connected user says so.
+	 * A site with a connected user says so, and whether the current user is that user.
 	 */
 	public function test_plugins_page_state_for_a_site_with_a_connected_user() {
 		$user_id = wp_insert_user(
@@ -123,8 +124,12 @@ class Jetpack_Redux_State_Helper_Test extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
 
 		$state = Jetpack_Redux_State_Helper::get_plugins_page_state();
-
 		$this->assertTrue( $state['pluginDeactivation']['hasConnectedUser'] );
+		$this->assertFalse( $state['pluginDeactivation']['isCurrentUserConnected'] );
+
+		wp_set_current_user( $user_id );
+		$state = Jetpack_Redux_State_Helper::get_plugins_page_state();
+		$this->assertTrue( $state['pluginDeactivation']['isCurrentUserConnected'] );
 	}
 
 	/**
