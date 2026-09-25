@@ -160,6 +160,26 @@ class Likes_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Off Simple the Reblog button never renders, so its option cannot switch the buttons off.
+	 */
+	public function test_keeps_the_options_off_wpcom_whatever_the_reblog_option_says(): void {
+		update_option( 'disabled_likes', 1 );
+		update_option( 'disabled_reblogs', 1 );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+		$this->given_connection( true );
+		$this->given_modules( array( 'likes' ) );
+
+		$markup = $this->render();
+
+		delete_option( 'disabled_likes' );
+		delete_option( 'disabled_reblogs' );
+
+		$this->assertStringContainsString( 'switch-to-block-likes', $markup );
+		$this->assertStringContainsString( 'name="wpl_default"', $markup );
+	}
+
+	/**
 	 * Likes alone still render the widget, so they keep the options.
 	 */
 	public function test_keeps_the_options_on_simple_while_reblogs_are_still_on(): void {

@@ -40,8 +40,6 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 		Constants::clear_constants();
 		delete_option( 'jetpack_comment_likes_enabled' );
 		delete_option( 'sharing-options' );
-		delete_option( 'disabled_likes' );
-		delete_option( 'disabled_reblogs' );
 		ob_start();
 		Settings_Form::render();
 		ob_end_clean();
@@ -102,20 +100,6 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'name="wpl_default"', $markup );
 		$this->assertStringContainsString( 'Comment Likes are', $markup );
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_LIKES . '"', $markup );
-	}
-
-	/**
-	 * A Like buttons module switched off through its settings shows no options, so the default moves here.
-	 */
-	public function test_keeps_the_default_once_the_like_buttons_are_switched_off(): void {
-		update_option( 'disabled_likes', 1 );
-		update_option( 'disabled_reblogs', 1 );
-		$this->given_block_theme();
-		$this->given_block( 'jetpack/like' );
-
-		$markup = $this->render_with( array( 'likes', 'comment-likes' ) );
-
-		$this->assertStringContainsString( 'name="wpl_default"', $markup );
 	}
 
 	/**

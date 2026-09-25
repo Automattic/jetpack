@@ -80,8 +80,11 @@ button). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
 off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
 with no way back, as a deactivated module does. The same holds on Jetpack for an
-active Sharing module with every service removed. Without a block route the
-options stay, since they are then the only way back.
+active Sharing module with every service removed. Like buttons have no such
+settings route off Simple: wpcom's `wpr_can_reblog_post()` refuses every Jetpack
+and Atomic site, so `disabled_reblogs` hides nothing there, and switching turns
+the module off instead. Without a block route the options stay, since they are
+then the only way back.
 
 **Comment Likes are a section of their own, with no variants.** Comments have
 no block to move to, and the module runs without the Likes module, so

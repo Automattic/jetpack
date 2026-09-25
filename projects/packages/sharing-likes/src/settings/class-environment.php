@@ -117,12 +117,15 @@ final class Environment {
 	}
 
 	/**
-	 * Whether posts show neither a Like nor a Reblog button, bar those that opted in individually.
+	 * Whether Simple's posts show neither a Like nor a Reblog button, bar those that opted in individually.
 	 *
-	 * Both count because the legacy widget renders for either.
+	 * Both count because the legacy widget renders for either. Jetpack and Atomic never
+	 * render Reblog, and switch to the block by turning the module off instead.
 	 */
 	public static function legacy_likes_switched_off(): bool {
-		return ! Likes_Options::likes_enabled_sitewide() && ! Likes_Options::reblogs_enabled_sitewide();
+		return self::is_simple_site()
+			&& ! Likes_Options::likes_enabled_sitewide()
+			&& ! Likes_Options::reblogs_enabled_sitewide();
 	}
 
 	/**
