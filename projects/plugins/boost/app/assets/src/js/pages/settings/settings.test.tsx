@@ -61,7 +61,7 @@ describe( 'Settings', () => {
 		render( <Settings /> );
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
-			'Cornerstone pagesAdded: Homepage',
+			'Cornerstone pagesAdded: HomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
 			'Page loadingManage how your page content is loaded for visitors.',
 			'Code optimizationReduce the code needed to load your site.',
 			'ImagesTools to load and deliver images more efficiently.',
@@ -81,13 +81,23 @@ describe( 'Settings', () => {
 		expect( screen.getAllByText( 'Added: Homepage' ) ).toHaveLength( 1 );
 	} );
 
+	it( 'shows the Cornerstone description in the header while collapsed', () => {
+		render( <Settings /> );
+
+		const button = screen.getByRole( 'button', {
+			name: 'Cornerstone pages',
+			description: /Choose the pages that matter most on your site/,
+		} );
+		expect( button.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	} );
+
 	it( 'renders the section titles as h3s beneath the page h2', () => {
 		render( <Settings /> );
 
 		expect(
 			screen.getAllByRole( 'heading', { level: 3 } ).map( heading => heading.textContent )
 		).toEqual( [
-			'Cornerstone pagesAdded: Homepage',
+			'Cornerstone pagesAdded: HomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
 			'Page loadingManage how your page content is loaded for visitors.',
 			'Code optimizationReduce the code needed to load your site.',
 			'ImagesTools to load and deliver images more efficiently.',
