@@ -152,6 +152,25 @@ $panel-art-draw-duration: 1.4s;
 $house-easing: cubic-bezier(0.23, 1, 0.32, 1);
 
 /*
+ * The prototype's column entrance, copied from its `.appear` rule: 0.5s on a
+ * symmetric curve, from a 15px rise and an opacity of 0.001 rather than 0. The
+ * near-zero start keeps the element composited from the first frame, so the
+ * rise never hitches. Reduced motion drops to a 0.4s fade, which is what the
+ * prototype does too.
+ */
+$appear-easing: cubic-bezier(0.44, 0, 0.56, 1);
+$appear-duration: 0.5s;
+$appear-rise: 15px;
+$appear-reduced-duration: 0.4s;
+
+/*
+ * The panel copy's own entrance, from the prototype's `.panel-line`: same 0.5s
+ * but on the house curve and a 14px rise, one line 0.08s behind the last.
+ */
+$panel-line-rise: 14px;
+$panel-line-step: 0.08s;
+
+/*
  * The question column's measure. The surface-width scale steps 400, 560, 720,
  * and it sat on 720 — wider than the start screen's own 448, so the two read as
  * different pages. 470 keeps the feature rows' two-line descriptions from
@@ -180,9 +199,8 @@ $option-cascade-base: 0.12s;
 $option-cascade-step: 0.05s;
 
 /*
- * The beats a column arrives on, from the prototype's finish celebration: its
- * copy blocks land 0.1s apart from 0.2s. Ours are a shade wider apart because a
- * step has fewer, larger blocks than that screen does.
+ * The beats a column arrives on, the prototype's `.appear-1` to `.appear-4`:
+ * 0.1, 0.18, 0.26, 0.34.
  */
 $heading-tracking: -0.025em;
 $wave-base: 0.1s;
@@ -464,24 +482,25 @@ $rail-row-min-height: 40px;
 	margin-block: auto;
 	margin-inline: auto;
 	animation-name: step-enter;
-	animation-duration: var(--wpds-motion-duration-md);
+	animation-duration: $appear-duration;
 	animation-timing-function: $house-easing;
 
 	@media (prefers-reduced-motion: reduce) {
-		animation-name: none;
+		animation-name: fade-in;
+		animation-duration: $appear-reduced-duration;
 	}
 }
 
 @keyframes step-enter {
 
 	from {
-		opacity: 0;
-		transform: translateY(var(--wpds-dimension-gap-xs));
+		opacity: 0.001;
+		transform: translateY($appear-rise);
 	}
 
 	to {
 		opacity: 1;
-		transform: none;
+		transform: translateY(0);
 	}
 }
 
@@ -706,21 +725,21 @@ $rail-row-min-height: 40px;
 	display: block;
 	opacity: 0;
 	animation-name: panel-line;
-	animation-duration: var(--wpds-motion-duration-xl);
+	animation-duration: $appear-duration;
 	animation-timing-function: $house-easing;
 	animation-fill-mode: forwards;
 
 	// Sibling-counted rather than nth-child: the visually hidden copy shares the
 	// parent and would otherwise take the first line's place in the stagger.
 	& + & {
-		animation-delay: var(--wpds-motion-duration-sm);
+		animation-delay: $panel-line-step;
 	}
 
 	// The start screen's copy runs to three lines, so the stagger has to keep
 	// climbing; one selector per line, because a sibling combinator cannot
 	// count. The multiplier is the line's position, not a duration of its own.
 	& + & + & {
-		animation-delay: calc(2 * var(--wpds-motion-duration-sm));
+		animation-delay: 2 * $panel-line-step;
 	}
 
 	@media (prefers-reduced-motion: reduce) {
@@ -737,12 +756,12 @@ $rail-row-min-height: 40px;
 
 	from {
 		opacity: 0;
-		transform: translateY(var(--wpds-dimension-gap-lg));
+		transform: translateY($panel-line-rise);
 	}
 
 	to {
 		opacity: 1;
-		transform: none;
+		transform: translateY(0);
 	}
 }
 
@@ -1257,26 +1276,27 @@ $rail-row-min-height: 40px;
 	border-radius: 50%;
 	animation: finish-wash $finish-wash-duration-1 ease-out both;
 	animation-delay: $wave-base + 0.1s;
-	background: var(--jp-green-50);
 	filter: blur(6px);
-	opacity: 0.25;
 	--finish-wash-scale: #{$finish-wash-1};
+
+	// The alpha rides on the colour, as the prototype has it. It cannot sit on
+	// `opacity`, because that is the property the keyframe drives to 0.
+	background: color-mix(in sRGB, var(--jp-green-50) 25%, transparent);
 }
 
 .finish-wash--2 {
 	animation-duration: $finish-wash-duration-2;
 	animation-delay: $wave-base + 0.2s;
+	background: color-mix(in sRGB, var(--jp-green-50) 15%, transparent);
 	filter: blur(8px);
-	opacity: 0.15;
 	--finish-wash-scale: #{$finish-wash-2};
 }
 
 .finish-wash--3 {
 	animation-duration: $finish-wash-duration-3;
 	animation-delay: $wave-base + 0.4s;
-	background: var(--jp-white);
+	background: color-mix(in sRGB, var(--jp-white) 30%, transparent);
 	filter: blur(6px);
-	opacity: 0.3;
 	--finish-wash-scale: #{$finish-wash-3};
 }
 
@@ -1389,7 +1409,7 @@ $rail-row-min-height: 40px;
 @keyframes finish-wash {
 
 	from {
-		opacity: inherit;
+		opacity: 1;
 		transform: scale(1);
 	}
 
@@ -1419,19 +1439,17 @@ $rail-row-min-height: 40px;
  */
 .wave {
 	animation-name: step-enter;
-	animation-duration: var(--wpds-motion-duration-lg);
-	animation-timing-function: $house-easing;
+	animation-duration: $appear-duration;
+	animation-timing-function: $appear-easing;
 	animation-fill-mode: both;
 
 	@media (prefers-reduced-motion: reduce) {
 		animation-name: fade-in;
+		animation-duration: $appear-reduced-duration;
 	}
 }
 
-/*
- * The prototype's own beats for a column arriving: 0.2s apart, starting at 0.1.
- * Named rather than written per element, because four screens now use them.
- */
+// Named rather than written per element, because four screens now use them.
 .wave-1 {
 	animation-delay: $wave-base;
 }
