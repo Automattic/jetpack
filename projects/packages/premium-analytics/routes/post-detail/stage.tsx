@@ -19,6 +19,7 @@ import {
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
@@ -104,7 +105,8 @@ function PostDetail(): JSX.Element {
 		activeTab,
 		setActiveTab,
 		layout: fixedLayout,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+		isEmailNotSent,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
 
 	// The stored per-tab arrangement, layered over the fixed composition.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
@@ -131,6 +133,9 @@ function PostDetail(): JSX.Element {
 	} );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
+	// The email header names the send ("Email sent on…"), so a post that was
+	// never sent gets the page-level state in place of the header and widgets.
+	const showNotSent = isEmailTab && isEmailNotSent;
 
 	const widgetModules = useWidgetModules();
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
@@ -223,19 +228,46 @@ function PostDetail(): JSX.Element {
 						 */ }
 						<DetailPageLayout
 							tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-							header={ postHeaderSlots( {
-								summary,
-								variant: isEmailTab ? 'email' : 'post',
-								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-							} ) }
+							header={
+								showNotSent
+									? undefined
+									: postHeaderSlots( {
+											summary,
+											variant: isEmailTab ? 'email' : 'post',
+											performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+										} )
+							}
 							controls={ dateFiltersPanel }
 							returnToTopKey={ attentionId }
 						>
-							{ /* Keyed by tab: each tab is its own layout, so the grid mounts
-							     fresh rather than reflowing one arrangement into the next. */ }
-							<DetailPageSection key={ activeTab }>
-								<WidgetDashboard.Widgets />
-							</DetailPageSection>
+							{ showNotSent ? (
+								<DetailPageEmptyState
+									title={ __(
+										'This post hasn’t been sent as a newsletter',
+										'jetpack-premium-analytics-pkg'
+									) }
+									description={ __(
+										'Newsletter can help you reach subscribers in their inbox.',
+										'jetpack-premium-analytics-pkg'
+									) }
+									actions={
+										<LinkButton
+											variant="outline"
+											size="compact"
+											href="https://jetpack.com/support/newsletter/"
+											openInNewTab
+										>
+											{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+										</LinkButton>
+									}
+								/>
+							) : (
+								/* Keyed by tab: each tab is its own layout, so the grid mounts
+								   fresh rather than reflowing one arrangement into the next. */
+								<DetailPageSection key={ activeTab }>
+									<WidgetDashboard.Widgets />
+								</DetailPageSection>
+							) }
 						</DetailPageLayout>
 					</DetailPageShell>
 				</WidgetDashboard>

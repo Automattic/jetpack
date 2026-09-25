@@ -231,20 +231,68 @@ describe( 'usePostDetailTabs', () => {
 		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
 	} );
 
-	it( 'hides the email tabs for a post never sent to subscribers', async () => {
+	it( 'keeps the email tabs for a post never sent, flagged and without widgets', () => {
 		mockEmailSends( 0 );
+		const pinned = {
+			post_id: POST_ID,
+			preset: 'all-time' as const,
+			from: '2026-06-22',
+			to: '2026-08-28',
+			interval: 'week' as const,
+		};
 		const { stage, commit } = mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, pinned ) );
+
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
+			'post-traffic',
+			'email-opens',
+			'email-clicks',
+		] );
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( result.current.isEmailNotSent ).toBe( true );
+		// Every widget would be empty; the stage shows one page-level state instead.
+		expect( result.current.layout ).toEqual( [] );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
+	} );
+
+	it( 'leaves the Post traffic layout alone for a post never sent', () => {
+		mockEmailSends( 0 );
+		mockSearch( 'post-traffic' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
-		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
-		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'post-traffic' ] );
+	} );
 
-		// A deep link to a gated tab falls back like any hidden tab.
-		await waitFor( () => {
-			expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
-			expect( commit ).toHaveBeenCalledWith( { replace: true } );
-		} );
+	it.each( [ 'page', 'jetpack-portfolio' ] )(
+		'hides the email tabs for a %s, which is never sent as a newsletter',
+		async postType => {
+			const { stage, commit } = mockSearch( 'email-opens' );
+
+			const { result } = renderHook( () =>
+				usePostDetailTabs( POST_ID, undefined, false, postType )
+			);
+
+			expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
+			expect( result.current.activeTab ).toBe( 'post-traffic' );
+			expect( mockUseClicksBreakdown ).toHaveBeenCalledWith( POST_ID, 'rate', {
+				enabled: false,
+			} );
+			await waitFor( () => {
+				expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
+				expect( commit ).toHaveBeenCalledWith( { replace: true } );
+			} );
+		}
+	);
+
+	it( 'keeps the email tabs for a standard post', () => {
+		mockSearch( 'email-opens' );
+
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, false, 'post' ) );
+
+		expect( result.current.activeTab ).toBe( 'email-opens' );
 	} );
 
 	it( 'exposes the email tabs for a legacy send with unrecorded sends', () => {
@@ -254,17 +302,23 @@ describe( 'usePostDetailTabs', () => {
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
 		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( result.current.isEmailNotSent ).toBe( false );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps the email tabs hidden while the send summary is still loading', () => {
+	it( 'does not flag a post as never sent while the send summary is loading', () => {
 		mockEmailSends( undefined, 'loading' );
 		mockSearch( 'post-traffic' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
-		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
+		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
+			'post-traffic',
+			'email-opens',
+			'email-clicks',
+		] );
+		expect( result.current.isEmailNotSent ).toBe( false );
 	} );
 
 	it( 'shows the deep-linked email tab while the send summary is loading', () => {
@@ -273,60 +327,50 @@ describe( 'usePostDetailTabs', () => {
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
-		// Falling back to Post traffic here would render a whole wrong page for
-		// the reader to watch swap out (WOOA7S-2059). The URL still waits.
-		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [
-			'post-traffic',
-			'email-opens',
-			'email-clicks',
-		] );
 		expect( result.current.activeTab ).toBe( 'email-opens' );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
 	} );
 
-	it( 'keeps the deep-linked email tab while a retry is paused', () => {
+	it( 'does not flag a post as never sent while a retry is paused', () => {
 		// A background tab or an offline blip pauses the retryer, dropping
 		// `isLoading` with the gate still unanswered. Reading that as "answered"
-		// would swap the page to Post traffic and back on refocus (WOOA7S-2059).
+		// would flash the not-sent state over a post that was sent.
 		mockEmailSends( undefined, 'paused' );
-		const { stage, commit } = mockSearch( 'email-opens' );
+		mockSearch( 'email-opens' );
 
 		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
 
 		expect( result.current.activeTab ).toBe( 'email-opens' );
-		expect( stage ).not.toHaveBeenCalled();
-		expect( commit ).not.toHaveBeenCalled();
+		expect( result.current.isEmailNotSent ).toBe( false );
 	} );
 
-	it( 'hides the deep-linked email tab once the gate reports no sends', async () => {
+	it( 'keeps the deep-linked email tab once the gate reports no sends', () => {
 		const { stage, commit } = mockSearch( 'email-opens' );
 		mockEmailSends( undefined, 'loading' );
 
 		const { result, rerender } = renderHook( () => usePostDetailTabs( POST_ID ) );
-		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( result.current.isEmailNotSent ).toBe( false );
 
 		mockEmailSends( 0 );
 		rerender();
 
-		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
-		expect( result.current.activeTab ).toBe( 'post-traffic' );
-		await waitFor( () => {
-			expect( stage ).toHaveBeenCalledWith( { section: 'post-traffic' } );
-			expect( commit ).toHaveBeenCalledWith( { replace: true } );
-		} );
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( result.current.isEmailNotSent ).toBe( true );
+		expect( stage ).not.toHaveBeenCalled();
+		expect( commit ).not.toHaveBeenCalled();
 	} );
 
-	it( 'preserves an email deep link when the send summary request fails', () => {
+	it( 'keeps an email deep link and its widgets when the send summary request fails', () => {
 		mockEmailSends( undefined, 'error' );
 		const { stage, commit } = mockSearch( 'email-opens' );
 
-		const { result } = renderHook( () => usePostDetailTabs( POST_ID ) );
+		const { result } = renderHook( () => usePostDetailTabs( POST_ID, undefined, true ) );
 
-		// Fail closed: tabs stay hidden, but the URL keeps the deep link since
-		// a later successful refetch can still settle whether email stats exist.
-		expect( result.current.tabs.map( tab => tab.id ) ).toEqual( [ 'post-traffic' ] );
-		expect( result.current.activeTab ).toBe( 'post-traffic' );
+		// The widgets surface their own errors; a failed check is not "never sent".
+		expect( result.current.activeTab ).toBe( 'email-opens' );
+		expect( result.current.isEmailNotSent ).toBe( false );
+		expect( result.current.layout ).toEqual( POST_DETAIL_TAB_LAYOUTS[ 'email-opens' ] );
 		expect( stage ).not.toHaveBeenCalled();
 		expect( commit ).not.toHaveBeenCalled();
 	} );
