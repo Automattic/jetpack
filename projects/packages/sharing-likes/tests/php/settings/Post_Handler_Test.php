@@ -458,6 +458,29 @@ class Post_Handler_Test extends BaseTestCase {
 		$this->assertSame( array( 'likes' ), $active );
 	}
 
+	/**
+	 * A host can force the module on, so the save must not claim the box took.
+	 */
+	public function test_comment_likes_save_reports_a_module_the_host_keeps_on(): void {
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				return array_merge( (array) $modules, array( 'comment-likes' ) );
+			}
+		);
+
+		$this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+		remove_all_filters( 'jetpack_active_modules' );
+
+		$this->assertStringContainsString( Settings_Page::COMMENT_LIKES_UNCHANGED . '=1', (string) $this->redirected_to );
+	}
+
+	public function test_comment_likes_save_reports_nothing_once_the_module_switches(): void {
+		$this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertStringNotContainsString( Settings_Page::COMMENT_LIKES_UNCHANGED, (string) $this->redirected_to );
+	}
+
 	public function test_comment_likes_save_fires_no_deactivation_for_a_module_already_off(): void {
 		$fired = 0;
 		add_action(

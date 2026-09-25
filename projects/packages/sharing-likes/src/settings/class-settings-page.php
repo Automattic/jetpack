@@ -25,6 +25,11 @@ final class Settings_Page {
 	public const SLUG = 'sharing';
 
 	/**
+	 * Query argument a save adds when the Comment Likes switch did not take.
+	 */
+	public const COMMENT_LIKES_UNCHANGED = 'comment-likes-unchanged';
+
+	/**
 	 * Hook the screen up.
 	 */
 	public static function init(): void {
@@ -112,6 +117,14 @@ final class Settings_Page {
 			'<div class="updated"><p>%s</p></div>',
 			esc_html__( 'Settings have been saved', 'jetpack-sharing-likes' )
 		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only decides whether to print a warning.
+		if ( isset( $_GET[ self::COMMENT_LIKES_UNCHANGED ] ) ) {
+			printf(
+				'<div class="error"><p>%s</p></div>',
+				esc_html__( 'Comment Likes could not be switched on or off on this site.', 'jetpack-sharing-likes' )
+			);
+		}
 	}
 
 	/**

@@ -219,6 +219,13 @@ class Settings_Page_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Settings have been saved', $this->render_screen() );
 	}
 
+	public function test_warns_when_the_comment_likes_switch_did_not_take(): void {
+		$_GET['update']                                 = 'saved';
+		$_GET[ Settings_Page::COMMENT_LIKES_UNCHANGED ] = '1';
+
+		$this->assertStringContainsString( 'Comment Likes could not be switched on or off', $this->render_screen() );
+	}
+
 	/**
 	 * A plain visit is not a save, so it must not claim one happened.
 	 */
