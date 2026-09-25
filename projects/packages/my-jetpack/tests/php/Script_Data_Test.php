@@ -84,6 +84,7 @@ class Script_Data_Test extends BaseTestCase {
 	 */
 	public function test_adds_the_products_section() {
 		$filter = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
+		Initializer::register_feature_flags();
 		$this->assertSame( 'features', Initializer::add_admin_script_data( array() )['myJetpack']['productsSection']['slug'] );
 
 		add_filter( $filter, '__return_false' );
