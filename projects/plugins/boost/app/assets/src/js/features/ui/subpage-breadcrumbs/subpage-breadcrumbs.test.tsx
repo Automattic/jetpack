@@ -23,7 +23,7 @@ describe( 'SubpageBreadcrumbs', () => {
 		expect( screen.getByText( 'Cache debug log' ) ).toBeTruthy();
 	} );
 
-	it( 'returns to Settings in place and records the click', () => {
+	it( 'returns to Settings without a reload and records the click', () => {
 		const { recordBoostEvent } = jest.requireMock( '$lib/utils/analytics' );
 		render( <SubpageBreadcrumbs title="Cache debug log" /> );
 
