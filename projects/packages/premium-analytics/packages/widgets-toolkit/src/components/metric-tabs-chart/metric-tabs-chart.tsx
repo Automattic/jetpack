@@ -16,7 +16,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, type ChartBaseline } from '../../helpers';
+import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -138,18 +138,6 @@ export interface MetricTabsChartProps {
 	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
 	 */
 	empty?: ReactNode;
-}
-
-/**
- * Whether the metric has anything to plot: a non-zero reading in the current period or, when it is overlaid, the previous one.
- *
- * @param metric - The metric to check.
- * @return True when some point is a non-zero number.
- */
-function hasReadings( metric: MetricTab ): boolean {
-	return [ ...metric.current, ...( metric.previous ?? [] ) ].some(
-		point => point.value !== null && point.value !== 0
-	);
 }
 
 /**
@@ -331,7 +319,10 @@ function MetricChart( {
 		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
 	}
 
-	if ( empty && ! hasReadings( metric ) ) {
+	if (
+		empty &&
+		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] )
+	) {
 		return <>{ empty }</>;
 	}
 

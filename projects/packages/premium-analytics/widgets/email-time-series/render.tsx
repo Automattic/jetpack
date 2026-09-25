@@ -10,8 +10,9 @@ import {
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
-import { reports } from '@jetpack-premium-analytics/icons';
+import { reports, search } from '@jetpack-premium-analytics/icons';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -136,8 +137,6 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			},
 		];
 	}, [ chartReport, field, metric, active.timezone ] );
-	// The timeline zero-fills every bucket of a window without opens or clicks.
-	const hasPoints = metricTabs[ 0 ].current.some( point => point.value > 0 );
 
 	return (
 		<div className={ styles.root }>
@@ -145,7 +144,8 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				isLoading={ active.isLoading }
 				isFetching={ active.isFetching }
 				isError={ active.isError }
-				isEmpty={ ! hasSelection || ! hasPoints }
+				// The timeline zero-fills every bucket of a window without opens or clicks, so that emptiness is judged inside the chart; only a missing email empties the widget.
+				isEmpty={ ! hasSelection }
 				error={ {
 					description: __(
 						"We couldn't load this email's timeline. Please try again in a moment.",
@@ -153,17 +153,13 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: retry } ],
 				} }
-				empty={
-					hasSelection
-						? undefined
-						: {
-								icon: reports,
-								description: __(
-									'Open an email report to see its timeline here.',
-									'jetpack-premium-analytics-pkg'
-								),
-							}
-				}
+				empty={ {
+					icon: reports,
+					description: __(
+						'Open an email report to see its timeline here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.
 				renderLoading={ <MetricTabsChartSkeleton /> }
@@ -172,6 +168,15 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					empty={
+						<ChartEmptyState
+							icon={ search }
+							text={ __(
+								'We couldn’t find results for this time period.',
+								'jetpack-premium-analytics-pkg'
+							) }
+						/>
+					}
 				/>
 			</WidgetState>
 		</div>

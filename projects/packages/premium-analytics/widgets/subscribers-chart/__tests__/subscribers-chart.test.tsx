@@ -8,6 +8,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import SubscribersChartWidget from '../render';
+import type { ReactNode } from 'react';
 
 const mockUseStatsSubscribersReport = jest.fn();
 
@@ -22,6 +23,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	MetricTabsChart: ( {
 		metrics,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -29,6 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			current: { date: Date; value: number | null }[];
 			countLabel?: ( count: number ) => string;
 		}[];
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -39,7 +42,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
 			data-headline={ metrics[ 0 ]?.value }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -114,7 +119,7 @@ describe( 'SubscribersChartWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-headline', '5' );
 	} );
 
-	it( 'shows the empty state for a window of null counts, not an empty plot', async () => {
+	it( 'answers a window of null counts inside the chart, not with a widget-level empty state', async () => {
 		mockUseStatsSubscribersReport.mockReturnValue(
 			reportWith( [
 				{ date_start: '2015-01-01T00:00:00', subscribers: null, subscribers_paid: null },
@@ -127,9 +132,9 @@ describe( 'SubscribersChartWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No subscriber data in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers the Paid subscribers tab only when the site has paid subscribers', async () => {
