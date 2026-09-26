@@ -77,6 +77,20 @@ function FeatureRow( {
 					className={ styles[ 'feature-row__description' ] }
 				>
 					{ module.description }
+					{ /*
+					 * Five of the six ship on, so most of this list is not a list of
+					 * things about to happen. Saying which are already running is the
+					 * difference between asking permission and reporting the state.
+					 */ }
+					{ module.activated && (
+						<>
+							{ /* A real space, because the dot between them is drawn in CSS and a
+							     screen reader would otherwise run the two together. */ }{ ' ' }
+							<span className={ styles[ 'feature-row__already' ] }>
+								{ __( 'Already on', 'jetpack-my-jetpack' ) }
+							</span>
+						</>
+					) }
 				</Text>
 			</span>
 

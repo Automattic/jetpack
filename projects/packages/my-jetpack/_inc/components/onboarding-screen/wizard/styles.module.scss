@@ -52,6 +52,13 @@ $panel-breakpoint: 1280px;
  * clears it comfortably is where it sits.
  */
 $rail-breakpoint: 960px;
+
+/*
+ * Where the sheet is the phone's whole width. The prototype's own `sm`, and
+ * where it drops its heading from 32 to 28 — the one breakpoint here that
+ * comes from Tailwind rather than from our own arithmetic.
+ */
+$phone-breakpoint: 640px;
 $glow-height: 55%;
 $row-glyph-size: 28px;
 $row-glyph-gap: 14px;
@@ -356,6 +363,13 @@ $rail-row-min-height: 40px;
 .canvas {
 	display: flex;
 	align-self: center;
+
+	// Half the inset on a phone: 16 either side of a 400px window is 8% of it
+	// spent on shadow, and the reading column pays for all of it.
+	@media (max-width: $phone-breakpoint) {
+		padding: calc($canvas-inset / 2);
+	}
+
 	min-inline-size: 0;
 	min-block-size: 0;
 
@@ -398,6 +412,16 @@ $rail-row-min-height: 40px;
 	gap: var(--wpds-dimension-gap-lg);
 	min-inline-size: 0;
 	padding-block: var(--wpds-dimension-padding-lg);
+
+	/*
+	 * Collapsed it is a header bar, and a header bar wants a header's gaps. It
+	 * kept the column's, so the mark, the title and the count sat 16 apart in a
+	 * 124px band of dark with nothing under them.
+	 */
+	@media (max-width: $rail-breakpoint - 1px) {
+		gap: var(--wpds-dimension-gap-xs);
+		padding-block: var(--wpds-dimension-padding-md);
+	}
 }
 
 .rail-head {
@@ -973,6 +997,13 @@ $rail-row-min-height: 40px;
 .step-title {
 	letter-spacing: $heading-tracking;
 	text-wrap: balance;
+
+	// The prototype's own `text-[28px] sm:text-[32px]`: at 32 the longest heading
+	// runs to four lines on a phone.
+	@media (max-width: $phone-breakpoint) {
+		font-size: $start-title-size;
+		line-height: $start-title-line-height;
+	}
 }
 
 .step-description {
@@ -1020,9 +1051,13 @@ $rail-row-min-height: 40px;
 		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 	}
 
+	/*
+	 * The surface ramp on hover, not the interactive one. Neither has a -hover
+	 * step, and the interactive -weak-active is three shades heavier than the
+	 * prototype's band: on a list of five it reads as a selection, not a hover.
+	 */
 	&:hover {
-		// No -hover token exists in WPDS; -weak-active is the subtle grey band.
-		background: var(--wpds-color-background-interactive-neutral-weak-active);
+		background: var(--wpds-color-background-surface-neutral-weak);
 	}
 
 	// The prototype has no focus styles; wp-admin is not exempt from an audit.
@@ -1081,9 +1116,21 @@ $rail-row-min-height: 40px;
 	}
 }
 
+.step-option__copy {
+	display: flex;
+	min-inline-size: 0;
+	flex-direction: column;
+	flex-grow: 1;
+	gap: var(--wpds-dimension-gap-xs);
+	text-align: start;
+}
+
+.step-option__description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
 .step-option__label {
 	min-inline-size: 0;
-	flex-grow: 1;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
 	// Chained for scoping only: Text's variant styles are layered, so any
@@ -1108,7 +1155,11 @@ $rail-row-min-height: 40px;
 		transition: none;
 	}
 
+	// The prototype's own 16, not the glyph's natural 24: beside a 15px label a
+	// 24px tick is the biggest thing in the row.
 	svg {
+		inline-size: var(--wpds-dimension-size-2xs);
+		block-size: var(--wpds-dimension-size-2xs);
 		fill: currentColor;
 	}
 
@@ -1215,6 +1266,19 @@ $rail-row-min-height: 40px;
 	display: block;
 	color: var(--wpds-color-foreground-content-neutral);
 	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+/*
+ * Part of the description, not a badge beside the name: a pill next to six
+ * names in a row is six pills, and the fact is a footnote about the row rather
+ * than a label on it.
+ */
+.feature-row__already {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	&::before {
+		content: " · ";
+	}
 }
 
 /*

@@ -8,11 +8,11 @@ import {
 	__experimentalItemGroup as ItemGroup, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { border, drafts, published, wordpress } from '@wordpress/icons';
+import { border, chevronLeft, chevronRight, drafts, published, wordpress } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
 import { Button, Icon, LinkButton, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useEffect, useId, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState, useMemo } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
 import { assignLocation } from './assign-location';
 import { ConnectedNotice } from './connected-notice';
@@ -284,7 +284,11 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	);
 
 	const panelLines = PANEL_LINES[ step ];
-	const state: WizardState = { choices, freeText: siteTypeDetail };
+	const state: WizardState = useMemo(
+		() => ( { choices, freeText: siteTypeDetail } ),
+		[ choices, siteTypeDetail ]
+	);
+
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
 
 	const stepBody = {
@@ -319,15 +323,22 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				onChange={ handleChoice }
 				freeText={ siteTypeDetail }
 				onFreeTextChange={ setSiteTypeDetail }
+				onCommit={ canContinue( step, state ) && ! isApplying ? handleNext : undefined }
 			/>
 		),
 	}[ meta.kind ];
 
+	/*
+	 * Counted from the step this person actually starts on. A connected site never
+	 * sees the connect screen, so telling them they are on step 2 of 4 counts a
+	 * step that was never theirs and leaves the last one reading 4 of 4 after
+	 * three.
+	 */
 	const stepCount = sprintf(
 		/* translators: 1: number of the current step. 2: total number of steps. */
 		__( 'Step %1$d of %2$d', 'jetpack-my-jetpack' ),
-		step + 1,
-		TOTAL_STEPS
+		step - firstStep + 1,
+		TOTAL_STEPS - firstStep
 	);
 
 	return (
@@ -465,6 +476,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 													onClick={ handleBack }
 													disabled={ isApplying }
 												>
+													<Button.Icon icon={ chevronLeft } />
 													{ __( 'Back', 'jetpack-my-jetpack' ) }
 												</Button>
 											) }
@@ -492,6 +504,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 													) }
 												>
 													{ __( 'Continue', 'jetpack-my-jetpack' ) }
+													<Button.Icon icon={ chevronRight } />
 												</Button>
 											) }
 										</Stack>
