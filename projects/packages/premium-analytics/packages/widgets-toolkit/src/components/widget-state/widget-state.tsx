@@ -21,9 +21,11 @@ export interface WidgetStateError {
 	actions?: Array< { label: string; onClick: () => void } >;
 }
 
+/** A widget's own empty state, for a case the generic "no results for this time period" state does not describe, such as a scope prompt or a fixed window. */
 export interface WidgetStateEmpty {
+	/** No icon when omitted: the generic magnifier belongs to the generic copy. */
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
-	/** Defaults to "No data in this period." when omitted. */
+	/** Defaults to the generic "We couldn’t find results for this time period." when omitted. */
 	description?: string;
 }
 
@@ -42,6 +44,7 @@ export interface WidgetStateProps {
 	isError: boolean;
 	isEmpty: boolean;
 	error?: WidgetStateError;
+	/** Omit for the generic "no results for this time period" state. */
 	empty?: WidgetStateEmpty;
 	/** Optional content-shaped loading override; defaults to `GenericSkeleton`. */
 	renderLoading?: ReactNode;
@@ -147,11 +150,7 @@ export function WidgetState( {
 	} else if ( isEmpty ) {
 		body = (
 			<ChartEmptyState
-				// No default icon: `null` suppresses `ChartEmptyState`'s own
-				// `cautionFilled`, which would read as an error state here.
-				icon={ empty?.icon ?? null }
-				// `ChartEmptyState` supplies the "No data in this period." default when
-				// `description` is omitted — keep that copy in one place.
+				icon={ empty ? ( empty.icon ?? null ) : undefined }
 				text={ empty?.description }
 			/>
 		);

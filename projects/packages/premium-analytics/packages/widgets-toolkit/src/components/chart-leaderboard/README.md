@@ -201,8 +201,8 @@ inline padding.
 | `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
 | `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
 | `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
-| `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                             |
-| `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                       |
+| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                                 | Icon to display in default empty state                             |
+| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`                     | Text for default empty state                                       |
 | `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
 
 ### LeaderboardChartData Type

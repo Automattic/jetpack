@@ -20,7 +20,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { video } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -114,10 +113,6 @@ function VideoPressReport() {
 					'jetpack-premium-analytics-pkg'
 				),
 				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-			} }
-			empty={ {
-				icon: video,
-				description: __( 'No VideoPress plays in this period.', 'jetpack-premium-analytics-pkg' ),
 			} }
 			renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 		>

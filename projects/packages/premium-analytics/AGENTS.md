@@ -705,7 +705,7 @@ interpolated into a shared frame) so translators see the whole sentence:
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,
 	} ) }
-	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ) } }
+	// No `empty`: a period with no rows gets the generic "no results" state.
 >
 	<LeaderboardChart … />
 </WidgetState>
@@ -733,9 +733,12 @@ area. Notes:
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.
-- Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
-  `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
-  a caution glyph: empty is not an error.
+- Omit `empty` for a period with no data: `<WidgetState>` then draws `ChartEmptyState`'s generic
+  state, the `search` magnifier and "We couldn’t find results for this time period.". Pass
+  `empty` only for a case that copy does not describe, such as a scope prompt ("Open a post to
+  see…") or a fixed window. Its `icon` is then the widget's own neutral glyph from
+  `@jetpack-premium-analytics/icons`, or none when omitted. Don't use a caution glyph: empty is
+  not an error.
 - Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
   of `<WidgetState>`, not inside it, so it stays available in every state.
 - `<WidgetState>` covers only a widget's own data state; the host still owns the crash error

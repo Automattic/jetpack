@@ -115,15 +115,18 @@ function PopularPostCard( { authorId }: { authorId: number } ) {
 				),
 				onRetry: refetch,
 			} ) }
-			empty={ {
-				icon: trendingUp,
-				description: authorId
-					? __(
-							'No views recorded for this author’s posts in this period.',
-							'jetpack-premium-analytics-pkg'
-						)
-					: __( 'No post views in the last 12 months.', 'jetpack-premium-analytics-pkg' ),
-			} }
+			// The site-wide card ranks over a pinned window, not the selected period, so the generic "this time period" copy would point at the wrong range.
+			empty={
+				authorId
+					? undefined
+					: {
+							icon: trendingUp,
+							description: __(
+								'No post views in the last 12 months.',
+								'jetpack-premium-analytics-pkg'
+							),
+						}
+			}
 			renderLoading={ <PostHighlightCardSkeleton /> }
 		>
 			{ post && (

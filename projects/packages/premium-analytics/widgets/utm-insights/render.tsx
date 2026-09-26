@@ -24,7 +24,6 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -195,10 +194,6 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						),
 						onRetry: refetch,
 					} ) }
-					empty={ {
-						icon: megaphone,
-						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
