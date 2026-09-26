@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Record Tracks events for PayPal connects and disconnects, payment links created, deleted or emailed, and views of the Payment Links admin pages.
+Record Tracks events for PayPal connection attempts, results and disconnects, payment links created, updated, deleted or emailed, and views of the Payment Links admin pages.

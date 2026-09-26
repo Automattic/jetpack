@@ -5,6 +5,7 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
@@ -218,6 +219,10 @@ export default function ConnectionWizard( {
 									return;
 								}
 
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_connection_attempted', {
+									environment,
+									method: 'partner_referrals',
+								} );
 								setOnboardingRequested( true );
 							} }
 							isBusy={ isOpeningPayPal || isCompletingOnboarding }
