@@ -12,7 +12,7 @@ import {
 	flattenEarningsBreakdown,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -71,32 +71,10 @@ function WordAdsEarningsHistoryReport() {
 				/>
 				{ /* Second in the footer: View all keeps its place, this takes the far end. */ }
 				{ adjustmentCount > 0 && (
-					<ReportLink
-						report="earnings"
-						section="adjustments"
-						ariaLabel={ sprintf(
-							/* translators: %d: number of adjustment rows in the site's earnings history. */
-							_n(
-								'%d adjustment, view adjustments history',
-								'%d adjustments, view adjustments history',
-								adjustmentCount,
-								'jetpack-premium-analytics-pkg'
-							),
-							adjustmentCount
-						) }
-					>
-						<Badge intent="high">
-							{ sprintf(
-								/* translators: %d: number of adjustment rows in the site's earnings history. */
-								_n(
-									'%d adjustment',
-									'%d adjustments',
-									adjustmentCount,
-									'jetpack-premium-analytics-pkg'
-								),
-								adjustmentCount
-							) }
-						</Badge>
+					<ReportLink report="earnings" section="adjustments">
+						{ __( 'Adjustments', 'jetpack-premium-analytics-pkg' ) }
+						{ /* Keeps the accessible name "Adjustments 2" rather than "Adjustments2". */ }{ ' ' }
+						<Badge intent="none">{ String( adjustmentCount ) }</Badge>
 					</ReportLink>
 				) }
 			</WidgetFooter>
