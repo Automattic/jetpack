@@ -70,7 +70,9 @@ export const Identity = () => {
 export const IdentityMenu = () => {
 	const { formSettings, commenter, signedIn, isDialogOpen, isEditing } =
 		useContext( CommentSignals );
-	const { user, manageSubscriptions: links, strings } = JetpackComments;
+	const { user, strings } = JetpackComments;
+	// Absent from a page cached before this key existed; the row then has no manage link.
+	const links = JetpackComments.manageSubscriptions ?? { url: '', byEmail: true, signedInUrl: '' };
 
 	const byEmail = ! signedIn.value && links.byEmail;
 	let manageUrl = signedIn.value ? links.signedInUrl : links.url;
