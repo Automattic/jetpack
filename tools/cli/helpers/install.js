@@ -54,23 +54,17 @@ export async function batchLockFileStatus() {
 		cwd: process.cwd(),
 	} );
 
-	const lockedProjects = new Set();
-
-	stdout
+	const tracked = stdout
 		.split( '\n' )
 		.filter( Boolean )
-		.forEach( p => {
-			if ( p === 'composer.lock' ) {
-				lockedProjects.add( 'monorepo' );
-			} else {
-				const m = p.match( /^projects\/([^/]+\/[^/]+)\/composer\.lock$/ );
-				if ( m ) {
-					lockedProjects.add( m[ 1 ] );
-				}
-			}
-		} );
+		.map( p =>
+			p === 'composer.lock'
+				? 'monorepo'
+				: p.match( /^projects\/([^/]+\/[^/]+)\/composer\.lock$/ )?.[ 1 ]
+		)
+		.filter( Boolean );
 
-	return lockedProjects;
+	return new Set( tracked );
 }
 
 /**
@@ -116,8 +110,14 @@ export async function getInstallArgs( project, pkgMgr, argv, lockedProjects = nu
 	// For composer, choose 'install' or 'update' depending on whether the lockfile is checked in.
 	// For pnpm, the lockfile is always checked in thanks to the workspace thing.
 	if ( pkgMgr === 'composer' ) {
+		// The batch set is git-only, so a tracked lock can still be absent from disk (e.g. after
+		// `jetpack clean <plugin> composer.lock`), and `composer install` would fail on it.
 		const hasLock = lockedProjects
-			? lockedProjects.has( project )
+			? lockedProjects.has( project ) &&
+			  ( await fs.access( projectDir( project, 'composer.lock' ) ).then(
+					() => true,
+					() => false
+			  ) )
 			: await hasLockFile( projectDir( project ), 'composer.lock' );
 		if ( hasLock ) {
 			args.push( 'install' );
