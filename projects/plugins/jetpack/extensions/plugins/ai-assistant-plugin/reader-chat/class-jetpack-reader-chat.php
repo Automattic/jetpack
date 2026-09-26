@@ -236,6 +236,15 @@ class Jetpack_Reader_Chat {
 			$config['currentPost'] = $current_post;
 		}
 
+		/**
+		 * Filter display/copy overrides for the public Reader Chat frontend.
+		 *
+		 * Scoped to cosmetic fields only such as emptyViewHeading.
+		 *
+		 * @param array $display Display overrides (e.g. emptyViewHeading).
+		 */
+		$config['display'] = apply_filters( 'jetpack_reader_chat_display_config', array() );
+
 		return $config;
 	}
 
