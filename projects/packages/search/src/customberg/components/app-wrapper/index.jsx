@@ -72,12 +72,13 @@ export default function AppWrapper() {
 	// aiAnswersEnabled + searchSuggestionsEnabled live at the top level of the
 	// options object; overridden here so the preview reacts to the sidebar. While
 	// the master is off a saved choice persists unenforced — preview gets false.
-	const { aiMasterEnabled = true } = window[ SERVER_OBJECT_NAME ];
+	const { aiMasterEnabled = true, aiAnswersEnabled: savedAiAnswersEnabled } =
+		window[ SERVER_OBJECT_NAME ];
 	const options = {
 		...window[ SERVER_OBJECT_NAME ],
 		...Object.fromEntries(
 			Object.entries( {
-				aiAnswersEnabled: aiMasterEnabled ? aiAnswersEnabled : false,
+				aiAnswersEnabled: aiMasterEnabled ? ( aiAnswersEnabled ?? savedAiAnswersEnabled ) : false,
 				searchSuggestionsEnabled,
 			} ).filter( ( [ , v ] ) => typeof v !== 'undefined' )
 		),
