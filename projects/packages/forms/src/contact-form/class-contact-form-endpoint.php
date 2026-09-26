@@ -888,6 +888,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				do_action( 'contact_form_akismet', 'ham', $akismet_values );
 				$this->resend_email( $post_id );
 			}
+
+			// The recorded rejection reason no longer describes a response that is no longer rejected.
+			if ( ! in_array( $updated_item->data['status'], array( 'spam', 'trash' ), true ) ) {
+				delete_post_meta( $post_id, '_feedback_spam_verdict' );
+			}
 		}
 		return $updated_item;
 	}
