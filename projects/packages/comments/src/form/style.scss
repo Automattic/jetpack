@@ -71,7 +71,8 @@
 .jetpack-comments__actions {
 	display: flex;
 	flex-direction: row-reverse;
-	flex-wrap: wrap;
+	// Reversed too, so when it wraps the identity line stacks above the submit.
+	flex-wrap: wrap-reverse;
 	align-items: center;
 	justify-content: space-between;
 	gap: 12px;
@@ -83,6 +84,8 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.75em;
+	// Pins it to the near side once wrapped; the row starts on the far side.
+	margin-inline-end: auto;
 }
 
 .jetpack-comments__avatar {
