@@ -3682,9 +3682,6 @@ importers:
 
   projects/packages/paypal-payments:
     dependencies:
-      '@automattic/babel-plugin-replace-textdomain':
-        specifier: workspace:*
-        version: link:../../js-packages/babel-plugin-replace-textdomain
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -3697,9 +3694,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
-      '@automattic/remove-asset-webpack-plugin':
-        specifier: workspace:*
-        version: link:../../js-packages/remove-asset-webpack-plugin
       '@wordpress/base-styles':
         specifier: 13.1.0
         version: 13.1.0
@@ -3718,9 +3712,6 @@ importers:
       '@wordpress/data':
         specifier: 10.55.0
         version: 10.55.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.55.0
-        version: 6.55.0(webpack@5.107.2)
       '@wordpress/editor':
         specifier: 15.0.0
         version: 15.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3782,9 +3773,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -3800,9 +3788,6 @@ importers:
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
-      '@wordpress/babel-plugin-import-jsx-pragma':
-        specifier: 5.55.0
-        version: 5.55.0(@babel/core@7.29.7)
       '@wordpress/block-serialization-default-parser':
         specifier: 5.55.0
         version: 5.55.0
@@ -11274,12 +11259,6 @@ packages:
   '@wordpress/autop@4.55.0':
     resolution: {integrity: sha512-j7XVZ4ypUBZSTcZkJ8OI+4KA4EU2J+zL4kyLnraec/sVZ/1YlGsPL9oSF6fA+jyOWmi4OBszPEIG0XvkntHB/g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/babel-plugin-import-jsx-pragma@5.55.0':
-    resolution: {integrity: sha512-yjJcF8G9oz7ycN9cQQ5LgCFoirXicgnPXp9xwENN4MapizODenZOqG765c4MOSGipRX7edJyDQKMArD040H50A==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      '@babel/core': ^7.25.7
 
   '@wordpress/base-styles@13.1.0':
     resolution: {integrity: sha512-6bdgpXZi0ajrB139xYd9okoMWYRNe3engXh5GLDhG5lIyL8wvM976Ref1I0+5LafnQQUk9Ug4IPruHx3tJcZgA==}
@@ -23649,10 +23628,6 @@ snapshots:
   '@wordpress/asset-loader@1.21.0': {}
 
   '@wordpress/autop@4.55.0': {}
-
-  '@wordpress/babel-plugin-import-jsx-pragma@5.55.0(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
 
   '@wordpress/base-styles@13.1.0': {}
 
