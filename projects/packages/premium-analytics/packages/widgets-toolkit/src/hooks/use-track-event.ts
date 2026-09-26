@@ -72,24 +72,31 @@ export function useTrackEvent() {
 export type TrackingSurface = 'dashboard' | 'post_detail' | 'author_detail' | 'video_detail';
 
 /**
- * The widget types in one layout whose instances the other lacks, comma-joined.
+ * The widgets in one layout whose instances the other lacks, in layout order.
  *
  * @param layout - The layout to list from.
  * @param other  - The layout to compare against.
- * @return The widget types, in layout order.
+ * @return The widgets, in layout order.
  */
-function typesMissingFrom( layout: DashboardWidget[], other: DashboardWidget[] ) {
+function widgetsMissingFrom( layout: DashboardWidget[], other: DashboardWidget[] ) {
 	const uuids = new Set( other.map( widget => widget.uuid ) );
 
-	return layout
-		.filter( widget => ! uuids.has( widget.uuid ) )
-		.map( widget => widget.type )
-		.join( ',' );
+	return layout.filter( widget => ! uuids.has( widget.uuid ) );
 }
 
 /**
- * Tracks the customize lifecycle: `customize_start`, `customize_save`, `customize_exit` and
- * `customize_reset`.
+ * The widgets' types, comma-joined.
+ *
+ * @param widgets - The widgets to list.
+ * @return The widget types, in the given order.
+ */
+function joinTypes( widgets: DashboardWidget[] ) {
+	return widgets.map( widget => widget.type ).join( ',' );
+}
+
+/**
+ * Tracks the customize lifecycle (`customize_start`, `customize_save`, `customize_exit`,
+ * `customize_reset`) and every widget a commit adds or removes (`widget_add`, `widget_remove`).
  *
  * @param surface - The page being customized.
  * @param section - The dashboard section, on the dashboard only.
@@ -105,16 +112,33 @@ export function useTrackCustomize( surface?: TrackingSurface, section?: string )
 		return {
 			start: () => trackEvent( 'jetpack_premium_analytics_customize_start', properties ),
 
-			/*
-			 * Held until the end of the tick rather than recorded here: Done commits the layout
-			 * and leaves edit mode in one call, while an inline widget edit saving itself — which
-			 * upstream flushes on entering edit mode — arrives with no exit behind it.
-			 */
 			layoutChange: ( previous: DashboardWidget[], next: DashboardWidget[] ) => {
+				const added = widgetsMissingFrom( next, previous );
+				const removed = widgetsMissingFrom( previous, next );
+
+				// Not held like the save below: a commit with no exit behind it carries no
+				// added or removed widget, so there is nothing to discard.
+				const recordEach = ( eventName: string, widgets: DashboardWidget[] ) => {
+					for ( const widget of widgets ) {
+						trackEvent( eventName, {
+							...properties,
+							widget_type: widget.type,
+							widget_count: next.length,
+						} );
+					}
+				};
+				recordEach( 'jetpack_premium_analytics_widget_add', added );
+				recordEach( 'jetpack_premium_analytics_widget_remove', removed );
+
+				/*
+				 * The save is held until the end of the tick rather than recorded here: Done commits
+				 * the layout and leaves edit mode in one call, while an inline widget edit saving
+				 * itself — which upstream flushes on entering edit mode — arrives with no exit behind it.
+				 */
 				pendingSave.current = {
 					widget_count: next.length,
-					widgets_added: typesMissingFrom( next, previous ),
-					widgets_removed: typesMissingFrom( previous, next ),
+					widgets_added: joinTypes( added ),
+					widgets_removed: joinTypes( removed ),
 				};
 				queueMicrotask( () => {
 					pendingSave.current = null;

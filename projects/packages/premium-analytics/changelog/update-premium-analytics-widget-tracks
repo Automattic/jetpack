@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add Tracks events for each widget a saved layout adds or removes.
