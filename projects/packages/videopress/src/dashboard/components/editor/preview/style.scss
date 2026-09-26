@@ -1,0 +1,48 @@
+.vp-studio-editor-preview {
+	--vp-studio-stage-max-height: clamp(204px, calc(( 100vh - 420px ) * 0.85), 612px);
+
+	display: flex;
+	flex-direction: column;
+	min-inline-size: 0;
+}
+
+.vp-studio-editor-preview__stage {
+	position: relative;
+	inline-size: 100%;
+	max-inline-size: calc(var(--vp-studio-stage-max-height) * 16 / 9);
+	max-block-size: var(--vp-studio-stage-max-height);
+	aspect-ratio: 16 / 9;
+	margin-inline: auto;
+	background: #000;
+	border-radius: 2px;
+	overflow: hidden;
+}
+
+.vp-studio-editor-preview__video {
+	inline-size: 100%;
+	block-size: 100%;
+	object-fit: contain;
+}
+
+.vp-studio-editor-preview__placeholder {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	color: #fff;
+	text-align: center;
+}
+
+.vp-studio-editor-preview__error {
+	position: absolute;
+	inset: auto 12px 12px;
+	padding: 6px 12px;
+	border-radius: 2px;
+	background: rgba(0, 0, 0, 0.72);
+	color: #fff;
+	font-size: 13px;
+	text-align: center;
+}

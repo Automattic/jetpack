@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
@@ -26,7 +27,8 @@ class Dashboard {
 	/**
 	 * Priority for the dashboard menu
 	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
-	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
+	 *
+	 * Admin_Menu registers what it has queued at priority 1000, so this has to stay below it.
 	 *
 	 * @var int
 	 */
@@ -54,6 +56,9 @@ class Dashboard {
 	/**
 	 * Add a "Stats" top-level admin menu.
 	 *
+	 * Declares no `product` gate: that resolves false without the Jetpack plugin, which is
+	 * exactly when the standalone Stats plugin registers this page.
+	 *
 	 * @return void
 	 */
 	public function add_wp_admin_menu() {
@@ -66,18 +71,25 @@ class Dashboard {
 			return;
 		}
 
-		$page_suffix = add_menu_page(
-			__( 'Stats', 'jetpack-stats-admin' ),
-			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			$this->get_capability(),
-			'stats',
-			array( $this, 'render' ),
-			'dashicons-chart-bar',
-			2
-		);
+		$page_title = __( 'Stats', 'jetpack-stats-admin' );
+		$menu_title = _x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' );
+		$capability = $this->get_capability();
+		$callback   = array( $this, 'render' );
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			// The key the legacy Stats screen in the Jetpack plugin also declares, so hosts name Stats once.
+			$page_suffix = Admin_Menu::add_top_level_menu( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-stats' ) );
+		} else {
+			$page_suffix = add_menu_page( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2 );
+		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+			// The dashboard renders full bleed, so core notices stacked above it look broken.
+			if ( method_exists( Admin_Menu::class, 'hide_core_admin_notices' ) ) {
+				add_action( 'load-' . $page_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) );
+			}
 		}
 	}
 

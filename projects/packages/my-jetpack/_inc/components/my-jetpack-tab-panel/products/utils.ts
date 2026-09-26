@@ -9,7 +9,7 @@ import { CardItem, ProductFilter, ProductSection, SearchResultItem } from './typ
  * Legacy modules that should only appear in the module list when they are already active.
  * New users will not see these modules; existing users keep the ability to deactivate them.
  */
-const LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE: readonly string[] = [
+export const LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE: readonly string[] = [
 	'google-fonts' satisfies JetpackModuleSlug,
 ];
 
@@ -96,7 +96,7 @@ type SearchTerm = { text: string; wordRe: RegExp };
  * @param {string | undefined} search - The raw search term.
  * @return True when the term should trigger ranking/filtering.
  */
-function hasSearch( search: string | undefined ): search is string {
+export function hasSearch( search: string | undefined ): search is string {
 	return Boolean( search?.trim() );
 }
 
@@ -116,7 +116,7 @@ function escapeRegExp( value: string ): string {
  * @param {string} search - The search term.
  * @return The individual parsed terms.
  */
-function searchTerms( search: string ): Array< SearchTerm > {
+export function searchTerms( search: string ): Array< SearchTerm > {
 	return search
 		.toLowerCase()
 		.split( /\s+/ )
@@ -190,7 +190,7 @@ function scoreFields( terms: Array< SearchTerm >, fields: Array< ScoredField > )
  * @param {Function}          fieldsFor - Maps an item to its weighted fields.
  * @return The matching items with their scores, best match first.
  */
-function rankBy< T >(
+export function rankBy< T >(
 	items: Array< T >,
 	terms: Array< SearchTerm >,
 	fieldsFor: ( item: T ) => Array< ScoredField >
@@ -244,7 +244,10 @@ function cardFields( card: CardItem, categories?: string[] ): Array< ScoredField
  * @param {string[] | undefined} categories - The module's category labels.
  * @return The weighted fields to match against.
  */
-function moduleFields( module: MyJetpackModule, categories?: string[] ): Array< ScoredField > {
+export function moduleFields(
+	module: MyJetpackModule,
+	categories?: string[]
+): Array< ScoredField > {
 	return [
 		{ value: module.name, weight: 3 },
 		{ value: module.search_terms, weight: 2 },
@@ -388,6 +391,18 @@ export function buildCards(
 }
 
 /**
+ * Order modules by name. A module the site could not translate arrives with a null name, so
+ * sort off the slug rather than let one comparison take down the whole tab.
+ *
+ * @param a - A module.
+ * @param b - Another module.
+ * @return The sort order.
+ */
+export function compareModulesByName( a: MyJetpackModule, b: MyJetpackModule ): number {
+	return ( a.name || a.module ).localeCompare( b.name || b.module );
+}
+
+/**
  * Filter and sort modules based on their name.
  *
  * @param {Array<MyJetpackModule>} modules - The modules to filter and sort.
@@ -400,9 +415,7 @@ export function filterAndSortModules(
 		.filter( Boolean )
 		.filter( m => ! LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE.includes( m.module ) || m.activated );
 
-	$modules.sort( ( a, b ) => a.name.localeCompare( b.name ) );
-
-	return $modules;
+	return $modules.sort( compareModulesByName );
 }
 
 /**

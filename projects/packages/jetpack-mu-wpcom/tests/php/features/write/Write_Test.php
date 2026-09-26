@@ -60,6 +60,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		delete_option( 'wpcom_write_rewrite_version' );
+		Jetpack_Options::delete_option( 'id' );
 		parent::tear_down();
 	}
 
@@ -89,6 +90,40 @@ class Write_Test extends \WorDBless\BaseTestCase {
 			'https://wordpress.com/reader',
 			wpcom_write_resolve_back_url( 'reader' )
 		);
+	}
+
+	/**
+	 * Test that the prompt cards' per-surface tokens return the user to the
+	 * Calypso surface they came from rather than to wp-admin.
+	 */
+	public function test_resolve_back_url_maps_writing_prompt_surfaces() {
+		$this->assertSame( 1, get_current_blog_id(), 'Fixture expects the local blog ID to be 1.' );
+		Jetpack_Options::update_option( 'id', 123456 );
+
+		$this->assertSame(
+			'https://wordpress.com/home/123456',
+			wpcom_write_resolve_back_url( 'writing_prompt_home' )
+		);
+		$this->assertSame(
+			'https://wordpress.com/reader',
+			wpcom_write_resolve_back_url( 'writing_prompt_reader' )
+		);
+	}
+
+	/**
+	 * Test that My Home falls back to the dashboard when the wpcom blog ID is unknown.
+	 */
+	public function test_resolve_back_url_falls_back_when_blog_id_unknown() {
+		$this->assertSame( 0, wpcom_write_wpcom_blog_id(), 'Fixture expects no wpcom blog ID.' );
+
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt_home' ) );
+	}
+
+	/**
+	 * Test that the bare token the wp-admin prompt widget sends still resolves to the dashboard.
+	 */
+	public function test_resolve_back_url_keeps_dashboard_for_wp_admin_prompt_widget() {
+		$this->assertSame( admin_url(), wpcom_write_resolve_back_url( 'writing_prompt' ) );
 	}
 
 	/**
@@ -254,6 +289,78 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'libraryNoResults', $output );
 		$this->assertStringContainsString( 'libraryLoadFailed', $output );
 		$this->assertStringContainsString( 'window.wpcomWriteStrings', $output );
+	}
+
+	/**
+	 * Run wpcom_write_remove_admin_notices() for a given page with one notice
+	 * registered on each notice hook, and report which hooks still have it.
+	 *
+	 * @param string $page Value of the `page` query arg.
+	 * @return array<string,bool> Hook name => whether the notice survived.
+	 */
+	private function notices_surviving_on_page( $page ) {
+		global $wp_filter;
+
+		$hooks  = array( 'admin_notices', 'all_admin_notices', 'network_admin_notices', 'user_admin_notices' );
+		$backup = array();
+		foreach ( $hooks as $hook ) {
+			$backup[ $hook ] = isset( $wp_filter[ $hook ] ) ? clone $wp_filter[ $hook ] : null;
+			add_action( $hook, 'wpcom_expiry_notices_render_admin_banner' );
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$_GET['page'] = $page;
+		wpcom_write_remove_admin_notices();
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		unset( $_GET['page'] );
+
+		$surviving = array();
+		foreach ( $hooks as $hook ) {
+			$surviving[ $hook ] = false !== has_action( $hook, 'wpcom_expiry_notices_render_admin_banner' );
+			if ( null === $backup[ $hook ] ) {
+				unset( $wp_filter[ $hook ] );
+			} else {
+				$wp_filter[ $hook ] = $backup[ $hook ]; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+			}
+		}
+		return $surviving;
+	}
+
+	/**
+	 * Test that admin notices are removed on the Write page.
+	 */
+	public function test_admin_notices_removed_on_write_page() {
+		$this->assertSame(
+			array(
+				'admin_notices'         => false,
+				'all_admin_notices'     => false,
+				'network_admin_notices' => false,
+				'user_admin_notices'    => false,
+			),
+			$this->notices_surviving_on_page( 'write' )
+		);
+	}
+
+	/**
+	 * Test that admin notices are left alone on other admin pages.
+	 */
+	public function test_admin_notices_kept_on_other_pages() {
+		$this->assertSame(
+			array(
+				'admin_notices'         => true,
+				'all_admin_notices'     => true,
+				'network_admin_notices' => true,
+				'user_admin_notices'    => true,
+			),
+			$this->notices_surviving_on_page( 'jetpack' )
+		);
+	}
+
+	/**
+	 * Test that the notice removal is hooked right before admin-header.php prints notices.
+	 */
+	public function test_admin_notice_removal_is_hooked() {
+		$this->assertSame( PHP_INT_MAX, has_action( 'in_admin_header', 'wpcom_write_remove_admin_notices' ) );
 	}
 
 	/**
@@ -498,7 +605,7 @@ class Write_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( 'actions.toggleMoreMenu', $output );
 		$this->assertStringContainsString( 'actions.openInBlockEditor', $output );
 		$this->assertStringContainsString( 'actions.previewPost', $output );
-		$this->assertStringContainsString( 'Open in block editor', $output );
+		$this->assertStringContainsString( 'Open in Block editor', $output );
 		$this->assertStringContainsString( '>Preview<', $output );
 	}
 
@@ -579,6 +686,76 @@ class Write_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '#tag', $output );
 		$this->assertStringContainsString( 'assigns them to the post on save', $output );
+	}
+
+	/**
+	 * Test that the Tips panel carries the permanent "you're using Write" note.
+	 */
+	public function test_help_modal_contains_editor_note() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-help-note"', $output );
+		$this->assertStringContainsString( 'class="bw-help-note-button"', $output );
+		$this->assertStringContainsString( 'actions.switchToBlockEditor', $output );
+
+		// The panel and the first-visit note share one sentence, so they share one
+		// translation — which only holds while both link "Write" to the guide.
+		$this->assertStringContainsString(
+			'You’re using <a class="bw-help-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/" target="_blank" rel="noopener noreferrer">Write</a>, a simple editor for writing.',
+			$output
+		);
+	}
+
+	/**
+	 * Test that the first-visit note markup is present but hidden on the server.
+	 */
+	public function test_template_contains_first_visit_note() {
+		wp_set_current_user( $this->admin_id );
+
+		$output = $this->render_template();
+
+		$this->assertStringContainsString( 'class="bw-editor-note"', $output );
+		$this->assertStringContainsString( 'actions.openInBlockEditorFromNote', $output );
+		$this->assertStringContainsString( 'actions.dismissEditorNote', $output );
+		$this->assertStringContainsString( 'Use the Block editor', $output );
+		$this->assertStringContainsString( 'Got it', $output );
+		$this->assertMatchesRegularExpression( '/class="bw-editor-note"[^>]*\shidden[\s>]/s', $output );
+
+		// The guide link runs through wp_kses, which drops any attribute missing
+		// from the allow-list — including the one that routes it to the Help Center.
+		// Matched on the note's own anchor: the Tips panel prints a second,
+		// non-kses'd link to the same guide that a page-wide assertion would hit.
+		$this->assertStringContainsString(
+			'<a class="bw-editor-note-guide" data-target="wpcom-help-center" href="https://wordpress.com/support/editors/write-editor/"',
+			$output
+		);
+
+		// Focus moves to the dialog itself on first visit, so it needs to be
+		// focusable and to point at the message screen readers should hear.
+		$this->assertMatchesRegularExpression( '/class="bw-editor-note"[^>]*\stabindex="-1"/s', $output );
+		$this->assertMatchesRegularExpression(
+			'/class="bw-editor-note"[^>]*\saria-describedby="bw-editor-note-text"/s',
+			$output
+		);
+		$this->assertStringContainsString( 'id="bw-editor-note-text"', $output );
+	}
+
+	/**
+	 * Test that the first-visit note starts hidden in the Interactivity state.
+	 */
+	public function test_interactivity_state_includes_editor_note() {
+		wp_set_current_user( $this->admin_id );
+
+		ob_start();
+		wpcom_write_render_admin_page();
+		ob_end_clean();
+
+		$state = wp_interactivity_state( 'wpcom-write' );
+
+		$this->assertArrayHasKey( 'showEditorNote', $state );
+		$this->assertFalse( $state['showEditorNote'] );
 	}
 
 	/**

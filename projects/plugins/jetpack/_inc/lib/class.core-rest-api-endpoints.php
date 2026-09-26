@@ -550,101 +550,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		);
 
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/data',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_data',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_recommendations_data',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-					'args'                => array(
-						'data' => array(
-							'required'          => true,
-							'type'              => 'object',
-							'validate_callback' => __CLASS__ . '::validate_recommendations_data',
-						),
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/step',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_step',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-				),
-				array(
-					'methods'             => WP_REST_Server::EDITABLE,
-					'callback'            => __CLASS__ . '::update_recommendations_step',
-					'permission_callback' => __CLASS__ . '::update_settings_permission_check',
-					'args'                => array(
-						'step' => array(
-							'required'          => true,
-							'type'              => 'string',
-							'validate_callback' => __CLASS__ . '::validate_string',
-						),
-					),
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/product-suggestions',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_product_suggestions',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/upsell',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_recommendations_upsell',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				),
-			)
-		);
-
-		register_rest_route(
-			'jetpack/v4',
-			'/recommendations/conditional',
-			array(
-				array(
-					'methods'             => WP_REST_Server::READABLE,
-					'callback'            => __CLASS__ . '::get_conditional_recommendations',
-					'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-				),
-			)
-		);
-
-		// Get site discount.
-		register_rest_route(
-			'jetpack/v4',
-			'/site/discount',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_site_discount',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
-			)
-		);
-
 		/*
 		 * Manage the Jetpack CRM plugin's integration with Jetpack contact forms.
 		 */
@@ -698,17 +603,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'methods'             => WP_REST_Server::EDITABLE,
 				'callback'            => __CLASS__ . '::set_has_seen_wc_connection_modal',
 				'permission_callback' => __CLASS__ . '::manage_modules_permission_check',
-			)
-		);
-
-		// Get Jetpack introduction offers
-		register_rest_route(
-			'jetpack/v4',
-			'/intro-offers',
-			array(
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => __CLASS__ . '::get_intro_offers',
-				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 			)
 		);
 
@@ -811,179 +705,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_REST_Response( null, 302, array( 'location' => $redirect_url ) );
-	}
-
-	/**
-	 * Get the data for the recommendations
-	 *
-	 * @return array Recommendations data
-	 */
-	public static function get_recommendations_data() {
-		return Jetpack_Recommendations::get_recommendations_data();
-	}
-
-	/**
-	 * Update the data for the recommendations
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool true
-	 */
-	public static function update_recommendations_data( $request ) {
-		$data = $request['data'];
-		Jetpack_Recommendations::update_recommendations_data( $data );
-
-		return true;
-	}
-
-	/**
-	 * Get the data for the recommendations
-	 *
-	 * @return array Recommendations data
-	 */
-	public static function get_recommendations_step() {
-		return Jetpack_Recommendations::get_recommendations_step();
-	}
-
-	/**
-	 * Update the step for the recommendations
-	 *
-	 * @param WP_REST_Request $request The request.
-	 *
-	 * @return bool true
-	 */
-	public static function update_recommendations_step( $request ) {
-		$step = $request['step'];
-		Jetpack_Recommendations::update_recommendations_step( $step );
-
-		return true;
-	}
-
-	/**
-	 * Get product suggestions for the recommendations
-	 *
-	 * @return string|WP_Error The response from the wpcom product suggestions endpoint as a JSON object.
-	 */
-	public static function get_recommendations_product_suggestions() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
-		}
-
-		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
-		if ( ! $user_connected ) {
-			return wp_json_encode( array(), JSON_UNESCAPED_SLASHES );
-		}
-
-		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/product-suggestions?locale=' . get_user_locale(), $blog_id );
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			$request_path,
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-		} else {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-	}
-
-	/**
-	 * Get the upsell for the recommendations
-	 *
-	 * @return string The response from the wpcom upsell endpoint as a JSON object
-	 */
-	public static function get_recommendations_upsell() {
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		if ( ! $blog_id ) {
-			return new WP_Error( 'site_not_registered', esc_html__( 'Site not registered.', 'jetpack' ) );
-		}
-
-		$user_connected = ( new Connection_Manager( 'jetpack' ) )->is_user_connected( get_current_user_id() );
-		if ( ! $user_connected ) {
-			$response = array(
-				'hide_upsell' => true,
-			);
-
-			return $response;
-		}
-
-		$request_path  = sprintf( '/sites/%s/jetpack-recommendations/upsell?locale=' . get_user_locale(), $blog_id );
-		$wpcom_request = Client::wpcom_json_api_request_as_user(
-			$request_path,
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $wpcom_request );
-		if ( 200 === $response_code ) {
-			return json_decode( wp_remote_retrieve_body( $wpcom_request ) );
-		} else {
-			return new WP_Error(
-				'failed_to_fetch_data',
-				esc_html__( 'Unable to fetch the requested data.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-	}
-
-	/**
-	 * Get conditional recommendations data.
-	 *
-	 * @return array Conditional recommendations data.
-	 */
-	public static function get_conditional_recommendations() {
-		return Jetpack_Recommendations::get_conditional_recommendations();
-	}
-
-	/**
-	 * Validate the recommendations data
-	 *
-	 * @param array           $value Value to check received by request.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string          $param Name of the parameter passed to endpoint holding $value.
-	 *
-	 * @return bool|WP_Error
-	 */
-	public static function validate_recommendations_data( $value, $request, $param ) {
-		if ( ! is_array( $value ) ) {
-			/* translators: Name of a parameter that must be an object */
-			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an object.', 'jetpack' ), $param ) );
-		}
-
-		foreach ( $value as $answer ) {
-			if ( is_array( $answer ) ) {
-				$validate = self::validate_array_of_strings( $answer, $request, $param );
-			} elseif ( is_string( $answer ) ) {
-				$validate = self::validate_string( $answer, $request, $param );
-			} elseif ( $answer === null ) {
-				$validate = true;
-			} else {
-				$validate = self::validate_boolean( $answer, $request, $param );
-			}
-
-			if ( is_wp_error( $validate ) ) {
-				return $validate;
-			}
-		}
-
-		return true;
 	}
 
 	/**
@@ -1652,7 +1373,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function get_user_connection_data() {
 		_deprecated_function( __METHOD__, 'jetpack-10.0.0', '\Automattic\Jetpack\Connection\REST_Connector::get_user_connection_data' );
 
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-redux-state-helper.php';
 
 		$connection_owner   = ( new Connection_Manager() )->get_connection_owner();
 		$owner_display_name = false === $connection_owner ? null : $connection_owner->data->display_name;
@@ -1832,62 +1553,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			array(
 				'code' => 'success',
 				'data' => $data->current->orderedItems,
-			)
-		);
-	}
-
-	/**
-	 * Fetch the discount for this site and return it.
-	 *
-	 * @since 10.8
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function get_site_discount() {
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'site_id_missing',
-				esc_html__( 'Site ID is missing.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			"/sites/$site_id/discount",
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-		$data          = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				'discount_fetch_failed',
-				is_object( $data ) && property_exists( $data, 'error' ) ? $data->error : esc_html__( 'Could not retrieve site discount.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-
-		if ( ! isset( $data ) ) {
-			return new WP_Error(
-				'discount_parse_error',
-				esc_html__( 'Could not parse discount', 'jetpack' ),
-				array( 'status' => 204 ) // no content.
-			);
-		}
-
-		return rest_ensure_response(
-			array(
-				'code' => 'success',
-				'data' => $data,
 			)
 		);
 	}
@@ -3160,12 +2825,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool|WP_Error
 	 */
 	public static function validate_verification_service( $value, $request, $param ) {
-		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || jetpack_verification_get_code( $value ) !== false ) ) ) {
+		if ( ! empty( $value ) && ( ! is_string( $value ) || false === jetpack_verification_validate_code( $value ) ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
 					/* Translators: Placeholder is a verification string used to verify a service like Google Webmaster Console. */
-					esc_html__( '%s must be an alphanumeric string or a verification tag.', 'jetpack' ),
+					esc_html__( '%s must be a valid verification code or verification tag.', 'jetpack' ),
 					$param
 				)
 			);
@@ -3178,18 +2843,35 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|bool     $value Value to check.
+	 * @param mixed           $value Value to check.
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string          $param Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
+		// An empty value clears the setting; sanitize_stats_allowed_roles() falls back to 'administrator'.
+		if ( empty( $value ) ) {
+			return true;
+		}
+
+		// Enforce the schema's list-of-strings contract before array_intersect() below sees the value.
+		if ( ! is_array( $value ) || count( array_filter( $value, 'is_string' ) ) !== count( $value ) ) {
+			return new WP_Error(
+				'invalid_param',
+				sprintf(
+					/* Translators: Placeholder is a parameter name. */
+					esc_html__( '%s must be an array of user roles.', 'jetpack' ),
+					$param
+				)
+			);
+		}
+
 		if ( ! function_exists( 'get_editable_roles' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/user.php';
 		}
 		$editable_roles = array_keys( get_editable_roles() );
-		if ( ! empty( $value ) && ! array_intersect( $editable_roles, $value ) ) {
+		if ( ! array_intersect( $editable_roles, $value ) ) {
 			return new WP_Error(
 				'invalid_param',
 				sprintf(
@@ -3569,9 +3251,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|bool $value Value to check.
+	 * @param mixed $value Value to check.
 	 *
-	 * @return bool|array
+	 * @return mixed The value as submitted, or an array holding only 'administrator' when it is empty.
 	 */
 	public static function sanitize_stats_allowed_roles( $value ) {
 		if ( empty( $value ) ) {
@@ -4300,63 +3982,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$updated_option = Jetpack_Options::update_option( 'has_seen_wc_connection_modal', true );
 
 		return rest_ensure_response( array( 'success' => $updated_option ) );
-	}
-
-	/**
-	 * Fetch introdution offers.
-	 *
-	 * @since 10.9
-	 *
-	 * @return array|WP_Error
-	 */
-	public static function get_intro_offers() {
-		$site_id = Jetpack_Options::get_option( 'id' );
-
-		if ( ! $site_id ) {
-			return new WP_Error(
-				'site_id_missing',
-				esc_html__( 'Site ID is missing.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-		}
-
-		$response = Client::wpcom_json_api_request_as_user(
-			'/introductory-offers',
-			'2',
-			array(
-				'method'  => 'GET',
-				'headers' => array(
-					'X-Forwarded-For' => ( new Visitor() )->get_ip( true ),
-				),
-			)
-		);
-
-		$response_code = wp_remote_retrieve_response_code( $response );
-
-		if ( 200 !== $response_code ) {
-			return new WP_Error(
-				'intro_offers_fetch_failed',
-				esc_html__( 'Could not retrieve intro offers.', 'jetpack' ),
-				array( 'status' => $response_code )
-			);
-		}
-
-		$data = json_decode( wp_remote_retrieve_body( $response ) );
-
-		if ( ! isset( $data ) ) {
-			return new WP_Error(
-				'intro_offers_error',
-				esc_html__( 'Could not parse intro offers.', 'jetpack' ),
-				array( 'status' => 204 ) // no content.
-			);
-		}
-
-		return rest_ensure_response(
-			array(
-				'code' => 'success',
-				'data' => $data,
-			)
-		);
 	}
 
 	/**

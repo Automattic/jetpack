@@ -164,9 +164,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						// (post_status 'inherit') core maps edit_post to edit_posts for
 						// the post author, which a Contributor has and which does not
 						// imply the media rights this route needs.
-						return Data::can_perform_action()
-							&& current_user_can( 'upload_files' )
-							&& current_user_can( 'edit_post', self::get_video_attachment_id( $request->get_param( 'video_guid' ) ) );
+						if ( ! Data::can_perform_action() || ! current_user_can( 'upload_files' ) ) {
+							return false;
+						}
+
+						$attachment_id = self::get_video_attachment_id( $request->get_param( 'video_guid' ) );
+						if ( ! $attachment_id ) {
+							return new WP_Error(
+								'videopress_attachment_not_found',
+								__( 'This video could not be found in the Media Library. Restore it from the trash, if available, and try again.', 'jetpack-videopress-pkg' ),
+								array( 'status' => 403 )
+							);
+						}
+
+						return current_user_can( 'edit_post', $attachment_id );
 					},
 				),
 			)
@@ -272,6 +283,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							'description' => __( 'If auto-generated subtitles should be skipped for new videos', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
+						'videopress_player_preload_disabled' => array(
+							'description' => __( 'If embedded players should wait for playback before preloading video data', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
+						'videopress_inline_player_enabled' => array(
+							'description' => __( 'If videos should render an inline player from one shared script instead of one frame per video', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -330,7 +349,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	 * Updates the VideoPress site settings.
 	 *
 	 * Mirrors `VideoPress_Rest_Api_V1_Settings::update_settings()`, except
-	 * on WPCOM only `videopress_auto_subtitles_disabled` is honored:
+	 * on WPCOM `videopress_videos_private_for_site` is not honored:
 	 * `videopress_private_enabled_for_site` is a dead option on Simple,
 	 * where the site-default privacy derives from the site's own privacy
 	 * setting. When a caller supplies that param on WPCOM it is not
@@ -343,6 +362,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	public function videopress_update_settings( $request ) {
 		$private_for_site        = $request->get_param( 'videopress_videos_private_for_site' );
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
+		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
+		$inline_player_enabled   = $request->get_param( 'videopress_inline_player_enabled' );
 
 		$ignored = array();
 
@@ -363,6 +384,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		if ( null !== $auto_subtitles_disabled ) {
 			update_option( 'videopress_auto_subtitles_disabled', $auto_subtitles_disabled );
+		}
+
+		if ( null !== $player_preload_disabled ) {
+			update_option( 'videopress_player_preload_disabled', $player_preload_disabled );
+		}
+
+		if ( null !== $inline_player_enabled ) {
+			update_option( 'videopress_inline_player_enabled', $inline_player_enabled );
 		}
 
 		$response = array(
@@ -723,14 +752,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	/**
 	 * Resolve a VideoPress guid to its local attachment id on the current site.
 	 *
-	 * Used to authorize poster reads/writes against the specific video. Returns
-	 * 0 when the guid cannot be resolved to an attachment on this site, so the
-	 * capability check that consumes it fails closed.
+	 * Returns 0 when the GUID does not belong to the current site.
+	 *
+	 * @internal
 	 *
 	 * @param string $video_guid The VideoPress GUID.
 	 * @return int The attachment/post id, or 0 if it cannot be resolved.
 	 */
-	private static function get_video_attachment_id( $video_guid ) {
+	public static function get_video_attachment_id( $video_guid ) {
 		if ( empty( $video_guid ) ) {
 			return 0;
 		}

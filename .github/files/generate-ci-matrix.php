@@ -107,7 +107,7 @@ $matrix[] = array(
 $matrix[] = array(
 	'name'    => 'JS tests',
 	'script'  => 'test-js',
-	'timeout' => 15, // 2025-11-06: Successful runs seem to take ~5 minutes.
+	'timeout' => 30, // 2026-09-14: Now approaching 15 minutes. 🙁
 );
 
 // Add Coverage tests. Split into PHP and JS groups so they run in parallel.
@@ -117,7 +117,7 @@ foreach ( array( 'php', 'js' ) as $cov_group ) {
 		'script'         => "test-$cov_group-coverage",
 		// JS coverage doesn't need a WordPress environment, like the regular JS tests job.
 		'wp'             => 'php' === $cov_group ? 'latest' : 'none',
-		'timeout'        => 30, // 2025-11-06: Successful runs took ~15 minutes combined; we'll want to update this when we have new numbers.
+		'timeout'        => 30, // 2026-09-14: Runs are at around 15 minutes each.
 		'coverage-group' => $cov_group,
 	);
 }

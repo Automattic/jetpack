@@ -3,6 +3,7 @@ import {
 	JETPACK_PRODUCTS_WITH_CARD,
 	JETPACK_PRODUCTS_WITHOUT_CARD,
 } from './constants';
+import type { MyJetpackScriptData } from '@automattic/jetpack-script-data';
 
 export type JetpackProductWithCard = ( typeof JETPACK_PRODUCTS_WITH_CARD )[ number ];
 
@@ -18,21 +19,15 @@ export type MyJetpackModule = {
 	name: string;
 	activated: boolean;
 	override?: false | 'active' | 'inactive';
+	// Jetpack's settings search for the module unless the module points somewhere of its own.
+	configure_url?: string;
+	// Keyed by option name; PHP sends an empty array when the module has none.
+	options?: Record< string, unknown > | unknown[];
 	description: string;
 	long_description: string;
 	search_terms: string;
 };
 
-export type SiteEditorData = {
-	isBlockTheme: boolean;
-	isSharingBlockAvailable: boolean;
-	activeThemeStylesheet: string;
-};
-
-declare module '@automattic/jetpack-script-data' {
-	interface JetpackScriptData {
-		myJetpack?: {
-			siteEditor: SiteEditorData;
-		};
-	}
-}
+// Declared in `@automattic/jetpack-script-data`, so the footer in `jetpack-components` reads the
+// same shape this package prints.
+export type SiteEditorData = NonNullable< MyJetpackScriptData[ 'siteEditor' ] >;

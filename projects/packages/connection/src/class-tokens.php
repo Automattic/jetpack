@@ -48,7 +48,7 @@ class Tokens {
 		 * signal that the tokens backing the connection are gone. Anything holding derived
 		 * state — a memoized connection status, a cached credential — must recompute from here.
 		 *
-		 * @since $$next-version$$
+		 * @since 9.1.1
 		 */
 		do_action( 'jetpack_connection_tokens_deleted' );
 	}
@@ -100,6 +100,8 @@ class Tokens {
 	/**
 	 * Perform the API request to validate only the blog.
 	 *
+	 * @since $$next-version$$ Returns a WP_Error, not false, when the request fails.
+	 *
 	 * @return bool|WP_Error Boolean with the test result. WP_Error if test cannot be performed.
 	 */
 	public function validate_blog_token() {
@@ -107,6 +109,12 @@ class Tokens {
 		if ( ! $blog_id ) {
 			return new WP_Error( 'site_not_registered', 'Site not registered.' );
 		}
+
+		// A missing blog token is broken, not unverifiable: the signed request would fail before it is sent.
+		if ( ! $this->get_access_token() ) {
+			return false;
+		}
+
 		$url = sprintf(
 			'%s/%s/v%s/%s',
 			Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ),
@@ -118,8 +126,12 @@ class Tokens {
 		$method   = 'GET';
 		$response = Client::remote_request( compact( 'url', 'method' ) );
 
-		if ( is_wp_error( $response ) || ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
-			return false;
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		if ( ! wp_remote_retrieve_body( $response ) || 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'blog_token_check_failed', 'The blog token health check could not be performed.' );
 		}
 
 		$body = json_decode( wp_remote_retrieve_body( $response ), true );

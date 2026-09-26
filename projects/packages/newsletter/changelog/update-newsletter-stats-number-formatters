@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Format newsletter stats metrics and rates with locale-aware number formatters.

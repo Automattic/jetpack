@@ -212,7 +212,7 @@ Annotation colors are catalog roles, declared in CSS. Two roles cover all four: 
 	}` }
 />
 
-The matching `annotationStyles` theme fields are deprecated. What stays there is the geometry beside each color — `radius`, the stroke widths and the label sizing — which has no role behind it:
+`annotationStyles` carries the geometry beside each color — `radius`, the stroke widths and the label sizing — which has no role behind it:
 
 <Source
 	language="jsx"
@@ -365,32 +365,3 @@ Annotations work correctly with zero values (unlike some chart libraries that tr
 - [**Mixed**](?path=/story/js-packages-charts-library-charts-line-chart-annotations--mixed): Combined annotation types
 - [**Colored**](?path=/story/js-packages-charts-library-charts-line-chart-annotations--colored): Custom styling examples
 - [**Custom Vertical**](?path=/story/js-packages-charts-library-charts-line-chart-annotations--custom-vertical): Custom interactive annotations
-
-## Migration from Legacy API
-
-If you're upgrading from the deprecated `annotations` prop:
-
-<Source
-	language="jsx"
-	code={`// Old API (deprecated)
-<LineChart
-	data={data}
-	annotations={[
-		{
-			datum: dataPoint,
-			title: "Event",
-			subjectType: "circle"
-		}
-	]}
-/>
-
-// New API
-
-<LineChart data={ data }>
-	<LineChart.AnnotationsOverlay>
-		<LineChart.Annotation datum={ dataPoint } title="Event" subjectType="circle" />
-	</LineChart.AnnotationsOverlay>
-</LineChart>
-`} />
-
-The new compound component pattern provides better TypeScript support, more flexibility, and clearer composition.

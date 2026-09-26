@@ -182,11 +182,6 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
-		setHasSeenWCConnectionModal: () =>
-			postRequest( `${ apiRoot }jetpack/v4/seen-wc-connection-modal`, postParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
 		fetchModules: () =>
 			getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
 				.then( checkStatus )
@@ -330,11 +325,6 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
-		fetchSiteProducts: () =>
-			getRequest( `${ apiRoot }jetpack/v4/site/products`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
 		fetchSitePurchases: () =>
 			getRequest( `${ apiRoot }jetpack/v4/site/purchases`, getParams )
 				.then( checkStatus )
@@ -347,44 +337,8 @@ function JetpackRestApiClient( root, nonce ) {
 				.then( parseJsonResponse )
 				.then( body => JSON.parse( body.data ) ),
 
-		fetchSiteDiscount: () =>
-			getRequest( `${ apiRoot }jetpack/v4/site/discount`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse )
-				.then( body => body.data ),
-
 		fetchSetupQuestionnaire: () =>
 			getRequest( `${ apiRoot }jetpack/v4/setup/questionnaire`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		fetchRecommendationsData: () =>
-			getRequest( `${ apiRoot }jetpack/v4/recommendations/data`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		fetchRecommendationsProductSuggestions: () =>
-			getRequest( `${ apiRoot }jetpack/v4/recommendations/product-suggestions`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		fetchRecommendationsUpsell: () =>
-			getRequest( `${ apiRoot }jetpack/v4/recommendations/upsell`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		fetchRecommendationsConditional: () =>
-			getRequest( `${ apiRoot }jetpack/v4/recommendations/conditional`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		saveRecommendationsData: data =>
-			postRequest( `${ apiRoot }jetpack/v4/recommendations/data`, postParams, {
-				body: JSON.stringify( { data } ),
-			} ).then( checkStatus ),
-
-		fetchProducts: () =>
-			getRequest( `${ apiRoot }jetpack/v4/products`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -409,11 +363,6 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchPluginsData: () =>
 			getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
-				.then( checkStatus )
-				.then( parseJsonResponse ),
-
-		fetchIntroOffers: () =>
-			getRequest( `${ apiRoot }jetpack/v4/intro-offers`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
 
@@ -477,11 +426,6 @@ function JetpackRestApiClient( root, nonce ) {
 			} )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
-
-		updateRecommendationsStep: step =>
-			postRequest( `${ apiRoot }jetpack/v4/recommendations/step`, postParams, {
-				body: JSON.stringify( { step } ),
-			} ).then( checkStatus ),
 
 		confirmIDCSafeMode: () =>
 			postRequest( `${ apiRoot }jetpack/v4/identity-crisis/confirm-safe-mode`, postParams ).then(

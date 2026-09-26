@@ -50,7 +50,12 @@ class Plan {
 	 * Refresh plan info stored in options
 	 */
 	public function get_plan_info_from_wpcom() {
-		$blog_id  = Jetpack_Options::get_option( 'id' );
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		// An unregistered site (or a stale cache view hiding the registration) has no
+		// blog ID: bail rather than requesting the malformed `/sites//…` path.
+		if ( ! $blog_id ) {
+			return new WP_Error( 'site_not_registered', 'Site not registered.' );
+		}
 		$response = Client::wpcom_json_api_request_as_blog(
 			'/sites/' . $blog_id . '/jetpack-search/plan',
 			'2',

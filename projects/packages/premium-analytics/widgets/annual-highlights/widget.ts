@@ -2,13 +2,9 @@
  * WordPress dependencies
  */
 import { _x } from '@wordpress/i18n';
-import { pin } from '@wordpress/icons';
+import { calendar } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Internal dependencies
- */
-import { SelectField } from '@jetpack-premium-analytics/fields';
 import { getYearElements } from './years';
 import type { YearPresetId } from '@jetpack-premium-analytics/datetime';
 
@@ -27,14 +23,13 @@ export type AnnualHighlightsAttributes = {
  * depend on the site's own data, so a new instance starts on the current year.
  */
 export default {
-	icon: pin,
+	icon: calendar,
 	attributes: [
 		{
 			id: 'year',
 			label: _x( 'Year', 'label for the year selector', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
+			type: 'jpa/select',
 			relevance: 'high',
-			Edit: SelectField,
 			getElements: getYearElements,
 		},
 	] as WidgetAttributeField< AnnualHighlightsAttributes >[],

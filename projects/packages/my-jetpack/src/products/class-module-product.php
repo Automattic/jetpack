@@ -71,6 +71,17 @@ abstract class Module_Product extends Product {
 	}
 
 	/**
+	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
+	 *
+	 * Deliberately not is_active(), which some products override with a plan check that ignores the module.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		return static::is_jetpack_plugin_active() && static::is_module_active();
+	}
+
+	/**
 	 * Checks whether the Jetpack module is active
 	 *
 	 * @return bool
@@ -150,19 +161,58 @@ abstract class Module_Product extends Product {
 			return new WP_Error( 'module_activation_failed', __( 'Error activating Jetpack module', 'jetpack-my-jetpack' ) );
 		}
 
+		// Saved as active, but a jetpack_active_modules callback can still keep it off.
+		if ( ! static::is_module_active() ) {
+			return new WP_Error(
+				'module_forced',
+				sprintf(
+					/* translators: %s is a Jetpack module name, such as "Stats". */
+					__( '%s is disabled by your host or site administrator, so it stays off.', 'jetpack-my-jetpack' ),
+					static::get_module_title()
+				),
+				array( 'status' => 409 )
+			);
+		}
+
 		return $module_activation;
 	}
 
 	/**
 	 * Deactivate the module
 	 *
-	 * @return boolean
+	 * @return boolean|\WP_Error WP_Error when a host keeps the module on.
 	 */
 	public static function deactivate() {
 		self::check_for_module_name();
 		if ( ! class_exists( 'Jetpack' ) ) {
 			return true;
 		}
-		return Jetpack::deactivate_module( static::$module_name );
+
+		$result = Jetpack::deactivate_module( static::$module_name );
+
+		// A module that was never saved as active leaves nothing to change, so check the outcome.
+		if ( static::is_module_active() ) {
+			return new WP_Error(
+				'module_forced',
+				sprintf(
+					/* translators: %s is a Jetpack module name, such as "Stats". */
+					__( '%s is enabled by your host or site administrator, so it stays on.', 'jetpack-my-jetpack' ),
+					static::get_module_title()
+				),
+				array( 'status' => 409 )
+			);
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Get the module's display name, falling back to its slug.
+	 *
+	 * @return string
+	 */
+	private static function get_module_title() {
+		$module = Jetpack::get_module( static::$module_name );
+		return ! empty( $module['name'] ) ? $module['name'] : static::$module_name;
 	}
 }

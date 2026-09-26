@@ -21,7 +21,8 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
 `renders_admin_chrome()`). The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
-`add_menu_page()` and gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
+`Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
+gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
 without the build: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
 route callback actually reads it. `@wordpress/boot` provides the SPA shell and routing; each route
@@ -37,9 +38,14 @@ filters.
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
+src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
+src/default-dashboard-sections.php      # the package's own sections, registered through that API
+docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
+src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
+docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
+src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
@@ -72,7 +78,31 @@ packages.
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
+Add a dashboard section, from this package or from another plugin: hook
+`jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
+there; the callback receives the registry being hydrated, for lookups such as
+`get_registered_by_slug()`. The section registry hydrates on its first read, from wp-admin or from
+REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
+way. A section declares its default layout in the registration; the
+`jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
+any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+
+Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
+compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
+that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
+registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
+action once; `src/widget-types.php` registers the package's own build manifest the same way.
+`docs/dashboard-widgets.md` walks through the path.
+
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
+
+### Timing-dependent JS tests use fake timers
+
+Any Jest test that waits on time — `waitFor`, React Query updates, debounces, `setTimeout` — must
+call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
+a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
+driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
+See `widgets/wordads-chart-tabs/__tests__/wordads-chart-tabs.test.tsx`.
 
 ## API
 
@@ -90,22 +120,27 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 - `<prefix>` must be allowlisted in `PREFIX_CONFIG` or the route 404s. This is the security
   boundary — the blog token is only forwarded for these.
 
-| Prefix                                                            | Capability                 | Writes (POST)                   |
-| ----------------------------------------------------------------- | -------------------------- | ------------------------------- |
-| `analytics` (Woo store reports)                                   | `view_woocommerce_reports` | —                               |
-| `stats`                                                           | `view_stats`               | `stats/referrers/spam/`         |
-| `wordads`                                                         | `activate_wordads`         | —                               |
-| `subscribers` / `site-has-never-published-post` / `jetpack-stats` | `view_stats`               | —                               |
-| `jetpack-stats-dashboard`                                         | `view_stats`               | whole prefix (busts read cache) |
-| `commercial-classification`                                       | `view_stats`               | exact path                      |
-| `upgrades` (not under `/sites/`)                                  | `view_stats`               | —                               |
-| `posts` (pattern-constrained: only `<id>/likes`)                  | `view_stats`               | —                               |
+| Prefix                                           | Capability                 | Writes (POST)                   |
+| ------------------------------------------------ | -------------------------- | ------------------------------- |
+| `analytics` (Woo store reports)                  | `view_woocommerce_reports` | —                               |
+| `stats`                                          | `view_stats`               | `stats/referrers/spam/`         |
+| `wordads`                                        | `activate_wordads`         | —                               |
+| `subscribers` / `site-has-never-published-post`  | `view_stats`               | —                               |
+| `jetpack-stats`                                  | `view_stats`               | `jetpack-stats/user-feedback`   |
+| `jetpack-stats-dashboard`                        | `view_stats`               | whole prefix (busts read cache) |
+| `commercial-classification`                      | `view_stats`               | exact path                      |
+| `upgrades` (not under `/sites/`)                 | `view_stats`               | —                               |
+| `posts` (pattern-constrained: only `<id>/likes`) | `view_stats`               | —                               |
 
 `manage_options` is always accepted too. `POST` is rejected (`405 rest_read_only`) outside the
 Writes column. Query params pass through except control params (`endpoint`, `version`,
 `force_refresh`) and `site`. Successful `GET`s are cached 5 min (key: path+version+params); add
 `force_refresh` to bypass. `x-wp-total` / `x-wp-totalpages` are forwarded back. Errors:
 `403 no_connection`, `500`/`502 api_error`, `405 rest_read_only`, `401`/`403` on a failed cap.
+
+The `jetpack-stats` write is the one body the proxy rewrites: it gains the submitting user's
+`user_email` (`inject_user_email`), because the blog token names no user and WPCOM would
+otherwise attribute the feedback to the first administrator it finds.
 
 ### Notices
 
@@ -116,7 +151,7 @@ gets its own route outside `proxy/`, like this.
 ### Adding a proxied endpoint
 
 To add a transparent forward, add a key to `PREFIX_CONFIG` (at least `capability`; add
-`writes` / `cache_bust` as needed) and cover it in `data_endpoint_matrix()`.
+`writes` / `cache_bust` / `inject_user_email` as needed) and cover it in `data_endpoint_matrix()`.
 
 ### Migrating from Stats / Woo Analytics
 
@@ -132,6 +167,19 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 `Analytics::init_wpcom_simple()`, behind the site's own `jetpack_premium_analytics_enabled`
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
+
+Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
+customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
+override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
+overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
+`docs/dashboard-sections.md`.
+
+The same list the tab bar gets over REST also reaches the client as
+`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
+scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
+`authors`) rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 
@@ -167,7 +215,7 @@ script data.
 
 ### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
 
-The dashboard support routes (widget modules, default layout, sections) used to live under
+The dashboard support routes (widget modules, sections) used to live under
 `jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
 recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
 routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
@@ -187,7 +235,7 @@ notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls
 
 **WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
-(widget modules, default layout, sections) standalone. The WPCOM-side caller is
+(widget modules, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
 repo — it `require_once`s this exact file and calls `::register()` by name.
 
@@ -200,16 +248,24 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
 - Reads are cached 5 min; add `force_refresh` if a screen looks stale.
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- Sync code under `src/Sync/` is interim (WOOA7S-1550); don't build on it.
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package
+  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
+  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
-- Never import `@automattic/ui`, `@wordpress/ui`, or `@wordpress/dataviews` directly from
-  anything under `packages/`, `widgets/`, or `routes/` — go through
-  `@jetpack-premium-analytics/externals`. A direct import compiles the whole library into that
-  bundle again; ESLint enforces this. `@automattic/charts` follows the same rule under
-  `packages/`, but under `widgets/` and `routes/` it must come from
-  `@jetpack-premium-analytics/widgets-toolkit` instead. See `packages/externals/README.md`.
+- Never import `@wordpress/ui` or `@wordpress/dataviews` directly from anything under
+  `packages/`, `widgets/`, or `routes/` — go through `@jetpack-premium-analytics/externals`. A
+  direct import compiles the whole library into that bundle again; ESLint enforces this.
+  `@automattic/charts` follows the same rule under `packages/`, but under `widgets/` and
+  `routes/` it must come from `@jetpack-premium-analytics/widgets-toolkit` instead. See
+  `packages/externals/README.md`.
+- An internal package's public API is every name its root `src/index.ts` exports, including
+  names re-exported from a sub-barrel, whether by `export *` (`data` → `./hooks`) or by name
+  (`widgets-toolkit` → `useElementSize` from `./hooks`). Add a name there only when something
+  outside the package imports it — types included; `git grep` outside the package to check. A
+  sub-barrel name the root does not re-export, like `reportBookingsQuery` in
+  `data/src/queries/index.ts`, is internal and may serve the package's own imports.
 
 ## Comments and documentation
 
@@ -281,7 +337,8 @@ widgets/<widget-name>/
 Notes:
 
 - `name` lives in `widget.json` and MUST use the `jpa/` prefix
-  (e.g. `jpa/<widget-name>`). `widget.ts` no longer declares it.
+  (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
+  `widget.ts` no longer declares it.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -766,7 +823,10 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
 - Widget title: use the framed widget host header via the widget definition/title/icon. Do not
   add a second in-widget `<Text variant="heading-md" render={ <h3 /> }>` title for framed Stats
   widgets.
-- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true, decimals: 0 } } }`.
+- View count format: `dataFormat={ { type: 'number', options: { useMultipliers: true } } }`.
+  Compact output picks its own precision (1.2K, 54.3K, 234K), and `MetricValue` / `LeaderboardChart`
+  restore the exact figure in a tooltip and for assistive tech; wrap a hand-rendered figure in
+  `<AbbreviatedValue>` to get the same.
   `widgets/tags` is the one exception — it passes `useMultipliers: false` because compacting
   ("1,240" → "1K") was reported as a data mismatch against the Jetpack Stats module it is read
   beside (WOOA7S-2018). Report tables already print in full, so the widgets are the outliers;

@@ -5,6 +5,97 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.6.0] - 2026-09-23
+### Added
+- Add a filter letting hosts hide products and modules from My Jetpack. [#52505]
+- Features: Update the wp-admin sidebar in place when a feature is switched on or off, and point to its new menu item. [#52672]
+
+### Changed
+- Features: Honor `jetpack_feature_policy` when hiding items from the page. [#52587]
+- Features: Show a note instead of a switch on a plugin your host or site administrator has enabled or disabled. [#52584]
+- Show a note instead of a toggle on a module your host or site administrator has enabled or disabled. [#52505]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Connection status card: Report a broken connection instead of claiming everything looks good, with the same details and actions as the connection error notice. The notice now shows a break only the connection owner can repair as a warning to everyone else. [#52130]
+- CRM: Keep the site owner on My Jetpack after activating Jetpack CRM, instead of sending them to CRM's full-screen setup wizard. [#52654]
+- Features tab: Open a feature's details with a subtle rise, and without the text blurring as the dialog appears. [#52590]
+- Fix My Jetpack failing to load for users who can edit posts but have no Jetpack menu, such as editors on unconnected sites. [#52614]
+- Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete. [#52614]
+- Report an error instead of success when switching a module your host or site administrator has enabled or disabled. [#52505]
+
+## [6.5.0] - 2026-09-23
+### Added
+- Add a filterable grid of the main Jetpack features to the Features tab, with activation toggles and a details modal, behind the my-jetpack-features-tab feature flag. [#52494]
+- Add a list view to the Features tab that switches several features on or off at once, behind the my-jetpack-features-tab feature flag. [#52572]
+- Show partner coupon redemption in place of the dashboard. [#52514]
+
+### Changed
+- Answer module switch clicks immediately, and explain what happened when a change fails. [#52494]
+- Scan: Send buyers to the Scan dashboard after checkout instead of the retired Jetpack Assistant. [#52513]
+- Stats: Recognize the standalone Jetpack Stats plugin in My Jetpack. [#51083]
+
+### Fixed
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Show each notice once instead of twice. [#52494]
+
+## [6.4.1] - 2026-09-21
+### Fixed
+- Jetpack Manage: Only show the sidebar link to agency accounts. [#52336]
+- Products: Keep the tab working when a module name is unavailable. [#52469]
+
+## [6.4.0] - 2026-09-18
+### Added
+- Activity Log: list it under Security on the Products tab so it can be turned on and off there. [#49591]
+- Add a my-jetpack-features-tab feature flag that replaces the Products tab with a Features tab in the new dashboard. [#52346]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Show the dashboard in the new rounded admin page frame on every site. [#52446]
+- Show the Jetpack menu notification badge when a connection error is detected. [#52332]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Activity Log: read and write the module state through the shared module option, so the toggle reports and changes what a standalone install actually serves. [#52409]
+- Keep the product card, interstitial and close icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+- Stats: Restore the link from the stats card heading and chart to the Stats page. [#52121]
+
+## [6.3.0] - 2026-09-15
+### Added
+- Add a catalog of the main Jetpack features, with their copy, links and how to get each one. [#52295]
+- Add a plan-free `is_activated()` check to products, and use it to decide Jetpack sidebar menu visibility without a WordPress.com request. [#52102]
+
+### Changed
+- Name the Jetpack Manage sidebar item so hosts can address it in the menu visibility filter. [#52156]
+- Restyle dashboard notices to match the WordPress design system. [#52290]
+- Update package dependencies. [#52297]
+
+## [6.2.2] - 2026-09-14
+### Changed
+- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com. [#51504]
+- Test the product cards' primary action across the plan matrix. [#52005]
+- Update package dependencies. [#52200]
+
+### Fixed
+- Scope the Stats chart tooltip reset to its own tooltip so it no longer restyles other charts. [#52184]
+- Search: Offer to activate Search, rather than to buy a plan, when the site already owns it and the module is switched off. [#52008]
+- Show a Site Editor action for Like buttons on block themes. [#52205]
+
+## [6.2.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+### Fixed
+- Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup. [#52009]
+
+## [6.2.0] - 2026-09-08
+### Security
+- Recommendations: Require administrator permissions on the site evaluation endpoints, and validate their input. [#51987]
+
+### Changed
+- Jetpack AI: Show the AI card's on/off control, real module state, and AI page destination on self-hosted sites. [#51909]
+- Update package dependencies. [#51701]
+
 ## [6.1.0] - 2026-09-01
 ### Added
 - Allow the Automattic for Agencies banner to be dismissed. [#51441]
@@ -2881,6 +2972,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.5.0...6.6.0
+[6.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.1...6.5.0
+[6.4.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.0...6.4.1
+[6.4.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.3.0...6.4.0
+[6.3.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.2...6.3.0
+[6.2.2]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.1...6.2.2
+[6.2.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.2.0...6.2.1
+[6.2.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.1.0...6.2.0
 [6.1.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.0.0...6.1.0
 [6.0.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.1...6.0.0
 [5.44.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/5.44.0...5.44.1

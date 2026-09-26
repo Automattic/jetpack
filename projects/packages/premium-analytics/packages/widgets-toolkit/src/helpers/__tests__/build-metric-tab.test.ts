@@ -1,12 +1,15 @@
 /**
  * External dependencies
  */
-import { getSettings, setSettings } from '@wordpress/date';
+import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { siteSettingsIn } from '../../__fixtures__/wp-date-settings';
 import { buildMetricTab } from '../build-metric-tab';
+
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'buildMetricTab', () => {
 	it( 'reads the headline from summary, not by re-summing the data points', () => {
@@ -18,6 +21,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.value ).toBe( 999 );
@@ -32,9 +36,24 @@ describe( 'buildMetricTab', () => {
 			field: 'cpm',
 			label: 'CPM',
 			dataFormat,
+			zone: 'UTC',
 		} );
 
 		expect( tab.dataFormat ).toBe( dataFormat );
+	} );
+
+	it( 'passes countLabel through unchanged', () => {
+		const tab = buildMetricTab( {
+			primary: { summary: { views: 1 }, data: [] },
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			countLabel: views,
+			zone: 'UTC',
+		} );
+
+		expect( tab.countLabel ).toBe( views );
 	} );
 
 	it( 'maps one point per row, oldest first, with a real Date', () => {
@@ -50,6 +69,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.current ).toHaveLength( 2 );
@@ -59,6 +79,26 @@ describe( 'buildMetricTab', () => {
 		expect( tab.current[ 0 ].date.getTime() ).toBeLessThan( tab.current[ 1 ].date.getTime() );
 	} );
 
+	it( 'keeps a null reading as a gap and still reads a missing field as zero', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { cpm: 4 },
+				data: [
+					{ date_start: '2026-05-01', cpm: null },
+					{ date_start: '2026-05-02', cpm: 0 },
+					{ date_start: '2026-05-03' },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'cpm',
+			label: 'CPM',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
+	} );
+
 	it( 'includes real previous-period values when comparison is on and has rows', () => {
 		const tab = buildMetricTab( {
 			primary: { summary: { views: 30 }, data: [ { date_start: '2026-05-01', views: 30 } ] },
@@ -66,6 +106,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBe( 12 );
@@ -80,6 +121,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: false,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
@@ -95,6 +137,7 @@ describe( 'buildMetricTab', () => {
 			hasComparison: true,
 			field: 'views',
 			label: 'Views',
+			zone: 'UTC',
 		} );
 
 		expect( tab.previousValue ).toBeUndefined();
@@ -107,13 +150,10 @@ describe( 'buildMetricTab', () => {
 		// coincide and this would pass either way. `TZ` isn't on the typed env shape, hence the cast.
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;
-		const settings = getSettings();
 		beforeAll( () => {
 			env.TZ = 'America/Los_Angeles';
-			setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
 		} );
 		afterAll( () => {
-			setSettings( settings );
 			// Assigning `undefined` to an env var sets the literal string "undefined";
 			// an unset variable has to be deleted back off.
 			if ( runnerTimeZone === undefined ) {
@@ -130,6 +170,7 @@ describe( 'buildMetricTab', () => {
 				hasComparison: false,
 				field: 'views',
 				label: 'Views',
+				zone: 'Asia/Tokyo',
 			} ).current[ 0 ].date;
 
 		it.each( [

@@ -16,6 +16,7 @@ use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Status\Cache as StatusCache;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 require_once dirname( __DIR__, 2 ) . '/lib/Jetpack_REST_TestCase.php';
 // Defines the is_image_studio_enabled() predicate the feature_clip availability
@@ -94,6 +95,8 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 
 		remove_filter( 'jetpack_offline_mode', '__return_true' );
 		StatusCache::clear();
+		// Module overrides are cached per request, which spans the whole test run.
+		Jetpack_Modules_Overrides::instance()->clear_cache();
 		\Jetpack_Options::delete_option( array( 'master_user', 'user_tokens' ) );
 		( new Connection_Manager( 'jetpack' ) )->reset_connection_status();
 
@@ -262,18 +265,17 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 	}
 
 	/**
-	 * Input 3 on a free plan: the row follows `advanced-seo`, which sits in the
-	 * free plan's supports list, so it is offered wherever SEO tools run. The
-	 * row governs user-initiated suggestions as well as automatic generation,
-	 * and only the automatic half needs the higher `ai-seo-enhancer` tier.
+	 * Input 3 on a free plan: entitled to AI SEO, but neither surface it governs
+	 * can run here — no sidebar off WordPress.com, and the editor's generation
+	 * needs `ai-seo-enhancer`. A control over nothing is not offered.
 	 */
-	public function test_seo_row_available_on_a_free_plan() {
+	public function test_seo_row_unavailable_on_a_free_plan_without_a_surface() {
 		wp_set_current_user( self::$admin_id );
 
 		self::set_seo_tools_active( true );
 		self::set_plan( 'jetpack_free' );
 
-		$this->assertTrue( $this->get_seo_available() );
+		$this->assertFalse( $this->get_seo_available() );
 	}
 
 	/**
@@ -284,6 +286,62 @@ class WPCOM_REST_API_V2_Endpoint_AI_Feature_Settings_Test extends Jetpack_REST_T
 		\Jetpack_Options::update_option( 'master_user', self::$admin_id );
 		\Jetpack_Options::update_option( 'user_tokens', array( self::$admin_id => 'token.secret.' . self::$admin_id ) );
 		( new Connection_Manager( 'jetpack' ) )->reset_connection_status();
+	}
+
+	/**
+	 * @dataProvider provide_seo_site_data
+	 * @param object|WP_Error $site_data Site record returned by the connection manager.
+	 * @param bool            $expected Whether the SEO settings link is available.
+	 */
+	#[DataProvider( 'provide_seo_site_data' )]
+	public function test_can_manage_seo_uses_site_features( $site_data, $expected ) {
+		wp_set_current_user( self::$admin_id );
+		self::connect_owner();
+		self::set_plan( 'vip' );
+		$mock = \Patchwork\redefine( Connection_Manager::class . '::get_connected_site_data', \Patchwork\always( $site_data ) );
+
+		try {
+			$this->assertSame( $expected, $this->dispatch( 'GET' )->get_data()['features']['ai_seo']['can_manage'] );
+		} finally {
+			if ( null !== $mock ) {
+				\Patchwork\restore( $mock );
+			}
+		}
+	}
+
+	/**
+	 * @return array Site records and expected SEO settings access.
+	 */
+	public static function provide_seo_site_data() {
+		return array(
+			'active SEO feature'     => array( json_decode( '{"plan":{"features":{"active":["advanced-seo"]}}}' ), true ),
+			'excluded SEO feature'   => array( json_decode( '{"plan":{"features":{"active":["ai-seo-enhancer"]}}}' ), false ),
+			'available but inactive' => array( json_decode( '{"plan":{"features":{"available":["advanced-seo"],"active":[]}}}' ), false ),
+			'missing features'       => array( new stdClass(), false ),
+			'malformed features'     => array( json_decode( '{"plan":{"features":{"active":"advanced-seo"}}}' ), false ),
+			'request failed'         => array( new WP_Error( 'request_failed' ), false ),
+		);
+	}
+
+	/**
+	 * Disconnected sites must not request the WordPress.com site record.
+	 */
+	public function test_cannot_manage_seo_without_a_connection() {
+		wp_set_current_user( self::$admin_id );
+		$mock = \Patchwork\redefine(
+			Connection_Manager::class . '::get_connected_site_data',
+			function () {
+				$this->fail( 'Disconnected sites must not request site data.' );
+			}
+		);
+
+		try {
+			$this->assertFalse( $this->dispatch( 'GET' )->get_data()['features']['ai_seo']['can_manage'] );
+		} finally {
+			if ( null !== $mock ) {
+				\Patchwork\restore( $mock );
+			}
+		}
 	}
 
 	/**

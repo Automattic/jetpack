@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { applyFormat } from '@wordpress/rich-text';
-import md5 from 'crypto-js/md5';
+import md5 from 'md5';
 /**
  * Types
  */
@@ -38,7 +38,7 @@ const applyHighlightFormat = ( {
 		newContent = indexes
 			.map( highlightedText => {
 				const { startIndex, endIndex, text } = highlightedText;
-				const id = md5( `${ text }-${ startIndex }-${ endIndex }` ).toString();
+				const id = md5( `${ text }-${ startIndex }-${ endIndex }` );
 				return { start: startIndex, end: endIndex, id } as HighlightData;
 			} )
 			.filter( data => ! ignored.includes( data?.id ) )

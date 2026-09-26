@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { fireEvent, render, screen } from '@testing-library/react';
+import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -71,6 +72,7 @@ function hookResult(
 	return {
 		primary: { data: PRIMARY },
 		comparison: { data: COMPARISON },
+		timezone: 'UTC',
 		isLoading: false,
 		isFetching: false,
 		hasData: true,
@@ -95,6 +97,10 @@ function renderWidget( props: Partial< ReportMetricWidgetProps > = {} ): MetricC
 	return mockMetricComparisonSpy.mock.calls.at( -1 )[ 0 ];
 }
 
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+
 describe( 'ReportMetricWidget', () => {
 	beforeEach( () => {
 		mockMetricComparisonSpy.mockClear();
@@ -107,6 +113,13 @@ describe( 'ReportMetricWidget', () => {
 			'Visitors',
 			'Visitors · previous period',
 		] );
+	} );
+
+	it( 'hands the count label to the current period, which its comparison borrows it from', () => {
+		const { series } = renderWidget( { seriesLabel: 'Views', seriesCountLabel: views } );
+
+		expect( series[ 0 ].countLabel ).toBe( views );
+		expect( series[ 1 ].group ).toBe( series[ 0 ].group );
 	} );
 
 	it( 'names the primary alone when there is no comparison period', () => {

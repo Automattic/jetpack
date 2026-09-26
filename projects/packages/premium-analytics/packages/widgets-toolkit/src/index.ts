@@ -2,6 +2,8 @@
  * Components
  */
 export {
+	AbbreviatedValue,
+	type AbbreviatedValueProps,
 	MetricDelta,
 	MetricTileGrid,
 	MetricTileGridSkeleton,
@@ -35,6 +37,7 @@ export {
 	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	type LeaderboardChartProps,
@@ -65,6 +68,12 @@ export {
 	type CalendarHeatmapPager,
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
+	MonthCalendarHeatmap,
+	type MonthCalendarHeatmapProps,
+	MonthlyHeatmap,
+	type MonthlyHeatmapProps,
+	type MonthlyHeatmapRow,
+	type MonthlyHeatmapTarget,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
 	WidgetState,
@@ -75,13 +84,21 @@ export {
 	type WidgetBackLinkProps,
 	WidgetFooter,
 	type WidgetFooterProps,
+	WidgetFooterLink,
+	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
+	InfoTip,
+	type InfoTipProps,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
+	HighlightField,
+	HighlightGroup,
+	type HighlightFieldProps,
+	type HighlightGroupProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
 	PostHighlightCard,
@@ -97,20 +114,35 @@ export {
 	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
+	DetailPageActions,
+	DetailPageBreadcrumbs,
 	DetailPageShell,
-	DetailPageTabPanel,
-	DetailPageTabs,
+	useDetailPageCustomize,
+	type DetailPageActionsProps,
+	type DetailPageBreadcrumbsProps,
+	type DetailPageCustomize,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
-	type DetailPageTab,
-	type DetailPageTabPanelProps,
-	type DetailPageTabsProps,
+	FeedbackModal,
+	type FeedbackSource,
+	PageOptionsMenu,
+	type PageOptionsMenuProps,
+	ResetLayoutAction,
+	type ResetLayoutActionProps,
+	LocationsGeoChart,
+	type LocationsGeoChartProps,
+	type LocationsGeoFocusCountry,
+	type LocationsGeoMode,
+	type LocationsGeoRow,
+	ReportChartSection,
 	ReportDrilldownTable,
 	ReportErrorState,
+	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -121,8 +153,10 @@ export {
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportErrorStateProps,
+	type ReportLocationsMapProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 	type ReportPageShellProps,
@@ -142,13 +176,16 @@ export {
 	type UseReportCsvExportResult,
 	WidgetDataTable,
 	type WidgetDataTableProps,
-	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
@@ -158,7 +195,11 @@ export {
 /**
  * Constants
  */
-export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_SECTION_LAYOUTS_KEY,
+	WIDGET_ROW_LIMIT,
+} from './constants';
 
 /**
  * Widget edit fields
@@ -208,16 +249,30 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
+	compareOptionalNumbers,
+	formatEmailRate,
 	formatViewCount,
+	getKnownEmailRate,
+	isEmailRateKnown,
+	type EmailRateSignals,
+	MONTHS_IN_YEAR,
+	monthOrder,
+	type MonthKey,
+	MONTHLY_HEATMAP_METRICS,
+	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
+	resolveMonthlyHeatmapMetric,
+	type MonthlyHeatmapMetric,
+	monthlyHeatmapLifeStart,
+	monthRange,
+	yearRange,
+	type PeriodBounds,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
@@ -231,7 +286,10 @@ export {
 	useWidgetNavigationSearch,
 	useSegmentStyles,
 	useSeriesStyles,
-	useViewportWidth,
+	useStoredDetailLayout,
+	useTrackCustomize,
+	useTrackEvent,
+	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -267,7 +325,14 @@ export {
 /**
  * Types
  */
-export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type {
+	CountLabel,
+	MetricKey,
+	OrderMetricKey,
+	OrderMetrics,
+	OrdersSummary,
+	DataFormat,
+} from './types';
 
 /**
  * Charts passthrough. Widgets must import chart components from here, never
@@ -282,9 +347,11 @@ export {
 	HeatmapChartUnresponsive,
 	Sparkline,
 	buildCalendarHeatmapData,
+	useCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,
 	type GeoData,
+	type HeatmapColumn,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapTooltipData,
@@ -295,4 +362,4 @@ export {
  * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
  * once instead of once per widget.
  */
-export { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';

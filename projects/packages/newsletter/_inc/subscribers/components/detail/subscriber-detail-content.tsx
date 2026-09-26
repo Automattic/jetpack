@@ -2,13 +2,14 @@ import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
 import { decodeEntities } from '@wordpress/html-entities';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Card, Link, Stack, Text } from '@wordpress/ui';
 import {
 	useSubscribedNewsletterCategories,
 	useSubscriberDetails,
 	useSubscriberStats,
 } from '../../data/use-subscriber-details';
+import { formatMetric, formatRate } from '../../lib/format-metric';
 import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
@@ -229,31 +230,15 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 			<Stack direction="row" gap="sm" wrap="wrap" className="jetpack-newsletter__detail-stats">
 				<StatCard
 					label={ __( 'Emails sent', 'jetpack-newsletter' ) }
-					value={ statsQuery.isLoading ? dash : String( emailsSent ) }
+					value={ statsQuery.isLoading ? dash : formatMetric( emailsSent ) }
 				/>
 				<StatCard
 					label={ __( 'Open rate', 'jetpack-newsletter' ) }
-					value={
-						statsQuery.isLoading || openRate === null
-							? dash
-							: sprintf(
-									// translators: %d: percentage value (without the % sign).
-									__( '%d%%', 'jetpack-newsletter' ),
-									openRate
-							  )
-					}
+					value={ statsQuery.isLoading ? dash : formatRate( openRate ) }
 				/>
 				<StatCard
 					label={ __( 'Click rate', 'jetpack-newsletter' ) }
-					value={
-						statsQuery.isLoading || clickRate === null
-							? dash
-							: sprintf(
-									// translators: %d: percentage value (without the % sign).
-									__( '%d%%', 'jetpack-newsletter' ),
-									clickRate
-							  )
-					}
+					value={ statsQuery.isLoading ? dash : formatRate( clickRate ) }
 				/>
 			</Stack>
 
@@ -277,7 +262,10 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 						label={ __( 'Email subscription', 'jetpack-newsletter' ) }
 						value={
 							subscriber.subscription_status ? (
-								<SubscriptionStatusCell status={ subscriber.subscription_status } />
+								<SubscriptionStatusCell
+									status={ subscriber.subscription_status }
+									reason={ subscriber.subscription_status_reason }
+								/>
 							) : null
 						}
 					/>

@@ -11,6 +11,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\My_Jetpack\Initializer;
 use Automattic\Jetpack\My_Jetpack\Module_Product;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
+use Automattic\Jetpack\Status\Host;
 use WP_Post;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -24,6 +25,11 @@ class Jetpack_Ai extends Module_Product {
 
 	const CURRENT_TIER_SLUG  = 'free';
 	const UPGRADED_TIER_SLUG = 'upgraded';
+
+	/**
+	 * How many requests a site gets before it has to upgrade.
+	 */
+	const FREE_REQUESTS = 20;
 
 	/**
 	 * The product slug
@@ -124,7 +130,8 @@ class Jetpack_Ai extends Module_Product {
 
 		$current_tier        = self::get_current_usage_tier();
 		$current_description = 0 === $current_tier
-			? __( 'Up to 20 requests', 'jetpack-my-jetpack' )
+			/* translators: %d is the number of free requests, such as 20. */
+			? sprintf( _n( 'Up to %d request', 'Up to %d requests', self::FREE_REQUESTS, 'jetpack-my-jetpack' ), self::FREE_REQUESTS )
 			/* translators: number of requests */
 			: sprintf( __( 'Up to %d requests per month', 'jetpack-my-jetpack' ), $current_tier );
 		$next_tier        = self::get_next_usage_tier();
@@ -517,19 +524,43 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
-	 * Get the URL where the user manages the product
+	 * Whether My Jetpack should surface the AI feature controls.
 	 *
-	 * Pre-release gate: the Jetpack AI Hub's gated views are limited to
-	 * internal testing environments, so only they land there — everyone else
-	 * keeps the My Jetpack product page. Drop the gate when the views go public.
+	 * @return bool
+	 */
+	public static function is_feature_ui_enabled() {
+		if (
+			! self::is_plugin_active()
+			|| ! method_exists( '\\Jetpack', 'is_module' )
+			|| ! \Jetpack::is_module( 'ai' )
+			// @phan-suppress-next-line PhanUndeclaredClassReference -- Supplied by the optional Jetpack plugin.
+			|| ! method_exists( '\\Jetpack_AI_Settings', 'is_feature_enabled' )
+		) {
+			return false;
+		}
+
+		$connection = new Connection_Manager();
+		if ( ! $connection->is_connected() || ! $connection->has_connected_owner() ) {
+			return false;
+		}
+
+		$host = new Host();
+		if ( ! $host->is_wpcom_platform() ) {
+			return true;
+		}
+
+		return $host->is_woa_site()
+			&& function_exists( 'jetpack_is_internal_testing_environment' )
+			&& jetpack_is_internal_testing_environment();
+	}
+
+	/**
+	 * Get the URL where the user manages the product.
 	 *
 	 * @return ?string
 	 */
 	public static function get_manage_url() {
-		if (
-			function_exists( 'jetpack_is_internal_testing_environment' ) &&
-			jetpack_is_internal_testing_environment()
-		) {
+		if ( self::is_feature_ui_enabled() ) {
 			return admin_url( 'admin.php?page=jetpack-ai' );
 		}
 
@@ -578,22 +609,22 @@ class Jetpack_Ai extends Module_Product {
 	}
 
 	/**
-	 * Whether the 'ai' module backs this product.
+	 * Checks whether the site has switched the product on, respecting the jetpack_ai_enabled filter.
 	 *
-	 * Pre-release gate: the module-backed card is limited to internal testing
-	 * environments. Everywhere else this reports the module as active so the
-	 * product's status and every card built from it match the pre-module
-	 * behavior — the module state never surfaces in My Jetpack.
-	 *
-	 * Remove this override when the AI settings page goes public.
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		/** This filter is documented in projects/packages/my-jetpack/src/products/class-jetpack-ai.php */
+		return apply_filters( 'jetpack_ai_enabled', true ) && parent::is_activated();
+	}
+
+	/**
+	 * Whether the 'ai' module backs this product's UI state.
 	 *
 	 * @return bool
 	 */
 	public static function is_module_active() {
-		if (
-			! function_exists( 'jetpack_is_internal_testing_environment' ) ||
-			! jetpack_is_internal_testing_environment()
-		) {
+		if ( ! self::is_feature_ui_enabled() ) {
 			return true;
 		}
 

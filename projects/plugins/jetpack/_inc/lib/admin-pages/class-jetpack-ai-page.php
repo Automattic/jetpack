@@ -13,6 +13,7 @@ use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -24,11 +25,63 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 require_once dirname( __DIR__ ) . '/class-jetpack-ai-feature-flags.php';
+require_once dirname( __DIR__ ) . '/class-jetpack-ai-settings.php';
+require_once __DIR__ . '/class-jetpack-wp-build-page.php';
 
 /**
  * Builds the Jetpack AI admin page and its sidebar menu entry.
  */
 class Jetpack_AI_Page {
+
+	/**
+	 * The wp-build route's page id, which must not be the `jetpack-ai` menu slug.
+	 *
+	 * @var string
+	 */
+	const WP_BUILD_PAGE_ID = 'jetpack-ai-hub';
+
+	/**
+	 * Whether this request renders through wp-build.
+	 *
+	 * Checks the render function too: if the build output is missing, the request would
+	 * otherwise get no bundle at all now that the legacy entry is gone.
+	 *
+	 * @since 16.3
+	 *
+	 * @return bool
+	 */
+	public static function should_render_wp_build() {
+		return function_exists( 'jetpack_plugin_jetpack_ai_hub_wp_admin_render_page' );
+	}
+
+	/**
+	 * Whether the current request targets the AI Hub admin page.
+	 *
+	 * @since 16.3
+	 *
+	 * @return bool
+	 */
+	private static function is_ai_admin_request() {
+		if ( ! is_admin() ) {
+			return false;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading the page slug only.
+		return isset( $_GET['page'] ) && 'jetpack-ai' === sanitize_text_field( wp_unslash( $_GET['page'] ) );
+	}
+
+	/**
+	 * Load wp-build for the AI Hub page.
+	 *
+	 * @since 16.3
+	 *
+	 * @return void
+	 */
+	public static function maybe_load_wp_build() {
+		if ( self::is_ai_admin_request() ) {
+			Jetpack_WP_Build_Page::load( self::WP_BUILD_PAGE_ID );
+		}
+	}
 
 	/**
 	 * Register the page and its page-specific hooks.
@@ -78,7 +131,11 @@ class Jetpack_AI_Page {
 			'manage_options',
 			'jetpack-ai',
 			array( $this, 'render' ),
-			4
+			null,
+			array(
+				'product' => 'jetpack-ai',
+				'key'     => 'jetpack-ai',
+			)
 		);
 	}
 
@@ -197,15 +254,9 @@ class Jetpack_AI_Page {
 	 * Enqueue scripts and styles for the AI admin page.
 	 */
 	public function page_admin_scripts() {
-		$script_path    = JETPACK__PLUGIN_DIR . '_inc/build/jetpack-ai-admin.asset.php';
-		$script_deps    = array( 'wp-element', 'wp-components', 'wp-i18n', 'wp-polyfill' );
+		// wp-build owns the route bundle and its dependencies; this handle only carries the
+		// inline settings below, so the plugin version is version enough to bust its cache.
 		$script_version = JETPACK__VERSION;
-
-		if ( file_exists( $script_path ) ) {
-			$asset_manifest = include $script_path;
-			$script_deps    = $asset_manifest['dependencies'];
-			$script_version = $asset_manifest['version'];
-		}
 
 		$blog_id     = Connection_Manager::get_site_id( true );
 		$status      = new Status();
@@ -215,10 +266,19 @@ class Jetpack_AI_Page {
 		// the approach used by jetpack-mu-wpcom for the sidebar Activity Log link.
 		$site_host         = wp_parse_url( home_url(), PHP_URL_HOST );
 		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
-		// On Atomic link to WPCOM activity log; on self-hosted link to the local wp-admin page.
-		$activity_log_url = ( new Host() )->is_woa_site()
-			? 'https://wordpress.com/activity-log/' . $activity_log_site
-			: admin_url( 'admin.php?page=jetpack-activity-log' );
+
+		/*
+		 * On Atomic link to WPCOM activity log; on self-hosted link to the local
+		 * wp-admin page, which only exists while the `activity-log` module is on.
+		 * An empty URL hides the row rather than linking to an unregistered page.
+		 */
+		if ( ( new Host() )->is_woa_site() ) {
+			$activity_log_url = 'https://wordpress.com/activity-log/' . $activity_log_site;
+		} elseif ( ( new Modules() )->is_active( 'activity-log' ) ) {
+			$activity_log_url = admin_url( 'admin.php?page=jetpack-activity-log' );
+		} else {
+			$activity_log_url = '';
+		}
 
 		/*
 		 * Link SEO settings to the dedicated Jetpack SEO page where it exists,
@@ -228,7 +288,7 @@ class Jetpack_AI_Page {
 		 * it answers only the cohort half, and page registration requires both
 		 * (see packages/seo Initializer::init()).
 		 */
-		$seo_settings_url          = admin_url( 'admin.php?page=jetpack#/traffic' );
+		$seo_settings_url          = admin_url( 'admin.php?page=jetpack-settings#/traffic' );
 		$is_internal_test          = jetpack_is_internal_testing_environment();
 		$show_scheduled_tasks_view = self::is_scheduled_tasks_enabled();
 		if (
@@ -242,15 +302,10 @@ class Jetpack_AI_Page {
 			$seo_settings_url = admin_url( 'admin.php?page=jetpack-seo' );
 		}
 
-		wp_enqueue_script(
-			'jetpack-ai-admin',
-			plugins_url( '_inc/build/jetpack-ai-admin.js', JETPACK__PLUGIN_FILE ),
-			$script_deps,
-			$script_version,
-			true
-		);
-
-		wp_set_script_translations( 'jetpack-ai-admin', 'jetpack' );
+		// The route bundle is registered by wp-build; this handle exists only to carry the
+		// inline settings below, which the app reads from `window.jetpackAiSettings`.
+		wp_register_script( 'jetpack-ai-admin', false, array(), $script_version, true );
+		wp_enqueue_script( 'jetpack-ai-admin' );
 
 		// The Tracks sender (w.js); without it, queued events never leave the
 		// browser. Consent-gated like the other surfaces that load it.
@@ -259,9 +314,13 @@ class Jetpack_AI_Page {
 			Tracking::register_tracks_functions_scripts( true );
 		}
 
-		if ( $show_scheduled_tasks_view ) {
-			Connection_Initial_State::render_script( 'jetpack-ai-admin' );
-		}
+		// Unconditional, as on the other Jetpack admin pages: the connection store
+		// reads it, and only Scheduled tasks used to need it here.
+		Connection_Initial_State::render_script( 'jetpack-ai-admin' );
+
+		$host            = new Host();
+		$has_my_jetpack  = self::has_my_jetpack();
+		$is_offline_mode = $status->is_offline_mode();
 
 		/**
 		 * Filters the host-specific AI Hub configuration.
@@ -273,12 +332,31 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// Pre-release gate for the Overview and Features views. When opening
-				// them to everyone, also drop the matching gate in My Jetpack's
-				// Jetpack_Ai::get_manage_url() so its links land here too.
-				'showGatedViews'  => $is_internal_test,
-				'isUserConnected' => ( new Connection_Manager() )->is_user_connected(),
-				'mcpSettingsApi'  => array(
+				// The Overview and Features views launch on non-VIP self-hosted sites first.
+				// Keep this filterable so hosts can close them independently.
+				'showGatedViews'    => ! $host->is_vip_site()
+					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
+				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
+				// The same verdicts the feature-settings endpoint reports. That call
+				// exists for the AI Features toggles; the notice must not wait on it.
+				'isUserConnected'   => Jetpack_AI_Settings::user_is_connected(),
+				'isConnected'       => Jetpack_AI_Settings::site_is_connected(),
+				'hostAllowsAi'      => Jetpack_AI_Settings::host_allows_ai(),
+				'masterEnabled'     => Jetpack_AI_Settings::is_master_enabled(),
+				// The route, not a flag: each one documents a different hook.
+				'masterForcedOff'   => Jetpack_AI_Settings::get_master_forced_off_route(),
+				'isOfflineMode'     => $is_offline_mode,
+				'canConnectSite'    => current_user_can( 'jetpack_connect' ),
+				// These three answer one question; a filter changing one alone leaves
+				// a label pointing at a page that is not there.
+				'hasMyJetpack'      => $has_my_jetpack,
+				'userConnectionUrl' => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/connection'
+					: 'admin.php?page=jetpack-settings#/connect-user',
+				'manageUrl'         => $has_my_jetpack
+					? 'admin.php?page=my-jetpack#/products'
+					: 'admin.php?page=jetpack_modules',
+				'mcpSettingsApi'    => array(
 					'path'   => '/wpcom/v2/jetpack-ai/mcp-settings',
 					'format' => 'jetpack',
 				),
@@ -287,51 +365,62 @@ class Jetpack_AI_Page {
 
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
-		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-		);
+		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
 		$settings = array(
-			'blogId'           => $blog_id ? (int) $blog_id : 0,
-			'activityLogUrl'   => $activity_log_url,
-			'seoSettingsUrl'   => $seo_settings_url,
-			'siteAdminUrl'     => admin_url(),
-			'apiRoot'          => esc_url_raw( rest_url() ),
-			'apiNonce'         => wp_create_nonce( 'wp_rest' ),
-			'pluginUrl'        => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'blogId'            => $blog_id ? (int) $blog_id : 0,
+			'activityLogUrl'    => $activity_log_url,
+			'seoSettingsUrl'    => $seo_settings_url,
+			'searchSettingsUrl' => self::get_search_settings_url(),
+			'siteAdminUrl'      => admin_url(),
+			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
+			'manageUrl'         => esc_url_raw( $config['manageUrl'] ?? '' ),
+			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
+			'isConnected'       => ! empty( $config['isConnected'] ),
+			'hostAllowsAi'      => ! empty( $config['hostAllowsAi'] ),
+			'masterEnabled'     => ! empty( $config['masterEnabled'] ),
+			'masterForcedOff'   => in_array(
+				$config['masterForcedOff'] ?? '',
+				array(
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER_VIP,
+					Jetpack_AI_Settings::FORCED_OFF_ROUTE_MODULES,
+				),
+				true
+			) ? $config['masterForcedOff'] : '',
+			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
+			'canConnectSite'    => ! empty( $config['canConnectSite'] ),
+			'apiRoot'           => esc_url_raw( rest_url() ),
+			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
+			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			// Images ship from the plugin directory, so the plugin version is what busts their cache.
+			'assetsVersion'     => JETPACK__VERSION,
 			// The redirect entry bakes in the jetpack_ai_yearly product and
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
-			'upgradeUrl'       => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
-			// The purchase granting AI, for the Overview usage card — the
-			// usage endpoint cannot name it. Only looked up when a gated
-			// view can render it.
-			'planName'         => $plan_info['name'],
-			// The plan's own renewal date, matching My Jetpack — the
-			// usage-period rollover is a different, monthly date.
-			'planRenewsOn'     => $plan_info['renews_on'],
-			// The same date reads "Renews on" or "Expires on" depending on
-			// auto-renew, matching My Jetpack and the wpcom subscriptions page.
-			'planAutoRenew'    => $plan_info['auto_renew'],
-			'showFeaturesView' => $show_gated_views,
+			'upgradeUrl'        => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
+			// The purchase granting AI — the usage card only uses it to pick
+			// the right loading-skeleton shape before the usage fetch lands.
+			// Only looked up when a gated view can render the card.
+			'planName'          => $plan_info['name'],
+			'showFeaturesView'  => $show_gated_views,
+			'showA12sBadge'     => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
-			'featureFlags'     => array(
+			'featureFlags'      => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.
-			'isUserConnected'  => ! empty( $config['isUserConnected'] ),
+			'isUserConnected'   => ! empty( $config['isUserConnected'] ),
 			// Tracks audience properties for the jetpack_mcp_* events, per the
 			// Tracks standards for AI product events (AIINT-586). The client
 			// sends them as the strings 'true'/'false' (AIINT-576).
-			'isA11n'           => self::is_current_user_automattician(),
-			'isTest'           => $is_internal_test,
+			'isA11n'            => self::is_current_user_automattician(),
+			'isTest'            => $is_internal_test,
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
-			'tracksUserData'   => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'   => $config['mcpSettingsApi'],
+			'tracksUserData'    => $can_send_tracks ? self::get_tracks_user_data() : null,
+			'mcpSettingsApi'    => $config['mcpSettingsApi'] ?? array(),
 		);
 
 		wp_add_inline_script(
@@ -357,13 +446,6 @@ class Jetpack_AI_Page {
 				absint( $blog_id )
 			),
 			'before'
-		);
-
-		wp_enqueue_style(
-			'jetpack-ai-admin',
-			plugins_url( '_inc/build/jetpack-ai-admin.css', JETPACK__PLUGIN_FILE ),
-			array( 'wp-components' ),
-			$script_version
 		);
 	}
 
@@ -413,22 +495,56 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Name and renewal date of the purchase granting this site AI ("Jetpack
-	 * Complete"), from My Jetpack's purchase data — its Plans section's source.
+	 * The Search dashboard page the AI Answers row links to, or '' once a host
+	 * has removed it. Removal is remove_submenu_page() on `admin_menu`, which only
+	 * unsets the registry entry — menu_page_url() still answers for the page and
+	 * wp-admin then denies it — so the registry is read after that hook has run.
 	 *
-	 * The renewal is the purchase's expiry date, matching what My Jetpack
-	 * shows — not the AI usage-period rollover, which is a different date.
+	 * @return string
+	 */
+	private static function get_search_settings_url() {
+		global $submenu;
+
+		// Search registers under the Jetpack menu, or menu-less (parent '') when
+		// `jetpack_search_should_add_search_submenu` says no; both are reachable.
+		foreach ( array( 'jetpack', '' ) as $parent ) {
+			foreach ( (array) ( $submenu[ $parent ] ?? array() ) as $item ) {
+				if ( isset( $item[2] ) && 'jetpack-search' === $item[2] ) {
+					return admin_url( 'admin.php?page=jetpack-search#/ai-answers' );
+				}
+			}
+		}
+
+		return '';
+	}
+
+	/**
+	 * Whether My Jetpack is loaded on this host.
 	 *
-	 * @return array{name: string, renews_on: string} Empty strings when nothing
-	 *                                                paid grants AI or the data
-	 *                                                is unavailable.
+	 * Hosts drop it with the `jetpack_my_jetpack_should_initialize` filter, and
+	 * VIP removes it from outside this codebase, where that filter cannot answer.
+	 *
+	 * @return bool
+	 */
+	private static function has_my_jetpack() {
+		if ( ( new Host() )->is_vip_site() ) {
+			return false;
+		}
+
+		return class_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer' )
+			&& method_exists( 'Automattic\\Jetpack\\My_Jetpack\\Initializer', 'should_initialize' )
+			&& \Automattic\Jetpack\My_Jetpack\Initializer::should_initialize();
+	}
+
+	/**
+	 * Name of the purchase granting this site AI ("Jetpack Complete"), from
+	 * My Jetpack's purchase data — its Plans section's source.
+	 *
+	 * @return array{name: string} An empty string when nothing paid grants AI
+	 *                             or the data is unavailable.
 	 */
 	private static function get_ai_plan_info() {
-		$empty = array(
-			'name'       => '',
-			'renews_on'  => '',
-			'auto_renew' => true,
-		);
+		$empty = array( 'name' => '' );
 
 		if ( ! class_exists( '\Automattic\Jetpack\My_Jetpack\Products\Jetpack_Ai' ) ) {
 			return $empty;
@@ -442,7 +558,7 @@ class Jetpack_AI_Page {
 		}
 
 		// A failed lookup is not "no purchase": skip the hour-long cache so the
-		// next page load can try again instead of pinning a blank plan cell.
+		// next page load can try again instead of pinning a blank name.
 		if ( is_wp_error( \Automattic\Jetpack\My_Jetpack\Wpcom_Products::get_site_current_purchases() ) ) {
 			return $empty;
 		}
@@ -458,12 +574,7 @@ class Jetpack_AI_Page {
 		if ( $purchase && ! empty( $purchase->product_name ) && 'expired' !== ( $purchase->expiry_status ?? '' ) ) {
 			// The design shows the bare plan name ("Complete", "Business"), so
 			// trim the store names' brand prefixes; they are untranslated.
-			$info['name']      = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
-			$info['renews_on'] = (string) ( $purchase->expiry_date ?? '' );
-			// Absent means unknown, not off: only a purchase that positively
-			// reports auto-renew off should relabel the date as an expiry.
-			$info['auto_renew'] = ! isset( $purchase->is_auto_renew_enabled )
-				|| (bool) $purchase->is_auto_renew_enabled;
+			$info['name'] = (string) preg_replace( '/^(Jetpack|WordPress\.com) /', '', (string) $purchase->product_name );
 		}
 
 		set_transient( 'jetpack_ai_overview_plan_info', $info, HOUR_IN_SECONDS );
@@ -517,13 +628,28 @@ class Jetpack_AI_Page {
 	}
 
 	/**
-	 * Render the page container. The React app mounts into this div.
+	 * Render the page, or say why it could not be rendered.
 	 *
-	 * AdminPage from @automattic/jetpack-components handles the full-page layout.
+	 * The generated wp-build page owns the markup the app mounts into.
 	 */
 	public function page_render() {
-		?>
-		<div id="jetpack-ai-root"></div>
-		<?php
+		if ( self::should_render_wp_build() ) {
+			jetpack_plugin_jetpack_ai_hub_wp_admin_render_page(); // @phan-suppress-current-line PhanUndeclaredFunction -- should_render_wp_build() checks function_exists(); defined in the generated build/pages/, which Phan excludes.
+			return;
+		}
+
+		// The build output is missing; say so rather than leaving a silent blank page.
+		printf(
+			'<div class="wrap"><h1>%s</h1><div class="notice notice-error"><p>%s</p></div></div>',
+			esc_html__( 'Jetpack AI', 'jetpack' ),
+			esc_html__( 'Jetpack AI could not be loaded because its assets are missing. Reinstalling or updating the plugin usually fixes this. If it keeps happening, contact your site administrator or host.', 'jetpack' )
+		);
 	}
 }
+
+/*
+ * wp-build must load before add_actions() runs on any host, so hook it here: Jetpack_Admin and
+ * mu-wpcom's WordPress.com Simple integration both require this file before `admin_menu`, and
+ * add_action() dedupes.
+ */
+add_action( 'admin_menu', array( 'Jetpack_AI_Page', 'maybe_load_wp_build' ), 1 );

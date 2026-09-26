@@ -159,6 +159,7 @@ export const Antispam = withModuleSettingsFormHelpers(
 								text: __( 'Removes spam from comments and contact forms.', 'jetpack' ),
 								link: 'https://akismet.com/support/getting-started/activate/',
 								privacyLink: 'https://akismet.com/privacy/',
+								wpcomLink: 'https://wordpress.com/support/protect-from-spam/',
 							} }
 						>
 							<FormFieldset>

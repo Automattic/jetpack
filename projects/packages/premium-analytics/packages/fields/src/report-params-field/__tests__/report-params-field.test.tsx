@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { ReportScopeProvider, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useState } from 'react';
@@ -59,9 +60,10 @@ function renderField(
 		);
 	}
 
-	render( <Host /> );
+	const { unmount } = render( <Host /> );
 
 	return {
+		unmount,
 		saved,
 		latest: () => saved[ saved.length - 1 ]?.reportParams,
 		// Stands in for an undo, a dashboard reset, or another surface saving
@@ -108,6 +110,36 @@ async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days
 	await shortenRangeTo( days );
 }
 
+/*
+ * Pins `Date` without faking `setTimeout`/`requestAnimationFrame`: the compare/period
+ * menus render through `DateControlPopover`'s `@wordpress/ui` Tooltip, whose floating-ui
+ * positioning schedules its own async updates. Faking those too raced Jest's virtual
+ * clock against that positioning, intermittently landing a state update outside any
+ * `act()` the test opened (WOOA7S-2182 follow-up).
+ */
+function pinSystemTime( date: Date ) {
+	jest
+		.useFakeTimers( {
+			doNotFake: [
+				'hrtime',
+				'nextTick',
+				'performance',
+				'queueMicrotask',
+				'requestAnimationFrame',
+				'cancelAnimationFrame',
+				'requestIdleCallback',
+				'cancelIdleCallback',
+				'setImmediate',
+				'clearImmediate',
+				'setInterval',
+				'clearInterval',
+				'setTimeout',
+				'clearTimeout',
+			],
+		} )
+		.setSystemTime( date );
+}
+
 describe( 'reportParamsAttributeField', () => {
 	it( 'declares the reportParams attribute the host renders in the header', () => {
 		expect( reportParamsAttributeField() ).toMatchObject( {
@@ -119,6 +151,10 @@ describe( 'reportParamsAttributeField', () => {
 } );
 
 describe( 'report params field', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'offers no bucket control by default', () => {
 		renderField();
 
@@ -152,11 +188,10 @@ describe( 'report params field', () => {
 			'Last 24 hours',
 			'Last 7 days',
 			'Last 30 days',
-			'Last 90 days',
-			'Last 365 days',
+			'Month to date',
 			'Last month',
+			'Year to date',
 			'Last 12 months',
-			'Last year',
 			'Custom range',
 		] );
 	} );
@@ -323,11 +358,14 @@ describe( 'report params field', () => {
 	} );
 
 	it( 'commits a comparison range on selection', async () => {
-		const user = userEvent.setup();
+		// Pinned mid-month: on the last day of a 30-day month "Last 30 days" is a
+		// whole month and the entry reads "Previous month".
+		pinSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const { latest } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous 30 days' } ) );
 
 		expect( latest() ).toEqual(
 			expect.objectContaining( {
@@ -337,6 +375,40 @@ describe( 'report params field', () => {
 				compare_to: expect.any( String ),
 			} )
 		);
+	} );
+
+	/*
+	 * Read back through `normalizeReportParams`, the way a widget reads it: that
+	 * recomputes the primary window from the preset and so repairs a stretched
+	 * `to`, while passing the comparison it spawned through untouched.
+	 */
+	it( 'measures a comparison against the preset window, not the rest of the day', async () => {
+		/*
+		 * Pinned away from the day's last hour: "Last 24 hours" ends at
+		 * `endOfHour( now )`, which already *is* end of day from 23:00, so the
+		 * stretch this guards against would be a no-op and the test would pass
+		 * on the unfixed code.
+		 */
+		pinSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { latest, unmount } = renderField();
+
+		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous 30 days' } ) );
+		await pickPeriod( user, 'Last 24 hours' );
+
+		// The preset's own end, not the end of the day it falls in.
+		expect( latest()?.to ).toBe( '2026-06-15T12:59:59.999+00:00' );
+
+		const params = normalizeReportParams( latest() );
+		const span = ( from?: string, to?: string ) =>
+			new Date( String( to ) ).getTime() - new Date( String( from ) ).getTime();
+
+		expect( span( params.compare_from, params.compare_to ) ).toBe( span( params.from, params.to ) );
+
+		// Unmount on the fake clock: jsdom reads every refocus as focus-visible, so the
+		// trigger tooltip is still opening, and would land in the next test.
+		unmount();
 	} );
 
 	// A widget can carry a preset with no window behind it, and it compares
@@ -417,5 +489,45 @@ describe( 'buckets the widget cannot draw', () => {
 			screen.findByRole( 'menuitemradio', { name: 'By days' } )
 		).resolves.toHaveAttribute( 'aria-checked', 'true' );
 		expect( screen.queryByRole( 'menuitemradio', { name: 'By hours' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'comparison scope', () => {
+	function renderInScope( offersComparison: boolean | undefined, hostOffersComparison: boolean ) {
+		const { Edit } = reportParamsAttributeField< ReportParamsFieldAttributes >( {
+			offersComparison,
+		} );
+		const Field = Edit as ComponentType< DataFormControlProps< ReportParamsFieldAttributes > >;
+
+		render(
+			<ReportScopeProvider offersComparison={ hostOffersComparison }>
+				<Field
+					{ ...( {
+						data: ATTRIBUTES,
+						onChange: jest.fn(),
+					} as unknown as DataFormControlProps< ReportParamsFieldAttributes > ) }
+				/>
+			</ReportScopeProvider>
+		);
+	}
+
+	// The host renders the control outside the widget tree, so a widget whose body
+	// drops comparison has to say so here or the section's scope reaches it.
+	it( 'offers none for a widget that draws none, whatever the host allows', () => {
+		renderInScope( false, true );
+
+		expect( screen.queryByRole( 'button', { name: /compare/i } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'follows the host when the widget names no scope', () => {
+		renderInScope( undefined, true );
+
+		expect( screen.getByRole( 'button', { name: /compare/i } ) ).toBeVisible();
+	} );
+
+	it( 'offers none on a host that allows none', () => {
+		renderInScope( undefined, false );
+
+		expect( screen.queryByRole( 'button', { name: /compare/i } ) ).not.toBeInTheDocument();
 	} );
 } );

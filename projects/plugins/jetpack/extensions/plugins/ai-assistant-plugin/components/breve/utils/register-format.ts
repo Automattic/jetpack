@@ -4,10 +4,11 @@
 import { getBlockContent, type Block as WPBlock } from '@wordpress/blocks';
 import { dispatch, select } from '@wordpress/data';
 import { registerFormatType, removeFormat, RichTextValue } from '@wordpress/rich-text';
-import md5 from 'crypto-js/md5';
+import md5 from 'md5';
 /**
  * Internal dependencies
  */
+import { getFeatureAvailability } from '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import features from '../features';
 import registerEvents from '../features/events';
 import highlight from '../highlight/highlight';
@@ -102,7 +103,7 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 						blockContent = getBlockContent( block as WPBlock );
 					}
 
-					const textMd5 = md5( blockContent ).toString();
+					const textMd5 = md5( blockContent );
 
 					if ( currentMd5 !== textMd5 ) {
 						ignoredList = [];
@@ -140,6 +141,12 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 }
 
 export function registerBreveHighlights() {
+	// WordPress consults every registered format type on each RichText render, and
+	// ours reach the AI feature endpoint to decide what to highlight.
+	if ( ! getFeatureAvailability( 'ai-proofread-breve' ) ) {
+		return;
+	}
+
 	features.forEach( feature => {
 		registerBreveHighlight( feature );
 	} );

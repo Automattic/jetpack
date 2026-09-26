@@ -9,7 +9,7 @@ import {
 	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
-import { parseBucketStart } from '@jetpack-premium-analytics/datetime';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	MetricTabsChart,
@@ -18,11 +18,12 @@ import {
 	WidgetState,
 	defaultPeriodForInterval,
 	useWidgetRootContext,
+	type CountLabel,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -53,6 +54,16 @@ function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
 		? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
 		: __( 'Opens', 'jetpack-premium-analytics-pkg' );
+}
+
+function metricCountLabel( metric: EmailTimeSeriesMetric ): CountLabel {
+	return metric === 'clicks'
+		? count =>
+				/* translators: %s: number of clicks. */
+				_n( '%s Click', '%s Clicks', count, 'jetpack-premium-analytics-pkg' )
+		: count =>
+				/* translators: %s: number of opens. */
+				_n( '%s Open', '%s Opens', count, 'jetpack-premium-analytics-pkg' );
 }
 
 type EmailTimeSeriesReportProps = {
@@ -110,7 +121,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 	// is the range's opens/clicks.
 	const metricTabs = useMemo< MetricTab[] >( () => {
 		const points = ( chartReport?.data ?? [] ).flatMap( point => {
-			const date = parseBucketStart( point.date_start );
+			const date = resolveBucketStamp( point.date_start, active.timezone );
 
 			return date ? [ { date, value: Number( point[ field ] ?? 0 ) } ] : [];
 		} );
@@ -119,11 +130,12 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 			{
 				key: field,
 				label: metricLabel( metric ),
+				countLabel: metricCountLabel( metric ),
 				value: points.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current: points,
 			},
 		];
-	}, [ chartReport, field, metric ] );
+	}, [ chartReport, field, metric, active.timezone ] );
 	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
 
 	return (
@@ -147,7 +159,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 						: __(
 								'Open an email report to see its timeline here.',
 								'jetpack-premium-analytics-pkg'
-						  ),
+							),
 				} }
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.

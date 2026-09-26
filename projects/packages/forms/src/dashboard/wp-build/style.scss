@@ -4,6 +4,7 @@
 
 @use "@automattic/jetpack-base-styles/admin-page-layout" as *;
 @use "@wordpress/base-styles/breakpoints";
+@use "../forms-vars";
 
 body.jetpack_page_jetpack-forms-responses-wp-admin,
 body.jetpack-forms-responses {
@@ -66,8 +67,10 @@ body.jetpack-forms-responses {
 			flex: 1 1 auto;
 			min-block-size: 0;
 
+			// The JITM slot is chrome like the toolbar and footer: natural height.
 			.jp-forms-dataviews__view-actions,
 			.jp-forms-dataviews-filters__container,
+			.jp-jitm-slot,
 			.dataviews-footer {
 				flex: 0 0 auto;
 				min-block-size: 0;

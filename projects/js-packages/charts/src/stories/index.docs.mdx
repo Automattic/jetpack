@@ -92,7 +92,7 @@ Visualizes geographical data on an interactive world map, making it easy to unde
 
 ### [Heatmap Chart](./?path=/docs/js-packages-charts-library-charts-heatmap-chart--docs)
 
-Visualize values across a two-dimensional matrix of cells on a sequential color scale. Supports a compact mode for short widgets and a calendar/contribution-style layout via `buildCalendarHeatmapData`.
+Visualize values across a two-dimensional matrix of cells on a sequential color scale. Supports a compact mode for short widgets, column groups, and calendar layouts: a contribution graph via `useCalendarHeatmapData` and one calendar per month via `useMonthCalendarHeatmapData`.
 
 ### [Leaderboard Chart](./?path=/docs/js-packages-charts-library-charts-leaderboard-chart--docs)
 
@@ -118,7 +118,9 @@ Charts expect data in a standardized format with `date` (for time-series) or cat
 
 ### Theme System
 
-Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Create custom themes by defining the properties you want to override, such as colors, grid styling, and typography.
+Use the `GlobalChartsProvider` component to apply consistent styling across all charts. Create custom themes by defining the properties you want to override, such as grid styling, typography and spacing.
+
+Colors are not theme-object properties. Chart colors use `--a8c-charts-color-*` custom properties set in CSS inside the provider tree; see [the token catalog](./?path=/docs/js-packages-charts-library-global-context--docs) and [bar color configuration](./?path=/docs/js-packages-charts-library-charts-bar-chart--docs#theming-integration) for overrides.
 
 ### Responsive Design
 

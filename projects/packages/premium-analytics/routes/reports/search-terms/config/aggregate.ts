@@ -22,6 +22,12 @@ type SearchTermsDataPoint = StatsNormalizedDataPoint< StatsSearchTermsItem > & {
 };
 
 /**
+ * Stats caps a summarized search-terms list at 500 rows, the Unknown row included. With
+ * `period=day` it never reports `other_search_terms`, so the cap is the only truncation signal.
+ */
+const SUMMARIZED_TERMS_CAP = 500;
+
+/**
  * Read a finite count without losing an explicit zero.
  *
  * @param value - The raw Stats count.
@@ -126,21 +132,16 @@ export function aggregateSearchTermRows(
 		return { rows: primaryRows, hasComparison: false };
 	}
 
-	const comparisonById = new Map(
-		aggregateSingleSearchTermReport( comparisonReport, unknownLabel ).map( row => [
-			row.id,
-			row.views,
-		] )
-	);
+	const comparisonRows = aggregateSingleSearchTermReport( comparisonReport, unknownLabel );
+	const comparisonById = new Map( comparisonRows.map( row => [ row.id, row.views ] ) );
 
-	// The Stats payload reports truncation via `other_search_terms`: a positive
-	// count means the comparison response does not list every term, so a term
-	// missing from it may have simply fallen off the list rather than dropped
-	// to zero. Only an untruncated comparison list can treat a missing term as
-	// an explicit zero.
+	// A term missing from a truncated comparison list may have fallen off the
+	// list rather than dropped to zero, so only a complete list treats a missing
+	// term as an explicit zero.
 	const comparisonOtherSearchTerms = getCount( comparisonReport.summary.other_search_terms );
 	const comparisonTruncated =
-		comparisonOtherSearchTerms !== undefined && comparisonOtherSearchTerms > 0;
+		( comparisonOtherSearchTerms !== undefined && comparisonOtherSearchTerms > 0 ) ||
+		comparisonRows.length >= SUMMARIZED_TERMS_CAP;
 
 	return {
 		rows: primaryRows.map( row => {

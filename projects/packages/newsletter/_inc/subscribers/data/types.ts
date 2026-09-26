@@ -13,6 +13,8 @@ export type SubscriptionStatus =
 	| 'Blocked'
 	| string;
 
+export type SubscriptionStatusReason = 'emails_paused' | 'bounced' | 'blocked';
+
 export type SubscriptionPlan = {
 	subscription_id?: number;
 	is_comp: boolean;
@@ -36,14 +38,15 @@ export type Subscriber = {
 	email_address: string;
 	avatar?: string;
 	subscription_status: SubscriptionStatus;
+	subscription_status_reason?: SubscriptionStatusReason | null;
 
 	// WP.com-side subscription (null when subscriber is email-only).
 	wpcom_subscription_id?: number;
-	wpcom_date_subscribed?: string;
+	wpcom_date_subscribed?: string | null;
 
 	// Email-side subscription (always present for email subscribers).
 	email_subscription_id?: number;
-	email_date_subscribed?: string;
+	email_date_subscribed?: string | null;
 
 	// Paid / comp subscriptions, only present when `use_new_helper=true`.
 	plans?: SubscriptionPlan[];
@@ -105,12 +108,7 @@ export type AddSubscribersResponse = {
 };
 
 export type ImportJobStatus =
-	| 'pending'
-	| 'awaiting'
-	| 'importing'
-	| 'imported'
-	| 'failed'
-	| 'cancelled';
+	'pending' | 'awaiting' | 'importing' | 'imported' | 'failed' | 'cancelled';
 
 export type ImportJob = {
 	id: number;
@@ -138,9 +136,8 @@ export type SubscriberDetails = Subscriber & {
 	url?: string | null;
 	open_rate?: number;
 
-	// The individual endpoint names the subscription date differently from the list: one
-	// `date_subscribed`, already a full ISO string with an offset, rather than the `wpcom_`/`email_`
-	// pair of naive UTC timestamps.
+	// Date of whichever subscription the endpoint resolved. Unlike the list, the individual dates
+	// are full ISO strings with an offset, and the `wpcom_`/`email_` pair is null when absent.
 	date_subscribed?: string;
 };
 

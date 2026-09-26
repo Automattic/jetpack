@@ -23,9 +23,8 @@ const GRIDICON_TO_KIND: Record< string, ActivityKind > = {
  * `ActivityItem` shape.
  *
  * Every entry maps to something: an unrecognized gridicon becomes the
- * generic `other` kind. Returning null here would drop the row, which
- * both hides site activity and desynchronizes the rendered row count
- * from the `totalItems` the pagination footer advertises.
+ * generic `other` kind. Returning null here would drop the row, hiding site
+ * activity the server did send and counted in `totalItems`.
  *
  * @param entry - WPCOM entry.
  * @return The mapped item.

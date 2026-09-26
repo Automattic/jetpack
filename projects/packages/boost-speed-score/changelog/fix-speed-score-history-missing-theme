@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Avoid a PHP warning when reading speed score history entries saved before the theme was recorded.

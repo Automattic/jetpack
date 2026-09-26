@@ -1,6 +1,9 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { ProgressBar } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
+import { useSiteSuffix } from '../../hooks/use-connection';
 import { ContactSupportLine } from './index';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
@@ -116,6 +119,38 @@ export function BackupTroubleBanner( { state }: { state: BackupsState } ) {
 			</Text>
 			<Text variant="body-sm">
 				<ContactSupportLine />
+			</Text>
+		</Stack>
+	);
+}
+
+/**
+ * Strip shown when the backup that made the site `complete` finished with
+ * some files missing.
+ *
+ * @return The rendered banner.
+ */
+export function BackupWarningsBanner() {
+	const siteSuffix = useSiteSuffix();
+
+	return (
+		<Stack className="jpb-backup-warnings-banner" direction="column" gap="xs" role="status">
+			<Text variant="body-sm">
+				{ createInterpolateElement(
+					__(
+						'Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.',
+						'jetpack-backup-pkg'
+					),
+					{
+						a: (
+							<Link
+								openInNewTab
+								// Omitted rather than passed as undefined — see `useSiteSuffix`.
+								href={ getRedirectUrl( 'jetpack-backup', siteSuffix ? { site: siteSuffix } : {} ) }
+							/>
+						),
+					}
+				) }
 			</Text>
 		</Stack>
 	);

@@ -15,9 +15,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 		} ) ),
 } ) );
 
-const { default: useFormFieldIds } = await import(
-	'../../../../../src/blocks/shared/hooks/use-form-field-ids.js'
-);
+const { default: useFormFieldIds } =
+	await import( '../../../../../src/blocks/shared/hooks/use-form-field-ids.js' );
 
 /**
  * A field block, optionally carrying an explicit id.

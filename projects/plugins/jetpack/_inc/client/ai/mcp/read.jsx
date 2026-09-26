@@ -157,7 +157,7 @@ export default function McpRead( { mcpAbilities, blogId, savingToolIds, onUpdate
 	const siteAccountAbilities = siteContextToolIds.size
 		? Object.fromEntries(
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
-		  )
+			)
 		: accountAbilities;
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
 	const mergedAbilities = mergeSiteMcpAbilities(

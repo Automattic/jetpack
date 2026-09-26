@@ -72,7 +72,7 @@ export default function UnsubscribeModal( {
 				// translators: %s: subscriber display name or email.
 				__( 'Remove %s?', 'jetpack-newsletter' ),
 				getSubscriberLabel( subscribers[ 0 ] )
-		  )
+			)
 		: sprintf(
 				// translators: %d: number of subscribers.
 				_n(
@@ -82,7 +82,7 @@ export default function UnsubscribeModal( {
 					'jetpack-newsletter'
 				),
 				subscribers.length
-		  );
+			);
 
 	const description = __(
 		"They'll be unsubscribed from your site, and any paid subscriptions will be cancelled. This can't be undone.",

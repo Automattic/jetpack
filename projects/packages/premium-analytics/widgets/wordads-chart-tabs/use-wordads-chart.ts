@@ -8,13 +8,14 @@ import {
 	type StatsWordAdsResponse,
 } from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import { WORDADS_CHART_METRICS } from './metrics';
 import { buildMetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
 
-export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' | 'year' >;
+export type WordAdsPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
 
 /**
  * The WordAds fields as metric tabs, in the Calypso WordAds page's labels and order.
@@ -25,23 +26,35 @@ export default function useWordAdsChart( reportParams: ReportParams, period: Wor
 	// Memoize the request params so the query key is stable across renders.
 	const params = useMemo( () => ( { ...reportParams, period } ), [ reportParams, period ] );
 
-	const { primary, isLoading, isFetching, isError, refetch } = useStatsWordAdsStats( params );
+	const { primary, timezone, isLoading, isFetching, isError, refetch } =
+		useStatsWordAdsStats( params );
 
 	const primaryData = primary.data as StatsWordAdsResponse | undefined;
 
 	const metrics = useMemo(
 		() =>
-			WORDADS_CHART_METRICS.map( metric =>
-				buildMetricTab( {
+			WORDADS_CHART_METRICS.map( metric => ( {
+				...buildMetricTab( {
 					primary: primaryData,
 					comparison: undefined,
 					hasComparison: false,
 					field: metric.id,
 					label: metric.label,
 					dataFormat: metric.dataFormat,
-				} )
-			),
-		[ primaryData ]
+					countLabel: metric.countLabel,
+					zone: timezone,
+				} ),
+				// Only CPM goes null, when nothing was served: a ratio of nothing, not a zero.
+				...( primaryData?.summary[ metric.id ] === null
+					? {
+							unavailable: __(
+								'No ads were served in this period.',
+								'jetpack-premium-analytics-pkg'
+							),
+						}
+					: {} ),
+			} ) ),
+		[ primaryData, timezone ]
 	);
 
 	return {

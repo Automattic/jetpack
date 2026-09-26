@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import ThreatsDataViews from '../index.tsx';
 
 const data = [
@@ -46,8 +46,13 @@ const data = [
 ];
 
 describe( 'ThreatsDataViews', () => {
-	it( 'renders threat data', () => {
+	it( 'renders threat data', async () => {
 		render( <ThreatsDataViews data={ data } /> );
+
+		// Drain ariakit's post-mount microtasks. See also https://github.com/testing-library/react-testing-library/pull/1214
+		// eslint-disable-next-line testing-library/no-unnecessary-act -- No user action to wrap; this settles internal ariakit state
+		await act( async () => {} );
+
 		expect( screen.getByText( 'Malicious code found in file: index.php' ) ).toBeInTheDocument();
 		expect(
 			screen.getByText( 'WooCommerce <= 3.2.3 - Authenticated PHP Object Injection' )

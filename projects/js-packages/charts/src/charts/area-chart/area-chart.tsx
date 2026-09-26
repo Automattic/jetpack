@@ -26,7 +26,6 @@ import {
 	useChartId,
 	useChartRegistration,
 	useGlobalChartsContext,
-	useGlobalChartsTheme,
 } from '../../providers';
 import { useDefaultHiddenSeries } from '../../providers/chart-context/hooks/use-default-hidden-series';
 import { attachSubComponents } from '../../utils';
@@ -38,6 +37,7 @@ import { ChartLayout } from '../private/chart-layout';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { getCurveType } from '../private/time-axis';
 import { buildTimeAxisOptions } from '../private/time-axis-options';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import { useXZoom, ZoomResetButton, ZoomSelectionRect, ZoomClip } from '../private/x-zoom';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
@@ -75,8 +75,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			onPointerMove,
 			onPointerOut,
 			zoomable = false,
-			rescaleYOnVisibilityChange,
-			rescaleYOnLegendToggle,
+			rescaleYOnVisibilityChange = true,
 			defaultHiddenSeries,
 			children,
 			gridVisibility,
@@ -88,10 +87,6 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		const legendShape = legend.shape ?? 'rect';
 		const legendPosition = legend.position ?? 'bottom';
 
-		// New prop wins; fall back to the deprecated `rescaleYOnLegendToggle`; default to rescaling.
-		const rescaleYOnVisibility = rescaleYOnVisibilityChange ?? rescaleYOnLegendToggle ?? true;
-
-		const providerTheme = useGlobalChartsTheme();
 		const formatting = useChartFormatting();
 		const theme = useXYChartTheme( data );
 		const chartId = useChartId( providedChartId );
@@ -148,6 +143,15 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			[ seriesWithVisibility ]
 		);
 
+		// A normalized stack (expand/wiggle/silhouette) turns whole-number data into
+		// fractions, so the filter is skipped for every offset but 'none'.
+		const hasWholeNumberValues = useMemo(
+			() =>
+				( ! stacked || stackOffset === 'none' ) &&
+				hasOnlyWholeNumbers( dataSorted.filter( series => isSeriesVisible( series.label ) ) ),
+			[ dataSorted, isSeriesVisible, stacked, stackOffset ]
+		);
+
 		const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
 			selectedIndex,
 			setSelectedIndex,
@@ -165,7 +169,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 		// around zero); letting visx derive the domain is correct there.
 		const fixedYDomain = useMemo< [ number, number ] | undefined >( () => {
 			if (
-				rescaleYOnVisibility ||
+				rescaleYOnVisibilityChange ||
 				! dataSorted.length ||
 				! dataSorted[ 0 ].data.length ||
 				( stacked && stackOffset !== 'none' )
@@ -207,7 +211,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 			}
 			if ( max === -Infinity ) return undefined;
 			return [ Math.min( 0, min ), max ];
-		}, [ dataSorted, stacked, stackOffset, rescaleYOnVisibility ] );
+		}, [ dataSorted, stacked, stackOffset, rescaleYOnVisibilityChange ] );
 
 		const chartOptions = useMemo( () => {
 			return {
@@ -256,8 +260,9 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 				withGlyph: false,
 				glyphSize: 0,
 				collapseGroups: legend.collapseGroups ?? false,
+				comparisonItem: legend.comparisonItem ?? false,
 			} ),
-			[ legend.collapseGroups ]
+			[ legend.collapseGroups, legend.comparisonItem ]
 		);
 		const legendItems = useChartLegendItems( dataSorted, legendOptions, legendShape );
 
@@ -417,6 +422,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 
 						return (
 							<div
+								ref={ chartRef }
 								role="grid"
 								aria-label={ __( 'Area chart', 'jetpack-charts' ) }
 								tabIndex={ 0 }
@@ -425,7 +431,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 								onBlur={ onChartBlur }
 							>
 								{ chartHeight > 0 && (
-									<div ref={ chartRef } className={ plotStyles[ 'xy-plot' ] }>
+									<div className={ plotStyles[ 'xy-plot' ] }>
 										{ zoomable && zoom.domain && <ZoomResetButton onClick={ zoom.reset } /> }
 										<XYChart
 											theme={ theme }
@@ -443,15 +449,36 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 											{ /* With every series hidden the value scale collapses, so the grid and axes
 											     are dropped while the empty state stands in — otherwise they render
 											     squished at the top. */ }
-											{ ! allSeriesHidden && gridVisibility !== 'none' && (
-												<Grid columns={ false } numTicks={ 4 } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.x.display && (
-												<Axis { ...chartOptions.axis.x } />
-											) }
-											{ ! allSeriesHidden && chartOptions.axis.y.display && (
-												<Axis { ...chartOptions.axis.y } />
-											) }
+											<WholeNumberTicks
+												axis="y"
+												numTicks={ chartOptions.axis.y.numTicks }
+												enabled={
+													hasWholeNumberValues &&
+													! chartOptions.axis.y.tickValues &&
+													! options?.yScale?.domain
+												}
+											>
+												{ tickValues => (
+													<>
+														{ ! allSeriesHidden && gridVisibility !== 'none' && (
+															<Grid
+																columns={ false }
+																numTicks={ chartOptions.axis.y.numTicks }
+																{ ...{ tickValues: tickValues ?? chartOptions.axis.y.tickValues } }
+															/>
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.x.display && (
+															<Axis { ...chartOptions.axis.x } />
+														) }
+														{ ! allSeriesHidden && chartOptions.axis.y.display && (
+															<Axis
+																{ ...chartOptions.axis.y }
+																{ ...( tickValues ? { tickValues } : {} ) }
+															/>
+														) }
+													</>
+												) }
+											</WholeNumberTicks>
 
 											{ allSeriesHidden ? (
 												<SvgEmptyState
@@ -503,7 +530,7 @@ const AreaChartInternal = forwardRef< ChartInstanceRef, AreaChartProps >(
 														stackOffset={ stackOffset }
 														getElementStyles={ getElementStyles }
 														// useXYChartTheme resolved this role inside its memo, against the chart's scope element; reading it back avoids a getComputedStyle on every render.
-														strokeColor={ theme.backgroundColor ?? providerTheme.backgroundColor }
+														strokeColor={ theme.backgroundColor }
 													/>
 												</>
 											) }

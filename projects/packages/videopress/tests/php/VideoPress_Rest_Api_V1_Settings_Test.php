@@ -161,4 +161,51 @@ class VideoPress_Rest_Api_V1_Settings_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $data );
 		$this->assertTrue( $data['videopress_auto_subtitles_disabled'] );
 	}
+
+	/**
+	 * Test that posting videopress_player_preload_disabled persists the option
+	 * without touching the others.
+	 */
+	public function test_update_persists_player_preload_disabled() {
+		delete_option( 'videopress_player_preload_disabled' );
+		update_option( 'videopress_auto_subtitles_disabled', true );
+
+		$response = $this->update_settings( array( 'videopress_player_preload_disabled' => true ) );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( boolval( get_option( 'videopress_player_preload_disabled' ) ) );
+		$this->assertTrue( boolval( get_option( 'videopress_auto_subtitles_disabled' ) ) );
+	}
+
+	/**
+	 * Test that the GET endpoint exposes the player preload setting.
+	 */
+	public function test_get_settings_returns_player_preload_disabled() {
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/settings' );
+		$response = $this->server->dispatch( $request );
+
+		$this->assertEquals( 200, $response->get_status() );
+		$data = $response->get_data();
+		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $data );
+		$this->assertTrue( $data['videopress_player_preload_disabled'] );
+	}
+
+	/**
+	 * Test that the inline player setting round-trips through the endpoint.
+	 */
+	public function test_inline_player_setting_round_trips() {
+		delete_option( 'videopress_inline_player_enabled' );
+
+		$response = $this->update_settings( array( 'videopress_inline_player_enabled' => true ) );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( boolval( get_option( 'videopress_inline_player_enabled' ) ) );
+
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/settings' );
+		$response = $this->server->dispatch( $request );
+		$this->assertTrue( $response->get_data()['videopress_inline_player_enabled'] );
+
+		delete_option( 'videopress_inline_player_enabled' );
+	}
 }

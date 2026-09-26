@@ -11,7 +11,7 @@ import {
 	ToggleControl,
 	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
 } from '@wordpress/components';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useId } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	seen,
@@ -25,6 +25,7 @@ import {
 } from '@wordpress/icons';
 import { Badge, Button, Stack } from '@wordpress/ui';
 import { isWriteTool } from './categories';
+import McpHowItWorks from './how-it-works';
 import { recordMcpTracksEvent } from './tracks';
 import {
 	getAccountMcpAbilities,
@@ -139,16 +140,34 @@ function SummaryRow( { icon, title, badge, onClick } ) {
  * @return {object} Component markup.
  */
 function ConnectRow( { title, description, onClick } ) {
+	// Name the row with the title alone. Left to name-from-content, the button
+	// pulls the whole description into its name too — needlessly long, and a
+	// fuzzier target for voice control. aria-labelledby points at the visible
+	// title (matching NavRow), and aria-describedby keeps the description
+	// available, announced after the name instead of as part of it.
+	const titleId = useId();
+	const descriptionId = useId();
 	return (
-		<button className="jetpack-ai-mcp__connect-row" onClick={ onClick } type="button">
+		<button
+			className="jetpack-ai-mcp__connect-row"
+			onClick={ onClick }
+			type="button"
+			aria-labelledby={ titleId }
+			aria-describedby={ descriptionId }
+		>
 			<span className="jetpack-ai-mcp__connect-row-icon">
 				<Icon icon={ connection } size={ 24 } />
 			</span>
 			<span className="jetpack-ai-mcp__connect-row-text">
-				<Text as="p" className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
+				<Text as="p" id={ titleId } className="jetpack-ai-mcp__connect-row-title" weight={ 600 }>
 					{ title }
 				</Text>
-				<Text as="p" className="jetpack-ai-mcp__connect-row-description" variant="muted">
+				<Text
+					as="p"
+					id={ descriptionId }
+					className="jetpack-ai-mcp__connect-row-description"
+					variant="muted"
+				>
 					{ description }
 				</Text>
 			</span>
@@ -188,7 +207,7 @@ export default function McpHub( {
 	const siteAccountAbilities = siteContextToolIds.size
 		? Object.fromEntries(
 				Object.entries( accountAbilities ).filter( ( [ id ] ) => siteContextToolIds.has( id ) )
-		  )
+			)
 		: accountAbilities;
 	const isMcpEnabled = getSiteLevelEnabled( mcpAbilities ?? {}, blogId );
 	const merged = mergeSiteMcpAbilities( siteAccountAbilities, siteAbilities, isMcpEnabled );
@@ -240,11 +259,12 @@ export default function McpHub( {
 
 	return (
 		<>
+			<McpHowItWorks />
 			<Card className="jetpack-ai-mcp__access-card">
 				<CardBody>
 					<Stack direction="column" gap="md">
 						<Stack direction="column" gap="xs">
-							<Text as="h3" weight={ 600 }>
+							<Text as="h2" weight={ 600 }>
 								{ __( 'External AI agent access', 'jetpack' ) }
 							</Text>
 							<Text variant="muted">

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Show a focus ring around the manual regeneration info icon when it is reached with the keyboard.

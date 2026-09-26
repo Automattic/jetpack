@@ -12,7 +12,6 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { ensureDashboardEntities } from '../dashboard-entities';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 
 type DashboardSearch = Record< string, string | undefined >;
@@ -20,8 +19,7 @@ type DashboardSearch = Record< string, string | undefined >;
 /**
  * Route lifecycle for the dashboard. The initial analytics sync is not a guard
  * — only the store section waits on it and shows progress meanwhile (see
- * `stage.tsx`). Widget-module registration is idempotent for repeat visits; it
- * could move to `packages/init` and run once at boot — tracked as a follow-up.
+ * `stage.tsx`).
  */
 export const route = {
 	beforeLoad: async ( { search }: { search?: DashboardSearch } = {} ) => {
@@ -66,7 +64,5 @@ export const route = {
 				search: seeded as unknown as never,
 			} );
 		}
-
-		ensureDashboardEntities();
 	},
 };

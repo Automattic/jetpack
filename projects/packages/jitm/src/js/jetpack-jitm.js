@@ -187,6 +187,24 @@ domReady( function() {
         },
     };
 
+    // Calls back with #jp-admin-notices once it mounts, or with null after the timeout.
+    const waitForAdminNotices = function(callback) {
+        const observer = new MutationObserver(function() {
+            const adminNotices = document.getElementById('jp-admin-notices');
+            if (adminNotices) {
+                observer.disconnect();
+                clearTimeout(timeout);
+                callback(adminNotices);
+            }
+        });
+        const timeout = setTimeout(function() {
+            observer.disconnect();
+            callback(null);
+        }, 30000);
+
+        observer.observe(document.body, { childList: true, subtree: true });
+    };
+
     const setJITMContent = function(el, response, redirect) {
         let template = response.template;
 
@@ -220,21 +238,31 @@ domReady( function() {
             });
         }
 
-        const adminNotices = document.getElementById('jp-admin-notices');
-        if (adminNotices) {
-            // Add to Jetpack notices within the Jetpack settings app
+        const placeCard = function(adminNotices) {
+            if (adminNotices) {
+                // Add to Jetpack notices within the Jetpack settings app
 
-            // If we already have a message, replace it
-            const existingCard = adminNotices.querySelector('.jitm-card');
-            if (existingCard) {
-                existingCard.replaceWith(templateEl);
+                // If we already have a message, replace it
+                const existingCard = adminNotices.querySelector('.jitm-card');
+                if (existingCard) {
+                    existingCard.replaceWith(templateEl);
+                } else {
+                    // No existing JITM? Add ours to the top of the Jetpack admin notices
+                    adminNotices.prepend(templateEl);
+                }
             } else {
-                // No existing JITM? Add ours to the top of the Jetpack admin notices
-                adminNotices.prepend(templateEl);
+                // Replace placeholder div on other pages
+                el.replaceWith(templateEl);
             }
+        };
+
+        const adminNotices = document.getElementById('jp-admin-notices');
+        if (adminNotices || el.getClientRects().length) {
+            placeCard(adminNotices);
         } else {
-            // Replace placeholder div on other pages
-            el.replaceWith(templateEl);
+            // A hidden placeholder means the page's app renders the notices container later, as
+            // wp-build dashboards do; the placeholder's own spot would keep the card hidden.
+            waitForAdminNotices(placeCard);
         }
 
         // Handle Module activation button if it exists
@@ -361,6 +389,12 @@ domReady( function() {
                 message_path = message_path.replace(
                     'jetpack_page_my-jetpack',
                     'jetpack_page_my-jetpack' + hash
+                );
+            } else if (message_path.includes('jetpack_page_jetpack-settings:')) {
+                // wpcom's Settings rules still name the old page=jetpack screen.
+                message_path = message_path.replace(
+                    'jetpack_page_jetpack-settings:',
+                    'toplevel_page_jetpack' + (hash || '_settings') + ':'
                 );
             } else if ('_dashboard' !== hash) {
                 message_path = message_path.replace(

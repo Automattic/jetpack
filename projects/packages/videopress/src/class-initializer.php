@@ -12,6 +12,14 @@ namespace Automattic\Jetpack\VideoPress;
  */
 class Initializer {
 
+	/**
+	 * Bounds of the Latest Videos Playlist block's "Number of videos" setting;
+	 * the editor control uses the same range.
+	 */
+	const LATEST_VIDEOS_PLAYLIST_MIN_COUNT     = 1;
+	const LATEST_VIDEOS_PLAYLIST_MAX_COUNT     = 20;
+	const LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT = 5;
+
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
@@ -128,6 +136,7 @@ class Initializer {
 			new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
@@ -195,6 +204,7 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Playlist_Index::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -216,6 +226,11 @@ class Initializer {
 			add_action( 'rest_api_init', array( $rest_endpoint, 'init' ), 0 );
 		}
 		self::register_oembed_providers();
+
+		// In inline mode a VideoPress URL never needs the oEmbed round trip: skip
+		// the fetch, and swap iframes already cached in post meta for a placeholder.
+		add_filter( 'pre_oembed_result', array( __CLASS__, 'maybe_pre_oembed_inline_player' ), 10, 2 );
+		add_filter( 'embed_oembed_html', array( __CLASS__, 'maybe_render_oembed_inline_player' ), 5, 4 );
 
 		// Enqueuethe VideoPress Iframe API script in the front-end.
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
@@ -272,6 +287,25 @@ class Initializer {
 
 		// Register Video Playlist block.
 		self::register_videopress_playlist_block();
+
+		// Register Latest Videos Playlist block.
+		self::register_videopress_latest_videos_playlist_block();
+
+		// Register All Playlists block.
+		self::register_videopress_all_playlists_block();
+	}
+
+	/**
+	 * Register the All Playlists block, which lists the site's Video Playlist
+	 * blocks from the playlist index.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_all_playlists_block( $metadata_file = null ) {
+		All_Playlists_Block::register( $metadata_file );
 	}
 
 	/**
@@ -416,7 +450,22 @@ class Initializer {
 		$video_wrapper         = '';
 		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
 
-		if ( $videopress_url ) {
+		// Preview on hover drives the player through the iframe API, so it keeps the iframe.
+		if ( $guid && ! $is_poh_enabled && Inline_Player::is_enabled() ) {
+			$video_wrapper = sprintf(
+				'<div class="%s">%s</div>',
+				$video_wrapper_classes,
+				Inline_Player::render(
+					$guid,
+					Inline_Player::get_player_options( $block_attributes ),
+					$block_attributes['videoRatio'] ?? null,
+					array(
+						'poster' => Inline_Player::get_poster_url( $guid, $block_attributes ),
+						'title'  => $block_attributes['title'] ?? '',
+					)
+				)
+			);
+		} elseif ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 
 			/*
@@ -615,13 +664,79 @@ class Initializer {
 	}
 
 	/**
+	 * Register the Latest Videos Playlist block.
+	 *
+	 * It reuses the Video Playlist block's registered view script and styles, so
+	 * it is only registered once that block is. Its inner Video Playlist block is
+	 * the editor canvas only: the front end renders the newest videos fresh.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_latest_videos_playlist_block( $metadata_file = null ) {
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
+			return;
+		}
+
+		if ( null === $metadata_file ) {
+			$metadata_file = __DIR__ . '/../build/block-editor/blocks/latest-videos-playlist/block.json';
+		}
+
+		if ( ! file_exists( $metadata_file ) ) {
+			return;
+		}
+
+		$metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $metadata_file )
+		);
+
+		if ( empty( $metadata->name )
+			|| \WP_Block_Type_Registry::get_instance()->is_registered( $metadata->name )
+		) {
+			return;
+		}
+
+		register_block_type(
+			$metadata_file,
+			array(
+				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'skip_inner_blocks' => true,
+			)
+		);
+	}
+
+	/**
+	 * Latest Videos Playlist block render callback: the newest VideoPress videos
+	 * on the site, rendered by the Video Playlist block's callback.
+	 *
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Current block markup, unused: the inner block is never rendered.
+	 * @param \WP_Block|null $block            Current block.
+	 *
+	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
+	 */
+	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
+		$count = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
+			? (int) $block_attributes['count']
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+		$count = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT, $count ) );
+
+		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+
+		return self::render_videopress_playlist_block( $block_attributes, $content, $block );
+	}
+
+	/**
 	 * Sanitize the playlist block's videos attribute into rendering-ready entries.
 	 *
 	 * @param mixed $videos Raw attribute value.
 	 *
 	 * @return array Entries with guid, title, durationMs, height and poster keys.
 	 */
-	private static function sanitize_playlist_entries( $videos ) {
+	public static function sanitize_playlist_entries( $videos ) {
 		if ( ! is_array( $videos ) ) {
 			return array();
 		}
@@ -664,7 +779,7 @@ class Initializer {
 	private static function playlist_embed_url( $guid, $autoplay, $muted = false ) {
 		$args = array(
 			'cover'          => 1,
-			'preloadContent' => 'metadata',
+			'preloadContent' => Data::get_videopress_player_preload_disabled() ? 'none' : 'metadata',
 			'autoPlay'       => $autoplay ? 1 : 0,
 		);
 		if ( $muted ) {
@@ -996,7 +1111,7 @@ class Initializer {
 	 * @return string|false
 	 */
 	public static function enqueue_videopress_iframe_api_script( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( Utils::is_videopress_url( $url ) ) {
+		if ( Utils::is_videopress_url( $url ) && ! Inline_Player::is_enabled() ) {
 			// Enqueue the VideoPress IFrame API in the front-end.
 			wp_enqueue_script(
 				self::JETPACK_VIDEOPRESS_IFRAME_API_HANDLER,
@@ -1008,5 +1123,63 @@ class Initializer {
 		}
 
 		return $cache;
+	}
+
+	/**
+	 * Short-circuit the oEmbed request for VideoPress URLs when the inline player is on.
+	 *
+	 * @param null|string $result The oEmbed result, null to let WordPress fetch it.
+	 * @param string      $url    The URL being embedded.
+	 * @return null|string Inline player markup, or the untouched result.
+	 */
+	public static function maybe_pre_oembed_inline_player( $result, $url ) {
+		$inline = self::render_inline_player_for_url( $url );
+
+		return null === $inline ? $result : $inline;
+	}
+
+	/**
+	 * Replace a VideoPress oEmbed iframe (fresh or cached) with an inline player when the inline player is on.
+	 *
+	 * @param string|false $cache   The oEmbed HTML.
+	 * @param string       $url     The URL being embedded.
+	 * @param array        $attr    Shortcode attributes.
+	 * @param int          $post_ID Post ID.
+	 * @return string|false Inline player markup, or the untouched HTML.
+	 */
+	public static function maybe_render_oembed_inline_player( $cache, $url, $attr, $post_ID = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! is_string( $cache ) || false === strpos( $cache, '<iframe' ) ) {
+			return $cache;
+		}
+
+		$inline = self::render_inline_player_for_url( $url );
+
+		return null === $inline ? $cache : $inline;
+	}
+
+	/**
+	 * Build inline player markup for a videopress.com URL, honoring the player parameters in its query string.
+	 *
+	 * @param string $url The URL being embedded.
+	 * @return string|null Markup, or null when the URL is not a VideoPress video or the inline player is off.
+	 */
+	private static function render_inline_player_for_url( $url ) {
+		if ( ! Inline_Player::is_enabled() ) {
+			return null;
+		}
+
+		$guid = Utils::extract_videopress_guid_from_url( $url );
+		if ( null === $guid ) {
+			return null;
+		}
+
+		$attributes = Inline_Player::get_attributes_from_embed_url( $url );
+
+		return Inline_Player::render(
+			$guid,
+			Inline_Player::get_player_options( $attributes ),
+			null,
+			array( 'poster' => Inline_Player::get_poster_url( $guid, $attributes ) )
+		);
 	}
 }

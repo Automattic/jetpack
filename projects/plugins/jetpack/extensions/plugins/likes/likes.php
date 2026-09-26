@@ -26,9 +26,10 @@ function register_plugins() {
 	/*
 	 * The extension is available even when the module is not active,
 	 * so we can display a nudge to activate the module instead of the block.
-	 * However, since non-admins cannot activate modules, we do not display the empty block for them.
+	 * We skip that nudge for non-admins, who cannot activate modules, and on block themes,
+	 * where the answer is the Like block in a template rather than the legacy module.
 	 */
-	if ( ! ( new Modules() )->is_active( 'likes' ) && ! current_user_can( 'jetpack_activate_modules' ) ) {
+	if ( ! ( new Modules() )->is_active( 'likes' ) && ( ! current_user_can( 'jetpack_activate_modules' ) || wp_is_block_theme() ) ) {
 		return;
 	}
 

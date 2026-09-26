@@ -1,7 +1,7 @@
 /**
  * @jest-environment node
  */
-import { buildCards, filterSections, searchAndRankItems } from '../utils';
+import { buildCards, filterAndSortModules, filterSections, searchAndRankItems } from '../utils';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 import type { CardItem, ProductSection } from '../types';
@@ -285,5 +285,43 @@ describe( 'searchAndRankItems', () => {
 		const result = searchAndRankItems( [], [ newsletter ], 'subscribers' );
 
 		expect( result[ 0 ].kind === 'module' && result[ 0 ].module.module ).toBe( 'subscriptions' );
+	} );
+} );
+
+describe( 'filterAndSortModules', () => {
+	it( 'sorts modules by name', () => {
+		const result = filterAndSortModules( [
+			makeModule( { module: 'sso', name: 'Secure Sign On' } ),
+			makeModule( { module: 'monitor', name: 'Downtime Monitoring' } ),
+		] );
+
+		expect( result.map( m => m.module ) ).toEqual( [ 'monitor', 'sso' ] );
+	} );
+
+	// A module missing from the generated `module-headings.php` arrives with a null name. Only a
+	// null *receiver* throws — `'x'.localeCompare( null )` is fine — so the crash depends on where
+	// the module lands in the array, as `activity-log` did in the security category.
+	it( 'keeps a module whose name failed to translate (regression: null-name crash)', () => {
+		const untranslated = {
+			...makeModule( { module: 'activity-log', name: '' } ),
+			name: null,
+		} as unknown as MyJetpackModule;
+
+		const result = filterAndSortModules( [
+			makeModule( { module: 'account-protection', name: 'Account Protection' } ),
+			untranslated,
+			makeModule( { module: 'monitor', name: 'Downtime Monitoring' } ),
+		] );
+
+		expect( result.map( m => m.module ) ).toContain( 'activity-log' );
+		expect( result ).toHaveLength( 3 );
+	} );
+
+	it( 'hides a legacy module until it is active', () => {
+		const off = makeModule( { module: 'google-fonts', name: 'Google Fonts' } );
+		const on = { ...off, activated: true };
+
+		expect( filterAndSortModules( [ off ] ) ).toEqual( [] );
+		expect( filterAndSortModules( [ on ] ) ).toHaveLength( 1 );
 	} );
 } );

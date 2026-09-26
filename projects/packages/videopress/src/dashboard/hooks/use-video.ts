@@ -17,10 +17,12 @@ import type { LibraryItem } from '../types/library';
  * Maps the response with the same toLibraryItem the library list uses, so the
  * detail view and the grid can never disagree about an item's shape.
  *
- * @param id - The numeric or string media post ID to fetch.
+ * @param id           - The numeric or string media post ID to fetch.
+ * @param options      - Query options.
+ * @param options.poll - Poll attachment metadata while processing.
  * @return An object with the video item, loading/error state, and the raw error.
  */
-export function useVideo( id: number | string ) {
+export function useVideo( id: number | string, { poll = true }: { poll?: boolean } = {} ) {
 	// VIDP-298 poll-cap anchor — same machinery as useLibrary, over one item.
 	const processingStartRef = useRef< ProcessingPollAnchor | null >( null );
 
@@ -31,13 +33,11 @@ export function useVideo( id: number | string ) {
 			return toLibraryItem( raw, isSimpleSite() );
 		},
 		enabled: Boolean( id ),
-		// Re-fetch every 2s while the backend is still processing this video so
-		// the poster / duration appear without a manual reload — capped like the
-		// library list so a stuck record can't poll forever (VIDP-298).
+		// Ordinary uploads need metadata polling; edit jobs refresh it when they finish.
 		refetchInterval: q => {
 			const { anchor, interval } = nextProcessingPoll(
 				processingStartRef.current,
-				q.state.data?.isProcessing ? [ String( id ) ] : [],
+				poll && q.state.data?.isProcessing ? [ String( id ) ] : [],
 				Date.now()
 			);
 			processingStartRef.current = anchor;
@@ -45,7 +45,7 @@ export function useVideo( id: number | string ) {
 		},
 		// Recovery path once the cap has fired: a longer-than-cap transcode
 		// flips to ready on the next tab focus (globally this is disabled).
-		refetchOnWindowFocus: q => Boolean( q.state.data?.isProcessing ),
+		refetchOnWindowFocus: q => ( poll && Boolean( q.state.data?.isProcessing ) ? 'always' : false ),
 	} );
 
 	return {

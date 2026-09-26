@@ -21,7 +21,7 @@ export type VideoDetailViewsPerformanceChartType = ChartDisplayChartType;
 /**
  * `post_id` (video scope) and report params reach the widget via WidgetRoot.
  *
- * @property chartType - How to draw the selected metric. Defaults to `line`.
+ * @property chartType - How to draw the selected metric. Defaults to `bar`.
  */
 export type VideoDetailViewsPerformanceAttributes = {
 	chartType?: VideoDetailViewsPerformanceChartType;
@@ -38,7 +38,7 @@ export default {
 	] as WidgetAttributeField< VideoDetailViewsPerformanceAttributes >[],
 	example: {
 		attributes: {
-			chartType: 'line',
+			chartType: 'bar',
 		},
 	},
 };

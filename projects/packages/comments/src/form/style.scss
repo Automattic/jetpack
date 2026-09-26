@@ -7,6 +7,7 @@
 	--jetpack-comments-font-color: rgba(0, 0, 0, 0.8);
 	--jetpack-comments-border-color: #dcdcde;
 	--jetpack-comments-background-color: rgba(255, 255, 255, 0.6);
+	--jetpack-comments-wrapper-background-color: rgba(255, 255, 255, 0.6);
 	--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.6);
 	--jetpack-comments-accent-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
 	--jetpack-comments-accent-hover-color: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #055d9c));
@@ -16,6 +17,7 @@
 	&.light {
 		--jetpack-comments-font-color: #3c434a;
 		--jetpack-comments-background-color: #fff;
+		--jetpack-comments-wrapper-background-color: #f9f9f9;
 		--jetpack-comments-content-background-color: #fff;
 	}
 
@@ -23,6 +25,7 @@
 		--jetpack-comments-font-color: rgba(255, 255, 255, 0.8);
 		--jetpack-comments-border-color: rgba(255, 255, 255, 0.2);
 		--jetpack-comments-background-color: rgba(0, 0, 0, 0.7);
+		--jetpack-comments-wrapper-background-color: rgba(255, 255, 255, 0.1);
 		--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.1);
 	}
 
@@ -48,8 +51,11 @@
 	min-block-size: 96px;
 	padding: 16px;
 	margin: 0;
-	border: none;
-	background: transparent;
+	// Themes style `textarea` with more specificity than one class; pinned.
+	border: none !important;
+	border-radius: 0 !important;
+	box-shadow: none !important;
+	background: transparent !important;
 	color: var(--jetpack-comments-font-color);
 	font-family: inherit;
 	font-size: 16px;

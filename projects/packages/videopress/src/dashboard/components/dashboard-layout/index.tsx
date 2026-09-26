@@ -2,15 +2,16 @@
  * External dependencies
  */
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
 import { useCallback } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
 import { Stack, Tabs } from '@wordpress/ui';
 import DashboardTabs, { TAB_PATHS, type DashboardTab } from '../dashboard-tabs';
 import OnboardingModal from '../onboarding-modal';
+import PageSubTitle from '../page-subtitle';
 import './style.scss';
 import type { ReactNode } from 'react';
 
@@ -56,20 +57,18 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 	return (
 		<AdminPage
 			title={ 'VideoPress' /* product name; not translated */ }
-			subTitle={ __(
-				'Host, manage, customize, and track your videos — all in one place.',
-				'jetpack-videopress-pkg'
-			) }
+			subTitle={ <PageSubTitle /> }
 			actions={ actions }
 			showFooter={ ! hideFooter }
 		>
 			{ hasConnectionError && (
 				<Stack direction="column">
-					<ConnectionError />
+					<ConnectionError trackingContext="videopress" />
 				</Stack>
 			) }
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
+				<JitmSlot inset />
 				{ TAB_VALUES.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
 						{ activeTab === tab ? children : null }

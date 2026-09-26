@@ -1,8 +1,9 @@
 <?php
 /**
- * Widget availability policy (consumer layer): hides developer-only, Simple-only, and
- * plugin-gated widget types at registry time — a hard hide, so every consumer of the
- * registry sees the same set, over the neutral hooks in widget-types.php.
+ * Widget availability policy (consumer layer): drops developer-only, platform-unsupported,
+ * plugin-gated and capability-gated candidates from a manifest at registry time, over the
+ * neutral hooks in widget-types.php. A dropped candidate never registers, so every reader sees
+ * the same set; a type registered one by one with register_widget_type() skips this policy.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -136,7 +137,7 @@ function is_bookings_plugin_active() {
 /**
  * Registry-time callback: hides commerce categories without their plugin, reading
  * WooCommerce availability through the store section's signal so section and widgets
- * agree; both entry points load dashboard-sections.php before the registry hydrates.
+ * agree; both entry points load default-dashboard-sections.php before the registry hydrates.
  *
  * @param array $widget_candidates Manifest candidates.
  * @return array The candidates, minus commerce categories missing their plugin.

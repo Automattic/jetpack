@@ -76,23 +76,11 @@
 	}
 }
 
-.example-wrapper {
-	position: relative;
-	display: inline;
+.tooltip:global(.icon-tooltip-container) :global(.components-popover__content) {
+	width: 150px;
+	color: var(--jp-black);
+}
 
-	.example-button {
-		position: relative;
-		z-index: 10;
-	}
-
-	.tooltip-wrapper {
-		position: absolute;
-		top: 0;
-		left: -10px;
-		z-index: 9;
-
-		.tooltip :global(.icon-tooltip-container .components-popover__content) {
-			width: 150px;
-		}
-	}
+.example-trigger :global(.icon-tooltip-anchor) {
+	inset-inline-start: -10px;
 }

@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a More Features section to the Features tab that groups and switches Jetpack's other modules, behind the my-jetpack-features-tab feature flag.

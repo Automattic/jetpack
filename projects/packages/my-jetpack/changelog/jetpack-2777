@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features: Don't offer to install or activate a standalone plugin for a module your host or site administrator has disabled.

@@ -70,7 +70,7 @@ export function AuthorsLeaderboard( {
 	} = useWidgetDrillDown< string >();
 
 	const selectedAuthor = useMemo(
-		() => ( selectedAuthorId ? rows.find( row => row.id === selectedAuthorId ) ?? null : null ),
+		() => ( selectedAuthorId ? ( rows.find( row => row.id === selectedAuthorId ) ?? null ) : null ),
 		[ rows, selectedAuthorId ]
 	);
 
@@ -84,12 +84,18 @@ export function AuthorsLeaderboard( {
 	}, [ selectedAuthorId, selectedAuthor, isLoading, isFetching, clearSelectedAuthor ] );
 
 	const chartData: LeaderboardChartData = useMemo( () => {
-		// The data layer already aligned current/comparison values, including posts
-		// that only existed in the comparison period.
+		// The data layer already aligned current/comparison values.
 		if ( selectedAuthor ) {
 			return selectedAuthor.posts.map( post => ( {
 				id: post.id,
-				label: <LeaderboardPostLabel id={ post.postId } label={ post.title } link={ post.link } />,
+				label: (
+					<LeaderboardPostLabel
+						id={ post.postId }
+						label={ post.title }
+						link={ post.link }
+						origin={ { report: 'authors' } }
+					/>
+				),
 				currentValue: post.currentValue,
 				previousValue: post.previousValue,
 				currentShare: post.currentShare,
@@ -113,7 +119,7 @@ export function AuthorsLeaderboard( {
 									__( 'View posts by %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: { kind: 'static' },
 			} ),
 			currentValue: row.currentValue,
@@ -154,7 +160,7 @@ export function AuthorsLeaderboard( {
 						? __(
 								'This author has no posts with views for the selected period.',
 								'jetpack-premium-analytics-pkg'
-						  )
+							)
 						: __( 'No author views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }

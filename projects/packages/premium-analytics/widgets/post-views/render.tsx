@@ -14,7 +14,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -59,6 +59,9 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 			{
 				key: 'views',
 				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+				countLabel: count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
 				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 			},
@@ -102,7 +105,7 @@ function PostViewsInner( { chartType }: PostViewsInnerProps ) {
 
 export default function PostViews( { attributes = {} }: PostViewsWidgetProps ) {
 	// Coerce unknown persisted values to the default.
-	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
+	const chartType = attributes?.chartType === 'line' ? 'line' : 'bar';
 
 	return (
 		<WidgetRoot attributes={ attributes }>

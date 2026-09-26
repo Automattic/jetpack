@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MyJetpackModule } from '../../../types';
 import { setPendingSuccessNotice } from '../../my-jetpack-tab-panel/products/pending-notice';
@@ -76,7 +76,7 @@ jest.mock( '../../../utils/module-benefit-messages', () => ( {
 jest.mock( '../../my-jetpack-tab-panel/products/reload-page' );
 jest.mock( '../../my-jetpack-tab-panel/products/pending-notice' );
 
-const sharedaddyModule = {
+const legacyModule = ( overrides = {} ) => ( {
 	module: 'sharedaddy',
 	name: 'Sharing',
 	activated: false,
@@ -84,7 +84,14 @@ const sharedaddyModule = {
 	description: 'Sharing buttons',
 	long_description: '',
 	search_terms: '',
-};
+	...overrides,
+} );
+
+// Legacy modules a block theme can't customize, with the label of the block that replaces them.
+const blockThemeModules = [
+	[ 'sharedaddy', 'Switch to Sharing Buttons block' ],
+	[ 'likes', 'Switch to the Like block' ],
+];
 
 const buildModule = ( overrides = {} ) =>
 	( {
@@ -103,59 +110,66 @@ describe( 'ModuleToggle', () => {
 				siteEditor: {
 					isBlockTheme: true,
 					isSharingBlockAvailable: true,
+					isLikeBlockAvailable: true,
 					activeThemeStylesheet: 'twentytwentyfour',
 				},
 			},
 		} as Window[ 'JetpackScriptData' ];
 	} );
 
-	it( 'links inactive sharedaddy to the Single template on block themes', () => {
-		render( <ModuleToggle module={ sharedaddyModule } /> );
+	it.each( blockThemeModules )(
+		'links inactive %s to the Single template on block themes',
+		module => {
+			render( <ModuleToggle module={ legacyModule( { module } ) } /> );
 
-		expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
-		);
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'link', { name: 'Open Site Editor' } ) ).toHaveAttribute(
+				'href',
+				'https://example.com/wp-admin/site-editor.php?p=%2Fwp_template%2Ftwentytwentyfour%2F%2Fsingle&canvas=edit'
+			);
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+		}
+	);
 
-	it( 'deactivates legacy sharing when switching to the block', async () => {
-		mockToggleModule.mockResolvedValue( true );
-		render( <ModuleToggle module={ { ...sharedaddyModule, activated: true } } /> );
+	it.each( blockThemeModules )(
+		'deactivates legacy %s when switching to the block',
+		async ( module, switchLabel ) => {
+			mockToggleModule.mockResolvedValue( true );
+			render( <ModuleToggle module={ legacyModule( { module, activated: true } ) } /> );
 
-		// The legacy toggle is replaced by the switch action.
-		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+			// The legacy toggle is replaced by the switch action.
+			expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
 
-		await userEvent.click(
-			screen.getByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
-		);
+			await userEvent.click( screen.getByRole( 'button', { name: switchLabel } ) );
 
-		// Deactivating legacy sharing reveals the Site Editor link ( two-step, no redirect ).
-		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'sharedaddy', active: false } );
+			// Deactivating the legacy module reveals the Site Editor link ( two-step, no redirect ).
+			expect( mockToggleModule ).toHaveBeenCalledWith( { name: module, active: false } );
 
-		// The switch path tracks the deactivation, like the toggle path.
-		expect( mockTrackProductAction ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				action: 'deactivate',
-				productSlug: 'sharedaddy',
-				productType: 'module',
-			} )
-		);
-	} );
+			// The switch path tracks the deactivation, like the toggle path.
+			expect( mockTrackProductAction ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					action: 'deactivate',
+					productSlug: module,
+					productType: 'module',
+				} )
+			);
+		}
+	);
 
-	it( 'keeps forced-active legacy sharing non-actionable', () => {
-		render(
-			<ModuleToggle module={ { ...sharedaddyModule, activated: true, override: 'active' } } />
-		);
+	it.each( blockThemeModules )(
+		'keeps forced-active legacy %s non-actionable',
+		( module, switchLabel ) => {
+			render(
+				<ModuleToggle module={ legacyModule( { module, activated: true, override: 'active' } ) } />
+			);
 
-		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
-		expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
-		expect(
-			screen.queryByRole( 'button', { name: 'Switch to Sharing Buttons block' } )
-		).not.toBeInTheDocument();
-	} );
+			expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+			expect( screen.getByRole( 'checkbox' ) ).toBeDisabled();
+			expect( screen.queryByRole( 'button', { name: switchLabel } ) ).not.toBeInTheDocument();
+		}
+	);
 
 	it.each( [
+		[ 'activity-log', 'Activity Log' ],
 		[ 'podcast', 'Podcast' ],
 		[ 'subscriptions', 'Newsletter' ],
 		[ 'wpcom-reader', 'WordPress.com Reader' ],
@@ -172,6 +186,157 @@ describe( 'ModuleToggle', () => {
 		expect( reloadPage ).toHaveBeenCalled();
 		expect( mockCreateSuccessNotice ).not.toHaveBeenCalled();
 	} );
+
+	it( 'stays on the page for a menu-registering module when asked not to reload', async () => {
+		render(
+			<ModuleToggle
+				module={ buildModule( { module: 'podcast', name: 'Podcast' } ) }
+				reloadAfterToggle={ false }
+			/>
+		);
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockToggleModule ).toHaveBeenCalledWith( { name: 'podcast', active: false } );
+		expect( reloadPage ).not.toHaveBeenCalled();
+		expect( setPendingSuccessNotice ).not.toHaveBeenCalled();
+		expect( mockCreateSuccessNotice ).toHaveBeenCalled();
+	} );
+
+	it( 'sends a second module update only after the first has settled', async () => {
+		let settleFirst: ( value: boolean ) => void = () => undefined;
+		mockToggleModule.mockImplementationOnce(
+			() => new Promise( resolve => ( settleFirst = resolve ) )
+		);
+
+		render(
+			<>
+				<ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } />
+				<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+			</>
+		);
+
+		const [ podcast, sitemaps ] = screen.getAllByRole( 'checkbox' );
+		await userEvent.click( podcast );
+		await userEvent.click( sitemaps );
+
+		expect( mockToggleModule ).toHaveBeenCalledTimes( 1 );
+
+		settleFirst( true );
+
+		await waitFor( () => expect( mockToggleModule ).toHaveBeenCalledTimes( 2 ) );
+		expect( mockToggleModule ).toHaveBeenLastCalledWith( { name: 'sitemaps', active: false } );
+	} );
+
+	it( 'shows the value the click asked for while the request is still in flight', async () => {
+		let release: ( value: boolean ) => void = () => undefined;
+		mockToggleModule.mockImplementationOnce(
+			() => new Promise( resolve => ( release = resolve ) )
+		);
+
+		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
+
+		const toggle = screen.getByRole( 'checkbox' );
+		expect( toggle ).toBeChecked();
+
+		await userEvent.click( toggle );
+
+		// The store still holds the old value; the switch shows the asked-for one.
+		await waitFor( () => expect( toggle ).not.toBeChecked() );
+
+		release( true );
+		await waitFor( () => expect( mockToggleModule ).toHaveBeenCalledTimes( 1 ) );
+	} );
+
+	it( 'goes back to the stored value when the request fails', async () => {
+		mockToggleModule.mockResolvedValueOnce( false );
+
+		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
+
+		const toggle = screen.getByRole( 'checkbox' );
+		await userEvent.click( toggle );
+
+		// The store never changed, so dropping the asked-for value restores the old one.
+		await waitFor( () => expect( toggle ).toBeChecked() );
+	} );
+
+	it( 'explains itself when a request never answers', async () => {
+		mockToggleModule.mockRejectedValueOnce( new Error( 'took too long' ) );
+
+		render( <ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } /> );
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		// A rejection is a failure like any other, not a silent snap back.
+		await waitFor( () => expect( mockCreateErrorNotice ).toHaveBeenCalled() );
+		expect( screen.getByRole( 'checkbox' ) ).toBeChecked();
+	} );
+
+	it( 'disables a switch whose request is still waiting its turn', async () => {
+		let release: ( value: boolean ) => void = () => undefined;
+		mockToggleModule.mockImplementationOnce(
+			() => new Promise( resolve => ( release = resolve ) )
+		);
+
+		render(
+			<>
+				<ModuleToggle module={ buildModule( { module: 'podcast', name: 'Podcast' } ) } />
+				<ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } />
+			</>
+		);
+
+		const [ podcast, sitemaps ] = screen.getAllByRole( 'checkbox' );
+		await userEvent.click( podcast );
+		await userEvent.click( sitemaps );
+
+		// The second request has not reached the store, so only this flag can say it is busy.
+		await waitFor( () => expect( sitemaps ).toBeDisabled() );
+		expect( mockToggleModule ).toHaveBeenCalledTimes( 1 );
+
+		// The queue is module-global: leaving this in flight would stall the next test.
+		release( true );
+		await waitFor( () => expect( mockToggleModule ).toHaveBeenCalledTimes( 2 ) );
+	} );
+
+	it.each( [
+		[ 'off', true, false ],
+		[ 'on', false, true ],
+	] )(
+		'tells a surface tracking its own events that the click asked for %s',
+		async ( _label, activated, asked ) => {
+			const onSwitch = jest.fn();
+
+			render(
+				<ModuleToggle
+					module={ buildModule( { module: 'sitemaps', name: 'Sitemaps', activated } ) }
+					onSwitch={ onSwitch }
+				/>
+			);
+
+			await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+			expect( onSwitch ).toHaveBeenCalledWith( asked );
+		}
+	);
+
+	it.each( blockThemeModules )(
+		'tells that surface about switching legacy %s to the block, too',
+		async ( module, switchLabel ) => {
+			const onSwitch = jest.fn();
+			mockToggleModule.mockResolvedValue( true );
+
+			render(
+				<ModuleToggle
+					module={ legacyModule( { module, activated: true } ) }
+					onSwitch={ onSwitch }
+				/>
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: switchLabel } ) );
+
+			expect( onSwitch ).toHaveBeenCalledWith( false );
+		}
+	);
 
 	it( 'does not reload for a regular module and shows an inline notice instead', async () => {
 		render( <ModuleToggle module={ buildModule( { module: 'sitemaps', name: 'Sitemaps' } ) } /> );

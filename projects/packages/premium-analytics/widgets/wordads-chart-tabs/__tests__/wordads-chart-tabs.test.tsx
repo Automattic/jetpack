@@ -26,6 +26,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		tooltipMetrics,
 	}: {
 		metrics: {
 			key: string;
@@ -35,10 +36,12 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		tooltipMetrics?: string;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
+			data-tooltip-metrics={ String( tooltipMetrics ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
@@ -84,12 +87,15 @@ function wrapper( { children }: { children: ReactNode } ) {
 
 describe( 'useWordAdsChart', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
 	} );
+
+	afterEach( () => jest.useRealTimers() );
 
 	it( 'builds Ads Served, Average CPM, and Revenue tabs from the summary totals', async () => {
 		const reportParams: ReportParams = {
@@ -110,6 +116,12 @@ describe( 'useWordAdsChart', () => {
 			'Average CPM',
 			'Revenue',
 		] );
+		expect( metrics.map( metric => metric.countLabel?.( 2 ) ) ).toEqual( [
+			'%s Ads Served',
+			undefined,
+			undefined,
+		] );
+		expect( metrics[ 0 ].countLabel?.( 1 ) ).toBe( '%s Ad Served' );
 		expect( metrics[ 0 ].value ).toBe( 2000 );
 		expect( metrics[ 1 ].value ).toBeCloseTo( 4.875 );
 		expect( metrics[ 2 ].value ).toBeCloseTo( 9.75 );
@@ -168,6 +180,50 @@ describe( 'useWordAdsChart', () => {
 		expect( result.current.metrics[ 0 ].current ).toHaveLength( 0 );
 	} );
 
+	it( 'leaves a gap in the CPM series where no ads were served', async () => {
+		mockApiFetch.mockResolvedValue( {
+			unit: 'month',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [
+				[ '2026-05', 0, 0, 0 ],
+				[ '2026-06', 800, 3.25, 4.06 ],
+			],
+		} );
+
+		const reportParams: ReportParams = { from: '2026-05-01', to: '2026-06-30', interval: 'month' };
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ impressions, cpm, revenue ] = result.current.metrics;
+		expect( cpm.current.map( point => point.value ) ).toEqual( [ null, 4.06 ] );
+		expect( cpm.unavailable ).toBeUndefined();
+		expect( impressions.current.map( point => point.value ) ).toEqual( [ 0, 800 ] );
+		expect( revenue.current.map( point => point.value ) ).toEqual( [ 0, 3.25 ] );
+	} );
+
+	it( 'marks CPM unavailable when no ads were served in the whole range', async () => {
+		mockApiFetch.mockResolvedValue( {
+			unit: 'month',
+			fields: [ 'period', 'impressions', 'revenue', 'cpm' ],
+			data: [
+				[ '2026-05', 0, 0, 0 ],
+				[ '2026-06', 0, 0, 0 ],
+			],
+		} );
+
+		const reportParams: ReportParams = { from: '2026-05-01', to: '2026-06-30', interval: 'month' };
+		const { result } = renderHook( () => useWordAdsChart( reportParams, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ impressions, cpm, revenue ] = result.current.metrics;
+		expect( cpm.unavailable ).toEqual( expect.any( String ) );
+		expect( impressions.unavailable ).toBeUndefined();
+		expect( revenue.unavailable ).toBeUndefined();
+		expect( result.current.isEmpty ).toBe( false );
+	} );
+
 	it( 'draws no comparison even when the params carry one', async () => {
 		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
 			Promise.resolve( path.includes( 'date=2026-03-31' ) ? COMPARISON_RESPONSE : PRIMARY_RESPONSE )
@@ -202,31 +258,28 @@ describe( 'WordAdsChartTabsWidget', () => {
 	// the URL state to whatever runs next.
 	afterEach( () => setMockRouteSearch( {} ) );
 
-	// The widget's body carries no Group by control: the bucket size is the one
-	// its header control saved, clamped to what this chart supports.
-	it( 'buckets by the interval its attributes carry', async () => {
+	// Each saved interval is one the old bucket control could store for its window.
+	it.each( [
+		[ 'two months', { from: '2026-05-01', to: '2026-06-30', interval: 'week' }, 'day' ],
+		[ 'four months', { from: '2026-03-02', to: '2026-06-30', interval: 'month' }, 'week' ],
+		[ 'over three years', { from: '2023-01-01', to: '2026-06-30', interval: 'year' }, 'month' ],
+	] as const )(
+		'buckets %s by its length, not by a saved interval',
+		async ( _window, reportParams, unit ) => {
+			render( <WordAdsChartTabsWidget attributes={ { reportParams } } /> );
+
+			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+
+			const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
+			expect( requestedPath ).toContain( `unit=${ unit }` );
+		}
+	);
+
+	// A window under two days allows hours alone, which this chart has no bucket for.
+	it( 'draws a day-long window by day', async () => {
 		render(
 			<WordAdsChartTabsWidget
-				attributes={ {
-					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'week' },
-				} }
-			/>
-		);
-
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
-
-		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
-		expect( requestedPath ).toContain( 'unit=week' );
-	} );
-
-	// This chart draws day through year, so `hour` is the one interval the range
-	// can still carry that it has no bucket for, and it clamps to the finest.
-	it( 'clamps an unsupported interval to the closest supported bucket', async () => {
-		render(
-			<WordAdsChartTabsWidget
-				attributes={ {
-					reportParams: { from: '2026-06-29', to: '2026-06-30', interval: 'hour' },
-				} }
+				attributes={ { reportParams: { from: '2026-06-29', to: '2026-06-30' } } }
 			/>
 		);
 
@@ -234,6 +287,22 @@ describe( 'WordAdsChartTabsWidget', () => {
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
 		expect( requestedPath ).toContain( 'unit=day' );
+	} );
+
+	it( 'draws the chart type its attributes carry', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30' },
+					chartType: 'bar',
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-chart-type',
+			'bar'
+		);
 	} );
 
 	/*
@@ -325,38 +394,50 @@ describe( 'WordAdsChartTabsWidget date control', () => {
 		} );
 	} );
 
-	// The menu and `render.tsx` read the same grain, so this fails if the widget
-	// stops handing it over.
-	it( 'offers no bucket the chart cannot draw', async () => {
-		const user = userEvent.setup();
-
-		// Two to six days is the window that puts hours on offer.
-		renderDateControl( {
-			data: {
-				reportParams: { from: '2026-06-01', to: '2026-06-03T23:59:59', interval: 'day' },
-			},
-			onChange: jest.fn(),
-		} );
-
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
-
-		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
-			'By days',
-		] );
-	} );
-
-	it( 'offers months alone on its longest window', async () => {
-		const user = userEvent.setup();
-
+	it( 'offers the window alone, with no bucket control', async () => {
 		renderDateControl( {
 			data: { reportParams: { preset: 'last-12-months', interval: 'month' } },
 			onChange: jest.fn(),
 		} );
 
-		await user.click( await screen.findByRole( 'button', { name: /^Chart interval/ } ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Last 12 months' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /^Chart interval/ } ) ).not.toBeInTheDocument();
+	} );
 
-		expect( screen.getAllByRole( 'menuitemradio' ).map( item => item.textContent ) ).toEqual( [
-			'By months',
+	// The host draws the header fields in order, as the Subscribers chart does.
+	it( 'follows the date range with the chart type', () => {
+		expect( wordAdsChartTabsWidget.attributes.map( ( { id } ) => id ) ).toEqual( [
+			'reportParams',
+			'chartType',
 		] );
+	} );
+} );
+
+describe( 'WordAdsChartTabsWidget tooltip', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( PRIMARY_RESPONSE );
+	} );
+
+	afterEach( () => setMockRouteSearch( {} ) );
+
+	// Classic's WordAds chart lists ads served, CPM and revenue together on hover,
+	// whichever tab is selected.
+	it( 'reads every metric out on hover', async () => {
+		render(
+			<WordAdsChartTabsWidget
+				attributes={ {
+					reportParams: { from: '2026-05-01', to: '2026-06-30', interval: 'day' },
+				} }
+			/>
+		);
+
+		await expect( screen.findByTestId( 'metric-tabs-chart' ) ).resolves.toHaveAttribute(
+			'data-tooltip-metrics',
+			'all'
+		);
 	} );
 } );

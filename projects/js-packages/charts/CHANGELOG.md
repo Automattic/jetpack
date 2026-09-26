@@ -5,6 +5,103 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.4.0] - 2026-09-23
+### Added
+- Bar chart: Add per-datum bar classes and tooltip box style overrides. [#52547]
+
+### Fixed
+- Bar chart: Fix the comparison shadow baseline on horizontal charts whose domain excludes zero. [#52547]
+
+## [4.3.0] - 2026-09-23
+### Added
+- Add required key and index fields to BandHighlightSelection for identifying the selected series and rendered data point. [#52544]
+- Legend: Add a comparisonItem option that appends a static Comparison period item, and let a legend item opt out of interactivity. Keep comparison items visible when their labels match a metric. [#52423]
+
+### Changed
+- Bar chart: Start the value axis at zero by default; pass `zero: false` on the value scale to fit it to the data. [#52597]
+
+### Fixed
+- Bar chart: Draw a gap for a period with no data instead of refusing to render the chart. [#52522]
+- Bar chart: Give a flat or single-bucket series a value axis with height, so its bars are visible. [#52522]
+- Bar chart: Translate the "No data available" and "Invalid data" messages. [#52522]
+- Line, bar and area charts: Draw gridlines at the ticks set by each axis's `numTicks` and `tickValues`, matching the axis labels. [#52588]
+- Line, bar and area charts: Label the value axis only at whole numbers when every value is a whole number. [#52588]
+- Line chart: Break the line at a period with no data instead of refusing to render the chart. [#52580]
+- LineChart: Round the top of a zero-based value axis from zero, so the line no longer runs into the top edge. [#52601]
+- Line chart: Start the value axis at zero for a flat series, so its line is not drawn halfway up the plot. [#52580]
+- Line chart: Translate the "No data available" and "Invalid data" messages. [#52580]
+
+## [4.2.0] - 2026-09-18
+### Added
+- Bar chart: Add a beside tooltip placement that flips only horizontally. [#52234]
+- Bar chart: Add an optional band highlight. [#52234]
+- Bar chart: Support individual data point colors. [#52234]
+- Heatmap: add `columnGroups` for labeled, gapped column runs, a `keyboardNavigation="calendar"` mode that steps by day, week and month, and `buildMonthCalendarHeatmapData` / `useMonthCalendarHeatmapData`, which draw a date-keyed map as one month calendar per month on a shared scale. The column-label row is omitted when no column has a label, the grid takes an `ariaLabel`, the keyboard selection scrolls into view, calendar labels stay Gregorian under any locale, and `CompleteChartTheme.heatmapChart` gains a required `groupGap`. [#52259]
+- Heatmap chart: Add `tooltipVariant="dark"`, which draws the tooltip on the package's dark tooltip surface, `tooltipStyle` for inline box overrides, and a `variant="bar"` legend that joins the scale steps into one continuous band. [#52368]
+
+### Changed
+- Update package dependencies. [#52187]
+- Update package dependencies. [#52401]
+
+### Fixed
+- Bar chart: Align grid lines with axis ticks (explicit or derived). [#52234]
+- Bar chart: Return focus to the chart after pressing Escape. [#52234]
+- Bar chart: Select the bar under the pointer for tooltips and pointer callbacks. [#52234]
+- Keep keyboard focus on the first or last data point when an arrow key reaches the end of a chart, return focus to the chart when Escape closes a tooltip, skip hidden series during bar chart keyboard navigation, stop a focused chart from swallowing keys it does not use such as Page Down, and close the tooltip when the series it describes is hidden. [#50140]
+
+## [4.1.1] - 2026-09-15
+### Changed
+- Update package dependencies. [#52297]
+
+### Fixed
+- Fix unreadable axis labels in forced-colors mode. [#52268]
+- Return keyboard focus to line and area charts after closing a tooltip with Escape. [#52284]
+
+## [4.1.0] - 2026-09-14
+### Added
+- Heatmap: add `locale` and `timeZone` options and a `useCalendarHeatmapData` hook, so a host can bucket and label the calendar in its own zone and language instead of the viewer's. Labels with no `locale` now follow the runtime locale rather than always rendering in English, and a calendar `dateString` must start `yyyy-MM-dd`. [#52114]
+- HeatmapChart: Add summary columns, per-row roll-ups drawn outside the color scale. [#52135]
+- Line chart: Add options to place tooltips below the x-axis label band and customize tooltip and crosshair styles. [#52143]
+
+### Changed
+- AccessibleTooltip: Merge supplied styles with the default box styles instead of replacing them; use unstyled to remove the box styles. [#52143]
+- LeaderboardChart: Let valueFormatter return a React node, so a value can carry a tooltip. [#52177]
+- Line chart: Keep the page from scrolling when keyboard focus moves to a below-axis tooltip. [#52143]
+
+### Fixed
+- Flip the tooltip to the side of the anchor that stays inside the chart wrapper, so a box that fits in the chart no longer reaches past it into page content that paints over it. [#52123]
+- HeatmapChart: Fix an endless re-render when the keyboard tooltip opens on a chart without row labels. [#52135]
+- LineChart, AreaChart, BarChart: Date a naive dateString point in the provider's time zone, so every viewer reads the same day. [#52113]
+- Reserve room for the first and last labels on a time axis, size the y-axis gutter from a pinned domain, and reserve nothing for a hidden y axis. [#52112]
+
+## [4.0.0] - 2026-09-04
+### Changed
+- Inject WPDS design-token fallbacks at build time via @wordpress/theme's LightningCSS plugin. [#51722]
+- Render chart tooltips inside the chart instead of a document.body portal, so they stack correctly under sticky and fixed page elements. `detectBounds` now keeps the box inside the nearest ancestor that clips its overflow, or the viewport. The tooltip's `scroll`, `debounce` and `resizeObserverPolyfill` options are deprecated and ignored. [#51640]
+- Render time-axis and tooltip dates in a host-supplied locale and time zone, set on GlobalChartsProvider. Both default to the browser's, as before. [#51812]
+- Update package dependencies. [#51701]
+
+### Removed
+- Remove every color field from the chart theme. Set the matching `--a8c-charts-color-*` custom property inside the provider tree instead — every removed field named one, and they were deprecated in the previous release. `TOKENS.md` lists the catalog. `LeaderboardChart`'s `primaryColor` and `secondaryColor` props and `HeatmapChart`'s `primaryColor` prop are unaffected, and a single annotation still takes colors through its own `styles` prop.
+  
+  Remove `gridColor` and `gridColorDark`, which were undocumented visx passthroughs. `gridColor` painted the y axis line and y tick marks, which no other field could reach. Add `--a8c-charts-color-axis-y` and `--a8c-charts-color-tick-y` to replace it: both resolve to `none`, so the y axis still carries labels only by default, and a chart that wants a painted y axis declares them.
+  
+  Rename `--a8c-charts-color-axis` to `--a8c-charts-color-axis-x` and `--a8c-charts-color-tick` to `--a8c-charts-color-tick-x`. Both only ever painted the x axis; now that the y axis has roles of its own, the names say which one they move.
+  
+  Add `leaderboard-chart`, `conversion-funnel-chart` and `bar-list-chart` classes to those charts' roots, and add the `pie-semi-circle-chart` class to that chart's error state, which was missing it. This matches the `bar-chart`, `line-chart` and `pie-chart` classes the other charts already carry, and gives a consumer somewhere to scope a role to one chart — which matters for a role more than one chart reads, since `--a8c-charts-color-surface-secondary` paints the funnel's track and `GeoChart`'s dataless regions, and the trend pair paints the funnel's change indicator and the leaderboard's deltas.
+  
+  `BarListChart` and `PieSemiCircleChart`'s error state now also pass a caller's own `className` through, which they previously dropped.
+  
+  Remove `--a8c-charts-color-label-on-fill`. Set `--a8c-charts-color-label-inverse` instead: both meant label text on a filled surface, and one role covers the pie segment labels and the heatmap cell values together. Pie labels follow that role's `--wpds-color-foreground-interactive-neutral-strong` mapping now, so they are off-white rather than pure white until a consumer sets the role.
+  
+  Remove `theme.leaderboardChart.rowGap` and `.columnGap`. Declare `--a8c-charts-dimension-leaderboard-row-gap` or `--a8c-charts-dimension-leaderboard-column-gap` inside the provider tree instead; they map to `--wpds-dimension-gap-md` and `--wpds-dimension-gap-xs`, so the default spacing follows the design system. `TOKENS.md` lists both roles.
+  
+  Remove the two remaining deprecated APIs, so this major carries every removal at once rather than spending a second one later. `AreaChart`'s `rescaleYOnLegendToggle` prop goes — use `rescaleYOnVisibilityChange`, which is the same setting under a name that matches when it applies. The `parseRgbString` helper goes — use `normalizeColorToHex`, which handles `rgb()` alongside every other format. [#51748]
+
+### Fixed
+- Place line and area chart date ticks on the host time zone's calendar boundaries, name the hour in tooltips on hourly data, let the locale rather than a forced 12-hour clock choose how every chart's hour labels read, and hand a custom tooltip the chart's date bucket classification. [#51813]
+- Tooltip: Keep the drop shadow when `--a8c-charts-color-label-axis` resolves to something other than a 6-digit hex. visx appends an alpha suffix to that color to build the shadow, which only parses after a hex, so an `rgb()` or `hsl()` value silently dropped the shadow entirely. [#51748]
+
 ## [3.2.0] - 2026-09-01
 ### Added
 - Bar and line charts: Report a click through the pointer event handlers and Enter or Space through an activation callback, so a chart can open the point under the pointer or the keyboard selection. [#51544]
@@ -1018,6 +1115,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.4.0]: https://github.com/Automattic/charts/compare/v4.3.0...v4.4.0
+[4.3.0]: https://github.com/Automattic/charts/compare/v4.2.0...v4.3.0
+[4.2.0]: https://github.com/Automattic/charts/compare/v4.1.1...v4.2.0
+[4.1.1]: https://github.com/Automattic/charts/compare/v4.1.0...v4.1.1
+[4.1.0]: https://github.com/Automattic/charts/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/Automattic/charts/compare/v3.2.0...v4.0.0
 [3.2.0]: https://github.com/Automattic/charts/compare/v3.1.1...v3.2.0
 [3.1.1]: https://github.com/Automattic/charts/compare/v3.1.0...v3.1.1
 [3.1.0]: https://github.com/Automattic/charts/compare/v3.0.0...v3.1.0

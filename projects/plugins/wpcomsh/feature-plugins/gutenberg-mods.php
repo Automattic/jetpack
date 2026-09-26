@@ -182,8 +182,7 @@ add_action( 'init', 'wpcomsh_remove_gutenberg_experiments' );
  */
 function wpcomsh_filter_gutenberg_experiments() {
 	return array(
-		'gutenberg-content-guidelines' => true,
-		'gutenberg-guidelines'         => true,
+		'gutenberg-guidelines' => true,
 	);
 }
 
@@ -191,7 +190,7 @@ function wpcomsh_filter_gutenberg_experiments() {
  * Remove Gutenberg's Experiments submenu item.
  */
 function wpcomsh_remove_gutenberg_experimental_menu() {
-	remove_submenu_page( 'gutenberg', 'gutenberg-experiments' );
+	remove_submenu_page( 'options-general.php', 'experiments-wp-admin' );
 }
 
 /**
@@ -222,7 +221,7 @@ function wpcomsh_enable_error_reporting_for_react_19( $is_enabled ) {
 		return false;
 	}
 
-	$current_segment = 10; // Segment of sites that get error reporting, in %.
+	$current_segment = 40; // Segment of sites that get error reporting, in %.
 	$site_segment    = $site_id % 100;
 
 	// Sites whose id ends in digits < $current_segment are in the segment.

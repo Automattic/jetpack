@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Modern dashboard: Show when a backup completed with warnings, and when the Jetpack connection reports an error.

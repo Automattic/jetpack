@@ -59,7 +59,7 @@ export default function ThumbnailField( { item }: Props ) {
 									/* translators: %d: transcoding progress percentage */
 									__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
 									processingProgress
-							  )
+								)
 							: __( 'Processing', 'jetpack-videopress-pkg' ) }
 					</Text>
 					<ProgressBar
@@ -158,7 +158,11 @@ export default function ThumbnailField( { item }: Props ) {
 					<Text>{ failureLabel.summary }</Text>
 					{ /* Own line rather than joined onto the summary: the tile is too
 					     narrow for one string, and the Retry button sits below. */ }
-					{ failureLabel.cause ? <Text variant="body-sm">{ failureLabel.cause }</Text> : null }
+					{ failureLabel.cause ? (
+						<Text variant="body-sm" className="vp-library__failed-cause">
+							{ failureLabel.cause }
+						</Text>
+					) : null }
 					<Button size="compact" onClick={ () => retryUpload( id ) }>
 						{ __( 'Retry', 'jetpack-videopress-pkg' ) }
 					</Button>

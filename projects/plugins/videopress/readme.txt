@@ -3,7 +3,7 @@ Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski,
 Tags: video, video-hosting, video-player, cdn, video-streaming
 Requires at least: 7.0
 Tested up to: 7.1
-Stable tag: 3.4.1
+Stable tag: 3.6
 Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -83,24 +83,22 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.4.1 - 2026-08-26
+### 3.6 - 2026-09-23
 #### Added
-- Add a first-run welcome modal to the dashboard.
+- Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings.
 
 #### Changed
-- General: Update minimum WordPress version to 7.0.
-- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
-- Redesign the video details page: group details into one card in a wider layout, move the player and settings into a side column, and add thumbnail tiles, collapsible sections, and an Add to content action.
-- Tested up to WordPress 7.1.
-
-#### Removed
-- Updated PHP version requirements to PHP 7.4 or newer.
+- My Jetpack: Answer module switch clicks immediately, and explain what happened when a change fails.
+- With the inline player setting on, draw the play button like the player's and show a loading spinner from the click until the player has loaded.
 
 #### Fixed
-- Charts: draw labels at the design system's font weight and size.
-- Connection: Update wording for some connection error notices.
-- Fix a timeout error when updating a video poster from the media library.
-- Fix private video playback authorization for videos embedded through synced patterns and Video Playlist blocks, let private videos preview in the block editor canvas, load live metadata for private playlist entries for authorized viewers, and show a lock placeholder on playlist thumbnails of private videos the viewer cannot access.
-- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.
-- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
+- Chapters: Show specific validation messages for chapters entered in video descriptions.
+- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else.
+- Fix private video playback on sites using WPML.
+- Footer: Hide Products and Help links when My Jetpack is unavailable.
+- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete.
+- My Jetpack: Show each notice once instead of twice.
+- Pricing: Open information tooltips with the keyboard and dismiss them with Escape.
+- Show each number on the views trends chart's value axis once when counts are small.
+- With the inline player setting on, show the poster of private videos, and of videos the server could not look up, before they are played instead of a black box.
 

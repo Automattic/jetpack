@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Newsletter;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -21,9 +22,14 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.13.0';
+	const PACKAGE_VERSION = '0.16.0';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
+
+	/**
+	 * Slug of the retired Subscribers page, kept only to redirect stale bookmarks.
+	 */
+	const RETIRED_SUBSCRIBERS_PAGE_SLUG = 'jetpack-subscribers';
 
 	/**
 	 * Filter name that gates the wp-build–based dashboard.
@@ -34,6 +40,16 @@ class Settings {
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_newsletter';
 
 	/**
+	 * Feature flag for the Newsletter Overview tab.
+	 *
+	 * Also gates the Stats tab and its REST endpoints: Stats is a temporary,
+	 * standalone page that eases development of the Overview dashboard's
+	 * eventual stats section -- it ships and retires with the same flag rather
+	 * than getting an independent one.
+	 */
+	const OVERVIEW_FEATURE_FLAG = 'newsletter-overview';
+
+	/**
 	 * Whether the class has been initialized
 	 *
 	 * @var boolean
@@ -41,9 +57,36 @@ class Settings {
 	private static $initialized = false;
 
 	/**
+	 * The screen ID alias_screen_id_for_wp_build() replaced, until it is restored.
+	 *
+	 * @var string|null
+	 */
+	private static $wp_build_original_screen_id = null;
+
+	/**
+	 * Register Newsletter feature flags.
+	 *
+	 * @return void
+	 */
+	public static function register_feature_flags() {
+		Feature_Flags::register(
+			self::OVERVIEW_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Enable the Newsletter Overview and Stats tabs.',
+				'owner'       => 'jetpack-newsletter',
+			)
+		);
+
+		Subscriber_Stats_Controller::register();
+	}
+
+	/**
 	 * Init Newsletter Settings if it wasn't already.
 	 */
 	public static function init() {
+		self::register_feature_flags();
+
 		if ( ! self::$initialized ) {
 			self::$initialized = true;
 			( new self() )->init_hooks();
@@ -83,15 +126,8 @@ class Settings {
 	 * Subscribe to necessary hooks.
 	 */
 	public function init_hooks() {
-		// Transitional Subscribers announcement page (active only while the
-		// modernization filter is on): registers its AJAX/admin-post handlers
-		// and wp-build loading here so they exist on admin-ajax.php and
-		// admin-post.php requests. The menu itself is added by the Jetpack
-		// plugin's subscriptions module, which owns the Subscribers placement.
-		// init() self-gates on Subscribers_Announcement::is_enabled(), which is
-		// also what the menu-registration entry points consult, so the handlers
-		// and the menu can never disagree about whether the feature is on.
-		Subscribers_Announcement::init();
+		// Priority 1 so this runs before the menu is built and the request is denied.
+		add_action( 'admin_menu', array( __CLASS__, 'redirect_retired_subscribers_page' ), 1 );
 
 		// Add the Reading settings notice as long as subscriptions are active.
 		if ( $this->is_subscriptions_active() ) {
@@ -119,6 +155,9 @@ class Settings {
 		// so an inline check here would always see the unfiltered default.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 
+		// Priority 20 runs after add_script_data(), which replaces the whole `newsletter` key on the Newsletter page.
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'add_subscribers_url_script_data' ), 20 );
+
 		$host = new Host();
 
 		// On wpcom Simple, the Jetpack menu is created at priority 999999 by wpcom-admin-menu.php,
@@ -132,6 +171,27 @@ class Settings {
 		// Use priority 999 to ensure menu items are queued BEFORE Admin_Menu::admin_menu_hook_callback
 		// runs at priority 1000 to process all queued items.
 		add_action( 'admin_menu', array( $this, 'add_wp_admin_menu' ), 999 );
+	}
+
+	/**
+	 * Send the retired Subscribers page to Newsletter, which absorbed it.
+	 *
+	 * The slug was live for about three months, so it is still in browser histories,
+	 * where it would otherwise hit WordPress's generic "not allowed to access this
+	 * page" and read as a permissions error rather than a move.
+	 *
+	 * @return void
+	 */
+	public static function redirect_retired_subscribers_page() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		if ( self::RETIRED_SUBSCRIBERS_PAGE_SLUG !== $page || ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		wp_safe_redirect( admin_url( 'admin.php?page=' . self::ADMIN_PAGE_SLUG ) );
+		exit( 0 );
 	}
 
 	/**
@@ -149,7 +209,7 @@ class Settings {
 			return;
 		}
 
-		self::load_wp_build();
+		self::load_wp_build_with_screen_alias();
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them
@@ -157,8 +217,6 @@ class Settings {
 		if ( function_exists( 'jetpack_newsletter_register_script_modules' ) ) {
 			jetpack_newsletter_register_script_modules(); // @phan-suppress-current-line PhanUndeclaredFunction -- Checked with function_exists(); defined in the generated build/modules.php, which Phan excludes.
 		}
-
-		add_action( 'current_screen', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 	}
 
 	/**
@@ -202,7 +260,11 @@ class Settings {
 				'manage_options',
 				'jetpack-newsletter',
 				$callback,
-				10
+				null,
+				array(
+					'product' => 'newsletter',
+					'key'     => 'jetpack-newsletter',
+				)
 			);
 		} else {
 			$page_suffix = add_submenu_page(
@@ -280,7 +342,7 @@ class Settings {
 		$is_block_theme         = wp_is_block_theme();
 		$setup_payment_plan_url = ( $is_wpcom ? 'https://wordpress.com/earn/payments/' : 'https://cloud.jetpack.com/monetize/payments/' ) . $site_suffix;
 
-		$wp_admin_subscriber_management_enabled = apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
+		$wp_admin_subscriber_management_enabled = self::is_wp_admin_subscriber_management_enabled();
 
 		// Populate blog_id which is needed for API calls on Simple sites.
 		$data['site']['wpcom']['blog_id'] = $blog_id;
@@ -296,6 +358,7 @@ class Settings {
 			'dateExample'                     => gmdate( get_option( 'date_format' ), time() ),
 			'subscriberManagementUrl'         => $this->get_subscriber_management_url( $wp_admin_subscriber_management_enabled, $is_wpcom, $site_suffix, $blog_id ),
 			'subscriberManagementEnabled'     => (bool) $wp_admin_subscriber_management_enabled,
+			'overviewEnabled'                 => Feature_Flags::is_enabled( self::OVERVIEW_FEATURE_FLAG ),
 			'isSubscriptionSiteEditSupported' => $is_block_theme,
 			'setupPaymentPlansUrl'            => $setup_payment_plan_url,
 			'isSitePublic'                    => ! $status->is_private_site() && ! $status->is_coming_soon(),
@@ -505,6 +568,30 @@ class Settings {
 	}
 
 	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
 	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
 	 *
 	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
@@ -515,15 +602,35 @@ class Settings {
 	 * Hooked only when modernization is on AND we're on the Newsletter admin page,
 	 * so this never affects any other request.
 	 *
-	 * @param \WP_Screen|null $screen The current screen object (passed by WP).
+	 * @since 0.16.0 Takes no argument; hooked on `admin_enqueue_scripts`.
+	 *
 	 * @return void
 	 */
-	public static function alias_screen_id_for_wp_build( $screen ) {
-		if ( ! is_object( $screen ) ) {
+	public static function alias_screen_id_for_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen ) {
 			return;
 		}
 
-		$screen->id = 'jetpack-newsletter-dashboard';
+		self::$wp_build_original_screen_id = $screen->id;
+		$screen->id                        = 'jetpack-newsletter-dashboard';
+	}
+
+	/**
+	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
+	 *
+	 * @since 0.16.0
+	 *
+	 * @return void
+	 */
+	public static function restore_screen_id_after_wp_build() {
+		$screen = get_current_screen();
+		if ( ! $screen || null === self::$wp_build_original_screen_id ) {
+			return;
+		}
+
+		$screen->id                        = self::$wp_build_original_screen_id;
+		self::$wp_build_original_screen_id = null;
 	}
 
 	/**
@@ -538,6 +645,47 @@ class Settings {
 	 */
 	private static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+	}
+
+	/**
+	 * Returns true when subscribers are managed in wp-admin rather than on WordPress.com or Jetpack Cloud.
+	 *
+	 * @return bool
+	 */
+	private static function is_wp_admin_subscriber_management_enabled() {
+		/** This filter is documented in projects/plugins/jetpack/modules/subscriptions.php */
+		return (bool) apply_filters( 'jetpack_wp_admin_subscriber_management_enabled', true );
+	}
+
+	/**
+	 * Publish the Subscribers tab URL so other dashboards can link to it.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $data The existing script data.
+	 * @return array The script data, with `newsletter.subscribersUrl` set to null when the current user cannot open the tab.
+	 */
+	public static function add_subscribers_url_script_data( $data ) {
+		$data['newsletter']['subscribersUrl'] = self::is_subscribers_tab_available() ? Urls::get_subscribers_url() : null;
+
+		return $data;
+	}
+
+	/**
+	 * Whether the current user can open the Subscribers tab of the Newsletter page.
+	 *
+	 * Reads the admin menu, so it returns false until `admin_menu` has run.
+	 *
+	 * @return bool
+	 */
+	private static function is_subscribers_tab_available() {
+		// The legacy page and a host that manages subscribers elsewhere both leave the page Settings-only.
+		if ( ! self::is_modernized() || ! self::is_wp_admin_subscriber_management_enabled() ) {
+			return false;
+		}
+
+		// Registration applies the page's own gates: a connected site, the subscriptions module, and `manage_options`.
+		return function_exists( 'menu_page_url' ) && '' !== menu_page_url( self::ADMIN_PAGE_SLUG, false );
 	}
 
 	/**

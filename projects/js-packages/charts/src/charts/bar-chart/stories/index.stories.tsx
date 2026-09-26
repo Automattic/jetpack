@@ -8,6 +8,7 @@ import {
 	medalCountsData,
 	largeValuesData,
 	trafficData,
+	steadyTrafficData,
 	themeArgTypes,
 	type SeriesLegendStoryControls,
 } from '../../../stories';
@@ -94,6 +95,18 @@ export const Default: Story = {
 	},
 };
 
+export const ForcedColors: Story = {
+	...Default,
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'In Chrome DevTools, open Rendering and set "Emulate CSS media feature forced-colors" to "active". Set prefers-color-scheme to dark, then light: both axes should follow the system text color. This uses the same axis catalog roles as Line Chart, Area Chart, and Bar List Chart.',
+			},
+		},
+	},
+};
+
 export const FixedDimensions: Story = {
 	args: {
 		...Default.args,
@@ -119,6 +132,107 @@ export const SingleSeries: Story = {
 		docs: {
 			description: {
 				story: 'Bar chart with a single data series.',
+			},
+		},
+	},
+};
+
+export const PerPointColors: Story = {
+	args: {
+		...SingleSeries.args,
+		options: { yScale: { zero: true } },
+		data: [
+			{
+				label: 'Daily score',
+				data: [
+					{ label: 'Monday', value: 92, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Tuesday', value: 35, color: 'var(--a8c-charts-color-trend-down)' },
+					{ label: 'Wednesday', value: 88, color: 'var(--a8c-charts-color-trend-up)' },
+					{ label: 'Thursday', value: 65 },
+				],
+			},
+		],
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Point colors override the series fill. Thursday has no override and keeps the series color. Enable patterns to check that they take precedence.',
+			},
+		},
+	},
+};
+
+export const DatumClasses: Story = {
+	args: {
+		width: 600,
+		height: 300,
+		data: [
+			{
+				label: 'Scores',
+				data: [
+					{ label: 'Empty', value: 0 },
+					{ label: 'Recorded', value: 80 },
+				],
+			},
+		],
+		barClassName: datum => ( datum.value === 0 ? 'bar-story-empty' : undefined ),
+		withTooltips: true,
+		tooltipStyle: { padding: 'var(--wpds-dimension-padding-lg)' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Use per-datum classes to keep zero-value marks visible and tooltipStyle to customize the tooltip box.',
+			},
+		},
+	},
+	render: args => (
+		<>
+			<style>
+				{
+					'.bar-story-empty { height: var(--wpds-dimension-gap-xs); translate: 0 calc(-1 * var(--wpds-dimension-gap-xs)); }'
+				}
+			</style>
+			<BarChart { ...args } />
+		</>
+	),
+};
+
+export const BandHighlight: Story = {
+	args: {
+		...SingleSeries.args,
+		withBandHighlight: true,
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover a bar or focus the chart and use arrow keys to highlight its band across the plot. Escape clears the keyboard selection and its tooltip; a hover highlight remains.',
+			},
+		},
+	},
+};
+
+export const BesideTooltip: Story = {
+	args: {
+		...BandHighlight.args,
+		tooltipPlacement: 'beside',
+		tooltipAnchorTop: 40,
+	},
+	argTypes: {
+		tooltipPlacement: {
+			control: 'radio',
+			options: [ 'auto', 'beside' ],
+		},
+		tooltipAnchorTop: { control: 'number' },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Hover the first and last bars to check horizontal flipping. The tooltip stays at the SVG top anchor, subject to clipping bounds. Change tooltipAnchorTop to move that anchor, including above the SVG with negative values.',
 			},
 		},
 	},
@@ -363,10 +477,7 @@ export const ErrorStates: Story = {
 						data={ [
 							{
 								label: 'Invalid Series',
-								data: [
-									{ date: new Date( 'invalid' ), value: 10, label: 'Invalid Date' },
-									{ date: new Date( '2024-01-02' ), value: null, label: 'Null Value' },
-								],
+								data: [ { date: new Date( 'invalid' ), value: 10 } ],
 								options: {},
 							},
 						] }
@@ -573,6 +684,94 @@ export const ZeroValueComparison: Story = {
 	},
 };
 
+const siteLaunchedInApril: SeriesData[] = [
+	{
+		label: 'Subscribers',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: null },
+			{ date: new Date( 2026, 1, 1 ), value: null },
+			{ date: new Date( 2026, 2, 1 ), value: null },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 12 },
+			{ date: new Date( 2026, 5, 1 ), value: 31 },
+			{ date: new Date( 2026, 6, 1 ), value: 58 },
+		],
+	},
+];
+
+export const BucketsWithNoData: Story = {
+	args: {
+		...Default.args,
+		data: siteLaunchedInApril,
+		showZeroValues: true,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which has no gaps to show.
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+BucketsWithNoData.parameters = {
+	docs: {
+		description: {
+			story:
+				'A null value is a bucket with no reading. It keeps its place on the axis so the chart still spans the selected range, draws no bar, and its tooltip reads "No data" rather than zero. April is a real zero: with `showZeroValues` on it keeps a short stub, so a month with none reads differently from a month with no record.',
+		},
+	},
+};
+
+export const SteadyValues: Story = {
+	args: {
+		...Default.args,
+		data: steadyTrafficData,
+	},
+	argTypes: {
+		seriesCount: { table: { disable: true } },
+	},
+};
+
+SteadyValues.parameters = {
+	docs: {
+		description: {
+			story:
+				'A week of 921 to 989 views a day, a 7% swing. The value axis starts at zero, so the bars read as steady; fitted to the data they would swing between empty and full. Pass `options.yScale.zero: false` to fit the axis instead.',
+		},
+	},
+};
+
+const wholeNumberRangeData: SeriesData[] = [
+	{
+		label: 'Errors',
+		data: [
+			{ date: new Date( 2026, 0, 1 ), value: 0 },
+			{ date: new Date( 2026, 1, 1 ), value: 1 },
+			{ date: new Date( 2026, 2, 1 ), value: 1 },
+			{ date: new Date( 2026, 3, 1 ), value: 0 },
+			{ date: new Date( 2026, 4, 1 ), value: 1 },
+			{ date: new Date( 2026, 5, 1 ), value: 1 },
+		],
+	},
+];
+
+export const SmallWholeNumberRange: Story = {
+	args: {
+		...Default.args,
+		data: wholeNumberRangeData,
+	},
+	argTypes: {
+		// The series-count control swaps in the medal data, which isn't a whole-number range.
+		seriesCount: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'When every visible value is a whole number, the value axis places ticks only on whole numbers, instead of repeating a rounded label at fractional steps. Pass `options.axis.y.tickValues` to choose the ticks yourself (`axis.x` on a horizontal chart). A value domain you pin with `options.yScale.domain` (`xScale` on a horizontal chart) keeps every tick, so a percentage axis on `[ 0, 1 ]` still steps by 20%.',
+			},
+		},
+	},
+};
+
 // Data with long categorical labels to demonstrate overlapping issue
 const longLabelData = [
 	{
@@ -696,6 +895,55 @@ export const ComparisonMulti: Story = {
 			description: {
 				story:
 					'Two groups (`views` and `visitors`) rendered side by side, each paired with its own `type: "comparison"` series. Each group\'s standard-width shadow bar sits behind its 60%-width primary bar, with clear gaps preserved between groups — confirming comparison mode composes correctly with grouped bar layouts. With `legend.collapseGroups` each group is a single legend item (Views, Visitors), and because `legend.interactive` is also on, clicking one toggles both its current and previous-period series at once. Turn the `legendCollapseGroups` control off to get one item per series, each toggling alone.',
+			},
+		},
+	},
+};
+
+export const PaintedYAxis: Story = {
+	args: {
+		containerWidth: '900px',
+		containerHeight: '400px',
+		resize: 'none',
+	},
+	render: () => (
+		<div style={ { display: 'grid', gap: '32px', gridTemplateColumns: 'repeat(2, 380px)' } }>
+			<div>
+				<h3 style={ { marginBottom: '4px' } }>Default — labels only</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>
+					Both roles resolve to <code>none</code>.
+				</p>
+				<BarChart
+					width={ 380 }
+					height={ 220 }
+					data={ [ medalCountsData[ 0 ] ] }
+					gridVisibility="x"
+				/>
+			</div>
+			<div
+				style={
+					{
+						'--a8c-charts-color-axis-y': '#3858e9',
+						'--a8c-charts-color-tick-y': '#cc1818',
+					} as React.CSSProperties
+				}
+			>
+				<h3 style={ { marginBottom: '4px' } }>Painted</h3>
+				<p style={ { marginBottom: '12px', color: '#666' } }>Axis blue, tick marks red.</p>
+				<BarChart
+					width={ 380 }
+					height={ 220 }
+					data={ [ medalCountsData[ 0 ] ] }
+					gridVisibility="x"
+				/>
+			</div>
+		</div>
+	),
+	parameters: {
+		docs: {
+			description: {
+				story:
+					'Each axis has its own pair of catalog roles, set in CSS anywhere inside the provider tree. The y pair resolves to `none` by default, which is what leaves that axis carrying tick labels and nothing else; declaring either one paints that part. The x pair — `--a8c-charts-color-axis-x` and `--a8c-charts-color-tick-x` — is untouched here, which is why the x axis is identical in both charts. Nothing reaches any of these through the `theme` prop; colors are CSS.',
 			},
 		},
 	},

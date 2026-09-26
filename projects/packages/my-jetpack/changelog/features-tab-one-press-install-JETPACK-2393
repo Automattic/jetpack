@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features: Say why a plugin can't be installed, show progress while it installs, and keep the reason on the card when an install fails.
