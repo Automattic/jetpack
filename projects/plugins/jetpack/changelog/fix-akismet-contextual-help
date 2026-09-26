@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Akismet: Restore the WordPress contextual Help tab on Akismet admin pages.
