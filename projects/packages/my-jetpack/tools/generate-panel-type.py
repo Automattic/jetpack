@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """Generate the onboarding panel's display copy as outlined SVG paths.
 
-The panel's display lines are set in Söhne Breit, which is licensed to Automattic
-but cannot ship as a font file. Outlining a fixed set of brand lines is the way we
-get the real typeface onto the panel.
+The panel's display lines are set in Söhne Breit. The font file is not part of
+this repository, so a fixed set of brand lines is outlined here instead and only
+the resulting paths ship.
 
 The lines are brand copy, not interface copy: they read the same in every locale by
 design, exactly like a logo. That is a deliberate choice and it replaces an earlier
