@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Allow a caller refreshing the plan from WordPress.com to pass its own request arguments, so a refresh in front of a page render can cap the timeout.

@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
 /**
@@ -23,6 +24,13 @@ class Dashboard {
 	 * @var boolean
 	 */
 	private static $initialized = false;
+
+	/**
+	 * Transient that throttles the plan refresh below.
+	 *
+	 * @var string
+	 */
+	const PLAN_REFRESH_TRANSIENT = 'jetpack_stats_admin_plan_refresh';
 
 	/**
 	 * Priority for the dashboard menu
@@ -170,7 +178,35 @@ JS;
 	 * Initialize the admin resources.
 	 */
 	public function admin_init() {
+		$this->maybe_refresh_plan();
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+	}
+
+	/**
+	 * Fill an empty plan cache before the config data that reads it is printed.
+	 *
+	 * The app cannot refresh the plan it paywalls on, so a site that never stored one renders as
+	 * free. Throttled and time-boxed, because WordPress.com can keep answering without a plan.
+	 */
+	private function maybe_refresh_plan() {
+		if ( ! Main::is_site_connected() ) {
+			return;
+		}
+
+		// method_exists guard: an older plans package may win the autoloader on another plugin.
+		if ( method_exists( Jetpack_Plan::class, 'get_wpcom_site_specific_features' )
+			&& null !== Jetpack_Plan::get_wpcom_site_specific_features() ) {
+			return;
+		}
+
+		$plan = Jetpack_Plan::get();
+		if ( ! empty( $plan['features']['active'] ) || get_transient( self::PLAN_REFRESH_TRANSIENT ) ) {
+			return;
+		}
+
+		set_transient( self::PLAN_REFRESH_TRANSIENT, 1, 15 * MINUTE_IN_SECONDS );
+
+		Jetpack_Plan::refresh_from_wpcom( array( 'timeout' => 5 ) );
 	}
 
 	/**

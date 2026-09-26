@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a helper that reads a WordPress.com-hosted site's features from the registry the site carries, rather than from the plan it last cached.
