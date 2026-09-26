@@ -400,15 +400,16 @@ class Comment_Form {
 
 		return array_merge(
 			array(
-				'version'          => Comments::PACKAGE_VERSION,
-				'requireNameEmail' => (bool) get_option( 'require_name_email' ),
-				'mustLogIn'        => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'maxLength'        => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'site'             => array(
+				'version'             => Comments::PACKAGE_VERSION,
+				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
+				'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+				'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'site'                => array(
 					'name'    => get_bloginfo( 'name' ),
 					'iconUrl' => (string) get_site_icon_url( 64 ),
 				),
-				'strings'          => self::strings( $args ),
+				'manageSubscriptions' => Subscriptions::manage_links(),
+				'strings'             => self::strings( $args ),
 			),
 			Identity::settings()
 		);
