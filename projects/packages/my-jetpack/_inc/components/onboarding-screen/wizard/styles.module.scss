@@ -38,6 +38,20 @@ $panel-width: 38%;
  * frame clears the benefit copy at 1280px (461.6px), which is where it sits.
  */
 $panel-breakpoint: 1280px;
+
+/*
+ * Where the rail stops being a column and becomes a header bar. Its own
+ * breakpoint, because it and the panel were sharing one and the panel's is the
+ * wider of the two: between 782 and 1279 the rail collapsed along with the
+ * panel and took the step navigation with it, on windows with room for both the
+ * rail and the sheet.
+ *
+ * 960 rather than lower: $rail-width is 300, the sheet's own column is 470, and
+ * two $canvas-inset either side. 300 + 470 + 64 is 834, and the frame needs
+ * more than the column to not read as a slot, so the next round hundred that
+ * clears it comfortably is where it sits.
+ */
+$rail-breakpoint: 960px;
 $glow-height: 55%;
 $row-glyph-size: 28px;
 $row-glyph-gap: 14px;
@@ -323,9 +337,15 @@ $rail-row-min-height: 40px;
 
 	// Stack from @wordpress/ui writes gap and alignment as inline styles, which
 	// cannot carry this query, so the split is plain grid.
+	// The rail becomes a column of its own before there is room for the panel,
+	// so the two are separate steps rather than one.
+	@media (min-width: $rail-breakpoint) {
+		grid-template-columns: $rail-width minmax(0, 1fr);
+		grid-template-rows: minmax(0, 1fr);
+	}
+
 	@media (min-width: $panel-breakpoint) {
 		grid-template-columns: $rail-width minmax(0, 1fr) $panel-width;
-		grid-template-rows: minmax(0, 1fr);
 	}
 }
 
@@ -421,7 +441,7 @@ $rail-row-min-height: 40px;
 .rail-nav {
 	display: none;
 
-	@media (min-width: $panel-breakpoint) {
+	@media (min-width: $rail-breakpoint) {
 		display: block;
 		min-block-size: 0;
 		overflow-y: auto;
@@ -490,14 +510,16 @@ $rail-row-min-height: 40px;
 	}
 
 	/*
-	 * A step past the furthest one reached is aria-disabled, never disabled: it
-	 * keeps its tab stop and its announcement, and the click is swallowed in JS.
+	 * A step out of reach is aria-disabled, never disabled: it keeps its tab stop
+	 * and its announcement, and the click is swallowed in JS. That leaves the
+	 * colour as the only thing saying it cannot be pressed, so it has to.
 	 */
 	&[aria-disabled="true"] {
 		cursor: default;
+		color: var(--wpds-color-foreground-interactive-neutral-weak-disabled);
 
 		&:hover {
-			color: var(--wpds-color-foreground-interactive-neutral-weak);
+			color: var(--wpds-color-foreground-interactive-neutral-weak-disabled);
 		}
 	}
 }
@@ -1110,6 +1132,12 @@ $rail-row-min-height: 40px;
 	// Ruled top and bottom as well as between, unlike the answers above: this is a
 	// list of things being done to the site, not a set of answers to one question.
 	border-block: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+
+	// With nothing in it the two rules meet and paint a stray double hairline
+	// under the empty state, which reads as a list that failed to load.
+	&:empty {
+		display: none;
+	}
 }
 
 .feature-row__wrap {

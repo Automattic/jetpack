@@ -209,6 +209,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 * finish screen's job is to report the failures rather than hide them here.
 	 */
 	const handleApplyAndContinue = useCallback( () => {
+		/*
+		 * Focus moves off the button before it goes busy. Whatever the control does
+		 * under `loading`, the keyboard was measured landing on <body> for the whole
+		 * of the request, which on a slow site is a long time nowhere.
+		 */
+		panelRef.current?.focus();
+
 		apply( modules, wantedModules )
 			.then( setModuleResults )
 			/*
