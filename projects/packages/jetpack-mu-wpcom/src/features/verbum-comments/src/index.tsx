@@ -38,7 +38,9 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 
 	const commentTextarea = useRef< HTMLTextAreaElement >( null );
 	const [ email, setEmail ] = useState( '' );
-	const [ ignoreSubscriptionModal, setIgnoreSubscriptionModal ] = useState( false );
+	// A ref, not a signal: it has to take effect inside the submit handler itself, before
+	// Preact gets a chance to re-render the button as disabled.
+	const isSubmitting = useRef( false );
 	const { login, loginWindowRef, logout } = useSocialLogin();
 
 	useFormMutations( parentForm );
@@ -77,6 +79,23 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [ isEmptyComment.value ] );
 
+	useEffect( () => {
+		// The back/forward cache restores this page with the in-flight submission still recorded,
+		// which would leave the form locked for good once the commenter navigates back to it.
+		const handlePageShow = ( event: PageTransitionEvent ) => {
+			if ( event.persisted ) {
+				isSubmitting.current = false;
+				isSavingComment.value = false;
+			}
+		};
+
+		window.addEventListener( 'pageshow', handlePageShow );
+		return () => {
+			window.removeEventListener( 'pageshow', handlePageShow );
+		};
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [] );
+
 	const subscriptionTraySeen = () => {
 		try {
 			return window.localStorage.getItem(
@@ -109,6 +128,15 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 		}
 	};
 
+	// Only call this when the comment was rejected. Releasing it after a comment was accepted
+	// hands the commenter a live button for something the server already stored.
+	const allowResubmission = ( message: string ) => {
+		setShowMessage( message );
+		setIsErrorMessage( true );
+		isSavingComment.value = false;
+		isSubmitting.current = false;
+	};
+
 	const handleSubscriptionModal = async ( event: Event ) => {
 		event.preventDefault();
 		setShowMessage( '' );
@@ -123,10 +151,18 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 
 		formData.set( 'verbum_show_subscription_modal', subscribeModalStatus.value ?? '' );
 
-		const response = await fetch( formAction!, {
-			method: 'POST',
-			body: formData,
-		} );
+		let response: Response;
+
+		try {
+			response = await fetch( formAction!, {
+				method: 'POST',
+				body: formData,
+			} );
+		} catch {
+			// The request never completed, so nothing was stored and retrying is safe.
+			allowResubmission( translate( 'Your comment could not be sent. Please try again.' ) );
+			return;
+		}
 
 		if ( response.redirected ) {
 			// If the user is not replying any comment, we scroll to the comment form.
@@ -141,18 +177,13 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 		const doc = new DOMParser().parseFromString( text, 'text/html' );
 		const errorMessageElement = doc.querySelector( '.wp-die-message p' );
 
-		// Show error message
-		if ( errorMessageElement !== null ) {
-			setShowMessage( errorMessageElement.innerHTML );
-			setIsErrorMessage( true );
-			isSavingComment.value = false;
-		}
-
-		// If no error message and not redirect, we re-submit the form as usual instead of using fetch.
-		setIgnoreSubscriptionModal( true );
-		isSavingComment.value = false;
-		const submitFormFunction = Object.getPrototypeOf( parentForm ).submit;
-		submitFormFunction.call( parentForm );
+		// wp-comments-post.php answered without redirecting, which it only does when it rejected
+		// the comment. Report why and let the commenter decide to try again -- re-posting the form
+		// from here is what turned a single click into several identical comments.
+		allowResubmission(
+			errorMessageElement?.innerHTML ??
+				translate( 'Your comment could not be sent. Please try again.' )
+		);
 	};
 
 	const handleCommentSubmit = async ( event: Event ) => {
@@ -160,6 +191,17 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 			event.preventDefault();
 			return;
 		}
+
+		// Stop every re-entry path -- repeated clicks, implicit submission from the name and email
+		// fields, another script calling submit() -- before a second request can leave the browser.
+		if ( isSubmitting.current ) {
+			event.preventDefault();
+			event.stopImmediatePropagation();
+			return;
+		}
+
+		isSubmitting.current = true;
+		isSavingComment.value = true;
 
 		window.removeEventListener( 'beforeunload', handleBeforeUnload );
 		if ( userInfo.value?.service === 'guest' ) {
@@ -181,13 +223,8 @@ const Verbum = ( { siteId, parentForm }: VerbumAppProps ) => {
 			setSubscriptionTraySeen();
 		}
 
-		setTimeout( () => ( isSavingComment.value = true ), 0 );
-
-		if ( ! VerbumComments.isJetpackComments ) {
-			if ( VerbumComments.enableSubscriptionModal && ! ignoreSubscriptionModal ) {
-				isSavingComment.value = true;
-				await handleSubscriptionModal( event );
-			}
+		if ( ! VerbumComments.isJetpackComments && VerbumComments.enableSubscriptionModal ) {
+			await handleSubscriptionModal( event );
 		}
 	};
 
