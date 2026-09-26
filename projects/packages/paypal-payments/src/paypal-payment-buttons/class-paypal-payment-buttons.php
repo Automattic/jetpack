@@ -9,7 +9,10 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Request;
 
 /**
  * Class PayPal_Payment_Buttons
@@ -944,6 +947,11 @@ class PayPal_Payment_Buttons {
 
 		self::register_hooks();
 
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'block_view', 'paypal_payment_buttons' );
+
+		self::record_render( $format, $attributes['integrationMode'] ?? '' );
+
 		// Only the standalone QR format draws a code.
 		if ( 'QR' === $format ) {
 			self::enqueue_qr_script();
@@ -1189,6 +1197,47 @@ class PayPal_Payment_Buttons {
 			esc_attr( $button_class ),
 			$button_style
 		);
+	}
+
+	/**
+	 * Record a logged-in front-end view of a block, on Simple only.
+	 *
+	 * Elsewhere the Tracks call blocks the page.
+	 * Skips the pages wpcom stats skip, plus framed previews and embeds.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $format           The block's format, as allowlisted before the draw.
+	 * @param mixed  $integration_mode The block's integrationMode attribute.
+	 * @return void
+	 */
+	private static function record_render( $format, $integration_mode ) {
+		if (
+			! ( new Host() )->is_wpcom_simple()
+			|| ! Request::is_frontend( false )
+			|| is_preview()
+			|| is_customize_preview()
+			|| is_404()
+			|| is_embed()
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only: skips the site preview.
+			|| ( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] )
+			|| Constants::is_true( 'IFRAME_REQUEST' )
+			|| ! is_user_logged_in()
+		) {
+			return;
+		}
+
+		$properties = array(
+			'environment' => PayPal_OAuth::get_environment(),
+			'format'      => $format,
+		);
+
+		// A free-text attribute, so only the two known modes are sent.
+		if ( in_array( $integration_mode, array( 'LINK', 'BUTTON' ), true ) ) {
+			$properties['integration_mode'] = $integration_mode;
+		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_button_rendered', $properties );
 	}
 
 	/**
