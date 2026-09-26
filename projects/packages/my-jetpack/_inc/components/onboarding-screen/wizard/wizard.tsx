@@ -21,6 +21,7 @@ import {
 	isLastStep,
 	featuresDescription,
 	openingStep,
+	SITE_TYPE_OTHER,
 	siteTypeAnswer,
 	settleOnboarding,
 	TOTAL_STEPS,
@@ -33,6 +34,7 @@ import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
+import { WIZARD_EVENTS, lengthBucket, stepSlug, useWizardTracks } from './telemetry';
 import { useJustConnected } from './use-just-connected';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
 import type { SettleOutcome, WizardState, WizardStep } from './lib';
@@ -152,10 +154,16 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >( {} );
 	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] | null >( null );
 
+	// Bound to the step's slug, which is what every event carries; see telemetry.ts.
+	const slug = stepSlug( steps, step );
+	const track = useWizardTracks( slug );
+
 	const handleModuleChange = useCallback(
-		( slug: string, want: boolean ) =>
-			setWantedModules( current => ( { ...current, [ slug ]: want } ) ),
-		[]
+		( moduleSlug: string, want: boolean ) => {
+			setWantedModules( current => ( { ...current, [ moduleSlug ]: want } ) );
+			track( WIZARD_EVENTS.moduleToggle, { module: moduleSlug, enabled: want } );
+		},
+		[ track ]
 	);
 
 	const justConnected = useJustConnected();
@@ -174,9 +182,18 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		hasChangedStep.current = true;
 	}, [ step ] );
 
+	// Keyed on the slug rather than the index, so the step a connected user opens on
+	// is reported once and the same screen is never two different numbers.
+	useEffect( () => {
+		track( WIZARD_EVENTS.stepView );
+	}, [ track ] );
+
 	const handleChoice = useCallback(
-		( value: string ) => setChoices( current => ( { ...current, [ step ]: value } ) ),
-		[ step ]
+		( value: string ) => {
+			setChoices( current => ( { ...current, [ step ]: value } ) );
+			track( WIZARD_EVENTS.siteTypeSelect, { site_type: value } );
+		},
+		[ step, track ]
 	);
 
 	/*
@@ -188,12 +205,45 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const handleExit = useCallback(
 		( outcome: SettleOutcome ) => ( event: MouseEvent< HTMLElement > ) => {
 			event.preventDefault();
+			// Reported before the navigation, not after: the page is about to go.
+			track(
+				outcome === 'skipped' ? WIZARD_EVENTS.skip : WIZARD_EVENTS.complete,
+				outcome === 'skipped' ? {} : { site_type: siteType ?? 'none' }
+			);
 			settleOnboarding( outcome )
 				.catch( () => {} )
 				.finally( () => assignLocation( exitUrl ) );
 		},
-		[ exitUrl ]
+		[ exitUrl, track, siteType ]
 	);
+
+	/*
+	 * Reported on the way off the step rather than on every keystroke, and never
+	 * the words. What someone writes about their own site is the one field here
+	 * that could carry a name or an address, and the question we have is whether
+	 * the field gets used and roughly how much, which a bucket answers.
+	 */
+	const reportedDetail = useRef( '' );
+
+	useEffect( () => {
+		// Only for someone who chose the option that opens the field, and only once
+		// they have left the step. The text survives switching to another option, so
+		// without the first of those a run that typed and then changed its mind
+		// reports a field it did not use.
+		if (
+			slug === 'site-type' ||
+			siteType !== SITE_TYPE_OTHER ||
+			reportedDetail.current === siteTypeDetail
+		) {
+			return;
+		}
+
+		reportedDetail.current = siteTypeDetail;
+		track( WIZARD_EVENTS.siteTypeDetail, {
+			filled: siteTypeDetail.trim().length > 0,
+			length_bucket: lengthBucket( siteTypeDetail ),
+		} );
+	}, [ slug, siteType, siteTypeDetail, track ] );
 
 	const handleBack = useCallback(
 		() => setStep( Math.max( step - 1, firstStep ) as WizardStep ),
@@ -201,10 +251,12 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	);
 
 	const handleNext = useCallback( () => {
+		track( WIZARD_EVENTS.stepComplete );
+
 		const next = ( step + 1 ) as WizardStep;
 		setStep( next );
 		setFurthestStep( current => ( next > current ? next : current ) );
-	}, [ step ] );
+	}, [ step, track ] );
 
 	/*
 	 * Leaving the feature step is what switches the modules; the switches above only
@@ -220,15 +272,27 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		panelRef.current?.focus();
 
 		apply( modules, wantedModules )
-			.then( setModuleResults )
+			.then( results => {
+				setModuleResults( results );
+				// Counts, not a list: which module failed is its own toggle event, and
+				// a property holding a list cannot be grouped on.
+				track( WIZARD_EVENTS.applyResult, {
+					offered: results.length,
+					switched_on: results.filter( result => result.wanted && result.ok ).length,
+					failed: results.filter( result => ! result.ok ).length,
+				} );
+			} )
 			/*
 			 * Every switch already reports its own success or failure, so a rejection
 			 * here is the request layer itself giving out. The finish screen says
 			 * nothing changed rather than the step sitting on a spinner for ever.
 			 */
-			.catch( () => setModuleResults( [] ) )
+			.catch( () => {
+				setModuleResults( [] );
+				track( WIZARD_EVENTS.applyResult, { offered: 0, switched_on: 0, failed: 0 } );
+			} )
 			.finally( handleNext );
-	}, [ apply, modules, wantedModules, handleNext ] );
+	}, [ apply, modules, wantedModules, handleNext, track ] );
 
 	// The rail's rows are aria-disabled rather than disabled, so they stay focusable
 	// and keep announcing themselves. That makes swallowing the click our job.

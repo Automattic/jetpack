@@ -251,13 +251,15 @@ describe( 'Wizard start screen', () => {
 
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
-				'jetpack_myjetpack_onboarding_wizard_connect_success'
+				'jetpack_myjetpack_onboarding_wizard_connect_success',
+				expect.objectContaining( { step: 'start' } )
 			)
 		);
 
 		expect( mockConnection.handleRegisterSite ).toHaveBeenCalledTimes( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_click'
+			'jetpack_myjetpack_onboarding_wizard_connect_click',
+			expect.objectContaining( { step: 'start' } )
 		);
 		// The browser is on its way to WordPress.com; the step does not move here.
 		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
@@ -303,7 +305,7 @@ describe( 'Wizard start screen', () => {
 		await waitFor( () =>
 			expect( mockRecordEvent ).toHaveBeenCalledWith(
 				'jetpack_myjetpack_onboarding_wizard_connect_error',
-				{ error_code: 'site_inaccessible' }
+				expect.objectContaining( { error_code: 'site_inaccessible' } )
 			)
 		);
 
@@ -326,7 +328,8 @@ describe( 'Wizard start screen', () => {
 			expect.objectContaining( { error: expect.anything() } )
 		);
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
-			'jetpack_myjetpack_onboarding_wizard_connect_success'
+			'jetpack_myjetpack_onboarding_wizard_connect_success',
+			expect.anything()
 		);
 	} );
 
@@ -345,7 +348,7 @@ describe( 'Wizard start screen', () => {
 		expect( screen.getByText( 'JsonParseError' ) ).toBeInTheDocument();
 		expect( mockRecordEvent ).toHaveBeenCalledWith(
 			'jetpack_myjetpack_onboarding_wizard_connect_error',
-			{ error_code: 'JsonParseError' }
+			expect.objectContaining( { error_code: 'JsonParseError' } )
 		);
 	} );
 
@@ -891,6 +894,60 @@ describe( 'What the finish screen claims', () => {
 
 		await expect( screen.findByText( '1 switched off.' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( /switched on/ ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'What the wizard reports', () => {
+	/*
+	 * The one thing that must never leave the browser. Asserted over every call
+	 * rather than over the one event that handles it, because the guarantee is
+	 * about the whole flow and a future event could carry it by accident.
+	 */
+	it( 'never sends what the user typed about their own site', async () => {
+		const secret = 'Smith family wiki at smith-family.example';
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), secret );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		const sent = JSON.stringify( mockRecordEvent.mock.calls );
+
+		expect( sent ).not.toContain( 'Smith' );
+		expect( sent ).not.toContain( 'example' );
+		expect( sent ).toContain( 'length_bucket' );
+	} );
+
+	it( 'reports the site type as a slug, and the run as one id', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_onboarding_wizard_site_type_select',
+			expect.objectContaining( { site_type: 'store', step: 'site-type' } )
+		);
+
+		// One id for the whole run, or the two halves of a connection cannot be joined.
+		const ids = new Set( mockRecordEvent.mock.calls.map( ( [ , props ] ) => props?.flow_id ) );
+
+		expect( ids.size ).toBe( 1 );
+	} );
+
+	// The field is left open by one option only, and the text survives switching
+	// away from it, so a run that typed and changed its mind used no field.
+	it( 'says nothing about the field when the answer was not the one that opens it', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_myjetpack_onboarding_wizard_site_type_detail',
+			expect.anything()
+		);
 	} );
 } );
 

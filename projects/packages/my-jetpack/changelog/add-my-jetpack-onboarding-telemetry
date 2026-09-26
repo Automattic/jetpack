@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Onboarding wizard telemetry; the wizard is behind an off feature flag.
+
+

@@ -6,7 +6,6 @@ import { ThemeProvider } from '@wordpress/theme';
 import { Button, Icon, Link, Notice, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useRef, useState } from 'react';
-import useAnalytics from '../../../../hooks/use-analytics';
 import {
 	CONNECTION_FROM,
 	CONNECTION_RETURN_URL,
@@ -15,6 +14,7 @@ import {
 	startBenefits,
 } from '../lib';
 import styles from '../styles.module.scss';
+import { WIZARD_EVENTS, useWizardTracks } from '../telemetry';
 import { markConnecting } from '../use-just-connected';
 
 type StartStepProps = {
@@ -52,7 +52,9 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 			redirectUri: CONNECTION_RETURN_URL,
 			skipPricingPage: true,
 		} );
-	const { recordEvent } = useAnalytics();
+	// The same bundle the rest of the flow carries, so the connection is part of
+	// the funnel rather than three loose events beside it.
+	const track = useWizardTracks( 'start' );
 
 	// Only registration failures reach the store. Fetching the authorization URL can
 	// fail too, and that rejection is ours to hold or the screen says nothing.
@@ -77,24 +79,24 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 		// return to knows to say the connection worked.
 		markConnecting();
 
-		recordEvent( 'jetpack_myjetpack_onboarding_wizard_connect_click' );
+		track( WIZARD_EVENTS.connectClick );
 
 		handleRegisterSite()
 			.then( () => {
 				// Nothing advances here: the browser is on its way to WordPress.com,
 				// and the wizard reads its step back off the connection on return.
-				recordEvent( 'jetpack_myjetpack_onboarding_wizard_connect_success' );
+				track( WIZARD_EVENTS.connectSuccess );
 			} )
 			.catch( ( caught: unknown ) => {
 				inFlight.current = false;
 				setHandoffError( caught );
 				// The code only: the message interpolates the server's prose, which
 				// can carry the site's own URL.
-				recordEvent( 'jetpack_myjetpack_onboarding_wizard_connect_error', {
+				track( WIZARD_EVENTS.connectError, {
 					error_code: connectionErrorCode( caught ),
 				} );
 			} );
-	}, [ handleRegisterSite, recordEvent ] );
+	}, [ handleRegisterSite, track ] );
 
 	return (
 		<div className={ styles.start }>
