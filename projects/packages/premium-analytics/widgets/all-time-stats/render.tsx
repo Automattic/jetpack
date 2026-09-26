@@ -12,7 +12,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { comment, page, people, seen, trendingUp } from '@wordpress/icons';
+import { comment, page, people, seen } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -64,12 +64,12 @@ function AllTimeStatsReport() {
 
 	const tiles = useMemo(
 		() =>
-			ALL_TIME_STATS_METRICS.flatMap( ( { id, label } ): AllTimeStatsTile[] => {
-				const value = summaryCount( summary, id );
-				return value === undefined
-					? []
-					: [ { key: id, label, icon: TILE_CONFIG[ id ].icon, value } ];
-			} ),
+			ALL_TIME_STATS_METRICS.map( ( { id, label } ): AllTimeStatsTile => ( {
+				key: id,
+				label,
+				icon: TILE_CONFIG[ id ].icon,
+				value: summaryCount( summary, id ) ?? 0,
+			} ) ),
 		[ summary ]
 	);
 
@@ -82,8 +82,9 @@ function AllTimeStatsReport() {
 				isFetching={ isFetching }
 				// `placeholderData` keeps the last totals on screen, so a transient
 				// refetch failure should not replace them with an error.
-				isError={ tiles.length === 0 && isError }
-				isEmpty={ tiles.length === 0 }
+				isError={ ! summary && isError }
+				// Highlights have no empty state: a total that is missing shows zero.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load all-time stats. Please try again in a moment.",
@@ -91,13 +92,7 @@ function AllTimeStatsReport() {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				empty={ {
-					icon: trendingUp,
-					description: __( 'No stats recorded yet.', 'jetpack-premium-analytics-pkg' ),
-				} }
-				// `tiles` is empty until the response lands, so the skeleton counts
-				// the metrics instead.
-				renderLoading={ <MetricTileGridSkeleton tiles={ ALL_TIME_STATS_METRICS.length } /> }
+				renderLoading={ <MetricTileGridSkeleton tiles={ tiles.length } /> }
 			>
 				<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
 			</WidgetState>

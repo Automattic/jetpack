@@ -18,7 +18,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
 import { useCallback } from 'react';
 /**
  * Internal dependencies
@@ -63,7 +62,8 @@ function ViewsOverYearsInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
 			isLoading={ isLoading }
 			isFetching={ isFetching }
 			isError={ showError }
-			isEmpty={ rows.length === 0 }
+			// A site without views still gets its current month, at zero.
+			isEmpty={ false }
 			error={
 				showError
 					? describeError( error, {
@@ -75,10 +75,6 @@ function ViewsOverYearsInner( { metric }: { metric: MonthlyHeatmapMetric } ) {
 						} )
 					: null
 			}
-			empty={ {
-				icon: seen,
-				description: __( 'No views yet.', 'jetpack-premium-analytics-pkg' ),
-			} }
 			renderLoading={ <HeatmapSkeleton /> }
 		>
 			<MonthlyHeatmap

@@ -111,6 +111,11 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 	}, [ firstMonthDays.primary.data ] );
 
 	const { rows, lifeStartsAt } = useMemo( () => {
+		// Without a response there is no row to draw, not a site without views.
+		if ( ! primary.data ) {
+			return { rows: [], lifeStartsAt: undefined };
+		}
+
 		// A site-zone instant, so its getters read the site's calendar, as `today` does.
 		const opensOn: DayKey | undefined = opensAt && {
 			year: opensAt.getFullYear(),
@@ -123,7 +128,7 @@ export default function useViewsOverYears( metric: MonthlyHeatmapMetric ): Views
 			rows: built,
 			lifeStartsAt: monthlyHeatmapLifeStart( built, opensAt, reportingTimeZone() ),
 		};
-	}, [ buckets, metric, today, opensAt ] );
+	}, [ primary.data, buckets, metric, today, opensAt ] );
 
 	// Only the averages wait for the first day, and only until that request first settles:
 	// a failed one refetches on focus with no data, which would pull the rows back into the skeleton.

@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import EmailTimeSeriesWidget from '../render';
+import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -18,6 +19,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -27,6 +29,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -37,7 +40,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -304,7 +309,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
 	} );
 
-	it( 'renders the empty state when the timeline has no buckets', async () => {
+	it( 'answers a timeline with no buckets inside the chart, not with a widget-level empty state', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
 		} );
@@ -319,9 +324,32 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
+	} );
+
+	it( 'answers a zero-filled timeline inside the chart, not with a widget-level empty state', async () => {
+		mockApiFetch.mockResolvedValue( {
+			timeline: {
+				...OPENS_TIMELINE_RESPONSE.timeline,
+				data: OPENS_TIMELINE_RESPONSE.timeline.data.map( ( [ date ] ) => [ date, 0 ] ),
+			},
+		} );
+
+		render(
+			<EmailTimeSeriesWidget
+				attributes={ {
+					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
+					metric: 'opens',
+				} }
+			/>
+		);
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
@@ -349,7 +377,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 
 		// The skeleton waits out the shared delay, so drive it rather than
@@ -377,7 +405,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		// it gives way to the skeleton.
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect(
-			screen.queryByText( 'No activity for this email in this period.' )
+			screen.queryByText( 'We couldn’t find results for this time period.' )
 		).not.toBeInTheDocument();
 		jest.useRealTimers();
 	} );

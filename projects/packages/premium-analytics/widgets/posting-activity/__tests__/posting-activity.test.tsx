@@ -127,12 +127,23 @@ describe( 'PostingActivityWidget', () => {
 		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Sat, Oct 4, 2025No posts' );
 	} );
 
-	it( 'shows the empty state when only days outside the window have posts', () => {
-		// A stale response for an older window must not suppress the empty state.
-		mockUseStatsStreak.mockReturnValue( streakResult( { data: { '2024-03-05': 2 } } ) );
+	it( 'draws the calendar, every day empty, for a year without posts', () => {
+		mockUseStatsStreak.mockReturnValue( streakResult( { data: {} } ) );
 		renderWidget();
 
-		expect( screen.getByText( 'No posts published in the last 12 months.' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: No data' } )
+		).toBeInTheDocument();
+	} );
+
+	it( 'keeps the calendar when a refetch fails over a response', () => {
+		mockUseStatsStreak.mockReturnValue(
+			streakResult( { data: {}, isError: true, error: new Error( 'boom' ) } )
+		);
+		renderWidget();
+
+		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the month blocks while loading', () => {

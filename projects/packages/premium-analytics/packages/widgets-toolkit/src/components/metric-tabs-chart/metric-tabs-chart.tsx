@@ -16,7 +16,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, type ChartBaseline } from '../../helpers';
+import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -134,6 +134,10 @@ export interface MetricTabsChartProps {
 	 * pick their own baseline; see `ComparativeBarChart`.
 	 */
 	baseline?: ChartBaseline;
+	/**
+	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
+	 */
+	empty?: ReactNode;
 }
 
 /**
@@ -194,6 +198,7 @@ function MetricChart( {
 	tickResolution,
 	onDatumClick,
 	baseline,
+	empty,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
@@ -205,6 +210,7 @@ function MetricChart( {
 	chartId: string;
 	tickResolution?: TickResolution;
 	onDatumClick?: ( date: Date ) => void;
+	empty?: ReactNode;
 } ) {
 	// Every other metric's current period, each in its own format. A counterpart
 	// is included too: the chart lists a drawn series once, so revealing it from
@@ -311,6 +317,13 @@ function MetricChart( {
 
 	if ( metric.unavailable ) {
 		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
+	}
+
+	if (
+		empty &&
+		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] )
+	) {
+		return <>{ empty }</>;
 	}
 
 	return chartType === 'bar' ? (
@@ -420,6 +433,7 @@ export function MetricTabsChart( {
 	onDatumClick,
 	tooltipMetrics = 'active',
 	baseline,
+	empty,
 }: MetricTabsChartProps ) {
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
@@ -516,6 +530,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						empty={ empty }
 					/>
 				</div>
 			</div>
@@ -588,6 +603,7 @@ export function MetricTabsChart( {
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
 							onDatumClick={ onDatumClick }
+							empty={ empty }
 						/>
 					) }
 				</div>
@@ -636,6 +652,7 @@ export function MetricTabsChart( {
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
 						onDatumClick={ onDatumClick }
+						empty={ empty }
 					/>
 				</Tabs.Panel>
 			) ) }
