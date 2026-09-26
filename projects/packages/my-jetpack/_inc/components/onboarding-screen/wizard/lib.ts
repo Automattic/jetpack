@@ -166,14 +166,15 @@ export function wizardSteps(): WizardStepMeta[] {
 			id: 'site-type',
 			kind: 'question',
 			label: __( 'Your site', 'jetpack-my-jetpack' ),
-			title: __( "Tell us what you're building", 'jetpack-my-jetpack' ),
 			/*
-			 * The prototype's line here says the site is new and there is nothing to
-			 * read yet, which is true of its own new-site scenario only. V1 asks every
-			 * site the same question, so the reassurance it carries is what survives.
+			 * Asked of the site, not of the person's plans: Jetpack is installed on a
+			 * site that already exists far more often than on one being started, and
+			 * "what are you building" is the wrong question for a five-year-old blog.
+			 * This one is true either way, so it needs no second question about which.
 			 */
+			title: __( "What's this site for?", 'jetpack-my-jetpack' ),
 			description: __(
-				'Pick the closest fit. It only shapes what we suggest next.',
+				'Pick the closest fit. It shapes what we suggest next.',
 				'jetpack-my-jetpack'
 			),
 			/*

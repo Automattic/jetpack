@@ -9,6 +9,19 @@
  * everything else on this screen is a token.
  */
 $rail-width: 300px;
+
+/*
+ * How tall the sheet gets before it stops growing and starts centring. Past
+ * this the sheet only adds white: at an 1800px window the content sat in the
+ * top quarter and the rest was a blank cliff.
+ *
+ * Measured against the tallest step, the feature list: 727 of content, 48 of
+ * body padding, a 73px footer, the column's 56px offset, and this element's own
+ * 32 of inset. Re-measure it if that step grows — a sheet a few pixels short is
+ * a scroll container with nowhere to go, which moves the heading under anyone
+ * who nudges the wheel.
+ */
+$sheet-max-height: 936px;
 $panel-width: 38%;
 
 /*
@@ -311,8 +324,13 @@ $rail-row-min-height: 40px;
  */
 .canvas {
 	display: flex;
+	align-self: center;
 	min-inline-size: 0;
 	min-block-size: 0;
+
+	// A height, not a maximum: a maximum lets the sheet size to its content, and
+	// then it is a different height on every step and the footer moves with it.
+	block-size: min(100%, #{$sheet-max-height});
 	padding: $canvas-inset;
 }
 
@@ -541,7 +559,12 @@ $rail-row-min-height: 40px;
 
 	@media (min-width: $panel-breakpoint) {
 		display: block;
+		align-self: center;
 		min-block-size: 0;
+
+		// Sized with the sheet, or the two stop being the same object on a tall
+		// window: one card and one full-height column beside it.
+		block-size: min(100%, #{$sheet-max-height});
 		padding: var(--wpds-dimension-padding-lg);
 		padding-inline-start: 0;
 	}
@@ -1092,8 +1115,19 @@ $rail-row-min-height: 40px;
 }
 
 .feature-row {
+
+	/*
+	 * FormToggle paints its checked track and its focus ring from this property,
+	 * which is the admin blue by default and the only non-Jetpack colour on the
+	 * screen. green-50 rather than the identity green-40, which fails AA.
+	 */
+	--wp-components-color-accent: var(--jp-green-50);
+
 	display: flex;
 	align-items: center;
+
+	// The row is the switch's label, so the whole of it is the hit target.
+	cursor: pointer;
 
 	// The prototype's own two gaps: the glyph sits closer to its words than the
 	// words sit to the switch, so the row reads as a thing and a control. Its 14
@@ -1244,6 +1278,12 @@ $rail-row-min-height: 40px;
  */
 .finish {
 	display: flex;
+
+	// The wash discs end at 12 to 15 times the badge and stay there, frozen by
+	// their fill mode, so below about 1024px they drag the sheet sideways onto
+	// blank white. Clipped rather than hidden: the column itself still has to
+	// scroll vertically on a short window.
+	overflow-x: clip;
 	min-block-size: 100%;
 	align-items: center;
 	justify-content: center;
@@ -1549,7 +1589,7 @@ $rail-row-min-height: 40px;
 
 .start-benefit {
 	display: flex;
-	align-items: flex-start;
+	align-items: center;
 	gap: var(--wpds-dimension-gap-md);
 }
 

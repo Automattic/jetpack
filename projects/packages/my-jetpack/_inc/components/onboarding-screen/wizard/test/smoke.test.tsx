@@ -376,7 +376,7 @@ describe( 'Wizard resume after connecting', () => {
 	it( 'opens at the site-type step once the user is connected', () => {
 		setupWizard( { isUserConnected: true } );
 
-		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 		// The rail is the only thing that counts the steps; the question column
 		// carries the question and nothing else.
 		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 1 );
@@ -393,11 +393,14 @@ describe( 'Wizard resume after connecting', () => {
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
 	} );
 
-	it( 'lets the user back to the start screen, but no further forward', () => {
+	// The floor is enforced in the click handler, so a row below it that does not
+	// say so takes focus, announces as available, and then swallows the click.
+	it( 'marks the rail rows it will not move to, below the floor as well as above', () => {
 		setupWizard( { isUserConnected: true } );
 
-		expect( railStep( 'Connect' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railStep( 'Connect' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( railStep( 'What you need' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railStep( 'Your site' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );
 
@@ -486,7 +489,7 @@ describe( 'Wizard shell', () => {
 		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
 
 		await user.click( railStep( 'Your site' ) );
-		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 
 		// Ground already covered stays reachable after stepping back.
 		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
@@ -517,11 +520,11 @@ describe( 'Wizard shell', () => {
 		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
 
 		await user.click( railStep( 'Connect' ) );
-		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 
 		await advance( user, 1 );
 		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
-		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -552,7 +555,7 @@ describe( 'Wizard shell', () => {
 		await advance( user, 1 );
 		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
 
-		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 	} );
 
 	it( 'replaces Continue with Finish on the last step', async () => {
@@ -737,6 +740,27 @@ describe( 'The feature step', () => {
 		expect( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) ).toBeChecked();
 	} );
 
+	/*
+	 * Two things carrying the module's name is two announcements a row: the
+	 * visible words, and a switch repeating them as its own aria-label.
+	 */
+	it( 'gives each module exactly one control, named by the row’s own words', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		const toggle = screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } );
+
+		expect( screen.getAllByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).toHaveLength( 1 );
+		expect( screen.getAllByText( 'Jetpack Stats' ) ).toHaveLength( 1 );
+		expect( toggle ).not.toHaveAttribute( 'aria-label' );
+		// The line under the name stays a description rather than joining the name.
+		expect( toggle ).toHaveAccessibleDescription( 'Traffic insights.' );
+
+		// The whole row is the target, not the 32x16 input.
+		await user.click( screen.getByText( 'Jetpack Stats' ) );
+		expect( toggle ).not.toBeChecked();
+	} );
+
 	it( 'asks for what the switches say, not for what the site already does', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
@@ -783,6 +807,19 @@ describe( 'The feature step', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await waitFor( () => expect( heading() ).toHaveTextContent( "You're all set" ) );
+	} );
+
+	// Safari drops the list role off a `list-style: none` list, so the summary
+	// has to say it or its rows read as loose text with no count.
+	it( 'keeps the finish summary a list', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		const list = await screen.findByRole( 'list' );
+
+		expect( list ).toHaveAttribute( 'role', 'list' );
+		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( mockModules.length );
 	} );
 } );
 
