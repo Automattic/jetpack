@@ -19,7 +19,9 @@ import { ConnectedNotice } from './connected-notice';
 import {
 	canContinue,
 	isLastStep,
+	featuresDescription,
 	openingStep,
+	siteTypeAnswer,
 	settleOnboarding,
 	TOTAL_STEPS,
 	wizardSteps,
@@ -127,7 +129,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 */
 	const [ siteTypeDetail, setSiteTypeDetail ] = useState( '' );
 
-	const { modules, isLoading: modulesLoading } = useSetupModules();
+	// Ordered by what the site is for: the same six, with the ones that matter to
+	// this kind of site at the top.
+	const siteType = siteTypeAnswer( { choices, freeText: siteTypeDetail } );
+	const { modules, isLoading: modulesLoading } = useSetupModules( siteType );
 	const { apply, isApplying } = useApplySetupModules();
 	// Missing entries mean "leave it as the site has it", which for five of the six
 	// is already on. Written only when the user moves a switch.
@@ -231,7 +236,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 			<FeaturesStep
 				titleId={ titleId }
 				title={ meta.title }
-				description={ meta.description }
+				description={ featuresDescription( siteType, meta.description ) }
 				modules={ modules }
 				isLoading={ modulesLoading }
 				wanted={ wantedModules }

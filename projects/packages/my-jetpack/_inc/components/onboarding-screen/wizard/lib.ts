@@ -223,10 +223,9 @@ export function wizardSteps(): WizardStepMeta[] {
 			kind: 'features',
 			label: __( 'What you need', 'jetpack-my-jetpack' ),
 			title: __( "Here's what we recommend for your site", 'jetpack-my-jetpack' ),
-			description: __(
-				'Most of these already run on a new site. Switch off anything you would rather not have.',
-				'jetpack-my-jetpack'
-			),
+			// Replaced by featuresDescription() once the site type is known; this is
+			// what someone who skipped the question or typed their own answer reads.
+			description: __( 'Turn off anything you would rather not have.', 'jetpack-my-jetpack' ),
 			// The rows are the modules Jetpack reports, not a fixed list written here.
 			options: [],
 		},
@@ -319,6 +318,64 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
  */
 export function isWanted( wanted: Record< string, boolean >, slug: string ): boolean {
 	return wanted[ slug ] ?? true;
+}
+
+/**
+ * What the user said the site was for, if they said.
+ *
+ * Found by id rather than by index, because the step's position moves with the
+ * connection and a number here would be right only for a connected site.
+ *
+ * @param state - The answers so far.
+ * @return The chosen site type, or undefined.
+ */
+export function siteTypeAnswer( state: WizardState ): string | undefined {
+	const at = wizardSteps().findIndex( step => step.id === 'site-type' );
+
+	return at === -1 ? undefined : state.choices[ at as WizardStep ];
+}
+
+/**
+ * The line under the feature heading, per site type. One whole sentence each
+ * rather than a name interpolated into a frame: a translator given "For %s" and
+ * a list of nouns cannot agree the article or the case.
+ *
+ * It claims only what the order does. All six are still offered and all six
+ * still start on, so "these matter most" is about what is at the top of the
+ * list, and nothing here says anything was left out.
+ *
+ * @return The line for each site type that has one, translated at call time.
+ */
+function featuresDescriptions(): Record< string, string > {
+	return {
+		blog: __(
+			'For a blog, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+		store: __(
+			'For a store, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+		portfolio: __(
+			'For a portfolio, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+		business: __(
+			'For a business site, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+	};
+}
+
+/**
+ * The line under the feature heading, given what the site is for.
+ *
+ * @param siteType - The answer to the site-type question, if there was one.
+ * @param fallback - The step's own line, for a site type with nothing to say.
+ * @return The line to render.
+ */
+export function featuresDescription( siteType: string | undefined, fallback: string ): string {
+	return ( siteType && featuresDescriptions()[ siteType ] ) || fallback;
 }
 
 /**

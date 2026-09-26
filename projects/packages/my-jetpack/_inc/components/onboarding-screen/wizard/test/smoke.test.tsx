@@ -773,6 +773,40 @@ describe( 'The feature step', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 	};
 
+	/*
+	 * The answer to the site-type question has to show somewhere, or it is a click
+	 * that buys nothing. It buys the order, and this line saying so. The order
+	 * itself is the hook's, and is tested where it lives.
+	 */
+	it( 'names what the user said the site was for', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		expect( screen.getByText( /For a blog, these matter most/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'says something different for a store', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( screen.getByText( /For a store, these matter most/ ) ).toBeInTheDocument();
+	} );
+
+	// Free text is not a site type, so there is nothing to order by and nothing to
+	// claim about the order.
+	it( 'claims nothing when the answer was typed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( screen.queryByText( /matter most/ ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( 'Turn off anything you would rather not have.' )
+		).toBeInTheDocument();
+	} );
+
 	it( 'lists the modules with Jetpack’s own names, every one switched on', async () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 		await featureStep( user );
