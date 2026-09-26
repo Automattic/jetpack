@@ -79,6 +79,9 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 
 		Constants::clear_constants();
 
+		delete_transient( Survicate::ASSET_TRANSIENT_KEY );
+		remove_all_filters( 'pre_http_request' );
+
 		parent::tear_down();
 	}
 
@@ -134,17 +137,6 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Helper to get the inline script output for the wpcom-survicate handle.
-	 *
-	 * @return string The concatenated inline script.
-	 */
-	private function get_inline_script() {
-		global $wp_scripts;
-		$inline_scripts = $wp_scripts->registered['wpcom-survicate']->extra['after'] ?? array();
-		return implode( "\n", array_filter( $inline_scripts ) );
-	}
-
-	/**
 	 * Helper to set up admin context with a logged-in English user and enqueue scripts.
 	 */
 	private function enqueue_survicate_scripts() {
@@ -153,6 +145,26 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$this->set_admin_context();
 		$this->create_and_login_user( 'en_US' );
 		$this->survicate->enqueue_scripts();
+	}
+
+	/**
+	 * Pretend the bundle's asset manifest was already fetched and cached.
+	 *
+	 * @param array $asset Decoded asset JSON.
+	 */
+	private function stub_asset_json( $asset ) {
+		set_transient( Survicate::ASSET_TRANSIENT_KEY, $asset, HOUR_IN_SECONDS );
+	}
+
+	/**
+	 * Helper to read the `before` inline script attached to the bundle handle.
+	 *
+	 * @return string
+	 */
+	private function get_before_script() {
+		global $wp_scripts;
+		$before = $wp_scripts->registered['wpcom-survicate']->extra['before'] ?? array();
+		return implode( "\n", array_filter( $before ) );
 	}
 
 	// ---- should_load() tests ----
@@ -557,26 +569,205 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue_scripts registers the script and includes expected inline JS.
+	 * Tests that the shared widgets.wp.com bundle is enqueued with the manifest's dependencies and version.
 	 */
-	public function test_enqueue_scripts_registers_script_with_expected_inline_js() {
+	public function test_enqueue_scripts_enqueues_widgets_bundle_with_asset_metadata() {
 		global $wp_scripts;
+
+		$this->stub_asset_json(
+			array(
+				'dependencies' => array( 'wp-data' ),
+				'version'      => 'abc123',
+			)
+		);
 
 		$this->enqueue_survicate_scripts();
 
 		$this->assertTrue( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
 
-		$inline_script = $this->get_inline_script();
+		$script = $wp_scripts->registered['wpcom-survicate'];
+		$this->assertSame( 'https://widgets.wp.com/survicate/survicate.min.js', $script->src );
+		$this->assertSame( array( 'wp-data' ), $script->deps );
+		$this->assertSame( 'abc123', $script->ver );
+	}
 
-		$this->assertStringContainsString( Survicate::WORKSPACE_KEY, $inline_script );
-		$this->assertStringContainsString( 'window.innerWidth < 480', $inline_script );
-		$this->assertStringContainsString( 'SurvicateReady', $inline_script );
-		$this->assertStringContainsString( 'setVisitorTraits', $inline_script );
-		$this->assertStringContainsString( 'test@example.com', $inline_script );
-		$this->assertStringContainsString( 'automattic/help-center', $inline_script );
-		$this->assertStringContainsString( 'survey_displayed', $inline_script );
+	/**
+	 * Tests that the config the bundle reads is emitted before it, and that no inline implementation remains.
+	 */
+	public function test_enqueue_scripts_emits_config_before_the_bundle() {
+		global $wp_scripts;
 
-		$this->assertContains( 'wp-data', $wp_scripts->registered['wpcom-survicate']->deps );
+		$this->stub_asset_json(
+			array(
+				'dependencies' => array( 'wp-data' ),
+				'version'      => 'abc123',
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$before = $this->get_before_script();
+		$this->assertStringStartsWith( 'window.wpcomSurvicateConfig = ', $before );
+		$this->assertStringContainsString( '"locale":"en_US"', $before );
+		$this->assertStringContainsString( '"email":"test@example.com"', $before );
+		$this->assertStringContainsString( '"editor_context":"wp-admin"', $before );
+		$this->assertStringContainsString( '"is_big_sky_site":"false"', $before );
+
+		$after = array_filter( $wp_scripts->registered['wpcom-survicate']->extra['after'] ?? array() );
+		$this->assertSame( array(), $after, 'The inline Survicate implementation must be gone.' );
+	}
+
+	/**
+	 * Tests that nothing is enqueued when the asset manifest cannot be read.
+	 */
+	public function test_enqueue_scripts_does_not_enqueue_when_asset_json_is_unavailable() {
+		add_filter( 'pre_http_request', static fn () => new \WP_Error( 'offline' ) );
+
+		$this->enqueue_survicate_scripts();
+
+		$this->assertFalse( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that a successfully fetched manifest is cached for later requests.
+	 */
+	public function test_enqueue_scripts_caches_the_asset_json() {
+		add_filter(
+			'pre_http_request',
+			static fn () => array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode(
+					array(
+						'dependencies' => array( 'wp-data' ),
+						'version'      => 'fetched',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$cached = get_transient( Survicate::ASSET_TRANSIENT_KEY );
+		$this->assertSame( 'fetched', $cached['version'] );
+
+		global $wp_scripts;
+		$this->assertSame( 'fetched', $wp_scripts->registered['wpcom-survicate']->ver );
+	}
+
+	/**
+	 * Tests that a failed manifest fetch is cached so later requests do not block on the network again.
+	 */
+	public function test_enqueue_scripts_caches_asset_json_failures() {
+		$requests = 0;
+		add_filter(
+			'pre_http_request',
+			static function () use ( &$requests ) {
+				++$requests;
+				return new \WP_Error( 'offline' );
+			}
+		);
+
+		$this->enqueue_survicate_scripts();
+		$this->survicate->enqueue_scripts();
+
+		$this->assertSame( 1, $requests );
+		$this->assertFalse( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that nothing is enqueued when the manifest request returns a non-200 response.
+	 */
+	public function test_enqueue_scripts_does_not_enqueue_on_non_200_response() {
+		add_filter(
+			'pre_http_request',
+			static fn () => array(
+				'response' => array( 'code' => 404 ),
+				'body'     => '',
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$this->assertFalse( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that nothing is enqueued when the manifest has no version.
+	 */
+	public function test_enqueue_scripts_does_not_enqueue_when_manifest_has_no_version() {
+		add_filter(
+			'pre_http_request',
+			static fn () => array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'dependencies' => array( 'wp-data' ) ), JSON_UNESCAPED_SLASHES ),
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$this->assertFalse( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+	}
+
+	/**
+	 * Tests that proxied requests get a random version so sandboxed builds bypass the browser cache.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_enqueue_scripts_busts_cache_when_proxied() {
+		global $wp_scripts;
+
+		define( 'A8C_PROXIED_REQUEST', true );
+		$this->stub_asset_json(
+			array(
+				'dependencies' => array( 'wp-data' ),
+				'version'      => 'abc123',
+			)
+		);
+
+		$this->enqueue_survicate_scripts();
+
+		$this->assertTrue( wp_script_is( 'wpcom-survicate', 'enqueued' ) );
+		$this->assertNotSame( 'abc123', $wp_scripts->registered['wpcom-survicate']->ver );
+		$this->assertIsInt( $wp_scripts->registered['wpcom-survicate']->ver );
+	}
+
+	/**
+	 * Tests that trait values cannot close the inline script tag.
+	 */
+	public function test_enqueue_scripts_escapes_script_tags_in_config() {
+		// Core sanitizes emails on insert; drop that so a hostile value reaches the traits.
+		remove_all_filters( 'pre_user_email' );
+
+		$this->stub_asset_json(
+			array(
+				'dependencies' => array( 'wp-data' ),
+				'version'      => 'abc123',
+			)
+		);
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'test_user_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'x</script><script>alert(1)</script>@example.com',
+				'locale'     => 'en_US',
+			)
+		);
+		wp_set_current_user( $user_id );
+		$this->assertStringContainsString( '</script>', wp_get_current_user()->user_email );
+
+		$this->survicate->enqueue_scripts();
+
+		$before = $this->get_before_script();
+		$this->assertStringStartsWith( 'window.wpcomSurvicateConfig = ', $before );
+		$this->assertStringNotContainsString( '</script>', $before );
 	}
 
 	// ---- Singleton tests ----
