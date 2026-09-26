@@ -198,6 +198,52 @@ class Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The title heading inner block renders above the playlist body.
+	 */
+	public function test_render_title_heading() {
+		$heading = '<h2 class="wp-block-heading">Summer trip</h2>';
+		$markup  = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'playlistTitle' => 'Summer trip' ) ),
+			"\n" . $heading . "\n"
+		);
+
+		$this->assertStringContainsString(
+			'><div class="videopress-playlist__heading">' . $heading . '</div><div class="videopress-playlist__body">',
+			$markup
+		);
+	}
+
+	/**
+	 * No heading renders when the toggle is off, the title is empty, or no
+	 * heading was saved with the post.
+	 */
+	public function test_render_title_heading_omitted() {
+		$heading = '<h2 class="wp-block-heading">Summer trip</h2>';
+
+		$toggled_off = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'playlistTitle'     => 'Summer trip',
+					'showPlaylistTitle' => false,
+				)
+			),
+			$heading
+		);
+		$empty_title = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'playlistTitle' => ' ' ) ),
+			'<h2 class="wp-block-heading"></h2>'
+		);
+		$not_saved   = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'playlistTitle' => 'Summer trip' ) )
+		);
+
+		foreach ( array( $toggled_off, $empty_title, $not_saved ) as $markup ) {
+			$this->assertStringNotContainsString( 'videopress-playlist__heading', $markup );
+			$this->assertStringNotContainsString( '<h2', $markup );
+		}
+	}
+
+	/**
 	 * Layout and dark-surface options map to wrapper classes.
 	 */
 	public function test_render_layout_and_dark_classes() {

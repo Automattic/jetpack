@@ -10,6 +10,7 @@
 	"keywords": [ "playlist", "video", "videopress", "series" ],
 	"textdomain": "jetpack-videopress-pkg",
 	"usesContext": [ "videopress/latestVideosPlaylist" ],
+	"allowedBlocks": [ "core/heading" ],
 	"supports": {
 		"html": false,
 		"align": [ "wide", "full" ],
@@ -31,6 +32,10 @@
 		"playlistDescription": {
 			"type": "string",
 			"default": ""
+		},
+		"showPlaylistTitle": {
+			"type": "boolean",
+			"default": true
 		},
 		"videos": {
 			"type": "array",

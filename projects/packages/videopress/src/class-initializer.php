@@ -726,7 +726,10 @@ class Initializer {
 
 		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
 
-		return self::render_videopress_playlist_block( $block_attributes, $content, $block );
+		// Dynamic playlists have no title of their own, so no heading either.
+		unset( $block_attributes['playlistTitle'], $block_attributes['showPlaylistTitle'] );
+
+		return self::render_videopress_playlist_block( $block_attributes, '', $block );
 	}
 
 	/**
@@ -865,7 +868,7 @@ class Initializer {
 	 * Video Playlist block render callback.
 	 *
 	 * @param array          $block_attributes Block attributes.
-	 * @param string         $content          Current block markup.
+	 * @param string         $content          Rendered inner blocks: the title heading, when there is one.
 	 * @param \WP_Block|null $block            Current block.
 	 *
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
@@ -1091,9 +1094,19 @@ class Initializer {
 
 		$wrapper_attributes = get_block_wrapper_attributes( $wrapper_extra_attributes );
 
+		// The Heading inner block saved with the post; an empty title renders none.
+		$playlist_title = isset( $block_attributes['playlistTitle'] ) && is_string( $block_attributes['playlistTitle'] )
+			? trim( $block_attributes['playlistTitle'] )
+			: '';
+		$content        = is_string( $content ) ? trim( $content ) : '';
+		$heading_markup = $enabled( 'showPlaylistTitle' ) && '' !== $playlist_title && '' !== $content
+			? '<div class="videopress-playlist__heading">' . $content . '</div>'
+			: '';
+
 		return sprintf(
-			'<figure %1$s><div class="videopress-playlist__body">%2$s%3$s</div></figure>',
+			'<figure %1$s>%2$s<div class="videopress-playlist__body">%3$s%4$s</div></figure>',
 			$wrapper_attributes,
+			$heading_markup,
 			$stage_markup,
 			$list_markup
 		);

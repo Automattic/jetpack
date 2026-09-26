@@ -58,5 +58,7 @@ export type PlaylistAttributes = PlaylistDisplayAttributes & {
 	playlistId: string;
 	playlistTitle: string;
 	playlistDescription: string;
+	// Renders the title as a Heading inner block above the playlist.
+	showPlaylistTitle: boolean;
 	videos: PlaylistEntry[];
 };
