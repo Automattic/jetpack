@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Exclude various JS sources from published plugin. No change to functionality.
+
+
