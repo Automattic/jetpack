@@ -403,6 +403,22 @@ describe( 'Wizard resume after connecting', () => {
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
 	} );
 
+	/*
+	 * The connection is fetched, so the first render of a connected site says it
+	 * is not. Left alone, useState keeps that first answer and the user sits on
+	 * the one screen whose button would register the site again.
+	 */
+	it( 'moves off the connect screen when the connection answers late', () => {
+		const { refresh } = setupWizard( { isUserConnected: false } );
+
+		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
+
+		mockConnection.isUserConnected = true;
+		refresh();
+
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
+	} );
+
 	it( 'says the connection worked on the step it lands on', () => {
 		mockJustConnected.mockReturnValue( true );
 

@@ -129,6 +129,19 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 */
 	const [ siteTypeDetail, setSiteTypeDetail ] = useState( '' );
 
+	/*
+	 * The connection is fetched, not carried on the page, so it answers false
+	 * before it answers at all and the floor can rise after the first render.
+	 * Without this a connected user is left on the connect screen — the one
+	 * screen whose only button would register the site a second time.
+	 */
+	useEffect( () => {
+		const raise = ( current: WizardStep ) => ( current < firstStep ? firstStep : current );
+
+		setStep( raise );
+		setFurthestStep( raise );
+	}, [ firstStep ] );
+
 	// Ordered by what the site is for: the same six, with the ones that matter to
 	// this kind of site at the top.
 	const siteType = siteTypeAnswer( { choices, freeText: siteTypeDetail } );
