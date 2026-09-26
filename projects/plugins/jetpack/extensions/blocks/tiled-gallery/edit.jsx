@@ -1,6 +1,8 @@
 import { getBlockIconComponent } from '@automattic/jetpack-shared-extension-utils';
+import { isBlobURL } from '@wordpress/blob';
 import { MediaPlaceholder, useBlockProps } from '@wordpress/block-editor';
 import { DropZone, FormFileUpload, withNotices } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { mediaUpload } from '@wordpress/editor';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -21,9 +23,18 @@ export function defaultColumnsNumber( attributes ) {
 }
 
 export const pickRelevantMediaFiles = image => {
-	const imageProps = pick( image, [ [ 'alt' ], [ 'id' ], [ 'link' ] ] );
-	imageProps.url =
-		image?.sizes?.large?.url || image?.media_details?.sizes?.large?.source_url || image.url;
+	const imageProps = pick( image, [ 'alt', 'id', 'link', 'caption' ] );
+	const chosenSize =
+		image?.sizes?.large ||
+		image?.media_details?.sizes?.large ||
+		image?.sizes?.full ||
+		image?.media_details?.sizes?.full ||
+		image;
+
+	imageProps.url = chosenSize?.url || chosenSize?.source_url || image?.url;
+	imageProps.width = chosenSize?.width || image?.media_details?.width || image?.width || null;
+	imageProps.height = chosenSize?.height || image?.media_details?.height || image?.height || null;
+
 	return imageProps;
 };
 
@@ -46,6 +57,7 @@ const TiledGalleryEdit = ( {
 	const layoutStyle = getActiveStyleName( LAYOUT_STYLES, attributes.className );
 
 	const blockProps = useBlockProps();
+	const { lockPostSaving, unlockPostSaving } = useDispatch( 'core/editor' ) || {};
 	const [ selectedImage, setSelectedImage ] = useState( null );
 	const [ changed, setChanged ] = useState(
 		'undefined' === typeof columnWidths || columnWidths?.length === 0 ? true : false
@@ -54,17 +66,38 @@ const TiledGalleryEdit = ( {
 	const setImages = imgs => {
 		setAttributes( {
 			images: imgs,
-			ids: imgs.map( ( { id } ) => parseInt( id, 10 ) ),
+			ids: imgs.map( ( { id } ) => parseInt( id, 10 ) ).filter( Boolean ),
 		} );
 	};
 
 	const addFiles = files => {
+		const currentImages = images || [];
+		const lockName = 'tiledGalleryLock';
+
+		lockPostSaving?.( lockName );
+
 		mediaUpload( {
 			allowedTypes: ALLOWED_MEDIA_TYPES,
 			filesList: files,
-			onFileChange: value =>
-				setImages( ( images || [] ).concat( value.map( pickRelevantMediaFiles ) ) ),
-			onError: noticeOperations.createErrorNotice,
+			onFileChange: value => {
+				const newImages = value.map( pickRelevantMediaFiles );
+				const combined = [ ...currentImages, ...newImages ];
+
+				setImages( combined );
+				setAttributes( {
+					columns: columns
+						? Math.min( combined.length, columns )
+						: defaultColumnsNumber( { images: combined } ),
+				} );
+
+				if ( ! newImages.some( img => isBlobURL( img.url ) ) ) {
+					unlockPostSaving?.( lockName );
+				}
+			},
+			onError: message => {
+				noticeOperations.createErrorNotice( message );
+				unlockPostSaving?.( lockName );
+			},
 		} );
 
 		setChanged( true );
@@ -87,6 +120,19 @@ const TiledGalleryEdit = ( {
 	};
 
 	const onSelectImages = files => {
+		const isUpload =
+			( typeof FileList !== 'undefined' && files instanceof FileList ) ||
+			( Array.isArray( files ) &&
+				files.length > 0 &&
+				( files[ 0 ] instanceof File ||
+					files[ 0 ] instanceof Blob ||
+					( files[ 0 ].name && ! files[ 0 ].id ) ) );
+
+		if ( isUpload ) {
+			addFiles( files );
+			return;
+		}
+
 		const newImages = files.map( file => {
 			const existingImage = images.find(
 				img => parseInt( img.id, 10 ) === parseInt( file.id, 10 )
@@ -178,6 +224,7 @@ const TiledGalleryEdit = ( {
 	if ( images.length === 0 ) {
 		content = (
 			<MediaPlaceholder
+				handleUpload={ false }
 				icon={ getBlockIconComponent( metadata ) }
 				labels={ {
 					title: __( 'Tiled Gallery', 'jetpack' ),
