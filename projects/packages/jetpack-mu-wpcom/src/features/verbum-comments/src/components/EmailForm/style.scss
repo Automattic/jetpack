@@ -1,4 +1,7 @@
-.comment-form__verbum .verbum-subscriptions .verbum-form {
+// Prefixed with #respond, like the other Verbum components, so that
+// classic theme rules such as `#respond label` or `#commentform label`
+// cannot override these styles.
+#respond .comment-form__verbum .verbum-subscriptions .verbum-form {
 
 	.verbum-form__content {
 		// protect the button from style leaks from the site; reset all.
@@ -12,6 +15,16 @@
 		.verbum__label {
 			all: unset;
 			position: relative;
+			// Properties classic themes are known to change on labels
+			// (Fusion, Lingonberry, Grisaille, Dyad 2). Same values as
+			// `all: unset` gives here, set explicitly as a safeguard.
+			display: block;
+			float: none;
+			top: auto;
+			left: auto;
+			width: auto;
+			margin: 0;
+			text-align: inherit;
 			height: 45px;
 			border-bottom: 1px solid var(--verbum-border-color);
 
