@@ -8,6 +8,8 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { doActionAsync, removeAction, removeFilter } from '@wordpress/hooks';
@@ -45,6 +47,12 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	hasFeatureFlag: () => true,
+	useAnalytics: jest.fn( () => ( { tracks: {} } ) ),
+} ) );
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
 } ) );
 
 // The paste-code editor has its own suite; keep its imports out of this one.
@@ -744,6 +752,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByTestId( 'spinner' ) ).toBeInTheDocument();
 			expect( screen.getByText( /Checking PayPal connection/ ) ).toBeInTheDocument();
 		} );
+
+		// useAnalytics() runs above the early returns, so each screen's events include the user.
+		it( 'calls useAnalytics while the connection check loads', () => {
+			apiFetch.mockReturnValue( new Promise( () => {} ) );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			expect( screen.getByTestId( 'spinner' ) ).toBeInTheDocument();
+			expect( useAnalytics ).toHaveBeenCalled();
+		} );
 	} );
 
 	describe( 'Connection Form (not connected)', () => {
@@ -808,6 +826,23 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await navigateToCredentialsStep( user );
 
 			expect( screen.getByRole( 'button', { name: /^Connect$/i } ) ).toBeDisabled();
+		} );
+
+		it( 'records connection_attempted with method manual when Connect sends the credentials', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+			await user.type( screen.getByLabelText( 'Client ID' ), 'AbcdefghijklmnopqrstuvwxyZ' );
+			await user.type( screen.getByLabelText( 'Client Secret' ), 'secret' );
+
+			await user.click( screen.getByRole( 'button', { name: /^Connect$/i } ) );
+
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringMatching( /\/connect$/ ), method: 'POST' } )
+			);
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[ 'jetpack_paypal_connection_attempted', { environment: 'sandbox', method: 'manual' } ],
+			] );
 		} );
 	} );
 
@@ -1272,6 +1307,46 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( click ).toHaveBeenCalledTimes( 1 );
 			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'records connection_attempted with method partner_referrals when Connect PayPal opens PayPal', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_connection_attempted',
+					{ environment: 'sandbox', method: 'partner_referrals' },
+				],
+			] );
+		} );
+
+		it( 'skips connection_attempted on a click that fetches the missing referral', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: /Connect PayPal/i } ) );
+
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
+			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
+		} );
+
+		it( 'skips connection_attempted when the welcome step or a restored credentials step renders', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			const { unmount } = render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
+			unmount();
+
+			window.localStorage.setItem( 'jetpack-paypal-wizard-step', 'credentials' );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect( screen.findByLabelText( 'Client ID' ) ).resolves.toBeInTheDocument();
+
+			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		} );
 
 		it( 'does not open PayPal when the script loads without the SDK', async () => {
