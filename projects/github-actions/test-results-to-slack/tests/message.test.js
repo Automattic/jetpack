@@ -23,6 +23,8 @@ describe( 'Message content', () => {
 		${ 'schedule' }            | ${ true }  | ${ '' }           | ${ { text: `:x:	Tests failed for scheduled run on ${ refType } _*${ refName }*_` } }
 		${ 'pull_request' }        | ${ false } | ${ undefined }    | ${ { text: `:white_check_mark:	Tests passed for pull request *#${ prNumber }*` } }
 		${ 'pull_request' }        | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for pull request *#${ prNumber }*` } }
+		${ 'workflow_dispatch' }   | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for manual run on ${ refType } _*${ refName }*_` } }
+		${ 'workflow_dispatch' }   | ${ false } | ${ 'test-suite' } | ${ { text: `:white_check_mark:	_*test-suite*_ tests passed for manual run on ${ refType } _*${ refName }*_` } }
 		${ 'repository_dispatch' } | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for event _*${ action }*_` } }
 		${ 'repository_dispatch' } | ${ false } | ${ 'test-suite' } | ${ { text: `:white_check_mark:	_*test-suite*_ tests passed for event _*${ action }*_` } }
 		${ 'unsupported' }         | ${ true }  | ${ undefined }    | ${ { text: `:x:	Tests failed for ${ sha }` } }
@@ -114,6 +116,7 @@ describe( 'Message content', () => {
 		${ 'push' }
 		${ 'schedule' }
 		${ 'workflow_run' }
+		${ 'workflow_dispatch' }
 		${ 'repository_dispatch' }
 		${ 'unsupported' }
 	`( 'There are no empty blocks elements lists for $eventName event', async ( { eventName } ) => {
@@ -138,6 +141,45 @@ describe( 'Message content', () => {
 		expect( mainMsgBlocks[ 2 ].type ).toBe( 'actions' );
 		expect( mainMsgBlocks[ 2 ].elements.length ).toBeGreaterThan( 0 );
 	} );
+
+	test.each`
+		description                                      | inputs                                                        | expectedId                                | expectedContextLength | expectedButtonsLength | expectedFirstContextText                                     | expectedSecondButtonUrl
+		${ 'upstream sha, upstream repository' }         | ${ { sha: 'abcdef1234567890', repository: 'upstream/repo' } } | ${ 'workflow_dispatch-abcdef1234567890' } | ${ 2 }                | ${ 2 }                | ${ 'Last commit: abcdef12' }                                 | ${ 'https://github.com/upstream/repo/commit/abcdef1234567890' }
+		${ 'upstream sha, missing upstream repository' } | ${ { sha: 'abcdef1234567890' } }                              | ${ 'workflow_dispatch-abcdef1234567890' } | ${ 2 }                | ${ 1 }                | ${ 'Last commit: abcdef12' }                                 | ${ undefined }
+		${ 'missing upstream sha, upstream repository' } | ${ { repository: 'upstream/repo' } }                          | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: undefined/1, triggered by the-other-octocat' } | ${ undefined }
+		${ 'missing inputs' }                            | ${ undefined }                                                | ${ 'workflow_dispatch-123456789' }        | ${ 1 }                | ${ 1 }                | ${ 'Last run: undefined/1, triggered by the-other-octocat' } | ${ undefined }
+	`(
+		`Workflow dispatch blocks for #description`,
+		async ( {
+			inputs,
+			expectedId,
+			expectedContextLength,
+			expectedButtonsLength,
+			expectedFirstContextText,
+			expectedSecondButtonUrl,
+		} ) => {
+			const dateNowSpy = jest.spyOn( Date, 'now' ).mockReturnValue( 123456789 );
+
+			// Mock GitHub context
+			await mockGitHubContext( {
+				payload: { inputs },
+				eventName: 'workflow_dispatch',
+				serverUrl: 'https://github.com',
+			} );
+			mockContextExtras( { refType, refName } );
+
+			const { createMessage } = await import( '../src/message.js' );
+			const { id, mainMsgBlocks } = await createMessage( true );
+
+			expect( id ).toBe( expectedId );
+			expect( mainMsgBlocks[ 1 ].elements ).toHaveLength( expectedContextLength );
+			expect( mainMsgBlocks[ 2 ].elements ).toHaveLength( expectedButtonsLength );
+			expect( mainMsgBlocks[ 1 ].elements[ 0 ].text ).toBe( expectedFirstContextText );
+			expect( mainMsgBlocks[ 2 ].elements[ 1 ]?.url ).toBe( expectedSecondButtonUrl );
+
+			dateNowSpy.mockRestore();
+		}
+	);
 
 	test.each`
 		description                                      | clientPayload                                          | expectedContextLength | expectedButtonsLength

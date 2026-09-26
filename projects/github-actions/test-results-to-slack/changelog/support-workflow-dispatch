@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Support workflow_dispatch events without grouping unrelated manual runs.
