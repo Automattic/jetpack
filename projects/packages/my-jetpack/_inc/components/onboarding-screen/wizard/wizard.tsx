@@ -329,7 +329,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 										type="button"
 										value={ index }
 										aria-current={ index === step ? 'true' : undefined }
-										aria-disabled={ index > furthestStep || undefined }
+										aria-disabled={ index > furthestStep || index < firstStep || undefined }
 										className={ styles[ 'rail-step' ] }
 										onClick={ handleRailClick }
 									>

@@ -163,7 +163,11 @@ export function FinishStep( {
 
 				{ rows.length > 0 && (
 					<div className={ styles[ 'finish-summary' ] }>
-						<ul className={ clsx( styles[ 'finish-card' ], styles.wave, styles[ 'wave-3' ] ) }>
+						{ /* Safari drops the list role off a `list-style: none` list, so the count goes unsaid. */ }
+						<ul
+							role="list"
+							className={ clsx( styles[ 'finish-card' ], styles.wave, styles[ 'wave-3' ] ) }
+						>
 							{ rows.map( result => (
 								<li key={ result.slug } className={ styles[ 'finish-row' ] }>
 									<span

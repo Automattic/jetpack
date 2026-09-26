@@ -35,8 +35,8 @@ LINES = {
 	# Step 1 is the start screen, so its panel carries the prototype's start-screen
 	# display copy rather than a line about the wizard.
 	0: [ 'Grow your audience.', 'Speed up your site.', 'Keep it secure.' ],
-	1: [ "Tell us what you're", 'building.' ],
-	2: [ 'Only what you need.', "Nothing you don't." ],
+	1: [ 'Set up in minutes.', 'We do the rest.' ],
+	2: [ 'The essentials,', 'switched on.' ],
 	3: [ 'Ready when you are.' ],
 }
 

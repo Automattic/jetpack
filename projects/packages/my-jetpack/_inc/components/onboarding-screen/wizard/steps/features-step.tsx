@@ -39,6 +39,7 @@ function FeatureRow( {
 	checked: boolean;
 	onChange: ( slug: string, want: boolean ) => void;
 } ) {
+	const nameId = useId();
 	const descriptionId = useId();
 
 	const handleChange = useCallback(
@@ -47,36 +48,45 @@ function FeatureRow( {
 	);
 
 	return (
-		<div className={ styles[ 'feature-row' ] }>
+		// A label, so the whole row is the switch's target rather than its 32x16
+		// input; every child is a span, which is all a label may hold.
+		// eslint-disable-next-line jsx-a11y/label-has-associated-control -- FormToggle renders the input this label wraps; the rule cannot see through a component.
+		<label className={ styles[ 'feature-row' ] }>
 			<span className={ styles[ 'feature-row__glyph' ] } aria-hidden="true">
 				<Icon icon={ module.icon } />
 			</span>
 
-			<div className={ styles[ 'feature-row__copy' ] }>
-				<Text variant="body-lg" className={ styles[ 'feature-row__name' ] } render={ <span /> }>
+			<span className={ styles[ 'feature-row__copy' ] }>
+				<Text
+					variant="body-lg"
+					id={ nameId }
+					className={ styles[ 'feature-row__name' ] }
+					render={ <span /> }
+				>
 					{ module.name }
 				</Text>
 				<Text
 					variant="body-md"
 					id={ descriptionId }
-					render={ <p /> }
+					render={ <span /> }
 					className={ styles[ 'feature-row__description' ] }
 				>
 					{ module.description }
 				</Text>
-			</div>
+			</span>
 
 			{ /*
 			 * FormToggle rather than a WPDS control: @wordpress/ui ships no switch, and
-			 * this is what every other module toggle in My Jetpack uses.
+			 * this is what every other module toggle in My Jetpack uses. Named by the
+			 * name alone, or the label folds the description into the switch's name.
 			 */ }
 			<FormToggle
 				checked={ checked }
 				onChange={ handleChange }
-				aria-label={ module.name }
+				aria-labelledby={ nameId }
 				aria-describedby={ descriptionId }
 			/>
-		</div>
+		</label>
 	);
 }
 
