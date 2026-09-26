@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -46,6 +47,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( 'jetpack_private_options' );
 		\Jetpack_Options::delete_option( 'id' );
 		Constants::clear_constants();
+		Cache::clear();
 		unset( $GLOBALS['jetpack_paypal_test_captured_events'], $GLOBALS['jetpack_paypal_test_tracks_throws'] );
 
 		// Remove any HTTP request filters.
@@ -2579,6 +2581,35 @@ class PayPal_REST_Controller_Test extends TestCase {
 		);
 		$this->assertSame( 1234, $events[0]['properties']['blog_id'] );
 		$this->assertSame( 'self_hosted', $events[0]['properties']['platform'] );
+	}
+
+	/**
+	 * An event from an Atomic site is recorded with the `atomic` platform.
+	 */
+	public function test_tracks_events_include_the_atomic_platform() {
+		$this->set_up_connected_admin_state();
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/plugins/wpcomsh/wpcomsh.php' );
+		// Host caches is_woa_site(), so drop any answer an earlier test left behind.
+		Cache::clear();
+		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
+
+		PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+				)
+			)
+		);
+
+		$events = $GLOBALS['jetpack_paypal_test_captured_events'];
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'atomic', $events[0]['properties']['platform'] );
 	}
 
 	/**
