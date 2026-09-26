@@ -73,6 +73,47 @@ class Initial_State_Test extends Search_TestCase {
 	}
 
 	/**
+	 * Test that resolved Reader Chat brand defaults and palette reach the dashboard.
+	 */
+	public function test_reader_chat_brand_values_are_included() {
+		$initial_state = new class() extends Initial_State {
+			/**
+			 * Return fixed Reader Chat brand defaults.
+			 *
+			 * @return array
+			 */
+			protected function get_reader_chat_brand() {
+				return array(
+					'name'     => 'Example Site',
+					'accent'   => '#2271b1',
+					'greeting' => 'Ask me anything about this blog.',
+				);
+			}
+
+			/**
+			 * Return a fixed Reader Chat palette.
+			 *
+			 * @return array
+			 */
+			protected function get_reader_chat_brand_palette() {
+				return array(
+					array(
+						'name'  => 'Primary',
+						'slug'  => 'primary',
+						'color' => '#2271b1',
+					),
+				);
+			}
+		};
+
+		$state = $initial_state->get_initial_state();
+
+		$this->assertSame( 'Example Site', $state['siteData']['readerChatBrand']['name'] );
+		$this->assertSame( '#2271b1', $state['siteData']['readerChatBrand']['accent'] );
+		$this->assertSame( '#2271b1', $state['siteData']['readerChatBrandPalette'][0]['color'] );
+	}
+
+	/**
 	 * Test that the Reader Chat guidelines URL is included when the page is available.
 	 */
 	public function test_reader_chat_guidelines_url_is_included_when_page_is_available() {
