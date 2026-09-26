@@ -158,6 +158,9 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		[]
 	);
 
+	const justConnected = useJustConnected();
+	const arrivedOn = useRef< WizardStep | null >( null );
+
 	const titleId = useId();
 	const panelRef = useRef< HTMLElement >( null );
 	const hasChangedStep = useRef( false );
@@ -241,14 +244,48 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	const meta = steps[ step ];
 	const isStart = meta.kind === 'start';
+
+	/*
+	 * The step the connection round trip landed on, and only that one. The flag
+	 * behind it is read once and then cached for the page, so without pinning it
+	 * to a step the notice comes back on every step change — and because the
+	 * column is keyed by step it is re-inserted each time, which a live region
+	 * announces again. Three times, the last on the finish screen.
+	 */
+	if ( justConnected && ! isStart && arrivedOn.current === null ) {
+		arrivedOn.current = step;
+	}
+	const showConnected = justConnected && arrivedOn.current === step;
 	const isFeatures = meta.kind === 'features';
 	const isFinish = meta.kind === 'finish';
+
+	/*
+	 * Continue is in the same place on every step, so the second half of a double
+	 * click landed on the NEXT step's Continue and the step between them was never
+	 * seen: double-clicking on the site question applied all six modules without
+	 * ever showing them. `detail` is the click count within the browser's own
+	 * double-click window, so this refuses exactly that second press and nothing
+	 * else — a deliberate second click comes back as 1, and Enter as 0.
+	 */
+	const handleContinue = useCallback(
+		( event: MouseEvent< HTMLElement > ) => {
+			if ( event.detail > 1 ) {
+				return;
+			}
+
+			if ( isFeatures ) {
+				handleApplyAndContinue();
+				return;
+			}
+
+			handleNext();
+		},
+		[ isFeatures, handleApplyAndContinue, handleNext ]
+	);
+
 	const panelLines = PANEL_LINES[ step ];
 	const state: WizardState = { choices, freeText: siteTypeDetail };
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
-
-	// True once, on the step the connection round trip lands on.
-	const justConnected = useJustConnected();
 
 	const stepBody = {
 		start: <StartStep titleId={ titleId } title={ meta.title } description={ meta.description } />,
@@ -386,7 +423,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 							>
 								{ /* Keyed by step so the entrance replays as the content is swapped. */ }
 								<div key={ meta.id } className={ styles[ 'panel-content' ] }>
-									{ justConnected && ! isStart && <ConnectedNotice /> }
+									{ showConnected && <ConnectedNotice /> }
 									{ stepBody }
 								</div>
 							</section>
@@ -446,7 +483,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 												<Button
 													variant="solid"
 													className={ styles[ 'primary-green' ] }
-													onClick={ isFeatures ? handleApplyAndContinue : handleNext }
+													onClick={ handleContinue }
 													disabled={ ! canContinue( step, state ) || isApplying }
 													loading={ isApplying }
 													loadingAnnouncement={ __(

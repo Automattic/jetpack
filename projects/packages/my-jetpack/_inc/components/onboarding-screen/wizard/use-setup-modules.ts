@@ -109,6 +109,10 @@ export type SetupModuleResult = {
 	wanted: boolean;
 	// Whether the site now agrees. False is the case the finish screen must not hide.
 	ok: boolean;
+	// Whether this run asked the site to change it at all. Five of the six ship on,
+	// so most runs change nothing, and saying otherwise is a claim about work that
+	// was never done.
+	changed: boolean;
 };
 
 /**
@@ -176,12 +180,13 @@ export function useApplySetupModules() {
 			// should not be reported against whatever a parallel request did next.
 			for ( const module of modules ) {
 				const want = isWanted( wanted, module.slug );
-				const ok =
-					want === module.activated
-						? true
-						: await requestModuleSwitch( toggleModule, module.slug, want );
+				// A module already in the wanted state is not asked to change, and must
+				// not be counted as though it had: the finish screen reports what this
+				// run did, and a run that sent no request did nothing.
+				const changed = want !== module.activated;
+				const ok = changed ? await requestModuleSwitch( toggleModule, module.slug, want ) : true;
 
-				results.push( { slug: module.slug, name: module.name, wanted: want, ok } );
+				results.push( { slug: module.slug, name: module.name, wanted: want, ok, changed } );
 			}
 
 			setIsApplying( false );

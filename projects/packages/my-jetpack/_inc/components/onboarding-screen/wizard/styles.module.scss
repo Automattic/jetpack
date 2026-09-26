@@ -1246,6 +1246,12 @@ $rail-row-min-height: 40px;
 
 	.canvas {
 		grid-column: 1 / -1;
+
+		// The rows as well as the columns. Below the rail's breakpoint the grid
+		// keeps an auto first row for the collapsed rail, and with the rail not
+		// rendered the canvas fell into it and was sized by its content: the
+		// celebration sat at the top with a slab of dark under it.
+		grid-row: 1 / -1;
 	}
 
 	/*

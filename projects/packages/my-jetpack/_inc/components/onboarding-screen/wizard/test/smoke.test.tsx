@@ -74,12 +74,19 @@ const mockModules = [
 
 const mockApply = jest.fn( ( modules: typeof mockModules, wanted: Record< string, boolean > ) =>
 	Promise.resolve(
-		modules.map( module => ( {
-			slug: module.slug,
-			name: module.name,
-			wanted: wanted[ module.slug ] ?? true,
-			ok: true,
-		} ) )
+		modules.map( module => {
+			const want = wanted[ module.slug ] ?? true;
+
+			// As the real one does: a module already in the wanted state is not asked
+			// to change, and must not be counted as though it had.
+			return {
+				slug: module.slug,
+				name: module.name,
+				wanted: want,
+				ok: true,
+				changed: want !== module.activated,
+			};
+		} )
 	)
 );
 
@@ -122,6 +129,7 @@ beforeEach( () => {
 	mockConnection.isUserConnected = false;
 	mockConnection.registrationError = false;
 	mockJustConnected.mockReturnValue( false );
+	mockApply.mockClear();
 } );
 
 /**
@@ -425,6 +433,23 @@ describe( 'Wizard resume after connecting', () => {
 		setupWizard( { isUserConnected: true } );
 
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Connected to WordPress.com' );
+	} );
+
+	/*
+	 * The flag behind it is cached for the page, and the column is keyed by step,
+	 * so an unpinned notice is re-inserted on every step change — which a live
+	 * region announces again, the last time on the finish screen.
+	 */
+	it( 'says it once, on that step and no other', async () => {
+		mockJustConnected.mockReturnValue( true );
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'says nothing to someone who was already connected when they arrived', () => {
@@ -780,6 +805,79 @@ describe( 'Leaving setup', () => {
 		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
 
 		await waitFor( () => expect( assignedHref() ).toBe( exitUrl ) );
+	} );
+} );
+
+describe( 'Clicking Continue twice', () => {
+	/*
+	 * Continue is in the same place on every step, so the second press of a double
+	 * click landed on the NEXT step's Continue: double-clicking the site question
+	 * applied all six modules without ever showing them.
+	 */
+	it( 'does not carry the second press through to the next step', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.dblClick( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
+		expect( mockApply ).not.toHaveBeenCalled();
+	} );
+
+	// A second, deliberate click is not a double click, and must still work.
+	it( 'still advances on two separate clicks', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( "You're all set" ) );
+	} );
+} );
+
+describe( 'What the finish screen claims', () => {
+	/*
+	 * Five of the six ship on, so most runs change nothing at all. The line used
+	 * to read "6 of 6 switched on in this session" for a run that sent no request,
+	 * and "4 of 6 switched on" for one whose only two requests switched things off.
+	 */
+	it( 'counts only what this run actually changed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		// Stats was already on and is left on; Downtime Monitor was off and goes on.
+		await expect( screen.findByText( '1 switched on.' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'says nothing was needed when nothing was', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		// Leave Stats on as it already is, and Downtime Monitor off as it already is.
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect(
+			screen.findByText( 'Nothing needed changing on this site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	// Switching something off is not switching something on.
+	it( 'does not call a deactivation an activation', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await user.click( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) );
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect( screen.findByText( '1 switched off.' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /switched on/ ) ).not.toBeInTheDocument();
 	} );
 } );
 
