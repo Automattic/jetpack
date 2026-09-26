@@ -312,6 +312,7 @@ const MapEdit = ( {
 						onKeyChange={ onKeyChange }
 						setPointVisibility={ () => setAddPointVisibility( true ) }
 						context="toolbar"
+						mapRef={ mapRef }
 						mapProvider={ mapProvider }
 					/>
 				</BlockControls>
@@ -343,6 +344,12 @@ const MapEdit = ( {
 					enable={ RESIZABLE_BOX_ENABLE_OPTION }
 					onResizeStart={ () => toggleSelection( false ) }
 					onResizeStop={ onMapResize }
+					onResize={ () => {
+						const ref = mapRef?.current?.mapRef ?? mapRef;
+						if ( ref?.current?.sizeMap ) {
+							setTimeout( ref.current.sizeMap, 0 );
+						}
+					} }
 				>
 					<div className="wp-block-jetpack-map__map_wrapper">
 						<Map
