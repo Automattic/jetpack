@@ -62,7 +62,11 @@ $tooltip-drop-shadow: 0 var(--wpds-border-width-xs) var(--wpds-border-width-sm) 
 		gap: var(--wpds-dimension-gap-xs);
 
 		// Icon-only chevrons keep the title and range on one row at narrow widths.
+		// The design draws them neutral; the brand hover background stays.
 		> button {
+			--wp-ui-button-foreground-color: var(--wpds-color-foreground-interactive-neutral);
+			--wp-ui-button-foreground-color-active: var(--wpds-color-foreground-interactive-neutral-active);
+			--wp-ui-button-foreground-color-disabled: var(--wpds-color-foreground-interactive-neutral-disabled);
 			padding-inline: 0;
 			min-inline-size: 0;
 		}
