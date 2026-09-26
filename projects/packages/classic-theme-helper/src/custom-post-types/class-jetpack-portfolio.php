@@ -104,7 +104,7 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 				return;
 			}
 			add_action( sprintf( 'add_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
-			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_enable' ), 10 );
+			add_action( sprintf( 'update_option_%s', self::OPTION_NAME ), array( $this, 'flush_rules_on_option_change' ), 10, 2 );
 			add_action( sprintf( 'publish_%s', self::CUSTOM_POST_TYPE ), array( $this, 'flush_rules_on_first_project' ) );
 			add_action( 'after_switch_theme', array( $this, 'flush_rules_on_switch' ) );
 
@@ -315,10 +315,30 @@ if ( ! class_exists( __NAMESPACE__ . '\Jetpack_Portfolio' ) ) {
 		}
 
 		/**
-		 * Flush permalinks when CPT option is turned on/off
+		 * Flush permalinks when CPT option is added.
 		 */
 		public function flush_rules_on_enable() {
 			flush_rewrite_rules();
+		}
+
+		/**
+		 * Schedule a rewrite-rule flush on option change.
+		 *
+		 * When the Portfolio option is toggled (enable or disable), the post
+		 * type is still registered based on the previous option value during
+		 * the current request. Calling flush_rewrite_rules() now would
+		 * generate stale rules. Instead, delete the rewrite_rules option so
+		 * WordPress regenerates them on the next request, when the post type
+		 * is correctly registered (or not) based on the new option value.
+		 *
+		 * @param string $old_value The old option value.
+		 * @param int    $new_value The new option value.
+		 */
+		public function flush_rules_on_option_change( $old_value, $new_value ) {
+			if ( strval( $old_value ) === strval( $new_value ) ) {
+				return;
+			}
+			delete_option( 'rewrite_rules' );
 		}
 
 		/**
