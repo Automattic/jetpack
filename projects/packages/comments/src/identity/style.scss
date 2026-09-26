@@ -6,14 +6,18 @@
 }
 
 // Nested under .jetpack-comments to outrank a theme's `.comment-form button`.
-.jetpack-comments .jetpack-comments__link-button {
+.jetpack-comments .jetpack-comments__gear {
+	display: inline-flex;
 	margin: 0;
 	padding: 0;
 	border: 0;
 	background: none;
 	box-shadow: none;
 	color: inherit;
-	font: inherit;
-	text-decoration: underline;
 	cursor: pointer;
+
+	svg {
+		inline-size: 20px;
+		block-size: 20px;
+	}
 }

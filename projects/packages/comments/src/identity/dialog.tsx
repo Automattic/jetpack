@@ -1,6 +1,6 @@
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-import { emailHasAccount, signIn } from './checkpoint/checkpoint';
+import { emailHasAccount, logOut, signIn } from './checkpoint/checkpoint';
 import { CloseIcon, WordPressIcon } from './icons';
 import { Toggle } from './toggle';
 
@@ -23,7 +23,8 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 	const { formId } = props;
 	const { formSettings, commenter, commentParent, signedIn, isKnown, isDialogOpen, isEditing } =
 		useContext( CommentSignals );
-	const { site, strings, user, mustLogIn, requireNameEmail, identity } = JetpackComments;
+	const { site, strings, user, isLoggedIn, mustLogIn, requireNameEmail, identity } =
+		JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
 	// Bumped per attempt, so a popup or request abandoned for another cannot answer for it.
@@ -128,8 +129,11 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 
 	const titleId = `jetpack-comments-dialog-title-${ formSettings.postId }`;
 	const editing = isEditing.value;
+	// The gear opens settings for a reader with a session, and the details editor for a saved guest.
+	const settings = editing && ( isLoggedIn || signedIn.value !== null );
+	const editGuest = editing && ! settings;
 	const known = ! editing && isKnown.value;
-	const showFields = ! known && ! mustLogIn;
+	const showFields = editGuest || ( ! editing && ! isKnown.value && ! mustLogIn );
 	const holdButtons = emailTaken || checkingEmail;
 
 	return (
@@ -160,7 +164,7 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 			{ ! known && mustLogIn && (
 				<p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p>
 			) }
-			{ ! known && identity.canSignIn && (
+			{ ! known && ! editing && identity.canSignIn && (
 				<div className="jetpack-comments__sign-in">
 					{ isSigningIn ? (
 						<span className="jetpack-comments__signing-in">
@@ -191,7 +195,7 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 					) }
 				</div>
 			) }
-			{ known && (
+			{ ( known || settings ) && (
 				<p className="jetpack-comments__dialog-intro">
 					{ strings.commentingAs.replace(
 						'%s',
@@ -244,8 +248,8 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 						) }
 					</div>
 				) ) }
-			{ ! editing &&
-				( known || ! mustLogIn ) &&
+			{ ! editGuest &&
+				( known || settings || ! mustLogIn ) &&
 				formSettings.subscriptions.map( subscription => {
 					const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
 
@@ -262,7 +266,7 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 					);
 				} ) }
 			<div className="jetpack-comments__dialog-actions">
-				{ editing && (
+				{ editGuest && (
 					<button
 						type="button"
 						className="jetpack-comments__button is-primary"
@@ -271,6 +275,30 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 					>
 						{ strings.save }
 					</button>
+				) }
+				{ settings && (
+					<>
+						<button type="button" className="jetpack-comments__button is-primary" onClick={ close }>
+							{ strings.done }
+						</button>
+						{ user ? (
+							<a className="jetpack-comments__button is-link" href={ formSettings.logoutUrl }>
+								{ strings.logOut }
+							</a>
+						) : (
+							<button
+								type="button"
+								className="jetpack-comments__button is-link"
+								onClick={ async () => {
+									await logOut();
+									signedIn.value = null;
+									close();
+								} }
+							>
+								{ strings.logOut }
+							</button>
+						) }
+					</>
 				) }
 				{ known && (
 					<input

@@ -76,7 +76,8 @@ export type Strings = {
 	saveAndPost: string;
 	postWithoutSaving: string;
 	close: string;
-	change: string;
+	done: string;
+	settings: string;
 	mustLogIn: string;
 	logIn: string;
 	logInWithWordPress: string;

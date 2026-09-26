@@ -469,11 +469,12 @@ class Comment_Form {
 			'saveAndPost'        => __( 'Save and post comment', 'jetpack-comments' ),
 			'postWithoutSaving'  => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
 			'close'              => __( 'Close', 'jetpack-comments' ),
-			'change'             => __( 'change', 'jetpack-comments' ),
+			'done'               => __( 'Done', 'jetpack-comments' ),
+			'settings'           => __( 'Settings', 'jetpack-comments' ),
 			'mustLogIn'          => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
 			'logIn'              => __( 'Log in', 'jetpack-comments' ),
 			'logInWithWordPress' => __( 'Log in with WordPress.com', 'jetpack-comments' ),
-			'logOut'             => __( 'log out', 'jetpack-comments' ),
+			'logOut'             => __( 'Log out', 'jetpack-comments' ),
 			/* translators: %s is the commenter's name. */
 			'viaWordPress'       => __( '%s via WordPress.com', 'jetpack-comments' ),
 			/* translators: %s is the commenter's name. */
