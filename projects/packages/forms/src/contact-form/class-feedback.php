@@ -2309,7 +2309,7 @@ class Feedback {
 		// and then had its answer dropped -- the silently discarded answer this feature is
 		// supposed to make impossible.
 		//
-		// Returns an empty array when the flag is off, so there is nothing extra to guard.
+		// Returns an empty array when conditional logic does not apply, so there is nothing extra to guard.
 		$visibility = $form->get_resolved_field_visibility();
 
 		$i = 1;

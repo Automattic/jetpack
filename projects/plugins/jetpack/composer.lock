@@ -1761,7 +1761,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/forms",
-                "reference": "9a0a94de6cb90f7d8db0247c1515ac2eb4150695"
+                "reference": "cc7aa12384485c1ad777955ed8f1f0bab9a96868"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1770,7 +1770,6 @@
                 "automattic/jetpack-connection": "@dev",
                 "automattic/jetpack-device-detection": "@dev",
                 "automattic/jetpack-external-connections": "@dev",
-                "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-jwt": "@dev",
                 "automattic/jetpack-logo": "@dev",
                 "automattic/jetpack-menu-badges": "@dev",
