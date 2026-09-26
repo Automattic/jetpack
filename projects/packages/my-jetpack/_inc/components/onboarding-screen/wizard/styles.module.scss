@@ -70,6 +70,14 @@ $panel-copy-line-height: 1.16;
 $panel-copy-inset: 40px;
 
 /*
+ * The panel's foot is deeper than its head, from the prototype's `pb-14` on
+ * brand-panel.tsx — Tailwind's 14, so 56px. It is what stops the display line
+ * reading as if it has slipped off the panel. The padding scale stops at 32
+ * (--wpds-dimension-padding-3xl), so there is no step above it.
+ */
+$panel-copy-bottom-inset: 56px;
+
+/*
  * The measure's ceiling, so a very wide panel cannot sprawl the line. It is
  * the width at which the clamp caps out — 72px / 9.09% — so the two limits
  * land together and the widest line stays at 72% past it.
@@ -179,6 +187,14 @@ $panel-line-step: 0.08s;
 $step-column-width: 470px;
 
 /*
+ * How far the step's heading sits below the panel body's own padding. The
+ * prototype puts its h1 at 80px from the top of the pane; the body already
+ * contributes 24px (--wpds-dimension-padding-2xl), so this is the rest. No
+ * WPDS step is 56px — the padding scale stops at 32.
+ */
+$step-column-offset: 56px;
+
+/*
  * The feature row's icon tile, from the prototype's group-step.tsx: `size-12`,
  * so 48px. The size scale stops at 40 (--wpds-dimension-size-lg), and a 40px
  * tile around a 20px glyph leaves too little ground for the dark fill to read
@@ -268,8 +284,12 @@ $rail-row-min-height: 40px;
 	// Named, or the collapsed rail is stretched to half the viewport by the
 	// default row distribution and leaves a dead band under its header.
 	grid-template-rows: auto minmax(0, 1fr);
+
+	// The window, exactly: the shell is the scroll container's ceiling, and the
+	// step's own body is what scrolls inside it.
 	block-size: 100%;
-	min-block-size: 100vh;
+	min-block-size: 0;
+	overflow: hidden;
 
 	// Dark, because the ThemeProvider around it is seeded dark: this is the
 	// token the Site Editor's own shell reads, and it lands on rgb(30, 30, 30).
@@ -453,10 +473,6 @@ $rail-row-min-height: 40px;
 	}
 }
 
-/*
- * margin-block: auto on the content centres it when the column has room and
- * collapses to zero when it does not, so a long step top-aligns and scrolls.
- */
 .panel-body {
 	display: flex;
 	flex-direction: column;
@@ -476,10 +492,16 @@ $rail-row-min-height: 40px;
 	}
 }
 
+/*
+ * Top-anchored, not centred. An auto top margin moved the heading 147px between
+ * steps 2 and 3 and 135px back again, and the step change only reads as a
+ * sequence if the heading holds its place through the swap. The bottom margin
+ * stays auto so a short step does not stretch.
+ */
 .panel-content {
 	inline-size: 100%;
 	max-inline-size: $step-column-width;
-	margin-block: auto;
+	margin-block: $step-column-offset auto;
 	margin-inline: auto;
 	animation-name: step-enter;
 	animation-duration: $appear-duration;
@@ -536,12 +558,15 @@ $rail-row-min-height: 40px;
 	// the panel rather than the viewport. Its inline size comes from the grid,
 	// never from its contents, which is what inline-size containment requires.
 	container-type: inline-size;
-	padding: var(--wpds-dimension-padding-3xl);
+	padding-block: var(--wpds-dimension-padding-3xl) $panel-copy-bottom-inset;
 
 	// The prototype's own inset, and the width the display copy is measured
 	// against; see $panel-copy-inset.
 	padding-inline: $panel-copy-inset;
-	border-radius: var(--wpds-border-radius-lg);
+
+	// The frame's radius, not one step below it: the panel sits beside the frame
+	// at the same scale, and two radii read as two unrelated surfaces.
+	border-radius: var(--wpds-border-radius-xl);
 	background: var(--jp-green-90);
 	overflow: hidden;
 }
@@ -1071,8 +1096,9 @@ $rail-row-min-height: 40px;
 	align-items: center;
 
 	// The prototype's own two gaps: the glyph sits closer to its words than the
-	// words sit to the switch, so the row reads as a thing and a control.
-	gap: var(--wpds-dimension-gap-lg);
+	// words sit to the switch, so the row reads as a thing and a control. Its 14
+	// has no step, and 12 is the nearer of the two either side.
+	gap: var(--wpds-dimension-gap-md);
 	padding-block: var(--wpds-dimension-padding-md);
 }
 
@@ -1106,7 +1132,10 @@ $rail-row-min-height: 40px;
 	flex-direction: column;
 	flex-grow: 1;
 	gap: var(--wpds-dimension-gap-xs);
-	margin-inline-end: var(--wpds-dimension-gap-md);
+
+	// The switch is held off by the row's own gap plus this, which together are
+	// the prototype's 16 against the 12 the glyph gets.
+	margin-inline-end: var(--wpds-dimension-gap-xs);
 }
 
 .feature-row__name {
@@ -1144,6 +1173,18 @@ $rail-row-min-height: 40px;
 
 	.canvas {
 		grid-column: 1 / -1;
+	}
+
+	/*
+	 * The celebration centres itself in the pane, so it wants no step-column
+	 * offset and it wants the whole pane to centre in: .finish's own
+	 * `min-block-size: 100%` is a percentage, and against an auto-height column
+	 * it resolves to the content and never centres anything.
+	 */
+	.panel-content {
+		flex-grow: 1;
+		min-block-size: 0;
+		margin-block: 0;
 	}
 }
 

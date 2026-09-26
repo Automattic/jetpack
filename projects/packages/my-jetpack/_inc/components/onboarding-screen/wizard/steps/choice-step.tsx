@@ -160,7 +160,7 @@ export function ChoiceStep( {
 	const chosen = options.find( option => option.value === value );
 
 	return (
-		<Stack direction="column" gap="xl">
+		<Stack direction="column" gap="2xl">
 			<Stack direction="column" gap="sm">
 				<Text
 					variant="heading-2xl"
