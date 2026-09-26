@@ -56,7 +56,12 @@ function FeatureRow( {
 				<Icon icon={ module.icon } />
 			</span>
 
-			<span className={ styles[ 'feature-row__copy' ] }>
+			{ /*
+			 * Hidden from the tree, not from the eye: the switch is named and
+			 * described from these two, and aria-labelledby reaches hidden content.
+			 * Left visible to it as well, every module was announced twice.
+			 */ }
+			<span aria-hidden="true" className={ styles[ 'feature-row__copy' ] }>
 				<Text
 					variant="body-lg"
 					id={ nameId }

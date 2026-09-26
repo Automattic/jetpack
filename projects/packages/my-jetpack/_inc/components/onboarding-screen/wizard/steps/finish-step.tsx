@@ -64,6 +64,49 @@ function summarise( results: SetupModuleResult[] ) {
 }
 
 /**
+ * What this run actually did, as a sentence.
+ *
+ * Only what changed. Five of the six ship on, so most runs send no request at
+ * all, and the line used to say "6 of 6 switched on in this session" for a run
+ * that touched nothing — and "4 of 6 switched on" for one whose only two
+ * requests were switching things off.
+ *
+ * @param results - What became of each module.
+ * @return The line under the list.
+ */
+function sessionTally( results: SetupModuleResult[] ): string {
+	const on = results.filter( result => result.changed && result.wanted && result.ok ).length;
+	const off = results.filter( result => result.changed && ! result.wanted && result.ok ).length;
+
+	if ( ! on && ! off ) {
+		return __( 'Nothing needed changing on this site.', 'jetpack-my-jetpack' );
+	}
+
+	if ( on && off ) {
+		return sprintf(
+			/* translators: 1: how many features were switched on. 2: how many were switched off. */
+			__( '%1$d switched on and %2$d switched off.', 'jetpack-my-jetpack' ),
+			on,
+			off
+		);
+	}
+
+	if ( on ) {
+		return sprintf(
+			/* translators: %d: how many features were switched on. */
+			_n( '%d switched on.', '%d switched on.', on, 'jetpack-my-jetpack' ),
+			on
+		);
+	}
+
+	return sprintf(
+		/* translators: %d: how many features were switched off. */
+		_n( '%d switched off.', '%d switched off.', off, 'jetpack-my-jetpack' ),
+		off
+	);
+}
+
+/**
  * What one row says on the right.
  *
  * @param result - What became of the module.
@@ -102,7 +145,7 @@ export function FinishStep( {
 	const reduced = useReducedMotion();
 	const rows = results ?? [];
 	const summary = summarise( rows );
-	const switchedOn = rows.filter( result => result.wanted && result.ok ).length;
+	const tally = sessionTally( rows );
 
 	return (
 		<div className={ styles.finish }>
@@ -194,17 +237,7 @@ export function FinishStep( {
 							render={ <p /> }
 							className={ clsx( styles[ 'finish-note' ], styles.wave, styles[ 'wave-3' ] ) }
 						>
-							{ sprintf(
-								/* translators: 1: how many features were switched on. 2: how many were offered. */
-								_n(
-									'%1$d of %2$d switched on in this session.',
-									'%1$d of %2$d switched on in this session.',
-									switchedOn,
-									'jetpack-my-jetpack'
-								),
-								switchedOn,
-								rows.length
-							) }
+							{ tally }
 						</Text>
 					</div>
 				) }
