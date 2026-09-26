@@ -14,19 +14,27 @@
 	white-space: nowrap;
 	transition:
 		transform 0.25s ease-in-out,
+		visibility 0s;
+}
+
+// The delay belongs to the hidden state only, so a panel arriving is visible
+// for its whole slide and one leaving stays visible until its slide ends.
+.jetpack-comments__panel--options,
+.jetpack-comments__who.is-open .jetpack-comments__panel--name {
+	visibility: hidden;
+	transition:
+		transform 0.25s ease-in-out,
 		visibility 0s linear 0.25s;
 }
 
 .jetpack-comments__panel--options {
 	transform: translateX(-100%);
-	visibility: hidden;
 }
 
 .jetpack-comments__who.is-open {
 
 	.jetpack-comments__panel--name {
 		transform: translateX(100%);
-		visibility: hidden;
 	}
 
 	.jetpack-comments__panel--options {
