@@ -31,6 +31,7 @@ import VideoLayout from '../../src/dashboard/components/video-layout';
 import { videoTabPath } from '../../src/dashboard/components/video-nav';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
+import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
 import { useVideo } from '../../src/dashboard/hooks/use-video';
 import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import { isTrimCutEnabled } from '../../src/dashboard/utils/trim-cut';
@@ -652,6 +653,7 @@ function EditorRoute( { id }: { id: string } ): ReactElement {
 }
 
 const StageInner = () => {
+	useUploadUnloadGuard();
 	const { id } = useParams( { from: '/video/$id/editor' } );
 
 	// Belt-and-braces gate. The server strips this route from the registry when

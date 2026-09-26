@@ -1,9 +1,16 @@
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { makeLibraryItem as item } from '../../../test-utils/library-item';
 import { setSimpleSite, unsetSimpleSite } from '../../../test-utils/simple-site';
 import { buildLibraryActions } from '../actions';
+import type { LibraryItem } from '../../../types/library';
+import type { Action, RenderModalProps } from '@wordpress/dataviews';
 
 jest.mock( '@wordpress/i18n', () => ( {
 	__: ( text: string ) => text,
+	_n: ( single: string, plural: string, count: number ) => ( count === 1 ? single : plural ),
+	sprintf: ( format: string, ...args: unknown[] ) =>
+		format.replace( /%d/g, () => String( args.shift() ) ),
 } ) );
 
 const makeApi = () => ( {
@@ -120,5 +127,32 @@ describe( 'buildLibraryActions', () => {
 				eligible: false,
 			} );
 		}
+	} );
+
+	it( 'asks for confirmation before deleting, and only deletes on confirm', async () => {
+		const user = userEvent.setup();
+		const api = makeApi();
+		const rawAction = buildLibraryActions( api ).find(
+			a => a.id === 'delete'
+		) as Action< LibraryItem >;
+		const rows = [ item( { id: '11' } ), item( { id: '12' } ) ];
+		const closeModal = jest.fn();
+
+		expect( 'RenderModal' in rawAction ).toBe( true );
+		expect( 'modalHeader' in rawAction ).toBe( true );
+
+		const deleteAction = rawAction as unknown as {
+			RenderModal: ( props: RenderModalProps< LibraryItem > ) => JSX.Element;
+		};
+		render( deleteAction.RenderModal( { items: rows, closeModal } ) );
+		expect( api.deleteItems ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( closeModal ).toHaveBeenCalledTimes( 1 );
+		expect( api.deleteItems ).not.toHaveBeenCalled();
+
+		await user.click( screen.getByRole( 'button', { name: 'Delete' } ) );
+		expect( api.deleteItems ).toHaveBeenCalledWith( [ '11', '12' ] );
+		expect( closeModal ).toHaveBeenCalledTimes( 2 );
 	} );
 } );
