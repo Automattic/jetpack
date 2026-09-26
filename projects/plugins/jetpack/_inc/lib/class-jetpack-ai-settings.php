@@ -459,13 +459,7 @@ class Jetpack_AI_Settings {
 	}
 
 	/**
-	 * Whether the AI SEO feature (metadata generation, manual and automatic)
-	 * is effectively enabled: its own toggle (gate 4) through the filter, with
-	 * the host and master gates ANDed after the chain so no late-priority
-	 * callback can turn the feature back on — same finality as is_ai_enabled().
-	 *
-	 * Not {@see self::is_feature_enabled()} with `ai_seo`, which is the stored
-	 * toggle alone. This is the one load points and payloads should read.
+	 * Whether AI SEO is enabled after its feature filter and the site-wide AI checks.
 	 *
 	 * @since 16.2
 	 *
@@ -481,7 +475,7 @@ class Jetpack_AI_Settings {
 		 */
 		$enabled = (bool) apply_filters( 'jetpack_ai_seo_enabled', self::is_feature_enabled( 'ai_seo' ) );
 
-		return self::apply_master_gates( $enabled );
+		return $enabled && self::is_ai_enabled();
 	}
 }
 
