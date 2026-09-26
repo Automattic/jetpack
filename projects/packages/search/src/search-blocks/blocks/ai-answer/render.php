@@ -29,7 +29,7 @@ if ( ! AI_Answers::host_allows_ai() ) {
 	return;
 }
 
-if ( ! AI_Answers::should_enforce_master() ) {
+if ( ! AI_Answers::is_master_enabled() ) {
 	return;
 }
 

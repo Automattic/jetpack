@@ -81,3 +81,36 @@ describe( 'register-blocks', () => {
 		expect( settings.icon ).toBeDefined();
 	} );
 } );
+
+describe( 'AI Answer availability', () => {
+	const originalConfig = window.JetpackSearchBlocksConfig;
+
+	afterEach( () => {
+		window.JetpackSearchBlocksConfig = originalConfig;
+	} );
+
+	it.each( [
+		[ 'disabled', { aiMasterEnabled: false }, false ],
+		[ 'enabled', { aiMasterEnabled: true }, true ],
+		[ 'enabled without a paid plan', { aiMasterEnabled: true, supportsPaidSearch: false }, true ],
+		[ 'unspecified', {}, true ],
+		[ 'missing config', undefined, true ],
+	] )( 'sets inserter availability when AI is %s', ( _label, config, canInsert ) => {
+		window.JetpackSearchBlocksConfig = config;
+		mockRegisterBlockType.mockClear();
+		jest.isolateModules( () => {
+			require( '../../../src/search-blocks/editor/register-blocks' );
+		} );
+
+		const settings = settingsFor( 'jetpack-search/ai-answer' );
+		expect( settings ).toBeDefined();
+		expect( settings.supports?.inserter !== false ).toBe( canInsert );
+		expect( settings.edit ).toEqual( expect.any( Function ) );
+		expect( settings.save() ).toBeNull();
+		expect( settingsFor( 'jetpack-search/search-input' ).supports?.inserter ).not.toBe( false );
+
+		expect( settings.supports ).toEqual(
+			canInsert ? undefined : { html: false, interactivity: true, inserter: false }
+		);
+	} );
+} );

@@ -52,7 +52,7 @@ export default function AiAnswerEdit( { attributes, setAttributes } ) {
 				<Placeholder
 					label={ __( 'AI Answer', 'jetpack-search-pkg' ) }
 					instructions={ __(
-						'Jetpack AI is turned off for this site, so visitors won’t see this block. Turn Jetpack AI on to show AI-generated answers in your search results.',
+						'Jetpack AI is disabled so visitors won’t see this block. Enable Jetpack AI to show AI-generated answers in your search results.',
 						'jetpack-search-pkg'
 					) }
 				/>
