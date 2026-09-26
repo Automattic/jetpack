@@ -22,8 +22,10 @@ require_once __DIR__ . '/trait-paypal-tracks-events.php';
  * Class PayPal_REST_Controller_Test
  *
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_REST_Controller
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Tracks
  */
 #[CoversClass( PayPal_REST_Controller::class )]
+#[CoversClass( PayPal_Tracks::class )]
 class PayPal_REST_Controller_Test extends TestCase {
 
 	use PayPal_Tracks_Events;
@@ -1374,6 +1376,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertSame( 'boolean', $args['include_snippets']['type'] );
 		// The resource fields the create shares have to survive the merge.
 		$this->assertArrayHasKey( 'line_items', $args );
+		// Only the create takes the recreated flag.
+		$this->assertArrayNotHasKey( 'recreated', $args );
 	}
 
 	/**
@@ -1750,7 +1754,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertNotNull( $create_args, 'No POST endpoint registered for /buttons.' );
 
-		foreach ( array( 'name', 'type', 'integration_mode', 'reusable', 'return_url', 'line_items' ) as $arg ) {
+		foreach ( array( 'name', 'type', 'integration_mode', 'reusable', 'return_url', 'recreated', 'line_items' ) as $arg ) {
 			$this->assertArrayHasKey( $arg, $create_args, "Missing '$arg' argument on button creation." );
 		}
 
@@ -2247,29 +2251,45 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * Creating a link records the data sent to PayPal.
+	 * Creating a link records button_created with the data sent to PayPal, or
+	 * button_recreated when the recreated flag is true.
+	 *
+	 * @param array  $flag       The recreated param to send, if any.
+	 * @param string $event_name The event it records.
+	 * @dataProvider recreated_flags_provider
 	 */
-	public function test_create_button_records_button_created() {
+	#[DataProvider( 'recreated_flags_provider' )]
+	public function test_create_button_records_button_created_or_recreated( $flag, $event_name ) {
 		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
 		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
 
-		PayPal_REST_Controller::handle_create_button(
-			$this->create_request(
+		$create = $this->dispatch_json(
+			'POST',
+			'/wpcom/v2/paypal/buttons',
+			array_merge(
 				array(
-					'name'        => 'Widget',
-					'unit_amount' => array(
-						'currency_code' => 'EUR',
-						'value'         => '10.00',
+					'integration_mode' => 'BUTTON',
+					'line_items'       => array(
+						array(
+							'name'        => 'Widget',
+							'unit_amount' => array(
+								'currency_code' => 'EUR',
+								'value'         => '10.00',
+							),
+							'image_url'   => 'https://example.com/widget.png',
+						),
 					),
-					'image_url'   => 'https://example.com/widget.png',
-				)
+				),
+				$flag
 			)
 		);
 
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
 		$this->assertSame(
 			array(
 				array(
-					'event_name' => 'jetpack_paypal_button_created',
+					'event_name' => $event_name,
 					'properties' => array(
 						'environment'      => 'sandbox',
 						'integration_mode' => 'BUTTON',
@@ -2280,6 +2300,21 @@ class PayPal_REST_Controller_Test extends TestCase {
 				),
 			),
 			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Only a true recreated flag records button_recreated.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function recreated_flags_provider() {
+		return array(
+			'no flag'      => array( array(), 'jetpack_paypal_button_created' ),
+			'flag false'   => array( array( 'recreated' => false ), 'jetpack_paypal_button_created' ),
+			// The boolean type turns the string "false" into false.
+			'flag "false"' => array( array( 'recreated' => 'false' ), 'jetpack_paypal_button_created' ),
+			'flag true'    => array( array( 'recreated' => true ), 'jetpack_paypal_button_recreated' ),
 		);
 	}
 

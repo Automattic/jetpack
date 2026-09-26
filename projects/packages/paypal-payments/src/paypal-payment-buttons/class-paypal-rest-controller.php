@@ -211,7 +211,17 @@ class PayPal_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( __CLASS__, 'handle_create_button' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
-					'args'                => self::get_button_create_args(),
+					'args'                => array_merge(
+						self::get_button_create_args(),
+						array(
+							'recreated' => array(
+								'required'    => false,
+								'type'        => 'boolean',
+								'default'     => false,
+								'description' => __( 'Whether this replaces a payment link PayPal no longer has.', 'jetpack-paypal-payments' ),
+							),
+						)
+					),
 				),
 			)
 		);
@@ -674,7 +684,11 @@ class PayPal_REST_Controller {
 		// otherwise save an empty scriptSrc, and the mount GET comes too late to fix it.
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
 
-		PayPal_Tracks::record_event( 'jetpack_paypal_button_created', self::get_button_event_properties( $resource_data ) );
+		// Replacements are tracked as recreated, so "created" counts only new links.
+		PayPal_Tracks::record_event(
+			$request->get_param( 'recreated' ) ? 'jetpack_paypal_button_recreated' : 'jetpack_paypal_button_created',
+			self::get_button_event_properties( $resource_data )
+		);
 
 		return new WP_REST_Response( $result, 201 );
 	}
