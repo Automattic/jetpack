@@ -122,6 +122,51 @@ function jetpack_get_available_google_fonts_map( $google_fonts_data ) {
 }
 
 /**
+ * Whether the request URL is a REST route.
+ *
+ * Theme JSON can resolve before REST_REQUEST is defined, and the Accept header also matches front-end requests.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function jetpack_google_fonts_is_rest_url() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only used to classify the request.
+	if ( isset( $_GET['rest_route'] ) ) {
+		return true;
+	}
+	$path = (string) wp_parse_url( isset( $_SERVER['REQUEST_URI'] ) ? wp_unslash( $_SERVER['REQUEST_URI'] ) : '', PHP_URL_PATH ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Parsed for path comparison only.
+	return str_contains( $path, '/' . rest_get_url_prefix() . '/' );
+}
+
+/**
+ * Whether catalogue faces are needed in theme JSON for an editor or API request.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function jetpack_google_fonts_load_font_faces() {
+	$load_font_faces = is_admin()
+		|| ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+		|| jetpack_google_fonts_is_rest_url()
+		|| ( defined( 'WP_CLI' ) && WP_CLI );
+
+	/**
+	 * Filters whether catalogue font faces are loaded into theme JSON.
+	 *
+	 * When true, the catalogue's files reach theme JSON and the native font printer prints all of them.
+	 *
+	 * @module google-fonts
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $load_font_faces Whether to load catalogue font faces. Default true for editor, API and CLI requests.
+	 */
+	return (bool) apply_filters( 'jetpack_google_fonts_load_font_faces', $load_font_faces );
+}
+
+/**
  * Register google fonts to the theme json data
  *
  * @param WP_Theme_JSON_Data $theme_json The theme json data of core.
@@ -150,7 +195,11 @@ function jetpack_register_google_fonts_to_theme_json( $theme_json ) {
 		$raw_data['settings']['typography']['fontFamilies'][ $origin ] = array();
 	}
 
+	$load_font_faces = jetpack_google_fonts_load_font_faces();
 	foreach ( $google_fonts_families as $font_family ) {
+		if ( ! $load_font_faces ) {
+			unset( $font_family['fontFace'] );
+		}
 		$raw_data['settings']['typography']['fontFamilies'][ $origin ][] = $font_family;
 	}
 
@@ -163,8 +212,8 @@ add_filter( 'wp_theme_json_data_default', 'jetpack_register_google_fonts_to_them
 /**
  * Filter out the deprecated font families that are from the jetpack-google-fonts provider.
  *
- * @param object[] $font_families The font families.
- * @return object[] The filtered font families.
+ * @param array[] $font_families The font families.
+ * @return array[] The filtered font families.
  */
 function jetpack_google_fonts_filter_out_deprecated_font_data( $font_families ) {
 	return array_values(
@@ -247,6 +296,5 @@ function jetpack_unregister_google_fonts() {
 }
 add_action( 'jetpack_deactivate_module_google-fonts', 'jetpack_unregister_google_fonts' );
 
-// Initialize Jetpack Google Font Face to avoid printing **ALL** google fonts provided by this module.
-// See p1700040028362329-slack-C4GAQ900P and p7DVsv-jib-p2
+// Print legacy catalogue faces separately from native theme and user fonts.
 new Jetpack_Google_Font_Face();

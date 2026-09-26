@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Fonts: Preserve theme and user font sources and process only needed catalogue font faces on the front end.
