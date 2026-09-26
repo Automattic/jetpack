@@ -23,7 +23,7 @@ export const seriesRole = ( slot: number ): string => `--a8c-charts-color-series
  * the bare hex rather than that slot's full `var()` chain: this string is resolved against the DOM,
  * where the chain has already been walked, and is only read at all when no DOM answered.
  */
-const SERIES_SLOT_1_FALLBACK = '#3858e9';
+export const SERIES_SLOT_1_FALLBACK = '#3858e9';
 
 /** The catalog pointer for every slot, in slot order. */
 export const SERIES_PALETTE_POINTERS: readonly string[] = Array.from(

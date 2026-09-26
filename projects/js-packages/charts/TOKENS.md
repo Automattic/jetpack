@@ -41,7 +41,7 @@ Some roles are deliberately narrower than the obvious name, so that moving one t
 
 | Narrow role | Broad role | What the broad one also reaches |
 |---|---|---|
-| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip |
+| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip, pie labels on light slices |
 | `--a8c-charts-color-background` | — | — |
 
 Outside forced-colors mode, `--a8c-charts-color-label-axis` derives from `--a8c-charts-color-label`, so setting the broad role moves every label at once and setting the narrow one moves only the SVG axis labels. See [One pair of roles per axis](#one-pair-of-roles-per-axis) for forced-colors defaults.
@@ -56,7 +56,7 @@ That is what makes the role read **at the painted element** rather than snapshot
 
 There is no stylesheet and no class involved. In particular the axes need neither: visx takes a separate style object per axis, so each one is handed its own roles and nothing has to distinguish them after the fact.
 
-What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`, and the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's contrast math and `GeoChart` each consume as a concrete string.
+What else crosses in JS is what something reads as a *value*: the series palette, which visx turns into its `colorScale`; the background, which the default glyph, the area-chart band, the line-chart gradient stops, the heatmap's contrast math and `GeoChart` each consume as a concrete string; and, for the pie chart, `label` and `label-inverse` against the resolved slice fill, to pick which one contrasts more before painting the label.
 
 **The tooltip used to be the one painted exception, because visx painted it outside the scope.** `@visx/tooltip` appends each portal container straight to `document.body`, where the catalog is not declared, so a chain handed to one reached only its own hardcoded fallback — never the role, never a consumer's override. Charts no longer take that route: the box renders into the chart's own wrapper and the crosshairs and glyphs are drawn into the chart SVG, both inside the scope, so a chain handed to either resolves there natively.
 

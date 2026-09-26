@@ -1,8 +1,9 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
+import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
@@ -19,8 +20,16 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import { contrastRatio } from '../../providers/chart-context/private/perceptual-color';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
-import { attachSubComponents, resolveFontSize } from '../../utils';
+import {
+	attachSubComponents,
+	isValidHexColor,
+	normalizeColorToHex,
+	resolveCssVariable,
+	resolveFontSize,
+} from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
@@ -162,6 +171,50 @@ const validateData = ( data: DataPointPercentage[] ) => {
 };
 
 /**
+ * The label pointers, resolved at the pie chart's own root element so JS and CSS agree on what paints.
+ */
+interface ResolvedLabelPointers {
+	/** True while a label plate is set; the label text then always uses the inverse role. */
+	hasPlate: boolean;
+	labelHex: string;
+	labelInverseHex: string;
+	/** True when the inverse role is see-through, so only the `label` role can be seen on a fill. */
+	isInverseSeeThrough: boolean;
+}
+
+/**
+ * Whether a pie slice's label should use the dark `label` role instead of the default `label-inverse` role.
+ *
+ * A label plate always wins: the text sits on the plate, not the slice fill, so it never flips.
+ * Otherwise the role that contrasts more with the resolved slice fill wins. `null` pointers (not
+ * yet resolved, or labels off) keep the default inverse role.
+ *
+ * @param fill     - The slice's resolved fill color.
+ * @param pointers - The label pointers, resolved at the chart's own root element.
+ * @return Whether the label needs dark text.
+ */
+const labelNeedsDarkText = ( fill: string, pointers: ResolvedLabelPointers | null ): boolean => {
+	if ( ! pointers || pointers.hasPlate ) {
+		return false;
+	}
+
+	const fillHex = normalizeColorToHex( fill );
+	if ( ! isValidHexColor( fillHex ) || ! isValidHexColor( pointers.labelHex ) ) {
+		return false;
+	}
+	if ( pointers.isInverseSeeThrough ) {
+		return true;
+	}
+	if ( ! isValidHexColor( pointers.labelInverseHex ) ) {
+		return false;
+	}
+
+	return (
+		contrastRatio( fillHex, pointers.labelHex ) > contrastRatio( fillHex, pointers.labelInverseHex )
+	);
+};
+
+/**
  * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
@@ -202,6 +255,11 @@ const PieChartInternal = ( {
 	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
 	const containerRef = useRef< HTMLDivElement >( null );
 
+	// The element the chart's own `className` lands on, so an override set there reaches this
+	// decision the same way it reaches CSS.
+	const rootRef = useRef< HTMLDivElement >( null );
+	const [ labelPointers, setLabelPointers ] = useState< ResolvedLabelPointers | null >( null );
+
 	const onMouseLeave = useCallback( () => {
 		if ( ! withTooltips ) {
 			return;
@@ -209,7 +267,40 @@ const PieChartInternal = ( {
 		hideTooltip();
 	}, [ withTooltips, hideTooltip ] );
 
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+	const { getElementStyles, isSeriesVisible, isColorPaletteResolved } = useGlobalChartsContext();
+	const { isValid, message } = validateData( data );
+
+	// Skipped when labels are off, or before the chart's own root element mounts (the invalid-data
+	// branch renders a plain div, so `rootRef` is not yet attached).
+	useLayoutEffect( () => {
+		if ( ! showLabels || ! rootRef.current ) {
+			return;
+		}
+
+		const rawLabelBackground = resolveCssVariable(
+			CATALOG_POINTERS.labelBackground,
+			rootRef.current
+		);
+		// Hex drops alpha, so a see-through label role would win the comparison and paint nothing.
+		const rawLabel = resolveCssVariable( CATALOG_POINTERS.label, rootRef.current );
+		const isLabelOpaque = rawLabel ? d3Color( rawLabel )?.opacity === 1 : false;
+		const rawLabelInverse = resolveCssVariable( CATALOG_POINTERS.labelInverse, rootRef.current );
+		const labelInverseColor = rawLabelInverse ? d3Color( rawLabelInverse ) : null;
+		// A plate value d3 cannot parse (CSS Color 4 syntax, say) is still one CSS paints, so it counts.
+		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
+		setLabelPointers( {
+			hasPlate: rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false,
+			labelHex: isLabelOpaque
+				? normalizeColorToHex( CATALOG_POINTERS.label, rootRef.current, resolveCssVariable )
+				: '',
+			labelInverseHex: normalizeColorToHex(
+				CATALOG_POINTERS.labelInverse,
+				rootRef.current,
+				resolveCssVariable
+			),
+			isInverseSeeThrough: labelInverseColor ? labelInverseColor.opacity < 1 : false,
+		} );
+	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)
 	const dataWithPercentages = useDataWithPercentages( data );
@@ -229,8 +320,6 @@ const PieChartInternal = ( {
 
 	// Create legend items using legendData (has recalculated percentages for visible items)
 	const legendItems = useChartLegendItems( legendData, legendOptions );
-
-	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
@@ -309,6 +398,7 @@ const PieChartInternal = ( {
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
 				gap={ gap }
+				rootRef={ rootRef }
 				className={ clsx(
 					'pie-chart',
 					styles[ 'pie-chart' ],
@@ -405,11 +495,12 @@ const PieChartInternal = ( {
 														} );
 													};
 
+													const fill = accessors.fill( arc.data );
 													const pathProps: SVGProps< SVGPathElement > & {
 														'data-testid'?: string;
 													} = {
 														d: pie.path( arc ) || '',
-														fill: accessors.fill( arc.data ),
+														fill,
 														'data-testid': 'pie-segment',
 													};
 
@@ -446,7 +537,11 @@ const PieChartInternal = ( {
 																		pointerEvents="none"
 																	/>
 																	<text
-																		className={ styles[ 'pie-chart__label-text' ] }
+																		className={ clsx( styles[ 'pie-chart__label-text' ], {
+																			[ styles[ 'pie-chart__label-text--on-light' ] ]:
+																				labelNeedsDarkText( fill, labelPointers ),
+																		} ) }
+																		data-testid="pie-label"
 																		x={ centroidX }
 																		y={ centroidY }
 																		dy=".33em"

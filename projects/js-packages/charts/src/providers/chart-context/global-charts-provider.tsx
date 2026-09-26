@@ -1,4 +1,4 @@
-import { hsl as d3Hsl } from '@visx/vendor/d3-color';
+import { color as d3Color } from '@visx/vendor/d3-color';
 import {
 	createContext,
 	useCallback,
@@ -17,6 +17,7 @@ import {
 	getItemShapeStyles,
 	getSeriesBarStyles,
 	getSeriesLineStyles,
+	isValidHexColor,
 	mergeThemes,
 	resolveCssVariable,
 	normalizeColorToHex,
@@ -24,12 +25,38 @@ import {
 import { sanitizeFormatting } from '../../utils/date-formatting';
 // Imported from the module rather than the `chart-scope` barrel: the barrel also pulls `use-standalone-scope-class`, which imports `GlobalChartsContext` back from this file. That cycle resolves today only because the binding is read lazily inside the hook body.
 import { ChartScopeContext } from '../chart-scope/chart-scope-context';
-import { getChartColor, type ColorCache } from './private/get-chart-color';
-import { SERIES_PALETTE_POINTERS } from './private/series-palette';
+import {
+	BACKGROUND_FALLBACK,
+	CATALOG_POINTERS,
+	LABEL_FALLBACK,
+	LABEL_INVERSE_FALLBACK,
+} from './private/catalog-pointers';
+import { createPaletteGenerator } from './private/palette-generator';
+import { SERIES_PALETTE_POINTERS, SERIES_SLOT_1_FALLBACK } from './private/series-palette';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
 import type { ChartTheme, CompleteChartTheme } from '../../types';
 import type { FC, ReactNode } from 'react';
+
+interface ColorCache {
+	colors: string[];
+	background: string;
+	labelColors: string[];
+	colorAt: ( index: number ) => string;
+}
+
+// A see-through color (transparent, or any alpha below 1) says nothing about what it will look like
+// over the chart, so it resolves to null rather than let its RGB leak into the palette.
+const resolveOpaqueHex = ( pointer: string, element: HTMLElement | null ): string | null => {
+	const raw = resolveCssVariable( pointer, element );
+	if ( ! raw || d3Color( raw )?.opacity !== 1 ) {
+		return null;
+	}
+	const hex = normalizeColorToHex( pointer, element, resolveCssVariable );
+	return isValidHexColor( hex ) ? hex : null;
+};
+
+const PLACEHOLDER_LABEL_COLORS = [ LABEL_FALLBACK, LABEL_INVERSE_FALLBACK ];
 
 export const GlobalChartsContext = createContext< GlobalChartsContextValue | null >( null );
 
@@ -81,12 +108,17 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	// Cache expensive color computations that only change when theme colors change
 	// Using useState + useLayoutEffect instead of useMemo to ensure CSS variables
 	// in <style> tags are applied to the DOM before we try to resolve them
+	// Seeded with what slot 1 resolves to where no DOM answers, so a one-series first render
+	// never builds the candidate grid and SSR matches the unthemed client palette.
 	const [ colorCache, setColorCache ] = useState< ColorCache >( () => ( {
 		colors: [],
-		hues: [],
-		existingHslColors: [],
-		minHue: 360,
-		maxHue: 0,
+		background: BACKGROUND_FALLBACK,
+		labelColors: PLACEHOLDER_LABEL_COLORS,
+		colorAt: createPaletteGenerator(
+			[ SERIES_SLOT_1_FALLBACK ],
+			BACKGROUND_FALLBACK,
+			PLACEHOLDER_LABEL_COLORS
+		),
 	} ) );
 
 	// Track if the color palette has been resolved from the DOM
@@ -100,45 +132,29 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 	useLayoutEffect( () => {
 		setIsColorPaletteResolved( false );
 		const resolvedColors: string[] = [];
-		const hues: number[] = [];
-		const existingHslColors: Array< [ number, number, number ] > = [];
-		let minHue = 360;
-		let maxHue = 0;
 
 		for ( const color of SERIES_PALETTE_POINTERS ) {
-			// Normalize color to hex format, handling CSS variables, RGB, HSL, etc.
-			// This uses normalizeColorToHex which resolves CSS variables and converts
-			// rgb(), rgba(), hsl() formats to hex
 			const normalizedColor = normalizeColorToHex( color, wrapperRef.current, resolveCssVariable );
 
-			// Only process valid hex colors. An unset palette slot returns its own
-			// `var()` unchanged, so this is also what compacts the palette: slots the
-			// consumer never set drop out here and `getChartColor` generates past
-			// whatever survived.
-			if ( normalizedColor.startsWith( '#' ) ) {
+			// An unset palette slot returns its own `var()` unchanged, so this is also what
+			// compacts the palette: a slot the consumer never set drops out here.
+			if ( isValidHexColor( normalizedColor ) ) {
 				resolvedColors.push( normalizedColor );
-				const hslColor = d3Hsl( normalizedColor );
-				// d3Hsl returns NaN values for invalid colors
-				if ( ! isNaN( hslColor.h ) ) {
-					const hslTuple: [ number, number, number ] = [
-						hslColor.h,
-						hslColor.s * 100,
-						hslColor.l * 100,
-					];
-					hues.push( hslTuple[ 0 ] );
-					existingHslColors.push( hslTuple );
-					minHue = Math.min( minHue, hslTuple[ 0 ] );
-					maxHue = Math.max( maxHue, hslTuple[ 0 ] );
-				}
 			}
 		}
 
+		const backgroundHex =
+			resolveOpaqueHex( CATALOG_POINTERS.background, wrapperRef.current ) ?? BACKGROUND_FALLBACK;
+		// The two roles pie labels choose between on a fill; one left see-through is never painted there.
+		const labelColors = [ CATALOG_POINTERS.label, CATALOG_POINTERS.labelInverse ]
+			.map( pointer => resolveOpaqueHex( pointer, wrapperRef.current ) )
+			.filter( ( hex ): hex is string => hex !== null );
+
 		setColorCache( {
 			colors: resolvedColors,
-			hues,
-			existingHslColors,
-			minHue,
-			maxHue,
+			background: backgroundHex,
+			labelColors,
+			colorAt: createPaletteGenerator( resolvedColors, backgroundHex, labelColors ),
 		} );
 	}, [] );
 
@@ -152,9 +168,9 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 		() => new Map()
 	);
 
-	// Keyed on the resolved colors rather than the cache object, so a consumer passing an inline
-	// `theme` cannot reset the map on every render.
-	const paletteKey = colorCache.colors.join( ',' );
+	// Keyed on the resolved colors, background and labels, not the cache object, so a consumer passing an
+	// inline `theme` cannot reset the map on every render.
+	const paletteKey = `${ colorCache.colors.join( ',' ) }|${ colorCache.background }|${ colorCache.labelColors.join( ',' ) }`;
 
 	useEffect( () => {
 		// Create a completely new Map instance to trigger dependencies, e.g. useChartLegendItems
@@ -206,13 +222,13 @@ export const GlobalChartsProvider: FC< GlobalChartsProviderProps > = ( {
 				// Use map size as index to assign colors sequentially (0, 1, 2...)
 				// ensuring each new group gets the next available palette color
 				const assignedCount = groupToColorMap.size;
-				const color = getChartColor( assignedCount, colorCache );
+				const color = colorCache.colorAt( assignedCount );
 				groupToColorMap.set( group, color );
 
 				return color;
 			}
 
-			return getChartColor( index, colorCache );
+			return colorCache.colorAt( index );
 		},
 		[ colorCache, groupToColorMap ]
 	);

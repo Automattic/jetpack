@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Keep the views trend chart's comparison lines distinguishable, including for color-blind viewers.

@@ -18,5 +18,9 @@
 
 	&__label-text {
 		fill: var(--a8c-charts-color-label-inverse, #f0f0f0);
+
+		&--on-light {
+			fill: var(--a8c-charts-color-label, #1e1e1e);
+		}
 	}
 }

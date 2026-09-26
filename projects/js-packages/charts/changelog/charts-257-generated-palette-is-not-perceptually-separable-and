@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep generated series colors distinguishable from each other, including for color-blind viewers, and legible on the chart background; pick pie label text that contrasts with each slice.

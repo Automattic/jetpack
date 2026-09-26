@@ -19,7 +19,7 @@ import {
 	osUsageData,
 	trafficSourcesData,
 } from '../../../stories/sample-data';
-import { themeArgTypes } from '../../../stories/theme-config';
+import { themeArgTypes, WP_ADMIN_COLOR_SCHEMES } from '../../../stories/theme-config';
 
 type StoryArgs = ChartStoryArgs< {
 	showUnitedStates?: boolean;
@@ -474,5 +474,60 @@ export const HostTimeZoneDatesDayStrings: Story = {
 
 		await expect( await tokyo.findByText( '2. Aug.' ) ).toBeInTheDocument();
 		await expect( await losAngeles.findByText( 'Aug 2' ) ).toBeInTheDocument();
+	},
+};
+
+const generatedPaletteData: DataPointPercentage[] = [
+	{ label: 'Organic search', value: 32 },
+	{ label: 'Direct', value: 24 },
+	{ label: 'Social', value: 18 },
+	{ label: 'Referral', value: 12 },
+	{ label: 'Email', value: 9 },
+	{ label: 'Other', value: 5 },
+];
+
+// Sets slot 1 per scheme; the selector targets `.a8c-charts-scope` itself, see TOKENS.md Precedence.
+export const GeneratedPalette: Story = {
+	render: () => (
+		<div
+			style={ {
+				display: 'grid',
+				gridTemplateColumns: 'repeat(4, 260px)',
+				gap: '3rem',
+			} }
+		>
+			{ Object.entries( WP_ADMIN_COLOR_SCHEMES ).map( ( [ scheme, seed ] ) => {
+				const className = `generated-palette-${ scheme }`;
+				return (
+					<div key={ scheme } className={ className }>
+						<style>
+							{ `.${ className } .a8c-charts-scope { --a8c-charts-color-series-1: ${ seed }; }` }
+						</style>
+						<p style={ { margin: '0 0 8px', textAlign: 'center' } }>
+							{ scheme } <code>{ seed }</code>
+						</p>
+						<GlobalChartsProvider>
+							<PieChart width={ 260 } height={ 260 } data={ generatedPaletteData } showLabels />
+						</GlobalChartsProvider>
+					</div>
+				);
+			} ) }
+		</div>
+	),
+	argTypes: {
+		themeName: { table: { disable: true } },
+		accentColor: { table: { disable: true } },
+		adminColorScheme: { table: { disable: true } },
+		showUnitedStates: { table: { disable: true } },
+		showGreatBritain: { table: { disable: true } },
+		showJapan: { table: { disable: true } },
+	},
+	parameters: {
+		docs: {
+			description: {
+				story:
+					"One chart per wp-admin color scheme, seeded with that scheme's `--wp-admin-theme-color` in the first palette slot only. The remaining five slice colors are generated to stay perceptually separable from the seed and from each other, including under simulated color vision deficiency, and pie labels pick dark or light text per slice contrast.",
+			},
+		},
 	},
 };
