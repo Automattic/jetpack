@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Harden conditional logic on Group blocks: govern nested groups by their ancestors, refuse ambiguous field ids, and keep step numbering correct.
