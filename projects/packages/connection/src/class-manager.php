@@ -188,7 +188,7 @@ class Manager {
 		Webhooks::init( $manager );
 
 		add_action( 'pre_update_jetpack_option_user_tokens', array( $manager, 'unbind_wpcom_user_ids_for_new_tokens' ), 10, 2 );
-		add_action( 'jetpack_user_authorized', array( $manager, 'promote_protected_owner_on_connect' ) );
+		add_action( 'jetpack_user_authorized', array( $manager, 'reconcile_protected_owner' ) );
 
 		// Unlink user before deleting the user from WP.com.
 		add_action( 'deleted_user', array( $manager, 'disconnect_user_force' ), 9, 1 );
@@ -1461,43 +1461,147 @@ class Manager {
 	}
 
 	/**
-	 * Re-point the connection owner at the protected owner when they connect.
+	 * Reconcile this site's protected owner against WordPress.com, which is the owner of record.
 	 *
-	 * Local only: it promotes an owner WordPress.com has already confirmed, and never establishes.
-	 * The binding is resolved rather than read because the token written moments earlier
-	 * invalidated any stored one.
+	 * Runs at connect, when the site has a fresh user token and an answer is cheap. One answer
+	 * settles every question the site has: whether an owner exists, whether the anchor still names
+	 * them, and whether the user connecting is them — so the lock, the binding and the master slot
+	 * are all decided together rather than from two calls that could disagree.
+	 *
+	 * Fails closed. Unreachable, refused and unimplemented all drop the anchor rather than trust
+	 * it, so nothing is left for another user's connection to confirm back into place. Recovery
+	 * then needs the owner, because the answer names them to nobody else. A refused delete leaves
+	 * the anchor standing and the gates satisfied; that write is the only mechanism there is.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
-	 * @since 9.5.0
+	 * @since $$next-version$$
+	 *
+	 * @return bool Whether WordPress.com confirmed the anchored identity.
 	 */
-	public function promote_protected_owner_on_connect() {
-		$anchor = Protected_Owner::get_locked();
-
-		if ( ! $anchor ) {
-			return;
-		}
-
+	public function reconcile_protected_owner() {
 		$user_id = get_current_user_id();
 
 		if ( ! $user_id ) {
-			return;
+			return false;
 		}
 
-		// `jetpack_connect_user` drops to `read` once an owner exists, so any user can authorize.
-		if ( ! user_can( $user_id, ( new Roles() )->translate_role_to_cap( 'administrator' ) ) ) {
-			return;
+		$anchor = Protected_Owner::get();
+
+		// Nothing anchored is nothing to reconcile, and a site with no protected owner must behave
+		// exactly as it did before this existed — including making no request. Such a site reaches
+		// an owner through the claim instead, which is where confirming belongs.
+		if ( ! $anchor ) {
+			return false;
 		}
 
-		if ( $this->resolve_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
-			return;
+		$record = $this->query_protected_owner_record( (int) $anchor['wpcom_user_id'] );
+
+		// Silence is not an answer. Unreachable, refused and unimplemented leave the anchor exactly
+		// as it was: it was confirmed once, and a request that never arrived is no evidence against
+		// it. Dropping a good lock because WordPress.com had a bad minute costs a merchant their
+		// payouts until the owner happens to connect again.
+		if ( ! is_array( $record ) || ! isset( $record['has_owner'] ) ) {
+			return false;
 		}
 
-		// The cached local ID moves with the owner even when the master slot already agrees.
-		Protected_Owner::repoint( $user_id );
+		// WordPress.com no longer has an owner of record, so neither does this site. Support
+		// clearing it at that end is how a wrongly anchored site recovers.
+		if ( ! $record['has_owner'] ) {
+			Protected_Owner::clear();
 
-		if ( (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
+			return false;
+		}
+
+		// The identity is disclosed only to the owner it names, so this branch is the one place the
+		// site can learn it. Anchoring here is not establishing: WordPress.com already accepted a
+		// claim, and this catches up a site that never recorded it or lost the record.
+		$caller_wpcom_user_id = (int) ( $record['caller_wpcom_user_id'] ?? 0 );
+
+		if ( ! empty( $record['is_caller'] ) ) {
+			return $this->adopt_protected_owner( $user_id, $caller_wpcom_user_id, $anchor );
+		}
+
+		// Connecting cleared this, and it is the caller's own identity rather than the owner's, so
+		// it is written whoever they are. Nothing is anchored on this path, so an early write
+		// cannot strand a half-finished lock.
+		if ( $caller_wpcom_user_id ) {
+			Utils::set_wpcom_user_id( $user_id, $caller_wpcom_user_id );
+		}
+
+		// Somebody else is connecting. WordPress.com confirms the anchored identity rather than
+		// naming the owner, so the answer is the same whoever asks.
+		if ( empty( $record['matches'] ) ) {
+			Protected_Owner::clear();
+
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Take WordPress.com's word that the connecting user owns this site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int        $user_id       The connecting local user.
+	 * @param int        $wpcom_user_id The connecting user's WordPress.com identity, which this
+	 *                                  branch has just been told is the owner of record.
+	 * @param array|null $anchor        What this site has anchored, if anything.
+	 * @return bool Whether the anchor now names that identity.
+	 */
+	private function adopt_protected_owner( $user_id, $wpcom_user_id, $anchor ) {
+		// An owner without an identity is a malformed answer, and trusting it would lock the site
+		// to nobody.
+		if ( ! $wpcom_user_id ) {
+			return false;
+		}
+
+		// Anchored before the binding, so a failed write leaves nothing behind for a later
+		// connection to build on. Re-pointing only moves the cached local ID, so it is right only
+		// while the anchored identity is the one WordPress.com just confirmed.
+		if ( $anchor && (int) $anchor['wpcom_user_id'] === $wpcom_user_id ) {
+			Protected_Owner::repoint( $user_id );
+		} elseif ( ! Protected_Owner::set( $wpcom_user_id, $user_id ) ) {
+			return false;
+		}
+
+		// Connecting clears the binding, so this writes back the one the answer just confirmed.
+		Utils::set_wpcom_user_id( $user_id, $wpcom_user_id );
+
+		// Eligibility for the master slot is being an administrator here, which the owner of record
+		// need not be.
+		if ( user_can( $user_id, ( new Roles() )->translate_role_to_cap( 'administrator' ) )
+			&& (int) \Jetpack_Options::get_option( 'master_user' ) !== $user_id ) {
 			\Jetpack_Options::update_option( 'master_user', $user_id );
 		}
+
+		return true;
+	}
+
+	/**
+	 * Ask WordPress.com whether it still holds the anchored identity as this site's owner.
+	 *
+	 * Split from `reconcile_protected_owner()` so the decision it drives can be exercised without a
+	 * network, which is the half worth testing: every branch of it changes whether a site gates a
+	 * live feature. The anchored ID is sent so the answer confirms rather than discloses.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $anchored_wpcom_user_id The WordPress.com identity this site has anchored.
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function query_protected_owner_record( $anchored_wpcom_user_id ) {
+		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
+		$xml->query( 'jetpack.reconcileProtectedOwner', array( 'anchored_wpcom_user_id' => $anchored_wpcom_user_id ) );
+
+		if ( $xml->isError() ) {
+			return null;
+		}
+
+		$response = $xml->getResponse();
+
+		return is_array( $response ) ? $response : null;
 	}
 
 	/**
