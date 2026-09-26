@@ -32,6 +32,32 @@ class Reprint_Exporter {
 	const ENABLED_OPTION = 'jetpack_reprint_exporter_enabled';
 
 	/**
+	 * Option holding the HMAC of the secret under the site's auth salt.
+	 *
+	 * @var string
+	 */
+	const SECRET_HASH_OPTION = 'jetpack_reprint_exporter_secret_hash';
+
+	/**
+	 * Option holding the HMAC of the window timestamp under the site's auth salt.
+	 *
+	 * @var string
+	 */
+	const ENABLED_HASH_OPTION = 'jetpack_reprint_exporter_enabled_hash';
+
+	/**
+	 * The options only this class may write.
+	 *
+	 * @var string[]
+	 */
+	const GUARDED_OPTIONS = array(
+		self::SECRET_OPTION,
+		self::SECRET_HASH_OPTION,
+		self::ENABLED_OPTION,
+		self::ENABLED_HASH_OPTION,
+	);
+
+	/**
 	 * Clock-skew tolerance, in seconds, allowed for HMAC signatures.
 	 *
 	 * @var int
@@ -57,7 +83,7 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Blocks writes to the two export options from anywhere but this class.
+	 * Blocks writes to the export options from anywhere but this class.
 	 *
 	 * Whoever sets both can export the whole site, since they pick the secret
 	 * and can then sign their own requests. Allowed by where the write came
@@ -70,7 +96,7 @@ class Reprint_Exporter {
 	 * two, but nothing catches a write made earlier in a normal request.
 	 */
 	public static function protect_options() {
-		foreach ( array( self::SECRET_OPTION, self::ENABLED_OPTION ) as $option ) {
+		foreach ( self::GUARDED_OPTIONS as $option ) {
 			// Last word: a later filter must not be able to reinstate the value.
 			add_filter( "pre_update_option_{$option}", array( __CLASS__, 'veto_foreign_update' ), PHP_INT_MAX, 2 );
 		}
@@ -97,7 +123,7 @@ class Reprint_Exporter {
 	 * @param string $option The option being added.
 	 */
 	public static function veto_foreign_add( $option ) {
-		if ( self::SECRET_OPTION !== $option && self::ENABLED_OPTION !== $option ) {
+		if ( ! in_array( $option, self::GUARDED_OPTIONS, true ) ) {
 			return;
 		}
 
@@ -148,8 +174,9 @@ class Reprint_Exporter {
 		 * Fires when a Reprint export request ends in an export or an error.
 		 *
 		 * A request the handler ignores fires nothing, and no event carries the
-		 * secret or the signature. An export with no secret_rotated or
-		 * window_opened event before it used a secret this site did not create.
+		 * secret, a credential hash or the signature. An export with no secret_rotated
+		 * or window_opened event before it used a secret this site did not
+		 * create.
 		 *
 		 * @since 16.2
 		 *
@@ -168,10 +195,12 @@ class Reprint_Exporter {
 	 * on a site that stays connected.
 	 */
 	public static function discard_credentials() {
-		$had_secret = delete_option( self::SECRET_OPTION );
-		$had_window = delete_option( self::ENABLED_OPTION );
+		$had_any = false;
+		foreach ( self::GUARDED_OPTIONS as $option ) {
+			$had_any = delete_option( $option ) || $had_any;
+		}
 
-		if ( $had_secret || $had_window ) {
+		if ( $had_any ) {
 			// current_filter() rather than a parameter: jetpack_site_registered
 			// passes a blog ID to its callbacks, which would land in one.
 			self::record_event(
@@ -182,13 +211,52 @@ class Reprint_Exporter {
 	}
 
 	/**
-	 * Stores a newly created shared secret.
+	 * Stores a newly created shared secret together with its salt-keyed hash.
 	 *
 	 * @param string $secret The new secret.
-	 * @return bool Whether the secret was stored.
+	 * @return bool Whether the secret and its hash were written.
 	 */
 	public static function store_secret( $secret ) {
-		return self::write_option( self::SECRET_OPTION, $secret );
+		$secret_stored = self::write_option( self::SECRET_OPTION, $secret );
+		$hash_stored   = self::write_option( self::SECRET_HASH_OPTION, self::compute_credential_hash( self::SECRET_HASH_OPTION, $secret ) );
+
+		return $secret_stored && $hash_stored;
+	}
+
+	/**
+	 * Computes the HMAC binding a stored credential to the site's auth salt.
+	 *
+	 * Deliberately keyed with wp_salt() rather than AUTH_SALT, so sites still
+	 * carrying the sample placeholder salts can export at all. Accepted cost:
+	 * wp_salt() then stores its own salt in wp_options, where whoever can write
+	 * the credential can read it, so the hashes add no protection there.
+	 *
+	 * The option name prefixes the message, so copying the window timestamp and
+	 * its hash into the secret options does not make a secret that verifies.
+	 *
+	 * @param string     $hash_option The option the hash is stored in.
+	 * @param string|int $value       The stored value.
+	 * @return string
+	 */
+	private static function compute_credential_hash( $hash_option, $value ) {
+		return hash_hmac( 'sha256', $hash_option . "\0" . (string) $value, wp_salt( 'auth' ) );
+	}
+
+	/**
+	 * Whether the stored hash is the one the site's auth salt gives for a
+	 * stored credential.
+	 *
+	 * @param string     $hash_option The option the hash is stored in.
+	 * @param string|int $value       The stored value.
+	 * @return bool
+	 */
+	private static function credential_hash_matches( $hash_option, $value ) {
+		$stored_hash = get_option( $hash_option );
+		if ( ! is_string( $stored_hash ) ) {
+			return false;
+		}
+
+		return hash_equals( self::compute_credential_hash( $hash_option, $value ), $stored_hash );
 	}
 
 	/**
@@ -285,6 +353,17 @@ class Reprint_Exporter {
 			return;
 		}
 
+		// A secret this class did not hash under the current salt is no
+		// credential at all, so it never reaches signature verification.
+		if ( ! self::credential_hash_matches( self::SECRET_HASH_OPTION, $secret ) ) {
+			if ( ! $window_open ) {
+				return;
+			}
+			self::record_event( 'credential_hash_mismatch' );
+			$this->error( 503, 'Export credential invalidated: the stored secret does not match this site\'s salts. Please rotate the shared secret via POST /jetpack/v4/reprint/rotate-export-secret.' );
+			return;
+		}
+
 		$auth_error = $this->verify_hmac( $secret );
 		if ( null !== $auth_error ) {
 			if ( ! $window_open ) {
@@ -345,18 +424,25 @@ class Reprint_Exporter {
 		$now        = null === $now ? time() : (int) $now;
 		return $enabled_at > 0
 			&& $enabled_at <= $now + self::HMAC_CLOCK_SKEW
-			&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS;
+			&& ( $now - $enabled_at ) <= HOUR_IN_SECONDS
+			&& self::credential_hash_matches( self::ENABLED_HASH_OPTION, $enabled_at );
 	}
 
 	/**
 	 * Opens the export window by stamping the enabled option with the current
-	 * time.
+	 * time and hashing the stamp.
 	 *
 	 * @return int The unix timestamp the window was opened at.
 	 */
 	public static function open_export_window() {
 		$now = time();
+
+		// Value then hash: a crash between them leaves a mismatch, which reads
+		// as closed. Each skips an unchanged value, so a busy client costs at
+		// most two writes per elapsed second.
 		self::write_option( self::ENABLED_OPTION, $now );
+		self::write_option( self::ENABLED_HASH_OPTION, self::compute_credential_hash( self::ENABLED_HASH_OPTION, $now ) );
+
 		return $now;
 	}
 
