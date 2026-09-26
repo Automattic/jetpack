@@ -325,6 +325,17 @@ describe( 'AI admin page (main.jsx)', () => {
 		);
 	} );
 
+	test( 'renders the shared JITM slot', async () => {
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBeInTheDocument();
+	} );
+
 	describe( 'master-off notice', () => {
 		const MASTER_OFF_TITLE = 'Jetpack AI is turned off for this site.';
 		const masterOffSettings = () => ( { ...enabledSettings(), master_enabled: false } );
