@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { Identity, IdentityMenu } from '../identity';
+import { Identity } from '../identity';
 import { IdentityDialog } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
@@ -21,7 +21,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isSavedGuest,
 		isKnown,
 		isTrayOpen,
-		isMenuOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
 	const { mustLogIn, identity, strings, avatarUrl } = JetpackComments;
@@ -168,9 +167,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 						</span>
 					</div>
 				</div>
-			</div>
-			<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isMenuOpen.value } ) }>
-				<IdentityMenu />
 			</div>
 			{ /* Core clears saved details on any post without this. */ }
 			{ isSavedGuest && ! signedIn.value && (

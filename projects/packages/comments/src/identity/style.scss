@@ -1,8 +1,41 @@
+// Two panels in one clipped slot: the name slides out to the right and the
+// options slide in behind it. The hidden one is unfocusable once it has left.
 .jetpack-comments__who {
+	display: inline-grid;
+	overflow: hidden;
+}
+
+.jetpack-comments__panel {
+	grid-area: 1 / 1;
 	display: inline-flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.25em;
+	gap: 0.25em 0.75em;
+	white-space: nowrap;
+	transition:
+		transform 0.25s ease-in-out,
+		visibility 0s linear 0.25s;
+}
+
+.jetpack-comments__panel--options {
+	transform: translateX(-100%);
+	visibility: hidden;
+}
+
+.jetpack-comments__who.is-open {
+
+	.jetpack-comments__panel--name {
+		transform: translateX(100%);
+		visibility: hidden;
+	}
+
+	.jetpack-comments__panel--options {
+		transform: none;
+		visibility: visible;
+		transition:
+			transform 0.25s ease-in-out,
+			visibility 0s;
+	}
 }
 
 // Nested under .jetpack-comments to outrank a theme's `.comment-form button`.
@@ -24,22 +57,9 @@
 	svg {
 		inline-size: 20px;
 		block-size: 20px;
-		transition: transform 0.2s;
-	}
-
-	&.is-open svg {
-		transform: rotate(180deg);
 	}
 }
 
 .jetpack-comments .jetpack-comments__link-button {
 	text-decoration: underline;
-}
-
-.jetpack-comments__menu {
-	display: flex;
-	flex-wrap: wrap;
-	gap: 1em;
-	padding-block-start: 0.75em;
-	font-size: 0.875em;
 }

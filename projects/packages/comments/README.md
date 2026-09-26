@@ -24,7 +24,7 @@ The form renders on the site the comment is posted to, and posts to that site's 
 - A reader the site does not know yet is asked who they are in a dialog when they submit: name, email and website, honoring `require_name_email`. "Save and post comment" carries core's cookies-consent field, so core saves their details; "No, thanks" posts without it. A guest whose details are saved posts straight through, shown by name, with "Change details" back to the dialog.
 - A reader the site knows, whether logged in, signed in through the popup or a guest with saved details, posts straight through with no dialog.
 - Sign in with WordPress.com from the same dialog, through a popup rather than an iframe. See "The checkpoint" below. A sign-in that lands keeps the dialog open with a "Commenting as" line, the subscribe options where the host offers any, and one submit, rather than posting on its own.
-- "Name" for a site user and "Name via WordPress.com" for a popup sign-in. A chevron drops a row below the box with Log out and a "Manage subscriptions" link: the Reader for a WordPress.com account, the email portal for anyone else.
+- "Name" for a site user and "Name via WordPress.com" for a popup sign-in. A chevron slides the name out and the options in behind it, Log out and a "Manage subscriptions" link: the Reader for a WordPress.com account, the email portal for anyone else.
 - Reply threading, by watching the `comment_parent` input WordPress rewrites.
 - Core's own fields and submit sit inside the mount until the script takes over, and stay when it cannot: a page cache pairing settings from an older release with a newer bundle, or a script that never ran.
 

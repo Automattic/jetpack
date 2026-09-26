@@ -77,6 +77,7 @@ export type Strings = {
 	postWithoutSaving: string;
 	close: string;
 	options: string;
+	back: string;
 	changeDetails: string;
 	manageSubscriptions: string;
 	mustLogIn: string;
