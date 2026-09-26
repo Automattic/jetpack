@@ -12,8 +12,8 @@
 		"@jetpack-premium-analytics/data": "workspace:*",
 		"@jetpack-premium-analytics/fields": "workspace:*",
 		"@wordpress/api-fetch": "7.55.0",
-		"@wordpress/boot": "0.22.0",
-		"@wordpress/data": "10.55.0",
-		"@wordpress/icons": "^16.0.0"
+		"@wordpress/boot": "0.23.0",
+		"@wordpress/data": "10.56.0",
+		"@wordpress/icons": "^17.0.0"
 	}
 }
