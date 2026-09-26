@@ -963,8 +963,8 @@ describe( 'The feature step', () => {
 	// The worst thing this flow could do is tick a module that never came on.
 	it( 'says which modules could not be changed', async () => {
 		mockApply.mockResolvedValueOnce( [
-			{ slug: 'stats', name: 'Jetpack Stats', wanted: true, ok: true },
-			{ slug: 'monitor', name: 'Downtime Monitor', wanted: true, ok: false },
+			{ slug: 'stats', name: 'Jetpack Stats', wanted: true, ok: true, changed: true },
+			{ slug: 'monitor', name: 'Downtime Monitor', wanted: true, ok: false, changed: true },
 		] );
 
 		const { user } = setupWizard( { isUserConnected: true } );
@@ -979,8 +979,8 @@ describe( 'The feature step', () => {
 
 	it( 'does not claim a completion the user did not ask for', async () => {
 		mockApply.mockResolvedValueOnce( [
-			{ slug: 'stats', name: 'Jetpack Stats', wanted: false, ok: true },
-			{ slug: 'monitor', name: 'Downtime Monitor', wanted: false, ok: true },
+			{ slug: 'stats', name: 'Jetpack Stats', wanted: false, ok: true, changed: true },
+			{ slug: 'monitor', name: 'Downtime Monitor', wanted: false, ok: true, changed: true },
 		] );
 
 		const { user } = setupWizard( { isUserConnected: true } );
