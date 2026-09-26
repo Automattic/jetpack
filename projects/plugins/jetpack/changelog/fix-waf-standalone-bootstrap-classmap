@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Firewall: Fix blank Jetpack admin pages when the standalone mode bootstrap loads from an older copy of the plugin.

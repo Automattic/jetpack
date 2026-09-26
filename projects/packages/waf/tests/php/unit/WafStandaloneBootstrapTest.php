@@ -19,11 +19,223 @@ interface WafStandaloneBootstrapTest_filesystem_mock {
 	public function put_contents( $path, $contents );
 }
 
+// phpcs:ignore PEAR.NamingConventions.ValidClassName.Invalid
+class WafStandaloneBootstrapTest_real_filesystem implements WafStandaloneBootstrapTest_filesystem_mock {
+	public function is_dir( $path ) {
+		return is_dir( $path );
+	}
+	public function mkdir( $path ) {
+		return mkdir( $path );
+	}
+	public function put_contents( $path, $contents ) {
+		return false !== file_put_contents( $path, $contents );
+	}
+}
+
 /**
  * Runtime test suite.
  */
 #[AllowMockObjectsWithoutExpectations /* getStubBuilder() (for partial stubs) doesn't exist until PHPUnit 12.5. */]
 final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
+
+	/**
+	 * Temporary WP_CONTENT_DIR created by `generate_real_bootstrap()`, removed on teardown.
+	 *
+	 * @var string|null
+	 */
+	private $content_dir;
+
+	/**
+	 * Remove the temporary WP_CONTENT_DIR, if any.
+	 */
+	protected function tearDown(): void {
+		if ( $this->content_dir ) {
+			foreach ( glob( $this->content_dir . '/jetpack-waf/{,rules/}*.php', GLOB_BRACE ) as $file ) {
+				unlink( $file );
+			}
+			foreach ( array( $this->content_dir . '/jetpack-waf/rules', $this->content_dir . '/jetpack-waf', $this->content_dir ) as $dir ) {
+				if ( is_dir( $dir ) ) {
+					rmdir( $dir );
+				}
+			}
+		}
+		parent::tearDown();
+	}
+
+	/**
+	 * Generates a real bootstrap file under a fresh temporary WP_CONTENT_DIR.
+	 *
+	 * @return string Path to the generated bootstrap file.
+	 */
+	private function generate_real_bootstrap() {
+		$content_dir       = sys_get_temp_dir() . '/jetpack-waf-bootstrap-test-' . uniqid();
+		$this->content_dir = $content_dir;
+		mkdir( $content_dir );
+
+		define( 'ABSPATH', $content_dir . '/' );
+		define( 'WP_CONTENT_DIR', $content_dir );
+		add_test_option( 'jetpack_waf_mode', 'normal' );
+
+		global $wp_filesystem;
+		$wp_filesystem = new WafStandaloneBootstrapTest_real_filesystem();
+
+		$sut = $this->getMockBuilder( Waf_Standalone_Bootstrap::class )
+			->onlyMethods( array( 'initialize_filesystem' ) )
+			->getMock();
+
+		return $sut->generate();
+	}
+
+	/**
+	 * Runs a bootstrap file in a fresh PHP process, as `auto_prepend_file` would, and returns what it reports.
+	 *
+	 * Under the CLI SAPI the firewall defines its constants but does not evaluate rules; pass `$php_cgi` to run
+	 * the same fixture as a web request, which reaches the runtime and the rules entrypoint.
+	 *
+	 * @param string      $bootstrap_file Path to the bootstrap file.
+	 * @param string|null $php_cgi        Path to a php-cgi binary to run under, or null for `PHP_BINARY`.
+	 * @return array The decoded report from `fixtures/run-bootstrap.php`, plus `exit_code` and `stderr`.
+	 * @throws RuntimeException If the process cannot be started.
+	 */
+	private function run_bootstrap_in_child_process( $bootstrap_file, $php_cgi = null ) {
+		$fixture = __DIR__ . '/fixtures/run-bootstrap.php';
+		// Opcache is off so that its JIT startup warning under coverage extensions cannot pollute the output.
+		$options = array( '-d', 'display_errors=stderr', '-d', 'error_reporting=E_ALL', '-d', 'opcache.enable=0', '-d', 'opcache.enable_cli=0' );
+		$env     = array( 'JETPACK_WAF_TEST_BOOTSTRAP' => $bootstrap_file );
+
+		if ( null === $php_cgi ) {
+			$command = array_merge( array( PHP_BINARY ), $options, array( $fixture ) );
+		} else {
+			$command = array_merge( array( $php_cgi ), $options );
+			$env    += array(
+				'SCRIPT_FILENAME' => $fixture,
+				'REQUEST_METHOD'  => 'GET',
+				'REDIRECT_STATUS' => '200',
+			);
+		}
+
+		$process = proc_open(
+			$command,
+			array(
+				array( 'pipe', 'r' ),
+				array( 'pipe', 'w' ),
+				array( 'pipe', 'w' ),
+			),
+			$pipes,
+			null,
+			$env + array( 'PATH' => getenv( 'PATH' ) )
+		);
+		if ( ! is_resource( $process ) ) {
+			throw new RuntimeException( 'proc_open failed' );
+		}
+		fclose( $pipes[0] );
+		$stdout = stream_get_contents( $pipes[1] );
+		$stderr = stream_get_contents( $pipes[2] );
+		fclose( $pipes[1] );
+		fclose( $pipes[2] );
+		$exit_code = proc_close( $process );
+
+		$report = preg_match( '/^JETPACK_WAF_REPORT:(\{.*\})$/m', $stdout, $matches ) ? json_decode( $matches[1], true ) : null;
+		$this->assertIsArray( $report, "Child process produced no report. stdout: $stdout stderr: $stderr" );
+		// Startup notices from the environment may reach stderr; anything from the bootstrap or the WAF names their files.
+		$this->assertStringNotContainsStringIgnoringCase( 'error', $stderr );
+		$this->assertStringNotContainsString( 'jetpack-waf', $stderr );
+
+		return $report + array(
+			'exit_code' => $exit_code,
+			'stderr'    => $stderr,
+		);
+	}
+
+	/**
+	 * Finds a php-cgi binary matching the running PHP, or null when none is installed.
+	 *
+	 * @return string|null
+	 */
+	private function find_php_cgi() {
+		$names = array( 'php-cgi' . PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION, 'php-cgi' );
+		$dirs  = array_merge( array( dirname( PHP_BINARY ) ), explode( PATH_SEPARATOR, (string) getenv( 'PATH' ) ) );
+		foreach ( $dirs as $dir ) {
+			foreach ( $names as $name ) {
+				if ( is_executable( "$dir/$name" ) ) {
+					return "$dir/$name";
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Test that the generated bootstrap runs the firewall before WordPress, loading no package files and leaving only a WAF-class fallback loader registered.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testGeneratedBootstrapRunsTheFirewallAndLeavesNothingBehind() {
+		$report = $this->run_bootstrap_in_child_process( $this->generate_real_bootstrap() );
+
+		$this->assertSame( 0, $report['exit_code'] );
+		$this->assertSame( 'preload', $report['run'] );
+		$this->assertTrue( $report['runner_loaded'] );
+		$this->assertSame( array( 'Closure' ), $report['autoloaders'] );
+		$this->assertTrue( $report['loads_waf'] );
+		$this->assertFalse( $report['loads_other'] );
+		$this->assertSame( array(), $report['variables'] );
+		$this->assertSame( array(), $report['package_files'] );
+	}
+
+	/**
+	 * Test that, on a web request, the loader serves the runtime classes and the rules entrypoint runs.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testGeneratedBootstrapRunsTheRulesOnAWebRequest() {
+		$php_cgi = $this->find_php_cgi();
+		if ( null === $php_cgi ) {
+			$this->markTestSkipped( 'php-cgi is not installed; the web SAPI run cannot be exercised.' );
+		}
+
+		$bootstrap_file = $this->generate_real_bootstrap();
+		mkdir( dirname( $bootstrap_file ) . '/rules' );
+		file_put_contents( dirname( $bootstrap_file ) . '/rules/rules.php', "<?php\ndefine( 'JETPACK_WAF_TEST_RULES_WAF', get_class( \$waf ) );\n" );
+
+		$report = $this->run_bootstrap_in_child_process( $bootstrap_file, $php_cgi );
+
+		$this->assertSame( 0, $report['exit_code'] );
+		$this->assertNotSame( 'cli', $report['sapi'] );
+		$this->assertSame( 'preload', $report['run'] );
+		$this->assertSame( 'Automattic\\Jetpack\\Waf\\Waf_Runtime', $report['rules_waf'] );
+		$this->assertTrue( $report['runtime_loaded'] );
+		$this->assertSame( array( 'Closure' ), $report['autoloaders'] );
+		$this->assertTrue( $report['loads_waf'] );
+		$this->assertFalse( $report['loads_other'] );
+		$this->assertSame( array(), $report['variables'] );
+		$this->assertSame( array(), $report['package_files'] );
+	}
+
+	/**
+	 * Test that the generated bootstrap skips the firewall run instead of fataling when its classmap is gone.
+	 *
+	 * @runInSeparateProcess
+	 */
+	#[RunInSeparateProcess]
+	public function testGeneratedBootstrapSkipsTheRunWhenTheClassmapIsMissing() {
+		$bootstrap_file = $this->generate_real_bootstrap();
+		file_put_contents(
+			$bootstrap_file,
+			str_replace( 'autoload_classmap.php', 'autoload_classmap_gone.php', file_get_contents( $bootstrap_file ) )
+		);
+
+		$report = $this->run_bootstrap_in_child_process( $bootstrap_file );
+
+		$this->assertSame( 0, $report['exit_code'] );
+		$this->assertNull( $report['run'] );
+		$this->assertFalse( $report['runner_loaded'] );
+		$this->assertSame( array(), $report['autoloaders'] );
+		$this->assertFalse( $report['loads_waf'] );
+		$this->assertSame( array(), $report['variables'] );
+	}
 
 	/**
 	 * Test guarding against running outside of WP context.
@@ -100,9 +312,12 @@ final class WafStandaloneBootstrapTest extends PHPUnit\Framework\TestCase {
 					function ( $file_contents ) {
 						return strpos( $file_contents, "define( 'JETPACK_WAF_MODE', 'mockModeOption' );" ) !== false
 							&& strpos( $file_contents, "define( 'JETPACK_WAF_DIR', '/awesome/dir/jetpack-waf' );" ) !== false
-							// Checking the require and include paths fuzzy because it will vary depending on the system that the test is executed on.
-							&& preg_match( '/require_once.*autoload\.php/', $file_contents ) === 1
-							&& preg_match( '/Automattic\\\Jetpack\\\Waf\\\Waf_Runner::initialize/', $file_contents ) === 1;
+							// Checking the classmap path fuzzy because it will vary depending on the system that the test is executed on.
+							&& preg_match( '/\$classmap_file = \'.*\/vendor\/composer\/autoload_classmap\.php\';/', $file_contents ) === 1
+							&& strpos( $file_contents, 'require_once' ) === false
+							&& strpos( $file_contents, 'spl_autoload_register( $autoloader );' ) !== false
+							&& preg_match( '/Automattic\\\Jetpack\\\Waf\\\Waf_Runner::initialize/', $file_contents ) === 1
+							&& strpos( $file_contents, 'spl_autoload_unregister( $autoloader );' ) !== false;
 					}
 				)
 			)

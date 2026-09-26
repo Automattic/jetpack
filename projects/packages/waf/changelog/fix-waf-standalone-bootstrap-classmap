@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Standalone mode: Fix blank Jetpack admin pages when the bootstrap file points at an older copy of the plugin, and skip the firewall run instead of fataling when that copy is gone.
