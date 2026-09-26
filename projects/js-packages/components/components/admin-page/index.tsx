@@ -120,7 +120,8 @@ const AdminPage: FC< AdminPageProps > = ( {
 					</Col>
 				</Container>
 			) }
-			<Container fluid horizontalSpacing={ 0 }>
+			{ /* `jp-admin-page__content` is a stable hook for `jetpack-admin-page-layout`. Do not rename. */ }
+			<Container fluid horizontalSpacing={ 0 } className="jp-admin-page__content">
 				<Col>{ children }</Col>
 			</Container>
 			{ showFooter && <JetpackFooter menu={ optionalMenuItems } /> }

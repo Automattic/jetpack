@@ -27,7 +27,7 @@ body:is(.jetpack_page_my-jetpack, .admin_page_my-jetpack):not(.jetpack-admin-ful
 
 	// Keep the scrollable middle's gutter reserved so content-height changes
 	// don't shift the layout sideways.
-	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+	@include jetpack-admin-page-scrollable-middle {
 		scrollbar-gutter: stable;
 	}
 }
