@@ -14,7 +14,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { seen } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -84,10 +83,6 @@ function TotalViewsMetric() {
 					),
 					onRetry: refetch,
 				} ) }
-				empty={ {
-					icon: seen,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricSparklineSkeleton /> }
 			>
 				<div className={ styles.body }>

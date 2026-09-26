@@ -135,7 +135,9 @@ describe( 'TotalVisitorsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( 'No visitors in this period.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 

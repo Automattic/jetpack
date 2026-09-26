@@ -125,8 +125,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral megaphone
- * glyph and "No WordAds data in this period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: Story = {
 	render: renderOnPreset( 'last-365-days' ),
