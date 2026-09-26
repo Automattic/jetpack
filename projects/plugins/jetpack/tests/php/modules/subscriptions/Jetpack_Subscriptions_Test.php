@@ -4,6 +4,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
@@ -18,6 +19,7 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAYWALL
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\NEWSLETTER_COLUMN_ID;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -30,6 +32,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	protected $admin_user_id;
 	protected $plan_id;
 	protected $product_id = 1234;
+
+	const PAYWALL_POST_CONTENT = "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:jetpack/paywall /-->\n\n<!-- wp:paragraph -->\n<p>Subscriber part</p>\n<!-- /wp:paragraph -->";
 
 	public function set_up() {
 		parent::set_up();
@@ -192,6 +196,97 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create();
 		wp_publish_post( $post_id );
 		$this->assertEmpty( get_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function paywall_access_level_provider() {
+		$without_paywall = "<!-- wp:paragraph -->\n<p>Everything is free</p>\n<!-- /wp:paragraph -->";
+
+		return array(
+			'paywall block, no access set'           => array( self::PAYWALL_POST_CONTENT, null, 'subscribers', true ),
+			'paywall block, access everybody'        => array( self::PAYWALL_POST_CONTENT, 'everybody', 'subscribers', true ),
+			'paywall block, access paid subscribers' => array( self::PAYWALL_POST_CONTENT, 'paid_subscribers', 'paid_subscribers', true ),
+			'no paywall block, no access set'        => array( $without_paywall, null, 'everybody', false ),
+			'no paywall block, access everybody'     => array( $without_paywall, 'everybody', 'everybody', false ),
+		);
+	}
+
+	/**
+	 * Posts saved outside the block editor must still be gated by their Paywall block.
+	 *
+	 * @param string      $content            Post content.
+	 * @param string|null $stored_access      Access level stored on the post, or null for none.
+	 * @param string      $expected_access    Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $expected_paywalled Whether the post is flagged as containing paywalled content.
+	 * @dataProvider paywall_access_level_provider
+	 */
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_paywall_block_gates_post_without_access_level( $content, $stored_access, $expected_access, $expected_paywalled ) {
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
+		}
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
+
+		$this->assertSame( (string) $stored_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		$this->assertSame( $expected_access, Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertSame( $expected_paywalled, (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+	}
+
+	/**
+	 * The Newsletter column in the posts list shows the access level visitors get, not the raw meta.
+	 *
+	 * @param string      $content         Post content.
+	 * @param string|null $stored_access   Access level stored on the post, or null for none.
+	 * @param string      $expected_access Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $unused          Paywalled-content flag, covered by the test above.
+	 * @dataProvider paywall_access_level_provider
+	 */
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_newsletter_column_shows_effective_access_level( $content, $stored_access, $expected_access, $unused ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$labels = array(
+			'everybody'        => 'Everybody',
+			'subscribers'      => 'Subscribers',
+			'paid_subscribers' => 'Paid Subscribers',
+		);
+
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
+		}
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		ob_start();
+		\Automattic\Jetpack\Extensions\Subscriptions\render_newsletter_access_rows( NEWSLETTER_COLUMN_ID, $post_id );
+		$this->assertSame( $labels[ $expected_access ], ob_get_clean() );
+	}
+
+	/**
+	 * Removing the Paywall block makes a post with no stored access level public again.
+	 */
+	public function test_removing_paywall_block_ungates_post() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		register_subscription_block();
+
+		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
+		Jetpack_Memberships::clear_post_access_level_cache();
+		$this->assertSame( 'subscribers', Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->",
+			)
+		);
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		$this->assertSame( 'everybody', Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertEmpty( get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
 	/**

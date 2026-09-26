@@ -711,6 +711,15 @@ class Jetpack_Memberships {
 			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY;
 		}
 
+		// Only the editor switches a Paywall post to subscribers; REST, WP-CLI and importer saves don't.
+		// The block's name constant isn't loaded everywhere this runs, hence the literal.
+		if (
+			Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_EVERYBODY === $post_access_level
+			&& has_block( 'jetpack/paywall', $post_id )
+		) {
+			$post_access_level = Abstract_Token_Subscription_Service::POST_ACCESS_LEVEL_SUBSCRIBERS;
+		}
+
 		self::$post_access_level_cache[ $cache_key ] = $post_access_level;
 
 		return $post_access_level;
