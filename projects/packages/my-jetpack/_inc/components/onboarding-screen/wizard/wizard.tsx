@@ -10,7 +10,7 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { border, drafts, published, wordpress } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Icon, LinkButton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { Button, Icon, LinkButton, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
@@ -273,16 +273,36 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 				{ ! isFinish && (
 					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
 						<div className={ styles[ 'rail-head' ] }>
-							<LinkButton
-								variant="minimal"
-								tone="neutral"
-								size="compact"
-								href={ dashboardUrl }
-								aria-label={ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
-								className={ styles.exit }
-							>
-								<LinkButton.Icon icon={ wordpress } />
-							</LinkButton>
+							{ /*
+							 * Icon plus tooltip, as the Site Editor's own back control does it:
+							 * the aria-label is what a screen reader reads, and the popup is the
+							 * only thing a mouse user gets, since the mark alone says nothing.
+							 * Rendered AS the link rather than around it, or the trigger would
+							 * wrap one control in another.
+							 */ }
+							<Tooltip.Root>
+								<Tooltip.Trigger
+									render={
+										<LinkButton
+											variant="minimal"
+											tone="neutral"
+											size="compact"
+											href={ dashboardUrl }
+											aria-label={ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+											className={ styles.exit }
+										>
+											<LinkButton.Icon icon={ wordpress } />
+										</LinkButton>
+									}
+								/>
+								{ /*
+								 * Beside the mark, not under it: the rail title sits directly
+								 * below and a popup on that side lands on top of the words.
+								 */ }
+								<Tooltip.Popup positioner={ <Tooltip.Positioner side="right" sideOffset={ 4 } /> }>
+									{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+								</Tooltip.Popup>
+							</Tooltip.Root>
 
 							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
 								{ wizardTitle }
