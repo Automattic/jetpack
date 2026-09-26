@@ -42,7 +42,8 @@
 
 			input {
 				color: var(--verbum-font-color);
-				background-color: transparent;
+				// Shorthand so theme background images (e.g. Fusion's input-bg.png) are cleared too.
+				background: transparent;
 				width: 100%;
 				height: 100%;
 				padding-left: 48px;
