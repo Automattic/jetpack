@@ -1264,6 +1264,12 @@ $rail-row-min-height: 40px;
 	// where it reads as overlapping the words rather than labelling them.
 	align-items: flex-start;
 
+	// The switch is the exception: it belongs to the whole row, not to the first
+	// line of it, so it stays centred while everything else is pinned to the top.
+	:global(.components-form-toggle) {
+		align-self: center;
+	}
+
 	// The prototype's own two gaps: the glyph sits closer to its words than the
 	// words sit to the switch, so the row reads as a thing and a control. Its 14
 	// has no step, and 12 is the nearer of the two either side.
