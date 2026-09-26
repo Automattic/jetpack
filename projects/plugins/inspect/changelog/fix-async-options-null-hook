@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop registering an admin hook with a null name on admin-ajax requests, which flooded the debug log with a "Using null as an array offset" deprecation on PHP 8.5.
