@@ -34,6 +34,15 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
 } ) );
 
+// Defaults to false: only the arrival test turns it on.
+const mockJustConnected = jest.fn( () => false );
+
+jest.mock( '../use-just-connected', () => ( {
+	__esModule: true,
+	useJustConnected: () => mockJustConnected(),
+	markConnecting: jest.fn(),
+} ) );
+
 const mockRecordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics', () => ( {
@@ -112,6 +121,7 @@ beforeEach( () => {
 	mockConnection.userIsConnecting = false;
 	mockConnection.isUserConnected = false;
 	mockConnection.registrationError = false;
+	mockJustConnected.mockReturnValue( false );
 } );
 
 /**
@@ -391,6 +401,37 @@ describe( 'Wizard resume after connecting', () => {
 		// The trap: a step the user has never seen must never take the tick.
 		expect( railGlyph( 'What you need' ) ).toBe( 'upcoming' );
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
+	} );
+
+	it( 'says the connection worked on the step it lands on', () => {
+		mockJustConnected.mockReturnValue( true );
+
+		setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Connected to WordPress.com' );
+	} );
+
+	it( 'says nothing to someone who was already connected when they arrived', () => {
+		setupWizard( { isUserConnected: true } );
+
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+	} );
+
+	// The flag is consumed on the first read, or the arrival is announced again on
+	// every step and every reload for the rest of the session.
+	it( 'reads the arrival flag once and takes it away', () => {
+		jest.isolateModules( () => {
+			window.sessionStorage.setItem( 'jetpack-onboarding-connecting', '1' );
+
+			// requireActual, because this file mocks the module for every other test;
+			// isolateModules is synchronous, so import() cannot be awaited inside it.
+			const { useJustConnected } = jest.requireActual( '../use-just-connected' );
+
+			expect( useJustConnected() ).toBe( true );
+			expect( window.sessionStorage.getItem( 'jetpack-onboarding-connecting' ) ).toBeNull();
+			// Cached for the page load, so a remount does not lose the moment.
+			expect( useJustConnected() ).toBe( true );
+		} );
 	} );
 
 	// The floor is enforced in the click handler, so a row below it that does not
