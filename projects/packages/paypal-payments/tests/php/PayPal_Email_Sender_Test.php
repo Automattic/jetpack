@@ -19,8 +19,10 @@ require_once __DIR__ . '/trait-paypal-tracks-events.php';
  * Class PayPal_Email_Sender_Test
  *
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Email_Sender
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Tracks
  */
 #[CoversClass( PayPal_Email_Sender::class )]
+#[CoversClass( PayPal_Tracks::class )]
 class PayPal_Email_Sender_Test extends TestCase {
 
 	use PayPal_Resource_Fixtures;

@@ -18,8 +18,10 @@ require_once __DIR__ . '/trait-paypal-tracks-events.php';
  * Class PayPal_Admin_Page_Test
  *
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Admin_Page
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Tracks
  */
 #[CoversClass( PayPal_Admin_Page::class )]
+#[CoversClass( PayPal_Tracks::class )]
 class PayPal_Admin_Page_Test extends TestCase {
 
 	use PayPal_Resource_Fixtures;
