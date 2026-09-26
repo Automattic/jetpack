@@ -27,6 +27,7 @@ export function createSignals( formSettings: FormSettings ) {
 	const isKnown = computed( () => isLoggedIn || signedIn.value !== null || isSavedGuest );
 
 	const isTrayOpen = signal( false );
+	const isMenuOpen = signal( false );
 	const isDialogOpen = signal( false );
 	const isEditing = signal( false );
 
@@ -41,6 +42,7 @@ export function createSignals( formSettings: FormSettings ) {
 		isSavedGuest,
 		isKnown,
 		isTrayOpen,
+		isMenuOpen,
 		isDialogOpen,
 		isEditing,
 	} as const;
