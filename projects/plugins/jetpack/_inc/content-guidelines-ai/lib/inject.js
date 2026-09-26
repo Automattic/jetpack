@@ -10,6 +10,7 @@ import SuggestionBadge from '../components/suggestion-badge';
 import UpgradeNotice from '../components/upgrade-notice';
 import WelcomeBanner from '../components/welcome-banner';
 import { VALID_SECTIONS } from '../constants';
+import { getTextareaBox } from './dom';
 import { getBlockModalTextarea, startDraftTracking } from './drafts';
 
 // Each injection point tracks both the DOM container and its React root.
@@ -289,15 +290,17 @@ function runAll() {
 			{ slug }
 		);
 
-		// Suggestion actions (diff + accept/dismiss) at top of form.
+		// Suggestion actions (diff + accept/dismiss) right after the textarea box,
+		// so the diff takes the textarea's exact place under the field label.
 		inject(
 			`actions-${ slug }`,
 			() => {
-				const vStack = form.firstElementChild;
-				return vStack
+				const textarea = form.querySelector( 'textarea' );
+				const box = textarea && getTextareaBox( textarea );
+				return box
 					? {
-							parent: vStack,
-							before: vStack.firstChild,
+							parent: box.parentElement,
+							before: box.nextSibling,
 							className: 'jetpack-content-guidelines-ai__actions-container',
 						}
 					: null;
@@ -306,22 +309,25 @@ function runAll() {
 			{ slug }
 		);
 
-		// Per-section generate button next to the Save button (the form's
-		// primary submit button lives in an HStack with the Clear button).
+		// Per-section generate button in the form's Save/Clear row. Keep Save at
+		// the row's outer edge: newer Gutenberg right-aligns [Clear][Save], older
+		// left-aligns [Save][Clear], so the Save button's position picks the side.
+		const saveButton = form.querySelector( 'button[type="submit"]' );
+		const hStack = saveButton?.parentElement;
+		const isSaveLast = hStack?.lastElementChild === saveButton;
 		inject(
 			`button-${ slug }`,
-			() => {
-				const saveButton = form.querySelector( 'button[type="submit"]' );
-				const hStack = saveButton?.parentElement;
-				return hStack
+			() =>
+				hStack
 					? {
 							parent: hStack,
+							before: isSaveLast ? hStack.firstElementChild : null,
 							className: 'jetpack-content-guidelines-ai__section-button-container',
 						}
-					: null;
-			},
+					: null,
 			SectionGenerateButton,
-			{ slug }
+			// Newer Gutenberg's row has bare "Clear" and "Save", so use short labels.
+			{ slug, isShortLabel: isSaveLast }
 		);
 	}
 

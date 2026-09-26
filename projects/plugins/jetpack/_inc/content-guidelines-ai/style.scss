@@ -73,6 +73,12 @@ $cg-diff-removed: #f8d7da;
 	box-sizing: border-box;
 }
 
+// Match the section textarea, which Gutenberg 23.9+ renders with @wordpress/ui.
+.guidelines__list-item .jetpack-content-guidelines-ai__diff {
+	padding: 10px 12px;
+	line-height: 1.4;
+}
+
 .jetpack-content-guidelines-ai__diff-added {
 	background: $cg-diff-added;
 	text-decoration: none;
@@ -88,9 +94,17 @@ $cg-diff-removed: #f8d7da;
 	gap: 8px;
 }
 
+// Accept/Dismiss follow Gutenberg's action rows: right-aligned, primary last.
+.jetpack-content-guidelines-ai__suggestion-actions--end {
+	justify-content: flex-end;
+}
+
 // Green shimmer overlay on the textarea during AI generation.
 // We make the textarea wrapper positioned so the ::after overlay works.
-.is-jetpack-loading .components-textarea-control {
+// Newer Gutenberg renders the section textarea with @wordpress/ui, whose
+// hashed-class wrapper is the textarea's parent and draws the border.
+.is-jetpack-loading .components-textarea-control,
+.is-jetpack-loading :has(> textarea:not(.components-textarea-control__input)) {
 	position: relative;
 
 	&::after {
@@ -106,7 +120,8 @@ $cg-diff-removed: #f8d7da;
 	}
 }
 
-.is-jetpack-loading textarea {
+.is-jetpack-loading textarea,
+.is-jetpack-loading :has(> textarea:not(.components-textarea-control__input)) {
 	border-color: var(--jp-green-40, $cg-green) !important;
 	pointer-events: none;
 }
@@ -122,9 +137,11 @@ $cg-diff-removed: #f8d7da;
 	}
 }
 
-// Hide Gutenberg's DataForm and Save/Clear when a suggestion is active.
-// Also hide the per-section generate button since Accept/Dismiss replaces it.
-.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(.jetpack-content-guidelines-ai__actions-container) {
+// While a suggestion is active, the diff replaces the section textarea box
+// (the element right before our container) and Accept/Dismiss replace the
+// Save/Clear row.
+.has-jetpack-suggestion:not(.block-guideline-modal) > :first-child > :not(:first-child),
+.has-jetpack-suggestion :has(+ .jetpack-content-guidelines-ai__actions-container) {
 	display: none;
 }
 

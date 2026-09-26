@@ -17,6 +17,18 @@ export function setTextareaValue( textarea, value ) {
 }
 
 /**
+ * Get the element that draws a textarea's border: the textarea itself, or its
+ * wrapper in newer Gutenberg (@wordpress/ui).
+ *
+ * @param {HTMLTextAreaElement} textarea - The textarea element.
+ * @return {HTMLElement} The bordered box.
+ */
+export function getTextareaBox( textarea ) {
+	const hasBorder = parseFloat( window.getComputedStyle( textarea ).borderTopWidth );
+	return hasBorder ? textarea : textarea.parentElement;
+}
+
+/**
  * Accept a section suggestion: write text to the section's textarea and clear
  * the suggestion. The input event fired by setTextareaValue() makes
  * Gutenberg's React onChange run, so the page's own draft state picks up the

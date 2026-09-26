@@ -11,7 +11,7 @@ import { readSectionDraft } from '../lib/drafts';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 
-export default function SectionGenerateButton( { slug } ) {
+export default function SectionGenerateButton( { slug, isShortLabel = false } ) {
 	const { createErrorNotice } = useDispatch( noticesStore );
 	const { startSectionLoading, stopSectionLoading, setSuggestion, showUpgradeNotice } =
 		useDispatch( AI_STORE_NAME );
@@ -22,8 +22,12 @@ export default function SectionGenerateButton( { slug } ) {
 		[ slug ]
 	);
 	const isEmpty = ! useSectionHasDraft( slug );
-	const generateLabel = __( 'Generate guidelines', 'jetpack' );
-	const improveLabel = __( 'Improve guidelines', 'jetpack' );
+	const generateLabel = isShortLabel
+		? __( 'Generate', 'jetpack' )
+		: __( 'Generate guidelines', 'jetpack' );
+	const improveLabel = isShortLabel
+		? __( 'Improve', 'jetpack' )
+		: __( 'Improve guidelines', 'jetpack' );
 	const label = isEmpty ? generateLabel : improveLabel;
 
 	const handleClick = useCallback( async () => {

@@ -2,7 +2,7 @@ import { Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { acceptSectionSuggestion } from '../lib/dom';
+import { acceptSectionSuggestion, getTextareaBox } from '../lib/dom';
 import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
@@ -17,6 +17,7 @@ export default function SuggestionActions( { slug } ) {
 
 	const [ original, setOriginal ] = useState( '' );
 	const [ textareaHeight, setTextareaHeight ] = useState( null );
+	const [ isSaveFirst, setIsSaveFirst ] = useState( false );
 
 	// Direct DOM class manipulation is necessary because this component is rendered in
 	// a separate React root injected into Gutenberg's page — we can't control classes
@@ -33,8 +34,10 @@ export default function SuggestionActions( { slug } ) {
 			const textarea = form.querySelector( 'textarea' );
 			if ( textarea ) {
 				setOriginal( textarea.value || '' );
-				if ( textarea.offsetHeight > 0 ) {
-					setTextareaHeight( textarea.offsetHeight );
+				// getBoundingClientRect keeps fractional heights that offsetHeight rounds.
+				const boxHeight = getTextareaBox( textarea ).getBoundingClientRect().height;
+				if ( boxHeight > 0 ) {
+					setTextareaHeight( boxHeight );
 				} else {
 					// Fallback when textarea is hidden (e.g. collapsed accordion).
 					// Compute height from rows attribute to match the textarea.
@@ -44,6 +47,11 @@ export default function SuggestionActions( { slug } ) {
 				}
 			}
 		}
+
+		// Match the Save/Clear row: Gutenberg 24.0+ right-aligns [Clear][Save],
+		// older versions left-align [Save][Clear].
+		const saveButton = form.querySelector( 'button[type="submit"]' );
+		setIsSaveFirst( !! saveButton && saveButton === saveButton.parentElement.firstElementChild );
 
 		form.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
 		form.classList.toggle( 'is-jetpack-loading', sectionLoading && ! suggestion );
@@ -66,6 +74,17 @@ export default function SuggestionActions( { slug } ) {
 		return null;
 	}
 
+	const acceptButton = (
+		<Button variant="primary" onClick={ handleAccept }>
+			{ __( 'Accept suggestion', 'jetpack' ) }
+		</Button>
+	);
+	const dismissButton = (
+		<Button variant="tertiary" onClick={ handleDismiss }>
+			{ __( 'Dismiss', 'jetpack' ) }
+		</Button>
+	);
+
 	return (
 		<div className="jetpack-content-guidelines-ai__suggestion">
 			<DiffView
@@ -74,14 +93,17 @@ export default function SuggestionActions( { slug } ) {
 				onAccept={ handleAccept }
 				height={ textareaHeight }
 			/>
-			<div className="jetpack-content-guidelines-ai__suggestion-actions">
-				<Button variant="primary" onClick={ handleAccept }>
-					{ __( 'Accept suggestion', 'jetpack' ) }
-				</Button>
-				<Button variant="tertiary" onClick={ handleDismiss }>
-					{ __( 'Dismiss', 'jetpack' ) }
-				</Button>
-			</div>
+			{ isSaveFirst ? (
+				<div className="jetpack-content-guidelines-ai__suggestion-actions">
+					{ acceptButton }
+					{ dismissButton }
+				</div>
+			) : (
+				<div className="jetpack-content-guidelines-ai__suggestion-actions jetpack-content-guidelines-ai__suggestion-actions--end">
+					{ dismissButton }
+					{ acceptButton }
+				</div>
+			) }
 		</div>
 	);
 }

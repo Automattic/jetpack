@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Content Guidelines: Fix the AI button alignment and the loading shimmer after recent Gutenberg changes.
