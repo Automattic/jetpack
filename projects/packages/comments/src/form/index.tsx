@@ -1,34 +1,23 @@
-import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { CommentingAs, Identity } from '../identity';
+import { Footer } from '../footer';
 import { CommentSignals, createSignals } from '../shared/state';
+import { Tray } from '../tray';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
-import { SubmitButton } from './submit-button';
 import type { FormSettings } from '../shared/types';
 
+import '../ui/style.scss';
 import './style.scss';
 
 type CommentFormProps = {
 	form: HTMLFormElement;
 };
 
-// Long enough to stop a synchronous write landing on every keystroke, short
-// enough that a reader who navigates away mid-sentence keeps it.
-const DRAFT_DEBOUNCE_MS = 300;
-
 const CommentForm = ( { form }: CommentFormProps ) => {
-	const { formSettings, commentParent, commentValue, isEmptyComment, isSavingComment, isTrayOpen } =
+	const { formSettings, commentParent, commentValue, isSavingComment } =
 		useContext( CommentSignals );
 	const isSubmitting = useRef( false );
-
-	// Opens only as the comment goes from empty to not, so closing the tray mid-sentence sticks.
-	useEffect( () => {
-		if ( ! isEmptyComment.value ) {
-			isTrayOpen.value = true;
-		}
-	}, [ isEmptyComment.value, isTrayOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -43,9 +32,6 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 
 		readParent();
 
-		// #comment_parent is a hidden input, whose `value` IDL attribute writes
-		// straight through to the content attribute, so the assignment core's
-		// comment-reply.js makes is one this sees.
 		const observer = new MutationObserver( readParent );
 		observer.observe( parentInput, { attributes: true, attributeFilter: [ 'value' ] } );
 
@@ -53,10 +39,8 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	}, [ form, commentParent ] );
 
 	useEffect( () => {
-		const timer = setTimeout(
-			() => saveDraft( formSettings.postId, commentValue.value ),
-			DRAFT_DEBOUNCE_MS
-		);
+		// Short enough that a reader who navigates away mid-sentence keeps the draft.
+		const timer = setTimeout( () => saveDraft( formSettings.postId, commentValue.value ), 300 );
 
 		return () => clearTimeout( timer );
 	}, [ formSettings, commentValue.value ] );
@@ -81,8 +65,7 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 			}
 		};
 
-		// Flush whatever the debounce above is still holding. Safe for bfcache in
-		// a way beforeunload is not.
+		// pagehide rather than beforeunload, which would keep the page out of bfcache.
 		const onPageHide = () => saveDraft( formSettings.postId, commentValue.peek() );
 
 		form.addEventListener( 'submit', onSubmit );
@@ -99,20 +82,8 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	return (
 		<>
 			<CommentField />
-			{ ! JetpackComments.isLoggedIn && (
-				<div
-					id={ `jetpack-comments-tray-${ formSettings.postId }` }
-					className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }
-				>
-					<div>
-						<Identity />
-					</div>
-				</div>
-			) }
-			<div className="jetpack-comments__footer">
-				<CommentingAs />
-				<SubmitButton />
-			</div>
+			<Tray />
+			<Footer />
 		</>
 	);
 };
@@ -127,8 +98,7 @@ document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element
 	let formSettings: FormSettings;
 
 	try {
-		// `||` rather than `??`: wp_json_encode() returns false on bad input, which
-		// reaches the attribute as an empty string that JSON.parse() would throw on.
+		// `||`, not `??`: a wp_json_encode() failure lands here as an empty string.
 		formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
 	} catch {
 		return;

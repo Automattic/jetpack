@@ -50,12 +50,12 @@ class Identity {
 		if ( is_user_logged_in() ) {
 			$user             = wp_get_current_user();
 			$settings['user'] = array(
-				'avatarUrl'    => get_avatar_url( $user->ID, array( 'size' => 74 ) ),
-				'commentingAs' => sprintf(
+				'avatarUrl' => get_avatar_url( $user->ID, array( 'size' => 74 ) ),
+				'email'     => $user->user_email,
+				'heading'   => defined( 'IS_WPCOM' ) && IS_WPCOM
+					? $user->display_name . ' - ' . __( 'Logged in via WordPress.com', 'jetpack-comments' ) . ' -'
 					/* translators: %s is the display name of the logged-in user. */
-					__( 'Commenting as %s', 'jetpack-comments' ),
-					$user->display_name
-				),
+					: sprintf( __( 'Logged in as %s', 'jetpack-comments' ), $user->display_name ),
 			);
 
 			return $settings;

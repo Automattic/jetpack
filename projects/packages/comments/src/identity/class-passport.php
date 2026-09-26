@@ -18,7 +18,7 @@ class Passport {
 	const COOKIE = 'jetpack_comment_identity';
 
 	/**
-	 * What the form may show: provider, name and avatar, readable by the page's
+	 * What the form may show: provider, name, email and avatar, readable by the page's
 	 * script. Nothing here is trusted; the server reads COOKIE.
 	 *
 	 * A page cache serves one logged-out page to everyone, so who is holding a
@@ -31,7 +31,7 @@ class Passport {
 	 * a network the cookie domain is shared and the script must not show another
 	 * site's sign-in.
 	 */
-	const DISPLAY_FIELDS = array( 'provider', 'name', 'avatar' );
+	const DISPLAY_FIELDS = array( 'provider', 'name', 'email', 'avatar' );
 
 	/**
 	 * What the cookie carries, in order. The blog id is added at signing time,

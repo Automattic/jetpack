@@ -3,28 +3,16 @@ import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { EmailIcon, NameIcon, WebsiteIcon } from '../ui/icons';
 import { Toggle } from '../ui/toggle';
+import { GuestSubscriptionOptions, hasSubscriptionOptions } from './subscriptions';
 import type { Commenter } from '../shared/types';
 
-import '../ui/style.scss';
-import './style.scss';
-
 type GuestFieldsProps = {
-	/** Whether the fields are shown. They leave the DOM when hidden, so nothing is required of them. */
+	/** Hidden fields leave the DOM, so a required one cannot block submit. */
 	open?: boolean;
-	/** Draw only the fields, for a block that already has its own prompt. */
 	bare?: boolean;
 };
 
-/**
- * Email, name and website for a reader who is not logged in to this site.
- *
- * These use core's own field names, so wp-comments-post.php reads them unchanged.
- *
- * @param props      - Component props.
- * @param props.open - Whether the fields are shown.
- * @param props.bare - Whether to leave out the prompt and wrapper.
- * @return The guest fields.
- */
+// Core's own field names, so wp-comments-post.php reads them unchanged.
 export const GuestFields = ( { open = true, bare = false }: GuestFieldsProps ) => {
 	const { commenter } = useContext( CommentSignals );
 	const { requireNameEmail, showCookiesConsent, strings } = JetpackComments;
@@ -86,6 +74,11 @@ export const GuestFields = ( { open = true, bare = false }: GuestFieldsProps ) =
 					/>
 				</label>
 			) ) }
+			{ hasSubscriptionOptions() && (
+				<div className="jetpack-comments__options">
+					<GuestSubscriptionOptions />
+				</div>
+			) }
 			{ showCookiesConsent && (
 				<div className="jetpack-comments__options">
 					<Toggle
@@ -109,7 +102,7 @@ export const GuestFields = ( { open = true, bare = false }: GuestFieldsProps ) =
 	}
 
 	return (
-		<div className="jetpack-comments__identity">
+		<div className="jetpack-comments__tray-view">
 			<p className="jetpack-comments__prompt">
 				{ requireNameEmail ? strings.guestPromptRequired : strings.guestPrompt }
 			</p>

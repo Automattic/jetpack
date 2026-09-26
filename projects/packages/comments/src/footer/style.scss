@@ -1,0 +1,156 @@
+.jetpack-comments__footer {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	padding: 16px;
+	border-block-start: 1px solid var(--jetpack-comments-border-color);
+	justify-content: flex-end;
+}
+
+.jetpack-comments__submit {
+	all: unset;
+	display: inline-block;
+	padding: 7px 20px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	background: var(--jetpack-comments-accent-color);
+	color: var(--jetpack-comments-accent-text-color);
+	font-family: inherit;
+	font-size: 14px;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: none;
+	white-space: nowrap;
+	cursor: pointer;
+
+	&:disabled {
+		background: transparent;
+		border-color: var(--jetpack-comments-border-color);
+		color: var(--jetpack-comments-disabled-color);
+		cursor: not-allowed;
+	}
+
+	&:not(:disabled):hover {
+		background: var(--jetpack-comments-accent-hover-color);
+	}
+
+	&:focus-visible {
+		outline: 2px solid var(--jetpack-comments-accent-color);
+		outline-offset: 1px;
+	}
+
+	&.is-busy {
+		cursor: progress;
+	}
+}
+
+.jetpack-comments__user {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	inline-size: 100%;
+	margin-inline-end: auto;
+}
+
+.jetpack-comments__user-settings {
+	all: unset;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	overflow: hidden;
+	// The 2px margin below is what the focus ring needs; this pulls it back in.
+	margin-block: -2px;
+	margin-inline-start: -2px;
+
+	.jetpack-comments__profile,
+	.jetpack-comments__tray-toggle {
+		all: unset;
+		box-sizing: content-box;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		inline-size: 37px;
+		block-size: 37px;
+		margin: 2px;
+		padding: 0;
+		border: 1px solid var(--jetpack-comments-border-color);
+		background-color: var(--jetpack-comments-content-background-color);
+		overflow: hidden;
+	}
+
+	.jetpack-comments__profile {
+		margin-inline-end: -2px;
+		border-start-start-radius: 4px;
+		border-end-start-radius: 4px;
+		border-inline-end-width: 0;
+		cursor: pointer;
+
+		img {
+			inline-size: 37px;
+			block-size: 37px;
+		}
+
+		&.is-loading img {
+			background-color: var(--jetpack-comments-background-color);
+			border-color: var(--jetpack-comments-background-color);
+			animation: jetpack-comments-avatar-pulse 2s infinite ease-in-out;
+		}
+
+		&:focus {
+			outline: 2px solid var(--jetpack-comments-accent-color);
+			z-index: 1;
+		}
+	}
+
+	&.is-bare {
+		inline-size: 37px;
+
+		.jetpack-comments__profile {
+			margin-inline-end: 2px;
+			border-radius: 4px;
+			border-inline-end-width: 1px;
+		}
+	}
+
+	.jetpack-comments__tray-toggle {
+		border-start-end-radius: 4px;
+		border-end-end-radius: 4px;
+		border-inline-start-width: 0;
+		color: var(--jetpack-comments-font-color);
+		cursor: pointer;
+
+		svg {
+			inline-size: 37px;
+			block-size: 16px;
+		}
+
+		svg path {
+			transition: transform 0.5s ease-in-out 0.2s;
+		}
+
+		&:focus {
+			outline: 2px solid var(--jetpack-comments-accent-color);
+			z-index: 1;
+		}
+	}
+}
+
+@keyframes jetpack-comments-avatar-pulse {
+
+	0% {
+		opacity: 1;
+	}
+
+	50% {
+		opacity: 0.2;
+	}
+
+	100% {
+		opacity: 1;
+	}
+}
+
+.jetpack-comments__edit-gravatar {
+	color: var(--jetpack-comments-font-color);
+	font-size: 14px;
+}

@@ -358,9 +358,11 @@ class Comment_Form {
 				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
 				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'maxLength'          => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'locale'             => get_locale(),
 				'strings'            => self::strings( $args ),
 			),
-			Identity::settings()
+			Identity::settings(),
+			Subscriptions::settings()
 		);
 	}
 
@@ -420,8 +422,11 @@ class Comment_Form {
 			'logInOptional'       => __( 'Leave a comment. (log in optional)', 'jetpack-comments' ),
 			'logInOptionalReply'  => __( 'Leave a reply. (log in optional)', 'jetpack-comments' ),
 			'logInToReply'        => __( 'Log in to leave a reply.', 'jetpack-comments' ),
-			/* translators: %1$s is the commenter's name, %2$s the provider (WordPress.com, Google, Facebook). The line ends before a "Log out" button. */
-			'signedInAs'          => __( '%1$s - Logged in via %2$s -', 'jetpack-comments' ),
+			'loggedInVia'         => array(
+				'wordpress' => __( 'Logged in via WordPress.com', 'jetpack-comments' ),
+				'google'    => __( 'Logged in via Google', 'jetpack-comments' ),
+				'facebook'  => __( 'Logged in via Facebook', 'jetpack-comments' ),
+			),
 			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 			'settings'            => __( 'Settings', 'jetpack-comments' ),
 			'close'               => __( 'Close', 'jetpack-comments' ),
@@ -433,6 +438,14 @@ class Comment_Form {
 			),
 			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
 			'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
+			'emailNewPosts'       => __( 'Email me new posts', 'jetpack-comments' ),
+			'emailNewComments'    => __( 'Email me new comments', 'jetpack-comments' ),
+			'notifyNewPosts'      => __( 'Notify me of new posts', 'jetpack-comments' ),
+			'notifyNewPostsHint'  => __( 'Receive web and mobile notifications for posts on this site.', 'jetpack-comments' ),
+			'instantly'           => __( 'Instantly', 'jetpack-comments' ),
+			'daily'               => __( 'Daily', 'jetpack-comments' ),
+			'weekly'              => __( 'Weekly', 'jetpack-comments' ),
+			'editGravatar'        => __( 'Edit Gravatar', 'jetpack-comments' ),
 		);
 
 		/**

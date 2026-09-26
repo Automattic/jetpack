@@ -4,7 +4,7 @@
  * a returning commenter's identity can come from.
  */
 
-import type { Passport, Provider } from '../../shared/types';
+import type { Passport, Provider } from './types';
 
 const PROVIDERS: Provider[] = [ 'wordpress', 'google', 'facebook' ];
 
@@ -46,6 +46,7 @@ export const readPassport = (): Passport | null => {
 		return {
 			provider: data.provider as Provider,
 			name: data.name,
+			email: typeof data.email === 'string' ? data.email : '',
 			avatar:
 				( typeof data.avatar === 'string' && data.avatar ) ||
 				JetpackComments.identity.defaultAvatar,

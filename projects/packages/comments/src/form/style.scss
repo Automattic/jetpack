@@ -1,8 +1,3 @@
-/**
- * The comment form: one bordered card holding the textarea, the identity block
- * and the submit row, each divided by a rule.
- */
-
 .jetpack-comments {
 	--jetpack-comments-font-color: rgba(0, 0, 0, 0.8);
 	--jetpack-comments-border-color: #dcdcde;
@@ -13,12 +8,14 @@
 	--jetpack-comments-accent-hover-color: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #055d9c));
 	--jetpack-comments-accent-text-color: var(--wp-components-color-accent-inverted, #fff);
 	--jetpack-comments-disabled-color: #a7aaad;
+	--jetpack-comments-element-opacity: 0.9;
 
 	&.light {
 		--jetpack-comments-font-color: #3c434a;
 		--jetpack-comments-background-color: #fff;
 		--jetpack-comments-wrapper-background-color: #f9f9f9;
 		--jetpack-comments-content-background-color: #fff;
+		--jetpack-comments-element-opacity: 1;
 	}
 
 	&.dark {
@@ -27,6 +24,7 @@
 		--jetpack-comments-background-color: rgba(0, 0, 0, 0.7);
 		--jetpack-comments-wrapper-background-color: rgba(255, 255, 255, 0.1);
 		--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.1);
+		--jetpack-comments-element-opacity: 1;
 	}
 
 	color: var(--jetpack-comments-font-color);
@@ -75,52 +73,6 @@
 	&:focus-visible {
 		outline: 1px solid var(--jetpack-comments-accent-color);
 		outline-offset: -1px;
-	}
-}
-
-.jetpack-comments__footer {
-	display: flex;
-	align-items: center;
-	gap: 10px;
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-	justify-content: flex-end;
-}
-
-.jetpack-comments__submit {
-	all: unset;
-	display: inline-block;
-	padding: 7px 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	background: var(--jetpack-comments-accent-color);
-	color: var(--jetpack-comments-accent-text-color);
-	font-family: inherit;
-	font-size: 14px;
-	text-align: center;
-	text-decoration: none;
-	text-shadow: none;
-	white-space: nowrap;
-	cursor: pointer;
-
-	&:disabled {
-		background: transparent;
-		border-color: var(--jetpack-comments-border-color);
-		color: var(--jetpack-comments-disabled-color);
-		cursor: not-allowed;
-	}
-
-	&:not(:disabled):hover {
-		background: var(--jetpack-comments-accent-hover-color);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--jetpack-comments-accent-color);
-		outline-offset: 1px;
-	}
-
-	&.is-busy {
-		cursor: progress;
 	}
 }
 
