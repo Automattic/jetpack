@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Comments: Do not render the comment form on posts and pages where comments are closed.
