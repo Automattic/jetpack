@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Account Protection: Do not activate the module when Protect is activated. Existing sites keep their current setting.
