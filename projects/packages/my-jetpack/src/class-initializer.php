@@ -55,6 +55,21 @@ class Initializer {
 	const FEATURES_TAB_FEATURE_FLAG = 'my-jetpack-features-tab';
 
 	/**
+	 * Feature flag that swaps the single-screen onboarding takeover for the setup wizard.
+	 */
+	const ONBOARDING_WIZARD_FEATURE_FLAG = 'my-jetpack-onboarding-wizard';
+
+	/**
+	 * User meta recording that this user chose to skip setup.
+	 *
+	 * Per user rather than per site, because skipping is one person saying "not
+	 * now": a second admin arriving at a site nobody has set up should still be
+	 * offered the flow. Finishing it is the site-wide fact, and that is
+	 * `onboarding_completed`.
+	 */
+	const ONBOARDING_DISMISSED_USER_META = 'jetpack_my_jetpack_onboarding_dismissed';
+
+	/**
 	 * Handle for the classic script that carries the React initial state.
 	 *
 	 * Plugins that render My Jetpack components on their own pages (Boost) depend on this name.
@@ -148,6 +163,17 @@ class Initializer {
 		add_action( 'admin_menu', array( __CLASS__, 'add_my_jetpack_menu_item' ) );
 
 		add_action( 'admin_init', array( __CLASS__, 'setup_historically_active_jetpack_modules_sync' ) );
+
+		/*
+		 * On every Jetpack screen rather than only on My Jetpack, so someone who has
+		 * just activated the plugin meets setup wherever they go first.
+		 */
+		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_to_onboarding' ) );
+
+		// Nothing else gets to talk over the takeover. See both methods for why it
+		// takes two hooks rather than one.
+		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
+		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_onboarding_jitms' ), 10, 2 );
 		// Registered on admin_menu (not admin_init) and well before priority 100000, so the
 		// counts it registers exist before the menu-badges renderer runs on admin_menu 100000.
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_show_red_bubble' ), 30 );
@@ -229,29 +255,11 @@ class Initializer {
 	 * @return void
 	 */
 	public static function admin_init() {
-		$connection = new Connection_Manager();
-
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
 		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
 
-		// Handle onboarding redirects based on connection status. Onboarding's only action is the
-		// connect request, which answers a user without `jetpack_connect` with a 403.
-		$redirect_args = self::get_onboarding_redirect_args(
-			$step,
-			$connection->is_connected(),
-			self::is_onboarding_available() && current_user_can( 'jetpack_connect' )
-		);
-
-		if ( null !== $redirect_args ) {
-			$admin_page = add_query_arg( $redirect_args, admin_url( 'admin.php' ) );
-			$location   = wp_sanitize_redirect( $admin_page );
-
-			// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
-			remove_filter( 'wp_redirect', 'wp_get_referer' );
-			wp_safe_redirect( $location );
-
-			exit( 0 );
-		}
+		// The redirect itself runs on `admin_init` for every Jetpack screen, which is
+		// earlier than this and covers this page too.
 
 		// If the user reaches the onboarding page, add a class to the body
 		if ( $step === 'onboarding' ) {
@@ -261,6 +269,113 @@ class Initializer {
 		self::$site_info = self::get_site_info();
 		add_filter( 'identity_crisis_container_id', array( static::class, 'get_idc_container_id' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
+	}
+
+	/**
+	 * The admin screens the onboarding takeover may interrupt.
+	 *
+	 * The Jetpack plugin's own pages, not every plugin whose page happens to start
+	 * with `jetpack-`. Boost, Protect, Social and the rest each ship a connection
+	 * screen of their own, and taking those over is their teams' call, not ours.
+	 * The filter is how they would opt in.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @return string[] Values of the `page` query arg.
+	 */
+	public static function get_onboarding_screens() {
+		/**
+		 * Filters the admin pages that redirect into Jetpack's setup flow.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string[] $screens Values of the `page` query arg.
+		 */
+		return (array) apply_filters(
+			'jetpack_my_jetpack_onboarding_screens',
+			array( 'my-jetpack', 'jetpack', 'jetpack_modules', 'stats' )
+		);
+	}
+
+	/**
+	 * Whether this request is a page the takeover may interrupt.
+	 *
+	 * @return bool
+	 */
+	private static function is_onboarding_screen() {
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reads which page was asked for, changes nothing.
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+
+		return in_array( $page, self::get_onboarding_screens(), true );
+	}
+
+	/**
+	 * Whether this user has already settled setup, one way or the other.
+	 *
+	 * Two separate facts. Finishing is site-wide: the wizard connects the site and
+	 * switches modules on, so once it is done nobody needs the takeover again.
+	 * Skipping is this person saying "not now", and it must not answer for the next
+	 * admin who arrives at a site nobody has set up.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_settled() {
+		if ( \Jetpack_Options::get_option( 'onboarding_completed', false ) ) {
+			return true;
+		}
+
+		return (bool) get_user_meta( get_current_user_id(), self::ONBOARDING_DISMISSED_USER_META, true );
+	}
+
+	/**
+	 * Send the user into setup when they land on a Jetpack screen without one.
+	 *
+	 * Hooked on `admin_init` rather than on the My Jetpack page load, so someone who
+	 * has just activated the plugin meets setup on whichever Jetpack screen they open
+	 * first. It runs on ordinary page views only: a form post or an async request that
+	 * happened to carry the page argument must not be answered with a redirect.
+	 *
+	 * @return void
+	 */
+	public static function maybe_redirect_to_onboarding() {
+		if ( wp_doing_ajax() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return;
+		}
+
+		if ( ! isset( $_SERVER['REQUEST_METHOD'] ) || 'GET' !== $_SERVER['REQUEST_METHOD'] ) {
+			return;
+		}
+
+		if ( ! self::is_onboarding_screen() ) {
+			return;
+		}
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No nonce needed for redirect flow control
+		$step = isset( $_GET['step'] ) ? sanitize_text_field( wp_unslash( $_GET['step'] ) ) : '';
+
+		// Onboarding's only action is the connect request, which answers a user
+		// without `jetpack_connect` with a 403.
+		$redirect_args = self::get_onboarding_redirect_args(
+			$step,
+			( new Connection_Manager() )->is_connected(),
+			self::is_onboarding_available() && current_user_can( 'jetpack_connect' ),
+			self::is_onboarding_wizard_enabled(),
+			self::is_onboarding_settled()
+		);
+
+		if ( null === $redirect_args ) {
+			return;
+		}
+
+		$location = wp_sanitize_redirect( add_query_arg( $redirect_args, admin_url( 'admin.php' ) ) );
+
+		// Remove wp_get_referer filter applied in `fix_redirect` method of `Jetpack_Admin` class
+		remove_filter( 'wp_redirect', 'wp_get_referer' );
+		wp_safe_redirect( $location );
+
+		exit( 0 );
 	}
 
 	/**
@@ -320,15 +435,28 @@ class Initializer {
 	 * @param string $step                 The current `step` query param.
 	 * @param bool   $is_connected         Whether the site is connected to WordPress.com.
 	 * @param bool   $onboarding_available Whether the onboarding flow is available on this site.
+	 * @param bool   $wizard_enabled       Whether the takeover renders the setup wizard.
+	 * @param bool   $is_settled           Whether this user has already finished or skipped setup.
 	 * @return array|null Query args for the redirect, or null to stay on the current page.
 	 */
-	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available ) {
-		if ( $onboarding_available && ! $is_connected && $step !== 'onboarding' ) {
+	public static function get_onboarding_redirect_args( $step, $is_connected, $onboarding_available, $wizard_enabled = false, $is_settled = false ) {
+		/*
+		 * Only the automatic redirect is suppressed once setup is settled. Asking for
+		 * the onboarding page by its own URL still works, so someone who skipped can
+		 * go back to it, and so can a second admin the site-wide flag does not cover.
+		 */
+		if ( $onboarding_available && ! $is_connected && ! $is_settled && $step !== 'onboarding' ) {
 			// Redirect to onboarding if not connected
 			return array(
 				'page' => 'my-jetpack',
 				'step' => 'onboarding',
 			);
+		}
+
+		// The wizard connects mid-flow: the user authorizes on WordPress.com and is sent
+		// back here to finish setup, so a connected user on it has not finished.
+		if ( $step === 'onboarding' && $is_connected && $onboarding_available && $wizard_enabled ) {
+			return null;
 		}
 
 		if ( $step === 'onboarding' && ( ! $onboarding_available || $is_connected ) ) {
@@ -337,6 +465,48 @@ class Initializer {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Empty the notice channels while the takeover is on screen.
+	 *
+	 * The takeover hides `.notice`, `.error` and `.updated` in CSS, which only
+	 * catches notices that use WordPress's own classes. Plenty do not, and a plugin
+	 * announcing itself in its own markup lands on top of a full-screen flow that
+	 * has no way to scroll past it.
+	 *
+	 * On `in_admin_header`, the last hook before `admin-header.php` prints notices,
+	 * so a notice registered late is caught too.
+	 *
+	 * @return void
+	 */
+	public static function silence_onboarding_notices() {
+		if ( ! self::is_onboarding_request() ) {
+			return;
+		}
+
+		remove_all_actions( 'admin_notices' );
+		remove_all_actions( 'all_admin_notices' );
+		remove_all_actions( 'network_admin_notices' );
+		remove_all_actions( 'user_admin_notices' );
+	}
+
+	/**
+	 * Keep Just In Time Messages off the takeover.
+	 *
+	 * Emptying the notice channels above would also drop the JITM, since that is how
+	 * it renders, but only after it has enqueued its script and stylesheet. This is
+	 * the package's own opt-out and it runs before any of that.
+	 *
+	 * The screen id cannot answer this on its own: the takeover and the My Jetpack
+	 * dashboard are the same screen, and only the query arg separates them.
+	 *
+	 * @param bool   $show      Whether to show JITMs on this screen.
+	 * @param string $screen_id The current screen's id.
+	 * @return bool
+	 */
+	public static function hide_onboarding_jitms( $show, $screen_id ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Required by the filter signature.
+		return self::is_onboarding_request() ? false : $show;
 	}
 
 	/**
@@ -379,6 +549,15 @@ class Initializer {
 				'owner'       => 'my-jetpack',
 			)
 		);
+
+		Feature_Flags::register(
+			self::ONBOARDING_WIZARD_FEATURE_FLAG,
+			array(
+				'default'     => false,
+				'description' => 'Replace the single-screen onboarding takeover with the setup wizard.',
+				'owner'       => 'my-jetpack',
+			)
+		);
 	}
 
 	/**
@@ -390,6 +569,50 @@ class Initializer {
 	 */
 	public static function is_features_tab_enabled() {
 		return Feature_Flags::is_enabled( self::FEATURES_TAB_FEATURE_FLAG );
+	}
+
+	/**
+	 * Whether the onboarding takeover renders the setup wizard.
+	 *
+	 * Self-hosted only. On WordPress.com the platform owns the connection and nobody chose
+	 * to install Jetpack, so a screen inviting them to start with it and connect an account
+	 * does not apply. `is_wpcom_platform()` covers Simple and WordPress.com on Atomic, and
+	 * requires wpcomsh, so other Atomic-hosted products still count as self-hosted here.
+	 *
+	 * Atomic is the case that matters: wpcomsh filters `jetpack_is_connection_ready` to
+	 * require a connection owner, so a site whose owner was removed reports disconnected
+	 * and is redirected into onboarding while WordPress.com still manages its connection.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	public static function is_onboarding_wizard_enabled() {
+		if ( ( new Status_Host() )->is_wpcom_platform() ) {
+			return false;
+		}
+
+		return Feature_Flags::is_enabled( self::ONBOARDING_WIZARD_FEATURE_FLAG );
+	}
+
+	/**
+	 * The wizard's configuration, or null while the takeover stays on its single screen.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array{exitUrl: string, dashboardUrl: string}|null
+	 */
+	public static function get_onboarding_wizard_state() {
+		if ( ! self::is_onboarding_wizard_enabled() ) {
+			return null;
+		}
+
+		return array(
+			// Where skipping the wizard lands: the admin menu is hidden, so leaving is always one click.
+			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
+			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
+			'dashboardUrl' => admin_url(),
+		);
 	}
 
 	/**
@@ -654,6 +877,7 @@ class Initializer {
 				),
 				'mainFeatures'           => $features_tab_enabled ? Main_Features::get_state() : null,
 				'featuresBanner'         => $features_tab_enabled ? array( 'isDismissed' => REST_Main_Features::is_banner_dismissed() ) : null,
+				'onboardingWizard'       => self::get_onboarding_wizard_state(),
 				'plugins'                => Plugins_Installer::get_plugins(),
 				'themes'                 => Sync_Functions::get_themes(),
 				'myJetpackUrl'           => admin_url( 'admin.php?page=my-jetpack' ),
@@ -954,6 +1178,7 @@ class Initializer {
 		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
+		( new REST_Onboarding() )->register_rest_routes();
 
 		if ( self::is_features_tab_enabled() ) {
 			( new REST_Main_Features() )->register_rest_routes();
