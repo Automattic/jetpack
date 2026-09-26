@@ -1225,12 +1225,13 @@ $rail-row-min-height: 40px;
 	display: flex;
 	flex-direction: column;
 
-	// Ruled top and bottom as well as between, unlike the answers above: this is a
-	// list of things being done to the site, not a set of answers to one question.
-	border-block: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
+	// Ruled at the top, where it separates the list from the line above it, and
+	// between the rows. Not under the last one: nothing follows it but the sheet's
+	// own edge, so the rule closes off a list that did not need closing.
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
 
-	// With nothing in it the two rules meet and paint a stray double hairline
-	// under the empty state, which reads as a list that failed to load.
+	// With nothing in it the rule is a stray hairline under the empty state,
+	// which reads as a list that failed to load.
 	&:empty {
 		display: none;
 	}
