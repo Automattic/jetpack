@@ -140,7 +140,7 @@ It connects to the following external services:
 
 This plugin requires a connection to a WordPress.com account. Until that connection is complete, no data is collected and no reports are available.
 
-Service terms: [Terms of Service](https://wordpress.com/tos/)
+Service terms: [Terms of Service](https://automattic.com/tos/)
 Service privacy policy: [Privacy Policy](https://automattic.com/privacy/)
 
 == Source code ==
