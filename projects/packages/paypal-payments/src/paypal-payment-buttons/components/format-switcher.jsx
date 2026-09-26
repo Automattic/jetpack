@@ -16,6 +16,7 @@ import { __ } from '@wordpress/i18n';
 const FORMAT_OPTIONS = [
 	{ value: 'BUTTON', label: __( 'Single button', 'jetpack-paypal-payments' ) },
 	{ value: 'STACKED', label: __( 'Stacked buttons', 'jetpack-paypal-payments' ) },
+	{ value: 'CHECKOUT', label: __( 'Checkout on this page', 'jetpack-paypal-payments' ) },
 	{ value: 'QR', label: __( 'QR code', 'jetpack-paypal-payments' ) },
 	{ value: 'LINK', label: __( 'Link', 'jetpack-paypal-payments' ) },
 ];
@@ -24,7 +25,7 @@ const FORMAT_OPTIONS = [
  * Format switcher — the Styles tab's Embed as control.
  *
  * @param {object}   props          - Component props.
- * @param {string}   props.value    - Current format value ('BUTTON' | 'STACKED' | 'LINK' | 'QR').
+ * @param {string}   props.value    - Current format value ('BUTTON' | 'STACKED' | 'CHECKOUT' | 'LINK' | 'QR').
  * @param {Function} props.onChange - Callback when format changes.
  * @param {boolean}  props.disabled - Whether the switcher is disabled.
  * @return {Element} The format switcher UI.

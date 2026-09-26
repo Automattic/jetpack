@@ -225,6 +225,68 @@ $paypal-wordmark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/200
 	font-size: 11px;
 }
 
+// ---------------------------------------------------------------
+// On-page checkout — the buyer's choices, then PayPal's own buttons
+// ---------------------------------------------------------------
+
+// The selects and the quantity field share one column, so their labels line up.
+.jetpack-paypal-button__variant-group--select,
+.jetpack-paypal-button__quantity {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin-block-end: 12px;
+	text-align: start;
+	font-size: 13px;
+}
+
+.jetpack-paypal-button__quantity-label {
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button__variant-select,
+.jetpack-paypal-button__quantity-input {
+	box-sizing: border-box;
+	inline-size: 100%;
+	padding: 8px 12px;
+	border: 1px solid #949494;
+	border-radius: 4px;
+	background: #fff;
+	color: #1e1e1e;
+	font: inherit;
+}
+
+// PayPal's own iframe, which decides its height once it draws.
+.jetpack-paypal-button__inline-checkout {
+	min-block-size: 45px;
+}
+
+.jetpack-paypal-button__checkout-message {
+	margin: 12px 0 0;
+	text-align: center;
+	font-size: 14px;
+	color: #1e1e1e;
+
+	&.is-error {
+		color: #cc1818;
+	}
+
+	&[hidden] {
+		display: none;
+	}
+}
+
+// Once paid, the choices and the buttons give way to the message.
+.jetpack-paypal-button.is-paid {
+
+	.jetpack-paypal-button__variants,
+	.jetpack-paypal-button__quantity,
+	.jetpack-paypal-button__inline-checkout {
+		display: none;
+	}
+}
+
 // Frame, caption and the link row share one center line, so the caption stays
 // under the code at any Width.
 .jetpack-paypal-button__qr-standalone {

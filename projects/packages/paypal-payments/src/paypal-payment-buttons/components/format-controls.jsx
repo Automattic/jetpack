@@ -460,7 +460,7 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
  * product form in the default group becomes the Settings tab at the same time.
  *
  * @param {object}   props               - Component props.
- * @param {string}   props.format        - Display format: BUTTON, STACKED, LINK or QR.
+ * @param {string}   props.format        - Display format: BUTTON, STACKED, CHECKOUT, LINK or QR.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
  * @param {string}   props.paymentUrl    - The attributed payment URL — encoded by QR, copied by LINK. Empty once PayPal has deleted the link.
@@ -539,6 +539,16 @@ export default function PayPalFormatControls( {
 					>
 						{ __( 'Edit default settings in PayPal', 'jetpack-paypal-payments' ) }
 					</ExternalLink>
+				) }
+
+				{ /* PayPal draws and styles these buttons, so the format has no controls of its own. */ }
+				{ 'CHECKOUT' === format && (
+					<p className="jetpack-paypal-payment-buttons__format-help">
+						{ __(
+							'Buyers pay with PayPal, Venmo, or a card without leaving this page. Tax and shipping rates set to come from your PayPal account are not applied here.',
+							'jetpack-paypal-payments'
+						) }
+					</p>
 				) }
 			</div>
 

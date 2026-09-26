@@ -13,6 +13,7 @@
  * @since 0.8.0
  */
 
+import { useInstanceId } from '@wordpress/compose';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { createInterpolateElement } from '@wordpress/element';
@@ -136,7 +137,8 @@ function QrPreview( {
 }
 
 /**
- * The BUTTON format — the product card and a theme-native checkout button.
+ * The BUTTON format — the product card and a theme-native checkout button — and
+ * the CHECKOUT format, which swaps the button for a stand-in for PayPal's own.
  *
  * @param {object}  props                    - Component props.
  * @param {string}  props.productName        - Product name to display.
@@ -148,6 +150,7 @@ function QrPreview( {
  * @param {string}  props.imageUrl           - Optional product image URL.
  * @param {string}  props.buttonText         - Label on the checkout button.
  * @param {object}  props.attributes         - The block attributes, for the style mapping.
+ * @param {boolean} props.inlineCheckout     - Whether the buyer picks options and pays on the page.
  * @return {Element} Button preview element.
  */
 function ButtonPreview( {
@@ -160,6 +163,7 @@ function ButtonPreview( {
 	imageUrl,
 	buttonText,
 	attributes = {},
+	inlineCheckout = false,
 } ) {
 	// An empty currencyCode attribute arrives as '', which the destructure
 	// default above lets through, so it needs a fallback of its own.
@@ -180,10 +184,17 @@ function ButtonPreview( {
 	// A blank label would draw an unreadable button, so fall back to the same
 	// default render_api_managed_button() uses.
 	const label = `${ buttonText ?? '' }`.trim() || DEFAULT_LABEL;
+	// The quantity field the frontend draws, when the payment allows more than one.
+	const maxQuantity = attributes.adjustableQuantity
+		? parseInt( attributes.maxQuantity, 10 ) || 1
+		: 1;
+	const fieldId = useInstanceId( ButtonPreview, 'jetpack-paypal-checkout-preview' );
 
 	return (
 		<div
-			className="jetpack-paypal-button jetpack-paypal-button-preview"
+			className={ clsx( 'jetpack-paypal-button', 'jetpack-paypal-button-preview', {
+				'jetpack-paypal-button--checkout-format': inlineCheckout,
+			} ) }
 			style={ getWidthStyle( attributes ) }
 		>
 			{ /* Product image */ }
@@ -208,8 +219,54 @@ function ButtonPreview( {
 				</div>
 			) }
 
+			{ /* On-page checkout: the options as selects and a quantity field, as the
+			     frontend draws them. Inert, since nothing is bought in the editor. */ }
+			{ inlineCheckout && variantGroups.length > 0 && (
+				<div className="jetpack-paypal-button__variants">
+					{ variantGroups.map( ( group, i ) => (
+						<label
+							key={ i }
+							htmlFor={ `${ fieldId }-option-${ i }` }
+							className="jetpack-paypal-button__variant-group jetpack-paypal-button__variant-group--select"
+						>
+							<span className="jetpack-paypal-button__variant-name">{ group.name }</span>
+							<select
+								id={ `${ fieldId }-option-${ i }` }
+								className="jetpack-paypal-button__variant-select"
+								disabled
+							>
+								{ group.options.map( ( option, j ) => (
+									<option key={ j } value={ option.label }>
+										{ option.price
+											? `${ option.label } (${ formatPrice( option.price, code ) })`
+											: option.label }
+									</option>
+								) ) }
+							</select>
+						</label>
+					) ) }
+				</div>
+			) }
+			{ inlineCheckout && maxQuantity > 1 && (
+				<label htmlFor={ `${ fieldId }-quantity` } className="jetpack-paypal-button__quantity">
+					<span className="jetpack-paypal-button__quantity-label">
+						{ __( 'Quantity', 'jetpack-paypal-payments' ) }
+					</span>
+					<input
+						id={ `${ fieldId }-quantity` }
+						type="number"
+						className="jetpack-paypal-button__quantity-input"
+						value="1"
+						min="1"
+						max={ maxQuantity }
+						readOnly
+						disabled
+					/>
+				</label>
+			) }
+
 			{ /* Variant summary — the frontend's markup and class names, so both sides look alike. */ }
-			{ variantGroups.length > 0 && (
+			{ ! inlineCheckout && variantGroups.length > 0 && (
 				<div className="jetpack-paypal-button__variants">
 					<p className="jetpack-paypal-button__variants-label">
 						{ __( 'Options available — select at checkout:', 'jetpack-paypal-payments' ) }
@@ -235,24 +292,42 @@ function ButtonPreview( {
 				</div>
 			) }
 
-			{ /* Checkout button preview — theme-native unless the Styles tab says
-			     otherwise, labeled with the buttonText attribute. */ }
-			<div className="jetpack-paypal-button__buttons">
+			{ /* PayPal draws the real buttons from its SDK; the canvas shows stand-ins in
+			     PayPal's colors, so the merchant sees the shape without a live client id. */ }
+			{ inlineCheckout && (
 				<div
-					className={ clsx(
-						'jetpack-paypal-button__checkout-link',
-						'jetpack-paypal-button-preview__checkout-button',
-						'wp-element-button',
-						{ 'is-style-outline': isOutlineButton( attributes ) }
-					) }
-					style={ getButtonStyle( attributes ) }
+					className="jetpack-paypal-button__buttons jetpack-paypal-button-preview__paypal-buttons"
 					aria-hidden="true"
 				>
-					<span className="jetpack-paypal-button__button-text">{ label }</span>
+					<div className="jetpack-paypal-button-preview__paypal-button jetpack-paypal-button-preview__paypal-button--paypal">
+						<span className="jetpack-paypal-button__logo">PayPal</span>
+					</div>
+					<div className="jetpack-paypal-button-preview__paypal-button jetpack-paypal-button-preview__paypal-button--card">
+						{ __( 'Debit or Credit Card', 'jetpack-paypal-payments' ) }
+					</div>
 				</div>
-			</div>
+			) }
 
-			{ attributes.buttonShowPoweredBy && (
+			{ /* Checkout button preview — theme-native unless the Styles tab says
+			     otherwise, labeled with the buttonText attribute. */ }
+			{ ! inlineCheckout && (
+				<div className="jetpack-paypal-button__buttons">
+					<div
+						className={ clsx(
+							'jetpack-paypal-button__checkout-link',
+							'jetpack-paypal-button-preview__checkout-button',
+							'wp-element-button',
+							{ 'is-style-outline': isOutlineButton( attributes ) }
+						) }
+						style={ getButtonStyle( attributes ) }
+						aria-hidden="true"
+					>
+						<span className="jetpack-paypal-button__button-text">{ label }</span>
+					</div>
+				</div>
+			) }
+
+			{ ! inlineCheckout && attributes.buttonShowPoweredBy && (
 				<p className="jetpack-paypal-button__attribution">
 					{ createInterpolateElement(
 						sprintf(
@@ -272,7 +347,7 @@ function ButtonPreview( {
  * The block's canvas preview, by Display Format.
  *
  * @param {object} props        - Component props. The rest go to the format's own preview.
- * @param {string} props.format - Display format: BUTTON, LINK, QR or STACKED.
+ * @param {string} props.format - Display format: BUTTON, CHECKOUT, LINK, QR or STACKED.
  * @return {Element} The preview for that format.
  */
 export default function PayPalButtonPreview( { format, ...props } ) {
@@ -286,6 +361,8 @@ export default function PayPalButtonPreview( { format, ...props } ) {
 			return <LinkPreview { ...props } />;
 		case 'QR':
 			return <QrPreview { ...props } />;
+		case 'CHECKOUT':
+			return <ButtonPreview { ...props } inlineCheckout />;
 		case 'STACKED':
 			// The SDK boots once per mount, so the key remounts this on a new URL, payment or card revision.
 			return (

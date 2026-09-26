@@ -224,6 +224,149 @@ class PayPal_API_Client_Test extends TestCase {
 		$this->assertArrayHasKey( 'payment_link', $result );
 	}
 
+	// --- Orders ---
+
+	/**
+	 * The on-site checkout's orders go to the Orders API, with partner attribution in the header.
+	 */
+	public function test_create_order_posts_to_the_orders_endpoint_with_attribution() {
+		$this->set_up_connected_state();
+
+		$requests = array();
+		$this->mock_http_response_collecting(
+			201,
+			array(
+				'id'     => 'ORDER12345',
+				'status' => 'CREATED',
+			),
+			$requests
+		);
+
+		$order  = array(
+			'intent'         => 'CAPTURE',
+			'purchase_units' => array(
+				array(
+					'amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+				),
+			),
+		);
+		$result = PayPal_API_Client::create_order( $order );
+
+		$this->assertSame( 'ORDER12345', $result['id'] );
+		$this->assertCount( 1, $requests );
+		$this->assertSame( 'https://api-m.sandbox.paypal.com/v2/checkout/orders', $requests[0]['url'] );
+		$this->assertSame( 'POST', $requests[0]['args']['method'] );
+		$this->assertSame( PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID, $requests[0]['args']['headers']['PayPal-Partner-Attribution-Id'] );
+		$this->assertSame( 'return=representation', $requests[0]['args']['headers']['Prefer'] );
+		$this->assertArrayHasKey( 'PayPal-Request-Id', $requests[0]['args']['headers'] );
+		$this->assertSame( $order, json_decode( $requests[0]['args']['body'], true ) );
+	}
+
+	public function test_capture_order_posts_an_empty_object() {
+		$this->set_up_connected_state();
+
+		$requests = array();
+		$this->mock_http_response_collecting(
+			201,
+			array(
+				'id'     => 'ORDER12345',
+				'status' => 'COMPLETED',
+			),
+			$requests
+		);
+
+		$result = PayPal_API_Client::capture_order( 'ORDER12345' );
+
+		$this->assertSame( 'COMPLETED', $result['status'] );
+		$this->assertSame( 'https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER12345/capture', $requests[0]['url'] );
+		// PayPal rejects `[]`; an empty body has to be an object.
+		$this->assertSame( '{}', $requests[0]['args']['body'] );
+	}
+
+	public function test_capture_order_reads_back_an_order_captured_already() {
+		$this->set_up_connected_state();
+
+		$urls = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$urls ) {
+				$urls[] = $args['method'] . ' ' . $url;
+
+				if ( 'POST' === $args['method'] ) {
+					return array(
+						'response' => array(
+							'code'    => 422,
+							'message' => '',
+						),
+						'body'     => wp_json_encode(
+							array(
+								'name'    => 'UNPROCESSABLE_ENTITY',
+								'details' => array( array( 'issue' => 'ORDER_ALREADY_CAPTURED' ) ),
+							),
+							JSON_UNESCAPED_SLASHES
+						),
+					);
+				}
+
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode(
+						array(
+							'id'     => 'ORDER12345',
+							'status' => 'COMPLETED',
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			},
+			10,
+			3
+		);
+
+		$result = PayPal_API_Client::capture_order( 'ORDER12345' );
+
+		$this->assertSame( 'COMPLETED', $result['status'] );
+		$this->assertSame(
+			array(
+				'POST https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER12345/capture',
+				'GET https://api-m.sandbox.paypal.com/v2/checkout/orders/ORDER12345',
+			),
+			$urls
+		);
+	}
+
+	public function test_capture_order_passes_other_failures_through() {
+		$this->set_up_connected_state();
+		$this->mock_http_response(
+			422,
+			array(
+				'name'    => 'UNPROCESSABLE_ENTITY',
+				'details' => array( array( 'issue' => 'ORDER_NOT_APPROVED' ) ),
+			)
+		);
+
+		$result = PayPal_API_Client::capture_order( 'ORDER12345' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_api_unprocessable_entity', $result->get_error_code() );
+	}
+
+	public function test_order_ids_are_validated_before_they_reach_a_url() {
+		foreach ( array( '', 'order-1', 'ORDER/../1', 'ab', str_repeat( 'A', 33 ) ) as $bad ) {
+			$captured = PayPal_API_Client::capture_order( $bad );
+			$read     = PayPal_API_Client::get_order( $bad );
+
+			$this->assertSame( 'paypal_invalid_order_id', $captured->get_error_code(), $bad );
+			$this->assertSame( 'paypal_invalid_order_id', $read->get_error_code(), $bad );
+		}
+	}
+
 	/**
 	 * Test list_resources returns parsed response on 200.
 	 */
@@ -966,6 +1109,37 @@ class PayPal_API_Client_Test extends TestCase {
 
 		// Directly cache a fake token to avoid needing to mock the OAuth token exchange.
 		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token_12345' ), 3600 );
+	}
+
+	/**
+	 * Answer every PayPal request with one response, and collect what was sent.
+	 *
+	 * @param int   $status_code HTTP status code.
+	 * @param array $body        Response body, JSON-encoded for the mock.
+	 * @param array $requests    Filled by reference as [ url, args ] pairs.
+	 */
+	private function mock_http_response_collecting( $status_code, array $body, &$requests ) {
+		$requests = array();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $status_code, $body, &$requests ) {
+				$requests[] = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array(
+						'code'    => $status_code,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
 	}
 
 	/**

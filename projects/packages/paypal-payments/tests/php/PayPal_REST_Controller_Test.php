@@ -42,6 +42,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( 'jetpack_private_options' );
 		\Jetpack_Options::delete_option( 'id' );
 		Constants::clear_constants();
+		PayPal_API_Client::forget_cached_resources( 'PLB-ORDER1' );
+		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
 
 		// Remove any HTTP request filters.
 		remove_all_filters( 'pre_http_request' );
@@ -491,6 +493,263 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertEquals( 201, $result->get_status() );
 		$data = $result->get_data();
 		$this->assertEquals( 'PLB-CREATED123', $data['id'] );
+	}
+
+	// --- Orders: the on-site checkout ---
+
+	/**
+	 * A payment link PayPal answers a read with.
+	 *
+	 * @param array $item Line item fields to add or override.
+	 * @return array
+	 */
+	private function stored_resource( array $item = array() ) {
+		return array(
+			'id'         => 'PLB-ORDER1',
+			'line_items' => array(
+				array_merge(
+					array(
+						'name'                => 'Widget',
+						'unit_amount'         => array(
+							'currency_code' => 'USD',
+							'value'         => '10.00',
+						),
+						'adjustable_quantity' => array( 'maximum' => 5 ),
+					),
+					$item
+				),
+			),
+		);
+	}
+
+	public function test_order_routes_are_open_to_logged_out_buyers() {
+		wp_set_current_user( 0 );
+		add_filter( 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG, '__return_true' );
+		PayPal_Payment_Buttons::register_feature_flags();
+		PayPal_Payment_Buttons::init_rest_api();
+
+		$routes = rest_get_server()->get_routes();
+
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . PayPal_Payment_Buttons::API_MANAGED_BUTTONS_FLAG );
+		\Automattic\Jetpack\Feature_Flags\Feature_Flags::reset();
+
+		$this->assertArrayHasKey( '/wpcom/v2/paypal/orders', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/paypal/orders/(?P<order_id>[A-Z0-9]{5,32})/capture', $routes );
+		$this->assertTrue( call_user_func( $routes['/wpcom/v2/paypal/orders'][0]['permission_callback'] ) );
+		$this->assertTrue( call_user_func( $routes['/wpcom/v2/paypal/orders/(?P<order_id>[A-Z0-9]{5,32})/capture'][0]['permission_callback'] ) );
+	}
+
+	public function test_create_order_prices_the_order_from_the_payment_link() {
+		wp_set_current_user( 0 );
+		$this->set_up_connected_admin_state();
+		wp_set_current_user( 0 );
+
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources/PLB-ORDER1' => $this->http_response( 200, $this->stored_resource() ),
+				'/v2/checkout/orders' => $this->http_response(
+					201,
+					array(
+						'id'     => 'ORDER12345',
+						'status' => 'CREATED',
+					)
+				),
+			),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 3 );
+		$request->set_param( 'selection', array() );
+
+		$result = PayPal_REST_Controller::handle_create_order( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 201, $result->get_status() );
+		$this->assertSame( array( 'id' => 'ORDER12345' ), $result->get_data() );
+
+		$order_request = end( $requests );
+		$this->assertStringEndsWith( '/v2/checkout/orders', $order_request['url'] );
+		$body = json_decode( $order_request['args']['body'], true );
+		$this->assertIsArray( $body );
+		$this->assertSame( 'CAPTURE', $body['intent'] );
+		$this->assertSame( '30.00', $body['purchase_units'][0]['amount']['value'] );
+		$this->assertSame( 'PLB-ORDER1', $body['purchase_units'][0]['custom_id'] );
+		$this->assertSame( 'NO_SHIPPING', $body['application_context']['shipping_preference'] );
+	}
+
+	public function test_create_order_asks_for_an_address_when_the_link_collects_one() {
+		$this->set_up_connected_admin_state();
+
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources/PLB-ORDER1' => $this->http_response( 200, $this->stored_resource( array( 'collect_shipping_address' => true ) ) ),
+				'/v2/checkout/orders' => $this->http_response( 201, array( 'id' => 'ORDER12345' ) ),
+			),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 1 );
+
+		PayPal_REST_Controller::handle_create_order( $request );
+
+		$body = json_decode( end( $requests )['args']['body'], true );
+		$this->assertIsArray( $body );
+		$this->assertSame( 'GET_FROM_FILE', $body['application_context']['shipping_preference'] );
+	}
+
+	public function test_create_order_returns_the_pricing_error_to_the_buyer() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources/PLB-ORDER1' => $this->http_response( 200, $this->stored_resource() ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 9 );
+
+		$result = PayPal_REST_Controller::handle_create_order( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_order_invalid_quantity', $result->get_error_code() );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
+	}
+
+	public function test_create_order_refuses_a_deleted_link_without_asking_paypal() {
+		$this->set_up_connected_admin_state();
+		PayPal_API_Client::remember_deleted_resource( 'PLB-ORDER1' );
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 1 );
+
+		$result = PayPal_REST_Controller::handle_create_order( $request );
+
+		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 404, $result->get_error_data()['status'] );
+		$this->assertSame( array(), $requests );
+	}
+
+	public function test_create_order_hides_merchant_facing_api_errors_from_the_buyer() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources/PLB-ORDER1' => $this->http_response( 404, array( 'name' => 'RESOURCE_NOT_FOUND' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 1 );
+
+		$result = PayPal_REST_Controller::handle_create_order( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 404, $result->get_error_data()['status'] );
+		$this->assertStringNotContainsString( 'create a new button', $result->get_error_message() );
+		$this->assertStringContainsString( 'try again', $result->get_error_message() );
+	}
+
+	public function test_capture_order_records_the_order_and_answers_its_status() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v2/checkout/orders/ORDERREST1/capture' => $this->http_response(
+					201,
+					array(
+						'id'             => 'ORDERREST1',
+						'status'         => 'COMPLETED',
+						'purchase_units' => array(
+							array(
+								'custom_id' => 'PLB-ORDER1',
+								'items'     => array(
+									array(
+										'name'     => 'Widget',
+										'quantity' => '2',
+									),
+								),
+								'payments'  => array(
+									'captures' => array(
+										array(
+											'id'     => 'CAPTURE999',
+											'status' => 'COMPLETED',
+										),
+									),
+								),
+							),
+						),
+					)
+				),
+			)
+		);
+
+		$recorded = array();
+		add_action(
+			'wp_insert_post',
+			function ( $post_id, $post ) use ( &$recorded ) {
+				if ( PayPal_Orders::POST_TYPE === $post->post_type ) {
+					$recorded[] = $post_id;
+				}
+			},
+			10,
+			2
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders/ORDERREST1/capture' );
+		$request->set_param( 'order_id', 'ORDERREST1' );
+
+		$result = PayPal_REST_Controller::handle_capture_order( $request );
+
+		remove_all_actions( 'wp_insert_post' );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame(
+			array(
+				'id'     => 'ORDERREST1',
+				'status' => 'COMPLETED',
+			),
+			$result->get_data()
+		);
+		$this->assertCount( 1, $recorded );
+		$post_id = (int) reset( $recorded );
+		$this->assertSame( 'CAPTURE999', get_post_meta( $post_id, PayPal_Orders::META_CAPTURE_ID, true ) );
+
+		wp_delete_post( $post_id, true );
+	}
+
+	public function test_capture_order_tells_the_buyer_when_paypal_declines() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_routes(
+			array(
+				'/v2/checkout/orders/ORDER12345/capture' => $this->http_response(
+					422,
+					array(
+						'name'    => 'UNPROCESSABLE_ENTITY',
+						'details' => array( array( 'issue' => 'INSTRUMENT_DECLINED' ) ),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders/ORDER12345/capture' );
+		$request->set_param( 'order_id', 'ORDER12345' );
+
+		$result = PayPal_REST_Controller::handle_capture_order( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_api_unprocessable_entity', $result->get_error_code() );
+		$this->assertSame( 422, $result->get_error_data()['status'] );
 	}
 
 	// --- api_error_to_rest_error (tested indirectly) ---

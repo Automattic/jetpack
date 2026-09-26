@@ -146,6 +146,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertArrayHasKey( '/wpcom/v2/paypal/connection', $routes );
 		$this->assertArrayHasKey( '/wpcom/v2/paypal/buttons', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/paypal/orders', $routes );
+	}
+
+	public function test_init_rest_api_registers_the_order_record_with_the_routes() {
+		remove_all_actions( 'rest_api_init' );
+		remove_all_actions( 'init' );
+
+		PayPal_Payment_Buttons::init_rest_api();
+
+		$this->assertNotFalse( has_action( 'init', array( PayPal_Orders::class, 'register_post_type' ) ) );
+
+		remove_all_actions( 'rest_api_init' );
+		remove_all_actions( 'init' );
 	}
 
 	/**
@@ -286,6 +299,161 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		);
 	}
 
+	/**
+	 * An API-managed block in the CHECKOUT format, on a connected site with the flag on.
+	 *
+	 * @param array $extra Attributes to add or override.
+	 * @return array
+	 */
+	private function checkout_attributes( array $extra = array() ) {
+		return array_merge(
+			array(
+				'isApiManaged' => true,
+				'format'       => 'CHECKOUT',
+				'resourceId'   => 'PLB-CHECKOUT1',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-CHECKOUT1',
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'EUR',
+			),
+			$extra
+		);
+	}
+
+	/**
+	 * The flag on and PayPal connected, which the checkout format needs.
+	 */
+	private function set_up_checkout_site() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		PayPal_OAuth::store_credentials( 'client+id', 'secret' );
+	}
+
+	public function test_render_block_checkout_draws_the_card_and_the_sdk_container() {
+		$this->set_up_checkout_site();
+		$attributes = $this->checkout_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button--checkout-format', $html );
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-name">Widget<', $html );
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">€10.00<', $html );
+		$this->assertMatchesRegularExpression(
+			'#<div class="jetpack-paypal-button__inline-checkout" data-resource-id="PLB-CHECKOUT1" data-orders-url="[^"]*wpcom/v2/paypal/orders" data-max-quantity="1" data-success-message="[^"]+" data-error-message="[^"]+"></div>#',
+			$html
+		);
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-message', $html );
+		// PayPal draws the buttons and its own mark, so the block's button and attribution stay out.
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $html );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__quantity', $html );
+	}
+
+	public function test_render_block_checkout_loads_the_buttons_sdk_for_the_currency() {
+		$this->set_up_checkout_site();
+		$attributes = $this->checkout_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertTrue( wp_script_is( PayPal_Payment_Buttons::CHECKOUT_SDK_HANDLE, 'enqueued' ) );
+		$this->assertTrue( wp_script_is( 'jetpack-paypal-checkout', 'enqueued' ) );
+		$src = wp_scripts()->registered[ PayPal_Payment_Buttons::CHECKOUT_SDK_HANDLE ]->src;
+		$this->assertStringStartsWith( 'https://www.paypal.com/sdk/js?', $src );
+		$this->assertStringContainsString( 'client-id=client%2Bid', $src );
+		$this->assertStringContainsString( 'components=buttons', $src );
+		$this->assertStringContainsString( 'currency=EUR', $src );
+		$this->assertContains( PayPal_Payment_Buttons::CHECKOUT_SDK_HANDLE, wp_scripts()->registered['jetpack-paypal-checkout']->deps );
+	}
+
+	public function test_render_block_checkout_draws_a_quantity_field_and_option_selects() {
+		$this->set_up_checkout_site();
+		$attributes = $this->checkout_attributes(
+			array(
+				'adjustableQuantity' => true,
+				'maxQuantity'        => 4,
+				'variantsEnabled'    => true,
+				'price'              => '',
+				'variants'           => array(
+					'dimensions' => array(
+						array(
+							'name'    => 'Size',
+							'primary' => true,
+							'options' => array(
+								array(
+									'label'       => 'Small',
+									'unit_amount' => array(
+										'currency_code' => 'EUR',
+										'value'         => '12.50',
+									),
+								),
+								array(
+									'label'       => 'Large',
+									'unit_amount' => array(
+										'currency_code' => 'EUR',
+										'value'         => '20.00',
+									),
+								),
+							),
+						),
+					),
+				),
+			)
+		);
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'data-max-quantity="4"', $html );
+		$this->assertStringContainsString( '<input type="number" class="jetpack-paypal-button__quantity-input" value="1" min="1" max="4"', $html );
+		$this->assertStringContainsString( '<select class="jetpack-paypal-button__variant-select" data-dimension="Size">', $html );
+		$this->assertStringContainsString( '<option value="Small">Small (€12.50)</option>', $html );
+		$this->assertStringContainsString( '<option value="Large">Large (€20.00)</option>', $html );
+		$this->assertStringNotContainsString( 'select at checkout', $html );
+	}
+
+	public function test_render_block_checkout_falls_back_to_the_hosted_button_while_the_flag_is_off() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		PayPal_OAuth::store_credentials( 'client+id', 'secret' );
+		$attributes = $this->checkout_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__inline-checkout', $html );
+		$this->assertFalse( wp_script_is( PayPal_Payment_Buttons::CHECKOUT_SDK_HANDLE, 'enqueued' ) );
+	}
+
+	public function test_render_block_checkout_falls_back_to_the_hosted_button_when_disconnected() {
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+		$attributes = $this->checkout_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__inline-checkout', $html );
+	}
+
+	public function test_render_block_checkout_falls_back_to_the_hosted_button_for_profile_rates() {
+		$this->set_up_checkout_site();
+		$attributes = $this->checkout_attributes(
+			array(
+				'shippingEnabled' => true,
+				'shippingMode'    => 'PROFILE',
+			)
+		);
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__inline-checkout', $html );
+	}
+
 	public function test_render_block_stacked_draws_the_sdk_container() {
 		$attributes = $this->stacked_attributes();
 		$this->set_up_block_render_context( $attributes );
@@ -410,6 +578,17 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'data-paypal-partner-attribution-id="' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
 			$tag
 		);
+	}
+
+	public function test_tag_paypal_sdk_script_namespaces_the_checkout_sdk_separately() {
+		$tag = PayPal_Payment_Buttons::tag_paypal_sdk_script(
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+			'<script src="https://www.paypal.com/sdk/js?components=buttons"></script>',
+			PayPal_Payment_Buttons::CHECKOUT_SDK_HANDLE
+		);
+
+		$this->assertStringContainsString( 'data-namespace="paypal_inline_checkout"', $tag );
+		$this->assertStringContainsString( 'data-paypal-partner-attribution-id=', $tag );
 	}
 
 	public function test_tag_paypal_sdk_script_leaves_other_scripts_alone() {

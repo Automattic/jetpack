@@ -41,6 +41,13 @@ class PayPal_API_Client {
 	const RESOURCES_ENDPOINT = '/v1/checkout/payment-resources';
 
 	/**
+	 * Orders API endpoint path, for payments taken on the site itself.
+	 *
+	 * @var string
+	 */
+	const ORDERS_ENDPOINT = '/v2/checkout/orders';
+
+	/**
 	 * Counter folded into every cached list key, bumped whenever a payment link
 	 * is created, updated or deleted. Cached pages are keyed by PayPal's opaque
 	 * page token, so they cannot be enumerated and deleted one by one.
@@ -370,6 +377,115 @@ class PayPal_API_Client {
 	}
 
 	/**
+	 * Create an order for a payment taken on the site.
+	 *
+	 * Unlike the payment-resources endpoints, the Orders API takes partner attribution
+	 * as a header, so it goes on every order request.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $order The Orders API request body: intent and purchase_units.
+	 * @return array|\WP_Error The created order, with its id, or WP_Error on failure.
+	 */
+	public static function create_order( array $order ) {
+		return self::make_request_with_retry( 'POST', self::ORDERS_ENDPOINT, $order, array( 200, 201 ), self::order_headers() );
+	}
+
+	/**
+	 * Read an order.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $order_id PayPal's order id.
+	 * @return array|\WP_Error The order, or WP_Error on failure.
+	 */
+	public static function get_order( $order_id ) {
+		$order_id = self::sanitize_order_id( $order_id );
+		if ( is_wp_error( $order_id ) ) {
+			return $order_id;
+		}
+
+		return self::make_request_with_retry( 'GET', self::ORDERS_ENDPOINT . '/' . $order_id, null, 200, self::order_headers() );
+	}
+
+	/**
+	 * Capture an approved order, which is what moves the money.
+	 *
+	 * A second capture of the same order, from a retried request, answers 422
+	 * ORDER_ALREADY_CAPTURED; the order is read back instead, so both callers
+	 * get the captured order.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $order_id PayPal's order id.
+	 * @return array|\WP_Error The captured order, or WP_Error on failure.
+	 */
+	public static function capture_order( $order_id ) {
+		$order_id = self::sanitize_order_id( $order_id );
+		if ( is_wp_error( $order_id ) ) {
+			return $order_id;
+		}
+
+		$result = self::make_request_with_retry(
+			'POST',
+			self::ORDERS_ENDPOINT . '/' . $order_id . '/capture',
+			new \stdClass(),
+			array( 200, 201 ),
+			self::order_headers()
+		);
+
+		if ( is_wp_error( $result ) && 'ORDER_ALREADY_CAPTURED' === self::first_issue( $result ) ) {
+			return self::get_order( $order_id );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Headers every Orders API request carries.
+	 *
+	 * @return array
+	 */
+	private static function order_headers() {
+		return array(
+			'PayPal-Partner-Attribution-Id' => PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			'Prefer'                        => 'return=representation',
+		);
+	}
+
+	/**
+	 * The first issue code in a PayPal error, e.g. ORDER_ALREADY_CAPTURED.
+	 *
+	 * @param \WP_Error $error An error from make_request().
+	 * @return string The issue, or '' when the error carries none.
+	 */
+	private static function first_issue( \WP_Error $error ) {
+		$data = $error->get_error_data();
+
+		return (string) ( $data['details'][0]['issue'] ?? '' );
+	}
+
+	/**
+	 * Validate an order id before it goes into a URL.
+	 *
+	 * @param string $order_id PayPal's order id.
+	 * @return string|\WP_Error The id, or WP_Error when it is not one.
+	 */
+	private static function sanitize_order_id( $order_id ) {
+		$order_id = trim( (string) $order_id );
+
+		if ( ! preg_match( '/^[A-Z0-9]{5,32}$/', $order_id ) ) {
+			return new \WP_Error(
+				'paypal_invalid_order_id',
+				__( 'Invalid PayPal order id.', 'jetpack-paypal-payments' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $order_id;
+	}
+
+	/**
 	 * Record a deleted link, so a published block still pointing at it renders nothing.
 	 *
 	 * @since 0.9.0
@@ -416,13 +532,14 @@ class PayPal_API_Client {
 	 * 2. 500/502/503 errors: retry with exponential backoff (up to MAX_RETRIES).
 	 * 3. Network timeouts: retry with exponential backoff (up to MAX_RETRIES).
 	 *
-	 * @param string     $method          HTTP method (GET, POST, PUT, DELETE).
-	 * @param string     $endpoint        API endpoint path.
-	 * @param array|null $body            Request body data.
-	 * @param int|array  $expected_status Status code, or codes, that count as success.
+	 * @param string            $method          HTTP method (GET, POST, PUT, DELETE).
+	 * @param string            $endpoint        API endpoint path.
+	 * @param array|object|null $body            Request body data.
+	 * @param int|array         $expected_status Status code, or codes, that count as success.
+	 * @param array             $headers         Optional. Headers to send on top of the standard set.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
-	private static function make_request_with_retry( $method, $endpoint, $body, $expected_status ) {
+	private static function make_request_with_retry( $method, $endpoint, $body, $expected_status, $headers = array() ) {
 		$last_error   = null;
 		$auth_retried = false;
 
@@ -430,7 +547,7 @@ class PayPal_API_Client {
 		$request_id = wp_generate_uuid4();
 
 		for ( $attempt = 0; $attempt <= self::MAX_RETRIES; $attempt++ ) {
-			$result = self::make_request( $method, $endpoint, $body, $expected_status, $request_id );
+			$result = self::make_request( $method, $endpoint, $body, $expected_status, $request_id, $headers );
 
 			// Success — return immediately.
 			if ( ! is_wp_error( $result ) ) {
@@ -454,7 +571,7 @@ class PayPal_API_Client {
 
 				// Retry the request with the fresh token (don't increment attempt).
 				// Use a new request ID since this is a distinct attempt after re-auth.
-				$retry_result = self::make_request( $method, $endpoint, $body, $expected_status, wp_generate_uuid4() );
+				$retry_result = self::make_request( $method, $endpoint, $body, $expected_status, wp_generate_uuid4(), $headers );
 				if ( ! is_wp_error( $retry_result ) ) {
 					return $retry_result;
 				}
@@ -512,14 +629,15 @@ class PayPal_API_Client {
 	 * API endpoints. BN code attribution is handled via the `at_code` query
 	 * parameter on payment link URLs in the render layer.
 	 *
-	 * @param string     $method          HTTP method (GET, POST, PUT, DELETE).
-	 * @param string     $endpoint        API endpoint path (appended to base URL).
-	 * @param array|null $body            Request body data (JSON-encoded for POST/PUT).
-	 * @param int|array  $expected_status Status code, or codes, that count as success.
-	 * @param string     $request_id      Optional. Idempotency key. Auto-generated if empty.
+	 * @param string            $method          HTTP method (GET, POST, PUT, DELETE).
+	 * @param string            $endpoint        API endpoint path (appended to base URL).
+	 * @param array|object|null $body            Request body data (JSON-encoded for POST/PUT).
+	 * @param int|array         $expected_status Status code, or codes, that count as success.
+	 * @param string            $request_id      Optional. Idempotency key. Auto-generated if empty.
+	 * @param array             $headers         Optional. Headers to send on top of the standard set.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
-	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id = '' ) {
+	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id = '', $headers = array() ) {
 		$token = PayPal_OAuth::get_access_token();
 		if ( is_wp_error( $token ) ) {
 			return $token;
@@ -535,11 +653,14 @@ class PayPal_API_Client {
 		$args = array(
 			'method'  => $method,
 			'timeout' => self::REQUEST_TIMEOUT,
-			'headers' => array(
-				'Authorization'     => 'Bearer ' . $token,
-				'Content-Type'      => 'application/json',
-				'Accept'            => 'application/json',
-				'PayPal-Request-Id' => $request_id,
+			'headers' => array_merge(
+				array(
+					'Authorization'     => 'Bearer ' . $token,
+					'Content-Type'      => 'application/json',
+					'Accept'            => 'application/json',
+					'PayPal-Request-Id' => $request_id,
+				),
+				$headers
 			),
 		);
 

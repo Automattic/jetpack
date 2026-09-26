@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a "Checkout on this page" format to the payment button, so buyers pay with PayPal, Venmo, or a card without leaving the site.
