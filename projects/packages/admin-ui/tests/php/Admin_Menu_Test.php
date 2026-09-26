@@ -203,6 +203,32 @@ class Admin_Menu_Test extends TestCase {
 	}
 
 	/**
+	 * A page core registers as admin_page_<slug>, for a user without the Jetpack menu, gets the same hooks.
+	 */
+	public function test_add_menu_covers_the_admin_page_fallback_hook() {
+		// test_page_suffix_matches leaves a `jetpack` entry behind, which would give core's jetpack_page_ name.
+		global $admin_page_hooks;
+		unset( $admin_page_hooks['jetpack'] );
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'fallback_editor',
+					'user_pass'  => 'pass',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+		$wp_suffix = add_submenu_page( 'jetpack', 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+
+		$this->assertSame( 'admin_page_fallback_menu', $wp_suffix );
+		$this->assertNotFalse( has_action( 'load-' . $wp_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) ) );
+		Admin_Menu::maybe_enqueue_design_tokens( $wp_suffix );
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+	}
+
+	/**
 	 * The core-notice CSS reaches the page through the style queue, not through a printed style element.
 	 *
 	 * @return void

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Apply the core-notice hiding and design tokens to pages that WordPress registers under the admin_page_ prefix.
