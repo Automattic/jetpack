@@ -37,7 +37,7 @@ class Dashboard_Policy_Test extends TestCase {
 	 */
 	#[After]
 	public function tear_down() {
-		remove_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_true' );
+		remove_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_false' );
 		remove_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG, '__return_true' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_policy_script_data', 20 );
 		Feature_Flags::reset();
@@ -48,27 +48,27 @@ class Dashboard_Policy_Test extends TestCase {
 		$this->assertMatchesRegularExpression( '/^[a-z0-9][a-z0-9_-]*$/', DASHBOARD_COMPOSITION_FLAG );
 	}
 
-	public function test_flag_registers_off_by_default() {
+	public function test_flag_registers_on_by_default() {
 		register_dashboard_feature_flags();
 
 		$flags = Feature_Flags::all();
 
 		$this->assertArrayHasKey( DASHBOARD_COMPOSITION_FLAG, $flags );
-		$this->assertFalse( $flags[ DASHBOARD_COMPOSITION_FLAG ]['default'] );
+		$this->assertTrue( $flags[ DASHBOARD_COMPOSITION_FLAG ]['default'] );
 		$this->assertSame( 'jetpack-premium-analytics', $flags[ DASHBOARD_COMPOSITION_FLAG ]['owner'] );
 	}
 
-	public function test_composition_is_off_by_default() {
+	public function test_composition_is_on_by_default() {
 		register_dashboard_feature_flags();
 
-		$this->assertFalse( is_dashboard_composition_enabled() );
+		$this->assertTrue( is_dashboard_composition_enabled() );
 	}
 
 	public function test_composition_follows_the_flag() {
 		register_dashboard_feature_flags();
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_false' );
 
-		$this->assertTrue( is_dashboard_composition_enabled() );
+		$this->assertFalse( is_dashboard_composition_enabled() );
 	}
 
 	public function test_script_data_carries_the_answer_next_to_existing_keys() {
@@ -83,16 +83,16 @@ class Dashboard_Policy_Test extends TestCase {
 		);
 
 		$this->assertSame( 0, $data['premium_analytics']['initial_full_sync_finished'] );
-		$this->assertFalse( $data['premium_analytics']['dashboard_composition_enabled'] );
+		$this->assertTrue( $data['premium_analytics']['dashboard_composition_enabled'] );
 	}
 
-	public function test_script_data_reports_the_flag_on() {
+	public function test_script_data_reports_the_flag_off() {
 		register_dashboard_feature_flags();
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_true' );
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_false' );
 
 		$data = inject_dashboard_policy_script_data( array() );
 
-		$this->assertTrue( $data['premium_analytics']['dashboard_composition_enabled'] );
+		$this->assertFalse( $data['premium_analytics']['dashboard_composition_enabled'] );
 	}
 
 	public function test_configure_registers_script_data_filter() {
