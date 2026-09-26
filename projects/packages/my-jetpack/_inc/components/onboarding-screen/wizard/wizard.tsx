@@ -30,7 +30,6 @@ import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
-import { useRailVariant } from './use-rail-variant';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
 import type { SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
@@ -221,9 +220,6 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const state: WizardState = { choices, freeText: siteTypeDetail };
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
 
-	// Two rails are being compared; see use-rail-variant.ts.
-	const isIconRail = useRailVariant() === 'icons';
-
 	const stepBody = {
 		start: <StartStep titleId={ titleId } title={ meta.title } description={ meta.description } />,
 		features: (
@@ -269,22 +265,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	return (
 		<ThemeProvider color={ { background: SHELL_BACKGROUND } }>
-			<div
-				className={ clsx(
-					styles.layout,
-					isFinish && styles[ 'layout--finish' ],
-					isIconRail && styles[ 'layout--rail-icons' ]
-				) }
-			>
+			<div className={ clsx( styles.layout, isFinish && styles[ 'layout--finish' ] ) }>
 				{ /*
 				 * The sidebar region, as the Site Editor builds it: a NavigableRegion
 				 * holding the screen's exit control, title, and navigation.
 				 */ }
 				{ ! isFinish && (
-					<NavigableRegion
-						ariaLabel={ wizardTitle }
-						className={ clsx( styles.rail, isIconRail && styles[ 'rail--icons' ] ) }
-					>
+					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
 						<div className={ styles[ 'rail-head' ] }>
 							{ /*
 							 * Icon plus tooltip, as the Site Editor's own back control does it:
@@ -317,26 +304,12 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								</Tooltip.Popup>
 							</Tooltip.Root>
 
-							{ /*
-							 * The icon rail has no room for either, and Slack's does not carry
-							 * them. Both stay in the accessibility tree rather than going, so
-							 * the progress is still announced.
-							 */ }
-							{ isIconRail ? (
-								<VisuallyHidden>
-									<Heading level={ 2 }>{ wizardTitle }</Heading>
-									<Text variant="body-md">{ stepCount }</Text>
-								</VisuallyHidden>
-							) : (
-								<>
-									<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
-										{ wizardTitle }
-									</Heading>
-									<Text variant="body-md" className={ styles[ 'rail-count' ] }>
-										{ stepCount }
-									</Text>
-								</>
-							) }
+							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
+								{ wizardTitle }
+							</Heading>
+							<Text variant="body-md" className={ styles[ 'rail-count' ] }>
+								{ stepCount }
+							</Text>
 						</div>
 
 						{ /*
@@ -348,12 +321,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 							aria-label={ __( 'Setup steps', 'jetpack-my-jetpack' ) }
 						>
 							{ /* ItemGroup carries role="list", so each Item is a listitem. */ }
-							<ItemGroup
-								className={ clsx(
-									styles[ 'rail-steps' ],
-									isIconRail && styles[ 'rail-steps--icons' ]
-								) }
-							>
+							<ItemGroup className={ styles[ 'rail-steps' ] }>
 								{ steps.map( ( item, index ) => (
 									<Item
 										key={ item.id }
@@ -362,31 +330,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 										value={ index }
 										aria-current={ index === step ? 'true' : undefined }
 										aria-disabled={ index > furthestStep || undefined }
-										className={ clsx(
-											styles[ 'rail-step' ],
-											isIconRail && styles[ 'rail-step--icons' ]
-										) }
+										className={ styles[ 'rail-step' ] }
 										onClick={ handleRailClick }
 									>
-										{ /*
-										 * The icon rail stacks the glyph over its words, and the glyph
-										 * gets a tile of its own that carries the current state. Plain
-										 * elements rather than Stack, because Stack writes its gap and
-										 * direction as inline styles that a class cannot answer.
-										 */ }
-										{ isIconRail ? (
-											<>
-												<span className={ styles[ 'rail-step__tile' ] } aria-hidden="true">
-													<Icon icon={ stepGlyph( index, step ) } />
-												</span>
-												<span className={ styles[ 'rail-step__label' ] }>{ item.label }</span>
-											</>
-										) : (
-											<Stack direction="row" gap="sm" align="center" justify="start">
-												<Icon icon={ stepGlyph( index, step ) } aria-hidden="true" />
-												<FlexBlock>{ item.label }</FlexBlock>
-											</Stack>
-										) }
+										<Stack direction="row" gap="sm" align="center" justify="start">
+											<Icon icon={ stepGlyph( index, step ) } aria-hidden="true" />
+											<FlexBlock>{ item.label }</FlexBlock>
+										</Stack>
 									</Item>
 								) ) }
 							</ItemGroup>
