@@ -2670,12 +2670,13 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/paypal-payments",
-                "reference": "084f8d315ec793bf6c8aeac9ad3e6829b6fe64b4"
+                "reference": "dcf417088178471581777a989e75bb3540285cc7"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
                 "automattic/jetpack-blocks": "@dev",
                 "automattic/jetpack-connection": "@dev",
+                "automattic/jetpack-constants": "@dev",
                 "automattic/jetpack-feature-flags": "@dev",
                 "automattic/jetpack-plans": "@dev",
                 "automattic/jetpack-status": "@dev",

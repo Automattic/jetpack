@@ -9,6 +9,7 @@
  * @since 0.8.0
  */
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import {
 	BlockControls,
@@ -257,6 +258,9 @@ export default function ApiManagedEdit( {
 	const currencySymbol = CURRENCY_SYMBOLS[ currencyCode || 'USD' ] || currencyCode || 'USD';
 
 	const blockProps = useBlockProps();
+
+	// Identifies this bundle's Tracks events with the connected user.
+	useAnalytics();
 
 	const {
 		isConnected,

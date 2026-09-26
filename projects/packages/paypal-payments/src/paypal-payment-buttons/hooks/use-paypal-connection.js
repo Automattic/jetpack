@@ -4,6 +4,7 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -227,6 +228,10 @@ export function usePayPalConnection() {
 	const handleConnect = useCallback( () => {
 		setConnectError( null );
 		setIsConnecting( true );
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_connection_attempted', {
+			environment,
+			method: 'manual',
+		} );
 
 		apiFetch( {
 			path: `${ API_BASE }/connect`,
