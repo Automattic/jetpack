@@ -154,7 +154,8 @@ final class Post_Handler {
 	private static function save_settings(): string {
 		check_admin_referer( Settings_Form::NONCE_ACTION );
 
-		$sections = Settings_Form::posted_sections();
+		$sections           = Settings_Form::posted_sections();
+		$comment_likes_held = true;
 
 		// Before placement, because the services save rebuilds the global options it lives in.
 		if ( in_array( Settings_Form::SECTION_SHARING, $sections, true ) ) {
@@ -169,8 +170,8 @@ final class Post_Handler {
 			self::save_likes();
 		}
 
-		if ( in_array( Settings_Form::SECTION_COMMENT_LIKES, $sections, true ) && Environment::is_simple_site() ) {
-			self::save_comment_likes();
+		if ( in_array( Settings_Form::SECTION_COMMENT_LIKES, $sections, true ) && Environment::likes_supported() ) {
+			$comment_likes_held = self::save_comment_likes();
 		}
 
 		// Once, from whichever section rendered `Services_Config::global_options()`; never both.
@@ -178,7 +179,9 @@ final class Post_Handler {
 			self::save_global_options( $sections );
 		}
 
-		return self::redirect_url( true );
+		return $comment_likes_held
+			? self::redirect_url( true )
+			: add_query_arg( Settings_Page::COMMENT_LIKES_UNCHANGED, '1', self::redirect_url( true ) );
 	}
 
 	/**
@@ -235,17 +238,36 @@ final class Post_Handler {
 			} else {
 				delete_option( 'disabled_reblogs' );
 			}
-
-			self::save_comment_likes();
 		}
 	}
 
 	/**
-	 * Save the Comment Likes checkbox, which WordPress.com Simple alone renders.
+	 * Save the Comment Likes checkbox: the option on Simple, the module on Atomic and Jetpack sites.
+	 *
+	 * @return bool Whether Comment Likes now match the checkbox.
 	 */
-	private static function save_comment_likes(): void {
+	private static function save_comment_likes(): bool {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
-		update_option( 'jetpack_comment_likes_enabled', empty( $_POST['jetpack_comment_likes_enabled'] ) ? 0 : 1 );
+		$enabled = ! empty( $_POST['jetpack_comment_likes_enabled'] );
+
+		if ( Environment::is_simple_site() ) {
+			update_option( 'jetpack_comment_likes_enabled', $enabled ? 1 : 0 );
+			return true;
+		}
+
+		// `deactivate()` fires its hooks even when the module was already off.
+		if ( Environment::comment_likes_enabled() === $enabled ) {
+			return true;
+		}
+
+		if ( $enabled ) {
+			( new Modules() )->activate( 'comment-likes', false, false );
+		} else {
+			( new Modules() )->deactivate( 'comment-likes' );
+		}
+
+		// A host can force the module either way, and activation needs a connected owner.
+		return Environment::comment_likes_enabled() === $enabled;
 	}
 
 	/**

@@ -50,6 +50,7 @@ class Environment_Test extends BaseTestCase {
 		Constants::clear_constants();
 		Status_Cache::clear();
 		Jetpack_Options::delete_option( 'active_modules' );
+		delete_option( 'jetpack_comment_likes_enabled' );
 
 		parent::tear_down();
 	}
@@ -177,6 +178,45 @@ class Environment_Test extends BaseTestCase {
 		$this->assertFalse( Environment::likes_module_running() );
 		$this->assertTrue( Environment::comment_likes_module_running() );
 		$this->assertTrue( Environment::likes_settings_in_use() );
+	}
+
+	public function test_comment_likes_follow_the_option_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertFalse( Environment::comment_likes_enabled() );
+
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+
+		$this->assertTrue( Environment::comment_likes_enabled() );
+	}
+
+	/**
+	 * A stray copy of Simple's option must not tick the box.
+	 */
+	public function test_comment_likes_follow_the_module_off_wpcom(): void {
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		$this->given_site( array( 'likes' ), true );
+		$without_module = Environment::comment_likes_enabled();
+
+		$this->given_site( array( 'likes', 'comment-likes' ), true );
+		$with_module = Environment::comment_likes_enabled();
+
+		$this->assertFalse( $without_module );
+		$this->assertTrue( $with_module );
+	}
+
+	/**
+	 * Simple's Comment Likes read only their own option, whatever the modules say.
+	 */
+	public function test_comment_likes_follow_the_likes_settings_off_wpcom_only(): void {
+		$this->given_site( array( 'comment-likes' ), true );
+		$jetpack = Environment::comment_likes_follow_likes_settings();
+
+		Constants::set_constant( 'IS_WPCOM', true );
+		$simple = Environment::comment_likes_follow_likes_settings();
+
+		$this->assertTrue( $jetpack );
+		$this->assertFalse( $simple );
 	}
 
 	/**
