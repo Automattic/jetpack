@@ -179,6 +179,11 @@ class Jetpack_Connector {
 			$data['connectionOwner'] = static::get_connection_owner_data( $manager );
 		}
 
+		$protected_owner = static::get_protected_owner_card_state( $manager );
+		if ( null !== $protected_owner ) {
+			$data['protectedOwner'] = $protected_owner;
+		}
+
 		$host              = new Host();
 		$data['isWoaSite'] = $host->is_woa_site();
 		$data['isVipSite'] = $host->is_vip_site();
@@ -225,6 +230,67 @@ class Jetpack_Connector {
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
 		);
+	}
+
+	/**
+	 * Protected-owner state for the connector card.
+	 *
+	 * Omitted when nothing requests a protected owner and no anchor is stored,
+	 * so the card keeps its current account sections.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Manager $manager Connection manager instance.
+	 * @return array{required: bool, hasAnchor: bool, isEstablished: bool, isConnectedNonAdmin: bool, requestingPlugins: string[]}|null
+	 */
+	private static function get_protected_owner_card_state( $manager ) {
+		$requires = $manager->requires_protected_owner();
+		$anchor   = Protected_Owner::get_locked();
+
+		if ( ! $requires && ! $anchor ) {
+			return null;
+		}
+
+		return array(
+			'required'            => $requires,
+			'hasAnchor'           => null !== $anchor,
+			'isEstablished'       => $manager->has_protected_owner(),
+			'isConnectedNonAdmin' => static::is_protected_owner_connected_non_admin( $anchor ),
+			'requestingPlugins'   => static::get_protected_owner_requesting_plugins(),
+		);
+	}
+
+	/**
+	 * Whether the anchored owner is connected without being an administrator.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @todo Detect an anchored account that is connected but is not an administrator.
+	 *       Until then the card uses the missing-account notice for that case too.
+	 *
+	 * @param array|null $anchor Locked protected-owner anchor, or null when none is stored.
+	 * @return bool Always false until the check exists.
+	 */
+	private static function is_protected_owner_connected_non_admin( $anchor ) {
+		if ( ! is_array( $anchor ) ) {
+			return false;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Display names of plugins requesting a protected owner.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @todo Collect consumer names. The request filter is only a boolean, so the
+	 *       card cannot name the plugins yet and falls back to a generic phrase.
+	 *
+	 * @return string[] Plugin names. Empty until consumers can identify themselves.
+	 */
+	private static function get_protected_owner_requesting_plugins() {
+		return array();
 	}
 
 	/**
