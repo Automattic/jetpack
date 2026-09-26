@@ -45,6 +45,7 @@ class Podcast {
 		// Wire the RSS feed customizations (`<itunes:*>` + `<podcast:*>` tags,
 		// stats-tracked enclosure URLs) for the configured podcast category.
 		Customize_Feed::init();
+		Episode_Query::init();
 
 		Tracks::init();
 

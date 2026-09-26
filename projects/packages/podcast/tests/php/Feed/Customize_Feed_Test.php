@@ -516,57 +516,26 @@ class Customize_Feed_Test extends BaseTestCase {
 		delete_post_meta( 100, 'enclosure' );
 	}
 
-	public function test_constrain_feed_query_leaves_where_untouched_for_non_podcast_query() {
-		$where = ' AND 1=1';
-		$query = $this->build_podcast_feed_query_mock( 17, array( 'is_feed' => false ) );
-
-		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
-	}
-
-	public function test_constrain_feed_query_leaves_where_untouched_when_queried_term_does_not_match() {
-		$this->seed_category_term( 17 );
-		update_option( 'podcasting_category_id', 17 );
-
-		$where = ' AND 1=1';
-		$query = $this->build_podcast_feed_query_mock( 999 );
-
-		$this->assertSame( $where, Customize_Feed::constrain_feed_query( $where, $query ) );
-	}
-
-	public function test_constrain_feed_query_appends_enclosure_exists_subquery_for_podcast_feed() {
-		global $wpdb;
-		$this->seed_category_term( 17 );
-		update_option( 'podcasting_category_id', 17 );
-
-		$query  = $this->build_podcast_feed_query_mock( 17 );
-		$result = Customize_Feed::constrain_feed_query( ' AND 1=1', $query );
-
-		// Constraint is a correlated EXISTS semi-join, so an episode with
-		// several `enclosure` rows still yields exactly one post row — no
-		// LIMIT-breaking duplicates.
-		$this->assertStringContainsString(
-			"EXISTS ( SELECT 1 FROM {$wpdb->postmeta} WHERE {$wpdb->postmeta}.post_id = {$wpdb->posts}.ID AND {$wpdb->postmeta}.meta_key = 'enclosure' )",
-			$result
-		);
-		$this->assertStringStartsWith( ' AND 1=1', $result );
-	}
-
-	public function test_apply_feed_limit_sets_posts_per_rss_for_podcast_feed() {
+	public function test_configure_feed_query_sets_limit_and_episode_var_for_podcast_feed() {
 		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 		update_option( 'podcasting_feed_limit', 25 );
 
 		$query = $this->build_podcast_feed_query_mock( 17, array(), true );
-		$query->expects( $this->once() )->method( 'set' )->with( 'posts_per_rss', 25 );
+		$query->expects( $this->exactly( 2 ) )->method( 'set' )->willReturnCallback(
+			function ( $key, $value ) {
+				$this->assertContains( array( $key, $value ), array( array( 'posts_per_rss', 25 ), array( 'podcast_episodes', true ) ) );
+			}
+		);
 
-		Customize_Feed::apply_feed_limit( $query );
+		Customize_Feed::configure_feed_query( $query );
 	}
 
 	/**
 	 * `pre_get_posts` runs for every query on the site, so the gate is what keeps
 	 * the podcast limit off everyone else's feeds.
 	 */
-	public function test_apply_feed_limit_ignores_queries_that_are_not_the_podcast_feed() {
+	public function test_configure_feed_query_ignores_queries_that_are_not_the_podcast_feed() {
 		$this->seed_category_term( 17 );
 		update_option( 'podcasting_category_id', 17 );
 		update_option( 'podcasting_feed_limit', 25 );
@@ -574,14 +543,14 @@ class Customize_Feed_Test extends BaseTestCase {
 		$query = $this->build_podcast_feed_query_mock( 999, array(), true );
 		$query->expects( $this->never() )->method( 'set' );
 
-		Customize_Feed::apply_feed_limit( $query );
+		Customize_Feed::configure_feed_query( $query );
 	}
 
 	/**
 	 * Build a `WP_Query` double pre-stubbed for the podcast-feed happy path,
 	 * with optional per-method overrides.
 	 *
-	 * A stub unless `$expects_calls` — only the `apply_feed_limit` tests assert on
+	 * A stub unless `$expects_calls` — only the `configure_feed_query` tests assert on
 	 * a call, and handing every caller a mock makes PHPUnit flag the ones that
 	 * configure no expectations.
 	 *
