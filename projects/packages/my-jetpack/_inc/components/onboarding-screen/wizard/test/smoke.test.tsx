@@ -1,6 +1,6 @@
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { border, drafts, published } from '@wordpress/icons';
+import { bell, chartBar, border, drafts, published } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
 import { startBenefits } from '../lib';
 import { PANEL_LINES } from '../panel-type';
@@ -34,11 +34,66 @@ jest.mock( '@automattic/jetpack-connection', () => ( {
 	useConnection: ( ...args: unknown[] ) => mockUseConnection( ...( args as [] ) ),
 } ) );
 
+// Defaults to false: only the arrival test turns it on.
+const mockJustConnected = jest.fn( () => false );
+
+jest.mock( '../use-just-connected', () => ( {
+	__esModule: true,
+	useJustConnected: () => mockJustConnected(),
+	markConnecting: jest.fn(),
+} ) );
+
 const mockRecordEvent = jest.fn();
 
 jest.mock( '../../../../hooks/use-analytics', () => ( {
 	__esModule: true,
 	default: () => ( { recordEvent: mockRecordEvent } ),
+} ) );
+
+/*
+ * The six modules the feature step offers. Mocked here rather than driven through
+ * the modules store: these tests are about the shell and the way through it, and
+ * the hook has its own tests for what it does with the store.
+ */
+const mockModules = [
+	{
+		slug: 'stats',
+		name: 'Jetpack Stats',
+		description: 'Traffic insights.',
+		icon: chartBar,
+		activated: true,
+	},
+	{
+		slug: 'monitor',
+		name: 'Downtime Monitor',
+		description: 'Alerts if it goes down.',
+		icon: bell,
+		activated: false,
+	},
+];
+
+const mockApply = jest.fn( ( modules: typeof mockModules, wanted: Record< string, boolean > ) =>
+	Promise.resolve(
+		modules.map( module => {
+			const want = wanted[ module.slug ] ?? true;
+
+			// As the real one does: a module already in the wanted state is not asked
+			// to change, and must not be counted as though it had.
+			return {
+				slug: module.slug,
+				name: module.name,
+				wanted: want,
+				ok: true,
+				changed: want !== module.activated,
+			};
+		} )
+	)
+);
+
+jest.mock( '../use-setup-modules', () => ( {
+	__esModule: true,
+	useSetupModules: () => ( { modules: mockModules, isLoading: false } ),
+	useApplySetupModules: () => ( { apply: mockApply, isApplying: false } ),
 } ) );
 
 const mockApiFetch = jest.fn( () => Promise.resolve( {} ) );
@@ -73,6 +128,8 @@ beforeEach( () => {
 	mockConnection.userIsConnecting = false;
 	mockConnection.isUserConnected = false;
 	mockConnection.registrationError = false;
+	mockJustConnected.mockReturnValue( false );
+	mockApply.mockClear();
 } );
 
 /**
@@ -139,12 +196,18 @@ const PANEL_COPY = Object.values( PANEL_LINES ).map( lines =>
 
 const panelCopy = ( step: number ) => screen.getByText( PANEL_COPY[ step ] );
 
-// Each question step needs a choice before Continue is live. The start step is
-// not advanced this way: it leaves wp-admin entirely.
+// A question step needs a choice before Continue is live; the feature step starts
+// with every row answered. The start step is not advanced this way: it leaves
+// wp-admin entirely.
 const advance = async ( user: UserEvent, times: number ) => {
 	for ( let i = 0; i < times; i++ ) {
-		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
+		const radios = screen.queryAllByRole( 'radio' );
+		if ( radios.length ) {
+			await user.click( radios[ 0 ] );
+		}
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		// Leaving the feature step switches the modules, so the next one arrives async.
+		await waitFor( () => expect( screen.getByRole( 'heading', { level: 1 } ) ).toBeVisible() );
 	}
 };
 
@@ -331,10 +394,13 @@ describe( 'Wizard resume after connecting', () => {
 	it( 'opens at the site-type step once the user is connected', () => {
 		setupWizard( { isUserConnected: true } );
 
-		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 		// The rail is the only thing that counts the steps; the question column
 		// carries the question and nothing else.
-		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 1 );
+		// Counted from where this person starts. A connected site never sees the
+		// connect screen, so counting it would make the last step read 4 of 4 after
+		// three of them.
+		expect( screen.getAllByText( 'Step 1 of 3' ) ).toHaveLength( 1 );
 		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -348,11 +414,78 @@ describe( 'Wizard resume after connecting', () => {
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
 	} );
 
-	it( 'lets the user back to the start screen, but no further forward', () => {
+	/*
+	 * The connection is fetched, so the first render of a connected site says it
+	 * is not. Left alone, useState keeps that first answer and the user sits on
+	 * the one screen whose button would register the site again.
+	 */
+	it( 'moves off the connect screen when the connection answers late', () => {
+		const { refresh } = setupWizard( { isUserConnected: false } );
+
+		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
+
+		mockConnection.isUserConnected = true;
+		refresh();
+
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
+	} );
+
+	it( 'says the connection worked on the step it lands on', () => {
+		mockJustConnected.mockReturnValue( true );
+
 		setupWizard( { isUserConnected: true } );
 
-		expect( railStep( 'Connect' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Connected to WordPress.com' );
+	} );
+
+	/*
+	 * The flag behind it is cached for the page, and the column is keyed by step,
+	 * so an unpinned notice is re-inserted on every step change — which a live
+	 * region announces again, the last time on the finish screen.
+	 */
+	it( 'says it once, on that step and no other', async () => {
+		mockJustConnected.mockReturnValue( true );
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says nothing to someone who was already connected when they arrived', () => {
+		setupWizard( { isUserConnected: true } );
+
+		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+	} );
+
+	// The flag is consumed on the first read, or the arrival is announced again on
+	// every step and every reload for the rest of the session.
+	it( 'reads the arrival flag once and takes it away', () => {
+		jest.isolateModules( () => {
+			window.sessionStorage.setItem( 'jetpack-onboarding-connecting', '1' );
+
+			// requireActual, because this file mocks the module for every other test;
+			// isolateModules is synchronous, so import() cannot be awaited inside it.
+			const { useJustConnected } = jest.requireActual( '../use-just-connected' );
+
+			expect( useJustConnected() ).toBe( true );
+			expect( window.sessionStorage.getItem( 'jetpack-onboarding-connecting' ) ).toBeNull();
+			// Cached for the page load, so a remount does not lose the moment.
+			expect( useJustConnected() ).toBe( true );
+		} );
+	} );
+
+	// The floor is enforced in the click handler, so a row below it that does not
+	// say so takes focus, announces as available, and then swallows the click.
+	it( 'marks the rail rows it will not move to, below the floor as well as above', () => {
+		setupWizard( { isUserConnected: true } );
+
+		expect( railStep( 'Connect' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( railStep( 'What you need' ) ).toHaveAttribute( 'aria-disabled', 'true' );
+		expect( railStep( 'Your site' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 } );
 
@@ -438,13 +571,46 @@ describe( 'Wizard shell', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 
 		await advance( user, 1 );
-		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
 
-		await user.click( railStep( 'Connect' ) );
-		expect( heading() ).toHaveTextContent( 'Start with Jetpack for free' );
+		await user.click( railStep( 'Your site' ) );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 
 		// Ground already covered stays reachable after stepping back.
 		expect( railStep( 'What you need' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+
+	/*
+	 * The finish step takes the whole sheet: the rail counts steps that are all
+	 * behind you and the panel sells a flow you have just finished.
+	 */
+	it( 'drops the rail and the panel on the finish step', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'navigation' ) ).toBeInTheDocument();
+
+		await advance( user, 2 );
+
+		expect( screen.queryByRole( 'navigation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( PANEL_COPY[ 3 ] ) ).not.toBeInTheDocument();
+	} );
+
+	/*
+	 * Connecting is done and cannot be undone here. The connect screen's only
+	 * button registers the site, so reaching it again would offer to do that twice.
+	 */
+	it( 'will not let a connected user back onto the connect screen', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.queryByRole( 'button', { name: 'Back' } ) ).not.toBeInTheDocument();
+
+		await user.click( railStep( 'Connect' ) );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
+
+		await advance( user, 1 );
+		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
+		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'gates Continue on the question steps', async () => {
@@ -474,7 +640,7 @@ describe( 'Wizard shell', () => {
 		await advance( user, 1 );
 		await user.click( screen.getByRole( 'button', { name: 'Back' } ) );
 
-		expect( heading() ).toHaveTextContent( "Tell us what you're building" );
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 	} );
 
 	it( 'replaces Continue with Finish on the last step', async () => {
@@ -482,8 +648,16 @@ describe( 'Wizard shell', () => {
 
 		await advance( user, 2 );
 
+		// The finish step carries its own two ways out instead of the footer's.
 		expect( screen.queryByRole( 'button', { name: 'Continue' } ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Finish' } ) ).toHaveAttribute( 'href', exitUrl );
+		expect( screen.getByRole( 'link', { name: 'Back to WordPress' } ) ).toHaveAttribute(
+			'href',
+			dashboardUrl
+		);
+		expect( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) ).toHaveAttribute(
+			'href',
+			exitUrl
+		);
 	} );
 
 	it( 'gives every step its own panel copy, and shows only the current one', async () => {
@@ -492,7 +666,8 @@ describe( 'Wizard shell', () => {
 		expect( panelCopy( 1 ) ).toBeInTheDocument();
 		expect( screen.queryByText( PANEL_COPY[ 0 ] ) ).not.toBeInTheDocument();
 
-		for ( const step of [ 2, 3 ] ) {
+		// Stops at the feature step: the finish step has no panel to carry copy.
+		for ( const step of [ 2 ] ) {
 			await advance( user, 1 );
 			expect( panelCopy( step ) ).toBeInTheDocument();
 			expect( screen.queryByText( PANEL_COPY[ step - 1 ] ) ).not.toBeInTheDocument();
@@ -543,13 +718,23 @@ describe( 'The site-type question', () => {
 	it( 'offers the five answers, in the prototype’s order', () => {
 		siteTypeStep();
 
-		expect( screen.getAllByRole( 'radio' ).map( radio => radio.textContent ) ).toEqual( [
+		/*
+		 * Named by the label alone. The line under it lives inside the control, so
+		 * left to itself it joins the name and every answer announces as both run
+		 * together.
+		 */
+		const radios = screen.getAllByRole( 'radio' );
+
+		[
 			'A blog or publication',
 			'An online store',
 			'A portfolio or personal site',
 			'A business or brochure site',
 			'Something else…',
-		] );
+		].forEach( ( name, index ) => expect( radios[ index ] ).toHaveAccessibleName( name ) );
+
+		// And the line written for each of them is on screen, and is its description.
+		expect( radios[ 1 ] ).toHaveAccessibleDescription( 'Selling products or taking orders.' );
 	} );
 
 	it( 'keeps the field shut until the answer that needs it is chosen', async () => {
@@ -614,9 +799,8 @@ describe( 'Leaving setup', () => {
 		// Walk to the last step, which is the only one that offers Finish.
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getAllByRole( 'radio' )[ 0 ] );
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
-		await user.click( screen.getByRole( 'link', { name: 'Finish' } ) );
+		await user.click( await screen.findByRole( 'link', { name: 'Back to WordPress' } ) );
 
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/my-jetpack/v1/site/onboarding/settled',
@@ -634,5 +818,305 @@ describe( 'Leaving setup', () => {
 		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
 
 		await waitFor( () => expect( assignedHref() ).toBe( exitUrl ) );
+	} );
+} );
+
+describe( 'Clicking Continue twice', () => {
+	/*
+	 * Continue is in the same place on every step, so the second press of a double
+	 * click landed on the NEXT step's Continue: double-clicking the site question
+	 * applied all six modules without ever showing them.
+	 */
+	it( 'does not carry the second press through to the next step', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.dblClick( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
+		expect( mockApply ).not.toHaveBeenCalled();
+	} );
+
+	// A second, deliberate click is not a double click, and must still work.
+	it( 'still advances on two separate clicks', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( "You're all set" ) );
+	} );
+} );
+
+describe( 'What the finish screen claims', () => {
+	/*
+	 * Five of the six ship on, so most runs change nothing at all. The line used
+	 * to read "6 of 6 switched on in this session" for a run that sent no request,
+	 * and "4 of 6 switched on" for one whose only two requests switched things off.
+	 */
+	it( 'counts only what this run actually changed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		// Stats was already on and is left on; Downtime Monitor was off and goes on.
+		await expect( screen.findByText( '1 switched on.' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'says nothing was needed when nothing was', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		// Leave Stats on as it already is, and Downtime Monitor off as it already is.
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect(
+			screen.findByText( 'Nothing needed changing on this site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	// Switching something off is not switching something on.
+	it( 'does not call a deactivation an activation', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await user.click( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) );
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await expect( screen.findByText( '1 switched off.' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /switched on/ ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'The feature step', () => {
+	const featureStep = async ( user: UserEvent ) => {
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+	};
+
+	/*
+	 * The answer to the site-type question has to show somewhere, or it is a click
+	 * that buys nothing. It buys the order, and this line saying so. The order
+	 * itself is the hook's, and is tested where it lives.
+	 */
+	it( 'names what the user said the site was for', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		expect( screen.getByText( /For a blog, these matter most/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'says something different for a store', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( screen.getByText( /For a store, these matter most/ ) ).toBeInTheDocument();
+	} );
+
+	// Free text is not a site type, so there is nothing to order by and nothing to
+	// claim about the order.
+	it( 'claims nothing when the answer was typed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type( screen.getByRole( 'textbox' ), 'A wiki' );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( screen.queryByText( /matter most/ ) ).not.toBeInTheDocument();
+		expect(
+			screen.getByText( 'Turn off anything you would rather not have.' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'lists the modules with Jetpack’s own names, every one switched on', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).toBeChecked();
+		expect( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) ).toBeChecked();
+	} );
+
+	/*
+	 * Two things carrying the module's name is two announcements a row: the
+	 * visible words, and a switch repeating them as its own aria-label.
+	 */
+	it( 'gives each module exactly one control, named by the row’s own words', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		const toggle = screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } );
+
+		expect( screen.getAllByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).toHaveLength( 1 );
+		expect( screen.getAllByText( 'Jetpack Stats' ) ).toHaveLength( 1 );
+		expect( toggle ).not.toHaveAttribute( 'aria-label' );
+		// The line under the name stays a description rather than joining the name.
+		// The module already runs, so the row says so, and it reaches the switch's
+		// description rather than its name.
+		expect( toggle ).toHaveAccessibleDescription( 'Traffic insights. Already on' );
+
+		// The whole row is the target, not the 32x16 input.
+		await user.click( screen.getByText( 'Jetpack Stats' ) );
+		expect( toggle ).not.toBeChecked();
+	} );
+
+	it( 'asks for what the switches say, not for what the site already does', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+
+		await user.click( screen.getByRole( 'checkbox', { name: 'Downtime Monitor' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		expect( mockApply ).toHaveBeenCalledWith( mockModules, { monitor: false } );
+	} );
+
+	// The worst thing this flow could do is tick a module that never came on.
+	it( 'says which modules could not be changed', async () => {
+		mockApply.mockResolvedValueOnce( [
+			{ slug: 'stats', name: 'Jetpack Stats', wanted: true, ok: true, changed: true },
+			{ slug: 'monitor', name: 'Downtime Monitor', wanted: true, ok: false, changed: true },
+		] );
+
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () =>
+			expect( heading() ).toHaveTextContent( 'Some features need another look' )
+		);
+		expect( screen.getByText( 'Not changed' ) ).toBeInTheDocument();
+	} );
+
+	it( 'does not claim a completion the user did not ask for', async () => {
+		mockApply.mockResolvedValueOnce( [
+			{ slug: 'stats', name: 'Jetpack Stats', wanted: false, ok: true, changed: true },
+			{ slug: 'monitor', name: 'Downtime Monitor', wanted: false, ok: true, changed: true },
+		] );
+
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( 'Nothing changed on your site' ) );
+	} );
+
+	it( 'says so plainly when every one of them is on', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( "You're all set" ) );
+	} );
+
+	// Safari drops the list role off a `list-style: none` list, so the summary
+	// has to say it or its rows read as loose text with no count.
+	it( 'keeps the finish summary a list', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+		await featureStep( user );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		const list = await screen.findByRole( 'list' );
+
+		expect( list ).toHaveAttribute( 'role', 'list' );
+		expect( within( list ).getAllByRole( 'listitem' ) ).toHaveLength( mockModules.length );
+	} );
+} );
+
+describe( 'Guards on the way through', () => {
+	// The wizard focuses you into a field; it should not then let you walk past it
+	// and record "other" with nothing after it.
+	it( 'will not commit Something else with nothing typed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		// @wordpress/ui marks a blocked button aria-disabled and keeps it focusable,
+		// rather than using the native attribute.
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+
+		await user.type(
+			screen.getByRole( 'textbox', { name: 'Tell us what this site is for' } ),
+			'A recipe site'
+		);
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'treats whitespace as nothing typed', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+		await user.type(
+			screen.getByRole( 'textbox', { name: 'Tell us what this site is for' } ),
+			'   '
+		);
+
+		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	// Skipping records this person as having declined and never writes the
+	// site-wide completion, so it must not be the way out of a finished flow.
+	it( 'drops Skip setup once the work is done', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'link', { name: 'Skip setup' } ) ).toBeInTheDocument();
+
+		await advance( user, 2 );
+
+		expect( screen.queryByRole( 'link', { name: 'Skip setup' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Back to WordPress' } ) ).toBeInTheDocument();
+	} );
+
+	// Every switch reports its own outcome, so a rejection is the request layer
+	// itself giving out. The step must still move rather than sit on a spinner.
+	it( 'still reaches the finish screen when switching blows up', async () => {
+		mockApply.mockRejectedValueOnce( new Error( 'nope' ) );
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		await waitFor( () => expect( heading() ).toHaveTextContent( 'Nothing changed on your site' ) );
+	} );
+} );
+
+describe( 'Keyboard on the site-type question', () => {
+	// Arrowing onto the row only previews it. Taking focus there is a trap: the
+	// arrow keys belong to the radio group, and a text field swallows them.
+	it( 'leaves focus on the row when Something else is arrowed onto', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		const radios = screen.getAllByRole( 'radio' );
+		radios[ 3 ].focus();
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( screen.getByRole( 'radio', { name: 'Something else…' } ) ).toHaveFocus();
+
+		// And the list still wraps, which it cannot do from inside a text field.
+		await user.keyboard( '{ArrowDown}' );
+		expect( screen.getByRole( 'radio', { name: 'A blog or publication' } ) ).toHaveFocus();
+	} );
+
+	it( 'still moves focus into the field when the row is clicked', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		await user.click( screen.getByRole( 'radio', { name: 'Something else…' } ) );
+
+		expect(
+			screen.getByRole( 'textbox', { name: 'Tell us what this site is for' } )
+		).toHaveFocus();
 	} );
 } );

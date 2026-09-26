@@ -5,14 +5,12 @@ import {
 	cloud,
 	comment,
 	image,
-	megaphone,
 	page,
 	plus,
 	post,
 	postCommentsForm,
 	shield,
 	store,
-	trendingUp,
 } from '@wordpress/icons';
 
 /**
@@ -48,7 +46,7 @@ export interface WizardBenefit {
 /**
  * Which shape a step takes: the start screen, or a question with options.
  */
-export type WizardStepKind = 'start' | 'question';
+export type WizardStepKind = 'start' | 'question' | 'features' | 'finish';
 
 /**
  * A step, as the rail and the question column both read it.
@@ -142,6 +140,8 @@ export const TOTAL_STEPS = wizardSteps().length;
 export interface WizardState {
 	// The option chosen on each step, keyed by step index.
 	choices: Partial< Record< WizardStep, string > >;
+	// What was typed into the field a `freeText` option opens, if anything.
+	freeText?: string;
 }
 
 /**
@@ -166,14 +166,15 @@ export function wizardSteps(): WizardStepMeta[] {
 			id: 'site-type',
 			kind: 'question',
 			label: __( 'Your site', 'jetpack-my-jetpack' ),
-			title: __( "Tell us what you're building", 'jetpack-my-jetpack' ),
 			/*
-			 * The prototype's line here says the site is new and there is nothing to
-			 * read yet, which is true of its own new-site scenario only. V1 asks every
-			 * site the same question, so the reassurance it carries is what survives.
+			 * Asked of the site, not of the person's plans: Jetpack is installed on a
+			 * site that already exists far more often than on one being started, and
+			 * "what are you building" is the wrong question for a five-year-old blog.
+			 * This one is true either way, so it needs no second question about which.
 			 */
+			title: __( "What's this site for?", 'jetpack-my-jetpack' ),
 			description: __(
-				'Pick the closest fit — you can change any of this later.',
+				'Pick the closest fit. It shapes what we suggest next.',
 				'jetpack-my-jetpack'
 			),
 			/*
@@ -219,43 +220,23 @@ export function wizardSteps(): WizardStepMeta[] {
 		},
 		{
 			id: 'features',
-			kind: 'question',
+			kind: 'features',
 			label: __( 'What you need', 'jetpack-my-jetpack' ),
-			title: __( 'The feature list is not decided yet', 'jetpack-my-jetpack' ),
-			description: __(
-				'These three are stand-ins for it. Picking one turns nothing on and saves nothing.',
-				'jetpack-my-jetpack'
-			),
-			options: [
-				{
-					value: 'protect',
-					label: __( 'Example: keeping the site safe', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: shield,
-				},
-				{
-					value: 'grow',
-					label: __( 'Example: reaching more people', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: megaphone,
-				},
-				{
-					value: 'speed',
-					label: __( 'Example: making the site faster', 'jetpack-my-jetpack' ),
-					description: __( 'A stand-in. Nothing is turned on.', 'jetpack-my-jetpack' ),
-					icon: trendingUp,
-				},
-			],
+			title: __( "Here's what we recommend for your site", 'jetpack-my-jetpack' ),
+			// Replaced by featuresDescription() once the site type is known; this is
+			// what someone who skipped the question or typed their own answer reads.
+			description: __( 'Turn off anything you would rather not have.', 'jetpack-my-jetpack' ),
+			// The rows are the modules Jetpack reports, not a fixed list written here.
+			options: [],
 		},
 		{
 			id: 'done',
-			kind: 'question',
+			kind: 'finish',
 			label: __( 'Finish', 'jetpack-my-jetpack' ),
-			title: __( 'The rest of this is not built yet', 'jetpack-my-jetpack' ),
-			description: __(
-				'Nothing has been turned on and nothing is saved. This step exists so the end of the flow can be judged alongside the rest.',
-				'jetpack-my-jetpack'
-			),
+			// Written from what happened rather than here, because a finish screen that
+			// says the same thing whatever the result is the one thing it must not do.
+			title: '',
+			description: '',
 			options: [],
 		},
 	];
@@ -323,6 +304,81 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
 }
 
 /**
+ * Whether a module is switched on, given what the user has moved.
+ *
+ * The wizard recommends all six, so an untouched row is on even where the site
+ * has the module off — which is the whole point of offering Downtime Monitor,
+ * the one of the six that does not ship on. One function so the switch and the
+ * request cannot disagree, which they did: the row read as on while the request
+ * asked for no change, and the finish screen then said five of six.
+ *
+ * @param wanted - What the user has moved, by slug.
+ * @param slug   - The module in question.
+ * @return Whether it should end up on.
+ */
+export function isWanted( wanted: Record< string, boolean >, slug: string ): boolean {
+	return wanted[ slug ] ?? true;
+}
+
+/**
+ * What the user said the site was for, if they said.
+ *
+ * Found by id rather than by index, because the step's position moves with the
+ * connection and a number here would be right only for a connected site.
+ *
+ * @param state - The answers so far.
+ * @return The chosen site type, or undefined.
+ */
+export function siteTypeAnswer( state: WizardState ): string | undefined {
+	const at = wizardSteps().findIndex( step => step.id === 'site-type' );
+
+	return at === -1 ? undefined : state.choices[ at as WizardStep ];
+}
+
+/**
+ * The line under the feature heading, per site type. One whole sentence each
+ * rather than a name interpolated into a frame: a translator given "For %s" and
+ * a list of nouns cannot agree the article or the case.
+ *
+ * It claims only what the order does. All six are still offered and all six
+ * still start on, so "these matter most" is about what is at the top of the
+ * list, and nothing here says anything was left out.
+ *
+ * @return The line for each site type that has one, translated at call time.
+ */
+function featuresDescriptions(): Record< string, string > {
+	return {
+		blog: __(
+			'For a blog, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+		store: __(
+			'For a store, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+		portfolio: __(
+			'For a portfolio, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+		business: __(
+			'For a business site, these matter most. Turn off anything you would rather not have.',
+			'jetpack-my-jetpack'
+		),
+	};
+}
+
+/**
+ * The line under the feature heading, given what the site is for.
+ *
+ * @param siteType - The answer to the site-type question, if there was one.
+ * @param fallback - The step's own line, for a site type with nothing to say.
+ * @return The line to render.
+ */
+export function featuresDescription( siteType: string | undefined, fallback: string ): string {
+	return ( siteType && featuresDescriptions()[ siteType ] ) || fallback;
+}
+
+/**
  * Which step the wizard opens on after the round trip to WordPress.com.
  *
  * Derived, not stored: a `step` parameter would be editable by the person it
@@ -348,8 +404,26 @@ export function openingStep( isUserConnected: boolean ): WizardStep {
 export function canContinue( step: WizardStep, state: WizardState ): boolean {
 	const meta = wizardSteps()[ step ];
 
-	// The start screen asks nothing, and carries its own way forward.
-	return meta.kind === 'start' || meta.options.length === 0 || state.choices[ step ] !== undefined;
+	// The start screen asks nothing and carries its own way forward, and the feature
+	// step starts with every row answered.
+	if ( meta.kind === 'start' || meta.options.length === 0 ) {
+		return true;
+	}
+
+	const choice = state.choices[ step ];
+
+	if ( choice === undefined ) {
+		return false;
+	}
+
+	/*
+	 * An option that opens a field is not answered until the field is. Otherwise the
+	 * wizard focuses someone into a box and then lets them walk straight past it,
+	 * and the answer it records is "other" with nothing after it.
+	 */
+	return meta.options.find( option => option.value === choice )?.freeText
+		? Boolean( state.freeText?.trim() )
+		: true;
 }
 
 /**

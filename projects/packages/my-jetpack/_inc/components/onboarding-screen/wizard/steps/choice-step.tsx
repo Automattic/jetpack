@@ -1,7 +1,8 @@
 import { isRTL, __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { Icon, InputControl, Stack, Text } from '@wordpress/ui';
-import { useCallback, useEffect, useRef } from 'react';
+import clsx from 'clsx';
+import { useCallback, useEffect, useRef, useId } from 'react';
 import styles from '../styles.module.scss';
 import type { WizardStepOption } from '../lib';
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
@@ -18,6 +19,8 @@ type ChoiceStepProps = {
 	// The answer typed into the field a `freeText` option opens.
 	freeText?: string;
 	onFreeTextChange?: ( value: string ) => void;
+	// Called when Enter is pressed on an answer, if the step can move on.
+	onCommit?: () => void;
 };
 
 // Arrow keys move the selection inside a radiogroup, as they do for native radios.
@@ -35,30 +38,37 @@ const HORIZONTAL_STEP_BY_KEY: Record< string, number > = {
 /**
  * The field an option opens, and the only thing that mounts with it.
  *
- * Focus is moved here on mount rather than by `autoFocus`, and the difference is
- * not cosmetic: the field exists because the user chose the row above it, so this
- * carries their action on. `autoFocus` would also fire on a step that opened with
- * the answer already chosen, taking focus from the heading on arrival.
+ * Focus is moved here on mount rather than by `autoFocus`, and only when the row
+ * was activated deliberately. Arrowing onto the row merely previews it, and
+ * taking focus then is a trap: the arrow keys belong to the radio group, so once
+ * they land in a text field there is no way back up the list.
  *
  * The ref sits on the wrapper and the input is found inside it, because the
  * control owns its own markup and forwarding is not part of its contract.
  *
- * @param props          - The component props.
- * @param props.value    - What has been typed so far.
- * @param props.onChange - Called with what the user types.
+ * @param props           - The component props.
+ * @param props.value     - What has been typed so far.
+ * @param props.onChange  - Called with what the user types.
+ * @param props.takeFocus - Whether to move focus into the field on mount.
  * @return The rendered field.
  */
 function FreeTextField( {
 	value,
 	onChange,
+	takeFocus,
 }: {
 	value: string;
 	onChange: ( value: string ) => void;
+	takeFocus: boolean;
 } ) {
 	const wrapperRef = useRef< HTMLDivElement >( null );
 
 	useEffect( () => {
-		wrapperRef.current?.querySelector( 'input' )?.focus();
+		if ( takeFocus ) {
+			wrapperRef.current?.querySelector( 'input' )?.focus();
+		}
+		// Only ever on mount: moving focus later would fight whoever has it.
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [] );
 
 	const handleChange = useCallback(
@@ -95,6 +105,7 @@ function FreeTextField( {
  * @param props.onChange         - Called with the value the user picks.
  * @param props.freeText         - What has been typed into the free-text field.
  * @param props.onFreeTextChange - Called with what the user types.
+ * @param props.onCommit         - Called when Enter is pressed on an answer.
  * @return The rendered step.
  */
 export function ChoiceStep( {
@@ -106,16 +117,39 @@ export function ChoiceStep( {
 	onChange,
 	freeText = '',
 	onFreeTextChange,
+	onCommit,
 }: ChoiceStepProps ) {
+	// One base for the whole group: a hook cannot run once per option.
+	const idBase = useId();
 	const groupRef = useRef< HTMLDivElement >( null );
+	/*
+	 * Whether the last answer was committed rather than merely arrowed onto. The
+	 * field only takes focus for a deliberate choice.
+	 */
+	const chosenDeliberately = useRef( false );
 
 	const handleClick = useCallback(
-		( event: MouseEvent< HTMLButtonElement > ) => onChange( event.currentTarget.value ),
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			chosenDeliberately.current = true;
+			onChange( event.currentTarget.value );
+		},
 		[ onChange ]
 	);
 
 	const handleKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLButtonElement > ) => {
+			/*
+			 * Enter commits, as it would in a form. This is not a form — the options
+			 * are a radiogroup and Continue is a button beside it — so nothing submits
+			 * on its own, and someone answering with the keyboard otherwise has to tab
+			 * past Skip setup to leave the step.
+			 */
+			if ( event.key === 'Enter' && onCommit ) {
+				event.preventDefault();
+				onCommit();
+				return;
+			}
+
 			const offset =
 				VERTICAL_STEP_BY_KEY[ event.key ] ??
 				( HORIZONTAL_STEP_BY_KEY[ event.key ] ?? 0 ) * ( isRTL() ? -1 : 1 );
@@ -132,10 +166,11 @@ export function ChoiceStep( {
 					( radios.indexOf( event.currentTarget ) + offset + radios.length ) % radios.length
 				];
 
+			chosenDeliberately.current = false;
 			next.focus();
 			onChange( next.value );
 		},
-		[ onChange ]
+		[ onChange, onCommit ]
 	);
 
 	// The first option holds the group's tab stop until something is chosen.
@@ -143,12 +178,21 @@ export function ChoiceStep( {
 	const chosen = options.find( option => option.value === value );
 
 	return (
-		<Stack direction="column" gap="xl">
-			<Stack direction="column" gap="xs">
-				<Text variant="heading-2xl" id={ titleId } render={ <h1 /> }>
+		<Stack direction="column" gap="2xl">
+			<Stack direction="column" gap="sm">
+				<Text
+					variant="heading-2xl"
+					id={ titleId }
+					render={ <h1 /> }
+					className={ clsx( styles[ 'step-title' ], styles.wave, styles[ 'wave-1' ] ) }
+				>
 					{ title }
 				</Text>
-				<Text variant="body-lg" render={ <p /> } className={ styles[ 'step-description' ] }>
+				<Text
+					variant="body-lg"
+					render={ <p /> }
+					className={ clsx( styles[ 'step-description' ], styles.wave, styles[ 'wave-2' ] ) }
+				>
 					{ description }
 				</Text>
 			</Stack>
@@ -159,7 +203,7 @@ export function ChoiceStep( {
 						ref={ groupRef }
 						role="radiogroup"
 						aria-labelledby={ titleId }
-						className={ styles[ 'step-options' ] }
+						className={ clsx( styles[ 'step-options' ], styles.wave, styles[ 'wave-3' ] ) }
 					>
 						{ options.map( ( option, index ) => (
 							<button
@@ -168,6 +212,11 @@ export function ChoiceStep( {
 								role="radio"
 								value={ option.value }
 								aria-checked={ value === option.value }
+								// Named by its label alone. The words below are inside the
+								// control, so left to themselves they join its name and it
+								// announces as the label and the line run together.
+								aria-labelledby={ `${ idBase }-${ option.value }-label` }
+								aria-describedby={ `${ idBase }-${ option.value }-description` }
 								tabIndex={ option.value === tabStop ? 0 : -1 }
 								className={ styles[ 'step-option' ] }
 								// The cascade's own delay, counted in rows rather than written
@@ -179,9 +228,27 @@ export function ChoiceStep( {
 								<span className={ styles[ 'step-option__glyph' ] } aria-hidden="true">
 									<Icon icon={ option.icon } />
 								</span>
-								<Text variant="body-lg" className={ styles[ 'step-option__label' ] }>
-									{ option.label }
-								</Text>
+								{ /*
+								 * The line under the label was written and translated and then
+								 * never rendered. It is what tells someone whose site is two of
+								 * these which one we mean.
+								 */ }
+								<span aria-hidden="true" className={ styles[ 'step-option__copy' ] }>
+									<Text
+										variant="body-lg"
+										id={ `${ idBase }-${ option.value }-label` }
+										className={ styles[ 'step-option__label' ] }
+									>
+										{ option.label }
+									</Text>
+									<Text
+										variant="body-md"
+										id={ `${ idBase }-${ option.value }-description` }
+										className={ styles[ 'step-option__description' ] }
+									>
+										{ option.description }
+									</Text>
+								</span>
 								<span className={ styles[ 'step-option__tick' ] } aria-hidden="true">
 									<Icon icon={ check } />
 								</span>
@@ -194,7 +261,11 @@ export function ChoiceStep( {
 					 * stop the user cannot see.
 					 */ }
 					{ chosen?.freeText && onFreeTextChange && (
-						<FreeTextField value={ freeText } onChange={ onFreeTextChange } />
+						<FreeTextField
+							value={ freeText }
+							onChange={ onFreeTextChange }
+							takeFocus={ chosenDeliberately.current }
+						/>
 					) }
 				</div>
 			) }

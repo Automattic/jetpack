@@ -19,8 +19,25 @@
 
 	.jetpack-admin-full-screen {
 
+		/*
+		 * The takeover is exactly the window, never taller. #wpbody-content's own
+		 * min-height is a floor, so the admin page grew with the content and the
+		 * sheet's internal scroll never fired: a long step pushed its own footer
+		 * below the fold and the whole of wp-admin scrolled instead.
+		 */
+		block-size: 100vh;
+		block-size: 100dvh;
+		overflow: hidden;
+
 		#wpwrap {
 			top: 0;
+		}
+
+		#wpwrap,
+		#wpcontent,
+		#wpbody {
+			block-size: 100%;
+			min-block-size: 0;
 		}
 
 		#wpadminbar {
@@ -28,8 +45,18 @@
 		}
 
 		#wpbody-content {
-			min-height: 100vh !important;
+			block-size: 100%;
+			min-block-size: 0 !important;
 			padding-bottom: 0;
+		}
+
+		/*
+		 * The app root's ThemeProvider, which has no height of its own. It is the
+		 * one auto-height box left in the chain, so the shell's `block-size: 100%`
+		 * resolved against `auto` and fell back to the content's own height.
+		 */
+		#my-jetpack-container > * {
+			block-size: 100%;
 		}
 
 		#wpcontent > *,
