@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Random Redirect: Correctly filter posts when category term and taxonomy IDs differ.
