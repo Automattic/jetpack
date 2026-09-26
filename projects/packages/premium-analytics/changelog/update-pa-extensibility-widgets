@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Dashboard: the Ads widgets and their default layout move to the Ads package, which registers them with the section.

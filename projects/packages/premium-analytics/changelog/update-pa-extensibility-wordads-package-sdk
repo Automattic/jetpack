@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: register the SDK as the `@automattic/jetpack-premium-analytics-sdk` script module.

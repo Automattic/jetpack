@@ -1,0 +1,59 @@
+/**
+ * The SDK the Premium Analytics dashboard provides to plugins that extend it: today, everything a
+ * widget imports. The dashboard registers the implementation at runtime as the
+ * `@automattic/jetpack-premium-analytics-sdk` script module; a consumer's build leaves imports of
+ * this package external.
+ */
+/* eslint-disable @typescript-eslint/no-explicit-any, @typescript-eslint/no-unused-vars -- PoC: the contract gets precise types before the package is published. */
+import type { ComponentType } from 'react';
+
+type AnyComponent = ComponentType< any >;
+
+// Widget shell.
+export declare const WidgetRoot: AnyComponent;
+export declare function useWidgetRootContext(): any;
+export declare const WidgetState: AnyComponent;
+export declare const WidgetFooter: AnyComponent;
+export declare const ReportLink: AnyComponent;
+
+// Charts and metrics.
+export declare const MetricTabsChart: AnyComponent;
+export declare const MetricTabsChartSkeleton: AnyComponent;
+export declare const MetricTileGrid: AnyComponent;
+export declare const MetricTileGridSkeleton: AnyComponent;
+export declare function buildMetricTab( ...args: any[] ): any;
+export type DataFormat = any;
+export type CountLabel = any;
+export type ChartDisplayChartType = any;
+
+// Widget attributes.
+export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
+export declare function chartTypeAttributeField< Attributes = any >( options?: any ): any;
+export declare function defaultReportParamsForGrain( ...args: any[] ): any;
+export type ReportParamsFieldAttributes = any;
+export type ReportGrain = any;
+
+// Report scope and dates.
+export type ReportParams = any;
+export type StatsPeriod = any;
+export declare const ReportScopeProvider: AnyComponent;
+export declare function chartInterval( ...args: any[] ): any;
+export declare const PRESET_LAST_7_DAYS: string;
+export declare const PRESET_LAST_30_DAYS: string;
+export declare const PRESET_LAST_12_MONTHS: string;
+
+// Data. The WordAds hooks are provisional: they move to the Ads package once the SDK exposes the
+// generic report hooks they are built on.
+export declare function useStatsWordAdsStats( ...args: any[] ): any;
+export declare function useStatsWordAdsEarnings( ...args: any[] ): any;
+export type StatsWordAdsResponse = any;
+export type StatsWordAdsEarningsResponse = any;
+
+// Ads earnings history, provisional too: shared with the dashboard's Earnings report until that report
+// moves to the Ads package.
+export declare const EarningsHistoryList: AnyComponent;
+export declare function flattenEarningsBreakdown( ...args: any[] ): any;
+
+// UI primitives the widgets share with the dashboard, so no widget bundles its own copy.
+export declare const Badge: AnyComponent;
+export declare const Stack: AnyComponent;
