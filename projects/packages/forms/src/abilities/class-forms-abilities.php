@@ -152,6 +152,21 @@ class Forms_Abilities extends Registrar {
 				),
 				'additionalProperties' => false,
 			),
+			'output_schema'       => array(
+				'type'  => 'array',
+				'items' => array(
+					'type'       => 'object',
+					'properties' => array(
+						'id'            => array( 'type' => 'integer' ),
+						'title'         => array( 'type' => 'string' ),
+						'status'        => array( 'type' => 'string' ),
+						'entries_count' => array( 'type' => 'integer' ),
+						'edit_url'      => array( 'type' => 'string' ),
+						'date'          => array( 'type' => 'string' ),
+						'modified'      => array( 'type' => 'string' ),
+					),
+				),
+			),
 			'execute_callback'    => array( __CLASS__, 'list_forms' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
 			'meta'                => array(
@@ -186,6 +201,18 @@ class Forms_Abilities extends Registrar {
 					),
 				),
 				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'id'       => array( 'type' => 'integer' ),
+					'title'    => array( 'type' => 'string' ),
+					'status'   => array( 'type' => 'string' ),
+					'fields'   => self::form_fields_schema(),
+					'date'     => array( 'type' => 'string' ),
+					'modified' => array( 'type' => 'string' ),
+					'edit_url' => array( 'type' => 'string' ),
+				),
 			),
 			'execute_callback'    => array( __CLASS__, 'get_form' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
@@ -232,6 +259,15 @@ class Forms_Abilities extends Registrar {
 				),
 				'additionalProperties' => false,
 			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'id'       => array( 'type' => 'integer' ),
+					'title'    => array( 'type' => 'string' ),
+					'status'   => array( 'type' => 'string' ),
+					'edit_url' => array( 'type' => 'string' ),
+				),
+			),
 			'execute_callback'    => array( __CLASS__, 'create_form' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
 			'meta'                => array(
@@ -266,6 +302,14 @@ class Forms_Abilities extends Registrar {
 					),
 				),
 				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'id'      => array( 'type' => 'integer' ),
+					'deleted' => array( 'type' => 'boolean' ),
+					'status'  => array( 'type' => 'string' ),
+				),
 			),
 			'execute_callback'    => array( __CLASS__, 'delete_form' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
@@ -344,6 +388,12 @@ class Forms_Abilities extends Registrar {
 				),
 				'additionalProperties' => false,
 			),
+			'output_schema'       => array(
+				'type'  => 'array',
+				'items' => array(
+					'type' => 'object',
+				),
+			),
 			'execute_callback'    => array( __CLASS__, 'get_form_responses' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
 			'meta'                => array(
@@ -371,6 +421,10 @@ class Forms_Abilities extends Registrar {
 			'input_schema'        => array(
 				'type'                 => 'object',
 				'required'             => array( 'id' ),
+				'anyOf'                => array(
+					array( 'required' => array( 'status' ) ),
+					array( 'required' => array( 'is_unread' ) ),
+				),
 				'properties'           => array(
 					'id'        => array(
 						'type'        => 'integer',
@@ -387,6 +441,15 @@ class Forms_Abilities extends Registrar {
 					),
 				),
 				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'id'        => array( 'type' => 'integer' ),
+					'status'    => array( 'type' => 'string' ),
+					'is_unread' => array( 'type' => 'boolean' ),
+					'count'     => array( 'type' => 'integer' ),
+				),
 			),
 			'execute_callback'    => array( __CLASS__, 'update_form_response' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
@@ -429,6 +492,27 @@ class Forms_Abilities extends Registrar {
 					),
 				),
 				'additionalProperties' => false,
+			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'action'    => array( 'type' => 'string' ),
+					'succeeded' => array(
+						'type'  => 'array',
+						'items' => array( 'type' => 'integer' ),
+					),
+					'failed'    => array(
+						'type'  => 'array',
+						'items' => array(
+							'type'       => 'object',
+							'properties' => array(
+								'id'      => array( 'type' => 'integer' ),
+								'code'    => array( 'type' => 'string' ),
+								'message' => array( 'type' => 'string' ),
+							),
+						),
+					),
+				),
 			),
 			'execute_callback'    => array( __CLASS__, 'bulk_update_responses' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
@@ -483,6 +567,14 @@ class Forms_Abilities extends Registrar {
 				),
 				'additionalProperties' => false,
 			),
+			'output_schema'       => array(
+				'type'       => 'object',
+				'properties' => array(
+					'inbox' => array( 'type' => 'integer' ),
+					'spam'  => array( 'type' => 'integer' ),
+					'trash' => array( 'type' => 'integer' ),
+				),
+			),
 			'execute_callback'    => array( __CLASS__, 'get_status_counts' ),
 			'permission_callback' => array( __CLASS__, 'can_edit_pages' ),
 			'meta'                => array(
@@ -495,6 +587,27 @@ class Forms_Abilities extends Registrar {
 				'mcp'          => array(
 					'public' => true,
 					'type'   => 'tool', // default is already "tool", but can be explicit.
+				),
+			),
+		);
+	}
+
+	/**
+	 * Output schema for extracted form fields.
+	 *
+	 * @return array
+	 */
+	private static function form_fields_schema(): array {
+		return array(
+			'type'  => 'array',
+			'items' => array(
+				'type'       => 'object',
+				'properties' => array(
+					'label'       => array( 'type' => 'string' ),
+					'type'        => array( 'type' => 'string' ),
+					'required'    => array( 'type' => 'boolean' ),
+					'options'     => array( 'type' => 'array' ),
+					'placeholder' => array( 'type' => 'string' ),
 				),
 			),
 		);
@@ -587,6 +700,7 @@ class Forms_Abilities extends Registrar {
 		}
 
 		$raw_content = $data['content']['raw'] ?? '';
+		$edit_url    = get_edit_post_link( $data['id'], 'raw' );
 
 		return array(
 			'id'       => $data['id'],
@@ -595,7 +709,7 @@ class Forms_Abilities extends Registrar {
 			'fields'   => self::extract_fields_from_content( $raw_content ),
 			'date'     => $data['date'],
 			'modified' => $data['modified'],
-			'edit_url' => $data['link'] ?? get_edit_post_link( $data['id'], 'raw' ),
+			'edit_url' => $edit_url ? $edit_url : '',
 		);
 	}
 
@@ -689,6 +803,10 @@ class Forms_Abilities extends Registrar {
 	public static function update_form_response( $args ) {
 		if ( ! isset( $args['id'] ) ) {
 			return new \WP_Error( 'missing_id', __( 'Response ID is required.', 'jetpack-forms' ) );
+		}
+
+		if ( ! isset( $args['status'] ) && ! isset( $args['is_unread'] ) ) {
+			return new \WP_Error( 'missing_update', __( 'Provide a status or read state to update.', 'jetpack-forms' ) );
 		}
 
 		$id     = absint( $args['id'] );
