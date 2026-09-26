@@ -15,13 +15,16 @@ $rail-width: 300px;
  * this the sheet only adds white: at an 1800px window the content sat in the
  * top quarter and the rest was a blank cliff.
  *
- * Measured against the tallest step, the feature list: 727 of content, 48 of
- * body padding, a 73px footer, the column's 56px offset, and this element's own
- * 32 of inset. Re-measure it if that step grows — a sheet a few pixels short is
- * a scroll container with nowhere to go, which moves the heading under anyone
- * who nudges the wheel.
+ * Measured against the tallest step, the feature list, at the width the panel
+ * leaves it: its content, the body's 48 of padding, a 73px footer, the column's
+ * 56px offset, and this element's own 32 of inset. Re-measure it if that step
+ * grows — a sheet a few pixels short is a scroll container with nowhere to go,
+ * which moves the heading under anyone who nudges the wheel.
+ *
+ * It only holds for the copy as written. A longer translation scrolls, which is
+ * the designed behaviour and not this number's job to prevent.
  */
-$sheet-max-height: 936px;
+$sheet-max-height: 944px;
 $panel-width: 38%;
 
 /*
@@ -240,12 +243,25 @@ $step-column-width: 470px;
 $step-column-offset: 56px;
 
 /*
- * The feature row's icon tile, from the prototype's group-step.tsx: `size-12`,
- * so 48px. The size scale stops at 40 (--wpds-dimension-size-lg), and a 40px
- * tile around a 20px glyph leaves too little ground for the dark fill to read
- * as a tile rather than as a badge. The glyph inside it is on the scale.
+ * The feature row's icon tile. Was the prototype's `size-12`, 48px; at that
+ * size it is the heaviest thing in a row whose job is the words beside it. 40
+ * is the size scale's own top step and still leaves ground around the glyph.
  */
-$feature-glyph-tile: 48px;
+$feature-glyph-tile: var(--wpds-dimension-size-lg);
+
+/*
+ * The gap between a feature's name and its line, from the prototype's `mt-0.5`
+ * on group-step.tsx. The smallest gap on the scale is 4, which at this size
+ * reads as two separate things rather than one label.
+ */
+$feature-copy-gap: 2px;
+
+/*
+ * How far the tile drops so its top edge meets the name's cap height. The name
+ * is 15px on a 20px line, so half the leading is 2.5 and the cap sits a shade
+ * below it; measured at 3.
+ */
+$feature-glyph-offset: 3px;
 
 /*
  * The option rows' cascade, from the prototype's questions-card.tsx: 0.3s, a
@@ -377,12 +393,6 @@ $rail-row-min-height: 40px;
 	display: flex;
 	align-self: center;
 
-	// Half the inset on a phone: 16 either side of a 400px window is 8% of it
-	// spent on shadow, and the reading column pays for all of it.
-	@media (max-width: $phone-breakpoint) {
-		padding: calc($canvas-inset / 2);
-	}
-
 	min-inline-size: 0;
 	min-block-size: 0;
 
@@ -390,6 +400,18 @@ $rail-row-min-height: 40px;
 	// then it is a different height on every step and the footer moves with it.
 	block-size: min(100%, #{$sheet-max-height});
 	padding: $canvas-inset;
+
+	/*
+	 * Half the inset on a phone: 16 either side of a 400px window is 8% of it
+	 * spent on shadow, and the reading column pays for all of it.
+	 *
+	 * After the padding above, not before it. Sass splits a rule around a nested
+	 * query, so a query written first becomes a rule the later plain declaration
+	 * beats on source order at equal weight — it did nothing at all.
+	 */
+	@media (max-width: $phone-breakpoint) {
+		padding: calc($canvas-inset / 2);
+	}
 }
 
 /*
@@ -1010,10 +1032,20 @@ $rail-row-min-height: 40px;
 .step-title {
 	letter-spacing: $heading-tracking;
 	text-wrap: balance;
+}
 
-	// The prototype's own `text-[28px] sm:text-[32px]`: at 32 the longest heading
-	// runs to four lines on a phone.
-	@media (max-width: $phone-breakpoint) {
+/*
+ * The prototype's own `text-[28px] sm:text-[32px]`: at 32 the longest heading
+ * runs to four lines on a phone.
+ *
+ * Chained for weight, not for scoping. Heading writes its size as a runtime
+ * style at `:is(h1,…).heading`, which is (0,1,1), so a lone class of ours loses
+ * and the rule silently did nothing — the same trap already recorded on
+ * .rail-title and .start-title.
+ */
+@media (max-width: $phone-breakpoint) {
+
+	.panel-content .step-title {
 		font-size: $start-title-size;
 		line-height: $start-title-line-height;
 	}
@@ -1227,7 +1259,10 @@ $rail-row-min-height: 40px;
 	--wp-components-color-accent: var(--jp-green-50);
 
 	display: flex;
-	align-items: center;
+
+	// The tile's top sits with the name's, not halfway down a two-line block,
+	// where it reads as overlapping the words rather than labelling them.
+	align-items: flex-start;
 
 	// The prototype's own two gaps: the glyph sits closer to its words than the
 	// words sit to the switch, so the row reads as a thing and a control. Its 14
@@ -1245,6 +1280,10 @@ $rail-row-min-height: 40px;
 .feature-row__glyph {
 	display: flex;
 	flex-shrink: 0;
+
+	// The row is top-aligned now, so the tile takes the name's own half-leading
+	// back to sit level with the letterforms rather than with the line box.
+	margin-block-start: $feature-glyph-offset;
 	align-items: center;
 	justify-content: center;
 	inline-size: $feature-glyph-tile;
@@ -1260,31 +1299,16 @@ $rail-row-min-height: 40px;
 	}
 }
 
-// The growing middle of the row: the label, then the line under it.
-.feature-row__body {
-	display: flex;
-	min-inline-size: 0;
-	flex-direction: column;
-	flex-grow: 1;
-	gap: var(--wpds-dimension-gap-xs);
-}
-
-// Already on and Learn more, on one line so neither is inside the clamp.
-.feature-row__foot {
-	display: flex;
-	align-items: baseline;
-	gap: var(--wpds-dimension-gap-sm);
-	font-size: var(--wpds-typography-font-size-md);
-}
-
 .feature-row__copy {
 	display: flex;
 	min-inline-size: 0;
 	flex-direction: column;
 
+	flex-grow: 1;
+
 	// The label is the target now that the row is not, so it says so.
 	cursor: pointer;
-	gap: var(--wpds-dimension-gap-xs);
+	gap: $feature-copy-gap;
 
 	// The switch is held off by the row's own gap plus this, which together are
 	// the prototype's 16 against the 12 the glyph gets.
@@ -1298,16 +1322,6 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * Between the words and the switch, and small: it is the row's footnote, not
- * one of its two jobs. Short text, so it takes the row's full height to clear
- * the 24 by 24 a link this size would otherwise miss.
- */
-.feature-row__learn {
-	flex-shrink: 0;
-	white-space: nowrap;
-}
-
-/*
  * Part of the description, not a badge beside the name: a pill next to six
  * names in a row is six pills, and the fact is a footnote about the row rather
  * than a label on it.
@@ -1315,23 +1329,16 @@ $rail-row-min-height: 40px;
 .feature-row__already {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
-	// The dot separates it from Learn more, which follows it.
-	&::after {
-		content: " ·";
+	&::before {
+		content: "· ";
 	}
 }
 
-/*
- * Two lines whether it needs them or not, as the prototype does, so six rows of
- * uneven copy still make one even list. Longer lines are clamped rather than
- * allowed to push their row taller than its neighbours.
- */
 .feature-row__description {
-	display: -webkit-box;
-	overflow: hidden;
+	// Two lines at least, so six rows of uneven copy still make one even list, but
+	// no ceiling: clamped at two, a narrow window cut "Already on" to "Alread…",
+	// which is a worse row than a slightly taller one.
 	min-block-size: 2lh;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 2;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 	text-wrap: pretty;
 }

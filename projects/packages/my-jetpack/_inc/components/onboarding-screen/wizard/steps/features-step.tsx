@@ -1,6 +1,6 @@
 import { FormToggle } from '@wordpress/components';
-import { __, sprintf } from '@wordpress/i18n';
-import { Icon, Link, Stack, Text } from '@wordpress/ui';
+import { __ } from '@wordpress/i18n';
+import { Icon, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useId } from 'react';
 import { isWanted } from '../lib';
@@ -40,7 +40,6 @@ function FeatureRow( {
 	onChange: ( slug: string, want: boolean ) => void;
 } ) {
 	const toggleId = useId();
-	const alreadyId = useId();
 	const nameId = useId();
 	const descriptionId = useId();
 
@@ -56,74 +55,45 @@ function FeatureRow( {
 			</span>
 
 			{ /*
-			 * A label rather than the whole row, so the Learn more link can sit beside
-			 * it without a press on the link also flipping the switch. It is still far
-			 * more than the 24 by 24 the switch alone would offer.
+			 * A label rather than the whole row, so the switch has a target far bigger
+			 * than its own 32 by 16 without the row swallowing anything else put in it.
 			 *
 			 * Hidden from the tree, not from the eye: the switch is named and described
 			 * from the two spans inside it, and aria-labelledby reaches hidden content.
 			 * Left visible to it as well, every module was announced twice.
 			 */ }
-			<span className={ styles[ 'feature-row__body' ] }>
-				<label aria-hidden="true" htmlFor={ toggleId } className={ styles[ 'feature-row__copy' ] }>
-					<Text
-						variant="body-lg"
-						id={ nameId }
-						className={ styles[ 'feature-row__name' ] }
-						render={ <span /> }
-					>
-						{ module.name }
-					</Text>
-					<Text
-						variant="body-md"
-						id={ descriptionId }
-						render={ <span /> }
-						className={ styles[ 'feature-row__description' ] }
-					>
-						{ module.description }
-					</Text>
-				</label>
-
-				{ /*
-				 * Its own line under the description rather than beside it. In the row it
-				 * took enough width that the two-line clamp started cutting the
-				 * description mid-sentence.
-				 */ }
-				<span className={ styles[ 'feature-row__foot' ] }>
+			<label aria-hidden="true" htmlFor={ toggleId } className={ styles[ 'feature-row__copy' ] }>
+				<Text
+					variant="body-lg"
+					id={ nameId }
+					className={ styles[ 'feature-row__name' ] }
+					render={ <span /> }
+				>
+					{ module.name }
+				</Text>
+				<Text
+					variant="body-md"
+					id={ descriptionId }
+					render={ <span /> }
+					className={ styles[ 'feature-row__description' ] }
+				>
+					{ module.description }
 					{ /*
-					 * Five of the six ship on, so most of this list is not a list of things
-					 * about to happen. Saying which are already running is the difference
-					 * between asking permission and reporting the state.
+					 * Five of the six ship on, so most of this list is not a list of
+					 * things about to happen. Saying which are already running is the
+					 * difference between asking permission and reporting the state.
 					 */ }
 					{ module.activated && (
-						<span
-							aria-hidden="true"
-							id={ alreadyId }
-							className={ styles[ 'feature-row__already' ] }
-						>
-							{ __( 'Already on', 'jetpack-my-jetpack' ) }
-						</span>
+						<>
+							{ /* A real space: the dot before it is drawn in CSS, which a screen
+							     reader does not read, so the words would run together. */ }{ ' ' }
+							<span className={ styles[ 'feature-row__already' ] }>
+								{ __( 'Already on', 'jetpack-my-jetpack' ) }
+							</span>
+						</>
 					) }
-					{ /*
-					 * Jetpack's own page about the module, checked to exist rather than
-					 * built from the slug — one of the six does not match. A new tab,
-					 * because leaving mid-setup would lose the answers.
-					 */ }
-					<Link
-						openInNewTab
-						tone="neutral"
-						href={ module.supportUrl }
-						className={ styles[ 'feature-row__learn' ] }
-						aria-label={ sprintf(
-							/* translators: %s is the name of a Jetpack feature. */
-							__( 'Learn more about %s', 'jetpack-my-jetpack' ),
-							module.name
-						) }
-					>
-						{ __( 'Learn more', 'jetpack-my-jetpack' ) }
-					</Link>
-				</span>
-			</span>
+				</Text>
+			</label>
 
 			{ /*
 			 * FormToggle rather than a WPDS control: @wordpress/ui ships no switch, and
@@ -136,7 +106,7 @@ function FeatureRow( {
 				onChange={ handleChange }
 				aria-labelledby={ nameId }
 				// Already on is its own element now, so it is named here or it is unsaid.
-				aria-describedby={ module.activated ? `${ descriptionId } ${ alreadyId }` : descriptionId }
+				aria-describedby={ descriptionId }
 			/>
 		</div>
 	);

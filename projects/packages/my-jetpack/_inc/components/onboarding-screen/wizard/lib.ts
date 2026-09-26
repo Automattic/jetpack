@@ -411,8 +411,14 @@ export function canContinue( step: WizardStep, state: WizardState ): boolean {
 	}
 
 	const choice = state.choices[ step ];
+	/*
+	 * Found, not just present. A restored run can carry a value this step no longer
+	 * offers, and an answer nothing matches is not an answer: it left Continue
+	 * enabled with nothing selected on screen, and recorded the stale value.
+	 */
+	const chosen = meta.options.find( option => option.value === choice );
 
-	if ( choice === undefined ) {
+	if ( ! chosen ) {
 		return false;
 	}
 
@@ -421,9 +427,7 @@ export function canContinue( step: WizardStep, state: WizardState ): boolean {
 	 * wizard focuses someone into a box and then lets them walk straight past it,
 	 * and the answer it records is "other" with nothing after it.
 	 */
-	return meta.options.find( option => option.value === choice )?.freeText
-		? Boolean( state.freeText?.trim() )
-		: true;
+	return chosen.freeText ? Boolean( state.freeText?.trim() ) : true;
 }
 
 /**

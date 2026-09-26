@@ -173,9 +173,14 @@ export function ChoiceStep( {
 		[ onChange, onCommit ]
 	);
 
-	// The first option holds the group's tab stop until something is chosen.
-	const tabStop = value ?? options[ 0 ]?.value;
+	/*
+	 * The group keeps exactly one tab stop, and the first option holds it until
+	 * something is chosen. Found, not just present: a restored run can carry a
+	 * value this step no longer offers, and matching nothing left every option at
+	 * -1, so Tab skipped the whole question and it could not be answered.
+	 */
 	const chosen = options.find( option => option.value === value );
+	const tabStop = chosen?.value ?? options[ 0 ]?.value;
 
 	return (
 		<Stack direction="column" gap="2xl">
