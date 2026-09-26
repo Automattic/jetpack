@@ -54,6 +54,17 @@ $panel-breakpoint: 1280px;
 $rail-breakpoint: 960px;
 
 /*
+ * The narrowest the sheet's own column may get before the panel stops taking
+ * its share. Without it the panel's 38% came straight off the frame, so the
+ * step column was WIDER at 1279 than at 1280: 947 down to 461, which is less
+ * than $step-column-width and the reading measure narrowed as the window grew.
+ *
+ * 566 is that column plus what sits either side of it: the body's 2 x 32 of
+ * padding and the canvas's 2 x 16 of inset.
+ */
+$frame-min-width: 566px;
+
+/*
  * Where the sheet is the phone's whole width. The prototype's own `sm`, and
  * where it drops its heading from 32 to 28 — the one breakpoint here that
  * comes from Tailwind rather than from our own arithmetic.
@@ -351,8 +362,10 @@ $rail-row-min-height: 40px;
 		grid-template-rows: minmax(0, 1fr);
 	}
 
+	// The panel takes what is left rather than its share of the whole, so it can
+	// never squeeze the column it sits beside below its own measure.
 	@media (min-width: $panel-breakpoint) {
-		grid-template-columns: $rail-width minmax(0, 1fr) $panel-width;
+		grid-template-columns: $rail-width minmax($frame-min-width, 1fr) minmax(0, $panel-width);
 	}
 }
 
@@ -1216,9 +1229,6 @@ $rail-row-min-height: 40px;
 	display: flex;
 	align-items: center;
 
-	// The row is the switch's label, so the whole of it is the hit target.
-	cursor: pointer;
-
 	// The prototype's own two gaps: the glyph sits closer to its words than the
 	// words sit to the switch, so the row reads as a thing and a control. Its 14
 	// has no step, and 12 is the nearer of the two either side.
@@ -1250,11 +1260,30 @@ $rail-row-min-height: 40px;
 	}
 }
 
-.feature-row__copy {
+// The growing middle of the row: the label, then the line under it.
+.feature-row__body {
 	display: flex;
 	min-inline-size: 0;
 	flex-direction: column;
 	flex-grow: 1;
+	gap: var(--wpds-dimension-gap-xs);
+}
+
+// Already on and Learn more, on one line so neither is inside the clamp.
+.feature-row__foot {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wpds-dimension-gap-sm);
+	font-size: var(--wpds-typography-font-size-md);
+}
+
+.feature-row__copy {
+	display: flex;
+	min-inline-size: 0;
+	flex-direction: column;
+
+	// The label is the target now that the row is not, so it says so.
+	cursor: pointer;
 	gap: var(--wpds-dimension-gap-xs);
 
 	// The switch is held off by the row's own gap plus this, which together are
@@ -1269,6 +1298,16 @@ $rail-row-min-height: 40px;
 }
 
 /*
+ * Between the words and the switch, and small: it is the row's footnote, not
+ * one of its two jobs. Short text, so it takes the row's full height to clear
+ * the 24 by 24 a link this size would otherwise miss.
+ */
+.feature-row__learn {
+	flex-shrink: 0;
+	white-space: nowrap;
+}
+
+/*
  * Part of the description, not a badge beside the name: a pill next to six
  * names in a row is six pills, and the fact is a footnote about the row rather
  * than a label on it.
@@ -1276,8 +1315,9 @@ $rail-row-min-height: 40px;
 .feature-row__already {
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
-	&::before {
-		content: " · ";
+	// The dot separates it from Learn more, which follows it.
+	&::after {
+		content: " ·";
 	}
 }
 

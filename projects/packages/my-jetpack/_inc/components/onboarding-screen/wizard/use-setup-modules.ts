@@ -1,3 +1,4 @@
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { bell, chartBar, envelope, listView, postCommentsForm, shield } from '@wordpress/icons';
@@ -27,6 +28,24 @@ export const SETUP_MODULES = [
 ] as const;
 
 export type SetupModuleSlug = ( typeof SETUP_MODULES )[ number ];
+
+/*
+ * Where "Learn more" goes, per module. A path rather than a whole URL, because
+ * getRedirectUrl sends it through Jetpack's own redirect service, which is how
+ * the rest of My Jetpack links out.
+ *
+ * Five of the six are the module's own slug and one is not, which is why this is
+ * a map and not a template: jetpack.com/support/stats/ is a 404. Every one of
+ * these was requested before it was written down.
+ */
+const SETUP_MODULE_SUPPORT: Record< SetupModuleSlug, string > = {
+	stats: 'jetpack-stats',
+	'contact-form': 'contact-form',
+	protect: 'protect',
+	'activity-log': 'activity-log',
+	subscriptions: 'subscriptions',
+	monitor: 'monitor',
+};
 
 /*
  * The order the six are read in, by what the site is for. Every site is still
@@ -94,6 +113,8 @@ export type SetupModule = {
 	name: string;
 	description: string;
 	icon: typeof shield;
+	// Jetpack's own page about it, behind the row's Learn more.
+	supportUrl: string;
 	// Whether the site runs it now. Five of the six ship on, so this screen mostly
 	// shows the user what was going to happen anyway.
 	activated: boolean;
@@ -147,6 +168,7 @@ export function useSetupModules( siteType?: string ): {
 				name: modules[ slug ].name,
 				description: modules[ slug ].description,
 				icon: SETUP_MODULE_ICONS[ slug ],
+				supportUrl: getRedirectUrl( 'jetpack-support', { path: SETUP_MODULE_SUPPORT[ slug ] } ),
 				activated: Boolean( modules[ slug ].activated ),
 			} ) ),
 		} ),

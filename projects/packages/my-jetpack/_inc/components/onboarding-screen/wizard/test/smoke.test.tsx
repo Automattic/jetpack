@@ -130,6 +130,9 @@ beforeEach( () => {
 	mockConnection.registrationError = false;
 	mockJustConnected.mockReturnValue( false );
 	mockApply.mockClear();
+	// The run is kept in session storage now, so one test's answers would
+	// otherwise be the next one's starting point.
+	window.sessionStorage.clear();
 } );
 
 /**
@@ -143,10 +146,14 @@ const setupWizard = ( { isUserConnected = false } = {} ) => {
 	mockConnection.isUserConnected = isUserConnected;
 
 	const user = userEvent.setup();
-	const { rerender } = render( <Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } /> );
+	const { rerender, unmount } = render(
+		<Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } />
+	);
 
 	return {
 		user,
+		// Standing in for a reload: the run is read once per mount.
+		unmount,
 		// Re-renders with the same props, so a move in the connection mock reaches
 		// the component the way a store update would.
 		refresh: () => rerender( <Wizard exitUrl={ exitUrl } dashboardUrl={ dashboardUrl } /> ),
@@ -846,6 +853,61 @@ describe( 'Clicking Continue twice', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		await waitFor( () => expect( heading() ).toHaveTextContent( "You're all set" ) );
+	} );
+} );
+
+describe( 'Coming back to a run in progress', () => {
+	/*
+	 * A reload used to drop every answer and put the user back at the first step,
+	 * which on a flow this short is doing the whole thing again.
+	 */
+	it( 'picks the run back up where it was left', async () => {
+		const { user, unmount } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+
+		unmount();
+		setupWizard( { isUserConnected: true } );
+
+		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
+		expect( screen.getByText( /For a store, these matter most/ ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the switches the user moved', async () => {
+		const { user, unmount } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) );
+
+		unmount();
+		setupWizard( { isUserConnected: true } );
+
+		expect( screen.getByRole( 'checkbox', { name: 'Jetpack Stats' } ) ).not.toBeChecked();
+	} );
+
+	// Leaving ends the run, so the next visit must not be handed a finished one.
+	it( 'forgets the run once setup is left', async () => {
+		const { user, unmount } = setupWizard( { isUserConnected: true } );
+		await user.click( screen.getByRole( 'radio', { name: 'An online store' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		await user.click( screen.getByRole( 'link', { name: 'Skip setup' } ) );
+
+		await waitFor( () => expect( assignedHref() ).toBe( exitUrl ) );
+
+		unmount();
+		setupWizard( { isUserConnected: true } );
+
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
+	} );
+
+	// A step index that is not a step would land the wizard on a screen that is
+	// not there, so anything unrecognisable is thrown away rather than trusted.
+	it( 'ignores a saved run it cannot read', () => {
+		window.sessionStorage.setItem( 'jetpack-onboarding-run', '{"step":"nonsense"}' );
+
+		setupWizard( { isUserConnected: true } );
+
+		expect( heading() ).toHaveTextContent( "What's this site for?" );
 	} );
 } );
 

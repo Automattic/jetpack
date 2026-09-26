@@ -34,6 +34,7 @@ import { FinishStep } from './steps/finish-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
 import { useJustConnected } from './use-just-connected';
+import { readSavedRun, useSavedRun } from './use-saved-run';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
 import type { SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
@@ -119,15 +120,26 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	 * whose only button would register the site a second time.
 	 */
 	const firstStep = openingStep( isUserConnected );
-	const [ step, setStep ] = useState< WizardStep >( firstStep );
+
+	/*
+	 * Read once, at the top of the page load. A reload used to drop every answer
+	 * and put the user back at the first step, which on a flow this short is
+	 * doing it all again.
+	 */
+	const [ saved ] = useState( readSavedRun );
+	const { save: saveRun, forget: forgetRun } = useSavedRun();
+
+	const [ step, setStep ] = useState< WizardStep >( saved?.step ?? firstStep );
 	// The rail only lets the user back into ground already covered.
-	const [ furthestStep, setFurthestStep ] = useState< WizardStep >( firstStep );
-	const [ choices, setChoices ] = useState< WizardState[ 'choices' ] >( {} );
+	const [ furthestStep, setFurthestStep ] = useState< WizardStep >(
+		saved?.furthestStep ?? firstStep
+	);
+	const [ choices, setChoices ] = useState< WizardState[ 'choices' ] >( saved?.choices ?? {} );
 	/*
 	 * Held apart from `choices`, which is a set of fixed values the wizard will
 	 * report. This is the user's own words and stays on this screen.
 	 */
-	const [ siteTypeDetail, setSiteTypeDetail ] = useState( '' );
+	const [ siteTypeDetail, setSiteTypeDetail ] = useState( saved?.freeText ?? '' );
 
 	/*
 	 * The connection is fetched, not carried on the page, so it answers false
@@ -149,7 +161,9 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const { apply, isApplying } = useApplySetupModules();
 	// Missing entries mean "leave it as the site has it", which for five of the six
 	// is already on. Written only when the user moves a switch.
-	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >( {} );
+	const [ wantedModules, setWantedModules ] = useState< Record< string, boolean > >(
+		saved?.wanted ?? {}
+	);
 	const [ moduleResults, setModuleResults ] = useState< SetupModuleResult[] | null >( null );
 
 	const handleModuleChange = useCallback(
@@ -174,6 +188,18 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		hasChangedStep.current = true;
 	}, [ step ] );
 
+	// Written on every change rather than on the way out, because a reload is not
+	// something the wizard gets told about.
+	useEffect( () => {
+		saveRun( {
+			step,
+			furthestStep,
+			choices,
+			freeText: siteTypeDetail,
+			wanted: wantedModules,
+		} );
+	}, [ saveRun, step, furthestStep, choices, siteTypeDetail, wantedModules ] );
+
 	const handleChoice = useCallback(
 		( value: string ) => setChoices( current => ( { ...current, [ step ]: value } ) ),
 		[ step ]
@@ -188,11 +214,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const handleExit = useCallback(
 		( outcome: SettleOutcome ) => ( event: MouseEvent< HTMLElement > ) => {
 			event.preventDefault();
+			// The run is over either way, so it must not be waiting on the next visit.
+			forgetRun();
 			settleOnboarding( outcome )
 				.catch( () => {} )
 				.finally( () => assignLocation( exitUrl ) );
 		},
-		[ exitUrl ]
+		[ exitUrl, forgetRun ]
 	);
 
 	const handleBack = useCallback(
