@@ -453,6 +453,12 @@ function JetpackRestApiClient( root, nonce ) {
 			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/plan`, getParams )
 				.then( checkStatus )
 				.then( parseJsonResponse ),
+		activateSearchFreeProduct: source =>
+			postRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/plan/activate-free`, postParams, {
+				body: JSON.stringify( source ? { source } : {} ),
+			} )
+				.then( checkStatus )
+				.then( parseJsonResponse ),
 		fetchSearchSettings: () =>
 			getRequest( `${ wpcomOriginApiUrl }jetpack/v4/search/settings`, getParams )
 				.then( checkStatus )

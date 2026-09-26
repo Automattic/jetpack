@@ -86,6 +86,28 @@ class REST_Products {
 
 		register_rest_route(
 			'my-jetpack/v1',
+			'site/products/search/activate-free',
+			array(
+				array(
+					'methods'             => \WP_REST_Server::EDITABLE,
+					'callback'            => __CLASS__ . '::activate_search_free',
+					'permission_callback' => __CLASS__ . '::edit_permissions_callback',
+					'args'                => array(
+						// No enum: WordPress.com records an unfamiliar source as `unknown` rather
+						// than refusing, so a stricter list here would reject what it accepts.
+						'source' => array(
+							'description'       => __( 'Where the activation was requested from.', 'jetpack-my-jetpack' ),
+							'type'              => 'string',
+							'required'          => false,
+							'sanitize_callback' => 'sanitize_key',
+						),
+					),
+				),
+			)
+		);
+
+		register_rest_route(
+			'my-jetpack/v1',
 			'site/products/interstitials',
 			array(
 				array(
@@ -356,6 +378,25 @@ class REST_Products {
 		set_transient( 'my_jetpack_product_activated', implode( ',', $products_array ), 10 );
 
 		return rest_ensure_response( Products::get_products( $products_array ) );
+	}
+
+	/**
+	 * Grant the free Search product to this site, replacing the $0 checkout round trip.
+	 *
+	 * POST `my-jetpack/v1/site/products/search/activate-free`
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return WP_REST_Response|WP_Error Errors carry `checkout_fallback`; see {@see Products\Search::activate_free_product()}.
+	 */
+	public static function activate_search_free( $request ) {
+		$result = Products\Search::activate_free_product( $request->get_param( 'source' ) );
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response( $result );
 	}
 
 	/**
