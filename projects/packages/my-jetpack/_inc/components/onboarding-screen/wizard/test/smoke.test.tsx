@@ -397,7 +397,10 @@ describe( 'Wizard resume after connecting', () => {
 		expect( heading() ).toHaveTextContent( "What's this site for?" );
 		// The rail is the only thing that counts the steps; the question column
 		// carries the question and nothing else.
-		expect( screen.getAllByText( 'Step 2 of 4' ) ).toHaveLength( 1 );
+		// Counted from where this person starts. A connected site never sees the
+		// connect screen, so counting it would make the last step read 4 of 4 after
+		// three of them.
+		expect( screen.getAllByText( 'Step 1 of 3' ) ).toHaveLength( 1 );
 		expect( screen.queryByRole( 'button', { name: 'Get started' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -715,13 +718,23 @@ describe( 'The site-type question', () => {
 	it( 'offers the five answers, in the prototype’s order', () => {
 		siteTypeStep();
 
-		expect( screen.getAllByRole( 'radio' ).map( radio => radio.textContent ) ).toEqual( [
+		/*
+		 * Named by the label alone. The line under it lives inside the control, so
+		 * left to itself it joins the name and every answer announces as both run
+		 * together.
+		 */
+		const radios = screen.getAllByRole( 'radio' );
+
+		[
 			'A blog or publication',
 			'An online store',
 			'A portfolio or personal site',
 			'A business or brochure site',
 			'Something else…',
-		] );
+		].forEach( ( name, index ) => expect( radios[ index ] ).toHaveAccessibleName( name ) );
+
+		// And the line written for each of them is on screen, and is its description.
+		expect( radios[ 1 ] ).toHaveAccessibleDescription( 'Selling products or taking orders.' );
 	} );
 
 	it( 'keeps the field shut until the answer that needs it is chosen', async () => {
@@ -943,7 +956,9 @@ describe( 'The feature step', () => {
 		expect( screen.getAllByText( 'Jetpack Stats' ) ).toHaveLength( 1 );
 		expect( toggle ).not.toHaveAttribute( 'aria-label' );
 		// The line under the name stays a description rather than joining the name.
-		expect( toggle ).toHaveAccessibleDescription( 'Traffic insights.' );
+		// The module already runs, so the row says so, and it reaches the switch's
+		// description rather than its name.
+		expect( toggle ).toHaveAccessibleDescription( 'Traffic insights. Already on' );
 
 		// The whole row is the target, not the 32x16 input.
 		await user.click( screen.getByText( 'Jetpack Stats' ) );

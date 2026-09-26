@@ -2,7 +2,7 @@ import { isRTL, __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { Icon, InputControl, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useId } from 'react';
 import styles from '../styles.module.scss';
 import type { WizardStepOption } from '../lib';
 import type { ChangeEvent, KeyboardEvent, MouseEvent } from 'react';
@@ -19,6 +19,8 @@ type ChoiceStepProps = {
 	// The answer typed into the field a `freeText` option opens.
 	freeText?: string;
 	onFreeTextChange?: ( value: string ) => void;
+	// Called when Enter is pressed on an answer, if the step can move on.
+	onCommit?: () => void;
 };
 
 // Arrow keys move the selection inside a radiogroup, as they do for native radios.
@@ -103,6 +105,7 @@ function FreeTextField( {
  * @param props.onChange         - Called with the value the user picks.
  * @param props.freeText         - What has been typed into the free-text field.
  * @param props.onFreeTextChange - Called with what the user types.
+ * @param props.onCommit         - Called when Enter is pressed on an answer.
  * @return The rendered step.
  */
 export function ChoiceStep( {
@@ -114,7 +117,10 @@ export function ChoiceStep( {
 	onChange,
 	freeText = '',
 	onFreeTextChange,
+	onCommit,
 }: ChoiceStepProps ) {
+	// One base for the whole group: a hook cannot run once per option.
+	const idBase = useId();
 	const groupRef = useRef< HTMLDivElement >( null );
 	/*
 	 * Whether the last answer was committed rather than merely arrowed onto. The
@@ -132,6 +138,18 @@ export function ChoiceStep( {
 
 	const handleKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLButtonElement > ) => {
+			/*
+			 * Enter commits, as it would in a form. This is not a form — the options
+			 * are a radiogroup and Continue is a button beside it — so nothing submits
+			 * on its own, and someone answering with the keyboard otherwise has to tab
+			 * past Skip setup to leave the step.
+			 */
+			if ( event.key === 'Enter' && onCommit ) {
+				event.preventDefault();
+				onCommit();
+				return;
+			}
+
 			const offset =
 				VERTICAL_STEP_BY_KEY[ event.key ] ??
 				( HORIZONTAL_STEP_BY_KEY[ event.key ] ?? 0 ) * ( isRTL() ? -1 : 1 );
@@ -152,7 +170,7 @@ export function ChoiceStep( {
 			next.focus();
 			onChange( next.value );
 		},
-		[ onChange ]
+		[ onChange, onCommit ]
 	);
 
 	// The first option holds the group's tab stop until something is chosen.
@@ -194,6 +212,11 @@ export function ChoiceStep( {
 								role="radio"
 								value={ option.value }
 								aria-checked={ value === option.value }
+								// Named by its label alone. The words below are inside the
+								// control, so left to themselves they join its name and it
+								// announces as the label and the line run together.
+								aria-labelledby={ `${ idBase }-${ option.value }-label` }
+								aria-describedby={ `${ idBase }-${ option.value }-description` }
 								tabIndex={ option.value === tabStop ? 0 : -1 }
 								className={ styles[ 'step-option' ] }
 								// The cascade's own delay, counted in rows rather than written
@@ -205,9 +228,27 @@ export function ChoiceStep( {
 								<span className={ styles[ 'step-option__glyph' ] } aria-hidden="true">
 									<Icon icon={ option.icon } />
 								</span>
-								<Text variant="body-lg" className={ styles[ 'step-option__label' ] }>
-									{ option.label }
-								</Text>
+								{ /*
+								 * The line under the label was written and translated and then
+								 * never rendered. It is what tells someone whose site is two of
+								 * these which one we mean.
+								 */ }
+								<span aria-hidden="true" className={ styles[ 'step-option__copy' ] }>
+									<Text
+										variant="body-lg"
+										id={ `${ idBase }-${ option.value }-label` }
+										className={ styles[ 'step-option__label' ] }
+									>
+										{ option.label }
+									</Text>
+									<Text
+										variant="body-md"
+										id={ `${ idBase }-${ option.value }-description` }
+										className={ styles[ 'step-option__description' ] }
+									>
+										{ option.description }
+									</Text>
+								</span>
 								<span className={ styles[ 'step-option__tick' ] } aria-hidden="true">
 									<Icon icon={ check } />
 								</span>
