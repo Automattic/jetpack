@@ -582,7 +582,7 @@ class Initializer_Test extends BaseTestCase {
 
 		// The redirect now runs for every Jetpack screen rather than only on the
 		// My Jetpack page load, so it checks both before deciding anything.
-		$_GET['page']              = $_GET['page'] ?? 'my-jetpack';
+		$_GET['page']            ??= 'my-jetpack';
 		$_SERVER['REQUEST_METHOD'] = 'GET';
 
 		add_filter( 'wp_redirect', $capture );
