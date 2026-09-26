@@ -191,17 +191,17 @@ export async function createTestPosts( testPostTitles: string[] ): Promise< void
  */
 export async function setDashboardModernization( enabled: boolean ) {
 	await executeWpCommand( 'plugin activate e2e-dashboard-modernization' );
+	// update_option() never creates a missing option with a false value, so store '0' instead.
 	await executeWpCommand( [
 		'option',
 		'update',
 		'e2e_boost_dashboard_modernization',
-		JSON.stringify( enabled ),
-		'--format=json',
+		enabled ? '1' : '0',
 	] );
 }
 
 /**
- * Restore the default dashboard filter and remove the test option.
+ * Restore the default (modern) dashboard and remove the test option.
  */
 export async function resetDashboardModernization() {
 	await executeWpCommand( [
@@ -240,7 +240,8 @@ export async function resetDashboardJitm() {
  */
 export async function resetEnvironment() {
 	logger.debug( 'Resetting Jetpack Boost' );
-	await resetDashboardModernization();
+	// The feature specs target the legacy dashboard, so pin it over the modern default.
+	await setDashboardModernization( false );
 	await resetDashboardJitm();
 	await executeWpCommand( 'plugin activate jetpack-boost' );
 	await disconnect();
