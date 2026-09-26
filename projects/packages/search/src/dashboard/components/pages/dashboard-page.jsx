@@ -1,6 +1,7 @@
 import { AdminPage, Button, getProductCheckoutUrl } from '@automattic/jetpack-components';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { useSelect, useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Tabs } from '@wordpress/ui';
@@ -332,6 +333,7 @@ export default function DashboardPage( { isLoading = false } ) {
 						</Tabs.List>
 					</div>
 					<JitmSlot inset />
+					<IDCModal />
 					<Tabs.Panel value="overview">
 						<div className="jp-search-dashboard-top jp-search-dashboard-wrap">
 							{ isPageLoading && <Loading /> }

@@ -36,6 +36,9 @@ class UI_Test extends TestCase {
 		// Remove the filter
 		remove_filter( 'jetpack_idc_consumers', array( $this, 'get_mock_consumers' ) );
 
+		// Undo set_container_id(), which registers an anonymous closure that can't be targeted individually.
+		remove_all_filters( 'identity_crisis_container_id' );
+
 		// Clear any $_SERVER variables we set
 		$_SERVER['REQUEST_URI'] = '';
 	}
@@ -237,6 +240,25 @@ class UI_Test extends TestCase {
 			$expected,
 			$result,
 			'Should return the consumer with customContent unchanged when it is not callable'
+		);
+	}
+
+	/**
+	 * Test that the container ID filter stays unset until set_container_id() is called,
+	 * mirroring how a dashboard only calls it while handling its own page.
+	 */
+	public function test_set_container_id_only_affects_the_filter_after_being_called() {
+		$this->assertNull(
+			apply_filters( 'identity_crisis_container_id', null ),
+			'Should be null before set_container_id() is called, as on any screen that never calls it'
+		);
+
+		UI::set_container_id( 'jetpack-example-identity-crisis-container' );
+
+		$this->assertSame(
+			'jetpack-example-identity-crisis-container',
+			apply_filters( 'identity_crisis_container_id', null ),
+			'Should return the given ID once set_container_id() is called'
 		);
 	}
 }

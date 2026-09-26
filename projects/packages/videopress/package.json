@@ -39,6 +39,7 @@
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@jetpack-videopress/init": "link:packages/init",
 		"@tanstack/react-query": "5.102.8",

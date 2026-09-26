@@ -45,6 +45,7 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@date-fns/tz": "1.5.0",
 		"@jetpack-activity-log/init": "link:packages/init",
 		"@tanstack/react-query": "^5.90.8",

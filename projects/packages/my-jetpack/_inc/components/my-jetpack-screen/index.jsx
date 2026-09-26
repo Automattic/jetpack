@@ -3,6 +3,7 @@
  */
 import { ActionButton, AdminPage, Col, Container } from '@automattic/jetpack-components';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
@@ -24,7 +25,6 @@ import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useNotificationWatcher from '../../hooks/use-notification-watcher';
 import { useQueryParameter } from '../../hooks/use-query-parameter';
 import EvaluationRecommendations from '../evaluation-recommendations';
-import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
 import { getModulesListPath, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';

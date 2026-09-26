@@ -6,6 +6,7 @@ import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { useCallback } from '@wordpress/element';
 import { useNavigate } from '@wordpress/route';
 import { Stack, Tabs } from '@wordpress/ui';
@@ -69,6 +70,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
 				<JitmSlot inset />
+				<IDCModal />
 				{ TAB_VALUES.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
 						{ activeTab === tab ? children : null }

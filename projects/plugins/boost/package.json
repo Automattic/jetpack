@@ -43,6 +43,7 @@
 		"@automattic/charts": "workspace:*",
 		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-base-styles": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@automattic/jetpack-my-jetpack": "workspace:*",
 		"@automattic/jetpack-react-data-sync-client": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",

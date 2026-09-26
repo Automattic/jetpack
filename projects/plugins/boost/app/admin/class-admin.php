@@ -11,6 +11,7 @@ namespace Automattic\Jetpack_Boost\Admin;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Boost_Speed_Score\Speed_Score;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\My_Jetpack\Initializer as My_Jetpack_Initializer;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack_Boost\Lib\Analytics;
@@ -202,6 +203,11 @@ class Admin {
 
 		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		// An older connection package may predate the method.
+		if ( $this->modern_dashboard_loaded && method_exists( Identity_Crisis_UI::class, 'set_container_id' ) ) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-boost-identity-crisis-container' );
+		}
 	}
 
 	/**

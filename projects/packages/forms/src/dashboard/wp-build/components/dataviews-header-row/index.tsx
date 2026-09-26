@@ -2,6 +2,7 @@
  * External dependencies
  */
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { formatNumberCompact } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -129,6 +130,7 @@ export default function DataViewsHeaderRow( {
 				</Stack>
 			</Stack>
 			<JitmSlot inset />
+			<IDCModal />
 			<DataViews.FiltersToggled className="jp-forms-dataviews-filters__container" />
 		</>
 	);

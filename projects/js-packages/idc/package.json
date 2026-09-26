@@ -15,7 +15,12 @@
 	],
 	"type": "module",
 	"exports": {
-		".": "./index.jsx"
+		".": "./index.jsx",
+		"./idc-modal": "./components/idc-modal/index.jsx"
+	},
+	"scripts": {
+		"test": "NODE_OPTIONS=--experimental-vm-modules jest",
+		"test-coverage": "pnpm run test --coverage"
 	},
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
@@ -33,7 +38,11 @@
 	},
 	"devDependencies": {
 		"@babel/core": "7.29.7",
+		"@testing-library/dom": "10.4.2",
+		"@testing-library/react": "16.3.3",
+		"@types/jest": "^30.0.0",
 		"@types/react": "18.3.31",
+		"jest": "30.5.1",
 		"react": "18.3.1",
 		"react-dom": "18.3.1"
 	},

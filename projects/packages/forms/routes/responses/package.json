@@ -5,6 +5,7 @@
 		"@automattic/color-studio": "4.1.0",
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@tanstack/react-router": ">=1.120.5 <1.121.0",
 		"@types/react": "18.3.31",

@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Search;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
@@ -315,6 +316,11 @@ class Dashboard {
 	 */
 	public function admin_init() {
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+
+		// An older connection package may predate the method.
+		if ( function_exists( $this->wp_build_render_function() ) && method_exists( Identity_Crisis_UI::class, 'set_container_id' ) ) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-search-identity-crisis-container' );
+		}
 	}
 
 	/**

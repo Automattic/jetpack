@@ -966,9 +966,21 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/jest':
+        specifier: ^30.0.0
+        version: 30.0.0
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
+      jest:
+        specifier: 30.5.1
+        version: 30.5.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1822,6 +1834,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@date-fns/tz':
         specifier: 1.5.0
         version: 1.5.0
@@ -2040,6 +2055,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
@@ -2386,6 +2404,12 @@ importers:
       '@babel/runtime':
         specifier: 7.29.7
         version: 7.29.7
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/jest-dom':
+        specifier: ^6.4.2
+        version: 6.9.1
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
@@ -2395,6 +2419,9 @@ importers:
       glob:
         specifier: 13.0.6
         version: 13.0.6
+      jest:
+        specifier: 30.5.1
+        version: 30.5.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2654,6 +2681,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3328,6 +3358,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
@@ -3527,6 +3560,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3874,6 +3910,9 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -4255,6 +4294,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -4675,6 +4717,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -5028,6 +5073,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -5542,6 +5590,9 @@ importers:
       '@automattic/jetpack-base-styles':
         specifier: workspace:*
         version: link:../../js-packages/base-styles
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack
@@ -5931,6 +5982,9 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
+      '@automattic/jetpack-idc':
+        specifier: workspace:*
+        version: link:../../js-packages/idc
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack

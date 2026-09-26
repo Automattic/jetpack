@@ -75,6 +75,25 @@ class UI {
 	}
 
 	/**
+	 * Point the IDC screen at a container element for the current request.
+	 *
+	 * The default `admin_notices` container is invisible on wp-build dashboards;
+	 * call this only from the page that renders the replacement container.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $container_id HTML id of the element to render the IDC screen into.
+	 */
+	public static function set_container_id( $container_id ) {
+		add_filter(
+			'identity_crisis_container_id',
+			static function () use ( $container_id ) {
+				return $container_id;
+			}
+		);
+	}
+
+	/**
 	 * Create the container element for the IDC banner.
 	 */
 	public static function render_container() {

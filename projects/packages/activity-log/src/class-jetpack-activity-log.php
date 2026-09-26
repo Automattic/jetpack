@@ -15,6 +15,7 @@ use Automattic\Jetpack\Activity_Log\Initial_State as Activity_Log_Initial_State;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
@@ -289,6 +290,14 @@ class Jetpack_Activity_Log {
 		}
 
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_initial_state' ) );
+
+		// An older connection package may predate the method.
+		if (
+			function_exists( 'jetpack_activity_log_jetpack_activity_log_dashboard_wp_admin_render_page' )
+			&& method_exists( Identity_Crisis_UI::class, 'set_container_id' )
+		) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-activity-log-identity-crisis-container' );
+		}
 	}
 
 	/**

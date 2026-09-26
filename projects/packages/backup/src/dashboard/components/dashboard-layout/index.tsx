@@ -2,6 +2,7 @@ import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { ConnectionError } from '@automattic/jetpack-connection/use-connection-error-notice';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { Page } from '@wordpress/admin-ui';
 import { __ } from '@wordpress/i18n';
 import Gates from '../gates';
@@ -59,6 +60,7 @@ export default function DashboardLayout( { children, actions }: Props ) {
 						<ConnectionError trackingContext="backup" />
 					</div>
 					<JitmSlot />
+					<IDCModal />
 					<Gates>{ children }</Gates>
 				</div>
 			</div>

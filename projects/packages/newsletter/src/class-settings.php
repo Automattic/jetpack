@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -322,6 +323,11 @@ class Settings {
 	public function admin_init() {
 		add_filter( 'jetpack_admin_js_script_data', array( $this, 'add_script_data' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'load_admin_scripts' ) );
+
+		// An older connection package may predate the method.
+		if ( self::is_modernized() && method_exists( Identity_Crisis_UI::class, 'set_container_id' ) ) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-newsletter-identity-crisis-container' );
+		}
 	}
 
 	/**

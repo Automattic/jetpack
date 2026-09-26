@@ -4,6 +4,7 @@
 	"dependencies": {
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@types/react": "18.3.31",
 		"@wordpress/api-fetch": "7.55.0",

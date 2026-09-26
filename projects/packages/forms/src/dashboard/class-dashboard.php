@@ -11,6 +11,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form;
 use Automattic\Jetpack\Forms\ContactForm\Contact_Form_Plugin;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
@@ -215,6 +216,11 @@ class Dashboard {
 	public function load_admin_scripts() {
 		if ( ! self::is_jetpack_forms_admin_page() ) {
 			return;
+		}
+
+		// An older connection package may predate the method.
+		if ( method_exists( Identity_Crisis_UI::class, 'set_container_id' ) ) {
+			Identity_Crisis_UI::set_container_id( 'jetpack-forms-identity-crisis-container' );
 		}
 
 		// Attach the shared inline data (connection initial state + REST preload) to

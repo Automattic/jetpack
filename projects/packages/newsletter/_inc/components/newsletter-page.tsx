@@ -1,5 +1,6 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
 import JitmSlot from '@automattic/jetpack-components/jitm-slot';
+import IDCModal from '@automattic/jetpack-idc/idc-modal';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -115,6 +116,7 @@ export default function NewsletterPage( {
 	const content = (
 		<>
 			<JitmSlot inset />
+			<IDCModal />
 			<div className={ contentClass }>{ children }</div>
 		</>
 	);

@@ -6,6 +6,7 @@
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
+		"@automattic/jetpack-idc": "workspace:*",
 		"@tanstack/react-query": "^5.90.8",
 		"@types/react": "18.3.31",
 		"@wordpress/api-fetch": "7.55.0",

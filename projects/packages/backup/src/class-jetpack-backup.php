@@ -24,6 +24,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\IdentityCrisis\UI as Identity_Crisis_UI;
 use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
@@ -251,6 +252,11 @@ class Jetpack_Backup {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
 		if ( self::is_wp_build_dashboard_active() ) {
+			// An older connection package may predate the method.
+			if ( method_exists( Identity_Crisis_UI::class, 'set_container_id' ) ) {
+				Identity_Crisis_UI::set_container_id( 'jetpack-backup-identity-crisis-container' );
+			}
+
 			// Notices reflow the dual-pane layout, so clear them but keep our own.
 			// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
 			if ( method_exists( JITM::class, 'suppress_foreign_admin_notices' ) ) {

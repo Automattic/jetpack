@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Identity Crisis: Let a wp-build dashboard redirect the Safe Mode screen into its own container, even when that container renders after the page loads.
