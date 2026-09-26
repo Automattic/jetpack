@@ -9,6 +9,15 @@
  * everything else on this screen is a token.
  */
 $rail-width: 300px;
+
+/*
+ * The icon rail, the second shape being compared. Slack's own is 70px around a
+ * 36px tile with an 11px label; ours is wider because its labels are phrases
+ * ("What you need") where Slack's are single words, and they wrap to two lines
+ * rather than being rewritten for one layout.
+ */
+$rail-icons-width: 104px;
+$rail-icons-tile: var(--wpds-dimension-size-lg);
 $panel-width: 38%;
 
 /*
@@ -305,6 +314,13 @@ $rail-row-min-height: 40px;
 	}
 }
 
+.layout--rail-icons {
+
+	@media (min-width: $panel-breakpoint) {
+		grid-template-columns: $rail-icons-width minmax(0, 1fr) $panel-width;
+	}
+}
+
 /*
  * The canvas: the shell's gutter around the sheet, the same inset the Site
  * Editor holds its canvas at.
@@ -349,6 +365,100 @@ $rail-row-min-height: 40px;
 	gap: var(--wpds-dimension-gap-lg);
 	min-inline-size: 0;
 	padding-block: var(--wpds-dimension-padding-lg);
+}
+
+/* ------------------------------------------------- rail, icon variant */
+
+/*
+ * Slack's shape, on our dark rail: a narrow column of glyph-over-label, each
+ * glyph on a tile that carries the current state instead of a full-width band.
+ * Everything here is scoped to .rail--icons so the list rail is untouched.
+ */
+.rail--icons {
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xl);
+	padding-inline: var(--wpds-dimension-padding-sm);
+
+	.rail-head {
+		align-items: center;
+		padding-inline: 0;
+	}
+}
+
+.rail-steps--icons {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+/*
+ * Three classes deep for the same reason the list rail's row is: Item's own
+ * styles are injected at runtime at two and three classes, so a rule of equal
+ * weight here would lose on source order.
+ */
+.rail-nav .rail-steps .rail-step--icons {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-xs);
+	min-block-size: 0;
+	border-radius: var(--wpds-border-radius-lg);
+	background: none;
+	font-size: var(--wpds-typography-font-size-xs);
+	line-height: var(--wpds-typography-line-height-xs);
+	text-align: center;
+
+	// The band moves off the row and onto the tile, so the current step reads
+	// as a selected app rather than as a selected list item.
+	&[aria-current="true"] {
+		background: none;
+		font-weight: var(--wpds-typography-font-weight-emphasis);
+	}
+}
+
+.rail-step__tile {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	inline-size: $rail-icons-tile;
+	block-size: $rail-icons-tile;
+	border-radius: var(--wpds-border-radius-md);
+	color: inherit;
+
+	svg {
+		inline-size: var(--wpds-dimension-size-sm);
+		block-size: var(--wpds-dimension-size-sm);
+	}
+
+	// There is no -hover step on the scale, so hover takes the weak fill and
+	// the current step takes the one above it.
+	.rail-step--icons:hover &,
+	.rail-step--icons:focus & {
+		background: var(--wpds-color-background-interactive-neutral-weak);
+	}
+
+	.rail-step--icons[aria-current="true"] & {
+		background: var(--wpds-color-background-interactive-neutral-weak-active);
+	}
+
+	// A step that cannot be reached takes no tile on hover, or it offers a
+	// press that does nothing.
+	.rail-step--icons[aria-disabled="true"]:hover & {
+		background: none;
+	}
+}
+
+/*
+ * Two lines whether it needs them or not. Slack's labels are single words and
+ * ours are phrases, so one wrapping item would otherwise be taller than the
+ * three around it and the tiles would stop lining up.
+ */
+.rail-step__label {
+	display: block;
+	inline-size: 100%;
+	min-block-size: 2lh;
+	text-wrap: balance;
 }
 
 .rail-head {
