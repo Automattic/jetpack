@@ -21,7 +21,8 @@
 }
 
 .jetpack-sso-form-display #jetpack-sso-wrap__action,
-.jetpack-sso-form-display #jetpack-sso-wrap__user {
+.jetpack-sso-form-display #jetpack-sso-wrap__user,
+.jetpack-sso-two-step #jetpack-sso-wrap__action {
 	display: block;
 }
 
@@ -91,13 +92,15 @@
 	padding: 26px 24px;
 }
 
-.jetpack-sso-or {
+.jetpack-sso-or,
+.jetpack-sso-then {
 	margin-bottom: 16px;
 	position: relative;
 	text-align: center;
 }
 
-.jetpack-sso-or::before {
+.jetpack-sso-or::before,
+.jetpack-sso-then::before {
 	background: #dcdcde;
 	content: "";
 	height: 1px;
@@ -107,7 +110,8 @@
 	width: 100%;
 }
 
-.jetpack-sso-or span {
+.jetpack-sso-or span,
+.jetpack-sso-then span {
 	background: #fff;
 	color: #777;
 	position: relative;
@@ -116,6 +120,10 @@
 }
 
 #jetpack-sso-wrap .button {
+
+	/* Core login.css floats .button-primary right, which pulls
+	   the next block up under the button. */
+	float: none;
 	display: flex;
 	justify-content: center;
 	align-items: center;
