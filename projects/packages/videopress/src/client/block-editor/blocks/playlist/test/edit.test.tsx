@@ -88,6 +88,8 @@ const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
 	videos: [],
 	layout: 'side-rail',
 	darkPlayer: false,
+	showPlayer: true,
+	entryClickAction: 'new-tab',
 	autoplayNext: false,
 	muteByDefault: false,
 	loopPlaylist: false,
@@ -183,6 +185,20 @@ describe( 'PlaylistEdit inside a Latest Videos Playlist block', () => {
 		expect( screen.queryByTestId( 'inspector-controls' ) ).not.toBeInTheDocument();
 		expect( screen.queryByPlaceholderText( 'Paste a video URL' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /Remove/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( "follows the parent's player settings", async () => {
+		renderAsLatestVideosCanvas( {
+			attributes: { ...DEFAULT_ATTRIBUTES, showPlayer: false, entryClickAction: 'new-tab' },
+		} );
+		await expect( screen.findByText( 'Second' ) ).resolves.toBeInTheDocument();
+
+		expect( screen.getByRole( 'figure' ) ).toHaveClass( 'hide-player' );
+		expect( screen.queryByTitle( 'First' ) ).not.toBeInTheDocument();
+		expect( screen.getAllByRole( 'link' )[ 0 ] ).toHaveAttribute(
+			'href',
+			'https://videopress.com/v/aaaaaaaa'
+		);
 	} );
 
 	it( "shows the parent's loading state", () => {
@@ -553,6 +569,9 @@ describe( 'PlaylistEdit', () => {
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Dark player surface' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { darkPlayer: true } );
 
+		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Show player' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { showPlayer: false } );
+
 		await userEvent.click( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) );
 		expect( setAttributes ).toHaveBeenCalledWith( { autoplayNext: true } );
 
@@ -572,6 +591,70 @@ describe( 'PlaylistEdit', () => {
 		expect( autoplayToggle ).toBeChecked();
 		expect( autoplayToggle ).toBeDisabled();
 		expect( screen.getByText( 'Looping the playlist keeps autoplay on.' ) ).toBeInTheDocument();
+	} );
+
+	it( 'links entries to their VideoPress pages instead of rendering a player when the player is off', async () => {
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ], showPlayer: false } );
+		// Let the live metadata lookups settle.
+		await expect( screen.findAllByText( 'Second' ) ).resolves.toBeTruthy();
+
+		const canvas = screen.getByRole( 'figure' );
+		expect( canvas ).toHaveClass( 'hide-player' );
+		expect( screen.queryByTitle( 'Video Playlist player' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTitle( 'First' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { current: true } ) ).not.toBeInTheDocument();
+		// The rail header no longer announces what is "up next" (the sidebar's
+		// "Playlist" panel title is a button, the canvas label a span).
+		expect( screen.getByText( 'Playlist', { selector: 'span' } ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Up next' ) ).not.toBeInTheDocument();
+
+		const links = screen.getAllByRole( 'link' );
+		expect( links ).toHaveLength( 2 );
+		expect( links[ 0 ] ).toHaveAttribute( 'href', 'https://videopress.com/v/aaaaaaaa' );
+		expect( links[ 0 ] ).toHaveAttribute( 'target', '_blank' );
+		expect( links[ 0 ] ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+		expect( links[ 0 ] ).not.toHaveAttribute( 'aria-current' );
+		expect( links[ 1 ] ).toHaveAttribute( 'href', 'https://videopress.com/v/bbbbbbbb' );
+
+		// The other playback options only apply to the block's own player.
+		expect( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Mute by default' } ) ).toBeDisabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Loop playlist' } ) ).toBeDisabled();
+	} );
+
+	it( 'hides the click behavior while the player shows', async () => {
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ] } );
+		// Let the live metadata lookup settle.
+		await expect( screen.findAllByText( 'First' ) ).resolves.toBeTruthy();
+		expect( screen.queryByText( 'When a video is clicked' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers the click behavior while the player is off', async () => {
+		const setAttributes = jest.fn();
+		renderEdit( { videos: [ { guid: 'aaaaaaaa' } ], showPlayer: false }, setAttributes );
+		expect(
+			screen.getByRole( 'radio', { name: 'Open it on VideoPress in a new tab' } )
+		).toBeChecked();
+
+		await userEvent.click( screen.getByRole( 'radio', { name: 'Show the player and play it' } ) );
+		expect( setAttributes ).toHaveBeenCalledWith( { entryClickAction: 'show-player' } );
+	} );
+
+	it( 'keeps entries as buttons and playback options on when a click reveals the player', async () => {
+		renderEdit( {
+			videos: [ { guid: 'aaaaaaaa' }, { guid: 'bbbbbbbb' } ],
+			showPlayer: false,
+			entryClickAction: 'show-player',
+		} );
+		await expect( screen.findAllByText( 'Second' ) ).resolves.toBeTruthy();
+
+		expect( screen.getByRole( 'figure' ) ).toHaveClass( 'hide-player' );
+		expect( screen.queryByTitle( 'Video Playlist player' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { current: true } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox', { name: 'Autoplay next' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Mute by default' } ) ).toBeEnabled();
+		expect( screen.getByRole( 'checkbox', { name: 'Loop playlist' } ) ).toBeEnabled();
 	} );
 
 	it( 'changes the per-entry display options from the sidebar', async () => {

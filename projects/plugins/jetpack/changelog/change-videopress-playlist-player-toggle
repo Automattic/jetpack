@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+VideoPress: Add a setting to the Video Playlist and Latest Videos Playlist blocks to hide the player. Clicking a video then opens it on VideoPress in a new tab, or reveals the player and plays it.
