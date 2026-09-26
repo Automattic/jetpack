@@ -15,6 +15,7 @@ import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
 import { assignLocation } from './assign-location';
+import { ConnectedNotice } from './connected-notice';
 import {
 	canContinue,
 	isLastStep,
@@ -30,6 +31,7 @@ import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
 import { StartStep } from './steps/start-step';
 import styles from './styles.module.scss';
+import { useJustConnected } from './use-just-connected';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
 import type { SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
@@ -220,6 +222,9 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const state: WizardState = { choices, freeText: siteTypeDetail };
 	const wizardTitle = __( 'Set up Jetpack', 'jetpack-my-jetpack' );
 
+	// True once, on the step the connection round trip lands on.
+	const justConnected = useJustConnected();
+
 	const stepBody = {
 		start: <StartStep titleId={ titleId } title={ meta.title } description={ meta.description } />,
 		features: (
@@ -356,6 +361,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 							>
 								{ /* Keyed by step so the entrance replays as the content is swapped. */ }
 								<div key={ meta.id } className={ styles[ 'panel-content' ] }>
+									{ justConnected && ! isStart && <ConnectedNotice /> }
 									{ stepBody }
 								</div>
 							</section>

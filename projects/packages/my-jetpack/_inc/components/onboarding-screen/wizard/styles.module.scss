@@ -257,6 +257,17 @@ $finish-wash-duration-3: 1.6s;
 $finish-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
 
 /*
+ * The arrival moment on the step you land on after connecting: the finish
+ * screen's bloom at a tick's scale rather than a badge's. Two discs, not
+ * three — at 20px the third adds nothing you can see.
+ */
+$connected-tick-size: var(--wpds-dimension-size-xs);
+$connected-wash-1: 9;
+$connected-wash-2: 12;
+$connected-wash-duration-1: 1.2s;
+$connected-wash-duration-2: 1.5s;
+
+/*
  * The free-text field's reveal. The prototype grows the row's height and lags
  * the opacity behind it; ours takes its space in one frame and only fades,
  * which was Adam's call on 25 Sep. Nothing grows, so nothing can read as slow,
@@ -1498,6 +1509,69 @@ $rail-row-min-height: 40px;
 		opacity: 0;
 		transform: scale(var(--finish-wash-scale));
 	}
+}
+
+/* ------------------------------------------------- connected notice */
+
+.connected {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	margin-block-end: var(--wpds-dimension-gap-xl);
+	animation: step-enter $appear-duration $appear-easing both;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation-name: fade-in;
+		animation-duration: $appear-reduced-duration;
+	}
+}
+
+.connected__mark {
+	display: flex;
+	position: relative;
+	flex-shrink: 0;
+	align-items: center;
+	justify-content: center;
+	inline-size: $connected-tick-size;
+	block-size: $connected-tick-size;
+	border-radius: 50%;
+	background: var(--jp-green-50);
+	color: var(--jp-white);
+}
+
+.connected__tick {
+	display: flex;
+
+	svg {
+		inline-size: var(--wpds-dimension-size-3xs);
+		block-size: var(--wpds-dimension-size-3xs);
+		fill: currentColor;
+	}
+}
+
+// Same keyframes the finish screen blooms on, and the same reason the alpha
+// rides on the colour: opacity is what the keyframe drives to zero.
+.connected__wash {
+	position: absolute;
+	inset: 0;
+	border-radius: 50%;
+	animation: finish-wash $connected-wash-duration-1 ease-out both;
+	animation-delay: $wave-base;
+	background: color-mix(in sRGB, var(--jp-green-50) 25%, transparent);
+	filter: blur(4px);
+	--finish-wash-scale: #{$connected-wash-1};
+}
+
+.connected__wash--2 {
+	animation-duration: $connected-wash-duration-2;
+	animation-delay: $wave-base + 0.1s;
+	background: color-mix(in sRGB, var(--jp-green-50) 15%, transparent);
+	filter: blur(6px);
+	--finish-wash-scale: #{$connected-wash-2};
+}
+
+.connected__text {
+	color: var(--wpds-color-foreground-content-neutral-weak);
 }
 
 /* ----------------------------------------------------------- start step */

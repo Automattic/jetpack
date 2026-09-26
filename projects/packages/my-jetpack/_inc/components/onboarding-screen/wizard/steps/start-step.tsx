@@ -15,6 +15,7 @@ import {
 	startBenefits,
 } from '../lib';
 import styles from '../styles.module.scss';
+import { markConnecting } from '../use-just-connected';
 
 type StartStepProps = {
 	// Owned by the wizard so the panel region can be labelled by the heading.
@@ -71,6 +72,10 @@ export function StartStep( { titleId, title, description }: StartStepProps ) {
 		}
 		inFlight.current = true;
 		setHandoffError( null );
+
+		// Set before we leave, read once on the way back: it is how the step we
+		// return to knows to say the connection worked.
+		markConnecting();
 
 		recordEvent( 'jetpack_myjetpack_onboarding_wizard_connect_click' );
 
