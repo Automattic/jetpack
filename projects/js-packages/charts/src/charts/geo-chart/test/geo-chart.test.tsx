@@ -216,6 +216,14 @@ describe( 'GeoChart', () => {
 			expect( options.region ).toBeUndefined();
 		} );
 
+		test( 'passes the domain so disputed borders follow that country', () => {
+			renderWithTheme( { domain: 'IN' } );
+
+			const options = JSON.parse( screen.getByTestId( 'chart-options' ).textContent || '{}' );
+
+			expect( options.domain ).toBe( 'IN' );
+		} );
+
 		test( 'does not include resolution in options when set to countries (default)', () => {
 			renderWithTheme();
 
