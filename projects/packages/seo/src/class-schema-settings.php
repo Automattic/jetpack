@@ -45,15 +45,17 @@ class Schema_Settings {
 	 * as field placeholders. Keeping the two separate lets an empty field track the
 	 * Site Title instead of freezing its value.
 	 *
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}}}
+	 * @return array{siteRepresents: string, organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, person: array{name: string, description: string, sameAs: array<int, string>}, breadcrumbList: array{enabled: bool}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}, person: array{name: string, description: string}}}
 	 */
 	public static function get_editable() {
 		$defaults = self::get_defaults();
 		$stored   = self::get_stored();
 
 		return array(
+			'siteRepresents' => $stored['siteRepresents'],
 			'organization'   => $stored['organization'],
 			'localBusiness'  => $stored['localBusiness'],
+			'person'         => $stored['person'],
 			'breadcrumbList' => $stored['breadcrumbList'],
 			'defaults'       => array(
 				'organization'  => array(
@@ -62,6 +64,10 @@ class Schema_Settings {
 				),
 				'localBusiness' => array(
 					'address' => $defaults['localBusiness']['address'],
+				),
+				'person'        => array(
+					'name'        => $defaults['person']['name'],
+					'description' => $defaults['person']['description'],
 				),
 			),
 		);
@@ -75,16 +81,25 @@ class Schema_Settings {
 	 * `sameAs` / `email` and the other LocalBusiness fields have no source, so they
 	 * aren't defaulted.
 	 *
-	 * @return array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}}
+	 * @return array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}, person: array{name: string, description: string}}
 	 */
 	public static function get_defaults() {
+		$site_name    = self::text( get_bloginfo( 'name' ) );
+		$site_tagline = self::text( get_bloginfo( 'description' ) );
+
 		return array(
 			'organization'  => array(
-				'name'        => self::text( get_bloginfo( 'name' ) ),
-				'description' => self::text( get_bloginfo( 'description' ) ),
+				'name'        => $site_name,
+				'description' => $site_tagline,
 			),
 			'localBusiness' => array(
 				'address' => self::woo_address_defaults(),
+			),
+			// A personal site's title is typically the person's name, and the
+			// tagline a short bio — so the same site-identity values seed both.
+			'person'        => array(
+				'name'        => $site_name,
+				'description' => $site_tagline,
 			),
 		);
 	}
@@ -108,6 +123,39 @@ class Schema_Settings {
 			'description' => '' !== $organization['description'] ? $organization['description'] : $fallbacks['description'],
 			'sameAs'      => $organization['sameAs'],
 			'email'       => $organization['email'],
+		);
+	}
+
+	/**
+	 * Which entity the site represents (its publisher / main entity): `person` or
+	 * `organization`. Defaults to `organization`, preserving prior behavior for
+	 * every site that predates this setting.
+	 *
+	 * @return string
+	 */
+	public static function get_site_represents() {
+		return self::get_stored()['siteRepresents'];
+	}
+
+	/**
+	 * The effective site-level Person settings the node consumes: stored overrides
+	 * where present, site-identity defaults otherwise (`name` → Site Title,
+	 * `description` → Tagline). `sameAs` is stored-only. Computed live so an
+	 * unconfigured `name` / `description` tracks site identity.
+	 *
+	 * @return array{name: string, description: string, sameAs: array<int, string>}
+	 */
+	public static function get_person() {
+		$defaults = self::get_defaults();
+		$stored   = self::get_stored();
+
+		$person    = $stored['person'];
+		$fallbacks = $defaults['person'];
+
+		return array(
+			'name'        => '' !== $person['name'] ? $person['name'] : $fallbacks['name'],
+			'description' => '' !== $person['description'] ? $person['description'] : $fallbacks['description'],
+			'sameAs'      => $person['sameAs'],
 		);
 	}
 
@@ -148,12 +196,12 @@ class Schema_Settings {
 	 * (so the caller can hand it straight back to the client).
 	 *
 	 * @param mixed $raw Raw input (expected to be the container array).
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}}}
+	 * @return array{siteRepresents: string, organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, person: array{name: string, description: string, sameAs: array<int, string>}, breadcrumbList: array{enabled: bool}, defaults: array{organization: array{name: string, description: string}, localBusiness: array{address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}}, person: array{name: string, description: string}}}
 	 */
 	public static function update( $raw ) {
 		$raw    = is_array( $raw ) ? $raw : array();
 		$stored = self::get_stored();
-		foreach ( array( 'organization', 'localBusiness', 'breadcrumbList' ) as $section ) {
+		foreach ( array( 'siteRepresents', 'organization', 'localBusiness', 'person', 'breadcrumbList' ) as $section ) {
 			if ( ! array_key_exists( $section, $raw ) ) {
 				$raw[ $section ] = $stored[ $section ];
 			}
@@ -170,7 +218,7 @@ class Schema_Settings {
 	 * non-array / non-string input.
 	 *
 	 * @param mixed $raw Raw input.
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}}
+	 * @return array{siteRepresents: string, organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, person: array{name: string, description: string, sameAs: array<int, string>}, breadcrumbList: array{enabled: bool}}
 	 */
 	public static function sanitize( $raw ) {
 		$raw          = is_array( $raw ) ? $raw : array();
@@ -179,6 +227,7 @@ class Schema_Settings {
 			: array();
 
 		return array(
+			'siteRepresents' => self::sanitize_site_represents( $raw['siteRepresents'] ?? '' ),
 			'organization'   => array(
 				'name'        => self::text( $organization['name'] ?? '' ),
 				'description' => self::text( $organization['description'] ?? '' ),
@@ -186,7 +235,36 @@ class Schema_Settings {
 				'email'       => self::email( $organization['email'] ?? '' ),
 			),
 			'localBusiness'  => self::sanitize_local_business( $raw['localBusiness'] ?? array() ),
+			'person'         => self::sanitize_person( $raw['person'] ?? array() ),
 			'breadcrumbList' => self::sanitize_breadcrumb_list( $raw['breadcrumbList'] ?? array() ),
+		);
+	}
+
+	/**
+	 * Normalize the site-entity choice. Anything other than `person` (including
+	 * missing / legacy data) resolves to `organization`, the historical default.
+	 *
+	 * @param mixed $value Raw site-entity choice.
+	 * @return string
+	 */
+	private static function sanitize_site_represents( $value ) {
+		return 'person' === $value ? 'person' : 'organization';
+	}
+
+	/**
+	 * Normalize and sanitize raw Person input into the stored option shape: trimmed
+	 * plain text for `name` / `description`, validated + deduped URLs for `sameAs`.
+	 *
+	 * @param mixed $raw Raw Person input.
+	 * @return array{name: string, description: string, sameAs: array<int, string>}
+	 */
+	private static function sanitize_person( $raw ) {
+		$raw = is_array( $raw ) ? $raw : array();
+
+		return array(
+			'name'        => self::text( $raw['name'] ?? '' ),
+			'description' => self::text( $raw['description'] ?? '' ),
+			'sameAs'      => self::sanitize_url_list( $raw['sameAs'] ?? array() ),
 		);
 	}
 
@@ -236,7 +314,7 @@ class Schema_Settings {
 	 * The stored settings, normalized to the full option shape (so callers can
 	 * rely on every key being present even when the option is absent or partial).
 	 *
-	 * @return array{organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, breadcrumbList: array{enabled: bool}}
+	 * @return array{siteRepresents: string, organization: array{name: string, description: string, sameAs: array<int, string>, email: string}, localBusiness: array{enabled: bool, address: array{streetAddress: string, addressLocality: string, addressRegion: string, postalCode: string, addressCountry: string}, telephone: string, geo: array{latitude: string, longitude: string}, openingHours: array<string, array{opens: string, closes: string}>, priceRange: string}, person: array{name: string, description: string, sameAs: array<int, string>}, breadcrumbList: array{enabled: bool}}
 	 */
 	private static function get_stored() {
 		return self::sanitize( get_option( self::OPTION_NAME, array() ) );
