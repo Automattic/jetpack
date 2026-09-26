@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import { usePageCache, useClearPageCacheAction } from '$lib/stores/page-cache';
 import clsx from 'clsx';
 import { useMutationNotice } from '$features/ui';
+import SaveButton from '$features/ui/save-button/save-button';
 import { useDataSyncSubset } from '@automattic/jetpack-react-data-sync-client';
 import { useModuleSurface, useTooltipLayer } from '$features/module/surface';
 import ErrorBoundary from '$features/error-boundary/error-boundary';
@@ -270,13 +271,11 @@ const BypassPatterns = ( {
 					/>
 				</Notice.Root>
 			) }
-			<Button
+			<SaveButton
 				disabled={ patterns === inputValue || inputInvalid }
 				onClick={ save }
 				className={ styles.button }
-			>
-				{ __( 'Save', 'jetpack-boost' ) }
-			</Button>
+			/>
 		</div>
 	);
 };

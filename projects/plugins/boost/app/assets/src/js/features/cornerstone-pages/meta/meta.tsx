@@ -11,6 +11,7 @@ import { recordBoostEvent } from '$lib/utils/analytics';
 import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import { Button, getRedirectUrl } from '@automattic/jetpack-components';
+import SaveButton from '$features/ui/save-button/save-button';
 import { Tooltip } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -510,9 +511,7 @@ const List: FC< ListProps > = ( {
 			{ inputInvalid && <span className={ styles.error }>{ validationError?.message }</span> }
 			{ description && <div className={ styles.description }>{ description }</div> }
 			<div className={ styles.buttonGroup }>
-				<Button disabled={ items === inputValue || inputInvalid } onClick={ save }>
-					{ __( 'Save', 'jetpack-boost' ) }
-				</Button>
+				<SaveButton disabled={ items === inputValue || inputInvalid } onClick={ save } />
 				<LoadDefaultsButton
 					defaultValue={ defaultValue }
 					inputValue={ inputValue }
