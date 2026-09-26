@@ -22,7 +22,7 @@ class Marketplace_Catalog {
 	 * Bumped whenever the shape of a cached card or description changes, so sites
 	 * do not keep serving data built by the previous version until it expires.
 	 */
-	const CACHE_VERSION = 7;
+	const CACHE_VERSION = 8;
 
 	/**
 	 * Transient holding the normalized product list.
@@ -44,6 +44,15 @@ class Marketplace_Catalog {
 	 * not mean an outbound request per page load.
 	 */
 	const MISS_CACHE_TTL = 5 * MINUTE_IN_SECONDS;
+
+	/**
+	 * The largest yearly saving we will state as fact.
+	 *
+	 * Paying yearly saves a month or two at most in practice. Anything beyond this is
+	 * a sign the two variations are not the same product on two billing terms, so the
+	 * comparison is dropped rather than shown. See yearly_saving().
+	 */
+	const MAX_PLAUSIBLE_SAVING = 50;
 
 	/**
 	 * Block-level tags, used to work out which stripped tags owe a paragraph break.
@@ -394,6 +403,8 @@ class Marketplace_Catalog {
 			'wpcom_marketplace'  => true,
 			'wpcom_product_slug' => $product_slug,
 			'wpcom_category'     => self::to_category( $product['tags'] ?? null ),
+			// Where a referral product is actually bought. See is_referral().
+			'wpcom_referral_url' => is_string( $product['saas_landing_page'] ?? null ) ? $product['saas_landing_page'] : '',
 			'wpcom_variations'   => self::to_variation_ids( $product['variations'] ?? null ),
 			'wpcom_pricing'      => array(),
 			'wpcom_saving'       => 0,
@@ -432,6 +443,8 @@ class Marketplace_Catalog {
 				'slug'  => (string) $slug,
 				'price' => (string) ( $product['cost_display'] ?? '' ),
 				'cost'  => isset( $product['cost'] ) ? (float) $product['cost'] : 0.0,
+				// Some of what the marketplace lists is not sold here at all. See is_referral().
+				'type'  => (string) ( $product['product_type'] ?? '' ),
 			);
 		}
 
@@ -485,6 +498,30 @@ class Marketplace_Catalog {
 	}
 
 	/**
+	 * Whether WordPress.com only refers this product rather than selling it.
+	 *
+	 * A handful of marketplace listings are SaaS: the subscription is bought from the
+	 * vendor, and wpcom takes the referral. They still carry variations and prices,
+	 * so nothing about the shape of the payload says not to sell them. What says so
+	 * is `product_type`, which Calypso's own `isSaasProduct` reads for the same
+	 * decision. Its `has_marketplace_product` counts `saas_plugin` as a marketplace
+	 * product too, so asking whether something is from the marketplace does not
+	 * answer this and never will.
+	 *
+	 * @param array $card Normalized product data.
+	 * @return bool
+	 */
+	public static function is_referral( array $card ) {
+		foreach ( $card['wpcom_pricing'] ?? array() as $variation ) {
+			if ( 'saas_plugin' === ( $variation['type'] ?? '' ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * How much cheaper a year is than twelve months, as a whole percentage.
 	 *
 	 * Worth showing because it is not a flat discount: across the catalog it runs from
@@ -503,7 +540,19 @@ class Marketplace_Catalog {
 
 		$saving = (int) round( ( 1 - $yearly / ( $monthly * 12 ) ) * 100 );
 
-		return max( 0, $saving );
+		/*
+		 * Two variations of the same product are not always two ways to buy the same
+		 * thing: a SaaS listing's year and month can be separate plans, so comparing
+		 * them produces a number that means nothing. MailPoet's $312 year against its
+		 * $140 month reads as 81% off, and Nelio's year costs more than twelve of its
+		 * months. Clamping the negative one to zero hid that rather than catching it,
+		 * so a saving outside what a billing term can plausibly be is refused.
+		 */
+		if ( $saving <= 0 || $saving > self::MAX_PLAUSIBLE_SAVING ) {
+			return 0;
+		}
+
+		return $saving;
 	}
 
 	/**
