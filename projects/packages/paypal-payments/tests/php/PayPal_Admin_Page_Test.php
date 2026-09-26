@@ -12,6 +12,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+require_once __DIR__ . '/trait-paypal-tracks-events.php';
 
 /**
  * Class PayPal_Admin_Page_Test
@@ -22,6 +23,7 @@ require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
 class PayPal_Admin_Page_Test extends TestCase {
 
 	use PayPal_Resource_Fixtures;
+	use PayPal_Tracks_Events;
 
 	/**
 	 * Per-flag filter that forces the API-managed buttons on.
@@ -70,6 +72,8 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_transient( 'paypal_resource_plb-zc45rdyzrhs9' );
 		delete_transient( 'paypal_resource_plb-q5z4gdyfs367' );
 		PayPal_API_Client::forget_cached_resources();
+		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
+		unset( $GLOBALS['jetpack_paypal_test_captured_events'] );
 
 		// Reset $_GET superglobal.
 		$_GET = array();
@@ -353,6 +357,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Connect PayPal', $output );
 		$this->assertStringContainsString( 'paypal-disconnected-notice', $output );
 		$this->assertStringContainsString( 'post-new.php', $output );
+		$this->assertSame( array(), $this->recorded_events(), 'The disconnected page recorded a view event.' );
 	}
 
 	// --- render_page: connected state ---
@@ -893,6 +898,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'notice-error', $output );
+		$this->assertSame( array(), $this->recorded_events(), 'The detail view recorded a view event for a missing link.' );
 	}
 
 	/**
@@ -1078,7 +1084,140 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertTrue( true );
 	}
 
+	// --- Tracks events ---
+
+	/**
+	 * The list view records a page view with the stored environment.
+	 */
+	public function test_render_page_records_admin_page_viewed() {
+		wp_set_current_user( $this->create_admin_user() );
+		$this->set_up_connected_state( 'sandbox' );
+		$this->mock_get_resource_response(
+			array(
+				'items'       => array(),
+				'total_items' => 0,
+				'links'       => array(),
+			)
+		);
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		ob_end_clean();
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_admin_page_viewed',
+					'properties' => array( 'environment' => 'sandbox' ),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * A link's detail view records only the detail event.
+	 */
+	public function test_detail_view_records_admin_detail_viewed() {
+		$this->render_detail_view( $this->get_sample_resource(), 'sandbox' );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_admin_detail_viewed',
+					'properties' => array( 'environment' => 'sandbox' ),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * A delete from the admin page records `admin` as the source.
+	 */
+	public function test_handle_actions_delete_records_button_deleted() {
+		$this->delete_through_admin( 204 );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_button_deleted',
+					'properties' => array(
+						'environment'  => 'sandbox',
+						'source'       => 'admin',
+						'already_gone' => false,
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * The admin page shows a 404 on delete as an error and skips the event.
+	 */
+	public function test_handle_actions_delete_skips_the_event_on_404() {
+		$this->delete_through_admin( 404 );
+
+		$this->assertSame( 'error', get_transient( 'paypal_admin_notice_' . get_current_user_id() )['type'] );
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
 	// --- Helpers ---
+
+	/**
+	 * Delete a link through handle_actions() as an admin, with PayPal responding to the DELETE with $status,
+	 * and assert it redirects back to the list.
+	 *
+	 * @param int $status HTTP status of PayPal's response.
+	 */
+	private function delete_through_admin( $status ) {
+		wp_set_current_user( $this->create_admin_user() );
+		$this->set_up_connected_state( 'sandbox' );
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $status ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				return array(
+					'response' => array(
+						'code'    => $status,
+						'message' => '',
+					),
+					'body'     => 204 === $status ? '' : wp_json_encode( array( 'name' => 'RESOURCE_NOT_FOUND' ), JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+
+		// The nonce is per user, so it's made after the user is set.
+		$_GET = array(
+			'page'        => PayPal_Admin_Page::PAGE_SLUG,
+			'action'      => 'delete',
+			'resource_id' => 'PLB-ABC123',
+			'_wpnonce'    => wp_create_nonce( 'delete_payment_link_PLB-ABC123' ),
+		);
+
+		// Throw the redirect target to skip the `exit` after the redirect.
+		$redirect = /** @return never */ function ( $location ) {
+			throw new \RuntimeException( (string) $location );
+		};
+		add_filter( 'wp_redirect', $redirect );
+
+		try {
+			PayPal_Admin_Page::handle_actions();
+			$location = '';
+		} catch ( \RuntimeException $e ) {
+			$location = $e->getMessage();
+		} finally {
+			remove_filter( 'wp_redirect', $redirect );
+		}
+
+		$this->assertSame( admin_url( 'admin.php?page=' . PayPal_Admin_Page::PAGE_SLUG ), $location, 'handle_actions() did not redirect.' );
+	}
 
 	/**
 	 * Create an admin user for testing.
@@ -1102,22 +1241,25 @@ class PayPal_Admin_Page_Test extends TestCase {
 
 	/**
 	 * Set up a connected PayPal state with a cached token.
+	 *
+	 * @param string $environment `sandbox` or `production`.
 	 */
-	private function set_up_connected_state() {
+	private function set_up_connected_state( $environment = 'production' ) {
 		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
-		PayPal_OAuth::set_environment( 'production' );
+		PayPal_OAuth::set_environment( $environment );
 		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token' ), 3600 );
 	}
 
 	/**
 	 * Render the detail view for a resource as an admin.
 	 *
-	 * @param array $resource The resource PayPal returns.
+	 * @param array  $resource    The resource PayPal returns.
+	 * @param string $environment `sandbox` or `production`.
 	 * @return string The page HTML.
 	 */
-	private function render_detail_view( $resource ) {
+	private function render_detail_view( $resource, $environment = 'production' ) {
 		wp_set_current_user( $this->create_admin_user() );
-		$this->set_up_connected_state();
+		$this->set_up_connected_state( $environment );
 		$this->mock_get_resource_response( $resource );
 
 		$_GET['action']      = 'view';
