@@ -163,6 +163,30 @@ describe( 'Message content', () => {
 			expect( mainMsgBlocks[ 2 ].elements ).toHaveLength( expectedButtonsLength );
 		}
 	);
+
+	test( 'xUnit failure blocks are included in the details message', async () => {
+		setInputData( { xunitReportPath: 'tests/resources/xunit/single-report.xml' } );
+		await mockGitHubContext( {
+			payload: {},
+			sha,
+			eventName: 'unsupported',
+		} );
+		mockContextExtras( { repository, refType, refName } );
+
+		const { createMessage } = await import( '../src/message.js' );
+		const { detailsMsgBlocksChunks } = await createMessage( true );
+
+		expect( detailsMsgBlocksChunks ).toContainEqual( {
+			type: 'context',
+			elements: [ { type: 'mrkdwn', text: '*1/3 tests failed*' } ],
+		} );
+		expect( detailsMsgBlocksChunks ).toContainEqual( {
+			type: 'context',
+			elements: expect.arrayContaining( [
+				{ type: 'mrkdwn', text: '*Calculator: subtracts numbers*' },
+			] ),
+		} );
+	} );
 } );
 
 describe( 'Send message', () => {
