@@ -67,6 +67,14 @@ class Current_Plan {
 				'form-webhooks',
 			),
 		),
+		'ai'       => array(
+			'plans'    => array(
+				'jetpack_ai_yearly',
+				'jetpack_ai_monthly',
+				'jetpack_ai_bi_yearly',
+			),
+			'supports' => array(),
+		),
 		'personal' => array(
 			'plans'    => array(
 				'jetpack_personal',
