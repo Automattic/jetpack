@@ -149,6 +149,43 @@ addFilter(
 	}
 );
 
+const hiddenWidgetArea =
+	typeof config.hideFromWidgetArea === 'string' ? config.hideFromWidgetArea : null;
+
+/**
+ * Whether an insertion point sits in the given widget area.
+ *
+ * @param {string}  areaId       - Sidebar ID of the widget area.
+ * @param {?string} rootClientId - Client ID the block would be inserted into.
+ * @param {object}  selectors    - Block editor selectors bound to the inserting editor.
+ * @return {boolean} True if the insertion point is in that widget area.
+ */
+function isInWidgetArea( areaId, rootClientId, selectors ) {
+	const widgetArea = rootClientId
+		? [ rootClientId, ...selectors.getBlockParentsByBlockName( rootClientId, 'core/widget-area' ) ]
+				.map( clientId => selectors.getBlock( clientId ) )
+				.find( block => block?.name === 'core/widget-area' )
+		: null;
+	if ( widgetArea ) {
+		return widgetArea.attributes?.id === areaId;
+	}
+	// The Customizer gives each sidebar its own editor with no widget-area block, so the open section names the area.
+	return window.wp?.customize?.section?.( `sidebar-widgets-${ areaId }` )?.expanded?.() === true;
+}
+
+if ( hiddenWidgetArea ) {
+	addFilter(
+		'blockEditor.__unstableCanInsertBlockType',
+		'jetpack-search/hide-from-overlay-widget-area',
+		( canInsert, blockType, rootClientId, selectors ) =>
+			canInsert &&
+			! (
+				blockType.name.startsWith( 'jetpack-search/' ) &&
+				isInWidgetArea( hiddenWidgetArea, rootClientId, selectors )
+			)
+	);
+}
+
 BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
 	if ( ! isWooCommerceBlocksEnabled && wcOnlyBlocks.has( name ) ) {
 		return;

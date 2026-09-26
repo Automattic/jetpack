@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Blocks: Stop offering Search blocks in the Overlay search sidebar's widget inserter, where they cannot load.
