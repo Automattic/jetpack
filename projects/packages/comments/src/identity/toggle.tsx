@@ -1,40 +1,41 @@
 import type { ComponentChildren } from 'preact';
 
-import './style.scss';
+import './toggle.scss';
 
 type ToggleProps = {
 	id: string;
 	name: string;
 	value: string;
-	label: ComponentChildren;
+	form: string;
 	defaultChecked?: boolean;
+	label: ComponentChildren;
 };
 
 /**
- * A checkbox drawn as a switch. It stays a real checkbox so the form posts it
- * without any help.
+ * Verbum's toggle switch, drawn on the checkbox itself so it posts with the form.
  *
  * @param props                - Component props.
  * @param props.id             - Element id, shared with the label.
  * @param props.name           - Field name to post under.
- * @param props.value          - Value to post when checked.
- * @param props.label          - Text shown beside the switch.
+ * @param props.value          - Value to post when on.
+ * @param props.form           - The id of the form it posts with.
  * @param props.defaultChecked - Whether it starts on.
+ * @param props.label          - Text beside the switch.
  * @return The switch and its label.
  */
 export const Toggle = ( props: ToggleProps ) => {
-	const { id, name, value, label, defaultChecked } = props;
+	const { id, name, value, form, defaultChecked, label } = props;
 
 	return (
-		<label className="jetpack-comments__toggle" htmlFor={ id }>
+		<label htmlFor={ id } className="jetpack-comments__toggle">
 			<input
 				id={ id }
 				name={ name }
-				type="checkbox"
 				value={ value }
+				form={ form }
+				type="checkbox"
 				defaultChecked={ defaultChecked }
 			/>
-			<span className="jetpack-comments__toggle-switch" />
 			<span className="jetpack-comments__toggle-text">{ label }</span>
 		</label>
 	);

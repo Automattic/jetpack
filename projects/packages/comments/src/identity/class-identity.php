@@ -20,10 +20,11 @@ class Identity {
 	public static function settings() {
 		$commenter = wp_get_current_commenter();
 
-		// Nothing under `identity` is about the visitor. This HTML is page-cached
+		// Nothing under `identity` is about the visitor: the HTML is page-cached
 		// and served to everyone, so who holds a passport comes from a cookie.
 		$settings = array(
 			'isLoggedIn' => is_user_logged_in(),
+			'avatarUrl'  => '',
 			'commenter'  => array(
 				'author' => $commenter['comment_author'],
 				'email'  => $commenter['comment_author_email'],
@@ -32,53 +33,49 @@ class Identity {
 			'user'       => null,
 			'identity'   => array(
 				'blogId'        => Checkpoint::blog_id(),
-				'providers'     => array(),
-				'connect'       => array(),
+				'canSignIn'     => false,
+				'connect'       => null,
+				'connectUrl'    => Checkpoint_Endpoint::connect_url(),
+				'emailUrl'      => Checkpoint_Endpoint::email_url(),
 				'origin'        => Checkpoint::MESSAGE_ORIGIN,
 				'codeField'     => Checkpoint::CODE_FIELD,
 				'passportField' => Checkpoint::PASSPORT_FIELD,
 				'displayCookie' => Passport::DISPLAY_COOKIE,
+				'cookieHash'    => COOKIEHASH,
 				'cookiePath'    => COOKIEPATH,
 				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
-				'defaultAvatar' => Avatars::default_url( 74 ),
-				'refreshUrl'    => Checkpoint_Endpoint::connect_url(),
+				'defaultAvatar' => Avatars::default_url( 80 ),
 				'logoutUrl'     => admin_url( 'admin-ajax.php' ),
 				'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
 			),
 		);
 
 		if ( is_user_logged_in() ) {
-			$user             = wp_get_current_user();
-			$settings['user'] = array(
-				'avatarUrl'    => get_avatar_url( $user->ID, array( 'size' => 74 ) ),
-				'commentingAs' => sprintf(
-					/* translators: %s is the display name of the logged-in user. */
-					__( 'Commenting as %s', 'jetpack-comments' ),
-					$user->display_name
-				),
-			);
+			$user                  = wp_get_current_user();
+			$settings['avatarUrl'] = html_entity_decode( (string) get_avatar_url( $user->ID, array( 'size' => 80 ) ), ENT_QUOTES );
+			$settings['user']      = array( 'name' => $user->display_name );
 
 			return $settings;
+		}
+
+		if ( get_option( 'show_avatars' ) ) {
+			$settings['avatarUrl'] = $commenter['comment_author_email']
+				? html_entity_decode( (string) get_avatar_url( $commenter['comment_author_email'], array( 'size' => 80 ) ), ENT_QUOTES )
+				: Avatars::default_url( 80 );
 		}
 
 		if ( ! Checkpoint::is_available() ) {
 			return $settings;
 		}
 
-		// The signed URLs get cached too, so visitors share a challenge until it
-		// expires. That is fine: the challenge only filters messages to the
-		// window that opened the popup, and the refresh route issues a fresh one.
+		// Visitors share this challenge until it expires: it only filters messages
+		// to the window that opened the popup, and the connect route issues fresh ones.
 		$challenge = rtrim( strtr( base64_encode( random_bytes( 32 ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64url is the wire format.
 
-		$settings['identity']['providers'] = Checkpoint::PROVIDERS;
+		$connect = Checkpoint::connect_url( $challenge );
 
-		foreach ( Checkpoint::PROVIDERS as $provider ) {
-			$connect = Checkpoint::connect_url( $provider, $challenge );
-
-			if ( ! is_wp_error( $connect ) ) {
-				$settings['identity']['connect'][ $provider ] = $connect;
-			}
-		}
+		$settings['identity']['canSignIn'] = true;
+		$settings['identity']['connect']   = is_wp_error( $connect ) ? null : $connect;
 
 		return $settings;
 	}

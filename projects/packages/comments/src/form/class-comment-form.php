@@ -14,30 +14,9 @@ use Automattic\Jetpack\Assets;
  */
 class Comment_Form {
 
-	/**
-	 * Script and style handle.
-	 */
-	const HANDLE = 'jetpack-comments';
-
-	/**
-	 * Nonce action guarding a comment submission.
-	 */
+	const HANDLE       = 'jetpack-comments';
 	const NONCE_ACTION = 'jetpack_comments_form';
-
-	/**
-	 * POST field carrying the nonce.
-	 */
-	const NONCE_NAME = 'jetpack_comments_form_nonce';
-
-	/**
-	 * Colour schemes the form can be drawn in.
-	 */
-	const COLOR_SCHEMES = array( 'transparent', 'light', 'dark' );
-
-	/**
-	 * Colour scheme used when the site has not chosen one.
-	 */
-	const DEFAULT_COLOR_SCHEME = 'transparent';
+	const NONCE_NAME   = 'jetpack_comments_form_nonce';
 
 	/**
 	 * Singleton instance.
@@ -52,6 +31,13 @@ class Comment_Form {
 	 * @var bool
 	 */
 	private $settings_printed = false;
+
+	/**
+	 * The form defaults last seen, for the must-log-in branch, which core fires with no arguments.
+	 *
+	 * @var array
+	 */
+	private $defaults = array();
 
 	/**
 	 * Register the form's hooks. Safe to call more than once.
@@ -73,15 +59,10 @@ class Comment_Form {
 		add_filter( 'comment_form_fields', array( $this, 'comment_form_fields' ) );
 		add_filter( 'comment_form_logged_in', array( $this, 'comment_form_logged_in' ) );
 		add_filter( 'comment_form_defaults', array( $this, 'comment_form_defaults' ), 20 );
-
-		// Past 10, where Jetpack Subscriptions adds its checkboxes: this replaces
-		// the field wholesale, so it has to see what everyone else has added.
+		// Past 10, where Jetpack Subscriptions adds its checkboxes, so this sees them before replacing the field.
 		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 20, 2 );
-
 		add_action( 'comment_form_must_log_in_after', array( $this, 'render_must_log_in' ) );
-
 		add_filter( 'comment_reply_link', array( $this, 'comment_reply_link' ), 10, 4 );
-
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_assets' ) );
 		add_action( 'pre_comment_on_post', array( $this, 'verify_nonce' ) );
 	}
@@ -108,34 +89,10 @@ class Comment_Form {
 		}
 
 		$respond_id = esc_attr( $args['respond_id'] );
-		$reply_url  = esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) );
+		$reply_to   = sprintf( $args['reply_to_text'], get_comment_author( $comment ) );
 
-		$reply_to = sprintf( $args['reply_to_text'], get_comment_author( $comment ) );
-
-		$link = sprintf(
-			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
-			$reply_url,
-			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
-			esc_attr( $args['add_below'] ),
-			$comment->comment_ID,
-			$comment->comment_ID,
-			$respond_id,
-			$post->ID,
-			wp_kses( $args['show_reply_to_text'] ? $reply_to : $args['reply_text'], self::reply_text_html() )
-		);
-
-		return wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) )
-			. $link
-			. wp_kses( $args['after'], wp_kses_allowed_html( 'post' ) );
-	}
-
-	/**
-	 * Markup a theme may put inside its reply link, such as an icon.
-	 *
-	 * @return array
-	 */
-	private static function reply_text_html() {
-		return array(
+		// A theme may put an icon inside its reply link.
+		$reply_text_html = array(
 			'svg' => array(
 				'class'           => true,
 				'aria-hidden'     => true,
@@ -151,10 +108,26 @@ class Comment_Form {
 				'xlink:href' => true,
 			),
 		);
+
+		$link = sprintf(
+			'<a class="comment-reply-link" href="%s"%s onclick="return addComment.moveForm( \'%s-%d\', \'%d\', \'%s\', \'%d\' )">%s</a>',
+			esc_url( add_query_arg( 'replytocom', $comment->comment_ID . '#' . $respond_id ) ),
+			$args['show_reply_to_text'] ? '' : ' aria-label="' . esc_attr( $reply_to ) . '"',
+			esc_attr( $args['add_below'] ),
+			$comment->comment_ID,
+			$comment->comment_ID,
+			$respond_id,
+			$post->ID,
+			wp_kses( $args['show_reply_to_text'] ? $reply_to : $args['reply_text'], $reply_text_html )
+		);
+
+		return wp_kses( $args['before'], wp_kses_allowed_html( 'post' ) )
+			. $link
+			. wp_kses( $args['after'], wp_kses_allowed_html( 'post' ) );
 	}
 
 	/**
-	 * Whether this form should replace core's for a post's type.
+	 * Whether this form replaces core's for a post's type.
 	 *
 	 * @param int|null $post_id Post being commented on. Defaults to the current one.
 	 * @return bool
@@ -167,7 +140,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Drop every field core would draw, so the app can draw its own.
+	 * Drop every field core would draw.
 	 *
 	 * @param array $fields Comment form fields, the textarea included.
 	 * @return array
@@ -177,7 +150,7 @@ class Comment_Form {
 	}
 
 	/**
-	 * Suppress core's logged-in line, which the app draws itself.
+	 * Suppress core's logged-in line.
 	 *
 	 * @param string $logged_in_as The "logged in as" markup.
 	 * @return string
@@ -209,7 +182,9 @@ class Comment_Form {
 			$defaults['title_reply'] = $greeting;
 		}
 
-		return array_merge( $args, $defaults );
+		$this->defaults = array_merge( $args, $defaults );
+
+		return $this->defaults;
 	}
 
 	/**
@@ -224,7 +199,9 @@ class Comment_Form {
 			return $submit_field;
 		}
 
-		// Fires after this filter, and would draw a subscribe option this form has no room for.
+		$args['subscriptions'] = Subscriptions::checkboxes( $submit_field );
+
+		// Fires after this filter, and would draw the subscribe options again below the form.
 		remove_action( 'comment_form', 'subscription_comment_form' );
 
 		$this->enqueue_assets( $args );
@@ -242,33 +219,99 @@ class Comment_Form {
 			return;
 		}
 
-		$this->enqueue_assets();
+		$args = $this->defaults;
+
+		// Core skips the submit field on this branch, so the hosts never draw their
+		// checkboxes. Run that filter here without this class on it, to ask them.
+		remove_filter( 'comment_form_submit_field', array( $this, 'render' ), 20 );
+		$args['subscriptions'] = Subscriptions::checkboxes( (string) apply_filters( 'comment_form_submit_field', '', $args ) );
+		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 20, 2 );
+
+		$this->enqueue_assets( $args );
 
 		printf(
 			'<form action="%s" method="post" id="commentform" class="comment-form">%s</form>',
 			esc_url( site_url( '/wp-comments-post.php' ) ),
-			$this->markup() // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built.
+			$this->markup( $args ) // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Escaped as it is built.
 		);
 	}
 
 	/**
-	 * The app's mount point, and the hidden fields it posts with.
+	 * The app's mount point, holding a plain form until the script takes over, and the hidden fields both post with.
 	 *
 	 * @param array $args Comment form arguments.
 	 * @return string
 	 */
 	private function markup( $args = array() ) {
-		return '<div class="jetpack-comments ' . esc_attr( self::color_scheme() ) . '"'
+		return '<div class="jetpack-comments"'
 			. ' data-jetpack-comments="' . esc_attr(
 				(string) wp_json_encode(
 					self::form_settings( $args ),
 					JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
 				)
-			) . '"></div>'
-			. '<div class="jetpack-comments__fields">'
+			) . '">'
+			. self::plain_form( $args )
+			. '</div>'
 			. get_comment_id_fields( self::post_id() )
-			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false )
-			. '</div>';
+			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
+	}
+
+	/**
+	 * Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
+	 *
+	 * @param array $args Comment form arguments.
+	 * @return string
+	 */
+	private static function plain_form( $args ) {
+		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
+			return '<p class="must-log-in">' . sprintf(
+				/* translators: %s is a link to the log-in page. */
+				esc_html__( 'You must be %s to post a comment.', 'jetpack-comments' ),
+				'<a href="' . esc_url( wp_login_url( get_permalink( self::post_id() ) ) ) . '">' . esc_html__( 'logged in', 'jetpack-comments' ) . '</a>'
+			) . '</p>';
+		}
+
+		$required = (bool) get_option( 'require_name_email' );
+		$html     = '<p class="comment-form-comment"><label for="comment">' . esc_html_x( 'Comment', 'noun', 'jetpack-comments' ) . '</label>'
+			. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
+
+		if ( ! is_user_logged_in() ) {
+			$commenter = wp_get_current_commenter();
+			$fields    = array(
+				'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
+				'email'  => array( __( 'Email', 'jetpack-comments' ), 'email', $commenter['comment_author_email'], $required ),
+				'url'    => array( __( 'Website', 'jetpack-comments' ), 'url', $commenter['comment_author_url'], false ),
+			);
+
+			foreach ( $fields as $name => list( $label, $type, $value, $is_required ) ) {
+				$html .= sprintf(
+					'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s /></p>',
+					$name,
+					esc_html( $label ),
+					$type,
+					esc_attr( $value ),
+					$is_required ? ' required' : ''
+				);
+			}
+		}
+
+		return $html . sprintf( $args['submit_field'] ?? '<p class="form-submit">%1$s %2$s</p>', self::submit_button( $args ), '' );
+	}
+
+	/**
+	 * The submit button, from the template the theme or block set.
+	 *
+	 * @param array $args Comment form arguments.
+	 * @return string
+	 */
+	private static function submit_button( $args ) {
+		return sprintf(
+			$args['submit_button'] ?? '<input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s" />',
+			esc_attr( $args['name_submit'] ?? 'submit' ),
+			esc_attr( $args['id_submit'] ?? 'submit' ),
+			esc_attr( $args['class_submit'] ?? 'submit' ),
+			esc_attr( $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ) )
+		);
 	}
 
 	/**
@@ -276,21 +319,10 @@ class Comment_Form {
 	 *
 	 * @return int
 	 */
-	private static function post_id() {
+	public static function post_id() {
 		$post = get_post();
 
 		return $post ? $post->ID : 0;
-	}
-
-	/**
-	 * The colour scheme the site has chosen.
-	 *
-	 * @return string
-	 */
-	private static function color_scheme() {
-		$scheme = get_option( 'jetpack_comment_form_color_scheme', self::DEFAULT_COLOR_SCHEME );
-
-		return in_array( $scheme, self::COLOR_SCHEMES, true ) ? $scheme : self::DEFAULT_COLOR_SCHEME;
 	}
 
 	/**
@@ -303,6 +335,9 @@ class Comment_Form {
 			return;
 		}
 
+		// The asset version is the script's hash, so a stylesheet-only change would ship under a cached URL.
+		$asset = include dirname( __DIR__, 2 ) . '/build/comments.asset.php';
+
 		Assets::register_script(
 			self::HANDLE,
 			'../../build/comments.js',
@@ -310,12 +345,23 @@ class Comment_Form {
 			array(
 				'in_footer' => true,
 				'strategy'  => 'defer',
+				'version'   => $asset['version'] . '-' . (string) filemtime( dirname( __DIR__, 2 ) . '/build/comments.css' ),
 			)
 		);
 
 		if ( is_singular() && comments_open() ) {
 			wp_enqueue_style( self::HANDLE );
+			add_action( 'wp_head', array( __CLASS__, 'print_noscript_style' ) );
 		}
+	}
+
+	/**
+	 * Show the plain form where no script will ever replace it.
+	 *
+	 * @return void
+	 */
+	public static function print_noscript_style() {
+		echo '<noscript><style>.jetpack-comments{visibility:visible!important}</style></noscript>';
 	}
 
 	/**
@@ -354,11 +400,16 @@ class Comment_Form {
 
 		return array_merge(
 			array(
-				'requireNameEmail'   => (bool) get_option( 'require_name_email' ),
-				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
-				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'maxLength'          => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'strings'            => self::strings( $args ),
+				'version'             => Comments::PACKAGE_VERSION,
+				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
+				'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+				'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+				'site'                => array(
+					'name'    => get_bloginfo( 'name' ),
+					'iconUrl' => (string) get_site_icon_url( 64 ),
+				),
+				'manageSubscriptions' => Subscriptions::manage_links(),
+				'strings'             => self::strings( $args ),
 			),
 			Identity::settings()
 		);
@@ -374,21 +425,25 @@ class Comment_Form {
 		$post_id   = self::post_id();
 		$permalink = get_permalink( $post_id );
 
-		$settings = array(
-			'postId'      => $post_id,
-			'loginUrl'    => wp_login_url( $permalink ),
-			'logoutUrl'   => '',
-			'submitId'    => $args['id_submit'] ?? 'submit',
-			'submitName'  => $args['name_submit'] ?? 'submit',
-			'submitLabel' => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
-		);
+		// The classes come from the button template, not class_submit: on a block
+		// theme the Post Comments Form block bakes the theme's button classes into it.
+		$class = preg_match( '/\bclass="([^"]*)"/', self::submit_button( $args ), $match ) ? $match[1] : 'submit';
 
-		if ( is_user_logged_in() ) {
+		return array(
+			'postId'        => $post_id,
+			'loginUrl'      => wp_login_url( $permalink ),
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			$settings['logoutUrl'] = html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES );
-		}
-
-		return $settings;
+			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
+			'submit'        => array(
+				'id'        => $args['id_submit'] ?? 'submit',
+				'name'      => $args['name_submit'] ?? 'submit',
+				'class'     => $class,
+				// The block wraps its button the way the Buttons block does, so block-level button styles reach it.
+				'wrapClass' => false !== strpos( $class, 'wp-block-button__link' ) ? 'wp-block-button' : '',
+				'label'     => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
+			),
+			'subscriptions' => $args['subscriptions'] ?? array(),
+		);
 	}
 
 	/**
@@ -406,31 +461,28 @@ class Comment_Form {
 			'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
 			'name'                => __( 'Name', 'jetpack-comments' ),
 			'email'               => __( 'Email', 'jetpack-comments' ),
-			'emailPlaceholder'    => __( 'Email (Address never made public)', 'jetpack-comments' ),
-			'website'             => __( 'Website', 'jetpack-comments' ),
-			'websitePlaceholder'  => __( 'Website (Optional)', 'jetpack-comments' ),
-			'guestPrompt'         => __( 'Leave a comment.', 'jetpack-comments' ),
-			'mustLogInPrompt'     => __( 'Log in to leave a comment.', 'jetpack-comments' ),
-			'logIn'               => __( 'Log in', 'jetpack-comments' ),
-			'guestPromptRequired' => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
-			'saveDetails'         => __( 'Save my name, email, and website in this browser for the next time I comment.', 'jetpack-comments' ),
-			'logOut'              => __( 'Log out', 'jetpack-comments' ),
-			'logInOrProvide'      => __( 'Log in or provide your name and email to leave a comment.', 'jetpack-comments' ),
-			'logInOrProvideReply' => __( 'Log in or provide your name and email to leave a reply.', 'jetpack-comments' ),
-			'logInOptional'       => __( 'Leave a comment. (log in optional)', 'jetpack-comments' ),
-			'logInOptionalReply'  => __( 'Leave a reply. (log in optional)', 'jetpack-comments' ),
-			'logInToReply'        => __( 'Log in to leave a reply.', 'jetpack-comments' ),
-			/* translators: %1$s is the commenter's name, %2$s the provider (WordPress.com, Google, Facebook). The line ends before a "Log out" button. */
-			'signedInAs'          => __( '%1$s - Logged in via %2$s -', 'jetpack-comments' ),
-			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
-			'settings'            => __( 'Settings', 'jetpack-comments' ),
+			'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
+			'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
+			'website'             => __( 'Website (optional)', 'jetpack-comments' ),
+			'intro'               => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),
+			'introOr'             => __( 'Or add your name and email to post your comment.', 'jetpack-comments' ),
+			'save'                => __( 'Save', 'jetpack-comments' ),
+			'saveAndPost'         => __( 'Save and post comment', 'jetpack-comments' ),
+			'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
 			'close'               => __( 'Close', 'jetpack-comments' ),
-			'providers'           => array(
-				'wordpress' => __( 'WordPress.com', 'jetpack-comments' ),
-				'google'    => __( 'Google', 'jetpack-comments' ),
-				'facebook'  => __( 'Facebook', 'jetpack-comments' ),
-				'mail'      => __( 'Email', 'jetpack-comments' ),
-			),
+			'options'             => __( 'Options', 'jetpack-comments' ),
+			'back'                => __( 'Back', 'jetpack-comments' ),
+			'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
+			'manageSubscriptions' => __( 'Manage subscriptions', 'jetpack-comments' ),
+			'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
+			'logIn'               => __( 'Log in', 'jetpack-comments' ),
+			'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
+			'logOut'              => __( 'Log out', 'jetpack-comments' ),
+			/* translators: %s is the commenter's name. */
+			'viaWordPress'        => __( '%s via WordPress.com', 'jetpack-comments' ),
+			/* translators: %s is the commenter's name. */
+			'commentingAs'        => __( 'Commenting as %s', 'jetpack-comments' ),
+			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
 			'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
 		);
@@ -449,10 +501,8 @@ class Comment_Form {
 	/**
 	 * Require a comment to arrive with a nonce this site issued.
 	 *
-	 * Worth being plain about the strength of this. For a logged-in reader the
-	 * nonce is tied to their session and is real CSRF cover. For a logged-out one
-	 * it is the same string for everybody, for up to 24 hours, so it proves the
-	 * sender loaded a page from this site and nothing more.
+	 * For a logged-out reader it is the same string for everybody, for up to 24
+	 * hours, so it proves the sender loaded a page from this site and nothing more.
 	 *
 	 * @param int $comment_post_id The post being commented on.
 	 * @return void
@@ -469,8 +519,26 @@ class Comment_Form {
 			return;
 		}
 
-		if ( self::verify_logged_out_nonce( $nonce ) ) {
-			return;
+		// A page cache can hand a logged-in reader a copy rendered for nobody, so
+		// the nonce they post is the anonymous one. wp_verify_nonce() reads the
+		// session token from the logged-in cookie, not the current user, so the
+		// cookie has to go too for the hash to match what a visitor was served.
+		if ( defined( 'LOGGED_IN_COOKIE' ) && isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
+			$user_id = get_current_user_id();
+			// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Stashed and put back untouched.
+			$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
+
+			unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
+			wp_set_current_user( 0 );
+
+			$valid = (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION );
+
+			$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
+			wp_set_current_user( $user_id );
+
+			if ( $valid ) {
+				return;
+			}
 		}
 
 		wp_die(
@@ -481,40 +549,5 @@ class Comment_Form {
 				'back_link' => true,
 			)
 		);
-	}
-
-	/**
-	 * Check a nonce against the one a logged-out reader would have been given.
-	 *
-	 * A page cache can hand a logged-in reader a copy rendered for nobody, so the
-	 * nonce they post is the anonymous one. wp_verify_nonce() hashes the user ID
-	 * together with wp_get_session_token(), and that token is read from the
-	 * logged-in cookie rather than from the current user, so clearing the user is
-	 * not enough on its own: the cookie has to go too, or the hash still carries
-	 * their session and can never match what an anonymous visitor was served.
-	 *
-	 * @param string $nonce The nonce submitted with the comment.
-	 * @return bool
-	 */
-	private static function verify_logged_out_nonce( $nonce ) {
-		if ( ! defined( 'LOGGED_IN_COOKIE' ) || ! isset( $_COOKIE[ LOGGED_IN_COOKIE ] ) ) {
-			// Nothing to strip, so the check above already ran as this reader.
-			return false;
-		}
-
-		$user_id = get_current_user_id();
-
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- Stashed and put back untouched, for core to read as it would have.
-		$cookie = $_COOKIE[ LOGGED_IN_COOKIE ];
-
-		unset( $_COOKIE[ LOGGED_IN_COOKIE ] );
-		wp_set_current_user( 0 );
-
-		$valid = (bool) wp_verify_nonce( $nonce, self::NONCE_ACTION );
-
-		$_COOKIE[ LOGGED_IN_COOKIE ] = $cookie;
-		wp_set_current_user( $user_id );
-
-		return $valid;
 	}
 }

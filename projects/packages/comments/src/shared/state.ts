@@ -2,7 +2,7 @@ import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import { readPassport } from '../identity/checkpoint/passport';
-import type { Commenter, FormSettings, Provider, SignedIn } from './types';
+import type { Commenter, FormSettings, SignedIn } from './types';
 
 /**
  * Build one form's signals.
@@ -11,43 +11,25 @@ import type { Commenter, FormSettings, Provider, SignedIn } from './types';
  * @return The signals for a single form.
  */
 export function createSignals( formSettings: FormSettings ) {
+	const { isLoggedIn, mustLogIn, commenter: saved } = JetpackComments;
+
 	const commentValue = signal( readDraft( formSettings.postId ) );
-
 	const isEmptyComment = computed( () => commentValue.value.trim() === '' );
-
 	const isSavingComment = signal( false );
-
 	const commentParent = signal( 0 );
-
-	const commenter = signal< Commenter >( {
-		author: JetpackComments.commenter.author,
-		email: JetpackComments.commenter.email,
-		url: JetpackComments.commenter.url,
-	} );
+	const commenter = signal< Commenter >( { ...saved } );
 
 	const passport = readPassport();
-
 	const signedIn = signal< SignedIn | null >( passport ? { ...passport, code: null } : null );
 
-	// Which sign-in the reader has picked: a provider while its popup is open, or mail.
-	const activeService = signal< '' | 'mail' | Provider >( '' );
+	// A site that now requires registration no longer knows a guest, saved or not.
+	const isSavedGuest = ! isLoggedIn && ! mustLogIn && saved.author !== '' && saved.email !== '';
+	const isKnown = computed( () => isLoggedIn || signedIn.value !== null || isSavedGuest );
 
-	const isSigningIn = computed(
-		() => activeService.value !== '' && activeService.value !== 'mail'
-	);
-
-	const signInError = signal( '' );
-
-	// The identity tray under the textarea: opened by typing, or by the gear once signed in.
 	const isTrayOpen = signal( false );
-
-	const isSubmitDisabled = computed(
-		() =>
-			( JetpackComments.mustLogIn && ! signedIn.value ) ||
-			isSigningIn.value ||
-			isEmptyComment.value ||
-			isSavingComment.value
-	);
+	const isMenuOpen = signal( false );
+	const isDialogOpen = signal( false );
+	const isEditing = signal( false );
 
 	return {
 		formSettings,
@@ -57,22 +39,19 @@ export function createSignals( formSettings: FormSettings ) {
 		commentParent,
 		commenter,
 		signedIn,
-		activeService,
-		isSigningIn,
-		signInError,
+		isSavedGuest,
+		isKnown,
 		isTrayOpen,
-		isSubmitDisabled,
+		isMenuOpen,
+		isDialogOpen,
+		isEditing,
 	} as const;
 }
 
 export type CommentSignalsValue = ReturnType< typeof createSignals >;
 
-/**
- * Every form renders inside a Provider, so this default is never the one in use.
- * It is empty because createContext() insists on a value, and building real
- * signals here would read the settings blob and sessionStorage at import time,
- * before either is known to be there.
- */
+// Never the value in use: every form renders inside a Provider. Building real
+// signals here would read the settings blob and sessionStorage at import time.
 export const CommentSignals = createContext< CommentSignalsValue >(
 	undefined as unknown as CommentSignalsValue
 );

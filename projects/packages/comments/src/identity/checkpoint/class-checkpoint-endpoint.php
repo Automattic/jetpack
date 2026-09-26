@@ -14,31 +14,22 @@ use WP_REST_Response;
 use WP_REST_Server;
 
 /**
- * A fresh signed popup URL once the rendered one has expired, and a way to log out.
+ * A fresh signed popup URL, whether an email has an account, and a way to log out.
  *
- * The URL is a `wpcom/v2` route registered through the WPCOM REST API v2 loader,
- * so one definition is reachable same-origin on self-hosted and Atomic, and
- * through `public-api.wordpress.com/wpcom/v2/sites/{id}/…` on Simple. Log out
- * is admin-ajax instead: it has to clear a first-party cookie, which only the
- * site's own host can do, and on Simple that host serves no REST API.
+ * The routes are `wpcom/v2`, registered through the WPCOM REST API v2 loader, so
+ * one definition is same-origin on self-hosted and Atomic and served through
+ * `public-api.wordpress.com/wpcom/v2/sites/{id}/…` on Simple. Log out is
+ * admin-ajax instead: only the site's own host can clear its first-party cookie,
+ * and on Simple that host serves no REST API.
  *
- * Both are open to anyone. The first signs nothing a visitor could not get by
- * loading the page. The second only takes a cookie away from the browser that
- * sent it, and carries no nonce because one rendered for a logged-out reader
- * outlives the page cache it sits in. SameSite=Lax keeps a cross-site request
- * from carrying the passport, and a browser that says the request is
- * cross-site is turned away, so a page elsewhere cannot force a log-out.
+ * All are open to anyone. Log out carries no nonce because one rendered for a
+ * logged-out reader outlives the page cache; SameSite=Lax keeps a cross-site
+ * request from carrying the passport, and one that says it is cross-site is refused.
  */
 class Checkpoint_Endpoint extends WP_REST_Controller {
 
-	/**
-	 * Route serving a signed popup URL, under the `wpcom/v2` namespace.
-	 */
 	const CONNECT_ROUTE = 'comments/identity/connect';
-
-	/**
-	 * The admin-ajax action that takes the passport back.
-	 */
+	const EMAIL_ROUTE   = 'comments/identity/email';
 	const LOGOUT_ACTION = 'jetpack_comments_identity_logout';
 
 	/**
@@ -66,7 +57,7 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Register the route and the log-out action. Safe to call more than once.
+	 * Register the routes and the log-out action. Safe to call more than once.
 	 *
 	 * @return void
 	 */
@@ -93,32 +84,46 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	 * @return string
 	 */
 	public static function connect_url() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/%s', Checkpoint::blog_id(), self::CONNECT_ROUTE );
-		}
-
-		return rest_url( 'wpcom/v2/' . self::CONNECT_ROUTE );
+		return self::route_url( self::CONNECT_ROUTE );
 	}
 
 	/**
-	 * Register the route.
+	 * Where the browser asks whether an email belongs to an account, for this host.
+	 *
+	 * @return string
+	 */
+	public static function email_url() {
+		return self::route_url( self::EMAIL_ROUTE );
+	}
+
+	/**
+	 * A route's URL for this host.
+	 *
+	 * @param string $route The route under `wpcom/v2`.
+	 * @return string
+	 */
+	private static function route_url( $route ) {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/%s', Checkpoint::blog_id(), $route );
+		}
+
+		return rest_url( 'wpcom/v2/' . $route );
+	}
+
+	/**
+	 * Register the routes.
 	 *
 	 * @return void
 	 */
 	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
-			'/' . $this->rest_base,
+			'/' . self::CONNECT_ROUTE,
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => array( $this, 'connect' ),
 				'permission_callback' => '__return_true',
 				'args'                => array(
-					'provider'  => array(
-						'type'     => 'string',
-						'required' => true,
-						'enum'     => Checkpoint::PROVIDERS,
-					),
 					'challenge' => array(
 						'type'              => 'string',
 						'required'          => true,
@@ -127,10 +132,27 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 				),
 			)
 		);
+
+		register_rest_route(
+			$this->namespace,
+			'/' . self::EMAIL_ROUTE,
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array( $this, 'email' ),
+				'permission_callback' => '__return_true',
+				'args'                => array(
+					'email' => array(
+						'type'     => 'string',
+						'format'   => 'email',
+						'required' => true,
+					),
+				),
+			)
+		);
 	}
 
 	/**
-	 * A signed popup URL for one provider.
+	 * A signed popup URL.
 	 *
 	 * @param WP_REST_Request $request The request.
 	 * @return WP_REST_Response|WP_Error
@@ -142,13 +164,39 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 			return new WP_Error( 'not_enabled', __( 'Sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 404 ) );
 		}
 
-		$connect = Checkpoint::connect_url( $request->get_param( 'provider' ), $request->get_param( 'challenge' ) );
+		$connect = Checkpoint::connect_url( $request->get_param( 'challenge' ) );
 
 		if ( is_wp_error( $connect ) ) {
 			return $connect;
 		}
 
 		$response = new WP_REST_Response( $connect );
+		$response->header( 'Cache-Control', 'no-store' );
+
+		return $response;
+	}
+
+	/**
+	 * Whether an email belongs to a WordPress.com account, which Simple turns a guest comment away for.
+	 *
+	 * Only Simple has that rule and only Simple can answer; every other host says no.
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public function email( WP_REST_Request $request ) {
+		if ( ! Comments::is_enabled() ) {
+			return new WP_Error( 'not_enabled', __( 'Sign-in is not available on this site.', 'jetpack-comments' ), array( 'status' => 404 ) );
+		}
+
+		$account = false;
+
+		if ( function_exists( 'is_email_wp_emails' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; add to stub-defs.php.
+			$account = (bool) is_email_wp_emails( $request->get_param( 'email' ) );
+		}
+
+		$response = new WP_REST_Response( array( 'account' => $account ) );
 		$response->header( 'Cache-Control', 'no-store' );
 
 		return $response;

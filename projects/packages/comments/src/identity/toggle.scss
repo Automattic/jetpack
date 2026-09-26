@@ -1,0 +1,66 @@
+@use "@wordpress/base-styles/colors";
+
+$accent: #3858e9;
+
+// Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
+// click lands on the control. Pinned: themes reach for inputs with !important.
+.jetpack-comments__dialog .jetpack-comments__toggle {
+	display: inline-flex;
+	gap: 10px;
+	align-items: flex-start;
+	padding: 5px 0;
+	cursor: pointer;
+
+	input[type="checkbox"] {
+		appearance: none !important;
+		box-sizing: content-box !important;
+		flex-shrink: 0;
+		position: relative !important;
+		inline-size: 36px !important;
+		block-size: 18px !important;
+		margin: 4px 0 0 !important;
+		padding: 0 !important;
+		border: 1px solid colors.$black !important;
+		border-radius: 9px !important;
+		background: colors.$white !important;
+		box-shadow: none !important;
+		cursor: pointer;
+
+		&::before {
+			content: "";
+			position: absolute !important;
+			inset-block-start: 2px;
+			inset-inline-start: 2px;
+			inline-size: 14px !important;
+			block-size: 14px !important;
+			border-radius: 50% !important;
+			background: colors.$black !important;
+			transition:
+				transform 0.3s,
+				background 0.3s;
+		}
+
+		&:checked {
+			border-color: transparent !important;
+			background: $accent !important;
+
+			&::before {
+				transform: translateX(18px);
+				background: colors.$white !important;
+			}
+		}
+
+		&:focus-visible {
+			outline: 1px solid $accent !important;
+			outline-offset: 2px;
+		}
+	}
+
+	.jetpack-comments__toggle-text {
+		display: block;
+		flex: 1;
+		font-size: 0.875rem;
+		font-weight: 500;
+		line-height: 22px;
+	}
+}
