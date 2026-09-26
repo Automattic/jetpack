@@ -8,7 +8,8 @@ import './shared/plan-upgrade-notification';
 import './shared/reader-repost';
 import './shared/stripe-connection-notification';
 import './extended-blocks/core-embed';
-import './extended-blocks/core-site-logo/index.tsx';
+// core-site-logo is an AI extension (it pulls in the AI client); it ships in
+// the editor-ai bundle via editor-ai.jsx so non-AI editors don't pay for it.
 import './extended-blocks/core-social-links';
 import './extended-blocks/paid-blocks';
 import './shared/styles/slideshow-fix.scss';
