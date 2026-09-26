@@ -25,6 +25,8 @@ The form renders on the site the comment is posted to, and posts to that site's 
 - An identity line and a log-out link for readers logged in to the site itself.
 - Reply threading, by watching the `comment_parent` input WordPress rewrites.
 
+The form is fetched as the reader scrolls near it, not with the page. What ships up front is a stub under 2KB that watches for the form coming into range and then pulls the rest down; comment forms sit below the fold on nearly every page, so most visits never pay for it. The first focus anywhere on the page loads it too, since nothing in the form can take focus until it arrives and a keyboard user could otherwise tab straight past it. The stylesheet still loads with the page, because a chunk's CSS is fetched without its `.rtl.css` half and every right-to-left locale would quietly get the wrong sheet.
+
 Sites that require registration take a popup sign-in as registration. Where no sign-in is available (a site with no blog token) they get a log-in prompt in place of the guest fields, and the submit button held disabled.
 
 ## The checkpoint
@@ -67,7 +69,7 @@ something which reads it.**
 src/
   class-comments.php    the filter, and what to boot
   class-avatars.php     avatars on comments already written
-  form/                 takeover, mount, nonce, layout, the text box, submit
+  form/                 takeover, the loader and what it fetches, nonce, the text box, submit
   identity/             who is commenting: guest fields, log-in prompt, attribution
     checkpoint/         the popup sign-in, the exchange, the passport cookie, its REST routes
   ui/                   widgets shared across the form

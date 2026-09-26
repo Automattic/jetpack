@@ -117,7 +117,12 @@ const CommentForm = ( { form }: CommentFormProps ) => {
 	);
 };
 
-document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
+/**
+ * Draw one form, on the element PHP left for it.
+ *
+ * @param element - The mount point.
+ */
+export const mount = ( element: HTMLElement ) => {
 	const form = element.closest( 'form' );
 
 	if ( ! form ) {
@@ -143,4 +148,4 @@ document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element
 		</CommentSignals.Provider>,
 		element
 	);
-} );
+};

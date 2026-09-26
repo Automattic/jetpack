@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Load the comment form as a reader scrolls near it, rather than on every page that has one.

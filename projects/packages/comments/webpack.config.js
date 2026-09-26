@@ -30,7 +30,7 @@ export default {
 	mode: jetpackWebpackConfig.mode,
 	devtool: jetpackWebpackConfig.devtool,
 	entry: {
-		comments: path.join( __dirname, 'src/form/index.tsx' ),
+		comments: path.join( __dirname, 'src/form/index.ts' ),
 	},
 	output: {
 		...jetpackWebpackConfig.output,
@@ -38,6 +38,9 @@ export default {
 	},
 	optimization: {
 		...jetpackWebpackConfig.optimization,
+		// One async chunk, so webpack's default vendor split only buys a second
+		// request and a numeric filename that moves whenever the graph does.
+		splitChunks: false,
 	},
 	resolve: {
 		...jetpackWebpackConfig.resolve,

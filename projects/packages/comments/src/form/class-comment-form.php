@@ -354,6 +354,9 @@ class Comment_Form {
 
 		return array_merge(
 			array(
+				// Where the form chunk is fetched from; src/form/public-path.ts says why
+				// webpack cannot work this out on its own.
+				'assetsUrl'          => trailingslashit( Assets::normalize_path( plugins_url( '../../build', __FILE__ ) ) ),
 				'requireNameEmail'   => (bool) get_option( 'require_name_email' ),
 				'showCookiesConsent' => (bool) get_option( 'show_comments_cookies_opt_in' ),
 				'mustLogIn'          => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),

@@ -88,6 +88,7 @@ export type Strings = {
 };
 
 export type Settings = {
+	assetsUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
 	showCookiesConsent: boolean;
@@ -101,4 +102,8 @@ export type Settings = {
 
 declare global {
 	const JetpackComments: Settings;
+
+	interface Window {
+		JetpackComments?: Settings;
+	}
 }
