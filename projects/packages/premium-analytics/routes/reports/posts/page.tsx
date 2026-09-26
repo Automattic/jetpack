@@ -8,6 +8,7 @@ import {
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -201,6 +202,19 @@ function PostsReport(): JSX.Element {
 
 	const { getLabel } = REPORTS.posts;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! activeRecords.isLoading && activeRecords.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -216,14 +230,7 @@ function PostsReport(): JSX.Element {
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					recordsTable
-				) }
+				{ tableReplacement ?? recordsTable }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

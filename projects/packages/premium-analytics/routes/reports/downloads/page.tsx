@@ -8,6 +8,7 @@ import {
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -95,6 +96,19 @@ function DownloadsReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel, getTitle } = REPORTS.downloads;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! records.isLoading && records.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -106,12 +120,7 @@ function DownloadsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
 						data={ records.rows }
 						fields={ fields }
