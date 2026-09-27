@@ -35,13 +35,15 @@
 		flex-wrap: wrap;
 		gap: 0.25em 1em;
 		overflow: hidden;
-		padding: 0 var(--jetpack-comments-pad);
-		transition: padding-block-end 0.25s ease-in-out;
+		// The negative margins give focus rings room inside the clipped box.
+		margin: -4px;
+		padding: 4px;
+		transition: padding-block-start 0.25s ease-in-out;
 	}
 
-	// Padding cannot collapse with the row, so it only exists while open.
+	// Padding cannot collapse with the box above, so it only exists while open.
 	&.is-open > div {
-		padding-block-end: var(--jetpack-comments-pad);
+		padding-block-start: calc(0.5em + 4px);
 	}
 }
 

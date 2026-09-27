@@ -21,6 +21,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isSavedGuest,
 		isKnown,
 		isTrayOpen,
+		isMenuOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
 	const { mustLogIn, identity, strings, avatarUrl } = JetpackComments;
@@ -38,6 +39,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		const close = () => {
 			if ( isEmptyComment.peek() ) {
 				isTrayOpen.value = false;
+				isMenuOpen.value = false;
 			}
 		};
 
@@ -138,39 +140,37 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			<div className="jetpack-comments__box">
 				<CommentField />
 				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }>
-					<div>
-						<div className="jetpack-comments__actions">
-							<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
-								<input
-									id={ submit.id }
-									name={ submit.name }
-									type="submit"
-									className={ submit.class }
-									disabled={
-										( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
-										isEmptyComment.value ||
-										isSavingComment.value
-									}
-									value={ commentParent.value ? strings.reply : submit.label }
+					<div className="jetpack-comments__actions">
+						<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
+							<input
+								id={ submit.id }
+								name={ submit.name }
+								type="submit"
+								className={ submit.class }
+								disabled={
+									( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
+									isEmptyComment.value ||
+									isSavingComment.value
+								}
+								value={ commentParent.value ? strings.reply : submit.label }
+							/>
+						</span>
+						<span className="jetpack-comments__identity">
+							{ avatar && (
+								<img
+									className="jetpack-comments__avatar avatar avatar-40 photo"
+									src={ avatar }
+									alt=""
+									width="40"
+									height="40"
 								/>
-							</span>
-							<span className="jetpack-comments__identity">
-								{ avatar && (
-									<img
-										className="jetpack-comments__avatar avatar avatar-40 photo"
-										src={ avatar }
-										alt=""
-										width="40"
-										height="40"
-									/>
-								) }
-								<Identity />
-							</span>
-						</div>
-						<IdentityOptions />
+							) }
+							<Identity />
+						</span>
 					</div>
 				</div>
 			</div>
+			<IdentityOptions />
 			{ /* Core clears saved details on any post without this. */ }
 			{ isSavedGuest && ! signedIn.value && (
 				<input type="hidden" name="wp-comment-cookies-consent" value="yes" />
