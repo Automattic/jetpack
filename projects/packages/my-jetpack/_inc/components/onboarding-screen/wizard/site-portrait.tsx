@@ -4,7 +4,6 @@ import { _n } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
-import { useSiteShot } from './use-site-shot';
 import type { OnboardingSite } from './lib';
 import type { ReactNode } from 'react';
 
@@ -205,10 +204,10 @@ function StatRow( { text, value }: { text: string; value: number } ) {
  *
  * @param props      - The component props.
  * @param props.site - What the page told us about this site.
+ * @param props.shot - The homepage screenshot, once the service has one.
  * @return The rendered portrait.
  */
-export function SitePortrait( { site }: { site: OnboardingSite } ) {
-	const shot = useSiteShot( site.url, site.canPhotograph );
+export function SitePortrait( { site, shot }: { site: OnboardingSite; shot: string | null } ) {
 	const stats = statLines( site.counts );
 
 	return (

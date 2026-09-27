@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import { useReducedMotion } from '@wordpress/compose';
 import { SitePortrait, hasPortrait } from '../site-portrait';
 import type { OnboardingSite } from '../lib';
@@ -20,15 +20,8 @@ const site = ( over: Partial< OnboardingSite > = {} ): OnboardingSite => ( {
 	...over,
 } );
 
-const mockFetch = jest.fn();
-
-beforeEach( () => {
-	mockFetch.mockReset();
-	window.fetch = mockFetch as unknown as typeof window.fetch;
-} );
-
-const answers = ( type: string ) =>
-	Promise.resolve( { headers: { get: () => type } } as unknown as Response );
+const show = ( over: Partial< OnboardingSite > = {}, shot: string | null = null ) =>
+	render( <SitePortrait site={ site( over ) } shot={ shot } /> );
 
 describe( 'What the portrait is willing to show', () => {
 	it( 'says nothing at all for a site with no picture and no counts', () => {
@@ -55,11 +48,7 @@ describe( 'What the portrait is willing to show', () => {
 	 * line out is not.
 	 */
 	it( 'leaves out a count of zero rather than reporting it', () => {
-		mockFetch.mockReturnValue( answers( 'image/gif' ) );
-
-		render(
-			<SitePortrait site={ site( { counts: { posts: 4, pages: 0, media: 0, plugins: 2 } } ) } />
-		);
+		show( { counts: { posts: 4, pages: 0, media: 0, plugins: 2 } } );
 
 		expect( screen.getByText( /posts published/ ) ).toBeInTheDocument();
 		expect( screen.getByText( /plugins installed/ ) ).toBeInTheDocument();
@@ -69,65 +58,26 @@ describe( 'What the portrait is willing to show', () => {
 
 	// A frame around nothing promises a photograph that will never arrive.
 	it( 'draws no browser window for a site it cannot photograph', () => {
-		render( <SitePortrait site={ site( { canPhotograph: false } ) } /> );
+		show( { canPhotograph: false } );
 
 		expect( screen.queryByText( 'example.com' ) ).not.toBeInTheDocument();
-		expect( mockFetch ).not.toHaveBeenCalled();
-	} );
-} );
-
-describe( 'Waiting for the screenshot', () => {
-	// The picture carries an empty alt on purpose, so `presentation` is the only
-	// role it has, and the whole portrait is aria-hidden, so it must be asked for.
-	const picture = () => screen.queryByRole( 'presentation', { hidden: true } );
-
-	/*
-	 * The service answers 200 with a placeholder while it renders and 200 with the
-	 * picture once it has. The content type is the only thing between them: both
-	 * are 400 by 300, so there is nothing in the pixels to measure.
-	 */
-	it( 'shows nothing while the service is still rendering', async () => {
-		mockFetch.mockReturnValue( answers( 'image/gif' ) );
-
-		render( <SitePortrait site={ site() } /> );
-
-		await waitFor( () => expect( mockFetch ).toHaveBeenCalled() );
-		expect( picture() ).toBeNull();
 	} );
 
-	it( 'shows the picture once the type says it is one', async () => {
-		mockFetch.mockReturnValue( answers( 'image/jpeg' ) );
+	it( 'hangs the picture in the window once there is one', () => {
+		show( {}, 'https://s0.wp.com/mshots/v1/x' );
 
-		render( <SitePortrait site={ site() } /> );
-
-		await waitFor( () => expect( picture() ).not.toBeNull() );
-		expect( picture() ).toHaveAttribute(
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toHaveAttribute(
 			'src',
-			expect.stringContaining( 'mshots/v1/https%3A%2F%2Fexample.com' )
+			'https://s0.wp.com/mshots/v1/x'
 		);
 	} );
 
-	// The URL is what the service keys its render on, so it must not vary.
-	it( 'polls the same address every time', async () => {
-		mockFetch.mockReturnValue( answers( 'image/gif' ) );
+	// The plate is drawn either way, so the stack does not jump when one arrives.
+	it( 'draws the window before the picture arrives', () => {
+		show();
 
-		render( <SitePortrait site={ site() } /> );
-
-		await waitFor( () => expect( mockFetch ).toHaveBeenCalled() );
-		const asked = mockFetch.mock.calls.map( ( [ url ] ) => url );
-
-		expect( new Set( asked ).size ).toBe( 1 );
-	} );
-
-	it( 'gives up quietly when the service never answers', async () => {
-		mockFetch.mockRejectedValue( new Error( 'offline' ) );
-
-		render( <SitePortrait site={ site() } /> );
-
-		await waitFor( () => expect( mockFetch ).toHaveBeenCalled() );
-		expect( picture() ).toBeNull();
-		// The counts are still there: the picture is the part that can fail.
-		expect( screen.getByText( /posts published/ ) ).toBeInTheDocument();
+		expect( screen.getByText( 'example.com' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 } );
 
@@ -159,7 +109,6 @@ describe( 'Counting the numeral up', () => {
 		pending = null;
 		clock = 0;
 		jest.useFakeTimers();
-		mockFetch.mockReturnValue( answers( 'image/gif' ) );
 		spies = [
 			jest
 				.spyOn( window, 'requestAnimationFrame' )
@@ -178,9 +127,7 @@ describe( 'Counting the numeral up', () => {
 	} );
 
 	const withPosts = ( posts: number ) =>
-		render(
-			<SitePortrait site={ site( { counts: { posts, pages: 0, media: 0, plugins: 0 } } ) } />
-		);
+		show( { counts: { posts, pages: 0, media: 0, plugins: 0 } } );
 
 	it( 'shows the real number until the row it sits in starts moving', () => {
 		withPosts( 240 );

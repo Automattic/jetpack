@@ -37,6 +37,7 @@ import styles from './styles.module.scss';
 import { useJustConnected } from './use-just-connected';
 import { readSavedRun, useSavedRun } from './use-saved-run';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
+import { useSiteShot } from './use-site-shot';
 import type { OnboardingSite, SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
 import type { MouseEvent } from 'react';
@@ -178,6 +179,15 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 
 	const justConnected = useJustConnected();
 	const arrivedOn = useRef< WizardStep | null >( null );
+
+	/*
+	 * Asked for here rather than inside the panel, which is two steps away and
+	 * mounts too late. The service takes five seconds or so on a page it has not
+	 * seen, and the connect step sends the user to WordPress.com and back through
+	 * a fresh page load — so the request goes out now, and the render happens
+	 * while they are away.
+	 */
+	const shot = useSiteShot( site?.url, Boolean( site?.canPhotograph ) );
 
 	const titleId = useId();
 	const panelRef = useRef< HTMLElement >( null );
@@ -599,7 +609,7 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 								 * so a repeat means a fresh element.
 								 */ }
 								{ showPortrait ? (
-									<SitePortrait site={ site } />
+									<SitePortrait site={ site } shot={ shot } />
 								) : (
 									<PanelArt key={ `art-${ meta.id }` } animate />
 								) }

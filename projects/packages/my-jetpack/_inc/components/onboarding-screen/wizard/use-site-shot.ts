@@ -22,6 +22,18 @@ const SLOW_RETRY_MS = 2500;
 const SLOW_AFTER_MS = 10000;
 const GIVE_UP_MS = 25000;
 
+/*
+ * A host the service cannot reach gets a WordPress.com error card, answered as
+ * HTTP 200 and `image/jpeg` exactly like a homepage. The cards are fixed images
+ * and these are their sizes at the dimensions above: measured, every unreachable
+ * host returning byte for byte the same card as every other.
+ *
+ * Second line, not first: `can_photograph_site()` in the PHP already turns away
+ * the sites we can know about in advance. If WordPress.com ever redraws a card
+ * this stops matching, and we are back to where we were before it was added.
+ */
+const ERROR_CARD_BYTES = [ 17886, 18852 ];
+
 /**
  * The address of this site's homepage as WordPress.com would photograph it.
  *
@@ -54,7 +66,9 @@ function shotUrl( url: string ): string {
  *
  * It is read with `fetch` rather than by loading the image and measuring it.
  * Measured against the live service, the placeholder and the screenshot are
- * both 400 by 300, so there is nothing in the pixels to tell them apart.
+ * both 400 by 300, so there is nothing in the pixels to tell them apart. The
+ * same read is what lets an error card be recognised and thrown away; see
+ * `ERROR_CARD_BYTES`.
  *
  * The URL never varies between polls. It is what the service keys its render
  * on, so a cache-buster would start a new render every time and never finish
@@ -79,16 +93,30 @@ export function useSiteShot( url: string | undefined, allowed: boolean ): string
 
 		const ask = async () => {
 			let done = false;
+			let refused = false;
 
 			try {
 				const response = await window.fetch( src, { mode: 'cors' } );
-				done = ( response.headers.get( 'content-type' ) ?? '' ).includes( 'jpeg' );
+
+				if ( ( response.headers.get( 'content-type' ) ?? '' ).includes( 'jpeg' ) ) {
+					// The body rather than `content-length`, which the service sends on
+					// the placeholder and not on the picture. Read once, on the poll that
+					// answers with one, and the browser serves the `img` from its cache.
+					refused = ERROR_CARD_BYTES.includes( ( await response.blob() ).size );
+					done = ! refused;
+				}
 			} catch {
 				// A network refusal is the same as not ready yet: ask again, and stop
 				// at the deadline. The panel keeps its artwork either way.
 			}
 
 			if ( ! live ) {
+				return;
+			}
+
+			// An error card is the service's final answer, so asking again only gets
+			// the same card back.
+			if ( refused ) {
 				return;
 			}
 

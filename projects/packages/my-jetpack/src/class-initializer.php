@@ -650,15 +650,19 @@ class Initializer {
 	/**
 	 * Whether WordPress.com's screenshot service could reach this site.
 	 *
-	 * Asked before the request rather than judged after it, because a failure does
-	 * not come back as one: an unreachable site returns HTTP 200 and a JPEG of a
-	 * red 403 card, and a domain that does not resolve returns a JPEG of a yellow
-	 * 404. Neither the status nor the content type can tell those from a homepage,
-	 * so the only safe guard is to know the answer in advance.
+	 * Asked before the request because a failure does not come back as one: an
+	 * unreachable host answers HTTP 200 with a JPEG of a WordPress.com error card,
+	 * which no status or content type can tell from a homepage. The front end
+	 * recognises those cards by size and throws them away, but that is the second
+	 * line and not the first.
 	 *
-	 * A connected site is reachable almost by definition: the connection itself is
-	 * WordPress.com fetching this host. A private or coming-soon site answers with
-	 * its splash rather than its homepage, and a local one answers nobody.
+	 * A private or coming-soon site answers with its splash rather than its
+	 * homepage, and a local one answers nobody.
+	 *
+	 * Deliberately does NOT require a connection. Connecting does not change
+	 * whether the world can reach this host, it only proves it, and the proof
+	 * arrives too late: the wizard asks for the picture while the user is away at
+	 * WordPress.com, so that it is waiting for them when they come back.
 	 *
 	 * @internal Not part of the package's public API.
 	 *
@@ -671,11 +675,7 @@ class Initializer {
 			return false;
 		}
 
-		if ( ! (int) get_option( 'blog_public' ) ) {
-			return false;
-		}
-
-		return ( new Connection_Manager() )->is_connected();
+		return (bool) (int) get_option( 'blog_public' );
 	}
 
 	/**
