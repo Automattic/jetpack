@@ -28,16 +28,16 @@ $accent: #3858e9;
 
 		&::before {
 			content: "" !important;
-			position: absolute !important !important;
+			position: absolute !important;
 			inset-block-start: 2px !important;
 			inset-inline-start: 2px !important;
-			inline-size: 14px !important !important;
-			block-size: 14px !important !important;
-			border-radius: 50% !important !important;
+			inline-size: 14px !important;
+			block-size: 14px !important;
+			border-radius: 50% !important;
 			border: 0 !important;
 			margin: 0 !important;
 			opacity: 1 !important;
-			background: colors.$black !important !important;
+			background: colors.$black !important;
 			transition:
 				transform 0.3s,
 				background 0.3s !important;
@@ -45,11 +45,11 @@ $accent: #3858e9;
 
 		&:checked {
 			border-color: transparent !important;
-			background: $accent !important !important;
+			background: $accent !important;
 
 			&::before {
 				transform: translateX(18px) !important;
-				background: colors.$white !important !important;
+				background: colors.$white !important;
 			}
 		}
 
