@@ -468,6 +468,13 @@ type OnboardingWizardState = {
 	exitUrl: string;
 	// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 	dashboardUrl: string;
+	// What the panel can show about this site, and whether it may photograph it.
+	site: {
+		url: string;
+		domain: string;
+		canPhotograph: boolean;
+		counts: { posts: number; pages: number; media: number; plugins: number };
+	};
 };
 
 type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';

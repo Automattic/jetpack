@@ -137,6 +137,16 @@ export type WizardStep = 0 | 1 | 2 | 3;
 // The WizardStep union has to be hand-written; the count is read off the steps.
 export const TOTAL_STEPS = wizardSteps().length;
 
+/** What the page tells the wizard about the site it is running on. */
+export interface OnboardingSite {
+	url: string;
+	domain: string;
+	// Whether WordPress.com's screenshot service could reach it; decided in PHP,
+	// because a failure comes back as a picture of a failure rather than an error.
+	canPhotograph: boolean;
+	counts: { posts: number; pages: number; media: number; plugins: number };
+}
+
 export interface WizardState {
 	// The option chosen on each step, keyed by step index.
 	choices: Partial< Record< WizardStep, string > >;

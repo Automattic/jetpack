@@ -612,7 +612,70 @@ class Initializer {
 			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
 			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 			'dashboardUrl' => admin_url(),
+			'site'         => self::get_onboarding_site_portrait(),
 		);
+	}
+
+	/**
+	 * What the wizard's panel can show about this site, and whether it may.
+	 *
+	 * Carried on the page rather than fetched: these are four cached core counts
+	 * and two option reads, and a request for them would arrive after the panel
+	 * had already decided what to draw.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @return array{url: string, domain: string, canPhotograph: bool, counts: array<string, int>}
+	 */
+	public static function get_onboarding_site_portrait() {
+		$home = home_url();
+
+		$counts = array(
+			'posts'   => (int) wp_count_posts( 'post' )->publish,
+			'pages'   => (int) wp_count_posts( 'page' )->publish,
+			'media'   => array_sum( (array) wp_count_attachments() ),
+			// What is installed, not what is running: the number people recognise
+			// from the Plugins screen.
+			'plugins' => count( Plugins_Installer::get_plugins() ),
+		);
+
+		return array(
+			'url'           => $home,
+			'domain'        => wp_parse_url( $home, PHP_URL_HOST ),
+			'canPhotograph' => self::can_photograph_site(),
+			'counts'        => $counts,
+		);
+	}
+
+	/**
+	 * Whether WordPress.com's screenshot service could reach this site.
+	 *
+	 * Asked before the request rather than judged after it, because a failure does
+	 * not come back as one: an unreachable site returns HTTP 200 and a JPEG of a
+	 * red 403 card, and a domain that does not resolve returns a JPEG of a yellow
+	 * 404. Neither the status nor the content type can tell those from a homepage,
+	 * so the only safe guard is to know the answer in advance.
+	 *
+	 * A connected site is reachable almost by definition: the connection itself is
+	 * WordPress.com fetching this host. A private or coming-soon site answers with
+	 * its splash rather than its homepage, and a local one answers nobody.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @return bool
+	 */
+	private static function can_photograph_site() {
+		$status = new Status();
+
+		if ( $status->is_offline_mode() || $status->is_local_site() ) {
+			return false;
+		}
+
+		if ( ! (int) get_option( 'blog_public' ) ) {
+			return false;
+		}
+
+		return ( new Connection_Manager() )->is_connected();
 	}
 
 	/**

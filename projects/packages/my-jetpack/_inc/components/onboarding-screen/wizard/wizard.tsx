@@ -28,6 +28,7 @@ import {
 } from './lib';
 import { PanelArt } from './panel-art';
 import { PANEL_LINES } from './panel-type';
+import { hasPortrait, SitePortrait } from './site-portrait';
 import { ChoiceStep } from './steps/choice-step';
 import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
@@ -36,7 +37,7 @@ import styles from './styles.module.scss';
 import { useJustConnected } from './use-just-connected';
 import { readSavedRun, useSavedRun } from './use-saved-run';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
-import type { SettleOutcome, WizardState, WizardStep } from './lib';
+import type { OnboardingSite, SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
 import type { MouseEvent } from 'react';
 
@@ -92,6 +93,8 @@ type WizardProps = {
 	exitUrl: string;
 	// Where the rail's control lands: out of Jetpack entirely, back to wp-admin.
 	dashboardUrl: string;
+	// What the page knows about this site, for the panel's portrait.
+	site?: OnboardingSite;
 };
 
 /**
@@ -106,9 +109,10 @@ type WizardProps = {
  * @param props              - The component props.
  * @param props.exitUrl      - The My Jetpack URL the footer's skip leads to.
  * @param props.dashboardUrl - The wp-admin URL the rail's control leads to.
+ * @param props.site         - What the page knows about this site.
  * @return The rendered wizard.
  */
-export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
+export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 	const steps = wizardSteps();
 
 	// Connecting leaves wp-admin for WordPress.com and comes back to a fresh page,
@@ -286,6 +290,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const showConnected = justConnected && arrivedOn.current === step;
 	const isFeatures = meta.kind === 'features';
 	const isFinish = meta.kind === 'finish';
+	const showPortrait = meta.kind === 'question' && hasPortrait( site );
 
 	/*
 	 * Continue is in the same place on every step, so the second half of a double
@@ -585,13 +590,19 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								/>
 
 								{ /*
-								 * Drawn in on every step, and keyed so it draws again on each one:
-								 * the animation is CSS, so replaying it means a fresh element. The
-								 * prototype keeps this to its start screen because its other panels
-								 * carry a stage the art would compete with. Ours carry the art, so
-								 * there is nothing for it to compete with.
+								 * The site takes the panel on the one step that asks about it, as
+								 * the prototype does: that screen says what we read the site as and
+								 * asks whether it is right, so the site is the subject of it.
+								 *
+								 * Everywhere else the art is the subject. It is drawn in on each of
+								 * those steps and keyed so the draw replays: the animation is CSS,
+								 * so a repeat means a fresh element.
 								 */ }
-								<PanelArt key={ `art-${ meta.id }` } animate />
+								{ showPortrait ? (
+									<SitePortrait site={ site } />
+								) : (
+									<PanelArt key={ `art-${ meta.id }` } animate />
+								) }
 								{ /* Keyed by step so each line rises again when the copy is swapped. */ }
 								<p key={ meta.id } className={ styles[ 'brand-panel__copy' ] }>
 									{ /*

@@ -16,7 +16,13 @@ const OnboardingScreen: FC = () => {
 	const wizard = getMyJetpackWindowInitialState( 'onboardingWizard' );
 
 	if ( wizard?.exitUrl ) {
-		return <Wizard exitUrl={ wizard.exitUrl } dashboardUrl={ wizard.dashboardUrl } />;
+		return (
+			<Wizard
+				exitUrl={ wizard.exitUrl }
+				dashboardUrl={ wizard.dashboardUrl }
+				site={ wizard.site }
+			/>
+		);
 	}
 
 	return (
