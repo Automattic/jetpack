@@ -10,19 +10,23 @@ import './dialog.scss';
  * Asks a reader who they are on their way to posting, plus any subscribe options
  * the host offers. A saved guest opens it alone to edit their details.
  *
- * It renders outside the form, away from the theme's comment-form styles, and its
- * fields post with the comment through the `form` attribute. "Save and post"
- * carries core's cookies-consent field and "No, thanks" does not, so core clears
- * any saved details on the latter.
+ * It sits inside the comment form so its fields post with the comment. "Save and
+ * post" carries core's cookies-consent field and "No, thanks" does not, so core
+ * clears any saved details on the latter.
  *
- * @param props        - Component props.
- * @param props.formId - The id of the comment form the fields post with.
  * @return The dialog.
  */
-export const IdentityDialog = ( props: { formId: string } ) => {
-	const { formId } = props;
-	const { formSettings, commenter, commentParent, signedIn, isKnown, isDialogOpen, isEditing } =
-		useContext( CommentSignals );
+export const IdentityDialog = () => {
+	const {
+		formSettings,
+		commenter,
+		commentParent,
+		signedIn,
+		isKnown,
+		isDialogOpen,
+		isEditing,
+		instance,
+	} = useContext( CommentSignals );
 	const { site, strings, user, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
@@ -126,7 +130,8 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
 	];
 
-	const titleId = `jetpack-comments-dialog-title-${ formSettings.postId }`;
+	const titleId = `jetpack-comments-dialog-title-${ instance }`;
+	const notesId = `jetpack-comments-email-notes-${ instance }`;
 	const editing = isEditing.value;
 	const known = ! editing && isKnown.value;
 	const showFields = ! known && ! mustLogIn;
@@ -207,17 +212,19 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 			{ showFields &&
 				fields.map( ( { field, ...input } ) => (
 					<div key={ field } className="jetpack-comments__field">
-						<label htmlFor={ field } className="jetpack-comments__label">
+						<label
+							htmlFor={ `jetpack-comments-${ field }-${ instance }` }
+							className="jetpack-comments__label"
+						>
 							{ input.label }
 						</label>
 						<input
-							id={ field }
+							id={ `jetpack-comments-${ field }-${ instance }` }
 							name={ field }
-							form={ formId }
 							type={ input.type }
 							autoComplete={ input.autoComplete }
 							className="jetpack-comments__input"
-							aria-describedby={ field === 'email' ? 'email-notes' : undefined }
+							aria-describedby={ field === 'email' ? notesId : undefined }
 							aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
 							required={ input.required }
 							value={ commenter.value[ field ] }
@@ -233,7 +240,7 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 							onBlur={ field === 'email' ? () => checkEmail( commenter.value.email ) : undefined }
 						/>
 						{ field === 'email' && (
-							<span id="email-notes" className="jetpack-comments__help">
+							<span id={ notesId } className="jetpack-comments__help">
 								{ strings.emailHint }
 							</span>
 						) }
@@ -247,7 +254,7 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 			{ ! editing &&
 				( known || ! mustLogIn ) &&
 				formSettings.subscriptions.map( subscription => {
-					const id = `jetpack-comments-${ subscription.name }-${ formSettings.postId }`;
+					const id = `jetpack-comments-${ subscription.name }-${ instance }`;
 
 					return (
 						<Toggle
@@ -255,7 +262,6 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 							id={ id }
 							name={ subscription.name }
 							value="subscribe"
-							form={ formId }
 							defaultChecked={ subscription.checked }
 							label={ subscription.label }
 						/>
@@ -275,7 +281,6 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 				{ known && (
 					<input
 						type="submit"
-						form={ formId }
 						className="jetpack-comments__button is-primary"
 						value={ commentParent.value ? strings.reply : formSettings.submit.label }
 					/>
@@ -285,7 +290,6 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 						{ /* The label is what posts; core only checks that the field is set. */ }
 						<input
 							type="submit"
-							form={ formId }
 							name="wp-comment-cookies-consent"
 							className="jetpack-comments__button is-primary"
 							disabled={ holdButtons }
@@ -293,7 +297,6 @@ export const IdentityDialog = ( props: { formId: string } ) => {
 						/>
 						<button
 							type="submit"
-							form={ formId }
 							className="jetpack-comments__button is-link"
 							disabled={ holdButtons }
 						>
