@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: fix the setup wizard's layout coming apart on a tall window.

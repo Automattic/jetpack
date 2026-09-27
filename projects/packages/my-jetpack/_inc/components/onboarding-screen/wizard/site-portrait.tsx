@@ -275,15 +275,16 @@ export function SitePortrait( { site, shot }: { site: OnboardingSite; shot: stri
 }
 
 /**
- * Whether there is anything true to put on the panel for this site.
+ * Whether this site has a portrait to put on the panel.
+ *
+ * The picture is the portrait. The counts came with it in the prototype and read
+ * as a caption under it; on their own they are three numbers centred in a column
+ * six hundred pixels tall, which is what a site that cannot be photographed was
+ * getting. The panel falls back to its artwork instead.
  *
  * @param site - What the page told us, if anything.
- * @return True when the portrait has either a picture coming or a count to show.
+ * @return True when there is a picture coming.
  */
 export function hasPortrait( site: OnboardingSite | undefined ): site is OnboardingSite {
-	if ( ! site ) {
-		return false;
-	}
-
-	return site.canPhotograph || Object.values( site.counts ).some( count => count > 0 );
+	return Boolean( site?.canPhotograph );
 }

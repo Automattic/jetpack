@@ -484,6 +484,21 @@ $rail-row-min-height: 40px;
 	padding-block: var(--wpds-dimension-padding-lg);
 
 	/*
+	 * Sized and centred with the sheet, for the reason already written on the
+	 * brand panel: the three are one object. The sheet and the panel were capped
+	 * and this was not, so on a window taller than the cap the steps climbed away
+	 * from the card they belong to — 160px apart on a 1264px window, which reads
+	 * as two layouts that have come apart.
+	 *
+	 * The ground is the shell's, not the rail's, so this moves the steps and
+	 * leaves the dark full-bleed behind them.
+	 */
+	@media (min-width: $rail-breakpoint) {
+		align-self: center;
+		block-size: min(100%, #{$sheet-max-height});
+	}
+
+	/*
 	 * Collapsed it is a header bar, and a header bar wants a header's gaps. It
 	 * kept the column's, so the mark, the title and the count sat 16 apart in a
 	 * 124px band of dark with nothing under them.

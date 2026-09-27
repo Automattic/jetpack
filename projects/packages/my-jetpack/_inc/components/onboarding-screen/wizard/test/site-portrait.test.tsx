@@ -28,16 +28,17 @@ const show = ( over: Partial< OnboardingSite > = {}, shot: string | null = null 
 const posts = ( n: number ) => ( { posts: n, pages: 0, media: 0, plugins: 0 } );
 
 describe( 'What the portrait is willing to show', () => {
-	it( 'says nothing at all for a site with no picture and no counts', () => {
-		expect(
-			hasPortrait(
-				site( { canPhotograph: false, counts: { posts: 0, pages: 0, media: 0, plugins: 0 } } )
-			)
-		).toBe( false );
+	it( 'says nothing at all when the page told us nothing', () => {
+		expect( hasPortrait( undefined ) ).toBe( false );
 	} );
 
-	it( 'shows counts even when the site cannot be photographed', () => {
-		expect( hasPortrait( site( { canPhotograph: false } ) ) ).toBe( true );
+	/*
+	 * The picture is the portrait. On their own the counts are three numbers
+	 * centred in a column six hundred pixels tall, so the panel takes its artwork
+	 * back instead.
+	 */
+	it( 'yields the panel entirely when the site cannot be photographed', () => {
+		expect( hasPortrait( site( { canPhotograph: false } ) ) ).toBe( false );
 	} );
 
 	it( 'shows the picture even for a site with nothing in it yet', () => {
