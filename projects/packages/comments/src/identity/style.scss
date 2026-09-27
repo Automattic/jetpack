@@ -48,27 +48,18 @@
 }
 
 // Nested under .jetpack-comments to outrank a theme's `.comment-form button`.
-.jetpack-comments .jetpack-comments__chevron,
-.jetpack-comments .jetpack-comments__link-button {
+.jetpack-comments .jetpack-comments__chevron {
 	margin: 0;
 	padding: 0;
 	border: 0;
 	background: none;
 	box-shadow: none;
 	color: inherit;
-	font: inherit !important;
 	cursor: pointer;
-}
-
-.jetpack-comments .jetpack-comments__chevron {
 	display: inline-flex;
 
 	svg {
 		inline-size: 20px;
 		block-size: 20px;
 	}
-}
-
-.jetpack-comments .jetpack-comments__link-button {
-	text-decoration: underline;
 }

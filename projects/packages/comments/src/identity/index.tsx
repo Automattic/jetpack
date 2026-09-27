@@ -92,30 +92,31 @@ export const IdentityOptions = () => {
 		<div className={ clsx( 'jetpack-comments__options', { 'is-open': isMenuOpen.value } ) }>
 			<div>
 				{ user && <a href={ formSettings.logoutUrl }>{ strings.logOut }</a> }
+				{ /* Anchors, not buttons, so the theme styles them like the link beside them. */ }
 				{ ! user && signedIn.value && (
-					<button
-						type="button"
-						className="jetpack-comments__link-button"
-						onClick={ async () => {
+					<a
+						href="#"
+						onClick={ async event => {
+							event.preventDefault();
 							await logOut();
 							signedIn.value = null;
 							isMenuOpen.value = false;
 						} }
 					>
 						{ strings.logOut }
-					</button>
+					</a>
 				) }
 				{ ! user && ! signedIn.value && (
-					<button
-						type="button"
-						className="jetpack-comments__link-button"
-						onClick={ () => {
+					<a
+						href="#"
+						onClick={ event => {
+							event.preventDefault();
 							isEditing.value = true;
 							isDialogOpen.value = true;
 						} }
 					>
 						{ strings.changeDetails }
-					</button>
+					</a>
 				) }
 				{ manageUrl && (
 					<a href={ manageUrl } target="_blank" rel="noopener">
