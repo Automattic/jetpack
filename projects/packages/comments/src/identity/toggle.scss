@@ -27,26 +27,29 @@ $accent: #3858e9;
 		cursor: pointer;
 
 		&::before {
-			content: "";
-			position: absolute !important;
-			inset-block-start: 2px;
-			inset-inline-start: 2px;
-			inline-size: 14px !important;
-			block-size: 14px !important;
-			border-radius: 50% !important;
-			background: colors.$black !important;
+			content: "" !important;
+			position: absolute !important !important;
+			inset-block-start: 2px !important;
+			inset-inline-start: 2px !important;
+			inline-size: 14px !important !important;
+			block-size: 14px !important !important;
+			border-radius: 50% !important !important;
+			border: 0 !important;
+			margin: 0 !important;
+			opacity: 1 !important;
+			background: colors.$black !important !important;
 			transition:
 				transform 0.3s,
-				background 0.3s;
+				background 0.3s !important;
 		}
 
 		&:checked {
 			border-color: transparent !important;
-			background: $accent !important;
+			background: $accent !important !important;
 
 			&::before {
-				transform: translateX(18px);
-				background: colors.$white !important;
+				transform: translateX(18px) !important;
+				background: colors.$white !important !important;
 			}
 		}
 
