@@ -226,6 +226,19 @@ describe( 'PieChart', () => {
 				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
 		} );
 
+		test( 'keeps one label color on every slice when both label roles are the same', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.single-label-pie { --a8c-charts-color-label: #ffffff; --a8c-charts-color-label-inverse: #ffffff; }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'single-label-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
 		test( 'uses the label role on every slice when the inverse role is see-through', () => {
 			injectedStyle = document.createElement( 'style' );
 			injectedStyle.textContent =
