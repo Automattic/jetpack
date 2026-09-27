@@ -94,6 +94,12 @@
 	border-radius: var(--jetpack-comments-radius, 0);
 }
 
+// A flex item, so the button sits on no text baseline and centres with
+// the avatar.
+.jetpack-comments__submit {
+	display: flex;
+}
+
 .jetpack-comments__submit input:disabled {
 	cursor: not-allowed;
 }

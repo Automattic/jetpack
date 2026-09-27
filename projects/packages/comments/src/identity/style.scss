@@ -37,7 +37,8 @@
 		overflow: hidden;
 		// The negative margins give focus rings room inside the clipped box.
 		margin: -4px;
-		padding: 4px;
+		// Inset by the box's border and padding, to line up with the avatar.
+		padding: 4px calc(var(--jetpack-comments-pad) + 6px);
 		transition: padding-block-start 0.25s ease-in-out;
 	}
 
