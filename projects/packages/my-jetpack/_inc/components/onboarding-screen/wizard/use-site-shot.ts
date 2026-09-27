@@ -11,12 +11,16 @@ const WIDTH = 880;
 const HEIGHT = 550;
 
 /*
- * The first requests answer with a placeholder while the page is rendered, and
- * a later one answers with the picture. Measured against the live service: the
- * type flipped on the third poll at this interval.
+ * Measured against the live service on pages it had not seen: 5.0, 5.4 and 6.5
+ * seconds to a picture. A single interval wide enough to cover a slow render
+ * adds its own wait to every fast one, so the polls are close together while
+ * the render is plausibly finishing and further apart afterwards, when they are
+ * only there for the slow case.
  */
-const RETRY_MS = 2500;
-const MAX_TRIES = 10;
+const RETRY_MS = 1000;
+const SLOW_RETRY_MS = 2500;
+const SLOW_AFTER_MS = 10000;
+const GIVE_UP_MS = 25000;
 
 /**
  * The address of this site's homepage as WordPress.com would photograph it.
@@ -69,7 +73,7 @@ export function useSiteShot( url: string | undefined, allowed: boolean ): string
 		}
 
 		const src = shotUrl( url );
-		let tries = 0;
+		const began = Date.now();
 		let timer: ReturnType< typeof setTimeout >;
 		let live = true;
 
@@ -80,8 +84,8 @@ export function useSiteShot( url: string | undefined, allowed: boolean ): string
 				const response = await window.fetch( src, { mode: 'cors' } );
 				done = ( response.headers.get( 'content-type' ) ?? '' ).includes( 'jpeg' );
 			} catch {
-				// A network refusal is the same as not ready yet: try again, and stop
-				// when the tries run out. The panel keeps its artwork either way.
+				// A network refusal is the same as not ready yet: ask again, and stop
+				// at the deadline. The panel keeps its artwork either way.
 			}
 
 			if ( ! live ) {
@@ -93,10 +97,10 @@ export function useSiteShot( url: string | undefined, allowed: boolean ): string
 				return;
 			}
 
-			tries += 1;
+			const waited = Date.now() - began;
 
-			if ( tries < MAX_TRIES ) {
-				timer = setTimeout( ask, RETRY_MS );
+			if ( waited < GIVE_UP_MS ) {
+				timer = setTimeout( ask, waited < SLOW_AFTER_MS ? RETRY_MS : SLOW_RETRY_MS );
 			}
 		};
 
