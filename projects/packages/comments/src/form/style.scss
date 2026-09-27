@@ -95,9 +95,15 @@
 }
 
 // A flex item, so the button sits on no text baseline and centres with
-// the avatar.
-.jetpack-comments__submit {
+// the avatar. Pinned against a theme's spacing around its own submit.
+.jetpack-comments .jetpack-comments__submit {
 	display: flex;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+.jetpack-comments .jetpack-comments__submit input {
+	margin: 0 !important;
 }
 
 .jetpack-comments__submit input:disabled {
