@@ -630,6 +630,24 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Scheduled tasks make the Agents Manager state route available on REST requests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_scheduled_tasks_feature_flag_registers_agents_manager_rest_route() {
+		$GLOBALS['wp_rest_server'] = null;
+		$this->assertArrayNotHasKey( '/agents-manager/open-state', rest_get_server()->get_routes() );
+
+		add_filter( 'jetpack_feature_flag_enabled_ai-hub-scheduled-tasks', '__return_true' );
+		$GLOBALS['wp_rest_server'] = null;
+
+		$this->assertArrayHasKey( '/agents-manager/open-state', rest_get_server()->get_routes() );
+	}
+
+	/**
 	 * The AI Hub page loads the Agents Manager shell with its admin page.
 	 */
 	public function test_add_page_actions_loads_agents_manager() {

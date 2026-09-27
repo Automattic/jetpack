@@ -67,6 +67,19 @@ require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-settings-feature-flag
 
 \Automattic\Jetpack\Newsletter\Settings::register_feature_flags();
 
+add_action(
+	'rest_api_init',
+	function () {
+		if ( ! \Automattic\Jetpack\Feature_Flags\Feature_Flags::is_enabled( Jetpack_AI_Feature_Flags::SCHEDULED_TASKS ) ) {
+			return;
+		}
+
+		// Initialize before the default priority where Agents Manager registers its REST routes.
+		\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
+	},
+	0
+);
+
 if ( is_admin() ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php';
 	require_once JETPACK__PLUGIN_DIR . '_inc/lib/debugger.php';
