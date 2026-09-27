@@ -8,9 +8,10 @@ import type { Commenter, FormSettings, SignedIn } from './types';
  * Build one form's signals.
  *
  * @param formSettings - Values belonging to this form rather than to the page.
+ * @param instance     - Which mount this is, for ids that must not repeat across forms on one page.
  * @return The signals for a single form.
  */
-export function createSignals( formSettings: FormSettings ) {
+export function createSignals( formSettings: FormSettings, instance: number ) {
 	const { isLoggedIn, mustLogIn, commenter: saved } = JetpackComments;
 
 	const commentValue = signal( readDraft( formSettings.postId ) );
@@ -33,6 +34,7 @@ export function createSignals( formSettings: FormSettings ) {
 
 	return {
 		formSettings,
+		instance,
 		commentValue,
 		isEmptyComment,
 		isSavingComment,
