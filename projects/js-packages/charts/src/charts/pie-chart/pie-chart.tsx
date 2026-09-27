@@ -25,9 +25,9 @@ import { contrastRatio } from '../../providers/chart-context/private/perceptual-
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import {
 	attachSubComponents,
+	createCssVariableResolver,
 	isValidHexColor,
 	normalizeColorToHex,
-	resolveCssVariable,
 	resolveFontSize,
 } from '../../utils';
 import { getStringWidth } from '../../visx/text';
@@ -277,29 +277,30 @@ const PieChartInternal = ( {
 			return;
 		}
 
-		const rawLabelBackground = resolveCssVariable(
-			CATALOG_POINTERS.labelBackground,
-			rootRef.current
-		);
+		const resolve = createCssVariableResolver( rootRef.current );
+		const rawLabelBackground = resolve( CATALOG_POINTERS.labelBackground );
 		// Hex drops alpha, so a see-through label role would win the comparison and paint nothing.
-		const rawLabel = resolveCssVariable( CATALOG_POINTERS.label, rootRef.current );
+		const rawLabel = resolve( CATALOG_POINTERS.label );
 		const isLabelOpaque = rawLabel ? d3Color( rawLabel )?.opacity === 1 : false;
-		const rawLabelInverse = resolveCssVariable( CATALOG_POINTERS.labelInverse, rootRef.current );
+		const rawLabelInverse = resolve( CATALOG_POINTERS.labelInverse );
 		const labelInverseColor = rawLabelInverse ? d3Color( rawLabelInverse ) : null;
 		// A plate value d3 cannot parse (CSS Color 4 syntax, say) is still one CSS paints, so it counts.
 		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
-		setLabelPointers( {
+		const next: ResolvedLabelPointers = {
 			hasPlate: rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false,
-			labelHex: isLabelOpaque
-				? normalizeColorToHex( CATALOG_POINTERS.label, rootRef.current, resolveCssVariable )
-				: '',
-			labelInverseHex: normalizeColorToHex(
-				CATALOG_POINTERS.labelInverse,
-				rootRef.current,
-				resolveCssVariable
-			),
+			labelHex: isLabelOpaque ? normalizeColorToHex( CATALOG_POINTERS.label, null, resolve ) : '',
+			labelInverseHex: normalizeColorToHex( CATALOG_POINTERS.labelInverse, null, resolve ),
 			isInverseSeeThrough: labelInverseColor ? labelInverseColor.opacity < 1 : false,
-		} );
+		};
+		setLabelPointers( previous =>
+			previous &&
+			previous.hasPlate === next.hasPlate &&
+			previous.labelHex === next.labelHex &&
+			previous.labelInverseHex === next.labelInverseHex &&
+			previous.isInverseSeeThrough === next.isInverseSeeThrough
+				? previous
+				: next
+		);
 	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)
