@@ -44,6 +44,7 @@ import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
 import BLOCK_ICONS, { FILTER_CHECKBOX_VARIATION_ICONS } from './icons';
+import { registerOverlayWidgetAreaGuards } from './overlay-widget-area';
 
 // Default save for blocks that own no editor-side state — render.php is the
 // source of truth on the front end, so save returns null. Container blocks
@@ -149,41 +150,8 @@ addFilter(
 	}
 );
 
-const hiddenWidgetArea =
-	typeof config.hideFromWidgetArea === 'string' ? config.hideFromWidgetArea : null;
-
-/**
- * Whether an insertion point sits in the given widget area.
- *
- * @param {string}  areaId       - Sidebar ID of the widget area.
- * @param {?string} rootClientId - Client ID the block would be inserted into.
- * @param {object}  selectors    - Block editor selectors bound to the inserting editor.
- * @return {boolean} True if the insertion point is in that widget area.
- */
-function isInWidgetArea( areaId, rootClientId, selectors ) {
-	const widgetArea = rootClientId
-		? [ rootClientId, ...selectors.getBlockParentsByBlockName( rootClientId, 'core/widget-area' ) ]
-				.map( clientId => selectors.getBlock( clientId ) )
-				.find( block => block?.name === 'core/widget-area' )
-		: null;
-	if ( widgetArea ) {
-		return widgetArea.attributes?.id === areaId;
-	}
-	// The Customizer gives each sidebar its own editor with no widget-area block, so the open section names the area.
-	return window.wp?.customize?.section?.( `sidebar-widgets-${ areaId }` )?.expanded?.() === true;
-}
-
-if ( hiddenWidgetArea ) {
-	addFilter(
-		'blockEditor.__unstableCanInsertBlockType',
-		'jetpack-search/hide-from-overlay-widget-area',
-		( canInsert, blockType, rootClientId, selectors ) =>
-			canInsert &&
-			! (
-				blockType.name.startsWith( 'jetpack-search/' ) &&
-				isInWidgetArea( hiddenWidgetArea, rootClientId, selectors )
-			)
-	);
+if ( typeof config.hideFromWidgetArea === 'string' ) {
+	registerOverlayWidgetAreaGuards( config.hideFromWidgetArea );
 }
 
 BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
