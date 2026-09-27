@@ -1,47 +1,47 @@
-// Two panels in one clipped slot: the name slides out to the right and the
-// options slide in behind it. The hidden one is unfocusable once it has left.
 .jetpack-comments__who {
-	display: inline-grid;
-	overflow: hidden;
-}
-
-.jetpack-comments__panel {
-	grid-area: 1 / 1;
 	display: inline-flex;
-	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.25em 0.75em;
-	transition:
-		transform 0.25s ease-in-out,
-		visibility 0s;
+	gap: 0.25em;
 }
 
-// The delay belongs to the hidden state only, so a panel arriving is visible
-// for its whole slide and one leaving stays visible until its slide ends.
-.jetpack-comments__panel--options,
-.jetpack-comments__who.is-open .jetpack-comments__panel--name {
+.jetpack-comments__chevron svg {
+	transition: transform 0.25s ease-in-out;
+}
+
+.jetpack-comments__who.is-open .jetpack-comments__chevron svg {
+	transform: rotate(180deg);
+}
+
+// Collapsed and hidden like the tray, so nothing inside can take focus
+// while closed.
+.jetpack-comments__options {
+	display: grid;
+	grid-template-rows: 0fr;
 	visibility: hidden;
 	transition:
-		transform 0.25s ease-in-out,
+		grid-template-rows 0.25s ease-in-out,
 		visibility 0s linear 0.25s;
-}
 
-.jetpack-comments__panel--options {
-	transform: translateX(-100%);
-}
-
-.jetpack-comments__who.is-open {
-
-	.jetpack-comments__panel--name {
-		transform: translateX(100%);
-	}
-
-	.jetpack-comments__panel--options {
-		transform: none;
+	&.is-open {
+		grid-template-rows: 1fr;
 		visibility: visible;
 		transition:
-			transform 0.25s ease-in-out,
+			grid-template-rows 0.25s ease-in-out,
 			visibility 0s;
+	}
+
+	> div {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25em 1em;
+		overflow: hidden;
+		padding: 0 var(--jetpack-comments-pad);
+		transition: padding-block-end 0.25s ease-in-out;
+	}
+
+	// Padding cannot collapse with the row, so it only exists while open.
+	&.is-open > div {
+		padding-block-end: var(--jetpack-comments-pad);
 	}
 }
 

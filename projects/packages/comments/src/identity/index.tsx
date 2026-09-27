@@ -2,19 +2,18 @@ import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
-import { ChevronLeftIcon, ChevronRightIcon } from './icons';
+import { ChevronDownIcon } from './icons';
 
 import './style.scss';
 
 /**
- * Who the comment will be attributed to, for a reader the site already knows.
- * A chevron slides the name out and the options in behind it: log out or
- * change details, and where to manage subscriptions.
+ * Who the comment will be attributed to, for a reader the site already knows,
+ * with a chevron that drops the options out under the footer.
  *
  * @return The identity line, or nothing for a reader the dialog will ask.
  */
 export const Identity = () => {
-	const { formSettings, commenter, signedIn, isMenuOpen, isDialogOpen, isEditing, isSavedGuest } =
+	const { formSettings, commenter, signedIn, isMenuOpen, isSavedGuest } =
 		useContext( CommentSignals );
 	const { user, mustLogIn, identity, strings } = JetpackComments;
 
@@ -38,16 +37,6 @@ export const Identity = () => {
 		return null;
 	}
 
-	// Absent from a page cached before this key existed; the row then has no manage link.
-	const links = JetpackComments.manageSubscriptions ?? { url: '', byEmail: true, signedInUrl: '' };
-	const byEmail = ! signedIn.value && links.byEmail;
-	let manageUrl = signedIn.value ? links.signedInUrl : links.url;
-
-	// The portal asks for an email address; hand it the one the comment will post under.
-	if ( manageUrl && byEmail && commenter.value.email ) {
-		manageUrl += `?email=${ encodeURIComponent( commenter.value.email ) }`;
-	}
-
 	const open = isMenuOpen.value;
 
 	return (
@@ -59,32 +48,49 @@ export const Identity = () => {
 				) : (
 					<input type="hidden" name={ identity.passportField } value="1" />
 				) ) }
-			<span className="jetpack-comments__panel jetpack-comments__panel--name" aria-hidden={ open }>
-				{ name }
-				<button
-					type="button"
-					className="jetpack-comments__chevron"
-					title={ strings.options }
-					aria-expanded={ open }
-					onClick={ () => ( isMenuOpen.value = true ) }
-				>
-					<span className="jetpack-comments__visually-hidden">{ strings.options }</span>
-					<ChevronRightIcon />
-				</button>
-			</span>
-			<span
-				className="jetpack-comments__panel jetpack-comments__panel--options"
-				aria-hidden={ ! open }
+			{ name }
+			<button
+				type="button"
+				className="jetpack-comments__chevron"
+				title={ strings.options }
+				aria-expanded={ open }
+				onClick={ () => ( isMenuOpen.value = ! open ) }
 			>
-				<button
-					type="button"
-					className="jetpack-comments__chevron"
-					title={ strings.back }
-					onClick={ () => ( isMenuOpen.value = false ) }
-				>
-					<span className="jetpack-comments__visually-hidden">{ strings.back }</span>
-					<ChevronLeftIcon />
-				</button>
+				<span className="jetpack-comments__visually-hidden">{ strings.options }</span>
+				<ChevronDownIcon />
+			</button>
+		</span>
+	);
+};
+
+/**
+ * The options the chevron drops out: log out or change details, and where to
+ * manage subscriptions.
+ *
+ * @return The options, or nothing for a reader the dialog will ask.
+ */
+export const IdentityOptions = () => {
+	const { formSettings, commenter, signedIn, isKnown, isMenuOpen, isDialogOpen, isEditing } =
+		useContext( CommentSignals );
+	const { user, strings } = JetpackComments;
+
+	if ( ! isKnown.value ) {
+		return null;
+	}
+
+	// Absent from a page cached before this key existed; the row then has no manage link.
+	const links = JetpackComments.manageSubscriptions ?? { url: '', byEmail: true, signedInUrl: '' };
+	const byEmail = ! signedIn.value && links.byEmail;
+	let manageUrl = signedIn.value ? links.signedInUrl : links.url;
+
+	// The portal asks for an email address; hand it the one the comment will post under.
+	if ( manageUrl && byEmail && commenter.value.email ) {
+		manageUrl += `?email=${ encodeURIComponent( commenter.value.email ) }`;
+	}
+
+	return (
+		<div className={ clsx( 'jetpack-comments__options', { 'is-open': isMenuOpen.value } ) }>
+			<div>
 				{ user && <a href={ formSettings.logoutUrl }>{ strings.logOut }</a> }
 				{ ! user && signedIn.value && (
 					<button
@@ -116,7 +122,7 @@ export const Identity = () => {
 						{ strings.manageSubscriptions }
 					</a>
 				) }
-			</span>
-		</span>
+			</div>
+		</div>
 	);
 };

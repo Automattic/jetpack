@@ -1,7 +1,7 @@
 import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
-import { Identity } from '../identity';
+import { Identity, IdentityOptions } from '../identity';
 import { IdentityDialog } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
@@ -138,33 +138,36 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			<div className="jetpack-comments__box">
 				<CommentField />
 				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }>
-					<div className="jetpack-comments__actions">
-						<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
-							<input
-								id={ submit.id }
-								name={ submit.name }
-								type="submit"
-								className={ submit.class }
-								disabled={
-									( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
-									isEmptyComment.value ||
-									isSavingComment.value
-								}
-								value={ commentParent.value ? strings.reply : submit.label }
-							/>
-						</span>
-						<span className="jetpack-comments__identity">
-							{ avatar && (
-								<img
-									className="jetpack-comments__avatar avatar avatar-40 photo"
-									src={ avatar }
-									alt=""
-									width="40"
-									height="40"
+					<div>
+						<div className="jetpack-comments__actions">
+							<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
+								<input
+									id={ submit.id }
+									name={ submit.name }
+									type="submit"
+									className={ submit.class }
+									disabled={
+										( mustLogIn && ! signedIn.value && ! identity.canSignIn ) ||
+										isEmptyComment.value ||
+										isSavingComment.value
+									}
+									value={ commentParent.value ? strings.reply : submit.label }
 								/>
-							) }
-							<Identity />
-						</span>
+							</span>
+							<span className="jetpack-comments__identity">
+								{ avatar && (
+									<img
+										className="jetpack-comments__avatar avatar avatar-40 photo"
+										src={ avatar }
+										alt=""
+										width="40"
+										height="40"
+									/>
+								) }
+								<Identity />
+							</span>
+						</div>
+						<IdentityOptions />
 					</div>
 				</div>
 			</div>

@@ -22,8 +22,8 @@ export const CloseIcon = () => (
 	</svg>
 );
 
-// @wordpress/icons "chevron-right" and "chevron-left".
-export const ChevronRightIcon = () => (
+// @wordpress/icons "chevron-down".
+export const ChevronDownIcon = () => (
 	<svg
 		viewBox="0 0 24 24"
 		width="24"
@@ -32,19 +32,6 @@ export const ChevronRightIcon = () => (
 		aria-hidden="true"
 		focusable="false"
 	>
-		<path d="M10.6 6 9.4 7l4.6 5-4.6 5 1.2 1 5.4-6z" />
-	</svg>
-);
-
-export const ChevronLeftIcon = () => (
-	<svg
-		viewBox="0 0 24 24"
-		width="24"
-		height="24"
-		fill="currentColor"
-		aria-hidden="true"
-		focusable="false"
-	>
-		<path d="M14.6 7 13.4 6 8 12l5.4 6 1.2-1-4.6-5z" />
+		<path d="M17.5 11.6 12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z" />
 	</svg>
 );

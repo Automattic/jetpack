@@ -471,7 +471,6 @@ class Comment_Form {
 			'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
 			'close'               => __( 'Close', 'jetpack-comments' ),
 			'options'             => __( 'Options', 'jetpack-comments' ),
-			'back'                => __( 'Back', 'jetpack-comments' ),
 			'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
 			'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
 			'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
