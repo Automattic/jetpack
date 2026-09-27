@@ -472,7 +472,7 @@ class Comment_Form {
 			'close'               => __( 'Close', 'jetpack-comments' ),
 			'options'             => __( 'Options', 'jetpack-comments' ),
 			'back'                => __( 'Back', 'jetpack-comments' ),
-			'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
+			'changeDetails'       => __( 'Change', 'jetpack-comments' ),
 			'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
 			'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
 			'logIn'               => __( 'Log in', 'jetpack-comments' ),
