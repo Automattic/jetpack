@@ -473,7 +473,7 @@ class Comment_Form {
 			'options'             => __( 'Options', 'jetpack-comments' ),
 			'back'                => __( 'Back', 'jetpack-comments' ),
 			'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
-			'manageSubscriptions' => __( 'Manage subscriptions', 'jetpack-comments' ),
+			'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
 			'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
 			'logIn'               => __( 'Log in', 'jetpack-comments' ),
 			'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
