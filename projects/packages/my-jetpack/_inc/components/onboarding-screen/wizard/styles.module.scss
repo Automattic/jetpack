@@ -1103,14 +1103,14 @@ $rail-row-min-height: 40px;
 }
 
 .portrait-back--far {
-	top: -$portrait-back-far-rise;
+	inset-block-start: -$portrait-back-far-rise;
 	inline-size: $portrait-back-far-width;
 	block-size: 150px;
 	animation-delay: $wave-base;
 }
 
 .portrait-back--near {
-	top: -$portrait-back-near-rise;
+	inset-block-start: -$portrait-back-near-rise;
 	inline-size: $portrait-back-near-width;
 	block-size: 200px;
 	background: rgba(252, 252, 252, 0.8);

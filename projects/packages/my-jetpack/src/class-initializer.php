@@ -170,6 +170,8 @@ class Initializer {
 		 */
 		add_action( 'admin_init', array( __CLASS__, 'maybe_redirect_to_onboarding' ) );
 
+		add_action( 'admin_head', array( __CLASS__, 'preload_onboarding_site_shot' ) );
+
 		// Nothing else gets to talk over the takeover. See both methods for why it
 		// takes two hooks rather than one.
 		add_action( 'in_admin_header', array( __CLASS__, 'silence_onboarding_notices' ), PHP_INT_MAX );
@@ -612,16 +614,17 @@ class Initializer {
 			'exitUrl'      => admin_url( 'admin.php?page=my-jetpack' ),
 			// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 			'dashboardUrl' => admin_url(),
-			'site'         => self::get_onboarding_site_portrait(),
+			// Only when the wizard is the page. Counting attachments groups by a
+			// column no index covers, and on the ordinary dashboard nothing reads it.
+			'site'         => self::is_onboarding_takeover() ? self::get_onboarding_site_portrait() : null,
 		);
 	}
 
 	/**
 	 * What the wizard's panel can show about this site, and whether it may.
 	 *
-	 * Carried on the page rather than fetched: these are four cached core counts
-	 * and two option reads, and a request for them would arrive after the panel
-	 * had already decided what to draw.
+	 * Carried on the page rather than fetched: a request for them would arrive
+	 * after the panel had already decided what to draw.
 	 *
 	 * @internal Not part of the package's public API.
 	 *
@@ -630,10 +633,15 @@ class Initializer {
 	public static function get_onboarding_site_portrait() {
 		$home = home_url();
 
+		// Keyed by mime type, plus a `trash` total that is not in the library. Left
+		// in, it reports the emptied uploads back to the person who emptied them.
+		$attachments = (array) wp_count_attachments();
+		unset( $attachments['trash'] );
+
 		$counts = array(
 			'posts'   => (int) wp_count_posts( 'post' )->publish,
 			'pages'   => (int) wp_count_posts( 'page' )->publish,
-			'media'   => array_sum( (array) wp_count_attachments() ),
+			'media'   => array_sum( $attachments ),
 			// What is installed, not what is running: the number people recognise
 			// from the Plugins screen.
 			'plugins' => count( Plugins_Installer::get_plugins() ),
@@ -641,23 +649,93 @@ class Initializer {
 
 		return array(
 			'url'           => $home,
-			'domain'        => wp_parse_url( $home, PHP_URL_HOST ),
+			'domain'        => (string) wp_parse_url( $home, PHP_URL_HOST ),
 			'canPhotograph' => self::can_photograph_site(),
 			'counts'        => $counts,
 		);
 	}
 
 	/**
-	 * Whether WordPress.com's screenshot service could reach this site.
+	 * Ask WordPress.com to start photographing this site before the page's own
+	 * JavaScript can.
+	 *
+	 * The service takes about five seconds on a page it has not seen, and does not
+	 * begin until something asks. Measured on a real admin page, the wizard's
+	 * bundle does not make that first request until roughly two seconds in; a link
+	 * in the head makes it at head-parse time instead.
+	 *
+	 * It also takes the picture off the critical path on the way back. The connect
+	 * step sends the user to WordPress.com and returns them through a fresh page
+	 * load, by which time the render is finished, so this fetch is the download and
+	 * the wizard's own request is served from the cache.
+	 *
+	 * A link rather than a server-side request: WordPress's `blocking => false` is
+	 * not asynchronous, it still waits for the round trip, and its timeout floor is
+	 * a whole second. That second would be paid by exactly the hosts that cannot
+	 * reach WordPress.com anyway.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function preload_onboarding_site_shot() {
+		if ( ! self::is_my_jetpack_admin_request() || ! self::is_onboarding_takeover() ) {
+			return;
+		}
+
+		$site = self::get_onboarding_site_portrait();
+
+		if ( ! $site['canPhotograph'] ) {
+			return;
+		}
+
+		printf(
+			'<link rel="preload" as="image" fetchpriority="high" href="%s" />' . "\n",
+			esc_url( self::onboarding_site_shot_url( $site['url'] ) )
+		);
+	}
+
+	/**
+	 * This site's homepage as WordPress.com's screenshot service would photograph it.
+	 *
+	 * Must match what the wizard asks for exactly, or the preload warms a render
+	 * nothing then reads. The JavaScript twin is `shotUrl` in `use-site-shot.ts`,
+	 * where the dimensions are also what the error-card sizes are measured at.
+	 *
+	 * @internal Not part of the package's public API.
+	 *
+	 * @param string $url The site's own URL.
+	 * @return string
+	 */
+	private static function onboarding_site_shot_url( $url ) {
+		return 'https://s0.wp.com/mshots/v1/' . rawurlencode( $url ) . '?' . http_build_query(
+			array(
+				'vpw'   => 1600,
+				'vph'   => 1600,
+				'w'     => 880,
+				'h'     => 550,
+				'scale' => 2,
+			)
+		);
+	}
+
+	/**
+	 * Whether WordPress.com's screenshot service could reach this site, and
+	 * whether what it would find is the site's homepage.
 	 *
 	 * Asked before the request because a failure does not come back as one: an
 	 * unreachable host answers HTTP 200 with a JPEG of a WordPress.com error card,
 	 * which no status or content type can tell from a homepage. The front end
-	 * recognises those cards by size and throws them away, but that is the second
-	 * line and not the first.
+	 * recognises those cards and throws them away, but that is the second line and
+	 * not the first.
 	 *
-	 * A private or coming-soon site answers with its splash rather than its
-	 * homepage, and a local one answers nobody.
+	 * Private, coming-soon and unlaunched sites all answer with a splash rather
+	 * than a homepage. A local one answers nobody.
+	 *
+	 * `blog_public` is compared to 1 rather than cast, because the option is not a
+	 * boolean: `0` asks search engines to stay away and `-1` and below, which
+	 * "More Privacy Options" adds on multisite, mean private. Every one of those
+	 * casts to true. Nothing but 1 is an invitation to come and look.
 	 *
 	 * Deliberately does NOT require a connection. Connecting does not change
 	 * whether the world can reach this host, it only proves it, and the proof
@@ -671,11 +749,25 @@ class Initializer {
 	private static function can_photograph_site() {
 		$status = new Status();
 
-		if ( $status->is_offline_mode() || $status->is_local_site() ) {
-			return false;
-		}
+		$can = ! $status->is_offline_mode()
+			&& ! $status->is_local_site()
+			&& ! $status->is_private_site()
+			&& ! $status->is_coming_soon()
+			&& 1 === (int) get_option( 'blog_public' );
 
-		return (bool) (int) get_option( 'blog_public' );
+		/**
+		 * Whether this site's homepage may be sent to WordPress.com's screenshot
+		 * service for the setup wizard's panel.
+		 *
+		 * Only the site's own address is sent, and only while the wizard is on
+		 * screen. Hosts serving sites that are public but unreachable from outside,
+		 * such as an intranet, can turn it off here.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $can Whether the screenshot may be requested.
+		 */
+		return (bool) apply_filters( 'jetpack_my_jetpack_can_photograph_site', $can );
 	}
 
 	/**

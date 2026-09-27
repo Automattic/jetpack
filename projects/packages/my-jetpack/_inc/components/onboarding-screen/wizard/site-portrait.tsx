@@ -1,9 +1,9 @@
-import { useReducedMotion } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
-import { _n } from '@wordpress/i18n';
+import { _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
+import { useReducedMotion } from './use-reduced-motion';
 import type { OnboardingSite } from './lib';
 import type { ReactNode } from 'react';
 
@@ -62,42 +62,54 @@ function statLines( counts: OnboardingSite[ 'counts' ] ) {
 	const lines = [
 		{
 			value: counts.posts,
-			/* translators: %d is how many posts the site has published. */
-			text: _n(
-				'<b>%d</b> post published',
-				'<b>%d</b> posts published',
-				counts.posts,
-				'jetpack-my-jetpack'
+			text: sprintf(
+				/* translators: %d is how many posts the site has published. */
+				_n(
+					'<b>%d</b> post published',
+					'<b>%d</b> posts published',
+					counts.posts,
+					'jetpack-my-jetpack'
+				),
+				counts.posts
 			),
 		},
 		{
 			value: counts.pages,
-			/* translators: %d is how many pages the site has published. */
-			text: _n(
-				'<b>%d</b> page published',
-				'<b>%d</b> pages published',
-				counts.pages,
-				'jetpack-my-jetpack'
+			text: sprintf(
+				/* translators: %d is how many pages the site has published. */
+				_n(
+					'<b>%d</b> page published',
+					'<b>%d</b> pages published',
+					counts.pages,
+					'jetpack-my-jetpack'
+				),
+				counts.pages
 			),
 		},
 		{
 			value: counts.media,
-			/* translators: %d is how many files are in the site's media library. */
-			text: _n(
-				'<b>%d</b> file in your media library',
-				'<b>%d</b> files in your media library',
-				counts.media,
-				'jetpack-my-jetpack'
+			text: sprintf(
+				/* translators: %d is how many files are in the site's media library. */
+				_n(
+					'<b>%d</b> file in your media library',
+					'<b>%d</b> files in your media library',
+					counts.media,
+					'jetpack-my-jetpack'
+				),
+				counts.media
 			),
 		},
 		{
 			value: counts.plugins,
-			/* translators: %d is how many plugins the site has installed. */
-			text: _n(
-				'<b>%d</b> plugin installed',
-				'<b>%d</b> plugins installed',
-				counts.plugins,
-				'jetpack-my-jetpack'
+			text: sprintf(
+				/* translators: %d is how many plugins the site has installed. */
+				_n(
+					'<b>%d</b> plugin installed',
+					'<b>%d</b> plugins installed',
+					counts.plugins,
+					'jetpack-my-jetpack'
+				),
+				counts.plugins
 			),
 		},
 	];
@@ -126,13 +138,13 @@ function StatNumeral( { at, children }: { at: number | null; children?: ReactNod
 /**
  * One count, as a sentence, with the numeral counting up to it.
  *
- * The count waits for the row's own entrance delay, which it reads off the
+ * The count waits for the rows' entrance delay, which it reads off the
  * stylesheet rather than repeating here: written as a constant it would finish
- * behind a row that had not faded in yet the first time the stagger changed.
+ * behind rows that had not faded in yet the first time the delay changed.
  *
  * @param props       - The component props.
- * @param props.text  - The translated sentence, with `%d` still in it.
- * @param props.value - What to put in place of `%d`.
+ * @param props.text  - The translated sentence with the number already in it.
+ * @param props.value - The number, which the count-up needs on its own.
  * @return The rendered row.
  */
 function StatRow( { text, value }: { text: string; value: number } ) {
@@ -142,6 +154,9 @@ function StatRow( { text, value }: { text: string; value: number } ) {
 
 	useEffect( () => {
 		if ( reduced || value < COUNT_FLOOR || ! row.current ) {
+			// Back to the real number. Turning motion down part way through a count
+			// otherwise strands the numeral on whatever it had reached.
+			setAt( null );
 			return;
 		}
 
@@ -155,8 +170,8 @@ function StatRow( { text, value }: { text: string; value: number } ) {
 
 			const through = Math.min( 1, ( now - began ) / COUNT_MS );
 
-			// Back to the translated numeral at the end rather than to our own
-			// rendering of the same number, which would not be localized.
+			// Back to the numeral the translation produced, rather than leaving our
+			// own rendering of it on screen.
 			if ( through >= 1 ) {
 				setAt( null );
 				return;
@@ -179,9 +194,7 @@ function StatRow( { text, value }: { text: string; value: number } ) {
 
 	return (
 		<p ref={ row } className={ styles[ 'portrait-stat' ] }>
-			{ createInterpolateElement( text.replace( '%d', String( value ) ), {
-				b: <StatNumeral at={ at } />,
-			} ) }
+			{ createInterpolateElement( text, { b: <StatNumeral at={ at } /> } ) }
 		</p>
 	);
 }

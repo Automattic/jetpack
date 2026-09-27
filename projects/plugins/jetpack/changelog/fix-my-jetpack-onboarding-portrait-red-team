@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+My Jetpack: never photograph a private or coming-soon site during setup, and leave trashed uploads out of the media count.

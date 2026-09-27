@@ -1,15 +1,17 @@
 import { act, render, screen } from '@testing-library/react';
-import { useReducedMotion } from '@wordpress/compose';
+import { _n } from '@wordpress/i18n';
 import { SitePortrait, hasPortrait } from '../site-portrait';
+import { useReducedMotion } from '../use-reduced-motion';
 import type { OnboardingSite } from '../lib';
 
-/*
- * The hook caches one media query list per window, so a `matchMedia` stub put
- * in place after the first render of the file never reaches it.
- */
-jest.mock( '@wordpress/compose', () => ( {
-	...jest.requireActual( '@wordpress/compose' ),
-	useReducedMotion: jest.fn( () => false ),
+// Mocked rather than driven through `matchMedia`, so a test can turn it on part
+// way through a count.
+jest.mock( '../use-reduced-motion', () => ( { useReducedMotion: jest.fn( () => false ) } ) );
+
+// The module's exports are frozen, so a translation can only be swapped here.
+jest.mock( '@wordpress/i18n', () => ( {
+	...jest.requireActual( '@wordpress/i18n' ),
+	_n: jest.fn( jest.requireActual( '@wordpress/i18n' )._n ),
 } ) );
 
 const site = ( over: Partial< OnboardingSite > = {} ): OnboardingSite => ( {
@@ -22,6 +24,8 @@ const site = ( over: Partial< OnboardingSite > = {} ): OnboardingSite => ( {
 
 const show = ( over: Partial< OnboardingSite > = {}, shot: string | null = null ) =>
 	render( <SitePortrait site={ site( over ) } shot={ shot } /> );
+
+const posts = ( n: number ) => ( { posts: n, pages: 0, media: 0, plugins: 0 } );
 
 describe( 'What the portrait is willing to show', () => {
 	it( 'says nothing at all for a site with no picture and no counts', () => {
@@ -61,6 +65,19 @@ describe( 'What the portrait is willing to show', () => {
 		show( { canPhotograph: false } );
 
 		expect( screen.queryByText( 'example.com' ) ).not.toBeInTheDocument();
+	} );
+
+	/*
+	 * Every fact in it is decorative: the question is on the left, the picture is
+	 * of a site the reader is sitting inside, and read aloud the counts are four
+	 * numbers with no bearing on the answer.
+	 */
+	it( 'is hidden from assistive technology in full', () => {
+		show( {}, 'https://s0.wp.com/mshots/v1/x' );
+
+		// Present in the page, absent from the accessibility tree.
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'hangs the picture in the window once there is one', () => {
@@ -126,8 +143,7 @@ describe( 'Counting the numeral up', () => {
 		spies.forEach( spy => spy.mockRestore() );
 	} );
 
-	const withPosts = ( posts: number ) =>
-		show( { counts: { posts, pages: 0, media: 0, plugins: 0 } } );
+	const withPosts = ( n: number ) => show( { counts: posts( n ) } );
 
 	it( 'shows the real number until the row it sits in starts moving', () => {
 		withPosts( 240 );
@@ -187,5 +203,59 @@ describe( 'Counting the numeral up', () => {
 
 		expect( pending ).toBeNull();
 		expect( row( /posts published/ ) ).toBe( '240 posts published' );
+	} );
+
+	/*
+	 * Turning motion down part way through used to strand the numeral on whatever
+	 * it had reached, and nothing moved it again.
+	 */
+	it( 'puts the real number back when motion is turned down mid-count', () => {
+		const { rerender } = withPosts( 240 );
+		begin();
+		frame( 0 );
+		frame( 300 );
+
+		expect( row( /posts published/ ) ).not.toBe( '240 posts published' );
+
+		jest.mocked( useReducedMotion ).mockReturnValue( true );
+		rerender( <SitePortrait site={ site( { counts: posts( 240 ) } ) } shot={ null } /> );
+
+		expect( row( /posts published/ ) ).toBe( '240 posts published' );
+	} );
+
+	/*
+	 * jsdom reports no delay, so the stylesheet is stubbed: without this the whole
+	 * mechanic could be replaced by a zero and every test would still pass.
+	 */
+	it( 'waits for the delay the stylesheet gives the row', () => {
+		jest
+			.spyOn( window, 'getComputedStyle' )
+			.mockReturnValue( { animationDelay: '0.34s' } as unknown as CSSStyleDeclaration );
+
+		withPosts( 240 );
+
+		act( () => jest.advanceTimersByTime( 339 ) );
+		expect( pending ).toBeNull();
+
+		act( () => jest.advanceTimersByTime( 1 ) );
+		expect( pending ).not.toBeNull();
+	} );
+} );
+
+/*
+ * `%1$d` is a legal and common way for a translator to write a lone `%d`, and a
+ * plain string replace leaves it on screen with no number in it at all.
+ */
+describe( 'Numbers a translator may have moved', () => {
+	it( 'fills in a positional placeholder', () => {
+		jest
+			.mocked( _n )
+			.mockReturnValue( '<b>%1$d</b> posts published' as unknown as ReturnType< typeof _n > );
+
+		show( { counts: posts( 240 ) } );
+
+		expect( screen.getByText( /posts published/, { selector: 'p' } ) ).toHaveTextContent(
+			'240 posts published'
+		);
 	} );
 } );
