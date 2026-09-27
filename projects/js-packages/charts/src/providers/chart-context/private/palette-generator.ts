@@ -201,6 +201,12 @@ const pickNext = (
 	return index === -1 ? null : tracker.pool[ index ];
 };
 
+type ColorAt = ( index: number ) => string;
+
+// Generation is deterministic, so every provider on a page with the same inputs (one per Premium Analytics widget) shares one generator.
+const generators = new Map< string, ColorAt >();
+const MAX_CACHED_GENERATORS = 32;
+
 /**
  * Build the series palette: the seeds, then colors that stay apart from every earlier color in
  * normal vision and under deuteranopia and protanopia.
@@ -214,8 +220,29 @@ export const createPaletteGenerator = (
 	seeds: readonly string[],
 	background: string,
 	labelColors: readonly string[] = []
-): ( ( index: number ) => string ) => {
+): ColorAt => {
 	const normalizedSeeds = seeds.map( hex => hex.toLowerCase() );
+	const normalizedBackground = background.toLowerCase();
+	const normalizedLabels = labelColors.map( hex => hex.toLowerCase() );
+	const key = `${ normalizedSeeds.join( ',' ) }|${ normalizedBackground }|${ normalizedLabels.join(
+		','
+	) }`;
+	let colorAt = generators.get( key );
+	if ( ! colorAt ) {
+		if ( generators.size >= MAX_CACHED_GENERATORS ) {
+			generators.delete( generators.keys().next().value as string );
+		}
+		colorAt = buildPaletteGenerator( normalizedSeeds, normalizedBackground, normalizedLabels );
+		generators.set( key, colorAt );
+	}
+	return colorAt;
+};
+
+const buildPaletteGenerator = (
+	normalizedSeeds: readonly string[],
+	background: string,
+	labelColors: readonly string[]
+): ColorAt => {
 	const palette: Candidate[] = normalizedSeeds.map( hex => toCandidate( hex ) );
 	const usedHexes = new Set< string >( normalizedSeeds );
 	const anchorHue = palette.length > 0 ? palette[ 0 ].hue : null;

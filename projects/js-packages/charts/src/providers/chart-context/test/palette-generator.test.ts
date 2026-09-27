@@ -113,6 +113,13 @@ describe( 'createPaletteGenerator', () => {
 		}
 	);
 
+	it( 'shares one generator between calls with the same inputs, whatever their case', () => {
+		const first = createPaletteGenerator( [ '#3858E9' ], '#FFFFFF', LABEL_COLORS );
+		expect( createPaletteGenerator( [ '#3858e9' ], '#ffffff', LABEL_COLORS ) ).toBe( first );
+		expect( createPaletteGenerator( [ '#3858e9' ], '#1e1e1e', LABEL_COLORS ) ).not.toBe( first );
+		expect( createPaletteGenerator( [ '#3858e9' ], '#ffffff' ) ).not.toBe( first );
+	} );
+
 	it( 'returns the same colors whatever order they are asked for in', () => {
 		const inOrder = paletteOf( [ '#3858e9' ], '#ffffff', 8 );
 		const colorAt = createPaletteGenerator( [ '#3858e9' ], '#ffffff', LABEL_COLORS );
