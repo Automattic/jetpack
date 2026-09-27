@@ -31,7 +31,7 @@ export const Identity = () => {
 	if ( user ) {
 		name = user.name;
 	} else if ( signedIn.value ) {
-		name = strings.viaWordPress.replace( '%s', () => signedIn.value!.name );
+		name = signedIn.value.name;
 	} else if ( isSavedGuest ) {
 		name = commenter.value.author;
 	} else {

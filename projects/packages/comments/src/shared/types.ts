@@ -84,7 +84,6 @@ export type Strings = {
 	logIn: string;
 	logInWithWordPress: string;
 	logOut: string;
-	viaWordPress: string;
 	commentingAs: string;
 	cancel: string;
 	signInFailed: string;

@@ -479,8 +479,6 @@ class Comment_Form {
 			'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
 			'logOut'              => __( 'Log out', 'jetpack-comments' ),
 			/* translators: %s is the commenter's name. */
-			'viaWordPress'        => __( '%s via WordPress.com', 'jetpack-comments' ),
-			/* translators: %s is the commenter's name. */
 			'commentingAs'        => __( 'Commenting as %s', 'jetpack-comments' ),
 			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
