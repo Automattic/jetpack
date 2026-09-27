@@ -84,8 +84,9 @@
 	display: inline-flex;
 	align-items: center;
 	gap: 0.75em;
-	// Pins it to the near side once wrapped; the row starts on the far side.
-	margin-inline-end: auto;
+	// Shares the row with the submit down to 10em; below that it wraps above it.
+	flex: 1 1 10em;
+	min-inline-size: 0;
 }
 
 .jetpack-comments__avatar {
