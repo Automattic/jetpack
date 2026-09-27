@@ -584,8 +584,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 									preserveAspectRatio="none"
 								/>
 
-								{ /* Drawn in on the start step only; the prototype's other panels are static. */ }
-								<PanelArt animate={ isStart } />
+								{ /*
+								 * Drawn in on every step, and keyed so it draws again on each one:
+								 * the animation is CSS, so replaying it means a fresh element. The
+								 * prototype keeps this to its start screen because its other panels
+								 * carry a stage the art would compete with. Ours carry the art, so
+								 * there is nothing for it to compete with.
+								 */ }
+								<PanelArt key={ `art-${ meta.id }` } animate />
 								{ /* Keyed by step so each line rises again when the copy is swapped. */ }
 								<p key={ meta.id } className={ styles[ 'brand-panel__copy' ] }>
 									{ /*
