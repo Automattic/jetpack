@@ -29,7 +29,7 @@ export const Identity = () => {
 	let name: string;
 
 	if ( user ) {
-		name = user.viaWordPress ? strings.viaWordPress.replace( '%s', () => user.name ) : user.name;
+		name = user.name;
 	} else if ( signedIn.value ) {
 		name = strings.viaWordPress.replace( '%s', () => signedIn.value!.name );
 	} else if ( isSavedGuest ) {

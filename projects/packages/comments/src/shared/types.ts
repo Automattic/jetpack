@@ -105,7 +105,7 @@ export type Settings = {
 	manageSubscriptions: { url: string; byEmail: boolean; signedInUrl: string };
 	strings: Strings;
 	commenter: Commenter;
-	user: { name: string; viaWordPress: boolean } | null;
+	user: { name: string } | null;
 	identity: IdentitySettings;
 };
 
