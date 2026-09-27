@@ -203,7 +203,7 @@ const pickNext = (
 
 type ColorAt = ( index: number ) => string;
 
-// Generation is deterministic, so every provider on a page with the same inputs (one per Premium Analytics widget) shares one generator.
+// Generation is deterministic, so every provider on a page with the same inputs shares one generator.
 const generators = new Map< string, ColorAt >();
 const MAX_CACHED_GENERATORS = 32;
 
