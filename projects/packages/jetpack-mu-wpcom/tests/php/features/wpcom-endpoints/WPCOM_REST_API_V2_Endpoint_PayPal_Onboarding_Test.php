@@ -698,7 +698,10 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 
 		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 404, $result->get_data()['status'] );
-		$this->assertSame( 'RESOURCE_NOT_FOUND', json_decode( $result->get_data()['body'], true )['name'] );
+
+		$body = json_decode( $result->get_data()['body'], true );
+		$this->assertIsArray( $body );
+		$this->assertSame( 'RESOURCE_NOT_FOUND', $body['name'] );
 	}
 
 	/**
@@ -742,8 +745,11 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			$requests
 		);
 
-		$this->endpoint->forward_request( $this->forward_request( array( 'method' => 'GET' ) ) );
-		$this->endpoint->forward_request( $this->forward_request( array( 'method' => 'GET' ) ) );
+		$first  = $this->endpoint->forward_request( $this->forward_request( array( 'method' => 'GET' ) ) );
+		$second = $this->endpoint->forward_request( $this->forward_request( array( 'method' => 'GET' ) ) );
+
+		$this->assertNotInstanceOf( WP_Error::class, $first );
+		$this->assertNotInstanceOf( WP_Error::class, $second );
 
 		$lookups = array_filter(
 			$requests,
@@ -768,8 +774,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	 *
 	 * @dataProvider provide_paths
 	 *
-	 * @param string $path    A PayPal path.
-	 * @param bool   $allowed Whether the proxy accepts it.
+	 * @param mixed $path    A PayPal path, or whatever else a request carries.
+	 * @param bool  $allowed Whether the proxy accepts it.
 	 */
 	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_paths' )]
 	public function test_only_payment_resources_paths_are_accepted( $path, $allowed ) {
@@ -779,7 +785,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	/**
 	 * Paths the proxy is asked for.
 	 *
-	 * @return array<string, array{string, bool}>
+	 * @return array<string, array{0:mixed, 1:bool}>
 	 */
 	public static function provide_paths() {
 		return array(

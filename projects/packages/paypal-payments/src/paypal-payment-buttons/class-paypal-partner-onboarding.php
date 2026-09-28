@@ -237,6 +237,9 @@ class PayPal_Partner_Onboarding {
 
 		$status_code = wp_remote_retrieve_response_code( $response );
 		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+		if ( ! is_array( $body ) ) {
+			$body = array();
+		}
 
 		if ( 201 !== $status_code && 200 !== $status_code ) {
 			/*

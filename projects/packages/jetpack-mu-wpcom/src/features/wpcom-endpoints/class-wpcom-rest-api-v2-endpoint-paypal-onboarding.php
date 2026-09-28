@@ -340,7 +340,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
-		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+		$body        = self::decode_body( $response );
 
 		if ( 201 !== $status_code && 200 !== $status_code ) {
 			/*
@@ -635,7 +635,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
-		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+		$body        = self::decode_body( $response );
 
 		if ( 200 !== $status_code || empty( $body['merchant_id'] ) ) {
 			// PayPal answers 404 until the seller has finished, so the caller can retry.
@@ -670,13 +670,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
-		$body        = json_decode( wp_remote_retrieve_body( $response ), true );
+		$body        = self::decode_body( $response );
 
-		if ( 200 !== $status_code || ! is_array( $body ) ) {
+		if ( 200 !== $status_code || array() === $body ) {
 			return new WP_Error(
 				'paypal_merchant_status_error',
 				'Could not retrieve merchant integration status from PayPal.',
-				$this->paypal_error_data( $status_code, is_array( $body ) ? $body : array() )
+				$this->paypal_error_data( $status_code, $body )
 			);
 		}
 
@@ -684,13 +684,25 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	}
 
 	/**
-	 * Error data carrying PayPal's diagnostics through to the site.
+	 * PayPal's JSON body as an array; anything that is not a JSON object reads as empty.
 	 *
-	 * @param int        $status_code PayPal's HTTP status.
-	 * @param array|null $body        PayPal's decoded error body.
+	 * @param array $response The wp_remote_request() response.
 	 * @return array
 	 */
-	private function paypal_error_data( $status_code, $body ) {
+	private static function decode_body( $response ) {
+		$body = json_decode( wp_remote_retrieve_body( $response ), true );
+
+		return is_array( $body ) ? $body : array();
+	}
+
+	/**
+	 * Error data carrying PayPal's diagnostics through to the site.
+	 *
+	 * @param int   $status_code PayPal's HTTP status.
+	 * @param array $body        PayPal's decoded error body.
+	 * @return array
+	 */
+	private function paypal_error_data( $status_code, array $body ) {
 		$error_data = array( 'status' => $status_code );
 
 		if ( ! empty( $body['name'] ) ) {
@@ -899,7 +911,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
-		$data        = json_decode( wp_remote_retrieve_body( $response ), true );
+		$data        = self::decode_body( $response );
 
 		if ( 200 !== $status_code || empty( $data['access_token'] ) ) {
 			return new WP_Error(
