@@ -548,8 +548,23 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	private function print_kept_jquery_core() {
 		Filters\expectApplied( 'jetpack_boost_render_blocking_js_exclude_handles' )
 			->andReturn( array( 'jquery-core' ) );
+		$this->stub_registered_scripts( array( 'jquery' => array( 'jquery-core', 'jquery-migrate' ) ) );
 
 		return $this->instance->handle_exclusions( '<script id="jquery-core-js" src="jquery.min.js"></script>', 'jquery-core' ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
+	}
+
+	/**
+	 * Register scripts with WP_Scripts-shaped objects.
+	 *
+	 * @param array $deps_by_handle Dependencies of each registered handle.
+	 */
+	private function stub_registered_scripts( $deps_by_handle ) {
+		$registered = array();
+		foreach ( $deps_by_handle as $handle => $deps ) {
+			$registered[ $handle ] = (object) array( 'deps' => $deps );
+		}
+
+		Functions\when( 'wp_scripts' )->justReturn( (object) array( 'registered' => $registered ) );
 	}
 
 	/**
@@ -629,6 +644,23 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 
 		list( $output, $rest ) = $this->instance->handle_output_stream( $second_rest, '<body><p>Content</p>' );
 		$this->assertSame( array( '</head>', '<body><p>Content</p>' ), array( $output, $rest ) );
+	}
+
+	/**
+	 * A kept script nothing depends on stays put on its own, so the scripts before it are still moved.
+	 */
+	public function test_scripts_before_a_kept_leaf_handle_are_still_moved() {
+		Filters\expectApplied( 'jetpack_boost_render_blocking_js_exclude_handles' )
+			->andReturn( array( 'jetpack_likes_queuehandler' ) );
+		$this->stub_registered_scripts( array( 'jetpack_likes_queuehandler' => array() ) );
+
+		$analytics = '<script id="analytics-js" src="analytics.js"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
+		$queue     = $this->instance->handle_exclusions( '<script id="jetpack_likes_queuehandler-js" src="queuehandler.js"></script>', 'jetpack_likes_queuehandler' ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
+
+		list( $output, $rest ) = $this->instance->handle_output_stream( "<head>$analytics</head><body>$queue</body>", '' );
+
+		$this->assertSame( "<head></head><body>$queue</body>", $output . $rest );
+		$this->assertSame( array( $analytics ), $this->get_buffered_script_tags() );
 	}
 
 	/**

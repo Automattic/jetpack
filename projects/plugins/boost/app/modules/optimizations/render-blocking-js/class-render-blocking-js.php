@@ -42,8 +42,7 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	protected $buffered_script_tags = array();
 
 	/**
-	 * `id` attributes of the tags printed for handles kept in place via
-	 * `jetpack_boost_render_blocking_js_exclude_handles`.
+	 * `id` attributes of the tags printed for kept-in-place handles that other scripts depend on.
 	 *
 	 * @var string[]
 	 */
@@ -280,10 +279,10 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	}
 
 	/**
-	 * Keep every script up to the last kept-in-place handle in document order.
+	 * Keep every script up to the last kept-in-place library in document order.
 	 *
-	 * Scripts printed before such a handle may set up state it relies on, like Divi's inline
-	 * jQuery stand-in before `jquery-core` (BOOST-763), so moving them after it breaks the page.
+	 * Scripts printed before a library may set up state around it, like Divi's inline jQuery
+	 * stand-in before `jquery-core` (BOOST-763), so moving them after it breaks the page.
 	 *
 	 * @param string $buffer Captured piece of output buffer.
 	 *
@@ -557,9 +556,30 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 			return $tag;
 		}
 
-		$this->kept_script_ids[] = $handle . '-js';
+		// A kept script nothing depends on, like the Likes queue handler in the footer, needs no
+		// scripts before it kept in place, and making it a barrier would stop deferral on the whole page.
+		if ( $this->has_dependents( $handle ) ) {
+			$this->kept_script_ids[] = $handle . '-js';
+		}
 
 		return $this->add_ignore_attribute( $tag );
+	}
+
+	/**
+	 * Whether any registered script depends on the handle.
+	 *
+	 * @param string $handle Script handle.
+	 *
+	 * @return bool
+	 */
+	private function has_dependents( $handle ) {
+		foreach ( wp_scripts()->registered as $script ) {
+			if ( in_array( $handle, (array) $script->deps, true ) ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
