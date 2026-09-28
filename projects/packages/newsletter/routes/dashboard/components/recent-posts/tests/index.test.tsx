@@ -113,14 +113,31 @@ describe( 'RecentPosts', () => {
 			'href',
 			defaultProps.createPostUrl
 		);
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_state_view', {
+			site_type: 'jetpack',
+			area: 'recent_posts',
+			state: 'empty',
+		} );
+
+		rerender( <RecentPosts { ...defaultProps } posts={ [] } /> );
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 
 		rerender( <RecentPosts { ...defaultProps } posts={ [] } isError /> );
 		expect( screen.getByText( 'Recent posts could not be loaded.' ) ).toBeInTheDocument();
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_state_view', {
+			site_type: 'jetpack',
+			area: 'recent_posts',
+			state: 'error',
+		} );
 		// This direct callback test does not need user-event's pointer simulation.
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( defaultProps.onRetry ).toHaveBeenCalledTimes( 1 );
-		expect( mockRecordEvent ).not.toHaveBeenCalled();
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_retry_click', {
+			site_type: 'jetpack',
+			area: 'recent_posts',
+		} );
 	} );
 
 	it( 'records a recent-post click with its id and status', () => {

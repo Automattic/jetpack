@@ -11,7 +11,7 @@ import { info } from '@wordpress/icons';
 import { Button, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
-import RecentPosts, { type RecentPost } from '../recent-posts';
+import RecentPosts, { recordStatsEvent, useStatsStateView, type RecentPost } from '../recent-posts';
 import './style.scss';
 
 type SubscribersStatsResponse = {
@@ -223,8 +223,16 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const emailRates = toEmailRates( recentPostsQuery.data?.emailTotals );
 	const { refetch: refetchSubscribers } = subscribersQuery;
 	const retrySubscribers = useCallback( () => {
+		recordStatsEvent( 'jetpack_newsletter_stats_retry_click', { area: 'subscribers' } );
 		refetchSubscribers();
 	}, [ refetchSubscribers ] );
+	let subscribersState: 'empty' | 'error' | null = null;
+	if ( subscribersQuery.isError ) {
+		subscribersState = 'error';
+	} else if ( subscriberStats && subscriberStats.chartData.length === 0 ) {
+		subscribersState = 'empty';
+	}
+	useStatsStateView( 'subscribers', subscribersState );
 
 	let chartContent: JSX.Element;
 	if ( subscribersQuery.isError ) {

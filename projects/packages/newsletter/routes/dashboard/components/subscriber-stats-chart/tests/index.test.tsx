@@ -23,6 +23,16 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => ( {
 		user: { current_user: { display_name: 'Bob Sacramento' } },
 	} ),
+	getSiteType: () => 'jetpack',
+} ) );
+
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
 } ) );
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -74,6 +84,7 @@ function renderStats(): void {
 beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockLineChart.mockReset();
+	mockRecordEvent.mockReset();
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
 		if ( path.includes( '/stats/subscribers' ) ) {
 			return Promise.resolve( subscribersResponse );
@@ -159,6 +170,11 @@ describe( 'SubscriberStatsChart', () => {
 		await expect(
 			screen.findByText( 'Subscriber stats could not be loaded.' )
 		).resolves.toBeInTheDocument();
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_state_view', {
+			site_type: 'jetpack',
+			area: 'subscribers',
+			state: 'error',
+		} );
 
 		const subscribersCallsBeforeRetry = mockApiFetch.mock.calls.filter( ( [ { path } ] ) =>
 			path.includes( '/stats/subscribers' )
@@ -173,6 +189,10 @@ describe( 'SubscriberStatsChart', () => {
 				path.includes( '/stats/subscribers' )
 			).length;
 			expect( subscribersCallsAfterRetry ).toBeGreaterThan( subscribersCallsBeforeRetry );
+		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_retry_click', {
+			site_type: 'jetpack',
+			area: 'subscribers',
 		} );
 	} );
 
@@ -190,5 +210,11 @@ describe( 'SubscriberStatsChart', () => {
 			screen.findByText( 'No subscriber data is available for this period.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'subscriber-chart' ) ).not.toBeInTheDocument();
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_state_view', {
+			site_type: 'jetpack',
+			area: 'subscribers',
+			state: 'empty',
+		} );
 	} );
 } );
