@@ -175,6 +175,7 @@ jest.mock( '@wordpress/route', () => {
 		Link: mockWordPressRoute.Link,
 		useParams: () => ( { videoId: '42' } ),
 		useSearch: () => mockSearch,
+		useNavigate: () => jest.fn(),
 	};
 } );
 

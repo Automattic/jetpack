@@ -154,6 +154,7 @@ jest.mock( '@wordpress/route', () => {
 		Link: mockWordPressRoute.Link,
 		useParams: () => ( { authorId: '7' } ),
 		useSearch: () => mockSearch,
+		useNavigate: () => jest.fn(),
 	};
 } );
 

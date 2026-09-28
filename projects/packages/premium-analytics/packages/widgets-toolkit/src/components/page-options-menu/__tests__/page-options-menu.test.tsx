@@ -616,11 +616,19 @@ describe( 'switching the new Stats off', () => {
 } );
 
 describe( 'the settings', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
 	it( 'open in a drawer from the menu, which sits outside any query provider', async () => {
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			Promise.resolve( path === '/jetpack/v4/stats/settings' ? SETTINGS_RESPONSE : 'success' )
 		);
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <PageOptionsMenu /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
@@ -636,7 +644,7 @@ describe( 'the settings', () => {
 	it( 'open from `?settings` in the URL, and drop it on close so a reload does not reopen them', async () => {
 		mockApiFetch.mockImplementation( () => Promise.resolve( SETTINGS_RESPONSE ) );
 		mockSearch.mockReturnValue( { settings: '1', from: '2026-09-01' } );
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <PageOptionsMenu /> );
 
 		const drawer = await screen.findByRole( 'dialog', { name: 'Settings' } );
@@ -649,7 +657,7 @@ describe( 'the settings', () => {
 
 	it( 'are not offered on a Simple site, which has no settings route', async () => {
 		mockIsSimpleSite.mockReturnValue( true );
-		const user = userEvent.setup();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <PageOptionsMenu /> );
 
 		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );

@@ -88,6 +88,8 @@ describe( 'getAnalyticsUrl', () => {
 		[ { view: 'post', id: 9, section: 'traffic' }, '/post/9?section=post-traffic' ],
 		[ { view: 'post', id: 9, section: 'email-opens' }, '/post/9?section=email-opens' ],
 		[ { view: 'post', id: 9, section: 'email-clicks' }, '/post/9?section=email-clicks' ],
+		// The dashboard opens its settings drawer on `?settings`.
+		[ { view: 'settings' }, '/?settings=1' ],
 		// An unknown section resolves to the default tab anyway, so it is dropped
 		// rather than left dead in a shareable URL.
 		[ { view: 'dashboard', section: 'nope' }, '/' ],

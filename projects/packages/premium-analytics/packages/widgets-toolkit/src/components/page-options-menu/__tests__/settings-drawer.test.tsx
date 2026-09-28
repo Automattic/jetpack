@@ -98,7 +98,10 @@ afterEach( () => {
 } );
 
 describe( 'SettingsDrawer', () => {
-	it( 'keeps administrators able to view Stats', async () => {
+	it( 'keeps administrators able to view Stats when the stored roles leave them out', async () => {
+		mockApiFetch.mockImplementation( () =>
+			Promise.resolve( { ...STORED, settings: { ...STORED.settings, roles: [ 'editor' ] } } )
+		);
 		const user = showDrawer();
 
 		await openRoleSelect( user, VIEWED_BY );
@@ -191,6 +194,23 @@ describe( 'SettingsDrawer', () => {
 		rerender( <SettingsDrawer open onClose={ () => {} } /> );
 
 		await expect( screen.findByRole( 'checkbox', toggleName ) ).resolves.toBeChecked();
+	} );
+
+	it( 'stays open while a save is running', async () => {
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST' ? new Promise( () => {} ) : Promise.resolve( STORED )
+		);
+		const onClose = jest.fn();
+		const user = showDrawer( onClose );
+
+		await user.click(
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+		);
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await expect( screen.findByRole( 'button', { name: 'Saving…' } ) ).resolves.toBeInTheDocument();
+		await user.keyboard( '{Escape}' );
+
+		expect( onClose ).not.toHaveBeenCalled();
 	} );
 
 	it( 'stays open and says why when the site refuses the change', async () => {

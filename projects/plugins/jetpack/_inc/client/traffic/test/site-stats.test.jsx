@@ -71,6 +71,25 @@ describe( 'SiteStats', () => {
 		);
 	} );
 
+	it( 'links to the Stats v2 settings drawer when Stats v2 is the analytics UI', () => {
+		window.JetpackScriptData = {
+			site: { admin_url: 'https://example.com/wp-admin/' },
+			analytics: {
+				enabled: true,
+				page_slug: 'jetpack-premium-analytics-wp-admin',
+				can_view: true,
+				timezone: 'UTC',
+			},
+		};
+		renderSiteStats( { isOdysseyStatsEnabled: true } );
+		delete window.JetpackScriptData;
+
+		expect( screen.getByRole( 'link', { name: LINK_NAME } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/admin.php?page=jetpack-premium-analytics-wp-admin&p=%2F%3Fsettings%3D1'
+		);
+	} );
+
 	it( 'keeps the settings on this page when the site uses the old Stats page', () => {
 		renderSiteStats( { isOdysseyStatsEnabled: false } );
 
