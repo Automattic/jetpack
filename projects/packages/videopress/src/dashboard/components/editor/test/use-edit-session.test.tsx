@@ -1,5 +1,5 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { act, renderHook } from '@testing-library/react';
+import { useDispatch } from '@wordpress/data';
 import { useSyncExternalStore } from 'react';
 import { useRestoreOriginal } from '../../../hooks/use-restore-original';
 import { EditsConflictError, useSaveVideoEdits } from '../../../hooks/use-save-video-edits';
@@ -9,9 +9,8 @@ import { createTestWrapper } from '../../../test-utils/query-client-wrapper';
 import { useEditSession } from '../use-edit-session';
 import type { VideoEdits } from '../../../types/edits';
 
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: jest.fn(),
-} ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( { useDispatch: jest.fn() } ) );
 jest.mock( '../../../hooks/use-video-edits', () => ( { useVideoEdits: jest.fn() } ) );
 jest.mock( '../../../hooks/use-restore-original', () => ( { useRestoreOriginal: jest.fn() } ) );
 jest.mock( '../../../hooks/use-save-video-edits', () => ( {
@@ -55,7 +54,7 @@ beforeEach( () => {
 		job: { id: null, status: 'idle', target_revision: null, progress: null, error: null },
 		updated: '2026-09-20T00:00:00Z',
 	} );
-	jest.mocked( useGlobalNotices ).mockReturnValue( {
+	jest.mocked( useDispatch ).mockReturnValue( {
 		createSuccessNotice: successNotice,
 		createErrorNotice: errorNotice,
 	} as never );
@@ -125,7 +124,7 @@ describe( 'useEditSession', () => {
 				listeners.delete( notify );
 			};
 		};
-		jest.mocked( useGlobalNotices ).mockImplementation( () => {
+		jest.mocked( useDispatch ).mockImplementation( () => {
 			useSyncExternalStore( subscribe, () => version );
 			return {
 				createErrorNotice: errorNotice,

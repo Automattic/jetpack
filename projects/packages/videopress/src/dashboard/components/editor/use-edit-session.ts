@@ -1,5 +1,6 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import {
 	createHistory,
@@ -32,7 +33,7 @@ export function useEditSession( video: LibraryItem ) {
 	const saveMutation = useSaveVideoEdits();
 	const restoreMutation = useRestoreOriginal();
 	const retryMutation = useRetryVideoProcessing();
-	const notices = useGlobalNotices();
+	const notices = useDispatch( noticesStore );
 	const noticesRef = useRef( notices );
 	noticesRef.current = notices;
 	const [ history, dispatch ] = useReducer( reducer, video.durationSeconds, duration =>

@@ -1,7 +1,7 @@
 /* eslint-disable testing-library/prefer-user-event -- Media, browser navigation, and document shortcuts need native events. */
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useDispatch } from '@wordpress/data';
 import { useNavigate } from '@wordpress/route';
 import { useRestoreOriginal } from '../../../hooks/use-restore-original';
 import { useRetryVideoProcessing } from '../../../hooks/use-retry-video-processing';
@@ -13,8 +13,18 @@ import TrimCutEditor from '../editor-screen';
 import type { EditsJob, VideoEdits } from '../../../types/edits';
 import type { ReactNode } from 'react';
 
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: jest.fn(),
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: jest.fn(),
 } ) );
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
@@ -159,7 +169,7 @@ beforeEach( () => {
 	jest.clearAllMocks();
 	confirmNavigation = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
 	jest.mocked( useNavigate ).mockReturnValue( navigate );
-	jest.mocked( useGlobalNotices ).mockReturnValue( {
+	jest.mocked( useDispatch ).mockReturnValue( {
 		createSuccessNotice: successNotice,
 		createErrorNotice: errorNotice,
 	} as never );
