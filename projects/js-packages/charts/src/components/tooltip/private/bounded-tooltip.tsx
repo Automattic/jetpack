@@ -1,5 +1,7 @@
-import { Tooltip, defaultStyles } from '@visx/tooltip';
+import { Tooltip } from '@visx/tooltip';
+import clsx from 'clsx';
 import { useLayoutEffect, useRef, useState } from 'react';
+import styles from '../base-tooltip.module.scss';
 import type { TooltipPlacement } from '../../../visx/types';
 import type { TooltipProps } from '@visx/tooltip';
 
@@ -136,8 +138,9 @@ export const getBoundedPosition = ( {
  * @param props.top        - Anchor y, in wrapper coordinates.
  * @param props.offsetLeft - Gap between the anchor and the box, horizontally.
  * @param props.offsetTop  - Gap between the anchor and the box, vertically.
- * @param props.style      - Box styles; visx's defaults unless `unstyled`.
- * @param props.unstyled   - Skip `style` and leave the box bare.
+ * @param props.style      - Inline overrides on the surface; ignored when `unstyled`.
+ * @param props.unstyled   - Drop the surface and `style`, leaving the box bare.
+ * @param props.className  - Extra classes beside the surface.
  * @param props.children   - Box content.
  * @param props.placement  - Below-axis, beside without vertical flipping, or automatic flipping.
  * @return The tooltip box.
@@ -147,8 +150,9 @@ export const BoundedTooltip = ( {
 	top = 0,
 	offsetLeft = DEFAULT_OFFSET,
 	offsetTop = DEFAULT_OFFSET,
-	style = defaultStyles,
+	style,
 	unstyled = false,
+	className,
 	children,
 	placement = 'auto',
 	...rest
@@ -202,6 +206,7 @@ export const BoundedTooltip = ( {
 		<Tooltip
 			ref={ nodeRef }
 			data-testid="bounded-tooltip"
+			className={ clsx( ! unstyled && styles.surface, className ) }
 			style={ {
 				position: 'absolute',
 				left: 0,
