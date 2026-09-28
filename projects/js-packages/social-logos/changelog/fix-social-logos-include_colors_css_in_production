@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Include a colors.css export that defines brand colors for various services.
+Ensure `colors.css` export is available in production builds.
