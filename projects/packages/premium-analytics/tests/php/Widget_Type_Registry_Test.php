@@ -467,6 +467,16 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The sanitizer keeps a list of distinct strings, and nothing else.
+	 */
+	public function test_sanitize_widget_former_names_keeps_distinct_strings_only() {
+		$this->assertNull( sanitize_widget_former_names( null ) );
+		$this->assertNull( sanitize_widget_former_names( 'jpa/old' ) );
+		$this->assertNull( sanitize_widget_former_names( array( 42, null ) ) );
+		$this->assertSame( array( 'jpa/old', 'jpa/older' ), sanitize_widget_former_names( array( 'jpa/old', 42, 'jpa/old', 'jpa/older' ) ) );
+	}
+
+	/**
 	 * The manifest helper takes former names from the candidate, or from the registrant's map.
 	 */
 	public function test_manifest_helper_stamps_the_former_names_onto_the_type() {

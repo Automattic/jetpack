@@ -314,9 +314,14 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->filter_default_layout(
 			static function ( $layout, $section_id ) use ( $widget_type ) {
 				if ( 'analytics/traffic' === $section_id ) {
-					$layout[] = get_dashboard_default_widget_instance( 'object-typed', $widget_type, 20 );
-					$layout[] = get_dashboard_default_widget_instance( 'array-typed', array( 'example/object-typed' ), 21 );
-					$layout[] = get_dashboard_default_widget_instance( 'string-typed', 'example/object-typed', 22 );
+					// What a plugin gets by passing the object register_widget_type() returns, or a list.
+					$object_typed         = get_dashboard_default_widget_instance( 'object-typed', 'example/object-typed', 20 );
+					$object_typed['type'] = $widget_type;
+					$array_typed          = get_dashboard_default_widget_instance( 'array-typed', 'example/object-typed', 21 );
+					$array_typed['type']  = array( 'example/object-typed' );
+					$layout[]             = $object_typed;
+					$layout[]             = $array_typed;
+					$layout[]             = get_dashboard_default_widget_instance( 'string-typed', 'example/object-typed', 22 );
 				}
 				return $layout;
 			}
@@ -327,6 +332,24 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$this->assertNotContains( $widget_type, $layout_types );
 		$this->assertNotContains( array( 'example/object-typed' ), $layout_types );
 		$this->assertSame( array( 'example/object-typed' ), array_values( array_filter( $layout_types, 'is_string' ) ) );
+	}
+
+	/**
+	 * Something that is not an instance at all passes through the policy untouched.
+	 */
+	public function test_policy_leaves_non_instances_alone() {
+		$this->register_example_widget_type( 'example/registered' );
+
+		$layout = remove_unsupported_default_layout_items(
+			array(
+				'not-an-instance',
+				get_dashboard_default_widget_instance( 'registered', 'example/registered', 20 ),
+				get_dashboard_default_widget_instance( 'unregistered', 'example/unregistered', 21 ),
+			)
+		);
+
+		$this->assertSame( array( 'not-an-instance', 'registered' ), array( $layout[0], $layout[1]['uuid'] ) );
+		$this->assertCount( 2, $layout );
 	}
 
 	/**
