@@ -12,6 +12,7 @@ import { Link, useNavigate, useParams } from '@wordpress/route';
 import { Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
+import { DeleteVideoConfirmationDialog } from '../../src/dashboard/components/delete-video-confirmation-modal';
 import QueryClientWrapper from '../../src/dashboard/components/query-client-wrapper';
 import ChaptersHelpModal from '../../src/dashboard/components/video-details/chapters-help-modal';
 import HeaderActions from '../../src/dashboard/components/video-details/header-actions';
@@ -27,6 +28,7 @@ import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
+import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import { isTrimCutEnabled } from '../../src/dashboard/utils/trim-cut';
@@ -285,6 +287,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 	const [ chaptersOpen, setChaptersOpen ] = useState( false );
 	const [ captionsOpen, setCaptionsOpen ] = useState( false );
+	const [ isDeleteConfirmOpen, setDeleteConfirmOpen ] = useState( false );
 	const queryClient = useQueryClient();
 
 	/*
@@ -309,6 +312,41 @@ const StageReady = ( { video }: StageReadyProps ) => {
 			isMountedRef.current = false;
 		};
 	}, [] );
+
+	const handleDelete = () => {
+		if ( isDeleting ) {
+			return;
+		}
+		setDeleteConfirmOpen( false );
+		// Deleting can take several seconds (the backend also removes the
+		// remote VideoPress copy); surface progress immediately so the
+		// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
+		// from auto-expiring before the request settles.
+		createInfoNotice( __( 'Deleting video…', 'jetpack-videopress-pkg' ), {
+			id: deletingNoticeId( video.id ),
+			explicitDismiss: true,
+			type: 'snackbar',
+		} );
+		// Promise chain rather than mutate-level callbacks: those are
+		// dropped when the component unmounts mid-flight, which would
+		// orphan the explicitDismiss notice above forever.
+		deleteVideo( Number( video.id ) )
+			.then( () => {
+				createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
+					id: deletingNoticeId( video.id ),
+					type: 'snackbar',
+				} );
+				if ( isMountedRef.current ) {
+					navigate( { href: '/' } );
+				}
+			} )
+			.catch( () => {
+				createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ), {
+					id: deletingNoticeId( video.id ),
+					type: 'snackbar',
+				} );
+			} );
+	};
 
 	return (
 		<>
@@ -349,39 +387,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 						}
 					);
 				} }
-				onDelete={ () => {
-					if ( isDeleting ) {
-						return;
-					}
-					// Deleting can take several seconds (the backend also removes the
-					// remote VideoPress copy); surface progress immediately so the
-					// action doesn't feel frozen. `explicitDismiss` keeps the snackbar
-					// from auto-expiring before the request settles.
-					createInfoNotice( __( 'Deleting video…', 'jetpack-videopress-pkg' ), {
-						id: deletingNoticeId( video.id ),
-						explicitDismiss: true,
-						type: 'snackbar',
-					} );
-					// Promise chain rather than mutate-level callbacks: those are
-					// dropped when the component unmounts mid-flight, which would
-					// orphan the explicitDismiss notice above forever.
-					deleteVideo( Number( video.id ) )
-						.then( () => {
-							createSuccessNotice( __( 'Video deleted.', 'jetpack-videopress-pkg' ), {
-								id: deletingNoticeId( video.id ),
-								type: 'snackbar',
-							} );
-							if ( isMountedRef.current ) {
-								navigate( { href: '/' } );
-							}
-						} )
-						.catch( () => {
-							createErrorNotice( __( 'Failed to delete video.', 'jetpack-videopress-pkg' ), {
-								id: deletingNoticeId( video.id ),
-								type: 'snackbar',
-							} );
-						} );
-				} }
+				onDelete={ () => setDeleteConfirmOpen( true ) }
 				onDownload={ () => {
 					if ( video.sourceUrl ) {
 						window.open( video.sourceUrl, '_blank' );
@@ -403,11 +409,19 @@ const StageReady = ( { video }: StageReadyProps ) => {
 					onTracksChange={ () => void invalidateVideo( video.id ) }
 				/>
 			) }
+			<DeleteVideoConfirmationDialog
+				isOpen={ isDeleteConfirmOpen }
+				count={ 1 }
+				isDeleting={ isDeleting }
+				onCancel={ () => setDeleteConfirmOpen( false ) }
+				onConfirm={ handleDelete }
+			/>
 		</>
 	);
 };
 
 const StageInner = () => {
+	useUploadUnloadGuard();
 	const { id } = useParams( { from: '/video/$id' } );
 	const { video, isLoading } = useVideo( id );
 
