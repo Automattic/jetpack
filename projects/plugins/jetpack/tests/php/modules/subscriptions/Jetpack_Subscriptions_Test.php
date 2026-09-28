@@ -240,14 +240,14 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	/**
 	 * The Newsletter column in the posts list shows the access level visitors get, not the raw meta.
 	 *
-	 * @param string      $content         Post content.
-	 * @param string|null $stored_access   Access level stored on the post, or null for none.
-	 * @param string      $expected_access Access level expected from Jetpack_Memberships::get_post_access_level().
-	 * @param bool        $unused          Paywalled-content flag, covered by the test above.
+	 * @param string      $content            Post content.
+	 * @param string|null $stored_access      Access level stored on the post, or null for none.
+	 * @param string      $expected_access    Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $expected_paywalled Paywalled-content flag, covered by the test above.
 	 * @dataProvider paywall_access_level_provider
 	 */
 	#[DataProvider( 'paywall_access_level_provider' )]
-	public function test_newsletter_column_shows_effective_access_level( $content, $stored_access, $expected_access, $unused ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+	public function test_newsletter_column_shows_effective_access_level( $content, $stored_access, $expected_access, $expected_paywalled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$labels = array(
 			'everybody'        => 'Everybody',
 			'subscribers'      => 'Subscribers',
