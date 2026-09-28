@@ -1461,21 +1461,13 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Build a Manager with restore()'s collaborators mocked: token validation is
-	 * driven by the given values, and reconnect()/refresh_* are left as spies for
-	 * the test to assert on.
+	 * Build a partial-mock Manager for restore(), wired to the given Tokens mock, with
+	 * reconnect()/refresh_* left as spies for the test to assert on.
 	 *
-	 * @param mixed $validate    What Tokens::validate() returns.
-	 * @param mixed $blog_health What Tokens::validate_blog_token() returns (only consulted on the inconclusive branch).
+	 * @param \PHPUnit\Framework\MockObject\MockObject $tokens A Tokens mock.
 	 * @return \PHPUnit\Framework\MockObject\MockObject&Manager
 	 */
-	private function build_restore_manager( $validate, $blog_health = null ) {
-		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
-			->onlyMethods( array( 'validate', 'validate_blog_token' ) )
-			->getMock();
-		$tokens->method( 'validate' )->willReturn( $validate );
-		$tokens->method( 'validate_blog_token' )->willReturn( $blog_health );
-
+	private function restore_manager_with_tokens( $tokens ) {
 		$manager = $this->getMockBuilder( Manager::class )
 			->onlyMethods( array( 'is_site_connection', 'get_tokens', 'reconnect', 'refresh_blog_token', 'refresh_user_token' ) )
 			->getMock();
@@ -1486,106 +1478,126 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * CONNECT-455: an inconclusive validate() with a confirmed-healthy blog token refreshes
-	 * only the user token, instead of tearing down the whole site connection.
+	 * Assert restore() invokes only $expected_method (stubbed to return true), never the
+	 * other two repair paths, and returns $expected_return.
+	 *
+	 * @param \PHPUnit\Framework\MockObject\MockObject&Manager $manager         The manager under test.
+	 * @param string                                           $expected_method reconnect|refresh_blog_token|refresh_user_token.
+	 * @param mixed                                            $expected_return The value restore() should return.
 	 */
-	public function test_restore_inconclusive_validation_with_healthy_blog_token_refreshes_user_token() {
-		$manager = $this->build_restore_manager( false, true );
-		$manager->expects( $this->never() )->method( 'reconnect' );
-		$manager->expects( $this->never() )->method( 'refresh_blog_token' );
-		$manager->expects( $this->once() )->method( 'refresh_user_token' )->willReturn( true );
+	private function assert_restore_routes( $manager, $expected_method, $expected_return ) {
+		foreach ( array( 'reconnect', 'refresh_blog_token', 'refresh_user_token' ) as $method ) {
+			$expectation = $manager->expects( $method === $expected_method ? $this->once() : $this->never() )->method( $method );
+			if ( $method === $expected_method ) {
+				$expectation->willReturn( true );
+			}
+		}
 
-		$this->assertSame( 'authorize', $manager->restore() );
+		$this->assertSame( $expected_return, $manager->restore() );
 	}
 
 	/**
-	 * An inconclusive validate() with a broken blog token still triggers a full reconnect.
+	 * Conclusive validation flags route to the right repair path without ever making the
+	 * extra blog-token request.
+	 *
+	 * @dataProvider provider_restore_conclusive_flags
+	 *
+	 * @param array  $validate        What Tokens::validate() returns.
+	 * @param string $expected_method The repair path restore() should take.
+	 * @param mixed  $expected_return The value restore() should return.
 	 */
-	public function test_restore_inconclusive_validation_with_broken_blog_token_reconnects() {
-		$manager = $this->build_restore_manager( false, false );
-		$manager->expects( $this->never() )->method( 'refresh_user_token' );
-		$manager->expects( $this->never() )->method( 'refresh_blog_token' );
-		$manager->expects( $this->once() )->method( 'reconnect' )->willReturn( true );
+	#[DataProvider( 'provider_restore_conclusive_flags' )]
+	public function test_restore_conclusive_flags_route_without_a_blog_token_check( $validate, $expected_method, $expected_return ) {
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'validate', 'validate_blog_token' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn( $validate );
+		$tokens->expects( $this->never() )->method( 'validate_blog_token' );
 
-		$this->assertSame( 'authorize', $manager->restore() );
+		$this->assert_restore_routes( $this->restore_manager_with_tokens( $tokens ), $expected_method, $expected_return );
 	}
 
 	/**
-	 * A blog-token check that cannot be performed (WP_Error) is not treated as healthy, so
-	 * the inconclusive case still falls back to a full reconnect rather than acting on nothing.
+	 * Data provider for conclusive validation flags.
+	 *
+	 * @return array<string, array{0: array, 1: string, 2: mixed}>
 	 */
-	public function test_restore_inconclusive_validation_with_unverifiable_blog_token_reconnects() {
-		$manager = $this->build_restore_manager( false, new \WP_Error( 'blog_token_check_failed' ) );
-		$manager->expects( $this->never() )->method( 'refresh_user_token' );
-		$manager->expects( $this->once() )->method( 'reconnect' )->willReturn( true );
-
-		$this->assertSame( 'authorize', $manager->restore() );
-	}
-
-	/**
-	 * Known equal flags (both healthy) route to a full reconnect, unchanged.
-	 */
-	public function test_restore_both_tokens_healthy_reconnects() {
-		$manager = $this->build_restore_manager(
-			array(
-				'blog_token' => array( 'is_healthy' => true ),
-				'user_token' => array( 'is_healthy' => true ),
-			)
+	public static function provider_restore_conclusive_flags() {
+		return array(
+			'both healthy'     => array(
+				array(
+					'blog_token' => array( 'is_healthy' => true ),
+					'user_token' => array( 'is_healthy' => true ),
+				),
+				'reconnect',
+				'authorize',
+			),
+			'both broken'      => array(
+				array(
+					'blog_token' => array( 'is_healthy' => false ),
+					'user_token' => array( 'is_healthy' => false ),
+				),
+				'reconnect',
+				'authorize',
+			),
+			'only blog broken' => array(
+				array(
+					'blog_token' => array( 'is_healthy' => false ),
+					'user_token' => array( 'is_healthy' => true ),
+				),
+				'refresh_blog_token',
+				true,
+			),
+			'only user broken' => array(
+				array(
+					'blog_token' => array( 'is_healthy' => true ),
+					'user_token' => array( 'is_healthy' => false ),
+				),
+				'refresh_user_token',
+				'authorize',
+			),
 		);
-		$manager->expects( $this->never() )->method( 'refresh_user_token' );
-		$manager->expects( $this->never() )->method( 'refresh_blog_token' );
-		$manager->expects( $this->once() )->method( 'reconnect' )->willReturn( true );
-
-		$this->assertSame( 'authorize', $manager->restore() );
 	}
 
 	/**
-	 * Known equal flags (both broken) route to a full reconnect, unchanged.
+	 * CONNECT-455: when validation is inconclusive (any shape lacking paired health flags),
+	 * restore() decides on the blog token alone — refreshing only the user token when it is
+	 * confirmed healthy, and otherwise falling back to a full reconnect.
+	 *
+	 * @dataProvider provider_restore_inconclusive_validation
+	 *
+	 * @param mixed  $validate        What Tokens::validate() returns (a non-paired-flags result).
+	 * @param mixed  $blog_health     What Tokens::validate_blog_token() returns.
+	 * @param string $expected_method The repair path restore() should take.
+	 * @param mixed  $expected_return The value restore() should return.
 	 */
-	public function test_restore_both_tokens_broken_reconnects() {
-		$manager = $this->build_restore_manager(
-			array(
-				'blog_token' => array( 'is_healthy' => false ),
-				'user_token' => array( 'is_healthy' => false ),
-			)
-		);
-		$manager->expects( $this->once() )->method( 'reconnect' )->willReturn( true );
+	#[DataProvider( 'provider_restore_inconclusive_validation' )]
+	public function test_restore_inconclusive_validation_decides_on_the_blog_token( $validate, $blog_health, $expected_method, $expected_return ) {
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'validate', 'validate_blog_token' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn( $validate );
+		$tokens->expects( $this->once() )->method( 'validate_blog_token' )->willReturn( $blog_health );
 
-		$this->assertSame( 'authorize', $manager->restore() );
+		$this->assert_restore_routes( $this->restore_manager_with_tokens( $tokens ), $expected_method, $expected_return );
 	}
 
 	/**
-	 * Only the blog token unhealthy refreshes the blog token, unchanged.
+	 * Data provider for inconclusive validation, covering every shape that lacks paired
+	 * health flags (false, a WP_Error, a malformed array) against each blog-token verdict.
+	 *
+	 * @return array<string, array{0: mixed, 1: mixed, 2: string, 3: mixed}>
 	 */
-	public function test_restore_only_blog_token_broken_refreshes_blog_token() {
-		$manager = $this->build_restore_manager(
-			array(
-				'blog_token' => array( 'is_healthy' => false ),
-				'user_token' => array( 'is_healthy' => true ),
-			)
+	public static function provider_restore_inconclusive_validation() {
+		return array(
+			// A confirmed-healthy blog token refreshes only the user token, whatever inconclusive shape validate() returned.
+			'false result, healthy blog'           => array( false, true, 'refresh_user_token', 'authorize' ),
+			'wp_error result, healthy blog'        => array( new \WP_Error( 'validate_failed' ), true, 'refresh_user_token', 'authorize' ),
+			'malformed array result, healthy blog' => array( array( 'blog_token' => array() ), true, 'refresh_user_token', 'authorize' ),
+			// Anything short of a confirmed-healthy blog token still tears down.
+			'false result, broken blog'            => array( false, false, 'reconnect', 'authorize' ),
+			'false result, unverifiable blog'      => array( false, new \WP_Error( 'blog_token_check_failed' ), 'reconnect', 'authorize' ),
 		);
-		$manager->expects( $this->never() )->method( 'reconnect' );
-		$manager->expects( $this->never() )->method( 'refresh_user_token' );
-		$manager->expects( $this->once() )->method( 'refresh_blog_token' )->willReturn( true );
-
-		$this->assertTrue( $manager->restore() );
-	}
-
-	/**
-	 * Only the user token unhealthy refreshes the user token, unchanged.
-	 */
-	public function test_restore_only_user_token_broken_refreshes_user_token() {
-		$manager = $this->build_restore_manager(
-			array(
-				'blog_token' => array( 'is_healthy' => true ),
-				'user_token' => array( 'is_healthy' => false ),
-			)
-		);
-		$manager->expects( $this->never() )->method( 'reconnect' );
-		$manager->expects( $this->never() )->method( 'refresh_blog_token' );
-		$manager->expects( $this->once() )->method( 'refresh_user_token' )->willReturn( true );
-
-		$this->assertSame( 'authorize', $manager->restore() );
 	}
 
 	/**

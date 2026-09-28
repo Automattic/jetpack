@@ -2769,6 +2769,8 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
+	 * @since $$next-version$$ When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
+	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
 	 */
 	public function restore() {
@@ -2787,14 +2789,12 @@ class Manager {
 			$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
 			$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
 		} else {
-			// The paired health check could not run: a token is missing locally (e.g. a
-			// deleted owner token), or the request failed. That is no evidence the blog
-			// token is broken — and the blog token is the one credential reconnect()
-			// revokes for every user on the site. Check it on its own before deciding
-			// anything destructive: validate_blog_token() signs with the blog token
-			// alone and returns strict `true` only on a confirmed-healthy response.
+			// The paired health check could not run (a token is missing locally — e.g. a
+			// deleted owner token — or the request failed): no evidence the blog token is
+			// broken, and it's the one credential reconnect() would revoke for every user,
+			// so check it on its own before that teardown.
 			$blog_token_healthy = true === $this->get_tokens()->validate_blog_token();
-			$user_token_healthy = false;
+			$user_token_healthy = false; // Unknown, treated as unhealthy.
 		}
 
 		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
