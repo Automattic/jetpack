@@ -1,8 +1,8 @@
-import { globalNoticesStore } from '@automattic/jetpack-components';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch as coreDispatch } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { addQueryArgs } from '@wordpress/url';
 import { CUSTOMIZE_PER_NETWORK_KEY } from '../constants';
 import { Connection, EditorConnection, KeyringResponse, KeyringResult } from '../types';
@@ -103,7 +103,7 @@ export function fetchKeyringResult( requestId: string ) {
 				message = `${ message } ${ error.message }`;
 			}
 
-			const { createErrorNotice } = coreDispatch( globalNoticesStore );
+			const { createErrorNotice } = coreDispatch( noticesStore );
 
 			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
 		} finally {
@@ -380,7 +380,7 @@ export function deleteConnectionById( {
 	showSuccessNotice?: boolean;
 } ) {
 	return async function ( { registry, dispatch } ) {
-		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
 
 		try {
 			const path = `/wpcom/v2/publicize/connections/${ connectionId }`;
@@ -438,7 +438,7 @@ export function createConnection(
 	optimisticData: Partial< Connection > = {}
 ) {
 	return async function ( { registry, dispatch } ) {
-		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
 
 		const tempId = `new-${ ++uniqueId }`;
 
@@ -585,7 +585,7 @@ export function completeReconnect( keyringResult?: KeyringResult ) {
 		// the connection list reflects the reconnection.
 		dispatch( setReconnectingAccount( undefined ) );
 
-		const { createSuccessNotice, createErrorNotice } = coreDispatch( globalNoticesStore );
+		const { createSuccessNotice, createErrorNotice } = coreDispatch( noticesStore );
 
 		if ( recovered ) {
 			createSuccessNotice( __( 'Account reconnected successfully.', 'jetpack-publicize-pkg' ), {
@@ -618,7 +618,7 @@ export function updateConnectionById(
 	options: UpdateConnectionOptions = {}
 ) {
 	return async function ( { dispatch, select } ) {
-		const { createErrorNotice, createSuccessNotice } = coreDispatch( globalNoticesStore );
+		const { createErrorNotice, createSuccessNotice } = coreDispatch( noticesStore );
 		const { silent = false } = options;
 
 		const prevConnection = select.getConnectionById( connectionId );
