@@ -126,7 +126,7 @@ describe( 'SettingsDrawer', () => {
 
 		await waitFor( () =>
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: '/jetpack/v4/stats/settings',
+				path: '/jetpack-premium-analytics/v1/settings',
 				method: 'POST',
 				data: { roles: [ 'administrator', 'editor' ] },
 			} )

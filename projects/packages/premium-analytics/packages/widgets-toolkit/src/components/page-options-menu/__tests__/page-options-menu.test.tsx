@@ -626,7 +626,9 @@ describe( 'the settings', () => {
 
 	it( 'open in a drawer from the menu, which sits outside any query provider', async () => {
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			Promise.resolve( path === '/jetpack/v4/stats/settings' ? SETTINGS_RESPONSE : 'success' )
+			Promise.resolve(
+				path === '/jetpack-premium-analytics/v1/settings' ? SETTINGS_RESPONSE : 'success'
+			)
 		);
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		render( <PageOptionsMenu /> );

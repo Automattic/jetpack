@@ -45,7 +45,7 @@ class Settings_Screen {
 	}
 
 	/**
-	 * The current values, the roles the screen lists, and where Stats is switched off, if anywhere.
+	 * The current values and the roles the screen lists.
 	 *
 	 * @return array
 	 */
@@ -63,13 +63,11 @@ class Settings_Screen {
 		}
 
 		return array(
-			'settings'    => array_merge(
+			'settings' => array_merge(
 				Settings::get( self::get_keys() ),
 				array( self::READER_VIEWS_OPTION => (bool) get_option( self::READER_VIEWS_OPTION, true ) )
 			),
-			'roles'       => $roles,
-			// The Jetpack plugin owns the modules screen that switches Stats on and off.
-			'modules_url' => class_exists( 'Jetpack' ) ? admin_url( 'admin.php?page=jetpack_modules' ) : null,
+			'roles'    => $roles,
 		);
 	}
 

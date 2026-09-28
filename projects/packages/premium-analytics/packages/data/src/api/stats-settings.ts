@@ -3,7 +3,7 @@
  */
 import apiFetch from '@wordpress/api-fetch';
 
-const STATS_SETTINGS_PATH = '/jetpack/v4/stats/settings';
+const STATS_SETTINGS_PATH = '/jetpack-premium-analytics/v1/settings';
 
 export type StatsSettings = {
 	admin_bar: boolean;

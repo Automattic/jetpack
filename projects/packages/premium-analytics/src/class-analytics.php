@@ -12,6 +12,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
+use Automattic\Jetpack\PremiumAnalytics\REST\Settings_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Status\Host;
@@ -290,15 +291,16 @@ class Analytics {
 	}
 
 	/**
-	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 * Register the site-served REST API: the WPCOM data proxy, notices and the Stats settings.
 	 *
-	 * Both self-gate on their own rest_api_init hooks.
+	 * Each self-gates on its own rest_api_init hook.
 	 *
 	 * @return void
 	 */
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+		Settings_Controller::register();
 	}
 
 	/**

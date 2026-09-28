@@ -20,7 +20,7 @@ src/
 ├── class-xmlrpc-provider.php # XML-RPC provider
 ├── class-options.php         # Options controlling tracking behaviors
 ├── class-settings.php        # Reads and validates the owner-facing Stats settings
-├── class-settings-screen.php # What a Stats settings screen reads and saves (REST `/jetpack/v4/stats/settings`)
+├── class-settings-screen.php # What a Stats settings screen reads and saves, shared by the `stats-admin` and Premium Analytics routes
 └── class-transient-cleanup.php # Cron-based transient cleanup
 ```
 
@@ -28,7 +28,7 @@ src/
 
 - Post stats cached in post meta (not transients) to avoid bloating options table.
 - Only wraps wpcom/v1.1 endpoints → no v2 endpoints.
-- Backend only; frontend endpoints are in `stats-admin` package. The exception is `/jetpack/v4/stats/settings`: it lives here so a Stats UI without `stats-admin` (Premium Analytics) can reach it.
+- Backend only; frontend endpoints are in `stats-admin` package.
 
 ## Common Pitfalls
 
