@@ -17,6 +17,7 @@ export interface LocationView {
 	value: number;
 	previousValue?: number;
 	region: string;
+	coordinates?: { latitude: number; longitude: number };
 }
 
 interface UseLocationViewsArgs {
@@ -67,6 +68,7 @@ function toLocationView( item: StatsLocationsComparisonItem ): LocationView | nu
 		value: item.views,
 		previousValue: item.previousViews,
 		region: item.region ?? '',
+		coordinates: item.coordinates,
 	};
 }
 

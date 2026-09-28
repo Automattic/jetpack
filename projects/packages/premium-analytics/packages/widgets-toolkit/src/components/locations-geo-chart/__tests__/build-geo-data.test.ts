@@ -104,21 +104,45 @@ describe( 'buildLocationsGeoChart', () => {
 		} );
 	} );
 
-	// Cities cannot be plotted individually, so a filtered Cities report would
-	// otherwise draw the whole world for a single shaded country.
-	it( 'zooms to the focused country in city mode', () => {
-		const { data, region, resolution } = buildLocationsGeoChart( {
-			rows: [ row( 'Berlin', 'DE', 'Germany', 300 ), row( 'Munich', 'DE', 'Germany', 100 ) ],
-			mode: 'city',
-			focusCountry: { code: 'DE', name: 'Germany' },
+	describe( 'city mode', () => {
+		const BERLIN = {
+			...row( 'Berlin', 'DE', 'Germany', 300 ),
+			coordinates: { latitude: 52.52, longitude: 13.405 },
+		};
+
+		it( 'draws each city as a marker at its coordinates, not as its shaded country', () => {
+			const { data, region, displayMode } = buildLocationsGeoChart( {
+				rows: [ BERLIN ],
+				mode: 'city',
+			} );
+
+			expect( region ).toBe( 'world' );
+			expect( displayMode ).toBe( 'markers' );
+			expect( data ).toEqual( [
+				[ 'Latitude', 'Longitude', 'Location', 'Views' ],
+				[ 52.52, 13.405, 'Berlin', 300 ],
+			] );
 		} );
 
-		expect( region ).toBe( 'DE' );
-		expect( resolution ).toBe( 'countries' );
-		expect( data ).toEqual( [
-			[ 'Country', 'Views' ],
-			[ { v: 'DE', f: 'Germany' }, 400 ],
-		] );
+		it( 'leaves out a city without coordinates instead of placing it at 0, 0', () => {
+			const { data } = buildLocationsGeoChart( {
+				rows: [ BERLIN, row( 'Munich', 'DE', 'Germany', 100 ) ],
+				mode: 'city',
+			} );
+
+			expect( data.slice( 1 ) ).toEqual( [ [ 52.52, 13.405, 'Berlin', 300 ] ] );
+		} );
+
+		// A filtered Cities report would otherwise draw its markers on the whole world.
+		it( 'zooms to the focused country', () => {
+			const { region } = buildLocationsGeoChart( {
+				rows: [ BERLIN ],
+				mode: 'city',
+				focusCountry: { code: 'DE', name: 'Germany' },
+			} );
+
+			expect( region ).toBe( 'DE' );
+		} );
 	} );
 
 	it( 'ignores a focused country in country mode', () => {
@@ -130,15 +154,5 @@ describe( 'buildLocationsGeoChart', () => {
 
 		expect( region ).toBe( 'world' );
 		expect( resolution ).toBe( 'countries' );
-	} );
-
-	it( 'gives the city mode no tooltip column', () => {
-		const [ header, summaryRow ] = buildLocationsGeoChart( {
-			rows: [ row( 'Mumbai', 'IN', 'India', 900 ) ],
-			mode: 'city',
-		} ).data;
-
-		expect( header ).toHaveLength( 2 );
-		expect( summaryRow ).toEqual( [ { v: 'IN', f: 'India' }, 900 ] );
 	} );
 } );

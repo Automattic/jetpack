@@ -16,6 +16,7 @@ export type LocationRow = {
 	countryFull: string;
 	views: number;
 	previousViews?: number;
+	coordinates?: { latitude: number; longitude: number };
 };
 
 const VIEWS_DATA_FORMAT = {
