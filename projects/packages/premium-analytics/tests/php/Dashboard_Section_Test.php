@@ -1360,6 +1360,14 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Older copies' Dashboard_Section::is_available() still asks the removed preview scope.
+	 */
+	public function test_previous_preview_scope_check_leaves_every_section_in_scope() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
+		$this->assertTrue( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'store' ) );
+	}
+
+	/**
 	 * Older copies of the package call the configurator by its previous name.
 	 */
 	public function test_previous_configurator_name_still_hooks_the_section_slugs() {

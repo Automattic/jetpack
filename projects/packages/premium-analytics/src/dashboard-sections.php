@@ -92,6 +92,21 @@ function configure_dashboard_sections_script_data() {
 }
 
 /**
+ * Kept for older copies of the package, whose Dashboard_Section::is_available() calls it on every
+ * availability check. Every section is in scope now, so the section's own rule decides.
+ *
+ * @since 0.6.0
+ * @deprecated $$next-version$$ The preview scope is gone.
+ *
+ * @param string $dashboard_name Dashboard identifier.
+ * @param string $slug           URL-facing section slug.
+ * @return bool Always true.
+ */
+function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for the signature older copies call.
+	return true;
+}
+
+/**
  * Kept for older copies of the package: they guard their include of this file on another
  * symbol and call this, so a newer copy loading first must still define it.
  *
