@@ -412,7 +412,6 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 								index: steps.findIndex( s => s.id === ( tooltipData as FunnelStep ).id ),
 								top: tooltipTop,
 								left: tooltipLeft,
-								className: styles[ 'tooltip-wrapper' ],
 							} )
 						: renderDefaultTooltip( tooltipData as FunnelStep );
 
