@@ -74,9 +74,15 @@ $cg-diff-removed: #f8d7da;
 }
 
 // Match the section textarea, which Gutenberg 23.9+ renders with @wordpress/ui.
+// Like it, use 16px text on small screens to avoid mobile zoom.
 .guidelines__list-item:has(textarea:not(.components-textarea-control__input)) .jetpack-content-guidelines-ai__diff {
 	padding: 10px 12px;
+	font-size: 16px;
 	line-height: 1.4;
+
+	@media (min-width: 600px) {
+		font-size: 13px;
+	}
 }
 
 .jetpack-content-guidelines-ai__diff-added {
@@ -99,12 +105,9 @@ $cg-diff-removed: #f8d7da;
 	justify-content: flex-end;
 }
 
-// Green shimmer overlay on the textarea during AI generation.
-// We make the textarea wrapper positioned so the ::after overlay works.
-// Newer Gutenberg renders the section textarea with @wordpress/ui, whose
-// hashed-class wrapper is the textarea's parent and draws the border.
-// Each :has() sits in :is(), so a browser without :has() keeps the rest
-// of the selector list.
+// Green shimmer overlay on the textarea box during AI generation. In newer
+// Gutenberg (@wordpress/ui) that box is the textarea's parent wrapper.
+// :is() keeps the list valid in browsers without :has().
 .is-jetpack-loading .components-textarea-control,
 .is-jetpack-loading :is(:has(> textarea:not(.components-textarea-control__input))) {
 	position: relative;
