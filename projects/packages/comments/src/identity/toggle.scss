@@ -43,6 +43,13 @@ $accent: #3858e9;
 				background 0.3s !important;
 		}
 
+		// A theme's own checkmark; the knob is all the switch draws.
+		&::after,
+		&:checked::after {
+			content: none !important;
+			display: none !important;
+		}
+
 		&:checked {
 			border-color: transparent !important;
 			background: $accent !important;
