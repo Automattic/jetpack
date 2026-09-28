@@ -71,15 +71,17 @@ describe( 'SubscribersListWidget', () => {
 		);
 	} );
 
-	it( 'links the name to Jetpack Cloud everywhere else', async () => {
+	it( 'links the name to Jetpack Cloud in a new tab everywhere else', async () => {
 		setSiteData( false, 'example.com' );
 
 		render( <SubscribersListWidget attributes={ {} } /> );
 
-		await expect( screen.findByRole( 'link', { name: /Ada Lovelace/ } ) ).resolves.toHaveAttribute(
+		const link = await screen.findByRole( 'link', { name: /Ada Lovelace/ } );
+		expect( link ).toHaveAttribute(
 			'href',
 			'https://cloud.jetpack.com/subscribers/example.com/4242'
 		);
+		expect( link ).toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'opens the subscriber on the wp-admin Subscribers tab in the same tab when it is available', async () => {
