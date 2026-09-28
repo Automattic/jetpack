@@ -110,8 +110,6 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 			return new \WP_Error( 'already_completed', 'The program has already been completed.', array( 'status' => 409 ) );
 		}
 
-		// The attribute helpers live in wpcom, outside this monorepo, so Phan can't see them.
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		update_user_attribute(
 			get_current_user_id(),
 			self::USER_ATTRIBUTE,
@@ -137,7 +135,6 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 		if ( ! function_exists( 'get_user_attribute' ) ) {
 			return array();
 		}
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		$state = get_user_attribute( get_current_user_id(), self::USER_ATTRIBUTE );
 		return is_array( $state ) ? $state : array();
 	}
@@ -177,12 +174,11 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 		}
 
 		// Both Coming Soon generations: the v1 option paired with a private blog, and the public v2 flag.
-		// These helpers live in wpcom, outside this monorepo, so Phan can't see them.
+		// wpcom_is_coming_soon() lives in wpcom and has no Phan stub.
 		// @phan-suppress-next-line PhanUndeclaredFunction
 		if ( function_exists( 'wpcom_is_coming_soon' ) && wpcom_is_coming_soon() ) {
 			return false;
 		}
-		// @phan-suppress-next-line PhanUndeclaredFunction
 		if ( function_exists( 'is_wpcom_public_coming_soon_enabled' ) && is_wpcom_public_coming_soon_enabled( get_current_blog_id() ) ) {
 			return false;
 		}
