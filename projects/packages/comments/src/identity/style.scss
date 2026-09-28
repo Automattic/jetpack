@@ -12,11 +12,15 @@
 	transform: rotate(180deg);
 }
 
-// Collapsed and hidden like the tray, so nothing inside can take focus
-// while closed.
+// The links slide down from under the box as the row opens and back up
+// under it as it closes. Hidden while closed, so nothing inside can take focus.
 .jetpack-comments__options {
 	display: grid;
 	grid-template-rows: 0fr;
+	overflow: hidden;
+	// The negative margins give focus rings room inside the clipped box.
+	margin-inline: -4px;
+	padding-inline: 4px;
 	visibility: hidden;
 	transition:
 		grid-template-rows 0.25s ease-in-out,
@@ -34,17 +38,19 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: 0.25em 1em;
-		overflow: hidden;
-		// The negative margins give focus rings room inside the clipped box.
-		margin: -4px;
+		min-block-size: 0;
 		// Inset by the box's border and padding, to line up with the avatar.
-		padding: 4px calc(var(--jetpack-comments-pad) + 6px);
-		transition: padding-block-start 0.25s ease-in-out;
+		padding-inline: calc(var(--jetpack-comments-pad) + 2px);
+		transform: translateY(-100%);
+		transition:
+			transform 0.25s ease-in-out,
+			padding 0.25s ease-in-out;
 	}
 
-	// Padding cannot collapse with the box above, so it only exists while open.
+	// Padding would hold the row open, so it only exists while open.
 	&.is-open > div {
-		padding-block-start: calc(0.5em + 4px);
+		padding-block: 0.5em 4px;
+		transform: none;
 	}
 }
 
