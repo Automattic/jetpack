@@ -140,13 +140,18 @@ describe( 'LineChart', () => {
 			} );
 		}
 	);
+	test( 'passes a color-only tooltipStyle through with no background added', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { tooltipStyle: { color: 'white' } } );
+		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
+
+		const box = screen.getByTestId( 'bounded-tooltip' );
+		expect( box ).toHaveStyle( { color: 'rgb(255, 255, 255)' } );
+		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'background' ) );
+	} );
+
 	test.each( [
-		[
-			{ color: 'white' },
-			'rgb(255, 255, 255)',
-			'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
-			{ color: 'rgb(255, 255, 255)' },
-		],
 		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'rgb(255, 255, 255)', {} ],
 		[ { background: 'white' }, 'var(--a8c-charts-color-label)', 'white', {} ],
 		[

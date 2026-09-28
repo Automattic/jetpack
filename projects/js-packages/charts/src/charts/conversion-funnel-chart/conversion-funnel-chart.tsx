@@ -423,7 +423,7 @@ const ConversionFunnelChartInternal: FC< ConversionFunnelChartProps > = ( {
 						<BoundedTooltip
 							top={ tooltipTop }
 							left={ tooltipLeft }
-							className={ clsx( standaloneScopeClass, styles[ 'tooltip-wrapper' ] ) }
+							className={ standaloneScopeClass }
 						>
 							{ tooltipContent }
 						</BoundedTooltip>
