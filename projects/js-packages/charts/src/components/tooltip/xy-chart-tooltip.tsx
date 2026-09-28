@@ -262,7 +262,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 						applyPositionStyle
 						{ ...tooltipProps }
 						className={ clsx(
-							TooltipComponent === Tooltip && styles.surface,
+							TooltipComponent === Tooltip && ! tooltipProps.unstyled && styles.surface,
 							tooltipProps.className
 						) }
 						{ ...( tooltipPlacement !== 'auto' && { placement: tooltipPlacement } ) }
