@@ -24,10 +24,10 @@ export default function SectionGenerateButton( { slug, isShortLabel = false } ) 
 	const isEmpty = ! useSectionHasDraft( slug );
 	const generateLabel = isShortLabel
 		? __( 'Generate', 'jetpack' )
-		: __( 'Generate guidelines', 'jetpack' );
+		: __( 'Generate guidelines', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	const improveLabel = isShortLabel
 		? __( 'Improve', 'jetpack' )
-		: __( 'Improve guidelines', 'jetpack' );
+		: __( 'Improve guidelines', 'jetpack', /* dummy arg to avoid bad minification */ 0 );
 	const label = isEmpty ? generateLabel : improveLabel;
 
 	const handleClick = useCallback( async () => {
