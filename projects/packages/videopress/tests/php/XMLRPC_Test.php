@@ -81,7 +81,7 @@ class XMLRPC_Test extends BaseTestCase {
 	 * The VideoPress callbacks are added without dropping the methods Jetpack already registered.
 	 */
 	public function test_xmlrpc_methods_registers_videopress_callbacks() {
-		$methods = XMLRPC::init()->xmlrpc_methods( array( 'existing.method' => '__return_true' ), array(), null );
+		$methods = XMLRPC::init()->xmlrpc_methods( array( 'existing.method' => '__return_true' ), array(), new \WP_User( 0 ) );
 
 		$this->assertSame( '__return_true', $methods['existing.method'] );
 		$this->assertIsCallable( $methods['jetpack.createMediaItem'] );
