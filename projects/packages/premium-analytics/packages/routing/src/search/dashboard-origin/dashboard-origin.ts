@@ -3,7 +3,7 @@
  * from, so the Stats breadcrumb returns to it. Kept apart from `section`, which
  * report and detail pages use for their own tabs.
  */
-export const DASHBOARD_ORIGIN_PARAM = 'dashboard_section';
+export const DASHBOARD_ORIGIN_PARAM = 'ds';
 
 /**
  * Pick the dashboard origin out of a search object.

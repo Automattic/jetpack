@@ -98,11 +98,11 @@ describe( 'useWidgetNavigationSearch', () => {
 	} );
 
 	it( 'forwards the dashboard tab to return to from the URL', () => {
-		mockSearch = { section: 'posts-pages', dashboard_section: 'ads' };
+		mockSearch = { section: 'posts-pages', ds: 'ads' };
 
 		const { result } = renderHook( () => useWidgetNavigationSearch() );
 
-		expect( result.current.dashboard_section ).toBe( 'ads' );
+		expect( result.current.ds ).toBe( 'ads' );
 		expect( result.current ).not.toHaveProperty( 'section' );
 	} );
 } );

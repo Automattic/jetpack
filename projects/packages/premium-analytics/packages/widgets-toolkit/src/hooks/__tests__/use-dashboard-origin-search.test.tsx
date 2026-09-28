@@ -26,21 +26,21 @@ describe( 'useDashboardOriginSearch', () => {
 	} );
 
 	it( 'names the active tab on the dashboard, not the URL section', () => {
-		mockSearch = { section: 'traffic', dashboard_section: 'stale' };
+		mockSearch = { section: 'traffic', ds: 'stale' };
 
 		const { result } = renderHook( () => useDashboardOriginSearch(), {
 			wrapper: onDashboardTab( 'ads' ),
 		} );
 
-		expect( result.current ).toEqual( { dashboard_section: 'ads' } );
+		expect( result.current ).toEqual( { ds: 'ads' } );
 	} );
 
 	it( 'forwards the carried origin off the dashboard', () => {
-		mockSearch = { section: 'posts-pages', dashboard_section: 'insights' };
+		mockSearch = { section: 'posts-pages', ds: 'insights' };
 
 		const { result } = renderHook( () => useDashboardOriginSearch() );
 
-		expect( result.current ).toEqual( { dashboard_section: 'insights' } );
+		expect( result.current ).toEqual( { ds: 'insights' } );
 	} );
 
 	it( 'ignores the page section when no origin is carried', () => {

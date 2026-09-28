@@ -59,9 +59,9 @@ describe( 'report origin search params', () => {
 	it( 'carries the dashboard tab to return to into the detail link', () => {
 		const updateSearch = createDetailLinkSearch( { report: 'posts' } );
 
-		expect( updateSearch( { from: '2026-06-01', dashboard_section: 'insights' } ) ).toEqual( {
+		expect( updateSearch( { from: '2026-06-01', ds: 'insights' } ) ).toEqual( {
 			from: '2026-06-01',
-			dashboard_section: 'insights',
+			ds: 'insights',
 			ref: 'posts',
 		} );
 	} );

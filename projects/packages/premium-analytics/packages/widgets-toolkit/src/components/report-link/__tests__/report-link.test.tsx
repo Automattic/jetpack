@@ -124,7 +124,7 @@ describe( 'ReportLink', () => {
 
 		const link = screen.getByRole( 'link', { name: 'View all' } );
 		const search = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' ).searchParams;
-		expect( search.get( 'dashboard_section' ) ).toBe( 'insights' );
+		expect( search.get( 'ds' ) ).toBe( 'insights' );
 		expect( search.has( 'section' ) ).toBe( false );
 	} );
 } );

@@ -195,7 +195,7 @@ function MockHeaderScopeProbe() {
  */
 function MockOriginProbe() {
 	const origin = useDashboardOriginSearch();
-	return <span>origin: { origin.dashboard_section ?? 'none' }</span>;
+	return <span>origin: { origin.ds ?? 'none' }</span>;
 }
 
 /**

@@ -154,7 +154,7 @@ describe( 'buildDashboardLink', () => {
 			buildDashboardLink( {
 				from: '2026-01-01',
 				section: 'email-opens',
-				dashboard_section: 'insights',
+				ds: 'insights',
 			} ),
 			'/',
 			{ from: '2026-01-01', section: 'insights' }
@@ -227,11 +227,10 @@ describe( 'buildReportLink', () => {
 
 	it( 'carries the dashboard tab to return to', () => {
 		expect.assertions( 2 );
-		expectLink(
-			buildReportLink( 'tags', { from: '2026-01-01', dashboard_section: 'ads' } ),
-			'/reports/tags',
-			{ from: '2026-01-01', dashboard_section: 'ads' }
-		);
+		expectLink( buildReportLink( 'tags', { from: '2026-01-01', ds: 'ads' } ), '/reports/tags', {
+			from: '2026-01-01',
+			ds: 'ads',
+		} );
 	} );
 } );
 
