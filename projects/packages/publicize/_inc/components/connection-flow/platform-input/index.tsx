@@ -6,8 +6,7 @@ import { store } from '../../../social-store';
 import { getConnectFields, getConnectIntro } from '../../services/connect-fields';
 import { getBlueskyHandleHint } from '../../services/connect-input-validation';
 import { useConnectInputValidation } from '../../services/use-connect-input-validation';
-import { useRequestAccess } from '../../services/use-request-access';
-import { useService } from '../../services/use-service';
+import { useStartAuthorization } from '../use-start-authorization';
 import styles from './style.module.scss';
 import type { ConnectionService } from '../../../types';
 import type { ConnectInputValues } from '../../services/connect-input-validation';
@@ -17,40 +16,33 @@ import type { ChangeEvent, FocusEvent, FormEvent } from 'react';
  * The input step of the connection flow, for the services needing credentials
  * before their connect popup can open (Bluesky, Mastodon). Values live in the
  * store so stepping back to the picker does not wipe them; submitting opens the
- * popup via `useRequestAccess` and advances to `authorizing`.
+ * popup and advances to `authorizing`.
  *
  * @return {import('react').ReactNode} The platform input step.
  */
 export function PlatformInput() {
 	const formId = useId();
 
-	const { serviceId, storedValues, reconnectingAccount } = useSelect( select => {
-		const { getConnectionFlowSelectedServiceId, getConnectionFlowInputs, getReconnectingAccount } =
-			select( store );
+	const { serviceId, storedValues, reconnectingAccount, flowError } = useSelect( select => {
+		const {
+			getConnectionFlowSelectedServiceId,
+			getConnectionFlowInputs,
+			getConnectionFlowError,
+			getReconnectingAccount,
+		} = select( store );
 
 		return {
 			serviceId: getConnectionFlowSelectedServiceId() as ConnectionService[ 'id' ],
 			storedValues: getConnectionFlowInputs(),
 			reconnectingAccount: getReconnectingAccount(),
+			flowError: getConnectionFlowError(),
 		};
 	}, [] );
 
-	const {
-		setConnectionFlowInput,
-		goToNextStep,
-		abandonAuthorization,
-		cancelConnectionFlow,
-		fetchKeyringResult,
-		setKeyringResult,
-		completeReconnect,
-	} = useDispatch( store );
+	const { setConnectionFlowInput, goToNextStep, cancelConnectionFlow } = useDispatch( store );
 
 	const [ isSubmitting, setIsSubmitting ] = useState( false );
-	const [ submitError, setSubmitError ] = useState< string | null >( null );
 	const [ touched, setTouched ] = useState< Record< string, boolean > >( {} );
-
-	const getService = useService();
-	const service = getService( serviceId );
 
 	const isReconnecting = Boolean( serviceId && reconnectingAccount?.service_name === serviceId );
 
@@ -69,22 +61,7 @@ export function PlatformInput() {
 	const validateInputs = useConnectInputValidation();
 	const { error } = validateInputs( serviceId, values, { allowDuplicate: isReconnecting } );
 
-	const onConfirm = useCallback(
-		async ( requestId: string ) => {
-			const result = await fetchKeyringResult( requestId );
-
-			/* An in-place reconnect is already handled; otherwise surface the
-			   result, which moves the flow on to its confirmation step. */
-			const handled = await completeReconnect( result );
-
-			if ( ! handled && result?.ID ) {
-				setKeyringResult( result );
-			}
-		},
-		[ completeReconnect, fetchKeyringResult, setKeyringResult ]
-	);
-
-	const requestAccess = useRequestAccess( { service, onConfirm } );
+	const startAuthorization = useStartAuthorization();
 
 	const onSubmit = useCallback(
 		async ( event: FormEvent ) => {
@@ -97,43 +74,20 @@ export function PlatformInput() {
 			}
 
 			setIsSubmitting( true );
-			setSubmitError( null );
-
-			const formData = new FormData();
-
-			for ( const [ key, value ] of Object.entries( values ) ) {
-				formData.set( key, value );
-			}
 
 			try {
-				const opened = await requestAccess( formData, {
-					refresh: isReconnecting,
-					// An abandoned attempt drops back here, with the values intact.
-					onAbort: abandonAuthorization,
-					// Surface failures in the step; a global notice sits behind the modal.
-					onError: setSubmitError,
-				} );
-
-				if ( opened ) {
+				if ( await startAuthorization( serviceId, values ) ) {
 					goToNextStep();
 				}
-			} catch {
-				setSubmitError(
-					__(
-						'Could not start the connection. Please refresh the page and try again.',
-						'jetpack-publicize-pkg'
-					)
-				);
 			} finally {
 				setIsSubmitting( false );
 			}
 		},
-		[ abandonAuthorization, error, goToNextStep, isReconnecting, requestAccess, values ]
+		[ error, goToNextStep, serviceId, startAuthorization, values ]
 	);
 
 	const onChange = useCallback(
 		( event: ChangeEvent< HTMLInputElement > ) => {
-			setSubmitError( null );
 			setConnectionFlowInput( event.target.name, event.target.value );
 		},
 		[ setConnectionFlowInput ]
@@ -204,11 +158,11 @@ export function PlatformInput() {
 					);
 				} ) }
 
-				{ /* A duplicate account, and a submit failure such as a blocked popup,
+				{ /* A duplicate account, and a failed attempt such as a blocked popup,
 				     have no single field to attach to. */ }
-				{ ( 'duplicate' === error?.code || submitError ) && (
+				{ ( 'duplicate' === error?.code || flowError ) && (
 					<Notice.Root intent="error">
-						<Notice.Description>{ submitError ?? error?.message }</Notice.Description>
+						<Notice.Description>{ flowError ?? error?.message }</Notice.Description>
 					</Notice.Root>
 				) }
 			</Stack>

@@ -53,11 +53,47 @@ export function getConnectionFlowInputs( state: SocialStoreState ): Record< stri
 }
 
 /**
- * Whether the current step has a back affordance.
+ * Why the last authorization attempt did not complete, if it did not.
+ *
+ * @param state - State object.
+ * @return The message to show inline on the current step.
+ */
+export function getConnectionFlowError( state: SocialStoreState ) {
+	return state.connectionFlow?.error;
+}
+
+/**
+ * The connect request the flow is waiting on.
+ *
+ * @param state - State object.
+ * @return The request ID, if an attempt is under way.
+ */
+export function getConnectionFlowRequestId( state: SocialStoreState ) {
+	return state.connectionFlow?.requestId;
+}
+
+/**
+ * The step to fall back to: where the back affordance goes, and where an
+ * abandoned or blocked authorization drops the user.
+ *
+ * @param state - State object.
+ * @return The previous step, or `undefined` when the flow has none of its own.
+ */
+export function getConnectionFlowPreviousStep( state: SocialStoreState ) {
+	return getPreviousStep( state.connectionFlow ?? {} );
+}
+
+/**
+ * Whether the current step has a back affordance. `authorizing` has a step to
+ * fall back to but no chevron: the connect popup owns the interaction there, so
+ * the design gives that step its close button alone.
  *
  * @param state - State object.
  * @return Whether back navigation is available.
  */
 export function canGoToPreviousConnectionFlowStep( state: SocialStoreState ) {
-	return Boolean( getPreviousStep( state.connectionFlow ?? {} ) );
+	return (
+		'authorizing' !== getConnectionFlowStep( state ) &&
+		Boolean( getConnectionFlowPreviousStep( state ) )
+	);
 }

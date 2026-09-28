@@ -5,6 +5,7 @@ import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
 import { Dialog, IconButton, Text, Tooltip } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
+import { Authorizing } from './authorizing';
 import { PlatformInput } from './platform-input';
 import { SelectPlatform } from './select-platform';
 import type { ConnectionFlowStep } from '../../social-store/types';
@@ -36,6 +37,7 @@ function renderStep( step: ConnectionFlowStep ): JSX.Element {
 		case 'platform-input':
 			return <PlatformInput />;
 		case 'authorizing':
+			return <Authorizing />;
 		case 'confirm':
 		case 'creating':
 			return <StepPlaceholder step={ step } />;
@@ -43,11 +45,11 @@ function renderStep( step: ConnectionFlowStep ): JSX.Element {
 }
 
 /**
- * The dialog title for the current step. `platform-input` names the chosen
- * platform; the other steps use a static title.
+ * The dialog title for the current step. The connect steps name the chosen
+ * platform; the rest use a static title.
  *
  * @param step         - The current flow step.
- * @param serviceLabel - Label of the selected service, for `platform-input`.
+ * @param serviceLabel - Label of the selected service, for the connect steps.
  * @return The dialog title.
  */
 function getStepTitle( step: ConnectionFlowStep, serviceLabel: string ): string {
@@ -55,6 +57,7 @@ function getStepTitle( step: ConnectionFlowStep, serviceLabel: string ): string 
 		case 'select-platform':
 			return __( 'Select your account platform', 'jetpack-publicize-pkg' );
 		case 'platform-input':
+		case 'authorizing':
 			return sprintf(
 				// translators: %s is the platform name, e.g. "Mastodon".
 				__( 'Connect %s account', 'jetpack-publicize-pkg' ),

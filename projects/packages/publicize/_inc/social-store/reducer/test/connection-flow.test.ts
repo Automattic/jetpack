@@ -4,11 +4,19 @@ import {
 	goToPreviousStep,
 	selectPlatform,
 	setConnectionFlowInput,
-	startConnectionFlow,
 } from '../../actions/connection-flow';
-import { CANCEL_CONNECTION_FLOW } from '../../actions/constants';
+import {
+	CANCEL_CONNECTION_FLOW,
+	FAIL_CONNECTION_FLOW_AUTHORIZATION,
+	START_CONNECTION_FLOW,
+} from '../../actions/constants';
 import { connectionFlow } from '../connection-flow';
-import type { Connection, ConnectionFlowState, KeyringResult } from '../../types';
+import type {
+	Connection,
+	ConnectionFlowOrigin,
+	ConnectionFlowState,
+	KeyringResult,
+} from '../../types';
 
 const connection = ( service_name: string ): Connection =>
 	( { connection_id: '1', service_name } ) as Connection;
@@ -17,6 +25,14 @@ const keyringResult = ( ID = 42 ): KeyringResult => ( { ID } ) as KeyringResult;
 
 const CANCEL = { type: CANCEL_CONNECTION_FLOW } as const;
 
+// `startConnectionFlow` warms the connect URLs, so it is a thunk; the reducer
+// only ever sees the plain action it dispatches.
+const start = ( origin: ConnectionFlowOrigin ) =>
+	( { type: START_CONNECTION_FLOW, origin } ) as const;
+
+const fail = ( message: string ) =>
+	( { type: FAIL_CONNECTION_FLOW_AUTHORIZATION, message } ) as const;
+
 describe( 'connectionFlow reducer', () => {
 	it( 'is inactive by default', () => {
 		expect( connectionFlow( undefined, { type: '@@UNKNOWN_ACTION@@' } ) ).toEqual( {} );
@@ -24,7 +40,7 @@ describe( 'connectionFlow reducer', () => {
 
 	describe( 'forward transitions', () => {
 		it( 'starts at select-platform and records the origin', () => {
-			expect( connectionFlow( undefined, startConnectionFlow( { origin: 'editor' } ) ) ).toEqual( {
+			expect( connectionFlow( undefined, start( 'editor' ) ) ).toEqual( {
 				step: 'select-platform',
 				origin: 'editor',
 			} );
@@ -37,7 +53,7 @@ describe( 'connectionFlow reducer', () => {
 				origin: 'editor',
 			};
 
-			expect( connectionFlow( prior, startConnectionFlow( { origin: 'dashboard' } ) ) ).toEqual( {
+			expect( connectionFlow( prior, start( 'dashboard' ) ) ).toEqual( {
 				step: 'select-platform',
 				origin: 'dashboard',
 			} );
@@ -129,9 +145,7 @@ describe( 'connectionFlow reducer', () => {
 				inputs: { handle: 'me.bsky.social' },
 			};
 
-			expect(
-				connectionFlow( prior, startConnectionFlow( { origin: 'dashboard' } ) ).inputs
-			).toBeUndefined();
+			expect( connectionFlow( prior, start( 'dashboard' ) ).inputs ).toBeUndefined();
 		} );
 
 		it( 'is cleared on cancel', () => {
@@ -188,6 +202,7 @@ describe( 'connectionFlow reducer', () => {
 			expect( connectionFlow( {}, setReconnectingAccount( connection( 'bluesky' ) ) ) ).toEqual( {
 				step: 'platform-input',
 				selectedServiceId: 'bluesky',
+				isReconnect: true,
 			} );
 		} );
 
@@ -195,13 +210,103 @@ describe( 'connectionFlow reducer', () => {
 			expect( connectionFlow( {}, setReconnectingAccount( connection( 'facebook' ) ) ) ).toEqual( {
 				step: 'authorizing',
 				selectedServiceId: 'facebook',
+				isReconnect: true,
 			} );
 		} );
 
-		it( 'ignores clearing the reconnecting account', () => {
+		it( 'ignores clearing the reconnecting account outside a reconnect', () => {
 			const prior: ConnectionFlowState = { step: 'authorizing', selectedServiceId: 'facebook' };
 
 			expect( connectionFlow( prior, setReconnectingAccount( undefined ) ) ).toBe( prior );
+		} );
+
+		it( 'ends when the reconnect it exists for is cleared', () => {
+			// Reconnecting in place, and failing to open the popup, both clear it;
+			// either way there is nothing left for the spinner to wait on.
+			const prior: ConnectionFlowState = {
+				step: 'authorizing',
+				selectedServiceId: 'facebook',
+				isReconnect: true,
+			};
+
+			expect( connectionFlow( prior, setReconnectingAccount( undefined ) ) ).toEqual( {} );
+		} );
+
+		it( 'has nothing behind the step it entered at', () => {
+			// Going back would drop the user into a connect flow they never started.
+			const prior: ConnectionFlowState = {
+				step: 'authorizing',
+				selectedServiceId: 'facebook',
+				isReconnect: true,
+			};
+
+			expect( connectionFlow( prior, goToPreviousStep() ) ).toBe( prior );
+		} );
+
+		it( 'still steps back to the input it came through', () => {
+			const prior: ConnectionFlowState = {
+				step: 'authorizing',
+				selectedServiceId: 'mastodon',
+				isReconnect: true,
+			};
+
+			expect( connectionFlow( prior, goToPreviousStep() ).step ).toBe( 'platform-input' );
+		} );
+	} );
+
+	describe( 'failed authorization', () => {
+		it( 'drops back to the input step with the reason', () => {
+			const prior: ConnectionFlowState = { step: 'authorizing', selectedServiceId: 'mastodon' };
+
+			expect( connectionFlow( prior, fail( 'Popup blocked' ) ) ).toEqual( {
+				...prior,
+				step: 'platform-input',
+				error: 'Popup blocked',
+			} );
+		} );
+
+		it( 'drops back to the picker for a service with no input step', () => {
+			const prior: ConnectionFlowState = { step: 'authorizing', selectedServiceId: 'facebook' };
+
+			expect( connectionFlow( prior, fail( 'Popup blocked' ) ).step ).toBe( 'select-platform' );
+		} );
+
+		it( 'clears the reason once the user picks a platform again', () => {
+			const prior: ConnectionFlowState = { step: 'select-platform', error: 'Popup blocked' };
+
+			expect( connectionFlow( prior, selectPlatform( 'facebook' ) ).error ).toBeUndefined();
+		} );
+
+		it( 'clears the reason once the user edits an input', () => {
+			const prior: ConnectionFlowState = {
+				step: 'platform-input',
+				selectedServiceId: 'bluesky',
+				error: 'Popup blocked',
+			};
+
+			expect(
+				connectionFlow( prior, setConnectionFlowInput( 'handle', 'me.bsky.social' ) ).error
+			).toBeUndefined();
+		} );
+
+		it( 'clears the reason on the way back to the picker', () => {
+			const prior: ConnectionFlowState = {
+				step: 'platform-input',
+				selectedServiceId: 'bluesky',
+				error: 'Popup blocked',
+			};
+
+			expect( connectionFlow( prior, goToPreviousStep() ).error ).toBeUndefined();
+		} );
+
+		it( 'clears the reason on the way forward to authorizing', () => {
+			const prior: ConnectionFlowState = {
+				step: 'platform-input',
+				selectedServiceId: 'bluesky',
+				error: 'Popup blocked',
+			};
+
+			expect( connectionFlow( prior, goToNextStep() ).error ).toBeUndefined();
 		} );
 	} );
 
