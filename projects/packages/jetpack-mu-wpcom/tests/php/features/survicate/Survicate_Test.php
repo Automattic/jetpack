@@ -230,6 +230,17 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Tests that the wpcom_survicate_enabled filter can turn Survicate off without a Jetpack release.
+	 */
+	public function test_should_load_returns_false_when_disabled_by_filter() {
+		$this->set_admin_context();
+		$this->create_and_login_user();
+		add_filter( 'wpcom_survicate_enabled', '__return_false' );
+
+		$this->assertFalse( $this->call_private_method( 'should_load' ) );
+	}
+
+	/**
 	 * Tests that should_load returns false on network admin pages.
 	 *
 	 * Note: is_network_admin() reads $GLOBALS['current_screen']->in_admin( 'network' )

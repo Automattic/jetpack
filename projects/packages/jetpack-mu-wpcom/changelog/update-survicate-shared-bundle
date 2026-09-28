@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Survicate: load the shared wp-calypso bundle from widgets.wp.com instead of an inline script.
+Survicate: load the shared wp-calypso bundle from widgets.wp.com instead of an inline script, and add a `wpcom_survicate_enabled` filter to turn surveys off.

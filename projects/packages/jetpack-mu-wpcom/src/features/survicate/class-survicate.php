@@ -71,6 +71,19 @@ class Survicate {
 	 * @return bool
 	 */
 	private function should_load() {
+		/**
+		 * Filters whether Survicate surveys load in wp-admin.
+		 *
+		 * A kill switch that WordPress.com or wpcomsh can flip without a Jetpack release.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param bool $enabled Whether Survicate may load. Default true.
+		 */
+		if ( ! apply_filters( 'wpcom_survicate_enabled', true ) ) {
+			return false;
+		}
+
 		if ( ! is_user_logged_in() ) {
 			return false;
 		}
