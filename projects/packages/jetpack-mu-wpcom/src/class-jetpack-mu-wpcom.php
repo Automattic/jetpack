@@ -45,6 +45,9 @@ class Jetpack_Mu_Wpcom {
 		'llms-full-txt-generator/llms-txt-generator.php' => null,
 		'wp-post-author/aft-wp-post-author.php'          => null,
 		'adminify/adminify.php'                          => null,
+		'meetinghub/meetinghub.php'                      => null,
+		'mail-mint/mail-mint.php'                        => null,
+		'wp-letsencrypt-ssl-pro/wp-letsencrypt.php'      => null,
 	);
 
 	/**
