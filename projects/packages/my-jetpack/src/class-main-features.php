@@ -895,7 +895,7 @@ class Main_Features {
 	/**
 	 * Whether the current user may install plugins here, and if not, why not.
 	 *
-	 * @since $$next-version$$
+	 * @since 6.7.0
 	 *
 	 * @return string One of the INSTALLS_* constants.
 	 */

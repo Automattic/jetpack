@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Ensure `colors.css` export is available in production builds.

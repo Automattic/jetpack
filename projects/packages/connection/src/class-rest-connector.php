@@ -750,7 +750,7 @@ class REST_Connector {
 	 * limits them to refreshing their own user token.
 	 *
 	 * @since 1.15.0
-	 * @since $$next-version$$ Also allows 'jetpack_connect_user'.
+	 * @since 9.8.0 Also allows 'jetpack_connect_user'.
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_reconnect' or 'jetpack_connect_user'.
 	 */
@@ -775,7 +775,7 @@ class REST_Connector {
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
 	 * @since 1.15.0
-	 * @since $$next-version$$ Users without 'jetpack_reconnect' only refresh their own user token.
+	 * @since 9.8.0 Users without 'jetpack_reconnect' only refresh their own user token.
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */

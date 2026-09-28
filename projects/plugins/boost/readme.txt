@@ -189,43 +189,97 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.7.1 - 2026-09-16
+### 4.8.0-beta - 2026-09-28
+#### Security
+- Critical CSS: Only enter generation mode while a front-end page renders, so a link carrying the generation parameter can no longer force an admin, REST or login-page request to render as a logged-out visitor.
+
 #### Added
-- My Jetpack: Allow the Automattic for Agencies banner to be dismissed.
+- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice.
+- Critical CSS: Explain when pages could not be optimized because they are only shown to logged-in visitors.
+- Settings: Add an explanation of Critical CSS beside its title in the modern dashboard.
 
 #### Changed
-- Connection: Show every connection error in one notice, each with the account it affects, and link to Site Health when a firewall is blocking WordPress.com.
-- General: Update minimum WordPress version to 7.0.
-- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
-- Remove the Upgraded pill from module titles on the settings page.
-- Sidebar: sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom.
-- Speed Score: Wait up to four minutes for a slow speed test instead of two.
-- Tested up to WordPress 7.1.
+- Cornerstone Pages: Add a short description under the title on the settings page.
+- Cornerstone Pages: Show the section description in the collapsed Settings header.
+- Dashboard: Move the speed test to a "Run speed test" button in the modernized Overview header and add a page subtitle.
+- Dashboard: Replace the free-plan score history prompt in the modernized Overview with a one-line upgrade notice that expands to a preview of the chart.
+- Dashboard: Show a loader instead of the modernized Overview while onboarding redirects to Getting Started.
+- Dashboard: Show score gains as badges in the modern Overview, and explain a score that has not improved or has fallen.
+- Dashboard: Show the modernized dashboard by default. Add `add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );` to restore the previous dashboard.
+- Dashboard: Update the modernized Overview score card to show "Your site speed", an overall band, and its calculating and failure states inside the card.
+- Dashboard: Use the same light orange for "Could improve" days in the modernized Overview history chart as in the score card.
+- Hide the Boost sidebar item when Boost is not active.
+- History chart: Give the empty-day tooltip card its own rounded shadow.
+- My Jetpack: Answer module switch clicks immediately, and explain what happened when a change fails.
+- My Jetpack: Restyle dashboard notices to match the WordPress design system.
+- My Jetpack: Show a Features tab in place of the Products tab.
+- My Jetpack: Show the dashboard in the new rounded admin page frame.
+- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
+- Restyle error notices to match the WordPress design system.
+- Settings: Group Image CDN controls and LCP optimization status in inset panels on the modern dashboard, and label the auto-resize toggle.
+- Settings: Keep focus on tooltip triggers when their tooltips open, announce the content to screen readers, and show a focus ring after clicking an info icon.
+- Settings: Organize modern settings into collapsible sections with descriptions and icons.
+- Settings: Show performance scores and optimization settings together on the modern dashboard.
+- Settings: Show upgrade notices without prices and add an explicit Generate step for manual Critical CSS in the modern dashboard.
+- Settings: Simplify modern settings descriptions and labels, and remove tips and priority support from the modern settings page.
+- Settings: Use a shared Except panel for JavaScript, CSS, and page cache exclusions in the modern dashboard.
 - Update package dependencies.
-- Upgrade modal: refresh the copy to match the plan comparison on Jetpack.com.
-
-#### Removed
-- Updated PHP version requirements to PHP 7.4 or newer.
 
 #### Fixed
-- Activity Log: Continue the wp-admin menu color behind the page frame on WordPress.com and third-party admin color schemes.
-- Activity Log: Fix the page overlapping the admin menu in right-to-left languages.
-- Admin dashboards: Keep the page header and content in view when the wp-admin menu is taller than the window.
-- Concatenate JS: Preserve deferred and asynchronous script loading.
-- Connection: Hide connection error notices from users who cannot fix the connection.
-- Connection: Update wording for some connection error notices.
-- Defer JS: Stop moving the Jetpack Likes script out of place, so Like blocks and comment likes no longer stick on "Loading…".
-- JITM: Fix missing messages and a console error on sites without the Jetpack plugin active.
-- My Jetpack: always label the license activation link 'Activate a license'. It previously read 'Activate a new license' on sites with a plan, even when no licenses had been activated.
-- My Jetpack: Keep the Automattic for Agencies banner hidden after dismissing it and switching tabs.
-- My Jetpack: keep the stats chart tooltip under sticky and fixed page elements.
-- My Jetpack: Show the right product status as soon as fresher plan data is available, instead of reusing an earlier lookup.
-- My Jetpack: Stop repeating the partner lookup request on every page load.
-- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
-- Page Cache: keep cache invalidation best-effort when a cache subdirectory disappears mid-walk, instead of throwing an uncaught exception that could break saving templates or posts.
-- Speed Score: Restore the with and without Boost comparison and the score change notice on sites whose score has not moved.
-- Speed Score: Stop the My Jetpack card re-testing the site on every page load.
-- Status: Detect a site served on any 127.0.0.0/8 loopback address, or on 0.0.0.0, as a local site.
+- Activity Log: Honor the module setting, so the page can be turned off.
+- Activity Log: Stop the frame from flashing while loading and when switching admin pages.
+- Charts: Fix unreadable axis labels in forced-colors mode.
+- Charts: Restore keyboard focus after dismissing line chart tooltips.
+- Connection: Fix a stale connection error notice that could persist on healthy sites.
+- Connection: Let users without admin access reconnect their own broken account from the connection error notice.
+- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else.
+- Critical CSS: Avoid duplicate status requests for CSS and LCP generation in the modern dashboard.
+- Critical CSS: Hide only the group of blocked pages you dismiss, instead of both.
+- Critical CSS: Show a focus ring around the manual regeneration info icon when it is reached with the keyboard.
+- Critical CSS: Stop generation from logging administrators out on sites whose login gate redirects without using WordPress.
+- Critical CSS: Stop local generation at login-protected pages to keep administrators logged in, and prevent automatic restarts after a failed run throughout the dashboard page session.
+- Dashboard: Avoid redundant requests when toggling optimization modules.
+- Dashboard: Fix the modernized onboarding loader staying in place of the Overview after onboarding completes.
+- Dashboard: Hide the history upgrade prompt in the modernized Overview when My Jetpack is turned off, so it no longer leads to a page you cannot open.
+- Dashboard: Keep day details in the modernized Overview score history fully on screen, let the pointer move onto them, and show a focus ring on the chart.
+- Dashboard: Remove console errors and blank space under Critical CSS on sites that are not publicly available.
+- Dashboard: Restore button padding on the modernized Overview screen.
+- Dashboard: Restore the "Use license key" link beside upgrade prompts on the modernized dashboard.
+- Dashboard: Restore the padding around the upgrade, error, and welcome notices in the modernized Overview score history card.
+- Dashboard: Show Jetpack in-dashboard messages on the modernized dashboard.
+- Dashboard: Stop the modernized dashboard from logging a console error about missing Jetpack configuration.
+- Dashboard: Target contextual messages at the Boost screen on the modern dashboard.
+- Dashboard: Track Try again as a speed score refresh and keep keyboard focus on the page when a render failure removes the header button.
+- Defer JS: Keep scripts that come before a script left in place in their original order, fixing hidden product images and unclickable tabs on some sites using Jetpack Likes.
+- Footer: Hide Products and Help links when My Jetpack is unavailable.
+- Hide My Jetpack links when its admin page is unavailable.
+- Modern dashboard: Send the upgrade CTA to the Boost interstitial page instead of opening the modal.
+- My Jetpack: Fix the dashboard failing to load on WordPress.com-hosted sites.
+- My Jetpack: Fix the layout of the connection screen for right-to-left languages.
+- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete.
+- My Jetpack: Show each notice once instead of twice.
+- My Jetpack: Stretch the tab content background to the full height of the page.
+- Overview: Keep keyboard focus on the score history's first or last day instead of leaving the chart, and return focus to the chart when Escape closes a tooltip.
+- Overview: Let Tab move straight into and out of the score history while the pointer shows a day's details.
+- Overview: Let the pointer reach every day in the score history while a day's details are open, and leave a gap between the day and its details.
+- Overview: Let the pointer take over from the arrow keys in the score history, instead of flickering between the hovered and selected days.
+- Overview: Show a day's score details on hover again after paging the score history with the keyboard.
+- Overview: Show a focus ring on the score history day selected with the arrow keys.
+- Overview: Show an upgrade link when the score history upgrade prompt cannot load.
+- Overview: Show the first recorded day of performance history immediately after upgrading.
+- Overview: Stop the score history from swallowing keys it does not use, such as Page Down, and close a day’s details when the series it describes is hidden.
+- Page Cache: Show the module as running, without contradictory setup errors, on WP Cloud hosts such as Pressable that already cache pages.
+- Performance history: Load the Overview faster on sites with little or no score history.
+- Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers.
+- Performance scores: Cancel pending background score requests while viewing a sub-page.
+- Settings: Avoid duplicate navigation when returning from a sub-page.
+- Settings: Close the Page Cache example and Cornerstone Pages warning tooltips with Escape, and the warning with a click elsewhere.
+- Settings: Give information icons an accessible name for screen readers.
+- Settings: Hide upgrade and license links when their My Jetpack screens are unavailable.
+- Settings: Let keyboard users open tooltips with Enter or Space and dismiss them with Escape.
+- Settings: Nest the settings section headings under the page heading for screen readers.
+- Settings: Show text links in the brand colour and enlarge the Critical CSS info icon in the modern dashboard.
+- Settings: Show tooltips in full on the modernized Settings page instead of cutting them off at the card edge.
 
 --------
 
