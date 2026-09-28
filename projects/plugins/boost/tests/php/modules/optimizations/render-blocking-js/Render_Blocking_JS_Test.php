@@ -581,19 +581,54 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 	}
 
 	/**
-	 * A script already taken from an earlier chunk goes back in front of the kept handle.
+	 * A script already taken from an earlier chunk goes back in front of the kept handle, ahead of this chunk's scripts.
 	 */
 	public function test_scripts_from_earlier_chunks_return_before_a_kept_handle() {
 		$stand_in = '<script>let jQuery=function(){};window.jQuery=jQuery;</script>';
+		$config   = '<script>var config={};</script>';
 		$jquery   = $this->print_kept_jquery_core();
 
 		list( $first_output, $first_rest ) = $this->instance->handle_output_stream( "<head><meta charset=\"utf-8\">$stand_in", '<title>Shop</title>' );
 		$this->assertSame( array( $stand_in ), $this->get_buffered_script_tags() );
 
-		list( $output, $rest ) = $this->instance->handle_output_stream( $first_rest, "<meta name=\"viewport\" content=\"width=device-width\">$jquery</head>" );
+		list( $output, $rest ) = $this->instance->handle_output_stream( $first_rest, "<meta name=\"viewport\" content=\"width=device-width\">$config$jquery</head>" );
 
-		$this->assertSame( "<head><meta charset=\"utf-8\"><title>Shop</title><meta name=\"viewport\" content=\"width=device-width\">$stand_in$jquery</head>", $first_output . $output . $rest );
+		$this->assertSame( "<head><meta charset=\"utf-8\"><title>Shop</title><meta name=\"viewport\" content=\"width=device-width\">$stand_in$config$jquery</head>", $first_output . $output . $rest );
 		$this->assertSame( array(), $this->get_buffered_script_tags() );
+	}
+
+	/**
+	 * A script left open across chunks that closes before the kept handle stays in place, and later chunks flow again.
+	 */
+	public function test_script_open_across_chunks_before_a_kept_handle() {
+		$jquery = $this->print_kept_jquery_core();
+
+		list( $first_output, $first_rest ) = $this->instance->handle_output_stream( '<head><script>var a=1;</script><script>var b', '' );
+		$this->assertSame( '<head>', $first_output );
+
+		list( $second_output, $second_rest ) = $this->instance->handle_output_stream( $first_rest, "=2;</script>$jquery<script>var c" );
+		$this->assertSame( "<script>var a=1;</script><script>var b=2;</script>$jquery", $second_output );
+		$this->assertSame( '<script>var c', $second_rest );
+
+		list( $output, $rest ) = $this->instance->handle_output_stream( $second_rest, '=3;</script></head><body>' );
+		$this->assertSame( '</head><body>', $output . $rest );
+		$this->assertSame( array( '<script>var c=3;</script>' ), $this->get_buffered_script_tags() );
+
+		list( $output ) = $this->instance->handle_output_stream( '<p>Content</p>', '<p>More</p>' );
+		$this->assertSame( '<p>Content</p>', $output );
+	}
+
+	/**
+	 * Once the open script is printed in place, the following chunk is printed rather than held back.
+	 */
+	public function test_chunk_after_an_open_script_kept_in_place_is_printed() {
+		$jquery = $this->print_kept_jquery_core();
+
+		list( , $first_rest )  = $this->instance->handle_output_stream( '<head><script>var a=1;</script><script>var b', '' );
+		list( , $second_rest ) = $this->instance->handle_output_stream( $first_rest, "=2;</script>$jquery</head>" );
+
+		list( $output, $rest ) = $this->instance->handle_output_stream( $second_rest, '<body><p>Content</p>' );
+		$this->assertSame( array( '</head>', '<body><p>Content</p>' ), array( $output, $rest ) );
 	}
 
 	/**

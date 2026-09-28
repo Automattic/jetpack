@@ -243,6 +243,10 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		$joint_buffer = $this->ignore_exclusion_scripts( $buffer_start . $buffer_end );
 
 		list( $kept_in_place, $joint_buffer ) = $this->split_at_kept_scripts( $joint_buffer );
+		if ( '' !== $kept_in_place ) {
+			// A script left open by an earlier chunk may have closed in the part printed in place.
+			$this->is_opened_script = $this->is_opened_script( $joint_buffer );
+		}
 
 		$script_tags = $this->get_script_tags( $joint_buffer );
 
