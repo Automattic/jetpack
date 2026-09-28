@@ -35,7 +35,6 @@ export {
 	type StatsPostLikesResponse,
 } from './use-stats-post-likes';
 export { useStatsQuery } from './use-stats-query';
-export { isAwaitingData } from './awaiting-data';
 export { useStatsTopPosts } from './use-stats-top-posts';
 export { useStatsReferrers } from './use-stats-referrers';
 export { useStatsClicks } from './use-stats-clicks';

@@ -12,8 +12,6 @@ import styles from './report-empty-state.module.scss';
 /**
  * Replace report sections when the selected period has no rows, centred in the space `ReportPageLayout` leaves below its section header.
  *
- * It takes the place of the table's own empty render, never its loading one: render it when the rows the page passes to the table are empty and the `isLoading` the page passes to the table is false. Those rows are the whole period, before the table's client-side search, so a search that matches nothing keeps the table and its search box on screen.
- *
  * @return The report empty state.
  */
 export function ReportEmptyState() {

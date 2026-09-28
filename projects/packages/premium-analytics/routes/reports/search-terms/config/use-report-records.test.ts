@@ -42,7 +42,6 @@ type MockSearchTermsReportOptions = {
 	comparisonReport?: StatsNormalizedReport< StatsSearchTermsItem >;
 	primaryLoading?: boolean;
 	primaryFetching?: boolean;
-	primaryPlaceholder?: boolean;
 	comparisonLoading?: boolean;
 	comparisonFetching?: boolean;
 	comparisonSuccess?: boolean;
@@ -57,7 +56,6 @@ type MockSearchTermsReportOptions = {
  * @param options.comparisonReport      - Optional comparison-period report.
  * @param options.primaryLoading        - Whether the primary query is initially loading.
  * @param options.primaryFetching       - Whether the primary query is actively fetching.
- * @param options.primaryPlaceholder    - Whether primary data is a placeholder from the previous params.
  * @param options.comparisonLoading     - Whether the comparison query is initially loading.
  * @param options.comparisonFetching    - Whether the comparison query is actively fetching.
  * @param options.comparisonSuccess     - Whether the comparison query succeeded.
@@ -68,7 +66,6 @@ function mockSearchTermsReport( {
 	comparisonReport,
 	primaryLoading = false,
 	primaryFetching = false,
-	primaryPlaceholder = false,
 	comparisonLoading = false,
 	comparisonFetching = false,
 	comparisonSuccess = comparisonReport !== undefined,
@@ -76,11 +73,11 @@ function mockSearchTermsReport( {
 	comparisonError = false,
 }: MockSearchTermsReportOptions = {} ) {
 	mockUseStatsSearchTerms.mockReturnValue( {
+		isLoading: primaryLoading || comparisonLoading,
 		primary: {
 			data: report,
 			isLoading: primaryLoading,
 			isFetching: primaryFetching,
-			isPlaceholderData: primaryPlaceholder,
 			isSuccess: ! primaryLoading,
 		},
 		comparison: {
@@ -213,27 +210,6 @@ describe( 'useSearchTermsReportRecords', () => {
 		expect( result.current.table.hasComparison ).toBe( true );
 	} );
 
-	it( 'reports loading while the previous range’s rows stand in for a changed range', () => {
-		mockSearchTermsReport( { primaryFetching: true, primaryPlaceholder: true } );
-
-		const { result } = renderHook( () =>
-			useSearchTermsReportRecords( { from: '2026-06-03', to: '2026-06-04', interval: 'day' } )
-		);
-
-		expect( result.current.table.isLoading ).toBe( true );
-	} );
-
-	it( 'does not report loading while the same range revalidates', () => {
-		mockSearchTermsReport( { primaryFetching: true } );
-
-		const { result } = renderHook( () =>
-			useSearchTermsReportRecords( { from: '2026-06-03', to: '2026-06-04', interval: 'day' } )
-		);
-
-		expect( result.current.table.isLoading ).toBe( false );
-		expect( result.current.table.isFetching ).toBe( true );
-	} );
-
 	it( 'forwards initial loading while comparison data is pending', () => {
 		mockSearchTermsReport( {
 			comparisonLoading: true,
@@ -274,7 +250,7 @@ describe( 'useSearchTermsReportRecords', () => {
 
 		const { result } = renderHook( () => useSearchTermsReportRecords( params ) );
 
-		expect( result.current.table.isLoading ).toBe( true );
+		expect( result.current.table.isLoading ).toBe( false );
 		expect( result.current.table.isFetching ).toBe( true );
 		expect( result.current.table.hasComparison ).toBe( false );
 		expect( result.current.table.rows ).not.toEqual(
