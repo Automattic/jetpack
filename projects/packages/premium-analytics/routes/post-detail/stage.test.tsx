@@ -211,13 +211,15 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( './components', () => ( {
 	postHeaderSlots: ( {
+		summary,
 		variant,
 		performanceRange,
 	}: {
+		summary: { isLoading?: boolean };
 		variant?: string;
 		performanceRange?: { from?: Date; to?: Date };
 	} ) => ( {
-		title: 'Post summary',
+		title: summary.isLoading ? 'Loading summary' : 'Post summary',
 		subTitle: (
 			<>
 				<span data-testid="header-variant">{ variant }</span>
@@ -231,6 +233,7 @@ jest.mock( './components', () => ( {
 
 let mockActiveTab = 'traffic';
 let mockEmailNotSent = false;
+let mockEmailSendPending = false;
 
 // The pinned email scope the stage hands to the tabs hook and the header.
 const mockEmailScope = {
@@ -267,6 +270,7 @@ jest.mock( './hooks', () => ( {
 		setActiveTab: jest.fn(),
 		layout: [],
 		isEmailNotSent: mockEmailNotSent,
+		isEmailSendPending: mockEmailSendPending,
 	} ) ),
 } ) );
 
@@ -308,6 +312,7 @@ describe( 'post detail stage', () => {
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
 		mockActiveTab = 'traffic';
 		mockEmailNotSent = false;
+		mockEmailSendPending = false;
 	} );
 
 	it( 'shows the date filter on the traffic tab', () => {
@@ -355,6 +360,26 @@ describe( 'post detail stage', () => {
 			'href',
 			'https://jetpack.com/support/newsletter/'
 		);
+	} );
+
+	it( 'keeps the email header a skeleton while the send check is pending', () => {
+		mockActiveTab = 'email-opens';
+		mockEmailSendPending = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Loading summary' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Post summary' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the Post traffic header while the send check is pending', () => {
+		mockEmailSendPending = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the Post traffic tab’s header for a post never sent', () => {

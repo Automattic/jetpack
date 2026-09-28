@@ -170,7 +170,6 @@ export {
 	type DetailPageActionsProps,
 	type DetailPageBreadcrumbsProps,
 	type DetailPageCustomize,
-	type DetailPageEmptyStateProps,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
