@@ -4,6 +4,7 @@
 import { STATS_CHART_BUCKET_PERIODS, toAuthorId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -97,6 +98,7 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>
