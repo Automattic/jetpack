@@ -6,7 +6,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { isDashboardSectionInPreviewScope, isVideoPressAvailable } from '../site-readiness';
+import { isDashboardSectionAvailable, isVideoPressAvailable } from '../site-readiness';
 // Import from `config/tabs` directly, not the `config` barrel — it re-exports JSX,
 // and `route.ts` imports this registry in `beforeLoad`, which must stay React-free.
 import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
@@ -203,7 +203,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
  *
  * @param id - The `$report` path segment (may be missing on a malformed URL).
  * @return The matching definition, or `undefined` when the id is missing, unknown, or in a
- * section the preview hides.
+ * section the dashboard does not expose.
  */
 export function getReportDefinition( id: string | undefined ): ReportDefinition | undefined {
 	const definition = id && Object.hasOwn( REPORTS, id ) ? REPORTS[ id ] : undefined;
@@ -212,7 +212,7 @@ export function getReportDefinition( id: string | undefined ): ReportDefinition 
 		return undefined;
 	}
 
-	if ( definition && ! isDashboardSectionInPreviewScope( definition.dashboardSection ) ) {
+	if ( definition && ! isDashboardSectionAvailable( definition.dashboardSection ) ) {
 		return undefined;
 	}
 

@@ -59,6 +59,17 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 }
 
 /**
+ * Whether the Store dashboard section should be exposed.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_store_dashboard_section_available() {
+	return is_dashboard_store_section_enabled() && is_woocommerce_dashboard_section_available_to_current_user();
+}
+
+/**
  * Whether the Subscribers dashboard section should be exposed.
  *
  * Sites without Jetpack have no module state to check, so the section remains
@@ -458,7 +469,7 @@ function register_default_dashboard_sections( $registry = null ) {
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
+			'is_available'   => __NAMESPACE__ . '\\is_store_dashboard_section_available',
 			// Nothing backfills historical orders to WordPress.com but the analytics
 			// full sync. The site sections above read data it already holds.
 			'requires_sync'  => true,

@@ -341,7 +341,7 @@ class Analytics {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
 			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
-		configure_dashboard_preview_scope();
+		configure_dashboard_sections_script_data();
 
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {

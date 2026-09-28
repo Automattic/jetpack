@@ -38,7 +38,7 @@ filters.
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
-src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
+src/dashboard-sections.php              # section API: registry helpers, section script data, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
@@ -168,16 +168,13 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
-Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
-customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
-override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
-overrides that per section — `__return_true` gives a development or test site the whole dashboard.
-The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
+Every section the site qualifies for is shown as a tab, whichever one says yes. The Store tab sits
+behind the `premium-analytics-store-section` feature flag, off by default; see
 `docs/dashboard-sections.md`.
 
 The same list the tab bar gets over REST also reaches the client as
-`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
-scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+`premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
+tab out of reach: each report declares the tab it belongs to, and `getReportDefinition()` treats one
 behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
 `authors`) rather than declaring a tab.
 
