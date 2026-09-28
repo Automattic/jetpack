@@ -1512,11 +1512,11 @@ class Manager {
 			return false;
 		}
 
-		// The identity is disclosed only to the owner it names, so this branch is the one place the
-		// site can learn it. Anchoring here is not establishing: WordPress.com already accepted a
-		// claim, and this catches up a site that never recorded it or lost the record.
 		$caller_wpcom_user_id = (int) ( $record['caller_wpcom_user_id'] ?? 0 );
 
+		// The identity is disclosed only to the owner it names, so this is the one branch that can
+		// learn it — and what it settles is which account the anchor should name, since
+		// WordPress.com may have moved the owner since this site last asked.
 		if ( ! empty( $record['is_caller'] ) ) {
 			return $this->adopt_protected_owner( $user_id, $caller_wpcom_user_id, $anchor );
 		}
