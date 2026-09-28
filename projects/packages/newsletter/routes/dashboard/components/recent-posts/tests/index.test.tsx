@@ -156,6 +156,7 @@ describe( 'RecentPosts', () => {
 			site_type: 'jetpack',
 			post_id: 2,
 			post_status: 'draft',
+			position: 2,
 		} );
 	} );
 

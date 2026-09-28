@@ -90,17 +90,19 @@ export function useStatsStateView( area: StatsArea, state: StatsViewState | null
 /**
  * Recent-post row link. Records the click without the title or URL.
  *
- * @param props      - Link props.
- * @param props.post - Post to link.
+ * @param props          - Link props.
+ * @param props.post     - Post to link.
+ * @param props.position - 1-based row in the recent-posts list.
  * @return The post link.
  */
-function RecentPostLink( { post }: { post: RecentPost } ): JSX.Element {
+function RecentPostLink( { post, position }: { post: RecentPost; position: number } ): JSX.Element {
 	const recordClick = useCallback( () => {
 		recordStatsEvent( 'jetpack_newsletter_stats_post_click', {
 			post_id: post.id,
 			post_status: post.status,
+			position,
 		} );
-	}, [ post.id, post.status ] );
+	}, [ post.id, post.status, position ] );
 
 	return (
 		<Link
@@ -228,10 +230,10 @@ function getRecentPostsContent( {
 					</tr>
 				</thead>
 				<tbody>
-					{ posts.map( post => (
+					{ posts.map( ( post, index ) => (
 						<tr key={ post.id }>
 							<td>
-								<RecentPostLink post={ post } />
+								<RecentPostLink post={ post } position={ index + 1 } />
 							</td>
 							<td>
 								<span className="jetpack-newsletter-recent-posts__status">

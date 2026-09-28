@@ -7,10 +7,10 @@ import { check } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 
-type ChecklistStepId = 'customize' | 'write_post' | 'share';
+type ChecklistStepId = 'start' | 'customize' | 'write_post' | 'share';
 
 type ChecklistStep = {
-	id?: ChecklistStepId;
+	id: ChecklistStepId;
 	title: string;
 	description: string;
 	primaryAction?: string;
@@ -72,6 +72,7 @@ function ChecklistActions( {
 
 const STEPS: ChecklistStep[] = [
 	{
+		id: 'start',
 		title: __( 'Start a newsletter', 'jetpack-newsletter' ),
 		description: __( 'Your newsletter is ready to welcome subscribers.', 'jetpack-newsletter' ),
 		complete: true,
@@ -110,11 +111,9 @@ export default function OnboardingChecklist(): JSX.Element {
 	return (
 		<Stack direction="column" gap="sm" className="jetpack-newsletter-overview__checklist">
 			{ STEPS.map( step => {
-				const stepId = step.id;
-
 				return (
 					<CollapsibleCard.Root
-						key={ stepId ?? step.title }
+						key={ step.id }
 						className={ clsx( 'jetpack-newsletter-overview__step', {
 							'jetpack-newsletter-overview__step--complete': step.complete,
 						} ) }
@@ -152,9 +151,9 @@ export default function OnboardingChecklist(): JSX.Element {
 								<Text render={ <p /> } className="jetpack-newsletter-overview__step-description">
 									{ step.description }
 								</Text>
-								{ step.primaryAction && stepId ? (
+								{ step.primaryAction ? (
 									<ChecklistActions
-										stepId={ stepId }
+										stepId={ step.id }
 										primaryAction={ step.primaryAction }
 										secondaryAction={ step.secondaryAction }
 									/>
