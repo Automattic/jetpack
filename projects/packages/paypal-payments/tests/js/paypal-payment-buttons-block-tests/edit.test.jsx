@@ -1549,7 +1549,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( click ).toHaveBeenCalledTimes( 2 );
 		} );
 
-		it( 'exchanges the auth code the SDK hands to the frame realm', async () => {
+		it( 'completes onboarding when the SDK calls back into the frame realm', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
 			const frame = await openActiveOverlay();
@@ -1561,7 +1561,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			 * actually takes.
 			 */
 			await act( async () => {
-				frame.contentWindow.jetpackPayPalOnboardComplete( 'AUTH_CODE_2', 'SHARED_ID_2' );
+				frame.contentWindow.jetpackPayPalOnboardComplete();
 			} );
 
 			await waitFor( () =>
@@ -1569,10 +1569,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
 						method: 'POST',
-						data: expect.objectContaining( {
-							auth_code: 'AUTH_CODE_2',
-							shared_id: 'SHARED_ID_2',
-						} ),
 					} )
 				)
 			);
@@ -1757,7 +1753,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( typeof window.jetpackPayPalOnboardComplete ).toBe( 'function' );
 		} );
 
-		it( 'exchanges the auth code when the SDK reports completion', async () => {
+		it( 'asks the server to record the seller when the SDK reports completion', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
@@ -1765,8 +1761,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				screen.findByRole( 'button', { name: /Connect PayPal/i } )
 			).resolves.toBeVisible();
 
+			// PayPal's third-party flow hands the callback nothing that identifies
+			// the seller; the server finds them through the referral it created.
 			await act( async () => {
-				window.jetpackPayPalOnboardComplete( 'AUTH_CODE_1', 'SHARED_ID_1' );
+				window.jetpackPayPalOnboardComplete();
 			} );
 
 			await waitFor( () =>
@@ -1774,10 +1772,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
 						method: 'POST',
-						data: expect.objectContaining( {
-							auth_code: 'AUTH_CODE_1',
-							shared_id: 'SHARED_ID_1',
-						} ),
+						data: { merchant_id_in_paypal: '' },
 					} )
 				)
 			);

@@ -256,23 +256,23 @@ export function usePayPalConnection() {
 	}, [ clientId, clientSecret, environment ] );
 
 	/**
-	 * Hand PayPal's auth code to the server to exchange for seller credentials.
+	 * Tell the server the merchant finished at PayPal, so it can record them.
+	 *
+	 * PayPal's third-party flow hands the SDK callback nothing to identify the
+	 * seller by; the server finds them through the referral it created. The
+	 * merchant ID goes along only when a caller has it, from the return URL
+	 * this flow never sees.
 	 *
 	 * Registered under the same name on the top window and on the frame's window,
 	 * so both registrations finish onboarding the same way.
 	 */
-	const completeOnboarding = useCallback( ( authCode, sharedId, merchantIdInPayPal = '' ) => {
+	const completeOnboarding = useCallback( ( merchantIdInPayPal = '' ) => {
 		setIsCompletingOnboarding( true );
 
 		apiFetch( {
 			path: `${ API_BASE }/onboarding/complete`,
 			method: 'POST',
 			data: {
-				auth_code: authCode,
-				shared_id: sharedId,
-				// Optional: PayPal reports the merchant ID on the return URL,
-				// which this flow never sees. The server falls back to the
-				// payer_id that comes back with the credentials.
 				merchant_id_in_paypal: merchantIdInPayPal || '',
 			},
 		} )
@@ -302,8 +302,7 @@ export function usePayPalConnection() {
 	 * Expose the completion callback for PayPal's SDK to call by name.
 	 */
 	useEffect( () => {
-		window[ ONBOARD_CALLBACK_NAME ] = ( authCode, sharedId ) =>
-			completeOnboarding( authCode, sharedId );
+		window[ ONBOARD_CALLBACK_NAME ] = () => completeOnboarding();
 
 		return () => {
 			delete window[ ONBOARD_CALLBACK_NAME ];
@@ -330,8 +329,8 @@ export function usePayPalConnection() {
 		} )
 			.then( response => {
 				// `displayMode=minibrowser` is what makes PayPal render the flow in
-				// the SDK's lightbox and report the auth code back through the
-				// callback, rather than treating this as a plain redirect.
+				// the SDK's lightbox and report completion through the callback,
+				// rather than treating this as a plain redirect.
 				const url = new URL( response.action_url );
 				url.searchParams.set( 'displayMode', 'minibrowser' );
 				setSignupUrl( url.toString() );
@@ -416,8 +415,7 @@ export function usePayPalConnection() {
 		frameDocument.close();
 
 		// The SDK resolves the callback by name against whichever realm it runs in.
-		frameWindow[ ONBOARD_CALLBACK_NAME ] = ( authCode, sharedId ) =>
-			completeOnboarding( authCode, sharedId );
+		frameWindow[ ONBOARD_CALLBACK_NAME ] = () => completeOnboarding();
 
 		/*
 		 * Left visible on purpose: render() skips hidden elements, so a hidden

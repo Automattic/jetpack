@@ -51,10 +51,8 @@ class PayPal_OAuth_Test extends TestCase {
 		// credentials cache, which otherwise leaks between tests in the same
 		// process and makes has_credentials() report a stale true.
 		PayPal_OAuth::disconnect();
-		// The partner id and the account email live on another class's options, which
-		// disconnect() leaves alone.
-		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY );
+		// The referred seller lives on another class's options, which disconnect() leaves alone.
+		PayPal_Partner_Onboarding::cleanup();
 
 		// The blog connection is per-test; leaving it set makes later tests that
 		// expect a disconnected site pass or fail depending on test order.
@@ -382,13 +380,27 @@ class PayPal_OAuth_Test extends TestCase {
 	}
 
 	/**
-	 * Test Partner Referrals is unavailable off WordPress.com, even with credentials
-	 * and a partner ID stored.
+	 * Test a referred seller counts as connected although the site holds no credentials.
 	 */
-	public function test_connection_status_partner_referrals_ignores_credentials_and_partner_id() {
+	public function test_connection_status_reports_a_referred_seller_as_connected() {
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertFalse( PayPal_OAuth::has_credentials() );
+		$this->assertTrue( PayPal_OAuth::is_connected() );
+		$this->assertTrue( $status['connected'] );
+		$this->assertSame( 'MERCHANT1', $status['merchant_id'] );
+		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_METHOD, $status['onboarding_method'] );
+	}
+
+	/**
+	 * Test Partner Referrals is unavailable off WordPress.com, even with credentials stored.
+	 */
+	public function test_connection_status_partner_referrals_ignores_credentials() {
 		$this->assertFalse( ( new Manager() )->is_connected(), 'This case needs a disconnected site.' );
 
-		PayPal_Partner_Onboarding::set_partner_id( 'TEST_PARTNER_123' );
 		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
 
 		$status = PayPal_OAuth::get_connection_status();

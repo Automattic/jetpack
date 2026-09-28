@@ -441,8 +441,9 @@ class PayPal_API_Client {
 			$error_data = $result->get_error_data();
 			$status     = isset( $error_data['status'] ) ? (int) $error_data['status'] : 0;
 
-			// Auth failure (401/403) — refresh token and retry exactly once.
-			if ( in_array( $status, array( 401, 403 ), true ) && ! $auth_retried ) {
+			// Auth failure (401/403) — refresh token and retry exactly once. There is no
+			// site token to refresh when WordPress.com makes the call.
+			if ( in_array( $status, array( 401, 403 ), true ) && ! $auth_retried && ! PayPal_Partner_Onboarding::is_platform_managed() ) {
 				$auth_retried = true;
 				PayPal_OAuth::clear_cached_token();
 
@@ -520,17 +521,62 @@ class PayPal_API_Client {
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
 	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id = '' ) {
+		// Generate a unique request ID for idempotency if not provided.
+		if ( empty( $request_id ) ) {
+			$request_id = wp_generate_uuid4();
+		}
+
+		$response = PayPal_Partner_Onboarding::is_platform_managed()
+			? PayPal_Platform_Client::request( $method, $endpoint, $body, $request_id )
+			: self::make_direct_request( $method, $endpoint, $body, $request_id );
+
+		if ( is_wp_error( $response ) ) {
+			return $response;
+		}
+
+		$status_code = wp_remote_retrieve_response_code( $response );
+
+		// Success path.
+		if ( in_array( $status_code, (array) $expected_status, true ) ) {
+			// A 204 is empty. Ignore a body if PayPal ever sends one.
+			if ( 204 === $status_code ) {
+				return null;
+			}
+
+			$response_body = wp_remote_retrieve_body( $response );
+			$data          = json_decode( $response_body, true );
+
+			if ( null === $data && '' !== $response_body ) {
+				return new \WP_Error(
+					'paypal_api_invalid_json',
+					__( 'PayPal returned a response that could not be parsed as JSON.', 'jetpack-paypal-payments' ),
+					array( 'status' => $status_code )
+				);
+			}
+
+			return $data;
+		}
+
+		// Error path — map PayPal error response to WP_Error.
+		return self::parse_error_response( $response, $status_code );
+	}
+
+	/**
+	 * Call PayPal from the site, with the merchant's own credentials.
+	 *
+	 * @param string     $method     HTTP method (GET, POST, PUT, DELETE).
+	 * @param string     $endpoint   API endpoint path (appended to base URL).
+	 * @param array|null $body       Request body data (JSON-encoded for POST/PUT).
+	 * @param string     $request_id Idempotency key.
+	 * @return array|\WP_Error The wp_remote_request() response, or WP_Error when PayPal was unreachable.
+	 */
+	private static function make_direct_request( $method, $endpoint, $body, $request_id ) {
 		$token = PayPal_OAuth::get_access_token();
 		if ( is_wp_error( $token ) ) {
 			return $token;
 		}
 
 		$url = PayPal_OAuth::get_base_url() . $endpoint;
-
-		// Generate a unique request ID for idempotency if not provided.
-		if ( empty( $request_id ) ) {
-			$request_id = wp_generate_uuid4();
-		}
 
 		$args = array(
 			'method'  => $method,
@@ -569,31 +615,7 @@ class PayPal_API_Client {
 			);
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
-
-		// Success path.
-		if ( in_array( $status_code, (array) $expected_status, true ) ) {
-			// A 204 is empty. Ignore a body if PayPal ever sends one.
-			if ( 204 === $status_code ) {
-				return null;
-			}
-
-			$response_body = wp_remote_retrieve_body( $response );
-			$data          = json_decode( $response_body, true );
-
-			if ( null === $data && '' !== $response_body ) {
-				return new \WP_Error(
-					'paypal_api_invalid_json',
-					__( 'PayPal returned a response that could not be parsed as JSON.', 'jetpack-paypal-payments' ),
-					array( 'status' => $status_code )
-				);
-			}
-
-			return $data;
-		}
-
-		// Error path — map PayPal error response to WP_Error.
-		return self::parse_error_response( $response, $status_code );
+		return $response;
 	}
 
 	/**
