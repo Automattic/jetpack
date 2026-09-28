@@ -1,0 +1,217 @@
+/**
+ * Keep the email's text color readable on the background the creator picked.
+ *
+ * Core's color panel offers no hook for a background change, so this watches the design record the
+ * panel writes — `root`/`globalStyles` in core-data — and derives `styles.color.text` from
+ * `styles.color.background` there. Writing it into the record rather than at render is what puts a
+ * real value in the Text control, so the creator can see it and override it. See NL-959.
+ */
+
+import { storeName as EDITOR_STORE } from '@woocommerce/email-editor';
+import { store as coreStore } from '@wordpress/core-data';
+import { dispatch, select, subscribe } from '@wordpress/data';
+import { deriveTextColor, parseColor } from './text-color';
+
+// What the editor stores for a palette pick, in both the shorthand the package rewrites values to
+// and the CSS custom property it rewrites them from.
+const PRESET_SHORTHAND = /^var:preset\|color\|([\w-]+)$/;
+const PRESET_VARIABLE = /^var\(\s*--wp--preset--color--([\w-]+)\s*\)$/;
+
+// Palette origins, least specific first, so a later one wins on a repeated slug.
+const PALETTE_ORIGINS = [ 'default', 'theme', 'custom' ];
+
+/**
+ * Derive the text color whenever the creator changes the background.
+ *
+ * @param {number|null} id - The global-styles id the bundle named.
+ * @return {Function} Stops watching, for a caller that unmounts the editor.
+ */
+export function watchDerivedTextColor( id ) {
+	if ( ! id ) {
+		return () => {};
+	}
+
+	let previous;
+	let seeded = false;
+
+	return subscribe( () => {
+		const record = select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
+
+		if ( ! record ) {
+			return;
+		}
+
+		const background = record.styles?.color?.background;
+
+		// The first sighting is whatever was stored, which is not a change the creator made.
+		if ( ! seeded ) {
+			previous = background;
+			seeded = true;
+			return;
+		}
+
+		if ( background === previous ) {
+			return;
+		}
+
+		// Moved on before the write below, which runs this listener again.
+		const before = previous;
+		previous = background;
+
+		// A background arriving with nothing pending is the record resolving, not a pick. Without
+		// this, loading a blog's inherited design would write a text color it never had.
+		if ( ! select( coreStore ).hasEditsForEntityRecord( 'root', 'globalStyles', id ) ) {
+			return;
+		}
+
+		const styles = nextStyles( record, before, background );
+
+		if ( ! styles ) {
+			return;
+		}
+
+		// Left out of the undo stack rather than given a step of its own: one undo then puts the
+		// background back, and this watcher re-derives from it.
+		dispatch( coreStore ).editEntityRecord(
+			'root',
+			'globalStyles',
+			id,
+			{ styles },
+			{ undoIgnore: true }
+		);
+	} );
+}
+
+/**
+ * The design's `styles` with the text color the new background calls for.
+ *
+ * A text color the creator chose survives a background change; one this derived for the previous
+ * background does not, which is what makes the Text control both real and overridable.
+ *
+ * @param {object} record     - The edited design record.
+ * @param {*}      before     - The background before the change.
+ * @param {*}      background - The background after it.
+ * @return {object|null} The new `styles`, or null when the text color should be left alone.
+ */
+function nextStyles( record, before, background ) {
+	const text = record.styles?.color?.text;
+	const hasText = undefined !== text && null !== text;
+
+	if ( hasText && ! isSameColor( text, deriveTextColor( resolvePresetColor( before, record ) ) ) ) {
+		return null;
+	}
+
+	const derived = deriveTextColor( resolvePresetColor( background, record ) );
+
+	if ( null === derived ) {
+		// Nothing to derive from, so a text color that only existed for the old background goes too.
+		return hasText ? withoutTextColor( record.styles ) : null;
+	}
+
+	if ( isSameColor( text, derived ) ) {
+		return null;
+	}
+
+	return {
+		...record.styles,
+		color: { ...record.styles?.color, text: derived },
+	};
+}
+
+/**
+ * The design's `styles` with no text color, and no empty branch left where it was.
+ *
+ * @param {object} styles - The design's `styles`.
+ * @return {object} The new `styles`.
+ */
+function withoutTextColor( styles ) {
+	const color = { ...styles.color };
+	delete color.text;
+
+	const next = { ...styles };
+
+	if ( 0 === Object.keys( color ).length ) {
+		delete next.color;
+	} else {
+		next.color = color;
+	}
+
+	return next;
+}
+
+/**
+ * Whether two colors are the same color, however each is written.
+ *
+ * @param {*} first  - A color.
+ * @param {*} second - A color.
+ * @return {boolean} True when both parse to the same channels.
+ */
+function isSameColor( first, second ) {
+	const firstRgb = parseColor( first );
+	const secondRgb = parseColor( second );
+
+	if ( null === firstRgb || null === secondRgb ) {
+		return false;
+	}
+
+	return firstRgb.every( ( channel, at ) => channel === secondRgb[ at ] );
+}
+
+/**
+ * Resolve a palette pick to the color it stands for, leaving anything else as it is.
+ *
+ * @param {*}      value  - A stored color.
+ * @param {object} record - The edited design record, whose own palette wins over the theme's.
+ * @return {*} A literal color, or the value unchanged.
+ */
+function resolvePresetColor( value, record ) {
+	if ( 'string' !== typeof value ) {
+		return value;
+	}
+
+	const trimmed = value.trim();
+	const match = PRESET_SHORTHAND.exec( trimmed ) ?? PRESET_VARIABLE.exec( trimmed );
+
+	if ( ! match ) {
+		return value;
+	}
+
+	const theme = select( EDITOR_STORE )?.getTheme?.();
+	const palettes = [ theme?.settings?.color?.palette, record?.settings?.color?.palette ];
+
+	let resolved;
+
+	for ( const palette of palettes ) {
+		for ( const entry of paletteEntries( palette ) ) {
+			if ( entry?.slug === match[ 1 ] && entry?.color ) {
+				resolved = entry.color;
+			}
+		}
+	}
+
+	// A slug with no entry stays as it was, so the caller derives nothing rather than guessing.
+	return resolved ?? value;
+}
+
+/**
+ * Flatten a palette that may be one list or one list per origin.
+ *
+ * `editor_theme` carries the raw theme.json shape and a creator's own swatches arrive keyed by
+ * origin, so both reach this.
+ *
+ * @param {*} palette - A palette.
+ * @return {Array} Its entries, least specific origin first.
+ */
+function paletteEntries( palette ) {
+	if ( Array.isArray( palette ) ) {
+		return palette;
+	}
+
+	if ( ! palette || 'object' !== typeof palette ) {
+		return [];
+	}
+
+	return PALETTE_ORIGINS.flatMap( origin =>
+		Array.isArray( palette[ origin ] ) ? palette[ origin ] : []
+	);
+}

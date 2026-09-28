@@ -36,6 +36,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
+import { watchDerivedTextColor } from './derived-text-color';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
 // the browser calls one local URL everywhere.
@@ -1071,6 +1072,7 @@ export async function mountEmailDesignEditor() {
 
 	const root = createRoot( container );
 	let stopWatchingSidebar = null;
+	let stopDerivingTextColor = null;
 
 	try {
 		const bundle = await apiFetch( {
@@ -1115,6 +1117,7 @@ export async function mountEmailDesignEditor() {
 		// error screen.
 		if ( canEditDesign( bundle ) ) {
 			stopWatchingSidebar = openStylesSidebarOnLoad();
+			stopDerivingTextColor = watchDerivedTextColor( config.globalStylesPostId );
 		}
 
 		root.render(
@@ -1128,6 +1131,7 @@ export async function mountEmailDesignEditor() {
 		);
 	} catch ( error ) {
 		stopWatchingSidebar?.();
+		stopDerivingTextColor?.();
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console
