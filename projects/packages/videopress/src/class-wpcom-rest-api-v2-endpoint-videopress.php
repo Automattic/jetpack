@@ -752,14 +752,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	/**
 	 * Resolve a VideoPress guid to its local attachment id on the current site.
 	 *
-	 * Used to authorize poster reads/writes against the specific video. Returns
-	 * 0 when the guid cannot be resolved to an attachment on this site, so the
-	 * capability check that consumes it fails closed.
+	 * Returns 0 when the GUID does not belong to the current site.
+	 *
+	 * @internal
 	 *
 	 * @param string $video_guid The VideoPress GUID.
 	 * @return int The attachment/post id, or 0 if it cannot be resolved.
 	 */
-	private static function get_video_attachment_id( $video_guid ) {
+	public static function get_video_attachment_id( $video_guid ) {
 		if ( empty( $video_guid ) ) {
 			return 0;
 		}

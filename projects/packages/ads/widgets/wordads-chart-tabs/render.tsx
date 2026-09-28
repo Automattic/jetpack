@@ -12,7 +12,6 @@ import {
 	WidgetState,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
-import { megaphone } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -57,10 +56,6 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 						'jetpack-ads-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-ads-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: megaphone,
-					description: __( 'No WordAds data in this period.', 'jetpack-ads-pkg' ),
 				} }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>

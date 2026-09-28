@@ -7,6 +7,7 @@ import { getForcedReason } from './feature-state';
 import styles from './styles.module.scss';
 import { isBulkSwitchable } from './use-bulk-feature-switch';
 import type { FeatureState } from './feature-state';
+import type { FeatureActionOrigin } from './features-tracking-context';
 import type { FeatureSelection } from './use-feature-selection';
 
 // Explains every disabled row checkbox, so the reason is written once.
@@ -88,6 +89,7 @@ type FeatureListProps = {
 	states: FeatureState[];
 	onOpen?: ( slug: string ) => void;
 	showIcon?: boolean;
+	origin?: FeatureActionOrigin;
 };
 
 /**
@@ -98,9 +100,10 @@ type FeatureListProps = {
  * @param {FeatureState[]}   props.states    - The features to show.
  * @param {Function}         props.onOpen    - Opens a feature's details, where the rows have any.
  * @param {boolean}          props.showIcon  - False drops each row's icon tile.
+ * @param {string}           props.origin    - Which list these rows sit in.
  * @return The rendered component.
  */
-export function FeatureList( { selection, states, onOpen, showIcon }: FeatureListProps ) {
+export function FeatureList( { selection, states, onOpen, showIcon, origin }: FeatureListProps ) {
 	return (
 		<div className={ styles[ 'feature-list' ] }>
 			{ states.map( state => (
@@ -109,6 +112,7 @@ export function FeatureList( { selection, states, onOpen, showIcon }: FeatureLis
 					state={ state }
 					onOpen={ onOpen }
 					showIcon={ showIcon }
+					origin={ origin }
 					className={ styles[ 'feature-row' ] }
 					leading={
 						<RowCheckbox

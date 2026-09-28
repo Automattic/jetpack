@@ -4,6 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { useRequestedSwitches } from '../../../../data/requested-switch-state';
 import { isBulkSwitchable, useBulkFeatureSwitch } from '../use-bulk-feature-switch';
 import type { FeatureState } from '../feature-state';
+import type { BulkOutcome } from '../use-bulk-feature-switch';
 import type { ReactNode } from 'react';
 
 const mockSuccess = jest.fn();
@@ -133,7 +134,7 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		const { result } = renderBulk();
 
-		let run: Promise< string[] > = Promise.resolve( [] );
+		let run: Promise< BulkOutcome > = Promise.resolve( { attempted: 0, failed: [] } );
 		act( () => {
 			run = result.current.bulk.run(
 				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
@@ -186,15 +187,16 @@ describe( 'useBulkFeatureSwitch', () => {
 
 		const { result } = renderBulk();
 
-		let failed: string[] = [];
+		let outcome: BulkOutcome = { attempted: 0, failed: [] };
 		await act( async () => {
-			failed = await result.current.bulk.run(
+			outcome = await result.current.bulk.run(
 				[ moduleState( 'stats', 'active' ), pluginState( 'akismet', 'active' ) ],
 				false
 			);
 		} );
 
-		expect( failed ).toEqual( [ 'akismet' ] );
+		// Both were sent, so the one that came back failed leaves one that did not.
+		expect( outcome ).toEqual( { attempted: 2, failed: [ 'akismet' ] } );
 	} );
 
 	it( 'gives features held back for the same reason one notice between them', async () => {

@@ -5,7 +5,7 @@ import { renderLegendSlot } from '../chart-composition';
 import styles from './chart-layout.module.scss';
 import type { GapSize, LegendPosition } from '../../../types';
 import type { LegendChild } from '../chart-composition/use-chart-children';
-import type { CSSProperties, ReactNode } from 'react';
+import type { CSSProperties, ReactNode, Ref } from 'react';
 
 /**
  * Measurements provided to the render prop when ChartLayout handles resize listening.
@@ -36,6 +36,8 @@ export interface ChartLayoutProps {
 	gap?: GapSize;
 	/** Additional class names */
 	className?: string;
+	/** Ref to the root element, the one `className` lands on */
+	rootRef?: Ref< HTMLDivElement >;
 	/** Inline styles (width, height, etc.) */
 	style?: CSSProperties;
 	/** Test ID for the container */
@@ -53,6 +55,7 @@ export const ChartLayout = ( {
 	onContentHeightChange,
 	gap,
 	className,
+	rootRef,
 	style,
 	'data-testid': dataTestId,
 	'data-chart-id': dataChartId,
@@ -78,6 +81,7 @@ export const ChartLayout = ( {
 
 	return (
 		<Stack
+			ref={ rootRef }
 			direction="column"
 			gap={ gap }
 			className={ className }

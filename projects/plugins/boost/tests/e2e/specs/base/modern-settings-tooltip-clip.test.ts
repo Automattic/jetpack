@@ -180,7 +180,7 @@ test( 'tabbing out of the portaled tooltip resumes from the trigger', async ( { 
 	// would otherwise send Tab to whatever follows the portal, not to the trigger's neighbour.
 	await page.keyboard.press( 'Tab' );
 	await expect( content ).toBeHidden();
-	await expect( page.getByRole( 'button', { name: 'Generate' } ) ).toBeFocused();
+	await expect( page.getByRole( 'button', { name: 'Generate', exact: true } ) ).toBeFocused();
 
 	await trigger.focus();
 	await page.keyboard.press( 'Space' );

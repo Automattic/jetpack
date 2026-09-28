@@ -9,7 +9,7 @@ import { CardItem, ProductFilter, ProductSection, SearchResultItem } from './typ
  * Legacy modules that should only appear in the module list when they are already active.
  * New users will not see these modules; existing users keep the ability to deactivate them.
  */
-const LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE: readonly string[] = [
+export const LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE: readonly string[] = [
 	'google-fonts' satisfies JetpackModuleSlug,
 ];
 
@@ -391,10 +391,19 @@ export function buildCards(
 }
 
 /**
- * Filter and sort modules based on their name.
+ * Order modules by name. A module the site could not translate arrives with a null name, so
+ * sort off the slug rather than let one comparison take down the whole tab.
  *
- * A module the site could not translate arrives with a null name, so sort off the slug rather
- * than let one comparison take down the whole tab.
+ * @param a - A module.
+ * @param b - Another module.
+ * @return The sort order.
+ */
+export function compareModulesByName( a: MyJetpackModule, b: MyJetpackModule ): number {
+	return ( a.name || a.module ).localeCompare( b.name || b.module );
+}
+
+/**
+ * Filter and sort modules based on their name.
  *
  * @param {Array<MyJetpackModule>} modules - The modules to filter and sort.
  * @return The filtered and sorted modules.
@@ -406,10 +415,7 @@ export function filterAndSortModules(
 		.filter( Boolean )
 		.filter( m => ! LEGACY_MODULES_VISIBLE_ONLY_WHEN_ACTIVE.includes( m.module ) || m.activated );
 
-	const sortKey = ( m: MyJetpackModule ) => m.name || m.module;
-	$modules.sort( ( a, b ) => sortKey( a ).localeCompare( sortKey( b ) ) );
-
-	return $modules;
+	return $modules.sort( compareModulesByName );
 }
 
 /**

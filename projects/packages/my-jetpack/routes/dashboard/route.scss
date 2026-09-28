@@ -25,11 +25,6 @@ body:is(.jetpack_page_my-jetpack, .admin_page_my-jetpack):not(.jetpack-admin-ful
 		Arial,
 		sans-serif;
 
-	// wp-admin's body color, not the #1e1e1e boot's stage sets.
-	.boot-layout__stage {
-		color: #3c434a;
-	}
-
 	// Keep the scrollable middle's gutter reserved so content-height changes
 	// don't shift the layout sideways.
 	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {

@@ -8,7 +8,12 @@ import {
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
-import { getMyJetpackSections, getProductsSectionPath, resolveMyJetpackSection } from '../utils';
+import {
+	getModulesListPath,
+	getMyJetpackSections,
+	getProductsSectionPath,
+	resolveMyJetpackSection,
+} from '../utils';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: jest.fn(),
@@ -87,6 +92,12 @@ describe( 'resolveMyJetpackSection on regular and Simple sites', () => {
 	} );
 } );
 
+describe( 'getModulesListPath', () => {
+	it( 'falls back to the classic modules page without the Features tab', () => {
+		expect( getModulesListPath() ).toBe( 'admin.php?page=jetpack_modules' );
+	} );
+} );
+
 describe( 'with the Features tab flag', () => {
 	beforeEach( () => setFeaturesTab( true ) );
 
@@ -97,6 +108,10 @@ describe( 'with the Features tab flag', () => {
 			expect.objectContaining( { name: MY_JETPACK_SECTION_HELP } ),
 		] );
 		expect( getProductsSectionPath( '?filter=included' ) ).toBe( '/features?filter=included' );
+	} );
+
+	it( 'lists every module in the Features list view', () => {
+		expect( getModulesListPath() ).toBe( 'admin.php?page=my-jetpack#/features?view=list' );
 	} );
 
 	it( 'applies the Simple and non-admin rules to the Features section', () => {

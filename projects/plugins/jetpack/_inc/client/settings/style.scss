@@ -7,8 +7,8 @@
 
 .jp-settings-admin-page .jp-lower {
 	max-width: 660px;
-	margin-left: auto;
-	margin-right: auto;
+	margin-inline-start: auto;
+	margin-inline-end: auto;
 }
 
 .jp-settings-container {
@@ -32,7 +32,7 @@
 	}
 
 	.dops-banner.dops-card {
-		border-left: none;
+		border-inline-start: none;
 		border-top: none;
 	}
 
@@ -49,19 +49,19 @@
 	/* remove the button style from prefix labels */
 	.jp-form-input-with-prefix span:first-child {
 		background: none;
-		text-align: left;
+		text-align: start;
 		border: none;
 		color: var(--jp-black-80);
 		font-weight: 700;
 		font-size: 14px;
 		line-height: 24px;
-		padding-left: 0;
-		padding-right: 0;
+		padding-inline-start: 0;
+		padding-inline-end: 0;
 		min-width: 98px;
 	}
 
 	.jp-form-input-with-prefix input[type="text"] {
-		border-left: 1px solid #d5d5d5;
+		border-inline-start: 1px solid #d5d5d5;
 	}
 
 	/* adjust the space below toggle controls */
@@ -80,7 +80,7 @@
 	.jp-form-has-child {
 
 		> .jp-form-fieldset {
-			margin-left: 64px;
+			margin-inline-start: 64px;
 
 			&:last-child {
 				margin-bottom: 0;

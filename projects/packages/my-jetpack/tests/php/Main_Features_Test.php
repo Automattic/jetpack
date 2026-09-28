@@ -60,27 +60,35 @@ class Main_Features_Test extends TestCase {
 
 	/**
 	 * A module listed twice, or one a main feature already switches, would never show where it
-	 * is listed. The products whose module is named differently are spelled out because that
-	 * map lives in the UI's `PRODUCT_MODULES`, which this package's PHP cannot read.
+	 * is listed. A feature's module is its own, or else the one its product is named after.
 	 */
 	public function test_module_groups_list_each_module_once_and_skip_main_features() {
 		// The modules a product owns under a different name. That map lives in the UI's
 		// `PRODUCT_MODULES`, which this package's PHP cannot read.
 		$product_modules = array( 'vaultpress', 'publicize', 'contact-form', 'ai' );
 
-		$definitions = Main_Features::get_feature_definitions();
-		$grouped     = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
-		$covered     = array_filter(
-			array_merge(
-				$product_modules,
-				array_column( $definitions, 'module' ),
-				// A product whose module is named after it covers that slug too.
-				array_column( $definitions, 'product' )
+		$grouped = array_merge( ...array_column( Main_Features::get_module_groups(), 'modules' ) );
+		$covered = array_merge(
+			$product_modules,
+			array_map(
+				fn( $definition ) => empty( $definition['module'] ) ? ( $definition['product'] ?? '' ) : $definition['module'],
+				Main_Features::get_feature_definitions()
 			)
 		);
 
 		$this->assertSame( array_unique( $grouped ), $grouped );
-		$this->assertSame( array(), array_values( array_intersect( $grouped, $covered ) ) );
+		$this->assertSame( array(), array_values( array_intersect( $grouped, array_filter( $covered ) ) ) );
+	}
+
+	/**
+	 * Brute Force Protection sits with Security, Shortlinks with Engagement, and Infinite Scroll in Other.
+	 */
+	public function test_module_groups_place_the_regrouped_modules() {
+		$groups = array_column( Main_Features::get_module_groups(), 'modules', 'label' );
+
+		$this->assertContains( 'protect', $groups['Security'] );
+		$this->assertContains( 'shortlinks', $groups['Engagement'] );
+		$this->assertNotContains( 'infinite-scroll', array_merge( ...array_values( $groups ) ) );
 	}
 
 	/**
@@ -93,7 +101,7 @@ class Main_Features_Test extends TestCase {
 		);
 		sort( $essential );
 
-		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect', 'stats' ), $essential );
+		$this->assertSame( array( 'boost', 'jetpack-forms', 'protect-dashboard', 'stats' ), $essential );
 	}
 
 	/**
@@ -137,16 +145,16 @@ class Main_Features_Test extends TestCase {
 
 		$this->assertSame(
 			array(
-				'anti-spam'  => 'https://wordpress.org/plugins/akismet/',
-				'backup'     => 'https://wordpress.org/plugins/jetpack-backup/',
-				'blaze'      => 'https://wordpress.org/plugins/blaze-ads/',
-				'boost'      => 'https://wordpress.org/plugins/jetpack-boost/',
-				'crm'        => 'https://wordpress.org/plugins/zero-bs-crm/',
-				'protect'    => 'https://wordpress.org/plugins/jetpack-protect/',
-				'search'     => 'https://wordpress.org/plugins/jetpack-search/',
-				'social'     => 'https://wordpress.org/plugins/jetpack-social/',
-				'stats'      => 'https://wordpress.org/plugins/jetpack-stats/',
-				'videopress' => 'https://wordpress.org/plugins/jetpack-videopress/',
+				'anti-spam'         => 'https://wordpress.org/plugins/akismet/',
+				'backup'            => 'https://wordpress.org/plugins/jetpack-backup/',
+				'blaze'             => 'https://wordpress.org/plugins/blaze-ads/',
+				'boost'             => 'https://wordpress.org/plugins/jetpack-boost/',
+				'crm'               => 'https://wordpress.org/plugins/zero-bs-crm/',
+				'protect-dashboard' => 'https://wordpress.org/plugins/jetpack-protect/',
+				'search'            => 'https://wordpress.org/plugins/jetpack-search/',
+				'social'            => 'https://wordpress.org/plugins/jetpack-social/',
+				'stats'             => 'https://wordpress.org/plugins/jetpack-stats/',
+				'videopress'        => 'https://wordpress.org/plugins/jetpack-videopress/',
 			),
 			$urls
 		);
@@ -232,17 +240,30 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * A feature that can be upgraded must say what to buy.
+	 * A feature with a product page of its own must say what that page sells.
 	 */
-	public function test_features_with_paid_highlights_name_a_paid_product() {
+	public function test_features_with_an_interstitial_name_a_paid_product() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
-			if ( empty( $feature['paid_highlights'] ) ) {
+			if ( empty( $feature['interstitial'] ) ) {
 				continue;
 			}
 
 			$this->assertNotEmpty(
 				$feature['paid_product'] ?? '',
-				"Feature {$slug} lists paid highlights but no paid product."
+				"Feature {$slug} has an interstitial but no paid product."
+			);
+		}
+	}
+
+	/**
+	 * The modal's free column must not appear for a feature that has no free tier, nor be missing for one that does.
+	 */
+	public function test_free_highlights_match_the_free_flag() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			$this->assertSame(
+				$feature['delivery']['free'],
+				! empty( $feature['free_highlights'] ),
+				"Feature {$slug} disagrees with its free flag about having free highlights."
 			);
 		}
 	}
@@ -416,5 +437,154 @@ class Main_Features_Test extends TestCase {
 		$this->assertNotContains( 'search', $slugs );
 		$this->assertNotContains( 'newsletter', $slugs );
 		$this->assertContains( 'stats', $slugs );
+	}
+
+	/**
+	 * A feature listing Jetpack Complete must offer a way to buy it.
+	 */
+	public function test_every_feature_in_complete_has_an_upgrade() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			if ( ! in_array( 'complete', array_column( $feature['plans'], 'slug' ), true ) ) {
+				continue;
+			}
+
+			$this->assertNotEmpty( $feature['upgrade']['path'], "Feature {$feature['slug']} lists Complete but has no upgrade." );
+			$this->assertNotEmpty( $feature['upgrade']['name'], "Feature {$feature['slug']} does not name what its upgrade sells." );
+		}
+	}
+
+	/**
+	 * Fakes the site's purchases, so ownership is read without a request to WordPress.com.
+	 *
+	 * @param string[] $product_slugs The WordPress.com product slugs the site pays for.
+	 */
+	private function own( array $product_slugs ) {
+		$purchases = array_map(
+			fn( $slug ) => (object) array(
+				'product_slug'  => $slug,
+				'expiry_status' => 'active',
+				'expiry_date'   => gmdate( 'Y-m-d H:i:s', strtotime( '+1 year' ) ),
+			),
+			$product_slugs
+		);
+
+		set_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY, $purchases, HOUR_IN_SECONDS );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array() ), HOUR_IN_SECONDS );
+	}
+
+	/**
+	 * Clears the faked purchases.
+	 */
+	public function tearDown(): void {
+		delete_transient( Wpcom_Products::MY_JETPACK_PURCHASES_TRANSIENT_KEY );
+		delete_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY );
+		parent::tearDown();
+	}
+
+	/**
+	 * A site that owns Complete is offered no upgrade, including features with no product of their own.
+	 */
+	public function test_no_upgrade_for_a_site_that_owns_complete() {
+		$this->own( array( 'jetpack_complete' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		foreach ( array( 'activity-log', 'podcast', 'jetpack-forms', 'newsletter', 'anti-spam' ) as $slug ) {
+			$this->assertSame( '', $upgrades[ $slug ]['path'], "Feature {$slug} still offers an upgrade to a Complete site." );
+		}
+	}
+
+	/**
+	 * Owning a smaller bundle covers only the features that bundle lists.
+	 */
+	public function test_no_upgrade_for_features_a_smaller_bundle_covers() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '', $upgrades['podcast']['path'] );
+		$this->assertSame( '', $upgrades['newsletter']['path'] );
+		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * A plan no bundle class lists still covers Activity Log when WordPress.com grants its paid history.
+	 */
+	public function test_no_activity_log_upgrade_for_a_site_with_full_activity_log() {
+		$this->own( array( 'jetpack_personal' ) );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'full-activity-log' ) ), HOUR_IN_SECONDS );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '', $upgrades['activity-log']['path'] );
+	}
+
+	/**
+	 * A free Search purchase shares its slug's prefix with the paid one, and must not count as paying.
+	 */
+	public function test_free_search_purchase_still_offers_the_upgrade() {
+		$this->own( array( 'jetpack_search_free' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '/add-search', $upgrades['search']['path'] );
+	}
+
+	/**
+	 * WordPress.com grants the free Search plan the same `search` site feature as the paid one.
+	 */
+	public function test_free_search_site_feature_still_offers_the_upgrade() {
+		$this->own( array( 'jetpack_search_free' ) );
+		set_transient( Product::MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY, array( 'active' => array( 'search' ) ), HOUR_IN_SECONDS );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '/add-search', $upgrades['search']['path'] );
+	}
+
+	/**
+	 * A paid Search purchase covers the feature, free plan or not.
+	 */
+	public function test_no_upgrade_for_a_site_that_pays_for_search() {
+		$this->own( array( 'jetpack_search_free', 'jetpack_search' ) );
+
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '', $upgrades['search']['path'] );
+	}
+
+	/**
+	 * Without a product page of its own, the upgrade sells the cheapest bundle that includes the feature.
+	 */
+	public function test_upgrade_falls_back_to_the_cheapest_bundle() {
+		$upgrades = array_column( Main_Features::get_features(), 'upgrade', 'slug' );
+
+		$this->assertSame( '/add-security', $upgrades['activity-log']['path'] );
+		$this->assertSame( 'Jetpack Security', $upgrades['activity-log']['name'] );
+		$this->assertSame( '/add-growth', $upgrades['newsletter']['path'] );
+		$this->assertSame( '/add-growth', $upgrades['podcast']['path'] );
+		$this->assertSame( 'Jetpack Growth', $upgrades['podcast']['name'] );
+		$this->assertSame( '/add-complete', $upgrades['jetpack-forms']['path'] );
+		$this->assertSame( '/add-akismet', $upgrades['anti-spam']['path'] );
+		$this->assertSame(
+			array(
+				'path' => '',
+				'name' => '',
+			),
+			$upgrades['blaze']
+		);
+	}
+
+	/**
+	 * The upgrade sells the first bundle listed, so Complete, the priciest, must come last.
+	 */
+	public function test_plans_list_complete_last() {
+		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
+			$plans = $feature['plans'] ?? array();
+
+			if ( in_array( 'complete', $plans, true ) ) {
+				$this->assertSame( 'complete', end( $plans ), "Feature {$slug} lists a bundle after Complete." );
+			}
+		}
 	}
 }

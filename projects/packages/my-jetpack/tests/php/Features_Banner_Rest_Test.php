@@ -34,9 +34,7 @@ class Features_Banner_Rest_Test extends TestCase {
 	}
 
 	private function register_routes( $flag_enabled = true ) {
-		if ( $flag_enabled ) {
-			add_filter( self::FLAG_FILTER, '__return_true' );
-		}
+		add_filter( self::FLAG_FILTER, $flag_enabled ? '__return_true' : '__return_false' );
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();

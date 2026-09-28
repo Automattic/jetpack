@@ -1,6 +1,6 @@
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
-import { formatMetric, formatRate } from '../helpers/format-metric';
+import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
 import './style.scss';
 
 export type RecentPost = {
@@ -101,11 +101,21 @@ function getRecentPostsContent( {
 			<table className="jetpack-newsletter-recent-posts__table">
 				<thead>
 					<tr>
-						<th scope="col">{ __( 'Post', 'jetpack-newsletter' ) }</th>
-						<th scope="col">{ __( 'Status', 'jetpack-newsletter' ) }</th>
-						<th scope="col">{ __( 'Recipients', 'jetpack-newsletter' ) }</th>
-						<th scope="col">{ __( 'Opens', 'jetpack-newsletter' ) }</th>
-						<th scope="col">{ __( 'Clicks', 'jetpack-newsletter' ) }</th>
+						<th scope="col">
+							{ _x( 'Post', 'table column heading displaying post title', 'jetpack-newsletter' ) }
+						</th>
+						<th scope="col">
+							{ _x( 'Status', 'table column heading for post status', 'jetpack-newsletter' ) }
+						</th>
+						<th scope="col">
+							{ _x( 'Recipients', 'table column heading for emails sent', 'jetpack-newsletter' ) }
+						</th>
+						<th scope="col">
+							{ _x( 'Opens', 'table column heading for email open rate', 'jetpack-newsletter' ) }
+						</th>
+						<th scope="col">
+							{ _x( 'Clicks', 'table column heading for email click rate', 'jetpack-newsletter' ) }
+						</th>
 					</tr>
 				</thead>
 				<tbody>

@@ -10,7 +10,6 @@ import {
 	useWidgetRootContext,
 	type MetricTab,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { customer } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -127,10 +126,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					actions: [
 						{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: state.refetch },
 					],
-				} }
-				empty={ {
-					icon: customer,
-					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>

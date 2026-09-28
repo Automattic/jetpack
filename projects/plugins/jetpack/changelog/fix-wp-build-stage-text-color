@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Settings: Remove the hardcoded text color override on the wp-build page, so text follows the design system color.

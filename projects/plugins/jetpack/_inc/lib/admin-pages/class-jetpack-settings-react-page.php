@@ -139,13 +139,15 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 			add_filter( 'jetpack_admin_menu_visibility', array( __CLASS__, 'hide_menu_item' ) );
 		}
 
+		$position = defined( Admin_Menu::class . '::POSITION_LAST' ) ? Admin_Menu::POSITION_LAST : 998;
+
 		$hook = Admin_Menu::add_menu(
 			__( 'Settings', 'jetpack' ),
 			__( 'Settings', 'jetpack' ),
 			'jetpack_admin_page',
 			'jetpack-settings',
 			array( $this, 'render' ),
-			Admin_Menu::POSITION_LAST,
+			$position,
 			array( 'key' => 'jetpack-settings' )
 		);
 

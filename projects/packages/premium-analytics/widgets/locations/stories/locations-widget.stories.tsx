@@ -165,8 +165,8 @@ export const Error: StoryObj< LocationsStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral location
- * glyph and the "stats will appear here" copy).
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: StoryObj< LocationsStoryControls > = {
 	render: () => renderLocationsOnPreset( 'last-365-days' ),
