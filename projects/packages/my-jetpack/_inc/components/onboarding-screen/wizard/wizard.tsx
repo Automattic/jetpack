@@ -10,7 +10,7 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { border, chevronLeft, chevronRight, drafts, published, wordpress } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Icon, LinkButton, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { Button, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState, useMemo } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
@@ -27,7 +27,6 @@ import {
 	wizardSteps,
 } from './lib';
 import { PanelArt } from './panel-art';
-import { PANEL_LINES } from './panel-type';
 import { hasPortrait, SitePortrait } from './site-portrait';
 import { ChoiceStep } from './steps/choice-step';
 import { FeaturesStep } from './steps/features-step';
@@ -58,14 +57,6 @@ const SHELL_BACKGROUND = '#1e1e1e';
  * frame and the brand panel both have to stay on the light ramp.
  */
 const CONTENT_BACKGROUND = '#fcfcfc';
-
-/*
- * Söhne Breit's own metrics, in font units: the hhea ascent, and the line box
- * the generator measured every ratio against. Font coordinates are y-up, so the
- * box starts at -ascent and the glyphs are flipped back with scale(1, -1).
- */
-const TYPE_ASCENT = 1037;
-const TYPE_BOX = 1326;
 
 /**
  * WordPress's own post-status icons: done = published (the ring with a tick),
@@ -326,7 +317,6 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 		[ isFeatures, handleApplyAndContinue, handleNext ]
 	);
 
-	const panelLines = PANEL_LINES[ step ];
 	const state: WizardState = useMemo(
 		() => ( { choices, freeText: siteTypeDetail } ),
 		[ choices, siteTypeDetail ]
@@ -395,35 +385,21 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
 						<div className={ styles[ 'rail-head' ] }>
 							{ /*
-							 * Icon plus tooltip, as the Site Editor's own back control does it:
-							 * the aria-label is what a screen reader reads, and the popup is the
-							 * only thing a mouse user gets, since the mark alone says nothing.
-							 * Rendered AS the link rather than around it, or the trigger would
-							 * wrap one control in another.
+							 * The words are on the control rather than in a tooltip. The mark
+							 * alone says nothing, and a tooltip is the one affordance a touch
+							 * user never gets — on the screen that takes over their admin, the
+							 * way back has to be readable without hovering it.
 							 */ }
-							<Tooltip.Root>
-								<Tooltip.Trigger
-									render={
-										<LinkButton
-											variant="minimal"
-											tone="neutral"
-											size="compact"
-											href={ dashboardUrl }
-											aria-label={ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
-											className={ styles.exit }
-										>
-											<LinkButton.Icon icon={ wordpress } />
-										</LinkButton>
-									}
-								/>
-								{ /*
-								 * Beside the mark, not under it: the rail title sits directly
-								 * below and a popup on that side lands on top of the words.
-								 */ }
-								<Tooltip.Popup positioner={ <Tooltip.Positioner side="right" sideOffset={ 4 } /> }>
-									{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
-								</Tooltip.Popup>
-							</Tooltip.Root>
+							<LinkButton
+								variant="minimal"
+								tone="neutral"
+								size="compact"
+								href={ dashboardUrl }
+								className={ styles.exit }
+							>
+								<LinkButton.Icon icon={ wordpress } />
+								{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+							</LinkButton>
 
 							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
 								{ wizardTitle }
@@ -613,34 +589,6 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 								) : (
 									<PanelArt key={ `art-${ meta.id }` } animate />
 								) }
-								{ /* Keyed by step so each line rises again when the copy is swapped. */ }
-								<p key={ meta.id } className={ styles[ 'brand-panel__copy' ] }>
-									{ /*
-									 * The lines are drawn as outlines, so the words themselves are
-									 * carried here — one sentence per step, not one per line.
-									 */ }
-									<VisuallyHidden render={ <span /> }>
-										{ panelLines.map( line => line.text ).join( ' ' ) }
-									</VisuallyHidden>
-
-									{ panelLines.map( line => (
-										<span key={ line.text } className={ styles[ 'brand-panel__line' ] }>
-											<svg
-												viewBox={ `0 ${ -TYPE_ASCENT } ${ line.ratio * TYPE_BOX } ${ TYPE_BOX }` }
-												style={ { inlineSize: `${ line.ratio }em`, blockSize: '1em' } }
-												fill="currentColor"
-												aria-hidden="true"
-												focusable="false"
-											>
-												<g
-													transform="scale(1, -1)"
-													// eslint-disable-next-line react/no-danger -- Generated by tools/generate-panel-type.py from the font's outlines; no user input reaches it.
-													dangerouslySetInnerHTML={ { __html: line.path } }
-												/>
-											</svg>
-										</span>
-									) ) }
-								</p>
 							</div>
 						</div>
 					</ThemeProvider>

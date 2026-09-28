@@ -183,8 +183,14 @@ export function wizardSteps(): WizardStepMeta[] {
 			 * This one is true either way, so it needs no second question about which.
 			 */
 			title: __( "What's this site for?", 'jetpack-my-jetpack' ),
+			/*
+			 * Says what the answer does and no more. It only orders the features —
+			 * all six are offered and all six start on whatever is picked — so
+			 * anything about recommending a different set would be a promise the
+			 * next step does not keep.
+			 */
 			description: __(
-				'Pick the closest fit. It shapes what we suggest next.',
+				'Pick the closest fit. We’ll put the most useful features first.',
 				'jetpack-my-jetpack'
 			),
 			/*
@@ -232,10 +238,10 @@ export function wizardSteps(): WizardStepMeta[] {
 			id: 'features',
 			kind: 'features',
 			label: __( 'What you need', 'jetpack-my-jetpack' ),
-			title: __( "Here's what we recommend for your site", 'jetpack-my-jetpack' ),
+			title: __( 'What we recommend', 'jetpack-my-jetpack' ),
 			// Replaced by featuresDescription() once the site type is known; this is
 			// what someone who skipped the question or typed their own answer reads.
-			description: __( 'Turn off anything you would rather not have.', 'jetpack-my-jetpack' ),
+			description: __( 'Turn off any you don’t need.', 'jetpack-my-jetpack' ),
 			// The rows are the modules Jetpack reports, not a fixed list written here.
 			options: [],
 		},
@@ -354,24 +360,24 @@ export function siteTypeAnswer( state: WizardState ): string | undefined {
  * still start on, so "these matter most" is about what is at the top of the
  * list, and nothing here says anything was left out.
  *
+ * Each one is short enough to set on one line at the column's 470px. The
+ * longest, the business line, uses all of it, so a translation will wrap.
+ *
  * @return The line for each site type that has one, translated at call time.
  */
 function featuresDescriptions(): Record< string, string > {
 	return {
-		blog: __(
-			'For a blog, these matter most. Turn off anything you would rather not have.',
-			'jetpack-my-jetpack'
-		),
+		blog: __( 'For a blog, these matter most. Turn off any you don’t need.', 'jetpack-my-jetpack' ),
 		store: __(
-			'For a store, these matter most. Turn off anything you would rather not have.',
+			'For a store, these matter most. Turn off any you don’t need.',
 			'jetpack-my-jetpack'
 		),
 		portfolio: __(
-			'For a portfolio, these matter most. Turn off anything you would rather not have.',
+			'For a portfolio, these matter most. Turn off any you don’t need.',
 			'jetpack-my-jetpack'
 		),
 		business: __(
-			'For a business site, these matter most. Turn off anything you would rather not have.',
+			'For a business site, these matter most. Turn off any you don’t need.',
 			'jetpack-my-jetpack'
 		),
 	};
