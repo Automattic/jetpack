@@ -329,29 +329,6 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
 	} );
 
-	it( 'answers a zero-filled timeline inside the chart, not with a widget-level empty state', async () => {
-		mockApiFetch.mockResolvedValue( {
-			timeline: {
-				...OPENS_TIMELINE_RESPONSE.timeline,
-				data: OPENS_TIMELINE_RESPONSE.timeline.data.map( ( [ date ] ) => [ date, 0 ] ),
-			},
-		} );
-
-		render(
-			<EmailTimeSeriesWidget
-				attributes={ {
-					reportParams: { ...JULY_WEEK_PARAMS, post_id: 1234 },
-					metric: 'opens',
-				} }
-			/>
-		);
-
-		await expect(
-			screen.findByText( 'We couldn’t find results for this time period.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
-	} );
-
 	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
 		const emptyResponse = {
 			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },

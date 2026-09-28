@@ -139,7 +139,6 @@ describe( 'TrafficChart drill-down', () => {
 } );
 
 describe( 'TrafficChart with an idle window', () => {
-	// `stats/visits` answers an idle window with a zero for every bucket, not with no rows.
 	const zeroFilled = ( key: string, label: string ) => ( {
 		key,
 		label,

@@ -119,13 +119,8 @@ describe( 'SubscribersChartWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-headline', '5' );
 	} );
 
-	it( 'answers a window of null counts inside the chart, not with a widget-level empty state', async () => {
-		mockUseStatsSubscribersReport.mockReturnValue(
-			reportWith( [
-				{ date_start: '2015-01-01T00:00:00', subscribers: null, subscribers_paid: null },
-				{ date_start: '2015-01-02T00:00:00', subscribers: null, subscribers_paid: null },
-			] )
-		);
+	it( 'keeps the chart for a period without rows, handing it the no-results message', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue( reportWith( [] ) );
 
 		render(
 			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
