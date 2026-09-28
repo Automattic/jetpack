@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Connection: Fix an issue where reconnecting could disconnect all users when only one account needed re-linking.
+Connection: Fix reconnecting your WordPress.com account so it no longer disconnects other users and clears the broken-connection notice on the first attempt.

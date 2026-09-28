@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Reconnect: refresh only the user's own token when token validation is inconclusive but the blog token is healthy, instead of disconnecting every user.
+Reconnect: when reconnecting the owner account, refresh only that account instead of disconnecting every user, and clear the stale broken-connection notice on the first attempt.
