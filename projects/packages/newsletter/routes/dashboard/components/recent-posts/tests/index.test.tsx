@@ -1,3 +1,16 @@
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getSiteType: () => 'jetpack',
+} ) );
+
 import { fireEvent, render, screen } from '@testing-library/react';
 import RecentPosts, { type RecentPost } from '..';
 
@@ -38,6 +51,7 @@ const defaultProps = {
 describe( 'RecentPosts', () => {
 	beforeEach( () => {
 		defaultProps.onRetry.mockReset();
+		mockRecordEvent.mockReset();
 	} );
 
 	it( 'renders published and draft posts with metrics only when available', () => {
@@ -106,5 +120,43 @@ describe( 'RecentPosts', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( defaultProps.onRetry ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+	} );
+
+	it( 'records a recent-post click with its id and status', () => {
+		const { rerender } = render( <RecentPosts { ...defaultProps } /> );
+
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+		rerender( <RecentPosts { ...defaultProps } /> );
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+
+		// This direct callback test does not need user-event's pointer simulation.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'link', { name: 'Upcoming newsletter' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_post_click', {
+			site_type: 'jetpack',
+			post_id: 2,
+			post_status: 'draft',
+		} );
+	} );
+
+	it( 'records leaving Stats for the posts list or a new post', () => {
+		const { rerender } = render( <RecentPosts { ...defaultProps } /> );
+
+		// This direct callback test does not need user-event's pointer simulation.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'link', { name: 'View all' } ) );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_view_all_click', {
+			site_type: 'jetpack',
+		} );
+
+		rerender( <RecentPosts { ...defaultProps } posts={ [] } /> );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'link', { name: 'Create a post' } ) );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_create_post_click', {
+			site_type: 'jetpack',
+		} );
 	} );
 } );
