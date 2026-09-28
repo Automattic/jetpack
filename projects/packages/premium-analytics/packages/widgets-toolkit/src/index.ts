@@ -115,6 +115,7 @@ export {
 	SemiCircleChart,
 	type SemiCircleChartData,
 	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,

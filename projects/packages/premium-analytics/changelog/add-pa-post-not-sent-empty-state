@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Post detail: Show the Email opens and Email clicks tabs for every post, with a "This post hasn’t been sent as a newsletter" state for a post that was never sent.

@@ -163,6 +163,7 @@ export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
