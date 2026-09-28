@@ -1151,25 +1151,6 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertSame( $this->owner_id, (int) $anchor['local_user_id'] );
 	}
 
-	/**
-	 * A site WordPress.com holds no owner for changes no ownership, whoever connects.
-	 */
-	public function test_connecting_to_an_unowned_site_changes_no_ownership() {
-		$agency = $this->candidate( 'agency' );
-		Jetpack_Options::update_option( 'master_user', $agency );
-		$this->act_as_administrator();
-
-		$record = array(
-			'has_owner'            => false,
-			'matches'              => false,
-			'is_caller'            => false,
-			'caller_wpcom_user_id' => self::BYSTANDER_WPCOM_ID,
-		);
-
-		$this->assertFalse( $this->reconciling_manager( $record )->reconcile_protected_owner() );
-		$this->assertSame( $agency, (int) Jetpack_Options::get_option( 'master_user' ) );
-	}
-
 	// ── reconcile_protected_owner ────────────────────────────────────────
 
 	/**
@@ -1349,6 +1330,8 @@ class Protected_Owner_Test extends TestCase {
 	 * through the claim, where confirming belongs.
 	 */
 	public function test_an_unanchored_site_asks_nothing() {
+		$agency = $this->candidate( 'agency' );
+		Jetpack_Options::update_option( 'master_user', $agency );
 		$this->act_as_administrator();
 
 		$manager = $this->getMockBuilder( Manager::class )
@@ -1358,6 +1341,7 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->assertFalse( $manager->reconcile_protected_owner() );
 		$this->assertNull( Protected_Owner::get() );
+		$this->assertSame( $agency, (int) Jetpack_Options::get_option( 'master_user' ) );
 	}
 
 	/**
@@ -1456,17 +1440,6 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->reconciling_manager( $this->bystander_answer( false ) )->reconcile_protected_owner();
 
-		$this->assertNull( Protected_Owner::get() );
-	}
-
-	/**
-	 * An owned site a bystander connects to stays unanchored: the answer never names the owner, so
-	 * there is nothing to anchor to.
-	 */
-	public function test_a_bystander_cannot_anchor_a_site_with_no_record() {
-		$this->act_as_administrator();
-
-		$this->assertFalse( $this->reconciling_manager( $this->bystander_answer( false ) )->reconcile_protected_owner() );
 		$this->assertNull( Protected_Owner::get() );
 	}
 
