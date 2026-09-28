@@ -34,7 +34,10 @@ function lastChartProps() {
 describe( 'LocationsGeoChart', () => {
 	beforeEach( () => {
 		geoChartMock.mockClear();
-		useViewerCountryMock.mockReturnValue( { data: null } as ReturnType< typeof useViewerCountry > );
+		useViewerCountryMock.mockReturnValue( {
+			data: null,
+			isPending: false,
+		} as ReturnType< typeof useViewerCountry > );
 		removeErrorMock.mockClear();
 		( window as Window & { google?: unknown } ).google = {
 			visualization: { errors: { removeError: removeErrorMock } },
@@ -78,11 +81,32 @@ describe( 'LocationsGeoChart', () => {
 	} );
 
 	it( "draws disputed borders from the viewer's country", () => {
-		useViewerCountryMock.mockReturnValue( { data: 'IN' } as ReturnType< typeof useViewerCountry > );
+		useViewerCountryMock.mockReturnValue( {
+			data: 'IN',
+			isPending: false,
+		} as ReturnType< typeof useViewerCountry > );
 
 		render( <LocationsGeoChart rows={ ROWS } mode="country" /> );
 
 		expect( lastChartProps() ).toMatchObject( { domain: 'IN' } );
+	} );
+
+	// Drawing first would paint the default borders and then swap them.
+	it( "holds the map back until the viewer's country is known", () => {
+		useViewerCountryMock.mockReturnValue( {
+			data: undefined,
+			isPending: true,
+		} as ReturnType< typeof useViewerCountry > );
+
+		render( <LocationsGeoChart rows={ ROWS } mode="country" /> );
+
+		expect( geoChartMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'draws the default borders when the country lookup settles without a country', () => {
+		render( <LocationsGeoChart rows={ ROWS } mode="country" /> );
+
+		expect( lastChartProps().domain ).toBeUndefined();
 	} );
 
 	it( 'keeps the error on screen where no fallback map follows', () => {

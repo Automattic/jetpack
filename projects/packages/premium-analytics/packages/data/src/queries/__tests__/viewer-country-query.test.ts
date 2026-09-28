@@ -15,6 +15,11 @@ async function run() {
 }
 
 describe( 'viewerCountryQuery', () => {
+	afterEach( () => {
+		delete ( globalThis as { fetch?: unknown } ).fetch;
+		jest.restoreAllMocks();
+	} );
+
 	it( 'returns the upper-case country code from the geo lookup', async () => {
 		mockGeoResponse( { country_short: 'in' } );
 
@@ -29,6 +34,32 @@ describe( 'viewerCountryQuery', () => {
 
 	it( 'returns null when the geo lookup fails', async () => {
 		mockGeoResponse( { country_short: 'IN' }, false );
+
+		await expect( run() ).resolves.toBeNull();
+	} );
+
+	it( 'returns null when the geo request cannot be made', async () => {
+		// eslint-disable-next-line jest/prefer-spy-on
+		globalThis.fetch = jest.fn().mockRejectedValue( new TypeError( 'Failed to fetch' ) );
+
+		await expect( run() ).resolves.toBeNull();
+	} );
+
+	it( 'gives up on a geo request that does not answer in time', async () => {
+		// Stand in for the timeout firing, so the test does not wait it out.
+		jest
+			.spyOn( AbortSignal, 'timeout' )
+			.mockReturnValue( AbortSignal.abort( new DOMException( 'Timed out', 'TimeoutError' ) ) );
+		// eslint-disable-next-line jest/prefer-spy-on
+		globalThis.fetch = jest.fn(
+			( _url: string, { signal }: RequestInit ) =>
+				new Promise( ( _resolve, reject ) => {
+					if ( signal?.aborted ) {
+						reject( signal.reason );
+					}
+					signal?.addEventListener( 'abort', () => reject( signal.reason ) );
+				} )
+		);
 
 		await expect( run() ).resolves.toBeNull();
 	} );

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -38,6 +39,11 @@ jest.mock( '@wordpress/route', () => ( {
 		);
 	},
 	useSearch: () => ( {} ),
+} ) );
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	usePrefetchViewerCountry: jest.fn(),
 } ) );
 
 // The map loads Google Charts asynchronously, and what it draws is covered by
@@ -78,6 +84,15 @@ describe( 'LocationsWidget', () => {
 	beforeEach( () => {
 		mockUseLocationViews.mockReset();
 		mockUseLocationViews.mockReturnValue( LOADING_STATE );
+	} );
+
+	// The map waits for the country, so the lookup has to be under way before the
+	// rows arrive or it delays the map.
+	it( "starts the viewer's country lookup while the rows are still loading", () => {
+		render( <LocationsWidget attributes={ {} } /> );
+
+		expect( usePrefetchViewerCountry ).toHaveBeenCalled();
+		expect( locationsGeoChartMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'links to the Locations report', () => {

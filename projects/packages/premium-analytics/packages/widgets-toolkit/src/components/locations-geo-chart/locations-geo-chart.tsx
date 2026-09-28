@@ -55,7 +55,7 @@ export function LocationsGeoChart( {
 		Set< string >
 	>( () => new Set( runtimeUnsupportedProvinceMapCountries ) );
 
-	const { data: viewerCountry } = useViewerCountry();
+	const { data: viewerCountry, isPending: isViewerCountryPending } = useViewerCountry();
 	const focusCountryCode = focusCountry?.code.toUpperCase();
 	const provinceMapSupported = focusCountryCode
 		? ! unsupportedProvinceMapCountries.has( focusCountryCode )
@@ -99,6 +99,12 @@ export function LocationsGeoChart( {
 		},
 		[ focusCountryCode, mode, useProvinceMap ]
 	);
+
+	// Drawing before the country is known would paint Google's default borders
+	// first and then redraw them, which is visible for a disputed border.
+	if ( isViewerCountryPending ) {
+		return null;
+	}
 
 	return (
 		<GeoChart

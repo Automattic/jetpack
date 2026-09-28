@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -88,6 +89,7 @@ function getCountryFilter( view: View ): string {
  * @return The Locations report page.
  */
 export default function LocationsReportPage(): JSX.Element {
+	usePrefetchViewerCountry();
 	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportLocationsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );

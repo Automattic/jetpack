@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	LocationsGeoChart,
@@ -227,6 +228,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
  * Jetpack Stats Locations module.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
+	usePrefetchViewerCountry();
+
 	// A persisted layout can carry a granularity this widget no longer knows, and
 	// it becomes both an endpoint path segment and a report tab.
 	const storedGranularity = attributes?.geoGranularity ?? DEFAULT_GEO_GRANULARITY;
