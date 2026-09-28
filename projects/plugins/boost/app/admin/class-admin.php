@@ -26,7 +26,7 @@ class Admin {
 	const MENU_SLUG = 'jetpack-boost';
 
 	/**
-	 * Filter enabling the modern dashboard.
+	 * Filter controlling the modern dashboard; return false to restore the legacy dashboard.
 	 */
 	const MODERNIZATION_FILTER = 'rsm_jetpack_ui_modernization_boost';
 
@@ -97,22 +97,25 @@ class Admin {
 	}
 
 	/**
-	 * Whether this request opts into the modern admin dashboard.
+	 * Whether this admin request uses the modern dashboard.
 	 *
 	 * @return bool Whether modernization is enabled for this admin request.
 	 */
 	private static function is_modern_dashboard() {
 		/**
-		 * Enable the modern Boost dashboard.
+		 * Filters whether to load the modern Boost dashboard.
+		 *
+		 * Hook `__return_false` to restore the legacy dashboard.
 		 *
 		 * @since 4.7.1
-		 * @param bool $enabled Whether to enable the modern dashboard. Default false.
+		 * @since $$next-version$$ Defaults to true.
+		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
 		 */
-		return apply_filters( self::MODERNIZATION_FILTER, false ) && is_admin();
+		return apply_filters( self::MODERNIZATION_FILTER, true ) && is_admin();
 	}
 
 	/**
-	 * Load the modern dashboard only on an opted-in Boost admin request.
+	 * Load the modern dashboard only on a Boost admin request that has not filtered it off.
 	 */
 	private function maybe_load_wp_build() {
 		if ( ! self::is_modern_dashboard() ) {
