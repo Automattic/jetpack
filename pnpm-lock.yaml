@@ -158,9 +158,6 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../connection
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../../packages/explat
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
@@ -520,9 +517,6 @@ importers:
 
   projects/js-packages/components:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../api
@@ -541,6 +535,9 @@ importers:
       '@gravatar-com/hovercards':
         specifier: 0.16.0
         version: 0.16.0
+      '@wordpress/a11y':
+        specifier: 4.55.0
+        version: 4.55.0
       '@wordpress/admin-ui':
         specifier: 2.10.0
         version: 2.10.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -559,6 +556,9 @@ importers:
       '@wordpress/date':
         specifier: 5.55.0
         version: 5.55.0
+      '@wordpress/dom':
+        specifier: 4.55.0
+        version: 4.55.0
       '@wordpress/element':
         specifier: 8.7.0
         version: 8.7.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -1090,9 +1090,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1203,9 +1200,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       tsdown:
         specifier: 0.22.14
         version: 0.22.14(@typescript/native-preview@7.0.0-dev.20260707.2)(typescript@6.0.3)
@@ -1279,6 +1273,18 @@ importers:
       typescript:
         specifier: 6.0.3
         version: 6.0.3
+
+  projects/js-packages/premium-analytics-sdk:
+    devDependencies:
+      '@types/react':
+        specifier: 18.3.31
+        version: 18.3.31
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
 
   projects/js-packages/react-data-sync-client:
     dependencies:
@@ -1511,9 +1517,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -1958,6 +1961,52 @@ importers:
       webpack-cli:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.107.2)
+
+  projects/packages/ads:
+    dependencies:
+      '@automattic/jetpack-premium-analytics-sdk':
+        specifier: workspace:*
+        version: link:../../js-packages/premium-analytics-sdk
+      '@wordpress/element':
+        specifier: 8.7.0
+        version: 8.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/i18n':
+        specifier: 6.28.0
+        version: 6.28.0
+      '@wordpress/icons':
+        specifier: 16.0.0
+        version: 16.0.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@wordpress/widget-primitives':
+        specifier: 0.7.0
+        version: 0.7.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+      react-dom:
+        specifier: 18.3.1
+        version: 18.3.1(react@18.3.1)
+    devDependencies:
+      '@automattic/jetpack-wp-build-polyfills':
+        specifier: workspace:*
+        version: link:../wp-build-polyfills
+      '@babel/core':
+        specifier: 7.29.7
+        version: 7.29.7
+      '@types/react':
+        specifier: 18.3.31
+        version: 18.3.31
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      '@wordpress/browserslist-config':
+        specifier: 6.55.0
+        version: 6.55.0
+      '@wordpress/build':
+        specifier: 0.23.0
+        version: 0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
   projects/packages/agents-manager:
     devDependencies:
@@ -2636,9 +2685,6 @@ importers:
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -2924,9 +2970,6 @@ importers:
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../explat
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3343,12 +3386,12 @@ importers:
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-explat':
-        specifier: workspace:*
-        version: link:../explat
       '@automattic/jetpack-licensing':
         specifier: workspace:*
         version: link:../../js-packages/licensing
+      '@automattic/jetpack-partner-coupon':
+        specifier: workspace:*
+        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
@@ -3524,9 +3567,9 @@ importers:
 
   projects/packages/newsletter:
     dependencies:
-      '@automattic/format-currency':
-        specifier: 1.0.1
-        version: 1.0.1
+      '@automattic/charts':
+        specifier: workspace:*
+        version: link:../../js-packages/charts
       '@automattic/jetpack-analytics':
         specifier: workspace:*
         version: link:../../js-packages/analytics
@@ -3548,6 +3591,9 @@ importers:
       '@automattic/jetpack-shared-extension-utils':
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
+      '@automattic/number-formatters':
+        specifier: workspace:*
+        version: link:../../js-packages/number-formatters
       '@jetpack-newsletter/init':
         specifier: link:packages/init
         version: link:packages/init
@@ -3694,9 +3740,6 @@ importers:
 
   projects/packages/paypal-payments:
     dependencies:
-      '@automattic/babel-plugin-replace-textdomain':
-        specifier: workspace:*
-        version: link:../../js-packages/babel-plugin-replace-textdomain
       '@automattic/format-currency':
         specifier: 1.0.1
         version: 1.0.1
@@ -3709,9 +3752,6 @@ importers:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
-      '@automattic/remove-asset-webpack-plugin':
-        specifier: workspace:*
-        version: link:../../js-packages/remove-asset-webpack-plugin
       '@wordpress/base-styles':
         specifier: 13.1.0
         version: 13.1.0
@@ -3730,9 +3770,6 @@ importers:
       '@wordpress/data':
         specifier: 10.55.0
         version: 10.55.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      '@wordpress/dependency-extraction-webpack-plugin':
-        specifier: 6.55.0
-        version: 6.55.0(webpack@5.107.2)
       '@wordpress/editor':
         specifier: 15.0.0
         version: 15.0.0(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3794,9 +3831,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@babel/runtime':
-        specifier: 7.29.7
-        version: 7.29.7
       '@testing-library/dom':
         specifier: 10.4.2
         version: 10.4.2
@@ -3812,9 +3846,6 @@ importers:
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
-      '@wordpress/babel-plugin-import-jsx-pragma':
-        specifier: 5.55.0
-        version: 5.55.0(@babel/core@7.29.7)
       '@wordpress/block-serialization-default-parser':
         specifier: 5.55.0
         version: 5.55.0
@@ -4106,6 +4137,9 @@ importers:
       '@tanstack/react-query':
         specifier: 5.102.8
         version: 5.102.8(react@18.3.1)
+      '@visx/scale':
+        specifier: 4.0.0
+        version: 4.0.0
       '@wordpress/admin-ui':
         specifier: 2.10.0
         version: 2.10.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4188,6 +4222,9 @@ importers:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
     devDependencies:
+      '@automattic/jetpack-premium-analytics-sdk':
+        specifier: workspace:*
+        version: link:../../js-packages/premium-analytics-sdk
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
         version: link:../../js-packages/webpack-config
@@ -4530,9 +4567,6 @@ importers:
       jest:
         specifier: 30.5.1
         version: 30.5.1
-      jetpack-js-tools:
-        specifier: workspace:*
-        version: link:../../../tools/js-tools
       sass-embedded:
         specifier: 1.97.3
         version: 1.97.3
@@ -5937,24 +5971,15 @@ importers:
       '@automattic/jetpack-api':
         specifier: workspace:*
         version: link:../../js-packages/api
-      '@automattic/jetpack-boost-score-api':
-        specifier: workspace:*
-        version: link:../../js-packages/boost-score-api
       '@automattic/jetpack-components':
         specifier: workspace:*
         version: link:../../js-packages/components
       '@automattic/jetpack-connection':
         specifier: workspace:*
         version: link:../../js-packages/connection
-      '@automattic/jetpack-licensing':
-        specifier: workspace:*
-        version: link:../../js-packages/licensing
       '@automattic/jetpack-my-jetpack':
         specifier: workspace:*
         version: link:../../packages/my-jetpack
-      '@automattic/jetpack-partner-coupon':
-        specifier: workspace:*
-        version: link:../../js-packages/partner-coupon
       '@automattic/jetpack-publicize':
         specifier: workspace:*
         version: link:../../packages/publicize
@@ -6081,9 +6106,6 @@ importers:
       clsx:
         specifier: 2.1.1
         version: 2.1.1
-      component-uid:
-        specifier: 0.0.2
-        version: 0.0.2
       cookie:
         specifier: 1.0.2
         version: 1.0.2
@@ -6114,9 +6136,6 @@ importers:
       filesize:
         specifier: 10.1.6
         version: 10.1.6
-      focus-trap:
-        specifier: 6.3.0
-        version: 6.3.0
       gridicons:
         specifier: 3.4.3
         version: 3.4.3(react@18.3.1)
@@ -7015,9 +7034,6 @@ importers:
       '@wordpress/eslint-plugin':
         specifier: 26.0.0
         version: 26.0.0(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint-plugin-import@2.32.0)(eslint-plugin-jest@29.16.6(eslint@10.10.0)(jest@30.5.1)(typescript@6.0.3))(eslint-plugin-jsdoc@64.5.2(eslint@10.10.0)(typescript@6.0.3))(eslint-plugin-jsx-a11y@6.10.2(eslint@10.10.0))(eslint-plugin-playwright@2.12.0(eslint@10.10.0))(eslint-plugin-prettier@5.5.6(eslint-config-prettier@10.1.8(eslint@10.10.0))(eslint@10.10.0)(wp-prettier@3.9.6))(eslint-plugin-react-hooks@7.1.1(eslint@10.10.0))(eslint-plugin-react@7.37.5(eslint@10.10.0))(eslint@10.10.0)(typescript@6.0.3)(wp-prettier@3.9.6)
-      '@wordpress/jest-console':
-        specifier: 9.3.0
-        version: 9.3.0(jest@30.5.1)
       '@wordpress/stylelint-config':
         specifier: 25.0.0
         version: 25.0.0(@stylistic/stylelint-plugin@5.2.1(stylelint@17.14.1(typescript@6.0.3)))(@wordpress/theme@2.1.0(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended-scss@17.0.1(postcss@8.5.23)(stylelint@17.14.1(typescript@6.0.3)))(stylelint-config-recommended@18.0.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint-scss@7.2.0(stylelint@17.14.1(typescript@6.0.3)))(stylelint@17.14.1(typescript@6.0.3))
@@ -7177,6 +7193,12 @@ importers:
       dotenv:
         specifier: ^16.3.1
         version: 16.6.1
+      playwright:
+        specifier: ^1.48.0
+        version: 1.60.0
+
+  tools/port-verification:
+    dependencies:
       playwright:
         specifier: ^1.48.0
         version: 1.60.0
@@ -11299,12 +11321,6 @@ packages:
     resolution: {integrity: sha512-j7XVZ4ypUBZSTcZkJ8OI+4KA4EU2J+zL4kyLnraec/sVZ/1YlGsPL9oSF6fA+jyOWmi4OBszPEIG0XvkntHB/g==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
 
-  '@wordpress/babel-plugin-import-jsx-pragma@5.55.0':
-    resolution: {integrity: sha512-yjJcF8G9oz7ycN9cQQ5LgCFoirXicgnPXp9xwENN4MapizODenZOqG765c4MOSGipRX7edJyDQKMArD040H50A==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      '@babel/core': ^7.25.7
-
   '@wordpress/base-styles@13.1.0':
     resolution: {integrity: sha512-6bdgpXZi0ajrB139xYd9okoMWYRNe3engXh5GLDhG5lIyL8wvM976Ref1I0+5LafnQQUk9Ug4IPruHx3tJcZgA==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
@@ -11665,12 +11681,6 @@ packages:
   '@wordpress/is-shallow-equal@5.55.0':
     resolution: {integrity: sha512-hL3fkQ6ac/Zq0hSQlqxq0fW1hVjyJGzLQYTC2S1n7aJhNyrkEMN9ozoTyeMlUWUx8uPakWbmsAwm/dGPiVHo3Q==}
     engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-
-  '@wordpress/jest-console@9.3.0':
-    resolution: {integrity: sha512-kqsqg6YV7QF4oidB4pOl4Qoe0QE15hxwLmNQdQ0yMmqILWJ9FpaGsaVG+QslbEtlyQE0uPXtRV03Ep90T+ZlIw==}
-    engines: {node: '>=18.12.0', npm: '>=8.19.2'}
-    peerDependencies:
-      jest: '>=30'
 
   '@wordpress/kebab-case@1.2.0':
     resolution: {integrity: sha512-7NJKsIHbWYqXjG6ku6t9GhXPz2vBXlH25lAH9SUYKV8EvyupeeboIiI/+tr9fAjCxwunW9smZB0nq+X44zIVpw==}
@@ -12913,9 +12923,6 @@ packages:
   compare-versions@6.1.1:
     resolution: {integrity: sha512-4hm4VPpIecmlg59CHXnRDnqGplJFrbLG4aFEl5vl6cK1u76ws3LLvX7ikFnTDl5vo39sjWD6AaDPYodJp/NNHg==}
 
-  component-uid@0.0.2:
-    resolution: {integrity: sha512-LpbuRIGCbQpJDhyWlHmJqMNuMiR0s9nzlZ40kA8T/PC+hN2YrsBgBgOETtR9y2kE1HkbpQ0/l96kgyYKy6HzCA==}
-
   compressible@2.0.18:
     resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
     engines: {node: '>= 0.6'}
@@ -14109,9 +14116,6 @@ packages:
 
   fn.name@1.1.0:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
-
-  focus-trap@6.3.0:
-    resolution: {integrity: sha512-BBzvFfkPg5PqrVVCdQ1YOIVNKGvqG9YNVkiAUQFuDM66N8J9uADhs6mlYKrd30ofDJIzEniBnBKM7GO45iCzKQ==}
 
   follow-redirects@1.16.0:
     resolution: {integrity: sha512-y5rN/uOsadFT/JfYwhxRS5R7Qce+g3zG97+JrtFZlC9klX/W5hD7iiLzScI4nZqUS7DNUdhPgw4xI8W2LuXlUw==}
@@ -17781,9 +17785,6 @@ packages:
   synckit@0.11.13:
     resolution: {integrity: sha512-eNRKgb3z66Yp3D2CixVujOUvXLFUTij/zVnV8KRyvFdQwpz7I5DS8UfRkTeLzb64u+dkzDSdelE24izu+zSSUg==}
     engines: {node: ^14.18.0 || >=16.0.0}
-
-  tabbable@5.3.3:
-    resolution: {integrity: sha512-QD9qKY3StfbZqWOPLp0++pOrAVb/HbUi5xCc8cUo4XjP19808oaMiDzn0leBY5mCespIBM0CIZePzZjgzR83kA==}
 
   tabbable@6.5.0:
     resolution: {integrity: sha512-wieBHXygIm7OyQOu5hQlkk62/WyCFYGlWg7L6/ZCUZwx0o398Zkn4pVmMyfYhfMG8kGrj/Krt8eIk6UKC6VzwA==}
@@ -23689,10 +23690,6 @@ snapshots:
 
   '@wordpress/autop@4.55.0': {}
 
-  '@wordpress/babel-plugin-import-jsx-pragma@5.55.0(@babel/core@7.29.7)':
-    dependencies:
-      '@babel/core': 7.29.7
-
   '@wordpress/base-styles@13.1.0': {}
 
   '@wordpress/base-styles@13.1.1-next.v.202609031004.0': {}
@@ -24474,6 +24471,30 @@ snapshots:
       - vite
 
   '@wordpress/browserslist-config@6.55.0': {}
+
+  '@wordpress/build@0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)':
+    dependencies:
+      '@emotion/babel-plugin': 11.13.5
+      '@wordpress/browserslist-config': 6.55.0
+      '@wordpress/style-runtime': 0.11.0
+      autoprefixer: 10.5.5(postcss@8.5.23)
+      browserslist: 4.28.9
+      browserslist-to-esbuild: 2.1.1(browserslist@4.28.9)
+      change-case: 4.1.2
+      chokidar: 4.0.3
+      cssnano: 7.1.9(postcss@8.5.23)
+      esbuild: 0.28.2
+      esbuild-plugin-babel: 0.2.3(@babel/core@7.29.7)
+      esbuild-sass-plugin: 3.7.0(esbuild@0.28.2)(sass-embedded@1.97.3)
+      fast-glob: 3.3.3
+      moment-timezone: 0.5.48
+      postcss: 8.5.23
+      postcss-modules: 6.0.1(postcss@8.5.23)
+      rtlcss: 4.3.0
+      sass-embedded: 1.97.3
+    transitivePeerDependencies:
+      - '@babel/core'
+      - supports-color
 
   '@wordpress/build@0.23.0(patch_hash=151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022)(@babel/core@7.29.7)(@wordpress/boot@0.22.0(@date-fns/tz@1.5.0)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/private-apis@1.55.0)(@wordpress/route@0.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(@wordpress/theme@2.1.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))':
     dependencies:
@@ -28116,12 +28137,6 @@ snapshots:
       - vite
 
   '@wordpress/is-shallow-equal@5.55.0': {}
-
-  '@wordpress/jest-console@9.3.0(jest@30.5.1)':
-    dependencies:
-      jest: 30.5.1
-      jest-matcher-utils: 30.5.1
-      jest-mock: 30.5.1
 
   '@wordpress/kebab-case@1.2.0':
     dependencies:
@@ -31814,8 +31829,6 @@ snapshots:
 
   compare-versions@6.1.1: {}
 
-  component-uid@0.0.2: {}
-
   compressible@2.0.18:
     dependencies:
       mime-db: 1.54.0
@@ -33184,10 +33197,6 @@ snapshots:
   flatted@3.4.4: {}
 
   fn.name@1.1.0: {}
-
-  focus-trap@6.3.0:
-    dependencies:
-      tabbable: 5.3.3
 
   follow-redirects@1.16.0: {}
 
@@ -37426,8 +37435,6 @@ snapshots:
   synckit@0.11.13:
     dependencies:
       '@pkgr/core': 0.3.6
-
-  tabbable@5.3.3: {}
 
   tabbable@6.5.0: {}
 

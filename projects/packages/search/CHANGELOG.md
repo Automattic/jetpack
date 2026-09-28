@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.1.3] - 2026-09-21
+### Changed
+- No Results block: Show each empty-state message as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure. [#51530]
+- Update package dependencies. [#52187]
+
 ## [8.1.2] - 2026-09-15
 ### Changed
 - Hide the Search sidebar item when the Search module is not active. [#52156]
@@ -1919,6 +1924,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.1.3]: https://github.com/Automattic/jetpack-search/compare/v8.1.2...v8.1.3
 [8.1.2]: https://github.com/Automattic/jetpack-search/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/Automattic/jetpack-search/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/Automattic/jetpack-search/compare/v8.0.0...v8.1.0

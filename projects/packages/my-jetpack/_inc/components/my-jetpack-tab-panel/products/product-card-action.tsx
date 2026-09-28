@@ -14,6 +14,7 @@ import { ProductCamelCase } from '../../../data/types';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import { MyJetpackModule } from '../../../types';
+import { getModuleStatus } from '../../modules-list/utils';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { setPendingSuccessNotice } from './pending-notice';
 import { useProductFiltersContext } from './products-tracking-context';
@@ -144,6 +145,10 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 	const { data: interstitials } = useInterstitialsState();
 	const reloadOnToggle = PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( product.slug );
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+
+	if ( $module?.override ) {
+		return <Badge intent="medium">{ getModuleStatus( $module ).reason }</Badge>;
+	}
 
 	// Forms and AI surface the activation toggle directly instead of a "Learn more"
 	// upsell link. Forms is a free module with no interstitial; AI is the site-wide

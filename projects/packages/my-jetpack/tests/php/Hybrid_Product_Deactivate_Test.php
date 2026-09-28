@@ -73,6 +73,7 @@ class Hybrid_Product_Deactivate_Test extends TestCase {
 					'search'     => '1.0',
 					'protect'    => '1.0',
 					'publicize'  => '1.0',
+					'stats'      => '1.0',
 				),
 			)
 		);

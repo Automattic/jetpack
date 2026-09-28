@@ -15,6 +15,11 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 const DASHBOARD_COMPOSITION_FLAG = 'premium-analytics-dashboard-composition';
 
 /**
+ * Name of the feature flag that shows Automatticians every section of a preview-scoped dashboard.
+ */
+const DASHBOARD_A11N_ALL_SECTIONS_FLAG = 'premium-analytics-a11n-all-sections';
+
+/**
  * Registers the dashboard feature flags.
  *
  * Runs on every request so the flag stays discoverable wherever flags are read or
@@ -31,6 +36,15 @@ function register_dashboard_feature_flags() {
 			'owner'       => 'jetpack-premium-analytics',
 		)
 	);
+
+	Feature_Flags::register(
+		DASHBOARD_A11N_ALL_SECTIONS_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Show Automatticians every dashboard section on a site limited to the customer preview. Site owners keep the preview.',
+			'owner'       => 'jetpack-premium-analytics',
+		)
+	);
 }
 
 /**
@@ -40,6 +54,29 @@ function register_dashboard_feature_flags() {
  */
 function is_dashboard_composition_enabled() {
 	return Feature_Flags::is_enabled( DASHBOARD_COMPOSITION_FLAG );
+}
+
+/**
+ * Whether the current visitor is an Automattician.
+ *
+ * Defers to the gate behind WordPress.com's feature flag screen, so a support session on Atomic
+ * does not count. False wherever jetpack-mu-wpcom is not loaded, which includes every self-hosted site.
+ *
+ * @return bool
+ */
+function is_automattician_viewer() {
+	$gate = '\\Automattic\\Jetpack\\Jetpack_Mu_Wpcom\\Wpcom_Feature_Flags';
+
+	return class_exists( $gate ) && method_exists( $gate, 'is_a11n' ) && (bool) $gate::is_a11n();
+}
+
+/**
+ * Whether the current visitor sees every section of a preview-scoped dashboard.
+ *
+ * @return bool
+ */
+function is_dashboard_unlocked_for_a11n() {
+	return Feature_Flags::is_enabled( DASHBOARD_A11N_ALL_SECTIONS_FLAG ) && is_automattician_viewer();
 }
 
 /**

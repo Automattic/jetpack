@@ -31,15 +31,39 @@ p {
 // The type scale and component overrides the settings controls rely on.
 // Shared, because both dashboards render those same controls. The page frame
 // below is not: the modern chassis supplies its own.
-@mixin settings-content {
+// $yield-links drops the scope from the link rule's specificity, so
+// @wordpress/ui links keep their own tone.
+@mixin settings-content(
+	$link-color: var(--wp-admin-theme-link-color),
+	$link-active-color: null,
+	$yield-links: false
+) {
 	font-size: 16px;
 
-	a {
-		color: var(--wp-admin-theme-link-color);
+	@if $yield-links {
+
+		@at-root :where(#{&}) a {
+			color: $link-color;
+
+			// Undo WordPress's darker a:focus text colour; its focus ring stays.
+			&:focus {
+				color: $link-color;
+			}
+
+			&:hover,
+			&:active {
+				color: $link-active-color;
+			}
+		}
+	} @else {
+
+		a {
+			color: $link-color;
+		}
 	}
 
 	.components-button.is-link:not(:disabled) {
-		color: var(--wp-admin-theme-link-color);
+		color: $link-color;
 	}
 
 	// Override WP styles for panel header.
@@ -102,10 +126,15 @@ p {
 
 // Settings inside the modern chassis, which frames the page itself. The
 // popover slot is a sibling of the content, so it needs the same scope.
+// WordPress leaves the admin link colour undefined here, so fall back to brand.
 .jb-modern-settings,
 .jb-modern-settings-popovers {
 
-	@include settings-content;
+	@include settings-content(
+		$link-color: var(--wp-admin-theme-link-color, var(--wpds-color-foreground-interactive-brand)),
+		$link-active-color: var(--wpds-color-foreground-interactive-brand-active),
+		$yield-links: true
+	);
 }
 
 // Reset WP-Admin styles for boost dashboard

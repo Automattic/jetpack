@@ -53,4 +53,27 @@ describe( 'emails fields', () => {
 			section: 'email-opens',
 		} );
 	} );
+
+	it( 'sorts an unknown open rate after a real 0% in either direction', () => {
+		const field = getEmailsFields().find( candidate => candidate.id === 'opens_rate' );
+
+		if ( ! field?.getValue || ! field.sort ) {
+			throw new Error( 'Open rate field is missing its getValue or sort' );
+		}
+
+		const unopened = { ...email, id: 1, opens: 0, unique_opens: 0, opens_rate: 0, total_sends: 1 };
+		const legacy = { ...email, id: 2, opens: 120, unique_opens: 0, opens_rate: 0, total_sends: 0 };
+		const rates = [ legacy, unopened, email ].map( item => field.getValue!( { item } ) );
+
+		expect( rates ).toEqual( [ undefined, 0, 38.1 ] );
+
+		const order = ( direction: 'asc' | 'desc' ) =>
+			[ ...rates ]
+				.map( ( rate, index ) => ( { rate, index } ) )
+				.sort( ( a, b ) => field.sort!( a.rate as never, b.rate as never, direction ) )
+				.map( ( { index } ) => [ 'legacy', 'unopened', 'email' ][ index ] );
+
+		expect( order( 'asc' ) ).toEqual( [ 'unopened', 'email', 'legacy' ] );
+		expect( order( 'desc' ) ).toEqual( [ 'email', 'unopened', 'legacy' ] );
+	} );
 } );

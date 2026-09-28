@@ -5,17 +5,6 @@ import ContentCreationCard from '../content-creation-card';
 import CustomizeLinksCard from '../customize-links-card';
 import CustomizeMediaCard from '../customize-media-card';
 
-// `@wordpress/jest-console` augments the global jest matchers at runtime, but
-// the package typecheck doesn't pick up its types — declare the one we use.
-declare global {
-	// eslint-disable-next-line @typescript-eslint/no-namespace
-	namespace jest {
-		interface Matchers< R > {
-			toHaveErrored(): R;
-		}
-	}
-}
-
 const SOCIAL_STORE = 'jetpack-social';
 
 // The cards import the real social store only for its `store` descriptor,

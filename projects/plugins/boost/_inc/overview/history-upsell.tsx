@@ -85,11 +85,12 @@ export default function HistoryUpsell( { range, dayCount, isVisible = true }: Pr
 							data={ sample }
 							isVisible={ isVisible }
 							canGoNext={ false }
+							canGoPrevious={ false }
+							showSingleDate={ false }
 							hasOlderHistory={ false }
 							onPrevious={ noop }
 							onNext={ noop }
 							onRetry={ noop }
-							onDismissFreshStart={ noop }
 						/>
 					</div>
 				) }

@@ -85,4 +85,27 @@ class Widget_Modules_Test extends TestCase {
 		$this->assertInstanceOf( \WP_REST_Response::class, $response );
 		$this->assertIsArray( $response->get_data() );
 	}
+
+	/**
+	 * Every record says where its bundles' catalogs live, so the client can load a plugin's
+	 * translations the way it loads the package's own.
+	 */
+	public function test_records_carry_the_catalog_location() {
+		register_widget_type(
+			'plugin/catalog-location',
+			array(
+				'render_module' => 'plugin/widgets/catalog-location/render',
+				'category'      => 'stats',
+				'title'         => 'Catalog location',
+				'textdomain'    => 'plugin-domain',
+				'i18n_manifest' => 'https://example.org/plugin/build/i18n-manifest.json',
+			)
+		);
+
+		$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+
+		$this->assertArrayHasKey( 'plugin/catalog-location', $records );
+		$this->assertSame( 'plugin-domain', $records['plugin/catalog-location']['textdomain'] );
+		$this->assertSame( 'https://example.org/plugin/build/i18n-manifest.json', $records['plugin/catalog-location']['i18n_manifest'] );
+	}
 }

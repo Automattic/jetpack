@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Carousel: Request the zoom-resolution image only when the visitor zooms.

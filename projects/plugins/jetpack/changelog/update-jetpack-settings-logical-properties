@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Use logical CSS properties in Settings, Dashboard, and Jetpack AI styles so layouts mirror in right-to-left languages.

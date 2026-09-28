@@ -13,7 +13,7 @@ import { list } from '@wordpress/icons';
 import { Card, LinkButton, Notice, Skeleton, Stack, Text } from '@wordpress/ui';
 import assetUrl from '../asset-url';
 import NavRow from '../components/nav-row';
-import { EVENTS, recordAiHubEvent, useRecordOnce } from '../tracks';
+import { EVENTS, recordAiHubEvent } from '../tracks';
 import AssistantBanner from './assistant-banner';
 import { chatGptIcon, claudeIcon } from './connector-icons';
 import { normalizeUsage, useAiUsage } from './use-ai-usage';
@@ -349,7 +349,6 @@ export default function AiOverview( {
 	showActivityLog,
 	canLoadUsage = true,
 } ) {
-	useRecordOnce( EVENTS.VIEWED, { tab: 'overview' } );
 	const recordLinkClick = ( linkType, slug ) => () =>
 		recordAiHubEvent( EVENTS.LINK_CLICK, { link_type: linkType, link: slug } );
 	return (

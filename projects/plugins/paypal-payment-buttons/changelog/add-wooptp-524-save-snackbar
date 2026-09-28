@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Show a snackbar after a post save that creates or changes a PayPal payment link.

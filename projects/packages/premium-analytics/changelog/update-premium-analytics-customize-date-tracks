@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Add Tracks events for customizing a layout, and record whether the reader has a customized dashboard when sending feedback.

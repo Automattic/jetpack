@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Google Fonts: Detect fonts followed by fallback families so selected fonts render on the front end.

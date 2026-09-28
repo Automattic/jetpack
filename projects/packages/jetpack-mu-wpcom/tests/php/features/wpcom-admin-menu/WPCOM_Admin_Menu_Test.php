@@ -226,7 +226,6 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		\Jetpack_Options::update_option( 'id', 200 );
 
 		wpcom_add_jetpack_submenu();
-
 		$this->assertNull(
 			$this->get_jetpack_submenu_item( 'https://wordpress.com/activity-log/' . self::$domain ),
 			'The Calypso Activity Log link must not be added on Atomic sites.'
@@ -278,6 +277,37 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			$native_item[4] ?? '',
 			'Simple sites must hide the native Activity Log page.'
 		);
+	}
+
+	/**
+	 * The Jetpack plugin's `jetpack-backup` page is hidden from the sidebar but stays registered.
+	 */
+	public function test_jetpack_submenu_hides_the_wp_admin_backup_page() {
+		global $submenu;
+
+		\Jetpack_Options::update_option( 'id', 200 );
+		$submenu['jetpack'][] = array( 'VaultPress Backup', 'manage_options', 'jetpack-backup', 'Jetpack VaultPress Backup' );
+
+		wpcom_add_jetpack_submenu();
+
+		$item = $this->get_jetpack_submenu_item( 'jetpack-backup' );
+
+		$this->assertNotNull( $item );
+		$this->assertStringContainsString( 'hide-if-js', $item[4] ?? '' );
+	}
+
+	/**
+	 * The Calypso Backup link stays visible.
+	 */
+	public function test_jetpack_submenu_keeps_the_calypso_backup_link_visible() {
+		\Jetpack_Options::update_option( 'id', 200 );
+
+		wpcom_add_jetpack_submenu();
+
+		$item = $this->get_jetpack_submenu_item( 'https://wordpress.com/backup/' . self::$domain );
+
+		$this->assertNotNull( $item );
+		$this->assertStringNotContainsString( 'hide-if-js', $item[4] ?? '' );
 	}
 
 	/**
@@ -423,6 +453,42 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 			admin_url(),
 			$this->capture_retired_marketing_page_redirect( 'wpcom-marketing-tools\\' ),
 			'The slug must still match once the added slashes are stripped.'
+		);
+	}
+
+	/**
+	 * WoA can pair mu-wpcom with a Jetpack that serves Settings at either address.
+	 *
+	 * @dataProvider provide_settings_addresses
+	 *
+	 * @param string $address Which Settings address the Jetpack plugin registers.
+	 */
+	#[DataProvider( 'provide_settings_addresses' )]
+	public function test_jetpack_submenu_orders_settings_at_either_address( $address ) {
+		global $submenu;
+		\Jetpack_Options::update_option( 'id', 200 );
+		$settings_slug = 'legacy' === $address ? admin_url( 'admin.php?page=jetpack#/settings' ) : 'jetpack-settings';
+		// phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$submenu['jetpack'] = array(
+			array( 'Zzz Unlisted', 'manage_options', 'zzz-unlisted' ),
+			array( 'Settings', 'manage_options', $settings_slug ),
+		);
+
+		wpcom_add_jetpack_submenu();
+
+		$slugs = array_column( $submenu['jetpack'], 2 );
+		$this->assertLessThan( array_search( 'zzz-unlisted', $slugs, true ), array_search( $settings_slug, $slugs, true ) );
+	}
+
+	/**
+	 * Settings addresses across Jetpack releases.
+	 *
+	 * @return array
+	 */
+	public static function provide_settings_addresses() {
+		return array(
+			'hash on page=jetpack'  => array( 'legacy' ),
+			'page=jetpack-settings' => array( 'own' ),
 		);
 	}
 }

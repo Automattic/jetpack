@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Fix Sitemap and Canonical URLs status to reflect the active modules.

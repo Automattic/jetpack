@@ -3,6 +3,7 @@
  */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { setSettings } from '@wordpress/date';
+import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -40,6 +41,7 @@ type ChartProps = {
 	chartId?: string;
 	defaultHiddenSeries?: readonly string[];
 	legendInteractive?: boolean;
+	baseline?: 'zero' | 'padded';
 	onPointerDown?: ( params: PointerParams ) => void;
 	onPointerUp?: ( params: PointerParams ) => void;
 	onDatumActivate?: ( params: { datum: unknown } ) => void;
@@ -169,6 +171,27 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'hands the baseline to the line chart only', () => {
+		render(
+			<MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } baseline="padded" />
+		);
+		expect( mockLineSpy ).toHaveBeenLastCalledWith(
+			expect.objectContaining( { baseline: 'padded' } )
+		);
+
+		render(
+			<MetricTabsChart
+				metrics={ [ METRIC ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+				baseline="padded"
+			/>
+		);
+		expect( mockBarSpy ).toHaveBeenLastCalledWith(
+			expect.not.objectContaining( { baseline: expect.anything() } )
+		);
+	} );
+
 	it( 'keeps the previous period as a same-group comparison series in both chart types', () => {
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } /> );
 		render( <MetricTabsChart metrics={ [ METRIC ] } dataFormat={ DATA_FORMAT } chartType="bar" /> );
@@ -208,6 +231,116 @@ describe( 'MetricTabsChart', () => {
 		// The headline stands down to a placeholder rather than reporting a total
 		// the endpoint never returned.
 		expect( screen.queryByText( '300' ) ).not.toBeInTheDocument();
+	} );
+
+	describe( 'with an empty state', () => {
+		const EMPTY_TEXT = 'Nothing in this window.';
+		const zeroFilled: MetricTab = {
+			...METRIC,
+			value: 0,
+			previousValue: undefined,
+			current: METRIC.current.map( point => ( { ...point, value: 0 } ) ),
+			previous: undefined,
+		};
+
+		it( 'shows it in the plot for a zero-filled window, keeping the tabs', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ zeroFilled, { ...zeroFilled, key: 'visitors', label: 'Visitors' } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+			expect( screen.getAllByRole( 'tab' ) ).toHaveLength( 2 );
+		} );
+
+		it( 'shows it for a window of gaps only', () => {
+			const gaps = {
+				...zeroFilled,
+				current: METRIC.current.map( point => ( { ...point, value: null } ) ),
+			};
+
+			render(
+				<MetricTabsChart
+					metrics={ [ gaps ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+		} );
+
+		it( 'still draws a zero window against a previous period that has readings', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...zeroFilled, previous: METRIC.previous } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'still draws a zero metric whose tooltip reads out other metrics with data', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ zeroFilled, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+					tooltipMetrics="all"
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows it when every metric in the tooltip readout is empty too', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ zeroFilled, { ...zeroFilled, key: 'visitors', label: 'Visitors' } ] }
+					dataFormat={ DATA_FORMAT }
+					tooltipMetrics="all"
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+		} );
+
+		it( 'keeps an unavailable metric’s reason rather than calling it empty', () => {
+			const reason = "Hourly data isn't available for this metric.";
+
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...zeroFilled, unavailable: reason } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
+			expect( screen.getAllByText( reason ) ).not.toHaveLength( 0 );
+		} );
+	} );
+
+	it( 'draws a zero-filled window as a line when no empty state is given', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{ ...METRIC, current: [ { date: new Date(), value: 0 } ], previous: undefined },
+				] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
 	} );
 
 	// A point's date is the instant it is: the component passes it through, and
@@ -568,6 +701,31 @@ describe( 'MetricTabsChart tooltipMetrics', () => {
 		expect( recordedExtras( mockLineSpy ) ).toEqual( [
 			{ label: 'Visitors', data: VISITORS.current, dataFormat: DATA_FORMAT },
 			{ label: 'Average CPM', data: CPM.current, dataFormat: CURRENCY },
+		] );
+	} );
+
+	it( "hands each metric's count label to its series and to the tooltip extras", () => {
+		const views = ( count: number ) =>
+			/* translators: %s: number of views. */
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+		const visitors = ( count: number ) =>
+			/* translators: %s: number of visitors. */
+			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' );
+
+		render(
+			<MetricTabsChart
+				metrics={ [
+					{ ...METRIC, countLabel: views },
+					{ ...VISITORS, countLabel: visitors },
+				] }
+				dataFormat={ DATA_FORMAT }
+				tooltipMetrics="all"
+			/>
+		);
+
+		expect( recordedSeries( mockLineSpy )[ 0 ].countLabel ).toBe( views );
+		expect( recordedExtras( mockLineSpy ) ).toEqual( [
+			expect.objectContaining( { label: 'Visitors', countLabel: visitors } ),
 		] );
 	} );
 

@@ -8,6 +8,7 @@ import {
 	useReportScope,
 } from '@jetpack-premium-analytics/data';
 import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
+import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
@@ -123,7 +124,21 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsPageIcon: () => null,
 } ) );
 
+const mockTrackCustomize = {
+	start: jest.fn(),
+	layoutChange: jest.fn(),
+	exit: jest.fn(),
+	reset: jest.fn(),
+};
+
+jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '@wordpress/route' ),
+	useSearch: () => ( {} ),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
+	useTrackCustomize: () => mockTrackCustomize,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
 			{ onCustomize && (
@@ -138,6 +153,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			Reset to default
 		</button>
 	),
+	useTrackedDateRangeApply: () => ( { trackedOnChange: () => {}, trackedOnApply: () => {} } ),
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -173,6 +189,16 @@ function MockHeaderScopeProbe() {
 }
 
 /**
+ * Reads the dashboard origin a widget's links carry, from where the widgets render.
+ *
+ * @return The origin, as text.
+ */
+function MockOriginProbe() {
+	const origin = useDashboardOriginSearch();
+	return <span>origin: { origin.ds ?? 'none' }</span>;
+}
+
+/**
  * Reads the scope the dashboard declares, from where the widgets actually render.
  *
  * @return The declared scope, as text.
@@ -200,21 +226,33 @@ const MockAttentionProbe = ( { attentionId }: { attentionId?: number } ) => (
 	<span data-testid="attention">{ attentionId ?? 'no attention' }</span>
 );
 
+// What the stand-in's Done commits, so a test can name the layout the stage was handed.
+const mockCommittedLayout = [ { uuid: 'moved', type: 'jpa/moved' } ];
+
 jest.mock( '@wordpress/widget-dashboard', () => {
 	const React = jest.requireActual( 'react' );
 
-	const EditModeContext = React.createContext( { editMode: false, onEditChange: () => {} } );
+	const EditModeContext = React.createContext( {
+		editMode: false,
+		onEditChange: () => {},
+		onLayoutChange: () => {},
+	} );
 
 	const WidgetDashboard = ( {
 		editMode = false,
 		onEditChange = () => {},
+		onLayoutChange = () => {},
 		children,
 	}: {
 		editMode?: boolean;
 		onEditChange?: ( next: boolean ) => void;
+		onLayoutChange?: ( layout: unknown ) => void;
 		children: ReactNode;
 	} ) => {
-		const value = React.useMemo( () => ( { editMode, onEditChange } ), [ editMode, onEditChange ] );
+		const value = React.useMemo(
+			() => ( { editMode, onEditChange, onLayoutChange } ),
+			[ editMode, onEditChange, onLayoutChange ]
+		);
 
 		return (
 			<EditModeContext.Provider value={ value }>
@@ -231,17 +269,22 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	 * @return The stand-in edit toolbar.
 	 */
 	function Actions() {
-		const { editMode, onEditChange } = React.useContext( EditModeContext );
-		const leave = React.useCallback( () => onEditChange( false ), [ onEditChange ] );
+		const { editMode, onEditChange, onLayoutChange } = React.useContext( EditModeContext );
+		const cancel = React.useCallback( () => onEditChange( false ), [ onEditChange ] );
+		// Done commits the layout and leaves edit mode in one call, as the real `commit()` does.
+		const done = React.useCallback( () => {
+			onLayoutChange( mockCommittedLayout );
+			onEditChange( false );
+		}, [ onEditChange, onLayoutChange ] );
 
 		return (
 			<div data-testid="widget-dashboard-actions">
 				{ editMode ? (
 					<>
-						<button type="button" onClick={ leave }>
+						<button type="button" onClick={ cancel }>
 							Cancel
 						</button>
-						<button type="button" onClick={ leave }>
+						<button type="button" onClick={ done }>
 							Done
 						</button>
 					</>
@@ -251,7 +294,12 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	}
 	WidgetDashboard.Actions = Actions;
 	WidgetDashboard.NoWidgetsState = () => null;
-	WidgetDashboard.Widgets = () => <MockScopeProbe />;
+	WidgetDashboard.Widgets = () => (
+		<>
+			<MockScopeProbe />
+			<MockOriginProbe />
+		</>
+	);
 	WidgetDashboard.Commands = () => null;
 	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 
@@ -292,7 +340,7 @@ jest.mock( './components', () => ( {
 } ) );
 
 jest.mock( '../widget-module-i18n', () => ( {
-	resolveWidgetModuleWithI18n: jest.fn(),
+	useWidgetModuleResolver: () => jest.fn(),
 	useWidgetTypesWithI18n: () => [ [], false ],
 } ) );
 
@@ -422,6 +470,31 @@ describe( 'Dashboard report scope', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'names the active tab to the widgets, so their links can return to it', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Site insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		const { rerender } = render( <Dashboard /> );
+
+		expect( screen.getByText( 'origin: traffic' ) ).toBeInTheDocument();
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		rerender( <Dashboard /> );
+		expect( screen.getByText( 'origin: insights' ) ).toBeInTheDocument();
 	} );
 } );
 
@@ -605,6 +678,40 @@ describe( 'Dashboard options menu', () => {
 		expect( actions.nextElementSibling ).toBe( reset );
 		// eslint-disable-next-line testing-library/no-node-access -- same order check.
 		expect( reset.nextElementSibling ).toContainElement( menu );
+	} );
+
+	it( 'tracks entering, leaving and resetting the customize mode', async () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+		expect( mockTrackCustomize.start ).toHaveBeenCalledTimes( 1 );
+		expect( mockTrackCustomize.exit ).toHaveBeenCalledTimes( 1 );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+
+		expect( mockTrackCustomize.reset ).toHaveBeenCalledTimes( 1 );
+		expect( mockTrackCustomize.exit ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'hands the committed layout to the tracking before leaving edit mode', async () => {
+		mockSection( { slug: 'traffic', date_filter: DATE_FILTER_RANGE } );
+
+		render( <Dashboard /> );
+		const menu = screen.getByTestId( 'page-options-menu' );
+
+		await userEvent.click( within( menu ).getByRole( 'button', { name: 'Customize' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Done' } ) );
+
+		expect( mockTrackCustomize.layoutChange ).toHaveBeenCalledWith( [], mockCommittedLayout );
+		expect( mockTrackCustomize.layoutChange.mock.invocationCallOrder[ 0 ] ).toBeLessThan(
+			mockTrackCustomize.exit.mock.invocationCallOrder[ 0 ]
+		);
 	} );
 } );
 

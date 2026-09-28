@@ -3,7 +3,6 @@ export {
 	EARNINGS_TAB_IDS,
 	getEarningsReportTabs,
 	getTabTitle,
-	hasAdsServed,
 	resolveSection,
 	type EarningsReportTabId,
 } from './tabs';

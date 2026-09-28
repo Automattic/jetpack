@@ -1,4 +1,4 @@
-import { didScoresChange, getScoreLetter } from '@automattic/jetpack-boost-score-api';
+import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { CardDivider, Spinner } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
@@ -28,7 +28,7 @@ export default function ScoreCards( {
 }: Props ) {
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
-	const noBoost = ! scores.isStale && didScoresChange( scores ) ? scores.noBoost : null;
+	const noBoost = ! scores.isStale ? scores.noBoost : null;
 	const notice = error && (
 		<Card.Content className="jetpack-boost-overview__scores-error">
 			<Notice.Root

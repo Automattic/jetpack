@@ -14,6 +14,8 @@ jest.mock( '@automattic/charts', () => ( {
 				onClick={ () =>
 					onBandHighlightChange?.( {
 						datum: data[ 0 ].data[ 0 ],
+						key: data[ 0 ].label,
+						index: 0,
 						x: 20,
 						y: 0,
 						width: 10,
@@ -34,10 +36,11 @@ const props = {
 	range: getHistoryWindow( 0 ),
 	dayCount: 30 as const,
 	canGoNext: false,
+	canGoPrevious: true,
+	showSingleDate: false,
 	onPrevious: jest.fn(),
 	onNext: jest.fn(),
 	onRetry: jest.fn(),
-	onDismissFreshStart: jest.fn(),
 };
 
 test( 'keeps the entering chart highlighted when the other chart clears its selection', () => {

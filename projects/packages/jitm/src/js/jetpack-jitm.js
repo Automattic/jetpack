@@ -390,6 +390,12 @@ domReady( function() {
                     'jetpack_page_my-jetpack',
                     'jetpack_page_my-jetpack' + hash
                 );
+            } else if (message_path.includes('jetpack_page_jetpack-settings:')) {
+                // wpcom's Settings rules still name the old page=jetpack screen.
+                message_path = message_path.replace(
+                    'jetpack_page_jetpack-settings:',
+                    'toplevel_page_jetpack' + (hash || '_settings') + ':'
+                );
             } else if ('_dashboard' !== hash) {
                 message_path = message_path.replace(
                     'toplevel_page_jetpack',

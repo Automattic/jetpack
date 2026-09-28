@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Charts: Start line chart value axes at zero, and pad the Subscribers chart's axis a little below its data instead.

@@ -24,20 +24,51 @@ This package declares `wpScriptModuleExports`, which changes everything:
 A single shared copy of the field controls is loaded per page, regardless of
 how many widgets reference them.
 
+## Field types
+
+`src/field-types.ts` registers the controls with widget-primitives'
+`registerFieldType`, under `jpa/*` names. A widget attribute references one by
+`type` and carries data alone:
+
+```ts
+{
+	id: 'contentView',
+	label: __( 'View', 'jetpack-premium-analytics-pkg' ),
+	type: 'jpa/select',
+	elements: [ { label: __( 'Posts & pages', 'jetpack-premium-analytics-pkg' ), value: 'posts' } ],
+	relevance: 'high',
+}
+```
+
+`registerFieldTypes()` runs from `@jetpack-premium-analytics/init`, before any
+route renders; `useWidgetTypes` then resolves each name into the control and
+its DataViews base type. A name nothing registered passes through and the form
+skips it, so a typo hides a control rather than breaking the widget.
+
+Storybook and tests hand widget types to the dashboard without going through
+`useWidgetTypes`; `resolveFieldTypes()` gives them the same resolution.
+
+| Name                 | Control              | Base type |
+| -------------------- | -------------------- | --------- |
+| `jpa/select`         | `SelectField`        | `text`    |
+| `jpa/toggle-group`   | `ToggleGroupField`   | `text`    |
+| `jpa/array-checkbox` | `ArrayCheckboxField` | `array`   |
+
 ## Adding a field
 
-Export the control from `src/index.ts`. Controls implement dataviews'
-`DataFormControlProps< Item >` and are referenced from widget metadata as:
+Controls implement dataviews' `DataFormControlProps< Item >`. Add the control
+to `FIELD_TYPES` so widgets can name it; the name is the only public route to it.
+
+A control that needs per-widget options cannot be named: a field type is one
+control for every attribute that references it, and dataviews rebuilds a
+normalized field from a fixed set of keys, dropping anything else a descriptor
+carries. Such a control is built by a factory called once at module scope, so
+the component identity is stable across renders, and the options travel
+through the factory:
 
 ```ts
 attributes: [ reportParamsAttributeField( { withIntervalControl: true, grain: MY_GRAIN } ) ]
 ```
-
-A control that needs per-widget options is built by a factory called once at
-module scope, so the component identity is stable across renders. Options
-travel through the factory rather than through the field descriptor: dataviews
-rebuilds a normalized field from a fixed set of keys, and drops anything else a
-descriptor carries.
 
 `grain` is how fine the widget's report is. `presetIds` narrows the quick
 presets on offer, as the WordAds chart does for "Last 24 hours"; an instance

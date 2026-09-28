@@ -51,16 +51,3 @@ export const resolveSection = earningsReportTabs.resolve;
 
 /** Heading for the active tab's section. */
 export const getTabTitle = earningsReportTabs.getTabTitle;
-
-/**
- * Whether a tab's rows carry an Ads Served count.
- *
- * Only the WordAds bucket records pageviews; sponsored and adjustment rows are
- * amounts alone.
- *
- * @param tab - The active Earnings report tab.
- * @return Whether to show the Ads Served column and its note.
- */
-export function hasAdsServed( tab: EarningsReportTabId ): boolean {
-	return tab === 'wordads';
-}

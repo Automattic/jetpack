@@ -455,6 +455,7 @@ class Jetpack_Carousel {
 				'url' => plugins_url( '_inc/blocks/swiper.js', JETPACK__PLUGIN_FILE ),
 			);
 			wp_localize_script( 'jetpack-carousel', 'jetpackSwiperLibraryPath', $swiper_library_path );
+			add_action( 'wp_footer', array( $this, 'prefetch_swiper_library' ) );
 
 			// Note: using  home_url() instead of admin_url() for ajaxurl to be sure  to get same domain on wpcom when using mapped domains (also works on self-hosted).
 			// Also: not hardcoding path since there is no guarantee site is running on site root in self-hosted context.
@@ -569,6 +570,22 @@ class Jetpack_Carousel {
 
 			$this->first_run = false;
 		}
+	}
+
+	/**
+	 * Hint the browser to fetch the Swiper library while it is idle.
+	 *
+	 * Swiper is only requested when the lightbox is first opened, which puts a network
+	 * round trip in front of that first click. This is deliberately `prefetch` rather than
+	 * `preload`: most visitors never open the lightbox, so the fetch must stay at low
+	 * priority and out of the way of the page's own images. `loadSwiper()` still loads the
+	 * library on demand, since a prefetch is a hint the browser is free to ignore.
+	 */
+	public function prefetch_swiper_library() {
+		printf(
+			'<link rel="prefetch" href="%s" as="script" />' . "\n",
+			esc_url( plugins_url( '_inc/blocks/swiper.js', JETPACK__PLUGIN_FILE ) )
+		);
 	}
 
 	/**
@@ -985,14 +1002,40 @@ class Jetpack_Carousel {
 		$attr['data-orig-size']       = $size;
 		$attr['data-comments-opened'] = $comments_opened;
 
+		/*
+		Lets the Carousel show its "has comments" badge without fetching the comments
+		themselves. Omitted when there are none, which is the common case, so galleries
+		without comments pay nothing for it.
+		*/
+		$comments_count = (int) $attachment->comment_count;
+		if ( $comments_count > 0 ) {
+			$attr['data-comments-count'] = $comments_count;
+		}
+
 		if ( $display_exif ) {
 			// See https://github.com/Automattic/jetpack/issues/2765.
 			if ( isset( $img_meta['keywords'] ) ) {
 				unset( $img_meta['keywords'] );
 			}
 
-			$img_meta                = wp_json_encode( array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ), JSON_UNESCAPED_SLASHES | JSON_HEX_AMP );
-			$attr['data-image-meta'] = esc_attr( $img_meta );
+			/*
+			Filtering on `is_scalar` alone kept every "" and "0" in the metadata array, which
+			on a typical photo is most of it. The carousel skips those values when it renders
+			the EXIF panel anyway, so serialising them only inflates the page. Mirror that
+			check here: drop empties and numeric zeroes, but keep text that merely casts to
+			zero, such as a camera name.
+			*/
+			$img_meta = array_filter(
+				array_map( 'strval', array_filter( $img_meta, 'is_scalar' ) ),
+				function ( $value ) {
+					return '' !== $value && ! ( is_numeric( $value ) && 0.0 === (float) $value );
+				}
+			);
+
+			// With nothing left to show, the attribute itself is dead weight.
+			if ( ! empty( $img_meta ) ) {
+				$attr['data-image-meta'] = esc_attr( wp_json_encode( $img_meta, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) );
+			}
 		}
 
 		// The lines below use `esc_attr( htmlspecialchars( ) )` because esc_attr tries to be too smart and won't double-encode, and we need that here.

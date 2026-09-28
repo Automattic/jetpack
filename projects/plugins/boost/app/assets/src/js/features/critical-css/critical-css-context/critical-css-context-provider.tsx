@@ -108,8 +108,9 @@ const COMPLETION_HOLD_MS = 750;
 
 /**
  * For Critical CSS UI: Actually run the local generator and return its status.
+ * @param autoStart - Whether to start generation automatically when CSS has not been generated.
  */
-export function useLocalCriticalCssGenerator() {
+export function useLocalCriticalCssGenerator( autoStart = true ) {
 	// Local Generator status context.
 	const {
 		isGenerating,
@@ -197,7 +198,7 @@ export function useLocalCriticalCssGenerator() {
 						abortController.abort();
 					}
 				};
-			} else if ( cssState.status === 'not_generated' ) {
+			} else if ( autoStart && cssState.status === 'not_generated' ) {
 				// If there is no css generated, request that the generator start.
 				generateCriticalCssAction.mutate();
 			}
@@ -207,7 +208,7 @@ export function useLocalCriticalCssGenerator() {
 		// This effect triggers an actual process that is costly to start and stop, so we don't want to start/stop it
 		// every time an object ref like `cssState` is changed for a trivial reason.
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-		[ cssState.status, cssState.providers.length, cssState.created ]
+		[ cssState.status, cssState.providers.length, cssState.created, autoStart ]
 	);
 
 	// Always calculate progress so it reflects the true state even after

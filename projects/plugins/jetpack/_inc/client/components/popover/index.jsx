@@ -1,7 +1,7 @@
 import { createRef } from '@wordpress/element';
 import clsx from 'clsx';
-import uid from 'component-uid';
 import debugFactory from 'debug';
+import { uniqueId } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import RootChild from 'components/root-child';
@@ -315,7 +315,7 @@ class Popover extends Component {
 	}
 
 	setPopoverId( id ) {
-		this.id = id || `pop__${ uid( 16 ) }`;
+		this.id = id || uniqueId( 'pop__' );
 		__popovers.add( this.id );
 
 		this.debug( 'creating ...' );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: Use a shared Except panel for JavaScript, CSS, and page cache exclusions in the modern dashboard.

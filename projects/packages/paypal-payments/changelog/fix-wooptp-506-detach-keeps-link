@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Removing a block no longer deletes its payment link from PayPal. The same link can be used by other posts, an email or a printed QR code, so it stays until it is deleted on purpose.

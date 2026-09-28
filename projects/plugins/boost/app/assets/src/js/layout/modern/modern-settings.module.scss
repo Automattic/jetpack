@@ -9,7 +9,7 @@
 	flex-direction: column;
 	gap: 24px;
 
-	// A flex item with z-index 0 keeps its contents under the sticky tabs.
+	// Isolate flex items so their controls stay below page overlays.
 	// Notices are left out so they still overlay the page.
 	> :not(:global(.stackable-snackbars)) {
 		z-index: 0;

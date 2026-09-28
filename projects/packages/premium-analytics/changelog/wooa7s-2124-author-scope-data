@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Keep the first partial week or month bucket of a period list report when the date range starts mid-period.

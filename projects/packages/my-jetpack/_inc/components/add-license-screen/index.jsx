@@ -68,7 +68,6 @@ export default function AddLicenseScreen() {
 			<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>
 				<Col>
 					<ActivationScreen
-						currentRecommendationsStep={ null }
 						availableLicenses={ availableLicenses }
 						fetchingAvailableLicenses={ fetchingAvailableLicenses }
 						onActivationSuccess={ handleActivationSuccess }

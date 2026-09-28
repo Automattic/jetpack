@@ -369,7 +369,8 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		$name  = 'test__connection_token_health';
 		$valid = ( new Tokens() )->validate_blog_token();
 
-		if ( ! $valid ) {
+		// A WP_Error, meaning the check could not run, is truthy.
+		if ( true !== $valid ) {
 			return self::connection_failing_test( $name, __( 'The site token used to authenticate with WordPress.com could not be validated.', 'jetpack-connection' ) );
 		}
 

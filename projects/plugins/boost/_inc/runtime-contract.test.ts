@@ -13,9 +13,12 @@ describe( 'getSubpage', () => {
 		expect( getSubpage( '#/cache-debug-log?x=1' ) ).toBe( 'cache-debug-log' );
 	} );
 
-	it.each( [ '', '#', '#/' ] )( 'returns null for the root (%p)', hash => {
-		expect( getSubpage( hash ) ).toBeNull();
-	} );
+	it.each( [ '', '#', '#/', '#/?tab=settings', '#/?tab=overview' ] )(
+		'returns null for the root (%p)',
+		hash => {
+			expect( getSubpage( hash ) ).toBeNull();
+		}
+	);
 
 	it( 'returns null for an unrecognised path', () => {
 		expect( getSubpage( '#/nope' ) ).toBeNull();

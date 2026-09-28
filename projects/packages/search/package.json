@@ -17,7 +17,7 @@
 		"test": "tests"
 	},
 	"scripts": {
-		"build": "pnpm run clean && concurrently 'pnpm:build-instant' 'pnpm:build-customberg' 'pnpm:build-dashboard' 'pnpm:build-inline' 'pnpm:build-blocks' 'pnpm:build-blocks-editor' 'pnpm:build:wp-build' && pnpm run build:stamp-textdomains && pnpm run build:boot-asset",
+		"build": "pnpm run clean && concurrently 'pnpm:build-instant' 'pnpm:build-customberg' 'pnpm:build-inline' 'pnpm:build-blocks' 'pnpm:build-blocks-editor' 'pnpm:build:wp-build' && pnpm run build:stamp-textdomains && pnpm run build:boot-asset",
 		"build:boot-asset": "provide-boot-asset-file",
 		"build:stamp-textdomains": "stamp-textdomains",
 		"build:strip-unminified-prod": "strip-unminified-prod",
@@ -25,7 +25,6 @@
 		"build-blocks": "webpack --config ./tools/webpack.blocks.config.js",
 		"build-blocks-editor": "webpack --config ./tools/webpack.blocks-editor.config.js",
 		"build-customberg": "webpack --config ./tools/webpack.customberg.config.js",
-		"build-dashboard": "webpack --config ./tools/webpack.dashboard.config.js",
 		"build-development": "NODE_ENV=development BABEL_ENV=development pnpm run build",
 		"build-inline": "webpack --config ./tools/webpack.inline.config.js",
 		"build-instant": "webpack --config ./tools/webpack.instant.config.js",
@@ -39,7 +38,7 @@
 		"test-url-tests": "jest --config=jest.url-tests.config.js --passWithNoTests",
 		"typecheck": "tsgo --noEmit",
 		"validate": "pnpm exec validate-es --no-error-on-unmatched-pattern build/",
-		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:build-dashboard --watch' 'pnpm:watch:wp-build' 'pnpm:build-inline --watch' 'pnpm:build-blocks --watch' 'pnpm:build-blocks-editor --watch'",
+		"watch": "concurrently 'pnpm:build-instant --watch' 'pnpm:build-customberg --watch' 'pnpm:watch:wp-build' 'pnpm:build-inline --watch' 'pnpm:build-blocks --watch' 'pnpm:build-blocks-editor --watch'",
 		"watch:wp-build": "wp-build --watch"
 	},
 	"browserslist": [

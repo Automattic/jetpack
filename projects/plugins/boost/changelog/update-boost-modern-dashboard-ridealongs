@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Tidy the modern dashboard onboarding bridge, its tests, a docblock and an e2e fixture; no user-facing change.
+

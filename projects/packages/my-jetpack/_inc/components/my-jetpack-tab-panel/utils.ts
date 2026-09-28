@@ -1,5 +1,5 @@
 import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
 	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
@@ -39,6 +39,18 @@ export function getProductsSectionTitle() {
  */
 export function getProductsSectionPath( search = '' ) {
 	return `/${ getProductsSection() }${ search }`;
+}
+
+/**
+ * Get the admin path of the full list of Jetpack modules: the Features list view, or the
+ * classic modules page when the Features tab is off.
+ *
+ * @return The path, relative to wp-admin.
+ */
+export function getModulesListPath() {
+	return getProductsSection() === MY_JETPACK_SECTION_FEATURES
+		? `admin.php?page=my-jetpack#${ getProductsSectionPath( '?view=list' ) }`
+		: 'admin.php?page=jetpack_modules';
 }
 
 /**
@@ -92,4 +104,42 @@ export function resolveMyJetpackSection( section?: string ) {
 	const sections = getMyJetpackSections();
 
 	return sections.some( item => item.name === aliased ) ? aliased : sections[ 0 ].name;
+}
+
+/**
+ * The badge label for whether something is switched on.
+ *
+ * Both labels here and in getSwitchLabel() are bound before the branch: minification folds
+ * `c ? __( a ) : __( b )` into one call with a ternary msgid, which the i18n check rejects.
+ *
+ * @param isActive - Whether the feature or module is running.
+ * @return The translated label.
+ */
+export function getActivationStatusLabel( isActive: boolean ): string {
+	const activeText = __( 'Active', 'jetpack-my-jetpack' );
+	const inactiveText = __( 'Inactive', 'jetpack-my-jetpack' );
+
+	return isActive ? activeText : inactiveText;
+}
+
+/**
+ * The label for a control that switches a feature on or off.
+ *
+ * @param isOn - Whether the feature is currently on.
+ * @param name - The feature's name.
+ * @return The label for what the control will do.
+ */
+export function getSwitchLabel( isOn: boolean, name: string ): string {
+	const deactivateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Deactivate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+	const activateLabel = sprintf(
+		/* translators: %s is the feature name. */
+		__( 'Activate %s', 'jetpack-my-jetpack' ),
+		name
+	);
+
+	return isOn ? deactivateLabel : activateLabel;
 }

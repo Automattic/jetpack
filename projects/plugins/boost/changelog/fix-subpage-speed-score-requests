@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Performance scores: Cancel pending background score requests while viewing a sub-page.

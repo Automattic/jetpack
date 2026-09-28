@@ -1,11 +1,13 @@
 /**
  * Internal dependencies
  */
+import { resolvePrimarySeriesByGroup } from './resolve-series-names';
 import type {
 	ComparativeDatePointDate,
+	ComparativeLineChartSeries,
 	TooltipExtraSeries,
 } from '../components/chart-comparative-line/types';
-import type { DataFormat } from '../types';
+import type { CountLabel, DataFormat } from '../types';
 
 type TooltipData = {
 	datumByKey?: Record< string, unknown >;
@@ -52,7 +54,8 @@ export function appendTooltipExtras< T extends TooltipData >(
 
 		const point = extra.data.find( candidate => candidate.date.getTime() === hoveredTime );
 
-		if ( point?.value != null ) {
+		// A point with a null value still gets its row, which the tooltip reads as "No data".
+		if ( point ) {
 			// `index` only has to exist for the row shape; the tooltip orders rows itself.
 			augmented[ extra.label ] = { datum: point, index: offset, key: extra.label };
 			supplementaryRows[ extra.label ] = extra.dataFormat;
@@ -65,32 +68,38 @@ export function appendTooltipExtras< T extends TooltipData >(
 	};
 }
 
+/** What a tooltip row reads after its value. */
+export type TooltipUnit = {
+	name: string;
+	countLabel?: CountLabel;
+};
+
 /**
- * The names the tooltip leads each row with once extras join the drawn series:
- * an extra the chart did not already name is named after itself, and with any
- * present the drawn rows are named too, so a date alone never labels two rows
- * identically.
+ * The unit for each tooltip row, keyed by row key. A comparison row reads its
+ * group's current period ('Visitors', not 'Visitors · previous period'); an
+ * extra the chart does not draw reads itself.
  *
- * @param seriesNames - The drawn series' names, keyed by series label.
- * @param isPaired    - Whether the chart draws more than one metric.
- * @param extras      - The series to read out without drawing.
- * @return The names keyed by row key, and whether rows lead with a name.
+ * @param series - The series the chart was handed.
+ * @param extras - The series to read out without drawing.
+ * @return The units keyed by row key.
  */
-export function resolveTooltipNames(
-	seriesNames: Map< string, string >,
-	isPaired: boolean,
+export function resolveTooltipUnits(
+	series: readonly ComparativeLineChartSeries[],
 	extras: readonly TooltipExtraSeries[] | undefined
-): { names: Map< string, string >; namesRows: boolean } {
-	if ( ! extras?.length ) {
-		return { names: seriesNames, namesRows: isPaired };
+): Map< string, TooltipUnit > {
+	const primarySeriesByGroup = resolvePrimarySeriesByGroup( series );
+	const units = new Map< string, TooltipUnit >();
+
+	for ( const item of series ) {
+		const source = ( item.group !== undefined && primarySeriesByGroup.get( item.group ) ) || item;
+		units.set( item.label, { name: source.label, countLabel: source.countLabel } );
 	}
 
-	const names = new Map( seriesNames );
-	extras.forEach( extra => {
-		if ( ! names.has( extra.label ) ) {
-			names.set( extra.label, extra.label );
+	extras?.forEach( extra => {
+		if ( ! units.has( extra.label ) ) {
+			units.set( extra.label, { name: extra.label, countLabel: extra.countLabel } );
 		}
 	} );
 
-	return { names, namesRows: true };
+	return units;
 }

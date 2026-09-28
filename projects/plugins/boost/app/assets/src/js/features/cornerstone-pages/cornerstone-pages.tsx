@@ -51,7 +51,7 @@ const CornerstonePages = () => {
 	);
 };
 
-export const useCornerstoneSummary = () => {
+export const useCornerstoneSummary = ( includeLabel = true ) => {
 	const [ cornerstonePages ] = useCustomCornerstonePages();
 	if ( ! Array.isArray( cornerstonePages ) ) {
 		return null;
@@ -70,6 +70,10 @@ export const useCornerstoneSummary = () => {
 					),
 					cornerstonePages.length
 				);
+
+	if ( ! includeLabel ) {
+		return pages;
+	}
 
 	return sprintf(
 		/* translators: %s is the number of pages in the custom cornerstone pages list. */

@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecate Publicize::admin_page_load() and Publicize::display_connection_error(); connection errors are no longer rendered on Settings > Sharing.

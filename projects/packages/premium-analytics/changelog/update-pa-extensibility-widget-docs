@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Docs only: the SDK a plugin's widgets import and the Ads package as the reference consumer; nothing a site owner can observe.
+
+

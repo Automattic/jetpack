@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Respect excerpt filters in generated llms.txt summaries.

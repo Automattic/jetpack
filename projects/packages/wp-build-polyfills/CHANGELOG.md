@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2026-09-23
+### Added
+- Add a `WP_Build_Screen_Id` helper that hooks a wp-build dashboard's screen-ID alias before the generated enqueue check and the restore after, so the two can't be hooked out of order or one dropped. [#52583]
+- Add `loadI18nManifest()` to cache another build's i18n manifest by URL, so its lazy bundles can load catalogs on demand. [#52634]
+
+## [0.5.8] - 2026-09-23
+### Fixed
+- Exclude `src/js/` from published package. [#52650]
+
+## [0.5.7] - 2026-09-21
+### Fixed
+- Apply polyfills and a higher WordPress version threshold that `register()` receives after the polyfills are already registered, instead of silently ignoring them. [#52470]
+
 ## [0.5.6] - 2026-09-18
 ### Changed
 - Update package dependencies. [#52187]
@@ -177,6 +190,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 - Add @wordpress/ui to devDependencies so the boot module bundles it instead of externalizing it as an unregistered wp-ui script handle, which caused a blank page at runtime. [#47727]
 
+[0.6.0]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.8...v0.6.0
+[0.5.8]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.7...v0.5.8
+[0.5.7]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.6...v0.5.7
 [0.5.6]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.5...v0.5.6
 [0.5.5]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.4...v0.5.5
 [0.5.4]: https://github.com/Automattic/jetpack-wp-build-polyfills/compare/v0.5.3...v0.5.4

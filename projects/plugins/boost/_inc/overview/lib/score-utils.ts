@@ -20,21 +20,12 @@ export function getScoreDelta( current: number, noBoost?: number | null ): numbe
 	return noBoost == null ? null : Math.round( current - noBoost );
 }
 
-// Formats a score improvement relative to Boost being disabled.
-export function formatScoreDelta( delta: number ): string | null {
-	if ( delta <= 0 ) {
-		return null;
-	}
-
+export function formatScoreDelta( delta: number ): string {
+	const points = delta > 0 ? `+${ delta }` : String( delta );
 	return sprintf(
-		// translators: %s is the improvement in a performance score, such as +10.
-		_n(
-			'%s point compared with Boost disabled',
-			'%s points compared with Boost disabled',
-			delta,
-			'jetpack-boost'
-		),
-		`+${ delta }`
+		// translators: %s is the change in a performance score, such as +10, 0, or -10.
+		_n( '%s point', '%s points', Math.abs( delta ), 'jetpack-boost' ),
+		points
 	);
 }
 

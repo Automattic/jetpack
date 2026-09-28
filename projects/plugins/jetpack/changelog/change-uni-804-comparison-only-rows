@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Stop listing an author's post that only appears in the comparison period as 0 (-100%).

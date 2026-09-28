@@ -19,5 +19,9 @@ declare module '@automattic/jetpack-script-data' {
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			preview_sections?: string[];
 		};
+		newsletter?: {
+			// The Newsletter page's Subscribers tab; null when this user cannot open it.
+			subscribersUrl?: string | null;
+		};
 	}
 }

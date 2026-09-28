@@ -201,7 +201,7 @@ final class Dashboard_Section {
 		 * `attributes`, optional `placement`. Runs for every section, so a callback adding an
 		 * instance to one switches on `$section_id`.
 		 *
-		 * @since $$next-version$$ Runs from the section, with its declared layout and its
+		 * @since 0.8.0 Runs from the section, with its declared layout and its
 		 *                         namespaced id; it received an empty array and any alias before.
 		 *
 		 * @param array             $layout     The section's declared default widget instances.

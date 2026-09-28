@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: Let the pointer reach every day in the score history while a day's details are open, and leave a gap between the day and its details.

@@ -278,6 +278,7 @@ class Error_Handler {
 	 * to offering the reconnect CTA.
 	 *
 	 * @since 6.13.10
+	 * @since $$next-version$$ Withholds a non-admin's reconnect CTA while a site connection error is on record.
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
 	 *               Example:
@@ -324,6 +325,7 @@ class Error_Handler {
 			// Viewer-wide, so resolved once rather than per error.
 			$viewer_can_connect      = current_user_can( 'jetpack_connect' );
 			$viewer_can_connect_user = current_user_can( 'jetpack_connect_user' );
+			$site_connection_broken  = ! $viewer_can_connect && $this->has_site_connection_error( $verified_errors, $owner_id );
 
 			foreach ( $verified_errors as $error_code => $users ) {
 				// Only process error codes that are meant to be displayed to users.
@@ -429,11 +431,11 @@ class Error_Handler {
 						}
 					}
 
-					// Relinking your own account and restoring the site are different actions
-					// with different capabilities, and this notice only offers the second one.
-					// A reporter-declared action is something else, so it is left alone.
-					if ( $viewer_owns_error && ! $viewer_can_connect && empty( $error['error_data']['action'] ) ) {
-						$action = 'none';
+					// A non-admin relinks over the site connection, so while it is broken the
+					// reconnect CTA cannot work for them. A reporter-declared action is left alone.
+					if ( $viewer_owns_error && $site_connection_broken && empty( $error['error_data']['action'] ) ) {
+						$message = __( 'Your WordPress.com account connection is broken, and the site connection needs attention too. Ask an administrator to restore the site connection, then reconnect your account.', 'jetpack-connection' );
+						$action  = 'none';
 					}
 
 					$error['audience']      = $audience;
@@ -792,6 +794,41 @@ class Error_Handler {
 		}
 
 		return 'user';
+	}
+
+	/**
+	 * Whether a displayable site-audience error is on record that would stop a user relinking.
+	 *
+	 * Codes that survive owner promotion are inbound failures (WordPress.com cannot reach or
+	 * verify the site), which leave the outbound, blog-token-signed relink working.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $verified_errors The verified errors, keyed by error code then user ID.
+	 * @param int   $owner_id        The local user ID of the connection owner, or 0 if there is none.
+	 * @return bool
+	 */
+	private function has_site_connection_error( $verified_errors, $owner_id ) {
+		foreach ( $verified_errors as $error_code => $users ) {
+			$display_config = $this->get_error_display_config( $error_code );
+
+			if ( null === $display_config || ! empty( $display_config['survives_owner_promotion'] ) || ! is_array( $users ) ) {
+				continue;
+			}
+
+			foreach ( array_keys( $users ) as $user_id ) {
+				// Must precede classification, which would cast 'invalid' to 0 and read it as 'site'.
+				if ( 'invalid' === $user_id ) {
+					continue;
+				}
+
+				if ( 'site' === $this->classify_error_audience( $user_id, $owner_id ) ) {
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	/**

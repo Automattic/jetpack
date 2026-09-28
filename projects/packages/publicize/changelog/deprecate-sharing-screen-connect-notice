@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecate Publicize::force_user_connection() and Publicize::admin_page_warning(), which backed the account-linking notice on Settings > Sharing.

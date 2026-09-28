@@ -343,8 +343,9 @@ function wpcom_add_jetpack_submenu() {
 		// Jetpack > My Jetpack.
 		wpcom_hide_submenu_page( 'jetpack', 'my-jetpack' );
 
-		// Jetpack > Settings.
+		// Jetpack > Settings; WoA can pair this with a Jetpack serving either address.
 		wpcom_hide_submenu_page( 'jetpack', admin_url( 'admin.php?page=jetpack#/settings' ) );
+		wpcom_hide_submenu_page( 'jetpack', 'jetpack-settings' );
 
 		// Redirect My Jetpack page to Stats for Atomic sites on Personal or Premium plans.
 		add_action(
@@ -384,8 +385,10 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Backup.
+	// Jetpack > Backup. Calypso owns the nav, so hide the Jetpack plugin's own `jetpack-backup`
+	// entry; hidden rather than removed, so links into that page keep working.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', 'jetpack-backup' );
 	add_submenu_page(
 		'jetpack',
 		/** "Backup" is a product name, do not translate. */
@@ -425,8 +428,8 @@ function wpcom_add_jetpack_submenu() {
 
 	// Atomic loads Podcast through the Jetpack module, which the owner can switch
 	// off, and this builder runs either way. is_active() is always true on Simple,
-	// where the package loads unconditionally.
-	if ( ( new Modules() )->is_active( 'podcast' ) ) {
+	// where the package loads unconditionally. The package ships with Jetpack, not this one.
+	if ( class_exists( Podcast_Admin_Page::class ) && ( new Modules() )->is_active( 'podcast' ) ) {
 		Podcast_Admin_Page::add_wp_admin_submenu();
 	}
 
@@ -507,6 +510,7 @@ function wpcom_add_jetpack_submenu() {
 			'podcast',
 			'traffic',
 			'jetpack#/settings',
+			'jetpack-settings',
 		)
 	);
 }

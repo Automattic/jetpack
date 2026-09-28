@@ -4,14 +4,14 @@ import { DETAIL_SURFACE_PRESETS } from '@jetpack-premium-analytics/datetime';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateFiltersPanel } from '../date-filters-panel';
-import type { ComponentProps } from 'react';
+import type { DateFiltersPanelProps } from '../date-filters-panel';
 
 const PRESET_RANGE = {
 	from: new TZDate( '2026-07-01T00:00:00.000Z', 'UTC' ),
 	to: new TZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
 };
 
-function panel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
+function panel( props: Partial< DateFiltersPanelProps > = {} ) {
 	return (
 		<DateFiltersPanel
 			range={ PRESET_RANGE }
@@ -25,7 +25,7 @@ function panel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {}
 	);
 }
 
-function renderPanel( props: Partial< ComponentProps< typeof DateFiltersPanel > > = {} ) {
+function renderPanel( props: Partial< DateFiltersPanelProps > = {} ) {
 	return render( panel( props ) );
 }
 

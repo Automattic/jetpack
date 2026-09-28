@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the Subscribers tab URL to the admin script data, or null when the current user cannot open it.

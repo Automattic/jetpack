@@ -32,6 +32,7 @@ export {
 	lightenHexColor,
 	normalizeColorToHex,
 	useCalendarHeatmapData,
+	useChartLegendItems,
 	useGlobalChartsContext,
 	useMonthCalendarHeatmapData,
 	type BaseLegendItem,
@@ -53,6 +54,7 @@ export {
 } from '@automattic/charts';
 
 export { LineShape, RectShape } from '@automattic/charts/visx/legend';
+export { scaleLinear } from '@visx/scale';
 
 /**
  * WordPress design system
@@ -84,6 +86,7 @@ export {
 	Tabs,
 	Text,
 	TextareaControl,
+	Tooltip,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

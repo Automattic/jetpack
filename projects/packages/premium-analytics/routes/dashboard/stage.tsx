@@ -19,14 +19,20 @@ import {
 	StatsBreadcrumbs,
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
-import { PageOptionsMenu, ResetLayoutAction } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	DashboardSectionProvider,
+	PageOptionsMenu,
+	ResetLayoutAction,
+	useTrackCustomize,
+	useTrackedDateRangeApply,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import {
 	DashboardSections,
 	FeedbackBanner,
@@ -54,6 +60,7 @@ import {
 import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
+import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -100,13 +107,36 @@ function Dashboard(): JSX.Element {
 	}, [ isSyncComplete ] );
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );
-	const startCustomizing = useCallback( () => setEditMode( true ), [] );
+	const trackCustomize = useTrackCustomize( 'dashboard', activeSection );
+	// Every way into and out of edit mode arrives here: the menu below, the command
+	// palette, an empty layout, and the dashboard's own Cancel and Done.
+	const onEditChange = useCallback(
+		( nextEditMode: boolean ) => {
+			if ( nextEditMode ) {
+				trackCustomize.start();
+			} else {
+				trackCustomize.exit();
+			}
+			setEditMode( nextEditMode );
+		},
+		[ trackCustomize ]
+	);
+	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
+	const onLayoutChange = useCallback(
+		( nextLayout: DashboardWidget[] ) => {
+			trackCustomize.layoutChange( layout, nextLayout );
+			setLayout( nextLayout );
+		},
+		[ layout, setLayout, trackCustomize ]
+	);
 	const resetToDefault = useCallback( () => {
+		trackCustomize.reset();
 		resetLayout();
 		setEditMode( false );
-	}, [ resetLayout ] );
+	}, [ resetLayout, trackCustomize ] );
 
 	// The tour's anchors, handed in by the elements below once they mount.
 	const [ optionsMenuFrame, setOptionsMenuFrame ] = useState< HTMLDivElement | null >( null );
@@ -170,11 +200,33 @@ function Dashboard(): JSX.Element {
 		showsPeriodControl
 	);
 
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
+
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
 	 * commit together, the way `DatePeriodDropdown` applies a period.
 	 */
-	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
 	const selectYear = useCallback(
 		( range: DateRange, presetId: YearSurfacePresetId ) => {
 			onDateChange( range, presetId );
@@ -242,7 +294,13 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel { ...dateFilters } withIntervalControl attentionId={ attentionId } />
+				<DateFiltersPanel
+					{ ...dateFilters }
+					onChange={ onDateChange }
+					onApply={ onDateApply }
+					withIntervalControl
+					attentionId={ attentionId }
+				/>
 			);
 	}
 
@@ -263,13 +321,13 @@ function Dashboard(): JSX.Element {
 					<WidgetDashboard
 						widgetTypes={ widgetTypes }
 						isResolvingWidgetTypes={ isResolvingWidgetTypes }
-						resolveWidgetModule={ resolveWidgetModuleWithI18n }
+						resolveWidgetModule={ resolveWidgetModule }
 						layout={ layout }
-						onLayoutChange={ setLayout }
+						onLayoutChange={ onLayoutChange }
 						onLayoutReset={ resetLayout }
 						gridSettings={ gridSettings }
 						editMode={ editMode }
-						onEditChange={ setEditMode }
+						onEditChange={ onEditChange }
 					>
 						<Page
 							visual={ <StatsPageIcon /> }
@@ -334,7 +392,9 @@ function Dashboard(): JSX.Element {
 
 												<WidgetDashboard.NoWidgetsState />
 												<div ref={ setWidgetsFrame }>
-													<WidgetDashboard.Widgets className={ styles.widgets } />
+													<DashboardSectionProvider section={ section.slug }>
+														<WidgetDashboard.Widgets className={ styles.widgets } />
+													</DashboardSectionProvider>
 												</div>
 											</div>
 										) : null }

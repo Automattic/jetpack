@@ -40,38 +40,31 @@ class Protected_Owner {
 	}
 
 	/**
-	 * Record a confirmed protected owner and lock the anchor.
+	 * Record the owner WordPress.com has confirmed for this site.
 	 *
 	 * @since 9.3.0
+	 * @since 9.6.0 No longer records how the owner was confirmed.
 	 *
-	 * @param int    $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
-	 * @param int    $local_user_id The owner's local WordPress user ID. Required here, though the
-	 *                              anchor treats it as a re-pointable cache rather than the match
-	 *                              key, so a caller that legitimately does not know it yet would
-	 *                              need this relaxed.
-	 * @param string $confirmed_by  How the confirmation was obtained, e.g. `popup` or `recovery`.
-	 *                              Required, and travels to WordPress.com with the anchor: it names
-	 *                              a mechanism rather than a local user, and a default here would
-	 *                              record provenance nobody established.
+	 * @param int $wpcom_user_id The owner's WordPress.com user ID, as confirmed by WordPress.com.
+	 * @param int $local_user_id The owner's local WordPress user ID. Required here, though the
+	 *                           anchor treats it as a re-pointable cache rather than the match
+	 *                           key, so a caller that legitimately does not know it yet would
+	 *                           need this relaxed.
 	 * @return bool Whether the anchor is now stored as requested.
 	 */
-	public static function set( $wpcom_user_id, $local_user_id, $confirmed_by ) {
-		$confirmed_by  = sanitize_key( $confirmed_by );
+	public static function set( $wpcom_user_id, $local_user_id ) {
 		$wpcom_user_id = absint( $wpcom_user_id );
 		$local_user_id = absint( $local_user_id );
 
-		// A zero ID would store an anchor `get()` rejects, and a blank mechanism is
-		// indistinguishable from one never recorded. Neither is worth persisting.
-		if ( ! $confirmed_by || ! $wpcom_user_id || ! $local_user_id ) {
+		// A zero ID would store an anchor `get()` rejects.
+		if ( ! $wpcom_user_id || ! $local_user_id ) {
 			return false;
 		}
 
 		$anchor = array(
 			'wpcom_user_id' => $wpcom_user_id,
 			'local_user_id' => $local_user_id,
-			'locked'        => true,
 			'confirmed_at'  => gmdate( 'Y-m-d\TH:i:s\Z' ),
-			'confirmed_by'  => $confirmed_by,
 		);
 
 		if ( Jetpack_Options::update_option( self::OPTION, $anchor ) ) {
@@ -87,10 +80,10 @@ class Protected_Owner {
 	 *
 	 * The match key is `wpcom_user_id`; `local_user_id` is a cache of where that identity lives on
 	 * this site, and it legitimately moves when the owner reconnects under another local account.
-	 * Deliberately narrow: `confirmed_at` and `confirmed_by` record how the owner was originally
-	 * confirmed, and re-pointing a cache is not a new confirmation.
+	 * Deliberately narrow: `confirmed_at` records when the owner was originally confirmed, and
+	 * re-pointing a cache is not a new confirmation.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.5.0
 	 *
 	 * @param int $local_user_id The local user the anchored identity now holds.
 	 * @return bool Whether the anchor now names that local user.
@@ -132,19 +125,18 @@ class Protected_Owner {
 	}
 
 	/**
-	 * Get the anchor, but only while it is locked.
+	 * Get the anchor, but only while it protects somebody.
 	 *
-	 * An unlocked anchor names an owner without preventing ownership moving, so it protects
-	 * nobody and callers gating on protection must not see it.
+	 * The anchor is dropped the moment WordPress.com stops confirming it, so holding one and
+	 * being protected by it are the same thing. Kept as the name gates read by, which says what
+	 * the call site means rather than what the storage happens to be.
 	 *
 	 * @since 9.3.0
 	 *
-	 * @return array|null The locked anchor, or null when there is none.
+	 * @return array|null The anchor, or null when there is none.
 	 */
 	public static function get_locked() {
-		$anchor = self::get();
-
-		return ( $anchor && ! empty( $anchor['locked'] ) ) ? $anchor : null;
+		return self::get();
 	}
 
 	/**

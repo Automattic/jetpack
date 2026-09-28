@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an optional trim and cut editor with preview, undo, and original video restoration. Keep the editor available during processing, reduce background status checks, refresh delayed timeline thumbnails, and allow retrying failed edits.

@@ -18,6 +18,7 @@ Main component for rendering geographical data on an interactive world map using
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.625`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `region` | `GeoRegion` | `'world'` | Region to display. Use `'world'` for a global view or any ISO 3166-1 alpha-2 country code (e.g., `'US'`) |
 | `resolution` | `GeoResolution` | `'countries'` | Map resolution: `'countries'`, `'provinces'` (state/province level, use with a specific region), or `'metros'` (US only) |
+| `domain` | `string` | - | ISO 3166-1 alpha-2 code of the country whose viewpoint sets the disputed borders (e.g., `'IN'`). Google's default borders apply when omitted |
 | `onError` | `(error: GeoChartError) => void` | - | Callback fired when Google Charts emits a chart error, including draw errors Google renders into the chart container (e.g. a missing map file) |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
@@ -31,6 +32,7 @@ interface GeoChartProps
   data: GeoData;
   region?: GeoRegion;
   resolution?: GeoResolution;
+  domain?: string;
   onError?: (error: GeoChartError) => void;
   renderPlaceholder?: () => React.ReactNode;
 }

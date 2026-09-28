@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+The Ads tab is registered by the WordAds module and by WordPress.com rather than by the package, so it no longer appears on sites without WordAds. A section whose slug another section already uses is refused.

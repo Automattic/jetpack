@@ -643,7 +643,7 @@ class Jetpack_Sync_Users_Test extends Jetpack_Sync_TestBase {
 				$replacement_id => 'kiwi.a.' . $replacement_id,
 			)
 		);
-		Protected_Owner::set( 4242, $demoted_id, 'popup' );
+		Protected_Owner::set( 4242, $demoted_id );
 		Utils::set_wpcom_user_id( $demoted_id, 4242 );
 
 		// Without the binding the gate falls back to a WordPress.com lookup and answers false,

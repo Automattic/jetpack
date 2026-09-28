@@ -1,7 +1,7 @@
 /* No jest-dom in this project; the sibling check needs direct node access. */
 /* eslint-disable jest-dom/prefer-in-document, testing-library/no-node-access */
-import { render, screen } from '@testing-library/react';
-import CornerstonePages from './cornerstone-pages';
+import { render, renderHook, screen } from '@testing-library/react';
+import CornerstonePages, { useCornerstoneSummary } from './cornerstone-pages';
 
 jest.mock( './meta/meta', () => ( {
 	__esModule: true,
@@ -31,4 +31,11 @@ describe( 'CornerstonePages', () => {
 		expect( screen.getByText( 'Added: Homepage + 1 page' ) ).toBeTruthy();
 		expect( screen.queryByText( 'editor' ) ).toBeNull();
 	} );
+} );
+
+test( 'omits the modern summary prefix while keeping the legacy prefix', () => {
+	const { result: modern } = renderHook( () => useCornerstoneSummary( false ) );
+	const { result: legacy } = renderHook( () => useCornerstoneSummary() );
+	expect( modern.current ).toBe( 'Homepage + 1 page' );
+	expect( legacy.current ).toBe( 'Added: Homepage + 1 page' );
 } );

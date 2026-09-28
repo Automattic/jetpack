@@ -1,10 +1,12 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -88,6 +90,7 @@ function getCountryFilter( view: View ): string {
  * @return The Locations report page.
  */
 export default function LocationsReportPage(): JSX.Element {
+	usePrefetchViewerCountry();
 	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportLocationsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
@@ -183,6 +186,21 @@ export default function LocationsReportPage(): JSX.Element {
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! records.table.isLoading && ! countryFilter && records.table.rows.length === 0 ) {
+		// A picked country can scope the rows down to none. The table carries the
+		// filter that clears it, so it has to stay on screen then.
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -198,12 +216,7 @@ export default function LocationsReportPage(): JSX.Element {
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				{ tableReplacement ?? (
 					<>
 						<ReportLocationsMap
 							rows={ geoRows }

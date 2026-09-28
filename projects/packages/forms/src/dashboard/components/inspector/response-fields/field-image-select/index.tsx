@@ -1,14 +1,8 @@
 import { isWoASite } from '@automattic/jetpack-script-data';
 import { isPrivateSite } from '@automattic/jetpack-shared-extension-utils/site-type-utils';
-import {
-	Icon,
-	Card,
-	CardMedia,
-	CardBody,
-	__experimentalText as Text, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalHStack as HStack, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { Icon, Card, CardMedia, CardBody } from '@wordpress/components';
 import { image as imageIcon } from '@wordpress/icons';
+import { Stack, Text } from '@wordpress/ui';
 import photon from 'photon';
 import './style.scss';
 
@@ -74,16 +68,19 @@ const ImageSelectButton = ( { choice, handleFilePreview } ) => {
 					inlineEnd: 'xSmall',
 				} }
 			>
-				<HStack
+				{ /* No `align`: Stack sets alignment inline, which would beat the stylesheet's
+				     `align-items: baseline` on this wrapper. */ }
+				<Stack
 					className="jp-forms__image-select-preview-label-wrapper"
-					spacing="2"
-					alignment="topLeft"
+					direction="row"
+					gap="sm"
+					justify="flex-start"
 				>
 					<Text className="jp-forms__image-select-preview-selected">{ choice.selected }</Text>
 					<Text title={ choice.label } className="jp-forms__image-select-preview-label">
 						{ choice.label }
 					</Text>
-				</HStack>
+				</Stack>
 			</CardBody>
 		</Card>
 	);
@@ -94,11 +91,13 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 		<>
 			{ ( choices?.length ?? 0 ) === 0 && '-' }
 			{ ( choices?.length ?? 0 ) > 0 && (
-				<HStack
-					spacing="2"
-					alignment="topLeft"
-					wrap={ true }
+				<Stack
+					align="flex-start"
 					className="jp-forms__image-select-preview-wrapper"
+					direction="row"
+					gap="sm"
+					justify="flex-start"
+					wrap="wrap"
 				>
 					{ choices.map( choice => {
 						return (
@@ -109,7 +108,7 @@ const FieldImageSelect = ( { choices, handleFilePreview } ) => {
 							/>
 						);
 					} ) }
-				</HStack>
+				</Stack>
 			) }
 		</>
 	);

@@ -18,7 +18,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { calendar, comment, page, postContent, starEmpty } from '@wordpress/icons';
+import { comment, page, postContent, starEmpty } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -40,8 +40,8 @@ const COUNT_FORMAT: DataFormat = {
 };
 
 /**
- * A year the site did not publish in has no row; leaving it undefined shows the
- * empty state rather than a screen of zeros.
+ * A year the site did not publish in has no row; leaving it undefined draws
+ * every tile at zero.
  */
 function selectYearTotals(
 	data: StatsInsightsResponse | undefined,
@@ -56,34 +56,32 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsInsights();
 	const totals = selectYearTotals( data, resolveSelectedYear( year ) );
 
-	const tiles = totals
-		? [
-				{
-					key: 'posts',
-					icon: page,
-					label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
-					value: totals.total_posts,
-				},
-				{
-					key: 'words',
-					icon: postContent,
-					label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
-					value: totals.total_words,
-				},
-				{
-					key: 'likes',
-					icon: starEmpty,
-					label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
-					value: totals.total_likes,
-				},
-				{
-					key: 'comments',
-					icon: comment,
-					label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
-					value: totals.total_comments,
-				},
-			]
-		: [];
+	const tiles = [
+		{
+			key: 'posts',
+			icon: page,
+			label: __( 'Posts', 'jetpack-premium-analytics-pkg' ),
+			value: totals?.total_posts ?? 0,
+		},
+		{
+			key: 'words',
+			icon: postContent,
+			label: __( 'Words', 'jetpack-premium-analytics-pkg' ),
+			value: totals?.total_words ?? 0,
+		},
+		{
+			key: 'likes',
+			icon: starEmpty,
+			label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
+			value: totals?.total_likes ?? 0,
+		},
+		{
+			key: 'comments',
+			icon: comment,
+			label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+			value: totals?.total_comments ?? 0,
+		},
+	];
 
 	return (
 		<div className={ styles.content }>
@@ -92,8 +90,9 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 				isFetching={ isFetching }
 				// `placeholderData` keeps the last highlights on screen, so a transient
 				// refetch failure should not replace them with an error.
-				isError={ ! totals && isError }
-				isEmpty={ ! totals }
+				isError={ ! data && isError }
+				// Highlights have no empty state: a missing year shows zeros.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load your year in review. Please try again in a moment.",
@@ -101,17 +100,11 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
 				} }
-				empty={ {
-					icon: calendar,
-					description: __( 'No highlights for this year.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <AnnualHighlightsSkeleton /> }
 			>
-				{ totals && (
-					<Stack className={ styles.root } direction="column">
-						<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
-					</Stack>
-				) }
+				<Stack className={ styles.root } direction="column">
+					<MetricTileGrid tiles={ tiles } dataFormat={ COUNT_FORMAT } />
+				</Stack>
 			</WidgetState>
 			<WidgetFooter>
 				<ReportLink report="annual-insights" />

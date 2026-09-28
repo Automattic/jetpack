@@ -1,6 +1,6 @@
 import { createDateFormatter, createZonedClock, sanitizeFormatting } from '../date-formatting';
 
-// `@wordpress/jest-console` registers the matcher but ships no types for it.
+// The `jetpack-js-tools` console guard registers the matcher but ships no types for it.
 declare global {
 	// eslint-disable-next-line @typescript-eslint/no-namespace
 	namespace jest {

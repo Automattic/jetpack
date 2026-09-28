@@ -89,6 +89,34 @@ function getEmptyDayColor( page: Page ) {
 	} );
 }
 
+/**
+ * Taps a day, then taps its open box and checks the tap stays on the box.
+ *
+ * @param page - The fixture page.
+ * @param tap  - Sends one touch tap at a viewport point.
+ */
+async function expectTapStaysOnBox( page: Page, tap: ( x: number, y: number ) => Promise< void > ) {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const bar = ( await chart.locator( '.visx-bar' ).nth( 21 ).boundingBox() )!;
+	await tap( bar.x + bar.width / 2, bar.y + bar.height / 2 );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	const date = popover.locator( '.jetpack-boost-overview__tooltip-date' );
+	await expect( date ).toHaveText( 'September 1, 2026' );
+	await expect( popover ).toHaveCSS( 'pointer-events', 'auto' );
+	const box = ( await popover.boundingBox() )!;
+	const target = [ box.x + 20, bar.y + bar.height / 2 ];
+	expect(
+		await page.evaluate(
+			( [ px, py ] ) =>
+				Boolean( document.elementFromPoint( px, py )?.closest( '.boost-daily-history__popover' ) ),
+			target
+		)
+	).toBe( true );
+	await tap( target[ 0 ], target[ 1 ] );
+	await expect( popover ).toBeVisible();
+	await expect( date ).toHaveText( 'September 1, 2026' );
+}
+
 test.use( {
 	viewport: { width: 1280, height: 900 },
 	timezoneId: 'America/Los_Angeles',
@@ -166,15 +194,21 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		const barCenter = hoveredBar.x + hoveredBar.width / 2;
 		const barMiddle = hoveredBar.y + hoveredBar.height / 2;
 		expect( popupBox.x ).toBeGreaterThan( barCenter );
-		// Straight across into the popover: crossing other days on the way lets them take the card.
-		const targetX = popupBox.x + 20;
-		for ( let step = 1; step <= 10; step++ ) {
-			await page.mouse.move( barCenter + ( ( targetX - barCenter ) * step ) / 10, barMiddle );
+		await expect( popover ).toHaveCSS( 'pointer-events', 'none' );
+		// One jump per day, each onto the day the previous box covers.
+		for ( let index = 22; index <= 27; index++ ) {
+			const bar = ( await bars.nth( index ).boundingBox() )!;
+			const x = bar.x + bar.width / 2;
+			const box = ( await surface.boundingBox() )!;
+			expect( x ).toBeGreaterThan( box.x );
+			expect( x ).toBeLessThan( box.x + box.width );
+			expect( barMiddle ).toBeGreaterThan( box.y );
+			expect( barMiddle ).toBeLessThan( box.y + box.height );
+			await page.mouse.move( x, barMiddle );
+			await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveText(
+				`September ${ index - 20 }, 2026`
+			);
 		}
-		// The chart hides its own tooltip once the pointer has left the plot.
-		await expect( page.getByTestId( 'bounded-tooltip' ) ).toHaveCount( 0 );
-		await expect( popover ).toBeVisible();
-		await expect( surface ).toContainText( 'September 1, 2026' );
 		await page.mouse.move( 0, 0 );
 		await expect( popover ).toBeHidden();
 		await hoverDay( chart, 21 );
@@ -363,6 +397,75 @@ test( 'Tabbing between daily charts preserves focus and resets the previous tool
 	await expect( tooltip ).toContainText( 'August 11, 2026' );
 } );
 
+test( 'Rings a keyboard-selected recorded day but not a hovered one', async ( { page } ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const highlight = page.getByTestId( 'history-highlight' );
+	await hoverDay( chart, 21 );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
+	await page.mouse.move( 0, 0 );
+	await chart.getByRole( 'grid' ).focus();
+	// An empty day's details are visible, and the browser rings them.
+	for ( const [ presses, date, outline ] of [
+		[ 1, 'August 11, 2026', 'none' ],
+		[ 21, 'September 1, 2026', 'solid' ],
+	] as const ) {
+		for ( let press = 0; press < presses; press++ ) {
+			await page.keyboard.press( 'ArrowRight' );
+		}
+		await expect( page.getByRole( 'tooltip' ) ).toContainText( date );
+		await expect( highlight ).toHaveCSS( 'outline-style', outline );
+	}
+	await page.keyboard.press( 'Escape' );
+	await expect( highlight ).toHaveCount( 0 );
+} );
+
+test( 'Clicking back into a keyboard-navigated chart focuses the chart without the ring', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const grid = chart.getByRole( 'grid' );
+	await grid.focus();
+	for ( let press = 0; press < 22; press++ ) {
+		await page.keyboard.press( 'ArrowRight' );
+	}
+	await expect( page.locator( '[role="tooltip"]:focus-visible' ) ).toHaveCount( 1 );
+	await page.mouse.click( 5, 5 );
+	await hoverDay( chart, 21 );
+	await page.mouse.down();
+	await page.mouse.up();
+	await expect( grid ).toBeFocused();
+	await expect( page.locator( '.boost-daily-history__popover' ) ).toContainText(
+		'September 1, 2026'
+	);
+	await expect( page.getByTestId( 'history-highlight' ) ).toHaveCSS( 'outline-style', 'none' );
+} );
+
+test( 'Hovering a day ends the keyboard selection, and arrows continue from it', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const grid = chart.getByRole( 'grid' );
+	const highlight = page.getByTestId( 'history-highlight' );
+	const popoverDate = page.locator(
+		'.boost-daily-history__popover .jetpack-boost-overview__tooltip-date'
+	);
+	await grid.focus();
+	for ( let press = 0; press < 6; press++ ) {
+		await page.keyboard.press( 'ArrowRight' );
+	}
+	await expect( page.getByRole( 'tooltip' ) ).toBeFocused();
+	await hoverDay( chart, 23 );
+	await expect( grid ).toBeFocused();
+	await expect( popoverDate ).toHaveText( 'September 3, 2026' );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'none' );
+	await expect( chart.locator( '.visx-bar' ).nth( 5 ) ).toHaveCSS( 'stroke', 'none' );
+	await hoverDay( chart, 22 );
+	await expect( popoverDate ).toHaveText( 'September 2, 2026' );
+	await page.keyboard.press( 'ArrowRight' );
+	await expect( page.getByRole( 'tooltip' ) ).toContainText( 'September 3, 2026' );
+	await expect( highlight ).toHaveCSS( 'outline-style', 'solid' );
+} );
+
 test( 'Tab from the paging controls reaches the chart once the day details close', async ( {
 	page,
 } ) => {
@@ -393,6 +496,56 @@ test( 'Tab from the paging controls reaches the chart once the day details close
 	}
 } );
 
+test( 'Day details reopen on hover after paging with the keyboard', async ( { page } ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	await hoverDay( chart, 21 );
+	await expect( popover ).toBeVisible();
+	// Resting on the heading keeps the pointer inside the chart without sitting on a redrawn bar.
+	await chart.getByRole( 'heading', { name: 'Desktop' } ).hover();
+	await page.getByRole( 'button', { name: 'Previous 30 days' } ).focus();
+	await page.keyboard.press( 'Enter' );
+	await expect( page.getByText( 'Jul 12 – Aug 10, 2026' ) ).toBeVisible();
+	await page.keyboard.press( 'Tab' );
+	await page.keyboard.press( 'Enter' );
+	await expect( page.getByText( 'Aug 11 – Sep 9, 2026' ) ).toBeVisible();
+	await hoverDay( chart, 22 );
+	await expect( popover ).toContainText( 'September 2, 2026' );
+	await page.keyboard.press( 'Escape' );
+	await expect( popover ).toBeHidden();
+	await hoverDay( chart, 23 );
+	await expect( popover ).toBeHidden();
+	await page.mouse.move( 0, 0 );
+	await hoverDay( chart, 23 );
+	await expect( popover ).toContainText( 'September 3, 2026' );
+} );
+
+test( 'Tab moves straight through the charts while a hovered day shows its details', async ( {
+	page,
+} ) => {
+	const chart = page.getByRole( 'region', { name: 'Desktop score history' } );
+	const next = page.getByRole( 'button', { name: 'Next 30 days' } );
+	const grids = page.getByRole( 'grid' );
+	const popover = page.locator( '.boost-daily-history__popover' );
+	const press = async ( key: string, target: Locator ) => {
+		await page.keyboard.press( key );
+		await expect( target ).toBeFocused();
+		await expect( popover ).toBeVisible();
+	};
+	await hoverDay( chart, 21 );
+	await expect( popover ).toBeVisible();
+	await next.focus();
+	await press( 'Tab', grids.first() );
+	await press( 'Tab', grids.last() );
+	// Nothing on the fixture page follows the chart, so leaving it focuses no element.
+	await page.keyboard.press( 'Tab' );
+	await expect( page.locator( ':focus' ) ).toHaveCount( 0 );
+	await expect( popover ).toBeVisible();
+	await press( 'Shift+Tab', grids.last() );
+	await press( 'Shift+Tab', grids.first() );
+	await press( 'Shift+Tab', next );
+} );
+
 test( 'Hiding retained history removes a keyboard tooltip until another selection', async ( {
 	page,
 } ) => {
@@ -409,9 +562,7 @@ test( 'Hiding retained history removes a keyboard tooltip until another selectio
 	await expect( page.getByRole( 'tooltip' ) ).toBeVisible();
 } );
 
-test( 'Score cards show the tier palette, baseline delta colors, and responsive dividers', async ( {
-	page,
-} ) => {
+test( 'Score cards show gain badges, points help, and responsive dividers', async ( { page } ) => {
 	await page.goto( 'http://boost-history.test/?scores' );
 	const desktop = page.getByRole( 'region', { name: 'Desktop', exact: true } );
 	const mobile = page.getByRole( 'region', { name: 'Mobile', exact: true } ).first();
@@ -439,11 +590,32 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 		await expect( track ).toHaveCSS( 'height', '4px' );
 		await expect( track ).toHaveCSS( 'border-radius', '4px' );
 	}
-	await expect( desktop.first().getByText( '+10 points compared with Boost disabled' ) ).toHaveCSS(
-		'color',
-		'rgb(0, 128, 48)'
-	);
-	await expect( mobile.getByText( /compared with Boost disabled/ ) ).toHaveCount( 0 );
+	const positiveBadge = desktop.first().getByText( '+10 points', { exact: true } );
+	await expect( positiveBadge ).toHaveCSS( 'background-color', 'rgb(222, 235, 250)' );
+	await expect( positiveBadge ).toHaveCSS( 'color', 'rgb(0, 27, 79)' );
+	const clampedBadge = mobile.getByText( '0 points', { exact: true } );
+	await expect( clampedBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( clampedBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
+	await expect( desktop.nth( 1 ).getByText( /points/ ) ).toHaveCount( 0 );
+	await expect( desktop.nth( 1 ).getByRole( 'button' ) ).toHaveCount( 0 );
+	const pointsHelp = page.getByText( 'Points gained from optimizations', { exact: true } );
+	await expect( pointsHelp ).toHaveCount( 0 );
+	const pointsTrigger = desktop.first().getByRole( 'button', { name: 'About points' } );
+	await pointsTrigger.hover();
+	await expect( pointsHelp ).toBeVisible();
+	await page.mouse.move( 0, 0 );
+	await expect( pointsHelp ).toBeHidden();
+	await pointsTrigger.click();
+	await expect( pointsHelp ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( pointsHelp ).toBeHidden();
+	await expect( pointsTrigger ).toBeFocused();
+	await pointsTrigger.press( 'Enter' );
+	await expect( pointsHelp ).toBeVisible();
+	await page.keyboard.press( 'Escape' );
+	await expect( pointsHelp ).toBeHidden();
 	await expect( desktop.first() ).toHaveCSS( 'padding-top', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-bottom', '16px' );
 	await expect( desktop.first() ).toHaveCSS( 'padding-left', '20px' );
@@ -473,13 +645,24 @@ test( 'Score cards show the tier palette, baseline delta colors, and responsive 
 		.boundingBox() )!;
 	const delta = ( await desktop
 		.first()
-		.getByText( '+10 points compared with Boost disabled' )
+		.locator( '.jetpack-boost-overview__delta' )
 		.boundingBox() )!;
 	expect( bar.width ).toBeGreaterThan( 0 );
 	expect( delta.x ).toBeGreaterThan( bar.x + bar.width );
-	expect( delta.x + delta.width ).toBeCloseTo( section.x + section.width - 20, 0 );
+	expect( delta.x + delta.width ).toBeLessThanOrEqual( section.x + section.width - 20 );
 	expect( delta.y ).toBeLessThan( bar.y + bar.height );
 	expect( delta.y + delta.height ).toBeGreaterThan( bar.y );
+	const badgeBox = ( await positiveBadge.boundingBox() )!;
+	const iconBox = ( await desktop.first().getByRole( 'button' ).boundingBox() )!;
+	expect( iconBox.x ).toBeGreaterThan( badgeBox.x + badgeBox.width );
+	expect( iconBox.y ).toBeLessThan( badgeBox.y + badgeBox.height );
+	await page.goto( 'http://boost-history.test/?score-states' );
+	const zeroBadge = page.getByText( '0 points', { exact: true } );
+	await expect( zeroBadge ).toBeVisible();
+	await expect( zeroBadge ).toHaveCSS( 'background-color', 'rgb(255, 255, 255)' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-width', '1px' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-style', 'solid' );
+	await expect( zeroBadge ).toHaveCSS( 'border-top-color', 'rgb(219, 219, 219)' );
 } );
 
 test( 'Score cards show calculating and failed states inside the card', async ( { page } ) => {
@@ -506,6 +689,34 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	const desktop = failedRefresh.getByRole( 'region', { name: 'Desktop', exact: true } );
 	await expect( desktop.getByRole( 'progressbar' ) ).toHaveJSProperty( 'value', 80 );
 	expect( ( await desktop.boundingBox() )!.y ).toBeGreaterThan( notice.y + notice.height );
+} );
+
+test.describe( 'Day details on touch', () => {
+	test.use( { hasTouch: true } );
+
+	test( 'a tap on the open box reaches nothing under it', async ( { page } ) => {
+		expect(
+			await page.evaluate( () => matchMedia( '(hover: none) and (pointer: coarse)' ).matches )
+		).toBe( true );
+		await expectTapStaysOnBox( page, ( x, y ) => page.touchscreen.tap( x, y ) );
+	} );
+} );
+
+test( 'a tap on the open box reaches nothing under it on a touchscreen laptop', async ( {
+	page,
+} ) => {
+	// A fine, hover-capable primary pointer whose taps still arrive as touch.
+	expect(
+		await page.evaluate( () => matchMedia( '(hover: hover) and (pointer: fine)' ).matches )
+	).toBe( true );
+	const session = await page.context().newCDPSession( page );
+	await expectTapStaysOnBox( page, async ( x, y ) => {
+		await session.send( 'Input.dispatchTouchEvent', {
+			type: 'touchStart',
+			touchPoints: [ { x, y } ],
+		} );
+		await session.send( 'Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] } );
+	} );
 } );
 
 test.describe( 'Overall grade help', () => {
@@ -560,3 +771,41 @@ test( 'switches at the narrow breakpoint and pages by the visible number of days
 	await expect( bars ).toHaveCount( 30 );
 	await expect( page.getByText( 'Aug 11 – Sep 9, 2026', { exact: true } ) ).toBeVisible();
 } );
+
+for ( const { width, days } of [
+	{ width: 1280, days: 30 },
+	{ width: 390, days: 15 },
+] ) {
+	test.describe( `first history entry at ${ width }px`, () => {
+		test.afterEach( async ( { page } ) => {
+			if ( process.env.BOOST_HISTORY_EVIDENCE_DIR ) {
+				await page.screenshot( {
+					path: path.join( process.env.BOOST_HISTORY_EVIDENCE_DIR, `first-entry-${ width }.png` ),
+					fullPage: true,
+				} );
+			}
+		} );
+
+		test( `first history entry shows one score per chart at ${ width }px`, async ( { page } ) => {
+			await page.setViewportSize( { width, height: 900 } );
+			await page.goto( 'http://boost-history.test/?firstEntry' );
+			await expect( page.getByText( 'Sep 9, 2026', { exact: true } ) ).toBeVisible();
+			await expect(
+				page.getByRole( 'button', { name: `Previous ${ days } days` } )
+			).toBeDisabled();
+			await expect( page.getByText( /Jetpack Boost premium has been activated/ ) ).toHaveCount( 0 );
+			await expect( page.getByText( /Your scores will be recorded from now on/ ) ).toHaveCount( 0 );
+			for ( const device of [ 'Desktop', 'Mobile' ] ) {
+				const bars = page
+					.getByRole( 'region', { name: `${ device } score history` } )
+					.locator( '.visx-bar' );
+				await expect( bars ).toHaveCount( days );
+				const heights = await bars.evaluateAll( elements =>
+					elements.map( element => element.getBoundingClientRect().height )
+				);
+				expect( heights.filter( height => height === 4 ) ).toHaveLength( days - 1 );
+				expect( heights[ days - 1 ] ).toBeGreaterThan( 4 );
+			}
+		} );
+	} );
+}

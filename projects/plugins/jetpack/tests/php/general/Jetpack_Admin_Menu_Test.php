@@ -99,9 +99,8 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	public function test_jetpack_admin_menu_order() {
 		global $submenu;
 
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
-		$jetpack_react = new Jetpack_React_Page();
-		$jetpack_react->jetpack_add_settings_sub_nav_item();
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-react-page.php';
+		( new Jetpack_Settings_React_Page() )->get_page_hook();
 
 		// Jetpack only inits My Jetpack for admin/cron/POST/CLI requests, none of which
 		// hold under PHPUnit, so register it by hand or it is absent from the menu.
@@ -139,7 +138,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 
 		$this->assertSame( 'my-jetpack', $items[0][2], 'My Jetpack should be pinned to the top of the Jetpack submenu.' );
 
-		$settings_slug = Jetpack::admin_url( array( 'page' => 'jetpack#/settings' ) );
+		$settings_slug = 'jetpack-settings';
 		$settings_at   = array_search( $settings_slug, array_column( $items, 2 ), true );
 
 		$this->assertNotFalse( $settings_at, 'Settings should be registered in the Jetpack submenu.' );
@@ -219,7 +218,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 			'scan-backup'    => array( Admin_Sidebar_Link::instance(), 'maybe_add_admin_link' ),
 			'jetpack-manage' => array( Jetpack_Manage::class, 'add_submenu_jetpack' ),
 			'subscribers'    => array( Jetpack_Subscriptions::init(), 'add_subscribers_menu' ),
-			'settings'       => array( new Jetpack_React_Page(), 'jetpack_add_settings_sub_nav_item' ),
+			'settings'       => array( new Jetpack_Settings_React_Page(), 'get_page_hook' ),
 		);
 	}
 
@@ -231,6 +230,7 @@ class Jetpack_Admin_Menu_Test extends WP_UnitTestCase {
 	 */
 	private function satisfy_conditional_registrar_gates() {
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class.jetpack-react-page.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-settings-react-page.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 		// Only loaded when the Scan module is active, so the autoloader does not reach it here.
 		require_once JETPACK__PLUGIN_DIR . 'modules/scan/class-admin-sidebar-link.php';

@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the unused `dashboards/{name}/default-layout` REST route. Each section carries its default layout in the sections route.

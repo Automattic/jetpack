@@ -22,7 +22,6 @@ import {
 	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
-import { Stack } from '@jetpack-premium-analytics/externals';
 import {
 	decodeDateSearchParam,
 	deriveComparisonRange,
@@ -31,9 +30,13 @@ import {
 	hasPrimaryDateDraft,
 	useStagedValue,
 } from '@jetpack-premium-analytics/routing';
-import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
+import { DateFiltersPanel, type DateControlTriggerProps } from '@jetpack-premium-analytics/ui';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
+/**
+ * Internal dependencies
+ */
+import styles from './report-params-field.module.css';
 import type { DataFormControlProps } from '@jetpack-premium-analytics/externals';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
@@ -51,6 +54,12 @@ type ReportParams = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ]
 
 export type ReportParamsFieldAttributes = {
 	reportParams: ReportParams;
+};
+
+// The host draws a widget's header fields compact.
+const WIDGET_HEADER_TRIGGER_PROPS: DateControlTriggerProps = {
+	size: 'compact',
+	className: styles.trigger,
 };
 
 /**
@@ -325,26 +334,25 @@ function ReportParamsControl( {
 	);
 
 	return (
-		<Stack direction="column" gap="sm">
-			<DateFiltersPanel
-				range={ range }
-				appliedPresetId={ appliedParams.preset }
-				appliedRange={ appliedRange }
-				comparisonPresetId={
-					hasComparisonEnabled( stagedReportParams ) ? stagedReportParams.compare_preset : undefined
-				}
-				onChange={ stageDateRange }
-				onComparisonChange={ changeComparisonRange }
-				onApply={ commit }
-				canApply={ isDateRangeDirty }
-				onCancel={ revert }
-				timeZone={ reportingTimeZone() }
-				presetIds={ presetIds }
-				withIntervalControl={ withIntervalControl }
-				interval={ interval }
-				intervalOptions={ intervalOptions }
-				onIntervalChange={ changeInterval }
-			/>
-		</Stack>
+		<DateFiltersPanel
+			range={ range }
+			appliedPresetId={ appliedParams.preset }
+			appliedRange={ appliedRange }
+			comparisonPresetId={
+				hasComparisonEnabled( stagedReportParams ) ? stagedReportParams.compare_preset : undefined
+			}
+			onChange={ stageDateRange }
+			onComparisonChange={ changeComparisonRange }
+			onApply={ commit }
+			canApply={ isDateRangeDirty }
+			onCancel={ revert }
+			timeZone={ reportingTimeZone() }
+			triggerProps={ WIDGET_HEADER_TRIGGER_PROPS }
+			presetIds={ presetIds }
+			withIntervalControl={ withIntervalControl }
+			interval={ interval }
+			intervalOptions={ intervalOptions }
+			onIntervalChange={ changeInterval }
+		/>
 	);
 }

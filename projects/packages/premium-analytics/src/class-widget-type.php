@@ -146,6 +146,26 @@ class Widget_Type {
 	public $keywords = null;
 
 	/**
+	 * Text domain the widget's metadata strings and built bundles are registered under.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	public $textdomain = null;
+
+	/**
+	 * URL of the i18n manifest of the build that serves the widget's modules, for the client to
+	 * load their translation catalogs from. Empty for a build whose init module runs on the
+	 * dashboard page, which is the package's own.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	public $i18n_manifest = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $name Widget type name including namespace.

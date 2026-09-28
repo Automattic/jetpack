@@ -1,0 +1,122 @@
+{
+	"_comment": "Cases shared by the JS and PHP tests. `card` is the expected card markup, or null for no card.",
+	"cases": [
+		{
+			"name": "leaves the card out for a new block",
+			"attributes": {},
+			"card": null
+		},
+		{
+			"name": "leaves the card out for a blank name and description",
+			"attributes": {
+				"productName": "  ",
+				"productDescription": " "
+			},
+			"card": null
+		},
+		{
+			"name": "leaves the card out for an image alone",
+			"attributes": {
+				"imageUrl": "https://example.com/widget.jpg"
+			},
+			"card": null
+		},
+		{
+			"name": "shows a name alone",
+			"attributes": {
+				"productName": "Widget"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"><span class=\"jetpack-paypal-button__product-name\">Widget</span></div></div>"
+		},
+		{
+			"name": "shows a description alone",
+			"attributes": {
+				"productDescription": "Hand made"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"><span class=\"jetpack-paypal-button__product-description\">Hand made</span></div></div>"
+		},
+		{
+			"name": "shows a description of 0",
+			"attributes": {
+				"productDescription": "0"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"><span class=\"jetpack-paypal-button__product-description\">0</span></div></div>"
+		},
+		{
+			"name": "shows a price alone",
+			"attributes": {
+				"price": "10.00"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows a price of 0",
+			"attributes": {
+				"price": "0"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">$0</span></div>"
+		},
+		{
+			"name": "shows the lowest option price when options are priced",
+			"attributes": {
+				"variantsEnabled": true,
+				"variants": {
+					"dimensions": [
+						{
+							"name": "Size",
+							"primary": true,
+							"options": [
+								{
+									"label": "S",
+									"unit_amount": {
+										"value": "12"
+									}
+								},
+								{
+									"label": "L",
+									"unit_amount": {
+										"value": "9"
+									}
+								}
+							]
+						}
+					]
+				}
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"></div><span class=\"jetpack-paypal-button__product-price\">From $9</span></div>"
+		},
+		{
+			"name": "leaves the card out for a blank price",
+			"attributes": {
+				"price": "  "
+			},
+			"card": null
+		},
+		{
+			"name": "shows a name of 0",
+			"attributes": {
+				"productName": "0"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"><span class=\"jetpack-paypal-button__product-name\">0</span></div></div>"
+		},
+		{
+			"name": "trims spaces around the name, description and price",
+			"attributes": {
+				"productName": " Widget ",
+				"productDescription": " Hand made ",
+				"price": " 10.00 "
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"><span class=\"jetpack-paypal-button__product-name\">Widget</span><span class=\"jetpack-paypal-button__product-description\">Hand made</span></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		},
+		{
+			"name": "shows name, description and price, with the image outside the card",
+			"attributes": {
+				"productName": "Widget",
+				"productDescription": "Hand made",
+				"price": "10.00",
+				"imageUrl": "https://example.com/widget.jpg"
+			},
+			"card": "<div class=\"jetpack-paypal-button__product\"><div class=\"jetpack-paypal-button__product-info\"><span class=\"jetpack-paypal-button__product-name\">Widget</span><span class=\"jetpack-paypal-button__product-description\">Hand made</span></div><span class=\"jetpack-paypal-button__product-price\">$10.00</span></div>"
+		}
+	]
+}
