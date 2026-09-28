@@ -66,6 +66,7 @@ class Block_Editor_Content {
 		$defaults = array(
 			'w'               => 640,   // Width of the video player, in pixels
 			'h'               => 0,     // Height of the video player, in pixels
+			'videoratio'      => 56.25, // Height as a percentage of width when no height is provided.
 			'at'              => 0,     // How many seconds in to initially seek to
 			'loop'            => false, // Whether to loop the video repeatedly
 			'autoplay'        => false, // Whether to autoplay the video on load
@@ -114,8 +115,9 @@ class Block_Editor_Content {
 
 		$width = absint( $atts['w'] );
 		if ( ! $atts['h'] ) {
-			$aspect_ratio = 16 / 9; // TODO: Get the correct aspect ratio for the video.
-			$height       = $width / $aspect_ratio;
+			$ratio  = $atts['videoratio'];
+			$ratio  = is_numeric( $ratio ) && is_finite( (float) $ratio ) && $ratio > 0 ? (float) $ratio : 56.25;
+			$height = $width * $ratio / 100;
 		} else {
 			$height = absint( $atts['h'] );
 		}
@@ -257,6 +259,9 @@ class Block_Editor_Content {
 			// height is ignored on jetpack video block, so we don't pass it for consistency.
 			if ( isset( $attr['width'] ) ) {
 				$videopress_atts['w'] = (int) $attr['width'];
+			}
+			if ( isset( $attr['videoRatio'] ) ) {
+				$videopress_atts['videoratio'] = $attr['videoRatio'];
 			}
 			if ( isset( $attr['muted'] ) ) {
 				$videopress_atts['muted'] = $attr['muted'];

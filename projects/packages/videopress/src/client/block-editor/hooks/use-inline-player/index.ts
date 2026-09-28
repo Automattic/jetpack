@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { observeVideoRatio } from '../../../lib/inline-player/dimensions';
 import { ensurePlayer, releasePlayerId } from '../../../lib/inline-player/loader';
 /**
  * Types
@@ -21,6 +22,8 @@ export type UseInlinePlayerOptions = {
 	options: PlayerOptions;
 	/** Where the bundle lives; nothing mounts without it. */
 	config?: InlinePlayerConfig | null;
+	/** Receives the video's height-to-width percentage as its shape becomes known. */
+	onVideoRatioChange?: ( ratio: number ) => void;
 	/** Time, in ms, to park the player at after its first play when previewing on hover. */
 	initialTimePosition?: number;
 	/** Element whose hover plays and pauses the preview loop. */
@@ -60,6 +63,7 @@ export function getInlinePlayerConfig(): InlinePlayerConfig | null {
  * @param settings.guid                - The video to mount; nothing mounts without it.
  * @param settings.options             - Options for `videopress()`; the player remounts when they change.
  * @param settings.config              - Where the bundle lives; nothing mounts without it.
+ * @param settings.onVideoRatioChange  - Receives the intrinsic height-to-width percentage.
  * @param settings.initialTimePosition - Time, in ms, to park the player at after its first play when previewing on hover.
  * @param settings.wrapperElement      - Element whose hover plays and pauses the preview loop.
  * @param settings.previewOnHover      - Preview-on-hover loop, in ms.
@@ -71,6 +75,7 @@ export default function useInlinePlayer(
 		guid,
 		options,
 		config,
+		onVideoRatioChange,
 		initialTimePosition,
 		wrapperElement,
 		previewOnHover,
@@ -82,6 +87,8 @@ export default function useInlinePlayer(
 	// The subscriptions are bound once per mount; they read the latest preview settings from here.
 	const previewRef = useRef( { initialTimePosition, previewOnHover } );
 	previewRef.current = { initialTimePosition, previewOnHover };
+	const ratioCallback = useRef( onVideoRatioChange );
+	ratioCallback.current = onVideoRatioChange;
 
 	const optionsKey = JSON.stringify( options );
 	const script = config?.script;
@@ -94,6 +101,7 @@ export default function useInlinePlayer(
 
 		let cancelled = false;
 		let hasPlayed = false;
+		let stopObservingRatio: ( () => void ) | undefined;
 		setIsLoaded( false );
 		setPlayerIsReady( false );
 
@@ -116,6 +124,10 @@ export default function useInlinePlayer(
 				handleRef.current = handle;
 
 				const api = handle.api;
+				stopObservingRatio = observeVideoRatio( api, ratio => {
+					container.style.aspectRatio = `100 / ${ ratio }`;
+					ratioCallback.current?.( ratio );
+				} );
 				if ( ! api ) {
 					setIsLoaded( true );
 					setPlayerIsReady( true );
@@ -156,6 +168,7 @@ export default function useInlinePlayer(
 
 		return () => {
 			cancelled = true;
+			stopObservingRatio?.();
 			handleRef.current?.destroy();
 			handleRef.current = null;
 			container.replaceChildren();

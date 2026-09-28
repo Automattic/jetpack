@@ -6,6 +6,7 @@
  * of videos costs no player script until someone presses play.
  */
 
+import { observeVideoRatio } from './dimensions';
 import { ensurePlayer, parsePlaceholderOptions, releasePlayerId } from './loader';
 import { resolvePoster } from './poster';
 import type { PlayerFactory, PlayerOptions } from './loader';
@@ -74,12 +75,15 @@ function mount(
 
 	const guid = placeholder.dataset.videopressGuid as string;
 	releasePlayerId( guid, placeholder );
-	videopress( guid, placeholder, {
+	const handle = videopress( guid, placeholder, {
 		width: placeholder.offsetWidth,
 		height: placeholder.offsetHeight,
 		fill: true,
 		...parsePlaceholderOptions( placeholder.dataset.videopressOptions ),
 		...extra,
+	} );
+	observeVideoRatio( handle?.api, ratio => {
+		placeholder.style.aspectRatio = `100 / ${ ratio }`;
 	} );
 	return true;
 }

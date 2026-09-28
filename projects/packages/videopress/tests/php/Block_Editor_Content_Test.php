@@ -24,6 +24,60 @@ use WorDBless\BaseTestCase;
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class Block_Editor_Content_Test extends BaseTestCase {
+	/** Uses the supplied height-to-width percentage when no height is set. */
+	public function test_shortcode_uses_video_ratio() {
+		$html = Block_Editor_Content::videopress_embed_shortcode(
+			array(
+				'abcDEF12',
+				'w'          => 360,
+				'videoratio' => 160,
+			)
+		);
+		$this->assertStringContainsString( 'width="360"', $html );
+		$this->assertStringContainsString( 'height="576"', $html );
+	}
+
+	/** Keeps an explicit height ahead of the inferred ratio. */
+	public function test_shortcode_preserves_explicit_height() {
+		$html = Block_Editor_Content::videopress_embed_shortcode(
+			array(
+				'abcDEF12',
+				'w'          => 360,
+				'h'          => 200,
+				'videoratio' => 160,
+			)
+		);
+		$this->assertStringContainsString( 'height="200"', $html );
+	}
+
+	/** Falls back to 16:9 when the ratio is invalid. */
+	public function test_shortcode_rejects_invalid_ratios() {
+		foreach ( array( null, 0, -10, 'invalid', INF, array( 100 ) ) as $ratio ) {
+			$html = Block_Editor_Content::videopress_embed_shortcode(
+				array(
+					'abcDEF12',
+					'w'          => 640,
+					'videoratio' => $ratio,
+				)
+			);
+			$this->assertStringContainsString( 'height="360"', $html );
+		}
+	}
+
+	/** Passes videoRatio through the core video shortcode adapter. */
+	public function test_video_shortcode_passes_video_ratio() {
+		$html = Block_Editor_Content::video_shortcode_override(
+			'',
+			array(
+				'videopress_guid' => 'abcDEF12',
+				'width'           => 400,
+				'videoRatio'      => 150,
+			),
+			'',
+			0
+		);
+		$this->assertStringContainsString( 'height="600"', $html );
+	}
 
 	/**
 	 * Set up before each test.

@@ -19,6 +19,36 @@ use WorDBless\BaseTestCase;
  * Test suite for oEmbed fallback and self-healing behavior.
  */
 class Initializer_Test extends BaseTestCase {
+	/** Keeps portrait and square shapes while falling back safely for invalid ratios. */
+	public function test_fallback_iframe_uses_saved_video_ratio() {
+		foreach ( array( array( 150, 960 ), array( 100, 640 ), array( 0, 360 ), array( -10, 360 ), array( 'invalid', 360 ), array( INF, 360 ) ) as $case ) {
+			$html = $this->render( array( 'videoRatio' => $case[0] ) );
+			$this->assertStringContainsString( 'height="' . $case[1] . '"', $html );
+		}
+	}
+
+	/** Corrects the cached oEmbed shape without changing its width or player options. */
+	public function test_saved_video_ratio_overrides_cached_oembed_shape() {
+		$embed = function () {
+			return '<iframe src="https://videopress.com/embed/testGUID1" width="400" height="225" allowfullscreen></iframe>';
+		};
+		add_filter( 'pre_oembed_result', $embed );
+		try {
+			$html = VideoPress_Initializer::render_videopress_video_block(
+				array(
+					'guid'       => 'testGUID1',
+					'videoRatio' => 150,
+				),
+				'',
+				new \WP_Block( array( 'blockName' => 'videopress/video' ) )
+			);
+			$this->assertStringContainsString( 'width="400"', $html );
+			$this->assertStringContainsString( 'height="600"', $html );
+			$this->assertStringContainsString( 'allowfullscreen', $html );
+		} finally {
+			remove_filter( 'pre_oembed_result', $embed );
+		}
+	}
 
 	/**
 	 * Default block attributes with a valid GUID.

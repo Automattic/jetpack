@@ -85,6 +85,38 @@ describe( 'getInlinePlayerConfig', () => {
 } );
 
 describe( 'useInlinePlayer', () => {
+	it( 'updates the editor wrapper and stops observing when it unmounts', async () => {
+		const onVideoRatioChange = jest.fn();
+		let dimensionsChanged: ( dimensions: { width: number; height: number } ) => void;
+		const info = {
+			dimensions: () => Promise.resolve( { width: 1920, height: 1080 } ),
+			onDimensionsChanged: ( cb: typeof dimensionsChanged ) => {
+				dimensionsChanged = cb;
+				return 'dimensions';
+			},
+			offDimensionsChanged: jest.fn(),
+		};
+		factory.mockImplementation( () => {
+			const player = createFakePlayer();
+			player.api.info = info;
+			return player.handle;
+		} );
+		const { unmount } = renderHook( () =>
+			useInlinePlayer( containerRef, {
+				guid: 'abcDEF12',
+				options: {},
+				config: CONFIG,
+				onVideoRatioChange,
+			} )
+		);
+		await flush();
+		expect( container ).toHaveStyle( { aspectRatio: '100 / 56.25' } );
+		act( () => dimensionsChanged( { width: 1080, height: 1920 } ) );
+		expect( onVideoRatioChange ).toHaveBeenLastCalledWith( ( 1920 / 1080 ) * 100 );
+		expect( container ).toHaveStyle( { aspectRatio: `100 / ${ ( 1920 / 1080 ) * 100 }` } );
+		unmount();
+		expect( info.offDimensionsChanged ).toHaveBeenCalledWith( 'dimensions' );
+	} );
 	it( 'mounts the player into the container with the given options', async () => {
 		const { result } = renderHook( () =>
 			useInlinePlayer( containerRef, {

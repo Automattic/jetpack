@@ -100,6 +100,26 @@ describe( 'mountInlinePlayers', () => {
 		window.videopress = factory;
 	} );
 
+	it( 'updates only its own wrapper from the mounted API, including repeated GUIDs', async () => {
+		const listeners: Array< ( dimensions: { width: number; height: number } ) => void > = [];
+		factory.mockImplementation( () => ( {
+			api: {
+				info: {
+					dimensions: () => Promise.resolve( { width: 1920, height: 1080 } ),
+					onDimensionsChanged: ( cb: ( typeof listeners )[ number ] ) => listeners.push( cb ),
+				},
+			},
+		} ) );
+		const first = placeholder( 'abcDEF12' );
+		const second = placeholder( 'abcDEF12' );
+		mountInlinePlayers();
+		await settle();
+		expect( first ).toHaveStyle( { aspectRatio: '100 / 56.25' } );
+		listeners[ 0 ]( { width: 1080, height: 1920 } );
+		expect( first ).toHaveStyle( { aspectRatio: `100 / ${ ( 1920 / 1080 ) * 100 }` } );
+		expect( second ).toHaveStyle( { aspectRatio: '100 / 56.25' } );
+	} );
+
 	it( 'mounts one player per eager placeholder with its options', () => {
 		const first = placeholder( 'abcDEF12', '{"muted":true}' );
 		const second = placeholder( 'ghiJKL34' );

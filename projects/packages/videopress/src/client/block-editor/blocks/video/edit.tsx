@@ -226,20 +226,32 @@ export default function VideoPressEdit( {
 
 	const html = previewHtml || cacheHtml;
 
-	// Store the video ratio to define the initial height of the video.
-	useEffect( () => {
-		if ( ! previewWidth || ! previewHeight ) {
-			return;
-		}
+	const [ reportedVideoRatio, setReportedVideoRatio ] = useState< {
+		guid: string;
+		ratio: number;
+	} >();
+	const onVideoRatioChange = useCallback(
+		( ratio: number ) => {
+			setReportedVideoRatio( current =>
+				current?.guid === guid && current.ratio === ratio ? current : { guid, ratio }
+			);
+		},
+		[ guid ]
+	);
 
-		const ratio = ( previewHeight / previewWidth ) * 100;
-		if ( ratio === videoRatio ) {
+	// Player dimensions take precedence over the cached oEmbed preview for this GUID.
+	useEffect( () => {
+		let ratio = previewWidth && previewHeight ? ( previewHeight / previewWidth ) * 100 : null;
+		if ( reportedVideoRatio?.guid === guid ) {
+			ratio = reportedVideoRatio.ratio;
+		}
+		if ( ! ratio || ratio === videoRatio ) {
 			return;
 		}
 
 		__unstableMarkNextChangeAsNotPersistent();
 		setAttributes( { videoRatio: ratio } );
-	}, [ videoRatio, previewWidth, previewHeight, setAttributes ] );
+	}, [ guid, reportedVideoRatio, videoRatio, previewWidth, previewHeight, setAttributes ] );
 
 	// Helper to invalidate the preview cache.
 	const invalidateResolution = useDispatch( coreStore ).invalidateResolution;
@@ -670,6 +682,7 @@ export default function VideoPressEdit( {
 			/>
 
 			<Player
+				onVideoRatioChange={ onVideoRatioChange }
 				showCaption={ showCaption }
 				html={ html }
 				isRequestingEmbedPreview={ isRequestingEmbedPreview }

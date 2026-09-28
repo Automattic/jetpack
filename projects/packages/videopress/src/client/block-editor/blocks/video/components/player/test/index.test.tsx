@@ -86,6 +86,7 @@ jest.mock( '@wordpress/components', () => {
 } );
 
 const baseAttributes: VideoBlockAttributes = {
+	guid: 'abcDEF12',
 	videoRatio: 100,
 	autoplay: true,
 	align: 'center',
@@ -143,6 +144,71 @@ function renderCapturingErrors( element: React.ReactElement ) {
 }
 
 describe( 'Player', () => {
+	describe( 'intrinsic dimensions', () => {
+		it( 'reports a valid shape from its own player', () => {
+			const onVideoRatioChange = jest.fn();
+			render( <Player { ...defaultProps } onVideoRatioChange={ onVideoRatioChange } /> );
+			act( () =>
+				window.dispatchEvent(
+					new MessageEvent( 'message', {
+						origin: 'https://videopress.com',
+						source: window,
+						data: {
+							event: 'videopress_dimensionschange',
+							id: 'abcDEF12',
+							width: 1080,
+							height: 1920,
+						},
+					} )
+				)
+			);
+			expect( onVideoRatioChange ).toHaveBeenCalledWith( ( 1920 / 1080 ) * 100 );
+		} );
+
+		it.each( [ { id: 'other123' }, { width: 0 }, { height: '1920' } ] )(
+			'ignores unrelated or invalid dimensions: %p',
+			data => {
+				const onVideoRatioChange = jest.fn();
+				render( <Player { ...defaultProps } onVideoRatioChange={ onVideoRatioChange } /> );
+				act( () =>
+					window.dispatchEvent(
+						new MessageEvent( 'message', {
+							origin: 'https://videopress.com',
+							source: window,
+							data: {
+								event: 'videopress_dimensionschange',
+								id: 'abcDEF12',
+								width: 1080,
+								height: 1920,
+								...data,
+							},
+						} )
+					)
+				);
+				expect( onVideoRatioChange ).not.toHaveBeenCalled();
+			}
+		);
+
+		it( 'rejects dimensions from another window or origin', () => {
+			const onVideoRatioChange = jest.fn();
+			render( <Player { ...defaultProps } onVideoRatioChange={ onVideoRatioChange } /> );
+			const data = {
+				event: 'videopress_dimensionschange',
+				id: 'abcDEF12',
+				width: 1080,
+				height: 1920,
+			};
+			act( () => {
+				window.dispatchEvent(
+					new MessageEvent( 'message', { origin: 'https://evil.test', source: window, data } )
+				);
+				window.dispatchEvent(
+					new MessageEvent( 'message', { origin: 'https://videopress.com', source: null, data } )
+				);
+			} );
+			expect( onVideoRatioChange ).not.toHaveBeenCalled();
+		} );
+	} );
 	it( 'should render', () => {
 		render( <Player { ...defaultProps } /> );
 

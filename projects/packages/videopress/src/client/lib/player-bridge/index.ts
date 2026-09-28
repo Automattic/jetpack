@@ -22,6 +22,7 @@ const VIDEOPRESS_ALLOWED_LISTENING_EVENTS = [
 	'videopress_ended',
 	'videopress_timeupdate',
 	'videopress_durationchange',
+	'videopress_dimensionschange',
 	'videopress_progress',
 	'videopress_loading_state',
 	'videopress_toggle_fullscreen',
@@ -32,6 +33,7 @@ const VIDEOPRESS_ALLOWED_EMITTING_EVENTS = [
 	'videopress_action_pause',
 	'videopress_action_set_currenttime',
 	'videopress_action_set_volume',
+	'videopress_get_dimensions',
 ] as const;
 
 type PlayerBrigeEventProps = {

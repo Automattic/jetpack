@@ -449,6 +449,8 @@ class Initializer {
 
 		$video_wrapper         = '';
 		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
+		$video_ratio           = $block_attributes['videoRatio'] ?? null;
+		$video_ratio           = is_numeric( $video_ratio ) && is_finite( (float) $video_ratio ) && $video_ratio > 0 ? (float) $video_ratio : null;
 
 		// Preview on hover drives the player through the iframe API, so it keeps the iframe.
 		if ( $guid && ! $is_poh_enabled && Inline_Player::is_enabled() ) {
@@ -458,7 +460,7 @@ class Initializer {
 				Inline_Player::render(
 					$guid,
 					Inline_Player::get_player_options( $block_attributes ),
-					$block_attributes['videoRatio'] ?? null,
+					$video_ratio,
 					array(
 						'poster' => Inline_Player::get_poster_url( $guid, $block_attributes ),
 						'title'  => $block_attributes['title'] ?? '',
@@ -473,22 +475,35 @@ class Initializer {
 			 * when the VideoPress backend isn't ready for a freshly uploaded video.
 			 * This prevents the published page from showing a bare link.
 			 */
-			$fallback = function ( $output, $url ) use ( $videopress_url ) {
+			$fallback = function ( $output, $url ) use ( $videopress_url, $video_ratio ) {
 				$decoded_url = html_entity_decode( $videopress_url, ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401 );
 				if ( $decoded_url !== $url ) {
 					return $output;
 				}
 
 				return sprintf(
-					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="360" allowfullscreen data-resize-to-parent="true" allow="clipboard-write; presentation"></iframe>',
+					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="%3$s" allowfullscreen data-resize-to-parent="true" allow="clipboard-write; presentation"></iframe>',
 					esc_attr__( 'VideoPress Video Player', 'jetpack-videopress-pkg' ),
-					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) )
+					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) ),
+					esc_attr( 640 * ( $video_ratio ?? 56.25 ) / 100 )
 				);
 			};
 
 			add_filter( 'embed_maybe_make_link', $fallback, 10, 2 );
 			$oembed_html = apply_filters( 'video_embed_html', $wp_embed->shortcode( array(), $videopress_url ) );
 			remove_filter( 'embed_maybe_make_link', $fallback );
+
+			// Use the saved shape immediately, including when oEmbed still has old dimensions.
+			if ( null !== $video_ratio ) {
+				$processor = new \WP_HTML_Tag_Processor( $oembed_html );
+				if ( $processor->next_tag( 'IFRAME' ) ) {
+					$width = $processor->get_attribute( 'width' );
+					if ( is_numeric( $width ) && is_finite( (float) $width ) && $width > 0 ) {
+						$processor->set_attribute( 'height', (float) $width * $video_ratio / 100 );
+						$oembed_html = $processor->get_updated_html();
+					}
+				}
+			}
 
 			$video_wrapper = sprintf(
 				'<div class="%s">%s %s</div>',

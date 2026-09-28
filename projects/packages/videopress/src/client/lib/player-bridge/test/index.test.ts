@@ -49,6 +49,17 @@ describe( 'playerBridgeHandler', () => {
 	} );
 
 	describe( 'listening path (player -> editor)', () => {
+		it( 'relays the dimensions payload from the player', async () => {
+			const data = {
+				event: 'videopress_dimensionschange',
+				id: 'abcDEF12',
+				width: 1080,
+				height: 1920,
+				source: 'info',
+			};
+			await playerBridgeHandler( createMessageEvent( { data } ) );
+			expect( mockTopPostMessage ).toHaveBeenCalledWith( data, '*' );
+		} );
 		it( 'relays allowed events from valid origins to window.top', async () => {
 			const event = createMessageEvent( {
 				data: { event: 'videopress_playing' },
@@ -96,6 +107,18 @@ describe( 'playerBridgeHandler', () => {
 	} );
 
 	describe( 'emitting path (editor -> player)', () => {
+		it( 'forwards a late dimensions request to the player', async () => {
+			await playerBridgeHandler(
+				createMessageEvent( {
+					data: { event: 'videopress_get_dimensions' },
+					origin: 'https://example.com',
+				} )
+			);
+			expect( mockIframePostMessage ).toHaveBeenCalledWith(
+				{ event: 'videopress_get_dimensions' },
+				'*'
+			);
+		} );
 		it( 'forwards allowed action events to iframe', async () => {
 			const event = createMessageEvent( {
 				data: { event: 'videopress_action_play' },

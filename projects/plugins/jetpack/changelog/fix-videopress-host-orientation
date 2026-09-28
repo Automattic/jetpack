@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Size video embeds using their saved and intrinsic aspect ratios.

@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
+import { getVideoRatio } from '../../../../../lib/inline-player/dimensions';
 import { getInlinePlayerOptions } from '../../../../../lib/inline-player/options';
 import { isAllowedOrigin } from '../../../../../lib/videopress-allowed-origins';
 import useInlinePlayer, { getInlinePlayerConfig } from '../../../../hooks/use-inline-player';
@@ -74,6 +75,7 @@ export default function Player( {
 	setAttributes,
 	preview,
 	isRequestingEmbedPreview,
+	onVideoRatioChange,
 }: PlayerProps ): ReactElement {
 	const mainWrapperRef = useRef< HTMLDivElement >();
 	const videoWrapperRef = useRef< HTMLDivElement >();
@@ -167,29 +169,55 @@ export default function Player( {
 	 * Function handler that listen to the `message` event
 	 * provided by the videopress player through the bridge.
 	 */
-	const videoPlayerEventsHandler = useCallback( ( ev: MessageEvent ) => {
-		if ( ! isAllowedOrigin( ev.origin ) ) {
-			return;
-		}
-
-		const { data: eventData } = ev || {};
-		const { event: eventName } = eventData;
-		if ( eventName === 'videopress_loading_state' ) {
-			setIsVideoPlayerLoaded( eventData?.state === 'loaded' );
-		}
-	}, [] );
+	const videoPlayerEventsHandler = useCallback(
+		( ev: MessageEvent ) => {
+			if ( ! isAllowedOrigin( ev.origin ) || ! ev.data ) {
+				return;
+			}
+			const { data: eventData } = ev;
+			if ( eventData.event === 'videopress_loading_state' ) {
+				setIsVideoPlayerLoaded( eventData.state === 'loaded' );
+			}
+			if ( eventData.event === 'videopress_dimensionschange' ) {
+				const playerFrame =
+					getIframeWindowFromRef( videoWrapperRef )?.document.querySelector( 'iframe' );
+				if (
+					! playerFrame ||
+					ev.source !== playerFrame.contentWindow ||
+					eventData.id !== attributes.guid
+				) {
+					return;
+				}
+				const ratio = getVideoRatio( eventData );
+				if ( ratio !== null ) {
+					onVideoRatioChange?.( ratio );
+				}
+			}
+		},
+		[ attributes.guid, onVideoRatioChange ]
+	);
 
 	useEffect( () => {
 		const iFrameContentWindow = getIframeWindowFromRef( videoWrapperRef );
-		if ( ! iFrameContentWindow || isRequestingEmbedPreview ) {
+		if ( ! iFrameContentWindow || isRequestingEmbedPreview || isInline ) {
 			return;
 		}
 
 		// Listen to the `message` event.
 		iFrameContentWindow.addEventListener( 'message', videoPlayerEventsHandler );
+		const requestDimensions = () => {
+			iFrameContentWindow.document
+				.querySelector( 'iframe' )
+				?.contentWindow?.postMessage( { event: 'videopress_get_dimensions' }, '*' );
+		};
+		iFrameContentWindow.addEventListener( 'load', requestDimensions, true );
+		requestDimensions();
 
-		return () => iFrameContentWindow?.removeEventListener( 'message', videoPlayerEventsHandler );
-	}, [ videoWrapperRef, isRequestingEmbedPreview ] );
+		return () => {
+			iFrameContentWindow.removeEventListener( 'message', videoPlayerEventsHandler );
+			iFrameContentWindow.removeEventListener( 'load', requestDimensions, true );
+		};
+	}, [ isRequestingEmbedPreview, isInline, html, videoPlayerEventsHandler ] );
 
 	const { atTime, previewOnHover, previewAtTime, previewLoopDuration, type } =
 		attributes.posterData;
@@ -220,6 +248,7 @@ export default function Player( {
 	const { isLoaded: isInlinePlayerLoaded } = useInlinePlayer( inlinePlayerRef, {
 		guid: isInline ? attributes.guid : undefined,
 		config: inlinePlayerConfig,
+		onVideoRatioChange,
 		// Preview on hover needs the player playing to take control, as the embed URL does.
 		options: getInlinePlayerOptions(
 			{

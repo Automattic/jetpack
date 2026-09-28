@@ -10,6 +10,13 @@ export const PLAYER_ID_PREFIX = 'videopress-player-';
 export type PlayerOptions = Record< string, unknown >;
 export type PlayerStatus = 'loading' | 'ready' | 'playing' | 'pause' | 'ended' | 'stalled';
 export type PlayerApi = {
+	info?: {
+		dimensions: () => Promise< { width: number; height: number } | null >;
+		onDimensionsChanged: (
+			callback: ( dimensions: { width: number; height: number } ) => void
+		) => string;
+		offDimensionsChanged: ( id: string ) => void;
+	};
 	controls: {
 		play: () => Promise< unknown >;
 		pause: () => Promise< unknown >;

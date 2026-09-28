@@ -11,4 +11,5 @@ export type PlayerProps = {
 	setAttributes: ( attributes: VideoBlockAttributes ) => void;
 	preview: VideoPreviewProps;
 	isRequestingEmbedPreview: boolean;
+	onVideoRatioChange?: ( ratio: number ) => void;
 };
