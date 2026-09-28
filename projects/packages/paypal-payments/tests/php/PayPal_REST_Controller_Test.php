@@ -41,6 +41,13 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
 		delete_option( 'jetpack_private_options' );
 		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'master_user' );
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		\Jetpack_Options::delete_option( 'tos_agreed' );
+		delete_option( PayPal_Webhooks::OPTION_KEY );
+		delete_transient( PayPal_Webhooks::RETRY_LOCK_TRANSIENT );
+		delete_transient( PayPal_Webhooks::SEEN_EVENT_TRANSIENT_PREFIX . md5( 'WH-EVENT-1' ) );
+		remove_all_filters( 'rest_url' );
 		Constants::clear_constants();
 
 		// Remove any HTTP request filters.
@@ -60,6 +67,87 @@ class PayPal_REST_Controller_Test extends TestCase {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		( new Tokens() )->update_blog_token( 'test.blogtoken' );
 		\Jetpack_Options::update_option( 'id', 1234 );
+	}
+
+	/**
+	 * Serve the REST API over HTTPS, which PayPal requires of a webhook listener.
+	 */
+	private function serve_rest_over_https() {
+		add_filter(
+			'rest_url',
+			function ( $url ) {
+				return preg_replace( '#^http://#', 'https://', $url );
+			}
+		);
+	}
+
+	/**
+	 * Connect an admin as the connection owner, so webhook events have someone to go to.
+	 */
+	private function set_up_connection_owner() {
+		$user_id = self::factory_create_admin_user();
+		( new Tokens() )->update_user_token( $user_id, 'token.secret.' . $user_id, true );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'tos_agreed', true );
+	}
+
+	/**
+	 * A signed PayPal notification request for the webhook route.
+	 *
+	 * @param array $event The notification body.
+	 * @return \WP_REST_Request
+	 */
+	private function webhook_request( array $event ) {
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/webhook' );
+		$request->set_header( 'Content-Type', 'application/json' );
+		$request->set_header( 'PAYPAL-AUTH-ALGO', 'SHA256withRSA' );
+		$request->set_header( 'PAYPAL-CERT-URL', 'https://api.sandbox.paypal.com/v1/notifications/certs/CERT-1' );
+		$request->set_header( 'PAYPAL-TRANSMISSION-ID', 'TRANSMISSION-1' );
+		$request->set_header( 'PAYPAL-TRANSMISSION-SIG', 'c2ln' );
+		$request->set_header( 'PAYPAL-TRANSMISSION-TIME', '2026-09-28T10:00:00Z' );
+		$request->set_body( wp_json_encode( $event, JSON_UNESCAPED_SLASHES ) );
+
+		return $request;
+	}
+
+	/**
+	 * A PAYMENT.CAPTURE.COMPLETED notification.
+	 *
+	 * @return array
+	 */
+	private function capture_completed_event() {
+		return array(
+			'id'         => 'WH-EVENT-1',
+			'event_type' => 'PAYMENT.CAPTURE.COMPLETED',
+			'resource'   => array(
+				'id'     => 'CAPTURE999',
+				'status' => 'COMPLETED',
+				'amount' => array(
+					'currency_code' => 'USD',
+					'value'         => '30.00',
+				),
+			),
+		);
+	}
+
+	/**
+	 * The Tracks events among the collected requests, as the pixel's query parameters.
+	 *
+	 * @param array $requests Requests collected by mock_http_routes().
+	 * @return array[]
+	 */
+	private function tracks_events( array $requests ) {
+		$events = array();
+		foreach ( $requests as $request ) {
+			if ( false === strpos( $request['url'], 'pixel.wp.com' ) ) {
+				continue;
+			}
+			$query = array();
+			parse_str( (string) wp_parse_url( $request['url'], PHP_URL_QUERY ), $query );
+			$events[] = $query;
+		}
+
+		return $events;
 	}
 
 	/**
@@ -491,6 +579,177 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertEquals( 201, $result->get_status() );
 		$data = $result->get_data();
 		$this->assertEquals( 'PLB-CREATED123', $data['id'] );
+	}
+
+	public function test_webhook_route_is_open_to_paypal() {
+		wp_set_current_user( 0 );
+		add_action( 'rest_api_init', array( PayPal_REST_Controller::class, 'register_routes' ) );
+		$routes = rest_get_server()->get_routes( 'wpcom/v2' );
+
+		$this->assertArrayHasKey( '/wpcom/v2/paypal/webhook', $routes );
+		$this->assertSame( '__return_true', $routes['/wpcom/v2/paypal/webhook'][0]['permission_callback'] );
+	}
+
+	public function test_connect_registers_the_webhook() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->serve_rest_over_https();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'good_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'items' => array() ) ),
+				'/v1/notifications/webhooks'     => $this->http_response( 201, array( 'id' => 'WH-123' ) ),
+			),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
+		$request->set_param( 'client_id', 'live_client_id' );
+		$request->set_param( 'client_secret', 'live_client_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( 'WH-123', PayPal_Webhooks::get_registered()['id'] );
+		$this->assertStringEndsWith( '/v1/notifications/webhooks', end( $requests )['url'] );
+	}
+
+	public function test_connect_survives_a_webhook_paypal_will_not_register() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->serve_rest_over_https();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'good_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'items' => array() ) ),
+				'/v1/notifications/webhooks'     => $this->http_response( 400, array( 'name' => 'WEBHOOK_NUMBER_LIMIT_EXCEEDED' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
+		$request->set_param( 'client_id', 'live_client_id' );
+		$request->set_param( 'client_secret', 'live_client_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertTrue( $result->get_data()['connected'] );
+		$this->assertNull( PayPal_Webhooks::get_registered() );
+	}
+
+	public function test_connection_status_registers_a_missing_webhook() {
+		$this->set_up_connected_admin_state();
+		$this->serve_rest_over_https();
+		$this->mock_http_routes(
+			array( '/v1/notifications/webhooks' => $this->http_response( 201, array( 'id' => 'WH-LATE' ) ) )
+		);
+
+		PayPal_REST_Controller::handle_connection_status( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/connection' ) );
+
+		$this->assertSame( 'WH-LATE', PayPal_Webhooks::get_registered()['id'] );
+	}
+
+	public function test_disconnect_deletes_the_webhook_first() {
+		$this->set_up_connected_admin_state();
+		update_option(
+			PayPal_Webhooks::OPTION_KEY,
+			array(
+				'id'          => 'WH-123',
+				'environment' => 'sandbox',
+				'url'         => 'https://example.org/index.php?rest_route=/wpcom/v2/paypal/webhook',
+			)
+		);
+		$requests = array();
+		$this->mock_http_routes(
+			array( '/v1/notifications/webhooks/WH-123' => $this->http_response( 204, array() ) ),
+			$requests
+		);
+
+		PayPal_REST_Controller::handle_disconnect( new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/disconnect' ) );
+
+		$this->assertSame( 'DELETE', end( $requests )['args']['method'] );
+		$this->assertNull( PayPal_Webhooks::get_registered() );
+		$this->assertEmpty( get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY ) );
+	}
+
+	public function test_webhook_records_a_verified_notification() {
+		$this->set_up_connected_admin_state();
+		$this->set_up_connection_owner();
+		wp_set_current_user( 0 );
+		update_option(
+			PayPal_Webhooks::OPTION_KEY,
+			array(
+				'id'          => 'WH-123',
+				'environment' => 'sandbox',
+				'url'         => 'https://example.org/index.php?rest_route=/wpcom/v2/paypal/webhook',
+			)
+		);
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/notifications/verify-webhook-signature' => $this->http_response( 200, array( 'verification_status' => 'SUCCESS' ) ),
+				'pixel.wp.com' => $this->http_response( 200, array() ),
+			),
+			$requests
+		);
+
+		$result = PayPal_REST_Controller::handle_webhook( $this->webhook_request( $this->capture_completed_event() ) );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame(
+			array(
+				'received' => true,
+				'recorded' => true,
+			),
+			$result->get_data()
+		);
+		$events = $this->tracks_events( $requests );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_paypal_capture_completed', $events[0]['_en'] );
+		$this->assertSame( 'CAPTURE999', $events[0]['capture_id'] );
+	}
+
+	public function test_webhook_refuses_a_notification_paypal_does_not_vouch_for() {
+		$this->set_up_connected_admin_state();
+		$this->set_up_connection_owner();
+		wp_set_current_user( 0 );
+		update_option(
+			PayPal_Webhooks::OPTION_KEY,
+			array(
+				'id'          => 'WH-123',
+				'environment' => 'sandbox',
+				'url'         => 'https://example.org/index.php?rest_route=/wpcom/v2/paypal/webhook',
+			)
+		);
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/notifications/verify-webhook-signature' => $this->http_response( 200, array( 'verification_status' => 'FAILURE' ) ),
+				'pixel.wp.com' => $this->http_response( 200, array() ),
+			),
+			$requests
+		);
+
+		$result = PayPal_REST_Controller::handle_webhook( $this->webhook_request( $this->capture_completed_event() ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_webhook_invalid_signature', $result->get_error_code() );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
+		$this->assertSame( array(), $this->tracks_events( $requests ) );
 	}
 
 	// --- api_error_to_rest_error (tested indirectly) ---

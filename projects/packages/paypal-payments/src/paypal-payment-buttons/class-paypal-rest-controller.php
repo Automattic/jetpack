@@ -331,6 +331,19 @@ class PayPal_REST_Controller {
 				),
 			)
 		);
+
+		// PayPal posts payment notifications here; the signature check stands in for a permission check.
+		register_rest_route(
+			self::REST_NAMESPACE,
+			PayPal_Webhooks::LISTENER_ROUTE,
+			array(
+				array(
+					'methods'             => WP_REST_Server::CREATABLE,
+					'callback'            => array( __CLASS__, 'handle_webhook' ),
+					'permission_callback' => '__return_true',
+				),
+			)
+		);
 	}
 
 	/**
@@ -465,6 +478,9 @@ class PayPal_REST_Controller {
 			);
 		}
 
+		// Payments are reported through the webhook; a site PayPal cannot reach is still connected.
+		PayPal_Webhooks::register();
+
 		return new WP_REST_Response(
 			array(
 				'connected'   => true,
@@ -482,6 +498,7 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response Response with connection status.
 	 */
 	public static function handle_connection_status( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		PayPal_Webhooks::ensure_registered();
 		$status = PayPal_OAuth::get_connection_status();
 
 		// The editor appends this to payment links it copies to the clipboard,
@@ -498,6 +515,7 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response Response confirming disconnection.
 	 */
 	public static function handle_disconnect( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		PayPal_Webhooks::unregister();
 		PayPal_OAuth::disconnect();
 		PayPal_Partner_Onboarding::cleanup();
 
@@ -520,6 +538,10 @@ class PayPal_REST_Controller {
 		$environment = $request->get_param( 'environment' );
 
 		PayPal_OAuth::set_environment( $environment );
+		if ( PayPal_OAuth::has_credentials() ) {
+			delete_option( PayPal_Webhooks::OPTION_KEY );
+			PayPal_Webhooks::register();
+		}
 
 		return new WP_REST_Response(
 			array(
@@ -535,6 +557,39 @@ class PayPal_REST_Controller {
 	}
 
 	// --- Partner Referrals onboarding handlers ---
+
+	/**
+	 * Handle POST /paypal/webhook -- a payment notification from PayPal.
+	 *
+	 * Anything PayPal will not vouch for is refused before it is read.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function handle_webhook( WP_REST_Request $request ) {
+		$headers = array();
+		foreach ( array( 'paypal-auth-algo', 'paypal-cert-url', 'paypal-transmission-id', 'paypal-transmission-sig', 'paypal-transmission-time' ) as $name ) {
+			$headers[ $name ] = (string) $request->get_header( $name );
+		}
+
+		$raw_body = $request->get_body();
+		$verified = PayPal_Webhooks::verify( $headers, $raw_body );
+		if ( is_wp_error( $verified ) ) {
+			return $verified;
+		}
+
+		$recorded = PayPal_Webhooks::handle( json_decode( $raw_body, true ) );
+
+		return new WP_REST_Response(
+			array(
+				'received' => true,
+				'recorded' => false !== $recorded,
+			),
+			200
+		);
+	}
 
 	/**
 	 * Handle POST /paypal/onboarding/signup-link -- generate a Partner Referrals signup URL.

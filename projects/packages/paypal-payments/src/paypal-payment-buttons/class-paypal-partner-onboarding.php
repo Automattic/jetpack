@@ -570,6 +570,9 @@ class PayPal_Partner_Onboarding {
 		// Cache the account email for the account menu; a failure here only costs it a sub-label.
 		self::check_merchant_status();
 
+		// Payments are reported through the webhook; a site PayPal cannot reach is still connected.
+		PayPal_Webhooks::register();
+
 		return true;
 	}
 

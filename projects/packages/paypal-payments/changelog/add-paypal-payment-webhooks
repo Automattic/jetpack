@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Register a PayPal webhook on the connected account and record a Tracks event for each payment capture PayPal reports.

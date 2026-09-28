@@ -41,6 +41,20 @@ class PayPal_API_Client {
 	const RESOURCES_ENDPOINT = '/v1/checkout/payment-resources';
 
 	/**
+	 * Webhooks API endpoint.
+	 *
+	 * @var string
+	 */
+	const WEBHOOKS_ENDPOINT = '/v1/notifications/webhooks';
+
+	/**
+	 * Webhook signature verification endpoint.
+	 *
+	 * @var string
+	 */
+	const VERIFY_WEBHOOK_SIGNATURE_ENDPOINT = '/v1/notifications/verify-webhook-signature';
+
+	/**
 	 * Counter folded into every cached list key, bumped whenever a payment link
 	 * is created, updated or deleted. Cached pages are keyed by PayPal's opaque
 	 * page token, so they cannot be enumerated and deleted one by one.
@@ -367,6 +381,79 @@ class PayPal_API_Client {
 		self::remember_deleted_resource( $resource_id );
 
 		return true;
+	}
+
+	/**
+	 * Subscribe a listener URL to webhook events on the connected account.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string   $url         The HTTPS URL PayPal posts notifications to.
+	 * @param string[] $event_types The event names to subscribe to.
+	 * @return array|\WP_Error The webhook, with its id.
+	 */
+	public static function create_webhook( $url, array $event_types ) {
+		$body = array(
+			'url'         => $url,
+			'event_types' => array_map(
+				static function ( $name ) {
+					return array( 'name' => $name );
+				},
+				array_values( $event_types )
+			),
+		);
+
+		return self::make_request_with_retry( 'POST', self::WEBHOOKS_ENDPOINT, $body, 201 );
+	}
+
+	/**
+	 * List the webhooks registered on the connected account.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|\WP_Error PayPal's listing, with a `webhooks` array.
+	 */
+	public static function list_webhooks() {
+		return self::make_request_with_retry( 'GET', self::WEBHOOKS_ENDPOINT, null, 200 );
+	}
+
+	/**
+	 * Delete a webhook. One PayPal no longer has counts as deleted.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $webhook_id The webhook id.
+	 * @return true|\WP_Error
+	 */
+	public static function delete_webhook( $webhook_id ) {
+		$webhook_id = sanitize_text_field( $webhook_id );
+		if ( '' === $webhook_id || ! preg_match( '/^[A-Za-z0-9\-]+$/', $webhook_id ) ) {
+			return new \WP_Error(
+				'paypal_api_invalid_webhook_id',
+				__( 'Invalid webhook ID.', 'jetpack-paypal-payments' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$result = self::make_request_with_retry( 'DELETE', self::WEBHOOKS_ENDPOINT . '/' . rawurlencode( $webhook_id ), null, 204 );
+
+		if ( is_wp_error( $result ) && 404 !== (int) ( $result->get_error_data()['status'] ?? 0 ) ) {
+			return $result;
+		}
+
+		return true;
+	}
+
+	/**
+	 * Ask PayPal whether a webhook notification is genuine.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $payload The signature headers, webhook id and decoded event, as PayPal's verify endpoint takes them.
+	 * @return array|\WP_Error PayPal's answer, with a `verification_status` of SUCCESS or FAILURE.
+	 */
+	public static function verify_webhook_signature( array $payload ) {
+		return self::make_request_with_retry( 'POST', self::VERIFY_WEBHOOK_SIGNATURE_ENDPOINT, $payload, 200 );
 	}
 
 	/**
