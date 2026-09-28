@@ -9,8 +9,8 @@
 @import "@wordpress/block-library/build-style/theme.css";
 @import "@wordpress/block-library/build-style/editor.css";
 
-// The block-editor and block-library styles reset the admin color to the
-// legacy #007cba; use the modern scheme's blueberry instead.
+// block-editor and block-library reset the admin color to the legacy #007cba.
+// Keep this after the imports: equal specificity, so source order decides.
 :root {
 
 	@include mixins.admin-scheme(#3858e9);
