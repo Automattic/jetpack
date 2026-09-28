@@ -305,6 +305,31 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An instance whose type is not a string, such as the Widget_Type object
+	 * register_widget_type() returns, is an unknown type: dropped, without failing the route.
+	 */
+	public function test_default_drops_an_instance_whose_type_is_not_a_string() {
+		$widget_type = register_widget_type( 'example/object-typed', array( 'render_module' => 'example/render' ) );
+		$this->assertInstanceOf( Widget_Type::class, $widget_type );
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) use ( $widget_type ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					$layout[] = get_dashboard_default_widget_instance( 'object-typed', $widget_type, 20 );
+					$layout[] = get_dashboard_default_widget_instance( 'array-typed', array( 'example/object-typed' ), 21 );
+					$layout[] = get_dashboard_default_widget_instance( 'string-typed', 'example/object-typed', 22 );
+				}
+				return $layout;
+			}
+		);
+
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
+
+		$this->assertNotContains( $widget_type, $layout_types );
+		$this->assertNotContains( array( 'example/object-typed' ), $layout_types );
+		$this->assertSame( array( 'example/object-typed' ), array_values( array_filter( $layout_types, 'is_string' ) ) );
+	}
+
+	/**
 	 * Before init the registry cannot hydrate, so the policy leaves the default as declared.
 	 */
 	public function test_default_keeps_unregistered_instances_before_init() {

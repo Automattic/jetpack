@@ -126,7 +126,7 @@ function resolve_former_widget_types_in_default_layout( $layout ) {
 
 	return array_map(
 		static function ( $item ) use ( $registry ) {
-			if ( is_array( $item ) && isset( $item['type'] ) ) {
+			if ( is_array( $item ) && is_string( $item['type'] ?? null ) ) {
 				$item['type'] = $registry->resolve_name( $item['type'] );
 			}
 			return $item;
@@ -159,7 +159,13 @@ function remove_unregistered_default_layout_items( $layout ) {
 		array_filter(
 			$layout,
 			static function ( $item ) use ( $registered ) {
-				return ! is_array( $item ) || isset( $registered[ $item['type'] ?? '' ] );
+				if ( ! is_array( $item ) ) {
+					return true;
+				}
+				// A non-string type, say the Widget_Type object register_widget_type() returns, is an
+				// unknown type, not a TypeError for the whole sections route.
+				$type = $item['type'] ?? '';
+				return is_string( $type ) && isset( $registered[ $type ] );
 			}
 		)
 	);
