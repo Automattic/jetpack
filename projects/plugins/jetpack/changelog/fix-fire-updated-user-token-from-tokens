@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: clear a lingering broken-connection notice when reconnecting your WordPress.com account, instead of requiring a second attempt.

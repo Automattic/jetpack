@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: clear stale connection errors on every user-token write, so reconnecting the owner account resolves a broken-connection notice on the first attempt.
