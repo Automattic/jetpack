@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportCsvAction,
@@ -31,6 +32,11 @@ jest.mock( './config', () => {
 		useLocationsReportRecords: jest.fn(),
 	};
 } );
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	usePrefetchViewerCountry: jest.fn(),
+} ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
@@ -396,6 +402,16 @@ describe( 'LocationsReportPage', () => {
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'cities', expect.anything(), undefined );
 	} );
 	describe( 'map', () => {
+		// The map waits for the country, so the lookup has to start with the page,
+		// not with the map.
+		it( "starts the viewer's country lookup while the rows are still loading", () => {
+			mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
+
+			render( <LocationsReportPage /> );
+
+			expect( usePrefetchViewerCountry ).toHaveBeenCalled();
+		} );
+
 		it( 'plots the tab own rows at the tab granularity', () => {
 			mockTabState( 'cities' );
 			mockRecords();

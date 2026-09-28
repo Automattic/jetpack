@@ -35,17 +35,13 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Features tab is off unless its flag is on.
+	 * The Features tab is on by default and can be filtered off.
 	 *
 	 * @return void
 	 */
 	public function test_features_tab_follows_its_flag() {
 		Initializer::register_feature_flags();
 
-		$this->assertFalse( Initializer::is_features_tab_enabled() );
-		$this->assertNull( Initializer::get_products_section() );
-
-		add_filter( self::FEATURES_TAB_FLAG_FILTER, '__return_true' );
 		$this->assertTrue( Initializer::is_features_tab_enabled() );
 		$this->assertSame(
 			array(
@@ -54,6 +50,10 @@ class Initializer_Wp_Build_Test extends BaseTestCase {
 			),
 			Initializer::get_products_section()
 		);
+
+		add_filter( self::FEATURES_TAB_FLAG_FILTER, '__return_false' );
+		$this->assertFalse( Initializer::is_features_tab_enabled() );
+		$this->assertNull( Initializer::get_products_section() );
 	}
 
 	/**

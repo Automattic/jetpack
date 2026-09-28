@@ -61,7 +61,7 @@ function _wpcomBuildAddCustomAddressButton( fragment: DocumentFragment ) {
 		} );
 
 		window.open(
-			`https://wordpress.com/domains/add/${ window.wpcomSiteUrl.siteSlug }?redirect_to=${ window.wpcomSiteUrl.optionsGeneralUrl }`
+			`https://wordpress.com/setup/domain/domains?siteSlug=${ window.wpcomSiteUrl.siteSlug }&back_to=${ window.wpcomSiteUrl.optionsGeneralUrl }`
 		);
 	} );
 
@@ -124,10 +124,10 @@ function _wpcomBuildDomainSettingsLinks( fragment: DocumentFragment ) {
 	domainSettingsLink.innerHTML = sprintf(
 		// translators: %1$s is the site slug, %2$s is the URL to the General Settings page.
 		__(
-			'Buy a <a href="https://wordpress.com/domains/add/%1$s?redirect_to=%2$s">custom domain</a>, ' +
-				'<a href="https://wordpress.com/domains/add/mapping/%1$s?redirect_to=%2$s">map</a> a domain you already own, ' +
-				'or <a href="https://wordpress.com/domains/add/site-redirect/%1$s?redirect_to=%2$s">redirect</a> this site.' +
-				' <a href="https://wordpress.com/domains/manage/%1$s/edit/%1$s">You can change your site address in Domain Settings</a>.',
+			'Buy a <a href="https://wordpress.com/setup/domain/domains?siteSlug=%1$s&back_to=%2$s">custom domain</a>, ' +
+				'<a href="https://wordpress.com/setup/domain/use-my-domain?siteSlug=%1$s&back_to=%2$s">map</a> a domain you already own, ' +
+				'or <a href="https://my.wordpress.com/sites/%1$s/settings/site-redirect">redirect</a> this site.' +
+				' <a href="https://my.wordpress.com/sites/%1$s/domains?action=change-site-address">You can change your site address in Domain Settings</a>.',
 			'jetpack-mu-wpcom'
 		),
 		window.wpcomSiteUrl.siteSlug,

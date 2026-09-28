@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Detect Jetpack CRM installs that use a custom plugin folder or file name.

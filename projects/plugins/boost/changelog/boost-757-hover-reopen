@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Overview: Show a day's score details on hover again after paging the score history with the keyboard.

@@ -43,6 +43,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 		...search,
 		interval: 'day',
 	} ),
+	usePrefetchViewerCountry: () => {},
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {

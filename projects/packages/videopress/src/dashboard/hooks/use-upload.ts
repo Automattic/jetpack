@@ -31,6 +31,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useCallback, useRef, useSyncExternalStore } from '@wordpress/element';
 import useResumableUploader from '../../client/hooks/use-resumable-uploader';
 import { LIBRARY_QUERY_KEY } from './use-library';
+import type { VideoMediaProps } from '../../client/lib/resumable-file-uploader/types';
 
 export type UploadStatus = 'pending' | 'uploading' | 'success' | 'failed';
 
@@ -41,6 +42,8 @@ export type UploadItem = {
 	status: UploadStatus;
 	error?: string;
 	errorCode?: string;
+	// The attachment the finished upload created, so the listing can take over its row.
+	mediaId?: string;
 };
 
 const STORE_KEY = '__jetpackVideopressUploadStore' as const;
@@ -179,21 +182,27 @@ export function useUpload() {
 				prev.map( item => ( item.id === id ? { ...item, progress, status: 'uploading' } : item ) )
 			);
 		},
-		onSuccess: () => {
+		onSuccess: ( media: VideoMediaProps ) => {
 			const id = currentIdRef.current;
 			if ( ! id ) {
 				return;
 			}
+			const mediaId = String( media.id );
 			mutateQueue( prev =>
-				prev.map( item => ( item.id === id ? { ...item, progress: 1, status: 'success' } : item ) )
+				prev.map( item =>
+					item.id === id ? { ...item, progress: 1, status: 'success', mediaId } : item
+				)
 			);
-			client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 			// Kick off the next pending upload right away so the user
 			// doesn't have to wait out the 2s success-removal grace.
 			startNextPending();
-			window.setTimeout( () => {
-				mutateQueue( prev => prev.filter( item => item.id !== id ) );
-			}, SUCCESS_REMOVAL_DELAY_MS );
+			// Start the grace only once the listing has refetched: dropping the row
+			// before the new attachment is listed leaves a gap where it was.
+			void client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } ).then( () => {
+				window.setTimeout( () => {
+					mutateQueue( prev => prev.filter( item => item.id !== id ) );
+				}, SUCCESS_REMOVAL_DELAY_MS );
+			} );
 		},
 		onError: ( err: unknown ) => {
 			const id = currentIdRef.current;

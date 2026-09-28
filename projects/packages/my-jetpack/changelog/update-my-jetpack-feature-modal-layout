@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Features tab: reorganize the feature details modal around what is free and what a paid plan adds, with an upgrade for every feature a paid plan covers and arrow keys to step between features, behind the my-jetpack-features-tab feature flag.

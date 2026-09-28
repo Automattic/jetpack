@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	LocationsGeoChart,
@@ -21,7 +22,6 @@ import {
 	type LocationsGeoRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { location as locationIcon } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -62,6 +62,8 @@ type LocationsInnerProps = {
  * defaults are applied in exactly one place.
  */
 function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
+	// Below `WidgetRoot`, which provides the query client.
+	usePrefetchViewerCountry();
 	const { reportParams } = useWidgetRootContext();
 
 	const {
@@ -186,10 +188,6 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						actions: [
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
-					} }
-					empty={ {
-						icon: locationIcon,
-						description: __( 'No location data in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 				>
 					<div className={ styles.chartArea }>

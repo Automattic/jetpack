@@ -243,10 +243,17 @@ export default function HistoryChartCard( {
 	const [ anchor, setAnchor ] = useState< HTMLDivElement | null >( null );
 	const [ lastRecorded, setLastRecorded ] = useState< DayDetails | null >( null );
 	const pointerType = useRef( '' );
+	// Escape keeps the details closed until the pointer leaves the chart.
+	const escaped = useRef( false );
 	const [ isMouse, setIsMouse ] = useState( false );
 	const trackPointer = ( event: ReactPointerEvent ) => {
 		pointerType.current = event.pointerType;
 		setIsMouse( event.pointerType === 'mouse' );
+		// base-ui opens only as the pointer enters, so after a close the pointer did not cause,
+		// such as paging with the keyboard, moving over the chart must reopen the details.
+		if ( event.type === 'pointermove' && event.pointerType === 'mouse' && ! escaped.current ) {
+			setHoverOpen( true );
+		}
 	};
 	useEffect( () => {
 		setActiveHighlight( null );
@@ -323,6 +330,7 @@ export default function HistoryChartCard( {
 						setHoverOpen( isOpen );
 						if ( ! isOpen && reason === 'escape-key' ) {
 							setKeyboardOpen( false );
+							escaped.current = true;
 						}
 					} }
 				>
@@ -339,6 +347,9 @@ export default function HistoryChartCard( {
 						data-testid="history-chart"
 						onPointerDown={ trackPointer }
 						onPointerMove={ trackPointer }
+						onPointerLeave={ () => {
+							escaped.current = false;
+						} }
 						onKeyDown={ event => {
 							// Only the keys that end the chart's own selection close the details.
 							if ( event.key.startsWith( 'Arrow' ) ) {

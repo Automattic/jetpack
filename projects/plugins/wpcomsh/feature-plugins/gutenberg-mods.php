@@ -190,7 +190,7 @@ function wpcomsh_filter_gutenberg_experiments() {
  * Remove Gutenberg's Experiments submenu item.
  */
 function wpcomsh_remove_gutenberg_experimental_menu() {
-	remove_submenu_page( 'gutenberg', 'gutenberg-experiments' );
+	remove_submenu_page( 'options-general.php', 'experiments-wp-admin' );
 }
 
 /**

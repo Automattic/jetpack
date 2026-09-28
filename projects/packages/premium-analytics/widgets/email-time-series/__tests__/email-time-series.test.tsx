@@ -319,7 +319,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 	} );
@@ -349,7 +349,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 
 		// The skeleton waits out the shared delay, so drive it rather than
@@ -377,7 +377,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		// it gives way to the skeleton.
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect(
-			screen.queryByText( 'No activity for this email in this period.' )
+			screen.queryByText( 'We couldn’t find results for this time period.' )
 		).not.toBeInTheDocument();
 		jest.useRealTimers();
 	} );
