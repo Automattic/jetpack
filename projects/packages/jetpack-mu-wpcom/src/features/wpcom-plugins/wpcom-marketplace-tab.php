@@ -198,14 +198,15 @@ function wpcom_marketplace_render_card( array $card ) {
 		return;
 	}
 
-	$name    = (string) ( $card['name'] ?? $slug );
-	$icon    = (string) ( $card['icons']['1x'] ?? '' );
-	$details = wpcom_marketplace_details_url( $slug );
+	$name      = (string) ( $card['name'] ?? $slug );
+	$icon      = (string) ( $card['icons']['1x'] ?? '' );
+	$details   = wpcom_marketplace_details_url( $slug );
+	$installed = 'install' !== install_plugin_install_status( $card )['status'];
 
 	/* translators: %s: Plugin name. */
 	$more_information = sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name );
 	?>
-	<div class="wpcom-marketplace-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?>" data-plugin="<?php echo esc_attr( (string) ( $card['wpcom_product_slug'] ?? $slug ) ); ?>" data-saas="<?php echo Marketplace_Catalog::is_referral( $card ) ? 'true' : 'false'; ?>">
+	<div class="wpcom-marketplace-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?>" data-plugin="<?php echo esc_attr( (string) ( $card['wpcom_product_slug'] ?? $slug ) ); ?>" data-saas="<?php echo Marketplace_Catalog::is_referral( $card ) ? 'true' : 'false'; ?>" data-installed="<?php echo $installed ? 'true' : 'false'; ?>">
 		<div class="wpcom-marketplace-card__head">
 			<?php if ( '' !== $icon ) : ?>
 				<img class="wpcom-marketplace-card__icon" src="<?php echo esc_url( $icon ); ?>" alt="" />
@@ -242,7 +243,7 @@ function wpcom_marketplace_render_card( array $card ) {
 		<div class="wpcom-marketplace-card__footer">
 			<?php
 			// Calypso drops the price once a plugin is installed, leaving only its status.
-			if ( 'install' === install_plugin_install_status( $card )['status'] ) {
+			if ( ! $installed ) {
 				wpcom_marketplace_render_price( $card );
 			}
 			// Buttons are built from escaped parts, and core's own button carries data attributes.
