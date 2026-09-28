@@ -170,7 +170,7 @@ BelowAxis.args = {
 	height: 220,
 	tooltipPlacement: 'below-axis',
 	tooltipStyle: {
-		background: '#1e1e1e',
+		background: 'var(--a8c-charts-color-label)',
 		color: 'var(--a8c-charts-color-label-inverse)',
 	},
 	renderTooltip: renderWideTooltip( 120 ),
