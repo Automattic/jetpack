@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Read and save the Stats settings through the Stats package.

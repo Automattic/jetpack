@@ -79,6 +79,12 @@ export {
 } from './use-stats-app-purchases';
 export { useStatsArchives, type StatsArchivesResponse } from './use-stats-archives';
 export {
+	useStatsSettings,
+	useStatsSettingsMutation,
+	type StatsSettings,
+	type StatsSettingsResponse,
+} from './use-stats-settings';
+export {
 	useStatsCommentFollowers,
 	useStatsCommentFollowersAllPages,
 	type StatsCommentFollowersParams,

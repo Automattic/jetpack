@@ -29,10 +29,11 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 
 const mockGetScriptData = jest.fn();
 const mockCurrentUserCan = jest.fn();
+const mockIsSimpleSite = jest.fn();
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: () => mockGetScriptData(),
-	isSimpleSite: () => false,
+	isSimpleSite: () => mockIsSimpleSite(),
 	currentUserCan: ( capability: string ) => mockCurrentUserCan( capability ),
 } ) );
 
@@ -43,12 +44,30 @@ jest.mock( '../return-to-classic-stats', () => ( {
 } ) );
 
 const mockApiFetch = jest.fn();
+const mockSearch = jest.fn();
+const mockNavigate = jest.fn();
+
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => mockSearch(),
+	useNavigate: () => mockNavigate,
+} ) );
 
 const DASHBOARD_SCOPE = 'jetpack-premium-analytics/dashboard';
 const DASHBOARD_LAYOUTS_KEY = 'dashboardSectionLayouts';
 
 const READY = "Yes, I'd be happy to switch now";
 const ALMOST = 'Almost — there are a few things missing';
+
+const SETTINGS_RESPONSE = {
+	settings: {
+		admin_bar: true,
+		roles: [ 'administrator' ],
+		count_roles: [],
+		wpcom_reader_views_enabled: true,
+	},
+	roles: [ { slug: 'administrator', name: 'Administrator' } ],
+	modules_url: null,
+};
 
 // What the settings route echoes once the opt-in is off.
 const SETTINGS_OFF = { jetpack_premium_analytics_enabled: false };
@@ -70,6 +89,8 @@ beforeEach( () => {
 		Promise.resolve( path === '/wp/v2/settings' ? SETTINGS_OFF : 'success' )
 	);
 	mockCurrentUserCan.mockReturnValue( true );
+	mockIsSimpleSite.mockReturnValue( false );
+	mockSearch.mockReturnValue( {} );
 } );
 
 /**
@@ -382,7 +403,7 @@ describe( 'switching the new Stats off', () => {
 		return user;
 	}
 
-	it( 'is offered to those who can change site settings', async () => {
+	it( 'is offered, like the settings, only to those who can change site settings', async () => {
 		mockCurrentUserCan.mockReturnValue( false );
 		const user = userEvent.setup();
 		render( <PageOptionsMenu /> );
@@ -396,6 +417,7 @@ describe( 'switching the new Stats off', () => {
 		expect(
 			screen.queryByRole( 'menuitem', { name: 'Switch off the preview' } )
 		).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Settings' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'asks before switching off, and Cancel changes nothing', async () => {
@@ -593,6 +615,52 @@ describe( 'switching the new Stats off', () => {
 	} );
 } );
 
+describe( 'the settings', () => {
+	it( 'open in a drawer from the menu, which sits outside any query provider', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path === '/jetpack/v4/stats/settings' ? SETTINGS_RESPONSE : 'success' )
+		);
+		const user = userEvent.setup();
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Settings' } ) );
+
+		await expect(
+			within( screen.getByRole( 'dialog', { name: 'Settings' } ) ).findByText(
+				'Manage permissions'
+			)
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'open from `?settings` in the URL, and drop it on close so a reload does not reopen them', async () => {
+		mockApiFetch.mockImplementation( () => Promise.resolve( SETTINGS_RESPONSE ) );
+		mockSearch.mockReturnValue( { settings: '1', from: '2026-09-01' } );
+		const user = userEvent.setup();
+		render( <PageOptionsMenu /> );
+
+		const drawer = await screen.findByRole( 'dialog', { name: 'Settings' } );
+		await user.click( within( drawer ).getByRole( 'button', { name: 'Cancel' } ) );
+
+		expect( mockNavigate ).toHaveBeenCalledWith( expect.objectContaining( { replace: true } ) );
+		const [ { search } ] = mockNavigate.mock.calls[ 0 ];
+		expect( search( { settings: '1', from: '2026-09-01' } ) ).toEqual( { from: '2026-09-01' } );
+	} );
+
+	it( 'are not offered on a Simple site, which has no settings route', async () => {
+		mockIsSimpleSite.mockReturnValue( true );
+		const user = userEvent.setup();
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Switch off the preview' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Settings' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
 describe( 'Customize', () => {
 	it( 'comes first where the page has a layout to arrange', async () => {
 		const user = userEvent.setup();
@@ -604,6 +672,7 @@ describe( 'Customize', () => {
 
 		expect( items.map( item => item.textContent ) ).toEqual( [
 			'Customize',
+			'Settings',
 			'Any feedback?',
 			'Switch off the preview',
 		] );

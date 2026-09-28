@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Stats;
 use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\REST_Connector;
 use WP_Error;
+use WP_REST_Request;
 use WP_REST_Server;
 
 /**
@@ -64,6 +65,45 @@ class REST_Provider {
 				'permission_callback' => array( $this, 'get_blog_permission_check' ),
 			)
 		);
+
+		register_rest_route(
+			'jetpack/v4',
+			'/stats/settings',
+			array(
+				array(
+					'methods'             => WP_REST_Server::READABLE,
+					'callback'            => array( Settings_Screen::class, 'get' ),
+					'permission_callback' => array( $this, 'manage_settings_permission_check' ),
+				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_settings' ),
+					'permission_callback' => array( $this, 'manage_settings_permission_check' ),
+					'args'                => Settings_Screen::get_rest_args(),
+				),
+			)
+		);
+	}
+
+	/**
+	 * Save the Stats settings in the request.
+	 *
+	 * @param WP_REST_Request $request The request object.
+	 * @return array|WP_Error The settings after the save, or why the values were refused.
+	 */
+	public function update_settings( $request ) {
+		return Settings_Screen::update( $request->get_params() );
+	}
+
+	/**
+	 * Check permissions for the `/stats/settings` endpoint.
+	 *
+	 * @return WP_Error|true
+	 */
+	public function manage_settings_permission_check() {
+		return current_user_can( 'manage_options' )
+			? true
+			: new WP_Error( 'invalid_permission_stats_settings', REST_Connector::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
 	}
 
 	/**

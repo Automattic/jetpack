@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a REST route to read and save the Stats settings.

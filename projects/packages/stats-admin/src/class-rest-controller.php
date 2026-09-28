@@ -9,7 +9,7 @@
 namespace Automattic\Jetpack\Stats_Admin;
 
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\Stats\Settings as Stats_Settings;
+use Automattic\Jetpack\Stats\Settings_Screen as Stats_Settings_Screen;
 use Automattic\Jetpack\Stats\WPCOM_Stats;
 use Jetpack_Options;
 use WP_Error;
@@ -181,27 +181,7 @@ class REST_Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_stats_settings' ),
 					'permission_callback' => array( $this, 'can_user_manage_stats_settings_callback' ),
-					'args'                => array(
-						'admin_bar'                  => array(
-							'description' => 'Show a chart of the last 48 hours of views in the admin bar',
-							'type'        => 'boolean',
-						),
-						'roles'                      => array(
-							'description' => 'Roles that can view Stats. `administrator` is always kept.',
-							'type'        => 'array',
-							'items'       => array( 'type' => 'string' ),
-							'minItems'    => 1,
-						),
-						'count_roles'                => array(
-							'description' => 'Roles whose logged-in page views are counted',
-							'type'        => 'array',
-							'items'       => array( 'type' => 'string' ),
-						),
-						'wpcom_reader_views_enabled' => array(
-							'description' => 'Show post views in the WordPress.com Reader',
-							'type'        => 'boolean',
-						),
-					),
+					'args'                => Stats_Settings_Screen::get_rest_args(),
 				),
 			)
 		);
@@ -820,7 +800,7 @@ class REST_Controller {
 	 * @return array
 	 */
 	public function get_stats_settings() {
-		return $this->get_stats_settings_response();
+		return Stats_Settings_Screen::get();
 	}
 
 	/**
@@ -831,81 +811,7 @@ class REST_Controller {
 	 * @return array|WP_Error The settings after the save, or why the values were refused.
 	 */
 	public function update_stats_settings( $req ) {
-		$params = $req->get_params();
-		$keys   = self::get_stats_settings_keys();
-
-		$stats_values = array_intersect_key( $params, array_flip( $keys ) );
-		if ( empty( $stats_values ) && ! isset( $params['wpcom_reader_views_enabled'] ) ) {
-			return new WP_Error(
-				'jetpack_stats_missing_setting_field',
-				sprintf(
-					/* translators: %s: comma-separated list of the settings that can be changed. */
-					__( 'Provide at least one of: %s.', 'jetpack-stats-admin' ),
-					implode( ', ', array_merge( $keys, array( 'wpcom_reader_views_enabled' ) ) )
-				),
-				array( 'status' => 400 )
-			);
-		}
-
-		if ( ! empty( $stats_values ) ) {
-			$result = Stats_Settings::update( $stats_values, $keys );
-			if ( is_wp_error( $result ) ) {
-				$result->add_data( array( 'status' => 400 ) );
-				return $result;
-			}
-		}
-
-		if ( isset( $params['wpcom_reader_views_enabled'] ) ) {
-			$reader_views = (int) $params['wpcom_reader_views_enabled'];
-			update_option( 'wpcom_reader_views_enabled', $reader_views );
-			// update_option() also returns false for an unchanged value, so read the option back.
-			if ( (int) get_option( 'wpcom_reader_views_enabled', 1 ) !== $reader_views ) {
-				return new WP_Error(
-					'jetpack_stats_save_failed',
-					__( 'The Stats settings could not be saved.', 'jetpack-stats-admin' ),
-					array( 'status' => 400 )
-				);
-			}
-		}
-
-		return $this->get_stats_settings_response();
-	}
-
-	/**
-	 * The Stats settings the Settings screen offers.
-	 *
-	 * @return string[]
-	 */
-	private static function get_stats_settings_keys() {
-		// Nothing reads `do_not_track`, so the screen does not offer it.
-		return array_values( array_diff( Stats_Settings::KEYS, array( 'do_not_track' ) ) );
-	}
-
-	/**
-	 * Build the settings response: the current values and the roles the toggles list.
-	 *
-	 * @return array
-	 */
-	private function get_stats_settings_response() {
-		if ( ! function_exists( 'get_editable_roles' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/user.php';
-		}
-
-		$roles = array();
-		foreach ( get_editable_roles() as $slug => $role ) {
-			$roles[] = array(
-				'slug' => $slug,
-				'name' => translate_user_role( $role['name'] ),
-			);
-		}
-
-		return array(
-			'settings' => array_merge(
-				Stats_Settings::get( self::get_stats_settings_keys() ),
-				array( 'wpcom_reader_views_enabled' => (bool) get_option( 'wpcom_reader_views_enabled', true ) )
-			),
-			'roles'    => $roles,
-		);
+		return Stats_Settings_Screen::update( $req->get_params() );
 	}
 
 	/**
