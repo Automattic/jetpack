@@ -8,9 +8,10 @@ import {
 	type StatsVisitsResponse,
 	type StatsVisitsStatFields,
 } from '@jetpack-premium-analytics/data';
-import { getDateRangeSpan, localTZDate } from '@jetpack-premium-analytics/datetime';
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { endOfDay, isEqual, startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -45,7 +46,7 @@ function coversWholeDays( reportParams: ReportParams ): boolean {
 	const from = localTZDate( reportParams.from );
 	const to = localTZDate( reportParams.to );
 
-	return getDateRangeSpan( { from, to } )?.unit !== 'hour';
+	return isEqual( from, startOfDay( from ) ) && isEqual( to, endOfDay( to ) );
 }
 
 /**

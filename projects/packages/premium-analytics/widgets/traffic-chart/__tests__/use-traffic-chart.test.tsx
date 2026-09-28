@@ -233,6 +233,12 @@ describe( 'useTrafficChart', () => {
 			interval: 'hour',
 		};
 
+		const LONG_PARTIAL_RANGE: ReportParams = {
+			from: '2026-06-12T13:00:00.000+00:00',
+			to: '2026-06-15T12:59:59.999+00:00',
+			interval: 'hour',
+		};
+
 		// `stats/visits` fills Views alone at this grain.
 		const HOURLY_VIEWS_RESPONSE = {
 			unit: 'hour',
@@ -295,8 +301,11 @@ describe( 'useTrafficChart', () => {
 			}
 		} );
 
-		it( 'requests only Views when the range does not cover whole days', async () => {
-			const { result } = renderHook( () => useTrafficChart( ROLLING_RANGE, 'hour' ), { wrapper } );
+		it.each( [
+			[ 'a rolling day', ROLLING_RANGE ],
+			[ 'a partial range longer than two days', LONG_PARTIAL_RANGE ],
+		] )( 'requests only Views for %s', async ( _label, range ) => {
+			const { result } = renderHook( () => useTrafficChart( range, 'hour' ), { wrapper } );
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
