@@ -102,7 +102,7 @@ Any Jest test that waits on time — `waitFor`, React Query updates, debounces, 
 call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
 a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
 driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
-See `widgets/wordads-chart-tabs/__tests__/wordads-chart-tabs.test.tsx`.
+See `widgets/posting-activity/__tests__/posting-activity.test.tsx`.
 
 ## API
 

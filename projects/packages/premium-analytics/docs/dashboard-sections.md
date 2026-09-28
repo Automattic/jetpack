@@ -27,7 +27,7 @@ This page covers sections only. Widget types have their own page, [Dashboard wid
 | `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                                                                                     |
 | `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                                                                                          |
 | `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts.                                                                  |
-| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, their gates and their default layouts, registered through the action like any plugin's, plus `get_ads_section_default_layout()`, the layout both Ads registrants share. |
+| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, their gates and their default layouts, registered through the action like any plugin's. |
 | `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                                                          |
 | `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                                                        |
 | `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                                                  |
@@ -191,7 +191,7 @@ On the WordPress.com platform the module registrant skips, `Host::is_wpcom_platf
 
 Both registrants skip when a section with slug `ads` already exists. That matters during a deploy skew only: an older package that still registers the section itself keeps it. They read the slug through `get_registered_by_slug()` when the package offers it and through `get_all_registered()` otherwise, since the package and the registrants ship on different cadences.
 
-Both declare the same layout, `get_ads_section_default_layout()` from the package, which keeps the `jpa/wordads-*` widget types until they move to the module. The standalone `premium-analytics` plugin has no registrant, and no Ads section.
+Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers. The standalone `premium-analytics` plugin has no registrant, and no Ads section.
 
 ## Where the tests are
 
