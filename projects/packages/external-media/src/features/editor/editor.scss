@@ -60,6 +60,12 @@
 	display: initial;
 }
 
+// Let the media field picker fill the dropdown, not shrink to fit.
+.fields__media-edit .jetpack-external-media-button-menu__dropdown > * {
+	flex-grow: 1;
+	min-width: 0;
+}
+
 .block-editor-inserter__media-panel .components-search-control input[type="search"].components-search-control__input[placeholder~="Google"] {
 	display: none;
 
