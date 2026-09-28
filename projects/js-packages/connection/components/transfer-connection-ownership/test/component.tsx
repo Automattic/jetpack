@@ -56,8 +56,9 @@ describe( 'TransferConnectionOwnership', () => {
 	};
 
 	const chooseKazz = async ( user: ReturnType< typeof userEvent.setup > ) => {
+		await expect( screen.findByRole( 'option', { name: /Kazz/ } ) ).resolves.toBeInTheDocument();
 		await user.selectOptions(
-			await screen.findByRole( 'combobox', { name: /New connection owner/ } ),
+			screen.getByRole( 'combobox', { name: /New connection owner/ } ),
 			'7'
 		);
 	};
@@ -86,9 +87,12 @@ describe( 'TransferConnectionOwnership', () => {
 		mockFetchCandidates.mockResolvedValue( [ candidates[ 0 ] ] );
 		render( <TransferConnectionOwnership { ...props } /> );
 
-		await expect(
-			screen.findByRole( 'button', { name: 'Continue' } )
-		).resolves.not.toHaveAttribute( 'aria-disabled', 'true' );
+		await waitFor( () =>
+			expect( screen.findByRole( 'button', { name: 'Continue' } ) ).resolves.not.toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 		expect( screen.getByRole( 'combobox', { name: /New connection owner/ } ) ).toHaveTextContent(
 			'Kazz'
 		);
@@ -101,7 +105,7 @@ describe( 'TransferConnectionOwnership', () => {
 		).resolves.toBeInTheDocument();
 
 		// @wordpress/ui keeps disabled buttons focusable, so it marks them with aria-disabled.
-		expect( screen.getByRole( 'button', { name: 'Continue' } ) ).toHaveAttribute(
+		await expect( screen.findByRole( 'button', { name: 'Continue' } ) ).resolves.toHaveAttribute(
 			'aria-disabled',
 			'true'
 		);

@@ -26,7 +26,7 @@ type Result = {
 	reset: () => void;
 };
 
-const POLL_INTERVAL_MS = 1500;
+export const POLL_INTERVAL_MS = 1500;
 const POLL_MAX_INTERVAL_MS = 15_000;
 // Slower interval once this many polls have run: ~1 minute at the base, ~5 minutes in all.
 const POLL_BACKOFF_STEPS = [

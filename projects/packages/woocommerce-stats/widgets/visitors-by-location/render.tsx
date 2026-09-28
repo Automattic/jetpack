@@ -17,6 +17,7 @@ import styles from './style.module.css';
 import { useVisitorsByLocation } from './use-visitors-by-location';
 import type { VisitorsByLocationAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+import type { JSX } from 'react';
 
 type VisitorsByLocationRenderAttributes = VisitorsByLocationAttributes &
 	Partial< ReportParamsFieldAttributes >;
