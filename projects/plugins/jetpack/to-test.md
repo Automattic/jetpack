@@ -151,4 +151,31 @@ _Test on a single-site install, not on multisite._
 2. In Jetpack → Forms, click Responses. Click Jetpack → Forms in the sidebar again. It opens on Responses.
 3. Click Forms, then reopen Jetpack → Forms from the sidebar. It opens on Forms.
 
+### Sharing & Likes ([#52407](https://github.com/Automattic/jetpack/pull/52407) and more)
+
+It is now easier to control and manage your sharing & like settings, whether you use a classic theme or a block-based theme. You'll want to test this with 2 different themes to see the differences.
+
+This is an intermediary step; the settings will undergo more changes in the next release.
+
+1. Go to Jetpack > Settings > Sharing. The Sharing & Likes sections will display different recommendations whether the legacy modules are active, and whether you use a classic theme or a block-based theme. In general, we want to push folks towards disabling the legacy modules and using the blocks when using a block-based theme.
+2. Go to My Jetpack > Products. You should see the same invitation to disable the legacy module and use blocks when you use a block-based theme.
+3. Go to Settings > Sharing. You'll see buttons allowing you to disable the legacy options and switch to blocks when you use a block-based theme.
+4. When the site is in [offline mode](https://jetpack.com/support/offline-mode/), you can still access Settings > Sharing, but the Like options are not available.
+
+### Connection: improved connection error notices ([#51504](https://github.com/Automattic/jetpack/pull/51504), [#52049](https://github.com/Automattic/jetpack/pull/52049), [#52130](https://github.com/Automattic/jetpack/pull/52130), [#52718](https://github.com/Automattic/jetpack/pull/52718))
+
+With the Jetpack Debug plugin installed and active (you can use the Beta tester plugin to activate bleeding edge), select 'Broken token utilities' from the plugins main page. From there you can experiment with creating errors on your test site. You can also create site and user errors on the 'Connection errors' page, visible after selecting 'Broken token utilities' and saving.
+
+To prevent errors being rate limited to 1 report per code per hr, add this snippet via a Code Snippets plugin: `add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );`
+
+If your test site has multiple Jetpack plugins active, ensure they are all running bleeding edge versions. This applies to each plugin that shows connection error notices via the connection package: Activity Log, Backup, Social, VideoPress, Protect and Search.
+
+There are various things to observe, depending on what error codes you are able to generate in testing:
+
+1. Grouping (errors with the same message and CTA (call to action) will just result in one message and CTA, unless the errors differ between user and site errors).
+2. Multiple messages shown – if there are multiple errors with differing CTAs and messages
+3. Only users who can act on a connection error will see a notice. So if you create a second user, and break their connection, the primary connected user will not see a connection error message.
+4. Editor users with broken user tokens will now see an option to reconnect that actually works (in My Jetpack as well), whereas before the button did not work.
+5. My Jetpack changes: The connection card (toward the bottom of the page) will now also show if there is a connection error. If you can create a connection error on your site and see the top notice, then the card should also reflect the messaging and CTA.
+
 **Thank you for all your help!**
