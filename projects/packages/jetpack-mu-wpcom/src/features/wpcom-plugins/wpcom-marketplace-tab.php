@@ -241,7 +241,10 @@ function wpcom_marketplace_render_card( array $card ) {
 		<?php // Price sits with the button that charges it, rather than a row away from it. ?>
 		<div class="wpcom-marketplace-card__footer">
 			<?php
-			wpcom_marketplace_render_price( $card );
+			// Calypso drops the price once a plugin is installed, leaving only its status.
+			if ( 'install' === install_plugin_install_status( $card )['status'] ) {
+				wpcom_marketplace_render_price( $card );
+			}
 			// Buttons are built from escaped parts, and core's own button carries data attributes.
 			echo wpcom_marketplace_card_button( $card ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>

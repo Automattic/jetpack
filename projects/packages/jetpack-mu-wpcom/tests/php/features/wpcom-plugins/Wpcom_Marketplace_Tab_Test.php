@@ -107,6 +107,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		remove_filter( self::FLAG_FILTER, '__return_true' );
 		wp_set_current_user( 0 );
 		\Jetpack_Options::delete_option( 'id' );
+		delete_site_transient( 'update_plugins' );
 
 		parent::tear_down();
 	}
@@ -1237,6 +1238,37 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertSame( 'https://example.com/vendor', $card['wpcom_referral_url'] );
 		$this->assertSame( '', Marketplace_Catalog::to_card( self::PRODUCT )['wpcom_referral_url'] );
+	}
+
+	/**
+	 * Once a plugin is installed its card shows core's status button and nothing to buy.
+	 */
+	public function test_an_installed_plugin_shows_no_price() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		// Core reads installed state from here first, so a pending update is enough to mark it installed.
+		set_site_transient(
+			'update_plugins',
+			(object) array(
+				'response' => array(
+					'gravityforms/gravityforms.php' => (object) array(
+						'slug'        => 'gravityforms',
+						'new_version' => '9.9.9',
+					),
+				),
+			)
+		);
+
+		foreach ( array( $this->priced_card(), $this->referral_card() ) as $card ) {
+			ob_start();
+			wpcom_marketplace_render_card( $card );
+			$html = ob_get_clean();
+
+			$this->assertStringNotContainsString( 'wpcom-marketplace-card__price', $html );
+			$this->assertStringNotContainsString( 'Start for free', $html );
+			$this->assertStringNotContainsString( 'Purchase', $html );
+		}
 	}
 
 	/**
