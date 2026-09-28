@@ -50,6 +50,7 @@ export interface TooltipRenderProps {
 	index: number;
 	top: number;
 	left: number;
+	/** @deprecated The tooltip box draws the package surface; this is no longer set. */
 	className?: string;
 }
 
