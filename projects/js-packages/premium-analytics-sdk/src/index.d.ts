@@ -27,6 +27,17 @@ export type DataFormat = any;
 export type CountLabel = any;
 export type ChartDisplayChartType = any;
 
+// Leaderboards: the chart, its rows and the helpers that size and compare them.
+export declare const LeaderboardChart: AnyComponent;
+export declare const LeaderboardSkeleton: AnyComponent;
+export declare const WIDGET_ROW_LIMIT: number;
+export declare function buildLeaderboardRow( ...args: any[] ): any;
+export declare function calculateDelta( ...args: any[] ): any;
+export declare function getCombinedPeriodMax( ...args: any[] ): any;
+export declare function sharePercentage( ...args: any[] ): any;
+export declare function useWidgetNavigationSearch( ...args: any[] ): any;
+export type LeaderboardChartData = any;
+
 // Widget attributes.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
 export declare function chartTypeAttributeField< Attributes = any >( options?: any ): any;
@@ -49,6 +60,11 @@ export declare function useStatsWordAdsStats( ...args: any[] ): any;
 export declare function useStatsWordAdsEarnings( ...args: any[] ): any;
 export type StatsWordAdsResponse = any;
 export type StatsWordAdsEarningsResponse = any;
+
+// The video plays hook is provisional the same way: shared with the dashboard's Videos report until
+// that report moves to the VideoPress package.
+export declare function useStatsVideoPlays( ...args: any[] ): any;
+export type StatsVideoPlaysComparisonItem = any;
 
 // Ads earnings history, provisional too: shared with the dashboard's Earnings report until that report
 // moves to the Ads package.
