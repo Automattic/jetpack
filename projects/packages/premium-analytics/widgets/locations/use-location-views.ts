@@ -2,7 +2,11 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
-import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
+import type {
+	ReportParams,
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -17,7 +21,7 @@ export interface LocationView {
 	value: number;
 	previousValue?: number;
 	region: string;
-	coordinates?: { latitude: number; longitude: number };
+	coordinates?: StatsLocationCoordinates;
 }
 
 interface UseLocationViewsArgs {

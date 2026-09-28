@@ -118,9 +118,22 @@ describe( 'buildLocationsGeoChart', () => {
 
 			expect( region ).toBe( 'world' );
 			expect( displayMode ).toBe( 'markers' );
+			expect( data.slice( 1 ) ).toEqual( [ [ 52.52, 13.405, 'Berlin', 300 ] ] );
+		} );
+
+		it( 'types the header, so a map with no plottable city draws instead of erroring', () => {
+			const { data } = buildLocationsGeoChart( {
+				rows: [ row( 'Munich', 'DE', 'Germany', 100 ) ],
+				mode: 'city',
+			} );
+
 			expect( data ).toEqual( [
-				[ 'Latitude', 'Longitude', 'Location', 'Views' ],
-				[ 52.52, 13.405, 'Berlin', 300 ],
+				[
+					{ type: 'number', label: 'Latitude' },
+					{ type: 'number', label: 'Longitude' },
+					{ type: 'string', label: 'Location' },
+					{ type: 'number', label: 'Views' },
+				],
 			] );
 		} );
 

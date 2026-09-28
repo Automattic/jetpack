@@ -9,6 +9,7 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import type { StatsLocationCoordinates } from '@jetpack-premium-analytics/data';
 
 /** One location plotted on the map. */
 export interface LocationsGeoRow {
@@ -17,7 +18,7 @@ export interface LocationsGeoRow {
 	countryCode: string;
 	countryFull: string;
 	/** Where a city sits; the map draws a city without one nowhere. */
-	coordinates?: { latitude: number; longitude: number };
+	coordinates?: StatsLocationCoordinates;
 }
 
 /** The granularity of the rows handed to the map. */
@@ -154,11 +155,13 @@ export function buildLocationsGeoChart( {
 		return {
 			...scope,
 			data: [
+				// Typed, because Google infers types from the first data row and rejects
+				// an all-string header on a markers map when no city has coordinates.
 				[
-					__( 'Latitude', 'jetpack-premium-analytics-pkg' ),
-					__( 'Longitude', 'jetpack-premium-analytics-pkg' ),
-					__( 'Location', 'jetpack-premium-analytics-pkg' ),
-					__( 'Views', 'jetpack-premium-analytics-pkg' ),
+					{ type: 'number', label: __( 'Latitude', 'jetpack-premium-analytics-pkg' ) },
+					{ type: 'number', label: __( 'Longitude', 'jetpack-premium-analytics-pkg' ) },
+					{ type: 'string', label: __( 'Location', 'jetpack-premium-analytics-pkg' ) },
+					{ type: 'number', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
 				],
 				...rows.flatMap( ( row ): GoogleDataTableRow[] =>
 					row.coordinates
