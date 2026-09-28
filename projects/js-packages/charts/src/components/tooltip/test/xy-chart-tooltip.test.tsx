@@ -1,5 +1,5 @@
 import { render, screen, waitFor } from '@testing-library/react';
-import { BarSeries, buildChartTheme, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
+import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
 import { useContext, useEffect } from 'react';
 import { XyChartTooltip } from '../xy-chart-tooltip';
 import type { XyChartTooltipProps } from '../../../visx/types';
@@ -103,20 +103,17 @@ const renderChart = (
 
 describe( 'XyChartTooltip', () => {
 	test.each( [
-		[ 'CanvasText', '0 1px 2px #22222255' ],
-		[ '#123456', '0 1px 2px #12345655' ],
-	] )( 'renders a valid shadow for htmlLabel color %s', async ( color, boxShadow ) => {
-		const theme = buildChartTheme( {
-			backgroundColor: '#ffffff',
-			colors: [ '#123456' ],
-			tickLength: 4,
-			gridColor: '#dddddd',
-			gridColorDark: '#222222',
-			htmlLabel: { color },
-		} );
-		renderChart( {}, undefined, undefined, theme );
-
-		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { boxShadow } );
+		[ 'bounded', {} ],
+		[ 'unbounded', { detectBounds: false } ],
+		[ 'below-axis', { tooltipPlacement: 'below-axis' as const } ],
+	] )( 'draws the %s box on the package surface, with no visx box styles', async ( _, props ) => {
+		renderChart( props );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).toHaveClass( 'surface' );
+		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'box-shadow' ) );
+		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'background-color' ) );
+		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'padding' ) );
+		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'border-radius' ) );
 	} );
 
 	test( 'renders the tooltip box inside the chart wrapper, not in a body-level portal', async () => {
@@ -351,24 +348,22 @@ describe( 'XyChartTooltip', () => {
 	} );
 
 	test.each( [ 'auto', 'below-axis' ] as const )(
-		'preserves %s background and stacking with a partial style override',
+		'keeps the %s surface and stacking under a partial style override',
 		async tooltipPlacement => {
-			const { unmount } = renderChart( { tooltipPlacement } );
-			const defaultBox = await screen.findByTestId( 'tooltip-box' );
-			const background = defaultBox.style.backgroundColor;
-			expect( background ).not.toBe( '' );
-			expect( background ).not.toBe( 'transparent' );
-			unmount();
-
 			renderChart( { tooltipPlacement, style: { color: 'red' } } );
-
-			await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
-				backgroundColor: background,
-				zIndex: '3',
-				color: 'rgb(255, 0, 0)',
-			} );
+			const box = await screen.findByTestId( 'tooltip-box' );
+			expect( box ).toHaveClass( 'surface' );
+			expect( box ).toHaveStyle( { zIndex: '3', color: 'rgb(255, 0, 0)' } );
 		}
 	);
+
+	test( 'lets a style override paint the box', async () => {
+		renderChart( { style: { background: 'rgb(0, 0, 0)', color: 'rgb(255, 255, 255)' } } );
+		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
+			background: 'rgb(0, 0, 0)',
+			color: 'rgb(255, 255, 255)',
+		} );
+	} );
 
 	test( 'accepts the portal-era options without passing them to the box', async () => {
 		renderChart( { scroll: true, debounce: 50, resizeObserverPolyfill: undefined } );
