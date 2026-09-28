@@ -112,7 +112,7 @@ describe( 'SubscribersListWidget', () => {
 
 	it( 'renders rows without a subscription id as plain-text names', async () => {
 		setSiteData( false, 'example.com' );
-		// No `ID` or `*_subscription_id`, so `subscription_id` stays undefined.
+		// No `*_subscription_id`, so `subscription_id` stays undefined.
 		mockApiFetch.mockResolvedValue( {
 			total: 2,
 			subscribers: [
