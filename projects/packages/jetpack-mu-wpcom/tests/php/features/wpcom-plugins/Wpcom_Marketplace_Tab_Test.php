@@ -1240,6 +1240,40 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * The Tracks script reads the product and the action from the markup alone.
+	 */
+	public function test_card_markup_carries_what_tracks_records() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		ob_start();
+		wpcom_marketplace_render_card( $this->priced_card() );
+		$priced = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-plugin="gravityforms"', $priced );
+		$this->assertStringContainsString( 'data-saas="false"', $priced );
+		$this->assertSame( 2, substr_count( $priced, 'data-wpcom-marketplace-track="details"' ) );
+		$this->assertStringContainsString( 'data-wpcom-marketplace-track="purchase"', $priced );
+
+		ob_start();
+		wpcom_marketplace_render_card( $this->referral_card() );
+		$referral = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-saas="true"', $referral );
+		$this->assertStringContainsString( 'data-wpcom-marketplace-track="get_started"', $referral );
+	}
+
+	/**
+	 * Tracks rides along with the tab, and only the tab.
+	 */
+	public function test_the_tab_loads_its_tracks_script() {
+		wpcom_marketplace_render_tab();
+		remove_filter( 'admin_body_class', 'wpcom_marketplace_body_class' );
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-wpcom-marketplace-tab', 'enqueued' ) );
+	}
+
+	/**
 	 * A malformed product is skipped rather than rendered as an empty card.
 	 */
 	public function test_card_without_a_slug_is_skipped() {

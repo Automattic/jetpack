@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Plugins: Record Tracks events for views of the Marketplace tab and clicks on its cards.
