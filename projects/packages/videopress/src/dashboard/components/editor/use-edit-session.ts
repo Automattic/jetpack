@@ -101,7 +101,8 @@ export function useEditSession( video: LibraryItem ) {
 			if ( edits.job.status === 'complete' ) {
 				adopt( edits );
 				noticesRef.current.createSuccessNotice(
-					__( 'Video edits applied.', 'jetpack-videopress-pkg' )
+					__( 'Video edits applied.', 'jetpack-videopress-pkg' ),
+					{ type: 'snackbar' }
 				);
 			}
 		} else if ( ! currentBaseline ) {
@@ -157,7 +158,8 @@ export function useEditSession( video: LibraryItem ) {
 					setConflict( true );
 				} else {
 					noticesRef.current.createErrorNotice(
-						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' )
+						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' ),
+						{ type: 'snackbar' }
 					);
 				}
 			} finally {
@@ -183,7 +185,8 @@ export function useEditSession( video: LibraryItem ) {
 			setPending( response );
 		} catch {
 			noticesRef.current.createErrorNotice(
-				__( 'Unable to retry processing. Please try again.', 'jetpack-videopress-pkg' )
+				__( 'Unable to retry processing. Please try again.', 'jetpack-videopress-pkg' ),
+				{ type: 'snackbar' }
 			);
 			void query.refetch();
 		} finally {

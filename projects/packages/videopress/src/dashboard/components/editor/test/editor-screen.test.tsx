@@ -274,7 +274,7 @@ it( 'submits the current edits against their loaded revision and waits for the c
 		job: { ...processingJob, status: 'complete' },
 	} );
 	refresh();
-	expect( successNotice ).toHaveBeenCalledWith( 'Video edits applied.' );
+	expect( successNotice ).toHaveBeenCalledWith( 'Video edits applied.', { type: 'snackbar' } );
 	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'

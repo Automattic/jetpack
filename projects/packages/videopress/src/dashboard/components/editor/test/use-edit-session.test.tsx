@@ -113,6 +113,7 @@ describe( 'useEditSession', () => {
 		expect( result.current.locked ).toBe( false );
 		expect( result.current.history.past ).toHaveLength( 0 );
 		expect( successNotice ).toHaveBeenCalledTimes( 1 );
+		expect( successNotice ).toHaveBeenCalledWith( expect.any( String ), { type: 'snackbar' } );
 	} );
 
 	it( 'handles completion once when publishing a notice synchronously updates an external store', async () => {
@@ -223,6 +224,14 @@ describe( 'useEditSession', () => {
 		expect( result.current.dirty ).toBe( true );
 		expect( result.current.locked ).toBe( false );
 		expect( errorNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'reports a failed save as a snackbar', async () => {
+		save.mockRejectedValue( new Error( 'boom' ) );
+		const { result } = renderSession();
+		trim( result );
+		await act( async () => result.current.submit() );
+		expect( errorNotice ).toHaveBeenCalledWith( expect.any( String ), { type: 'snackbar' } );
 	} );
 
 	it( 'prevents duplicate submissions before React commits the pending state', async () => {
