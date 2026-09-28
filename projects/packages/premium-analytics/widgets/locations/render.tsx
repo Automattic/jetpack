@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	LocationsGeoChart,
@@ -61,6 +62,8 @@ type LocationsInnerProps = {
  * defaults are applied in exactly one place.
  */
 function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
+	// Below `WidgetRoot`, which provides the query client.
+	usePrefetchViewerCountry();
 	const { reportParams } = useWidgetRootContext();
 
 	const {
