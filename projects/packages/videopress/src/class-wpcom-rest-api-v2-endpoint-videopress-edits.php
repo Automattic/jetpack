@@ -135,46 +135,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 				'permission_callback' => array( $this, 'permissions_check' ),
 			)
 		);
-
-		$copy_args = array_merge(
-			$guid_arg,
-			array(
-				'request_id' => array(
-					'type'     => 'string',
-					'pattern'  => '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$',
-					'required' => true,
-				),
-			)
-		);
-		register_rest_route(
-			'wpcom/v2',
-			'videopress/(?P<guid>[A-Za-z0-9]{8})/edits/copy',
-			array(
-				'args'                => array_merge(
-					$copy_args,
-					$edit_args,
-					array(
-						'title' => array(
-							'type'      => 'string',
-							'maxLength' => 1000,
-						),
-					)
-				),
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array( $this, 'copy_edits' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
-			)
-		);
-		register_rest_route(
-			'wpcom/v2',
-			'videopress/(?P<guid>[A-Za-z0-9]{8})/edits/copy/(?P<request_id>[a-f0-9-]{36})',
-			array(
-				'args'                => $copy_args,
-				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array( $this, 'get_copy' ),
-				'permission_callback' => array( $this, 'permissions_check' ),
-			)
-		);
 	}
 
 	/**
@@ -231,34 +191,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	}
 
 	/**
-	 * Create an independent video from original-timeline edits.
-	 *
-	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function copy_edits( $request ) {
-		$body = array(
-			'base_revision' => $request['base_revision'],
-			'operations'    => $request['operations'],
-			'request_id'    => $request['request_id'],
-		);
-		if ( isset( $request['title'] ) ) {
-			$body['title'] = $request['title'];
-		}
-		return $this->proxy_request( sprintf( 'videos/%s/edits/copy', $request['guid'] ), 'POST', $body, true );
-	}
-
-	/**
-	 * Fetch progress for the same idempotent copy request.
-	 *
-	 * @param WP_REST_Request $request The request object.
-	 * @return WP_REST_Response|WP_Error
-	 */
-	public function get_copy( $request ) {
-		return $this->proxy_request( sprintf( 'videos/%s/edits/copy/%s', $request['guid'], $request['request_id'] ) );
-	}
-
-	/**
 	 * Restore the original using the upstream API's POST deletion convention.
 	 *
 	 * @param WP_REST_Request $request The request object.
@@ -284,10 +216,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 	 * @param string     $path   WordPress.com REST v1.1 path.
 	 * @param string     $method HTTP method.
 	 * @param array|null $body   JSON request data.
-	 * @param bool       $as_user Preserve the connected actor when creating a copy.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	private function proxy_request( $path, $method = 'GET', $body = null, $as_user = false ) {
+	private function proxy_request( $path, $method = 'GET', $body = null ) {
 		$args = array( 'method' => $method );
 		if ( null !== $body ) {
 			$args['headers'] = array( 'content-type' => 'application/json' );
@@ -307,8 +238,6 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits {
 			$url                              = Constants::get_constant( 'JETPACK__WPCOM_JSON_API_BASE' ) . '/rest/v1.1/' . $path;
 			// @phan-suppress-next-line PhanAccessMethodInternal -- Use the poster transport; the direct client only dispatches v2 routes.
 			$response = Client::_wp_remote_request( $url, $args );
-		} elseif ( $as_user ) {
-			$response = Client::wpcom_json_api_request_as_user( $path, '1.1', $args, $body, 'rest' );
 		} else {
 			$response = Client::wpcom_json_api_request_as_blog( $path, '1.1', $args, $body, 'rest' );
 		}
