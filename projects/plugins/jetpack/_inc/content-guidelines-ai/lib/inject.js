@@ -290,6 +290,12 @@ function runAll() {
 			{ slug }
 		);
 
+		// Newer Gutenberg right-aligns [Clear][Save], older left-aligns [Save][Clear].
+		// Our section button and Accept/Dismiss follow the same layout.
+		const saveButton = form.querySelector( 'button[type="submit"]' );
+		const hStack = saveButton?.parentElement;
+		const isSaveLast = hStack?.lastElementChild === saveButton;
+
 		// Suggestion actions (diff + accept/dismiss) right after the textarea box,
 		// so the diff takes the textarea's exact place under the field label.
 		inject(
@@ -306,15 +312,11 @@ function runAll() {
 					: null;
 			},
 			SuggestionActions,
-			{ slug }
+			{ slug, isSaveLast }
 		);
 
-		// Per-section generate button in the form's Save/Clear row. Keep Save at
-		// the row's outer edge: newer Gutenberg right-aligns [Clear][Save], older
-		// left-aligns [Save][Clear], so the Save button's position picks the side.
-		const saveButton = form.querySelector( 'button[type="submit"]' );
-		const hStack = saveButton?.parentElement;
-		const isSaveLast = hStack?.lastElementChild === saveButton;
+		// Per-section generate button in the form's Save/Clear row, on the side
+		// away from Save so Save stays at the row's outer edge.
 		inject(
 			`button-${ slug }`,
 			() =>

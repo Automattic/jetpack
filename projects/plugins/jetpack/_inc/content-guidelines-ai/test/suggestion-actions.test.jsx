@@ -111,32 +111,17 @@ describe( 'SuggestionActions', () => {
 	} );
 
 	it.each( [
-		[
-			'right-aligned with Accept last',
-			'<button>Clear</button><button type="submit">Save</button>',
-			[ 'Dismiss', 'Accept suggestion' ],
-		],
-		[
-			'left-aligned with Accept first',
-			'<button type="submit">Save</button><button>Clear</button>',
-			[ 'Accept suggestion', 'Dismiss' ],
-		],
-	] )( 'orders Accept/Dismiss %s to match the Save row', ( _, row, expected ) => {
+		[ 'right-aligned with Accept last', true, [ 'Dismiss', 'Accept suggestion' ] ],
+		[ 'left-aligned with Accept first', false, [ 'Accept suggestion', 'Dismiss' ] ],
+	] )( 'orders Accept/Dismiss %s to match the Save row', ( _, isSaveLast, expected ) => {
 		setup( { suggestion: 'newguideline' } );
-		const item = document.createElement( 'li' );
-		item.className = 'guidelines__list-item';
-		item.dataset.slug = 'copy';
-		item.innerHTML = `<form><textarea rows="4">old</textarea><div>${ row }</div></form>`;
-		document.body.appendChild( item );
 
-		render( <SuggestionActions slug="copy" /> );
+		render( <SuggestionActions slug="copy" isSaveLast={ isSaveLast } /> );
 
 		const names = screen
 			.getAllByRole( 'button', { name: /^(Accept suggestion|Dismiss)$/ } )
 			.map( button => button.textContent );
 		expect( names ).toEqual( expected );
-
-		document.body.removeChild( item );
 	} );
 
 	it( 'captures the current section draft as the diff baseline and flags the form', async () => {

@@ -24,8 +24,9 @@ export function setTextareaValue( textarea, value ) {
  * @return {HTMLElement} The bordered box.
  */
 export function getTextareaBox( textarea ) {
-	const hasBorder = parseFloat( window.getComputedStyle( textarea ).borderTopWidth );
-	return hasBorder ? textarea : textarea.parentElement;
+	return textarea.classList.contains( 'components-textarea-control__input' )
+		? textarea
+		: textarea.parentElement;
 }
 
 /**

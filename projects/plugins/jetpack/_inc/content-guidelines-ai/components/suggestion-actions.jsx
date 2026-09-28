@@ -7,7 +7,7 @@ import { recordGuidelinesEvent } from '../lib/tracks';
 import { AI_STORE_NAME } from '../store';
 import DiffView from './diff-view';
 
-export default function SuggestionActions( { slug } ) {
+export default function SuggestionActions( { slug, isSaveLast = false } ) {
 	const suggestion = useSelect( select => select( AI_STORE_NAME ).getSuggestion( slug ), [ slug ] );
 	const sectionLoading = useSelect(
 		select => select( AI_STORE_NAME ).isSectionLoading( slug ),
@@ -17,7 +17,6 @@ export default function SuggestionActions( { slug } ) {
 
 	const [ original, setOriginal ] = useState( '' );
 	const [ textareaHeight, setTextareaHeight ] = useState( null );
-	const [ isSaveFirst, setIsSaveFirst ] = useState( false );
 
 	// Direct DOM class manipulation is necessary because this component is rendered in
 	// a separate React root injected into Gutenberg's page — we can't control classes
@@ -47,11 +46,6 @@ export default function SuggestionActions( { slug } ) {
 				}
 			}
 		}
-
-		// Match the Save/Clear row: Gutenberg 24.0+ right-aligns [Clear][Save],
-		// older versions left-align [Save][Clear].
-		const saveButton = form.querySelector( 'button[type="submit"]' );
-		setIsSaveFirst( !! saveButton && saveButton === saveButton.parentElement.firstElementChild );
 
 		form.classList.toggle( 'has-jetpack-suggestion', !! suggestion );
 		form.classList.toggle( 'is-jetpack-loading', sectionLoading && ! suggestion );
@@ -93,15 +87,15 @@ export default function SuggestionActions( { slug } ) {
 				onAccept={ handleAccept }
 				height={ textareaHeight }
 			/>
-			{ isSaveFirst ? (
-				<div className="jetpack-content-guidelines-ai__suggestion-actions">
-					{ acceptButton }
-					{ dismissButton }
-				</div>
-			) : (
+			{ isSaveLast ? (
 				<div className="jetpack-content-guidelines-ai__suggestion-actions jetpack-content-guidelines-ai__suggestion-actions--end">
 					{ dismissButton }
 					{ acceptButton }
+				</div>
+			) : (
+				<div className="jetpack-content-guidelines-ai__suggestion-actions">
+					{ acceptButton }
+					{ dismissButton }
 				</div>
 			) }
 		</div>
