@@ -147,6 +147,19 @@ describe( 'buildDashboardLink', () => {
 			{ from: '2026-01-01' }
 		);
 	} );
+
+	it( 'reopens the dashboard tab the page was reached from', () => {
+		expect.assertions( 2 );
+		expectLink(
+			buildDashboardLink( {
+				from: '2026-01-01',
+				section: 'email-opens',
+				ds: 'insights',
+			} ),
+			'/',
+			{ from: '2026-01-01', section: 'insights' }
+		);
+	} );
 } );
 
 describe( 'buildReportLink', () => {
@@ -210,6 +223,14 @@ describe( 'buildReportLink', () => {
 			'/reports/emails',
 			{ from: '2026-01-01' }
 		);
+	} );
+
+	it( 'carries the dashboard tab to return to', () => {
+		expect.assertions( 2 );
+		expectLink( buildReportLink( 'tags', { from: '2026-01-01', ds: 'ads' } ), '/reports/tags', {
+			from: '2026-01-01',
+			ds: 'ads',
+		} );
 	} );
 } );
 
