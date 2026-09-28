@@ -105,6 +105,9 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		delete_transient( Marketplace_Catalog::LIST_CACHE_KEY );
 		remove_filter( self::FLAG_FILTER, '__return_true' );
+		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( 'id' );
+		delete_site_transient( 'update_plugins' );
 
 		parent::tear_down();
 	}
@@ -988,13 +991,27 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		// Nothing to compare against.
 		$this->assertSame( 0, Marketplace_Catalog::yearly_saving( array( 'yearly' => array( 'cost' => 132.0 ) ) ) );
 
-		// A year that costs more than twelve months is not a saving.
+		// A year that costs more than twelve months is not a saving. This is Nelio:
+		// $2,748 a year against $99 a month.
 		$this->assertSame(
 			0,
 			Marketplace_Catalog::yearly_saving(
 				array(
-					'yearly'  => array( 'cost' => 200.0 ),
-					'monthly' => array( 'cost' => 10.0 ),
+					'yearly'  => array( 'cost' => 2748.0 ),
+					'monthly' => array( 'cost' => 99.0 ),
+				)
+			)
+		);
+
+		// And a gap too large to be two billing terms of one product is refused
+		// rather than stated. This is MailPoet: $312 a year against $140 a month,
+		// which the arithmetic calls 81% off.
+		$this->assertSame(
+			0,
+			Marketplace_Catalog::yearly_saving(
+				array(
+					'yearly'  => array( 'cost' => 312.0 ),
+					'monthly' => array( 'cost' => 140.0 ),
 				)
 			)
 		);
@@ -1081,6 +1098,211 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		);
 
 		$this->assertSame( '', $only_plugins['wpcom_category'] );
+	}
+
+	/**
+	 * A referral card, as the store shapes one: variations priced like anything else,
+	 * with the product type as the only thing saying it is not ours to sell.
+	 *
+	 * @return array
+	 */
+	private function referral_card() {
+		$card = $this->priced_card();
+
+		$card['wpcom_pricing']['yearly']['type']  = 'saas_plugin';
+		$card['wpcom_pricing']['monthly']['type'] = 'saas_plugin';
+		$card['wpcom_referral_url']               = 'https://example.com/vendor-pricing';
+
+		return $card;
+	}
+
+	/**
+	 * The product type is what marks a referral. Nothing about the shape of the
+	 * payload does: it carries variations and prices like any other product.
+	 */
+	public function test_a_saas_product_type_marks_a_referral() {
+		$this->assertTrue( Marketplace_Catalog::is_referral( $this->referral_card() ) );
+		$this->assertFalse( Marketplace_Catalog::is_referral( $this->priced_card() ) );
+		$this->assertFalse( Marketplace_Catalog::is_referral( Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+	}
+
+	/**
+	 * The store's figures for a referral are not what the vendor charges.
+	 */
+	public function test_a_referral_starts_for_free_instead_of_showing_a_price() {
+		ob_start();
+		wpcom_marketplace_render_price( $this->referral_card() );
+		$html = ob_get_clean();
+
+		$this->assertStringContainsString( 'Start for free', $html );
+		$this->assertStringNotContainsString( '$', $html );
+		$this->assertStringNotContainsString( 'Save', $html );
+	}
+
+	/**
+	 * Signs in a local user linked to WordPress.com account 12345, on blog 67890.
+	 *
+	 * @return void
+	 */
+	private function sign_in_wpcom_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'referred',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+
+		update_user_meta( $user_id, 'wpcom_user_id', '12345' );
+		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'id', 67890 );
+	}
+
+	/**
+	 * Checkout cannot complete a referral, so the action goes to the vendor instead.
+	 */
+	public function test_a_referral_links_to_the_vendor_not_checkout() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$this->sign_in_wpcom_user();
+
+		$button = wpcom_marketplace_card_button( $this->referral_card() );
+
+		$this->assertStringContainsString( 'https://example.com/vendor-pricing?uuid=12345%2B67890', $button );
+		$this->assertStringContainsString( 'Get started', $button );
+		$this->assertStringNotContainsString( 'noreferrer', $button );
+		$this->assertStringNotContainsString( 'wordpress.com/checkout', $button );
+		$this->assertStringNotContainsString( 'Purchase', $button );
+	}
+
+	/**
+	 * The vendor reads the account and site from `uuid`, so it has to arrive as one value.
+	 */
+	public function test_the_referral_url_names_the_account_and_site() {
+		\Jetpack_Options::update_option( 'id', 67890 );
+
+		$card                       = $this->referral_card();
+		$card['wpcom_referral_url'] = 'https://example.com/new?p=155&partner=wpcom';
+
+		$this->assertSame(
+			'https://example.com/new?p=155&partner=wpcom&uuid=12345%2B67890',
+			Marketplace_Catalog::referral_url( $card, 12345 )
+		);
+		$this->assertSame( '', Marketplace_Catalog::referral_url( $card, 0 ) );
+	}
+
+	/**
+	 * A referral without the site's blog id would reach the vendor naming no site.
+	 */
+	public function test_the_referral_url_needs_a_blog_id() {
+		$this->assertSame( '', Marketplace_Catalog::referral_url( $this->referral_card(), 12345 ) );
+	}
+
+	/**
+	 * Without an account to refer, the vendor could not match the order, so Calypso takes over.
+	 */
+	public function test_a_referral_with_no_account_to_refer_goes_to_the_product_page() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		\Jetpack_Options::update_option( 'id', 67890 );
+
+		$button = wpcom_marketplace_card_button( $this->referral_card() );
+
+		$this->assertStringContainsString( 'https://wordpress.com/plugins/gravityforms/', $button );
+		$this->assertStringNotContainsString( 'uuid=', $button );
+		$this->assertStringNotContainsString( 'vendor-pricing', $button );
+	}
+
+	/**
+	 * With nowhere to send someone, no action is better than one that goes nowhere.
+	 */
+	public function test_a_referral_without_a_vendor_url_renders_no_action() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$card                       = $this->referral_card();
+		$card['wpcom_referral_url'] = '';
+
+		$this->assertSame( '', wpcom_marketplace_card_button( $card ) );
+	}
+
+	/**
+	 * The referral URL comes through from the endpoint's own field.
+	 */
+	public function test_the_referral_url_is_read_from_the_payload() {
+		$card = Marketplace_Catalog::to_card(
+			array_merge( self::PRODUCT, array( 'saas_landing_page' => 'https://example.com/vendor' ) )
+		);
+
+		$this->assertSame( 'https://example.com/vendor', $card['wpcom_referral_url'] );
+		$this->assertSame( '', Marketplace_Catalog::to_card( self::PRODUCT )['wpcom_referral_url'] );
+	}
+
+	/**
+	 * Once a plugin is installed its card shows core's status button and nothing to buy.
+	 */
+	public function test_an_installed_plugin_shows_no_price() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		// Core reads installed state from here first, so a pending update is enough to mark it installed.
+		set_site_transient(
+			'update_plugins',
+			(object) array(
+				'response' => array(
+					'gravityforms/gravityforms.php' => (object) array(
+						'slug'        => 'gravityforms',
+						'new_version' => '9.9.9',
+					),
+				),
+			)
+		);
+
+		foreach ( array( $this->priced_card(), $this->referral_card() ) as $card ) {
+			ob_start();
+			wpcom_marketplace_render_card( $card );
+			$html = ob_get_clean();
+
+			$this->assertStringNotContainsString( 'wpcom-marketplace-card__price', $html );
+			$this->assertStringNotContainsString( 'Start for free', $html );
+			$this->assertStringNotContainsString( 'Purchase', $html );
+		}
+	}
+
+	/**
+	 * The Tracks script reads the product and the action from the markup alone.
+	 */
+	public function test_card_markup_carries_what_tracks_records() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		ob_start();
+		wpcom_marketplace_render_card( $this->priced_card() );
+		$priced = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-plugin="gravityforms"', $priced );
+		$this->assertStringContainsString( 'data-saas="false"', $priced );
+		$this->assertSame( 2, substr_count( $priced, 'data-wpcom-marketplace-track="details"' ) );
+		$this->assertStringContainsString( 'data-wpcom-marketplace-track="purchase"', $priced );
+
+		ob_start();
+		wpcom_marketplace_render_card( $this->referral_card() );
+		$referral = ob_get_clean();
+
+		$this->assertStringContainsString( 'data-saas="true"', $referral );
+		$this->assertStringContainsString( 'data-wpcom-marketplace-track="get_started"', $referral );
+	}
+
+	/**
+	 * Tracks rides along with the tab, and only the tab.
+	 */
+	public function test_the_tab_loads_its_tracks_script() {
+		wpcom_marketplace_render_tab();
+		remove_filter( 'admin_body_class', 'wpcom_marketplace_body_class' );
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-wpcom-marketplace-tab', 'enqueued' ) );
 	}
 
 	/**
