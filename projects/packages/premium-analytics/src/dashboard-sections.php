@@ -92,6 +92,19 @@ function configure_dashboard_sections_script_data() {
 }
 
 /**
+ * Kept for older copies of the package: they guard their include of this file on another
+ * symbol and call this, so a newer copy loading first must still define it.
+ *
+ * @since 0.6.0
+ * @deprecated $$next-version$$ Use configure_dashboard_sections_script_data().
+ *
+ * @return void
+ */
+function configure_dashboard_preview_scope() {
+	configure_dashboard_sections_script_data();
+}
+
+/**
  * Injects the available section slugs into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before

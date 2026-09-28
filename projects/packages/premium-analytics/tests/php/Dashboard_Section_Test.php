@@ -1216,20 +1216,21 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_site_opt_in_exposes_every_available_section() {
 		$this->enable_every_section();
+		$this->enable_store_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 		register_dashboard_section(
 			DASHBOARD_NAME,
-			'wordads/ads',
+			'other/extra',
 			array(
-				'label' => 'Ads',
+				'label' => 'Extra',
 				'order' => 50,
 			)
 		);
 
 		$this->assertSame(
-			array( 'traffic', 'insights', 'subscribers', 'ads' ),
+			array( 'traffic', 'insights', 'subscribers', 'store', 'extra' ),
 			get_available_dashboard_section_slugs()
 		);
 	}
@@ -1341,6 +1342,18 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * Older copies of the package call the configurator by its previous name.
+	 */
+	public function test_previous_configurator_name_still_hooks_the_section_slugs() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
+		configure_dashboard_preview_scope();
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data' )
+		);
+	}
+
 	public function test_section_script_data_keeps_the_other_premium_analytics_keys() {
 		$this->enable_every_section();
 
@@ -1411,6 +1424,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_omits_woocommerce_dashboard_section_from_a_view_stats_reader() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->enable_store_section();
 		$user_id = $this->set_editor_user();
 		$this->grant_view_stats_to( $user_id );
 

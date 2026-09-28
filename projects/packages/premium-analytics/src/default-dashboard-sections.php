@@ -66,7 +66,10 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
  * @return bool
  */
 function is_store_dashboard_section_available() {
-	return is_dashboard_store_section_enabled() && is_woocommerce_dashboard_section_available_to_current_user();
+	// An older copy of the package may have loaded dashboard-policy.php without the flag.
+	return function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' )
+		&& is_dashboard_store_section_enabled()
+		&& is_woocommerce_dashboard_section_available_to_current_user();
 }
 
 /**

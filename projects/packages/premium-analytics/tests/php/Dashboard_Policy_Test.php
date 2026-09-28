@@ -18,12 +18,14 @@ require_once __DIR__ . '/../../src/dashboard-policy.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_dashboard_feature_flags
  * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_composition_enabled
  * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_store_section_enabled
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_unlocked_for_a11n
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_dashboard_policy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_dashboard_policy_script_data
  */
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_dashboard_feature_flags' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_composition_enabled' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_store_section_enabled' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_unlocked_for_a11n' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_dashboard_policy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_dashboard_policy_script_data' )]
 class Dashboard_Policy_Test extends TestCase {
@@ -109,6 +111,11 @@ class Dashboard_Policy_Test extends TestCase {
 		$this->assertFalse( $flags[ DASHBOARD_STORE_SECTION_FLAG ]['default'] );
 		$this->assertSame( 'jetpack-premium-analytics', $flags[ DASHBOARD_STORE_SECTION_FLAG ]['owner'] );
 		$this->assertFalse( is_dashboard_store_section_enabled() );
+	}
+
+	public function test_older_copies_find_the_a11n_unlock_switched_off() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
+		$this->assertFalse( is_dashboard_unlocked_for_a11n() );
 	}
 
 	public function test_store_section_flag_can_be_switched_on() {

@@ -66,6 +66,18 @@ function is_dashboard_store_section_enabled() {
 }
 
 /**
+ * No-op kept for older copies of the package, whose dashboard-sections.php calls it after
+ * skipping its include of this file.
+ *
+ * @deprecated $$next-version$$ The preview scope it opened is gone.
+ *
+ * @return bool
+ */
+function is_dashboard_unlocked_for_a11n() {
+	return false;
+}
+
+/**
  * Configures the dashboard policy script data.
  *
  * @return void

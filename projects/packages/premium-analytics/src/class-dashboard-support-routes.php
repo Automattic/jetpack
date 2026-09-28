@@ -64,8 +64,9 @@ class Dashboard_Support_Routes {
 			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
 
-		// These routes are gated on the dashboard capability, and WPCOM Simple boots
-		// this class standalone, without going through Analytics::init().
+		// These routes are gated on the dashboard capability and read the dashboard flags, and
+		// WPCOM Simple boots this class standalone, without going through Analytics::init().
+		register_dashboard_feature_flags();
 		Capabilities::register();
 
 		register_widget_modules_rest_route();

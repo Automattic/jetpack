@@ -167,7 +167,7 @@ A section that declares no rule is visible to anyone with analytics access, the 
 
 Store and Subscribers each have a filter of their own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
 
-A section that fails either rule is absent from the sections route, from the script data, and from the navigation, and `GET …/sections/{section}/default-layout` answers 404 for it.
+A section that fails its rule is absent from the sections route, from the script data, and from the navigation, and `GET …/sections/{section}/default-layout` answers 404 for it.
 
 ## A real consumer: the Ads section
 
