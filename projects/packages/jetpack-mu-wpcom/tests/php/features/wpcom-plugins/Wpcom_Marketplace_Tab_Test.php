@@ -1126,15 +1126,16 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A referral is bought from the vendor on the vendor's terms, so the figures the
-	 * store holds are not what this reader would pay. Saying nothing beats saying
-	 * something wrong, and Nelio's $2,748 is what saying something wrong looked like.
+	 * The store's figures for a referral are not what the vendor charges.
 	 */
-	public function test_a_referral_shows_no_price() {
+	public function test_a_referral_starts_for_free_instead_of_showing_a_price() {
 		ob_start();
 		wpcom_marketplace_render_price( $this->referral_card() );
+		$html = ob_get_clean();
 
-		$this->assertSame( '', ob_get_clean() );
+		$this->assertStringContainsString( 'Start for free', $html );
+		$this->assertStringNotContainsString( '$', $html );
+		$this->assertStringNotContainsString( 'Save', $html );
 	}
 
 	/**

@@ -262,13 +262,12 @@ function wpcom_marketplace_render_card( array $card ) {
  * @return void
  */
 function wpcom_marketplace_render_price( array $card ) {
-	/*
-	 * A referral is bought from the vendor, on whatever terms the vendor sets, so the
-	 * figures the store holds for it are not what this reader would pay. Saying
-	 * nothing is the honest option, and it matches Calypso, which shows no price for
-	 * these either.
-	 */
+	// The vendor sets a referral's price, so it gets Calypso's list-card wording, not the store's figures.
 	if ( Marketplace_Catalog::is_referral( $card ) ) {
+		printf(
+			'<div class="wpcom-marketplace-card__price"><p class="wpcom-marketplace-card__headline"><span class="wpcom-marketplace-card__amount">%s</span></p></div>',
+			esc_html__( 'Start for free', 'jetpack-mu-wpcom' )
+		);
 		return;
 	}
 
