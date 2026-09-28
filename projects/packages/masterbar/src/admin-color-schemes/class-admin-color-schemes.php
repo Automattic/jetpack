@@ -118,7 +118,7 @@ class Admin_Color_Schemes {
 	 */
 	private function get_admin_color_scheme_name( $color_scheme ) {
 		/* translators: %s: Admin color scheme name, e.g. "Aquatic". */
-		return sprintf( __( '%s (Deprecated)', 'jetpack-masterbar' ), $this->get_admin_color_scheme_names()[ $color_scheme ] );
+		return sprintf( __( '%s (Retired)', 'jetpack-masterbar' ), $this->get_admin_color_scheme_names()[ $color_scheme ] );
 	}
 
 	/**
@@ -260,7 +260,7 @@ class Admin_Color_Schemes {
 		wp_admin_notice(
 			sprintf(
 				/* translators: 1: Admin color scheme name, e.g. "Aquatic". 2: URL of the user profile page. */
-				__( 'Your current <strong>%1$s</strong> admin color scheme is now deprecated and will be removed soon. <a href="%2$s">Choose a different color scheme</a>.', 'jetpack-masterbar' ),
+				__( 'Your current <strong>%1$s</strong> admin color scheme is no longer compatible with the editor. It is now retired and will be removed soon. <a href="%2$s">Switch to a different color scheme now</a>.', 'jetpack-masterbar' ),
 				esc_html( $this->get_admin_color_scheme_names()[ $color_scheme ] ),
 				esc_url( admin_url( 'profile.php#color-picker' ) )
 			),
