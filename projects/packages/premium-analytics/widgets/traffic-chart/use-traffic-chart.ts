@@ -8,6 +8,7 @@ import {
 	type StatsVisitsResponse,
 	type StatsVisitsStatFields,
 } from '@jetpack-premium-analytics/data';
+import { getDateRangeSpan, localTZDate } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -29,10 +30,23 @@ export type TrafficPeriod = TrafficChartGranularity;
 
 /**
  * The metrics `stats/visits` fills at the hourly grain. The rest come back
- * `null` there, so they are surfaced as unavailable rather than as zeroes, and
- * their request is skipped.
+ * `null` there, so their chart is surfaced as unavailable rather than as zeroes.
  */
 const HOURLY_METRICS = new Set< TrafficChartMetricId >( [ 'views' ] );
+
+/**
+ * Whether a range starts and ends on day boundaries, so daily buckets add up to
+ * exactly the range. A rolling window such as "Last 24 hours" does not.
+ *
+ * @param reportParams - The dashboard range.
+ * @return Whether the range covers whole days.
+ */
+function coversWholeDays( reportParams: ReportParams ): boolean {
+	const from = localTZDate( reportParams.from );
+	const to = localTZDate( reportParams.to );
+
+	return getDateRangeSpan( { from, to } )?.unit !== 'hour';
+}
 
 /**
  * Normalized traffic chart state: one metric tab per traffic field plus the
@@ -60,12 +74,16 @@ function toVisitsParams(
  * Views/visitors and likes/comments ride separate requests — the visits
  * endpoint's latency grows with requested fields, so two smaller requests
  * resolve faster in parallel, mirroring Calypso's chart tabs.
+ *
+ * At the hourly grain the second request asks for daily buckets instead, so the
+ * cards still show the totals the hourly series cannot carry, as Calypso does.
  */
 export default function useTrafficChart(
 	reportParams: ReportParams,
 	period: TrafficPeriod
 ): TrafficChartState {
 	const isHourly = period === 'hour';
+	const hasDailyTotals = isHourly && coversWholeDays( reportParams );
 	const isServed = useCallback(
 		( metricId: TrafficChartMetricId ) => ! isHourly || HOURLY_METRICS.has( metricId ),
 		[ isHourly ]
@@ -78,12 +96,17 @@ export default function useTrafficChart(
 		[ reportParams, period, isHourly ]
 	);
 	const likesCommentsParams = useMemo(
-		() => toVisitsParams( reportParams, 'likes,comments', period ),
-		[ reportParams, period ]
+		() =>
+			isHourly
+				? toVisitsParams( reportParams, 'visitors,likes,comments', 'day' )
+				: toVisitsParams( reportParams, 'likes,comments', period ),
+		[ reportParams, period, isHourly ]
 	);
 
 	const viewsVisitors = useStatsVisits( viewsVisitorsParams );
-	const likesComments = useStatsVisits( likesCommentsParams, { enabled: ! isHourly } );
+	const likesComments = useStatsVisits( likesCommentsParams, {
+		enabled: ! isHourly || hasDailyTotals,
+	} );
 
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
 	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
@@ -98,30 +121,40 @@ export default function useTrafficChart(
 	const metrics = useMemo(
 		() =>
 			TRAFFIC_CHART_METRICS.map( metric => {
-				const isViewsVisitors = metric.id === 'views' || metric.id === 'visitors';
-				return {
+				// At the hourly grain visitors move to the daily request.
+				const isFirst = metric.id === 'views' || ( metric.id === 'visitors' && ! isHourly );
+				const tab = {
 					...buildMetricTab( {
-						primary: isViewsVisitors ? vvPrimary : lcPrimary,
-						comparison: isViewsVisitors ? vvComparison : lcComparison,
-						hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
+						primary: isFirst ? vvPrimary : lcPrimary,
+						comparison: isFirst ? vvComparison : lcComparison,
+						hasComparison: isFirst ? vvHasComparison : lcHasComparison,
 						field: metric.id,
 						label: metric.label,
 						countLabel: metric.countLabel,
-						zone: isViewsVisitors ? vvZone : lcZone,
+						zone: isFirst ? vvZone : lcZone,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
-					...( isServed( metric.id )
-						? {}
-						: {
-								unavailable: __(
-									"Hourly data isn't available for this metric.",
-									'jetpack-premium-analytics-pkg'
-								),
-							} ),
 				};
+
+				if ( isServed( metric.id ) ) {
+					return tab;
+				}
+
+				const reason = __(
+					"Hourly data isn't available for this metric.",
+					'jetpack-premium-analytics-pkg'
+				);
+
+				// The daily buckets feed the card total only; drawn on the hourly axis
+				// they would read as a single spike.
+				return hasDailyTotals
+					? { ...tab, current: [], previous: undefined, seriesUnavailable: reason }
+					: { ...tab, unavailable: reason };
 			} ),
 		[
 			isServed,
+			isHourly,
+			hasDailyTotals,
 			vvPrimary,
 			vvComparison,
 			vvHasComparison,
