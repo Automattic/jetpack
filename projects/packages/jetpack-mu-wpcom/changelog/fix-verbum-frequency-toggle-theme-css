@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Verbum comments: prevent classic theme styles from breaking the new posts frequency toggle.
