@@ -1474,7 +1474,7 @@ class Manager {
 	 * evidence against it.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @return bool Whether WordPress.com confirmed the anchored identity.
 	 */
@@ -1542,7 +1542,7 @@ class Manager {
 	/**
 	 * Take WordPress.com's word that the connecting user owns this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @param int        $user_id       The connecting local user.
 	 * @param int        $wpcom_user_id The connecting user's WordPress.com identity, which this
@@ -1586,7 +1586,7 @@ class Manager {
 	 * network, which is the half worth testing: every branch of it changes whether a site gates a
 	 * live feature. The anchored ID is sent so the answer confirms rather than discloses.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @param int $anchored_wpcom_user_id The WordPress.com identity this site has anchored.
 	 * @return array|null The record, or null when WordPress.com could not answer.
@@ -1610,7 +1610,7 @@ class Manager {
 	 * Split from `set_protected_owner()` so the decision it drives can be exercised without a
 	 * network. The identity travels in the signature rather than the payload, so nothing is sent.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
@@ -1636,7 +1636,7 @@ class Manager {
 	 *
 	 * @since 9.3.0
 	 * @since 9.6.0 No longer takes how the owner was confirmed.
-	 * @since $$next-version$$ WordPress.com records the owner before anything is anchored here.
+	 * @since 9.8.0 WordPress.com records the owner before anything is anchored here.
 	 *
 	 * @param int $user_id The local user to anchor.
 	 * @return true|WP_Error True on success, WP_Error otherwise.
@@ -3590,7 +3590,7 @@ class Manager {
 	/**
 	 * Disconnect the user from WP.com, and initiate the reconnect process.
 	 *
-	 * @since $$next-version$$ Added the `$force` parameter.
+	 * @since 9.8.0 Added the `$force` parameter.
 	 *
 	 * @param bool $force Whether to remove the local token even if WordPress.com does not confirm the unlink.
 	 *                    When false, only the current user's own token is refreshed, never the owner's,

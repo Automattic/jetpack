@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-GeoChart: Add a `domain` prop that draws disputed borders from a given country's viewpoint.

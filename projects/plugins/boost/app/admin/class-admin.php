@@ -108,7 +108,7 @@ class Admin {
 		 * Hook `__return_false` to restore the legacy dashboard.
 		 *
 		 * @since 4.7.1
-		 * @since $$next-version$$ Defaults to true.
+		 * @since 4.8.0 Defaults to true.
 		 * @param bool $enabled Whether to enable the modern dashboard. Default true.
 		 */
 		return apply_filters( self::MODERNIZATION_FILTER, true ) && is_admin();
@@ -169,7 +169,7 @@ class Admin {
 	 * Match wp-build's enqueue screen without changing the Boost menu URL.
 	 *
 	 * @since 4.7.1
-	 * @since $$next-version$$ Reads the current screen itself and records the ID it replaces.
+	 * @since 4.8.0 Reads the current screen itself and records the ID it replaces.
 	 */
 	public function alias_screen_id_for_wp_build() {
 		$screen = get_current_screen();
@@ -184,7 +184,7 @@ class Admin {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), since JITM builds its message path from the screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 4.8.0
 	 */
 	public function restore_screen_id_after_wp_build() {
 		$screen = get_current_screen();
