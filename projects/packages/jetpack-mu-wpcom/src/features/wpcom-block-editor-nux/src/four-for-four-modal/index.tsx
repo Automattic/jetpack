@@ -10,9 +10,6 @@ import type { FC } from 'react';
 
 const READER_URL = 'https://wordpress.com/reader/four-for-four?source=editor';
 
-// Longest we hold the redirect while the opt-in is being recorded.
-const OPT_IN_REDIRECT_DELAY_MS = 1500;
-
 /**
  * Offer the "4 for 4" program right after a site's first post is published.
  * Rendered only when the site is eligible; see block-editor-nux.jsx.
@@ -24,6 +21,8 @@ const FourForFourModal: FC = () => {
 	// `?four-for-four=preview` opens the modal on load so the prompt can be
 	// tested without publishing a first post.
 	const [ isOpen, setIsOpen ] = useState( isFourForFourPreview() );
+	const [ isOptingIn, setIsOptingIn ] = useState( false );
+	const [ hasOptInError, setHasOptInError ] = useState( false );
 
 	useEffect( () => {
 		if ( justPublished ) {
@@ -31,14 +30,16 @@ const FourForFourModal: FC = () => {
 		}
 	}, [ justPublished ] );
 
-	const handleOptIn = () => {
+	const handleOptIn = async () => {
 		wpcomTrackEvent( 'calypso_editor_wpcom_four_for_four_opt_in' );
-		const timeout = new Promise( resolve =>
-			window.setTimeout( resolve, OPT_IN_REDIRECT_DELAY_MS )
-		);
-		Promise.race( [ setFourForFourStatus( 'opted_in' ), timeout ] ).then( () => {
+		setIsOptingIn( true );
+		setHasOptInError( false );
+		if ( await setFourForFourStatus( 'opted_in' ) ) {
 			( window.top as Window ).location.href = READER_URL;
-		} );
+			return;
+		}
+		setIsOptingIn( false );
+		setHasOptInError( true );
 	};
 
 	const handleOptOut = () => {
@@ -64,10 +65,20 @@ const FourForFourModal: FC = () => {
 			imageSrc={ postPublishedImage }
 			actionButtons={
 				<>
-					<Button variant="primary" onClick={ handleOptIn }>
+					{ hasOptInError && (
+						<p className="wpcom-block-editor-four-for-four-modal__error" role="alert">
+							{ __( 'We couldn’t save your choice. Please try again.', 'jetpack-mu-wpcom' ) }
+						</p>
+					) }
+					<Button
+						variant="primary"
+						onClick={ handleOptIn }
+						isBusy={ isOptingIn }
+						disabled={ isOptingIn }
+					>
 						{ __( 'Count me in', 'jetpack-mu-wpcom' ) }
 					</Button>
-					<Button variant="secondary" onClick={ handleOptOut }>
+					<Button variant="secondary" onClick={ handleOptOut } disabled={ isOptingIn }>
 						{ __( 'No thanks', 'jetpack-mu-wpcom' ) }
 					</Button>
 				</>

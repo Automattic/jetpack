@@ -113,8 +113,12 @@ export const actions = {
 		type: 'WPCOM_SET_FOUR_FOR_FOUR_ELIGIBLE',
 		value,
 	} ),
+	// Resolves to whether the decision was saved. An opt-in must be saved before
+	// the writer leaves for the Reader, where only opted-in writers can complete.
 	*setFourForFourStatus( status ) {
-		yield { type: 'WPCOM_SET_FOUR_FOR_FOUR_ELIGIBLE', value: false };
+		if ( status === 'opted_out' ) {
+			yield { type: 'WPCOM_SET_FOUR_FOR_FOUR_ELIGIBLE', value: false };
+		}
 		try {
 			yield apiFetchControls( {
 				path: '/wpcom/v2/block-editor/four-for-four',
@@ -122,8 +126,9 @@ export const actions = {
 				data: { status },
 			} );
 		} catch {
-			// The prompt is not re-offered either way; a lost write only loses analytics fidelity.
+			return false;
 		}
+		return true;
 	},
 	setShowWelcomeGuide: ( show, { openedManually, onlyLocal } = {} ) => {
 		if ( ! onlyLocal ) {
