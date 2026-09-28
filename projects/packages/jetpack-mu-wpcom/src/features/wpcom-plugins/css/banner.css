@@ -28,6 +28,12 @@
 	width: 540px;
 }
 
+.wpcom-plugins-banner__content img {
+	display: block;
+	width: 160px;
+	height: auto;
+}
+
 #wpcontent .wpcom-plugins-banner h3,
 #wpcontent .wpcom-plugins-banner p {
 	font-weight: 400;
@@ -36,9 +42,13 @@
 	text-wrap: pretty;
 }
 
+#wpcontent .wpcom-plugins-banner h3 {
+	text-wrap: balance;
+}
+
 .wpcom-plugins-banner h3 {
 	font-family: Recoleta, serif;
-	font-size: 32px;
+	font-size: 40px;
 	line-height: 40px;
 	color: #fff;
 }
