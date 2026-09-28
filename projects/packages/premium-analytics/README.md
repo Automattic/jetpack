@@ -34,25 +34,23 @@ capability-gated admin page serves the dashboard.
 
 ## Extending the dashboard from another plugin
 
-The package owns the dashboard, not the features: a section and its widgets belong to the code
-that knows the feature is there, and `jetpack-mu-wpcom` registers on WordPress.com Simple and
-Atomic where that fact is a plan feature. A plugin extends the dashboard from two actions, each
-fired once when its registry hydrates on the first read after `init`:
+The package owns the dashboard, not the features. A section and its widgets belong to the code that knows the feature is there, and `jetpack-mu-wpcom` registers on WordPress.com Simple and Atomic where that fact is a plan feature.
 
-- `jetpack_premium_analytics_register_dashboard_sections`: call `register_dashboard_section()`
-  with the section's label, availability rule and default layout
-  ([Dashboard sections](docs/dashboard-sections.md)).
-- `jetpack_premium_analytics_register_widget_types`: compare `WIDGET_API_VERSION`, require the
-  `build/build.php` wp-build generated for your `widgets/` folder, and call
-  `register_widget_types_from_manifest()` with its manifest, your text domain and the URL of your
-  `i18n-manifest.json` ([Dashboard widget types](docs/dashboard-widgets.md)). Your widgets import
-  the dashboard through `@automattic/jetpack-premium-analytics-sdk`
-  (`projects/js-packages/premium-analytics-sdk`); your build keeps that import external, and the
-  dashboard page's import map resolves it to the module this package registers.
+A plugin extends the dashboard from two actions. Each fires once, when its registry hydrates on the first read after `init`.
 
-`projects/packages/ads` is the reference consumer: the Ads section and its three widgets,
-called by the WordAds module of the Jetpack plugin and by `jetpack-mu-wpcom`. Report pages and
-detail routes are the next contract; today they are the package's own.
+### Sections
+
+Hook `jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()` with the section's label, availability rule and default layout. See [Dashboard sections](docs/dashboard-sections.md).
+
+### Widget types
+
+Hook `jetpack_premium_analytics_register_widget_types`, compare `WIDGET_API_VERSION`, require the `build/build.php` wp-build generated for your `widgets/` folder, and call `register_widget_types_from_manifest()` with its manifest, your text domain and the URL of your `i18n-manifest.json`. See [Dashboard widget types](docs/dashboard-widgets.md).
+
+Your widgets import the dashboard through `@automattic/jetpack-premium-analytics-sdk` (`projects/js-packages/premium-analytics-sdk`). Your build keeps that import external, and the dashboard page's import map resolves it to the module this package registers.
+
+### The reference consumer
+
+`projects/packages/ads`: the Ads section and its three widgets, called by the WordAds module of the Jetpack plugin and by `jetpack-mu-wpcom`. Report pages and detail routes are the next contract; today they are the package's own.
 
 ## Requirements
 
