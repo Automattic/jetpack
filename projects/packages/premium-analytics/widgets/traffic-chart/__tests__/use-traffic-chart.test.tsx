@@ -301,6 +301,25 @@ describe( 'useTrafficChart', () => {
 			}
 		} );
 
+		it( 'keeps the hourly Views chart when the daily totals request fails', async () => {
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				path.includes( 'unit=day' )
+					? Promise.reject( { error: 'unauthorized', status: 403 } )
+					: Promise.resolve( HOURLY_VIEWS_RESPONSE )
+			);
+
+			const { result } = renderHook( () => useTrafficChart( DAY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			expect( result.current.isError ).toBe( false );
+			const [ views, visitors, comments, likes ] = result.current.metrics;
+			expect( views.current ).toHaveLength( 2 );
+			for ( const metric of [ visitors, comments, likes ] ) {
+				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
+			}
+		} );
+
 		it.each( [
 			[ 'a rolling day', ROLLING_RANGE ],
 			[ 'a partial range longer than two days', LONG_PARTIAL_RANGE ],

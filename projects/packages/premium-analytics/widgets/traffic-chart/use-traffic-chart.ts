@@ -118,6 +118,13 @@ export default function useTrafficChart(
 	const lcHasComparison = likesComments.hasComparison;
 	const lcZone = likesComments.timezone;
 
+	// Gate the error per query so a failed one surfaces beside the other's populated
+	// tabs instead of rendering empty; placeholder data spares a query that still has rows.
+	const viewsVisitorsFailed = viewsVisitors.isError && ! vvPrimary?.data?.length;
+	const likesCommentsFailed = likesComments.isError && ! lcPrimary?.data?.length;
+	// The daily totals only fill cards, so losing them must not hide the hourly Views chart.
+	const showsDailyTotals = hasDailyTotals && ! likesCommentsFailed;
+
 	// One tab per metric, in canonical definition order.
 	const metrics = useMemo(
 		() =>
@@ -148,14 +155,14 @@ export default function useTrafficChart(
 
 				// The daily buckets feed the card total only; drawn on the hourly axis
 				// they would read as a single spike.
-				return hasDailyTotals
+				return showsDailyTotals
 					? { ...tab, current: [], previous: undefined, seriesUnavailable: reason }
 					: { ...tab, unavailable: reason };
 			} ),
 		[
 			isServed,
 			isHourly,
-			hasDailyTotals,
+			showsDailyTotals,
 			vvPrimary,
 			vvComparison,
 			vvHasComparison,
@@ -176,11 +183,7 @@ export default function useTrafficChart(
 		refetchLikesComments();
 	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
-	// Gate the error per query so a failed one surfaces beside the other's populated
-	// tabs instead of rendering empty; placeholder data spares a query that still has rows.
-	const isError =
-		( viewsVisitors.isError && ! vvPrimary?.data?.length ) ||
-		( likesComments.isError && ! lcPrimary?.data?.length );
+	const isError = viewsVisitorsFailed || ( likesCommentsFailed && ! isHourly );
 
 	return {
 		metrics,
