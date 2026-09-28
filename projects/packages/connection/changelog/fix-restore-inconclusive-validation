@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reconnect: refresh only the user's own token when token validation is inconclusive but the blog token is healthy, instead of disconnecting every user.

@@ -2787,7 +2787,13 @@ class Manager {
 			$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
 			$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
 		} else {
-			$blog_token_healthy = false;
+			// The paired health check could not run: a token is missing locally (e.g. a
+			// deleted owner token), or the request failed. That is no evidence the blog
+			// token is broken — and the blog token is the one credential reconnect()
+			// revokes for every user on the site. Check it on its own before deciding
+			// anything destructive: validate_blog_token() signs with the blog token
+			// alone and returns strict `true` only on a confirmed-healthy response.
+			$blog_token_healthy = true === $this->get_tokens()->validate_blog_token();
 			$user_token_healthy = false;
 		}
 

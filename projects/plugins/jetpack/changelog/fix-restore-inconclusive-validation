@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Connection: Fix an issue where reconnecting could disconnect all users when only one account needed re-linking.
