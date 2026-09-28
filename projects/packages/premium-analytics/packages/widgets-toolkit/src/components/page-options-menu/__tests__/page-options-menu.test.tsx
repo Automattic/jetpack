@@ -655,6 +655,22 @@ describe( 'the settings', () => {
 		expect( search( { settings: '1', from: '2026-09-01' } ) ).toEqual( { from: '2026-09-01' } );
 	} );
 
+	it( 'leave the URL alone when closed after opening from the menu', async () => {
+		mockApiFetch.mockImplementation( () => Promise.resolve( SETTINGS_RESPONSE ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Settings' } ) );
+		const drawer = await screen.findByRole( 'dialog', { name: 'Settings' } );
+		await user.click( within( drawer ).getByRole( 'button', { name: 'Cancel' } ) );
+
+		await waitFor( () =>
+			expect( screen.queryByRole( 'dialog', { name: 'Settings' } ) ).not.toBeInTheDocument()
+		);
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
 	it( 'are not offered on a Simple site, which has no settings route', async () => {
 		mockIsSimpleSite.mockReturnValue( true );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );

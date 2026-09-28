@@ -161,7 +161,7 @@ describe( 'SettingsDrawer', () => {
 		} );
 	} );
 
-	it( 'links to the modules screen only when the site has one', async () => {
+	it( 'links to the modules screen the site names', async () => {
 		mockApiFetch.mockImplementation( () =>
 			Promise.resolve( { ...STORED, modules_url: '/wp-admin/admin.php?page=jetpack_modules' } )
 		);
@@ -233,5 +233,25 @@ describe( 'SettingsDrawer', () => {
 			)
 		).resolves.toBeInTheDocument();
 		expect( onClose ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps a network error out of the message, which is not a reason the site gave', async () => {
+		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
+			method === 'POST'
+				? Promise.reject( new TypeError( 'Failed to fetch' ) )
+				: Promise.resolve( STORED )
+		);
+		const user = showDrawer();
+
+		await user.click(
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+		);
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await expect(
+			within( screen.getByRole( 'dialog', { name: 'Settings' } ) ).findByText(
+				'Your Stats settings could not be saved.'
+			)
+		).resolves.toBeInTheDocument();
 	} );
 } );
