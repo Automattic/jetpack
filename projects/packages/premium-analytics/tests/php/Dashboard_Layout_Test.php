@@ -13,11 +13,15 @@ use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/dashboard-sections.php';
 require_once __DIR__ . '/../../src/default-dashboard-sections.php';
+require_once __DIR__ . '/../../src/widget-modules.php';
+require_once __DIR__ . '/../../src/widget-types.php';
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * Tests for the dashboard default-layout primitives and the package's bundled defaults.
  */
 class Dashboard_Layout_Test extends BaseTestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	/**
 	 * Default-layout filter callback a test hooked, removed on tear down.
@@ -31,6 +35,11 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
+
+		// No build manifest here: the widget registry holds only what a test registers.
+		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		$GLOBALS['jpa_test_widget_manifest'] = array();
+		$this->reset_widget_registry();
 
 		register_default_dashboard_sections();
 	}
@@ -49,6 +58,9 @@ class Dashboard_Layout_Test extends BaseTestCase {
 			$instance->setAccessible( true );
 		}
 		$instance->setValue( null, null );
+		$this->reset_widget_registry();
+		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
+		unset( $GLOBALS['jpa_test_widget_manifest'] );
 
 		Constants::clear_constants();
 		// The default layout reaches Host::is_wpcom_platform(), which memoizes
@@ -208,6 +220,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	 * and the other sections are left alone.
 	 */
 	public function test_filter_adds_a_widget_to_one_section_default() {
+		$this->register_example_widget_type( 'example/widget' );
 		$this->filter_default_layout(
 			static function ( $layout, $section_id ) {
 				if ( 'analytics/traffic' === $section_id ) {
@@ -238,6 +251,94 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		);
 
 		$this->assertNotContains( 'jpa/file-downloads', $this->served_layout_types( 'analytics/insights' ) );
+	}
+
+	/**
+	 * A default never seeds a type the site has not registered, whoever added the instance.
+	 */
+	public function test_default_drops_an_instance_whose_type_is_not_registered() {
+		$this->register_example_widget_type( 'example/registered' );
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					$layout[] = get_dashboard_default_widget_instance( 'example-registered', 'example/registered', 20 );
+					$layout[] = get_dashboard_default_widget_instance( 'example-unregistered', 'example/unregistered', 21 );
+				}
+				return $layout;
+			}
+		);
+
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
+
+		$this->assertContains( 'example/registered', $layout_types );
+		$this->assertNotContains( 'example/unregistered', $layout_types, 'A default must not seed a type the site has not registered.' );
+	}
+
+	/**
+	 * Before init the registry cannot hydrate, so the policy leaves the default as declared.
+	 */
+	public function test_default_keeps_unregistered_instances_before_init() {
+		global $wp_actions;
+		$init_runs = $wp_actions['init'] ?? null;
+		unset( $wp_actions['init'] );
+
+		$layout = array();
+		try {
+			$layout = remove_unsupported_default_layout_items(
+				array( get_dashboard_default_widget_instance( 'example-unregistered', 'example/unregistered', 20 ) )
+			);
+		} finally {
+			if ( null !== $init_runs ) {
+				$wp_actions['init'] = $init_runs;
+			}
+		}
+
+		$this->assertSame( array( 'example/unregistered' ), array_column( $layout, 'type' ) );
+	}
+
+	/**
+	 * With nothing registered, a checkout without a build, the default is left alone rather than emptied.
+	 */
+	public function test_default_keeps_unregistered_instances_when_no_type_is_registered() {
+		if ( array() !== Widget_Type_Registry::get_instance()->get_all_registered() ) {
+			$this->markTestSkipped( 'A widget manifest is loaded in this process.' );
+		}
+
+		$layout = remove_unsupported_default_layout_items(
+			array( get_dashboard_default_widget_instance( 'example-unregistered', 'example/unregistered', 20 ) )
+		);
+
+		$this->assertSame( array( 'example/unregistered' ), array_column( $layout, 'type' ) );
+	}
+
+	/**
+	 * Register a widget type the way a plugin does, so a default may seed it.
+	 *
+	 * @param string $name Widget type name.
+	 */
+	private function register_example_widget_type( $name ) {
+		$this->assertInstanceOf(
+			Widget_Type::class,
+			register_widget_type(
+				$name,
+				array(
+					'render_module' => 'example/render',
+					'widget_module' => 'example/widget',
+					'title'         => 'Example',
+				)
+			)
+		);
+	}
+
+	/**
+	 * Reset the widget type registry's main instance.
+	 */
+	private function reset_widget_registry() {
+		$instance = new \ReflectionProperty( Widget_Type_Registry::class, 'instance' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$instance->setAccessible( true );
+		}
+		$instance->setValue( null, null );
 	}
 
 	/**

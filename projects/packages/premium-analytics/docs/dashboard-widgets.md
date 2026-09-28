@@ -195,7 +195,7 @@ A plugin's manifest goes through the same filter when it registers through `regi
 
 A third policy acts on default layouts rather than on the registry: `remove_unsupported_default_layout_items()` in `src/dashboard-layout.php`, over the type lists of `src/widget-type-support.php`, drops from a section's default the instances whose type the site cannot serve.
 
-It reads a fixed list, not the registry (see [Default layouts](dashboard-sections.md#default-layouts)).
+It reads the package's fixed list and, once the registry can answer, the registry itself: an instance whose type is not registered is dropped too (see [Default layouts](dashboard-sections.md#default-layouts)).
 
 ## Versioning the contract
 
