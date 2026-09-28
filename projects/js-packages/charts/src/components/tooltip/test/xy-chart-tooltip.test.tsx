@@ -116,6 +116,24 @@ describe( 'XyChartTooltip', () => {
 		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'border-radius' ) );
 	} );
 
+	test( 'strips the surface from an unbounded box when unstyled', async () => {
+		renderChart( { detectBounds: false, unstyled: true } );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).not.toHaveClass( 'surface' );
+	} );
+
+	test( 'strips the surface from a bounded box when unstyled', async () => {
+		renderChart( { unstyled: true } );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).not.toHaveClass( 'surface' );
+	} );
+
+	test( 'keeps a caller class beside the surface on an unbounded box', async () => {
+		renderChart( { detectBounds: false, className: 'extra' } );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).toHaveClass( 'surface', 'extra' );
+	} );
+
 	test( 'renders the tooltip box inside the chart wrapper, not in a body-level portal', async () => {
 		const { container } = renderChart();
 

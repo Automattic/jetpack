@@ -205,11 +205,11 @@ BelowAxisDefaultRenderer.parameters = {
 export const BelowAxisBackgroundOnly: StoryObj< typeof LineChart > = Template.bind( {} );
 BelowAxisBackgroundOnly.args = {
 	...BelowAxisDefaultRenderer.args,
-	tooltipStyle: { background: '#fff' },
+	tooltipStyle: { background: 'var(--a8c-charts-color-surface-secondary)' },
 };
 
 export const BelowAxisColorOnly: StoryObj< typeof LineChart > = Template.bind( {} );
 BelowAxisColorOnly.args = {
 	...BelowAxisDefaultRenderer.args,
-	tooltipStyle: { color: 'var(--a8c-charts-color-label-inverse)' },
+	tooltipStyle: { color: 'var(--a8c-charts-color-series-1)' },
 };
