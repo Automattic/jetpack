@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Fix circular sandbox window mocks in block editor tests.
+
+
