@@ -356,8 +356,9 @@ function wpcom_marketplace_card_button( array $card ) {
 			$label = __( 'Get started with %s', 'jetpack-mu-wpcom' );
 		}
 
+		// No noreferrer: Calypso's link lets the vendor see where the visit came from, and so does this one.
 		return sprintf(
-			'<a class="button" href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
+			'<a class="button" href="%s" target="_blank" rel="noopener" aria-label="%s">%s</a>',
 			esc_url( $referral ),
 			esc_attr( sprintf( $label, $name ) ),
 			esc_html__( 'Get started', 'jetpack-mu-wpcom' )

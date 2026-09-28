@@ -1170,6 +1170,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'https://example.com/vendor-pricing?uuid=12345%2B67890', $button );
 		$this->assertStringContainsString( 'Get started', $button );
+		$this->assertStringNotContainsString( 'noreferrer', $button );
 		$this->assertStringNotContainsString( 'wordpress.com/checkout', $button );
 		$this->assertStringNotContainsString( 'Purchase', $button );
 	}
