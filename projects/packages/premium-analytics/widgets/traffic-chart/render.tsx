@@ -11,7 +11,6 @@ import {
 	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { search } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -101,15 +100,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					groupLabel={ groupLabel }
 					tickResolution={ period }
 					onDatumClick={ openBucket }
-					empty={
-						<ChartEmptyState
-							icon={ search }
-							text={ __(
-								'We couldn’t find results for this time period.',
-								'jetpack-premium-analytics-pkg'
-							) }
-						/>
-					}
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

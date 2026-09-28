@@ -10,7 +10,7 @@ import {
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
-import { reports, search } from '@jetpack-premium-analytics/icons';
+import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	ChartEmptyState,
 	MetricTabsChart,
@@ -168,15 +168,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					empty={
-						<ChartEmptyState
-							icon={ search }
-							text={ __(
-								'We couldn’t find results for this time period.',
-								'jetpack-premium-analytics-pkg'
-							) }
-						/>
-					}
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

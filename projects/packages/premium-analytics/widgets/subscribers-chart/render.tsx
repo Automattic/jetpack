@@ -11,7 +11,6 @@ import {
 	useWidgetRootContext,
 	type MetricTab,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -138,15 +137,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					baseline="padded"
-					empty={
-						<ChartEmptyState
-							icon={ search }
-							text={ __(
-								'We couldn’t find results for this time period.',
-								'jetpack-premium-analytics-pkg'
-							) }
-						/>
-					}
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

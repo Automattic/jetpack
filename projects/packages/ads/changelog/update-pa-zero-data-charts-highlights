@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Show the WordAds chart empty state inside the chart; the plugin changelogs carry the user-facing entry.
+
+
