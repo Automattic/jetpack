@@ -41,6 +41,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
 		delete_option( 'jetpack_private_options' );
 		\Jetpack_Options::delete_option( 'id' );
+		\Jetpack_Options::delete_option( 'master_user' );
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		\Jetpack_Options::delete_option( 'tos_agreed' );
 		Constants::clear_constants();
 		PayPal_API_Client::forget_cached_resources( 'PLB-ORDER1' );
 		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
@@ -62,6 +65,36 @@ class PayPal_REST_Controller_Test extends TestCase {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		( new Tokens() )->update_blog_token( 'test.blogtoken' );
 		\Jetpack_Options::update_option( 'id', 1234 );
+	}
+
+	/**
+	 * Connect an admin as the connection owner, so checkout events have someone to go to.
+	 */
+	private function set_up_connection_owner() {
+		$user_id = self::factory_create_admin_user();
+		( new Tokens() )->update_user_token( $user_id, 'token.secret.' . $user_id, true );
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'tos_agreed', true );
+	}
+
+	/**
+	 * The Tracks events among the collected requests, as the pixel's query parameters.
+	 *
+	 * @param array $requests Requests collected by mock_http_routes().
+	 * @return array[] One decoded query per event.
+	 */
+	private function tracks_events( array $requests ) {
+		$events = array();
+		foreach ( $requests as $request ) {
+			if ( false === strpos( $request['url'], 'pixel.wp.com' ) ) {
+				continue;
+			}
+			$query = array();
+			parse_str( (string) wp_parse_url( $request['url'], PHP_URL_QUERY ), $query );
+			$events[] = $query;
+		}
+
+		return $events;
 	}
 
 	/**
@@ -750,6 +783,185 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertSame( 'paypal_api_unprocessable_entity', $result->get_error_code() );
 		$this->assertSame( 422, $result->get_error_data()['status'] );
+	}
+
+	public function test_create_order_records_a_tracks_event() {
+		$this->set_up_connected_admin_state();
+		$this->set_up_connection_owner();
+		wp_set_current_user( 0 );
+
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources/PLB-ORDER1' => $this->http_response( 200, $this->stored_resource() ),
+				'/v2/checkout/orders' => $this->http_response( 201, array( 'id' => 'ORDER12345' ) ),
+				'pixel.wp.com'        => $this->http_response( 200, array() ),
+			),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 3 );
+
+		PayPal_REST_Controller::handle_create_order( $request );
+
+		$events = $this->tracks_events( $requests );
+		$this->assertCount( 1, $events );
+		$event = $events[0];
+		$this->assertSame( 'jetpack_paypal_checkout_order_created', $event['_en'] );
+		$this->assertSame( 'ORDER12345', $event['order_id'] );
+		$this->assertSame( 'PLB-ORDER1', $event['resource_id'] );
+		$this->assertSame( '3', $event['quantity'] );
+		$this->assertSame( '30.00', $event['total'] );
+		$this->assertSame( 'USD', $event['currency'] );
+		$this->assertSame( '0', $event['option_count'] );
+		$this->assertSame( 'sandbox', $event['environment'] );
+		$this->assertSame( '1234', $event['blog_id'] );
+		$this->assertArrayNotHasKey( 'payer_email', $event );
+	}
+
+	public function test_create_order_records_why_it_failed() {
+		$this->set_up_connected_admin_state();
+		$this->set_up_connection_owner();
+		wp_set_current_user( 0 );
+		PayPal_API_Client::remember_deleted_resource( 'PLB-ORDER1' );
+
+		$requests = array();
+		$this->mock_http_routes( array( 'pixel.wp.com' => $this->http_response( 200, array() ) ), $requests );
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 1 );
+
+		$result = PayPal_REST_Controller::handle_create_order( $request );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$events = $this->tracks_events( $requests );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_paypal_checkout_order_create_failed', $events[0]['_en'] );
+		$this->assertSame( 'paypal_order_link_deleted', $events[0]['error_code'] );
+		$this->assertSame( '404', $events[0]['http_status'] );
+		$this->assertSame( 'PLB-ORDER1', $events[0]['resource_id'] );
+	}
+
+	public function test_capture_order_records_a_tracks_event() {
+		$this->set_up_connected_admin_state();
+		$this->set_up_connection_owner();
+		wp_set_current_user( 0 );
+
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v2/checkout/orders/ORDERTRACK1/capture' => $this->http_response(
+					201,
+					array(
+						'id'             => 'ORDERTRACK1',
+						'status'         => 'COMPLETED',
+						'payer'          => array( 'email_address' => 'buyer@example.com' ),
+						'purchase_units' => array(
+							array(
+								'custom_id' => 'PLB-ORDER1',
+								'items'     => array( array( 'quantity' => '2' ) ),
+								'payments'  => array(
+									'captures' => array(
+										array(
+											'id'     => 'CAPTURE999',
+											'status' => 'COMPLETED',
+											'amount' => array(
+												'currency_code' => 'EUR',
+												'value' => '20.00',
+											),
+										),
+									),
+								),
+							),
+						),
+					)
+				),
+				'pixel.wp.com'                            => $this->http_response( 200, array() ),
+			),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders/ORDERTRACK1/capture' );
+		$request->set_param( 'order_id', 'ORDERTRACK1' );
+
+		PayPal_REST_Controller::handle_capture_order( $request );
+
+		$post_id = PayPal_Orders::find( 'ORDERTRACK1' );
+		if ( $post_id ) {
+			wp_delete_post( $post_id, true );
+		}
+
+		$events = $this->tracks_events( $requests );
+		$this->assertCount( 1, $events );
+		$event = $events[0];
+		$this->assertSame( 'jetpack_paypal_checkout_order_captured', $event['_en'] );
+		$this->assertSame( 'ORDERTRACK1', $event['order_id'] );
+		$this->assertSame( 'CAPTURE999', $event['capture_id'] );
+		$this->assertSame( 'COMPLETED', $event['status'] );
+		$this->assertSame( 'PLB-ORDER1', $event['resource_id'] );
+		$this->assertSame( '2', $event['quantity'] );
+		$this->assertSame( '20.00', $event['total'] );
+		$this->assertSame( 'EUR', $event['currency'] );
+		$this->assertArrayNotHasKey( 'payer_email', $event );
+	}
+
+	public function test_capture_order_records_the_decline() {
+		$this->set_up_connected_admin_state();
+		$this->set_up_connection_owner();
+		wp_set_current_user( 0 );
+
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v2/checkout/orders/ORDER12345/capture' => $this->http_response(
+					422,
+					array(
+						'name'    => 'UNPROCESSABLE_ENTITY',
+						'details' => array( array( 'issue' => 'INSTRUMENT_DECLINED' ) ),
+					)
+				),
+				'pixel.wp.com'                           => $this->http_response( 200, array() ),
+			),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders/ORDER12345/capture' );
+		$request->set_param( 'order_id', 'ORDER12345' );
+
+		PayPal_REST_Controller::handle_capture_order( $request );
+
+		$events = $this->tracks_events( $requests );
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_paypal_checkout_order_capture_failed', $events[0]['_en'] );
+		$this->assertSame( 'ORDER12345', $events[0]['order_id'] );
+		$this->assertSame( 'paypal_api_unprocessable_entity', $events[0]['error_code'] );
+		$this->assertSame( '422', $events[0]['http_status'] );
+	}
+
+	public function test_checkout_events_wait_for_a_connection_owner() {
+		$this->set_up_connected_admin_state();
+		wp_set_current_user( 0 );
+
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources/PLB-ORDER1' => $this->http_response( 200, $this->stored_resource() ),
+				'/v2/checkout/orders' => $this->http_response( 201, array( 'id' => 'ORDER12345' ) ),
+			),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/orders' );
+		$request->set_param( 'resource_id', 'PLB-ORDER1' );
+		$request->set_param( 'quantity', 1 );
+
+		$result = PayPal_REST_Controller::handle_create_order( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( array(), $this->tracks_events( $requests ) );
 	}
 
 	// --- api_error_to_rest_error (tested indirectly) ---

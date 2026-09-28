@@ -115,6 +115,46 @@ class PayPal_Orders_Test extends TestCase {
 		);
 	}
 
+	public function test_summarize_reads_the_fields_an_order_is_stored_by() {
+		$summary = PayPal_Orders::summarize( $this->captured_order() );
+
+		$this->assertSame( 'ORDER12345', $summary['order_id'] );
+		$this->assertSame( 'CAPTURE999', $summary['capture_id'] );
+		$this->assertSame( 'COMPLETED', $summary['status'] );
+		$this->assertSame( 'PLB-ORDER1', $summary['resource_id'] );
+		$this->assertSame( 'Widget', $summary['item_name'] );
+		$this->assertSame( 'Size: Large', $summary['options'] );
+		$this->assertSame( 3, $summary['quantity'] );
+		$this->assertSame( '10.00', $summary['unit_amount'] );
+		$this->assertSame( '30.00', $summary['total'] );
+		$this->assertSame( 'USD', $summary['currency'] );
+		$this->assertSame( 'buyer@example.com', $summary['payer_email'] );
+		$this->assertSame( 'Ada Lovelace', $summary['payer_name'] );
+	}
+
+	public function test_summarize_falls_back_to_the_order_when_there_is_no_capture() {
+		$summary = PayPal_Orders::summarize(
+			array(
+				'id'             => 'ORDER12345',
+				'status'         => 'APPROVED',
+				'purchase_units' => array(
+					array(
+						'amount' => array(
+							'currency_code' => 'USD',
+							'value'         => '30.00',
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame( 'APPROVED', $summary['status'] );
+		$this->assertSame( '', $summary['capture_id'] );
+		$this->assertSame( '30.00', $summary['total'] );
+		$this->assertSame( 'USD', $summary['currency'] );
+		$this->assertSame( 1, $summary['quantity'] );
+	}
+
 	public function test_register_post_type_waits_for_the_feature_flag() {
 		PayPal_Payment_Buttons::register_feature_flags();
 

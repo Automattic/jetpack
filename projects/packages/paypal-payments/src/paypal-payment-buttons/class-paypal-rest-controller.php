@@ -421,28 +421,36 @@ class PayPal_REST_Controller {
 	 */
 	public static function handle_create_order( WP_REST_Request $request ) {
 		$resource_id = $request->get_param( 'resource_id' );
+		$quantity    = $request->get_param( 'quantity' );
+		$tracked     = array(
+			'resource_id' => $resource_id,
+			'quantity'    => (int) $quantity,
+		);
 
 		if ( PayPal_API_Client::is_deleted_resource( $resource_id ) ) {
-			return new WP_Error(
-				'paypal_order_link_deleted',
-				__( 'This item is no longer for sale.', 'jetpack-paypal-payments' ),
-				array( 'status' => 404 )
+			return self::create_failed(
+				new WP_Error(
+					'paypal_order_link_deleted',
+					__( 'This item is no longer for sale.', 'jetpack-paypal-payments' ),
+					array( 'status' => 404 )
+				),
+				$tracked
 			);
 		}
 
 		$resource = PayPal_API_Client::get_resource_cached( $resource_id );
 		if ( is_wp_error( $resource ) ) {
-			return self::buyer_error( $resource );
+			return self::create_failed( self::buyer_error( $resource ), $tracked );
 		}
 
 		$selection = $request->get_param( 'selection' );
 		$built     = PayPal_Order_Builder::build(
 			$resource,
-			$request->get_param( 'quantity' ),
+			$quantity,
 			is_array( $selection ) ? $selection : array()
 		);
 		if ( is_wp_error( $built ) ) {
-			return $built;
+			return self::create_failed( $built, $tracked );
 		}
 
 		$collect_address = ! empty( $resource['line_items'][0]['collect_shipping_address'] );
@@ -459,10 +467,40 @@ class PayPal_REST_Controller {
 			)
 		);
 		if ( is_wp_error( $order ) ) {
-			return self::buyer_error( $order );
+			return self::create_failed( self::buyer_error( $order ), $tracked );
 		}
 
+		PayPal_Checkout_Tracks::record(
+			'order_created',
+			array_merge(
+				$tracked,
+				array(
+					'order_id'     => $order['id'] ?? '',
+					'currency'     => $built['summary']['currency'],
+					'total'        => $built['summary']['total'],
+					'unit_amount'  => $built['summary']['unit_amount'],
+					'option_count' => count( $built['summary']['options'] ),
+				)
+			)
+		);
+
 		return new WP_REST_Response( array( 'id' => $order['id'] ?? '' ), 201 );
+	}
+
+	/**
+	 * Record a failed order creation, and hand back the error to answer with.
+	 *
+	 * @param WP_Error $error   The error the buyer gets.
+	 * @param array    $tracked The order's resource id and quantity.
+	 * @return WP_Error The same error.
+	 */
+	private static function create_failed( WP_Error $error, array $tracked ) {
+		PayPal_Checkout_Tracks::record(
+			'order_create_failed',
+			array_merge( $tracked, PayPal_Checkout_Tracks::error_properties( $error ) )
+		);
+
+		return $error;
 	}
 
 	/**
@@ -474,14 +512,35 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response|WP_Error The order id and status on success, WP_Error on failure.
 	 */
 	public static function handle_capture_order( WP_REST_Request $request ) {
-		$order = PayPal_API_Client::capture_order( $request->get_param( 'order_id' ) );
+		$order_id = $request->get_param( 'order_id' );
+
+		$order = PayPal_API_Client::capture_order( $order_id );
 		if ( is_wp_error( $order ) ) {
-			return self::buyer_error( $order );
+			$error = self::buyer_error( $order );
+			PayPal_Checkout_Tracks::record(
+				'order_capture_failed',
+				array_merge( array( 'order_id' => $order_id ), PayPal_Checkout_Tracks::error_properties( $error ) )
+			);
+			return $error;
 		}
 
 		if ( 'COMPLETED' === ( $order['status'] ?? '' ) ) {
 			PayPal_Orders::record( $order );
 		}
+
+		$summary = PayPal_Orders::summarize( $order );
+		PayPal_Checkout_Tracks::record(
+			'order_captured',
+			array(
+				'order_id'    => $summary['order_id'],
+				'capture_id'  => $summary['capture_id'],
+				'status'      => $summary['status'],
+				'resource_id' => $summary['resource_id'],
+				'quantity'    => $summary['quantity'],
+				'currency'    => $summary['currency'],
+				'total'       => $summary['total'],
+			)
+		);
 
 		return new WP_REST_Response(
 			array(

@@ -86,22 +86,15 @@ class PayPal_Orders {
 	 * @return int|\WP_Error The order post id.
 	 */
 	public static function record( array $order ) {
-		$order_id = sanitize_text_field( $order['id'] ?? '' );
-		if ( '' === $order_id ) {
+		$summary = self::summarize( $order );
+		if ( '' === $summary['order_id'] ) {
 			return new \WP_Error( 'paypal_order_missing_id', __( 'PayPal returned an order without an id.', 'jetpack-paypal-payments' ) );
 		}
 
-		$existing = self::find( $order_id );
+		$existing = self::find( $summary['order_id'] );
 		if ( $existing ) {
 			return $existing;
 		}
-
-		$unit    = $order['purchase_units'][0] ?? array();
-		$item    = $unit['items'][0] ?? array();
-		$capture = $unit['payments']['captures'][0] ?? array();
-		$payer   = $order['payer'] ?? array();
-		$name    = sanitize_text_field( $item['name'] ?? ( $unit['description'] ?? '' ) );
-		$payer_n = trim( sanitize_text_field( ( $payer['name']['given_name'] ?? '' ) . ' ' . ( $payer['name']['surname'] ?? '' ) ) );
 
 		$post_id = wp_insert_post(
 			array(
@@ -110,22 +103,22 @@ class PayPal_Orders {
 				'post_title'  => sprintf(
 					/* translators: 1: item name, 2: quantity bought */
 					__( '%1$s x %2$s', 'jetpack-paypal-payments' ),
-					$name,
-					absint( $item['quantity'] ?? 1 )
+					$summary['item_name'],
+					$summary['quantity']
 				),
 				'meta_input'  => array(
-					self::META_ORDER_ID    => $order_id,
-					self::META_CAPTURE_ID  => sanitize_text_field( $capture['id'] ?? '' ),
-					self::META_STATUS      => sanitize_text_field( $capture['status'] ?? ( $order['status'] ?? '' ) ),
-					self::META_RESOURCE_ID => sanitize_text_field( $unit['custom_id'] ?? '' ),
-					self::META_ITEM_NAME   => $name,
-					self::META_OPTIONS     => sanitize_text_field( $item['description'] ?? '' ),
-					self::META_QUANTITY    => absint( $item['quantity'] ?? 1 ),
-					self::META_UNIT_AMOUNT => sanitize_text_field( $item['unit_amount']['value'] ?? '' ),
-					self::META_TOTAL       => sanitize_text_field( $capture['amount']['value'] ?? ( $unit['amount']['value'] ?? '' ) ),
-					self::META_CURRENCY    => sanitize_text_field( $capture['amount']['currency_code'] ?? ( $unit['amount']['currency_code'] ?? '' ) ),
-					self::META_PAYER_EMAIL => sanitize_email( $payer['email_address'] ?? '' ),
-					self::META_PAYER_NAME  => $payer_n,
+					self::META_ORDER_ID    => $summary['order_id'],
+					self::META_CAPTURE_ID  => $summary['capture_id'],
+					self::META_STATUS      => $summary['status'],
+					self::META_RESOURCE_ID => $summary['resource_id'],
+					self::META_ITEM_NAME   => $summary['item_name'],
+					self::META_OPTIONS     => $summary['options'],
+					self::META_QUANTITY    => $summary['quantity'],
+					self::META_UNIT_AMOUNT => $summary['unit_amount'],
+					self::META_TOTAL       => $summary['total'],
+					self::META_CURRENCY    => $summary['currency'],
+					self::META_PAYER_EMAIL => $summary['payer_email'],
+					self::META_PAYER_NAME  => $summary['payer_name'],
 					self::META_ENVIRONMENT => PayPal_OAuth::get_environment(),
 				),
 			),
@@ -133,6 +126,34 @@ class PayPal_Orders {
 		);
 
 		return $post_id;
+	}
+
+	/**
+	 * The fields an order is stored and reported by, read from PayPal's representation.
+	 *
+	 * @param array $order The captured order, as PayPal returns it.
+	 * @return array{order_id: string, capture_id: string, status: string, resource_id: string, item_name: string, options: string, quantity: int, unit_amount: string, total: string, currency: string, payer_email: string, payer_name: string}
+	 */
+	public static function summarize( array $order ) {
+		$unit    = $order['purchase_units'][0] ?? array();
+		$item    = $unit['items'][0] ?? array();
+		$capture = $unit['payments']['captures'][0] ?? array();
+		$payer   = $order['payer'] ?? array();
+
+		return array(
+			'order_id'    => sanitize_text_field( $order['id'] ?? '' ),
+			'capture_id'  => sanitize_text_field( $capture['id'] ?? '' ),
+			'status'      => sanitize_text_field( $capture['status'] ?? ( $order['status'] ?? '' ) ),
+			'resource_id' => sanitize_text_field( $unit['custom_id'] ?? '' ),
+			'item_name'   => sanitize_text_field( $item['name'] ?? ( $unit['description'] ?? '' ) ),
+			'options'     => sanitize_text_field( $item['description'] ?? '' ),
+			'quantity'    => absint( $item['quantity'] ?? 1 ),
+			'unit_amount' => sanitize_text_field( $item['unit_amount']['value'] ?? '' ),
+			'total'       => sanitize_text_field( $capture['amount']['value'] ?? ( $unit['amount']['value'] ?? '' ) ),
+			'currency'    => sanitize_text_field( $capture['amount']['currency_code'] ?? ( $unit['amount']['currency_code'] ?? '' ) ),
+			'payer_email' => sanitize_email( $payer['email_address'] ?? '' ),
+			'payer_name'  => trim( sanitize_text_field( ( $payer['name']['given_name'] ?? '' ) . ' ' . ( $payer['name']['surname'] ?? '' ) ) ),
+		);
 	}
 
 	/**

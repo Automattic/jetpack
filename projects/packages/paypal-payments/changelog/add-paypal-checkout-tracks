@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Record Tracks events when an on-site checkout order is created, captured, or fails.
