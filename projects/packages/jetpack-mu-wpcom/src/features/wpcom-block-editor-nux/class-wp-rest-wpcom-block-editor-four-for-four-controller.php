@@ -183,7 +183,7 @@ class WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller extends \WP_REST_Contr
 			return false;
 		}
 		// @phan-suppress-next-line PhanUndeclaredFunction
-		if ( function_exists( 'is_wpcom_public_coming_soon_enabled' ) && is_wpcom_public_coming_soon_enabled() ) {
+		if ( function_exists( 'is_wpcom_public_coming_soon_enabled' ) && is_wpcom_public_coming_soon_enabled( get_current_blog_id() ) ) {
 			return false;
 		}
 
