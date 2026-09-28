@@ -42,6 +42,14 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	protected $buffered_script_tags = array();
 
 	/**
+	 * `id` attributes of the tags printed for handles kept in place via
+	 * `jetpack_boost_render_blocking_js_exclude_handles`.
+	 *
+	 * @var string[]
+	 */
+	private $kept_script_ids = array();
+
+	/**
 	 * HTML attribute name to be added to <script> tag to make it
 	 * ignored by this class.
 	 *
@@ -233,17 +241,24 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 	 */
 	public function handle_output_stream( $buffer_start, $buffer_end ) {
 		$joint_buffer = $this->ignore_exclusion_scripts( $buffer_start . $buffer_end );
-		$script_tags  = $this->get_script_tags( $joint_buffer );
+
+		list( $kept_in_place, $joint_buffer ) = $this->split_at_kept_scripts( $joint_buffer );
+
+		$script_tags = $this->get_script_tags( $joint_buffer );
 
 		if ( ! $script_tags ) {
 			if ( $this->is_opened_script ) {
 				// We have an opened script tag, move everything to the second buffer to avoid printing it to the page.
 				// We will do this until the </script> closing tag is encountered.
-				return array( '', $joint_buffer );
+				return array( $kept_in_place, $joint_buffer );
 			}
 
 			// No script tags detected, return both chunks unaltered.
-			return array( $buffer_start, $buffer_end );
+			if ( '' === $kept_in_place ) {
+				return array( $buffer_start, $buffer_end );
+			}
+
+			return array( $kept_in_place, $joint_buffer );
 		}
 
 		// Makes sure all whole <script>...</script> tags are in $buffer_start.
@@ -257,7 +272,53 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		// Detect a lingering opened script.
 		$this->is_opened_script = $this->is_opened_script( $buffer_start . $buffer_end );
 
-		return array( $buffer_start, $buffer_end );
+		return array( $kept_in_place . $buffer_start, $buffer_end );
+	}
+
+	/**
+	 * Keep every script up to the last kept-in-place handle in document order.
+	 *
+	 * Scripts printed before such a handle may set up state it relies on, like Divi's inline
+	 * jQuery stand-in before `jquery-core` (BOOST-763), so moving them after it breaks the page.
+	 *
+	 * @param string $buffer Captured piece of output buffer.
+	 *
+	 * @return string[] The part to print unchanged, and the rest of the buffer.
+	 */
+	private function split_at_kept_scripts( $buffer ) {
+		if ( ! $this->kept_script_ids ) {
+			return array( '', $buffer );
+		}
+
+		$ids   = array_map(
+			function ( $id ) {
+				return preg_quote( $id, '~' );
+			},
+			array_unique( $this->kept_script_ids )
+		);
+		$regex = '~<script\b[^>]*\sid=(["\'])(?:' . implode( '|', $ids ) . ')\1[^>]*>[\s\S]*?</script>~i';
+
+		if ( ! preg_match_all( $regex, $buffer, $kept_tags, PREG_OFFSET_CAPTURE ) ) {
+			return array( '', $buffer );
+		}
+
+		$last_kept = end( $kept_tags[0] );
+		$split_at  = $last_kept[1] + strlen( $last_kept[0] );
+		$kept      = substr( $buffer, 0, $split_at );
+
+		// Scripts taken from earlier chunks go back in front of the first script here, where they were printed.
+		if ( $this->buffered_script_tags ) {
+			$first_script = $kept_tags[0][0][1];
+			$moved_here   = $this->get_script_tags( $kept );
+			if ( $moved_here ) {
+				$first_script = min( $first_script, $moved_here[0][1] );
+			}
+
+			$kept                       = substr_replace( $kept, implode( '', $this->buffered_script_tags ), $first_script, 0 );
+			$this->buffered_script_tags = array();
+		}
+
+		return array( $kept, substr( $buffer, $split_at ) );
 	}
 
 	/**
@@ -491,6 +552,8 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		if ( ! in_array( $handle, $this->get_exclude_handles(), true ) ) {
 			return $tag;
 		}
+
+		$this->kept_script_ids[] = $handle . '-js';
 
 		return $this->add_ignore_attribute( $tag );
 	}

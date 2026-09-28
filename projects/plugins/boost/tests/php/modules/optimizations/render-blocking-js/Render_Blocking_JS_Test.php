@@ -539,4 +539,73 @@ class Render_Blocking_JS_Test extends MockeryTestCase {
 		$this->assertFalse( $this->instance->should_concatenate( false, 'some-other-handle' ) );
 		$this->assertSame( 0, $this->instance->should_concatenate( 0, 'jetpack_likes_queuehandler' ) );
 	}
+
+	/**
+	 * Print a `jquery-core` tag kept in place, as Boost's Jetpack Likes compatibility does.
+	 *
+	 * @return string The tag as printed.
+	 */
+	private function print_kept_jquery_core() {
+		Filters\expectApplied( 'jetpack_boost_render_blocking_js_exclude_handles' )
+			->andReturn( array( 'jquery-core' ) );
+
+		return $this->instance->handle_exclusions( '<script id="jquery-core-js" src="jquery.min.js"></script>', 'jquery-core' ); // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
+	}
+
+	/**
+	 * Scripts buffered to be moved to the end of the document.
+	 *
+	 * @return string[]
+	 */
+	private function get_buffered_script_tags() {
+		$property = new \ReflectionProperty( $this->instance, 'buffered_script_tags' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+
+		return $property->getValue( $this->instance );
+	}
+
+	/**
+	 * Divi's inline jQuery stand-in must still run before a kept `jquery-core`, or it replaces the real jQuery.
+	 */
+	public function test_scripts_before_a_kept_handle_keep_their_order() {
+		$stand_in = '<script>let jQuery=function(){};window.jQuery=jQuery;</script>';
+		$migrate  = '<script id="jquery-migrate-js" src="jquery-migrate.min.js"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
+		$jquery   = $this->print_kept_jquery_core();
+
+		list( $output, $rest ) = $this->instance->handle_output_stream( "<head>$stand_in$jquery$migrate</head><body>", '' );
+
+		$this->assertSame( "<head>$stand_in$jquery</head><body>", $output . $rest );
+		$this->assertSame( array( $migrate ), $this->get_buffered_script_tags() );
+	}
+
+	/**
+	 * A script already taken from an earlier chunk goes back in front of the kept handle.
+	 */
+	public function test_scripts_from_earlier_chunks_return_before_a_kept_handle() {
+		$stand_in = '<script>let jQuery=function(){};window.jQuery=jQuery;</script>';
+		$jquery   = $this->print_kept_jquery_core();
+
+		list( $first_output, $first_rest ) = $this->instance->handle_output_stream( "<head><meta charset=\"utf-8\">$stand_in", '<title>Shop</title>' );
+		$this->assertSame( array( $stand_in ), $this->get_buffered_script_tags() );
+
+		list( $output, $rest ) = $this->instance->handle_output_stream( $first_rest, "<meta name=\"viewport\" content=\"width=device-width\">$jquery</head>" );
+
+		$this->assertSame( "<head><meta charset=\"utf-8\"><title>Shop</title><meta name=\"viewport\" content=\"width=device-width\">$stand_in$jquery</head>", $first_output . $output . $rest );
+		$this->assertSame( array(), $this->get_buffered_script_tags() );
+	}
+
+	/**
+	 * Without a kept handle every script is still moved.
+	 */
+	public function test_scripts_are_moved_when_no_handle_is_kept() {
+		$stand_in = '<script>let jQuery=function(){};window.jQuery=jQuery;</script>';
+		$jquery   = '<script id="jquery-core-js" src="jquery.min.js"></script>'; // phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- test fixture markup.
+
+		list( $output, $rest ) = $this->instance->handle_output_stream( "<head>$stand_in$jquery</head>", '' );
+
+		$this->assertSame( '<head></head>', $output . $rest );
+		$this->assertSame( array( $stand_in, $jquery ), $this->get_buffered_script_tags() );
+	}
 }

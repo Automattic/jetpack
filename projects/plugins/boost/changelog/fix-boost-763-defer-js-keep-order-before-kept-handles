@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Defer JS: Keep scripts that come before a script left in place in their original order, fixing hidden product images and unclickable tabs with Divi and Jetpack Likes.
