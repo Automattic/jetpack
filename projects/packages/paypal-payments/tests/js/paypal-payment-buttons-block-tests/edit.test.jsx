@@ -1778,6 +1778,90 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 		} );
 
+		it( 'asks PayPal to send the seller back to the plugin return page, not the editor', async () => {
+			window.jetpackPayPalPayments = {
+				onboardingReturnUrl:
+					'http://localhost/wp-admin/admin-post.php?action=jetpack_paypal_return',
+			};
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			// A referral whose return URL is the editor loads the editor inside
+			// the onboarding frame once PayPal navigates to it.
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/signup-link' ),
+						data: expect.objectContaining( {
+							return_url: 'http://localhost/wp-admin/admin-post.php?action=jetpack_paypal_return',
+						} ),
+					} )
+				)
+			);
+
+			delete window.jetpackPayPalPayments;
+		} );
+
+		it( 'records the seller when the return page reports back', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByRole( 'button', { name: /Connect PayPal/i } )
+			).resolves.toBeVisible();
+
+			// PayPal's third-party flow never calls the SDK callback; it navigates
+			// to the return page, which posts what PayPal appended to its URL.
+			await act( async () => {
+				window.dispatchEvent(
+					new MessageEvent( 'message', {
+						origin: window.location.origin,
+						data: {
+							type: 'jetpack-paypal-onboarding-return',
+							merchantIdInPayPal: 'MERCHANT1',
+							permissionsGranted: 'true',
+						},
+					} )
+				);
+			} );
+
+			await waitFor( () =>
+				expect( apiFetch ).toHaveBeenCalledWith(
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						method: 'POST',
+						data: { merchant_id_in_paypal: 'MERCHANT1' },
+					} )
+				)
+			);
+		} );
+
+		it( 'ignores a return message from another origin', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByRole( 'button', { name: /Connect PayPal/i } )
+			).resolves.toBeVisible();
+
+			await act( async () => {
+				window.dispatchEvent(
+					new MessageEvent( 'message', {
+						origin: 'https://evil.example',
+						data: {
+							type: 'jetpack-paypal-onboarding-return',
+							merchantIdInPayPal: 'MERCHANT1',
+						},
+					} )
+				);
+			} );
+
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) => path.endsWith( '/onboarding/complete' ) )
+			).toBe( false );
+		} );
+
 		it( 'shows the failure when the signup link cannot be generated', async () => {
 			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
 

@@ -12,6 +12,8 @@ import { forgetExistingLinks } from '../utils/existing-links';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
+	ONBOARDING_RETURN_MESSAGE,
+	getOnboardingReturnUrl,
 	loadPartnerScript,
 	waitForAnchorBinding,
 } from '../utils/paypal-partner-sdk';
@@ -310,6 +312,32 @@ export function usePayPalConnection() {
 	}, [ completeOnboarding ] );
 
 	/**
+	 * Finish onboarding when the plugin's return page reports back.
+	 *
+	 * PayPal's third-party flow does not call the SDK callback; it navigates to
+	 * the return URL. That lands either in the onboarding frame, whose parent is
+	 * this window, or in PayPal's popup, whose opener is the frame's window, so
+	 * both windows listen.
+	 */
+	useEffect( () => {
+		const handleReturn = event => {
+			if ( event.origin !== window.location.origin ) {
+				return;
+			}
+			if ( event.data?.type !== ONBOARDING_RETURN_MESSAGE ) {
+				return;
+			}
+
+			completeOnboarding( event.data.merchantIdInPayPal || '' );
+		};
+
+		const targets = new Set( [ window, frameNode?.contentWindow ].filter( Boolean ) );
+		targets.forEach( target => target.addEventListener( 'message', handleReturn ) );
+
+		return () => targets.forEach( target => target.removeEventListener( 'message', handleReturn ) );
+	}, [ frameNode, completeOnboarding ] );
+
+	/**
 	 * Fetch the referral link.
 	 *
 	 * The SDK turns the link itself into its button, so the link has to exist
@@ -323,7 +351,9 @@ export function usePayPalConnection() {
 			path: `${ API_BASE }/onboarding/signup-link`,
 			method: 'POST',
 			data: {
-				return_url: window.location.href,
+				// The plugin's own page, never the editor: PayPal navigates to it
+				// from inside the onboarding frame.
+				return_url: getOnboardingReturnUrl(),
 				environment,
 			},
 		} )

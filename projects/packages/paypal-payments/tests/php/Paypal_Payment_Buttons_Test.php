@@ -506,9 +506,78 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		PayPal_Payment_Buttons::load_editor_scripts();
 
 		$this->assertSame(
-			array( 'window.jetpackPayPalPayments = {"sdkHostUrl":' . wp_json_encode( PayPal_Payment_Buttons::get_sdk_host_url(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . '};' ),
+			array(
+				'window.jetpackPayPalPayments = ' . wp_json_encode(
+					array(
+						'sdkHostUrl'          => PayPal_Payment_Buttons::get_sdk_host_url(),
+						'onboardingReturnUrl' => PayPal_Payment_Buttons::get_onboarding_return_url(),
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+				) . ';',
+			),
 			array_values( array_filter( (array) wp_scripts()->get_data( 'jp-paypal-payments-ncps-blocks', 'before' ) ) )
 		);
+	}
+
+	/**
+	 * PayPal reaches the return page from its own popup, which need not carry the
+	 * login cookie, so it has to answer logged-out requests as well.
+	 */
+	public function test_onboarding_return_endpoint_answers_logged_in_and_logged_out_requests() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+		remove_all_actions( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+		$this->assertNotFalse( has_action( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+		remove_all_actions( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+	}
+
+	public function test_onboarding_return_endpoint_waits_for_the_feature_flag() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+
+		remove_all_actions( 'init' );
+	}
+
+	public function test_onboarding_return_url_points_at_the_admin_post_action() {
+		$this->assertStringContainsString(
+			'action=' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION,
+			PayPal_Payment_Buttons::get_onboarding_return_url()
+		);
+		// PayPal caps return_url at 127 characters.
+		$this->assertLessThanOrEqual( 127, strlen( PayPal_Payment_Buttons::get_onboarding_return_url() ) );
+	}
+
+	/**
+	 * The return page relays PayPal's query string to the editor and nothing else:
+	 * no site data goes on a page that answers logged-out requests.
+	 */
+	public function test_onboarding_return_page_relays_paypal_query_to_a_same_origin_window() {
+		PayPal_OAuth::store_credentials( 'stored-client-id', 'stored-client-secret' );
+
+		$markup = PayPal_Payment_Buttons::onboarding_return_markup();
+
+		$this->assertStringContainsString( '"' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '"', $markup );
+		$this->assertStringContainsString( 'merchantIdInPayPal', $markup );
+		$this->assertStringContainsString( 'postMessage( message, window.location.origin )', $markup );
+		$this->assertStringNotContainsString( 'stored-client', $markup );
 	}
 
 	/**
