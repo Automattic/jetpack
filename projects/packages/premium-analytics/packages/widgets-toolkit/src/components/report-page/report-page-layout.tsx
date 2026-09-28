@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Card } from '@jetpack-premium-analytics/externals';
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
 /**
@@ -55,5 +56,9 @@ export interface ReportPageSectionProps {
  * @return The section card.
  */
 export function ReportPageSection( { children, className }: ReportPageSectionProps ) {
-	return <section className={ clsx( styles.section, className ) }>{ children }</section>;
+	return (
+		<Card.Root render={ <section /> } className={ clsx( styles.section, className ) }>
+			{ children }
+		</Card.Root>
+	);
 }

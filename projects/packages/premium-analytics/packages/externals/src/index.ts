@@ -67,6 +67,7 @@ export {
 	AlertDialog,
 	Badge,
 	Button,
+	Card,
 	Dialog,
 	EmptyState,
 	LinkButton,
