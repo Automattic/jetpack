@@ -34,22 +34,21 @@
 			visibility 0s;
 	}
 
+	// Its own height, not the row's, so the slide moves it the whole way and
+	// its bottom edge tracks the row's as both animate.
 	> div {
 		display: flex;
 		flex-wrap: wrap;
+		align-self: start;
 		gap: 0.25em 1em;
 		min-block-size: 0;
 		// Inset by the box's border and padding, to line up with the avatar.
-		padding-inline: calc(var(--jetpack-comments-pad) + 2px);
+		padding: 0.5em calc(var(--jetpack-comments-pad) + 2px) 4px;
 		transform: translateY(-100%);
-		transition:
-			transform 0.25s ease-in-out,
-			padding 0.25s ease-in-out;
+		transition: transform 0.25s ease-in-out;
 	}
 
-	// Padding would hold the row open, so it only exists while open.
 	&.is-open > div {
-		padding-block: 0.5em 4px;
 		transform: none;
 	}
 }
