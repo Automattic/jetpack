@@ -106,6 +106,31 @@ describe( 'watchDerivedTextColor', () => {
 		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
 	} );
 
+	// Recognized by color rather than by spelling: what WordPress.com stored, or a creator typed,
+	// need not be the lowercase hex this writes.
+	it( 're-derives over its own derivation written another way', () => {
+		const pick = watching( {
+			styles: { color: { background: '#ffffff', text: 'RGB(38, 38, 38)' } },
+		} );
+
+		pick( { styles: { color: { background: '#000000', text: 'RGB(38, 38, 38)' } } } );
+
+		expect( written() ).toEqual( { color: { background: '#000000', text: BLACK_TEXT } } );
+	} );
+
+	// A palette pick is a deliberate choice, so it stays even where it happens to be the color this
+	// would have derived anyway.
+	it( 'leaves a text color picked from the palette', () => {
+		const pick = watching( {
+			styles: { color: { background: '#ffffff', text: 'var:preset|color|ink' } },
+		} );
+		mockTheme = { settings: { color: { palette: [ { slug: 'ink', color: WHITE_TEXT } ] } } };
+
+		pick( { styles: { color: { background: '#000000', text: 'var:preset|color|ink' } } } );
+
+		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
+	} );
+
 	it( 'clears a derived text color when the background is cleared', () => {
 		const pick = watching( { styles: { color: { background: '#ffffff', text: WHITE_TEXT } } } );
 
