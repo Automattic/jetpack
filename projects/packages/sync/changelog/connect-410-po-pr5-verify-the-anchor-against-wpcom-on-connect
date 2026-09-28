@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Drop a removed field from a protected owner test fixture.
+
+

@@ -3,6 +3,7 @@
  */
 import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -117,7 +118,8 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
-				isEmpty={ state.current.length === 0 }
+				// `stats/subscribers` answers a window before the site had any with `null` rows, so emptiness is judged per metric inside the chart, where the tabs keep showing their zeros.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",
@@ -135,6 +137,7 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					baseline="padded"
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

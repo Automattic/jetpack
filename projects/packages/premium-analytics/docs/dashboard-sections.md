@@ -187,25 +187,44 @@ A section that fails either rule is absent from the sections route, from the scr
 
 ![The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
 
-WordAds is a module of the Jetpack plugin, so on a self-hosted site the module registers the section: `modules/wordads/php/class-wordads-premium-analytics.php` hooks the action at priority 20 from `class-wordads.php`, which loads only while the module is active on a connected site.
+### Who owns the section
 
-On the WordPress.com platform the module registrant skips, `Host::is_wpcom_platform()`, and `jetpack-mu-wpcom` registers the section instead when the plan includes WordAds (`src/features/premium-analytics/wordads-section.php`): Simple runs no Jetpack plugin, and on Atomic the module is routinely off while the plan carries the feature. One owner per environment, decided in code rather than by hook order.
+The section, its layout and its widgets live in the `jetpack-ads` package (`projects/packages/ads`, `Analytics_Dashboard`). The package decides nothing about who gets Ads; whoever calls it hooks the action at priority 20.
 
-Both registrants skip when a section with slug `ads` already exists. That matters during a deploy skew only: an older package that still registers the section itself keeps it. They read the slug through `get_registered_by_slug()` when the package offers it and through `get_all_registered()` otherwise, since the package and the registrants ship on different cadences.
+### On self-hosted sites
 
-Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers. The standalone `premium-analytics` plugin has no registrant, and no Ads section.
+WordAds is a module of the Jetpack plugin, so the module calls `Analytics_Dashboard::init()` from `modules/wordads/php/class-wordads-premium-analytics.php`. `class-wordads.php` loads it only while the module is active on a connected site.
+
+### On WordPress.com
+
+The module registrant skips the platform, `Host::is_wpcom_platform()`. `jetpack-mu-wpcom` calls the package's registrants instead when the plan includes WordAds, from `src/features/premium-analytics/wordads-section.php`.
+
+Simple runs no Jetpack plugin, and on Atomic the module is routinely off while the plan carries the feature. One owner per environment, decided in code rather than by hook order.
+
+The Jetpack plugin bundles the package, and `jetpack-mu-wpcom` lists it as a test-only dependency. WordPress.com loads the Jetpack copy, so Simple and Atomic serve the widget bundles from it, the way they serve this package.
+
+### Deploy skew
+
+Both registrants skip when a section with slug `ads` already exists. That matters during a deploy skew only: an older package that still registers the section itself keeps it.
+
+They read the slug through `get_registered_by_slug()` when the package offers it and through `get_all_registered()` otherwise, since the package and the registrants ship on different cadences.
+
+### The layout
+
+Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers (see [Dashboard widget types](dashboard-widgets.md#a-real-consumer-the-ads-widgets)). The standalone `premium-analytics` plugin has no registrant, and no Ads section.
 
 ## Where the tests are
 
-| Behaviour                                                                                                         | Test                                                                                               |
-| ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Registry rules, hydration and the action, the built-in sections, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                                                             |
-| Default-layout primitives, the filter and the package's policy, the bundled layouts                               | `tests/php/Dashboard_Layout_Test.php`                                                              |
-| The WordAds module's registrant                                                                                   | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`            |
-| The WordPress.com registrant                                                                                      | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php` |
-| The REST entry point WordPress.com calls                                                                          | `tests/php/Dashboard_Support_Routes_Test.php`                                                      |
-| Navigation, active section, stored layouts, section heading                                                       | `routes/dashboard/**/*.test.ts(x)`                                                                 |
-| Reports behind a hidden section                                                                                   | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                               |
+| Behaviour                                                                                                         | Test                                                                                                                                                |
+| ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registry rules, hydration and the action, the built-in sections, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                                                                                                              |
+| Default-layout primitives, the filter and the package's policy, the bundled layouts                               | `tests/php/Dashboard_Layout_Test.php`                                                                                                               |
+| The WordAds module's registrant                                                                                   | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`                                                             |
+| The Ads package's registrants, with and without the widget contract loaded                                        | `projects/packages/ads/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/ads/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php` |
+| The WordPress.com registrant                                                                                      | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php`                                                  |
+| The REST entry point WordPress.com calls                                                                          | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                       |
+| Navigation, active section, stored layouts, section heading                                                       | `routes/dashboard/**/*.test.ts(x)`                                                                                                                  |
+| Reports behind a hidden section                                                                                   | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                |
 
 ## Not covered here
 

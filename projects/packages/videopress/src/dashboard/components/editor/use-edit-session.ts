@@ -13,7 +13,6 @@ import { createEditSession, editSessionReducer, sessionEditsEqual } from './stat
 import { isDirty, sessionToOperations } from './state/serialize';
 import type { EditSession, EditSessionAction } from './state/edit-session';
 import type { HistoryAction } from '../../../client/components/chapters-editor/state/history';
-import type { SaveVideoCopyVars } from '../../hooks/use-save-video-copy';
 import type { SaveEditsResponse, VideoEdits } from '../../types/edits';
 import type { LibraryItem } from '../../types/library';
 
@@ -25,11 +24,10 @@ const reducer = withHistory< EditSession, EditSessionAction >( editSessionReduce
 /**
  * Keep local edits against the revision they were made on until a processing job commits.
  *
- * @param video       - The attachment being edited.
- * @param copyRequest - Recover the draft and its revision from a pending copy after navigation.
+ * @param video - The attachment being edited.
  * @return The edit session, processing state, and save/restore actions.
  */
-export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyVars | null ) {
+export function useEditSession( video: LibraryItem ) {
 	const query = useVideoEdits( video.guid );
 	const saveMutation = useSaveVideoEdits();
 	const restoreMutation = useRestoreOriginal();
@@ -107,14 +105,6 @@ export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyV
 			}
 		} else if ( ! currentBaseline ) {
 			adopt( edits );
-			if ( copyRequest ) {
-				dispatch( {
-					type: 'LOAD',
-					operations: copyRequest.operations,
-					durationMs: edits.original_duration_ms,
-				} );
-				setConflict( copyRequest.baseRevision !== edits.revision );
-			}
 		} else if ( edits.revision !== currentBaseline.revision ) {
 			if ( pendingJob || current.dirty ) {
 				pendingRef.current = null;
@@ -124,7 +114,7 @@ export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyV
 				adopt( edits );
 			}
 		}
-	}, [ query.edits, pending, adopt, copyRequest ] );
+	}, [ query.edits, pending, adopt ] );
 
 	const guardedDispatch = useCallback( ( action: HistoryAction< EditSessionAction > ) => {
 		if ( ! stateRef.current.locked && ! stateRef.current.conflict ) {
