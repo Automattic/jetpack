@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { queryClient } from '@jetpack-premium-analytics/data';
 import { LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -39,11 +39,6 @@ jest.mock( '@wordpress/route', () => ( {
 		);
 	},
 	useSearch: () => ( {} ),
-} ) );
-
-jest.mock( '@jetpack-premium-analytics/data', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/data' ),
-	usePrefetchViewerCountry: jest.fn(),
 } ) );
 
 // The map loads Google Charts asynchronously, and what it draws is covered by
@@ -89,10 +84,22 @@ describe( 'LocationsWidget', () => {
 	// The map waits for the country, so the lookup has to be under way before the
 	// rows arrive or it delays the map.
 	it( "starts the viewer's country lookup while the rows are still loading", () => {
-		render( <LocationsWidget attributes={ {} } /> );
+		queryClient.clear();
+		// jsdom has no `fetch`, so there is nothing for `jest.spyOn()` to wrap.
+		// eslint-disable-next-line jest/prefer-spy-on
+		globalThis.fetch = jest.fn( () => new Promise< Response >( () => {} ) );
 
-		expect( usePrefetchViewerCountry ).toHaveBeenCalled();
-		expect( locationsGeoChartMock ).not.toHaveBeenCalled();
+		try {
+			render( <LocationsWidget attributes={ {} } /> );
+
+			expect( globalThis.fetch ).toHaveBeenCalledWith(
+				'https://public-api.wordpress.com/geo/',
+				expect.anything()
+			);
+			expect( locationsGeoChartMock ).not.toHaveBeenCalled();
+		} finally {
+			delete ( globalThis as { fetch?: unknown } ).fetch;
+		}
 	} );
 
 	it( 'links to the Locations report', () => {

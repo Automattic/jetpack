@@ -63,6 +63,8 @@ type LocationsInnerProps = {
  * defaults are applied in exactly one place.
  */
 function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
+	// Below `WidgetRoot`, which provides the query client.
+	usePrefetchViewerCountry();
 	const { reportParams } = useWidgetRootContext();
 
 	const {
@@ -228,8 +230,6 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
  * Jetpack Stats Locations module.
  */
 export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
-	usePrefetchViewerCountry();
-
 	// A persisted layout can carry a granularity this widget no longer knows, and
 	// it becomes both an endpoint path segment and a report tab.
 	const storedGranularity = attributes?.geoGranularity ?? DEFAULT_GEO_GRANULARITY;
