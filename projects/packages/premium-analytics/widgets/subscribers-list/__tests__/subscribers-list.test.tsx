@@ -82,6 +82,21 @@ describe( 'SubscribersListWidget', () => {
 		);
 	} );
 
+	it( 'opens the subscriber on the wp-admin Subscribers tab in the same tab when it is available', async () => {
+		setNewsletterSubscribersUrl(
+			'https://example.com/wp-admin/admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsubscribers'
+		);
+
+		render( <SubscribersListWidget attributes={ {} } /> );
+
+		const link = await screen.findByRole( 'link', { name: /Ada Lovelace/ } );
+		const url = new URL( link.getAttribute( 'href' ) ?? '' );
+		expect( url.pathname ).toBe( '/wp-admin/admin.php' );
+		expect( url.searchParams.get( 'page' ) ).toBe( 'jetpack-newsletter' );
+		expect( url.searchParams.get( 'p' ) ).toBe( '/?tab=subscribers&subscriber=4242' );
+		expect( link ).not.toHaveAttribute( 'target' );
+	} );
+
 	it( 'renders the name as plain text when there is no details page to link to', async () => {
 		setSiteData( true );
 
