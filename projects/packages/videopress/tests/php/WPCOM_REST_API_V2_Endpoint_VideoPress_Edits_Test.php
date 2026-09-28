@@ -188,6 +188,16 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Edits_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Without a connected owner the proxy refuses before contacting WordPress.com.
+	 */
+	public function test_missing_owner_connection_is_rejected_before_proxying() {
+		\Jetpack_Options::delete_option( 'user_tokens' );
+		( new Connection_Manager() )->reset_connection_status();
+		$this->assertSame( 403, $this->dispatch()->get_status() );
+		$this->assertEmpty( $this->requests );
+	}
+
+	/**
 	 * Test owners can read their video and obtain storyboard data.
 	 */
 	public function test_owner_can_read_edits_and_storyboard() {
