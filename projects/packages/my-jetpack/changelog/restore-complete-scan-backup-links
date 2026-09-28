@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Features tab: Show VaultPress Backup and Protect as active, with an Open link, when a paid plan runs them without their plugin.

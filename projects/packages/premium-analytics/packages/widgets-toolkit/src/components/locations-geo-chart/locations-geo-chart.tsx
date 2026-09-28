@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { useViewerCountry } from '@jetpack-premium-analytics/data';
 import { GeoChart, type GeoChartError } from '@jetpack-premium-analytics/externals';
 import { useCallback, useMemo, useState } from 'react';
 /**
@@ -39,7 +40,7 @@ export interface LocationsGeoChartProps {
  * The shared Stats locations map: a Google GeoChart of views by location.
  *
  * A focused country is drawn as a provinces map where Google has one, and falls
- * back to the world map where it does not.
+ * back to the world map where it does not. Disputed borders follow the viewer's country.
  *
  * @param {LocationsGeoChartProps} props - The component props.
  * @return The locations map.
@@ -54,6 +55,7 @@ export function LocationsGeoChart( {
 		Set< string >
 	>( () => new Set( runtimeUnsupportedProvinceMapCountries ) );
 
+	const { data: viewerCountry, isPending: isViewerCountryPending } = useViewerCountry();
 	const focusCountryCode = focusCountry?.code.toUpperCase();
 	const provinceMapSupported = focusCountryCode
 		? ! unsupportedProvinceMapCountries.has( focusCountryCode )
@@ -98,12 +100,19 @@ export function LocationsGeoChart( {
 		[ focusCountryCode, mode, useProvinceMap ]
 	);
 
+	// Drawing before the country is known would paint Google's default borders
+	// first and then redraw them, which is visible for a disputed border.
+	if ( isViewerCountryPending ) {
+		return null;
+	}
+
 	return (
 		<GeoChart
 			data={ data }
 			resizeDebounceTime={ resizeDebounceTime }
 			region={ region }
 			resolution={ resolution }
+			domain={ viewerCountry ?? undefined }
 			onError={ handleError }
 		/>
 	);

@@ -18,7 +18,6 @@ import {
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -91,10 +90,6 @@ function SearchTermsInner() {
 						),
 						onRetry: refetch,
 					} ) }
-					empty={ {
-						icon: search,
-						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart

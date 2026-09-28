@@ -330,6 +330,7 @@ function StorePerformanceContent() {
 					previous: series[ 1 ]?.data,
 					dataFormat: getFormatByMetricKey( metric.metricKey ),
 					description: metric.description,
+					countLabel: metric.countLabel,
 				};
 			} ),
 		[ enrichedMetrics, dataSources ]

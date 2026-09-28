@@ -7,6 +7,7 @@
 	.dops-clipboard-button {
 		position: absolute;
 		top: 50%;
+		// Kept physical: paired with the physical long-content-fade mixin used below.
 		right: 4px;
 		transform: translateY(-50%);
 		overflow: visible;

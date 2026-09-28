@@ -10,6 +10,7 @@ import {
 import { Badge } from '@wordpress/ui';
 import { ProductCamelCase } from '../../../data/types';
 import { MyJetpackModule } from '../../../types';
+import { getModuleStatus } from '../../modules-list/utils';
 import { PRODUCT_ICONS } from './mappings';
 import { ProductCardAction } from './product-card-action';
 import styles from './styles.module.scss';
@@ -34,6 +35,8 @@ export function ProductCard( { product, headingLevel = 3, module: $module }: Pro
 	const Icon = PRODUCT_ICONS[ product.slug ];
 
 	const { isAvailable, reason } = getProductStatus( product );
+	// A forced module has nothing to switch; its note sits in the footer, like an unavailable product's.
+	const forcedNote = $module?.override ? getModuleStatus( $module ).reason : null;
 
 	return (
 		<Card className={ styles[ 'product-card' ] }>
@@ -49,7 +52,7 @@ export function ProductCard( { product, headingLevel = 3, module: $module }: Pro
 							<Heading className={ styles[ 'card-title' ] }>{ product.name }</Heading>
 						</Flex>
 					</FlexBlock>
-					{ isAvailable ? (
+					{ isAvailable && ! forcedNote ? (
 						<FlexItem>
 							<ProductCardAction product={ product } module={ $module } />
 						</FlexItem>
@@ -59,9 +62,9 @@ export function ProductCard( { product, headingLevel = 3, module: $module }: Pro
 			<CardBody>
 				<span className={ styles[ 'card-description' ] }>{ product.description }</span>
 			</CardBody>
-			{ ! isAvailable ? (
+			{ ! isAvailable || forcedNote ? (
 				<CardFooter>
-					<Badge intent="medium">{ reason }</Badge>
+					<Badge intent="medium">{ isAvailable ? forcedNote : reason }</Badge>
 				</CardFooter>
 			) : null }
 		</Card>

@@ -1,0 +1,4 @@
+Significance: minor
+Type: other
+
+Modules: Honor the `jetpack_feature_policy` filter when detecting forced modules and choosing default modules.

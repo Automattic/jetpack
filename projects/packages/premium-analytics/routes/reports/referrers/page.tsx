@@ -5,6 +5,7 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -95,6 +96,19 @@ function ReferrersReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel, getTitle } = REPORTS.referrers;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! records.isLoading && records.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -106,12 +120,7 @@ function ReferrersReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				{ tableReplacement ?? (
 					<ReportDrilldownTable< ReferrerRecord >
 						data={ records.rows }
 						fields={ fields }

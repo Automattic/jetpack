@@ -25,6 +25,18 @@ export function isEmailRateKnown( signals: EmailRateSignals ): boolean {
 }
 
 /**
+ * The rate as a sort and export value: `undefined` when unknown, so it neither ranks nor
+ * exports as a real 0%.
+ *
+ * @param rate    - The rate as the endpoint reports it.
+ * @param signals - The counts behind the rate.
+ * @return The rate, or undefined when it is unknown.
+ */
+export function getKnownEmailRate( rate: number, signals: EmailRateSignals ): number | undefined {
+	return isEmailRateKnown( signals ) ? rate : undefined;
+}
+
+/**
  * Format an email summary rate, which the endpoint reports as a 0–100 percentage.
  *
  * @param rate    - The 0–100 rate.

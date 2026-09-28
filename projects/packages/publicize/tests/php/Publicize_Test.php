@@ -88,4 +88,12 @@ class Publicize_Test extends BaseTestCase {
 		$this->assertSame( '', $output );
 		$this->assertContains( Publicize::class . '::display_connection_error', $this->deprecated );
 	}
+
+	public function test_get_available_service_data_is_deprecated_and_empty() {
+		$publicize = new Publicize();
+
+		// @phan-suppress-next-line PhanDeprecatedFunction -- the test is the contract for the deprecated shim.
+		$this->assertSame( array(), $publicize->get_available_service_data() );
+		$this->assertContains( Publicize_Base::class . '::get_available_service_data', $this->deprecated );
+	}
 }

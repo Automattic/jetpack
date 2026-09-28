@@ -24,6 +24,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
 	} ) => (
@@ -33,6 +34,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					label: metric.label,
+					countLabels: [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ],
 					value: metric.value,
 					values: metric.current.map( point => point.value ),
 					dates: metric.current.map( point => point.date.toISOString().slice( 0, 10 ) ),
@@ -51,6 +53,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 function chartedMetrics( chart: HTMLElement ) {
 	return JSON.parse( chart.getAttribute( 'data-metrics' ) ?? '[]' ) as {
 		label: string;
+		countLabels: ( string | null )[];
 		value: number;
 		values: number[];
 		dates: string[];
@@ -99,6 +102,7 @@ describe( 'AuthorPerformanceWidget', () => {
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		const [ metric ] = chartedMetrics( chart );
 		expect( metric.label ).toBe( 'Views' );
+		expect( metric.countLabels ).toEqual( [ '%s View', '%s Views' ] );
 		expect( metric.dates ).toEqual( [ '2026-07-01', '2026-07-02', '2026-07-03' ] );
 		expect( metric.values ).toEqual( [ 2, 0, 5 ] );
 		expect( metric.value ).toBe( 7 );

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check.

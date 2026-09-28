@@ -2,13 +2,24 @@
 // the content while the section header pins at its top. The scope is what
 // lets the header's pin marker reach the header beside it.
 .root {
+	display: flex;
+	flex-direction: column;
 	flex: 1 1 auto;
 	min-block-size: 0;
 	overflow-y: auto;
 	timeline-scope: --section-header-pin;
+
+	// A scroll container's flex items would otherwise shrink to fit it,
+	// collapsing the header's empty pin marker and the sections under it.
+	> * {
+		flex-shrink: 0;
+	}
 }
 
+// Grows into the space the header leaves, so a section that grows too (the
+// report empty state) can centre itself in the rest of the page.
 .sections {
+	flex: 1 0 auto;
 	display: flex;
 	flex-direction: column;
 	gap: var(--wpds-dimension-gap-lg);

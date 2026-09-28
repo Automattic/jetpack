@@ -67,6 +67,8 @@ class Admin_Sidebar_Link {
 			return;
 		}
 
+		$position = defined( Admin_Menu::class . '::POSITION_EXTERNAL' ) ? Admin_Menu::POSITION_EXTERNAL : 100;
+
 		if ( $this->should_show_scan() ) {
 			Admin_Menu::add_menu(
 				/** "Scan" is a product name, do not translate. */
@@ -75,7 +77,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				Admin_Menu::POSITION_EXTERNAL,
+				$position,
 				array( 'key' => 'jetpack-scan-cloud' )
 			);
 		}
@@ -89,7 +91,7 @@ class Admin_Sidebar_Link {
 				'manage_options',
 				esc_url( Redirect::get_url( 'cloud-scan-history-wp-menu' ) ),
 				null,
-				Admin_Menu::POSITION_EXTERNAL,
+				$position,
 				array( 'key' => 'jetpack-scan-cloud' )
 			);
 		}

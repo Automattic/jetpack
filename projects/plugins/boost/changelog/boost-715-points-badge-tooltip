@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Dashboard: Show score changes as badges, including unchanged scores, with an explanation in the modern Overview.
+Dashboard: Show score gains as badges in the modern Overview, and explain a score that has not improved or has fallen.

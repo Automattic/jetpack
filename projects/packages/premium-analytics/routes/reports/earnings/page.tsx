@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { Text } from '@jetpack-premium-analytics/externals';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -28,19 +27,19 @@ import { REPORTS } from '../registry';
 import {
 	getEarningsReportTabs,
 	getTabTitle,
-	hasAdsServed,
 	resolveSection,
 	useEarningsReportRecords,
 } from './config';
-import styles from './page.module.css';
 
 const ROUTE_FROM = route.path;
 
+// Period is the row's title field: DataViews draws it bold in the content
+// colour, as in the design, and sizes it to the width the other columns leave.
 const RECORDS_VIEW = {
+	titleField: 'period',
 	sort: { field: 'period', direction: 'desc' as const },
 	layout: {
 		styles: {
-			period: { width: '100%' },
 			amount: { align: 'end' as const },
 			pageviews: { align: 'end' as const },
 		},
@@ -71,7 +70,8 @@ function EarningsReport(): JSX.Element {
 	const [ urlTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
 	const records = useEarningsReportRecords( urlTab );
 	const { tab, availableTabs } = records;
-	const showAdsServed = hasAdsServed( tab );
+	// Only the WordAds bucket records pageviews; the other tabs are amounts alone.
+	const showAdsServed = tab === 'wordads';
 	const tabs = useMemo(
 		() => getEarningsReportTabs().filter( ( { id } ) => availableTabs.includes( id ) ),
 		[ availableTabs ]
@@ -152,25 +152,15 @@ function EarningsReport(): JSX.Element {
 						onRetry={ retry }
 					/>
 				) : (
-					<>
-						{ showAdsServed && (
-							<Text className={ styles.note } variant="body-md" render={ <p /> }>
-								{ __(
-									'Ads Served is the number of ads we attempted to display (page impressions × available ad slots). Not every ad served results in a paid impression.',
-									'jetpack-premium-analytics-pkg'
-								) }
-							</Text>
-						) }
-						<ReportRecordsTable< EarningsHistoryRow >
-							key={ tab }
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getEarningsRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
-						/>
-					</>
+					<ReportRecordsTable< EarningsHistoryRow >
+						key={ tab }
+						data={ records.rows }
+						fields={ fields }
+						getItemId={ getEarningsRowId }
+						isLoading={ records.isLoading }
+						initialView={ RECORDS_VIEW }
+						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
+					/>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

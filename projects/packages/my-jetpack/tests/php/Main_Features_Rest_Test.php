@@ -120,6 +120,26 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * The grid refreshes from this route, so a hidden feature must stay out of it too.
+	 */
+	public function test_the_features_route_leaves_out_what_a_host_hid() {
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) );
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$this->assertSame( 200, $response->get_status() );
+		$slugs = array_column( $response->get_data()['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * The boost feature's plugin status in a response.
 	 *
 	 * @param \WP_REST_Response $response The response.
@@ -270,6 +290,73 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * DISALLOW_FILE_MODS stops administrators too, so the refusal must not blame their role.
+	 */
+	public function test_says_installs_are_off_when_file_changes_are_disallowed() {
+		add_filter( 'file_mod_allowed', '__return_false' );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+		$state    = $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) );
+
+		remove_filter( 'file_mod_allowed', '__return_false' );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'install_disabled', $response->get_data()['code'] );
+		$this->assertSame( Main_Features::INSTALLS_DISABLED, $state->get_data()['plugin_installs'] );
+	}
+
+	public function test_the_state_says_whether_the_user_may_install_plugins() {
+		$get = function () {
+			return $this->server->dispatch( new WP_REST_Request( 'GET', '/wpcom/v2/my-jetpack/site/features' ) )->get_data()['plugin_installs'];
+		};
+
+		$this->assertSame( Main_Features::INSTALLS_ALLOWED, $get() );
+
+		$deny = function ( $caps ) {
+			$caps['install_plugins'] = false;
+			return $caps;
+		};
+		add_filter( 'user_has_cap', $deny );
+		$denied = $get();
+		remove_filter( 'user_has_cap', $deny );
+
+		$this->assertSame( Main_Features::INSTALLS_NOT_PERMITTED, $denied );
+	}
+
+	public function test_explains_a_download_that_failed() {
+		$fail = function () {
+			return new \WP_Error( 'download_failed', 'Download failed.' );
+		};
+		add_filter( 'upgrader_pre_download', $fail );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+
+		remove_filter( 'upgrader_pre_download', $fail );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 'no_package', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'reach WordPress.org', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Without direct file access WordPress needs server credentials, which only the Plugins screen asks for.
+	 */
+	public function test_explains_a_filesystem_it_could_not_write_to() {
+		$ftp = function () {
+			return 'ftpext';
+		};
+		add_filter( 'filesystem_method', $ftp );
+
+		$response = $this->send( 'zero-bs-crm', 'install' );
+
+		remove_filter( 'filesystem_method', $ftp );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertStringStartsWith( 'fs_', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'Plugins screen', $response->get_data()['message'] );
+	}
+
+	/**
 	 * A module that refuses to switch on does not undo the plugin that is now active, so
 	 * the route reports the state rather than an error the caller would retry forever.
 	 */
@@ -355,6 +442,31 @@ class Main_Features_Rest_Test extends TestCase {
 	}
 
 	/**
+	 * A bulk action's fresh state must not hand back a feature a host hid.
+	 */
+	public function test_bulk_state_leaves_out_what_a_host_hid() {
+		$this->activate_jetpack();
+		$hide = function ( $states ) {
+			$states['search'] = 'hidden';
+			return $states;
+		};
+		add_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => true,
+				'plugins' => array( 'jetpack-boost' ),
+			)
+		);
+
+		remove_filter( 'jetpack_my_jetpack_feature_visibility', $hide );
+
+		$slugs = array_column( $response->get_data()['state']['features'], 'slug' );
+		$this->assertNotContains( 'search', $slugs );
+		$this->assertContains( 'boost', $slugs );
+	}
+
+	/**
 	 * One refusal must not stop the rest of the batch, and must say why it was refused.
 	 */
 	public function test_bulk_reports_a_refusal_and_carries_on() {
@@ -396,6 +508,30 @@ class Main_Features_Rest_Test extends TestCase {
 
 		$this->assertSame( array(), $response->get_data()['failed'] );
 		$this->assertNotContains( 'stats', Jetpack_Options::get_option( 'active_modules', array() ) );
+	}
+
+	/**
+	 * A module a host forces on is reported as staying on, not switched off.
+	 */
+	public function test_bulk_reports_a_module_a_host_forced_on() {
+		$this->offer_stats_module();
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		Jetpack_Options::update_option( 'active_modules', array( 'stats' ) );
+		$force = fn( $modules ) => array_values( array_unique( array_merge( $modules, array( 'stats' ) ) ) );
+		add_filter( 'jetpack_active_modules', $force );
+
+		$response = $this->send_bulk(
+			array(
+				'active'  => false,
+				'modules' => array( 'stats' ),
+			)
+		);
+
+		remove_filter( 'jetpack_active_modules', $force );
+
+		$failed = $response->get_data()['failed'];
+		$this->assertCount( 1, $failed );
+		$this->assertStringContainsString( 'enabled by your host or site administrator', $failed[0]['message'] );
 	}
 
 	/**

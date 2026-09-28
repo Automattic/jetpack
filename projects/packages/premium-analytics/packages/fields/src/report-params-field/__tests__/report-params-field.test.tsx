@@ -60,9 +60,10 @@ function renderField(
 		);
 	}
 
-	render( <Host /> );
+	const { unmount } = render( <Host /> );
 
 	return {
+		unmount,
 		saved,
 		latest: () => saved[ saved.length - 1 ]?.reportParams,
 		// Stands in for an undo, a dashboard reset, or another surface saving
@@ -107,6 +108,36 @@ async function shortenRangeTo( days: number ) {
 async function draftShortRange( user: ReturnType< typeof userEvent.setup >, days: number ) {
 	await openCustomRange( user );
 	await shortenRangeTo( days );
+}
+
+/*
+ * Pins `Date` without faking `setTimeout`/`requestAnimationFrame`: the compare/period
+ * menus render through `DateControlPopover`'s `@wordpress/ui` Tooltip, whose floating-ui
+ * positioning schedules its own async updates. Faking those too raced Jest's virtual
+ * clock against that positioning, intermittently landing a state update outside any
+ * `act()` the test opened (WOOA7S-2182 follow-up).
+ */
+function pinSystemTime( date: Date ) {
+	jest
+		.useFakeTimers( {
+			doNotFake: [
+				'hrtime',
+				'nextTick',
+				'performance',
+				'queueMicrotask',
+				'requestAnimationFrame',
+				'cancelAnimationFrame',
+				'requestIdleCallback',
+				'cancelIdleCallback',
+				'setImmediate',
+				'clearImmediate',
+				'setInterval',
+				'clearInterval',
+				'setTimeout',
+				'clearTimeout',
+			],
+		} )
+		.setSystemTime( date );
 }
 
 describe( 'reportParamsAttributeField', () => {
@@ -327,11 +358,14 @@ describe( 'report params field', () => {
 	} );
 
 	it( 'commits a comparison range on selection', async () => {
-		const user = userEvent.setup();
+		// Pinned mid-month: on the last day of a 30-day month "Last 30 days" is a
+		// whole month and the entry reads "Previous month".
+		pinSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const { latest } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous 30 days' } ) );
 
 		expect( latest() ).toEqual(
 			expect.objectContaining( {
@@ -355,12 +389,12 @@ describe( 'report params field', () => {
 		 * stretch this guards against would be a no-op and the test would pass
 		 * on the unfixed code.
 		 */
-		jest.useFakeTimers().setSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
+		pinSystemTime( new Date( '2026-06-15T12:00:00.000Z' ) );
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		const { latest } = renderField();
+		const { latest, unmount } = renderField();
 
 		await user.click( screen.getByRole( 'button', { name: /compare/i } ) );
-		await user.click( await screen.findByRole( 'menuitemradio', { name: /^previous /i } ) );
+		await user.click( await screen.findByRole( 'menuitemradio', { name: 'Previous 30 days' } ) );
 		await pickPeriod( user, 'Last 24 hours' );
 
 		// The preset's own end, not the end of the day it falls in.
@@ -371,6 +405,10 @@ describe( 'report params field', () => {
 			new Date( String( to ) ).getTime() - new Date( String( from ) ).getTime();
 
 		expect( span( params.compare_from, params.compare_to ) ).toBe( span( params.from, params.to ) );
+
+		// Unmount on the fake clock: jsdom reads every refocus as focus-visible, so the
+		// trigger tooltip is still opening, and would land in the next test.
+		unmount();
 	} );
 
 	// A widget can carry a preset with no window behind it, and it compares

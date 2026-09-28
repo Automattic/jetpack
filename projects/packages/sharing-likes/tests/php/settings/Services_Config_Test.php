@@ -14,12 +14,24 @@ use RuntimeException;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
+require_once __DIR__ . '/../lib/trait-section-environment.php';
 
 /**
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Services_Config
  */
 #[CoversClass( Services_Config::class )]
 class Services_Config_Test extends BaseTestCase {
+
+	use Section_Environment;
+
+	/**
+	 * Start every case from a site with no theme, no blocks and no modules.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->set_up_site();
+	}
 
 	/**
 	 * Leave no request state, option or recorded payload behind.
@@ -29,7 +41,9 @@ class Services_Config_Test extends BaseTestCase {
 		unset( $GLOBALS['sharing_likes_test_global_options'] );
 
 		remove_all_filters( 'wp_redirect' );
+		remove_all_actions( 'sharing_global_options' );
 		delete_option( 'sharing-options' );
+		$this->tear_down_site();
 
 		parent::tear_down();
 	}
@@ -104,5 +118,34 @@ class Services_Config_Test extends BaseTestCase {
 		);
 
 		$this->assertSame( array( 'page' ), $saved['show'] );
+	}
+
+	/**
+	 * Print a field, standing in for a third-party consumer.
+	 */
+	public function print_field(): void {
+		echo '<tr><th>Third party</th><td><input name="third-party-field" /></td></tr>';
+	}
+
+	/**
+	 * "Disable CSS and JS" belongs to the buttons configured above it, so it comes
+	 * before the Twitter Cards heading. Third parties close the table.
+	 */
+	public function test_global_options_lead_with_the_screen_own_rows(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+		add_action( 'sharing_global_options', array( $this, 'print_field' ) );
+
+		$markup = Services_Config::global_options();
+
+		$resources   = strpos( $markup, 'name="disable_resources"' );
+		$heading     = strpos( $markup, '<h3>Twitter Cards</h3>' );
+		$third_party = strpos( $markup, 'name="third-party-field"' );
+
+		$this->assertIsInt( $resources );
+		$this->assertIsInt( $heading );
+		$this->assertIsInt( $third_party );
+		$this->assertLessThan( $heading, $resources );
+		$this->assertLessThan( $third_party, $heading );
 	}
 }

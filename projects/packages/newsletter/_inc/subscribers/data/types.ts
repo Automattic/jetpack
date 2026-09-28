@@ -13,6 +13,8 @@ export type SubscriptionStatus =
 	| 'Blocked'
 	| string;
 
+export type SubscriptionStatusReason = 'emails_paused' | 'bounced' | 'blocked';
+
 export type SubscriptionPlan = {
 	subscription_id?: number;
 	is_comp: boolean;
@@ -36,6 +38,7 @@ export type Subscriber = {
 	email_address: string;
 	avatar?: string;
 	subscription_status: SubscriptionStatus;
+	subscription_status_reason?: SubscriptionStatusReason | null;
 
 	// WP.com-side subscription (null when subscriber is email-only).
 	wpcom_subscription_id?: number;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Render the Jetpack in-dashboard message slot from the shared component.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+VideoPress: With the inline player setting on, draw the play button like the player's and show a loading spinner from the click until the player has loaded.

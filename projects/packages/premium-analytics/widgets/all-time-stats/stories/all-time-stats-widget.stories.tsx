@@ -122,8 +122,7 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no summary fields: the widget shows its empty state (the neutral
- * trending glyph and "No stats recorded yet.").
+ * Resolved with no summary fields: every tile shows its placeholder.
  */
 export const Empty: Story = {
 	render: () => renderAllTimeStatsOnPreset( 'last-365-days' ),

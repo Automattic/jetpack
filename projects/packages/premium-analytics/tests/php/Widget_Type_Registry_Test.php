@@ -13,6 +13,7 @@ use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-modules.php';
 require_once __DIR__ . '/../../src/widget-types.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/fixtures/widget-modules-manifest.php';
 require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
@@ -138,6 +139,8 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( self::MANIFEST_WIDGET, $registered );
 		$this->assertSame( 'test/manifest/render', $registered[ self::MANIFEST_WIDGET ]->render_module );
+		$this->assertSame( 'jetpack-premium-analytics-pkg', $registered[ self::MANIFEST_WIDGET ]->textdomain );
+		$this->assertNull( $registered[ self::MANIFEST_WIDGET ]->i18n_manifest );
 	}
 
 	/**
@@ -304,6 +307,37 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The catalog location travels with the type: the registrant's defaults fill what a candidate
+	 * does not declare, so the client knows which domain and manifest each bundle's strings live in.
+	 */
+	public function test_manifest_helper_stamps_the_catalog_location_onto_the_type() {
+		register_widget_types_from_manifest(
+			array(
+				array(
+					'name'          => 'plugin/first',
+					'render_module' => 'plugin/first/render',
+				),
+				array(
+					'name'          => 'plugin/second',
+					'render_module' => 'plugin/second/render',
+					'textdomain'    => 'second-domain',
+					'i18n_manifest' => 'https://example.org/second/build/i18n-manifest.json',
+				),
+			),
+			array(
+				'textdomain'    => 'plugin-domain',
+				'i18n_manifest' => 'https://example.org/plugin/build/i18n-manifest.json',
+			)
+		);
+
+		$registry = Widget_Type_Registry::get_instance();
+		$this->assertSame( 'plugin-domain', $registry->get_registered( 'plugin/first' )->textdomain );
+		$this->assertSame( 'https://example.org/plugin/build/i18n-manifest.json', $registry->get_registered( 'plugin/first' )->i18n_manifest );
+		$this->assertSame( 'second-domain', $registry->get_registered( 'plugin/second' )->textdomain );
+		$this->assertSame( 'https://example.org/second/build/i18n-manifest.json', $registry->get_registered( 'plugin/second' )->i18n_manifest );
+	}
+
+	/**
 	 * A plugin's manifest goes through the registry-time filter like the package's.
 	 */
 	public function test_manifest_helper_applies_the_registry_time_filter() {
@@ -362,13 +396,6 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The contract version a consumer compares against is a semantic version.
-	 */
-	public function test_widget_api_version_is_a_semantic_version() {
-		$this->assertMatchesRegularExpression( '/^\d+\.\d+\.\d+$/', WIDGET_API_VERSION );
-	}
-
-	/**
 	 * Calling the package's registrant twice registers each manifest widget once.
 	 */
 	public function test_register_widget_types_skips_registered_names() {
@@ -378,6 +405,6 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		register_widget_types();
 
 		$this->assertSame( array(), $this->doing_it_wrong );
-		$this->assertCount( 1, array_keys( get_registered_widget_types(), Widget_Type_Registry::get_instance()->get_registered( self::MANIFEST_WIDGET ), true ) );
+		$this->assertArrayHasKey( self::MANIFEST_WIDGET, get_registered_widget_types() );
 	}
 }

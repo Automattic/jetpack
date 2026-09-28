@@ -286,42 +286,28 @@ type BypassPatternsExampleProps = {
 };
 
 const BypassPatternsExample = ( { children }: BypassPatternsExampleProps ) => {
-	const [ show, setShow ] = useState( false );
 	const tooltipLayer = useTooltipLayer();
 
 	return (
-		<div className={ styles[ 'example-wrapper' ] }>
-			{ /* eslint-disable-next-line jsx-a11y/anchor-is-valid */ }
-			<a
-				href="#"
-				className={ styles[ 'example-button' ] }
-				onClick={ e => {
-					recordBoostEvent( 'page_cache_see_example_clicked', {} );
-					e.preventDefault();
-					setShow( ! show );
-				} }
-			>
-				{ children }
-			</a>
-			<div className={ styles[ 'tooltip-wrapper' ] }>
-				<IconTooltip
-					placement="bottom-start"
-					popoverAnchorStyle="wrapper"
-					forceShow={ show }
-					offset={ -10 }
-					popoverClassName={ styles.tooltip }
-					{ ...tooltipLayer }
-				>
-					<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
-					<br />
-					checkout
-					<br />
-					gallery/.*
-					<br />
-					specific-page
-				</IconTooltip>
-			</div>
-		</div>
+		<IconTooltip
+			trigger={ children }
+			closeOnClickOutside={ false }
+			className={ styles[ 'example-trigger' ] }
+			onTriggerClick={ () => recordBoostEvent( 'page_cache_see_example_clicked', {} ) }
+			placement="bottom-start"
+			popoverAnchorStyle="wrapper"
+			offset={ -10 }
+			popoverClassName={ styles.tooltip }
+			{ ...tooltipLayer }
+		>
+			<strong>{ __( 'Example:', 'jetpack-boost' ) }</strong>
+			<br />
+			checkout
+			<br />
+			gallery/.*
+			<br />
+			specific-page
+		</IconTooltip>
 	);
 };
 

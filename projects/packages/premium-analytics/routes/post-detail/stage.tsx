@@ -19,13 +19,15 @@ import {
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -33,7 +35,7 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
@@ -66,6 +68,28 @@ function PostDetail(): JSX.Element {
 	// The resource, date range, and comparison all live in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'post_detail', offersComparison: false }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
 
 	// The email tabs report over the first 30 days after the send rather than
 	// the URL range (WOOA7S-1945): their widgets take these params in place of
@@ -81,7 +105,9 @@ function PostDetail(): JSX.Element {
 		activeTab,
 		setActiveTab,
 		layout: fixedLayout,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+		isEmailNotSent,
+		isEmailSendPending,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
 
 	// The stored per-tab arrangement, layered over the fixed composition.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
@@ -108,8 +134,16 @@ function PostDetail(): JSX.Element {
 	} );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
+	// The email header names the send ("Email sent on…"), so a post that was
+	// never sent gets the page-level state in place of the header and widgets.
+	const showNotSent = isEmailTab && isEmailNotSent;
+	// Until the send check answers, the email header stays a skeleton, so it
+	// never names a send that the not-sent state then replaces.
+	const headerSummary =
+		isEmailTab && isEmailSendPending ? { ...summary, isLoading: true } : summary;
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
@@ -134,7 +168,13 @@ function PostDetail(): JSX.Element {
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
 	const dateFiltersPanel = isEmailTab ? null : (
-		<DateFiltersPanel { ...dateFilters } { ...dateControls } attentionId={ attentionId } />
+		<DateFiltersPanel
+			{ ...dateFilters }
+			{ ...dateControls }
+			onChange={ onDateChange }
+			onApply={ onDateApply }
+			attentionId={ attentionId }
+		/>
 	);
 
 	return (
@@ -148,7 +188,7 @@ function PostDetail(): JSX.Element {
 				<WidgetDashboard
 					widgetTypes={ pageWidgetTypes }
 					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					resolveWidgetModule={ resolveWidgetModule }
 					layout={ layout }
 					onLayoutChange={ onLayoutChange }
 					onLayoutReset={ resetLayout }
@@ -193,19 +233,46 @@ function PostDetail(): JSX.Element {
 						 */ }
 						<DetailPageLayout
 							tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-							header={ postHeaderSlots( {
-								summary,
-								variant: isEmailTab ? 'email' : 'post',
-								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-							} ) }
+							header={
+								showNotSent
+									? undefined
+									: postHeaderSlots( {
+											summary: headerSummary,
+											variant: isEmailTab ? 'email' : 'post',
+											performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+										} )
+							}
 							controls={ dateFiltersPanel }
 							returnToTopKey={ attentionId }
 						>
-							{ /* Keyed by tab: each tab is its own layout, so the grid mounts
-							     fresh rather than reflowing one arrangement into the next. */ }
-							<DetailPageSection key={ activeTab }>
-								<WidgetDashboard.Widgets />
-							</DetailPageSection>
+							{ showNotSent ? (
+								<DetailPageEmptyState
+									title={ __(
+										'This post hasn’t been sent as a newsletter',
+										'jetpack-premium-analytics-pkg'
+									) }
+									description={ __(
+										'Newsletter can help you reach subscribers in their inbox.',
+										'jetpack-premium-analytics-pkg'
+									) }
+									actions={
+										<LinkButton
+											variant="outline"
+											size="compact"
+											href="https://jetpack.com/support/newsletter/"
+											openInNewTab
+										>
+											{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+										</LinkButton>
+									}
+								/>
+							) : (
+								/* Keyed by tab: each tab is its own layout, so the grid mounts
+								   fresh rather than reflowing one arrangement into the next. */
+								<DetailPageSection key={ activeTab }>
+									<WidgetDashboard.Widgets />
+								</DetailPageSection>
+							) }
 						</DetailPageLayout>
 					</DetailPageShell>
 				</WidgetDashboard>

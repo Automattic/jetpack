@@ -176,6 +176,11 @@
 	min-block-size: 40px;
 }
 
+/* Kept on the right when an installed plugin's card has no price beside it. */
+.wpcom-marketplace-tab .wpcom-marketplace-card__footer > .button {
+	margin-inline-start: auto;
+}
+
 /*
  * Core renders the other tabs' descriptions as unclassed <p>s, so they keep
  * the admin's 1em block margins. Match those rather than zeroing the top,

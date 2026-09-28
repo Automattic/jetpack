@@ -1,8 +1,9 @@
 <?php
 /**
- * Widget availability policy (consumer layer): hides developer-only, Simple-only, and
- * plugin-gated widget types at registry time — a hard hide, so every consumer of the
- * registry sees the same set, over the neutral hooks in widget-types.php.
+ * Widget availability policy (consumer layer): drops developer-only, platform-unsupported,
+ * plugin-gated and capability-gated candidates from a manifest at registry time, over the
+ * neutral hooks in widget-types.php. A dropped candidate never registers, so every reader sees
+ * the same set; a type registered one by one with register_widget_type() skips this policy.
  *
  * @package automattic/jetpack-premium-analytics
  */

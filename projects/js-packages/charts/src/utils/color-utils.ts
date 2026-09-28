@@ -52,9 +52,11 @@ export const hexToRgba = ( hex: string, alpha: number ): string => {
 };
 
 /**
- * Calculate the perceptual distance between two HSL colors
- * @param hsl1 - first color in HSL format [h, s, l]
- * @param hsl2 - second color in HSL format [h, s, l]
+ * Weighted Euclidean distance between two HSL colors.
+ *
+ * @deprecated Not perceptual and blind to color vision deficiency, so charts no longer use it; it will be removed in a future major version.
+ * @param      hsl1 - first color in HSL format [h, s, l]
+ * @param      hsl2 - second color in HSL format [h, s, l]
  * @return distance value (0-100+, lower means more similar)
  */
 export const getColorDistance = (

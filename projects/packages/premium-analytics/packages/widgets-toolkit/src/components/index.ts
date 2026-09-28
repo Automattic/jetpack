@@ -104,6 +104,7 @@ export {
 	type WidgetFooterLinkProps,
 } from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
+export { InfoTip, type InfoTipProps } from './info-tip';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
 export {
@@ -130,6 +131,7 @@ export {
 export {
 	ReportChartSection,
 	ReportDrilldownTable,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -161,6 +163,7 @@ export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,

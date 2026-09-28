@@ -33,6 +33,11 @@ export type SubscriberListItem = {
 	 */
 	href?: string | null;
 	/**
+	 * Open `href` in a new tab. Pass false for links that stay in wp-admin.
+	 * @default true
+	 */
+	openInNewTab?: boolean;
+	/**
 	 * Right-aligned secondary text, e.g. a relative "since" time.
 	 */
 	secondaryText?: string;
@@ -118,7 +123,7 @@ export function SubscriberList( {
 										className={ styles.name }
 										href={ href }
 										variant="unstyled"
-										openInNewTab
+										openInNewTab={ item.openInNewTab ?? true }
 										title={ item.name }
 									>
 										{ item.name }

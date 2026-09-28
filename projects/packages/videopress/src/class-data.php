@@ -169,6 +169,68 @@ class Data {
 	}
 
 	/**
+	 * Gets the site's newest VideoPress videos as playlist entries, newest first.
+	 *
+	 * Goes through the media REST endpoint rather than a direct WP_Query so the
+	 * package's rest_attachment_query filter resolves VideoPress membership on
+	 * every host: by mime off WordPress.com Simple, from wpcom's videos table on it.
+	 * The editor's block preview sends the same request.
+	 *
+	 * @param int $count How many videos to fetch.
+	 *
+	 * @return array Entries with guid, durationMs and height keys.
+	 */
+	public static function get_latest_videopress_playlist_entries( $count ) {
+		$args = array(
+			'per_page'            => max( 1, (int) $count ),
+			'orderby'             => 'date',
+			'order'               => 'desc',
+			'videopress_has_guid' => 1,
+		);
+
+		// Attachments keep their original mime there, so narrow to videos before the ID-set constraint.
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			$args['videopress_only_videos'] = 1;
+		}
+
+		$request = new WP_REST_Request( 'GET', '/wp/v2/media' );
+		$request->set_query_params( $args );
+		$response = rest_do_request( $request );
+
+		if ( $response->is_error() ) {
+			return array();
+		}
+
+		$entries = array();
+		foreach ( (array) $response->get_data() as $item ) {
+			$item = (array) $item;
+			$guid = $item['jetpack_videopress_guid'] ?? '';
+
+			// The REST field is empty on a site without a connection; the attachment meta still knows.
+			if ( ( ! is_string( $guid ) || '' === $guid ) && ! empty( $item['id'] ) ) {
+				$guid = get_post_meta( (int) $item['id'], 'videopress_guid', true );
+			}
+
+			if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ) {
+				continue;
+			}
+
+			$details    = isset( $item['media_details'] ) ? (array) $item['media_details'] : array();
+			$videopress = isset( $details['videopress'] ) ? (array) $details['videopress'] : array();
+			$duration   = $videopress['duration'] ?? 0;
+			$height     = $details['height'] ?? $videopress['height'] ?? 0;
+
+			$entries[] = array(
+				'guid'       => $guid,
+				'durationMs' => is_numeric( $duration ) ? max( 0, (int) $duration ) : 0,
+				'height'     => is_numeric( $height ) ? max( 0, (int) $height ) : 0,
+			);
+		}
+
+		return $entries;
+	}
+
+	/**
 	 * Gets the user data
 	 *
 	 * @return array

@@ -17,6 +17,7 @@ use RuntimeException;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
+require_once __DIR__ . '/../lib/trait-section-environment.php';
 
 /**
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler
@@ -24,12 +25,23 @@ require_once __DIR__ . '/../lib/class-sharing-service.php';
 #[CoversClass( Post_Handler::class )]
 class Post_Handler_Test extends BaseTestCase {
 
+	use Section_Environment;
+
 	/**
 	 * Where `maybe_handle()` sent the browser, or null if it never got that far.
 	 *
 	 * @var string|null
 	 */
 	private $redirected_to = null;
+
+	/**
+	 * Start every case from a site with no theme, no blocks and no modules.
+	 */
+	public function set_up() {
+		parent::set_up();
+
+		$this->set_up_site();
+	}
 
 	/**
 	 * Leave no request state or options behind.
@@ -47,6 +59,9 @@ class Post_Handler_Test extends BaseTestCase {
 		delete_option( 'disabled_reblogs' );
 		delete_option( 'jetpack_comment_likes_enabled' );
 		delete_option( 'sharing-services' );
+		delete_option( Twitter_Site_Tag::OPTION );
+		delete_option( Sharing_Resources::OPTION );
+		$this->tear_down_site();
 		Constants::clear_constants();
 
 		parent::tear_down();
@@ -363,27 +378,22 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Reblogs and comment likes are Simple-only fields. Writing them from a
-	 * Jetpack save would persist settings the screen never rendered.
+	 * Reblogs are a Simple-only field, and Comment Likes save through their own
+	 * section. Writing either from here would persist settings the section never rendered.
 	 */
 	public function test_likes_save_ignores_the_simple_only_fields_off_wpcom(): void {
-		$this->log_in_as( 'administrator' );
-
-		$this->dispatch(
-			'save-settings',
-			Settings_Form::NONCE_ACTION,
-			$this->claiming(
-				array( Settings_Form::SECTION_LIKES ),
-				array(
-					'wpl_default'                   => 'on',
-					'jetpack_reblogs_enabled'       => 'off',
-					'jetpack_comment_likes_enabled' => '1',
-				)
+		$active = $this->save_comment_likes_with(
+			array( 'likes' ),
+			array( Settings_Form::SECTION_LIKES ),
+			array(
+				'wpl_default'                   => 'on',
+				'jetpack_reblogs_enabled'       => 'off',
+				'jetpack_comment_likes_enabled' => '1',
 			)
 		);
 
 		$this->assertFalse( get_option( 'disabled_reblogs' ) );
-		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+		$this->assertSame( array( 'likes' ), $active );
 	}
 
 	/**
@@ -404,11 +414,124 @@ class Post_Handler_Test extends BaseTestCase {
 		$this->assertSame( '1', (string) get_option( 'disabled_reblogs' ) );
 	}
 
-	public function test_comment_likes_save_writes_nothing_off_wpcom(): void {
+	public function test_comment_likes_save_turns_the_option_off_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ) ) );
+
+		$this->assertSame( '0', (string) get_option( 'jetpack_comment_likes_enabled' ) );
+	}
+
+	/**
+	 * Save the Comment Likes section on a connected site running the given modules.
+	 *
+	 * @param string[]            $modules Active modules before the save.
+	 * @param string[]            $claimed Sections the form claims.
+	 * @param array<string,mixed> $payload Other fields the form submits.
+	 * @return string[] Active modules after the save.
+	 */
+	private function save_comment_likes_with( array $modules, array $claimed, array $payload ): array {
+		$this->given_connection( true );
+		$this->given_modules( $modules );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( $claimed, $payload ) );
+
+		return array_values( (array) \Jetpack_Options::get_option( 'active_modules' ) );
+	}
+
+	/**
+	 * Off wpcom the checkbox switches the module, not Simple's option.
+	 */
+	public function test_comment_likes_save_turns_the_module_on_off_wpcom(): void {
+		$active = $this->save_comment_likes_with( array( 'likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) );
+
+		$this->assertSame( array( 'likes', 'comment-likes' ), $active );
+		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+	}
+
+	public function test_comment_likes_save_turns_the_module_off_off_wpcom(): void {
+		$active = $this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertSame( array( 'likes' ), $active );
+	}
+
+	/**
+	 * A host can force the module on, so the save must not claim the box took.
+	 */
+	public function test_comment_likes_save_reports_a_module_the_host_keeps_on(): void {
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				return array_merge( (array) $modules, array( 'comment-likes' ) );
+			}
+		);
+
+		$this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+		remove_all_filters( 'jetpack_active_modules' );
+
+		$this->assertStringContainsString( Settings_Page::COMMENT_LIKES_UNCHANGED . '=1', (string) $this->redirected_to );
+	}
+
+	public function test_comment_likes_save_reports_nothing_once_the_module_switches(): void {
+		$this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertStringNotContainsString( Settings_Page::COMMENT_LIKES_UNCHANGED, (string) $this->redirected_to );
+	}
+
+	public function test_comment_likes_save_fires_no_deactivation_for_a_module_already_off(): void {
+		$fired = 0;
+		add_action(
+			'jetpack_pre_deactivate_module',
+			function () use ( &$fired ) {
+				++$fired;
+			}
+		);
+
+		$this->save_comment_likes_with( array( 'likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+		remove_all_actions( 'jetpack_pre_deactivate_module' );
+
+		$this->assertSame( 0, $fired );
+	}
+
+	/**
+	 * With Like buttons off, the Comment Likes section carries the sitewide default, and claims it for the Likes save.
+	 */
+	public function test_comment_likes_section_saves_the_sitewide_default_it_shows(): void {
+		$active = $this->save_comment_likes_with(
+			array( 'comment-likes' ),
+			array( Settings_Form::SECTION_COMMENT_LIKES, Settings_Form::SECTION_LIKES ),
+			array(
+				'jetpack_comment_likes_enabled' => '1',
+				'wpl_default'                   => 'off',
+			)
+		);
+
+		$this->assertSame( array( 'comment-likes' ), $active );
+		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+	}
+
+	/**
+	 * An unchecked box posts nothing, so a save that never showed the checkbox must not read it as "off".
+	 */
+	public function test_save_leaves_the_comment_likes_module_alone_when_unclaimed(): void {
+		$active = $this->save_comment_likes_with( array( 'comment-likes' ), array( Settings_Form::SECTION_LIKES ), array( 'wpl_default' => 'on' ) );
+
+		$this->assertSame( array( 'comment-likes' ), $active );
+	}
+
+	/**
+	 * The section renders no checkbox without a connection, so a request claiming it switches nothing.
+	 */
+	public function test_comment_likes_save_writes_nothing_without_a_connection(): void {
+		$this->given_modules( array( 'likes' ) );
 		$this->log_in_as( 'administrator' );
 
 		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) ) );
 
+		$this->assertSame( array( 'likes' ), array_values( (array) \Jetpack_Options::get_option( 'active_modules' ) ) );
 		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
 	}
 
@@ -455,6 +578,61 @@ class Post_Handler_Test extends BaseTestCase {
 	 */
 	public function test_save_leaves_the_third_party_hook_alone_when_no_host_rendered(): void {
 		$this->assertSame( 0, $this->count_admin_updates( array( Settings_Form::SECTION_LIKES, Settings_Form::SECTION_PLACEMENT ) ) );
+	}
+
+	/**
+	 * The screen saves its own rows in the extras section, under its own nonce,
+	 * and leaves out any it did not render there.
+	 */
+	public function test_extras_save_stores_the_site_tag_and_leaves_the_legacy_resources_alone(): void {
+		update_option( Sharing_Resources::OPTION, 1 );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_EXTRAS ), array( Twitter_Site_Tag::OPTION => '@jetpack' ) ) );
+
+		$this->assertSame( 'jetpack', get_option( Twitter_Site_Tag::OPTION ) );
+		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
+	}
+
+	/**
+	 * "Disable CSS and JS" renders with the services list, so the services
+	 * section's save is its only route now that sharedaddy stopped saving it.
+	 */
+	public function test_sharing_save_stores_the_legacy_resources_checkbox(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_SHARING ), array( 'disable_resources' => 'on' ) ) );
+
+		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
+	}
+
+	/**
+	 * A form built while the services list was hidden carries no checkbox, so a
+	 * service added in the meantime must not turn the reading of its absence into an "off".
+	 */
+	public function test_extras_save_leaves_the_legacy_resources_alone_once_sharing_configures(): void {
+		update_option( Sharing_Resources::OPTION, 1 );
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_EXTRAS ) ) );
+
+		$this->assertSame( 1, get_option( Sharing_Resources::OPTION ) );
+	}
+
+	/**
+	 * Neither host rendered, so the Site Tag field was not on the screen either.
+	 */
+	public function test_save_leaves_the_site_tag_alone_when_no_host_rendered(): void {
+		update_option( Twitter_Site_Tag::OPTION, 'jetpack' );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_LIKES ) ) );
+
+		$this->assertSame( 'jetpack', get_option( Twitter_Site_Tag::OPTION ) );
 	}
 
 	/**

@@ -12,6 +12,8 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class Paypal_Payment_Buttons_Test
  *
@@ -20,6 +22,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Payment_Buttons::class )]
 class Paypal_Payment_Buttons_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Clean up after each test.
@@ -949,12 +953,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the product card takes the margin and nothing else.
-	 *
-	 * Width and Border go on the button, so a revert that put them back on the
-	 * card has to fail here.
+	 * Test that Width sizes the card and Border stays on the button.
 	 */
-	public function test_render_button_leaves_width_and_border_off_the_card() {
+	public function test_render_button_puts_width_on_the_card_and_border_on_the_button() {
 		$result = $this->render_button_format(
 			array(
 				'blockWidth' => '75%',
@@ -965,9 +966,17 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			)
 		);
 
-		$this->assertMatchesRegularExpression(
-			'/<div class="jetpack-paypal-button" style="margin-top:8px;">/',
-			$result
+		// The card takes Width and drops a margin left over from QR.
+		$this->assertSame(
+			array(
+				'max-width' => '100%',
+				'width'     => '75%',
+			),
+			$this->read_style( $result, 'class="jetpack-paypal-button"' )
+		);
+		$this->assertSame(
+			array( 'border-radius' => '6px' ),
+			$this->read_style( $result, 'class="jetpack-paypal-button__checkout-link wp-element-button"' )
 		);
 	}
 
@@ -1628,8 +1637,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the published page emits what the canvas emits.
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
-	 * getMarginStyle(), getWidthAndBorderStyle(), getButtonStyle() and getTextStyle(). A value one side
-	 * drops and the other keeps is a divergence between the canvas and the published page, so it fails here.
+	 * getMarginStyle(), getWidthAndBorderStyle(), getWidthStyle(), getButtonStyle()
+	 * and getTextStyle(). A value one side drops and the other keeps is a
+	 * divergence between the canvas and the published page, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
 	 * @param array  $attributes   The block attributes.
@@ -1849,10 +1859,12 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$cases = array();
 
 		// The QR splits across two elements: the card takes margin, the frame
-		// inside it takes Width and the stroke. The JS half reads the same field.
+		// inside it takes Width and the stroke. The button card takes Width alone.
+		// The JS half reads the same field.
 		$targets = array(
-			'card'  => 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
-			'frame' => 'class="jetpack-paypal-button__qr-frame"',
+			'card'       => array( 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"', 'QR' ),
+			'frame'      => array( 'class="jetpack-paypal-button__qr-frame"', 'QR' ),
+			'buttonCard' => array( 'class="jetpack-paypal-button"', 'BUTTON' ),
 		);
 
 		foreach ( $fixture['cases'] as $case ) {
@@ -1862,11 +1874,13 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 				throw new \RuntimeException( 'Unknown target on style-parity case: ' . $case['name'] );
 			}
 
+			list( $selector, $format ) = $targets[ $case['target'] ];
+
 			$cases[ $case['name'] ] = array(
 				$case['attributes'],
 				$case['declarations'],
-				$targets[ $case['target'] ],
-				'QR',
+				$selector,
+				$format,
 			);
 		}
 
@@ -1885,15 +1899,15 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		}
 
 		// The canvas refuses these too, so no element on either side may emit a
-		// declaration. Run against the button as well: width and border are emitted
-		// a second time there, onto a different element.
+		// declaration. Run against the button as well: the border is emitted a
+		// second time there, onto a different element.
 		foreach ( $fixture['rejectedCases'] as $case ) {
-			foreach ( $targets as $target => $selector ) {
+			foreach ( $targets as $target => list( $selector, $format ) ) {
 				$cases[ 'refuses ' . $case['name'] . ' on the ' . $target ] = array(
 					$case['attributes'],
 					array(),
 					$selector,
-					'QR',
+					$format,
 				);
 			}
 
@@ -1998,13 +2012,18 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
 	 * Test that a hostile width cannot smuggle declarations either.
+	 *
+	 * @dataProvider provide_width_formats
+	 * @param string $format  The display format to render.
+	 * @param string $control A class the format renders.
 	 */
-	public function test_render_block_refuses_a_hostile_width() {
+	#[DataProvider( 'provide_width_formats' )]
+	public function test_render_block_refuses_a_hostile_width( $format, $control ) {
 		$attributes = array(
 			'isApiManaged' => true,
 			'resourceId'   => 'PLB-WIDTH',
 			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-WIDTH',
-			'format'       => 'QR',
+			'format'       => $format,
 			'blockWidth'   => '50%;background-image:url(https://evil.example/x.png)',
 		);
 
@@ -2014,7 +2033,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'evil.example', $result );
 		$this->assertStringNotContainsString( 'max-width', $result );
-		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+		$this->assertStringContainsString( $control, $result );
+	}
+
+	/**
+	 * The formats that take Width, each with a class it renders.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function provide_width_formats() {
+		return array(
+			'QR'     => array( 'QR', 'jetpack-paypal-button__qr-canvas' ),
+			'BUTTON' => array( 'BUTTON', 'jetpack-paypal-button__checkout-link' ),
+		);
 	}
 
 	/**
@@ -2419,5 +2450,146 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">$9.99</span>', $result );
+	}
+
+	/**
+	 * Test that a link priced per option shows "From" the cheapest option above the option prices.
+	 */
+	public function test_render_block_lists_option_prices_under_a_from_headline() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">From $24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$29.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$34.50</span>', $result );
+		$this->assertSame( 3, substr_count( $result, 'jetpack-paypal-button__variant-price' ) );
+	}
+
+	// --- format_price ---
+
+	/**
+	 * Test that format_price puts the symbol before the price, including 0.
+	 */
+	public function test_format_price_adds_the_symbol() {
+		$this->assertSame( '$29.99', PayPal_Payment_Buttons::format_price( '29.99', 'USD' ) );
+		$this->assertSame( '$0', PayPal_Payment_Buttons::format_price( '0', 'USD' ) );
+		$this->assertSame( 'XYZ5', PayPal_Payment_Buttons::format_price( '5', 'XYZ' ) );
+	}
+
+	/**
+	 * Test that format_price returns '' for a blank price.
+	 *
+	 * @dataProvider provide_blank_prices
+	 *
+	 * @param mixed $price A blank price.
+	 */
+	#[DataProvider( 'provide_blank_prices' )]
+	public function test_format_price_is_empty_for_a_blank_price( $price ) {
+		$this->assertSame( '', PayPal_Payment_Buttons::format_price( $price, 'USD' ) );
+	}
+
+	/**
+	 * Blank prices.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_blank_prices() {
+		return array(
+			'empty'      => array( '' ),
+			'whitespace' => array( '  ' ),
+			'null'       => array( null ),
+		);
+	}
+
+	// --- link_price ---
+
+	/**
+	 * Test that link_price shows a product price of 0.
+	 */
+	public function test_link_price_shows_a_product_price_of_zero() {
+		$attributes = array(
+			'price'        => '0',
+			'currencyCode' => 'USD',
+		);
+
+		$this->assertSame( '$0', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price is empty when the product and options are unpriced.
+	 */
+	public function test_link_price_is_empty_for_an_unpriced_link() {
+		$attributes = array(
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array( 'label' => 'Small' ),
+							array( 'label' => 'Large' ),
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( array() ) );
+	}
+
+	/**
+	 * Test that link_price ignores option prices while options are off, since only enabled options go to PayPal.
+	 */
+	public function test_link_price_ignores_option_prices_when_options_are_off() {
+		$attributes                    = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+		$attributes['variantsEnabled'] = false;
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price uses the option prices over a stale product price.
+	 */
+	public function test_link_price_uses_option_prices_over_a_stale_product_price() {
+		$attributes          = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+		$attributes['price'] = '9.99';
+
+		$this->assertSame( 'From $24.50', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that resource_price formats the price of a PayPal payment resource.
+	 *
+	 * @dataProvider provide_priced_resources
+	 *
+	 * @param array  $resource A payment resource.
+	 * @param string $expected The formatted price.
+	 */
+	#[DataProvider( 'provide_priced_resources' )]
+	public function test_resource_price_formats_a_paypal_resource( $resource, $expected ) {
+		$this->assertSame( $expected, PayPal_Payment_Buttons::resource_price( $resource ) );
+	}
+
+	/**
+	 * Payment resources as PayPal returns them, and the price each one charges.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_priced_resources() {
+		return array(
+			'product price'  => array( self::get_product_price_resource(), '$11.00' ),
+			'priced options' => array( self::get_per_option_resource(), 'From $24.50' ),
+			'yen options'    => array( self::get_per_option_yen_resource(), 'From ¥1000' ),
+			'unpriced'       => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
+			'id only'        => array( array( 'id' => 'PLB-EMPTY' ), '' ),
+		);
 	}
 }

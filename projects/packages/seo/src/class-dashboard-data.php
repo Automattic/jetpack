@@ -172,10 +172,7 @@ class Dashboard_Data {
 			'site_visibility'   => array(
 				'search_engines_visible' => (int) get_option( 'blog_public', 1 ) === 1,
 				'site_is_private'        => self::is_site_private(),
-				// Read the durable SEO option (seeded/synced from the `sitemaps` module
-				// by the Jetpack plugin) so the state survives the module's removal. The
-				// reachable sitemap URL + "View" link live on the Settings tab.
-				'sitemap_active'         => self::is_sitemap_enabled( $modules ),
+				'sitemap_active'         => $modules->is_active( 'sitemaps' ),
 				'seo_tools_active'       => $modules->is_active( 'seo-tools' ),
 			),
 			// Per-service booleans (a code is set or not) for the Overview's
@@ -264,23 +261,19 @@ class Dashboard_Data {
 			$codes = array();
 		}
 
-		$sitemap_active = self::is_sitemap_enabled( $modules );
+		$sitemap_active = $modules->is_active( 'sitemaps' );
 
 		return array(
 			'search_engines_visible'     => (int) get_option( 'blog_public', 1 ) === 1,
 			// A private or coming-soon WordPress.com site isn't hidden from search by an
 			// SEO setting and can't be unhidden by one — see {@see self::block_publishing_a_private_site()}.
 			'site_is_private'            => self::is_site_private(),
-			// Read the durable SEO option (seeded/synced from the `sitemaps` module
-			// by the Jetpack plugin) so the state survives the module's removal.
 			'sitemap_active'             => $sitemap_active,
 			// The reachable sitemap URL (Jetpack serves a valid sitemap here as soon as
 			// it's on + the site is public), or '' when sitemaps are off, so the Settings
 			// tab shows the "View sitemap" link exactly when there's a sitemap to view.
 			'sitemap_url'                => self::get_reachable_sitemap_url( $sitemap_active ),
-			// Read the durable SEO option (seeded/synced from the `canonical-urls` module
-			// by the Jetpack plugin) so the state survives the module's removal.
-			'canonical_active'           => self::is_canonical_enabled( $modules ),
+			'canonical_active'           => $modules->is_active( 'canonical-urls' ),
 			// Cast to object so an empty format set serializes as `{}`, not `[]`.
 			'title_formats'              => (object) $title_formats,
 			// Separator WordPress joins default document-title parts with. A page type
@@ -423,54 +416,6 @@ class Dashboard_Data {
 			'icon'    => $icon_url,
 			'image'   => $image_url,
 		);
-	}
-
-	/**
-	 * Whether sitemap generation is enabled.
-	 *
-	 * Reads the durable {@see Initializer::SITEMAP_ENABLED_OPTION} flag. The default is only
-	 * used when the option is absent (for example before the Jetpack plugin's migration
-	 * has run on a freshly upgraded site), in which case it falls back to the live
-	 * `sitemaps` module state so behavior is unchanged in that gap.
-	 *
-	 * @param Modules $modules Modules instance to read live module state from.
-	 * @return bool
-	 */
-	private static function is_sitemap_enabled( Modules $modules ) {
-		$enabled = get_option( Initializer::SITEMAP_ENABLED_OPTION, null );
-
-		// Only fall back to the live module state when the durable option is absent.
-		// Passing it as get_option()'s default would evaluate it on every call, since
-		// PHP resolves function arguments eagerly even when the option exists.
-		if ( null === $enabled ) {
-			$enabled = $modules->is_active( 'sitemaps' );
-		}
-
-		return (bool) $enabled;
-	}
-
-	/**
-	 * Whether canonical URLs are enabled.
-	 *
-	 * Reads the durable {@see Initializer::CANONICAL_ENABLED_OPTION} flag. The default is only
-	 * used when the option is absent (for example before the Jetpack plugin's migration
-	 * has run on a freshly upgraded site), in which case it falls back to the live
-	 * `canonical-urls` module state so behavior is unchanged in that gap.
-	 *
-	 * @param Modules $modules Modules instance to read live module state from.
-	 * @return bool
-	 */
-	private static function is_canonical_enabled( Modules $modules ) {
-		$enabled = get_option( Initializer::CANONICAL_ENABLED_OPTION, null );
-
-		// Only fall back to the live module state when the durable option is absent.
-		// Passing it as get_option()'s default would evaluate it on every call, since
-		// PHP resolves function arguments eagerly even when the option exists.
-		if ( null === $enabled ) {
-			$enabled = $modules->is_active( 'canonical-urls' );
-		}
-
-		return (bool) $enabled;
 	}
 
 	/**

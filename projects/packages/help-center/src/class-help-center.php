@@ -124,7 +124,6 @@ class Help_Center {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_wp_admin_scripts' ), 100 );
 		add_filter( 'in_admin_header', array( $this, 'jetpack_remove_core_help_tab' ) );
-		// Before Agents Manager (100), which replaces this node when it takes over.
 		add_action( 'admin_bar_menu', array( $this, 'add_admin_bar_node' ), 12 );
 	}
 
@@ -410,11 +409,6 @@ class Help_Center {
 	 * @return bool
 	 */
 	private function resolve_get_help_label() {
-		// The Agents Manager replaces this entry point for the unified experience; those users must stay unassigned.
-		if ( apply_filters( 'agents_manager_use_unified_experience', false ) ) {
-			return false;
-		}
-
 		$experiment_name      = self::GET_HELP_EXPERIMENT;
 		$experiment_variation = self::GET_HELP_VARIATION;
 

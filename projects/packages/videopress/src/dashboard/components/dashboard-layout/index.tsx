@@ -2,6 +2,7 @@
  * External dependencies
  */
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import useConnectionErrorNotice, {
 	ConnectionError,
 } from '@automattic/jetpack-connection/use-connection-error-notice';
@@ -67,6 +68,7 @@ export default function DashboardLayout( { activeTab, children, actions, hideFoo
 			) }
 			<Tabs.Root className="vp-dashboard-tabs" value={ activeTab } onValueChange={ onValueChange }>
 				<DashboardTabs />
+				<JitmSlot inset />
 				{ TAB_VALUES.map( tab => (
 					<Tabs.Panel key={ tab } value={ tab }>
 						{ activeTab === tab ? children : null }
