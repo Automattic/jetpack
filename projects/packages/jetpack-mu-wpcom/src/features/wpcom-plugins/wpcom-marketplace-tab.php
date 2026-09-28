@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
 
 /**
@@ -341,17 +342,25 @@ function wpcom_marketplace_card_button( array $card ) {
 	 * Sending someone there would take payment for the wrong thing.
 	 */
 	if ( Marketplace_Catalog::is_referral( $card ) ) {
-		$referral = (string) ( $card['wpcom_referral_url'] ?? '' );
-
-		if ( '' === $referral ) {
+		if ( '' === (string) ( $card['wpcom_referral_url'] ?? '' ) ) {
 			return '';
+		}
+
+		$referral = Marketplace_Catalog::referral_url( $card, (int) Expiry_Owner::current_user_wpcom_id() );
+		/* translators: %s: Plugin name. */
+		$label = __( 'Get started with %s on the vendor site', 'jetpack-mu-wpcom' );
+
+		// With no WordPress.com account to refer, Calypso's product page can sign them in first.
+		if ( '' === $referral ) {
+			$referral = Marketplace_Catalog::product_url( $card['wpcom_product_slug'] ?? $card['slug'] );
+			/* translators: %s: Plugin name. */
+			$label = __( 'Get started with %s', 'jetpack-mu-wpcom' );
 		}
 
 		return sprintf(
 			'<a class="button" href="%s" target="_blank" rel="noopener noreferrer" aria-label="%s">%s</a>',
 			esc_url( $referral ),
-			/* translators: %s: Plugin name. */
-			esc_attr( sprintf( __( 'Get started with %s on the vendor site', 'jetpack-mu-wpcom' ), $name ) ),
+			esc_attr( sprintf( $label, $name ) ),
 			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
 		);
 	}

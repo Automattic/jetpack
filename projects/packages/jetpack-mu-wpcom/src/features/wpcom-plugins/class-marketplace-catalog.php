@@ -632,6 +632,29 @@ class Marketplace_Catalog {
 	}
 
 	/**
+	 * The vendor URL a referral is bought from, naming the account and site referred.
+	 *
+	 * Vendors tie the order to a WordPress.com site through `uuid`, appended as Calypso's
+	 * `getSaasRedirectUrl()` does. It names the viewer, so it is never cached with the card.
+	 *
+	 * @param array $card          Normalized product data.
+	 * @param int   $wpcom_user_id The viewer's WordPress.com user id.
+	 * @return string Referral URL, or an empty string when there is no landing page or no one to refer.
+	 */
+	public static function referral_url( array $card, $wpcom_user_id ) {
+		$landing = (string) ( $card['wpcom_referral_url'] ?? '' );
+		$user_id = (int) $wpcom_user_id;
+		$blog_id = self::blog_id();
+
+		if ( '' === $landing || $user_id <= 0 || $blog_id <= 0 ) {
+			return '';
+		}
+
+		// Encoded here because add_query_arg() does not, and a bare + would arrive as a space.
+		return add_query_arg( 'uuid', rawurlencode( $user_id . '+' . $blog_id ), $landing );
+	}
+
+	/**
 	 * The WordPress.com page a product is bought from.
 	 *
 	 * @param string $slug Plugin slug.

@@ -105,6 +105,8 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		delete_transient( Marketplace_Catalog::LIST_CACHE_KEY );
 		remove_filter( self::FLAG_FILTER, '__return_true' );
+		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( 'id' );
 
 		parent::tear_down();
 	}
@@ -1136,18 +1138,78 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Signs in a local user linked to WordPress.com account 12345, on blog 67890.
+	 *
+	 * @return void
+	 */
+	private function sign_in_wpcom_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'referred',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
+			)
+		);
+
+		update_user_meta( $user_id, 'wpcom_user_id', '12345' );
+		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'id', 67890 );
+	}
+
+	/**
 	 * Checkout cannot complete a referral, so the action goes to the vendor instead.
 	 */
 	public function test_a_referral_links_to_the_vendor_not_checkout() {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
+		$this->sign_in_wpcom_user();
+
 		$button = wpcom_marketplace_card_button( $this->referral_card() );
 
-		$this->assertStringContainsString( 'https://example.com/vendor-pricing', $button );
+		$this->assertStringContainsString( 'https://example.com/vendor-pricing?uuid=12345%2B67890', $button );
 		$this->assertStringContainsString( 'Get started', $button );
 		$this->assertStringNotContainsString( 'wordpress.com/checkout', $button );
 		$this->assertStringNotContainsString( 'Purchase', $button );
+	}
+
+	/**
+	 * The vendor reads the account and site from `uuid`, so it has to arrive as one value.
+	 */
+	public function test_the_referral_url_names_the_account_and_site() {
+		\Jetpack_Options::update_option( 'id', 67890 );
+
+		$card                       = $this->referral_card();
+		$card['wpcom_referral_url'] = 'https://example.com/new?p=155&partner=wpcom';
+
+		$this->assertSame(
+			'https://example.com/new?p=155&partner=wpcom&uuid=12345%2B67890',
+			Marketplace_Catalog::referral_url( $card, 12345 )
+		);
+		$this->assertSame( '', Marketplace_Catalog::referral_url( $card, 0 ) );
+	}
+
+	/**
+	 * A referral without the site's blog id would reach the vendor naming no site.
+	 */
+	public function test_the_referral_url_needs_a_blog_id() {
+		$this->assertSame( '', Marketplace_Catalog::referral_url( $this->referral_card(), 12345 ) );
+	}
+
+	/**
+	 * Without an account to refer, the vendor could not match the order, so Calypso takes over.
+	 */
+	public function test_a_referral_with_no_account_to_refer_goes_to_the_product_page() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		\Jetpack_Options::update_option( 'id', 67890 );
+
+		$button = wpcom_marketplace_card_button( $this->referral_card() );
+
+		$this->assertStringContainsString( 'https://wordpress.com/plugins/gravityforms/', $button );
+		$this->assertStringNotContainsString( 'uuid=', $button );
+		$this->assertStringNotContainsString( 'vendor-pricing', $button );
 	}
 
 	/**
