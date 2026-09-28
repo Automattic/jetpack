@@ -161,7 +161,7 @@ A section that declares no layout opens in customize mode on the empty state, si
 
 `is_available()` is the section's own rule, `is_available` from the registration. The dashboard has no fixed list of tabs: every registered section the site qualifies for is shown.
 
-The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. Store checks the `premium-analytics-store-section` flag, WooCommerce, and `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
+The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. Store checks WooCommerce and, when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the `premium-analytics-store-section` flag; the blog sticker and filter overrides leave the option off and skip the flag. It also checks `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
 
 A section that declares no rule is visible to anyone with analytics access, the gate of the sections route. A plugin registering one for a narrower audience passes its own `is_available`.
 

@@ -1171,10 +1171,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Store tab stays hidden until its feature flag is on, even on a WooCommerce site.
+	 * On the site's own opt-in, the Store tab stays hidden until its feature flag is on.
 	 */
-	public function test_store_section_is_hidden_while_its_flag_is_off() {
+	public function test_store_section_is_hidden_on_the_site_opt_in_while_its_flag_is_off() {
 		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
@@ -1184,9 +1185,21 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 	}
 
+	/**
+	 * The blog sticker and the enablement filter leave the option off, and keep the Store tab without the flag.
+	 */
+	public function test_store_section_shows_without_its_flag_outside_the_site_opt_in() {
+		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+
+		$this->assertContains( 'woocommerce/store', $this->available_section_ids() );
+	}
+
 	public function test_store_section_flag_shows_the_store_tab() {
 		$this->enable_every_section();
 		$this->enable_store_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
@@ -1203,6 +1216,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 	public function test_store_section_flag_does_not_bypass_woocommerce_availability() {
 		$this->set_admin_user();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 		$this->enable_store_section();
 
@@ -1240,6 +1254,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_no_section_awaits_sync_while_the_store_section_is_hidden() {
 		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
@@ -1261,6 +1276,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_hidden_store_section_is_unavailable_from_the_route() {
 		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
@@ -1330,6 +1346,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_configure_hooks_the_section_slugs_into_script_data() {
 		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 		configure_dashboard_sections_script_data();
@@ -1356,6 +1373,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 
 	public function test_section_script_data_keeps_the_other_premium_analytics_keys() {
 		$this->enable_every_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 

@@ -63,6 +63,10 @@ class Dashboard_Support_Routes {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
 			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
+		// Copies from before dashboard-sections.php loaded the policy file leave it unloaded.
+		if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
+			require_once __DIR__ . '/dashboard-policy.php';
+		}
 
 		// These routes are gated on the dashboard capability and read the dashboard flags, and
 		// WPCOM Simple boots this class standalone, without going through Analytics::init().

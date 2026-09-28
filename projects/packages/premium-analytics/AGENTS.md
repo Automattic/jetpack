@@ -168,8 +168,8 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
-Every section the site qualifies for is shown as a tab, whichever one says yes. The Store tab sits
-behind the `premium-analytics-store-section` feature flag, off by default; see
+Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
+opt-in, the Store tab also needs the `premium-analytics-store-section` feature flag, off by default; see
 `docs/dashboard-sections.md`.
 
 The same list the tab bar gets over REST also reaches the client as
