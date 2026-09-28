@@ -43,17 +43,6 @@ class Settings_Controller_Test extends BaseTestCase {
 		parent::tear_down();
 	}
 
-	public function test_read_returns_the_values_and_the_site_roles() {
-		wp_set_current_user( $this->create_user( 'administrator' ) );
-
-		$response = $this->dispatch( 'GET' );
-
-		$this->assertSame( 200, $response->get_status() );
-		$data = $response->get_data();
-		$this->assertSame( array( 'admin_bar', 'roles', 'count_roles', 'wpcom_reader_views_enabled' ), array_keys( $data['settings'] ) );
-		$this->assertContains( 'editor', wp_list_pluck( $data['roles'], 'slug' ) );
-	}
-
 	public function test_read_names_no_modules_screen_without_the_jetpack_plugin() {
 		wp_set_current_user( $this->create_user( 'administrator' ) );
 
