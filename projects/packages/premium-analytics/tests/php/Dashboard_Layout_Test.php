@@ -282,6 +282,7 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		$init_runs = $wp_actions['init'] ?? null;
 		unset( $wp_actions['init'] );
 
+		$layout = array();
 		try {
 			$layout = remove_unsupported_default_layout_items(
 				array( get_dashboard_default_widget_instance( 'example-unregistered', 'example/unregistered', 20 ) )
