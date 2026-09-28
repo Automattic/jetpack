@@ -1,15 +1,20 @@
 @use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
 
 $accent: #3858e9;
 
 // Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
 // click lands on the control. Pinned: themes reach for inputs with !important.
 .jetpack-comments__dialog .jetpack-comments__toggle {
-	display: inline-flex;
-	gap: 10px;
+	display: flex;
+	gap: variables.$grid-unit-15;
 	align-items: flex-start;
-	padding: 5px 0;
+	padding: variables.$grid-unit-05 0;
 	cursor: pointer;
+
+	.jetpack-comments__field + & {
+		margin-block-start: variables.$grid-unit-20;
+	}
 
 	input[type="checkbox"] {
 		appearance: none !important;
@@ -18,9 +23,9 @@ $accent: #3858e9;
 		position: relative !important;
 		inline-size: 36px !important;
 		block-size: 18px !important;
-		margin: 4px 0 0 !important;
+		margin: 2px 0 0 !important;
 		padding: 0 !important;
-		border: 1px solid colors.$black !important;
+		border: 1px solid colors.$gray-900 !important;
 		border-radius: 9px !important;
 		background: colors.$white !important;
 		box-shadow: none !important;
@@ -37,7 +42,7 @@ $accent: #3858e9;
 			border: 0 !important;
 			margin: 0 !important;
 			opacity: 1 !important;
-			background: colors.$black !important;
+			background: colors.$gray-900 !important;
 			transition:
 				transform 0.3s,
 				background 0.3s !important;
@@ -51,8 +56,8 @@ $accent: #3858e9;
 		}
 
 		&:checked {
-			border-color: transparent !important;
-			background: $accent !important;
+			border-color: colors.$gray-900 !important;
+			background: colors.$gray-900 !important;
 
 			&::before {
 				transform: translateX(18px) !important;
@@ -69,8 +74,6 @@ $accent: #3858e9;
 	.jetpack-comments__toggle-text {
 		display: block;
 		flex: 1;
-		font-size: 0.875rem;
-		font-weight: 500;
-		line-height: 22px;
+		line-height: 24px;
 	}
 }

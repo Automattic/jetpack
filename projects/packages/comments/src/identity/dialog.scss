@@ -10,15 +10,15 @@ $accent-hover: #2145e6;
 	box-sizing: border-box;
 	inline-size: min(100% - 32px, 480px);
 	max-block-size: calc(100% - 32px);
-	padding: variables.$grid-unit-40;
+	padding: variables.$grid-unit-30;
 	border: 0;
-	border-radius: variables.$radius-large;
+	border-radius: variables.$radius-medium;
 	background: colors.$white;
 	box-shadow: variables.$elevation-large;
 	color: colors.$gray-900;
 	font-family: variables.$default-font;
-	font-size: variables.$default-font-size;
-	line-height: variables.$default-line-height;
+	font-size: 16px;
+	line-height: 1.5;
 
 	&::backdrop {
 		background: rgba(colors.$black, 0.35);
@@ -40,14 +40,17 @@ $accent-hover: #2145e6;
 
 	.jetpack-comments__site-icon {
 		flex-shrink: 0;
+		inline-size: 36px;
+		block-size: 36px;
 		border-radius: variables.$radius-round;
 	}
 
 	.jetpack-comments__dialog-title {
 		flex: 1;
 		min-inline-size: 0;
-		font-size: variables.$font-size-large;
-		font-weight: 500;
+		font-size: 20px;
+		font-weight: 600;
+		line-height: 1.3;
 	}
 
 	.jetpack-comments__dialog-close {
@@ -73,29 +76,26 @@ $accent-hover: #2145e6;
 
 	.jetpack-comments__dialog-intro {
 		margin: variables.$grid-unit-30 0;
-		color: colors.$gray-700;
+		color: colors.$gray-800;
 		text-align: center;
 	}
 
 	.jetpack-comments__field {
-		margin-block-start: variables.$grid-unit-20;
+		margin-block-start: variables.$grid-unit-30;
 	}
 
 	.jetpack-comments__label {
 		display: block;
 		margin-block-end: variables.$grid-unit-10;
-		font-size: variables.$font-size-x-small;
 		font-weight: 500;
-		line-height: 1.4;
-		text-transform: uppercase;
 	}
 
 	.jetpack-comments__input {
 		display: block !important;
 		inline-size: 100% !important;
-		block-size: 40px !important;
+		block-size: 44px !important;
 		padding: 6px variables.$grid-unit-15 !important;
-		border: variables.$border-width solid colors.$gray-600 !important;
+		border: variables.$border-width solid colors.$gray-400 !important;
 		border-radius: variables.$radius-small !important;
 		background: colors.$white !important;
 		box-shadow: none !important;
@@ -124,7 +124,7 @@ $accent-hover: #2145e6;
 		display: block;
 		margin-block-start: variables.$grid-unit-10;
 		color: colors.$gray-700;
-		font-size: variables.$font-size-small;
+		font-style: italic;
 	}
 
 	.jetpack-comments__notice {
@@ -139,7 +139,7 @@ $accent-hover: #2145e6;
 		display: grid;
 		justify-items: center;
 		gap: variables.$grid-unit-20;
-		margin-block-start: variables.$grid-unit-40;
+		margin-block-start: variables.$grid-unit-30;
 	}
 
 	.jetpack-comments__button {
@@ -148,11 +148,11 @@ $accent-hover: #2145e6;
 		justify-content: center;
 		block-size: 40px !important;
 		margin: 0 !important;
-		padding: 0 variables.$grid-unit-20 !important;
+		padding: 0 variables.$grid-unit-30 !important;
 		border: 0 !important;
 		border-radius: variables.$radius-small !important;
 		font-family: inherit !important;
-		font-size: variables.$default-font-size !important;
+		font-size: 16px !important;
 		font-weight: 400 !important;
 		line-height: 1 !important;
 		text-decoration: none !important;
@@ -198,7 +198,7 @@ $accent-hover: #2145e6;
 		display: grid;
 		justify-items: center;
 		gap: variables.$grid-unit-10;
-		margin-block: variables.$grid-unit-40;
+		margin-block: variables.$grid-unit-30;
 	}
 
 	.jetpack-comments__signing-in {
@@ -219,8 +219,8 @@ $accent-hover: #2145e6;
 		background: $accent !important;
 		color: colors.$white !important;
 		font-family: inherit !important;
-		font-size: variables.$default-font-size !important;
-		font-weight: 500 !important;
+		font-size: 16px !important;
+		font-weight: 400 !important;
 		line-height: 1 !important;
 		cursor: pointer;
 
