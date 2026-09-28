@@ -577,17 +577,6 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 			yAccessor: ( d: DataPointDate ) => d?.value,
 		};
 
-		const resolvedTooltipStyle = useMemo( () => {
-			if ( renderTooltip !== renderDefaultTooltip || ! tooltipStyle ) return tooltipStyle;
-			if ( ! tooltipStyle.color || tooltipStyle.background || tooltipStyle.backgroundColor ) {
-				return tooltipStyle;
-			}
-			return {
-				backgroundColor: 'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
-				...tooltipStyle,
-			};
-		}, [ renderTooltip, tooltipStyle ] );
-
 		// Augments every renderTooltip call with the chart's bucket classification,
 		// default or custom, so a heading keyed on it can't disagree with the axis.
 		const tooltipRenderer = useMemo(
@@ -820,7 +809,7 @@ const LineChartInternal = forwardRef< ChartInstanceRef, LineChartProps >(
 													detectBounds
 													snapTooltipToDatumX
 													tooltipPlacement={ tooltipPlacement }
-													style={ resolvedTooltipStyle }
+													style={ tooltipStyle }
 													snapTooltipToDatumY
 													showSeriesGlyphs
 													renderTooltip={ tooltipRenderer }
