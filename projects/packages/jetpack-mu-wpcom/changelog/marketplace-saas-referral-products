@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Plugins: stop showing a price and a Purchase button for Marketplace plugins that are bought from the vendor rather than from WordPress.com.
+Plugins: Send Marketplace plugins sold by their vendor to that vendor with the site attached, and say "Start for free" instead of showing a WordPress.com price.
