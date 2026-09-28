@@ -115,6 +115,7 @@ export {
 	SemiCircleChart,
 	type SemiCircleChartData,
 	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -280,8 +281,10 @@ export {
  * Hooks
  */
 export {
+	DashboardSectionProvider,
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
 	useWidgetNavigationSearch,

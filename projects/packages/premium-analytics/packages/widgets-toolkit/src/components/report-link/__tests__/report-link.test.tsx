@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
 import { useWidgetRootContext } from '../../widget-root';
 import { ReportLink } from '../report-link';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -112,5 +113,18 @@ describe( 'ReportLink', () => {
 				'section'
 			)
 		).toBe( 'posts-pages' );
+	} );
+
+	it( 'names the dashboard tab the report should return to', () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<ReportLink report="tags" />
+			</DashboardSectionProvider>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'View all' } );
+		const search = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' ).searchParams;
+		expect( search.get( 'ds' ) ).toBe( 'insights' );
+		expect( search.has( 'section' ) ).toBe( false );
 	} );
 } );
