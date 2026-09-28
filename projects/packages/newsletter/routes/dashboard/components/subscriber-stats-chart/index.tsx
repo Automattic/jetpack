@@ -11,7 +11,8 @@ import { info } from '@wordpress/icons';
 import { Button, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
-import RecentPosts, { recordStatsEvent, useStatsStateView, type RecentPost } from '../recent-posts';
+import RecentPosts, { type RecentPost } from '../recent-posts';
+import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
 import './style.scss';
 
 type SubscribersStatsResponse = {
