@@ -699,8 +699,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertNotInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 404, $result->get_data()['status'] );
 
-		$body = json_decode( $result->get_data()['body'], true );
-		$this->assertIsArray( $body );
+		$body = (array) json_decode( $result->get_data()['body'], true );
 		$this->assertSame( 'RESOURCE_NOT_FOUND', $body['name'] );
 	}
 

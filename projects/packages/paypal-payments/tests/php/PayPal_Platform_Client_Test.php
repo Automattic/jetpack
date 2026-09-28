@@ -135,7 +135,7 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertStringContainsString( 'public-api.wordpress.com', $requests[0]['url'] );
 		$this->assertStringContainsString( PayPal_Platform_Client::WPCOM_REQUEST_ROUTE, $requests[0]['url'] );
 
-		$body = json_decode( $requests[0]['args']['body'], true );
+		$body = (array) json_decode( $requests[0]['args']['body'], true );
 		$this->assertSame( 'sandbox', $body['environment'] );
 		$this->assertSame( 'MERCHANT1', $body['merchant_id'] );
 		$this->assertSame( 'POST', $body['method'] );
@@ -259,7 +259,7 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertStringNotContainsString( 'paypal.com', $requests[0]['url'] );
 		$this->assertStringContainsString( PayPal_Platform_Client::WPCOM_REQUEST_ROUTE, $requests[0]['url'] );
 
-		$body = json_decode( $requests[0]['args']['body'], true );
+		$body = (array) json_decode( $requests[0]['args']['body'], true );
 		$this->assertSame( 'MERCHANT1', $body['merchant_id'] );
 		$this->assertNotEmpty( $body['request_id'], 'The idempotency key travels with the call.' );
 	}
