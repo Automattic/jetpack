@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Clarify failed subscriber import guidance when no confirmation email arrives.

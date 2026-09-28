@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+SEO: Respect excerpt filters in generated llms.txt summaries.

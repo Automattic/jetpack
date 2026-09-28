@@ -123,18 +123,9 @@ describe( 'PieChart', () => {
 		test( 'hides labels when showLabels is false', () => {
 			renderWithTheme( { showLabels: false } );
 
-			// When showLabels is false, the chart should not display the data labels
-			// We filter out measurement elements by checking that text is not inside measurement element
-			const labelElements = screen.queryAllByText( ( content, element ) => {
-				// Check if this text element is not the measurement element
-				return (
-					( content === 'A' || content === 'B' ) &&
-					element?.id !== '__react_svg_text_measurement_id'
-				);
-			} );
-
-			// Labels should not be present in the rendered output (excluding measurement text)
-			expect( labelElements ).toHaveLength( 0 );
+			// A plain query, so this also fails if the measurement node stops being
+			// ignored — see tests/setup-text-measurement.js.
+			expect( screen.queryAllByText( /^[AB]$/ ) ).toHaveLength( 0 );
 		} );
 
 		test( 'shows labels when showLabels is explicitly true', () => {
@@ -155,6 +146,155 @@ describe( 'PieChart', () => {
 			// Should find label text using Testing Library queries
 			const labels = screen.getAllByText( /^[AB]$/ );
 			expect( labels.length ).toBeGreaterThan( 0 );
+		} );
+	} );
+
+	describe( 'Label Text Contrast', () => {
+		const contrastData = [
+			{ label: 'Light', value: 60, color: '#f5d76e' },
+			{ label: 'Dark', value: 40, color: '#1e3a8a' },
+		];
+
+		let injectedStyle: HTMLStyleElement | null = null;
+
+		afterEach( () => {
+			if ( injectedStyle ) {
+				document.head.removeChild( injectedStyle );
+				injectedStyle = null;
+			}
+		} );
+
+		test( 'uses dark label text on a light slice', () => {
+			renderWithTheme( { data: contrastData } );
+
+			const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+			expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+			expect( dark ).not.toHaveClass( 'pie-chart__label-text--on-light' );
+		} );
+
+		test( "keeps the inverse label color when a label plate is set on the chart's own class", () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.plated-pie { --a8c-charts-color-label-background: rgba(0, 0, 0, 0.75); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'plated-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( "compares against a label-inverse override set on the chart's own class", () => {
+			injectedStyle = document.createElement( 'style' );
+			// Matches the slice fill exactly, so the inverse role loses to the default dark label role.
+			injectedStyle.textContent = '.overridden-pie { --a8c-charts-color-label-inverse: #1e3a8a; }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( {
+				data: [ { label: 'Dark', value: 100, color: '#1e3a8a' } ],
+				className: 'overridden-pie',
+			} );
+
+			const [ label ] = screen.getAllByTestId( 'pie-label' );
+			expect( label ).toHaveClass( 'pie-chart__label-text--on-light' );
+		} );
+
+		test( 'keeps the inverse label color when the plate uses color syntax d3 cannot parse', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.modern-plate-pie { --a8c-charts-color-label-background: rgb(0 0 0 / 50%); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'modern-plate-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( 'keeps the inverse label color when the label role is see-through', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.clear-label-pie { --a8c-charts-color-label: rgba(0, 0, 0, 0); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'clear-label-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( 'keeps one label color on every slice when both label roles are the same', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.single-label-pie { --a8c-charts-color-label: #ffffff; --a8c-charts-color-label-inverse: #ffffff; }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'single-label-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( 'uses the label role on every slice when the inverse role is see-through', () => {
+			injectedStyle = document.createElement( 'style' );
+			injectedStyle.textContent =
+				'.clear-inverse-pie { --a8c-charts-color-label-inverse: rgba(255, 255, 255, 0); }';
+			document.head.appendChild( injectedStyle );
+
+			renderWithTheme( { data: contrastData, className: 'clear-inverse-pie' } );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		test( 'keeps the inverse label color when the fill cannot be resolved', () => {
+			renderWithTheme( {
+				data: [ { label: 'Unresolved', value: 100, color: 'var(--not-set)' } ],
+			} );
+
+			screen
+				.getAllByTestId( 'pie-label' )
+				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+		} );
+
+		describe( 'after an invalid-to-valid data transition', () => {
+			test( "keeps the inverse label color when a plate is set on the chart's own class", () => {
+				injectedStyle = document.createElement( 'style' );
+				injectedStyle.textContent =
+					'.plated-late-pie { --a8c-charts-color-label-background: rgba(0, 0, 0, 0.75); }';
+				document.head.appendChild( injectedStyle );
+
+				const { rerender } = renderWithTheme( { data: [], className: 'plated-late-pie' } );
+
+				rerender(
+					<GlobalChartsProvider>
+						<PieChart { ...defaultProps } data={ contrastData } className="plated-late-pie" />
+					</GlobalChartsProvider>
+				);
+
+				screen
+					.getAllByTestId( 'pie-label' )
+					.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
+			} );
+
+			test( 'resolves the label pointers once the chart mounts its own root element', () => {
+				const { rerender } = renderWithTheme( { data: [] } );
+
+				rerender(
+					<GlobalChartsProvider>
+						<PieChart { ...defaultProps } data={ contrastData } />
+					</GlobalChartsProvider>
+				);
+
+				const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+				expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+				expect( dark ).not.toHaveClass( 'pie-chart__label-text--on-light' );
+			} );
 		} );
 	} );
 
@@ -618,6 +758,62 @@ describe( 'PieChart', () => {
 
 			expect( screen.getByText( 'All segments are hidden.' ) ).toBeInTheDocument();
 			expect( screen.queryByText( /Click legend items to show data/i ) ).not.toBeInTheDocument();
+		} );
+	} );
+} );
+
+// Chart container at (100, 50); the tooltip box measures 120x40. Everything
+// else the charts measure (wrapper, clipping lookups) reports the container.
+const mockRects = () =>
+	jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
+		this: Element
+	) {
+		const box = this.classList.contains( 'visx-tooltip' );
+		return {
+			left: box ? 0 : 100,
+			top: box ? 0 : 50,
+			width: box ? 120 : 400,
+			height: box ? 40 : 300,
+			right: box ? 120 : 500,
+			bottom: box ? 40 : 350,
+			x: box ? 0 : 100,
+			y: box ? 0 : 50,
+			toJSON: () => ( {} ),
+		} as DOMRect;
+	} );
+
+describe( 'PieChart tooltip position', () => {
+	afterEach( () => {
+		jest.restoreAllMocks();
+	} );
+
+	test( 'places the box relative to the chart container, at the pointer plus the offsets', async () => {
+		mockRects();
+		const user = userEvent.setup();
+		render(
+			<GlobalChartsProvider>
+				<PieChart
+					data={ [
+						{ label: 'A', value: 60, valueDisplay: '60' },
+						{ label: 'B', value: 40, valueDisplay: '40' },
+					] }
+					width={ 400 }
+					height={ 300 }
+					withTooltips
+				/>
+			</GlobalChartsProvider>
+		);
+
+		await user.pointer( {
+			target: screen.getAllByTestId( 'pie-segment' )[ 0 ],
+			coords: { clientX: 150, clientY: 120 },
+		} );
+
+		// Pointer at (150, 120) is (50, 70) inside the container; the default
+		// -15px vertical offset makes that (50, 55), and the box adds 10px each way.
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
+			transform: 'translate(60px, 65px)',
 		} );
 	} );
 } );

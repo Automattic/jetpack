@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import { useEffect, useState } from 'react';
 import { Button } from '@automattic/jetpack-components';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
@@ -34,6 +35,27 @@ const useExcludesQuery = ( onSuccess?: ( newState: string[] ) => void ) => {
 };
 
 const RenderBlockingJsMeta = () => {
+	const legacyLabel = __( 'Exclude URL patterns:', 'jetpack-boost' );
+	const modernLabel = __( 'Add URLs or patterns separated with a comma:', 'jetpack-boost' );
+	const legacyPlaceholder = __(
+		'Comma-separated list of URL patterns to exclude, e.g.: checkout, gallery/(.*)',
+		'jetpack-boost'
+	);
+	const modernPlaceholder = __( 'e.g. checkout, gallery/(.*)', 'jetpack-boost' );
+	const legacyHelp = __(
+		'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.',
+		'jetpack-boost'
+	);
+	const modernHelp = __( "JavaScript won't be deferred on these pages.", 'jetpack-boost' );
+	const legacyScriptHelp = __(
+		'To keep a single script in place on every page instead, add the <code>data-jetpack-boost="ignore"</code> attribute to its script tag.',
+		'jetpack-boost'
+	);
+	const modernScriptHelp = __(
+		'Need to exclude a specific script instead? Add <code>data-jetpack-boost="ignore"</code> to its script tag.',
+		'jetpack-boost'
+	);
+	const isRow = useModuleSurface() === 'row';
 	const noticeId = `render-blocking-js-meta-${ datasyncKey }`;
 
 	const [ values, updateValues ] = useExcludesQuery( newState => {
@@ -95,19 +117,16 @@ const RenderBlockingJsMeta = () => {
 	}
 
 	const content = (
-		<div className={ styles.section }>
-			<div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div>
+		<div className={ styles.section } data-except-content={ isRow || undefined }>
+			{ ! isRow && <div className={ styles.title }>{ __( 'Exceptions', 'jetpack-boost' ) }</div> }
 			<div className={ styles[ 'manage-excludes' ] }>
 				<label className={ styles[ 'sub-header' ] } htmlFor={ htmlId }>
-					{ __( 'Exclude URL patterns:', 'jetpack-boost' ) }
+					{ isRow ? modernLabel : legacyLabel }
 				</label>
 				<input
 					type="text"
 					value={ inputValue }
-					placeholder={ __(
-						'Comma-separated list of URL patterns to exclude, e.g.: checkout, gallery/(.*)',
-						'jetpack-boost'
-					) }
+					placeholder={ isRow ? modernPlaceholder : legacyPlaceholder }
 					id={ htmlId }
 					onChange={ e => setInputValue( e.target.value ) }
 					onKeyDown={ e => {
@@ -117,20 +136,11 @@ const RenderBlockingJsMeta = () => {
 					} }
 				/>
 				<div className={ styles.description }>
-					{ __(
-						'JavaScript will not be deferred on pages matching these URL patterns. Use a comma (,) to separate the patterns. Use (.*) to address multiple URLs under a given path.',
-						'jetpack-boost'
-					) }
+					{ isRow ? modernHelp : legacyHelp }
 					<br />
-					{ createInterpolateElement(
-						__(
-							'To keep a single script in place on every page instead, add the <code>data-jetpack-boost="ignore"</code> attribute to its script tag.',
-							'jetpack-boost'
-						),
-						{
-							code: <code />,
-						}
-					) }
+					{ createInterpolateElement( isRow ? modernScriptHelp : legacyScriptHelp, {
+						code: <code />,
+					} ) }
 				</div>
 				<Button
 					disabled={ serverValue === inputValue }
@@ -146,6 +156,7 @@ const RenderBlockingJsMeta = () => {
 	return (
 		<div className={ styles.wrapper } data-testid={ `meta-${ datasyncKey }` }>
 			<CollapsibleMeta
+				exceptions={ isRow ? values : undefined }
 				headerText={ summary }
 				toggleText={ __( 'Exclude URL patterns', 'jetpack-boost' ) }
 				tracksEvent="defer_js_excludes_panel_toggle"

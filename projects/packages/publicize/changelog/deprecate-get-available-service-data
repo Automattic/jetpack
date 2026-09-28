@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Deprecate Publicize_Base::get_available_service_data(), which now always returns an empty array; services and their connect URLs come from the publicize/services REST endpoint.

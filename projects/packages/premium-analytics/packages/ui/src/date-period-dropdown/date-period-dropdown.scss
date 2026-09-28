@@ -1,0 +1,69 @@
+// The box and its states are the Button's own. What stays here is what the
+// Button has no part for: the attention fill, the label's truncation, the seam.
+.date-period-dropdown {
+	// The attention fill sits behind the label; isolating keeps its negative
+	// z-index inside the button rather than under the page.
+	&__toggle {
+		isolation: isolate;
+	}
+
+	// A period set by a navigation, not the reader: the trigger fills with the
+	// brand color and lets it go, the way a pressed preset looks. The outline
+	// focus ring is drawn outside the box, so the fill never covers it.
+	&__attention {
+		position: absolute;
+		inset: 0;
+		z-index: -1;
+		border-radius: inherit;
+		background: var(--wpds-color-background-interactive-brand-weak-active);
+		pointer-events: none;
+
+		@media (prefers-reduced-motion: no-preference) {
+			animation: date-period-dropdown-attention var(--date-period-dropdown-attention-duration) ease-out both;
+		}
+	}
+
+	// The only part that gives when the trigger runs short.
+	&__label {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
+	&__glyph,
+	&__caret {
+		flex: 0 0 auto;
+	}
+
+	// Owned here rather than by the calendar: it is the seam between the
+	// panel's two halves, and the calendar has no other neighbour.
+	&__panel > .date-range-popover-content {
+		border-inline-start:
+			var(--wpds-border-width-xs) solid
+			var(--wpds-color-stroke-surface-neutral);
+	}
+
+	// The list stays put while the calendar arrives, so it opens from the seam
+	// rather than fading in place.
+	@media (prefers-reduced-motion: no-preference) {
+
+		.date-period-dropdown__panel > .date-range-popover-content {
+			animation: date-period-dropdown-reveal 120ms ease-out;
+		}
+	}
+}
+
+@keyframes date-period-dropdown-reveal {
+
+	from {
+		opacity: 0;
+		transform: translateX(calc(-1 * var(--wpds-dimension-size-5xs)));
+	}
+}
+
+@keyframes date-period-dropdown-attention {
+
+	to {
+		opacity: 0;
+	}
+}

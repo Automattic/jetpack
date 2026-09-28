@@ -10,6 +10,9 @@ export {
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	buildCalendarHeatmapData,
+	buildMonthCalendarHeatmapData,
+	useCalendarHeatmapData,
+	useMonthCalendarHeatmapData,
 } from './charts/heatmap-chart';
 export { LeaderboardChart, LeaderboardChartUnresponsive } from './charts/leaderboard-chart';
 export { LineChart, LineChartUnresponsive } from './charts/line-chart';
@@ -32,6 +35,7 @@ export {
 	GlobalChartsProvider,
 	useGlobalChartsContext,
 	useGlobalChartsTheme,
+	useChartFormatting,
 	GlobalChartsContext,
 	defaultTheme,
 	useChartScopeElement,
@@ -55,6 +59,7 @@ export type {
 	ChartTheme,
 	CompleteChartTheme,
 	AxisOptions,
+	ChartFormatting,
 	TickResolution,
 	ScaleOptions,
 	LegendItemStyles,
@@ -92,7 +97,7 @@ export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './compone
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
 export type { AreaChartProps } from './charts/area-chart';
-export type { BarChartProps } from './charts/bar-chart';
+export type { BarChartProps, BandHighlightSelection } from './charts/bar-chart';
 export type {
 	BarListChartProps,
 	RenderLabelProps,
@@ -109,9 +114,14 @@ export type {
 export type {
 	HeatmapChartProps,
 	HeatmapColumn,
+	HeatmapColumnGroup,
 	HeatmapCell,
 	HeatmapTooltipData,
+	CalendarHeatmapOptions,
 	CalendarHeatmapResult,
+	MonthCalendarHeatmapOptions,
+	MonthCalendarHeatmapRange,
+	MonthCalendarHeatmapResult,
 } from './charts/heatmap-chart';
 export type { LeaderboardChartProps } from './charts/leaderboard-chart';
 export type {
@@ -126,6 +136,7 @@ export type { SparklineProps, GradientConfig, SparklineDataPoint } from './chart
 
 // Utilities
 export {
+	getBucketInfo,
 	parseAsLocalDate,
 	formatMetricValue,
 	formatPercentage,
@@ -134,3 +145,6 @@ export {
 } from './utils';
 export * from './utils/color-utils';
 export type { MetricValueType } from './utils';
+export type { BucketInfo } from './types';
+
+export type { CrosshairStyle } from './visx/types';

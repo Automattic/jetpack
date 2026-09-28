@@ -121,6 +121,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'videopress_videos_private_for_site', $data );
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $data );
+		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $data );
+		$this->assertArrayHasKey( 'videopress_inline_player_enabled', $data );
 		$this->assertArrayHasKey( 'site_is_private', $data );
 		$this->assertArrayHasKey( 'site_type', $data );
 	}
@@ -133,10 +135,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_update_settings_persists_options() {
 		delete_option( 'videopress_private_enabled_for_site' );
 		delete_option( 'videopress_auto_subtitles_disabled' );
+		delete_option( 'videopress_player_preload_disabled' );
+		delete_option( 'videopress_inline_player_enabled' );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_videos_private_for_site', true );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
+		$request->set_param( 'videopress_player_preload_disabled', true );
+		$request->set_param( 'videopress_inline_player_enabled', true );
 
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		$response = $endpoint->videopress_update_settings( $request );
@@ -146,6 +152,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertArrayNotHasKey( 'ignored', $response->get_data() );
 		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_inline_player_enabled' ) );
+		delete_option( 'videopress_inline_player_enabled' );
 	}
 
 	/**
@@ -154,6 +163,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 	public function test_update_settings_ignores_absent_params() {
 		update_option( 'videopress_private_enabled_for_site', true );
 		update_option( 'videopress_auto_subtitles_disabled', false );
+		update_option( 'videopress_player_preload_disabled', true );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
@@ -163,6 +173,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 
 		$this->assertTrue( (bool) get_option( 'videopress_private_enabled_for_site' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
+		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
 	}
 
 	/**
@@ -908,6 +919,96 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 			$response->get_status(),
 			'The owner must clear the permission check for their own video.'
 		);
+	}
+
+	/**
+	 * An unresolved attachment has a distinct error without allowing a poster write.
+	 *
+	 * @dataProvider unresolved_poster_attachments
+	 * @param string $role The caller's role.
+	 * @param string $state The local attachment state.
+	 */
+	#[DataProvider( 'unresolved_poster_attachments' )]
+	public function test_poster_write_reports_unresolved_attachment( $role, $state ) {
+		$guid    = 'mIsSiNg1';
+		$user_id = $this->login_as( $role );
+		$this->mock_connection( $user_id );
+
+		if ( 'missing' !== $state ) {
+			$attachment_id = $this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PUBLIC, $user_id );
+			if ( 'trash' === $state ) {
+				wp_update_post(
+					array(
+						'ID'          => $attachment_id,
+						'post_status' => 'trash',
+					)
+				);
+			} else {
+				wp_delete_attachment( $attachment_id, true );
+			}
+		}
+		delete_transient( 'videopress_get_post_id_by_guid_' . $guid );
+		wp_cache_delete( 'get_post_by_guid_' . $guid, 'videopress' );
+
+		add_filter(
+			'pre_http_request',
+			function () {
+				$this->fail( 'An unresolved attachment must not trigger an upstream poster request.' );
+			}
+		);
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'videopress_attachment_not_found', $response->get_data()['code'] );
+		$this->assertStringContainsString( 'Media Library', $response->get_data()['message'] );
+	}
+
+	/**
+	 * Unresolved attachment cases for poster updates.
+	 *
+	 * @return array
+	 */
+	public static function unresolved_poster_attachments() {
+		return array(
+			'author, missing' => array( 'author', 'missing' ),
+			'admin, missing'  => array( 'administrator', 'missing' ),
+			'admin, trashed'  => array( 'administrator', 'trash' ),
+			'admin, deleted'  => array( 'administrator', 'deleted' ),
+		);
+	}
+
+	/**
+	 * An attachment author without upload rights still receives the generic denial.
+	 */
+	public function test_poster_write_requires_upload_capability() {
+		$guid    = 'nOuPlOaD';
+		$user_id = $this->login_as( 'contributor' );
+		$this->mock_connection( $user_id );
+		$this->create_videopress_attachment( $guid, \VIDEOPRESS_PRIVACY::IS_PUBLIC, $user_id );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/' . $guid . '/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
+	}
+
+	/**
+	 * A disconnected caller is denied before resolving the attachment.
+	 */
+	public function test_poster_write_requires_connection_before_resolving_attachment() {
+		$this->login_as( 'administrator' );
+
+		$response = rest_get_server()->dispatch(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/videopress/mIsSiNg2/poster' )
+		);
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'rest_forbidden', $response->get_data()['code'] );
 	}
 
 	/**

@@ -62,8 +62,6 @@ const isNonNegativeFinite = ( value: number ): boolean => Number.isFinite( value
  * padding — rounded up for font variance across platforms; labels are locale-invariant.
  */
 const ROW_LABEL_WIDTH = 32;
-const COMPACT_CELL_SIZE = 11;
-const COMPACT_CELL_GAP = 2;
 
 export type FitWeekColumnsInput = {
 	/** Width the grid has to work with, in px. */
@@ -103,19 +101,6 @@ export function fitWeekColumns( input: FitWeekColumnsInput ): number {
 	const fitting = Math.floor( ( availWidth - ROW_LABEL_WIDTH ) / ( cellWidth + cellGap ) );
 
 	return Math.max( floorColumns, fitting );
-}
-
-/**
- * How many compact cells a width can hold, ignoring how many the range has —
- * a stable proxy for request sizing. Adaptive cells can shrink further in very
- * short tiles, so this is a heuristic, not a layout invariant.
- */
-export function compactCalendarHeatmapCapacity( availWidth: number ): number {
-	return fitWeekColumns( {
-		availWidth,
-		cellWidth: COMPACT_CELL_SIZE,
-		cellGap: COMPACT_CELL_GAP,
-	} );
 }
 
 // Exported for widgets that mirror the chart's non-compact grid geometry (e.g.

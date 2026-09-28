@@ -15,6 +15,18 @@
 	flex: 1;
 }
 
+// MetricValue's sm face, so "No data" reads as a value, not a label.
+.value {
+	font-weight: 500;
+	font-size: var(--wpds-typography-font-size-sm);
+	line-height: var(--wpds-typography-line-height-sm);
+}
+
+// A row with no swatch holds its width, so every label starts flush.
+.indicatorSpacer {
+	flex: none;
+}
+
 // Override visx-tooltip ONLY when our custom tooltip components are used.
 // This applies to ChartTooltip (line/bar) and PieChartTooltip
 // (pie/semi-circle).

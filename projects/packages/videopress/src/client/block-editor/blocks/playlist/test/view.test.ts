@@ -1,4 +1,4 @@
-import { hydratePlaylistMetadata, initPlaylistBlock } from '../view';
+import { hydratePlaylistMetadata, initAllPlaylistBlocks, initPlaylistBlock } from '../view';
 
 // Live metadata the mocked videos API returns, keyed by GUID.
 let mockLiveMetadata: Record< string, { title?: string; poster?: string } > = {};
@@ -195,6 +195,25 @@ describe( 'initPlaylistBlock', () => {
 		expect( iframe.src ).toBe( initialSrc );
 	} );
 
+	it( 'initializes Latest Videos Playlist blocks too', () => {
+		document.body.innerHTML = `
+			<figure class="wp-block-videopress-latest-videos-playlist videopress-playlist" data-autoplay-next="0" data-loop="0">
+				<iframe class="videopress-playlist__iframe" src="about:blank" title="First"></iframe>
+				<ol class="videopress-playlist__entries">
+					<li><button type="button" class="videopress-playlist__select is-current" data-guid="aaaaaaaa" data-embed-url="${ EMBED_A }"></button></li>
+					<li><button type="button" class="videopress-playlist__select" data-guid="bbbbbbbb" data-embed-url="${ EMBED_B }"></button></li>
+				</ol>
+			</figure>
+		`;
+
+		initAllPlaylistBlocks();
+		document.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' )[ 1 ].click();
+
+		expect(
+			document.querySelector< HTMLIFrameElement >( '.videopress-playlist__iframe' ).src
+		).toBe( EMBED_B );
+	} );
+
 	it( 'does nothing on a block without playable entries', () => {
 		document.body.innerHTML = `
 			<figure class="wp-block-videopress-playlist" data-autoplay-next="1">
@@ -239,6 +258,25 @@ describe( 'initPlaylistBlock', () => {
 		// Unreachable video data keeps the server-rendered fallback.
 		expect( entries[ 2 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
 			'Third'
+		);
+	} );
+
+	it( 'decodes HTML entities in hydrated titles', async () => {
+		const root = setUpPlaylist();
+		mockLiveMetadata = {
+			aaaaaaaa: { title: 'Sylvie&#039;s Video' },
+			bbbbbbbb: { title: 'Cats &amp; Dogs &lt;3' },
+		};
+
+		await hydratePlaylistMetadata( root );
+
+		const entries = root.querySelectorAll< HTMLButtonElement >( '.videopress-playlist__select' );
+		expect( entries[ 0 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			/^Sylvie's Video$/
+		);
+		expect( entries[ 0 ].dataset.title ).toBe( "Sylvie's Video" );
+		expect( entries[ 1 ].querySelector( '.videopress-playlist__entry-title' ) ).toHaveTextContent(
+			/^Cats & Dogs <3$/
 		);
 	} );
 

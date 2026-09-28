@@ -74,7 +74,7 @@ class Jetpack_Google_Font_Face {
 			function ( $font_slug ) use ( $font_slug_aliases ) {
 				return $font_slug_aliases[ $font_slug ] ?? $font_slug;
 			},
-			$this->fonts_in_use
+			$fonts_in_use
 		);
 
 		foreach ( $fonts as $font_faces ) {
@@ -223,9 +223,8 @@ class Jetpack_Google_Font_Face {
 			return null;
 		}
 
-		// Full string: var(--wp--preset--font-family--slug).
-		// We do not care about the origin of the font, only its slug.
-		preg_match( '/font-family--(?P<slug>.+)\)$/', $font_family, $matches );
+		// A preset reference can include a var() fallback and a trailing font stack.
+		preg_match( '/^\s*var\(\s*--wp--preset--font-family--(?P<slug>[^\s,()]+)\s*[,)]/', $font_family, $matches );
 
 		if ( isset( $matches['slug'] ) ) {
 			return $matches['slug'];
@@ -233,13 +232,13 @@ class Jetpack_Google_Font_Face {
 
 		// Full string: var:preset|font-family|slug
 		// We do not care about the origin of the font, only its slug.
-		preg_match( '/font-family\|(?P<slug>.+)$/', $font_family, $matches );
+		preg_match( '/^\s*var:preset\|font-family\|(?P<slug>[^\s,]+)/', $font_family, $matches );
 
 		if ( isset( $matches['slug'] ) ) {
 			return $matches['slug'];
 		}
 
-		return $font_family;
+		return self::get_font_family_name( $setting['typography'] );
 	}
 
 	/**

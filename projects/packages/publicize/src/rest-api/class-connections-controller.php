@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Publicize\REST_API;
 
+use Automattic\Jetpack\Connection\Rest_Authentication;
 use Automattic\Jetpack\Connection\Traits\WPCOM_REST_API_Proxy_Request;
 use Automattic\Jetpack\Publicize\Connections;
 use Automattic\Jetpack\Publicize\Jetpack_Social_Settings\Settings;
@@ -119,6 +120,55 @@ class Connections_Controller extends Base_Controller {
 				),
 				'schema' => array( $this, 'get_public_item_schema' ),
 			)
+		);
+
+		// This route receives pushes from WPCOM, so it is registered under the
+		// site-local jetpack/v4 namespace and never on WPCOM itself.
+		if ( ! Publicize_Utils::is_wpcom() ) {
+			register_rest_route(
+				'jetpack/v4',
+				'/publicize/connections/sync',
+				array(
+					array(
+						'methods'             => WP_REST_Server::CREATABLE,
+						'callback'            => array( $this, 'receive_updated_connections' ),
+						'permission_callback' => array( Rest_Authentication::class, 'is_signed_with_user_token' ),
+						'args'                => array(
+							// An empty value is accepted on purpose: a site with no connections left
+							// syncs an empty payload, which arrives here as an empty object.
+							'connections' => array(
+								'type'        => 'object',
+								'required'    => true,
+								'description' => __( 'The updated Publicize connections, keyed by service name.', 'jetpack-publicize-pkg' ),
+							),
+						),
+					),
+				)
+			);
+		}
+	}
+
+	/**
+	 * Receive updated Publicize connections from WPCOM.
+	 *
+	 * REST replacement for the jetpack.updatePublicizeConnections XML-RPC method.
+	 *
+	 * Unusable connections are dropped rather than rejected: an error response would send
+	 * WPCOM down its XML-RPC fallback, which stores the same payload without the check.
+	 *
+	 * @param WP_REST_Request $request Full details about the request.
+	 * @return WP_REST_Response
+	 */
+	public function receive_updated_connections( $request ) {
+		/**
+		 * The route only registers on Jetpack sites, where the global is this package's Publicize.
+		 *
+		 * @var \Automattic\Jetpack\Publicize\Publicize $publicize
+		 */
+		global $publicize;
+
+		return rest_ensure_response(
+			$publicize->receive_updated_publicize_connections( $request->get_param( 'connections' ) )
 		);
 	}
 

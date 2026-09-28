@@ -20,11 +20,7 @@ import { aggregateSearchTermRows } from './aggregate';
  * @return Table records.
  */
 export function useSearchTermsReportRecords( reportParams: ReportParams ) {
-	/*
-	 * Match legacy Stats' full custom-range request. `max: 0` preserves its
-	 * list behavior for client-side search, sorting, and pagination; the
-	 * endpoint-specific query omits the generic `days` parameter.
-	 */
+	// Match legacy Stats' full custom-range request for client-side search, sort, and paging.
 	const recordsParams = useMemo(
 		() => ( {
 			...reportParams,
@@ -43,8 +39,6 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 		! report.comparison.isFetching &&
 		! report.comparison.isPlaceholderData &&
 		! report.comparison.isError;
-	const isLoading =
-		report.primary.isLoading || ( comparisonEnabled && report.comparison.isLoading );
 	const isFetching =
 		report.primary.isFetching || ( comparisonEnabled && report.comparison.isFetching );
 
@@ -65,7 +59,7 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 		refetch: report.refetch,
 		table: {
 			...table,
-			isLoading,
+			isLoading: report.isLoading,
 			isFetching,
 			isError: report.primary.isError,
 		},

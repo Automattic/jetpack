@@ -74,12 +74,12 @@ export function ConnectionStatus( { connection, service }: ConnectionStatusProps
 								'There is an issue with this connection.',
 								'This notice is shown when a social media connection is broken.',
 								'jetpack-publicize-pkg'
-						  )
+							)
 						: _x(
 								'To keep sharing with this connection, please reconnect it.',
 								'This notice is shown when a social media connection needs to be reconnected.',
 								'jetpack-publicize-pkg'
-						  );
+							);
 				} )( isUnsupported, connection.status ) }
 			</span>
 			{ '\u00A0' }

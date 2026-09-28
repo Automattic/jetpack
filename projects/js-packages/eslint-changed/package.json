@@ -34,7 +34,7 @@
 	},
 	"devDependencies": {
 		"eslint": ">=7.0.0",
-		"jest": "30.4.2"
+		"jest": "30.5.1"
 	},
 	"peerDependencies": {
 		"eslint": ">=7.0.0"

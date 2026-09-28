@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Disable feature toggles when custom code forces AI off.

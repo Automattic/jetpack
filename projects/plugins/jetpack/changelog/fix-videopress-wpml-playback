@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Fix private video playback on sites using WPML.

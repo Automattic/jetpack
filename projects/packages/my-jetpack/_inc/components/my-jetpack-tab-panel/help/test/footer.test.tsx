@@ -1,5 +1,10 @@
 import '@testing-library/jest-dom';
-import { currentUserCan, getAdminUrl, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getAdminUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { isJetpackPluginActive } from '../../../../utils/is-jetpack-plugin-active';
 import { HelpFooter } from '../footer';
@@ -12,6 +17,7 @@ jest.mock( '../use-help-tracking', () => ( {
 
 const mockCurrentUserCan = currentUserCan as jest.MockedFunction< typeof currentUserCan >;
 const mockGetAdminUrl = getAdminUrl as jest.MockedFunction< typeof getAdminUrl >;
+const mockGetScriptData = getScriptData as jest.MockedFunction< typeof getScriptData >;
 const mockIsSimpleSite = isSimpleSite as jest.MockedFunction< typeof isSimpleSite >;
 const mockIsJetpackPluginActive = isJetpackPluginActive as jest.MockedFunction<
 	typeof isJetpackPluginActive
@@ -24,6 +30,7 @@ describe( 'HelpFooter', () => {
 		mockGetAdminUrl.mockImplementation( path => `https://example.com/wp-admin/${ path }` );
 		mockIsJetpackPluginActive.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
+		mockGetScriptData.mockReturnValue( undefined );
 	} );
 
 	it( 'shows the Useful links section for an admin with the Jetpack plugin active', () => {
@@ -32,6 +39,28 @@ describe( 'HelpFooter', () => {
 		expect( screen.getByRole( 'navigation', { name: 'Useful links' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Debug information' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'links All Jetpack modules to the modules page when the Features tab is off', () => {
+		render( <HelpFooter /> );
+
+		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/admin.php?page=jetpack_modules'
+		);
+	} );
+
+	it( 'links All Jetpack modules to the Features list view when the Features tab is on', () => {
+		mockGetScriptData.mockReturnValue( {
+			myJetpack: { productsSection: { slug: 'features', label: 'Features' } },
+		} as unknown as ReturnType< typeof getScriptData > );
+
+		render( <HelpFooter /> );
+
+		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
+			'href',
+			'https://example.com/wp-admin/admin.php?page=my-jetpack#/features?view=list'
+		);
 	} );
 
 	it( 'hides the Useful links section on WordPress.com Simple sites', () => {

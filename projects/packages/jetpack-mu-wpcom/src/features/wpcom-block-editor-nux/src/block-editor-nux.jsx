@@ -4,6 +4,7 @@ import {
 	HasSeenVideoCelebrationModalProvider,
 	ShouldShowFirstPostPublishedModalProvider,
 } from '../../../common/tour-kit';
+import ComingSoonPostPublishPanel from './coming-soon-post-publish-panel';
 import FirstPostPublishedModal from './first-post-published-modal';
 import PurchaseNotice from './purchase-notice';
 import RecommendedTagsModal from './recommended-tags-modal';
@@ -15,6 +16,7 @@ registerPlugin( 'wpcom-block-editor-nux', {
 		<HasSeenSellerCelebrationModalProvider>
 			<HasSeenVideoCelebrationModalProvider>
 				<ShouldShowFirstPostPublishedModalProvider>
+					<ComingSoonPostPublishPanel />
 					<FirstPostPublishedModal />
 					<RecommendedTagsModal />
 					<SellerCelebrationModal />

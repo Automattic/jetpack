@@ -9,11 +9,7 @@ import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
  * Stable URL section identifiers for the UTM report's parameter selector.
  */
 export type UtmReportTabId =
-	| 'source-medium'
-	| 'campaign-source-medium'
-	| 'source'
-	| 'medium'
-	| 'campaign';
+	'source-medium' | 'campaign-source-medium' | 'source' | 'medium' | 'campaign';
 
 const DEFAULT_TAB_ID: UtmReportTabId = 'source-medium';
 

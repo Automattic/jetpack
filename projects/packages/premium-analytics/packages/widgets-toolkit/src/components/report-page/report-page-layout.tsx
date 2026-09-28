@@ -11,7 +11,7 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
 export interface ReportPageLayoutProps {
-	/** Heading for the section on screen: `Posts & pages report`. */
+	/** Heading for the section on screen: `Posts & Pages report`. */
 	title: string;
 	/** Date-filter controller, from `useReportDateFilters`. Omit on a report with no date window. */
 	dateFilters?: ReportDateFilters;
@@ -22,7 +22,8 @@ export interface ReportPageLayoutProps {
 }
 
 /**
- * Second-level report page scaffold: tabs, section header, and stacked
+ * Second-level report page scaffold: the scroll area below the page header,
+ * holding the tabs, the section header pinned at its top, and the stacked
  * sections. The header shows only the range — interval/comparison controls
  * are hidden, not cleared, so they survive on the URL.
  *
@@ -33,7 +34,7 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 	return (
 		<div className={ styles.root }>
 			{ tabs }
-			<SectionHeader title={ title }>
+			<SectionHeader title={ title } pinned>
 				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
 			</SectionHeader>
 			<div className={ styles.sections }>{ children }</div>

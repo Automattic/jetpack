@@ -2,7 +2,7 @@
  * External dependencies
  */
 import {
-	useStatsEmailOpensBreakdown,
+	useStatsEmailClicksBreakdown,
 	type ReportParams,
 	type StatsEmailBreakdown,
 } from '@jetpack-premium-analytics/data';
@@ -22,19 +22,31 @@ import {
 import { useActiveTab } from './use-active-tab';
 
 /**
+ * Whether a rate summary records any sends, opens or clicks.
+ *
+ * @param summary - A sanitized rate summary.
+ * @return True when any count is positive.
+ */
+function hasEmailActivity( summary: StatsEmailBreakdown[ 'summary' ] | undefined ): boolean {
+	return [ 'total_sends', 'total_opens', 'total_clicks' ].some(
+		key => Number( summary?.[ key ] ?? 0 ) > 0
+	);
+}
+
+/**
  * Resolves visible post-detail tabs and normalizes hidden-tab deep links.
  * Kept in full because the email-tab gating and URL-normalization order are
  * not obvious from the code below.
  *
- * Tabs without a fixed composition stay hidden. Email tabs also require
- * `total_sends` > 0 from the opens-rate summary, and fail closed once the gate
- * query answers: a zero count or an error hides them. Until it answers, a URL
+ * Tabs without a fixed composition stay hidden. Email tabs also require sends,
+ * opens or clicks on the clicks rate summary, and fail closed once the gate
+ * answers: no activity or an error hides them. Until then, a URL
  * already naming an email tab keeps its tabs, so a reload doesn't render the
  * whole Post traffic page first and throw it away (WOOA7S-2059).
  *
  * A hidden-tab URL is replaced with the first visible tab, without adding a
- * history entry. An email-tab URL is normalized only once the gate query
- * succeeds, so a deep link survives the summary's first load or a failure.
+ * history entry. An email-tab URL is normalized only once the gate succeeds, so
+ * a deep link survives the summary's first load or a failure.
  *
  * The email tabs' widgets read the given report params instead of the URL
  * (see `useEmailTabScope`); until those are known, an email tab has no layout.
@@ -52,15 +64,17 @@ export function usePostDetailTabs(
 	emailReportParams?: ReportParams,
 	emailScopeBlocked = false
 ) {
-	const opens = useStatsEmailOpensBreakdown( postId, 'rate', { enabled: postId > 0 } );
-	const summary = ( opens.data as StatsEmailBreakdown | undefined )?.summary;
-	const hasEmailStats = Number( summary?.total_sends ?? 0 ) > 0;
+	// Not the opens summary: it nulls every field when sends went unrecorded (legacy sends).
+	const gate = useStatsEmailClicksBreakdown( postId, 'rate', { enabled: postId > 0 } );
+	const hasEmailStats = hasEmailActivity(
+		( gate.data as StatsEmailBreakdown | undefined )?.summary
+	);
 
 	const [ storedTab, setActiveTab ] = useActiveTab();
 	const storedIsEmailTab = EMAIL_TAB_IDS.includes( storedTab );
 	// Success-or-error, not `! isLoading`: that also goes false while the retryer
 	// is paused (background tab, offline blip), flipping the page back and forth.
-	const gateAnswered = opens.isSuccess || opens.isError;
+	const gateAnswered = gate.isSuccess || gate.isError;
 	const showEmailTabs = hasEmailStats || ( storedIsEmailTab && postId > 0 && ! gateAnswered );
 
 	const tabs = useMemo( () => {
@@ -79,7 +93,7 @@ export function usePostDetailTabs(
 
 	// Non-email/no-scope deep links normalize immediately; a pending or
 	// failed email-tab gate holds off so a real deep link isn't destroyed.
-	const canNormalize = ! storedIsEmailTab || postId <= 0 || opens.isSuccess;
+	const canNormalize = ! storedIsEmailTab || postId <= 0 || gate.isSuccess;
 
 	useEffect( () => {
 		if ( canNormalize && storedTab !== activeTab ) {

@@ -1,8 +1,7 @@
 export {
 	decodeDateSearchParam,
 	encodeDateToSearchParam,
-	writeDateRangeToSearch,
-	writeComparisonToSearch,
+	encodeRangeToSearchParams,
 } from './search/date-range';
 
 export { deriveComparisonRange } from './search/comparison';
@@ -29,6 +28,8 @@ export {
 	useReportDateFilters,
 	useSectionTab,
 	useDashboardLink,
+	useOpenSectionRange,
+	type OpenSectionRange,
 	type ReportDateFilters,
 } from './hooks';
 export {

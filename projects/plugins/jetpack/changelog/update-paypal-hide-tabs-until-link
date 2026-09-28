@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+PayPal Payment Buttons: Hide the Styles tab until the block has a payment link, and keep the existing links list in sync across blocks.

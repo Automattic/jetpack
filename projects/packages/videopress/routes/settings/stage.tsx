@@ -23,6 +23,8 @@ const SettingsForm = () => {
 	const { createErrorNotice } = useGlobalNotices();
 	const privateForSite = settings.data?.videoPressVideosPrivateForSite ?? false;
 	const autoSubtitlesDisabled = settings.data?.videoPressAutoSubtitlesDisabled ?? false;
+	const playerPreloadDisabled = settings.data?.videoPressPlayerPreloadDisabled ?? false;
+	const inlinePlayerEnabled = settings.data?.videoPressInlinePlayerEnabled ?? false;
 	const disabled = settings.isLoading || update.isPending;
 
 	// The mutation rolls the optimistic value back on failure; without a notice
@@ -64,11 +66,11 @@ const SettingsForm = () => {
 								? __(
 										'This follows your site’s Privacy setting. To change who can view your videos, update your site’s visibility in Settings → General.',
 										'jetpack-videopress-pkg'
-								  )
+									)
 								: __(
 										"Private videos won't play for signed-out visitors.",
 										'jetpack-videopress-pkg'
-								  )
+									)
 						}
 						checked={ privateForSite }
 						disabled={ disabled || privateForSiteServerControlled }
@@ -87,6 +89,31 @@ const SettingsForm = () => {
 						checked={ ! autoSubtitlesDisabled }
 						disabled={ disabled }
 						onChange={ next => save( { videoPressAutoSubtitlesDisabled: ! next } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Preload video data when pages load', 'jetpack-videopress-pkg' ) }
+						help={ __(
+							'When enabled, embedded videos fetch their metadata and seek-bar preview thumbnails as the page loads. Turn it off to reduce page weight on pages with many videos; each video then loads its data when playback starts.',
+							'jetpack-videopress-pkg'
+						) }
+						checked={ ! playerPreloadDisabled }
+						disabled={ disabled }
+						onChange={ next => save( { videoPressPlayerPreloadDisabled: ! next } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __(
+							'Load the player once per page instead of once per video',
+							'jetpack-videopress-pkg'
+						) }
+						help={ __(
+							'Renders every video directly in your page from one shared player script instead of a separate embedded frame per video, so page-speed tools stop counting the player once for each video. Playlists and videos with hover previews keep using frames.',
+							'jetpack-videopress-pkg'
+						) }
+						checked={ inlinePlayerEnabled }
+						disabled={ disabled }
+						onChange={ next => save( { videoPressInlinePlayerEnabled: next } ) }
 					/>
 				</Stack>
 			</Card.Content>

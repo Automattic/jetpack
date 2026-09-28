@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Stop generation from logging administrators out on sites whose login gate redirects without using WordPress.

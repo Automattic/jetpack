@@ -29,10 +29,11 @@
 		gap: 16px;
 	}
 
-	// Card.Root lays its children out as a flex column, so a `<Button>`
-	// child stretches to fill the cross-axis (the full card width) by
-	// default. Pin the Generate action to its content width.
-	&__confirm {
+	// Card.Root and the success Stack both lay children out as a flex
+	// column, so a `<Button>` child stretches to fill the cross-axis
+	// (the full card width). Pin both actions to their content width.
+	&__confirm,
+	&__link {
 		align-self: flex-start;
 
 		// wp-admin's global `svg { fill: … }` is unlayered and beats
@@ -42,9 +43,5 @@
 		svg {
 			fill: currentColor;
 		}
-	}
-
-	&__link {
-		font-weight: 600;
 	}
 }

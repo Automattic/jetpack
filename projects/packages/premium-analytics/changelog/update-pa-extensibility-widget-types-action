@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add the `jetpack_premium_analytics_register_widget_types` action, `register_widget_types_from_manifest()` and `WIDGET_API_VERSION`, so a plugin can register its dashboard widget types.

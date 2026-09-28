@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: Post detail: stop the Post traffic layout from flashing when an email tab is opened directly, and show placeholder lines in the header while the title loads.

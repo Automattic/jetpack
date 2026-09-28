@@ -61,6 +61,7 @@ class PostByEmail extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-post-by-email' ),
+						wpcomLink: 'https://wordpress.com/support/post-by-email/',
 					} }
 				>
 					<p>

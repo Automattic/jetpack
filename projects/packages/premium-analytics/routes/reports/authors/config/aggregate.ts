@@ -102,8 +102,10 @@ function getAuthorDrilldownMetadata(
 			: {};
 
 	if ( context.depth === 0 ) {
+		const author = item as StatsTopAuthorsItem;
+
 		return {
-			avatarUrl: ( item as StatsTopAuthorsItem ).icon,
+			avatarUrl: author.icon,
 			...previousViews,
 		};
 	}

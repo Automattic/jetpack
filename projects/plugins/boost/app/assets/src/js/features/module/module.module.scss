@@ -46,3 +46,43 @@
 .offlineMessage {
 	line-height: 1.5;
 }
+
+// Row surface: a labelled toggle, with everything else indented to the label.
+.row {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+
+	:global(.components-toggle-control__label) {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		font-weight: 500;
+	}
+}
+
+.row-title {
+	margin: 0;
+	font-size: var(--wpds-typography-font-size-md);
+	font-weight: 500;
+}
+
+// 36px form toggle + 8px HStack gap.
+.row-body {
+	padding-inline-start: 44px;
+}
+
+.row-description {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	font-size: var(--wpds-typography-font-size-md);
+
+	p {
+		margin: 0;
+		font-size: inherit;
+		color: inherit;
+
+		+ p {
+			margin-block-start: var(--wpds-dimension-gap-xs);
+		}
+	}
+}

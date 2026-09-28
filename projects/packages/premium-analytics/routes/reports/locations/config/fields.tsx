@@ -64,7 +64,7 @@ export function getLocationFields(
 					enableSorting: false,
 					getValue: ( { item } ) => item.countryCode ?? '',
 				},
-		  ]
+			]
 		: [];
 
 	return [

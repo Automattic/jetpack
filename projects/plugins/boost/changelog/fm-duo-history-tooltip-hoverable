@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Dashboard: Keep day details in the modernized Overview score history fully on screen, let the pointer move onto them, and show a focus ring on the chart.

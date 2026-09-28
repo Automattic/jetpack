@@ -75,9 +75,10 @@ export const route = {
 				),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};
-			// Reports are site-wide: drop the `post_id` `normalizeReportParams` keeps
-			// for post-detail, so a link carrying one can't scope a report to a post.
+			// Reports are site-wide: drop the detail-page scopes `normalizeReportParams`
+			// keeps, so a link carrying one can't scope a report to a post or author.
 			delete seeded.post_id;
+			delete seeded.author_id;
 
 			throw redirect( {
 				to: '/reports/$report',

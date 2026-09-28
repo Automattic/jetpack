@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Exclude `build/assets/index.d.ts` from published package.

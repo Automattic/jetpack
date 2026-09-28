@@ -95,7 +95,7 @@ export function sanitizeStatsVideoPlaysResponse(
 			? {
 					...normalizeStatsSummary( summarySource, videoDataKeys ),
 					...getStatsSummaryIntervalFields( query, response ),
-			  }
+				}
 			: {},
 		data: summaryData.length
 			? summaryData

@@ -28,6 +28,7 @@ import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
+import { isTrimCutEnabled } from '../../src/dashboard/utils/trim-cut';
 import './style.scss';
 import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
@@ -119,7 +120,7 @@ const Editor = ( {
 	// The sub-nav's only sibling tab is the Editor, whose route is stripped
 	// from the registry when the chapters editor is off — a one-tab strip
 	// would be pointless chrome, and its Editor tab would dead-end.
-	const showVideoNav = isChaptersEditorEnabled();
+	const showVideoNav = isChaptersEditorEnabled() || isTrimCutEnabled();
 
 	const openChapters = useCallback( () => {
 		setChaptersOpen( true );
@@ -196,7 +197,7 @@ const Editor = ( {
 		>
 			{ hasConnectionError && (
 				<Stack direction="column">
-					<ConnectionError />
+					<ConnectionError trackingContext="videopress" />
 				</Stack>
 			) }
 			{ showVideoNav && (

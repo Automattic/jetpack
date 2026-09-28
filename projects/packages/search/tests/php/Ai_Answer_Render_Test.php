@@ -238,6 +238,20 @@ class Ai_Answer_Render_Test extends TestCase {
 		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
 	}
 
+	public function test_renders_nothing_when_ai_filter_disables_ai() {
+		$this->assertStringContainsString( 'jp-search-answers-panel', $this->render() );
+		add_filter( 'jetpack_ai_enabled', '__return_false' );
+
+		try {
+			$markup = $this->render();
+
+			$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
+			$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
+		} finally {
+			remove_filter( 'jetpack_ai_enabled', '__return_false' );
+		}
+	}
+
 	public function test_renders_with_the_master_on_independent_of_site_option() {
 		// The contract's Search row: with the master on, the site option only
 		// governs the overlay — the embedded block renders either way.
@@ -283,18 +297,14 @@ class Ai_Answer_Render_Test extends TestCase {
 		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
 	}
 
-	public function test_renders_when_master_is_off_outside_internal_testing_environments() {
-		// The master switch UI ships internal-only for now, so on a public site
-		// the front-end gate must stay inert: even with the master off, the
-		// block keeps rendering. If the rollout scoping ever moves out of
-		// `should_enforce_master()`, this pin has to change deliberately with it.
+	public function test_renders_nothing_when_master_is_off_on_self_hosted() {
 		$this->turn_ai_master_off();
 		$GLOBALS['jetpack_search_test_internal_env'] = false;
 
 		$markup = $this->render();
 
-		$this->assertStringContainsString( 'jp-search-answers-panel', $markup );
-		$this->assertStringContainsString( 'data-wp-interactive="jetpack-search"', $markup );
+		$this->assertStringNotContainsString( 'jp-search-answers-panel', $markup );
+		$this->assertStringNotContainsString( 'data-wp-interactive', $markup );
 	}
 
 	public function test_renders_when_ai_module_is_not_registered() {

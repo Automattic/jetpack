@@ -68,6 +68,24 @@ function wpcom_rtc_is_desktop_app() {
  * @return bool
  */
 function wpcom_enable_rtc() {
+	/**
+	 * Filters whether the WordPress.com real-time collaboration rollout is active.
+	 *
+	 * The rollout is switched off (DOTCOM-18664): RTC has no Product prioritization,
+	 * and Gutenberg is removing the `wp.sync` global that the PingHub transport is
+	 * built against. The gating below is kept intact so the rollout can be restored
+	 * through this filter. P2 and WP for Teams sites are allowed by the wpcom layer
+	 * at priority 20 on HTTP polling, which does not use `wp.sync`, so they are
+	 * unaffected.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param bool $enabled Whether the rollout is active. Default false.
+	 */
+	if ( ! apply_filters( 'wpcom_rtc_rollout_enabled', false ) ) {
+		return false;
+	}
+
 	// Disable RTC on the desktop app due to an incompatibility.
 	if ( wpcom_rtc_is_desktop_app() ) {
 		return false;

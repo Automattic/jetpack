@@ -7,7 +7,6 @@ import {
 	type StatsArchivesComparisonItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
@@ -241,7 +240,9 @@ function TopPostsReport() {
 		useStatsTopPosts( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo( () => toTopPostRows( comparisonRows?.rows ?? [] ), [ comparisonRows ] );
-	const detailSearch = useWidgetNavigationSearch();
+	const detailSearch = useWidgetNavigationSearch( {
+		origin: { report: 'posts', section: 'posts-pages' },
+	} );
 	const withComparison = hasComparison;
 
 	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
@@ -295,10 +296,6 @@ function TopPostsReport() {
 						actions: [
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
-					} }
-					empty={ {
-						icon: reports,
-						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
@@ -491,10 +488,6 @@ function ArchivesReport() {
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>

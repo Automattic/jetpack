@@ -323,10 +323,17 @@ describe( 'BackupNowButton', () => {
 
 		renderWithClient( <BackupNowButton /> );
 
-		const button = await screen.findByRole( 'button', { name: 'Back up now' } );
-		// Waits for the storage answer to arrive and disable it, rather
-		// than assuming it already has.
-		await waitFor( () => expect( button ).toHaveAttribute( 'aria-disabled', 'true' ) );
+		await expect(
+			screen.findByRole( 'button', { name: 'Back up now' } )
+		).resolves.toBeInTheDocument();
+		// Re-queried inside the wait, not held from above: the storage answer lands
+		// after the button and moves it into the tooltip branch, a different element.
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Back up now' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			)
+		);
 	} );
 
 	it( 'queues a backup and reports it as enqueued', async () => {

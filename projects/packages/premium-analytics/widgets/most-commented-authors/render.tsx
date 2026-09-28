@@ -49,7 +49,7 @@ function MostCommentedAuthorsInner() {
 		return rows.map( row => ( {
 			id: row.id,
 			// The author link is constructed locally by the data layer (a relative
-			// `edit-comments.php?s=…` search), so it needs no scheme guard — which
+			// `edit-comments.php` filter), so it needs no scheme guard — which
 			// would reject it as relative anyway.
 			...buildLeaderboardRow( {
 				label: row.label,

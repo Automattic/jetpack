@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Show each number on a chart's value axis once when the counts are small, instead of repeating 0 and 1.

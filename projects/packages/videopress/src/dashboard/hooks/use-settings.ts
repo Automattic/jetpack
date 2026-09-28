@@ -4,6 +4,8 @@ import apiFetch from '@wordpress/api-fetch';
 type ApiSettings = {
 	videopress_videos_private_for_site: boolean;
 	videopress_auto_subtitles_disabled: boolean;
+	videopress_player_preload_disabled: boolean;
+	videopress_inline_player_enabled: boolean;
 	site_is_private: boolean;
 	site_type: string;
 };
@@ -11,12 +13,20 @@ type ApiSettings = {
 export type Settings = {
 	videoPressVideosPrivateForSite: boolean;
 	videoPressAutoSubtitlesDisabled: boolean;
+	videoPressPlayerPreloadDisabled: boolean;
+	videoPressInlinePlayerEnabled: boolean;
 	siteIsPrivate: boolean;
 	siteType: string;
 };
 
 export type SettingsPatch = Partial<
-	Pick< Settings, 'videoPressVideosPrivateForSite' | 'videoPressAutoSubtitlesDisabled' >
+	Pick<
+		Settings,
+		| 'videoPressVideosPrivateForSite'
+		| 'videoPressAutoSubtitlesDisabled'
+		| 'videoPressPlayerPreloadDisabled'
+		| 'videoPressInlinePlayerEnabled'
+	>
 >;
 
 /**
@@ -64,6 +74,8 @@ function fromApi( raw: ApiSettings ): Settings {
 	return {
 		videoPressVideosPrivateForSite: raw.videopress_videos_private_for_site,
 		videoPressAutoSubtitlesDisabled: raw.videopress_auto_subtitles_disabled,
+		videoPressPlayerPreloadDisabled: raw.videopress_player_preload_disabled,
+		videoPressInlinePlayerEnabled: raw.videopress_inline_player_enabled,
 		siteIsPrivate: raw.site_is_private,
 		siteType: raw.site_type,
 	};
@@ -98,7 +110,10 @@ export function useUpdateSettings() {
 			const data: Partial<
 				Pick<
 					ApiSettings,
-					'videopress_videos_private_for_site' | 'videopress_auto_subtitles_disabled'
+					| 'videopress_videos_private_for_site'
+					| 'videopress_auto_subtitles_disabled'
+					| 'videopress_player_preload_disabled'
+					| 'videopress_inline_player_enabled'
 				>
 			> = {};
 			if ( patch.videoPressVideosPrivateForSite !== undefined ) {
@@ -106,6 +121,12 @@ export function useUpdateSettings() {
 			}
 			if ( patch.videoPressAutoSubtitlesDisabled !== undefined ) {
 				data.videopress_auto_subtitles_disabled = patch.videoPressAutoSubtitlesDisabled;
+			}
+			if ( patch.videoPressPlayerPreloadDisabled !== undefined ) {
+				data.videopress_player_preload_disabled = patch.videoPressPlayerPreloadDisabled;
+			}
+			if ( patch.videoPressInlinePlayerEnabled !== undefined ) {
+				data.videopress_inline_player_enabled = patch.videoPressInlinePlayerEnabled;
 			}
 			if ( Object.keys( data ).length === 0 ) {
 				return;

@@ -987,7 +987,7 @@
 						label: data.i18n.tryAgain,
 						onClick: clearStatus,
 					},
-			  };
+				};
 		setStatus( 'error', message || data.i18n.failed, statusOptions );
 	}
 

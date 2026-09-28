@@ -168,6 +168,13 @@ class Block_Editor_Extensions {
 			// as '1' when enabled and '' when not — same shape as isVideoPressModuleActive
 			// and isStandaloneActive above. Read it as a truthy check, never `=== true`.
 			'chaptersEditorEnabled'       => Admin_UI::is_chapters_editor_enabled(),
+			// Set when the site renders players from the shared bundle: the block editor then previews videos the same way.
+			'inlinePlayer'                => Inline_Player::is_enabled()
+				? array_merge(
+					Inline_Player::get_asset_config(),
+					array( 'preloadDisabled' => Data::get_videopress_player_preload_disabled() )
+				)
+				: null,
 		);
 
 		// Expose initial state of site connection

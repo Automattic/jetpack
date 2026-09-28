@@ -1,7 +1,7 @@
 import { createRef } from '@wordpress/element';
 import clsx from 'clsx';
-import uid from 'component-uid';
 import debugFactory from 'debug';
+import { uniqueId } from 'lodash';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
 import RootChild from 'components/root-child';
@@ -28,7 +28,7 @@ class Popover extends Component {
 		className: PropTypes.string,
 		closeOnEsc: PropTypes.bool,
 		id: PropTypes.string,
-		ignoreContext: PropTypes.shape( { getDOMNode: PropTypes.function } ),
+		ignoreContext: PropTypes.shape( { getDOMNode: PropTypes.func } ),
 		position: PropTypes.string,
 		rootClassName: PropTypes.string,
 		showDelay: PropTypes.number,
@@ -315,7 +315,7 @@ class Popover extends Component {
 	}
 
 	setPopoverId( id ) {
-		this.id = id || `pop__${ uid( 16 ) }`;
+		this.id = id || uniqueId( 'pop__' );
 		__popovers.add( this.id );
 
 		this.debug( 'creating ...' );

@@ -14,6 +14,7 @@ import {
 	useChartScopeElement,
 	useGlobalChartsContext,
 } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { lightenHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import { resolveCssVariable } from '../../utils/resolve-css-var';
 import { sanitizeHtml } from '../../utils/sanitize-html';
@@ -129,6 +130,7 @@ function normalizeGeoChartError( eventArgs: unknown ): GeoChartError {
  * @param props.height            - Height of the chart in pixels
  * @param props.region            - Region to display ('world', 'US', or ISO 3166-1 alpha-2 code)
  * @param props.resolution        - Resolution level ('countries', 'provinces', or 'metros')
+ * @param props.domain            - Country code whose viewpoint sets the disputed borders
  * @param props.onError           - Optional callback for Google Charts errors
  * @param props.className         - Additional CSS class name for the chart container
  * @param props.renderPlaceholder - Optional render function for the loading placeholder
@@ -141,16 +143,11 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	height,
 	region = 'world',
 	resolution = 'countries',
+	domain,
 	onError,
 	renderPlaceholder,
 } ) => {
-	const {
-		getElementStyles,
-		theme: {
-			geoChart: { featureFillColor },
-			backgroundColor,
-		},
-	} = useGlobalChartsContext();
+	const { getElementStyles } = useGlobalChartsContext();
 	const scopeElement = useChartScopeElement();
 	const containerRef = useRef< HTMLDivElement >( null );
 	const reportedErrorIdsRef = useRef< Set< string > >( new Set() );
@@ -212,10 +209,10 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 	const lightColorHex = lightenHexColor( fullColorHex, 0.8 );
 	// Use normalizeColorToHex to ensure HSL/RGB values from CSS variables are converted to hex. Google Charts takes a resolved-hex snapshot at render, so this does not live-update on a theme change without a re-render — an accepted asymmetry vs CSS-painted elements.
 	const backgroundColorHex =
-		normalizeColorToHex( backgroundColor, scopeElement, resolveCssVariable ) ||
+		normalizeColorToHex( CATALOG_POINTERS.background, scopeElement, resolveCssVariable ) ||
 		DEFAULT_BACKGROUND_COLOR;
 	const defaultFillColorHex =
-		normalizeColorToHex( featureFillColor, scopeElement, resolveCssVariable ) ||
+		normalizeColorToHex( CATALOG_POINTERS.surfaceSecondary, scopeElement, resolveCssVariable ) ||
 		DEFAULT_FEATURE_FILL_COLOR;
 
 	// Identify HTML tooltip column indices and sanitize their content to prevent XSS.
@@ -267,6 +264,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		() => ( {
 			...( region !== 'world' && { region } ),
 			...( resolution !== 'countries' && { resolution } ),
+			...( domain && { domain } ),
 			colorAxis: { colors: [ lightColorHex, fullColorHex ] },
 			backgroundColor: backgroundColorHex,
 			datalessRegionColor: defaultFillColorHex,
@@ -278,6 +276,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 		[
 			region,
 			resolution,
+			domain,
 			lightColorHex,
 			fullColorHex,
 			backgroundColorHex,
@@ -306,7 +305,7 @@ const GeoChartInternal: FC< GeoChartProps > = ( {
 			ref={ containerRef }
 			className={ clsx( 'geo-chart', styles.container, className ) }
 			data-testid="geo-chart"
-			style={ { width, height, backgroundColor } }
+			style={ { width, height } }
 		>
 			<Chart
 				chartType="GeoChart"

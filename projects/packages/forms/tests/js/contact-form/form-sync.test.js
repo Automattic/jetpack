@@ -13,9 +13,8 @@ await jest.unstable_mockModule( '@wordpress/blocks', () => ( {
 	serialize: mockSerialize,
 } ) );
 
-const { filterSyncedAttributes, serializeSyncedForm, createSyncedFormBlock } = await import(
-	'../../../src/blocks/contact-form/util/form-sync.ts'
-);
+const { filterSyncedAttributes, serializeSyncedForm, createSyncedFormBlock } =
+	await import( '../../../src/blocks/contact-form/util/form-sync.ts' );
 
 describe( 'filterSyncedAttributes', () => {
 	it( 'removes layout attributes and ref', () => {

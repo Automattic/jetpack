@@ -26,6 +26,9 @@ declare global {
 			domain: string;
 			url: string;
 			online: boolean;
+			// A missing key means My Jetpack is unavailable.
+			myJetpack?: boolean;
+			addLicense?: boolean;
 			host: string;
 			hasCache: boolean;
 		};

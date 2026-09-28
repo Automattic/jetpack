@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Send the product image to PayPal so it appears on the hosted checkout.

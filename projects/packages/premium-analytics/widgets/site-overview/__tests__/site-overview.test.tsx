@@ -64,7 +64,7 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
 	} );
 
-	it( 'exposes the exact total on hover while the tile shows a shortened count', async () => {
+	it( 'keeps the exact total behind the shortened count', async () => {
 		mockApiFetch.mockResolvedValue( { ...SUMMARY_RESPONSE, views: 18400 } );
 
 		render(
@@ -73,11 +73,8 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		// The tile abbreviates the count…
-		await expect( screen.findByText( '18K' ) ).resolves.toBeInTheDocument();
-		// …and its hover title carries the exact total, formatted through the
-		// package formatter so tile and title agree on the app locale.
-		expect( screen.getByTitle( '18,400' ) ).toBeInTheDocument();
+		await expect( screen.findByText( '18.4K' ) ).resolves.toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '18,400' ) ).toBeInTheDocument();
 	} );
 
 	it( 'explains the per-day visitor aggregation on the Visitors tile', async () => {

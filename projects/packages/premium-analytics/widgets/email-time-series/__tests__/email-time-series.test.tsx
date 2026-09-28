@@ -18,26 +18,25 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-metric-count={ metrics.length }
 			data-metric-label={ metrics[ 0 ]?.label }
+			data-count-labels={ `${ metrics[ 0 ]?.countLabel?.( 1 ) }|${ metrics[ 0 ]?.countLabel?.( 2 ) }` }
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 		/>
 	),
 } ) );
@@ -94,6 +93,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Opens' );
+		expect( chart ).toHaveAttribute( 'data-count-labels', '%s Open|%s Opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
@@ -103,10 +103,10 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( requestedPath ).toContain( 'stats_fields=timeline' );
 	} );
 
-	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
-	// and the old instant reading coincide, so this would pass either way. `TZ`
-	// is not on the typed env shape, hence the cast.
-	it( 'builds chart points as the wall clocks the buckets name, declared to the chart', async () => {
+	// Pinned west of UTC on purpose: under a UTC runner the site and runner
+	// readings coincide, so this would pass either way. `TZ` is not on the typed
+	// env shape, hence the cast.
+	it( 'builds chart points on the bucket days the site names', async () => {
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;
 		env.TZ = 'America/Los_Angeles';
@@ -124,10 +124,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 			);
 
 			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// The old `localTZDate` reading anchors the buckets away from the
-			// local frame, so these read as the previous day (3,4,5) under it.
+			// Reading these buckets in the runner's zone would report the previous
+			// day (3,4,5).
 			expect( chart ).toHaveAttribute( 'data-days', '4,5,6' );
-			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
 		} finally {
 			if ( runnerTimeZone === undefined ) {
 				delete env.TZ;
@@ -157,6 +156,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Clicks' );
+		expect( chart ).toHaveAttribute( 'data-count-labels', '%s Click|%s Clicks' );
 		expect( chart ).toHaveAttribute( 'data-values', '3' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
@@ -319,7 +319,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
 	} );
@@ -349,7 +349,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 
 		// The skeleton waits out the shared delay, so drive it rather than
@@ -377,7 +377,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		// it gives way to the skeleton.
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect(
-			screen.queryByText( 'No activity for this email in this period.' )
+			screen.queryByText( 'We couldn’t find results for this time period.' )
 		).not.toBeInTheDocument();
 		jest.useRealTimers();
 	} );

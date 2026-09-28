@@ -5,19 +5,22 @@ This package provides some of the newsletter functionality for Jetpack, includin
 - **Settings page** — A wp-admin settings screen for newsletter configuration (`Jetpack > Newsletter`).
 - **URL helper** — Centralized logic for generating the correct newsletter settings URL based on site type and configuration.
 - **Reader link** — An admin bar link to the WordPress.com Reader.
-- **Daily Writing Prompt widget** — A wp-admin dashboard widget that surfaces blogging prompts.
+- **Daily Writing Prompt widget** — A wp-admin dashboard widget that surfaces blogging prompts and Freshly Pressed posts.
+- **Action Bar** — The floating bar in the bottom corner of a site's front end, with Subscribe, Comment, Reblog, Edit and Stats shortcuts. WordPress.com Simple only for now.
 
 Other functionality remains in the subscriptions module of Jetpack itself.
 
 ## Initialization
 
-`Settings`, `Reader_Link`, and `Writing_Prompt_Widget` use singleton-style initialization. Call their `init()` methods early (e.g., on `plugins_loaded`):
+`Settings`, `Reader_Link`, `Writing_Prompt_Widget`, and `Action_Bar` use singleton-style initialization. Call their `init()` methods early (e.g., on `plugins_loaded`):
 
 ```php
+use Automattic\Jetpack\Newsletter\Action_Bar;
 use Automattic\Jetpack\Newsletter\Settings;
 use Automattic\Jetpack\Newsletter\Reader_Link;
 use Automattic\Jetpack\Newsletter\Writing_Prompt_Widget;
 
+Action_Bar::init();
 Settings::init();
 Reader_Link::init();
 Writing_Prompt_Widget::init();
@@ -54,6 +57,25 @@ When the subscriptions module is active, a notice is added to the wp-admin **Set
 ## Daily Writing Prompt widget
 
 `Writing_Prompt_Widget::init()` registers a `Daily Writing Prompt` dashboard widget for users who can `manage_options`. The widget renders a hydration container and enqueues the `writing-prompt` build assets, which mount a React app that fetches the latest blogging prompts from `/wpcom/v3/blogging-prompts` and lets the user jump into answering one.
+
+### Where "Post your answer" goes
+
+On WordPress.com-platform sites the answer link opens the Write editor; everywhere else it opens `post-new.php`, where the `jetpack/blogging-prompt` block editor script seeds the same prompt.
+
+Write itself can send someone back the other way, from its first-visit note or its Tips panel. When it does it records `wpcom-write-block-editor-preferred` in localStorage _and_ in a cookie of the same name, and this widget stops offering Write from then on if it finds either. That name is all the two sides share — Write ships from `jetpack-mu-wpcom`, which this package does not depend on — so changing it means changing both. Two stores because neither reaches every reader: only the cookie is visible to Write's `write.php`, which reads it server-side to divert prompt answers arriving from wordpress.com (the My Home and Reader cards, the prompt notification, the prompt email), and only localStorage outlives Safari's seven-day cap on cookies set from script. Someone who has opted out never opens Write again, so Write cannot rewrite the lapsed cookie itself — this widget re-arms it whenever localStorage still holds the opt-out.
+
+Once someone has opted out, where the link goes depends on whether `post-new.php` can seed the prompt there. The block carrying it is inserted by the Jetpack plugin's editor script, so Atomic and self-hosted go straight to `post-new.php`. Simple does not run that plugin and would land on the prompt's tags with an empty editor, so it goes to `https://wordpress.com/post/<blog_id>` instead — the same destination Calypso's own blogging-prompt card uses, and the one `write.php` diverts Simple arrivals to.
+
+### Freshly Pressed
+
+When WordPress.com is featuring posts, the widget grows a second tab listing ten of them, each linking to the post in the WordPress.com Reader.
+
+`Freshly_Pressed::get_posts()` reads them from whichever source the site can reach:
+
+- **Simple sites** query the wpcom database directly through the `FreshlyPressed` plugin. No HTTP request is involved.
+- **Everywhere else** (Atomic and self-hosted Jetpack) fetches `https://public-api.wordpress.com/rest/v1.1/freshly-pressed`.
+
+Either way the result is cached in a transient for an hour, and for five minutes when the source failed, then reaches the React app through the `jetpack_admin_js_script_data` filter. The tab is left out entirely when the list is empty, so the widget stays single-view rather than offering an empty tab.
 
 ## Using this package in your WordPress plugin
 

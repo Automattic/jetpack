@@ -62,6 +62,7 @@ export const JETPACK_PRODUCTS_WITH_CARD = [
 ] as const;
 
 export const JETPACK_PRODUCTS_WITHOUT_CARD = [
+	'activity-log',
 	'complete',
 	'creator',
 	'extras',
@@ -100,6 +101,7 @@ export const PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE = [ 'jetpack-ai', 'jetpack-for
  */
 export const JETPACK_NON_PAID_MODULES = [
 	'account-protection',
+	'activity-log',
 	'ai',
 	'blaze',
 	'blocks',

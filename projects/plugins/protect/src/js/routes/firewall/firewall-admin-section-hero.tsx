@@ -47,7 +47,7 @@ const FirewallAdminSectionHero = () => {
 									'Firewall is on',
 									'Explanatory text for firewall on status',
 									'jetpack-protect'
-							  ) ) }
+								) ) }
 				</>
 			);
 		}
@@ -63,7 +63,7 @@ const FirewallAdminSectionHero = () => {
 									'Firewall is off',
 									'Explanatory text for firewall off status',
 									'jetpack-protect'
-							  ) ) }
+								) ) }
 				</>
 			);
 		}

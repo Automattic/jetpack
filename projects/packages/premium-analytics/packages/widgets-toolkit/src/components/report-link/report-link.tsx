@@ -10,6 +10,7 @@ import clsx from 'clsx';
  */
 import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
 import styles from './report-link.module.scss';
+import type { ReactNode } from 'react';
 
 export type ReportLinkProps = {
 	/**
@@ -36,6 +37,11 @@ export type ReportLinkProps = {
 	 * Optional class for widget-specific layout tweaks.
 	 */
 	className?: string;
+
+	/**
+	 * Rendered in place of the label, e.g. a badge; the hover underline is dropped for it.
+	 */
+	children?: ReactNode;
 };
 
 /**
@@ -46,8 +52,15 @@ export type ReportLinkProps = {
  *
  * @return The rendered report link.
  */
-export function ReportLink( { report, section, label, ariaLabel, className }: ReportLinkProps ) {
-	const search = useWidgetNavigationSearch( section );
+export function ReportLink( {
+	report,
+	section,
+	label,
+	ariaLabel,
+	className,
+	children,
+}: ReportLinkProps ) {
+	const search = useWidgetNavigationSearch( { section } );
 
 	return (
 		<Link
@@ -58,10 +71,10 @@ export function ReportLink( { report, section, label, ariaLabel, className }: Re
 					search={ search as unknown as never }
 				/>
 			}
-			className={ clsx( styles.reportLink, className ) }
+			className={ clsx( styles.reportLink, children && styles.hasContent, className ) }
 			aria-label={ ariaLabel }
 		>
-			{ label ?? __( 'View all', 'jetpack-premium-analytics-pkg' ) }
+			{ children ?? label ?? __( 'View all', 'jetpack-premium-analytics-pkg' ) }
 		</Link>
 	);
 }

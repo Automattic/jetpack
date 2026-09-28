@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show restore failures in connection error notices without the "ApiError:" prefix.

@@ -8,6 +8,7 @@ import {
 	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
+	getKnownEmailRate,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -18,7 +19,12 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
-import { getEmailsFields, useEmailsReportRecords } from './config';
+import {
+	getClicksRateSignals,
+	getEmailsFields,
+	getOpensRateSignals,
+	useEmailsReportRecords,
+} from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 
 /**
@@ -75,12 +81,12 @@ function EmailsReport(): JSX.Element {
 			{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), getValue: row => row.opens },
 			{
 				label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.opens_rate,
+				getValue: row => getKnownEmailRate( row.opens_rate, getOpensRateSignals( row ) ),
 			},
 			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
 			{
 				label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.clicks_rate,
+				getValue: row => getKnownEmailRate( row.clicks_rate, getClicksRateSignals( row ) ),
 			},
 		],
 		[]

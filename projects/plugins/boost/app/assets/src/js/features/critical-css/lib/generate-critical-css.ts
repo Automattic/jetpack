@@ -5,7 +5,7 @@ import { castToNumber } from '$lib/utils/cast-to-number';
 import { logPreCriticalCSSGeneration } from '$lib/utils/console';
 import { isSameOrigin } from '$lib/utils/is-same-origin';
 import { prepareAdminAjaxRequest } from '$lib/utils/make-admin-ajax-request';
-import { standardizeError } from '$lib/utils/standardize-error';
+import { standardizeError } from '@automattic/jetpack-boost-score-api';
 
 type Viewport = {
 	width: number;
@@ -145,15 +145,20 @@ async function generateCriticalCss(
 	}
 }
 
+// Set by the server when it ends a generation request that its login gate would have redirected.
+const LOGIN_REQUIRED_HEADER = 'x-jetpack-boost-generation-blocked';
+
 /**
  * Helper method to prepare a Browser Interface for Critical CSS generation.
  *
  * @param {Object} requestGetParameters - GET parameters to include with each request.
  * @param {string} proxyNonce           - Nonce to use when proxying CSS requests.
+ * @param {Set}    loginRequiredUrls    - Collects the URLs the site would only show to a logged-in visitor.
  */
 async function createBrowserInterface(
 	requestGetParameters: Record< string, string >,
-	proxyNonce: string
+	proxyNonce: string,
+	loginRequiredUrls: Set< string >
 ) {
 	const CriticalCSSGenerator = await criticalCssGenerator();
 	return new ( class extends CriticalCSSGenerator.BrowserInterfaceIframe {
@@ -165,7 +170,7 @@ async function createBrowserInterface(
 			} );
 		}
 
-		fetch( url: string, options: RequestInit, context?: string ) {
+		async fetch( url: string, options: RequestInit, context?: string ) {
 			if ( context === 'css' && ! isSameOrigin( url ) ) {
 				return prepareAdminAjaxRequest( {
 					action: 'boost_proxy_css',
@@ -174,7 +179,12 @@ async function createBrowserInterface(
 				} );
 			}
 
-			return fetch( url, options );
+			const response = await fetch( url, options );
+			if ( response.headers.get( LOGIN_REQUIRED_HEADER ) === 'login-required' ) {
+				loginRequiredUrls.add( pageUrlKey( url, requestGetParameters ) );
+			}
+
+			return response;
 		}
 	} )();
 }
@@ -208,6 +218,7 @@ async function generateForKeys(
 	callbacks: ProviderCallbacks,
 	signal: AbortSignal
 ): Promise< void > {
+	const loginRequiredUrls = new Set< string >();
 	const CriticalCSSGenerator = await criticalCssGenerator();
 	try {
 		CriticalCSSGeneratorSchema.parse( CriticalCSSGenerator );
@@ -241,7 +252,11 @@ async function generateForKeys(
 
 		try {
 			const [ css ] = await CriticalCSSGenerator.generateCriticalCSS( {
-				browserInterface: await createBrowserInterface( requestGetParameters, proxyNonce ),
+				browserInterface: await createBrowserInterface(
+					requestGetParameters,
+					proxyNonce,
+					loginRequiredUrls
+				),
 				urls,
 				viewports,
 				progressCallback: ( step: number, total: number ) => {
@@ -291,12 +306,15 @@ async function generateForKeys(
 				stepsFailed++;
 
 				// Rearrange errors from CriticalCssGen from {url:details} to [{url:details:}].
-				const errors = Object.entries( err.urlErrors ).map(
-					( [ url, details ] ) =>
-						( {
+				const errors = Object.entries( err.urlErrors ).map( ( [ url, details ] ) =>
+					markLoginRequired(
+						{
 							url,
 							...details,
-						} ) as CriticalCssErrorDetails
+						} as CriticalCssErrorDetails,
+						loginRequiredUrls,
+						requestGetParameters
+					)
 				);
 
 				await callbacks.setProviderErrors( key, errors );
@@ -384,6 +402,45 @@ async function generateForKeys(
 		};
 		recordBoostEvent( 'critical_css_success', eventProps );
 	}
+}
+
+/**
+ * Reduce a fetched URL to the page it was fetched for, so it can be compared to an error's URL.
+ *
+ * @param {string} url                  - URL to reduce.
+ * @param {Object} requestGetParameters - GET parameters generation appends to each request.
+ */
+function pageUrlKey( url: string, requestGetParameters: Record< string, string > ): string {
+	try {
+		const parsed = new URL( url, window.location.href );
+		for ( const parameter of Object.keys( requestGetParameters ) ) {
+			parsed.searchParams.delete( parameter );
+		}
+
+		return parsed.toString();
+	} catch {
+		return url;
+	}
+}
+
+/**
+ * Flag an error the site raised because the page is only shown to a logged-in visitor, so the
+ * dashboard can name that cause instead of describing a bare HTTP error.
+ *
+ * @param {Object} error                - The error to check.
+ * @param {Set}    loginRequiredUrls    - Pages the site answered with the login-required marker.
+ * @param {Object} requestGetParameters - GET parameters generation appends to each request.
+ */
+function markLoginRequired(
+	error: CriticalCssErrorDetails,
+	loginRequiredUrls: Set< string >,
+	requestGetParameters: Record< string, string >
+): CriticalCssErrorDetails {
+	if ( ! loginRequiredUrls.has( pageUrlKey( error.url, requestGetParameters ) ) ) {
+		return error;
+	}
+
+	return { ...error, meta: { ...error.meta, login_required: true } };
 }
 
 /**

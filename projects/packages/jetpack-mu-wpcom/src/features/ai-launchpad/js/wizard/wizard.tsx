@@ -1,7 +1,7 @@
 import apiFetch from '@wordpress/api-fetch';
-import { Modal, Button } from '@wordpress/components';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { Button, Dialog, Stack } from '@wordpress/ui';
 import { getPrewarmedTailor, usePrewarm } from '../lib/prewarm.ts';
 import {
 	setTracksContext,
@@ -23,7 +23,7 @@ import {
 	type WizardState,
 	type WizardStep,
 } from './lib.ts';
-import type { GoalSlug, TailorResult, WizardInput } from '../lib/types.ts';
+import type { GoalSlug, SiteCopy, TailorResult, WizardInput } from '../lib/types.ts';
 
 import './style.scss';
 
@@ -34,8 +34,12 @@ interface Props {
 	initialIntent?: string;
 	// The site's front-end URL, used to key the Calypso My Home URL on Skip.
 	siteUrl?: string;
-	// User locale, forwarded to the wizard payload and the AI call.
+	// The site language, forwarded to the wizard payload and the AI call, which writes the drafts in it.
 	locale?: string;
+	// The account language, which the AI writes the task subtitles in.
+	uiLocale?: string;
+	// The site-language copy the fallback drafts are written from.
+	copy: SiteCopy;
 	// Fired once Finish completes, with the persisted input and the in-flight
 	// tailor promise, so the host can swap to the tailored list.
 	onComplete?: ( input: WizardInput, tailoring: Promise< TailorResult > ) => void;
@@ -49,7 +53,9 @@ interface Props {
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
  * @param props.siteUrl         - The site's front-end URL (for the Skip redirect).
- * @param props.locale          - User locale forwarded to the payload.
+ * @param props.locale          - Site language forwarded to the payload.
+ * @param props.uiLocale        - Account language the task subtitles are written in.
+ * @param props.copy            - Site-language copy for the fallback drafts.
  * @param props.onComplete      - Called with the input and tailor promise on Finish.
  * @return The wizard element.
  */
@@ -58,6 +64,8 @@ export function Wizard( {
 	initialIntent = '',
 	siteUrl,
 	locale = 'en',
+	uiLocale = locale,
+	copy,
 	onComplete,
 }: Props ) {
 	const [ step, setStep ] = useState< WizardStep >( 0 );
@@ -66,7 +74,7 @@ export function Wizard( {
 	const [ intent, setIntent ] = useState< string >( initialIntent );
 	const [ skipping, setSkipping ] = useState( false );
 
-	const state: WizardState = { goal, siteName, intent, locale };
+	const state: WizardState = { goal, siteName, intent, locale, uiLocale };
 	// The analytics name of the current step, shared by every event that reports one.
 	const stepName = 0 === step ? 'goal' : 'site_details';
 
@@ -77,7 +85,7 @@ export function Wizard( {
 
 	// Background-tailor on Step-2 typing pauses; Finish reuses the prewarmed
 	// promise via getPrewarmedTailor.
-	usePrewarm( step === 1 ? toPrewarmInput( state ) : {} );
+	usePrewarm( step === 1 ? toPrewarmInput( state ) : {}, copy );
 
 	const handleNext = () => {
 		if ( ! isLastStep( step ) ) {
@@ -111,7 +119,7 @@ export function Wizard( {
 			} )
 			.catch( () => {} );
 
-		const tailoring = getPrewarmedTailor( payload );
+		const tailoring = getPrewarmedTailor( payload, copy );
 		trackWizardStepCompleted( { step: stepName } );
 		// One event per field the user actually modified, vs the pre-filled values.
 		if ( siteName.trim() !== initialSiteName.trim() ) {
@@ -153,61 +161,63 @@ export function Wizard( {
 	};
 
 	return (
-		<Modal
-			title=""
-			onRequestClose={ () => undefined }
-			className="ai-launchpad-wizard"
-			shouldCloseOnClickOutside={ false }
-			__experimentalHideHeader
-			size="medium"
-		>
-			<div className="ai-launchpad-wizard__progress" aria-hidden="true">
-				<div
-					className="ai-launchpad-wizard__progress-bar"
-					style={ { width: `${ ( ( step + 1 ) / TOTAL_STEPS ) * 100 }%` } }
-				/>
-			</div>
+		// The wizard cannot be dismissed: Escape and backdrop clicks are ignored, and
+		// "Skip" is the only way out.
+		<Dialog.Root open onOpenChange={ () => undefined } disablePointerDismissal>
+			<Dialog.Popup
+				size="medium"
+				className="ai-launchpad-wizard"
+				portal={ <Dialog.Portal className="ai-launchpad-wizard__portal" /> }
+			>
+				<Dialog.Content>
+					<div className="ai-launchpad-wizard__progress" aria-hidden="true">
+						<div
+							className="ai-launchpad-wizard__progress-bar"
+							style={ { width: `${ ( ( step + 1 ) / TOTAL_STEPS ) * 100 }%` } }
+						/>
+					</div>
 
-			{ step === 0 && (
-				<GoalsStep
-					value={ goal }
-					onChange={ nextGoal => {
-						trackWizardGoalClicked( { goal_clicked: nextGoal } );
-						setGoal( nextGoal );
-					} }
-				/>
-			) }
-			{ step === 1 && (
-				<DetailsStep
-					goal={ goal }
-					siteName={ siteName }
-					intent={ intent }
-					onSiteNameChange={ setSiteName }
-					onIntentChange={ setIntent }
-				/>
-			) }
-
-			<footer className="ai-launchpad-wizard__footer">
-				<Button variant="link" onClick={ handleSkip } disabled={ skipping }>
-					{ __( 'Skip', 'jetpack-mu-wpcom' ) }
-				</Button>
-				<div className="ai-launchpad-wizard__footer-right">
-					{ step > 0 && (
-						<Button variant="secondary" onClick={ handleBack } disabled={ skipping }>
-							{ __( 'Back', 'jetpack-mu-wpcom' ) }
-						</Button>
+					{ step === 0 && (
+						<GoalsStep
+							value={ goal }
+							onChange={ nextGoal => {
+								trackWizardGoalClicked( { goal_clicked: nextGoal } );
+								setGoal( nextGoal );
+							} }
+						/>
 					) }
-					<Button
-						variant="primary"
-						onClick={ handleNext }
-						disabled={ skipping || ! canContinue( step, state ) }
-					>
-						{ isLastStep( step )
-							? __( 'Finish', 'jetpack-mu-wpcom' )
-							: __( 'Continue', 'jetpack-mu-wpcom' ) }
+					{ step === 1 && (
+						<DetailsStep
+							goal={ goal }
+							siteName={ siteName }
+							intent={ intent }
+							onSiteNameChange={ setSiteName }
+							onIntentChange={ setIntent }
+						/>
+					) }
+				</Dialog.Content>
+				<Stack render={ <Dialog.Footer /> } align="center" justify="space-between" gap="md">
+					<Button variant="minimal" onClick={ handleSkip } disabled={ skipping }>
+						{ __( 'Skip', 'jetpack-mu-wpcom' ) }
 					</Button>
-				</div>
-			</footer>
-		</Modal>
+					<Stack gap="sm">
+						{ step > 0 && (
+							<Button variant="outline" onClick={ handleBack } disabled={ skipping }>
+								{ __( 'Back', 'jetpack-mu-wpcom' ) }
+							</Button>
+						) }
+						<Button
+							variant="solid"
+							onClick={ handleNext }
+							disabled={ skipping || ! canContinue( step, state ) }
+						>
+							{ isLastStep( step )
+								? __( 'Finish', 'jetpack-mu-wpcom' )
+								: __( 'Continue', 'jetpack-mu-wpcom' ) }
+						</Button>
+					</Stack>
+				</Stack>
+			</Dialog.Popup>
+		</Dialog.Root>
 	);
 }

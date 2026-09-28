@@ -1,0 +1,5 @@
+Significance: patch
+Type: added
+Comment: Render the modern Settings page as grouped cards when the modernization filter is on. No change with the filter off.
+
+

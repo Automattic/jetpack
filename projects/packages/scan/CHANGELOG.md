@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.4] - 2026-09-21
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+## [0.2.3] - 2026-09-15
+### Changed
+- Hide the Scan sidebar item when Scan is not active. [#52156]
+- Update package dependencies. [#52200] [#52297]
+
+## [0.2.2] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
+## [0.2.1] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [0.2.0] - 2026-09-01
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [0.1.16] - 2026-08-25
 ### Changed
 - Update dependencies. [#51438]
@@ -106,6 +131,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Initial release.
 
+[0.2.4]: https://github.com/Automattic/jetpack-scan-page/compare/v0.2.3...v0.2.4
+[0.2.3]: https://github.com/Automattic/jetpack-scan-page/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/Automattic/jetpack-scan-page/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/Automattic/jetpack-scan-page/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.16...v0.2.0
 [0.1.16]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.15...v0.1.16
 [0.1.15]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.14...v0.1.15
 [0.1.14]: https://github.com/Automattic/jetpack-scan-page/compare/v0.1.13...v0.1.14

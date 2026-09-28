@@ -35,8 +35,7 @@ interface SalesByUtmChannelStoryControls {
 type SalesByUtmChannelStoryProps = SalesByUtmChannelWidgetProps & SalesByUtmChannelStoryControls;
 
 interface SalesByUtmChannelDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SalesByUtmChannelStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SalesByUtmChannelStoryControls {}
 
 function getSalesByUtmChannelAttributes(
 	withComparison = false,

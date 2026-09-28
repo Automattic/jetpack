@@ -30,7 +30,7 @@ function parsePhpConstArray( phpSource, constName ) {
 	const match = phpSource.match(
 		new RegExp( `const\\s+${ constName }\\s*=\\s*array\\(([^)]*)\\)` )
 	);
-	return match ? match[ 1 ].match( /'([^']+)'/g )?.map( s => s.replace( /'/g, '' ) ) ?? [] : [];
+	return match ? ( match[ 1 ].match( /'([^']+)'/g )?.map( s => s.replace( /'/g, '' ) ) ?? [] ) : [];
 }
 
 /**

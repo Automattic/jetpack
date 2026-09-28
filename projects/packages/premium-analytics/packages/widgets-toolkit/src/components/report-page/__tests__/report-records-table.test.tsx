@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -40,6 +40,7 @@ const fields: Field< Row >[] = [
 const INITIAL_VIEW: Partial< View > = { fields: [ 'label', 'views' ] };
 
 const onChangeView = jest.fn();
+const onChangePageItems = jest.fn();
 
 /**
  * Mount the table with one filter-only, primary-filter field.
@@ -52,6 +53,7 @@ function mountTable() {
 			getItemId={ item => item.id }
 			initialView={ INITIAL_VIEW }
 			onChangeView={ onChangeView }
+			onChangePageItems={ onChangePageItems }
 		/>
 	);
 }
@@ -76,6 +78,28 @@ describe( 'ReportRecordsTable', () => {
 		expect( screen.getByRole( 'columnheader', { name: /Location/ } ) ).toBeInTheDocument();
 	} );
 
+	it( 'draws the title field once, as the primary column', () => {
+		render(
+			<ReportRecordsTable< Row >
+				data={ rows }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ { titleField: 'label' } }
+			/>
+		);
+
+		expect( screen.getAllByText( 'Maharashtra' ) ).toHaveLength( 1 );
+		// eslint-disable-next-line testing-library/no-node-access -- The class is DataViews' only mark of the primary column.
+		expect( screen.getByText( 'Maharashtra' ).closest( '.dataviews-title-field' ) ).not.toBeNull();
+		expect( screen.getByRole( 'columnheader', { name: /Views/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'reports the initial visible page outwards', async () => {
+		mountTable();
+
+		await waitFor( () => expect( onChangePageItems ).toHaveBeenLastCalledWith( rows ) );
+	} );
+
 	// The page needs the chosen value to reach its data request, because the
 	// API applies this kind of filter server-side.
 	it( 'reports the chosen filter value outwards', async () => {
@@ -94,6 +118,7 @@ describe( 'ReportRecordsTable', () => {
 				expect.objectContaining( { field: 'country', operator: 'is', value: 'IN' } ),
 			] )
 		);
+		await waitFor( () => expect( onChangePageItems ).toHaveBeenLastCalledWith( [ rows[ 0 ] ] ) );
 	} );
 } );
 
@@ -180,6 +205,34 @@ describe( 'ReportRecordsTable pagination', () => {
 		rerender( withSpy( 12 ) );
 
 		expect( reportedViews.mock.calls.at( -1 )?.[ 0 ] ).toMatchObject( { page: 2 } );
+	} );
+
+	it( 'reports the new visible rows after pagination', async () => {
+		const user = userEvent.setup();
+		const reportedItems = jest.fn();
+		render(
+			<ReportRecordsTable< NumberedRow >
+				data={ numberedRows( 25 ) }
+				fields={ NUMBERED_FIELDS }
+				getItemId={ item => item.id }
+				perPageSizes={ [ 10 ] }
+				onChangePageItems={ reportedItems }
+			/>
+		);
+
+		await waitFor( () =>
+			expect( reportedItems ).toHaveBeenLastCalledWith(
+				expect.arrayContaining( [ expect.objectContaining( { id: '1' } ) ] )
+			)
+		);
+
+		await goToPage( user, 2 );
+
+		await waitFor( () =>
+			expect( reportedItems ).toHaveBeenLastCalledWith(
+				expect.arrayContaining( [ expect.objectContaining( { id: '11' } ) ] )
+			)
+		);
 	} );
 
 	it( 'stays where it fell back to when a later result grows again', async () => {

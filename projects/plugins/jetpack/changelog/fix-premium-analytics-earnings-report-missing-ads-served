@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Premium Analytics: Show a dash instead of zero in the Earnings history report when a period has no Ads Served count.

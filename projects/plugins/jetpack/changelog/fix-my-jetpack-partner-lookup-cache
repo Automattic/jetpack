@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-My Jetpack: Stop repeating the partner lookup request on every page load.

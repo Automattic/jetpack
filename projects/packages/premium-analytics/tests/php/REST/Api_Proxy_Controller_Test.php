@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -19,6 +21,11 @@ use WP_REST_Server;
  */
 #[CoversClass( Api_Proxy_Controller::class )]
 class Api_Proxy_Controller_Test extends BaseTestCase {
+
+	/**
+	 * Email of the user the injection cases sign in as.
+	 */
+	private const FEEDBACK_USER_EMAIL = 'jpa_feedback@example.com';
 
 	/**
 	 * Controller under test.
@@ -299,6 +306,131 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The blog token carries no user, so the endpoint that attributes a submission to a person
+	 * gets the local one added on the way out. Every other group's body is forwarded untouched.
+	 *
+	 * @dataProvider data_user_email_injection
+	 *
+	 * @param array<string, mixed> $opts     The matched prefix config.
+	 * @param string               $body     The incoming request body.
+	 * @param string               $expected The body that should be forwarded.
+	 */
+	#[DataProvider( 'data_user_email_injection' )]
+	public function test_inject_user_email( array $opts, string $body, string $expected ) {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_feedback',
+					'user_pass'  => 'password',
+					'user_email' => self::FEEDBACK_USER_EMAIL,
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$accessor = function ( string $b, array $o ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->inject_user_email( $b, $o );
+		};
+
+		$this->assertSame( $expected, $accessor->call( $this->controller, $body, $opts ) );
+	}
+
+	public function test_inject_user_email_leaves_the_body_alone_for_a_logged_out_request() {
+		wp_set_current_user( 0 );
+
+		$accessor = function ( string $b, array $o ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
+			return $this->inject_user_email( $b, $o );
+		};
+
+		$this->assertSame(
+			'{"feedback":"slow"}',
+			$accessor->call( $this->controller, '{"feedback":"slow"}', array( 'inject_user_email' => true ) )
+		);
+	}
+
+	/**
+	 * The cases above call the injector directly. This one drives the whole route, so a config
+	 * flag that never reaches `forward()` fails here rather than shipping as a dead option.
+	 */
+	public function test_feedback_write_forwards_the_user_email_through_the_route() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		\Jetpack_Options::update_option( 'id', 4242 );
+		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'jpa_feedback_route',
+					'user_pass'  => 'password',
+					'user_email' => self::FEEDBACK_USER_EMAIL,
+					'role'       => 'administrator',
+				)
+			)
+		);
+
+		$captured = array(
+			'url'  => '',
+			'args' => array(),
+		);
+		add_filter(
+			'pre_http_request',
+			function ( $pre, $args, $url ) use ( &$captured ) {
+				$captured = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'success' => true ), JSON_UNESCAPED_SLASHES ),
+					'headers'  => array(),
+				);
+			},
+			10,
+			3
+		);
+
+		$request = $this->build_data_request( 'POST', 'jetpack-stats/user-feedback' );
+		$request->set_body( '{"feedback":"slow"}' );
+		try {
+			$response = $this->controller->handle_data_request( $request );
+		} finally {
+			remove_all_filters( 'pre_http_request' );
+			\Jetpack_Options::delete_option( 'blog_token' );
+			\Jetpack_Options::delete_option( 'id' );
+			( new Connection_Manager() )->reset_connection_status();
+			Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
+		}
+
+		$this->assertInstanceOf( WP_REST_Response::class, $response );
+		$this->assertStringContainsString( '/wpcom/v2/sites/4242/jetpack-stats/user-feedback', $captured['url'] );
+		$this->assertSame(
+			'{"feedback":"slow","user_email":"' . self::FEEDBACK_USER_EMAIL . '"}',
+			$captured['args']['body'] ?? null
+		);
+	}
+
+	/**
+	 * @return array<string, array{0: array<string, mixed>, 1: string, 2: string}>
+	 */
+	public static function data_user_email_injection(): array {
+		$on    = array( 'inject_user_email' => true );
+		$email = self::FEEDBACK_USER_EMAIL;
+
+		return array(
+			'adds to an object'        => array( $on, '{"feedback":"slow"}', '{"feedback":"slow","user_email":"' . $email . '"}' ),
+			'adds to an empty body'    => array( $on, '', '{"user_email":"' . $email . '"}' ),
+			'overwrites a claimed one' => array( $on, '{"user_email":"spoof@example.com"}', '{"user_email":"' . $email . '"}' ),
+			'leaves a list alone'      => array( $on, '[1,2]', '[1,2]' ),
+			'leaves malformed alone'   => array( $on, 'not json', 'not json' ),
+			'skips groups without it'  => array( array(), '{"feedback":"slow"}', '{"feedback":"slow"}' ),
+		);
+	}
+
+	/**
 	 * @return array<string, string[]>
 	 */
 	public static function data_data_paths(): array {
@@ -341,7 +473,9 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'commercial subpath' => array( 'commercial-classification/foo', false ),
 			'stats read'         => array( 'stats/top-posts', false ),
 			'subscribers read'   => array( 'subscribers/counts', false ),
+			'user feedback'      => array( 'jetpack-stats/user-feedback', true ),
 			'usage read'         => array( 'jetpack-stats/usage', false ),
+			'feedback subpath'   => array( 'jetpack-stats/user-feedback/foo', false ),
 			'wordads read'       => array( 'wordads/earnings', false ),
 		);
 	}
@@ -736,6 +870,7 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 			'subscribers counts'   => array( 'subscribers/counts', $stats, false, '/sites/%d/subscribers/counts' ),
 			'never published'      => array( 'site-has-never-published-post', $stats, false, '/sites/%d/site-has-never-published-post' ),
 			'plan usage'           => array( 'jetpack-stats/usage', $stats, false, '/sites/%d/jetpack-stats/usage' ),
+			'user feedback'        => array( 'jetpack-stats/user-feedback', $stats, true, '/sites/%d/jetpack-stats/user-feedback' ),
 			'dashboard modules'    => array( 'jetpack-stats-dashboard/modules', $stats, true, '/sites/%d/jetpack-stats-dashboard/modules' ),
 			'module settings'      => array( 'jetpack-stats-dashboard/module-settings', $stats, true, '/sites/%d/jetpack-stats-dashboard/module-settings' ),
 			'commercial class.'    => array( 'commercial-classification', $stats, true, '/sites/%d/commercial-classification' ),

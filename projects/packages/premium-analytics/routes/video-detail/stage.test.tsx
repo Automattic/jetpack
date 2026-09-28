@@ -1,10 +1,20 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { useVideoSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+
+// The dashboard props the stage handed to the (mocked) WidgetDashboard.
+let mockDashboardProps: {
+	editMode?: boolean;
+	onEditChange?: ( next: boolean ) => void;
+	onLayoutChange?: ( next: unknown ) => void;
+	onLayoutReset?: () => void;
+} = {};
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -29,6 +39,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 // Avoid loading DataViews while keeping the real breadcrumbs for these assertions.
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	DateFiltersPanel: () => <div>Date filters</div>,
+	SectionHeader: jest.requireActual( '../../packages/ui/src/section-header' ).SectionHeader,
 	StatsBreadcrumbs: jest.requireActual( '../../packages/ui/src/stats-breadcrumbs' )
 		.StatsBreadcrumbs,
 	StatsPageIcon: () => null,
@@ -75,14 +86,44 @@ function MockScopeProbe() {
 // the dashboard.
 const mockDashboardLayouts: unknown[] = [];
 jest.mock( '@wordpress/widget-dashboard', () => {
-	const WidgetDashboard = ( { children, layout }: { children: ReactNode; layout?: unknown } ) => {
+	const WidgetDashboard = ( {
+		children,
+		layout,
+		editMode,
+		onEditChange,
+		onLayoutChange,
+		onLayoutReset,
+	}: {
+		children: ReactNode;
+		layout?: unknown;
+		editMode?: boolean;
+		onEditChange?: ( next: boolean ) => void;
+		onLayoutChange?: ( next: unknown ) => void;
+		onLayoutReset?: () => void;
+	} ) => {
 		mockDashboardLayouts.push( layout );
+		mockDashboardProps = { editMode, onEditChange, onLayoutChange, onLayoutReset };
 		return <>{ children }</>;
 	};
 	WidgetDashboard.Widgets = () => <MockScopeProbe />;
+	WidgetDashboard.Actions = () => <div data-testid="dashboard-actions" />;
+	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 
 	return { WidgetDashboard, DEFAULT_GRID: {}, ROW_HEIGHT_PRESETS: { small: 200 } };
 } );
+
+// The stored arrangement is the toolkit's; the rest of the toolkit stays real.
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	useStoredDetailLayout: jest.fn( ( scope: string, layoutId: string, fixed: unknown ) => ( {
+		layout: fixed,
+		setLayout: () => {},
+		resetLayout: () => {},
+		hasCustomLayout: false,
+	} ) ),
+} ) );
+
+const mockUseStoredLayout = useStoredDetailLayout as jest.Mock;
 
 jest.mock( '@wordpress/widget-primitives', () => ( {
 	useWidgetTypes: () => [ [], false ],
@@ -110,9 +151,18 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 			} ) }
 		</nav>
 	),
-	Page: ( { breadcrumbs, children }: { breadcrumbs: ReactNode; children: ReactNode } ) => (
+	Page: ( {
+		breadcrumbs,
+		actions,
+		children,
+	}: {
+		breadcrumbs: ReactNode;
+		actions?: ReactNode;
+		children: ReactNode;
+	} ) => (
 		<main>
 			{ breadcrumbs }
+			<div data-testid="page-actions">{ actions }</div>
 			{ children }
 		</main>
 	),
@@ -158,7 +208,11 @@ describe( 'video detail stage', () => {
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {
 			configurable: true,
-			value: { premium_analytics: { has_videopress: true } },
+			// The page options menu reads the reader's capabilities off it too.
+			value: {
+				premium_analytics: { has_videopress: true },
+				user: { current_user: { capabilities: {} } },
+			},
 		} );
 	} );
 
@@ -186,12 +240,16 @@ describe( 'video detail stage', () => {
 			'href',
 			'/reports/videos?from=2026-06-01&to=2026-06-16'
 		);
-		expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
 	} );
 
-	it.each( [ { isLoading: true }, { isError: true }, { isNotFound: true } ] )(
-		'shows only the Stats crumb and does not mount widgets while no video is available',
-		summary => {
+	it.each( [
+		{ summary: { isLoading: true }, heading: 'Loading…' },
+		{ summary: { isError: true }, heading: 'Video unavailable' },
+		{ summary: { isNotFound: true }, heading: 'Video not found' },
+	] )(
+		'names the page and keeps its date controls while no video is available',
+		( { summary, heading } ) => {
 			mockSummary( summary );
 
 			render( stage() );
@@ -205,28 +263,23 @@ describe( 'video detail stage', () => {
 				'href',
 				'/?from=2026-06-01&to=2026-06-16'
 			);
-			expect( screen.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
+			expect( getSummaryHeading( heading ) ).toBeInTheDocument();
+			expect( screen.getByText( 'Date filters' ) ).toBeInTheDocument();
+			// No window is worth stating without a video behind it.
+			expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 			expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
 		}
 	);
 
 	/**
-	 * Find the summary card's `h1` while skipping the breadcrumb title crumb —
-	 * admin-ui renders the current crumb as an `h1` too, so an unscoped heading
-	 * query matches both.
+	 * Find the summary heading. The breadcrumb's trailing crumb is the page's
+	 * `h1`; the header titles the section under it.
 	 *
 	 * @param name - The accessible heading name.
-	 * @return The summary card heading.
+	 * @return The summary heading.
 	 */
 	function getSummaryHeading( name: string ): HTMLElement {
-		const nav = screen.getByRole( 'navigation', { name: 'Breadcrumbs' } );
-		const heading = screen
-			.getAllByRole( 'heading', { level: 1, name } )
-			.find( node => ! nav.contains( node ) );
-		if ( ! heading ) {
-			throw new Error( `No summary heading named "${ name }" outside the breadcrumbs.` );
-		}
-		return heading;
+		return screen.getByRole( 'heading', { level: 2, name } );
 	}
 
 	it( 'renders the poster thumbnail and swaps in the placeholder glyph when it fails', () => {
@@ -235,15 +288,15 @@ describe( 'video detail stage', () => {
 			posterUrl: 'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg',
 		} );
 
-		// The placeholder is decorative (`aria-hidden`), so it has no role or
-		// text to query; find its glyph block structurally.
+		// The whole visual slot is decorative (`aria-hidden`), so both the poster
+		// and the placeholder live outside the accessibility tree.
 		const placeholderGlyph = () =>
 			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
 			document.querySelector( 'div[aria-hidden="true"] svg' );
 
 		render( stage() );
 
-		const poster = screen.getByRole( 'presentation' );
+		const poster = screen.getByRole( 'presentation', { hidden: true } );
 		expect( poster ).toHaveAttribute(
 			'src',
 			'https://i0.wp.com/videos.files.wordpress.com/abcd1234/launch-recap.jpg'
@@ -253,7 +306,7 @@ describe( 'video detail stage', () => {
 		// A tokenless poster (private video) 404s; the broken image must swap
 		// itself for the video-glyph placeholder, keeping the image slot.
 		fireEvent.error( poster );
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( placeholderGlyph() ).toBeInTheDocument();
 		expect( getSummaryHeading( 'Launch recap' ) ).toBeInTheDocument();
 	} );
@@ -263,7 +316,7 @@ describe( 'video detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect(
 			// eslint-disable-next-line testing-library/no-node-access -- The aria-hidden placeholder has no accessible query target.
 			document.querySelector( 'div[aria-hidden="true"] svg' )
@@ -272,8 +325,8 @@ describe( 'video detail stage', () => {
 
 	it( 'keeps a long unbroken title single-line-ready: full text in markup plus the hover attr', () => {
 		// Layout is out of jsdom's reach (the clip is CSS, `white-space: nowrap` +
-		// ellipsis, in stage.module.scss), so this guards the DOM contract it relies
-		// on: full text in the heading, mirrored in `title` for hover access.
+		// ellipsis, in `section-header.module.scss`), so this guards the DOM contract
+		// it relies on: full text in the heading, mirrored in `title` for hover access.
 		const longTitle = `VID_20260731_${ 'a'.repeat( 120 ) }.mp4`;
 		mockSummary( { title: longTitle } );
 
@@ -357,5 +410,117 @@ describe( 'video detail stage', () => {
 		for ( const widget of layout ) {
 			expect( widget.attributes ?? {} ).not.toHaveProperty( 'reportParams' );
 		}
+	} );
+
+	it( 'offers Customize in a page options menu once the video resolves', async () => {
+		const user = userEvent.setup();
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		expect( mockUseStoredLayout ).toHaveBeenCalledWith(
+			'jetpack-premium-analytics/video-detail',
+			'video',
+			expect.any( Array )
+		);
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+
+		// The dashboard's own Cancel and Done take the actions slot while editing.
+		expect( mockDashboardProps.editMode ).toBe( true );
+		expect( screen.getByText( 'Customizing' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'dashboard-actions' ) ).toBeInTheDocument();
+
+		act( () => mockDashboardProps.onEditChange?.( false ) );
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.getByRole( 'button', { name: 'Page options' } ) ).toBeInTheDocument();
+	} );
+
+	it.each( [
+		{ summary: { isLoading: true }, state: 'loading' },
+		{ summary: { isError: true }, state: 'errored' },
+		{ summary: { isNotFound: true }, state: 'not found' },
+	] )(
+		'offers the page options menu without Customize while the video is $state',
+		async ( { summary } ) => {
+			const user = userEvent.setup();
+			mockSummary( summary );
+
+			render( stage() );
+
+			await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+			await expect(
+				screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'menuitem', { name: 'Customize' } ) ).not.toBeInTheDocument();
+		}
+	);
+
+	it( 'leaves customize mode when the video stops rendering', async () => {
+		const user = userEvent.setup();
+		mockSummary( { title: 'Launch recap' } );
+
+		const { rerender } = render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		// A failed background refetch hides the grid, and the dashboard's Cancel and
+		// Done with it, so the mode must not stay on with no way out.
+		mockSummary( { title: 'Launch recap', isError: true } );
+		rerender( stage() );
+
+		expect( mockDashboardProps.editMode ).toBe( false );
+		expect( screen.queryByTestId( 'dashboard-actions' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'resets the layout from the page options menu and leaves customize mode', async () => {
+		const user = userEvent.setup();
+		const resetLayout = jest.fn();
+		mockUseStoredLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout: () => {},
+			resetLayout,
+			hasCustomLayout: false,
+		} );
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Customize' } ) );
+		expect( mockDashboardProps.editMode ).toBe( true );
+
+		await user.click( screen.getByRole( 'button', { name: 'Reset to default' } ) );
+		const dialog = await screen.findByRole( 'alertdialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Reset' } ) );
+
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
+		expect( mockDashboardProps.editMode ).toBe( false );
+	} );
+
+	it( 'stores what the dashboard commits, and forgets it on reset', () => {
+		const setLayout = jest.fn();
+		const resetLayout = jest.fn();
+		mockUseStoredLayout.mockReturnValue( {
+			layout: [ { uuid: 'card', type: 'jpa/card' } ],
+			setLayout,
+			resetLayout,
+			hasCustomLayout: false,
+		} );
+		mockSummary( { title: 'Launch recap' } );
+
+		render( stage() );
+
+		const rearranged = [ { uuid: 'card', type: 'jpa/card', placement: { order: 2 } } ];
+		act( () => mockDashboardProps.onLayoutChange?.( rearranged ) );
+		expect( setLayout ).toHaveBeenCalledWith( rearranged );
+
+		act( () => mockDashboardProps.onLayoutReset?.() );
+		expect( resetLayout ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

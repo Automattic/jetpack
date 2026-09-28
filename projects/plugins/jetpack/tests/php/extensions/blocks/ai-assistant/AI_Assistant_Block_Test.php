@@ -116,6 +116,7 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-usage-panel' ) );
 	}
 
 	/**
@@ -127,10 +128,12 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-usage-panel' ) );
 	}
 
 	/**
-	 * Disabling writing disables the writing and excerpt extensions.
+	 * Disabling writing disables the writing and excerpt extensions. The usage
+	 * meter is not a writing feature, so it stays.
 	 */
 	public function test_writing_toggle_disables_writing_and_excerpt_extensions() {
 		update_option( 'jetpack_ai_writing_assistant_enabled', 0 );
@@ -139,7 +142,9 @@ class AI_Assistant_Block_Test extends WP_UnitTestCase {
 
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-assistant-support' ) );
 		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-content-lens' ) );
+		$this->assertFalse( Jetpack_Gutenberg::is_available( 'ai-title-optimization' ) );
 		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-featured-image-generator' ) );
+		$this->assertTrue( Jetpack_Gutenberg::is_available( 'ai-assistant-usage-panel' ) );
 	}
 
 	/**

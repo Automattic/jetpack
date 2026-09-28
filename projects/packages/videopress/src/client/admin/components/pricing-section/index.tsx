@@ -51,7 +51,7 @@ const PricingPage = ( { onRedirecting } ) => {
 										/* translators: %1$s: the discount amount */
 										__( '%1$s%% off', 'jetpack-videopress-pkg' ),
 										String( yearlyPrice.discount )
-								  )
+									)
 								: null
 						}
 						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }

@@ -64,6 +64,7 @@ class AI_Launchpad {
 		self::load_wp_build();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_script_translations' ), 20 );
 	}
 
 	/**
@@ -188,6 +189,28 @@ class AI_Launchpad {
 				'wpcomBlogId' => get_wpcom_blog_id(),
 			)
 		);
+	}
+
+	/**
+	 * Install the JS translation catalogs on the prerequisites script, which runs before the boot
+	 * module, so every `__()` in the route bundle evaluates translated.
+	 */
+	public static function enqueue_script_translations() {
+		$handle    = self::MENU_SLUG . '-prerequisites';
+		$build_dir = dirname( __DIR__, 3 ) . '/build';
+		$constants = $build_dir . '/constants.php';
+
+		if ( ! wp_script_is( $handle, 'registered' ) || ! file_exists( $constants ) ) {
+			return;
+		}
+
+		// The same URL the generated route registrations use, so core resolves the same catalog names.
+		$build_constants = require $constants;
+		$translations    = wpcom_ai_launchpad_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'] );
+
+		if ( null !== $translations ) {
+			wp_add_inline_script( $handle, $translations, 'before' );
+		}
 	}
 
 	/**

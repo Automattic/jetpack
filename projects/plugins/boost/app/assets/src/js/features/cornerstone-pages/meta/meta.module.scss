@@ -22,93 +22,6 @@
 		}
 	}
 
-	.body {
-		margin-top: 16px;
-
-		.section {
-			padding: 16px;
-			border-radius: 4px;
-			background-color: var(--gray-0);
-
-			~ .section {
-				margin-top: 16px;
-			}
-
-			.has-error {
-
-				textarea {
-					border-color: var(--red-40);
-				}
-
-				.error-message {
-					display: block;
-					color: var(--red-40);
-				}
-
-				.error {
-					color: var(--red-40);
-				}
-			}
-
-			.title {
-				margin-bottom: 16px;
-				font-size: 16px;
-				line-height: 1;
-				font-weight: 600;
-			}
-
-			textarea {
-				display: block;
-				margin-bottom: 8px;
-				width: 100%;
-				padding: 12px 16px;
-				border-radius: 4px;
-				border: 1px solid var(--gray-10);
-				background: var(--primary-white);
-				color: #000;
-			}
-
-			.error-message {
-				display: none;
-			}
-
-			.description {
-				margin: 0;
-				font-size: 14px;
-				line-height: 1.5;
-				color: var(--gray-60);
-				font-weight: 400;
-			}
-
-			label {
-				display: block;
-				font-size: 16px;
-				line-height: 1.5;
-
-				&:not(:last-child) {
-					margin-bottom: 8px;
-				}
-			}
-
-			.buttonGroup {
-				margin-top: 16px;
-				display: flex;
-				flex-direction: row;
-				align-items: center;
-				gap: 20px;
-			}
-		}
-	}
-
-	.predefined-pages {
-		margin-top: 0;
-		padding: 0;
-
-		li:last-child {
-			margin-bottom: 0;
-		}
-	}
-
 	.see-logs-link {
 		font-size: 16px;
 		line-height: 1.5;
@@ -121,5 +34,95 @@
 
 	.clearfix {
 		clear: both;
+	}
+}
+
+// Also rendered outside `.wrapper`, inside the settings card.
+.body {
+	margin-top: 16px;
+	font-size: 14px;
+	line-height: 22px;
+
+	.section {
+		padding: 16px;
+		border-radius: 4px;
+		background-color: var(--gray-0);
+
+		~ .section {
+			margin-top: 16px;
+		}
+
+		.has-error {
+
+			textarea {
+				border-color: var(--red-40);
+			}
+
+			.error-message {
+				display: block;
+				color: var(--red-40);
+			}
+
+			.error {
+				color: var(--red-40);
+			}
+		}
+
+		.title {
+			margin-bottom: 16px;
+			font-size: 16px;
+			line-height: 1;
+			font-weight: 600;
+		}
+
+		textarea {
+			display: block;
+			margin-bottom: 8px;
+			width: 100%;
+			padding: 12px 16px;
+			border-radius: 4px;
+			border: 1px solid var(--gray-10);
+			background: var(--primary-white);
+			color: #000;
+		}
+
+		.error-message {
+			display: none;
+		}
+
+		.description {
+			margin: 0;
+			font-size: 14px;
+			line-height: 1.5;
+			color: var(--gray-60);
+			font-weight: 400;
+		}
+
+		label {
+			display: block;
+			font-size: 16px;
+			line-height: 1.5;
+
+			&:not(:last-child) {
+				margin-bottom: 8px;
+			}
+		}
+
+		.buttonGroup {
+			margin-top: 16px;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			gap: 20px;
+		}
+	}
+}
+
+.predefined-pages {
+	margin-top: 0;
+	padding: 0;
+
+	li:last-child {
+		margin-bottom: 0;
 	}
 }

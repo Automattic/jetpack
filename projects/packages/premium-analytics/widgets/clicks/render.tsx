@@ -31,7 +31,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { link } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -163,7 +162,7 @@ function buildLeaderboardData(
 									__( 'View clicked links for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: undefined,
 				} ),
 			} ),
@@ -245,7 +244,7 @@ function ClicksInner() {
 		[ rows, selectedClickLabel ]
 	);
 	const isDrillDown = !! selectedClick?.children?.length;
-	const activeRows = isDrillDown ? selectedClick.children ?? [] : rows;
+	const activeRows = isDrillDown ? ( selectedClick.children ?? [] ) : rows;
 	const withComparison = isDrillDown ? !! selectedClick?.childrenHaveComparison : hasComparison;
 
 	// Clear the stored selection only once data has settled without a drillable
@@ -288,10 +287,6 @@ function ClicksInner() {
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: link,
-					description: __( 'No clicks in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>

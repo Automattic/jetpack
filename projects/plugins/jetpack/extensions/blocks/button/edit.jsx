@@ -47,7 +47,7 @@ export function ButtonEdit( props ) {
 		? useGradient( {
 				gradientAttribute: 'gradient',
 				customGradientAttribute: 'customGradient',
-		  } )
+			} )
 		: {};
 	/* eslint-enable react-hooks/rules-of-hooks */
 

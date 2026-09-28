@@ -4,7 +4,7 @@ Tags: stats, analytics, site stats, traffic, visitors
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 0.1.0-alpha
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -85,10 +85,10 @@ You can click the title of each feature on your stats page, and scroll to the bo
 
 == Screenshots ==
 
-1. The Stats dashboard — traffic at a glance with visitors, views, and trends.
-2. Top posts & pages, and the referrers driving your traffic.
-3. A world heatmap showing where your visitors come from.
-4. 7-day Highlights and Year in Review trends.
+1. The Traffic dashboard — views and visitors over time, with your most viewed posts & pages and top referrers.
+2. A world heatmap showing where your visitors come from, plus UTM campaigns and link clicks.
+3. Insights — all-time stats, your most popular day and hour, and a year of posting activity.
+4. Stats for a single post — views, likes, and comments, with daily trends.
 
 == External services ==
 
@@ -161,11 +161,6 @@ The dashboard interface itself is a React application called Odyssey Stats. It i
 To build the plugin from source, follow the instructions in the monorepo [development guide](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md).
 
 == Changelog ==
-
-= 0.1.0-alpha =
-* Initial release.
-
-== Upgrade Notice ==
-
-= 0.1.0-alpha =
-Initial release — install Jetpack Stats to see simple, privacy-friendly traffic insights right inside your WordPress dashboard.
+### 1.0.0 - 2026-09-23
+#### Added
+- Initial release of Jetpack Stats as a standalone plugin.

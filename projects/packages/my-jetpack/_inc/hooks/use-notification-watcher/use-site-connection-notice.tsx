@@ -71,7 +71,7 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 					: __(
 							'Some products need a user connection to WordPress.com to be able to work.',
 							'jetpack-my-jetpack'
-					  ),
+						),
 			buttonLabel: __( 'Connect your user account', 'jetpack-my-jetpack' ),
 			title: __( 'Missing user connection', 'jetpack-my-jetpack' ),
 		};

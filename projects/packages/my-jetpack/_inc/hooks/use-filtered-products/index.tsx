@@ -2,7 +2,10 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 import { useCallback, useEffect, useState } from 'react';
 import { JETPACK_PRODUCTS_NOT_FOR_MULTISITE } from '../../constants';
 import useProductsByOwnership from '../../data/products/use-products-by-ownership';
-import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import {
+	getHiddenFeatures,
+	getMyJetpackWindowInitialState,
+} from '../../data/utils/get-my-jetpack-window-state';
 
 /**
  * Hook for loading and filtering Jetpack products.
@@ -50,6 +53,8 @@ const useFilteredProducts = () => {
 			if ( ! canUserViewStats ) {
 				productsWithNoCard.push( 'stats' );
 			}
+
+			productsWithNoCard.push( ...getHiddenFeatures() );
 
 			// If on multisite, filter out products that are not supported
 			if ( getScriptData().site.is_multisite ) {

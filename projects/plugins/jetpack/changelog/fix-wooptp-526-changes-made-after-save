@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+PayPal Payment Buttons: Ask only about changes made since the last post save when leaving a saved payment link's form.

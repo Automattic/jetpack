@@ -1,9 +1,0 @@
-@use "../styles/preset-surface";
-
-// Preset pills plus the custom-range trigger presented as one control. Below
-// the abbreviated labels there is nowhere left to go, so the trigger, the only
-// shrinkable item, truncates.
-.date-range-filter__group {
-
-	@include preset-surface.group;
-}

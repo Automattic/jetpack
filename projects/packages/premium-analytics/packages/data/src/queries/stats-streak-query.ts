@@ -7,7 +7,6 @@ import type { StatsStreakResponse } from '../processing/stats';
 export type StatsStreakParams = StatsReportParams & {
 	startDate?: string;
 	endDate?: string;
-	gmtOffset?: number;
 };
 
 export type { StatsStreakResponse };
@@ -18,7 +17,6 @@ export const statsStreakQuery = (
 	const streakParams: StatsProxyParams = {
 		startDate: params.startDate ?? getDatePart( params.from ) ?? params.start_date,
 		endDate: params.endDate ?? getDatePart( params.to ) ?? params.end_date ?? params.date,
-		...( params.gmtOffset !== undefined ? { gmtOffset: params.gmtOffset } : {} ),
 		...( params.max !== undefined ? { max: params.max } : {} ),
 	};
 

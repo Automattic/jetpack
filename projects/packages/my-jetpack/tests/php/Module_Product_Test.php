@@ -75,6 +75,14 @@ class Module_Product_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		parent::tearDown();
+		if ( class_exists( 'Jetpack' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock from ./assets/jetpack-mock-plugin.txt.
+			\Jetpack::$return_false = false;
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty
+			\Jetpack::$forced_on = array();
+			// @phan-suppress-next-line PhanUndeclaredStaticProperty
+			\Jetpack::$forced_off = array();
+		}
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -111,6 +119,17 @@ class Module_Product_Test extends TestCase {
 	}
 
 	/**
+	 * Tests that is_activated() follows the module, like is_active() but without a plan check.
+	 */
+	public function test_is_activated_follows_the_module() {
+		$this->assertFalse( Sample_Module_Product::is_activated() );
+		$this->assertTrue( Sample_Module_Product::activate() );
+		$this->assertTrue( Sample_Module_Product::is_activated() );
+		$this->assertTrue( Sample_Module_Product::deactivate() );
+		$this->assertFalse( Sample_Module_Product::is_activated() );
+	}
+
+	/**
 	 * Assert WP Error is returned if Jetpack fails to activate the module
 	 */
 	public function test_return_error_on_activation_failure() {
@@ -121,5 +140,35 @@ class Module_Product_Test extends TestCase {
 
 		// also check deactivate returns false.
 		$this->assertFalse( Sample_Module_Product::deactivate() );
+	}
+
+	/**
+	 * Deactivating a module a host forces on says so, instead of reporting success.
+	 */
+	public function test_deactivating_a_forced_module_says_it_stays_on() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock from ./assets/jetpack-mock-plugin.txt.
+		\Jetpack::$forced_on = array( Sample_Module_Product::$module_name );
+
+		$result = Sample_Module_Product::deactivate();
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertSame( 'module_forced', $result->get_error_code() );
+		$this->assertStringContainsString( 'enabled by your host or site administrator', $result->get_error_message() );
+	}
+
+	/**
+	 * Activating a module a host forces off says so, instead of reporting success.
+	 */
+	public function test_activating_a_forced_off_module_says_it_stays_off() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		// @phan-suppress-next-line PhanUndeclaredStaticProperty -- Declared on the mock from ./assets/jetpack-mock-plugin.txt.
+		\Jetpack::$forced_off = array( Sample_Module_Product::$module_name );
+
+		$result = Sample_Module_Product::activate();
+
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertSame( 'module_forced', $result->get_error_code() );
+		$this->assertStringContainsString( 'disabled by your host or site administrator', $result->get_error_message() );
 	}
 }

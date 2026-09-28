@@ -1,0 +1,115 @@
+/**
+ * External dependencies
+ */
+import { STATS_CHART_BUCKET_PERIODS, toAuthorId } from '@jetpack-premium-analytics/data';
+import { reports } from '@jetpack-premium-analytics/icons';
+import {
+	MetricTabsChart,
+	MetricTabsChartSkeleton,
+	WidgetRoot,
+	WidgetState,
+	defaultPeriodForInterval,
+	describeError,
+	useWidgetRootContext,
+	type MetricTab,
+	type ReportParamsFieldAttributes,
+} from '@jetpack-premium-analytics/widgets-toolkit';
+import { useMemo } from '@wordpress/element';
+import { __, _n } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import styles from './style.module.css';
+import useAuthorPerformance from './use-author-performance';
+import type { AuthorPerformanceAttributes, AuthorPerformanceChartType } from './widget';
+import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+type AuthorPerformanceRenderAttributes = AuthorPerformanceAttributes &
+	Partial< ReportParamsFieldAttributes >;
+type AuthorPerformanceWidgetProps = WidgetRenderProps< AuthorPerformanceRenderAttributes >;
+
+const DATA_FORMAT = {
+	type: 'number' as const,
+	options: { useMultipliers: true, decimals: 0 },
+};
+
+type AuthorPerformanceInnerProps = {
+	chartType?: AuthorPerformanceChartType;
+};
+
+/**
+ * Without an author scope (the widget added outside an author detail page) the
+ * query never enables and the empty state shows.
+ */
+function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
+	const { reportParams } = useWidgetRootContext();
+	const authorId = toAuthorId( reportParams.author_id );
+	const period = defaultPeriodForInterval( reportParams.interval, STATS_CHART_BUCKET_PERIODS );
+
+	const { current, isLoading, isFetching, isError, error, hasData, refetch } = useAuthorPerformance(
+		authorId,
+		reportParams,
+		period
+	);
+
+	// The detail page has no comparison control, so there is no previous series,
+	// and the headline is the sum of the window's buckets.
+	const metricTabs = useMemo< MetricTab[] >(
+		() => [
+			{
+				key: 'views',
+				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+				countLabel: count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
+				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
+				current,
+			},
+		],
+		[ current ]
+	);
+
+	return (
+		<div className={ styles.root }>
+			<WidgetState
+				isLoading={ isLoading }
+				isFetching={ isFetching }
+				// Stale buckets stay on screen through a failed background refetch.
+				isError={ ! hasData && isError }
+				isEmpty={ authorId <= 0 }
+				error={ describeError( error, {
+					retryDescription: __(
+						"We couldn't load this author's views. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: refetch,
+				} ) }
+				empty={ {
+					icon: reports,
+					description: __(
+						'Open an author to see their views here.',
+						'jetpack-premium-analytics-pkg'
+					),
+				} }
+				renderLoading={ <MetricTabsChartSkeleton /> }
+			>
+				<MetricTabsChart
+					metrics={ metricTabs }
+					dataFormat={ DATA_FORMAT }
+					chartType={ chartType }
+				/>
+			</WidgetState>
+		</div>
+	);
+}
+
+export default function AuthorPerformance( { attributes = {} }: AuthorPerformanceWidgetProps ) {
+	// Coerce unknown persisted values to the default.
+	const chartType = attributes?.chartType === 'line' ? 'line' : 'bar';
+
+	return (
+		<WidgetRoot attributes={ attributes }>
+			<AuthorPerformanceInner chartType={ chartType } />
+		</WidgetRoot>
+	);
+}

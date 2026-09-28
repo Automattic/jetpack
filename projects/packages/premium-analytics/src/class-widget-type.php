@@ -113,6 +113,28 @@ class Widget_Type {
 	public $help = null;
 
 	/**
+	 * Registered icon name (`collection/icon-name`), resolved on the client
+	 * through the application's icon resolver.
+	 *
+	 * Null when the widget did not declare the field.
+	 *
+	 * @var string|null
+	 */
+	public $icon = null;
+
+	/**
+	 * Declarative actions the widget exposes. Each entry carries `id`,
+	 * `label`, `href`, and optional `download`/`openInNewTab`/`icon`/
+	 * `relevance`. Labels are translated at registration time using the
+	 * widget's text domain.
+	 *
+	 * Null when the widget did not declare the field.
+	 *
+	 * @var array|null
+	 */
+	public $actions = null;
+
+	/**
 	 * Alternative terms used to match the widget type when searching,
 	 * e.g. "calendar" for an events widget. Translated at registration
 	 * time using the widget's text domain.
@@ -122,6 +144,26 @@ class Widget_Type {
 	 * @var string[]|null
 	 */
 	public $keywords = null;
+
+	/**
+	 * Text domain the widget's metadata strings and built bundles are registered under.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	public $textdomain = null;
+
+	/**
+	 * URL of the i18n manifest of the build that serves the widget's modules, for the client to
+	 * load their translation catalogs from. Empty for a build whose init module runs on the
+	 * dashboard page, which is the package's own.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string|null
+	 */
+	public $i18n_manifest = null;
 
 	/**
 	 * Constructor.

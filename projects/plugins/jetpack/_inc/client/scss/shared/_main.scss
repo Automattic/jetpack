@@ -20,14 +20,15 @@
 
 // General Elements
 
-.wp-admin.toplevel_page_jetpack {
+.wp-admin.toplevel_page_jetpack,
+.wp-admin.jetpack_page_jetpack-settings:not(.network-admin) {
 	background-color: colors.$gray-light;
 	line-height: 1.4; // fixes core bug that sets an em unit on body
 	height: auto;
 }
 
 .jetpack-pagestyles #wpcontent {
-	padding-left: 0;
+	padding-inline-start: 0;
 }
 
 .jetpack-pagestyles {
@@ -38,7 +39,7 @@
 	text-decoration: none;
 
 	&.components-external-link .components-external-link__icon {
-		margin-left: 5px;
+		margin-inline-start: 5px;
 	}
 }
 
@@ -46,9 +47,25 @@
 	text-decoration: underline;
 }
 
+// `@wordpress/ui` sits in `@layer wp-ui`, which loses to the unlayered
+// `.jetpack-pagestyles a` above, and its `Link` relies on the UA underline.
+// Nothing upstream will retire this: wp-ui's global-CSS defense covers
+// wp-admin's own unlayered styles, not plugin rules. WordPress/gutenberg#82620.
+.jetpack-pagestyles .jp-notice a {
+	text-decoration-line: underline;
+	text-decoration-thickness: from-font; // `text-decoration: none` above resets it.
+}
+
+// Unlayered on purpose: `Notice.Root` sets `display: grid`
+// inside `@layer wp-ui`, which `[hidden]` cannot override.
+.jp-notice.is-hidden {
+	display: none;
+}
+
 // restyled the arrow to match our gray
-.toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after {
-	border-right-color: colors.$gray-light;
+.toplevel_page_jetpack ul#adminmenu a.wp-has-current-submenu::after,
+.jetpack_page_jetpack-settings:not(.network-admin) ul#adminmenu a.wp-has-current-submenu::after {
+	border-inline-end-color: colors.$gray-light;
 }
 
 .jp-top {
@@ -62,16 +79,12 @@
 		.jitm-banner.jitm-card {
 			margin: 0 0 24px;
 		}
-
-		.dops-section-nav {
-			margin-bottom: 0;
-		}
 	}
 }
 
 .jp-lower {
 	margin: 32px auto 0;
-	text-align: left;
+	text-align: start;
 	max-width: rem.convert(1040px);
 
 	&.jp-licensing-screen {

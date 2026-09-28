@@ -46,7 +46,7 @@ const getItemLabels = ( isComingSoon, isIncluded, featureNameLabel ) => {
 					/* translators: %s: Name of the current feature */
 					__( '%s not included', 'jetpack-components' ),
 					featureNameLabel
-			  ),
+				),
 	};
 };
 

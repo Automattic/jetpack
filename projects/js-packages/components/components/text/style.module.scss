@@ -89,9 +89,9 @@ $props: (
 
 $sides: (
 	"top": "t",
-	"right": "r",
+	"inline-end": "r",
 	"bottom": "b",
-	"left": "l",
+	"inline-start": "l",
 );
 
 @each $prop, $p in $props {
@@ -106,8 +106,8 @@ $sides: (
 
 		/* mx, px */
 		.#{$p}x-#{$size} {
-			#{$prop}-left: calc(var(--spacing-base) * #{$size});
-			#{$prop}-right: calc(var(--spacing-base) * #{$size});
+			#{$prop}-inline-start: calc(var(--spacing-base) * #{$size});
+			#{$prop}-inline-end: calc(var(--spacing-base) * #{$size});
 		}
 
 		.#{$p}y-#{$size} {

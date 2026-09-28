@@ -1,7 +1,8 @@
 import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
-import type { Commenter, FormSettings } from './types';
+import { readPassport } from '../identity/checkpoint/passport';
+import type { Commenter, FormSettings, Provider, SignedIn } from './types';
 
 /**
  * Build one form's signals.
@@ -24,8 +25,28 @@ export function createSignals( formSettings: FormSettings ) {
 		url: JetpackComments.commenter.url,
 	} );
 
+	const passport = readPassport();
+
+	const signedIn = signal< SignedIn | null >( passport ? { ...passport, code: null } : null );
+
+	// Which sign-in the reader has picked: a provider while its popup is open, or mail.
+	const activeService = signal< '' | 'mail' | Provider >( '' );
+
+	const isSigningIn = computed(
+		() => activeService.value !== '' && activeService.value !== 'mail'
+	);
+
+	const signInError = signal( '' );
+
+	// The identity tray under the textarea: opened by typing, or by the gear once signed in.
+	const isTrayOpen = signal( false );
+
 	const isSubmitDisabled = computed(
-		() => JetpackComments.mustLogIn || isEmptyComment.value || isSavingComment.value
+		() =>
+			( JetpackComments.mustLogIn && ! signedIn.value ) ||
+			isSigningIn.value ||
+			isEmptyComment.value ||
+			isSavingComment.value
 	);
 
 	return {
@@ -35,6 +56,11 @@ export function createSignals( formSettings: FormSettings ) {
 		isSavingComment,
 		commentParent,
 		commenter,
+		signedIn,
+		activeService,
+		isSigningIn,
+		signInError,
+		isTrayOpen,
 		isSubmitDisabled,
 	} as const;
 }

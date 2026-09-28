@@ -4,6 +4,7 @@
 // `config/tabs` is imported directly, not through each report's `config` barrel, which
 // re-exports `fields.tsx` and pulls in JSX/router. `registry.ts` imports them the same way.
 import { getCommentsReportTabs, getTabTitle as getCommentsTabTitle } from './comments/config/tabs';
+import { getEarningsReportTabs, getTabTitle as getEarningsTabTitle } from './earnings/config/tabs';
 import {
 	getReportLocationsTabs,
 	getTabTitle as getLocationsTabTitle,
@@ -31,6 +32,7 @@ function tabHeadings< TabId extends string >(
 const TAB_HEADINGS = [
 	...tabHeadings( 'Posts & Pages', getReportPostsTabs, getPostsTabTitle ),
 	...tabHeadings( 'Comments', getCommentsReportTabs, getCommentsTabTitle ),
+	...tabHeadings( 'Earnings', getEarningsReportTabs, getEarningsTabTitle ),
 	...tabHeadings( 'Locations', getReportLocationsTabs, getLocationsTabTitle ),
 	...tabHeadings( 'UTM', getReportUtmTabs, getUtmTabTitle ),
 ];

@@ -40,6 +40,16 @@ class Jetpack_Sync_WooCommerce_Test extends Jetpack_Sync_TestBase {
 		$this->assertTrue( (bool) Modules::get_module( 'woocommerce' ) );
 	}
 
+	public function test_generic_analytics_options_are_added_idempotently() {
+		$options = $this->get_woocommerce_module()->add_woocommerce_options_whitelist(
+			array( 'consumer_option' )
+		);
+
+		$this->assertContains( 'woocommerce_custom_orders_table_enabled', $options );
+		$this->assertContains( 'woocommerce_date_type', $options );
+		$this->assertSame( $options, $this->get_woocommerce_module()->add_woocommerce_options_whitelist( $options ) );
+	}
+
 	/** Incremental sync **/
 	public function test_orders_are_synced() {
 		$order = $this->createOrderWithItem();

@@ -279,6 +279,9 @@ $vpp-mono: ui-monospace, menlo, monospace;
 		-webkit-box-orient: vertical;
 		overflow: hidden;
 
+		/* Filename-derived titles can be one long unbreakable word. */
+		overflow-wrap: anywhere;
+
 		/* User-selected theme font preset; inherits when none is chosen. */
 		font-family: var(--vpp-entry-title-font, inherit);
 	}

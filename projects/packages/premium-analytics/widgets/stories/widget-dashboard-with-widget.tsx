@@ -25,17 +25,15 @@ import type {
 import { StoryRouterProvider } from './with-story-router';
 
 const DASHBOARD_ROW_HEIGHT = ROW_HEIGHT_PRESETS.small;
-// Mirrors the route stages' `--wp-grid-gap` override, so edit-mode track guides and the
-// four-column canvas width below match production. Keep the two forms in sync.
+const DASHBOARD_COLUMN_COUNT = 3;
+// Mirrors the route stages' `--wp-grid-gap` override, so edit-mode track guides match production.
 const DASHBOARD_GRID_GAP_TOKEN = 'var(--wpds-dimension-gap-lg)';
-const DASHBOARD_GRID_GAP = 16;
-const DASHBOARD_ONE_COLUMN_WIDTH = 381;
-const DASHBOARD_PAGE_INLINE_PADDING = 48;
+// A desktop wp-admin content area. The dashboard is fluid, so DASHBOARD_COLUMN_COUNT divides
+// this width rather than setting it.
+const DASHBOARD_DESKTOP_CANVAS_WIDTH = 1620;
 
 export const WIDGET_DASHBOARD_STORY_WIDTHS = {
-	desktop: `${
-		DASHBOARD_ONE_COLUMN_WIDTH * 4 + DASHBOARD_GRID_GAP * 3 + DASHBOARD_PAGE_INLINE_PADDING
-	}px`,
+	desktop: `${ DASHBOARD_DESKTOP_CANVAS_WIDTH }px`,
 	narrow: '640px',
 	mobile: '370px',
 } as const;
@@ -71,7 +69,7 @@ export const widgetDashboardWithWidgetArgTypes = {
 		options: Object.values( WIDGET_DASHBOARD_STORY_WIDTHS ),
 	},
 	widgetWidth: {
-		control: { type: 'number', min: 1, max: 4, step: 1 },
+		control: { type: 'number', min: 1, max: DASHBOARD_COLUMN_COUNT, step: 1 },
 	},
 	widgetHeight: {
 		control: { type: 'number', min: 1, max: 4, step: 1 },
@@ -243,7 +241,7 @@ export function WidgetDashboardWithWidget( {
 								onLayoutChange={ setLayout }
 								widgetTypes={ [ storyWidgetType ] }
 								resolveWidgetModule={ resolveWidgetModule }
-								gridSettings={ { model: 'grid', rowHeight } }
+								gridSettings={ { model: 'grid', columns: DASHBOARD_COLUMN_COUNT, rowHeight } }
 								editMode={ currentEditMode }
 								onEditChange={ setCurrentEditMode }
 							>

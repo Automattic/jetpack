@@ -209,9 +209,7 @@ function updateWordPressUrls() {
 			);
 			console.log( `  ✓ ${ scenario.name }: ${ url }` );
 		} catch ( err ) {
-			console.warn(
-				`  ⚠ Warning: Could not update URLs for ${ scenario.name }: ${ err.message }`
-			);
+			console.warn( `  ⚠ Warning: Could not update URLs for ${ scenario.name }: ${ err.message }` );
 		}
 	}
 

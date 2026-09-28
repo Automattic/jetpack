@@ -3,6 +3,7 @@
  */
 import { fetchReportCouponsByDate } from '../../api/report-coupons-by-date-fetch';
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsCouponsByDateResponse = Awaited< ReturnType< typeof fetchReportCouponsByDate > >;
@@ -44,9 +45,9 @@ type SanitizedCouponsByDateResponse = {
 	data: SanitizedCouponsByDateDataItem[];
 };
 
-function sanitizeItem( item: RawDataItem ): SanitizedCouponsByDateDataItem {
+function sanitizeItem( item: RawDataItem, zone: string ): SanitizedCouponsByDateDataItem {
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		total_orders: safeParseInt( item.total_orders ),
 		orders_with_coupon: safeParseInt( item.orders_with_coupon ),
 		orders_without_coupon: safeParseInt( item.orders_without_coupon ),
@@ -59,12 +60,12 @@ function sanitizeItem( item: RawDataItem ): SanitizedCouponsByDateDataItem {
 	};
 }
 
-function sanitizeSummary( summary: RawSummary ): SanitizedCouponsByDateSummary {
+function sanitizeSummary( summary: RawSummary, zone: string ): SanitizedCouponsByDateSummary {
 	// safeParseFloat/safeParseInt fall back to 0 for missing fields (e.g. an
 	// empty-range response with an empty `summary`), so the widget reaches its
 	// empty state instead of charting NaN values.
 	return {
-		...summary,
+		...withBucketStamps( summary, zone ),
 		total_orders: safeParseInt( summary.total_orders ),
 		orders_with_coupon: safeParseInt( summary.orders_with_coupon ),
 		orders_without_coupon: safeParseInt( summary.orders_without_coupon ),
@@ -78,10 +79,11 @@ function sanitizeSummary( summary: RawSummary ): SanitizedCouponsByDateSummary {
 }
 
 export const sanitizeReportCouponsByDateResponse = (
-	response: ReportsCouponsByDateResponse
+	response: ReportsCouponsByDateResponse,
+	zone: string
 ): SanitizedCouponsByDateResponse => {
 	return {
-		summary: sanitizeSummary( response.summary ),
-		data: response.data.map( sanitizeItem ),
+		summary: sanitizeSummary( response.summary, zone ),
+		data: response.data.map( item => sanitizeItem( item, zone ) ),
 	};
 };

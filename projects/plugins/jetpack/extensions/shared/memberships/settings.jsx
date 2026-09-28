@@ -69,22 +69,22 @@ export function getAccessDescription( accessLevel, postHasPaywallBlock = false )
 						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
 						'jetpack',
 						0
-				  )
+					)
 				: __(
 						'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.',
 						'jetpack'
-				  );
+					);
 		case accessOptions.paid_subscribers.key:
 			return postHasPaywallBlock
 				? __(
 						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
 						'jetpack',
 						0
-				  )
+					)
 				: __(
 						'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.',
 						'jetpack'
-				  );
+					);
 		default:
 			return __( 'Anyone can read this post. Subscribers receive it by email.', 'jetpack' );
 	}
@@ -205,7 +205,7 @@ function AccessOption( { id, groupName, value, label, checked, disabled, describ
 								if ( event.key === ' ' ) {
 									event.preventDefault();
 								}
-						  }
+							}
 						: undefined
 				}
 			/>

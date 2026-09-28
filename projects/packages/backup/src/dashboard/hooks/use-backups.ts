@@ -34,6 +34,12 @@ export type BackupsSummary = {
 	 * restore point. Drives first-run copy.
 	 */
 	isInitialBackup: boolean;
+	/**
+	 * Whether the backup that made `state` `complete` finished with some
+	 * files missing. Only meaningful while `state` is `complete`; false
+	 * otherwise.
+	 */
+	hasWarnings: boolean;
 };
 
 /**
@@ -101,18 +107,22 @@ function clampPercent( percent: number ): number {
  */
 export function summarizeBackups( backups: Backup[] ): BackupsSummary {
 	if ( backups.length === 0 ) {
-		return { state: 'no-backups', progress: 0, isInitialBackup: true };
+		return { state: 'no-backups', progress: 0, isInitialBackup: true, hasWarnings: false };
 	}
 
 	// WPCOM returns newest first, and only the newest attempt can be running.
 	const newest = backups[ 0 ];
-	const hasUsableBackup = backups.some( isUsableBackup );
+	// Not necessarily `newest`: a failed attempt can sit ahead of the
+	// usable backup that actually makes the site "complete".
+	const latestUsableBackup = backups.find( isUsableBackup );
+	const hasUsableBackup = Boolean( latestUsableBackup );
 
 	if ( newest.status === 'started' ) {
 		return {
 			state: 'in-progress',
 			progress: clampPercent( newest.percent ),
 			isInitialBackup: ! hasUsableBackup,
+			hasWarnings: false,
 		};
 	}
 
@@ -120,14 +130,19 @@ export function summarizeBackups( backups: Backup[] ): BackupsSummary {
 	// A site with restore points and one failed attempt behind it is
 	// still, from the user's point of view, backed up.
 	if ( ! hasUsableBackup && isWillRetryStatus( newest.status ) ) {
-		return { state: 'will-retry', progress: 0, isInitialBackup: true };
+		return { state: 'will-retry', progress: 0, isInitialBackup: true, hasWarnings: false };
 	}
 
-	if ( hasUsableBackup ) {
-		return { state: 'complete', progress: 0, isInitialBackup: false };
+	if ( latestUsableBackup ) {
+		return {
+			state: 'complete',
+			progress: 0,
+			isInitialBackup: false,
+			hasWarnings: latestUsableBackup.hasWarnings,
+		};
 	}
 
-	return { state: 'no-good-backups', progress: 0, isInitialBackup: true };
+	return { state: 'no-good-backups', progress: 0, isInitialBackup: true, hasWarnings: false };
 }
 
 /**
@@ -189,13 +204,8 @@ type Result = BackupsSummary & {
  * and signed with the blog token, so unlike the modernized bridges it
  * needs no new PHP.
  *
- * That route would in fact answer without a user-level WPCOM connection
- * — its permission callback is a bare `manage_options` check. The query
- * is gated on one anyway, because every screen that reads this hook sits
- * behind `<Gates>`, which blocks the page for those users regardless:
- * issuing the request would only spend a round trip on a page nobody is
- * going to see. The looser route is a property worth knowing about if a
- * future caller does need to read backups outside the gate.
+ * Every consumer mounts only behind a `ready` gate verdict, so this never fetches — or
+ * polls — for a site that cannot use the answer; `useCanQueryWpcom` is the backstop.
  *
  * @param args           - Hook args.
  * @param args.forcePoll - Poll regardless of derived state.
@@ -234,10 +244,11 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 				state: error ? 'error' : 'loading',
 				progress: 0,
 				isInitialBackup: false,
+				hasWarnings: false,
 			};
 		}
 		if ( ! Array.isArray( data ) ) {
-			return { state: 'error', progress: 0, isInitialBackup: false };
+			return { state: 'error', progress: 0, isInitialBackup: false, hasWarnings: false };
 		}
 		return summarizeBackups( backups );
 	}, [ data, error, backups ] );

@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Documentation only: note that nothing in the monorepo hooks pre_admin_screen_sharing any more.
+
+

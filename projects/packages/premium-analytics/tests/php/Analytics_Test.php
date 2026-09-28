@@ -7,12 +7,15 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\CoversFunction;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
+
+require_once __DIR__ . '/traits/trait-widget-manifest-fixture.php';
 
 /**
  * Tests for the Analytics class. Also covers ensure_widget_registry_ready(): only
@@ -25,6 +28,7 @@ use PHPUnit\Framework\TestCase;
 #[CoversClass( Analytics::class )]
 #[CoversFunction( 'Automattic\\Jetpack\\PremiumAnalytics\\ensure_widget_registry_ready' )]
 class Analytics_Test extends TestCase {
+	use Widget_Manifest_Fixture_Trait;
 
 	const MENU_SLUG     = 'jetpack-premium-analytics-wp-admin';
 	const MENU_HOOKNAME = 'toplevel_page_' . self::MENU_SLUG;
@@ -59,6 +63,9 @@ class Analytics_Test extends TestCase {
 		);
 
 		unset( $GLOBALS['jpa_test_build_loaded'], $GLOBALS['jpa_test_interceptor_priority'] );
+
+		\Automattic\Jetpack\Admin_UI\Admin_Menu::reset();
+		remove_all_filters( 'jetpack_admin_menu_visibility' );
 	}
 
 	/**
@@ -81,9 +88,24 @@ class Analytics_Test extends TestCase {
 		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
+		Constants::clear_constants();
+		$this->reset_tracks_identity_state();
 		Capabilities::unregister();
 		$this->reset_analytics_init_state();
 		parent::tearDown();
+	}
+
+	/**
+	 * Drop the connected-user fixtures the Tracks identity tests set up.
+	 */
+	private function reset_tracks_identity_state() {
+		$user_id = get_current_user_id();
+
+		if ( $user_id ) {
+			delete_transient( "jetpack_connected_user_data_$user_id" );
+			\Jetpack_Options::delete_option( 'user_tokens' );
+			wp_set_current_user( 0 );
+		}
 	}
 
 	/**
@@ -412,24 +434,6 @@ class Analytics_Test extends TestCase {
 			Widget_Type_Registry::get_instance()->unregister( 'test/rest-gate-sentinel' );
 			unset( $GLOBALS['jpa_test_widget_manifest'] );
 		}
-	}
-
-	/**
-	 * Point the manifest require at the fixture manifest.
-	 *
-	 * @return string
-	 */
-	public function use_fixture_widget_manifest() {
-		return __DIR__ . '/fixtures/build-entry/widgets.php';
-	}
-
-	/**
-	 * Point the manifest at a missing file.
-	 *
-	 * @return string
-	 */
-	public function use_absent_widget_manifest() {
-		return __DIR__ . '/fixtures/build-entry/no-such-widgets.php';
 	}
 
 	/**
@@ -806,7 +810,9 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
-		Analytics::register_admin_menu();
+		// init() hooked register_admin_menu; dispatching reaches it and then Admin_Menu's
+		// registration pass at priority 1000, which is what puts the page in the menu.
+		do_action( 'admin_menu' );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_fixture_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
@@ -835,7 +841,9 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		$this->capture_doing_it_wrong();
-		Analytics::register_admin_menu();
+		// init() hooked register_admin_menu; dispatching reaches it and then Admin_Menu's
+		// registration pass at priority 1000, which is what puts the page in the menu.
+		do_action( 'admin_menu' );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 
@@ -889,6 +897,47 @@ class Analytics_Test extends TestCase {
 	 * @param string $manifest_filter Method on this class supplying the manifest path.
 	 * @return array|null The registered menu entry.
 	 */
+	/**
+	 * A host can take the dashboard out of the sidebar through the shared Jetpack filter.
+	 */
+	public function test_a_host_can_hide_the_dashboard_menu() {
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $items ) {
+				$items['jetpack-premium-analytics'] = 'hidden';
+				return $items;
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+
+		ob_start(); // Core prints head markup on admin_head.
+		do_action( 'admin_head' );
+		ob_end_clean();
+
+		$this->assertNotContains( self::MENU_SLUG, array_column( $GLOBALS['menu'], 2 ) );
+	}
+
+	/**
+	 * Hiding the entry leaves the page registered, so links into the dashboard keep working.
+	 */
+	public function test_a_hidden_dashboard_keeps_its_page_registered() {
+		global $_registered_pages;
+		$_registered_pages = array();
+
+		add_filter(
+			'jetpack_admin_menu_visibility',
+			function ( $items ) {
+				$items['jetpack-premium-analytics'] = 'hidden';
+				return $items;
+			}
+		);
+
+		$this->register_admin_menu_without_build();
+
+		$this->assertArrayHasKey( self::MENU_HOOKNAME, $_registered_pages );
+	}
+
 	private function register_admin_menu_without_build( $manifest_filter = 'use_fixture_widget_manifest' ) {
 		$GLOBALS['menu'] = array();
 
@@ -902,6 +951,8 @@ class Analytics_Test extends TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		$this->capture_doing_it_wrong();
 		Analytics::register_admin_menu();
+		// Admin_Menu queues the item and registers what it has at admin_menu priority 1000.
+		do_action( 'admin_menu' );
 		remove_filter( 'user_has_cap', array( $this, 'grant_manage_options' ) );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, $manifest_filter ) );
 
@@ -951,7 +1002,7 @@ class Analytics_Test extends TestCase {
 
 	/**
 	 * A front-end request registers none of the admin render surface: no menu, no widget
-	 * import map, no CSV export script data.
+	 * import map, no CSV export script data, and no Tracks plumbing.
 	 *
 	 * Isolated because widget-modules.php and csv-exports.php register these filters at file
 	 * scope via require_once, so an earlier test that loaded them would leave them registered
@@ -991,6 +1042,14 @@ class Analytics_Test extends TestCase {
 				__NAMESPACE__ . '\\inject_videopress_script_data'
 			),
 			'The VideoPress availability flag is not wired on a front-end request.'
+		);
+		$this->assertFalse(
+			has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ),
+			'The Tracks transport is not enqueued on a front-end request.'
+		);
+		$this->assertFalse(
+			has_filter( 'jetpack_admin_js_script_data', array( Analytics::class, 'add_tracks_identity_script_data' ) ),
+			'The Tracks identity is not published on a front-end request.'
 		);
 	}
 
@@ -1055,5 +1114,137 @@ class Analytics_Test extends TestCase {
 			),
 			'Simple still publishes the VideoPress availability flag.'
 		);
+	}
+
+	/**
+	 * Both halves of the Tracks plumbing hang off the dashboard request. The identity filter
+	 * runs at 20 so it merges onto the `current_user` the connection publishes at 10.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_request_wires_the_tracks_hooks() {
+		$this->use_fixture_build();
+		$_GET['page'] = self::MENU_SLUG;
+		set_current_screen( self::MENU_HOOKNAME );
+
+		Analytics::init();
+		do_action( 'init' );
+
+		$this->assertNotFalse(
+			has_action( 'admin_enqueue_scripts', array( Analytics::class, 'enqueue_tracks_transport' ) ),
+			'The dashboard enqueues the Tracks transport.'
+		);
+		$this->assertSame(
+			20,
+			has_filter(
+				'jetpack_admin_js_script_data',
+				array( Analytics::class, 'add_tracks_identity_script_data' )
+			),
+			'The Tracks identity is published after the connection fills current_user in.'
+		);
+	}
+
+	/**
+	 * Without the Tracks transport the dashboard's `@automattic/jetpack-analytics` events
+	 * only pile up in `window._tkq`, so every feedback submission is silently lost.
+	 */
+	public function test_dashboard_enqueues_the_tracks_transport() {
+		Analytics::enqueue_tracks_transport();
+
+		$this->assertTrue( wp_script_is( 'jp-tracks', 'enqueued' ) );
+
+		wp_dequeue_script( 'jp-tracks' );
+		wp_deregister_script( 'jp-tracks' );
+	}
+
+	/**
+	 * On Simple stats.php already prints w.js on every wp-admin page, so enqueueing it
+	 * here would only repeat the request.
+	 */
+	public function test_wpcom_simple_skips_the_tracks_transport() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Analytics::enqueue_tracks_transport();
+
+		$this->assertFalse( wp_script_is( 'jp-tracks', 'enqueued' ) );
+	}
+
+	/**
+	 * The identity filter has to survive a site with no connected user: the dashboard
+	 * still records events there, just anonymously.
+	 */
+	public function test_tracks_identity_is_left_alone_without_a_connected_user() {
+		$data = array( 'user' => array( 'current_user' => array( 'id' => 1 ) ) );
+
+		$this->assertSame( $data, Analytics::add_tracks_identity_script_data( $data ) );
+	}
+
+	/**
+	 * On Simple the local user is the WPCOM user, so no connection lookup is involved.
+	 */
+	public function test_tracks_identity_names_the_local_user_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$user_id = self::sign_in_as( 'simple-user' );
+
+		$data = Analytics::add_tracks_identity_script_data( array( 'user' => array( 'current_user' => array() ) ) );
+
+		$this->assertSame(
+			array(
+				'ID'    => $user_id,
+				'login' => 'simple-user',
+			),
+			$data['user']['current_user']['wpcom']
+		);
+	}
+
+	/**
+	 * Off Simple the identity comes from the connection, and carries only the two fields
+	 * `identifyUser` needs: the rest of the connected-user payload is profile data.
+	 */
+	public function test_tracks_identity_names_the_connected_user_elsewhere() {
+		$user_id = self::sign_in_as( 'local-user' );
+		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => "dummy.usertoken.$user_id" ) );
+		set_transient(
+			"jetpack_connected_user_data_$user_id",
+			array(
+				'ID'    => 777,
+				'login' => 'wpcomuser',
+				'email' => 'wpcomuser@example.com',
+			)
+		);
+
+		$data = Analytics::add_tracks_identity_script_data(
+			array( 'user' => array( 'current_user' => array( 'wpcom' => array( 'colorScheme' => 'default' ) ) ) )
+		);
+
+		$this->assertSame(
+			array(
+				'colorScheme' => 'default',
+				'ID'          => 777,
+				'login'       => 'wpcomuser',
+			),
+			$data['user']['current_user']['wpcom']
+		);
+	}
+
+	/**
+	 * Create a user and make it the current one.
+	 *
+	 * @param string $login User login.
+	 * @return int The new user's ID.
+	 */
+	private static function sign_in_as( $login ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => $login,
+				'user_pass'  => 'password',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
 	}
 }

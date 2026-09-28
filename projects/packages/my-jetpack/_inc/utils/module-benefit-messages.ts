@@ -19,6 +19,10 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'Your login page now has rate-limiting and secure authentication safeguards.',
 			'jetpack-my-jetpack'
 		),
+		'activity-log': __(
+			'You can now review every event on your site and roll back when something goes wrong.',
+			'jetpack-my-jetpack'
+		),
 		ai: __(
 			'You can now generate and edit content, images, and more with Jetpack AI in the editor.',
 			'jetpack-my-jetpack'

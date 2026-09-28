@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Pre-fill the Bluesky handle field when reconnecting an account.

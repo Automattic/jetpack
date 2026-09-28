@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Draw the My Jetpack stats chart's gridlines only at whole numbers when counts are small.

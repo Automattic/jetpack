@@ -568,12 +568,14 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	test( 'renders toggle when post is not already sent', () => {
+	test( 'renders toggle when post is not already sent', async () => {
 		mockUseSelect.mockImplementation( selector =>
 			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
 		);
 
 		render( <NewsletterEmailDocumentSettings /> );
-		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
+		await expect(
+			screen.findByLabelText( /Send as email to subscribers/i )
+		).resolves.toBeInTheDocument();
 	} );
 } );

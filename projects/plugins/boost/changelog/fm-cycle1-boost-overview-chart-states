@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Replace the free-plan score history prompt in the modernized Overview with a one-line upgrade notice that expands to a preview of the chart.

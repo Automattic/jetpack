@@ -3,9 +3,6 @@
  */
 import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
-	endOfDayTZ,
-	isSelectablePreset,
-	siteTimeZone,
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
@@ -14,7 +11,7 @@ import {
  * Internal dependencies
  */
 import { deriveComparisonRange } from '../../search/comparison';
-import { encodeDateToSearchParam } from '../../search/date-range';
+import { encodeRangeToSearchParams } from '../../search/date-range';
 
 /**
  * The report search params the date filters read and stage.
@@ -67,16 +64,9 @@ export function buildRangePatch( {
 	const patch: ReportQuerySearchParams = {};
 
 	if ( nextRange?.from && nextRange.to ) {
-		/*
-		 * Preset/exact ranges are authoritative and skip end-of-day adjustment;
-		 * calendar edits stage midnight `to`, adjusted to the *site's* end of day —
-		 * date-fns' bare `endOfDay` would use the browser's and stretch the range.
-		 */
-		const rangeFrom = encodeDateToSearchParam( nextRange.from );
-		const rangeTo = encodeDateToSearchParam(
-			exactRange || isSelectablePreset( nextPresetId )
-				? nextRange.to
-				: endOfDayTZ( nextRange.to, siteTimeZone() )
+		const { from: rangeFrom, to: rangeTo } = encodeRangeToSearchParams(
+			{ from: nextRange.from, to: nextRange.to },
+			{ presetId: nextPresetId, exactRange }
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
@@ -90,9 +80,15 @@ export function buildRangePatch( {
 			effective.interval
 		);
 
-		// Loose `comp` check: an unquoted URL delivers number 1, not '1'.
+		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The
+		// preset being staged measures the new range, not the one it replaces.
 		if ( String( effective.comp ) === '1' ) {
-			const derived = deriveComparisonRange( { ...effective, from: rangeFrom, to: rangeTo } );
+			const derived = deriveComparisonRange( {
+				...effective,
+				from: rangeFrom,
+				to: rangeTo,
+				preset: nextPresetId ?? effective.preset,
+			} );
 			if ( derived ) {
 				patch.compare_from = derived.compare_from;
 				patch.compare_to = derived.compare_to;

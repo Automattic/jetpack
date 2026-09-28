@@ -52,9 +52,11 @@ export const hexToRgba = ( hex: string, alpha: number ): string => {
 };
 
 /**
- * Calculate the perceptual distance between two HSL colors
- * @param hsl1 - first color in HSL format [h, s, l]
- * @param hsl2 - second color in HSL format [h, s, l]
+ * Weighted Euclidean distance between two HSL colors.
+ *
+ * @deprecated Not perceptual and blind to color vision deficiency, so charts no longer use it; it will be removed in a future major version.
+ * @param      hsl1 - first color in HSL format [h, s, l]
+ * @param      hsl2 - second color in HSL format [h, s, l]
  * @return distance value (0-100+, lower means more similar)
  */
 export const getColorDistance = (
@@ -106,33 +108,6 @@ export const parseHslString = ( hslString: string ): [ number, number, number ] 
 
 	// d3-color uses 0-1 scale, convert to 0-100
 	return [ h, parsed.s * 100, parsed.l * 100 ];
-};
-
-/**
- * Parse an RGB string like 'rgb(255, 0, 0)' into a hex color.
- *
- * @deprecated    Use normalizeColorToHex() instead, which handles all color formats including rgb() and rgba().
- * @param      rgbString - RGB color string (not RGBA)
- * @return        hex color string or null if invalid
- */
-export const parseRgbString = ( rgbString: string ): string | null => {
-	const lower = rgbString.toLowerCase().trim();
-
-	// Check prefix - only handle rgb(), not rgba()
-	// This is intentional - use normalizeColorToHex for rgba() support
-	if ( ! lower.startsWith( 'rgb(' ) || lower.startsWith( 'rgba(' ) ) {
-		return null;
-	}
-
-	const parsed = d3Color( lower );
-
-	// d3Color returns null for invalid colors
-	if ( ! parsed ) {
-		return null;
-	}
-
-	// d3-color clamps values automatically
-	return parsed.formatHex();
 };
 
 /**

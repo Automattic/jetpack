@@ -1,6 +1,9 @@
 import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
-import { select } from '@wordpress/data';
 import { redirect } from '@wordpress/route';
+import {
+	isDashboardSectionInPreviewScope,
+	isPremiumAnalyticsSiteConnected,
+} from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -8,16 +11,12 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn(),
 } ) );
 
-jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
-jest.mock( '@wordpress/data', () => ( {
-	dispatch: jest.fn(),
-	select: jest.fn(),
-} ) );
 jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( options => options ),
 } ) );
 jest.mock( '../site-readiness', () => ( {
-	isPremiumAnalyticsSiteConnected: () => true,
+	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
+	isDashboardSectionInPreviewScope: jest.fn( () => true ),
 } ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
@@ -26,7 +25,6 @@ jest.mock( './config', () => ( {
 const mockEnsureCoreSettingsReady = ensureCoreSettingsReady as jest.MockedFunction<
 	typeof ensureCoreSettingsReady
 >;
-const mockSelect = select as jest.MockedFunction< typeof select >;
 const mockRedirect = redirect as jest.MockedFunction< typeof redirect >;
 
 const seededSearch = {
@@ -40,10 +38,6 @@ describe( 'post detail route report origin', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockEnsureCoreSettingsReady.mockResolvedValue( undefined );
-		mockSelect.mockReturnValue( {
-			getEntityConfig: () => ( {} ),
-			getEntityRecord: () => undefined,
-		} as never );
 	} );
 
 	it( 'carries the report origin through the seeding redirect', async () => {
@@ -73,6 +67,23 @@ describe( 'post detail route report origin', () => {
 		expect( mockRedirect ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	// Uses the real normalizer, which keeps a valid `author_id`: the seed has to
+	// drop it, or an author page link would scope this page's URL to an author.
+	it( 'drops an author scope while seeding the post scope', async () => {
+		let thrown: { search?: Record< string, unknown > } | undefined;
+		try {
+			await route.beforeLoad( {
+				params: { postId: '42' },
+				search: { ...seededSearch, post_id: '7', author_id: '3' },
+			} );
+		} catch ( error ) {
+			thrown = error as { search?: Record< string, unknown > };
+		}
+
+		expect( thrown?.search ).toMatchObject( { post_id: '42' } );
+		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+	} );
+
 	it( 'does not redirect when a seeded search already carries the origin', async () => {
 		await expect(
 			route.beforeLoad( {
@@ -82,6 +93,34 @@ describe( 'post detail route report origin', () => {
 		).resolves.toBeUndefined();
 
 		expect( mockRedirect ).not.toHaveBeenCalled();
+	} );
+
+	it( 'redirects to /connect when the site is not connected', async () => {
+		( isPremiumAnalyticsSiteConnected as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect(
+			route.beforeLoad( { params: { postId: '42' }, search: seededSearch } )
+		).rejects.toMatchObject( { to: '/connect' } );
+	} );
+
+	it.each( [ undefined, '', 'abc', '-3', '0', '1.5' ] )(
+		'redirects home for an invalid postId (%p)',
+		async postId => {
+			await expect(
+				route.beforeLoad( { params: { postId }, search: seededSearch } )
+			).rejects.toMatchObject( { to: '/' } );
+		}
+	);
+
+	it( 'redirects home when the All pages report is behind a hidden tab', async () => {
+		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+
+		await expect(
+			route.beforeLoad( {
+				params: { postId: '42' },
+				search: seededSearch,
+			} )
+		).rejects.toMatchObject( { to: '/' } );
 	} );
 
 	it( 'does not redirect when the shareable search is fully seeded and clean', async () => {

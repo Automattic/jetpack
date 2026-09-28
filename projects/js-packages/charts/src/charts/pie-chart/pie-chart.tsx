@@ -1,10 +1,12 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
-import { useTooltip, useTooltipInPortal } from '@visx/tooltip';
+import { useTooltip } from '@visx/tooltip';
+import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo } from 'react';
+import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
+import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -18,8 +20,16 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
-import { attachSubComponents, resolveFontSize } from '../../utils';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import { contrastRatio } from '../../providers/chart-context/private/perceptual-color';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
+import {
+	attachSubComponents,
+	createCssVariableResolver,
+	isValidHexColor,
+	normalizeColorToHex,
+	resolveFontSize,
+} from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
@@ -161,6 +171,50 @@ const validateData = ( data: DataPointPercentage[] ) => {
 };
 
 /**
+ * The label pointers, resolved at the pie chart's own root element so JS and CSS agree on what paints.
+ */
+interface ResolvedLabelPointers {
+	/** True while a label plate is set; the label text then always uses the inverse role. */
+	hasPlate: boolean;
+	labelHex: string;
+	labelInverseHex: string;
+	/** True when the inverse role is see-through, so only the `label` role can be seen on a fill. */
+	isInverseSeeThrough: boolean;
+}
+
+/**
+ * Whether a pie slice's label should use the dark `label` role instead of the default `label-inverse` role.
+ *
+ * A label plate always wins: the text sits on the plate, not the slice fill, so it never flips.
+ * Otherwise the role that contrasts more with the resolved slice fill wins. `null` pointers (not
+ * yet resolved, or labels off) keep the default inverse role.
+ *
+ * @param fill     - The slice's resolved fill color.
+ * @param pointers - The label pointers, resolved at the chart's own root element.
+ * @return Whether the label needs dark text.
+ */
+const labelNeedsDarkText = ( fill: string, pointers: ResolvedLabelPointers | null ): boolean => {
+	if ( ! pointers || pointers.hasPlate ) {
+		return false;
+	}
+
+	const fillHex = normalizeColorToHex( fill );
+	if ( ! isValidHexColor( fillHex ) || ! isValidHexColor( pointers.labelHex ) ) {
+		return false;
+	}
+	if ( pointers.isInverseSeeThrough ) {
+		return true;
+	}
+	if ( ! isValidHexColor( pointers.labelInverseHex ) ) {
+		return false;
+	}
+
+	return (
+		contrastRatio( fillHex, pointers.labelHex ) > contrastRatio( fillHex, pointers.labelInverseHex )
+	);
+};
+
+/**
  * Renders a pie or donut chart using the provided data.
  *
  * @param {PieChartProps} props - Component props
@@ -196,14 +250,15 @@ const PieChartInternal = ( {
 	const chartId = useChartId( providedChartId );
 	const { tooltipOpen, tooltipLeft, tooltipTop, tooltipData, hideTooltip, showTooltip } =
 		useTooltip< DataPointPercentageCalculated >();
+	const standaloneScopeClass = useStandaloneScopeClass();
 
-	// Set up portal tooltip for better z-index handling
-	// We get containerBounds to cancel out stale offsets in the position calculation
-	const { containerRef, TooltipInPortal, containerBounds } = useTooltipInPortal( {
-		detectBounds: true,
-		scroll: true,
-		debounce: 0,
-	} );
+	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
+	const containerRef = useRef< HTMLDivElement >( null );
+
+	// The element the chart's own `className` lands on, so an override set there reaches this
+	// decision the same way it reaches CSS.
+	const rootRef = useRef< HTMLDivElement >( null );
+	const [ labelPointers, setLabelPointers ] = useState< ResolvedLabelPointers | null >( null );
 
 	const onMouseLeave = useCallback( () => {
 		if ( ! withTooltips ) {
@@ -212,7 +267,41 @@ const PieChartInternal = ( {
 		hideTooltip();
 	}, [ withTooltips, hideTooltip ] );
 
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+	const { getElementStyles, isSeriesVisible, isColorPaletteResolved } = useGlobalChartsContext();
+	const { isValid, message } = validateData( data );
+
+	// Skipped when labels are off, or before the chart's own root element mounts (the invalid-data
+	// branch renders a plain div, so `rootRef` is not yet attached).
+	useLayoutEffect( () => {
+		if ( ! showLabels || ! rootRef.current ) {
+			return;
+		}
+
+		const resolve = createCssVariableResolver( rootRef.current );
+		const rawLabelBackground = resolve( CATALOG_POINTERS.labelBackground );
+		// Hex drops alpha, so a see-through label role would win the comparison and paint nothing.
+		const rawLabel = resolve( CATALOG_POINTERS.label );
+		const isLabelOpaque = rawLabel ? d3Color( rawLabel )?.opacity === 1 : false;
+		const rawLabelInverse = resolve( CATALOG_POINTERS.labelInverse );
+		const labelInverseColor = rawLabelInverse ? d3Color( rawLabelInverse ) : null;
+		// A plate value d3 cannot parse (CSS Color 4 syntax, say) is still one CSS paints, so it counts.
+		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
+		const next: ResolvedLabelPointers = {
+			hasPlate: rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false,
+			labelHex: isLabelOpaque ? normalizeColorToHex( CATALOG_POINTERS.label, null, resolve ) : '',
+			labelInverseHex: normalizeColorToHex( CATALOG_POINTERS.labelInverse, null, resolve ),
+			isInverseSeeThrough: labelInverseColor ? labelInverseColor.opacity < 1 : false,
+		};
+		setLabelPointers( previous =>
+			previous &&
+			previous.hasPlate === next.hasPlate &&
+			previous.labelHex === next.labelHex &&
+			previous.labelInverseHex === next.labelInverseHex &&
+			previous.isInverseSeeThrough === next.isInverseSeeThrough
+				? previous
+				: next
+		);
+	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)
 	const dataWithPercentages = useDataWithPercentages( data );
@@ -232,8 +321,6 @@ const PieChartInternal = ( {
 
 	// Create legend items using legendData (has recalculated percentages for visible items)
 	const legendItems = useChartLegendItems( legendData, legendOptions );
-
-	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
@@ -312,6 +399,7 @@ const PieChartInternal = ( {
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
 				gap={ gap }
+				rootRef={ rootRef }
 				className={ clsx(
 					'pie-chart',
 					styles[ 'pie-chart' ],
@@ -325,13 +413,6 @@ const PieChartInternal = ( {
 				} }
 				trailingContent={
 					<>
-						{ withTooltips && tooltipOpen && tooltipData && (
-							<TooltipInPortal top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
-								<div className={ CHART_SCOPE_CLASS } role="tooltip">
-									{ renderTooltip( { tooltipData } ) }
-								</div>
-							</TooltipInPortal>
-						) }
 						{ htmlChildren }
 						{ otherChildren }
 					</>
@@ -359,7 +440,7 @@ const PieChartInternal = ( {
 						: 0;
 
 					return (
-						<Center ref={ containerRef }>
+						<Center ref={ containerRef } className={ styles[ 'pie-chart__plot' ] }>
 							<svg
 								viewBox={ `0 0 ${ width } ${ height }` }
 								preserveAspectRatio="xMidYMid meet"
@@ -403,28 +484,24 @@ const PieChartInternal = ( {
 															return;
 														}
 
-														// Don't show tooltip until container bounds are measured
-														if ( containerBounds.width === 0 || containerBounds.height === 0 ) {
+														const bounds = containerRef.current?.getBoundingClientRect();
+														if ( ! bounds ) {
 															return;
 														}
 
-														// Use clientX/Y and subtract containerBounds to cancel out any stale offset.
-														// TooltipInPortal calculates: tooltipLeft + containerBounds.left + scrollX
-														// By passing (clientX - containerBounds.left), we get:
-														// (clientX - containerBounds.left) + containerBounds.left + scrollX = clientX + scrollX
-														// This gives correct page coordinates regardless of stale bounds.
 														showTooltip( {
 															tooltipData: arc.data,
-															tooltipLeft: event.clientX - containerBounds.left + tooltipOffsetX,
-															tooltipTop: event.clientY - containerBounds.top + tooltipOffsetY,
+															tooltipLeft: event.clientX - bounds.left + tooltipOffsetX,
+															tooltipTop: event.clientY - bounds.top + tooltipOffsetY,
 														} );
 													};
 
+													const fill = accessors.fill( arc.data );
 													const pathProps: SVGProps< SVGPathElement > & {
 														'data-testid'?: string;
 													} = {
 														d: pie.path( arc ) || '',
-														fill: accessors.fill( arc.data ),
+														fill,
 														'data-testid': 'pie-segment',
 													};
 
@@ -450,23 +527,25 @@ const PieChartInternal = ( {
 															<path { ...pathProps } />
 															{ showLabels && hasSpaceForLabel && (
 																<g>
-																	{ providerTheme.labelBackgroundColor && (
-																		<rect
-																			x={ centroidX - backgroundWidth / 2 }
-																			y={ centroidY - backgroundHeight / 2 }
-																			width={ backgroundWidth }
-																			height={ backgroundHeight }
-																			fill={ providerTheme.labelBackgroundColor }
-																			rx={ 4 }
-																			ry={ 4 }
-																			pointerEvents="none"
-																		/>
-																	) }
+																	<rect
+																		className={ styles[ 'pie-chart__label-plate' ] }
+																		x={ centroidX - backgroundWidth / 2 }
+																		y={ centroidY - backgroundHeight / 2 }
+																		width={ backgroundWidth }
+																		height={ backgroundHeight }
+																		rx={ 4 }
+																		ry={ 4 }
+																		pointerEvents="none"
+																	/>
 																	<text
+																		className={ clsx( styles[ 'pie-chart__label-text' ], {
+																			[ styles[ 'pie-chart__label-text--on-light' ] ]:
+																				labelNeedsDarkText( fill, labelPointers ),
+																		} ) }
+																		data-testid="pie-label"
 																		x={ centroidX }
 																		y={ centroidY }
 																		dy=".33em"
-																		fill={ providerTheme.labelTextColor || '#333' }
 																		fontSize={ fontSize }
 																		textAnchor="middle"
 																		pointerEvents="none"
@@ -486,6 +565,13 @@ const PieChartInternal = ( {
 									{ ! allSegmentsHidden && svgChildren }
 								</Group>
 							</svg>
+							{ withTooltips && tooltipOpen && tooltipData && (
+								<BoundedTooltip top={ tooltipTop || 0 } left={ tooltipLeft || 0 }>
+									<div className={ standaloneScopeClass } role="tooltip">
+										{ renderTooltip( { tooltipData } ) }
+									</div>
+								</BoundedTooltip>
+							) }
 						</Center>
 					);
 				} }

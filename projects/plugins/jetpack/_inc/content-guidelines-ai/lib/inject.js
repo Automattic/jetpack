@@ -2,13 +2,13 @@ import { select } from '@wordpress/data';
 import { createRoot, createElement } from '@wordpress/element';
 import BlockSuggestionActions from '../components/block-suggestion-actions';
 import BlockSuggestionButtons from '../components/block-suggestion-buttons';
-import EmptyStateBanner from '../components/empty-state-banner';
 import ReadMoreLink from '../components/read-more-link';
 import SectionGenerateButton from '../components/section-generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
 import SuggestionActions from '../components/suggestion-actions';
 import SuggestionBadge from '../components/suggestion-badge';
 import UpgradeNotice from '../components/upgrade-notice';
+import WelcomeBanner from '../components/welcome-banner';
 import { VALID_SECTIONS } from '../constants';
 import { getBlockModalTextarea, startDraftTracking } from './drafts';
 
@@ -175,7 +175,7 @@ function runAll() {
 				? {
 						parent: row,
 						className: 'jetpack-content-guidelines-ai__header-container',
-				  }
+					}
 				: null;
 		},
 		SuggestAllButton
@@ -199,7 +199,7 @@ function runAll() {
 						parent: subtitle,
 						className: 'jetpack-content-guidelines-ai__read-more-container',
 						tag: 'span',
-				  }
+					}
 				: null;
 		},
 		ReadMoreLink
@@ -215,13 +215,13 @@ function runAll() {
 						parent: list.parentElement,
 						before: list,
 						className: 'jetpack-content-guidelines-ai__upgrade-notice-container',
-				  }
+					}
 				: null;
 		},
 		UpgradeNotice
 	);
 
-	// Empty state banner.
+	// Welcome banner.
 	inject(
 		'banner',
 		() => {
@@ -231,10 +231,10 @@ function runAll() {
 						parent: list.parentElement,
 						before: list,
 						className: 'jetpack-content-guidelines-ai__banner-container',
-				  }
+					}
 				: null;
 		},
-		EmptyStateBanner
+		WelcomeBanner
 	);
 
 	// Per-section injections. Sections are matched by the stable `data-slug`
@@ -282,7 +282,7 @@ function runAll() {
 							before: chevron,
 							className: 'jetpack-content-guidelines-ai__badge-container',
 							tag: 'span',
-					  }
+						}
 					: null;
 			},
 			SuggestionBadge,
@@ -299,7 +299,7 @@ function runAll() {
 							parent: vStack,
 							before: vStack.firstChild,
 							className: 'jetpack-content-guidelines-ai__actions-container',
-					  }
+						}
 					: null;
 			},
 			SuggestionActions,
@@ -317,7 +317,7 @@ function runAll() {
 					? {
 							parent: hStack,
 							className: 'jetpack-content-guidelines-ai__section-button-container',
-					  }
+						}
 					: null;
 			},
 			SectionGenerateButton,
@@ -361,7 +361,7 @@ function runAll() {
 						parent: field,
 						before: textareaInput,
 						className: 'jetpack-content-guidelines-ai__block-actions-container',
-				  }
+					}
 				: null;
 		},
 		BlockSuggestionActions,
@@ -381,7 +381,7 @@ function runAll() {
 						parent: vStack,
 						before: actionsBar,
 						className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
-				  }
+					}
 				: null;
 		},
 		BlockSuggestionButtons,

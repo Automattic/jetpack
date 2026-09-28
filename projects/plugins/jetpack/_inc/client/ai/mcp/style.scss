@@ -5,7 +5,7 @@
 		width: 100%;
 		padding: 16px 24px;
 		height: auto;
-		text-align: left;
+		text-align: start;
 		border-radius: 0;
 		box-shadow: none;
 
@@ -38,7 +38,7 @@
 		width: 100%;
 		background: none;
 		border: none;
-		text-align: left;
+		text-align: start;
 		border-radius: 0;
 
 		// Reset browser link styles when rendered as <a>
@@ -169,7 +169,56 @@
 		overflow: hidden;
 	}
 
-	// Free-tier upsell rendered when the site has no MCP-capable plan.
+	// Explainer steps: icon beside the text in one column on phones, icon
+	// above the text in three columns from the tab's 600px breakpoint up.
+	&__how-it-works-steps {
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		gap: var(--wpds-dimension-gap-lg, 16px);
+
+		@media (min-width: 600px) {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	&__how-it-works-step {
+		display: grid;
+		grid-template-columns: auto minmax(0, 1fr);
+		column-gap: var(--wpds-dimension-gap-lg, 16px);
+		row-gap: var(--wpds-dimension-gap-xs, 4px);
+		padding-block-start: var(--wpds-dimension-padding-lg, 16px);
+		border-block-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+
+		@media (min-width: 600px) {
+			grid-template-columns: minmax(0, 1fr);
+			padding-block: var(--wpds-dimension-padding-lg, 16px);
+			border-block-start: 0;
+			padding-inline-start: var(--wpds-dimension-padding-lg, 16px);
+			border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak, #dcdcde);
+		}
+
+		&:first-child {
+			padding-inline: 0;
+			border: 0;
+		}
+	}
+
+	&__how-it-works-icon {
+		grid-row: 1 / span 2;
+		align-self: start;
+		margin-block-start: 2px;
+
+		@media (min-width: 600px) {
+			grid-row: auto;
+			margin-block: 0 var(--wpds-dimension-gap-sm, 8px);
+		}
+	}
+
+	&__how-it-works-description {
+		color: var(--wpds-color-foreground-content-neutral-weak, #707070);
+	}
+
+	// Callout card shared by the plan upsell and the connect-account card.
 	// Layout mirrors Activity Log's UpsellCallout: bordered card with copy
 	// on the left and the illustration on the right; stacks on narrow
 	// viewports. The breakpoint is tuned to the AI page's 660px content
@@ -250,7 +299,7 @@ ol.jetpack-ai-mcp-setup__steps {
 
 	&__steps {
 		margin: 0;
-		padding-left: 20px;
+		padding-inline-start: 20px;
 
 		li {
 			margin-bottom: 8px;
@@ -270,19 +319,6 @@ ol.jetpack-ai-mcp-setup__steps {
 			font-family: monospace;
 			font-size: 12px;
 			min-height: 140px;
-		}
-	}
-
-	&__action-button {
-		align-self: flex-start;
-
-		// When the button renders as an <a> tag, WP admin link styles can override
-		// the button's foreground color — force white text to match variant="solid".
-		&,
-		&:visited,
-		&:hover,
-		&:active {
-			color: var(--wp-ui-button-foreground-color, #fff);
 		}
 	}
 }

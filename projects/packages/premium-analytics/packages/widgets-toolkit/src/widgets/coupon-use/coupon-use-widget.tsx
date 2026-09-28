@@ -64,7 +64,7 @@ export function CouponUseWidget() {
 					legendData={ legendData }
 					dataFormat={ {
 						type: 'currency',
-						options: { useMultipliers: true, decimals: 0 },
+						options: { useMultipliers: true },
 					} }
 					maxSize={ null }
 					withTooltips

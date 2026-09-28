@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Document in AGENTS.md when a symbol belongs in a package's public barrel.
+
+

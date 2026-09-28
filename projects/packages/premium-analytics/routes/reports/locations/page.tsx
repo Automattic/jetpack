@@ -1,11 +1,14 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
+	ReportEmptyState,
 	ReportErrorState,
+	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
@@ -13,6 +16,7 @@ import {
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
+	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -23,6 +27,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
+	GEO_MODES,
 	getLocationFields,
 	getReportLocationsTabs,
 	getTabTitle,
@@ -61,6 +66,9 @@ const RECORDS_VIEW = {
 
 const COUNTRY_FILTER_FIELD = 'country';
 
+/** The country picked in the records table, and the tab it was picked on. */
+type PickedCountry = { tab: ReportLocationsTabId; code: string };
+
 // Match the table's own default order, so the file reads like the screen.
 const sortLocationCsvRows = ( a: LocationRow, b: LocationRow ) => b.views - a.views;
 
@@ -82,10 +90,22 @@ function getCountryFilter( view: View ): string {
  * @return The Locations report page.
  */
 export default function LocationsReportPage(): JSX.Element {
+	usePrefetchViewerCountry();
 	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportLocationsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
-	const [ countryFilter, setCountryFilter ] = useState( '' );
+	// The tab lives on the URL, so Back and Forward move it without the tab strip's
+	// change event. Keying the picked country to the tab it was picked on clears it
+	// whichever way the tab moved, and resetting during render keeps the stale pair
+	// out of the request this render makes.
+	const [ pickedCountry, setPickedCountry ] = useState< PickedCountry >( {
+		tab: activeTab,
+		code: '',
+	} );
+	if ( pickedCountry.tab !== activeTab && pickedCountry.code ) {
+		setPickedCountry( { tab: activeTab, code: '' } );
+	}
+	const countryFilter = pickedCountry.tab === activeTab ? pickedCountry.code : '';
 	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
@@ -107,7 +127,7 @@ export default function LocationsReportPage(): JSX.Element {
 							label: __( 'Country', 'jetpack-premium-analytics-pkg' ),
 							getValue: ( row: LocationRow ) => row.countryFull,
 						},
-				  ]
+					]
 				: [] ),
 			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
 		],
@@ -126,28 +146,63 @@ export default function LocationsReportPage(): JSX.Element {
 		sort: sortLocationCsvRows,
 	} );
 
-	// Country filter doesn't carry between tabs: Countries can't be scoped, and
-	// cities/regions vary per tab, so clear it on tab change.
-	const handleTabChange = useCallback(
-		( tab: ReportLocationsTabId ) => {
-			setCountryFilter( '' );
-			setActiveTab( tab );
+	// The API scopes the rows, so the picked country has to reach the request.
+	const handleChangeView = useCallback(
+		( view: View ) => {
+			const code = getCountryFilter( view );
+
+			setPickedCountry( previous =>
+				previous.tab === activeTab && previous.code === code ? previous : { tab: activeTab, code }
+			);
 		},
-		[ setActiveTab ]
+		[ activeTab ]
 	);
 
-	// The API scopes the rows, so the picked country has to reach the request.
-	const handleChangeView = useCallback( ( view: View ) => {
-		setCountryFilter( getCountryFilter( view ) );
-	}, [] );
+	// The map plots the rows the table already fetched, so it costs no request
+	// of its own. Rows the API left without a country cannot be placed on it.
+	const geoRows = useMemo(
+		(): LocationsGeoRow[] =>
+			records.table.rows
+				.filter( ( row ): row is LocationRow & { countryCode: string } => !! row.countryCode )
+				.map( row => ( {
+					label: row.label,
+					value: row.views,
+					countryCode: row.countryCode,
+					countryFull: row.countryFull,
+				} ) ),
+		[ records.table.rows ]
+	);
+	const focusCountry = useMemo( () => {
+		if ( ! countryFilter ) {
+			return undefined;
+		}
+
+		const country = records.countries.options.find( option => option.code === countryFilter );
+
+		return { code: countryFilter, name: country?.label ?? countryFilter };
+	}, [ countryFilter, records.countries.options ] );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! records.table.isLoading && ! countryFilter && records.table.rows.length === 0 ) {
+		// A picked country can scope the rows down to none. The table carries the
+		// filter that clears it, so it has to stay on screen then.
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
-			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
@@ -158,25 +213,28 @@ export default function LocationsReportPage(): JSX.Element {
 		>
 			<ReportPageLayout
 				title={ getTabTitle( activeTab ) }
-				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					<ReportRecordsTable< LocationRow >
-						key={ activeTab }
-						data={ records.table.rows }
-						fields={ fields }
-						getItemId={ getLocationRowId }
-						isLoading={ tableIsLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
-						onChangeView={ handleChangeView }
-					/>
+				{ tableReplacement ?? (
+					<>
+						<ReportLocationsMap
+							rows={ geoRows }
+							mode={ GEO_MODES[ activeTab ] }
+							focusCountry={ focusCountry }
+							isLoading={ tableIsLoading }
+						/>
+						<ReportRecordsTable< LocationRow >
+							key={ activeTab }
+							data={ records.table.rows }
+							fields={ fields }
+							getItemId={ getLocationRowId }
+							isLoading={ tableIsLoading }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
+							onChangeView={ handleChangeView }
+						/>
+					</>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

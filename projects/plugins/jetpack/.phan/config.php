@@ -14,11 +14,19 @@ $config = make_phan_config(
 	dirname( __DIR__ ),
 	array(
 		'+stubs'                          => array( 'akismet', 'amp', 'full-site-editing', 'woocommerce', 'woocommerce-internal', 'woocommerce-packages', 'wpcom', 'zero-bs-crm' ),
+		// CI analyses an unbuilt checkout, so the generated wp-build PHP is absent there.
+		// Exclude it locally too, or the `function_exists()` guards that reference it read as
+		// unused suppressions on a built checkout only.
+		'exclude_file_regex'              => array(
+			'build/',
+		),
 		'exclude_file_list'               => array(
 			// Mocks of core classes.
 			'tests/php/_inc/lib/mocks/simplepie.php',
 			// Standalone compatibility fixture that intentionally redefines a WordPress function.
 			'tests/php/fixtures/random-redirect-existing-function.php',
+			// Standalone compatibility fixture that intentionally redefines Jetpack symbols.
+			'tests/php/json-api/fixtures/site-settings-partial-wpcom-bootstrap.php',
 			// Mocks of wpcom classes and functions.
 			'tests/php/lib/class-wpcom-features.php',
 			'tests/php/lib/class-email-verification.php',

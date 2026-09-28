@@ -995,7 +995,7 @@ async function main() {
 						enabled: true,
 						rate: calibration.cpuRate,
 						calibratedAt: calibration.calibratedAt,
-				  }
+					}
 				: { enabled: false },
 		},
 		measurements,

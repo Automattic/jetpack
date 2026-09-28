@@ -971,6 +971,12 @@ function buildScenario( scenario ) {
 	};
 }
 
+// Node's fetch rejects the WHATWG "bad port" list before it opens a socket, and listen(0) can
+// hand back one of those ports: the mock API then fails as `fetch failed (bad port)` and reddens
+// a random test. That took out a whole measurement chain once (Tester #865, 2026-08-29). Probe
+// the port rather than hardcode the list, which the runtime owns and may change.
+const PROBE_PATH = '/__probe';
+
 /**
  * Start the mock read API for one scenario on an ephemeral port.
  * Repo-agnostic on purpose: it serves any /api/repos/<repo>/… path and records
@@ -987,6 +993,10 @@ function startMockApi( scenario, { discoFail = false } = {} ) {
 	const requests = [];
 	const server = http.createServer( ( req, res ) => {
 		const u = new URL( req.url, 'http://localhost' );
+		if ( u.pathname === PROBE_PATH ) {
+			res.end( 'ok' ); // deliberately not recorded: tests assert the exact request list
+			return;
+		}
 		requests.push( u.pathname + u.search );
 		if ( /^\/api\/repos\/.+\/metrics$/.test( u.pathname ) ) {
 			if ( discoFail || discoHtml ) {
@@ -1028,15 +1038,40 @@ function startMockApi( scenario, { discoFail = false } = {} ) {
 		res.statusCode = 404;
 		res.end( '{}' );
 	} );
-	return new Promise( resolve => {
-		server.listen( 0, '127.0.0.1', () => {
-			const { port } = server.address();
-			resolve( {
-				url: `http://127.0.0.1:${ port }`,
-				requests,
-				close: () => new Promise( r => server.close( r ) ),
+	return new Promise( ( resolve, reject ) => {
+		let attempts = 0;
+		const bind = () => {
+			server.listen( 0, '127.0.0.1', async () => {
+				const { port } = server.address();
+				const url = `http://127.0.0.1:${ port }`;
+				try {
+					await fetch( url + PROBE_PATH );
+				} catch ( e ) {
+					// Close before rejecting: a live server keeps the runner's event loop alive and
+					// turns a legible failure into a hang.
+					if ( ++attempts > 20 ) {
+						server.close( () =>
+							reject(
+								new Error(
+									`no usable port after 20 tries (last: ${ port }, ${
+										e.cause?.message || e.message
+									})`
+								)
+							)
+						);
+						return;
+					}
+					server.close( bind );
+					return;
+				}
+				resolve( {
+					url,
+					requests,
+					close: () => new Promise( r => server.close( r ) ),
+				} );
 			} );
-		} );
+		};
+		bind();
 	} );
 }
 

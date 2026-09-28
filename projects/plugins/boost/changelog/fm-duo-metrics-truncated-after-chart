@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Performance History: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers.

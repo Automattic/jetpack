@@ -65,6 +65,17 @@ abstract class Hybrid_Product extends Product {
 	}
 
 	/**
+	 * Checks whether the site has switched the product on, whether or not it has a plan for it.
+	 *
+	 * The standalone plugin being active is enough: off the Jetpack plugin, the module may not be available at all.
+	 *
+	 * @return boolean
+	 */
+	public static function is_activated() {
+		return static::is_standalone_plugin_active() || ( static::is_jetpack_plugin_active() && static::is_module_active() );
+	}
+
+	/**
 	 * Activates the plugin
 	 *
 	 * @return null|WP_Error Null on success, WP_Error on invalid file.

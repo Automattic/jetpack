@@ -181,7 +181,7 @@ export function shouldReloadAfterPlanUpgrade( {
 					/* translators: %s is the plan name, such as Jetpack Premium. */
 					__( 'Congratulations! Your site is now on the %s plan.', 'jetpack' ),
 					planName
-			  )
+				)
 			: __( 'Congratulations! Your site is now on a paid plan.', 'jetpack' ),
 		{
 			isDismissible: true,

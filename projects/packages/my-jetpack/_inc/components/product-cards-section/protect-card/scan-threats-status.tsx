@@ -4,14 +4,16 @@ import { __ } from '@wordpress/i18n';
 import { Icon, info } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useMemo, useState, useCallback, useRef } from 'react';
+import {
+	protectCardShieldOff as ShieldOff,
+	protectCardShieldPartial as ShieldPartial,
+	protectCardShieldSuccess as ShieldSuccess,
+} from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useAnalytics from '../../../hooks/use-analytics';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
-import ShieldOff from './assets/shield-off.svg';
-import ShieldPartial from './assets/shield-partial.svg';
-import ShieldSuccess from './assets/shield-success.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
