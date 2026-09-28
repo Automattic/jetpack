@@ -49,6 +49,7 @@ function setNewsletterSubscribersUrl( url: string | null ) {
 
 describe( 'SubscribersListWidget', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
@@ -57,6 +58,7 @@ describe( 'SubscribersListWidget', () => {
 	} );
 
 	afterEach( () => {
+		jest.useRealTimers();
 		window.JetpackScriptData = originalScriptData;
 	} );
 
