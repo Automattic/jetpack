@@ -240,7 +240,7 @@ export async function resetDashboardJitm() {
  */
 export async function resetEnvironment() {
 	logger.debug( 'Resetting Jetpack Boost' );
-	// The feature specs target the legacy dashboard, so pin it over the modern default.
+	// The feature specs target the legacy dashboard, so pin it over the modern default (BOOST-767).
 	await setDashboardModernization( false );
 	await resetDashboardJitm();
 	await executeWpCommand( 'plugin activate jetpack-boost' );
