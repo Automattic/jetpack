@@ -6,14 +6,14 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { useClicksReportRecords } from './config';
-import ClicksReportPage from './page';
-import type { ClickRow } from './config';
+import { useReferrersReportRecords } from './config';
+import ReferrersReportPage from './page';
+import type { ReferrerRecord } from './config';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
-	getClicksFields: () => [],
-	useClicksReportRecords: jest.fn(),
+	getReferrerFields: () => [],
+	useReferrersReportRecords: jest.fn(),
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -35,7 +35,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'clicks' } ),
+	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'referrers' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
 } ) );
 
@@ -51,14 +51,14 @@ jest.mock( '@wordpress/route', () => ( {
 	} ),
 } ) );
 
-const useRecordsMock = jest.mocked( useClicksReportRecords );
+const useRecordsMock = jest.mocked( useReferrersReportRecords );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 
-const row: ClickRow = {
-	id: 'wordpress.org',
-	clickedUrl: 'wordpress.org',
-	isGroup: true,
-	clicks: 42,
+const row: ReferrerRecord = {
+	id: 'search-engines',
+	label: 'Search Engines',
+	views: 42,
+	hasChildren: true,
 };
 
 /**
@@ -71,59 +71,43 @@ function mockRecords( overrides: Record< string, unknown > ) {
 		isError: false,
 		refetch: jest.fn(),
 		rows: [ row ],
-		hasComparison: true,
 		isLoading: false,
 		isFetching: false,
 		...overrides,
-	} as unknown as ReturnType< typeof useClicksReportRecords > );
+	} as unknown as ReturnType< typeof useReferrersReportRecords > );
 }
 
-describe( 'ClicksReportPage', () => {
+describe( 'ReferrersReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 	} );
 
-	it( 'reports the loading state on first load, when there is nothing to show yet', () => {
-		mockRecords( { rows: [], hasComparison: false, isLoading: true, isFetching: true } );
+	it( 'keeps the loading table on first load, before any referrers arrive', () => {
+		mockRecords( { rows: [], isLoading: true, isFetching: true } );
 
-		render( <ClicksReportPage /> );
+		render( <ReferrersReportPage /> );
 
+		expect( screen.queryByTestId( 'report-empty-state' ) ).not.toBeInTheDocument();
 		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( { data: [], isLoading: true } )
 		);
 	} );
 
-	it( 'keeps the rows on screen while a background refetch is in flight', () => {
-		// `placeholderData` keeps the previous rows during a refetch, so search/sort/
-		// expanded state survive a date or comparison change instead of resetting.
-		mockRecords( { isFetching: true } );
-
-		render( <ClicksReportPage /> );
-
-		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: true } )
-		);
-	} );
-
-	it( 'shows current rows once the requests are settled', () => {
+	it( 'shows the referrers table once the period has rows', () => {
 		mockRecords( {} );
 
-		render( <ClicksReportPage /> );
+		render( <ReferrersReportPage /> );
 
+		expect( screen.queryByTestId( 'report-empty-state' ) ).not.toBeInTheDocument();
 		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				data: [ row ],
-				isLoading: false,
-				collapsible: true,
-				defaultExpanded: 'none',
-			} )
+			expect.objectContaining( { data: [ row ] } )
 		);
 	} );
 
-	it( 'replaces the clicked-URL table with the empty state when the period has no clicks', () => {
+	it( 'replaces the referrers table with the empty state when the period has no referrers', () => {
 		mockRecords( { rows: [] } );
 
-		render( <ClicksReportPage /> );
+		render( <ReferrersReportPage /> );
 
 		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
 		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
