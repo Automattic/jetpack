@@ -1,5 +1,6 @@
 // Root variables from js-packages base styles
 @use "../../base-styles/root-variables";
+@use "@wordpress/base-styles/mixins";
 
 // @wordpress package styles
 @import "@wordpress/components/build-style/style.css";
@@ -7,3 +8,10 @@
 @import "@wordpress/block-library/build-style/style.css";
 @import "@wordpress/block-library/build-style/theme.css";
 @import "@wordpress/block-library/build-style/editor.css";
+
+// The block-editor and block-library styles reset the admin color to the
+// legacy #007cba; use the modern scheme's blueberry instead.
+:root {
+
+	@include mixins.admin-scheme(#3858e9);
+}
