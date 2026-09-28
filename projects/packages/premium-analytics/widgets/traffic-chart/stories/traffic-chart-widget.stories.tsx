@@ -180,8 +180,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no points: the widget shows its empty state (the neutral
- * reports glyph and "No traffic data in this period.").
+ * Resolved with no points: the tabs stay at zero and the plot shows the
+ * no-results message in place of a flat line.
  */
 export const Empty: Story = {
 	render: () => renderTrafficChartOnPreset( 'last-365-days' ),

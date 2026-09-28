@@ -141,6 +141,25 @@ describe( 'TotalVisitorsWidget', () => {
 		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'renders the empty state for a zero-filled range, not a flat sparkline', () => {
+		mockUseStatsVisits.mockReturnValue(
+			visitsResult( {
+				summary: { visitors: 0 },
+				data: [
+					{ date_start: '2026-07-01', views: 0, visitors: 0 },
+					{ date_start: '2026-07-02', views: 0, visitors: 0 },
+				],
+			} )
+		);
+
+		renderWidget();
+
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'routes a permission-gated 403 through describeError: neutral copy, no retry', () => {
 		mockUseStatsVisits.mockReturnValue(
 			visitsResult( undefined, { isError: true, error: { error: 'unauthorized', status: 403 } } )

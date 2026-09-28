@@ -3,6 +3,7 @@
  */
 import {
 	type ChartDisplayChartType,
+	ChartEmptyState,
 	chartInterval,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
@@ -38,7 +39,7 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 		WORDADS_GRAIN.periods
 	);
 
-	const { metrics, isLoading, isFetching, isError, isEmpty, refetch } = useWordAdsChart(
+	const { metrics, isLoading, isFetching, isError, refetch } = useWordAdsChart(
 		reportParams,
 		period
 	);
@@ -49,7 +50,8 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 				isLoading={ isLoading }
 				isFetching={ isFetching }
 				isError={ isError }
-				isEmpty={ isEmpty }
+				// A window without rows reaches the chart as tabs with no points, which it answers in the plot while the tabs keep showing their zeros.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load WordAds data. Please try again in a moment.",
@@ -66,6 +68,7 @@ function WordAdsChartTabsInner( { chartType }: { chartType?: ChartDisplayChartTy
 					groupLabel={ __( 'WordAds metric', 'jetpack-ads-pkg' ) }
 					// As the classic chart: one hover reads out all three, whichever tab is up.
 					tooltipMetrics="all"
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

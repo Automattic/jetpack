@@ -1,4 +1,6 @@
+import { search } from '@jetpack-premium-analytics/icons';
 import { withChartTheme } from '../../../stories/with-chart-theme';
+import { ChartEmptyState } from '../../chart-empty-state';
 import { MetricTabsChart, type MetricTab } from '../metric-tabs-chart';
 import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
@@ -156,6 +158,25 @@ export const PairedMetricsAsBars: Story = {
  */
 export const AllMetricsInTooltip: Story = {
 	args: { metrics: METRICS, dataFormat: DATA_FORMAT, tooltipMetrics: 'all' },
+};
+
+/**
+ * A window with no readings: the cards keep their zeros and the plot shows the `empty` content instead of a flat zero line.
+ */
+export const Empty: Story = {
+	args: {
+		metrics: METRICS.map( metric => ( {
+			...metric,
+			value: 0,
+			previousValue: undefined,
+			current: metric.current.map( point => ( { ...point, value: 0 } ) ),
+			previous: undefined,
+		} ) ),
+		dataFormat: DATA_FORMAT,
+		empty: (
+			<ChartEmptyState icon={ search } text="We couldn’t find results for this time period." />
+		),
+	},
 };
 
 type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
