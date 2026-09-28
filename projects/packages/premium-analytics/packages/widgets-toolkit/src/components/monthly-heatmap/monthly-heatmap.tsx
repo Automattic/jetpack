@@ -189,7 +189,6 @@ export function MonthlyHeatmap( {
 				maxCellHeight={ MAX_CELL_HEIGHT }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
-				tooltipVariant="dark"
 				tooltipStyle={ TOOLTIP_STYLE }
 				renderTooltip={ renderTooltip }
 				className={ styles.chart }
