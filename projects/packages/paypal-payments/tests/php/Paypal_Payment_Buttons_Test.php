@@ -577,6 +577,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$this->assertStringContainsString( '"' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '"', $markup );
 		$this->assertStringContainsString( 'merchantIdInPayPal', $markup );
 		$this->assertStringContainsString( 'postMessage( message, window.location.origin )', $markup );
+		// The popup has no opener once it has been through paypal.com, so the
+		// channel is the delivery that counts.
+		$this->assertStringContainsString( 'new BroadcastChannel( "' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '" )', $markup );
 		$this->assertStringNotContainsString( 'stored-client', $markup );
 	}
 

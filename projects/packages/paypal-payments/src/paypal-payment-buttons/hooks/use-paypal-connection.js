@@ -28,6 +28,12 @@ import { getUserFriendlyError } from '../utils/validation';
 export const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-changed';
 
 /**
+ * Completion errors that only mean "the seller has not finished", which a
+ * completion attempt made on closing the overlay must not report.
+ */
+const QUIET_COMPLETION_ERRORS = [ 'paypal_merchant_not_found', 'paypal_onboarding_no_session' ];
+
+/**
  * Tell the other blocks on this page that the site-wide PayPal connection
  * changed.
  *
@@ -268,7 +274,7 @@ export function usePayPalConnection() {
 	 * Registered under the same name on the top window and on the frame's window,
 	 * so both registrations finish onboarding the same way.
 	 */
-	const completeOnboarding = useCallback( ( merchantIdInPayPal = '' ) => {
+	const completeOnboarding = useCallback( ( merchantIdInPayPal = '', { quiet = false } = {} ) => {
 		setIsCompletingOnboarding( true );
 
 		apiFetch( {
@@ -288,6 +294,13 @@ export function usePayPalConnection() {
 				broadcastConnectionChange( true );
 			} )
 			.catch( err => {
+				// A quiet attempt is one nobody asked for, made in case the seller
+				// finished without the return page reaching us. No seller yet is
+				// the expected answer then, not an error to show.
+				if ( quiet && QUIET_COMPLETION_ERRORS.includes( err?.code ) ) {
+					return;
+				}
+
 				// The referral has been through PayPal, so it cannot be reopened.
 				// Drop it, or the next Connect click reuses a spent link.
 				setOnboardingRequested( false );
@@ -315,26 +328,44 @@ export function usePayPalConnection() {
 	 * Finish onboarding when the plugin's return page reports back.
 	 *
 	 * PayPal's third-party flow does not call the SDK callback; it navigates to
-	 * the return URL. That lands either in the onboarding frame, whose parent is
-	 * this window, or in PayPal's popup, whose opener is the frame's window, so
-	 * both windows listen.
+	 * the return URL, in its popup or in the onboarding frame. The page reports
+	 * on a BroadcastChannel, which is same-origin and needs no opener: the
+	 * editor document is cross-origin isolated, so the popup has none once it
+	 * has been through paypal.com. A window message is the fallback for the
+	 * frame case, listened for on this window and on the frame's.
 	 */
 	useEffect( () => {
-		const handleReturn = event => {
+		const handleReturnData = data => {
+			if ( data?.type !== ONBOARDING_RETURN_MESSAGE ) {
+				return;
+			}
+
+			completeOnboarding( data.merchantIdInPayPal || '' );
+		};
+
+		const handleReturnMessage = event => {
 			if ( event.origin !== window.location.origin ) {
 				return;
 			}
-			if ( event.data?.type !== ONBOARDING_RETURN_MESSAGE ) {
-				return;
-			}
 
-			completeOnboarding( event.data.merchantIdInPayPal || '' );
+			handleReturnData( event.data );
 		};
 
-		const targets = new Set( [ window, frameNode?.contentWindow ].filter( Boolean ) );
-		targets.forEach( target => target.addEventListener( 'message', handleReturn ) );
+		const channel =
+			typeof BroadcastChannel === 'undefined'
+				? null
+				: new BroadcastChannel( ONBOARDING_RETURN_MESSAGE );
+		if ( channel ) {
+			channel.onmessage = event => handleReturnData( event.data );
+		}
 
-		return () => targets.forEach( target => target.removeEventListener( 'message', handleReturn ) );
+		const targets = new Set( [ window, frameNode?.contentWindow ].filter( Boolean ) );
+		targets.forEach( target => target.addEventListener( 'message', handleReturnMessage ) );
+
+		return () => {
+			channel?.close();
+			targets.forEach( target => target.removeEventListener( 'message', handleReturnMessage ) );
+		};
 	}, [ frameNode, completeOnboarding ] );
 
 	/**
@@ -539,11 +570,19 @@ export function usePayPalConnection() {
 	 * PayPal's lightbox has its own close control, but it tells us nothing, so
 	 * the overlay needs an exit of ours as well. The referral goes with it, and
 	 * clearing it makes the prefetch ask for a new one.
+	 *
+	 * The seller may have finished without the return page reaching us, so a
+	 * close with PayPal open also asks the server whether they did. That answer
+	 * is quiet: "no seller yet" is what a plain cancel gets.
 	 */
 	const cancelOnboarding = useCallback( () => {
 		setOnboardingRequested( false );
 		setSignupUrl( '' );
-	}, [] );
+
+		if ( isOverlayOpen ) {
+			completeOnboarding( '', { quiet: true } );
+		}
+	}, [ isOverlayOpen, completeOnboarding ] );
 
 	/**
 	 * Escape closes the overlay.

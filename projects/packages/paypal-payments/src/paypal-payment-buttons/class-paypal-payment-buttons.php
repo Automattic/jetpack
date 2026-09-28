@@ -1499,7 +1499,9 @@ class PayPal_Payment_Buttons {
 	 * The return page's markup.
 	 *
 	 * It holds no data of its own: the only values on it are the ones PayPal put in
-	 * the query string, and they go only to a same-origin window.
+	 * the query string, and they go only to same-origin windows. A BroadcastChannel
+	 * carries them first: the editor document is cross-origin isolated, which leaves
+	 * PayPal's popup with no opener to post to once it has been through paypal.com.
 	 *
 	 * @return string
 	 */
@@ -1507,14 +1509,21 @@ class PayPal_Payment_Buttons {
 		$script = sprintf(
 			'( function () {
 	var params = new URLSearchParams( window.location.search );
-	var message = { type: %s };
+	var message = { type: %1$s };
 	[ "merchantIdInPayPal", "merchantId", "permissionsGranted", "consentStatus", "accountStatus", "isEmailConfirmed", "riskStatus" ].forEach( function ( key ) {
 		message[ key ] = params.get( key ) || "";
 	} );
+	try {
+		var channel = new BroadcastChannel( %1$s );
+		channel.postMessage( message );
+		channel.close();
+	} catch ( e ) {}
 	var framed = window.parent && window.parent !== window;
 	var target = framed ? window.parent : window.opener;
 	if ( target ) {
-		target.postMessage( message, window.location.origin );
+		try {
+			target.postMessage( message, window.location.origin );
+		} catch ( e ) {}
 	}
 	if ( ! framed ) {
 		window.close();
