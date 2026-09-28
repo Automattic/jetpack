@@ -106,7 +106,7 @@ Two filters, both problem-agnostic:
 
 The package's own policy hooks the first, in `src/widget-availability.php`: developer-only widgets off production, the store and bookings categories without WooCommerce or Bookings, the store report categories without the capability. A plugin's manifest goes through the same filter when it registers through `register_widget_types_from_manifest()`; a type registered one by one with `register_widget_type()` does not. Either way, a plugin decides in its callback whether to register at all, as the section owners do.
 
-A third policy, in `src/widget-type-support.php`, acts on default layouts rather than on the registry: `remove_unsupported_default_layout_items()` drops from a section's default the instances whose type the site cannot serve. It reads a fixed list, not the registry (see [Default layouts](dashboard-sections.md#default-layouts)).
+A third policy, in `src/widget-type-support.php`, acts on default layouts rather than on the registry: `remove_unsupported_default_layout_items()` drops from a section's default the instances whose type the site cannot serve. It reads the package's fixed list and, once the registry can answer, the registry itself: an instance whose type is not registered is dropped too (see [Default layouts](dashboard-sections.md#default-layouts)).
 
 ## Versioning the contract
 
