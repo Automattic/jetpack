@@ -278,7 +278,7 @@ class Error_Handler {
 	 * to offering the reconnect CTA.
 	 *
 	 * @since 6.13.10
-	 * @since $$next-version$$ Withholds a non-admin's reconnect CTA while a site connection error is on record.
+	 * @since 9.8.0 Withholds a non-admin's reconnect CTA while a site connection error is on record.
 	 *
 	 * @return array Array of displayable errors with hierarchical structure.
 	 *               Example:
@@ -802,7 +802,7 @@ class Error_Handler {
 	 * Codes that survive owner promotion are inbound failures (WordPress.com cannot reach or
 	 * verify the site), which leave the outbound, blog-token-signed relink working.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @param array $verified_errors The verified errors, keyed by error code then user ID.
 	 * @param int   $owner_id        The local user ID of the connection owner, or 0 if there is none.

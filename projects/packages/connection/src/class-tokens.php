@@ -100,7 +100,7 @@ class Tokens {
 	/**
 	 * Perform the API request to validate only the blog.
 	 *
-	 * @since $$next-version$$ Returns a WP_Error, not false, when the request fails.
+	 * @since 9.8.0 Returns a WP_Error, not false, when the request fails.
 	 *
 	 * @return bool|WP_Error Boolean with the test result. WP_Error if test cannot be performed.
 	 */
