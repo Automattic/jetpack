@@ -95,9 +95,9 @@ A single type written by hand goes through `register_widget_type( $name, $args )
 
 ### The contract
 
-The action hands over the `Widget_Type_Registry` being hydrated. `register_widget_types_from_manifest()` and `register_widget_type()` are what a plugin calls; both write to the main instance, which is that same registry in production.
+The action hands over the `Widget_Type_Registry` being hydrated. `register_widget_types_from_manifest()` and `register_widget_type()` are what a plugin calls. The helper takes `$registry` as its third argument and defaults to the main instance, which is that same registry in production; `register_widget_type()` always writes to the main instance.
 
-`$registry` is there for lookups, `is_registered()` and `get_all_registered()`. The package's own registrant writes into `$registry` directly, so a test can hydrate a fresh instance.
+`$registry` also serves lookups, `is_registered()` and `get_all_registered()`. The package's own registrant and the Ads one pass it through the helper, so a test can hydrate a fresh instance.
 
 ### What the manifest helper does
 
@@ -193,7 +193,7 @@ A plugin's manifest goes through the same filter when it registers through `regi
 
 ### Default layouts
 
-A third policy, in `src/widget-type-support.php`, acts on default layouts rather than on the registry. `remove_unsupported_default_layout_items()` drops from a section's default the instances whose type the site cannot serve.
+A third policy acts on default layouts rather than on the registry: `remove_unsupported_default_layout_items()` in `src/dashboard-layout.php`, over the type lists of `src/widget-type-support.php`, drops from a section's default the instances whose type the site cannot serve.
 
 It reads a fixed list, not the registry (see [Default layouts](dashboard-sections.md#default-layouts)).
 
