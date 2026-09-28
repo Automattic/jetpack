@@ -275,6 +275,36 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An instance a plugin still adds under a former name is renamed, and so survives the
+	 * unregistered-type check under the current one.
+	 */
+	public function test_default_renames_an_instance_added_under_a_former_type_name() {
+		$this->assertInstanceOf(
+			Widget_Type::class,
+			register_widget_type(
+				'example/current',
+				array(
+					'render_module' => 'example/render',
+					'former_names'  => array( 'example/former' ),
+				)
+			)
+		);
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					$layout[] = get_dashboard_default_widget_instance( 'example-former', 'example/former', 20 );
+				}
+				return $layout;
+			}
+		);
+
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
+
+		$this->assertContains( 'example/current', $layout_types );
+		$this->assertNotContains( 'example/former', $layout_types );
+	}
+
+	/**
 	 * Before init the registry cannot hydrate, so the policy leaves the default as declared.
 	 */
 	public function test_default_keeps_unregistered_instances_before_init() {

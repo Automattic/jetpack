@@ -45,7 +45,7 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  *
  * @since $$next-version$$
  */
-const WIDGET_API_VERSION = '1.0.0';
+const WIDGET_API_VERSION = '1.1.0';
 
 /**
  * Returns the i18n schema describing which widget metadata fields are
@@ -296,6 +296,7 @@ function sanitize_widget_icon( $icon ) {
  *
  *     @type string $textdomain    Text domain for the metadata strings of a candidate that declares none.
  *     @type string $i18n_manifest URL of the build's i18n manifest, for a candidate that declares none.
+ *     @type array  $former_names  Map of widget type name to the names it registered under before, for a candidate that declares none.
  * }
  * @param Widget_Type_Registry|null $registry Optional. The registry to write into. Defaults to the main instance.
  * @return void
@@ -328,6 +329,9 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 		if ( empty( $widget['i18n_manifest'] ) && ! empty( $args['i18n_manifest'] ) ) {
 			$widget['i18n_manifest'] = $args['i18n_manifest'];
 		}
+		if ( empty( $widget['former_names'] ) && ! empty( $args['former_names'][ $widget['name'] ] ) ) {
+			$widget['former_names'] = $args['former_names'][ $widget['name'] ];
+		}
 
 		$widget = translate_widget_metadata( $widget );
 
@@ -346,9 +350,30 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 				'keywords'      => $widget['keywords'] ?? null,
 				'textdomain'    => $widget['textdomain'] ?? null,
 				'i18n_manifest' => $widget['i18n_manifest'] ?? null,
+				'former_names'  => sanitize_widget_former_names( $widget['former_names'] ?? null ),
 			)
 		);
 	}
+}
+
+/**
+ * Normalizes a candidate's former names to a list of strings, or null when it has none.
+ *
+ * The registry validates the names themselves when the type registers.
+ *
+ * @since $$next-version$$
+ *
+ * @param mixed $former_names The declared former names.
+ * @return string[]|null
+ */
+function sanitize_widget_former_names( $former_names ) {
+	if ( ! is_array( $former_names ) ) {
+		return null;
+	}
+
+	$names = array_values( array_unique( array_filter( $former_names, 'is_string' ) ) );
+
+	return $names ? $names : null;
 }
 
 /**

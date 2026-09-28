@@ -91,7 +91,8 @@ Add widget types from another plugin: hook `jetpack_premium_analytics_register_w
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
 that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
 registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
-action once; `src/widget-types.php` registers the package's own build manifest the same way.
+action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
+that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
 `docs/dashboard-widgets.md` walks through the path.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.

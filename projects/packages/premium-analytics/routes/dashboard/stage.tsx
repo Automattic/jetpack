@@ -27,7 +27,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useWidgetModules } from '../use-widget-modules';
@@ -41,6 +41,7 @@ import {
 	SectionSyncNotice,
 } from './components';
 import {
+	buildWidgetTypeRenames,
 	DATE_FILTER_YEAR,
 	isSectionAwaitingSync,
 	offersDateComparison,
@@ -69,7 +70,16 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
+	const widgetModules = useWidgetModules();
+	const widgetTypeRenames = useMemo(
+		() => buildWidgetTypeRenames( widgetModules ),
+		[ widgetModules ]
+	);
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
+		activeSection,
+		sections,
+		widgetTypeRenames
+	);
 	const [ gridSettings ] = useDashboardGridSettings();
 	const canPerform = useDashboardPolicy();
 
@@ -105,7 +115,6 @@ function Dashboard(): JSX.Element {
 		}
 	}, [ isSyncComplete ] );
 
-	const widgetModules = useWidgetModules();
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );

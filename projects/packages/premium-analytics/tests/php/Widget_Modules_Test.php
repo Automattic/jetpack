@@ -108,4 +108,25 @@ class Widget_Modules_Test extends TestCase {
 		$this->assertSame( 'plugin-domain', $records['plugin/catalog-location']['textdomain'] );
 		$this->assertSame( 'https://example.org/plugin/build/i18n-manifest.json', $records['plugin/catalog-location']['i18n_manifest'] );
 	}
+
+	/**
+	 * Every record says which former names its type answers to, so the client can render a
+	 * layout saved before a rename.
+	 */
+	public function test_records_carry_the_former_names() {
+		register_widget_type(
+			'plugin/renamed',
+			array(
+				'render_module' => 'plugin/widgets/renamed/render',
+				'former_names'  => array( 'plugin/old-name' ),
+			)
+		);
+		register_widget_type( 'plugin/never-renamed', array( 'render_module' => 'plugin/widgets/never-renamed/render' ) );
+
+		$records = array_column( get_widget_modules_response()->get_data(), null, 'name' );
+
+		$this->assertSame( array( 'plugin/old-name' ), $records['plugin/renamed']['former_names'] );
+		$this->assertNull( $records['plugin/never-renamed']['former_names'] );
+		$this->assertArrayNotHasKey( 'plugin/old-name', $records );
+	}
 }

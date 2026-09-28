@@ -166,6 +166,16 @@ class Widget_Type {
 	public $i18n_manifest = null;
 
 	/**
+	 * Names this widget type registered under before the current one, so a layout persisted
+	 * with an old name keeps rendering it. Null when the type was never renamed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @var string[]|null
+	 */
+	public $former_names = null;
+
+	/**
 	 * Constructor.
 	 *
 	 * @param string $name Widget type name including namespace.
