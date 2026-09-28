@@ -13,12 +13,34 @@
 
 		&:not(:disabled)::before {
 
-			@include long-content-fade.long-content-fade( $size: 16px, $direction: inline-end );
-			inset-inline-end: calc(100% + 1px);
+			@include long-content-fade.long-content-fade( $size: 16px );
+			right: calc(100% + 1px);
 		}
 
 		&:focus::before {
-			inset-inline-end: calc(100% + 3px);
+			right: calc(100% + 3px);
 		}
 	}
 }
+
+// URLs read left to right in every locale: keep their start
+// visible and fade the physical right end.
+
+/*rtl:begin:ignore*/
+[dir="rtl"] .dops-clipboard-button-input input[type="text"] {
+	direction: ltr;
+	text-align: right;
+	padding-left: 80px;
+	padding-right: 16px;
+}
+
+[dir="rtl"] .dops-clipboard-button-input .dops-clipboard-button:not(:disabled)::before {
+	content: none;
+}
+
+[dir="rtl"] .dops-clipboard-button-input::after {
+
+	@include long-content-fade.long-content-fade( $size: 16px, $edge: 1px );
+}
+
+/*rtl:end:ignore*/
