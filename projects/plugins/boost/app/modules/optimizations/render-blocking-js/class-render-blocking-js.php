@@ -242,26 +242,23 @@ class Render_Blocking_JS implements Feature, Changes_Output_On_Activation, Chang
 		$joint_buffer = $this->ignore_exclusion_scripts( $buffer_start . $buffer_end );
 
 		list( $kept_in_place, $joint_buffer ) = $this->split_at_kept_scripts( $joint_buffer );
-		if ( '' !== $kept_in_place ) {
-			// A script left open by an earlier chunk may have closed in the part printed in place.
-			$this->is_opened_script = $this->is_opened_script( $joint_buffer );
-		}
 
 		$script_tags = $this->get_script_tags( $joint_buffer );
 
 		if ( ! $script_tags ) {
-			if ( $this->is_opened_script ) {
-				// We have an opened script tag, move everything to the second buffer to avoid printing it to the page.
-				// We will do this until the </script> closing tag is encountered.
+			if ( '' !== $kept_in_place ) {
+				// A script left open by an earlier chunk may have closed in the part printed in place.
+				$this->is_opened_script = $this->is_opened_script( $joint_buffer );
+			}
+
+			// We have an opened script tag, move everything to the second buffer to avoid printing it to the page.
+			// We will do this until the </script> closing tag is encountered.
+			if ( $this->is_opened_script || '' !== $kept_in_place ) {
 				return array( $kept_in_place, $joint_buffer );
 			}
 
 			// No script tags detected, return both chunks unaltered.
-			if ( '' === $kept_in_place ) {
-				return array( $buffer_start, $buffer_end );
-			}
-
-			return array( $kept_in_place, $joint_buffer );
+			return array( $buffer_start, $buffer_end );
 		}
 
 		// Makes sure all whole <script>...</script> tags are in $buffer_start.
