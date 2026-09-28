@@ -1606,6 +1606,7 @@ class PayPal_Payment_Buttons {
 	 */
 	public static function init_rest_api() {
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+		add_action( PayPal_Webhooks::FORWARD_RETRY_HOOK, array( PayPal_Webhooks::class, 'retry_forward' ), 10, 2 );
 	}
 
 	/**

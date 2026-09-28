@@ -7,6 +7,9 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Connection\Client;
+use Automattic\Jetpack\Connection\Manager;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -16,7 +19,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * A payment made through a hosted button, link or QR code never touches the site,
  * so PayPal tells the site about captures through a webhook registered on the
- * merchant's account. Each verified notification becomes a Tracks event.
+ * merchant's account. Each verified notification becomes a Tracks event and is
+ * forwarded to WordPress.com, which logs payments centrally.
  *
  * @since $$next-version$$
  */
@@ -63,6 +67,34 @@ class PayPal_Webhooks {
 	 * @var string
 	 */
 	const LISTENER_ROUTE = '/paypal/webhook';
+
+	/**
+	 * The WordPress.com route verified notifications are forwarded to, under `wpcom/v2`.
+	 *
+	 * @var string
+	 */
+	const WPCOM_EVENTS_ROUTE = '/paypal/webhook-events';
+
+	/**
+	 * Cron hook that offers WordPress.com a notification it did not accept earlier.
+	 *
+	 * @var string
+	 */
+	const FORWARD_RETRY_HOOK = 'jetpack_paypal_webhook_forward_retry';
+
+	/**
+	 * How many times a notification is offered to WordPress.com in all.
+	 *
+	 * @var int
+	 */
+	const FORWARD_MAX_ATTEMPTS = 3;
+
+	/**
+	 * How long a failed forward waits before the next attempt, in seconds.
+	 *
+	 * @var int
+	 */
+	const FORWARD_RETRY_DELAY = 5 * MINUTE_IN_SECONDS;
 
 	/**
 	 * The events the webhook subscribes to.
@@ -269,7 +301,7 @@ class PayPal_Webhooks {
 	}
 
 	/**
-	 * Turn a verified notification into a Tracks event.
+	 * Turn a verified notification into a Tracks event and forward it to WordPress.com.
 	 *
 	 * A notification PayPal delivers twice is recorded once.
 	 *
@@ -291,25 +323,91 @@ class PayPal_Webhooks {
 			set_transient( $seen_key, 1, self::SEEN_EVENT_TTL );
 		}
 
-		$resource = is_array( $event['resource'] ?? null ) ? $event['resource'] : array();
-		$name     = 'capture_' . strtolower( substr( $type, strlen( 'PAYMENT.CAPTURE.' ) ) );
+		$resource   = is_array( $event['resource'] ?? null ) ? $event['resource'] : array();
+		$name       = 'capture_' . strtolower( substr( $type, strlen( 'PAYMENT.CAPTURE.' ) ) );
+		$properties = array(
+			'event_id'      => $event_id,
+			'capture_id'    => sanitize_text_field( $resource['id'] ?? '' ),
+			'status'        => sanitize_text_field( $resource['status'] ?? '' ),
+			'amount'        => sanitize_text_field( $resource['amount']['value'] ?? '' ),
+			'currency'      => sanitize_text_field( $resource['amount']['currency_code'] ?? '' ),
+			'order_id'      => sanitize_text_field( $resource['supplementary_data']['related_ids']['order_id'] ?? '' ),
+			'custom_id'     => sanitize_text_field( $resource['custom_id'] ?? '' ),
+			'invoice_id'    => sanitize_text_field( $resource['invoice_id'] ?? '' ),
+			'merchant_id'   => sanitize_text_field( $resource['payee']['merchant_id'] ?? '' ),
+			'final_capture' => empty( $resource['final_capture'] ) ? 0 : 1,
+		);
 
-		PayPal_Tracks::record(
-			$name,
-			array(
-				'event_id'      => $event_id,
-				'capture_id'    => sanitize_text_field( $resource['id'] ?? '' ),
-				'status'        => sanitize_text_field( $resource['status'] ?? '' ),
-				'amount'        => sanitize_text_field( $resource['amount']['value'] ?? '' ),
-				'currency'      => sanitize_text_field( $resource['amount']['currency_code'] ?? '' ),
-				'order_id'      => sanitize_text_field( $resource['supplementary_data']['related_ids']['order_id'] ?? '' ),
-				'custom_id'     => sanitize_text_field( $resource['custom_id'] ?? '' ),
-				'invoice_id'    => sanitize_text_field( $resource['invoice_id'] ?? '' ),
-				'final_capture' => empty( $resource['final_capture'] ) ? 0 : 1,
+		PayPal_Tracks::record( $name, $properties );
+
+		self::forward(
+			array_merge(
+				$properties,
+				array(
+					'event_type'  => $type,
+					'create_time' => sanitize_text_field( $event['create_time'] ?? '' ),
+					'environment' => PayPal_OAuth::get_environment(),
+				)
 			)
 		);
 
 		return $name;
+	}
+
+	/**
+	 * Hand a verified notification to WordPress.com, which logs payments centrally.
+	 *
+	 * Only the fields the site records go over, never the payer. When WordPress.com
+	 * cannot be reached, or answers a server error, the forward is retried from cron.
+	 *
+	 * @param array $payload The notification's fields, as handle() reduces them.
+	 * @param int   $attempt Which attempt this is, counting from 1.
+	 * @return bool Whether WordPress.com accepted the notification.
+	 */
+	public static function forward( array $payload, $attempt = 1 ) {
+		if ( ! ( new Manager() )->is_connected() ) {
+			return false;
+		}
+
+		$response = Client::wpcom_json_api_request_as_blog(
+			self::WPCOM_EVENTS_ROUTE,
+			'2',
+			array(
+				'method'  => 'POST',
+				'timeout' => 10,
+				'headers' => array(
+					'Content-Type' => 'application/json',
+					'Accept'       => 'application/json',
+				),
+			),
+			wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+			'wpcom'
+		);
+
+		$status = is_wp_error( $response ) ? 0 : (int) wp_remote_retrieve_response_code( $response );
+		if ( $status >= 200 && $status < 300 ) {
+			return true;
+		}
+
+		// A 4xx is WordPress.com's final word on this payload; only outages are worth another try.
+		if ( ( 0 === $status || $status >= 500 ) && $attempt < self::FORWARD_MAX_ATTEMPTS ) {
+			wp_schedule_single_event( time() + self::FORWARD_RETRY_DELAY, self::FORWARD_RETRY_HOOK, array( $payload, $attempt + 1 ) );
+		}
+
+		return false;
+	}
+
+	/**
+	 * Cron callback for FORWARD_RETRY_HOOK.
+	 *
+	 * @param array $payload The notification's fields, as handle() reduces them.
+	 * @param int   $attempt Which attempt this is, counting from 1.
+	 * @return void
+	 */
+	public static function retry_forward( $payload, $attempt ) {
+		if ( is_array( $payload ) ) {
+			self::forward( $payload, (int) $attempt );
+		}
 	}
 
 	/**

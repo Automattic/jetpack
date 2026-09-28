@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Connection\Tokens;
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
@@ -45,6 +46,9 @@ class PayPal_Webhooks_Test extends TestCase {
 		\Jetpack_Options::delete_option( 'tos_agreed' );
 		delete_transient( PayPal_Webhooks::SEEN_EVENT_TRANSIENT_PREFIX . md5( 'WH-EVENT-1' ) );
 
+		wp_unschedule_hook( PayPal_Webhooks::FORWARD_RETRY_HOOK );
+		Constants::clear_constants();
+
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'rest_url' );
 	}
@@ -68,6 +72,32 @@ class PayPal_Webhooks_Test extends TestCase {
 				return preg_replace( '#^http://#', 'https://', $url );
 			}
 		);
+	}
+
+	/**
+	 * Give the site the blog ID and token a request to WordPress.com needs.
+	 */
+	private function connect_to_wordpress_com() {
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		( new Tokens() )->update_blog_token( 'test.blogtoken' );
+		\Jetpack_Options::update_option( 'id', 1234 );
+	}
+
+	/**
+	 * The requests to the WordPress.com events route among the collected requests.
+	 *
+	 * @param array $requests Requests collected by mock_http_routes().
+	 * @return array[]
+	 */
+	private function forwarded_events( array $requests ) {
+		$forwarded = array();
+		foreach ( $requests as $request ) {
+			if ( false !== strpos( $request['url'], PayPal_Webhooks::WPCOM_EVENTS_ROUTE ) ) {
+				$forwarded[] = $request;
+			}
+		}
+
+		return $forwarded;
 	}
 
 	/**
@@ -158,20 +188,55 @@ class PayPal_Webhooks_Test extends TestCase {
 	}
 
 	/**
+	 * The capture_completed_event() fields as handle() forwards them.
+	 *
+	 * @return array
+	 */
+	private function forwarded_payload() {
+		return array(
+			'event_id'      => 'WH-EVENT-1',
+			'capture_id'    => 'CAPTURE999',
+			'status'        => 'COMPLETED',
+			'amount'        => '30.00',
+			'currency'      => 'USD',
+			'order_id'      => 'ORDER12345',
+			'custom_id'     => 'PLB-ORDER1',
+			'invoice_id'    => 'INV-7',
+			'merchant_id'   => 'MERCHANT42',
+			'final_capture' => 1,
+			'event_type'    => 'PAYMENT.CAPTURE.COMPLETED',
+			'create_time'   => '2026-09-28T10:00:00Z',
+			'environment'   => 'sandbox',
+		);
+	}
+
+	/**
 	 * A PAYMENT.CAPTURE.COMPLETED notification, as PayPal posts it.
 	 *
 	 * @return array
 	 */
 	private function capture_completed_event() {
 		return array(
-			'id'         => 'WH-EVENT-1',
-			'event_type' => 'PAYMENT.CAPTURE.COMPLETED',
-			'resource'   => array(
+			'id'          => 'WH-EVENT-1',
+			'event_type'  => 'PAYMENT.CAPTURE.COMPLETED',
+			'create_time' => '2026-09-28T10:00:00Z',
+			'resource'    => array(
 				'id'                 => 'CAPTURE999',
 				'status'             => 'COMPLETED',
 				'final_capture'      => true,
 				'custom_id'          => 'PLB-ORDER1',
 				'invoice_id'         => 'INV-7',
+				'payee'              => array(
+					'merchant_id'   => 'MERCHANT42',
+					'email_address' => 'seller@example.com',
+				),
+				'payer'              => array(
+					'email_address' => 'buyer@example.com',
+					'name'          => array(
+						'given_name' => 'Buyer',
+						'surname'    => 'Person',
+					),
+				),
 				'amount'             => array(
 					'currency_code' => 'USD',
 					'value'         => '30.00',
@@ -461,9 +526,103 @@ class PayPal_Webhooks_Test extends TestCase {
 		$this->assertSame( 'ORDER12345', $event['order_id'] );
 		$this->assertSame( 'PLB-ORDER1', $event['custom_id'] );
 		$this->assertSame( 'INV-7', $event['invoice_id'] );
+		$this->assertSame( 'MERCHANT42', $event['merchant_id'] );
 		$this->assertSame( '1', $event['final_capture'] );
 		$this->assertSame( 'sandbox', $event['environment'] );
 		$this->assertSame( '1234', $event['blog_id'] );
+	}
+
+	public function test_handle_forwards_the_capture_to_wordpress_com() {
+		$this->connect_paypal();
+		$this->set_up_connection_owner();
+		$this->connect_to_wordpress_com();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'pixel.wp.com'                      => $this->http_response( 200, array() ),
+				PayPal_Webhooks::WPCOM_EVENTS_ROUTE => $this->http_response( 200, array( 'logged' => true ) ),
+			),
+			$requests
+		);
+
+		PayPal_Webhooks::handle( $this->capture_completed_event() );
+
+		$forwarded = $this->forwarded_events( $requests );
+		$this->assertCount( 1, $forwarded );
+		$this->assertSame( 'POST', $forwarded[0]['args']['method'] );
+		$this->assertStringContainsString( '/wpcom/v2/paypal/webhook-events', $forwarded[0]['url'] );
+		$this->assertSame(
+			array(
+				'event_id'      => 'WH-EVENT-1',
+				'capture_id'    => 'CAPTURE999',
+				'status'        => 'COMPLETED',
+				'amount'        => '30.00',
+				'currency'      => 'USD',
+				'order_id'      => 'ORDER12345',
+				'custom_id'     => 'PLB-ORDER1',
+				'invoice_id'    => 'INV-7',
+				'merchant_id'   => 'MERCHANT42',
+				'final_capture' => 1,
+				'event_type'    => 'PAYMENT.CAPTURE.COMPLETED',
+				'create_time'   => '2026-09-28T10:00:00Z',
+				'environment'   => 'sandbox',
+			),
+			json_decode( $forwarded[0]['args']['body'], true )
+		);
+	}
+
+	public function test_handle_forwards_nothing_from_a_site_without_a_wordpress_com_connection() {
+		$this->connect_paypal();
+		$this->set_up_connection_owner();
+		$requests = array();
+		$this->mock_http_routes( array( 'pixel.wp.com' => $this->http_response( 200, array() ) ), $requests );
+
+		PayPal_Webhooks::handle( $this->capture_completed_event() );
+
+		$this->assertSame( array(), $this->forwarded_events( $requests ) );
+		$this->assertFalse( wp_next_scheduled( PayPal_Webhooks::FORWARD_RETRY_HOOK, array( $this->forwarded_payload(), 2 ) ) );
+	}
+
+	public function test_forward_tries_again_later_when_wordpress_com_is_down() {
+		$this->connect_paypal();
+		$this->connect_to_wordpress_com();
+		$this->mock_http_routes( array( PayPal_Webhooks::WPCOM_EVENTS_ROUTE => $this->http_response( 503, array() ) ) );
+
+		$this->assertFalse( PayPal_Webhooks::forward( $this->forwarded_payload() ) );
+
+		$this->assertNotFalse( wp_next_scheduled( PayPal_Webhooks::FORWARD_RETRY_HOOK, array( $this->forwarded_payload(), 2 ) ) );
+	}
+
+	public function test_forward_tries_again_later_when_wordpress_com_cannot_be_reached() {
+		$this->connect_paypal();
+		$this->connect_to_wordpress_com();
+		$this->mock_http_routes( array( PayPal_Webhooks::WPCOM_EVENTS_ROUTE => new \WP_Error( 'http_request_failed', 'Timed out' ) ) );
+
+		$this->assertFalse( PayPal_Webhooks::forward( $this->forwarded_payload() ) );
+
+		$this->assertNotFalse( wp_next_scheduled( PayPal_Webhooks::FORWARD_RETRY_HOOK, array( $this->forwarded_payload(), 2 ) ) );
+	}
+
+	public function test_forward_takes_a_rejection_from_wordpress_com_as_final() {
+		$this->connect_paypal();
+		$this->connect_to_wordpress_com();
+		$this->mock_http_routes( array( PayPal_Webhooks::WPCOM_EVENTS_ROUTE => $this->http_response( 400, array( 'error' => 'invalid' ) ) ) );
+
+		$this->assertFalse( PayPal_Webhooks::forward( $this->forwarded_payload() ) );
+
+		$this->assertFalse( wp_next_scheduled( PayPal_Webhooks::FORWARD_RETRY_HOOK, array( $this->forwarded_payload(), 2 ) ) );
+	}
+
+	public function test_retry_forward_gives_up_after_the_last_attempt() {
+		$this->connect_paypal();
+		$this->connect_to_wordpress_com();
+		$requests = array();
+		$this->mock_http_routes( array( PayPal_Webhooks::WPCOM_EVENTS_ROUTE => $this->http_response( 503, array() ) ), $requests );
+
+		PayPal_Webhooks::retry_forward( $this->forwarded_payload(), PayPal_Webhooks::FORWARD_MAX_ATTEMPTS );
+
+		$this->assertCount( 1, $this->forwarded_events( $requests ) );
+		$this->assertFalse( wp_next_scheduled( PayPal_Webhooks::FORWARD_RETRY_HOOK, array( $this->forwarded_payload(), PayPal_Webhooks::FORWARD_MAX_ATTEMPTS + 1 ) ) );
 	}
 
 	public function test_handle_records_a_notification_once() {

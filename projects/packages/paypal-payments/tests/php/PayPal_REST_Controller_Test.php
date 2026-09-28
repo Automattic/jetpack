@@ -688,6 +688,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 	public function test_webhook_records_a_verified_notification() {
 		$this->set_up_connected_admin_state();
 		$this->set_up_connection_owner();
+		$this->set_up_blog_connection();
 		wp_set_current_user( 0 );
 		update_option(
 			PayPal_Webhooks::OPTION_KEY,
@@ -701,7 +702,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->mock_http_routes(
 			array(
 				'/v1/notifications/verify-webhook-signature' => $this->http_response( 200, array( 'verification_status' => 'SUCCESS' ) ),
-				'pixel.wp.com' => $this->http_response( 200, array() ),
+				'pixel.wp.com'                      => $this->http_response( 200, array() ),
+				PayPal_Webhooks::WPCOM_EVENTS_ROUTE => $this->http_response( 200, array() ),
 			),
 			$requests
 		);
@@ -721,6 +723,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertCount( 1, $events );
 		$this->assertSame( 'jetpack_paypal_capture_completed', $events[0]['_en'] );
 		$this->assertSame( 'CAPTURE999', $events[0]['capture_id'] );
+
+		$forwarded = array_values( array_filter( $requests, fn( $r ) => false !== strpos( $r['url'], '/paypal/webhook-events' ) ) );
+		$this->assertCount( 1, $forwarded );
+		$this->assertSame( 'CAPTURE999', json_decode( $forwarded[0]['args']['body'], true )['capture_id'] );
 	}
 
 	public function test_webhook_refuses_a_notification_paypal_does_not_vouch_for() {
