@@ -268,7 +268,6 @@ export {
 	yearRange,
 	type PeriodBounds,
 	buildDenseDaySeries,
-	isEmptyChartData,
 	resolveCalendarHeatmapGridStart,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,

@@ -319,9 +319,11 @@ function MetricChart( {
 		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
 	}
 
+	// The other metrics' hover readout keeps the graph up while any of them has data.
 	if (
 		empty &&
-		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] )
+		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] ) &&
+		isEmptyChartData( tooltipExtras ?? [] )
 	) {
 		return <>{ empty }</>;
 	}

@@ -287,6 +287,33 @@ describe( 'MetricTabsChart', () => {
 			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
 		} );
 
+		it( 'still draws a zero metric whose tooltip reads out other metrics with data', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ zeroFilled, VISITORS ] }
+					dataFormat={ DATA_FORMAT }
+					tooltipMetrics="all"
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
+			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'shows it when every metric in the tooltip readout is empty too', () => {
+			render(
+				<MetricTabsChart
+					metrics={ [ zeroFilled, { ...zeroFilled, key: 'visitors', label: 'Visitors' } ] }
+					dataFormat={ DATA_FORMAT }
+					tooltipMetrics="all"
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+		} );
+
 		it( 'keeps an unavailable metric’s reason rather than calling it empty', () => {
 			const reason = "Hourly data isn't available for this metric.";
 
