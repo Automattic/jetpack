@@ -1,8 +1,9 @@
-import { Tooltip, defaultStyles } from '@visx/tooltip';
+import { Tooltip } from '@visx/tooltip';
 import { DataContext, TooltipContext } from '@visx/xychart';
+import clsx from 'clsx';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { isValidHexColor } from '../../utils';
+import styles from './base-tooltip.module.scss';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from './private/bounded-tooltip';
 import type {
 	CrosshairStyle,
@@ -215,16 +216,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const marginLeft = margin?.left ?? 0;
 
 	const TooltipComponent = detectBounds || tooltipPlacement !== 'auto' ? BoundedTooltip : Tooltip;
-	const boxStyle: CSSProperties = {
-		...defaultStyles,
-		zIndex,
-		backgroundColor: theme?.backgroundColor ?? 'white',
-		boxShadow: `0 1px 2px ${
-			isValidHexColor( theme?.htmlLabel?.color ) ? `${ theme.htmlLabel.color }55` : '#22222255'
-		}`,
-		...theme?.htmlLabel,
-		...style,
-	};
+	const boxStyle: CSSProperties = { zIndex, ...style };
 
 	return (
 		<>
@@ -269,6 +261,10 @@ const XyChartTooltipContent = < Datum extends object >( {
 						style={ boxStyle }
 						applyPositionStyle
 						{ ...tooltipProps }
+						className={ clsx(
+							TooltipComponent === Tooltip && styles.surface,
+							tooltipProps.className
+						) }
 						{ ...( tooltipPlacement !== 'auto' && { placement: tooltipPlacement } ) }
 					>
 						{ tooltipContent }
