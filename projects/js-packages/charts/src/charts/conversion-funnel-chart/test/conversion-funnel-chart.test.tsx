@@ -422,9 +422,6 @@ describe( 'ConversionFunnelChart', () => {
 
 			expect( screen.getByTestId( 'custom-tooltip' ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Custom tooltip: Cart' ) ).toBeInTheDocument();
-			expect( customRenderTooltip ).toHaveBeenCalledWith(
-				expect.not.objectContaining( { className: expect.anything() } )
-			);
 			expect( customRenderTooltip ).toHaveBeenCalledWith( {
 				step: expect.objectContaining( { id: 'cart', label: 'Cart' } ),
 				index: 1,
