@@ -1463,15 +1463,15 @@ class Manager {
 	/**
 	 * Reconcile this site's protected owner against WordPress.com, which is the owner of record.
 	 *
-	 * Runs at connect, when the site has a fresh user token and an answer is cheap. One answer
-	 * settles every question the site has: whether an owner exists, whether the anchor still names
-	 * them, and whether the user connecting is them — so the lock, the binding and the master slot
-	 * are all decided together rather than from two calls that could disagree.
+	 * Runs at connect, when the site has a fresh user token and an answer is cheap, and only once
+	 * something is anchored: a site with no protected owner asks nothing and behaves as it did
+	 * before this existed. One answer settles the rest — whether an owner still exists, whether
+	 * the anchor names them, and whether the user connecting is them — so the anchor, the binding
+	 * and the master slot are decided together rather than from two calls that could disagree.
 	 *
-	 * Fails closed. Unreachable, refused and unimplemented all drop the anchor rather than trust
-	 * it, so nothing is left for another user's connection to confirm back into place. Recovery
-	 * then needs the owner, because the answer names them to nobody else. A refused delete leaves
-	 * the anchor standing and the gates satisfied; that write is the only mechanism there is.
+	 * Only an answer moves anything. Unreachable, refused, unimplemented and malformed leave the
+	 * anchor exactly as it was: it was confirmed once, and a request that never arrived is no
+	 * evidence against it.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
 	 * @since $$next-version$$
