@@ -10,7 +10,7 @@ import {
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	buildReportLink,
-	pickReportDateParams,
+	pickReportNavigationParams,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
@@ -107,7 +107,7 @@ function AuthorDetail(): JSX.Element {
 	}, [ applyDateRange, trackedOnApply ] );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const reportSearch = pickReportDateParams( search );
+	const reportSearch = pickReportNavigationParams( search );
 
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 

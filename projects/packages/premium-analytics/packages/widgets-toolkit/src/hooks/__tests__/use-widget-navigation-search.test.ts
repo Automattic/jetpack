@@ -9,6 +9,12 @@ import { useWidgetRootContext } from '../../components/widget-root';
 import { useWidgetNavigationSearch } from '../use-widget-navigation-search';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
+let mockSearch: Record< string, unknown > = {};
+
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => mockSearch,
+} ) );
+
 jest.mock( '../../components/widget-root', () => ( {
 	useWidgetRootContext: jest.fn(),
 } ) );
@@ -31,6 +37,7 @@ const NAVIGATION_PARAMS = {
 
 describe( 'useWidgetNavigationSearch', () => {
 	beforeEach( () => {
+		mockSearch = {};
 		mockUseWidgetRootContext.mockReturnValue( {
 			reportParams: {
 				from: '2026-03-01',
@@ -88,5 +95,14 @@ describe( 'useWidgetNavigationSearch', () => {
 		expect( result.current.section ).toBe( 'email-opens' );
 		expect( result.current.ref ).toBe( 'emails' );
 		expect( result.current ).not.toHaveProperty( 'ref_section' );
+	} );
+
+	it( 'forwards the dashboard tab to return to from the URL', () => {
+		mockSearch = { section: 'posts-pages', dashboard_section: 'ads' };
+
+		const { result } = renderHook( () => useWidgetNavigationSearch() );
+
+		expect( result.current.dashboard_section ).toBe( 'ads' );
+		expect( result.current ).not.toHaveProperty( 'section' );
 	} );
 } );

@@ -55,4 +55,14 @@ describe( 'report origin search params', () => {
 			section: 'email-opens',
 		} );
 	} );
+
+	it( 'carries the dashboard tab to return to into the detail link', () => {
+		const updateSearch = createDetailLinkSearch( { report: 'posts' } );
+
+		expect( updateSearch( { from: '2026-06-01', dashboard_section: 'insights' } ) ).toEqual( {
+			from: '2026-06-01',
+			dashboard_section: 'insights',
+			ref: 'posts',
+		} );
+	} );
 } );
