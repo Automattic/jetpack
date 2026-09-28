@@ -7,7 +7,9 @@ const CLICK_EVENTS = new Map( [
 	[ 'purchase', 'wpcom_marketplace_tab_purchase_click' ],
 ] );
 
-export const VIEW_EVENT = 'wpcom_marketplace_tab_view';
+const VIEW_EVENT = 'wpcom_marketplace_tab_view';
+
+type Track = ( name: string, props: Record< string, unknown > ) => void;
 
 /**
  * The event a click on a card's link records, with the props Calypso sends for the same click.
@@ -29,4 +31,32 @@ export function clickEvent(
 	}
 
 	return [ name, { plugin: card.plugin, is_saas_product: card.saas === 'true' } ];
+}
+
+/**
+ * Records the tab's view, then each tracked click on its cards.
+ *
+ * @param doc   - The Add Plugins page.
+ * @param track - Records one Tracks event.
+ */
+export function trackMarketplaceTab( doc: Document, track: Track ) {
+	const grid = doc.querySelector< HTMLElement >( '.wpcom-marketplace-grid' );
+
+	track( VIEW_EVENT, {
+		plugin_count: grid?.querySelectorAll( '.wpcom-marketplace-card' ).length ?? 0,
+	} );
+
+	// On the grid, not the document: thickbox stops a Details click once it reaches the body.
+	grid?.addEventListener( 'click', event => {
+		const link = ( event.target as Element ).closest< HTMLElement >(
+			'a[data-wpcom-marketplace-track]'
+		);
+		const card = link?.closest< HTMLElement >( '.wpcom-marketplace-card' );
+		const tracked =
+			link && card ? clickEvent( link.dataset.wpcomMarketplaceTrack, card.dataset ) : null;
+
+		if ( tracked ) {
+			track( ...tracked );
+		}
+	} );
 }
