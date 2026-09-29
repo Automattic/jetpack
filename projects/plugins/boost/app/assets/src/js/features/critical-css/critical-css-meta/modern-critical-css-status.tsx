@@ -77,39 +77,13 @@ export default function ModernCriticalCssStatus( {
 					<Text variant="body-sm" className={ styles.description }>
 						{ isCloud ? (
 							<CloudDescription cssState={ cssState } successCount={ successCount } />
-						) : generating ? (
-							__(
-								'Generating Critical CSS. Please don’t leave this page until completed.',
-								'jetpack-boost'
-							)
 						) : (
-							<>
-								{ ! idle && (
-									<>
-										{ sprintf(
-											/* translators: %d is the number of generated CSS files. */
-											_n(
-												'%d file generated',
-												'%d files generated',
-												successCount,
-												'jetpack-boost'
-											),
-											successCount
-										) }
-										{ !! cssState.updated && (
-											<>
-												{ ' ' }
-												<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-											</>
-										) }
-										{ '. ' }
-									</>
-								) }
-								{ __(
-									'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
-									'jetpack-boost'
-								) }
-							</>
+							<LocalDescription
+								cssState={ cssState }
+								successCount={ successCount }
+								generating={ generating }
+								idle={ idle }
+							/>
 						) }
 					</Text>
 					{ generating && ! isCloud && <ProgressBar progress={ progress } /> }
@@ -145,19 +119,12 @@ export default function ModernCriticalCssStatus( {
 	);
 }
 
-type CloudDescriptionProps = {
+type DescriptionProps = {
 	cssState: CriticalCssState;
 	successCount: number;
 };
 
-function CloudDescription( { cssState, successCount }: CloudDescriptionProps ) {
-	const isPending = cssState.status === 'pending';
-	const hasCompletedSome = cssState.providers.some( provider => provider.status !== 'pending' );
-
-	if ( ( isPending || cssState.status === 'not_generated' ) && ! hasCompletedSome ) {
-		return __( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' );
-	}
-
+function GeneratedSummary( { cssState, successCount }: DescriptionProps ) {
 	return (
 		<>
 			{ sprintf(
@@ -171,6 +138,50 @@ function CloudDescription( { cssState, successCount }: CloudDescriptionProps ) {
 					<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
 				</>
 			) }
+		</>
+	);
+}
+
+type LocalDescriptionProps = DescriptionProps & {
+	generating: boolean;
+	idle: boolean;
+};
+
+function LocalDescription( { cssState, successCount, generating, idle }: LocalDescriptionProps ) {
+	if ( generating ) {
+		return __(
+			'Generating Critical CSS. Please don’t leave this page until completed.',
+			'jetpack-boost'
+		);
+	}
+
+	return (
+		<>
+			{ ! idle && (
+				<>
+					<GeneratedSummary cssState={ cssState } successCount={ successCount } />
+					{ '. ' }
+				</>
+			) }
+			{ __(
+				'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
+				'jetpack-boost'
+			) }
+		</>
+	);
+}
+
+function CloudDescription( { cssState, successCount }: DescriptionProps ) {
+	const isPending = cssState.status === 'pending';
+	const hasCompletedSome = cssState.providers.some( provider => provider.status !== 'pending' );
+
+	if ( ( isPending || cssState.status === 'not_generated' ) && ! hasCompletedSome ) {
+		return __( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' );
+	}
+
+	return (
+		<>
+			<GeneratedSummary cssState={ cssState } successCount={ successCount } />
 			{ '.' }
 			{ isPending && (
 				<> { __( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' ) }</>
