@@ -157,6 +157,14 @@ class Publicize_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'new' ), get_post_meta( $this->post->ID, '_wpas_mess', false ) );
 	}
 
+	public function test_update_collapses_duplicate_boolean_publicize_meta_rows() {
+		add_post_meta( $this->post->ID, '_wpas_feature_enabled', true );
+		add_post_meta( $this->post->ID, '_wpas_feature_enabled', true );
+
+		$this->assertTrue( update_post_meta( $this->post->ID, '_wpas_feature_enabled', true ) );
+		$this->assertSame( array( '1' ), get_post_meta( $this->post->ID, '_wpas_feature_enabled', false ) );
+	}
+
 	public function test_update_keeps_duplicate_publicize_meta_rows_when_write_fails() {
 		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );
 		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );

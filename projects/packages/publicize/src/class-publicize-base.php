@@ -1351,7 +1351,8 @@ abstract class Publicize_Base {
 
 		// Update the row reads return before deleting the others, so a failed write loses nothing.
 		$keep = array_shift( $rows );
-		if ( maybe_serialize( $meta_value ) !== $keep->meta_value && ! update_metadata_by_mid( 'post', (int) $keep->meta_id, $meta_value ) ) {
+		// Cast like `$wpdb` does, e.g. `true` is stored as "1".
+		if ( (string) maybe_serialize( $meta_value ) !== $keep->meta_value && ! update_metadata_by_mid( 'post', (int) $keep->meta_id, $meta_value ) ) {
 			return false;
 		}
 

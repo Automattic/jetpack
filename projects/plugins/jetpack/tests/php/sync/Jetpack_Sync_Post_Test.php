@@ -1424,24 +1424,26 @@ That was a cool video.';
 	/**
 	 * Data provider for test_sync_jetpack_published_post_on_shutdown_after_rest_meta_update_fails.
 	 *
-	 * @return array[] Whether a second field is requested, whether it also fails, and the expected event count.
+	 * @return array[] Whether a second field is requested, whether it also fails, the expected event count, and its requested value.
 	 */
 	public static function provider_rest_meta_update_fails() {
 		return array(
 			'only the failing field requested' => array( false, false, 1 ),
 			'second field saved'               => array( true, false, 1 ),
 			'second field also fails'          => array( true, true, 0 ),
+			'second field reset'               => array( true, false, 1, null ),
 		);
 	}
 
 	/**
 	 * @dataProvider provider_rest_meta_update_fails
-	 * @param bool $second_requested Whether a second meta field is requested.
-	 * @param bool $second_fails     Whether saving the second field fails too.
-	 * @param int  $expected_events  Expected `jetpack_published_post` events.
+	 * @param bool    $second_requested Whether a second meta field is requested.
+	 * @param bool    $second_fails     Whether saving the second field fails too.
+	 * @param int     $expected_events  Expected `jetpack_published_post` events.
+	 * @param ?string $second_value  Requested value of the second field.
 	 */
 	#[DataProvider( 'provider_rest_meta_update_fails' )]
-	public function test_sync_jetpack_published_post_on_shutdown_after_rest_meta_update_fails( $second_requested, $second_fails, $expected_events ) {
+	public function test_sync_jetpack_published_post_on_shutdown_after_rest_meta_update_fails( $second_requested, $second_fails, $expected_events, $second_value = 'value' ) {
 		$meta_args = array(
 			'show_in_rest' => true,
 			'single'       => true,
@@ -1458,7 +1460,8 @@ That was a cool video.';
 		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
 		$meta    = array( 'jetpack_test_failing_meta' => 'value' );
 		if ( $second_requested ) {
-			$meta['jetpack_test_second_meta'] = 'value';
+			update_post_meta( $post_id, 'jetpack_test_second_meta', 'stored' );
+			$meta['jetpack_test_second_meta'] = $second_value;
 		}
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();

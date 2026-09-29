@@ -878,9 +878,9 @@ class Posts extends Module {
 	 */
 	public function leave_rest_callback( $response, $handler, $request ) {
 		$failed_field = null;
-		if ( is_wp_error( $response ) && 'rest_meta_database_error' === $response->get_error_code() ) {
-			$error_data   = $response->get_error_data();
-			$failed_field = is_array( $error_data ) ? ( $error_data['key'] ?? null ) : null;
+		if ( is_wp_error( $response ) && array( 'rest_meta_database_error' ) === $response->get_error_codes() ) {
+			$failures     = $response->get_all_error_data( 'rest_meta_database_error' );
+			$failed_field = 1 === count( $failures ) && is_array( $failures[0] ) ? ( $failures[0]['key'] ?? null ) : null;
 		}
 
 		foreach ( $this->published_in_rest_callback as $post_id => $depth ) {
@@ -920,7 +920,11 @@ class Posts extends Module {
 
 		$stored = ( new \WP_REST_Post_Meta_Fields( $post->post_type ) )->get_value( $post_id, $request );
 		foreach ( $requested as $name => $value ) {
-			if ( $name !== $failed_field && ( ! array_key_exists( $name, $stored ) || $stored[ $name ] !== $value ) ) {
+			// A reset (`null`) that failed would have been a second meta error.
+			if ( $name === $failed_field || null === $value ) {
+				continue;
+			}
+			if ( ! array_key_exists( $name, $stored ) || $stored[ $name ] !== $value ) {
 				return false;
 			}
 		}
