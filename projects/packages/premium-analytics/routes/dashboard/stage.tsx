@@ -72,7 +72,7 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
-	const canPerform = useDashboardPolicy();
+	const canPerform = useDashboardPolicy( sections );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the

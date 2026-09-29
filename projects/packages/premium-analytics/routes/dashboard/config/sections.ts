@@ -120,3 +120,15 @@ export function resolveSectionId(
 
 	return sections[ 0 ]?.slug ?? '';
 }
+
+/**
+ * The widget types the inserter offers: those the available sections place by default.
+ *
+ * @param sections - The available sections.
+ * @return The widget type names.
+ */
+export function getInsertableWidgetTypeNames( sections: DashboardSection[] ): Set< string > {
+	return new Set(
+		sections.flatMap( section => section.default_layout.map( widget => widget.type ) )
+	);
+}

@@ -1,4 +1,5 @@
 import {
+	getInsertableWidgetTypeNames,
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,
@@ -113,5 +114,40 @@ describe( 'isSectionAwaitingSync', () => {
 	// A payload served by a build predating the field must render, not wait forever.
 	it( 'does not wait when the field is absent', () => {
 		expect( isSectionAwaitingSync( LEGACY, false ) ).toBe( false );
+	} );
+} );
+
+describe( 'getInsertableWidgetTypeNames', () => {
+	const TRAFFIC: DashboardSection = {
+		...SECTIONS[ 0 ],
+		default_layout: [
+			{ uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' },
+			{ uuid: 'default-utm-source', type: 'jpa/utm-insights' },
+			{ uuid: 'default-utm-campaign', type: 'jpa/utm-insights' },
+		],
+	};
+	const INSIGHTS: DashboardSection = {
+		...SECTIONS[ 1 ],
+		default_layout: [
+			{ uuid: 'default-latest-post', type: 'jpa/latest-post' },
+			{ uuid: 'default-insights-utm', type: 'jpa/utm-insights' },
+		],
+	};
+
+	it( 'collects the types every section places by default, each one once', () => {
+		expect( [ ...getInsertableWidgetTypeNames( [ TRAFFIC, INSIGHTS ] ) ] ).toEqual( [
+			'jpa/traffic-chart',
+			'jpa/utm-insights',
+			'jpa/latest-post',
+		] );
+	} );
+
+	it( 'leaves out the types of a section that is not available', () => {
+		expect( getInsertableWidgetTypeNames( [ TRAFFIC ] ).has( 'jpa/latest-post' ) ).toBe( false );
+	} );
+
+	it( 'is empty when no section places a widget', () => {
+		expect( getInsertableWidgetTypeNames( SECTIONS ).size ).toBe( 0 );
+		expect( getInsertableWidgetTypeNames( [] ).size ).toBe( 0 );
 	} );
 } );
