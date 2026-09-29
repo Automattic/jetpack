@@ -7,7 +7,7 @@ description: >
   or says "/jetpack-screenshot". Works with any browser automation tool available
   to the agent (chrome-devtools MCP, Playwright MCP, cmux browser, or similar)
   and leans on jetpack-test-jurassic-ninja for syncing plugin state.
-allowed-tools: Bash(git rev-parse:*), Bash(git diff:*), Bash(mktemp:*), Bash(command -v:*), Bash(magick:*), Bash(gh pr view:*), Bash(gh pr edit:*), Bash(gh api:*), Bash(awk:*), Bash(curl:*), Bash(file:*)
+allowed-tools: Bash(git rev-parse:*), Bash(git diff:*), Bash(mktemp:*), Bash(command -v:*), Bash(magick:*), Bash(gh pr view:*), Bash(gh pr edit:*), Bash(gh api:*), Bash(awk:*), Bash(curl:*), Bash(file:*), Bash(grep:*), Bash(cut:*), Bash(sort:*), Bash(cat:*), Bash(echo:*), Write
 ---
 
 # Jetpack Screenshot — Before/After on Jurassic Ninja
@@ -143,8 +143,8 @@ If the PR exists, drop any block an earlier run added, append the new one, and a
 PR=<number>
 (
     cd "$OUT" &&
-    gh pr view "$PR" -R Automattic/jetpack --json body --jq .body \
-        | awk '/<!-- jetpack-screenshot:start -->/{skip=1} !skip{print} /<!-- jetpack-screenshot:end -->/{skip=0}' > body.md &&
+    gh pr view "$PR" -R Automattic/jetpack --json body --jq .body > original-body.md &&
+    awk '/<!-- jetpack-screenshot:start -->/{skip=1} !skip{print} /<!-- jetpack-screenshot:end -->/{skip=0}' original-body.md > body.md &&
     { echo; cat screenshots.md; } >> body.md &&
     gh pr edit "$PR" -R Automattic/jetpack --body-file body.md \
         --attach ./before-<slug>.png --attach ./after-<slug>.png
