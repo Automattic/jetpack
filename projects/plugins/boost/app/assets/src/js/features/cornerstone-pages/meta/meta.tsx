@@ -75,7 +75,7 @@ const CornerstonePagesContent = () => {
 			setNotice( {
 				id: 'cornerstone-pages-save',
 				type: 'success',
-				message: __( 'Cornerstone pages saved', 'jetpack-boost' ),
+				message: __( 'Cornerstone Pages saved', 'jetpack-boost' ),
 			} );
 
 			if ( isCriticalCssEnabled( modulesState ) ) {
@@ -200,12 +200,12 @@ export const CornerstonePagesUpgradeCTA = () => {
 					isModern
 						? sprintf(
 								/* translators: %d is the number of cornerstone pages. */
-								__( 'Add up to %d cornerstone pages.', 'jetpack-boost' ),
+								__( 'Add up to %d Cornerstone Pages.', 'jetpack-boost' ),
 								cornerstonePagesProperties.max_pages_premium
 							)
 						: sprintf(
 								/* translators: %d is the number of cornerstone pages. */
-								__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+								__( 'Premium users can add up to %d Cornerstone Pages.', 'jetpack-boost' ),
 								cornerstonePagesProperties.max_pages_premium
 							)
 				}
@@ -438,8 +438,8 @@ const List: FC< ListProps > = ( {
 			const message = sprintf(
 				/* translators: %d is the maximum number of cornerstone page URLs. */
 				_n(
-					'You can add only %d cornerstone page URL.',
-					'You can add up to %d cornerstone page URLs.',
+					'You can add only %d Cornerstone Page URL.',
+					'You can add up to %d Cornerstone Page URLs.',
 					maxItems,
 					'jetpack-boost'
 				),
