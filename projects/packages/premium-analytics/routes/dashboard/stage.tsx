@@ -28,7 +28,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useWidgetModules } from '../use-widget-modules';
@@ -43,6 +43,7 @@ import {
 } from './components';
 import {
 	DATE_FILTER_YEAR,
+	getInsertableWidgetTypeNames,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
@@ -72,7 +73,13 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
-	const canPerform = useDashboardPolicy( sections );
+
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+	const insertableWidgetTypes = useMemo(
+		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
+		[ activeSectionRecord ]
+	);
+	const canPerform = useDashboardPolicy( { insertableWidgetTypes } );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -171,8 +178,6 @@ function Dashboard(): JSX.Element {
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
 	const dateFilters = useReportDateFilters( '/' );
-
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
