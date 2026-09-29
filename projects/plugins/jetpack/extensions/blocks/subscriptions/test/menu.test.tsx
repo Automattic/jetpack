@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
+import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../../shared/memberships/constants';
 import NewsletterMenu from '../menu';
 
 // Render the sidebar and its children inline; the real slot-fill machinery isn't
@@ -24,11 +25,13 @@ jest.mock( '../../../shared/memberships/edit', () => ( {
 	useAccessLevel: () => 'everybody',
 } ) );
 jest.mock( '../../../shared/memberships/settings', () => ( {
-	NewsletterAccessDocumentSettings: () => null,
-	NewsletterEmailDocumentSettings: () => null,
+	NewsletterAccessDocumentSettings: () => <div>Audience settings</div>,
+	NewsletterEmailDocumentSettings: () => <div>Email toggle</div>,
 } ) );
-jest.mock( '../newsletter-categories-panel', () => () => null );
-jest.mock( '../../../shared/memberships/subscribers-affirmation', () => () => null );
+jest.mock( '../newsletter-categories-panel', () => () => <div>Newsletter categories panel</div> );
+jest.mock( '../../../shared/memberships/subscribers-affirmation', () => () => (
+	<div>Subscribers affirmation</div>
+) );
 jest.mock( '../email-preview', () => ( {
 	NewsletterTestEmailModal: () => null,
 } ) );
@@ -76,5 +79,26 @@ describe( 'NewsletterMenu', () => {
 
 		expect( screen.queryByRole( 'button', { name: 'Preview email' } ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Send test email' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'warns and hides the email buttons when emails are turned off', () => {
+		mockPost( { meta: { [ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true } } );
+
+		render( <NewsletterMenu openPreviewModal={ jest.fn() } /> );
+
+		expect( screen.getByText( 'Newsletter emails are turned off' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Preview email' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Send test email' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the affirmation instead of the toggle and categories once published', () => {
+		mockPost( { postStatus: 'publish' } );
+
+		render( <NewsletterMenu openPreviewModal={ jest.fn() } /> );
+
+		expect( screen.getByText( 'Subscribers affirmation' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Email toggle' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'Newsletter categories panel' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Audience settings' ) ).toBeInTheDocument();
 	} );
 } );
