@@ -79,17 +79,34 @@ export interface MetricTab {
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
 	/**
-	 * Key of the metric to draw beside this one, hidden until the reader reveals it
-	 * from the legend. A key naming no metric in the list, the metric itself, or an
-	 * `unavailable` metric, is ignored.
+	 * Key of the metric to draw beside this one, visible from the start unless
+	 * `counterpartHidden` is set. A key naming no metric in the list, the metric
+	 * itself, or a metric without a series, is ignored.
 	 */
 	counterpartKey?: string;
+	/** Start the counterpart hidden, so the legend offers it as a one-click comparison. */
+	counterpartHidden?: boolean;
 	/**
 	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
 	 * a flat zero line. The tab stays selectable, so the reason is reachable.
 	 */
 	unavailable?: string;
+	/**
+	 * Why the chart has no series for this metric while the card still shows its
+	 * value: a total the endpoint serves, but not at this bucket size.
+	 */
+	seriesUnavailable?: string;
+}
+
+/**
+ * Whether a metric has a series the chart can draw.
+ *
+ * @param metric - The metric to check.
+ * @return False when the metric, or only its series, is unavailable.
+ */
+function hasSeries( metric: MetricTab ): boolean {
+	return ! metric.unavailable && ! metric.seriesUnavailable;
 }
 
 /**
@@ -182,8 +199,8 @@ function buildSeries(
 
 /**
  * The chart for a single metric — the current period with its previous-period
- * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it but
- * seeded hidden, so the legend offers it as a one-click comparison.
+ * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it, seeded
+ * hidden only when the metric sets `counterpartHidden`.
  *
  * @return The chart for the metric.
  */
@@ -222,7 +239,7 @@ function MetricChart( {
 		}
 
 		return metrics
-			.filter( candidate => candidate.key !== metric.key && ! candidate.unavailable )
+			.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
 			.map( candidate => ( {
 				label: candidate.label,
 				data: candidate.current,
@@ -241,7 +258,7 @@ function MetricChart( {
 		const paired = buildSeries( counterpart, chartType );
 		return {
 			series: [ ...active, ...paired ],
-			defaultHiddenSeries: paired.map( item => item.label ),
+			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
 	}, [ metric, counterpart, chartType ] );
 	const formatTooltipDate = useCallback(
@@ -315,8 +332,12 @@ function MetricChart( {
 	// periods collapsed — and clicking it would only empty the chart.
 	const legendInteractive = !! counterpart;
 
-	if ( metric.unavailable ) {
-		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
+	if ( ! hasSeries( metric ) ) {
+		return (
+			<div className={ styles.unavailableChart }>
+				{ metric.unavailable ?? metric.seriesUnavailable }
+			</div>
+		);
 	}
 
 	// The other metrics' hover readout keeps the graph up while any of them has data.
@@ -456,7 +477,7 @@ export function MetricTabsChart( {
 
 			// A counterpart with nothing to report at this bucket size would reveal as
 			// a flat zero line for a series the request never asked for.
-			return counterpart?.unavailable ? undefined : counterpart;
+			return counterpart && hasSeries( counterpart ) ? counterpart : undefined;
 		},
 		[ metrics ]
 	);

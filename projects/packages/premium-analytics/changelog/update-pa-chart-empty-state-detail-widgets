@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show the no-results message in the Post views, Author performance, Video views and Store performance charts for a period with no data, instead of a flat zero line.

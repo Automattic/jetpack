@@ -19,11 +19,19 @@ import { ExperimentalEmailEditor } from '@woocommerce/email-editor';
 import apiFetch from '@wordpress/api-fetch';
 import { useBlockProps } from '@wordpress/block-editor';
 import { getBlockType, registerBlockType } from '@wordpress/blocks';
-import { Button, Disabled, Notice } from '@wordpress/components';
+import {
+	Button,
+	Disabled,
+	Notice,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalConfirmDialog as ConfirmDialog,
+	// eslint-disable-next-line @wordpress/no-unsafe-wp-apis
+	__experimentalVStack as VStack,
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
-import { dispatch, select, subscribe } from '@wordpress/data';
+import { dispatch, select, subscribe, useSelect } from '@wordpress/data';
 import { PluginDocumentSettingPanel } from '@wordpress/editor';
-import { createRoot, RawHTML, StrictMode } from '@wordpress/element';
+import { createRoot, RawHTML, StrictMode, useCallback, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
@@ -596,23 +604,167 @@ export function showStylesSidebar() {
 	focusStylesSidebar();
 }
 
+// Wrapped so a test can watch for it: jsdom defines `location.reload` as neither writable nor
+// configurable, which leaves it impossible to stub or spy on directly.
+export const screenControls = { reload: () => window.location.reload() };
+
+/**
+ * Whether a value holds a set property, however deeply nested.
+ *
+ * Sanitizing can drop a value and leave the branch that held it, so a shallow key count reports a
+ * design for `{ color: {} }`, which is nothing.
+ *
+ * @param {*} value - A design, one half of one, or any part of either.
+ * @return {boolean} True when some leaf holds a value.
+ */
+function hasLeaf( value ) {
+	if ( null === value || undefined === value ) {
+		return false;
+	}
+
+	// `false` and `0` are values a creator set, so only containers are looked into.
+	return 'object' === typeof value ? Object.values( value ).some( hasLeaf ) : true;
+}
+
+/**
+ * Whether a design holds anything of the creator's own.
+ *
+ * @param {object} design - A record or a submission, with `styles` and `settings`.
+ * @return {boolean} True when either half holds something.
+ */
+function hasAnyDesign( design ) {
+	return hasLeaf( design?.styles ) || hasLeaf( design?.settings );
+}
+
+/**
+ * Put the design back to the one WordPress.com derives from the site.
+ *
+ * Clears the creator's layer rather than writing the defaults into it: the canvas draws that
+ * layer over the theme, so an empty one already *is* the default design.
+ *
+ * @param {number} id - The global-styles id the bundle named.
+ * @return {Promise<void>} Resolves once WordPress.com has stored the cleared design.
+ */
+async function resetDesign( id ) {
+	dispatch( coreStore ).editEntityRecord( 'root', 'globalStyles', id, {
+		styles: {},
+		settings: {},
+	} );
+
+	await dispatch( coreStore ).saveEditedEntityRecord( 'root', 'globalStyles', id, {
+		throwOnError: true,
+	} );
+}
+
+/**
+ * A way back to the design WordPress.com derived from the site.
+ *
+ * The panels reset one screen at a time, which leaves a creator who has changed several with no
+ * way back to where they started. See NL-970.
+ *
+ * @param {object} props    - Component props.
+ * @param {number} props.id - The global-styles id the bundle named.
+ * @return {import('react').ReactElement} The control.
+ */
+function ResetDesignControl( { id } ) {
+	const [ isConfirming, setIsConfirming ] = useState( false );
+	const [ isResetting, setIsResetting ] = useState( false );
+
+	// The creator's own layer, pending edits and all: an empty one already is the default design,
+	// so there is nothing for this to put back.
+	const hasDesign = useSelect(
+		selectFrom =>
+			hasAnyDesign( selectFrom( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id ) ),
+		[ id ]
+	);
+
+	const openConfirmation = useCallback( () => setIsConfirming( true ), [] );
+	const cancelConfirmation = useCallback( () => setIsConfirming( false ), [] );
+
+	/**
+	 * Clear the design, then fetch the canvas again.
+	 *
+	 * @return {Promise<void>} Resolves once the reload is under way, or the creator has been told.
+	 */
+	const confirmReset = useCallback( async () => {
+		setIsConfirming( false );
+		setIsResetting( true );
+
+		try {
+			await resetDesign( id );
+
+			// The canvas draws the block previews WordPress.com rendered, fetched once when the
+			// screen mounted and inline-styled for email clients, so it goes on showing the design
+			// that was stored then. Fetching them again is what shows the reset one. NL-970.
+			screenControls.reload();
+		} catch ( error ) {
+			// The notice deliberately does not name what failed; this does.
+			// eslint-disable-next-line no-console
+			console.error( 'Jetpack email design reset:', error );
+
+			dispatch( noticesStore ).createNotice(
+				'error',
+				__( 'Your email design could not be reset. Please try again.', 'jetpack' ),
+				{ type: 'snackbar', isDismissible: true }
+			);
+
+			// Only here: the success path keeps the control busy until the reload takes the page.
+			setIsResetting( false );
+		}
+	}, [ id ] );
+
+	return (
+		<>
+			<Button
+				variant="secondary"
+				disabled={ ! hasDesign || isResetting }
+				accessibleWhenDisabled
+				isBusy={ isResetting }
+				onClick={ openConfirmation }
+			>
+				{ __( 'Reset to defaults', 'jetpack' ) }
+			</Button>
+			<ConfirmDialog
+				title={ __( 'Reset email design', 'jetpack' ) }
+				isOpen={ isConfirming }
+				onCancel={ cancelConfirmation }
+				onConfirm={ confirmReset }
+				confirmButtonText={ __( 'Reset', 'jetpack' ) }
+				size="medium"
+			>
+				{ __(
+					'Are you sure you want to reset your email design? It will go back to the one based on your site, and the changes you made will be lost.',
+					'jetpack'
+				) }
+			</ConfirmDialog>
+		</>
+	);
+}
+
 /**
  * A labelled way into the Styles panel, for a creator who closed it.
  *
  * The panel's own affordance is an unlabelled icon in the top right, and the Template tab this
  * lands in has nothing else to offer while block editing is off. See NL-948.
  *
+ * @param {object}      props    - Component props.
+ * @param {number|null} props.id - The global-styles id the bundle named.
  * @return {import('react').ReactElement} The panel.
  */
-function StylesPanelLink() {
+function StylesPanelLink( { id } ) {
 	return (
 		<PluginDocumentSettingPanel
 			name={ STYLES_PANEL_NAME }
 			title={ __( 'Email styles', 'jetpack' ) }
 		>
-			<Button variant="secondary" onClick={ showStylesSidebar }>
-				{ __( 'Edit email styles', 'jetpack' ) }
-			</Button>
+			<VStack alignment="left">
+				<Button variant="secondary" onClick={ showStylesSidebar }>
+					{ __( 'Edit email styles', 'jetpack' ) }
+				</Button>
+				{ /* Without an id there is no record to clear, and nothing installed to carry the
+				     clearing to WordPress.com. */ }
+				{ !! id && <ResetDesignControl id={ id } /> }
+			</VStack>
 		</PluginDocumentSettingPanel>
 	);
 }
@@ -652,10 +804,14 @@ export function expandStylesPanelOnce() {
 /**
  * Register the fills the editor renders through its own plugin area.
  *
+ * @param {number|null} [globalStylesPostId] - The global-styles id the bundle named.
  * @return {void}
  */
-export function registerEditorPlugin() {
-	registerPlugin( PLUGIN_NAME, { scope: PLUGIN_SCOPE, render: StylesPanelLink } );
+export function registerEditorPlugin( globalStylesPostId = null ) {
+	registerPlugin( PLUGIN_NAME, {
+		scope: PLUGIN_SCOPE,
+		render: () => <StylesPanelLink id={ globalStylesPostId } />,
+	} );
 }
 
 /**
@@ -934,7 +1090,7 @@ export async function mountEmailDesignEditor() {
 
 		// Everything that leads to the Styles panel, only for a creator the package will give one.
 		if ( canEditDesign( bundle ) ) {
-			registerEditorPlugin();
+			registerEditorPlugin( config.globalStylesPostId );
 			expandStylesPanelOnce();
 		}
 

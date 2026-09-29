@@ -477,7 +477,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "35d8ceead6d51b5056fee8ad2719aaddf69d6075"
+                "reference": "b2a4bae2f69c1662763ebacc77c9517c36411a91"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -514,7 +514,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.7.x-dev"
+                    "dev-trunk": "9.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -902,7 +902,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "f82fd3ae8ffca8674d061cfe7f032536ad27f76d"
+                "reference": "d082156e7fe2fb467b95bf6e23eca683f6b03ef6"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -914,7 +914,7 @@
                 "automattic/jetpack-status": "@dev",
                 "automattic/jetpack-sync": "@dev",
                 "automattic/jetpack-wp-build-polyfills": "@dev",
-                "automattic/woocommerce-analytics": "^0.17",
+                "automattic/woocommerce-analytics": "^0.18",
                 "php": ">=7.4"
             },
             "require-dev": {
@@ -1224,7 +1224,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "0dabf78002e37d9f69af8e54352f02dc200999b3"
+                "reference": "87b350488aa15dcb73f0e464c4e90799f4ed30e3"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -1257,7 +1257,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.2.x-dev"
+                    "dev-trunk": "5.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1416,16 +1416,16 @@
         },
         {
             "name": "automattic/woocommerce-analytics",
-            "version": "0.17.0",
+            "version": "0.18.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/woocommerce-analytics.git",
-                "reference": "7275076635c72139c1a8d9dabc96cdb2532e8484"
+                "reference": "4ce84e0d4ebbaba1c1e346607c026e3afb652bf4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/7275076635c72139c1a8d9dabc96cdb2532e8484",
-                "reference": "7275076635c72139c1a8d9dabc96cdb2532e8484",
+                "url": "https://api.github.com/repos/Automattic/woocommerce-analytics/zipball/4ce84e0d4ebbaba1c1e346607c026e3afb652bf4",
+                "reference": "4ce84e0d4ebbaba1c1e346607c026e3afb652bf4",
                 "shasum": ""
             },
             "require": {
@@ -1462,9 +1462,9 @@
             ],
             "description": "Enhanced analytics for WooCommerce users.",
             "support": {
-                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.17.0"
+                "source": "https://github.com/Automattic/woocommerce-analytics/tree/v0.18.0"
             },
-            "time": "2026-08-25T13:45:57+00:00"
+            "time": "2026-09-24T10:11:58+00:00"
         }
     ],
     "packages-dev": [

@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Deprecate getColorDistance, which is not perceptual and is no longer used to generate palette colors.

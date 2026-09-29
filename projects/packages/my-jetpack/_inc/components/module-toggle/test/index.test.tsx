@@ -12,9 +12,14 @@ const mockCreateSuccessNotice = jest.fn();
 const mockCreateErrorNotice = jest.fn();
 
 jest.mock( '@automattic/jetpack-shared-stores', () => ( { store: {} } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 jest.mock( '@wordpress/data', () => ( {
-	useDispatch: () => ( { updateJetpackModuleStatus: mockToggleModule } ),
+	useDispatch: () => ( {
+		updateJetpackModuleStatus: mockToggleModule,
+		createSuccessNotice: mockCreateSuccessNotice,
+		createErrorNotice: mockCreateErrorNotice,
+	} ),
 	useSelect: callback => callback( () => ( { isModuleUpdating: () => false } ) ),
 } ) );
 
@@ -56,13 +61,6 @@ jest.mock( '@wordpress/ui', () => {
 		LinkButton: Anchor,
 	};
 } );
-
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( {
-		createSuccessNotice: mockCreateSuccessNotice,
-		createErrorNotice: mockCreateErrorNotice,
-	} ),
-} ) );
 
 jest.mock( '../../my-jetpack-tab-panel/products/products-tracking-context', () => ( {
 	useProductFiltersContext: () => ( { trackProductAction: mockTrackProductAction } ),

@@ -39,8 +39,8 @@ export interface LocationsGeoChartProps {
 /**
  * The shared Stats locations map: a Google GeoChart of views by location.
  *
- * A focused country is drawn as a provinces map where Google has one, and falls
- * back to the world map where it does not. Disputed borders follow the viewer's country.
+ * Cities are drawn as markers. A focused country is drawn as a provinces map
+ * where Google has one, and falls back to the world map where it does not. Disputed borders follow the viewer's country.
  *
  * @param {LocationsGeoChartProps} props - The component props.
  * @return The locations map.
@@ -60,7 +60,7 @@ export function LocationsGeoChart( {
 	const provinceMapSupported = focusCountryCode
 		? ! unsupportedProvinceMapCountries.has( focusCountryCode )
 		: true;
-	const { data, region, resolution } = useMemo(
+	const { data, region, resolution, displayMode } = useMemo(
 		() => buildLocationsGeoChart( { rows, mode, focusCountry, provinceMapSupported } ),
 		[ focusCountry, mode, provinceMapSupported, rows ]
 	);
@@ -112,6 +112,7 @@ export function LocationsGeoChart( {
 			resizeDebounceTime={ resizeDebounceTime }
 			region={ region }
 			resolution={ resolution }
+			displayMode={ displayMode }
 			domain={ viewerCountry ?? undefined }
 			onError={ handleError }
 		/>
