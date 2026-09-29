@@ -35,13 +35,14 @@ git rev-parse --abbrev-ref HEAD
 
 If the branch is `trunk`, stop — the "after" state is this branch's diff; run this from the feature branch.
 
-### 2. `gh` supports `--attach`
+### 2. Pick the upload route
 
-```bash
-gh pr edit --help | grep -q -- '--attach'
-```
+Use the first route this environment supports; step 7 has the commands for each:
 
-If it does not, ask the user to upgrade `gh`, or to drag the PNGs into the PR body in the browser.
+1. **`gh --attach`** (default): `gh pr edit --help | grep -q -- '--attach'` succeeds.
+2. **Minted URLs**: `gh` is older but authenticated, and the user has write access to the repo.
+3. **Browser upload**: a connected browser tool is logged in to GitHub as the user.
+4. **Manual**: none of the above. Hand the user the PNG paths and the markdown block to drag into the PR body.
 
 ### 3. A browser automation tool is available
 
@@ -153,9 +154,9 @@ PR=<number>
 
 Pass one `--attach` per PNG that the block references. If the PR does not exist yet, hand the block and the PNG paths to whatever creates the PR, which passes the same `--attach` flags to `gh pr create`. A top-level PR comment takes the same flags on `gh pr comment`.
 
-#### Images in a review or inline comment
+#### Minted URLs: no `--attach`, or a review or inline comment
 
-`gh pr review` and the review-comment API have no `--attach`, and a comment body only renders an asset URL that already exists. Mint one URL per image without posting anything (needs write access to the repo; 404 without it). Never post a `gh pr comment --attach` and delete it to get a URL: it notifies everyone anyway.
+Use this route when `gh` has no `--attach`, and always for a review or inline comment: `gh pr review` and the review-comment API have no `--attach`, and a comment body only renders an asset URL that already exists. Mint one URL per image without posting anything (needs write access to the repo; 404 without it). Never post a `gh pr comment --attach` and delete it to get a URL: it notifies everyone anyway.
 
 ```bash
 ID=$(gh api repos/Automattic/jetpack --jq .id)
@@ -169,7 +170,11 @@ gh api -X POST "https://uploads.github.com/user-attachments/assets?name=before-<
 curl -sL -o /tmp/asset.png -w '%{http_code} %{content_type}\n' <minted url> && file /tmp/asset.png
 ```
 
-Replace each `./before-<slug>.png` in the block with its minted URL, then post the comment.
+Replace each `./before-<slug>.png` in the block with its minted URL, then post the comment, or run the step 7 command without the `--attach` flags.
+
+#### Browser upload
+
+If minting returns 404, open the PR in the logged-in browser tool, edit the description, and upload each PNG to the editor's file input (for example `upload_file` in the chrome-devtools MCP). GitHub inserts one `user-attachments` URL per file; put those URLs in the block and save. If no browser tool is logged in to GitHub, fall back to the manual route.
 
 ## Notes
 
