@@ -1,6 +1,6 @@
 import { Button, PanelBody, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
-import { PluginSidebar } from '@wordpress/editor';
+import { PluginSidebar, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import { useState } from 'react';
@@ -11,18 +11,22 @@ import SubscribersAffirmation from '../../shared/memberships/subscribers-affirma
 import { NewsletterTestEmailModal } from './email-preview';
 import { SendIcon } from './icons';
 
-const NewsletterMenu = ( { openPreviewModal } ) => {
+interface NewsletterMenuProps {
+	openPreviewModal: () => void;
+}
+
+const NewsletterMenu = ( { openPreviewModal }: NewsletterMenuProps ) => {
 	const [ isTestEmailModalOpen, setIsTestEmailModalOpen ] = useState( false );
 
-	const { postId, postType, postStatus, meta } = useSelect(
-		select => ( {
-			postId: select( 'core/editor' ).getCurrentPostId(),
-			postType: select( 'core/editor' ).getCurrentPostType(),
-			postStatus: select( 'core/editor' ).getEditedPostAttribute( 'status' ),
-			meta: select( 'core/editor' ).getEditedPostAttribute( 'meta' ),
-		} ),
-		[]
-	);
+	const { postId, postType, postStatus, meta } = useSelect( select => {
+		const { getCurrentPostId, getCurrentPostType, getEditedPostAttribute } = select( editorStore );
+		return {
+			postId: getCurrentPostId(),
+			postType: getCurrentPostType(),
+			postStatus: getEditedPostAttribute( 'status' ),
+			meta: getEditedPostAttribute( 'meta' ),
+		};
+	}, [] );
 
 	const accessLevel = useAccessLevel( postType );
 	const isPublished = postStatus === 'publish';

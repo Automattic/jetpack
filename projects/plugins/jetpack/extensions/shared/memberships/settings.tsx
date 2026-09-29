@@ -24,13 +24,21 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import type { ReactElement } from 'react';
+
+interface ReachForAccessLevelKeyArgs {
+	accessLevel: string;
+	subscribers?: number;
+	paidSubscribers?: number;
+	postHasPaywallBlock?: boolean;
+}
 
 export function getReachForAccessLevelKey( {
 	accessLevel,
 	subscribers, // This can be either total subscribers or email subscribers depending on the view where this is used.
 	paidSubscribers,
 	postHasPaywallBlock = false,
-} ) {
+}: ReachForAccessLevelKeyArgs ): number {
 	subscribers = subscribers ?? 0;
 	paidSubscribers = paidSubscribers ?? 0;
 
@@ -57,7 +65,7 @@ export function getReachForAccessLevelKey( {
  * @param {boolean} postHasPaywallBlock - Whether the post contains a paywall block.
  * @return {string} Description of the current access level.
  */
-export function getAccessDescription( accessLevel, postHasPaywallBlock = false ) {
+export function getAccessDescription( accessLevel: string, postHasPaywallBlock = false ): string {
 	// The unused third argument to __() keeps the two calls in each branch from being
 	// merged into a single __( cond ? a : b ) by the production minifier, which would
 	// leave a non-literal msgid and fail the i18n check.
@@ -89,7 +97,7 @@ export function getAccessDescription( accessLevel, postHasPaywallBlock = false )
 	}
 }
 
-export function useSetAccess() {
+export function useSetAccess(): ( value: string ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
@@ -102,7 +110,7 @@ export function useSetAccess() {
 	};
 }
 
-export function useSetTier() {
+export function useSetTier(): ( value: number | string ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
@@ -113,11 +121,19 @@ export function useSetTier() {
 	};
 }
 
+interface NewsletterTierProduct {
+	id: number | string;
+	title: string;
+	price: number | string;
+	interval: string;
+}
+
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
-	const products = useSelect( select =>
+	const tierProducts: NewsletterTierProduct[] = useSelect( select =>
 		select( membershipProductsStore ).getNewsletterTierProducts()
-	)
+	);
+	const products = tierProducts
 		.filter( product => product.interval === '1 month' )
 		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
@@ -134,7 +150,7 @@ function TierSelector() {
 	// Tiers don't apply if less than 2 products (this is called here because
 	// the hooks have to run before any early returns)
 	if ( products.length < 2 ) {
-		return;
+		return null;
 	}
 
 	return (
@@ -152,6 +168,17 @@ function TierSelector() {
 			/>
 		</div>
 	);
+}
+
+interface AccessOptionProps {
+	id: string;
+	groupName: string;
+	value: string;
+	label: string;
+	checked: boolean;
+	disabled: boolean;
+	describedBy?: string;
+	onChange: ( value: string ) => void;
 }
 
 /**
@@ -177,9 +204,18 @@ function TierSelector() {
  * @param {boolean}  props.disabled      - Whether this option cannot be chosen.
  * @param {string}   [props.describedBy] - Id of the element explaining why it is unavailable.
  * @param {Function} props.onChange      - Called with the new access level key.
- * @return {import('react').ReactElement} The option.
+ * @return {ReactElement} The option.
  */
-function AccessOption( { id, groupName, value, label, checked, disabled, describedBy, onChange } ) {
+function AccessOption( {
+	id,
+	groupName,
+	value,
+	label,
+	checked,
+	disabled,
+	describedBy,
+	onChange,
+}: AccessOptionProps ): ReactElement {
 	return (
 		<div
 			className={ clsx( 'components-radio-control__option', {
@@ -215,13 +251,21 @@ function AccessOption( { id, groupName, value, label, checked, disabled, describ
 	);
 }
 
+interface NewsletterAccessRadioButtonsProps {
+	accessLevel: string;
+	hasTierPlans: boolean;
+	stripeConnectUrl: string | null;
+	postHasPaywallBlock?: boolean;
+	explainPaywallConstraint?: boolean;
+}
+
 export function NewsletterAccessRadioButtons( {
 	accessLevel,
 	hasTierPlans,
 	stripeConnectUrl,
-	postHasPaywallBlock: postHasPaywallBlock = false,
+	postHasPaywallBlock = false,
 	explainPaywallConstraint = true,
-} ) {
+}: NewsletterAccessRadioButtonsProps ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
@@ -274,7 +318,12 @@ export function NewsletterAccessRadioButtons( {
 	const paywallNoticeId = `${ instanceId }-paywall-notice`;
 	const setupLinkId = `${ instanceId }-paid-setup-link`;
 
-	const options = [
+	const options: Array< {
+		value: string;
+		label: string;
+		disabled?: boolean;
+		describedBy?: string;
+	} > = [
 		{
 			value: accessOptions.everybody.key,
 			label: accessOptions.everybody.label,
@@ -343,7 +392,7 @@ export function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( { accessLevel } ) {
+export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel?: string } ) {
 	const { hasTierPlans, stripeConnectUrl, isLoading, postHasPaywallBlock } = useSelect( select => {
 		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
 			'jetpack/membership-products'
@@ -375,7 +424,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 
 	return (
 		<PostVisibilityCheck
-			render={ ( { canEdit } ) => (
+			render={ ( { canEdit }: { canEdit: boolean } ) => (
 				<Flex direction="column">
 					{ showMisconfigurationWarning && <MisconfigurationWarning /> }
 					<FlexBlock direction="row" justify="flex-start">
@@ -414,7 +463,7 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
 
-	const toggleSendEmail = checked => {
+	const toggleSendEmail = ( checked: boolean ) => {
 		const postMetaUpdate = {
 			...postMeta,
 			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
@@ -435,7 +484,7 @@ export function NewsletterEmailDocumentSettings() {
 
 	return (
 		<PostVisibilityCheck
-			render={ ( { canEdit } ) => {
+			render={ ( { canEdit }: { canEdit: boolean } ) => {
 				return (
 					<ToggleControl
 						className="jetpack-subscribe-email-document-setting"
