@@ -124,9 +124,9 @@
 			&[aria-checked="true"] {
 				position: relative;
 				z-index: 1;
-				border-color: var(--wp-admin-theme-color, #3858e9);
-				background: var(--wp-admin-theme-color, #3858e9);
-				color: #fff;
+				border-color: var(--wpds-color-background-interactive-brand-strong);
+				background: var(--wpds-color-background-interactive-brand-strong);
+				color: var(--wpds-color-foreground-interactive-brand-strong);
 			}
 
 			&:first-child {
