@@ -1593,7 +1593,7 @@ class Manager {
 	 */
 	protected function query_protected_owner_record( $anchored_wpcom_user_id ) {
 		return $this->request_protected_owner_record(
-			'GET',
+			'/reconcile',
 			array( 'anchored_wpcom_user_id' => (int) $anchored_wpcom_user_id )
 		);
 	}
@@ -1609,7 +1609,7 @@ class Manager {
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
 	protected function assert_protected_owner_record() {
-		return $this->request_protected_owner_record( 'POST' );
+		return $this->request_protected_owner_record();
 	}
 
 	/**
@@ -1617,18 +1617,18 @@ class Manager {
 	 *
 	 * @since 9.8.0
 	 *
-	 * @param string $method HTTP method: `GET` reconciles what is anchored, `POST` claims it.
-	 * @param array  $query  Query arguments to add to the path.
+	 * @param string     $route The route below the resource, empty for the resource itself.
+	 * @param array|null $body  The request body, or null to send none.
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
-	private function request_protected_owner_record( $method, $query = array() ) {
-		$path = sprintf( '/sites/%d/jetpack-protected-owner', (int) \Jetpack_Options::get_option( 'id' ) );
+	private function request_protected_owner_record( $route = '', $body = null ) {
+		$path = sprintf(
+			'/sites/%d/jetpack-protected-owner%s',
+			(int) \Jetpack_Options::get_option( 'id' ),
+			$route
+		);
 
-		if ( $query ) {
-			$path = add_query_arg( $query, $path );
-		}
-
-		$response = Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => $method ) );
+		$response = Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'POST' ), $body );
 
 		// Anything but a 200 is silence rather than an answer: unreachable, refused, or a
 		// WordPress.com that does not implement the route. Every caller fails closed on null.

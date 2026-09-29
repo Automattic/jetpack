@@ -1508,11 +1508,11 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * The reconcile goes out as a signed read of this site's resource, carrying the anchored
+	 * The reconcile goes out as a signed call to this site's resource, carrying the anchored
 	 * identity so the answer confirms rather than discloses.
 	 *
-	 * Every other test here stubs the lookup, so a wrong route or query key would reach production
-	 * unnoticed.
+	 * Every other test here stubs the lookup, so a wrong route or payload key would reach
+	 * production unnoticed.
 	 */
 	public function test_reconcile_asks_wpcom_over_rest() {
 		$this->act_as_administrator();
@@ -1528,11 +1528,9 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->assertTrue( ( new Manager() )->reconcile_protected_owner() );
 
-		$this->assertSame(
-			$this->protected_owner_url() . '?anchored_wpcom_user_id=' . self::ANCHORED_WPCOM_ID,
-			$this->without_signature( $sent->url )
-		);
-		$this->assertSame( 'GET', $sent->method );
+		$this->assertSame( $this->protected_owner_url() . '/reconcile', $this->without_signature( $sent->url ) );
+		$this->assertSame( 'POST', $sent->method );
+		$this->assertSame( '{"anchored_wpcom_user_id":' . self::ANCHORED_WPCOM_ID . '}', $sent->body );
 	}
 
 	/**
