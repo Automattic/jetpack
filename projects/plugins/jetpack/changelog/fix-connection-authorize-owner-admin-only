@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Connection: Stop users without admin access from becoming the connection owner when the owner's connection is missing.
+Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.

@@ -485,7 +485,7 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
-	 * Test that only an administrator takes a vacant connection owner slot in `authorize`.
+	 * Test that only a user with `jetpack_connect` takes a vacant connection owner slot in `authorize`.
 	 *
 	 * @param string $role            The authorizing user's role.
 	 * @param bool   $expected_master Whether the token should be stored as the connection owner's.

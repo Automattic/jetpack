@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Show the missing user connection notice as a warning, and only when no connection owner is recorded and to users who can set up the connection, leaving a missing connection owner token to the connection error notice.
+Show the missing user connection notice as a warning only when no connection owner is recorded and the current user can set up the connection, leaving a missing connection owner token to the connection error notice.
