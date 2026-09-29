@@ -16,13 +16,20 @@ type Props = {
 	cssState: CriticalCssState;
 	isGenerating: boolean;
 	progress: number;
+	isCloud?: boolean;
 };
 
-export default function ModernCriticalCssStatus( { cssState, isGenerating, progress }: Props ) {
+export default function ModernCriticalCssStatus( {
+	cssState,
+	isGenerating,
+	progress,
+	isCloud = false,
+}: Props ) {
 	const regenerateAction = useRegenerateCriticalCssAction();
 	const tooltipLayer = useTooltipLayer();
 	const generating = isGenerating || cssState.status === 'pending';
-	const idle = cssState.status === 'not_generated';
+	// Cloud generation runs on the server, so it is never "idle" waiting for a manual Generate.
+	const idle = ! isCloud && cssState.status === 'not_generated';
 	const successCount = cssState.providers.filter(
 		provider => provider.status === 'success'
 	).length;
@@ -68,42 +75,18 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 						) }
 					</Stack>
 					<Text variant="body-sm" className={ styles.description }>
-						{ generating ? (
-							__(
-								'Generating Critical CSS. Please don’t leave this page until completed.',
-								'jetpack-boost'
-							)
+						{ isCloud ? (
+							<CloudDescription cssState={ cssState } successCount={ successCount } />
 						) : (
-							<>
-								{ ! idle && (
-									<>
-										{ sprintf(
-											/* translators: %d is the number of generated CSS files. */
-											_n(
-												'%d file generated',
-												'%d files generated',
-												successCount,
-												'jetpack-boost'
-											),
-											successCount
-										) }
-										{ !! cssState.updated && (
-											<>
-												{ ' ' }
-												<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
-											</>
-										) }
-										{ '. ' }
-									</>
-								) }
-								{ __(
-									'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
-									'jetpack-boost'
-								) }
-							</>
+							<LocalDescription
+								cssState={ cssState }
+								successCount={ successCount }
+								generating={ generating }
+								idle={ idle }
+							/>
 						) }
 					</Text>
-					{ generating && <ProgressBar progress={ progress } /> }
+					{ generating && ! isCloud && <ProgressBar progress={ progress } /> }
 				</Stack>
 			</div>
 			{ ! generating && failureCount > 0 && (
@@ -133,5 +116,76 @@ export default function ModernCriticalCssStatus( { cssState, isGenerating, progr
 				</Notice.Root>
 			) }
 		</Stack>
+	);
+}
+
+type DescriptionProps = {
+	cssState: CriticalCssState;
+	successCount: number;
+};
+
+function GeneratedSummary( { cssState, successCount }: DescriptionProps ) {
+	return (
+		<>
+			{ sprintf(
+				/* translators: %d is the number of generated CSS files. */
+				_n( '%d file generated', '%d files generated', successCount, 'jetpack-boost' ),
+				successCount
+			) }
+			{ !! cssState.updated && (
+				<>
+					{ ' ' }
+					<TimeAgo time={ new Date( cssState.updated * 1000 ) } />
+				</>
+			) }
+		</>
+	);
+}
+
+type LocalDescriptionProps = DescriptionProps & {
+	generating: boolean;
+	idle: boolean;
+};
+
+function LocalDescription( { cssState, successCount, generating, idle }: LocalDescriptionProps ) {
+	if ( generating ) {
+		return __(
+			'Generating Critical CSS. Please don’t leave this page until completed.',
+			'jetpack-boost'
+		);
+	}
+
+	return (
+		<>
+			{ ! idle && (
+				<>
+					<GeneratedSummary cssState={ cssState } successCount={ successCount } />
+					{ '. ' }
+				</>
+			) }
+			{ __(
+				'Remember to regenerate each time you make changes that affect your HTML or CSS structure.',
+				'jetpack-boost'
+			) }
+		</>
+	);
+}
+
+function CloudDescription( { cssState, successCount }: DescriptionProps ) {
+	const isPending = cssState.status === 'pending';
+	const hasCompletedSome = cssState.providers.some( provider => provider.status !== 'pending' );
+
+	if ( ( isPending || cssState.status === 'not_generated' ) && ! hasCompletedSome ) {
+		return __( 'Jetpack Boost will generate Critical CSS for you automatically.', 'jetpack-boost' );
+	}
+
+	return (
+		<>
+			<GeneratedSummary cssState={ cssState } successCount={ successCount } />
+			{ '.' }
+			{ isPending && (
+				<> { __( 'Jetpack Boost is generating more Critical CSS.', 'jetpack-boost' ) }</>
+			) }
+		</>
 	);
 }

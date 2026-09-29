@@ -183,7 +183,7 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 		/**
 		 * Allows a host to provide Newsletter Stats without calling WordPress.com directly.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.17.0
 		 *
 		 * @param mixed|null $response   Host response, or null to use the default proxy.
 		 * @param string     $endpoint   Relative Stats endpoint.

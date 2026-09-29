@@ -24,7 +24,7 @@ class Urls {
 	/**
 	 * Get the URL of the Subscribers tab of the Newsletter page.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 *
 	 * @return string The Subscribers tab URL.
 	 */

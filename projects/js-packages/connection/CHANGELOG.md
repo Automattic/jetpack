@@ -4,8 +4,8 @@
 
 ## [2.8.0] - 2026-09-28
 ### Added
-- Disconnect dialog: On the plugins page, offer the survey before deactivating, including on sites where no user has connected. [#52828]
-- Export getUserConnectionUrl from a subpath that bundlers without SCSS support can import. [#52810]
+- Disconnect dialog: Ask for optional feedback when deactivating Jetpack from the Plugins page. [#52828]
+- Export `getUserConnectionUrl` from a subpath that bundlers without SCSS support can import. [#52810]
 
 ### Changed
 - Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]

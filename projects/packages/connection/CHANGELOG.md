@@ -7,13 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [9.8.0] - 2026-09-28
 ### Added
-- Disconnect dialog: On the plugins page, offer the survey before deactivating, including on sites where no user has connected. [#52828]
+- Disconnect dialog: Ask for optional feedback when deactivating Jetpack from the Plugins page. [#52828]
 - Reconcile the protected owner against WordPress.com when a user connects. [#52712]
 
 ### Changed
 - Ask WordPress.com to record the protected owner before anchoring it on the site. [#52551]
-- Let users without admin access restore their own broken account connection through the reconnect endpoint, without touching the site connection. [#52718]
-- REST API: Allow users with `jetpack_connect_user` to call `/connection/reconnect`, which refreshes only their own user token. [#52718]
+- Let users without admin access reconnect their own broken account from the connection error notice. [#52718]
 
 ## [9.7.0] - 2026-09-23
 ### Added

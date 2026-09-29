@@ -52,7 +52,7 @@ let mockProperties:
 	| undefined;
 let mockPremiumFeatures: string[];
 
-describe( 'Cornerstone pages meta', () => {
+describe( 'Cornerstone Pages meta', () => {
 	beforeEach( () => {
 		mockProperties = {
 			max_pages: 5,
@@ -98,7 +98,7 @@ describe( 'Cornerstone pages meta', () => {
 
 	it( 'offers the premium page limit only to free sites with loaded properties', () => {
 		const { rerender } = render( <CornerstonePagesUpgradeCTA /> );
-		const prompt = screen.getByText( 'Premium users can add up to 10 cornerstone pages.' );
+		const prompt = screen.getByText( 'Premium users can add up to 10 Cornerstone Pages.' );
 		expect( prompt ).toBeTruthy();
 		expect( prompt.getAttribute( 'data-license-link' ) ).toBe( 'true' );
 
@@ -119,6 +119,23 @@ describe( 'Cornerstone pages meta', () => {
 		expect( screen.getByRole( 'textbox' ) ).toBeTruthy();
 	} );
 
+	it( 'keeps the premium list editor short on the modern surface only', () => {
+		mockPremiumFeatures = [ 'cornerstone-10-pages' ];
+		const rows = () => ( screen.getByRole( 'textbox' ) as HTMLTextAreaElement ).rows;
+		const view = render(
+			<ModuleSurfaceProvider value="row">
+				<CornerstonePagesEditor />
+			</ModuleSurfaceProvider>
+		);
+		expect( rows() ).toBe( 5 );
+		view.rerender(
+			<ModuleSurfaceProvider value="block">
+				<CornerstonePagesEditor />
+			</ModuleSurfaceProvider>
+		);
+		expect( rows() ).toBe( 10 );
+	} );
+
 	test( 'uses shorter modern Cornerstone copy and preserves the legacy description and upsell', () => {
 		const view = render(
 			<ModuleSurfaceProvider value="row">
@@ -130,7 +147,7 @@ describe( 'Cornerstone pages meta', () => {
 			screen.getByText( /Add your most important pages for targeted optimizations/ )
 		).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn more/ } ) ).toBeTruthy();
-		expect( screen.getByText( 'Add up to 10 cornerstone pages.' ) ).toBeTruthy();
+		expect( screen.getByText( 'Add up to 10 Cornerstone Pages.' ) ).toBeTruthy();
 		view.rerender(
 			<ModuleSurfaceProvider value="block">
 				<CornerstonePagesDescription />
@@ -143,6 +160,6 @@ describe( 'Cornerstone pages meta', () => {
 			)
 		).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn More/ } ) ).toBeTruthy();
-		expect( screen.getByText( 'Premium users can add up to 10 cornerstone pages.' ) ).toBeTruthy();
+		expect( screen.getByText( 'Premium users can add up to 10 Cornerstone Pages.' ) ).toBeTruthy();
 	} );
 } );

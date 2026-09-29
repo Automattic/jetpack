@@ -18,6 +18,7 @@ import { useCallback } from 'react';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
+	useDashboardPolicy,
 	useDashboardSections,
 	useOnboarding,
 	useSectionDateFilter,
@@ -344,10 +345,23 @@ jest.mock( '../widget-module-i18n', () => ( {
 	useWidgetTypesWithI18n: () => [ [], false ],
 } ) );
 
+jest.mock( './config', () => {
+	const actual = jest.requireActual( './config' );
+
+	return {
+		...actual,
+		// Most section fixtures here carry no default layout.
+		getInsertableWidgetTypeNames: ( sections: Array< Record< string, unknown > > ) =>
+			actual.getInsertableWidgetTypeNames(
+				sections.map( section => ( { default_layout: [], ...section } ) )
+			),
+	};
+} );
+
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
-	useDashboardPolicy: () => () => true,
+	useDashboardPolicy: jest.fn( () => () => true ),
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
@@ -365,6 +379,7 @@ beforeEach( () => {
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
 const useActiveSectionMock = jest.mocked( useActiveSection );
+const useDashboardPolicyMock = jest.mocked( useDashboardPolicy );
 const useOnboardingMock = jest.mocked( useOnboarding );
 
 const closedOnboarding = {
@@ -938,6 +953,59 @@ describe( 'Dashboard header date control', () => {
 
 		expect( screen.getByText( 'measuring header' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'measuring body' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard inserter', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+					default_layout: [ { uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' } ],
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					date_filter: DATE_FILTER_YEAR,
+					default_layout: [ { uuid: 'default-latest-post', type: 'jpa/latest-post' } ],
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+	} );
+
+	it( 'offers the widget types the active section places by default', () => {
+		const { rerender } = render( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart' ] ),
+		} );
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/latest-post' ] ),
+		} );
+	} );
+
+	it( 'hands the policy the same set while the active section stays', () => {
+		const { rerender } = render( <Dashboard /> );
+		const [ first ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		rerender( <Dashboard /> );
+		const [ second ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		expect( second?.insertableWidgetTypes ).toBe( first?.insertableWidgetTypes );
 	} );
 } );
 

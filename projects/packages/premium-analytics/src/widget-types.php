@@ -43,7 +43,7 @@ const WIDGET_TYPES_FILTER = 'jetpack_premium_analytics_widget_types';
  * built against the previous contract stops working, the minor when a consumer can rely on
  * something new; a consumer compares it before registering.
  *
- * @since $$next-version$$
+ * @since 0.9.0
  */
 const WIDGET_API_VERSION = '1.1.0';
 
@@ -288,7 +288,7 @@ function sanitize_widget_icon( $icon ) {
  * its own build generates. Each candidate that survives REGISTRABLE_WIDGET_TYPES_FILTER is
  * translated, sanitized and registered; one already registered, or without a name, is skipped.
  *
- * @since $$next-version$$
+ * @since 0.9.0
  *
  * @param array                     $widgets  Manifest entries, as the generated `<prefix>_get_registered_widget_modules()` returns them.
  * @param array                     $args     {
@@ -390,7 +390,7 @@ add_action( Widget_Type_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_w
  * translated and in shape, as a section's label does; a build manifest goes
  * through register_widget_types_from_manifest() instead.
  *
- * @since $$next-version$$
+ * @since 0.9.0
  *
  * @param string $name Widget type name including namespace, `<namespace>/<name>`.
  * @param array  $args Optional. Widget type arguments, any public property of Widget_Type.
