@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Comments: Hide the color scheme setting when the new comment form is on, since it takes its colors from the theme.

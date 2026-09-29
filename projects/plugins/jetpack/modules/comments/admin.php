@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-use Automattic\Jetpack\Comments\Comments;
-
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -118,11 +116,6 @@ class Jetpack_Comments_Settings {
 			'highlander_comment_form_prompt',
 			array( $this, 'comment_form_greeting_sanitize' )
 		);
-
-		// The new comment form takes its colours from the theme, so the scheme would do nothing.
-		if ( class_exists( Comments::class ) && Comments::is_enabled() ) {
-			return;
-		}
 
 		/**
 		 * Color Scheme

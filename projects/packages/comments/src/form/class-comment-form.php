@@ -199,7 +199,29 @@ class Comment_Form {
 			return $submit_field;
 		}
 
-		$args['subscriptions'] = Subscriptions::checkboxes( $submit_field );
+		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own
+		// function. Drawn in the dialog under the host's names, so its gating and handlers still apply.
+		$drawn  = $submit_field . ( function_exists( 'subscription_comment_form' ) ? (string) subscription_comment_form( self::post_id(), false ) : '' );
+		$labels = array(
+			'subscribe_comments' => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
+			'subscribe'          => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
+			'subscribe_blog'     => sprintf(
+				/* translators: %s is the site's name. */
+				__( 'Subscribe to keep up with %s.', 'jetpack-comments' ),
+				get_bloginfo( 'name' )
+			),
+		);
+
+		$args['subscriptions'] = array();
+		foreach ( $labels as $name => $label ) {
+			if ( preg_match( '/<input\b[^>]*\bname="' . $name . '"[^>]*>/', $drawn, $input ) ) {
+				$args['subscriptions'][] = array(
+					'name'    => $name,
+					'label'   => $label,
+					'checked' => false !== strpos( $input[0], 'checked' ),
+				);
+			}
+		}
 
 		// Fires after this filter, and would draw the subscribe options again below the form.
 		remove_action( 'comment_form', 'subscription_comment_form' );
@@ -414,6 +436,31 @@ class Comment_Form {
 			$lengths = wp_get_comment_fields_max_lengths();
 			$style   = wp_styles()->query( self::HANDLE );
 
+			// Where a reader manages subscriptions: the Reader for a WordPress.com account, the
+			// email portal for anyone else. Only where the Newsletter offers them on this form;
+			// Simple stores an option's "off" as an empty string, Jetpack as 0.
+			$offered = false;
+			foreach ( array( 'stb_enabled', 'stc_enabled' ) as $option ) {
+				$offered = $offered || ! in_array( get_option( $option, 1 ), array( '', '0', 0 ), true );
+			}
+
+			$reader = 'https://wordpress.com/reader/subscriptions?s=' . rawurlencode( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+			$manage = array(
+				'url'         => '',
+				'byEmail'     => true,
+				'signedInUrl' => '',
+			);
+
+			if ( $offered && ( function_exists( 'subscription_comment_form' ) || class_exists( 'Jetpack_Subscriptions' ) ) ) {
+				// On WordPress.com, a logged-in reader is a WordPress.com account.
+				$by_account = defined( 'IS_WPCOM' ) && IS_WPCOM && is_user_logged_in();
+				$manage     = array(
+					'url'         => $by_account ? $reader : 'https://subscribe.wordpress.com/',
+					'byEmail'     => ! $by_account,
+					'signedInUrl' => $reader,
+				);
+			}
+
 			// Everything the app needs that only PHP knows.
 			$settings = array_merge(
 				array(
@@ -428,7 +475,7 @@ class Comment_Form {
 						'name'    => get_bloginfo( 'name' ),
 						'iconUrl' => (string) get_site_icon_url( 64 ),
 					),
-					'manageSubscriptions' => Subscriptions::manage_links(),
+					'manageSubscriptions' => $manage,
 					'strings'             => $strings,
 				),
 				Identity::settings()
