@@ -1,4 +1,4 @@
 Significance: patch
-Type: changed
-Comment: Tighten the Cornerstone pages list editor spacing on the modern Settings page. No change with the modernization filter off.
+Type: fixed
 
+Settings: Tighten the Cornerstone Pages list editor and match its text size and color to the rest of the page.

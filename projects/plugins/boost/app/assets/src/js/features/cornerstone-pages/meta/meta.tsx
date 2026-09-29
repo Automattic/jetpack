@@ -380,7 +380,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				<Button
 					disabled={ buttonState.disabled }
 					onClick={ loadDefaultValue }
-					className={ className }
+					className={ clsx( styles[ 'load-defaults' ], className ) }
 					variant="link"
 				>
 					{ __( 'Include default pages', 'jetpack-boost' ) }
