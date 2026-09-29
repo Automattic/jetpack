@@ -2782,7 +2782,6 @@ class Manager {
 
 		$validate_tokens_response = $this->get_tokens()->validate();
 
-		// If token validation failed, trigger a full reconnection.
 		if ( is_array( $validate_tokens_response ) &&
 			isset( $validate_tokens_response['blog_token']['is_healthy'] ) &&
 			isset( $validate_tokens_response['user_token']['is_healthy'] ) ) {
