@@ -14,6 +14,14 @@ Both calls belong in an `is_admin()` branch, and neither depends on a module
 being active: the screen and every section on it exist whatever the site is
 running.
 
+The settings are also available over REST, under `wpcom/v2/sharing-likes/`, for
+the React version of the screen. Register the routes outside `is_admin()`, since
+REST requests are not admin requests:
+
+```php
+\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
+```
+
 ## How to install sharing-likes
 
 ### Installation From Git Repo

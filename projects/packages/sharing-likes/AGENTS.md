@@ -74,7 +74,7 @@ unreachable there, and any "module inactive" behaviour you add is Jetpack and
 Atomic only.
 
 The "Switch to the … block" buttons still work on Simple, through settings
-rather than modules: `Post_Handler` empties `sharing-services`, or sets
+rather than modules: `Feature_Actions` empties `sharing-services`, or sets
 `disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
 button). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
@@ -160,6 +160,30 @@ consumer that verifies `sharing-options` — `Jetpack_Likes_Settings::admin_sett
 hooked on Simple — fails closed and silently saves nothing. A consumer that
 verifies nothing, relying on the caller having done it, writes whatever the
 request carries.
+
+## REST API
+
+`src/rest/` serves the same settings under `wpcom/v2/sharing-likes/` for the
+React screen: `settings`, `status`, `services`, the custom services, and
+`<feature>/switch-to-block` and `<feature>/activate`. `Endpoints` explains the
+namespace. The Jetpack plugin registers the routes from `load-jetpack.php`,
+outside `is_admin()`, whatever the modules are doing. On Simple,
+`sharing_register_rest_routes()` in `modules/sharedaddy/sharing.php` does it.
+
+The routes offer what the PHP screen shows and nothing else. A setting whose
+section does not render it is missing from reads, and a write that includes it
+is refused before anything is saved. Each action is only accepted from the
+section variant that offers it. This is what stops the API from reopening the
+way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it for
+convenience. `sharing_admin_update` does not fire from REST, because its
+consumers read `$_POST`.
+
+The routes and `Post_Handler` save through the same writers:
+`Sharing_Options::update()`, `Placement_Section::update()`, the
+`Likes_Options` setters, `Twitter_Site_Tag::update()`,
+`Sharing_Resources::update()` and `Feature_Actions`. Add a setting to the
+writer, not to one of its two callers, and never call
+`Sharing_Service::set_global_options()` directly (see `Sharing_Options::update()`).
 
 ## Placement defaults
 

@@ -83,6 +83,9 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
+// Outside `is_admin()`, which is false in REST requests.
+\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
+
 // Play nice with https://wp-cli.org/.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once JETPACK__PLUGIN_DIR . 'class.jetpack-cli.php';

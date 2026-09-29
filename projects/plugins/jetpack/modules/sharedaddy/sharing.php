@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\REST\Endpoints;
 use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
@@ -373,3 +374,20 @@ function sharing_admin_init() {
 }
 
 add_action( 'init', 'sharing_admin_init' );
+
+/**
+ * Register the Settings > Sharing REST routes on WordPress.com Simple.
+ *
+ * The Jetpack plugin registers them from load-jetpack.php everywhere else. On
+ * Simple, REST requests reach this file through public-api, which loads it along
+ * with `post-flair.php`.
+ *
+ * @return void
+ */
+function sharing_register_rest_routes() {
+	if ( ( new Host() )->is_wpcom_simple() ) {
+		Endpoints::register_routes();
+	}
+}
+
+add_action( 'rest_api_init', 'sharing_register_rest_routes' );
