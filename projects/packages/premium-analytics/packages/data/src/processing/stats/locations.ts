@@ -77,7 +77,7 @@ export function sanitizeStatsLocationsResponse(
 			countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
 			countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
 			region: typeof country.map_region === 'string' ? country.map_region : undefined,
-			cityRegion: typeof item.region === 'string' && item.region ? item.region : undefined,
+			cityRegion: typeof item.region === 'string' ? item.region : undefined,
 			coordinates: parseCoordinates( item.coordinates ),
 			children: null,
 		};

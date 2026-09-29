@@ -42,7 +42,7 @@ interface UseLocationViewsArgs {
 	 */
 	countryFilter?: string;
 	/**
-	 * Region name to filter cities by; needs `countryFilter`.
+	 * Region name to filter cities by; ignored without `countryFilter`.
 	 */
 	regionFilter?: string;
 }
@@ -93,20 +93,24 @@ export default function useLocationViews( {
 	countryFilter,
 	regionFilter,
 }: UseLocationViewsArgs ): LocationViewsState {
+	// The endpoint rejects a region without its country, since region names repeat across countries.
+	const region = countryFilter ? regionFilter : undefined;
 	const statsParams: Parameters< typeof useStatsLocations >[ 0 ] = {
 		...reportParams,
 		geoMode,
 		max,
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
-		...( countryFilter && regionFilter ? { filter_by_region: regionFilter } : {} ),
+		...( region ? { filter_by_region: region } : {} ),
 	};
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );
 
-	const items = ( comparisonRows?.rows ?? [] )
-		// An endpoint that ignores `filter_by_region` returns the whole country's cities.
-		.filter( item => ! regionFilter || item.cityRegion === regionFilter )
+	const rows = comparisonRows?.rows ?? [];
+	// Until 245370-ghe-Automattic/wpcom deploys, the endpoint ignores `filter_by_region` and
+	// returns the whole country's cities without a `region`; show none rather than those.
+	const regionIgnored = !! region && ! rows.some( item => item.cityRegion );
+	const items = ( regionIgnored ? [] : rows )
 		.map( toLocationView )
 		.filter( ( v ): v is LocationView => v !== null );
 

@@ -239,9 +239,11 @@ describe( 'LocationsWidget', () => {
 			// Cities are the deepest level.
 			expect( screen.queryByRole( 'button', { name: /View cities in/ } ) ).not.toBeInTheDocument();
 
-			await userEvent.click(
-				screen.getByRole( 'button', { name: 'View regions in United States' } )
-			);
+			const countryBackLink = screen.getByRole( 'button', {
+				name: 'View regions in United States',
+			} );
+			expect( countryBackLink ).toHaveTextContent( 'United States' );
+			await userEvent.click( countryBackLink );
 
 			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 				expect.objectContaining( {
@@ -291,7 +293,7 @@ describe( 'LocationsWidget', () => {
 			mockUseLocationViews.mockClear();
 			rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
 
-			// Not even the render before the reset effect may request the old region.
+			// Not even the first render after the switch may request the old region.
 			expect( mockUseLocationViews ).not.toHaveBeenCalledWith(
 				expect.objectContaining( { regionFilter: 'Minnesota' } )
 			);

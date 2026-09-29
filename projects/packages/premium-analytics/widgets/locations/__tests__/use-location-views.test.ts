@@ -85,12 +85,8 @@ describe( 'useLocationViews', () => {
 		expect( mockUseStatsLocations.mock.calls[ 0 ][ 0 ] ).not.toHaveProperty( 'filter_by_region' );
 	} );
 
-	it( 'drops cities outside the region, so an endpoint that ignored the filter shows nothing', () => {
-		mockRows( [
-			city( 'Minneapolis', 'Minnesota' ),
-			city( 'New York' ),
-			city( 'Miami', 'Florida' ),
-		] );
+	it( 'shows nothing when the endpoint ignored the region filter', () => {
+		mockRows( [ city( 'Minneapolis' ), city( 'Miami' ) ] );
 
 		const { result } = renderHook( () =>
 			useLocationViews( {
@@ -102,7 +98,23 @@ describe( 'useLocationViews', () => {
 			} )
 		);
 
-		expect( result.current.data.map( row => row.label ) ).toEqual( [ 'Minneapolis' ] );
+		expect( result.current.data ).toEqual( [] );
+	} );
+
+	it( 'keeps every city the endpoint returned for the region, whatever its spelling', () => {
+		mockRows( [ city( 'Minneapolis', 'Minnesota' ), city( 'Duluth', 'MINNESOTA' ) ] );
+
+		const { result } = renderHook( () =>
+			useLocationViews( {
+				reportParams,
+				max: 10,
+				geoMode: 'city',
+				countryFilter: 'US',
+				regionFilter: 'Minnesota',
+			} )
+		);
+
+		expect( result.current.data.map( row => row.label ) ).toEqual( [ 'Minneapolis', 'Duluth' ] );
 	} );
 
 	it( 'keeps every city when no region is picked', () => {

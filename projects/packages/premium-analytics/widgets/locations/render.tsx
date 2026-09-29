@@ -22,7 +22,7 @@ import {
 	type LocationsGeoRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useEffect, useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
@@ -41,10 +41,8 @@ type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 type DrillDownCountry = { code: string; name: string };
 
 type GeoGranularity = NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
-// Tagged with the mode it was picked in. A region always carries its country,
-// because region names repeat across countries.
+// A region always carries its country, because region names repeat across countries.
 type LocationsDrillDown = {
-	granularity: GeoGranularity;
 	country: DrillDownCountry;
 	region?: string;
 };
@@ -80,18 +78,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		resetDrillDown,
 	} = useWidgetDrillDown< LocationsDrillDown >();
 
-	// A path picked in one mode means nothing in another, so switching modes
-	// starts over instead of coming back scoped to an old pick.
-	useEffect( () => {
-		resetDrillDown();
-	}, [ resetDrillDown, geoGranularity ] );
-
-	// The effect above runs after this render, which must not request the stale path.
-	const activePath = drillDownPath?.granularity === geoGranularity ? drillDownPath : null;
-	const focusCountry = activePath?.country;
+	const focusCountry = drillDownPath?.country;
 	let geoMode: GeoMode = geoGranularity;
-	if ( activePath ) {
-		geoMode = activePath.region ? 'city' : 'region';
+	if ( drillDownPath ) {
+		geoMode = drillDownPath.region ? 'city' : 'region';
 	}
 
 	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useLocationViews( {
@@ -99,7 +89,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		max: WIDGET_ROW_LIMIT,
 		geoMode,
 		countryFilter: focusCountry?.code,
-		regionFilter: activePath?.region,
+		regionFilter: drillDownPath?.region,
 	} );
 
 	const geoRows = useMemo(
@@ -121,7 +111,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			if ( geoMode === 'country' ) {
 				return {
 					kind: 'drillDown' as const,
-					onClick: () => setDrillDownPath( { granularity: geoGranularity, country } ),
+					onClick: () => setDrillDownPath( { country } ),
 					ariaLabel: sprintf(
 						/* translators: %s is the country name */
 						__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
@@ -133,8 +123,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			if ( geoMode === 'region' ) {
 				return {
 					kind: 'drillDown' as const,
-					onClick: () =>
-						setDrillDownPath( { granularity: geoGranularity, country, region: location.label } ),
+					onClick: () => setDrillDownPath( { country, region: location.label } ),
 					ariaLabel: sprintf(
 						/* translators: %s is the region name, such as a state or province. */
 						__( 'View cities in %s', 'jetpack-premium-analytics-pkg' ),
@@ -145,7 +134,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 			return { kind: 'static' as const };
 		},
-		[ geoGranularity, geoMode, setDrillDownPath ]
+		[ geoMode, setDrillDownPath ]
 	);
 
 	const leaderboardData = useMemo( () => {
@@ -186,17 +175,17 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
-		activePath?.region && geoGranularity === 'country' ? activePath.country : null;
+		drillDownPath?.region && geoGranularity === 'country' ? drillDownPath.country : null;
 	const goBack = useCallback( () => {
 		if ( parentCountry ) {
-			setDrillDownPath( { granularity: geoGranularity, country: parentCountry } );
+			setDrillDownPath( { country: parentCountry } );
 		} else {
 			resetDrillDown();
 		}
-	}, [ geoGranularity, parentCountry, resetDrillDown, setDrillDownPath ] );
+	}, [ parentCountry, resetDrillDown, setDrillDownPath ] );
 
 	// Named after the list it returns to.
-	const backLink = activePath ? (
+	const backLink = drillDownPath ? (
 		<WidgetBackLink
 			label={ parentCountry?.name ?? __( 'All locations', 'jetpack-premium-analytics-pkg' ) }
 			ariaLabel={
@@ -287,7 +276,8 @@ export default function Locations( { attributes = {} }: LocationsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<LocationsInner geoGranularity={ geoGranularity } />
+				{ /* Keyed so a drill-down picked in one mode never outlives a switch to another. */ }
+				<LocationsInner key={ geoGranularity } geoGranularity={ geoGranularity } />
 				<WidgetFooter>
 					<ReportLink report="locations" section={ REPORT_SECTIONS[ geoGranularity ] } />
 				</WidgetFooter>
