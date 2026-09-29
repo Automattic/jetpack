@@ -28,9 +28,7 @@ const CornerstonePagesCard = () => {
 			<CollapsibleCard.Root onOpenChange={ handleEditorToggle } data-settings-inset>
 				<CollapsibleCard.Header render={ <h4 /> }>
 					<Stack direction="row" justify="space-between" align="center" gap="sm">
-						<Text variant="body-md" className={ styles.edit }>
-							{ __( 'Customize pages list', 'jetpack-boost' ) }
-						</Text>
+						<Text variant="body-md">{ __( 'Customize pages list', 'jetpack-boost' ) }</Text>
 					</Stack>
 				</CollapsibleCard.Header>
 				<CollapsibleCard.Content>
