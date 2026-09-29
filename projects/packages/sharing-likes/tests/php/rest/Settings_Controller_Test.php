@@ -13,6 +13,7 @@ use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Sharing_Likes\Settings\Section_Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Resources;
 use Automattic\Jetpack\Sharing_Likes\Settings\Twitter_Site_Tag;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
@@ -99,7 +100,7 @@ class Settings_Controller_Test extends BaseTestCase {
 		$data = $this->request( 'GET', 'settings' )->get_data();
 
 		$this->assertEqualsCanonicalizing(
-			array( 'likes_enabled', 'button_style', 'sharing_label', 'open_links', 'show', 'twitter_site_tag', 'disable_resources' ),
+			array( 'likes_enabled', 'comment_likes_enabled', 'button_style', 'sharing_label', 'open_links', 'show', 'twitter_site_tag', 'disable_resources' ),
 			array_keys( $data )
 		);
 	}
@@ -296,6 +297,128 @@ class Settings_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( 400, $response->get_status() );
 		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+	}
+
+	public function test_offers_comment_likes_on_a_connected_site_with_no_modules(): void {
+		$this->given_connection( true );
+
+		$this->assertArrayHasKey( 'comment_likes_enabled', $this->request( 'GET', 'settings' )->get_data() );
+	}
+
+	public function test_leaves_out_comment_likes_without_a_connection(): void {
+		$this->assertArrayNotHasKey( 'comment_likes_enabled', $this->request( 'GET', 'settings' )->get_data() );
+	}
+
+	/**
+	 * Offline mode keeps a connected site's tokens, but loads no module that needs a connection.
+	 */
+	public function test_leaves_out_comment_likes_in_offline_mode(): void {
+		$this->given_connection( true );
+		$this->given_offline_mode();
+
+		$this->assertArrayNotHasKey( 'comment_likes_enabled', $this->request( 'GET', 'settings' )->get_data() );
+	}
+
+	/**
+	 * Off Simple the switch is the module, which never reads the option.
+	 */
+	public function test_reads_comment_likes_from_the_module_off_simple(): void {
+		$this->given_connection( true );
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+
+		$this->assertFalse( $this->request( 'GET', 'settings' )->get_data()['comment_likes_enabled'] );
+
+		$this->given_modules( array( 'comment-likes' ) );
+
+		$this->assertTrue( $this->request( 'GET', 'settings' )->get_data()['comment_likes_enabled'] );
+	}
+
+	public function test_saving_comment_likes_switches_the_module_off_simple(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'likes' ) );
+
+		$on = $this->request( 'POST', 'settings', array( 'comment_likes_enabled' => true ) );
+
+		$this->assertSame( 200, $on->get_status() );
+		$this->assertContains( 'comment-likes', Jetpack_Options::get_option( 'active_modules' ) );
+		$this->assertTrue( $on->get_data()['comment_likes_enabled'] );
+		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+
+		$this->request( 'POST', 'settings', array( 'comment_likes_enabled' => false ) );
+
+		$this->assertNotContains( 'comment-likes', Jetpack_Options::get_option( 'active_modules' ) );
+	}
+
+	public function test_refuses_the_whole_save_when_the_host_keeps_comment_likes_on(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'likes', 'comment-likes' ) );
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				return array_merge( (array) $modules, array( 'comment-likes' ) );
+			}
+		);
+
+		$response = $this->request(
+			'POST',
+			'settings',
+			array(
+				'comment_likes_enabled' => false,
+				'likes_enabled'         => false,
+			)
+		);
+		remove_all_filters( 'jetpack_active_modules' );
+
+		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( 'rest_sharing_likes_comment_likes_unchanged', $response->get_data()['code'] );
+		$this->assertEmpty( get_option( 'disabled_likes' ) );
+	}
+
+	/**
+	 * With Like buttons off, Comment Likes still read the sitewide default and placement, as the PHP section shows.
+	 */
+	public function test_offers_the_likes_settings_comment_likes_read_while_like_buttons_are_off(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'comment-likes' ) );
+
+		$data = $this->request( 'GET', 'settings' )->get_data();
+
+		$this->assertArrayHasKey( 'likes_enabled', $data );
+		$this->assertArrayHasKey( 'show', $data );
+	}
+
+	public function test_leaves_out_the_likes_settings_once_nothing_reads_them(): void {
+		$this->given_connection( true );
+
+		$data = $this->request( 'GET', 'settings' )->get_data();
+
+		$this->assertArrayNotHasKey( 'likes_enabled', $data );
+		$this->assertArrayNotHasKey( 'show', $data );
+	}
+
+	/**
+	 * Simple's Comment Likes read neither the sitewide default nor placement.
+	 */
+	public function test_leaves_out_likes_settings_for_comment_likes_on_simple_after_the_switch(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/like' );
+		$this->given_block( 'jetpack/sharing-buttons' );
+		update_option( 'disabled_likes', 1 );
+		update_option( 'disabled_reblogs', 1 );
+		update_option(
+			'sharing-services',
+			array(
+				'visible' => array(),
+				'hidden'  => array(),
+			)
+		);
+
+		$data = $this->request( 'GET', 'settings' )->get_data();
+
+		$this->assertArrayHasKey( 'comment_likes_enabled', $data );
+		$this->assertArrayNotHasKey( 'likes_enabled', $data );
+		$this->assertArrayNotHasKey( 'show', $data );
 	}
 
 	public function test_rejects_an_unknown_button_style(): void {

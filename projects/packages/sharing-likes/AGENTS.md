@@ -197,12 +197,21 @@ way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it for
 convenience. `sharing_admin_update` does not fire from REST, because its
 consumers read `$_POST`.
 
+Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
+stores. They are offered wherever `Environment::likes_supported()` holds, like
+their section. A save switches them before anything else, and if the host
+keeps the module the other way, it answers 409 and writes nothing more. Saving
+them can change `comment_likes.follows_likes_settings` and `placement` in
+`status`, and with them whether `settings` offers `likes_enabled` and `show`,
+so the screen reads `status` again afterwards.
+
 The routes and `Post_Handler` save through the same writers:
 `Sharing_Options::update()`, `Placement_Section::update()`, the
-`Likes_Options` setters, `Twitter_Site_Tag::update()`,
-`Sharing_Resources::update()` and `Feature_Actions`. Add a setting to the
-writer, not to one of its two callers, and never call
-`Sharing_Service::set_global_options()` directly (see `Sharing_Options::update()`).
+`Likes_Options` setters, `Comment_Likes_Section::update()`,
+`Twitter_Site_Tag::update()`, `Sharing_Resources::update()` and
+`Feature_Actions`. Add a setting to the writer, not to one of its two callers,
+and never call `Sharing_Service::set_global_options()` directly (see
+`Sharing_Options::update()`).
 
 ## Placement defaults
 

@@ -99,6 +99,31 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertFalse( $this->request( 'GET', 'status' )->get_data()['likes']['supported'] );
 	}
 
+	/**
+	 * Off Simple, Comment Likes read the Likes settings, so they keep placement on screen with both button features off.
+	 */
+	public function test_status_reports_comment_likes_that_follow_the_likes_settings(): void {
+		$this->given_modules( array( 'comment-likes' ) );
+
+		$data = $this->request( 'GET', 'status' )->get_data();
+
+		$this->assertTrue( $data['comment_likes']['supported'] );
+		$this->assertTrue( $data['comment_likes']['follows_likes_settings'] );
+		$this->assertTrue( $data['placement'] );
+	}
+
+	public function test_status_reports_comment_likes_on_simple_as_independent_of_the_likes_settings(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->assertFalse( $this->request( 'GET', 'status' )->get_data()['comment_likes']['follows_likes_settings'] );
+	}
+
+	public function test_status_hides_placement_once_nothing_reads_it(): void {
+		$this->given_modules( array() );
+
+		$this->assertFalse( $this->request( 'GET', 'status' )->get_data()['placement'] );
+	}
+
 	public function test_status_links_the_single_template_where_the_block_is_a_route(): void {
 		$this->given_block_routes();
 

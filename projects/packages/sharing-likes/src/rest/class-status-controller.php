@@ -73,8 +73,9 @@ final class Status_Controller extends Controller {
 	 * @return WP_REST_Response
 	 */
 	public function get_status() {
-		$sharing_state = Sharing_Section::state();
-		$likes_state   = Likes_Section::state();
+		$sharing_state        = Sharing_Section::state();
+		$likes_state          = Likes_Section::state();
+		$comment_likes_follow = Environment::comment_likes_follow_likes_settings();
 
 		return rest_ensure_response(
 			array(
@@ -85,7 +86,12 @@ final class Status_Controller extends Controller {
 					'state'     => $likes_state,
 					'supported' => Environment::likes_supported(),
 				),
-				'placement'       => Section_State::shows_placement( $sharing_state, $likes_state ),
+				// No variants: comments have no block to move to.
+				'comment_likes'   => array(
+					'supported'              => Environment::likes_supported(),
+					'follows_likes_settings' => $comment_likes_follow,
+				),
+				'placement'       => Section_State::shows_placement( $sharing_state, $likes_state, $comment_likes_follow ),
 				'site_editor_url' => Environment::single_template_editor_url(),
 			)
 		);

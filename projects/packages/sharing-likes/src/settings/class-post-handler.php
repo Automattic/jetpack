@@ -9,8 +9,6 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\Settings;
 
-use Automattic\Jetpack\Modules;
-
 /**
  * Processes the screen's form submissions.
  *
@@ -190,32 +188,13 @@ final class Post_Handler {
 	}
 
 	/**
-	 * Save the Comment Likes checkbox: the option on Simple, the module on Atomic and Jetpack sites.
+	 * Save the Comment Likes checkbox.
 	 *
 	 * @return bool Whether Comment Likes now match the checkbox.
 	 */
 	private static function save_comment_likes(): bool {
 		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
-		$enabled = ! empty( $_POST['jetpack_comment_likes_enabled'] );
-
-		if ( Environment::is_simple_site() ) {
-			Likes_Options::set_comment_likes_enabled( $enabled );
-			return true;
-		}
-
-		// `deactivate()` fires its hooks even when the module was already off.
-		if ( Environment::comment_likes_enabled() === $enabled ) {
-			return true;
-		}
-
-		if ( $enabled ) {
-			( new Modules() )->activate( 'comment-likes', false, false );
-		} else {
-			( new Modules() )->deactivate( 'comment-likes' );
-		}
-
-		// A host can force the module either way, and activation needs a connected owner.
-		return Environment::comment_likes_enabled() === $enabled;
+		return Comment_Likes_Section::update( ! empty( $_POST['jetpack_comment_likes_enabled'] ) );
 	}
 
 	/**

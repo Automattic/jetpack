@@ -9,6 +9,7 @@ declare( strict_types = 1 );
 
 namespace Automattic\Jetpack\Sharing_Likes\REST;
 
+use Automattic\Jetpack\Sharing_Likes\Settings\Comment_Likes_Section;
 use Automattic\Jetpack\Sharing_Likes\Settings\Environment;
 use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Options;
 use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section;
@@ -101,6 +102,15 @@ final class Settings_Controller extends Controller {
 			);
 		}
 
+		// First, because it is the one write that can fail, and a failure should leave everything else as it was.
+		if ( isset( $sent['comment_likes_enabled'] ) && ! Comment_Likes_Section::update( $sent['comment_likes_enabled'] ) ) {
+			return new WP_Error(
+				'rest_sharing_likes_comment_likes_unchanged',
+				__( 'Comment Likes could not be switched on or off on this site.', 'jetpack-sharing-likes' ),
+				array( 'status' => 409 )
+			);
+		}
+
 		$sharing = array_intersect_key( $sent, array_flip( self::SHARING_OPTIONS ) );
 
 		if ( $sharing ) {
@@ -125,10 +135,6 @@ final class Settings_Controller extends Controller {
 			Likes_Options::set_reblogs_enabled( $sent['reblogs_enabled'] );
 		}
 
-		if ( isset( $sent['comment_likes_enabled'] ) ) {
-			Likes_Options::set_comment_likes_enabled( $sent['comment_likes_enabled'] );
-		}
-
 		if ( isset( $sent['twitter_site_tag'] ) ) {
 			Twitter_Site_Tag::update( $sent['twitter_site_tag'] );
 		}
@@ -146,21 +152,23 @@ final class Settings_Controller extends Controller {
 	 * @return string[]
 	 */
 	private static function available_settings(): array {
-		$sharing_state = Sharing_Section::state();
-		$likes_state   = Likes_Section::state();
-		$is_simple     = Environment::is_simple_site();
-		$settings      = array();
+		$sharing_state        = Sharing_Section::state();
+		$likes_state          = Likes_Section::state();
+		$likes_configure      = Section_State::configures( $likes_state );
+		$comment_likes_follow = Environment::comment_likes_follow_likes_settings();
+		$settings             = array();
 
-		if ( Section_State::configures( $likes_state ) ) {
+		// With the Like buttons section showing no options, the Comment Likes section carries the sitewide default.
+		if ( $likes_configure || $comment_likes_follow ) {
 			$settings[] = 'likes_enabled';
-
-			if ( $is_simple ) {
-				$settings[] = 'reblogs_enabled';
-			}
 		}
 
-		// Comments have no Like block to move to, so the switch leaves this one in place.
-		if ( $is_simple ) {
+		if ( $likes_configure && Environment::is_simple_site() ) {
+			$settings[] = 'reblogs_enabled';
+		}
+
+		// Comments have no Like block to move to, so no section variant takes this one away.
+		if ( Environment::likes_supported() ) {
 			$settings[] = 'comment_likes_enabled';
 		}
 
@@ -168,7 +176,7 @@ final class Settings_Controller extends Controller {
 			array_push( $settings, ...self::SHARING_OPTIONS );
 		}
 
-		if ( Section_State::shows_placement( $sharing_state, $likes_state ) ) {
+		if ( Section_State::shows_placement( $sharing_state, $likes_state, $comment_likes_follow ) ) {
 			$settings[] = 'show';
 		}
 
@@ -198,7 +206,7 @@ final class Settings_Controller extends Controller {
 
 		$values['likes_enabled']         = Likes_Options::likes_enabled_sitewide();
 		$values['reblogs_enabled']       = Likes_Options::reblogs_enabled_sitewide();
-		$values['comment_likes_enabled'] = Likes_Options::comment_likes_enabled();
+		$values['comment_likes_enabled'] = Environment::comment_likes_enabled();
 		$values['show']                  = Placement_Section::selected_post_types();
 		$values['twitter_site_tag']      = (string) get_option( Twitter_Site_Tag::OPTION, '' );
 		$values['disable_resources']     = (bool) get_option( Sharing_Resources::OPTION );
@@ -230,7 +238,7 @@ final class Settings_Controller extends Controller {
 					'type'        => 'boolean',
 				),
 				'comment_likes_enabled' => array(
-					'description' => __( 'Whether comments can be liked. WordPress.com Simple only.', 'jetpack-sharing-likes' ),
+					'description' => __( 'Whether readers can like individual comments.', 'jetpack-sharing-likes' ),
 					'type'        => 'boolean',
 				),
 				'button_style'          => array(
