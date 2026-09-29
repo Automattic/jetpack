@@ -272,7 +272,8 @@ abstract class Publicize_Base {
 		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
 		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
-		add_filter( 'update_post_metadata', array( $this, 'collapse_duplicate_post_meta' ), 10, 5 );
+		// Last, so a veto from another filter is respected before any row changes.
+		add_filter( 'update_post_metadata', array( $this, 'collapse_duplicate_post_meta' ), PHP_INT_MAX, 5 );
 
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.

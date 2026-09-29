@@ -111,6 +111,7 @@ class Posts extends Module {
 	const PUBLISH_CONTROL_META_FIELDS = array(
 		'_jetpack_dont_email_post_to_subs',
 		'_jetpack_newsletter_access',
+		'_jetpack_newsletter_tier_id',
 		'jetpack_publicize_feature_enabled',
 	);
 
