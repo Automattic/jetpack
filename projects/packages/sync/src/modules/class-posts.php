@@ -829,10 +829,70 @@ class Posts extends Module {
 			// Runs before the sender's shutdown hook so the event goes out in this request.
 			if ( ! has_action( 'shutdown', array( $this, 'send_pending_published' ) ) ) {
 				add_action( 'shutdown', array( $this, 'send_pending_published' ), 9 );
+				add_filter( 'rest_request_after_callbacks', array( $this, 'drop_pending_published_on_rest_error' ), 10, 3 );
 			}
 		}
 
 		$this->previous_status[ $post->ID ] = $old_status;
+	}
+
+	/**
+	 * Drop pending published posts when a REST request fails with settings the user asked for left unsaved.
+	 *
+	 * Only a single failed meta field is tolerated, so stale newsletter or sharing settings can't trigger emails.
+	 *
+	 * @param \WP_REST_Response|\WP_Error|mixed $response Result of the REST callback.
+	 * @param array                             $handler  Route handler.
+	 * @param \WP_REST_Request                  $request  Request.
+	 * @return \WP_REST_Response|\WP_Error|mixed Unchanged response.
+	 */
+	public function drop_pending_published_on_rest_error( $response, $handler, $request ) {
+		if ( ! is_wp_error( $response ) || empty( $this->just_published ) ) {
+			return $response;
+		}
+
+		$failed_field = null;
+		if ( 'rest_meta_database_error' === $response->get_error_code() ) {
+			$error_data   = $response->get_error_data();
+			$failed_field = is_array( $error_data ) ? ( $error_data['key'] ?? null ) : null;
+		}
+
+		foreach ( array_keys( $this->just_published ) as $post_id ) {
+			if ( null === $failed_field || ! $this->stored_meta_matches_request( $post_id, $request, $failed_field ) ) {
+				unset( $this->just_published[ $post_id ] );
+			}
+		}
+
+		return $response;
+	}
+
+	/**
+	 * Whether every requested REST meta field, except the one that failed, is stored as requested.
+	 *
+	 * @param int              $post_id      Post ID.
+	 * @param \WP_REST_Request $request      Request.
+	 * @param string           $failed_field REST name of the meta field that failed to save.
+	 * @return bool
+	 */
+	private function stored_meta_matches_request( $post_id, $request, $failed_field ) {
+		$requested = $request['meta'];
+		if ( ! is_array( $requested ) ) {
+			return true;
+		}
+
+		$post = get_post( $post_id );
+		if ( ! $post instanceof \WP_Post || ! class_exists( 'WP_REST_Post_Meta_Fields' ) ) {
+			return false;
+		}
+
+		$stored = ( new \WP_REST_Post_Meta_Fields( $post->post_type ) )->get_value( $post_id, $request );
+		foreach ( $requested as $name => $value ) {
+			if ( $name !== $failed_field && ( ! array_key_exists( $name, $stored ) || $stored[ $name ] !== $value ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

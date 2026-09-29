@@ -1421,22 +1421,45 @@ That was a cool video.';
 		$this->assertEquals( $post_id, $publish_event->args[0] );
 	}
 
-	public function test_sync_jetpack_published_post_is_sent_on_shutdown_when_rest_meta_update_fails() {
-		register_post_meta(
-			'post',
-			'jetpack_test_failing_meta',
-			array(
-				'show_in_rest' => true,
-				'single'       => true,
-				'type'         => 'string',
-			)
+	/**
+	 * Data provider for test_sync_jetpack_published_post_on_shutdown_after_rest_meta_update_fails.
+	 *
+	 * @return array[] Whether a second field is requested, whether it also fails, and the expected event count.
+	 */
+	public static function provider_rest_meta_update_fails() {
+		return array(
+			'only the failing field requested' => array( false, false, 1 ),
+			'second field saved'               => array( true, false, 1 ),
+			'second field also fails'          => array( true, true, 0 ),
 		);
-		$fail_meta_update = function ( $check, $object_id, $meta_key ) {
-			return 'jetpack_test_failing_meta' === $meta_key ? false : $check;
+	}
+
+	/**
+	 * @dataProvider provider_rest_meta_update_fails
+	 * @param bool $second_requested Whether a second meta field is requested.
+	 * @param bool $second_fails     Whether saving the second field fails too.
+	 * @param int  $expected_events  Expected `jetpack_published_post` events.
+	 */
+	#[DataProvider( 'provider_rest_meta_update_fails' )]
+	public function test_sync_jetpack_published_post_on_shutdown_after_rest_meta_update_fails( $second_requested, $second_fails, $expected_events ) {
+		$meta_args = array(
+			'show_in_rest' => true,
+			'single'       => true,
+			'type'         => 'string',
+		);
+		register_post_meta( 'post', 'jetpack_test_failing_meta', $meta_args );
+		register_post_meta( 'post', 'jetpack_test_second_meta', $meta_args );
+		$failing_keys     = $second_fails ? array( 'jetpack_test_failing_meta', 'jetpack_test_second_meta' ) : array( 'jetpack_test_failing_meta' );
+		$fail_meta_update = function ( $check, $object_id, $meta_key ) use ( $failing_keys ) {
+			return in_array( $meta_key, $failing_keys, true ) ? false : $check;
 		};
 		add_filter( 'update_post_metadata', $fail_meta_update, 10, 3 );
 		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$meta    = array( 'jetpack_test_failing_meta' => 'value' );
+		if ( $second_requested ) {
+			$meta['jetpack_test_second_meta'] = 'value';
+		}
 		$this->sender->do_sync();
 		$this->server_event_storage->reset();
 
@@ -1444,17 +1467,17 @@ That was a cool video.';
 		$request->set_body_params(
 			array(
 				'status' => 'publish',
-				'meta'   => array( 'jetpack_test_failing_meta' => 'value' ),
+				'meta'   => $meta,
 			)
 		);
 		$response = rest_do_request( $request );
 
 		remove_filter( 'update_post_metadata', $fail_meta_update, 10 );
 		unregister_post_meta( 'post', 'jetpack_test_failing_meta' );
+		unregister_post_meta( 'post', 'jetpack_test_second_meta' );
 
 		$this->assertSame( 'rest_meta_database_error', $response->as_error()->get_error_code() );
 		$this->assertSame( 'publish', get_post_status( $post_id ) );
-
 		$this->sender->do_sync();
 		$this->assertCount( 0, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
 
@@ -1464,9 +1487,7 @@ That was a cool video.';
 		$post_sync_module->send_pending_published();
 		$this->sender->do_sync();
 
-		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
-		$this->assertCount( 1, $events );
-		$this->assertEquals( $post_id, $events[0]->args[0] );
+		$this->assertCount( $expected_events, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
 	}
 
 	public function test_sync_jetpack_published_post_is_not_sent_again_on_shutdown() {
