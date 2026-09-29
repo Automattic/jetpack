@@ -46,7 +46,7 @@ export function trackMarketplaceTab( doc: Document, track: Track ) {
 		plugin_count: grid?.querySelectorAll( '.wpcom-marketplace-card' ).length ?? 0,
 	} );
 
-	// On the grid, not the document: thickbox stops a Details click once it reaches the body.
+	// On the grid, not the document: plugin-install.js stops a Details click at .wrap.
 	grid?.addEventListener( 'click', event => {
 		const link = ( event.target as Element ).closest< HTMLElement >(
 			'a[data-wpcom-marketplace-track]'
