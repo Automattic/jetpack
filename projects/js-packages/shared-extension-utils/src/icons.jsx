@@ -110,8 +110,15 @@ export const OpenverseIcon = props => (
 );
 
 export const PexelsIcon = props => (
-	<SVG xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 256 256" { ...props }>
-		<Rect width="256" height="256" fill="#191919" />
+	<SVG
+		style={ { width: '22px', height: '22px' } }
+		xmlns="http://www.w3.org/2000/svg"
+		width="24"
+		height="24"
+		viewBox="0 0 256 256"
+		{ ...props }
+	>
+		<Rect width="256" height="256" rx="46" fill="#191919" />
 		<Path d="M0 158h147a49 49 0 1 0-49-49v147" fill="none" stroke="#fff" strokeWidth="32" />
 	</SVG>
 );
