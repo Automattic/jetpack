@@ -32,7 +32,7 @@ export const UserConnectedPlaceholder = ( {
 			>
 				<span>
 					{ isRechecking
-						? __( 'Checking connection…', 'jetpack' )
+						? __( 'Checking connection…', 'jetpack', /* dummy arg to avoid bad minification */ 0 )
 						: __( 'Re-check Connection', 'jetpack' ) }
 				</span>
 			</Button>
