@@ -103,12 +103,16 @@ class Posts extends Module {
 	const DEFAULT_PREVIOUS_STATE = 'new';
 
 	/**
-	 * REST meta fields that decide whether a publish emails subscribers.
+	 * REST meta fields that decide whether a publish emails subscribers or shares to Social.
 	 * A publish is never recovered when one of them failed to save.
 	 *
 	 * @var string[]
 	 */
-	const NEWSLETTER_CONTROL_META_FIELDS = array( '_jetpack_dont_email_post_to_subs', '_jetpack_newsletter_access' );
+	const PUBLISH_CONTROL_META_FIELDS = array(
+		'_jetpack_dont_email_post_to_subs',
+		'_jetpack_newsletter_access',
+		'jetpack_publicize_feature_enabled',
+	);
 
 	/**
 	 * Sync module name.
@@ -889,7 +893,7 @@ class Posts extends Module {
 		if ( is_wp_error( $response ) && array( 'rest_meta_database_error' ) === $response->get_error_codes() ) {
 			$failures     = $response->get_all_error_data( 'rest_meta_database_error' );
 			$failed_field = 1 === count( $failures ) && is_array( $failures[0] ) ? ( $failures[0]['key'] ?? null ) : null;
-			if ( in_array( $failed_field, self::NEWSLETTER_CONTROL_META_FIELDS, true ) ) {
+			if ( in_array( $failed_field, self::PUBLISH_CONTROL_META_FIELDS, true ) ) {
 				$failed_field = null;
 			}
 		}
