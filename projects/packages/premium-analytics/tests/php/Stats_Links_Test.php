@@ -94,7 +94,16 @@ class Stats_Links_Test extends BaseTestCase {
 	public function test_unknown_view_keeps_the_stats_url() {
 		$this->login_as( 'administrator' );
 
-		$this->assertSame( self::LEGACY_URL, Stats_Links::filter_url( self::LEGACY_URL, array( 'view' => 'settings' ) ) );
+		$this->assertSame(
+			self::LEGACY_URL,
+			Stats_Links::filter_url(
+				self::LEGACY_URL,
+				array(
+					'view'    => 'settings',
+					'post_id' => 123,
+				)
+			)
+		);
 	}
 
 	public function test_user_who_cannot_view_the_dashboard_keeps_the_stats_url() {
