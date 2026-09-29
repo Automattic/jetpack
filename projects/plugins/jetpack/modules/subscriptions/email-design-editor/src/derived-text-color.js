@@ -31,11 +31,16 @@ export function watchDerivedTextColor( id ) {
 		return () => {};
 	}
 
-	let previous;
-	let seeded = false;
+	const read = () => select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
+
+	// The background to measure changes against is whatever is stored, which is not a change the
+	// creator made. Taken here when the record is already loaded, so that a pick arriving before any
+	// other store activity is seen as a change rather than swallowed as the baseline.
+	let previous = read()?.styles?.color?.background;
+	let seeded = !! read();
 
 	return subscribe( () => {
-		const record = select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', id );
+		const record = read();
 
 		if ( ! record ) {
 			return;
@@ -43,7 +48,6 @@ export function watchDerivedTextColor( id ) {
 
 		const background = record.styles?.color?.background;
 
-		// The first sighting is whatever was stored, which is not a change the creator made.
 		if ( ! seeded ) {
 			previous = background;
 			seeded = true;
@@ -79,7 +83,7 @@ export function watchDerivedTextColor( id ) {
 			{ styles },
 			{ undoIgnore: true }
 		);
-	} );
+	}, coreStore );
 }
 
 /**
