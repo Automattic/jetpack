@@ -343,6 +343,17 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps the headline of a metric whose series alone is unavailable', () => {
+		const reason = "Hourly data isn't available for this metric.";
+		const totalOnly = { ...METRIC, current: [], previous: undefined, seriesUnavailable: reason };
+
+		render( <MetricTabsChart metrics={ [ totalOnly ] } dataFormat={ DATA_FORMAT } /> );
+
+		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( reason ) ).toBeInTheDocument();
+		expect( screen.getByText( '300' ) ).toBeInTheDocument();
+	} );
+
 	// A point's date is the instant it is: the component passes it through, and
 	// the site's zone decides which calendar day that instant lands on.
 	it.each( [
@@ -489,22 +500,25 @@ describe( 'MetricTabsChart', () => {
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.
-	it( 'ignores a counterpart with nothing to report at this bucket size', () => {
-		const unavailableVisitors = { ...VISITORS, unavailable: "Hourly data isn't available." };
+	it.each( [ 'unavailable', 'seriesUnavailable' ] )(
+		'ignores a counterpart with nothing to draw at this bucket size (%s)',
+		reasonKey => {
+			const unavailableVisitors = { ...VISITORS, [ reasonKey ]: "Hourly data isn't available." };
 
-		render(
-			<MetricTabsChart metrics={ [ VIEWS, unavailableVisitors ] } dataFormat={ DATA_FORMAT } />
-		);
+			render(
+				<MetricTabsChart metrics={ [ VIEWS, unavailableVisitors ] } dataFormat={ DATA_FORMAT } />
+			);
 
-		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
-			mockLineSpy,
-			'Views'
-		);
+			const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+				mockLineSpy,
+				'Views'
+			);
 
-		expect( series ).toHaveLength( 2 );
-		expect( defaultHiddenSeries ).toBeUndefined();
-		expect( legendInteractive ).toBe( false );
-	} );
+			expect( series ).toHaveLength( 2 );
+			expect( defaultHiddenSeries ).toBeUndefined();
+			expect( legendInteractive ).toBe( false );
+		}
+	);
 
 	it( 'ignores a counterpart key that names the metric itself', () => {
 		const selfPaired = { ...METRIC, counterpartKey: METRIC.key };
