@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix share message updates failing when a post has duplicate Social meta rows.

@@ -825,9 +825,30 @@ class Posts extends Module {
 		}
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[ $post->ID ] = true;
+
+			// Runs before the sender's shutdown hook so the event goes out in this request.
+			if ( ! has_action( 'shutdown', array( $this, 'send_pending_published' ) ) ) {
+				add_action( 'shutdown', array( $this, 'send_pending_published' ), 9 );
+			}
 		}
 
 		$this->previous_status[ $post->ID ] = $old_status;
+	}
+
+	/**
+	 * Send published posts that never reached `wp_after_insert_post`.
+	 *
+	 * The REST posts controller skips that hook when saving meta fails after publishing.
+	 */
+	public function send_pending_published() {
+		foreach ( array_keys( $this->just_published ) as $post_id ) {
+			$post = get_post( $post_id );
+
+			// Skip posts that were unpublished or deleted later in the request.
+			if ( $post instanceof \WP_Post && 'publish' === $post->post_status ) {
+				$this->send_published( $post_id, $post );
+			}
+		}
 	}
 
 	/**

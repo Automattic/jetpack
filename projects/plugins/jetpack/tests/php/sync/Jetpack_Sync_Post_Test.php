@@ -1421,6 +1421,93 @@ That was a cool video.';
 		$this->assertEquals( $post_id, $publish_event->args[0] );
 	}
 
+	public function test_sync_jetpack_published_post_is_sent_on_shutdown_when_rest_meta_update_fails() {
+		register_post_meta(
+			'post',
+			'jetpack_test_failing_meta',
+			array(
+				'show_in_rest' => true,
+				'single'       => true,
+				'type'         => 'string',
+			)
+		);
+		$fail_meta_update = function ( $check, $object_id, $meta_key ) {
+			return 'jetpack_test_failing_meta' === $meta_key ? false : $check;
+		};
+		add_filter( 'update_post_metadata', $fail_meta_update, 10, 3 );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+
+		$request = new WP_REST_Request( 'POST', "/wp/v2/posts/$post_id" );
+		$request->set_body_params(
+			array(
+				'status' => 'publish',
+				'meta'   => array( 'jetpack_test_failing_meta' => 'value' ),
+			)
+		);
+		$response = rest_do_request( $request );
+
+		remove_filter( 'update_post_metadata', $fail_meta_update, 10 );
+		unregister_post_meta( 'post', 'jetpack_test_failing_meta' );
+
+		$this->assertSame( 'rest_meta_database_error', $response->as_error()->get_error_code() );
+		$this->assertSame( 'publish', get_post_status( $post_id ) );
+
+		$this->sender->do_sync();
+		$this->assertCount( 0, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		$this->assertSame( 9, has_action( 'shutdown', array( $post_sync_module, 'send_pending_published' ) ) );
+		$post_sync_module->send_pending_published();
+		$this->sender->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$this->assertCount( 1, $events );
+		$this->assertEquals( $post_id, $events[0]->args[0] );
+	}
+
+	public function test_sync_jetpack_published_post_is_not_sent_again_on_shutdown() {
+		$this->server_event_storage->reset();
+		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+
+		wp_publish_post( $post_id );
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		$post_sync_module->send_pending_published();
+		$this->sender->do_sync();
+
+		$this->assertCount( 1, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
+	}
+
+	public function test_sync_jetpack_published_post_on_shutdown_skips_posts_unpublished_in_the_same_request() {
+		$this->server_event_storage->reset();
+		$kept_id     = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$reverted_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+
+		// Skip `wp_after_insert_post` to leave both posts pending.
+		$set_status = function ( $post_id, $status ) {
+			$post                = get_post( $post_id, ARRAY_A );
+			$post['post_status'] = $status;
+			wp_update_post( $post, false, false );
+		};
+		$set_status( $kept_id, 'publish' );
+		$set_status( $reverted_id, 'publish' );
+		$set_status( $reverted_id, 'draft' );
+
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		$post_sync_module->send_pending_published();
+		$post_sync_module->send_pending_published();
+		$this->sender->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$this->assertCount( 1, $events );
+		$this->assertEquals( $kept_id, $events[0]->args[0] );
+	}
+
 	/**
 	 * Data Provider for test_sync_jetpack_published_post_no_action test.
 	 *

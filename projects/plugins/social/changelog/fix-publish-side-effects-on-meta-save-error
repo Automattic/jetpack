@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Share posts even when the editor reports a post meta error on publish.

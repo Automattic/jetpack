@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Send the published post event even when saving post meta fails after publishing.
