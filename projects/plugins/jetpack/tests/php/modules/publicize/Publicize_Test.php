@@ -144,6 +144,28 @@ class Publicize_Test extends WP_UnitTestCase {
 		$publicize = $this->publicize;
 	}
 
+	public function test_update_collapses_duplicate_publicize_meta_rows() {
+		$message = 'Amaretti ! C:\\temp';
+		add_post_meta( $this->post->ID, '_wpas_mess', wp_slash( $message ) );
+		add_post_meta( $this->post->ID, '_wpas_mess', wp_slash( $message ) );
+
+		$this->assertTrue( update_post_meta( $this->post->ID, '_wpas_mess', wp_slash( $message ) ) );
+		$this->assertSame( array( $message ), get_post_meta( $this->post->ID, '_wpas_mess', false ) );
+
+		add_post_meta( $this->post->ID, '_wpas_mess', 'other' );
+		$this->assertTrue( update_post_meta( $this->post->ID, '_wpas_mess', 'new' ) );
+		$this->assertSame( array( 'new' ), get_post_meta( $this->post->ID, '_wpas_mess', false ) );
+	}
+
+	public function test_update_keeps_duplicate_publicize_meta_rows_when_write_fails() {
+		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );
+		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );
+		add_filter( 'update_post_metadata_by_mid', '__return_false' );
+
+		$this->assertFalse( update_post_meta( $this->post->ID, '_wpas_mess', 'new' ) );
+		$this->assertSame( array( 'old', 'old' ), get_post_meta( $this->post->ID, '_wpas_mess', false ) );
+	}
+
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
 		$this->post->post_status = 'publish';
 

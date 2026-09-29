@@ -1342,16 +1342,24 @@ abstract class Publicize_Base {
 			return $check;
 		}
 
-		delete_metadata( 'post', $object_id, $meta_key );
-
-		if ( add_metadata( 'post', $object_id, $meta_key, wp_slash( $meta_value ), true ) ) {
-			return true;
+		global $wpdb;
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Row IDs aren't exposed by the meta API.
+		$rows = $wpdb->get_results( $wpdb->prepare( "SELECT meta_id, meta_value FROM {$wpdb->postmeta} WHERE post_id = %d AND meta_key = %s ORDER BY meta_id DESC", $object_id, $meta_key ) );
+		if ( ! is_array( $rows ) || count( $rows ) < 2 ) {
+			return $check;
 		}
 
-		// Don't lose the existing value when the new one can't be stored.
-		add_metadata( 'post', $object_id, $meta_key, wp_slash( $stored[0] ), true );
+		// Update the newest row before deleting the others, so a failed write loses nothing.
+		$keep = array_shift( $rows );
+		if ( maybe_serialize( $meta_value ) !== $keep->meta_value && ! update_metadata_by_mid( 'post', (int) $keep->meta_id, $meta_value ) ) {
+			return false;
+		}
 
-		return false;
+		foreach ( $rows as $row ) {
+			delete_metadata_by_mid( 'post', (int) $row->meta_id );
+		}
+
+		return true;
 	}
 
 	/**

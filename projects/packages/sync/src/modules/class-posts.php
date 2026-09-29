@@ -31,6 +31,20 @@ class Posts extends Module {
 	private $just_published = array();
 
 	/**
+	 * Nesting depth of REST callbacks currently running.
+	 *
+	 * @var int
+	 */
+	private $rest_callback_depth = 0;
+
+	/**
+	 * Depth of the REST callback each post was published in, until that callback completes.
+	 *
+	 * @var int[]
+	 */
+	private $published_in_rest_callback = array();
+
+	/**
 	 * The previous status of posts that we use for calculating post status transitions.
 	 *
 	 * @access private
@@ -164,6 +178,8 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
+		add_filter( 'rest_request_before_callbacks', array( $this, 'enter_rest_callback' ) );
+		add_filter( 'rest_request_after_callbacks', array( $this, 'leave_rest_callback' ), 10, 3 );
 
 		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'post', $callable );
@@ -825,11 +841,13 @@ class Posts extends Module {
 		}
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[ $post->ID ] = true;
+			if ( $this->rest_callback_depth > 0 ) {
+				$this->published_in_rest_callback[ $post->ID ] = $this->rest_callback_depth;
+			}
 
 			// Runs before the sender's shutdown hook so the event goes out in this request.
 			if ( ! has_action( 'shutdown', array( $this, 'send_pending_published' ) ) ) {
 				add_action( 'shutdown', array( $this, 'send_pending_published' ), 9 );
-				add_filter( 'rest_request_after_callbacks', array( $this, 'drop_pending_published_on_rest_error' ), 10, 3 );
 			}
 		}
 
@@ -837,32 +855,47 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Drop pending published posts when a REST request fails with settings the user asked for left unsaved.
+	 * Track that a REST callback started.
 	 *
-	 * Only a single failed meta field is tolerated, so stale newsletter or sharing settings can't trigger emails.
+	 * @param \WP_REST_Response|\WP_Error|mixed $response Result to send, if a filter already set one.
+	 * @return \WP_REST_Response|\WP_Error|mixed Unchanged response.
+	 */
+	public function enter_rest_callback( $response ) {
+		++$this->rest_callback_depth;
+		return $response;
+	}
+
+	/**
+	 * Settle posts published by the REST callback that just completed.
+	 *
+	 * On an error, a post stays pending only when a single meta field failed and every other
+	 * requested field is stored, so stale newsletter or sharing settings can't trigger emails.
 	 *
 	 * @param \WP_REST_Response|\WP_Error|mixed $response Result of the REST callback.
 	 * @param array                             $handler  Route handler.
 	 * @param \WP_REST_Request                  $request  Request.
 	 * @return \WP_REST_Response|\WP_Error|mixed Unchanged response.
 	 */
-	public function drop_pending_published_on_rest_error( $response, $handler, $request ) {
-		if ( ! is_wp_error( $response ) || empty( $this->just_published ) ) {
-			return $response;
-		}
-
+	public function leave_rest_callback( $response, $handler, $request ) {
 		$failed_field = null;
-		if ( 'rest_meta_database_error' === $response->get_error_code() ) {
+		if ( is_wp_error( $response ) && 'rest_meta_database_error' === $response->get_error_code() ) {
 			$error_data   = $response->get_error_data();
 			$failed_field = is_array( $error_data ) ? ( $error_data['key'] ?? null ) : null;
 		}
 
-		foreach ( array_keys( $this->just_published ) as $post_id ) {
-			if ( null === $failed_field || ! $this->stored_meta_matches_request( $post_id, $request, $failed_field ) ) {
+		foreach ( $this->published_in_rest_callback as $post_id => $depth ) {
+			// Posts from an outer callback are settled when that one completes.
+			if ( $depth < $this->rest_callback_depth ) {
+				continue;
+			}
+			unset( $this->published_in_rest_callback[ $post_id ] );
+
+			if ( is_wp_error( $response ) && ( null === $failed_field || ! $this->stored_meta_matches_request( $post_id, $request, $failed_field ) ) ) {
 				unset( $this->just_published[ $post_id ] );
 			}
 		}
 
+		$this->rest_callback_depth = max( 0, $this->rest_callback_depth - 1 );
 		return $response;
 	}
 
@@ -902,6 +935,11 @@ class Posts extends Module {
 	 */
 	public function send_pending_published() {
 		foreach ( array_keys( $this->just_published ) as $post_id ) {
+			// A REST callback that never completed (fatal error, `wp_die()`) may have left settings unsaved.
+			if ( isset( $this->published_in_rest_callback[ $post_id ] ) ) {
+				continue;
+			}
+
 			$post = get_post( $post_id );
 
 			// Skip posts that were unpublished or deleted later in the request.

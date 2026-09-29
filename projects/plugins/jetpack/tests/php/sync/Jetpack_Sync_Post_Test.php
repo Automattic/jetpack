@@ -1490,6 +1490,26 @@ That was a cool video.';
 		$this->assertCount( $expected_events, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
 	}
 
+	public function test_sync_jetpack_published_post_waits_for_rest_callback_to_complete() {
+		$this->server_event_storage->reset();
+		$post_id          = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$post             = get_post( $post_id, ARRAY_A );
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+
+		$post_sync_module->enter_rest_callback( null );
+		$post['post_status'] = 'publish';
+		wp_update_post( $post, false, false );
+		$post_sync_module->send_pending_published();
+		$this->sender->do_sync();
+		$this->assertCount( 0, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
+
+		$post_sync_module->leave_rest_callback( new WP_REST_Response(), array(), new WP_REST_Request() );
+		$post_sync_module->send_pending_published();
+		$this->sender->do_sync();
+		$this->assertCount( 1, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
+	}
+
 	public function test_sync_jetpack_published_post_is_not_sent_again_on_shutdown() {
 		$this->server_event_storage->reset();
 		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
