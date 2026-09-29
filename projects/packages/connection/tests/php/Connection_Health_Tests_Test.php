@@ -510,8 +510,27 @@ class Connection_Health_Tests_Test extends TestCase {
 			)
 		);
 
-		$this->assertFalse( $result['pass'] );
+		$this->assertEquals( 'skipped', $result['pass'] );
 		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an inconclusive result is skipped rather than presented as a reconnect-worthy failure.
+	 *
+	 * WP.com marks a probe it could not complete (e.g. it can't reach a dev/sandbox site back)
+	 * as inconclusive; that isn't evidence the connection is broken, so it must not show a
+	 * "reconnect" CTA.
+	 */
+	public function test_wpcom_connection_test_inconclusive_result_is_skipped() {
+		$result = $this->evaluate_response(
+			array(
+				'connected'    => false,
+				'message'      => 'Example Site is not connected.',
+				'inconclusive' => true,
+			)
+		);
+
+		$this->assertEquals( 'skipped', $result['pass'] );
 	}
 
 	// -------------------------------------------------------------------------

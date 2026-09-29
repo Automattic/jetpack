@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Connection: Remove the outbound HTTP/HTTPS connection health checks that could show a false critical failure on healthy sites; the same information is available from WordPress core's Site Health checks.
+Connection: Stop Site Health from showing spurious connection failures — remove the redundant outbound HTTP/HTTPS checks, and no longer prompt a reconnect when the WordPress.com connection test is inconclusive.

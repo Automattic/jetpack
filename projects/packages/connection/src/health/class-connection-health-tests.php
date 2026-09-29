@@ -513,6 +513,19 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			$this->clear_ssl_verification_error();
 		}
 
+		// WP.com could not complete the test (a transport failure it could not classify — e.g.
+		// a timeout, or a dev/sandbox site it cannot reach back). That neither confirms nor
+		// disproves the connection, so don't present it as a definitive failure with a reconnect
+		// CTA — skip, as we already do for a cURL timeout on the outgoing request.
+		if ( is_object( $result ) && ! empty( $result->inconclusive ) ) {
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => __( 'WordPress.com could not complete the connection test. This is usually temporary.', 'jetpack-connection' ),
+				)
+			);
+		}
+
 		$message = isset( $result->message ) && '' !== $result->message
 			? $result->message
 			: __( 'Connection test failed.', 'jetpack-connection' );
