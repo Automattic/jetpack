@@ -350,30 +350,10 @@ function register_widget_types_from_manifest( array $widgets, array $args = arra
 				'keywords'      => $widget['keywords'] ?? null,
 				'textdomain'    => $widget['textdomain'] ?? null,
 				'i18n_manifest' => $widget['i18n_manifest'] ?? null,
-				'former_names'  => sanitize_widget_former_names( $widget['former_names'] ?? null ),
+				'former_names'  => $widget['former_names'] ?? null,
 			)
 		);
 	}
-}
-
-/**
- * Normalizes a candidate's former names to a list of strings, or null when it has none.
- *
- * The registry validates the names themselves when the type registers.
- *
- * @since $$next-version$$
- *
- * @param mixed $former_names The declared former names.
- * @return string[]|null
- */
-function sanitize_widget_former_names( $former_names ) {
-	if ( ! is_array( $former_names ) ) {
-		return null;
-	}
-
-	$names = array_values( array_unique( array_filter( $former_names, 'is_string' ) ) );
-
-	return $names ? $names : null;
 }
 
 /**

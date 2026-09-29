@@ -33,7 +33,11 @@ export function buildWidgetTypeRenames(
 
 	const renames = new Map< string, WidgetTypeName >();
 	for ( const record of records ) {
-		for ( const formerName of record.former_names ?? [] ) {
+		// A record whose former names are not a list, whatever the server sent, renames nothing.
+		if ( ! Array.isArray( record.former_names ) ) {
+			continue;
+		}
+		for ( const formerName of record.former_names ) {
 			renames.set( formerName, record.name as WidgetTypeName );
 		}
 	}

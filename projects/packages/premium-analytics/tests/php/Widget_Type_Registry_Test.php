@@ -440,12 +440,16 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		$this->assertFalse( register_widget_type( 'plugin/another', array( 'former_names' => array( 'plugin/old' ) ) ) );
 		$this->assertFalse( register_widget_type( 'plugin/old' ) );
 		$this->assertFalse( register_widget_type( 'plugin/shouty', array( 'former_names' => array( 'Plugin/Old' ) ) ) );
+		$this->assertFalse( register_widget_type( 'plugin/numeric', array( 'former_names' => array( 42 ) ) ) );
+		$this->assertFalse( register_widget_type( 'plugin/scalar', array( 'former_names' => 'plugin/old-scalar' ) ) );
 
 		$this->assertSame(
 			array(
 				Widget_Type_Registry::class . '::former_names_are_free',
 				Widget_Type_Registry::class . '::former_names_are_free',
 				Widget_Type_Registry::class . '::register',
+				Widget_Type_Registry::class . '::former_names_are_free',
+				Widget_Type_Registry::class . '::former_names_are_free',
 				Widget_Type_Registry::class . '::former_names_are_free',
 			),
 			$this->doing_it_wrong
@@ -467,13 +471,20 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The sanitizer keeps a list of distinct strings, and nothing else.
+	 * The registry stores former names as a list of distinct names, whatever shape the caller passed:
+	 * a keyed array would reach the client as an object.
 	 */
-	public function test_sanitize_widget_former_names_keeps_distinct_strings_only() {
-		$this->assertNull( sanitize_widget_former_names( null ) );
-		$this->assertNull( sanitize_widget_former_names( 'jpa/old' ) );
-		$this->assertNull( sanitize_widget_former_names( array( 42, null ) ) );
-		$this->assertSame( array( 'jpa/old', 'jpa/older' ), sanitize_widget_former_names( array( 'jpa/old', 42, 'jpa/old', 'jpa/older' ) ) );
+	public function test_register_normalizes_the_former_names_into_a_list() {
+		$registry = Widget_Type_Registry::get_instance();
+
+		$keyed = $registry->register( 'plugin/keyed', array( 'former_names' => array_unique( array( 'plugin/old', 'plugin/old', 'plugin/older' ) ) ) );
+		$this->assertSame( array( 'plugin/old', 'plugin/older' ), $keyed->former_names );
+		$this->assertSame( 'plugin/keyed', $registry->resolve_name( 'plugin/older' ) );
+
+		$this->assertNull( $registry->register( 'plugin/none', array( 'former_names' => array() ) )->former_names );
+
+		$instance = new Widget_Type( 'plugin/instance', array( 'former_names' => array( 3 => 'plugin/third' ) ) );
+		$this->assertSame( array( 'plugin/third' ), $registry->register( $instance )->former_names );
 	}
 
 	/**
@@ -489,7 +500,7 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 				array(
 					'name'          => 'plugin/second',
 					'render_module' => 'plugin/second/render',
-					'former_names'  => array( 'jpa/second', 'jpa/second', 42 ),
+					'former_names'  => array( 'jpa/second', 'jpa/second' ),
 				),
 			),
 			array(

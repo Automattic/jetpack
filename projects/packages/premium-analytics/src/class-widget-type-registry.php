@@ -125,9 +125,15 @@ final class Widget_Type_Registry {
 			return false;
 		}
 
-		$former_names = $widget_type ? $widget_type->former_names : ( $args['former_names'] ?? null );
+		$former_names = self::normalize_former_names( $widget_type ? $widget_type->former_names : ( $args['former_names'] ?? null ) );
 		if ( null !== $former_names && ! $this->former_names_are_free( $name, $former_names ) ) {
 			return false;
+		}
+		// The type keeps the normalized list: it is what the REST record publishes.
+		if ( $widget_type ) {
+			$widget_type->former_names = $former_names;
+		} else {
+			$args['former_names'] = $former_names;
 		}
 
 		if ( ! $widget_type ) {
@@ -143,6 +149,25 @@ final class Widget_Type_Registry {
 	}
 
 	/**
+	 * Normalizes declared former names to a list of distinct values, or null when there are none.
+	 *
+	 * A keyed array, say what `array_unique()` leaves behind, would reach the client as an object
+	 * instead of a list. Anything but an array passes through for `former_names_are_free()` to refuse.
+	 *
+	 * @param mixed $former_names The declared former names.
+	 * @return mixed
+	 */
+	private static function normalize_former_names( $former_names ) {
+		if ( ! is_array( $former_names ) ) {
+			return $former_names;
+		}
+
+		$former_names = array_values( array_unique( $former_names, SORT_REGULAR ) );
+
+		return $former_names ? $former_names : null;
+	}
+
+	/**
 	 * Whether a widget type may claim the given former names.
 	 *
 	 * Each one must be a namespaced lowercase name that no registered type or other former name
@@ -153,11 +178,11 @@ final class Widget_Type_Registry {
 	 * @return bool
 	 */
 	private function former_names_are_free( $name, $former_names ) {
-		$taken = '';
+		$taken = null;
 		if ( is_array( $former_names ) ) {
 			foreach ( $former_names as $former_name ) {
 				if ( ! is_string( $former_name ) || ! preg_match( '/^[a-z0-9-]+\/[a-z0-9-]+$/', $former_name ) || $former_name === $name ) {
-					$taken = is_string( $former_name ) ? $former_name : '';
+					$taken = is_string( $former_name ) ? $former_name : gettype( $former_name );
 					break;
 				}
 				$owner = $this->former_names[ $former_name ] ?? null;
@@ -167,10 +192,10 @@ final class Widget_Type_Registry {
 				}
 			}
 		} else {
-			$taken = (string) $former_names;
+			$taken = is_scalar( $former_names ) ? (string) $former_names : gettype( $former_names );
 		}
 
-		if ( '' === $taken && is_array( $former_names ) ) {
+		if ( null === $taken ) {
 			return true;
 		}
 
