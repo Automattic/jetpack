@@ -4,7 +4,7 @@
  * Mirrors the behavior of Calypso's `usePersistentView`
  * (client/dashboard/app/hooks/use-persistent-view.ts): persist the
  * non-transient view config (fields, density, perPage, sort, layout),
- * not the transient bits (`page`, `search`, empty `filters`). Calypso
+ * not the transient bits (`page`, `search`, `filters`). Calypso
  * persists to WordPress.com user preferences; in a self-hosted Jetpack
  * plugin we don't have that API, so we back the store with
  * `localStorage` instead. The hook signature stays swappable: a future

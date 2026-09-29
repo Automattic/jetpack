@@ -28,6 +28,7 @@ import {
 } from '../../hooks/use-activity-log';
 import { useAnalytics } from '../../hooks/use-analytics';
 import { usePersistentView } from '../../hooks/use-persistent-view';
+import { usePresetFilters } from '../../hooks/use-preset-filters';
 import { DateRangePicker } from '../DateRangePicker';
 import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
 import { UpsellCallout } from './UpsellCallout';
@@ -35,7 +36,7 @@ import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { ALL_AI_AGENTS_ACTOR_ID } from './actor-elements';
 import { useActivityFields } from './fields';
-import { extractActivityLogTypeValues, extractActorIdValues, getPresetFilters } from './filters';
+import { extractActivityLogTypeValues, extractActorIdValues } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
 import type { Activity, ActivityLogParams } from './types';
 import type { Field, Filter, View } from '@wordpress/dataviews';
@@ -173,9 +174,7 @@ const buildErrorNotice = (
 export default function ActivityLog() {
 	const { gmtOffset, timezoneString, locale } = readSiteTimeContext();
 	const hasActivityLogsAccess = readHasActivityLogsAccess();
-	const [ presetFilters ] = useState( () =>
-		getPresetFilters( window.location.href, hasActivityLogsAccess )
-	);
+	const presetFilters = usePresetFilters( hasActivityLogsAccess );
 	const { view, setView, resetView, isViewModified } = usePersistentView(
 		DEFAULT_VIEW,
 		presetFilters

@@ -1,6 +1,6 @@
 import { getQueryArg } from '@wordpress/url';
 import { ALL_AI_AGENTS_ACTOR_ID } from './actor-elements';
-import type { Filter, Operator } from '@wordpress/dataviews';
+import type { Filter } from '@wordpress/dataviews';
 
 export const extractActivityLogTypeValues = ( filters: Filter[] ): string[] => {
 	const filter = filters.find( item => item.field === 'activity_type' );
@@ -41,5 +41,5 @@ export const extractActorIdValues = ( filters: Filter[] ): string[] => {
  */
 export const getPresetFilters = ( href: string, hasAccess: boolean ): Filter[] =>
 	hasAccess && getQueryArg( href, 'actor' ) === ALL_AI_AGENTS_ACTOR_ID
-		? [ { field: 'actor', operator: 'isAny' as Operator, value: [ ALL_AI_AGENTS_ACTOR_ID ] } ]
+		? [ { field: 'actor', operator: 'isAny', value: [ ALL_AI_AGENTS_ACTOR_ID ] } ]
 		: [];
