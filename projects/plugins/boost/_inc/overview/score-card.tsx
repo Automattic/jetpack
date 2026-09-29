@@ -100,7 +100,7 @@ export default function ScoreCard( {
 								>
 									<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
 								</Popover.Trigger>
-								<Popover.Popup>
+								<Popover.Popup className="jetpack-boost-overview__score-popover jetpack-boost-overview__points-tooltip">
 									<VisuallyHidden render={ <Popover.Title /> }>
 										{ __( 'About points', 'jetpack-boost' ) }
 									</VisuallyHidden>

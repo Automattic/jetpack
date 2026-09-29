@@ -187,7 +187,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await expect( surface ).toHaveCSS( 'background-color', /^rgb\(/ );
 		await expect( surface ).toContainText( 'Overall score' );
 		await expect( surface ).toHaveCSS( 'width', '265px' );
-		await expect( surface ).toHaveCSS( 'height', '382px' );
+		await expect( surface ).toHaveCSS( 'height', '366px' );
 		await expect( surface ).toHaveCSS( 'padding', '17px' );
 		const popupBox = await expectBesideDay( page, surface );
 		const hoveredBar = ( await bars.nth( 21 ).boundingBox() )!;
@@ -214,7 +214,7 @@ for ( const device of [ 'Desktop', 'Mobile' ] ) {
 		await hoverDay( chart, 21 );
 		await expect( surface.locator( '.jetpack-boost-overview__tooltip-date' ) ).toHaveCSS(
 			'font-weight',
-			'400'
+			'500'
 		);
 		const sections = surface.locator( '.jetpack-boost-overview__tooltip-section' );
 		for ( const [ index, label, score, metrics, barColor ] of [
@@ -334,10 +334,11 @@ for ( const [ label, query, copy, height ] of [
 		await expect( highlight ).toBeVisible();
 		const band = ( await highlight.boundingBox() )!;
 		const firstPanel = ( await desktop.boundingBox() )!;
+		const secondPanel = ( await mobile.boundingBox() )!;
 		const secondSvg = ( await mobile.getByLabel( 'XYChart' ).boundingBox() )!;
 		const bar = ( await desktop.locator( '.visx-bar' ).first().boundingBox() )!;
 		expect( band.y ).toBeCloseTo( firstPanel.y, 0 );
-		expect( band.y + band.height ).toBeCloseTo( secondSvg.y + secondSvg.height - 24, 0 );
+		expect( band.y + band.height ).toBeCloseTo( secondPanel.y + secondPanel.height, 0 );
 		expect( band.width ).toBeCloseTo( bar.width + 1, 0 );
 		const tooltip = page.locator( '.jetpack-boost-overview__history-tooltip' );
 		await expect( tooltip ).toContainText( copy );
