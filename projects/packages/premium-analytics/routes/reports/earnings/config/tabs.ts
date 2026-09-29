@@ -20,17 +20,14 @@ const earningsReportTabs = defineReportTabs< EarningsReportTabId >(
 		{
 			id: 'wordads',
 			getLabel: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'sponsored',
 			getLabel: () => __( 'Sponsored content history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Sponsored content history', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'adjustments',
 			getLabel: () => __( 'Adjustments history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Adjustments history', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID
@@ -49,5 +46,5 @@ export const getEarningsReportTabs = earningsReportTabs.getTabs;
  */
 export const resolveSection = earningsReportTabs.resolve;
 
-/** Heading for the active tab's section. */
-export const getTabTitle = earningsReportTabs.getTabTitle;
+/** Get the translated label for a tab, which also heads its section. */
+export const getTabLabel = earningsReportTabs.getTabLabel;

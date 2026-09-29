@@ -17,7 +17,6 @@ import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
 	MetricWithComparison,
 	PostTitleLink,
-	REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnailTitle,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -73,14 +72,16 @@ function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX
 			thumbnailUrl={ thumbnailUrl }
 			fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
 		>
-			<PostTitleLink
-				id={ isHomepage ? undefined : item.id }
-				label={ title }
-				link={ isHomepage ? homeUrl : item.link }
-				search={ detailSearch }
-				classNames={ REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES }
-				title={ title }
-			/>
+			{ classNames => (
+				<PostTitleLink
+					id={ isHomepage ? undefined : item.id }
+					label={ title }
+					link={ isHomepage ? homeUrl : item.link }
+					search={ detailSearch }
+					classNames={ classNames }
+					title={ title }
+				/>
+			) }
 		</ReportThumbnailTitle>
 	);
 }

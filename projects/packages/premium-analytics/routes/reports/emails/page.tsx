@@ -103,7 +103,7 @@ function EmailsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.emails;
+	const { getLabel } = REPORTS.emails;
 
 	return (
 		<ReportPageShell
@@ -115,7 +115,7 @@ function EmailsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout title={ getLabel() }>
 				{ /*
 				 * The error state replaces the table rather than sitting beside it:
 				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch

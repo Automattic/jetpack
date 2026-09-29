@@ -94,7 +94,7 @@ function ReferrersReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.referrers;
+	const { getLabel } = REPORTS.referrers;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -119,7 +119,7 @@ function ReferrersReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< ReferrerRecord >
 						data={ records.rows }

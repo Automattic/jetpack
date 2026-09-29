@@ -10,12 +10,6 @@
 export type ReportTabDefinition< TabId extends string > = {
 	id: TabId;
 	getLabel: () => string;
-
-	/**
-	 * Heading for the section this tab opens, where it reads differently from
-	 * the tab itself.
-	 */
-	getTitle?: () => string;
 };
 
 export type ReportTab< TabId extends string > = {
@@ -42,9 +36,6 @@ export type ReportTabs< TabId extends string > = {
 	getTabs: () => ReportTab< TabId >[];
 
 	getTabLabel: ( id: TabId ) => string;
-
-	/** The heading for a tab's section, falling back to the tab's own label. */
-	getTabTitle: ( id: TabId ) => string;
 };
 
 /**
@@ -70,11 +61,5 @@ export function defineReportTabs< TabId extends string >(
 	const getTabLabel = ( id: TabId ): string =>
 		definitions.find( def => def.id === id )?.getLabel() ?? id;
 
-	const getTabTitle = ( id: TabId ): string => {
-		const definition = definitions.find( def => def.id === id );
-
-		return definition?.getTitle?.() ?? definition?.getLabel() ?? id;
-	};
-
-	return { ids, resolve, getTabs, getTabLabel, getTabTitle };
+	return { ids, resolve, getTabs, getTabLabel };
 }

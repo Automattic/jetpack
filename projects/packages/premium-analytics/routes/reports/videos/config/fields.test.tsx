@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getVideosFields } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
@@ -72,14 +72,13 @@ function renderMetricField(
 }
 
 describe( 'videos fields', () => {
-	it( 'renders the video poster beside its title, falling back to the video icon', () => {
+	it( 'renders the poster resized for a table row beside the title', () => {
 		renderTitleField( { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
 
-		const poster = screen.getByRole( 'presentation' );
-		expect( poster ).toHaveAttribute( 'src', 'https://i0.wp.com/v/launch.jpg' );
-
-		fireEvent.error( poster );
-		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://i0.wp.com/v/launch.jpg?resize=80%2C80'
+		);
 	} );
 
 	it.each( [ undefined, 'javascript:alert(1)' ] )(

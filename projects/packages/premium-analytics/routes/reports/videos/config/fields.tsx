@@ -8,7 +8,6 @@ import {
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
 	MetricWithComparison,
-	REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnailTitle,
 	VideoTitleLink,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -48,6 +47,25 @@ function getVideoDetailSearch( current: Record< string, unknown > ) {
 }
 
 /**
+ * Ask Photon for the poster at twice the largest row thumbnail, as wpcom sends it full-size.
+ *
+ * @param poster - The row's poster URL.
+ * @return The resized poster URL, or undefined when there is no safe poster.
+ */
+function getPosterThumbnailUrl( poster: string | undefined ): string | undefined {
+	const url = safeHttpUrl( poster );
+
+	if ( ! url ) {
+		return undefined;
+	}
+
+	const resized = new URL( url );
+	resized.searchParams.set( 'resize', '80,80' );
+
+	return resized.toString();
+}
+
+/**
  * Render a video row's title. Rows with an attachment ID link to the internal
  * video detail page, carrying the report's current date window so the detail
  * page and its "Stats" breadcrumb keep the range being inspected; the public
@@ -62,17 +80,19 @@ function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 
 	return (
 		<ReportThumbnailTitle
-			thumbnailUrl={ safeHttpUrl( item.poster ) ?? undefined }
+			thumbnailUrl={ getPosterThumbnailUrl( item.poster ) }
 			fallbackIcon={ videoIcon }
 		>
-			<VideoTitleLink
-				id={ item.id }
-				label={ title }
-				link={ item.link }
-				search={ getVideoDetailSearch }
-				classNames={ REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES }
-				title={ title }
-			/>
+			{ classNames => (
+				<VideoTitleLink
+					id={ item.id }
+					label={ title }
+					link={ item.link }
+					search={ getVideoDetailSearch }
+					classNames={ classNames }
+					title={ title }
+				/>
+			) }
 		</ReportThumbnailTitle>
 	);
 }

@@ -30,7 +30,7 @@ import {
 	GEO_MODES,
 	getLocationFields,
 	getReportLocationsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveSection,
 	supportsCountryFilter,
 	useLocationsReportRecords,
@@ -213,7 +213,7 @@ export default function LocationsReportPage(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

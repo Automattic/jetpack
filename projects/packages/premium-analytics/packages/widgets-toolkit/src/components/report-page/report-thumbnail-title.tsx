@@ -7,20 +7,23 @@ import { useCallback, useState, type ComponentProps, type ReactNode } from 'reac
  * Internal dependencies
  */
 import styles from './report-thumbnail-title.module.scss';
+import type { PostTitleLinkProps } from '../post-title-link/post-title-link';
+import type { VideoTitleLinkProps } from '../video-title-link/video-title-link';
 
-/** Class names for the title link, so a long title truncates beside the thumbnail. */
-export const REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES = {
+const TITLE_LINK_CLASS_NAMES = {
 	internal: styles.titleLink,
 	external: styles.titleLink,
 	plain: styles.titleLink,
 	text: styles.titleText,
-};
+} satisfies NonNullable< PostTitleLinkProps[ 'classNames' ] > &
+	NonNullable< VideoTitleLinkProps[ 'classNames' ] >;
 
-export type ReportThumbnailTitleProps = {
+type ReportThumbnailTitleProps = {
 	thumbnailUrl?: string;
 	/** Shown when there is no thumbnail, or it fails to load. */
 	fallbackIcon: ComponentProps< typeof Icon >[ 'icon' ];
-	children: ReactNode;
+	/** Renders the title link; pass it the class names so a long title truncates. */
+	children: ( linkClassNames: typeof TITLE_LINK_CLASS_NAMES ) => ReactNode;
 };
 
 /**
@@ -29,7 +32,7 @@ export type ReportThumbnailTitleProps = {
  * @param props              - Component props.
  * @param props.thumbnailUrl - Thumbnail URL.
  * @param props.fallbackIcon - Icon shown without a loadable thumbnail.
- * @param props.children     - The title.
+ * @param props.children     - Renders the title.
  * @return The thumbnail and title.
  */
 export function ReportThumbnailTitle( {
@@ -49,6 +52,7 @@ export function ReportThumbnailTitle( {
 						alt=""
 						width={ 32 }
 						height={ 32 }
+						loading="lazy"
 						className={ styles.thumbnail }
 						onError={ handleError }
 					/>
@@ -58,7 +62,7 @@ export function ReportThumbnailTitle( {
 					</span>
 				) }
 			</span>
-			{ children }
+			{ children( TITLE_LINK_CLASS_NAMES ) }
 		</Stack>
 	);
 }

@@ -104,7 +104,7 @@ function AuthorsReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.authors;
+	const { getLabel } = REPORTS.authors;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -134,7 +134,7 @@ function AuthorsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< AuthorRow >
 						data={ records.rows }

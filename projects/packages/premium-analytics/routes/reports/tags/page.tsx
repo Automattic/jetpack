@@ -72,7 +72,7 @@ function TagsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.tags;
+	const { getLabel } = REPORTS.tags;
 
 	return (
 		<ReportPageShell
@@ -84,7 +84,7 @@ function TagsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout title={ getLabel() }>
 				{ /*
 				 * The error state replaces the table: `ReportRecordsTable`'s `empty` renders on
 				 * row count, not fetch status, so a failed refetch over cached rows would

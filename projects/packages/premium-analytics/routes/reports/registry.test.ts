@@ -135,6 +135,10 @@ describe( 'REPORTS', () => {
 		return grouped;
 	}
 
+	it.each( Object.keys( REPORTS ) )( 'keys %s by its own id', key => {
+		expect( REPORTS[ key ].id ).toBe( key );
+	} );
+
 	// Most reports are Traffic, so a new one lands on the right tab by accident far more
 	// often than by intent; a wrong tab is silent until a scoped preview hides the report.
 	it( 'places every report on its intended tab', () => {

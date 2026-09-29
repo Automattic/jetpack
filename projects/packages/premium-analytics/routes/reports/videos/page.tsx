@@ -122,7 +122,7 @@ function VideosReport(): JSX.Element {
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.videos;
+	const { getLabel } = REPORTS.videos;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -147,7 +147,7 @@ function VideosReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
 						data={ records.rows }
