@@ -34,7 +34,7 @@ import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
 import { useActivityFields } from './fields';
-import { extractActivityLogTypeValues, extractActorIdValues } from './filters';
+import { extractActivityLogTypeValues, extractActorIdValues, getPresetFilters } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
 import type { Activity, ActivityLogParams } from './types';
 import type { Field, Filter, View } from '@wordpress/dataviews';
@@ -172,7 +172,13 @@ const buildErrorNotice = (
 export default function ActivityLog() {
 	const { gmtOffset, timezoneString, locale } = readSiteTimeContext();
 	const hasActivityLogsAccess = readHasActivityLogsAccess();
-	const { view, setView, resetView, isViewModified } = usePersistentView( DEFAULT_VIEW );
+	const [ presetFilters ] = useState( () =>
+		getPresetFilters( window.location.href, hasActivityLogsAccess )
+	);
+	const { view, setView, resetView, isViewModified } = usePersistentView(
+		DEFAULT_VIEW,
+		presetFilters
+	);
 	const { tracks } = useAnalytics();
 	const wrapperRef = useRef< HTMLDivElement >( null );
 

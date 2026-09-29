@@ -12,7 +12,7 @@
  */
 import fastDeepEqual from 'fast-deep-equal/es6';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import type { View } from '@wordpress/dataviews';
+import type { Filter, View } from '@wordpress/dataviews';
 
 interface InitialStateShape {
 	siteData?: { id?: number | string };
@@ -96,15 +96,19 @@ const isMeaningfullyModified = ( current: View, base: View ): boolean =>
  * Hook that tracks a DataViews view and persists the non-transient
  * parts to localStorage.
  *
- * @param defaultView - The fallback view used when no persisted entry
- *                    exists. Also the reference point for `isViewModified` and the target
- *                    of `resetView`.
+ * @param defaultView    - The fallback view used when no persisted entry
+ *                       exists. Also the reference point for `isViewModified` and the target
+ *                       of `resetView`.
+ * @param initialFilters - Filters for the first render only, never saved.
  * @return An object with the current `view`, a `setView` persistence-
  * aware setter, a `resetView` function, and the `isViewModified` flag
  * the `onReset` prop needs to decide whether to show the Reset view
  * button.
  */
-export function usePersistentView( defaultView: View ): {
+export function usePersistentView(
+	defaultView: View,
+	initialFilters: Filter[] = []
+): {
 	view: View;
 	setView: ( next: View ) => void;
 	resetView: () => void;
@@ -119,10 +123,9 @@ export function usePersistentView( defaultView: View ): {
 		// localStorage cleanup runs in the effect below — keeping side
 		// effects out of the lazy initializer so React 18 strict-mode's
 		// double-invoke doesn't write twice.
-		if ( persisted && ! isMeaningfullyModified( persisted, defaultView ) ) {
-			return defaultView;
-		}
-		return persisted ?? defaultView;
+		const base =
+			persisted && isMeaningfullyModified( persisted, defaultView ) ? persisted : defaultView;
+		return initialFilters.length ? { ...base, filters: initialFilters } : base;
 	} );
 
 	// One-shot mount cleanup for the self-heal case above.
