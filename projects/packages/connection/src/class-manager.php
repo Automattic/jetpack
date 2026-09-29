@@ -1615,7 +1615,7 @@ class Manager {
 	/**
 	 * Call this site's protected-owner resource on WordPress.com, signed as the current user.
 	 *
-	 * @since 9.8.0
+	 * @since $$next-version$$
 	 *
 	 * @param string     $route The route below the resource, empty for the resource itself.
 	 * @param array|null $body  The request body, or null to send none.
