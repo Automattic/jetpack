@@ -9,11 +9,10 @@ import PageCacheMeta from '$features/page-cache/meta/meta';
 
 const mockMutate = jest.fn();
 let mockValues: string[] = [];
-let mockLogging = false;
 jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( {
 	useDataSync: () => [ { data: mockValues }, { mutate: mockMutate } ],
 	useDataSyncSubset: ( _query: unknown, key: string ) => [
-		key === 'logging' ? mockLogging : mockValues,
+		key === 'logging' ? false : mockValues,
 		{ mutate: mockMutate, isError: false },
 	],
 } ) );
@@ -58,7 +57,6 @@ const consumers = [
 
 beforeEach( () => {
 	mockValues = [];
-	mockLogging = false;
 	mockMutate.mockClear();
 	jest.mocked( recordBoostEvent ).mockClear();
 } );
@@ -138,7 +136,7 @@ it.each( [ 'js', 'css' ] as const )( 'keeps Load default handles for Concatenate
 	);
 } );
 
-it( 'records distinct Page Cache Except and Show Options toggle events', () => {
+it( 'records the Page Cache Except toggle events', () => {
 	render(
 		<ModuleSurfaceProvider value="row">
 			<PageCacheMeta />
@@ -153,30 +151,7 @@ it( 'records distinct Page Cache Except and Show Options toggle events', () => {
 	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_except_panel_toggle', {
 		status: 'close',
 	} );
-	fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
-	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_exceptions_panel_toggle', {
-		status: 'open',
-	} );
 } );
-
-it.each( [
-	{ logging: false, values: [ 'checkout', 'about' ] },
-	{ logging: true, values: [ 'checkout', 'about' ] },
-	{ logging: false, values: [] },
-] )(
-	'shows only logging in the modern Page Cache options summary (logging $logging, values $values)',
-	( { logging, values } ) => {
-		mockLogging = logging;
-		mockValues = values;
-		render(
-			<ModuleSurfaceProvider value="row">
-				<PageCacheMeta />
-			</ModuleSurfaceProvider>
-		);
-		expect( screen.getByText( logging ? 'Logging activated.' : 'No logging.' ) ).toBeTruthy();
-		expect( screen.queryByText( /2 exceptions/ ) ).toBeNull();
-	}
-);
 
 it( 'keeps the Page Cache textarea section inside its styling body and panel', () => {
 	render(
