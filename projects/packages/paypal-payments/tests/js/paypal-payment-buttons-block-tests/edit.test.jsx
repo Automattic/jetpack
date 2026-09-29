@@ -1832,10 +1832,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'records the seller when the return page reports back', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await expect(
-				screen.findByRole( 'button', { name: /Connect PayPal/i } )
-			).resolves.toBeVisible();
+			await openActiveOverlay();
 
 			// PayPal's third-party flow never calls the SDK callback; it navigates
 			// to the return page, which posts what PayPal appended to its URL.
@@ -1866,10 +1863,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		it( 'ignores a return message from another origin', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await expect(
-				screen.findByRole( 'button', { name: /Connect PayPal/i } )
-			).resolves.toBeVisible();
+			await openActiveOverlay();
 
 			await act( async () => {
 				window.dispatchEvent(
@@ -1921,10 +1915,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				complete: { connected: true, account_email: 'junior@sports.com' },
 			} );
 
-			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
-			await expect(
-				screen.findByRole( 'button', { name: /Connect PayPal/i } )
-			).resolves.toBeVisible();
+			await openActiveOverlay();
 
 			// The editor is cross-origin isolated, so PayPal's popup comes back
 			// with no opener and postMessage has nobody to reach; the channel does.
@@ -1947,6 +1938,83 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 
 			channels.restore();
+		} );
+
+		it( 'leaves a return to the block that opened PayPal', async () => {
+			const channels = fakeBroadcastChannel();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByRole( 'button', { name: /Connect PayPal/i } )
+			).resolves.toBeVisible();
+
+			await act( async () => {
+				channels.last( 'jetpack-paypal-onboarding-return' ).onmessage( {
+					data: { type: 'jetpack-paypal-onboarding-return', merchantIdInPayPal: 'MERCHANT1' },
+				} );
+			} );
+
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) => path.endsWith( '/onboarding/complete' ) )
+			).toBe( false );
+
+			channels.restore();
+		} );
+
+		it( 'finishes once when the return arrives on the channel and by message', async () => {
+			const channels = fakeBroadcastChannel();
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
+
+			await openActiveOverlay();
+
+			const data = { type: 'jetpack-paypal-onboarding-return', merchantIdInPayPal: 'MERCHANT1' };
+			await act( async () => {
+				channels.last( 'jetpack-paypal-onboarding-return' ).onmessage( { data } );
+				window.dispatchEvent(
+					new MessageEvent( 'message', { origin: window.location.origin, data } )
+				);
+			} );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect(
+				apiFetch.mock.calls.filter( ( [ { path } ] ) => path.endsWith( '/onboarding/complete' ) )
+			).toHaveLength( 1 );
+
+			channels.restore();
+		} );
+
+		it( 'tears the frame down once PayPal has taken it cross-origin', async () => {
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true },
+			} );
+
+			const frame = await openActiveOverlay();
+
+			// What a frame on paypal.com does to every call we make on it.
+			const frameWindow = frame.contentWindow;
+			const refuse = () => {
+				throw new DOMException(
+					'Blocked a frame from accessing a cross-origin frame.',
+					'SecurityError'
+				);
+			};
+			frameWindow.removeEventListener = refuse;
+			frameWindow.clearTimeout = refuse;
+			Object.defineProperty( frameWindow, 'jetpackPayPalOnboardComplete', {
+				value: () => {},
+				configurable: false,
+			} );
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 		} );
 
 		it( 'asks quietly whether the seller finished when the overlay is closed', async () => {

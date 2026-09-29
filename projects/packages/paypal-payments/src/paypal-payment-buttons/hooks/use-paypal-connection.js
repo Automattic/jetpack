@@ -34,6 +34,19 @@ export const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-chan
 const QUIET_COMPLETION_ERRORS = [ 'paypal_merchant_not_found', 'paypal_onboarding_no_session' ];
 
 /**
+ * Run a teardown step on the onboarding frame, which may be on paypal.com by now.
+ *
+ * @param {Function} step - Touches the frame's window.
+ */
+function releaseFrame( step ) {
+	try {
+		step();
+	} catch {
+		// The browser refuses a cross-origin frame; what we set on it went with our page.
+	}
+}
+
+/**
  * Tell the other blocks on this page that the site-wide PayPal connection
  * changed.
  *
@@ -101,6 +114,10 @@ export function usePayPalConnection() {
 
 	// Partner Referrals onboarding state.
 	const [ isCompletingOnboarding, setIsCompletingOnboarding ] = useState( false );
+	const isCompletingRef = useRef( false );
+	// Read live by the return listener, which is not re-subscribed on every change.
+	const onboardingRequestedRef = useRef( onboardingRequested );
+	onboardingRequestedRef.current = onboardingRequested;
 
 	// Wizard step state: 'welcome' | 'dashboard' | 'credentials' | 'success'
 	// Persisted in localStorage so navigating away and back doesn't reset the wizard.
@@ -275,6 +292,11 @@ export function usePayPalConnection() {
 	 * so both registrations finish onboarding the same way.
 	 */
 	const completeOnboarding = useCallback( ( merchantIdInPayPal = '', { quiet = false } = {} ) => {
+		// The return page reports on the channel and by postMessage, so one return arrives twice.
+		if ( isCompletingRef.current ) {
+			return;
+		}
+		isCompletingRef.current = true;
 		setIsCompletingOnboarding( true );
 
 		apiFetch( {
@@ -309,6 +331,7 @@ export function usePayPalConnection() {
 				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
+				isCompletingRef.current = false;
 				setIsCompletingOnboarding( false );
 			} );
 	}, [] );
@@ -336,7 +359,8 @@ export function usePayPalConnection() {
 	 */
 	useEffect( () => {
 		const handleReturnData = data => {
-			if ( data?.type !== ONBOARDING_RETURN_MESSAGE ) {
+			// Every block in every tab hears the broadcast; only the one that opened PayPal finishes.
+			if ( data?.type !== ONBOARDING_RETURN_MESSAGE || ! onboardingRequestedRef.current ) {
 				return;
 			}
 
@@ -364,7 +388,9 @@ export function usePayPalConnection() {
 
 		return () => {
 			channel?.close();
-			targets.forEach( target => target.removeEventListener( 'message', handleReturnMessage ) );
+			targets.forEach( target =>
+				releaseFrame( () => target.removeEventListener( 'message', handleReturnMessage ) )
+			);
 		};
 	}, [ frameNode, completeOnboarding ] );
 
@@ -542,10 +568,10 @@ export function usePayPalConnection() {
 
 		return () => {
 			cancelled = true;
-			binding?.cancel();
+			releaseFrame( () => binding?.cancel() );
 			setIsSdkReady( false );
 			onboardingLinkRef.current = null;
-			delete frameWindow[ ONBOARD_CALLBACK_NAME ];
+			releaseFrame( () => delete frameWindow[ ONBOARD_CALLBACK_NAME ] );
 		};
 	}, [ frameNode, signupUrl, environment, completeOnboarding ] );
 
