@@ -133,7 +133,14 @@ class Avatars {
 		$stored = get_comment_meta( $comment_id, Checkpoint::META_AVATAR, true );
 
 		if ( ! is_string( $stored ) || $stored === '' || 'https' !== wp_parse_url( $stored, PHP_URL_SCHEME ) ) {
-			$stored = null;
+			// Highlander and Verbum stored a Facebook or X avatar here, which the email cannot
+			// bring back. Written by the browser, so only those two hosts are served.
+			$stored = get_comment_meta( $comment_id, 'hc_avatar', true );
+			$host   = is_string( $stored ) ? wp_parse_url( $stored, PHP_URL_HOST ) : null;
+
+			if ( ! is_string( $host ) || ! preg_match( '/(^|\.)(graph\.facebook\.com|twimg\.com)$/', $host ) ) {
+				$stored = null;
+			}
 		}
 
 		$resolved[ $key ] = null === $stored ? null : Image_CDN_Core::cdn_url( $stored, array( 'resize' => "$size,$size" ) );
