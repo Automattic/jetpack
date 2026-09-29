@@ -12,13 +12,9 @@ namespace Automattic\Jetpack\Comments;
  */
 class Passport {
 
-	// Signed and httponly, read only by the server.
-	const COOKIE = 'jetpack_comment_identity';
-	// Readable by the page's script, and untrusted. It has to be a cookie: the
-	// page is cached for everyone, so who holds a passport cannot be in the HTML.
+	const COOKIE         = 'jetpack_comment_identity';
 	const DISPLAY_COOKIE = 'jetpack_comment_identity_display';
-	// The blog id is added at signing time, so a passport from one site of a network is refused on every other.
-	const FIELDS = array( 'site_commenter_id', 'provider', 'name', 'email', 'avatar', 'expires_at' );
+	const FIELDS         = array( 'site_commenter_id', 'provider', 'name', 'email', 'avatar', 'expires_at' );
 
 	/**
 	 * Read the passport the browser sent, if it is intact and unexpired.
@@ -29,7 +25,6 @@ class Passport {
 		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Verified against its signature below.
 		$cookie = isset( $_COOKIE[ self::COOKIE ] ) ? wp_unslash( $_COOKIE[ self::COOKIE ] ) : '';
 
-		// Tampered, malformed and expired all read as absent.
 		if ( ! is_string( $cookie ) || '' === $cookie || substr_count( $cookie, '.' ) !== 1 ) {
 			return null;
 		}
@@ -117,7 +112,7 @@ class Passport {
 	 * @return string
 	 */
 	private static function signature( $encoded ) {
-		return hash_hmac( 'sha256', 'jetpack-comment-passport-v1|' . $encoded, wp_salt( 'auth' ) );
+		return hash_hmac( 'sha256', 'jetpack-comment-passport|' . $encoded, wp_salt( 'auth' ) );
 	}
 
 	/**

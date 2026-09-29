@@ -29,23 +29,19 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		formSettings,
 		details,
 		isEmptyComment,
+		isPosting,
 		commentParent,
 		commenter,
 		rememberDetails,
 		isDialogOpen,
 		isEditingDetails,
 	} = useContext( CommentSignals );
-	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
+	const { site, strings, mustLogIn, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
-	// Bumped per attempt, so a popup or request abandoned for another cannot answer for it.
-	const signInAttempt = useRef( 0 );
-	const emailAttempt = useRef( 0 );
-	const emailTimer = useRef( 0 );
-	const checkedEmail = useRef( '' );
-	const turnedPage = useRef( false );
-	const [ isSigningIn, setIsSigningIn ] = useState( false );
-	const [ signInError, setSignInError ] = useState( '' );
+	const [ signInStatus, setSignInStatus ] = useState<
+		'idle' | 'pending' | 'failed' | 'rate_limited'
+	>( 'idle' );
 	const [ emailTaken, setEmailTaken ] = useState( false );
 	// Straight to the fields when they are the only way through.
 	const firstStep = identity.canSignIn ? 'choose' : 'guest';
@@ -55,14 +51,26 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			formSettings.subscriptions.map( ( { name, checked } ) => [ name, checked ] )
 		)
 	);
-
 	// Subscribe options are offered once, when a reader logs in or gives their email. A choice
 	// made with nothing to post waits here for their next comment, then is gone.
 	const [ heldChoice, setHeldChoice ] = useState< string[] | null >( null );
 	// Opened from "Change details": about who they are, so nothing here posts the comment.
 	const [ detailsOnly, setDetailsOnly ] = useState( false );
-	// Whether what the form will post right now carries a choice.
-	const sendsChoice = useRef( false );
+
+	// Which page shows: the step, or the details page when opened from "Change details".
+	const page = isEditingDetails.value ? 'details' : step;
+	const showFields = page === 'guest' || page === 'details';
+	const showToggles =
+		formSettings.subscriptions.length > 0 &&
+		isDialogOpen.value &&
+		( page === 'guest' || page === 'subscribe' );
+	const chosen = formSettings.subscriptions
+		.filter( ( { name } ) => subscribed[ name ] )
+		.map( ( { name } ) => name );
+	const guest =
+		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
+	const posting = ! isEmptyComment.value && ! detailsOnly;
+	const enteredEmail = details.value.email;
 
 	useEffect( () => {
 		const element = dialog.current;
@@ -78,77 +86,82 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	// The button that turned the page is gone, so focus goes to the new page's first control.
 	useEffect( () => {
-		if ( turnedPage.current ) {
-			turnedPage.current = false;
+		if ( page !== 'choose' ) {
 			dialog.current?.querySelector( 'input' )?.focus();
 		}
-	}, [ step ] );
+	}, [ page ] );
 
-	const start = async () => {
-		setSignInError( '' );
-		setIsSigningIn( true );
+	// Whether the email belongs to a WordPress.com account, half a second after it stops
+	// changing: each check counts against a rate limit, and a late answer for an old value is dropped.
+	useEffect( () => {
+		setEmailTaken( false );
 
-		const current = ++signInAttempt.current;
+		if ( ! showFields || ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( enteredEmail ) ) {
+			return;
+		}
+
+		let current = true;
+		const timer = window.setTimeout( async () => {
+			const taken = await emailHasAccount( enteredEmail );
+
+			if ( current ) {
+				setEmailTaken( taken );
+			}
+		}, 500 );
+
+		return () => {
+			current = false;
+			window.clearTimeout( timer );
+		};
+	}, [ enteredEmail, showFields ] );
+
+	// The comment that carries a held choice uses it up. Effects run after the browser
+	// has read the form's fields, so the choice still goes with that comment.
+	useEffect( () => {
+		if ( isPosting.value ) {
+			setHeldChoice( null );
+		}
+	}, [ isPosting.value ] );
+
+	const logIn = async () => {
+		setSignInStatus( 'pending' );
+
+		// Cancel closes the popup, which settles this as cancelled.
 		const result = await signIn( opened => {
 			popup.current = opened;
 		} );
 
-		if ( current !== signInAttempt.current ) {
-			return;
-		}
-
 		popup.current = null;
-		setIsSigningIn( false );
 
-		if ( 'code' in result ) {
-			commenter.value = {
-				kind: 'wordpress',
-				name: result.name,
-				avatar: result.avatar,
-				code: result.code,
-			};
-			isEditingDetails.value = false;
-
-			if ( formSettings.subscriptions.length ) {
-				turnedPage.current = true;
-				setStep( 'subscribe' );
-				return;
-			}
-
-			isDialogOpen.value = false;
-
-			// A timeout, so the render that puts the sign-in code in the form lands first.
-			if ( ! detailsOnly && ! isEmptyComment.peek() ) {
-				window.setTimeout( () => internals.form?.requestSubmit() );
-			}
-		} else if ( 'error' in result ) {
-			setSignInError(
-				result.error === 'rate_limited' ? strings.signInRateLimited : strings.signInFailed
-			);
-		}
-	};
-
-	const checkEmail = async ( email: string ) => {
-		const current = ++emailAttempt.current;
-		window.clearTimeout( emailTimer.current );
-
-		if ( ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email ) ) {
-			checkedEmail.current = '';
-			setEmailTaken( false );
+		if ( 'error' in result ) {
+			setSignInStatus( result.error === 'rate_limited' ? 'rate_limited' : 'failed' );
 			return;
 		}
 
-		// Each check counts against a rate limit, and leaving the field re-checks what typing just did.
-		if ( email === checkedEmail.current ) {
+		setSignInStatus( 'idle' );
+
+		if ( ! ( 'code' in result ) ) {
 			return;
 		}
 
-		checkedEmail.current = email;
+		commenter.value = {
+			kind: 'wordpress',
+			name: result.name,
+			avatar: result.avatar,
+			code: result.code,
+		};
+		isEditingDetails.value = false;
 
-		const taken = await emailHasAccount( email );
+		if ( formSettings.subscriptions.length ) {
+			setStep( 'subscribe' );
+			return;
+		}
 
-		if ( current === emailAttempt.current ) {
-			setEmailTaken( taken );
+		isDialogOpen.value = false;
+
+		// A timeout, so the render that puts the sign-in code in the form lands first.
+		if ( ! detailsOnly && ! isEmptyComment.peek() ) {
+			window.setTimeout( () => internals.form?.requestSubmit() );
 		}
 	};
 
@@ -156,40 +169,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		isDialogOpen.value = false;
 		isEditingDetails.value = false;
 	};
-
-	const fields = [
-		{
-			field: 'author' as const,
-			type: 'text',
-			autoComplete: 'name',
-			label: strings.name,
-			required: requireNameEmail,
-		},
-		{
-			field: 'email' as const,
-			type: 'email',
-			autoComplete: 'email',
-			label: strings.email,
-			required: requireNameEmail,
-		},
-		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
-	];
-
-	const editing = isEditingDetails.value;
-	const known = ! editing && commenter.value.kind !== 'unknown';
-	const choosing = ! known && ! editing && step === 'choose';
-	const showFields = ! known && ! mustLogIn && ( editing || step === 'guest' );
-	const showToggles =
-		formSettings.subscriptions.length > 0 &&
-		isDialogOpen.value &&
-		! editing &&
-		( step === 'subscribe' || ( showFields && step === 'guest' ) );
-	const chosen = formSettings.subscriptions
-		.filter( ( { name } ) => subscribed[ name ] )
-		.map( ( { name } ) => name );
-	const guest =
-		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
-	const posting = ! isEmptyComment.value && ! detailsOnly;
 
 	const formValue = ( consent: boolean ) => {
 		const data = new FormData();
@@ -199,10 +178,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		}
 
 		// Chosen here, or held from when they saved their details with nothing to post.
-		const choice = showToggles ? chosen : heldChoice;
-
-		choice?.forEach( name => data.append( name, 'subscribe' ) );
-		sendsChoice.current = choice !== null;
+		( showToggles ? chosen : heldChoice )?.forEach( name => data.append( name, 'subscribe' ) );
 
 		if ( consent ) {
 			data.append( 'wp-comment-cookies-consent', 'yes' );
@@ -213,32 +189,16 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 	useEffect( () => internals.setFormValue( formValue( false ) ) );
 
-	// The comment that carries a held choice uses it up. Runs after the form's own
-	// listener, which cancels the submit that only opens this dialog, and clears a
-	// tick later: the browser reads the form's fields after this event, not before.
-	useEffect( () => {
-		const form = internals.form;
-		const onSubmit = ( event: SubmitEvent ) => {
-			if ( ! event.defaultPrevented && sendsChoice.current ) {
-				window.setTimeout( () => setHeldChoice( null ) );
-			}
-		};
-
-		form?.addEventListener( 'submit', onSubmit );
-
-		return () => form?.removeEventListener( 'submit', onSubmit );
-	}, [ internals ] );
-
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
 		// Nothing written yet, or here to change who they are: save, do not post.
-		if ( editing || ! posting ) {
+		if ( ! posting ) {
 			if ( showToggles ) {
 				setHeldChoice( chosen );
 			}
 
-			if ( step === 'subscribe' ) {
+			if ( page === 'subscribe' ) {
 				isDialogOpen.value = false;
 				return;
 			}
@@ -269,6 +229,47 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		internals.setFormValue( formValue( showFields && rememberDetails.peek() ) );
 		internals.form?.requestSubmit();
 		internals.setFormValue( formValue( false ) );
+	};
+
+	const logInOrWait = (
+		<LogIn status={ signInStatus } onLogIn={ logIn } onCancel={ () => popup.current?.close() } />
+	);
+	const switches = showToggles && (
+		<SubscribeSwitches subscribed={ subscribed } onChange={ setSubscribed } />
+	);
+	const pages = {
+		choose: (
+			<>
+				{ mustLogIn && <p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p> }
+				<div className="jetpack-comments__sign-in">
+					{ logInOrWait }
+					{ ! mustLogIn && (
+						<button
+							type="button"
+							className="jetpack-comments__button is-secondary"
+							onClick={ () => setStep( 'guest' ) }
+						>
+							{ strings.continueAsGuest }
+						</button>
+					) }
+				</div>
+			</>
+		),
+		guest: (
+			<>
+				<h2 className="jetpack-comments__dialog-heading">{ strings.createProfile }</h2>
+				<p className="jetpack-comments__dialog-intro">{ strings.intro }</p>
+				<DetailsFields emailTaken={ emailTaken } />
+				{ switches }
+			</>
+		),
+		details: (
+			<>
+				<div className="jetpack-comments__sign-in">{ logInOrWait }</div>
+				<DetailsFields emailTaken={ emailTaken } />
+			</>
+		),
+		subscribe: switches,
 	};
 
 	return (
@@ -311,172 +312,183 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 							</svg>
 						</button>
 					</div>
-					{ ! known && mustLogIn && (
-						<p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p>
-					) }
-					{ ( choosing || editing ) && (
-						<div className="jetpack-comments__sign-in">
-							{ identity.canSignIn &&
-								( isSigningIn ? (
-									<span className="jetpack-comments__signing-in">
-										<span className="jetpack-comments__spinner" aria-hidden="true" />
-										<button
-											type="button"
-											className="jetpack-comments__button is-link"
-											onClick={ () => {
-												signInAttempt.current++;
-												popup.current?.close();
-												popup.current = null;
-												setIsSigningIn( false );
-											} }
-										>
-											{ strings.cancel }
-										</button>
-									</span>
-								) : (
-									<button
-										type="button"
-										className="jetpack-comments__button is-primary"
-										onClick={ start }
-									>
-										<svg
-											width="16"
-											height="16"
-											viewBox="0 0 20 20"
-											fill="none"
-											aria-hidden="true"
-											focusable="false"
-										>
-											<path
-												fill-rule="evenodd"
-												clip-rule="evenodd"
-												d="M19.2308 9.99981C19.2308 4.91366 15.0862 0.769043 10.0001 0.769043C4.90467 0.769043 0.769287 4.91366 0.769287 9.99981C0.769287 15.0952 4.90467 19.2306 10.0001 19.2306C15.0862 19.2306 19.2308 15.0952 19.2308 9.99981ZM7.95083 14.9567L4.80313 6.51058C5.31083 6.49212 5.88313 6.43674 5.88313 6.43674C6.34467 6.38135 6.28929 5.39366 5.82775 5.41212C5.82775 5.41212 4.48929 5.51366 3.64006 5.51366C3.4739 5.51366 3.29852 5.51366 3.10467 5.50443C4.57236 3.25212 7.11083 1.79366 10.0001 1.79366C12.1508 1.79366 14.1077 2.59674 15.5847 3.95366C14.957 3.85212 14.0616 4.31366 14.0616 5.41212C14.0616 6.01026 14.3801 6.52347 14.7382 7.10048C14.7891 7.18242 14.8407 7.26565 14.8924 7.35058C15.2154 7.91366 15.4001 8.60597 15.4001 9.62135C15.4001 10.9967 14.1077 14.2367 14.1077 14.2367L11.3108 6.51058C11.8093 6.49212 12.0677 6.35366 12.0677 6.35366C12.5293 6.3075 12.4739 5.19981 12.0124 5.2275C12.0124 5.2275 10.6831 5.33827 9.81544 5.33827C9.01236 5.33827 7.66467 5.2275 7.66467 5.2275C7.20313 5.19981 7.14775 6.3352 7.60929 6.35366L8.45852 6.4275L9.62159 9.5752L7.95083 14.9567ZM16.8602 9.94619L16.8401 9.99981C16.1713 11.7605 15.5075 13.5364 14.8451 15.3087L14.845 15.309L14.8448 15.3093C14.6113 15.9341 14.378 16.5583 14.1447 17.1814C16.6093 15.7598 18.2062 13.0367 18.2062 9.99981C18.2062 8.57827 17.8831 7.2675 17.237 6.07674C17.5147 8.20894 17.0881 9.34123 16.8602 9.94617L16.8602 9.94619ZM6.40006 17.4675C3.64929 16.1383 1.7939 13.2583 1.7939 9.99981C1.7939 8.79981 2.00621 7.71058 2.45852 6.68597L3.28801 8.95912C4.32263 11.7949 5.35847 14.6341 6.40006 17.4675ZM12.5016 17.7906L10.1201 11.3475C9.68129 12.6419 9.23927 13.9362 8.79593 15.2344C8.4931 16.1212 8.18965 17.0097 7.88621 17.9014C8.55083 18.1044 9.27083 18.206 10.0001 18.206C10.877 18.206 11.7077 18.0583 12.5016 17.7906Z"
-												fill="currentColor"
-											/>
-										</svg>
-										{ strings.logInWithWordPress }
-									</button>
-								) ) }
-							{ signInError && (
-								<span className="jetpack-comments__notice" role="status">
-									{ signInError }
-								</span>
-							) }
-							{ choosing && ! mustLogIn && (
-								<button
-									type="button"
-									className="jetpack-comments__button is-secondary"
-									onClick={ () => {
-										turnedPage.current = true;
-										setStep( 'guest' );
-									} }
-								>
-									{ strings.continueAsGuest }
-								</button>
-							) }
+					{ pages[ page ] }
+					{ page !== 'choose' && (
+						<div className="jetpack-comments__dialog-actions">
+							<button
+								type="submit"
+								className="jetpack-comments__button is-primary"
+								disabled={ emailTaken }
+							>
+								{ ! posting && strings.save }
+								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
+							</button>
 						</div>
 					) }
-					{ showFields && ! editing && (
-						<>
-							<h2 className="jetpack-comments__dialog-heading">{ strings.createProfile }</h2>
-							<p className="jetpack-comments__dialog-intro">{ strings.intro }</p>
-						</>
-					) }
-					{ showFields &&
-						fields.map( ( { field, ...input } ) => (
-							<div key={ field } className="jetpack-comments__field">
-								<label htmlFor={ field } className="jetpack-comments__label">
-									{ input.label }
-								</label>
-								<input
-									id={ field }
-									name={ field }
-									type={ input.type }
-									autoComplete={ input.autoComplete }
-									className="jetpack-comments__input"
-									aria-describedby={ field === 'email' ? 'email-notes' : undefined }
-									aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
-									required={ input.required }
-									value={ details.value[ field ] }
-									onInput={ event => {
-										const { value } = event.currentTarget;
-										details.value = { ...details.value, [ field ]: value };
-
-										if ( field === 'email' ) {
-											window.clearTimeout( emailTimer.current );
-											emailTimer.current = window.setTimeout( () => checkEmail( value ), 500 );
-										}
-									} }
-									onBlur={ field === 'email' ? () => checkEmail( details.value.email ) : undefined }
-								/>
-								{ field === 'email' && (
-									<span id="email-notes" className="jetpack-comments__help">
-										{ strings.emailHint }
-									</span>
-								) }
-								{ field === 'email' && emailTaken && (
-									<span className="jetpack-comments__notice" role="alert">
-										{ strings.emailHasAccount }
-									</span>
-								) }
-							</div>
-						) ) }
-					{ showFields && (
-						<label htmlFor="remember" className="jetpack-comments__toggle">
-							<input
-								id="remember"
-								type="checkbox"
-								role="switch"
-								checked={ rememberDetails.value }
-								onChange={ event => ( rememberDetails.value = event.currentTarget.checked ) }
-							/>
-							{ strings.saveDetails }
-						</label>
-					) }
-					{ showToggles &&
-						formSettings.subscriptions.map( ( { name, label } ) => (
-							<label key={ name } htmlFor={ name } className="jetpack-comments__toggle">
-								<input
-									id={ name }
-									type="checkbox"
-									role="switch"
-									checked={ subscribed[ name ] }
-									onChange={ event =>
-										setSubscribed( { ...subscribed, [ name ]: event.currentTarget.checked } )
-									}
-								/>
-								{ label }
-							</label>
-						) ) }
-					<div className="jetpack-comments__dialog-actions">
-						{ editing && (
-							<button
-								type="submit"
-								className="jetpack-comments__button is-primary"
-								disabled={ emailTaken }
-							>
-								{ strings.save }
-							</button>
-						) }
-						{ step === 'subscribe' && known && (
-							<button type="submit" className="jetpack-comments__button is-primary">
-								{ ! posting && strings.save }
-								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
-							</button>
-						) }
-						{ showFields && ! editing && (
-							<button
-								type="submit"
-								className="jetpack-comments__button is-primary"
-								disabled={ emailTaken }
-							>
-								{ ! posting && strings.save }
-								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
-							</button>
-						) }
-					</div>
 				</form>
 			</dialog>
+		</>
+	);
+};
+
+/**
+ * Log in with WordPress.com, or wait on the popup with a way to cancel it.
+ *
+ * @param props          - Component props.
+ * @param props.status   - Where the sign-in is.
+ * @param props.onLogIn  - Opens the popup.
+ * @param props.onCancel - Closes it.
+ * @return The button, or the wait, and any error.
+ */
+const LogIn = ( {
+	status,
+	onLogIn,
+	onCancel,
+}: {
+	status: 'idle' | 'pending' | 'failed' | 'rate_limited';
+	onLogIn: () => void;
+	onCancel: () => void;
+} ) => {
+	const { strings, identity } = JetpackComments;
+
+	if ( ! identity.canSignIn ) {
+		return null;
+	}
+
+	return (
+		<>
+			{ status === 'pending' ? (
+				<span className="jetpack-comments__signing-in">
+					<span className="jetpack-comments__spinner" aria-hidden="true" />
+					<button type="button" className="jetpack-comments__button is-link" onClick={ onCancel }>
+						{ strings.cancel }
+					</button>
+				</span>
+			) : (
+				<button type="button" className="jetpack-comments__button is-primary" onClick={ onLogIn }>
+					<svg
+						width="16"
+						height="16"
+						viewBox="0 0 20 20"
+						fill="none"
+						aria-hidden="true"
+						focusable="false"
+					>
+						<path
+							fill-rule="evenodd"
+							clip-rule="evenodd"
+							d="M19.2308 9.99981C19.2308 4.91366 15.0862 0.769043 10.0001 0.769043C4.90467 0.769043 0.769287 4.91366 0.769287 9.99981C0.769287 15.0952 4.90467 19.2306 10.0001 19.2306C15.0862 19.2306 19.2308 15.0952 19.2308 9.99981ZM7.95083 14.9567L4.80313 6.51058C5.31083 6.49212 5.88313 6.43674 5.88313 6.43674C6.34467 6.38135 6.28929 5.39366 5.82775 5.41212C5.82775 5.41212 4.48929 5.51366 3.64006 5.51366C3.4739 5.51366 3.29852 5.51366 3.10467 5.50443C4.57236 3.25212 7.11083 1.79366 10.0001 1.79366C12.1508 1.79366 14.1077 2.59674 15.5847 3.95366C14.957 3.85212 14.0616 4.31366 14.0616 5.41212C14.0616 6.01026 14.3801 6.52347 14.7382 7.10048C14.7891 7.18242 14.8407 7.26565 14.8924 7.35058C15.2154 7.91366 15.4001 8.60597 15.4001 9.62135C15.4001 10.9967 14.1077 14.2367 14.1077 14.2367L11.3108 6.51058C11.8093 6.49212 12.0677 6.35366 12.0677 6.35366C12.5293 6.3075 12.4739 5.19981 12.0124 5.2275C12.0124 5.2275 10.6831 5.33827 9.81544 5.33827C9.01236 5.33827 7.66467 5.2275 7.66467 5.2275C7.20313 5.19981 7.14775 6.3352 7.60929 6.35366L8.45852 6.4275L9.62159 9.5752L7.95083 14.9567ZM16.8602 9.94619L16.8401 9.99981C16.1713 11.7605 15.5075 13.5364 14.8451 15.3087L14.845 15.309L14.8448 15.3093C14.6113 15.9341 14.378 16.5583 14.1447 17.1814C16.6093 15.7598 18.2062 13.0367 18.2062 9.99981C18.2062 8.57827 17.8831 7.2675 17.237 6.07674C17.5147 8.20894 17.0881 9.34123 16.8602 9.94617L16.8602 9.94619ZM6.40006 17.4675C3.64929 16.1383 1.7939 13.2583 1.7939 9.99981C1.7939 8.79981 2.00621 7.71058 2.45852 6.68597L3.28801 8.95912C4.32263 11.7949 5.35847 14.6341 6.40006 17.4675ZM12.5016 17.7906L10.1201 11.3475C9.68129 12.6419 9.23927 13.9362 8.79593 15.2344C8.4931 16.1212 8.18965 17.0097 7.88621 17.9014C8.55083 18.1044 9.27083 18.206 10.0001 18.206C10.877 18.206 11.7077 18.0583 12.5016 17.7906Z"
+							fill="currentColor"
+						/>
+					</svg>
+					{ strings.logInWithWordPress }
+				</button>
+			) }
+			{ ( status === 'failed' || status === 'rate_limited' ) && (
+				<span className="jetpack-comments__notice" role="status">
+					{ status === 'rate_limited' ? strings.signInRateLimited : strings.signInFailed }
+				</span>
+			) }
+		</>
+	);
+};
+
+/**
+ * Name, email and website, and whether to save them.
+ *
+ * @param props            - Component props.
+ * @param props.emailTaken - Whether the email belongs to a WordPress.com account.
+ * @return The fields and the save switch.
+ */
+const DetailsFields = ( { emailTaken }: { emailTaken: boolean } ) => {
+	const { details, rememberDetails } = useContext( CommentSignals );
+	const { strings, requireNameEmail } = JetpackComments;
+	const fields = [
+		{ field: 'author' as const, type: 'text', autoComplete: 'name', label: strings.name },
+		{ field: 'email' as const, type: 'email', autoComplete: 'email', label: strings.email },
+		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
+	];
+
+	return (
+		<>
+			{ fields.map( ( { field, ...input } ) => (
+				<div key={ field } className="jetpack-comments__field">
+					<label htmlFor={ field } className="jetpack-comments__label">
+						{ input.label }
+					</label>
+					<input
+						id={ field }
+						name={ field }
+						type={ input.type }
+						autoComplete={ input.autoComplete }
+						className="jetpack-comments__input"
+						aria-describedby={ field === 'email' ? 'email-notes' : undefined }
+						aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
+						required={ requireNameEmail && field !== 'url' }
+						value={ details.value[ field ] }
+						onInput={ event => {
+							details.value = { ...details.value, [ field ]: event.currentTarget.value };
+						} }
+					/>
+					{ field === 'email' && (
+						<span id="email-notes" className="jetpack-comments__help">
+							{ strings.emailHint }
+						</span>
+					) }
+					{ field === 'email' && emailTaken && (
+						<span className="jetpack-comments__notice" role="alert">
+							{ strings.emailHasAccount }
+						</span>
+					) }
+				</div>
+			) ) }
+			<label htmlFor="remember" className="jetpack-comments__toggle">
+				<input
+					id="remember"
+					type="checkbox"
+					role="switch"
+					checked={ rememberDetails.value }
+					onChange={ event => ( rememberDetails.value = event.currentTarget.checked ) }
+				/>
+				{ strings.saveDetails }
+			</label>
+		</>
+	);
+};
+
+/**
+ * The host's subscribe options, as switches.
+ *
+ * @param props            - Component props.
+ * @param props.subscribed - Which are on, by field name.
+ * @param props.onChange   - Called with the new set.
+ * @return The switches.
+ */
+const SubscribeSwitches = ( {
+	subscribed,
+	onChange,
+}: {
+	subscribed: Record< string, boolean >;
+	onChange: ( subscribed: Record< string, boolean > ) => void;
+} ) => {
+	const { formSettings } = useContext( CommentSignals );
+
+	return (
+		<>
+			{ formSettings.subscriptions.map( ( { name, label } ) => (
+				<label key={ name } htmlFor={ name } className="jetpack-comments__toggle">
+					<input
+						id={ name }
+						type="checkbox"
+						role="switch"
+						checked={ subscribed[ name ] }
+						onChange={ event =>
+							onChange( { ...subscribed, [ name ]: event.currentTarget.checked } )
+						}
+					/>
+					{ label }
+				</label>
+			) ) }
 		</>
 	);
 };
