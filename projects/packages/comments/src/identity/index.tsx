@@ -6,17 +6,18 @@ import { logOut } from './checkpoint/checkpoint';
 import './style.scss';
 
 /**
- * Who the comment will be attributed to: a link to the dialog until the site
- * knows the reader, then their name, with a chevron that drops the options out below.
+ * Who the comment will be attributed to, in the footer: a link to the dialog until
+ * the site knows the commenter, then their name, with a chevron that opens the options.
  *
  * @return The identity line.
  */
 export const Identity = () => {
-	const { formSettings, commenter, signedIn, isMenuOpen, isSavedGuest, isDialogOpen } =
+	const { formSettings, details, commenter, isOptionsOpen, isDialogOpen } =
 		useContext( CommentSignals );
-	const { user, mustLogIn, identity, strings } = JetpackComments;
+	const { mustLogIn, identity, strings } = JetpackComments;
+	const current = commenter.value;
 
-	if ( mustLogIn && ! identity.canSignIn && ! signedIn.value ) {
+	if ( current.kind === 'unknown' && mustLogIn && ! identity.canSignIn ) {
 		return (
 			<span className="jetpack-comments__who">
 				{ strings.mustLogIn } <a href={ formSettings.loginUrl }>{ strings.logIn }</a>
@@ -24,15 +25,7 @@ export const Identity = () => {
 		);
 	}
 
-	let name: string;
-
-	if ( user ) {
-		name = user.name;
-	} else if ( signedIn.value ) {
-		name = signedIn.value.name;
-	} else if ( isSavedGuest.value ) {
-		name = commenter.value.author;
-	} else {
+	if ( current.kind === 'unknown' ) {
 		return (
 			<span className="jetpack-comments__who">
 				<a
@@ -49,27 +42,26 @@ export const Identity = () => {
 		);
 	}
 
-	const open = isMenuOpen.value;
+	const open = isOptionsOpen.value;
 
 	return (
 		<span className={ clsx( 'jetpack-comments__who', { 'is-open': open } ) }>
 			{ /* A fresh sign-in posts its code; a returning one a marker, so the server reads the passport only when this was on screen. */ }
-			{ signedIn.value &&
-				( signedIn.value.code !== null ? (
-					<input type="hidden" name={ identity.codeField } value={ signedIn.value.code } />
+			{ current.kind === 'wordpress' &&
+				( current.code !== null ? (
+					<input type="hidden" name={ identity.codeField } value={ current.code } />
 				) : (
 					<input type="hidden" name={ identity.passportField } value="1" />
 				) ) }
-			{ name }
+			{ current.kind === 'guest' ? details.value.author : current.name }
 			<button
 				type="button"
 				className="jetpack-comments__chevron"
 				title={ strings.options }
 				aria-expanded={ open }
-				onClick={ () => ( isMenuOpen.value = ! open ) }
+				onClick={ () => ( isOptionsOpen.value = ! open ) }
 			>
 				<span className="jetpack-comments__visually-hidden">{ strings.options }</span>
-				{ /* @wordpress/icons "chevron-down". */ }
 				<svg
 					viewBox="0 0 24 24"
 					width="24"
@@ -86,35 +78,35 @@ export const Identity = () => {
 };
 
 /**
- * The options the chevron drops out: log out or change details, and where to
- * manage subscriptions.
+ * The row the chevron drops below the box: log out or change details, and where
+ * to manage subscriptions.
  *
- * @return The options, or nothing for a reader the dialog will ask.
+ * @return The options, or nothing for a commenter the dialog will ask.
  */
-export const IdentityOptions = () => {
-	const { formSettings, commenter, signedIn, isKnown, isMenuOpen, isDialogOpen, isEditing } =
+export const Options = () => {
+	const { formSettings, details, commenter, isOptionsOpen, isDialogOpen, isEditingDetails } =
 		useContext( CommentSignals );
-	const { user, strings } = JetpackComments;
+	const { strings } = JetpackComments;
+	const { kind } = commenter.value;
 
-	if ( ! isKnown.value ) {
+	if ( kind === 'unknown' ) {
 		return null;
 	}
 
 	// Absent from a page cached before this key existed; the row then has no manage link.
 	const links = JetpackComments.manageSubscriptions ?? { url: '', byEmail: true, signedInUrl: '' };
-	const byEmail = ! signedIn.value && links.byEmail;
-	let manageUrl = signedIn.value ? links.signedInUrl : links.url;
+	let manageUrl = kind === 'wordpress' ? links.signedInUrl : links.url;
 
 	// The portal asks for an email address; hand it the one the comment will post under.
-	if ( manageUrl && byEmail && commenter.value.email ) {
-		manageUrl += `?email=${ encodeURIComponent( commenter.value.email ) }`;
+	if ( manageUrl && kind !== 'wordpress' && links.byEmail && details.value.email ) {
+		manageUrl += `?email=${ encodeURIComponent( details.value.email ) }`;
 	}
 
 	return (
-		<div className={ clsx( 'jetpack-comments__options', { 'is-open': isMenuOpen.value } ) }>
+		<div className={ clsx( 'jetpack-comments__options', { 'is-open': isOptionsOpen.value } ) }>
 			<div>
 				{ /* Anchors, not buttons, so the theme styles them like the link beside them. */ }
-				{ user && formSettings.logoutUrl && (
+				{ kind === 'user' && formSettings.logoutUrl && (
 					<a
 						href={ formSettings.logoutUrl }
 						onClick={ async event => {
@@ -127,26 +119,26 @@ export const IdentityOptions = () => {
 						{ strings.logOut }
 					</a>
 				) }
-				{ ! user && signedIn.value && (
+				{ kind === 'wordpress' && (
 					<a
 						href="#"
 						onClick={ async event => {
 							event.preventDefault();
 							await logOut();
-							signedIn.value = null;
-							isMenuOpen.value = false;
+							commenter.value = { kind: 'unknown' };
+							isOptionsOpen.value = false;
 						} }
 					>
 						{ strings.logOut }
 					</a>
 				) }
-				{ ! user && ! signedIn.value && (
+				{ kind === 'guest' && (
 					<a
 						href="#"
 						aria-haspopup="dialog"
 						onClick={ event => {
 							event.preventDefault();
-							isEditing.value = true;
+							isEditingDetails.value = true;
 							isDialogOpen.value = true;
 						} }
 					>

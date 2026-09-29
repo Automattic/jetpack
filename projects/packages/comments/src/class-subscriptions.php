@@ -71,7 +71,14 @@ class Subscriptions {
 			'signedInUrl' => '',
 		);
 
-		if ( ! function_exists( 'subscription_comment_form' ) && ! class_exists( 'Jetpack_Subscriptions' ) ) {
+		// The Newsletter's own switches for the comment form: subscribe to the site, and to
+		// replies. Simple stores "off" as an empty string, Jetpack as 0.
+		$offered = false;
+		foreach ( array( 'stb_enabled', 'stc_enabled' ) as $option ) {
+			$offered = $offered || ! in_array( get_option( $option, 1 ), array( '', '0', 0 ), true );
+		}
+
+		if ( ! $offered || ( ! function_exists( 'subscription_comment_form' ) && ! class_exists( 'Jetpack_Subscriptions' ) ) ) {
 			return $links;
 		}
 

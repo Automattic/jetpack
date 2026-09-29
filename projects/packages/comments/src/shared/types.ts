@@ -1,4 +1,4 @@
-export type Commenter = {
+export type Details = {
 	author: string;
 	email: string;
 	url: string;
@@ -15,10 +15,15 @@ export type Passport = {
 	avatar: string;
 };
 
-/** `code` is set until the comment posts and the passport takes over. */
-export type SignedIn = Passport & {
-	code: string | null;
-};
+/**
+ * Who is commenting. A popup sign-in's `code` is set until the comment posts and
+ * the passport takes over; a guest's details are in `details`.
+ */
+export type Commenter =
+	| { kind: 'user'; name: string }
+	| ( Passport & { kind: 'wordpress'; code: string | null } )
+	| { kind: 'guest' }
+	| { kind: 'unknown' };
 
 export type IdentitySettings = {
 	blogId: number;
@@ -75,8 +80,7 @@ export type Strings = {
 	continueAsGuest: string;
 	back: string;
 	save: string;
-	saveAndPost: string;
-	postWithoutSaving: string;
+	saveDetails: string;
 	close: string;
 	options: string;
 	changeDetails: string;
@@ -97,6 +101,7 @@ export type Settings = {
 	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
+	cookiesOptIn: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
 	/** Empty when the site shows no avatars. */
@@ -105,7 +110,7 @@ export type Settings = {
 	/** URLs are empty where the host offers no subscriptions. */
 	manageSubscriptions: { url: string; byEmail: boolean; signedInUrl: string };
 	strings: Strings;
-	commenter: Commenter;
+	commenter: Details;
 	user: { name: string } | null;
 	identity: IdentitySettings;
 };

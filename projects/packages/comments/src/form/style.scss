@@ -43,8 +43,8 @@
 	}
 }
 
-// Hidden, not just collapsed, so nothing inside a closed tray can take focus.
-.jetpack-comments__tray {
+// Hidden, not just collapsed, so nothing inside a closed footer can take focus.
+.jetpack-comments__footer {
 	display: grid;
 	grid-template-rows: 0fr;
 	visibility: hidden;
@@ -67,7 +67,7 @@
 
 // Reversed so the submit precedes the identity line in the DOM, and Tab
 // reaches it straight from the textarea. The negative margins give focus
-// rings room inside the tray's clipped box.
+// rings room inside the footer's clipped box.
 .jetpack-comments__actions {
 	display: flex;
 	flex-direction: row-reverse;

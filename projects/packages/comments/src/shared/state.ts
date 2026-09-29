@@ -2,7 +2,7 @@ import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import { readPassport } from '../identity/checkpoint/passport';
-import type { Commenter, FormSettings, SignedIn } from './types';
+import type { Details, FormSettings, Commenter } from './types';
 
 /**
  * Build one form's signals.
@@ -11,42 +11,50 @@ import type { Commenter, FormSettings, SignedIn } from './types';
  * @return The signals for a single form.
  */
 export function createSignals( formSettings: FormSettings ) {
-	const { isLoggedIn, mustLogIn, commenter: saved } = JetpackComments;
+	const { user, mustLogIn, commenter: saved } = JetpackComments;
 
 	const commentValue = signal( readDraft( formSettings.postId ) );
 	const isEmptyComment = computed( () => commentValue.value.trim() === '' );
-	const isSavingComment = signal( false );
+	const isPosting = signal( false );
 	const commentParent = signal( 0 );
-	const commenter = signal< Commenter >( { ...saved } );
+	const details = signal< Details >( { ...saved } );
 
 	const passport = readPassport();
-	const signedIn = signal< SignedIn | null >( passport ? { ...passport, code: null } : null );
+	let initial: Commenter = { kind: 'unknown' };
 
-	// A site that now requires registration no longer knows a guest, saved or not.
-	const isSavedGuest = signal(
-		! isLoggedIn && ! mustLogIn && saved.author !== '' && saved.email !== ''
-	);
-	const isKnown = computed( () => isLoggedIn || signedIn.value !== null || isSavedGuest.value );
+	if ( user ) {
+		initial = { kind: 'user', name: user.name };
+	} else if ( passport ) {
+		initial = { kind: 'wordpress', ...passport, code: null };
+	} else if ( ! mustLogIn && saved.author !== '' && saved.email !== '' ) {
+		// A site that now requires registration no longer knows a guest, saved or not.
+		initial = { kind: 'guest' };
+	}
 
-	const isTrayOpen = signal( false );
-	const isMenuOpen = signal( false );
+	const commenter = signal< Commenter >( initial );
+	// Whether core keeps a guest's details; saved ones were saved with consent.
+	const rememberDetails = signal( initial.kind === 'guest' );
+
+	// The bar under the text box with the commenter and the submit, the row the
+	// chevron drops below it, and the dialog that asks who they are.
+	const isFooterOpen = signal( false );
+	const isOptionsOpen = signal( false );
 	const isDialogOpen = signal( false );
-	const isEditing = signal( false );
+	const isEditingDetails = signal( false );
 
 	return {
 		formSettings,
 		commentValue,
 		isEmptyComment,
-		isSavingComment,
+		isPosting,
 		commentParent,
+		details,
 		commenter,
-		signedIn,
-		isSavedGuest,
-		isKnown,
-		isTrayOpen,
-		isMenuOpen,
+		rememberDetails,
+		isFooterOpen,
+		isOptionsOpen,
 		isDialogOpen,
-		isEditing,
+		isEditingDetails,
 	} as const;
 }
 

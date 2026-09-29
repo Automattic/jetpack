@@ -14,29 +14,29 @@ export class DialogHost extends HTMLElement {
 }
 
 /**
- * Asks a reader who they are on their way to posting, plus any subscribe options
+ * Asks a commenter who they are on their way to posting, plus any subscribe options
  * the host offers. A saved guest opens it alone to edit their details.
  *
  * A form leaves out fields in a shadow root, so this hands the comment form what
- * to post through its host instead. A guest's "Save and post" adds core's
- * cookies-consent field, so core saves their details.
+ * to post through its host instead. The save switch adds core's cookies-consent
+ * field, so core keeps a guest's details.
  *
  * @param props           - Component props.
  * @param props.internals - The host's form internals.
  * @return The dialog.
  */
-export const IdentityDialog = ( { internals }: { internals: ElementInternals } ) => {
+export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const {
 		formSettings,
-		commenter,
+		details,
 		isEmptyComment,
-		signedIn,
-		isSavedGuest,
-		isKnown,
+		commentParent,
+		commenter,
+		rememberDetails,
 		isDialogOpen,
-		isEditing,
+		isEditingDetails,
 	} = useContext( CommentSignals );
-	const { site, strings, user, mustLogIn, requireNameEmail, identity } = JetpackComments;
+	const { site, strings, mustLogIn, requireNameEmail, cookiesOptIn, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
 	// Bumped per attempt, so a popup or request abandoned for another cannot answer for it.
@@ -49,13 +49,19 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 	const [ signInError, setSignInError ] = useState( '' );
 	const [ emailTaken, setEmailTaken ] = useState( false );
 	// Straight to the fields when they are the only way through.
-	const firstStep = identity.canSignIn || ! requireNameEmail ? 'choose' : 'guest';
-	const [ step, setStep ] = useState( firstStep );
+	const firstStep = identity.canSignIn ? 'choose' : 'guest';
+	const [ step, setStep ] = useState< 'choose' | 'guest' | 'subscribe' >( firstStep );
 	const [ subscribed, setSubscribed ] = useState< Record< string, boolean > >( () =>
 		Object.fromEntries(
 			formSettings.subscriptions.map( ( { name, checked } ) => [ name, checked ] )
 		)
 	);
+
+	// Subscribe options are offered once, when a reader logs in or gives their email. A choice
+	// made with nothing to post waits here for their next comment, then is gone.
+	const [ heldChoice, setHeldChoice ] = useState< string[] | null >( null );
+	// Whether what the form will post right now carries a choice.
+	const sendsChoice = useRef( false );
 
 	useEffect( () => {
 		const element = dialog.current;
@@ -100,7 +106,19 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 		setIsSigningIn( false );
 
 		if ( 'code' in result ) {
-			signedIn.value = { name: result.name, avatar: result.avatar, code: result.code };
+			commenter.value = {
+				kind: 'wordpress',
+				name: result.name,
+				avatar: result.avatar,
+				code: result.code,
+			};
+
+			if ( formSettings.subscriptions.length ) {
+				turnedPage.current = true;
+				setStep( 'subscribe' );
+				return;
+			}
+
 			isDialogOpen.value = false;
 
 			// A timeout, so the render that puts the sign-in code in the form lands first.
@@ -140,7 +158,7 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 
 	const close = () => {
 		isDialogOpen.value = false;
-		isEditing.value = false;
+		isEditingDetails.value = false;
 	};
 
 	const fields = [
@@ -161,32 +179,34 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
 	];
 
-	const editing = isEditing.value;
-	const known = ! editing && isKnown.value;
+	const editing = isEditingDetails.value;
+	const known = ! editing && commenter.value.kind !== 'unknown';
 	const choosing = ! known && ! editing && step === 'choose';
 	const showFields = ! known && ! mustLogIn && ( editing || step === 'guest' );
-	const showToggles = showFields && ! editing;
-	const guest = ! user && ! signedIn.value && ! mustLogIn;
+	const showToggles =
+		formSettings.subscriptions.length > 0 &&
+		isDialogOpen.value &&
+		! editing &&
+		( step === 'subscribe' || ( showFields && step === 'guest' ) );
+	const chosen = formSettings.subscriptions
+		.filter( ( { name } ) => subscribed[ name ] )
+		.map( ( { name } ) => name );
+	const guest =
+		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
 	const posting = ! isEmptyComment.value;
 
-	const formValue = ( consent: boolean, anonymous = false ) => {
+	const formValue = ( consent: boolean ) => {
 		const data = new FormData();
 
-		if ( anonymous ) {
-			return data;
-		}
-
 		if ( guest ) {
-			Object.entries( commenter.value ).forEach( ( [ name, value ] ) =>
-				data.append( name, value )
-			);
+			Object.entries( details.value ).forEach( ( [ name, value ] ) => data.append( name, value ) );
 		}
 
-		if ( showToggles ) {
-			formSettings.subscriptions.forEach(
-				( { name } ) => subscribed[ name ] && data.append( name, 'subscribe' )
-			);
-		}
+		// Chosen here, or held from when they saved their details with nothing to post.
+		const choice = showToggles ? chosen : heldChoice;
+
+		choice?.forEach( name => data.append( name, 'subscribe' ) );
+		sendsChoice.current = choice !== null;
 
 		if ( consent ) {
 			data.append( 'wp-comment-cookies-consent', 'yes' );
@@ -197,34 +217,60 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 
 	useEffect( () => internals.setFormValue( formValue( false ) ) );
 
+	// The comment that carries a held choice uses it up. Runs after the form's own
+	// listener, which cancels the submit that only opens this dialog, and clears a
+	// tick later: the browser reads the form's fields after this event, not before.
+	useEffect( () => {
+		const form = internals.form;
+		const onSubmit = ( event: SubmitEvent ) => {
+			if ( ! event.defaultPrevented && sendsChoice.current ) {
+				window.setTimeout( () => setHeldChoice( null ) );
+			}
+		};
+
+		form?.addEventListener( 'submit', onSubmit );
+
+		return () => form?.removeEventListener( 'submit', onSubmit );
+	}, [ internals ] );
+
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
 		// Opened from "Add your name" with nothing written, so there is nothing to post.
 		if ( editing || isEmptyComment.peek() ) {
-			// The cookies core would write on the next comment, so the details outlive the page.
+			if ( showToggles ) {
+				setHeldChoice( chosen );
+			}
+
+			if ( step === 'subscribe' ) {
+				isDialogOpen.value = false;
+				return;
+			}
+
+			// The cookies core writes with consent, or clears without it, as it would on a comment.
 			const { cookieHash, cookiePath, cookieDomain } = identity;
-			const expires = new Date( Date.now() + 365 * 24 * 60 * 60 * 1000 ).toUTCString();
+			const expires = new Date(
+				rememberDetails.peek() ? Date.now() + 365 * 24 * 60 * 60 * 1000 : 0
+			).toUTCString();
 			const suffix = `; expires=${ expires }; path=${ cookiePath || '/' }${
 				cookieDomain ? `; domain=${ cookieDomain }` : ''
 			}; SameSite=Lax${ window.location.protocol === 'https:' ? '; Secure' : '' }`;
-			const { author, email, url } = commenter.value;
+			const { author, email, url } = details.value;
 
 			document.cookie = `comment_author_${ cookieHash }=${ encodeURIComponent( author ) }${ suffix }`;
 			document.cookie = `comment_author_email_${ cookieHash }=${ encodeURIComponent( email ) }${ suffix }`;
 			document.cookie = `comment_author_url_${ cookieHash }=${ encodeURIComponent( url ) }${ suffix }`;
 
 			isDialogOpen.value = false;
-			isSavedGuest.value = commenter.value.author !== '' && commenter.value.email !== '';
+			commenter.value =
+				details.value.author !== '' && details.value.email !== ''
+					? { kind: 'guest' }
+					: { kind: 'unknown' };
 			return;
 		}
 
-		const { submitter } = event as SubmitEvent;
-
-		const action = submitter?.getAttribute( 'name' );
-
 		// Read as the comment form submits, then dropped, so a blocked submit leaves no consent behind.
-		internals.setFormValue( formValue( action === 'consent', action === 'anonymous' ) );
+		internals.setFormValue( formValue( showFields && rememberDetails.peek() ) );
 		internals.form?.requestSubmit();
 		internals.setFormValue( formValue( false ) );
 	};
@@ -325,11 +371,6 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 									{ strings.continueAsGuest }
 								</button>
 							) }
-							{ posting && ! mustLogIn && ! requireNameEmail && (
-								<button type="submit" name="anonymous" className="jetpack-comments__button is-link">
-									{ strings.postWithoutSaving }
-								</button>
-							) }
 						</div>
 					) }
 					{ showFields && ! editing && (
@@ -353,19 +394,17 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 									aria-describedby={ field === 'email' ? 'email-notes' : undefined }
 									aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
 									required={ input.required }
-									value={ commenter.value[ field ] }
+									value={ details.value[ field ] }
 									onInput={ event => {
 										const { value } = event.currentTarget;
-										commenter.value = { ...commenter.value, [ field ]: value };
+										details.value = { ...details.value, [ field ]: value };
 
 										if ( field === 'email' ) {
 											window.clearTimeout( emailTimer.current );
 											emailTimer.current = window.setTimeout( () => checkEmail( value ), 500 );
 										}
 									} }
-									onBlur={
-										field === 'email' ? () => checkEmail( commenter.value.email ) : undefined
-									}
+									onBlur={ field === 'email' ? () => checkEmail( details.value.email ) : undefined }
 								/>
 								{ field === 'email' && (
 									<span id="email-notes" className="jetpack-comments__help">
@@ -379,6 +418,18 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 								) }
 							</div>
 						) ) }
+					{ showFields && cookiesOptIn && (
+						<label htmlFor="remember" className="jetpack-comments__toggle">
+							<input
+								id="remember"
+								type="checkbox"
+								role="switch"
+								checked={ rememberDetails.value }
+								onChange={ event => ( rememberDetails.value = event.currentTarget.checked ) }
+							/>
+							<span className="jetpack-comments__toggle-text">{ strings.saveDetails }</span>
+						</label>
+					) }
 					{ showToggles &&
 						formSettings.subscriptions.map( ( { name, label } ) => (
 							<label key={ name } htmlFor={ name } className="jetpack-comments__toggle">
@@ -404,16 +455,21 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 								{ strings.save }
 							</button>
 						) }
+						{ step === 'subscribe' && known && (
+							<button type="submit" className="jetpack-comments__button is-primary">
+								{ ! posting && strings.save }
+								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
+							</button>
+						) }
 						{ showFields && ! editing && (
 							<>
-								{ /* First, so Enter in a field submits with consent. */ }
 								<button
 									type="submit"
-									name="consent"
 									className="jetpack-comments__button is-primary"
 									disabled={ emailTaken }
 								>
-									{ posting ? strings.saveAndPost : strings.save }
+									{ ! posting && strings.save }
+									{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
 								</button>
 								{ firstStep === 'choose' && (
 									<button
