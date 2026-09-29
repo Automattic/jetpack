@@ -25,10 +25,9 @@ export type StatsLocationsItem = StatsNormalizedItemBase & {
 	views: number;
 	countryCode?: string;
 	countryFull?: string;
-	/** UN M49 area code of the country, from `country-info`. */
-	mapRegion?: string;
-	/** The region a city sits in; only city rows carry one. */
 	region?: string;
+	/** The region a city row sits in; the endpoint sends it only on `filter_by_region` requests. */
+	cityRegion?: string;
 	/** Only city rows carry coordinates. */
 	coordinates?: StatsLocationCoordinates;
 	children: null;
@@ -57,10 +56,7 @@ function getLocationKey( item: StatsLocationsItem ): string | null {
 
 	const label = typeof item.label === 'string' ? item.label : String( item.label );
 
-	// City names repeat across regions of one country (Saint Cloud, FL and MN).
-	return item.region
-		? `${ item.countryCode }:${ item.region }:${ label }`
-		: `${ item.countryCode }:${ label }`;
+	return `${ item.countryCode }:${ label }`;
 }
 
 export function sanitizeStatsLocationsResponse(
@@ -80,8 +76,8 @@ export function sanitizeStatsLocationsResponse(
 			views: safeParseFloat( item.views ),
 			countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
 			countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
-			mapRegion: typeof country.map_region === 'string' ? country.map_region : undefined,
-			region: typeof item.region === 'string' && item.region ? item.region : undefined,
+			region: typeof country.map_region === 'string' ? country.map_region : undefined,
+			cityRegion: typeof item.region === 'string' && item.region ? item.region : undefined,
 			coordinates: parseCoordinates( item.coordinates ),
 			children: null,
 		};

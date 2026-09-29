@@ -192,7 +192,7 @@ describe( 'LocationsWidget', () => {
 		const ROWS_BY_MODE: Record< string, LocationViewsState[ 'data' ] > = {
 			country: [ locationRow( 'United States' ) ],
 			region: [ locationRow( 'Minnesota' ) ],
-			city: [ { ...locationRow( 'Saint Cloud' ), region: 'Minnesota' } ],
+			city: [ locationRow( 'Saint Cloud' ) ],
 		};
 
 		/** Build a settled row in the United States. */
@@ -288,7 +288,14 @@ describe( 'LocationsWidget', () => {
 			);
 			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
 
+			mockUseLocationViews.mockClear();
 			rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			// Not even the render before the reset effect may request the old region.
+			expect( mockUseLocationViews ).not.toHaveBeenCalledWith(
+				expect.objectContaining( { regionFilter: 'Minnesota' } )
+			);
+
 			rerender( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
 
 			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(

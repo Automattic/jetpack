@@ -7,7 +7,7 @@ export const statsLocationsQuery = (
 	params: StatsReportParams & {
 		geoMode?: 'country' | 'region' | 'city';
 		filter_by_country?: string;
-		/** Region name, meaningful only with `filter_by_country` and the city geo mode. */
+		/** Region name. The endpoint rejects it without `filter_by_country` or in the country geo mode. */
 		filter_by_region?: string;
 	}
 ) => {

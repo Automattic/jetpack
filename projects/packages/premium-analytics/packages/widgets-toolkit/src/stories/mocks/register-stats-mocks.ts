@@ -865,35 +865,30 @@ const COUNTRY_COMPARISON_ROWS: StatsLocationItem[] = [
 const CITY_ROWS: StatsLocationItem[] = [
 	{
 		location: 'North Bergen',
-		region: 'New Jersey',
 		views: 2716,
 		country_code: 'US',
 		coordinates: { latitude: 40.8043, longitude: -74.0121 },
 	},
 	{
 		location: 'Hong Kong',
-		region: 'Hong Kong',
 		views: 1246,
 		country_code: 'HK',
 		coordinates: { latitude: 22.3193, longitude: 114.1694 },
 	},
 	{
 		location: 'London',
-		region: 'England',
 		views: 476,
 		country_code: 'GB',
 		coordinates: { latitude: 51.5072, longitude: -0.1276 },
 	},
 	{
 		location: 'Tokyo',
-		region: 'Tokyo',
 		views: 390,
 		country_code: 'JP',
 		coordinates: { latitude: 35.6762, longitude: 139.6503 },
 	},
 	{
 		location: 'Berlin',
-		region: 'Berlin',
 		views: 330,
 		country_code: 'DE',
 		coordinates: { latitude: 52.52, longitude: 13.405 },
@@ -903,35 +898,30 @@ const CITY_ROWS: StatsLocationItem[] = [
 const CITY_COMPARISON_ROWS: StatsLocationItem[] = [
 	{
 		location: 'North Bergen',
-		region: 'New Jersey',
 		views: 2400,
 		country_code: 'US',
 		coordinates: { latitude: 40.8043, longitude: -74.0121 },
 	},
 	{
 		location: 'Hong Kong',
-		region: 'Hong Kong',
 		views: 1380,
 		country_code: 'HK',
 		coordinates: { latitude: 22.3193, longitude: 114.1694 },
 	},
 	{
 		location: 'London',
-		region: 'England',
 		views: 520,
 		country_code: 'GB',
 		coordinates: { latitude: 51.5072, longitude: -0.1276 },
 	},
 	{
 		location: 'Tokyo',
-		region: 'Tokyo',
 		views: 340,
 		country_code: 'JP',
 		coordinates: { latitude: 35.6762, longitude: 139.6503 },
 	},
 	{
 		location: 'Berlin',
-		region: 'Berlin',
 		views: 370,
 		country_code: 'DE',
 		coordinates: { latitude: 52.52, longitude: 13.405 },
@@ -982,7 +972,7 @@ const CITY_ROWS_BY_REGION: Record< string, StatsLocationItem[] > = {
 	'GB:England': [
 		{
 			location: 'London',
-			views: 1320,
+			views: 476,
 			coordinates: { latitude: 51.5072, longitude: -0.1276 },
 		},
 		{

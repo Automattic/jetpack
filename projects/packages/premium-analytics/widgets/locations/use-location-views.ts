@@ -20,7 +20,6 @@ export interface LocationView {
 	countryFull: string;
 	value: number;
 	previousValue?: number;
-	/** The region a city sits in; empty on country and region rows. */
 	region: string;
 	coordinates?: StatsLocationCoordinates;
 }
@@ -70,7 +69,7 @@ function toLocationView( item: StatsLocationsComparisonItem ): LocationView | nu
 	const countryFull = item.countryFull ?? item.countryCode;
 
 	return {
-		key: [ item.countryCode, item.region, label ].filter( Boolean ).join( ':' ),
+		key: `${ item.countryCode }:${ label }`,
 		label,
 		countryCode: item.countryCode,
 		countryFull,
@@ -106,6 +105,8 @@ export default function useLocationViews( {
 		useStatsLocations( statsParams, { maxRows: max } );
 
 	const items = ( comparisonRows?.rows ?? [] )
+		// An endpoint that ignores `filter_by_region` returns the whole country's cities.
+		.filter( item => ! regionFilter || item.cityRegion === regionFilter )
 		.map( toLocationView )
 		.filter( ( v ): v is LocationView => v !== null );
 
