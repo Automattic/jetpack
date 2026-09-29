@@ -66,14 +66,13 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'hour' );
 	} );
 
-	it( 'carries a still-allowed interval across a preset change', () => {
+	it( 'resets to the new preset default when a different named preset is picked', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to: wideTo },
 			nextPresetId: 'last-30-days',
-			effective: { preset: 'last-7-days', interval: 'day' },
+			effective: { preset: 'year-to-date', interval: 'week' },
 		} );
 
-		// `day` is allowed for last-30-days too, so the selection survives.
 		expect( patch?.interval ).toBe( 'day' );
 	} );
 
