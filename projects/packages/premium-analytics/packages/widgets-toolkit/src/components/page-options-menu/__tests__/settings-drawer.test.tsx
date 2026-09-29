@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -130,6 +130,45 @@ describe( 'SettingsDrawer', () => {
 				method: 'POST',
 				data: { roles: [ 'administrator', 'editor' ] },
 			} )
+		);
+	} );
+
+	it( 'keeps Administrator when the last other role is cleared from stored roles that leave it out', async () => {
+		mockApiFetch.mockImplementation( () =>
+			Promise.resolve( { ...STORED, settings: { ...STORED.settings, roles: [ 'editor' ] } } )
+		);
+		const user = showDrawer();
+
+		await openRoleSelect( user, VIEWED_BY );
+		await user.click( await screen.findByRole( 'menuitemcheckbox', { name: 'Editor' } ) );
+		await user.keyboard( '{Escape}' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { method: 'POST', data: { roles: [ 'administrator' ] } } )
+			)
+		);
+	} );
+
+	it( 'does not send back roles another administrator changed after the drawer opened', async () => {
+		const user = showDrawer();
+
+		await user.click(
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+		);
+		act( () => {
+			queryClient.setQueryData( [ 'stats', 'settings' ], {
+				...STORED,
+				settings: { ...STORED.settings, roles: [ 'administrator', 'editor' ] },
+			} );
+		} );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+
+		await waitFor( () =>
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { method: 'POST', data: { admin_bar: false } } )
+			)
 		);
 	} );
 

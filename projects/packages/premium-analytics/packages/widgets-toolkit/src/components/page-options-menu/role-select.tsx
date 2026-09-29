@@ -42,7 +42,8 @@ export function RoleSelect( {
 }: RoleSelectProps ) {
 	const labelId = useId();
 	const valueId = useId();
-	const isSelected = ( slug: string ) => slug === lockedRole || value.includes( slug );
+	const selected = lockedRole && ! value.includes( lockedRole ) ? [ lockedRole, ...value ] : value;
+	const isSelected = ( slug: string ) => selected.includes( slug );
 	const selectedNames = roles
 		.filter( ( { slug } ) => isSelected( slug ) )
 		.map( ( { name } ) => name );
@@ -79,7 +80,9 @@ export function RoleSelect( {
 							checked={ isSelected( slug ) }
 							disabled={ slug === lockedRole }
 							onCheckedChange={ ( checked: boolean ) =>
-								onChange( checked ? [ ...value, slug ] : value.filter( role => role !== slug ) )
+								onChange(
+									checked ? [ ...selected, slug ] : selected.filter( role => role !== slug )
+								)
 							}
 						>
 							<Menu.ItemLabel>{ name }</Menu.ItemLabel>

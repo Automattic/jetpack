@@ -47,13 +47,16 @@ const getSiteErrorMessage = ( error: unknown ) =>
 		: null;
 
 /**
- * The settings that differ from the stored ones.
+ * The edited settings that differ from the stored ones.
  *
  * @param stored - The settings the site holds.
- * @param draft  - The settings on screen.
+ * @param draft  - The settings the reader edited.
  * @return The changed settings only.
  */
-const getChanges = ( stored: StatsSettings, draft: StatsSettings ): Partial< StatsSettings > =>
+const getChanges = (
+	stored: StatsSettings,
+	draft: Partial< StatsSettings >
+): Partial< StatsSettings > =>
 	Object.fromEntries(
 		( Object.keys( draft ) as Array< keyof StatsSettings > )
 			.filter( key => JSON.stringify( draft[ key ] ) !== JSON.stringify( stored[ key ] ) )
@@ -129,24 +132,20 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 	const registry = useRegistry();
 	const { data, isError } = useStatsSettings();
 	const { mutate, isPending: isSaving } = mutation;
-	const [ draft, setDraft ] = useState< StatsSettings | null >( null );
+	// Only the edited fields, so a refetch mid-edit cannot send back stale values of the others.
+	const [ draft, setDraft ] = useState< Partial< StatsSettings > >( {} );
 	const [ saveError, setSaveError ] = useState< string | null >( null );
 
-	const settings = draft ?? data?.settings;
+	const settings = data && { ...data.settings, ...draft };
 	const changes = useMemo(
-		() => ( data && draft ? getChanges( data.settings, draft ) : {} ),
+		() => ( data ? getChanges( data.settings, draft ) : {} ),
 		[ data, draft ]
 	);
 	const hasChanges = Object.keys( changes ).length > 0;
 
-	const update = useCallback(
-		( values: Partial< StatsSettings > ) => {
-			if ( settings ) {
-				setDraft( { ...settings, ...values } );
-			}
-		},
-		[ settings ]
-	);
+	const update = useCallback( ( values: Partial< StatsSettings > ) => {
+		setDraft( current => ( { ...current, ...values } ) );
+	}, [] );
 
 	const save = useCallback( () => {
 		setSaveError( null );
