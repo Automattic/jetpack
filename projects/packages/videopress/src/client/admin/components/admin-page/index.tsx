@@ -142,7 +142,7 @@ const Admin = () => {
 											</Notice.Description>
 											<Notice.Actions>
 												<Notice.ActionButton onClick={ handleRegisterSite }>
-													{ __( 'Connect your user account to fix this', 'jetpack-videopress-pkg' ) }
+													{ __( 'Connect your account', 'jetpack-videopress-pkg' ) }
 												</Notice.ActionButton>
 											</Notice.Actions>
 										</Notice.Root>
