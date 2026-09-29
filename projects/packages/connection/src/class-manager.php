@@ -3020,6 +3020,8 @@ class Manager {
 	/**
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
+	 * @since $$next-version$$ Only a user with `jetpack_connect` can take a vacant connection owner slot.
+	 *
 	 * @param array $data The request data.
 	 * @return string|\WP_Error Returns a string on success.
 	 *                          Returns a \WP_Error on failure.
@@ -3080,7 +3082,8 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		$is_connection_owner = ! $this->has_connected_owner();
+		// Only a user who may manage the site connection takes a vacant owner slot; others link as secondary users.
+		$is_connection_owner = ! $this->has_connected_owner() && current_user_can( 'jetpack_connect' );
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 

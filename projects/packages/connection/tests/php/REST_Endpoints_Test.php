@@ -278,9 +278,14 @@ class REST_Endpoints_Test extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 		$request->set_body( '{ "state": "' . self::$user_id . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
 
+		// `authorize()` checks `jetpack_connect`, which needs the meta-cap map this bootstrap doesn't wire.
+		$manager = new Manager();
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
+		remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
