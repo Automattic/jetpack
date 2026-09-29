@@ -1,9 +1,11 @@
 /**
  * External dependencies
  */
-import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
-	PRESET_CUSTOM,
+	resolveIntervalForPresetChange,
+	type ReportQueryParams,
+} from '@jetpack-premium-analytics/data';
+import {
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
@@ -72,15 +74,12 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		// A different named preset starts from its own default; every other
-		// change carries the interval unless the new range disallows it.
-		const switchesNamedPreset =
-			!! nextPresetId && nextPresetId !== PRESET_CUSTOM && nextPresetId !== effective.preset;
-		patch.interval = resolveIntervalForRange(
+		patch.interval = resolveIntervalForPresetChange(
+			effective.preset,
 			nextPresetId,
 			rangeFrom,
 			rangeTo,
-			switchesNamedPreset ? undefined : effective.interval
+			effective.interval
 		);
 
 		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The

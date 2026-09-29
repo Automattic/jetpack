@@ -109,6 +109,20 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'day' );
 	} );
 
+	it( 'carries a non-default interval through a custom range or a range with no preset', () => {
+		const monthLong = new TZDate( '2026-08-18T14:30:00.000+00:00', 'UTC' );
+
+		for ( const nextPresetId of [ 'custom', undefined ] as const ) {
+			const patch = buildRangePatch( {
+				nextRange: { from, to: monthLong },
+				nextPresetId,
+				effective: { preset: 'last-30-days', interval: 'week' },
+			} );
+
+			expect( patch?.interval ).toBe( 'week' );
+		}
+	} );
+
 	// A stepped window carries no preset, so the same rule has to reach it
 	// through the range length rather than through the preset table.
 	it( 'coerces a day bucket on a day-long custom range', () => {
