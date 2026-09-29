@@ -13,12 +13,12 @@ const commentsReportTabs = defineReportTabs< CommentsReportTabId >(
 		{
 			id: 'authors',
 			getLabel: () => __( 'Authors', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Authors report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Authors', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'posts',
 			getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Posts & Pages report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID

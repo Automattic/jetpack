@@ -5,8 +5,15 @@ import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
-import { MetricWithComparison, VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import {
+	MetricWithComparison,
+	REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnailTitle,
+	VideoTitleLink,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { video as videoIcon } from '@wordpress/icons';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -54,12 +61,19 @@ function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 	const title = getVideoTitle( item );
 
 	return (
-		<VideoTitleLink
-			id={ item.id }
-			label={ title }
-			link={ item.link }
-			search={ getVideoDetailSearch }
-		/>
+		<ReportThumbnailTitle
+			thumbnailUrl={ safeHttpUrl( item.poster ) ?? undefined }
+			fallbackIcon={ videoIcon }
+		>
+			<VideoTitleLink
+				id={ item.id }
+				label={ title }
+				link={ item.link }
+				search={ getVideoDetailSearch }
+				classNames={ REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES }
+				title={ title }
+			/>
+		</ReportThumbnailTitle>
 	);
 }
 

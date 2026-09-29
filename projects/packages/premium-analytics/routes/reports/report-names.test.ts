@@ -44,17 +44,14 @@ const REPORT_NAMES = Object.entries( REPORTS ).map( ( [ key, report ] ) => [
 	report.getTitle(),
 ] );
 
-/*
- * The crumb names the report and the heading names its records, one `report` word apart —
- * asserted here instead of documented, since the convention drifts a string at a time.
- */
+// The crumb and the heading use the same name; asserted so the strings can't drift apart.
 describe( 'report names', () => {
 	it.each( REPORT_NAMES )( '%s heads its records with its own label', ( key, id, label, title ) => {
-		expect( title ).toBe( `${ label } report` );
+		expect( title ).toBe( label );
 		expect( id ).toBe( key );
 	} );
 
 	it.each( TAB_HEADINGS )( '%s heads the %s section with its tab', ( _report, label, title ) => {
-		expect( title ).toBe( `${ label } report` );
+		expect( title ).toBe( label );
 	} );
 } );

@@ -5,13 +5,13 @@
 }
 
 .thumbnailSlot {
-	--post-thumbnail-size: 32px;
+	--report-thumbnail-size: 32px;
 
 	display: grid;
 	place-items: center;
 	flex-shrink: 0;
-	inline-size: var(--post-thumbnail-size);
-	block-size: var(--post-thumbnail-size);
+	inline-size: var(--report-thumbnail-size);
+	block-size: var(--report-thumbnail-size);
 	overflow: hidden;
 	background: var(--wpds-color-background-surface-neutral-weak);
 	color: var(--wpds-color-foreground-content-neutral-weak);
@@ -19,19 +19,19 @@
 }
 
 .thumbnail {
-	inline-size: var(--post-thumbnail-size);
-	block-size: var(--post-thumbnail-size);
+	inline-size: var(--report-thumbnail-size);
+	block-size: var(--report-thumbnail-size);
 	border-radius: var(--wpds-border-radius-md);
 	object-fit: cover;
 }
 
 /* DataViews adds these modifiers to its table from the selected density. */
 :global(.dataviews-view-table.has-compact-density) .thumbnailSlot {
-	--post-thumbnail-size: 24px;
+	--report-thumbnail-size: 24px;
 }
 
 :global(.dataviews-view-table.has-comfortable-density) .thumbnailSlot {
-	--post-thumbnail-size: 40px;
+	--report-thumbnail-size: 40px;
 }
 
 .titleLink {

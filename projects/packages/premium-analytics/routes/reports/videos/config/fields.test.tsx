@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getVideosFields } from './fields';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
@@ -72,6 +72,26 @@ function renderMetricField(
 }
 
 describe( 'videos fields', () => {
+	it( 'renders the video poster beside its title, falling back to the video icon', () => {
+		renderTitleField( { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
+
+		const poster = screen.getByRole( 'presentation' );
+		expect( poster ).toHaveAttribute( 'src', 'https://i0.wp.com/v/launch.jpg' );
+
+		fireEvent.error( poster );
+		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
+	it.each( [ undefined, 'javascript:alert(1)' ] )(
+		'renders the placeholder for a %s poster',
+		poster => {
+			renderTitleField( { ...video, poster } );
+
+			expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+			expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+		}
+	);
+
 	it( 'links a video title to its internal detail page, carrying the date window', () => {
 		renderTitleField( video );
 

@@ -148,13 +148,13 @@ describe( 'posts title field', () => {
 		expect( thumbnail ).toHaveAttribute( 'src', 'https://example.com/thumb.jpg' );
 
 		fireEvent.error( thumbnail );
-		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the post-type placeholder when a row has no thumbnail', () => {
 		renderTitleField( homepage );
 
-		expect( screen.getByTestId( 'post-thumbnail-placeholder' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
 	it( 'links the homepage row to the site home URL', () => {

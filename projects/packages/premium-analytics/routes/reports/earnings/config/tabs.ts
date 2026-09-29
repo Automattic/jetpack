@@ -20,17 +20,17 @@ const earningsReportTabs = defineReportTabs< EarningsReportTabId >(
 		{
 			id: 'wordads',
 			getLabel: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Earnings history report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'sponsored',
 			getLabel: () => __( 'Sponsored content history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Sponsored content history report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Sponsored content history', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'adjustments',
 			getLabel: () => __( 'Adjustments history', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Adjustments history report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Adjustments history', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID

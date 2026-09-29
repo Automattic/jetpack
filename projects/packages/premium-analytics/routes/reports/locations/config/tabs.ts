@@ -20,17 +20,17 @@ const reportLocationsTabs = defineReportTabs< ReportLocationsTabId >(
 		{
 			id: 'countries',
 			getLabel: () => __( 'Countries', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Countries report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Countries', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'regions',
 			getLabel: () => __( 'Regions', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Regions report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Regions', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'cities',
 			getLabel: () => __( 'Cities', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Cities report', 'jetpack-premium-analytics-pkg' ),
+			getTitle: () => __( 'Cities', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID

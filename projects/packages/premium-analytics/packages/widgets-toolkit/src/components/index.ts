@@ -141,6 +141,8 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnailTitle,
+	REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES,
 	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,
@@ -157,6 +159,7 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	type ReportThumbnailTitleProps,
 	type ReportCsvActionProps,
 } from './report-page';
 export {

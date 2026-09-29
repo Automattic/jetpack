@@ -16,6 +16,11 @@ export {
 } from './report-performance-chart';
 export { ReportDrilldownTable, type ReportDrilldownTableProps } from './report-drilldown-table';
 export { ReportRecordsTable, type ReportRecordsTableProps } from './report-records-table';
+export {
+	REPORT_THUMBNAIL_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnailTitle,
+	type ReportThumbnailTitleProps,
+} from './report-thumbnail-title';
 export { useReportRetry } from './use-report-retry';
 export {
 	ReportPageTabPanel,

@@ -13,8 +13,7 @@ export type ReportTabDefinition< TabId extends string > = {
 
 	/**
 	 * Heading for the section this tab opens, where it reads differently from
-	 * the tab itself: `Posts & Pages` names the tab, `Posts & Pages report`
-	 * heads the records under it.
+	 * the tab itself.
 	 */
 	getTitle?: () => string;
 };

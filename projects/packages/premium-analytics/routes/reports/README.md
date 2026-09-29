@@ -23,7 +23,7 @@ definition and lazily renders that report's page component. Adding a report does
    	posts: {
    		id: 'posts',
    		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
-   		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
+   		getTitle: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
    		// Optional — only for reports that own sections:
    		// resolveSection: value => resolveSectionId( value ),
    		load: () => import( './posts/page' ),
@@ -37,8 +37,8 @@ That's it. The report is reachable at `/reports/<id>`. An unknown or missing
 ## Naming a report
 
 `getLabel` names the report from outside itself: its own trailing breadcrumb,
-and the crumb back to it from a detail page. `getTitle` heads its records —
-`All pages report` where the label is `All pages`.
+and the crumb back to it from a detail page. `getTitle` heads its records, and
+matches the label (`All pages`).
 
 Pages read both from `REPORTS` and declare no strings of their own.
 
