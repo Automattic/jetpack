@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Dashboard: Offer in the widget picker only the widgets the dashboard tabs show by default.
+Dashboard: Offer in the widget picker only the widgets the current tab shows by default.
