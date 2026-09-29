@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import PostCommentsWidget from '../render';
+import * as fittedRoster from '../../../packages/widgets-toolkit/src/components/subscriber-list/use-fitted-roster-rows';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -41,8 +42,14 @@ function renderWidget( postId: number ) {
 
 describe( 'PostCommentsWidget', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+		jest.useRealTimers();
 	} );
 
 	it( 'treats a non-integer post ID as missing scope without requesting data', () => {
@@ -129,6 +136,30 @@ describe( 'PostCommentsWidget', () => {
 		renderWidget( 779 );
 
 		await expect( screen.findByText( '29 more' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ undefined, null ],
+		[ 30, '29 more' ],
+	] )( 'handles an overflowing list with post total %s', async ( commentCount, expectedFooter ) => {
+		jest.spyOn( fittedRoster, 'useFittedRosterRows' ).mockReturnValue( {
+			listRef: { current: null },
+			fittedCount: 1,
+		} );
+		mockEndpoints(
+			jest.fn().mockResolvedValue( {
+				found: -1,
+				comments: [ COMMENT, { ...COMMENT, ID: 102 } ],
+			} ),
+			{ comment_count: commentCount }
+		);
+
+		renderWidget( 779 );
+
+		await expect(
+			screen.findByRole( 'link', { name: /Olivia Park/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByText( /\d+ more/ )?.textContent ?? null ).toBe( expectedFooter );
 	} );
 
 	it( 'prefers the total the comments request counted over the post row', async () => {

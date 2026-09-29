@@ -59,10 +59,6 @@ function readFound( value: unknown ): number | null {
 }
 
 export function sanitizeStatsPostCommentsResponse( response: unknown ): StatsPostCommentsResponse {
-	if ( ! isStatsRecord( response ) ) {
-		return { found: null, comments: [] };
-	}
-
 	const payload = coerceStatsRecord( response );
 
 	return {

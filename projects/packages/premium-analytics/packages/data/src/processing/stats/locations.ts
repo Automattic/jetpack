@@ -57,6 +57,7 @@ export function isCountryCode( code: unknown ): code is string {
 }
 
 function getLocationKey( item: StatsLocationsItem ): string | null {
+	// Keep unidentifiable rows, but do not pair them across periods.
 	if ( ! item.countryCode ) {
 		return null;
 	}
@@ -137,11 +138,8 @@ export function mergeStatsLocationsComparisonRows(
 		StatsLocationsItem,
 		StatsLocationsComparisonItem
 	>( {
-		primaryRows: limitStatsRows(
-			getStatsReportItems( primaryReport ).filter( item => !! item.countryCode ),
-			maxRows
-		),
-		comparisonRows: getStatsReportItems( comparisonReport ).filter( item => !! item.countryCode ),
+		primaryRows: limitStatsRows( getStatsReportItems( primaryReport ), maxRows ),
+		comparisonRows: getStatsReportItems( comparisonReport ),
 		getPrimaryKey: getLocationKey,
 		getComparisonKey: getLocationKey,
 		getComparisonValue: item => item.views,

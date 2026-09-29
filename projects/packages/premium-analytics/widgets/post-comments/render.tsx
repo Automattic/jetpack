@@ -90,7 +90,7 @@ function PostCommentsInner() {
 			>
 				<SubscriberList
 					items={ items }
-					moreCount={ total === undefined ? 0 : Math.max( 0, total - items.length ) }
+					moreCount={ total === undefined ? null : Math.max( 0, total - items.length ) }
 				/>
 			</WidgetState>
 		</div>

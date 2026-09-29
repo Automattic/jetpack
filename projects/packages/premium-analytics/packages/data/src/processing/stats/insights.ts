@@ -137,13 +137,7 @@ function readPeak(
 		return {};
 	}
 
-	const peakIndex = readIndex( index, max );
-	const peakShare = readShare( share );
-
-	return {
-		...( peakIndex === undefined ? {} : { index: peakIndex } ),
-		...( peakShare === undefined ? {} : { share: peakShare } ),
-	};
+	return { index: readIndex( index, max ), share: readShare( share ) };
 }
 
 function normalizeHourlyViews( hourlyViews: unknown ): StatsInsightsHourlyViews {

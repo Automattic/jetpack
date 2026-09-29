@@ -1,4 +1,8 @@
-import { isCountryCode, sanitizeStatsLocationsResponse } from '..';
+import {
+	isCountryCode,
+	mergeStatsLocationsComparisonRows,
+	sanitizeStatsLocationsResponse,
+} from '..';
 import {
 	locationsCitySummaryFixture,
 	locationsFixture,
@@ -176,6 +180,35 @@ describe( 'Stats locations normalizer', () => {
 			[ 'Unknown', 2 ],
 		] );
 	} );
+
+	it.each( [ '', undefined ] )(
+		'retains country code %s without matching unrelated previous rows',
+		countryCode => {
+			const report = ( views: number ) =>
+				sanitizeStatsLocationsResponse(
+					{
+						date: '2026-06-16',
+						days: {
+							'2026-06-16': {
+								views: [
+									{ location: 'United States', country_code: 'US', views },
+									{ location: false, country_code: countryCode, views: 4 },
+								],
+							},
+						},
+					},
+					{ period: 'day', end_date: '2026-06-16' }
+				);
+
+			const result = mergeStatsLocationsComparisonRows( report( 10 ), report( 5 ) );
+
+			expect( result.rows ).toEqual( [
+				expect.objectContaining( { label: 'United States', views: 10, previousViews: 5 } ),
+				expect.objectContaining( { label: 'Unknown', views: 4, previousViews: undefined } ),
+			] );
+			expect( result.hasComparison ).toBe( true );
+		}
+	);
 
 	it( 'accepts only two-letter codes as country codes', () => {
 		expect( isCountryCode( 'US' ) ).toBe( true );

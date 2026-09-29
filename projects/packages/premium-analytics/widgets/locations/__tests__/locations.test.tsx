@@ -187,7 +187,7 @@ describe( 'LocationsWidget', () => {
 			expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
 		);
 	} );
-	it( 'lists a row whose country code is not a code but keeps it off the map', () => {
+	it.each( [ '-', '' ] )( 'lists country code %s without mapping or drilling down', countryCode => {
 		mockUseLocationViews.mockReturnValue( {
 			...LOADING_STATE,
 			data: [
@@ -200,10 +200,10 @@ describe( 'LocationsWidget', () => {
 					region: '',
 				},
 				{
-					key: '-:Unknown',
+					key: `${ countryCode }:Unknown`,
 					label: 'Unknown',
-					countryCode: '-',
-					countryFull: '-',
+					countryCode,
+					countryFull: 'Unknown',
 					value: 4,
 					region: '',
 				},
@@ -219,7 +219,9 @@ describe( 'LocationsWidget', () => {
 		expect(
 			screen.getByRole( 'button', { name: 'View regions in United States' } )
 		).toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: /View regions in -/ } ) ).not.toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'View regions in Unknown' } )
+		).not.toBeInTheDocument();
 		expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'US' } ) ] );
 	} );
 } );

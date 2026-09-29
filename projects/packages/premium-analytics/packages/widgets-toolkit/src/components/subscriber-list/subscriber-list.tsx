@@ -46,8 +46,8 @@ export type SubscriberListItem = {
 export type SubscriberListProps = {
 	items?: SubscriberListItem[];
 	emptyStateText?: string;
-	/** Rows beyond `items`, counted into the "N more" footer. */
-	moreCount?: number;
+	/** Rows beyond `items`; null means unknown and hides the "N more" footer. */
+	moreCount?: number | null;
 	/**
 	 * Show only the whole rows that fit the available height, rather than letting the
 	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
@@ -75,14 +75,18 @@ export function SubscriberList( {
 	fitRows = true,
 	className,
 }: SubscriberListProps ) {
-	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, moreCount > 0 );
+	const { listRef, fittedCount } = useFittedRosterRows(
+		fitRows,
+		items.length,
+		moreCount !== null && moreCount > 0
+	);
 
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
 
 	// Include fetched rows hidden by the fitting logic.
-	const hiddenCount = moreCount + ( items.length - fittedCount );
+	const hiddenCount = moreCount === null ? 0 : moreCount + ( items.length - fittedCount );
 
 	return (
 		<Stack
