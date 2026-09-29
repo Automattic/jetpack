@@ -171,19 +171,10 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The Top videos instance follows VideoPress, which this test env lacks.
+	 * Nothing here seeds Top videos: the VideoPress package appends it at order 8.
 	 */
-	public function test_traffic_default_excludes_videopress_widget_without_videopress() {
-		$this->assertNotContains( 'jpa/videopress', $this->served_layout_types( 'analytics/traffic' ), 'Top videos must not be part of the default layout without VideoPress.' );
-	}
-
-	/**
-	 * With VideoPress, the Top videos instance is back in the default layout.
-	 */
-	public function test_traffic_default_keeps_videopress_widget_with_videopress() {
-		add_filter( VIDEOPRESS_AVAILABLE_FILTER, '__return_true' );
-
-		$this->assertContains( 'jpa/videopress', $this->served_layout_types( 'analytics/traffic' ) );
+	public function test_traffic_default_leaves_top_videos_to_the_videopress_package() {
+		$this->assertNotContains( 8, array_column( array_column( get_traffic_section_default_layout(), 'placement' ), 'order' ) );
 	}
 
 	/**
@@ -437,7 +428,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 				'default-top-platforms-widget-instance'   => array( 'jpa/top-platforms', 1, 2, 5 ),
 				'default-utm-insights-widget-instance'    => array( 'jpa/utm-insights', 1, 2, 6 ),
 				'default-clicks-widget-instance'          => array( 'jpa/clicks', 1, 2, 7 ),
-				'default-videopress-widget-instance'      => array( 'jpa/videopress', 1, 2, 8 ),
 				'default-authors-widget-instance'         => array( 'jpa/authors', 1, 2, 9 ),
 				'default-search-terms-widget-instance'    => array( 'jpa/search-terms', 1, 2, 10 ),
 				'default-file-downloads-widget-instance'  => array( 'jpa/file-downloads', 1, 2, 11 ),
@@ -484,7 +474,6 @@ class Dashboard_Layout_Test extends BaseTestCase {
 		);
 
 		$this->assertNotContains( 'jpa/authors', $layout_types );
-		$this->assertNotContains( 'jpa/videopress', $layout_types );
 		// Emails is not an Insights module — it lives on the Subscribers tab.
 		$this->assertNotContains( 'jpa/stats-emails', $layout_types );
 		// The Comments module ships as two focused widgets, not one toggled widget.

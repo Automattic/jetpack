@@ -81,7 +81,7 @@ add_action(
 				'is_available'   => array( Capabilities::class, 'current_user_can_view_analytics' ),
 				'default_layout' => static function () {
 					return array(
-						get_dashboard_default_widget_instance( 'videopress-top-videos', 'jpa/videopress', 0, 3, 2 ),
+						get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 0, 3, 2 ),
 					);
 				},
 			)
@@ -140,7 +140,7 @@ add_filter(
 	'jetpack_premium_analytics_dashboard_default_layout',
 	static function ( $layout, $section_id ) {
 		if ( 'analytics/traffic' === $section_id ) {
-			$layout[] = get_dashboard_default_widget_instance( 'videopress-top-videos', 'jpa/videopress', 8, 1, 2 );
+			$layout[] = get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 8, 1, 2 );
 		}
 
 		return $layout;

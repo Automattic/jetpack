@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
@@ -14,11 +13,12 @@ import {
 	calculateDelta,
 	getCombinedPeriodMax,
 	sharePercentage,
+	useStatsVideoPlays,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+} from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
@@ -26,15 +26,15 @@ import { useMemo } from 'react';
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
 import styles from './style.module.css';
-import type { VideoPressAttributes } from './widget';
+import type { TopVideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
 // The dashboard injects its date range and comparison state through
 // `reportParams`; the widget has no settings of its own.
-type VideoPressRenderAttributes = VideoPressAttributes & Partial< ReportParamsFieldAttributes >;
+type TopVideosRenderAttributes = TopVideosAttributes & Partial< ReportParamsFieldAttributes >;
 
-type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
+type TopVideosWidgetProps = WidgetRenderProps< TopVideosRenderAttributes > & {
 	/**
 	 * Dashboard error handler.
 	 */
@@ -45,6 +45,10 @@ type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
  * Maps normalized video rows to `LeaderboardChart` shape. Shares are computed
  * against the largest value of either period; rows without a comparison match
  * keep fields undefined so the chart doesn't fabricate deltas.
+ *
+ * @param rows         - Normalized video rows.
+ * @param detailSearch - Search params carrying the dashboard's date window to the detail route.
+ * @return The leaderboard rows.
  */
 function buildLeaderboardData(
 	rows: VideoPlaysRow[],
@@ -73,10 +77,12 @@ function buildLeaderboardData(
 }
 
 /**
- * Fetches the video-plays report through the Jetpack Stats hook, builds the
+ * Fetches the video-plays report through the dashboard's Stats hook, builds the
  * leaderboard rows, and renders them through the shared widget content states.
+ *
+ * @return The widget content.
  */
-function VideoPressReport() {
+function TopVideosReport() {
 	const { reportParams } = useWidgetRootContext();
 	const detailSearch = useWidgetNavigationSearch();
 	const statsParams = useMemo(
@@ -110,9 +116,9 @@ function VideoPressReport() {
 			error={ {
 				description: __(
 					"We couldn't load video plays. Please try again in a moment.",
-					'jetpack-premium-analytics-pkg'
+					'jetpack-videopress-pkg'
 				),
-				actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
+				actions: [ { label: __( 'Retry', 'jetpack-videopress-pkg' ), onClick: refetch } ],
 			} }
 			renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 		>
@@ -130,12 +136,20 @@ function VideoPressReport() {
 	);
 }
 
-export default function VideoPress( { attributes = {}, setError }: VideoPressWidgetProps ) {
+/**
+ * The Top videos widget: a leaderboard of the site's most played VideoPress videos.
+ *
+ * @param props            - Widget render props.
+ * @param props.attributes - Widget attributes, with the report params the dashboard injects.
+ * @param props.setError   - Dashboard error handler.
+ * @return The widget.
+ */
+export default function TopVideos( { attributes = {}, setError }: TopVideosWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
 			<div className={ styles.root }>
 				<div className={ styles.content }>
-					<VideoPressReport />
+					<TopVideosReport />
 				</div>
 				<WidgetFooter>
 					<ReportLink report="videos" />

@@ -1,5 +1,5 @@
 {
-	"name": "jpa/videopress",
+	"name": "videopress/top-videos",
 	"title": "Top videos",
 	"description": "Your most played VideoPress videos, sourced from Jetpack Stats.",
 	"help": {
@@ -12,5 +12,6 @@
 		]
 	},
 	"category": "stats",
-	"presentation": "framed"
+	"presentation": "framed",
+	"textdomain": "jetpack-videopress-pkg"
 }
