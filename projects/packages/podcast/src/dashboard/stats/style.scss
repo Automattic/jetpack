@@ -178,23 +178,6 @@ $bar-fill: #3858e9;
 	}
 }
 
-// Self-contained — shared base rule isn't in the lazy stats chunk.
-.podcast-stats .podcast__empty-state {
-	padding: 64px 16px;
-	text-align: center;
-	color: $muted;
-
-	.podcast__section-heading {
-		margin: 0 0 8px;
-		font-weight: 500;
-	}
-
-	p {
-		margin: 0 auto;
-		max-width: 420px;
-		color: $muted;
-	}
-}
 
 .podcast-stats-locations {
 
