@@ -189,6 +189,34 @@ test.each( [
 	await waitFor( () => expect( screen.getByText( explanation ) ).toBeVisible() );
 } );
 
+test.each( [
+	[ 'a positive', 50, '+10 points', 'Points gained from optimizations' ],
+	[ 'a clamped negative', 80, '0 points', 'Speed score has fallen' ],
+] )(
+	'opens the points explanation when %s badge is hovered',
+	async ( _description, baseline, label, explanation ) => {
+		render(
+			<ScoreCards
+				scores={ {
+					current: { desktop: 80, mobile: 60 },
+					noBoost: { desktop: 80, mobile: baseline },
+					isStale: false,
+				} }
+			/>
+		);
+		const card = within( screen.getByRole( 'region', { name: 'Mobile' } ) );
+		const badge = card.getByText( label );
+		expect( badge ).not.toHaveAttribute( 'tabindex' );
+		expect( badge ).not.toHaveAttribute( 'role' );
+		expect( card.getAllByRole( 'button' ) ).toEqual( [
+			card.getByRole( 'button', { name: 'About points' } ),
+		] );
+		fireEvent.mouseEnter( badge );
+		fireEvent.mouseMove( badge );
+		await waitFor( () => expect( screen.getByText( explanation ) ).toBeVisible() );
+	}
+);
+
 test( 'shows one calculating status instead of the score sections before scores load', () => {
 	const { container } = render(
 		<ScoreCards

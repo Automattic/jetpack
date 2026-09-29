@@ -38,10 +38,6 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
-  # Renovate security update: undici@7.29.1
-  - undici@7.29.1
-  # Renovate security update: markdown-it@14.3.1
-  - markdown-it@14.3.1
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
