@@ -8,7 +8,6 @@ import {
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -212,8 +211,6 @@ function PostsReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! activeRecords.isLoading && activeRecords.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (

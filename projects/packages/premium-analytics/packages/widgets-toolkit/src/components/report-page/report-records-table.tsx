@@ -13,6 +13,7 @@ import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { ReportTableEmptyState } from './report-empty-state';
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import './report-records-table.scss';
@@ -62,8 +63,10 @@ export interface ReportRecordsTableProps< Item > {
 	searchLabel?: string;
 	/** Optional row actions. */
 	actions?: Action< Item >[];
-	/** Custom empty state. */
+	/** What the table shows when a search or filter matches none of `data`. */
 	empty?: ReactNode;
+	/** Keep the table, rather than the empty state, when `data` is empty. */
+	keepWhenEmpty?: boolean;
 	/** Page size choices (defaults to 10/25/50/100). */
 	perPageSizes?: number[];
 	/**
@@ -96,7 +99,8 @@ export interface ReportRecordsTableProps< Item > {
  * the selected range, so no server round-trip is needed.
  *
  * The module page supplies the data and field config; this owns the view
- * state, so every report table behaves the same.
+ * state, so every report table behaves the same. With no rows it renders the
+ * report's loading or empty state in its place.
  *
  * @param {ReportRecordsTableProps} props - The component props.
  * @return The records table section.
@@ -110,6 +114,7 @@ export function ReportRecordsTable< Item >( {
 	searchLabel,
 	actions,
 	empty,
+	keepWhenEmpty = false,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	onChangeView,
 	onChangePageItems,
@@ -159,6 +164,10 @@ export function ReportRecordsTable< Item >( {
 	useEffect( () => {
 		onChangePageItems?.( pageItems );
 	}, [ onChangePageItems, pageItems ] );
+
+	if ( data.length === 0 && ! keepWhenEmpty ) {
+		return <ReportTableEmptyState isLoading={ isLoading } />;
+	}
 
 	return (
 		<ReportPageSection className={ styles.root }>

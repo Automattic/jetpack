@@ -6,7 +6,6 @@ import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -186,6 +185,9 @@ export default function LocationsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
+	// A picked country can scope the rows down to none. The table carries the
+	// filter that clears it, so it has to stay on screen then.
+	const keepTable = !! countryFilter;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -196,10 +198,6 @@ export default function LocationsReportPage(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.table.isLoading && ! countryFilter && records.table.rows.length === 0 ) {
-		// A picked country can scope the rows down to none. The table carries the
-		// filter that clears it, so it has to stay on screen then.
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -219,12 +217,14 @@ export default function LocationsReportPage(): JSX.Element {
 			>
 				{ tableReplacement ?? (
 					<>
-						<ReportLocationsMap
-							rows={ geoRows }
-							mode={ GEO_MODES[ activeTab ] }
-							focusCountry={ focusCountry }
-							isLoading={ tableIsLoading }
-						/>
+						{ ( keepTable || records.table.rows.length > 0 ) && (
+							<ReportLocationsMap
+								rows={ geoRows }
+								mode={ GEO_MODES[ activeTab ] }
+								focusCountry={ focusCountry }
+								isLoading={ tableIsLoading }
+							/>
+						) }
 						<ReportRecordsTable< LocationRow >
 							key={ activeTab }
 							data={ records.table.rows }
@@ -234,6 +234,7 @@ export default function LocationsReportPage(): JSX.Element {
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
 							onChangeView={ handleChangeView }
+							keepWhenEmpty={ keepTable }
 						/>
 					</>
 				) }

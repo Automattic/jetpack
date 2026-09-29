@@ -8,7 +8,6 @@ import {
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -134,8 +133,6 @@ function VideosReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.isLoading && records.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (

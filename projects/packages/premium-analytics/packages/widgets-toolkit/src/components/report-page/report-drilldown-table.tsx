@@ -9,6 +9,7 @@ import {
  * Internal dependencies
  */
 import styles from './report-drilldown-table.module.scss';
+import { ReportTableEmptyState } from './report-empty-state';
 import { ReportPageSection } from './report-page-layout';
 
 export type ReportDrilldownTableProps< Item > = DataViewsDrilldownNativeProps< Item >;
@@ -22,6 +23,10 @@ export type ReportDrilldownTableProps< Item > = DataViewsDrilldownNativeProps< I
  * @return The drilldown records table section.
  */
 export function ReportDrilldownTable< Item >( props: ReportDrilldownTableProps< Item > ) {
+	if ( props.data.length === 0 ) {
+		return <ReportTableEmptyState isLoading={ props.isLoading ?? false } />;
+	}
+
 	return (
 		<ReportPageSection className={ styles.root }>
 			<DataViewsDrilldownNative< Item > { ...props } />

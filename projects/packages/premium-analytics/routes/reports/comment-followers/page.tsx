@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { type StatsCommentFollowersItem } from '@jetpack-premium-analytics/data';
-import { EmptyState, Text } from '@jetpack-premium-analytics/externals';
+import { Text } from '@jetpack-premium-analytics/externals';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	MetricValue,
@@ -16,7 +16,6 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { Spinner } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -105,19 +104,17 @@ function CommentFollowersReport(): JSX.Element {
 					/>
 				) : (
 					<>
-						<ReportPageSection className={ styles.summary }>
-							<Text variant="heading-md" render={ <h3 /> }>
-								{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
-							</Text>
-							{ records.isLoading ? (
-								<Spinner />
-							) : (
+						{ records.rows.length > 0 && (
+							<ReportPageSection className={ styles.summary }>
+								<Text variant="heading-md" render={ <h3 /> }>
+									{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
+								</Text>
 								<MetricValue
 									value={ records.allPostsFollowers ?? 0 }
 									dataFormat={ { type: 'number' } }
 								/>
-							) }
-						</ReportPageSection>
+							</ReportPageSection>
+						) }
 						<ReportRecordsTable< StatsCommentFollowersItem >
 							data={ records.rows }
 							fields={ fields }
@@ -125,13 +122,6 @@ function CommentFollowersReport(): JSX.Element {
 							isLoading={ records.isLoading }
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
-							empty={
-								<EmptyState.Root>
-									<EmptyState.Title>
-										{ __( 'No subscribers', 'jetpack-premium-analytics-pkg' ) }
-									</EmptyState.Title>
-								</EmptyState.Root>
-							}
 						/>
 					</>
 				) }

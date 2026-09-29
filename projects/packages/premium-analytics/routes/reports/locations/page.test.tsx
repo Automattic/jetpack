@@ -5,7 +5,6 @@ import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportCsvAction,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageTabs,
@@ -54,7 +53,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
-	ReportEmptyState: jest.fn( () => <div data-testid="report-empty-state" /> ),
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
 			<span>{ title }</span>
@@ -99,7 +97,6 @@ jest.mock( '@wordpress/route', () => ( {
 
 const useRecordsMock = jest.mocked( useLocationsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
-const reportEmptyStateMock = jest.mocked( ReportEmptyState );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
@@ -322,14 +319,15 @@ describe( 'LocationsReportPage', () => {
 		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'replaces the map and the records table with the empty state when the period has no rows', () => {
+	it( 'hides the map and lets the table show the empty state when the period has no rows', () => {
 		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
 
 		render( <LocationsReportPage /> );
 
-		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
-		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+		expect( reportRecordsTableMock.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { data: [], keepWhenEmpty: false } )
+		);
 	} );
 
 	// The table holds the country filter, so hiding it would leave no way to
@@ -343,8 +341,10 @@ describe( 'LocationsReportPage', () => {
 		pickCountry( 'DE' );
 
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
-		expect( screen.getByTestId( 'records-table' ) ).toBeInTheDocument();
-		expect( reportEmptyStateMock ).not.toHaveBeenCalled();
+		expect( screen.getByTestId( 'locations-map' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock.mock.lastCall?.[ 0 ] ).toEqual(
+			expect.objectContaining( { data: [], keepWhenEmpty: true } )
+		);
 	} );
 
 	// The Countries tab is already the whole country list, so scoping it to one

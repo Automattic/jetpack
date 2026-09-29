@@ -3,12 +3,24 @@
  */
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
+import { createContext, useContext } from 'react';
 /**
  * Internal dependencies
  */
 import styles from './report-page-layout.module.scss';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
+
+const ReportHasPeriodContext = createContext( true );
+
+/**
+ * Whether the report around the caller has a date window, so copy can speak of "this time period" only where one exists.
+ *
+ * @return True unless the enclosing `ReportPageLayout` has no date filters.
+ */
+export function useReportHasPeriod(): boolean {
+	return useContext( ReportHasPeriodContext );
+}
 
 export interface ReportPageLayoutProps {
 	/** Heading for the section on screen: `Posts & Pages`. */
@@ -37,7 +49,9 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 			<SectionHeader title={ title } pinned>
 				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
 			</SectionHeader>
-			<div className={ styles.sections }>{ children }</div>
+			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
+				<div className={ styles.sections }>{ children }</div>
+			</ReportHasPeriodContext.Provider>
 		</div>
 	);
 }

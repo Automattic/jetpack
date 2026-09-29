@@ -84,4 +84,13 @@ describe( 'CommentFollowersReportPage', () => {
 		expect( screen.getByText( 'All Posts' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Unable to load subscribers' ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'hides the All Posts summary when there are no subscribers', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { allPostsFollowers: 0 } ) );
+
+		render( <CommentFollowersReportPage /> );
+
+		expect( screen.queryByText( 'All Posts' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+	} );
 } );

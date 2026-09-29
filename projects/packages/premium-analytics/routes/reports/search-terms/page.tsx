@@ -4,7 +4,6 @@
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -93,8 +92,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.table.isLoading && records.table.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (

@@ -6,7 +6,6 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportCsvAction,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -120,8 +119,6 @@ function AuthorsReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.isLoading && records.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
