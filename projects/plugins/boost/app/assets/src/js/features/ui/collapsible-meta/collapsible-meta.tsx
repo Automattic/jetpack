@@ -74,7 +74,7 @@ const CollapsibleMeta = ( {
 	const sectionHeader = (
 		<div className={ clsx( styles.header, { [ styles[ 'compact-header' ] ]: compactHeader } ) }>
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
-			<div className={ styles.actions }>
+			<div className={ clsx( styles.actions, { [ styles[ 'row-actions' ] ]: isRow } ) }>
 				{ extraButtons && extraButtons }{ ' ' }
 				<Button
 					variant={ isRow ? 'tertiary' : 'link' }

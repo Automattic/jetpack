@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Settings: Style the Image CDN quality and Page Cache options toggles as disclosures, not links, and announce whether they are expanded.
+Settings: Show the Image CDN quality, Page Cache options and Clear Cache controls as buttons rather than links, and announce whether the options panels are expanded.
