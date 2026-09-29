@@ -21,6 +21,7 @@ vendor/wikimedia/aho-corasick/**                production-include
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 /app/assets/src/**                              production-exclude
+/app/modules/**/src/**                          production-exclude
 /app/assets/dist/**/*.js.map                    production-exclude
 /docs/**                                        production-exclude
 /.editorconfig                                  production-exclude
