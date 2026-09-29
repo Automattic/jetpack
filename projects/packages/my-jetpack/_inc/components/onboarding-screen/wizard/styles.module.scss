@@ -10,21 +10,6 @@
  */
 $rail-width: 300px;
 
-/*
- * How tall the sheet gets before it stops growing and starts centring. Past
- * this the sheet only adds white: at an 1800px window the content sat in the
- * top quarter and the rest was a blank cliff.
- *
- * Measured against the tallest step, the feature list, at the width the panel
- * leaves it: its content, the body's 48 of padding, a 73px footer, the column's
- * 56px offset, and this element's own 32 of inset. Re-measure it if that step
- * grows — a sheet a few pixels short is a scroll container with nowhere to go,
- * which moves the heading under anyone who nudges the wheel.
- *
- * It only holds for the copy as written. A longer translation scrolls, which is
- * the designed behaviour and not this number's job to prevent.
- */
-$sheet-max-height: 944px;
 $panel-width: 38%;
 
 /*
@@ -237,6 +222,20 @@ $step-column-width: 470px;
 $step-column-offset: 56px;
 
 /*
+ * The step column's own height, and the sheet's old 944px cap re-expressed. The
+ * sheet fills the window now, and this is the block that centres inside it, so
+ * that the heading lands on the same pixel whatever the step is.
+ *
+ * Same measurement the cap carried: the tallest step's 670, this element's own
+ * offset, and the 65 of slack the cap already had over the top of them.
+ *
+ * Re-measure it if the feature step grows. A block a few pixels short stops
+ * centring and starts scrolling, which moves the heading under anyone who
+ * nudges the wheel.
+ */
+$content-block-height: 735px + $step-column-offset;
+
+/*
  * The feature row's icon tile. Was the prototype's `size-12`, 48px; at that
  * size it is the heaviest thing in a row whose job is the words beside it. 40
  * is the size scale's own top step and still leaves ground around the glyph.
@@ -392,14 +391,14 @@ $rail-row-min-height: 40px;
  */
 .canvas {
 	display: flex;
-	align-self: center;
 
 	min-inline-size: 0;
 	min-block-size: 0;
 
-	// A height, not a maximum: a maximum lets the sheet size to its content, and
-	// then it is a different height on every step and the footer moves with it.
-	block-size: min(100%, #{$sheet-max-height});
+	// The window, less the shell's own gutter. A height, not a maximum: a maximum
+	// lets the sheet size to its content, and then it is a different height on
+	// every step and the footer moves with it.
+	block-size: 100%;
 	padding: $canvas-inset;
 
 	/*
@@ -448,21 +447,6 @@ $rail-row-min-height: 40px;
 	gap: var(--wpds-dimension-gap-lg);
 	min-inline-size: 0;
 	padding-block: var(--wpds-dimension-padding-lg);
-
-	/*
-	 * Sized and centred with the sheet, for the reason already written on the
-	 * brand panel: the three are one object. The sheet and the panel were capped
-	 * and this was not, so on a window taller than the cap the steps climbed away
-	 * from the card they belong to — 160px apart on a 1264px window, which reads
-	 * as two layouts that have come apart.
-	 *
-	 * The ground is the shell's, not the rail's, so this moves the steps and
-	 * leaves the dark full-bleed behind them.
-	 */
-	@media (min-width: $rail-breakpoint) {
-		align-self: center;
-		block-size: min(100%, #{$sheet-max-height});
-	}
 
 	/*
 	 * Collapsed it is a header bar, and a header bar wants a header's gaps. It
@@ -626,16 +610,23 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * Top-anchored, not centred. An auto top margin moved the heading 147px between
- * steps 2 and 3 and 135px back again, and the step change only reads as a
- * sequence if the heading holds its place through the swap. The bottom margin
- * stays auto so a short step does not stretch.
+ * Centred as a block of one height, never as its own content. Auto margins on
+ * the content moved the heading 147px between steps 2 and 3 and 135px back
+ * again, because the content is a different height on each. A block that is
+ * $content-block-height on every step centres to the same pixel on all of
+ * them, so the step change still reads as a sequence.
+ *
+ * The clamp to 100% is what keeps a short window honest. Without it the
+ * block is taller than the sheet, the margins have nothing to distribute,
+ * and a short step scrolls down onto its own empty tail.
  */
 .panel-content {
 	inline-size: 100%;
 	max-inline-size: $step-column-width;
-	margin-block: $step-column-offset auto;
+	min-block-size: min(#{$content-block-height}, 100%);
+	margin-block: auto;
 	margin-inline: auto;
+	padding-block-start: $step-column-offset;
 	animation-name: step-enter;
 	animation-duration: $appear-duration;
 	animation-timing-function: $house-easing;
@@ -674,12 +665,11 @@ $rail-row-min-height: 40px;
 
 	@media (min-width: $panel-breakpoint) {
 		display: block;
-		align-self: center;
 		min-block-size: 0;
 
-		// Sized with the sheet, or the two stop being the same object on a tall
-		// window: one card and one full-height column beside it.
-		block-size: min(100%, #{$sheet-max-height});
+		// Full height, with the sheet. The artwork takes whatever the window
+		// gives it, so this is the one column that can absorb any amount.
+		block-size: 100%;
 		padding: var(--wpds-dimension-padding-lg);
 		padding-inline-start: 0;
 	}
@@ -1540,6 +1530,7 @@ $rail-row-min-height: 40px;
 		flex-grow: 1;
 		min-block-size: 0;
 		margin-block: 0;
+		padding-block-start: 0;
 	}
 }
 
@@ -1600,11 +1591,15 @@ $rail-row-min-height: 40px;
 .finish {
 	display: flex;
 
-	// The wash discs end at 12 to 15 times the badge and stay there, frozen by
-	// their fill mode, so below about 1024px they drag the sheet sideways onto
-	// blank white. Clipped rather than hidden: the column itself still has to
-	// scroll vertically on a short window.
-	overflow-x: clip;
+	/*
+	 * The wash discs are frozen at full reach by their fill mode, so they carry
+	 * on being scrollable overflow long after they have faded out. Sideways they
+	 * dragged the sheet onto blank white; downwards they gave the pane up to
+	 * 500px of dead scroll, and one nudge of the wheel took the badge and the
+	 * heading off the top of it. Both axes, and clipped rather than hidden so
+	 * nothing tries to scroll to them.
+	 */
+	overflow: clip;
 	min-block-size: 100%;
 	align-items: center;
 	justify-content: center;

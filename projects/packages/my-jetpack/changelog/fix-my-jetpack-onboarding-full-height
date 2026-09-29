@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Onboarding: fill the window rather than floating in it, and stop the finish screen scrolling to nothing.
