@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
@@ -32,7 +33,7 @@ class Settings_Controller_Test extends BaseTestCase {
 
 		global $wp_rest_server;
 		$wp_rest_server = new WP_REST_Server();
-		add_action( 'rest_api_init', array( new Settings_Controller(), 'register_routes' ) );
+		Settings_Controller::register();
 		do_action( 'rest_api_init' );
 		$this->reset_stats_options();
 	}
@@ -42,13 +43,17 @@ class Settings_Controller_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		$this->reset_stats_options();
+		Constants::clear_single_constant( 'IS_WPCOM' );
 		parent::tear_down();
 	}
 
 	public function test_read_names_no_modules_screen_without_the_jetpack_plugin() {
 		wp_set_current_user( $this->create_user( 'administrator' ) );
 
-		$this->assertNull( $this->dispatch( 'GET' )->get_data()['modules_url'] );
+		$data = $this->dispatch( 'GET' )->get_data();
+
+		$this->assertArrayHasKey( 'modules_url', $data );
+		$this->assertNull( $data['modules_url'] );
 	}
 
 	/**
@@ -62,6 +67,17 @@ class Settings_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $this->create_user( 'administrator' ) );
 
 		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), $this->dispatch( 'GET' )->get_data()['modules_url'] );
+	}
+
+	public function test_route_is_not_registered_on_a_simple_site() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		remove_all_actions( 'rest_api_init' );
+		$GLOBALS['wp_rest_server'] = new WP_REST_Server();
+
+		Settings_Controller::register();
+		do_action( 'rest_api_init' );
+
+		$this->assertArrayNotHasKey( self::ROUTE, rest_get_server()->get_routes() );
 	}
 
 	public function test_save_changes_who_can_view_and_whose_views_count() {

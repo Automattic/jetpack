@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use Automattic\Jetpack\Stats\Settings_Screen;
+use Automattic\Jetpack\Status\Host;
 use WP_Error;
 use WP_REST_Request;
 use WP_REST_Server;
@@ -46,6 +47,11 @@ class Settings_Controller {
 	 * @return void
 	 */
 	public static function register(): void {
+		// The settings drawer is not offered on Simple sites, where Stats cannot be switched off.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
 		$controller = new self();
 		add_action( 'rest_api_init', array( $controller, 'register_routes' ) );
 	}
