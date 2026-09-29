@@ -1,10 +1,18 @@
 /**
  * External dependencies
  */
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import { AnalyticsQueryClientProvider } from '@jetpack-premium-analytics/data';
 import { Icon, IconButton, Menu } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { cancelCircleFilled, cog, comment, moreVertical, pencil } from '@wordpress/icons';
+import {
+	cancelCircleFilled,
+	cog,
+	comment,
+	moreVertical,
+	pencil,
+	trendingUp,
+} from '@wordpress/icons';
 import { useNavigate, useSearch } from '@wordpress/route';
 import { useCallback, useState } from 'react';
 /**
@@ -14,15 +22,10 @@ import { useTrackEvent } from '../../hooks/use-track-event';
 import { FeedbackModal } from './feedback-modal';
 import { SettingsDrawer } from './settings-drawer';
 import { SwitchOffDialog } from './switch-off-dialog';
+import { UsageDrawer, type UsageDrawerSource } from './usage-drawer';
 
-// `?settings=1` in the route's search opens the settings, so other screens can link straight to them.
-const SETTINGS_SEARCH_PARAM = 'settings';
-
-const dropSettingsParam = ( search: Record< string, unknown > ) => {
-	const rest = { ...search };
-	delete rest[ SETTINGS_SEARCH_PARAM ];
-	return rest;
-};
+// Each drawer opens from a search param of its own name, such as `?settings=1`, so other screens can link straight to it.
+type DrawerId = 'usage' | 'settings';
 
 export type PageOptionsMenuProps = {
 	/** Enters customize mode; Customize is on offer only when given. */
@@ -31,9 +34,8 @@ export type PageOptionsMenuProps = {
 
 /**
  * The page options menu of a Premium Analytics page: arranging the layout, where
- * the page has one, and, apart from it, the Stats settings, feedback and the way
- * back to classic Stats. After the configurations design (WOOA7S-2055) less its
- * Usage entry.
+ * the page has one, and, apart from it, the plan usage, the Stats settings, feedback
+ * and the way back to classic Stats. After the configurations design (WOOA7S-2055).
  *
  * `WidgetDashboard.Actions` takes no items, so these cannot join its overflow menu (WOOA7S-2098).
  *
@@ -47,13 +49,23 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 	const [ isSwitchOffOpen, setIsSwitchOffOpen ] = useState( false );
 	const search = useSearch( { strict: false } ) as Record< string, unknown >;
 	const navigate = useNavigate();
-	const isSettingsRequested = search[ SETTINGS_SEARCH_PARAM ] !== undefined;
-	const [ isSettingsOpen, setIsSettingsOpen ] = useState( isSettingsRequested );
 
 	// The opt-in and the Stats settings are site settings, so changing them takes the same capability.
 	const canManageSettings = currentUserCan( 'manage_options' );
 	// Simple sites have no local Stats settings route.
 	const offersSettings = canManageSettings && ! isSimpleSite();
+	const offersUsage =
+		canManageSettings && getScriptData()?.premium_analytics?.usage_drawer_enabled === true;
+
+	const offeredDrawers: DrawerId[] = [
+		...( offersUsage ? [ 'usage' as const ] : [] ),
+		...( offersSettings ? [ 'settings' as const ] : [] ),
+	];
+	const requestedDrawer = offeredDrawers.find( id => search[ id ] !== undefined ) ?? null;
+	// A drawer picked from the menu wins; otherwise the URL decides, so a link followed on this page opens it too.
+	const [ menuDrawer, setMenuDrawer ] = useState< DrawerId | null >( null );
+	const openDrawer = menuDrawer ?? requestedDrawer;
+	const usageSource: UsageDrawerSource = menuDrawer === 'usage' ? 'menu' : 'url';
 
 	const openFeedback = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_feedback_open', { source: 'menu' } );
@@ -63,18 +75,23 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 	const closeFeedback = useCallback( () => setIsFeedbackOpen( false ), [] );
 	const openSwitchOff = useCallback( () => setIsSwitchOffOpen( true ), [] );
 	const closeSwitchOff = useCallback( () => setIsSwitchOffOpen( false ), [] );
-	const openSettings = useCallback( () => setIsSettingsOpen( true ), [] );
-	const closeSettings = useCallback( () => {
-		setIsSettingsOpen( false );
-		// A reload or Back would open the drawer again while the param stays.
-		if ( isSettingsRequested ) {
+	const openUsage = useCallback( () => setMenuDrawer( 'usage' ), [] );
+	const openSettings = useCallback( () => setMenuDrawer( 'settings' ), [] );
+	const closeDrawer = useCallback( () => {
+		setMenuDrawer( null );
+		// A reload or Back would open the drawer again while its param stays.
+		if ( openDrawer && search[ openDrawer ] !== undefined ) {
 			navigate( {
 				replace: true,
 				// Without a route to read it from, TanStack types the reducer's result as `never`.
-				search: dropSettingsParam as never,
+				search: ( ( current: Record< string, unknown > ) => {
+					const rest = { ...current };
+					delete rest[ openDrawer ];
+					return rest;
+				} ) as never,
 			} );
 		}
-	}, [ isSettingsRequested, navigate ] );
+	}, [ openDrawer, search, navigate ] );
 
 	return (
 		<>
@@ -101,6 +118,11 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 							<Menu.Separator />
 						</>
 					) }
+					{ offersUsage && (
+						<Menu.Item prefix={ <Icon icon={ trendingUp } /> } onClick={ openUsage }>
+							<Menu.ItemLabel>{ __( 'Usage', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
+						</Menu.Item>
+					) }
 					{ offersSettings && (
 						<Menu.Item prefix={ <Icon icon={ cog } /> } onClick={ openSettings }>
 							<Menu.ItemLabel>{ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
@@ -122,7 +144,19 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 			</Menu.Root>
 			{ isFeedbackOpen && <FeedbackModal source="menu" onClose={ closeFeedback } /> }
 			{ isSwitchOffOpen && <SwitchOffDialog onClose={ closeSwitchOff } /> }
-			{ offersSettings && <SettingsDrawer open={ isSettingsOpen } onClose={ closeSettings } /> }
+			{ offersUsage && (
+				// The menu renders in the page header, outside the widgets' query provider.
+				<AnalyticsQueryClientProvider>
+					<UsageDrawer
+						open={ openDrawer === 'usage' }
+						onClose={ closeDrawer }
+						source={ usageSource }
+					/>
+				</AnalyticsQueryClientProvider>
+			) }
+			{ offersSettings && (
+				<SettingsDrawer open={ openDrawer === 'settings' } onClose={ closeDrawer } />
+			) }
 		</>
 	);
 }

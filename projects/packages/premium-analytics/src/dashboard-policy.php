@@ -20,6 +20,11 @@ const DASHBOARD_COMPOSITION_FLAG = 'premium-analytics-dashboard-composition';
 const DASHBOARD_STORE_SECTION_FLAG = 'premium-analytics-store-section';
 
 /**
+ * Name of the feature flag that offers the plan usage drawer in the page options menu.
+ */
+const USAGE_DRAWER_FLAG = 'premium-analytics-usage-drawer';
+
+/**
  * Registers the dashboard feature flags.
  *
  * Runs on every request so the flag stays discoverable wherever flags are read or
@@ -45,6 +50,16 @@ function register_dashboard_feature_flags() {
 			'owner'       => 'jetpack-premium-analytics',
 		)
 	);
+
+	// Usage and upgrade UX stays out of Stats v2 until the paid plan is settled (STATS-459).
+	Feature_Flags::register(
+		USAGE_DRAWER_FLAG,
+		array(
+			'default'     => false,
+			'description' => 'Offer the plan usage drawer in the page options menu of the analytics dashboard.',
+			'owner'       => 'jetpack-premium-analytics',
+		)
+	);
 }
 
 /**
@@ -63,6 +78,15 @@ function is_dashboard_composition_enabled() {
  */
 function is_dashboard_store_section_enabled() {
 	return Feature_Flags::is_enabled( DASHBOARD_STORE_SECTION_FLAG );
+}
+
+/**
+ * Whether the page options menu offers the plan usage drawer.
+ *
+ * @return bool
+ */
+function is_usage_drawer_enabled() {
+	return Feature_Flags::is_enabled( USAGE_DRAWER_FLAG );
 }
 
 /**
@@ -98,6 +122,7 @@ function inject_dashboard_policy_script_data( array $data ): array {
 	}
 
 	$data['premium_analytics']['dashboard_composition_enabled'] = is_dashboard_composition_enabled();
+	$data['premium_analytics']['usage_drawer_enabled']          = is_usage_drawer_enabled();
 
 	return $data;
 }

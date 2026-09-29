@@ -18,6 +18,7 @@ require_once __DIR__ . '/../../src/dashboard-policy.php';
  * @covers ::Automattic\Jetpack\PremiumAnalytics\register_dashboard_feature_flags
  * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_composition_enabled
  * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_store_section_enabled
+ * @covers ::Automattic\Jetpack\PremiumAnalytics\is_usage_drawer_enabled
  * @covers ::Automattic\Jetpack\PremiumAnalytics\is_dashboard_unlocked_for_a11n
  * @covers ::Automattic\Jetpack\PremiumAnalytics\configure_dashboard_policy
  * @covers ::Automattic\Jetpack\PremiumAnalytics\inject_dashboard_policy_script_data
@@ -25,6 +26,7 @@ require_once __DIR__ . '/../../src/dashboard-policy.php';
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\register_dashboard_feature_flags' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_composition_enabled' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_store_section_enabled' )]
+#[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_usage_drawer_enabled' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\is_dashboard_unlocked_for_a11n' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\configure_dashboard_policy' )]
 #[CoversFunction( 'Automattic\Jetpack\PremiumAnalytics\inject_dashboard_policy_script_data' )]
@@ -37,6 +39,7 @@ class Dashboard_Policy_Test extends TestCase {
 	public function tear_down() {
 		remove_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_COMPOSITION_FLAG, '__return_true' );
 		remove_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
+		remove_filter( 'jetpack_feature_flag_enabled_' . USAGE_DRAWER_FLAG, '__return_true' );
 		remove_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_policy_script_data', 20 );
 		Feature_Flags::reset();
 	}
@@ -111,6 +114,23 @@ class Dashboard_Policy_Test extends TestCase {
 		$this->assertFalse( $flags[ DASHBOARD_STORE_SECTION_FLAG ]['default'] );
 		$this->assertSame( 'jetpack-premium-analytics', $flags[ DASHBOARD_STORE_SECTION_FLAG ]['owner'] );
 		$this->assertFalse( is_dashboard_store_section_enabled() );
+	}
+
+	public function test_script_data_keeps_the_usage_drawer_off_by_default() {
+		register_dashboard_feature_flags();
+
+		$data = inject_dashboard_policy_script_data( array() );
+
+		$this->assertFalse( $data['premium_analytics']['usage_drawer_enabled'] );
+	}
+
+	public function test_script_data_offers_the_usage_drawer_once_its_flag_is_on() {
+		register_dashboard_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . USAGE_DRAWER_FLAG, '__return_true' );
+
+		$data = inject_dashboard_policy_script_data( array() );
+
+		$this->assertTrue( $data['premium_analytics']['usage_drawer_enabled'] );
 	}
 
 	public function test_older_copies_find_the_a11n_unlock_switched_off() {

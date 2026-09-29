@@ -16,6 +16,9 @@ declare module '@automattic/jetpack-script-data' {
 			// Whether the dashboard offers adding, removing and resetting widgets: the
 			// premium-analytics-dashboard-composition feature flag, read by the policy.
 			dashboard_composition_enabled?: boolean;
+			// Whether the page options menu offers the plan usage drawer: the
+			// premium-analytics-usage-drawer feature flag, read by the policy.
+			usage_drawer_enabled?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
 			// The roles the Stats settings list, and the Stats module screen; absent for users who cannot manage options.

@@ -655,6 +655,106 @@ describe( 'the settings', () => {
 	} );
 } );
 
+describe( 'the usage', () => {
+	const USAGE_RESPONSE = {
+		current_usage: { views_count: 6200, days_to_reset: 12 },
+		views_limit: 10000,
+		over_limit_months: 0,
+	};
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		mockGetScriptData.mockReturnValue( {
+			site: { wpcom: { blog_id: 42 } },
+			premium_analytics: { usage_drawer_enabled: true },
+		} );
+		mockApiFetch.mockImplementation( () => Promise.resolve( USAGE_RESPONSE ) );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'opens in a drawer from the menu once its flag is on, and reports the menu as the source', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Usage' } ) );
+
+		await expect(
+			within( screen.getByRole( 'dialog', { name: 'Usage' } ) ).findByText( '6,200 / 10,000 views' )
+		).resolves.toBeInTheDocument();
+		expect( mockRecordEvent.mock.calls ).toContainEqual( [
+			'jetpack_premium_analytics_usage_open',
+			{ source: 'menu' },
+		] );
+	} );
+
+	it( 'opens from `?usage` in the URL, and reports the URL as the source', async () => {
+		mockSearch.mockReturnValue( { usage: '1' } );
+		render( <PageOptionsMenu /> );
+
+		await expect( screen.findByRole( 'dialog', { name: 'Usage' } ) ).resolves.toBeInTheDocument();
+		expect( mockRecordEvent.mock.calls ).toContainEqual( [
+			'jetpack_premium_analytics_usage_open',
+			{ source: 'url' },
+		] );
+	} );
+
+	it( 'opens when a link on the same page adds `?usage`', async () => {
+		const { rerender } = render( <PageOptionsMenu /> );
+
+		mockSearch.mockReturnValue( { usage: '1' } );
+		rerender( <PageOptionsMenu /> );
+
+		await expect( screen.findByRole( 'dialog', { name: 'Usage' } ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( "keeps another drawer's param when Usage opened from the menu closes", async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { rerender } = render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Usage' } ) );
+		mockSearch.mockReturnValue( { settings: '1' } );
+		rerender( <PageOptionsMenu /> );
+		await user.click(
+			within( await screen.findByRole( 'dialog', { name: 'Usage' } ) ).getByRole( 'button', {
+				name: 'Close',
+			} )
+		);
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
+	} );
+
+	it( 'is not offered while its flag is off', async () => {
+		mockGetScriptData.mockReturnValue( { site: { wpcom: { blog_id: 42 } } } );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Settings' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Usage' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'is not offered to those who cannot change site settings, flag or not', async () => {
+		mockCurrentUserCan.mockReturnValue( false );
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+
+		await expect(
+			screen.findByRole( 'menuitem', { name: 'Any feedback?' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'menuitem', { name: 'Usage' } ) ).not.toBeInTheDocument();
+	} );
+} );
+
 describe( 'Customize', () => {
 	it( 'comes first where the page has a layout to arrange', async () => {
 		const user = userEvent.setup();

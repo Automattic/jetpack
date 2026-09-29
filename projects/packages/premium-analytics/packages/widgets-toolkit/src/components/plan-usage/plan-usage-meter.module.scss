@@ -1,0 +1,57 @@
+.meter {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+}
+
+.figures {
+	display: flex;
+	align-items: baseline;
+	gap: var(--wpds-dimension-gap-md);
+}
+
+.count {
+	flex: 1 1 auto;
+	min-inline-size: 0;
+	color: var(--wpds-color-foreground-content-neutral);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+}
+
+.reset {
+	flex-shrink: 0;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	white-space: nowrap;
+}
+
+.bar {
+	display: block;
+	inline-size: 100%;
+	block-size: 12px;
+	border: none;
+	border-radius: 6px;
+	overflow: hidden;
+	appearance: none;
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+}
+
+.bar::-webkit-progress-bar {
+	background-color: var(--wpds-color-background-surface-neutral-weak);
+}
+
+.bar::-webkit-progress-value {
+	border-radius: 6px;
+	background-color: var(--wpds-color-background-interactive-brand-strong);
+}
+
+.bar::-moz-progress-bar {
+	border-radius: 6px;
+	background-color: var(--wpds-color-background-interactive-brand-strong);
+}
+
+.isOverLimit::-webkit-progress-value {
+	background-color: var(--wpds-color-foreground-content-error-weak);
+}
+
+.isOverLimit::-moz-progress-bar {
+	background-color: var(--wpds-color-foreground-content-error-weak);
+}

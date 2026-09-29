@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add a Usage drawer to the page options menu, showing the plan usage for the current billing cycle. It stays hidden behind the premium-analytics-usage-drawer feature flag.
