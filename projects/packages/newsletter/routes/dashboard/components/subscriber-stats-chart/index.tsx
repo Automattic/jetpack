@@ -414,6 +414,18 @@ export default function SubscriberStatsChart(): JSX.Element {
 		placeholderData: keepPreviousData,
 		staleTime: STATS_STALE_TIME_MS,
 	} );
+	// The headline is today's count, so the chart window cannot change it.
+	const currentTotalsPath = addQueryArgs( '/wpcom/v2/newsletter/stats/subscribers', {
+		unit: 'day',
+		quantity: 1,
+		date: today,
+		stat_fields: 'subscribers,subscribers_paid',
+	} );
+	const currentTotalsQuery = useQuery< SubscribersStatsResponse >( {
+		queryKey: [ 'newsletter-stats', 'subscribers', 'current', currentTotalsPath ],
+		queryFn: () => apiFetch( { path: currentTotalsPath } ),
+		staleTime: STATS_STALE_TIME_MS,
+	} );
 	const recentPostsQuery = useQuery< RecentPostsResponse >( {
 		queryKey: [ 'newsletter-stats', 'recent-posts' ],
 		queryFn: () => apiFetch( { path: '/wpcom/v2/newsletter/stats/recent-posts' } ),
@@ -421,6 +433,9 @@ export default function SubscriberStatsChart(): JSX.Element {
 	} );
 	const subscriberStats = subscribersQuery.data
 		? toSubscriberStats( subscribersQuery.data, unit )
+		: null;
+	const currentTotals = currentTotalsQuery.data
+		? toSubscriberStats( currentTotalsQuery.data, 'day' )
 		: null;
 	const showPreviousChart = subscribersQuery.isPlaceholderData;
 	const moveChartDate = useCallback(
@@ -440,10 +455,12 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const showNextPeriod = useCallback( () => moveChartDate( 1 ), [ moveChartDate ] );
 	const emailRates = toEmailRates( recentPostsQuery.data?.emailTotals );
 	const { refetch: refetchSubscribers } = subscribersQuery;
+	const { refetch: refetchCurrentTotals } = currentTotalsQuery;
 	const retrySubscribers = useCallback( () => {
 		recordStatsEvent( 'jetpack_newsletter_stats_retry_click', { area: 'subscribers' } );
 		refetchSubscribers();
-	}, [ refetchSubscribers ] );
+		refetchCurrentTotals();
+	}, [ refetchCurrentTotals, refetchSubscribers ] );
 	let subscribersState: 'empty' | 'error' | null = null;
 	if ( subscribersQuery.isError ) {
 		subscribersState = 'error';
@@ -548,7 +565,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						{ __( 'Total subscribers', 'jetpack-newsletter' ) }
 					</Stack>
 					<strong className="jetpack-newsletter-stats__metric-value">
-						{ formatMetric( subscriberStats?.totalSubscribers ) }
+						{ formatMetric( currentTotals?.totalSubscribers ) }
 					</strong>
 				</Stack>
 				<Stack
@@ -606,7 +623,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						<PaidSubscribersInfo />
 					</Stack>
 					<strong className="jetpack-newsletter-stats__metric-value">
-						{ formatMetric( subscriberStats?.paidSubscribers ) }
+						{ formatMetric( currentTotals?.paidSubscribers ) }
 					</strong>
 				</Stack>
 			</Stack>

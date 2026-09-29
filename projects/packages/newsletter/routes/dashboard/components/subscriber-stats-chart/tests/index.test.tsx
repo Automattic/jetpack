@@ -47,6 +47,11 @@ const subscribersResponse = {
 	],
 };
 
+const currentTotalsResponse = {
+	fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+	data: [ [ '2026-09-21', 200, 15 ] ],
+};
+
 const recentPostsResponse = {
 	posts: [
 		{
@@ -81,13 +86,18 @@ function renderStats(): void {
 	);
 }
 
-beforeEach( () => {
-	mockApiFetch.mockReset();
-	mockLineChart.mockReset();
-	mockRecordEvent.mockReset();
+/**
+ * Stub stats fetches. The headline totals request always returns today's count.
+ *
+ * @param subscribers - Response for the chart-window request.
+ */
+function mockStatsFetch( subscribers: ( path: string ) => unknown ): void {
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+		if ( path.includes( 'quantity=1&' ) ) {
+			return Promise.resolve( currentTotalsResponse );
+		}
 		if ( path.includes( '/stats/subscribers' ) ) {
-			return Promise.resolve( subscribersResponse );
+			return subscribers( path );
 		}
 		if ( path === '/wpcom/v2/newsletter/stats/recent-posts' ) {
 			return Promise.resolve( recentPostsResponse );
@@ -97,6 +107,13 @@ beforeEach( () => {
 		}
 		return Promise.reject( new Error( `Unexpected request: ${ path }` ) );
 	} );
+}
+
+beforeEach( () => {
+	mockApiFetch.mockReset();
+	mockLineChart.mockReset();
+	mockRecordEvent.mockReset();
+	mockStatsFetch( () => Promise.resolve( subscribersResponse ) );
 } );
 
 describe( 'SubscriberStatsChart', () => {
@@ -107,7 +124,9 @@ describe( 'SubscriberStatsChart', () => {
 		await expect(
 			screen.findByRole( 'link', { name: 'Sent newsletter' } )
 		).resolves.toHaveAttribute( 'href', 'https://example.com/sent-newsletter/' );
-		expect( screen.getAllByText( '122' ) ).toHaveLength( 2 );
+		expect( screen.getByText( '200' ) ).toBeInTheDocument();
+		expect( screen.getByText( '15' ) ).toBeInTheDocument();
+		expect( screen.getAllByText( '122' ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( '58%' ) ).not.toHaveLength( 0 );
 		expect( screen.getAllByText( '21%' ) ).not.toHaveLength( 0 );
 		expect( screen.getByTestId( 'subscriber-chart' ) ).toBeInTheDocument();
@@ -119,6 +138,9 @@ describe( 'SubscriberStatsChart', () => {
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: expect.stringContaining( 'unit=day&quantity=30&date=2026-09-21' ),
+		} );
+		expect( mockApiFetch ).toHaveBeenCalledWith( {
+			path: expect.stringContaining( 'unit=day&quantity=1&date=2026-09-21' ),
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/wpcom/v2/newsletter/stats/recent-posts',
@@ -164,12 +186,7 @@ describe( 'SubscriberStatsChart', () => {
 	} );
 
 	it( 'shows an error with a working retry when the subscribers request fails', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
-			if ( path.includes( '/stats/subscribers' ) ) {
-				return Promise.reject( new Error( 'network error' ) );
-			}
-			return Promise.resolve( recentPostsResponse );
-		} );
+		mockStatsFetch( () => Promise.reject( new Error( 'network error' ) ) );
 
 		renderStats();
 
@@ -203,18 +220,15 @@ describe( 'SubscriberStatsChart', () => {
 	} );
 
 	it( 'shows the empty state when no subscriber data points are returned', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
-			if ( path.includes( '/stats/subscribers' ) ) {
-				return Promise.resolve( { fields: [ 'period', 'subscribers' ], data: [] } );
-			}
-			return Promise.resolve( recentPostsResponse );
-		} );
+		mockStatsFetch( () => Promise.resolve( { fields: [ 'period', 'subscribers' ], data: [] } ) );
 
 		renderStats();
 
 		await expect(
 			screen.findByText( 'No subscriber data is available for this period.' )
 		).resolves.toBeInTheDocument();
+		expect( screen.getByText( '200' ) ).toBeInTheDocument();
+		expect( screen.getByText( '15' ) ).toBeInTheDocument();
 		expect( screen.queryByTestId( 'subscriber-chart' ) ).not.toBeInTheDocument();
 		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_state_view', {
@@ -270,7 +284,7 @@ describe( 'SubscriberStatsChart', () => {
 	} );
 
 	it( 'turns week and year period labels into chart dates', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+		mockStatsFetch( path => {
 			if ( path.includes( 'unit=week' ) ) {
 				return Promise.resolve( {
 					fields: [ 'period', 'subscribers', 'subscribers_paid' ],
@@ -283,10 +297,7 @@ describe( 'SubscriberStatsChart', () => {
 					data: [ [ '2026', 50, 3 ] ],
 				} );
 			}
-			if ( path.includes( '/stats/subscribers' ) ) {
-				return Promise.resolve( subscribersResponse );
-			}
-			return Promise.resolve( recentPostsResponse );
+			return Promise.resolve( subscribersResponse );
 		} );
 
 		renderStats();
@@ -330,16 +341,13 @@ describe( 'SubscriberStatsChart', () => {
 	} );
 
 	it( 'parses labels with the response unit and leaves missing counts empty', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
-			if ( path.includes( '/stats/subscribers' ) ) {
-				return Promise.resolve( {
-					unit: 'week',
-					fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-					data: [ [ '2026W09W14', null, 2 ] ],
-				} );
-			}
-			return Promise.resolve( recentPostsResponse );
-		} );
+		mockStatsFetch( () =>
+			Promise.resolve( {
+				unit: 'week',
+				fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+				data: [ [ '2026W09W14', null, 2 ] ],
+			} )
+		);
 
 		renderStats();
 
@@ -362,21 +370,19 @@ describe( 'SubscriberStatsChart', () => {
 				} )
 			);
 		} );
-		expect( screen.getAllByText( '—' ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByText( '200' ) ).toBeInTheDocument();
+		expect( screen.getByText( '15' ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the subscriber totals while the next interval is loading', async () => {
 		let resolveWeek: ( value: unknown ) => void = () => {};
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+		mockStatsFetch( path => {
 			if ( path.includes( 'unit=week' ) ) {
 				return new Promise( resolve => {
 					resolveWeek = resolve;
 				} );
 			}
-			if ( path.includes( '/stats/subscribers' ) ) {
-				return Promise.resolve( { ...subscribersResponse, unit: 'day' } );
-			}
-			return Promise.resolve( recentPostsResponse );
+			return Promise.resolve( { ...subscribersResponse, unit: 'day' } );
 		} );
 
 		renderStats();
@@ -385,7 +391,8 @@ describe( 'SubscriberStatsChart', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
 
-		expect( screen.getAllByText( '122' ).length ).toBeGreaterThan( 0 );
+		expect( screen.getByText( '200' ) ).toBeInTheDocument();
+		expect( screen.getByText( '15' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Loading subscriber stats…' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'subscriber-chart-panel' ) ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( mockLineChart ).toHaveBeenCalledWith(
@@ -405,22 +412,24 @@ describe( 'SubscriberStatsChart', () => {
 		} );
 
 		await waitFor( () => {
-			expect( screen.getByText( '40' ) ).toBeInTheDocument();
+			expect( mockLineChart ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					options: expect.objectContaining( {
+						axis: expect.objectContaining( {
+							x: { tickResolution: 'week' },
+						} ),
+					} ),
+					data: expect.arrayContaining( [
+						expect.objectContaining( {
+							data: [ { dateString: '2026-09-14', value: 40 } ],
+						} ),
+					] ),
+				} )
+			);
 		} );
-		expect( mockLineChart ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				options: expect.objectContaining( {
-					axis: expect.objectContaining( {
-						x: { tickResolution: 'week' },
-					} ),
-				} ),
-				data: expect.arrayContaining( [
-					expect.objectContaining( {
-						data: [ { dateString: '2026-09-14', value: 40 } ],
-					} ),
-				] ),
-			} )
-		);
+		expect( screen.getByText( '200' ) ).toBeInTheDocument();
+		expect( screen.getByText( '15' ) ).toBeInTheDocument();
+		expect( screen.queryByText( '40' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'pages the chart end date one window at a time', async () => {
@@ -459,6 +468,11 @@ describe( 'SubscriberStatsChart', () => {
 				path: expect.stringContaining( 'date=2026-09-21' ),
 			} );
 		} );
+		expect( screen.getByText( '200' ) ).toBeInTheDocument();
+		expect( screen.getByText( '15' ) ).toBeInTheDocument();
+		expect(
+			mockApiFetch.mock.calls.filter( ( [ { path } ] ) => path.includes( 'quantity=1&' ) )
+		).toHaveLength( 1 );
 	} );
 
 	it( 'does not record a click when the selected interval is chosen again', async () => {
@@ -532,12 +546,7 @@ describe( 'SubscriberStatsChart', () => {
 	} );
 
 	it( 'shows the empty state when the subscribers response has no period column', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
-			if ( path.includes( '/stats/subscribers' ) ) {
-				return Promise.resolve( { fields: [ 'subscribers' ], data: [ [ 122 ] ] } );
-			}
-			return Promise.resolve( recentPostsResponse );
-		} );
+		mockStatsFetch( () => Promise.resolve( { fields: [ 'subscribers' ], data: [ [ 122 ] ] } ) );
 
 		renderStats();
 
@@ -547,18 +556,15 @@ describe( 'SubscriberStatsChart', () => {
 	} );
 
 	it( 'skips subscriber rows that are not dated', async () => {
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
-			if ( path.includes( '/stats/subscribers' ) ) {
-				return Promise.resolve( {
-					fields: [ 'period', 'subscribers', 'subscribers_paid' ],
-					data: [
-						[ 10, 5, 1 ],
-						[ '2026-09-10', 122, 8 ],
-					],
-				} );
-			}
-			return Promise.resolve( recentPostsResponse );
-		} );
+		mockStatsFetch( () =>
+			Promise.resolve( {
+				fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+				data: [
+					[ 10, 5, 1 ],
+					[ '2026-09-10', 122, 8 ],
+				],
+			} )
+		);
 
 		renderStats();
 
