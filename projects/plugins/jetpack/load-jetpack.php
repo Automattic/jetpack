@@ -76,15 +76,11 @@ if ( is_admin() ) {
 
 	\Automattic\Jetpack\Newsletter\Writing_Prompt_Widget::init();
 
-	// Settings > Sharing owns its own screen, so it exists whichever modules are active.
-	\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
-	\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
-
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
-// Outside `is_admin()`, which is false in REST requests.
-\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
+// Settings > Sharing and its REST routes exist whichever modules are active.
+\Automattic\Jetpack\Sharing_Likes\Initializer::init();
 
 // Play nice with https://wp-cli.org/.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {

@@ -7,10 +7,11 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
 registration, the three feature sections (Sharing buttons, Like buttons, Comment
 Likes), the shared placement section, the extras section, and the form handling for all of
-them. The Jetpack plugin hooks it up from the `is_admin()` block in
-`load-jetpack.php`, so the screen and every section on it exist whichever
-modules are active. The menu itself only registers where
-`Environment::settings_screen_supported()` holds (Simple, a connected site, or
+them. It also serves the same settings over REST, under `src/rest/`.
+`Initializer::init()` wires both up: the REST routes on every request, the
+screen in wp-admin. The Jetpack plugin calls it from `load-jetpack.php`, so the
+screen and every section on it exist whichever modules are active. The menu
+itself only registers where `Environment::settings_screen_supported()` holds (Simple, a connected site, or
 offline mode): anywhere else neither the modules nor their blocks load, so
 the screen would have nothing to offer.
 
@@ -33,10 +34,10 @@ Jetpack dashboard drops its own module toggle on exactly those sites — see
 `moduleAction()` in `_inc/client/sharing/share-buttons.jsx` and `likes.jsx`.
 Adding a way back there reopens a door the dashboard closed on purpose.
 
-`load-jetpack.php` does not run on WordPress.com Simple, so the registration
-above does not happen there. `sharing_admin_init()` in
-`modules/sharedaddy/sharing.php`, the one Sharing file wpcom loads, registers
-the screen and `Post_Handler` under an `is_wpcom_simple()` guard instead. That
+`load-jetpack.php` does not run on WordPress.com Simple, so the call above does
+not happen there. `sharing_admin_init()` in `modules/sharedaddy/sharing.php`,
+the one Sharing file wpcom loads (public-api included), calls
+`Initializer::init()` under an `is_wpcom_simple()` guard instead. That
 bridge goes once wpcom registers the screen itself (CM-913).
 
 The screen is plain wp-admin chrome. It deliberately does not render inside
@@ -185,9 +186,9 @@ request carries.
 `src/rest/` serves the same settings under `wpcom/v2/sharing-likes/` for the
 React screen: `settings`, `status`, `services`, the custom services, and
 `<feature>/switch-to-block` and `<feature>/activate`. `Endpoints` explains the
-namespace. The Jetpack plugin registers the routes from `load-jetpack.php`,
-outside `is_admin()`, whatever the modules are doing. On Simple,
-`sharing_register_rest_routes()` in `modules/sharedaddy/sharing.php` does it.
+namespace. `Initializer::init()` registers the routes outside its `is_admin()`
+branch, since REST requests are not admin requests, and whatever the modules
+are doing.
 
 The routes offer what the PHP screen shows and nothing else. A setting whose
 section does not render it is missing from reads, and a write that includes it
@@ -231,8 +232,8 @@ data rather than history.
 test classes extend `WorDBless\BaseTestCase`; create users with `wp_insert_user()`
 rather than a factory.
 
-**`is_admin()` is false under WP-CLI**, so the init in `load-jetpack.php` never
-runs there and `wp eval` will report the menu as absent whatever the code does.
+**`is_admin()` is false under WP-CLI**, so `Initializer::init()` hooks up no
+screen there and `wp eval` will report the menu as absent whatever the code does.
 Call `Settings_Page::init()` by hand to test the class; proving the wiring needs a
 real authenticated admin request.
 

@@ -3,24 +3,17 @@
 Sharing buttons and Like buttons for your posts.
 
 Today the package ships the wp-admin **Settings > Sharing** screen, under
-`src/settings/`. A host plugin registers it:
+`src/settings/`, and the same settings over REST, under `wpcom/v2/sharing-likes/`,
+for the React version of the screen. A host plugin sets both up with one call,
+on every request rather than in an `is_admin()` branch, since REST requests are
+not admin requests:
 
 ```php
-\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
-\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
+\Automattic\Jetpack\Sharing_Likes\Initializer::init();
 ```
 
-Both calls belong in an `is_admin()` branch, and neither depends on a module
-being active: the screen and every section on it exist whatever the site is
-running.
-
-The settings are also available over REST, under `wpcom/v2/sharing-likes/`, for
-the React version of the screen. Register the routes outside `is_admin()`, since
-REST requests are not admin requests:
-
-```php
-\Automattic\Jetpack\Sharing_Likes\REST\Endpoints::init();
-```
+Neither depends on a module being active: the screen and every section on it
+exist whatever the site is running.
 
 ## How to install sharing-likes
 
