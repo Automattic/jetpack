@@ -12,9 +12,6 @@ namespace Automattic\Jetpack\Comments;
  */
 class Comments {
 
-	/**
-	 * Package version.
-	 */
 	const PACKAGE_VERSION = '0.2.0';
 
 	/**

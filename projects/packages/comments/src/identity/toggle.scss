@@ -1,0 +1,68 @@
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+
+$accent: #3858e9;
+
+// Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
+// click lands on the control.
+.jetpack-comments__dialog .jetpack-comments__toggle {
+	display: flex;
+	gap: variables.$grid-unit-15;
+	align-items: flex-start;
+	padding: variables.$grid-unit-05 0;
+	cursor: pointer;
+
+	input[type="checkbox"] {
+		appearance: none;
+		box-sizing: content-box;
+		flex-shrink: 0;
+		position: relative;
+		inline-size: 36px;
+		block-size: 18px;
+		margin: 2px 0 0;
+		padding: 0;
+		border: 1px solid colors.$gray-900;
+		border-radius: 9px;
+		background: colors.$white;
+		cursor: pointer;
+
+		&::before {
+			content: "";
+			position: absolute;
+			inset-block-start: 2px;
+			inset-inline-start: 2px;
+			inline-size: 14px;
+			block-size: 14px;
+			border-radius: 50%;
+			background: colors.$gray-900;
+			transition:
+				inset-inline-start 0.3s,
+				background 0.3s;
+		}
+
+		&:checked {
+			background: colors.$gray-900;
+
+			// Logical, so the knob travels the right way in either direction.
+			&::before {
+				inset-inline-start: 20px;
+				background: colors.$white;
+			}
+		}
+
+		&:focus-visible {
+			outline: 1px solid $accent;
+			outline-offset: 2px;
+		}
+	}
+
+	.jetpack-comments__toggle-text {
+		display: block;
+		flex: 1;
+		line-height: 24px;
+	}
+}
+
+.jetpack-comments__dialog .jetpack-comments__field + .jetpack-comments__toggle {
+	margin-block-start: variables.$grid-unit-30;
+}
