@@ -1,9 +1,6 @@
 import { ensureCoreSettingsReady } from '@jetpack-premium-analytics/data';
 import { redirect } from '@wordpress/route';
-import {
-	isDashboardSectionInPreviewScope,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -16,7 +13,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
-	isDashboardSectionInPreviewScope: jest.fn( () => true ),
+	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 jest.mock( './config', () => ( {
 	resolveTabId: ( section: string ) => section,
@@ -115,7 +112,7 @@ describe( 'post detail route report origin', () => {
 	);
 
 	it( 'redirects home when the All pages report is behind a hidden tab', async () => {
-		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+		( isDashboardSectionAvailable as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect(
 			route.beforeLoad( {

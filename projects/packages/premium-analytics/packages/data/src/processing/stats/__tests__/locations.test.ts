@@ -104,8 +104,8 @@ describe( 'Stats locations normalizer', () => {
 				countryFull: 'United States',
 				region: '021',
 				coordinates: {
-					latitude: '40.804077',
-					longitude: '-74.012366',
+					latitude: 40.804077,
+					longitude: -74.012366,
 				},
 			} ),
 			expect.objectContaining( {
@@ -114,8 +114,8 @@ describe( 'Stats locations normalizer', () => {
 				countryCode: 'HK',
 				countryFull: 'Hong Kong SAR China',
 				coordinates: {
-					latitude: '22.28552',
-					longitude: '114.15769',
+					latitude: 22.28552,
+					longitude: 114.15769,
 				},
 			} ),
 			expect.objectContaining( {
@@ -124,10 +124,31 @@ describe( 'Stats locations normalizer', () => {
 				countryCode: 'GB',
 				countryFull: 'United Kingdom',
 				coordinates: {
-					latitude: '51.50853',
-					longitude: '-0.12574',
+					latitude: 51.50853,
+					longitude: -0.12574,
 				},
 			} ),
 		] );
+	} );
+
+	it( 'leaves out coordinates the API sends blank, so the map never plots a city at NaN', () => {
+		const result = sanitizeStatsLocationsResponse(
+			{
+				date: '2026-06-22',
+				summary: {
+					views: [
+						{
+							location: 'Nowhere',
+							views: 3,
+							country_code: 'US',
+							coordinates: { latitude: '', longitude: '' },
+						},
+					],
+				},
+			},
+			{ period: 'day', start_date: '2026-06-16', end_date: '2026-06-22', summarize: true }
+		);
+
+		expect( result.data[ 0 ].items[ 0 ].coordinates ).toBeUndefined();
 	} );
 } );

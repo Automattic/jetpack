@@ -16,18 +16,36 @@ import {
 import type { StatsNormalizedItemBase, StatsNormalizedReport, StatsRecord } from './types';
 import type { StatsQueryParams } from '../../utils/stats-params';
 
+export type StatsLocationCoordinates = {
+	latitude: number;
+	longitude: number;
+};
+
 export type StatsLocationsItem = StatsNormalizedItemBase & {
 	views: number;
 	countryCode?: string;
 	countryFull?: string;
 	region?: string;
-	coordinates?: unknown;
+	/** Only city rows carry coordinates. */
+	coordinates?: StatsLocationCoordinates;
 	children: null;
 };
 
 export type StatsLocationsComparisonItem = StatsLocationsItem & {
 	previousViews?: number;
 };
+
+function parseCoordinates( value: unknown ): StatsLocationCoordinates | undefined {
+	const coordinates = coerceStatsRecord( value );
+	const latitude = parseFloat( String( coordinates.latitude ) );
+	const longitude = parseFloat( String( coordinates.longitude ) );
+
+	if ( ! Number.isFinite( latitude ) || ! Number.isFinite( longitude ) ) {
+		return undefined;
+	}
+
+	return { latitude, longitude };
+}
 
 function getLocationKey( item: StatsLocationsItem ): string | null {
 	if ( ! item.countryCode ) {
@@ -57,7 +75,7 @@ export function sanitizeStatsLocationsResponse(
 			countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
 			countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
 			region: typeof country.map_region === 'string' ? country.map_region : undefined,
-			coordinates: item.coordinates,
+			coordinates: parseCoordinates( item.coordinates ),
 			children: null,
 		};
 	};

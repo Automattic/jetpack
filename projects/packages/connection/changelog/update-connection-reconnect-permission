@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-REST API: Allow users with `jetpack_connect_user` to call `/connection/reconnect`, which refreshes only their own user token.
