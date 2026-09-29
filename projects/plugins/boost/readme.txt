@@ -280,6 +280,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers.
 - Performance scores: Cancel pending background score requests while viewing a sub-page.
 - Settings: Add space between a module's description and its status notice in the modern dashboard.
+- Settings: Announce to screen readers whether the image quality options are expanded.
 - Settings: Avoid duplicate navigation when returning from a sub-page.
 - Settings: Close the Page Cache example and Cornerstone Pages warning tooltips with Escape, and the warning with a click elsewhere.
 - Settings: Give information icons an accessible name for screen readers.
@@ -290,8 +291,6 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Settings: Match the Save buttons in the exceptions panels and Cornerstone Pages editor to the rest of the page.
 - Settings: Nest the settings section headings under the page heading for screen readers.
 - Settings: Show text links in the brand colour and enlarge the Critical CSS info icon in the modern dashboard.
-- Settings: Show the automatic Critical CSS status in the modern style.
-- Settings: Show the Image CDN quality, Page Cache options and Clear Cache controls as buttons rather than links, and announce whether the options panels are expanded.
 - Settings: Show tooltips in full on the modernized Settings page instead of cutting them off at the card edge.
 - Settings: Tighten the Cornerstone Pages list editor and match its text size and color to the rest of the page.
 - Settings: Use the same text size and color for the exceptions panels and Image CDN help text as the rest of the page.
