@@ -1,3 +1,4 @@
+import { JetpackEditorPanelLogo } from '@automattic/jetpack-shared-extension-utils/components';
 import { Button, PanelBody, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar, store as editorStore } from '@wordpress/editor';
@@ -6,7 +7,10 @@ import { Notice } from '@wordpress/ui';
 import { useState } from 'react';
 import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
-import { NewsletterEmailDocumentSettings } from '../../shared/memberships/settings';
+import {
+	NewsletterAccessDocumentSettings,
+	NewsletterEmailDocumentSettings,
+} from '../../shared/memberships/settings';
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
 import { NewsletterTestEmailModal } from './email-preview';
 import { SendIcon } from './icons';
@@ -91,6 +95,13 @@ const NewsletterMenu = ( { openPreviewModal }: NewsletterMenuProps ) => {
 						/>
 					</>
 				) }
+			</PanelBody>
+			<PanelBody
+				title={ __( 'Audience', 'jetpack' ) }
+				icon={ <JetpackEditorPanelLogo /> }
+				initialOpen
+			>
+				<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
 			</PanelBody>
 		</PluginSidebar>
 	);
