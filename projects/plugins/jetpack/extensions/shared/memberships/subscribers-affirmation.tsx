@@ -1,5 +1,6 @@
 import { getAdminUrl } from '@automattic/jetpack-script-data';
 import { isComingSoon, useModuleStatus } from '@automattic/jetpack-shared-extension-utils';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import { Animate } from '@wordpress/components';
 import { useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
@@ -54,8 +55,12 @@ export const getFormattedCategories = (
 	if ( formattedCategoriesArray.length === 1 ) {
 		formattedCategories = formattedCategoriesArray[ 0 ];
 	} else if ( formattedCategoriesArray.length === 2 ) {
-		// translators: %1$s: first category name, %2$s: second category name
-		formattedCategories = sprintf( __( '%1$s and %2$s', 'jetpack' ), ...formattedCategoriesArray );
+		formattedCategories = sprintf(
+			// translators: %1$s: first category name, %2$s: second category name
+			__( '%1$s and %2$s', 'jetpack' ),
+			formattedCategoriesArray[ 0 ],
+			formattedCategoriesArray[ 1 ]
+		);
 	} else {
 		const allButLast = formattedCategoriesArray.slice( 0, -1 ).join( `${ __( ',', 'jetpack' ) } ` );
 		const last = formattedCategoriesArray[ formattedCategoriesArray.length - 1 ];
@@ -402,7 +407,7 @@ function SubscribersAffirmation( {
 	const { isModuleActive: isStatsModuleActive } = useModuleStatus( 'stats' );
 
 	const postHasPaywallBlock = useSelect( select =>
-		select( 'core/block-editor' )
+		select( blockEditorStore )
 			.getBlocks()
 			.some( block => block.name === paywallBlockMetadata.name )
 	);
@@ -411,7 +416,7 @@ function SubscribersAffirmation( {
 		select => {
 			const { isCurrentPostScheduled, getEditedPostAttribute, getCurrentPost } =
 				select( editorStore );
-			const post = getCurrentPost();
+			const post = getCurrentPost() as { id?: number; status?: string; date?: string } | undefined;
 			const statusVal = post?.status;
 			const dateVal = post?.date;
 			const publishTime = dateVal ? new Date( dateVal ) : null;
@@ -488,7 +493,8 @@ function SubscribersAffirmation( {
 					: false,
 				tierProducts: getNewsletterTierProducts(),
 				totalEmailsSentCount: shouldFetchTotalEmails
-					? getTotalEmailsSentCount( blogId, postId )
+					? // @ts-expect-error -- The args key the resolver; the selector itself ignores them.
+						getTotalEmailsSentCount( blogId, postId )
 					: null,
 			};
 		},

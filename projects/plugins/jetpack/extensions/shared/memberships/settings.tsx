@@ -1,4 +1,5 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	Flex,
@@ -75,6 +76,7 @@ export function getAccessDescription( accessLevel: string, postHasPaywallBlock =
 				? __(
 						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
 						'jetpack',
+						// @ts-expect-error -- Intentional extra argument; see the comment above.
 						0
 					)
 				: __(
@@ -86,6 +88,7 @@ export function getAccessDescription( accessLevel: string, postHasPaywallBlock =
 				? __(
 						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
 						'jetpack',
+						// @ts-expect-error -- Intentional extra argument; see the comment above.
 						0
 					)
 				: __(
@@ -158,13 +161,12 @@ function TierSelector() {
 			<RadioControl
 				label={ __( 'Choose Newsletter Tier', 'jetpack' ) }
 				hideLabelFromVision={ true }
-				selected={ Number( tierId ) }
-				options={ products.map( product => {
-					const label = product.title;
-					const value = Number( product.id );
-					return { label, value };
-				} ) }
-				onChange={ setTier }
+				selected={ String( tierId ) }
+				options={ products.map( product => ( {
+					label: product.title,
+					value: String( product.id ),
+				} ) ) }
+				onChange={ value => setTier( Number( value ) ) }
 			/>
 		</div>
 	);
@@ -394,10 +396,9 @@ export function NewsletterAccessRadioButtons( {
 
 export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel?: string } ) {
 	const { hasTierPlans, stripeConnectUrl, isLoading, postHasPaywallBlock } = useSelect( select => {
-		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
-		const { getBlocks } = select( 'core/block-editor' );
+		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } =
+			select( membershipProductsStore );
+		const { getBlocks } = select( blockEditorStore );
 
 		return {
 			isLoading: isApiStateLoading(),
@@ -427,7 +428,7 @@ export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel
 			render={ ( { canEdit }: { canEdit: boolean } ) => (
 				<Flex direction="column">
 					{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-					<FlexBlock direction="row" justify="flex-start">
+					<FlexBlock>
 						{ canEdit && (
 							<NewsletterAccessRadioButtons
 								accessLevel={ _accessLevel }

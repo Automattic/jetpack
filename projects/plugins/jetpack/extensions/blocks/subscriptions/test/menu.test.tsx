@@ -24,8 +24,10 @@ jest.mock( '../../../shared/memberships/edit', () => ( {
 	useAccessLevel: () => 'everybody',
 } ) );
 jest.mock( '../../../shared/memberships/settings', () => ( {
+	NewsletterAccessDocumentSettings: () => null,
 	NewsletterEmailDocumentSettings: () => null,
 } ) );
+jest.mock( '../newsletter-categories-panel', () => () => null );
 jest.mock( '../../../shared/memberships/subscribers-affirmation', () => () => null );
 jest.mock( '../email-preview', () => ( {
 	NewsletterTestEmailModal: () => null,
@@ -33,7 +35,7 @@ jest.mock( '../email-preview', () => ( {
 
 const mockPost = ( overrides = {} ) => {
 	const attrs = { postId: 123, postType: 'post', postStatus: 'draft', meta: {}, ...overrides };
-	useSelect.mockImplementation( () => ( {
+	( useSelect as jest.Mock ).mockImplementation( () => ( {
 		postId: attrs.postId,
 		postType: attrs.postType,
 		postStatus: attrs.postStatus,

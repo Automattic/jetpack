@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
@@ -461,21 +462,16 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 	const createMockSelect =
 		( { blocks = [] } = {} ) =>
 		store => {
-			if ( store === 'jetpack/membership-products' ) {
+			if ( store === membershipProductsStore ) {
 				return {
 					isApiStateLoading: () => false,
 					getConnectUrl: () => null,
-					getNewsletterTierProducts: () => [],
-				};
-			}
-			if ( store === 'core/block-editor' ) {
-				return { getBlocks: () => blocks };
-			}
-			if ( store === membershipProductsStore ) {
-				return {
 					getSubscriberCounts: () => ( { totalSubscribers: 10, paidSubscribers: 2 } ),
 					getNewsletterTierProducts: () => [],
 				};
+			}
+			if ( store === blockEditorStore ) {
+				return { getBlocks: () => blocks };
 			}
 			if ( store === editorStore ) {
 				return {
@@ -575,7 +571,7 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 
 		render( <NewsletterEmailDocumentSettings /> );
 		await expect(
-			screen.findByLabelText( /Send as email to subscribers/i )
+			screen.findByRole( 'checkbox', { name: 'Send this post to subscribers' } )
 		).resolves.toBeInTheDocument();
 	} );
 } );
