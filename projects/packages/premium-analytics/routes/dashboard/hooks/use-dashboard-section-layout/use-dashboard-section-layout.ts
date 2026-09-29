@@ -30,9 +30,10 @@ type PreferencesActions = {
  * snapshot would shadow the entity default forever, pinning users who asked to
  * follow the default to whatever it happened to be at reset time.
  *
- * A layout saved under a former widget type name renders the current type: the items are
+ * A layout saved under a former widget type name renders the current type: the stored items are
  * renamed through `renames` on the way out, with no write-back, so the current name persists
- * with the section's next commit.
+ * with the section's next commit. The default needs no renaming: the server resolves former
+ * names in it before it reaches the record.
  *
  * @param activeSectionId - Currently active section slug.
  * @param sections        - The available sections, carrying their defaults.
@@ -66,10 +67,10 @@ export function useDashboardSectionLayout(
 	const [ resetCount, setResetCount ] = useState( 0 );
 	const layout = useMemo( () => {
 		if ( Object.hasOwn( sectionLayouts, activeSectionId ) ) {
-			return resolveLayoutTypes( sectionLayouts[ activeSectionId ] ?? sectionDefault, renames );
+			const stored = sectionLayouts[ activeSectionId ];
+			return stored ? resolveLayoutTypes( stored, renames ) : sectionDefault;
 		}
-		const fallback = resolveLayoutTypes( sectionDefault, renames );
-		return resetCount ? [ ...fallback ] : fallback;
+		return resetCount ? [ ...sectionDefault ] : sectionDefault;
 	}, [ sectionLayouts, activeSectionId, sectionDefault, resetCount, renames ] );
 
 	const setLayout = useCallback(
