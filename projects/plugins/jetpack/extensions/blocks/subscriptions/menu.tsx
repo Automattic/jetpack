@@ -14,6 +14,7 @@ import {
 import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
 import { NewsletterTestEmailModal } from './email-preview';
 import { SendIcon } from './icons';
+import NewsletterCategoriesPanel from './newsletter-categories-panel';
 
 interface NewsletterMenuProps {
 	openPreviewModal: () => void;
@@ -103,6 +104,7 @@ const NewsletterMenu = ( { openPreviewModal }: NewsletterMenuProps ) => {
 			>
 				<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
 			</PanelBody>
+			{ ! isPublished && <NewsletterCategoriesPanel /> }
 		</PluginSidebar>
 	);
 };
