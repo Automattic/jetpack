@@ -354,7 +354,7 @@ function getEmailedAudienceText( {
 		return {
 			main: sprintf(
 				/* translators: %s: paid newsletter tier name, e.g. "Plus". */
-				__( 'Only subscribers on your ‘%s’ tier or higher are emailed this post.', 'jetpack' ),
+				__( 'Only subscribers on your ‘%s’ tier are emailed this post.', 'jetpack' ),
 				tierName
 			),
 			details: [ readAccess ],
