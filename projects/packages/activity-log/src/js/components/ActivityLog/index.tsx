@@ -33,6 +33,7 @@ import { formatYmd, parseYmdLocal } from '../DateRangePicker/datetime';
 import { UpsellCallout } from './UpsellCallout';
 import { useActivityActions } from './actions';
 import { transformActivityLogEntry } from './activity-transformer';
+import { ALL_AI_AGENTS_ACTOR_ID } from './actor-elements';
 import { useActivityFields } from './fields';
 import { extractActivityLogTypeValues, extractActorIdValues, getPresetFilters } from './filters';
 import { DEFAULT_LAYOUTS, DEFAULT_VIEW } from './views';
@@ -421,7 +422,7 @@ export default function ActivityLog() {
 		timezoneString,
 		activityLogTypes: groupCountsData?.groups,
 		actors: actorsData?.actors,
-		activeActorIds: actorIdValues,
+		isAllAiAgentsActive: actorIdValues.includes( ALL_AI_AGENTS_ACTOR_ID ),
 	} );
 
 	const actions = useActivityActions( { isLoading: isFetching, tracks } );

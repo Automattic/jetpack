@@ -8,13 +8,13 @@ export const ALL_AI_AGENTS_ACTOR_ID = 'mcp:*';
 /**
  * Build the "Performed by" options from the actors endpoint.
  *
- * @param actors         - Distinct actors from /activity-log/actors.
- * @param activeActorIds - Actor IDs in the current filter.
+ * @param actors              - Distinct actors from /activity-log/actors.
+ * @param isAllAiAgentsActive - Whether the current filter includes "All AI agents".
  * @return Options for the `actor` field, "All AI agents" first when it applies.
  */
 export const getActorElements = (
 	actors: ActorSummary[] = [],
-	activeActorIds: string[] = []
+	isAllAiAgentsActive = false
 ): ActivityLogTypeOption[] => {
 	const elements = actors
 		.filter( actor => actor.id )
@@ -25,8 +25,7 @@ export const getActorElements = (
 		} )
 		.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 
-	const showAllAiAgents =
-		actors.some( actor => actor.is_mcp_agent ) || activeActorIds.includes( ALL_AI_AGENTS_ACTOR_ID );
+	const showAllAiAgents = actors.some( actor => actor.is_mcp_agent ) || isAllAiAgentsActive;
 
 	return showAllAiAgents
 		? [

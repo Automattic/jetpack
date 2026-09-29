@@ -51,6 +51,13 @@ class Jetpack_Activity_Log {
 	const PAGE_SLUG = 'jetpack-activity-log';
 
 	/**
+	 * Reserved actor ID that WordPress.com matches against every MCP agent event.
+	 *
+	 * @var string
+	 */
+	const ALL_AI_AGENTS_ACTOR_ID = 'mcp:*';
+
+	/**
 	 * Slug of the Jetpack module that turns the Activity Log on and off.
 	 *
 	 * @var string

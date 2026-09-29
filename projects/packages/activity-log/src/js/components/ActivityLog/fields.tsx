@@ -23,7 +23,7 @@ type UseActivityFieldsArgs = {
 	gmtOffset?: number;
 	activityLogTypes?: ActivityLogGroupCountResponse[ 'groups' ] | undefined;
 	actors?: ActorSummary[];
-	activeActorIds?: string[];
+	isAllAiAgentsActive?: boolean;
 };
 
 /**
@@ -164,13 +164,13 @@ const formatDateCell = ( {
  * isn't already on UTC), the Event cell, the User cell, and the hidden
  * `activity_type` / `actor` fields that power the filter dropdowns.
  *
- * @param args                  - Hook options.
- * @param args.timezoneString   - IANA timezone (e.g. "Europe/London").
- * @param args.gmtOffset        - Decimal hour offset from UTC.
- * @param args.activityLogTypes - Group map from /activity-log/count/group.
- * @param args.actors           - Distinct actors from /activity-log/actors,
- *                              used to populate the "Performed by" dropdown.
- * @param args.activeActorIds   - Actor IDs in the current filter.
+ * @param args                     - Hook options.
+ * @param args.timezoneString      - IANA timezone (e.g. "Europe/London").
+ * @param args.gmtOffset           - Decimal hour offset from UTC.
+ * @param args.activityLogTypes    - Group map from /activity-log/count/group.
+ * @param args.actors              - Distinct actors from /activity-log/actors,
+ *                                 used to populate the "Performed by" dropdown.
+ * @param args.isAllAiAgentsActive - Whether the current filter includes "All AI agents".
  * @return The fields array passed to `<DataViews fields=… />`.
  */
 export function useActivityFields( {
@@ -178,7 +178,7 @@ export function useActivityFields( {
 	gmtOffset,
 	activityLogTypes,
 	actors,
-	activeActorIds,
+	isAllAiAgentsActive,
 }: UseActivityFieldsArgs ): Field< Activity >[] {
 	const isLargeScreen = useViewportMatch( 'huge', '>=' );
 	const dateTimeLabel = getDateTimeLabel( { timezoneString, gmtOffset, isLargeScreen } );
@@ -197,8 +197,8 @@ export function useActivityFields( {
 	}, [ activityLogTypes ] );
 
 	const actorElements = useMemo(
-		() => getActorElements( actors, activeActorIds ),
-		[ actors, activeActorIds ]
+		() => getActorElements( actors, isAllAiAgentsActive ),
+		[ actors, isAllAiAgentsActive ]
 	);
 
 	return useMemo( () => {

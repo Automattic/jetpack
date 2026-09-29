@@ -1,10 +1,13 @@
 import { afterEach, describe, expect, test } from '@jest/globals';
 import { act, renderHook } from '@testing-library/react';
+import { ALL_AI_AGENTS_ACTOR_ID } from '../../components/ActivityLog/actor-elements';
 import { usePersistentView } from '../use-persistent-view';
 import type { Filter, View } from '@wordpress/dataviews';
 
 const DEFAULT: View = { type: 'table', perPage: 20, fields: [ 'published' ] };
-const PRESET: Filter[] = [ { field: 'actor', operator: 'isAny', value: [ 'mcp:*' ] } ];
+const PRESET: Filter[] = [
+	{ field: 'actor', operator: 'isAny', value: [ ALL_AI_AGENTS_ACTOR_ID ] },
+];
 const STORAGE_KEY = 'jetpack-activity-log:view:default';
 
 afterEach( () => window.localStorage.clear() );
