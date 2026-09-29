@@ -7,9 +7,11 @@
 
 declare( strict_types = 1 );
 
+require_once __DIR__ . '/class-sharing-sources.php';
+
 /**
  * A `Sharing_Service` that records the global options rather than saving them,
- * and offers the services UI nothing to list.
+ * and offers only the services a test asks for.
  *
  * The real one ships with the Jetpack plugin's Sharing module, which this
  * package does not depend on. Validating the payload is that class's job, so
@@ -37,36 +39,136 @@ class Sharing_Service {
 	}
 
 	/**
-	 * No enabled services, which is all the services UI needs to render.
+	 * The stored services, or none: the real class would fall back to its defaults.
 	 *
 	 * @return array
 	 */
 	public function get_blog_services() {
-		return array(
+		$enabled = get_option( 'sharing-services' );
+		$all     = $this->get_all_services_blog();
+		$blog    = array(
 			'visible' => array(),
 			'hidden'  => array(),
-			'all'     => array(),
 		);
+
+		foreach ( array_keys( $blog ) as $area ) {
+			foreach ( (array) ( $enabled[ $area ] ?? array() ) as $id ) {
+				if ( isset( $all[ $id ] ) ) {
+					$blog[ $area ][ $id ] = $all[ $id ];
+				}
+			}
+		}
+
+		$blog['all'] = array_flip( array_merge( array_keys( $blog['visible'] ), array_keys( $blog['hidden'] ) ) );
+
+		return $blog;
 	}
 
 	/**
-	 * No services to offer.
+	 * Services the tests opt into through `sharing_likes_test_services`, plus the stored custom ones.
 	 *
-	 * @return array
+	 * @return array<string, Sharing_Source>
 	 */
 	public function get_all_services_blog() {
-		return array();
+		$services = array();
+
+		foreach ( $GLOBALS['sharing_likes_test_services'] ?? array() as $id ) {
+			$services[ $id ] = new Sharing_Source( $id, array() );
+		}
+
+		$options = get_option( 'sharing-options' );
+
+		foreach ( $options['global']['custom'] ?? array() as $id ) {
+			$services[ $id ] = new Share_Custom( $id, is_array( $options[ $id ] ?? null ) ? $options[ $id ] : array() );
+		}
+
+		return $services;
 	}
 
 	/**
-	 * The global options the services UI reads.
+	 * Create a custom service, rejecting empty details as the real class does.
+	 *
+	 * @param string $label Service name.
+	 * @param string $url   Sharing URL.
+	 * @param string $icon  Icon URL.
+	 * @return Share_Custom|false
+	 */
+	public function new_service( $label, $url, $icon ) {
+		$label = trim( $label );
+		$url   = trim( esc_url_raw( $url ) );
+		$icon  = trim( esc_url_raw( $icon ) );
+
+		if ( ! $label || ! $url || ! $icon ) {
+			return false;
+		}
+
+		$options = get_option( 'sharing-options' );
+		if ( ! is_array( $options ) ) {
+			$options = array();
+		}
+
+		$id = 'custom-' . ( 1000 + count( $options['global']['custom'] ?? array() ) );
+
+		$options['global']['custom'][] = $id;
+		update_option( 'sharing-options', $options );
+
+		$service = new Share_Custom(
+			$id,
+			array(
+				'name' => $label,
+				'url'  => $url,
+				'icon' => $icon,
+			)
+		);
+		$this->set_service( $id, $service );
+
+		return $service;
+	}
+
+	/**
+	 * Store a service's options.
+	 *
+	 * @param string                  $id      Service ID.
+	 * @param Sharing_Advanced_Source $service Service.
+	 */
+	public function set_service( $id, Sharing_Advanced_Source $service ) {
+		$options        = get_option( 'sharing-options' );
+		$options[ $id ] = $service->get_options();
+		update_option( 'sharing-options', $options );
+	}
+
+	/**
+	 * Forget a custom service.
+	 *
+	 * @param string $service_id Service ID.
+	 * @return bool
+	 */
+	public function delete_service( $service_id ) {
+		$options = get_option( 'sharing-options' );
+		unset( $options[ $service_id ] );
+		$options['global']['custom'] = array_values( array_diff( $options['global']['custom'] ?? array(), array( $service_id ) ) );
+		update_option( 'sharing-options', $options );
+
+		return true;
+	}
+
+	/**
+	 * The stored global options over the real class's defaults.
 	 *
 	 * @return array
 	 */
 	public function get_global_options() {
-		return array(
-			'button_style'  => 'icon-text',
-			'sharing_label' => 'Share this:',
+		$options = get_option( 'sharing-options' );
+		$global  = is_array( $options ) && isset( $options['global'] ) && is_array( $options['global'] ) ? $options['global'] : array();
+
+		return array_merge(
+			array(
+				'button_style'  => 'icon-text',
+				'sharing_label' => 'Share this:',
+				'open_links'    => 'same',
+				'show'          => array( 'post', 'page' ),
+			),
+			$global
 		);
 	}
 }

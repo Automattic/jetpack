@@ -412,19 +412,7 @@ final class Services_Config {
 			isset( $_POST['_wpnonce'] )
 			&& wp_verify_nonce( sanitize_key( wp_unslash( $_POST['_wpnonce'] ) ), 'sharing-options' )
 		) {
-			$sharer = new \Sharing_Service();
-
-			/*
-			 * set_global_options() rebuilds the whole global array from defaults, so a
-			 * payload with no `show` clears it. Placement is edited in its own section,
-			 * so carry the current placement through rather than losing it on every save.
-			 */
-			$data = $_POST; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- set_global_options() validates each field.
-			if ( ! isset( $data['show'] ) ) {
-				$data['show'] = Placement_Section::selected_post_types();
-			}
-
-			$sharer->set_global_options( $data );
+			Sharing_Options::update( $_POST ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- set_global_options() validates each field.
 			/**
 			 * Fires when updating sharing settings.
 			 *

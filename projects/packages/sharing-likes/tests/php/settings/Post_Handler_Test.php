@@ -587,6 +587,21 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The screen has no "Open links in" field, so a save must not reset a choice made elsewhere.
+	 */
+	public function test_sharing_save_keeps_the_stored_open_links(): void {
+		update_option( 'sharing-options', array( 'global' => array( 'open_links' => 'new' ) ) );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_SHARING ), array( 'button_style' => 'icon' ) ) );
+
+		$saved = $GLOBALS['sharing_likes_test_global_options'];
+		unset( $GLOBALS['sharing_likes_test_global_options'] );
+
+		$this->assertSame( 'new', $saved['open_links'] );
+	}
+
+	/**
 	 * A request can name sections the screen never renders; they must not reach a save.
 	 */
 	public function test_posted_sections_are_checked_against_the_known_ones(): void {
