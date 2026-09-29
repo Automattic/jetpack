@@ -14,6 +14,17 @@ Both calls belong in an `is_admin()` branch, and neither depends on a module
 being active: the screen and every section on it exist whatever the site is
 running.
 
+It also ships the per-post Likes and Sharing switches the block editor shows, as
+REST fields on every public post type:
+
+```php
+\Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::init();
+\Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::init();
+```
+
+Keep these out of any `is_admin()` branch, since REST requests are not admin
+requests. Calling either more than once is harmless.
+
 ## How to install sharing-likes
 
 ### Installation From Git Repo

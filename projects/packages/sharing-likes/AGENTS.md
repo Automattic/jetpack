@@ -43,6 +43,21 @@ The screen is plain wp-admin chrome. It deliberately does not render inside
 `Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
 plugin.
 
+## Per-post switches
+
+`Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches
+the block editor shows on each post. `init()` hooks each on `rest_api_init`, and on
+`restapi_theme_init` at priority 20 so theme-dependent post types are registered
+first. Every public post type then gets a boolean REST field, `jetpack_likes_enabled`
+or `jetpack_sharing_enabled`, and a post type support, `jetpack-post-likes` or
+`jetpack-sharing-buttons`, which the editor checks before offering the switch. The
+fields read and write the `switch_like_status` and `sharing_disabled` post meta.
+
+They are namespaced classes rather than a file both environments include because
+WordPress.com Simple defines same-named global Likes functions in
+`wp-content/mu-plugins/likes/jetpack-likes.php`; a shared file of functions would
+redeclare them there.
+
 ## What the package may depend on
 
 Composer dependencies only: `jetpack-connection` (which also supplies
