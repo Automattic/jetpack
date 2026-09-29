@@ -10,7 +10,6 @@ type SaveButtonProps = {
 	className?: string;
 };
 
-// Compact design-system button inside a Settings row; the legacy primary button elsewhere.
 const SaveButton: FC< SaveButtonProps > = ( { disabled, onClick, className } ) => {
 	const label = __( 'Save', 'jetpack-boost' );
 

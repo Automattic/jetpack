@@ -1,5 +1,4 @@
 Significance: patch
-Type: changed
-Comment: Use the compact design-system Save button in the modern Settings rows. No change with the modernization filter off.
+Type: fixed
 
-
+Settings: Match the Save buttons in the exceptions panels and Cornerstone Pages editor to the rest of the page.
