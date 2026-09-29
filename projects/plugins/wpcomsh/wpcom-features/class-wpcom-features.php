@@ -1165,7 +1165,9 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 		),
 		self::PARTNER_THEMES                    => array(
+			// We do not want all paid plans to have the feature, just Personal, Premium, and Business or higher plans.
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,
