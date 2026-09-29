@@ -376,7 +376,13 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 
 	return (
 		<ThemeProvider color={ { background: SHELL_BACKGROUND } }>
-			<div className={ clsx( styles.layout, isFinish && styles[ 'layout--finish' ] ) }>
+			<div
+				className={ clsx(
+					styles.layout,
+					isStart && styles[ 'layout--start' ],
+					isFinish && styles[ 'layout--finish' ]
+				) }
+			>
 				{ /*
 				 * The sidebar region, as the Site Editor builds it: a NavigableRegion
 				 * holding the screen's exit control, title, and navigation.

@@ -1492,6 +1492,24 @@ $rail-row-min-height: 40px;
  * rather than not rendering them keeps the grid and the region landmarks intact
  * for the steps either side of it.
  */
+
+/*
+ * The start screen is one screen rather than a step in a sequence, so it
+ * centres in the sheet instead of sitting in the block that holds the heading
+ * still across the steps that follow. In that block it was top-anchored and
+ * read high: 236px of white above it and 471 below.
+ */
+.layout--start {
+
+	.panel-content {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-block-size: 100%;
+		padding-block-start: 0;
+	}
+}
+
 .layout--finish {
 
 	.rail,
