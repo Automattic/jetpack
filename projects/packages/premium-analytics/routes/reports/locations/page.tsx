@@ -169,6 +169,7 @@ export default function LocationsReportPage(): JSX.Element {
 					value: row.views,
 					countryCode: row.countryCode,
 					countryFull: row.countryFull,
+					coordinates: row.coordinates,
 				} ) ),
 		[ records.table.rows ]
 	);

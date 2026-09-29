@@ -129,6 +129,7 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,

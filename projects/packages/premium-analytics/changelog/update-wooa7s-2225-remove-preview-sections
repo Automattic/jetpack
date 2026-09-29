@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: Show every section a site qualifies for instead of a fixed preview list, and keep the Store tab behind a feature flag on the site's own opt-in.

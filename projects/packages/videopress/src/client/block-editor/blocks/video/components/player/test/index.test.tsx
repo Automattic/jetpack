@@ -52,12 +52,7 @@ jest.mock( '@wordpress/components', () => {
 						.join( ' ' )
 				);
 
-				if ( allowSameOrigin ) {
-					Object.defineProperty( iframe, 'contentWindow', {
-						value: globalThis,
-						configurable: true,
-					} );
-				} else {
+				if ( ! allowSameOrigin ) {
 					// Any property read/write on a cross-origin Window throws
 					// a SecurityError. The Proxy mirrors that.
 					const throwSecurity = () => {
@@ -206,7 +201,7 @@ describe( 'Player', () => {
 			expect( screen.getByText( 'Loading\u2026' ) ).toBeInTheDocument();
 
 			act( () => {
-				window.dispatchEvent(
+				window.frames[ 0 ].dispatchEvent(
 					new MessageEvent( 'message', {
 						data: { event: 'videopress_loading_state', state: 'loaded' },
 						origin: 'https://evil.com',
@@ -222,7 +217,7 @@ describe( 'Player', () => {
 			render( <Player { ...defaultProps } /> );
 
 			act( () => {
-				window.dispatchEvent(
+				window.frames[ 0 ].dispatchEvent(
 					new MessageEvent( 'message', {
 						data: { event: 'videopress_loading_state', state: 'loaded' },
 						origin: 'https://videopress.com',

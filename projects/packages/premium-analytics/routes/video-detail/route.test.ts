@@ -1,6 +1,6 @@
 import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
-	isDashboardSectionInPreviewScope,
+	isDashboardSectionAvailable,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 	isVideoPressAvailable,
@@ -24,7 +24,7 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
-	isDashboardSectionInPreviewScope: jest.fn( () => true ),
+	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -77,7 +77,7 @@ describe( 'video detail route.beforeLoad', () => {
 	} );
 
 	it( 'redirects home when the Videos report is behind a hidden tab', async () => {
-		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+		( isDashboardSectionAvailable as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
 			to: '/',

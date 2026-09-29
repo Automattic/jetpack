@@ -1474,7 +1474,7 @@ class Manager {
 	 * evidence against it.
 	 *
 	 * @internal Hooked on `jetpack_user_authorized`.
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @return bool Whether WordPress.com confirmed the anchored identity.
 	 */
@@ -1542,7 +1542,7 @@ class Manager {
 	/**
 	 * Take WordPress.com's word that the connecting user owns this site.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @param int        $user_id       The connecting local user.
 	 * @param int        $wpcom_user_id The connecting user's WordPress.com identity, which this
@@ -1586,7 +1586,7 @@ class Manager {
 	 * network, which is the half worth testing: every branch of it changes whether a site gates a
 	 * live feature. The anchored ID is sent so the answer confirms rather than discloses.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @param int $anchored_wpcom_user_id The WordPress.com identity this site has anchored.
 	 * @return array|null The record, or null when WordPress.com could not answer.
@@ -1610,7 +1610,7 @@ class Manager {
 	 * Split from `set_protected_owner()` so the decision it drives can be exercised without a
 	 * network. The identity travels in the signature rather than the payload, so nothing is sent.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.0
 	 *
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
@@ -1636,7 +1636,7 @@ class Manager {
 	 *
 	 * @since 9.3.0
 	 * @since 9.6.0 No longer takes how the owner was confirmed.
-	 * @since $$next-version$$ WordPress.com records the owner before anything is anchored here.
+	 * @since 9.8.0 WordPress.com records the owner before anything is anchored here.
 	 *
 	 * @param int $user_id The local user to anchor.
 	 * @return true|WP_Error True on success, WP_Error otherwise.
@@ -2769,6 +2769,8 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
+	 * @since $$next-version$$ When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
+	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
 	 */
 	public function restore() {
@@ -2780,15 +2782,18 @@ class Manager {
 
 		$validate_tokens_response = $this->get_tokens()->validate();
 
-		// If token validation failed, trigger a full reconnection.
 		if ( is_array( $validate_tokens_response ) &&
 			isset( $validate_tokens_response['blog_token']['is_healthy'] ) &&
 			isset( $validate_tokens_response['user_token']['is_healthy'] ) ) {
 			$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
 			$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
 		} else {
-			$blog_token_healthy = false;
-			$user_token_healthy = false;
+			// The paired health check could not run (a token is missing locally — e.g. a
+			// deleted owner token — or the request failed): no evidence the blog token is
+			// broken, and it's the one credential reconnect() would revoke for every user,
+			// so check it on its own before that teardown.
+			$blog_token_healthy = true === $this->get_tokens()->validate_blog_token();
+			$user_token_healthy = false; // Unknown, treated as unhealthy.
 		}
 
 		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
@@ -3590,7 +3595,7 @@ class Manager {
 	/**
 	 * Disconnect the user from WP.com, and initiate the reconnect process.
 	 *
-	 * @since $$next-version$$ Added the `$force` parameter.
+	 * @since 9.8.0 Added the `$force` parameter.
 	 *
 	 * @param bool $force Whether to remove the local token even if WordPress.com does not confirm the unlink.
 	 *                    When false, only the current user's own token is refreshed, never the owner's,

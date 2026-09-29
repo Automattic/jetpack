@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Reconnect: Refresh only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt.

@@ -1,8 +1,5 @@
 import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
-import {
-	isDashboardSectionInPreviewScope,
-	isPremiumAnalyticsSiteConnected,
-} from '../site-readiness';
+import { isDashboardSectionAvailable, isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -22,7 +19,7 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
-	isDashboardSectionInPreviewScope: jest.fn( () => true ),
+	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -61,7 +58,7 @@ describe( 'author detail route.beforeLoad', () => {
 	);
 
 	it( 'redirects home when the Authors report is behind a hidden tab', async () => {
-		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+		( isDashboardSectionAvailable as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect( beforeLoad( { authorId: '7' }, settledSearch ) ).rejects.toMatchObject( {
 			to: '/',

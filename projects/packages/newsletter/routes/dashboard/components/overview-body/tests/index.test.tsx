@@ -1,14 +1,24 @@
 const mockGetScriptData = jest.fn();
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: ( ...args: unknown[] ) => mockGetScriptData( ...args ),
+	getSiteType: () => 'jetpack',
 } ) );
 
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import OverviewBody from '..';
 
 beforeEach( () => {
 	mockGetScriptData.mockReset();
+	mockRecordEvent.mockReset();
 	mockGetScriptData.mockReturnValue( {
 		user: {
 			current_user: {
@@ -82,5 +92,54 @@ describe( 'OverviewBody', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noreferrer' );
 		expect( link ).toHaveTextContent( duration );
+	} );
+
+	it( 'records a checklist action on click and not on render', () => {
+		const { rerender } = render( <OverviewBody /> );
+
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+		rerender( <OverviewBody /> );
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
+
+		// This direct callback test does not need user-event's pointer simulation.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Customize' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {
+			site_type: 'jetpack',
+			step: 'customize',
+			action: 'primary',
+		} );
+	} );
+
+	it( 'records skipping a checklist step', () => {
+		render( <OverviewBody /> );
+
+		// This direct callback test does not need user-event's pointer simulation.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Skip' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_checklist_click', {
+			site_type: 'jetpack',
+			step: 'customize',
+			action: 'skip',
+		} );
+	} );
+
+	it( 'records a guide click by slug', () => {
+		render( <OverviewBody /> );
+
+		// This direct callback test does not need user-event's pointer simulation.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click(
+			screen.getByRole( 'link', { name: /send newsletter emails to subscribers/i } )
+		);
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_overview_guide_click', {
+			site_type: 'jetpack',
+			guide: 'send_emails',
+		} );
 	} );
 } );

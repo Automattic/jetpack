@@ -4,6 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,6 +19,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -27,6 +29,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -40,7 +43,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					dates: metric.current.map( point => point.date.toISOString().slice( 0, 10 ) ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -198,6 +203,19 @@ describe( 'AuthorPerformanceWidget', () => {
 			'data-chart-type',
 			'bar'
 		);
+	} );
+
+	it( 'shows the no-results message in the chart for a window without views', async () => {
+		mockApiFetch.mockResolvedValue( {
+			...TOP_AUTHORS_DAYS,
+			days: { '2026-07-02': TOP_AUTHORS_DAYS.days[ '2026-07-02' ] },
+		} );
+
+		render( <AuthorPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without an author scope', async () => {

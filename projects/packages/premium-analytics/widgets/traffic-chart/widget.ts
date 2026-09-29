@@ -41,6 +41,7 @@ export type TrafficChartMetricId = 'views' | 'visitors' | 'comments' | 'likes';
  * Metric tabs in display order; id doubles as the `stat_fields` value. Views
  * and Visitors pair via `counterpartId` (unavailable at the hourly bucket);
  * `counterpartId` is typed to the id set so a typo can't silently drop the pairing.
+ * Visitors starts with Views hidden, since Views' scale would flatten its line.
  */
 export const TRAFFIC_CHART_METRICS = [
 	{
@@ -58,6 +59,7 @@ export const TRAFFIC_CHART_METRICS = [
 			/* translators: %s: number of visitors. */
 			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
 		counterpartId: 'views',
+		counterpartHidden: true,
 	},
 	{
 		id: 'comments',
@@ -78,6 +80,7 @@ export const TRAFFIC_CHART_METRICS = [
 	label: string;
 	countLabel: CountLabel;
 	counterpartId?: TrafficChartMetricId;
+	counterpartHidden?: boolean;
 }[];
 
 /**
