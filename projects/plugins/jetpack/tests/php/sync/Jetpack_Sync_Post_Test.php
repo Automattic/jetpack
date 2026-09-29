@@ -1492,7 +1492,6 @@ That was a cool video.';
 			return in_array( $meta_key, $failing_keys, true ) ? false : $check;
 		};
 		add_filter( 'update_post_metadata', $fail_meta_update, 10, 3 );
-		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
 		$meta    = array( 'jetpack_test_failing_meta' => 'value' );
 		if ( $second_requested ) {
@@ -1506,6 +1505,8 @@ That was a cool video.';
 			$after_insert_runs += (int) ( $post_id === $id );
 		};
 		add_action( 'wp_after_insert_post', $count_after_insert );
+		// After `do_sync()`, which switches the current user.
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
 
 		$request = new WP_REST_Request( 'POST', "/wp/v2/posts/$post_id" );
 		$request->set_body_params(
