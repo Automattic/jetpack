@@ -31,21 +31,13 @@ export const getFormattedCategories = (
 	// If the post has no categories, then it's going to have the 'Uncategorized' category
 	const updatedPostCategories = postCategories?.length ? postCategories : [ 1 ];
 
-	// If the post has a non newsletter category, then it's going to be sent to 'All content' subscribers
-	const hasNonNewsletterCategory = updatedPostCategories.some( postCategory => {
-		return ! newsletterCategories.some( newsletterCategory => {
-			return newsletterCategory.id === postCategory;
-		} );
-	} );
-
 	// Get the newsletter category names for the post
 	const categoryNames = newsletterCategories
 		.filter( category => updatedPostCategories.includes( category.id ) )
 		.map( category => category.name );
 
-	if ( hasNonNewsletterCategory ) {
-		categoryNames.push( __( 'All content', 'jetpack' ) );
-	}
+	// 'All content' subscribers have no category opt-outs, so they receive every post.
+	categoryNames.push( __( 'All content', 'jetpack' ) );
 
 	const formattedCategoriesArray = categoryNames.map(
 		categoryName => `<strong>${ categoryName }</strong>`
