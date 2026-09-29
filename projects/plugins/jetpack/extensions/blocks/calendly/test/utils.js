@@ -1,4 +1,4 @@
-import { getAttributesFromEmbedCode } from '../utils';
+import { getAttributesFromEmbedCode, normalizeCalendlyUrl } from '../utils';
 
 const inlineEmbedCode =
 	'<!-- Calendly inline widget begin -->' +
@@ -134,4 +134,21 @@ describe( 'getAttributesFromEmbedCode', () => {
 			url: 'https://calendly.com/wordpresscom/jetpack-block-example',
 		} );
 	} );
+} );
+
+describe( 'normalizeCalendlyUrl', () => {
+	test.each( [
+		'https://calendly.com.evil.example/fake',
+		'https://calendly.com@evil.example/fake',
+		'https://evil.example/fake',
+	] )( 'rejects %s', url => {
+		expect( normalizeCalendlyUrl( url ) ).toBeUndefined();
+	} );
+
+	test.each( [ 'https://calendly.com/user/event', 'http://calendly.com/user/event' ] )(
+		'accepts %s over HTTPS',
+		url => {
+			expect( normalizeCalendlyUrl( url ) ).toBe( 'https://calendly.com/user/event' );
+		}
+	);
 } );

@@ -13,7 +13,7 @@ import testEmbedUrl from '../../shared/test-embed-url';
 import metadata from './block.json';
 import { CALENDLY_EXAMPLE_URL } from './constants';
 import CalendlyControls from './controls';
-import { getAttributesFromEmbedCode } from './utils';
+import { getAttributesFromEmbedCode, normalizeCalendlyUrl } from './utils';
 
 import './editor.scss';
 import './view.scss';
@@ -41,6 +41,8 @@ export function CalendlyEdit( props ) {
 
 	const { backgroundColor, hideEventTypeDetails, primaryColor, textColor, style, url } =
 		validatedAttributes;
+	// Saved attributes never pass through the paste parser, so check the URL again here.
+	const previewUrl = normalizeCalendlyUrl( url );
 	const [ embedCode, setEmbedCode ] = useState( url );
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
@@ -162,7 +164,7 @@ export function CalendlyEdit( props ) {
 			primary_color: primaryColor,
 			text_color: textColor,
 		} );
-		return `${ url }?${ query }`;
+		return `${ previewUrl }?${ query }`;
 	};
 
 	const inlinePreview = (
@@ -221,7 +223,7 @@ export function CalendlyEdit( props ) {
 		<div
 			{ ...blockProps }
 			className={ clsx( blockProps.className, {
-				[ `calendly-style-${ style }` ]: url && ! isEditingUrl,
+				[ `calendly-style-${ style }` ]: previewUrl && ! isEditingUrl,
 			} ) }
 		>
 			<CalendlyControls
@@ -235,7 +237,7 @@ export function CalendlyEdit( props ) {
 					setIsEditingUrl,
 				} }
 			/>
-			{ url && ! isEditingUrl ? blockPreview( style ) : blockPlaceholder }
+			{ previewUrl && ! isEditingUrl ? blockPreview( style ) : blockPlaceholder }
 		</div>
 	);
 }
