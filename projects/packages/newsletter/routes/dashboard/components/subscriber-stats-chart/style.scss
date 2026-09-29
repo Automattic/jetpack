@@ -151,6 +151,10 @@
 				box-shadow: none;
 			}
 
+			&[aria-pressed="true"]:focus-visible {
+				box-shadow: inset 0 0 0 calc(2 * var(--wpds-border-width-focus)) var(--wpds-color-foreground-interactive-brand-strong);
+			}
+
 			&:not(:first-child) {
 				margin-inline-start: -1px;
 			}
