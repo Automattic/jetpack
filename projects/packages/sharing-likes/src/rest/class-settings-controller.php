@@ -36,7 +36,7 @@ final class Settings_Controller extends Controller {
 	/**
 	 * The options `Sharing_Options::update()` saves together.
 	 */
-	private const SHARING_OPTIONS = array( 'button_style', 'sharing_label', 'open_links' );
+	private const SHARING_OPTIONS = array( 'button_style', 'sharing_label' );
 
 	/**
 	 * Register the route.
@@ -202,6 +202,8 @@ final class Settings_Controller extends Controller {
 
 		if ( array_intersect( self::SHARING_OPTIONS, $settings ) ) {
 			$values = Sharing_Options::get();
+			// Stored through `wp_kses()`, which encodes a bare `&`; the screen shows it decoded.
+			$values['sharing_label'] = wp_specialchars_decode( $values['sharing_label'], ENT_QUOTES );
 		}
 
 		$values['likes_enabled']         = Likes_Options::likes_enabled_sitewide();
@@ -249,11 +251,6 @@ final class Settings_Controller extends Controller {
 				'sharing_label'         => array(
 					'description' => __( 'Text shown above the sharing buttons.', 'jetpack-sharing-likes' ),
 					'type'        => 'string',
-				),
-				'open_links'            => array(
-					'description' => __( 'Whether sharing links open in the same window or a new one.', 'jetpack-sharing-likes' ),
-					'type'        => 'string',
-					'enum'        => Sharing_Options::OPEN_LINKS,
 				),
 				'show'                  => array(
 					'description' => __( 'Post types the buttons appear on, plus "index" for the front page, archives and search results.', 'jetpack-sharing-likes' ),

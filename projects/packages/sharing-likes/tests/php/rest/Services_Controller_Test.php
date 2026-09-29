@@ -162,6 +162,15 @@ class Services_Controller_Test extends BaseTestCase {
 		$this->assertContains( 'custom-1000', array_column( $this->request( 'GET', 'services' )->get_data()['services'], 'id' ) );
 	}
 
+	/**
+	 * The name is stored through `wp_kses()`, which encodes a bare `&`.
+	 */
+	public function test_lists_custom_service_names_decoded(): void {
+		$this->create( 'Tom &amp; Jerry' );
+
+		$this->assertContains( 'Tom & Jerry', array_column( $this->request( 'GET', 'services' )->get_data()['services'], 'name' ) );
+	}
+
 	public function test_refuses_a_custom_service_with_missing_details(): void {
 		$response = $this->request(
 			'POST',
@@ -220,5 +229,13 @@ class Services_Controller_Test extends BaseTestCase {
 
 	public function test_deleting_an_unknown_custom_service_is_a_404(): void {
 		$this->assertSame( 404, $this->request( 'DELETE', 'services/custom/custom-1' )->get_status() );
+	}
+
+	public function test_the_service_id_comes_from_the_url_alone(): void {
+		$this->create();
+
+		$this->assertSame( 404, $this->request( 'DELETE', 'services/custom/custom-1', array( 'id' => 'custom-1000' ) )->get_status() );
+		$this->assertSame( 404, $this->request( 'DELETE', 'services/custom/custom-1', array( 'id' => 1000 ) )->get_status() );
+		$this->assertContains( 'custom-1000', array_column( $this->request( 'GET', 'services' )->get_data()['services'], 'id' ) );
 	}
 }

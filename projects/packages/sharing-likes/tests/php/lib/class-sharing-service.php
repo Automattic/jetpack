@@ -20,6 +20,20 @@ require_once __DIR__ . '/class-sharing-sources.php';
 class Sharing_Service {
 
 	/**
+	 * The translated label `set_global_options()` stores as `false`.
+	 *
+	 * @var string
+	 */
+	public $default_sharing_label;
+
+	/**
+	 * Translate the default label, as the real one does.
+	 */
+	public function __construct() {
+		$this->default_sharing_label = __( 'Share this:', 'jetpack' ); // phpcs:ignore WordPress.WP.I18n.TextDomainMismatch -- the real class's string, so tests can translate it.
+	}
+
+	/**
 	 * Record a save.
 	 *
 	 * @param array<string,mixed> $data Posted data.
@@ -161,14 +175,19 @@ class Sharing_Service {
 		$options = get_option( 'sharing-options' );
 		$global  = is_array( $options ) && isset( $options['global'] ) && is_array( $options['global'] ) ? $options['global'] : array();
 
-		return array_merge(
+		$global = array_merge(
 			array(
-				'button_style'  => 'icon-text',
-				'sharing_label' => 'Share this:',
-				'open_links'    => 'same',
-				'show'          => array( 'post', 'page' ),
+				'button_style' => 'icon-text',
+				'open_links'   => 'same',
+				'show'         => array( 'post', 'page' ),
 			),
 			$global
 		);
+
+		if ( ! isset( $global['sharing_label'] ) || false === $global['sharing_label'] ) {
+			$global['sharing_label'] = $this->default_sharing_label;
+		}
+
+		return $global;
 	}
 }

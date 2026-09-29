@@ -23,11 +23,6 @@ final class Sharing_Options {
 	public const BUTTON_STYLES = array( 'icon-text', 'icon', 'text', 'official' );
 
 	/**
-	 * Values `Sharing_Service::set_global_options()` accepts for `open_links`.
-	 */
-	public const OPEN_LINKS = array( 'same', 'new' );
-
-	/**
 	 * Whether sharedaddy is loaded to read and save these options.
 	 */
 	public static function is_available(): bool {
@@ -55,12 +50,20 @@ final class Sharing_Options {
 	 * `Sharing_Service::set_global_options()` rebuilds the global array from defaults,
 	 * so anything the payload leaves out, placement included, would be reset.
 	 *
-	 * @param array<string, mixed> $changes Options to change, keyed as `set_global_options()` reads them.
+	 * @param array<string, mixed> $changes Options to change, slashed and keyed as `set_global_options()` reads them.
 	 */
 	public static function update( array $changes ): void {
-		$current         = self::get();
-		$current['show'] = Placement_Section::selected_post_types();
+		$current                  = self::get();
+		$current['show']          = Placement_Section::selected_post_types();
+		$current['sharing_label'] = wp_slash( $current['sharing_label'] );
+		$sharer                   = new \Sharing_Service();
+		$options                  = array_merge( $current, $changes );
 
-		( new \Sharing_Service() )->set_global_options( array_merge( $current, $changes ) );
+		// The default is stored as `false` only on an exact match, checked before unslashing.
+		if ( is_string( $options['sharing_label'] ) && wp_unslash( $options['sharing_label'] ) === $sharer->default_sharing_label ) {
+			$options['sharing_label'] = $sharer->default_sharing_label;
+		}
+
+		$sharer->set_global_options( $options );
 	}
 }

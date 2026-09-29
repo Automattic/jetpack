@@ -190,7 +190,7 @@ final class Services_Controller extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function update_item( $request ) {
-		$service = self::custom_service( $request->get_param( 'id' ) );
+		$service = self::custom_service( $request->get_url_params()['id'] );
 		if ( $service instanceof WP_Error ) {
 			return $service;
 		}
@@ -219,7 +219,7 @@ final class Services_Controller extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function delete_item( $request ) {
-		$service = self::custom_service( $request->get_param( 'id' ) );
+		$service = self::custom_service( $request->get_url_params()['id'] );
 		if ( $service instanceof WP_Error ) {
 			return $service;
 		}
@@ -283,7 +283,7 @@ final class Services_Controller extends Controller {
 	private static function prepare_service( $service ): array {
 		$item = array(
 			'id'         => $service->get_id(),
-			'name'       => $service->get_name(),
+			'name'       => wp_specialchars_decode( (string) $service->get_name(), ENT_QUOTES ),
 			'custom'     => $service instanceof \Sharing_Advanced_Source,
 			'deprecated' => $service->is_deprecated(),
 		);

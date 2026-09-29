@@ -100,7 +100,7 @@ class Settings_Controller_Test extends BaseTestCase {
 		$data = $this->request( 'GET', 'settings' )->get_data();
 
 		$this->assertEqualsCanonicalizing(
-			array( 'likes_enabled', 'comment_likes_enabled', 'button_style', 'sharing_label', 'open_links', 'show', 'twitter_site_tag', 'disable_resources' ),
+			array( 'likes_enabled', 'comment_likes_enabled', 'button_style', 'sharing_label', 'show', 'twitter_site_tag', 'disable_resources' ),
 			array_keys( $data )
 		);
 	}
@@ -146,10 +146,20 @@ class Settings_Controller_Test extends BaseTestCase {
 
 		$this->assertFalse( $data['likes_enabled'] );
 		$this->assertSame( 'icon', $data['button_style'] );
-		$this->assertSame( 'new', $data['open_links'] );
+		$this->assertArrayNotHasKey( 'open_links', $data );
 		$this->assertSame( array( 'post' ), $data['show'] );
 		$this->assertSame( 'jetpack', $data['twitter_site_tag'] );
 		$this->assertTrue( $data['disable_resources'] );
+	}
+
+	/**
+	 * The label is stored through `wp_kses()`, which encodes a bare `&`.
+	 */
+	public function test_reads_the_label_decoded(): void {
+		$this->given_both_features_running();
+		update_option( 'sharing-options', array( 'global' => array( 'sharing_label' => 'Share &amp; enjoy' ) ) );
+
+		$this->assertSame( 'Share & enjoy', $this->request( 'GET', 'settings' )->get_data()['sharing_label'] );
 	}
 
 	/**
@@ -198,6 +208,32 @@ class Settings_Controller_Test extends BaseTestCase {
 		$this->request( 'POST', 'settings', array( 'sharing_label' => 'Back\\slash' ) );
 
 		$this->assertSame( 'Back\\slash', stripslashes( $this->saved_global_options()['sharing_label'] ) );
+	}
+
+	public function test_saving_another_option_keeps_the_stored_label_backslashes(): void {
+		$this->given_both_features_running();
+		update_option( 'sharing-options', array( 'global' => array( 'sharing_label' => 'Back\\slash' ) ) );
+
+		$this->request( 'POST', 'settings', array( 'button_style' => 'icon' ) );
+
+		$this->assertSame( 'Back\\slash', stripslashes( $this->saved_global_options()['sharing_label'] ) );
+	}
+
+	/**
+	 * `set_global_options()` stores the default label as `false`, so it follows the site language.
+	 */
+	public function test_saving_another_option_keeps_a_translated_default_label_the_default(): void {
+		$this->given_both_features_running();
+		update_option( 'sharing-options', array( 'global' => array( 'sharing_label' => false ) ) );
+		$translate = function ( $translation, $text ) {
+			return 'Share this:' === $text ? "Partage l'article :" : $translation;
+		};
+		add_filter( 'gettext', $translate, 10, 2 );
+
+		$this->request( 'POST', 'settings', array( 'button_style' => 'icon' ) );
+
+		remove_filter( 'gettext', $translate, 10 );
+		$this->assertSame( "Partage l'article :", $this->saved_global_options()['sharing_label'] );
 	}
 
 	public function test_saving_writes_nothing_it_was_not_sent(): void {
