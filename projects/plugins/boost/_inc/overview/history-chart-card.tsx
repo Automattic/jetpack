@@ -52,15 +52,17 @@ export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 export function EmptyDayTooltip( {
 	date,
 	isBeforeHistory,
+	dateComponent: DateElement = 'div',
 }: {
 	date: string;
 	isBeforeHistory?: boolean;
+	dateComponent?: ElementType;
 } ) {
 	return (
 		<div className="jetpack-boost-overview__history-tooltip boost-daily-history__empty-tooltip">
-			<div className="jetpack-boost-overview__tooltip-date">
+			<DateElement className="jetpack-boost-overview__tooltip-date">
 				{ dateI18n( 'F j, Y', getDate( `${ date }T12:00:00` ), false ) }
-			</div>
+			</DateElement>
 			<div className="boost-daily-history__empty-copy">
 				{ isBeforeHistory
 					? __( 'No scores recorded before the feature was unlocked.', 'jetpack-boost' )
@@ -71,7 +73,7 @@ export function EmptyDayTooltip( {
 }
 
 type HistoryPeriod = PerformanceHistoryData[ 'periods' ][ number ];
-type DayDetails = { period: HistoryPeriod; selection: BandHighlightSelection };
+type DayDetails = { day: HistoryDay; selection: BandHighlightSelection };
 export function HistoryTooltip( {
 	period,
 	dateComponent: DateElement = 'div',
@@ -247,7 +249,7 @@ export default function HistoryChartCard( {
 	const [ hoverOpen, setHoverOpen ] = useState( false );
 	const [ keyboardOpen, setKeyboardOpen ] = useState( false );
 	const [ anchor, setAnchor ] = useState< HTMLDivElement | null >( null );
-	const [ lastRecorded, setLastRecorded ] = useState< DayDetails | null >( null );
+	const [ lastSelected, setLastSelected ] = useState< DayDetails | null >( null );
 	const pointerType = useRef( '' );
 	// Escape keeps the details closed until the pointer leaves the chart.
 	const escaped = useRef( false );
@@ -265,35 +267,35 @@ export default function HistoryChartCard( {
 		setActiveHighlight( null );
 		setHoverOpen( false );
 		setKeyboardOpen( false );
-		setLastRecorded( null );
+		setLastSelected( null );
 	}, [ range.startDate, range.endDate, isVisible ] );
 	const highlight = isVisible ? activeHighlight?.selection : null;
-	const highlightedPeriod =
-		highlight && days.find( day => day.period && day.date === highlight.datum.label )?.period;
-	const recorded = useMemo< DayDetails | null >(
-		() =>
-			highlight && highlightedPeriod ? { period: highlightedPeriod, selection: highlight } : null,
-		[ highlight, highlightedPeriod ]
+	const highlightedDay = highlight && days.find( day => day.date === highlight.datum.label );
+	const selected = useMemo< DayDetails | null >(
+		() => ( highlight && highlightedDay ? { day: highlightedDay, selection: highlight } : null ),
+		[ highlight, highlightedDay ]
 	);
 	useEffect( () => {
 		// Any other day under the pointer owns the card; the hold outlives the chart's delayed
 		// hide only while the popover is still open.
-		if ( recorded || highlight ) {
-			setLastRecorded( recorded );
+		if ( selected || highlight ) {
+			setLastSelected( selected );
 		} else if ( ! hoverOpen && ! keyboardOpen ) {
-			setLastRecorded( null );
+			setLastSelected( null );
 		}
-	}, [ recorded, highlight, hoverOpen, keyboardOpen ] );
+	}, [ selected, highlight, hoverOpen, keyboardOpen ] );
 	// The chart drops its highlight shortly after the pointer leaves the plot, so while the hover
 	// trigger holds the popover open, keep showing the day the pointer left from.
-	const shown = recorded ?? ( hoverOpen && ! highlight ? lastRecorded : null );
+	const shown = selected ?? ( hoverOpen && ! highlight ? lastSelected : null );
 	const details = ( hoverOpen || keyboardOpen ) && shown ? shown : null;
 	const band = details?.selection ?? highlight;
 	// base-ui unmounts the popup, and drops the chart's focus guards, only once its exit ends.
-	const [ popupPeriod, setPopupPeriod ] = useState< HistoryPeriod | null >( null );
-	if ( details && details.period !== popupPeriod ) {
-		setPopupPeriod( details.period );
+	const [ popupDay, setPopupDay ] = useState< HistoryDay | null >( null );
+	if ( details && details.day !== popupDay ) {
+		setPopupDay( details.day );
 	}
+	const isBeforeHistory = ( day: HistoryDay ) =>
+		hasOlderHistory === false && ! days.some( slot => slot.period && slot.date < day.date );
 	let content;
 	let bodyClassName;
 	if ( isLoading && ! data?.periods.length ) {
@@ -428,18 +430,17 @@ export default function HistoryChartCard( {
 													slot => slot.date === tooltipData?.nearestDatum?.datum.label
 												);
 												// Keyboard focus lands here; the popover shows the same details.
-												return day?.period ? (
+												return day ? (
 													<VisuallyHidden>
-														<HistoryTooltip period={ day.period } />
+														{ day.period ? (
+															<HistoryTooltip period={ day.period } />
+														) : (
+															<EmptyDayTooltip
+																date={ day.date }
+																isBeforeHistory={ isBeforeHistory( day ) }
+															/>
+														) }
 													</VisuallyHidden>
-												) : day ? (
-													<EmptyDayTooltip
-														date={ day.date }
-														isBeforeHistory={
-															hasOlderHistory === false &&
-															! days.some( slot => slot.period && slot.date < day.date )
-														}
-													/>
 												) : null;
 											} }
 										/>
@@ -448,7 +449,7 @@ export default function HistoryChartCard( {
 							</section>
 						) ) }
 					</Popover.Trigger>
-					{ popupPeriod && (
+					{ popupDay && (
 						<Popover.Popup
 							variant="unstyled"
 							// Portalled outside the page, so it takes the page class for the score colour tokens.
@@ -472,7 +473,15 @@ export default function HistoryChartCard( {
 								/>
 							}
 						>
-							<HistoryTooltip period={ popupPeriod } dateComponent={ PopoverDate } />
+							{ popupDay.period ? (
+								<HistoryTooltip period={ popupDay.period } dateComponent={ PopoverDate } />
+							) : (
+								<EmptyDayTooltip
+									date={ popupDay.date }
+									isBeforeHistory={ isBeforeHistory( popupDay ) }
+									dateComponent={ PopoverDate }
+								/>
+							) }
 						</Popover.Popup>
 					) }
 				</Popover.Root>
