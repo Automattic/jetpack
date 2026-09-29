@@ -1,4 +1,4 @@
-Significance: major
+Significance: minor
 Type: changed
 
-Tooltips: Draw every chart tooltip on one light surface that matches the WordPress design system tooltip, and remove `--a8c-charts-color-tooltip-surface`. For a dark tooltip, pass `tooltipStyle` with both `background` and `color`: LineChart no longer adds a dark background when `tooltipStyle` sets only `color`. A custom `renderGlyph` can now receive a `var()` color instead of a hex when the series has no palette color.
+Tooltips: Draw every chart tooltip on one light surface that matches the WordPress design system tooltip. For a dark tooltip, pass `tooltipStyle` with both `background` and `color`: LineChart no longer adds a dark background when `tooltipStyle` sets only `color`. A custom `renderGlyph` can now receive a `var()` color instead of a hex when the series has no palette color.
