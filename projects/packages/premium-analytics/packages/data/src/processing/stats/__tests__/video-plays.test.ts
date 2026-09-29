@@ -68,9 +68,11 @@ describe( 'Stats video plays normalizer', () => {
 			sanitizeStatsVideoPlaysResponse( response( 'https://i0.wp.com/v/launch.jpg' ), query )
 				.data[ 0 ].items[ 0 ].poster
 		).toBe( 'https://i0.wp.com/v/launch.jpg' );
-		expect(
-			sanitizeStatsVideoPlaysResponse( response( null ), query ).data[ 0 ].items[ 0 ]
-		).not.toHaveProperty( 'poster' );
+		for ( const poster of [ null, '' ] ) {
+			expect(
+				sanitizeStatsVideoPlaysResponse( response( poster ), query ).data[ 0 ].items[ 0 ]
+			).not.toHaveProperty( 'poster' );
+		}
 	} );
 
 	it( 'does not add link actions when video rows have no URL', () => {

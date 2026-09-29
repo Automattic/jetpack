@@ -28,7 +28,7 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	watch_time: number;
 	retention_rate: number;
 	link: string | null;
-	/** Poster-frame URL; may be tokenless (unusable) for private videos. */
+	/** Poster-frame URL, absent when the video has none or is private. */
 	poster?: string;
 	actions?: StatsItemAction[];
 	children: null;
