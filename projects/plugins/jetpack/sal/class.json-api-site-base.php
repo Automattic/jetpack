@@ -1653,7 +1653,7 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Whether the AI Launchpad was dismissed, reverting the site to the regular launchpad.
+	 * Whether the AI Launchpad was dismissed (skipped), which leaves the site with no setup guidance.
 	 *
 	 * @return bool
 	 */
@@ -1671,12 +1671,17 @@ abstract class SAL_Site {
 	}
 
 	/**
-	 * Whether the site gets no setup guidance: no My Home, Site Setup, or launchpad.
+	 * Whether the site gets no setup guidance: no My Home, Site Setup, or launchpad. Mirrors
+	 * wpcom_launchpad_is_no_guidance() in jetpack-mu-wpcom, which also counts a skipped AI Launchpad.
 	 *
 	 * @return bool
 	 */
 	public function is_ai_launchpad_no_guidance() {
-		return (bool) get_option( 'wpcom_ai_launchpad_no_guidance' );
+		if ( get_option( 'wpcom_ai_launchpad_no_guidance' ) ) {
+			return true;
+		}
+
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && (bool) get_option( 'wpcom_ai_launchpad_dismissed' );
 	}
 
 	/**
