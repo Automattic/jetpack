@@ -45,6 +45,13 @@ class Posts extends Module {
 	private $published_in_rest_callback = array();
 
 	/**
+	 * Posts as they were before a running REST callback first updated them.
+	 *
+	 * @var \WP_Post[]
+	 */
+	private $rest_posts_before = array();
+
+	/**
 	 * The previous status of posts that we use for calculating post status transitions.
 	 *
 	 * @access private
@@ -104,7 +111,7 @@ class Posts extends Module {
 
 	/**
 	 * REST meta fields that decide whether a publish emails subscribers or shares to Social.
-	 * A publish is never recovered when one of them failed to save.
+	 * A publish is never completed when one of them failed to save.
 	 *
 	 * @var string[]
 	 */
@@ -192,6 +199,7 @@ class Posts extends Module {
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'rest_request_before_callbacks', array( $this, 'enter_rest_callback' ) );
+		add_action( 'pre_post_update', array( $this, 'remember_rest_post_before' ) );
 		add_filter( 'rest_request_after_callbacks', array( $this, 'leave_rest_callback' ), 10, 3 );
 
 		// Listen for meta changes.
@@ -857,11 +865,6 @@ class Posts extends Module {
 			if ( $this->rest_callback_depth > 0 ) {
 				$this->published_in_rest_callback[ $post->ID ] = $this->rest_callback_depth;
 			}
-
-			// Runs before the sender's shutdown hook so the event goes out in this request.
-			if ( ! has_action( 'shutdown', array( $this, 'send_pending_published' ) ) ) {
-				add_action( 'shutdown', array( $this, 'send_pending_published' ), 9 );
-			}
 		}
 
 		$this->previous_status[ $post->ID ] = $old_status;
@@ -879,10 +882,25 @@ class Posts extends Module {
 	}
 
 	/**
-	 * Settle posts published by the REST callback that just completed.
+	 * Remember a post before a REST callback updates it, for `wp_after_insert_post`.
 	 *
-	 * On an error, a post stays pending only when a single meta field failed and every other
-	 * requested field is stored, so stale newsletter or sharing settings can't trigger emails.
+	 * @param int $post_id Post ID.
+	 */
+	public function remember_rest_post_before( $post_id ) {
+		if ( $this->rest_callback_depth > 0 && ! isset( $this->rest_posts_before[ $post_id ] ) ) {
+			$post = get_post( $post_id );
+			if ( $post instanceof \WP_Post ) {
+				$this->rest_posts_before[ $post_id ] = clone $post;
+			}
+		}
+	}
+
+	/**
+	 * Complete `wp_after_insert_post` for posts a failed REST callback published.
+	 *
+	 * The posts controller skips that hook when saving meta fails. It is completed only when a
+	 * single meta field failed and every other requested field is stored, so stale newsletter or
+	 * sharing settings can't trigger emails or shares.
 	 *
 	 * @param \WP_REST_Response|\WP_Error|mixed $response Result of the REST callback.
 	 * @param array                             $handler  Route handler.
@@ -905,12 +923,23 @@ class Posts extends Module {
 				continue;
 			}
 			unset( $this->published_in_rest_callback[ $post_id ] );
+			$post_before = $this->rest_posts_before[ $post_id ] ?? null;
+			unset( $this->rest_posts_before[ $post_id ] );
 
-			if ( is_wp_error( $response ) && ( null === $failed_field || ! $this->stored_meta_matches_request( $post_id, $request, $failed_field ) ) ) {
-				unset( $this->just_published[ $post_id ] );
+			if ( ! is_wp_error( $response ) || ! isset( $this->just_published[ $post_id ] ) ) {
+				continue;
 			}
+
+			$post = get_post( $post_id );
+			if ( null !== $failed_field && $post instanceof \WP_Post && 'publish' === $post->post_status && $this->stored_meta_matches_request( $post_id, $request, $failed_field ) ) {
+				wp_after_insert_post( $post, null !== $post_before, $post_before );
+			}
+			unset( $this->just_published[ $post_id ] );
 		}
 
+		if ( 1 === $this->rest_callback_depth ) {
+			$this->rest_posts_before = array();
+		}
 		$this->rest_callback_depth = max( 0, $this->rest_callback_depth - 1 );
 		return $response;
 	}
@@ -946,27 +975,6 @@ class Posts extends Module {
 		}
 
 		return true;
-	}
-
-	/**
-	 * Send published posts that never reached `wp_after_insert_post`.
-	 *
-	 * The REST posts controller skips that hook when saving meta fails after publishing.
-	 */
-	public function send_pending_published() {
-		foreach ( array_keys( $this->just_published ) as $post_id ) {
-			// A REST callback that never completed (fatal error, `wp_die()`) may have left settings unsaved.
-			if ( isset( $this->published_in_rest_callback[ $post_id ] ) ) {
-				continue;
-			}
-
-			$post = get_post( $post_id );
-
-			// Skip posts that were unpublished or deleted later in the request.
-			if ( $post instanceof \WP_Post && 'publish' === $post->post_status ) {
-				$this->send_published( $post_id, $post );
-			}
-		}
 	}
 
 	/**
