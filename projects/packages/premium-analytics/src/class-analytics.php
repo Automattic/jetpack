@@ -12,7 +12,6 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\PremiumAnalytics\Reports\Export\Export;
 use Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller;
 use Automattic\Jetpack\PremiumAnalytics\REST\Notices_Controller;
-use Automattic\Jetpack\PremiumAnalytics\REST\Settings_Controller;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Configuration as Sync_Configuration;
 use Automattic\Jetpack\PremiumAnalytics\Sync\Sync_Status_Tracker;
 use Automattic\Jetpack\Status\Host;
@@ -300,7 +299,7 @@ class Analytics {
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
-		Settings_Controller::register();
+		Stats_Settings::configure();
 	}
 
 	/**

@@ -84,6 +84,7 @@ export {
 	RangeCalendar,
 	SelectControl,
 	Skeleton,
+	Spinner,
 	Stack,
 	Tabs,
 	Text,

@@ -18,6 +18,11 @@ declare module '@automattic/jetpack-script-data' {
 			dashboard_composition_enabled?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
 			sections?: string[];
+			// The roles the Stats settings list, and the Stats module screen; absent for users who cannot manage options.
+			stats_settings?: {
+				roles: Array< { slug: string; name: string } >;
+				modules_url: string | null;
+			};
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

@@ -20,7 +20,6 @@ src/
 ├── class-xmlrpc-provider.php # XML-RPC provider
 ├── class-options.php         # Options controlling tracking behaviors
 ├── class-settings.php        # Reads and validates the owner-facing Stats settings
-├── class-settings-screen.php # What a Stats settings screen reads and saves, shared by the `stats-admin` and Premium Analytics routes
 └── class-transient-cleanup.php # Cron-based transient cleanup
 ```
 

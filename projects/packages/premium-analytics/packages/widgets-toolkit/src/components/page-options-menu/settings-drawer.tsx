@@ -1,26 +1,23 @@
 /**
  * External dependencies
  */
-import {
-	AnalyticsQueryClientProvider,
-	useStatsSettings,
-	useStatsSettingsMutation,
-	type StatsSettings,
-} from '@jetpack-premium-analytics/data';
+import { getScriptData } from '@automattic/jetpack-script-data';
+import { useStatsSettings } from '@jetpack-premium-analytics/data';
 import {
 	Button,
 	Card,
 	Drawer,
 	Link,
 	Notice,
+	Spinner,
 	Stack,
 	Text,
 } from '@jetpack-premium-analytics/externals';
-import { Spinner, ToggleControl } from '@wordpress/components';
-import { useRegistry } from '@wordpress/data';
+import { HorizontalRule, ToggleControl } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { useCallback, useId, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useId, useState, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -35,43 +32,23 @@ type SettingsDrawerProps = {
 	onClose: () => void;
 };
 
-type SettingsFormProps = {
-	onClose: () => void;
-	mutation: ReturnType< typeof useStatsSettingsMutation >;
-};
+// apiFetch writes these itself when the request never reached the site.
+const CLIENT_ERROR_CODES = [ 'fetch_error', 'offline_error' ];
 
 // apiFetch rejects with the site's REST error body, so a string `code` marks a message the site wrote.
-const getSiteErrorMessage = ( error: unknown ) =>
-	error &&
-	typeof error === 'object' &&
-	typeof ( error as { code?: unknown } ).code === 'string' &&
-	typeof ( error as { message?: unknown } ).message === 'string'
-		? ( error as { message: string } ).message
+const getSiteErrorMessage = ( error: unknown ) => {
+	const { code, message } = ( error ?? {} ) as { code?: unknown; message?: unknown };
+	return typeof code === 'string' &&
+		! CLIENT_ERROR_CODES.includes( code ) &&
+		typeof message === 'string'
+		? message
 		: null;
+};
 
-// Role lists are sets: the order a reader ticks them in is not a change.
-const normalize = ( value: unknown ) => ( Array.isArray( value ) ? [ ...value ].sort() : value );
-
-/**
- * The edited settings that differ from the stored ones.
- *
- * @param stored - The settings the site holds.
- * @param draft  - The settings the reader edited.
- * @return The changed settings only.
- */
-const getChanges = (
-	stored: StatsSettings,
-	draft: Partial< StatsSettings >
-): Partial< StatsSettings > =>
-	Object.fromEntries(
-		( Object.keys( draft ) as Array< keyof StatsSettings > )
-			.filter(
-				key =>
-					JSON.stringify( normalize( draft[ key ] ) ) !==
-					JSON.stringify( normalize( stored[ key ] ) )
-			)
-			.map( key => [ key, draft[ key ] ] )
-	);
+const getStatsSettingsContext = () => {
+	const context = getScriptData()?.premium_analytics?.stats_settings;
+	return { roles: context?.roles ?? [], modules_url: context?.modules_url ?? null };
+};
 
 /**
  * One titled group of settings.
@@ -107,27 +84,22 @@ function SettingsGroup( { title, children }: { title: string; children: ReactNod
  * @return The drawer.
  */
 export function SettingsDrawer( { open, onClose }: SettingsDrawerProps ) {
-	// The page options menu renders in the page header, outside the widgets' query provider.
-	return (
-		<AnalyticsQueryClientProvider>
-			<SettingsDrawerRoot open={ open } onClose={ onClose } />
-		</AnalyticsQueryClientProvider>
-	);
-}
+	const { isSaving, discard } = useStatsSettings( { enabled: open } );
 
-function SettingsDrawerRoot( { open, onClose }: SettingsDrawerProps ) {
-	const mutation = useStatsSettingsMutation();
+	const close = useCallback( () => {
+		discard();
+		onClose();
+	}, [ discard, onClose ] );
 
 	const handleOpenChange = useCallback(
 		( nextOpen: boolean ) => {
-			if ( ! nextOpen && ! mutation.isPending ) {
-				onClose();
+			if ( ! nextOpen && ! isSaving ) {
+				close();
 			}
 		},
-		[ mutation.isPending, onClose ]
+		[ close, isSaving ]
 	);
 
-	// The popup unmounts once it has slid out, so each opening starts from the stored settings.
 	return (
 		// The Drawer anchors to a physical edge, so the page's end edge is picked here.
 		<Drawer.Root
@@ -136,61 +108,52 @@ function SettingsDrawerRoot( { open, onClose }: SettingsDrawerProps ) {
 			swipeDirection={ isRTL() ? 'left' : 'right' }
 		>
 			<Drawer.Popup size="large" className={ styles.popup }>
-				<SettingsForm onClose={ onClose } mutation={ mutation } />
+				<SettingsForm onClose={ onClose } />
 			</Drawer.Popup>
 		</Drawer.Root>
 	);
 }
 
-function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
+function SettingsForm( { onClose }: Pick< SettingsDrawerProps, 'onClose' > ) {
 	const trackEvent = useTrackEvent();
-	const registry = useRegistry();
-	const { data, isError } = useStatsSettings();
-	const { mutate, isPending: isSaving } = mutation;
-	// Only the edited fields, so a refetch mid-edit cannot send back stale values of the others.
-	const [ draft, setDraft ] = useState< Partial< StatsSettings > >( {} );
+	const { createSuccessNotice } = useDispatch( 'core/notices' );
+	const {
+		settings,
+		isError,
+		changedFields,
+		isSaving,
+		update,
+		save: saveSettings,
+	} = useStatsSettings();
 	const [ saveError, setSaveError ] = useState< string | null >( null );
 	const readerHeadingId = useId();
+	const { roles, modules_url: modulesUrl } = getStatsSettingsContext();
 
-	const settings = data && { ...data.settings, ...draft };
-	const changes = useMemo(
-		() => ( data ? getChanges( data.settings, draft ) : {} ),
-		[ data, draft ]
-	);
-	const hasChanges = Object.keys( changes ).length > 0;
-
-	const update = useCallback( ( values: Partial< StatsSettings > ) => {
-		setDraft( current => ( { ...current, ...values } ) );
-	}, [] );
-
-	const save = useCallback( () => {
+	const save = useCallback( async () => {
 		setSaveError( null );
-		mutate( changes, {
-			onSuccess: () => {
-				trackEvent( 'jetpack_premium_analytics_settings_save', {
-					settings: Object.keys( changes ).join( ',' ),
-				} );
-				registry
-					.dispatch( 'core/notices' )
-					.createSuccessNotice( __( 'Settings saved.', 'jetpack-premium-analytics-pkg' ), {
-						type: 'snackbar',
-					} );
-				onClose();
-			},
-			onError: error => {
-				const reason = getSiteErrorMessage( error );
-				setSaveError(
-					reason
-						? sprintf(
-								/* translators: %s: the reason the site gave. */
-								__( 'Your Stats settings could not be saved: %s', 'jetpack-premium-analytics-pkg' ),
-								reason
-							)
-						: __( 'Your Stats settings could not be saved.', 'jetpack-premium-analytics-pkg' )
-				);
-			},
+		try {
+			await saveSettings();
+		} catch ( error ) {
+			const reason = getSiteErrorMessage( error );
+			setSaveError(
+				reason
+					? sprintf(
+							/* translators: %s: the reason the site gave. */
+							__( 'Your Stats settings could not be saved: %s', 'jetpack-premium-analytics-pkg' ),
+							reason
+						)
+					: __( 'Your Stats settings could not be saved.', 'jetpack-premium-analytics-pkg' )
+			);
+			return;
+		}
+		trackEvent( 'jetpack_premium_analytics_settings_save', {
+			settings: changedFields.join( ',' ),
 		} );
-	}, [ changes, mutate, onClose, registry, trackEvent ] );
+		createSuccessNotice( __( 'Settings saved.', 'jetpack-premium-analytics-pkg' ), {
+			type: 'snackbar',
+		} );
+		onClose();
+	}, [ changedFields, createSuccessNotice, onClose, saveSettings, trackEvent ] );
 
 	return (
 		<>
@@ -199,7 +162,7 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 				<Drawer.CloseIcon />
 			</Drawer.Header>
 			<Drawer.Content>
-				{ isError && ! data && (
+				{ isError && ! settings && (
 					<Notice.Root intent="error">
 						<Notice.Description>
 							{ __(
@@ -209,8 +172,8 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 						</Notice.Description>
 					</Notice.Root>
 				) }
-				{ ! data && ! isError && <Spinner /> }
-				{ data && settings && (
+				{ ! settings && ! isError && <Spinner /> }
+				{ settings && (
 					<Stack direction="column" gap="2xl">
 						{ saveError && (
 							<Notice.Root intent="error">
@@ -246,20 +209,20 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 									'Allow Jetpack Stats to be viewed by:',
 									'jetpack-premium-analytics-pkg'
 								) }
-								roles={ data.roles }
+								roles={ roles }
 								value={ settings.roles }
 								lockedRole="administrator"
 								disabled={ isSaving }
-								onChange={ roles => update( { roles } ) }
+								onChange={ viewRoles => update( { roles: viewRoles } ) }
 							/>
 							<RoleSelect
 								label={ __( 'Count logged in page views from:', 'jetpack-premium-analytics-pkg' ) }
-								roles={ data.roles }
+								roles={ roles }
 								value={ settings.count_roles }
 								disabled={ isSaving }
 								onChange={ countRoles => update( { count_roles: countRoles } ) }
 							/>
-							<Card.FullBleed className={ styles.divider } />
+							<Card.FullBleed render={ <HorizontalRule /> } />
 							<Stack direction="column" gap="sm" role="group" aria-labelledby={ readerHeadingId }>
 								<Text id={ readerHeadingId }>
 									{ __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ) }
@@ -273,7 +236,7 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 								/>
 							</Stack>
 						</SettingsGroup>
-						{ data.modules_url && (
+						{ modulesUrl && (
 							<SettingsGroup title={ __( 'Activation', 'jetpack-premium-analytics-pkg' ) }>
 								<Text>
 									{ createInterpolateElement(
@@ -281,7 +244,7 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 											'Stats is a Jetpack module. Activate or deactivate it from <link>Jetpack modules</link>.',
 											'jetpack-premium-analytics-pkg'
 										),
-										{ link: <Link href={ data.modules_url } /> }
+										{ link: <Link href={ modulesUrl } /> }
 									) }
 								</Text>
 							</SettingsGroup>
@@ -293,7 +256,11 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 				<Drawer.Action variant="minimal" tone="neutral" disabled={ isSaving }>
 					{ __( 'Cancel', 'jetpack-premium-analytics-pkg' ) }
 				</Drawer.Action>
-				<Button variant="solid" onClick={ save } disabled={ ! hasChanges || isSaving }>
+				<Button
+					variant="solid"
+					onClick={ save }
+					disabled={ changedFields.length === 0 || isSaving }
+				>
 					{ isSaving
 						? __( 'Saving…', 'jetpack-premium-analytics-pkg' )
 						: __( 'Save', 'jetpack-premium-analytics-pkg' ) }

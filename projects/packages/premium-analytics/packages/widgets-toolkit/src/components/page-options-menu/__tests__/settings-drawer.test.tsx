@@ -1,9 +1,10 @@
 /**
  * External dependencies
  */
-import { queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { store as coreStore } from '@wordpress/core-data';
+import { createReduxStore, createRegistry, RegistryProvider } from '@wordpress/data';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -12,22 +13,17 @@ import { SettingsDrawer } from '../settings-drawer';
 
 const mockApiFetch = jest.fn();
 const mockCreateSuccessNotice = jest.fn();
-const mockDispatch = jest.fn( () => ( { createSuccessNotice: mockCreateSuccessNotice } ) );
 
-// Override `useRegistry` only; the fall-through resolves lazily since `requireActual` re-enters mid-init.
-jest.mock(
-	'@wordpress/data',
-	() =>
-		new Proxy(
-			{ useRegistry: () => ( { dispatch: mockDispatch } ) },
-			{
-				get: ( overrides, prop ) =>
-					prop in overrides
-						? overrides[ prop as keyof typeof overrides ]
-						: jest.requireActual( '@wordpress/data' )[ prop ],
-			}
-		)
-);
+// Stands in for the page's `core/notices` store, which this package does not depend on.
+const noticesStore = createReduxStore( 'core/notices', {
+	reducer: ( state = {} ) => state,
+	actions: {
+		createSuccessNotice: ( ...args: unknown[] ) => {
+			mockCreateSuccessNotice( ...args );
+			return { type: 'CREATE_SUCCESS_NOTICE' };
+		},
+	},
+} );
 
 jest.mock( '@wordpress/api-fetch', () => ( {
 	__esModule: true,
@@ -44,24 +40,43 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	},
 } ) );
 
+const ROLES = [
+	{ slug: 'administrator', name: 'Administrator' },
+	{ slug: 'editor', name: 'Editor' },
+	{ slug: 'author', name: 'Author' },
+];
+const mockStatsSettingsContext = jest.fn();
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( {} ),
+	getScriptData: () => ( { premium_analytics: { stats_settings: mockStatsSettingsContext() } } ),
 	isSimpleSite: () => false,
 } ) );
 
-const STORED = {
-	modules_url: null,
-	settings: {
-		admin_bar: true,
-		roles: [ 'administrator' ],
-		count_roles: [],
-		wpcom_reader_views_enabled: true,
-	},
-	roles: [
-		{ slug: 'administrator', name: 'Administrator' },
-		{ slug: 'editor', name: 'Editor' },
-	],
-};
+const STATS_OPTIONS = { admin_bar: true, roles: [ 'administrator' ], count_roles: [] };
+
+/**
+ * Answer core's site settings route with the given Stats options.
+ *
+ * @param statsOptions - The stored `stats_options` fields.
+ * @param onPost       - How a write answers.
+ */
+function serveSettings(
+	statsOptions: Record< string, unknown > = STATS_OPTIONS,
+	onPost?: () => Promise< unknown >
+) {
+	const stored = { stats_options: statsOptions, wpcom_reader_views_enabled: true };
+	mockApiFetch.mockImplementation(
+		( { method, data, parse }: { method?: string; data?: object; parse?: boolean } ) => {
+			if ( method === 'POST' ) {
+				return onPost?.() ?? Promise.resolve( { ...stored, ...data } );
+			}
+			// core-data reads records unparsed, as a fetch Response.
+			const body = method === 'OPTIONS' ? {} : stored;
+			return Promise.resolve(
+				parse === false ? { json: () => Promise.resolve( body ), headers: new Headers() } : body
+			);
+		}
+	);
+}
 
 const VIEWED_BY = 'Allow Jetpack Stats to be viewed by:';
 
@@ -72,8 +87,21 @@ const VIEWED_BY = 'Allow Jetpack Stats to be viewed by:';
  * @return The `userEvent` session.
  */
 function showDrawer( onClose = () => {} ) {
-	render( <SettingsDrawer open onClose={ onClose } /> );
+	render( <SettingsDrawer open onClose={ onClose } />, { wrapper: withRegistry } );
 	return userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+}
+
+let registry: ReturnType< typeof createRegistry >;
+
+/**
+ * Give each test its own core-data store, so no record or edit carries over.
+ *
+ * @param props          - Component props.
+ * @param props.children - The tree to render.
+ * @return The tree inside the test's registry.
+ */
+function withRegistry( { children }: { children: React.ReactNode } ) {
+	return <RegistryProvider value={ registry }>{ children }</RegistryProvider>;
 }
 
 /**
@@ -90,20 +118,34 @@ beforeEach( () => {
 	jest.useFakeTimers();
 	jest.clearAllMocks();
 	mockApiFetch.mockReset();
-	mockApiFetch.mockImplementation( () => Promise.resolve( STORED ) );
+	serveSettings();
+	mockStatsSettingsContext.mockReturnValue( { roles: ROLES, modules_url: null } );
+	registry = createRegistry();
+	registry.register( coreStore );
+	registry.register( noticesStore );
 } );
 
 afterEach( () => {
-	queryClient.clear();
 	resetLocaleData();
 	jest.useRealTimers();
 } );
 
+const ADMIN_BAR = { name: 'Include a small chart in admin bar' };
+
+/**
+ * Whether a write to core's site settings route was sent.
+ *
+ * @return The POST calls to the route.
+ */
+const settingsWrites = () =>
+	mockApiFetch.mock.calls.filter(
+		( [ options ]: [ { path?: string; method?: string } ] ) =>
+			options.method === 'POST' && options.path?.startsWith( '/wp/v2/settings' )
+	);
+
 describe( 'SettingsDrawer', () => {
 	it( 'keeps administrators able to view Stats when the stored roles leave them out', async () => {
-		mockApiFetch.mockImplementation( () =>
-			Promise.resolve( { ...STORED, settings: { ...STORED.settings, roles: [ 'editor' ] } } )
-		);
+		serveSettings( { ...STATS_OPTIONS, roles: [ 'editor' ] } );
 		const user = showDrawer();
 
 		await openRoleSelect( user, VIEWED_BY );
@@ -113,32 +155,25 @@ describe( 'SettingsDrawer', () => {
 		expect( administrator ).toHaveAttribute( 'aria-disabled', 'true' );
 	} );
 
-	it( 'saves nothing until Save, then only the setting that changed', async () => {
+	it( 'saves nothing until Save, then writes the Stats options to the site settings', async () => {
 		const user = showDrawer();
 
 		await openRoleSelect( user, VIEWED_BY );
 		await user.click( await screen.findByRole( 'menuitemcheckbox', { name: 'Editor' } ) );
 
-		expect( mockApiFetch ).not.toHaveBeenCalledWith(
-			expect.objectContaining( { method: 'POST' } )
-		);
+		expect( settingsWrites() ).toHaveLength( 0 );
 
 		await user.keyboard( '{Escape}' );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-		await waitFor( () =>
-			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: '/jetpack-premium-analytics/v1/settings',
-				method: 'POST',
-				data: { roles: [ 'administrator', 'editor' ] },
-			} )
-		);
+		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+		expect( settingsWrites()[ 0 ][ 0 ].data ).toEqual( {
+			stats_options: { ...STATS_OPTIONS, roles: [ 'administrator', 'editor' ] },
+		} );
 	} );
 
 	it( 'keeps Administrator when the last other role is cleared from stored roles that leave it out', async () => {
-		mockApiFetch.mockImplementation( () =>
-			Promise.resolve( { ...STORED, settings: { ...STORED.settings, roles: [ 'editor' ] } } )
-		);
+		serveSettings( { ...STATS_OPTIONS, roles: [ 'editor' ] } );
 		const user = showDrawer();
 
 		await openRoleSelect( user, VIEWED_BY );
@@ -146,32 +181,32 @@ describe( 'SettingsDrawer', () => {
 		await user.keyboard( '{Escape}' );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-		await waitFor( () =>
-			expect( mockApiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( { method: 'POST', data: { roles: [ 'administrator' ] } } )
-			)
-		);
+		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+		expect( settingsWrites()[ 0 ][ 0 ].data.stats_options.roles ).toEqual( [ 'administrator' ] );
 	} );
 
-	it( 'does not send back roles another administrator changed after the drawer opened', async () => {
+	it( 'writes the Reader setting as its own site setting', async () => {
 		const user = showDrawer();
 
 		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
+			await screen.findByRole( 'checkbox', { name: 'Show post views for this site' } )
 		);
-		act( () => {
-			queryClient.setQueryData( [ 'stats', 'settings' ], {
-				...STORED,
-				settings: { ...STORED.settings, roles: [ 'administrator', 'editor' ] },
-			} );
-		} );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
-		await waitFor( () =>
-			expect( mockApiFetch ).toHaveBeenCalledWith(
-				expect.objectContaining( { method: 'POST', data: { admin_bar: false } } )
-			)
-		);
+		await waitFor( () => expect( settingsWrites() ).toHaveLength( 1 ) );
+		expect( settingsWrites()[ 0 ][ 0 ].data ).toEqual( { wpcom_reader_views_enabled: false } );
+	} );
+
+	it( 'reads no site settings while closed', async () => {
+		render( <SettingsDrawer open={ false } onClose={ () => {} } />, { wrapper: withRegistry } );
+		// Resolvers start on a timer.
+		await act( async () => {
+			jest.runOnlyPendingTimers();
+		} );
+
+		expect(
+			registry.select( coreStore ).hasStartedResolution( 'getEntityRecord', [ 'root', 'site' ] )
+		).toBe( false );
 	} );
 
 	it( 'slides in from the left edge in a right-to-left language', async () => {
@@ -182,6 +217,19 @@ describe( 'SettingsDrawer', () => {
 			'data-swipe-direction',
 			'left'
 		);
+	} );
+
+	it( 'says the settings could not be loaded when the site returns none', async () => {
+		serveSettings( null as unknown as Record< string, unknown > );
+		showDrawer();
+
+		const drawer = await screen.findByRole( 'dialog', { name: 'Settings' } );
+
+		await expect(
+			within( drawer ).findByText(
+				'Your Stats settings could not be loaded. Close this panel and try again.'
+			)
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'offers Save only once something changed', async () => {
@@ -197,13 +245,7 @@ describe( 'SettingsDrawer', () => {
 	} );
 
 	it( 'offers no Save when a role is cleared and ticked again in another order', async () => {
-		mockApiFetch.mockImplementation( () =>
-			Promise.resolve( {
-				...STORED,
-				settings: { ...STORED.settings, roles: [ 'administrator', 'editor', 'author' ] },
-				roles: [ ...STORED.roles, { slug: 'author', name: 'Author' } ],
-			} )
-		);
+		serveSettings( { ...STATS_OPTIONS, roles: [ 'administrator', 'editor', 'author' ] } );
 		const user = showDrawer();
 
 		await openRoleSelect( user, VIEWED_BY );
@@ -221,22 +263,20 @@ describe( 'SettingsDrawer', () => {
 		const onClose = jest.fn();
 		const user = showDrawer( onClose );
 
-		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
-		);
+		await user.click( await screen.findByRole( 'checkbox', ADMIN_BAR ) );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await waitFor( () => expect( onClose ).toHaveBeenCalled() );
-		expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
 		expect( mockCreateSuccessNotice ).toHaveBeenCalledWith( 'Settings saved.', {
 			type: 'snackbar',
 		} );
 	} );
 
 	it( 'links to the modules screen the site names', async () => {
-		mockApiFetch.mockImplementation( () =>
-			Promise.resolve( { ...STORED, modules_url: '/wp-admin/admin.php?page=jetpack_modules' } )
-		);
+		mockStatsSettingsContext.mockReturnValue( {
+			roles: ROLES,
+			modules_url: '/wp-admin/admin.php?page=jetpack_modules',
+		} );
 		showDrawer();
 
 		await expect(
@@ -253,31 +293,34 @@ describe( 'SettingsDrawer', () => {
 		expect( screen.queryByRole( 'heading', { name: 'Activation' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'drops unsaved changes when closed and opened again', async () => {
+	it( 'drops unsaved changes when cancelled and opened again', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-		const { rerender } = render( <SettingsDrawer open onClose={ () => {} } /> );
-		const toggleName = { name: 'Include a small chart in admin bar' };
+		let open = true;
+		const close = () => {
+			open = false;
+		};
+		const { rerender } = render( <SettingsDrawer open onClose={ close } />, {
+			wrapper: withRegistry,
+		} );
 
-		await user.click( await screen.findByRole( 'checkbox', toggleName ) );
-		expect( screen.getByRole( 'checkbox', toggleName ) ).not.toBeChecked();
+		await user.click( await screen.findByRole( 'checkbox', ADMIN_BAR ) );
+		expect( screen.getByRole( 'checkbox', ADMIN_BAR ) ).not.toBeChecked();
 
-		rerender( <SettingsDrawer open={ false } onClose={ () => {} } /> );
+		await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( open ).toBe( false );
+		rerender( <SettingsDrawer open={ false } onClose={ close } /> );
 		await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
-		rerender( <SettingsDrawer open onClose={ () => {} } /> );
+		rerender( <SettingsDrawer open onClose={ close } /> );
 
-		await expect( screen.findByRole( 'checkbox', toggleName ) ).resolves.toBeChecked();
+		await expect( screen.findByRole( 'checkbox', ADMIN_BAR ) ).resolves.toBeChecked();
 	} );
 
 	it( 'stays open while a save is running', async () => {
-		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
-			method === 'POST' ? new Promise( () => {} ) : Promise.resolve( STORED )
-		);
+		serveSettings( STATS_OPTIONS, () => new Promise( () => {} ) );
 		const onClose = jest.fn();
 		const user = showDrawer( onClose );
 
-		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
-		);
+		await user.click( await screen.findByRole( 'checkbox', ADMIN_BAR ) );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 		await expect( screen.findByRole( 'button', { name: 'Saving…' } ) ).resolves.toBeInTheDocument();
 		await user.keyboard( '{Escape}' );
@@ -286,38 +329,33 @@ describe( 'SettingsDrawer', () => {
 	} );
 
 	it( 'stays open and says why when the site refuses the change', async () => {
-		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
-			method === 'POST'
-				? Promise.reject( { code: 'jetpack_stats_invalid_role', message: 'Unknown role.' } )
-				: Promise.resolve( STORED )
+		serveSettings( STATS_OPTIONS, () =>
+			Promise.reject( {
+				code: 'rest_invalid_param',
+				message: 'Invalid parameter(s): stats_options',
+			} )
 		);
 		const onClose = jest.fn();
 		const user = showDrawer( onClose );
 
-		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
-		);
+		await user.click( await screen.findByRole( 'checkbox', ADMIN_BAR ) );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await expect(
 			within( screen.getByRole( 'dialog', { name: 'Settings' } ) ).findByText(
-				'Your Stats settings could not be saved: Unknown role.'
+				'Your Stats settings could not be saved: Invalid parameter(s): stats_options'
 			)
 		).resolves.toBeInTheDocument();
 		expect( onClose ).not.toHaveBeenCalled();
 	} );
 
 	it( 'keeps a network error out of the message, which is not a reason the site gave', async () => {
-		mockApiFetch.mockImplementation( ( { method }: { method?: string } ) =>
-			method === 'POST'
-				? Promise.reject( new TypeError( 'Failed to fetch' ) )
-				: Promise.resolve( STORED )
+		serveSettings( STATS_OPTIONS, () =>
+			Promise.reject( { code: 'fetch_error', message: 'You are probably offline.' } )
 		);
 		const user = showDrawer();
 
-		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
-		);
+		await user.click( await screen.findByRole( 'checkbox', ADMIN_BAR ) );
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
 		await expect(
