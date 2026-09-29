@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [4.8.0-beta] - 2026-09-28
+## [4.8.0-beta2] - 2026-09-29
 ### Security
 - Critical CSS: Only enter generation mode while a front-end page renders, so a link carrying the generation parameter can no longer force an admin, REST or login-page request to render as a logged-out visitor. [#52462]
 
@@ -31,7 +31,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - My Jetpack: Show a Features tab in place of the Products tab. [#52785]
 - My Jetpack: Show the dashboard in the new rounded admin page frame. [#52446]
 - My Jetpack: Show the Jetpack menu notification badge when a connection error is detected. [#52332]
+- Overview: Open the points explanation when hovering the points badge. [#52946]
+- Overview: Show empty days in the score history in the same details popover as recorded days. [#52945]
+- Refer to Cornerstone Pages consistently, matching the support documentation. [#52920]
 - Restyle error notices to match the WordPress design system. [#52286]
+- Settings: Add a Clear cache button to Page Cache and show logging as a toggle with a link to the logs. [#52642]
 - Settings: Group Image CDN controls and LCP optimization status in inset panels on the modern dashboard, and label the auto-resize toggle. [#52566]
 - Settings: Keep focus on tooltip triggers when their tooltips open, announce the content to screen readers, and show a focus ring after clicking an info icon. [#52736]
 - Settings: Organize modern settings into collapsible sections with descriptions and icons. [#52562]
@@ -51,6 +55,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else. [#52130]
 - Critical CSS: Avoid duplicate status requests for CSS and LCP generation in the modern dashboard. [#52531]
 - Critical CSS: Hide only the group of blocked pages you dismiss, instead of both. [#52644]
+- Critical CSS: Match the recommendations page text size and colour to the modern dashboard. [#52935]
 - Critical CSS: Show a focus ring around the manual regeneration info icon when it is reached with the keyboard. [#52706]
 - Critical CSS: Stop generation from logging administrators out on sites whose login gate redirects without using WordPress. [#52731]
 - Critical CSS: Stop local generation at login-protected pages to keep administrators logged in, and prevent automatic restarts after a failed run throughout the dashboard page session. [#52462]
@@ -79,23 +84,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Overview: Let Tab move straight into and out of the score history while the pointer shows a day's details. [#52803]
 - Overview: Let the pointer reach every day in the score history while a day's details are open, and leave a gap between the day and its details. [#52626]
 - Overview: Let the pointer take over from the arrow keys in the score history, instead of flickering between the hovered and selected days. [#52821]
+- Overview: Match the score help popovers, score history day details and paging tooltips to the design. [#52943]
 - Overview: Show a day's score details on hover again after paging the score history with the keyboard. [#52830]
 - Overview: Show a focus ring on the score history day selected with the arrow keys. [#52802]
 - Overview: Show an upgrade link when the score history upgrade prompt cannot load. [#52620]
 - Overview: Show the first recorded day of performance history immediately after upgrading. [#52613]
+- Overview: Show the score history's Previous and Next arrows in dark grey instead of blue, to match the rest of the page. [#52640]
 - Overview: Stop the score history from swallowing keys it does not use, such as Page Down, and close a day’s details when the series it describes is hidden. [#50140]
 - Page Cache: Show the module as running, without contradictory setup errors, on WP Cloud hosts such as Pressable that already cache pages. [#52348]
 - Performance history: Load the Overview faster on sites with little or no score history. [#52449]
 - Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers. [#52444]
 - Performance scores: Cancel pending background score requests while viewing a sub-page. [#52531]
+- Settings: Add space between a module's description and its status notice in the modern dashboard. [#52926]
 - Settings: Avoid duplicate navigation when returning from a sub-page. [#52531]
 - Settings: Close the Page Cache example and Cornerstone Pages warning tooltips with Escape, and the warning with a click elsewhere. [#52705]
 - Settings: Give information icons an accessible name for screen readers. [#52800]
 - Settings: Hide upgrade and license links when their My Jetpack screens are unavailable. [#52529]
 - Settings: Let keyboard users open tooltips with Enter or Space and dismiss them with Escape. [#52661]
+- Settings: Match notice text to the rest of the page. [#52942]
+- Settings: Match the Customize pages list label, image quality toggle, and Critical CSS status to the design. [#52952]
+- Settings: Match the Save buttons in the exceptions panels and Cornerstone Pages editor to the rest of the page. [#52645]
 - Settings: Nest the settings section headings under the page heading for screen readers. [#52629]
 - Settings: Show text links in the brand colour and enlarge the Critical CSS info icon in the modern dashboard. [#52643]
+- Settings: Show the automatic Critical CSS status in the modern style. [#52927]
+- Settings: Show the Image CDN quality, Page Cache options and Clear Cache controls as buttons rather than links, and announce whether the options panels are expanded. [#52939]
 - Settings: Show tooltips in full on the modernized Settings page instead of cutting them off at the card edge. [#52465]
+- Settings: Tighten the Cornerstone Pages list editor and match its text size and color to the rest of the page. [#52649]
+- Settings: Use the same text size and color for the exceptions panels and Image CDN help text as the rest of the page. [#52938]
 
 ## [4.7.1] - 2026-09-16
 ### Added
@@ -1137,7 +1152,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
-[4.8.0-beta]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.1...4.8.0-beta
+[4.8.0-beta2]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.1...4.8.0-beta2
 [4.7.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.0...4.7.1
 [4.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0
 [4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3
