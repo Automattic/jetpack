@@ -1265,6 +1265,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 			wpcom_marketplace_render_card( $card );
 			$html = ob_get_clean();
 
+			$this->assertStringContainsString( 'data-installed="true"', $html );
 			$this->assertStringNotContainsString( 'wpcom-marketplace-card__price', $html );
 			$this->assertStringNotContainsString( 'Start for free', $html );
 			$this->assertStringNotContainsString( 'Purchase', $html );
@@ -1284,6 +1285,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'data-plugin="gravityforms"', $priced );
 		$this->assertStringContainsString( 'data-saas="false"', $priced );
+		$this->assertStringContainsString( 'data-installed="false"', $priced );
 		$this->assertSame( 2, substr_count( $priced, 'data-wpcom-marketplace-track="details"' ) );
 		$this->assertStringContainsString( 'data-wpcom-marketplace-track="purchase"', $priced );
 

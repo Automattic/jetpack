@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Settings: Keep the Copy button on the left and show the start of URLs in copy fields for right-to-left languages.

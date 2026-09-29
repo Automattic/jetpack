@@ -143,7 +143,7 @@ add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\resolve_former_w
  * one type registered. Before that, or on a checkout without a build, the default stays as
  * declared rather than emptying itself.
  *
- * @since $$next-version$$
+ * @since 0.9.0
  *
  * @param array $layout Default widget instances.
  * @return array The layout minus the instances of unregistered types.

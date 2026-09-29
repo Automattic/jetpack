@@ -882,14 +882,14 @@ class Admin_UI {
 	/**
 	 * Whether the trim and cut editor and its REST endpoints are available.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.53.0
 	 * @return bool
 	 */
 	public static function is_trim_cut_enabled() {
 		/**
 		 * Enable trim and cut after the video editing service is available for this site.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.53.0
 		 * @param bool $enabled Whether trim and cut is enabled. Default false.
 		 */
 		return (bool) apply_filters( 'jetpack_videopress_trim_cut', false );

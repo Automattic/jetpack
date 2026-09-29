@@ -12,6 +12,7 @@ import getSupportLink from '$lib/utils/get-support-link';
 import { isSameSiteUrl } from '$lib/utils/is-same-site-url';
 import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { Tooltip } from '@wordpress/components';
+import clsx from 'clsx';
 import { createInterpolateElement } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { Notice, Link } from '@wordpress/ui';
@@ -59,7 +60,8 @@ const CornerstonePagesContent = () => {
 	const [ { refetch: refetchRegenerationReason } ] = useRegenerationReason();
 	const [ lcpState ] = useLcpState( { enabled: false } );
 	const { setNotice } = useNotices();
-	const listInputRows = isPremium ? 10 : 5;
+	const isModern = useModuleSurface() === 'row';
+	const listInputRows = isPremium && ! isModern ? 10 : 5;
 	const [ { data: modulesState } ] = useModulesState();
 
 	const updateCornerstonePages = ( newValue: string ) => {
@@ -75,7 +77,7 @@ const CornerstonePagesContent = () => {
 			setNotice( {
 				id: 'cornerstone-pages-save',
 				type: 'success',
-				message: __( 'Cornerstone pages saved', 'jetpack-boost' ),
+				message: __( 'Cornerstone Pages saved', 'jetpack-boost' ),
 			} );
 
 			if ( isCriticalCssEnabled( modulesState ) ) {
@@ -155,9 +157,10 @@ export const CornerstonePagesDescription = () => {
 
 export const CornerstonePagesEditor = () => {
 	const cornerstonePagesProperties = useCornerstonePagesProperties();
+	const isModern = useModuleSurface() === 'row';
 
 	return (
-		<div className={ styles.body }>
+		<div className={ clsx( styles.body, isModern && styles[ 'is-modern' ] ) }>
 			{ cornerstonePagesProperties ? <CornerstonePagesContent /> : <MetaError /> }
 		</div>
 	);
@@ -200,12 +203,12 @@ export const CornerstonePagesUpgradeCTA = () => {
 					isModern
 						? sprintf(
 								/* translators: %d is the number of cornerstone pages. */
-								__( 'Add up to %d cornerstone pages.', 'jetpack-boost' ),
+								__( 'Add up to %d Cornerstone Pages.', 'jetpack-boost' ),
 								cornerstonePagesProperties.max_pages_premium
 							)
 						: sprintf(
 								/* translators: %d is the number of cornerstone pages. */
-								__( 'Premium users can add up to %d cornerstone pages.', 'jetpack-boost' ),
+								__( 'Premium users can add up to %d Cornerstone Pages.', 'jetpack-boost' ),
 								cornerstonePagesProperties.max_pages_premium
 							)
 				}
@@ -377,7 +380,7 @@ const LoadDefaultsButton: FC< LoadDefaultsButtonProps > = ( {
 				<Button
 					disabled={ buttonState.disabled }
 					onClick={ loadDefaultValue }
-					className={ className }
+					className={ clsx( styles[ 'load-defaults' ], className ) }
 					variant="link"
 				>
 					{ __( 'Include default pages', 'jetpack-boost' ) }
@@ -438,8 +441,8 @@ const List: FC< ListProps > = ( {
 			const message = sprintf(
 				/* translators: %d is the maximum number of cornerstone page URLs. */
 				_n(
-					'You can add only %d cornerstone page URL.',
-					'You can add up to %d cornerstone page URLs.',
+					'You can add only %d Cornerstone Page URL.',
+					'You can add up to %d Cornerstone Page URLs.',
 					maxItems,
 					'jetpack-boost'
 				),

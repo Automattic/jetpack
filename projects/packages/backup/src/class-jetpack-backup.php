@@ -156,21 +156,57 @@ class Jetpack_Backup {
 	private static $wp_build_original_screen_id = null;
 
 	/**
-	 * Constructor.
+	 * Initialization options.
+	 *
+	 * @var array
 	 */
-	public static function initialize() {
+	const DEFAULT_INIT_OPTIONS = array(
+		// A host that already ensured a connection under its own slug must not have it
+		// re-ensured here as `jetpack-backup`, which would rename the site's connection.
+		'manage_connection' => true,
+	);
+
+	/**
+	 * Constructor.
+	 *
+	 * @param array $options Overrides for self::DEFAULT_INIT_OPTIONS.
+	 */
+	public static function initialize( array $options = array() ) {
 		if ( did_action( 'jetpack_backup_initialized' ) ) {
 			return;
 		}
 
-		// Set up the REST authentication hooks.
-		Connection_Rest_Authentication::init();
+		$options = array_merge( self::DEFAULT_INIT_OPTIONS, $options );
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
+
+		if ( $options['manage_connection'] ) {
+			self::init_standalone_connection();
+		}
+
+		// Jetpack Backup abilities are registered from `actions.php` at package
+		// autoload time so the surface is available in every consumer that
+		// loads this package (both the standalone Backup plugin and the
+		// Jetpack plugin), not only when `Jetpack_Backup::initialize()` runs.
+
+		/**
+		 * Runs right after the Jetpack Backup package is initialized.
+		 *
+		 * @since 1.3.0
+		 */
+		do_action( 'jetpack_backup_initialized' );
+	}
+
+	/**
+	 * Set up the connection, sync and identity-crisis packages under the standalone plugin's slug.
+	 */
+	private static function init_standalone_connection() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
 
 		// Init Jetpack packages.
 		add_action(
@@ -198,18 +234,6 @@ class Jetpack_Backup {
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
 
 		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
-
-		// Jetpack Backup abilities are registered from `actions.php` at package
-		// autoload time so the surface is available in every consumer that
-		// loads this package (both the standalone Backup plugin and the
-		// Jetpack plugin), not only when `Jetpack_Backup::initialize()` runs.
-
-		/**
-		 * Runs right after the Jetpack Backup package is initialized.
-		 *
-		 * @since 1.3.0
-		 */
-		do_action( 'jetpack_backup_initialized' );
 	}
 
 	/**

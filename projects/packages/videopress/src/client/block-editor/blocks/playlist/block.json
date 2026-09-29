@@ -48,6 +48,15 @@
 			"type": "boolean",
 			"default": false
 		},
+		"showPlayer": {
+			"type": "boolean",
+			"default": true
+		},
+		"entryClickAction": {
+			"type": "string",
+			"enum": [ "new-tab", "show-player" ],
+			"default": "new-tab"
+		},
 		"autoplayNext": {
 			"type": "boolean",
 			"default": false
