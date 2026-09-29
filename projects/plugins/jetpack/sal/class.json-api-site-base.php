@@ -1683,6 +1683,15 @@ abstract class SAL_Site {
 	}
 
 	/**
+	 * Whether the site gets no setup guidance: no My Home, Site Setup, or launchpad.
+	 *
+	 * @return bool
+	 */
+	public function is_launchpad_no_guidance() {
+		return (bool) get_option( 'wpcom_launchpad_no_guidance' );
+	}
+
+	/**
 	 * Get site option for migration source site domain
 	 *
 	 * @return string

@@ -191,6 +191,7 @@ class Defaults {
 		'wpcom_ai_launchpad_completed',
 		'wpcom_ai_launchpad_dismissed',
 		'wpcom_ai_launchpad_enabled',
+		'wpcom_launchpad_no_guidance',
 		'wpcom_ai_site_prompt',
 		'wpcom_classic_early_release',
 		'wpcom_newsletter_send_default',

@@ -250,6 +250,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_ai_launchpad_enabled',
 		'wpcom_ai_launchpad_dismissed',
 		'wpcom_ai_launchpad_completed',
+		'wpcom_launchpad_no_guidance',
 	);
 
 	/**
@@ -1042,6 +1043,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'wpcom_ai_launchpad_completed':
 					$options[ $key ] = $site->is_ai_launchpad_completed();
+					break;
+				case 'wpcom_launchpad_no_guidance':
+					$options[ $key ] = $site->is_launchpad_no_guidance();
 					break;
 			}
 		}
