@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.14.2] - 2026-09-29
 ### Changed
-- Prefer Core's wp-theme stylesheet for WPDS design tokens when it is registered. [#52183]
+- Prefer default WordPress `wp-theme` stylesheet for WPDS design tokens when it is registered. [#52183]
 
 ## [0.14.1] - 2026-09-28
 ### Changed
