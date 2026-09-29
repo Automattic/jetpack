@@ -17,7 +17,7 @@ use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
@@ -81,7 +81,7 @@ class AI_Launchpad {
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
 	 * Gate: enabled for the site (see is_enabled_for_site()) and not dismissed (skipping the
-	 * wizard dismisses it, reverting the site to the regular launchpad).
+	 * wizard dismisses it, leaving the site with no setup guidance).
 	 *
 	 * @return bool
 	 */
@@ -97,20 +97,14 @@ class AI_Launchpad {
 	}
 
 	/**
-	 * Whether the AI Launchpad has been explicitly enabled for this site.
+	 * Whether the AI Launchpad has been enabled for this site.
 	 *
-	 * Set per-site with `wp option update wpcom_ai_launchpad_enabled 1`.
+	 * Set at site creation for new onboarding sites, by the ?enable-ai-launchpad=1 dev handler, or manually.
 	 *
 	 * @return bool
 	 */
 	private static function is_enabled_for_site() {
-		// Explicit per-site switch: set at site creation for the ai_launchpad onboarding
-		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually.
-		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
-			return true;
-		}
-
-		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation();
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && ! wpcom_launchpad_is_no_guidance();
 	}
 
 	/**

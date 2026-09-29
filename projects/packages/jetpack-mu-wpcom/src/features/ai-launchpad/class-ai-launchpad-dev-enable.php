@@ -5,7 +5,7 @@
  * Lets a tester turn the AI Launchpad on (and reset its state) for a site straight from the browser.
  *
  * Recognized query args (on any admin page, for a `manage_options` user):
- *   ?enable-ai-launchpad=1  Set wpcom_ai_launchpad_enabled to 1.
+ *   ?enable-ai-launchpad=1  Set wpcom_ai_launchpad_enabled to 1 (and clear wpcom_launchpad_no_guidance).
  *   ?enable-ai-launchpad=0  Delete wpcom_ai_launchpad_enabled (turn back off).
  *   ?reset-ai-launchpad=1   Clear the wizard / AI-output / dismissed / skipped / task-status options so the wizard runs fresh.
  *
@@ -13,9 +13,8 @@
  * `user_can_access_admin_page()` dies before `admin_init`; `admin_menu` fires before that check, so the page's own
  * URL can self-enable instead of dying first.
  *
- * Gate: `current_user_can( 'manage_options' )` only — no nonce, so the URL stays bookmarkable. This ships to
- * production, where it lets any paid-site admin self-enable the (otherwise OFF) feature on their own site; tighten
- * the gate before the controlled rollout if the feature must stay invisible to customers.
+ * Gate: current_user_can( 'manage_options' ) only, no nonce, so the URL stays bookmarkable; it also lets an admin
+ * leave the no-guidance experience.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -112,6 +111,8 @@ class AI_Launchpad_Dev_Enable {
 				$disabling = true;
 			} else {
 				update_option( self::OPTION_ENABLED, 1 );
+				// No-guidance would otherwise win over the flag just set.
+				delete_option( 'wpcom_launchpad_no_guidance' );
 			}
 		}
 
