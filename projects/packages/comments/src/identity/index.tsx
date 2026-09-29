@@ -1,5 +1,6 @@
 import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
+import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
 
@@ -84,8 +85,15 @@ export const Identity = () => {
  * @return The options, or nothing for a commenter the dialog will ask.
  */
 export const Options = () => {
-	const { formSettings, details, commenter, isOptionsOpen, isDialogOpen, isEditingDetails } =
-		useContext( CommentSignals );
+	const {
+		formSettings,
+		details,
+		commenter,
+		rememberDetails,
+		isOptionsOpen,
+		isDialogOpen,
+		isEditingDetails,
+	} = useContext( CommentSignals );
 	const { strings } = JetpackComments;
 	const { kind } = commenter.value;
 
@@ -124,7 +132,11 @@ export const Options = () => {
 						href="#"
 						onClick={ async event => {
 							event.preventDefault();
+							// A blank slate: nothing of this reader stays behind.
 							await logOut();
+							saveGuest( null );
+							details.value = { author: '', email: '', url: '' };
+							rememberDetails.value = false;
 							commenter.value = { kind: 'unknown' };
 							isOptionsOpen.value = false;
 						} }

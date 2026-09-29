@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
+import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
 import { emailHasAccount, signIn } from './checkpoint/checkpoint';
 import './dialog.scss';
@@ -144,6 +145,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			return;
 		}
 
+		// One identity at a time: a saved guest is forgotten when they log in.
+		saveGuest( null );
+		details.value = { author: '', email: '', url: '' };
+		rememberDetails.value = false;
 		commenter.value = {
 			kind: 'wordpress',
 			name: result.name,
@@ -203,19 +208,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 				return;
 			}
 
-			// The cookies core writes with consent, or clears without it, as it would on a comment.
-			const { cookieHash, cookiePath, cookieDomain } = identity;
-			const expires = new Date(
-				rememberDetails.peek() ? Date.now() + 365 * 24 * 60 * 60 * 1000 : 0
-			).toUTCString();
-			const suffix = `; expires=${ expires }; path=${ cookiePath || '/' }${
-				cookieDomain ? `; domain=${ cookieDomain }` : ''
-			}; SameSite=Lax${ window.location.protocol === 'https:' ? '; Secure' : '' }`;
-			const { author, email, url } = details.value;
-
-			document.cookie = `comment_author_${ cookieHash }=${ encodeURIComponent( author ) }${ suffix }`;
-			document.cookie = `comment_author_email_${ cookieHash }=${ encodeURIComponent( email ) }${ suffix }`;
-			document.cookie = `comment_author_url_${ cookieHash }=${ encodeURIComponent( url ) }${ suffix }`;
+			// Saved with consent, or cleared without it, as core does after a comment.
+			saveGuest( rememberDetails.peek() ? details.value : null );
 
 			isDialogOpen.value = false;
 			commenter.value =
