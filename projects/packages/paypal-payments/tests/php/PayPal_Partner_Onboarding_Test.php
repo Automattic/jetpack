@@ -335,37 +335,23 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the referral asks for a third-party grant, with the expected products and features.
-	 *
-	 * A THIRD_PARTY referral leaves the seller's credentials with PayPal; the site
-	 * never receives any, so there is no seller nonce to send either.
+	 * Test that the site sends only where PayPal returns the seller; WordPress.com builds the referral.
 	 */
-	public function test_generate_signup_link_sends_a_third_party_referral() {
+	public function test_generate_signup_link_sends_only_the_return_url() {
 		$this->set_up_connected_site();
 		$requests = array();
 		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
 
 		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
 
-		$body        = (array) json_decode( end( $requests )['args']['body'], true );
-		$integration = $body['referral']['operations'][0]['api_integration_preference']['rest_api_integration'];
+		$body = (array) json_decode( end( $requests )['args']['body'], true );
 
-		$this->assertSame( 'sandbox', $body['environment'] );
-		$this->assertSame( 'THIRD_PARTY', $integration['integration_type'] );
-		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_FEATURES, $integration['third_party_details']['features'] );
-		$this->assertArrayNotHasKey( 'first_party_details', $integration );
-		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS, $body['referral']['products'] );
-		$this->assertSame( 'https://example.com/return', $body['referral']['partner_config_override']['return_url'] );
-		$this->assertTrue( $body['referral']['legal_consents'][0]['granted'] );
-
-		// WordPress.com issues the tracking ID, so the site sends none.
-		$this->assertArrayNotHasKey( 'tracking_id', $body['referral'] );
-
-		// PayPal caps return_url at 127 characters and rejects longer ones.
-		$this->assertLessThanOrEqual( 127, strlen( $body['referral']['partner_config_override']['return_url'] ) );
-		$this->assertLessThanOrEqual(
-			127,
-			strlen( $body['referral']['partner_config_override']['return_url_description'] )
+		$this->assertSame(
+			array(
+				'environment' => 'sandbox',
+				'return_url'  => 'https://example.com/return',
+			),
+			$body
 		);
 	}
 
@@ -918,23 +904,5 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		PayPal_Partner_Onboarding::cleanup();
 
 		$this->assertEquals( 'PLATFORM_CLIENT_ID', PayPal_Partner_Onboarding::get_partner_client_id() );
-	}
-
-	/**
-	 * Test onboarding products constant.
-	 */
-	public function test_onboarding_products() {
-		$this->assertContains( 'EXPRESS_CHECKOUT', PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS );
-	}
-
-	/**
-	 * Test onboarding features constant.
-	 */
-	public function test_onboarding_features() {
-		$features = PayPal_Partner_Onboarding::ONBOARDING_FEATURES;
-		$this->assertContains( 'PAYMENT', $features );
-		$this->assertContains( 'REFUND', $features );
-		$this->assertContains( 'ACCESS_MERCHANT_INFORMATION', $features );
-		$this->assertContains( 'PAYMENT_LINKS_AND_BUTTONS', $features );
 	}
 }

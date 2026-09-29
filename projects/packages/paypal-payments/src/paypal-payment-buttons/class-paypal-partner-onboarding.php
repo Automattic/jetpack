@@ -85,25 +85,6 @@ class PayPal_Partner_Onboarding {
 	const ONBOARDING_METHOD = 'partner_referrals';
 
 	/**
-	 * Products to request during onboarding.
-	 *
-	 * @var array
-	 */
-	const ONBOARDING_PRODUCTS = array( 'EXPRESS_CHECKOUT' );
-
-	/**
-	 * Permissions the seller grants the platform during onboarding.
-	 *
-	 * PAYMENT_LINKS_AND_BUTTONS is the one that covers /v1/checkout/payment-resources,
-	 * the endpoint every button here is created through. Neither EXPRESS_CHECKOUT
-	 * nor PPCP includes it, and PayPal does not document the valid feature
-	 * values, so it has to be requested by name.
-	 *
-	 * @var array
-	 */
-	const ONBOARDING_FEATURES = array( 'PAYMENT', 'REFUND', 'ACCESS_MERCHANT_INFORMATION', 'PAYMENT_LINKS_AND_BUTTONS' );
-
-	/**
 	 * Get the onboarded merchant's PayPal merchant ID.
 	 *
 	 * @return string The merchant ID, or empty string if not onboarded.
@@ -147,10 +128,10 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Generate a Partner Referrals signup link for the merchant.
 	 *
-	 * The referral itself is created by WordPress.com, which holds Automattic's
-	 * PayPal platform credentials; this method builds the referral body, proxies it
-	 * through wpcom/v2/paypal/platform/signup-link using the site's blog token,
-	 * and returns the action_url for the PayPal mini-browser lightbox.
+	 * The referral itself is built and created by WordPress.com, which holds
+	 * Automattic's PayPal platform credentials; this method asks for it through
+	 * wpcom/v2/paypal/platform/signup-link using the site's blog token, and
+	 * returns the action_url for the PayPal mini-browser lightbox.
 	 *
 	 * Prerequisite: the site must be connected to WordPress.com.
 	 *
@@ -172,35 +153,6 @@ class PayPal_Partner_Onboarding {
 		// it has to be the stored one.
 		PayPal_OAuth::set_environment( $environment );
 
-		$request_body = array(
-			'partner_config_override' => array(
-				'return_url'             => $return_url,
-				'return_url_description' => __( 'Return to your WordPress site to complete setup.', 'jetpack-paypal-payments' ),
-				'show_add_credit_card'   => true,
-			),
-			'operations'              => array(
-				array(
-					'operation'                  => 'API_INTEGRATION',
-					'api_integration_preference' => array(
-						'rest_api_integration' => array(
-							'integration_method'  => 'PAYPAL',
-							'integration_type'    => 'THIRD_PARTY',
-							'third_party_details' => array(
-								'features' => self::ONBOARDING_FEATURES,
-							),
-						),
-					),
-				),
-			),
-			'products'                => self::ONBOARDING_PRODUCTS,
-			'legal_consents'          => array(
-				array(
-					'type'    => 'SHARE_DATA_CONSENT',
-					'granted' => true,
-				),
-			),
-		);
-
 		// Automattic's PayPal platform credentials live on WordPress.com, so the
 		// referral is created there and only the resulting URL comes back here.
 		$response = Client::wpcom_json_api_request_as_blog(
@@ -217,7 +169,7 @@ class PayPal_Partner_Onboarding {
 			wp_json_encode(
 				array(
 					'environment' => $environment,
-					'referral'    => $request_body,
+					'return_url'  => $return_url,
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),

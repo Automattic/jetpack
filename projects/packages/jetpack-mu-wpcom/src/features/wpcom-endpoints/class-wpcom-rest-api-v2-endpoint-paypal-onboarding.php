@@ -74,6 +74,25 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	const PAYPAL_PAYMENT_RESOURCES_ENDPOINT = '/v1/checkout/payment-resources';
 
 	/**
+	 * Products to request during onboarding.
+	 *
+	 * @var array
+	 */
+	const ONBOARDING_PRODUCTS = array( 'EXPRESS_CHECKOUT' );
+
+	/**
+	 * Permissions the seller grants the platform during onboarding.
+	 *
+	 * PAYMENT_LINKS_AND_BUTTONS is the one that covers /v1/checkout/payment-resources,
+	 * the endpoint every button is created through. Neither EXPRESS_CHECKOUT
+	 * nor PPCP includes it, and PayPal does not document the valid feature
+	 * values, so it has to be requested by name.
+	 *
+	 * @var array
+	 */
+	const ONBOARDING_FEATURES = array( 'PAYMENT', 'REFUND', 'ACCESS_MERCHANT_INFORMATION', 'PAYMENT_LINKS_AND_BUTTONS' );
+
+	/**
 	 * Prefix of every tracking ID this endpoint issues; the blog ID follows it.
 	 *
 	 * @var string
@@ -189,10 +208,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
 						'environment' => $environment_arg,
-						'referral'    => array(
-							'required'    => true,
-							'type'        => 'object',
-							'description' => 'Partner Referrals request body to forward to PayPal.',
+						'return_url'  => array(
+							'required'          => true,
+							'type'              => 'string',
+							'validate_callback' => array( $this, 'validate_return_url' ),
+							'sanitize_callback' => 'esc_url_raw',
+							'description'       => 'The site page PayPal sends the seller back to.',
 						),
 					),
 				),
@@ -314,6 +335,29 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	}
 
 	/**
+	 * Only a web page may be the return URL, and only over HTTPS in production.
+	 *
+	 * @param mixed           $value   The return_url parameter.
+	 * @param WP_REST_Request $request The REST request.
+	 * @return bool
+	 */
+	public function validate_return_url( $value, $request ) {
+		if ( ! is_string( $value ) ) {
+			return false;
+		}
+
+		$scheme = wp_parse_url( $value, PHP_URL_SCHEME );
+		$host   = wp_parse_url( $value, PHP_URL_HOST );
+		if ( ! is_string( $host ) || '' === $host ) {
+			return false;
+		}
+
+		return 'production' === $request->get_param( 'environment' )
+			? 'https' === $scheme
+			: in_array( $scheme, array( 'http', 'https' ), true );
+	}
+
+	/**
 	 * Only the Payment Links & Buttons API may be called on a seller's behalf.
 	 *
 	 * @param mixed $value The path parameter.
@@ -328,31 +372,29 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 * Generate a PayPal Partner Referrals signup link.
 	 *
 	 * Authenticates with PayPal using Automattic's platform credentials,
-	 * creates a partner referral, and returns the action_url.
+	 * creates a partner referral, and returns the action_url. The referral is
+	 * built here, so a site chooses only where PayPal sends the seller back.
 	 *
 	 * @param WP_REST_Request $request The REST request.
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function generate_signup_link( WP_REST_Request $request ) {
 		$environment = $request->get_param( 'environment' );
-		$referral    = $request->get_param( 'referral' );
 
 		$credentials = $this->get_platform_credentials( $environment );
 		if ( is_wp_error( $credentials ) ) {
 			return $credentials;
 		}
 
-		// The tracking ID is what later ties the seller back to this blog, so it
-		// is issued here rather than taken from the request.
-		$tracking_id             = self::TRACKING_ID_PREFIX . $this->site_id() . '-' . time();
-		$referral['tracking_id'] = $tracking_id;
+		// The tracking ID is what later ties the seller back to this blog.
+		$tracking_id = self::TRACKING_ID_PREFIX . $this->site_id() . '-' . time();
 
 		$response = $this->paypal_request(
 			$environment,
 			$credentials,
 			'POST',
 			self::PAYPAL_REFERRALS_ENDPOINT,
-			$referral
+			self::build_referral( $tracking_id, (string) $request->get_param( 'return_url' ) )
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -410,6 +452,45 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 				// Public: the site puts it in the JS SDK URL, next to the seller's merchant ID.
 				'partner_client_id' => $credentials['client_id'],
 			)
+		);
+	}
+
+	/**
+	 * The Partner Referrals body for a THIRD_PARTY seller.
+	 *
+	 * @param string $tracking_id The tracking ID issued for the calling blog.
+	 * @param string $return_url  Where PayPal sends the seller back.
+	 * @return array
+	 */
+	public static function build_referral( $tracking_id, $return_url ) {
+		return array(
+			'tracking_id'             => $tracking_id,
+			'partner_config_override' => array(
+				'return_url'             => $return_url,
+				'return_url_description' => __( 'Return to your WordPress site to complete setup.', 'jetpack-mu-wpcom' ),
+				'show_add_credit_card'   => true,
+			),
+			'operations'              => array(
+				array(
+					'operation'                  => 'API_INTEGRATION',
+					'api_integration_preference' => array(
+						'rest_api_integration' => array(
+							'integration_method'  => 'PAYPAL',
+							'integration_type'    => 'THIRD_PARTY',
+							'third_party_details' => array(
+								'features' => self::ONBOARDING_FEATURES,
+							),
+						),
+					),
+				),
+			),
+			'products'                => self::ONBOARDING_PRODUCTS,
+			'legal_consents'          => array(
+				array(
+					'type'    => 'SHARE_DATA_CONSENT',
+					'granted' => true,
+				),
+			),
 		);
 	}
 

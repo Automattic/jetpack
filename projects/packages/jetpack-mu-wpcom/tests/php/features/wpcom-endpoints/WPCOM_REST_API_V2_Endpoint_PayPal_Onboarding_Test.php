@@ -90,12 +90,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	private function signup_link_request( $environment = 'sandbox' ) {
 		$request = new WP_REST_Request( 'POST', '/wpcom/v2/paypal/platform/signup-link' );
 		$request->set_param( 'environment', $environment );
-		$request->set_param(
-			'referral',
-			array(
-				'products' => array( 'EXPRESS_CHECKOUT' ),
-			)
-		);
+		$request->set_param( 'return_url', 'https://example.com/wp-admin/admin.php?page=paypal-return' );
 
 		return $request;
 	}
@@ -535,10 +530,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			$requests
 		);
 
-		$request = $this->signup_link_request( 'sandbox' );
-		$request->set_param( 'referral', array( 'tracking_id' => 'chosen-by-the-site' ) );
-
-		$result = $this->endpoint->generate_signup_link( $request );
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
 
 		$tracking_id = $result->get_data()['tracking_id'];
 		$this->assertStringStartsWith( 'woo-ncps-1234-', $tracking_id );
@@ -1031,9 +1023,9 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
-	 * Test that the referral body from the plugin is forwarded to PayPal unchanged.
+	 * Test that the referral is built here for a THIRD_PARTY seller, with only the return URL from the site.
 	 */
-	public function test_referral_body_is_forwarded_to_paypal() {
+	public function test_referral_is_built_for_a_third_party_seller() {
 		$this->store_platform_credentials();
 		$requests = array();
 		$this->mock_http_routes(
@@ -1058,11 +1050,56 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 
 		$referral_request = end( $requests );
 		$body             = (array) json_decode( $referral_request['args']['body'], true );
+		$integration      = $body['operations'][0]['api_integration_preference']['rest_api_integration'];
 
+		$this->assertSame( 'THIRD_PARTY', $integration['integration_type'] );
+		$this->assertSame(
+			array( 'PAYMENT', 'REFUND', 'ACCESS_MERCHANT_INFORMATION', 'PAYMENT_LINKS_AND_BUTTONS' ),
+			$integration['third_party_details']['features']
+		);
 		$this->assertSame( array( 'EXPRESS_CHECKOUT' ), $body['products'] );
+		$this->assertTrue( $body['legal_consents'][0]['granted'] );
+		$this->assertSame(
+			'https://example.com/wp-admin/admin.php?page=paypal-return',
+			$body['partner_config_override']['return_url']
+		);
+		// PayPal rejects a description over 127 characters.
+		$this->assertLessThanOrEqual( 127, strlen( $body['partner_config_override']['return_url_description'] ) );
 		$this->assertSame(
 			'Bearer platform_access_token',
 			$referral_request['args']['headers']['Authorization']
+		);
+	}
+
+	/**
+	 * Test which return URLs a site may send the seller back to.
+	 *
+	 * @dataProvider provide_return_urls
+	 *
+	 * @param mixed  $url         The return_url parameter.
+	 * @param string $environment 'sandbox' or 'production'.
+	 * @param bool   $allowed     Whether it is accepted.
+	 */
+	#[\PHPUnit\Framework\Attributes\DataProvider( 'provide_return_urls' )]
+	public function test_return_url_must_be_a_web_page( $url, $environment, $allowed ) {
+		$request = $this->signup_link_request( $environment );
+
+		$this->assertSame( $allowed, $this->endpoint->validate_return_url( $url, $request ) );
+	}
+
+	/**
+	 * Return URLs a site sends.
+	 *
+	 * @return array<string, array{0:mixed, 1:string, 2:bool}>
+	 */
+	public static function provide_return_urls() {
+		return array(
+			'https in production'   => array( 'https://example.com/return', 'production', true ),
+			'http in production'    => array( 'http://example.com/return', 'production', false ),
+			'http in sandbox'       => array( 'http://example.test/return', 'sandbox', true ),
+			'javascript in sandbox' => array( 'javascript:alert(1)', 'sandbox', false ),
+			'no host'               => array( 'https:///return', 'production', false ),
+			'not a string'          => array( array( 'https://example.com' ), 'production', false ),
 		);
 	}
 
