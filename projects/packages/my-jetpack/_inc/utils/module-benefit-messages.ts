@@ -104,7 +104,7 @@ function getModuleBenefitMessages(): Record< JetpackModuleSlug, string > {
 			'jetpack-my-jetpack'
 		),
 		'post-list': __(
-			'You can now see featured images and a Copy link action in your WP Admin posts and pages lists.',
+			'You can now see featured images and a copy link action in your WP Admin posts and pages lists.',
 			'jetpack-my-jetpack'
 		),
 		protect: __(

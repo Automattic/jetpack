@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Post List
- * Module Description: Show featured images and a Copy link action in your WP Admin posts and pages lists.
+ * Module Description: Show featured images and a copy link action in your WP Admin posts and pages lists.
  * Sort Order: 31
  * Recommendation Order: 12
  * First Introduced: 11.3
