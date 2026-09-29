@@ -120,8 +120,14 @@ beforeEach( () => {
 	mockStatsFetch( () => Promise.resolve( subscribersResponse ) );
 } );
 
+afterEach( () => {
+	jest.restoreAllMocks();
+} );
+
 describe( 'SubscriberStatsChart', () => {
 	it( 'loads subscriber and recent-post data and renders the supplied post metrics', async () => {
+		// Site date is 2026-09-21. The totals request uses this UTC day instead.
+		jest.spyOn( Date.prototype, 'toISOString' ).mockReturnValue( '2026-09-22T03:00:00.000Z' );
 		renderStats();
 
 		await expect( screen.findByText( 'Recent Posts' ) ).resolves.toBeInTheDocument();
@@ -144,9 +150,7 @@ describe( 'SubscriberStatsChart', () => {
 			path: expect.stringContaining( 'unit=day&quantity=30&date=2026-09-21' ),
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: expect.stringContaining(
-				`unit=day&quantity=1&date=${ new Date().toISOString().slice( 0, 10 ) }`
-			),
+			path: expect.stringContaining( 'unit=day&quantity=1&date=2026-09-22' ),
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/wpcom/v2/newsletter/stats/recent-posts',
