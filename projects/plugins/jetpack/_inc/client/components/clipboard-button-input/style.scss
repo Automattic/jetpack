@@ -24,23 +24,18 @@
 }
 
 // URLs read left to right in every locale: keep their start
-// visible and fade the physical right end.
+// visible and truncate the end.
 
 /*rtl:begin:ignore*/
 [dir="rtl"] .dops-clipboard-button-input input[type="text"] {
 	direction: ltr;
 	text-align: right;
+	text-overflow: ellipsis;
 	padding-left: 80px;
-	padding-right: 16px;
 }
 
-[dir="rtl"] .dops-clipboard-button-input .dops-clipboard-button:not(:disabled)::before {
+[dir="rtl"] .dops-clipboard-button-input .dops-clipboard-button::before {
 	content: none;
-}
-
-[dir="rtl"] .dops-clipboard-button-input::after {
-
-	@include long-content-fade.long-content-fade( $size: 16px, $edge: 1px );
 }
 
 /*rtl:end:ignore*/
