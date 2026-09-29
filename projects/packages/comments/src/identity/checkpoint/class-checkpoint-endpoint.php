@@ -33,6 +33,17 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	const LOGOUT_ACTION = 'jetpack_comments_identity_logout';
 
 	/**
+	 * Email checks one address may make per window, generous for a reader typing
+	 * but not for anyone sweeping a list for WordPress.com accounts.
+	 */
+	const EMAIL_CHECKS = 20;
+
+	/**
+	 * The window, in seconds.
+	 */
+	const EMAIL_CHECK_WINDOW = 10 * MINUTE_IN_SECONDS;
+
+	/**
 	 * The instance registered without the WPCOM loader, which otherwise holds it.
 	 *
 	 * @var Checkpoint_Endpoint|null
@@ -192,7 +203,17 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 		$account = false;
 
 		if ( function_exists( 'is_email_wp_emails' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; add to stub-defs.php.
+			$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+			$key = 'email_checks_' . md5( $ip );
+
+			// Per address and across every site, so the answer cannot be farmed blog by blog.
+			wp_cache_add( $key, 0, 'jetpack_comments', self::EMAIL_CHECK_WINDOW );
+
+			if ( (int) wp_cache_incr( $key, 1, 'jetpack_comments' ) > self::EMAIL_CHECKS ) {
+				return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
+			}
+
+			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only; drop once the stubs PR carrying it lands.
 			$account = (bool) is_email_wp_emails( $request->get_param( 'email' ) );
 		}
 
