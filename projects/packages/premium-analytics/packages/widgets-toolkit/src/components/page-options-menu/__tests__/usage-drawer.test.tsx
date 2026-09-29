@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { AnalyticsQueryClientProvider, queryClient } from '@jetpack-premium-analytics/data';
-import { render, screen, within } from '@testing-library/react';
+import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
@@ -41,6 +41,15 @@ const USAGE = {
 };
 
 /**
+ * How many times Tracks recorded the given event.
+ *
+ * @param name - The event name.
+ * @return The number of records.
+ */
+const recordsOf = ( name: string ) =>
+	mockRecordEvent.mock.calls.filter( ( [ eventName ] ) => eventName === name ).length;
+
+/**
  * Renders the open drawer inside the query provider the page options menu gives it.
  *
  * @return The `userEvent` session.
@@ -72,7 +81,7 @@ describe( 'UsageDrawer', () => {
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'Restarts in 12 days' ) ).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'Upgrade' } ) ).toHaveAttribute(
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toHaveAttribute(
 			'href',
 			expect.stringContaining(
 				'https://example.com/wp-admin/admin.php?page=stats#!/stats/purchase/123456789'
@@ -80,28 +89,33 @@ describe( 'UsageDrawer', () => {
 		);
 	} );
 
-	it( 'reports a click on Upgrade', async () => {
-		const user = showDrawer();
+	it( 'reports one opening, not one per data refresh', async () => {
+		showDrawer();
 
-		const upgrade = await screen.findByRole( 'button', { name: 'Upgrade' } );
-		upgrade.addEventListener( 'click', event => event.preventDefault() );
-		await user.click( upgrade );
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
+		await act( () => queryClient.refetchQueries() );
 
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_premium_analytics_usage_upgrade_click',
-			undefined
-		);
+		expect( recordsOf( 'jetpack_premium_analytics_usage_open' ) ).toBe( 1 );
 	} );
 
-	it( 'reports a click on Learn more', async () => {
+	it( 'reports each Upgrade activation once, by click or by keyboard', async () => {
+		const user = showDrawer();
+
+		const upgrade = await screen.findByRole( 'link', { name: 'Upgrade' } );
+		upgrade.addEventListener( 'click', event => event.preventDefault() );
+		await user.click( upgrade );
+		upgrade.focus();
+		await user.keyboard( '{Enter}' );
+
+		expect( recordsOf( 'jetpack_premium_analytics_usage_upgrade_click' ) ).toBe( 2 );
+	} );
+
+	it( 'reports a click on Learn more once', async () => {
 		const user = showDrawer();
 
 		await user.click( await screen.findByRole( 'link', { name: /Learn more/ } ) );
 
-		expect( mockRecordEvent ).toHaveBeenCalledWith(
-			'jetpack_premium_analytics_usage_learn_more_click',
-			undefined
-		);
+		expect( recordsOf( 'jetpack_premium_analytics_usage_learn_more_click' ) ).toBe( 1 );
 	} );
 
 	it( 'offers no meter and no Upgrade on a plan without a views limit', async () => {
@@ -114,7 +128,7 @@ describe( 'UsageDrawer', () => {
 			screen.findByText( "Plan usage isn't available for your current plan." )
 		).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'button', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'warns once the site went over its limit', async () => {

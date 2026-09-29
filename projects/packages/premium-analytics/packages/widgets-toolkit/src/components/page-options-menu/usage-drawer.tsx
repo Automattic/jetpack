@@ -1,7 +1,14 @@
 /**
  * External dependencies
  */
-import { Button, Drawer, Link, Notice, Stack, Text } from '@jetpack-premium-analytics/externals';
+import {
+	Drawer,
+	Link,
+	LinkButton,
+	Notice,
+	Stack,
+	Text,
+} from '@jetpack-premium-analytics/externals';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { useEffect } from 'react';
@@ -16,7 +23,6 @@ import {
 	PlanUsageMeter,
 	usePlanUsage,
 } from '../plan-usage';
-import styles from './usage-drawer.module.scss';
 
 export type UsageDrawerSource = 'menu' | 'url';
 
@@ -112,15 +118,13 @@ function UsageContent( { source }: { source: UsageDrawerSource } ) {
 				) }
 			</DrawerGroup>
 			{ limit !== null && upgradeHref && (
-				<Button
+				<LinkButton
 					variant="solid"
-					className={ styles.upgrade }
+					href={ upgradeHref }
 					onClick={ () => trackEvent( 'jetpack_premium_analytics_usage_upgrade_click' ) }
-					nativeButton={ false }
-					render={ <a href={ upgradeHref } /> }
 				>
 					{ __( 'Upgrade', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
+				</LinkButton>
 			) }
 		</Stack>
 	);
