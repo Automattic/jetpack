@@ -3,6 +3,7 @@
 	display: flex;
 	margin-bottom: 24px;
 
+	// Any smaller and "http" is narrower than its arrows, leaving a gap.
 	.segment {
 		font-size: 24px;
 		line-height: 28px;
@@ -11,13 +12,19 @@
 	}
 
 	.label {
-		font-size: 10px;
-		color: #808080;
+		font-size: var(--wpds-typography-font-size-xs);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 		position: relative;
 		left: 8px;
 		line-height: 12px;
 		margin-bottom: 4px;
 		font-weight: 400;
+
+		// TODO(BOOST-702): remove with the legacy dashboard.
+		:global(.jb-dashboard) & {
+			font-size: 10px;
+			color: #808080;
+		}
 	}
 
 	.arrows {
