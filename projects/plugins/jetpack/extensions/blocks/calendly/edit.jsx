@@ -30,7 +30,8 @@ const innerButtonBlock = {
 const icon = getBlockIconComponent( metadata );
 
 export function CalendlyEdit( props ) {
-	const { attributes, clientId, name, noticeOperations, noticeUI, setAttributes } = props;
+	const { attributes, clientId, isSelected, name, noticeOperations, noticeUI, setAttributes } =
+		props;
 	const defaultClassName = getBlockDefaultClassName( name );
 	const validatedAttributes = getValidatedAttributes( metadata.attributes, attributes );
 
@@ -44,7 +45,14 @@ export function CalendlyEdit( props ) {
 	const [ isEditingUrl, setIsEditingUrl ] = useState( false );
 	const [ isResolvingUrl, setIsResolvingUrl ] = useState( false );
 	const [ embedButtonAttributes, setEmbedButtonAttributes ] = useState( {} );
+	const [ interactive, setInteractive ] = useState( false );
 	const blockProps = useBlockProps();
+
+	useEffect( () => {
+		if ( ! isSelected && interactive ) {
+			setInteractive( false );
+		}
+	}, [ interactive, isSelected ] );
 
 	const setErrorNotice = () => {
 		noticeOperations.removeAllNotices();
@@ -158,8 +166,10 @@ export function CalendlyEdit( props ) {
 	};
 
 	const inlinePreview = (
+		// Disabled because the overlay only catches the first click, so the block can be selected
+		// before the preview becomes interactive.
+		/* eslint-disable jsx-a11y/no-static-element-interactions */
 		<>
-			<div className={ `${ defaultClassName }-overlay` }></div>
 			<iframe
 				src={ iframeSrc() }
 				width="100%"
@@ -169,7 +179,14 @@ export function CalendlyEdit( props ) {
 				data-origheight="100%"
 				title="Calendly"
 			></iframe>
+			{ ! interactive && (
+				<div
+					className="block-library-embed__interactive-overlay"
+					onMouseUp={ () => setInteractive( true ) }
+				/>
+			) }
 		</>
+		/* eslint-enable jsx-a11y/no-static-element-interactions */
 	);
 
 	const buttonPreview = (

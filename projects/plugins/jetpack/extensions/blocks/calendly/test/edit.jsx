@@ -135,8 +135,21 @@ describe( 'CalendlyEdit', () => {
 		expect( iframe ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( iframe.parentElement ).toHaveClass( 'calendly-style-inline' );
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( iframe.previousElementSibling ).toHaveClass( 'wp-block-jetpack-calendly-overlay' );
+	} );
+
+	test( 'makes the inline preview interactive until the block is deselected', async () => {
+		const user = userEvent.setup();
+		const { container, rerender } = render( <CalendlyEdit { ...defaultProps } isSelected /> );
+		const getOverlay = () =>
+			// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+			container.querySelector( '.block-library-embed__interactive-overlay' );
+
+		await waitFor( () => expect( getOverlay() ).toBeInTheDocument() );
+		await user.click( getOverlay() );
+		expect( getOverlay() ).not.toBeInTheDocument();
+
+		rerender( <CalendlyEdit { ...defaultProps } isSelected={ false } /> );
+		expect( getOverlay() ).toBeInTheDocument();
 	} );
 
 	test( 'renders button preview when link style selected', () => {
