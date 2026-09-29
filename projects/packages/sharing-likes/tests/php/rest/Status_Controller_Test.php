@@ -154,6 +154,24 @@ class Status_Controller_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Only the sharing section offers the switch here, so nothing may reach the likes one.
+	 */
+	public function test_the_feature_comes_from_the_url_alone(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_block_theme();
+		$this->given_block( 'jetpack/sharing-buttons' );
+
+		$this->assertSame( 400, $this->request( 'POST', 'SHARING/switch-to-block' )->get_status() );
+		$this->assertSame( 400, $this->request( 'POST', 'sharing/switch-to-block', array( 'feature' => 'bogus' ) )->get_status() );
+		$this->assertSame( 400, $this->request( 'POST', 'sharing/activate', array( 'feature' => array( 'sharing' ) ) )->get_status() );
+
+		$this->request( 'POST', 'sharing/switch-to-block', array( 'feature' => 'likes' ) );
+
+		$this->assertNotSame( '1', (string) get_option( 'disabled_likes' ) );
+		$this->assertNotSame( '1', (string) get_option( 'disabled_reblogs' ) );
+	}
+
+	/**
 	 * Without a block to move to, the legacy options are the only way to configure the feature.
 	 */
 	public function test_switching_to_the_block_is_refused_without_a_block_route(): void {
@@ -196,6 +214,41 @@ class Status_Controller_Test extends BaseTestCase {
 
 		$this->assertSame( 409, $response->get_status() );
 		$this->assertSame( array(), $this->active_modules() );
+	}
+
+	/**
+	 * `Modules::activate()` refuses every module on these sites, so the screen shows no button.
+	 */
+	public function test_turning_sharing_on_is_refused_without_a_connection_or_offline_mode(): void {
+		$this->given_connection( false );
+		$this->given_modules( array() );
+
+		$response = $this->request( 'POST', 'sharing/activate' );
+
+		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( array(), $this->active_modules() );
+	}
+
+	public function test_turning_sharing_on_in_offline_mode(): void {
+		$this->given_connection( false );
+		$this->given_offline_mode();
+		$this->given_modules( array() );
+
+		$this->assertSame( 200, $this->request( 'POST', 'sharing/activate' )->get_status() );
+		$this->assertSame( array( 'sharedaddy' ), $this->active_modules() );
+	}
+
+	public function test_turning_a_feature_on_reports_a_host_that_keeps_it_off(): void {
+		$this->given_modules( array() );
+		$keep_sharing_off = function ( $modules ) {
+			return array_diff( $modules, array( 'sharedaddy' ) );
+		};
+		add_filter( 'jetpack_active_modules', $keep_sharing_off );
+
+		$response = $this->request( 'POST', 'sharing/activate' );
+
+		remove_filter( 'jetpack_active_modules', $keep_sharing_off );
+		$this->assertSame( 409, $response->get_status() );
 	}
 
 	public function test_actions_require_manage_options(): void {

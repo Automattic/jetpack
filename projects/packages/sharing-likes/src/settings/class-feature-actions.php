@@ -64,7 +64,11 @@ final class Feature_Actions {
 	 * @return bool Whether the module is now active.
 	 */
 	public static function activate( string $feature ): bool {
-		return (bool) ( new Modules() )->activate( self::MODULES[ $feature ], false, false );
+		$modules = new Modules();
+		$modules->activate( self::MODULES[ $feature ], false, false );
+
+		// A host can force the module off, and `activate()` still saves it as active.
+		return $modules->is_active( self::MODULES[ $feature ] );
 	}
 
 	/**

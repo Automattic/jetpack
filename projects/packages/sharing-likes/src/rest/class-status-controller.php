@@ -33,8 +33,16 @@ final class Status_Controller extends Controller {
 	 * Register the routes.
 	 */
 	public function register_routes() {
-		$base    = '/' . Endpoints::BASE;
-		$feature = '(?P<feature>' . Placement_Section::FEATURE_SHARING . '|' . Placement_Section::FEATURE_LIKES . ')';
+		$base     = '/' . Endpoints::BASE;
+		$features = array( Placement_Section::FEATURE_SHARING, Placement_Section::FEATURE_LIKES );
+		$feature  = '(?P<feature>' . implode( '|', $features ) . ')';
+		// Route matching ignores case, and a body or query `feature` would outrank the URL's.
+		$args = array(
+			'feature' => array(
+				'type' => 'string',
+				'enum' => $features,
+			),
+		);
 
 		register_rest_route(
 			$this->namespace,
@@ -53,6 +61,7 @@ final class Status_Controller extends Controller {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'switch_to_block' ),
 				'permission_callback' => array( $this, 'permission_check' ),
+				'args'                => $args,
 			)
 		);
 
@@ -63,6 +72,7 @@ final class Status_Controller extends Controller {
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array( $this, 'activate' ),
 				'permission_callback' => array( $this, 'permission_check' ),
+				'args'                => $args,
 			)
 		);
 	}
@@ -104,7 +114,7 @@ final class Status_Controller extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function switch_to_block( $request ) {
-		$feature = $request->get_param( 'feature' );
+		$feature = $request->get_url_params()['feature'];
 		$refused = self::refuse_unless( $feature, Section_State::CONFIGURE_WITH_BLOCK_NUDGE );
 
 		if ( $refused ) {
@@ -123,7 +133,7 @@ final class Status_Controller extends Controller {
 	 * @return WP_REST_Response|WP_Error
 	 */
 	public function activate( $request ) {
-		$feature = $request->get_param( 'feature' );
+		$feature = $request->get_url_params()['feature'];
 		$refused = self::refuse_unless( $feature, Section_State::OFF );
 
 		if ( $refused ) {
@@ -134,7 +144,7 @@ final class Status_Controller extends Controller {
 			return new WP_Error(
 				'rest_sharing_likes_activation_failed',
 				__( 'The feature could not be turned on.', 'jetpack-sharing-likes' ),
-				array( 'status' => 500 )
+				array( 'status' => 409 )
 			);
 		}
 
@@ -151,8 +161,8 @@ final class Status_Controller extends Controller {
 	private static function refuse_unless( string $feature, string $state ): ?WP_Error {
 		$is_likes = Placement_Section::FEATURE_LIKES === $feature;
 
-		// The Likes section offers no action at all without a connection.
-		if ( $is_likes && ! Environment::likes_supported() ) {
+		// Without the connection (or offline mode) their modules need, neither section offers an action.
+		if ( $is_likes ? ! Environment::likes_supported() : ! Environment::legacy_sharing_supported() ) {
 			$current = null;
 		} else {
 			$current = $is_likes ? Likes_Section::state() : Sharing_Section::state();
