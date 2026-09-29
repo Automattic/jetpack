@@ -2,7 +2,7 @@ import { useModuleSurface } from '$features/module/surface';
 import ExceptPanel from './except-panel';
 import styles from './collapsible-meta.module.scss';
 import { Button } from '@automattic/jetpack-components';
-import { useState } from 'react';
+import { useId, useState } from 'react';
 import clsx from 'clsx';
 import type { ReactNode } from 'react';
 import ChevronDown from '$svg/chevron-down';
@@ -41,6 +41,7 @@ const CollapsibleMeta = ( {
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
 	const surface = useModuleSurface();
+	const contentId = useId();
 
 	const onToggle = () => {
 		const newIsExpanded = ! isExpanded;
@@ -75,16 +76,29 @@ const CollapsibleMeta = ( {
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
 			<div className={ styles.actions }>
 				{ extraButtons && extraButtons }{ ' ' }
-				<Button
-					variant="link"
-					size="small"
-					weight="regular"
-					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-					className={ styles[ 'edit-button' ] }
-					onClick={ onToggle }
-				>
-					{ toggleText }
-				</Button>
+				{ surface === 'row' ? (
+					<button
+						type="button"
+						className={ styles[ 'row-toggle' ] }
+						aria-expanded={ isExpanded }
+						aria-controls={ contentId }
+						onClick={ onToggle }
+					>
+						{ toggleText }
+						{ isExpanded ? <ChevronUp /> : <ChevronDown /> }
+					</button>
+				) : (
+					<Button
+						variant="link"
+						size="small"
+						weight="regular"
+						icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
+						className={ styles[ 'edit-button' ] }
+						onClick={ onToggle }
+					>
+						{ toggleText }
+					</Button>
+				) }
 			</div>
 		</div>
 	);
@@ -96,7 +110,15 @@ const CollapsibleMeta = ( {
 	return (
 		<div className={ styles[ 'collapsible-meta' ] }>
 			{ sectionHeader }
-			{ isExpanded ? children : summary && <div className={ styles.summary }>{ summary }</div> }
+			{ surface === 'row' ? (
+				<div id={ contentId } hidden={ ! isExpanded }>
+					{ isExpanded && children }
+				</div>
+			) : (
+				<>
+					{ isExpanded ? children : summary && <div className={ styles.summary }>{ summary }</div> }
+				</>
+			) }
 		</div>
 	);
 };

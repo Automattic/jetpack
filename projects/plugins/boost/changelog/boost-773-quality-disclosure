@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Settings: Style the Image CDN quality and Page Cache options toggles as disclosures, not links, and announce whether they are expanded.

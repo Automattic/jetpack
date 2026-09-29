@@ -27,6 +27,23 @@
 		svg {
 			fill: var(--wp-admin-theme-color);
 		}
+
+		.row-toggle {
+			display: inline-flex;
+			align-items: center;
+			gap: var(--wpds-dimension-gap-sm);
+			padding: 0;
+			border: 0;
+			background: transparent;
+			color: inherit;
+			font: inherit;
+			cursor: pointer;
+
+			svg {
+				flex-shrink: 0;
+				fill: currentColor;
+			}
+		}
 	}
 
 	.summary {
