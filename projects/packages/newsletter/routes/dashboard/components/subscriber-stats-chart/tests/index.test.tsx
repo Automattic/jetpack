@@ -316,4 +316,97 @@ describe( 'SubscriberStatsChart', () => {
 			);
 		} );
 	} );
+
+	it( 'parses labels with the response unit and leaves missing counts empty', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( '/stats/subscribers' ) ) {
+				return Promise.resolve( {
+					unit: 'week',
+					fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+					data: [ [ '2026W09W14', null, 2 ] ],
+				} );
+			}
+			return Promise.resolve( recentPostsResponse );
+		} );
+
+		renderStats();
+
+		await waitFor( () => {
+			expect( mockLineChart ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					options: expect.objectContaining( {
+						axis: expect.objectContaining( {
+							x: { tickResolution: 'week' },
+						} ),
+					} ),
+					data: [
+						expect.objectContaining( {
+							data: [ { dateString: '2026-09-14', value: null } ],
+						} ),
+						expect.objectContaining( {
+							data: [ { dateString: '2026-09-14', value: 2 } ],
+						} ),
+					],
+				} )
+			);
+		} );
+		expect( screen.getAllByText( '—' ).length ).toBeGreaterThan( 0 );
+	} );
+
+	it( 'keeps the subscriber totals while the next interval is loading', async () => {
+		let resolveWeek: ( value: unknown ) => void = () => {};
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( 'unit=week' ) ) {
+				return new Promise( resolve => {
+					resolveWeek = resolve;
+				} );
+			}
+			if ( path.includes( '/stats/subscribers' ) ) {
+				return Promise.resolve( { ...subscribersResponse, unit: 'day' } );
+			}
+			return Promise.resolve( recentPostsResponse );
+		} );
+
+		renderStats();
+
+		await expect( screen.findByTestId( 'subscriber-chart' ) ).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+
+		expect( screen.getAllByText( '122' ).length ).toBeGreaterThan( 0 );
+		expect( screen.queryByText( 'Loading subscriber stats…' ) ).not.toBeInTheDocument();
+		expect( mockLineChart ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				options: expect.objectContaining( {
+					axis: expect.objectContaining( {
+						x: { tickResolution: 'day' },
+					} ),
+				} ),
+			} )
+		);
+
+		resolveWeek( {
+			unit: 'week',
+			fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+			data: [ [ '2026W09W14', 40, 2 ] ],
+		} );
+
+		await waitFor( () => {
+			expect( screen.getByText( '40' ) ).toBeInTheDocument();
+		} );
+		expect( mockLineChart ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				options: expect.objectContaining( {
+					axis: expect.objectContaining( {
+						x: { tickResolution: 'week' },
+					} ),
+				} ),
+				data: expect.arrayContaining( [
+					expect.objectContaining( {
+						data: [ { dateString: '2026-09-14', value: 40 } ],
+					} ),
+				] ),
+			} )
+		);
+	} );
 } );

@@ -1,7 +1,7 @@
 import { LineChart, type SeriesData } from '@automattic/charts';
 import '@automattic/charts/style.css';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -20,6 +20,7 @@ import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
 import './style.scss';
 
 type SubscribersStatsResponse = {
+	unit?: string;
 	fields?: string[];
 	data?: Array< Array< string | number | null > >;
 };
@@ -37,22 +38,6 @@ type RecentPostsResponse = {
 	createPostUrl: string;
 };
 
-type SubscriberStats = {
-	chartData: SeriesData[];
-	totalSubscribers: number;
-	paidSubscribers: number;
-	openRate?: number;
-	clickRate?: number;
-};
-
-type SubscriberPoint = {
-	dateString: string;
-	subscribers: number;
-	paidSubscribers: number;
-};
-
-const STATS_STALE_TIME_MS = 5 * 60 * 1000;
-
 /**
  * Bucket counts copied from the Stats subscribers chart: each choice sets both
  * the unit and how many of those units the x-axis covers.
@@ -66,15 +51,52 @@ const CHART_UNITS = {
 
 type ChartUnit = keyof typeof CHART_UNITS;
 
+type SubscriberStats = {
+	chartData: SeriesData[];
+	totalSubscribers: number | null;
+	paidSubscribers: number | null;
+	unit: ChartUnit;
+	openRate?: number;
+	clickRate?: number;
+};
+
+type SubscriberPoint = {
+	dateString: string;
+	subscribers: number | null;
+	paidSubscribers: number | null;
+};
+
+const STATS_STALE_TIME_MS = 5 * 60 * 1000;
+
 /**
- * Normalize a numeric API value.
+ * A missing subscriber total is a gap in the series, not zero.
  *
  * @param value - API value.
- * @return A finite number.
+ * @return The count, or null when the period has none.
  */
-function toNumber( value: string | number | null | undefined ): number {
+function toCount( value: string | number | null | undefined ): number | null {
+	if ( value === null || value === undefined ) {
+		return null;
+	}
+
 	const number = Number( value );
-	return Number.isFinite( number ) ? number : 0;
+	return Number.isFinite( number ) ? number : null;
+}
+
+/**
+ * Use the unit the response was bucketed with. The toggle can move before that
+ * response arrives, and a week label parsed as another unit is not a date.
+ *
+ * @param unit     - `unit` field on the subscribers response.
+ * @param fallback - Interval selected in the chart control.
+ * @return Chart interval.
+ */
+function chartUnit( unit: string | undefined, fallback: ChartUnit ): ChartUnit {
+	if ( unit === 'day' || unit === 'week' || unit === 'month' || unit === 'year' ) {
+		return unit;
+	}
+
+	return fallback;
 }
 
 /**
@@ -132,17 +154,21 @@ function toChartDate( period: string, unit: ChartUnit ): string {
 /**
  * Convert the positional subscriber response into chart data.
  *
- * @param response - Subscriber Stats response.
- * @param unit     - Selected chart unit.
+ * @param response     - Subscriber Stats response.
+ * @param fallbackUnit - Interval selected in the chart control.
  * @return Subscriber totals and series.
  */
-function toSubscriberStats( response: SubscribersStatsResponse, unit: ChartUnit ): SubscriberStats {
+function toSubscriberStats(
+	response: SubscribersStatsResponse,
+	fallbackUnit: ChartUnit
+): SubscriberStats {
+	const unit = chartUnit( response.unit, fallbackUnit );
 	const periodIndex = response.fields?.indexOf( 'period' ) ?? -1;
 	const subscribersIndex = response.fields?.indexOf( 'subscribers' ) ?? -1;
 	const paidSubscribersIndex = response.fields?.indexOf( 'subscribers_paid' ) ?? -1;
 
 	if ( periodIndex < 0 || subscribersIndex < 0 || ! Array.isArray( response.data ) ) {
-		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0 };
+		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0, unit };
 	}
 
 	const points = response.data
@@ -154,19 +180,20 @@ function toSubscriberStats( response: SubscribersStatsResponse, unit: ChartUnit 
 
 			return {
 				dateString: toChartDate( period, unit ),
-				subscribers: toNumber( row[ subscribersIndex ] ),
-				paidSubscribers: paidSubscribersIndex >= 0 ? toNumber( row[ paidSubscribersIndex ] ) : 0,
+				subscribers: toCount( row[ subscribersIndex ] ),
+				paidSubscribers: paidSubscribersIndex >= 0 ? toCount( row[ paidSubscribersIndex ] ) : 0,
 			};
 		} )
 		.filter( ( point ): point is SubscriberPoint => point !== null )
 		.reverse();
 
 	if ( points.length === 0 ) {
-		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0 };
+		return { chartData: [], totalSubscribers: 0, paidSubscribers: 0, unit };
 	}
 
 	const latest = points[ points.length - 1 ];
 	return {
+		unit,
 		totalSubscribers: latest.subscribers,
 		paidSubscribers: latest.paidSubscribers,
 		chartData: [
@@ -294,6 +321,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const subscribersQuery = useQuery< SubscribersStatsResponse >( {
 		queryKey: [ 'newsletter-stats', 'subscribers', subscribersPath ],
 		queryFn: () => apiFetch( { path: subscribersPath } ),
+		placeholderData: keepPreviousData,
 		staleTime: STATS_STALE_TIME_MS,
 	} );
 	const recentPostsQuery = useQuery< RecentPostsResponse >( {
@@ -371,7 +399,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						yScale: { type: 'linear', zero: true },
 						axis: {
 							y: { orientation: 'right' },
-							x: { tickResolution: unit },
+							x: { tickResolution: subscriberStats.unit },
 						},
 					} }
 				/>
