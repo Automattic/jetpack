@@ -319,20 +319,15 @@ describe( 'LocationsReportPage', () => {
 		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'hides the map and lets the table show the empty state when the period has no rows', () => {
+	it( 'hides the map when the period has no rows', () => {
 		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
 
 		render( <LocationsReportPage /> );
 
 		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
-		expect( reportRecordsTableMock.mock.lastCall?.[ 0 ] ).toEqual(
-			expect.objectContaining( { data: [], keepWhenEmpty: false } )
-		);
 	} );
 
-	// The table holds the country filter, so hiding it would leave no way to
-	// clear a country that scoped the rows down to none.
-	it( 'keeps the records table when a picked country has no rows', () => {
+	it( 'keeps the map when a picked country has no rows', () => {
 		mockTabState( 'regions' );
 		mockRecords();
 
@@ -342,9 +337,6 @@ describe( 'LocationsReportPage', () => {
 
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
 		expect( screen.getByTestId( 'locations-map' ) ).toBeInTheDocument();
-		expect( reportRecordsTableMock.mock.lastCall?.[ 0 ] ).toEqual(
-			expect.objectContaining( { data: [], keepWhenEmpty: true } )
-		);
 	} );
 
 	// The Countries tab is already the whole country list, so scoping it to one

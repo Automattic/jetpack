@@ -131,7 +131,6 @@ export {
 export {
 	ReportChartSection,
 	ReportDrilldownTable,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,

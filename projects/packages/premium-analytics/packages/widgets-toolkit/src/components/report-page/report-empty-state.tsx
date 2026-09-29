@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { EmptyState, Icon } from '@jetpack-premium-analytics/externals';
+import { EmptyState, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { search } from '@jetpack-premium-analytics/icons';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
@@ -46,9 +46,9 @@ export function ReportEmptyState() {
 export function ReportTableEmptyState( { isLoading }: { isLoading: boolean } ) {
 	if ( isLoading ) {
 		return (
-			<div className={ styles.loading }>
+			<Stack className={ styles.root } align="center" justify="center">
 				<Spinner />
-			</div>
+			</Stack>
 		);
 	}
 

@@ -11,12 +11,12 @@ import styles from './report-page-layout.module.scss';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
-const ReportHasPeriodContext = createContext( true );
+const ReportHasPeriodContext = createContext( false );
 
 /**
  * Whether the report around the caller has a date window, so copy can speak of "this time period" only where one exists.
  *
- * @return True unless the enclosing `ReportPageLayout` has no date filters.
+ * @return True only inside a `ReportPageLayout` with date filters.
  */
 export function useReportHasPeriod(): boolean {
 	return useContext( ReportHasPeriodContext );

@@ -142,7 +142,6 @@ export {
 	type LocationsGeoRow,
 	ReportChartSection,
 	ReportDrilldownTable,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,

@@ -17,7 +17,7 @@ import { ReportTableEmptyState } from './report-empty-state';
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import './report-records-table.scss';
-import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import type { ComponentProps, ReactElement } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 
@@ -37,7 +37,6 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	paginationInfo: { totalItems: number; totalPages: number };
 	defaultLayouts?: SupportedLayouts;
 	actions?: Action< Item >[];
-	empty?: ReactNode;
 	searchLabel?: string;
 	config?: { perPageSizes: number[] };
 	isItemClickable?: ( item: Item ) => boolean;
@@ -65,10 +64,6 @@ export interface ReportRecordsTableProps< Item > {
 	searchLabel?: string;
 	/** Optional row actions. */
 	actions?: Action< Item >[];
-	/** What the table shows when a search or filter matches none of `data`. */
-	empty?: ReactNode;
-	/** Keep the table, rather than the empty state, when `data` is empty. */
-	keepWhenEmpty?: boolean;
 	/** Page size choices (defaults to 10/25/50/100). */
 	perPageSizes?: number[];
 	/**
@@ -116,8 +111,6 @@ export function ReportRecordsTable< Item >( {
 	isFetching = false,
 	searchLabel,
 	actions,
-	empty,
-	keepWhenEmpty = false,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	onChangeView,
 	onChangePageItems,
@@ -168,7 +161,8 @@ export function ReportRecordsTable< Item >( {
 		onChangePageItems?.( pageItems );
 	}, [ onChangePageItems, pageItems ] );
 
-	if ( data.length === 0 && ! keepWhenEmpty ) {
+	// A filter the API applies server-side can scope the rows to none, and the table carries the control that clears it.
+	if ( data.length === 0 && ! view.filters?.length ) {
 		return <ReportTableEmptyState isLoading={ isLoading } />;
 	}
 
@@ -184,7 +178,6 @@ export function ReportRecordsTable< Item >( {
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ { table: {} } }
 				actions={ actions }
-				empty={ empty }
 				searchLabel={ searchLabel }
 				config={ { perPageSizes } }
 				isItemClickable={ isItemClickable }

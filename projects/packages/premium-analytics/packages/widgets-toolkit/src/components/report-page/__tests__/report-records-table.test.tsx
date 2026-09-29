@@ -272,17 +272,13 @@ describe( 'ReportRecordsTable with no rows', () => {
 	/**
 	 * Mount the table over `data`.
 	 *
-	 * @param data                - The report rows.
-	 * @param props               - Other table props for the case under test.
-	 * @param props.isLoading     - Whether the rows are still loading.
-	 * @param props.isFetching    - Whether the rows on screen are revalidating.
-	 * @param props.keepWhenEmpty - Whether to keep the table with no rows.
+	 * @param data             - The report rows.
+	 * @param props            - Other table props for the case under test.
+	 * @param props.isLoading  - Whether the rows are still loading.
+	 * @param props.isFetching - Whether the rows on screen are revalidating.
 	 * @return The render result.
 	 */
-	function mountRows(
-		data: Row[],
-		props: { isLoading?: boolean; isFetching?: boolean; keepWhenEmpty?: boolean } = {}
-	) {
+	function mountRows( data: Row[], props: { isLoading?: boolean; isFetching?: boolean } = {} ) {
 		return render(
 			<ReportRecordsTable< Row >
 				data={ data }
@@ -298,9 +294,7 @@ describe( 'ReportRecordsTable with no rows', () => {
 		mountRows( [] );
 
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
-		expect(
-			screen.getByText( 'We couldn’t find results for this time period.' )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'We couldn’t find any results.' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'searchbox' ) ).not.toBeInTheDocument();
 	} );
 
@@ -340,8 +334,18 @@ describe( 'ReportRecordsTable with no rows', () => {
 		expect( screen.queryByText( 'Maharashtra' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the table when told to, for a filter that scoped the rows to none', () => {
-		mountRows( [], { keepWhenEmpty: true } );
+	it( 'keeps the table while a filter has scoped the rows to none', () => {
+		render(
+			<ReportRecordsTable< Row >
+				data={ [] }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ {
+					...INITIAL_VIEW,
+					filters: [ { field: 'country', operator: 'is', value: 'US' } ],
+				} }
+			/>
+		);
 
 		expect( screen.getByRole( 'searchbox' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();

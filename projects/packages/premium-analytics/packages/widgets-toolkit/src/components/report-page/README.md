@@ -66,7 +66,8 @@ const label = __( 'All pages' );
 - **`ReportEmptyState`** — replaces the records table when the report returned
   no rows. `ReportRecordsTable` and `ReportDrilldownTable` render it
   themselves, from the `data` they get before their own search, so a search
-  that matches nothing keeps the table's "No results". The copy mentions "this
+  that matches nothing keeps the table's "No results", and so does a filter
+  that scoped the rows to none. The copy mentions "this
   time period" only inside a `ReportPageLayout` that has date filters.
 - **`ReportPageTabs`** — the presentational tab bar for report pages with
   multiple views (the `tabs` slot above). It renders `{ id, label }` triggers

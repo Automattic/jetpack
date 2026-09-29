@@ -185,9 +185,7 @@ export default function LocationsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
-	// A picked country can scope the rows down to none. The table carries the
-	// filter that clears it, so it has to stay on screen then.
-	const keepTable = !! countryFilter;
+	const showMap = !! countryFilter || records.table.rows.length > 0;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -217,7 +215,7 @@ export default function LocationsReportPage(): JSX.Element {
 			>
 				{ tableReplacement ?? (
 					<>
-						{ ( keepTable || records.table.rows.length > 0 ) && (
+						{ showMap && (
 							<ReportLocationsMap
 								rows={ geoRows }
 								mode={ GEO_MODES[ activeTab ] }
@@ -235,7 +233,6 @@ export default function LocationsReportPage(): JSX.Element {
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
 							onChangeView={ handleChangeView }
-							keepWhenEmpty={ keepTable }
 						/>
 					</>
 				) }
