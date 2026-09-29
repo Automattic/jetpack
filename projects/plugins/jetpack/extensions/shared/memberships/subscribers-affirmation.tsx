@@ -14,6 +14,13 @@ import {
 } from '../../shared/memberships/constants';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
+type PostMeta = Record< string, unknown >;
+
+interface NewsletterCategory {
+	id: number;
+	name: string;
+}
+
 /**
  * Get the formatted list of categories for a post.
  * @param {Array}   postCategories                 - list of category IDs for the post (from editor or stats_on_send)
@@ -22,10 +29,10 @@ import { store as membershipProductsStore } from '../../store/membership-product
  * @return {string} - formatted list of categories
  */
 export const getFormattedCategories = (
-	postCategories,
-	newsletterCategories,
+	postCategories: number[] | null | undefined,
+	newsletterCategories: NewsletterCategory[],
 	fallbackToUncategorized = true
-) => {
+): string => {
 	if ( ! fallbackToUncategorized && ! postCategories?.length ) return '';
 
 	// If the post has no categories, then it's going to have the 'Uncategorized' category
@@ -42,7 +49,7 @@ export const getFormattedCategories = (
 	const formattedCategoriesArray = categoryNames.map(
 		categoryName => `<strong>${ categoryName }</strong>`
 	);
-	let formattedCategories;
+	let formattedCategories: string;
 
 	if ( formattedCategoriesArray.length === 1 ) {
 		formattedCategories = formattedCategoriesArray[ 0 ];
@@ -73,10 +80,13 @@ const SENDING_IN_PROGRESS_WINDOW_MS = 15 * 60 * 1000;
  * @param {string|null} [tierName]  - Optional tier name for paid subscribers (e.g. "Premium").
  * @return {string} Access level label for display (e.g. "all subscribers", "paid subscribers (Premium)").
  */
-export function getAccessLevelLabel( accessLevel, tierName = null ) {
+export function getAccessLevelLabel(
+	accessLevel?: string | null,
+	tierName: string | null = null
+): string {
 	if ( ! accessLevel ) return __( 'all subscribers', 'jetpack' );
 
-	let label;
+	let label: string;
 	switch ( accessLevel ) {
 		case 'everybody':
 			label = __( 'all subscribers', 'jetpack' );
@@ -111,11 +121,20 @@ export function getAccessLevelLabel( accessLevel, tierName = null ) {
  * @param {boolean}     [postHasPaywallBlock] - Whether the post contains a paywall block.
  * @return {string} Access level label for display.
  */
-export function getAccessLabelForCopy( accessLevel, tierName = null, postHasPaywallBlock = false ) {
+export function getAccessLabelForCopy(
+	accessLevel?: string | null,
+	tierName: string | null = null,
+	postHasPaywallBlock = false
+): string {
 	if ( accessLevel === 'paid_subscribers' && postHasPaywallBlock ) {
 		return __( 'all subscribers', 'jetpack' );
 	}
 	return getAccessLevelLabel( accessLevel, tierName );
+}
+
+interface TierProduct {
+	id: number | string;
+	title: string;
 }
 
 /**
@@ -126,11 +145,34 @@ export function getAccessLabelForCopy( accessLevel, tierName = null, postHasPayw
  * @param {Array}  tierProducts - Newsletter tier products.
  * @return {string|null} Tier name when paid subscribers with a tier is selected, null otherwise.
  */
-export function getCurrentTierName( accessLevel, postMeta, tierProducts ) {
+export function getCurrentTierName(
+	accessLevel: string | undefined,
+	postMeta: PostMeta | undefined,
+	tierProducts: TierProduct[] | undefined
+): string | null {
 	const tierId = postMeta?.[ META_NAME_FOR_POST_TIER_ID_SETTINGS ];
 	return accessLevel === accessOptions.paid_subscribers.key && tierId
 		? ( tierProducts?.find( p => String( p.id ) === String( tierId ) )?.title ?? null )
 		: null;
+}
+
+interface StatsOnSend {
+	access_level?: string;
+	paid_tier?: string | null;
+	post_categories?: number[];
+	has_newsletter_categories?: boolean;
+	has_paywall_block?: boolean;
+	timestamp?: string;
+}
+
+interface WontResendMessageArgs {
+	statsOnSend: StatsOnSend | null;
+	postMeta: PostMeta | undefined;
+	accessLevel: string | undefined;
+	tierProducts: TierProduct[] | undefined;
+	postCategories: number[] | undefined;
+	alreadySentPostModifiedInSession: boolean;
+	prePublish: boolean;
 }
 
 /**
@@ -156,7 +198,7 @@ export function shouldShowWontResendMessage( {
 	postCategories,
 	alreadySentPostModifiedInSession,
 	prePublish,
-} ) {
+}: WontResendMessageArgs ): boolean {
 	const statsBase = statsOnSend?.access_level;
 	const statsTierName = statsOnSend?.paid_tier ?? null;
 	const statsCats = statsOnSend?.post_categories ?? [];
@@ -175,6 +217,14 @@ export function shouldShowWontResendMessage( {
 			statsCats.every( id => postCategories.includes( id ) ) );
 
 	return alreadySentPostModifiedInSession || prePublish || ! accessMatches || ! categoriesMatch;
+}
+
+interface SentCopyLineArgs {
+	accessLabel: string;
+	categoryNames: string;
+	tense: 'past' | 'present' | 'future';
+	dateStr: string;
+	hasStatsLink?: boolean;
 }
 
 /**
@@ -199,7 +249,7 @@ export function getSentCopyLine( {
 	tense,
 	dateStr,
 	hasStatsLink = true,
-} ) {
+}: SentCopyLineArgs ): string {
 	const isPast = tense === 'past';
 	const isFuture = tense === 'future';
 
@@ -334,10 +384,18 @@ export function getSentCopyLine( {
 			);
 }
 
+interface SubscribersAffirmationProps {
+	accessLevel?: string;
+	prePublish?: boolean;
+}
+
 /*
  * Determines copy to show in pre/post-publish panels to confirm number and type of subscribers receiving the post as email.
  */
-function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
+function SubscribersAffirmation( {
+	accessLevel,
+	prePublish = false,
+}: SubscribersAffirmationProps ) {
 	// The Stats deep link the affirmation copy points at (admin.php?page=stats)
 	// only exists while the Stats module is active. Track it so we can drop the
 	// link when it would lead nowhere. Simple sites always report it as active.
@@ -452,7 +510,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const isPrepublishOrScheduled = prePublish || isScheduledPost;
 
 	const emailSentAt = postEmailSentState?.email_sent_at ?? null;
-	const statsOnSend = postEmailSentState?.stats_on_send ?? null;
+	const statsOnSend: StatsOnSend | null = postEmailSentState?.stats_on_send ?? null;
 
 	const dateStr =
 		postEmailSentState?.email_sent_at ?? postEmailSentState?.stats_on_send?.timestamp ?? '';
@@ -497,7 +555,7 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
 	const emailStatsLink = getJetpackEmailStatsLink( blogId, postId, isStatsModuleActive );
 	const hasStatsLink = !! emailStatsLink;
 
-	let text;
+	let text: string;
 	let showWontResendMessage = false;
 
 	if ( isAlreadySent ) {
@@ -602,7 +660,11 @@ function SubscribersAffirmation( { accessLevel, prePublish = false } ) {
  *
  * @return {?string} - The link, or null when the dashboard is the analytics UI but this user cannot open it, or the Stats module backing the deep link is off.
  */
-export function getJetpackEmailStatsLink( blogId, postId, isStatsModuleActive = true ) {
+export function getJetpackEmailStatsLink(
+	blogId: number | string | undefined,
+	postId: number | undefined,
+	isStatsModuleActive = true
+): string | null {
 	if ( hasAnalyticsDashboard() ) {
 		return getAnalyticsUrl( { view: 'post', id: postId, section: 'email-opens' } );
 	}
@@ -624,7 +686,7 @@ export function getJetpackEmailStatsLink( blogId, postId, isStatsModuleActive = 
  *
  * @return {string} - The admin URL for the Reading settings page.
  */
-export function getSiteVisibilitySettingsLink() {
+export function getSiteVisibilitySettingsLink(): string {
 	return getAdminUrl( 'options-reading.php' );
 }
 
