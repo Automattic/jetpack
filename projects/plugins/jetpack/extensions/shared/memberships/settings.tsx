@@ -12,8 +12,8 @@ import { useInstanceId } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __ } from '@wordpress/i18n';
-import { Link, Notice } from '@wordpress/ui';
+import { __, sprintf } from '@wordpress/i18n';
+import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -56,48 +56,56 @@ export function getReachForAccessLevelKey( {
 }
 
 /**
- * Describe, in plain language, who can read the post and who receives it by email.
+ * Describe who can read the post on the site. Who receives it by email is described
+ * by the Newsletter overview, which also knows about the email toggle and categories.
  *
- * Email reach is not always the same as read access: when the post contains a paywall
- * block, every subscriber is emailed the portion above the paywall, so a paid post
- * still goes out to the full list. See getAccessLabelForCopy in subscribers-affirmation.
- *
- * @param {string}  accessLevel         - Access level key, e.g. 'paid_subscribers'.
- * @param {boolean} postHasPaywallBlock - Whether the post contains a paywall block.
+ * @param {string}      accessLevel         - Access level key, e.g. 'paid_subscribers'.
+ * @param {boolean}     postHasPaywallBlock - Whether the post contains a paywall block.
+ * @param {string|null} tierName            - Paid tier the post is limited to, if any.
  * @return {string} Description of the current access level.
  */
-export function getAccessDescription( accessLevel: string, postHasPaywallBlock = false ): string {
-	// The unused third argument to __() keeps the two calls in each branch from being
-	// merged into a single __( cond ? a : b ) by the production minifier, which would
-	// leave a non-literal msgid and fail the i18n check.
-	switch ( accessLevel ) {
-		case accessOptions.subscribers.key:
-			return postHasPaywallBlock
-				? __(
-						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
-						'jetpack',
-						// @ts-expect-error -- Intentional extra argument; see the comment above.
-						0
-					)
-				: __(
-						'Only subscribers can read this post. Others see a preview and can subscribe. Subscribers receive it by email.',
-						'jetpack'
-					);
-		case accessOptions.paid_subscribers.key:
-			return postHasPaywallBlock
-				? __(
-						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
-						'jetpack',
-						// @ts-expect-error -- Intentional extra argument; see the comment above.
-						0
-					)
-				: __(
-						'Only paid subscribers can read this post. Others see a preview and can subscribe. Only paid subscribers receive it by email.',
-						'jetpack'
-					);
-		default:
-			return __( 'Anyone can read this post. Subscribers receive it by email.', 'jetpack' );
+export function getAccessDescription(
+	accessLevel: string,
+	postHasPaywallBlock = false,
+	tierName: string | null = null
+): string {
+	const isRestricted =
+		accessLevel === accessOptions.subscribers.key ||
+		accessLevel === accessOptions.paid_subscribers.key;
+
+	if ( ! isRestricted ) {
+		return __( 'Anyone can read it on your site.', 'jetpack' );
 	}
+
+	if ( accessLevel === accessOptions.paid_subscribers.key && tierName && ! postHasPaywallBlock ) {
+		return sprintf(
+			/* translators: %s: paid newsletter tier name, e.g. "Plus". */
+			__( 'Only subscribers on your ‘%s’ tier can read it on your site.', 'jetpack' ),
+			tierName
+		);
+	}
+
+	// Keyed rather than ternaries: the minifier merges `c ? __( a ) : __( b )` into a non-literal msgid.
+	const descriptions = {
+		subscribers: __(
+			'Only subscribers can read it on your site. Others see a preview and can subscribe.',
+			'jetpack'
+		),
+		paid_subscribers: __(
+			'Only paid subscribers can read it on your site. Others see a preview and can subscribe or upgrade.',
+			'jetpack'
+		),
+		subscribers_paywall: __(
+			'Anyone can read it up to your paywall. Only subscribers can read the rest.',
+			'jetpack'
+		),
+		paid_subscribers_paywall: __(
+			'Anyone can read it up to your paywall. Only paid subscribers can read the rest.',
+			'jetpack'
+		),
+	};
+
+	return descriptions[ postHasPaywallBlock ? `${ accessLevel }_paywall` : accessLevel ];
 }
 
 export function useSetAccess(): ( value: string ) => void {
@@ -258,7 +266,6 @@ interface NewsletterAccessRadioButtonsProps {
 	hasTierPlans: boolean;
 	stripeConnectUrl: string | null;
 	postHasPaywallBlock?: boolean;
-	explainPaywallConstraint?: boolean;
 }
 
 export function NewsletterAccessRadioButtons( {
@@ -266,7 +273,6 @@ export function NewsletterAccessRadioButtons( {
 	hasTierPlans,
 	stripeConnectUrl,
 	postHasPaywallBlock = false,
-	explainPaywallConstraint = true,
 }: NewsletterAccessRadioButtonsProps ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers } = useSelect( select =>
@@ -283,27 +289,18 @@ export function NewsletterAccessRadioButtons( {
 	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	// A paywall block splits the post, so "the whole post is public" stops being an
-	// option it can express. The option stays visible and disabled — the same treatment
-	// paid subscribers gets — with a notice saying why, rather than the panel silently
-	// changing shape. The saved-value guard is the same as above: the paywall block
-	// moves the post off "everybody" when it is inserted, but until that lands we must
-	// not leave the group with nothing selected.
+	// option it can express. The option stays visible and disabled, described by the
+	// access description below, which explains the paywall split. Same saved-value guard
+	// as above: never leave the group with nothing selected.
 	const isEverybodySelected = accessLevel === accessOptions.everybody.key;
 	const showEverybodyAsDisabled = !! postHasPaywallBlock && ! isEverybodySelected;
-
-	// The paywall block's own inspector opts out: it sits directly under Gutenberg's
-	// block card, which already says what a paywall does, so the notice repeats the
-	// heading above it. Both the notice and the option's aria-describedby derive from
-	// this one flag — gating only the notice would leave the option pointing at an id
-	// that is no longer in the DOM, which reads as no description at all.
-	const showPaywallNotice = showEverybodyAsDisabled && explainPaywallConstraint;
 
 	const setAccess = useSetAccess();
 	// The count beside each option is the size of the audience that can read it, which
 	// is what distinguishes the options from one another. postHasPaywallBlock is
 	// deliberately not forwarded here: it would switch the paid count to the email
 	// reach, making both options report the same total on a post with a paywall block.
-	// Who receives the email is stated in getAccessDescription instead.
+	// Who receives the email is stated in the Newsletter overview instead.
 	const subscribersReach = getReachForAccessLevelKey( {
 		accessLevel: accessOptions.subscribers.key,
 		subscribers: totalSubscribers,
@@ -317,7 +314,7 @@ export function NewsletterAccessRadioButtons( {
 
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons, 'jetpack-newsletter-access' );
 	const groupName = `${ instanceId }-group`;
-	const paywallNoticeId = `${ instanceId }-paywall-notice`;
+	const descriptionId = `${ instanceId }-description`;
 	const setupLinkId = `${ instanceId }-paid-setup-link`;
 
 	const options: Array< {
@@ -330,7 +327,7 @@ export function NewsletterAccessRadioButtons( {
 			value: accessOptions.everybody.key,
 			label: accessOptions.everybody.label,
 			disabled: showEverybodyAsDisabled,
-			describedBy: showPaywallNotice ? paywallNoticeId : undefined,
+			describedBy: showEverybodyAsDisabled ? descriptionId : undefined,
 		},
 		{
 			value: accessOptions.subscribers.key,
@@ -348,19 +345,6 @@ export function NewsletterAccessRadioButtons( {
 
 	return (
 		<div className="jetpack-newsletter-access-radio-buttons">
-			{ showPaywallNotice && (
-				// icon={ null } matches the mockup, which shows the notice without the
-				// intent icon @wordpress/ui would otherwise render for "info".
-				<Notice.Root intent="info" icon={ null } id={ paywallNoticeId }>
-					<Notice.Title>{ __( 'Paywall active', 'jetpack' ) }</Notice.Title>
-					<Notice.Description>
-						{ __(
-							'Choose who can read the full post. Everyone can still read the content above the paywall.',
-							'jetpack'
-						) }
-					</Notice.Description>
-				</Notice.Root>
-			) }
 			<fieldset role="radiogroup" className="components-radio-control">
 				<BaseControl.VisualLabel as="legend">
 					{ __( 'Who can read this post?', 'jetpack' ) }
@@ -387,7 +371,7 @@ export function NewsletterAccessRadioButtons( {
 				</Link>
 			) }
 			{ isPaidSelected && isPaidAvailable && <TierSelector></TierSelector> }
-			<p className="jetpack-newsletter-access-radio-buttons__description">
+			<p id={ descriptionId } className="jetpack-newsletter-access-radio-buttons__description">
 				{ getAccessDescription( accessLevel, !! postHasPaywallBlock ) }
 			</p>
 		</div>

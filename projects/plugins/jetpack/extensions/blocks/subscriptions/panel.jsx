@@ -116,7 +116,7 @@ const NewsletterDisabledNotice = () => {
 	}
 
 	return (
-		<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+		<Notice status="warning" isDismissible={ false } className="edit-post-post-visibility__notice">
 			{ message }
 		</Notice>
 	);

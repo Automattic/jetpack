@@ -6,18 +6,15 @@ import {
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { __, sprintf } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 } from '../../shared/memberships/constants';
-import { useSetSendEmail } from '../../shared/memberships/settings';
+import { getAccessDescription, useSetSendEmail } from '../../shared/memberships/settings';
 import SubscribersAffirmation, {
 	getCurrentTierName,
 } from '../../shared/memberships/subscribers-affirmation';
-import {
-	getShowMisconfigurationWarning,
-	MisconfigurationWarning,
-} from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import paywallBlockMetadata from '../paywall/block.json';
 
@@ -39,7 +36,13 @@ interface NewsletterCategory {
  * @return {JSX.Element} The title.
  */
 export function NewsletterOverviewTitle( { accessLevel }: { accessLevel?: string } ): JSX.Element {
-	const label = accessLevel ? accessOptions[ accessLevel as AccessLevelKey ]?.label : null;
+	const isPrivate = useSelect(
+		select => select( editorStore ).getEditedPostVisibility() === 'private',
+		[]
+	);
+	// A private post isn't emailed, so there is no audience to name.
+	const label =
+		accessLevel && ! isPrivate ? accessOptions[ accessLevel as AccessLevelKey ]?.label : null;
 
 	if ( ! label ) {
 		return <>{ __( 'Newsletter', 'jetpack' ) }</>;
@@ -122,20 +125,6 @@ export default function NewsletterOverview( {
 		[ accessLevel ]
 	);
 
-	// Once the post is out (or its email already went), report what happened instead.
-	if ( isPublished || isAlreadySent ) {
-		return <SubscribersAffirmation accessLevel={ accessLevel } prePublish={ prePublish } />;
-	}
-
-	const newsletterOverview = getNewsletterOverviewText( {
-		accessLevel,
-		isEmailEnabled,
-		isPasswordProtected: postVisibility === 'password',
-		hasPaywall,
-		tierName,
-		categoryNames,
-	} );
-
 	const openNewsletterSidebar = () => {
 		if ( prePublish ) {
 			closePublishSidebar();
@@ -147,11 +136,64 @@ export default function NewsletterOverview( {
 		 )?.openGeneralSidebar?.( NEWSLETTER_SIDEBAR_IDENTIFIER );
 	};
 
+	const settingsLink = (
+		<Button
+			variant="link"
+			onClick={ openNewsletterSidebar }
+			className="jetpack-newsletter-overview__settings-link"
+		>
+			{ __( 'Change newsletter settings', 'jetpack' ) }
+		</Button>
+	);
+
+	// Checked before the published branch: a saved private post also counts as published.
+	if ( postVisibility === 'private' ) {
+		return (
+			<div className="jetpack-newsletter-overview">
+				<Notice.Root intent="warning" icon={ null }>
+					<Notice.Title>{ __( 'This post is private', 'jetpack' ) }</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'To send this post to subscribers, change its visibility to Public or Password protected.',
+							'jetpack'
+						) }
+					</Notice.Description>
+				</Notice.Root>
+				<p className="jetpack-newsletter-overview__main">
+					{ __( 'This post won’t be emailed.', 'jetpack' ) }
+				</p>
+				<p className="jetpack-newsletter-overview__details">
+					{ __(
+						'Private posts are only visible to admins and editors, so they can’t be emailed.',
+						'jetpack'
+					) }
+				</p>
+				{ settingsLink }
+			</div>
+		);
+	}
+
+	// Once the post is out (or its email already went), report what happened instead.
+	if ( isPublished || isAlreadySent ) {
+		return (
+			<div className="jetpack-newsletter-overview">
+				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ prePublish } />
+				{ settingsLink }
+			</div>
+		);
+	}
+
+	const newsletterOverview = getNewsletterOverviewText( {
+		accessLevel,
+		isEmailEnabled,
+		isPasswordProtected: postVisibility === 'password',
+		hasPaywall,
+		tierName,
+		categoryNames,
+	} );
+
 	return (
 		<div className="jetpack-newsletter-overview">
-			{ getShowMisconfigurationWarning( postVisibility, accessLevel ) && (
-				<MisconfigurationWarning />
-			) }
 			<p className="jetpack-newsletter-overview__main">{ newsletterOverview.main }</p>
 			{ !! newsletterOverview.categoryNames?.length && (
 				<ul className="jetpack-newsletter-overview__categories">
@@ -194,13 +236,7 @@ export default function NewsletterOverview( {
 							{ __( 'Send test email', 'jetpack' ) }
 						</Button>
 					</VStack>
-					<Button
-						variant="link"
-						onClick={ openNewsletterSidebar }
-						className="jetpack-newsletter-overview__settings-link"
-					>
-						{ __( 'Change newsletter settings', 'jetpack' ) }
-					</Button>
+					{ settingsLink }
 				</>
 			) }
 		</div>
@@ -236,17 +272,9 @@ function getNewsletterOverviewText( args: OverviewTextArgs ): OverviewText {
 	const level = getAccessLevelKey( args.accessLevel );
 
 	if ( ! args.isEmailEnabled ) {
-		const readers = {
-			everybody: __(
-				'Anyone can read it on your site, even if they’ve never subscribed.',
-				'jetpack'
-			),
-			subscribers: __( 'Only subscribers can read it on your site.', 'jetpack' ),
-			paid_subscribers: __( 'Only paid subscribers can read it on your site.', 'jetpack' ),
-		};
 		return {
 			main: __( 'This post won’t be emailed.', 'jetpack' ),
-			details: [ readers[ level ] ],
+			details: [ getAccessDescription( level, args.hasPaywall, args.tierName ) ],
 			isEmailOff: true,
 		};
 	}
@@ -286,10 +314,8 @@ function getEmailedAudienceText( {
 	const isPaid = level === 'paid_subscribers' && ! hasPaywall;
 	const audience = isPaid ? 'paid' : 'all';
 
-	const freeCanUpgrade = __(
-		'Your free subscribers are not emailed. They can upgrade on your site to read it.',
-		'jetpack'
-	);
+	// Same sentence the Audience settings show, so both views describe site access alike.
+	const readAccess = getAccessDescription( level, hasPaywall, tierName );
 
 	if ( categoryNames.length ) {
 		const toCategories = {
@@ -313,14 +339,14 @@ function getEmailedAudienceText( {
 					? sprintf(
 							/* translators: %s: paid newsletter tier name, e.g. "VIP". */
 							__(
-								'This post is emailed to ‘%s’ subscribers who chose these newsletter categories.',
+								'This post is emailed to subscribers on your ‘%s’ tier who chose these newsletter categories.',
 								'jetpack'
 							),
 							tierName
 						)
 					: toCategories[ audience ],
 			categoryNames,
-			details: isPaid ? [ plusAllContent.paid, freeCanUpgrade ] : [ plusAllContent.all ],
+			details: [ plusAllContent[ audience ], readAccess ],
 		};
 	}
 
@@ -328,32 +354,25 @@ function getEmailedAudienceText( {
 		return {
 			main: sprintf(
 				/* translators: %s: paid newsletter tier name, e.g. "Plus". */
-				__( 'Only your ‘%s’ subscribers are emailed this post.', 'jetpack' ),
+				__( 'Only subscribers on your ‘%s’ tier or higher are emailed this post.', 'jetpack' ),
 				tierName
 			),
-			details: [ freeCanUpgrade ],
+			details: [ readAccess ],
 		};
 	}
 
-	if ( hasPaywall && level !== 'everybody' ) {
-		return {
-			main: __(
-				'This post is emailed to all subscribers. The email stops at your paywall.',
-				'jetpack'
-			),
-			details: [ __( 'Your free subscribers can upgrade on your site to read it.', 'jetpack' ) ],
-		};
-	}
-
+	// Keyed rather than ternaries: the minifier merges `c ? __( a ) : __( b )` into a non-literal msgid.
 	const emailedTo = {
 		everybody: __( 'This post is emailed to all subscribers.', 'jetpack' ),
 		subscribers: __( 'This post is emailed to all subscribers.', 'jetpack' ),
 		paid_subscribers: __( 'Only your paid subscribers are emailed this post.', 'jetpack' ),
+		// Readers who can't see past the paywall get the email cut off there, with an upgrade prompt.
+		paid_subscribers_paywall: __(
+			'This post is emailed to all subscribers. Free subscribers get it up to your paywall.',
+			'jetpack'
+		),
 	};
-	const readers = {
-		everybody: __( 'Anyone can read it on your site.', 'jetpack' ),
-		subscribers: __( 'Site visitors have to subscribe to read it.', 'jetpack' ),
-		paid_subscribers: freeCanUpgrade,
-	};
-	return { main: emailedTo[ level ], details: [ readers[ level ] ] };
+	const emailKey = level === 'paid_subscribers' && hasPaywall ? 'paid_subscribers_paywall' : level;
+
+	return { main: emailedTo[ emailKey ], details: [ readAccess ] };
 }
