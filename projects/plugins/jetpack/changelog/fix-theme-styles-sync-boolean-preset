@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: fix a fatal error on sites whose theme declares a color palette in an unexpected format.

@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Newsletter: keep post emails from inheriting a previous theme's design when the current theme's design is too large to sync.
