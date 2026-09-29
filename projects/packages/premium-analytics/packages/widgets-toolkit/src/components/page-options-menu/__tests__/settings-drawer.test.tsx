@@ -328,6 +328,49 @@ describe( 'SettingsDrawer', () => {
 		expect( onClose ).not.toHaveBeenCalled();
 	} );
 
+	it( 'closes from its close button', async () => {
+		const onClose = jest.fn();
+		const user = showDrawer( onClose );
+
+		await user.click(
+			within( await screen.findByRole( 'dialog', { name: 'Settings' } ) ).getByRole( 'button', {
+				name: 'Close',
+			} )
+		);
+
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'closes on a click outside it', async () => {
+		const onClose = jest.fn();
+		const user = showDrawer( onClose );
+
+		await expect(
+			screen.findByRole( 'dialog', { name: 'Settings' } )
+		).resolves.toBeInTheDocument();
+		await user.click( document.body );
+
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'ignores its close button and a click outside it while a save is running', async () => {
+		serveSettings( STATS_OPTIONS, () => new Promise( () => {} ) );
+		const onClose = jest.fn();
+		const user = showDrawer( onClose );
+
+		await user.click( await screen.findByRole( 'checkbox', ADMIN_BAR ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await expect( screen.findByRole( 'button', { name: 'Saving…' } ) ).resolves.toBeInTheDocument();
+		await user.click(
+			within( screen.getByRole( 'dialog', { name: 'Settings' } ) ).getByRole( 'button', {
+				name: 'Close',
+			} )
+		);
+		await user.click( document.body );
+
+		expect( onClose ).not.toHaveBeenCalled();
+	} );
+
 	it( 'stays open and says why when the site refuses the change', async () => {
 		serveSettings( STATS_OPTIONS, () =>
 			Promise.reject( {
