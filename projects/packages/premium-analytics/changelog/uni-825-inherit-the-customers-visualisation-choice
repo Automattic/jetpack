@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Traffic chart: Default to bars on desktop and lines on mobile, matching Jetpack Stats v1.
+Traffic chart: Default to the chart type Jetpack Stats v1 saved in this browser, else bars on desktop and lines on mobile.

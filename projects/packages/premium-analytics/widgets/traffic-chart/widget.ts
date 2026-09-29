@@ -14,6 +14,7 @@ import {
 	type ChartDisplayChartType,
 	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
  * The bucket sizes this chart draws. The bucket follows the dashboard's interval
@@ -30,13 +31,14 @@ export const TRAFFIC_PERIODS = [
 export const MOBILE_QUERY = '(max-width: 479px)';
 
 /**
- * The chart type drawn when nothing is saved: lines on a mobile viewport, bars elsewhere.
+ * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else lines
+ * on a mobile viewport and bars elsewhere.
  *
  * @param isMobile - Whether the viewport matches `MOBILE_QUERY`.
  * @return The default chart type.
  */
 export function defaultChartType( isMobile: boolean ): TrafficChartType {
-	return isMobile ? 'line' : 'bar';
+	return readStatsV1ChartType() ?? ( isMobile ? 'line' : 'bar' );
 }
 
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];

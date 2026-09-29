@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import { useMediaQuery } from '@wordpress/compose';
 /**
@@ -13,6 +14,8 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 jest.mock( '../use-traffic-chart' );
+
+jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
 
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
@@ -40,6 +43,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
 const mockUseMediaQuery = jest.mocked( useMediaQuery );
+const mockGetScriptData = jest.mocked( getScriptData );
+
+const V1_KEY = 'jetpack_stats_chart_type_123';
 
 // `normalizeReportParams` coerces away an interval the range disallows, so each
 // one needs a range long enough to survive reaching the widget.
@@ -74,6 +80,8 @@ function drawnChartType(): string {
 }
 
 beforeEach( () => {
+	window.localStorage.clear();
+	mockGetScriptData.mockReturnValue( { site: { wpcom: { blog_id: 123 } } } as never );
 	mockUseMediaQuery.mockReturnValue( false );
 	mockDrillDown.mockClear();
 	mockMetricTabsChart.mockClear();
@@ -126,6 +134,73 @@ describe( 'TrafficChart chart type', () => {
 			expect( drawnChartType() ).toBe( chartType );
 		}
 	);
+} );
+
+describe( 'TrafficChart inherited Stats v1 choice', () => {
+	const attributes = { reportParams: reportParams( 'day' ) };
+
+	it( 'draws the chart type Stats v1 saved, without writing it to the layout', () => {
+		window.localStorage.setItem( V1_KEY, 'line' );
+		const setAttributes = jest.fn();
+
+		render( <TrafficChartRender attributes={ attributes } setAttributes={ setAttributes } /> );
+
+		expect( drawnChartType() ).toBe( 'line' );
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'prefers the Stats v1 choice over the viewport default', () => {
+		window.localStorage.setItem( V1_KEY, 'bar' );
+		mockUseMediaQuery.mockReturnValue( true );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'lets a chart type set on the widget win', () => {
+		window.localStorage.setItem( V1_KEY, 'line' );
+
+		render( <TrafficChartRender attributes={ { ...attributes, chartType: 'bar' } } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'ignores a saved value that is not a chart type', () => {
+		window.localStorage.setItem( V1_KEY, 'pie' );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'ignores a choice saved for a different site', () => {
+		window.localStorage.setItem( 'jetpack_stats_chart_type_999', 'line' );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'falls back to the default when the site id is unknown', () => {
+		mockGetScriptData.mockReturnValue( undefined as never );
+		window.localStorage.setItem( V1_KEY, 'line' );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'falls back to the default when browser storage cannot be read', () => {
+		jest.spyOn( Storage.prototype, 'getItem' ).mockImplementation( () => {
+			throw new Error( 'blocked' );
+		} );
+
+		render( <TrafficChartRender attributes={ attributes } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+		jest.restoreAllMocks();
+	} );
 } );
 
 describe( 'TrafficChart bucket size', () => {

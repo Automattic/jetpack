@@ -1,7 +1,18 @@
 /**
+ * External dependencies
+ */
+import { getScriptData } from '@automattic/jetpack-script-data';
+/**
  * Internal dependencies
  */
 import widget, { MOBILE_QUERY } from '../widget';
+
+jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
+
+beforeEach( () => {
+	window.localStorage.clear();
+	jest.mocked( getScriptData ).mockReturnValue( { site: { wpcom: { blog_id: 123 } } } as never );
+} );
 
 function chartTypeSwitchValue( item: { chartType?: 'line' | 'bar' } ) {
 	const field = widget.attributes.find( attribute => attribute.id === 'chartType' );
@@ -33,5 +44,12 @@ describe( 'Traffic chart type switch', () => {
 		mockViewport( true );
 
 		expect( chartTypeSwitchValue( { chartType: 'bar' } ) ).toBe( 'bar' );
+	} );
+
+	it( 'shows the choice Stats v1 saved when nothing is saved here', () => {
+		mockViewport( false );
+		window.localStorage.setItem( 'jetpack_stats_chart_type_123', 'line' );
+
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );
 	} );
 } );
