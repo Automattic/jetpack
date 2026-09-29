@@ -120,9 +120,8 @@ function readShare( value: unknown ): number | undefined {
 /**
  * Reads one peak (its index and share of views) as a unit.
  *
- * A share of exactly 0 is the endpoint's default for a window with no views,
- * where the index is just the first empty bucket; a real peak is at least 100/7
- * (day) or 100/24 (hour) percent. Neither half of that pair is a measurement.
+ * A share of 0 is the endpoint's default for a window with no views, and its
+ * index is just the first empty bucket.
  *
  * @param index - Raw peak index.
  * @param max   - Highest index the field may take.

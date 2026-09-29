@@ -53,10 +53,6 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 
 /** The endpoint sends `-1` when it did not count (every typed request), which is not zero. */
 function readFound( value: unknown ): number | null {
-	if ( value === undefined || value === null ) {
-		return null;
-	}
-
 	const found = safeParseFloat( value, -1 );
 
 	return found >= 0 ? found : null;

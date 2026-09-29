@@ -126,7 +126,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						country: location.countryFull,
 					},
 					action:
-						geoMode === 'country' && countryCode
+						geoMode === 'country' && isCountryCode( countryCode )
 							? {
 									kind: 'drillDown',
 									onClick: () =>

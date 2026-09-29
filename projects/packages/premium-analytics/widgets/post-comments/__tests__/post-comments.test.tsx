@@ -131,15 +131,13 @@ describe( 'PostCommentsWidget', () => {
 		await expect( screen.findByText( '29 more' ) ).resolves.toBeInTheDocument();
 	} );
 
-	it( 'shows no remaining count when the total is unknown', async () => {
-		mockEndpoints( jest.fn().mockResolvedValue( { found: -1, comments: [ COMMENT ] } ), {} );
+	it( 'prefers the total the comments request counted over the post row', async () => {
+		mockEndpoints( jest.fn().mockResolvedValue( { found: 24, comments: [ COMMENT ] } ), {
+			comment_count: 99,
+		} );
 
 		renderWidget( 779 );
 
-		await expect(
-			screen.findByRole( 'link', { name: /Olivia Park/ } )
-		).resolves.toBeInTheDocument();
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
-		expect( screen.queryByText( /more$/ ) ).not.toBeInTheDocument();
+		await expect( screen.findByText( '23 more' ) ).resolves.toBeInTheDocument();
 	} );
 } );

@@ -216,6 +216,10 @@ describe( 'LocationsWidget', () => {
 		render( <LocationsWidget attributes={ {} } /> );
 
 		expect( screen.getByText( 'Unknown' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', { name: 'View regions in United States' } )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: /View regions in -/ } ) ).not.toBeInTheDocument();
 		expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'US' } ) ] );
 	} );
 } );

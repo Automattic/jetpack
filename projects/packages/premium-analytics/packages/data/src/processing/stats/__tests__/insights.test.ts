@@ -133,7 +133,6 @@ describe( 'Stats insights normalizer', () => {
 		expect( report ).toMatchObject( { hourOfDay: 19, hourPercent: 5 } );
 	} );
 	it( 'reports no peak for the payload a site with no views gets', () => {
-		// The endpoint pre-fills every bucket with 0, so it names Monday and hour 0.
 		const report = sanitizeStatsInsightsResponse( {
 			highest_day_of_week: 0,
 			highest_day_percent: 0,
