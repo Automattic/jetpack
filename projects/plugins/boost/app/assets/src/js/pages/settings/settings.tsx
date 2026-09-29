@@ -32,7 +32,7 @@ const Group = ( {
 	children: ReactNode;
 } ) => (
 	<CollapsibleCard.Root defaultOpen={ defaultOpen }>
-		<CollapsibleCard.Header render={ <h2 /> }>
+		<CollapsibleCard.Header render={ <h3 /> }>
 			<Stack direction="column" gap="md">
 				<Stack direction="row" align="center" gap="sm" wrap="wrap">
 					<Card.Title>
@@ -65,7 +65,11 @@ const Settings = () => {
 		<ModuleSurfaceProvider value="row">
 			<Stack direction="column" gap="xl" className={ styles.settings }>
 				<Group
-					title={ __( 'Cornerstone pages', 'jetpack-boost' ) }
+					title={ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+					description={ __(
+						'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+						'jetpack-boost'
+					) }
 					summary={ summary }
 					icon={ desktop }
 					defaultOpen={ false }

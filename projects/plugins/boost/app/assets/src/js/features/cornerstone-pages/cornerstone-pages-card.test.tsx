@@ -24,9 +24,12 @@ describe( 'CornerstonePagesCard', () => {
 	it( 'describes the feature without a duplicate heading', () => {
 		render( <CornerstonePagesCard /> );
 
-		expect( screen.queryByRole( 'heading', { name: 'Cornerstone pages' } ) ).toBeNull();
+		expect( screen.queryByRole( 'heading', { name: 'Cornerstone Pages' } ) ).toBeNull();
 		expect( screen.getByText( 'description' ).tagName ).toBe( 'P' );
 		expect( screen.getByRole( 'button', { name: /Customize pages list/ } ) ).toBeTruthy();
+		expect(
+			screen.getByRole( 'heading', { level: 4, name: 'Customize pages list' } )
+		).toBeTruthy();
 		expect( screen.getByText( 'prerender' ) ).toBeTruthy();
 	} );
 

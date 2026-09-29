@@ -75,3 +75,8 @@ $box-shadow-color: rgba(0, 0, 0, 0.1);
 		border-bottom-right-radius: 0;
 	}
 }
+
+// An inline badge breaks its background at each wrapped line.
+.forced-off-reason {
+	display: inline-block;
+}

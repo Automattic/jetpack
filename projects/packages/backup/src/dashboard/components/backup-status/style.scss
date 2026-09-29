@@ -64,7 +64,8 @@
 // tint, so the shared half is written once — otherwise the two drift and
 // the sameness stops being true.
 .jpb-backup-status-banner,
-.jpb-backup-trouble-banner {
+.jpb-backup-trouble-banner,
+.jpb-backup-warnings-banner {
 	box-sizing: border-box;
 	inline-size: 100%;
 	margin-block-end: 16px;
@@ -103,4 +104,10 @@
 // something is wrong, not that something is happening.
 .jpb-backup-trouble-banner {
 	background-color: var(--wpds-color-background-surface-warning-weak);
+}
+
+// Caution rather than warning: the site still has a usable restore point,
+// so this is a lesser heads-up, not "act now".
+.jpb-backup-warnings-banner {
+	background-color: var(--wpds-color-background-surface-caution-weak);
 }

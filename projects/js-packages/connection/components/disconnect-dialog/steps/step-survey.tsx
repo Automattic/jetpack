@@ -11,6 +11,10 @@ interface StepSurveyProps {
 	onFeedBackProvided?: ( answerId: string, answerText: string ) => void;
 	/** If the survey feedback is currently being saved/submitted. */
 	isSubmittingFeedback?: boolean;
+	/** Whether the survey runs on the plugins page, before the plugin is deactivated. */
+	isBeforeDeactivation?: boolean;
+	/** Whether to offer the "couldn't connect" answer. */
+	showConnectionOption?: boolean;
 }
 
 /**
@@ -19,7 +23,13 @@ interface StepSurveyProps {
  * @param {StepSurveyProps} props - The properties.
  * @return {import('react').ReactNode} The StepSurvey Component
  */
-const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepSurveyProps ) => {
+const StepSurvey = ( {
+	onExit,
+	onFeedBackProvided,
+	isSubmittingFeedback,
+	isBeforeDeactivation,
+	showConnectionOption,
+}: StepSurveyProps ) => {
 	return (
 		<div className="jp-connection__disconnect-dialog__content">
 			<h1>{ __( 'Before you go, help us improve Jetpack', 'jetpack-connection-js' ) }</h1>
@@ -29,13 +39,25 @@ const StepSurvey = ( { onExit, onFeedBackProvided, isSubmittingFeedback }: StepS
 			<DisconnectSurvey
 				onSubmit={ onFeedBackProvided }
 				isSubmittingFeedback={ isSubmittingFeedback }
+				showConnectionOption={ showConnectionOption }
+				submitLabel={
+					isBeforeDeactivation ? __( 'Submit and deactivate', 'jetpack-connection-js' ) : undefined
+				}
 			/>
 			<Link
 				className="jp-connection__disconnect-dialog__link jp-connection__disconnect-dialog__link--bold"
 				href="#"
 				onClick={ onExit }
+				aria-disabled={ ( isBeforeDeactivation && isSubmittingFeedback ) || undefined }
 			>
-				{ __( 'Skip for now', 'jetpack-connection-js' ) }
+				{ isBeforeDeactivation
+					? __( 'Skip and deactivate', 'jetpack-connection-js' )
+					: __(
+							'Skip for now',
+							'jetpack-connection-js',
+							// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+							0
+						) }
 			</Link>
 		</div>
 	);

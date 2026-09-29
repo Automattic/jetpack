@@ -6,9 +6,15 @@
  */
 
 use Automattic\Jetpack\Plugin\Theme_Styles_Sync;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
+
+	/**
+	 * @var string|null Stylesheet to restore, set only by tests that switch themes.
+	 */
+	private $previous_stylesheet = null;
 
 	public function set_up() {
 		parent::set_up();
@@ -17,6 +23,11 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 
 	public function tear_down() {
 		remove_all_filters( 'wp_theme_json_data_theme' );
+		if ( $this->previous_stylesheet !== null ) {
+			remove_theme_support( 'editor-color-palette' );
+			switch_theme( $this->previous_stylesheet );
+			$this->previous_stylesheet = null;
+		}
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		parent::tear_down();
 	}
@@ -249,16 +260,71 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Core's schema leaves `settings.color.palette` untouched when it is not an array, and the
-	 * WP_Theme_JSON constructor origin-keys it anyway -- so a scalar reaches the flattening.
+	 * Core's schema leaves a preset list untouched when it is not an array, and its constructor
+	 * only origin-keys a scalar when `isset( $preset[0] ) || empty( $preset )` -- so a boolean or
+	 * a number arrives bare rather than wrapped in an origin.
+	 *
+	 * @dataProvider provide_non_array_presets
 	 */
-	public function test_survives_a_palette_that_is_not_an_array() {
-		$this->replacing_theme_json( array( 'settings' => array( 'color' => array( 'palette' => 'oops' ) ) ) );
+	#[DataProvider( 'provide_non_array_presets' )]
+	public function test_survives_a_palette_that_is_not_an_array( $palette ) {
+		$this->replacing_theme_json( array( 'settings' => array( 'color' => array( 'palette' => $palette ) ) ) );
 
 		$this->assertSame( array(), $this->slice()['settings']['color']['palette'] );
 	}
 
-	public function test_refuses_a_payload_over_the_size_cap() {
+	/**
+	 * @dataProvider provide_bare_scalar_presets
+	 */
+	#[DataProvider( 'provide_bare_scalar_presets' )]
+	public function test_drops_a_font_size_preset_that_is_not_an_array( $sizes ) {
+		$this->replacing_theme_json( array( 'settings' => array( 'typography' => array( 'fontSizes' => $sizes ) ) ) );
+
+		$this->assertArrayNotHasKey( 'typography', $this->slice()['settings'] );
+	}
+
+	public static function provide_non_array_presets() {
+		return array_merge(
+			array( 'string' => array( 'oops' ) ),
+			self::provide_bare_scalar_presets()
+		);
+	}
+
+	/**
+	 * Kept apart from the string case, which trips a `foreach()` warning inside core itself.
+	 */
+	public static function provide_bare_scalar_presets() {
+		return array(
+			'boolean' => array( true ),
+			'integer' => array( 5 ),
+		);
+	}
+
+	/**
+	 * A classic theme has no theme.json, so core synthesises presets from theme supports instead --
+	 * and `add_theme_support( 'editor-color-palette' )` with no palette puts a bare `true` there,
+	 * by way of `current( (array) true )` in get_classic_theme_supports_block_editor_settings().
+	 */
+	public function test_survives_a_classic_theme_supporting_a_palette_without_declaring_one() {
+		$this->previous_stylesheet = get_stylesheet();
+		switch_theme( 'default' );
+		add_theme_support( 'editor-color-palette' );
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$raw = WP_Theme_JSON_Resolver::get_theme_data()->get_raw_data();
+		$this->assertTrue(
+			$raw['settings']['color']['palette'] ?? null,
+			'Expected the bare theme support to reach the raw data as `true`; an empty palette below would otherwise prove nothing.'
+		);
+
+		$this->assertSame( array(), $this->slice()['settings']['color']['palette'] );
+	}
+
+	/**
+	 * Sync skips a null value, so an oversized theme must still report its name -- otherwise the
+	 * receiving end keeps rendering the previous theme's design with nothing to say it changed.
+	 */
+	public function test_reports_the_theme_without_a_design_when_the_payload_is_oversized() {
 		$palette = array();
 		for ( $i = 0; $i < 5000; $i++ ) {
 			$palette[] = array(
@@ -269,7 +335,13 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 		}
 		$this->with_theme_json( array( 'settings' => array( 'color' => array( 'palette' => $palette ) ) ) );
 
-		$this->assertNull( Theme_Styles_Sync::get_theme_styles() );
+		$slice = $this->slice();
+
+		$this->assertSame( get_stylesheet(), $slice['stylesheet'] );
+		$this->assertSame( array(), $slice['settings']['color']['palette'] );
+		$this->assertSame( array(), $slice['styles'] );
+		// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- matching what the class measures.
+		$this->assertLessThanOrEqual( Theme_Styles_Sync::MAX_PAYLOAD_BYTES, strlen( wp_json_encode( $slice ) ) );
 	}
 
 	public function test_registered_as_a_sync_callable() {

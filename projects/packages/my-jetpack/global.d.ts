@@ -467,7 +467,18 @@ type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';
 type MainFeaturesState = {
 	jetpack: MainFeaturePluginStatus;
 	features: MainFeature[];
+	// Optional: a plugin carrying an older copy of this package sends none.
+	module_groups?: MainFeatureModuleGroup[];
+	plugin_installs?: MainFeatureInstallAccess;
 };
+
+type MainFeatureModuleGroup = {
+	label: string;
+	modules: string[];
+};
+
+// Whether the current user may install plugins here: not while file changes are off site-wide, or not with their role.
+type MainFeatureInstallAccess = 'allowed' | 'disabled' | 'not_permitted';
 
 type MainFeature = {
 	slug: string;
@@ -484,10 +495,12 @@ type MainFeature = {
 	plugin_status: MainFeaturePluginStatus;
 	// Set when the host forces the plugin, so the owner's switch would only flip back.
 	plugin_override: '' | 'active' | 'inactive';
+	free_highlights: string[];
 	paid_highlights: string[];
-	plans: Array< { slug: string; name: string } >;
-	paid_product: string;
+	// The My Jetpack route that sells the feature, such as `/add-akismet`, and the product it sells.
+	upgrade: { path: string; name: string };
 	screenshot: string;
+	plans: Array< { slug: string; name: string } >;
 	info_url: string;
 	docs_url: string;
 	product: string;
@@ -497,6 +510,7 @@ type MainFeature = {
 interface Window {
 	myJetpackInitialState?: {
 		mainFeatures: MainFeaturesState | null;
+		featuresBanner: { isDismissed: boolean } | null;
 		siteSuffix: string;
 		siteUrl: string;
 		latestBoostSpeedScores: {

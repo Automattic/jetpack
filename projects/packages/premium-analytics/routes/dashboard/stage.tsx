@@ -20,13 +20,15 @@ import {
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
+	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
 	useTrackCustomize,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { Page } from '@wordpress/admin-ui';
 import { Spinner } from '@wordpress/components';
-import { useCallback, useEffect, useState } from '@wordpress/element';
+import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
 import { isPremiumAnalyticsInitialSyncFinished } from '../site-readiness';
 import { useWidgetModules } from '../use-widget-modules';
@@ -41,6 +43,7 @@ import {
 } from './components';
 import {
 	DATE_FILTER_YEAR,
+	getInsertableWidgetTypeNames,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
@@ -70,7 +73,19 @@ function Dashboard(): JSX.Element {
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
 	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
 	const [ gridSettings ] = useDashboardGridSettings();
-	const canPerform = useDashboardPolicy();
+
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
+	/**
+	 * The widget types the inserter offers, for now, are:
+	 * - those that are already in the layout
+	 * - those that are the active section's default layout
+	 */
+	const insertableWidgetTypes = useMemo(
+		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
+		[ activeSectionRecord ]
+	);
+	const canPerform = useDashboardPolicy( { insertableWidgetTypes } );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -170,8 +185,6 @@ function Dashboard(): JSX.Element {
 	 */
 	const dateFilters = useReportDateFilters( '/' );
 
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
-
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section
 	 * switch never leaves the visible control unable to represent the selection.
@@ -198,11 +211,33 @@ function Dashboard(): JSX.Element {
 		showsPeriodControl
 	);
 
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'dashboard', section: activeSection, offersComparison: showComparison }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
+
 	/*
 	 * The year surface applies on click — no Apply step of its own — so stage and
 	 * commit together, the way `DatePeriodDropdown` applies a period.
 	 */
-	const { onChange: onDateChange, onApply: onDateApply } = dateFilters;
 	const selectYear = useCallback(
 		( range: DateRange, presetId: YearSurfacePresetId ) => {
 			onDateChange( range, presetId );
@@ -270,7 +305,13 @@ function Dashboard(): JSX.Element {
 				 * Report pages mount this same panel over records tables, which have no
 				 * interval, so the control is asked for rather than implied.
 				 */
-				<DateFiltersPanel { ...dateFilters } withIntervalControl attentionId={ attentionId } />
+				<DateFiltersPanel
+					{ ...dateFilters }
+					onChange={ onDateChange }
+					onApply={ onDateApply }
+					withIntervalControl
+					attentionId={ attentionId }
+				/>
 			);
 	}
 
@@ -362,7 +403,9 @@ function Dashboard(): JSX.Element {
 
 												<WidgetDashboard.NoWidgetsState />
 												<div ref={ setWidgetsFrame }>
-													<WidgetDashboard.Widgets className={ styles.widgets } />
+													<DashboardSectionProvider section={ section.slug }>
+														<WidgetDashboard.Widgets className={ styles.widgets } />
+													</DashboardSectionProvider>
 												</div>
 											</div>
 										) : null }

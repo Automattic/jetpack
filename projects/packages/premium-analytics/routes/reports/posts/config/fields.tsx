@@ -9,7 +9,10 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { Icon, Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
-import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import {
+	createReportOriginSearch,
+	pickReportNavigationParams,
+} from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -84,7 +87,7 @@ function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo(
 		() => ( {
-			...pickReportDateParams( search ),
+			...pickReportNavigationParams( search ),
 			...createReportOriginSearch( 'posts', originSection ),
 		} ),
 		[ search, originSection ]

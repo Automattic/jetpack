@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add protected owner selectors and types to the connection store.

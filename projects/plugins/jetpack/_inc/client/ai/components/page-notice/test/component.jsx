@@ -306,6 +306,46 @@ describe( 'PageNotice', () => {
 		);
 	} );
 
+	describe( 'the connect capability', () => {
+		it( 'offers a doc, not a connect link, when the user cannot connect the site', () => {
+			renderNotice( { state: 'site-disconnected', canConnectSite: false } );
+			expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
+			const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
+			expect( learnMore ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'source=jetpack-ai-hub-notice-site-disconnected-cannot-connect' )
+			);
+			expect( learnMore ).toHaveAttribute( 'target', '_blank' );
+		} );
+
+		// `hasMyJetpack` is false wherever My Jetpack is filtered off; it says nothing
+		// about whether this user may connect.
+		it( 'keeps the connect link on a host that merely lacks My Jetpack', () => {
+			renderNotice( {
+				state: 'site-disconnected',
+				hasMyJetpack: false,
+				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
+			} );
+			expect( screen.getByRole( 'link', { name: 'Connect Jetpack' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=jetpack#/connect-user'
+			);
+			expect( screen.queryByRole( 'link', { name: /Learn more/ } ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'still offers the account link to a user who cannot connect the site', () => {
+			renderNotice( {
+				state: 'user-unlinked',
+				canConnectSite: false,
+				userConnectionUrl: 'admin.php?page=jetpack#/connect-user',
+			} );
+			expect( screen.getByRole( 'link', { name: 'Connect account' } ) ).toHaveAttribute(
+				'href',
+				'admin.php?page=jetpack#/connect-user'
+			);
+		} );
+	} );
+
 	it( 'sends an unlinked account to the URL page data gave it', () => {
 		renderNotice( {
 			state: 'user-unlinked',

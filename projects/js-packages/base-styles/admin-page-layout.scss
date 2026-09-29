@@ -31,6 +31,7 @@
 //                                                   `Tabs.List`; see the
 //                                                   "Tabs strip" section
 //                                                   below)
+//   Tabs marker:             .jp-admin-page-has-tabs (see "Tabs strip" below)
 
 // Implementation note — `postcss-custom-properties` with `preserve: false`:
 // several consumer packages in this monorepo (publicize, videopress, search,
@@ -222,14 +223,12 @@ $jp-breakpoint-mobile: 782px;
 		flex-shrink: 0;              // pinned at top of the flex column.
 	}
 
-	// When the page hosts a tabs strip, drop the header's bottom border AND
-	// its bottom padding so the strip sits flush against the header. The
-	// strip's own hairline becomes the only divider between header and tab
-	// content. Same `:has()` pattern used elsewhere in this mixin to react
-	// to the page's content shape.
-	.jp-admin-page__page:has(.jp-admin-page-tabs) > :first-child {
+	// When the page hosts a tabs strip, drop the header's bottom border so the
+	// strip's own hairline is the only divider. Leave its padding: removing that
+	// spaced these pages differently from the rest. `.jp-admin-page-has-tabs` is
+	// the style-free marker for a strip that is not `.jp-admin-page-tabs`.
+	.jp-admin-page__page:has(.jp-admin-page-tabs, .jp-admin-page-has-tabs) > :first-child {
 		border-bottom: none;
-		padding-bottom: 0;
 	}
 
 	// The scrollable middle. <AdminPage> does not pass `hasPadding` to
@@ -255,7 +254,9 @@ $jp-breakpoint-mobile: 782px;
 	// fill their bounded slot. Form-style pages keep working: their
 	// children stay content-sized (default `flex: 0 1 auto`) and any
 	// overflow still falls back to Container's `overflow: auto`.
-	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer) {
+	// The JITM slot is chrome, not the middle: excluded so it is not made the
+	// scrollable area, which would force its card into a column.
+	.jp-admin-page__page > :not(:first-child):not(.jetpack-footer):not(.jp-jitm-slot) {
 		flex: 1 1 auto;
 		min-height: 0;
 		min-width: 0;

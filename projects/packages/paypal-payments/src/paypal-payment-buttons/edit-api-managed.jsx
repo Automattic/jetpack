@@ -258,10 +258,6 @@ export default function ApiManagedEdit( {
 
 	const blockProps = useBlockProps();
 
-	// Separate __() calls keep each msgid literal for the minifier.
-	const labelConnected = __( 'PayPal Connected', 'jetpack-paypal-payments' );
-	const labelDisconnected = __( 'PayPal Disconnected', 'jetpack-paypal-payments' );
-
 	const {
 		isConnected,
 		setIsConnected,
@@ -427,10 +423,7 @@ export default function ApiManagedEdit( {
 
 	const returnUrlError = errorFor( 'returnUrl' );
 
-	// Whether the form is valid: no validation errors on required fields or variants.
-	// Derived over the errors rather than listed field by field, so a new one cannot be
-	// forgotten here. returnUrl stays out of the gate - a bad one warns and still saves,
-	// as it always has - which is what ADVISORY_ERROR_KEYS carries.
+	// Valid once every field, option group and customer note is free of errors.
 	const isFormValid =
 		! hasBlockingError( validationErrors ) &&
 		variantErrors.length === 0 &&
@@ -1004,18 +997,6 @@ export default function ApiManagedEdit( {
 			) }
 		</Notice>
 	) : null;
-
-	const connectionStatus = (
-		<span
-			className={ `jetpack-paypal-payment-buttons__status-dot ${
-				isConnected
-					? 'jetpack-paypal-payment-buttons__status-dot--connected'
-					: 'jetpack-paypal-payment-buttons__status-dot--disconnected'
-			}` }
-		/>
-	);
-
-	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
 	const linkStep = (
 		<ExistingLinksStep
@@ -1617,7 +1598,11 @@ export default function ApiManagedEdit( {
 					</>
 				) }
 			</PanelBody>
-			<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
+			{ /* Opens itself on a return URL error. */ }
+			<PanelBody
+				title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) }
+				initialOpen={ !! validationErrors.returnUrl }
+			>
 				{ /* URLInput takes no onBlur, so the wrapper catches it as it bubbles, and
 				     carries the error class too. URLInput gets exactly one class - it appends
 				     `__suggestions` to whatever it is given, and a second one in there
@@ -1630,7 +1615,8 @@ export default function ApiManagedEdit( {
 						label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
 						className="jetpack-paypal-payment-buttons__return-url"
 						value={ returnUrl || '' }
-						onChange={ value => setAttributes( { returnUrl: value } ) }
+						// Pasted URLs often bring a stray space at either end.
+						onChange={ value => setAttributes( { returnUrl: value.trim() } ) }
 						required={ false }
 						disabled={ isBusy }
 						help={
@@ -1665,59 +1651,47 @@ export default function ApiManagedEdit( {
 			{ accountHeader }
 			{ formatControls }
 
-			<div className="jetpack-paypal-payment-buttons__preview">
-				<div className="jetpack-paypal-payment-buttons__preview-status">
-					{ connectionStatus }
-					{ connectionLabel }
-					{ environment === 'sandbox' && (
-						<span className="jetpack-paypal-payment-buttons__sandbox-badge">
-							{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
-						</span>
+			{ /* The inspector only mounts when the block is selected, so notices about a
+			     broken block go on the canvas. */ }
+			{ disconnectedNotice }
+
+			{ linkDeleted && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
+						'jetpack-paypal-payments'
 					) }
-				</div>
+				</Notice>
+			) }
 
-				{ /* The inspector only mounts when the block is selected, so notices about a
-				     broken block go on the canvas. */ }
-				{ disconnectedNotice }
-
-				{ linkDeleted && (
-					<Notice status="warning" isDismissible={ false }>
-						{ __(
-							'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
-							'jetpack-paypal-payments'
-						) }
-					</Notice>
-				) }
-
-				{ showLinkStep ? (
-					<p className="jetpack-paypal-payment-buttons__links-hint">
-						{ __(
-							'Choose a payment link you already have, or create a new one, in the block settings.',
-							'jetpack-paypal-payments'
-						) }
-					</p>
-				) : (
-					<PayPalButtonPreview
-						format={ activeFormat }
-						productName={ productName }
-						price={ price }
-						currencyCode={ currencyCode }
-						productDescription={ productDescription }
-						paymentLink={ paymentLink }
-						variantsEnabled={ variantsEnabled }
-						variants={ variants }
-						imageUrl={ imageUrl }
-						partnerAttributionId={ partnerAttributionId }
-						buttonText={ buttonText }
-						linkText={ linkText }
-						qrShowCaption={ qrShowCaption }
-						qrCaption={ qrCaption }
-						attributes={ attributes }
-						resource={ resource }
-						isSelected={ isSelected }
-					/>
-				) }
-			</div>
+			{ showLinkStep ? (
+				<p className="jetpack-paypal-payment-buttons__links-hint">
+					{ __(
+						'Choose a payment link you already have, or create a new one, in the block settings.',
+						'jetpack-paypal-payments'
+					) }
+				</p>
+			) : (
+				<PayPalButtonPreview
+					format={ activeFormat }
+					productName={ productName }
+					price={ price }
+					currencyCode={ currencyCode }
+					productDescription={ productDescription }
+					paymentLink={ paymentLink }
+					variantsEnabled={ variantsEnabled }
+					variants={ variants }
+					imageUrl={ imageUrl }
+					partnerAttributionId={ partnerAttributionId }
+					buttonText={ buttonText }
+					linkText={ linkText }
+					qrShowCaption={ qrShowCaption }
+					qrCaption={ qrCaption }
+					attributes={ attributes }
+					resource={ resource }
+					isSelected={ isSelected }
+				/>
+			) }
 
 			{ confirmDialogs }
 			{ showUnsavedConfirm && (

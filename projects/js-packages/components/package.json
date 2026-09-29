@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-components",
-	"version": "3.2.0",
+	"version": "3.3.0",
 	"description": "Jetpack Components Package",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/js-packages/components/#readme",
 	"bugs": {
@@ -52,6 +52,11 @@
 			"jetpack:src": "./components/jetpack-logo/index.tsx",
 			"types": "./build/components/jetpack-logo/index.d.ts",
 			"default": "./build/components/jetpack-logo/index.js"
+		},
+		"./jitm-slot": {
+			"jetpack:src": "./components/jitm-slot/index.tsx",
+			"types": "./build/components/jitm-slot/index.d.ts",
+			"default": "./build/components/jitm-slot/index.js"
 		},
 		"./pricing-table": {
 			"jetpack:src": "./components/pricing-table/index.tsx",

@@ -7,7 +7,6 @@ import {
 	type StatsArchivesComparisonItem,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { reports } from '@jetpack-premium-analytics/icons';
 import {
 	LeaderboardChart,
 	LeaderboardSkeleton,
@@ -298,10 +297,6 @@ function TopPostsReport() {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
-					empty={ {
-						icon: reports,
-						description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<TopPostsLeaderboard
@@ -493,10 +488,6 @@ function ArchivesReport() {
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>

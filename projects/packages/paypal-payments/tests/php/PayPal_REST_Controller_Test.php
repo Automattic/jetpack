@@ -1959,6 +1959,37 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * An http return URL goes through to PayPal unchanged.
+	 */
+	public function test_create_button_sends_an_http_return_url() {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		$create = $this->dispatch_json(
+			'POST',
+			'/wpcom/v2/paypal/buttons',
+			array(
+				'line_items' => array(
+					array(
+						'name'        => 'Widget',
+						'unit_amount' => array(
+							'currency_code' => 'USD',
+							'value'         => '10.00',
+						),
+					),
+				),
+				'return_url' => 'http://example.com/thanks',
+			)
+		);
+
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( 'http://example.com/thanks', $store['return_url'] );
+	}
+
+	/**
 	 * PayPal fetches the image itself, so a URL it cannot fetch is left out
 	 * rather than failing the save.
 	 */

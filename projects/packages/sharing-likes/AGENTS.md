@@ -5,8 +5,8 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 ## What this package is
 
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
-registration, the two feature sections (Sharing buttons, Like buttons), the
-shared placement section, the extras section, and the form handling for all of
+registration, the three feature sections (Sharing buttons, Like buttons, Comment
+Likes), the shared placement section, the extras section, and the form handling for all of
 them. The Jetpack plugin hooks it up from the `is_admin()` block in
 `load-jetpack.php`, so the screen and every section on it exist whichever
 modules are active. The menu itself only registers where
@@ -80,9 +80,33 @@ button). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
 off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
 with no way back, as a deactivated module does. The same holds on Jetpack for an
-active Sharing module with every service removed. Without a block route the
-options stay, since they are then the only way back. Simple's Comment Likes
-checkbox survives the switch: comments have no block to move to.
+active Sharing module with every service removed. Like buttons have no such
+settings route off Simple: wpcom's `wpr_can_reblog_post()` refuses every Jetpack
+and Atomic site, so `disabled_reblogs` hides nothing there, and switching turns
+the module off instead. Without a block route the options stay, since they are
+then the only way back.
+
+**Comment Likes are a section of their own, with no variants.** Comments have
+no block to move to, and the module runs without the Likes module, so
+`Comment_Likes_Section` always renders, and the Like buttons section describes
+the Likes module alone. Where `Environment::likes_supported()` fails (offline
+mode), it says a connection is needed rather than offering a switch the module
+could not act on. The two platforms
+disagree on what Comment Likes read:
+
+- Simple stores the switch in `jetpack_comment_likes_enabled`, and wpcom's
+  `comment-likes-capture.php` shows them on single posts and pages whatever the
+  placement says.
+- On Jetpack and Atomic, the switch is the `comment-likes` module, which never
+  reads that option. It only renders where `Jetpack_Likes_Settings::is_likes_visible()`
+  holds, so it follows the sitewide Likes default and the placement.
+
+`Environment::comment_likes_follow_likes_settings()` is that split. Where it
+holds, the section states where Comment Likes appear, placement stays on screen
+with both button features off, and whenever the Like buttons section shows no
+options, the section also carries the sitewide default (`Likes_Section::render_sitewide_default_row()`),
+claiming `Settings_Form::SECTION_LIKES` so the Likes save handles it. That is
+why Comment Likes do not hold back the Like block route.
 
 **Simple reuses `Jetpack_Likes_Settings` without the Likes module.**
 `wp-content/mu-plugins/likes/jetpack-likes-settings.php` is a shim that requires
@@ -90,14 +114,6 @@ the plugin's copy of that class. `modules/likes.php` never loads on Simple;
 `wp-content/mu-plugins/likes/jetpack-likes.php` is its wpcom twin. Anything you
 delete from `Jetpack_Likes_Settings` can therefore break Simple without a single
 reference in this repo.
-
-**Simple still hangs the Likes settings on `sharing_global_options`**, from
-`wp-content/mu-plugins/likes/jetpack-likes.php`, until CM-913 removes that hookup.
-`Services_Config::global_options()` leaves `admin_settings_init()` out wherever it
-fires the action: the Likes section renders those settings itself, and a second
-set of the same radios would join the same form. Do not delete
-`admin_settings_init()` or `admin_settings_callback()` from `Jetpack_Likes_Settings`
-before that lands; wpcom still calls them.
 
 **`WP_SHARING_PLUGIN_URL` is not the same thing in both environments.** The
 plugin defines it with `plugin_dir_url()`; wpcom hardcodes a sun/moon-aware path
@@ -108,7 +124,10 @@ two-repo change, not a rename.
 `Modules::get_active()` intersects with `get_available()`, which is called with
 no arguments, so nothing is filtered on connection. A site that cannot render a
 Like button will still answer `true` to `is_active( 'likes' )`. That is what
-`Environment::likes_supported()` is for. Sharing needs no connection, but
+`Environment::likes_supported()` is for. Offline mode catches connected sites
+the same way: their tokens survive it, so `is_connected()` still holds, but
+`Jetpack::load_modules()` skips every module that requires a connection, which
+is why `likes_supported()` checks offline mode too. Sharing needs no connection, but
 `Jetpack::load_modules()` includes nothing on a site that is neither connected
 nor offline, so `Environment::legacy_sharing_supported()` applies the same guard
 before `sharing_module_running()` reads the module: an active-but-unloaded module
@@ -156,8 +175,8 @@ between the two requests, though — a service added since the form was built fl
 `Sharing_Resources::is_available()` on — so `Post_Handler` gates that one on the
 services section having claimed the form too. Firing it under a nonce its consumers did not mint is not free, and the
 rule is not "consumers verify their own nonces" — check before adding one. A
-consumer that verifies `sharing-options` — `Jetpack_Likes_Settings::admin_settings_callback()`,
-hooked on Simple — fails closed and silently saves nothing. A consumer that
+consumer that verifies the old screen's `sharing-options` nonce fails closed and
+silently saves nothing. A consumer that
 verifies nothing, relying on the caller having done it, writes whatever the
 request carries.
 

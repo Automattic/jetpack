@@ -8,6 +8,7 @@ import {
 	useReportScope,
 } from '@jetpack-premium-analytics/data';
 import { createTZDateFromParts, endOfDayTZ } from '@jetpack-premium-analytics/datetime';
+import { useDashboardOriginSearch } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
@@ -17,6 +18,7 @@ import { useCallback } from 'react';
 import { DATE_FILTER_RANGE, DATE_FILTER_YEAR } from './config';
 import {
 	useActiveSection,
+	useDashboardPolicy,
 	useDashboardSections,
 	useOnboarding,
 	useSectionDateFilter,
@@ -130,7 +132,13 @@ const mockTrackCustomize = {
 	reset: jest.fn(),
 };
 
+jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '@wordpress/route' ),
+	useSearch: () => ( {} ),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '../../packages/widgets-toolkit/src/hooks/use-dashboard-origin-search' ),
 	useTrackCustomize: () => mockTrackCustomize,
 	PageOptionsMenu: ( { onCustomize }: { onCustomize?: () => void } ) => (
 		<div data-testid="page-options-menu">
@@ -146,6 +154,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			Reset to default
 		</button>
 	),
+	useTrackedDateRangeApply: () => ( { trackedOnChange: () => {}, trackedOnApply: () => {} } ),
 } ) );
 
 jest.mock( '@wordpress/admin-ui', () => ( {
@@ -178,6 +187,16 @@ function MockHeaderScopeProbe() {
 	return (
 		<span>{ offersComparison ? 'header offers comparison' : 'header offers no comparison' }</span>
 	);
+}
+
+/**
+ * Reads the dashboard origin a widget's links carry, from where the widgets render.
+ *
+ * @return The origin, as text.
+ */
+function MockOriginProbe() {
+	const origin = useDashboardOriginSearch();
+	return <span>origin: { origin.ds ?? 'none' }</span>;
 }
 
 /**
@@ -276,7 +295,12 @@ jest.mock( '@wordpress/widget-dashboard', () => {
 	}
 	WidgetDashboard.Actions = Actions;
 	WidgetDashboard.NoWidgetsState = () => null;
-	WidgetDashboard.Widgets = () => <MockScopeProbe />;
+	WidgetDashboard.Widgets = () => (
+		<>
+			<MockScopeProbe />
+			<MockOriginProbe />
+		</>
+	);
 	WidgetDashboard.Commands = () => null;
 	WidgetDashboard.Policy = ( { children }: { children: ReactNode } ) => <>{ children }</>;
 
@@ -321,10 +345,23 @@ jest.mock( '../widget-module-i18n', () => ( {
 	useWidgetTypesWithI18n: () => [ [], false ],
 } ) );
 
+jest.mock( './config', () => {
+	const actual = jest.requireActual( './config' );
+
+	return {
+		...actual,
+		// Most section fixtures here carry no default layout.
+		getInsertableWidgetTypeNames: ( sections: Array< Record< string, unknown > > ) =>
+			actual.getInsertableWidgetTypeNames(
+				sections.map( section => ( { default_layout: [], ...section } ) )
+			),
+	};
+} );
+
 jest.mock( './hooks', () => ( {
 	useActiveSection: jest.fn(),
 	useDashboardGridSettings: () => [ {} ],
-	useDashboardPolicy: () => () => true,
+	useDashboardPolicy: jest.fn( () => () => true ),
 	useDashboardSectionLayout: () => [ [], jest.fn(), mockResetLayout ],
 	useDashboardSections: jest.fn(),
 	useOnboarding: jest.fn(),
@@ -342,6 +379,7 @@ beforeEach( () => {
 const useDashboardSectionsMock = jest.mocked( useDashboardSections );
 const useSectionDateFilterMock = jest.mocked( useSectionDateFilter );
 const useActiveSectionMock = jest.mocked( useActiveSection );
+const useDashboardPolicyMock = jest.mocked( useDashboardPolicy );
 const useOnboardingMock = jest.mocked( useOnboarding );
 
 const closedOnboarding = {
@@ -447,6 +485,31 @@ describe( 'Dashboard report scope', () => {
 		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
 		rerender( <Dashboard /> );
 		expect( screen.getByText( 'offers comparison' ) ).toBeInTheDocument();
+	} );
+
+	it( 'names the active tab to the widgets, so their links can return to it', () => {
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{ slug: 'traffic', label: 'Traffic', title: 'Traffic', date_filter: DATE_FILTER_RANGE },
+				{
+					slug: 'insights',
+					label: 'Insights',
+					title: 'Site insights',
+					date_filter: DATE_FILTER_YEAR,
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		const { rerender } = render( <Dashboard /> );
+
+		expect( screen.getByText( 'origin: traffic' ) ).toBeInTheDocument();
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		rerender( <Dashboard /> );
+		expect( screen.getByText( 'origin: insights' ) ).toBeInTheDocument();
 	} );
 } );
 
@@ -890,6 +953,59 @@ describe( 'Dashboard header date control', () => {
 
 		expect( screen.getByText( 'measuring header' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'measuring body' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'Dashboard inserter', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		useActiveSectionMock.mockReturnValue( [ 'traffic', jest.fn() ] );
+		mockActiveSectionSlug = 'traffic';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_RANGE );
+		useDashboardSectionsMock.mockReturnValue( {
+			sections: [
+				{
+					slug: 'traffic',
+					label: 'Traffic',
+					date_filter: DATE_FILTER_RANGE,
+					default_layout: [ { uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' } ],
+				},
+				{
+					slug: 'insights',
+					label: 'Insights',
+					date_filter: DATE_FILTER_YEAR,
+					default_layout: [ { uuid: 'default-latest-post', type: 'jpa/latest-post' } ],
+				},
+			],
+			hasResolved: true,
+		} as unknown as ReturnType< typeof useDashboardSections > );
+	} );
+
+	it( 'offers the widget types the active section places by default', () => {
+		const { rerender } = render( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/traffic-chart' ] ),
+		} );
+
+		useActiveSectionMock.mockReturnValue( [ 'insights', jest.fn() ] );
+		mockActiveSectionSlug = 'insights';
+		useSectionDateFilterMock.mockReturnValue( DATE_FILTER_YEAR );
+		rerender( <Dashboard /> );
+
+		expect( useDashboardPolicyMock ).toHaveBeenLastCalledWith( {
+			insertableWidgetTypes: new Set( [ 'jpa/latest-post' ] ),
+		} );
+	} );
+
+	it( 'hands the policy the same set while the active section stays', () => {
+		const { rerender } = render( <Dashboard /> );
+		const [ first ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		rerender( <Dashboard /> );
+		const [ second ] = useDashboardPolicyMock.mock.lastCall ?? [];
+
+		expect( second?.insertableWidgetTypes ).toBe( first?.insertableWidgetTypes );
 	} );
 } );
 

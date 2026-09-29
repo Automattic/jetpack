@@ -17,7 +17,7 @@ declare module '@automattic/jetpack-script-data' {
 			// premium-analytics-dashboard-composition feature flag, read by the policy.
 			dashboard_composition_enabled?: boolean;
 			// Slugs of the tabs the dashboard exposes. Absent until the section registry is hydrated.
-			preview_sections?: string[];
+			sections?: string[];
 		};
 		newsletter?: {
 			// The Newsletter page's Subscribers tab; null when this user cannot open it.

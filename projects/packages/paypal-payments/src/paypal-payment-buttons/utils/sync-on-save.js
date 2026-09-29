@@ -145,8 +145,8 @@ function recordPaymentsWritten( written, reportSaved ) {
 /**
  * Why a block's form cannot be sent to PayPal yet, if it cannot.
  *
- * The same check the editor shows the merchant - a blocking field error, an option
- * group error or a customer note error.
+ * The same check the editor shows the merchant - a field error, an option group
+ * error or a customer note error.
  *
  * @param {object} attributes - Block attributes.
  * @return {string|null} The first thing to fix, or null when the payment can go.

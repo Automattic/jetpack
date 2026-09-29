@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Ask before deleting videos, and warn before leaving the page while an upload is running.

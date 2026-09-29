@@ -95,8 +95,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 		remove_all_actions( 'doing_it_wrong_run' );
 		remove_all_filters( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER );
 		remove_all_filters( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER );
-		remove_all_filters( DASHBOARD_PREVIEW_SCOPE_FILTER );
-		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
 		delete_option( Enablement_Setting::ENABLED_OPTION );
 
@@ -160,6 +159,15 @@ class Dashboard_Section_Test extends BaseTestCase {
 	private function enable_every_section() {
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+	}
+
+	/**
+	 * Switch on the feature flag the Store section sits behind.
+	 *
+	 * @return void
+	 */
+	private function enable_store_section() {
+		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_STORE_SECTION_FLAG, '__return_true' );
 	}
 
 	/**
@@ -376,10 +384,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The built-in Insights section offers the year date filter; the rest keep the range.
 	 */
 	public function test_built_in_sections_declare_their_date_filters() {
-		// Store needs both gates: the filter stands in for WooCommerce being active,
-		// and the admin user satisfies the capability check added in #50889.
+		// Store needs every gate: its flag, the filter standing in for WooCommerce, and
+		// the admin user for the capability check added in #50889.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -472,10 +481,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Insights and Subscribers move their date control to widgets and disable comparison.
 	 */
 	public function test_built_in_sections_declare_their_date_filter_options() {
-		// Store needs both gates: the filter stands in for WooCommerce being active,
-		// and the admin user satisfies the capability check added in #50889.
+		// Store needs every gate: its flag, the filter standing in for WooCommerce, and
+		// the admin user for the capability check added in #50889.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -517,6 +527,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	public function test_only_the_store_section_requires_the_sync() {
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -544,10 +555,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * The analytics sections carry their own heading; Store still falls back to its label.
 	 */
 	public function test_built_in_sections_declare_their_headings() {
-		// Store needs both gates: the filter stands in for WooCommerce being active,
-		// and the admin user satisfies the capability check added in #50889.
+		// Store needs every gate: its flag, the filter standing in for WooCommerce, and
+		// the admin user for the capability check added in #50889.
 		$this->set_admin_user();
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -1006,6 +1018,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_registers_woocommerce_dashboard_section_when_available() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->enable_store_section();
 		$this->set_admin_user();
 
 		register_default_dashboard_sections();
@@ -1158,22 +1171,35 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The customer preview exposes the Traffic and Insights tabs and nothing else.
+	 * On the site's own opt-in, the Store tab stays hidden until its feature flag is on.
 	 */
-	public function test_preview_scope_leaves_only_the_traffic_and_insights_sections() {
+	public function test_store_section_is_hidden_on_the_site_opt_in_while_its_flag_is_off() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
-		$this->assertSame( array( 'analytics/traffic', 'analytics/insights' ), $this->available_section_ids() );
+		$this->assertSame(
+			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
+			$this->available_section_ids()
+		);
 	}
 
 	/**
-	 * A dashboard switched on by anything but the site's own opt-in keeps every tab.
+	 * The blog sticker and the enablement filter leave the option off, and keep the Store tab without the flag.
 	 */
-	public function test_an_overridden_dashboard_is_not_preview_scoped() {
+	public function test_store_section_shows_without_its_flag_outside_the_site_opt_in() {
 		$this->enable_every_section();
+
+		register_default_dashboard_sections();
+
+		$this->assertContains( 'woocommerce/store', $this->available_section_ids() );
+	}
+
+	public function test_store_section_flag_shows_the_store_tab() {
+		$this->enable_every_section();
+		$this->enable_store_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
@@ -1188,85 +1214,11 @@ class Dashboard_Section_Test extends BaseTestCase {
 		);
 	}
 
-	/**
-	 * The scope filter restores the whole dashboard for a development or test site.
-	 */
-	public function test_preview_scope_filter_restores_every_section() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_true' );
-
-		register_default_dashboard_sections();
-
-		$this->assertCount( 4, $this->available_section_ids() );
-	}
-
-	/**
-	 * The scope filter carries the section id, so one tab can open without the rest.
-	 */
-	public function test_preview_scope_filter_can_open_a_single_section() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter(
-			DASHBOARD_PREVIEW_SCOPE_FILTER,
-			static function ( $in_scope, $slug ) {
-				return 'subscribers' === $slug ? true : $in_scope;
-			},
-			10,
-			2
-		);
-
-		register_default_dashboard_sections();
-
-		$this->assertSame(
-			array( 'analytics/traffic', 'analytics/insights', 'analytics/subscribers' ),
-			$this->available_section_ids()
-		);
-	}
-
-	/**
-	 * Without the WordPress.com gate there is no Automattician, so the flag leaves the preview alone.
-	 */
-	public function test_a11n_all_sections_flag_keeps_the_preview_for_a_site_owner() {
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG, '__return_true' );
-
-		register_default_dashboard_sections();
-
-		$this->assertSameSize( PREVIEW_SECTIONS, $this->available_section_ids() );
-	}
-
-	/**
-	 * @runInSeparateProcess
-	 * @preserveGlobalState disabled
-	 */
-	#[RunInSeparateProcess]
-	#[PreserveGlobalState( false )]
-	public function test_a11n_all_sections_flag_shows_an_automattician_every_section() {
-		require_once __DIR__ . '/fixtures/class-wpcom-feature-flags.php';
-		\Automattic\Jetpack\Jetpack_Mu_Wpcom\Wpcom_Feature_Flags::$is_a11n = true;
-		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter( 'jetpack_feature_flag_enabled_' . DASHBOARD_A11N_ALL_SECTIONS_FLAG, '__return_true' );
-
-		register_default_dashboard_sections();
-
-		$registered = Dashboard_Section_Registry::get_instance()->get_all_registered( DASHBOARD_NAME );
-
-		$this->assertSameSize( $registered, $this->available_section_ids() );
-		$this->assertGreaterThan( count( PREVIEW_SECTIONS ), count( $this->available_section_ids() ) );
-		$this->assertSameSize( $registered, get_dashboard_preview_scope_sections() );
-	}
-
-	/**
-	 * The scope decides which sections the preview offers, never whether the site has them.
-	 */
-	public function test_preview_scope_does_not_bypass_a_section_own_availability() {
+	public function test_store_section_flag_does_not_bypass_woocommerce_availability() {
 		$this->set_admin_user();
-		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_true' );
+		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
+		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
@@ -1274,38 +1226,33 @@ class Dashboard_Section_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Switching the preview off stores a falsy option, which is not the same as running it.
-	 *
-	 * @param mixed $stored Value the opt-out leaves in the option.
-	 * @dataProvider provide_opted_out_option_values
+	 * The site's own opt-in no longer limits the dashboard to a fixed list of tabs.
 	 */
-	#[DataProvider( 'provide_opted_out_option_values' )]
-	public function test_an_explicit_opt_out_is_not_preview_scoped( $stored ) {
+	public function test_site_opt_in_exposes_every_available_section() {
 		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, $stored );
+		$this->enable_store_section();
+		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/extra',
+			array(
+				'label' => 'Extra',
+				'order' => 50,
+			)
+		);
 
-		$this->assertCount( 4, $this->available_section_ids() );
-	}
-
-	/**
-	 * Data provider for the opt-out values core can leave behind.
-	 *
-	 * @return array<string, array{mixed}>
-	 */
-	public static function provide_opted_out_option_values() {
-		return array(
-			'sanitized zero' => array( 0 ),
-			'empty string'   => array( '' ),
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers', 'store', 'extra' ),
+			get_available_dashboard_section_slugs()
 		);
 	}
 
 	/**
-	 * The preview leaves nothing that waits on the analytics sync, so the sync stays idle
-	 * until the Store tab is exposed.
+	 * Nothing else waits on the analytics sync, so the sync stays idle until the Store tab is exposed.
 	 */
-	public function test_preview_scope_leaves_no_section_awaiting_sync() {
+	public function test_no_section_awaits_sync_while_the_store_section_is_hidden() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
@@ -1321,130 +1268,129 @@ class Dashboard_Section_Test extends BaseTestCase {
 			'requires_sync'
 		);
 
-		$this->assertSame( array( false, false ), $requires_sync );
+		$this->assertSame( array( false, false, false ), $requires_sync );
 	}
 
 	/**
-	 * The scope governs this package's dashboard, not every dashboard using the registry.
+	 * A hidden Store tab is a 404 for anyone who addresses it directly.
 	 */
-	public function test_preview_scope_leaves_other_dashboards_alone() {
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_dashboard_section( 'other_dashboard', 'other/insights', array( 'label' => 'Insights' ) );
-
-		$this->assertCount( 1, get_available_dashboard_sections( 'other_dashboard' ) );
-	}
-
-	/**
-	 * A section the preview hides is a 404 for anyone who addresses it directly.
-	 */
-	public function test_preview_scope_hides_a_section_from_the_route() {
+	public function test_hidden_store_section_is_unavailable_from_the_route() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
-		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'analytics/subscribers' );
+		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'woocommerce/store' );
 
 		$this->assertInstanceOf( \WP_Error::class, $section );
 		$this->assertSame( 'dashboard_section_unavailable', $section->get_error_code() );
 	}
 
-	/**
-	 * The scope published to the client lists the tabs the preview exposes.
-	 */
-	public function test_preview_scope_sections_are_the_exposed_tabs() {
+	public function test_available_section_slugs_list_every_available_tab() {
 		$this->enable_every_section();
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
-
-		register_default_dashboard_sections();
-
-		$this->assertSame( array( 'traffic', 'insights' ), get_dashboard_preview_scope_sections() );
-	}
-
-	/**
-	 * An unscoped dashboard publishes every tab, so the client gates nothing.
-	 */
-	public function test_preview_scope_sections_list_every_tab_when_unscoped() {
-		$this->enable_every_section();
+		$this->enable_store_section();
 
 		register_default_dashboard_sections();
 
 		$this->assertSame(
 			array( 'traffic', 'insights', 'subscribers', 'store' ),
-			get_dashboard_preview_scope_sections()
+			get_available_dashboard_section_slugs()
 		);
 	}
 
 	/**
-	 * A registry nothing registered into publishes nothing rather than an empty scope.
+	 * A registry nothing registered into publishes nothing rather than an empty list.
 	 */
-	public function test_preview_scope_sections_are_absent_while_nothing_is_registered() {
+	public function test_available_section_slugs_are_absent_while_nothing_is_registered() {
 		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
-		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
-		$this->assertNull( get_dashboard_preview_scope_sections() );
-		$this->assertSame( array(), inject_dashboard_preview_scope_script_data( array() ) );
+		$this->assertNull( get_available_dashboard_section_slugs() );
+		$this->assertSame( array(), inject_dashboard_sections_script_data( array() ) );
 	}
 
 	/**
 	 * A tab the site cannot show is not a tab its reports may sit behind.
 	 */
-	public function test_preview_scope_sections_drop_an_unavailable_tab() {
+	public function test_available_section_slugs_drop_an_unavailable_tab() {
 		$this->enable_every_section();
 		add_filter( SUBSCRIBERS_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_false' );
 
 		register_default_dashboard_sections();
 
-		$this->assertNotContains( 'subscribers', get_dashboard_preview_scope_sections() );
+		$this->assertNotContains( 'subscribers', get_available_dashboard_section_slugs() );
 	}
 
 	/**
-	 * A filter that closes every tab publishes an empty scope, not an absent one.
+	 * A registry whose every section is unavailable publishes an empty list, not an absent one.
 	 */
-	public function test_preview_scope_sections_are_empty_when_every_tab_is_closed() {
-		$this->enable_every_section();
-		add_filter( DASHBOARD_PREVIEW_SCOPE_FILTER, '__return_false' );
+	public function test_available_section_slugs_are_empty_when_every_tab_is_unavailable() {
+		remove_action( Dashboard_Section_Registry::REGISTER_ACTION, __NAMESPACE__ . '\\register_default_dashboard_sections' );
+		register_dashboard_section(
+			DASHBOARD_NAME,
+			'other/closed',
+			array(
+				'label'        => 'Closed',
+				'is_available' => false,
+			)
+		);
 
-		register_default_dashboard_sections();
-
-		$this->assertSame( array(), get_dashboard_preview_scope_sections() );
+		$this->assertSame( array(), get_available_dashboard_section_slugs() );
 		$this->assertSame(
-			array( 'preview_sections' => array() ),
-			inject_dashboard_preview_scope_script_data( array() )['premium_analytics']
+			array( 'sections' => array() ),
+			inject_dashboard_sections_script_data( array() )['premium_analytics']
 		);
 	}
 
 	/**
-	 * The scope only reaches the client if the injector is actually hooked.
+	 * The slugs only reach the client if the injector is actually hooked.
 	 */
-	public function test_configure_hooks_the_preview_scope_into_script_data() {
+	public function test_configure_hooks_the_section_slugs_into_script_data() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
-		configure_dashboard_preview_scope();
+		configure_dashboard_sections_script_data();
 
 		$data = apply_filters( 'jetpack_admin_js_script_data', array() );
 
-		$this->assertSame( array( 'traffic', 'insights' ), $data['premium_analytics']['preview_sections'] );
+		$this->assertSame(
+			array( 'traffic', 'insights', 'subscribers' ),
+			$data['premium_analytics']['sections']
+		);
 	}
 
 	/**
-	 * The scope reaches the client through the script data the dashboard page prints.
+	 * Older copies' Dashboard_Section::is_available() still asks the removed preview scope.
 	 */
-	public function test_preview_scope_script_data_carries_the_exposed_tabs() {
+	public function test_previous_preview_scope_check_leaves_every_section_in_scope() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
+		$this->assertTrue( is_dashboard_section_in_preview_scope( DASHBOARD_NAME, 'store' ) );
+	}
+
+	/**
+	 * Older copies of the package call the configurator by its previous name.
+	 */
+	public function test_previous_configurator_name_still_hooks_the_section_slugs() {
+		// @phan-suppress-next-line PhanDeprecatedFunction -- Covers the stub older copies call.
+		configure_dashboard_preview_scope();
+
+		$this->assertNotFalse(
+			has_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data' )
+		);
+	}
+
+	public function test_section_script_data_keeps_the_other_premium_analytics_keys() {
 		$this->enable_every_section();
 		update_option( Enablement_Setting::ENABLED_OPTION, 1 );
 
 		register_default_dashboard_sections();
 
-		$data = inject_dashboard_preview_scope_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
+		$data = inject_dashboard_sections_script_data( array( 'premium_analytics' => array( 'has_videopress' => true ) ) );
 
 		$this->assertSame(
 			array(
-				'has_videopress'   => true,
-				'preview_sections' => array( 'traffic', 'insights' ),
+				'has_videopress' => true,
+				'sections'       => array( 'traffic', 'insights', 'subscribers' ),
 			),
 			$data['premium_analytics']
 		);
@@ -1504,6 +1450,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 */
 	public function test_omits_woocommerce_dashboard_section_from_a_view_stats_reader() {
 		add_filter( WOOCOMMERCE_DASHBOARD_SECTION_AVAILABLE_FILTER, '__return_true' );
+		$this->enable_store_section();
 		$user_id = $this->set_editor_user();
 		$this->grant_view_stats_to( $user_id );
 
@@ -1748,6 +1695,7 @@ class Dashboard_Section_Test extends BaseTestCase {
 	 * Sections route includes the store section only when WooCommerce is detected.
 	 */
 	public function test_sections_route_reflects_woocommerce_availability() {
+		$this->enable_store_section();
 		register_default_dashboard_sections();
 
 		$this->set_admin_user();

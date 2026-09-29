@@ -2,7 +2,11 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
-import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
+import type {
+	ReportParams,
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -17,6 +21,7 @@ export interface LocationView {
 	value: number;
 	previousValue?: number;
 	region: string;
+	coordinates?: StatsLocationCoordinates;
 }
 
 interface UseLocationViewsArgs {
@@ -67,6 +72,7 @@ function toLocationView( item: StatsLocationsComparisonItem ): LocationView | nu
 		value: item.views,
 		previousValue: item.previousViews,
 		region: item.region ?? '',
+		coordinates: item.coordinates,
 	};
 }
 

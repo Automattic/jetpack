@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.35
+ * Stubs automatically generated from PHPUnit 12.5.36
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -25631,7 +25631,7 @@ final readonly class Sanitizer
     /**
      * @see https://github.com/sebastianbergmann/phpunit/issues/6605
      */
-    public static function sanitizeBidirectionalControlCharacters(string $value): string
+    public static function sanitizeControlCharacters(string $value): string
     {
     }
 }

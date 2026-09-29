@@ -57,6 +57,11 @@ const label = __( 'All pages' );
 - **`ReportRecordsTable`** — a Core DataViews table over the module's
   summarized rows; search, sorting, column config, and pagination run
   client-side via `filterSortAndPaginate`.
+- **`ReportEmptyState`** — replaces the records table (and, on Locations, the
+  map) when the selected period returned no rows. Pages render it only when the
+  rows they pass to the table are empty and the table is not loading, so a
+  search that matches nothing keeps the table's own "No results" and its search
+  box.
 - **`ReportPageTabs`** — the presentational tab bar for report pages with
   multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
   and reports selection upward; panel children render inside the same `Tabs.Root`
