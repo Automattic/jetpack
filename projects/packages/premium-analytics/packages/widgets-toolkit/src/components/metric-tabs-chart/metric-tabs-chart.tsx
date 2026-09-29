@@ -81,7 +81,7 @@ export interface MetricTab {
 	/**
 	 * Key of the metric to draw beside this one, visible from the start unless
 	 * `counterpartHidden` is set. A key naming no metric in the list, the metric
-	 * itself, or an `unavailable` metric, is ignored.
+	 * itself, or a metric without a series, is ignored.
 	 */
 	counterpartKey?: string;
 	/** Start the counterpart hidden, so the legend offers it as a one-click comparison. */
@@ -92,6 +92,21 @@ export interface MetricTab {
 	 * a flat zero line. The tab stays selectable, so the reason is reachable.
 	 */
 	unavailable?: string;
+	/**
+	 * Why the chart has no series for this metric while the card still shows its
+	 * value: a total the endpoint serves, but not at this bucket size.
+	 */
+	seriesUnavailable?: string;
+}
+
+/**
+ * Whether a metric has a series the chart can draw.
+ *
+ * @param metric - The metric to check.
+ * @return False when the metric, or only its series, is unavailable.
+ */
+function hasSeries( metric: MetricTab ): boolean {
+	return ! metric.unavailable && ! metric.seriesUnavailable;
 }
 
 /**
@@ -224,7 +239,7 @@ function MetricChart( {
 		}
 
 		return metrics
-			.filter( candidate => candidate.key !== metric.key && ! candidate.unavailable )
+			.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
 			.map( candidate => ( {
 				label: candidate.label,
 				data: candidate.current,
@@ -317,8 +332,12 @@ function MetricChart( {
 	// periods collapsed — and clicking it would only empty the chart.
 	const legendInteractive = !! counterpart;
 
-	if ( metric.unavailable ) {
-		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
+	if ( ! hasSeries( metric ) ) {
+		return (
+			<div className={ styles.unavailableChart }>
+				{ metric.unavailable ?? metric.seriesUnavailable }
+			</div>
+		);
 	}
 
 	// The other metrics' hover readout keeps the graph up while any of them has data.
@@ -458,7 +477,7 @@ export function MetricTabsChart( {
 
 			// A counterpart with nothing to report at this bucket size would reveal as
 			// a flat zero line for a series the request never asked for.
-			return counterpart?.unavailable ? undefined : counterpart;
+			return counterpart && hasSeries( counterpart ) ? counterpart : undefined;
 		},
 		[ metrics ]
 	);
