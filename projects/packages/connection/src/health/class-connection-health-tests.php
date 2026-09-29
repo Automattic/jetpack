@@ -205,58 +205,6 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	}
 
 	/**
-	 * Test that the server is able to send an outbound HTTP communication.
-	 *
-	 * @return array
-	 */
-	protected function test__outbound_http() {
-		$name     = 'test__outbound_http';
-		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		if ( ! $api_base ) {
-			$api_base = Utils::DEFAULT_JETPACK__API_BASE;
-		}
-		$request = wp_remote_get( preg_replace( '/^https:/', 'http:', $api_base ) . 'test/1/' );
-		$code    = wp_remote_retrieve_response_code( $request );
-
-		if ( 200 === (int) $code ) {
-			return self::passing_test( array( 'name' => $name ) );
-		}
-
-		return self::failing_test(
-			array(
-				'name'              => $name,
-				'short_description' => $this->helper_enable_outbound_requests( 'HTTP' ),
-			)
-		);
-	}
-
-	/**
-	 * Test that the server is able to send an outbound HTTPS communication.
-	 *
-	 * @return array
-	 */
-	protected function test__outbound_https() {
-		$name     = 'test__outbound_https';
-		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		if ( ! $api_base ) {
-			$api_base = Utils::DEFAULT_JETPACK__API_BASE;
-		}
-		$request = wp_remote_get( preg_replace( '/^http:/', 'https:', $api_base ) . 'test/1/' );
-		$code    = wp_remote_retrieve_response_code( $request );
-
-		if ( 200 === (int) $code ) {
-			return self::passing_test( array( 'name' => $name ) );
-		}
-
-		return self::failing_test(
-			array(
-				'name'              => $name,
-				'short_description' => $this->helper_enable_outbound_requests( 'HTTPS' ),
-			)
-		);
-	}
-
-	/**
 	 * Check for an Identity Crisis.
 	 *
 	 * @return array

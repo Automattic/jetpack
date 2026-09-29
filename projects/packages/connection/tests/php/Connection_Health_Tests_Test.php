@@ -90,8 +90,6 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertArrayHasKey( 'test__check_if_connected', $tests );
 		$this->assertArrayHasKey( 'test__master_user_exists_on_site', $tests );
 		$this->assertArrayHasKey( 'test__master_user_can_manage_options', $tests );
-		$this->assertArrayHasKey( 'test__outbound_http', $tests );
-		$this->assertArrayHasKey( 'test__outbound_https', $tests );
 		$this->assertArrayHasKey( 'test__identity_crisis', $tests );
 		$this->assertArrayHasKey( 'test__connection_token_health', $tests );
 		$this->assertArrayHasKey( 'test__wpcom_connection_test', $tests );
@@ -350,101 +348,6 @@ class Connection_Health_Tests_Test extends TestCase {
 		);
 
 		$result = $mock->run_test( 'test__master_user_can_manage_options' );
-		$this->assertFalse( $result['pass'] );
-	}
-
-	// -------------------------------------------------------------------------
-	// test__outbound_http
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test outbound_http passes with mocked successful response.
-	 */
-	public function test_outbound_http_passes_on_success() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => 'OK',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertTrue( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_http fails when request returns an error code.
-	 */
-	public function test_outbound_http_fails_on_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 500 ),
-					'body'     => 'Error',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertFalse( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_http fails when request returns a WP_Error.
-	 */
-	public function test_outbound_http_fails_on_wp_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_failed', 'Connection refused' );
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertFalse( $result['pass'] );
-	}
-
-	// -------------------------------------------------------------------------
-	// test__outbound_https
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test outbound_https passes with mocked successful response.
-	 */
-	public function test_outbound_https_passes_on_success() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => 'OK',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_https' );
-		$this->assertTrue( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_https fails when request returns an error code.
-	 */
-	public function test_outbound_https_fails_on_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 500 ),
-					'body'     => 'Error',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_https' );
 		$this->assertFalse( $result['pass'] );
 	}
 

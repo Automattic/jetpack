@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Connection: Remove the outbound HTTP/HTTPS connection health checks that could show a false critical failure on healthy sites; the same information is available from WordPress core's Site Health checks.
