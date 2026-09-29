@@ -908,6 +908,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			'orders'                => array( '/v2/checkout/orders', false ),
 			'merchant integrations' => array( '/v1/customer/partners/X/merchant-integrations/Y', false ),
 			'traversal'             => array( '/v1/checkout/payment-resources/../../v2/checkout/orders', false ),
+			'trailing newline'      => array( "/v1/checkout/payment-resources\n", false ),
 			'not a string'          => array( 42, false ),
 		);
 	}

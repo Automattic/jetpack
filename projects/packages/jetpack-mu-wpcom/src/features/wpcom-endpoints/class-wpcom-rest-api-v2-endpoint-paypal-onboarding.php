@@ -365,7 +365,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	 */
 	public function validate_path( $value ) {
 		return is_string( $value )
-			&& 1 === preg_match( '#^' . preg_quote( self::PAYPAL_PAYMENT_RESOURCES_ENDPOINT, '#' ) . '(/[A-Za-z0-9-]+)?(\?[^\s]*)?$#', $value );
+			&& 1 === preg_match( '#^' . preg_quote( self::PAYPAL_PAYMENT_RESOURCES_ENDPOINT, '#' ) . '(/[A-Za-z0-9-]+)?(\?[^\s]*)?\z#', $value );
 	}
 
 	/**

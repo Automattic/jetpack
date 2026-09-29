@@ -112,12 +112,7 @@ class PayPal_Platform_Client {
 			$params['tracking_id'] = $tracking_id;
 		}
 
-		$result = self::call_wpcom( 'GET', self::WPCOM_MERCHANT_INTEGRATION_ROUTE, $params );
-		if ( is_wp_error( $result ) ) {
-			return $result;
-		}
-
-		return $result;
+		return self::call_wpcom( 'GET', self::WPCOM_MERCHANT_INTEGRATION_ROUTE, $params );
 	}
 
 	/**
