@@ -154,7 +154,7 @@ test.describe( 'Dashboard modernization', () => {
 			await page.goto( `${ page.url().split( '#' )[ 0 ] }${ destination }` );
 			const section = page.getByRole( 'region', { name: 'Optimize your speed' } );
 			await expect( section ).toBeVisible();
-			for ( const name of [ 'Cornerstone pages', 'Page loading', 'Code optimization', 'Images' ] ) {
+			for ( const name of [ 'Cornerstone Pages', 'Page loading', 'Code optimization', 'Images' ] ) {
 				await expect( section.getByRole( 'button', { name, exact: true } ) ).toBeVisible();
 			}
 			await expect(
