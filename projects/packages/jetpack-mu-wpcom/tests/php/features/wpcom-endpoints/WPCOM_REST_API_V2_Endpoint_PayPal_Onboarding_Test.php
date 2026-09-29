@@ -9,6 +9,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-paypal-onboarding.php';
+require_once __DIR__ . '/fixtures/class-jetpack-server-version.php';
 use Automattic\Jetpack\Constants;
 
 /**
@@ -25,6 +26,13 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	 * @var WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding
 	 */
 	private $endpoint;
+
+	/**
+	 * The blog ID WorDBless started the test on.
+	 *
+	 * @var int
+	 */
+	private $original_blog_id;
 
 	/**
 	 * The blog ID the tests connect as.
@@ -48,7 +56,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	public function set_up() {
 		parent::set_up();
 
-		$this->endpoint = new WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding();
+		$this->original_blog_id = $GLOBALS['blog_id'];
+		$this->endpoint         = new WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding();
 	}
 
 	/**
@@ -57,7 +66,9 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	public function tear_down() {
 		Constants::clear_constants();
 		remove_all_filters( 'pre_http_request' );
-		\Jetpack_Options::delete_option( 'id' );
+		remove_all_filters( 'is_jetpack_authorized_for_site' );
+		Jetpack_Server_Version::$token = false;
+		$GLOBALS['blog_id']            = $this->original_blog_id;
 		foreach ( array( 'sandbox', 'production' ) as $environment ) {
 			delete_transient( WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::token_cache_key( $environment ) );
 		}
@@ -90,10 +101,31 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
-	 * Identify the calling blog, the way the signed blog request does.
+	 * Call as a Simple site, which Client::wpcom_json_api_request_as_blog() runs in-process on its own blog.
 	 */
 	private function connect_site() {
-		\Jetpack_Options::update_option( 'id', self::SITE_ID );
+		Constants::set_constant( 'IS_WPCOM', true );
+		add_filter( 'is_jetpack_authorized_for_site', '__return_true' );
+		$GLOBALS['blog_id'] = self::SITE_ID;
+	}
+
+	/**
+	 * Sign the request with a Jetpack token, the way a self-hosted or Atomic site's call arrives.
+	 *
+	 * @param int $blog_id The blog the token belongs to.
+	 * @param int $user_id The token's user; 0 for a blog token.
+	 */
+	private function sign_request_as( $blog_id, $user_id = 0 ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		// public-api's own blog, which every flat-route HTTP call runs on.
+		$GLOBALS['blog_id'] = 5836086;
+
+		Jetpack_Server_Version::$token = (object) array(
+			'blog_id'          => $blog_id,
+			'user_id'          => $user_id,
+			'external_user_id' => $user_id,
+			'secret'           => 'secret',
+		);
 	}
 
 	/**
@@ -514,6 +546,96 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 
 		$body = (array) json_decode( end( $requests )['args']['body'], true );
 		$this->assertSame( $tracking_id, $body['tracking_id'] );
+	}
+
+	// --- Calling site ---
+
+	/**
+	 * Test that a call nobody signed is refused, whoever's merchant ID it names.
+	 */
+	public function test_an_unsigned_call_is_refused() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$result = $this->endpoint->permission_check();
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that a signed call is tied to the blog its token belongs to, not to public-api's.
+	 */
+	public function test_a_signed_call_is_tied_to_the_token_blog() {
+		$this->sign_request_as( self::SITE_ID );
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->token_response(),
+				'/v2/customer/partner-referrals' => $this->http_response(
+					201,
+					array(
+						'links' => array(
+							array(
+								'rel'  => 'action_url',
+								'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
+							),
+						),
+					)
+				),
+			)
+		);
+
+		$this->assertTrue( $this->endpoint->permission_check() );
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request() );
+		$this->assertStringStartsWith( 'woo-ncps-' . self::SITE_ID . '-', $result->get_data()['tracking_id'] );
+	}
+
+	/**
+	 * Test that a seller another blog referred cannot be reached with a different blog's token.
+	 */
+	public function test_a_signed_call_cannot_act_for_another_blogs_seller() {
+		$this->sign_request_as( 999 );
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+			)
+		);
+
+		$result = $this->endpoint->forward_request( $this->forward_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that a user token does not stand in for the site's blog token.
+	 */
+	public function test_a_user_token_is_refused() {
+		$this->sign_request_as( self::SITE_ID, 42 );
+
+		$this->assertInstanceOf( WP_Error::class, $this->endpoint->permission_check() );
+	}
+
+	/**
+	 * Test that a token that failed to verify is refused.
+	 */
+	public function test_a_token_that_failed_to_verify_is_refused() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		Jetpack_Server_Version::$token = new WP_Error( 'signature_mismatch' );
+
+		$this->assertInstanceOf( WP_Error::class, $this->endpoint->permission_check() );
+	}
+
+	/**
+	 * Test that the in-process shortcut is honored only on WordPress.com.
+	 */
+	public function test_the_in_process_shortcut_needs_wpcom() {
+		add_filter( 'is_jetpack_authorized_for_site', '__return_true' );
+
+		$this->assertInstanceOf( WP_Error::class, $this->endpoint->permission_check() );
 	}
 
 	// --- Merchant integration ---

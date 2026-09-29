@@ -16,7 +16,6 @@
  * @see https://developer.paypal.com/docs/multiparty/seller-onboarding/build-onboarding/
  */
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 
@@ -140,9 +139,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		 * in the path -- so a rewritten route is unreachable from it and every call came back
 		 * rest_no_route.
 		 *
-		 * The flat form is also the honest one here: these routes carry no per-site data.
-		 * They exchange Automattic's platform credentials for PayPal calls, and the
-		 * merchant is identified by the request body, not by a site path segment.
+		 * A flat route runs on public-api's own blog, so the current blog never names the
+		 * caller: site_id() reads it from the signed blog token instead.
 		 *
 		 * The wpcom-only flag stops public-api's proxy_jetpack() from forwarding the call
 		 * to a Jetpack site and answering rest_not_implemented, which is right here: the
@@ -263,16 +261,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	}
 
 	/**
-	 * Permission check — requires a valid Jetpack blog connection.
-	 *
-	 * The request comes from the plugin via Client::wpcom_json_api_request_as_blog(),
-	 * which authenticates using the site's Jetpack blog token.
+	 * Permission check — only a site that can be identified may call.
 	 *
 	 * @return true|WP_Error
 	 */
 	public function permission_check() {
-		$site_id = Connection_Manager::get_site_id();
-		if ( is_wp_error( $site_id ) ) {
+		if ( 0 === $this->site_id() ) {
 			return new WP_Error(
 				'not_connected',
 				__( 'Site is not connected to WordPress.com.', 'jetpack-mu-wpcom' ),
@@ -283,14 +277,40 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	}
 
 	/**
-	 * The calling blog's ID, or 0 when the request carries none.
+	 * The calling blog's ID, or 0 when the request cannot be tied to one.
+	 *
+	 * The routes are flat, so the current blog is public-api's own for every HTTP
+	 * caller; the Jetpack blog token the request is signed with names the site.
 	 *
 	 * @return int
 	 */
 	private function site_id() {
-		$site_id = Connection_Manager::get_site_id();
+		// Client::wpcom_json_api_request_as_blog() sets this on a Simple site's
+		// in-process call, which WPCOM_API_Direct runs switched to that site's blog.
+		if ( Constants::is_true( 'IS_WPCOM' ) && true === apply_filters( 'is_jetpack_authorized_for_site', false ) ) {
+			return get_current_blog_id();
+		}
 
-		return is_wp_error( $site_id ) ? 0 : (int) $site_id;
+		if ( ! class_exists( 'Jetpack_Server_Version' ) ) {
+			return 0;
+		}
+
+		// Checks the request signature against the token it names.
+		$token = Jetpack_Server_Version::get_token_from_authorization_header();
+		if ( ! is_object( $token ) || is_wp_error( $token ) || empty( $token->blog_id ) ) {
+			return 0;
+		}
+
+		// A user token would let any of the site's users act as the site.
+		if ( ! empty( $token->user_id ) || ! empty( $token->external_user_id ) ) {
+			return 0;
+		}
+
+		if ( function_exists( 'is_suspended' ) && is_suspended( $token->blog_id ) ) {
+			return 0;
+		}
+
+		return (int) $token->blog_id;
 	}
 
 	/**
