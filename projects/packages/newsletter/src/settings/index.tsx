@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { AdminPage, Col, Container, GlobalNotices } from '@automattic/jetpack-components';
+import { AdminPage, Col, Container } from '@automattic/jetpack-components';
 import { useConnection, getUserConnectionUrl } from '@automattic/jetpack-connection';
 import { getSiteData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { createRoot, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { SnackbarNotices } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
@@ -15,7 +16,7 @@ import './style.scss';
 /**
  * Newsletter Settings App — legacy `wp-admin/admin.php?page=jetpack-newsletter`
  * surface. The shared body lives in `./newsletter-settings`; this file owns
- * the standalone chrome (Jetpack-styled `AdminPage`, container grid, global
+ * the standalone chrome (Jetpack-styled `AdminPage`, container grid, core
  * snackbar surface) and the WP.com connection check.
  *
  * The modernized dashboard mounts `NewsletterSettingsBody` directly inside
@@ -52,7 +53,7 @@ export function NewsletterSettingsApp(): JSX.Element {
 			apiRoot={ siteData?.rest_root }
 			apiNonce={ siteData?.rest_nonce }
 		>
-			<GlobalNotices />
+			<SnackbarNotices className="jetpack-newsletter-snackbar-notices" />
 			<Container horizontalSpacing={ 0 }>
 				<Col>
 					<div id="jp-admin-notices" className="newsletter-jitm-card" />

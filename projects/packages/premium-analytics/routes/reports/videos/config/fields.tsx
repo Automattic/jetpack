@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import {
+	createReportOriginSearch,
+	pickReportNavigationParams,
+} from '@jetpack-premium-analytics/routing';
 import { MetricWithComparison, VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
@@ -32,7 +35,7 @@ function getVideoTitle( video: StatsVideoPlaysComparisonItem ) {
  */
 function getVideoDetailSearch( current: Record< string, unknown > ) {
 	return {
-		...pickReportDateParams( current ),
+		...pickReportNavigationParams( current ),
 		...createReportOriginSearch( 'videos' ),
 	};
 }

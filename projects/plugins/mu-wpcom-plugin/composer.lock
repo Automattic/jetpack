@@ -705,7 +705,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "35d8ceead6d51b5056fee8ad2719aaddf69d6075"
+                "reference": "b2a4bae2f69c1662763ebacc77c9517c36411a91"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -742,7 +742,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.7.x-dev"
+                    "dev-trunk": "9.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -1277,7 +1277,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jitm",
-                "reference": "34432cedf17dba396028ec2596ef3d78b63d6f22"
+                "reference": "99d706f07d021e037d61344db1943c4d911d3266"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -1309,7 +1309,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-jitm/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.0.x-dev"
+                    "dev-trunk": "5.1.x-dev"
                 }
             },
             "autoload": {
@@ -1486,7 +1486,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "8bcab68ae23a06247f3275d8e2b70d54e389720c"
+                "reference": "eb1f0d903d2c44a2f9e7204655ce68e57c52009c"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1515,6 +1515,7 @@
                 "symfony/filesystem": "^6.0.0"
             },
             "require-dev": {
+                "automattic/jetpack-ads": "@dev",
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
@@ -1541,7 +1542,8 @@
                 },
                 "dependencies": {
                     "test-only": [
-                        "packages/premium-analytics"
+                        "packages/premium-analytics",
+                        "packages/ads"
                     ]
                 }
             },
@@ -2151,7 +2153,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sync",
-                "reference": "0dabf78002e37d9f69af8e54352f02dc200999b3"
+                "reference": "87b350488aa15dcb73f0e464c4e90799f4ed30e3"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -2184,7 +2186,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-sync/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "5.2.x-dev"
+                    "dev-trunk": "5.3.x-dev"
                 },
                 "dependencies": {
                     "test-only": [

@@ -5,8 +5,8 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 ## What this package is
 
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
-registration, the two feature sections (Sharing buttons, Like buttons), the
-shared placement section, the extras section, and the form handling for all of
+registration, the three feature sections (Sharing buttons, Like buttons, Comment
+Likes), the shared placement section, the extras section, and the form handling for all of
 them. The Jetpack plugin hooks it up from the `is_admin()` block in
 `load-jetpack.php`, so the screen and every section on it exist whichever
 modules are active. The menu itself only registers where
@@ -80,9 +80,33 @@ button). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
 off wherever the block is a route, so the section lands on `BLOCK_CALL_TO_ACTION`
 with no way back, as a deactivated module does. The same holds on Jetpack for an
-active Sharing module with every service removed. Without a block route the
-options stay, since they are then the only way back. Simple's Comment Likes
-checkbox survives the switch: comments have no block to move to.
+active Sharing module with every service removed. Like buttons have no such
+settings route off Simple: wpcom's `wpr_can_reblog_post()` refuses every Jetpack
+and Atomic site, so `disabled_reblogs` hides nothing there, and switching turns
+the module off instead. Without a block route the options stay, since they are
+then the only way back.
+
+**Comment Likes are a section of their own, with no variants.** Comments have
+no block to move to, and the module runs without the Likes module, so
+`Comment_Likes_Section` always renders, and the Like buttons section describes
+the Likes module alone. Where `Environment::likes_supported()` fails (offline
+mode), it says a connection is needed rather than offering a switch the module
+could not act on. The two platforms
+disagree on what Comment Likes read:
+
+- Simple stores the switch in `jetpack_comment_likes_enabled`, and wpcom's
+  `comment-likes-capture.php` shows them on single posts and pages whatever the
+  placement says.
+- On Jetpack and Atomic, the switch is the `comment-likes` module, which never
+  reads that option. It only renders where `Jetpack_Likes_Settings::is_likes_visible()`
+  holds, so it follows the sitewide Likes default and the placement.
+
+`Environment::comment_likes_follow_likes_settings()` is that split. Where it
+holds, the section states where Comment Likes appear, placement stays on screen
+with both button features off, and whenever the Like buttons section shows no
+options, the section also carries the sitewide default (`Likes_Section::render_sitewide_default_row()`),
+claiming `Settings_Form::SECTION_LIKES` so the Likes save handles it. That is
+why Comment Likes do not hold back the Like block route.
 
 **Simple reuses `Jetpack_Likes_Settings` without the Likes module.**
 `wp-content/mu-plugins/likes/jetpack-likes-settings.php` is a shim that requires

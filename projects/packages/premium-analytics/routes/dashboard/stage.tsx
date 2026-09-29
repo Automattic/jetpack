@@ -20,6 +20,7 @@ import {
 	StatsPageIcon,
 } from '@jetpack-premium-analytics/ui';
 import {
+	DashboardSectionProvider,
 	PageOptionsMenu,
 	ResetLayoutAction,
 	useTrackCustomize,
@@ -391,7 +392,9 @@ function Dashboard(): JSX.Element {
 
 												<WidgetDashboard.NoWidgetsState />
 												<div ref={ setWidgetsFrame }>
-													<WidgetDashboard.Widgets className={ styles.widgets } />
+													<DashboardSectionProvider section={ section.slug }>
+														<WidgetDashboard.Widgets className={ styles.widgets } />
+													</DashboardSectionProvider>
 												</div>
 											</div>
 										) : null }

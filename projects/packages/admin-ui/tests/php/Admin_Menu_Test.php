@@ -120,6 +120,8 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
+		wp_dequeue_script( 'wp-theme' );
+		wp_deregister_script( 'wp-theme' );
 	}
 
 	/**
@@ -604,6 +606,37 @@ class Admin_Menu_Test extends TestCase {
 		do_action( 'admin_menu' );
 
 		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Bundled tokens enqueue when Core has not registered the wp-theme style.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_falls_back_when_wp_theme_style_is_unregistered() {
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Core/Gutenberg's wp-theme style is used when that handle is registered.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_uses_wp_theme_when_registered() {
+		if ( ! wp_style_is( 'wp-theme', 'registered' ) ) {
+			wp_register_style( 'wp-theme', 'https://example.com/wp-theme.css', array(), '7.1' );
+		}
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( 'wp-theme', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
 	}
 
 	/**

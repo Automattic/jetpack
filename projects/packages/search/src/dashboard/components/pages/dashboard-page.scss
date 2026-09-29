@@ -57,6 +57,13 @@
 	}
 }
 
+// Matches the horizontal gutter `JitmSlot`'s `inset` variant gives its card,
+// so the connection error notice lines up with it and the tab strip above.
+.jp-search-dashboard-connection-error {
+	margin-inline: var(--wpds-dimension-padding-2xl);
+	margin-block: var(--wpds-dimension-gap-xl);
+}
+
 .usage-meter-group {
 	display: flex;
 	align-items: center;

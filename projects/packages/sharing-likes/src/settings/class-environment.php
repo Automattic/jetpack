@@ -117,12 +117,15 @@ final class Environment {
 	}
 
 	/**
-	 * Whether posts show neither a Like nor a Reblog button, bar those that opted in individually.
+	 * Whether Simple's posts show neither a Like nor a Reblog button, bar those that opted in individually.
 	 *
-	 * Both count because the legacy widget renders for either.
+	 * Both count because the legacy widget renders for either. Jetpack and Atomic never
+	 * render Reblog, and switch to the block by turning the module off instead.
 	 */
 	public static function legacy_likes_switched_off(): bool {
-		return ! Likes_Options::likes_enabled_sitewide() && ! Likes_Options::reblogs_enabled_sitewide();
+		return self::is_simple_site()
+			&& ! Likes_Options::likes_enabled_sitewide()
+			&& ! Likes_Options::reblogs_enabled_sitewide();
 	}
 
 	/**
@@ -137,12 +140,27 @@ final class Environment {
 	}
 
 	/**
+	 * Whether Comment Likes are switched on for this site.
+	 *
+	 * - On WordPress.com Simple, which has no modules: the `jetpack_comment_likes_enabled` option.
+	 * - On Atomic and self-hosted Jetpack sites: the Comment Likes module, which never reads that option.
+	 */
+	public static function comment_likes_enabled(): bool {
+		return self::is_simple_site() ? Likes_Options::comment_likes_enabled() : self::comment_likes_module_running();
+	}
+
+	/**
+	 * Whether Comment Likes read the Likes settings: the sitewide default and placement. Simple's do not.
+	 */
+	public static function comment_likes_follow_likes_settings(): bool {
+		return ! self::is_simple_site() && self::comment_likes_module_running();
+	}
+
+	/**
 	 * Whether anything on this site still reads the Likes settings.
 	 *
 	 * Both features are gated on `disabled_likes` and the shared placement, so
-	 * either one keeps those controls worth showing. Switching the buttons off
-	 * for every post does not end that: posts still opt in one by one, and
-	 * Comment Likes reads the same settings either way.
+	 * either one running makes the Likes placement defaults the ones that apply.
 	 */
 	public static function likes_settings_in_use(): bool {
 		return self::likes_module_running() || self::comment_likes_module_running();

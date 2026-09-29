@@ -98,6 +98,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 				value: location.value,
 				countryCode: location.countryCode,
 				countryFull: location.countryFull,
+				coordinates: location.coordinates,
 			} ) ),
 		[ data ]
 	);

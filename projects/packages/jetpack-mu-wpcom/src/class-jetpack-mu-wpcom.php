@@ -45,6 +45,9 @@ class Jetpack_Mu_Wpcom {
 		'llms-full-txt-generator/llms-txt-generator.php' => null,
 		'wp-post-author/aft-wp-post-author.php'          => null,
 		'adminify/adminify.php'                          => null,
+		'meetinghub/meetinghub.php'                      => null,
+		'mail-mint/mail-mint.php'                        => null,
+		'wp-letsencrypt-ssl-pro/wp-letsencrypt.php'      => null,
 	);
 
 	/**
@@ -969,7 +972,7 @@ class Jetpack_Mu_Wpcom {
 			} elseif ( self::has_react_19_incompatible_extension() ) {
 				$is_enabled = false;
 			} else {
-				$current_segment = 40; // Segment of Atomic sites in the experiment, in %.
+				$current_segment = 70; // Segment of Atomic sites in the experiment, in %.
 				$site_segment    = $site_id % 100;
 
 				/*

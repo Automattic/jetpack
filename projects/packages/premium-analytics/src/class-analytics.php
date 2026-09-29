@@ -341,7 +341,10 @@ class Analytics {
 		if ( ! function_exists( __NAMESPACE__ . '\\register_default_dashboard_sections' ) ) {
 			require_once __DIR__ . '/default-dashboard-sections.php';
 		}
-		configure_dashboard_preview_scope();
+		// An older copy of the package may have loaded dashboard-sections.php under the previous name.
+		if ( function_exists( __NAMESPACE__ . '\\configure_dashboard_sections_script_data' ) ) {
+			configure_dashboard_sections_script_data();
+		}
 
 		// Default-on CSV export settings and server-side disable filter.
 		if ( ! function_exists( __NAMESPACE__ . '\\configure_csv_exports' ) ) {
@@ -383,6 +386,7 @@ class Analytics {
 		$build_entry = self::$build_entry ?? __DIR__ . '/../build/build.php';
 		if ( file_exists( $build_entry ) ) {
 			require_once $build_entry;
+			require_once __DIR__ . '/sdk-module.php';
 		}
 	}
 

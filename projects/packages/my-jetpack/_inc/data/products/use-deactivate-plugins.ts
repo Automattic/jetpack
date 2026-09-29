@@ -1,5 +1,6 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import useAnalytics from '../../hooks/use-analytics';
 import { QUERY_ACTIVATE_PRODUCT_KEY, REST_API_SITE_PRODUCTS_ENDPOINT } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
@@ -35,7 +36,7 @@ export const useDeactivatePlugins = ( productSlugs: string | string[] ) => {
 	const { products, refetch } = useProducts( productIds );
 	const { recordEvent } = useAnalytics();
 
-	const { createSuccessNotice } = useGlobalNotices();
+	const { createSuccessNotice } = useDispatch( noticesStore );
 
 	const {
 		mutate: deactivate,
@@ -68,7 +69,8 @@ export const useDeactivatePlugins = ( productSlugs: string | string[] ) => {
 							/* translators: %s is either the product name, i.e.- "Jetpack Backup" or the word "Plugins". */
 							__( '%s deactivated successfully!', 'jetpack-my-jetpack' ),
 							products?.length === 1 ? products[ 0 ].title : __( 'Plugins', 'jetpack-my-jetpack' )
-						)
+						),
+						{ type: 'snackbar' }
 					);
 				} );
 			},
