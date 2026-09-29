@@ -5,7 +5,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
 import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useState, type MouseEvent } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { arrowLeft, arrowRight, info } from '@wordpress/icons';
 import { Button, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
@@ -14,6 +14,7 @@ import clsx from 'clsx';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
 import RecentPosts, { type RecentPost } from '../recent-posts';
 import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
+import type { MouseEvent } from 'react';
 import './style.scss';
 
 type SubscribersStatsResponse = {
