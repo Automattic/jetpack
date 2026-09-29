@@ -285,6 +285,24 @@ export function usePayPalConnection() {
 			} );
 	}, [ clientId, clientSecret, environment ] );
 
+	// Kept here rather than in the wizard, which unmounts on deselect.
+	const wizardStartedRef = useRef( false );
+
+	/**
+	 * Record the merchant's first click in the wizard, once per block.
+	 */
+	const recordWizardStarted = useCallback( () => {
+		if ( wizardStartedRef.current ) {
+			return;
+		}
+
+		wizardStartedRef.current = true;
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_wizard_started', {
+			environment,
+			partner_referrals_available: partnerReferralsAvailable,
+		} );
+	}, [ environment, partnerReferralsAvailable ] );
+
 	/**
 	 * Tell the server the merchant finished at PayPal, so it can record them.
 	 *
@@ -677,6 +695,7 @@ export function usePayPalConnection() {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	};

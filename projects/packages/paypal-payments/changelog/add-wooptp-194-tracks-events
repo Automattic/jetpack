@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Record Tracks events for PayPal connection attempts, results and disconnects, payment links created, updated, deleted or emailed, views of the Payment Links admin pages, and logged-in block views on WordPress.com Simple sites. Count block views in an internal stat.
+Record Tracks events for the PayPal connection wizard, connections and disconnects, payment link changes and emails, Payment Links admin page views, and logged-in block views on WordPress.com Simple sites. Count block views in an internal stat.

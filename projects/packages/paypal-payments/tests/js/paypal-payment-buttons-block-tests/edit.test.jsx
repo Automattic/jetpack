@@ -841,7 +841,64 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect.objectContaining( { path: expect.stringMatching( /\/connect$/ ), method: 'POST' } )
 			);
 			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
 				[ 'jetpack_paypal_connection_attempted', { environment: 'sandbox', method: 'manual' } ],
+			] );
+		} );
+
+		it( 'records wizard_started when Open PayPal Dashboard is clicked', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click( await screen.findByRole( 'button', { name: /Open PayPal Dashboard/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+			] );
+		} );
+
+		it( 'records wizard_credentials_reached on each Next and wizard_started once', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+
+			await user.click( screen.getByRole( 'button', { name: /Back/i } ) );
+			await navigateToCredentialsStep( user );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+			] );
+		} );
+
+		it( 'records wizard_credentials_reached with the toggled environment, and only on Next', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+
+			await user.click( screen.getByRole( 'button', { name: /Switch to Production/i } ) );
+			await user.click( screen.getByRole( 'button', { name: /Back/i } ) );
+			await navigateToCredentialsStep( user );
+			await user.click( screen.getByRole( 'button', { name: /Use Sandbox for testing/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'production' } ],
 			] );
 		} );
 	} );
@@ -1327,13 +1384,17 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
 				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+				[
 					'jetpack_paypal_connection_attempted',
 					{ environment: 'sandbox', method: 'partner_referrals' },
 				],
 			] );
 		} );
 
-		it( 'skips connection_attempted on a click that fetches the missing referral', async () => {
+		it( 'records only wizard_started on a click that fetches the missing referral', async () => {
 			const user = userEvent.setup();
 			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
 
@@ -1344,10 +1405,41 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.click( screen.getByRole( 'button', { name: /Connect PayPal/i } ) );
 
 			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
-			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
 		} );
 
-		it( 'skips connection_attempted when the welcome step or a restored credentials step renders', async () => {
+		it( 'records wizard_started once across two wizard clicks', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click(
+				await screen.findByRole( 'button', { name: /enter your API credentials manually/i } )
+			);
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+
+			await user.click( screen.getByRole( 'button', { name: /Open PayPal Dashboard/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+		} );
+
+		it( 'records nothing when the welcome step or a restored credentials step renders', async () => {
 			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
 			const { unmount } = render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
@@ -2266,6 +2358,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Product Image (optional)' ) ).toBeInTheDocument();
+		} );
+
+		it( 'records no wizard events on a connected site', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		} );
 
 		it( 'calls setAttributes when product name changes', async () => {

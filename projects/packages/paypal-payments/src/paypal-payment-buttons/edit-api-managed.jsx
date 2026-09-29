@@ -294,6 +294,7 @@ export default function ApiManagedEdit( {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	} = usePayPalConnection();
@@ -885,6 +886,7 @@ export default function ApiManagedEdit( {
 						handleClientSecretChange={ handleClientSecretChange }
 						clientIdWarning={ clientIdWarning }
 						handleConnect={ handleConnect }
+						recordWizardStarted={ recordWizardStarted }
 						fetchSignupLink={ fetchSignupLink }
 					/>
 				</InspectorControls>
