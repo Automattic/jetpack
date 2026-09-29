@@ -285,6 +285,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_admin_request_does_not_defer_backup_to_rest_api_init() {
 		$this->skip_unless_backup_is_supported();
+		$this->activate_backup_module();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		set_current_screen( 'dashboard' );
@@ -388,6 +389,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
 		$this->skip_unless_backup_is_supported();
+		$this->activate_backup_module();
 		$this->connect_owner();
 
 		// Clean slate so registration can only happen via the re-add below.
@@ -411,6 +413,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_backup_needs_a_connected_owner() {
 		$this->skip_unless_backup_is_supported();
+		$this->activate_backup_module();
 		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack::connection()->reset_connection_status();
@@ -426,6 +429,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 */
 	public function test_backup_dashboard_can_be_filtered_off() {
 		$this->skip_unless_backup_is_supported();
+		$this->activate_backup_module();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
@@ -434,6 +438,31 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		remove_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
 
 		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
+	 * Switching the backup module off takes the dashboard and its REST routes away.
+	 */
+	public function test_backup_dashboard_follows_the_backup_module() {
+		$this->skip_unless_backup_is_supported();
+		$this->connect_owner();
+		$this->force_unfire_action( 'jetpack_backup_initialized' );
+		Jetpack_Options::update_option( 'active_modules', array() );
+
+		Jetpack::configure_backup_package();
+
+		$this->assertSame( 0, did_action( 'jetpack_backup_initialized' ) );
+	}
+
+	/**
+	 * The module stays on for existing sites and needs the same connection the dashboard does.
+	 */
+	public function test_backup_module_headers() {
+		$info = jetpack_get_module_info( 'backup' );
+		$this->assertIsArray( $info );
+		$this->assertSame( 'Yes', $info['auto_activate'] );
+		$this->assertSame( 'Yes', $info['requires_connection'] );
+		$this->assertSame( 'Yes', $info['requires_user_connection'] );
 	}
 
 	/**
@@ -446,6 +475,13 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 		Jetpack_Options::update_option( 'master_user', $owner );
 		Jetpack_Options::update_option( 'user_tokens', array( $owner => "dummy.usertoken.$owner" ) );
 		Jetpack::connection()->reset_connection_status();
+	}
+
+	/**
+	 * Switch on the module the bundled Backup dashboard is gated on.
+	 */
+	private function activate_backup_module() {
+		Jetpack_Options::update_option( 'active_modules', array( 'backup' ) );
 	}
 
 	/**

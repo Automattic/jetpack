@@ -50,9 +50,9 @@ class Main_Features {
 	/**
 	 * The static feature catalog.
 	 *
-	 * Keyed by feature slug. `delivery` says what switches the feature: Protect and
-	 * VaultPress Backup ship inside Jetpack too, but their switch is their own plugin, so
-	 * they set `jetpack` false and name only that.
+	 * Keyed by feature slug. `delivery` says what switches the feature: Protect ships inside
+	 * Jetpack too, but its switch is its own plugin, so it sets `jetpack` false and names
+	 * only that.
 	 *
 	 * @return array<string, array<string, mixed>> Feature definitions keyed by feature slug.
 	 */
@@ -142,7 +142,7 @@ class Main_Features {
 					__( 'Move your site to any host without a developer', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
-					'jetpack'     => false,
+					'jetpack'     => true,
 					'plugin'      => 'jetpack-backup',
 					'plugin_name' => __( 'Jetpack VaultPress Backup', 'jetpack-my-jetpack' ),
 					'plugin_url'  => 'https://wordpress.org/plugins/jetpack-backup/',
