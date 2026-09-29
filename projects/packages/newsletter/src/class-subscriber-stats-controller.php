@@ -98,7 +98,7 @@ class Subscriber_Stats_Controller extends WP_REST_Controller {
 				'args'                => array(
 					'unit'        => array(
 						'type'    => 'string',
-						'enum'    => array( 'day', 'week', 'month' ),
+						'enum'    => array( 'day', 'week', 'month', 'year' ),
 						'default' => 'day',
 					),
 					'quantity'    => array(

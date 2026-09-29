@@ -118,7 +118,7 @@ describe( 'SubscriberStatsChart', () => {
 			} );
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: expect.stringContaining( 'date=2026-09-21' ),
+			path: expect.stringContaining( 'unit=day&quantity=30&date=2026-09-21' ),
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/wpcom/v2/newsletter/stats/recent-posts',
@@ -129,6 +129,11 @@ describe( 'SubscriberStatsChart', () => {
 		] );
 		expect( mockLineChart ).toHaveBeenCalledWith(
 			expect.objectContaining( {
+				options: expect.objectContaining( {
+					axis: expect.objectContaining( {
+						x: { tickResolution: 'day' },
+					} ),
+				} ),
 				data: [
 					expect.objectContaining( {
 						label: 'Subscribers',
@@ -149,12 +154,13 @@ describe( 'SubscriberStatsChart', () => {
 		);
 	} );
 
-	it( 'shows the loading state before the subscribers request resolves', () => {
+	it( 'shows the loading state before the subscribers request resolves', async () => {
 		mockApiFetch.mockImplementation( () => new Promise( () => {} ) );
 
 		renderStats();
 
-		expect( screen.getByText( 'Loading subscriber stats…' ) ).toBeInTheDocument();
+		await expect( screen.findByText( 'Loading subscriber stats…' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'radio', { name: 'Days' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows an error with a working retry when the subscribers request fails', async () => {
@@ -215,6 +221,99 @@ describe( 'SubscriberStatsChart', () => {
 			site_type: 'jetpack',
 			area: 'subscribers',
 			state: 'empty',
+		} );
+	} );
+
+	it( 'requests the Stats subscribers window for the selected unit', async () => {
+		renderStats();
+
+		await expect( screen.findByRole( 'radio', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
+		// ToggleGroupControl is a radio group; this asserts the query, not pointer behavior.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=week&quantity=12' ),
+			} );
+		} );
+		expect( mockLineChart ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				options: expect.objectContaining( {
+					axis: expect.objectContaining( {
+						x: { tickResolution: 'week' },
+					} ),
+				} ),
+			} )
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Years' } ) );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=year&quantity=3' ),
+			} );
+		} );
+	} );
+
+	it( 'turns week and year period labels into chart dates', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( 'unit=week' ) ) {
+				return Promise.resolve( {
+					fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+					data: [ [ '2026W09W14', 40, 2 ] ],
+				} );
+			}
+			if ( path.includes( 'unit=year' ) ) {
+				return Promise.resolve( {
+					fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+					data: [ [ '2026', 50, 3 ] ],
+				} );
+			}
+			if ( path.includes( '/stats/subscribers' ) ) {
+				return Promise.resolve( subscribersResponse );
+			}
+			return Promise.resolve( recentPostsResponse );
+		} );
+
+		renderStats();
+
+		await expect( screen.findByRole( 'radio', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+
+		await waitFor( () => {
+			expect( mockLineChart ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					data: [
+						expect.objectContaining( {
+							data: [ { dateString: '2026-09-14', value: 40 } ],
+						} ),
+						expect.objectContaining( {
+							data: [ { dateString: '2026-09-14', value: 2 } ],
+						} ),
+					],
+				} )
+			);
+		} );
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Years' } ) );
+
+		await waitFor( () => {
+			expect( mockLineChart ).toHaveBeenCalledWith(
+				expect.objectContaining( {
+					data: [
+						expect.objectContaining( {
+							data: [ { dateString: '2026-01-01', value: 50 } ],
+						} ),
+						expect.objectContaining( {
+							data: [ { dateString: '2026-01-01', value: 3 } ],
+						} ),
+					],
+				} )
+			);
 		} );
 	} );
 } );

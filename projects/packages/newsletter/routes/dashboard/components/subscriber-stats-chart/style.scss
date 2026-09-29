@@ -57,6 +57,15 @@
 		padding: var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-xl);
 	}
 
+	&__chart-heading {
+		inline-size: 100%;
+	}
+
+	&__chart-unit {
+		flex: 0 1 auto;
+		margin-block-end: 0;
+	}
+
 	&__chart {
 		block-size: 420px;
 		inline-size: 100%;

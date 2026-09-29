@@ -3,9 +3,13 @@ import '@automattic/charts/style.css';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
+import {
+	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+} from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
-import { useCallback } from '@wordpress/element';
+import { useCallback, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Button, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
@@ -47,8 +51,20 @@ type SubscriberPoint = {
 	paidSubscribers: number;
 };
 
-const DAYS_TO_SHOW = 30;
 const STATS_STALE_TIME_MS = 5 * 60 * 1000;
+
+/**
+ * Bucket counts copied from the Stats subscribers chart: each choice sets both
+ * the unit and how many of those units the x-axis covers.
+ */
+const CHART_UNITS = {
+	day: 30,
+	week: 12,
+	month: 6,
+	year: 3,
+} as const;
+
+type ChartUnit = keyof typeof CHART_UNITS;
 
 /**
  * Normalize a numeric API value.
@@ -93,12 +109,34 @@ function toEmailRates(
 }
 
 /**
+ * Turn a Stats period label into a date the chart can parse.
+ *
+ * Week labels are `YWmWd` (`2026W09W21`). Year labels are the four-digit year.
+ *
+ * @param period - Period label from the subscribers response.
+ * @param unit   - Selected chart unit.
+ * @return A `yyyy-MM-dd` date string.
+ */
+function toChartDate( period: string, unit: ChartUnit ): string {
+	if ( unit === 'week' ) {
+		return period.replaceAll( 'W', '-' );
+	}
+
+	if ( unit === 'year' && /^\d{4}$/.test( period ) ) {
+		return `${ period }-01-01`;
+	}
+
+	return period;
+}
+
+/**
  * Convert the positional subscriber response into chart data.
  *
  * @param response - Subscriber Stats response.
+ * @param unit     - Selected chart unit.
  * @return Subscriber totals and series.
  */
-function toSubscriberStats( response: SubscribersStatsResponse ): SubscriberStats {
+function toSubscriberStats( response: SubscribersStatsResponse, unit: ChartUnit ): SubscriberStats {
 	const periodIndex = response.fields?.indexOf( 'period' ) ?? -1;
 	const subscribersIndex = response.fields?.indexOf( 'subscribers' ) ?? -1;
 	const paidSubscribersIndex = response.fields?.indexOf( 'subscribers_paid' ) ?? -1;
@@ -115,7 +153,7 @@ function toSubscriberStats( response: SubscribersStatsResponse ): SubscriberStat
 			}
 
 			return {
-				dateString: period,
+				dateString: toChartDate( period, unit ),
 				subscribers: toNumber( row[ subscribersIndex ] ),
 				paidSubscribers: paidSubscribersIndex >= 0 ? toNumber( row[ paidSubscribersIndex ] ) : 0,
 			};
@@ -169,6 +207,48 @@ function getGreeting(): string {
 }
 
 /**
+ * Days, Weeks, Months, and Years control for the subscribers chart.
+ *
+ * @param props          - Control props.
+ * @param props.unit     - Selected unit.
+ * @param props.onChange - Called with the next unit.
+ * @return Segmented unit control.
+ */
+function ChartUnitControl( {
+	unit,
+	onChange,
+}: {
+	unit: ChartUnit;
+	onChange: ( unit: ChartUnit ) => void;
+} ): JSX.Element {
+	const handleChange = useCallback(
+		( value?: string | number ) => {
+			if ( value === 'day' || value === 'week' || value === 'month' || value === 'year' ) {
+				onChange( value );
+			}
+		},
+		[ onChange ]
+	);
+
+	return (
+		<ToggleGroupControl
+			className="jetpack-newsletter-stats__chart-unit"
+			__next40pxDefaultSize
+			__nextHasNoMarginBottom
+			isDeselectable={ false }
+			label={ __( 'Chart interval', 'jetpack-newsletter' ) }
+			value={ unit }
+			onChange={ handleChange }
+		>
+			<ToggleGroupControlOption value="day" label={ __( 'Days', 'jetpack-newsletter' ) } />
+			<ToggleGroupControlOption value="week" label={ __( 'Weeks', 'jetpack-newsletter' ) } />
+			<ToggleGroupControlOption value="month" label={ __( 'Months', 'jetpack-newsletter' ) } />
+			<ToggleGroupControlOption value="year" label={ __( 'Years', 'jetpack-newsletter' ) } />
+		</ToggleGroupControl>
+	);
+}
+
+/**
  * Paid-subscribers metric info control.
  *
  * @return Focusable info icon with a tooltip.
@@ -203,10 +283,11 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const isMobile = useViewportMatch( 'small', '<' );
 	const metricDirection = isMobile ? 'row' : 'column';
 	const metricJustify = isMobile ? 'space-between' : undefined;
+	const [ unit, setUnit ] = useState< ChartUnit >( 'day' );
 	const date = dateI18n( 'Y-m-d' );
 	const subscribersPath = addQueryArgs( '/wpcom/v2/newsletter/stats/subscribers', {
-		unit: 'day',
-		quantity: DAYS_TO_SHOW,
+		unit,
+		quantity: CHART_UNITS[ unit ],
 		date,
 		stat_fields: 'subscribers,subscribers_paid',
 	} );
@@ -220,7 +301,9 @@ export default function SubscriberStatsChart(): JSX.Element {
 		queryFn: () => apiFetch( { path: '/wpcom/v2/newsletter/stats/recent-posts' } ),
 		staleTime: STATS_STALE_TIME_MS,
 	} );
-	const subscriberStats = subscribersQuery.data ? toSubscriberStats( subscribersQuery.data ) : null;
+	const subscriberStats = subscribersQuery.data
+		? toSubscriberStats( subscribersQuery.data, unit )
+		: null;
 	const emailRates = toEmailRates( recentPostsQuery.data?.emailTotals );
 	const { refetch: refetchSubscribers } = subscribersQuery;
 	const retrySubscribers = useCallback( () => {
@@ -288,7 +371,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 						yScale: { type: 'linear', zero: true },
 						axis: {
 							y: { orientation: 'right' },
-							x: { tickResolution: 'day' },
+							x: { tickResolution: unit },
 						},
 					} }
 				/>
@@ -394,9 +477,19 @@ export default function SubscriberStatsChart(): JSX.Element {
 				className="jetpack-newsletter-stats__chart-card"
 				render={ <section /> }
 			>
-				<Text render={ <h3 /> } variant="heading-lg">
-					{ __( 'Subscribers', 'jetpack-newsletter' ) }
-				</Text>
+				<Stack
+					className="jetpack-newsletter-stats__chart-heading"
+					direction="row"
+					justify="space-between"
+					align="center"
+					gap="md"
+					wrap="wrap"
+				>
+					<Text render={ <h3 /> } variant="heading-lg">
+						{ __( 'Subscribers', 'jetpack-newsletter' ) }
+					</Text>
+					<ChartUnitControl unit={ unit } onChange={ setUnit } />
+				</Stack>
 				{ chartContent }
 			</Stack>
 
