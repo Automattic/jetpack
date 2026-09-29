@@ -18,9 +18,19 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 
 	public function tear_down() {
 		remove_all_filters( 'wp_theme_json_data_theme' );
+		remove_theme_support( 'editor-color-palette' );
+		if ( $this->previous_stylesheet !== null ) {
+			switch_theme( $this->previous_stylesheet );
+			$this->previous_stylesheet = null;
+		}
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		parent::tear_down();
 	}
+
+	/**
+	 * @var string|null Stylesheet to restore, set only by tests that switch themes.
+	 */
+	private $previous_stylesheet = null;
 
 	/**
 	 * Install a synthetic theme.json for the active theme.
@@ -288,6 +298,20 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 			'boolean' => array( true ),
 			'integer' => array( 5 ),
 		);
+	}
+
+	/**
+	 * A classic theme has no theme.json, so core synthesises presets from theme supports instead --
+	 * and `add_theme_support( 'editor-color-palette' )` with no palette puts a bare `true` there,
+	 * by way of `current( (array) true )` in get_classic_theme_supports_block_editor_settings().
+	 */
+	public function test_survives_a_classic_theme_supporting_a_palette_without_declaring_one() {
+		$this->previous_stylesheet = get_stylesheet();
+		switch_theme( 'default' );
+		add_theme_support( 'editor-color-palette' );
+		WP_Theme_JSON_Resolver::clean_cached_data();
+
+		$this->assertSame( array(), $this->slice()['settings']['color']['palette'] );
 	}
 
 	public function test_refuses_a_payload_over_the_size_cap() {

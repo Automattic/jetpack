@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Newsletter: fix a fatal error on sites whose theme.json declares a boolean or a number where a list of presets belongs.
+Newsletter: fix a fatal error on sites whose theme declares a color palette in an unexpected format.
