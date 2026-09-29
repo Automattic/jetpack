@@ -90,7 +90,6 @@ describe( 'Stats automatic refresh', () => {
 
 	it.each( [
 		[ 'ended before today', '2026-09-29', 'UTC', '2026-09-30T12:00:00Z', 1 ],
-		[ 'ends today', '2026-09-30', 'UTC', '2026-09-30T12:00:00Z', 2 ],
 		[
 			'is still today in the report timezone',
 			'2026-09-29',

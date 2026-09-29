@@ -4,7 +4,6 @@
 import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { format } from 'date-fns';
 
-// Matches the 30-minute polling of Stats v1.
 export const DEFAULT_REFETCH_INTERVAL = 30 * 60 * 1000;
 
 /**
