@@ -133,7 +133,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/activity-log",
-                "reference": "f76c933484e8d0785218e8b589cbf2ae971ff1f7"
+                "reference": "9c70a4fed42103f2f3c7d044708333b0c9fee5ab"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -193,6 +193,12 @@
                 ],
                 "test-php-coverage": [
                     "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ],
+                "test-js": [
+                    "pnpm run test"
+                ],
+                "test-js-coverage": [
+                    "pnpm run test-coverage"
                 ]
             },
             "license": [
