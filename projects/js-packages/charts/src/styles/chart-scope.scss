@@ -55,6 +55,8 @@
 	--a8c-charts-color-surface: var(--wpds-color-background-surface-neutral-strong);
 	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak);
 	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak);
+	// Deprecated: no chart reads it, but consumer CSS that does still resolves.
+	--a8c-charts-color-tooltip-surface: rgb(0 0 0 / 85%);
 	--a8c-charts-color-zoom-selection: var(--wpds-color-background-interactive-brand-strong);
 	--a8c-charts-color-zoom-selection-stroke: var(--wpds-color-stroke-interactive-brand);
 

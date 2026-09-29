@@ -95,8 +95,11 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-surface` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
 | `--a8c-charts-color-surface-secondary` | `--wpds-color-background-surface-neutral-weak` | `#f4f4f4` |
 | `--a8c-charts-color-track` | `--wpds-color-background-track-neutral-weak` | `#f0f0f0` |
+| `--a8c-charts-color-tooltip-surface` | _(none — deprecated, no chart reads it)_ | `rgb(0 0 0 / 85%)` |
 
 The x axis and tick roles share grid's WPDS token but stay distinct roles, so the three can be themed independently.
+
+`--a8c-charts-color-tooltip-surface` is deprecated and will be removed in a future major release. Every tooltip now draws on `--a8c-charts-color-surface`, so setting it has no effect.
 
 ### One pair of roles per axis
 
@@ -182,4 +185,3 @@ These names no longer resolve. Set the replacement instead:
 | `--a8c--charts--leaderboard--bar--border-radius` | `--a8c-charts-border-radius-leaderboard-bar` |
 | `--a8c-charts-color-focus` | `--wpds-color-stroke-focus` |
 | `--a8c-charts-color-label-on-fill` | `--a8c-charts-color-label-inverse` |
-| `--a8c-charts-color-tooltip-surface` | `--a8c-charts-color-surface` |
