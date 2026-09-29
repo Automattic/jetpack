@@ -38,7 +38,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		isEditingDetails,
 		logIn: logInHandle,
 	} = useContext( CommentSignals );
-	const { site, strings, mustLogIn, identity } = JetpackComments;
+	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
 	const [ signInStatus, setSignInStatus ] = useState<
@@ -189,8 +189,13 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		isEditingDetails.value = false;
 	};
 
-	const formValue = ( consent: boolean ) => {
+	// Posting with "No, thanks" sends nothing of theirs: no details, no subscriptions.
+	const formValue = ( consent: boolean, anonymous = false ) => {
 		const data = new FormData();
+
+		if ( anonymous ) {
+			return data;
+		}
 
 		if ( guest ) {
 			Object.entries( details.value ).forEach( ( [ name, value ] ) => data.append( name, value ) );
@@ -233,8 +238,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			return;
 		}
 
+		const anonymous = ( event as SubmitEvent ).submitter?.getAttribute( 'name' ) === 'anonymous';
+
 		// Read as the comment form submits, then dropped, so a blocked submit leaves no consent behind.
-		internals.setFormValue( formValue( showFields && rememberDetails.peek() ) );
+		internals.setFormValue( formValue( showFields && rememberDetails.peek(), anonymous ) );
 		internals.form?.requestSubmit();
 		internals.setFormValue( formValue( false ) );
 	};
@@ -262,6 +269,12 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 							onClick={ () => setStep( 'guest' ) }
 						>
 							{ strings.continueAsGuest }
+						</button>
+					) }
+					{ /* Only with a comment to post, and where core takes one with no name. */ }
+					{ posting && ! mustLogIn && ! requireNameEmail && (
+						<button type="submit" name="anonymous" className="jetpack-comments__button is-link">
+							{ strings.postWithoutSaving }
 						</button>
 					) }
 				</div>

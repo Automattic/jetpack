@@ -266,7 +266,11 @@ $accent-hover: #2145e6;
 	.jetpack-comments__sign-in {
 		display: grid;
 		gap: variables.$grid-unit-20;
-		margin-block: variables.$grid-unit-30;
+		margin-block-start: variables.$grid-unit-30;
+
+		.is-link {
+			justify-self: center;
+		}
 	}
 
 	.jetpack-comments__signing-in {

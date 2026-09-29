@@ -78,6 +78,7 @@ export type Strings = {
 	createProfile: string;
 	intro: string;
 	continueAsGuest: string;
+	postWithoutSaving: string;
 	save: string;
 	saveDetails: string;
 	close: string;

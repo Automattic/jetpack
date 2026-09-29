@@ -415,6 +415,7 @@ class Comment_Form {
 				'createProfile'       => __( 'Create a profile', 'jetpack-comments' ),
 				'intro'               => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
 				'continueAsGuest'     => __( 'Continue as a guest', 'jetpack-comments' ),
+				'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
 				'save'                => __( 'Save', 'jetpack-comments' ),
 				'saveDetails'         => __( 'Save my name, email, and website for the next time I comment.', 'jetpack-comments' ),
 				'close'               => __( 'Close', 'jetpack-comments' ),
