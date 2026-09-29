@@ -16,14 +16,14 @@ import {
 import { HorizontalRule, ToggleControl } from '@wordpress/components';
 import { useDispatch } from '@wordpress/data';
 import { createInterpolateElement } from '@wordpress/element';
-import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { useCallback, useId, useState, type ReactNode } from 'react';
+import { __, sprintf } from '@wordpress/i18n';
+import { useCallback, useId, useState } from 'react';
 /**
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
+import { DrawerGroup, PageDrawer } from '../page-drawer';
 import { RoleSelect } from './role-select';
-import styles from './settings-drawer.module.scss';
 
 const STATS_SUPPORT_URL = 'https://jetpack.com/support/jetpack-stats/';
 
@@ -51,31 +51,6 @@ const getStatsSettingsContext = () => {
 };
 
 /**
- * One titled group of settings.
- *
- * @param props          - Component props.
- * @param props.title    - The group's heading.
- * @param props.children - The group's settings.
- * @return The group.
- */
-function SettingsGroup( { title, children }: { title: string; children: ReactNode } ) {
-	return (
-		<Stack direction="column" gap="md" render={ <section /> }>
-			<Text variant="heading-md" render={ <h3 /> }>
-				{ title }
-			</Text>
-			<Card.Root>
-				<Card.Content>
-					<Stack direction="column" gap="xl">
-						{ children }
-					</Stack>
-				</Card.Content>
-			</Card.Root>
-		</Stack>
-	);
-}
-
-/**
  * The Stats settings, in a drawer from the end of the page. Nothing is saved until Save.
  *
  * @param props         - Component props.
@@ -91,26 +66,15 @@ export function SettingsDrawer( { open, onClose }: SettingsDrawerProps ) {
 		onClose();
 	}, [ discard, onClose ] );
 
-	const handleOpenChange = useCallback(
-		( nextOpen: boolean ) => {
-			if ( ! nextOpen && ! isSaving ) {
-				close();
-			}
-		},
-		[ close, isSaving ]
-	);
-
 	return (
-		// The Drawer anchors to a physical edge, so the page's end edge is picked here.
-		<Drawer.Root
+		<PageDrawer
 			open={ open }
-			onOpenChange={ handleOpenChange }
-			swipeDirection={ isRTL() ? 'left' : 'right' }
+			onClose={ close }
+			title={ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }
+			isBusy={ isSaving }
 		>
-			<Drawer.Popup size="large" className={ styles.popup }>
-				<SettingsForm onClose={ onClose } />
-			</Drawer.Popup>
-		</Drawer.Root>
+			<SettingsForm onClose={ onClose } />
+		</PageDrawer>
 	);
 }
 
@@ -157,10 +121,6 @@ function SettingsForm( { onClose }: Pick< SettingsDrawerProps, 'onClose' > ) {
 
 	return (
 		<>
-			<Drawer.Header>
-				<Drawer.Title>{ __( 'Settings', 'jetpack-premium-analytics-pkg' ) }</Drawer.Title>
-				<Drawer.CloseIcon />
-			</Drawer.Header>
 			<Drawer.Content>
 				{ isError && ! settings && (
 					<Notice.Root intent="error">
@@ -180,7 +140,7 @@ function SettingsForm( { onClose }: Pick< SettingsDrawerProps, 'onClose' > ) {
 								<Notice.Description>{ saveError }</Notice.Description>
 							</Notice.Root>
 						) }
-						<SettingsGroup title={ __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ) }>
+						<DrawerGroup title={ __( 'Admin bar widget', 'jetpack-premium-analytics-pkg' ) }>
 							<ToggleControl
 								__nextHasNoMarginBottom
 								label={ __(
@@ -202,8 +162,8 @@ function SettingsForm( { onClose }: Pick< SettingsDrawerProps, 'onClose' > ) {
 								disabled={ isSaving }
 								onChange={ ( isOn: boolean ) => update( { admin_bar: isOn } ) }
 							/>
-						</SettingsGroup>
-						<SettingsGroup title={ __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ) }>
+						</DrawerGroup>
+						<DrawerGroup title={ __( 'Manage permissions', 'jetpack-premium-analytics-pkg' ) }>
 							<RoleSelect
 								label={ __(
 									'Allow Jetpack Stats to be viewed by:',
@@ -235,9 +195,9 @@ function SettingsForm( { onClose }: Pick< SettingsDrawerProps, 'onClose' > ) {
 									onChange={ ( isOn: boolean ) => update( { wpcom_reader_views_enabled: isOn } ) }
 								/>
 							</Stack>
-						</SettingsGroup>
+						</DrawerGroup>
 						{ modulesUrl && (
-							<SettingsGroup title={ __( 'Activation', 'jetpack-premium-analytics-pkg' ) }>
+							<DrawerGroup title={ __( 'Activation', 'jetpack-premium-analytics-pkg' ) }>
 								<Text>
 									{ createInterpolateElement(
 										__(
@@ -247,7 +207,7 @@ function SettingsForm( { onClose }: Pick< SettingsDrawerProps, 'onClose' > ) {
 										{ link: <Link href={ modulesUrl } /> }
 									) }
 								</Text>
-							</SettingsGroup>
+							</DrawerGroup>
 						) }
 					</Stack>
 				) }
