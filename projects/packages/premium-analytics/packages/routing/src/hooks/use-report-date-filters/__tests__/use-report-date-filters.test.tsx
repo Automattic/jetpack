@@ -405,6 +405,27 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.appliedPresetId ).toBe( 'last-7-days' );
 	} );
 
+	it( 'keeps the chosen interval when a reconciliation swaps the preset', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () =>
+			result.current.replaceRange(
+				{
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
+				},
+				'last-month'
+			)
+		);
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-month', interval: 'week' } );
+	} );
+
 	it( 'stores a computed range exactly as given when asked', () => {
 		const { result } = renderDateFilters( { preset: 'last-30-days' } );
 		const range = {

@@ -326,7 +326,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	 */
 	const replaceRange = useCallback(
 		( nextRange: DateRange, nextPresetId: PrimaryPresetId ) => {
-			const patch = buildRangePatch( { nextRange, nextPresetId, effective } );
+			const patch = buildRangePatch( { nextRange, nextPresetId, keepInterval: true, effective } );
 
 			if ( patch ) {
 				stage( patch );

@@ -109,6 +109,17 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'day' );
 	} );
 
+	it( 'keeps the interval across a named preset change when asked to', () => {
+		const patch = buildRangePatch( {
+			nextRange: { from, to: wideTo },
+			nextPresetId: 'last-30-days',
+			keepInterval: true,
+			effective: { preset: 'year-to-date', interval: 'week' },
+		} );
+
+		expect( patch?.interval ).toBe( 'week' );
+	} );
+
 	it( 'carries a non-default interval through a custom range or a range with no preset', () => {
 		const monthLong = new TZDate( '2026-08-18T14:30:00.000+00:00', 'UTC' );
 
