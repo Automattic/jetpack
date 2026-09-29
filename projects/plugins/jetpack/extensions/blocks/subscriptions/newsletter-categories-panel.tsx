@@ -3,6 +3,7 @@ import {
 	Button,
 	CheckboxControl,
 	ExternalLink,
+	Flex,
 	PanelBody,
 	SearchControl,
 	Spinner,
@@ -49,7 +50,11 @@ const NewsletterCategoriesPanel = () => {
 
 	const renderContent = () => {
 		if ( isLoading ) {
-			return <Spinner />;
+			return (
+				<Flex direction="column" align="center">
+					<Spinner />
+				</Flex>
+			);
 		}
 
 		if ( ! isEnabled || ! newsletterCategories.length ) {
@@ -136,7 +141,7 @@ const NewsletterCategoriesPanel = () => {
 
 	return (
 		<PanelBody
-			title={ __( 'Newsletter categories', 'jetpack' ) }
+			title={ __( 'Newsletter Categories', 'jetpack' ) }
 			className="jetpack-newsletter-categories-panel"
 			initialOpen
 		>
