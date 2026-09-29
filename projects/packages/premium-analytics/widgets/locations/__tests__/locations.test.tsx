@@ -187,7 +187,7 @@ describe( 'LocationsWidget', () => {
 			expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
 		);
 	} );
-	it.each( [ '-', '' ] )( 'lists country code %s without mapping or drilling down', countryCode => {
+	it( 'lists an unknown country without mapping or drilling down', () => {
 		mockUseLocationViews.mockReturnValue( {
 			...LOADING_STATE,
 			data: [
@@ -200,9 +200,9 @@ describe( 'LocationsWidget', () => {
 					region: '',
 				},
 				{
-					key: `${ countryCode }:Unknown`,
+					key: ':Unknown',
 					label: 'Unknown',
-					countryCode,
+					countryCode: '',
 					countryFull: 'Unknown',
 					value: 4,
 					region: '',

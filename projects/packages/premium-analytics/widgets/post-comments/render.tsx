@@ -25,7 +25,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PostCommentsRenderAttributes = PostCommentsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >;
 
-/** How many comments to list; the post's comment count feeds the "N more" footer. */
+/** How many comments to list. */
 const COMMENTS_SHOWN = 10;
 
 /**
@@ -40,7 +40,6 @@ function PostCommentsInner() {
 		number: COMMENTS_SHOWN,
 	} );
 
-	// The comments request cannot count them, so the post row supplies the total.
 	const { data: postStats } = useStatsPost( { postId, fields: [ 'post' ] } );
 
 	const items = useMemo< SubscriberListItem[] >(
@@ -57,7 +56,8 @@ function PostCommentsInner() {
 		[ data ]
 	);
 
-	const total = data?.found ?? postStats?.post?.comment_count;
+	// A short page holds every comment; only a full one needs the post's total.
+	const total = items.length < COMMENTS_SHOWN ? items.length : postStats?.post?.comment_count;
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (

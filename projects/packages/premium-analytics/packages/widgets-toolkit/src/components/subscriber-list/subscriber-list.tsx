@@ -50,8 +50,9 @@ export type SubscriberListProps = {
 	moreCount?: number | null;
 	/**
 	 * Show only the whole rows that fit the available height, rather than letting the
-	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
-	 * appear with `moreCount` at zero. Requires an ancestor with a definite height.
+	 * host scroll the roster. Hidden rows join the "N more" footer (which a null
+	 * `moreCount` hides), so it can appear with `moreCount` at zero. Requires an
+	 * ancestor with a definite height.
 	 * @default true
 	 */
 	fitRows?: boolean;

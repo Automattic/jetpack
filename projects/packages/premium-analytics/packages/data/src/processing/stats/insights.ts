@@ -161,12 +161,12 @@ export function sanitizeStatsInsightsResponse( response: unknown ): StatsInsight
 		payload.highest_hour_percent
 	);
 
-	// Every field stands or falls on its own. One report feeds two widgets — the
-	// peak highlights and Year in review's per-year totals — so a site with years
-	// but no peak day must not lose its years to the missing peak. A missing hour
-	// is not midnight and a missing share is not 0%: either coercion reads as a
-	// real answer rather than an absent one. Which highlights an absent field
-	// hides is the widget's call, not this one's.
+	// Each peak and the year totals stand or fall on their own. One report feeds
+	// two widgets — the peak highlights and Year in review's per-year totals — so
+	// a site with years but no peak day must not lose its years to the missing
+	// peak. A missing hour is not midnight and a missing share is not 0%: either
+	// coercion reads as a real answer rather than an absent one. Which highlights
+	// an absent field hides is the widget's call, not this one's.
 	return {
 		...( dayOfWeek === undefined ? {} : { dayOfWeek } ),
 		...( percent === undefined ? {} : { percent } ),

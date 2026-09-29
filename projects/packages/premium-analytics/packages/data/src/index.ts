@@ -189,7 +189,6 @@ export {
 	mergeStatsComparisonRows,
 	mergeStatsDevicesComparisonRows,
 	mergeStatsFileDownloadsComparisonRows,
-	isCountryCode,
 	mergeStatsLocationsComparisonRows,
 	mergeStatsSearchTermsComparisonRows,
 	mergeStatsTopAuthorsComparisonRows,

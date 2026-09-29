@@ -41,14 +41,6 @@ describe( 'report locations aggregate', () => {
 		] );
 	} );
 
-	it( 'names the country Unknown, not its placeholder code, when it has no name', () => {
-		const [ row ] = buildLocationRows( [
-			{ label: 'Somewhere', views: 3, countryCode: '-', children: null },
-		] );
-
-		expect( row.countryFull ).toBe( 'Unknown' );
-	} );
-
 	it( 'leaves a missing previous period undefined', () => {
 		expect( buildLocationRows( items )[ 1 ].previousViews ).toBeUndefined();
 	} );

@@ -48,11 +48,8 @@ function parseCoordinates( value: unknown ): StatsLocationCoordinates | undefine
 	return { latitude, longitude };
 }
 
-/**
- * Whether a value is a country code that can be placed on the map or filtered on.
- * The endpoint sends `-` for a failed IP lookup and `''` for a missing code.
- */
-export function isCountryCode( code: unknown ): code is string {
+/** The endpoint sends `-` for a failed IP lookup and `''` for a missing code. */
+function isCountryCode( code: unknown ): code is string {
 	return typeof code === 'string' && /^[A-Za-z]{2}$/.test( code );
 }
 
@@ -77,15 +74,20 @@ export function sanitizeStatsLocationsResponse(
 		const country = coerceStatsRecord(
 			typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
 		);
-		const name = item.location ?? country.country_full ?? item.country_code;
-		// The endpoint sends `false` for a country with no CLDR name; `??` lets that through.
-		const isNamed = typeof name === 'string' && name.trim() !== '' && name !== '-';
+		// Stats sends `false` for a name it lacks (`AP`, legacy `UK`), and `??` lets that through.
+		const countryCode =
+			isCountryCode( item.country_code ) && country.country_full !== false
+				? item.country_code
+				: undefined;
+		const countryName = typeof country.country_full === 'string' ? country.country_full : undefined;
+		const unknown = __( 'Unknown', 'jetpack-premium-analytics-pkg' );
+		const name = item.location ?? countryName ?? countryCode;
 
 		return {
-			label: isNamed ? name.replace( /’/g, "'" ) : __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
+			label: typeof name === 'string' && name !== '' ? name.replace( /’/g, "'" ) : unknown,
 			views: safeParseFloat( item.views ),
-			countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
-			countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
+			countryCode,
+			countryFull: countryCode === undefined ? unknown : countryName,
 			region: typeof country.map_region === 'string' ? country.map_region : undefined,
 			coordinates: parseCoordinates( item.coordinates ),
 			children: null,

@@ -110,25 +110,6 @@ describe( 'useLocationsReportRecords', () => {
 		expect( result.current.countries.options ).toEqual( [ { code: 'IN', label: 'India' } ] );
 	} );
 
-	it( 'leaves rows without a real country code out of the filter options', () => {
-		mockUseStatsLocations.mockReturnValue(
-			reportResult( {
-				comparisonRows: {
-					rows: [
-						...rows,
-						{ label: 'Unknown', views: 9, countryCode: '-', children: null },
-						{ label: 'Unknown', views: 2, countryCode: '', children: null },
-					],
-					hasComparison: false,
-				},
-			} )
-		);
-
-		const { result } = renderHook( () => useLocationsReportRecords( 'regions', params ) );
-
-		expect( result.current.countries.options ).toEqual( [ { code: 'IN', label: 'India' } ] );
-	} );
-
 	it( 'carries the previous period through to the table rows', () => {
 		const { result } = renderHook( () => useLocationsReportRecords( 'countries', params ) );
 

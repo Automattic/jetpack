@@ -23,6 +23,14 @@ const COMMENT = {
 	date: new Date().toISOString(),
 };
 
+function makeComments( count: number, firstId: number ) {
+	return Array.from( { length: count }, ( _, index ) => ( {
+		...COMMENT,
+		ID: firstId + index,
+		author: { name: `Commenter ${ firstId + index }` },
+	} ) );
+}
+
 /** Answers the comments request from `replies` and the post stats request from `post`. */
 function mockEndpoints( replies: jest.Mock, post: Record< string, unknown > ) {
 	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
@@ -62,7 +70,7 @@ describe( 'PostCommentsWidget', () => {
 	} );
 
 	it( 'uses a neutral empty state for a post or page with no comments', async () => {
-		mockApiFetch.mockResolvedValue( { found: 0, comments: [] } );
+		mockApiFetch.mockResolvedValue( { comments: [] } );
 
 		renderWidget( 779 );
 
@@ -74,24 +82,26 @@ describe( 'PostCommentsWidget', () => {
 		);
 	} );
 
-	it( 'renders commenters, comment links, and the remaining count', async () => {
-		mockApiFetch.mockResolvedValue( {
-			found: 24,
-			comments: [
-				{
-					ID: 101,
-					author: { name: 'Olivia Park', avatar_URL: 'https://gravatar.com/avatar/1' },
-					URL: 'https://example.com/post/#comment-101',
-					date: new Date().toISOString(),
-				},
-			],
-		} );
+	it( 'renders commenters, comment links, and the remaining count from the post', async () => {
+		mockEndpoints(
+			jest.fn().mockResolvedValue( {
+				found: -1,
+				comments: [
+					{
+						...COMMENT,
+						author: { name: 'Olivia Park', avatar_URL: 'https://gravatar.com/avatar/1' },
+					},
+					...makeComments( 9, 102 ),
+				],
+			} ),
+			{ comment_count: 24 }
+		);
 
 		renderWidget( 779 );
 
 		const author = await screen.findByRole( 'link', { name: /Olivia Park/ } );
 		expect( author ).toHaveAttribute( 'href', 'https://example.com/post/#comment-101' );
-		expect( screen.getByText( '23 more' ) ).toBeInTheDocument();
+		await expect( screen.findByText( '14 more' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'uses a neutral error state when comments cannot be loaded', async () => {
@@ -107,7 +117,7 @@ describe( 'PostCommentsWidget', () => {
 	it( 'keeps existing comments visible when a background refetch fails', async () => {
 		const replies = jest
 			.fn()
-			.mockResolvedValueOnce( { found: 1, comments: [ COMMENT ] } )
+			.mockResolvedValueOnce( { comments: [ COMMENT ] } )
 			.mockRejectedValueOnce( { status: 403 } );
 		mockEndpoints( replies, {} );
 
@@ -128,47 +138,30 @@ describe( 'PostCommentsWidget', () => {
 		).not.toBeInTheDocument();
 	} );
 
-	it( 'takes the total from the post when the comments request cannot count them', async () => {
-		mockEndpoints( jest.fn().mockResolvedValue( { found: -1, comments: [ COMMENT ] } ), {
-			comment_count: 30,
-		} );
-
-		renderWidget( 779 );
-
-		await expect( screen.findByText( '29 more' ) ).resolves.toBeInTheDocument();
-	} );
-
 	it.each( [
-		[ undefined, null ],
-		[ 30, '29 more' ],
-	] )( 'handles an overflowing list with post total %s', async ( commentCount, expectedFooter ) => {
-		jest.spyOn( fittedRoster, 'useFittedRosterRows' ).mockReturnValue( {
-			listRef: { current: null },
-			fittedCount: 1,
-		} );
-		mockEndpoints(
-			jest.fn().mockResolvedValue( {
-				found: -1,
-				comments: [ COMMENT, { ...COMMENT, ID: 102 } ],
-			} ),
-			{ comment_count: commentCount }
-		);
+		[ 2, 30, '1 more' ],
+		[ 10, 30, '29 more' ],
+		[ 10, undefined, null ],
+	] )(
+		'counts %s fetched comments, one fitted, with post total %s as %s',
+		async ( fetched, commentCount, expectedFooter ) => {
+			jest.spyOn( fittedRoster, 'useFittedRosterRows' ).mockReturnValue( {
+				listRef: { current: null },
+				fittedCount: 1,
+			} );
+			mockEndpoints(
+				jest.fn().mockResolvedValue( { found: -1, comments: makeComments( fetched, 101 ) } ),
+				{ comment_count: commentCount }
+			);
 
-		renderWidget( 779 );
+			renderWidget( 779 );
 
-		await expect(
-			screen.findByRole( 'link', { name: /Olivia Park/ } )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( /\d+ more/ )?.textContent ?? null ).toBe( expectedFooter );
-	} );
-
-	it( 'prefers the total the comments request counted over the post row', async () => {
-		mockEndpoints( jest.fn().mockResolvedValue( { found: 24, comments: [ COMMENT ] } ), {
-			comment_count: 99,
-		} );
-
-		renderWidget( 779 );
-
-		await expect( screen.findByText( '23 more' ) ).resolves.toBeInTheDocument();
-	} );
+			await expect(
+				screen.findByRole( 'link', { name: /Commenter 101/ } )
+			).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( screen.queryByText( /\d+ more/ )?.textContent ?? null ).toBe( expectedFooter )
+			);
+		}
+	);
 } );

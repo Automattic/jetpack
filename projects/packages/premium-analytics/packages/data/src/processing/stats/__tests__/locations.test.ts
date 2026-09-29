@@ -1,8 +1,4 @@
-import {
-	isCountryCode,
-	mergeStatsLocationsComparisonRows,
-	sanitizeStatsLocationsResponse,
-} from '..';
+import { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from '..';
 import {
 	locationsCitySummaryFixture,
 	locationsFixture,
@@ -156,7 +152,7 @@ describe( 'Stats locations normalizer', () => {
 		expect( result.data[ 0 ].items[ 0 ].coordinates ).toBeUndefined();
 	} );
 
-	it( 'labels a country with no name Unknown and keeps its views', () => {
+	it( 'keeps the views of a row Stats cannot place, as an unknown country', () => {
 		const result = sanitizeStatsLocationsResponse(
 			{
 				date: '2026-06-16',
@@ -164,54 +160,58 @@ describe( 'Stats locations normalizer', () => {
 					'2026-06-16': {
 						views: [
 							{ location: false, views: 40, country_code: 'AP' },
-							{ location: '-', views: 3, country_code: '-' },
-							{ views: 2, country_code: '' },
+							{ location: false, views: 3, country_code: '-' },
+							{ location: 'Somewhere', views: 2, country_code: 'AP' },
+							{ location: 'Bavaria', views: 1, country_code: 'DE' },
 						],
 					},
 				},
-				'country-info': { AP: { country_full: false, map_region: '' } },
+				'country-info': {
+					AP: { country_full: false, map_region: '' },
+					'-': { country_full: false, map_region: '' },
+				},
 			},
 			{ period: 'day', end_date: '2026-06-16' }
 		);
 
-		expect( result.data[ 0 ].items.map( item => [ item.label, item.views ] ) ).toEqual( [
-			[ 'Unknown', 40 ],
-			[ 'Unknown', 3 ],
-			[ 'Unknown', 2 ],
+		expect(
+			result.data[ 0 ].items.map( item => [
+				item.label,
+				item.views,
+				item.countryCode,
+				item.countryFull,
+			] )
+		).toEqual( [
+			[ 'Unknown', 40, undefined, 'Unknown' ],
+			[ 'Unknown', 3, undefined, 'Unknown' ],
+			[ 'Somewhere', 2, undefined, 'Unknown' ],
+			[ 'Bavaria', 1, 'DE', undefined ],
 		] );
 	} );
 
-	it.each( [ '', undefined ] )(
-		'retains country code %s without matching unrelated previous rows',
-		countryCode => {
-			const report = ( views: number ) =>
-				sanitizeStatsLocationsResponse(
-					{
-						date: '2026-06-16',
-						days: {
-							'2026-06-16': {
-								views: [
-									{ location: 'United States', country_code: 'US', views },
-									{ location: false, country_code: countryCode, views: 4 },
-								],
-							},
+	it( 'does not pair unknown countries across periods', () => {
+		const report = ( views: number ) =>
+			sanitizeStatsLocationsResponse(
+				{
+					date: '2026-06-16',
+					days: {
+						'2026-06-16': {
+							views: [
+								{ location: 'United States', country_code: 'US', views },
+								{ location: false, country_code: '-', views: 4 },
+							],
 						},
 					},
-					{ period: 'day', end_date: '2026-06-16' }
-				);
+					'country-info': { '-': { country_full: false } },
+				},
+				{ period: 'day', end_date: '2026-06-16' }
+			);
 
-			const result = mergeStatsLocationsComparisonRows( report( 10 ), report( 5 ) );
+		const result = mergeStatsLocationsComparisonRows( report( 10 ), report( 5 ) );
 
-			expect( result.rows ).toEqual( [
-				expect.objectContaining( { label: 'United States', views: 10, previousViews: 5 } ),
-				expect.objectContaining( { label: 'Unknown', views: 4, previousViews: undefined } ),
-			] );
-			expect( result.hasComparison ).toBe( true );
-		}
-	);
-
-	it( 'accepts only two-letter codes as country codes', () => {
-		expect( isCountryCode( 'US' ) ).toBe( true );
-		expect( [ '-', '', 'USA', undefined, false ].some( isCountryCode ) ).toBe( false );
+		expect( result.rows ).toEqual( [
+			expect.objectContaining( { label: 'United States', views: 10, previousViews: 5 } ),
+			expect.objectContaining( { label: 'Unknown', views: 4, previousViews: undefined } ),
+		] );
 	} );
 } );
