@@ -175,7 +175,13 @@ function PagingButton( {
 			>
 				<Icon icon={ icon } />
 			</Tooltip.Trigger>
-			<Tooltip.Popup>{ label }</Tooltip.Popup>
+			<Tooltip.Popup
+				className="boost-daily-history__paging-tooltip"
+				// The button pads the icon, so this puts the tooltip 9px below the chevron.
+				positioner={ <Tooltip.Positioner side="bottom" sideOffset={ 4 } /> }
+			>
+				{ label }
+			</Tooltip.Popup>
 		</Tooltip.Root>
 	);
 }
