@@ -49,6 +49,7 @@ class Action_Bar_Test extends BaseTestCase {
 	 */
 	public function tear_down() {
 		remove_all_filters( 'wp_count_posts' );
+		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_actions( 'transition_post_status' );
 		delete_transient( Action_Bar::ENOUGH_POSTS_TRANSIENT );
 		parent::tear_down();
@@ -176,5 +177,41 @@ class Action_Bar_Test extends BaseTestCase {
 		Action_Bar::flush_published_posts_count( 'publish', 'draft', (object) array( 'post_type' => 'post' ) );
 
 		$this->assertStringNotContainsString( 'actnbr-actn-follow', $this->render() );
+	}
+
+	public function test_post_stats_url_opens_stats_in_wp_admin_without_calypso_links() {
+		$this->assertSame(
+			admin_url( 'admin.php?page=stats#!/stats/post/12/345' ),
+			Action_Bar::get_post_stats_url( 12, 345, 'example.org', false )
+		);
+	}
+
+	public function test_post_stats_url_opens_calypso_with_calypso_links() {
+		$this->assertSame(
+			'https://wordpress.com/stats/post/12/example.org',
+			Action_Bar::get_post_stats_url( 12, 345, 'example.org', true )
+		);
+	}
+
+	public function test_post_stats_url_can_be_claimed_through_the_stats_url_filter() {
+		$received = null;
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) use ( &$received ) {
+				$received = $args;
+				return 'https://example.org/new-stats';
+			},
+			10,
+			2
+		);
+
+		$this->assertSame( 'https://example.org/new-stats', Action_Bar::get_post_stats_url( 12, 345, 'example.org', true ) );
+		$this->assertSame(
+			array(
+				'view'    => 'post',
+				'post_id' => 12,
+			),
+			$received
+		);
 	}
 }
