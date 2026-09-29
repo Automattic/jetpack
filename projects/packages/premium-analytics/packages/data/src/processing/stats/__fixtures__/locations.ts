@@ -96,6 +96,7 @@ export const locationsCitySummaryFixture = {
 				location: 'North Bergen',
 				views: 2716,
 				country_code: 'US',
+				region: 'New Jersey',
 				coordinates: {
 					latitude: '40.804077',
 					longitude: '-74.012366',

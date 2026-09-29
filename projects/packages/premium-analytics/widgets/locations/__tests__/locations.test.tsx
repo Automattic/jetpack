@@ -187,4 +187,119 @@ describe( 'LocationsWidget', () => {
 			expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
 		);
 	} );
+
+	describe( 'region drill-down', () => {
+		const ROWS_BY_MODE: Record< string, LocationViewsState[ 'data' ] > = {
+			country: [ locationRow( 'United States' ) ],
+			region: [ locationRow( 'Minnesota' ) ],
+			city: [ { ...locationRow( 'Saint Cloud' ), region: 'Minnesota' } ],
+		};
+
+		/** Build a settled row in the United States. */
+		function locationRow( label: string ): LocationViewsState[ 'data' ][ number ] {
+			return {
+				key: `US:${ label }`,
+				label,
+				countryCode: 'US',
+				countryFull: 'United States',
+				value: 10,
+				region: '',
+			};
+		}
+
+		beforeEach( () => {
+			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => ( {
+				...LOADING_STATE,
+				data: ROWS_BY_MODE[ geoMode ],
+				isLoading: false,
+				isFetching: false,
+				hasData: true,
+			} ) ) as unknown as () => LocationViewsState );
+		} );
+
+		it( 'drills from a country to a region to its cities, and back one level at a time', async () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'city',
+					countryFilter: 'US',
+					regionFilter: 'Minnesota',
+				} )
+			);
+			expect( lastMapProps() ).toMatchObject( {
+				mode: 'city',
+				focusCountry: { code: 'US', name: 'United States' },
+			} );
+			// Cities are the deepest level.
+			expect( screen.queryByRole( 'button', { name: /View cities in/ } ) ).not.toBeInTheDocument();
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'region',
+					countryFilter: 'US',
+					regionFilter: undefined,
+				} )
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
+			);
+		} );
+
+		it( 'drills from Regions mode straight to a region’s cities, and back to all regions', async () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'city',
+					countryFilter: 'US',
+					regionFilter: 'Minnesota',
+				} )
+			);
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( {
+					geoMode: 'region',
+					countryFilter: undefined,
+					regionFilter: undefined,
+				} )
+			);
+		} );
+
+		it( 'drops a drilled-down region when switching modes', async () => {
+			const { rerender } = render(
+				<LocationsWidget attributes={ { geoGranularity: 'region' } } />
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+
+			rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+			rerender( <LocationsWidget attributes={ { geoGranularity: 'region' } } /> );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { geoMode: 'region', regionFilter: undefined } )
+			);
+		} );
+
+		it( 'offers no drill-down in Cities mode', () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'city' } } /> );
+
+			expect( screen.queryByRole( 'button', { name: /^View / } ) ).not.toBeInTheDocument();
+		} );
+	} );
 } );

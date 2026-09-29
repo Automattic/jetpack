@@ -1,4 +1,4 @@
-import { sanitizeStatsLocationsResponse } from '..';
+import { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from '..';
 import {
 	locationsCitySummaryFixture,
 	locationsFixture,
@@ -16,7 +16,7 @@ describe( 'Stats locations normalizer', () => {
 			expect.objectContaining( {
 				label: "Côte d'Ivoire's",
 				views: 7,
-				region: '002',
+				mapRegion: '002',
 			} )
 		);
 		expect( result.summary ).toEqual( {} );
@@ -49,28 +49,28 @@ describe( 'Stats locations normalizer', () => {
 				views: 2979,
 				countryCode: 'US',
 				countryFull: 'United States',
-				region: '021',
+				mapRegion: '021',
 			} ),
 			expect.objectContaining( {
 				label: 'Hong Kong',
 				views: 1252,
 				countryCode: 'HK',
 				countryFull: 'Hong Kong SAR China',
-				region: '030',
+				mapRegion: '030',
 			} ),
 			expect.objectContaining( {
 				label: 'Hungary',
 				views: 59,
 				countryCode: 'HU',
 				countryFull: 'Hungary',
-				region: '151',
+				mapRegion: '151',
 			} ),
 			expect.objectContaining( {
 				label: "Côte d'Ivoire",
 				views: 2,
 				countryCode: 'CI',
 				countryFull: 'Côte d’Ivoire',
-				region: '002',
+				mapRegion: '002',
 			} ),
 		] );
 	} );
@@ -102,7 +102,8 @@ describe( 'Stats locations normalizer', () => {
 				views: 2716,
 				countryCode: 'US',
 				countryFull: 'United States',
-				region: '021',
+				mapRegion: '021',
+				region: 'New Jersey',
 				coordinates: {
 					latitude: 40.804077,
 					longitude: -74.012366,
@@ -150,5 +151,39 @@ describe( 'Stats locations normalizer', () => {
 		);
 
 		expect( result.data[ 0 ].items[ 0 ].coordinates ).toBeUndefined();
+	} );
+
+	it( 'keeps same-named cities in different regions apart when merging periods', () => {
+		const query = {
+			period: 'day',
+			start_date: '2026-06-16',
+			end_date: '2026-06-22',
+			summarize: true,
+		} as const;
+		const report = ( minnesota: number, florida: number ) =>
+			sanitizeStatsLocationsResponse(
+				{
+					date: '2026-06-22',
+					summary: {
+						views: [
+							{
+								location: 'Saint Cloud',
+								region: 'Minnesota',
+								views: minnesota,
+								country_code: 'US',
+							},
+							{ location: 'Saint Cloud', region: 'Florida', views: florida, country_code: 'US' },
+						],
+					},
+				},
+				query
+			);
+
+		const { rows } = mergeStatsLocationsComparisonRows( report( 3, 8 ), report( 5, 2 ) );
+
+		expect( rows.map( row => [ row.region, row.views, row.previousViews ] ) ).toEqual( [
+			[ 'Minnesota', 3, 5 ],
+			[ 'Florida', 8, 2 ],
+		] );
 	} );
 } );

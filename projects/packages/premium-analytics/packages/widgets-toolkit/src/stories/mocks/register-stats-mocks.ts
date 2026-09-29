@@ -815,6 +815,7 @@ type StatsLocationItem = {
 	location: string;
 	views: number;
 	country_code: string;
+	region?: string;
 	coordinates?: {
 		latitude: number;
 		longitude: number;
@@ -864,30 +865,35 @@ const COUNTRY_COMPARISON_ROWS: StatsLocationItem[] = [
 const CITY_ROWS: StatsLocationItem[] = [
 	{
 		location: 'North Bergen',
+		region: 'New Jersey',
 		views: 2716,
 		country_code: 'US',
 		coordinates: { latitude: 40.8043, longitude: -74.0121 },
 	},
 	{
 		location: 'Hong Kong',
+		region: 'Hong Kong',
 		views: 1246,
 		country_code: 'HK',
 		coordinates: { latitude: 22.3193, longitude: 114.1694 },
 	},
 	{
 		location: 'London',
+		region: 'England',
 		views: 476,
 		country_code: 'GB',
 		coordinates: { latitude: 51.5072, longitude: -0.1276 },
 	},
 	{
 		location: 'Tokyo',
+		region: 'Tokyo',
 		views: 390,
 		country_code: 'JP',
 		coordinates: { latitude: 35.6762, longitude: 139.6503 },
 	},
 	{
 		location: 'Berlin',
+		region: 'Berlin',
 		views: 330,
 		country_code: 'DE',
 		coordinates: { latitude: 52.52, longitude: 13.405 },
@@ -897,35 +903,100 @@ const CITY_ROWS: StatsLocationItem[] = [
 const CITY_COMPARISON_ROWS: StatsLocationItem[] = [
 	{
 		location: 'North Bergen',
+		region: 'New Jersey',
 		views: 2400,
 		country_code: 'US',
 		coordinates: { latitude: 40.8043, longitude: -74.0121 },
 	},
 	{
 		location: 'Hong Kong',
+		region: 'Hong Kong',
 		views: 1380,
 		country_code: 'HK',
 		coordinates: { latitude: 22.3193, longitude: 114.1694 },
 	},
 	{
 		location: 'London',
+		region: 'England',
 		views: 520,
 		country_code: 'GB',
 		coordinates: { latitude: 51.5072, longitude: -0.1276 },
 	},
 	{
 		location: 'Tokyo',
+		region: 'Tokyo',
 		views: 340,
 		country_code: 'JP',
 		coordinates: { latitude: 35.6762, longitude: 139.6503 },
 	},
 	{
 		location: 'Berlin',
+		region: 'Berlin',
 		views: 370,
 		country_code: 'DE',
 		coordinates: { latitude: 52.52, longitude: 13.405 },
 	},
 ];
+
+// Keyed by `country:region`, matching the drill-down's `filter_by_country` + `filter_by_region`.
+const CITY_ROWS_BY_REGION: Record< string, StatsLocationItem[] > = {
+	'US:California': [
+		{
+			location: 'Los Angeles',
+			views: 640,
+			coordinates: { latitude: 34.0522, longitude: -118.2437 },
+		},
+		{
+			location: 'San Francisco',
+			views: 520,
+			coordinates: { latitude: 37.7749, longitude: -122.4194 },
+		},
+		{
+			location: 'San Diego',
+			views: 310,
+			coordinates: { latitude: 32.7157, longitude: -117.1611 },
+		},
+		{
+			location: 'Sacramento',
+			views: 190,
+			coordinates: { latitude: 38.5816, longitude: -121.4944 },
+		},
+	].map( row => ( { ...row, country_code: 'US', region: 'California' } ) ),
+	'US:New York': [
+		{
+			location: 'New York',
+			views: 980,
+			coordinates: { latitude: 40.7128, longitude: -74.006 },
+		},
+		{
+			location: 'Buffalo',
+			views: 170,
+			coordinates: { latitude: 42.8864, longitude: -78.8784 },
+		},
+		{
+			location: 'Rochester',
+			views: 130,
+			coordinates: { latitude: 43.1566, longitude: -77.6088 },
+		},
+	].map( row => ( { ...row, country_code: 'US', region: 'New York' } ) ),
+	'GB:England': [
+		{
+			location: 'London',
+			views: 1320,
+			coordinates: { latitude: 51.5072, longitude: -0.1276 },
+		},
+		{
+			location: 'Manchester',
+			views: 410,
+			coordinates: { latitude: 53.4808, longitude: -2.2426 },
+		},
+		{
+			location: 'Bristol',
+			views: 220,
+			coordinates: { latitude: 51.4545, longitude: -2.5879 },
+		},
+	].map( row => ( { ...row, country_code: 'GB', region: 'England' } ) ),
+};
 
 const REGION_ROWS_BY_COUNTRY: Record< string, StatsLocationItem[] > = {
 	US: [
@@ -1085,6 +1156,21 @@ function getLocationRows(
 	isComparison: boolean
 ): StatsLocationItem[] {
 	if ( geoMode === 'city' ) {
+		const regionFilter = query.get( 'filter_by_region' );
+
+		if ( regionFilter ) {
+			const rows = CITY_ROWS_BY_REGION[ `${ query.get( 'filter_by_country' ) }:${ regionFilter }` ];
+
+			// Unknown regions come back empty, as the endpoint does.
+			if ( ! rows ) {
+				return [];
+			}
+
+			return isComparison
+				? rows.map( row => ( { ...row, views: Math.round( row.views * 0.85 ) } ) )
+				: rows;
+		}
+
 		return isComparison ? CITY_COMPARISON_ROWS : CITY_ROWS;
 	}
 

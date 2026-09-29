@@ -48,4 +48,21 @@ describe( 'report locations aggregate', () => {
 	it( 'returns no rows when the report has not arrived', () => {
 		expect( buildLocationRows( undefined ) ).toEqual( [] );
 	} );
+
+	it( 'keeps identical city names in different regions of one country apart', () => {
+		const rows = buildLocationRows(
+			[ 'Minnesota', 'Florida' ].map( region => ( {
+				label: 'Saint Cloud',
+				region,
+				views: 1,
+				countryCode: 'US',
+				children: null,
+			} ) )
+		);
+
+		expect( rows.map( row => row.id ) ).toEqual( [
+			'US:Minnesota:Saint Cloud',
+			'US:Florida:Saint Cloud',
+		] );
+	} );
 } );

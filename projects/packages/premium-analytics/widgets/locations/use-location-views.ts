@@ -20,6 +20,7 @@ export interface LocationView {
 	countryFull: string;
 	value: number;
 	previousValue?: number;
+	/** The region a city sits in; empty on country and region rows. */
 	region: string;
 	coordinates?: StatsLocationCoordinates;
 }
@@ -38,9 +39,13 @@ interface UseLocationViewsArgs {
 	 */
 	geoMode?: GeoMode;
 	/**
-	 * ISO country code to filter regions by (region mode).
+	 * ISO country code to filter regions or cities by.
 	 */
 	countryFilter?: string;
+	/**
+	 * Region name to filter cities by; needs `countryFilter`.
+	 */
+	regionFilter?: string;
 }
 
 interface LocationViewsState {
@@ -65,7 +70,7 @@ function toLocationView( item: StatsLocationsComparisonItem ): LocationView | nu
 	const countryFull = item.countryFull ?? item.countryCode;
 
 	return {
-		key: `${ item.countryCode }:${ label }`,
+		key: [ item.countryCode, item.region, label ].filter( Boolean ).join( ':' ),
 		label,
 		countryCode: item.countryCode,
 		countryFull,
@@ -87,13 +92,15 @@ export default function useLocationViews( {
 	max,
 	geoMode = 'country',
 	countryFilter,
+	regionFilter,
 }: UseLocationViewsArgs ): LocationViewsState {
-	const statsParams = {
+	const statsParams: Parameters< typeof useStatsLocations >[ 0 ] = {
 		...reportParams,
 		geoMode,
 		max,
 		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
-	} as Parameters< typeof useStatsLocations >[ 0 ];
+		...( countryFilter && regionFilter ? { filter_by_region: regionFilter } : {} ),
+	};
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );
