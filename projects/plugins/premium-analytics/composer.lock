@@ -902,7 +902,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "d082156e7fe2fb467b95bf6e23eca683f6b03ef6"
+                "reference": "14474c02ca89672947afa8b8217d9ee35044e057"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
