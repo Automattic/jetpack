@@ -272,6 +272,7 @@ abstract class Publicize_Base {
 		// Custom priority to ensure post type support is added prior to thumbnail support being added to the theme.
 		add_action( 'init', array( $this, 'add_post_type_support' ), 8 );
 		add_action( 'init', array( $this, 'register_post_meta' ), 20 );
+		add_filter( 'update_post_metadata', array( $this, 'collapse_duplicate_post_meta' ), 10, 5 );
 
 		// The custom priority for this action ensures that any existing code that
 		// removes post-thumbnails support during 'init' continues to work.
@@ -1305,6 +1306,45 @@ abstract class Publicize_Base {
 		// The focal point lives on the image (attachment), not the post, so it is shared
 		// by every post that uses the image. Registered once, not per publicizeable type.
 		register_post_meta( 'attachment', self::ATTACHMENT_IMAGE_FOCAL_POINT, $image_focal_point_args );
+	}
+
+	/**
+	 * Collapse duplicate rows of a single-value Publicize post meta key into one on update.
+	 *
+	 * With several rows core skips its "unchanged" check, so an UPDATE that matches no changed row fails.
+	 *
+	 * @param null|bool $check      Whether to short-circuit the update.
+	 * @param int       $object_id  Post ID.
+	 * @param string    $meta_key   Meta key.
+	 * @param mixed     $meta_value Unslashed meta value.
+	 * @param mixed     $prev_value Previous value to match, if any.
+	 * @return null|bool Null to let core update the meta, otherwise whether the update succeeded.
+	 */
+	public function collapse_duplicate_post_meta( $check, $object_id, $meta_key, $meta_value, $prev_value ) {
+		if ( null !== $check || ! empty( $prev_value ) ) {
+			return $check;
+		}
+
+		$single_keys = array(
+			$this->POST_MESS,
+			self::POST_PUBLICIZE_FEATURE_ENABLED,
+			$this->POST_DONE . 'all',
+			self::POST_JETPACK_SOCIAL_OPTIONS,
+			self::POST_CONNECTION_OVERRIDES,
+			self::POST_CUSTOMIZE_PER_NETWORK,
+		);
+		if ( ! in_array( $meta_key, $single_keys, true ) ) {
+			return $check;
+		}
+
+		$stored = get_metadata_raw( 'post', $object_id, $meta_key, false );
+		if ( ! is_array( $stored ) || count( $stored ) < 2 ) {
+			return $check;
+		}
+
+		delete_metadata( 'post', $object_id, $meta_key );
+
+		return (bool) add_metadata( 'post', $object_id, $meta_key, wp_slash( $meta_value ), true );
 	}
 
 	/**
