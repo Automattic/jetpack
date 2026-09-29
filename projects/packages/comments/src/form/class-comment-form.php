@@ -201,7 +201,14 @@ class Comment_Form {
 
 		// The subscribe checkboxes the host drew: Jetpack's in this field, WordPress.com's from its own
 		// function. Drawn in the dialog under the host's names, so its gating and handlers still apply.
-		$drawn  = $submit_field . ( function_exists( 'subscription_comment_form' ) ? (string) subscription_comment_form( self::post_id(), false ) : '' );
+		$drawn = $submit_field;
+		if ( function_exists( 'subscription_comment_form' ) ) {
+			// Echoed and caught: its stub declares no return value.
+			ob_start();
+			subscription_comment_form( self::post_id() );
+			$drawn .= (string) ob_get_clean();
+		}
+
 		$labels = array(
 			'subscribe_comments' => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
 			'subscribe'          => __( 'Notify me of new comments by email.', 'jetpack-comments' ),
