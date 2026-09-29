@@ -4,6 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,6 +19,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -28,6 +30,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -44,7 +47,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -319,6 +324,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		// No `total` in the response, so the headline falls back to the bucketed sum.
 		expect( metrics[ 0 ].value ).toBe( 12 );
+	} );
+
+	it( 'shows the no-results message in the chart for a window without views', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( {} ) );
+
+		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without a video scope', async () => {

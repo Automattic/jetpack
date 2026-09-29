@@ -5,6 +5,7 @@ import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/d
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -19,6 +20,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -29,6 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -45,7 +48,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -198,6 +203,16 @@ describe( 'PostViewsWidget', () => {
 		expect( metrics[ 0 ].label ).toBe( 'Views' );
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'shows the no-results message in the chart for a window without views', async () => {
+		mockApiFetch.mockResolvedValue( { data: [] } );
+
+		render( <PostViewsWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without a post scope', async () => {
