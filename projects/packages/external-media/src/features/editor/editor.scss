@@ -60,8 +60,8 @@
 	display: initial;
 }
 
-// Let the media field picker fill the dropdown, not shrink to fit.
-.fields__media-edit .jetpack-external-media-button-menu__dropdown > * {
+// Let the featured image picker fill the dropdown, not shrink to fit.
+.jetpack-external-media-button-menu__dropdown.is-featured-image > * {
 	flex-grow: 1;
 	min-inline-size: 0;
 }
