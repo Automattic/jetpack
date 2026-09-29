@@ -11,6 +11,8 @@
 
 // block-editor and block-library reset the admin color to the legacy #007cba.
 // Keep this after the imports: equal specificity, so source order decides.
+// Remove once @wordpress/base-styles ships the modern default:
+// https://github.com/WordPress/gutenberg/pull/83749
 :root {
 
 	@include mixins.admin-scheme(#3858e9);
