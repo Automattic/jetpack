@@ -58,6 +58,7 @@ class Publicize_Test extends BaseTestCase {
 		$publicize = new Publicize();
 		$post_id   = 123;
 		add_post_meta( $post_id, 'other_key', 'value' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Duplicate rows are the fixture.
 		add_post_meta( $post_id, 'other_key', 'value' );
 
 		$this->assertNull( $publicize->collapse_duplicate_post_meta( null, $post_id, 'other_key', 'value', '' ) );

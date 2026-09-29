@@ -147,6 +147,7 @@ class Publicize_Test extends WP_UnitTestCase {
 	public function test_update_collapses_duplicate_publicize_meta_rows() {
 		$message = 'Amaretti ! C:\\temp';
 		add_post_meta( $this->post->ID, '_wpas_mess', wp_slash( $message ) );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Duplicate rows are the fixture.
 		add_post_meta( $this->post->ID, '_wpas_mess', wp_slash( $message ) );
 
 		$this->assertTrue( update_post_meta( $this->post->ID, '_wpas_mess', wp_slash( $message ) ) );
@@ -159,6 +160,7 @@ class Publicize_Test extends WP_UnitTestCase {
 
 	public function test_update_collapses_duplicate_boolean_publicize_meta_rows() {
 		add_post_meta( $this->post->ID, '_wpas_feature_enabled', true );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Duplicate rows are the fixture.
 		add_post_meta( $this->post->ID, '_wpas_feature_enabled', true );
 
 		$this->assertTrue( update_post_meta( $this->post->ID, '_wpas_feature_enabled', true ) );
@@ -167,6 +169,7 @@ class Publicize_Test extends WP_UnitTestCase {
 
 	public function test_update_keeps_duplicate_publicize_meta_rows_when_write_fails() {
 		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Duplicate rows are the fixture.
 		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );
 		add_filter( 'update_post_metadata_by_mid', '__return_false' );
 
