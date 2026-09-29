@@ -21,14 +21,14 @@ class Theme_Styles_Sync {
 	 * Refuse to sync a slice larger than this, in bytes.
 	 *
 	 * A bound on a pathological palette, not a budget: ordinary themes are orders below it, and a
-	 * theme that trips it syncs nothing and keeps today's behaviour.
+	 * theme that trips it syncs its name with no design rather than nothing at all.
 	 */
 	const MAX_PAYLOAD_BYTES = 51200;
 
 	/**
 	 * The active theme's inheritable design.
 	 *
-	 * @return array|null Null when theme.json is unavailable, or the slice is oversized.
+	 * @return array|null Null only where this WordPress cannot resolve theme.json at all.
 	 */
 	public static function get_theme_styles() {
 		if ( ! class_exists( 'WP_Theme_JSON_Resolver' ) ) {
@@ -56,7 +56,10 @@ class Theme_Styles_Sync {
 		// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- measuring the wire representation, which Sync encodes with default flags.
 		$encoded = wp_json_encode( $slice );
 		if ( false === $encoded || strlen( $encoded ) > self::MAX_PAYLOAD_BYTES ) {
-			return null;
+			// Reporting nothing would hit the same staleness the empty slice above exists to avoid,
+			// so carry the theme's name with no design and let the receiving end fall back.
+			$slice['settings'] = self::preset_sources( array() );
+			$slice['styles']   = array();
 		}
 
 		return $slice;

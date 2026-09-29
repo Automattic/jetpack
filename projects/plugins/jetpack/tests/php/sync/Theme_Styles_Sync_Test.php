@@ -11,6 +11,11 @@ use PHPUnit\Framework\Attributes\DataProvider;
 class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 
+	/**
+	 * @var string|null Stylesheet to restore, set only by tests that switch themes.
+	 */
+	private $previous_stylesheet = null;
+
 	public function set_up() {
 		parent::set_up();
 		WP_Theme_JSON_Resolver::clean_cached_data();
@@ -18,19 +23,14 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 
 	public function tear_down() {
 		remove_all_filters( 'wp_theme_json_data_theme' );
-		remove_theme_support( 'editor-color-palette' );
 		if ( $this->previous_stylesheet !== null ) {
+			remove_theme_support( 'editor-color-palette' );
 			switch_theme( $this->previous_stylesheet );
 			$this->previous_stylesheet = null;
 		}
 		WP_Theme_JSON_Resolver::clean_cached_data();
 		parent::tear_down();
 	}
-
-	/**
-	 * @var string|null Stylesheet to restore, set only by tests that switch themes.
-	 */
-	private $previous_stylesheet = null;
 
 	/**
 	 * Install a synthetic theme.json for the active theme.
@@ -311,10 +311,20 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 		add_theme_support( 'editor-color-palette' );
 		WP_Theme_JSON_Resolver::clean_cached_data();
 
+		$raw = WP_Theme_JSON_Resolver::get_theme_data()->get_raw_data();
+		$this->assertTrue(
+			$raw['settings']['color']['palette'] ?? null,
+			'Expected the bare theme support to reach the raw data as `true`; an empty palette below would otherwise prove nothing.'
+		);
+
 		$this->assertSame( array(), $this->slice()['settings']['color']['palette'] );
 	}
 
-	public function test_refuses_a_payload_over_the_size_cap() {
+	/**
+	 * Sync skips a null value, so an oversized theme must still report its name -- otherwise the
+	 * receiving end keeps rendering the previous theme's design with nothing to say it changed.
+	 */
+	public function test_reports_the_theme_without_a_design_when_the_payload_is_oversized() {
 		$palette = array();
 		for ( $i = 0; $i < 5000; $i++ ) {
 			$palette[] = array(
@@ -325,7 +335,13 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 		}
 		$this->with_theme_json( array( 'settings' => array( 'color' => array( 'palette' => $palette ) ) ) );
 
-		$this->assertNull( Theme_Styles_Sync::get_theme_styles() );
+		$slice = $this->slice();
+
+		$this->assertSame( get_stylesheet(), $slice['stylesheet'] );
+		$this->assertSame( array(), $slice['settings']['color']['palette'] );
+		$this->assertSame( array(), $slice['styles'] );
+		// phpcs:ignore Jetpack.Functions.JsonEncodeFlags.Missing -- matching what the class measures.
+		$this->assertLessThanOrEqual( Theme_Styles_Sync::MAX_PAYLOAD_BYTES, strlen( wp_json_encode( $slice ) ) );
 	}
 
 	public function test_registered_as_a_sync_callable() {
