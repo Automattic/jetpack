@@ -306,7 +306,20 @@ class Tokens {
 		} else {
 			$options = compact( 'user_tokens' );
 		}
-		return Jetpack_Options::update_options( $options );
+		$updated = Jetpack_Options::update_options( $options );
+
+		/**
+		 * Fires when the user token gets replaced.
+		 *
+		 * @since 1.29.0
+		 * @since $$next-version$$ Fired from Tokens::update_user_token() so every write path (authorize, provisioning, CLI) clears stale connection errors, not just the REST endpoint.
+		 *
+		 * @param int    $user_id User ID.
+		 * @param string $token   New user token.
+		 */
+		do_action( 'jetpack_updated_user_token', $user_id, $token );
+
+		return $updated;
 	}
 
 	/**
