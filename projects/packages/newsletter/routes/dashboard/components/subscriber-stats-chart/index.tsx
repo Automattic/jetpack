@@ -688,14 +688,14 @@ export default function SubscriberStatsChart(): JSX.Element {
 					<Text render={ <h3 /> } variant="heading-lg">
 						{ __( 'Subscribers', 'jetpack-newsletter' ) }
 					</Text>
-					<Stack direction="row" align="center" gap="sm">
+					<div className="jetpack-newsletter-stats__chart-controls">
 						<ChartRangeArrows
 							disableNext={ endDate >= today }
 							onPrevious={ showPreviousPeriod }
 							onNext={ showNextPeriod }
 						/>
 						<ChartUnitControl unit={ unit } onChange={ changeChartUnit } />
-					</Stack>
+					</div>
 				</Stack>
 				{ chartContent }
 			</Stack>

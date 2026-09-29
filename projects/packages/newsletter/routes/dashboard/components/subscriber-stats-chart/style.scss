@@ -64,10 +64,21 @@
 
 	&__chart-heading {
 		inline-size: 100%;
+		min-inline-size: 0;
+	}
+
+	&__chart-controls {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		flex: 1 1 auto;
+		justify-content: flex-end;
+		min-inline-size: 0;
 	}
 
 	&__chart-arrows {
 		display: flex;
+		flex-shrink: 0;
 		align-items: center;
 
 		button.jetpack-newsletter-stats__chart-arrow {
@@ -108,11 +119,14 @@
 
 	&__chart-unit {
 		display: flex;
+		min-inline-size: 0;
 		margin: 0;
+		overflow-inline: auto;
+		padding-block: 2px;
 
 		button.jetpack-newsletter-stats__interval {
 			box-sizing: border-box;
-			flex: 1 1 auto;
+			flex: 0 0 auto;
 			min-inline-size: 5.5rem;
 			min-block-size: 0;
 			margin: 0;
