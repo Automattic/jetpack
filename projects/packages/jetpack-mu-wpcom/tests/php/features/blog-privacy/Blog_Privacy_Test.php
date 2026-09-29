@@ -24,6 +24,7 @@ class Blog_Privacy_Test extends \WorDBless\BaseTestCase {
 	public static function tear_down_after_class() {
 		\delete_option( 'blog_public' );
 		\delete_option( 'wpcom_data_sharing_opt_out' );
+		\delete_option( 'home' );
 	}
 
 	/**
@@ -159,5 +160,86 @@ AI_BLOCKS;
 
 		// Note again that we don't use the value of $blog_public, but let's pass it along in case that changes someday.
 		$this->assertSame( $expected, robots_txt( $init_content, (bool) $blog_public ) );
+	}
+
+	/**
+	 * Data provider for ->test_is_wpcom_staging_site().
+	 *
+	 * @return \Iterator
+	 */
+	public static function provide_is_wpcom_staging_site(): \Iterator {
+		yield 'staging site' => array( 'https://staging-c603-mysite.wpcomstaging.com', true );
+		yield 'staging site, uppercase' => array( 'https://STAGING-c603-mysite.wpcomstaging.com', true );
+		yield 'production site on wpcomstaging' => array( 'https://mysite.wpcomstaging.com', false );
+		yield 'custom domain with staging- prefix' => array( 'https://staging-tools.com', false );
+		yield 'custom domain' => array( 'https://example.com', false );
+		yield 'staging subdomain of a custom domain' => array( 'https://staging-c603-mysite.wpcomstaging.com.example.com', false );
+	}
+
+	/**
+	 * Tests for is_wpcom_staging_site().
+	 *
+	 * @dataProvider provide_is_wpcom_staging_site
+	 * @param string $home     The home URL.
+	 * @param bool   $expected Whether the site is a staging site.
+	 */
+	#[DataProvider( 'provide_is_wpcom_staging_site' )]
+	public function test_is_wpcom_staging_site( string $home, bool $expected ) {
+		\update_option( 'home', $home );
+
+		$this->assertSame( $expected, is_wpcom_staging_site() );
+	}
+
+	/**
+	 * Staging sites get the noindex header and meta, even when blog_public allows indexing.
+	 */
+	public function test_staging_site_is_noindexed_when_public() {
+		\update_option( 'home', 'https://staging-c603-mysite.wpcomstaging.com' );
+		\update_option( 'blog_public', '1' );
+
+		$headers = \apply_filters( 'wp_headers', array() );
+		$this->assertSame( 'noindex, nofollow', $headers['X-Robots-Tag'] );
+
+		$this->assertSame(
+			array(
+				'max-image-preview' => 'large',
+				'noindex'           => true,
+				'nofollow'          => true,
+			),
+			\apply_filters(
+				'wp_robots',
+				array(
+					'index'             => true,
+					'follow'            => true,
+					'max-image-preview' => 'large',
+				)
+			)
+		);
+	}
+
+	/**
+	 * Non-staging sites keep their headers and robots directives.
+	 */
+	public function test_production_site_is_untouched() {
+		\update_option( 'home', 'https://mysite.wpcomstaging.com' );
+
+		$this->assertSame( array(), add_staging_site_robots_header( array() ) );
+
+		$robots = array(
+			'index'  => true,
+			'follow' => true,
+		);
+		$this->assertSame( $robots, add_staging_site_robots_directives( $robots ) );
+	}
+
+	/**
+	 * Staging sites get no robots.txt Disallow, which would stop crawlers from seeing the noindex.
+	 */
+	public function test_staging_site_robots_txt_is_unchanged() {
+		\update_option( 'home', 'https://staging-c603-mysite.wpcomstaging.com' );
+		\update_option( 'blog_public', '1' );
+		\delete_option( 'wpcom_data_sharing_opt_out' );
+
+		$this->assertSame( 'TEST', robots_txt( 'TEST', true ) );
 	}
 }
