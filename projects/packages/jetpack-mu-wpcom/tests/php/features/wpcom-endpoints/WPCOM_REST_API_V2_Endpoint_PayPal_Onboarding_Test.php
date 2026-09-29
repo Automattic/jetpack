@@ -67,8 +67,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		Constants::clear_constants();
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'is_jetpack_authorized_for_site' );
-		Jetpack_Server_Version::$token = false;
-		$GLOBALS['blog_id']            = $this->original_blog_id;
+		unset( $GLOBALS['wpcom_paypal_platform_test_token'] );
+		$GLOBALS['blog_id'] = $this->original_blog_id;
 		foreach ( array( 'sandbox', 'production' ) as $environment ) {
 			delete_transient( WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::token_cache_key( $environment ) );
 		}
@@ -115,7 +115,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		// public-api's own blog, which every flat-route HTTP call runs on.
 		$GLOBALS['blog_id'] = 5836086;
 
-		Jetpack_Server_Version::$token = (object) array(
+		$GLOBALS['wpcom_paypal_platform_test_token'] = (object) array(
 			'blog_id'          => $blog_id,
 			'user_id'          => $user_id,
 			'external_user_id' => $user_id,
@@ -616,7 +616,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	 */
 	public function test_a_token_that_failed_to_verify_is_refused() {
 		Constants::set_constant( 'IS_WPCOM', true );
-		Jetpack_Server_Version::$token = new WP_Error( 'signature_mismatch' );
+		$GLOBALS['wpcom_paypal_platform_test_token'] = new WP_Error( 'signature_mismatch' );
 
 		$this->assertInstanceOf( WP_Error::class, $this->endpoint->permission_check() );
 	}
