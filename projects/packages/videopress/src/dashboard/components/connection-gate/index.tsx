@@ -16,7 +16,7 @@ import type { ReactNode } from 'react';
  * When the site isn't registered we show the pricing upsell (ported from the
  * legacy dashboard); once registered but missing a connected owner/user we show
  * the lighter connect screen — the same split the legacy dashboard made between
- * its `PricingSection` and `NeedUserConnectionGlobalNotice`.
+ * its `PricingSection` and its user-connection notice.
  *
  * Rendered inside `QueryClientWrapper` — the single wrapper every route stage
  * shares — so all four routes (overview, library, settings, video) are gated

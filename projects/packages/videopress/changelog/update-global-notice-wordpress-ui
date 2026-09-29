@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use the WordPress UI Notice component for the user connection notice.

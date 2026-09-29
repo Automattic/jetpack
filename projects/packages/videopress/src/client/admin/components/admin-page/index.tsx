@@ -10,7 +10,11 @@ import {
 	Button,
 	Col,
 } from '@automattic/jetpack-components';
-import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
+import {
+	useConnection,
+	useConnectionErrorNotice,
+	ConnectionError,
+} from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -27,7 +31,6 @@ import { useDashboardVideos } from '../../hooks/use-dashboard-videos';
 import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
-import { NeedUserConnectionGlobalNotice } from '../global-notice';
 import PageSubTitle from '../page-subtitle';
 import PricingSection from '../pricing-section';
 import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
@@ -53,6 +56,12 @@ const Admin = () => {
 
 	const { canPerformAction, isRegistered, hasConnectedOwner, isUserConnected } = usePermission();
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const { adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
+	const { handleRegisterSite } = useConnection( {
+		redirectUri: adminUri,
+		from: 'jetpack-videopress',
+		registrationNonce,
+	} );
 
 	const [ showPricingSection, setShowPricingSection ] = useState( ! isRegistered );
 
@@ -124,7 +133,19 @@ const Admin = () => {
 
 								{ ( ! hasConnectedOwner || ! isUserConnected ) && (
 									<Col sm={ 4 } md={ 8 } lg={ 12 }>
-										<NeedUserConnectionGlobalNotice />
+										<Notice.Root intent="error">
+											<Notice.Description>
+												{ __(
+													'Some actions need a user connection to WordPress.com to be able to work',
+													'jetpack-videopress-pkg'
+												) }
+											</Notice.Description>
+											<Notice.Actions>
+												<Notice.ActionButton onClick={ handleRegisterSite }>
+													{ __( 'Connect your user account to fix this', 'jetpack-videopress-pkg' ) }
+												</Notice.ActionButton>
+											</Notice.Actions>
+										</Notice.Root>
 									</Col>
 								) }
 
