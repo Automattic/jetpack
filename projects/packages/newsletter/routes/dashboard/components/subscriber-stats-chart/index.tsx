@@ -3,17 +3,14 @@ import '@automattic/charts/style.css';
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import apiFetch from '@wordpress/api-fetch';
-import {
-	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { dateI18n } from '@wordpress/date';
-import { useCallback, useState } from '@wordpress/element';
+import { useCallback, useState, type MouseEvent } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
+import { arrowLeft, arrowRight, info } from '@wordpress/icons';
 import { Button, Icon, Stack, Text, Tooltip } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
+import clsx from 'clsx';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
 import RecentPosts, { type RecentPost } from '../recent-posts';
 import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
@@ -97,6 +94,36 @@ function chartUnit( unit: string | undefined, fallback: ChartUnit ): ChartUnit {
 	}
 
 	return fallback;
+}
+
+/**
+ * Move the chart end date by one full window.
+ *
+ * Weeks step by seven days per bucket, matching the Stats subscribers arrows.
+ *
+ * @param isoDate   - Current end date, `yyyy-MM-dd`.
+ * @param unit      - Selected chart unit.
+ * @param direction - `-1` for the previous window, `1` for the next.
+ * @return Shifted `yyyy-MM-dd` date.
+ */
+function shiftChartDate( isoDate: string, unit: ChartUnit, direction: -1 | 1 ): string {
+	const [ year, month, day ] = isoDate.split( '-' ).map( Number );
+	const next = new Date( year, month - 1, day );
+	const steps = CHART_UNITS[ unit ] * direction;
+
+	if ( unit === 'month' ) {
+		next.setMonth( next.getMonth() + steps );
+	} else if ( unit === 'year' ) {
+		next.setFullYear( next.getFullYear() + steps );
+	} else if ( unit === 'week' ) {
+		next.setDate( next.getDate() + steps * 7 );
+	} else {
+		next.setDate( next.getDate() + steps );
+	}
+
+	const shiftedMonth = String( next.getMonth() + 1 ).padStart( 2, '0' );
+	const shiftedDay = String( next.getDate() ).padStart( 2, '0' );
+	return `${ next.getFullYear() }-${ shiftedMonth }-${ shiftedDay }`;
 }
 
 /**
@@ -233,6 +260,13 @@ function getGreeting(): string {
 		: __( 'Welcome', 'jetpack-newsletter' );
 }
 
+const CHART_UNIT_OPTIONS: Array< { value: ChartUnit; label: string } > = [
+	{ value: 'day', label: __( 'Days', 'jetpack-newsletter' ) },
+	{ value: 'week', label: __( 'Weeks', 'jetpack-newsletter' ) },
+	{ value: 'month', label: __( 'Months', 'jetpack-newsletter' ) },
+	{ value: 'year', label: __( 'Years', 'jetpack-newsletter' ) },
+];
+
 /**
  * Days, Weeks, Months, and Years control for the subscribers chart.
  *
@@ -249,7 +283,8 @@ function ChartUnitControl( {
 	onChange: ( unit: ChartUnit ) => void;
 } ): JSX.Element {
 	const handleChange = useCallback(
-		( value?: string | number ) => {
+		( event: MouseEvent< HTMLButtonElement > ) => {
+			const value = event.currentTarget.value;
 			if ( value !== 'day' && value !== 'week' && value !== 'month' && value !== 'year' ) {
 				return;
 			}
@@ -265,20 +300,63 @@ function ChartUnitControl( {
 	);
 
 	return (
-		<ToggleGroupControl
+		<div
 			className="jetpack-newsletter-stats__chart-unit"
-			__next40pxDefaultSize
-			__nextHasNoMarginBottom
-			isDeselectable={ false }
-			label={ __( 'Chart interval', 'jetpack-newsletter' ) }
-			value={ unit }
-			onChange={ handleChange }
+			role="radiogroup"
+			aria-label={ __( 'Chart interval', 'jetpack-newsletter' ) }
 		>
-			<ToggleGroupControlOption value="day" label={ __( 'Days', 'jetpack-newsletter' ) } />
-			<ToggleGroupControlOption value="week" label={ __( 'Weeks', 'jetpack-newsletter' ) } />
-			<ToggleGroupControlOption value="month" label={ __( 'Months', 'jetpack-newsletter' ) } />
-			<ToggleGroupControlOption value="year" label={ __( 'Years', 'jetpack-newsletter' ) } />
-		</ToggleGroupControl>
+			{ CHART_UNIT_OPTIONS.map( option => (
+				<button
+					key={ option.value }
+					type="button"
+					role="radio"
+					aria-checked={ unit === option.value }
+					value={ option.value }
+					onClick={ handleChange }
+				>
+					{ option.label }
+				</button>
+			) ) }
+		</div>
+	);
+}
+
+/**
+ * Arrows that page the chart end date by one window.
+ *
+ * @param props             - Control props.
+ * @param props.disableNext - Whether the next window would pass today.
+ * @param props.onPrevious  - Move one window earlier.
+ * @param props.onNext      - Move one window later.
+ * @return Previous and next controls.
+ */
+function ChartRangeArrows( {
+	disableNext,
+	onPrevious,
+	onNext,
+}: {
+	disableNext: boolean;
+	onPrevious: () => void;
+	onNext: () => void;
+} ): JSX.Element {
+	return (
+		<div className="jetpack-newsletter-stats__chart-arrows">
+			<button
+				type="button"
+				aria-label={ __( 'Previous period', 'jetpack-newsletter' ) }
+				onClick={ onPrevious }
+			>
+				<Icon icon={ arrowLeft } size={ 24 } />
+			</button>
+			<button
+				type="button"
+				aria-label={ __( 'Next period', 'jetpack-newsletter' ) }
+				onClick={ onNext }
+				disabled={ disableNext }
+			>
+				<Icon icon={ arrowRight } size={ 24 } />
+			</button>
+		</div>
 	);
 }
 
@@ -317,12 +395,13 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const isMobile = useViewportMatch( 'small', '<' );
 	const metricDirection = isMobile ? 'row' : 'column';
 	const metricJustify = isMobile ? 'space-between' : undefined;
+	const today = dateI18n( 'Y-m-d' );
 	const [ unit, setUnit ] = useState< ChartUnit >( 'day' );
-	const date = dateI18n( 'Y-m-d' );
+	const [ endDate, setEndDate ] = useState( today );
 	const subscribersPath = addQueryArgs( '/wpcom/v2/newsletter/stats/subscribers', {
 		unit,
 		quantity: CHART_UNITS[ unit ],
-		date,
+		date: endDate,
 		stat_fields: 'subscribers,subscribers_paid',
 	} );
 	const subscribersQuery = useQuery< SubscribersStatsResponse >( {
@@ -339,6 +418,18 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const subscriberStats = subscribersQuery.data
 		? toSubscriberStats( subscribersQuery.data, unit )
 		: null;
+	const showPreviousChart = subscribersQuery.isPlaceholderData;
+	const moveChartDate = useCallback(
+		( direction: -1 | 1 ) => {
+			setEndDate( current => {
+				const shifted = shiftChartDate( current, unit, direction );
+				return shifted < today ? shifted : today;
+			} );
+		},
+		[ today, unit ]
+	);
+	const showPreviousPeriod = useCallback( () => moveChartDate( -1 ), [ moveChartDate ] );
+	const showNextPeriod = useCallback( () => moveChartDate( 1 ), [ moveChartDate ] );
 	const emailRates = toEmailRates( recentPostsQuery.data?.emailTotals );
 	const { refetch: refetchSubscribers } = subscribersQuery;
 	const retrySubscribers = useCallback( () => {
@@ -393,7 +484,13 @@ export default function SubscriberStatsChart(): JSX.Element {
 		);
 	} else {
 		chartContent = (
-			<div className="jetpack-newsletter-stats__chart">
+			<div
+				className={ clsx( 'jetpack-newsletter-stats__chart', {
+					'is-loading': showPreviousChart,
+				} ) }
+				aria-busy={ showPreviousChart }
+				data-testid="subscriber-chart-panel"
+			>
 				<LineChart
 					data={ subscriberStats.chartData }
 					height={ 420 }
@@ -523,7 +620,14 @@ export default function SubscriberStatsChart(): JSX.Element {
 					<Text render={ <h3 /> } variant="heading-lg">
 						{ __( 'Subscribers', 'jetpack-newsletter' ) }
 					</Text>
-					<ChartUnitControl unit={ unit } onChange={ setUnit } />
+					<Stack direction="row" align="center" gap="sm">
+						<ChartRangeArrows
+							disableNext={ endDate >= today }
+							onPrevious={ showPreviousPeriod }
+							onNext={ showNextPeriod }
+						/>
+						<ChartUnitControl unit={ unit } onChange={ setUnit } />
+					</Stack>
 				</Stack>
 				{ chartContent }
 			</Stack>

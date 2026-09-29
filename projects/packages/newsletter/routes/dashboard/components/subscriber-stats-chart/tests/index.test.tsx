@@ -387,6 +387,7 @@ describe( 'SubscriberStatsChart', () => {
 
 		expect( screen.getAllByText( '122' ).length ).toBeGreaterThan( 0 );
 		expect( screen.queryByText( 'Loading subscriber stats…' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'subscriber-chart-panel' ) ).toHaveAttribute( 'aria-busy', 'true' );
 		expect( mockLineChart ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				options: expect.objectContaining( {
@@ -420,5 +421,33 @@ describe( 'SubscriberStatsChart', () => {
 				] ),
 			} )
 		);
+	} );
+
+	it( 'pages the chart end date one window at a time', async () => {
+		renderStats();
+
+		await expect(
+			screen.findByRole( 'button', { name: 'Previous period' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toBeDisabled();
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=day&quantity=30&date=2026-08-22' ),
+			} );
+		} );
+		expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toBeEnabled();
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'date=2026-09-21' ),
+			} );
+		} );
 	} );
 } );
