@@ -167,21 +167,24 @@ function CategoriesNotice( {
 		);
 	}
 
+	// A ternary between two __() calls gets merged by the minifier and breaks i18n extraction.
+	const noticeText = {
+		selected: __(
+			'Your <strong>All content</strong> subscribers and those who chose these categories will receive this post.',
+			'jetpack'
+		),
+		unselected: __(
+			'Only your <strong>All content</strong> subscribers will receive this post — those who only chose a specific category won’t. Select one below to include them.',
+			'jetpack'
+		),
+	};
+
 	return (
 		<Notice.Root intent="info" icon={ null }>
 			<Notice.Description>
-				{ createInterpolateElement(
-					hasSelection
-						? __(
-								'Your <strong>All content</strong> subscribers and those who chose these categories will receive this post.',
-								'jetpack'
-							)
-						: __(
-								'Only your <strong>All content</strong> subscribers will receive this post — those who only chose a specific category won’t. Select one below to include them.',
-								'jetpack'
-							),
-					{ strong: <strong /> }
-				) }
+				{ createInterpolateElement( noticeText[ hasSelection ? 'selected' : 'unselected' ], {
+					strong: <strong />,
+				} ) }
 			</Notice.Description>
 		</Notice.Root>
 	);
