@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { Link } from '@wordpress/ui';
@@ -30,7 +31,7 @@ export default function SupportLink( { children }: Props ) {
 
 	const supportUrl = isWpcomPlatformSite()
 		? 'https://wordpress.com/support/videopress/'
-		: 'https://jetpack.com/support/jetpack-videopress/';
+		: getRedirectUrl( 'https://jetpack.com/support/jetpack-videopress/' );
 
 	if ( setShowSupportDoc ) {
 		return (
