@@ -29,6 +29,6 @@
 		"jest": "30.5.1",
 		"rollup-plugin-license": "3.7.1",
 		"tsdown": "0.22.14",
-		"undici": "7.29.0"
+		"undici": "7.29.1"
 	}
 }
