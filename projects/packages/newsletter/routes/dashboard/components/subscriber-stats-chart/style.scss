@@ -142,7 +142,7 @@
 				margin-inline-start: -1px;
 			}
 
-			&[aria-checked="true"] {
+			&[aria-pressed="true"] {
 				position: relative;
 				z-index: 1;
 				border-color: var(--wpds-color-background-interactive-brand-strong);

@@ -100,7 +100,7 @@ function chartUnit( unit: string | undefined, fallback: ChartUnit ): ChartUnit {
 /**
  * Move the chart end date by one full window.
  *
- * Weeks step by seven days per bucket, matching the Stats subscribers arrows.
+ * Weeks step by seven days per bucket. Months and years shift from the 1st so a 31st does not roll into the next month.
  *
  * @param isoDate   - Current end date, `yyyy-MM-dd`.
  * @param unit      - Selected chart unit.
@@ -109,8 +109,9 @@ function chartUnit( unit: string | undefined, fallback: ChartUnit ): ChartUnit {
  */
 function shiftChartDate( isoDate: string, unit: ChartUnit, direction: -1 | 1 ): string {
 	const [ year, month, day ] = isoDate.split( '-' ).map( Number );
-	const next = new Date( year, month - 1, day );
 	const steps = CHART_UNITS[ unit ] * direction;
+	const startDay = unit === 'month' || unit === 'year' ? 1 : day;
+	const next = new Date( year, month - 1, startDay );
 
 	if ( unit === 'month' ) {
 		next.setMonth( next.getMonth() + steps );
@@ -125,6 +126,32 @@ function shiftChartDate( isoDate: string, unit: ChartUnit, direction: -1 | 1 ): 
 	const shiftedMonth = String( next.getMonth() + 1 ).padStart( 2, '0' );
 	const shiftedDay = String( next.getDate() ).padStart( 2, '0' );
 	return `${ next.getFullYear() }-${ shiftedMonth }-${ shiftedDay }`;
+}
+
+/**
+ * Keep a shifted end date from passing today.
+ *
+ * A month or year step that lands in the current period is the current window.
+ *
+ * @param shifted - Candidate end date, `yyyy-MM-dd`.
+ * @param today   - Site calendar day, `yyyy-MM-dd`.
+ * @param unit    - Selected chart unit.
+ * @return End date to request.
+ */
+function clampChartEndDate( shifted: string, today: string, unit: ChartUnit ): string {
+	if ( shifted >= today ) {
+		return today;
+	}
+
+	if ( unit === 'month' && shifted.slice( 0, 7 ) === today.slice( 0, 7 ) ) {
+		return today;
+	}
+
+	if ( unit === 'year' && shifted.slice( 0, 4 ) === today.slice( 0, 4 ) ) {
+		return today;
+	}
+
+	return shifted;
 }
 
 /**
@@ -314,7 +341,7 @@ function ChartUnitControl( {
 	return (
 		<div
 			className="jetpack-newsletter-stats__chart-unit"
-			role="radiogroup"
+			role="group"
 			aria-label={ __( 'Chart interval', 'jetpack-newsletter' ) }
 		>
 			{ CHART_UNIT_OPTIONS.map( option => (
@@ -322,8 +349,7 @@ function ChartUnitControl( {
 					key={ option.value }
 					className="jetpack-newsletter-stats__interval"
 					type="button"
-					role="radio"
-					aria-checked={ unit === option.value }
+					aria-pressed={ unit === option.value }
 					value={ option.value }
 					onClick={ handleChange }
 				>
@@ -451,16 +477,22 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const showPreviousChart = subscribersQuery.isPlaceholderData;
 	const moveChartDate = useCallback(
 		( direction: -1 | 1 ) => {
-			setEndDate( current => {
-				const shifted = shiftChartDate( current, unit, direction );
-				return shifted < today ? shifted : today;
-			} );
+			setEndDate( current =>
+				clampChartEndDate( shiftChartDate( current, unit, direction ), today, unit )
+			);
 			recordStatsEvent( 'jetpack_newsletter_stats_period_click', {
 				direction: direction === -1 ? 'previous' : 'next',
 				interval: unit,
 			} );
 		},
 		[ today, unit ]
+	);
+	const changeChartUnit = useCallback(
+		( nextUnit: ChartUnit ) => {
+			setUnit( nextUnit );
+			setEndDate( today );
+		},
+		[ today ]
 	);
 	const showPreviousPeriod = useCallback( () => moveChartDate( -1 ), [ moveChartDate ] );
 	const showNextPeriod = useCallback( () => moveChartDate( 1 ), [ moveChartDate ] );
@@ -662,7 +694,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 							onPrevious={ showPreviousPeriod }
 							onNext={ showNextPeriod }
 						/>
-						<ChartUnitControl unit={ unit } onChange={ setUnit } />
+						<ChartUnitControl unit={ unit } onChange={ changeChartUnit } />
 					</Stack>
 				</Stack>
 				{ chartContent }

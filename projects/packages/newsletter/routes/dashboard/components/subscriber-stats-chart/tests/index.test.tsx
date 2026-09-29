@@ -15,8 +15,10 @@ jest.mock( '@automattic/charts', () => ( {
 
 jest.mock( '@automattic/charts/style.css', () => ( {} ), { virtual: true } );
 
+const mockDateI18n = jest.fn( () => '2026-09-21' );
+
 jest.mock( '@wordpress/date', () => ( {
-	dateI18n: () => '2026-09-21',
+	dateI18n: ( ...args: unknown[] ) => mockDateI18n( ...args ),
 } ) );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -113,6 +115,8 @@ beforeEach( () => {
 	mockApiFetch.mockReset();
 	mockLineChart.mockReset();
 	mockRecordEvent.mockReset();
+	mockDateI18n.mockReset();
+	mockDateI18n.mockReturnValue( '2026-09-21' );
 	mockStatsFetch( () => Promise.resolve( subscribersResponse ) );
 } );
 
@@ -184,7 +188,7 @@ describe( 'SubscriberStatsChart', () => {
 		renderStats();
 
 		await expect( screen.findByText( 'Loading subscriber stats…' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByRole( 'radio', { name: 'Days' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Days' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows an error with a working retry when the subscribers request fails', async () => {
@@ -243,14 +247,14 @@ describe( 'SubscriberStatsChart', () => {
 	it( 'requests the Stats subscribers window for the selected unit', async () => {
 		renderStats();
 
-		await expect( screen.findByRole( 'radio', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'button', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
 			'jetpack_newsletter_stats_interval_click',
 			expect.anything()
 		);
-		// ToggleGroupControl is a radio group; this asserts the query, not pointer behavior.
+		// This direct callback test does not need user-event's pointer simulation.
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Weeks' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_interval_click', {
 			site_type: 'jetpack',
@@ -272,7 +276,7 @@ describe( 'SubscriberStatsChart', () => {
 		);
 
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Years' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Years' } ) );
 
 		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_interval_click', {
 			site_type: 'jetpack',
@@ -304,9 +308,9 @@ describe( 'SubscriberStatsChart', () => {
 
 		renderStats();
 
-		await expect( screen.findByRole( 'radio', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'button', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Weeks' } ) );
 
 		await waitFor( () => {
 			expect( mockLineChart ).toHaveBeenCalledWith(
@@ -324,7 +328,7 @@ describe( 'SubscriberStatsChart', () => {
 		} );
 
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Years' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Years' } ) );
 
 		await waitFor( () => {
 			expect( mockLineChart ).toHaveBeenCalledWith(
@@ -391,7 +395,7 @@ describe( 'SubscriberStatsChart', () => {
 
 		await expect( screen.findByTestId( 'subscriber-chart' ) ).resolves.toBeInTheDocument();
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Weeks' } ) );
 
 		expect( screen.getByText( '200' ) ).toBeInTheDocument();
 		expect( screen.getByText( '15' ) ).toBeInTheDocument();
@@ -480,9 +484,9 @@ describe( 'SubscriberStatsChart', () => {
 	it( 'does not record a click when the selected interval is chosen again', async () => {
 		renderStats();
 
-		await expect( screen.findByRole( 'radio', { name: 'Days' } ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'button', { name: 'Days' } ) ).resolves.toBeInTheDocument();
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Days' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Days' } ) );
 
 		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
 			'jetpack_newsletter_stats_interval_click',
@@ -493,7 +497,7 @@ describe( 'SubscriberStatsChart', () => {
 	it( 'ignores an interval button whose value is not a chart unit', async () => {
 		renderStats();
 
-		const weeks = await screen.findByRole( 'radio', { name: 'Weeks' } );
+		const weeks = await screen.findByRole( 'button', { name: 'Weeks' } );
 		weeks.setAttribute( 'value', 'fortnight' );
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( weeks );
@@ -510,10 +514,10 @@ describe( 'SubscriberStatsChart', () => {
 	it( 'moves the chart window by weeks, months, and years', async () => {
 		renderStats();
 
-		await expect( screen.findByRole( 'radio', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'button', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
 
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Weeks' } ) );
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 		await waitFor( () => {
@@ -525,25 +529,89 @@ describe( 'SubscriberStatsChart', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
 
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Months' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Months' } ) );
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: expect.stringContaining( 'unit=month&quantity=6&date=2026-03-21' ),
+				path: expect.stringContaining( 'unit=month&quantity=6&date=2026-03-01' ),
 			} );
 		} );
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
 
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'radio', { name: 'Years' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Years' } ) );
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-09-21' ),
+				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-09-01' ),
 			} );
+		} );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+		await waitFor( () => {
+			expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toBeDisabled();
+		} );
+	} );
+
+	it( 'returns the chart to today when the interval changes', async () => {
+		renderStats();
+
+		await expect( screen.findByRole( 'button', { name: 'Years' } ) ).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Years' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-09-01' ),
+			} );
+		} );
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Days' } ) );
+
+		await waitFor( () => {
+			expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toBeDisabled();
+		} );
+		expect( mockLineChart ).toHaveBeenLastCalledWith(
+			expect.objectContaining( {
+				options: expect.objectContaining( {
+					axis: expect.objectContaining( {
+						x: { tickResolution: 'day' },
+					} ),
+				} ),
+			} )
+		);
+		expect( mockApiFetch ).not.toHaveBeenCalledWith( {
+			path: expect.stringContaining( 'unit=day&quantity=30&date=2023-09-01' ),
+		} );
+	} );
+
+	it( 'steps months from the first of the month', async () => {
+		mockDateI18n.mockReturnValue( '2026-03-31' );
+		renderStats();
+
+		await expect( screen.findByRole( 'button', { name: 'Months' } ) ).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Months' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=month&quantity=6&date=2025-09-01' ),
+			} );
+		} );
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+
+		await waitFor( () => {
+			expect( screen.getByRole( 'button', { name: 'Next period' } ) ).toBeDisabled();
 		} );
 	} );
 
