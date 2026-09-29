@@ -1,6 +1,6 @@
 import { PRODUCT_STATUSES } from '../../../../constants';
 import { PRODUCT_MODULES } from '../../products/mappings';
-import { resolveFeatureState } from '../feature-state';
+import { getForcedReason, resolveFeatureState } from '../feature-state';
 import type { ProductCamelCase } from '../../../../data/types';
 import type { MyJetpackModule } from '../../../../types';
 
@@ -202,5 +202,117 @@ describe( 'resolveFeatureState, for a feature its own plugin switches', () => {
 		expect(
 			resolveFeatureState( protect, 'not-installed', undefined, runningModule, {} ).status
 		).toBe( 'inactive' );
+	} );
+} );
+
+describe( 'resolveFeatureState, for a module the plan does not cover', () => {
+	// Search ships in Jetpack and as a plugin, and is unavailable without a Search plan.
+	const search = buildFeature( {
+		slug: 'search',
+		in_jetpack: true,
+		product: 'search',
+		plugin: 'jetpack-search',
+	} );
+
+	const forcedOff = {
+		search: buildModule( {
+			module: 'search',
+			available: false,
+			activated: false,
+			override: 'inactive',
+		} ),
+	};
+
+	it.each( [ 'not-installed', 'inactive' ] as const )(
+		'explains a host override instead of offering a %s plugin',
+		plugin_status => {
+			const state = resolve( { ...search, plugin_status }, 'active', forcedOff );
+
+			expect( state.control ).toEqual( { kind: 'module', module: forcedOff.search } );
+			expect( state.status ).toBe( 'inactive' );
+			expect( getForcedReason( state ) ).toBe( 'Disabled by your host or site administrator' );
+		}
+	);
+
+	it( 'still offers the plugin when nothing forced the module', () => {
+		const unforced = {
+			search: buildModule( { module: 'search', available: false, activated: false } ),
+		};
+
+		expect( resolve( search, 'active', unforced ).control ).toEqual( {
+			kind: 'install-plugin',
+			plugin: 'jetpack-search',
+		} );
+	} );
+} );
+
+describe( 'resolveFeatureState, for a feature a plan runs without its plugin', () => {
+	const backup = buildFeature( {
+		slug: 'backup',
+		plugin: 'jetpack-backup',
+		plugin_status: 'not-installed',
+		product: 'backup',
+	} );
+
+	const withProduct = ( product: ProductCamelCase ) =>
+		resolveFeatureState( backup, 'active', product, {}, {} );
+
+	it( 'is active and opens in place of Install when a paid plan runs it', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: true,
+			status: PRODUCT_STATUSES.ACTIVE,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'active' );
+		expect( state.control ).toEqual( {
+			kind: 'install-plugin',
+			plugin: 'jetpack-backup',
+			runsWithoutPlugin: true,
+		} );
+	} );
+
+	it.each( [
+		PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING,
+		PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR,
+		PRODUCT_STATUSES.EXPIRING_SOON,
+	] )( 'stays active and opens while the plan reports %s', status => {
+		const state = withProduct( { hasPaidPlanForProduct: true, status } as ProductCamelCase );
+
+		expect( state.status ).toBe( 'active' );
+		expect( state.control ).toEqual( {
+			kind: 'install-plugin',
+			plugin: 'jetpack-backup',
+			runsWithoutPlugin: true,
+		} );
+	} );
+
+	it( 'offers Install again once the plan has expired', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: true,
+			status: PRODUCT_STATUSES.EXPIRED,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
+	} );
+
+	it( 'still offers Install when no paid plan covers it', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: false,
+			status: PRODUCT_STATUSES.ACTIVE,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
+	} );
+
+	it( 'still offers Install when the plan covers it but it is not running', () => {
+		const state = withProduct( {
+			hasPaidPlanForProduct: true,
+			status: PRODUCT_STATUSES.ABSENT_WITH_PLAN,
+		} as ProductCamelCase );
+
+		expect( state.status ).toBe( 'inactive' );
+		expect( state.control ).toEqual( { kind: 'install-plugin', plugin: 'jetpack-backup' } );
 	} );
 } );

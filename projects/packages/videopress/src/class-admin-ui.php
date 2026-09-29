@@ -81,13 +81,6 @@ class Admin_UI {
 	private static $wp_build_original_screen_id = null;
 
 	/**
-	 * The dashboard screen hide_jitms_on_wp_build_dashboard() opts out of JITMs.
-	 *
-	 * @var string|null
-	 */
-	private static $jitm_opt_out_screen_id = null;
-
-	/**
 	 * Initializes the Admin UI of VideoPress
 	 *
 	 * This method is called only once by the Initializer class
@@ -212,7 +205,6 @@ class Admin_UI {
 			)
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
-		self::maybe_opt_out_of_jitms( $page_suffix );
 	}
 
 	/**
@@ -314,7 +306,6 @@ class Admin_UI {
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
-			self::maybe_opt_out_of_jitms( $page_suffix );
 		}
 	}
 
@@ -798,7 +789,7 @@ class Admin_UI {
 	 * @return void
 	 */
 	public static function maybe_strip_chapters_editor_routes() {
-		if ( self::is_chapters_editor_enabled() ) {
+		if ( self::is_chapters_editor_enabled() || self::is_trim_cut_enabled() ) {
 			return;
 		}
 
@@ -880,47 +871,28 @@ class Admin_UI {
 	}
 
 	/**
-	 * Opt the dashboard's screen out of JITMs while the wp-build dashboard serves it.
-	 *
-	 * @param string $screen_id The hook suffix the page was registered under, which is its screen ID.
-	 * @return void
-	 */
-	private static function maybe_opt_out_of_jitms( $screen_id ) {
-		// The legacy dashboard renders `#jp-admin-notices`, so it keeps its JITMs.
-		if ( ! self::is_modernized() ) {
-			return;
-		}
-
-		self::$jitm_opt_out_screen_id = $screen_id;
-		add_filter( 'jetpack_display_jitms_on_screen', array( __CLASS__, 'hide_jitms_on_wp_build_dashboard' ), 10, 2 );
-	}
-
-	/**
-	 * Keep JITMs off the wp-build dashboard, which has no `#jp-admin-notices` to show them in.
-	 *
-	 * Fetching a JITM records a view, so one the page hides would still be counted.
-	 *
-	 * @since 0.51.1
-	 *
-	 * @param bool   $show      Whether to show JITMs on the screen.
-	 * @param string $screen_id The screen ID.
-	 * @return bool
-	 */
-	public static function hide_jitms_on_wp_build_dashboard( $show, $screen_id ) {
-		if ( null !== self::$jitm_opt_out_screen_id && self::$jitm_opt_out_screen_id === $screen_id ) {
-			return false;
-		}
-
-		return $show;
-	}
-
-	/**
 	 * Returns true when the wp-build modernization filter is enabled.
 	 *
 	 * @return bool
 	 */
 	public static function is_modernized() {
 		return (bool) apply_filters( self::MODERNIZATION_FILTER, true );
+	}
+
+	/**
+	 * Whether the trim and cut editor and its REST endpoints are available.
+	 *
+	 * @since $$next-version$$
+	 * @return bool
+	 */
+	public static function is_trim_cut_enabled() {
+		/**
+		 * Enable trim and cut after the video editing service is available for this site.
+		 *
+		 * @since $$next-version$$
+		 * @param bool $enabled Whether trim and cut is enabled. Default false.
+		 */
+		return (bool) apply_filters( 'jetpack_videopress_trim_cut', false );
 	}
 
 	/**

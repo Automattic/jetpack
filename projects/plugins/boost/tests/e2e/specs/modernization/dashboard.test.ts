@@ -21,16 +21,19 @@ test.describe( 'Dashboard modernization', () => {
 		await boostUtils.unMockSpeedScore();
 	} );
 
-	test( 'Keep the legacy dashboard by default', async ( { jetpackBoostPage, page } ) => {
+	test( 'Mount the modern dashboard by default', async ( {
+		boostUtils,
+		jetpackBoostPage,
+		page,
+	} ) => {
+		await boostUtils.resetDashboardModernization();
 		await jetpackBoostPage.visit();
-		await expect( page.locator( '#jb-admin-settings' ) ).toBeVisible();
-		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 0 );
-		await expect(
-			page.locator( '#jetpack-boost-dashboard-wp-admin-prerequisites-js-after' )
-		).toHaveCount( 0 );
+		await expect( page.locator( '.jetpack-boost-page' ) ).toHaveCount( 1 );
+		await expect( page.locator( '#jb-settings-tab-mount .jb-modern-settings' ) ).toHaveCount( 1 );
+		await expect( page.locator( '#jb-admin-settings' ) ).toHaveCount( 0 );
 	} );
 
-	test( 'Keep the legacy dashboard when explicitly disabled', async ( {
+	test( 'Restore the legacy dashboard when the filter returns false', async ( {
 		boostUtils,
 		jetpackBoostPage,
 		page,
@@ -44,7 +47,7 @@ test.describe( 'Dashboard modernization', () => {
 		).toHaveCount( 0 );
 	} );
 
-	test( 'Mount one modern dashboard when opted in', async ( {
+	test( 'Mount one modern dashboard when explicitly enabled', async ( {
 		boostUtils,
 		jetpackBoostPage,
 		page,

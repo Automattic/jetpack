@@ -22,8 +22,12 @@ export type DetailPageHeaderSlots = Pick<
 >;
 
 export interface DetailPageLayoutProps {
-	/** The resource's header slots, from the page's `*HeaderSlots` builder. */
-	header: DetailPageHeaderSlots;
+	/**
+	 * The resource's header slots, from the page's `*HeaderSlots` builder. Omit
+	 * for a page-level state that stands in for the resource, such as an email
+	 * tab for a post that was never sent.
+	 */
+	header?: DetailPageHeaderSlots;
 	/** Tab bar for a page with several views. It scrolls away with the content; the header pins. */
 	tabs?: ReactNode;
 	/** Date controls for the header row. Omit to leave the header's control cell out. */
@@ -70,9 +74,11 @@ export function DetailPageLayout( {
 	return (
 		<div ref={ scrollArea } className={ styles.root }>
 			{ tabs }
-			<SectionHeader pinned titleRef={ title } { ...header }>
-				{ controls }
-			</SectionHeader>
+			{ header && (
+				<SectionHeader pinned titleRef={ title } { ...header }>
+					{ controls }
+				</SectionHeader>
+			) }
 			{ children }
 		</div>
 	);

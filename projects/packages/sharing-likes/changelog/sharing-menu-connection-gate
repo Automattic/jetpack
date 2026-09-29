@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Only register the Settings > Sharing menu on sites that are connected or in offline mode. Amends an unreleased change.
+
+

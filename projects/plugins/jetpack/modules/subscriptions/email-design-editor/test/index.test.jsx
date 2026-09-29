@@ -30,9 +30,23 @@ jest.mock( '@wordpress/api-fetch', () => {
 
 const MockEmailEditor = () => null;
 
-jest.mock( '@woocommerce/email-editor', () => ( {
-	ExperimentalEmailEditor: MockEmailEditor,
-} ) );
+// What the real package resolves at module scope, which is why the entry imports the labels first.
+// A title as well as a description: the titles are words the filter otherwise answers only while
+// the Styles panel is on screen, and nothing is on screen yet when the package resolves them.
+let mockCapturedHeadingDescription = null;
+let mockCapturedHeadingTitle = null;
+
+jest.mock( '@woocommerce/email-editor', () => {
+	const { __ } = require( '@wordpress/i18n' );
+
+	mockCapturedHeadingDescription = __(
+		'Manage the fonts and typography used on headings.',
+		'jetpack'
+	);
+	mockCapturedHeadingTitle = __( 'Headings', 'jetpack' );
+
+	return { ExperimentalEmailEditor: MockEmailEditor };
+} );
 
 const mockRegisterBlockType = jest.fn();
 const mockGetBlockType = jest.fn();
@@ -196,6 +210,9 @@ const ELEMENT_ID = 'jetpack-email-design-editor';
 // into the registry the mount is watching.
 let mockIsolatedData = null;
 
+// The isolated `@wordpress/i18n`, so a test can ask it what the package's own strings resolve to.
+let mockIsolatedI18n = null;
+
 /**
  * The bootstrap response, in the shape the WordPress.com route returns it —
  * deliberately without the two settings that side strips before returning.
@@ -277,6 +294,7 @@ async function loadEntryPoint() {
 		mockRegisterBlockEditorStore( mockIsolatedData );
 		mockRegisterInterfaceStore( mockIsolatedData );
 		mockRegisterPanelStores( mockIsolatedData );
+		mockIsolatedI18n = require( '@wordpress/i18n' );
 		require( '../src/index' );
 	} );
 
@@ -1067,6 +1085,7 @@ describe( 'Email design editor entry point', () => {
 			openStylesSidebar,
 			openStylesSidebarOnLoad,
 			registerEditorPlugin,
+			screenControls,
 			showStylesSidebar,
 		} = jest.requireActual( '../src/index' );
 
@@ -1353,6 +1372,186 @@ describe( 'Email design editor entry point', () => {
 				await userEvent.click( screen.getByRole( 'button', { name: 'Edit email styles' } ) );
 
 				expect( mockEnabledAreas ).toEqual( [ [ 'core', 'null/email-styles-sidebar' ] ] );
+			} );
+
+			// The panels reset one screen at a time, which leaves a creator who has changed several
+			// with no way back to the design WordPress.com derived from their site. NL-970.
+			describe( 'the way back to the defaults', () => {
+				// A record of its own per case: a failed reset leaves its edits behind, and core-data
+				// holds them for the rest of the run.
+				let ourId = 424242;
+
+				const storeDesign = design => {
+					dispatch( coreStore ).receiveEntityRecords( 'root', 'globalStyles', [
+						{ id: ourId, ...design },
+					] );
+
+					// Resolution is cached across cases, so without this whichever runs first
+					// fetches the record and the rest read what that answered. The screen itself
+					// has it preloaded.
+					[ 'getEntityRecord', 'getEditedEntityRecord' ].forEach( selectorName =>
+						dispatch( coreStore ).finishResolution( selectorName, [
+							'root',
+							'globalStyles',
+							ourId,
+						] )
+					);
+				};
+
+				const writes = () =>
+					mockApiFetch.mock.calls.filter( ( [ options ] ) => 'PUT' === options.method );
+
+				/**
+				 * Mount the panel as the editor's plugin area would, for a given record.
+				 *
+				 * @param {number|null} id - The global-styles id the bundle named.
+				 * @return {void}
+				 */
+				const renderPanelFor = id => {
+					mockRegisterPlugin.mockClear();
+					registerEditorPlugin( id );
+
+					const [ , settings ] = mockRegisterPlugin.mock.calls[ 0 ];
+
+					render( <settings.render /> );
+				};
+
+				const resetButton = () => screen.getByRole( 'button', { name: 'Reset to defaults' } );
+
+				let mockReload;
+
+				beforeEach( () => {
+					ourId += 1;
+					mockReload = jest.spyOn( screenControls, 'reload' ).mockImplementation( () => {} );
+
+					// `fluid: false` on purpose: it is a value the creator set, not an empty half.
+					storeDesign( {
+						styles: { color: { background: '#c0ffee' } },
+						settings: { typography: { fluid: false } },
+					} );
+				} );
+
+				afterEach( () => mockReload.mockRestore() );
+
+				it( 'offers the control to a creator who has changed the design', () => {
+					renderPanelFor( ourId );
+
+					expect( resetButton() ).toBeEnabled();
+				} );
+
+				// An empty layer already is the default design, so there is nothing to put back.
+				it( 'has nothing to put back for a design that was never changed', () => {
+					storeDesign( { styles: {}, settings: {} } );
+
+					renderPanelFor( ourId );
+
+					expect( resetButton() ).toHaveAttribute( 'aria-disabled', 'true' );
+				} );
+
+				// Sanitizing on the WordPress.com side can drop a value and leave the branch that held
+				// it, which a key count reads as a design.
+				it( 'has nothing to put back for a half holding only empty branches', () => {
+					storeDesign( { styles: { color: {} }, settings: [] } );
+
+					renderPanelFor( ourId );
+
+					expect( resetButton() ).toHaveAttribute( 'aria-disabled', 'true' );
+				} );
+
+				it( 'offers nothing when the bundle named no record to clear', () => {
+					renderPanelFor( null );
+
+					expect(
+						screen.queryByRole( 'button', { name: 'Reset to defaults' } )
+					).not.toBeInTheDocument();
+				} );
+
+				it( 'hands the panel the id from the bundle rather than the one the page carries', async () => {
+					window.JetpackEmailDesignEditor = pageData();
+
+					await loadEntryPoint();
+
+					// The last registration, not the first: this block registers one of its own.
+					const [ , settings ] = mockRegisterPlugin.mock.calls.at( -1 );
+
+					// Called rather than rendered: the isolated module carries its own React, whose
+					// hooks are not the ones this registry's renderer would run.
+					expect( settings.render().props.id ).toBe( 999999999 );
+				} );
+
+				it( 'asks before it throws the design away', async () => {
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+
+					// Named, or a screen reader announces only "dialog" — and this one is destructive.
+					expect( screen.getByRole( 'dialog', { name: 'Reset email design' } ) ).toBeVisible();
+					expect( writes() ).toEqual( [] );
+				} );
+
+				it( 'leaves the design alone when the creator backs out', async () => {
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+
+					expect( writes() ).toEqual( [] );
+					expect(
+						select( coreStore ).getEditedEntityRecord( 'root', 'globalStyles', ourId ).styles
+					).toEqual( { color: { background: '#c0ffee' } } );
+				} );
+
+				it( 'clears both halves, rather than writing today’s defaults into them', async () => {
+					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					// Defaults written in would outlive a later change to the site they derive from,
+					// and the canvas draws this layer over them anyway.
+					expect( writes() ).toHaveLength( 1 );
+
+					const [ [ write ] ] = writes();
+
+					expect( write.path ).toBe( `/wp/v2/global-styles/${ ourId }` );
+
+					// Each half exactly, rather than the pair as a subset: an empty object is a
+					// subset of any object, so a half full of defaults would satisfy that.
+					expect( write.data.styles ).toEqual( {} );
+					expect( write.data.settings ).toEqual( {} );
+				} );
+
+				// The canvas draws previews WordPress.com rendered against the stored design and sent
+				// once, at mount, so the reset one only appears on a fresh fetch.
+				it( 'fetches the canvas again, rather than leaving the old design on screen', async () => {
+					mockApiFetch.mockResolvedValue( { id: ourId, styles: {}, settings: {} } );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect( mockReload ).toHaveBeenCalled();
+				} );
+
+				it( 'says so rather than going quiet when the reset does not reach WordPress.com', async () => {
+					mockApiFetch.mockRejectedValue( new Error( 'no' ) );
+					renderPanelFor( ourId );
+
+					await userEvent.click( resetButton() );
+					await userEvent.click( screen.getByRole( 'button', { name: 'Reset' } ) );
+
+					expect( select( noticesStore ).getNotices() ).toEqual( [
+						expect.objectContaining( {
+							status: 'error',
+							content: expect.stringContaining( 'could not be reset' ),
+							type: 'snackbar',
+						} ),
+					] );
+
+					// A reload would replace the notice with the screen the reset did not change.
+					expect( mockReload ).not.toHaveBeenCalled();
+				} );
 			} );
 		} );
 	} );
@@ -1897,6 +2096,96 @@ describe( 'Email design editor entry point', () => {
 			[ 'a listings url', bootstrapBundle(), pageData( { urls: { back: '/x' } } ) ],
 		] )( 'throws rather than building a config without %s', ( _label, bundle, data ) => {
 			expect( () => buildEditorConfig( bundle, data ) ).toThrow();
+		} );
+	} );
+	// Rob could not tell which control changed which part of the email. NL-955.
+	describe( 'the Styles panel labels', () => {
+		const { relabelStylesSidebar } = jest.requireActual( '../src/styles-sidebar-labels' );
+
+		// The panel the words belong to. Present, the filter owns them; absent, something else is
+		// rendering in that region and they are not ours to answer.
+		const showStylesPanel = () => {
+			const panel = document.createElement( 'div' );
+
+			panel.id = 'null:email-styles-sidebar';
+			document.body.append( panel );
+
+			return () => panel.remove();
+		};
+
+		it.each( [
+			[ 'Headings', 'Titles & headings' ],
+			[ 'Text', 'Default text' ],
+			[ 'Layout', 'Spacing' ],
+		] )( 'answers %s with what it changes', ( source, ours ) => {
+			const hide = showStylesPanel();
+
+			expect( relabelStylesSidebar( source, source ) ).toBe( ours );
+
+			hide();
+		} );
+
+		it.each( [ 'Text', 'Headings', 'Layout' ] )(
+			'leaves %s to whatever else is rendering in that region',
+			source => {
+				expect( relabelStylesSidebar( source, source ) ).toBe( source );
+			}
+		);
+
+		it( 'answers a description of its own whether the panel is showing or not', () => {
+			// Sentences only this package says, so there is nothing to stay out of the way of.
+			expect(
+				relabelStylesSidebar(
+					'Manage the fonts and typography used on links.',
+					'Manage the fonts and typography used on links.'
+				)
+			).toContain( 'Links inside your post' );
+		} );
+
+		it( 'says which heading level moves the post title and which the site title', () => {
+			const described = relabelStylesSidebar(
+				'Manage the fonts and typography used on headings.',
+				'Manage the fonts and typography used on headings.'
+			);
+
+			expect( described ).toContain( 'H1 styles your post title' );
+
+			// The site title takes H2's font and not its size, so a creator who changes the size
+			// and watches nothing move is the complaint this screen already collected.
+			expect( described ).toContain( 'font only, not its size' );
+		} );
+
+		it( 'leaves a string we have no better name for as the package translated it', () => {
+			// The package says Typography as the nav item, the screen header and the panel inside
+			// it, and a source string cannot tell the three apart.
+			expect( relabelStylesSidebar( 'Typographie', 'Typography' ) ).toBe( 'Typographie' );
+		} );
+
+		it( 'does not answer with a property every object carries', () => {
+			// Held in a Map for this: `constructor` off an object literal is a function, which the
+			// sidebar would render as a label.
+			expect( relabelStylesSidebar( 'Constructeur', 'constructor' ) ).toBe( 'Constructeur' );
+		} );
+
+		it( 'relabels the package once the entry point has loaded', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			expect(
+				mockIsolatedI18n.__( 'Manage the fonts and typography used on links.', 'jetpack' )
+			).toContain( 'Links inside your post' );
+		} );
+
+		it( 'relabels a screen the package titled before the entry point ran', async () => {
+			window.JetpackEmailDesignEditor = pageData();
+
+			await loadEntryPoint();
+
+			// Read where the package reads it: at module scope, which a filter registered after
+			// the package is imported never reaches, and where no panel is on screen yet.
+			expect( mockCapturedHeadingDescription ).toContain( 'H1 styles your post title' );
+			expect( mockCapturedHeadingTitle ).toBe( 'Titles & headings' );
 		} );
 	} );
 } );

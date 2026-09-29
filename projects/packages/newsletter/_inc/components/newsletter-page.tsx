@@ -1,4 +1,5 @@
 import AdminPage from '@automattic/jetpack-components/admin-page';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { getSiteData } from '@automattic/jetpack-script-data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -8,7 +9,7 @@ import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
 import type { ReactNode } from 'react';
 
-export type NewsletterTab = 'overview' | 'subscribers' | 'settings';
+export type NewsletterTab = 'overview' | 'stats' | 'subscribers' | 'settings';
 
 type Props = {
 	activeTab: NewsletterTab;
@@ -38,6 +39,7 @@ const PRODUCT_NAME = 'Newsletter'; /** "Newsletter" is a product name, do not tr
 
 const SUBTITLES: Record< NewsletterTab, () => string > = {
 	overview: () => __( 'View a summary of your newsletter.', 'jetpack-newsletter' ),
+	stats: () => __( 'Follow how your subscriber audience is growing.', 'jetpack-newsletter' ),
 	subscribers: () => __( 'Manage everyone subscribed to your site.', 'jetpack-newsletter' ),
 	settings: () =>
 		__(
@@ -89,7 +91,8 @@ export default function NewsletterPage( {
 		( next: string | null ) => {
 			if (
 				( next === 'overview' && ! overviewEnabled ) ||
-				( next !== 'overview' && next !== 'subscribers' && next !== 'settings' )
+				( next === 'stats' && ! overviewEnabled ) ||
+				( next !== 'overview' && next !== 'stats' && next !== 'subscribers' && next !== 'settings' )
 			) {
 				return;
 			}
@@ -108,6 +111,13 @@ export default function NewsletterPage( {
 	const contentClass = contentHasPadding
 		? 'jetpack-newsletter-page__content jetpack-newsletter-page__content--padded'
 		: 'jetpack-newsletter-page__content';
+
+	const content = (
+		<>
+			<JitmSlot inset />
+			<div className={ contentClass }>{ children }</div>
+		</>
+	);
 
 	return (
 		<AdminPage
@@ -129,14 +139,17 @@ export default function NewsletterPage( {
 							{ overviewEnabled ? (
 								<Tabs.Tab value="overview">{ __( 'Overview', 'jetpack-newsletter' ) }</Tabs.Tab>
 							) : null }
+							{ overviewEnabled ? (
+								<Tabs.Tab value="stats">{ __( 'Stats', 'jetpack-newsletter' ) }</Tabs.Tab>
+							) : null }
 							<Tabs.Tab value="subscribers">{ __( 'Subscribers', 'jetpack-newsletter' ) }</Tabs.Tab>
 							<Tabs.Tab value="settings">{ __( 'Settings', 'jetpack-newsletter' ) }</Tabs.Tab>
 						</Tabs.List>
 					</div>
-					<div className={ contentClass }>{ children }</div>
+					{ content }
 				</Tabs.Root>
 			) : (
-				<div className={ contentClass }>{ children }</div>
+				content
 			) }
 		</AdminPage>
 	);

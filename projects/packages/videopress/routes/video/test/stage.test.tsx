@@ -1,4 +1,4 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useNavigate } from '@wordpress/route';
 import { resetFeatures, setFeatures } from '../../../src/dashboard/test-utils/features';
@@ -74,13 +74,29 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 	},
 } ) );
 
+jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
+	__esModule: true,
+	default: () => ( { hasConnectionError: false } ),
+	ConnectionError: () => null,
+} ) );
+
 // Variables referenced inside jest.mock() factories must be prefixed with
 // "mock" (case-insensitive) to satisfy Jest's babel-jest hoisting rules.
 const mockSuccessNotice = jest.fn();
 const mockErrorNotice = jest.fn();
 const mockInfoNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: () => ( {
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: () => ( {
 		createSuccessNotice: mockSuccessNotice,
 		createErrorNotice: mockErrorNotice,
 		createInfoNotice: mockInfoNotice,
@@ -360,7 +376,9 @@ describe( 'video stage', () => {
 			expect.objectContaining( { id: '42', guid: GUID } ),
 			`${ DESCRIPTION }!`
 		);
-		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.' );
+		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.', {
+			type: 'snackbar',
+		} );
 	} );
 
 	it( 'skips the chapters sync when only the title changed', async () => {
@@ -379,7 +397,9 @@ describe( 'video stage', () => {
 
 		// The description didn't change, so the VTT is already in sync.
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
-		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.' );
+		expect( mockSuccessNotice ).toHaveBeenCalledWith( 'Video details saved.', {
+			type: 'snackbar',
+		} );
 	} );
 
 	// The crumb is the page's <h1>. It reads the form's live value, so it has
@@ -424,7 +444,40 @@ describe( 'video stage', () => {
 		} );
 
 		expect( mockSyncChapters ).not.toHaveBeenCalled();
-		expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save video details.' );
+		expect( mockErrorNotice ).toHaveBeenCalledWith( 'Failed to save video details.', {
+			type: 'snackbar',
+		} );
 		expect( mockSuccessNotice ).not.toHaveBeenCalled();
+	} );
+
+	it( 'asks for confirmation before deleting, and only deletes on confirm', async () => {
+		const user = userEvent.setup();
+		let deleteRequested = false;
+		mockApiFetch( ( { path = '', method } ) => {
+			if ( path.startsWith( '/wp/v2/media/' ) && method === 'DELETE' ) {
+				deleteRequested = true;
+				return {};
+			}
+			return makeRawMedia();
+		} );
+
+		await renderReadyStage();
+
+		await user.click( screen.getByRole( 'button', { name: 'More actions' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Delete video' } ) );
+
+		// Cancelling closes the dialog and leaves the video alone.
+		const dialog = await screen.findByRole( 'dialog' );
+		await user.click( within( dialog ).getByRole( 'button', { name: 'Cancel' } ) );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		expect( deleteRequested ).toBe( false );
+
+		await user.click( screen.getByRole( 'button', { name: 'More actions' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Delete video' } ) );
+		await user.click(
+			within( await screen.findByRole( 'dialog' ) ).getByRole( 'button', { name: 'Delete' } )
+		);
+
+		await waitFor( () => expect( deleteRequested ).toBe( true ) );
 	} );
 } );

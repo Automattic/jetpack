@@ -81,3 +81,34 @@ describe( 'register-blocks', () => {
 		expect( settings.icon ).toBeDefined();
 	} );
 } );
+
+describe( 'register-blocks Overlay widget area guards', () => {
+	const GUARD_HOOKS = [ 'blockEditor.__unstableCanInsertBlockType', 'editor.BlockEdit' ];
+
+	const hooksRegisteredWith = config => {
+		let addFilter;
+		globalThis.JetpackSearchBlocksConfig = config;
+		jest.isolateModules( () => {
+			addFilter = require( '@wordpress/hooks' ).addFilter;
+			addFilter.mockClear();
+			require( '../../../src/search-blocks/editor/register-blocks' );
+		} );
+		return addFilter.mock.calls
+			.map( ( [ hookName ] ) => hookName )
+			.filter( hookName => GUARD_HOOKS.includes( hookName ) );
+	};
+
+	afterEach( () => {
+		delete globalThis.JetpackSearchBlocksConfig;
+	} );
+
+	it( 'registers the guards when a widget area needs hiding', () => {
+		expect(
+			hooksRegisteredWith( { hideFromWidgetArea: 'jetpack-instant-search-side-bar' } )
+		).toEqual( GUARD_HOOKS );
+	} );
+
+	it( 'registers no guards otherwise', () => {
+		expect( hooksRegisteredWith( { hideFromWidgetArea: null } ) ).toEqual( [] );
+	} );
+} );

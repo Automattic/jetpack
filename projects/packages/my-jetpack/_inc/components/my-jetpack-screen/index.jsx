@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { ActionButton, AdminPage, Col, Container } from '@automattic/jetpack-components';
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { isSimpleSite } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
@@ -26,7 +27,7 @@ import EvaluationRecommendations from '../evaluation-recommendations';
 import IDCModal from '../idc-modal';
 import { MyJetpackTabPanel } from '../my-jetpack-tab-panel';
 import { useReplayPendingNotice } from '../my-jetpack-tab-panel/products/pending-notice';
-import { resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
+import { getModulesListPath, resolveMyJetpackSection } from '../my-jetpack-tab-panel/utils';
 import OnboardingTour from '../onboarding-tour';
 import buildOptionalMenuItems from './build-optional-menu-items';
 import styles from './styles.module.scss';
@@ -170,6 +171,7 @@ export default function MyJetpackScreen() {
 		isSiteConnected,
 		isJetpackPluginActive,
 		isSimpleSite: isSimpleSite(),
+		modulesListPath: getModulesListPath(),
 		onModulesClick: () => recordEvent( 'jetpack_myjetpack_footer_link_click', { link: 'modules' } ),
 		onResetClick: () => resetJetpackOptions(),
 		onResetKeyDown: e => onKeyDownCallback( e, () => resetJetpackOptions() ),
@@ -196,12 +198,10 @@ export default function MyJetpackScreen() {
 			<MyJetpackTabPanel
 				beforeContent={
 					<>
-						{ /* No snackbar list here: the wp-build page shell already renders the
-						     notices store, and a second list showed every notice twice. */ }
 						{ ! isNewUser && (
 							<Container horizontalSpacing={ 0 }>
 								<Col>
-									<div id="jp-admin-notices" className="my-jetpack-jitm-card" />
+									<JitmSlot />
 								</Col>
 							</Container>
 						) }

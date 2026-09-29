@@ -8,6 +8,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { setMockRouteSearch } from '../../../tests/js/route-test-utils';
 import SubscribersChartWidget from '../render';
+import type { ReactNode } from 'react';
 
 const mockUseStatsSubscribersReport = jest.fn();
 
@@ -22,6 +23,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	MetricTabsChart: ( {
 		metrics,
+		empty,
 	}: {
 		metrics: {
 			key: string;
@@ -29,6 +31,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			current: { date: Date; value: number | null }[];
 			countLabel?: ( count: number ) => string;
 		}[];
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -39,7 +42,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			data-values={ JSON.stringify( metrics[ 0 ]?.current.map( point => point.value ) ) }
 			data-headline={ metrics[ 0 ]?.value }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -112,6 +117,19 @@ describe( 'SubscribersChartWidget', () => {
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-values', '[null,0,5]' );
 		expect( chart ).toHaveAttribute( 'data-headline', '5' );
+	} );
+
+	it( 'keeps the chart for a period without rows, handing it the no-results message', async () => {
+		mockUseStatsSubscribersReport.mockReturnValue( reportWith( [] ) );
+
+		render(
+			<SubscribersChartWidget attributes={ { reportParams: getDefaultQueryParams( false ) } } />
+		);
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers the Paid subscribers tab only when the site has paid subscribers', async () => {

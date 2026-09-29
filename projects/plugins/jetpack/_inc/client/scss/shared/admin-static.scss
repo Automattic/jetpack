@@ -2,7 +2,7 @@
 @use "../variables/colors";
 
 #wpcontent {
-	padding-left: 0 !important;
+	padding-inline-start: 0 !important;
 }
 
 #wpbody-content {
@@ -61,7 +61,9 @@
 
 		ol,
 		ul {
-			padding: 4px 0 8px 18px;
+			padding-block: 4px 8px;
+			padding-inline-start: 18px;
+			padding-inline-end: 0;
 			margin: 0;
 			font-size: 14px;
 			line-height: 24px;
@@ -77,7 +79,9 @@
 
 				> ul {
 					list-style: inside disc;
-					padding: 0 0 0 10px;
+					padding-block: 0;
+					padding-inline-start: 10px;
+					padding-inline-end: 0;
 					margin: 0;
 
 					li {
@@ -99,9 +103,11 @@
 
 		.notice {
 			margin: 16px 24px;
-			padding: 24px 31px 27px 18px;
+			padding-block: 24px 27px;
+			padding-inline-start: 18px;
+			padding-inline-end: 31px;
 			border: 1px solid calypso-colors.$gray-5;
-			border-left-width: 6px;
+			border-inline-start-width: 6px;
 			border-radius: 4px;
 			display: flex;
 			align-items: flex-start;
@@ -117,7 +123,7 @@
 				.notice-icon-wrapper {
 					position: absolute;
 					top: 24px;
-					left: 24px;
+					inset-inline-start: 24px;
 				}
 			}
 
@@ -126,15 +132,15 @@
 			}
 
 			&.notice-warning {
-				border-left-color: colors.$black;
+				border-inline-start-color: colors.$black;
 			}
 
 			&.notice-error {
-				border-left-color: var(--jp-red);
+				border-inline-start-color: var(--jp-red);
 			}
 
 			.notice-icon-wrapper {
-				margin-right: 20px;
+				margin-inline-end: 20px;
 				width: calc(var(--spacing-base) * 3);
 				height: calc(var(--spacing-base) * 3);
 
@@ -181,7 +187,7 @@
 					}
 
 					> * {
-						margin-right: 24px;
+						margin-inline-end: 24px;
 					}
 				}
 			}

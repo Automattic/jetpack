@@ -27,6 +27,9 @@ describe( 'CornerstonePagesCard', () => {
 		expect( screen.queryByRole( 'heading', { name: 'Cornerstone pages' } ) ).toBeNull();
 		expect( screen.getByText( 'description' ).tagName ).toBe( 'P' );
 		expect( screen.getByRole( 'button', { name: /Customize pages list/ } ) ).toBeTruthy();
+		expect(
+			screen.getByRole( 'heading', { level: 4, name: 'Customize pages list' } )
+		).toBeTruthy();
 		expect( screen.getByText( 'prerender' ) ).toBeTruthy();
 	} );
 

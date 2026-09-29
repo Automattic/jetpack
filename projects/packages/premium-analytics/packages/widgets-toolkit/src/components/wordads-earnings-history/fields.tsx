@@ -2,15 +2,15 @@
  * External dependencies
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
-import { Badge, Icon, Popover, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Badge } from '@jetpack-premium-analytics/externals';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
 import { Tooltip } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { compareOptionalNumbers } from '../../helpers/compare-optional-numbers';
+import { InfoTip } from '../info-tip';
 import styles from './earnings-status-badge.module.scss';
 import type { StatsWordAdsEarningsBreakdown } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
@@ -152,22 +152,12 @@ export function EarningsStatusBadge( { status }: { status: number | undefined } 
 	const { label, tooltip, intent, detail } = getEarningsStatus( status );
 
 	if ( detail ) {
-		// Click-open like the widget header's info icon; non-modal, so Tab leaves and closes it.
 		return (
 			<span className={ styles.root }>
-				<Popover.Root>
-					<Popover.Trigger aria-label={ detail } className={ styles.info }>
-						<Icon icon={ info } size={ 16 } />
-					</Popover.Trigger>
-					<Popover.Popup className={ styles.popup }>
-						<Popover.Arrow />
-						<VisuallyHidden render={ <Popover.Title /> }>{ detail }</VisuallyHidden>
-						<Popover.Description>
-							<span className={ styles.reason }>{ detail }</span>
-							{ tooltip }
-						</Popover.Description>
-					</Popover.Popup>
-				</Popover.Root>
+				<InfoTip label={ detail } size={ 16 }>
+					<span className={ styles.reason }>{ detail }</span>
+					{ tooltip }
+				</InfoTip>
 				<Badge intent={ intent }>{ label }</Badge>
 			</span>
 		);

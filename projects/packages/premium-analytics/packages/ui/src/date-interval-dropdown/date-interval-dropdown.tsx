@@ -3,12 +3,14 @@
  */
 import { type IntervalType } from '@jetpack-premium-analytics/datetime';
 import { IconButton } from '@jetpack-premium-analytics/externals';
-import { Dropdown, MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
+import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
 import { chartBar, check } from '@wordpress/icons';
+import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { DateControlPopover } from '../date-control-popover';
 import {
 	DATE_CONTROL_TRIGGER_DEFAULTS,
 	openOnArrowDown,
@@ -90,47 +92,47 @@ export function DateIntervalDropdown( {
 	onChange,
 }: DateIntervalDropdownProps ) {
 	const triggerLabel = label ?? getTriggerLabel( value );
+	const [ isOpen, setIsOpen ] = useState( false );
 
 	return (
-		<Dropdown
-			popoverProps={ { placement: 'bottom-end' } }
-			renderToggle={ ( { isOpen, onToggle } ) => (
+		<DateControlPopover
+			align="end"
+			title={ triggerLabel }
+			open={ isOpen }
+			onOpenChange={ setIsOpen }
+			trigger={
 				<IconButton
 					{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
 					{ ...triggerProps }
 					icon={ chartBar }
 					label={ triggerLabel }
 					disabled={ disabled }
-					onClick={ onToggle }
-					onKeyDown={ openOnArrowDown( { isOpen, onToggle, disabled } ) }
-					aria-expanded={ isOpen }
-					aria-haspopup="true"
+					onKeyDown={ openOnArrowDown( { isOpen, onToggle: () => setIsOpen( true ), disabled } ) }
 				/>
-			) }
-			renderContent={ ( { onClose } ) => (
-				<NavigableMenu role="menu" aria-label={ triggerLabel }>
-					<MenuGroup label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }>
-						{ options.map( option => {
-							const isSelected = option === value;
+			}
+		>
+			<NavigableMenu role="menu" aria-label={ triggerLabel }>
+				<MenuGroup label={ __( 'Chart interval', 'jetpack-premium-analytics-pkg' ) }>
+					{ options.map( option => {
+						const isSelected = option === value;
 
-							return (
-								<MenuItem
-									key={ option }
-									role="menuitemradio"
-									isSelected={ isSelected }
-									icon={ isSelected ? check : undefined }
-									onClick={ () => {
-										onChange( option );
-										onClose();
-									} }
-								>
-									{ getIntervalLabel( option ) }
-								</MenuItem>
-							);
-						} ) }
-					</MenuGroup>
-				</NavigableMenu>
-			) }
-		/>
+						return (
+							<MenuItem
+								key={ option }
+								role="menuitemradio"
+								isSelected={ isSelected }
+								icon={ isSelected ? check : undefined }
+								onClick={ () => {
+									onChange( option );
+									setIsOpen( false );
+								} }
+							>
+								{ getIntervalLabel( option ) }
+							</MenuItem>
+						);
+					} ) }
+				</MenuGroup>
+			</NavigableMenu>
+		</DateControlPopover>
 	);
 }

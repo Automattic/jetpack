@@ -5,7 +5,7 @@ import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
-import type { MetricTab } from '../components';
+import type { MetricTab, MetricTabDatum } from '../components';
 import type { CountLabel, DataFormat } from '../types';
 
 /**
@@ -54,15 +54,18 @@ function total( report: MetricReport | undefined, field: string ): number {
  * @param report - The normalized report, or undefined while loading.
  * @param field  - The metric field to read from each period.
  * @param zone   - The report's reporting timezone.
- * @return One point per period, oldest first.
+ * @return One point per period, oldest first; a null reading stays null, drawn as a gap.
  */
-function toPoints( report: MetricReport | undefined, field: string, zone: string ) {
+function toPoints(
+	report: MetricReport | undefined,
+	field: string,
+	zone: string
+): MetricTabDatum[] {
 	return ( report?.data ?? [] ).flatMap( point => {
 		const date = resolveBucketStamp( point.date_start, zone );
+		const raw = ( point as Record< string, unknown > )[ field ];
 
-		return date
-			? [ { date, value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ) } ]
-			: [];
+		return date ? [ { date, value: raw === null ? null : Number( raw ?? 0 ) } ] : [];
 	} );
 }
 

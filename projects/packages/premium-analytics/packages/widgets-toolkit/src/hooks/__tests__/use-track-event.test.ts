@@ -35,6 +35,7 @@ beforeEach( () => {
 } );
 
 describe( 'useTrackCustomize', () => {
+	const context = { surface: 'dashboard', section: 'traffic' };
 	const before = [ widget( 'a' ), widget( 'b' ) ];
 	const after = [ widget( 'a' ), widget( 'c' ), widget( 'd', 'jpa/b' ) ];
 
@@ -48,21 +49,29 @@ describe( 'useTrackCustomize', () => {
 		} );
 
 		expect( events() ).toEqual( [
-			[ 'jetpack_premium_analytics_customize_start', { surface: 'dashboard', section: 'traffic' } ],
+			[ 'jetpack_premium_analytics_customize_start', context ],
+			[
+				'jetpack_premium_analytics_widget_add',
+				{ ...context, widget_type: 'jpa/c', widget_count: 3 },
+			],
+			[
+				'jetpack_premium_analytics_widget_add',
+				{ ...context, widget_type: 'jpa/b', widget_count: 3 },
+			],
+			[
+				'jetpack_premium_analytics_widget_remove',
+				{ ...context, widget_type: 'jpa/b', widget_count: 3 },
+			],
 			[
 				'jetpack_premium_analytics_customize_save',
 				{
-					surface: 'dashboard',
-					section: 'traffic',
+					...context,
 					widget_count: 3,
 					widgets_added: 'jpa/c,jpa/b',
 					widgets_removed: 'jpa/b',
 				},
 			],
-			[
-				'jetpack_premium_analytics_customize_exit',
-				{ surface: 'dashboard', section: 'traffic', saved: true },
-			],
+			[ 'jetpack_premium_analytics_customize_exit', { ...context, saved: true } ],
 		] );
 	} );
 
@@ -79,10 +88,11 @@ describe( 'useTrackCustomize', () => {
 	// Upstream flushes a pending inline widget edit when edit mode turns on, and that
 	// commit reaches the page with no exit behind it.
 	it( 'leaves an inline widget edit saving itself out of the session', async () => {
+		const edited = [ { ...before[ 0 ], attributes: { view: 'table' } }, before[ 1 ] ];
 		const { result } = renderHook( () => useTrackCustomize( 'dashboard', 'traffic' ) );
 
 		act( () => result.current.start() );
-		act( () => result.current.layoutChange( before, after ) );
+		act( () => result.current.layoutChange( before, edited ) );
 		await act( async () => {
 			await Promise.resolve();
 		} );
@@ -93,6 +103,42 @@ describe( 'useTrackCustomize', () => {
 			'jetpack_premium_analytics_customize_exit',
 		] );
 		expect( events().at( -1 )?.[ 1 ] ).toMatchObject( { saved: false } );
+	} );
+
+	it( 'tells widget instances apart by id, not by type', () => {
+		const { result } = renderHook( () => useTrackCustomize( 'dashboard', 'traffic' ) );
+
+		act( () =>
+			result.current.layoutChange( [ widget( 'a', 'jpa/x' ) ], [ widget( 'b', 'jpa/x' ) ] )
+		);
+
+		expect( events() ).toEqual( [
+			[
+				'jetpack_premium_analytics_widget_add',
+				{ ...context, widget_type: 'jpa/x', widget_count: 1 },
+			],
+			[
+				'jetpack_premium_analytics_widget_remove',
+				{ ...context, widget_type: 'jpa/x', widget_count: 1 },
+			],
+		] );
+	} );
+
+	it( 'records no widget event for a commit that only rearranges', () => {
+		const { result } = renderHook( () => useTrackCustomize( 'dashboard', 'traffic' ) );
+
+		act( () => {
+			result.current.layoutChange( before, [ before[ 1 ], before[ 0 ] ] );
+			result.current.exit();
+		} );
+
+		expect( events() ).toEqual( [
+			[
+				'jetpack_premium_analytics_customize_save',
+				{ ...context, widget_count: 2, widgets_added: '', widgets_removed: '' },
+			],
+			[ 'jetpack_premium_analytics_customize_exit', { ...context, saved: true } ],
+		] );
 	} );
 
 	it( 'records a confirmed reset', () => {
