@@ -122,7 +122,6 @@
 		min-inline-size: 0;
 		margin: 0;
 		overflow-x: auto;
-		padding-block: 2px;
 
 		button.jetpack-newsletter-stats__interval {
 			box-sizing: border-box;
@@ -148,7 +147,7 @@
 				position: relative;
 				z-index: 1;
 				outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-				outline-offset: var(--wpds-border-width-focus);
+				outline-offset: calc(-1 * var(--wpds-border-width-focus));
 				box-shadow: none;
 			}
 
