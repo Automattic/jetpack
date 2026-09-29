@@ -27,18 +27,13 @@ export const TRAFFIC_PERIODS = [
 	'month',
 ] as const satisfies readonly StatsPeriod[];
 
-// Jetpack Stats v1 treats a viewport under 480px as mobile.
-export const MOBILE_QUERY = '(max-width: 479px)';
-
 /**
- * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else lines
- * on a mobile viewport and bars elsewhere.
+ * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else bars.
  *
- * @param isMobile - Whether the viewport matches `MOBILE_QUERY`.
  * @return The default chart type.
  */
-export function defaultChartType( isMobile: boolean ): TrafficChartType {
-	return readStatsV1ChartType() ?? ( isMobile ? 'line' : 'bar' );
+export function defaultChartType(): TrafficChartType {
+	return readStatsV1ChartType() ?? 'bar';
 }
 
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
@@ -99,7 +94,7 @@ export const TRAFFIC_CHART_METRICS = [
  * Configurable attributes for the Traffic chart widget; report params still
  * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property chartType - How to draw the selected metric. Defaults to `bar`, or `line` on a mobile viewport, as in Stats v1.
+ * @property chartType - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
  */
 export type TrafficChartAttributes = {
 	chartType?: TrafficChartType;
@@ -115,9 +110,9 @@ export default {
 	attributes: [
 		{
 			...chartTypeAttributeField< TrafficChartAttributes >(),
-			// The switch must show what the chart draws, and the default depends on the viewport.
+			// The switch must show what the chart draws, and the default depends on Stats v1.
 			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
-				item.chartType ?? defaultChartType( window.matchMedia?.( MOBILE_QUERY ).matches ?? false ),
+				item.chartType ?? defaultChartType(),
 		},
 	] as WidgetAttributeField< TrafficChartAttributes >[],
 	example: {

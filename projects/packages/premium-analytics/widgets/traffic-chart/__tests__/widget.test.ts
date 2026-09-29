@@ -5,7 +5,7 @@ import { getScriptData } from '@automattic/jetpack-script-data';
 /**
  * Internal dependencies
  */
-import widget, { MOBILE_QUERY } from '../widget';
+import widget from '../widget';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
 
@@ -21,33 +21,16 @@ function chartTypeSwitchValue( item: { chartType?: 'line' | 'bar' } ) {
 	} );
 }
 
-function mockViewport( isMobile: boolean ) {
-	window.matchMedia = jest.fn( query => ( {
-		matches: isMobile && query === MOBILE_QUERY,
-	} ) ) as never;
-}
-
 describe( 'Traffic chart type switch', () => {
-	it.each( [
-		[ false, 'bar' ],
-		[ true, 'line' ],
-	] )(
-		'shows the default the chart draws when nothing is saved (mobile: %s)',
-		( isMobile, expected ) => {
-			mockViewport( isMobile );
+	it( 'shows bars when nothing is saved', () => {
+		expect( chartTypeSwitchValue( {} ) ).toBe( 'bar' );
+	} );
 
-			expect( chartTypeSwitchValue( {} ) ).toBe( expected );
-		}
-	);
-
-	it( 'shows a saved choice whatever the viewport', () => {
-		mockViewport( true );
-
-		expect( chartTypeSwitchValue( { chartType: 'bar' } ) ).toBe( 'bar' );
+	it( 'shows a saved choice', () => {
+		expect( chartTypeSwitchValue( { chartType: 'line' } ) ).toBe( 'line' );
 	} );
 
 	it( 'shows the choice Stats v1 saved when nothing is saved here', () => {
-		mockViewport( false );
 		window.localStorage.setItem( 'jetpack_stats_chart_type_123', 'line' );
 
 		expect( chartTypeSwitchValue( {} ) ).toBe( 'line' );

@@ -12,7 +12,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
-import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 /**
@@ -20,7 +19,7 @@ import { useCallback } from 'react';
  */
 import styles from './style.module.css';
 import useTrafficChart from './use-traffic-chart';
-import { MOBILE_QUERY, TRAFFIC_PERIODS, defaultChartType } from './widget';
+import { TRAFFIC_PERIODS, defaultChartType } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -109,11 +108,9 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 }
 
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
-	const isMobile = useMediaQuery( MOBILE_QUERY );
-
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner chartType={ attributes.chartType ?? defaultChartType( isMobile ) } />
+			<TrafficChartInner chartType={ attributes.chartType ?? defaultChartType() } />
 		</WidgetRoot>
 	);
 }

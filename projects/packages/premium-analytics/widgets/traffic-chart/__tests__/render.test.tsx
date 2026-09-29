@@ -3,7 +3,6 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
-import { useMediaQuery } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
@@ -16,11 +15,6 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 jest.mock( '../use-traffic-chart' );
 
 jest.mock( '@automattic/jetpack-script-data', () => ( { getScriptData: jest.fn() } ) );
-
-jest.mock( '@wordpress/compose', () => ( {
-	...jest.requireActual( '@wordpress/compose' ),
-	useMediaQuery: jest.fn( () => false ),
-} ) );
 
 // The click lands in the date-filter controller, so a recorder stands in for it.
 const mockDrillDown = jest.fn();
@@ -42,7 +36,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
-const mockUseMediaQuery = jest.mocked( useMediaQuery );
 const mockGetScriptData = jest.mocked( getScriptData );
 
 const V1_KEY = 'jetpack_stats_chart_type_123';
@@ -82,7 +75,6 @@ function drawnChartType(): string {
 beforeEach( () => {
 	window.localStorage.clear();
 	mockGetScriptData.mockReturnValue( { site: { wpcom: { blog_id: 123 } } } as never );
-	mockUseMediaQuery.mockReturnValue( false );
 	mockDrillDown.mockClear();
 	mockMetricTabsChart.mockClear();
 	mockUseTrafficChart.mockReset();
@@ -102,38 +94,22 @@ beforeEach( () => {
 	} );
 } );
 
-// Matches Jetpack Stats v1: bars, except lines below its 480px mobile breakpoint.
 describe( 'TrafficChart chart type', () => {
-	it( 'draws bars by default on a desktop viewport', () => {
+	it( 'draws bars by default', () => {
 		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
 
 		expect( drawnChartType() ).toBe( 'bar' );
 	} );
 
-	it( 'draws lines by default below the mobile breakpoint', () => {
-		mockUseMediaQuery.mockReturnValue( true );
+	it( 'keeps a saved choice', () => {
+		render(
+			<TrafficChartRender
+				attributes={ { reportParams: reportParams( 'day' ), chartType: 'line' } }
+			/>
+		);
 
-		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
-
-		expect( mockUseMediaQuery ).toHaveBeenCalledWith( '(max-width: 479px)' );
 		expect( drawnChartType() ).toBe( 'line' );
 	} );
-
-	it.each( [
-		[ 'line', false ],
-		[ 'bar', true ],
-	] as const )(
-		'keeps a saved %s choice when the viewport is mobile: %s',
-		( chartType, isMobile ) => {
-			mockUseMediaQuery.mockReturnValue( isMobile );
-
-			render(
-				<TrafficChartRender attributes={ { reportParams: reportParams( 'day' ), chartType } } />
-			);
-
-			expect( drawnChartType() ).toBe( chartType );
-		}
-	);
 } );
 
 describe( 'TrafficChart inherited Stats v1 choice', () => {
@@ -147,15 +123,6 @@ describe( 'TrafficChart inherited Stats v1 choice', () => {
 
 		expect( drawnChartType() ).toBe( 'line' );
 		expect( setAttributes ).not.toHaveBeenCalled();
-	} );
-
-	it( 'prefers the Stats v1 choice over the viewport default', () => {
-		window.localStorage.setItem( V1_KEY, 'bar' );
-		mockUseMediaQuery.mockReturnValue( true );
-
-		render( <TrafficChartRender attributes={ attributes } /> );
-
-		expect( drawnChartType() ).toBe( 'bar' );
 	} );
 
 	it( 'lets a chart type set on the widget win', () => {
