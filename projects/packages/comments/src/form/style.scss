@@ -4,11 +4,9 @@
 	visibility: hidden;
 }
 
+// The theme's textarea inset, but never a cramped one.
 .jetpack-comments.is-mounted {
-	// The theme's textarea inset, but never a cramped one.
 	--jetpack-comments-pad: max(var(--jetpack-comments-inset, 1em), 1em);
-
-	margin-block: 1em;
 }
 
 // One box around the textarea and the footer, in the post's own colours
@@ -18,7 +16,6 @@
 	border-radius: var(--jetpack-comments-radius, 0);
 }
 
-// Grows with its content where supported; elsewhere it scrolls, like core's.
 // Three classes: block themes reach it with two classes and a tag.
 .jetpack-comments .jetpack-comments__box .jetpack-comments__textarea {
 	display: block;
@@ -32,10 +29,8 @@
 
 	// Pinned: themes reach for a textarea's border with every kind of selector.
 	&,
-	&:focus,
-	&:focus-visible {
+	&:focus {
 		border: 0 !important;
-		border-radius: 0 !important;
 		background: transparent !important;
 		box-shadow: none !important;
 		color: inherit;
@@ -43,8 +38,10 @@
 	}
 }
 
-// Hidden, not just collapsed, so nothing inside a closed footer can take focus.
-.jetpack-comments__footer {
+// The footer inside the box and the options below it open and close the same
+// way. Hidden, not just collapsed, so nothing inside a closed one takes focus.
+.jetpack-comments__footer,
+.jetpack-comments__options {
 	display: grid;
 	grid-template-rows: 0fr;
 	visibility: hidden;
@@ -59,38 +56,34 @@
 			grid-template-rows 0.25s ease-in-out,
 			visibility 0s;
 	}
+}
 
-	> div {
-		overflow: hidden;
-	}
+.jetpack-comments__footer > div {
+	overflow: hidden;
 }
 
 // Reversed so the submit precedes the identity line in the DOM, and Tab
-// reaches it straight from the textarea. The negative margins give focus
+// reaches it straight from the textarea; wrapped in reverse too, so the
+// identity line stacks above the submit. The negative margins give focus
 // rings room inside the footer's clipped box.
 .jetpack-comments__actions {
 	display: flex;
-	flex-direction: row-reverse;
-	// Reversed too, so when it wraps the identity line stacks above the submit.
-	flex-wrap: wrap-reverse;
+	flex-flow: row-reverse wrap-reverse;
 	align-items: center;
-	justify-content: space-between;
 	gap: 12px;
 	margin: 0 -4px -4px;
 	padding: 0 calc(var(--jetpack-comments-pad) + 4px) calc(var(--jetpack-comments-pad) + 4px);
 }
 
+// Shares the row with the submit down to 10em; below that it wraps above it.
 .jetpack-comments__identity {
-	display: inline-flex;
+	display: flex;
 	align-items: center;
 	gap: 0.75em;
-	// Shares the row with the submit down to 10em; below that it wraps above it.
 	flex: 1 1 10em;
-	min-inline-size: 0;
 }
 
 .jetpack-comments__avatar {
-	flex-shrink: 0;
 	border-radius: var(--jetpack-comments-radius, 0);
 }
 
@@ -100,24 +93,21 @@
 	display: flex;
 	margin: 0 !important;
 	padding: 0 !important;
-}
 
-.jetpack-comments .jetpack-comments__submit input {
-	margin: 0 !important;
-}
+	input {
+		margin: 0 !important;
 
-.jetpack-comments__submit input:disabled {
-	cursor: not-allowed;
+		&:disabled {
+			cursor: not-allowed;
+		}
+	}
 }
 
 .jetpack-comments__visually-hidden {
 	position: absolute;
 	inline-size: 1px;
 	block-size: 1px;
-	padding: 0;
-	margin: -1px;
 	overflow: hidden;
 	clip-path: inset(50%);
 	white-space: nowrap;
-	border: 0;
 }

@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { emailHasAccount, signIn } from './checkpoint/checkpoint';
 import './dialog.scss';
-import './toggle.scss';
 
 /**
  * The dialog's host, a form control, so the dialog can live in a shadow root out
@@ -36,7 +35,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		isDialogOpen,
 		isEditingDetails,
 	} = useContext( CommentSignals );
-	const { site, strings, mustLogIn, requireNameEmail, cookiesOptIn, identity } = JetpackComments;
+	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
 	const popup = useRef< Window | null >( null );
 	// Bumped per attempt, so a popup or request abandoned for another cannot answer for it.
@@ -60,6 +59,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	// Subscribe options are offered once, when a reader logs in or gives their email. A choice
 	// made with nothing to post waits here for their next comment, then is gone.
 	const [ heldChoice, setHeldChoice ] = useState< string[] | null >( null );
+	// Opened from "Change details": about who they are, so nothing here posts the comment.
+	const [ detailsOnly, setDetailsOnly ] = useState( false );
 	// Whether what the form will post right now carries a choice.
 	const sendsChoice = useRef( false );
 
@@ -68,6 +69,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 		if ( isDialogOpen.value && ! element?.open ) {
 			setStep( firstStep );
+			setDetailsOnly( isEditingDetails.peek() );
 			element!.showModal();
 		} else if ( ! isDialogOpen.value && element?.open ) {
 			element.close();
@@ -78,16 +80,9 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	useEffect( () => {
 		if ( turnedPage.current ) {
 			turnedPage.current = false;
-			dialog.current
-				?.querySelector< HTMLElement >( 'input, .jetpack-comments__sign-in button' )
-				?.focus();
+			dialog.current?.querySelector( 'input' )?.focus();
 		}
 	}, [ step ] );
-
-	const turnPage = ( next: typeof step ) => {
-		turnedPage.current = true;
-		setStep( next );
-	};
 
 	const start = async () => {
 		setSignInError( '' );
@@ -112,6 +107,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 				avatar: result.avatar,
 				code: result.code,
 			};
+			isEditingDetails.value = false;
 
 			if ( formSettings.subscriptions.length ) {
 				turnedPage.current = true;
@@ -122,7 +118,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			isDialogOpen.value = false;
 
 			// A timeout, so the render that puts the sign-in code in the form lands first.
-			if ( ! isEmptyComment.peek() ) {
+			if ( ! detailsOnly && ! isEmptyComment.peek() ) {
 				window.setTimeout( () => internals.form?.requestSubmit() );
 			}
 		} else if ( 'error' in result ) {
@@ -193,7 +189,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		.map( ( { name } ) => name );
 	const guest =
 		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
-	const posting = ! isEmptyComment.value;
+	const posting = ! isEmptyComment.value && ! detailsOnly;
 
 	const formValue = ( consent: boolean ) => {
 		const data = new FormData();
@@ -236,8 +232,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
-		// Opened from "Add your name" with nothing written, so there is nothing to post.
-		if ( editing || isEmptyComment.peek() ) {
+		// Nothing written yet, or here to change who they are: save, do not post.
+		if ( editing || ! posting ) {
 			if ( showToggles ) {
 				setHeldChoice( chosen );
 			}
@@ -318,7 +314,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 					{ ! known && mustLogIn && (
 						<p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p>
 					) }
-					{ choosing && (
+					{ ( choosing || editing ) && (
 						<div className="jetpack-comments__sign-in">
 							{ identity.canSignIn &&
 								( isSigningIn ? (
@@ -338,7 +334,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 										</button>
 									</span>
 								) : (
-									<button type="button" className="jetpack-comments__wpcom" onClick={ start }>
+									<button
+										type="button"
+										className="jetpack-comments__button is-primary"
+										onClick={ start }
+									>
 										<svg
 											width="16"
 											height="16"
@@ -362,11 +362,14 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 									{ signInError }
 								</span>
 							) }
-							{ ! mustLogIn && (
+							{ choosing && ! mustLogIn && (
 								<button
 									type="button"
 									className="jetpack-comments__button is-secondary"
-									onClick={ () => turnPage( 'guest' ) }
+									onClick={ () => {
+										turnedPage.current = true;
+										setStep( 'guest' );
+									} }
 								>
 									{ strings.continueAsGuest }
 								</button>
@@ -418,7 +421,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 								) }
 							</div>
 						) ) }
-					{ showFields && cookiesOptIn && (
+					{ showFields && (
 						<label htmlFor="remember" className="jetpack-comments__toggle">
 							<input
 								id="remember"
@@ -427,7 +430,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 								checked={ rememberDetails.value }
 								onChange={ event => ( rememberDetails.value = event.currentTarget.checked ) }
 							/>
-							<span className="jetpack-comments__toggle-text">{ strings.saveDetails }</span>
+							{ strings.saveDetails }
 						</label>
 					) }
 					{ showToggles &&
@@ -442,7 +445,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 										setSubscribed( { ...subscribed, [ name ]: event.currentTarget.checked } )
 									}
 								/>
-								<span className="jetpack-comments__toggle-text">{ label }</span>
+								{ label }
 							</label>
 						) ) }
 					<div className="jetpack-comments__dialog-actions">
@@ -462,25 +465,14 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 							</button>
 						) }
 						{ showFields && ! editing && (
-							<>
-								<button
-									type="submit"
-									className="jetpack-comments__button is-primary"
-									disabled={ emailTaken }
-								>
-									{ ! posting && strings.save }
-									{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
-								</button>
-								{ firstStep === 'choose' && (
-									<button
-										type="button"
-										className="jetpack-comments__button is-link"
-										onClick={ () => turnPage( 'choose' ) }
-									>
-										{ strings.back }
-									</button>
-								) }
-							</>
+							<button
+								type="submit"
+								className="jetpack-comments__button is-primary"
+								disabled={ emailTaken }
+							>
+								{ ! posting && strings.save }
+								{ posting && ( commentParent.value ? strings.reply : formSettings.submit.label ) }
+							</button>
 						) }
 					</div>
 				</form>

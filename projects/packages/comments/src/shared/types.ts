@@ -78,7 +78,6 @@ export type Strings = {
 	createProfile: string;
 	intro: string;
 	continueAsGuest: string;
-	back: string;
 	save: string;
 	saveDetails: string;
 	close: string;
@@ -101,7 +100,6 @@ export type Settings = {
 	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
-	cookiesOptIn: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
 	/** Empty when the site shows no avatars. */

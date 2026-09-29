@@ -386,7 +386,6 @@ class Comment_Form {
 				'createProfile'       => __( 'Create a profile', 'jetpack-comments' ),
 				'intro'               => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
 				'continueAsGuest'     => __( 'Continue as a guest', 'jetpack-comments' ),
-				'back'                => __( 'Back', 'jetpack-comments' ),
 				'save'                => __( 'Save', 'jetpack-comments' ),
 				'saveDetails'         => __( 'Save my name, email, and website for the next time I comment.', 'jetpack-comments' ),
 				'close'               => __( 'Close', 'jetpack-comments' ),
@@ -423,8 +422,6 @@ class Comment_Form {
 					// Decoded: WordPress.com's static-file filter joins its query with &amp;.
 					'styleUrl'            => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
 					'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
-					// Off, core saves no commenter cookies at all, so neither does the dialog.
-					'cookiesOptIn'        => (bool) get_option( 'show_comments_cookies_opt_in' ),
 					'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 					'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
 					'site'                => array(

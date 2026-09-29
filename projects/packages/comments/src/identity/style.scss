@@ -4,35 +4,32 @@
 	gap: 0.25em;
 }
 
-.jetpack-comments__chevron svg {
-	transition: transform 0.25s ease-in-out;
+// Nested under .jetpack-comments to outrank a theme's `.comment-form button`.
+.jetpack-comments .jetpack-comments__chevron {
+	display: inline-flex;
+	padding: 0;
+	border: 0;
+	background: none;
+	color: inherit;
+	cursor: pointer;
+
+	svg {
+		inline-size: 20px;
+		block-size: 20px;
+		transition: transform 0.25s ease-in-out;
+	}
 }
 
 .jetpack-comments__who.is-open .jetpack-comments__chevron svg {
 	transform: rotate(180deg);
 }
 
-// The links slide down from under the box as the row opens and back up
-// under it as it closes. Hidden while closed, so nothing inside can take focus.
+// The links slide down from under the box as the row opens and back up under
+// it as it closes. The negative margins give focus rings room in the clip.
 .jetpack-comments__options {
-	display: grid;
-	grid-template-rows: 0fr;
 	overflow: hidden;
-	// The negative margins give focus rings room inside the clipped box.
 	margin-inline: -4px;
 	padding-inline: 4px;
-	visibility: hidden;
-	transition:
-		grid-template-rows 0.25s ease-in-out,
-		visibility 0s linear 0.25s;
-
-	&.is-open {
-		grid-template-rows: 1fr;
-		visibility: visible;
-		transition:
-			grid-template-rows 0.25s ease-in-out,
-			visibility 0s;
-	}
 
 	// Its own height, not the row's, so the slide moves it the whole way and
 	// its bottom edge tracks the row's as both animate.
@@ -41,7 +38,6 @@
 		flex-wrap: wrap;
 		align-self: start;
 		gap: 0.25em 1em;
-		min-block-size: 0;
 		// Inset by the box's border and padding, to line up with the avatar.
 		padding: 0.5em calc(var(--jetpack-comments-pad) + 2px) 4px;
 		transform: translateY(-100%);
@@ -50,22 +46,5 @@
 
 	&.is-open > div {
 		transform: none;
-	}
-}
-
-// Nested under .jetpack-comments to outrank a theme's `.comment-form button`.
-.jetpack-comments .jetpack-comments__chevron {
-	margin: 0;
-	padding: 0;
-	border: 0;
-	background: none;
-	box-shadow: none;
-	color: inherit;
-	cursor: pointer;
-	display: inline-flex;
-
-	svg {
-		inline-size: 20px;
-		block-size: 20px;
 	}
 }
