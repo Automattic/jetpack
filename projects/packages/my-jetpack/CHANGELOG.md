@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add additional analytics to the Features tab. [#52630]
 - Add a More Features section to the Features tab that groups and switches Jetpack's other modules. [#52591] [#52786] [#52829]
 - Features tab: Add a dismissible banner explaining the tab. [#52733]
-- Features tab: Allow using arrow keys to step between features in the details modal. [#52742]
+- Features tab: Add support for arrow key navigation between features in the details modal. [#52742]
 
 ### Changed
 - Features: Say why a plugin can't be installed, and show install progress and failures on its card. [#52735]
