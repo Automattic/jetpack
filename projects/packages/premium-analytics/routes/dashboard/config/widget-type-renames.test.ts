@@ -24,6 +24,14 @@ describe( 'buildWidgetTypeRenames', () => {
 		expect( buildWidgetTypeRenames( null ) ).toBe( NO_WIDGET_TYPE_RENAMES );
 		expect( buildWidgetTypeRenames( [ { name: 'jpa/clicks' } ] ) ).toBe( NO_WIDGET_TYPE_RENAMES );
 	} );
+
+	it( 'ignores a record whose former names are not a list', () => {
+		const keyed = { 0: 'jpa/videopress', 2: 'jpa/videos' } as unknown as string[];
+
+		expect(
+			buildWidgetTypeRenames( [ { name: 'videopress/top-videos', former_names: keyed } ] )
+		).toBe( NO_WIDGET_TYPE_RENAMES );
+	} );
 } );
 
 describe( 'resolveLayoutTypes', () => {
