@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show Jetpack in-dashboard messages on every Search tab, not just Overview.

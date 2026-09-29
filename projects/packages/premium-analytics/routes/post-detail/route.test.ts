@@ -49,6 +49,7 @@ describe( 'post detail route report origin', () => {
 					post_id: undefined,
 					ref: 'comments',
 					ref_section: 'posts',
+					ds: 'insights',
 				},
 			} )
 		).rejects.toMatchObject( {
@@ -61,6 +62,7 @@ describe( 'post detail route report origin', () => {
 				post_id: '42',
 				ref: 'comments',
 				ref_section: 'posts',
+				ds: 'insights',
 			},
 		} );
 

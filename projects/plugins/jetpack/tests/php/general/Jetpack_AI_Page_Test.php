@@ -33,6 +33,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		unset( $GLOBALS['wp_scripts'] );
+		unset( $GLOBALS['submenu'] );
 		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
 		Constants::clear_single_constant( 'IS_WPCOM' );
@@ -291,13 +292,79 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * The notice only offers a connect link to a user the site would let connect it.
+	 */
+	public function test_admin_can_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * A user without manage_options cannot connect the site.
+	 */
+	public function test_subscriber_cannot_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * The AI Answers row links to the Search dashboard while a host leaves it registered.
+	 */
+	public function test_search_settings_url_points_at_the_search_dashboard() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * Search registers menu-less (parent '') when its submenu filter says no; the
+	 * page is still reachable, so the link stays.
+	 */
+	public function test_search_settings_url_survives_a_menu_less_registration() {
+		$GLOBALS['submenu'] = array(
+			'' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * VIP removes the page on admin_menu; the row then gets no link rather than a dead one.
+	 */
+	public function test_search_settings_url_is_empty_when_the_page_was_removed() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Settings', 'manage_options', 'jetpack-settings', 'Jetpack Settings' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['searchSettingsUrl'] );
+	}
+
+	/**
 	 * Every notice input reaches the page. Each one defaults permissive in the
 	 * client, so a dropped key silences the notice instead of erring.
 	 */
 	public function test_notice_inputs_are_injected() {
 		$settings = $this->get_injected_settings();
 
-		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff' ) as $key ) {
+		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff', 'canConnectSite' ) as $key ) {
 			$this->assertArrayHasKey( $key, $settings );
 		}
 
@@ -305,6 +372,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertIsBool( $settings['hostAllowsAi'] );
 		$this->assertIsBool( $settings['masterEnabled'] );
 		$this->assertSame( '', $settings['masterForcedOff'] );
+		$this->assertIsBool( $settings['canConnectSite'] );
 	}
 
 	/**
@@ -363,6 +431,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_ai_admin_config', $filter );
 		$this->assertSame( '', $settings['userConnectionUrl'] );
 		$this->assertSame( '', $settings['manageUrl'] );
+		$this->assertFalse( $settings['canConnectSite'] );
 	}
 
 	/**

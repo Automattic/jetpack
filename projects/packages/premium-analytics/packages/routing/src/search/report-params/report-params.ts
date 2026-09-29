@@ -1,4 +1,9 @@
 /**
+ * Internal dependencies
+ */
+import { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from '../dashboard-origin';
+
+/**
  * The URL search params that describe the shared report window (date range,
  * interval, and comparison) — the state every analytics surface has in common.
  *
@@ -42,6 +47,19 @@ export function pickReportDateParams(
 		}
 	}
 	return picked;
+}
+
+/**
+ * Pick the params a link to another analytics route carries forward: the shared
+ * report window plus the dashboard tab to return to.
+ *
+ * @param search - The current route search params.
+ * @return A new object with the carried params that are set.
+ */
+export function pickReportNavigationParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	return { ...pickReportDateParams( search ), ...pickDashboardOriginParams( search ) };
 }
 
 /**
@@ -138,7 +156,7 @@ function buildReportWindowLink(
 	search: Record< string, unknown > | undefined,
 	extraParams: Record< string, string > = {}
 ): string {
-	const params = { ...pickReportDateParams( search ), ...extraParams };
+	const params = { ...pickReportNavigationParams( search ), ...extraParams };
 	const query = new URLSearchParams(
 		Object.entries( params ).map( ( [ key, value ] ) => [ key, stringifySearchValue( value ) ] )
 	).toString();
@@ -148,15 +166,16 @@ function buildReportWindowLink(
 /**
  * Build the `to` link back to the dashboard, preserving the shared report window.
  *
- * Serializes the date range and comparison (via `pickReportDateParams`) into a
- * querystring so returning to the dashboard restores the same view. Page-scoped
- * params are dropped.
+ * Serializes the date range and comparison into a querystring, and reopens the
+ * dashboard tab the page was reached from, so returning restores the same view.
+ * Page-scoped params are dropped.
  *
  * @param search - The current route search params.
  * @return A dashboard `to` path (e.g. `/?from=…&to=…`), or `/` when none are set.
  */
 export function buildDashboardLink( search: Record< string, unknown > | undefined ): string {
-	return buildReportWindowLink( '/', search );
+	const { [ DASHBOARD_ORIGIN_PARAM ]: section } = pickDashboardOriginParams( search );
+	return buildReportWindowLink( '/', pickReportDateParams( search ), section ? { section } : {} );
 }
 
 /**

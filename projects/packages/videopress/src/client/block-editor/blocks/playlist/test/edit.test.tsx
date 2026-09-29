@@ -8,8 +8,12 @@ import type { BlockEditProps } from '@wordpress/blocks';
 // What the mocked media library modal "selects" when the button is clicked.
 let mockMediaSelection: unknown = [];
 
-// The publish-tracking hook has its own isolated test suite.
+// The publish-tracking and playlist-id hooks have their own isolated test suites.
 jest.mock( '../use-publish-tracking', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
+jest.mock( '../use-playlist-id', () => ( {
 	__esModule: true,
 	default: jest.fn(),
 } ) );
@@ -78,6 +82,9 @@ jest.mock( '../../../../lib/get-media-token', () => ( {
 const fetchVideoItemMock = fetchVideoItem as unknown as jest.Mock;
 
 const DEFAULT_ATTRIBUTES: PlaylistAttributes = {
+	playlistId: 'playlist-1',
+	playlistTitle: '',
+	playlistDescription: '',
 	videos: [],
 	layout: 'side-rail',
 	darkPlayer: false,

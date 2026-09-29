@@ -136,6 +136,7 @@ class Initializer {
 			new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
@@ -203,6 +204,7 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Playlist_Index::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -288,6 +290,22 @@ class Initializer {
 
 		// Register Latest Videos Playlist block.
 		self::register_videopress_latest_videos_playlist_block();
+
+		// Register All Playlists block.
+		self::register_videopress_all_playlists_block();
+	}
+
+	/**
+	 * Register the All Playlists block, which lists the site's Video Playlist
+	 * blocks from the playlist index.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_all_playlists_block( $metadata_file = null ) {
+		All_Playlists_Block::register( $metadata_file );
 	}
 
 	/**
@@ -718,7 +736,7 @@ class Initializer {
 	 *
 	 * @return array Entries with guid, title, durationMs, height and poster keys.
 	 */
-	private static function sanitize_playlist_entries( $videos ) {
+	public static function sanitize_playlist_entries( $videos ) {
 		if ( ! is_array( $videos ) ) {
 			return array();
 		}

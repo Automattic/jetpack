@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Settings: stop filtering the legacy Likes options out of the sharing_global_options hook, since WordPress.com no longer adds them there.

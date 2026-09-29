@@ -44,6 +44,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 	placement = 'bottom-end',
 	animate = true,
 	iconCode = info,
+	label,
 	iconSize = 18,
 	offset = 10,
 	title,
@@ -215,6 +216,21 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 		return () => doc?.removeEventListener( 'pointerdown', handlePointerDown );
 	}, [ isVisible, isForcedToShow, closeOnClickOutside, hideTooltip ] );
 
+	// Hover leaves focus elsewhere, so Escape is watched directly to keep the content dismissible.
+	useEffect( () => {
+		if ( ! isVisible || ! openedByHover.current ) {
+			return;
+		}
+		const doc = wrapperRef.current?.ownerDocument;
+		const handleKeyDown = ( event: globalThis.KeyboardEvent ) => {
+			if ( event.key === 'Escape' ) {
+				hideTooltip();
+			}
+		};
+		doc?.addEventListener( 'keydown', handleKeyDown );
+		return () => doc?.removeEventListener( 'keydown', handleKeyDown );
+	}, [ isVisible, hideTooltip ] );
+
 	useEffect( () => {
 		if ( isForcedToShow || isVisible ) {
 			return;
@@ -297,6 +313,7 @@ const IconTooltip: FC< IconTooltipProps > = ( {
 				<Button
 					ref={ triggerRef }
 					variant="link"
+					aria-label={ label }
 					aria-expanded={ isVisible }
 					onClick={ toggleTooltip }
 					onKeyDown={ handleTriggerKeyDown }

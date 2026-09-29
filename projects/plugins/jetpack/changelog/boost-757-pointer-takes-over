@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Stats: Let the pointer take over from the arrow keys in bar charts, including podcast episode stats, instead of flickering between the hovered and selected bars.

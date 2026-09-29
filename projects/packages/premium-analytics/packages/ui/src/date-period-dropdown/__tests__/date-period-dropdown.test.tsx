@@ -141,15 +141,28 @@ describe( 'DatePeriodDropdown', () => {
 		] );
 	} );
 
+	it( 'describes the trigger with its exact dates', () => {
+		renderDropdown();
+
+		expect( screen.getByRole( 'button', { name: 'Last 30 days' } ) ).toHaveAccessibleDescription(
+			/July 1.+31, 2026/
+		);
+	} );
+
 	it( 'spells the exact dates out in the trigger tooltip', async () => {
 		const user = userEvent.setup();
 		renderDropdown();
 
 		await user.hover( screen.getByRole( 'button', { name: 'Last 30 days' } ) );
 
+		// Skip the always-mounted description mirror; only the popup proves the hover.
 		await expect(
-			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
-		).resolves.toHaveTextContent( /July 1.+31, 2026/ );
+			screen.findByText(
+				/July 1.+31, 2026/,
+				{ ignore: '[data-visually-hidden]' },
+				{ timeout: 3000 }
+			)
+		).resolves.toBeVisible();
 	} );
 
 	it( 'greys the trigger out while disabled and keeps the menu shut', async () => {

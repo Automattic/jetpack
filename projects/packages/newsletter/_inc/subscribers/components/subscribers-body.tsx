@@ -7,7 +7,6 @@ import { getBlogId } from '../lib/site';
 import { isOpenSubscriberRemoved, toFiniteNumber } from '../lib/subscriber-helpers';
 import HeaderActions from './header-actions';
 import AddSubscribersModal from './modals/add-subscribers-modal';
-import SubscriberCountNotice from './subscriber-count-notice';
 import SubscribersDataViews from './subscribers-data-views';
 import type { Subscriber } from '../data/types';
 import type { ReactNode } from 'react';
@@ -134,7 +133,6 @@ export default function SubscribersBody( {
 
 	const body = (
 		<>
-			<SubscriberCountNotice />
 			<SubscribersDataViews
 				onAddSubscribers={ openAdd }
 				onViewSubscriber={ handleViewSubscriber }

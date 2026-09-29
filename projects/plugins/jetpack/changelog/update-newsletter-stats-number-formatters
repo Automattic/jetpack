@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Newsletter: Format stats metrics and open/click rates with locale-aware number formatters.

@@ -44,6 +44,7 @@ import ResultsSortEdit from '../blocks/results-sort/edit';
 import SearchInputEdit from '../blocks/search-input/edit';
 import SearchResultsEdit, { save as searchResultsSave } from '../blocks/search-results/edit';
 import BLOCK_ICONS, { FILTER_CHECKBOX_VARIATION_ICONS } from './icons';
+import { registerOverlayWidgetAreaGuards } from './overlay-widget-area';
 
 // Default save for blocks that own no editor-side state — render.php is the
 // source of truth on the front end, so save returns null. Container blocks
@@ -148,6 +149,10 @@ addFilter(
 		};
 	}
 );
+
+if ( typeof config.hideFromWidgetArea === 'string' ) {
+	registerOverlayWidgetAreaGuards( config.hideFromWidgetArea );
+}
 
 BLOCKS.forEach( ( [ name, edit, blockSave, extraSettings ] ) => {
 	if ( ! isWooCommerceBlocksEnabled && wcOnlyBlocks.has( name ) ) {

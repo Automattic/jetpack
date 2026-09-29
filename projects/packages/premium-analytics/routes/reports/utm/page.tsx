@@ -4,6 +4,7 @@
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ReportEmptyState,
 	ReportErrorState,
 	ReportDrilldownTable,
 	ReportPageLayout,
@@ -109,6 +110,19 @@ function UtmReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! records.isLoading && records.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -124,12 +138,7 @@ function UtmReport(): JSX.Element {
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				{ tableReplacement ?? (
 					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }

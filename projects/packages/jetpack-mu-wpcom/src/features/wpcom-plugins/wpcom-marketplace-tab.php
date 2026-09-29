@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Jetpack_Mu_Wpcom\Expiry_Notices\Expiry_Owner;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
 
 /**
@@ -204,14 +205,14 @@ function wpcom_marketplace_render_card( array $card ) {
 	/* translators: %s: Plugin name. */
 	$more_information = sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name );
 	?>
-	<div class="wpcom-marketplace-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?>">
+	<div class="wpcom-marketplace-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?>" data-plugin="<?php echo esc_attr( (string) ( $card['wpcom_product_slug'] ?? $slug ) ); ?>" data-saas="<?php echo Marketplace_Catalog::is_referral( $card ) ? 'true' : 'false'; ?>">
 		<div class="wpcom-marketplace-card__head">
 			<?php if ( '' !== $icon ) : ?>
 				<img class="wpcom-marketplace-card__icon" src="<?php echo esc_url( $icon ); ?>" alt="" />
 			<?php endif; ?>
 			<div>
 				<h3 class="wpcom-marketplace-card__name">
-					<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php echo esc_html( $name ); ?></a>
+					<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php echo esc_html( $name ); ?></a>
 				</h3>
 				<?php if ( ! empty( $card['author'] ) ) : ?>
 					<p class="wpcom-marketplace-card__author">
@@ -234,13 +235,16 @@ function wpcom_marketplace_render_card( array $card ) {
 
 		<p class="wpcom-marketplace-card__details">
 			<?php // Named like core's own Details link, or 56 cards contribute 56 identical ones. ?>
-			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?></a>
+			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?></a>
 		</p>
 
 		<?php // Price sits with the button that charges it, rather than a row away from it. ?>
 		<div class="wpcom-marketplace-card__footer">
 			<?php
-			wpcom_marketplace_render_price( $card );
+			// Calypso drops the price once a plugin is installed, leaving only its status.
+			if ( 'install' === install_plugin_install_status( $card )['status'] ) {
+				wpcom_marketplace_render_price( $card );
+			}
 			// Buttons are built from escaped parts, and core's own button carries data attributes.
 			echo wpcom_marketplace_card_button( $card ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
@@ -261,6 +265,15 @@ function wpcom_marketplace_render_card( array $card ) {
  * @return void
  */
 function wpcom_marketplace_render_price( array $card ) {
+	// The vendor sets a referral's price, so it gets Calypso's list-card wording, not the store's figures.
+	if ( Marketplace_Catalog::is_referral( $card ) ) {
+		printf(
+			'<div class="wpcom-marketplace-card__price"><p class="wpcom-marketplace-card__headline"><span class="wpcom-marketplace-card__amount">%s</span></p></div>',
+			esc_html__( 'Start for free', 'jetpack-mu-wpcom' )
+		);
+		return;
+	}
+
 	$pricing = $card['wpcom_pricing'] ?? array();
 	$yearly  = (string) ( $pricing[ WPCOM_MARKETPLACE_TERM ]['price'] ?? '' );
 	$monthly = (string) ( $pricing['monthly']['price'] ?? '' );
@@ -326,12 +339,41 @@ function wpcom_marketplace_card_button( array $card ) {
 			: '';
 	}
 
+	/*
+	 * Checkout cannot complete a referral: the subscription is the vendor's to sell.
+	 * Sending someone there would take payment for the wrong thing.
+	 */
+	if ( Marketplace_Catalog::is_referral( $card ) ) {
+		if ( '' === (string) ( $card['wpcom_referral_url'] ?? '' ) ) {
+			return '';
+		}
+
+		$referral = Marketplace_Catalog::referral_url( $card, (int) Expiry_Owner::current_user_wpcom_id() );
+		/* translators: %s: Plugin name. */
+		$label = __( 'Get started with %s on the vendor site', 'jetpack-mu-wpcom' );
+
+		// With no WordPress.com account to refer, Calypso's product page can sign them in first.
+		if ( '' === $referral ) {
+			$referral = Marketplace_Catalog::product_url( $card['wpcom_product_slug'] ?? $card['slug'] );
+			/* translators: %s: Plugin name. */
+			$label = __( 'Get started with %s', 'jetpack-mu-wpcom' );
+		}
+
+		// No noreferrer: Calypso's link lets the vendor see where the visit came from, and so does this one.
+		return sprintf(
+			'<a class="button" href="%s" target="_blank" rel="noopener" data-wpcom-marketplace-track="get_started" aria-label="%s">%s</a>',
+			esc_url( $referral ),
+			esc_attr( sprintf( $label, $name ) ),
+			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
+		);
+	}
+
 	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM, wpcom_marketplace_tab_url() );
 
 	// Without a store product there is nothing to buy, so fall back to the product page.
 	if ( '' === $checkout ) {
 		return sprintf(
-			'<a class="button" href="%s" aria-label="%s">%s</a>',
+			'<a class="button" href="%s" data-wpcom-marketplace-track="get_started" aria-label="%s">%s</a>',
 			esc_url( Marketplace_Catalog::product_url( $card['wpcom_product_slug'] ?? $card['slug'] ) ),
 			/* translators: %s: Plugin name. */
 			esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $name ) ),
@@ -340,7 +382,7 @@ function wpcom_marketplace_card_button( array $card ) {
 	}
 
 	return sprintf(
-		'<a class="button button-primary" href="%s" aria-label="%s">%s</a>',
+		'<a class="button button-primary" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
 		esc_url( $checkout ),
 		/* translators: %s: Plugin name. */
 		esc_attr( sprintf( __( 'Purchase and activate %s', 'jetpack-mu-wpcom' ), $name ) ),
@@ -394,6 +436,10 @@ function wpcom_marketplace_render_tab() {
 		plugins_url( 'css/marketplace-tab.css', __FILE__ ),
 		array(),
 		\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION
+	);
+
+	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts(
+		jetpack_mu_wpcom_enqueue_assets( 'wpcom-marketplace-tab', array( 'js' ) )
 	);
 }
 add_action( 'install_plugins_pre_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_render_tab' );

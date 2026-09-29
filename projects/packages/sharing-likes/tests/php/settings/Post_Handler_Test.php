@@ -378,27 +378,22 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Reblogs and comment likes are Simple-only fields. Writing them from a
-	 * Jetpack save would persist settings the screen never rendered.
+	 * Reblogs are a Simple-only field, and Comment Likes save through their own
+	 * section. Writing either from here would persist settings the section never rendered.
 	 */
 	public function test_likes_save_ignores_the_simple_only_fields_off_wpcom(): void {
-		$this->log_in_as( 'administrator' );
-
-		$this->dispatch(
-			'save-settings',
-			Settings_Form::NONCE_ACTION,
-			$this->claiming(
-				array( Settings_Form::SECTION_LIKES ),
-				array(
-					'wpl_default'                   => 'on',
-					'jetpack_reblogs_enabled'       => 'off',
-					'jetpack_comment_likes_enabled' => '1',
-				)
+		$active = $this->save_comment_likes_with(
+			array( 'likes' ),
+			array( Settings_Form::SECTION_LIKES ),
+			array(
+				'wpl_default'                   => 'on',
+				'jetpack_reblogs_enabled'       => 'off',
+				'jetpack_comment_likes_enabled' => '1',
 			)
 		);
 
 		$this->assertFalse( get_option( 'disabled_reblogs' ) );
-		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+		$this->assertSame( array( 'likes' ), $active );
 	}
 
 	/**
@@ -419,11 +414,124 @@ class Post_Handler_Test extends BaseTestCase {
 		$this->assertSame( '1', (string) get_option( 'disabled_reblogs' ) );
 	}
 
-	public function test_comment_likes_save_writes_nothing_off_wpcom(): void {
+	public function test_comment_likes_save_turns_the_option_off_on_simple(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		update_option( 'jetpack_comment_likes_enabled', 1 );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ) ) );
+
+		$this->assertSame( '0', (string) get_option( 'jetpack_comment_likes_enabled' ) );
+	}
+
+	/**
+	 * Save the Comment Likes section on a connected site running the given modules.
+	 *
+	 * @param string[]            $modules Active modules before the save.
+	 * @param string[]            $claimed Sections the form claims.
+	 * @param array<string,mixed> $payload Other fields the form submits.
+	 * @return string[] Active modules after the save.
+	 */
+	private function save_comment_likes_with( array $modules, array $claimed, array $payload ): array {
+		$this->given_connection( true );
+		$this->given_modules( $modules );
+		$this->log_in_as( 'administrator' );
+
+		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( $claimed, $payload ) );
+
+		return array_values( (array) \Jetpack_Options::get_option( 'active_modules' ) );
+	}
+
+	/**
+	 * Off wpcom the checkbox switches the module, not Simple's option.
+	 */
+	public function test_comment_likes_save_turns_the_module_on_off_wpcom(): void {
+		$active = $this->save_comment_likes_with( array( 'likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) );
+
+		$this->assertSame( array( 'likes', 'comment-likes' ), $active );
+		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
+	}
+
+	public function test_comment_likes_save_turns_the_module_off_off_wpcom(): void {
+		$active = $this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertSame( array( 'likes' ), $active );
+	}
+
+	/**
+	 * A host can force the module on, so the save must not claim the box took.
+	 */
+	public function test_comment_likes_save_reports_a_module_the_host_keeps_on(): void {
+		add_filter(
+			'jetpack_active_modules',
+			static function ( $modules ) {
+				return array_merge( (array) $modules, array( 'comment-likes' ) );
+			}
+		);
+
+		$this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+		remove_all_filters( 'jetpack_active_modules' );
+
+		$this->assertStringContainsString( Settings_Page::COMMENT_LIKES_UNCHANGED . '=1', (string) $this->redirected_to );
+	}
+
+	public function test_comment_likes_save_reports_nothing_once_the_module_switches(): void {
+		$this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertStringNotContainsString( Settings_Page::COMMENT_LIKES_UNCHANGED, (string) $this->redirected_to );
+	}
+
+	public function test_comment_likes_save_fires_no_deactivation_for_a_module_already_off(): void {
+		$fired = 0;
+		add_action(
+			'jetpack_pre_deactivate_module',
+			function () use ( &$fired ) {
+				++$fired;
+			}
+		);
+
+		$this->save_comment_likes_with( array( 'likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+		remove_all_actions( 'jetpack_pre_deactivate_module' );
+
+		$this->assertSame( 0, $fired );
+	}
+
+	/**
+	 * With Like buttons off, the Comment Likes section carries the sitewide default, and claims it for the Likes save.
+	 */
+	public function test_comment_likes_section_saves_the_sitewide_default_it_shows(): void {
+		$active = $this->save_comment_likes_with(
+			array( 'comment-likes' ),
+			array( Settings_Form::SECTION_COMMENT_LIKES, Settings_Form::SECTION_LIKES ),
+			array(
+				'jetpack_comment_likes_enabled' => '1',
+				'wpl_default'                   => 'off',
+			)
+		);
+
+		$this->assertSame( array( 'comment-likes' ), $active );
+		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
+	}
+
+	/**
+	 * An unchecked box posts nothing, so a save that never showed the checkbox must not read it as "off".
+	 */
+	public function test_save_leaves_the_comment_likes_module_alone_when_unclaimed(): void {
+		$active = $this->save_comment_likes_with( array( 'comment-likes' ), array( Settings_Form::SECTION_LIKES ), array( 'wpl_default' => 'on' ) );
+
+		$this->assertSame( array( 'comment-likes' ), $active );
+	}
+
+	/**
+	 * The section renders no checkbox without a connection, so a request claiming it switches nothing.
+	 */
+	public function test_comment_likes_save_writes_nothing_without_a_connection(): void {
+		$this->given_modules( array( 'likes' ) );
 		$this->log_in_as( 'administrator' );
 
 		$this->dispatch( 'save-settings', Settings_Form::NONCE_ACTION, $this->claiming( array( Settings_Form::SECTION_COMMENT_LIKES ), array( 'jetpack_comment_likes_enabled' => '1' ) ) );
 
+		$this->assertSame( array( 'likes' ), array_values( (array) \Jetpack_Options::get_option( 'active_modules' ) ) );
 		$this->assertFalse( get_option( 'jetpack_comment_likes_enabled' ) );
 	}
 

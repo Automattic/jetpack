@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI: Turn off AI SEO and Search AI Answers when the `jetpack_ai_enabled` filter returns false. Before, both stayed on.

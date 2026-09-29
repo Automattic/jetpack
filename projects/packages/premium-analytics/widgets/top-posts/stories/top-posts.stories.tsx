@@ -192,8 +192,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral chart
- * glyph and "No views in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderTopPostsOnPreset( 'last-365-days' ),

@@ -965,6 +965,17 @@ class Action_Bar {
 								)
 							);
 						}
+						if ( current_user_can( 'manage_options' ) ) {
+							$items[] = self::menu_item(
+								array(
+									'href'  => self::localized_url( 'https://wordpress.com/support/action-bar/#show-or-hide-the-action-bar' ),
+									'label' => __( 'Turn off this bar', 'jetpack-newsletter' ),
+									'class' => 'actnbr-turn-off',
+									'icon'  => 'external',
+									'blank' => true,
+								)
+							);
+						}
 						self::menu_group( $items );
 						?>
 					</div>

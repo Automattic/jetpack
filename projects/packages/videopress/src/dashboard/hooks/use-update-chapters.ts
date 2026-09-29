@@ -5,10 +5,11 @@
  * the player's chapter menu silently de-syncs. The pipeline itself lives in
  * `src/client/utils/video-chapters/sync-chapters` (shared with the block
  * editor's chapter manager modal); this hook only binds its warning seam to
- * the dashboard's global notices.
+ * core snackbar notices.
  */
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
+import { store as noticesStore } from '@wordpress/notices';
 import { syncChapters as syncChaptersCore } from '../../client/utils/video-chapters/sync-chapters';
 import type { ChaptersSyncStatus } from '../../client/utils/video-chapters/sync-chapters';
 import type { LibraryItem } from '../types/library';
@@ -28,11 +29,13 @@ type ChaptersVideo = Pick< LibraryItem, 'guid' | 'isPrivate' | 'durationSeconds'
  * @return An object with the stable `syncChapters` callback.
  */
 export function useUpdateChapters() {
-	const { createWarningNotice } = useGlobalNotices();
+	const { createWarningNotice } = useDispatch( noticesStore );
 
 	const syncChapters = useCallback(
 		( video: ChaptersVideo, description: string ): Promise< ChaptersSyncStatus > =>
-			syncChaptersCore( video, description, { onWarning: createWarningNotice } ),
+			syncChaptersCore( video, description, {
+				onWarning: message => createWarningNotice( message, { type: 'snackbar' } ),
+			} ),
 		[ createWarningNotice ]
 	);
 

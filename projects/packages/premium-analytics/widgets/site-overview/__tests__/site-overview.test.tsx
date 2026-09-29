@@ -92,7 +92,7 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the empty state when every visible metric is zero', async () => {
+	it( 'shows zeros, not an empty state, when every visible metric is zero', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...SUMMARY_RESPONSE,
 			views: 0,
@@ -107,10 +107,8 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		await expect(
-			screen.findByText( 'No stats recorded for this period.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Views' ) ).not.toBeInTheDocument();
+		await expect( screen.findAllByText( '0' ) ).resolves.toHaveLength( 4 );
+		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the error state with a Retry action that refetches', async () => {

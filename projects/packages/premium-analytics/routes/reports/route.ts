@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
+import { pickDashboardOriginParams } from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -73,6 +74,7 @@ export const route = {
 				...normalizeReportParams(
 					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
 				),
+				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 			};
 			// Reports are site-wide: drop the detail-page scopes `normalizeReportParams`

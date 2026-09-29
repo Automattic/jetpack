@@ -85,6 +85,8 @@ export function getPageNoticeState( {
 
 const HOST_OFF_SLUG = 'jetpack-ai-hub-notice-host-off';
 const OFFLINE_SLUG = 'jetpack-support-development-mode';
+const SITE_DISCONNECTED_CANNOT_CONNECT_SLUG =
+	'jetpack-ai-hub-notice-site-disconnected-cannot-connect';
 
 // Custom code reaches the same state by more than one route, and each route has
 // its own documentation page. VIP documents the filter as its own off switch.
@@ -93,6 +95,31 @@ const FORCED_OFF_SLUGS = {
 	'filter-vip': 'jetpack-ai-hub-notice-forced-off-filter-vip',
 	modules: 'jetpack-ai-hub-notice-forced-off-modules',
 };
+
+/**
+ * The action for a site with no connection owner.
+ *
+ * Hosts that manage the connection themselves, VIP among them, refuse
+ * `jetpack_connect`, as does a multisite sub-site; the link would only mislead.
+ *
+ * @param {object} pageData - Page data the states link to; see PageNotice's props.
+ * @return {object} `{ href, label, openInNewTab }`.
+ */
+function getSiteDisconnectedAction( pageData ) {
+	// Strict false: older page data (undefined) must not read as refused.
+	if ( pageData.canConnectSite === false ) {
+		return {
+			href: getRedirectUrl( SITE_DISCONNECTED_CANNOT_CONNECT_SLUG ),
+			label: __( 'Learn more', 'jetpack' ),
+			openInNewTab: true,
+		};
+	}
+
+	return {
+		href: pageData.userConnectionUrl,
+		label: __( 'Connect Jetpack', 'jetpack' ),
+	};
+}
 
 /**
  * Title, body and action for one state, as plain data.
@@ -143,10 +170,7 @@ function getNoticeContent( state, pageData ) {
 					'Your feature settings are saved and will apply again once the site is connected.',
 					'jetpack'
 				),
-				action: {
-					href: pageData.userConnectionUrl,
-					label: __( 'Connect Jetpack', 'jetpack' ),
-				},
+				action: getSiteDisconnectedAction( pageData ),
 			};
 
 		case PAGE_NOTICE_STATES.USER_UNLINKED:
@@ -188,6 +212,7 @@ function getNoticeContent( state, pageData ) {
  * @param {string}      [props.userConnectionUrl] - Where this host links an account.
  * @param {string}      [props.manageUrl]         - Where this host manages the AI module.
  * @param {boolean}     [props.hasMyJetpack]      - Whether My Jetpack is loaded on this host.
+ * @param {boolean}     [props.canConnectSite]    - Whether this user may connect the site.
  * @return {object|null} Component markup.
  */
 export default function PageNotice( props ) {

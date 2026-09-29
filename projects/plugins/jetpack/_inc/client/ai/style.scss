@@ -102,7 +102,9 @@ body.jetpack_page_jetpack-ai {
 		background: none;
 		border: none;
 		border-radius: 4px;
-		padding: 4px 12px 4px 6px;
+		padding-block: 4px;
+		padding-inline-start: 6px;
+		padding-inline-end: 12px;
 		margin-inline-start: -7px;
 		margin-block: 0 20px;
 		cursor: pointer;

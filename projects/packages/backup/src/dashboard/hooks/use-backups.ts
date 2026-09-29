@@ -34,6 +34,12 @@ export type BackupsSummary = {
 	 * restore point. Drives first-run copy.
 	 */
 	isInitialBackup: boolean;
+	/**
+	 * Whether the backup that made `state` `complete` finished with some
+	 * files missing. Only meaningful while `state` is `complete`; false
+	 * otherwise.
+	 */
+	hasWarnings: boolean;
 };
 
 /**
@@ -101,18 +107,22 @@ function clampPercent( percent: number ): number {
  */
 export function summarizeBackups( backups: Backup[] ): BackupsSummary {
 	if ( backups.length === 0 ) {
-		return { state: 'no-backups', progress: 0, isInitialBackup: true };
+		return { state: 'no-backups', progress: 0, isInitialBackup: true, hasWarnings: false };
 	}
 
 	// WPCOM returns newest first, and only the newest attempt can be running.
 	const newest = backups[ 0 ];
-	const hasUsableBackup = backups.some( isUsableBackup );
+	// Not necessarily `newest`: a failed attempt can sit ahead of the
+	// usable backup that actually makes the site "complete".
+	const latestUsableBackup = backups.find( isUsableBackup );
+	const hasUsableBackup = Boolean( latestUsableBackup );
 
 	if ( newest.status === 'started' ) {
 		return {
 			state: 'in-progress',
 			progress: clampPercent( newest.percent ),
 			isInitialBackup: ! hasUsableBackup,
+			hasWarnings: false,
 		};
 	}
 
@@ -120,14 +130,19 @@ export function summarizeBackups( backups: Backup[] ): BackupsSummary {
 	// A site with restore points and one failed attempt behind it is
 	// still, from the user's point of view, backed up.
 	if ( ! hasUsableBackup && isWillRetryStatus( newest.status ) ) {
-		return { state: 'will-retry', progress: 0, isInitialBackup: true };
+		return { state: 'will-retry', progress: 0, isInitialBackup: true, hasWarnings: false };
 	}
 
-	if ( hasUsableBackup ) {
-		return { state: 'complete', progress: 0, isInitialBackup: false };
+	if ( latestUsableBackup ) {
+		return {
+			state: 'complete',
+			progress: 0,
+			isInitialBackup: false,
+			hasWarnings: latestUsableBackup.hasWarnings,
+		};
 	}
 
-	return { state: 'no-good-backups', progress: 0, isInitialBackup: true };
+	return { state: 'no-good-backups', progress: 0, isInitialBackup: true, hasWarnings: false };
 }
 
 /**
@@ -229,10 +244,11 @@ export function useBackups( { forcePoll = false }: Args = {} ): Result {
 				state: error ? 'error' : 'loading',
 				progress: 0,
 				isInitialBackup: false,
+				hasWarnings: false,
 			};
 		}
 		if ( ! Array.isArray( data ) ) {
-			return { state: 'error', progress: 0, isInitialBackup: false };
+			return { state: 'error', progress: 0, isInitialBackup: false, hasWarnings: false };
 		}
 		return summarizeBackups( backups );
 	}, [ data, error, backups ] );
