@@ -228,12 +228,9 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		};
 		add_filter( 'jetpack_stats_url', $filter, 10, 2 );
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-		try {
-			$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
-		} finally {
-			remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
-			remove_filter( 'jetpack_stats_url', $filter, 10 );
-		}
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard' );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		remove_filter( 'jetpack_stats_url', $filter, 10 );
 
 		$this->assertSame( 'https://example.org/new-stats', $admin_bar->get_node( 'wpcom-stats' )->href );
 	}
