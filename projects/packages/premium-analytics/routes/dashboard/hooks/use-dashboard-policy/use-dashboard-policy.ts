@@ -19,13 +19,15 @@ export function isDashboardCompositionEnabled(): boolean {
  *
  * Customization is limited to moving and resizing widgets: adding and removing
  * sit behind the dashboard composition feature flag, whose answer the server
- * puts on the script data. The inserter offers the types the sections place
- * by default; any other type stays where it is placed, and can be removed.
- * Attribute editing stays open: it is how widgets expose their views, in and
- * out of customize mode. `reset` is denied so the toolkit's Reset to default
- * button stands in for the dashboard's overflow entry, dialog and command.
+ * puts on the script data. Attribute editing stays open: it is how widgets
+ * expose their views, in and out of customize mode. `reset` is denied so the
+ * toolkit's Reset to default button stands in for the dashboard's overflow
+ * entry, dialog and command.
  *
- * @param sections - The available sections.
+ * For now, `insert` allows only the widget types the sections instantiate in
+ * their default layouts. This criterion is expected to change.
+ *
+ * @param {DashboardSection[]} sections - The available sections.
  * @return The policy callback for `WidgetDashboard.Policy`.
  */
 export function useDashboardPolicy( sections: DashboardSection[] ): CanPerformDashboardOperation {
