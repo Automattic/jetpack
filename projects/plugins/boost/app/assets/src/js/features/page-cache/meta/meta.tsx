@@ -102,7 +102,7 @@ const Meta = () => {
 
 	const extraButtons = (
 		<Button
-			variant="link"
+			variant={ isRow ? 'tertiary' : 'link' }
 			size="small"
 			weight="regular"
 			iconSize={ 16 }
