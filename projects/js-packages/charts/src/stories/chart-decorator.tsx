@@ -128,9 +128,8 @@ const isValidHexColor = ( color: string ): boolean => {
  *
  * One declaration, and it is the same one WordPress makes: `admin-schemes.css` sets
  * `--wp-admin-theme-color` on `body.admin-color-<scheme>`. The palette's slot 1 names that
- * variable first, so this is enough to exercise the whole path Storybook otherwise cannot —
- * every story renders a `ThemeProvider`, and without a scheme set the admin color it publishes
- * is whatever the provider's accent is.
+ * variable first, so this is enough to exercise the whole path. Without a scheme, the value is
+ * the custom theme's accent (which `ThemeProvider` publishes) or else Storybook's `:root` default.
  *
  * @param scheme - A key of `WP_ADMIN_COLOR_SCHEMES`, or `NO_ADMIN_COLOR_SCHEME`.
  * @return The wrapper's inline custom property, or undefined to leave the page as it is.
