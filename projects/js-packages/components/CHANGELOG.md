@@ -12,6 +12,9 @@
 - IconTooltip: Show the trigger's focus ring the way other WordPress buttons do. [#52736]
 - Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
 
+### Deprecated
+- Deprecate `GlobalNotices` and `useGlobalNotices`. Use `SnackbarNotices` from `@wordpress/notices` instead. [#52193]
+
 ### Fixed
 - IconTooltip: Close a tooltip opened on hover when Escape is pressed, without moving focus. [#52799]
 

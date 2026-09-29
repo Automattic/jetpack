@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Follow the design system text color on the dashboard instead of a hardcoded override. [#52713]
 - Render the Jetpack in-dashboard message slot from the shared component. [#52641]
 - Show the Features tab in place of the Products tab by default, and link the footer's modules links to the Features list view. [#52785]
+- Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
 
 ### Fixed
 - Admin menu: Avoid a fatal error when an older version of the admin UI package is loaded. [#52806]

@@ -35,7 +35,7 @@ describe( 'dashboard boot', () => {
 		mockRender.mockClear();
 	} );
 
-	it( 'mounts today’s dashboard into the root PHP renders for it', async () => {
+	it( 'mounts the legacy dashboard into the root PHP renders for it', async () => {
 		const legacyRoot = addRoot( LEGACY_ROOT_ID );
 
 		await boot();

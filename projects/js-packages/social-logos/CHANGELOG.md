@@ -2,6 +2,9 @@
 ### Changed
 - Expand peer dependencies to support React 19. [#52883]
 
+### Fixed
+- Ensure `colors.css` export is available in production builds. [#52886]
+
 ## [3.3.19] - 2026-09-01
 ### Changed
 - Update package dependencies. [#51802]
