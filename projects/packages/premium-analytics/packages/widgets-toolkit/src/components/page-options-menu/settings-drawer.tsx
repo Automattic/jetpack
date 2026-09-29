@@ -18,7 +18,7 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { Spinner, ToggleControl } from '@wordpress/components';
 import { useRegistry } from '@wordpress/data';
-import { __, sprintf } from '@wordpress/i18n';
+import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { useCallback, useMemo, useState, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -119,7 +119,12 @@ function SettingsDrawerRoot( { open, onClose }: SettingsDrawerProps ) {
 
 	// The popup unmounts once it has slid out, so each opening starts from the stored settings.
 	return (
-		<Drawer.Root open={ open } onOpenChange={ handleOpenChange } swipeDirection="right">
+		// The Drawer anchors to a physical edge, so the page's end edge is picked here.
+		<Drawer.Root
+			open={ open }
+			onOpenChange={ handleOpenChange }
+			swipeDirection={ isRTL() ? 'left' : 'right' }
+		>
 			<Drawer.Popup size="large" className={ styles.popup }>
 				<SettingsForm onClose={ onClose } mutation={ mutation } />
 			</Drawer.Popup>

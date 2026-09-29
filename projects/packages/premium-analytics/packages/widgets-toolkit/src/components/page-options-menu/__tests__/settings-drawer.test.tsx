@@ -4,6 +4,7 @@
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -94,6 +95,7 @@ beforeEach( () => {
 
 afterEach( () => {
 	queryClient.clear();
+	resetLocaleData();
 	jest.useRealTimers();
 } );
 
@@ -169,6 +171,16 @@ describe( 'SettingsDrawer', () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( { method: 'POST', data: { admin_bar: false } } )
 			)
+		);
+	} );
+
+	it( 'slides in from the left edge in a right-to-left language', async () => {
+		setLocaleData( { 'text direction\u0004ltr': [ 'rtl' ] } );
+		showDrawer();
+
+		await expect( screen.findByRole( 'dialog', { name: 'Settings' } ) ).resolves.toHaveAttribute(
+			'data-swipe-direction',
+			'left'
 		);
 	} );
 
