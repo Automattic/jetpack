@@ -288,6 +288,16 @@ describe( 'LocationsReportPage', () => {
 		);
 	} );
 
+	it( 'keeps an empty table out of the loading state while the same params refetch', () => {
+		mockRecords( { table: { rows: [], isLoading: false, isFetching: true } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { data: [], isLoading: false } )
+		);
+	} );
+
 	it( 'reports the loading state while the active tab refetches over cached rows', () => {
 		mockRecords( { table: { rows: [ row ], isLoading: false, isFetching: true } } );
 

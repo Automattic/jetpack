@@ -5,7 +5,6 @@ import { EmptyState, Icon } from '@jetpack-premium-analytics/externals';
 import { search } from '@jetpack-premium-analytics/icons';
 import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -38,20 +37,14 @@ export function ReportEmptyState() {
 }
 
 /**
- * What a report table renders in its place while it has no rows. The spinner keeps the table's search and settings off screen until the rows first arrive; a refetch after that keeps the empty state.
+ * What a report table renders in its place while it has no rows, so the table's search and settings stay off screen until rows arrive.
  *
  * @param {object}  props           - The component props.
- * @param {boolean} props.isLoading - Whether the rows are still loading.
+ * @param {boolean} props.isLoading - Whether rows for the current params are still loading.
  * @return The loading or empty state.
  */
 export function ReportTableEmptyState( { isLoading }: { isLoading: boolean } ) {
-	const [ hasSettled, setHasSettled ] = useState( ! isLoading );
-
-	if ( ! isLoading && ! hasSettled ) {
-		setHasSettled( true );
-	}
-
-	if ( isLoading && ! hasSettled ) {
+	if ( isLoading ) {
 		return (
 			<div className={ styles.loading }>
 				<Spinner />

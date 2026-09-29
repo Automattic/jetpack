@@ -20,4 +20,19 @@ describe( 'ReportDrilldownTable', () => {
 
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows no search box or empty state while the rows load', () => {
+		render(
+			<ReportDrilldownTable< { id: string } >
+				data={ [] }
+				fields={ [] }
+				getItemId={ item => item.id }
+				getItemParentId={ () => null }
+				isLoading
+			/>
+		);
+
+		expect( screen.queryByRole( 'searchbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
 } );

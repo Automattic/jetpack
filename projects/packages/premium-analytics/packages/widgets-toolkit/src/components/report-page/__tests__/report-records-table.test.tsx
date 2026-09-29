@@ -307,7 +307,7 @@ describe( 'ReportRecordsTable with no rows', () => {
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'keeps the empty state while an empty report refetches', () => {
+	it( 'drops a settled empty state while the next period loads', () => {
 		const { rerender } = mountRows( [] );
 
 		rerender(
@@ -320,7 +320,7 @@ describe( 'ReportRecordsTable with no rows', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the table when told to, for a filter that scoped the rows to none', () => {
