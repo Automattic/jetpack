@@ -110,17 +110,16 @@ describe( 'Mailchimp block edit component', () => {
 		);
 	} );
 
-	test( 'hides re-check connection until the set up link is opened', async () => {
+	test( 'shows set up mailchimp button and recheck connection if not connected', async () => {
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
 		await expect( screen.findByText( 'Set up Mailchimp form' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Re-check Connection' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Re-check Connection' ) ).toBeInTheDocument();
 	} );
 
 	test( 'explains what is missing when a re-check finds no connection', async () => {
 		const user = userEvent.setup();
 		render( <MailchimpSubscribeEdit { ...defaultProps } /> );
-		await user.click( await screen.findByText( 'Set up Mailchimp form' ) );
-		await user.click( screen.getByText( 'Re-check Connection' ) );
+		await user.click( await screen.findByText( 'Re-check Connection' ) );
 		await expect(
 			screen.findByText( /Mailchimp is not connected yet/, { ignore: '.a11y-speak-region' } )
 		).resolves.toBeInTheDocument();
