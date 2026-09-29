@@ -516,8 +516,8 @@ class Jetpack_Mu_Wpcom {
 
 		if ( class_exists( 'Automattic\Jetpack\Agents_Manager\Agents_Manager' ) ) {
 			\Automattic\Jetpack\Agents_Manager\Agents_Manager::init();
+			require_once __DIR__ . '/features/wpcom-agents-manager/wpcom-agents-manager.php';
 		}
-		require_once __DIR__ . '/features/wpcom-agents-manager/class-wpcom-agents-manager.php';
 	}
 
 	/**
