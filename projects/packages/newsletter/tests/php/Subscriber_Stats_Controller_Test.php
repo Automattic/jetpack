@@ -333,15 +333,12 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertSame( 200, $response->get_status() );
 		$this->assertSame(
 			array(
-				'unit'     => 'year',
-				'quantity' => 3,
-				'date'     => gmdate( 'Y-m-d' ),
+				'unit'        => 'year',
+				'quantity'    => 3,
+				'date'        => gmdate( 'Y-m-d' ),
+				'stat_fields' => 'subscribers,subscribers_paid',
 			),
-			array(
-				'unit'     => $captured['unit'],
-				'quantity' => $captured['quantity'],
-				'date'     => $captured['date'],
-			)
+			$captured
 		);
 	}
 
