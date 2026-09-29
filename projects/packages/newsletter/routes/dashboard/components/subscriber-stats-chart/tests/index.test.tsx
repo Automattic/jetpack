@@ -228,10 +228,18 @@ describe( 'SubscriberStatsChart', () => {
 		renderStats();
 
 		await expect( screen.findByRole( 'radio', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_newsletter_stats_interval_click',
+			expect.anything()
+		);
 		// ToggleGroupControl is a radio group; this asserts the query, not pointer behavior.
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
 
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_interval_click', {
+			site_type: 'jetpack',
+			interval: 'week',
+		} );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
 				path: expect.stringContaining( 'unit=week&quantity=12' ),
@@ -250,6 +258,10 @@ describe( 'SubscriberStatsChart', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'radio', { name: 'Years' } ) );
 
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_interval_click', {
+			site_type: 'jetpack',
+			interval: 'year',
+		} );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
 				path: expect.stringContaining( 'unit=year&quantity=3' ),

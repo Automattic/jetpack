@@ -250,11 +250,18 @@ function ChartUnitControl( {
 } ): JSX.Element {
 	const handleChange = useCallback(
 		( value?: string | number ) => {
-			if ( value === 'day' || value === 'week' || value === 'month' || value === 'year' ) {
-				onChange( value );
+			if ( value !== 'day' && value !== 'week' && value !== 'month' && value !== 'year' ) {
+				return;
 			}
+
+			if ( value === unit ) {
+				return;
+			}
+
+			recordStatsEvent( 'jetpack_newsletter_stats_interval_click', { interval: value } );
+			onChange( value );
 		},
-		[ onChange ]
+		[ onChange, unit ]
 	);
 
 	return (
