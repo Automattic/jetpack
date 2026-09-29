@@ -15,6 +15,7 @@ type Props = {
 };
 
 const SUPPORT_POST_ID = 4458;
+const WPCOM_SUPPORT_URL = 'https://wordpress.com/support/videopress/';
 
 /**
  * Links to the VideoPress support doc. WordPress.com sites open it in the Help
@@ -29,9 +30,11 @@ export default function SupportLink( { children }: Props ) {
 		{ setShowSupportDoc?: ( url: string, postId: number ) => void } | undefined;
 	const setShowSupportDoc = helpCenter?.setShowSupportDoc;
 
-	const supportUrl = isWpcomPlatformSite()
-		? 'https://wordpress.com/support/videopress/'
-		: getRedirectUrl( 'https://jetpack.com/support/jetpack-videopress/' );
+	const supportUrl = getRedirectUrl(
+		isWpcomPlatformSite()
+			? 'wpcom-videopress-admin-learn-more'
+			: 'jetpack-videopress-admin-learn-more'
+	);
 
 	if ( setShowSupportDoc ) {
 		return (
@@ -39,7 +42,8 @@ export default function SupportLink( { children }: Props ) {
 				href={ supportUrl }
 				onClick={ event => {
 					event.preventDefault();
-					setShowSupportDoc( supportUrl, SUPPORT_POST_ID );
+					// The Help Center article API requires a support URL, not a redirect URL.
+					setShowSupportDoc( WPCOM_SUPPORT_URL, SUPPORT_POST_ID );
 				} }
 			>
 				{ children }
