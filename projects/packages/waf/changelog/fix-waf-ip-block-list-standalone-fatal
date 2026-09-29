@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Firewall: Avoid a fatal error when a blocked IP hits a site running the firewall in standalone mode.

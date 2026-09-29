@@ -836,7 +836,7 @@ class PayPal_Payment_Buttons {
 	 * The product price, or "From $29.99" with the cheapest option when the
 	 * options have prices. Matches linkPrice() in utils/link-price.js.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @param array $attributes The link's block attributes.
 	 * @return string The formatted price, or ''.
@@ -868,7 +868,7 @@ class PayPal_Payment_Buttons {
 	/**
 	 * The product-level price, trimmed.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @param array $attributes The link's block attributes.
 	 * @return string The price, or '' when blank or the options have prices.
@@ -892,7 +892,7 @@ class PayPal_Payment_Buttons {
 	 *
 	 * Matches resourcePrice() in utils/link-price.js.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.11.0
 	 *
 	 * @param array $resource A payment resource.
 	 * @return string The formatted price, or ''.

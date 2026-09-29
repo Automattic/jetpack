@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Subscriber summary: Leave the months before a site launched or turned on subscriptions empty in the chart, with a "No data" tooltip, instead of showing zero.

@@ -1629,7 +1629,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/post-media",
-                "reference": "772af1708d8342c09e25652b6091fe2968bc4f69"
+                "reference": "7b53c52041dd8ee095745c5c93cf27c5abd851bf"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1649,7 +1649,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-post-media/compare/v${old}...v${new}"
@@ -1830,7 +1830,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/publicize",
-                "reference": "94bece496cee7a239b5719b0cf086098e2826e13"
+                "reference": "939dffc6ad5604737efe23ecf381521fbdc23228"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1863,7 +1863,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-publicize/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.87.x-dev"
+                    "dev-trunk": "0.88.x-dev"
                 }
             },
             "autoload": {
