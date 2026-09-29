@@ -142,6 +142,7 @@ export default function useTrafficChart(
 						zone: isFirst ? vvZone : lcZone,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
+					counterpartHidden: 'counterpartHidden' in metric ? metric.counterpartHidden : undefined,
 				};
 
 				if ( isServed( metric.id ) ) {

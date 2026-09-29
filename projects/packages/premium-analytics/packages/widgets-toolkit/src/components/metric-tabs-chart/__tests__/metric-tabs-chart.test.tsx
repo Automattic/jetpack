@@ -418,8 +418,9 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it( 'keeps seeded-hidden labels stable when the dashboard range changes', () => {
+		const hiddenViews = { ...VIEWS, counterpartHidden: true };
 		const { rerender } = render(
-			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } />
+			<MetricTabsChart metrics={ [ hiddenViews, VISITORS ] } dataFormat={ DATA_FORMAT } />
 		);
 		const before = recordedPropsFor( mockLineSpy, 'Views' );
 		const changedVisitors = {
@@ -431,7 +432,7 @@ describe( 'MetricTabsChart', () => {
 		};
 
 		rerender(
-			<MetricTabsChart metrics={ [ VIEWS, changedVisitors ] } dataFormat={ DATA_FORMAT } />
+			<MetricTabsChart metrics={ [ hiddenViews, changedVisitors ] } dataFormat={ DATA_FORMAT } />
 		);
 		const after = recordedPropsFor( mockLineSpy, 'Views' );
 
@@ -443,7 +444,7 @@ describe( 'MetricTabsChart', () => {
 		] );
 	} );
 
-	it( 'draws the counterpart alongside the active metric and seeds it hidden', () => {
+	it( 'draws the counterpart alongside the active metric, hiding nothing', () => {
 		render( <MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } /> );
 
 		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
@@ -454,6 +455,24 @@ describe( 'MetricTabsChart', () => {
 		expect( series ).toHaveLength( 4 );
 		expect( series[ 2 ].group ).toBe( 'visitors' );
 		expect( series[ 3 ].options?.type ).toBe( 'comparison' );
+		expect( defaultHiddenSeries ).toBeUndefined();
+		expect( legendInteractive ).toBe( true );
+	} );
+
+	it( 'seeds the counterpart hidden when the metric sets counterpartHidden', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, counterpartHidden: true }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+			mockLineSpy,
+			'Views'
+		);
+
+		expect( series ).toHaveLength( 4 );
 		// Both of the counterpart's series, so revealing its legend item brings
 		// back the previous-period overlay with it.
 		expect( defaultHiddenSeries ).toEqual( [ series[ 2 ].label, series[ 3 ].label ] );
@@ -470,10 +489,7 @@ describe( 'MetricTabsChart', () => {
 		const after = recordedPropsFor( mockLineSpy, 'Visitors' );
 
 		expect( after.series[ 0 ].group ).toBe( 'visitors' );
-		expect( after.defaultHiddenSeries ).toEqual( [
-			after.series[ 2 ].label,
-			after.series[ 3 ].label,
-		] );
+		expect( after.defaultHiddenSeries ).toBeUndefined();
 		expect( after.series[ 2 ].label ).toBe( 'Views' );
 		// Each metric gets its own visibility bucket in the charts provider.
 		expect( after.chartId ).not.toBe( before.chartId );
@@ -532,7 +548,11 @@ describe( 'MetricTabsChart', () => {
 
 	it( 'pairs the metrics in bar mode too', () => {
 		render(
-			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } chartType="bar" />
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, counterpartHidden: true }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+			/>
 		);
 
 		const { series, defaultHiddenSeries } = recordedPropsFor( mockBarSpy, 'Views' );
