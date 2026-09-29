@@ -4,5 +4,17 @@
 		"jsx": "react-jsx",
 		"jsxImportSource": "preact"
 	},
-	"include": [ "src" ]
+	"include": [ "src" ],
+	// The old form's files: unused now, and deleted along with this list in a follow-up PR.
+	"exclude": [
+		"src/form/comment-field.tsx",
+		"src/form/submit-button.tsx",
+		"src/identity/checkpoint/icons.tsx",
+		"src/identity/checkpoint/logged-in.tsx",
+		"src/identity/checkpoint/logged-out.tsx",
+		"src/identity/commenting-as.tsx",
+		"src/identity/guest-fields.tsx",
+		"src/identity/log-in-prompt.tsx",
+		"src/ui"
+	]
 }
