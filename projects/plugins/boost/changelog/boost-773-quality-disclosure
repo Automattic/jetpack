@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Settings: Show the Image CDN quality, Page Cache options and Clear Cache controls as buttons rather than links, and announce whether the options panels are expanded.
