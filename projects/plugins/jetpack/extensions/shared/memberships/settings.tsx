@@ -447,12 +447,32 @@ export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel
 	);
 }
 
-export function NewsletterEmailDocumentSettings() {
-	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+/**
+ * Turn emailing the current post to subscribers on or off, saving the change right away.
+ *
+ * @return {Function} Setter taking whether the post should be emailed.
+ */
+export function useSetSendEmail(): ( sendEmail: boolean ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const { saveEditedEntityRecord } = useDispatch( coreDataStore );
 	const [ postMeta, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	const postId = useEntityId( 'postType', postType );
+
+	return sendEmail => {
+		setPostMeta( {
+			...postMeta,
+			// Meta value is negated, "don't send", but callers pass the truthy "send".
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! sendEmail,
+		} );
+		saveEditedEntityRecord( 'postType', postType, postId );
+	};
+}
+
+export function NewsletterEmailDocumentSettings() {
+	const isPostPublished = useSelect( select => select( editorStore ).isCurrentPostPublished(), [] );
+	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
+	const postId = useEntityId( 'postType', postType );
+	const setSendEmail = useSetSendEmail();
 
 	const postEmailSentState = useSelect(
 		select => {
@@ -463,16 +483,6 @@ export function NewsletterEmailDocumentSettings() {
 	);
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
-
-	const toggleSendEmail = ( checked: boolean ) => {
-		const postMetaUpdate = {
-			...postMeta,
-			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! checked,
-		};
-		setPostMeta( postMetaUpdate );
-		saveEditedEntityRecord( 'postType', postType, postId );
-	};
 
 	const isSendEmailEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
@@ -492,7 +502,7 @@ export function NewsletterEmailDocumentSettings() {
 						checked={ isSendEmailEnabled }
 						disabled={ isPostPublished || ! canEdit }
 						label={ __( 'Send this post to subscribers', 'jetpack' ) }
-						onChange={ toggleSendEmail }
+						onChange={ setSendEmail }
 					/>
 				);
 			} }
