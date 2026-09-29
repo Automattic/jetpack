@@ -1,4 +1,4 @@
 Significance: patch
 Type: other
 
-Expose the wpcom_launchpad_no_guidance site option in the /sites endpoint.
+Expose the wpcom_ai_launchpad_no_guidance site option in the /sites endpoint.

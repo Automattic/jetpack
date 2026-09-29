@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Sync the wpcom_launchpad_no_guidance option so the WordPress.com /sites endpoint can expose it for Atomic sites.
+Sync the wpcom_ai_launchpad_no_guidance option so the WordPress.com /sites endpoint can expose it for Atomic sites.

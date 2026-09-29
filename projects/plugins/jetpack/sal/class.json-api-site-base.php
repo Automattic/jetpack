@@ -1687,8 +1687,8 @@ abstract class SAL_Site {
 	 *
 	 * @return bool
 	 */
-	public function is_launchpad_no_guidance() {
-		return (bool) get_option( 'wpcom_launchpad_no_guidance' );
+	public function is_ai_launchpad_no_guidance() {
+		return (bool) get_option( 'wpcom_ai_launchpad_no_guidance' );
 	}
 
 	/**

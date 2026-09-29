@@ -285,7 +285,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'wpcom_ai_launchpad_enabled'                   => true,
 			'wpcom_ai_launchpad_dismissed'                 => true,
 			'wpcom_ai_launchpad_completed'                 => true,
-			'wpcom_launchpad_no_guidance'                  => true,
+			'wpcom_ai_launchpad_no_guidance'               => true,
 			'wpcom_ai_site_prompt'                         => '',
 			'reader_chat'                                  => false,
 			'jetpack_ai_writing_assistant_enabled'         => false,
