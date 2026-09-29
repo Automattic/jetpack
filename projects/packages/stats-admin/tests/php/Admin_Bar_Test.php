@@ -38,6 +38,7 @@ class Admin_Bar_Test extends Stats_TestCase {
 		remove_filter( 'show_admin_bar', '__return_true' );
 		remove_all_actions( 'admin_bar_menu' );
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( 'jetpack_stats_url' );
 		unset( $_GET['page'], $_GET['chart'], $_GET['noheader'], $_GET['proxy'], $_GET['height'] );
 		$GLOBALS['current_screen'] = null;
 		Constants::clear_constants();
@@ -67,6 +68,16 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertSame( 'site-name', $node->parent );
 		$this->assertSame( 'Stats', $node->title );
 		$this->assertSame( admin_url( 'admin.php?page=stats' ), $node->href );
+	}
+
+	public function test_site_menu_link_follows_the_stats_url_filter() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$this->point_dashboard_view_at_new_stats();
+		$admin_bar = $this->make_admin_bar_with_dashboard();
+
+		Admin_Bar::add_site_menu_link();
+
+		$this->assertSame( 'https://example.org/new-stats', $admin_bar->get_node( 'jetpack-stats' )->href );
 	}
 
 	public function test_site_menu_link_hidden_from_user_who_cannot_view_stats() {
@@ -100,6 +111,16 @@ class Admin_Bar_Test extends Stats_TestCase {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 
 		$this->assertNotNull( $this->render_chart_node() );
+	}
+
+	public function test_chart_link_follows_the_stats_url_filter() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$this->point_dashboard_view_at_new_stats();
+
+		$node = $this->render_chart_node();
+
+		$this->assertSame( 'https://example.org/new-stats', $node->href );
+		$this->assertStringContainsString( 'page=stats', $node->title, 'The chart image is still served by Stats.' );
 	}
 
 	public function test_chart_hidden_when_admin_bar_setting_is_off() {
@@ -249,6 +270,22 @@ class Admin_Bar_Test extends Stats_TestCase {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Hook `jetpack_stats_url` the way a newer dashboard would, for the dashboard view only.
+	 *
+	 * @return void
+	 */
+	private function point_dashboard_view_at_new_stats() {
+		add_filter(
+			'jetpack_stats_url',
+			function ( $url, $args ) {
+				return 'dashboard' === $args['view'] ? 'https://example.org/new-stats' : $url;
+			},
+			10,
+			2
+		);
 	}
 
 	/**

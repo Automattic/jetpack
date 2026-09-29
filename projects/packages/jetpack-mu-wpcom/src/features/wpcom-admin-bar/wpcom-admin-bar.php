@@ -532,7 +532,8 @@ function wpcom_add_stats_to_site_menu( $wp_admin_bar ) {
 			'parent' => 'site-name',
 			'id'     => 'wpcom-stats',
 			'title'  => __( 'Stats', 'jetpack-mu-wpcom' ),
-			'href'   => admin_url( 'admin.php?page=stats' ),
+			/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+			'href'   => apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) ),
 		)
 	);
 }

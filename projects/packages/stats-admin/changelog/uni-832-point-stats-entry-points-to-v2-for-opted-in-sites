@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Admin bar: Add the jetpack_stats_url filter to the views chart and the Stats menu link.

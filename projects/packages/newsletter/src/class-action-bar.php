@@ -689,6 +689,16 @@ class Action_Bar {
 			} else {
 				$stats_link = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, $site_id ) );
 			}
+
+			/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+			$stats_link = apply_filters(
+				'jetpack_stats_url',
+				$stats_link,
+				array(
+					'view'    => 'post',
+					'post_id' => $post_id,
+				)
+			);
 		}
 
 		$referer = '';
