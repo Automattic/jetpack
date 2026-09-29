@@ -21,17 +21,9 @@ type UseDashboardPolicyParams = {
  *
  * Customization is limited to moving and resizing widgets: adding and removing
  * sit behind the dashboard composition feature flag, whose answer the server
- * puts on the script data. Attribute editing stays open: it is how widgets
- * expose their views, in and out of customize mode. `reset` is denied so the
- * toolkit's Reset to default button stands in for the dashboard's overflow
- * entry, dialog and command.
+ * puts on the script data.
  *
- * `insert` allows only the widget types it is handed. For now those are the
- * types the active section instantiates in its default layout, a criterion
- * expected to change.
- *
- * @param {UseDashboardPolicyParams} props                       - The policy inputs.
- * @param {Set< string >}            props.insertableWidgetTypes - Names of the widget types `insert` allows.
+ * @param {UseDashboardPolicyParams} props - The policy inputs.
  * @return The policy callback for `WidgetDashboard.Policy`.
  */
 export function useDashboardPolicy( {
