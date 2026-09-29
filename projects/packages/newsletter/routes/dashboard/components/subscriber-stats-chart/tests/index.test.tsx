@@ -434,6 +434,11 @@ describe( 'SubscriberStatsChart', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_period_click', {
+			site_type: 'jetpack',
+			direction: 'previous',
+			interval: 'day',
+		} );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
 				path: expect.stringContaining( 'unit=day&quantity=30&date=2026-08-22' ),
@@ -444,6 +449,11 @@ describe( 'SubscriberStatsChart', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
 
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_stats_period_click', {
+			site_type: 'jetpack',
+			direction: 'next',
+			interval: 'day',
+		} );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
 				path: expect.stringContaining( 'date=2026-09-21' ),

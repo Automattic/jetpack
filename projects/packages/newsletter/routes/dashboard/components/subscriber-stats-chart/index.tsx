@@ -309,6 +309,7 @@ function ChartUnitControl( {
 			{ CHART_UNIT_OPTIONS.map( option => (
 				<button
 					key={ option.value }
+					className="jetpack-newsletter-stats__interval"
 					type="button"
 					role="radio"
 					aria-checked={ unit === option.value }
@@ -343,6 +344,7 @@ function ChartRangeArrows( {
 	return (
 		<div className="jetpack-newsletter-stats__chart-arrows">
 			<button
+				className="jetpack-newsletter-stats__chart-arrow"
 				type="button"
 				aria-label={ __( 'Previous period', 'jetpack-newsletter' ) }
 				onClick={ onPrevious }
@@ -350,6 +352,7 @@ function ChartRangeArrows( {
 				<Icon icon={ arrowLeft } size={ 24 } />
 			</button>
 			<button
+				className="jetpack-newsletter-stats__chart-arrow"
 				type="button"
 				aria-label={ __( 'Next period', 'jetpack-newsletter' ) }
 				onClick={ onNext }
@@ -425,6 +428,10 @@ export default function SubscriberStatsChart(): JSX.Element {
 			setEndDate( current => {
 				const shifted = shiftChartDate( current, unit, direction );
 				return shifted < today ? shifted : today;
+			} );
+			recordStatsEvent( 'jetpack_newsletter_stats_period_click', {
+				direction: direction === -1 ? 'previous' : 'next',
+				interval: unit,
 			} );
 		},
 		[ today, unit ]
