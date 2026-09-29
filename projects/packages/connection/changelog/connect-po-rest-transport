@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Protected owner: ask WordPress.com over the REST API rather than XML-RPC.
