@@ -45,6 +45,8 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 	const signInAttempt = useRef( 0 );
 	const emailAttempt = useRef( 0 );
 	const emailTimer = useRef( 0 );
+	const checkedEmail = useRef( '' );
+	const turnedPage = useRef( false );
 	const [ isSigningIn, setIsSigningIn ] = useState( false );
 	const [ signInError, setSignInError ] = useState( '' );
 	const [ emailTaken, setEmailTaken ] = useState( false );
@@ -67,6 +69,21 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 			element.close();
 		}
 	}, [ isDialogOpen.value ] );
+
+	// The button that turned the page is gone, so focus goes to the new page's first control.
+	useEffect( () => {
+		if ( turnedPage.current ) {
+			turnedPage.current = false;
+			dialog.current
+				?.querySelector< HTMLElement >( 'input, .jetpack-comments__sign-in button' )
+				?.focus();
+		}
+	}, [ step ] );
+
+	const turnPage = ( next: typeof step ) => {
+		turnedPage.current = true;
+		setStep( next );
+	};
 
 	const start = async () => {
 		setSignInError( '' );
@@ -104,9 +121,17 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 		window.clearTimeout( emailTimer.current );
 
 		if ( ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email ) ) {
+			checkedEmail.current = '';
 			setEmailTaken( false );
 			return;
 		}
+
+		// Each check counts against a rate limit, and leaving the field re-checks what typing just did.
+		if ( email === checkedEmail.current ) {
+			return;
+		}
+
+		checkedEmail.current = email;
 
 		const taken = await emailHasAccount( email );
 
@@ -275,7 +300,7 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 								<button
 									type="button"
 									className="jetpack-comments__button is-secondary"
-									onClick={ () => setStep( 'guest' ) }
+									onClick={ () => turnPage( 'guest' ) }
 								>
 									{ strings.continueAsGuest }
 								</button>
@@ -369,7 +394,7 @@ export const IdentityDialog = ( { internals }: { internals: ElementInternals } )
 									<button
 										type="button"
 										className="jetpack-comments__button is-link"
-										onClick={ () => setStep( 'choose' ) }
+										onClick={ () => turnPage( 'choose' ) }
 									>
 										{ strings.back }
 									</button>

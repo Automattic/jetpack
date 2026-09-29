@@ -27,6 +27,7 @@ export const Toggle = ( props: ToggleProps ) => {
 			<input
 				id={ id }
 				type="checkbox"
+				role="switch"
 				checked={ checked }
 				onChange={ event => onChange( event.currentTarget.checked ) }
 			/>

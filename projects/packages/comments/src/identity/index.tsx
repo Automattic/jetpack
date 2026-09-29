@@ -38,6 +38,7 @@ export const Identity = () => {
 			<span className="jetpack-comments__who">
 				<a
 					href="#"
+					aria-haspopup="dialog"
 					onClick={ event => {
 						event.preventDefault();
 						isDialogOpen.value = true;
@@ -133,6 +134,7 @@ export const IdentityOptions = () => {
 				{ ! user && ! signedIn.value && (
 					<a
 						href="#"
+						aria-haspopup="dialog"
 						onClick={ event => {
 							event.preventDefault();
 							isEditing.value = true;

@@ -221,12 +221,6 @@ class Comment_Form {
 
 		$args = $this->defaults;
 
-		// Core skips the submit field on this branch, so the hosts never draw their
-		// checkboxes. Run that filter here without this class on it, to ask them.
-		remove_filter( 'comment_form_submit_field', array( $this, 'render' ), 20 );
-		$args['subscriptions'] = Subscriptions::checkboxes( (string) apply_filters( 'comment_form_submit_field', '', $args ) );
-		add_filter( 'comment_form_submit_field', array( $this, 'render' ), 20, 2 );
-
 		$this->enqueue_assets( $args );
 
 		printf(
