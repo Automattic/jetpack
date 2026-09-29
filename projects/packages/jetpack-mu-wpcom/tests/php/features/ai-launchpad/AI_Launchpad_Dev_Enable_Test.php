@@ -117,11 +117,11 @@ class AI_Launchpad_Dev_Enable_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function test_enable_clears_no_guidance() {
 		$this->login_as( 'administrator' );
-		update_option( 'wpcom_launchpad_no_guidance', 1 );
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
 		$_GET['enable-ai-launchpad'] = '1';
 
 		$this->assertSame( AI_Launchpad_Dev_Enable::REDIRECT_PAGE, AI_Launchpad_Dev_Enable::handle() );
-		$this->assertFalse( get_option( 'wpcom_launchpad_no_guidance' ) );
+		$this->assertFalse( get_option( 'wpcom_ai_launchpad_no_guidance' ) );
 		$this->assertSame( 1, (int) get_option( 'wpcom_ai_launchpad_enabled' ) );
 	}
 }

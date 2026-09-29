@@ -76,7 +76,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 		Status_Cache::clear();
 		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
 		delete_option( 'wpcom_admin_interface' );
-		delete_option( 'wpcom_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_no_guidance' );
 		delete_option( 'wpcom_ai_launchpad_enabled' );
 		delete_option( 'wpcom_ai_launchpad_dismissed' );
 
@@ -125,7 +125,7 @@ class WPCOM_Admin_Menu_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_my_home_menu_is_hidden_for_no_guidance_sites() {
-		update_option( 'wpcom_launchpad_no_guidance', 1 );
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
 		wpcom_add_my_home_menu();
 		$this->assertNull( $this->get_my_home_menu_slug() );
 	}

@@ -1649,7 +1649,7 @@ abstract class SAL_Site {
 	 * @return bool
 	 */
 	public function is_ai_launchpad_enabled() {
-		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && ! $this->is_launchpad_no_guidance();
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && ! $this->is_ai_launchpad_no_guidance();
 	}
 
 	/**

@@ -19,7 +19,7 @@ class Launchpad_No_Guidance_Test extends \WorDBless\BaseTestCase {
 	 * Tear down each test.
 	 */
 	public function tear_down() {
-		delete_option( 'wpcom_launchpad_no_guidance' );
+		delete_option( 'wpcom_ai_launchpad_no_guidance' );
 		delete_option( 'wpcom_ai_launchpad_enabled' );
 		delete_option( 'wpcom_ai_launchpad_dismissed' );
 
@@ -29,7 +29,7 @@ class Launchpad_No_Guidance_Test extends \WorDBless\BaseTestCase {
 	/**
 	 * @dataProvider provide_option_states
 	 *
-	 * @param bool $no_guidance Whether wpcom_launchpad_no_guidance is set.
+	 * @param bool $no_guidance Whether wpcom_ai_launchpad_no_guidance is set.
 	 * @param bool $enabled     Whether wpcom_ai_launchpad_enabled is set.
 	 * @param bool $dismissed   Whether wpcom_ai_launchpad_dismissed is set.
 	 * @param bool $expected    Expected result.
@@ -37,7 +37,7 @@ class Launchpad_No_Guidance_Test extends \WorDBless\BaseTestCase {
 	#[DataProvider( 'provide_option_states' )]
 	public function test_is_no_guidance( $no_guidance, $enabled, $dismissed, $expected ) {
 		if ( $no_guidance ) {
-			update_option( 'wpcom_launchpad_no_guidance', 1 );
+			update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
 		}
 		if ( $enabled ) {
 			update_option( 'wpcom_ai_launchpad_enabled', 1 );

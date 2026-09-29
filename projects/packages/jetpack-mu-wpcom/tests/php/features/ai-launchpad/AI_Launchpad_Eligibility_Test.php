@@ -43,7 +43,7 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 	 * @param bool $was_ai_onboarded Whether the site already went through AI onboarding.
 	 * @param bool $enabled          Whether wpcom_ai_launchpad_enabled is set.
 	 * @param bool $dismissed        Whether the user dismissed the AI Launchpad.
-	 * @param bool $no_guidance      Whether wpcom_launchpad_no_guidance is set.
+	 * @param bool $no_guidance      Whether wpcom_ai_launchpad_no_guidance is set.
 	 * @param bool $expected         Expected eligibility result.
 	 */
 	#[DataProvider( 'provide_eligibility_inputs' )]
@@ -60,7 +60,7 @@ class AI_Launchpad_Eligibility_Test extends \WorDBless\BaseTestCase {
 			update_option( 'wpcom_ai_launchpad_dismissed', true );
 		}
 		if ( $no_guidance ) {
-			update_option( 'wpcom_launchpad_no_guidance', true );
+			update_option( 'wpcom_ai_launchpad_no_guidance', true );
 		}
 
 		$this->assertSame( $expected, AI_Launchpad::is_eligible() );

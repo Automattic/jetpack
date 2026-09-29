@@ -5,7 +5,7 @@
  * Lets a tester turn the AI Launchpad on (and reset its state) for a site straight from the browser.
  *
  * Recognized query args (on any admin page, for a `manage_options` user):
- *   ?enable-ai-launchpad=1  Set wpcom_ai_launchpad_enabled to 1 (and clear wpcom_launchpad_no_guidance).
+ *   ?enable-ai-launchpad=1  Set wpcom_ai_launchpad_enabled to 1 (and clear wpcom_ai_launchpad_no_guidance).
  *   ?enable-ai-launchpad=0  Delete wpcom_ai_launchpad_enabled (turn back off).
  *   ?reset-ai-launchpad=1   Clear the wizard / AI-output / dismissed / skipped / task-status options so the wizard runs fresh.
  *
@@ -112,7 +112,7 @@ class AI_Launchpad_Dev_Enable {
 			} else {
 				update_option( self::OPTION_ENABLED, 1 );
 				// No-guidance would otherwise win over the flag just set.
-				delete_option( 'wpcom_launchpad_no_guidance' );
+				delete_option( 'wpcom_ai_launchpad_no_guidance' );
 			}
 		}
 

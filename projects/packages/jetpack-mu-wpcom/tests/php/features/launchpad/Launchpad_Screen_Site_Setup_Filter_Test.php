@@ -23,7 +23,7 @@ class Launchpad_Screen_Site_Setup_Filter_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_no_guidance_forces_off() {
-		update_option( 'wpcom_launchpad_no_guidance', 1 );
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
 		$this->assertSame( 'off', wpcom_maybe_disable_launchpad_screen_for_site_setup( 'full' ) );
 	}
 
@@ -32,7 +32,7 @@ class Launchpad_Screen_Site_Setup_Filter_Test extends \WorDBless\BaseTestCase {
 	}
 
 	public function test_false_passes_through() {
-		update_option( 'wpcom_launchpad_no_guidance', 1 );
+		update_option( 'wpcom_ai_launchpad_no_guidance', 1 );
 		$this->assertFalse( wpcom_maybe_disable_launchpad_screen_for_site_setup( false ) );
 	}
 }
