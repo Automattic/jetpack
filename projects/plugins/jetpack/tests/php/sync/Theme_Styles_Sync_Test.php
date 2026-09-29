@@ -6,6 +6,7 @@
  */
 
 use Automattic\Jetpack\Plugin\Theme_Styles_Sync;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -249,13 +250,44 @@ class Theme_Styles_Sync_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Core's schema leaves `settings.color.palette` untouched when it is not an array, and the
-	 * WP_Theme_JSON constructor origin-keys it anyway -- so a scalar reaches the flattening.
+	 * Core's schema leaves a preset list untouched when it is not an array, and its constructor
+	 * only origin-keys a scalar when `isset( $preset[0] ) || empty( $preset )` -- so a boolean or
+	 * a number arrives bare rather than wrapped in an origin.
+	 *
+	 * @dataProvider provide_non_array_presets
 	 */
-	public function test_survives_a_palette_that_is_not_an_array() {
-		$this->replacing_theme_json( array( 'settings' => array( 'color' => array( 'palette' => 'oops' ) ) ) );
+	#[DataProvider( 'provide_non_array_presets' )]
+	public function test_survives_a_palette_that_is_not_an_array( $palette ) {
+		$this->replacing_theme_json( array( 'settings' => array( 'color' => array( 'palette' => $palette ) ) ) );
 
 		$this->assertSame( array(), $this->slice()['settings']['color']['palette'] );
+	}
+
+	/**
+	 * @dataProvider provide_bare_scalar_presets
+	 */
+	#[DataProvider( 'provide_bare_scalar_presets' )]
+	public function test_drops_a_font_size_preset_that_is_not_an_array( $sizes ) {
+		$this->replacing_theme_json( array( 'settings' => array( 'typography' => array( 'fontSizes' => $sizes ) ) ) );
+
+		$this->assertArrayNotHasKey( 'typography', $this->slice()['settings'] );
+	}
+
+	public static function provide_non_array_presets() {
+		return array_merge(
+			array( 'string' => array( 'oops' ) ),
+			self::provide_bare_scalar_presets()
+		);
+	}
+
+	/**
+	 * Kept apart from the string case, which trips a `foreach()` warning inside core itself.
+	 */
+	public static function provide_bare_scalar_presets() {
+		return array(
+			'boolean' => array( true ),
+			'integer' => array( 5 ),
+		);
 	}
 
 	public function test_refuses_a_payload_over_the_size_cap() {

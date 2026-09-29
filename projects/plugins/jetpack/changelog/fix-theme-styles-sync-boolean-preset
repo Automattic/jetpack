@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: fix a fatal error on sites whose theme.json declares a boolean or a number where a list of presets belongs.

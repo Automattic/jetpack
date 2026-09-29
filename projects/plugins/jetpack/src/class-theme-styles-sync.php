@@ -197,14 +197,18 @@ class Theme_Styles_Sync {
 	/**
 	 * Flatten an origin-keyed preset list into the flat list `WP_Theme_JSON` expects for one origin.
 	 *
-	 * Each origin is checked rather than assumed: core's schema leaves a non-array preset list
-	 * untouched and the `WP_Theme_JSON` constructor origin-keys it anyway, so a theme.json
-	 * declaring a scalar there reaches this with a string where a list belongs.
+	 * Nothing here is assumed about the shape: core's schema leaves a non-array preset list
+	 * untouched, and its constructor only origin-keys a scalar when `isset( $preset[0] ) || empty(
+	 * $preset )`, so a theme.json declaring `true` or a number reaches this as that bare scalar.
 	 *
-	 * @param array $presets Preset list that may be origin-keyed or already flat.
+	 * @param mixed $presets Preset list that may be origin-keyed, already flat, or not a list.
 	 * @return array
 	 */
-	private static function flatten_presets( array $presets ) {
+	private static function flatten_presets( $presets ) {
+		if ( ! is_array( $presets ) ) {
+			return array();
+		}
+
 		if ( empty( $presets ) || isset( $presets[0] ) ) {
 			return $presets;
 		}
