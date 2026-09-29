@@ -2,7 +2,13 @@ import { Button, Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { BLOCK_CLASS } from './constants';
 
-export const UserConnectedPlaceholder = ( { icon, notices, connectURL, apiCall } ) => (
+export const UserConnectedPlaceholder = ( {
+	icon,
+	notices,
+	connectURL,
+	onRecheck,
+	isRechecking,
+} ) => (
 	<Placeholder
 		className={ BLOCK_CLASS }
 		icon={ icon }
@@ -17,8 +23,18 @@ export const UserConnectedPlaceholder = ( { icon, notices, connectURL, apiCall }
 			<span>{ __( 'Set up Mailchimp form', 'jetpack' ) }</span>
 		</Button>
 		<div className={ `${ BLOCK_CLASS }-recheck` }>
-			<Button variant="link" onClick={ apiCall }>
-				<span>{ __( 'Re-check Connection', 'jetpack' ) }</span>
+			<Button
+				variant="link"
+				onClick={ onRecheck }
+				isBusy={ isRechecking }
+				disabled={ isRechecking }
+				accessibleWhenDisabled
+			>
+				<span>
+					{ isRechecking
+						? __( 'Checking connection…', 'jetpack' )
+						: __( 'Re-check Connection', 'jetpack' ) }
+				</span>
 			</Button>
 		</div>
 	</Placeholder>
