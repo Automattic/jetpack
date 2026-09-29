@@ -470,6 +470,21 @@ describe( 'LocationsReportPage', () => {
 			expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'AU' } ) ] );
 		} );
 
+		it( 'leaves out a row whose country code is not a code', () => {
+			mockTabState( 'cities' );
+			mockRecords( {
+				table: {
+					rows: [ row, { ...row, id: 'unknown', label: 'Unknown', countryCode: '-' } ],
+					isLoading: false,
+					isFetching: false,
+				},
+			} );
+
+			render( <LocationsReportPage /> );
+
+			expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'AU' } ) ] );
+		} );
+
 		it( 'scopes the map to the picked country', () => {
 			mockTabState( 'regions' );
 			mockRecords();

@@ -15,6 +15,20 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
+const COMMENT = {
+	ID: 101,
+	author: { name: 'Olivia Park' },
+	URL: 'https://example.com/post/#comment-101',
+	date: new Date().toISOString(),
+};
+
+/** Answers the comments request from `replies` and the post stats request from `post`. */
+function mockEndpoints( replies: jest.Mock, post: Record< string, unknown > ) {
+	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+		path.includes( '/replies' ) ? replies() : Promise.resolve( { post } )
+	);
+}
+
 function renderWidget( postId: number ) {
 	return render(
 		<PostCommentsWidget
@@ -84,19 +98,11 @@ describe( 'PostCommentsWidget', () => {
 	} );
 
 	it( 'keeps existing comments visible when a background refetch fails', async () => {
-		mockApiFetch
-			.mockResolvedValueOnce( {
-				found: 1,
-				comments: [
-					{
-						ID: 101,
-						author: { name: 'Olivia Park' },
-						URL: 'https://example.com/post/#comment-101',
-						date: new Date().toISOString(),
-					},
-				],
-			} )
+		const replies = jest
+			.fn()
+			.mockResolvedValueOnce( { found: 1, comments: [ COMMENT ] } )
 			.mockRejectedValueOnce( { status: 403 } );
+		mockEndpoints( replies, {} );
 
 		renderWidget( 779 );
 
@@ -108,10 +114,32 @@ describe( 'PostCommentsWidget', () => {
 			await queryClient.invalidateQueries( { queryKey: [ 'stats', 'post-comments' ] } );
 		} );
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
+		await waitFor( () => expect( replies ).toHaveBeenCalledTimes( 2 ) );
 		expect( screen.getByRole( 'link', { name: /Olivia Park/ } ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( "We couldn't load these comments. Please try again in a moment." )
 		).not.toBeInTheDocument();
+	} );
+
+	it( 'takes the total from the post when the comments request cannot count them', async () => {
+		mockEndpoints( jest.fn().mockResolvedValue( { found: -1, comments: [ COMMENT ] } ), {
+			comment_count: 30,
+		} );
+
+		renderWidget( 779 );
+
+		await expect( screen.findByText( '29 more' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'shows no remaining count when the total is unknown', async () => {
+		mockEndpoints( jest.fn().mockResolvedValue( { found: -1, comments: [ COMMENT ] } ), {} );
+
+		renderWidget( 779 );
+
+		await expect(
+			screen.findByRole( 'link', { name: /Olivia Park/ } )
+		).resolves.toBeInTheDocument();
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
+		expect( screen.queryByText( /more$/ ) ).not.toBeInTheDocument();
 	} );
 } );

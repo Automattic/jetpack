@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import { isCountryCode } from '@jetpack-premium-analytics/data';
+import { __ } from '@wordpress/i18n';
 import type { LocationRow } from './fields';
 import type { StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
 
@@ -23,7 +25,11 @@ export function buildLocationRows(
 			id: `${ item.countryCode ?? '' }:${ label }`,
 			label,
 			countryCode: item.countryCode,
-			countryFull: item.countryFull ?? item.countryCode ?? '',
+			countryFull:
+				item.countryFull ??
+				( isCountryCode( item.countryCode )
+					? item.countryCode
+					: __( 'Unknown', 'jetpack-premium-analytics-pkg' ) ),
 			views: item.views,
 			previousViews: item.previousViews,
 			coordinates: item.coordinates,

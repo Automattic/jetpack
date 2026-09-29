@@ -17,8 +17,8 @@ export type StatsPostComment = {
 };
 
 export type StatsPostCommentsResponse = {
-	/** Total approved comments on the post (the list itself is capped by `number`). */
-	found: number;
+	/** Total approved comments on the post, or `null` when the endpoint could not count them. */
+	found: number | null;
 	comments: StatsPostComment[];
 };
 
@@ -51,15 +51,26 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 	];
 }
 
+/** The endpoint sends `-1` when it did not count (every typed request), which is not zero. */
+function readFound( value: unknown ): number | null {
+	if ( value === undefined || value === null ) {
+		return null;
+	}
+
+	const found = safeParseFloat( value, -1 );
+
+	return found >= 0 ? found : null;
+}
+
 export function sanitizeStatsPostCommentsResponse( response: unknown ): StatsPostCommentsResponse {
 	if ( ! isStatsRecord( response ) ) {
-		return { found: 0, comments: [] };
+		return { found: null, comments: [] };
 	}
 
 	const payload = coerceStatsRecord( response );
 
 	return {
-		found: safeParseFloat( payload.found ),
+		found: readFound( payload.found ),
 		comments: coerceStatsArray( payload.comments ).flatMap( normalizeStatsPostComment ),
 	};
 }

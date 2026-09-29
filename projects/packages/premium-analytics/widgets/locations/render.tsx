@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isCountryCode, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
 	LocationsGeoChart,
@@ -93,13 +93,15 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	const geoRows = useMemo(
 		(): LocationsGeoRow[] =>
-			data.map( location => ( {
-				label: location.label,
-				value: location.value,
-				countryCode: location.countryCode,
-				countryFull: location.countryFull,
-				coordinates: location.coordinates,
-			} ) ),
+			data
+				.filter( location => isCountryCode( location.countryCode ) )
+				.map( location => ( {
+					label: location.label,
+					value: location.value,
+					countryCode: location.countryCode,
+					countryFull: location.countryFull,
+					coordinates: location.coordinates,
+				} ) ),
 		[ data ]
 	);
 

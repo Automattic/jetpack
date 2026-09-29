@@ -1,4 +1,4 @@
-import { sanitizeStatsLocationsResponse } from '..';
+import { isCountryCode, sanitizeStatsLocationsResponse } from '..';
 import {
 	locationsCitySummaryFixture,
 	locationsFixture,
@@ -150,5 +150,35 @@ describe( 'Stats locations normalizer', () => {
 		);
 
 		expect( result.data[ 0 ].items[ 0 ].coordinates ).toBeUndefined();
+	} );
+
+	it( 'labels a country with no name Unknown and keeps its views', () => {
+		const result = sanitizeStatsLocationsResponse(
+			{
+				date: '2026-06-16',
+				days: {
+					'2026-06-16': {
+						views: [
+							{ location: false, views: 40, country_code: 'AP' },
+							{ location: '-', views: 3, country_code: '-' },
+							{ views: 2, country_code: '' },
+						],
+					},
+				},
+				'country-info': { AP: { country_full: false, map_region: '' } },
+			},
+			{ period: 'day', end_date: '2026-06-16' }
+		);
+
+		expect( result.data[ 0 ].items.map( item => [ item.label, item.views ] ) ).toEqual( [
+			[ 'Unknown', 40 ],
+			[ 'Unknown', 3 ],
+			[ 'Unknown', 2 ],
+		] );
+	} );
+
+	it( 'accepts only two-letter codes as country codes', () => {
+		expect( isCountryCode( 'US' ) ).toBe( true );
+		expect( [ '-', '', 'USA', undefined, false ].some( isCountryCode ) ).toBe( false );
 	} );
 } );

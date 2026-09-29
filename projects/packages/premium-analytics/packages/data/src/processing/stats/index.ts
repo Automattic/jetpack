@@ -41,7 +41,11 @@ export {
 } from './file-downloads';
 export { mergeStatsTopAuthorsComparisonRows, sanitizeStatsTopAuthorsResponse } from './top-authors';
 export { sanitizeStatsHighlightsResponse } from './highlights';
-export { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from './locations';
+export {
+	isCountryCode,
+	mergeStatsLocationsComparisonRows,
+	sanitizeStatsLocationsResponse,
+} from './locations';
 export { mergeStatsVideoPlaysComparisonRows, sanitizeStatsVideoPlaysResponse } from './video-plays';
 export {
 	isStatsTimeSeriesPayload,

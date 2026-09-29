@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
+import { isCountryCode, usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -163,7 +163,9 @@ export default function LocationsReportPage(): JSX.Element {
 	const geoRows = useMemo(
 		(): LocationsGeoRow[] =>
 			records.table.rows
-				.filter( ( row ): row is LocationRow & { countryCode: string } => !! row.countryCode )
+				.filter( ( row ): row is LocationRow & { countryCode: string } =>
+					isCountryCode( row.countryCode )
+				)
 				.map( row => ( {
 					label: row.label,
 					value: row.views,

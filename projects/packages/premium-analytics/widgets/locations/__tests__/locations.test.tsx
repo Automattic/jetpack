@@ -187,4 +187,35 @@ describe( 'LocationsWidget', () => {
 			expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
 		);
 	} );
+	it( 'lists a row whose country code is not a code but keeps it off the map', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			data: [
+				{
+					key: 'US:United States',
+					label: 'United States',
+					countryCode: 'US',
+					countryFull: 'United States',
+					value: 10,
+					region: '',
+				},
+				{
+					key: '-:Unknown',
+					label: 'Unknown',
+					countryCode: '-',
+					countryFull: '-',
+					value: 4,
+					region: '',
+				},
+			],
+			isLoading: false,
+			isFetching: false,
+			hasData: true,
+		} );
+
+		render( <LocationsWidget attributes={ {} } /> );
+
+		expect( screen.getByText( 'Unknown' ) ).toBeInTheDocument();
+		expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'US' } ) ] );
+	} );
 } );

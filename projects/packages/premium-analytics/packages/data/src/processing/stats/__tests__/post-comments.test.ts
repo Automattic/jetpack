@@ -39,12 +39,22 @@ describe( 'sanitizeStatsPostCommentsResponse', () => {
 
 	it( 'returns an empty result for missing or invalid payloads', () => {
 		expect( sanitizeStatsPostCommentsResponse( null ) ).toEqual( {
-			found: 0,
+			found: null,
 			comments: [],
 		} );
 		expect( sanitizeStatsPostCommentsResponse( [] ) ).toEqual( {
-			found: 0,
+			found: null,
 			comments: [],
 		} );
+	} );
+
+	it( 'reads a -1 or missing total as unknown, not as a count', () => {
+		expect( sanitizeStatsPostCommentsResponse( { found: -1, comments: [] } ).found ).toBeNull();
+		expect( sanitizeStatsPostCommentsResponse( { found: '-1', comments: [] } ).found ).toBeNull();
+		expect( sanitizeStatsPostCommentsResponse( { comments: [] } ).found ).toBeNull();
+	} );
+
+	it( 'keeps a real total of zero', () => {
+		expect( sanitizeStatsPostCommentsResponse( { found: 0, comments: [] } ).found ).toBe( 0 );
 	} );
 } );

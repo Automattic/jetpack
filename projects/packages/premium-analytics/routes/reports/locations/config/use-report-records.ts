@@ -1,7 +1,11 @@
 /**
  * External dependencies
  */
-import { useStatsLocations, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	isCountryCode,
+	useStatsLocations,
+	type ReportParams,
+} from '@jetpack-premium-analytics/data';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
@@ -75,7 +79,9 @@ export function useLocationsReportRecords(
 	const countryOptions = useMemo(
 		(): LocationsCountryOption[] =>
 			buildLocationRows( countries.comparisonRows?.rows )
-				.filter( ( row ): row is typeof row & { countryCode: string } => !! row.countryCode )
+				.filter( ( row ): row is typeof row & { countryCode: string } =>
+					isCountryCode( row.countryCode )
+				)
 				.sort( ( a, b ) => b.views - a.views )
 				.map( row => ( { code: row.countryCode, label: row.countryFull || row.label } ) ),
 		[ countries.comparisonRows ]

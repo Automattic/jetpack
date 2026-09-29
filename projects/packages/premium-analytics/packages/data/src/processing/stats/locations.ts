@@ -1,3 +1,4 @@
+import { __ } from '@wordpress/i18n';
 import { safeParseFloat } from '../../utils/parsing';
 import {
 	createStatsDataPoint,
@@ -47,6 +48,14 @@ function parseCoordinates( value: unknown ): StatsLocationCoordinates | undefine
 	return { latitude, longitude };
 }
 
+/**
+ * Whether a value is a country code that can be placed on the map or filtered on.
+ * The endpoint sends `-` for a failed IP lookup and `''` for a missing code.
+ */
+export function isCountryCode( code: unknown ): code is string {
+	return typeof code === 'string' && /^[A-Za-z]{2}$/.test( code );
+}
+
 function getLocationKey( item: StatsLocationsItem ): string | null {
 	if ( ! item.countryCode ) {
 		return null;
@@ -67,10 +76,12 @@ export function sanitizeStatsLocationsResponse(
 		const country = coerceStatsRecord(
 			typeof item.country_code === 'string' ? countryInfo[ item.country_code ] : undefined
 		);
-		const label = item.location ?? country.country_full ?? item.country_code ?? '';
+		const name = item.location ?? country.country_full ?? item.country_code;
+		// The endpoint sends `false` for a country with no CLDR name; `??` lets that through.
+		const isNamed = typeof name === 'string' && name.trim() !== '' && name !== '-';
 
 		return {
-			label: typeof label === 'string' ? label.replace( /’/g, "'" ) : label,
+			label: isNamed ? name.replace( /’/g, "'" ) : __( 'Unknown', 'jetpack-premium-analytics-pkg' ),
 			views: safeParseFloat( item.views ),
 			countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
 			countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,

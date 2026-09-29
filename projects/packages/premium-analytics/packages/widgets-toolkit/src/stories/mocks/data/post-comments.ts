@@ -1,7 +1,7 @@
 /**
  * Fixture for the proxied `posts/{id}/replies` endpoint (v1.1): the scoped
  * post's approved comments, most recent first. `found` exceeds the rows so the
- * widget's "N more" footer renders in stories.
+ * "N more" footer renders in stories; typed requests really return `-1`.
  */
 
 import { subMinutes } from 'date-fns';
