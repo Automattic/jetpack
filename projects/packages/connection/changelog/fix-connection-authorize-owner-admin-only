@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Only let a user who can set up the site connection (`jetpack_connect`) become the connection owner when authorizing while the owner slot is vacant; other users link as secondary users.

@@ -69,7 +69,7 @@ function is_dashboard_store_section_enabled() {
  * No-op kept for older copies of the package, whose dashboard-sections.php calls it after
  * skipping its include of this file.
  *
- * @deprecated $$next-version$$ The preview scope it opened is gone.
+ * @deprecated 0.10.0 The preview scope it opened is gone.
  *
  * @return bool
  */
