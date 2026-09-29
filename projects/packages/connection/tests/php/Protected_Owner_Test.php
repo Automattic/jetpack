@@ -32,6 +32,8 @@ class Protected_Owner_Test extends TestCase {
 
 	const BYSTANDER_WPCOM_ID = 7777;
 
+	const BLOG_ID = 1234;
+
 	/**
 	 * Administrator standing in as the connection owner.
 	 *
@@ -47,11 +49,11 @@ class Protected_Owner_Test extends TestCase {
 	private $caps_manager;
 
 	/**
-	 * XML-RPC answers this test added, removed in `tearDown()` whether or not they were used.
+	 * WordPress.com answers this test added, removed in `tearDown()` whether or not they were used.
 	 *
 	 * @var callable[]
 	 */
-	private $xmlrpc_answers = array();
+	private $wpcom_answers = array();
 
 	/**
 	 * Initialize the testing environment.
@@ -82,7 +84,7 @@ class Protected_Owner_Test extends TestCase {
 		wp_set_current_user( 0 );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 		remove_all_filters( 'jetpack_connection_ownership_transferable' );
-		foreach ( $this->xmlrpc_answers as $answer ) {
+		foreach ( $this->wpcom_answers as $answer ) {
 			remove_filter( 'pre_http_request', $answer, 10 );
 		}
 		WorDBless_Users::init()->clear_all_users();
@@ -816,27 +818,32 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * Answer the next XML-RPC request from WordPress.com, and keep the request that was sent.
+	 * Answer the next WordPress.com request, and keep the request that was sent.
 	 *
-	 * @param string $inner The `<params>` or `<fault>` element of the response.
-	 * @return \stdClass Filled in with the request's `url` and `body` once it is sent.
+	 * Matched on the host rather than the path, so a wrong path is still intercepted and fails an
+	 * assertion instead of leaving the suite to make a real request.
+	 *
+	 * @param array|null $record The JSON body to answer with, or null for no body at all.
+	 * @param int        $code   The HTTP status to answer with.
+	 * @return \stdClass Filled in with the request's `url`, `method` and `body` once it is sent.
 	 */
-	private function answer_xmlrpc( $inner ) {
+	private function answer_wpcom( $record, $code = 200 ) {
 		$sent = new \stdClass();
 
-		$answer = static function ( $response, $args, $url ) use ( $inner, $sent ) {
-			if ( false === strpos( $url, 'xmlrpc.php' ) ) {
+		$answer = static function ( $response, $args, $url ) use ( $record, $code, $sent ) {
+			if ( false === strpos( $url, 'public-api.wordpress.com' ) ) {
 				return $response;
 			}
 
-			$sent->url  = $url;
-			$sent->body = $args['body'];
+			$sent->url    = $url;
+			$sent->method = $args['method'] ?? '';
+			$sent->body   = $args['body'] ?? null;
 
 			return array(
 				'headers'  => array(),
-				'body'     => '<?xml version="1.0"?><methodResponse>' . $inner . '</methodResponse>',
+				'body'     => null === $record ? '' : wp_json_encode( $record, JSON_UNESCAPED_SLASHES ),
 				'response' => array(
-					'code'    => 200,
+					'code'    => $code,
 					'message' => 'OK',
 				),
 				'cookies'  => array(),
@@ -844,63 +851,120 @@ class Protected_Owner_Test extends TestCase {
 			);
 		};
 
-		$this->xmlrpc_answers[] = $answer;
+		$this->wpcom_answers[] = $answer;
 		add_filter( 'pre_http_request', $answer, 10, 3 );
 
 		return $sent;
 	}
 
 	/**
-	 * Give the owner the blog and user tokens a signed request needs.
+	 * Give the owner the site ID and the blog and user tokens a signed request needs.
 	 */
 	private function connect_the_owner() {
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
 		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
 		Jetpack_Options::update_option( 'user_tokens', array( $this->owner_id => 'ownerkey.private.' . $this->owner_id ) );
 	}
 
 	/**
-	 * The claim goes out as a signed XML-RPC call, and an accepted answer is anchored.
+	 * The REST resource both contracts call, as it appears in a request URL.
+	 *
+	 * @return string
 	 */
-	public function test_set_protected_owner_claims_over_xmlrpc() {
+	private function protected_owner_url() {
+		return 'https://public-api.wordpress.com/wpcom/v2/sites/' . self::BLOG_ID . '/jetpack-protected-owner';
+	}
+
+	/**
+	 * A request URL with the signature arguments dropped, so an assertion sees only what the
+	 * caller put there. They land in the query string when no auth location is configured.
+	 *
+	 * @param string $url The URL the request went to.
+	 * @return string
+	 */
+	private function without_signature( $url ) {
+		return remove_query_arg( array( 'token', 'timestamp', 'nonce', 'body-hash', 'signature' ), $url );
+	}
+
+	/**
+	 * The claim goes out as a signed POST to this site's resource, and an accepted answer is
+	 * anchored. Every other test here stubs the call, so a wrong route would reach production
+	 * unnoticed.
+	 */
+	public function test_set_protected_owner_claims_over_rest() {
 		$this->act_as_administrator();
 		$this->connect_the_owner();
 
-		$sent = $this->answer_xmlrpc(
-			'<params><param><value><struct>' .
-			'<member><name>status</name><value><string>recorded</string></value></member>' .
-			'<member><name>wpcom_user_id</name><value><int>' . self::ANCHORED_WPCOM_ID . '</int></value></member>' .
-			'</struct></value></param></params>'
+		$sent = $this->answer_wpcom(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::ANCHORED_WPCOM_ID,
+			)
 		);
 
 		$this->assertTrue( ( new Manager() )->set_protected_owner( $this->owner_id ) );
 
-		$this->assertStringContainsString( '<methodName>jetpack.assertProtectedOwner</methodName>', $sent->body );
-		$this->assertStringNotContainsString( 'confirmed_by', $sent->body );
+		$this->assertSame( $this->protected_owner_url(), $this->without_signature( $sent->url ) );
+		$this->assertSame( 'POST', $sent->method );
+
+		// The claimed identity comes from the signature, so a claim that named one would let a
+		// caller anchor somebody else.
+		$this->assertEmpty( $sent->body );
+		$this->assertStringNotContainsString( 'wpcom_user_id', $sent->url );
 
 		$anchor = (array) Protected_Owner::get();
 		$this->assertSame( self::ANCHORED_WPCOM_ID, $anchor['wpcom_user_id'] ?? null );
 	}
 
 	/**
-	 * A fault is no answer, so nothing is anchored.
+	 * A WordPress.com that does not implement the route is no answer, so nothing is anchored.
+	 *
+	 * @dataProvider unanswered_statuses
+	 *
+	 * @param int $code The HTTP status WordPress.com answered with.
 	 */
-	public function test_set_protected_owner_fails_closed_on_an_xmlrpc_fault() {
+	#[DataProvider( 'unanswered_statuses' )]
+	public function test_set_protected_owner_fails_closed_on_a_non_200( $code ) {
 		$this->act_as_administrator();
 		$this->connect_the_owner();
 
-		$sent = $this->answer_xmlrpc(
-			'<fault><value><struct>' .
-			'<member><name>faultCode</name><value><int>-32601</int></value></member>' .
-			'<member><name>faultString</name><value><string>server error. requested method does not exist.</string></value></member>' .
-			'</struct></value></fault>'
-		);
+		$sent = $this->answer_wpcom( array( 'status' => 'recorded' ), $code );
 
 		$result = ( new Manager() )->set_protected_owner( $this->owner_id );
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
 		$this->assertNull( Protected_Owner::get() );
-		$this->assertNotEmpty( $sent->body ?? null, 'The claim never went out, so the fault was not what refused it.' );
+		$this->assertNotEmpty( $sent->url ?? null, 'The claim never went out, so the status was not what refused it.' );
+	}
+
+	/**
+	 * A 200 carrying nothing is not a record either, so nothing is anchored.
+	 */
+	public function test_set_protected_owner_fails_closed_on_an_empty_answer() {
+		$this->act_as_administrator();
+		$this->connect_the_owner();
+
+		$this->answer_wpcom( null );
+
+		$result = ( new Manager() )->set_protected_owner( $this->owner_id );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_unconfirmed', $result->get_error_code() );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * Statuses that carry a body but are not an answer.
+	 *
+	 * @return array
+	 */
+	public static function unanswered_statuses() {
+		return array(
+			'not implemented' => array( 404 ),
+			'refused'         => array( 403 ),
+			'server error'    => array( 500 ),
+		);
 	}
 
 	/**
@@ -1444,28 +1508,29 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * The reconcile goes out as a signed XML-RPC call carrying the anchored identity.
+	 * The reconcile goes out as a signed call to this site's resource, carrying the anchored
+	 * identity so the answer confirms rather than discloses.
 	 *
-	 * Every other test here stubs the lookup, so a wrong method name or payload key would reach
+	 * Every other test here stubs the lookup, so a wrong route or payload key would reach
 	 * production unnoticed.
 	 */
-	public function test_reconcile_asks_wpcom_over_xmlrpc() {
+	public function test_reconcile_asks_wpcom_over_rest() {
 		$this->act_as_administrator();
 		$this->connect_the_owner();
 		$this->anchor();
 
-		$sent = $this->answer_xmlrpc(
-			'<params><param><value><struct>' .
-			'<member><name>has_owner</name><value><boolean>1</boolean></value></member>' .
-			'<member><name>matches</name><value><boolean>1</boolean></value></member>' .
-			'</struct></value></param></params>'
+		$sent = $this->answer_wpcom(
+			array(
+				'has_owner' => true,
+				'matches'   => true,
+			)
 		);
 
 		$this->assertTrue( ( new Manager() )->reconcile_protected_owner() );
 
-		$this->assertStringContainsString( '<methodName>jetpack.reconcileProtectedOwner</methodName>', $sent->body );
-		$this->assertStringContainsString( '<name>anchored_wpcom_user_id</name>', $sent->body );
-		$this->assertStringContainsString( '<int>' . self::ANCHORED_WPCOM_ID . '</int>', $sent->body );
+		$this->assertSame( $this->protected_owner_url() . '/reconcile', $this->without_signature( $sent->url ) );
+		$this->assertSame( 'POST', $sent->method );
+		$this->assertSame( '{"anchored_wpcom_user_id":' . self::ANCHORED_WPCOM_ID . '}', $sent->body );
 	}
 
 	/**
