@@ -62,10 +62,10 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 		...( offersSettings ? [ 'settings' as const ] : [] ),
 	];
 	const requestedDrawer = offeredDrawers.find( id => search[ id ] !== undefined ) ?? null;
-	const [ openDrawer, setOpenDrawer ] = useState< DrawerId | null >( requestedDrawer );
-	const [ usageSource, setUsageSource ] = useState< UsageDrawerSource >(
-		requestedDrawer === 'usage' ? 'url' : 'menu'
-	);
+	// A drawer picked from the menu wins; otherwise the URL decides, so a link followed on this page opens it too.
+	const [ menuDrawer, setMenuDrawer ] = useState< DrawerId | null >( null );
+	const openDrawer = menuDrawer ?? requestedDrawer;
+	const usageSource: UsageDrawerSource = menuDrawer === 'usage' ? 'menu' : 'url';
 
 	const openFeedback = useCallback( () => {
 		trackEvent( 'jetpack_premium_analytics_feedback_open', { source: 'menu' } );
@@ -75,26 +75,23 @@ export function PageOptionsMenu( { onCustomize }: PageOptionsMenuProps ) {
 	const closeFeedback = useCallback( () => setIsFeedbackOpen( false ), [] );
 	const openSwitchOff = useCallback( () => setIsSwitchOffOpen( true ), [] );
 	const closeSwitchOff = useCallback( () => setIsSwitchOffOpen( false ), [] );
-	const openUsage = useCallback( () => {
-		setUsageSource( 'menu' );
-		setOpenDrawer( 'usage' );
-	}, [] );
-	const openSettings = useCallback( () => setOpenDrawer( 'settings' ), [] );
+	const openUsage = useCallback( () => setMenuDrawer( 'usage' ), [] );
+	const openSettings = useCallback( () => setMenuDrawer( 'settings' ), [] );
 	const closeDrawer = useCallback( () => {
-		setOpenDrawer( null );
-		// A reload or Back would open the drawer again while the param stays.
-		if ( requestedDrawer ) {
+		setMenuDrawer( null );
+		// A reload or Back would open the drawer again while its param stays.
+		if ( openDrawer && search[ openDrawer ] !== undefined ) {
 			navigate( {
 				replace: true,
 				// Without a route to read it from, TanStack types the reducer's result as `never`.
 				search: ( ( current: Record< string, unknown > ) => {
 					const rest = { ...current };
-					delete rest[ requestedDrawer ];
+					delete rest[ openDrawer ];
 					return rest;
 				} ) as never,
 			} );
 		}
-	}, [ requestedDrawer, navigate ] );
+	}, [ openDrawer, search, navigate ] );
 
 	return (
 		<>

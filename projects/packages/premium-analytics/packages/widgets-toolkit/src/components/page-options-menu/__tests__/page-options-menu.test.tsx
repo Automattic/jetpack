@@ -685,9 +685,10 @@ describe( 'the usage', () => {
 		await expect(
 			within( screen.getByRole( 'dialog', { name: 'Usage' } ) ).findByText( '6,200 / 10,000 views' )
 		).resolves.toBeInTheDocument();
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_usage_open', {
-			source: 'menu',
-		} );
+		expect( mockRecordEvent.mock.calls ).toContainEqual( [
+			'jetpack_premium_analytics_usage_open',
+			{ source: 'menu' },
+		] );
 	} );
 
 	it( 'opens from `?usage` in the URL, and reports the URL as the source', async () => {
@@ -695,9 +696,36 @@ describe( 'the usage', () => {
 		render( <PageOptionsMenu /> );
 
 		await expect( screen.findByRole( 'dialog', { name: 'Usage' } ) ).resolves.toBeInTheDocument();
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_usage_open', {
-			source: 'url',
-		} );
+		expect( mockRecordEvent.mock.calls ).toContainEqual( [
+			'jetpack_premium_analytics_usage_open',
+			{ source: 'url' },
+		] );
+	} );
+
+	it( 'opens when a link on the same page adds `?usage`', async () => {
+		const { rerender } = render( <PageOptionsMenu /> );
+
+		mockSearch.mockReturnValue( { usage: '1' } );
+		rerender( <PageOptionsMenu /> );
+
+		await expect( screen.findByRole( 'dialog', { name: 'Usage' } ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( "keeps another drawer's param when Usage opened from the menu closes", async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const { rerender } = render( <PageOptionsMenu /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Page options' } ) );
+		await user.click( await screen.findByRole( 'menuitem', { name: 'Usage' } ) );
+		mockSearch.mockReturnValue( { settings: '1' } );
+		rerender( <PageOptionsMenu /> );
+		await user.click(
+			within( await screen.findByRole( 'dialog', { name: 'Usage' } ) ).getByRole( 'button', {
+				name: 'Close',
+			} )
+		);
+
+		expect( mockNavigate ).not.toHaveBeenCalled();
 	} );
 
 	it( 'is not offered while its flag is off', async () => {
