@@ -157,7 +157,7 @@ describe( 'SettingsDrawer', () => {
 		const user = showDrawer();
 
 		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
 		act( () => {
 			queryClient.setQueryData( [ 'stats', 'settings' ], {
@@ -201,7 +201,7 @@ describe( 'SettingsDrawer', () => {
 		const user = showDrawer( onClose );
 
 		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
@@ -219,7 +219,7 @@ describe( 'SettingsDrawer', () => {
 		showDrawer();
 
 		await expect(
-			screen.findByRole( 'link', { name: 'Go to Jetpack modules' } )
+			screen.findByRole( 'link', { name: 'Jetpack modules' } )
 		).resolves.toHaveAttribute( 'href', '/wp-admin/admin.php?page=jetpack_modules' );
 	} );
 
@@ -235,7 +235,7 @@ describe( 'SettingsDrawer', () => {
 	it( 'drops unsaved changes when closed and opened again', async () => {
 		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const { rerender } = render( <SettingsDrawer open onClose={ () => {} } /> );
-		const toggleName = { name: 'Include a small chart in the admin bar' };
+		const toggleName = { name: 'Include a small chart in admin bar' };
 
 		await user.click( await screen.findByRole( 'checkbox', toggleName ) );
 		expect( screen.getByRole( 'checkbox', toggleName ) ).not.toBeChecked();
@@ -255,7 +255,7 @@ describe( 'SettingsDrawer', () => {
 		const user = showDrawer( onClose );
 
 		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 		await expect( screen.findByRole( 'button', { name: 'Saving…' } ) ).resolves.toBeInTheDocument();
@@ -274,7 +274,7 @@ describe( 'SettingsDrawer', () => {
 		const user = showDrawer( onClose );
 
 		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 
@@ -295,7 +295,7 @@ describe( 'SettingsDrawer', () => {
 		const user = showDrawer();
 
 		await user.click(
-			await screen.findByRole( 'checkbox', { name: 'Include a small chart in the admin bar' } )
+			await screen.findByRole( 'checkbox', { name: 'Include a small chart in admin bar' } )
 		);
 		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 

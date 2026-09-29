@@ -26,6 +26,7 @@
 		"@wordpress/components": "40.1.0",
 		"@wordpress/compose": "8.8.0",
 		"@wordpress/data": "10.55.0",
+		"@wordpress/element": "8.7.0",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^16.0.0",
 		"@wordpress/preferences": "4.55.0",

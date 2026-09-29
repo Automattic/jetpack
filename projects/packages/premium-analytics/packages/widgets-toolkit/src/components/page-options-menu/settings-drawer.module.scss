@@ -2,3 +2,7 @@
 	// Starts below the wp-admin toolbar, which sits above the drawer.
 	inset-block-start: var(--wp-admin--admin-bar--height, 0);
 }
+
+.divider {
+	border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+}

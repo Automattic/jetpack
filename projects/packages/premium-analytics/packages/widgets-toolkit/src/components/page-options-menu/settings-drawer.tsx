@@ -18,14 +18,17 @@ import {
 } from '@jetpack-premium-analytics/externals';
 import { Spinner, ToggleControl } from '@wordpress/components';
 import { useRegistry } from '@wordpress/data';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
-import { useCallback, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useId, useMemo, useState, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */
 import { useTrackEvent } from '../../hooks/use-track-event';
 import { RoleSelect } from './role-select';
 import styles from './settings-drawer.module.scss';
+
+const STATS_SUPPORT_URL = 'https://jetpack.com/support/jetpack-stats/';
 
 type SettingsDrawerProps = {
 	open: boolean;
@@ -140,6 +143,7 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 	// Only the edited fields, so a refetch mid-edit cannot send back stale values of the others.
 	const [ draft, setDraft ] = useState< Partial< StatsSettings > >( {} );
 	const [ saveError, setSaveError ] = useState< string | null >( null );
+	const readerHeadingId = useId();
 
 	const settings = data && { ...data.settings, ...draft };
 	const changes = useMemo(
@@ -210,13 +214,20 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 							<ToggleControl
 								__nextHasNoMarginBottom
 								label={ __(
-									'Include a small chart in the admin bar',
+									'Include a small chart in admin bar',
 									'jetpack-premium-analytics-pkg'
 								) }
-								help={ __(
-									'Shows views from the last 48 hours. The admin bar shows the change on the next page load.',
-									'jetpack-premium-analytics-pkg'
-								) }
+								help={
+									<>
+										{ __(
+											'Displays a 48-hour traffic snapshot and information on your site activity, including visitors and popular posts or pages.',
+											'jetpack-premium-analytics-pkg'
+										) }{ ' ' }
+										<Link href={ STATS_SUPPORT_URL } openInNewTab>
+											{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+										</Link>
+									</>
+								}
 								checked={ settings.admin_bar }
 								disabled={ isSaving }
 								onChange={ ( isOn: boolean ) => update( { admin_bar: isOn } ) }
@@ -235,36 +246,37 @@ function SettingsForm( { onClose, mutation }: SettingsFormProps ) {
 								onChange={ roles => update( { roles } ) }
 							/>
 							<RoleSelect
-								label={ __( 'Count logged-in page views from:', 'jetpack-premium-analytics-pkg' ) }
+								label={ __( 'Count logged in page views from:', 'jetpack-premium-analytics-pkg' ) }
 								roles={ data.roles }
 								value={ settings.count_roles }
 								disabled={ isSaving }
 								onChange={ countRoles => update( { count_roles: countRoles } ) }
 							/>
-							<ToggleControl
-								__nextHasNoMarginBottom
-								label={ __(
-									'Show post views in the WordPress.com Reader',
-									'jetpack-premium-analytics-pkg'
-								) }
-								checked={ settings.wpcom_reader_views_enabled }
-								disabled={ isSaving }
-								onChange={ ( isOn: boolean ) => update( { wpcom_reader_views_enabled: isOn } ) }
-							/>
+							<Card.FullBleed className={ styles.divider } />
+							<Stack direction="column" gap="sm" role="group" aria-labelledby={ readerHeadingId }>
+								<Text id={ readerHeadingId }>
+									{ __( 'WordPress.com Reader', 'jetpack-premium-analytics-pkg' ) }
+								</Text>
+								<ToggleControl
+									__nextHasNoMarginBottom
+									label={ __( 'Show post views for this site', 'jetpack-premium-analytics-pkg' ) }
+									checked={ settings.wpcom_reader_views_enabled }
+									disabled={ isSaving }
+									onChange={ ( isOn: boolean ) => update( { wpcom_reader_views_enabled: isOn } ) }
+								/>
+							</Stack>
 						</SettingsGroup>
 						{ data.modules_url && (
 							<SettingsGroup title={ __( 'Activation', 'jetpack-premium-analytics-pkg' ) }>
-								<Stack direction="column" gap="sm" align="start">
-									<Text>
-										{ __(
-											'Stats is a Jetpack module. You can activate or deactivate it on the Jetpack modules screen.',
+								<Text>
+									{ createInterpolateElement(
+										__(
+											'Stats is a Jetpack module. Activate or deactivate it from <link>Jetpack modules</link>.',
 											'jetpack-premium-analytics-pkg'
-										) }
-									</Text>
-									<Link href={ data.modules_url }>
-										{ __( 'Go to Jetpack modules', 'jetpack-premium-analytics-pkg' ) }
-									</Link>
-								</Stack>
+										),
+										{ link: <Link href={ data.modules_url } /> }
+									) }
+								</Text>
 							</SettingsGroup>
 						) }
 					</Stack>
