@@ -36,6 +36,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		rememberDetails,
 		isDialogOpen,
 		isEditingDetails,
+		logIn: logInHandle,
 	} = useContext( CommentSignals );
 	const { site, strings, mustLogIn, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
@@ -73,15 +74,22 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const posting = ! isEmptyComment.value && ! detailsOnly;
 	const enteredEmail = details.value.email;
 
+	// Reset on close, not open, so a log-in from the footer can open it straight on the switches.
 	useEffect( () => {
 		const element = dialog.current;
 
-		if ( isDialogOpen.value && ! element?.open ) {
+		if ( isDialogOpen.value ) {
+			if ( isEditingDetails.peek() ) {
+				setDetailsOnly( true );
+			}
+
+			if ( ! element?.open ) {
+				element!.showModal();
+			}
+		} else {
+			element?.close();
 			setStep( firstStep );
-			setDetailsOnly( isEditingDetails.peek() );
-			element!.showModal();
-		} else if ( ! isDialogOpen.value && element?.open ) {
-			element.close();
+			setDetailsOnly( false );
 		}
 	}, [ isDialogOpen.value ] );
 
@@ -124,7 +132,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		}
 	}, [ isPosting.value ] );
 
-	const logIn = async () => {
+	// From the footer rather than on the way to posting: sign in, but post nothing.
+	const logIn = async ( fromDialog = true ) => {
 		setSignInStatus( 'pending' );
 
 		// Cancel closes the popup, which settles this as cancelled.
@@ -136,6 +145,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 		if ( 'error' in result ) {
 			setSignInStatus( result.error === 'rate_limited' ? 'rate_limited' : 'failed' );
+			isDialogOpen.value = true;
 			return;
 		}
 
@@ -159,16 +169,20 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 
 		if ( formSettings.subscriptions.length ) {
 			setStep( 'subscribe' );
+			setDetailsOnly( detailsOnly || ! fromDialog );
+			isDialogOpen.value = true;
 			return;
 		}
 
 		isDialogOpen.value = false;
 
 		// A timeout, so the render that puts the sign-in code in the form lands first.
-		if ( ! detailsOnly && ! isEmptyComment.peek() ) {
+		if ( fromDialog && ! detailsOnly && ! isEmptyComment.peek() ) {
 			window.setTimeout( () => internals.form?.requestSubmit() );
 		}
 	};
+
+	logInHandle.current = logIn;
 
 	const close = () => {
 		isDialogOpen.value = false;
@@ -226,7 +240,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	};
 
 	const logInOrWait = (
-		<LogIn status={ signInStatus } onLogIn={ logIn } onCancel={ () => popup.current?.close() } />
+		<LogIn
+			status={ signInStatus }
+			onLogIn={ () => logIn() }
+			onCancel={ () => popup.current?.close() }
+		/>
 	);
 	const switches = showToggles && (
 		<SubscribeSwitches subscribed={ subscribed } onChange={ setSubscribed } />
@@ -259,7 +277,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		),
 		details: (
 			<>
-				<div className="jetpack-comments__sign-in">{ logInOrWait }</div>
+				{ identity.canSignIn && <div className="jetpack-comments__sign-in">{ logInOrWait }</div> }
 				<DetailsFields emailTaken={ emailTaken } />
 			</>
 		),
@@ -343,11 +361,7 @@ const LogIn = ( {
 	onLogIn: () => void;
 	onCancel: () => void;
 } ) => {
-	const { strings, identity } = JetpackComments;
-
-	if ( ! identity.canSignIn ) {
-		return null;
-	}
+	const { strings } = JetpackComments;
 
 	return (
 		<>

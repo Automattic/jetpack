@@ -41,6 +41,8 @@ export function createSignals( formSettings: FormSettings ) {
 	const isOptionsOpen = signal( false );
 	const isDialogOpen = signal( false );
 	const isEditingDetails = signal( false );
+	// The dialog's WordPress.com log-in, for a link outside it to start inside a click, where a popup is allowed.
+	const logIn: { current: ( ( fromDialog?: boolean ) => void ) | null } = { current: null };
 
 	return {
 		formSettings,
@@ -55,6 +57,7 @@ export function createSignals( formSettings: FormSettings ) {
 		isOptionsOpen,
 		isDialogOpen,
 		isEditingDetails,
+		logIn,
 	} as const;
 }
 

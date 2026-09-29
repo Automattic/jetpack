@@ -13,7 +13,7 @@ import './style.scss';
  * @return The identity line.
  */
 export const Identity = () => {
-	const { formSettings, details, commenter, isOptionsOpen, isDialogOpen } =
+	const { formSettings, details, commenter, isOptionsOpen, isDialogOpen, logIn } =
 		useContext( CommentSignals );
 	const { mustLogIn, identity, strings } = JetpackComments;
 	const current = commenter.value;
@@ -22,6 +22,23 @@ export const Identity = () => {
 		return (
 			<span className="jetpack-comments__who">
 				{ strings.mustLogIn } <a href={ formSettings.loginUrl }>{ strings.logIn }</a>
+			</span>
+		);
+	}
+
+	// A site that needs a log-in goes straight to WordPress.com; anyone else is asked who they are.
+	if ( current.kind === 'unknown' && mustLogIn ) {
+		return (
+			<span className="jetpack-comments__who">
+				<a
+					href="#"
+					onClick={ event => {
+						event.preventDefault();
+						logIn.current?.( false );
+					} }
+				>
+					{ strings.logInWithWordPress }
+				</a>
 			</span>
 		);
 	}
