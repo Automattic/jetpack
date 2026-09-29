@@ -580,14 +580,15 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 								 * the prototype does: that screen says what we read the site as and
 								 * asks whether it is right, so the site is the subject of it.
 								 *
-								 * Everywhere else the art is the subject. It is drawn in on each of
-								 * those steps and keyed so the draw replays: the animation is CSS,
-								 * so a repeat means a fresh element.
+								 * Everywhere else the art is the subject, and it is drawn once. It
+								 * used to be keyed by step, which remounts it and replays the draw:
+								 * 2.6 seconds of the same mark erasing and redrawing itself on every
+								 * Continue, saying something changed when nothing had.
 								 */ }
 								{ showPortrait ? (
 									<SitePortrait site={ site } shot={ shot } />
 								) : (
-									<PanelArt key={ `art-${ meta.id }` } animate />
+									<PanelArt animate />
 								) }
 							</div>
 						</div>

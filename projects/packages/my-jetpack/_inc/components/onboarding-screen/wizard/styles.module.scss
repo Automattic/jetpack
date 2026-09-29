@@ -176,7 +176,7 @@ $portrait-shadow:
 	0 21.255px 21.255px rgba(15, 36, 117, 0.05),
 	0 42px 42px rgba(15, 36, 117, 0.1);
 
-$panel-art-width: 92%;
+$panel-art-width: 68%;
 $panel-art-draw-duration: 1.4s;
 
 /*
@@ -265,7 +265,6 @@ $feature-glyph-offset: 3px;
  */
 $option-cascade-duration: 0.3s;
 $option-cascade-rise: 10px;
-$option-cascade-base: 0.12s;
 $option-cascade-step: 0.05s;
 
 /*
@@ -275,6 +274,15 @@ $option-cascade-step: 0.05s;
 $heading-tracking: -0.025em;
 $wave-base: 0.1s;
 $wave-step: 0.08s;
+
+/*
+ * The cascade starts where the list's own wave does, not before it. At the
+ * prototype's 0.12 the rows were rising inside a list that had not begun to
+ * move, so each row carried two rises at once and the list read as mush.
+ *
+ * After the waves, because Sass resolves in source order.
+ */
+$option-cascade-base: $wave-base + 2 * $wave-step;
 
 /*
  * The finish screen's badge and the discs washing out from behind it. Durations
@@ -627,14 +635,6 @@ $rail-row-min-height: 40px;
 	margin-block: auto;
 	margin-inline: auto;
 	padding-block-start: $step-column-offset;
-	animation-name: step-enter;
-	animation-duration: $appear-duration;
-	animation-timing-function: $house-easing;
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-		animation-duration: $appear-reduced-duration;
-	}
 }
 
 @keyframes step-enter {
@@ -1910,8 +1910,14 @@ $rail-row-min-height: 40px;
 }
 
 // Named rather than written per element, because four screens now use them.
+
+/*
+ * The heading leads. It used to wait $wave-base like everything else, and since
+ * nothing else is on screen yet that was a blank sheet for the length of it —
+ * the outgoing step is gone the instant the step changes.
+ */
 .wave-1 {
-	animation-delay: $wave-base;
+	animation-delay: 0s;
 }
 
 .wave-2 {
