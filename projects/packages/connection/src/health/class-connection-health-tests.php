@@ -530,11 +530,16 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			? $result->message
 			: __( 'Connection test failed.', 'jetpack-connection' );
 
-		$message .= ' ' . sprintf(
-			/* translators: %s is the HTTP status code returned by WordPress.com. */
-			__( '(status code: %s)', 'jetpack-connection' ),
-			$status_code
-		);
+		// Append the status code only when it adds signal: a 200 means the request itself
+		// succeeded (the failure is in the connection, not the transport), so "(status code: 200)"
+		// is confusing noise.
+		if ( 200 !== (int) $status_code ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s is the HTTP status code returned by WordPress.com. */
+				__( '(status code: %s)', 'jetpack-connection' ),
+				$status_code
+			);
+		}
 
 		return self::connection_failing_test( $name, $message );
 	}

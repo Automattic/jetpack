@@ -951,9 +951,9 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$this->assertFalse( $result['pass'] );
 		$this->assertSame( 'https://example.com/reconnect', $result['action'] );
-		// WP.com's message is preserved and the status code is appended in a labeled form.
+		// WP.com's message is preserved, and a 200 status code is not appended (it adds no signal).
 		$this->assertStringContainsString( 'Invalid token.', $result['short_description'] );
-		$this->assertStringContainsString( '(status code: 200)', $result['short_description'] );
+		$this->assertStringNotContainsString( 'status code', $result['short_description'] );
 	}
 
 	/**
