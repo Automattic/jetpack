@@ -66,6 +66,27 @@ class Publicize_Test extends BaseTestCase {
 		$this->assertSame( array( $message ), get_post_meta( $post_id, '_wpas_mess', false ) );
 	}
 
+	public function test_collapse_duplicate_post_meta_restores_value_when_insert_fails() {
+		$publicize = new Publicize();
+		$post_id   = 123;
+		add_post_meta( $post_id, '_wpas_mess', 'old' );
+		add_post_meta( $post_id, '_wpas_mess', 'old' );
+		// WorDBless ignores earlier short-circuits, so wrap its own insert.
+		$store          = \WorDBless\PostMeta::init();
+		$fail_new_value = function ( $check, $object_id, $meta_key, $meta_value, $unique ) use ( $store ) {
+			return 'new' === $meta_value ? false : $store->add( $check, $object_id, $meta_key, $meta_value, $unique );
+		};
+		remove_filter( 'add_post_metadata', array( $store, 'add' ), 10 );
+		add_filter( 'add_post_metadata', $fail_new_value, 10, 5 );
+
+		$result = $publicize->collapse_duplicate_post_meta( null, $post_id, '_wpas_mess', 'new', '' );
+		remove_filter( 'add_post_metadata', $fail_new_value, 10 );
+		add_filter( 'add_post_metadata', array( $store, 'add' ), 10, 5 );
+
+		$this->assertFalse( $result );
+		$this->assertSame( array( 'old' ), get_post_meta( $post_id, '_wpas_mess', false ) );
+	}
+
 	public function test_collapse_duplicate_post_meta_ignores_other_keys() {
 		$publicize = new Publicize();
 		$post_id   = 123;

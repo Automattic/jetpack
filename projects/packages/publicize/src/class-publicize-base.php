@@ -1344,7 +1344,14 @@ abstract class Publicize_Base {
 
 		delete_metadata( 'post', $object_id, $meta_key );
 
-		return (bool) add_metadata( 'post', $object_id, $meta_key, wp_slash( $meta_value ), true );
+		if ( add_metadata( 'post', $object_id, $meta_key, wp_slash( $meta_value ), true ) ) {
+			return true;
+		}
+
+		// Don't lose the existing value when the new one can't be stored.
+		add_metadata( 'post', $object_id, $meta_key, wp_slash( $stored[0] ), true );
+
+		return false;
 	}
 
 	/**
