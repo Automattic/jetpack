@@ -3158,7 +3158,7 @@ p {
 	/**
 	 * Deletes obsolete SEO module-state options without changing module activation.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 */
 	public static function cleanup_seo_module_state_options() {
 		delete_option( 'jetpack_seo_sitemap_enabled' );
