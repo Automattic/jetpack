@@ -19,7 +19,7 @@ use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
  *
  * The package decides nothing about who gets Ads: the WordAds module of the Jetpack plugin calls
  * `init()` outside the WordPress.com platform, jetpack-mu-wpcom calls the registrants on Simple
- * and Atomic where the plan includes WordAds. Everything registers when the dashboard's registries
+ * and Atomic where the plan includes WordAds and the site has it on. Everything registers when the dashboard's registries
  * hydrate, so a call on a site without the dashboard is inert.
  *
  * @since $$next-version$$

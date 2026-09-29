@@ -46,8 +46,9 @@ function wpcom_premium_analytics_wordads_is_enabled() {
 			&& (bool) has_any_blog_stickers( array( 'wordads-approved', 'wordads-approved-misfits' ), get_current_blog_id() );
 	}
 
-	// Atomic runs the Jetpack plugin, where Odyssey Stats reads the WordAds module. Not
-	// `available_only`: the module list is not loaded on every request that hydrates the registry.
+	// Atomic runs the Jetpack plugin, and a site with the WordAds module off is not running ads,
+	// whatever its approval sticker says. Not `available_only`: the module list is not loaded on
+	// every request that hydrates the registry.
 	return ( new Modules() )->is_active( 'wordads', false );
 }
 
