@@ -79,7 +79,7 @@ export const MailchimpSubscribeEdit = ( {
 					noticeOperations.createNotice( {
 						status: 'warning',
 						content: __(
-							'Mailchimp is not connected yet. Connect your account, choose an audience, and save your settings, then check again.',
+							'Mailchimp is not connected yet. Connect your account and choose an audience, then check again.',
 							'jetpack'
 						),
 					} );
