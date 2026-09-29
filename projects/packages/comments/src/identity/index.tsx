@@ -1,26 +1,155 @@
+import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
-import { LoggedIn } from './checkpoint/logged-in';
-import { LoggedOut } from './checkpoint/logged-out';
-import { GuestFields } from './guest-fields';
-import { LogInPrompt } from './log-in-prompt';
+import { logOut } from './checkpoint/checkpoint';
+import { ChevronDownIcon } from './icons';
 
-export { CommentingAs } from './commenting-as';
+import './style.scss';
 
 /**
- * How a reader not logged in to the site identifies themselves: the checkpoint
- * where WordPress.com sign-in is available, and the plain guest fields or
- * log-in prompt where it is not.
+ * Who the comment will be attributed to: a link to the dialog until the site
+ * knows the reader, then their name, with a chevron that drops the options out below.
  *
- * @return The identity block.
+ * @return The identity line.
  */
 export const Identity = () => {
-	const { signedIn } = useContext( CommentSignals );
-	const { mustLogIn, identity } = JetpackComments;
+	const { formSettings, commenter, signedIn, isMenuOpen, isSavedGuest, isDialogOpen } =
+		useContext( CommentSignals );
+	const { user, mustLogIn, identity, strings } = JetpackComments;
 
-	if ( identity.providers.length > 0 ) {
-		return signedIn.value ? <LoggedIn /> : <LoggedOut />;
+	if ( mustLogIn && ! identity.canSignIn && ! signedIn.value ) {
+		return (
+			<span className="jetpack-comments__who">
+				{ strings.mustLogIn } <a href={ formSettings.loginUrl }>{ strings.logIn }</a>
+			</span>
+		);
 	}
 
-	return mustLogIn ? <LogInPrompt /> : <GuestFields />;
+	let name: string;
+
+	if ( user ) {
+		name = user.name;
+	} else if ( signedIn.value ) {
+		name = signedIn.value.name;
+	} else if ( isSavedGuest.value ) {
+		name = commenter.value.author;
+	} else {
+		return (
+			<span className="jetpack-comments__who">
+				<a
+					href="#"
+					aria-haspopup="dialog"
+					onClick={ event => {
+						event.preventDefault();
+						isDialogOpen.value = true;
+					} }
+				>
+					{ strings.addYourName }
+				</a>
+			</span>
+		);
+	}
+
+	const open = isMenuOpen.value;
+
+	return (
+		<span className={ clsx( 'jetpack-comments__who', { 'is-open': open } ) }>
+			{ /* A fresh sign-in posts its code; a returning one a marker, so the server reads the passport only when this was on screen. */ }
+			{ signedIn.value &&
+				( signedIn.value.code !== null ? (
+					<input type="hidden" name={ identity.codeField } value={ signedIn.value.code } />
+				) : (
+					<input type="hidden" name={ identity.passportField } value="1" />
+				) ) }
+			{ name }
+			<button
+				type="button"
+				className="jetpack-comments__chevron"
+				title={ strings.options }
+				aria-expanded={ open }
+				onClick={ () => ( isMenuOpen.value = ! open ) }
+			>
+				<span className="jetpack-comments__visually-hidden">{ strings.options }</span>
+				<ChevronDownIcon />
+			</button>
+		</span>
+	);
+};
+
+/**
+ * The options the chevron drops out: log out or change details, and where to
+ * manage subscriptions.
+ *
+ * @return The options, or nothing for a reader the dialog will ask.
+ */
+export const IdentityOptions = () => {
+	const { formSettings, commenter, signedIn, isKnown, isMenuOpen, isDialogOpen, isEditing } =
+		useContext( CommentSignals );
+	const { user, strings } = JetpackComments;
+
+	if ( ! isKnown.value ) {
+		return null;
+	}
+
+	// Absent from a page cached before this key existed; the row then has no manage link.
+	const links = JetpackComments.manageSubscriptions ?? { url: '', byEmail: true, signedInUrl: '' };
+	const byEmail = ! signedIn.value && links.byEmail;
+	let manageUrl = signedIn.value ? links.signedInUrl : links.url;
+
+	// The portal asks for an email address; hand it the one the comment will post under.
+	if ( manageUrl && byEmail && commenter.value.email ) {
+		manageUrl += `?email=${ encodeURIComponent( commenter.value.email ) }`;
+	}
+
+	return (
+		<div className={ clsx( 'jetpack-comments__options', { 'is-open': isMenuOpen.value } ) }>
+			<div>
+				{ /* Anchors, not buttons, so the theme styles them like the link beside them. */ }
+				{ user && formSettings.logoutUrl && (
+					<a
+						href={ formSettings.logoutUrl }
+						onClick={ async event => {
+							// Core's log-out leaves a popup sign-in behind, which would sign them straight back in.
+							event.preventDefault();
+							await logOut();
+							window.location.href = formSettings.logoutUrl;
+						} }
+					>
+						{ strings.logOut }
+					</a>
+				) }
+				{ ! user && signedIn.value && (
+					<a
+						href="#"
+						onClick={ async event => {
+							event.preventDefault();
+							await logOut();
+							signedIn.value = null;
+							isMenuOpen.value = false;
+						} }
+					>
+						{ strings.logOut }
+					</a>
+				) }
+				{ ! user && ! signedIn.value && (
+					<a
+						href="#"
+						aria-haspopup="dialog"
+						onClick={ event => {
+							event.preventDefault();
+							isEditing.value = true;
+							isDialogOpen.value = true;
+						} }
+					>
+						{ strings.changeDetails }
+					</a>
+				) }
+				{ manageUrl && (
+					<a href={ manageUrl } target="_blank" rel="noopener">
+						{ strings.manageSubscriptions }
+					</a>
+				) }
+			</div>
+		</div>
+	);
 };

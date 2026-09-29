@@ -12,37 +12,14 @@ namespace Automattic\Jetpack\Comments;
  */
 class Passport {
 
-	/**
-	 * The passport itself: signed, httponly, read only by the server.
-	 */
+	// Signed and httponly, read only by the server.
 	const COOKIE = 'jetpack_comment_identity';
-
-	/**
-	 * What the form may show: provider, name and avatar, readable by the page's
-	 * script. Nothing here is trusted; the server reads COOKIE.
-	 *
-	 * A page cache serves one logged-out page to everyone, so who is holding a
-	 * passport can never be rendered into HTML. It has to come from the browser.
-	 */
+	// Readable by the page's script, and untrusted. It has to be a cookie: the
+	// page is cached for everyone, so who holds a passport cannot be in the HTML.
 	const DISPLAY_COOKIE = 'jetpack_comment_identity_display';
-
-	/**
-	 * The fields the display cookie carries. The blog id goes in too, because on
-	 * a network the cookie domain is shared and the script must not show another
-	 * site's sign-in.
-	 */
 	const DISPLAY_FIELDS = array( 'provider', 'name', 'avatar' );
-
-	/**
-	 * What the cookie carries, in order. The blog id is added at signing time,
-	 * so a passport issued on one site of a network, or of WordPress.com, is
-	 * refused on every other.
-	 */
-	const FIELDS = array( 'site_commenter_id', 'provider', 'name', 'email', 'avatar', 'expires_at' );
-
-	/**
-	 * Domain-separates the signature from anything else keyed with the same salt.
-	 */
+	// The blog id is added at signing time, so a passport from one site of a network is refused on every other.
+	const FIELDS          = array( 'site_commenter_id', 'provider', 'name', 'email', 'avatar', 'expires_at' );
 	const SIGNING_PURPOSE = 'jetpack-comment-passport-v1';
 
 	/**
@@ -166,8 +143,7 @@ class Passport {
 	}
 
 	/**
-	 * Send a cookie. Raw, because both values are already cookie-safe and the
-	 * display one must reach the script exactly as encoded.
+	 * Send a cookie. Raw, so the display value reaches the script exactly as encoded.
 	 *
 	 * @param string $name     Cookie name.
 	 * @param string $value    Cookie value.
