@@ -1435,6 +1435,45 @@ That was a cool video.';
 		);
 	}
 
+	public function test_sync_jetpack_published_post_is_not_recovered_when_newsletter_setting_fails() {
+		register_post_meta(
+			'post',
+			'_jetpack_dont_email_post_to_subs',
+			array(
+				'show_in_rest'  => true,
+				'single'        => true,
+				'type'          => 'boolean',
+				'auth_callback' => '__return_true',
+			)
+		);
+		$fail_meta_update = function ( $check, $object_id, $meta_key ) {
+			return '_jetpack_dont_email_post_to_subs' === $meta_key ? false : $check;
+		};
+		add_filter( 'update_post_metadata', $fail_meta_update, 10, 3 );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		$post_id = self::factory()->post->create( array( 'post_status' => 'draft' ) );
+		$this->server_event_storage->reset();
+
+		$request = new WP_REST_Request( 'POST', "/wp/v2/posts/$post_id" );
+		$request->set_body_params(
+			array(
+				'status' => 'publish',
+				'meta'   => array( '_jetpack_dont_email_post_to_subs' => true ),
+			)
+		);
+		$response = rest_do_request( $request );
+		remove_filter( 'update_post_metadata', $fail_meta_update, 10 );
+		unregister_post_meta( 'post', '_jetpack_dont_email_post_to_subs' );
+
+		$this->assertSame( 'rest_meta_database_error', $response->as_error()->get_error_code() );
+		$post_sync_module = Modules::get_module( 'posts' );
+		'@phan-var \Automattic\Jetpack\Sync\Modules\Posts $post_sync_module';
+		$post_sync_module->send_pending_published();
+		$this->sender->do_sync();
+
+		$this->assertCount( 0, $this->server_event_storage->get_all_events( 'jetpack_published_post' ) );
+	}
+
 	/**
 	 * @dataProvider provider_rest_meta_update_fails
 	 * @param bool    $second_requested Whether a second meta field is requested.
