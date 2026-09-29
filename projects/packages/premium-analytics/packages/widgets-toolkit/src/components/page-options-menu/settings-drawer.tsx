@@ -49,6 +49,9 @@ const getSiteErrorMessage = ( error: unknown ) =>
 		? ( error as { message: string } ).message
 		: null;
 
+// Role lists are sets: the order a reader ticks them in is not a change.
+const normalize = ( value: unknown ) => ( Array.isArray( value ) ? [ ...value ].sort() : value );
+
 /**
  * The edited settings that differ from the stored ones.
  *
@@ -62,7 +65,11 @@ const getChanges = (
 ): Partial< StatsSettings > =>
 	Object.fromEntries(
 		( Object.keys( draft ) as Array< keyof StatsSettings > )
-			.filter( key => JSON.stringify( draft[ key ] ) !== JSON.stringify( stored[ key ] ) )
+			.filter(
+				key =>
+					JSON.stringify( normalize( draft[ key ] ) ) !==
+					JSON.stringify( normalize( stored[ key ] ) )
+			)
 			.map( key => [ key, draft[ key ] ] )
 	);
 

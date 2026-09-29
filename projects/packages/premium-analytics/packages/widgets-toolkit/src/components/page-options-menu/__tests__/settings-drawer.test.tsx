@@ -196,6 +196,27 @@ describe( 'SettingsDrawer', () => {
 		);
 	} );
 
+	it( 'offers no Save when a role is cleared and ticked again in another order', async () => {
+		mockApiFetch.mockImplementation( () =>
+			Promise.resolve( {
+				...STORED,
+				settings: { ...STORED.settings, roles: [ 'administrator', 'editor', 'author' ] },
+				roles: [ ...STORED.roles, { slug: 'author', name: 'Author' } ],
+			} )
+		);
+		const user = showDrawer();
+
+		await openRoleSelect( user, VIEWED_BY );
+		await user.click( await screen.findByRole( 'menuitemcheckbox', { name: 'Editor' } ) );
+		await user.click( screen.getByRole( 'menuitemcheckbox', { name: 'Editor' } ) );
+		await user.keyboard( '{Escape}' );
+
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
 	it( 'confirms the save in a snackbar and closes', async () => {
 		const onClose = jest.fn();
 		const user = showDrawer( onClose );
