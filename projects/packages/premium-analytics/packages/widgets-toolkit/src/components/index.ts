@@ -182,6 +182,7 @@ export {
 	type FeedbackSource,
 	type PageOptionsMenuProps,
 } from './page-options-menu';
+export { getOverLimitMessage, getPlanUpgradeUrl, PlanUsageMeter, usePlanUsage } from './plan-usage';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
 	ReportCsvDownloadButton,
