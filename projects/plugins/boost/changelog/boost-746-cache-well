@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Settings: Show a Clear cache button and a logging toggle for Page Cache in the modern dashboard.
+Settings: Add a Clear cache button to Page Cache and show logging as a toggle with a link to the logs.

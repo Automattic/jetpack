@@ -190,7 +190,11 @@ const Meta = () => {
 						__nextHasNoMarginBottom
 					/>
 					{ logging && (
-						<WPLink href="#/cache-debug-log" onClick={ handleSeeLogsClick }>
+						<WPLink
+							href="#/cache-debug-log"
+							onClick={ handleSeeLogsClick }
+							className={ modernStyles[ 'see-logs' ] }
+						>
 							{ __( 'See logs', 'jetpack-boost' ) }
 						</WPLink>
 					) }
