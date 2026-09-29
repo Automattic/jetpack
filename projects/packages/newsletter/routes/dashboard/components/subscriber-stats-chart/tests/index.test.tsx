@@ -460,4 +460,120 @@ describe( 'SubscriberStatsChart', () => {
 			} );
 		} );
 	} );
+
+	it( 'does not record a click when the selected interval is chosen again', async () => {
+		renderStats();
+
+		await expect( screen.findByRole( 'radio', { name: 'Days' } ) ).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Days' } ) );
+
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_newsletter_stats_interval_click',
+			expect.anything()
+		);
+	} );
+
+	it( 'ignores an interval button whose value is not a chart unit', async () => {
+		renderStats();
+
+		const weeks = await screen.findByRole( 'radio', { name: 'Weeks' } );
+		weeks.setAttribute( 'value', 'fortnight' );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( weeks );
+
+		expect( mockRecordEvent ).not.toHaveBeenCalledWith(
+			'jetpack_newsletter_stats_interval_click',
+			expect.anything()
+		);
+		expect( mockApiFetch ).not.toHaveBeenCalledWith( {
+			path: expect.stringContaining( 'unit=fortnight' ),
+		} );
+	} );
+
+	it( 'moves the chart window by weeks, months, and years', async () => {
+		renderStats();
+
+		await expect( screen.findByRole( 'radio', { name: 'Weeks' } ) ).resolves.toBeInTheDocument();
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Weeks' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=week&quantity=12&date=2026-06-29' ),
+			} );
+		} );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Months' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=month&quantity=6&date=2026-03-21' ),
+			} );
+		} );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Next period' } ) );
+
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'radio', { name: 'Years' } ) );
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
+		await waitFor( () => {
+			expect( mockApiFetch ).toHaveBeenCalledWith( {
+				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-09-21' ),
+			} );
+		} );
+	} );
+
+	it( 'shows the empty state when the subscribers response has no period column', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( '/stats/subscribers' ) ) {
+				return Promise.resolve( { fields: [ 'subscribers' ], data: [ [ 122 ] ] } );
+			}
+			return Promise.resolve( recentPostsResponse );
+		} );
+
+		renderStats();
+
+		await expect(
+			screen.findByText( 'No subscriber data is available for this period.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	it( 'skips subscriber rows that are not dated', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( '/stats/subscribers' ) ) {
+				return Promise.resolve( {
+					fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+					data: [
+						[ 10, 5, 1 ],
+						[ '2026-09-10', 122, 8 ],
+					],
+				} );
+			}
+			return Promise.resolve( recentPostsResponse );
+		} );
+
+		renderStats();
+
+		await expect( screen.findByTestId( 'subscriber-chart' ) ).resolves.toBeInTheDocument();
+		expect( mockLineChart ).toHaveBeenCalledWith(
+			expect.objectContaining( {
+				data: [
+					expect.objectContaining( {
+						data: [ { dateString: '2026-09-10', value: 122 } ],
+					} ),
+					expect.objectContaining( {
+						data: [ { dateString: '2026-09-10', value: 8 } ],
+					} ),
+				],
+			} )
+		);
+	} );
 } );
