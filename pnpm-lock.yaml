@@ -2331,9 +2331,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.23)
       '@wordpress/browserslist-config':
         specifier: 6.55.0
         version: 6.55.0
@@ -3313,9 +3310,6 @@ importers:
       '@automattic/color-studio':
         specifier: 4.1.0
         version: 4.1.0
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.23)
     devDependencies:
       '@automattic/jetpack-webpack-config':
         specifier: workspace:*
@@ -3326,9 +3320,6 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
-      '@csstools/postcss-global-data':
-        specifier: 4.0.0
-        version: 4.0.0(postcss@8.5.23)
       '@wordpress/browserslist-config':
         specifier: 6.55.0
         version: 6.55.0
@@ -6175,9 +6166,6 @@ importers:
       photon:
         specifier: 4.1.1
         version: 4.1.1
-      postcss-custom-properties:
-        specifier: 12.1.11
-        version: 12.1.11(postcss@8.5.23)
       print-this:
         specifier: 2.0.0
         version: 2.0.0
@@ -16233,12 +16221,6 @@ packages:
     engines: {node: ^18.12.0 || ^20.9.0 || >=22.0}
     peerDependencies:
       postcss: ^8.5.13
-
-  postcss-custom-properties@12.1.11:
-    resolution: {integrity: sha512-0IDJYhgU8xDv1KY6+VgUwuQkVtmYzRwu+dMjnmdMafXYv86SWqfxkc7qdDvWS38vsjaEtv8e0vGOUQrAiMBLpQ==}
-    engines: {node: ^12 || ^14 || >=16}
-    peerDependencies:
-      postcss: ^8.2
 
   postcss-discard-comments@7.0.8:
     resolution: {integrity: sha512-CvvS5S9WrXblFXCEJ9nVo+4z+eA7zSC7Z88V1HEJuwlQhlFnYTIjg1xJY+BCUiG2bvICap2tXii4mP22BD108Q==}
@@ -35719,11 +35701,6 @@ snapshots:
   postcss-convert-values@7.0.12(postcss@8.5.23):
     dependencies:
       browserslist: 4.28.9
-      postcss: 8.5.23
-      postcss-value-parser: 4.2.0
-
-  postcss-custom-properties@12.1.11(postcss@8.5.23):
-    dependencies:
       postcss: 8.5.23
       postcss-value-parser: 4.2.0
 
