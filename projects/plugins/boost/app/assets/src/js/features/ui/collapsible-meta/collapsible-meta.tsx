@@ -40,7 +40,7 @@ const CollapsibleMeta = ( {
 	onToggleHandler = () => {},
 }: CollapsibleMetaProps ) => {
 	const [ isExpanded, setIsExpanded ] = useState( false );
-	const surface = useModuleSurface();
+	const isRow = useModuleSurface() === 'row';
 	const contentId = useId();
 
 	const onToggle = () => {
@@ -54,7 +54,7 @@ const CollapsibleMeta = ( {
 		}
 	};
 
-	if ( surface === 'row' && exceptions ) {
+	if ( isRow && exceptions ) {
 		return (
 			<ExceptPanel
 				exceptions={ exceptions }
@@ -76,29 +76,19 @@ const CollapsibleMeta = ( {
 			{ header ? header : <div className={ styles.summary }>{ headerText }</div> }
 			<div className={ styles.actions }>
 				{ extraButtons && extraButtons }{ ' ' }
-				{ surface === 'row' ? (
-					<button
-						type="button"
-						className={ styles[ 'row-toggle' ] }
-						aria-expanded={ isExpanded }
-						aria-controls={ contentId }
-						onClick={ onToggle }
-					>
-						{ toggleText }
-						{ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-					</button>
-				) : (
-					<Button
-						variant="link"
-						size="small"
-						weight="regular"
-						icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
-						className={ styles[ 'edit-button' ] }
-						onClick={ onToggle }
-					>
-						{ toggleText }
-					</Button>
-				) }
+				<Button
+					variant={ isRow ? 'tertiary' : 'link' }
+					size="small"
+					weight="regular"
+					icon={ isExpanded ? <ChevronUp /> : <ChevronDown /> }
+					iconPosition={ isRow ? 'right' : undefined }
+					aria-expanded={ isRow ? isExpanded : undefined }
+					aria-controls={ isRow ? contentId : undefined }
+					className={ styles[ 'edit-button' ] }
+					onClick={ onToggle }
+				>
+					{ toggleText }
+				</Button>
 			</div>
 		</div>
 	);
@@ -110,7 +100,7 @@ const CollapsibleMeta = ( {
 	return (
 		<div className={ styles[ 'collapsible-meta' ] }>
 			{ sectionHeader }
-			{ surface === 'row' ? (
+			{ isRow ? (
 				<div id={ contentId } hidden={ ! isExpanded }>
 					{ isExpanded && children }
 				</div>
