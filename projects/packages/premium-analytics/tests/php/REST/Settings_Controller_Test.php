@@ -9,6 +9,8 @@ namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use ReflectionProperty;
 use WorDBless\BaseTestCase;
 use WP_REST_Request;
@@ -47,6 +49,19 @@ class Settings_Controller_Test extends BaseTestCase {
 		wp_set_current_user( $this->create_user( 'administrator' ) );
 
 		$this->assertNull( $this->dispatch( 'GET' )->get_data()['modules_url'] );
+	}
+
+	/**
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_read_links_to_the_modules_screen_with_the_jetpack_plugin() {
+		require_once __DIR__ . '/../mocks/jetpack-plugin-mock.php';
+		wp_set_current_user( $this->create_user( 'administrator' ) );
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack_modules' ), $this->dispatch( 'GET' )->get_data()['modules_url'] );
 	}
 
 	public function test_save_changes_who_can_view_and_whose_views_count() {
