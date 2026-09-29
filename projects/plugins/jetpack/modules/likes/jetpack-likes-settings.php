@@ -209,58 +209,58 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Should we register the Settings > Sharing screen ourselves?
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing is registered by Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page.
+	 * @deprecated 16.3 Settings > Sharing is registered by Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page.
 	 *
 	 * @param bool $sharedaddy_active Whether the Sharing (sharedaddy) module is active.
 	 * @return bool
 	 */
 	public function needs_own_sharing_menu( $sharedaddy_active ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3' );
 		return false;
 	}
 
 	/**
 	 * Adds the 'sharing' menu to the settings menu.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_menu() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
 	}
 
 	/**
 	 * Provides a sharing page with the sharing_global_options hook so we can display the setting.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Returns the settings have been saved message.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function updated_message() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Returns the Likes options block, so it can be inserted into different sharing page contexts.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_block() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
 	}
 
 	/**
@@ -591,12 +591,12 @@ class Jetpack_Likes_Settings {
 	/**
 	 * The actual options block to be inserted into the sharing page.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function admin_settings_init() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
 	}
 
 	/**
@@ -641,44 +641,44 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Saves the setting in the database.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
 	 *
 	 * @return void
 	 */
 	public function admin_settings_callback() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 
 	/**
 	 * Adds the admin update hook so we can save settings even if Sharedaddy is not enabled.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
 	 *
 	 * @return void
 	 */
 	public function process_update_requests_if_sharedaddy_not_loaded() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 
 	/**
 	 * If sharedaddy is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function admin_settings_showbuttonon_init() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render' );
 	}
 
 	/**
 	 * If sharedaddy is not loaded, we still need to save the the settings of the "Show buttons on" option.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
 	 *
 	 * @return void
 	 */
 	public function admin_settings_showbuttonon_callback() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 }

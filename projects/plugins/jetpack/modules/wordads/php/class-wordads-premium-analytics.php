@@ -15,7 +15,7 @@ use Automattic\Jetpack\WordAds\Analytics_Dashboard;
  * that a site running the module gets them. On the WordPress.com platform jetpack-mu-wpcom decides
  * by plan feature and this registrant stays out.
  *
- * @since $$next-version$$
+ * @since 16.3
  */
 class WordAds_Premium_Analytics {
 

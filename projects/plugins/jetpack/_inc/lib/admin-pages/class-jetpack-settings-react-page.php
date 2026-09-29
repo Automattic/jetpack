@@ -19,7 +19,7 @@ require_once dirname( __DIR__ ) . '/class-jetpack-settings-feature-flags.php';
 /**
  * Renders the Settings app, whose connection screens also serve unconnected sites.
  *
- * @since $$next-version$$
+ * @since 16.3
  */
 class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
@@ -53,7 +53,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Whether Settings renders through wp-build; off serves the webpack page at the same address.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return bool
 	 */
@@ -67,7 +67,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * An IDC-blocked page shows only the IDC banner, which the wp-build template would hide.
 	 * RTL stays on webpack too: wp-build inlines the route CSS with no RTL variant.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return bool
 	 */
@@ -87,7 +87,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Load wp-build before the admin menu is built, on the Settings request only.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return void
 	 */
@@ -100,7 +100,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Whether this request renders through wp-build.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return bool
 	 */
@@ -112,7 +112,7 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * The route bundle's classic script dependencies (e.g. `lodash`), which wp-build registers
 	 * as a script module without them, leaving globals like `window.lodash` undefined.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return string[]
 	 */

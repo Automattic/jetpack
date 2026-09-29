@@ -705,7 +705,7 @@ class Search_Blocks {
 	 *
 	 * The legacy Overlay's sidebar renders on `wp_footer`, after a block theme has printed the importmap, so a block's view module can't resolve `jetpack-search/store` and never hydrates.
 	 *
-	 * @since $$next-version$$
+	 * @since 8.2.0
 	 *
 	 * @return string|null Sidebar ID, or null when no area needs hiding.
 	 */

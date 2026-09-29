@@ -1,3 +1,7 @@
+## [3.4.0] - 2026-09-28
+### Changed
+- Expand peer dependencies to support React 19. [#52883]
+
 ## [3.3.19] - 2026-09-01
 ### Changed
 - Update package dependencies. [#51802]
@@ -352,6 +356,7 @@
 
 - Build: Refactored (aligned build system with Gridicons).
 
+[3.4.0]: https://github.com/Automattic/social-logos/compare/v3.3.19...v3.4.0
 [3.3.19]: https://github.com/Automattic/social-logos/compare/v3.3.18...v3.3.19
 [3.3.18]: https://github.com/Automattic/social-logos/compare/v3.3.17...v3.3.18
 [3.3.17]: https://github.com/Automattic/social-logos/compare/v3.3.16...v3.3.17

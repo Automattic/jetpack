@@ -326,38 +326,85 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.3-a.3 - 2026-09-21
+### 16.3-a.5 - 2026-09-28
+#### Major Enhancements
+- Dashboard: Remove the legacy At a Glance dashboard and Recommendations assistant.
+
 #### Enhancements
-- Activity Log: Make it a Jetpack module so it can be turned on and off from My Jetpack, hiding the sidebar entry when off.
-- AI: Hide the legacy AI panel once a site is eligible to turn on the WordPress Agent, and offer to open or enable the Agent in its place.
-- AI: Serve the Jetpack AI page through the standard Jetpack admin frame.
-- AI: Show one notice explaining why Jetpack AI is unavailable, worded the same on the Overview and AI Features tabs.
-- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor.
-- Donations Form: Replace the "Accept Donations with Stripe" modal with a link to Stripe's donation requirements.
-- Forms: Add a "Done" button to the conditional logic rules dialog, and open the Conditional logic panel by default on a field that has conditions.
-- Forms: Reopen the dashboard on the last tab used instead of always the default.
-- My Jetpack: Show the dashboard in the new rounded admin page frame.
-- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
-- Newsletter: Show the email itself in the email design canvas, and limit editing there to the Styles panel.
-- Search: Show each of the No Results block's empty-state messages as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure.
-- Settings: Open the Instagram Business help link as the WordPress.com support doc inside the Help Center on WordPress.com sites.
-- Stats: Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry.
-- VideoPress: Add a setting to render players from one shared player script instead of one frame per video.
+- AI: Add a "How it works" guide to the top of the MCP and Connectors tab.
+- AI: Point the Cursor setup instructions on the MCP agent setup page at the WordPress.com plugin on the Cursor Marketplace.
+- AI: Point the disconnected-site notice at documentation instead of a connect link when the current user cannot connect the site, as on VIP and multisite.
+- Likes: Give Comment Likes their own section on Settings > Sharing, and suggest the Like block on block themes even when Comment Likes are on.
+- My Jetpack: Answer module switch clicks immediately, and explain what happened when a change fails.
+- My Jetpack: Show the Features tab in place of the Products tab, and link the footer's modules links to its list view.
+- Newsletter: Format stats metrics and open/click rates with locale-aware number formatters.
+- Newsletter: List the enabled pop-up, overlay, and floating button below the footer when editing a template in the Site Editor.
+- Newsletter: Sync the active theme's colors and typography so post emails can match the site's design.
+- Partner Coupons: Move coupon redemption from the legacy dashboard to My Jetpack.
+- Plugins page: Ask for optional feedback when deactivating Jetpack.
+- Search: Show the dashboard in the new rounded admin page frame.
+- Settings: Move the Settings page to its own admin page in the new Jetpack admin frame; existing links redirect there.
+- Settings: Open the remaining support links as WordPress.com support docs inside the Help Center on WordPress.com sites.
+- Sharing: Group "Disable CSS and JS" with the sharing button settings, and hide it while sharing buttons are off.
+- Sharing settings: Give "Show buttons on" a section of its own.
+- Sharing settings: Keep the sharing buttons configuration available on block themes, alongside the recommendation to use the Sharing Buttons block.
+- Sharing settings: Show the Sharing and Like buttons sections whichever features are active, each with its own save button.
+- Stats: Move the Stats settings to a new Settings tab in the Stats dashboard, and link to it from Jetpack Settings.
+- Stats: Recognize the standalone Jetpack Stats plugin in My Jetpack, and install it when Stats is activated there.
+- Tooltips: Keep focus on information icons when their tooltips open, and announce the content to screen readers.
+- Tooltips: Show a focus ring on information icons after clicking them.
+- VideoPress: Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings.
+- VideoPress: Add an All Playlists block that lists every Video Playlist published on the site as a grid or a list.
+- VideoPress: Add title and description settings to the Video Playlist block.
+- VideoPress: Match the inline player's play button to the player's own, and show a loading spinner from the click until the player loads.
+- Zoom Scheduler: Add a block that embeds Zoom Scheduler booking pages, available on all plans.
 
 #### Bug fixes
-- Charts: Fix keyboard focus and tooltip selection.
-- Dashboards: Stop the frame from flashing while loading and when switching admin pages.
-- Fix Jetpack admin pages and Jetpack blocks in the editor failing to load on WordPress.com-hosted sites.
-- Forms: Open the Forms tab when it is requested directly instead of falling back to Responses.
-- Heartbeat: Prevent fatal errors when another plugin loads an older Connection package.
-- Jetpack Manage: Only show the sidebar link to agency accounts.
-- My Jetpack: Restore the link from the stats card heading and chart to the Stats page.
-- SEO: Fix the Settings tab failing to load after a page title structure was cleared from WordPress.com.
-- Site Verification: Reject invalid verification codes instead of reporting a successful save.
-- Social: Pre-fill the Bluesky handle field when reconnecting an account.
-- Social: Show contextual messages on the dashboard again.
-- VideoPress: Keep the video editor footer at the bottom of the page.
-- VideoPress: Show specific validation messages for chapters entered in video descriptions.
+- Admin: Hide masthead links when My Jetpack is unavailable.
+- AI: Avoid an unnecessary request when loading the editor.
+- AI: Disable feature toggles when custom code forces AI off.
+- AI: Show the "Learn more" link when SEO settings are unavailable.
+- AI: Turn off AI SEO and Search AI Answers when the `jetpack_ai_enabled` filter returns false.
+- Blocks: Align the premium block upgrade banner with its text on narrow screens.
+- Connection: Let users without admin access reconnect their own broken account from the connection error notice.
+- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good.
+- Connection: Show a connection break only its owner can repair as a warning to other users, not an error.
+- Content Guidelines: Fix the AI button alignment and the loading shimmer after recent Gutenberg changes.
+- Copy Post: Fix footnotes containing links being lost when duplicating a post.
+- CRM: Keep the site owner on My Jetpack after activating Jetpack CRM, instead of sending them to CRM's full-screen setup wizard.
+- Dashboards: Show Jetpack in-dashboard messages on the modernized product dashboards again.
+- Donations: Fix the donate button rendering as a cross shape on themes that apply block-level styles to `.wp-block-button__link`.
+- External Media: Fix the width of the Select Media button in narrow block placeholders, such as the Media & Text block.
+- Firewall: Avoid a fatal error for visitors on the IP block list when the firewall runs before WordPress.
+- Firewall: Fix blank Jetpack admin pages when the standalone mode bootstrap loads from an older copy of the plugin.
+- Footer: Hide the "Products" and "Help" links when My Jetpack is unavailable.
+- Forms: Cap the rating scale when rendering a form or a response so a malformed value cannot exhaust memory.
+- Forms: Detect Jetpack CRM installs that use a custom plugin folder or file name.
+- Google Fonts: Detect fonts followed by fallback families so selected fonts render on the front end.
+- Modules: Report an error instead of success when WP-CLI or the REST API switches a module the host or site administrator has forced on or off.
+- My Jetpack: Fix the layout of the connection screen for right-to-left languages.
+- My Jetpack: Fix the page failing to load for users who can edit posts but have no Jetpack menu, such as editors on unconnected sites.
+- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete.
+- My Jetpack: Show each notice once instead of twice.
+- My Jetpack: Stretch the tab content background to the full height of the page.
+- Newsletter: Show the earliest subscription date for subscribers with both an email and a WordPress.com subscription.
+- Newsletter: Show the warning when no site owner is connected to WordPress.com.
+- Podcast: Draw the daily downloads chart's gridlines at the same days as its labels.
+- Search: Keep the AI Answers preview hidden when answers are turned off.
+- Search: Require a paid Search plan to enable and display Site Chat.
+- Search: Stop offering Search blocks in the Overlay search sidebar's widget inserter, and flag any already there.
+- SEO: Fix Sitemap and Canonical URLs status to reflect the active modules.
+- SEO: Respect excerpt filters in generated `llms.txt` summaries.
+- Social: Show each number on the traffic chart's value axis once when visit counts are small.
+- Stats: Draw the My Jetpack stats chart's gridlines only at whole numbers when counts are small.
+- Stats: Prevent bar charts from flickering between the hovered bar and the keyboard-selected bar.
+- Stats: Stop the pricing grid from coming back for up to 5 minutes after choosing "Start for free".
+- Tooltips: Make information tooltips open from the keyboard and close on Escape.
+- VideoPress: Fix a just-uploaded video briefly showing up a second time as a local video in the Library.
+- VideoPress: Fix private video playback on sites using WPML.
+- VideoPress: Keep the dashboard views trend chart's comparison lines distinguishable, including for color-blind viewers.
+- VideoPress: Prevent the empty library prompt from appearing while videos are loading.
+- VideoPress: Show the poster of private videos in the inline player before they are played, instead of a black box.
 
 --------
 
