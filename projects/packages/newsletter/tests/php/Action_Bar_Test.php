@@ -158,8 +158,9 @@ class Action_Bar_Test extends BaseTestCase {
 	public function test_negative_answer_is_cached() {
 		$this->published = 1;
 		$this->render();
-		$this->render();
+		$this->assertSame( 1, $this->count_lookups );
 
+		$this->render();
 		$this->assertSame( 1, $this->count_lookups );
 	}
 
