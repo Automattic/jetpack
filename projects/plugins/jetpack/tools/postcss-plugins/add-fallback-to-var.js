@@ -1,5 +1,5 @@
 /**
- * Replace bare `var(--color-*|--studio-*)` references in a CSS value string with
+ * Replace bare `var(--color-*|--studio-*|--jp-*)` references in a CSS value string with
  * `var(--token, <fallback>)` using the provided token fallback map.
  *
  * Existing fallbacks (i.e. `var()` calls that already contain a comma)
@@ -14,7 +14,7 @@
  * @return {string} The value with fallbacks injected.
  */
 function addFallbackToVar( cssValue, tokenFallbacks ) {
-	return cssValue.replace( /var\(\s*(--(?:color|studio)-[\w-]+)\s*\)/g, ( match, tokenName ) => {
+	return cssValue.replace( /var\(\s*(--(?:color|studio|jp)-[\w-]+)\s*\)/g, ( match, tokenName ) => {
 		const fallback = tokenFallbacks[ tokenName ];
 		if ( fallback === undefined ) {
 			throw new Error(
