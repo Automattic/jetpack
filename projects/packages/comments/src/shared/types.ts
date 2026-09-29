@@ -70,8 +70,10 @@ export type Strings = {
 	emailHint: string;
 	emailHasAccount: string;
 	website: string;
+	createProfile: string;
 	intro: string;
-	introOr: string;
+	continueAsGuest: string;
+	back: string;
 	save: string;
 	saveAndPost: string;
 	postWithoutSaving: string;
@@ -83,7 +85,7 @@ export type Strings = {
 	logIn: string;
 	logInWithWordPress: string;
 	logOut: string;
-	commentingAs: string;
+	addYourName: string;
 	cancel: string;
 	signInFailed: string;
 	signInRateLimited: string;
@@ -92,6 +94,7 @@ export type Strings = {
 export type Settings = {
 	/** The package version that rendered the page, checked against the bundle's before it takes over. */
 	version: string;
+	styleUrl: string;
 	isLoggedIn: boolean;
 	requireNameEmail: boolean;
 	mustLogIn: boolean;

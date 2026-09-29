@@ -2,7 +2,7 @@ import clsx from 'clsx';
 import { render } from 'preact';
 import { useContext, useEffect, useRef } from 'preact/hooks';
 import { Identity, IdentityOptions } from '../identity';
-import { IdentityDialog } from '../identity/dialog';
+import { DialogHost, IdentityDialog } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
 import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
@@ -131,8 +131,9 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		};
 	}, [ form, formSettings, isSavingComment, commentValue, isKnown, isDialogOpen ] );
 
-	// Only for a reader the site knows, and only where the site shows avatars.
-	const avatar = isKnown.value && avatarUrl && ( signedIn.value?.avatar || avatarUrl );
+	// Only where the site shows avatars; a reader it does not know gets its default.
+	const avatar =
+		avatarUrl && ( isKnown.value ? signedIn.value?.avatar || avatarUrl : identity.defaultAvatar );
 	const { submit } = formSettings;
 
 	return (
@@ -172,7 +173,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			</div>
 			<IdentityOptions />
 			{ /* Core clears saved details on any post without this. */ }
-			{ isSavedGuest && ! signedIn.value && (
+			{ isSavedGuest.value && ! signedIn.value && (
 				<input type="hidden" name="wp-comment-cookies-consent" value="yes" />
 			) }
 		</>
@@ -180,59 +181,68 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 };
 
 // A page cache can pair settings from an older release with this bundle. The
-// mount holds a plain form for that case, and for a script that never runs.
-if ( JetpackComments.version !== JETPACK_COMMENTS_VERSION ) {
+// mount holds a plain form for that case, for a browser without form-associated
+// custom elements, and for a script that never runs.
+if (
+	JetpackComments.version !== JETPACK_COMMENTS_VERSION ||
+	! ( 'attachInternals' in HTMLElement.prototype )
+) {
 	document
 		.querySelectorAll( '.jetpack-comments' )
 		.forEach( element => element.classList.add( 'is-plain' ) );
 } else {
-	document
-		.querySelectorAll< HTMLElement >( '.jetpack-comments' )
-		.forEach( ( element, instance ) => {
-			const form = element.closest( 'form' );
+	if ( ! customElements.get( 'jetpack-comments-dialog' ) ) {
+		customElements.define( 'jetpack-comments-dialog', DialogHost );
+	}
 
-			if ( ! form ) {
-				return;
-			}
+	document.querySelectorAll< HTMLElement >( '.jetpack-comments' ).forEach( element => {
+		const form = element.closest( 'form' );
 
-			let formSettings: FormSettings;
+		if ( ! form ) {
+			return;
+		}
 
-			try {
-				// `||`: wp_json_encode() gives false on bad input, which arrives as an empty attribute.
-				formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
-			} catch {
-				return;
-			}
+		let formSettings: FormSettings;
 
-			// Before the signals read the draft, so a comment that landed is not offered back.
-			resolveSubmitted( formSettings.postId );
+		try {
+			// `||`: wp_json_encode() gives false on bad input, which arrives as an empty attribute.
+			formSettings = JSON.parse( element.dataset.jetpackComments || '{}' ) as FormSettings;
+		} catch {
+			return;
+		}
 
-			const signals = createSignals( formSettings, instance );
+		// Before the signals read the draft, so a comment that landed is not offered back.
+		resolveSubmitted( formSettings.postId );
 
-			element.replaceChildren();
-			element.classList.add( 'is-mounted' );
-			render(
-				<CommentSignals.Provider value={ signals }>
-					<CommentForm form={ form } />
-				</CommentSignals.Provider>,
-				element
-			);
+		const signals = createSignals( formSettings );
 
-			// Inside the form, so its fields post with it. A page can hold two comment
-			// forms, both with core's id, so nothing here may find the form by id.
-			render(
-				<CommentSignals.Provider value={ signals }>
-					<IdentityDialog />
-				</CommentSignals.Provider>,
-				form.appendChild( document.createElement( 'div' ) )
-			);
+		element.replaceChildren();
+		element.classList.add( 'is-mounted' );
+		render(
+			<CommentSignals.Provider value={ signals }>
+				<CommentForm form={ form } />
+			</CommentSignals.Provider>,
+			element
+		);
 
-			// The box wears the radius and inset the theme gives its textarea; nothing exposes them otherwise.
-			const textarea = element.querySelector( 'textarea' );
-			if ( textarea ) {
-				const { borderRadius, paddingInlineStart } = getComputedStyle( textarea );
-				element.style.setProperty( '--jetpack-comments-radius', borderRadius );
-				element.style.setProperty( '--jetpack-comments-inset', paddingInlineStart );
-			}
-		} );
+		// Inside the form, so what it hands over posts with it. A page can hold two
+		// comment forms, both with core's id, so nothing here may find the form by id.
+		const host = form.appendChild(
+			document.createElement( 'jetpack-comments-dialog' ) as DialogHost
+		);
+		render(
+			<CommentSignals.Provider value={ signals }>
+				<IdentityDialog internals={ host.internals } />
+			</CommentSignals.Provider>,
+			host.attachShadow( { mode: 'open' } )
+		);
+
+		// The box wears the radius and inset the theme gives its textarea; nothing exposes them otherwise.
+		const textarea = element.querySelector( 'textarea' );
+		if ( textarea ) {
+			const { borderRadius, paddingInlineStart } = getComputedStyle( textarea );
+			element.style.setProperty( '--jetpack-comments-radius', borderRadius );
+			element.style.setProperty( '--jetpack-comments-inset', paddingInlineStart );
+		}
+	} );
 }

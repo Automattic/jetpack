@@ -2,9 +2,13 @@
 @use "@wordpress/base-styles/variables";
 
 // Core's own look, from the same tokens wp-admin's components use. The theme
-// has no say here: the dialog renders outside the form, and everything is set.
+// has no say: the dialog renders in a shadow root and inherits nothing.
 $accent: #3858e9;
 $accent-hover: #2145e6;
+
+:host {
+	all: initial;
+}
 
 .jetpack-comments__dialog {
 	box-sizing: border-box;
@@ -27,10 +31,6 @@ $accent-hover: #2145e6;
 	* {
 		box-sizing: border-box;
 	}
-}
-
-// Nested for specificity: a theme's `input[type=text]` would otherwise win.
-.jetpack-comments__dialog {
 
 	.jetpack-comments__dialog-header {
 		display: flex;
@@ -74,6 +74,18 @@ $accent-hover: #2145e6;
 		}
 	}
 
+	.jetpack-comments__dialog-heading {
+		margin: variables.$grid-unit-30 0 variables.$grid-unit-10;
+		font-size: 20px;
+		font-weight: 600;
+		line-height: 1.3;
+		text-align: center;
+
+		+ .jetpack-comments__dialog-intro {
+			margin-block-start: 0;
+		}
+	}
+
 	.jetpack-comments__dialog-intro {
 		margin: variables.$grid-unit-30 0;
 		color: colors.$gray-800;
@@ -81,7 +93,7 @@ $accent-hover: #2145e6;
 	}
 
 	.jetpack-comments__field {
-		margin-block-start: variables.$grid-unit-30;
+		margin-block-start: variables.$grid-unit-20;
 	}
 
 	.jetpack-comments__label {
@@ -91,32 +103,28 @@ $accent-hover: #2145e6;
 	}
 
 	.jetpack-comments__input {
-		display: block !important;
-		inline-size: 100% !important;
-		block-size: 44px !important;
-		padding: 6px variables.$grid-unit-15 !important;
-		border: variables.$border-width solid colors.$gray-400 !important;
-		border-radius: variables.$radius-small !important;
-		background: colors.$white !important;
-		box-shadow: none !important;
-		color: colors.$gray-900 !important;
-		font-family: inherit !important;
+		display: block;
+		inline-size: 100%;
+		block-size: 44px;
+		padding: 6px variables.$grid-unit-15;
+		border: variables.$border-width solid colors.$gray-400;
+		border-radius: variables.$radius-small;
+		background: colors.$white;
+		color: colors.$gray-900;
+		font-family: inherit;
 		// Fonts smaller than 16px make mobile Safari zoom.
-		font-size: 16px !important;
-		line-height: normal !important;
-		// Pinned: themes reach for inputs with !important of their own.
-		outline: 0 !important;
+		font-size: 16px;
+		line-height: normal;
 
-		&:focus,
-		&:focus-visible {
-			border-color: $accent !important;
-			box-shadow: 0 0 0 1px $accent !important;
-			outline: 0 !important;
+		&:focus {
+			border-color: $accent;
+			box-shadow: 0 0 0 1px $accent;
+			outline: 0;
 		}
 
 		&[aria-invalid="true"] {
-			border-color: colors.$alert-red !important;
-			box-shadow: 0 0 0 1px colors.$alert-red !important;
+			border-color: colors.$alert-red;
+			box-shadow: 0 0 0 1px colors.$alert-red;
 		}
 	}
 
@@ -138,67 +146,78 @@ $accent-hover: #2145e6;
 	.jetpack-comments__dialog-actions {
 		display: grid;
 		justify-items: center;
-		gap: variables.$grid-unit-20;
+		gap: variables.$grid-unit-05;
 		margin-block-start: variables.$grid-unit-30;
 	}
 
 	.jetpack-comments__button {
-		display: inline-flex !important;
+		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		block-size: 40px !important;
-		margin: 0 !important;
-		padding: 0 variables.$grid-unit-30 !important;
-		border: 0 !important;
-		border-radius: variables.$radius-small !important;
-		font-family: inherit !important;
-		font-size: 16px !important;
-		font-weight: 400 !important;
-		line-height: 1 !important;
-		text-decoration: none !important;
+		block-size: 40px;
+		margin: 0;
+		padding: 0 variables.$grid-unit-30;
+		border: 0;
+		border-radius: variables.$radius-small;
+		font-family: inherit;
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 1;
+		text-decoration: none;
 		cursor: pointer;
 
 		&.is-primary {
-			background: $accent !important;
-			color: colors.$white !important;
+			background: $accent;
+			color: colors.$white;
 
 			&:hover:not(:disabled) {
-				background: $accent-hover !important;
+				background: $accent-hover;
 			}
 
 			&:disabled {
-				opacity: 0.5 !important;
+				opacity: 0.5;
 				cursor: not-allowed;
+			}
+		}
+
+		&.is-secondary {
+			background: colors.$white;
+			box-shadow: inset 0 0 0 1px $accent;
+			color: $accent;
+
+			&:hover {
+				box-shadow: inset 0 0 0 1px $accent-hover;
+				color: $accent-hover;
 			}
 		}
 
 		&.is-link {
-			padding: 0 !important;
-			background: none !important;
-			color: $accent !important;
-			text-decoration: underline !important;
+			padding: 0;
+			background: none;
+			color: $accent;
+			text-decoration: underline;
 
-			&:hover:not(:disabled) {
-				color: $accent-hover !important;
-			}
-
-			&:disabled {
-				color: colors.$gray-600 !important;
-				cursor: not-allowed;
+			&:hover {
+				color: $accent-hover;
 			}
 		}
 
 		&:focus-visible {
-			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent !important;
-			outline: 2px solid transparent !important;
+			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
+			outline: 2px solid transparent;
 		}
 	}
 
+	// The ways through, stacked full width, with posting unnamed as a link below.
 	.jetpack-comments__sign-in {
 		display: grid;
-		justify-items: center;
-		gap: variables.$grid-unit-10;
+		justify-items: stretch;
+		gap: variables.$grid-unit-20;
 		margin-block: variables.$grid-unit-30;
+
+		.is-link {
+			justify-self: center;
+		}
 	}
 
 	.jetpack-comments__signing-in {
@@ -208,35 +227,36 @@ $accent-hover: #2145e6;
 	}
 
 	.jetpack-comments__wpcom {
-		display: inline-flex !important;
+		display: inline-flex;
 		align-items: center;
+		justify-content: center;
 		gap: variables.$grid-unit-15;
-		block-size: 40px !important;
-		margin: 0 !important;
-		padding: 0 variables.$grid-unit-30 !important;
-		border: 0 !important;
-		border-radius: variables.$radius-small !important;
-		background: $accent !important;
-		color: colors.$white !important;
-		font-family: inherit !important;
-		font-size: 16px !important;
-		font-weight: 400 !important;
-		line-height: 1 !important;
+		block-size: 40px;
+		margin: 0;
+		padding: 0 variables.$grid-unit-30;
+		border: 0;
+		border-radius: variables.$radius-small;
+		background: $accent;
+		color: colors.$white;
+		font-family: inherit;
+		font-size: 16px;
+		font-weight: 400;
+		line-height: 1;
 		cursor: pointer;
 
 		svg {
 			inline-size: 20px;
-			block-size: 20px !important;
+			block-size: 20px;
 			fill: currentColor;
 		}
 
 		&:hover {
-			background: $accent-hover !important;
+			background: $accent-hover;
 		}
 
 		&:focus-visible {
-			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent !important;
-			outline: 2px solid transparent !important;
+			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
+			outline: 2px solid transparent;
 		}
 	}
 

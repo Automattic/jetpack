@@ -9,16 +9,19 @@ export const WordPressIcon = () => (
 	</svg>
 );
 
+// @wordpress/icons "close".
 export const CloseIcon = () => (
 	<svg
 		viewBox="0 0 24 24"
 		width="24"
 		height="24"
-		fill="currentColor"
+		fill="none"
+		stroke="currentColor"
+		strokeWidth="1.5"
 		aria-hidden="true"
 		focusable="false"
 	>
-		<path d="M12 13.06l3.712 3.713 1.061-1.06L13.061 12l3.712-3.712-1.06-1.06L12 10.938 8.288 7.227l-1.061 1.06L10.939 12l-3.712 3.712 1.06 1.061L12 13.061z" />
+		<path d="M5 19L19 5M19 19L5 5" vectorEffect="non-scaling-stroke" />
 	</svg>
 );
 

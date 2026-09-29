@@ -8,10 +8,9 @@ import type { Commenter, FormSettings, SignedIn } from './types';
  * Build one form's signals.
  *
  * @param formSettings - Values belonging to this form rather than to the page.
- * @param instance     - Which mount this is, for ids that must not repeat across forms on one page.
  * @return The signals for a single form.
  */
-export function createSignals( formSettings: FormSettings, instance: number ) {
+export function createSignals( formSettings: FormSettings ) {
 	const { isLoggedIn, mustLogIn, commenter: saved } = JetpackComments;
 
 	const commentValue = signal( readDraft( formSettings.postId ) );
@@ -24,8 +23,10 @@ export function createSignals( formSettings: FormSettings, instance: number ) {
 	const signedIn = signal< SignedIn | null >( passport ? { ...passport, code: null } : null );
 
 	// A site that now requires registration no longer knows a guest, saved or not.
-	const isSavedGuest = ! isLoggedIn && ! mustLogIn && saved.author !== '' && saved.email !== '';
-	const isKnown = computed( () => isLoggedIn || signedIn.value !== null || isSavedGuest );
+	const isSavedGuest = signal(
+		! isLoggedIn && ! mustLogIn && saved.author !== '' && saved.email !== ''
+	);
+	const isKnown = computed( () => isLoggedIn || signedIn.value !== null || isSavedGuest.value );
 
 	const isTrayOpen = signal( false );
 	const isMenuOpen = signal( false );
@@ -34,7 +35,6 @@ export function createSignals( formSettings: FormSettings, instance: number ) {
 
 	return {
 		formSettings,
-		instance,
 		commentValue,
 		isEmptyComment,
 		isSavingComment,

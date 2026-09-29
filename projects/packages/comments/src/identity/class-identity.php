@@ -45,7 +45,8 @@ class Identity {
 				'cookiePath'    => COOKIEPATH,
 				'cookieDomain'  => COOKIE_DOMAIN ? COOKIE_DOMAIN : '',
 				'defaultAvatar' => Avatars::default_url( 80 ),
-				'logoutUrl'     => admin_url( 'admin-ajax.php' ),
+				// A path: Simple's admin_url() is the .wordpress.com host, which cannot clear a custom domain's cookies.
+				'logoutUrl'     => wp_make_link_relative( admin_url( 'admin-ajax.php' ) ),
 				'logoutAction'  => Checkpoint_Endpoint::LOGOUT_ACTION,
 			),
 		);

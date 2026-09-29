@@ -4,34 +4,31 @@ import './toggle.scss';
 
 type ToggleProps = {
 	id: string;
-	name: string;
-	value: string;
-	defaultChecked?: boolean;
+	checked: boolean;
+	onChange: ( checked: boolean ) => void;
 	label: ComponentChildren;
 };
 
 /**
- * Verbum's toggle switch, drawn on the checkbox itself so it posts with the form.
+ * Verbum's toggle switch, drawn on the checkbox itself.
  *
- * @param props                - Component props.
- * @param props.id             - Element id, shared with the label.
- * @param props.name           - Field name to post under.
- * @param props.value          - Value to post when on.
- * @param props.defaultChecked - Whether it starts on.
- * @param props.label          - Text beside the switch.
+ * @param props          - Component props.
+ * @param props.id       - Element id, shared with the label.
+ * @param props.checked  - Whether it is on.
+ * @param props.onChange - Called with the new state.
+ * @param props.label    - Text beside the switch.
  * @return The switch and its label.
  */
 export const Toggle = ( props: ToggleProps ) => {
-	const { id, name, value, defaultChecked, label } = props;
+	const { id, checked, onChange, label } = props;
 
 	return (
 		<label htmlFor={ id } className="jetpack-comments__toggle">
 			<input
 				id={ id }
-				name={ name }
-				value={ value }
 				type="checkbox"
-				defaultChecked={ defaultChecked }
+				checked={ checked }
+				onChange={ event => onChange( event.currentTarget.checked ) }
 			/>
 			<span className="jetpack-comments__toggle-text">{ label }</span>
 		</label>

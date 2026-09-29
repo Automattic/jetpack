@@ -397,10 +397,14 @@ class Comment_Form {
 	 */
 	private function settings( $args ) {
 		$lengths = wp_get_comment_fields_max_lengths();
+		$style   = wp_styles()->query( self::HANDLE );
 
 		return array_merge(
 			array(
 				'version'             => Comments::PACKAGE_VERSION,
+				// The dialog's shadow root links it again; page styles stop at that boundary.
+				// Decoded: WordPress.com's static-file filter joins its query with &amp;.
+				'styleUrl'            => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
 				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
 				'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 				'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
@@ -433,7 +437,8 @@ class Comment_Form {
 			'postId'        => $post_id,
 			'loginUrl'      => wp_login_url( $permalink ),
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
+			// None on WordPress.com, where the site's session is the reader's whole WordPress.com login.
+			'logoutUrl'     => is_user_logged_in() && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
 			'submit'        => array(
 				'id'        => $args['id_submit'] ?? 'submit',
 				'name'      => $args['name_submit'] ?? 'submit',
@@ -464,8 +469,10 @@ class Comment_Form {
 			'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
 			'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
 			'website'             => __( 'Website (optional)', 'jetpack-comments' ),
-			'intro'               => __( 'Add your name and email to post your comment.', 'jetpack-comments' ),
-			'introOr'             => __( 'Or add your name and email to post your comment.', 'jetpack-comments' ),
+			'createProfile'       => __( 'Create a profile', 'jetpack-comments' ),
+			'intro'               => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
+			'continueAsGuest'     => __( 'Continue as a guest', 'jetpack-comments' ),
+			'back'                => __( 'Back', 'jetpack-comments' ),
 			'save'                => __( 'Save', 'jetpack-comments' ),
 			'saveAndPost'         => __( 'Save and post comment', 'jetpack-comments' ),
 			'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
@@ -477,8 +484,7 @@ class Comment_Form {
 			'logIn'               => __( 'Log in', 'jetpack-comments' ),
 			'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
 			'logOut'              => __( 'Log out', 'jetpack-comments' ),
-			/* translators: %s is the commenter's name. */
-			'commentingAs'        => __( 'Commenting as %s', 'jetpack-comments' ),
+			'addYourName'         => __( 'Add your name', 'jetpack-comments' ),
 			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
 			'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),

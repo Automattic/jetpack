@@ -7,25 +7,36 @@ import { Toggle } from './toggle';
 import './dialog.scss';
 
 /**
+ * The dialog's host, a form control, so the dialog can live in a shadow root out
+ * of the theme's reach and still post with the comment.
+ */
+export class DialogHost extends HTMLElement {
+	static formAssociated = true;
+	internals = this.attachInternals();
+}
+
+/**
  * Asks a reader who they are on their way to posting, plus any subscribe options
  * the host offers. A saved guest opens it alone to edit their details.
  *
- * It sits inside the comment form so its fields post with the comment. "Save and
- * post" carries core's cookies-consent field and "No, thanks" does not, so core
- * clears any saved details on the latter.
+ * A form leaves out fields in a shadow root, so this hands the comment form what
+ * to post through its host instead. A guest's "Save and post" adds core's
+ * cookies-consent field, so core saves their details.
  *
+ * @param props           - Component props.
+ * @param props.internals - The host's form internals.
  * @return The dialog.
  */
-export const IdentityDialog = () => {
+export const IdentityDialog = ( { internals }: { internals: ElementInternals } ) => {
 	const {
 		formSettings,
 		commenter,
-		commentParent,
+		isEmptyComment,
 		signedIn,
+		isSavedGuest,
 		isKnown,
 		isDialogOpen,
 		isEditing,
-		instance,
 	} = useContext( CommentSignals );
 	const { site, strings, user, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
@@ -37,12 +48,20 @@ export const IdentityDialog = () => {
 	const [ isSigningIn, setIsSigningIn ] = useState( false );
 	const [ signInError, setSignInError ] = useState( '' );
 	const [ emailTaken, setEmailTaken ] = useState( false );
-	const [ checkingEmail, setCheckingEmail ] = useState( false );
+	// Straight to the fields when they are the only way through.
+	const firstStep = identity.canSignIn || ! requireNameEmail ? 'choose' : 'guest';
+	const [ step, setStep ] = useState( firstStep );
+	const [ subscribed, setSubscribed ] = useState< Record< string, boolean > >( () =>
+		Object.fromEntries(
+			formSettings.subscriptions.map( ( { name, checked } ) => [ name, checked ] )
+		)
+	);
 
 	useEffect( () => {
 		const element = dialog.current;
 
 		if ( isDialogOpen.value && ! element?.open ) {
+			setStep( firstStep );
 			element!.showModal();
 		} else if ( ! isDialogOpen.value && element?.open ) {
 			element.close();
@@ -67,6 +86,12 @@ export const IdentityDialog = () => {
 
 		if ( 'code' in result ) {
 			signedIn.value = { name: result.name, avatar: result.avatar, code: result.code };
+			isDialogOpen.value = false;
+
+			// A timeout, so the render that puts the sign-in code in the form lands first.
+			if ( ! isEmptyComment.peek() ) {
+				window.setTimeout( () => internals.form?.requestSubmit() );
+			}
 		} else if ( 'error' in result ) {
 			setSignInError(
 				result.error === 'rate_limited' ? strings.signInRateLimited : strings.signInFailed
@@ -80,16 +105,13 @@ export const IdentityDialog = () => {
 
 		if ( ! /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test( email ) ) {
 			setEmailTaken( false );
-			setCheckingEmail( false );
 			return;
 		}
 
-		setCheckingEmail( true );
 		const taken = await emailHasAccount( email );
 
 		if ( current === emailAttempt.current ) {
 			setEmailTaken( taken );
-			setCheckingEmail( false );
 		}
 	};
 
@@ -114,197 +136,249 @@ export const IdentityDialog = () => {
 		isEditing.value = false;
 	};
 
-	// Only while open: a required field the browser cannot focus would stop the submit that opens it.
-	const required = requireNameEmail && isDialogOpen.value;
-
-	// Core's own comment-form markup, so a theme's styles for it reach these too.
 	const fields = [
-		{ field: 'author' as const, type: 'text', autoComplete: 'name', label: strings.name, required },
+		{
+			field: 'author' as const,
+			type: 'text',
+			autoComplete: 'name',
+			label: strings.name,
+			required: requireNameEmail,
+		},
 		{
 			field: 'email' as const,
 			type: 'email',
 			autoComplete: 'email',
 			label: strings.email,
-			required,
+			required: requireNameEmail,
 		},
 		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
 	];
 
-	const titleId = `jetpack-comments-dialog-title-${ instance }`;
-	const notesId = `jetpack-comments-email-notes-${ instance }`;
 	const editing = isEditing.value;
 	const known = ! editing && isKnown.value;
-	const showFields = ! known && ! mustLogIn;
-	const holdButtons = emailTaken || checkingEmail;
+	const choosing = ! known && ! editing && step === 'choose';
+	const showFields = ! known && ! mustLogIn && ( editing || step === 'guest' );
+	const showToggles = showFields && ! editing;
+	const guest = ! user && ! signedIn.value && ! mustLogIn;
+	const posting = ! isEmptyComment.value;
+
+	const formValue = ( consent: boolean, anonymous = false ) => {
+		const data = new FormData();
+
+		if ( anonymous ) {
+			return data;
+		}
+
+		if ( guest ) {
+			Object.entries( commenter.value ).forEach( ( [ name, value ] ) =>
+				data.append( name, value )
+			);
+		}
+
+		if ( showToggles ) {
+			formSettings.subscriptions.forEach(
+				( { name } ) => subscribed[ name ] && data.append( name, 'subscribe' )
+			);
+		}
+
+		if ( consent ) {
+			data.append( 'wp-comment-cookies-consent', 'yes' );
+		}
+
+		return data;
+	};
+
+	useEffect( () => internals.setFormValue( formValue( false ) ) );
+
+	const submit = ( event: Event ) => {
+		event.preventDefault();
+
+		// Opened from "Add your name" with nothing written, so there is nothing to post.
+		if ( editing || isEmptyComment.peek() ) {
+			save();
+			isSavedGuest.value = commenter.value.author !== '' && commenter.value.email !== '';
+			return;
+		}
+
+		const { submitter } = event as SubmitEvent;
+
+		const action = submitter?.getAttribute( 'name' );
+
+		// Read as the comment form submits, then dropped, so a blocked submit leaves no consent behind.
+		internals.setFormValue( formValue( action === 'consent', action === 'anonymous' ) );
+		internals.form?.requestSubmit();
+		internals.setFormValue( formValue( false ) );
+	};
 
 	return (
-		<dialog
-			ref={ dialog }
-			className="jetpack-comments__dialog"
-			aria-labelledby={ titleId }
-			onClose={ close }
-		>
-			<div className="jetpack-comments__dialog-header">
-				{ site.iconUrl && (
-					<img
-						className="jetpack-comments__site-icon"
-						src={ site.iconUrl }
-						alt=""
-						width="32"
-						height="32"
-					/>
-				) }
-				<span id={ titleId } className="jetpack-comments__dialog-title">
-					{ site.name }
-				</span>
-				<button type="button" className="jetpack-comments__dialog-close" onClick={ close }>
-					<span className="jetpack-comments__visually-hidden">{ strings.close }</span>
-					<CloseIcon />
-				</button>
-			</div>
-			{ ! known && mustLogIn && (
-				<p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p>
-			) }
-			{ ! known && ! editing && identity.canSignIn && (
-				<div className="jetpack-comments__sign-in">
-					{ isSigningIn ? (
-						<span className="jetpack-comments__signing-in">
-							<span className="jetpack-comments__spinner" aria-hidden="true" />
-							<button
-								type="button"
-								className="jetpack-comments__button is-link"
-								onClick={ () => {
-									signInAttempt.current++;
-									popup.current?.close();
-									popup.current = null;
-									setIsSigningIn( false );
-								} }
-							>
-								{ strings.cancel }
-							</button>
-						</span>
-					) : (
-						<button type="button" className="jetpack-comments__wpcom" onClick={ start }>
-							<WordPressIcon />
-							{ strings.logInWithWordPress }
-						</button>
-					) }
-					{ signInError && (
-						<span className="jetpack-comments__notice" role="status">
-							{ signInError }
-						</span>
-					) }
-				</div>
-			) }
-			{ known && (
-				<p className="jetpack-comments__dialog-intro">
-					{ strings.commentingAs.replace(
-						'%s',
-						() => user?.name ?? signedIn.value?.name ?? commenter.value.author
-					) }
-				</p>
-			) }
-			{ showFields && ! editing && (
-				<p className="jetpack-comments__dialog-intro">
-					{ identity.canSignIn ? strings.introOr : strings.intro }
-				</p>
-			) }
-			{ showFields &&
-				fields.map( ( { field, ...input } ) => (
-					<div key={ field } className="jetpack-comments__field">
-						<label
-							htmlFor={ `jetpack-comments-${ field }-${ instance }` }
-							className="jetpack-comments__label"
-						>
-							{ input.label }
-						</label>
-						<input
-							id={ `jetpack-comments-${ field }-${ instance }` }
-							name={ field }
-							type={ input.type }
-							autoComplete={ input.autoComplete }
-							className="jetpack-comments__input"
-							aria-describedby={ field === 'email' ? notesId : undefined }
-							aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
-							required={ input.required }
-							value={ commenter.value[ field ] }
-							onInput={ event => {
-								const { value } = event.currentTarget;
-								commenter.value = { ...commenter.value, [ field ]: value };
-
-								if ( field === 'email' ) {
-									window.clearTimeout( emailTimer.current );
-									emailTimer.current = window.setTimeout( () => checkEmail( value ), 500 );
-								}
-							} }
-							onBlur={ field === 'email' ? () => checkEmail( commenter.value.email ) : undefined }
-						/>
-						{ field === 'email' && (
-							<span id={ notesId } className="jetpack-comments__help">
-								{ strings.emailHint }
-							</span>
+		<>
+			<link rel="stylesheet" href={ JetpackComments.styleUrl } />
+			<dialog
+				ref={ dialog }
+				className="jetpack-comments__dialog"
+				aria-labelledby="title"
+				onClose={ close }
+			>
+				<form onSubmit={ submit }>
+					<div className="jetpack-comments__dialog-header">
+						{ site.iconUrl && (
+							<img
+								className="jetpack-comments__site-icon"
+								src={ site.iconUrl }
+								alt=""
+								width="36"
+								height="36"
+							/>
 						) }
-						{ field === 'email' && emailTaken && (
-							<span className="jetpack-comments__notice" role="alert">
-								{ strings.emailHasAccount }
-							</span>
+						<span id="title" className="jetpack-comments__dialog-title">
+							{ site.name }
+						</span>
+						<button type="button" className="jetpack-comments__dialog-close" onClick={ close }>
+							<span className="jetpack-comments__visually-hidden">{ strings.close }</span>
+							<CloseIcon />
+						</button>
+					</div>
+					{ ! known && mustLogIn && (
+						<p className="jetpack-comments__dialog-intro">{ strings.mustLogIn }</p>
+					) }
+					{ choosing && (
+						<div className="jetpack-comments__sign-in">
+							{ identity.canSignIn &&
+								( isSigningIn ? (
+									<span className="jetpack-comments__signing-in">
+										<span className="jetpack-comments__spinner" aria-hidden="true" />
+										<button
+											type="button"
+											className="jetpack-comments__button is-link"
+											onClick={ () => {
+												signInAttempt.current++;
+												popup.current?.close();
+												popup.current = null;
+												setIsSigningIn( false );
+											} }
+										>
+											{ strings.cancel }
+										</button>
+									</span>
+								) : (
+									<button type="button" className="jetpack-comments__wpcom" onClick={ start }>
+										<WordPressIcon />
+										{ strings.logInWithWordPress }
+									</button>
+								) ) }
+							{ signInError && (
+								<span className="jetpack-comments__notice" role="status">
+									{ signInError }
+								</span>
+							) }
+							{ ! mustLogIn && (
+								<button
+									type="button"
+									className="jetpack-comments__button is-secondary"
+									onClick={ () => setStep( 'guest' ) }
+								>
+									{ strings.continueAsGuest }
+								</button>
+							) }
+							{ posting && ! mustLogIn && ! requireNameEmail && (
+								<button type="submit" name="anonymous" className="jetpack-comments__button is-link">
+									{ strings.postWithoutSaving }
+								</button>
+							) }
+						</div>
+					) }
+					{ showFields && ! editing && (
+						<>
+							<h2 className="jetpack-comments__dialog-heading">{ strings.createProfile }</h2>
+							<p className="jetpack-comments__dialog-intro">{ strings.intro }</p>
+						</>
+					) }
+					{ showFields &&
+						fields.map( ( { field, ...input } ) => (
+							<div key={ field } className="jetpack-comments__field">
+								<label htmlFor={ field } className="jetpack-comments__label">
+									{ input.label }
+								</label>
+								<input
+									id={ field }
+									name={ field }
+									type={ input.type }
+									autoComplete={ input.autoComplete }
+									className="jetpack-comments__input"
+									aria-describedby={ field === 'email' ? 'email-notes' : undefined }
+									aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
+									required={ input.required }
+									value={ commenter.value[ field ] }
+									onInput={ event => {
+										const { value } = event.currentTarget;
+										commenter.value = { ...commenter.value, [ field ]: value };
+
+										if ( field === 'email' ) {
+											window.clearTimeout( emailTimer.current );
+											emailTimer.current = window.setTimeout( () => checkEmail( value ), 500 );
+										}
+									} }
+									onBlur={
+										field === 'email' ? () => checkEmail( commenter.value.email ) : undefined
+									}
+								/>
+								{ field === 'email' && (
+									<span id="email-notes" className="jetpack-comments__help">
+										{ strings.emailHint }
+									</span>
+								) }
+								{ field === 'email' && emailTaken && (
+									<span className="jetpack-comments__notice" role="alert">
+										{ strings.emailHasAccount }
+									</span>
+								) }
+							</div>
+						) ) }
+					{ showToggles &&
+						formSettings.subscriptions.map( ( { name, label } ) => (
+							<Toggle
+								key={ name }
+								id={ name }
+								checked={ subscribed[ name ] }
+								onChange={ checked => setSubscribed( { ...subscribed, [ name ]: checked } ) }
+								label={ label }
+							/>
+						) ) }
+					<div className="jetpack-comments__dialog-actions">
+						{ editing && (
+							<button
+								type="submit"
+								className="jetpack-comments__button is-primary"
+								disabled={ emailTaken }
+							>
+								{ strings.save }
+							</button>
+						) }
+						{ showFields && ! editing && (
+							<>
+								{ /* First, so Enter in a field submits with consent. */ }
+								<button
+									type="submit"
+									name="consent"
+									className="jetpack-comments__button is-primary"
+									disabled={ emailTaken }
+								>
+									{ posting ? strings.saveAndPost : strings.save }
+								</button>
+								{ firstStep === 'choose' && (
+									<button
+										type="button"
+										className="jetpack-comments__button is-link"
+										onClick={ () => setStep( 'choose' ) }
+									>
+										{ strings.back }
+									</button>
+								) }
+							</>
 						) }
 					</div>
-				) ) }
-			{ ! editing &&
-				( known || ! mustLogIn ) &&
-				formSettings.subscriptions.map( subscription => {
-					const id = `jetpack-comments-${ subscription.name }-${ instance }`;
-
-					return (
-						<Toggle
-							key={ subscription.name }
-							id={ id }
-							name={ subscription.name }
-							value="subscribe"
-							defaultChecked={ subscription.checked }
-							label={ subscription.label }
-						/>
-					);
-				} ) }
-			<div className="jetpack-comments__dialog-actions">
-				{ editing && (
-					<button
-						type="button"
-						className="jetpack-comments__button is-primary"
-						disabled={ holdButtons }
-						onClick={ save }
-					>
-						{ strings.save }
-					</button>
-				) }
-				{ known && (
-					<input
-						type="submit"
-						className="jetpack-comments__button is-primary"
-						value={ commentParent.value ? strings.reply : formSettings.submit.label }
-					/>
-				) }
-				{ showFields && ! editing && (
-					<>
-						{ /* The label is what posts; core only checks that the field is set. */ }
-						<input
-							type="submit"
-							name="wp-comment-cookies-consent"
-							className="jetpack-comments__button is-primary"
-							disabled={ holdButtons }
-							value={ strings.saveAndPost }
-						/>
-						<button
-							type="submit"
-							className="jetpack-comments__button is-link"
-							disabled={ holdButtons }
-						>
-							{ strings.postWithoutSaving }
-						</button>
-					</>
-				) }
-			</div>
-		</dialog>
+				</form>
+			</dialog>
+		</>
 	);
 };

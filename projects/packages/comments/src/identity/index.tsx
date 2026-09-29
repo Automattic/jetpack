@@ -7,13 +7,13 @@ import { ChevronDownIcon } from './icons';
 import './style.scss';
 
 /**
- * Who the comment will be attributed to, for a reader the site already knows,
- * with a chevron that drops the options out under the footer.
+ * Who the comment will be attributed to: a link to the dialog until the site
+ * knows the reader, then their name, with a chevron that drops the options out below.
  *
- * @return The identity line, or nothing for a reader the dialog will ask.
+ * @return The identity line.
  */
 export const Identity = () => {
-	const { formSettings, commenter, signedIn, isMenuOpen, isSavedGuest } =
+	const { formSettings, commenter, signedIn, isMenuOpen, isSavedGuest, isDialogOpen } =
 		useContext( CommentSignals );
 	const { user, mustLogIn, identity, strings } = JetpackComments;
 
@@ -31,10 +31,22 @@ export const Identity = () => {
 		name = user.name;
 	} else if ( signedIn.value ) {
 		name = signedIn.value.name;
-	} else if ( isSavedGuest ) {
+	} else if ( isSavedGuest.value ) {
 		name = commenter.value.author;
 	} else {
-		return null;
+		return (
+			<span className="jetpack-comments__who">
+				<a
+					href="#"
+					onClick={ event => {
+						event.preventDefault();
+						isDialogOpen.value = true;
+					} }
+				>
+					{ strings.addYourName }
+				</a>
+			</span>
+		);
 	}
 
 	const open = isMenuOpen.value;
@@ -91,8 +103,20 @@ export const IdentityOptions = () => {
 	return (
 		<div className={ clsx( 'jetpack-comments__options', { 'is-open': isMenuOpen.value } ) }>
 			<div>
-				{ user && <a href={ formSettings.logoutUrl }>{ strings.logOut }</a> }
 				{ /* Anchors, not buttons, so the theme styles them like the link beside them. */ }
+				{ user && formSettings.logoutUrl && (
+					<a
+						href={ formSettings.logoutUrl }
+						onClick={ async event => {
+							// Core's log-out leaves a popup sign-in behind, which would sign them straight back in.
+							event.preventDefault();
+							await logOut();
+							window.location.href = formSettings.logoutUrl;
+						} }
+					>
+						{ strings.logOut }
+					</a>
+				) }
 				{ ! user && signedIn.value && (
 					<a
 						href="#"
