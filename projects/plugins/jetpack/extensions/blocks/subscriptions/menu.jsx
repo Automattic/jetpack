@@ -1,7 +1,8 @@
-import { Button, PanelBody, __experimentalHStack as HStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { Button, PanelBody, __experimentalVStack as VStack } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { useSelect } from '@wordpress/data';
 import { PluginSidebar } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useState } from 'react';
 import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
@@ -37,33 +38,44 @@ const NewsletterMenu = ( { openPreviewModal } ) => {
 			icon={ <SendIcon /> }
 			className="jetpack-newsletter-settings-sidebar"
 		>
-			<PanelBody>
-				{ ! isPublished && <NewsletterEmailDocumentSettings /> }
-				<SubscribersAffirmation accessLevel={ accessLevel } prePublish={ ! isPublished } />
-				{ isSendEmailEnabled && ! isPublished && (
-					<>
-						<p>
+			<PanelBody title={ __( 'Email', 'jetpack' ) } initialOpen>
+				{ isPublished ? (
+					<SubscribersAffirmation accessLevel={ accessLevel } />
+				) : (
+					<NewsletterEmailDocumentSettings />
+				) }
+				{ ! isSendEmailEnabled && ! isPublished && (
+					<Notice.Root intent="warning" icon={ null }>
+						<Notice.Title>{ __( 'Newsletter emails are turned off', 'jetpack' ) }</Notice.Title>
+						<Notice.Description>
 							{ __(
-								'Ensure your email looks perfect. Use the buttons below to view a preview or send a test email.',
+								'Newsletter categories only apply when this post is emailed. You can still choose who can read it below.',
 								'jetpack'
 							) }
-						</p>
-						<HStack wrap={ true }>
+						</Notice.Description>
+					</Notice.Root>
+				) }
+				{ isSendEmailEnabled && ! isPublished && (
+					<>
+						<p>{ __( 'Preview or test your email before publishing.', 'jetpack' ) }</p>
+						<VStack spacing={ 3 } className="jetpack-newsletter-settings-sidebar__email-buttons">
 							<Button
 								onClick={ openPreviewModal }
 								variant="secondary"
-								disabled={ isPublished || ! postId }
+								disabled={ ! postId }
+								__next40pxDefaultSize
 							>
 								{ __( 'Preview email', 'jetpack' ) }
 							</Button>
 							<Button
 								onClick={ openTestEmailModal }
 								variant="secondary"
-								disabled={ isPublished || ! postId }
+								disabled={ ! postId }
+								__next40pxDefaultSize
 							>
 								{ __( 'Send test email', 'jetpack' ) }
 							</Button>
-						</HStack>
+						</VStack>
 						{ /*
 						 * Previewing works over a site (blog-token) connection, so the button
 						 * above is available to everyone. Sending a test email still requires a

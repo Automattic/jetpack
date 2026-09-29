@@ -5,8 +5,7 @@ import {
 	FlexBlock,
 	RadioControl,
 	Spinner,
-	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	ToggleControl,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
@@ -415,11 +414,11 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
 
-	const toggleSendEmail = value => {
+	const toggleSendEmail = checked => {
 		const postMetaUpdate = {
 			...postMeta,
 			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only',
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! checked,
 		};
 		setPostMeta( postMetaUpdate );
 		saveEditedEntityRecord( 'postType', postType, postId );
@@ -427,8 +426,7 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isSendEmailEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
-		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-		return meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ? 'post-only' : 'post-and-email';
+		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	} );
 
 	if ( isAlreadySent ) {
@@ -439,23 +437,13 @@ export function NewsletterEmailDocumentSettings() {
 		<PostVisibilityCheck
 			render={ ( { canEdit } ) => {
 				return (
-					<ToggleGroupControl
-						value={ isSendEmailEnabled }
-						disabled={ isPostPublished || ! canEdit }
-						onChange={ toggleSendEmail }
-						isBlock
-						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
-						hideLabelFromVision={ true }
+					<ToggleControl
 						className="jetpack-subscribe-email-document-setting"
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-					>
-						<ToggleGroupControlOption
-							label={ __( 'Post & email', 'jetpack' ) }
-							value="post-and-email"
-						/>
-						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value="post-only" />
-					</ToggleGroupControl>
+						checked={ isSendEmailEnabled }
+						disabled={ isPostPublished || ! canEdit }
+						label={ __( 'Send this post to subscribers', 'jetpack' ) }
+						onChange={ toggleSendEmail }
+					/>
 				);
 			} }
 		/>

@@ -82,6 +82,11 @@
 .jetpack-newsletter-settings-sidebar {
 
 	.jetpack-subscribe-email-document-setting {
-		margin-bottom: 1em;
+		margin-block-end: 1em;
 	}
+}
+
+.jetpack-newsletter-settings-sidebar__email-buttons .components-button {
+	justify-content: center;
+	width: 100%;
 }
