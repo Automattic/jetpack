@@ -159,6 +159,8 @@ Reset deletes the stored entry rather than copying the default into it, so a sec
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
 
+The default layouts also scope the widget picker: it offers the types any available section places, on every section. A plugin's type reaches the picker once a section places it, its own or another through the filter above.
+
 ## Availability
 
 `is_available()` is the section's own rule, `is_available` from the registration. The dashboard has no fixed list of tabs: every registered section the site qualifies for is shown.
