@@ -100,7 +100,7 @@ function chartUnit( unit: string | undefined, fallback: ChartUnit ): ChartUnit {
 /**
  * Move the chart end date by one full window.
  *
- * Weeks step by seven days per bucket. Months and years shift from the 1st so a 31st does not roll into the next month.
+ * Weeks step by seven days per bucket. Months and years end on the last day of that period.
  *
  * @param isoDate   - Current end date, `yyyy-MM-dd`.
  * @param unit      - Selected chart unit.
@@ -115,8 +115,10 @@ function shiftChartDate( isoDate: string, unit: ChartUnit, direction: -1 | 1 ): 
 
 	if ( unit === 'month' ) {
 		next.setMonth( next.getMonth() + steps );
+		next.setMonth( next.getMonth() + 1, 0 );
 	} else if ( unit === 'year' ) {
 		next.setFullYear( next.getFullYear() + steps );
+		next.setMonth( 11, 31 );
 	} else if ( unit === 'week' ) {
 		next.setDate( next.getDate() + steps * 7 );
 	} else {
@@ -131,27 +133,12 @@ function shiftChartDate( isoDate: string, unit: ChartUnit, direction: -1 | 1 ): 
 /**
  * Keep a shifted end date from passing today.
  *
- * A month or year step that lands in the current period is the current window.
- *
  * @param shifted - Candidate end date, `yyyy-MM-dd`.
  * @param today   - Site calendar day, `yyyy-MM-dd`.
- * @param unit    - Selected chart unit.
  * @return End date to request.
  */
-function clampChartEndDate( shifted: string, today: string, unit: ChartUnit ): string {
-	if ( shifted >= today ) {
-		return today;
-	}
-
-	if ( unit === 'month' && shifted.slice( 0, 7 ) === today.slice( 0, 7 ) ) {
-		return today;
-	}
-
-	if ( unit === 'year' && shifted.slice( 0, 4 ) === today.slice( 0, 4 ) ) {
-		return today;
-	}
-
-	return shifted;
+function clampChartEndDate( shifted: string, today: string ): string {
+	return shifted < today ? shifted : today;
 }
 
 /**
@@ -478,7 +465,7 @@ export default function SubscriberStatsChart(): JSX.Element {
 	const moveChartDate = useCallback(
 		( direction: -1 | 1 ) => {
 			setEndDate( current =>
-				clampChartEndDate( shiftChartDate( current, unit, direction ), today, unit )
+				clampChartEndDate( shiftChartDate( current, unit, direction ), today )
 			);
 			recordStatsEvent( 'jetpack_newsletter_stats_period_click', {
 				direction: direction === -1 ? 'previous' : 'next',

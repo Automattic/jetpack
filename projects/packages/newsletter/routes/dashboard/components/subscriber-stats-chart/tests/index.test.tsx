@@ -534,7 +534,7 @@ describe( 'SubscriberStatsChart', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: expect.stringContaining( 'unit=month&quantity=6&date=2026-03-01' ),
+				path: expect.stringContaining( 'unit=month&quantity=6&date=2026-03-31' ),
 			} );
 		} );
 		// eslint-disable-next-line testing-library/prefer-user-event
@@ -546,7 +546,7 @@ describe( 'SubscriberStatsChart', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: 'Previous period' } ) );
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-09-01' ),
+				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-12-31' ),
 			} );
 		} );
 		// eslint-disable-next-line testing-library/prefer-user-event
@@ -567,7 +567,7 @@ describe( 'SubscriberStatsChart', () => {
 
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-09-01' ),
+				path: expect.stringContaining( 'unit=year&quantity=3&date=2023-12-31' ),
 			} );
 		} );
 
@@ -587,11 +587,11 @@ describe( 'SubscriberStatsChart', () => {
 			} )
 		);
 		expect( mockApiFetch ).not.toHaveBeenCalledWith( {
-			path: expect.stringContaining( 'unit=day&quantity=30&date=2023-09-01' ),
+			path: expect.stringContaining( 'unit=day&quantity=30&date=2023-12-31' ),
 		} );
 	} );
 
-	it( 'steps months from the first of the month', async () => {
+	it( 'ends a past month on the last day of that month', async () => {
 		mockDateI18n.mockReturnValue( '2026-03-31' );
 		renderStats();
 
@@ -603,7 +603,7 @@ describe( 'SubscriberStatsChart', () => {
 
 		await waitFor( () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith( {
-				path: expect.stringContaining( 'unit=month&quantity=6&date=2025-09-01' ),
+				path: expect.stringContaining( 'unit=month&quantity=6&date=2025-09-30' ),
 			} );
 		} );
 

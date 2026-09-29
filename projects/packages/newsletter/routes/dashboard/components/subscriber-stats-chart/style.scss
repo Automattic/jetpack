@@ -95,7 +95,7 @@
 			border-radius: 0;
 			background: transparent;
 			box-shadow: none;
-			color: #1e1e1e;
+			color: var(--wpds-color-foreground-content-neutral);
 			cursor: pointer;
 
 			&:focus-visible {
@@ -131,11 +131,11 @@
 			min-block-size: 0;
 			margin: 0;
 			padding: 6px 12px;
-			border: 1px solid #c3c4c7;
+			border: 1px solid var(--wpds-color-stroke-surface-neutral);
 			border-radius: 0;
-			background: #fff;
+			background: var(--wpds-color-background-interactive-neutral);
 			box-shadow: none;
-			color: #1e1e1e;
+			color: var(--wpds-color-foreground-content-neutral);
 			font-family: inherit;
 			font-size: 14px;
 			font-weight: 500;
