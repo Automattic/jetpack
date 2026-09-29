@@ -66,13 +66,14 @@ describe( 'buildRangePatch', () => {
 		expect( patch?.interval ).toBe( 'hour' );
 	} );
 
-	it( 'resets to the new preset default when a different named preset is picked', () => {
+	it( 'carries a still-allowed interval across a preset change', () => {
 		const patch = buildRangePatch( {
 			nextRange: { from, to: wideTo },
 			nextPresetId: 'last-30-days',
-			effective: { preset: 'year-to-date', interval: 'week' },
+			effective: { preset: 'last-7-days', interval: 'day' },
 		} );
 
+		// `day` is allowed for last-30-days too, so the selection survives.
 		expect( patch?.interval ).toBe( 'day' );
 	} );
 
@@ -107,31 +108,6 @@ describe( 'buildRangePatch', () => {
 		} );
 
 		expect( patch?.interval ).toBe( 'day' );
-	} );
-
-	it( 'keeps the interval across a named preset change when asked to', () => {
-		const patch = buildRangePatch( {
-			nextRange: { from, to: wideTo },
-			nextPresetId: 'last-30-days',
-			keepInterval: true,
-			effective: { preset: 'year-to-date', interval: 'week' },
-		} );
-
-		expect( patch?.interval ).toBe( 'week' );
-	} );
-
-	it( 'carries a non-default interval through a custom range or a range with no preset', () => {
-		const monthLong = new TZDate( '2026-08-18T14:30:00.000+00:00', 'UTC' );
-
-		for ( const nextPresetId of [ 'custom', undefined ] as const ) {
-			const patch = buildRangePatch( {
-				nextRange: { from, to: monthLong },
-				nextPresetId,
-				effective: { preset: 'last-30-days', interval: 'week' },
-			} );
-
-			expect( patch?.interval ).toBe( 'week' );
-		}
 	} );
 
 	// A stepped window carries no preset, so the same rule has to reach it

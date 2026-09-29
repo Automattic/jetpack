@@ -1,11 +1,7 @@
 /**
  * External dependencies
  */
-import {
-	resolveIntervalForPresetChange,
-	resolveIntervalForRange,
-	type ReportQueryParams,
-} from '@jetpack-premium-analytics/data';
+import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
 	type ComparisonPresetId,
 	type DateRange,
@@ -44,12 +40,6 @@ type BuildRangePatchArgs = {
 	exactRange?: boolean;
 
 	/**
-	 * Carry the current interval even across a preset change, for changes the
-	 * user did not pick.
-	 */
-	keepInterval?: boolean;
-
-	/**
 	 * The current effective search params, used to re-derive the comparison
 	 * range and to resolve the interval for the next range.
 	 */
@@ -69,7 +59,6 @@ export function buildRangePatch( {
 	nextRange,
 	nextPresetId,
 	exactRange,
-	keepInterval,
 	effective,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
@@ -82,15 +71,14 @@ export function buildRangePatch( {
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		patch.interval = keepInterval
-			? resolveIntervalForRange( nextPresetId, rangeFrom, rangeTo, effective.interval )
-			: resolveIntervalForPresetChange(
-					effective.preset,
-					nextPresetId,
-					rangeFrom,
-					rangeTo,
-					effective.interval
-				);
+		// The interval carries across the change; the new range's rules decide
+		// whether it survives or coerces to the finest allowed.
+		patch.interval = resolveIntervalForRange(
+			nextPresetId,
+			rangeFrom,
+			rangeTo,
+			effective.interval
+		);
 
 		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The
 		// preset being staged measures the new range, not the one it replaces.
