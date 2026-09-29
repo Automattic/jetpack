@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { useMediaQuery } from '@wordpress/compose';
 /**
  * Internal dependencies
  */
@@ -12,6 +13,11 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 jest.mock( '../use-traffic-chart' );
+
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useMediaQuery: jest.fn( () => false ),
+} ) );
 
 // The click lands in the date-filter controller, so a recorder stands in for it.
 const mockDrillDown = jest.fn();
@@ -33,6 +39,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 const mockUseTrafficChart = jest.mocked( useTrafficChart );
+const mockUseMediaQuery = jest.mocked( useMediaQuery );
 
 // `normalizeReportParams` coerces away an interval the range disallows, so each
 // one needs a range long enough to survive reaching the widget.
@@ -60,7 +67,14 @@ function chartClickHandler(): ( date: Date ) => void {
 	return calls[ calls.length - 1 ][ 0 ].onDatumClick;
 }
 
+/** The `chartType` the widget handed the chart on the latest render. */
+function drawnChartType(): string {
+	const calls = mockMetricTabsChart.mock.calls;
+	return calls[ calls.length - 1 ][ 0 ].chartType;
+}
+
 beforeEach( () => {
+	mockUseMediaQuery.mockReturnValue( false );
 	mockDrillDown.mockClear();
 	mockMetricTabsChart.mockClear();
 	mockUseTrafficChart.mockReset();
@@ -78,6 +92,40 @@ beforeEach( () => {
 		isError: false,
 		refetch: jest.fn(),
 	} );
+} );
+
+// Matches Jetpack Stats v1: bars, except lines below its 480px mobile breakpoint.
+describe( 'TrafficChart chart type', () => {
+	it( 'draws bars by default on a desktop viewport', () => {
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+
+		expect( drawnChartType() ).toBe( 'bar' );
+	} );
+
+	it( 'draws lines by default below the mobile breakpoint', () => {
+		mockUseMediaQuery.mockReturnValue( true );
+
+		render( <TrafficChartRender attributes={ { reportParams: reportParams( 'day' ) } } /> );
+
+		expect( mockUseMediaQuery ).toHaveBeenCalledWith( '(max-width: 479px)' );
+		expect( drawnChartType() ).toBe( 'line' );
+	} );
+
+	it.each( [
+		[ 'line', false ],
+		[ 'bar', true ],
+	] as const )(
+		'keeps a saved %s choice when the viewport is mobile: %s',
+		( chartType, isMobile ) => {
+			mockUseMediaQuery.mockReturnValue( isMobile );
+
+			render(
+				<TrafficChartRender attributes={ { reportParams: reportParams( 'day' ), chartType } } />
+			);
+
+			expect( drawnChartType() ).toBe( chartType );
+		}
+	);
 } );
 
 describe( 'TrafficChart bucket size', () => {

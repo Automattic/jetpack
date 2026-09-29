@@ -12,6 +12,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
 /**
@@ -32,6 +33,9 @@ type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
+// Jetpack Stats v1 treats a viewport under 480px as mobile.
+const MOBILE_QUERY = '(max-width: 479px)';
+
 const DATA_FORMAT = {
 	type: 'number' as const,
 	options: { useMultipliers: true, decimals: 0 },
@@ -39,9 +43,9 @@ const DATA_FORMAT = {
 
 type TrafficChartInnerProps = {
 	/**
-	 * How to draw the selected metric. `MetricTabsChart` owns the default.
+	 * How to draw the selected metric.
 	 */
-	chartType?: TrafficChartType;
+	chartType: TrafficChartType;
 };
 
 /**
@@ -108,9 +112,11 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 }
 
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
+	const isMobile = useMediaQuery( MOBILE_QUERY );
+
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner chartType={ attributes.chartType } />
+			<TrafficChartInner chartType={ attributes.chartType ?? ( isMobile ? 'line' : 'bar' ) } />
 		</WidgetRoot>
 	);
 }
