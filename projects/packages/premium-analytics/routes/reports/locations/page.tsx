@@ -230,11 +230,8 @@ export default function LocationsReportPage(): JSX.Element {
 							data={ records.table.rows }
 							fields={ fields }
 							getItemId={ getLocationRowId }
-							// A refetch of the same params over no rows keeps the empty state, not a spinner.
-							isLoading={
-								records.table.isLoading ||
-								( records.table.isFetching && records.table.rows.length > 0 )
-							}
+							isLoading={ records.table.isLoading }
+							isFetching={ records.table.isFetching }
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
 							onChangeView={ handleChangeView }

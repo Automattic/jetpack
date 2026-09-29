@@ -93,4 +93,14 @@ describe( 'CommentFollowersReportPage', () => {
 		expect( screen.queryByText( 'All Posts' ) ).not.toBeInTheDocument();
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows the All Posts count on its own when no single post has subscribers', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { allPostsFollowers: 20 } ) );
+
+		render( <CommentFollowersReportPage /> );
+
+		expect( screen.getByText( 'All Posts' ) ).toBeInTheDocument();
+		expect( screen.getByText( '20' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
 } );

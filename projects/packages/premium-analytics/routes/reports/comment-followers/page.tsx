@@ -85,6 +85,9 @@ function CommentFollowersReport(): JSX.Element {
 	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS[ 'comment-followers' ];
+	// The endpoint reports site-wide followers apart from the per-post rows, so either can exist alone.
+	const hasAllPostsFollowers = ( records.allPostsFollowers ?? 0 ) > 0;
+	const hasPostRows = records.rows.length > 0;
 
 	return (
 		<ReportPageShell
@@ -104,7 +107,7 @@ function CommentFollowersReport(): JSX.Element {
 					/>
 				) : (
 					<>
-						{ records.rows.length > 0 && (
+						{ ( hasAllPostsFollowers || hasPostRows ) && (
 							<ReportPageSection className={ styles.summary }>
 								<Text variant="heading-md" render={ <h3 /> }>
 									{ __( 'All Posts', 'jetpack-premium-analytics-pkg' ) }
@@ -115,14 +118,16 @@ function CommentFollowersReport(): JSX.Element {
 								/>
 							</ReportPageSection>
 						) }
-						<ReportRecordsTable< StatsCommentFollowersItem >
-							data={ records.rows }
-							fields={ fields }
-							getItemId={ getCommentFollowerRowId }
-							isLoading={ records.isLoading }
-							initialView={ RECORDS_VIEW }
-							searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
-						/>
+						{ ( hasPostRows || ! hasAllPostsFollowers ) && (
+							<ReportRecordsTable< StatsCommentFollowersItem >
+								data={ records.rows }
+								fields={ fields }
+								getItemId={ getCommentFollowerRowId }
+								isLoading={ records.isLoading }
+								initialView={ RECORDS_VIEW }
+								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+							/>
+						) }
 					</>
 				) }
 			</ReportPageLayout>

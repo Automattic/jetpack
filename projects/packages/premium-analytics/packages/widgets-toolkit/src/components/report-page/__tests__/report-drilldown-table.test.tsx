@@ -35,4 +35,18 @@ describe( 'ReportDrilldownTable', () => {
 		expect( screen.queryByRole( 'searchbox' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
 	} );
+
+	it( 'keeps the empty state while the same period revalidates', () => {
+		render(
+			<ReportDrilldownTable< { id: string } >
+				data={ [] }
+				fields={ [] }
+				getItemId={ item => item.id }
+				getItemParentId={ () => null }
+				isFetching
+			/>
+		);
+
+		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+	} );
 } );

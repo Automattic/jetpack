@@ -79,7 +79,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 		sort: sortSearchTermCsvRows,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
 	const { getLabel } = REPORTS[ 'search-terms' ];
 
@@ -110,7 +109,8 @@ export default function SearchTermsReportPage(): JSX.Element {
 						data={ records.table.rows }
 						fields={ fields }
 						getItemId={ getSearchTermRowId }
-						isLoading={ tableIsLoading }
+						isLoading={ records.table.isLoading }
+						isFetching={ records.table.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search terms', 'jetpack-premium-analytics-pkg' ) }
 					/>

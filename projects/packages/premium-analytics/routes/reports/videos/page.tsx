@@ -119,7 +119,6 @@ function VideosReport(): JSX.Element {
 		status: records,
 		sort: sortVideoCsvRows,
 	} );
-	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.videos;
@@ -151,7 +150,8 @@ function VideosReport(): JSX.Element {
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getVideoRowId }
-						isLoading={ isTableLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
 					/>

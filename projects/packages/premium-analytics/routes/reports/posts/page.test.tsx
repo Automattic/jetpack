@@ -185,7 +185,7 @@ describe( 'PostsReportPage', () => {
 
 		render( <PostsReportPage /> );
 
-		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isFetching ).toBe( true );
 	} );
 
 	it( 'resolves thumbnails for the visible posts page', () => {
@@ -323,7 +323,7 @@ describe( 'PostsReportPage', () => {
 			expect.objectContaining( {
 				data: records.archives.rows,
 				hideLevelMarkers: true,
-				isLoading: true,
+				isFetching: true,
 				searchLabel: 'Search archives',
 			} )
 		);

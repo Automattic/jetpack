@@ -90,7 +90,6 @@ function DownloadsReport(): JSX.Element {
 		status: records,
 		sort: sortDownloadCsvRows,
 	} );
-	const isRecordsLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.downloads;
@@ -122,7 +121,8 @@ function DownloadsReport(): JSX.Element {
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getDownloadRowId }
-						isLoading={ isRecordsLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
 					/>

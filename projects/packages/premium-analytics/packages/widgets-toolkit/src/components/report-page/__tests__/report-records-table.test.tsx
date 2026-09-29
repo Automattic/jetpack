@@ -275,10 +275,14 @@ describe( 'ReportRecordsTable with no rows', () => {
 	 * @param data                - The report rows.
 	 * @param props               - Other table props for the case under test.
 	 * @param props.isLoading     - Whether the rows are still loading.
+	 * @param props.isFetching    - Whether the rows on screen are revalidating.
 	 * @param props.keepWhenEmpty - Whether to keep the table with no rows.
 	 * @return The render result.
 	 */
-	function mountRows( data: Row[], props: { isLoading?: boolean; keepWhenEmpty?: boolean } = {} ) {
+	function mountRows(
+		data: Row[],
+		props: { isLoading?: boolean; isFetching?: boolean; keepWhenEmpty?: boolean } = {}
+	) {
 		return render(
 			<ReportRecordsTable< Row >
 				data={ data }
@@ -321,6 +325,19 @@ describe( 'ReportRecordsTable with no rows', () => {
 		);
 
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the empty state while the same period revalidates', () => {
+		mountRows( [], { isFetching: true } );
+
+		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the table loading state while rows on screen revalidate', () => {
+		mountRows( rows, { isFetching: true } );
+
+		expect( screen.getByRole( 'searchbox' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Maharashtra' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'keeps the table when told to, for a filter that scoped the rows to none', () => {

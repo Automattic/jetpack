@@ -57,8 +57,10 @@ export interface ReportRecordsTableProps< Item > {
 	getItemId: ( item: Item ) => string;
 	/** Initial view overrides (default sort, visible fields, page size, …). */
 	initialView?: Partial< View >;
-	/** Show DataViews' loading state. */
+	/** Whether rows for the current params are still loading. */
 	isLoading?: boolean;
+	/** Whether the rows on screen are revalidating; ignored while there are none, so an empty report keeps its empty state. */
+	isFetching?: boolean;
 	/** Accessible label for the search input. */
 	searchLabel?: string;
 	/** Optional row actions. */
@@ -111,6 +113,7 @@ export function ReportRecordsTable< Item >( {
 	getItemId,
 	initialView,
 	isLoading = false,
+	isFetching = false,
 	searchLabel,
 	actions,
 	empty,
@@ -177,7 +180,7 @@ export function ReportRecordsTable< Item >( {
 				fields={ fields }
 				data={ pageItems }
 				getItemId={ getItemId }
-				isLoading={ isLoading }
+				isLoading={ isLoading || isFetching }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ { table: {} } }
 				actions={ actions }
