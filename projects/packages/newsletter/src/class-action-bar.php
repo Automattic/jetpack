@@ -30,7 +30,7 @@ class Action_Bar {
 	 *
 	 * Simple only for now. Yields to the copy wpcom still ships in mu-plugins, so the two never load together.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -53,7 +53,7 @@ class Action_Bar {
 	/**
 	 * Register the bar's hooks unless wpcom's mu-plugin copy is loaded.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 */
 	public static function load() {
 		if ( function_exists( 'wpcom_actionbar_enqueue_scripts' ) ) {
@@ -86,7 +86,7 @@ class Action_Bar {
 		 *
 		 * WordPress.com hooks this to keep the bar off its internal sites and off sites marked deleted, spam, archived, or parked.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.17.0
 		 *
 		 * @param bool $enabled Whether to load the bar. Default true.
 		 */
@@ -308,7 +308,7 @@ class Action_Bar {
 		/**
 		 * Filters whether logged-out visitors get the bar and its follow actions.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.17.0
 		 *
 		 * @param bool $disabled Whether to disable. Defaults to true on VIP sites with logged-out follow off.
 		 */

@@ -7,9 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.15] - 2026-09-28
 ### Fixed
-- Drop the page header's bottom border on dashboards whose tabs strip is not the shared one. [#52641]
+- Adjust the page header's bottom border and padding on dashboards with a tabs strip. [#52641]
 - Keep the Jetpack in-dashboard message slot out of the scrollable page middle. [#52641]
-- Keep the page header's bottom padding on dashboards that have a tabs strip. [#52641]
 
 ## [1.2.14] - 2026-09-21
 ### Fixed

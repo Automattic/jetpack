@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-PayPal Payment Buttons: Allow http return URLs, and show an error in the block when a return URL is invalid.

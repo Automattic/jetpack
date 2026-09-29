@@ -148,4 +148,15 @@ class Comment_Likes_Section_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
 		$this->assertStringNotContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
 	}
+
+	public function test_offers_no_switch_offline_even_on_a_connected_site(): void {
+		$this->given_offline_mode();
+
+		$markup = $this->render_with( array( 'comment-likes' ) );
+
+		$this->assertStringContainsString( '<h2>Comment Likes</h2>', $markup );
+		$this->assertStringContainsString( 'unavailable while your site is in offline mode', $markup );
+		$this->assertStringNotContainsString( 'name="jetpack_comment_likes_enabled"', $markup );
+		$this->assertStringNotContainsString( 'value="' . Settings_Form::SECTION_COMMENT_LIKES . '"', $markup );
+	}
 }

@@ -10,11 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - GeoChart: Add a `domain` prop that draws disputed borders from a given country's viewpoint. [#52805]
 
 ### Deprecated
-- Deprecate getColorDistance, which is not perceptual and is no longer used to generate palette colors. [#52680]
+- Deprecate `getColorDistance`, which is no longer used to generate palette colors. [#52680]
 
 ### Fixed
 - Bar chart: End a keyboard selection when the pointer moves over the chart, instead of flickering between the hovered and selected bars. [#52821]
-- Keep generated series colors distinguishable from each other, including for color-blind viewers, and legible on the chart background; pick pie label text that contrasts with each slice. [#52680]
+- Keep generated series colors distinguishable from each other, including for color-blind viewers, and legible on the chart background. [#52680]
+- Pick pie label text that contrasts with each slice. [#52680]
 
 ## [4.4.0] - 2026-09-23
 ### Added

@@ -434,6 +434,11 @@ class Backup extends Hybrid_Product {
 			return admin_url( 'admin.php?page=jetpack-backup' );
 			// otherwise, check for the main Jetpack plugin
 		} elseif ( static::is_jetpack_plugin_active() ) {
+			// The Jetpack plugin hosts the dashboard wherever it initialized the package.
+			if ( did_action( 'jetpack_backup_initialized' ) ) {
+				return admin_url( 'admin.php?page=jetpack-backup' );
+			}
+
 			return Redirect::get_url( 'my-jetpack-manage-backup' );
 		}
 	}

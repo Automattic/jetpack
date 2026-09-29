@@ -44,6 +44,7 @@ import {
 import {
 	buildWidgetTypeRenames,
 	DATE_FILTER_YEAR,
+	getInsertableWidgetTypeNames,
 	isSectionAwaitingSync,
 	offersDateComparison,
 	resolveSectionHeading,
@@ -82,7 +83,19 @@ function Dashboard(): JSX.Element {
 		widgetTypeRenames
 	);
 	const [ gridSettings ] = useDashboardGridSettings();
-	const canPerform = useDashboardPolicy();
+
+	const activeSectionRecord = sections.find( section => section.slug === activeSection );
+
+	/**
+	 * The widget types the inserter offers, for now, are:
+	 * - those that are already in the layout
+	 * - those that are the active section's default layout
+	 */
+	const insertableWidgetTypes = useMemo(
+		() => getInsertableWidgetTypeNames( activeSectionRecord ? [ activeSectionRecord ] : [] ),
+		[ activeSectionRecord ]
+	);
+	const canPerform = useDashboardPolicy( { insertableWidgetTypes } );
 
 	/*
 	 * The watcher runs at the dashboard level, not inside the notice below, so the
@@ -180,8 +193,6 @@ function Dashboard(): JSX.Element {
 	 * locally and commits on Apply, so widgets re-fetch only on commit.
 	 */
 	const dateFilters = useReportDateFilters( '/' );
-
-	const activeSectionRecord = sections.find( section => section.slug === activeSection );
 
 	/*
 	 * Also reconciles the preset in the URL with the resolved surface, so a section

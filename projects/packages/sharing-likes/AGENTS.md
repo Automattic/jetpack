@@ -124,7 +124,10 @@ two-repo change, not a rename.
 `Modules::get_active()` intersects with `get_available()`, which is called with
 no arguments, so nothing is filtered on connection. A site that cannot render a
 Like button will still answer `true` to `is_active( 'likes' )`. That is what
-`Environment::likes_supported()` is for. Sharing needs no connection, but
+`Environment::likes_supported()` is for. Offline mode catches connected sites
+the same way: their tokens survive it, so `is_connected()` still holds, but
+`Jetpack::load_modules()` skips every module that requires a connection, which
+is why `likes_supported()` checks offline mode too. Sharing needs no connection, but
 `Jetpack::load_modules()` includes nothing on a site that is neither connected
 nor offline, so `Environment::legacy_sharing_supported()` applies the same guard
 before `sharing_module_running()` reads the module: an active-but-unloaded module
