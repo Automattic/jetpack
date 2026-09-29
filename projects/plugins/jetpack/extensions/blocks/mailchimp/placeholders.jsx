@@ -1,4 +1,5 @@
 import { Button, Placeholder } from '@wordpress/components';
+import { useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { BLOCK_CLASS } from './constants';
 
@@ -8,37 +9,52 @@ export const UserConnectedPlaceholder = ( {
 	connectURL,
 	onRecheck,
 	isRechecking,
-} ) => (
-	<Placeholder
-		className={ BLOCK_CLASS }
-		icon={ icon }
-		label={ __( 'Mailchimp', 'jetpack' ) }
-		notices={ notices }
-		instructions={ __(
-			'You need to connect your Mailchimp account and choose an audience in order to start collecting Email subscribers.',
-			'jetpack'
-		) }
-	>
-		<Button variant="secondary" href={ connectURL } target="_blank">
-			<span>{ __( 'Set up Mailchimp form', 'jetpack' ) }</span>
-		</Button>
-		<div className={ `${ BLOCK_CLASS }-recheck` }>
+} ) => {
+	const [ hasOpenedSetup, setHasOpenedSetup ] = useState( false );
+
+	return (
+		<Placeholder
+			className={ BLOCK_CLASS }
+			icon={ icon }
+			label={ __( 'Mailchimp', 'jetpack' ) }
+			notices={ notices }
+			instructions={ __(
+				'You need to connect your Mailchimp account and choose an audience in order to start collecting Email subscribers.',
+				'jetpack'
+			) }
+		>
 			<Button
-				variant="link"
-				onClick={ onRecheck }
-				isBusy={ isRechecking }
-				disabled={ isRechecking }
-				accessibleWhenDisabled
+				variant="secondary"
+				href={ connectURL }
+				target="_blank"
+				onClick={ () => setHasOpenedSetup( true ) }
 			>
-				<span>
-					{ isRechecking
-						? __( 'Checking connection…', 'jetpack', /* dummy arg to avoid bad minification */ 0 )
-						: __( 'Re-check Connection', 'jetpack' ) }
-				</span>
+				<span>{ __( 'Set up Mailchimp form', 'jetpack' ) }</span>
 			</Button>
-		</div>
-	</Placeholder>
-);
+			{ hasOpenedSetup && (
+				<div className={ `${ BLOCK_CLASS }-recheck` }>
+					<Button
+						variant="link"
+						onClick={ onRecheck }
+						isBusy={ isRechecking }
+						disabled={ isRechecking }
+						accessibleWhenDisabled
+					>
+						<span>
+							{ isRechecking
+								? __(
+										'Checking connection…',
+										'jetpack',
+										/* dummy arg to avoid bad minification */ 0
+									)
+								: __( 'Re-check Connection', 'jetpack' ) }
+						</span>
+					</Button>
+				</div>
+			) }
+		</Placeholder>
+	);
+};
 
 export const UserNotConnectedPlaceholder = ( { icon, notices, connectURL } ) => (
 	<Placeholder
