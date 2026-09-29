@@ -9,6 +9,7 @@ import {
 	ActivityEventIcon,
 	ActivityEventTitle,
 } from './ActivityEvent';
+import { getActorElements } from './actor-elements';
 import type { Activity, ActivityLogGroupCountResponse, ActorSummary } from './types';
 import type { Field, Operator } from '@wordpress/dataviews';
 
@@ -22,6 +23,7 @@ type UseActivityFieldsArgs = {
 	gmtOffset?: number;
 	activityLogTypes?: ActivityLogGroupCountResponse[ 'groups' ] | undefined;
 	actors?: ActorSummary[];
+	activeActorIds?: string[];
 };
 
 /**
@@ -168,6 +170,7 @@ const formatDateCell = ( {
  * @param args.activityLogTypes - Group map from /activity-log/count/group.
  * @param args.actors           - Distinct actors from /activity-log/actors,
  *                              used to populate the "Performed by" dropdown.
+ * @param args.activeActorIds   - Actor IDs in the current filter.
  * @return The fields array passed to `<DataViews fields=… />`.
  */
 export function useActivityFields( {
@@ -175,6 +178,7 @@ export function useActivityFields( {
 	gmtOffset,
 	activityLogTypes,
 	actors,
+	activeActorIds,
 }: UseActivityFieldsArgs ): Field< Activity >[] {
 	const isLargeScreen = useViewportMatch( 'huge', '>=' );
 	const dateTimeLabel = getDateTimeLabel( { timezoneString, gmtOffset, isLargeScreen } );
@@ -192,19 +196,10 @@ export function useActivityFields( {
 			.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 	}, [ activityLogTypes ] );
 
-	const actorElements = useMemo< ActivityLogTypeOption[] >( () => {
-		if ( ! actors || actors.length === 0 ) {
-			return [];
-		}
-		return actors
-			.filter( actor => actor.id )
-			.map( actor => {
-				const name = actor.name || actor.id;
-				const label = typeof actor.count === 'number' ? `${ name } (${ actor.count })` : name;
-				return { value: actor.id, label };
-			} )
-			.sort( ( a, b ) => a.label.localeCompare( b.label ) );
-	}, [ actors ] );
+	const actorElements = useMemo(
+		() => getActorElements( actors, activeActorIds ),
+		[ actors, activeActorIds ]
+	);
 
 	return useMemo( () => {
 		const fields: Field< Activity >[] = [

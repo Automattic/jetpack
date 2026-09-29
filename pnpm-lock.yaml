@@ -1910,6 +1910,21 @@ importers:
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
+      '@jest/globals':
+        specifier: 30.5.1
+        version: 30.5.1
+      '@testing-library/dom':
+        specifier: 10.4.2
+        version: 10.4.2
+      '@testing-library/jest-dom':
+        specifier: 6.9.1
+        version: 6.9.1
+      '@testing-library/react':
+        specifier: 16.3.3
+        version: 16.3.3(@testing-library/dom@10.4.2)(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@types/jest':
+        specifier: 30.0.0
+        version: 30.0.0
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
@@ -1928,6 +1943,9 @@ importers:
       browserslist:
         specifier: ^4.24.0
         version: 4.28.9
+      jest:
+        specifier: 30.5.1
+        version: 30.5.1
 
   projects/packages/admin-ui:
     devDependencies:

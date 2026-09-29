@@ -415,6 +415,7 @@ export default function ActivityLog() {
 		timezoneString,
 		activityLogTypes: groupCountsData?.groups,
 		actors: actorsData?.actors,
+		activeActorIds: actorIdValues,
 	} );
 
 	const actions = useActivityActions( { isLoading: isFetching, tracks } );
