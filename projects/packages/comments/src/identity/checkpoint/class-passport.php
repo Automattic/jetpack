@@ -17,10 +17,8 @@ class Passport {
 	// Readable by the page's script, and untrusted. It has to be a cookie: the
 	// page is cached for everyone, so who holds a passport cannot be in the HTML.
 	const DISPLAY_COOKIE = 'jetpack_comment_identity_display';
-	const DISPLAY_FIELDS = array( 'provider', 'name', 'avatar' );
 	// The blog id is added at signing time, so a passport from one site of a network is refused on every other.
-	const FIELDS          = array( 'site_commenter_id', 'provider', 'name', 'email', 'avatar', 'expires_at' );
-	const SIGNING_PURPOSE = 'jetpack-comment-passport-v1';
+	const FIELDS = array( 'site_commenter_id', 'provider', 'name', 'email', 'avatar', 'expires_at' );
 
 	/**
 	 * Read the passport the browser sent, if it is intact and unexpired.
@@ -28,79 +26,11 @@ class Passport {
 	 * @return array|null Keyed by FIELDS.
 	 */
 	public static function read() {
-		if ( empty( $_COOKIE[ self::COOKIE ] ) || ! is_string( $_COOKIE[ self::COOKIE ] ) ) {
-			return null;
-		}
+		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Verified against its signature below.
+		$cookie = isset( $_COOKIE[ self::COOKIE ] ) ? wp_unslash( $_COOKIE[ self::COOKIE ] ) : '';
 
-		return self::decode( wp_unslash( $_COOKIE[ self::COOKIE ] ) ); // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Verified against its signature in decode().
-	}
-
-	/**
-	 * Hand the browser a passport.
-	 *
-	 * @param array $identity From Checkpoint::exchange().
-	 * @return void
-	 */
-	public static function issue( array $identity ) {
-		$expires = (int) $identity['expires_at'];
-
-		if ( $expires <= time() ) {
-			return;
-		}
-
-		self::set_cookie( self::COOKIE, self::encode( $identity ), $expires, true );
-
-		// The display cookie is URL-encoded JSON the page's script decodes.
-		$shown = array();
-
-		foreach ( self::DISPLAY_FIELDS as $field ) {
-			$shown[ $field ] = (string) ( $identity[ $field ] ?? '' );
-		}
-
-		$shown['blog_id'] = Checkpoint::blog_id();
-
-		self::set_cookie( self::DISPLAY_COOKIE, rawurlencode( (string) wp_json_encode( $shown, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ), $expires, false );
-	}
-
-	/**
-	 * Take the passport back.
-	 *
-	 * @return void
-	 */
-	public static function revoke() {
-		unset( $_COOKIE[ self::COOKIE ], $_COOKIE[ self::DISPLAY_COOKIE ] );
-		self::set_cookie( self::COOKIE, '', time() - YEAR_IN_SECONDS, true );
-		self::set_cookie( self::DISPLAY_COOKIE, '', time() - YEAR_IN_SECONDS, false );
-	}
-
-	/**
-	 * Encode and sign an identity.
-	 *
-	 * @param array $identity Keyed by FIELDS.
-	 * @return string
-	 */
-	public static function encode( array $identity ) {
-		$payload = array();
-
-		foreach ( self::FIELDS as $field ) {
-			$payload[ $field ] = 'expires_at' === $field ? (int) ( $identity[ $field ] ?? 0 ) : (string) ( $identity[ $field ] ?? '' );
-		}
-
-		$payload['blog_id'] = Checkpoint::blog_id();
-
-		$encoded = rtrim( strtr( base64_encode( (string) wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64url is the cookie format.
-
-		return $encoded . '.' . self::signature( $encoded );
-	}
-
-	/**
-	 * Verify and decode a passport. Tampered, malformed and expired all read as absent.
-	 *
-	 * @param string $cookie The cookie value.
-	 * @return array|null Keyed by FIELDS.
-	 */
-	public static function decode( $cookie ) {
-		if ( ! is_string( $cookie ) || substr_count( $cookie, '.' ) !== 1 ) {
+		// Tampered, malformed and expired all read as absent.
+		if ( ! is_string( $cookie ) || '' === $cookie || substr_count( $cookie, '.' ) !== 1 ) {
 			return null;
 		}
 
@@ -133,13 +63,61 @@ class Passport {
 	}
 
 	/**
+	 * Hand the browser a passport.
+	 *
+	 * @param array $identity From Checkpoint::exchange().
+	 * @return void
+	 */
+	public static function issue( array $identity ) {
+		$expires = (int) $identity['expires_at'];
+
+		if ( $expires <= time() ) {
+			return;
+		}
+
+		$payload = array();
+
+		foreach ( self::FIELDS as $field ) {
+			$payload[ $field ] = 'expires_at' === $field ? (int) ( $identity[ $field ] ?? 0 ) : (string) ( $identity[ $field ] ?? '' );
+		}
+
+		$payload['blog_id'] = Checkpoint::blog_id();
+
+		$encoded = rtrim( strtr( base64_encode( (string) wp_json_encode( $payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ), '+/', '-_' ), '=' ); // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_encode -- base64url is the cookie format.
+
+		self::set_cookie( self::COOKIE, $encoded . '.' . self::signature( $encoded ), $expires, true );
+
+		// The display cookie is URL-encoded JSON the page's script decodes.
+		$shown = array();
+
+		foreach ( array( 'provider', 'name', 'avatar' ) as $field ) {
+			$shown[ $field ] = (string) ( $identity[ $field ] ?? '' );
+		}
+
+		$shown['blog_id'] = Checkpoint::blog_id();
+
+		self::set_cookie( self::DISPLAY_COOKIE, rawurlencode( (string) wp_json_encode( $shown, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ) ), $expires, false );
+	}
+
+	/**
+	 * Take the passport back.
+	 *
+	 * @return void
+	 */
+	public static function revoke() {
+		unset( $_COOKIE[ self::COOKIE ], $_COOKIE[ self::DISPLAY_COOKIE ] );
+		self::set_cookie( self::COOKIE, '', time() - YEAR_IN_SECONDS, true );
+		self::set_cookie( self::DISPLAY_COOKIE, '', time() - YEAR_IN_SECONDS, false );
+	}
+
+	/**
 	 * HMAC over the encoded payload, keyed with the site's auth salt.
 	 *
 	 * @param string $encoded The base64url payload.
 	 * @return string
 	 */
 	private static function signature( $encoded ) {
-		return hash_hmac( 'sha256', self::SIGNING_PURPOSE . '|' . $encoded, wp_salt( 'auth' ) );
+		return hash_hmac( 'sha256', 'jetpack-comment-passport-v1|' . $encoded, wp_salt( 'auth' ) );
 	}
 
 	/**

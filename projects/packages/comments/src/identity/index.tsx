@@ -2,7 +2,6 @@ import clsx from 'clsx';
 import { useContext } from 'preact/hooks';
 import { CommentSignals } from '../shared/state';
 import { logOut } from './checkpoint/checkpoint';
-import { ChevronDownIcon } from './icons';
 
 import './style.scss';
 
@@ -70,7 +69,17 @@ export const Identity = () => {
 				onClick={ () => ( isMenuOpen.value = ! open ) }
 			>
 				<span className="jetpack-comments__visually-hidden">{ strings.options }</span>
-				<ChevronDownIcon />
+				{ /* @wordpress/icons "chevron-down". */ }
+				<svg
+					viewBox="0 0 24 24"
+					width="24"
+					height="24"
+					fill="currentColor"
+					aria-hidden="true"
+					focusable="false"
+				>
+					<path d="M17.5 11.6 12 16l-5.5-4.4.9-1.2L12 14l4.5-3.6 1 1.2z" />
+				</svg>
 			</button>
 		</span>
 	);

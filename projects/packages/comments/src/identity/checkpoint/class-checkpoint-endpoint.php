@@ -33,17 +33,6 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	const LOGOUT_ACTION = 'jetpack_comments_identity_logout';
 
 	/**
-	 * Email checks one address may make per window, generous for a reader typing
-	 * but not for anyone sweeping a list for WordPress.com accounts.
-	 */
-	const EMAIL_CHECKS = 20;
-
-	/**
-	 * The window, in seconds.
-	 */
-	const EMAIL_CHECK_WINDOW = 10 * MINUTE_IN_SECONDS;
-
-	/**
 	 * The instance registered without the WPCOM loader, which otherwise holds it.
 	 *
 	 * @var Checkpoint_Endpoint|null
@@ -90,30 +79,12 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Where the browser fetches a fresh popup URL from, for this host.
-	 *
-	 * @return string
-	 */
-	public static function connect_url() {
-		return self::route_url( self::CONNECT_ROUTE );
-	}
-
-	/**
-	 * Where the browser asks whether an email belongs to an account, for this host.
-	 *
-	 * @return string
-	 */
-	public static function email_url() {
-		return self::route_url( self::EMAIL_ROUTE );
-	}
-
-	/**
 	 * A route's URL for this host.
 	 *
 	 * @param string $route The route under `wpcom/v2`.
 	 * @return string
 	 */
-	private static function route_url( $route ) {
+	public static function route_url( $route ) {
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			return sprintf( 'https://public-api.wordpress.com/wpcom/v2/sites/%d/%s', Checkpoint::blog_id(), $route );
 		}
@@ -206,10 +177,11 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 			$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
 			$key = 'email_checks_' . md5( $ip );
 
-			// Per address and across every site, so the answer cannot be farmed blog by blog.
-			wp_cache_add( $key, 0, 'jetpack_comments', self::EMAIL_CHECK_WINDOW );
+			// Per address and across every site, so the answer cannot be farmed blog by blog. Twenty
+			// in ten minutes is generous for a reader typing, not for anyone sweeping a list.
+			wp_cache_add( $key, 0, 'jetpack_comments', 10 * MINUTE_IN_SECONDS );
 
-			if ( (int) wp_cache_incr( $key, 1, 'jetpack_comments' ) > self::EMAIL_CHECKS ) {
+			if ( (int) wp_cache_incr( $key, 1, 'jetpack_comments' ) > 20 ) {
 				return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
 			}
 

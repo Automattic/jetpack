@@ -2,7 +2,6 @@
  * The browser side of the checkpoint: the popup, and what the site answers about an email.
  */
 
-import { clearPassport } from './passport';
 import type { ConnectUrl } from '../../shared/types';
 
 export type CheckpointResult =
@@ -129,10 +128,14 @@ export const signIn = async (
  * @return Whether the site confirmed it.
  */
 export const logOut = async (): Promise< boolean > => {
-	clearPassport();
-	reauth = true;
+	const { displayCookie, cookiePath, cookieDomain, logoutUrl, logoutAction } =
+		JetpackComments.identity;
 
-	const { logoutUrl, logoutAction } = JetpackComments.identity;
+	// Path and domain have to match what the server set, or this names a different cookie.
+	document.cookie = `${ displayCookie }=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${
+		cookiePath || '/'
+	}${ cookieDomain ? `; domain=${ cookieDomain }` : '' }; SameSite=Lax`;
+	reauth = true;
 
 	try {
 		const response = await fetch( logoutUrl, {

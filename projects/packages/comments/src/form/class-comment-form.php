@@ -237,75 +237,79 @@ class Comment_Form {
 	 * @return string
 	 */
 	private function markup( $args = array() ) {
-		return '<div class="jetpack-comments"'
-			. ' data-jetpack-comments="' . esc_attr(
-				(string) wp_json_encode(
-					self::form_settings( $args ),
-					JSON_UNESCAPED_SLASHES | JSON_HEX_AMP
-				)
-			) . '">'
-			. self::plain_form( $args )
-			. '</div>'
-			. get_comment_id_fields( self::post_id() )
-			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
-	}
-
-	/**
-	 * Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
-	 *
-	 * @param array $args Comment form arguments.
-	 * @return string
-	 */
-	private static function plain_form( $args ) {
-		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
-			return '<p class="must-log-in">' . sprintf(
-				/* translators: %s is a link to the log-in page. */
-				esc_html__( 'You must be %s to post a comment.', 'jetpack-comments' ),
-				'<a href="' . esc_url( wp_login_url( get_permalink( self::post_id() ) ) ) . '">' . esc_html__( 'logged in', 'jetpack-comments' ) . '</a>'
-			) . '</p>';
-		}
-
-		$required = (bool) get_option( 'require_name_email' );
-		$html     = '<p class="comment-form-comment"><label for="comment">' . esc_html_x( 'Comment', 'noun', 'jetpack-comments' ) . '</label>'
-			. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
-
-		if ( ! is_user_logged_in() ) {
-			$commenter = wp_get_current_commenter();
-			$fields    = array(
-				'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
-				'email'  => array( __( 'Email', 'jetpack-comments' ), 'email', $commenter['comment_author_email'], $required ),
-				'url'    => array( __( 'Website', 'jetpack-comments' ), 'url', $commenter['comment_author_url'], false ),
-			);
-
-			foreach ( $fields as $name => list( $label, $type, $value, $is_required ) ) {
-				$html .= sprintf(
-					'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s /></p>',
-					$name,
-					esc_html( $label ),
-					$type,
-					esc_attr( $value ),
-					$is_required ? ' required' : ''
-				);
-			}
-		}
-
-		return $html . sprintf( $args['submit_field'] ?? '<p class="form-submit">%1$s %2$s</p>', self::submit_button( $args ), '' );
-	}
-
-	/**
-	 * The submit button, from the template the theme or block set.
-	 *
-	 * @param array $args Comment form arguments.
-	 * @return string
-	 */
-	private static function submit_button( $args ) {
-		return sprintf(
+		$post_id   = self::post_id();
+		$permalink = get_permalink( $post_id );
+		$button    = sprintf(
 			$args['submit_button'] ?? '<input name="%1$s" type="submit" id="%2$s" class="%3$s" value="%4$s" />',
 			esc_attr( $args['name_submit'] ?? 'submit' ),
 			esc_attr( $args['id_submit'] ?? 'submit' ),
 			esc_attr( $args['class_submit'] ?? 'submit' ),
 			esc_attr( $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ) )
 		);
+
+		// The classes come from the button template, not class_submit: on a block
+		// theme the Post Comments Form block bakes the theme's button classes into it.
+		$class = preg_match( '/\bclass="([^"]*)"/', $button, $match ) ? $match[1] : 'submit';
+
+		// Values belonging to this form rather than to the page it sits on.
+		$settings = array(
+			'postId'        => $post_id,
+			'loginUrl'      => wp_login_url( $permalink ),
+			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
+			// None on WordPress.com, where the site's session is the reader's whole WordPress.com login.
+			'logoutUrl'     => is_user_logged_in() && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
+			'submit'        => array(
+				'id'        => $args['id_submit'] ?? 'submit',
+				'name'      => $args['name_submit'] ?? 'submit',
+				'class'     => $class,
+				// The block wraps its button the way the Buttons block does, so block-level button styles reach it.
+				'wrapClass' => false !== strpos( $class, 'wp-block-button__link' ) ? 'wp-block-button' : '',
+				'label'     => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
+			),
+			'subscriptions' => $args['subscriptions'] ?? array(),
+		);
+
+		// Core's own fields and submit, for a page whose settings another release rendered or whose script never ran.
+		if ( get_option( 'comment_registration' ) && ! is_user_logged_in() ) {
+			$plain = '<p class="must-log-in">' . sprintf(
+				/* translators: %s is a link to the log-in page. */
+				esc_html__( 'You must be %s to post a comment.', 'jetpack-comments' ),
+				'<a href="' . esc_url( wp_login_url( $permalink ) ) . '">' . esc_html__( 'logged in', 'jetpack-comments' ) . '</a>'
+			) . '</p>';
+		} else {
+			$required = (bool) get_option( 'require_name_email' );
+			$plain    = '<p class="comment-form-comment"><label for="comment">' . esc_html_x( 'Comment', 'noun', 'jetpack-comments' ) . '</label>'
+				. '<textarea id="comment" name="comment" rows="4" required></textarea></p>';
+
+			if ( ! is_user_logged_in() ) {
+				$commenter = wp_get_current_commenter();
+				$fields    = array(
+					'author' => array( __( 'Name', 'jetpack-comments' ), 'text', $commenter['comment_author'], $required ),
+					'email'  => array( __( 'Email', 'jetpack-comments' ), 'email', $commenter['comment_author_email'], $required ),
+					'url'    => array( __( 'Website', 'jetpack-comments' ), 'url', $commenter['comment_author_url'], false ),
+				);
+
+				foreach ( $fields as $name => list( $label, $type, $value, $is_required ) ) {
+					$plain .= sprintf(
+						'<p class="comment-form-%1$s"><label for="%1$s">%2$s</label><input id="%1$s" name="%1$s" type="%3$s" value="%4$s"%5$s /></p>',
+						$name,
+						esc_html( $label ),
+						$type,
+						esc_attr( $value ),
+						$is_required ? ' required' : ''
+					);
+				}
+			}
+
+			$plain .= sprintf( $args['submit_field'] ?? '<p class="form-submit">%1$s %2$s</p>', $button, '' );
+		}
+
+		return '<div class="jetpack-comments"'
+			. ' data-jetpack-comments="' . esc_attr( (string) wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_AMP ) ) . '">'
+			. $plain
+			. '</div>'
+			. get_comment_id_fields( $post_id )
+			. wp_nonce_field( self::NONCE_ACTION, self::NONCE_NAME, false, false );
 	}
 
 	/**
@@ -368,12 +372,73 @@ class Comment_Form {
 		$this->register_assets();
 
 		if ( ! $this->settings_printed ) {
+			$strings = array(
+				'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
+				'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
+				'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
+				'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
+				'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
+				'name'                => __( 'Name', 'jetpack-comments' ),
+				'email'               => __( 'Email', 'jetpack-comments' ),
+				'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
+				'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
+				'website'             => __( 'Website (optional)', 'jetpack-comments' ),
+				'createProfile'       => __( 'Create a profile', 'jetpack-comments' ),
+				'intro'               => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
+				'continueAsGuest'     => __( 'Continue as a guest', 'jetpack-comments' ),
+				'back'                => __( 'Back', 'jetpack-comments' ),
+				'save'                => __( 'Save', 'jetpack-comments' ),
+				'saveAndPost'         => __( 'Save and post comment', 'jetpack-comments' ),
+				'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
+				'close'               => __( 'Close', 'jetpack-comments' ),
+				'options'             => __( 'Options', 'jetpack-comments' ),
+				'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
+				'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
+				'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
+				'logIn'               => __( 'Log in', 'jetpack-comments' ),
+				'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
+				'logOut'              => __( 'Log out', 'jetpack-comments' ),
+				'addYourName'         => __( 'Add your name', 'jetpack-comments' ),
+				'cancel'              => __( 'Cancel', 'jetpack-comments' ),
+				'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
+				'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
+			);
+
+			/**
+			 * Filter the copy the comment form renders.
+			 *
+			 * @since 0.1.0
+			 *
+			 * @param array $strings Keyed by the name the app reads.
+			 * @param array $args    Comment form arguments.
+			 */
+			$strings = apply_filters( 'jetpack_comments_strings', $strings, $args );
+			$lengths = wp_get_comment_fields_max_lengths();
+			$style   = wp_styles()->query( self::HANDLE );
+
+			// Everything the app needs that only PHP knows.
+			$settings = array_merge(
+				array(
+					'version'             => Comments::PACKAGE_VERSION,
+					// The dialog's shadow root links it again; page styles stop at that boundary.
+					// Decoded: WordPress.com's static-file filter joins its query with &amp;.
+					'styleUrl'            => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
+					'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
+					'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
+					'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+					'site'                => array(
+						'name'    => get_bloginfo( 'name' ),
+						'iconUrl' => (string) get_site_icon_url( 64 ),
+					),
+					'manageSubscriptions' => Subscriptions::manage_links(),
+					'strings'             => $strings,
+				),
+				Identity::settings()
+			);
+
 			wp_add_inline_script(
 				self::HANDLE,
-				'window.JetpackComments = ' . wp_json_encode(
-					$this->settings( $args ),
-					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
-				) . ';',
+				'window.JetpackComments = ' . wp_json_encode( $settings, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 				'before'
 			);
 			$this->settings_printed = true;
@@ -381,118 +446,6 @@ class Comment_Form {
 
 		Assets::enqueue_script( self::HANDLE );
 		wp_enqueue_style( self::HANDLE );
-	}
-
-	/**
-	 * Everything the app needs that only PHP knows.
-	 *
-	 * @param array $args Comment form arguments.
-	 * @return array
-	 */
-	private function settings( $args ) {
-		$lengths = wp_get_comment_fields_max_lengths();
-		$style   = wp_styles()->query( self::HANDLE );
-
-		return array_merge(
-			array(
-				'version'             => Comments::PACKAGE_VERSION,
-				// The dialog's shadow root links it again; page styles stop at that boundary.
-				// Decoded: WordPress.com's static-file filter joins its query with &amp;.
-				'styleUrl'            => $style ? html_entity_decode( (string) add_query_arg( 'ver', $style->ver, $style->src ), ENT_QUOTES ) : '',
-				'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
-				'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
-				'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
-				'site'                => array(
-					'name'    => get_bloginfo( 'name' ),
-					'iconUrl' => (string) get_site_icon_url( 64 ),
-				),
-				'manageSubscriptions' => Subscriptions::manage_links(),
-				'strings'             => self::strings( $args ),
-			),
-			Identity::settings()
-		);
-	}
-
-	/**
-	 * Values belonging to one form, rather than to the page it sits on.
-	 *
-	 * @param array $args Comment form arguments.
-	 * @return array
-	 */
-	private static function form_settings( $args ) {
-		$post_id   = self::post_id();
-		$permalink = get_permalink( $post_id );
-
-		// The classes come from the button template, not class_submit: on a block
-		// theme the Post Comments Form block bakes the theme's button classes into it.
-		$class = preg_match( '/\bclass="([^"]*)"/', self::submit_button( $args ), $match ) ? $match[1] : 'submit';
-
-		return array(
-			'postId'        => $post_id,
-			'loginUrl'      => wp_login_url( $permalink ),
-			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			// None on WordPress.com, where the site's session is the reader's whole WordPress.com login.
-			'logoutUrl'     => is_user_logged_in() && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
-			'submit'        => array(
-				'id'        => $args['id_submit'] ?? 'submit',
-				'name'      => $args['name_submit'] ?? 'submit',
-				'class'     => $class,
-				// The block wraps its button the way the Buttons block does, so block-level button styles reach it.
-				'wrapClass' => false !== strpos( $class, 'wp-block-button__link' ) ? 'wp-block-button' : '',
-				'label'     => $args['label_submit'] ?? _x( 'Comment', 'verb', 'jetpack-comments' ),
-			),
-			'subscriptions' => $args['subscriptions'] ?? array(),
-		);
-	}
-
-	/**
-	 * The copy the app renders.
-	 *
-	 * @param array $args Comment form arguments.
-	 * @return array
-	 */
-	private static function strings( $args ) {
-		$strings = array(
-			'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
-			'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
-			'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
-			'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
-			'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
-			'name'                => __( 'Name', 'jetpack-comments' ),
-			'email'               => __( 'Email', 'jetpack-comments' ),
-			'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
-			'emailHasAccount'     => __( 'That email belongs to a WordPress.com account. Log in with WordPress.com to use it, or enter a different email.', 'jetpack-comments' ),
-			'website'             => __( 'Website (optional)', 'jetpack-comments' ),
-			'createProfile'       => __( 'Create a profile', 'jetpack-comments' ),
-			'intro'               => __( 'Provide your name and email to leave a comment.', 'jetpack-comments' ),
-			'continueAsGuest'     => __( 'Continue as a guest', 'jetpack-comments' ),
-			'back'                => __( 'Back', 'jetpack-comments' ),
-			'save'                => __( 'Save', 'jetpack-comments' ),
-			'saveAndPost'         => __( 'Save and post comment', 'jetpack-comments' ),
-			'postWithoutSaving'   => __( 'No, thanks. I just want to post a comment', 'jetpack-comments' ),
-			'close'               => __( 'Close', 'jetpack-comments' ),
-			'options'             => __( 'Options', 'jetpack-comments' ),
-			'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
-			'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
-			'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
-			'logIn'               => __( 'Log in', 'jetpack-comments' ),
-			'logInWithWordPress'  => __( 'Log in with WordPress.com', 'jetpack-comments' ),
-			'logOut'              => __( 'Log out', 'jetpack-comments' ),
-			'addYourName'         => __( 'Add your name', 'jetpack-comments' ),
-			'cancel'              => __( 'Cancel', 'jetpack-comments' ),
-			'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
-			'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
-		);
-
-		/**
-		 * Filter the copy the comment form renders.
-		 *
-		 * @since 0.1.0
-		 *
-		 * @param array $strings Keyed by the name the app reads.
-		 * @param array $args    Comment form arguments.
-		 */
-		return apply_filters( 'jetpack_comments_strings', $strings, $args );
 	}
 
 	/**

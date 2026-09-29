@@ -4,7 +4,6 @@ import { useContext, useEffect, useRef } from 'preact/hooks';
 import { Identity, IdentityOptions } from '../identity';
 import { DialogHost, IdentityDialog } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
-import { CommentField } from './comment-field';
 import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
 import type { FormSettings } from '../shared/types';
 
@@ -24,7 +23,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isMenuOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl } = JetpackComments;
+	const { mustLogIn, identity, strings, avatarUrl, maxLength } = JetpackComments;
 	const isSubmitting = useRef( false );
 
 	useEffect( () => {
@@ -139,7 +138,19 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	return (
 		<>
 			<div className="jetpack-comments__box">
-				<CommentField />
+				<textarea
+					id="comment"
+					name="comment"
+					className="jetpack-comments__textarea"
+					rows={ 2 }
+					required
+					maxLength={ maxLength }
+					aria-label={ commentParent.value ? strings.replyLabel : strings.commentLabel }
+					value={ commentValue.value }
+					placeholder={ commentParent.value ? strings.replyPlaceholder : strings.placeholder }
+					onFocus={ () => ( isTrayOpen.value = true ) }
+					onInput={ event => ( commentValue.value = event.currentTarget.value ) }
+				/>
 				<div className={ clsx( 'jetpack-comments__tray', { 'is-open': isTrayOpen.value } ) }>
 					<div className="jetpack-comments__actions">
 						<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>

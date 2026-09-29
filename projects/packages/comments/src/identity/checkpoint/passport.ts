@@ -45,14 +45,3 @@ export const readPassport = (): Passport | null => {
 		return null;
 	}
 };
-
-/**
- * Forget the display cookie now, without waiting on the server.
- */
-export const clearPassport = (): void => {
-	const { displayCookie, cookiePath, cookieDomain } = JetpackComments.identity;
-	// Path and domain have to match what the server set, or this names a different cookie.
-	document.cookie = `${ displayCookie }=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=${
-		cookiePath || '/'
-	}${ cookieDomain ? `; domain=${ cookieDomain }` : '' }; SameSite=Lax`;
-};
