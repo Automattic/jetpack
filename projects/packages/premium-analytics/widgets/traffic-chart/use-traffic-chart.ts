@@ -110,7 +110,6 @@ export default function useTrafficChart(
 						zone: isViewsVisitors ? vvZone : lcZone,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
-					counterpartVisible: true,
 					...( isServed( metric.id )
 						? {}
 						: {
