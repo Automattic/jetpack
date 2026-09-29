@@ -122,6 +122,11 @@ class Action_Bar {
 			return;
 		}
 
+		// Don't show until the site has published at least two posts. Core caches this count and clears it when a post changes status.
+		if ( (int) wp_count_posts( 'post' )->publish < 2 ) {
+			return;
+		}
+
 		// Render this in the user's language.
 		self::switch_to_user_locale();
 

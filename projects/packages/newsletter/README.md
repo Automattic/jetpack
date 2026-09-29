@@ -6,7 +6,7 @@ This package provides some of the newsletter functionality for Jetpack, includin
 - **URL helper** — Centralized logic for generating the correct newsletter settings URL based on site type and configuration.
 - **Reader link** — An admin bar link to the WordPress.com Reader.
 - **Daily Writing Prompt widget** — A wp-admin dashboard widget that surfaces blogging prompts and Freshly Pressed posts.
-- **Action Bar** — The floating bar in the bottom corner of a site's front end, with Subscribe, Comment, Reblog, Edit and Stats shortcuts. WordPress.com Simple only for now.
+- **Action Bar** — The floating bar in the bottom corner of a site's front end, with Subscribe, Comment, Reblog, Edit and Stats shortcuts. WordPress.com Simple only for now, and only once the site has published at least two posts.
 
 Other functionality remains in the subscriptions module of Jetpack itself.
 
