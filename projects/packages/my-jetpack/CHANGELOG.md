@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.1] - 2026-09-29
+### Changed
+- Backup: Send Manage and checkout to the in-plugin Backup dashboard when the Jetpack plugin hosts it. [#52495]
+
+### Fixed
+- Show the missing user connection notice as a warning only when no connection owner is recorded and the current user can set up the connection. [#52880]
+
 ## [6.7.0] - 2026-09-28
 ### Added
 - Add additional analytics to the Features tab. [#52630]
@@ -2997,6 +3004,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.6.0...6.7.0
 [6.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.5.0...6.6.0
 [6.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.1...6.5.0

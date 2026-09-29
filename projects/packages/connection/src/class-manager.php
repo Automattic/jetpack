@@ -1615,7 +1615,7 @@ class Manager {
 	/**
 	 * Call this site's protected-owner resource on WordPress.com, signed as the current user.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.8.1
 	 *
 	 * @param string     $route The route below the resource, empty for the resource itself.
 	 * @param array|null $body  The request body, or null to send none.
@@ -2783,7 +2783,7 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
-	 * @since $$next-version$$ When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
+	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
 	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
 	 */
@@ -3034,7 +3034,7 @@ class Manager {
 	/**
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
-	 * @since $$next-version$$ Only a user with `jetpack_connect` can take a vacant connection owner slot.
+	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
 	 *
 	 * @param array $data The request data.
 	 * @return string|\WP_Error Returns a string on success.
