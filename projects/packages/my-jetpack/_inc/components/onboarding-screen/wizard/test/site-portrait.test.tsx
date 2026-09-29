@@ -1,12 +1,15 @@
 import { act, render, screen } from '@testing-library/react';
+import { useReducedMotion } from '@wordpress/compose';
 import { _n } from '@wordpress/i18n';
 import { SitePortrait, hasPortrait } from '../site-portrait';
-import { useReducedMotion } from '../use-reduced-motion';
 import type { OnboardingSite } from '../lib';
 
 // Mocked rather than driven through `matchMedia`, so a test can turn it on part
 // way through a count.
-jest.mock( '../use-reduced-motion', () => ( { useReducedMotion: jest.fn( () => false ) } ) );
+jest.mock( '@wordpress/compose', () => ( {
+	...jest.requireActual( '@wordpress/compose' ),
+	useReducedMotion: jest.fn( () => false ),
+} ) );
 
 // The module's exports are frozen, so a translation can only be swapped here.
 jest.mock( '@wordpress/i18n', () => ( {

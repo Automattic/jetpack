@@ -602,7 +602,7 @@ class Initializer {
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @return array{exitUrl: string, dashboardUrl: string}|null
+	 * @return array{exitUrl: string, dashboardUrl: string, site: array|null}|null
 	 */
 	public static function get_onboarding_wizard_state() {
 		if ( ! self::is_onboarding_wizard_enabled() ) {

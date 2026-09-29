@@ -469,12 +469,13 @@ type OnboardingWizardState = {
 	// Where leaving Jetpack altogether lands: wp-admin's own dashboard.
 	dashboardUrl: string;
 	// What the panel can show about this site, and whether it may photograph it.
+	// Null on the dashboard, where nothing reads it and counting is not worth its query.
 	site: {
 		url: string;
 		domain: string;
 		canPhotograph: boolean;
 		counts: { posts: number; pages: number; media: number; plugins: number };
-	};
+	} | null;
 };
 
 type MainFeaturePluginStatus = 'not-installed' | 'inactive' | 'active';

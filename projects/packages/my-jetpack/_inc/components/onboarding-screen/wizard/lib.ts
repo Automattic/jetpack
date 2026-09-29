@@ -19,7 +19,7 @@ import {
 export interface WizardStepOption {
 	value: string;
 	label: string;
-	// Not rendered by the hairline row, which is label-only; kept for stage 3.
+	// The line under the label on a choice card.
 	description: string;
 	icon: typeof plus;
 	// Opens a text field for an answer the list does not cover.
@@ -52,7 +52,7 @@ export type WizardStepKind = 'start' | 'question' | 'features' | 'finish';
  * A step, as the rail and the question column both read it.
  */
 export interface WizardStepMeta {
-	// Stable across reorders: the React key, and the analytics name stage 2 reports.
+	// Stable across reorders: the React key, and how `siteTypeAnswer` finds its step.
 	id: string;
 	// Which component the shell renders for this step.
 	kind: WizardStepKind;
@@ -90,11 +90,9 @@ const UNKNOWN_CONNECTION_ERROR = 'unknown_error';
 /**
  * The bounded code for a failed registration, safe to send to Tracks.
  *
- * Either the server's own `WP_Error` code or, when the request never got as far
- * as a parsed body, the name of the error class the API client threw
- * (`JsonParseError`, `Api404Error`, `FetchNetworkError`, and so on). Both are
- * fixed vocabularies. The error's `message` is deliberately not considered:
- * it interpolates the server's prose and can carry the site's own URL.
+ * The server's own `WP_Error` code, or the name of the class the API client
+ * threw. The `message` is deliberately not considered: it interpolates the
+ * server's prose and can carry the site's own URL.
  *
  * @param error - The rejection from `handleRegisterSite`, or the stored error.
  * @return A slug from a fixed set, never free text.
@@ -155,7 +153,7 @@ export interface WizardState {
 }
 
 /**
- * The steps, in order. Placeholder content until stage 3 brings the real steps.
+ * The steps, in order.
  *
  * @return One entry per step, translated at call time.
  */
@@ -323,10 +321,8 @@ export function settleOnboarding( outcome: SettleOutcome ): Promise< unknown > {
  * Whether a module is switched on, given what the user has moved.
  *
  * The wizard recommends all six, so an untouched row is on even where the site
- * has the module off — which is the whole point of offering Downtime Monitor,
- * the one of the six that does not ship on. One function so the switch and the
- * request cannot disagree, which they did: the row read as on while the request
- * asked for no change, and the finish screen then said five of six.
+ * has the module off. One function, so the switch and the request cannot
+ * disagree — they did, and the finish screen then said five of six.
  *
  * @param wanted - What the user has moved, by slug.
  * @param slug   - The module in question.
@@ -354,14 +350,8 @@ export function siteTypeAnswer( state: WizardState ): string | undefined {
 /**
  * The line under the feature heading, per site type. One whole sentence each
  * rather than a name interpolated into a frame: a translator given "For %s" and
- * a list of nouns cannot agree the article or the case.
- *
- * It claims only what the order does. All six are still offered and all six
- * still start on, so "these matter most" is about what is at the top of the
- * list, and nothing here says anything was left out.
- *
- * Each one is short enough to set on one line at the column's 470px. The
- * longest, the business line, uses all of it, so a translation will wrap.
+ * a list of nouns cannot agree the article or the case. Each is short enough to
+ * set on one line at the column's 470px, so a translation will wrap.
  *
  * @return The line for each site type that has one, translated at call time.
  */

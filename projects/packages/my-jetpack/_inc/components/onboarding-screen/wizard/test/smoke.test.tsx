@@ -496,9 +496,6 @@ describe( 'Wizard shell', () => {
 
 		expect( railExit ).toHaveAttribute( 'href', dashboardUrl );
 		expect( skip ).toHaveAttribute( 'href', exitUrl );
-
-		// Two exits, two destinations: the rail leaves Jetpack, the footer stays in it.
-		expect( railExit.getAttribute( 'href' ) ).not.toBe( skip.getAttribute( 'href' ) );
 	} );
 
 	it( 'lists every step in the rail, marking the current one', () => {
@@ -524,11 +521,6 @@ describe( 'Wizard shell', () => {
 		expect( railGlyph( 'Your site' ) ).toBe( 'upcoming' );
 		expect( railGlyph( 'What you need' ) ).toBe( 'upcoming' );
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
-
-		// Nothing is done before anything has been left.
-		expect( [ 'Connect', 'Your site', 'What you need', 'Finish' ].map( railGlyph ) ).not.toContain(
-			'done'
-		);
 	} );
 
 	it( 'reads the glyphs off the current step, not off the furthest one reached', async () => {

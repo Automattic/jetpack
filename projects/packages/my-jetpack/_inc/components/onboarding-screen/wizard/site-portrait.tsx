@@ -1,9 +1,9 @@
+import { useReducedMotion } from '@wordpress/compose';
 import { createInterpolateElement } from '@wordpress/element';
 import { _n, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useEffect, useRef, useState } from 'react';
 import styles from './styles.module.scss';
-import { useReducedMotion } from './use-reduced-motion';
 import type { OnboardingSite } from './lib';
 import type { ReactNode } from 'react';
 
@@ -46,14 +46,9 @@ function Lights() {
 /**
  * What this site has, one line each.
  *
- * Whole sentences with the number inside them, marked up rather than split: a
- * translator handed "posts published" on its own cannot tell what agrees with
- * what, and several languages need the number to place the noun.
- *
- * A zero is left out. It is how an unmeasured field is spelled at least as
- * often as it is a real count, and "0 posts published" on a site with posts is
- * worse than saying nothing — which is what the prototype found on a site whose
- * media endpoint answered 401.
+ * Whole sentences with the number marked up inside them, not split: a translator
+ * handed "posts published" alone cannot tell what agrees with what. A zero is
+ * left out, being how an unmeasured field is spelled as often as a real count.
  *
  * @param counts - What the page counted.
  * @return One entry per count worth showing.
@@ -202,18 +197,9 @@ function StatRow( { text, value }: { text: string; value: number } ) {
 /**
  * This site, as a browser window in a receding stack, over what is in it.
  *
- * The prototype's identity stage, and the one screen it shows this on: where we
- * say what we read the site as and ask whether that is right. Ours asks the
- * same question, so it is the same screen.
- *
- * The backs are blank rather than labelled. The prototype writes the site's
- * feed URLs on them because its scan really read those pages; we read nothing,
- * so a URL there would be a claim about a fetch that never happened.
- *
- * Hidden from the accessibility tree in full. Every fact in it is decorative
- * here — the question being asked is on the left, the picture is of a site the
- * user is sitting inside, and read aloud the counts are four numbers with no
- * bearing on the answer.
+ * The backs are blank: the prototype labels them with feed URLs its scan really
+ * read, and we read nothing. Hidden from the accessibility tree in full, because
+ * every fact in it is decorative beside the question being asked on the left.
  *
  * @param props      - The component props.
  * @param props.site - What the page told us about this site.
@@ -285,6 +271,6 @@ export function SitePortrait( { site, shot }: { site: OnboardingSite; shot: stri
  * @param site - What the page told us, if anything.
  * @return True when there is a picture coming.
  */
-export function hasPortrait( site: OnboardingSite | undefined ): site is OnboardingSite {
+export function hasPortrait( site: OnboardingSite | null | undefined ): site is OnboardingSite {
 	return Boolean( site?.canPhotograph );
 }

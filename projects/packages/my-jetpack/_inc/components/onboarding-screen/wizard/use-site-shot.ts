@@ -10,17 +10,10 @@ const MSHOTS = 'https://s0.wp.com/mshots/v1/';
 const VIEWPORT = 1600;
 
 /*
- * The picture we ask for, and the two error cards as encoded AT THAT SIZE.
- *
- * One object because the byte counts are a function of the dimensions above them
- * and nothing else would say so. Measured against the live service, the same
- * unreachable host answers with 7156 bytes at 440 by 275 and 27013 at 1760 by
- * 1100. Change a dimension without re-measuring and the cards stop being
- * recognised, which puts a WordPress.com error card on screen inside a browser
- * frame captioned with the reader's own domain.
- *
- * They cannot be re-measured from a terminal: the edge answers a plain HTTP
- * client 403 for any render it does not already hold. It takes a real browser.
+ * The picture we ask for, and the two error cards as encoded AT THAT SIZE. One
+ * object because the byte counts are a function of the dimensions above them:
+ * change a dimension without re-measuring and an error card goes on screen in a
+ * frame captioned with the reader's own domain. Re-measuring takes a browser.
  */
 const SHOT = {
 	width: 880,
@@ -99,23 +92,11 @@ async function askOnce( src: string, signal: AbortSignal ): Promise< Answer > {
 /**
  * A photograph of this site's homepage, once there is one.
  *
- * Null until the service has a real picture, and null for good if it never does.
- * Nothing waits on this: the panel draws either way and the picture arrives into
- * it, or it does not.
- *
- * The polling is the awkward part and it is not ours. There is no callback and
- * no status: the same URL answers a redirect to a placeholder while the page is
- * being rendered and the picture once it has been.
- *
- * It is read with `fetch` rather than by loading the image, because a host the
- * service cannot reach is answered with an error card — HTTP 200 and a real
- * JPEG at the full requested size, indistinguishable from a homepage by
- * anything but its contents. See `SHOT`.
- *
- * The URL never varies between polls. It is what the service keys its render on,
- * so a cache-buster would start a new render every time and never finish one.
- * Re-asking the same address is not served from cache because the redirect it
- * answers with carries `no-store`.
+ * Polled, because the service has no callback: the same URL answers a redirect
+ * to a placeholder while it renders and the picture once it has rendered. Read
+ * with `fetch` rather than by loading the image, so an error card can be told
+ * from a homepage (see `SHOT`), and never cache-busted — the URL is the key the
+ * render is held under, so a fresh one would start a render and never finish it.
  *
  * @param url     - The site's own URL, or undefined to ask for nothing.
  * @param allowed - Whether this site can be photographed at all; see the PHP.

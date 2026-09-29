@@ -125,11 +125,6 @@ class Onboarding_Site_Portrait_Test extends BaseTestCase {
 	 * `wp_count_attachments()` returns per-mime-type counts plus a `trash` total
 	 * that is not in the library. Left in, it reports the emptied uploads back to
 	 * the person who emptied them.
-	 */
-	/**
-	 * `wp_count_attachments()` returns per-mime-type counts plus a `trash` total
-	 * that is not in the library. Left in, it reports the emptied uploads back to
-	 * the person who emptied them.
 	 *
 	 * Driven through the filter because WorDBless has no queryable posts table:
 	 * an insert here returns an id and `wp_count_posts()` still answers zero.

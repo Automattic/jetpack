@@ -1,10 +1,10 @@
 import { JetpackLogo } from '@automattic/jetpack-components';
+import { useReducedMotion } from '@wordpress/compose';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { check, lineSolid } from '@wordpress/icons';
 import { Icon, LinkButton, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import styles from '../styles.module.scss';
-import { useReducedMotion } from '../use-reduced-motion';
 import type { SetupModuleResult } from '../use-setup-modules';
 import type { MouseEvent } from 'react';
 
@@ -156,14 +156,12 @@ export function FinishStep( {
 			 */ }
 			<div className={ styles[ 'finish-column' ] }>
 				{ /*
-				 * The mark springs in over three discs washing outward. The scales are
-				 * 12, 15 and 13, not the reference's 28, 34 and 30: at 28x a 64px badge
-				 * is a 1792px disc, which is not a bloom, it is the whole window turning
-				 * green.
+				 * The mark springs in over three discs washing outward, each sized in the
+				 * stylesheet as a share of the window's long side so the wash clears the
+				 * page edge at any size.
 				 *
-				 * Under reduced motion the discs are not rendered at all. That is a
-				 * different render rather than a shorter animation, which is why this
-				 * step is the one place in the wizard that has to ask in JavaScript.
+				 * Under reduced motion the discs are not rendered at all; see
+				 * `.finish-wash` in the stylesheet.
 				 */ }
 				<div className={ styles[ 'finish-badge' ] }>
 					{ ! reduced && (

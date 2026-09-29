@@ -59,13 +59,9 @@ const SHELL_BACKGROUND = '#1e1e1e';
 const CONTENT_BACKGROUND = '#fcfcfc';
 
 /**
- * WordPress's own post-status icons: done = published (the ring with a tick),
- * current = drafts (the half-filled ring), upcoming = border (the dashed ring).
- * The glyph reports where the user is, not what the step is about.
- *
- * Read off the current step, never off the furthest one reached: a step the user
- * reached and then stepped back from is ahead of them again, so it is upcoming,
- * and a step never visited can never take the tick.
+ * WordPress's own post-status icons: done = published, current = drafts,
+ * upcoming = border. Read off the current step, never the furthest one reached,
+ * so a step stepped back from is ahead of the user again.
  *
  * @param index   - The step the row stands for.
  * @param current - The step the user is on.
@@ -86,13 +82,11 @@ type WizardProps = {
 	// Where the rail's control lands: out of Jetpack entirely, back to wp-admin.
 	dashboardUrl: string;
 	// What the page knows about this site, for the panel's portrait.
-	site?: OnboardingSite;
+	site?: OnboardingSite | null;
 };
 
 /**
  * The onboarding wizard's shell: the step rail, the questions, and the brand panel.
- *
- * Stage 1 owns the frame and the step machine only — no connection, and placeholder steps.
  *
  * The rail is built from the components the Site Editor's own sidebar uses:
  * `NavigableRegion`, `ItemGroup`/`Item`, `Stack`, `Icon`, and `FlexBlock`, inside
@@ -294,12 +288,10 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 	const showPortrait = meta.kind === 'question' && hasPortrait( site );
 
 	/*
-	 * Continue is in the same place on every step, so the second half of a double
-	 * click landed on the NEXT step's Continue and the step between them was never
-	 * seen: double-clicking on the site question applied all six modules without
-	 * ever showing them. `detail` is the click count within the browser's own
-	 * double-click window, so this refuses exactly that second press and nothing
-	 * else — a deliberate second click comes back as 1, and Enter as 0.
+	 * Continue sits in the same place on every step, so the second half of a
+	 * double click landed on the NEXT step's and skipped the one between. `detail`
+	 * is the count inside the browser's own double-click window, so this refuses
+	 * that press alone: a deliberate second click is 1, and Enter is 0.
 	 */
 	const handleContinue = useCallback(
 		( event: MouseEvent< HTMLElement > ) => {
@@ -416,7 +408,7 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 						</div>
 
 						{ /*
-						 * The <nav> itself is hidden below the panel breakpoint, so the collapsed
+						 * The <nav> itself is hidden below the rail breakpoint, so the collapsed
 						 * rail leaves no empty landmark behind, only its header.
 						 */ }
 						<nav
