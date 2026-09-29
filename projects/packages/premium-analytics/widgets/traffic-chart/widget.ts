@@ -26,6 +26,19 @@ export const TRAFFIC_PERIODS = [
 	'month',
 ] as const satisfies readonly StatsPeriod[];
 
+// Jetpack Stats v1 treats a viewport under 480px as mobile.
+export const MOBILE_QUERY = '(max-width: 479px)';
+
+/**
+ * The chart type drawn when nothing is saved: lines on a mobile viewport, bars elsewhere.
+ *
+ * @param isMobile - Whether the viewport matches `MOBILE_QUERY`.
+ * @return The default chart type.
+ */
+export function defaultChartType( isMobile: boolean ): TrafficChartType {
+	return isMobile ? 'line' : 'bar';
+}
+
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
 /**
@@ -97,10 +110,15 @@ export type TrafficChartAttributes = {
  */
 export default {
 	icon: trendingUp,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< TrafficChartAttributes >[],
-	example: {
-		attributes: {
-			chartType: 'bar',
+	attributes: [
+		{
+			...chartTypeAttributeField< TrafficChartAttributes >(),
+			// The switch must show what the chart draws, and the default depends on the viewport.
+			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
+				item.chartType ?? defaultChartType( window.matchMedia?.( MOBILE_QUERY ).matches ?? false ),
 		},
+	] as WidgetAttributeField< TrafficChartAttributes >[],
+	example: {
+		attributes: {},
 	},
 };

@@ -20,7 +20,7 @@ import { useCallback } from 'react';
  */
 import styles from './style.module.css';
 import useTrafficChart from './use-traffic-chart';
-import { TRAFFIC_PERIODS } from './widget';
+import { MOBILE_QUERY, TRAFFIC_PERIODS, defaultChartType } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -32,9 +32,6 @@ type TrafficChartWidgetProps = WidgetRenderProps< TrafficChartRenderAttributes >
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
-
-// Jetpack Stats v1 treats a viewport under 480px as mobile.
-const MOBILE_QUERY = '(max-width: 479px)';
 
 const DATA_FORMAT = {
 	type: 'number' as const,
@@ -116,7 +113,7 @@ export default function TrafficChart( { attributes = {}, setError }: TrafficChar
 
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner chartType={ attributes.chartType ?? ( isMobile ? 'line' : 'bar' ) } />
+			<TrafficChartInner chartType={ attributes.chartType ?? defaultChartType( isMobile ) } />
 		</WidgetRoot>
 	);
 }
