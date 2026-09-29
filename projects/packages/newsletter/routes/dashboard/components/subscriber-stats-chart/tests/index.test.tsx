@@ -140,7 +140,9 @@ describe( 'SubscriberStatsChart', () => {
 			path: expect.stringContaining( 'unit=day&quantity=30&date=2026-09-21' ),
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: expect.stringContaining( 'unit=day&quantity=1&date=2026-09-21' ),
+			path: expect.stringContaining(
+				`unit=day&quantity=1&date=${ new Date().toISOString().slice( 0, 10 ) }`
+			),
 		} );
 		expect( mockApiFetch ).toHaveBeenCalledWith( {
 			path: '/wpcom/v2/newsletter/stats/recent-posts',

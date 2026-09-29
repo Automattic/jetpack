@@ -128,6 +128,17 @@ function shiftChartDate( isoDate: string, unit: ChartUnit, direction: -1 | 1 ): 
 }
 
 /**
+ * UTC calendar day.
+ *
+ * The live subscriber total is used only when the requested day is gmdate( 'Y-m-d' ).
+ *
+ * @return `yyyy-MM-dd` in UTC.
+ */
+function utcToday(): string {
+	return new Date().toISOString().slice( 0, 10 );
+}
+
+/**
  * Calculate a bounded whole-number percentage.
  *
  * @param numerator   - Metric count.
@@ -414,11 +425,11 @@ export default function SubscriberStatsChart(): JSX.Element {
 		placeholderData: keepPreviousData,
 		staleTime: STATS_STALE_TIME_MS,
 	} );
-	// The headline is today's count, so the chart window cannot change it.
+	// The headline is the live count, so the chart window cannot change it.
 	const currentTotalsPath = addQueryArgs( '/wpcom/v2/newsletter/stats/subscribers', {
 		unit: 'day',
 		quantity: 1,
-		date: today,
+		date: utcToday(),
 		stat_fields: 'subscribers,subscribers_paid',
 	} );
 	const currentTotalsQuery = useQuery< SubscribersStatsResponse >( {
