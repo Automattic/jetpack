@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Move the Settings drawer shell into a shared page drawer component, so the page options menu panels share one layout.
+
+
