@@ -65,14 +65,13 @@ class Jetpack_Settings_React_Page extends Jetpack_Admin_Page {
 	 * Whether this request should load wp-build.
 	 *
 	 * An IDC-blocked page shows only the IDC banner, which the wp-build template would hide.
-	 * RTL stays on webpack too: wp-build inlines the route CSS with no RTL variant.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @return bool
 	 */
 	public function should_load_wp_build() {
-		if ( ! is_admin() || ! self::is_wp_build_enabled() || is_rtl() ) {
+		if ( ! is_admin() || ! self::is_wp_build_enabled() ) {
 			return false;
 		}
 

@@ -2,6 +2,21 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [3.3.0] - 2026-09-28
+### Added
+- Add a JitmSlot component so every dashboard renders the Jetpack in-dashboard message slot the same way, and keeps the message across route changes. [#52641]
+- IconTooltip: Add a `label` prop to give the icon trigger an accessible name. [#52800]
+
+### Changed
+- IconTooltip: Keep focus on the trigger when a tooltip opens, announce its content to screen readers, and show the trigger's focus ring the way other WordPress buttons do. [#52736]
+- Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
+
+### Deprecated
+- Deprecate GlobalNotices and useGlobalNotices. Use SnackbarNotices from @wordpress/notices instead. [#52193]
+
+### Fixed
+- IconTooltip: Close a tooltip opened on hover when Escape is pressed, without moving focus. [#52799]
+
 ## [3.2.0] - 2026-09-23
 ### Added
 - IconTooltip: Add a `trigger` prop that renders a text trigger in place of the icon, and a `closeOnClickOutside` prop to keep a tooltip open while the visitor works elsewhere on the page. [#52704]
@@ -1963,6 +1978,7 @@
 ### Changed
 - Update node version requirement to 14.16.1
 
+[3.3.0]: https://github.com/Automattic/jetpack-components/compare/3.2.0...3.3.0
 [3.2.0]: https://github.com/Automattic/jetpack-components/compare/3.1.2...3.2.0
 [3.1.2]: https://github.com/Automattic/jetpack-components/compare/3.1.1...3.1.2
 [3.1.1]: https://github.com/Automattic/jetpack-components/compare/3.1.0...3.1.1

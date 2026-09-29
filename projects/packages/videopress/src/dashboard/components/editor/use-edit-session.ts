@@ -1,5 +1,6 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import {
 	createHistory,
@@ -32,7 +33,7 @@ export function useEditSession( video: LibraryItem ) {
 	const saveMutation = useSaveVideoEdits();
 	const restoreMutation = useRestoreOriginal();
 	const retryMutation = useRetryVideoProcessing();
-	const notices = useGlobalNotices();
+	const notices = useDispatch( noticesStore );
 	const noticesRef = useRef( notices );
 	noticesRef.current = notices;
 	const [ history, dispatch ] = useReducer( reducer, video.durationSeconds, duration =>
@@ -100,7 +101,8 @@ export function useEditSession( video: LibraryItem ) {
 			if ( edits.job.status === 'complete' ) {
 				adopt( edits );
 				noticesRef.current.createSuccessNotice(
-					__( 'Video edits applied.', 'jetpack-videopress-pkg' )
+					__( 'Video edits applied.', 'jetpack-videopress-pkg' ),
+					{ type: 'snackbar' }
 				);
 			}
 		} else if ( ! currentBaseline ) {
@@ -156,7 +158,8 @@ export function useEditSession( video: LibraryItem ) {
 					setConflict( true );
 				} else {
 					noticesRef.current.createErrorNotice(
-						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' )
+						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' ),
+						{ type: 'snackbar' }
 					);
 				}
 			} finally {
@@ -182,7 +185,8 @@ export function useEditSession( video: LibraryItem ) {
 			setPending( response );
 		} catch {
 			noticesRef.current.createErrorNotice(
-				__( 'Unable to retry processing. Please try again.', 'jetpack-videopress-pkg' )
+				__( 'Unable to retry processing. Please try again.', 'jetpack-videopress-pkg' ),
+				{ type: 'snackbar' }
 			);
 			void query.refetch();
 		} finally {

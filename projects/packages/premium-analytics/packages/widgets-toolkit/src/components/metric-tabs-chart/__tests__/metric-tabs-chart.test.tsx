@@ -343,6 +343,17 @@ describe( 'MetricTabsChart', () => {
 		expect( screen.getByTestId( 'line-chart' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps the headline of a metric whose series alone is unavailable', () => {
+		const reason = "Hourly data isn't available for this metric.";
+		const totalOnly = { ...METRIC, current: [], previous: undefined, seriesUnavailable: reason };
+
+		render( <MetricTabsChart metrics={ [ totalOnly ] } dataFormat={ DATA_FORMAT } /> );
+
+		expect( screen.queryByTestId( 'line-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( reason ) ).toBeInTheDocument();
+		expect( screen.getByText( '300' ) ).toBeInTheDocument();
+	} );
+
 	// A point's date is the instant it is: the component passes it through, and
 	// the site's zone decides which calendar day that instant lands on.
 	it.each( [
@@ -407,8 +418,9 @@ describe( 'MetricTabsChart', () => {
 	} );
 
 	it( 'keeps seeded-hidden labels stable when the dashboard range changes', () => {
+		const hiddenViews = { ...VIEWS, counterpartHidden: true };
 		const { rerender } = render(
-			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } />
+			<MetricTabsChart metrics={ [ hiddenViews, VISITORS ] } dataFormat={ DATA_FORMAT } />
 		);
 		const before = recordedPropsFor( mockLineSpy, 'Views' );
 		const changedVisitors = {
@@ -420,7 +432,7 @@ describe( 'MetricTabsChart', () => {
 		};
 
 		rerender(
-			<MetricTabsChart metrics={ [ VIEWS, changedVisitors ] } dataFormat={ DATA_FORMAT } />
+			<MetricTabsChart metrics={ [ hiddenViews, changedVisitors ] } dataFormat={ DATA_FORMAT } />
 		);
 		const after = recordedPropsFor( mockLineSpy, 'Views' );
 
@@ -432,7 +444,7 @@ describe( 'MetricTabsChart', () => {
 		] );
 	} );
 
-	it( 'draws the counterpart alongside the active metric and seeds it hidden', () => {
+	it( 'draws the counterpart alongside the active metric, hiding nothing', () => {
 		render( <MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } /> );
 
 		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
@@ -443,6 +455,24 @@ describe( 'MetricTabsChart', () => {
 		expect( series ).toHaveLength( 4 );
 		expect( series[ 2 ].group ).toBe( 'visitors' );
 		expect( series[ 3 ].options?.type ).toBe( 'comparison' );
+		expect( defaultHiddenSeries ).toBeUndefined();
+		expect( legendInteractive ).toBe( true );
+	} );
+
+	it( 'seeds the counterpart hidden when the metric sets counterpartHidden', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, counterpartHidden: true }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+			mockLineSpy,
+			'Views'
+		);
+
+		expect( series ).toHaveLength( 4 );
 		// Both of the counterpart's series, so revealing its legend item brings
 		// back the previous-period overlay with it.
 		expect( defaultHiddenSeries ).toEqual( [ series[ 2 ].label, series[ 3 ].label ] );
@@ -459,10 +489,7 @@ describe( 'MetricTabsChart', () => {
 		const after = recordedPropsFor( mockLineSpy, 'Visitors' );
 
 		expect( after.series[ 0 ].group ).toBe( 'visitors' );
-		expect( after.defaultHiddenSeries ).toEqual( [
-			after.series[ 2 ].label,
-			after.series[ 3 ].label,
-		] );
+		expect( after.defaultHiddenSeries ).toBeUndefined();
 		expect( after.series[ 2 ].label ).toBe( 'Views' );
 		// Each metric gets its own visibility bucket in the charts provider.
 		expect( after.chartId ).not.toBe( before.chartId );
@@ -489,22 +516,25 @@ describe( 'MetricTabsChart', () => {
 
 	// The Traffic summary pairs Views with Visitors, but the hourly grain serves Views
 	// alone, so drawing the pair there offers the legend a flat zero line.
-	it( 'ignores a counterpart with nothing to report at this bucket size', () => {
-		const unavailableVisitors = { ...VISITORS, unavailable: "Hourly data isn't available." };
+	it.each( [ 'unavailable', 'seriesUnavailable' ] )(
+		'ignores a counterpart with nothing to draw at this bucket size (%s)',
+		reasonKey => {
+			const unavailableVisitors = { ...VISITORS, [ reasonKey ]: "Hourly data isn't available." };
 
-		render(
-			<MetricTabsChart metrics={ [ VIEWS, unavailableVisitors ] } dataFormat={ DATA_FORMAT } />
-		);
+			render(
+				<MetricTabsChart metrics={ [ VIEWS, unavailableVisitors ] } dataFormat={ DATA_FORMAT } />
+			);
 
-		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
-			mockLineSpy,
-			'Views'
-		);
+			const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+				mockLineSpy,
+				'Views'
+			);
 
-		expect( series ).toHaveLength( 2 );
-		expect( defaultHiddenSeries ).toBeUndefined();
-		expect( legendInteractive ).toBe( false );
-	} );
+			expect( series ).toHaveLength( 2 );
+			expect( defaultHiddenSeries ).toBeUndefined();
+			expect( legendInteractive ).toBe( false );
+		}
+	);
 
 	it( 'ignores a counterpart key that names the metric itself', () => {
 		const selfPaired = { ...METRIC, counterpartKey: METRIC.key };
@@ -518,7 +548,11 @@ describe( 'MetricTabsChart', () => {
 
 	it( 'pairs the metrics in bar mode too', () => {
 		render(
-			<MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } chartType="bar" />
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, counterpartHidden: true }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+				chartType="bar"
+			/>
 		);
 
 		const { series, defaultHiddenSeries } = recordedPropsFor( mockBarSpy, 'Views' );

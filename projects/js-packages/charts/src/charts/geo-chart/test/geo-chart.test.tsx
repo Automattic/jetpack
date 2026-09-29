@@ -224,6 +224,14 @@ describe( 'GeoChart', () => {
 			expect( options.domain ).toBe( 'IN' );
 		} );
 
+		test( 'passes the markers display mode so rows draw as points, not shaded areas', () => {
+			renderWithTheme( { displayMode: 'markers' } );
+
+			const options = JSON.parse( screen.getByTestId( 'chart-options' ).textContent || '{}' );
+
+			expect( options.displayMode ).toBe( 'markers' );
+		} );
+
 		test( 'does not include resolution in options when set to countries (default)', () => {
 			renderWithTheme();
 

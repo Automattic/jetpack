@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Geo Chart: Add a displayMode prop to draw rows as markers.
