@@ -201,19 +201,3 @@ BelowAxisDefaultRenderer.parameters = {
 		},
 	},
 };
-
-export const BelowAxisBackgroundOnly: StoryObj< typeof LineChart > = Template.bind( {} );
-BelowAxisBackgroundOnly.args = {
-	...BelowAxisDefaultRenderer.args,
-	tooltipStyle: {
-		'--a8c-charts-color-surface': 'var(--a8c-charts-color-surface-secondary)',
-	} as React.CSSProperties,
-};
-
-export const BelowAxisColorOnly: StoryObj< typeof LineChart > = Template.bind( {} );
-BelowAxisColorOnly.args = {
-	...BelowAxisDefaultRenderer.args,
-	tooltipStyle: {
-		'--a8c-charts-color-label': 'var(--a8c-charts-color-series-1)',
-	} as React.CSSProperties,
-};
