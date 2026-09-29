@@ -139,6 +139,8 @@ describe( 'useConnectionErrorsNotice', () => {
 		connectionError: undefined,
 		connectionErrors: {},
 		actions: [],
+		trackNoticeLinkClick: jest.fn(),
+		trackSupportLinkClick: jest.fn(),
 		restoreConnection: mockRestoreConnection,
 		isRestoringConnection: false,
 		restoreConnectionError: null,
@@ -183,7 +185,7 @@ describe( 'useConnectionErrorsNotice', () => {
 		expect( mockUseConnectionErrorNotice ).toHaveBeenCalledWith(
 			expect.objectContaining( {
 				navigate: assignLocation,
-				reconnectTrackingEvent: 'jetpack_my_jetpack_connection_error_notice_reconnect_cta_click',
+				trackingContext: 'my-jetpack',
 				trackingCallback: expect.any( Function ),
 			} )
 		);
@@ -239,6 +241,24 @@ describe( 'useConnectionErrorsNotice', () => {
 			tracksArgs: { error_count: 1, error_code: null, audience: 'site' },
 		} );
 		expect( getNoticeText() ).toContain( 'Connection failed' );
+	} );
+
+	it( 'takes the notice level from the severity the package rated', async () => {
+		setHookResult( {
+			...noError,
+			hasConnectionError: true,
+			severity: 'warning',
+			connectionErrorMessage: 'Connection failed',
+			connectionError: { error_message: 'Connection failed' },
+		} );
+
+		renderWithNoticeContext();
+
+		await waitFor( () => {
+			expect( mockSetNotice ).toHaveBeenCalled();
+		} );
+
+		expect( mockSetNotice.mock.calls[ 0 ][ 0 ].options.level ).toBe( 'warning' );
 	} );
 
 	it( 'shows every displayable error, not just the effective one', async () => {

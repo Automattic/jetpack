@@ -121,7 +121,7 @@ const Admin = () => {
 							<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
 								{ hasConnectionError && (
 									<Col>
-										<ConnectionError />
+										<ConnectionError trackingContext="videopress" />
 									</Col>
 								) }
 

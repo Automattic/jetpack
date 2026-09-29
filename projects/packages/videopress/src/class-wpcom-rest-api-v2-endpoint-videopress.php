@@ -164,9 +164,20 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 						// (post_status 'inherit') core maps edit_post to edit_posts for
 						// the post author, which a Contributor has and which does not
 						// imply the media rights this route needs.
-						return Data::can_perform_action()
-							&& current_user_can( 'upload_files' )
-							&& current_user_can( 'edit_post', self::get_video_attachment_id( $request->get_param( 'video_guid' ) ) );
+						if ( ! Data::can_perform_action() || ! current_user_can( 'upload_files' ) ) {
+							return false;
+						}
+
+						$attachment_id = self::get_video_attachment_id( $request->get_param( 'video_guid' ) );
+						if ( ! $attachment_id ) {
+							return new WP_Error(
+								'videopress_attachment_not_found',
+								__( 'This video could not be found in the Media Library. Restore it from the trash, if available, and try again.', 'jetpack-videopress-pkg' ),
+								array( 'status' => 403 )
+							);
+						}
+
+						return current_user_can( 'edit_post', $attachment_id );
 					},
 				),
 			)
@@ -741,14 +752,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	/**
 	 * Resolve a VideoPress guid to its local attachment id on the current site.
 	 *
-	 * Used to authorize poster reads/writes against the specific video. Returns
-	 * 0 when the guid cannot be resolved to an attachment on this site, so the
-	 * capability check that consumes it fails closed.
+	 * Returns 0 when the GUID does not belong to the current site.
+	 *
+	 * @internal
 	 *
 	 * @param string $video_guid The VideoPress GUID.
 	 * @return int The attachment/post id, or 0 if it cannot be resolved.
 	 */
-	private static function get_video_attachment_id( $video_guid ) {
+	public static function get_video_attachment_id( $video_guid ) {
 		if ( empty( $video_guid ) ) {
 			return 0;
 		}

@@ -5,6 +5,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.11.0] - 2026-09-28
+### Added
+- Add a "Change" item to a saved payment link's menu in the block settings sidebar, to switch the button to another of the account's payment links. [#52534]
+- Add stacked buttons as a display format for PayPal payment buttons. [#52512]
+- Ask whether to save or discard unsaved changes when leaving a saved payment link's form in the block settings sidebar. [#52553] [#52744]
+- Give each link in the existing links list a menu to duplicate it into a new payment link or delete it, and let the new link's form go back to the list. [#52543]
+- Show a snackbar after a post save that creates or changes a PayPal payment link. [#52740]
+
+### Changed
+- Hide the Styles tab until the block has a payment link. [#52668]
+- Keep the existing links list in sync across blocks. [#52668]
+
+### Fixed
+- Allow http return URLs, and show an error in the block when a return URL is invalid. [#52774]
+- Fit the QR code's link field and "Copy Link" button in narrow columns. [#52773]
+- Make "Width" size the whole payment button, so the product and "Powered by PayPal" line up with it. [#52677]
+- Make a percentage "Width" the same size in the editor as on the published page. [#52773]
+- Mark the post as changed when a payment button is updated to match its link on PayPal, so the change can be saved and shown on the page. [#52553]
+- Match the block's editor preview to the published button, and show "Powered by PayPal" by default. [#52671]
+- Show a payment link's hosted ID without its PLB- prefix in the block settings sidebar, so it no longer wraps. [#52550]
+- Show the right price on the "Send via Email" card for links priced per option, instead of just "$". [#52743]
+
+### Removed
+- Remove the connection status and Sandbox badge from the editor canvas. [#52773]
+
+## [0.10.0] - 2026-09-21
+### Added
+- Add a PayPal account menu to the top of the block settings sidebar, with links to PayPal's checkout settings and transactions, and a "Log out" item showing the connected account. [#52509]
+- Add a Product ID field, shipping and handling fees, a discount, and flat-amount tax, and check fees and tax rates against what the currency allows. [#52301]
+
+### Changed
+- Show a saved payment link's details in the block settings sidebar instead of its edit form. [#52372]
+- Show the result of deleting a link, disconnecting, or picking an existing link in a snackbar. [#52464]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Keep a block's payment link at PayPal when the block is removed. [#52463]
+- Prevent payment link settings from being overwritten on save before the block has loaded them, and keep values that were edited while the link is still loading. [#52418]
+- Show a notice when opening a post picks up changes made to the payment link elsewhere. [#52302]
+
 ## [0.9.0] - 2026-09-15
 ### Added
 - Accept only whole-number prices in currencies that do not use decimals. [#51656]
@@ -339,6 +379,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Simple Payments: Move Simple Payments block to PayPal Payments package. [#43413]
 
+[0.11.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.9.0...v0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.2...v0.9.0
 [0.8.2]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/Automattic/jetpack-paypal-payments/compare/v0.8.0...v0.8.1

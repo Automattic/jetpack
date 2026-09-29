@@ -43,7 +43,7 @@ function daysCovered( key: MonthKey, today: Date, firstDay?: DayKey ): number {
  * @param metric  - Which number each cell reports.
  * @param today   - The site's current day, which closes the last row.
  * @param opensAt - The site's first day with views, which opens the first month when it falls inside it.
- * @return One row per year with views, newest first. Empty without any views.
+ * @return One row per year with views, newest first; without any views, the current month alone at zero.
  */
 export function buildViewsOverYearsRows(
 	buckets: MonthBucket[],
@@ -62,12 +62,10 @@ export function buildViewsOverYearsRows(
 	// The endpoint pads zero months back to the requested start, which says
 	// nothing about the site, so the table opens on the first month with views.
 	const withViews = [ ...viewsByOrder.entries() ].filter( ( [ , views ] ) => views > 0 );
-
-	if ( withViews.length === 0 ) {
-		return [];
-	}
-
-	const firstOrder = Math.min( ...withViews.map( ( [ order ] ) => order ) );
+	const firstOrder = Math.min(
+		monthOrder( toMonthKey( today ) ),
+		...withViews.map( ( [ order ] ) => order )
+	);
 	const lastOrder = Math.max(
 		monthOrder( toMonthKey( today ) ),
 		...withViews.map( ( [ order ] ) => order )

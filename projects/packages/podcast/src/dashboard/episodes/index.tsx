@@ -8,7 +8,7 @@ import { useCallback, useMemo, useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, sprintf } from '@wordpress/i18n';
 import { useNavigate } from '@wordpress/route';
-import { LinkButton } from '@wordpress/ui';
+import { EmptyState, LinkButton, Stack } from '@wordpress/ui';
 import { usePodcastSettings } from '../hooks/use-podcast-settings';
 import LockedPreview from '../locked-preview';
 import './style.scss';
@@ -26,17 +26,27 @@ const editPostUrl = ( postId: number ): string =>
 const NEW_EPISODE_URL = `${ ADMIN_URL }post-new.php?podcast_episode=1`;
 
 const EmptyEpisodes = () => (
-	<div className="podcast__empty-state">
-		<h2 className="podcast__section-heading">
-			{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
-		</h2>
-		<p>
-			{ __( 'Publish a podcast post in your chosen category to see it here.', 'jetpack-podcast' ) }
-		</p>
-		<LinkButton variant="solid" href={ NEW_EPISODE_URL }>
-			{ __( 'Create episode', 'jetpack-podcast' ) }
-		</LinkButton>
-	</div>
+	<Stack
+		direction="column"
+		align="center"
+		justify="center"
+		style={ { paddingBlock: '48px', paddingInline: '16px' } }
+	>
+		<EmptyState.Root>
+			<EmptyState.Title>{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }</EmptyState.Title>
+			<EmptyState.Description>
+				{ __(
+					'Publish a podcast post in your chosen category to see it here.',
+					'jetpack-podcast'
+				) }
+			</EmptyState.Description>
+			<EmptyState.Actions>
+				<LinkButton variant="solid" href={ NEW_EPISODE_URL }>
+					{ __( 'Create episode', 'jetpack-podcast' ) }
+				</LinkButton>
+			</EmptyState.Actions>
+		</EmptyState.Root>
+	</Stack>
 );
 
 interface EpisodeRow {
@@ -314,17 +324,24 @@ const EpisodesTab = () => {
 
 	if ( ! categoryId ) {
 		return (
-			<div className="podcast__empty-state">
-				<h2 className="podcast__section-heading">
-					{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
-				</h2>
-				<p>
-					{ __(
-						'Set a post category in your podcasting settings to start showing episodes here.',
-						'jetpack-podcast'
-					) }
-				</p>
-			</div>
+			<Stack
+				direction="column"
+				align="center"
+				justify="center"
+				style={ { paddingBlock: '48px', paddingInline: '16px' } }
+			>
+				<EmptyState.Root>
+					<EmptyState.Title>
+						{ __( 'No podcast episodes yet.', 'jetpack-podcast' ) }
+					</EmptyState.Title>
+					<EmptyState.Description>
+						{ __(
+							'Set a post category in your podcasting settings to start showing episodes here.',
+							'jetpack-podcast'
+						) }
+					</EmptyState.Description>
+				</EmptyState.Root>
+			</Stack>
 		);
 	}
 

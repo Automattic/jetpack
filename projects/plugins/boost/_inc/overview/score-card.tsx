@@ -22,6 +22,26 @@ type Props = {
 	noBoost?: number | null;
 };
 
+/**
+ * What the badge's tooltip says about the comparison behind it.
+ *
+ * The badge clamps a worse-than-baseline comparison to zero, so a drop is only legible in words —
+ * these match the "Speed score has fallen" notice that reports the same drop.
+ *
+ * @param delta - Points against the Boost-disabled baseline, or null when there is no comparison.
+ */
+function explainDelta( delta: number | null ): string {
+	if ( delta !== null && delta > 0 ) {
+		return __( 'Points gained from optimizations', 'jetpack-boost' );
+	}
+
+	if ( delta !== null && delta < 0 ) {
+		return __( 'Speed score has fallen', 'jetpack-boost' );
+	}
+
+	return __( 'No improvements in score', 'jetpack-boost' );
+}
+
 export default function ScoreCard( {
 	icon,
 	label,
@@ -33,6 +53,8 @@ export default function ScoreCard( {
 }: Props ) {
 	const headingId = useId();
 	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
+	// The badge states what Boost improved, so a worse-than-baseline comparison reads as zero.
+	const gain = delta === null ? null : Math.max( 0, delta );
 	return (
 		<section className="jetpack-boost-overview__score-section" aria-labelledby={ headingId }>
 			<Stack direction="row" align="center" gap="sm">
@@ -59,15 +81,15 @@ export default function ScoreCard( {
 						value={ score }
 						aria-label={ label }
 					/>
-					{ delta !== null && (
+					{ gain !== null && (
 						<Stack
 							direction="row"
 							align="center"
 							gap="sm"
 							className="jetpack-boost-overview__delta"
 						>
-							<Badge intent={ delta > 0 ? 'informational' : 'none' }>
-								{ formatScoreDelta( delta ) }
+							<Badge intent={ gain > 0 ? 'informational' : 'none' }>
+								{ formatScoreDelta( gain ) }
 							</Badge>
 							<Popover.Root>
 								<Popover.Trigger
@@ -82,9 +104,7 @@ export default function ScoreCard( {
 									<VisuallyHidden render={ <Popover.Title /> }>
 										{ __( 'About points', 'jetpack-boost' ) }
 									</VisuallyHidden>
-									<Popover.Description>
-										{ __( 'Points gained from optimizations', 'jetpack-boost' ) }
-									</Popover.Description>
+									<Popover.Description>{ explainDelta( delta ) }</Popover.Description>
 								</Popover.Popup>
 							</Popover.Root>
 						</Stack>

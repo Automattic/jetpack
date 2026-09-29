@@ -76,19 +76,54 @@ function get_dashboard_default_widget_instance(
  * @return array The layout minus the unsupported instances.
  */
 function remove_unsupported_default_layout_items( $layout ) {
-	return remove_unsupported_widget_items(
+	$layout = remove_unsupported_widget_items(
 		is_array( $layout ) ? $layout : array(),
 		'type',
 		get_widget_support_context()
 	);
+
+	return remove_unregistered_default_layout_items( $layout );
 }
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_unsupported_default_layout_items', 100 );
+
+/**
+ * Drops the widget instances whose type the widget type registry does not know.
+ *
+ * Only once the registry can answer: after `init`, with the widget type API loaded and at least
+ * one type registered. Before that, or on a checkout without a build, the default stays as
+ * declared rather than emptying itself.
+ *
+ * @since 0.9.0
+ *
+ * @param array $layout Default widget instances.
+ * @return array The layout minus the instances of unregistered types.
+ */
+function remove_unregistered_default_layout_items( $layout ) {
+	if ( ! did_action( 'init' ) || ! function_exists( __NAMESPACE__ . '\\ensure_widget_registry_ready' ) ) {
+		return $layout;
+	}
+
+	ensure_widget_registry_ready();
+	$registered = Widget_Type_Registry::get_instance()->get_all_registered();
+	if ( empty( $registered ) ) {
+		return $layout;
+	}
+
+	return array_values(
+		array_filter(
+			$layout,
+			static function ( $item ) use ( $registered ) {
+				return ! is_array( $item ) || isset( $registered[ $item['type'] ?? '' ] );
+			}
+		)
+	);
+}
 
 /**
  * No-op kept for older copies of the package: they guard their include of this file on this
  * symbol and call it from boot_routes(), so a newer copy loading first must still define it.
  *
- * @since $$next-version$$ Registers nothing; the route it registered is gone.
+ * @since 0.8.0 Registers nothing; the route it registered is gone.
  *
  * @return void
  */

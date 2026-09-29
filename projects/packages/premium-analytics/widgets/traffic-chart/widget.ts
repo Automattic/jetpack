@@ -1,7 +1,7 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import type { StatsPeriod } from '@jetpack-premium-analytics/data';
 import { trendingUp } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
@@ -12,6 +12,7 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 import {
 	chartTypeAttributeField,
 	type ChartDisplayChartType,
+	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
@@ -40,20 +41,46 @@ export type TrafficChartMetricId = 'views' | 'visitors' | 'comments' | 'likes';
  * Metric tabs in display order; id doubles as the `stat_fields` value. Views
  * and Visitors pair via `counterpartId` (unavailable at the hourly bucket);
  * `counterpartId` is typed to the id set so a typo can't silently drop the pairing.
+ * Visitors starts with Views hidden, since Views' scale would flatten its line.
  */
 export const TRAFFIC_CHART_METRICS = [
-	{ id: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ), counterpartId: 'visitors' },
+	{
+		id: 'views',
+		label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of views. */
+			_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
+		counterpartId: 'visitors',
+	},
 	{
 		id: 'visitors',
 		label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of visitors. */
+			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
 		counterpartId: 'views',
+		counterpartHidden: true,
 	},
-	{ id: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
-	{ id: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+	{
+		id: 'comments',
+		label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of comments. */
+			_n( '%s Comment', '%s Comments', count, 'jetpack-premium-analytics-pkg' ),
+	},
+	{
+		id: 'likes',
+		label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
+		countLabel: count =>
+			/* translators: %s: number of likes. */
+			_n( '%s Like', '%s Likes', count, 'jetpack-premium-analytics-pkg' ),
+	},
 ] as const satisfies readonly {
 	id: TrafficChartMetricId;
 	label: string;
+	countLabel: CountLabel;
 	counterpartId?: TrafficChartMetricId;
+	counterpartHidden?: boolean;
 }[];
 
 /**

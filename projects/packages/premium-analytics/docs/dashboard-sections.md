@@ -6,7 +6,7 @@ Sections are registered on the server by whoever owns them, the package for its 
 
 The package owns the dashboard, not the features: a section belongs to the code that knows its feature is there. Traffic and Insights are the package's own, since the dashboard is the Stats feature. A section that depends on another feature being present registers from that feature's code, in the plugin, the module or, on the WordPress.com platform, in `jetpack-mu-wpcom`.
 
-This page covers sections only. Widget types and report pages have their own registration paths, described at the end.
+This page covers sections only. Widget types have their own page, [Dashboard widget types](dashboard-widgets.md); report pages are described at the end.
 
 ## Vocabulary
 
@@ -17,22 +17,21 @@ This page covers sections only. Widget types and report pages have their own reg
 | Slug           | The part after the namespace. Keys the section in `?section=`, the stored layouts and the client entity. Unique per dashboard.                        | `traffic`, `ads`                           |
 | Label, title   | The navigation item text and the heading above the widgets. A null title falls back to the label.                                                     | `Ads`, `Site traffic`                      |
 | Default layout | The widget instances a section shows until the reader customizes it.                                                                                  | see `get_traffic_section_default_layout()` |
-| Preview scope  | The customer preview exposes only an allow-list of slugs; every other mode exposes every section the site qualifies for.                              | `PREVIEW_SECTIONS`                         |
 
 ## Files
 
-| File                                               | Role                                                                                                                                                                                                                                       |
-| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                                                                                     |
-| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                                                                                     |
-| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the preview scope, the script data, the REST routes and their schema.                                                                                                          |
-| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts.                                                                  |
-| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, their gates and their default layouts, registered through the action like any plugin's, plus `get_ads_section_default_layout()`, the layout both Ads registrants share. |
-| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                                                                                          |
-| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                                                                                        |
-| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                                                                                  |
-| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                                                                                  |
-| `routes/site-readiness.ts`                         | `isDashboardSectionInPreviewScope()`, the report routes' gate, fed by the inline script data.                                                                                                                                              |
+| File                                               | Role                                                                                                                                                                      |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/class-dashboard-section.php`                  | The section model: properties, `is_available()`, `get_default_layout()`, `to_array()`.                                                                                    |
+| `src/class-dashboard-section-registry.php`         | The registry: `register()` with its validations, the reads, and the lazy hydration that fires the registration action.                                                    |
+| `src/dashboard-sections.php`                       | The section API: the `register_dashboard_section()` family, the section script data, the REST routes and their schema.                                                    |
+| `src/dashboard-layout.php`                         | Layout primitives: `DASHBOARD_NAME`, the default-layout filter name, `get_dashboard_default_widget_instance()`, and the package's availability policy on default layouts. |
+| `src/default-dashboard-sections.php`               | The package's own sections: Traffic, Insights, Subscribers, Store, their gates and their default layouts, registered through the action like any plugin's.                |
+| `src/class-analytics.php`                          | Loads the three files above on wp-admin requests (`load_dashboard_components()`).                                                                                         |
+| `src/class-dashboard-support-routes.php`           | Loads them on REST requests (`boot_routes()`), on connected sites and, called directly by WordPress.com, on Simple.                                                       |
+| `packages/data/src/entities/dashboard-entities.ts` | The `dashboardSection` core-data entity the client reads.                                                                                                                 |
+| `routes/dashboard/`                                | `useDashboardSections()`, `useActiveSection()`, `useDashboardSectionLayout()`, and the stage that renders the navigation.                                                 |
+| `routes/site-readiness.ts`                         | `isDashboardSectionAvailable()`, the report routes' gate, fed by the inline script data.                                                                                  |
 
 ## When the section files load
 
@@ -105,7 +104,7 @@ The mechanics behind it:
 
 ![The registry is filtered by availability and serialized by the sections REST route; the client reads it as the dashboardSection core-data entity and builds the navigation from it, while a slug list in the inline script data lets report routes redirect before any request.](diagrams/sections-to-client.svg)
 
-On the server, `get_available_dashboard_sections()` keeps the sections whose `is_available()` is true and sorts them by `order`, then by id. `Dashboard_Section::is_available()` asks the preview scope first and the section's own rule second.
+On the server, `get_available_dashboard_sections()` keeps the sections whose `is_available()` is true and sorts them by `order`, then by id. `Dashboard_Section::is_available()` answers with the section's own rule.
 
 `to_array()` serializes `id`, `slug`, `label`, `title`, `order`, `date_filter`, `date_filter_options`, `requires_sync`, and the resolved `default_layout`.
 
@@ -119,9 +118,9 @@ The dashboard stage shows a spinner until then, because `WidgetDashboard` treats
 
 The stage then builds the navigation from `{ slug, label }`, resolves the active section from `?section=` through `useActiveSection()`, and hands each section's `default_layout` to `useDashboardSectionLayout()`. An unknown slug falls back to the first section and rewrites the URL.
 
-A second, smaller channel carries only the slugs. `inject_dashboard_preview_scope_script_data()` puts `premium_analytics.preview_sections` in `JetpackScriptData`, which `jetpack-assets` prints inline on the page.
+A second, smaller channel carries only the slugs. `inject_dashboard_sections_script_data()` puts `premium_analytics.sections` in `JetpackScriptData`, which `jetpack-assets` prints inline on the page.
 
-`isDashboardSectionInPreviewScope()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request.
+`isDashboardSectionAvailable()` reads it, and `getReportDefinition()` treats a report behind a hidden section as unknown, so the report and detail routes can redirect in `beforeLoad`, before any request.
 
 This channel exists because the report registry lives in the client today. Once reports register on the server, it goes away.
 
@@ -152,62 +151,72 @@ add_filter(
 
 The package removes the instances the site cannot serve at priority 100, `remove_unsupported_default_layout_items()` over `get_widget_support_context()`. A persisted layout keeps such an instance as a removable ghost widget, but a default must not seed one. Running late means an instance a plugin added gets the same treatment as a bundled one.
 
+The same callback drops an instance whose type the widget type registry has not registered, once the registry can answer: after `init`, with the widget type API loaded and at least one type registered. Before that, or on a checkout without a build, the default stays as declared.
+
 The client stores customized layouts in the `dashboardSectionLayouts` preference, keyed by slug. `useDashboardSectionLayout()` renders the stored layout when there is one and the section's `default_layout` otherwise.
 
 Reset deletes the stored entry rather than copying the default into it, so a section that was reset follows later changes to the default.
 
 A section that declares no layout opens in customize mode on the empty state, since `WidgetDashboard` treats an empty layout as "no widgets". A section meant to be read declares one.
 
-## Availability and the preview
+## Availability
 
-`is_available()` combines two rules, in this order:
+`is_available()` is the section's own rule, `is_available` from the registration. The dashboard has no fixed list of tabs: every registered section the site qualifies for is shown.
 
-1. **Preview scope**, which is about the rollout rather than the site.
-2. **The section's own rule**, `is_available` from the registration.
-
-**Preview scope.** `is_dashboard_preview_scoped()` is true when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the customer preview. In that mode, a section is exposed only when its slug is in `PREVIEW_SECTIONS` (`traffic` and `insights`).
-
-`jetpack_premium_analytics_dashboard_preview_scope` then overrides the answer per section, and `__return_true` gives a development site every section. A dashboard other than this package's is never scoped.
-
-The sticker and filter overrides that switch the dashboard on for the team leave the option off, so they see every section.
-
-To see every section on a customer's preview site without changing what its owner sees, switch on the `premium-analytics-a11n-all-sections` feature flag in Tools → Feature Flags (a8c). It opens the scope only for a visitor `jetpack-mu-wpcom` identifies as an Automattician, so it does nothing on a self-hosted site.
-
-**The section's own rule** is a capability check, a plugin's presence, or a plan feature. Store checks WooCommerce and `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
+The rule is a capability check, a plugin's presence, a plan feature, or a feature flag. Store checks WooCommerce and, when the site's own `jetpack_premium_analytics_enabled` option switched the dashboard on, the `premium-analytics-store-section` flag; the blog sticker and filter overrides leave the option off and skip the flag. It also checks `manage_options` or `view_woocommerce_reports`. Subscribers checks the subscriptions module. Ads checks `Capabilities::current_user_can_view_ad_reports()` from the registrant that decided WordAds is there.
 
 A section that declares no rule is visible to anyone with analytics access, the gate of the sections route. A plugin registering one for a narrower audience passes its own `is_available`.
 
 Store and Subscribers each have a filter of their own (`jetpack_premium_analytics_<name>_dashboard_section_available`).
 
-A section that fails either rule is absent from the sections route, from the script data, and from the navigation, and `GET …/sections/{section}/default-layout` answers 404 for it.
+A section that fails its rule is absent from the sections route, from the script data, and from the navigation, and `GET …/sections/{section}/default-layout` answers 404 for it.
 
 ## A real consumer: the Ads section
 
-![The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
+![The WordAds module registers the Ads section on self-hosted sites and skips the WordPress.com platform, jetpack-mu-wpcom registers it on Atomic and Simple by plan feature and WordAds being on, both at priority 20 skipping an existing ads slug, and the standalone plugin has no registrant.](diagrams/sections-ads-owners.svg)
 
-WordAds is a module of the Jetpack plugin, so on a self-hosted site the module registers the section: `modules/wordads/php/class-wordads-premium-analytics.php` hooks the action at priority 20 from `class-wordads.php`, which loads only while the module is active on a connected site.
+### Who owns the section
 
-On the WordPress.com platform the module registrant skips, `Host::is_wpcom_platform()`, and `jetpack-mu-wpcom` registers the section instead when the plan includes WordAds (`src/features/premium-analytics/wordads-section.php`): Simple runs no Jetpack plugin, and on Atomic the module is routinely off while the plan carries the feature. One owner per environment, decided in code rather than by hook order.
+The section, its layout and its widgets live in the `jetpack-ads` package (`projects/packages/ads`, `Analytics_Dashboard`). The package decides nothing about who gets Ads; whoever calls it hooks the action at priority 20.
 
-Both registrants skip when a section with slug `ads` already exists. That matters during a deploy skew only: an older package that still registers the section itself keeps it. They read the slug through `get_registered_by_slug()` when the package offers it and through `get_all_registered()` otherwise, since the package and the registrants ship on different cadences.
+### On self-hosted sites
 
-Both declare the same layout, `get_ads_section_default_layout()` from the package, which keeps the `jpa/wordads-*` widget types until they move to the module. The standalone `premium-analytics` plugin has no registrant, and no Ads section.
+WordAds is a module of the Jetpack plugin, so the module calls `Analytics_Dashboard::init()` from `modules/wordads/php/class-wordads-premium-analytics.php`. `class-wordads.php` loads it only while the module is active on a connected site.
+
+### On WordPress.com
+
+The module registrant skips the platform, `Host::is_wpcom_platform()`. `jetpack-mu-wpcom` calls the package's registrants instead when the plan includes WordAds and the site has it on, from `src/features/premium-analytics/wordads-section.php`: the WordAds module on Atomic, the approval stickers on Simple, as classic Stats reads them. A plan that could use WordAds is not a site that does.
+
+Simple runs no Jetpack plugin, so that one file decides for both environments. One owner per environment, decided in code rather than by hook order.
+
+The Jetpack plugin bundles the package, and `jetpack-mu-wpcom` lists it as a test-only dependency. WordPress.com loads the Jetpack copy, so Simple and Atomic serve the widget bundles from it, the way they serve this package.
+
+### Deploy skew
+
+Both registrants skip when a section with slug `ads` already exists. That matters during a deploy skew only: an older package that still registers the section itself keeps it.
+
+They read the slug through `get_registered_by_slug()` when the package offers it and through `get_all_registered()` otherwise, since the package and the registrants ship on different cadences.
+
+### The layout
+
+Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers (see [Dashboard widget types](dashboard-widgets.md#a-real-consumer-the-ads-widgets)). The standalone `premium-analytics` plugin has no registrant, and no Ads section.
 
 ## Where the tests are
 
-| Behaviour                                                                                                         | Test                                                                                               |
-| ----------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| Registry rules, hydration and the action, the built-in sections, preview scope, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                                                             |
-| Default-layout primitives, the filter and the package's policy, the bundled layouts                               | `tests/php/Dashboard_Layout_Test.php`                                                              |
-| The WordAds module's registrant                                                                                   | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`            |
-| The WordPress.com registrant                                                                                      | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php` |
-| The REST entry point WordPress.com calls                                                                          | `tests/php/Dashboard_Support_Routes_Test.php`                                                      |
-| Navigation, active section, stored layouts, section heading                                                       | `routes/dashboard/**/*.test.ts(x)`                                                                 |
-| Reports behind a hidden section                                                                                   | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                               |
+| Behaviour                                                                                          | Test                                                                                                                                                |
+| -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Registry rules, hydration and the action, the built-in sections, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                                                                                                              |
+| Default-layout primitives, the filter and the package's policy, the bundled layouts                | `tests/php/Dashboard_Layout_Test.php`                                                                                                               |
+| The WordAds module's registrant                                                                    | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`                                                             |
+| The Ads package's registrants, with and without the widget contract loaded                         | `projects/packages/ads/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/ads/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php` |
+| The WordPress.com registrant                                                                       | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php`                                                  |
+| The REST entry point WordPress.com calls                                                           | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                       |
+| Navigation, active section, stored layouts, section heading                                        | `routes/dashboard/**/*.test.ts(x)`                                                                                                                  |
+| Reports behind a hidden section                                                                    | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                |
 
 ## Not covered here
 
-Widget types are registered from the build manifest through `Widget_Type_Registry` (`src/widget-types.php`). A public registration for other plugins is the next step.
+Widget types are registered through `Widget_Type_Registry` the same way, from `jetpack_premium_analytics_register_widget_types`: see [Dashboard widget types](dashboard-widgets.md).
 
 Report pages are a client-side map in `routes/reports/registry.ts`, to be registered on the server the way sections are.
 

@@ -45,7 +45,14 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
-export { getFixedYAxis, type FixedYAxis } from './fixed-y-axis';
+export {
+	getFixedYAxis,
+	getPaddedYAxis,
+	getPinnedYTicks,
+	getYTickFormat,
+	type ChartBaseline,
+	type FixedYAxis,
+} from './fixed-y-axis';
 export { formatDisplayLabel } from './format-display-label';
 export {
 	buildCsv,
@@ -78,7 +85,13 @@ export {
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
-export { formatEmailRate, isEmailRateKnown, type EmailRateSignals } from './format-email-rate';
+export { compareOptionalNumbers } from './compare-optional-numbers';
+export {
+	formatEmailRate,
+	getKnownEmailRate,
+	isEmailRateKnown,
+	type EmailRateSignals,
+} from './format-email-rate';
 export { formatViewCount } from './format-view-count';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
@@ -93,8 +106,7 @@ export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipPointLabel } from './format-tooltip-point-label';
-export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
-export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
+export { appendTooltipExtras, resolveTooltipUnits, type TooltipUnit } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,

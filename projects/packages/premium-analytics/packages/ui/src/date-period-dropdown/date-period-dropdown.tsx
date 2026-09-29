@@ -13,7 +13,7 @@ import {
 } from '@jetpack-premium-analytics/datetime';
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange, formatDateRangeNatural } from '@jetpack-premium-analytics/formatters';
-import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
+import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
 import { useMediaQuery } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import { calendar, check, chevronDown } from '@wordpress/icons';
@@ -22,6 +22,7 @@ import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'reac
 /**
  * Internal dependencies
  */
+import { DateControlPopover } from '../date-control-popover';
 import { DateRangePopoverContent } from '../date-range-popover';
 import {
 	DATE_CONTROL_TRIGGER_DEFAULTS,
@@ -169,22 +170,33 @@ export function DatePeriodDropdown( {
 	 * click, Esc, trigger toggle) has to discard the draft the way Cancel does.
 	 */
 	const closedByActionRef = useRef( false );
+	const [ isOpen, setIsOpen ] = useState( false );
 	const [ isEditingCustom, setIsEditingCustom ] = useState( false );
 
 	const handleToggle = useCallback(
-		( isOpen: boolean ) => {
-			if ( ! isOpen && ! closedByActionRef.current ) {
+		( nextIsOpen: boolean ) => {
+			if ( ! nextIsOpen && ! closedByActionRef.current ) {
 				onCancel();
 			}
 
 			closedByActionRef.current = false;
 			// Opened on an applied custom range, the menu lands on the calendar:
 			// nothing in the list names that range.
-			setIsEditingCustom( isOpen && withCustomRange && appliedPresetId === PRESET_CUSTOM );
-			onOpenChange?.( isOpen );
+			setIsEditingCustom( nextIsOpen && withCustomRange && appliedPresetId === PRESET_CUSTOM );
+			onOpenChange?.( nextIsOpen );
 		},
 		[ appliedPresetId, onCancel, onOpenChange, withCustomRange ]
 	);
+
+	const handleOpenChange = useCallback(
+		( nextIsOpen: boolean ) => {
+			setIsOpen( nextIsOpen );
+			handleToggle( nextIsOpen );
+		},
+		[ handleToggle ]
+	);
+
+	const onClose = useCallback( () => handleOpenChange( false ), [ handleOpenChange ] );
 
 	/*
 	 * Recompute the range at selection time: the memoized preset ranges go stale
@@ -214,103 +226,100 @@ export function DatePeriodDropdown( {
 	}, [ appliedPresetId, appliedRange, groups ] );
 
 	return (
-		<Dropdown
-			popoverProps={ { placement: 'bottom-start' } }
-			onToggle={ handleToggle }
-			renderToggle={ ( { isOpen, onToggle } ) => (
-				// The label names the period, so the dates live here: the design
-				// keeps them off the control's face.
-				<Tooltip text={ formatDateRange( appliedRange ) }>
-					<Button
-						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
-						{ ...triggerProps }
-						className={ clsx( 'date-period-dropdown__toggle', triggerProps?.className ) }
-						disabled={ disabled }
-						onClick={ onToggle }
-						aria-expanded={ isOpen }
-						aria-haspopup="true"
-					>
-						{ attentionId !== undefined && (
-							// Keyed so a newer id starts the fade over without remounting the button.
-							<span
-								key={ attentionId }
-								className="date-period-dropdown__attention"
-								style={ ATTENTION_STYLE }
-								aria-hidden="true"
-							/>
-						) }
-						<Icon className="date-period-dropdown__glyph" icon={ calendar } size={ 18 } />
-						{ /* Own element so a label too wide for the trigger can ellipsize. */ }
-						<span className="date-period-dropdown__label">{ triggerLabel }</span>
-						<Icon className="date-period-dropdown__caret" icon={ chevronDown } size={ 18 } />
-					</Button>
-				</Tooltip>
-			) }
-			renderContent={ ( { onClose } ) => (
-				// Both halves stretch: the seam is drawn on the calendar, which would
-				// cut it short beside a longer list.
-				<Stack direction="row" align="stretch" className="date-period-dropdown__panel">
-					<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
-						{ groups.map( group => (
-							<MenuGroup key={ group[ 0 ].id }>
-								{ group.map( preset => {
-									const isSelected = preset.id === appliedPresetId;
-
-									return (
-										<MenuItem
-											key={ preset.id }
-											role="menuitemradio"
-											isSelected={ isSelected }
-											icon={ isSelected ? check : undefined }
-											onClick={ () => {
-												closedByActionRef.current = true;
-												selectPreset( preset );
-												onClose();
-											} }
-										>
-											{ preset.label }
-										</MenuItem>
-									);
-								} ) }
-							</MenuGroup>
-						) ) }
-
-						{ /* Opens the calendar beside the list rather than closing the menu. */ }
-						{ withCustomRange && (
-							<MenuGroup>
-								<MenuItem
-									role="menuitemradio"
-									isSelected={ appliedPresetId === PRESET_CUSTOM }
-									icon={ appliedPresetId === PRESET_CUSTOM ? check : undefined }
-									onClick={ () => setIsEditingCustom( true ) }
-								>
-									{ __( 'Custom range', 'jetpack-premium-analytics-pkg' ) }
-								</MenuItem>
-							</MenuGroup>
-						) }
-					</NavigableMenu>
-
-					{ isEditingCustom && (
-						<DateRangePopoverContent
-							range={ range }
-							onChange={ onChange }
-							onApply={ () => {
-								closedByActionRef.current = true;
-								onApply();
-								onClose();
-							} }
-							onCancel={ () => {
-								closedByActionRef.current = true;
-								onCancel();
-								onClose();
-							} }
-							canApply={ canApply }
-							isWideScreen={ !! isWideScreen }
-							timeZone={ timeZone }
+		<DateControlPopover
+			align="start"
+			title={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }
+			open={ isOpen }
+			onOpenChange={ handleOpenChange }
+			// The label names the period, so the dates live here: the design
+			// keeps them off the control's face.
+			tooltip={ formatDateRange( appliedRange ) }
+			trigger={
+				<Button
+					{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+					{ ...triggerProps }
+					className={ clsx( 'date-period-dropdown__toggle', triggerProps?.className ) }
+					disabled={ disabled }
+				>
+					{ attentionId !== undefined && (
+						// Keyed so a newer id starts the fade over without remounting the button.
+						<span
+							key={ attentionId }
+							className="date-period-dropdown__attention"
+							style={ ATTENTION_STYLE }
+							aria-hidden="true"
 						/>
 					) }
-				</Stack>
-			) }
-		/>
+					<Icon className="date-period-dropdown__glyph" icon={ calendar } size={ 18 } />
+					{ /* Own element so a label too wide for the trigger can ellipsize. */ }
+					<span className="date-period-dropdown__label">{ triggerLabel }</span>
+					<Icon className="date-period-dropdown__caret" icon={ chevronDown } size={ 18 } />
+				</Button>
+			}
+		>
+			{ /* Both halves stretch: the seam is drawn on the calendar, which would
+			   cut it short beside a longer list. */ }
+			<Stack direction="row" align="stretch" className="date-period-dropdown__panel">
+				<NavigableMenu role="menu" aria-label={ __( 'Period', 'jetpack-premium-analytics-pkg' ) }>
+					{ groups.map( group => (
+						<MenuGroup key={ group[ 0 ].id }>
+							{ group.map( preset => {
+								const isSelected = preset.id === appliedPresetId;
+
+								return (
+									<MenuItem
+										key={ preset.id }
+										role="menuitemradio"
+										isSelected={ isSelected }
+										icon={ isSelected ? check : undefined }
+										onClick={ () => {
+											closedByActionRef.current = true;
+											selectPreset( preset );
+											onClose();
+										} }
+									>
+										{ preset.label }
+									</MenuItem>
+								);
+							} ) }
+						</MenuGroup>
+					) ) }
+
+					{ /* Opens the calendar beside the list rather than closing the menu. */ }
+					{ withCustomRange && (
+						<MenuGroup>
+							<MenuItem
+								role="menuitemradio"
+								isSelected={ appliedPresetId === PRESET_CUSTOM }
+								icon={ appliedPresetId === PRESET_CUSTOM ? check : undefined }
+								onClick={ () => setIsEditingCustom( true ) }
+							>
+								{ __( 'Custom range', 'jetpack-premium-analytics-pkg' ) }
+							</MenuItem>
+						</MenuGroup>
+					) }
+				</NavigableMenu>
+
+				{ isEditingCustom && (
+					<DateRangePopoverContent
+						range={ range }
+						onChange={ onChange }
+						onApply={ () => {
+							closedByActionRef.current = true;
+							onApply();
+							onClose();
+						} }
+						onCancel={ () => {
+							closedByActionRef.current = true;
+							onCancel();
+							onClose();
+						} }
+						canApply={ canApply }
+						isWideScreen={ !! isWideScreen }
+						timeZone={ timeZone }
+					/>
+				) }
+			</Stack>
+		</DateControlPopover>
 	);
 }

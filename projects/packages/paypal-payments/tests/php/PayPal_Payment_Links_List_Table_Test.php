@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\PaypalPayments;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class PayPal_Payment_Links_List_Table_Test
  *
@@ -17,6 +19,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Payment_Links_List_Table::class )]
 class PayPal_Payment_Links_List_Table_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Clean up after each test.
@@ -319,6 +323,37 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		$output = $table->column_price( array( 'line_items' => array( array( 'name' => 'Test' ) ) ) );
 
 		$this->assertEquals( '—', $output );
+	}
+
+	/**
+	 * Test column_price shows the product price.
+	 */
+	public function test_column_price_shows_the_product_price() {
+		$table = new PayPal_Payment_Links_List_Table();
+
+		$this->assertSame( '$29.99', $table->column_price( $this->get_sample_items()[0] ) );
+		$this->assertSame( '€9.99', $table->column_price( $this->get_sample_items()[1] ) );
+	}
+
+	/**
+	 * Test column_price shows the cheapest option for a link priced per option.
+	 */
+	public function test_column_price_shows_the_from_price_for_priced_options() {
+		$table = new PayPal_Payment_Links_List_Table();
+
+		$this->assertSame( 'From $24.50', $table->column_price( self::get_per_option_resource() ) );
+	}
+
+	/**
+	 * Test column_price escapes the price.
+	 */
+	public function test_column_price_escapes_the_price() {
+		$table = new PayPal_Payment_Links_List_Table();
+		$item  = $this->get_sample_items()[0];
+
+		$item['line_items'][0]['unit_amount']['value'] = '9.99 & "up"';
+
+		$this->assertSame( '$9.99 &amp; &quot;up&quot;', $table->column_price( $item ) );
 	}
 
 	/**

@@ -94,7 +94,7 @@ describe( 'plan-upgrade-notification IIFE', () => {
 	 * as a console error. The reload path is therefore asserted indirectly: it
 	 * writes the guard and returns before the notice, and its console error is
 	 * consumed via expect( console ).toHaveErrored(). The no-reload paths assert
-	 * expect( console ).not.toHaveErrored() (jest-console also auto-fails on an
+	 * expect( console ).not.toHaveErrored() (the console guard also auto-fails on an
 	 * unexpected reload). The query string is driven via the history API, not by
 	 * reassigning the non-configurable window.location.
 	 */

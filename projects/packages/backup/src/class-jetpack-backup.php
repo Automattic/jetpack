@@ -24,6 +24,7 @@ use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Rest_Authentication as Connection_Rest_Authentication;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\JITMS\JITM;
 use Automattic\Jetpack\My_Jetpack\Wpcom_Products;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Terms_Of_Service;
@@ -155,21 +156,57 @@ class Jetpack_Backup {
 	private static $wp_build_original_screen_id = null;
 
 	/**
-	 * Constructor.
+	 * Initialization options.
+	 *
+	 * @var array
 	 */
-	public static function initialize() {
+	const DEFAULT_INIT_OPTIONS = array(
+		// A host that already ensured a connection under its own slug must not have it
+		// re-ensured here as `jetpack-backup`, which would rename the site's connection.
+		'manage_connection' => true,
+	);
+
+	/**
+	 * Constructor.
+	 *
+	 * @param array $options Overrides for self::DEFAULT_INIT_OPTIONS.
+	 */
+	public static function initialize( array $options = array() ) {
 		if ( did_action( 'jetpack_backup_initialized' ) ) {
 			return;
 		}
 
-		// Set up the REST authentication hooks.
-		Connection_Rest_Authentication::init();
+		$options = array_merge( self::DEFAULT_INIT_OPTIONS, $options );
 
 		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
 		add_action( 'rest_api_init', array( \Automattic\Jetpack\Backup\V0005\REST\Rest_Controller::class, 'register_routes' ) );
 
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		add_action( 'admin_menu', array( __CLASS__, 'add_wp_admin_submenu' ), 1 ); // Akismet uses 4, so we need to use 1 to ensure both menus are added when only they exist.
+
+		if ( $options['manage_connection'] ) {
+			self::init_standalone_connection();
+		}
+
+		// Jetpack Backup abilities are registered from `actions.php` at package
+		// autoload time so the surface is available in every consumer that
+		// loads this package (both the standalone Backup plugin and the
+		// Jetpack plugin), not only when `Jetpack_Backup::initialize()` runs.
+
+		/**
+		 * Runs right after the Jetpack Backup package is initialized.
+		 *
+		 * @since 1.3.0
+		 */
+		do_action( 'jetpack_backup_initialized' );
+	}
+
+	/**
+	 * Set up the connection, sync and identity-crisis packages under the standalone plugin's slug.
+	 */
+	private static function init_standalone_connection() {
+		// Set up the REST authentication hooks.
+		Connection_Rest_Authentication::init();
 
 		// Init Jetpack packages.
 		add_action(
@@ -197,18 +234,6 @@ class Jetpack_Backup {
 		add_action( 'plugins_loaded', array( __CLASS__, 'maybe_upgrade_db' ), 20 );
 
 		add_filter( 'jetpack_connection_user_has_license', array( __CLASS__, 'jetpack_check_user_licenses' ), 10, 3 );
-
-		// Jetpack Backup abilities are registered from `actions.php` at package
-		// autoload time so the surface is available in every consumer that
-		// loads this package (both the standalone Backup plugin and the
-		// Jetpack plugin), not only when `Jetpack_Backup::initialize()` runs.
-
-		/**
-		 * Runs right after the Jetpack Backup package is initialized.
-		 *
-		 * @since 1.3.0
-		 */
-		do_action( 'jetpack_backup_initialized' );
 	}
 
 	/**
@@ -250,13 +275,14 @@ class Jetpack_Backup {
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin_scripts' ) );
 
 		if ( self::is_wp_build_dashboard_active() ) {
-			// The modernized Backup overview is a focused, full-screen product
-			// surface. Suppress JITMs and other core/plugin admin notices so they
-			// don't reflow on top of the dual-pane layout. Mirrors how Jetpack
-			// Forms handles its dashboard page
-			// (`plugins/forms/src/dashboard/class-dashboard.php`).
-			remove_all_actions( 'admin_notices' );
-			remove_all_actions( 'all_admin_notices' );
+			// Notices reflow the dual-pane layout, so clear them but keep our own.
+			// An older jetpack-jitm may predate the helper; the fallback costs the JITM.
+			if ( method_exists( JITM::class, 'suppress_foreign_admin_notices' ) ) {
+				JITM::suppress_foreign_admin_notices();
+			} else {
+				remove_all_actions( 'admin_notices' );
+				remove_all_actions( 'all_admin_notices' );
+			}
 		}
 	}
 
@@ -1138,11 +1164,7 @@ class Jetpack_Backup {
 			return;
 		}
 
-		// Hooked either side of load_wp_build(), so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		self::load_wp_build();
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+		self::load_wp_build_with_screen_alias();
 
 		// wp-build registers standalone modules (e.g. the init module) on
 		// wp_default_scripts, which has already fired by admin_menu. Register them
@@ -1201,6 +1223,30 @@ class Jetpack_Backup {
 	}
 
 	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( \Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		self::load_wp_build();
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
 	 * Alias the current screen ID to satisfy wp-build's auto-generated enqueue check.
 	 *
 	 * Wp-build's `<page>-wp-admin` enqueue callback enqueues only when the screen ID
@@ -1211,7 +1257,7 @@ class Jetpack_Backup {
 	 * Hooked only when modernization is on AND we're on the Backup admin page,
 	 * so this never affects any other request.
 	 *
-	 * @since $$next-version$$ Takes no argument; hooked on `admin_enqueue_scripts`.
+	 * @since 5.0.4 Takes no argument; hooked on `admin_enqueue_scripts`.
 	 *
 	 * @return void
 	 */
@@ -1228,7 +1274,7 @@ class Jetpack_Backup {
 	/**
 	 * Undo alias_screen_id_for_wp_build(), so code after the generated check sees the real screen ID.
 	 *
-	 * @since $$next-version$$
+	 * @since 5.0.4
 	 *
 	 * @return void
 	 */

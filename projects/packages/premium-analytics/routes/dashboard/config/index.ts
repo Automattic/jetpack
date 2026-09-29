@@ -1,4 +1,5 @@
 export {
+	getInsertableWidgetTypeNames,
 	isSectionAwaitingSync,
 	resolveSectionHeading,
 	resolveSectionId,

@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [5.0.5] - 2026-09-28
+### Changed
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Footer: Hide the "Products" and "Help" links when My Jetpack is unavailable. [#52557]
+- Modern dashboard: Show when a backup completed with warnings, and when the Jetpack connection reports an error. [#52811]
+- Show Jetpack in-dashboard messages on the modernized dashboard. [#52641]
+
+## [5.0.4] - 2026-09-21
+### Added
+- Dashboard: Add an internal preview of the modernized dashboard, which stays off by default behind the `rsm_jetpack_ui_modernization_backup` filter. [#52338]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
 ## [5.0.3] - 2026-09-15
 ### Changed
 - Give the Backup sidebar item a stable key hosts can use in the sidebar visibility filter. [#52156]
@@ -1231,6 +1251,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add API endpoints and Jetpack Backup package for managing Help…
 
+[5.0.5]: https://github.com/Automattic/jetpack-backup/compare/v5.0.4...v5.0.5
+[5.0.4]: https://github.com/Automattic/jetpack-backup/compare/v5.0.3...v5.0.4
 [5.0.3]: https://github.com/Automattic/jetpack-backup/compare/v5.0.2...v5.0.3
 [5.0.2]: https://github.com/Automattic/jetpack-backup/compare/v5.0.1...v5.0.2
 [5.0.1]: https://github.com/Automattic/jetpack-backup/compare/v5.0.0...v5.0.1

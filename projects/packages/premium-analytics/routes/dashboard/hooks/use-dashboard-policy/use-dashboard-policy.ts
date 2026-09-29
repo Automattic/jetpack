@@ -12,19 +12,23 @@ export function isDashboardCompositionEnabled(): boolean {
 	return getScriptData()?.premium_analytics?.dashboard_composition_enabled === true;
 }
 
+type UseDashboardPolicyParams = {
+	insertableWidgetTypes: Set< string >;
+};
+
 /**
  * The application's answer to the dashboard policy seam.
  *
  * Customization is limited to moving and resizing widgets: adding and removing
  * sit behind the dashboard composition feature flag, whose answer the server
- * puts on the script data. Attribute editing stays open: it is how widgets
- * expose their views, in and out of customize mode. `reset` is denied so the
- * toolkit's Reset to default button stands in for the dashboard's overflow
- * entry, dialog and command.
+ * puts on the script data.
  *
+ * @param {UseDashboardPolicyParams} props - The policy inputs.
  * @return The policy callback for `WidgetDashboard.Policy`.
  */
-export function useDashboardPolicy(): CanPerformDashboardOperation {
+export function useDashboardPolicy( {
+	insertableWidgetTypes,
+}: UseDashboardPolicyParams ): CanPerformDashboardOperation {
 	return useMemo< CanPerformDashboardOperation >( () => {
 		const canCompose = isDashboardCompositionEnabled();
 
@@ -33,11 +37,12 @@ export function useDashboardPolicy(): CanPerformDashboardOperation {
 				case 'reset':
 					return false;
 				case 'insert':
+					return canCompose && insertableWidgetTypes.has( request.widgetType.name );
 				case 'remove':
 					return canCompose;
 				default:
 					return true;
 			}
 		};
-	}, [] );
+	}, [ insertableWidgetTypes ] );
 }

@@ -59,6 +59,24 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
 }
 
 /**
+ * Whether the Store dashboard section should be exposed.
+ *
+ * The site's own opt-in needs the Store flag; the blog sticker and the
+ * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
+ *
+ * @since $$next-version$$
+ *
+ * @return bool
+ */
+function is_store_dashboard_section_available() {
+	// An older copy of the package may have loaded dashboard-policy.php without the flag.
+	$is_enabled = ! get_option( Enablement_Setting::ENABLED_OPTION )
+		|| ( function_exists( __NAMESPACE__ . '\\is_dashboard_store_section_enabled' ) && is_dashboard_store_section_enabled() );
+
+	return $is_enabled && is_woocommerce_dashboard_section_available_to_current_user();
+}
+
+/**
  * Whether the Subscribers dashboard section should be exposed.
  *
  * Sites without Jetpack have no module state to check, so the section remains
@@ -407,41 +425,6 @@ function get_store_section_default_layout() {
 }
 
 /**
- * The Ads section's default widget layout, shared by its registrants: the WordAds module and
- * jetpack-mu-wpcom compose the section from the package's WordAds widgets until those move.
- *
- * @return array Widget instances.
- */
-function get_ads_section_default_layout() {
-	return array(
-		// Row 1: WordAds chart.
-		get_dashboard_default_widget_instance(
-			'default-wordads-chart-tabs-widget-instance',
-			'jpa/wordads-chart-tabs',
-			0,
-			3,
-			2
-		),
-		// Row 2: all-time balance.
-		get_dashboard_default_widget_instance(
-			'default-wordads-highlights-widget-instance',
-			'jpa/wordads-highlights',
-			1,
-			3,
-			1
-		),
-		// Row 3: earnings history.
-		get_dashboard_default_widget_instance(
-			'default-wordads-earnings-history-widget-instance',
-			'jpa/wordads-earnings-history',
-			2,
-			1,
-			2
-		),
-	);
-}
-
-/**
  * Registers the default Premium Analytics dashboard sections.
  *
  * Hooked on the registration action and safe to call directly: a section already registered
@@ -493,7 +476,7 @@ function register_default_dashboard_sections( $registry = null ) {
 		'woocommerce/store'     => array(
 			'label'          => __( 'Store', 'jetpack-premium-analytics-pkg' ),
 			'order'          => 40,
-			'is_available'   => __NAMESPACE__ . '\\is_woocommerce_dashboard_section_available_to_current_user',
+			'is_available'   => __NAMESPACE__ . '\\is_store_dashboard_section_available',
 			// Nothing backfills historical orders to WordPress.com but the analytics
 			// full sync. The site sections above read data it already holds.
 			'requires_sync'  => true,

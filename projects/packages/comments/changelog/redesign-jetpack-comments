@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Redraw the comment form in the theme's own styles: a round avatar beside the textarea, with the submit button sliding out on focus, and a dialog asking a new reader for their name, email, website and subscribe options when they post. Drop Google and Facebook sign-in and the color scheme setting.

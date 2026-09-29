@@ -42,6 +42,18 @@ export function getProductsSectionPath( search = '' ) {
 }
 
 /**
+ * Get the admin path of the full list of Jetpack modules: the Features list view, or the
+ * classic modules page when the Features tab is off.
+ *
+ * @return The path, relative to wp-admin.
+ */
+export function getModulesListPath() {
+	return getProductsSection() === MY_JETPACK_SECTION_FEATURES
+		? `admin.php?page=my-jetpack#${ getProductsSectionPath( '?view=list' ) }`
+		: 'admin.php?page=jetpack_modules';
+}
+
+/**
  * Get the My Jetpack sections.
  *
  * @return The sections for the My Jetpack tab panel.

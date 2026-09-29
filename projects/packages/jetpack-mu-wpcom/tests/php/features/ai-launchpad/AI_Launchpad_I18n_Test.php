@@ -7,6 +7,7 @@
 
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/ai-launchpad/helpers.php';
+require_once __DIR__ . '/fixtures/simple-site-stubs.php';
 
 use PHPUnit\Framework\Attributes\CoversFunction;
 
@@ -14,9 +15,11 @@ use PHPUnit\Framework\Attributes\CoversFunction;
  * Tests for the AI Launchpad i18n helpers.
  *
  * @covers ::wpcom_ai_launchpad_in_site_language
+ * @covers ::wpcom_ai_launchpad_site_locale
  * @covers ::wpcom_ai_launchpad_script_translations
  * @covers ::wpcom_ai_launchpad_site_copy
  */
+#[CoversFunction( 'wpcom_ai_launchpad_site_locale' )]
 #[CoversFunction( 'wpcom_ai_launchpad_in_site_language' )]
 #[CoversFunction( 'wpcom_ai_launchpad_site_copy' )]
 #[CoversFunction( 'wpcom_ai_launchpad_script_translations' )]
@@ -62,6 +65,7 @@ class AI_Launchpad_I18n_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'determine_locale' );
 		remove_all_filters( 'locale' );
 		remove_all_filters( 'get_available_languages' );
+		unset( $GLOBALS['wpcom_ai_launchpad_test_blog_lang'] );
 		remove_all_filters( 'load_script_translation_file' );
 		if ( $this->original_switcher ) {
 			$GLOBALS['wp_locale_switcher'] = $this->original_switcher;
@@ -270,6 +274,24 @@ class AI_Launchpad_I18n_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringNotContainsString( '</script>', $script );
 		$this->assertStringContainsString( substr( wp_json_encode( '</script>', JSON_HEX_TAG ), 1, -1 ), $script );
+	}
+
+	public function test_site_locale_is_the_blog_language_not_the_readers_on_simple() {
+		// The bug this exists for: on Simple the locale follows the logged-in user through wp-admin and
+		// its REST calls, so a French blog read by an Italian admin reported Italian — and both the page
+		// copy and the language the AI was told to write in followed the reader instead of the site.
+		$GLOBALS['wpcom_ai_launchpad_test_blog_lang'] = 'fr';
+		add_filter( 'locale', fn() => 'it', 9 );
+
+		$this->assertSame( 'fr', wpcom_ai_launchpad_site_locale() );
+	}
+
+	public function test_site_locale_falls_back_to_the_request_locale_off_simple() {
+		// Atomic and self-hosted have no get_blog_lang_code(); the stub stands in for a blog with no
+		// language set, which resolves the same way.
+		add_filter( 'locale', fn() => 'it_IT', 9 );
+
+		$this->assertSame( 'it_IT', wpcom_ai_launchpad_site_locale() );
 	}
 
 	public function test_in_site_language_switches_to_the_site_locale_for_the_callback_only() {

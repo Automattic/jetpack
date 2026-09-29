@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Reject a return URL over the 127 characters PayPal accepts, and say so in the block's form.
+Show an error in the block when a return URL is over PayPal's 1024-character limit.

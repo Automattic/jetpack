@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-Subscribers: Move the date range control off the tab header and onto the Subscriber summary chart, which is the only widget there that reads a range. The tab no longer offers a previous-period comparison.

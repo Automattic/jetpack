@@ -26,10 +26,18 @@ export type PlaylistLiveMetadata = {
 
 export type PlaylistLayout = 'side-rail' | 'grid' | 'strip';
 
-export type PlaylistAttributes = {
-	videos: PlaylistEntry[];
+// What clicking an entry does while the player is hidden.
+export type PlaylistEntryClickAction = 'new-tab' | 'show-player';
+
+/**
+ * The display and playback options shared by every playlist-style block;
+ * each block adds its own source of entries on top.
+ */
+export type PlaylistDisplayAttributes = {
 	layout: PlaylistLayout;
 	darkPlayer: boolean;
+	showPlayer: boolean;
+	entryClickAction: PlaylistEntryClickAction;
 	autoplayNext: boolean;
 	muteByDefault: boolean;
 	loopPlaylist: boolean;
@@ -45,4 +53,15 @@ export type PlaylistAttributes = {
 	 * empty string inherits the surrounding font.
 	 */
 	entryTitleFontFamily: string;
+};
+
+export type PlaylistAttributes = PlaylistDisplayAttributes & {
+	/*
+	 * Key of this playlist in the site's playlist index; assigned once the
+	 * block is inserted, and unique among the playlist blocks of a post.
+	 */
+	playlistId: string;
+	playlistTitle: string;
+	playlistDescription: string;
+	videos: PlaylistEntry[];
 };

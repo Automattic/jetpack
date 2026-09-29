@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Activity Log: turning it off now takes effect on sites that also run Backup, Boost, Protect, Search, or VideoPress.

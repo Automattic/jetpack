@@ -12,6 +12,14 @@ namespace Automattic\Jetpack\VideoPress;
  */
 class Initializer {
 
+	/**
+	 * Bounds of the Latest Videos Playlist block's "Number of videos" setting;
+	 * the editor control uses the same range.
+	 */
+	const LATEST_VIDEOS_PLAYLIST_MIN_COUNT     = 1;
+	const LATEST_VIDEOS_PLAYLIST_MAX_COUNT     = 20;
+	const LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT = 5;
+
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
@@ -128,6 +136,7 @@ class Initializer {
 			new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
@@ -195,6 +204,7 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Playlist_Index::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -277,6 +287,25 @@ class Initializer {
 
 		// Register Video Playlist block.
 		self::register_videopress_playlist_block();
+
+		// Register Latest Videos Playlist block.
+		self::register_videopress_latest_videos_playlist_block();
+
+		// Register All Playlists block.
+		self::register_videopress_all_playlists_block();
+	}
+
+	/**
+	 * Register the All Playlists block, which lists the site's Video Playlist
+	 * blocks from the playlist index.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_all_playlists_block( $metadata_file = null ) {
+		All_Playlists_Block::register( $metadata_file );
 	}
 
 	/**
@@ -635,13 +664,79 @@ class Initializer {
 	}
 
 	/**
+	 * Register the Latest Videos Playlist block.
+	 *
+	 * It reuses the Video Playlist block's registered view script and styles, so
+	 * it is only registered once that block is. Its inner Video Playlist block is
+	 * the editor canvas only: the front end renders the newest videos fresh.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_latest_videos_playlist_block( $metadata_file = null ) {
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
+			return;
+		}
+
+		if ( null === $metadata_file ) {
+			$metadata_file = __DIR__ . '/../build/block-editor/blocks/latest-videos-playlist/block.json';
+		}
+
+		if ( ! file_exists( $metadata_file ) ) {
+			return;
+		}
+
+		$metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $metadata_file )
+		);
+
+		if ( empty( $metadata->name )
+			|| \WP_Block_Type_Registry::get_instance()->is_registered( $metadata->name )
+		) {
+			return;
+		}
+
+		register_block_type(
+			$metadata_file,
+			array(
+				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'skip_inner_blocks' => true,
+			)
+		);
+	}
+
+	/**
+	 * Latest Videos Playlist block render callback: the newest VideoPress videos
+	 * on the site, rendered by the Video Playlist block's callback.
+	 *
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Current block markup, unused: the inner block is never rendered.
+	 * @param \WP_Block|null $block            Current block.
+	 *
+	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
+	 */
+	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
+		$count = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
+			? (int) $block_attributes['count']
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+		$count = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT, $count ) );
+
+		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+
+		return self::render_videopress_playlist_block( $block_attributes, $content, $block );
+	}
+
+	/**
 	 * Sanitize the playlist block's videos attribute into rendering-ready entries.
 	 *
 	 * @param mixed $videos Raw attribute value.
 	 *
 	 * @return array Entries with guid, title, durationMs, height and poster keys.
 	 */
-	private static function sanitize_playlist_entries( $videos ) {
+	public static function sanitize_playlist_entries( $videos ) {
 		if ( ! is_array( $videos ) ) {
 			return array();
 		}
@@ -798,6 +893,12 @@ class Initializer {
 			? $block_attributes['layout']
 			: 'side-rail';
 
+		$show_player = $enabled( 'showPlayer' );
+		// A hidden player can still be revealed by the first click on an entry.
+		$reveal_player  = ! $show_player
+			&& isset( $block_attributes['entryClickAction'] )
+			&& 'show-player' === $block_attributes['entryClickAction'];
+		$has_player     = $show_player || $reveal_player;
 		$show_thumbnail = $enabled( 'showThumbnail' );
 		$show_title     = $enabled( 'showTitle' );
 		$show_res       = $enabled( 'showResolution' );
@@ -809,6 +910,9 @@ class Initializer {
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
 		if ( $enabled( 'darkPlayer', false ) ) {
 			$classes[] = 'is-dark';
+		}
+		if ( ! $show_player ) {
+			$classes[] = 'hide-player';
 		}
 		if ( ! $show_thumbnail ) {
 			$classes[] = 'hide-thumbnails';
@@ -887,26 +991,47 @@ class Initializer {
 				? sprintf( '<span class="videopress-playlist__entry-duration">%s</span>', esc_html( $timecode ) )
 				: '';
 
+			if ( $has_player ) {
+				$is_current  = $show_player && 0 === $index;
+				$entry_open  = sprintf(
+					'<button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">',
+					$is_current ? ' is-current' : '',
+					$is_current ? ' aria-current="true"' : '',
+					esc_attr( $entry['guid'] ),
+					esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details ),
+					esc_attr( $progress )
+				);
+				$entry_close = '</button>';
+			} else {
+				// No player to load the video into: the entry opens its VideoPress page instead.
+				$entry_open  = sprintf(
+					'<a class="videopress-playlist__select" href="%1$s" target="_blank" rel="noopener noreferrer" data-guid="%2$s" data-title="%3$s" data-position="%4$s" data-details="%5$s">',
+					esc_url( 'https://videopress.com/v/' . $entry['guid'] ),
+					esc_attr( $entry['guid'] ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details )
+				);
+				$entry_close = '</a>';
+			}
+
 			$items .= sprintf(
-				'<li class="videopress-playlist__entry"><button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">' .
-					'%9$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%10$s</span>%15$s%11$s</span>' .
-					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%12$s</span><span class="videopress-playlist__entry-meta">%13$s%14$s</span></span>' .
-					'</button></li>',
-				0 === $index ? ' is-current' : '',
-				0 === $index ? ' aria-current="true"' : '',
-				esc_attr( $entry['guid'] ),
-				esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
-				esc_attr( $title ),
-				esc_attr( $position ),
-				esc_attr( $details ),
-				esc_attr( $progress ),
+				'<li class="videopress-playlist__entry">%1$s' .
+					'%2$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%3$s</span>%4$s%5$s</span>' .
+					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%6$s</span><span class="videopress-playlist__entry-meta">%7$s%8$s</span></span>' .
+					'%9$s</li>',
+				$entry_open,
 				$number_markup,
 				esc_html__( 'Playing', 'jetpack-videopress-pkg' ),
+				$lock_markup,
 				$time_markup,
 				esc_html( $title ),
 				$resolution_markup,
 				$duration_markup,
-				$lock_markup
+				$entry_close
 			);
 		}
 
@@ -935,15 +1060,28 @@ class Initializer {
 			)
 			: '';
 
-		$stage_markup = sprintf(
-			'<div class="videopress-playlist__stage">' .
-				'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
-			esc_attr( $first_title ),
-			esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
-			$now_markup
-		);
+		if ( $show_player ) {
+			$stage_markup = sprintf(
+				'<div class="videopress-playlist__stage">' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
+				esc_attr( $first_title ),
+				esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
+				$now_markup
+			);
+		} elseif ( $reveal_player ) {
+			// No src: nothing loads until the view script reveals the stage on a click.
+			$stage_markup = sprintf(
+				'<div class="videopress-playlist__stage" hidden>' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" allowfullscreen allow="clipboard-write"></iframe></div></div>%2$s',
+				esc_attr( $first_title ),
+				$now_markup
+			);
+		} else {
+			// Without a player only the grid layout's runtime line remains of the stage.
+			$stage_markup = $now_markup;
+		}
 
-		$progress_markup = '' !== $total_timecode
+		$progress_markup = $has_player && '' !== $total_timecode
 			? sprintf(
 				'<span class="videopress-playlist__list-progress">%s</span>',
 				/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */
@@ -957,7 +1095,9 @@ class Initializer {
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--rail">%1$s</span>' .
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--strip">%2$s</span>%3$s%4$s</div>' .
 				'<ol class="videopress-playlist__entries">%5$s</ol></div>',
-			esc_html__( 'Up next', 'jetpack-videopress-pkg' ),
+			$show_player
+				? esc_html__( 'Up next', 'jetpack-videopress-pkg' )
+				: esc_html__( 'Playlist', 'jetpack-videopress-pkg' ),
 			/* translators: %s: number of videos in the playlist, e.g. "5 videos". */
 			esc_html( sprintf( __( 'Playlist — %s', 'jetpack-videopress-pkg' ), $count_label ) ),
 			$list_meta_markup,

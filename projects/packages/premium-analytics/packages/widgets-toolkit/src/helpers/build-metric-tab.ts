@@ -5,8 +5,8 @@ import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
-import type { MetricTab } from '../components';
-import type { DataFormat } from '../types';
+import type { MetricTab, MetricTabDatum } from '../components';
+import type { CountLabel, DataFormat } from '../types';
 
 /**
  * The shape `buildMetricTab` reads: a normalized Stats report's summary plus its
@@ -30,6 +30,7 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	label: string;
 	/** Per-metric format override (e.g. currency); falls back to the chart default. */
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
 	/** The timezone the reports were built and normalized under. */
 	zone: string;
 };
@@ -53,15 +54,18 @@ function total( report: MetricReport | undefined, field: string ): number {
  * @param report - The normalized report, or undefined while loading.
  * @param field  - The metric field to read from each period.
  * @param zone   - The report's reporting timezone.
- * @return One point per period, oldest first.
+ * @return One point per period, oldest first; a null reading stays null, drawn as a gap.
  */
-function toPoints( report: MetricReport | undefined, field: string, zone: string ) {
+function toPoints(
+	report: MetricReport | undefined,
+	field: string,
+	zone: string
+): MetricTabDatum[] {
 	return ( report?.data ?? [] ).flatMap( point => {
 		const date = resolveBucketStamp( point.date_start, zone );
+		const raw = ( point as Record< string, unknown > )[ field ];
 
-		return date
-			? [ { date, value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ) } ]
-			: [];
+		return date ? [ { date, value: raw === null ? null : Number( raw ?? 0 ) } ] : [];
 	} );
 }
 
@@ -76,7 +80,8 @@ function toPoints( report: MetricReport | undefined, field: string, zone: string
 export function buildMetricTab< TReport extends MetricReport >(
 	options: BuildMetricTabOptions< TReport >
 ): MetricTab {
-	const { primary, comparison, hasComparison, field, label, dataFormat, zone } = options;
+	const { primary, comparison, hasComparison, field, label, dataFormat, countLabel, zone } =
+		options;
 	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
 	const hasPrevious = !! previous?.length;
 
@@ -88,5 +93,6 @@ export function buildMetricTab< TReport extends MetricReport >(
 		current: toPoints( primary, field, zone ),
 		previous: hasPrevious ? previous : undefined,
 		dataFormat,
+		countLabel,
 	};
 }

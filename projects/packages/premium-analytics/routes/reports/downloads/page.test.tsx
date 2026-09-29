@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -29,6 +29,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportCsvAction: () => null,
+	ReportEmptyState: () => <div data-testid="report-empty-state" />,
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
@@ -127,5 +128,21 @@ describe( 'DownloadsReportPage', () => {
 				isLoading: false,
 			} )
 		);
+	} );
+
+	it( 'replaces the files table with the empty state when the period has no downloads', () => {
+		useRecordsMock.mockReturnValue( {
+			isError: false,
+			refetch: jest.fn(),
+			rows: [],
+			hasComparison: false,
+			isLoading: false,
+			isFetching: false,
+		} as unknown as ReturnType< typeof useDownloadsReportRecords > );
+
+		render( <DownloadsReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 } );

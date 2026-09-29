@@ -88,6 +88,118 @@ describe( 'AiFeatures rendering', () => {
 		expect( toggle ).toBeEnabled();
 	} );
 
+	describe( 'Search settings link', () => {
+		const originalSettings = window.jetpackAiSettings;
+
+		afterEach( () => {
+			window.jetpackAiSettings = originalSettings;
+		} );
+
+		test.each( [ '', undefined ] )(
+			'keeps the toggle and shows Learn more when the server provides %j',
+			searchSettingsUrl => {
+				window.jetpackAiSettings = { searchSettingsUrl };
+				renderFeatures( { features: { ai_search: { enabled: true } } } );
+
+				expect( screen.getByRole( 'checkbox', { name: /AI Answers/ } ) ).toBeChecked();
+				expect(
+					screen.queryByRole( 'link', { name: 'Open Search Settings' } )
+				).not.toBeInTheDocument();
+				const learnMore = screen.getByRole( 'link', { name: /Learn more/ } );
+				expect( learnMore ).toHaveAttribute(
+					'href',
+					expect.stringContaining( 'jetpack-ai-settings-search-learn-more' )
+				);
+				expect( learnMore ).toHaveAttribute( 'target', '_blank' );
+			}
+		);
+
+		test( 'uses the server-provided target when the page is registered', () => {
+			window.jetpackAiSettings = {
+				searchSettingsUrl: 'https://example.com/wp-admin/admin.php?page=jetpack-search#/ai-answers',
+			};
+			renderFeatures( { features: { ai_search: { enabled: true } } } );
+
+			expect( screen.getByRole( 'link', { name: 'Open Search Settings' } ) ).toHaveAttribute(
+				'href',
+				'https://example.com/wp-admin/admin.php?page=jetpack-search#/ai-answers'
+			);
+		} );
+	} );
+
+	describe( 'SEO settings link', () => {
+		const originalSettings = window.jetpackAiSettings;
+
+		beforeEach( () => {
+			window.jetpackAiSettings = { seoSettingsUrl: 'admin.php?page=jetpack#/traffic' };
+		} );
+
+		afterEach( () => {
+			window.jetpackAiSettings = originalSettings;
+		} );
+
+		test.each( [ false, undefined ] )(
+			'shows Learn more instead of settings when access is %s',
+			canManageSeo => {
+				renderFeatures( {
+					features: { ai_seo: { enabled: true, can_manage: canManageSeo } },
+				} );
+
+				expect(
+					screen.queryByRole( 'link', { name: 'Open SEO Settings' } )
+				).not.toBeInTheDocument();
+				expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+					'href',
+					expect.stringContaining( 'jetpack-ai-settings-seo-learn-more' )
+				);
+				expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeEnabled();
+				expect( screen.getByRole( 'checkbox', { name: /AI SEO/ } ) ).toBeChecked();
+			}
+		);
+
+		test.each( [ 'admin.php?page=jetpack#/traffic', 'admin.php?page=jetpack-seo' ] )(
+			'uses the server-provided target %s when access is granted',
+			seoSettingsUrl => {
+				window.jetpackAiSettings = { seoSettingsUrl };
+				renderFeatures( {
+					features: { ai_seo: { enabled: true, can_manage: true } },
+				} );
+
+				expect( screen.getByRole( 'link', { name: 'Open SEO Settings' } ) ).toHaveAttribute(
+					'href',
+					seoSettingsUrl
+				);
+			}
+		);
+
+		test( 'does not invent a target when the server provides none', () => {
+			delete window.jetpackAiSettings;
+			renderFeatures( {
+				features: { ai_seo: { enabled: true, can_manage: true } },
+			} );
+
+			expect( screen.queryByRole( 'link', { name: 'Open SEO Settings' } ) ).not.toBeInTheDocument();
+			expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'jetpack-ai-settings-seo-learn-more' )
+			);
+		} );
+
+		test.each( [ true, false ] )(
+			'keeps the documentation link when AI SEO is disabled and access is %s',
+			canManageSeo => {
+				renderFeatures( {
+					features: { ai_seo: { enabled: false, can_manage: canManageSeo } },
+				} );
+
+				expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+					'href',
+					expect.stringContaining( 'jetpack-ai-settings-seo-learn-more' )
+				);
+			}
+		);
+	} );
+
 	test( 'the upgrade badge sits inside the Search group', () => {
 		renderFeatures();
 
@@ -399,6 +511,8 @@ describe( 'AiFeatures rendering', () => {
 	} );
 
 	test( 'action links target each feature surface', () => {
+		const originalSettings = window.jetpackAiSettings;
+		window.jetpackAiSettings = { searchSettingsUrl: 'admin.php?page=jetpack-search#/ai-answers' };
 		render(
 			<AiFeatures
 				settings={ {
@@ -435,5 +549,6 @@ describe( 'AiFeatures rendering', () => {
 			'href',
 			'admin.php?page=jetpack-search#/ai-answers'
 		);
+		window.jetpackAiSettings = originalSettings;
 	} );
 } );

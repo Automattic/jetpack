@@ -88,7 +88,7 @@ export default function OverviewTab(): JSX.Element {
 		<div className="jetpack-social-overview">
 			{ hasConnectionError && (
 				<div className="jetpack-social-overview__notice">
-					<ConnectionError />
+					<ConnectionError trackingContext="social" />
 				</div>
 			) }
 			{ /*

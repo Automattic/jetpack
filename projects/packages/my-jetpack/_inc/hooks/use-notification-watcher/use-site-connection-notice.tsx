@@ -85,9 +85,15 @@ const useSiteConnectionNotice: NoticeHookType = ( redBubbleAlerts, isLoading ) =
 			title: __( 'Missing site connection', 'jetpack-my-jetpack' ),
 		};
 
+		// A missing user connection limits features but isn't a connection error.
+		let level: NoticeOptions[ 'level' ] = connectionError.is_error ? 'error' : 'info';
+		if ( requiresUserConnection ) {
+			level = 'warning';
+		}
+
 		const noticeOptions: NoticeOptions = {
 			id: redBubbleSlug,
-			level: connectionError.is_error ? 'error' : 'info',
+			level,
 			actions: [
 				{
 					label: requiresUserConnection

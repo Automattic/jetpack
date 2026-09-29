@@ -18,15 +18,15 @@
 
 	&-embed-form-sidebar {
 		display: flex;
-		margin-bottom: 1em;
+		gap: 8px;
+
+		.components-base-control {
+			flex: 1;
+		}
 	}
 
 	&-learn-more {
 		margin-top: 1em;
-	}
-
-	&-color-notice {
-		margin: 0;
 	}
 
 	div[data-align="center"] > & {

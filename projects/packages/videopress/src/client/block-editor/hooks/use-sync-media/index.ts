@@ -285,7 +285,8 @@ export function useSyncMedia(
 	 * Store and compare the block attributes
 	 * in order to detect changes on them.
 	 */
-	const { isGeneratingPoster } = useVideoPosterData( attributes );
+	const { isGeneratingPoster, posterError, retryPosterGeneration } =
+		useVideoPosterData( attributes );
 
 	/*
 	 * Block attributes => Media data (sync)
@@ -469,5 +470,7 @@ export function useSyncMedia(
 		error,
 		isOverwriteChapterAllowed,
 		isGeneratingPoster,
+		posterError,
+		retryPosterGeneration,
 	};
 }

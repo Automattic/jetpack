@@ -13,6 +13,7 @@ import ModuleOverriddenBanner from 'components/module-overridden-banner';
 import { withModuleSettingsFormHelpers } from 'components/module-settings/with-module-settings-form-helpers';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SupportLink from 'components/support-link';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
@@ -186,10 +187,9 @@ class SiteStatsComponent extends Component {
 										),
 										{
 											a: (
-												<a
+												<SupportLink
 													href={ getRedirectUrl( 'jetpack-support-wordpress-com-stats' ) }
-													target="_blank"
-													rel="noopener noreferrer"
+													wpcomLink="https://wordpress.com/support/stats/"
 												/>
 											),
 										}

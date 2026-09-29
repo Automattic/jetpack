@@ -8,6 +8,7 @@ import metadata from '../../src/paypal-payment-buttons/block.json';
 import {
 	GATED_ATTRIBUTES,
 	getResourceAttributeUpdates,
+	isBookkeeping,
 	normalizeResourceVariants,
 	RESOURCE_ATTRIBUTES,
 	resetToDefaults,
@@ -89,6 +90,18 @@ describe( 'getResourceAttributeUpdates', () => {
 				resourceAttributes
 			)
 		).toEqual( { productDescription: '', productId: '', returnUrl: '' } );
+	} );
+
+	it( 'keeps the block link when the payment comes back with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, { ...resourceAttributes, paymentLink: '' } )
+		).toEqual( {} );
+	} );
+
+	it( 'fills in the link for a block with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( { ...blockAttributes, paymentLink: '' }, resourceAttributes )
+		).toEqual( { paymentLink: resourceAttributes.paymentLink } );
 	} );
 
 	it( 'reads the product id back from the payment', () => {
@@ -463,6 +476,10 @@ describe( 'GATED_ATTRIBUTES', () => {
 		// Shown under the shipping toggle, but PayPal stores it on every payment, so the
 		// toggle leaves it alone.
 		'collectShippingAddress',
+		// Both come off the payment rather than a form field, so a gate would have
+		// nothing to open or close.
+		'integrationMode',
+		'scriptSrc',
 	];
 
 	it( 'accounts for every resource attribute exactly once', () => {
@@ -480,6 +497,11 @@ describe( 'GATED_ATTRIBUTES', () => {
 		];
 
 		named.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
+
+		// The resource attributes too, which overlap but are a separate list: the
+		// read-back falls back to the block.json default, so one missing from
+		// block.json resolves to undefined and never settles.
+		RESOURCE_ATTRIBUTES.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
 	} );
 
 	it( 'resets an attribute to its block.json default', () => {
@@ -524,4 +546,35 @@ describe( 'GATED_ATTRIBUTES', () => {
 			).toEqual( {} );
 		}
 	);
+} );
+
+describe( 'isBookkeeping', () => {
+	// A link block sharing the payment with a stacked one takes BUTTON on mount,
+	// which is the payment's doing rather than the merchant's.
+	it( 'counts a mode change as bookkeeping whatever the block had', () => {
+		expect( isBookkeeping( 'integrationMode', '' ) ).toBe( true );
+		expect( isBookkeeping( 'integrationMode', 'LINK' ) ).toBe( true );
+	} );
+
+	it( 'counts a first SDK URL on a stacked block as bookkeeping', () => {
+		expect( isBookkeeping( 'scriptSrc', '', 'STACKED' ) ).toBe( true );
+		expect( isBookkeeping( 'scriptSrc', undefined, 'STACKED' ) ).toBe( true );
+	} );
+
+	it( 'counts a cleared SDK URL on a link block as bookkeeping', () => {
+		// scriptSrc is written to every block sharing the payment, and only a stacked
+		// sibling draws with it.
+		expect( isBookkeeping( 'scriptSrc', 'https://www.paypal.test/sdk/js', 'LINK' ) ).toBe( true );
+	} );
+
+	// The payment lost BUTTON mode at PayPal, so the stacked block has nothing to draw.
+	it( 'leaves a cleared SDK URL on a stacked block for the merchant', () => {
+		expect( isBookkeeping( 'scriptSrc', 'https://www.paypal.com/sdk/js', 'STACKED' ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'leaves a price change for the merchant', () => {
+		expect( isBookkeeping( 'price', metadata.attributes.price.default ) ).toBe( false );
+	} );
 } );

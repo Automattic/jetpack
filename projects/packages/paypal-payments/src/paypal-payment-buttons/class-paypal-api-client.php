@@ -101,6 +101,11 @@ class PayPal_API_Client {
 	/**
 	 * Allowed PayPal domains for payment link URLs.
 	 *
+	 * Checked by validate_paypal_url() on a link PayPal returns, and by
+	 * PayPal_Payment_Buttons::sanitize_paypal_script_url() on a URL stored in a block
+	 * attribute. The editor keeps its own copy in utils/validation.js, and
+	 * test_paypal_host_allow_lists_are_in_sync() compares the two.
+	 *
 	 * @var array
 	 */
 	const ALLOWED_PAYPAL_DOMAINS = array(

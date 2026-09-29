@@ -2,6 +2,18 @@
 
 Sharing buttons and Like buttons for your posts.
 
+Today the package ships the wp-admin **Settings > Sharing** screen, under
+`src/settings/`. A host plugin registers it:
+
+```php
+\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
+\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
+```
+
+Both calls belong in an `is_admin()` branch, and neither depends on a module
+being active: the screen and every section on it exist whatever the site is
+running.
+
 ## How to install sharing-likes
 
 ### Installation From Git Repo

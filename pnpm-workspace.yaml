@@ -7,6 +7,7 @@ packages:
   - tools/e2e-commons/no-lighthouse
   - tools/js-tools
   - tools/performance
+  - tools/port-verification
   - .github/files/coverage-munger
 
 engineStrict: true
@@ -37,6 +38,8 @@ minimumReleaseAgeExclude:
   - '@wordpress/*'
   - 'gridicons'
   - 'wpcom-proxy-request'
+  # Renovate security update: undici@7.29.1
+  - undici@7.29.1
 
 trustPolicy: no-downgrade
 trustPolicyExclude:

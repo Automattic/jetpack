@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-PayPal Payment Buttons: Stop a save overwriting payment link settings before the block has loaded them, and keep a value edited while the link is still loading.

@@ -1,5 +1,5 @@
 /* No jest-dom or user-event in this project. */
-/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-checked, testing-library/prefer-user-event */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-checked, testing-library/prefer-user-event, testing-library/no-node-access */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { ModuleSurfaceProvider } from '$features/module/surface';
@@ -92,4 +92,42 @@ it( 'keeps the legacy Clear Cache link and logging checkbox', () => {
 		screen.getByRole( 'checkbox', { name: 'Activate logging to track all your cache events.' } )
 	).toBeTruthy();
 	expect( screen.getByRole( 'link', { name: 'See Logs' } ) ).toBeTruthy();
+} );
+
+const renderMeta = ( row: boolean ) =>
+	render(
+		row ? (
+			<ModuleSurfaceProvider value="row">
+				<PageCacheMeta />
+			</ModuleSurfaceProvider>
+		) : (
+			<PageCacheMeta />
+		)
+	);
+
+describe( 'Page Cache example tooltip', () => {
+	it.each( [ false, true ] )( 'opens from the trigger and closes with Escape (row: %s)', row => {
+		renderMeta( row );
+		// The exceptions live behind the Except panel on the modern surface, Show Options on the other.
+		fireEvent.click( screen.getByRole( 'button', { name: row ? 'Except None' : 'Show Options' } ) );
+		const trigger = screen.getByRole( 'button', { name: 'See an example' } );
+		trigger.focus();
+		fireEvent.click( trigger );
+		expect( screen.getByText( 'Example:' ) ).toBeTruthy();
+		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+		fireEvent.keyDown( trigger, { key: 'Escape' } );
+		expect( screen.queryByText( 'Example:' ) ).toBeNull();
+		expect( trigger.ownerDocument.activeElement ).toBe( trigger );
+		expect( trigger.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	} );
+
+	it( 'stays open while the exceptions are edited', () => {
+		renderMeta( false );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Show Options' } ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'See an example' } ) );
+		const exceptions = screen.getByRole( 'textbox' );
+		fireEvent.pointerDown( exceptions );
+		exceptions.focus();
+		expect( screen.getByText( 'Example:' ) ).toBeTruthy();
+	} );
 } );

@@ -78,6 +78,22 @@ describe( 'ReportRecordsTable', () => {
 		expect( screen.getByRole( 'columnheader', { name: /Location/ } ) ).toBeInTheDocument();
 	} );
 
+	it( 'draws the title field once, as the primary column', () => {
+		render(
+			<ReportRecordsTable< Row >
+				data={ rows }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ { titleField: 'label' } }
+			/>
+		);
+
+		expect( screen.getAllByText( 'Maharashtra' ) ).toHaveLength( 1 );
+		// eslint-disable-next-line testing-library/no-node-access -- The class is DataViews' only mark of the primary column.
+		expect( screen.getByText( 'Maharashtra' ).closest( '.dataviews-title-field' ) ).not.toBeNull();
+		expect( screen.getByRole( 'columnheader', { name: /Views/ } ) ).toBeInTheDocument();
+	} );
+
 	it( 'reports the initial visible page outwards', async () => {
 		mountTable();
 

@@ -202,11 +202,12 @@ describe( 'ViewsOverYears widget', () => {
 		} );
 	} );
 
-	it( 'reports a site with no views as empty', () => {
+	it( 'draws a site with no views as its current month at zero', () => {
 		mockVisits( visitsResult( [ [ '2026-03-01', 0 ] ] ) );
 		renderWidget();
 
-		expect( screen.getByText( 'No views yet.' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Mar 2026: 0' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'gridcell', { name: 'Totals 2026: 0' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'keeps the drawn rows when a background refetch fails', () => {

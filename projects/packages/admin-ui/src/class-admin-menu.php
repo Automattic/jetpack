@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Admin_UI;
 
+use Automattic\Jetpack\Feature_Policy;
 use Automattic\Jetpack\Tracking;
 use Jetpack_Options;
 use Jetpack_Tracks_Client;
@@ -17,7 +18,7 @@ use Jetpack_Tracks_Client;
  */
 class Admin_Menu {
 
-	const PACKAGE_VERSION = '0.12.1';
+	const PACKAGE_VERSION = '0.14.1';
 
 	/**
 	 * Slug used for the upgrade menu item and redirect URL.
@@ -97,11 +98,9 @@ class Admin_Menu {
 	);
 
 	/**
-	 * Handle for the shared, token-only WPDS design-tokens stylesheet.
+	 * Handle for the bundled WPDS design-tokens stylesheet.
 	 *
-	 * Registered once and enqueued on every Jetpack admin page so that
-	 * `var(--wpds-*)` values resolve at runtime instead of falling back to
-	 * their hand-written hex defaults.
+	 * Fallback when Core/Gutenberg has not registered the `wp-theme` style.
 	 *
 	 * @var string
 	 */
@@ -412,7 +411,7 @@ class Admin_Menu {
 	 * Unlike add_menu(), the page gets neither the core-notice CSS nor the design tokens.
 	 * Parameters mirror add_menu_page(), with $args appended.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.13.0
 	 *
 	 * @param string        $page_title The text to be displayed in the title tags of the page when the menu
 	 *                                  is selected.
@@ -608,6 +607,11 @@ class Admin_Menu {
 	 * @return array Map of item key to one of the VISIBILITY_* states.
 	 */
 	private static function get_visibility_states() {
+		// This filter is one a policy feeds, and nothing else need have read the policy this request.
+		if ( method_exists( Feature_Policy::class, 'ensure_hooks' ) ) {
+			Feature_Policy::ensure_hooks();
+		}
+
 		$states = array();
 		$items  = array_merge( self::$menu_items, self::$top_level_items );
 
@@ -916,29 +920,30 @@ class Admin_Menu {
 	}
 
 	/**
-	 * Enqueues the shared, token-only WPDS design-tokens stylesheet.
+	 * Enqueues WPDS design tokens so `var(--wpds-*)` values resolve at runtime.
 	 *
-	 * Single entry point for any consumer that needs WPDS `var(--wpds-*)` values
-	 * to resolve at runtime on a Jetpack admin page. Registers the handle on
-	 * first use (idempotent) and enqueues it; the caller is responsible for
-	 * scoping the call to the right page(s). Since admin-ui is a dependency of
-	 * the Jetpack plugin and the modernized packages, both the plugin's
-	 * legacy/wrap_ui gate and this package's own dashboards call through here,
-	 * so the handle has a single owner and there is no duplicated enqueue logic.
+	 * Prefer Core/Gutenberg's `wp-theme` style when registered; otherwise ship
+	 * the bundled copy. The caller scopes the call to the right page(s).
 	 *
 	 * @return void
 	 */
 	public static function enqueue_design_tokens() {
+		// Registered since WP 7.1 (and by Gutenberg):
+		// https://make.wordpress.org/core/2026/07/31/design-system-theming-in-wordpress-7-1/
+		if ( wp_style_is( 'wp-theme', 'registered' ) ) {
+			wp_enqueue_style( 'wp-theme' );
+			return;
+		}
+
+		// @todo Remove this, the called function, and the webpack entrypoint it registers when WP 7.1 is the minimum version.
 		self::register_design_tokens_style();
 		wp_enqueue_style( self::DESIGN_TOKENS_HANDLE );
 	}
 
 	/**
-	 * Registers the shared, token-only WPDS design-tokens stylesheet.
+	 * Registers the bundled, token-only WPDS design-tokens stylesheet.
 	 *
-	 * The stylesheet only defines `:root{--wpds-*}` custom properties (no
-	 * component or class styles), giving every Jetpack admin page a single
-	 * runtime source for design tokens. It is safe to call repeatedly:
+	 * Used only when `wp-theme` is not registered. Safe to call repeatedly:
 	 * wp_register_style() is a no-op once the handle is registered.
 	 *
 	 * @return void

@@ -33,6 +33,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public function tear_down() {
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		unset( $GLOBALS['wp_scripts'] );
+		unset( $GLOBALS['submenu'] );
 		delete_transient( 'jetpack_ai_overview_plan_info' );
 		Status_Cache::clear();
 		Constants::clear_single_constant( 'IS_WPCOM' );
@@ -286,8 +287,74 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$settings = $this->get_injected_settings();
 
 		$this->assertFalse( $settings['hasMyJetpack'] );
-		$this->assertSame( 'admin.php?page=jetpack#/connect-user', $settings['userConnectionUrl'] );
+		$this->assertSame( 'admin.php?page=jetpack-settings#/connect-user', $settings['userConnectionUrl'] );
 		$this->assertSame( 'admin.php?page=jetpack_modules', $settings['manageUrl'] );
+	}
+
+	/**
+	 * The notice only offers a connect link to a user the site would let connect it.
+	 */
+	public function test_admin_can_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertTrue( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * A user without manage_options cannot connect the site.
+	 */
+	public function test_subscriber_cannot_connect_site() {
+		// Offline mode maps jetpack_connect to do_not_allow; pin it off so the role decides.
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'subscriber' ) ) );
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertFalse( $settings['canConnectSite'] );
+	}
+
+	/**
+	 * The AI Answers row links to the Search dashboard while a host leaves it registered.
+	 */
+	public function test_search_settings_url_points_at_the_search_dashboard() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * Search registers menu-less (parent '') when its submenu filter says no; the
+	 * page is still reachable, so the link stays.
+	 */
+	public function test_search_settings_url_survives_a_menu_less_registration() {
+		$GLOBALS['submenu'] = array(
+			'' => array( array( 'Search', 'manage_options', 'jetpack-search', 'Jetpack Search' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( admin_url( 'admin.php?page=jetpack-search#/ai-answers' ), $settings['searchSettingsUrl'] );
+	}
+
+	/**
+	 * VIP removes the page on admin_menu; the row then gets no link rather than a dead one.
+	 */
+	public function test_search_settings_url_is_empty_when_the_page_was_removed() {
+		$GLOBALS['submenu'] = array(
+			'jetpack' => array( array( 'Settings', 'manage_options', 'jetpack-settings', 'Jetpack Settings' ) ),
+		);
+
+		$settings = $this->get_injected_settings();
+
+		$this->assertSame( '', $settings['searchSettingsUrl'] );
 	}
 
 	/**
@@ -297,7 +364,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 	public function test_notice_inputs_are_injected() {
 		$settings = $this->get_injected_settings();
 
-		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff' ) as $key ) {
+		foreach ( array( 'isConnected', 'hostAllowsAi', 'masterEnabled', 'masterForcedOff', 'canConnectSite' ) as $key ) {
 			$this->assertArrayHasKey( $key, $settings );
 		}
 
@@ -305,6 +372,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		$this->assertIsBool( $settings['hostAllowsAi'] );
 		$this->assertIsBool( $settings['masterEnabled'] );
 		$this->assertSame( '', $settings['masterForcedOff'] );
+		$this->assertIsBool( $settings['canConnectSite'] );
 	}
 
 	/**
@@ -363,6 +431,7 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		remove_filter( 'jetpack_ai_admin_config', $filter );
 		$this->assertSame( '', $settings['userConnectionUrl'] );
 		$this->assertSame( '', $settings['manageUrl'] );
+		$this->assertFalse( $settings['canConnectSite'] );
 	}
 
 	/**
@@ -995,44 +1064,6 @@ class Jetpack_AI_Page_Test extends \WP_UnitTestCase {
 		unset( $_GET['page'] );
 	}
 
-	/**
-	 * JITM builds its message path from the screen ID, so the alias must be handed back.
-	 */
-	public function test_screen_id_alias_round_trip() {
-		set_current_screen( 'dashboard' );
-		$screen   = get_current_screen();
-		$original = $screen->id;
-
-		Jetpack_AI_Page::alias_screen_id_for_wp_build();
-		$this->assertSame(
-			Jetpack_AI_Page::WP_BUILD_PAGE_ID,
-			get_current_screen()->id,
-			'The generated enqueue check matches the screen ID against the route page id.'
-		);
-
-		Jetpack_AI_Page::restore_screen_id_after_wp_build();
-		$this->assertSame( $original, get_current_screen()->id );
-	}
-
-	/**
-	 * Restoring twice must not clobber a screen ID nobody aliased.
-	 */
-	public function test_screen_id_restore_is_idempotent() {
-		set_current_screen( 'dashboard' );
-		$original = get_current_screen()->id;
-
-		Jetpack_AI_Page::alias_screen_id_for_wp_build();
-		Jetpack_AI_Page::restore_screen_id_after_wp_build();
-		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Restoring twice is the assertion.
-		Jetpack_AI_Page::restore_screen_id_after_wp_build();
-
-		$this->assertSame( $original, get_current_screen()->id );
-	}
-
-	/**
-	 * The route page id must differ from the menu slug, or the generated standalone page
-	 * intercepts admin_init for that slug and exits, bypassing wp-admin entirely.
-	 */
 	public function test_wp_build_page_id_is_not_the_menu_slug() {
 		$this->assertNotSame( 'jetpack-ai', Jetpack_AI_Page::WP_BUILD_PAGE_ID );
 	}
