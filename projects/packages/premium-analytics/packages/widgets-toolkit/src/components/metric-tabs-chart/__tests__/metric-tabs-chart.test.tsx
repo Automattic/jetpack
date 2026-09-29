@@ -449,6 +449,24 @@ describe( 'MetricTabsChart', () => {
 		expect( legendInteractive ).toBe( true );
 	} );
 
+	it( 'seeds nothing hidden when the metric asks for its counterpart visible', () => {
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...VIEWS, counterpartVisible: true }, VISITORS ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+
+		const { series, defaultHiddenSeries, legendInteractive } = recordedPropsFor(
+			mockLineSpy,
+			'Views'
+		);
+
+		expect( series ).toHaveLength( 4 );
+		expect( defaultHiddenSeries ).toBeUndefined();
+		expect( legendInteractive ).toBe( true );
+	} );
+
 	it( 'swaps the pair around when the reader picks the counterpart', () => {
 		render( <MetricTabsChart metrics={ [ VIEWS, VISITORS ] } dataFormat={ DATA_FORMAT } /> );
 

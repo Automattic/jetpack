@@ -80,10 +80,12 @@ export interface MetricTab {
 	description?: string;
 	/**
 	 * Key of the metric to draw beside this one, hidden until the reader reveals it
-	 * from the legend. A key naming no metric in the list, the metric itself, or an
-	 * `unavailable` metric, is ignored.
+	 * from the legend unless `counterpartVisible` is set. A key naming no metric in
+	 * the list, the metric itself, or an `unavailable` metric, is ignored.
 	 */
 	counterpartKey?: string;
+	/** Draw the counterpart visible from the start instead of hidden; the legend can still hide it. */
+	counterpartVisible?: boolean;
 	/**
 	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
@@ -182,8 +184,8 @@ function buildSeries(
 
 /**
  * The chart for a single metric — the current period with its previous-period
- * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it but
- * seeded hidden, so the legend offers it as a one-click comparison.
+ * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it, seeded
+ * hidden unless the metric sets `counterpartVisible`.
  *
  * @return The chart for the metric.
  */
@@ -241,7 +243,7 @@ function MetricChart( {
 		const paired = buildSeries( counterpart, chartType );
 		return {
 			series: [ ...active, ...paired ],
-			defaultHiddenSeries: paired.map( item => item.label ),
+			defaultHiddenSeries: metric.counterpartVisible ? undefined : paired.map( item => item.label ),
 		};
 	}, [ metric, counterpart, chartType ] );
 	const formatTooltipDate = useCallback(

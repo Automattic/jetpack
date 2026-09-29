@@ -132,6 +132,16 @@ describe( 'useTrafficChart', () => {
 		expect( metrics[ 3 ].value ).toBe( 50 );
 	} );
 
+	it( 'pairs Views with Visitors and draws the pair visible from the start', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ views, visitors ] = result.current.metrics;
+		expect( views ).toMatchObject( { counterpartKey: 'visitors', counterpartVisible: true } );
+		expect( visitors ).toMatchObject( { counterpartKey: 'views', counterpartVisible: true } );
+	} );
+
 	it( 'pluralizes the tooltip unit of each metric', async () => {
 		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
 
