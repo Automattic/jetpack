@@ -138,7 +138,7 @@ export function FeaturesStep( {
 	onChange,
 }: FeaturesStepProps ) {
 	return (
-		<Stack direction="column" gap="2xl">
+		<Stack direction="column" gap="2xl" className={ styles[ 'step-body' ] }>
 			<Stack direction="column" gap="sm">
 				<Text
 					variant="heading-2xl"

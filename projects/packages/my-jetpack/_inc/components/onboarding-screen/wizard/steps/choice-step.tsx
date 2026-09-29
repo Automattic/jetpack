@@ -183,7 +183,7 @@ export function ChoiceStep( {
 	const tabStop = chosen?.value ?? options[ 0 ]?.value;
 
 	return (
-		<Stack direction="column" gap="2xl">
+		<Stack direction="column" gap="2xl" className={ styles[ 'step-body' ] }>
 			<Stack direction="column" gap="sm">
 				<Text
 					variant="heading-2xl"
@@ -203,7 +203,7 @@ export function ChoiceStep( {
 			</Stack>
 
 			{ options.length > 0 && (
-				<div>
+				<div className={ styles[ 'step-answer' ] }>
 					<div
 						ref={ groupRef }
 						role="radiogroup"

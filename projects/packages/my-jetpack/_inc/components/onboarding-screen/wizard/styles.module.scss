@@ -226,14 +226,23 @@ $step-column-offset: 56px;
  * sheet fills the window now, and this is the block that centres inside it, so
  * that the heading lands on the same pixel whatever the step is.
  *
- * Same measurement the cap carried: the tallest step's 670, this element's own
- * offset, and the 65 of slack the cap already had over the top of them.
+ * The tallest step, measured, with the heading's offset above it and the same
+ * again below. It used to carry 65px more, inherited from the height cap this
+ * replaced, and only the offset above — so every step sat that offset low in a
+ * block that was itself centred.
  *
- * Re-measure it if the feature step grows. A block a few pixels short stops
- * centring and starts scrolling, which moves the heading under anyone who
- * nudges the wheel.
+ * Re-measure it if the feature step grows. There is no slack left in it, so
+ * every pixel that step gains moves the heading half a pixel.
  */
-$content-block-height: 735px + $step-column-offset;
+$content-block-height: 670px + 2 * $step-column-offset;
+
+/*
+ * The seat the free-text field sits in, held open before the field is there: an
+ * input, on the padding above it. Without it the rows below absorb its height
+ * too, and the row that opens the field jumps out from under the pointer that
+ * chose it.
+ */
+$freetext-slot: calc(var(--wpds-dimension-padding-lg) + var(--wpds-dimension-size-lg));
 
 /*
  * The feature row's icon tile. Was the prototype's `size-12`, 48px; at that
@@ -1197,11 +1206,18 @@ $rail-row-min-height: 40px;
 .step-options {
 	display: flex;
 	flex-direction: column;
+	flex-grow: 1;
+
+	// Only while the field is not there. Once it is, it is the seat.
+	&:not(:has(+ .step-freetext)) {
+		margin-block-end: $freetext-slot;
+	}
 }
 
 .step-option {
 	display: flex;
 	align-items: center;
+	flex-grow: 1;
 	gap: $row-glyph-gap;
 	min-block-size: $row-min-height;
 
@@ -1361,6 +1377,8 @@ $rail-row-min-height: 40px;
 .feature-rows {
 	display: flex;
 	flex-direction: column;
+	flex-grow: 1;
+	min-block-size: 0;
 
 	// Ruled at the top, where it separates the list from the line above it, and
 	// between the rows. Not under the last one: nothing follows it but the sheet's
@@ -1499,6 +1517,45 @@ $rail-row-min-height: 40px;
  * still across the steps that follow. In that block it was top-anchored and
  * read high: 236px of white above it and 471 below.
  */
+
+/*
+ * The two steps that share the block. Each stretches to fill it, so the heading
+ * lands on the same pixel on both and the shorter one spends the difference on
+ * its own rows instead of leaving it at its foot. The start and finish screens
+ * each replace the block, so this would fight the rules they carry.
+ */
+.layout:not(.layout--start):not(.layout--finish) {
+
+	.panel-content {
+		display: flex;
+		flex-direction: column;
+
+		/*
+		 * The offset again, under the content. A spacer rather than padding
+		 * because it gives its height back on a window too short for the block,
+		 * before the step starts to scroll.
+		 */
+		&::after {
+			content: "";
+			flex: 0 1 $step-column-offset;
+		}
+	}
+}
+
+/* The chain the stretch runs down, named rather than reached for
+ * structurally: a `> *` here also catches the connected notice. */
+.step-body {
+	flex-grow: 1;
+	min-block-size: 0;
+}
+
+.step-answer {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	min-block-size: 0;
+}
+
 .layout--start {
 
 	.panel-content {
