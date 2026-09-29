@@ -138,13 +138,14 @@ If a side-by-side composite was produced, offer that markdown variant instead.
 
 Uploads are permanent and public, so show the user the PNG paths and get a yes before this step.
 
-If the PR exists, drop any block an earlier run added, append the new one, and attach the files. Remove the old block only when both markers are present; otherwise stop and ask. The subshell runs `gh` from `$OUT` so the relative paths resolve:
+If the PR exists, drop any block an earlier run added, append the new one, and attach the files. The marker-count check stops the chain before the edit when one marker is missing, so ask the user to fix the body. The subshell runs `gh` from `$OUT` so the relative paths resolve:
 
 ```bash
 PR=<number>
 (
     cd "$OUT" &&
     gh pr view "$PR" -R Automattic/jetpack --json body --jq .body > original-body.md &&
+    [ "$(grep -c 'jetpack-screenshot:start' original-body.md)" = "$(grep -c 'jetpack-screenshot:end' original-body.md)" ] &&
     awk '/<!-- jetpack-screenshot:start -->/{skip=1} !skip{print} /<!-- jetpack-screenshot:end -->/{skip=0}' original-body.md > body.md &&
     { echo; cat screenshots.md; } >> body.md &&
     gh pr edit "$PR" -R Automattic/jetpack --body-file body.md \
