@@ -60,11 +60,18 @@
 }
 
 /*
- * Core's rating column sets a 23px line height, which the smaller /year and
- * saving badge would inherit, growing the row a pixel past core's.
+ * Core's rows, 23px and 18px, kept when empty so every strip in a row lines
+ * up. The /year and badge must not inherit the rating column's 23px line
+ * height, which grows the row a pixel. Specific enough to beat core's rule
+ * whichever stylesheet prints first.
  */
-.plugin-card-bottom .wpcom-marketplace-card__headline {
+.plugin-card .plugin-card-bottom .wpcom-marketplace-card__headline {
+	min-block-size: 23px;
 	line-height: inherit;
+}
+
+.plugin-card .plugin-card-bottom .wpcom-marketplace-card__alternative {
+	min-block-size: 18px;
 }
 
 .wpcom-marketplace-label {
