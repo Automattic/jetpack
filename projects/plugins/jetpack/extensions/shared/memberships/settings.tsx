@@ -12,7 +12,7 @@ import { useInstanceId } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import clsx from 'clsx';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
@@ -24,6 +24,7 @@ import {
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
+import { getAccessDescription } from './newsletter-copy';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
 import type { ReactElement } from 'react';
 
@@ -53,59 +54,6 @@ export function getReachForAccessLevelKey( {
 		default:
 			return 0;
 	}
-}
-
-/**
- * Describe who can read the post on the site. Who receives it by email is described
- * by the Newsletter overview, which also knows about the email toggle and categories.
- *
- * @param {string}      accessLevel         - Access level key, e.g. 'paid_subscribers'.
- * @param {boolean}     postHasPaywallBlock - Whether the post contains a paywall block.
- * @param {string|null} tierName            - Paid tier the post is limited to, if any.
- * @return {string} Description of the current access level.
- */
-export function getAccessDescription(
-	accessLevel: string,
-	postHasPaywallBlock = false,
-	tierName: string | null = null
-): string {
-	const isRestricted =
-		accessLevel === accessOptions.subscribers.key ||
-		accessLevel === accessOptions.paid_subscribers.key;
-
-	if ( ! isRestricted ) {
-		return __( 'Anyone can read it on your site.', 'jetpack' );
-	}
-
-	if ( accessLevel === accessOptions.paid_subscribers.key && tierName && ! postHasPaywallBlock ) {
-		return sprintf(
-			/* translators: %s: paid newsletter tier name, e.g. "Plus". */
-			__( 'Only subscribers on your ‘%s’ tier can read it on your site.', 'jetpack' ),
-			tierName
-		);
-	}
-
-	// Keyed rather than ternaries: the minifier merges `c ? __( a ) : __( b )` into a non-literal msgid.
-	const descriptions = {
-		subscribers: __(
-			'Only subscribers can read it on your site. Others see a preview and can subscribe.',
-			'jetpack'
-		),
-		paid_subscribers: __(
-			'Only paid subscribers can read it on your site. Others see a preview and can subscribe or upgrade.',
-			'jetpack'
-		),
-		subscribers_paywall: __(
-			'Anyone can read it up to your paywall. Only subscribers can read the rest.',
-			'jetpack'
-		),
-		paid_subscribers_paywall: __(
-			'Anyone can read it up to your paywall. Only paid subscribers can read the rest.',
-			'jetpack'
-		),
-	};
-
-	return descriptions[ postHasPaywallBlock ? `${ accessLevel }_paywall` : accessLevel ];
 }
 
 export function useSetAccess(): ( value: string ) => void {

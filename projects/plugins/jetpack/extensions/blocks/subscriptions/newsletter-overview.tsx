@@ -5,13 +5,14 @@ import {
 } from '@wordpress/components';
 import { dispatch, useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
-import { __, sprintf } from '@wordpress/i18n';
+import { __ } from '@wordpress/i18n';
 import { Notice } from '@wordpress/ui';
 import {
 	accessOptions,
 	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
 } from '../../shared/memberships/constants';
-import { getAccessDescription, useSetSendEmail } from '../../shared/memberships/settings';
+import { getNewsletterOverviewText } from '../../shared/memberships/newsletter-copy';
+import { useSetSendEmail } from '../../shared/memberships/settings';
 import SubscribersAffirmation, {
 	getCurrentTierName,
 } from '../../shared/memberships/subscribers-affirmation';
@@ -241,138 +242,4 @@ export default function NewsletterOverview( {
 			) }
 		</div>
 	);
-}
-
-interface OverviewText {
-	main: string;
-	details: string[];
-	categoryNames?: string[];
-	isEmailOff?: boolean;
-}
-
-interface OverviewTextArgs {
-	accessLevel?: string;
-	isEmailEnabled: boolean;
-	isPasswordProtected: boolean;
-	hasPaywall: boolean;
-	tierName: string | null;
-	categoryNames: string[];
-}
-
-const getAccessLevelKey = ( accessLevel?: string ): AccessLevelKey =>
-	accessLevel && accessLevel in accessOptions ? ( accessLevel as AccessLevelKey ) : 'everybody';
-
-/**
- * Describe who receives the post by email and who can read it on the site.
- *
- * @param {OverviewTextArgs} args - Post settings that decide the newsletterOverview.
- * @return {OverviewText} The copy to render.
- */
-function getNewsletterOverviewText( args: OverviewTextArgs ): OverviewText {
-	const level = getAccessLevelKey( args.accessLevel );
-
-	if ( ! args.isEmailEnabled ) {
-		return {
-			main: __( 'This post won’t be emailed.', 'jetpack' ),
-			details: [ getAccessDescription( level, args.hasPaywall, args.tierName ) ],
-			isEmailOff: true,
-		};
-	}
-
-	const text = getEmailedAudienceText( args );
-
-	// Password protection changes what the email contains, not who receives it.
-	if ( args.isPasswordProtected ) {
-		return {
-			...text,
-			details: [
-				__(
-					'The post stays password protected on your site. Only people with the password can read it there.',
-					'jetpack'
-				),
-			],
-		};
-	}
-
-	return text;
-}
-
-/**
- * Describe who receives the post by email, for a post that will be emailed.
- *
- * @param {OverviewTextArgs} args - Post settings that decide the text.
- * @return {OverviewText} The text to render.
- */
-function getEmailedAudienceText( {
-	accessLevel,
-	hasPaywall,
-	tierName,
-	categoryNames,
-}: OverviewTextArgs ): OverviewText {
-	const level = getAccessLevelKey( accessLevel );
-	// A paywall sends the part above it to every subscriber, even on a paid post.
-	const isPaid = level === 'paid_subscribers' && ! hasPaywall;
-	const audience = isPaid ? 'paid' : 'all';
-
-	// Same sentence the Audience settings show, so both views describe site access alike.
-	const readAccess = getAccessDescription( level, hasPaywall, tierName );
-
-	if ( categoryNames.length ) {
-		const toCategories = {
-			all: __(
-				'This post is emailed to subscribers who chose these newsletter categories.',
-				'jetpack'
-			),
-			paid: __(
-				'This post is emailed to paid subscribers who chose these newsletter categories.',
-				'jetpack'
-			),
-		};
-		const plusAllContent = {
-			all: __( 'Plus subscribers who chose ‘All content’.', 'jetpack' ),
-			paid: __( 'Plus paid subscribers who chose ‘All content’.', 'jetpack' ),
-		};
-
-		return {
-			main:
-				isPaid && tierName
-					? sprintf(
-							/* translators: %s: paid newsletter tier name, e.g. "VIP". */
-							__(
-								'This post is emailed to subscribers on your ‘%s’ tier who chose these newsletter categories.',
-								'jetpack'
-							),
-							tierName
-						)
-					: toCategories[ audience ],
-			categoryNames,
-			details: [ plusAllContent[ audience ], readAccess ],
-		};
-	}
-
-	if ( isPaid && tierName ) {
-		return {
-			main: sprintf(
-				/* translators: %s: paid newsletter tier name, e.g. "Plus". */
-				__( 'Only subscribers on your ‘%s’ tier are emailed this post.', 'jetpack' ),
-				tierName
-			),
-			details: [ readAccess ],
-		};
-	}
-
-	// Keyed rather than ternaries: the minifier merges `c ? __( a ) : __( b )` into a non-literal msgid.
-	const emailedTo = {
-		everybody: __( 'This post is emailed to all subscribers.', 'jetpack' ),
-		subscribers: __( 'This post is emailed to all subscribers.', 'jetpack' ),
-		paid_subscribers: __( 'Only your paid subscribers are emailed this post.', 'jetpack' ),
-		// Readers who can't see past the paywall get the email cut off there, with an upgrade prompt.
-		paid_subscribers_paywall: __(
-			'This post is emailed to all subscribers. Free subscribers get it up to your paywall.',
-			'jetpack'
-		),
-	};
-	const emailKey = level === 'paid_subscribers' && hasPaywall ? 'paid_subscribers_paywall' : level;
-
-	return { main: emailedTo[ emailKey ], details: [ readAccess ] };
 }

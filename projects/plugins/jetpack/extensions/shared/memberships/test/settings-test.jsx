@@ -10,7 +10,6 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from '../constants';
 import {
-	getAccessDescription,
 	getReachForAccessLevelKey,
 	NewsletterAccessDocumentSettings,
 	NewsletterAccessRadioButtons,
@@ -116,43 +115,6 @@ describe( 'getReachForAccessLevelKey', () => {
 				paidSubscribers: 10,
 			} )
 		).toBe( 0 );
-	} );
-} );
-
-describe( 'getAccessDescription', () => {
-	test( 'describes open access for everybody', () => {
-		expect( getAccessDescription( 'everybody' ) ).toBe( 'Anyone can read it on your site.' );
-	} );
-
-	test( 'describes the subscriber preview for subscribers', () => {
-		expect( getAccessDescription( 'subscribers' ) ).toBe(
-			'Only subscribers can read it on your site. Others see a preview and can subscribe.'
-		);
-	} );
-
-	test( 'describes the paid preview for paid subscribers', () => {
-		expect( getAccessDescription( 'paid_subscribers' ) ).toBe(
-			'Only paid subscribers can read it on your site. Others see a preview and can subscribe or upgrade.'
-		);
-	} );
-
-	test( 'names the tier when a paid post is limited to one', () => {
-		expect( getAccessDescription( 'paid_subscribers', false, 'Plus' ) ).toBe(
-			'Only subscribers on your ‘Plus’ tier can read it on your site.'
-		);
-	} );
-
-	test( 'splits access at the paywall when one is present', () => {
-		expect( getAccessDescription( 'subscribers', true ) ).toBe(
-			'Anyone can read it up to your paywall. Only subscribers can read the rest.'
-		);
-		expect( getAccessDescription( 'paid_subscribers', true, 'Plus' ) ).toBe(
-			'Anyone can read it up to your paywall. Only paid subscribers can read the rest.'
-		);
-	} );
-
-	test( 'falls back to the open description for an unknown access level', () => {
-		expect( getAccessDescription( undefined ) ).toBe( 'Anyone can read it on your site.' );
 	} );
 } );
 
