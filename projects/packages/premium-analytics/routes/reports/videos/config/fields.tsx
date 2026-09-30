@@ -111,8 +111,8 @@ export function getVideosFields(
 		},
 		{
 			id: 'poster',
+			type: 'media',
 			label: __( 'Poster', 'jetpack-premium-analytics-pkg' ),
-			enableSorting: false,
 			enableHiding: false,
 			render: ( { item } ) => (
 				<ReportThumbnail
