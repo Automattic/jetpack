@@ -19,7 +19,7 @@ describe( 'useLocationViews', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'keeps rows Stats cannot place as unknown countries', async () => {
+	it( 'keeps rows Stats cannot place as one unknown country', async () => {
 		const views = [
 			{ location: 'United States', country_code: 'US', views: 10 },
 			{ location: false, country_code: 'AP', views: 4 },
@@ -43,11 +43,10 @@ describe( 'useLocationViews', () => {
 
 		await waitFor( () => expect( result.current.isLoading ).toBe( false ) );
 		expect(
-			result.current.data.map( row => [ row.label, row.countryCode, row.countryFull, row.value ] )
+			result.current.data.map( row => [ row.key, row.countryCode, row.countryFull, row.value ] )
 		).toEqual( [
-			[ 'United States', 'US', 'United States', 10 ],
-			[ 'Unknown', '', 'Unknown', 4 ],
-			[ 'Unknown', '', 'Unknown', 3 ],
+			[ 'US:United States', 'US', 'United States', 10 ],
+			[ ':Unknown', '', 'Unknown', 7 ],
 		] );
 	} );
 } );

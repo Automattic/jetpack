@@ -64,6 +64,34 @@ function getLocationKey( item: StatsLocationsItem ): string | null {
 	return `${ item.countryCode }:${ label }`;
 }
 
+/** Folds rows with no country and the same label into one, so `AP` and `-` share an Unknown row. */
+function mergeUnknownCountries( items: StatsLocationsItem[] ): StatsLocationsItem[] {
+	const unknownByLabel = new Map< string, StatsLocationsItem >();
+	const rows: StatsLocationsItem[] = [];
+
+	for ( const item of items ) {
+		if ( item.countryCode ) {
+			rows.push( item );
+			continue;
+		}
+
+		const label = String( item.label );
+		const existing = unknownByLabel.get( label );
+
+		if ( existing ) {
+			existing.views += item.views;
+			continue;
+		}
+
+		const unknown = { ...item };
+		unknownByLabel.set( label, unknown );
+		rows.push( unknown );
+	}
+
+	// A merged row can outgrow the rows Stats ranked above it.
+	return rows.length < items.length ? rows.sort( ( a, b ) => b.views - a.views ) : rows;
+}
+
 export function sanitizeStatsLocationsResponse(
 	response: unknown,
 	query?: StatsQueryParams
@@ -100,7 +128,8 @@ export function sanitizeStatsLocationsResponse(
 				typeof item.country_code !== 'string' ||
 				! [ 'A1', 'A2', 'ZZ' ].includes( item.country_code )
 		);
-	const mapItems = ( items: StatsRecord[] ) => filterLocations( items ).map( parse );
+	const mapItems = ( items: StatsRecord[] ) =>
+		mergeUnknownCountries( filterLocations( items ).map( parse ) );
 	const summary = coerceStatsRecord( payload.summary );
 	const summaryViews = getStatsArrayFromKeys< StatsRecord >( summary, [ 'views' ] );
 	const summaryDate = getStatsTopLevelDataDate( response, query );

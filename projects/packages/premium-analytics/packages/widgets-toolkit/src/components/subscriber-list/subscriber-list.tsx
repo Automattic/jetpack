@@ -46,13 +46,12 @@ export type SubscriberListItem = {
 export type SubscriberListProps = {
 	items?: SubscriberListItem[];
 	emptyStateText?: string;
-	/** Rows beyond `items`; null means unknown and hides the "N more" footer. */
+	/** Rows beyond `items`; null when unknown, so the "N more" footer counts only hidden rows. */
 	moreCount?: number | null;
 	/**
 	 * Show only the whole rows that fit the available height, rather than letting the
-	 * host scroll the roster. Hidden rows join the "N more" footer (which a null
-	 * `moreCount` hides), so it can appear with `moreCount` at zero. Requires an
-	 * ancestor with a definite height.
+	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
+	 * appear with `moreCount` at zero. Requires an ancestor with a definite height.
 	 * @default true
 	 */
 	fitRows?: boolean;
@@ -76,18 +75,15 @@ export function SubscriberList( {
 	fitRows = true,
 	className,
 }: SubscriberListProps ) {
-	const { listRef, fittedCount } = useFittedRosterRows(
-		fitRows,
-		items.length,
-		moreCount !== null && moreCount > 0
-	);
+	const knownMoreCount = moreCount ?? 0;
+	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, knownMoreCount > 0 );
 
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
 
 	// Include fetched rows hidden by the fitting logic.
-	const hiddenCount = moreCount === null ? 0 : moreCount + ( items.length - fittedCount );
+	const hiddenCount = knownMoreCount + ( items.length - fittedCount );
 
 	return (
 		<Stack

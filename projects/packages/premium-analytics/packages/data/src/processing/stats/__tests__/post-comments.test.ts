@@ -32,11 +32,15 @@ describe( 'sanitizeStatsPostCommentsResponse', () => {
 				},
 				{ ID: 102, name: 'hiroshit' },
 			],
+			fetchedCount: 5,
 		} );
 	} );
 
 	it( 'returns an empty result for missing or invalid payloads', () => {
-		expect( sanitizeStatsPostCommentsResponse( null ) ).toEqual( { comments: [] } );
-		expect( sanitizeStatsPostCommentsResponse( [] ) ).toEqual( { comments: [] } );
+		expect( sanitizeStatsPostCommentsResponse( null ) ).toEqual( {
+			comments: [],
+			fetchedCount: 0,
+		} );
+		expect( sanitizeStatsPostCommentsResponse( [] ) ).toEqual( { comments: [], fetchedCount: 0 } );
 	} );
 } );

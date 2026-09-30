@@ -141,7 +141,7 @@ describe( 'PostCommentsWidget', () => {
 	it.each( [
 		[ 2, 30, '1 more' ],
 		[ 10, 30, '29 more' ],
-		[ 10, undefined, null ],
+		[ 10, undefined, '9 more' ],
 	] )(
 		'counts %s fetched comments, one fitted, with post total %s as %s',
 		async ( fetched, commentCount, expectedFooter ) => {
@@ -164,4 +164,18 @@ describe( 'PostCommentsWidget', () => {
 			);
 		}
 	);
+
+	it( 'reads the post total when a full page loses a nameless comment', async () => {
+		mockEndpoints(
+			jest.fn().mockResolvedValue( {
+				found: -1,
+				comments: [ ...makeComments( 9, 101 ), { ...COMMENT, ID: 110, author: {} } ],
+			} ),
+			{ comment_count: 30 }
+		);
+
+		renderWidget( 779 );
+
+		await expect( screen.findByText( '21 more' ) ).resolves.toBeInTheDocument();
+	} );
 } );

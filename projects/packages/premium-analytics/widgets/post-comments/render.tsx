@@ -57,7 +57,8 @@ function PostCommentsInner() {
 	);
 
 	// A short page holds every comment; only a full one needs the post's total.
-	const total = items.length < COMMENTS_SHOWN ? items.length : postStats?.post?.comment_count;
+	const isShortPage = ( data?.fetchedCount ?? 0 ) < COMMENTS_SHOWN;
+	const total = isShortPage ? items.length : postStats?.post?.comment_count;
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (
