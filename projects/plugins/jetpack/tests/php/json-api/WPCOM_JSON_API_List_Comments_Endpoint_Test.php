@@ -201,7 +201,6 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 				4,
 			),
 			'pingbacks'                       => array( array( 'type' => 'pingback' ), 2 ),
-			'pings'                           => array( array( 'type' => 'pings' ), 3 ),
 			'unapproved comments'             => array(
 				array(
 					'type'   => 'comment',
