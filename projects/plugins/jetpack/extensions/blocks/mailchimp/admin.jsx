@@ -43,6 +43,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 	// One save at a time, or responses landing out of order could store an earlier pick.
 	const onChange = e => {
 		const audience = e.target.value;
+		const previousAudience = selectedAudience;
 		setSelectedAudience( audience );
 		if ( audience === 'none' ) {
 			setSaveStatus( '' );
@@ -56,7 +57,10 @@ const MailchimpSettings = ( { isConnected } ) => {
 			data: { follower_list_id: audience },
 		} )
 			.then( () => setSaveStatus( __( 'Saved.', 'jetpack' ) ) )
-			.catch( error => setSaveStatus( error?.message || __( 'Settings save failed.', 'jetpack' ) ) )
+			.catch( error => {
+				setSelectedAudience( previousAudience );
+				setSaveStatus( error?.message || __( 'Settings save failed.', 'jetpack' ) );
+			} )
 			.finally( () => setIsSaving( false ) );
 	};
 
