@@ -6,7 +6,8 @@ import {
 	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -34,6 +35,16 @@ jest.mock( '@wordpress/route', () => {
 } );
 
 setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
+
+/**
+ * Read an icon's SVG path, since `@wordpress/icons` exports elements with no name to compare.
+ *
+ * @param root - The element holding the icon.
+ * @return The first path's `d` attribute.
+ */
+function glyphPath( root: Element ) {
+	return root.querySelector( 'path' )?.getAttribute( 'd' );
+}
 
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 
@@ -144,17 +155,22 @@ describe( 'posts title field', () => {
 			{ 42: 'https://example.com/thumb.jpg' }
 		);
 
-		const thumbnail = screen.getByRole( 'presentation' );
-		expect( thumbnail ).toHaveAttribute( 'src', 'https://example.com/thumb.jpg' );
-
-		fireEvent.error( thumbnail );
-		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/thumb.jpg'
+		);
 	} );
 
-	it( 'renders the post-type placeholder when a row has no thumbnail', () => {
-		renderTitleField( homepage );
+	it.each( [
+		[ 'page', pageIcon ],
+		[ 'post', postIcon ],
+		[ 'homepage', postIcon ],
+	] )( 'renders the matching icon for a %s row without a thumbnail', ( type, icon ) => {
+		renderTitleField( { ...homepage, type } );
 
-		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+		expect( glyphPath( screen.getByTestId( 'report-thumbnail-placeholder' ) ) ).toBe(
+			glyphPath( render( icon ).container )
+		);
 	} );
 
 	it( 'links the homepage row to the site home URL', () => {

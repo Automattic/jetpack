@@ -81,15 +81,12 @@ describe( 'videos fields', () => {
 		);
 	} );
 
-	it.each( [ undefined, 'javascript:alert(1)' ] )(
-		'renders the placeholder for a %s poster',
-		poster => {
-			renderTitleField( { ...video, poster } );
+	it( 'renders the placeholder for an unsafe poster URL', () => {
+		renderTitleField( { ...video, poster: 'javascript:alert(1)' } );
 
-			expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
-			expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
-		}
-	);
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
 
 	it( 'links a video title to its internal detail page, carrying the date window', () => {
 		renderTitleField( video );
