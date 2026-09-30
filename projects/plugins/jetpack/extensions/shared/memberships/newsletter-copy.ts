@@ -112,18 +112,15 @@ function getEmailedAudienceText( {
 	categoryNames,
 }: OverviewTextArgs ): OverviewText {
 	const level = getAccessLevelKey( accessLevel );
-	// A paywall sends the part above it to every subscriber, even on a paid post.
 	const isPaid = level === 'paid_subscribers' && ! hasPaywall;
 	const audience = isPaid ? 'paid' : 'all';
 
-	// Same sentence the Audience settings show, so both views describe site access alike.
-	// Password protection changes what the email contains, not who receives it.
 	const readAccess = isPasswordProtected
 		? __(
 				'The post stays password protected on your site. Only people with the password can read it there.',
 				'jetpack'
 			)
-		: getAccessDescription( level, hasPaywall, tierName );
+		: getAccessDescription( level, hasPaywall, tierName ); // Same sentence the Audience settings show, so both views describe site access alike.
 
 	if ( categoryNames.length ) {
 		const toCategories = {
@@ -136,6 +133,7 @@ function getEmailedAudienceText( {
 				'jetpack'
 			),
 		};
+
 		const plusAllContent = {
 			all: __( 'Plus subscribers who chose ‘All content’.', 'jetpack' ),
 			paid: __( 'Plus paid subscribers who chose ‘All content’.', 'jetpack' ),

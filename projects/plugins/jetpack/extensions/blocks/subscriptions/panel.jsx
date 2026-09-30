@@ -239,20 +239,28 @@ export default function SubscribePanels( { openPreviewModal } ) {
 		return <NewsletterDisabledPanels />;
 	}
 
+	// Each panel records its own event, so sidebar clicks aren't counted as pre-publish ones.
 	const overviewProps = {
 		accessLevel,
 		openPreviewModal,
 		openTestEmailModal: () => {
-			tracks.recordEvent( 'jetpack_send_email_preview_prepublish_preview_button' );
+			tracks.recordEvent( 'jetpack_newsletter_test_email_opened', { source: 'newsletter_panel' } );
 			setIsModalOpen( true );
 		},
+	};
+	const openPrePublishTestEmailModal = () => {
+		tracks.recordEvent( 'jetpack_send_email_preview_prepublish_preview_button' );
+		setIsModalOpen( true );
 	};
 
 	return (
 		<>
 			<NewsletterRepublishTracker />
 			<NewsletterPostSettingsPanel { ...overviewProps } />
-			<NewsletterPrePublishSettingsPanel { ...overviewProps } />
+			<NewsletterPrePublishSettingsPanel
+				{ ...overviewProps }
+				openTestEmailModal={ openPrePublishTestEmailModal }
+			/>
 			<NewsletterPostPublishSettingsPanel { ...overviewProps } />
 			<NewsletterTestEmailModal isOpen={ isModalOpen } onClose={ () => setIsModalOpen( false ) } />
 		</>

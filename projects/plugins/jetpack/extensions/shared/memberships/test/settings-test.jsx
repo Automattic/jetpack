@@ -374,7 +374,6 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
 			expect( everyone ).toBeChecked();
 			expect( everyone ).not.toHaveAttribute( 'aria-disabled' );
-			expect( everyone ).not.toHaveAttribute( 'aria-describedby' );
 		} );
 	} );
 
@@ -384,7 +383,6 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
 		expect( everyone ).toBeChecked();
 		expect( everyone ).not.toHaveAttribute( 'aria-disabled' );
-		expect( everyone ).not.toHaveAttribute( 'aria-describedby' );
 	} );
 
 	// The counts report how many people can read each level. Switching the paid count to

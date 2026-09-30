@@ -21,6 +21,7 @@ import paywallBlockMetadata from '../paywall/block.json';
 
 // PluginSidebar identifier: the `jetpack-subscriptions` plugin's `jetpack-newsletter-settings-sidebar`.
 const NEWSLETTER_SIDEBAR_IDENTIFIER = 'jetpack-subscriptions/jetpack-newsletter-settings-sidebar';
+const EMPTY_ARRAY = []; // A constant to avoid creating a new array on every render.
 
 type AccessLevelKey = keyof typeof accessOptions;
 
@@ -86,7 +87,9 @@ export default function NewsletterOverview( {
 		postVisibility,
 		hasPaywall,
 		tierName,
-		categoryNames,
+		categoriesEnabled,
+		newsletterCategories,
+		postCategories,
 	} = useSelect(
 		select => {
 			const {
@@ -104,8 +107,6 @@ export default function NewsletterOverview( {
 
 			const postId = getCurrentPostId();
 			const meta = getEditedPostAttribute( 'meta' );
-			const postCategories: number[] = getEditedPostAttribute( 'categories' ) ?? [];
-			const newsletterCategories: NewsletterCategory[] = getNewsletterCategories() ?? [];
 
 			return {
 				isPublished: isCurrentPostPublished(),
@@ -116,15 +117,21 @@ export default function NewsletterOverview( {
 					.getBlocks()
 					.some( block => block.name === paywallBlockMetadata.name ),
 				tierName: getCurrentTierName( accessLevel, meta, getNewsletterTierProducts() ),
-				categoryNames: getNewsletterCategoriesEnabled()
-					? newsletterCategories
-							.filter( category => postCategories.includes( category.id ) )
-							.map( category => category.name )
-					: [],
+				// Store references only: a new array here would fail useSelect's equality check
+				// and re-render on every editor change, so derived lists are built below.
+				categoriesEnabled: getNewsletterCategoriesEnabled(),
+				newsletterCategories: ( getNewsletterCategories() ?? EMPTY_ARRAY ) as NewsletterCategory[],
+				postCategories: ( getEditedPostAttribute( 'categories' ) ?? EMPTY_ARRAY ) as number[],
 			};
 		},
 		[ accessLevel ]
 	);
+
+	const categoryNames = categoriesEnabled
+		? newsletterCategories
+				.filter( category => postCategories.includes( category.id ) )
+				.map( category => category.name )
+		: EMPTY_ARRAY;
 
 	const openNewsletterSidebar = () => {
 		if ( prePublish ) {
