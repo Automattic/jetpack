@@ -1,5 +1,5 @@
 import apiFetch from '@wordpress/api-fetch';
-import { useEffect, useRef, useState } from '@wordpress/element';
+import { useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 
@@ -11,7 +11,6 @@ const MailchimpSettings = ( { isConnected } ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ saveStatus, setSaveStatus ] = useState( '' );
 	const [ isSaving, setIsSaving ] = useState( false );
-	const savedAudience = useRef( 'none' );
 
 	useEffect( () => {
 		if ( ! isConnected ) {
@@ -28,7 +27,6 @@ const MailchimpSettings = ( { isConnected } ) => {
 				response.follower_list_id &&
 				response.audiences.find( ( { id } ) => id === response.follower_list_id )
 			) {
-				savedAudience.current = response.follower_list_id;
 				setSelectedAudience( response.follower_list_id );
 			}
 
@@ -41,15 +39,12 @@ const MailchimpSettings = ( { isConnected } ) => {
 		return null;
 	}
 
-	// Save right away so the block works without submitting the form; "None" still waits for Save Changes.
+	// Save right away so the block works without submitting the form.
 	// One save at a time, or responses landing out of order could store an earlier pick.
 	const onChange = e => {
 		const audience = e.target.value;
+		const previousAudience = selectedAudience;
 		setSelectedAudience( audience );
-		if ( audience === 'none' ) {
-			setSaveStatus( '' );
-			return;
-		}
 		setIsSaving( true );
 		setSaveStatus( __( 'Saving…', 'jetpack' ) );
 		apiFetch( {
@@ -57,12 +52,9 @@ const MailchimpSettings = ( { isConnected } ) => {
 			method: 'POST',
 			data: { follower_list_id: audience },
 		} )
-			.then( () => {
-				savedAudience.current = audience;
-				setSaveStatus( __( 'Saved.', 'jetpack' ) );
-			} )
+			.then( () => setSaveStatus( __( 'Saved.', 'jetpack' ) ) )
 			.catch( error => {
-				setSelectedAudience( savedAudience.current );
+				setSelectedAudience( previousAudience );
 				setSaveStatus( error?.message || __( 'Settings save failed.', 'jetpack' ) );
 			} )
 			.finally( () => setIsSaving( false ) );

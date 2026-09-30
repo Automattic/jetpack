@@ -13,19 +13,23 @@ const MailchimpSettings = applyFilters(
 );
 
 describe( 'Mailchimp audience setting', () => {
-	test( 'locks the dropdown while saving and restores the saved audience on failure', async () => {
+	test( 'saves every choice, locks the dropdown while saving, and restores the previous choice on failure', async () => {
 		let rejectSave;
-		apiFetch.mockImplementation( ( { method } ) =>
-			method === 'GET'
-				? Promise.resolve( {
-						follower_list_id: 'a',
-						audiences: [
-							{ id: 'a', name: 'Audience A' },
-							{ id: 'b', name: 'Audience B' },
-						],
-					} )
-				: new Promise( ( resolve, reject ) => ( rejectSave = reject ) )
-		);
+		apiFetch.mockImplementation( ( { method, data } ) => {
+			if ( method === 'GET' ) {
+				return Promise.resolve( {
+					follower_list_id: 'a',
+					audiences: [
+						{ id: 'a', name: 'Audience A' },
+						{ id: 'b', name: 'Audience B' },
+					],
+				} );
+			}
+			if ( data.follower_list_id === 'none' ) {
+				return Promise.resolve( {} );
+			}
+			return new Promise( ( resolve, reject ) => ( rejectSave = reject ) );
+		} );
 		const user = userEvent.setup();
 		render(
 			<form>
@@ -37,8 +41,8 @@ describe( 'Mailchimp audience setting', () => {
 			screen.findByRole( 'option', { name: 'Audience A' } )
 		).resolves.toBeInTheDocument();
 
-		// "None" is left for Save Changes, so the restore must not fall back to it.
 		await user.selectOptions( select, 'none' );
+		await expect( screen.findByText( 'Saved.' ) ).resolves.toBeInTheDocument();
 		await user.selectOptions( select, 'b' );
 
 		expect( select ).toBeDisabled();
@@ -46,7 +50,7 @@ describe( 'Mailchimp audience setting', () => {
 
 		await act( async () => rejectSave( { message: 'Rejected by Mailchimp.' } ) );
 
-		expect( select ).toHaveValue( 'a' );
+		expect( select ).toHaveValue( 'none' );
 		expect( select ).toBeEnabled();
 		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Rejected by Mailchimp.' );
 	} );
