@@ -1,4 +1,4 @@
-import { aggregateSearchTermRows } from './aggregate';
+import { aggregateSearchTermRows } from '../search-terms';
 import type { StatsNormalizedReport, StatsSearchTermsItem } from '@jetpack-premium-analytics/data';
 
 describe( 'report search terms aggregate', () => {

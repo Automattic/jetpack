@@ -2,10 +2,17 @@
  * External dependencies
  */
 import {
+	fetchStatsSearchTermsReport,
 	type StatsNormalizedDataPoint,
 	type StatsNormalizedReport,
 	type StatsSearchTermsItem,
 } from '@jetpack-premium-analytics/data';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import { getSummarizedReportQueryParams } from './query-params';
+import type { ReportCsvExporter } from './types';
 
 /**
  * A row in the Search terms records table.
@@ -156,3 +163,18 @@ export function aggregateSearchTermRows(
 		hasComparison: true,
 	};
 }
+
+export const searchTermsCsvExporter: ReportCsvExporter< SearchTermRow, SearchTermRow > = {
+	filenamePrefix: 'search-terms',
+	hasDateRange: true,
+	fetchItems: async reportParams =>
+		aggregateSearchTermRows(
+			await fetchStatsSearchTermsReport( getSummarizedReportQueryParams( reportParams ) ),
+			__( 'Unknown search terms', 'jetpack-premium-analytics-pkg' )
+		).rows,
+	toCsvRows: items => [ ...items ].sort( ( a, b ) => b.views - a.views ),
+	getColumns: () => [
+		{ label: __( 'Search term', 'jetpack-premium-analytics-pkg' ), getValue: row => row.term },
+		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+	],
+};

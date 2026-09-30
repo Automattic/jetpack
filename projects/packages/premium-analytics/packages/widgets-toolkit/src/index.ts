@@ -205,13 +205,19 @@ export {
  * Report CSV exports
  */
 export {
+	aggregateSearchTermRows,
 	archivesCsvExporter,
 	buildArchiveRows,
+	fileDownloadsCsvExporter,
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
 	getPostsReportQueryParams,
+	getSummarizedReportQueryParams,
 	postsPagesCsvExporter,
+	searchTermsCsvExporter,
+	videosCsvExporter,
 	type ArchiveRow,
+	type SearchTermRow,
 } from './report-exports';
 
 /**

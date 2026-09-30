@@ -9,7 +9,7 @@ import userEvent from '@testing-library/user-event';
  */
 import { getSearchTermsFields, useSearchTermsReportRecords } from './config';
 import SearchTermsReportPage from './page';
-import type { SearchTermRow } from './config';
+import type { SearchTermRow } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
