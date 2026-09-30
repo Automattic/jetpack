@@ -1,5 +1,5 @@
 {
-	"description": "What each element needs to be readable on a background: WPCOM_Email_Style_Manager::readable_element() on the renderer, and the design editor's port when a creator picks a background. `readable` null means the color is kept. `elements` is the list both manage. Change both copies together.",
+	"description": "What text and each element need to be readable on a background: WPCOM_Email_Style_Manager::readable_text() and readable_element() on the renderer, and the design editor's port when a creator picks a background or clears a color. `readable` null means the color is kept; a null text `color` means there is none. `elements` is the list both manage. Change both copies together.",
 	"minimumContrast": 4.5,
 	"elements": [ "link", "heading", "h1", "h2", "h3", "h4", "h5", "h6" ],
 	"cases": [
@@ -121,6 +121,58 @@
 			"background": "#ffffff",
 			"readable": "#757575",
 			"underline": false
+		}
+	],
+	"text": [
+		{
+			"color": "#1e1e1e",
+			"background": "#002b36",
+			"readable": "#e5faff"
+		},
+		{
+			"color": "#fdf6e3",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": null,
+			"background": "#002b36",
+			"readable": "#e5faff"
+		},
+		{
+			"color": null,
+			"background": "#ffffff",
+			"readable": "#262626"
+		},
+		{
+			"color": "#f2f2f2",
+			"background": "#ffffff",
+			"readable": "#262626"
+		},
+		{
+			"color": "var(--wp--preset--color--contrast)",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": "currentColor",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": "",
+			"background": "#002b36",
+			"readable": null
+		},
+		{
+			"color": "#1e1e1e",
+			"background": "var(--wp--preset--color--base)",
+			"readable": null
+		},
+		{
+			"color": null,
+			"background": "var(--wp--preset--color--base)",
+			"readable": null
 		}
 	]
 }

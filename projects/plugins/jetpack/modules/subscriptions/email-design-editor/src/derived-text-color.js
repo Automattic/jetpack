@@ -171,7 +171,7 @@ function wasCleared( before, after ) {
  * @param {*} background - The background.
  * @return {string|null} The color to store, or null to store none and inherit.
  */
-function textFor( inherited, background ) {
+export function textFor( inherited, background ) {
 	if ( null === ( inherited ?? null ) ) {
 		return deriveTextColor( background );
 	}

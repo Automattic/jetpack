@@ -39,7 +39,8 @@ jest.mock( '@wordpress/data', () => ( {
 	dispatch: () => ( { editEntityRecord: mockEditEntityRecord } ),
 } ) );
 
-const { watchDerivedTextColor } = require( '../src/derived-text-color' );
+const { textFor, watchDerivedTextColor } = require( '../src/derived-text-color' );
+const fixture = require( './data/readable-elements.json' );
 
 /**
  * Start a watcher, let it see the record as it stands, then hand back a way to change it.
@@ -415,4 +416,13 @@ describe( 'watchDerivedTextColor', () => {
 	it( 'stops watching when told to', () => {
 		expect( watchDerivedTextColor( ID ) ).toBe( mockUnsubscribe );
 	} );
+} );
+
+describe( 'textFor', () => {
+	it.each( fixture.text )(
+		'matches the renderer for $color on $background',
+		( { color, background, readable } ) => {
+			expect( textFor( color, background ) ).toBe( readable );
+		}
+	);
 } );
