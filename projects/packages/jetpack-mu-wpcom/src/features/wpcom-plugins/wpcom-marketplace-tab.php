@@ -188,6 +188,26 @@ function wpcom_marketplace_render_grid() {
 }
 
 /**
+ * A card's description, as plain text cut to fit core's card.
+ *
+ * WordPress.org caps short descriptions at 150 characters, which is what core's card is sized for.
+ *
+ * @param array $card Normalized product data.
+ * @return string
+ */
+function wpcom_marketplace_card_description( array $card ) {
+	$description = wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) );
+	if ( mb_strlen( $description ) <= 150 ) {
+		return $description;
+	}
+
+	$cut   = mb_substr( $description, 0, 150 );
+	$space = mb_strrpos( $cut, ' ' );
+
+	return rtrim( false === $space ? $cut : mb_substr( $cut, 0, $space ), ' .,;:' ) . '…';
+}
+
+/**
  * One plugin card, in core's markup, with Purchase for Install Now and the price in the bottom strip.
  *
  * @param array $card Normalized product data.
@@ -203,14 +223,6 @@ function wpcom_marketplace_render_card( array $card ) {
 	$icon      = (string) ( $card['icons']['2x'] ?? $card['icons']['1x'] ?? '' );
 	$details   = wpcom_marketplace_details_url( $slug );
 	$installed = 'install' !== install_plugin_install_status( $card )['status'];
-
-	// WordPress.org caps short descriptions at 150 characters, which is what core's card is sized for.
-	$description = wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) );
-	if ( mb_strlen( $description ) > 150 ) {
-		$cut         = mb_substr( $description, 0, 150 );
-		$space       = mb_strrpos( $cut, ' ' );
-		$description = rtrim( false === $space ? $cut : mb_substr( $cut, 0, $space ), ' .,;:' ) . '…';
-	}
 
 	$actions = array_filter(
 		array(
@@ -243,7 +255,7 @@ function wpcom_marketplace_render_card( array $card ) {
 				<ul class="plugin-action-buttons"><li><?php echo implode( '</li><li>', $actions ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></li></ul>
 			</div>
 			<div class="desc column-description">
-				<p><?php echo esc_html( $description ); ?></p>
+				<p><?php echo esc_html( wpcom_marketplace_card_description( $card ) ); ?></p>
 				<?php if ( ! empty( $card['author'] ) ) : ?>
 					<p class="authors"><cite>
 						<?php
