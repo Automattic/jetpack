@@ -13,4 +13,5 @@
  * @return array[] Manifest entries, each with a `name`.
  */
 function jetpack_videopress_get_registered_widget_modules() {
+	return array();
 }
