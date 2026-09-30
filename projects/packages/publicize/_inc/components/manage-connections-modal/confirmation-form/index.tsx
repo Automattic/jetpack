@@ -260,8 +260,9 @@ export function ConfirmationForm( {
 				<div>
 					<p className={ styles[ 'header-text' ] }>
 						{ isSelectingAccount
-							? __(
+							? _x(
 									'This connection has no Page or account to share to. Select one to finish reconnecting.',
+									'Shown when reconnecting a connection that has no Page or account saved',
 									'jetpack-publicize-pkg'
 								)
 							: __(
