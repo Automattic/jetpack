@@ -202,6 +202,19 @@ export {
 } from './components';
 
 /**
+ * Report CSV exports
+ */
+export {
+	archivesCsvExporter,
+	buildArchiveRows,
+	getPostsCsvColumns,
+	getPostsReportQueryParams,
+	postsPagesCsvExporter,
+	type ArchiveRow,
+	type ReportCsvExporter,
+} from './report-exports';
+
+/**
  * Constants
  */
 export {
