@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+VideoPress: Show the Jetpack > VideoPress dashboard on WordPress.com Simple sites whenever VideoPress is available to the site, including the VideoPress trial, not only when the site's plan carries the feature.

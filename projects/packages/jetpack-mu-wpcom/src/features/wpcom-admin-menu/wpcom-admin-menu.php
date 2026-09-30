@@ -448,14 +448,16 @@ function wpcom_add_jetpack_submenu() {
 		// Jetpack > VideoPress.
 		// Register the in-admin VideoPress dashboard page. Like Newsletter above, this
 		// must run here (priority 999999) because the Jetpack parent menu is created by
-		// this function and doesn't exist at earlier priorities. Gated on the VideoPress
-		// site feature so it only surfaces for VideoPress-enabled Simple sites during dev.
-		if (
-			class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) &&
-			function_exists( 'wpcom_site_has_feature' ) &&
+		// this function and doesn't exist at earlier priorities. Gated on VideoPress
+		// being available to the site: the site feature, or wpcom_site_has_videopress(),
+		// which also covers the VideoPress trial and HQ sites that can already upload.
+		$has_videopress = function_exists( 'wpcom_site_has_feature' ) &&
 			class_exists( '\WPCOM_Features' ) &&
-			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
-		) {
+			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS );
+		if ( ! $has_videopress && function_exists( 'wpcom_site_has_videopress' ) ) {
+			$has_videopress = (bool) wpcom_site_has_videopress();
+		}
+		if ( $has_videopress && class_exists( '\Automattic\Jetpack\VideoPress\Admin_UI' ) ) {
 			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
 		}
