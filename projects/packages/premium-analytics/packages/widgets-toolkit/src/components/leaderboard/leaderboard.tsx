@@ -95,10 +95,6 @@ export type LeaderboardProps = {
 	 */
 	format?: DataFormat;
 	/**
-	 * Draw the value over the bar.
-	 */
-	withOverlayLabel?: boolean;
-	/**
 	 * Labels of the period legend under the chart. No legend when omitted.
 	 */
 	legend?: LegendLabels;
@@ -142,7 +138,6 @@ export function Leaderboard( {
 	empty,
 	maxRows = WIDGET_ROW_LIMIT,
 	format = DEFAULT_FORMAT,
-	withOverlayLabel = true,
 	legend,
 	drillDown,
 	navigation,
@@ -265,7 +260,7 @@ export function Leaderboard( {
 					<LeaderboardChart
 						data={ data }
 						withComparison={ hasComparison }
-						withOverlayLabel={ withOverlayLabel }
+						withOverlayLabel
 						showLegend={ !! legend }
 						legendLabels={ legend }
 						dataFormat={ format }
