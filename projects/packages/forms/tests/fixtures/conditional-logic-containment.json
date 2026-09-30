@@ -1,0 +1,119 @@
+{
+	"_comment": [
+		"Containment parity between the JS and PHP conditional-logic evaluators.",
+		"",
+		"Sibling of conditional-logic-behaviour.json, which pins how a single comparison behaves.",
+		"This pins what happens once containers are in play: which fields a hidden container",
+		"takes down with it, and whether an enclosed field's answer still counts for anyone else.",
+		"",
+		"Containment is written twice -- Conditional_Logic_Container::apply_containment in PHP and",
+		"applyContainment in evaluate.ts -- and the two are wired into the same fixed point on",
+		"both sides. A disagreement means the browser and the server enforce different fields, so",
+		"the form either blocks on a question nobody was shown or stores an answer for one that",
+		"was hidden. Consumed by evaluate.test.js and Conditional_Logic_Containment_Test.php,",
+		"which must agree case for case.",
+		"",
+		"Each field is a text field. `rule` gives it a one-rule condition on another field;",
+		"`action` defaults to show. `contains` maps a container id to the field ids it encloses.",
+		"`expect` is the resolved visibility every id must end up with."
+	],
+	"cases": [
+		{
+			"name": "a hidden container hides the field it encloses",
+			"fields": {
+				"trigger": {},
+				"box": { "rule": { "field": "trigger", "operator": "is", "value": "yes" } },
+				"inside": {}
+			},
+			"contains": { "box": [ "inside" ] },
+			"values": { "trigger": "no" },
+			"expect": { "trigger": true, "box": false, "inside": false }
+		},
+		{
+			"name": "a visible container leaves an enclosed field alone",
+			"fields": {
+				"trigger": {},
+				"box": { "rule": { "field": "trigger", "operator": "is", "value": "yes" } },
+				"inside": {}
+			},
+			"contains": { "box": [ "inside" ] },
+			"values": { "trigger": "yes" },
+			"expect": { "trigger": true, "box": true, "inside": true }
+		},
+		{
+			"name": "a visible container does not re-show a field its own rules hid",
+			"why": "Containment only ever forces false. A container becoming visible must not override the enclosed field's own verdict.",
+			"fields": {
+				"trigger": {},
+				"box": { "rule": { "field": "trigger", "operator": "is", "value": "yes" } },
+				"inside": { "rule": { "field": "trigger", "operator": "is", "value": "never" } }
+			},
+			"contains": { "box": [ "inside" ] },
+			"values": { "trigger": "yes" },
+			"expect": { "trigger": true, "box": true, "inside": false }
+		},
+		{
+			"name": "a field hidden only by its container cannot unlock a field outside it",
+			"why": "The evaluator blanks a hidden field's value so an unasked question cannot satisfy another rule. A field hidden by containment has to obey that too, or the form validates and stores a field unlocked by an answer it discards.",
+			"fields": {
+				"membership": {},
+				"box": { "rule": { "field": "membership", "operator": "is", "value": "yes" } },
+				"secret": {},
+				"downstream": { "rule": { "field": "secret", "operator": "is", "value": "letmein" } }
+			},
+			"contains": { "box": [ "secret" ] },
+			"values": { "membership": "no", "secret": "letmein" },
+			"expect": { "membership": true, "box": false, "secret": false, "downstream": false }
+		},
+		{
+			"name": "a visible container's enclosed answer still counts for a field outside it",
+			"fields": {
+				"membership": {},
+				"box": { "rule": { "field": "membership", "operator": "is", "value": "yes" } },
+				"secret": {},
+				"downstream": { "rule": { "field": "secret", "operator": "is", "value": "letmein" } }
+			},
+			"contains": { "box": [ "secret" ] },
+			"values": { "membership": "yes", "secret": "letmein" },
+			"expect": { "membership": true, "box": true, "secret": true, "downstream": true }
+		},
+		{
+			"name": "a hidden outer container hides a field inside a nested one",
+			"why": "The harvest attributes a field to every container open around it, so both ids carry it.",
+			"fields": {
+				"trigger": {},
+				"outer": { "rule": { "field": "trigger", "operator": "is", "value": "yes" } },
+				"inner": {},
+				"deep": {}
+			},
+			"contains": { "outer": [ "deep" ], "inner": [ "deep" ] },
+			"values": { "trigger": "no" },
+			"expect": { "trigger": true, "outer": false, "inner": true, "deep": false }
+		},
+		{
+			"name": "a hidden container with a hide action still hides what it encloses",
+			"fields": {
+				"trigger": {},
+				"box": {
+					"action": "hide",
+					"rule": { "field": "trigger", "operator": "is", "value": "go" }
+				},
+				"inside": {}
+			},
+			"contains": { "box": [ "inside" ] },
+			"values": { "trigger": "go" },
+			"expect": { "trigger": true, "box": false, "inside": false }
+		},
+		{
+			"name": "a container naming a field that is not in the form is left visible",
+			"why": "Fail open. A rule whose subject was renamed or deleted must not hide a group and silently drop everything in it.",
+			"fields": {
+				"box": { "rule": { "field": "gone", "operator": "is", "value": "yes" } },
+				"inside": {}
+			},
+			"contains": { "box": [ "inside" ] },
+			"values": {},
+			"expect": { "box": true, "inside": true }
+		}
+	]
+}

@@ -58,6 +58,11 @@ const SUBJECT_FIELDS = [
 // Swapped per test by the duplicate-id cases; reset to SUBJECT_FIELDS before each.
 let subjectFields = SUBJECT_FIELDS;
 
+// Fields inside the block owning the panel. Absent from the subject dropdown, but the
+// summary resolves against them so a rule whose subject was dragged into the group stays
+// on screen rather than vanishing while both evaluators go on enforcing it.
+let enclosedFields = [];
+
 const mockToggleBlockHighlight = jest.fn();
 
 // InspectorControls is a slot fill, and a fill renders its children only while a matching
@@ -67,6 +72,10 @@ const mockToggleBlockHighlight = jest.fn();
 // keeps the two distinguishable; `isSidebarOpen` is reset to true before each test, so the
 // cases that do not care about the sidebar read exactly as they did before.
 let isSidebarOpen = true;
+
+// Same treatment as isSidebarOpen: renderPanel sits at module scope, so the flag it
+// reads has to as well. setup() sets it per test and beforeEach resets it.
+let isContainer = false;
 
 await jest.unstable_mockModule( '@wordpress/block-editor', () => ( {
 	InspectorControls: ( { children } ) => ( isSidebarOpen ? <div>{ children }</div> : null ),
@@ -101,6 +110,7 @@ await jest.unstable_mockModule(
 	() => ( {
 		__esModule: true,
 		default: () => subjectFields,
+		useEnclosedFields: () => enclosedFields,
 		useEnsureFieldId: () => mockEnsureFieldId,
 	} )
 );
@@ -160,14 +170,16 @@ const renderPanel = ( conditionalLogic, setAttributes = jest.fn() ) =>
 			clientId="abc"
 			attributes={ { conditionalLogic } }
 			setAttributes={ setAttributes }
+			isContainer={ isContainer }
 		/>
 	);
 
 const setup = async (
 	conditionalLogic = DEFAULT_ATTRIBUTE,
-	{ openModal = true, sidebarOpen = true } = {}
+	{ openModal = true, sidebarOpen = true, isContainer: asContainer = false } = {}
 ) => {
 	isSidebarOpen = sidebarOpen;
+	isContainer = asContainer;
 
 	const setAttributes = jest.fn();
 	const { container } = renderPanel( conditionalLogic, setAttributes );
@@ -217,11 +229,54 @@ const optionValues = select =>
 		.getAllByRole( 'option' )
 		.map( o => o.value );
 
+describe( 'ConditionalLogicPanel for a container', () => {
+	// A container is shown or hidden as a unit and takes the fields inside it with it, so the
+	// copy has to promise that rather than reusing the single-field wording.
+	it( 'describes the empty state in container terms', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { openModal: false, isContainer: true } );
+
+		expect(
+			screen.getByText(
+				'Show or hide this group, and everything in it, based on the answer to a field.'
+			)
+		).toBeInTheDocument();
+	} );
+
+	it( 'summarises conditions in container terms', async () => {
+		await setup( withRules( [ { field: 'name_1', operator: 'is', value: 'x' } ] ), {
+			openModal: false,
+			isContainer: true,
+		} );
+
+		expect( screen.getByText( 'This group is shown only if:' ) ).toBeInTheDocument();
+	} );
+
+	it( 'states the container default in the rule builder', async () => {
+		await setup( DEFAULT_ATTRIBUTE, { isContainer: true } );
+
+		expect(
+			screen.getByText( 'This group is hidden by default, until the following conditions are met:' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'states the inverted container default for a hide rule', async () => {
+		await setup( withRules( [], { action: 'hide' } ), { isContainer: true } );
+
+		expect(
+			screen.getByText(
+				'This group is visible by default, until the following conditions are met:'
+			)
+		).toBeInTheDocument();
+	} );
+} );
+
 describe( 'ConditionalLogicPanel', () => {
 	beforeEach( () => {
 		// setup() sets this per test; reset it for the helpers that render directly.
 		isSidebarOpen = true;
+		isContainer = false;
 		subjectFields = SUBJECT_FIELDS;
+		enclosedFields = [];
 		formFieldIds = [];
 		mockFixDuplicateFieldIds.mockClear();
 	} );
@@ -812,6 +867,32 @@ describe( 'ConditionalLogicPanel', () => {
 				'The referenced field no longer exists. Pick another field or remove this condition.'
 			)
 		).toBeInTheDocument();
+	} );
+
+	/*
+	 * A rule can come to name a field inside the block it governs without ever being written
+	 * that way: pick a subject outside the group, then drag that field into it. The dropdown
+	 * excludes the group's own subtree, so the summary used to resolve no subject, drop the
+	 * rule as incomplete, and show the empty state -- while both evaluators went on enforcing
+	 * it and the group stayed hidden for good.
+	 */
+	it( 'still describes a condition whose subject sits inside the block', async () => {
+		enclosedFields = [
+			{
+				clientId: 'enclosed-1',
+				id: 'moved_in',
+				label: 'Moved In',
+				typeLabel: 'Text',
+				typeKey: 'string',
+				options: [],
+				step: null,
+			},
+		];
+
+		await setup( withRules( [ { field: 'moved_in', operator: 'is', value: 'yes' } ] ) );
+
+		expect( screen.queryByText( /based on the answer to/ ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /Moved In/ ) ).toBeInTheDocument();
 	} );
 
 	// Regression: fields whose id the renderer derives at output time were filtered out of
