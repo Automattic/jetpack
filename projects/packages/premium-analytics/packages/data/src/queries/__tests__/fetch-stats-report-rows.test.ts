@@ -6,7 +6,16 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import { queryClient } from '../../providers/query-client-provider';
-import { fetchStatsArchivesRows, fetchStatsTopPostsRows } from '../fetch-stats-report-rows';
+import {
+	fetchStatsArchivesRows,
+	fetchStatsClicksRows,
+	fetchStatsFileDownloadsRows,
+	fetchStatsReferrersRows,
+	fetchStatsSearchTermsReport,
+	fetchStatsTopAuthorsRows,
+	fetchStatsTopPostsRows,
+	fetchStatsVideoPlaysSummaryRows,
+} from '../fetch-stats-report-rows';
 import type { StatsReportParams } from '../stats-query';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -112,5 +121,119 @@ describe( 'fetchStatsArchivesRows', () => {
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 		expect( mockApiFetch.mock.calls[ 0 ][ 0 ].path ).toContain( 'stats/archives' );
 		expect( rows.map( row => row.label ) ).toEqual( [ 'cat', 'tag' ] );
+	} );
+} );
+
+const RANGE = {
+	from: '2026-03-01',
+	to: '2026-03-10',
+	interval: 'day',
+	comp: '1',
+	compare_from: '2026-02-01',
+	compare_to: '2026-02-10',
+} as StatsReportParams;
+
+const FULL = { ...RANGE, max: 0, summarize: 1, period: 'day' } as StatsReportParams;
+
+describe( 'report row fetchers', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	function requestedPaths(): string[] {
+		return mockApiFetch.mock.calls.map( ( [ { path } ] ) => path );
+	}
+
+	it( 'fetches file downloads once, without a comparison request', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-03-10',
+			days: {},
+			summary: {
+				files: [
+					{ filename: 'a.pdf', relative_url: '/a.pdf', downloads: 2 },
+					{ filename: 'b.pdf', relative_url: '/b.pdf', downloads: 9 },
+				],
+			},
+		} );
+
+		const rows = await fetchStatsFileDownloadsRows( FULL );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/file-downloads' );
+		expect( requestedPaths()[ 0 ] ).not.toContain( '2026-02' );
+		expect( rows.map( row => row.shortLabel ) ).toEqual( [ 'a.pdf', 'b.pdf' ] );
+	} );
+
+	it( 'returns the raw search-terms report for aggregation', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-03-10',
+			days: {},
+			summary: { search_terms: [ { term: 'jetpack', views: 3 } ], encrypted_search_terms: 4 },
+		} );
+
+		const report = await fetchStatsSearchTermsReport( FULL );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( report.summary.encrypted_search_terms ).toBe( 4 );
+	} );
+
+	it( 'fetches the complete-stats video summary the Videos report uses', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-03-10',
+			period: 'day',
+			summary: {
+				plays: [ { post_id: 7, title: 'Intro', url: 'https://example.com/v/', plays: 5 } ],
+			},
+		} );
+
+		const rows = await fetchStatsVideoPlaysSummaryRows( RANGE );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'complete_stats=1' );
+		expect( rows.map( row => row.plays ) ).toEqual( [ 5 ] );
+	} );
+
+	it( 'fetches clicks, referrers, and authors without a comparison request', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			if ( path.includes( 'stats/clicks' ) ) {
+				return Promise.resolve( {
+					date: '2026-03-10',
+					days: {},
+					summary: { clicks: [ { name: 'jetpack.com', views: 3, url: 'https://jetpack.com/' } ] },
+				} );
+			}
+			if ( path.includes( 'stats/referrers' ) ) {
+				return Promise.resolve( {
+					date: '2026-03-10',
+					days: {},
+					summary: {
+						groups: [ { group: 'Search', name: 'Search', total: 4, results: [] } ],
+					},
+				} );
+			}
+			return Promise.resolve( {
+				date: '2026-03-10',
+				period: 'day',
+				summary: { authors: [ { author_id: 1, name: 'Ana', views: 6, posts: [] } ] },
+			} );
+		} );
+
+		const [ clicks, referrers, authors ] = await Promise.all( [
+			fetchStatsClicksRows( FULL ),
+			fetchStatsReferrersRows( FULL ),
+			fetchStatsTopAuthorsRows( { ...RANGE, max: 0 } as StatsReportParams ),
+		] );
+
+		expect( requestedPaths() ).toHaveLength( 3 );
+		expect( requestedPaths().join() ).not.toContain( '2026-02' );
+		expect( clicks.map( row => row.views ) ).toEqual( [ 3 ] );
+		expect( referrers.map( row => row.label ) ).toEqual( [ 'Search' ] );
+		expect( authors.map( row => row.label ) ).toEqual( [ 'Ana' ] );
 	} );
 } );
