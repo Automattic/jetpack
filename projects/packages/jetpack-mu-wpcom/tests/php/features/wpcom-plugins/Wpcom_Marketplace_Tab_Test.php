@@ -1063,6 +1063,25 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
+	 * Cut at a word, near the 150 characters WordPress.org allows, so cards stay core's height.
+	 */
+	public function test_long_descriptions_are_cut_to_wordpress_org_length() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$card                      = $this->priced_card();
+		$card['short_description'] = str_repeat( 'Forms for every project. ', 12 );
+
+		ob_start();
+		wpcom_marketplace_render_card( $card );
+		preg_match( '#<p>([^<]*)</p>#', self::squash( ob_get_clean() ), $matches );
+		$description = trim( $matches[1] ?? '' );
+
+		$this->assertLessThanOrEqual( 151, mb_strlen( $description ) );
+		$this->assertStringEndsWith( 'project…', $description );
+	}
+
+	/**
 	 * Nothing is rendered for a product with no category worth showing, rather than
 	 * an empty line that would push its card out of step with the row.
 	 */

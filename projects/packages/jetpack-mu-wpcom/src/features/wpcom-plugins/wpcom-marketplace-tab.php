@@ -200,10 +200,12 @@ function wpcom_marketplace_render_card( array $card ) {
 	$details   = wpcom_marketplace_details_url( $slug );
 	$installed = 'install' !== install_plugin_install_status( $card )['status'];
 
-	// Cut where core cuts its own cards' descriptions.
+	// WordPress.org caps short descriptions at 150 characters, which is what core's card is sized for.
 	$description = wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) );
-	if ( mb_strlen( $description ) > 400 ) {
-		$description = mb_substr( $description, 0, 400 ) . '…';
+	if ( mb_strlen( $description ) > 150 ) {
+		$cut         = mb_substr( $description, 0, 150 );
+		$space       = mb_strrpos( $cut, ' ' );
+		$description = rtrim( false === $space ? $cut : mb_substr( $cut, 0, $space ), ' .,;:' ) . '…';
 	}
 
 	$actions = array_filter(
