@@ -756,6 +756,11 @@ exports[`Webpack \`no-textdomain\` Build results: Webpack build stats 1`] = `
       "moduleIdentifier": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
       "moduleName": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
     },
+    {
+      "message": "Chunk dist/main.js has submodules using @wordpress/i18n, but no textdomain was passed to @automattic/i18n-loader-webpack-plugin. Please fix your Webpack configuration.",
+      "moduleIdentifier": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
+      "moduleName": "webpack/runtime/loading @automattic/i18n-loader-webpack-plugin",
+    },
   ],
   "warnings": [],
 }
