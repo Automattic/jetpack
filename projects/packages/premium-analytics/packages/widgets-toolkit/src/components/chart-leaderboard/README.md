@@ -25,6 +25,8 @@ A widget does not compose this chart by hand. `Leaderboard` (`components/leaderb
 
 A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose. `buildLeaderboardChartData()` is the pure step behind it, for a widget that must draw the chart itself.
 
+Rows may carry `children`. With a `drillDown` (`backLabel`, `rowAriaLabel`) every such row becomes a button that shows its children under a back link, any number of levels deep; the selection heals itself when the settled data no longer backs it, and a widget whose rows change under a control of its own resets it by giving the leaderboard a `key`.
+
 The rest of this document covers the chart on its own.
 
 ## Features

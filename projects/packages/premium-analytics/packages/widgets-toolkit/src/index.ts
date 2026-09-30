@@ -46,6 +46,7 @@ export {
 	Leaderboard,
 	buildLeaderboardChartData,
 	type BuildLeaderboardChartDataOptions,
+	type LeaderboardDrillDown,
 	type LeaderboardProps,
 	type LeaderboardRowInput,
 	type LeaderboardRowInputAction,

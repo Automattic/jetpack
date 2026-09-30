@@ -53,9 +53,32 @@ export type LeaderboardRowInput = {
 	 */
 	media?: LeaderboardRowMedia;
 	/**
-	 * What selecting the row does. Defaults to nothing.
+	 * What selecting the row does. Defaults to nothing. A row with children drills down
+	 * into them instead, when the leaderboard has a `drillDown`.
 	 */
 	action?: LeaderboardRowInputAction;
+	/**
+	 * Rows one level down, shown when the row is selected.
+	 */
+	children?: readonly LeaderboardRowInput[];
+	/**
+	 * Whether the children carry comparison values.
+	 */
+	childrenHaveComparison?: boolean;
+};
+
+/**
+ * How the leaderboard turns a row with children into a drill-down.
+ */
+export type LeaderboardDrillDownOptions = {
+	/**
+	 * Called with the row the user drilled into.
+	 */
+	onSelect: ( row: LeaderboardRowInput ) => void;
+	/**
+	 * Accessible name of a row that drills down, e.g. "View clicked links for %s".
+	 */
+	rowAriaLabel: ( row: LeaderboardRowInput ) => string;
 };
 
 export type BuildLeaderboardChartDataOptions = {
@@ -71,15 +94,30 @@ export type BuildLeaderboardChartDataOptions = {
 	 * The dashboard window a detail link carries when the row declares none.
 	 */
 	detailSearch?: Record< string, unknown >;
+	/**
+	 * Makes every row with children a drill-down button. Without it, such rows keep their own action.
+	 */
+	drillDown?: LeaderboardDrillDownOptions;
 };
 
 const NO_MEDIA: LeaderboardRowMedia = { kind: 'none' };
 const NO_ACTION: LeaderboardRowAction = { kind: 'static' };
 
 function resolveAction(
-	action: LeaderboardRowInputAction | undefined,
-	detailSearch: Record< string, unknown >
+	row: LeaderboardRowInput,
+	detailSearch: Record< string, unknown >,
+	drillDown: LeaderboardDrillDownOptions | undefined
 ): LeaderboardRowAction {
+	// Children win over a link: a chart row cannot be a button and hold a link at once.
+	if ( drillDown && row.children?.length ) {
+		return {
+			kind: 'drillDown',
+			onClick: () => drillDown.onSelect( row ),
+			ariaLabel: drillDown.rowAriaLabel( row ),
+		};
+	}
+
+	const action = row.action;
 	if ( ! action ) {
 		return NO_ACTION;
 	}
@@ -94,15 +132,21 @@ function resolveAction(
  * of either period, deltas where a comparison value exists, and the shared row chrome.
  *
  * @param rows                  - Ranked rows, in display order.
- * @param options               - Comparison, row limit and the detail-link window.
+ * @param options               - Comparison, row limit, the detail-link window and the drill-down.
  * @param options.hasComparison - Whether the comparison period is on.
  * @param options.maxRows       - Rows past this count are dropped; `0` keeps every row.
  * @param options.detailSearch  - The dashboard window a detail link carries when the row declares none.
+ * @param options.drillDown     - Makes every row with children a drill-down button.
  * @return The chart rows.
  */
 export function buildLeaderboardChartData(
 	rows: readonly LeaderboardRowInput[],
-	{ hasComparison = false, maxRows = 0, detailSearch = {} }: BuildLeaderboardChartDataOptions = {}
+	{
+		hasComparison = false,
+		maxRows = 0,
+		detailSearch = {},
+		drillDown,
+	}: BuildLeaderboardChartDataOptions = {}
 ): LeaderboardChartData {
 	const visible = maxRows > 0 ? rows.slice( 0, maxRows ) : rows;
 	const maxValue = getCombinedPeriodMax(
@@ -118,7 +162,7 @@ export function buildLeaderboardChartData(
 			...buildLeaderboardRow( {
 				label: row.label,
 				media: row.media ?? NO_MEDIA,
-				action: resolveAction( row.action, detailSearch ),
+				action: resolveAction( row, detailSearch, drillDown ),
 			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),

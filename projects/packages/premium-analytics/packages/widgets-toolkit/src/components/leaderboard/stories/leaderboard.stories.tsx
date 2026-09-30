@@ -99,6 +99,37 @@ export const WithMediaAndLinks: Story = {
 	},
 };
 
+export const WithDrillDown: Story = {
+	args: {
+		rows: [
+			{
+				id: 'google',
+				label: 'Google',
+				value: 3820,
+				children: [
+					{ id: 'search', label: 'Google Search', value: 3000 },
+					{ id: 'images', label: 'Google Images', value: 820 },
+				],
+			},
+			{
+				id: 'social',
+				label: 'Social',
+				value: 1210,
+				children: [
+					{ id: 'x', label: 'X', value: 700 },
+					{ id: 'facebook', label: 'Facebook', value: 510 },
+				],
+			},
+			{ id: 'direct', label: 'Direct', value: 640 },
+		],
+		drillDown: {
+			backLabel: 'All referrers',
+			backAriaLabel: 'View all referrers',
+			rowAriaLabel: row => `View referrers from ${ row.label }`,
+		},
+	},
+};
+
 export const Loading: Story = {
 	args: { status: { isLoading: true } },
 };

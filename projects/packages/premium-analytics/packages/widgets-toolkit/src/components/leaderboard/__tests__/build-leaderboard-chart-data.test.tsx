@@ -79,6 +79,30 @@ describe( 'buildLeaderboardChartData', () => {
 		expect( rowProps( own.label ).action ).toEqual( { kind: 'postLink', id: 3, search: {} } );
 	} );
 
+	it( 'turns a row with children into a drill-down when asked, over its own action', () => {
+		const onSelect = jest.fn();
+		const parent: LeaderboardRowInput = {
+			id: 'p',
+			label: 'Parent',
+			value: 3,
+			action: { kind: 'link', href: 'https://example.com' },
+			children: [ { id: 'c', label: 'Child', value: 1 } ],
+		};
+
+		const [ drilled ] = buildLeaderboardChartData( [ parent ], {
+			drillDown: { onSelect, rowAriaLabel: row => `Open ${ row.label }` },
+		} );
+		drilled.onClick?.( {} as never );
+
+		expect( drilled.ariaLabel ).toBe( 'Open Parent' );
+		expect( onSelect ).toHaveBeenCalledWith( parent );
+		// Without a drill-down the row keeps its link.
+		expect( rowProps( buildLeaderboardChartData( [ parent ] )[ 0 ].label ).action ).toEqual( {
+			kind: 'link',
+			href: 'https://example.com',
+		} );
+	} );
+
 	it( 'carries a drill-down action to the chart row', () => {
 		const onClick = jest.fn();
 		const [ row ] = buildLeaderboardChartData( [

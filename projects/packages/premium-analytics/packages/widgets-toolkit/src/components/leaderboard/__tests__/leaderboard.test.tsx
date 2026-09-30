@@ -143,6 +143,87 @@ describe( 'Leaderboard', () => {
 		).toBeInTheDocument();
 	} );
 
+	it( 'drills into a row with children and back, labelling the way', async () => {
+		const rows = [
+			{
+				id: 'google',
+				label: 'Google',
+				value: 10,
+				children: [
+					{
+						id: 'images',
+						label: 'Images',
+						value: 4,
+						children: [ { id: 'x', label: 'Deep row', value: 1 } ],
+					},
+				],
+			},
+			{ id: 'direct', label: 'Direct', value: 5 },
+		];
+		renderLeaderboard(
+			<Leaderboard
+				rows={ rows }
+				status={ READY }
+				drillDown={ {
+					backLabel: 'All referrers',
+					backAriaLabel: 'View all referrers',
+					rowAriaLabel: row => `View ${ row.label }`,
+				} }
+			/>
+		);
+
+		expect(
+			screen.queryByRole( 'button', { name: 'View all referrers' } )
+		).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'View Google' } ) );
+
+		expect( screen.getByText( 'Images' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Direct' ) ).not.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'button', { name: 'View Images' } ) );
+
+		expect( screen.getByText( 'Deep row' ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Back to Google' } ) );
+
+		expect( screen.getByText( 'Images' ) ).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'View all referrers' } ) );
+
+		expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
+	} );
+
+	it( 'drops a selection the settled data no longer backs', async () => {
+		const withChildren = [
+			{
+				id: 'google',
+				label: 'Google',
+				value: 10,
+				children: [ { id: 'c', label: 'Child', value: 1 } ],
+			},
+		];
+		const drillDown = {
+			backLabel: 'All',
+			rowAriaLabel: ( row: { label: string } ) => `View ${ row.label }`,
+		};
+		const { rerender } = renderLeaderboard(
+			<Leaderboard rows={ withChildren } status={ READY } drillDown={ drillDown } />
+		);
+		await userEvent.click( screen.getByRole( 'button', { name: 'View Google' } ) );
+		expect( screen.getByText( 'Child' ) ).toBeInTheDocument();
+
+		rerender(
+			<GlobalChartsProvider>
+				<Leaderboard
+					rows={ [ { id: 'direct', label: 'Direct', value: 5 } ] }
+					status={ READY }
+					drillDown={ drillDown }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( 'Direct' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'All' } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'renders the footer in every state', () => {
 		renderLeaderboard(
 			<Leaderboard
