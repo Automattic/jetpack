@@ -48,6 +48,7 @@ function JetpackRestApiClient( root, nonce ) {
 		},
 		cacheBusterCallback = addCacheBuster,
 		nonceRefresh = null;
+	const rejectedNonces = new Set();
 
 	const methods = {
 		setApiRoot( newRoot ) {
@@ -65,6 +66,10 @@ function JetpackRestApiClient( root, nonce ) {
 			wpcomOriginApiUrl = newRoot;
 		},
 		setApiNonce( newNonce ) {
+			// Callers that re-apply the page-load nonce on every request would otherwise undo a refresh.
+			if ( rejectedNonces.has( newNonce ) ) {
+				return;
+			}
 			headers = {
 				'X-WP-Nonce': newNonce,
 			};
@@ -563,6 +568,9 @@ function JetpackRestApiClient( root, nonce ) {
 			return response;
 		}
 
+		if ( params.headers?.[ 'X-WP-Nonce' ] ) {
+			rejectedNonces.add( params.headers[ 'X-WP-Nonce' ] );
+		}
 		methods.setApiNonce( freshNonce );
 		return fetch( url, {
 			...params,
@@ -623,6 +631,9 @@ const restApi = new JetpackRestApiClient();
 
 export default restApi;
 
+const NONCE_REFRESH_TIMEOUT_MS = 10000;
+const NONCE_PATTERN = /^[a-z0-9]+$/i;
+
 /**
  * Check whether core rejected the request because its REST nonce is no longer valid.
  *
@@ -668,11 +679,16 @@ async function fetchFreshNonce() {
 		return null;
 	}
 	try {
-		const response = await fetch( endpoint, { credentials: 'same-origin' } );
+		const response = await fetch( endpoint, {
+			credentials: 'same-origin',
+			signal: AbortSignal.timeout( NONCE_REFRESH_TIMEOUT_MS ),
+		} );
 		if ( ! response.ok ) {
 			return null;
 		}
-		return ( await response.text() ).trim() || null;
+		// A PHP notice or a login page can come back with a 200; storing it would break every later request.
+		const nonce = ( await response.text() ).trim();
+		return NONCE_PATTERN.test( nonce ) ? nonce : null;
 	} catch {
 		return null;
 	}
