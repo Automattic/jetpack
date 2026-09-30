@@ -2,6 +2,31 @@
 
 A responsive leaderboard (horizontal bar) chart component for displaying ranking and "top X by Y" data visualizations.
 
+## Widgets: use `Leaderboard`
+
+A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. It must render inside `WidgetRoot`.
+
+```tsx
+<WidgetRoot attributes={ attributes }>
+	<Leaderboard
+		rows={ rows.map( row => ( {
+			id: row.key,
+			label: row.label,
+			value: row.plays,
+			previousValue: row.previousPlays,
+			action: { kind: 'videoLink', id: row.id, href: row.link },
+		} ) ) }
+		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+		error={ { description: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ) } }
+		footer={ <ReportLink report="videos" /> }
+	/>
+</WidgetRoot>
+```
+
+A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose. `buildLeaderboardChartData()` is the pure step behind it, for a widget that must draw the chart itself.
+
+The rest of this document covers the chart on its own.
+
 ## Features
 
 - **Context-aware styling**: Integrates with GlobalChartsProvider for consistent theming

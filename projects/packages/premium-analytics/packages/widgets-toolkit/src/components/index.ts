@@ -58,6 +58,15 @@ export {
 	type LeaderboardRowProps,
 } from './chart-leaderboard';
 export {
+	Leaderboard,
+	buildLeaderboardChartData,
+	type BuildLeaderboardChartDataOptions,
+	type LeaderboardProps,
+	type LeaderboardRowInput,
+	type LeaderboardRowInputAction,
+	type LeaderboardStatus,
+} from './leaderboard';
+export {
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
