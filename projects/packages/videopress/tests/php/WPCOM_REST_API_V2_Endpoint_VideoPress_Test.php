@@ -123,6 +123,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'videopress_auto_subtitles_disabled', $data );
 		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $data );
 		$this->assertArrayHasKey( 'videopress_inline_player_enabled', $data );
+		$this->assertArrayHasKey( 'videopress_default_share_enabled', $data );
 		$this->assertArrayHasKey( 'site_is_private', $data );
 		$this->assertArrayHasKey( 'site_type', $data );
 	}
@@ -137,12 +138,14 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		delete_option( 'videopress_auto_subtitles_disabled' );
 		delete_option( 'videopress_player_preload_disabled' );
 		delete_option( 'videopress_inline_player_enabled' );
+		delete_option( 'video_player_default_embed_status' );
 
 		$request = new \WP_REST_Request( 'POST', self::ROUTE_SETTINGS );
 		$request->set_param( 'videopress_videos_private_for_site', true );
 		$request->set_param( 'videopress_auto_subtitles_disabled', true );
 		$request->set_param( 'videopress_player_preload_disabled', true );
 		$request->set_param( 'videopress_inline_player_enabled', true );
+		$request->set_param( 'videopress_default_share_enabled', false );
 
 		$endpoint = new WPCOM_REST_API_V2_Endpoint_VideoPress();
 		$response = $endpoint->videopress_update_settings( $request );
@@ -154,7 +157,9 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress_Test extends BaseTestCase {
 		$this->assertTrue( (bool) get_option( 'videopress_auto_subtitles_disabled' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_player_preload_disabled' ) );
 		$this->assertTrue( (bool) get_option( 'videopress_inline_player_enabled' ) );
+		$this->assertSame( '0', (string) get_option( 'video_player_default_embed_status' ) );
 		delete_option( 'videopress_inline_player_enabled' );
+		delete_option( 'video_player_default_embed_status' );
 	}
 
 	/**

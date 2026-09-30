@@ -84,6 +84,18 @@ class Data {
 	}
 
 	/**
+	 * Gets whether new videos show the share menu by default.
+	 *
+	 * WordPress.com reads this option when it creates a video, and Simple sites already
+	 * set it from Settings → Media, so the name must stay `video_player_default_embed_status`.
+	 *
+	 * @return boolean If videos uploaded from now on should display the share menu.
+	 */
+	public static function get_videopress_default_share_enabled() {
+		return boolval( get_option( 'video_player_default_embed_status', 1 ) );
+	}
+
+	/**
 	 * Gets the VideoPress Settings.
 	 *
 	 * @return array The settings as an associative array.
@@ -105,6 +117,7 @@ class Data {
 			'videopress_auto_subtitles_disabled' => self::get_videopress_auto_subtitles_disabled(),
 			'videopress_player_preload_disabled' => self::get_videopress_player_preload_disabled(),
 			'videopress_inline_player_enabled'   => self::get_videopress_inline_player_enabled(),
+			'videopress_default_share_enabled'   => self::get_videopress_default_share_enabled(),
 			'site_is_private'                    => $site_is_private,
 			'site_type'                          => $site_type,
 		);

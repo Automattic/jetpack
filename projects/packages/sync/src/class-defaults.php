@@ -168,6 +168,7 @@ class Defaults {
 		'uploads_use_yearmonth_folders',
 		'users_can_register',
 		'verification_services_codes',
+		'video_player_default_embed_status',
 		'videopress_auto_subtitles_disabled',
 		'videopress_player_preload_disabled',
 		'videopress_playlist_index',

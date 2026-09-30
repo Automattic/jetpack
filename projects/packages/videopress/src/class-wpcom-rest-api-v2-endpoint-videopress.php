@@ -291,6 +291,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							'description' => __( 'If videos should render an inline player from one shared script instead of one frame per video', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
+						'videopress_default_share_enabled' => array(
+							'description' => __( 'If new videos should display the share menu by default', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -364,6 +368,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
 		$inline_player_enabled   = $request->get_param( 'videopress_inline_player_enabled' );
+		$default_share_enabled   = $request->get_param( 'videopress_default_share_enabled' );
 
 		$ignored = array();
 
@@ -392,6 +397,10 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 
 		if ( null !== $inline_player_enabled ) {
 			update_option( 'videopress_inline_player_enabled', $inline_player_enabled );
+		}
+
+		if ( null !== $default_share_enabled ) {
+			update_option( 'video_player_default_embed_status', (int) $default_share_enabled );
 		}
 
 		$response = array(

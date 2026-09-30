@@ -6,6 +6,7 @@ type ApiSettings = {
 	videopress_auto_subtitles_disabled: boolean;
 	videopress_player_preload_disabled: boolean;
 	videopress_inline_player_enabled: boolean;
+	videopress_default_share_enabled: boolean;
 	site_is_private: boolean;
 	site_type: string;
 };
@@ -15,6 +16,7 @@ export type Settings = {
 	videoPressAutoSubtitlesDisabled: boolean;
 	videoPressPlayerPreloadDisabled: boolean;
 	videoPressInlinePlayerEnabled: boolean;
+	videoPressDefaultShareEnabled: boolean;
 	siteIsPrivate: boolean;
 	siteType: string;
 };
@@ -26,6 +28,7 @@ export type SettingsPatch = Partial<
 		| 'videoPressAutoSubtitlesDisabled'
 		| 'videoPressPlayerPreloadDisabled'
 		| 'videoPressInlinePlayerEnabled'
+		| 'videoPressDefaultShareEnabled'
 	>
 >;
 
@@ -76,6 +79,7 @@ function fromApi( raw: ApiSettings ): Settings {
 		videoPressAutoSubtitlesDisabled: raw.videopress_auto_subtitles_disabled,
 		videoPressPlayerPreloadDisabled: raw.videopress_player_preload_disabled,
 		videoPressInlinePlayerEnabled: raw.videopress_inline_player_enabled,
+		videoPressDefaultShareEnabled: raw.videopress_default_share_enabled,
 		siteIsPrivate: raw.site_is_private,
 		siteType: raw.site_type,
 	};
@@ -114,6 +118,7 @@ export function useUpdateSettings() {
 					| 'videopress_auto_subtitles_disabled'
 					| 'videopress_player_preload_disabled'
 					| 'videopress_inline_player_enabled'
+					| 'videopress_default_share_enabled'
 				>
 			> = {};
 			if ( patch.videoPressVideosPrivateForSite !== undefined ) {
@@ -127,6 +132,9 @@ export function useUpdateSettings() {
 			}
 			if ( patch.videoPressInlinePlayerEnabled !== undefined ) {
 				data.videopress_inline_player_enabled = patch.videoPressInlinePlayerEnabled;
+			}
+			if ( patch.videoPressDefaultShareEnabled !== undefined ) {
+				data.videopress_default_share_enabled = patch.videoPressDefaultShareEnabled;
 			}
 			if ( Object.keys( data ).length === 0 ) {
 				return;

@@ -2556,6 +2556,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'videopress',
 			),
+			'video_player_default_embed_status'         => array(
+				'description'       => esc_html__( 'Show the share menu on new videos', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'videopress',
+			),
 		);
 
 		// SEO Tools - SEO Enhancer.

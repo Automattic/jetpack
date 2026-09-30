@@ -26,6 +26,7 @@ const SettingsForm = () => {
 	const autoSubtitlesDisabled = settings.data?.videoPressAutoSubtitlesDisabled ?? false;
 	const playerPreloadDisabled = settings.data?.videoPressPlayerPreloadDisabled ?? false;
 	const inlinePlayerEnabled = settings.data?.videoPressInlinePlayerEnabled ?? false;
+	const defaultShareEnabled = settings.data?.videoPressDefaultShareEnabled ?? true;
 	const disabled = settings.isLoading || update.isPending;
 
 	// The mutation rolls the optimistic value back on failure; without a notice
@@ -77,6 +78,17 @@ const SettingsForm = () => {
 						checked={ privateForSite }
 						disabled={ disabled || privateForSiteServerControlled }
 						onChange={ next => save( { videoPressVideosPrivateForSite: next } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __( 'Show the share menu on new videos', 'jetpack-videopress-pkg' ) }
+						help={ __(
+							'Sets the default for videos you upload from now on, letting viewers copy a link or embed the video. Existing videos keep their current setting, and you can still change it for each video.',
+							'jetpack-videopress-pkg'
+						) }
+						checked={ defaultShareEnabled }
+						disabled={ disabled }
+						onChange={ next => save( { videoPressDefaultShareEnabled: next } ) }
 					/>
 					<ToggleControl
 						__nextHasNoMarginBottom

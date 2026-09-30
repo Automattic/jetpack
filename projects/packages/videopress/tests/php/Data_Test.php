@@ -594,4 +594,19 @@ class Data_Test extends BaseTestCase {
 
 		delete_option( 'videopress_inline_player_enabled' );
 	}
+
+	/**
+	 * Test that new videos show the share menu by default and honor the stored option.
+	 */
+	public function test_default_share_enabled_option() {
+		delete_option( 'video_player_default_embed_status' );
+		$this->assertTrue( Data::get_videopress_default_share_enabled() );
+		$this->assertTrue( Data::get_videopress_settings()['videopress_default_share_enabled'] );
+
+		update_option( 'video_player_default_embed_status', 0 );
+		$this->assertFalse( Data::get_videopress_default_share_enabled() );
+		$this->assertFalse( Data::get_videopress_settings()['videopress_default_share_enabled'] );
+
+		delete_option( 'video_player_default_embed_status' );
+	}
 }

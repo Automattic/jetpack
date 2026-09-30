@@ -65,6 +65,10 @@ class VideoPress_Rest_Api_V1_Settings {
 							'description' => __( 'If videos should render an inline player from one shared script instead of one frame per video', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
+						'videopress_default_share_enabled' => array(
+							'description' => __( 'If new videos should display the share menu by default', 'jetpack-videopress-pkg' ),
+							'type'        => 'boolean',
+						),
 					),
 				),
 			)
@@ -139,6 +143,7 @@ class VideoPress_Rest_Api_V1_Settings {
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
 		$inline_player_enabled   = $request->get_param( 'videopress_inline_player_enabled' );
+		$default_share_enabled   = $request->get_param( 'videopress_default_share_enabled' );
 
 		if ( null !== $private_for_site ) {
 			update_option( 'videopress_private_enabled_for_site', $private_for_site );
@@ -154,6 +159,10 @@ class VideoPress_Rest_Api_V1_Settings {
 
 		if ( null !== $inline_player_enabled ) {
 			update_option( 'videopress_inline_player_enabled', $inline_player_enabled );
+		}
+
+		if ( null !== $default_share_enabled ) {
+			update_option( 'video_player_default_embed_status', (int) $default_share_enabled );
 		}
 
 		return rest_ensure_response(

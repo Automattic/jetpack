@@ -208,4 +208,24 @@ class VideoPress_Rest_Api_V1_Settings_Test extends BaseTestCase {
 
 		delete_option( 'videopress_inline_player_enabled' );
 	}
+
+	/**
+	 * Test that the default share setting round-trips and is stored as the 0/1 WordPress.com reads.
+	 */
+	public function test_default_share_setting_round_trips() {
+		delete_option( 'video_player_default_embed_status' );
+
+		$response = $this->update_settings( array( 'videopress_default_share_enabled' => false ) );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertSame( '0', (string) get_option( 'video_player_default_embed_status' ) );
+
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/settings' );
+		$response = $this->server->dispatch( $request );
+		$this->assertFalse( $response->get_data()['videopress_default_share_enabled'] );
+
+		$this->update_settings( array( 'videopress_default_share_enabled' => true ) );
+		$this->assertSame( '1', (string) get_option( 'video_player_default_embed_status' ) );
+
+		delete_option( 'video_player_default_embed_status' );
+	}
 }

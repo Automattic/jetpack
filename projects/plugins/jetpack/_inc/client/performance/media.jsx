@@ -35,6 +35,14 @@ class Media extends Component {
 		} );
 	};
 
+	toggleDefaultShareSetting = () => {
+		this.props.updateOptions( {
+			video_player_default_embed_status: ! this.props.getOptionValue(
+				'video_player_default_embed_status'
+			),
+		} );
+	};
+
 	render() {
 		const foundVideoPress = this.props.isModuleFound( 'videopress' );
 
@@ -129,6 +137,21 @@ class Media extends Component {
 								label={
 									<span className="jp-form-toggle-explanation">
 										{ __( 'Video Privacy: Restrict views to members of this site', 'jetpack' ) }
+									</span>
+								}
+							/>
+							<ToggleControl
+								__nextHasNoMarginBottom
+								id="videopress-default-share"
+								disabled={
+									! this.props.getOptionValue( 'videopress' ) ||
+									this.props.isSavingAnyOption( 'video_player_default_embed_status' )
+								}
+								checked={ this.props.getOptionValue( 'video_player_default_embed_status' ) }
+								onChange={ this.toggleDefaultShareSetting }
+								label={
+									<span className="jp-form-toggle-explanation">
+										{ __( 'Show the share menu on new videos', 'jetpack' ) }
 									</span>
 								}
 							/>

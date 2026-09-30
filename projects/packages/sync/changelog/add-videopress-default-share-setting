@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Sync the VideoPress default share setting (video_player_default_embed_status).
