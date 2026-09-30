@@ -79,10 +79,10 @@ function wpcom_marketplace_add_tab( $tabs ) {
 add_filter( 'install_plugins_tabs', 'wpcom_marketplace_add_tab' );
 
 /**
- * Answers the plugin API with a marketplace product.
+ * Answers the plugin API from the marketplace catalog.
  *
- * Only the details modal comes through here. The tab draws its own grid straight
- * from the catalog, so it has no query to serve.
+ * Serves the tab's listing, asked for by wpcom_marketplace_table_args(), and the details
+ * modal for any of our products.
  *
  * @param false|object|WP_Error $result The result object or array. Default false.
  * @param string                $action The type of information being requested.
@@ -92,6 +92,24 @@ add_filter( 'install_plugins_tabs', 'wpcom_marketplace_add_tab' );
 function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 	if ( false !== $result || ! wpcom_marketplace_tab_enabled() ) {
 		return $result;
+	}
+
+	if ( 'query_plugins' === $action && ! empty( $args->wpcom_marketplace ) ) {
+		$products = Marketplace_Catalog::get_products();
+
+		// Core's list table shows this with a Try Again button.
+		if ( empty( $products ) ) {
+			return new WP_Error( 'wpcom_marketplace_unavailable', __( 'These plugins could not be loaded right now. Please try again in a few minutes.', 'jetpack-mu-wpcom' ) );
+		}
+
+		return (object) array(
+			'info'    => array(
+				'page'    => 1,
+				'pages'   => 1,
+				'results' => count( $products ),
+			),
+			'plugins' => array_values( $products ),
+		);
 	}
 
 	// Scoped to the plugin screens: plugins_api( 'plugin_information' ) is called from
@@ -107,6 +125,29 @@ function wpcom_marketplace_serve_plugins_api( $result, $action, $args ) {
 	return $result;
 }
 add_filter( 'plugins_api', 'wpcom_marketplace_serve_plugins_api', 10, 3 );
+
+/**
+ * Has core's plugin list table ask for the whole catalog on this tab, on one page.
+ *
+ * Core has no query for a tab it does not know and passes false. The marker is what
+ * wpcom_marketplace_serve_plugins_api() answers.
+ *
+ * @param array|false $args Plugin API arguments core built for this tab.
+ * @return array|false
+ */
+function wpcom_marketplace_table_args( $args ) {
+	if ( ! wpcom_marketplace_tab_enabled() ) {
+		return $args;
+	}
+
+	return array(
+		'page'              => 1,
+		'per_page'          => max( 1, count( Marketplace_Catalog::get_products() ) ),
+		'locale'            => get_user_locale(),
+		'wpcom_marketplace' => true,
+	);
+}
+add_filter( 'install_plugins_table_api_args_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_table_args' );
 
 /**
  * Whether this request is the Add Plugins screen, the details modal included.
@@ -139,55 +180,6 @@ function wpcom_marketplace_term_noun( $term ) {
 }
 
 /**
- * Draws the marketplace as core's plugin cards.
- *
- * Printed here rather than through core's list table, whose bottom strip only takes
- * core's own fields, so the price can sit where core shows ratings and installs.
- *
- * @return void
- */
-function wpcom_marketplace_render_grid() {
-	$products = Marketplace_Catalog::get_products();
-
-	// Everything goes in #plugin-filter, which core's live search empties before showing its results.
-	echo '<form id="plugin-filter" method="post">';
-	wpcom_marketplace_intro();
-
-	if ( empty( $products ) ) {
-		printf(
-			'<div class="notice notice-warning inline"><p>%s</p></div></form>',
-			esc_html__( 'These plugins could not be loaded right now. Please try again in a few minutes.', 'jetpack-mu-wpcom' )
-		);
-		return;
-	}
-
-	// Core's own count markup, so it matches every other tab.
-	printf(
-		'<div class="tablenav top"><div class="tablenav-pages one-page"><span class="displaying-num">%s</span></div></div>',
-		esc_html(
-			sprintf(
-				/* translators: %s: Number of plugins. */
-				_n( '%s item', '%s items', count( $products ), 'jetpack-mu-wpcom' ),
-				number_format_i18n( count( $products ) )
-			)
-		)
-	);
-
-	/*
-	 * Core's list table wrapper, so core's card CSS lays these out as on every other tab.
-	 * updates.js also delegates its button clicks from #plugin-filter.
-	 */
-	printf(
-		'<div class="wp-list-table widefat plugin-install"><h2 class="screen-reader-text">%s</h2><div id="the-list" class="wpcom-marketplace-grid">',
-		esc_html__( 'Plugins list', 'jetpack-mu-wpcom' )
-	);
-	foreach ( $products as $card ) {
-		wpcom_marketplace_render_card( $card );
-	}
-	echo '</div></div></form>';
-}
-
-/**
  * A card's description, as plain text cut to fit core's card.
  *
  * WordPress.org caps short descriptions at 150 characters, which is what core's card is sized for.
@@ -205,77 +197,6 @@ function wpcom_marketplace_card_description( array $card ) {
 	$space = mb_strrpos( $cut, ' ' );
 
 	return rtrim( false === $space ? $cut : mb_substr( $cut, 0, $space ), ' .,;:' ) . '…';
-}
-
-/**
- * One plugin card, in core's markup, with Purchase for Install Now and the price in the bottom strip.
- *
- * @param array $card Normalized product data.
- * @return void
- */
-function wpcom_marketplace_render_card( array $card ) {
-	$slug = (string) ( $card['slug'] ?? '' );
-	if ( '' === $slug ) {
-		return;
-	}
-
-	$name      = (string) ( $card['name'] ?? $slug );
-	$icon      = (string) ( $card['icons']['2x'] ?? $card['icons']['1x'] ?? '' );
-	$details   = wpcom_marketplace_details_url( $slug );
-	$installed = 'install' !== install_plugin_install_status( $card )['status'];
-
-	$actions = array_filter(
-		array(
-			wpcom_marketplace_card_button( $card ),
-			sprintf(
-				'<a href="%s" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details" aria-label="%s" data-title="%s">%s</a>',
-				esc_url( $details ),
-				/* translators: %s: Plugin name. */
-				esc_attr( sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name ) ),
-				esc_attr( $name ),
-				esc_html__( 'More Details', 'jetpack-mu-wpcom' )
-			),
-		)
-	);
-	?>
-	<div class="plugin-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?> wpcom-marketplace-card" data-plugin="<?php echo esc_attr( (string) ( $card['wpcom_product_slug'] ?? $slug ) ); ?>" data-saas="<?php echo Marketplace_Catalog::is_referral( $card ) ? 'true' : 'false'; ?>" data-installed="<?php echo $installed ? 'true' : 'false'; ?>">
-		<div class="plugin-card-top">
-			<div class="name column-name">
-				<h3>
-					<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details">
-						<?php echo esc_html( $name ); ?>
-						<?php if ( '' !== $icon ) : ?>
-							<img src="<?php echo esc_url( $icon ); ?>" class="plugin-icon" alt="" />
-						<?php endif; ?>
-					</a>
-				</h3>
-			</div>
-			<div class="action-links">
-				<?php // Buttons are built from escaped parts, and core's own button carries data attributes. ?>
-				<ul class="plugin-action-buttons"><li><?php echo implode( '</li><li>', $actions ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></li></ul>
-			</div>
-			<div class="desc column-description">
-				<p><?php echo esc_html( wpcom_marketplace_card_description( $card ) ); ?></p>
-				<?php if ( ! empty( $card['author'] ) ) : ?>
-					<p class="authors"><cite>
-						<?php
-						/* translators: %s: Plugin author name. */
-						echo esc_html( sprintf( __( 'By %s', 'jetpack-mu-wpcom' ), $card['author'] ) );
-						?>
-					</cite></p>
-				<?php endif; ?>
-			</div>
-		</div>
-		<div class="plugin-card-bottom">
-			<?php
-			// Where core puts ratings and installs. Calypso drops the price once a plugin is installed.
-			if ( ! $installed ) {
-				wpcom_marketplace_render_price( $card );
-			}
-			?>
-		</div>
-	</div>
-	<?php
 }
 
 /**
@@ -332,26 +253,6 @@ function wpcom_marketplace_price_rows( array $card ) {
 	return array(
 		'headline' => $headline,
 		'note'     => $note,
-	);
-}
-
-/**
- * The price block, for the Marketplace tab's bottom strip.
- *
- * @param array $card Normalized product data.
- * @return void
- */
-function wpcom_marketplace_render_price( array $card ) {
-	$rows = wpcom_marketplace_price_rows( $card );
-	if ( '' === $rows['headline'] ) {
-		return;
-	}
-
-	// Both rows are built from escaped parts.
-	printf(
-		'<div class="wpcom-marketplace-card__price"><p class="wpcom-marketplace-card__headline">%s</p>%s</div>',
-		$rows['headline'], // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-		'' === $rows['note'] ? '' : '<p class="wpcom-marketplace-card__alternative">' . $rows['note'] . '</p>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 	);
 }
 
@@ -436,25 +337,6 @@ function wpcom_marketplace_tab_url() {
 }
 
 /**
- * The thickbox URL for a product's details modal.
- *
- * @param string $slug Plugin slug.
- * @return string
- */
-function wpcom_marketplace_details_url( $slug ) {
-	return add_query_arg(
-		array(
-			'tab'       => 'plugin-information',
-			'plugin'    => $slug,
-			'TB_iframe' => 'true',
-			'width'     => 600,
-			'height'    => 550,
-		),
-		self_admin_url( 'plugin-install.php' )
-	);
-}
-
-/**
  * Loads the tab's styles.
  *
  * @return void
@@ -502,4 +384,23 @@ function wpcom_marketplace_intro() {
 	);
 }
 
-add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_render_grid' );
+/**
+ * Draws the tab with core's plugin list table, as core draws its own tabs.
+ *
+ * The cards are core's, shaped by the same filters as search results (see
+ * wpcom-marketplace-cards.php). Mirrors display_plugins_table(), except the intro sits
+ * inside #plugin-filter, which core's live search empties before showing its results.
+ *
+ * @return void
+ */
+function wpcom_marketplace_render_table() {
+	global $wp_list_table;
+
+	echo '<form id="plugin-filter" method="post">';
+	wpcom_marketplace_intro();
+	if ( $wp_list_table instanceof WP_List_Table ) {
+		$wp_list_table->display();
+	}
+	echo '</form>';
+}
+add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_render_table' );

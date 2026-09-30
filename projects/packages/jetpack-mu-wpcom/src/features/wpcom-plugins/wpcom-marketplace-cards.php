@@ -1,9 +1,10 @@
 <?php
 /**
- * Puts matching WordPress.com Marketplace plugins at the top of core's plugin search results.
+ * Makes Marketplace plugins in core's plugin list table into Marketplace cards.
  *
- * Follows Jetpack's plugin search hint (`modules/plugin-search.php`), which splices a card
- * into the same results and swaps the same parts of it.
+ * The same cards on the Marketplace tab and at the top of matching search results. Follows
+ * Jetpack's plugin search hint (`modules/plugin-search.php`), which splices a card into the
+ * same results and swaps the same parts of it.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -16,7 +17,7 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
 const WPCOM_MARKETPLACE_SEARCH_LIMIT = 2;
 
 /**
- * Hooks the search in on the first page of the Add Plugins screen.
+ * Hooks the cards in on the first page of the Add Plugins screen.
  *
  * Core's live search runs through admin-ajax.php but sets this same screen first, so one
  * check covers the page and the Ajax results.
@@ -24,7 +25,7 @@ const WPCOM_MARKETPLACE_SEARCH_LIMIT = 2;
  * @param WP_Screen $screen The current screen.
  * @return void
  */
-function wpcom_marketplace_search_start( $screen ) {
+function wpcom_marketplace_cards_start( $screen ) {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Only reads which page of results this is.
 	$page = isset( $_GET['paged'] ) ? (int) $_GET['paged'] : 1;
 
@@ -33,11 +34,11 @@ function wpcom_marketplace_search_start( $screen ) {
 	}
 
 	add_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results', 10, 3 );
-	add_filter( 'plugin_install_action_links', 'wpcom_marketplace_search_action_links', 10, 2 );
-	add_filter( 'plugin_install_description', 'wpcom_marketplace_search_description', 10, 2 );
-	add_action( 'admin_enqueue_scripts', 'wpcom_marketplace_search_assets' );
+	add_filter( 'plugin_install_action_links', 'wpcom_marketplace_card_action_links', 10, 2 );
+	add_filter( 'plugin_install_description', 'wpcom_marketplace_card_description_markup', 10, 2 );
+	add_action( 'admin_enqueue_scripts', 'wpcom_marketplace_card_assets' );
 }
-add_action( 'current_screen', 'wpcom_marketplace_search_start' );
+add_action( 'current_screen', 'wpcom_marketplace_cards_start' );
 
 /**
  * Our plugins that match a search term, best matches first.
@@ -121,24 +122,24 @@ function wpcom_marketplace_splice_search_results( $result, $action, $args ) {
  * @param array    $plugin Plugin data.
  * @return string[]
  */
-function wpcom_marketplace_search_action_links( $links, $plugin ) {
+function wpcom_marketplace_card_action_links( $links, $plugin ) {
 	if ( empty( $plugin['wpcom_marketplace'] ) || ! is_array( $links ) ) {
 		return $links;
 	}
 
-	$links[0] = wpcom_marketplace_card_button( $plugin, wpcom_marketplace_search_url() );
+	$links[0] = wpcom_marketplace_card_button( $plugin, wpcom_marketplace_back_url() );
 
 	return array_values( array_filter( $links ) );
 }
 
 /**
- * The search being shown, which is where checkout's Back link should return to.
+ * Where checkout's Back link should return to: the search being shown, or the tab.
  *
  * Core reads the term from the request for both the page and its Ajax live search.
  *
  * @return string Search results URL, or the Marketplace tab when there is no term.
  */
-function wpcom_marketplace_search_url() {
+function wpcom_marketplace_back_url() {
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Core's handler verifies the Ajax search; this only echoes the term back.
 	$term = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
 	if ( '' === $term ) {
@@ -157,26 +158,32 @@ function wpcom_marketplace_search_url() {
 }
 
 /**
- * Labels our cards, and carries the bottom strip they should show.
+ * Labels our cards, and carries the bottom strip and data attributes they should have.
  *
  * Core has no filter for the strip and fills it with WordPress.org ratings and install
  * counts, which these plugins do not have. Ours rides in a template, which is valid inside
- * core's <p>, and js/search-results.js moves it into place.
+ * core's <p>, and js/marketplace-cards.js moves it into place.
  *
  * @param string $description Card description.
  * @param array  $plugin      Plugin data.
  * @return string
  */
-function wpcom_marketplace_search_description( $description, $plugin ) {
+function wpcom_marketplace_card_description_markup( $description, $plugin ) {
 	if ( empty( $plugin['wpcom_marketplace'] ) ) {
 		return $description;
 	}
 
+	$installed = 'install' !== install_plugin_install_status( $plugin )['status'];
+
+	// The data attributes are what the tab's Tracks and kept details modals read off a card.
 	return sprintf(
-		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip">%s</template>',
+		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip" data-plugin="%s" data-saas="%s" data-installed="%s">%s</template>',
 		esc_html__( 'WordPress.com Marketplace', 'jetpack-mu-wpcom' ),
 		esc_html( wpcom_marketplace_card_description( $plugin ) ),
-		wpcom_marketplace_search_strip( $plugin ) // Built from escaped parts.
+		esc_attr( (string) ( $plugin['wpcom_product_slug'] ?? $plugin['slug'] ?? '' ) ),
+		Marketplace_Catalog::is_referral( $plugin ) ? 'true' : 'false',
+		$installed ? 'true' : 'false',
+		wpcom_marketplace_card_strip( $plugin ) // Built from escaped parts.
 	);
 }
 
@@ -190,7 +197,7 @@ function wpcom_marketplace_search_description( $description, $plugin ) {
  * @param array $plugin Plugin data.
  * @return string Strip markup, built from escaped parts.
  */
-function wpcom_marketplace_search_strip( array $plugin ) {
+function wpcom_marketplace_card_strip( array $plugin ) {
 	// Calypso drops the price once a plugin is installed.
 	$rows = 'install' === install_plugin_install_status( $plugin )['status']
 		? wpcom_marketplace_price_rows( $plugin )
@@ -219,13 +226,13 @@ function wpcom_marketplace_search_strip( array $plugin ) {
 }
 
 /**
- * Loads the price styles and the script that places the price, on every Add Plugins tab.
+ * Loads the card styles and the script that places each card's strip, on every Add Plugins tab.
  *
  * Search can start from any of them.
  *
  * @return void
  */
-function wpcom_marketplace_search_assets() {
+function wpcom_marketplace_card_assets() {
 	wp_enqueue_style(
 		'wpcom-marketplace-tab',
 		plugins_url( 'css/marketplace-tab.css', __FILE__ ),
@@ -234,10 +241,10 @@ function wpcom_marketplace_search_assets() {
 	);
 
 	wp_enqueue_script(
-		'wpcom-marketplace-search',
-		plugins_url( 'js/search-results.js', __FILE__ ),
+		'wpcom-marketplace-cards',
+		plugins_url( 'js/marketplace-cards.js', __FILE__ ),
 		array(),
-		(string) filemtime( __DIR__ . '/js/search-results.js' ),
+		(string) filemtime( __DIR__ . '/js/marketplace-cards.js' ),
 		true
 	);
 }

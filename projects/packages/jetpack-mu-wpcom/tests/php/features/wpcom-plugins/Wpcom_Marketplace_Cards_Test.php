@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for Marketplace plugins in core's plugin search results.
+ * Tests for Marketplace cards in core's plugin list table, on the tab and in search results.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -9,12 +9,12 @@ use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom\Marketplace_Catalog;
 
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marketplace-tab.php';
-require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marketplace-search.php';
+require_once Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-plugins/wpcom-marketplace-cards.php';
 
 /**
- * Class Wpcom_Marketplace_Search_Test
+ * Class Wpcom_Marketplace_Cards_Test
  */
-class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
+class Wpcom_Marketplace_Cards_Test extends \WorDBless\BaseTestCase {
 
 	/**
 	 * Per-flag filter, so toggling ours leaves every other flag alone.
@@ -111,17 +111,17 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 
 		$screen = WP_Screen::get( 'plugin-install' );
 
-		wpcom_marketplace_search_start( $screen );
+		wpcom_marketplace_cards_start( $screen );
 		$this->assertFalse( has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ), 'Flag off.' );
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
-		wpcom_marketplace_search_start( WP_Screen::get( 'plugins' ) );
+		wpcom_marketplace_cards_start( WP_Screen::get( 'plugins' ) );
 		$this->assertFalse( has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ), 'Other screen.' );
 
-		wpcom_marketplace_search_start( $screen );
+		wpcom_marketplace_cards_start( $screen );
 		$this->assertSame( 10, has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ) );
-		$this->assertSame( 10, has_filter( 'plugin_install_action_links', 'wpcom_marketplace_search_action_links' ) );
-		$this->assertSame( 10, has_filter( 'plugin_install_description', 'wpcom_marketplace_search_description' ) );
+		$this->assertSame( 10, has_filter( 'plugin_install_action_links', 'wpcom_marketplace_card_action_links' ) );
+		$this->assertSame( 10, has_filter( 'plugin_install_description', 'wpcom_marketplace_card_description_markup' ) );
 	}
 
 	/**
@@ -183,11 +183,12 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 	public function test_our_cards_get_the_marketplace_action() {
 		$links = array( '<a class="install-now button">Install Now</a>', '<a>More Details</a>' );
 
-		$ours = wpcom_marketplace_search_action_links( $links, $this->card( 'usps', 'USPS Shipping Method' ) );
+		$ours = wpcom_marketplace_card_action_links( $links, $this->card( 'usps', 'USPS Shipping Method' ) );
 		$this->assertStringNotContainsString( 'install-now', $ours[0] );
+		$this->assertStringContainsString( 'data-wpcom-marketplace-track=', $ours[0] );
 		$this->assertSame( '<a>More Details</a>', $ours[1] );
 
-		$this->assertSame( $links, wpcom_marketplace_search_action_links( $links, array( 'slug' => 'flexible-shipping' ) ) );
+		$this->assertSame( $links, wpcom_marketplace_card_action_links( $links, array( 'slug' => 'flexible-shipping' ) ) );
 	}
 
 	/**
@@ -205,12 +206,13 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 			)
 		)['usps'];
 
-		$html = wpcom_marketplace_search_description( 'Core description.', $card );
+		$html = wpcom_marketplace_card_description_markup( 'Core description.', $card );
 
 		$this->assertStringContainsString( '<span class="wpcom-marketplace-label">WordPress.com Marketplace</span>', $html );
-		$this->assertMatchesRegularExpression( '#<template class="wpcom-marketplace-strip">.*\$109\.00.*</template>#s', $html );
+		$this->assertMatchesRegularExpression( '#<template class="wpcom-marketplace-strip"[^>]*>.*\$109\.00.*</template>#s', $html );
 		$this->assertStringContainsString( '<strong>Compatible</strong> with your version of WordPress', $html );
-		$this->assertSame( 'Core description.', wpcom_marketplace_search_description( 'Core description.', array( 'slug' => 'other' ) ) );
+		$this->assertStringContainsString( 'data-plugin="usps" data-saas="false" data-installed="false"', $html, 'What the tab\'s Tracks and kept modals read.' );
+		$this->assertSame( 'Core description.', wpcom_marketplace_card_description_markup( 'Core description.', array( 'slug' => 'other' ) ) );
 	}
 
 	/**
@@ -229,8 +231,9 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$strip = wpcom_marketplace_search_strip( $this->card( 'usps', 'USPS Shipping Method' ) );
+		$strip = wpcom_marketplace_card_strip( $this->card( 'usps', 'USPS Shipping Method' ) );
 
+		$this->assertStringContainsString( 'data-installed="true"', wpcom_marketplace_card_description_markup( '', $this->card( 'usps', 'USPS Shipping Method' ) ) );
 		$this->assertStringContainsString( '<div class="column-rating wpcom-marketplace-card__headline"></div>', $strip );
 		$this->assertStringContainsString( 'Compatible', $strip );
 	}
@@ -242,10 +245,10 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 		$card = $this->card( 'usps', 'USPS Shipping Method' );
 
 		$card['last_updated'] = gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS );
-		$this->assertStringContainsString( '<strong>Last Updated:</strong> 3 days ago', wpcom_marketplace_search_strip( $card ) );
+		$this->assertStringContainsString( '<strong>Last Updated:</strong> 3 days ago', wpcom_marketplace_card_strip( $card ) );
 
 		$card['last_updated'] = '';
-		$this->assertStringContainsString( 'Managed by WordPress.com', wpcom_marketplace_search_strip( $card ) );
+		$this->assertStringContainsString( 'Managed by WordPress.com', wpcom_marketplace_card_strip( $card ) );
 	}
 
 	/**
@@ -254,7 +257,7 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 	public function test_checkout_returns_to_the_search() {
 		$_REQUEST['s'] = 'shipping & more';
 
-		$url = wpcom_marketplace_search_url();
+		$url = wpcom_marketplace_back_url();
 		$this->assertStringContainsString( 'plugin-install.php', $url );
 		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
 		$this->assertSame(
@@ -267,6 +270,6 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 		);
 
 		unset( $_REQUEST['s'] );
-		$this->assertSame( wpcom_marketplace_tab_url(), wpcom_marketplace_search_url() );
+		$this->assertSame( wpcom_marketplace_tab_url(), wpcom_marketplace_back_url() );
 	}
 }

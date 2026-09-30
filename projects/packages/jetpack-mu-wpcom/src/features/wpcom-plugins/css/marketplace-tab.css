@@ -1,26 +1,9 @@
 /**
- * Marketplace tab on the Add Plugins screen.
+ * Marketplace cards on Add Plugins, on the tab and in search results.
  *
  * The cards are core's `.plugin-card`, laid out by core's CSS. This only styles
- * the price in each card's bottom strip, on the tab and in search results.
+ * the label and the price in each card's bottom strip.
  */
-
-/*
- * Core's strip holds two rows in 45px. Kept for a card with no price in it,
- * so every strip in a row lines up.
- */
-.wpcom-marketplace-card .plugin-card-bottom {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	min-block-size: 45px;
-}
-
-.wpcom-marketplace-card__price {
-	display: flex;
-	flex-direction: column;
-	gap: 4px;
-}
 
 .wpcom-marketplace-card__headline,
 .wpcom-marketplace-card__alternative {
@@ -70,7 +53,7 @@
 
 /*
  * WordPress.org's stats, for plugins it does not list. Hidden until
- * js/search-results.js puts the price in their place.
+ * js/marketplace-cards.js swaps in the card's own strip.
  */
 .plugin-card:has(.wpcom-marketplace-strip) .plugin-card-bottom > * {
 	display: none;
