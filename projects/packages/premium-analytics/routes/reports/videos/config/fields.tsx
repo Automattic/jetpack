@@ -5,8 +5,15 @@ import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
-import { MetricWithComparison, VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import {
+	MetricWithComparison,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnail,
+	VideoTitleLink,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { video as videoIcon } from '@wordpress/icons';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -41,6 +48,25 @@ function getVideoDetailSearch( current: Record< string, unknown > ) {
 }
 
 /**
+ * Ask Photon for the poster at twice the row thumbnail's size, as wpcom sends it full-size.
+ *
+ * @param poster - The row's poster URL.
+ * @return The resized poster URL, or undefined when there is no safe poster.
+ */
+function getPosterThumbnailUrl( poster: string | undefined ): string | undefined {
+	const url = safeHttpUrl( poster );
+
+	if ( ! url ) {
+		return undefined;
+	}
+
+	const resized = new URL( url );
+	resized.searchParams.set( 'resize', '64,64' );
+
+	return resized.toString();
+}
+
+/**
  * Render a video row's title. Rows with an attachment ID link to the internal
  * video detail page, carrying the report's current date window so the detail
  * page and its "Stats" breadcrumb keep the range being inspected; the public
@@ -59,6 +85,8 @@ function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 			label={ title }
 			link={ item.link }
 			search={ getVideoDetailSearch }
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
 		/>
 	);
 }
@@ -80,6 +108,18 @@ export function getVideosFields(
 			enableHiding: false,
 			getValue: ( { item } ) => getVideoTitle( item ),
 			render: ( { item } ) => <VideoTitle item={ item } />,
+		},
+		{
+			id: 'poster',
+			label: __( 'Poster', 'jetpack-premium-analytics-pkg' ),
+			enableSorting: false,
+			enableHiding: false,
+			render: ( { item } ) => (
+				<ReportThumbnail
+					thumbnailUrl={ getPosterThumbnailUrl( item.poster ) }
+					fallbackIcon={ videoIcon }
+				/>
+			),
 		},
 		{
 			id: 'plays',

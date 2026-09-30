@@ -6,6 +6,7 @@ import { type Props, useMetaQuery } from '$lib/stores/minify';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './minify-meta.module.scss';
 import CollapsibleMeta from '$features/ui/collapsible-meta/collapsible-meta';
+import SaveButton from '$features/ui/save-button/save-button';
 import { useNotices } from '$features/notice/context';
 import { useMinifyDefaults } from './lib/stores';
 
@@ -125,13 +126,11 @@ const MetaComponent = ( { buttonText, placeholder, datasyncKey }: Props ) => {
 								? modernStyleHelp
 								: legacyScriptHelp }
 					</div>
-					<Button
+					<SaveButton
 						disabled={ values.join( ', ' ) === inputValue }
 						className={ styles.button }
 						onClick={ save }
-					>
-						{ __( 'Save', 'jetpack-boost' ) }
-					</Button>
+					/>
 					<Button
 						disabled={ inputValue === defaultValue }
 						onClick={ loadDefaultValue }

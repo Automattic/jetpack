@@ -8,21 +8,25 @@ import {
 	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import { Icon, Link as UiLink, Stack } from '@jetpack-premium-analytics/externals';
+import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	MetricWithComparison,
+	PostTitleLink,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnail,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { useCallback, useMemo, useState } from 'react';
+import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import styles from './fields.module.css';
 import type { ReportPostsTabId } from './tabs';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -34,41 +38,7 @@ const VIEWS_DATA_FORMAT = {
 type PostTitleProps = {
 	item: StatsTopPostsComparisonItem;
 	originSection: ReportPostsTabId;
-	thumbnailUrl?: string;
 };
-
-/**
- * Render a thumbnail or the post-type icon used by the detail header.
- *
- * @param props          - Component props.
- * @param props.url      - Thumbnail URL.
- * @param props.postType - Post type slug.
- * @return The thumbnail slot.
- */
-function PostThumbnail( { url, postType }: { url?: string; postType?: string } ): JSX.Element {
-	const [ failedUrl, setFailedUrl ] = useState< string >();
-	const showImage = Boolean( url && failedUrl !== url );
-	const handleError = useCallback( () => setFailedUrl( url ), [ url ] );
-
-	return (
-		<span className={ styles.thumbnailSlot }>
-			{ showImage ? (
-				<img
-					src={ url }
-					alt=""
-					width={ 32 }
-					height={ 32 }
-					className={ styles.thumbnail }
-					onError={ handleError }
-				/>
-			) : (
-				<span data-testid="post-thumbnail-placeholder">
-					<Icon icon={ postType === 'page' ? pageIcon : postIcon } size={ 16 } />
-				</span>
-			) }
-		</span>
-	);
-}
 
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
@@ -83,7 +53,7 @@ function PostThumbnail( { url, postType }: { url?: string; postType?: string } )
  * @param {PostTitleProps} props - Component props.
  * @return The linked or plain post title.
  */
-function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX.Element {
+function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo(
 		() => ( {
@@ -98,25 +68,14 @@ function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX
 	const title = String( item.label ?? '' );
 
 	return (
-		<Stack render={ <span /> } direction="row" gap="sm" align="center" className={ styles.title }>
-			<PostThumbnail
-				url={ thumbnailUrl }
-				postType={ typeof item.type === 'string' ? item.type : undefined }
-			/>
-			<PostTitleLink
-				id={ isHomepage ? undefined : item.id }
-				label={ title }
-				link={ isHomepage ? homeUrl : item.link }
-				search={ detailSearch }
-				classNames={ {
-					internal: styles.titleLink,
-					external: styles.titleLink,
-					plain: styles.titleLink,
-					text: styles.titleText,
-				} }
-				title={ title }
-			/>
-		</Stack>
+		<PostTitleLink
+			id={ isHomepage ? undefined : item.id }
+			label={ title }
+			link={ isHomepage ? homeUrl : item.link }
+			search={ detailSearch }
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
+		/>
 	);
 }
 
@@ -144,11 +103,17 @@ export function getPostsFields(
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
+			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
+		},
+		{
+			id: 'thumbnail',
+			label: __( 'Thumbnail', 'jetpack-premium-analytics-pkg' ),
+			enableSorting: false,
+			enableHiding: false,
 			render: ( { item } ) => (
-				<PostTitle
-					item={ item }
-					originSection={ originSection }
+				<ReportThumbnail
 					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+					fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
 				/>
 			),
 		},

@@ -206,6 +206,18 @@ describe( 'PostsReportPage', () => {
 		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
 	} );
 
+	it( 'draws each post thumbnail beside its title', () => {
+		useRecordsMock.mockReturnValue( buildRecords() );
+
+		render( <PostsReportPage /> );
+
+		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		expect( initialView ).toMatchObject( { titleField: 'title', mediaField: 'thumbnail' } );
+		expect( fields.map( field => field.id ) ).toEqual(
+			expect.arrayContaining( [ 'title', 'thumbnail' ] )
+		);
+	} );
+
 	it( 'does not render a page action when the hook disables export', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 		useReportCsvExportMock.mockReturnValue( {

@@ -5,6 +5,7 @@ import {
 	getAllowedIntervalsForPreset,
 	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
+	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from '../interval';
 import { needsReportDateParamsSeed } from '../search';
@@ -245,5 +246,45 @@ describe( 'needsReportDateParamsSeed', () => {
 				interval: 'month',
 			} )
 		).toBe( true );
+	} );
+} );
+
+describe( 'resolveIntervalForPresetChange', () => {
+	it( 'starts a different named preset from its own default', () => {
+		expect(
+			resolveIntervalForPresetChange(
+				'year-to-date',
+				'last-30-days',
+				'2026-06-01',
+				'2026-06-30',
+				'week'
+			)
+		).toBe( 'day' );
+	} );
+
+	it( 'carries the interval when the preset is unchanged', () => {
+		expect(
+			resolveIntervalForPresetChange(
+				'last-30-days',
+				'last-30-days',
+				'2026-06-01',
+				'2026-06-30',
+				'week'
+			)
+		).toBe( 'week' );
+	} );
+
+	it( 'carries the interval into a custom range or a range with no preset', () => {
+		for ( const next of [ 'custom', undefined ] as const ) {
+			expect(
+				resolveIntervalForPresetChange( 'last-30-days', next, '2026-06-01', '2026-06-30', 'week' )
+			).toBe( 'week' );
+		}
+	} );
+
+	it( 'still coerces a carried interval the new range disallows', () => {
+		expect(
+			resolveIntervalForPresetChange( 'last-30-days', 'custom', '2026-06-01', '2026-06-07', 'week' )
+		).toBe( 'day' );
 	} );
 } );

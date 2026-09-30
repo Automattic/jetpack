@@ -1896,7 +1896,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "2f1b9ef45531b62c2294e4d5677258945644e203"
+                "reference": "038eab668c04c4527c2342a335ec059f00411465"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -1926,7 +1926,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-videopress/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.53.x-dev"
+                    "dev-trunk": "0.54.x-dev"
                 },
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"

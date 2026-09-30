@@ -667,7 +667,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/comments",
-                "reference": "bcf71524bdb74e26a2f50d6b73d7748cd5c4528b"
+                "reference": "01f99c1d39669ca49b9b5ac0dc373d35cc7e6460"
             },
             "require": {
                 "automattic/jetpack-assets": "@dev",
@@ -682,7 +682,7 @@
             "extra": {
                 "autotagger": true,
                 "branch-alias": {
-                    "dev-trunk": "0.2.x-dev"
+                    "dev-trunk": "0.3.x-dev"
                 },
                 "changelogger": {
                     "link-template": "https://github.com/Automattic/jetpack-comments/compare/v${old}...v${new}"

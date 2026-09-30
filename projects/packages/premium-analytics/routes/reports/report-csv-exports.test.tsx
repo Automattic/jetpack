@@ -155,7 +155,7 @@ jest.mock( './annual-insights/config', () => ( {
 
 jest.mock( './earnings/config', () => ( {
 	getEarningsReportTabs: () => [ { id: 'wordads', label: 'Earnings history' } ],
-	getTabTitle: ( id: string ) => ( id === 'wordads' ? 'Earnings history' : id ),
+	getTabLabel: ( id: string ) => ( id === 'wordads' ? 'Earnings history' : id ),
 	resolveSection: ( value: string | undefined ) => value ?? 'wordads',
 	useEarningsReportRecords: jest.fn(),
 } ) );
@@ -174,7 +174,7 @@ jest.mock( './comment-followers/config', () => ( {
 jest.mock( './comments/config', () => ( {
 	getCommentsFields: () => [],
 	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
-	getTabTitle: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
+	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
 	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
 	useCommentsReportRecords: jest.fn(),
 } ) );
@@ -195,7 +195,7 @@ jest.mock( './locations/config', () => ( {
 	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
 	getLocationFields: () => [],
 	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
-	getTabTitle: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
+	getTabLabel: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
 	resolveSection: ( value: string | undefined ) => value ?? 'countries',
 	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
 	useLocationsReportRecords: jest.fn(),
@@ -219,7 +219,6 @@ jest.mock( './tags/config', () => ( {
 
 jest.mock( './utm/config', () => ( {
 	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
-	getTabTitle: ( id: string ) => ( id === 'source-medium' ? 'Source / medium' : id ),
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',

@@ -64,7 +64,7 @@ function is_woocommerce_dashboard_section_available_to_current_user() {
  * The site's own opt-in needs the Store flag; the blog sticker and the
  * `jetpack_premium_analytics_enabled` filter leave the option off and keep every section.
  *
- * @since $$next-version$$
+ * @since 0.10.0
  *
  * @return bool
  */

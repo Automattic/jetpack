@@ -25,7 +25,6 @@ import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
-	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
@@ -134,7 +133,7 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getUtmTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

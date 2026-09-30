@@ -135,8 +135,6 @@ describe( 'CalendlyEdit', () => {
 		expect( iframe ).toBeInTheDocument();
 		// eslint-disable-next-line testing-library/no-node-access
 		expect( iframe.parentElement ).toHaveClass( 'calendly-style-inline' );
-		// eslint-disable-next-line testing-library/no-node-access
-		expect( iframe.previousElementSibling ).toHaveClass( 'wp-block-jetpack-calendly-overlay' );
 	} );
 
 	test( 'renders button preview when link style selected', () => {

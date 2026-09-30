@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Hide the Like buttons and Comment Likes settings from Settings > Sharing while a connected site is in offline mode. Amends an unreleased change.
-
-

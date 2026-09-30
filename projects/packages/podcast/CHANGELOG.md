@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.5] - 2026-09-29
+### Changed
+- Internal updates.
+
 ## [2.1.4] - 2026-09-28
 ### Changed
 - Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
@@ -277,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dashboard: Replace the wp-build placeholder with page chrome and tab navigation. [#48559]
 - Dashboard: Slim down wp-build wiring to the Backup pattern. [#48600]
 
+[2.1.5]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.4...v2.1.5
 [2.1.4]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.3...v2.1.4
 [2.1.3]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.2...v2.1.3
 [2.1.2]: https://github.com/Automattic/jetpack-podcast/compare/v2.1.1...v2.1.2

@@ -126,6 +126,21 @@ describe( 'VideosReportPage', () => {
 		expect( reportErrorStateMock ).not.toHaveBeenCalled();
 	} );
 
+	it( 'draws each video poster beside its title', () => {
+		getVideosFieldsMock.mockImplementationOnce(
+			jest.requireActual< typeof import( './config' ) >( './config' ).getVideosFields
+		);
+		useRecordsMock.mockReturnValue( buildRecords() );
+
+		render( <VideosReportPage /> );
+
+		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
+		expect( fields.map( field => field.id ) ).toEqual(
+			expect.arrayContaining( [ 'label', 'poster' ] )
+		);
+	} );
+
 	it( 'wires loaded video rows into the page export action', () => {
 		const rows = [
 			{

@@ -2,6 +2,31 @@
 
 ### This is a list detailing changes for all Jetpack releases.
 
+## 16.3-a.7 - 2026-09-29
+### Enhancements
+- Backup: Show the VaultPress Backup dashboard in wp-admin, instead of linking out to Jetpack Cloud. [#52495]
+- Settings: Show the updated Settings page to sites in right-to-left languages. [#52664]
+- VideoPress: Add a "Show player" setting to the playlist blocks; when off, clicking a video opens it on VideoPress. [#52808]
+
+### Bug fixes
+- Blocks: Show the selected style in the Calendly and Eventbrite style pickers. [#52843]
+- Connection: Reconnect only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt. [#52851]
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing. [#52880]
+- Mailchimp: Show progress and explain what is missing when re-checking the connection from the block. [#52891]
+- Newsletter: Fix a fatal error when a theme's preset list is a single value instead of a list. [#52933]
+- Newsletter: Restrict posts to subscribers when a Paywall block is saved outside the block editor. [#52734]
+- Search: Show the connection error at the top of the dashboard on every tab. [#52820]
+- Settings: Keep the Copy button on the left and show the start of URLs in copy fields for right-to-left languages. [#52816]
+- VideoPress: Ask before deleting videos, and warn before leaving the page while an upload is running. [#52815]
+- VideoPress: Keep the "Learn more" support link up to date through the redirect service. [#52907]
+
+### Other changes <!-- Non-user-facing changes go here. This section will not be copied to readme.txt. -->
+- AI: Show Jetpack's in-dashboard messages on the AI page. [#52812]
+- Premium Analytics: Refresh Stats data automatically every 30 minutes while the tab stays open, except for date ranges that ended before today. [#52898]
+- Premium Analytics: Show Visitors on the Traffic summary chart alongside Views by default. [#52896]
+- Update package dependencies. [#52757]
+- Use core snackbar notice placement across Jetpack admin screens. [#52193]
+
 ## 16.3-a.5 - 2026-09-28
 ### Major Enhancements
 - Dashboard: Remove the legacy At a Glance dashboard and Recommendations assistant. [#52513]
