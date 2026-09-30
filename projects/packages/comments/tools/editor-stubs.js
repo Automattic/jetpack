@@ -82,9 +82,12 @@ const stubs = [
 	// Scrolls the page to keep a moved block in place, which jumps a page with a small editor.
 	'@wordpress/block-editor/build-module/components/use-moving-animation/index.mjs',
 ];
-const stubbed = new RegExp(
-	`node_modules/(${ stubs.map( stub => stub.replace( /[.]/g, '\\.' ) ).join( '|' ) })(/|$)`
-);
+// A package's own path, or any file inside it.
+const isStubbed = target =>
+	stubs.some(
+		stub =>
+			target.endsWith( `node_modules/${ stub }` ) || target.includes( `node_modules/${ stub }/` )
+	);
 
 export default new webpack.NormalModuleReplacementPlugin( /./, resource => {
 	// A relative import is matched by the file it names, so a stub reaches every copy pnpm installed.
@@ -92,7 +95,7 @@ export default new webpack.NormalModuleReplacementPlugin( /./, resource => {
 		? path.join( resource.context, resource.request )
 		: 'node_modules/' + resource.request;
 
-	if ( stubbed.test( target ) ) {
+	if ( isStubbed( target ) ) {
 		resource.request = path.join( import.meta.dirname, 'stub.cjs' );
 	}
 } );
