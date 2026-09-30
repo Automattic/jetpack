@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: offer adding and removing widgets by default; the premium-analytics-dashboard-composition feature flag stays as the kill switch.

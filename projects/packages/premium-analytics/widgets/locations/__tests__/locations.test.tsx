@@ -186,6 +186,44 @@ describe( 'LocationsWidget', () => {
 		);
 	} );
 
+	it( 'lists an unknown country without mapping or drilling down', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			data: [
+				{
+					key: 'US:United States',
+					label: 'United States',
+					countryCode: 'US',
+					countryFull: 'United States',
+					value: 10,
+					region: '',
+				},
+				{
+					key: ':Unknown',
+					label: 'Unknown',
+					countryCode: '',
+					countryFull: 'Unknown',
+					value: 4,
+					region: '',
+				},
+			],
+			isLoading: false,
+			isFetching: false,
+			hasData: true,
+		} );
+
+		render( <LocationsWidget attributes={ {} } /> );
+
+		expect( screen.getByText( 'Unknown' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', { name: 'View regions in United States' } )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'View regions in Unknown' } )
+		).not.toBeInTheDocument();
+		expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'US' } ) ] );
+	} );
+
 	describe( 'region drill-down', () => {
 		const ROWS_BY_MODE: Record< string, LocationViewsState[ 'data' ] > = {
 			country: [ locationRow( 'United States' ) ],

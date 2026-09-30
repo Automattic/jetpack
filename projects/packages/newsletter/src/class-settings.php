@@ -22,7 +22,7 @@ use Jetpack_Tracks_Client;
  */
 class Settings {
 
-	const PACKAGE_VERSION = '0.16.0';
+	const PACKAGE_VERSION = '0.17.1';
 
 	const ADMIN_PAGE_SLUG = 'jetpack-newsletter';
 
@@ -660,7 +660,7 @@ class Settings {
 	/**
 	 * Publish the Subscribers tab URL so other dashboards can link to it.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 *
 	 * @param array $data The existing script data.
 	 * @return array The script data, with `newsletter.subscribersUrl` set to null when the current user cannot open the tab.

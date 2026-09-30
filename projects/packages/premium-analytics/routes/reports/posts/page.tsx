@@ -33,7 +33,7 @@ import {
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	usePostsReportRecords,
 	type ArchiveRow,
@@ -226,7 +226,7 @@ function PostsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>

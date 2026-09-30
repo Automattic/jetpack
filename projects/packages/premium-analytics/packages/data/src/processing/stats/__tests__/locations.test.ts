@@ -1,4 +1,4 @@
-import { sanitizeStatsLocationsResponse } from '..';
+import { mergeStatsLocationsComparisonRows, sanitizeStatsLocationsResponse } from '..';
 import {
 	locationsCitySummaryFixture,
 	locationsFixture,
@@ -150,5 +150,69 @@ describe( 'Stats locations normalizer', () => {
 		);
 
 		expect( result.data[ 0 ].items[ 0 ].coordinates ).toBeUndefined();
+	} );
+
+	it( 'keeps the views of rows Stats cannot place, as one unknown country', () => {
+		const result = sanitizeStatsLocationsResponse(
+			{
+				date: '2026-06-16',
+				days: {
+					'2026-06-16': {
+						views: [
+							{ location: 'Texas', views: 41, country_code: 'US' },
+							{ location: false, views: 40, country_code: 'AP' },
+							{ location: false, views: 3, country_code: '-' },
+							{ location: 'Somewhere', views: 2, country_code: 'AP' },
+							{ location: 'Bavaria', views: 1, country_code: 'DE' },
+						],
+					},
+				},
+				'country-info': {
+					AP: { country_full: false, map_region: '' },
+					'-': { country_full: false, map_region: '' },
+				},
+			},
+			{ period: 'day', end_date: '2026-06-16' }
+		);
+
+		expect(
+			result.data[ 0 ].items.map( item => [
+				item.label,
+				item.views,
+				item.countryCode,
+				item.countryFull,
+			] )
+		).toEqual( [
+			[ 'Unknown', 43, undefined, 'Unknown' ],
+			[ 'Texas', 41, 'US', undefined ],
+			[ 'Somewhere', 2, undefined, 'Unknown' ],
+			[ 'Bavaria', 1, 'DE', undefined ],
+		] );
+	} );
+
+	it( 'does not pair unknown countries across periods', () => {
+		const report = ( views: number ) =>
+			sanitizeStatsLocationsResponse(
+				{
+					date: '2026-06-16',
+					days: {
+						'2026-06-16': {
+							views: [
+								{ location: 'United States', country_code: 'US', views },
+								{ location: false, country_code: '-', views: 4 },
+							],
+						},
+					},
+					'country-info': { '-': { country_full: false } },
+				},
+				{ period: 'day', end_date: '2026-06-16' }
+			);
+
+		const result = mergeStatsLocationsComparisonRows( report( 10 ), report( 5 ) );
+
+		expect( result.rows ).toEqual( [
+			expect.objectContaining( { label: 'United States', views: 10, previousViews: 5 } ),
+			expect.objectContaining( { label: 'Unknown', views: 4, previousViews: undefined } ),
+		] );
 	} );
 } );

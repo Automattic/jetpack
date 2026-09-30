@@ -13,12 +13,10 @@ const commentsReportTabs = defineReportTabs< CommentsReportTabId >(
 		{
 			id: 'authors',
 			getLabel: () => __( 'Authors', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Authors report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'posts',
 			getLabel: () => __( 'Posts & Pages', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Posts & Pages report', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID
@@ -27,5 +25,5 @@ const commentsReportTabs = defineReportTabs< CommentsReportTabId >(
 export const getCommentsReportTabs = commentsReportTabs.getTabs;
 export const resolveTabId = commentsReportTabs.resolve;
 
-/** Heading for the active tab's section, where the tab declares one. */
-export const getTabTitle = commentsReportTabs.getTabTitle;
+/** Get the translated label for a tab, which also heads its section. */
+export const getTabLabel = commentsReportTabs.getTabLabel;

@@ -26,7 +26,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import {
 	getEarningsReportTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveSection,
 	useEarningsReportRecords,
 } from './config';
@@ -139,7 +139,7 @@ function EarningsReport(): JSX.Element {
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }
 			<ReportPageLayout
-				title={ getTabTitle( tab ) }
+				title={ getTabLabel( tab ) }
 				tabs={
 					tabs.length > 1 ? (
 						<ReportPageTabs tabs={ tabs } value={ tab } onChange={ setActiveTab } />

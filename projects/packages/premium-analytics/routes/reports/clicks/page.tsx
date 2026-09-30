@@ -109,7 +109,7 @@ function ClicksReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const isTableLoading = records.isLoading || records.isFetching;
 
-	const { getLabel, getTitle } = REPORTS.clicks;
+	const { getLabel } = REPORTS.clicks;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -134,7 +134,7 @@ function ClicksReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< ClickRow >
 						data={ records.rows }

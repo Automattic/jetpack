@@ -152,6 +152,7 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnailTitle,
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,

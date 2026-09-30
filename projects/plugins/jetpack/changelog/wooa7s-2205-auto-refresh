@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Premium Analytics: Refresh Stats data automatically every 30 minutes while the tab stays open, except for date ranges that ended before today.

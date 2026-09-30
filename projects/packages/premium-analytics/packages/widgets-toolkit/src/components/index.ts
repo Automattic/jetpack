@@ -141,6 +141,7 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnailTitle,
 	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,

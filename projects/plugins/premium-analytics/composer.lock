@@ -902,7 +902,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/premium-analytics",
-                "reference": "d082156e7fe2fb467b95bf6e23eca683f6b03ef6"
+                "reference": "7670d0ed0ad19b879ac458ec56b655f78976e55a"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -934,7 +934,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-premium-analytics/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.8.x-dev"
+                    "dev-trunk": "0.10.x-dev"
                 }
             },
             "autoload": {

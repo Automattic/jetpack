@@ -1015,12 +1015,12 @@ abstract class Publicize_Base {
 	 *
 	 * @since 0.1.0
 	 * @since-jetpack 6.7.0
-	 * @deprecated $$next-version$$ Services and their connect URLs come from the `publicize/services` REST endpoint.
+	 * @deprecated 0.88.0 Services and their connect URLs come from the `publicize/services` REST endpoint.
 	 *
 	 * @return array Always empty.
 	 */
 	public function get_available_service_data() {
-		_deprecated_function( __METHOD__, 'publicize-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'publicize-0.88.0' );
 
 		return array();
 	}

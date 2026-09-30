@@ -2,10 +2,14 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.9.0] - 2026-09-29
+### Added
+- Add protected owner selectors and types to the connection store. [#52861]
+
 ## [2.8.0] - 2026-09-28
 ### Added
-- Disconnect dialog: On the plugins page, offer the survey before deactivating, including on sites where no user has connected. [#52828]
-- Export getUserConnectionUrl from a subpath that bundlers without SCSS support can import. [#52810]
+- Disconnect dialog: Ask for optional feedback when deactivating Jetpack from the Plugins page. [#52828]
+- Export `getUserConnectionUrl` from a subpath that bundlers without SCSS support can import. [#52810]
 
 ### Changed
 - Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
@@ -1522,6 +1526,7 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.9.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.8.0...v2.9.0
 [2.8.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.7.0...v2.8.0
 [2.7.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.6.0...v2.7.0
 [2.6.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.3...v2.6.0
