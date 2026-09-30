@@ -30,7 +30,6 @@ export type ChartDisplayChartType = any;
 
 // Leaderboards: ranked rows in, with their states, comparison and drill-down handled.
 export declare const Leaderboard: AnyComponent;
-export declare const WIDGET_ROW_LIMIT: number;
 export type LeaderboardProps = any;
 export type LeaderboardRowInput = any;
 export type LeaderboardStatus = any;

@@ -12,7 +12,6 @@ export {
 	MetricTileGrid,
 	MetricTileGridSkeleton,
 	ReportLink,
-	WIDGET_ROW_LIMIT,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
