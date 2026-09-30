@@ -59,8 +59,7 @@ async function fixDeps( pkg ) {
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
 				dep.endsWith( '/eslint-config' ) ||
-				dep.startsWith( '@typescript-eslint/' ) ||
-				dep === '@wordpress/theme'
+				dep.startsWith( '@typescript-eslint/' )
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
