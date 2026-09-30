@@ -353,7 +353,8 @@ function wpcom_add_jetpack_submenu() {
 			function () {
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- No action taken, just checking page.
 				if ( isset( $_GET['page'] ) && 'my-jetpack' === $_GET['page'] ) {
-					wp_safe_redirect( admin_url( 'admin.php?page=stats' ) );
+					/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+					wp_safe_redirect( apply_filters( 'jetpack_stats_url', admin_url( 'admin.php?page=stats' ), array( 'view' => 'dashboard' ) ) );
 					exit;
 				}
 			}
