@@ -40,8 +40,8 @@ describe( 'mapHealthCheckErrors', () => {
 
 	it( 'maps the primary error plus every additional_errors entry (lossless)', () => {
 		const body = {
-			code: 'failed_test__outbound_https',
-			message: 'Your server did not successfully connect to WordPress.com using HTTPS.',
+			code: 'failed_test__wpcom_connection_test',
+			message: 'The connection test to WordPress.com failed.',
 			data: { resolution: '' },
 			additional_errors: [
 				{
@@ -60,12 +60,12 @@ describe( 'mapHealthCheckErrors', () => {
 		const map = mapHealthCheckErrors( body );
 
 		expect( Object.keys( map ) ).toEqual( [
-			'failed_test__outbound_https',
+			'failed_test__wpcom_connection_test',
 			'failed_test__identity_crisis',
 			'failed_test__xml_parser_available',
 		] );
 		// The primary error is inserted first, so it wins the hook's "first error" pick.
-		expect( Object.keys( map )[ 0 ] ).toBe( 'failed_test__outbound_https' );
+		expect( Object.keys( map )[ 0 ] ).toBe( 'failed_test__wpcom_connection_test' );
 		expect( map.failed_test__identity_crisis[ 0 ].error_data ).toEqual( {
 			action_label: 'Please contact Jetpack support.',
 			action_url: 'https://example.com/support',
