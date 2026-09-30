@@ -4042,8 +4042,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $this->resolved_field_visibility;
 		}
 
-		// Otherwise every field is visible, so validation and storage behave exactly as they
-		// did before conditional logic existed; their callers need no checks of their own.
+		// Without applicable conditions every field is visible, so validation and storage behave
+		// exactly as they did before conditional logic existed; callers need no checks of their own.
 		if ( ! $this->conditional_logic_applies() ) {
 			$this->resolved_field_visibility = array();
 

@@ -5,6 +5,7 @@
  * Maps a feature slug to whether the site has it; a slug missing from the map does not exist.
  * Only require this from a test running in a separate process.
  *
+ * @phan-file-suppress PhanRedefineFunction -- Loaded only in a separate test process, where the real functions are absent.
  * @package automattic/jetpack-forms
  */
 
