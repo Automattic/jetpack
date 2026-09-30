@@ -1,24 +1,25 @@
-import { render } from '@testing-library/react';
+import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { __ } from '@wordpress/i18n';
 import UploadError from '../uploader-error.jsx';
 
 const mockUseConnectionErrorNotice = jest.fn();
-// The wrapper is where the message lands, so capturing its props is the only
-// way to read what getErrorMessage() decided.
-const mockPlaceholderWrapper = jest.fn( () => null );
+const mockPlaceholderWrapper = jest.fn( ( { children } ) => <div>{ children }</div> );
+const mockGoToCheckout = jest.fn( event => event.preventDefault() );
 
 jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
 	__esModule: true,
 	default: ( ...args ) => mockUseConnectionErrorNotice( ...args ),
 } ) );
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
-	getRequiredPlan: () => null,
+	getRequiredPlan: jest.fn(),
+	useUpgradeFlow: jest.fn(),
 	getSiteFragment: () => 'example.com',
 } ) );
-jest.mock( '@wordpress/components', () => ( {
-	Button: () => null,
-} ) );
 jest.mock( '@wordpress/i18n', () => ( {
-	__: s => s,
+	...jest.requireActual( '@wordpress/i18n' ),
+	__: jest.fn( s => s ),
 } ) );
 jest.mock( '@wordpress/ui', () => ( {
 	Link: () => null,
@@ -26,6 +27,9 @@ jest.mock( '@wordpress/ui', () => ( {
 jest.mock( '../../../edit', () => ( {
 	PlaceholderWrapper: ( ...args ) => mockPlaceholderWrapper( ...args ),
 } ) );
+
+const FREE_QUOTA_MESSAGE =
+	'You have used your free video. Upgrade to a VideoPress plan to unlock more videos and 1TB of storage.';
 
 const TOKEN_ERROR = { code: 'videopress_no_upload_token', message: 'No token provided' };
 
@@ -38,6 +42,13 @@ const renderError = ( errorData, hasConnectionError ) => {
 describe( 'UploadError', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		getRequiredPlan.mockReturnValue( false );
+		useUpgradeFlow.mockReturnValue( [
+			'https://wordpress.com/checkout/example.com/jetpack_videopress',
+			mockGoToCheckout,
+			false,
+		] );
+		__.mockImplementation( s => s );
 	} );
 
 	it( 'names the connection when a token failure lands on a site reporting one', () => {
@@ -60,5 +71,73 @@ describe( 'UploadError', () => {
 
 	it( 'renders nothing to say when there is no error data', () => {
 		expect( renderError( null, false ) ).toBe( '' );
+	} );
+
+	it( 'offers VideoPress checkout instead of retrying a free-quota failure', async () => {
+		const onRetry = jest.fn();
+		const onCancel = jest.fn();
+		mockUseConnectionErrorNotice.mockReturnValue( { hasConnectionError: false } );
+		render(
+			<UploadError
+				errorData={ { data: { message: FREE_QUOTA_MESSAGE } } }
+				onRetry={ onRetry }
+				onCancel={ onCancel }
+			/>
+		);
+
+		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		expect( upgrade ).toHaveAttribute(
+			'href',
+			'https://wordpress.com/checkout/example.com/jetpack_videopress'
+		);
+		expect( useUpgradeFlow ).toHaveBeenCalledWith( 'jetpack_videopress' );
+		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
+		await userEvent.click( upgrade );
+		expect( mockGoToCheckout ).toHaveBeenCalledTimes( 1 );
+		expect( onRetry ).not.toHaveBeenCalled();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
+		expect( onCancel ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'recognizes a translated free-quota message', () => {
+		const translatedMessage = 'Has usado tu vídeo gratuito.';
+		__.mockImplementation( s => ( s === FREE_QUOTA_MESSAGE ? translatedMessage : s ) );
+
+		expect( renderError( { data: { message: translatedMessage } }, false ) ).toBe(
+			translatedMessage
+		);
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'recognizes the English server message with a translated editor', () => {
+		__.mockImplementation( s => ( s === FREE_QUOTA_MESSAGE ? 'Has usado tu vídeo gratuito.' : s ) );
+		renderError( { data: { message: FREE_QUOTA_MESSAGE } }, false );
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'uses the required WordPress.com plan for a plan-restricted MIME error', () => {
+		getRequiredPlan.mockReturnValue( 'business' );
+		renderError( { data: { message: 'Invalid Mime' } }, false );
+
+		expect( useUpgradeFlow ).toHaveBeenCalledWith( 'business' );
+		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		'You have used your space quota. Please delete files before uploading.',
+		'Invalid Mime',
+		'File too large',
+	] )( 'keeps retry available without an upsell for %s', async message => {
+		const onRetry = jest.fn();
+		mockUseConnectionErrorNotice.mockReturnValue( { hasConnectionError: false } );
+		render(
+			<UploadError errorData={ { data: { message } } } onRetry={ onRetry } onCancel={ jest.fn() } />
+		);
+
+		expect( screen.queryByRole( 'link', { name: 'Upgrade' } ) ).not.toBeInTheDocument();
+		expect( useUpgradeFlow ).not.toHaveBeenCalled();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		expect( onRetry ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

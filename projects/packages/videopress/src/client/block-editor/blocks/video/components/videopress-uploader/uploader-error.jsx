@@ -2,13 +2,51 @@
  * External dependencies
  */
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
-import { getRequiredPlan, getSiteFragment } from '@automattic/jetpack-shared-extension-utils';
+import {
+	getRequiredPlan,
+	getSiteFragment,
+	useUpgradeFlow,
+} from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { isConnectionAttributedFailure } from '../../../../../hooks/use-resumable-uploader';
 import { PlaceholderWrapper } from '../../edit';
+
+const isUpgradeRequired = errorData => {
+	const message = errorData?.data?.message;
+
+	// The upload endpoint drops the quota code, so match its free-tier message only.
+	return (
+		message ===
+			'You have used your free video. Upgrade to a VideoPress plan to unlock more videos and 1TB of storage.' ||
+		message ===
+			__(
+				'You have used your free video. Upgrade to a VideoPress plan to unlock more videos and 1TB of storage.',
+				'jetpack-videopress-pkg'
+			) ||
+		( message === 'Invalid Mime' && !! getRequiredPlan( 'videopress/video' ) )
+	);
+};
+
+const UpgradeButton = () => {
+	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow(
+		getRequiredPlan( 'videopress/video' ) || 'jetpack_videopress'
+	);
+
+	return (
+		<Button
+			variant="primary"
+			href={ checkoutUrl }
+			onClick={ goToCheckoutPage }
+			isBusy={ isRedirecting }
+			disabled={ isRedirecting }
+		>
+			{ __( 'Upgrade', 'jetpack-videopress-pkg' ) }
+		</Button>
+	);
+};
 
 const getErrorMessage = ( uploadErrorData, hasConnectionError ) => {
 	if ( ! uploadErrorData ) {
@@ -73,9 +111,13 @@ const UploadError = ( { errorData, onRetry, onCancel } ) => {
 	return (
 		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader-progress__error-actions">
-				<Button variant="primary" onClick={ onRetry }>
-					{ __( 'Try again', 'jetpack-videopress-pkg' ) }
-				</Button>
+				{ isUpgradeRequired( errorData ) ? (
+					<UpgradeButton />
+				) : (
+					<Button variant="primary" onClick={ onRetry }>
+						{ __( 'Try again', 'jetpack-videopress-pkg' ) }
+					</Button>
+				) }
 				<Button variant="secondary" onClick={ onCancel }>
 					{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
 				</Button>
