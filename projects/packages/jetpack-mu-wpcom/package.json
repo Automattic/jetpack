@@ -155,7 +155,8 @@
 		"packageNamespace": "jetpack-mu-wpcom",
 		"handlePrefix": "jetpack-mu-wpcom",
 		"pages": [
-			"site-setup"
+			"site-setup",
+			"wpcom-backup"
 		]
 	}
 }
