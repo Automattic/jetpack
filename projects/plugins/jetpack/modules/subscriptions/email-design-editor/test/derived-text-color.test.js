@@ -309,7 +309,10 @@ describe( 'watchDerivedTextColor', () => {
 
 		pick( { styles: { color: { background: 'var:preset|color|brand' } } } );
 
-		expect( written().elements ).toEqual( { link: { color: { text: '#007cb8' } } } );
+		expect( written() ).toEqual( {
+			color: { background: 'var:preset|color|brand', text: BLACK_TEXT },
+			elements: { link: { color: { text: '#007cb8' } } },
+		} );
 	} );
 
 	it( 'derives the element colors even when the creator set the text color', () => {

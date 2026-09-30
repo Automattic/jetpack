@@ -98,6 +98,21 @@ describe( 'nextElements', () => {
 		} );
 	} );
 
+	it( 'treats a stored null decoration as unset, as it does a null color', () => {
+		const styles = {
+			elements: {
+				link: { color: { text: GRAY_ON_DARK }, typography: { textDecoration: null } },
+			},
+		};
+
+		expect( nextElements( styles, DARK, DARKER, { link: GRAY } ) ).toEqual( {
+			link: {
+				color: { text: '#8f8f8f' },
+				typography: { textDecoration: 'underline' },
+			},
+		} );
+	} );
+
 	it.each( [ [ 'var(--accent)' ], [ 'rgba(0, 0, 0, 0.5)' ], [ 'red' ], [ undefined ], [ null ] ] )(
 		'leaves a link of %p alone',
 		link => {
@@ -134,18 +149,17 @@ describe( 'the rules shared with the WordPress.com renderer', () => {
 		expect( MANAGED ).toEqual( fixture.elements );
 	} );
 
-	it( 'makes every shared case readable the same way', () => {
-		expect(
-			fixture.cases.map( ( { color, background } ) => readableFor( color, background ) )
-		).toEqual( fixture.cases.map( ( { readable } ) => readable ) );
-	} );
+	it.each( fixture.cases )(
+		'makes $element $color readable on $background',
+		( { color, background, readable } ) => {
+			expect( readableFor( color, background ) ).toBe( readable );
+		}
+	);
 
-	it( 'underlines the same cases', () => {
-		expect(
-			fixture.cases.map(
-				( { element, color, background } ) =>
-					'underline' === underlineFor( element, color, background )
-			)
-		).toEqual( fixture.cases.map( ( { underline } ) => underline ) );
-	} );
+	it.each( fixture.cases )(
+		'agrees on underlining $element $color on $background',
+		( { element, color, background, underline } ) => {
+			expect( 'underline' === underlineFor( element, color, background ) ).toBe( underline );
+		}
+	);
 } );

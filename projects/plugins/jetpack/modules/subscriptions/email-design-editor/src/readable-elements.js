@@ -66,7 +66,11 @@ export function nextElements( styles, before, background, inherited ) {
 function nextUnderline( elements, element, original, before, background, ours ) {
 	const stored = elements[ element ]?.typography?.textDecoration;
 
-	if ( undefined !== stored && stored !== underlineFor( element, original, before ) ) {
+	if (
+		undefined !== stored &&
+		null !== stored &&
+		stored !== underlineFor( element, original, before )
+	) {
 		return false;
 	}
 
