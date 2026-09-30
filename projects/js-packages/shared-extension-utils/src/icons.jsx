@@ -110,12 +110,12 @@ export const OpenverseIcon = props => (
 );
 
 export const PexelsIcon = props => (
+	// The padded viewBox draws the tile at ~22px inside the standard 24px icon box.
 	<SVG
-		style={ { width: '22px', height: '22px' } }
 		xmlns="http://www.w3.org/2000/svg"
 		width="24"
 		height="24"
-		viewBox="0 0 256 256"
+		viewBox="-12 -12 280 280"
 		{ ...props }
 	>
 		<Rect width="256" height="256" rx="46" fill="#191919" />
