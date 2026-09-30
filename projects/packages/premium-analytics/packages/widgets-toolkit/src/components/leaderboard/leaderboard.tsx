@@ -73,13 +73,25 @@ export type LeaderboardProps = {
 	 */
 	format?: DataFormat;
 	/**
-	 * Labels of the period legend under the chart. No legend when omitted.
+	 * Draw the value over the bar.
 	 */
-	legend?: LegendLabels;
+	withOverlayLabel?: boolean;
+	/**
+	 * Show the period legend under the chart.
+	 */
+	showLegend?: boolean;
+	/**
+	 * Labels of the period legend.
+	 */
+	legendLabels?: LegendLabels;
 	/**
 	 * Destination tab and origin report for the detail links, see `useWidgetNavigationSearch()`.
 	 */
 	navigation?: Parameters< typeof useWidgetNavigationSearch >[ 0 ];
+	/**
+	 * Rendered above the chart, inside the content column, such as a drill-down back link.
+	 */
+	header?: ReactNode;
 	/**
 	 * Rendered in the widget footer, typically a `ReportLink`.
 	 */
@@ -110,8 +122,11 @@ export function Leaderboard( {
 	empty,
 	maxRows = WIDGET_ROW_LIMIT,
 	format = DEFAULT_FORMAT,
-	legend,
+	withOverlayLabel = true,
+	showLegend = false,
+	legendLabels,
 	navigation,
+	header,
 	footer,
 	className,
 }: LeaderboardProps ): JSX.Element {
@@ -151,6 +166,7 @@ export function Leaderboard( {
 	return (
 		<Stack direction="column" className={ clsx( styles.root, className ) }>
 			<Stack direction="column" className={ styles.content }>
+				{ header }
 				<WidgetState
 					isLoading={ status.isLoading }
 					isFetching={ status.isFetching }
@@ -163,9 +179,9 @@ export function Leaderboard( {
 					<LeaderboardChart
 						data={ data }
 						withComparison={ hasComparison }
-						withOverlayLabel
-						showLegend={ !! legend }
-						legendLabels={ legend }
+						withOverlayLabel={ withOverlayLabel }
+						showLegend={ showLegend }
+						legendLabels={ legendLabels }
 						dataFormat={ format }
 					/>
 				</WidgetState>
