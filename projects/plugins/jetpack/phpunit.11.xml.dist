@@ -39,6 +39,9 @@
 		<testsuite name="json-api">
 			<directory suffix="Test.php">tests/php/json-api</directory>
 		</testsuite>
+		<testsuite name="google-font-face">
+			<directory suffix="Test.php">tests/php/modules/google-font-face</directory>
+		</testsuite>
 		<testsuite name="infinite-scroll">
 			<directory suffix="Test.php">tests/php/modules/infinite-scroll</directory>
 		</testsuite>

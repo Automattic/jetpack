@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Dashboard: Expose the leaderboard primitives and the video plays hook through the SDK; the widget contract is 1.2.0.
+Dashboard: Expose the Leaderboard component, the error mapper and the video plays hook through the SDK; the widget contract is 1.2.0.

@@ -15,6 +15,7 @@ export declare function useWidgetRootContext(): any;
 export declare const WidgetState: AnyComponent;
 export declare const WidgetFooter: AnyComponent;
 export declare const ReportLink: AnyComponent;
+export declare function describeError( ...args: any[] ): any;
 
 // Charts and metrics.
 export declare const ChartEmptyState: AnyComponent;
@@ -27,16 +28,13 @@ export type DataFormat = any;
 export type CountLabel = any;
 export type ChartDisplayChartType = any;
 
-// Leaderboards: the chart, its rows and the helpers that size and compare them.
-export declare const LeaderboardChart: AnyComponent;
-export declare const LeaderboardSkeleton: AnyComponent;
+// Leaderboards: ranked rows in, with their states, comparison and drill-down handled.
+export declare const Leaderboard: AnyComponent;
 export declare const WIDGET_ROW_LIMIT: number;
-export declare function buildLeaderboardRow( ...args: any[] ): any;
-export declare function calculateDelta( ...args: any[] ): any;
-export declare function getCombinedPeriodMax( ...args: any[] ): any;
-export declare function sharePercentage( ...args: any[] ): any;
-export declare function useWidgetNavigationSearch( ...args: any[] ): any;
-export type LeaderboardChartData = any;
+export type LeaderboardProps = any;
+export type LeaderboardRowInput = any;
+export type LeaderboardStatus = any;
+export type LeaderboardDrillDown = any;
 
 // Widget attributes.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;

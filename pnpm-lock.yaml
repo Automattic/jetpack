@@ -54,8 +54,8 @@ importers:
         specifier: 16.12.0
         version: 16.12.0
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       openai:
         specifier: 5.3.0
         version: 5.3.0
@@ -2153,8 +2153,8 @@ importers:
         specifier: 4.55.0
         version: 4.55.0
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -2667,8 +2667,8 @@ importers:
         specifier: 4.18.1
         version: 4.18.1
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3160,8 +3160,8 @@ importers:
         specifier: 4.18.1
         version: 4.18.1
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       newspack-colors:
         specifier: 1.1.3
         version: 1.1.3
@@ -6511,8 +6511,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -15688,8 +15688,8 @@ packages:
   moment-timezone@0.5.48:
     resolution: {integrity: sha512-f22b8LV1gbTO2ms2j2z13MuPogNoh5UzxL3nzNAYKGraILnbGc9NEE6dyiiiLv46DGRb8A4kg8UKWLjPthxBHw==}
 
-  moment@2.30.1:
-    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
+  moment@2.31.0:
+    resolution: {integrity: sha512-0acOTfMiWOheYS4eoWb80yYMb/JLvVv9SHbs2PehaDzfUG0Bw855SKyk0IKTnPGa5+U2bmi3W68l1+sGLX/pvw==}
 
   motion-dom@11.18.1:
     resolution: {integrity: sha512-g76KvA001z+atjfxczdRtw/RXOM3OMSdd1f4DL77qCTF/+avrRJiawSG4yDibEQ215sr9kpinSlX2pCTJ9zbhw==}
@@ -26544,7 +26544,7 @@ snapshots:
   '@wordpress/date@5.55.0':
     dependencies:
       '@wordpress/deprecated': 4.55.0
-      moment: 2.30.1
+      moment: 2.31.0
       moment-timezone: 0.5.48
 
   '@wordpress/dependency-extraction-webpack-plugin@6.55.0(webpack@5.107.2)':
@@ -35162,9 +35162,9 @@ snapshots:
 
   moment-timezone@0.5.48:
     dependencies:
-      moment: 2.30.1
+      moment: 2.31.0
 
-  moment@2.30.1: {}
+  moment@2.31.0: {}
 
   motion-dom@11.18.1:
     dependencies:
@@ -36489,7 +36489,7 @@ snapshots:
       fdir: 6.5.0
       lodash: 4.18.1
       magic-string: 0.30.21
-      moment: 2.30.1
+      moment: 2.31.0
       package-name-regex: 2.0.6
       spdx-expression-validate: 2.0.0
       spdx-satisfies: 5.0.1
@@ -36502,7 +36502,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.4)
       lodash: 4.18.1
       magic-string: 0.30.21
-      moment: 2.30.1
+      moment: 2.31.0
       package-name-regex: 2.0.6
       spdx-expression-validate: 2.0.0
       spdx-satisfies: 5.0.1

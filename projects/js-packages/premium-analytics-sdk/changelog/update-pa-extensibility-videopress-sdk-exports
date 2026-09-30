@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Declare the leaderboard primitives and the video plays hook.
+Declare the Leaderboard component, the error mapper, the widget row limit and the video plays hook.
