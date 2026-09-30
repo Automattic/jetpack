@@ -234,6 +234,19 @@ test( 'shows one calculating status instead of the score sections before scores 
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 } );
 
+test( 'keeps the live region mounted before adding the calculating message', () => {
+	const scores = { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false };
+	const { rerender } = render( <ScoreCards scores={ scores } /> );
+	const status = screen.getByRole( 'status' );
+	expect( status ).toBeEmptyDOMElement();
+	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
+	expect( screen.getByRole( 'status' ) ).toBe( status );
+	expect( status ).toHaveTextContent( 'Calculating…' );
+	rerender( <ScoreCards scores={ scores } /> );
+	expect( screen.getByRole( 'status' ) ).toBe( status );
+	expect( status ).toBeEmptyDOMElement();
+} );
+
 test( 'overlays calculating while retaining hidden scores and restores the row on completion', () => {
 	const scores = { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false };
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
@@ -241,14 +254,15 @@ test( 'overlays calculating while retaining hidden scores and restores the row o
 	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
 	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
 	expect( desktop ).toBeInTheDocument();
-	expect( desktop ).not.toBeVisible();
-	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
+	expect( desktop.closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
+		'jetpack-boost-overview__score-row--hidden'
+	);
 	rerender( <ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } /> );
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toBe( desktop );
 	expect( desktop ).toBeVisible();
 	expect( desktop ).toHaveValue( 90 );
-	expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 } );
 
 test( 'shows a failure without scores inside the card and retries from it', () => {
@@ -301,7 +315,7 @@ test( 'retains scores with a busy state during a cached read', () => {
 	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
 } );
 
-test.each( [
+test.each< [ string, number, boolean ] >( [
 	[ 'How the overall grade is calculated', 0, true ],
 	[ 'About points', 0, true ],
 	[ 'About points', 1, true ],
@@ -315,10 +329,10 @@ test.each( [
 			isStale: false,
 		},
 		error: new Error( 'Refresh failed' ),
-		hasScores: Boolean( hasScores ),
+		hasScores,
 	};
 	const { rerender } = render( <ScoreCards { ...props } /> );
-	screen.getAllByRole( 'button', { name: String( name ) } )[ Number( index ) ].focus();
+	screen.getAllByRole( 'button', { name } )[ index ].focus();
 	rerender( <ScoreCards { ...props } error={ undefined } isLoading isRunning /> );
 	expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
 } );

@@ -673,7 +673,10 @@ test( 'shows calculating after Run speed test and replaces it with new scores', 
 	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
-	expect( screen.getByText( '91' ) ).not.toBeVisible();
+	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
+	expect( screen.getByText( '91' ).closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
+		'jetpack-boost-overview__score-row--hidden'
+	);
 	await act( async () => resolveRefresh( { ...scores, current: { desktop: 95, mobile: 85 } } ) );
 	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 95 );
@@ -741,7 +744,10 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 			'true'
 		)
 	);
-	expect( screen.getByText( '91' ) ).not.toBeVisible();
+	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
+	expect( screen.getByText( '91' ).closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
+		'jetpack-boost-overview__score-row--hidden'
+	);
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
 	await act( async () => rejectRefresh( new Error( 'Refresh failed' ) ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();

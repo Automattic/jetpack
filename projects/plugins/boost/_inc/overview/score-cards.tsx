@@ -3,7 +3,8 @@ import { CardDivider, Spinner } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Button, Card, Notice, Stack, Popover, Text, VisuallyHidden } from '@wordpress/ui';
-import { useLayoutEffect, useRef } from 'react';
+import clsx from 'clsx';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GradeExplanation from './grade-explanation';
 import { getScoreTier } from './lib/score-utils';
 import ScoreCard from './score-card';
@@ -32,6 +33,11 @@ export default function ScoreCards( {
 	const titleRef = useRef< HTMLHeadingElement >( null );
 	const hasFocus = useRef( false );
 	const showCalculating = isRunning || ! hasScores;
+	const showOverlay = showCalculating && ! error;
+	const [ announceCalculating, setAnnounceCalculating ] = useState( false );
+	useEffect( () => {
+		setAnnounceCalculating( Boolean( showOverlay ) );
+	}, [ showOverlay ] );
 	useLayoutEffect( () => {
 		if ( showCalculating && ! error && hasFocus.current ) {
 			titleRef.current?.focus();
@@ -58,26 +64,32 @@ export default function ScoreCards( {
 	);
 	const calculating = (
 		<Card.Content className="jetpack-boost-overview__scores-status" role="status">
-			<Stack direction="row" justify="center" align="center" gap="md">
-				<Spinner />
-				<Text>{ __( 'Calculating…', 'jetpack-boost' ) }</Text>
-			</Stack>
+			{ showOverlay && (
+				<Stack direction="row" justify="center" align="center" gap="md">
+					<Spinner />
+					<Text>{ announceCalculating && __( 'Calculating…', 'jetpack-boost' ) }</Text>
+				</Stack>
+			) }
 		</Card.Content>
 	);
-	const showOverlay = showCalculating && ! error;
 	let body: ReactNode;
 	if ( ! hasScores ) {
-		body = notice || calculating;
+		body = (
+			<>
+				{ notice }
+				{ calculating }
+			</>
+		);
 	} else {
 		body = (
 			<>
 				{ notice }
 				<div className="jetpack-boost-overview__scores-area">
 					<div
-						className="jetpack-boost-overview__score-row"
+						className={ clsx( 'jetpack-boost-overview__score-row', {
+							'jetpack-boost-overview__score-row--hidden': showOverlay,
+						} ) }
 						aria-busy={ isLoading }
-						aria-hidden={ showOverlay || undefined }
-						style={ showOverlay ? { visibility: 'hidden' } : undefined }
 					>
 						<ScoreCard
 							icon={ <Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" /> }
@@ -121,7 +133,7 @@ export default function ScoreCards( {
 							value={ current.desktop }
 							score={ current.desktop }
 							noBoost={ noBoost?.desktop }
-							isRunning={ showOverlay }
+							closePopover={ showOverlay }
 						/>
 						<ScoreCard
 							icon={ <Icon icon={ mobile } className="jetpack-boost-overview__score-icon" /> }
@@ -129,12 +141,10 @@ export default function ScoreCards( {
 							value={ current.mobile }
 							score={ current.mobile }
 							noBoost={ noBoost?.mobile }
-							isRunning={ showOverlay }
+							closePopover={ showOverlay }
 						/>
 					</div>
-					{ showOverlay && (
-						<div className="jetpack-boost-overview__scores-overlay">{ calculating }</div>
-					) }
+					<div className="jetpack-boost-overview__scores-overlay">{ calculating }</div>
 				</div>
 			</>
 		);
