@@ -83,7 +83,7 @@ const SettingsForm = () => {
 						__nextHasNoMarginBottom
 						label={ __( 'Allow sharing', 'jetpack-videopress-pkg' ) }
 						help={ __(
-							'When enabled, each video’s own Share setting decides whether viewers can copy a link or embed it. Turn it off to hide the share menu on every video and stop it from being turned on for individual videos.',
+							'When enabled, each video’s own Share setting decides whether viewers can share the video link. Turn it off to hide the share menu on every video and stop it from being turned on for individual videos.',
 							'jetpack-videopress-pkg'
 						) }
 						checked={ ! shareMenuDisabled }
