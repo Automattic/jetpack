@@ -176,6 +176,7 @@ export {
 	type ReportRecordsTableProps,
 	ReportCsvAction,
 	type ReportCsvActionProps,
+	FullReportCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 	RowsCsvDownloadButton,

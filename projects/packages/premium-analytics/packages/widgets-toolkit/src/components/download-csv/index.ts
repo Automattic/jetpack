@@ -1,4 +1,8 @@
 export {
+	FullReportCsvDownloadButton,
+	type FullReportCsvDownloadButtonProps,
+} from './full-report-csv-download-button';
+export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 } from './report-csv-download-button';
