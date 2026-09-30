@@ -4,7 +4,6 @@
 import {
 	getAllowedIntervalsForPreset,
 	hasComparisonEnabled,
-	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
 import {
@@ -158,19 +157,9 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				nextRange,
 				nextPresetId,
 				exactRange: options?.exactRange,
+				resetIntervalOnPresetChange: true,
 				effective,
 			} );
-
-			// Only a picker change starts a different preset from its own interval.
-			if ( patch?.from && patch.to ) {
-				patch.interval = resolveIntervalForPresetChange(
-					effective.preset,
-					nextPresetId,
-					patch.from,
-					patch.to,
-					effective.interval
-				);
-			}
 
 			if ( patch ) {
 				stage( patch );
