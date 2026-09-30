@@ -1,12 +1,28 @@
 .value-section {
 	display: flex;
-	justify-content: space-between;
-	margin-top: calc(var(--spacing-base) / 2);
+	flex-direction: column;
+	margin-top: calc(var(--spacing-base) * 1.5);
 
+	// One row per stat: label on the start side, value on the end side.
 	> div {
 		display: flex;
-		flex-direction: column;
-		align-items: flex-start;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--spacing-base);
+		min-height: calc(var(--spacing-base) * 4);
+
+		+ div {
+			border-block-start: 1px solid var(--jp-gray-5);
+		}
+	}
+
+	// The row's label; specific enough to beat the card's shared heading styles.
+	> div > div:first-child {
+		gap: calc(var(--spacing-base) / 2);
+		margin-bottom: 0;
+		font-size: var(--font-body-small);
+		font-weight: 400;
+		color: var(--jp-gray-100);
 	}
 
 	&__heading {
@@ -42,62 +58,66 @@
 
 	&__data {
 		display: flex;
+		// The icon trails the value, at the row's end.
+		flex-direction: row-reverse;
 		align-items: center;
-		font-size: var(--font-body-extra-small);
+		gap: calc(var(--spacing-base) * 0.75);
+		font-size: var(--font-body-small);
 		line-height: var(--font-title-small);
-		color: var(--jp-gray-50);
+		color: var(--jp-gray-100);
 		font-weight: 500;
-		flex: 1;
-		justify-content: center;
 	}
 
 	&__status-icon {
 		display: block;
-		margin-right: calc(var(--spacing-base) - 2px);
-	}
-
-	&__status-text {
-		margin-right: 1px;
-		// Reduce the letter spacing slightly.
-		// The specific letter spacing is per the design mockup.
-		letter-spacing: -0.24px; // https://wp.me/p1HpG7-rFA
+		flex-shrink: 0;
+		width: 20px;
+		height: 20px;
+		object-fit: contain;
 	}
 }
 
 .scan-threats {
 
 	&__threat-count {
-		font-size: calc(var(--font-title-large) - 4px);
-		line-height: var(--font-title-large);
-		font-weight: 400;
+		font-weight: 600;
 		color: var(--jp-black);
 	}
+}
 
-	&__critical-threats {
-		display: flex;
+.protect-info-popover {
+	max-inline-size: 320px;
+
+	// Unstyled so hover shows no background; the focus ring is ours to keep.
+	&__trigger {
+		display: inline-flex;
 		align-items: center;
-	}
+		gap: calc(var(--spacing-base) / 4);
+		padding: 0;
+		border-radius: 2px;
+		color: var(--jp-gray-50);
+		cursor: pointer;
 
-	&__critical-threat-container {
-		margin-left: 1px;
+		&:hover {
+			color: var(--jp-gray-100);
+		}
 
-		> button > svg {
-			color: var(--jp-red-50);
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline-offset: 1px;
 		}
 	}
+}
 
-	&__critical-threat-count {
-		color: var(--jp-red-50);
-		margin-left: calc(var(--spacing-base) / 4);
-	}
+// After the trigger rules, so the count stays red on hover too.
+.protect-info-popover__trigger.scan-threats__critical-threat-trigger {
+	color: var(--jp-red-50);
 }
 
 .logins_blocked {
 
 	&__count {
-		font-size: calc(var(--font-headline-small) - 4px);
-		line-height: var(--font-title-large);
-		font-weight: 400;
+		font-weight: 600;
 		color: var(--jp-black);
 	}
 }

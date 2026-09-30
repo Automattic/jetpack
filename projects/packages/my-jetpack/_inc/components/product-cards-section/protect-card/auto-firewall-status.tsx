@@ -1,4 +1,3 @@
-import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import {
@@ -8,8 +7,8 @@ import {
 } from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
+import { InfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
@@ -44,7 +43,6 @@ interface WafStatusProps {
 
 const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	const slug = 'protect';
-	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const { detail } = useProduct( slug );
 	const { hasPaidPlanForProduct = false } = detail || {};
 	const tooltipContent = useProtectTooltipCopy( data );
@@ -74,19 +72,17 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 			<>
 				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
 					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
-					<InfoTooltip
-						tracksEventName={ 'protect_card_tooltip_open' }
+					<InfoPopover
+						label={ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
+						title={ autoFirewallTooltip.title }
+						text={ autoFirewallTooltip.text }
 						tracksEventProps={ {
 							location: 'auto-firewall',
 							status: status,
 							feature: 'jetpack-protect',
 							has_paid_plan: hasPaidPlanForProduct,
 						} }
-						placement={ isMobileViewport ? 'top' : 'right' }
-					>
-						<h3>{ autoFirewallTooltip.title }</h3>
-						<p>{ autoFirewallTooltip.text }</p>
-					</InfoTooltip>
+					/>
 				</div>
 				<div className="value-section__data">
 					<div>
