@@ -79,8 +79,7 @@ export const route = {
 			}
 
 			// The report origin joins the allowlist below so the breadcrumb keeps
-			// its link back to the referring report across this seed. Links never
-			// carry `post_id`, so its absence marks an arrival.
+			// its link back to the referring report across this seed.
 			const reportParams = seedDetailDateParams( currentSearch, needsPostSeed );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {

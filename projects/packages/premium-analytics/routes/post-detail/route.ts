@@ -82,8 +82,7 @@ export const route = {
 			}
 
 			// Allowlist this page's own params instead of spreading `currentSearch`
-			// wholesale; the report origin stays so the breadcrumb survives. Links
-			// never carry `post_id`, so its absence marks an arrival.
+			// wholesale; the report origin stays so the breadcrumb survives.
 			const reportParams = seedDetailDateParams( currentSearch, needsPostSeed );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {

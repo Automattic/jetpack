@@ -141,6 +141,31 @@ describe( 'video detail route.beforeLoad', () => {
 		).resolves.toBeUndefined();
 	} );
 
+	it( 'keeps its own range and the linking window when re-seeding a settled URL', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+		let thrown: { search?: Record< string, unknown > } | undefined;
+		try {
+			await beforeLoad(
+				{ videoId: '42' },
+				{
+					...settledSearch,
+					preset: 'last-30-days',
+					ref_from: '2026-05-01T00:00:00',
+					ref_preset: 'last-month',
+				}
+			);
+		} catch ( error ) {
+			thrown = error as { search?: Record< string, unknown > };
+		}
+
+		expect( thrown?.search ).toMatchObject( {
+			from: '2026-06-01T00:00:00',
+			preset: 'last-30-days',
+			ref_from: '2026-05-01T00:00:00',
+			ref_preset: 'last-month',
+		} );
+	} );
+
 	it( 'opens a linked video on all time and keeps the linking window, comparison included', async () => {
 		let thrown: { search?: Record< string, unknown > } | undefined;
 		try {

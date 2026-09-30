@@ -19,7 +19,8 @@ type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
  * The all-time start is provisional until `useDetailDateControls` anchors it.
  *
  * @param search    - The current route search params.
- * @param isArrival - Whether the search came from a link into the page rather than the page itself.
+ * @param isArrival - Whether a link brought the reader here: links never carry the page's
+ *                  `post_id`, so a missing or mismatched one marks an arrival.
  * @return The normalized report params plus the origin-window params.
  */
 export function seedDetailDateParams(

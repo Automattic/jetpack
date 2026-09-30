@@ -173,7 +173,7 @@ type TopPostsLeaderboardProps = {
 	onDrillDown?: ( row: TopPostRow ) => void;
 	/**
 	 * Shared report-window parameters carried into the post-detail route, so
-	 * the detail page opens on the date range the widget is showing.
+	 * its breadcrumbs return to the date range the widget is showing.
 	 */
 	detailSearch?: Record< string, unknown >;
 };
