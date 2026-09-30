@@ -233,6 +233,8 @@ describe( 'LocationsWidget', () => {
 				focusCountry: { code: 'US', name: 'United States' },
 			} );
 			expect( screen.queryByRole( 'button', { name: /View cities in/ } ) ).not.toBeInTheDocument();
+			expect( screen.getByText( 'Minnesota' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /Minnesota/ } ) ).not.toBeInTheDocument();
 
 			const countryBackLink = screen.getByRole( 'button', {
 				name: 'View regions in United States',
@@ -246,6 +248,8 @@ describe( 'LocationsWidget', () => {
 					filter: { country: 'US', region: undefined },
 				} )
 			);
+			expect( screen.getByText( 'United States' ) ).toBeInTheDocument();
+			expect( screen.queryByRole( 'button', { name: /United States/ } ) ).not.toBeInTheDocument();
 
 			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
 

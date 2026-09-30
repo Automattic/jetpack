@@ -182,26 +182,36 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		}
 	}, [ parentCountry, resetDrillDown, setDrillDownPath ] );
 
-	const backLink = drillDownPath ? (
-		<WidgetBackLink
-			label={ parentCountry?.name ?? __( 'All locations', 'jetpack-premium-analytics-pkg' ) }
-			ariaLabel={
-				parentCountry
-					? sprintf(
-							/* translators: %s is the country name */
-							__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
-							parentCountry.name
-						)
-					: __( 'View all locations', 'jetpack-premium-analytics-pkg' )
-			}
-			onClick={ goBack }
-			className={ styles.backLink }
-		/>
+	// The back link names only where it goes, and a region can share its only city's
+	// name (Tokyo), so the current level is named too or the drill looks like a no-op.
+	const trail = drillDownPath ? (
+		<div className={ styles.trail }>
+			<WidgetBackLink
+				label={ parentCountry?.name ?? __( 'All locations', 'jetpack-premium-analytics-pkg' ) }
+				ariaLabel={
+					parentCountry
+						? sprintf(
+								/* translators: %s is the country name */
+								__( 'View regions in %s', 'jetpack-premium-analytics-pkg' ),
+								parentCountry.name
+							)
+						: __( 'View all locations', 'jetpack-premium-analytics-pkg' )
+				}
+				onClick={ goBack }
+				className={ styles.backLink }
+			/>
+			<span className={ styles.trailSeparator } aria-hidden="true">
+				/
+			</span>
+			<span className={ styles.currentLocation }>
+				{ drillDownPath.region ?? drillDownPath.country.name }
+			</span>
+		</div>
 	) : null;
 
-	const bodyHeader = backLink ? (
+	const bodyHeader = trail ? (
 		<Stack direction="row" align="center" className={ styles.bodyHeader }>
-			{ backLink }
+			{ trail }
 		</Stack>
 	) : null;
 
