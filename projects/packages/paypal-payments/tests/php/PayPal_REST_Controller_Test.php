@@ -2219,36 +2219,31 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_onboarding_complete_records_connection_succeeded() {
 		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
 		PayPal_OAuth::set_environment( 'sandbox' );
-		PayPal_Partner_Onboarding::set_partner_id( 'PARTNER123' );
-		set_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'seller_nonce_value' ), 1800 );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
 		$this->mock_http_routes(
 			array(
-				'/v1/oauth2/token'                    => $this->http_response(
+				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
 					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
+						'merchant_id' => 'MERCHANT1',
+						'tracking_id' => 'woo-ncps-1234-1',
 					)
 				),
-				'/merchant-integrations/credentials/' => $this->http_response(
+				'/paypal/platform/request'              => $this->http_response(
 					200,
 					array(
-						'client_id'     => 'merchant_client_id',
-						'client_secret' => 'merchant_client_secret',
+						'status' => 200,
+						'body'   => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
 					)
 				),
-				'/merchant-integrations/'             => $this->http_response( 404, array() ),
-				'/v1/checkout/payment-resources'      => $this->http_response( 200, array( 'items' => array() ) ),
 			)
 		);
 
-		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
-		$request->set_param( 'auth_code', 'code' );
-		$request->set_param( 'shared_id', 'shared' );
-		$request->set_param( 'merchant_id_in_paypal', 'MERCHANT1' );
-
-		$result = PayPal_REST_Controller::handle_onboarding_complete( $request );
+		$result = PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
 
 		$this->assertInstanceOf( \WP_REST_Response::class, $result );
 		$this->assertSame(
@@ -2272,10 +2267,80 @@ class PayPal_REST_Controller_Test extends TestCase {
 		wp_set_current_user( self::factory_create_admin_user() );
 		PayPal_OAuth::set_environment( 'sandbox' );
 
+		PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_failed',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'partner_referrals',
+						'error_code'  => 'paypal_onboarding_no_session',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Closing PayPal before a seller exists is a cancel, so the close check skips the event.
+	 *
+	 * @param string $tracking_id The stored tracking ID, if any.
+	 * @dataProvider cancelled_onboarding_provider
+	 */
+	#[DataProvider( 'cancelled_onboarding_provider' )]
+	public function test_quiet_onboarding_complete_skips_the_event_for_a_cancel( $tracking_id ) {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		if ( $tracking_id ) {
+			set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, $tracking_id, 1800 );
+		}
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response( 404, array( 'code' => 'paypal_merchant_not_found' ) ),
+			)
+		);
+
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
-		$request->set_param( 'auth_code', 'code' );
-		$request->set_param( 'shared_id', 'shared' );
-		$request->set_param( 'merchant_id_in_paypal', 'MERCHANT1' );
+		$request->set_param( 'quiet', true );
+
+		$this->assertInstanceOf( \WP_Error::class, PayPal_REST_Controller::handle_onboarding_complete( $request ) );
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
+	/**
+	 * A close check before PayPal knows the seller, and one after the referral expired.
+	 *
+	 * @return array
+	 */
+	public static function cancelled_onboarding_provider() {
+		return array(
+			'seller not found' => array( 'woo-ncps-1234-1' ),
+			'no session'       => array( '' ),
+		);
+	}
+
+	/**
+	 * Any other failure on the close check is still a failed connect.
+	 */
+	public function test_quiet_onboarding_complete_records_other_failures() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response( 500, array() ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
+		$request->set_param( 'quiet', true );
 
 		PayPal_REST_Controller::handle_onboarding_complete( $request );
 
@@ -2286,7 +2351,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 					'properties' => array(
 						'environment' => 'sandbox',
 						'method'      => 'partner_referrals',
-						'error_code'  => 'paypal_onboarding_no_nonce',
+						'error_code'  => 'paypal_platform_request_failed',
 					),
 				),
 			),
@@ -2314,9 +2379,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 				PayPal_Partner_Onboarding::WPCOM_SIGNUP_LINK_ROUTE => $this->http_response(
 					200,
 					array(
-						'action_url'          => 'https://www.sandbox.paypal.com/merchantsignup/x',
-						'referral_id'         => 'REF1',
-						'partner_merchant_id' => 'PARTNER_FROM_WPCOM',
+						'action_url'  => 'https://www.sandbox.paypal.com/merchantsignup/x',
+						'referral_id' => 'REF1',
+						'tracking_id' => 'woo-ncps-1234-1',
 					)
 				),
 			)
@@ -2331,6 +2396,28 @@ class PayPal_REST_Controller_Test extends TestCase {
 	 */
 	public function test_disconnect_records_the_environment_it_disconnected() {
 		$this->set_up_connected_admin_state();
+
+		PayPal_REST_Controller::handle_disconnect( new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/disconnect' ) );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_disconnected',
+					'properties' => array( 'environment' => 'sandbox' ),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Disconnecting a seller referred through Connect with PayPal records the event too.
+	 */
+	public function test_disconnect_records_a_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		PayPal_OAuth::set_environment( 'sandbox' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals' );
 
 		PayPal_REST_Controller::handle_disconnect( new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/disconnect' ) );
 

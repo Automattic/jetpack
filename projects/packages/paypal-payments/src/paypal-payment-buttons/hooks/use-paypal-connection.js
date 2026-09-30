@@ -327,6 +327,7 @@ export function usePayPalConnection() {
 			method: 'POST',
 			data: {
 				merchant_id_in_paypal: merchantIdInPayPal || '',
+				quiet,
 			},
 		} )
 			.then( response => {

@@ -142,6 +142,12 @@ class PayPal_REST_Controller {
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => __( 'Merchant PayPal payer ID from onboarding callback.', 'jetpack-paypal-payments' ),
 						),
+						'quiet'                 => array(
+							'required'    => false,
+							'type'        => 'boolean',
+							'default'     => false,
+							'description' => __( 'Whether this is the check made when the merchant closes PayPal, where no seller yet means they cancelled.', 'jetpack-paypal-payments' ),
+						),
 					),
 				),
 			)
@@ -514,7 +520,7 @@ class PayPal_REST_Controller {
 	 */
 	public static function handle_disconnect( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		// Read these before disconnect() deletes them.
-		$was_connected = PayPal_OAuth::has_credentials();
+		$was_connected = PayPal_OAuth::is_connected();
 		$environment   = PayPal_OAuth::get_environment();
 
 		PayPal_OAuth::disconnect();
@@ -603,7 +609,14 @@ class PayPal_REST_Controller {
 			(string) $request->get_param( 'merchant_id_in_paypal' )
 		);
 
-		self::record_connection( $result, PayPal_OAuth::get_environment(), 'partner_referrals' );
+		// No seller yet on the close check is a cancel, not a failed connect.
+		$cancelled = $request->get_param( 'quiet' )
+			&& is_wp_error( $result )
+			&& in_array( $result->get_error_code(), array( 'paypal_merchant_not_found', 'paypal_onboarding_no_session' ), true );
+
+		if ( ! $cancelled ) {
+			self::record_connection( $result, PayPal_OAuth::get_environment(), 'partner_referrals' );
+		}
 
 		if ( is_wp_error( $result ) ) {
 			return self::api_error_to_rest_error( $result );

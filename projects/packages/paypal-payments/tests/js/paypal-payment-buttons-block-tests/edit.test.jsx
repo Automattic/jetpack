@@ -1965,7 +1965,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
 						method: 'POST',
-						data: { merchant_id_in_paypal: '' },
+						data: { merchant_id_in_paypal: '', quiet: false },
 					} )
 				)
 			);
@@ -2021,7 +2021,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
 						method: 'POST',
-						data: { merchant_id_in_paypal: 'MERCHANT1' },
+						data: { merchant_id_in_paypal: 'MERCHANT1', quiet: false },
 					} )
 				)
 			);
@@ -2098,7 +2098,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith(
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
-						data: { merchant_id_in_paypal: 'MERCHANT1' },
+						data: { merchant_id_in_paypal: 'MERCHANT1', quiet: false },
 					} )
 				)
 			);
@@ -2195,7 +2195,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// checks with the server. "No seller yet" is a plain cancel, not an error.
 			await waitFor( () =>
 				expect( apiFetch ).toHaveBeenCalledWith(
-					expect.objectContaining( { path: expect.stringContaining( '/onboarding/complete' ) } )
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						data: { merchant_id_in_paypal: '', quiet: true },
+					} )
 				)
 			);
 			await expect(
