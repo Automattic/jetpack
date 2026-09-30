@@ -105,13 +105,16 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 	 * Only the Add Plugins screen, with the flag on, on its first page.
 	 */
 	public function test_it_hooks_in_on_the_add_plugins_screen_only() {
-		$screen = (object) array( 'base' => 'plugin-install' );
+		require_once ABSPATH . 'wp-admin/includes/class-wp-screen.php';
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+
+		$screen = WP_Screen::get( 'plugin-install' );
 
 		wpcom_marketplace_search_start( $screen );
 		$this->assertFalse( has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ), 'Flag off.' );
 
 		add_filter( self::FLAG_FILTER, '__return_true' );
-		wpcom_marketplace_search_start( (object) array( 'base' => 'plugins' ) );
+		wpcom_marketplace_search_start( WP_Screen::get( 'plugins' ) );
 		$this->assertFalse( has_filter( 'plugins_api_result', 'wpcom_marketplace_splice_search_results' ), 'Other screen.' );
 
 		wpcom_marketplace_search_start( $screen );
