@@ -59,11 +59,17 @@ async function fixDeps( pkg ) {
 				dep.endsWith( '/eslint-plugin' ) ||
 				dep.startsWith( 'eslint-config-' ) ||
 				dep.endsWith( '/eslint-config' ) ||
-				dep.startsWith( '@typescript-eslint/' )
+				dep.startsWith( '@typescript-eslint/' ) ||
+				dep === '@wordpress/theme'
 			) {
 				delete pkg.dependencies[ dep ];
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
+		}
+		// Broaden this one further until after this is merged and Renovate does a run:
+		// https://github.com/Automattic/jetpack/pull/52316
+		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
+			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 		}
 	}
 
