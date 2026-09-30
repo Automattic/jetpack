@@ -344,11 +344,6 @@ function wpcom_marketplace_tab_url() {
 function wpcom_marketplace_render_tab() {
 	add_filter( 'admin_body_class', 'wpcom_marketplace_body_class' );
 
-	// The banner points at the marketplace this tab replaces. Dequeued rather than
-	// unhooked because it is enqueued before core resolves which tab is being shown.
-	wp_dequeue_script( 'wpcom-plugins-banner' );
-	wp_dequeue_style( 'wpcom-plugins-banner-style' );
-
 	wp_enqueue_style(
 		'wpcom-marketplace-tab',
 		plugins_url( 'css/marketplace-tab.css', __FILE__ ),
