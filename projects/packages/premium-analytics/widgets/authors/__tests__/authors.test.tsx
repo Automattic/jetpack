@@ -7,13 +7,14 @@ import {
 	queryClient,
 } from '@jetpack-premium-analytics/data';
 import { WIDGET_ROW_LIMIT, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import type { AnchorHTMLAttributes, ReactElement, ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import AuthorsWidget, { AuthorsLeaderboard } from '../render';
 import type { AuthorLeaderboardRow } from '../build-top-authors-data';
 
@@ -176,5 +177,56 @@ describe( 'AuthorsWidget', () => {
 		expect(
 			screen.getByText( 'This author has no posts with views for the selected period.' )
 		).toBeInTheDocument();
+	} );
+} );
+
+describe( 'AuthorsWidget CSV export', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads >;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-03-10',
+			period: 'day',
+			summary: {
+				authors: [
+					{
+						author_id: 1,
+						name: 'Ana',
+						views: 9,
+						avatar: null,
+						posts: [ { id: 11, title: 'Hello', url: null, views: 9 } ],
+					},
+					{ author_id: 2, name: 'Ben', views: 4, avatar: null, posts: [] },
+				],
+			},
+		} );
+		downloads = captureCsvDownloads();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		downloads.restore();
+	} );
+
+	it( 'downloads the Authors report with each post qualified by its author', async () => {
+		renderInDashboard(
+			<AuthorsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+		);
+
+		// This test drives a click only; fireEvent keeps it on the fake clock without userEvent setup.
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		await expect( downloads.lines() ).resolves.toEqual( [
+			'"Author / post","Views"',
+			'"Ana","9"',
+			'"Ana > Hello","9"',
+			'"Ben","4"',
+		] );
+		expect( downloads.files[ 0 ].filename ).toBe( 'top-authors-2026-03-01_2026-03-10.csv' );
 	} );
 } );

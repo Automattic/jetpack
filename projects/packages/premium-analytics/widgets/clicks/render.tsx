@@ -26,6 +26,8 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	clicksCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -272,31 +274,43 @@ function ClicksInner() {
 	) : null;
 
 	return (
-		<div className={ styles.content }>
-			{ backLink }
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// `placeholderData` keeps the prior period's rows on screen while `isError`
-				// flips true, so a transient refetch failure should not replace them.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ activeRows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load clicks. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-			>
-				<ClicksLeaderboard
-					rows={ activeRows }
-					withComparison={ withComparison }
-					onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+		<>
+			<div className={ styles.content }>
+				{ backLink }
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// `placeholderData` keeps the prior period's rows on screen while `isError`
+					// flips true, so a transient refetch failure should not replace them.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ activeRows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load clicks. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<ClicksLeaderboard
+						rows={ activeRows }
+						withComparison={ withComparison }
+						onDrillDown={ isDrillDown ? undefined : handleDrillDown }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="clicks" />
+				<ExporterCsvDownloadButton
+					exporter={ clicksCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ rows.length }
 				/>
-			</WidgetState>
-		</div>
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -309,9 +323,6 @@ export default function ClicksWidget( { attributes = {} }: ClicksWidgetProps ) {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ClicksInner />
-				<WidgetFooter>
-					<ReportLink report="clicks" />
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);

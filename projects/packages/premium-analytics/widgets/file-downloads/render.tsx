@@ -12,8 +12,10 @@ import {
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
+	ExporterCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
+	fileDownloadsCsvExporter,
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
@@ -168,6 +170,11 @@ function FileDownloadsInner() {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="downloads" />
+				<ExporterCsvDownloadButton
+					exporter={ fileDownloadsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);
