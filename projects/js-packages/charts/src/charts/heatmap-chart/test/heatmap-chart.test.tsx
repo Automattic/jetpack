@@ -480,6 +480,61 @@ const mockRects = () =>
 		} as DOMRect;
 	} );
 
+describe( 'HeatmapChart value text contrast', () => {
+	// Extent 0..100, so each value is its own intensity in hundredths.
+	const scale: HeatmapColumn[] = [
+		{ label: 'W1', data: [ { value: 0 }, { value: 85 }, { value: 100 } ] },
+	];
+
+	let injectedStyle: HTMLStyleElement | null = null;
+
+	afterEach( () => {
+		injectedStyle?.remove();
+		injectedStyle = null;
+	} );
+
+	const renderScale = ( className?: string ) =>
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ scale }
+					primaryColor="#3858e9"
+					className={ className }
+				/>
+			</GlobalChartsProvider>
+		);
+
+	test( 'picks the label role that reaches AA on light and dark cells', () => {
+		renderScale();
+
+		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
+	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
+		renderScale();
+
+		expect( screen.getByText( '85' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+	} );
+
+	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.pinned-heatmap { --a8c-charts-color-label: #767676; --a8c-charts-color-label-inverse: #767676; }';
+		document.head.appendChild( injectedStyle );
+
+		renderScale( 'pinned-heatmap' );
+
+		[ '0', '85', '100' ].forEach( value =>
+			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
+				exact: true,
+			} )
+		);
+	} );
+} );
+
 describe( 'HeatmapChart keyboard tooltip', () => {
 	test( 'opens on the selected cell without row labels', async () => {
 		renderChart( { withTooltips: true } );

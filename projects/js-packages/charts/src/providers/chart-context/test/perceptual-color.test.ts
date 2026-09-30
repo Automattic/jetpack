@@ -3,6 +3,7 @@ import {
 	deltaE2000,
 	hexToOklch,
 	hexToViews,
+	mixedLuminance,
 	oklchToHex,
 	viewDistance,
 } from '../private/perceptual-color';
@@ -71,5 +72,17 @@ describe( 'contrastRatio', () => {
 
 	it( 'is 1 for identical colors', () => {
 		expect( contrastRatio( '#3858e9', '#3858e9' ) ).toBe( 1 );
+	} );
+} );
+
+describe( 'mixedLuminance', () => {
+	it( 'matches each endpoint at full weight', () => {
+		expect( mixedLuminance( '#3858e9', '#ffffff', 1 ) ).toBeCloseTo( 0.137, 4 );
+		expect( mixedLuminance( '#3858e9', '#ffffff', 0 ) ).toBeCloseTo( 1, 5 );
+	} );
+
+	it( 'does not round the mix to a hex channel', () => {
+		// Channel 127.5; rounded to #808080 it would read 0.2159.
+		expect( mixedLuminance( '#000000', '#ffffff', 0.5 ) ).toBeCloseTo( 0.214, 4 );
 	} );
 } );
