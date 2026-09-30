@@ -142,6 +142,7 @@ function UtmReport(): JSX.Element {
 						getItemId={ getUtmRowId }
 						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers

@@ -127,6 +127,7 @@ function ReferrersReport(): JSX.Element {
 						collapsible
 						defaultExpanded="none"
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }
 					/>

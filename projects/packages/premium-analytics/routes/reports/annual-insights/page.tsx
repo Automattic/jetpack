@@ -127,11 +127,6 @@ function AnnualInsightsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-				 * request would otherwise look like a legitimate empty report.
-				 */ }
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics-pkg' ) }
@@ -143,6 +138,7 @@ function AnnualInsightsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getAnnualInsightRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics-pkg' ) }
 					/>

@@ -158,6 +158,7 @@ function EarningsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getEarningsRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
 					/>

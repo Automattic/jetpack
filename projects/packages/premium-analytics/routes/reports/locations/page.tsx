@@ -185,7 +185,8 @@ export default function LocationsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
-	const showMap = !! countryFilter || records.table.rows.length > 0;
+	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.
+	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
 
 	let tableReplacement: JSX.Element | undefined;
 

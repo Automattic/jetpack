@@ -124,6 +124,7 @@ function CommentFollowersReport(): JSX.Element {
 								fields={ fields }
 								getItemId={ getCommentFollowerRowId }
 								isLoading={ records.isLoading }
+								isFetching={ records.isFetching }
 								initialView={ RECORDS_VIEW }
 								searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 							/>

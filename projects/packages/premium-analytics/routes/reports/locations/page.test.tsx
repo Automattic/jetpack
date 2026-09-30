@@ -327,6 +327,14 @@ describe( 'LocationsReportPage', () => {
 		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'keeps the map mounted while the first rows load', () => {
+		mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.getByTestId( 'locations-map' ) ).toBeInTheDocument();
+	} );
+
 	it( 'keeps the map when a picked country has no rows', () => {
 		mockTabState( 'regions' );
 		mockRecords();
