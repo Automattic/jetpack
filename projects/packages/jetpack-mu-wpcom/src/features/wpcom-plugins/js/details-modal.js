@@ -18,7 +18,7 @@ const THICKBOX_IDS = '[id^="TB_"], [data-wpcom-tb-id]';
  */
 export function keepDetailsModals( doc ) {
 	const $ = jQuery;
-	const grid = doc.querySelector( '.wpcom-marketplace-grid' );
+	const grid = doc.querySelector( '#the-list' );
 	const removeModal = window.tb_remove;
 
 	if ( ! grid || typeof removeModal !== 'function' ) {
