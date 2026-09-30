@@ -17,7 +17,8 @@ import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
 	MetricWithComparison,
 	PostTitleLink,
-	ReportThumbnailTitle,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnail,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
@@ -37,7 +38,6 @@ const VIEWS_DATA_FORMAT = {
 type PostTitleProps = {
 	item: StatsTopPostsComparisonItem;
 	originSection: ReportPostsTabId;
-	thumbnailUrl?: string;
 };
 
 /**
@@ -53,7 +53,7 @@ type PostTitleProps = {
  * @param {PostTitleProps} props - Component props.
  * @return The linked or plain post title.
  */
-function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX.Element {
+function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo(
 		() => ( {
@@ -68,21 +68,14 @@ function PostTitle( { item, originSection, thumbnailUrl }: PostTitleProps ): JSX
 	const title = String( item.label ?? '' );
 
 	return (
-		<ReportThumbnailTitle
-			thumbnailUrl={ thumbnailUrl }
-			fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
-		>
-			{ classNames => (
-				<PostTitleLink
-					id={ isHomepage ? undefined : item.id }
-					label={ title }
-					link={ isHomepage ? homeUrl : item.link }
-					search={ detailSearch }
-					classNames={ classNames }
-					title={ title }
-				/>
-			) }
-		</ReportThumbnailTitle>
+		<PostTitleLink
+			id={ isHomepage ? undefined : item.id }
+			label={ title }
+			link={ isHomepage ? homeUrl : item.link }
+			search={ detailSearch }
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
+		/>
 	);
 }
 
@@ -110,11 +103,17 @@ export function getPostsFields(
 			enableGlobalSearch: true,
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
+			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
+		},
+		{
+			id: 'thumbnail',
+			label: __( 'Thumbnail', 'jetpack-premium-analytics-pkg' ),
+			enableSorting: false,
+			enableHiding: false,
 			render: ( { item } ) => (
-				<PostTitle
-					item={ item }
-					originSection={ originSection }
+				<ReportThumbnail
 					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+					fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
 				/>
 			),
 		},

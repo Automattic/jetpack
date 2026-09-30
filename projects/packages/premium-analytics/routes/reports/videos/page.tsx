@@ -54,9 +54,10 @@ function getVideoRowId( video: StatsVideoPlaysComparisonItem ): string {
 
 const RECORDS_VIEW = {
 	sort: { field: 'plays', direction: 'desc' as const },
+	titleField: 'label',
+	mediaField: 'poster',
 	layout: {
 		styles: {
-			label: { width: '100%' },
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
 		},

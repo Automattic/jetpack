@@ -8,7 +8,8 @@ import {
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
 	MetricWithComparison,
-	ReportThumbnailTitle,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnail,
 	VideoTitleLink,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
@@ -47,7 +48,7 @@ function getVideoDetailSearch( current: Record< string, unknown > ) {
 }
 
 /**
- * Ask Photon for the poster at twice the largest row thumbnail, as wpcom sends it full-size.
+ * Ask Photon for the poster at twice the row thumbnail's size, as wpcom sends it full-size.
  *
  * @param poster - The row's poster URL.
  * @return The resized poster URL, or undefined when there is no safe poster.
@@ -60,7 +61,7 @@ function getPosterThumbnailUrl( poster: string | undefined ): string | undefined
 	}
 
 	const resized = new URL( url );
-	resized.searchParams.set( 'resize', '80,80' );
+	resized.searchParams.set( 'resize', '64,64' );
 
 	return resized.toString();
 }
@@ -79,21 +80,14 @@ function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 	const title = getVideoTitle( item );
 
 	return (
-		<ReportThumbnailTitle
-			thumbnailUrl={ getPosterThumbnailUrl( item.poster ) }
-			fallbackIcon={ videoIcon }
-		>
-			{ classNames => (
-				<VideoTitleLink
-					id={ item.id }
-					label={ title }
-					link={ item.link }
-					search={ getVideoDetailSearch }
-					classNames={ classNames }
-					title={ title }
-				/>
-			) }
-		</ReportThumbnailTitle>
+		<VideoTitleLink
+			id={ item.id }
+			label={ title }
+			link={ item.link }
+			search={ getVideoDetailSearch }
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
+		/>
 	);
 }
 
@@ -114,6 +108,18 @@ export function getVideosFields(
 			enableHiding: false,
 			getValue: ( { item } ) => getVideoTitle( item ),
 			render: ( { item } ) => <VideoTitle item={ item } />,
+		},
+		{
+			id: 'poster',
+			label: __( 'Poster', 'jetpack-premium-analytics-pkg' ),
+			enableSorting: false,
+			enableHiding: false,
+			render: ( { item } ) => (
+				<ReportThumbnail
+					thumbnailUrl={ getPosterThumbnailUrl( item.poster ) }
+					fallbackIcon={ videoIcon }
+				/>
+			),
 		},
 		{
 			id: 'plays',
