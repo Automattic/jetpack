@@ -3,6 +3,7 @@ import { CardDivider, Spinner } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
 import { Button, Card, Notice, Stack, Popover, Text, VisuallyHidden } from '@wordpress/ui';
+import { useLayoutEffect, useRef } from 'react';
 import GradeExplanation from './grade-explanation';
 import { getScoreTier } from './lib/score-utils';
 import ScoreCard from './score-card';
@@ -12,6 +13,7 @@ import type { ReactNode } from 'react';
 type Props = {
 	scores: SpeedScoresSet;
 	isLoading?: boolean;
+	isRunning?: boolean;
 	hasScores?: boolean;
 	error?: Error | null;
 	onRetry?: () => void;
@@ -21,11 +23,20 @@ type Props = {
 export default function ScoreCards( {
 	scores,
 	isLoading,
+	isRunning,
 	hasScores = true,
 	error,
 	onRetry,
 	isVisible = true,
 }: Props ) {
+	const titleRef = useRef< HTMLHeadingElement >( null );
+	const hasFocus = useRef( false );
+	const showCalculating = isRunning || ! hasScores;
+	useLayoutEffect( () => {
+		if ( showCalculating && ! error && hasFocus.current ) {
+			titleRef.current?.focus();
+		}
+	}, [ showCalculating, error ] );
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
 	const noBoost = ! scores.isStale ? scores.noBoost : null;
@@ -46,7 +57,7 @@ export default function ScoreCards( {
 		</Card.Content>
 	);
 	let body: ReactNode;
-	if ( isLoading || ! hasScores ) {
+	if ( showCalculating ) {
 		body = notice || (
 			<Card.Content className="jetpack-boost-overview__scores-status" role="status">
 				<Stack direction="row" justify="center" align="center" gap="md">
@@ -115,9 +126,19 @@ export default function ScoreCards( {
 		);
 	}
 	return (
-		<Card.Root className="jetpack-boost-overview__scores-card">
+		<Card.Root
+			className="jetpack-boost-overview__scores-card"
+			onFocusCapture={ () => {
+				hasFocus.current = true;
+			} }
+			onBlurCapture={ () => {
+				hasFocus.current = false;
+			} }
+		>
 			<Card.Header className="jetpack-boost-overview__scores-header">
-				<Card.Title render={ <h2 /> }>{ __( 'Your site speed', 'jetpack-boost' ) }</Card.Title>
+				<Card.Title render={ <h2 ref={ titleRef } tabIndex={ -1 } /> }>
+					{ __( 'Your site speed', 'jetpack-boost' ) }
+				</Card.Title>
 			</Card.Header>
 			<CardDivider className="jetpack-boost-overview__scores-divider" />
 			{ body }

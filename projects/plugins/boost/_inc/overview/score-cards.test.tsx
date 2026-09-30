@@ -234,11 +234,12 @@ test( 'shows one calculating status instead of the score sections before scores 
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 } );
 
-test( 'shows calculating instead of loaded scores while they refresh', () => {
+test( 'shows calculating instead of loaded scores during a run', () => {
 	render(
 		<ScoreCards
 			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
 			isLoading
+			isRunning
 		/>
 	);
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
@@ -279,4 +280,40 @@ test( 'shows a failed refresh inside the card above the retained scores', () => 
 	const desktop = card.getByRole( 'region', { name: 'Desktop' } );
 	expect( within( desktop ).getByRole( 'progressbar' ) ).toHaveValue( 80 );
 	expect( notice.compareDocumentPosition( desktop ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
+} );
+
+test( 'retains scores with a busy state during a cached read', () => {
+	render(
+		<ScoreCards
+			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+			isLoading
+		/>
+	);
+	const desktop = screen.getByRole( 'progressbar', { name: 'Desktop' } );
+	expect( desktop ).toHaveValue( 80 );
+	// eslint-disable-next-line testing-library/no-node-access -- Assert the rendered busy ancestor of the score.
+	expect( desktop.closest( '[aria-busy]' ) ).toHaveAttribute( 'aria-busy', 'true' );
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+} );
+
+test.each( [
+	[ 'How the overall grade is calculated', 0, true ],
+	[ 'About points', 0, true ],
+	[ 'About points', 1, true ],
+	[ 'Try again', 0, true ],
+	[ 'Try again', 0, false ],
+] )( 'preserves focus when a run removes %s', ( name, index, hasScores ) => {
+	const props = {
+		scores: {
+			current: { desktop: 80, mobile: 60 },
+			noBoost: { desktop: 70, mobile: 50 },
+			isStale: false,
+		},
+		error: new Error( 'Refresh failed' ),
+		hasScores: Boolean( hasScores ),
+	};
+	const { rerender } = render( <ScoreCards { ...props } /> );
+	screen.getAllByRole( 'button', { name: String( name ) } )[ Number( index ) ].focus();
+	rerender( <ScoreCards { ...props } error={ undefined } isLoading isRunning /> );
+	expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
 } );
