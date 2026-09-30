@@ -7,7 +7,7 @@ import {
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
-import { InfoPopover } from './info-popover';
+import { ProtectInfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
@@ -65,7 +65,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 			<>
 				<div className="value-section__heading">
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
-					<InfoPopover
+					<ProtectInfoPopover
 						label={ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
 						title={ blockedLoginsTooltip.title }
 						text={ blockedLoginsTooltip.text }
@@ -97,7 +97,7 @@ const BlockedStatus: FC< BlockedStatusProps > = ( { status, data } ) => {
 			<>
 				<div className="value-section__heading">
 					{ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
-					<InfoPopover
+					<ProtectInfoPopover
 						label={ __( 'Logins Blocked', 'jetpack-my-jetpack' ) }
 						title={ blockedLoginsTooltip.title }
 						text={ blockedLoginsTooltip.text }

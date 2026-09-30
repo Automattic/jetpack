@@ -3,7 +3,7 @@ import useProduct from '../../../data/products/use-product';
 import useSimpleQuery from '../../../data/use-simple-query';
 import LoadingBlock from '../../loading-block';
 import { AutoFirewallStatus } from './auto-firewall-status';
-import { InfoPopover } from './info-popover';
+import { ProtectInfoPopover } from './info-popover';
 import { LoginsBlockedStatus } from './logins-blocked-status';
 import { ScanAndThreatStatus } from './scan-threats-status';
 import { useLastScanText } from './use-last-scan-text';
@@ -36,7 +36,7 @@ const ProtectValueSection = () => {
 					lastScanText && <div>{ lastScanText }</div>
 				) }
 				{ ! isPluginActive && (
-					<InfoPopover
+					<ProtectInfoPopover
 						label={ lastScanText ?? '' }
 						title={ pluginsThemesTooltip.title }
 						text={ pluginsThemesTooltip.text }

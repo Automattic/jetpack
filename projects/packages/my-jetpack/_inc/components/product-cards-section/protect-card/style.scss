@@ -79,38 +79,3 @@
 	font-weight: 600;
 	color: var(--jp-black);
 }
-
-.protect-info-popover {
-	max-inline-size: 320px;
-
-	// Unstyled so hover shows no background; the focus ring is ours to keep.
-	&__trigger {
-		display: inline-flex;
-		align-items: center;
-		gap: calc(var(--spacing-base) / 4);
-		padding: 0;
-		border-radius: 2px;
-		color: var(--jp-gray-50);
-		cursor: pointer;
-
-		// The info glyph's circle fills 2/3 of its box: 21px draws the shields' 14px.
-		svg {
-			width: 21px;
-			height: 21px;
-		}
-
-		&:hover {
-			color: var(--jp-gray-100);
-		}
-
-		&:focus-visible {
-			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
-			outline-offset: 1px;
-		}
-
-		&--critical,
-		&--critical:hover {
-			color: var(--jp-red-50);
-		}
-	}
-}

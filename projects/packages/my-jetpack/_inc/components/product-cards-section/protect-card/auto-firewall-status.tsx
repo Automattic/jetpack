@@ -6,7 +6,7 @@ import {
 } from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { InfoPopover } from './info-popover';
+import { ProtectInfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
@@ -70,7 +70,7 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 			<>
 				<div className="value-section__heading">
 					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
-					<InfoPopover
+					<ProtectInfoPopover
 						label={ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
 						title={ autoFirewallTooltip.title }
 						text={ autoFirewallTooltip.text }

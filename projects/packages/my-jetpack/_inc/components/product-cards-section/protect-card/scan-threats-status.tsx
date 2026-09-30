@@ -9,7 +9,7 @@ import {
 } from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import { InfoPopover } from './info-popover';
+import { ProtectInfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 
@@ -84,7 +84,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 			<>
 				<div className="value-section__heading">
 					{ __( 'Threats', 'jetpack-my-jetpack' ) }
-					<InfoPopover
+					<ProtectInfoPopover
 						label={ __( 'Threats', 'jetpack-my-jetpack' ) }
 						title={ scanThreatsTooltip.title }
 						text={ scanThreatsTooltip.text }
@@ -96,7 +96,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 						trigger={
 							<Button
 								variant="unstyled"
-								className="protect-info-popover__trigger protect-info-popover__trigger--critical"
+								className="my-jetpack-info-popover__trigger my-jetpack-info-popover__trigger--critical"
 								aria-label={ sprintf(
 									/* translators: %d is the number of critical threats found by the last scan. */
 									_n(
@@ -125,7 +125,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 		<>
 			<div className="value-section__heading">
 				{ __( 'Threats', 'jetpack-my-jetpack' ) }
-				<InfoPopover
+				<ProtectInfoPopover
 					label={ __( 'Threats', 'jetpack-my-jetpack' ) }
 					title={ scanThreatsTooltip.title }
 					text={ scanThreatsTooltip.text }
@@ -174,7 +174,7 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 			<>
 				<div className="value-section__heading">
 					{ __( 'Scan', 'jetpack-my-jetpack' ) }
-					<InfoPopover
+					<ProtectInfoPopover
 						label={ __( 'Scan', 'jetpack-my-jetpack' ) }
 						title={ scanThreatsTooltip.title }
 						text={ scanThreatsTooltip.text }
