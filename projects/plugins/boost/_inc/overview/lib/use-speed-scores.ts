@@ -36,8 +36,8 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
-	const requestController = useRef< AbortController >();
-	const lastConfig = useRef< string >();
+	const requestController = useRef< AbortController >( undefined );
+	const lastConfig = useRef< string >( undefined );
 	const cancelPending = useCallback( () => {
 		++requestId.current;
 		requestController.current?.abort();
