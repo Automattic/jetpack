@@ -10,11 +10,7 @@ import {
 	Button,
 	Col,
 } from '@automattic/jetpack-components';
-import {
-	useProductCheckoutWorkflow,
-	useConnectionErrorNotice,
-	ConnectionError,
-} from '@automattic/jetpack-connection';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -24,6 +20,7 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import useVideoPressCheckout from '../../../hooks/use-videopress-checkout';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { useDashboardVideos } from '../../hooks/use-dashboard-videos';
@@ -234,7 +231,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 
 	const { product, hasVideoPressPurchase, isFetchingFeatures } = usePlan();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
-	const { run } = useProductCheckoutWorkflow( {
+	const { run } = useVideoPressCheckout( {
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUri,
