@@ -19,8 +19,10 @@ describe( 'nextElements', () => {
 		} );
 	} );
 
-	it( 'leaves a link that already passes to WordPress.com', () => {
-		expect( nextElements( {}, DARK, LIGHT, { link: ACCENT } ) ).toBeNull();
+	it( "writes the site's own link color out when it already passes", () => {
+		expect( nextElements( {}, DARK, LIGHT, { link: ACCENT } ) ).toEqual( {
+			link: { color: { text: ACCENT } },
+		} );
 	} );
 
 	it( 'underlines a link with no hue to keep', () => {
@@ -56,7 +58,9 @@ describe( 'nextElements', () => {
 			},
 		};
 
-		expect( nextElements( styles, DARK, LIGHT, { link: GRAY } ) ).toEqual( {} );
+		expect( nextElements( styles, DARK, LIGHT, { link: GRAY } ) ).toEqual( {
+			link: { color: { text: GRAY } },
+		} );
 	} );
 
 	it.each( [ 'heading', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ] )( 'covers %s', element => {

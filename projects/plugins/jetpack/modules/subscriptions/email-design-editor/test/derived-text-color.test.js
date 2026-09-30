@@ -357,7 +357,9 @@ describe( 'watchDerivedTextColor', () => {
 		expect( written() ).toEqual( { color: { background: '#000000', text: BLACK_TEXT } } );
 	} );
 
-	it( "leaves it empty when the site's own text color already reads on the background", () => {
+	// Written out rather than left unset: the editor's baseline is the color the renderer already
+	// adjusted for the saved background, so an unset control keeps showing that instead.
+	it( "writes the site's own text color out when it already reads on the background", () => {
 		const pick = watching(
 			{ styles: { color: { background: '#ffffff', text: '#ff00ff' } } },
 			{ text: '#333333' }
@@ -365,7 +367,7 @@ describe( 'watchDerivedTextColor', () => {
 
 		pick( { styles: { color: { background: '#ffffff' } } } );
 
-		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
+		expect( written() ).toEqual( { color: { background: '#ffffff', text: '#333333' } } );
 	} );
 
 	it( "gives the site's own text color back when a new background suits it", () => {
@@ -376,7 +378,20 @@ describe( 'watchDerivedTextColor', () => {
 
 		pick( { styles: { color: { background: '#ffffff', text: BLACK_TEXT } } } );
 
-		expect( written() ).toEqual( { color: { background: '#ffffff' } } );
+		expect( written() ).toEqual( { color: { background: '#ffffff', text: '#333333' } } );
+	} );
+
+	// The written-out color has to stay recognizable as this watcher's, or the next pick would
+	// read it as the creator's and freeze it.
+	it( 'still owns a color it wrote out, on the pick after that', () => {
+		const pick = watching(
+			{ styles: { color: { background: '#ffffff', text: '#333333' } } },
+			{ text: '#333333' }
+		);
+
+		pick( { styles: { color: { background: '#000000', text: '#333333' } } } );
+
+		expect( written() ).toEqual( { color: { background: '#000000', text: BLACK_TEXT } } );
 	} );
 
 	it( 'keeps a site text color it cannot judge', () => {

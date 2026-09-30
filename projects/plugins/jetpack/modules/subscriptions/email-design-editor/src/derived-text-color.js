@@ -182,6 +182,29 @@ export function textFor( inherited, background ) {
 }
 
 /**
+ * The text color to store for a background.
+ *
+ * {@link textFor} is the renderer's rule, where keeping a color means falling back to the site's
+ * own. The editor has no such fallback: its baseline is the color the renderer already adjusted
+ * for the background that was *saved*, so a keep has to be written out or that stale color stays
+ * on screen until the next save.
+ *
+ * @param {*} inherited  - The text color the site supplies.
+ * @param {*} background - The background.
+ * @return {string|null} The color to store, or null to leave whatever is there.
+ */
+function textToStore( inherited, background ) {
+	const readable = textFor( inherited, background );
+
+	if ( null !== readable ) {
+		return readable;
+	}
+
+	// A keep has something to write only when the site supplies a color that can be judged.
+	return null === contrastRatio( inherited, background ) ? null : inherited;
+}
+
+/**
  * The design's `styles` with the text color the new background calls for.
  *
  * A text color the creator chose survives a background change; one this derived for the previous
@@ -197,11 +220,11 @@ function withDerivedTextColor( record, before, background, inherited ) {
 	const text = record.styles?.color?.text;
 	const hasText = undefined !== text && null !== text;
 
-	if ( hasText && ! isSameColor( text, textFor( inherited, before ) ) ) {
+	if ( hasText && ! isSameColor( text, textToStore( inherited, before ) ) ) {
 		return null;
 	}
 
-	const derived = textFor( inherited, background );
+	const derived = textToStore( inherited, background );
 
 	if ( null === derived ) {
 		// Nothing to derive from, so a text color that only existed for the old background goes too.

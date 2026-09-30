@@ -34,11 +34,11 @@ export function nextElements( styles, before, background, inherited ) {
 		const ours =
 			undefined === stored ||
 			null === stored ||
-			isSameColor( stored, readableFor( original, before ) );
+			isSameColor( stored, colorToStore( original, before ) );
 
 		if ( ours ) {
 			changed =
-				setPath( elements, [ element, 'color', 'text' ], readableFor( original, background ) ) ||
+				setPath( elements, [ element, 'color', 'text' ], colorToStore( original, background ) ) ||
 				changed;
 		}
 
@@ -46,6 +46,27 @@ export function nextElements( styles, before, background, inherited ) {
 	} );
 
 	return changed ? prune( elements ) : null;
+}
+
+/**
+ * The color to store for an element on a background.
+ *
+ * {@link readableFor} is the renderer's rule, where keeping a color means falling back to the
+ * site's own. The editor's baseline is instead the color the renderer already adjusted for the
+ * background that was *saved*, so a keep has to be written out to displace it.
+ *
+ * @param {*} original   - The color the site gives the element.
+ * @param {*} background - The background it sits on.
+ * @return {string|null} The color to store, or null to leave whatever is there.
+ */
+function colorToStore( original, background ) {
+	const readable = readableFor( original, background );
+
+	if ( null !== readable ) {
+		return readable;
+	}
+
+	return null === contrastRatio( original, background ) ? null : original;
 }
 
 /**
