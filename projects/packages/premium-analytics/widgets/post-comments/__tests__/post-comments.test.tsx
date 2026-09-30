@@ -31,13 +31,6 @@ function makeComments( count: number, firstId: number ) {
 	} ) );
 }
 
-/** Answers the comments request from `replies` and the post stats request from `post`. */
-function mockEndpoints( replies: jest.Mock, post: Record< string, unknown > ) {
-	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-		path.includes( '/replies' ) ? replies() : Promise.resolve( { post } )
-	);
-}
-
 function renderWidget( postId: number ) {
 	return render(
 		<PostCommentsWidget
@@ -82,36 +75,22 @@ describe( 'PostCommentsWidget', () => {
 		);
 	} );
 
-	it( 'falls back to the post total when found is unknown', async () => {
-		mockEndpoints(
-			jest.fn().mockResolvedValue( {
-				found: -1,
-				comments: [
-					{
-						...COMMENT,
-						author: { name: 'Olivia Park', avatar_URL: 'https://gravatar.com/avatar/1' },
-					},
-					...makeComments( 9, 102 ),
-				],
-			} ),
-			{ comment_count: 24 }
-		);
+	it( 'renders commenters, comment links, and the remaining count from found', async () => {
+		mockApiFetch.mockResolvedValue( {
+			found: 12,
+			comments: [
+				{
+					...COMMENT,
+					author: { name: 'Olivia Park', avatar_URL: 'https://gravatar.com/avatar/1' },
+				},
+				...makeComments( 9, 102 ),
+			],
+		} );
 
 		renderWidget( 779 );
 
 		const author = await screen.findByRole( 'link', { name: /Olivia Park/ } );
 		expect( author ).toHaveAttribute( 'href', 'https://example.com/post/#comment-101' );
-		await expect( screen.findByText( '14 more' ) ).resolves.toBeInTheDocument();
-	} );
-
-	it( 'counts the remaining comments from found, leaving pingbacks out', async () => {
-		mockEndpoints(
-			jest.fn().mockResolvedValue( { found: 12, comments: makeComments( 10, 101 ) } ),
-			{ comment_count: 17 }
-		);
-
-		renderWidget( 779 );
-
 		await expect( screen.findByText( '2 more' ) ).resolves.toBeInTheDocument();
 	} );
 
@@ -126,11 +105,9 @@ describe( 'PostCommentsWidget', () => {
 	} );
 
 	it( 'keeps existing comments visible when a background refetch fails', async () => {
-		const replies = jest
-			.fn()
+		mockApiFetch
 			.mockResolvedValueOnce( { comments: [ COMMENT ] } )
 			.mockRejectedValueOnce( { status: 403 } );
-		mockEndpoints( replies, {} );
 
 		renderWidget( 779 );
 
@@ -142,7 +119,7 @@ describe( 'PostCommentsWidget', () => {
 			await queryClient.invalidateQueries( { queryKey: [ 'stats', 'post-comments' ] } );
 		} );
 
-		await waitFor( () => expect( replies ).toHaveBeenCalledTimes( 2 ) );
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 		expect( screen.getByRole( 'link', { name: /Olivia Park/ } ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( "We couldn't load these comments. Please try again in a moment." )
@@ -150,20 +127,17 @@ describe( 'PostCommentsWidget', () => {
 	} );
 
 	it.each( [
-		[ 2, 30, '1 more' ],
+		[ 2, 2, '1 more' ],
 		[ 10, 30, '29 more' ],
-		[ 10, undefined, '9 more' ],
+		[ 10, -1, '9 more' ],
 	] )(
-		'counts %s fetched comments, one fitted, with post total %s as %s',
-		async ( fetched, commentCount, expectedFooter ) => {
+		'counts %s fetched comments, one fitted, with found %s as %s',
+		async ( fetched, found, expectedFooter ) => {
 			jest.spyOn( fittedRoster, 'useFittedRosterRows' ).mockReturnValue( {
 				listRef: { current: null },
 				fittedCount: 1,
 			} );
-			mockEndpoints(
-				jest.fn().mockResolvedValue( { found: -1, comments: makeComments( fetched, 101 ) } ),
-				{ comment_count: commentCount }
-			);
+			mockApiFetch.mockResolvedValue( { found, comments: makeComments( fetched, 101 ) } );
 
 			renderWidget( 779 );
 
@@ -175,18 +149,4 @@ describe( 'PostCommentsWidget', () => {
 			);
 		}
 	);
-
-	it( 'reads the post total when a full page loses a nameless comment', async () => {
-		mockEndpoints(
-			jest.fn().mockResolvedValue( {
-				found: -1,
-				comments: [ ...makeComments( 9, 101 ), { ...COMMENT, ID: 110, author: {} } ],
-			} ),
-			{ comment_count: 30 }
-		);
-
-		renderWidget( 779 );
-
-		await expect( screen.findByText( '21 more' ) ).resolves.toBeInTheDocument();
-	} );
 } );

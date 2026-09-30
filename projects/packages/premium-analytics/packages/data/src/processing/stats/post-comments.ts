@@ -18,9 +18,7 @@ export type StatsPostComment = {
 
 export type StatsPostCommentsResponse = {
 	comments: StatsPostComment[];
-	/** Rows the endpoint returned, counting the ones dropped as unusable. */
-	fetchedCount: number;
-	/** Matching comments across every page; absent when the endpoint reports -1 (unknown). */
+	/** Approved comments on the post across every page; absent when the endpoint reports -1. */
 	found?: number;
 };
 
@@ -55,16 +53,14 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 
 export function sanitizeStatsPostCommentsResponse( response: unknown ): StatsPostCommentsResponse {
 	if ( ! isStatsRecord( response ) ) {
-		return { comments: [], fetchedCount: 0 };
+		return { comments: [] };
 	}
 
 	const payload = coerceStatsRecord( response );
-	const rows = coerceStatsArray( payload.comments );
 	const found = safeParseFloat( payload.found, -1 );
 
 	return {
-		comments: rows.flatMap( normalizeStatsPostComment ),
-		fetchedCount: rows.length,
-		...( Number.isInteger( found ) && found >= 0 ? { found } : {} ),
+		comments: coerceStatsArray( payload.comments ).flatMap( normalizeStatsPostComment ),
+		...( found >= 0 ? { found } : {} ),
 	};
 }

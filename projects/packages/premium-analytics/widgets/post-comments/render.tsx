@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsPost, useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
+import { useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
@@ -40,8 +40,6 @@ function PostCommentsInner() {
 		number: COMMENTS_SHOWN,
 	} );
 
-	const { data: postStats } = useStatsPost( { postId, fields: [ 'post' ] } );
-
 	const items = useMemo< SubscriberListItem[] >(
 		() =>
 			( data?.comments ?? [] ).map( comment => ( {
@@ -56,10 +54,6 @@ function PostCommentsInner() {
 		[ data ]
 	);
 
-	// Endpoints that predate a typed `found` report -1: a short page then counts itself,
-	// and a full one falls back to the post's total, which also counts pingbacks.
-	const isShortPage = ( data?.fetchedCount ?? 0 ) < COMMENTS_SHOWN;
-	const total = data?.found ?? ( isShortPage ? items.length : postStats?.post?.comment_count );
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (
@@ -92,7 +86,7 @@ function PostCommentsInner() {
 			>
 				<SubscriberList
 					items={ items }
-					moreCount={ total === undefined ? null : Math.max( 0, total - items.length ) }
+					moreCount={ data?.found === undefined ? null : Math.max( 0, data.found - items.length ) }
 				/>
 			</WidgetState>
 		</div>
