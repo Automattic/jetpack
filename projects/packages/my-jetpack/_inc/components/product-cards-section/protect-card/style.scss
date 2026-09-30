@@ -71,8 +71,8 @@
 	&__status-icon {
 		display: block;
 		flex-shrink: 0;
-		width: 20px;
-		height: 20px;
+		width: 14px;
+		height: 14px;
 		object-fit: contain;
 	}
 }
@@ -97,6 +97,12 @@
 		border-radius: 2px;
 		color: var(--jp-gray-50);
 		cursor: pointer;
+
+		// The info glyph's circle fills 2/3 of its box: 21px draws the shields' 14px.
+		svg {
+			width: 21px;
+			height: 21px;
+		}
 
 		&:hover {
 			color: var(--jp-gray-100);
