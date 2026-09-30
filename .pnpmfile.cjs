@@ -66,10 +66,6 @@ async function fixDeps( pkg ) {
 				pkg.peerDependencies[ dep ] = ver.replace( /^\^?/, '>=' );
 			}
 		}
-		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
-		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
-			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
-		}
 	}
 
 	// Turn `@wordpress/stylelint-config` deps into peer deps too.
@@ -82,10 +78,6 @@ async function fixDeps( pkg ) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			delete pkg.dependencies[ dep ];
 			pkg.peerDependencies[ dep ] = ver.startsWith( '>' ) ? ver : ver.replace( /^\^?/, '>=' );
-		}
-		// Broaden this one further, because they're linked upstream but we update them in different Renovate PRs.
-		if ( pkg.peerDependencies[ '@wordpress/theme' ] ) {
-			pkg.peerDependencies[ '@wordpress/theme' ] = '*';
 		}
 	}
 
