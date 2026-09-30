@@ -398,7 +398,7 @@ function wpcom_marketplace_render_table() {
 
 	echo '<form id="plugin-filter" method="post">';
 	wpcom_marketplace_intro();
-	if ( $wp_list_table instanceof WP_List_Table ) {
+	if ( is_object( $wp_list_table ) && method_exists( $wp_list_table, 'display' ) ) {
 		$wp_list_table->display();
 	}
 	echo '</form>';

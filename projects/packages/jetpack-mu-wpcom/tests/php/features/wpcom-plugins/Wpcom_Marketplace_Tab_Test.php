@@ -857,15 +857,8 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	public function test_the_tab_draws_cores_list_table_inside_the_form() {
 		global $wp_list_table;
 
-		require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
-
 		$previous      = $wp_list_table;
-		$wp_list_table = new class() extends WP_List_Table {
-			/**
-			 * No screen to set up.
-			 */
-			public function __construct() {} // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
-
+		$wp_list_table = new class() {
 			/**
 			 * Stands in for core's cards.
 			 */
