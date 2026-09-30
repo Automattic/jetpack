@@ -2,13 +2,8 @@
 
 namespace Automattic\Jetpack\Packages\Async_Option;
 
-use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
 
-/**
- * @covers \Automattic\Jetpack\Packages\Async_Option\Async_Options
- */
-#[CoversClass( Async_Options::class )]
 class Async_Options_Test extends BaseTestCase {
 
 	const PAGE_HOOK = 'admin_page_jetpack-inspect';
