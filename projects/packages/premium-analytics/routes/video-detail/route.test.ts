@@ -104,15 +104,13 @@ describe( 'video detail route.beforeLoad', () => {
 	} );
 
 	it( 'drops an author scope while seeding the video scope', async () => {
-		let thrown: { search?: Record< string, unknown > } | undefined;
-		try {
-			await beforeLoad( { videoId: '42' }, { ...settledSearch, post_id: '7', author_id: '3' } );
-		} catch ( error ) {
-			thrown = error as { search?: Record< string, unknown > };
-		}
+		const redirect = beforeLoad(
+			{ videoId: '42' },
+			{ ...settledSearch, post_id: '7', author_id: '3' }
+		);
 
-		expect( thrown?.search ).toMatchObject( { post_id: '42' } );
-		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+		await expect( redirect ).rejects.toMatchObject( { search: { post_id: '42' } } );
+		await expect( redirect ).rejects.not.toHaveProperty( 'search.author_id' );
 	} );
 
 	it( 'keeps the dashboard origin through the seeding redirect', async () => {
@@ -143,58 +141,52 @@ describe( 'video detail route.beforeLoad', () => {
 
 	it( 'keeps its own range and the linking window when re-seeding a settled URL', async () => {
 		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
-		let thrown: { search?: Record< string, unknown > } | undefined;
-		try {
-			await beforeLoad(
-				{ videoId: '42' },
-				{
-					...settledSearch,
-					preset: 'last-30-days',
-					ref_from: '2026-05-01T00:00:00',
-					ref_preset: 'last-month',
-				}
-			);
-		} catch ( error ) {
-			thrown = error as { search?: Record< string, unknown > };
-		}
+		const redirect = beforeLoad(
+			{ videoId: '42' },
+			{
+				...settledSearch,
+				preset: 'last-30-days',
+				ref_from: '2026-05-01T00:00:00',
+				ref_preset: 'last-month',
+			}
+		);
 
-		expect( thrown?.search ).toMatchObject( {
-			from: '2026-06-01T00:00:00',
-			preset: 'last-30-days',
-			ref_from: '2026-05-01T00:00:00',
-			ref_preset: 'last-month',
+		await expect( redirect ).rejects.toMatchObject( {
+			search: {
+				from: '2026-06-01T00:00:00',
+				preset: 'last-30-days',
+				ref_from: '2026-05-01T00:00:00',
+				ref_preset: 'last-month',
+			},
 		} );
 	} );
 
 	it( 'opens a linked video on all time and keeps the linking window, comparison included', async () => {
-		let thrown: { search?: Record< string, unknown > } | undefined;
-		try {
-			await beforeLoad(
-				{ videoId: '42' },
-				{
-					from: '2026-06-10T00:00:00',
-					to: '2026-06-16T23:59:59',
-					preset: 'last-7-days',
-					comp: '1',
-					compare_from: '2026-06-03T00:00:00',
-				}
-			);
-		} catch ( error ) {
-			thrown = error as { search?: Record< string, unknown > };
-		}
+		const redirect = beforeLoad(
+			{ videoId: '42' },
+			{
+				from: '2026-06-10T00:00:00',
+				to: '2026-06-16T23:59:59',
+				preset: 'last-7-days',
+				comp: '1',
+				compare_from: '2026-06-03T00:00:00',
+			}
+		);
 
+		await expect( redirect ).rejects.toMatchObject( {
+			search: {
+				post_id: '42',
+				preset: 'all-time',
+				ref_from: '2026-06-10T00:00:00',
+				ref_to: '2026-06-16T23:59:59',
+				ref_preset: 'last-7-days',
+				ref_comp: '1',
+				ref_compare_from: '2026-06-03T00:00:00',
+			},
+		} );
 		expect( normalizeReportParams ).toHaveBeenCalledWith(
 			expect.objectContaining( { preset: 'all-time', from: '2021-01-01T00:00:00' } )
 		);
-		expect( thrown?.search ).toMatchObject( {
-			post_id: '42',
-			preset: 'all-time',
-			ref_from: '2026-06-10T00:00:00',
-			ref_to: '2026-06-16T23:59:59',
-			ref_preset: 'last-7-days',
-			ref_comp: '1',
-			ref_compare_from: '2026-06-03T00:00:00',
-		} );
 	} );
 } );
 

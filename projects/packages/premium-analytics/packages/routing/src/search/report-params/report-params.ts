@@ -118,12 +118,14 @@ function pickReturnDateParams(
 		return pickReportDateParams( search );
 	}
 
-	return Object.fromEntries(
-		Object.entries( pickReportOriginWindowParams( search ) ).map( ( [ key, value ] ) => [
-			key.slice( ORIGIN_WINDOW_PREFIX.length ),
-			value,
-		] )
-	);
+	const picked: Record< string, unknown > = {};
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		const value = search[ ORIGIN_WINDOW_PREFIX + key ];
+		if ( value !== undefined ) {
+			picked[ key ] = value;
+		}
+	}
+	return picked;
 }
 
 /**

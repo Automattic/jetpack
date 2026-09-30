@@ -12,7 +12,7 @@ import {
 /**
  * Internal dependencies
  */
-import { useAllTimeAnchorPending, useDetailDateControls } from './use-detail-date-controls';
+import { useDetailDateControls } from './use-detail-date-controls';
 
 // A zone ahead of UTC, so a visitor-zone reading of the wall time would land on
 // a different day than the site's.
@@ -52,14 +52,16 @@ describe( 'useDetailDateControls', () => {
 			useDetailDateControls( '2026-07-08 00:29:35', filters() )
 		);
 
-		expect( result.current ).toMatchObject( {
+		expect( result.current.dateControls ).toMatchObject( {
 			presetIds: DETAIL_SURFACE_PRESETS,
 			withIntervalControl: false,
 		} );
 		// Unset, not false: the panel's own default is what offers Custom range.
-		expect( result.current ).not.toHaveProperty( 'withCustomRange' );
+		expect( result.current.dateControls ).not.toHaveProperty( 'withCustomRange' );
 		// Half past midnight in Taipei, not in the runner's zone.
-		expect( result.current.allTimeStart?.toISOString() ).toBe( '2026-07-07T16:29:35.000Z' );
+		expect( result.current.dateControls.allTimeStart?.toISOString() ).toBe(
+			'2026-07-07T16:29:35.000Z'
+		);
 	} );
 
 	it( 'reads an offset-bearing publish instant as given', () => {
@@ -67,16 +69,19 @@ describe( 'useDetailDateControls', () => {
 			useDetailDateControls( '2026-07-08 10:29:35Z', filters() )
 		);
 
-		expect( result.current.allTimeStart?.toISOString() ).toBe( '2026-07-08T10:29:35.000Z' );
+		expect( result.current.dateControls.allTimeStart?.toISOString() ).toBe(
+			'2026-07-08T10:29:35.000Z'
+		);
 	} );
 
 	it( 'leaves all time unanchored while the publish date is unknown or unreadable', () => {
 		expect(
-			renderHook( () => useDetailDateControls( undefined, filters() ) ).result.current.allTimeStart
+			renderHook( () => useDetailDateControls( undefined, filters() ) ).result.current.dateControls
+				.allTimeStart
 		).toBeUndefined();
 		expect(
 			renderHook( () => useDetailDateControls( 'not a date', filters() ) ).result.current
-				.allTimeStart
+				.dateControls.allTimeStart
 		).toBeUndefined();
 	} );
 
@@ -137,7 +142,7 @@ describe( 'useDetailDateControls', () => {
 	} );
 } );
 
-describe( 'useAllTimeAnchorPending', () => {
+describe( 'useDetailDateControls anchoring', () => {
 	const PUBLISHED = new Date( '2026-07-08T00:00:00+08:00' );
 	const PROVISIONAL = computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE );
 	const ANCHORED = computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE, { startDate: PUBLISHED } );
@@ -156,25 +161,25 @@ describe( 'useAllTimeAnchorPending', () => {
 		],
 	] )( '%s', ( _case, start, appliedRange, isStartPending, expected ) => {
 		const { result } = renderHook( () =>
-			useAllTimeAnchorPending(
-				start,
+			useDetailDateControls(
+				start?.toISOString(),
 				filters( { appliedPresetId: 'all-time', appliedRange } ),
 				isStartPending
 			)
 		);
 
-		expect( result.current ).toBe( expected );
+		expect( result.current.isAnchoringAllTime ).toBe( expected );
 	} );
 
 	it( 'never holds a range that is not all time', () => {
 		const { result } = renderHook( () =>
-			useAllTimeAnchorPending(
+			useDetailDateControls(
 				undefined,
 				filters( { appliedPresetId: 'last-7-days', appliedRange: PROVISIONAL } ),
 				true
 			)
 		);
 
-		expect( result.current ).toBe( false );
+		expect( result.current.isAnchoringAllTime ).toBe( false );
 	} );
 } );

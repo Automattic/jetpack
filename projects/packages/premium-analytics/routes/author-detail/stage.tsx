@@ -82,7 +82,7 @@ function AuthorDetail(): JSX.Element {
 	// Stats credits page and product views to the author too, and those can predate
 	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( undefined, dateFilters );
+	const { dateControls } = useDetailDateControls( undefined, dateFilters );
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{

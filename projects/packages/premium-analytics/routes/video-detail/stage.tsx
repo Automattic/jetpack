@@ -31,7 +31,7 @@ import { WidgetDashboard } from '@wordpress/widget-dashboard';
  */
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
-import { useAllTimeAnchorPending, useDetailDateControls } from '../use-detail-date-controls';
+import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { videoHeaderSlots } from './components';
@@ -68,9 +68,8 @@ function VideoDetail(): JSX.Element {
 
 	// The applied report date range lives in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
-	const isAnchoringAllTime = useAllTimeAnchorPending(
-		dateControls.allTimeStart,
+	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
+		summary.publishedDate,
 		dateFilters,
 		summary.isLoading || summary.isError
 	);
