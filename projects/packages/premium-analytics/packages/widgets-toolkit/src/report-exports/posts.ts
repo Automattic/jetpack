@@ -25,7 +25,7 @@ export function getPostsReportQueryParams( reportParams: ReportParams ): StatsRe
 type PostsCsvRow = { label?: unknown; views: number; link?: string | null };
 
 /** Title, Views, and URL: the columns both Posts & pages tabs export. */
-export function getPostsCsvColumns< Row extends PostsCsvRow >(): CsvColumn< Row >[] {
+function getPostsCsvColumns< Row extends PostsCsvRow >(): CsvColumn< Row >[] {
 	return [
 		{
 			label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
@@ -53,7 +53,8 @@ export type ArchiveRow = {
  * @param archiveType - The raw archive-type key.
  * @return The archive type's display label.
  */
-function getArchiveTypeLabel( archiveType: string ): string {
+export function getArchiveTypeLabel( archiveType: string ): string {
+	// Mirrors Calypso's `getArchiveKeyLabel`; `post_type` is PA-only, Calypso capitalizes it.
 	switch ( archiveType ) {
 		case 'author':
 			return __( 'Authors', 'jetpack-premium-analytics-pkg' );
@@ -88,7 +89,7 @@ function getArchiveTypeLabel( archiveType: string ): string {
  * @param label - The raw group label.
  * @return The human-readable group label.
  */
-function getArchiveGroupLabel( label: string ): string {
+export function getArchiveGroupLabel( label: string ): string {
 	const spaced = label.replace( /_/g, ' ' );
 	return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
 }

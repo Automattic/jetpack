@@ -150,6 +150,7 @@ export {
 	ReportRecordsTable,
 	ReportThumbnail,
 	REPORT_TITLE_LINK_CLASS_NAMES,
+	ExporterCsvAction,
 	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,
@@ -193,11 +194,9 @@ export {
 } from './page-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
-	FullReportCsvDownloadButton,
+	ExporterCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
-	RowsCsvDownloadButton,
-	type RowsCsvDownloadButtonProps,
 	useReportCsvExport,
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,

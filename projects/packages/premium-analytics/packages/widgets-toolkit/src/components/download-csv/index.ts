@@ -1,13 +1,9 @@
-export {
-	FullReportCsvDownloadButton,
-	type FullReportCsvDownloadButtonProps,
-} from './full-report-csv-download-button';
+export { ExporterCsvDownloadButton } from './exporter-csv-download-button';
 export {
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
 } from './report-csv-download-button';
 export { isCsvExportEnabled } from './is-csv-export-enabled';
-export { RowsCsvDownloadButton, type RowsCsvDownloadButtonProps } from './rows-csv-download-button';
 export {
 	useReportCsvExport,
 	type UseReportCsvExportOptions,

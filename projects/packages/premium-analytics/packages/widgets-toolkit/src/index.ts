@@ -174,13 +174,12 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	ExporterCsvAction,
 	ReportCsvAction,
 	type ReportCsvActionProps,
-	FullReportCsvDownloadButton,
+	ExporterCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
-	RowsCsvDownloadButton,
-	type RowsCsvDownloadButtonProps,
 	useReportCsvExport,
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
@@ -208,11 +207,11 @@ export {
 export {
 	archivesCsvExporter,
 	buildArchiveRows,
-	getPostsCsvColumns,
+	getArchiveGroupLabel,
+	getArchiveTypeLabel,
 	getPostsReportQueryParams,
 	postsPagesCsvExporter,
 	type ArchiveRow,
-	type ReportCsvExporter,
 } from './report-exports';
 
 /**

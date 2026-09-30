@@ -15,11 +15,9 @@ import {
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
-	ReportCsvAction,
+	ExporterCsvAction,
 	archivesCsvExporter,
-	getPostsCsvColumns,
 	postsPagesCsvExporter,
-	useReportCsvExport,
 	useReportRetry,
 	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -44,8 +42,6 @@ import type { JSX } from 'react';
 // Every report shares the single dynamic route, so route-level hooks and
 // navigations target this path with the `posts` param.
 const ROUTE_FROM = route.path;
-
-type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
 
 const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
 
@@ -133,26 +129,24 @@ function PostsReport(): JSX.Element {
 		[ records.archives.hasComparison ]
 	);
 
-	const csvColumns = useMemo( () => getPostsCsvColumns< ReportCsvRow >(), [] );
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
-	const csvExporter = activeTab === 'posts-pages' ? postsPagesCsvExporter : archivesCsvExporter;
-	const csvExportRows = useMemo< ReportCsvRow[] >(
-		() =>
-			activeTab === 'posts-pages'
-				? postsPagesCsvExporter.toCsvRows( records.posts.rows )
-				: archivesCsvExporter.toCsvRows( records.archives.items ),
-		[ activeTab, records.posts.rows, records.archives.items ]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport< ReportCsvRow >( {
-		rows: csvExportRows,
-		filenamePrefix: csvExporter.filenamePrefix,
-		range: csvExporter.hasDateRange ? reportParams : undefined,
-		status: activeRecords,
-	} );
+	// One element per tab: the two exporters' row types cannot share one generic call.
+	const csvAction =
+		activeTab === 'posts-pages' ? (
+			<ExporterCsvAction
+				exporter={ postsPagesCsvExporter }
+				items={ records.posts.rows }
+				status={ records.posts }
+				reportParams={ reportParams }
+			/>
+		) : (
+			<ExporterCsvAction
+				exporter={ archivesCsvExporter }
+				items={ records.archives.items }
+				status={ records.archives }
+				reportParams={ reportParams }
+			/>
+		);
 
 	// Date-range state lives in the URL search params, staged and committed by
 	// the shared date-filter controller — same model as the dashboard.
@@ -207,11 +201,7 @@ function PostsReport(): JSX.Element {
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
-			}
+			actions={ csvAction }
 		>
 			<ReportPageLayout
 				title={ getTabLabel( activeTab ) }

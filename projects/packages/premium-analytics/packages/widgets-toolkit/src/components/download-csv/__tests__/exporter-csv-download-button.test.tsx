@@ -8,7 +8,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
  */
 import { downloadReportCsv } from '../../../report-exports/download-report-csv';
 import { WidgetRootContext } from '../../widget-root';
-import { FullReportCsvDownloadButton } from '../full-report-csv-download-button';
+import { ExporterCsvDownloadButton } from '../exporter-csv-download-button';
 import type { ReportCsvExporter } from '../../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
@@ -23,6 +23,7 @@ const mockGetScriptData = jest.mocked( getScriptData );
 const mockDownloadReportCsv = jest.mocked( downloadReportCsv );
 
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
+const SETTLED = { isLoading: false, isFetching: false, isError: false };
 
 const exporter = {
 	filenamePrefix: 'things',
@@ -32,15 +33,15 @@ const exporter = {
 	getColumns: jest.fn(),
 } as unknown as ReportCsvExporter< unknown, unknown >;
 
-function renderButton( isReady: boolean ) {
+function renderButton( status = SETTLED, rowCount = 3 ) {
 	return render(
 		<WidgetRootContext.Provider value={ { reportParams: REPORT_PARAMS } }>
-			<FullReportCsvDownloadButton exporter={ exporter } isReady={ isReady } />
+			<ExporterCsvDownloadButton exporter={ exporter } status={ status } rowCount={ rowCount } />
 		</WidgetRootContext.Provider>
 	);
 }
 
-describe( 'FullReportCsvDownloadButton', () => {
+describe( 'ExporterCsvDownloadButton', () => {
 	beforeEach( () => {
 		jest.useFakeTimers();
 		jest.clearAllMocks();
@@ -53,7 +54,7 @@ describe( 'FullReportCsvDownloadButton', () => {
 	} );
 
 	it( 'downloads the full report for the widget report window', async () => {
-		renderButton( true );
+		renderButton();
 
 		// This package does not depend on @testing-library/user-event.
 		// eslint-disable-next-line testing-library/prefer-user-event
@@ -64,8 +65,13 @@ describe( 'FullReportCsvDownloadButton', () => {
 		);
 	} );
 
-	it( 'stays hidden until the widget has rows to back it', () => {
-		renderButton( false );
+	it.each( [
+		[ 'no rows', SETTLED, 0 ],
+		[ 'loading', { ...SETTLED, isLoading: true }, 3 ],
+		[ 'fetching a new range', { ...SETTLED, isFetching: true }, 3 ],
+		[ 'failed', { ...SETTLED, isError: true }, 3 ],
+	] )( 'stays hidden while the widget has %s', ( _state, status, rowCount ) => {
+		renderButton( status, rowCount );
 
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
@@ -75,7 +81,7 @@ describe( 'FullReportCsvDownloadButton', () => {
 			premium_analytics: { csv_exports_enabled: false },
 		} as ReturnType< typeof getScriptData > );
 
-		renderButton( true );
+		renderButton();
 
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
