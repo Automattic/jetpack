@@ -14,20 +14,19 @@ type NormalizeInput = Parameters< typeof normalizeReportParams >[ 0 ];
 /**
  * The date params a post or video detail route seeds its URL with.
  *
- * A link into the page opens it on all time, keeping the linking page's window
- * for the breadcrumbs; a reload or an in-page change keeps the page's own range.
- * The all-time start is provisional until `useDetailDateControls` anchors it.
+ * A link in opens the page on all time and keeps the linking window for the breadcrumbs;
+ * a reload keeps the page's own range. `useDetailDateControls` anchors the all-time start.
  *
- * @param search    - The current route search params.
- * @param isArrival - Whether a link brought the reader here: links never carry the page's
- *                  `post_id`, so a missing or mismatched one marks an arrival.
+ * @param search     - The current route search params.
+ * @param resourceId - The page's post or video ID. Links never carry it as `post_id`, so a
+ *                   missing or mismatched one marks an arrival.
  * @return The normalized report params plus the origin-window params.
  */
 export function seedDetailDateParams(
 	search: Record< string, unknown >,
-	isArrival: boolean
+	resourceId: string
 ): Record< string, unknown > {
-	if ( ! isArrival ) {
+	if ( search.post_id === resourceId ) {
 		return {
 			...normalizeReportParams( search as NormalizeInput ),
 			...pickReportOriginWindowParams( search ),

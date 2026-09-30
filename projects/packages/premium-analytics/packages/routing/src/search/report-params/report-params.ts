@@ -30,9 +30,9 @@ export const REPORT_DATE_PARAM_KEYS = [
 /**
  * Pick only the shared report-window params from a URL search object.
  *
- * Used when navigating between analytics routes (e.g. a detail page back to the
- * dashboard) to carry the date range and comparison through without also
- * carrying page-scoped params like `post_id` or `section`.
+ * Reads the page's own window, never page-scoped params like `post_id` or `section`.
+ * A link out of a page that may be a detail page uses `pickReportNavigationParams()`
+ * instead, which returns a detail page to the window it was opened from.
  *
  * @param search - The current route search params.
  * @return A new object with only the shared report-window params that are set.

@@ -83,7 +83,7 @@ export const route = {
 
 			// Allowlist this page's own params instead of spreading `currentSearch`
 			// wholesale; the report origin stays so the breadcrumb survives.
-			const reportParams = seedDetailDateParams( currentSearch, needsPostSeed );
+			const reportParams = seedDetailDateParams( currentSearch, postId );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,

@@ -80,7 +80,7 @@ export const route = {
 
 			// The report origin joins the allowlist below so the breadcrumb keeps
 			// its link back to the referring report across this seed.
-			const reportParams = seedDetailDateParams( currentSearch, needsPostSeed );
+			const reportParams = seedDetailDateParams( currentSearch, videoId );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,
