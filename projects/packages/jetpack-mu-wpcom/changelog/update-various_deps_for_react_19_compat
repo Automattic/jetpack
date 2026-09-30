@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Bump @automattic/launchpad and newspack-icons for React 19 compatibility.
