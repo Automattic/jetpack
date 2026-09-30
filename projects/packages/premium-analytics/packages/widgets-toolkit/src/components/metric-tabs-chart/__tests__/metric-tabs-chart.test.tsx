@@ -301,6 +301,25 @@ describe( 'MetricTabsChart', () => {
 			expect( screen.queryByText( EMPTY_TEXT ) ).not.toBeInTheDocument();
 		} );
 
+		// A post published on a day with no views is a row to read out, not traffic to draw.
+		it( "shows it when only the metric's derived extras have readings", () => {
+			const posts = {
+				label: 'Posts published',
+				data: [ { date: new Date( '2026-07-01T00:00:00Z' ), value: 1 } ],
+				derived: true,
+			};
+
+			render(
+				<MetricTabsChart
+					metrics={ [ { ...zeroFilled, tooltipExtras: [ posts ] } ] }
+					dataFormat={ DATA_FORMAT }
+					empty={ <p>{ EMPTY_TEXT }</p> }
+				/>
+			);
+
+			expect( screen.getByText( EMPTY_TEXT ) ).toBeInTheDocument();
+		} );
+
 		it( 'shows it when every metric in the tooltip readout is empty too', () => {
 			render(
 				<MetricTabsChart

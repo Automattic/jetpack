@@ -19,6 +19,7 @@ import { type ComponentProps } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	appendTooltipExtras,
+	isEmptyTooltipExtras,
 	formatTooltipPointLabel,
 	formatTooltipTextLabel,
 	isEmptyChartData,
@@ -274,7 +275,7 @@ export function ComparativeLineChart( {
 	const isEmptyData = useMemo( () => isEmptyChartData( styledSeries ), [ styledSeries ] );
 	// An all-zero selected metric must not hide the extras that do have data.
 	const hasTooltipRows = useMemo(
-		() => ! isEmptyData || ! isEmptyChartData( tooltipExtras ?? [] ),
+		() => ! isEmptyData || ! isEmptyTooltipExtras( tooltipExtras ),
 		[ isEmptyData, tooltipExtras ]
 	);
 

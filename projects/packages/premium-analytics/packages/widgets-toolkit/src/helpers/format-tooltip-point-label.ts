@@ -37,7 +37,7 @@ export function formatTooltipPointLabel(
 	// A plural-only `name` cannot agree with a count of 1, nor with a locale's other forms.
 	if ( countLabel && count !== undefined && count !== null ) {
 		return sprintf(
-			/* translators: 1: a count with its unit, such as "1 Subscriber", 2: date. */
+			/* translators: 1: a count with its unit, such as "1 Subscriber", or a text row such as "Post published: Hello world", 2: date. */
 			_x( '%1$s · %2$s', 'chart tooltip: count and date', 'jetpack-premium-analytics-pkg' ),
 			sprintf( countLabel( count ), value ),
 			date
@@ -62,7 +62,7 @@ export function formatTooltipPointLabel(
  */
 export function formatTooltipTextLabel( text: string, date: string ): string {
 	return sprintf(
-		/* translators: 1: a count with its unit, such as "1 Subscriber", 2: date. */
+		/* translators: 1: a count with its unit, such as "1 Subscriber", or a text row such as "Post published: Hello world", 2: date. */
 		_x( '%1$s · %2$s', 'chart tooltip: count and date', 'jetpack-premium-analytics-pkg' ),
 		text,
 		date

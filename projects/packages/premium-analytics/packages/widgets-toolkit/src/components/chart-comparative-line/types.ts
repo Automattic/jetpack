@@ -38,6 +38,11 @@ export type TooltipExtraSeries = {
 	/** Falls back to the chart's `dataFormat`. */
 	dataFormat?: DataFormat;
 	countLabel?: CountLabel;
+	/**
+	 * A row computed from the drawn data or noted beside it, such as views per
+	 * visitor or the posts published: it never keeps an otherwise empty chart up.
+	 */
+	derived?: boolean;
 };
 
 /**

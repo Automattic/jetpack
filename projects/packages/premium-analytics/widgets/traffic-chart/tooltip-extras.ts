@@ -16,7 +16,9 @@ type TooltipPoint = TooltipExtraSeries[ 'data' ][ number ];
 function postTitlesOf( point: Record< string, unknown > ): string[] {
 	const titles = point.post_titles;
 
-	return Array.isArray( titles ) ? titles.filter( title => typeof title === 'string' ) : [];
+	return Array.isArray( titles )
+		? titles.filter( ( title ): title is string => typeof title === 'string' && title !== '' )
+		: [];
 }
 
 function numberOf( point: Record< string, unknown >, field: string ): number | undefined {
@@ -83,6 +85,7 @@ export function buildTrafficTooltipExtras(
 			label: __( 'Views per visitor', 'jetpack-premium-analytics-pkg' ),
 			data: viewsPerVisitor,
 			dataFormat: VIEWS_PER_VISITOR_FORMAT,
+			derived: true,
 		} );
 	}
 
@@ -93,6 +96,7 @@ export function buildTrafficTooltipExtras(
 			countLabel: count =>
 				/* translators: %s: number of posts published. */
 				_n( '%s Post published', '%s Posts published', count, 'jetpack-premium-analytics-pkg' ),
+			derived: true,
 		} );
 	}
 

@@ -37,6 +37,8 @@ describe( 'buildTrafficTooltipExtras', () => {
 
 		expect( ratio.label ).toBe( 'Views per visitor' );
 		expect( ratio.dataFormat ).toEqual( { type: 'number', options: { decimals: 2 } } );
+		// Neither row is traffic: a day with a post but no views still reads as empty.
+		expect( ratio.derived ).toBe( true );
 		expect( ratio.data ).toHaveLength( 1 );
 		expect( ratio.data[ 0 ].value ).toBeCloseTo( 3.33, 2 );
 	} );
@@ -69,6 +71,19 @@ describe( 'buildTrafficTooltipExtras', () => {
 		] );
 		expect( posts?.countLabel?.( 3 ) ).toBe( '%s Posts published' );
 		expect( posts?.countLabel?.( 1 ) ).toBe( '%s Post published' );
+		expect( posts?.derived ).toBe( true );
+	} );
+
+	it( 'drops an untitled post from the list', () => {
+		const extras = buildTrafficTooltipExtras(
+			report( [ { views: 1, visitors: 1, post_titles: [ '', 'Hello world' ] } ] ),
+			ZONE
+		);
+		const posts = extras.find( extra => extra.label === 'Posts published' );
+
+		expect( posts?.data ).toEqual( [
+			expect.objectContaining( { value: 1, tooltipText: 'Post published: Hello world' } ),
+		] );
 	} );
 
 	it( 'gives a bucket without posts no row, and no series when none has any', () => {

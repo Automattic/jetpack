@@ -1,6 +1,7 @@
 /**
  * Internal dependencies
  */
+import { isEmptyChartData } from './chart-empty-state';
 import { resolvePrimarySeriesByGroup } from './resolve-series-names';
 import type {
 	ComparativeDatePointDate,
@@ -66,6 +67,17 @@ export function appendTooltipExtras< T extends TooltipData >(
 		tooltipData: { ...tooltipData, datumByKey: augmented },
 		supplementaryRows: Object.keys( supplementaryRows ).length ? supplementaryRows : undefined,
 	};
+}
+
+/**
+ * Whether the extras hold no reading that should keep a chart up. A derived
+ * extra is left out: a ratio or a note is not data of its own.
+ *
+ * @param extras - The series the tooltip reads out without drawing.
+ * @return True when no non-derived extra has a non-zero point.
+ */
+export function isEmptyTooltipExtras( extras: readonly TooltipExtraSeries[] | undefined ): boolean {
+	return isEmptyChartData( ( extras ?? [] ).filter( extra => ! extra.derived ) );
 }
 
 /** What a tooltip row reads after its value. */

@@ -16,7 +16,12 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
+import {
+	formatComparisonSeriesLabel,
+	isEmptyChartData,
+	isEmptyTooltipExtras,
+	type ChartBaseline,
+} from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -354,7 +359,7 @@ function MetricChart( {
 	if (
 		empty &&
 		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] ) &&
-		isEmptyChartData( tooltipExtras ?? [] )
+		isEmptyTooltipExtras( tooltipExtras )
 	) {
 		return <>{ empty }</>;
 	}
