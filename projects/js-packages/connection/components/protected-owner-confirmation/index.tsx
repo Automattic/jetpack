@@ -1,23 +1,30 @@
+import { getScriptData } from '@automattic/jetpack-script-data';
 import { Button, Modal, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useState } from 'react';
 import { getProtectedOwnerConfirmationCopy } from './copy';
+import type { ProtectedOwnerConfirmError, ProtectedOwnerConfirmationProps } from './types';
 import './style.scss';
 
-export interface ProtectedOwnerConfirmationProps {
-	/** Whether the dialog is open. */
-	isOpen: boolean;
-	/** Called when the dialog closes without a successful claim. */
-	onClose: () => void;
-	/** Called after WordPress.com accepts the claim. */
-	onConfirmed?: () => void;
-	/** "site" or "store", already translated. */
-	subject?: string;
-	/** Plugins that asked for a protected owner, when the caller knows them. */
-	requestingPlugins?: string[];
-	/** REST root. Falls back to the connection initial state. */
-	apiRoot?: string;
-	/** REST nonce. Falls back to the connection initial state. */
-	apiNonce?: string;
+/** REST error code for a site a different WordPress.com account already protects. */
+export const PROTECTED_OWNER_CLAIMED_BY_OTHER = 'protected_owner_claimed_by_other';
+
+/**
+ * Read the refusal the server sent, falling back to the generic wording.
+ *
+ * The body is server JSON, so each field is checked rather than asserted.
+ *
+ * @param {unknown} raw - Parsed response body, or null when it did not parse.
+ * @return {ProtectedOwnerConfirmError} Message to show, and the code when there is a usable one.
+ */
+function toConfirmError( raw: unknown ): ProtectedOwnerConfirmError {
+	const body = !! raw && typeof raw === 'object' ? raw : {};
+	const message = 'message' in body && typeof body.message === 'string' ? body.message : '';
+	const code = 'code' in body && typeof body.code === 'string' ? body.code : undefined;
+
+	return {
+		message: message || getProtectedOwnerConfirmationCopy().confirmError,
+		code,
+	};
 }
 
 /**
@@ -33,12 +40,11 @@ export default function ProtectedOwnerConfirmation( {
 	onClose,
 	onConfirmed,
 	subject,
-	requestingPlugins = [],
 	apiRoot,
 	apiNonce,
 }: ProtectedOwnerConfirmationProps ) {
 	const [ isConfirming, setIsConfirming ] = useState( false );
-	const [ error, setError ] = useState< { message: string; code?: string } | null >( null );
+	const [ error, setError ] = useState< ProtectedOwnerConfirmError | null >( null );
 
 	useEffect( () => {
 		if ( isOpen ) {
@@ -57,7 +63,9 @@ export default function ProtectedOwnerConfirmation( {
 		setIsConfirming( true );
 		setError( null );
 
-		const state = window.JP_CONNECTION_INITIAL_STATE;
+		// The deprecated global is the fallback, not the first read: a page that only prints the
+		// script data would otherwise post to a relative URL with an empty nonce.
+		const state = getScriptData()?.connection || window.JP_CONNECTION_INITIAL_STATE;
 		const root = apiRoot || state?.apiRoot || '';
 		const nonce = apiNonce || state?.apiNonce || '';
 		const endpoint = `${ root.replace( /\/?$/, '/' ) }jetpack/v4/connection/owner/protect`;
@@ -71,20 +79,15 @@ export default function ProtectedOwnerConfirmation( {
 				},
 			} );
 		} catch {
-			setError( {
-				message: getProtectedOwnerConfirmationCopy().confirmError,
-			} );
+			setError( toConfirmError( null ) );
 			setIsConfirming( false );
 			return;
 		}
 
-		const body = await response.json().catch( () => null );
+		const raw: unknown = await response.json().catch( () => null );
 
 		if ( ! response.ok ) {
-			setError( {
-				message: body?.message || getProtectedOwnerConfirmationCopy().confirmError,
-				code: body?.code,
-			} );
+			setError( toConfirmError( raw ) );
 			setIsConfirming( false );
 			return;
 		}
@@ -97,7 +100,7 @@ export default function ProtectedOwnerConfirmation( {
 		return null;
 	}
 
-	const copy = getProtectedOwnerConfirmationCopy( { subject, requestingPlugins } );
+	const copy = getProtectedOwnerConfirmationCopy( { subject } );
 
 	return (
 		<Modal
@@ -106,13 +109,12 @@ export default function ProtectedOwnerConfirmation( {
 			className="jp-protected-owner-confirmation"
 		>
 			<p>{ copy.body }</p>
-			{ copy.requestedBy && <p>{ copy.requestedBy }</p> }
 			{ error && (
 				<Notice status="error" isDismissible={ false }>
 					{ error.message }
 				</Notice>
 			) }
-			{ error?.code === 'protected_owner_claimed_by_other' && (
+			{ error?.code === PROTECTED_OWNER_CLAIMED_BY_OTHER && (
 				<p>
 					<a href={ copy.supportUrl }>{ copy.contactSupport }</a>
 				</p>

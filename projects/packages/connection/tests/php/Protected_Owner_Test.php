@@ -745,6 +745,47 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * A stored anchor naming a different account is kept, and WordPress.com is not asked.
+	 */
+	public function test_set_protected_owner_refuses_to_replace_a_different_local_anchor() {
+		$this->act_as_administrator();
+		$this->anchor( self::ANCHORED_WPCOM_ID );
+		Utils::set_wpcom_user_id( $this->owner_id, self::BYSTANDER_WPCOM_ID );
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'assert_protected_owner_record' ) )
+			->getMock();
+		$manager->expects( $this->never() )->method( 'assert_protected_owner_record' );
+
+		$result = $manager->set_protected_owner( $this->owner_id );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_claimed_by_other', $result->get_error_code() );
+		$this->assertSame( self::ANCHORED_WPCOM_ID, Protected_Owner::get()['wpcom_user_id'] ?? null );
+	}
+
+	/**
+	 * A `recorded` answer for a different account must not overwrite an anchor the site already holds.
+	 */
+	public function test_set_protected_owner_keeps_a_local_anchor_wordpress_com_does_not_name() {
+		$this->act_as_administrator();
+		$this->anchor( self::ANCHORED_WPCOM_ID );
+
+		$result = $this->asserting_manager(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => self::BYSTANDER_WPCOM_ID,
+			)
+		)->set_protected_owner( $this->owner_id );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_claimed_by_other', $result->get_error_code() );
+		$this->assertSame( self::ANCHORED_WPCOM_ID, Protected_Owner::get()['wpcom_user_id'] ?? null );
+		$this->assertSame( 0, Utils::get_wpcom_user_id( $this->owner_id ) );
+		$this->assertFalse( Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
 	 * The owner re-confirming an existing claim is accepted rather than refused.
 	 */
 	public function test_the_owner_reconfirming_its_own_claim_succeeds() {

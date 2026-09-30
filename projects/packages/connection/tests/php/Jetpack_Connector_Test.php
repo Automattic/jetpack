@@ -29,6 +29,13 @@ class Jetpack_Connector_Test extends TestCase {
 	private $admin_id;
 
 	/**
+	 * Manager whose capability mapping is registered for protected-owner tests.
+	 *
+	 * @var Manager|null
+	 */
+	private $caps_manager = null;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function setUp(): void {
@@ -100,6 +107,11 @@ class Jetpack_Connector_Test extends TestCase {
 		remove_all_filters( 'jetpack_offline_mode' );
 		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
+		remove_all_filters( 'jetpack_connection_protected_owner_default_ui' );
+		if ( null !== $this->caps_manager ) {
+			remove_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1 );
+			$this->caps_manager = null;
+		}
 		StatusCache::clear();
 	}
 
@@ -189,15 +201,30 @@ class Jetpack_Connector_Test extends TestCase {
 	 * A consumer request exposes protected-owner card state before anyone has claimed it.
 	 */
 	public function test_protected_owner_card_state_when_a_consumer_requests_one() {
+		$this->map_connection_caps();
 		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertTrue( $data['protectedOwner']['required'] );
-		$this->assertFalse( $data['protectedOwner']['hasAnchor'] );
-		$this->assertFalse( $data['protectedOwner']['isEstablished'] );
-		$this->assertFalse( $data['protectedOwner']['isConnectedNonAdmin'] );
-		$this->assertSame( array(), $data['protectedOwner']['requestingPlugins'] );
+		$this->assertSame( Manager::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH, $data['protectedOwner']['status'] );
+	}
+
+	/**
+	 * The card uses the package dialog whatever a consumer does with its own.
+	 */
+	public function test_protected_owner_card_state_ignores_the_default_ui_filter() {
+		$this->map_connection_caps();
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		add_filter( 'jetpack_connection_protected_owner_default_ui', '__return_false' );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( Manager::PO_STATE_CAN_ESTABLISH, $data['protectedOwner']['status'] );
+		$this->assertArrayNotHasKey( 'useDefaultUi', $data['protectedOwner'] );
 	}
 
 	/**
@@ -208,11 +235,42 @@ class Jetpack_Connector_Test extends TestCase {
 
 		$data = Jetpack_Connector::get_connector_data( array() );
 
-		$this->assertFalse( $data['protectedOwner']['required'] );
-		$this->assertTrue( $data['protectedOwner']['hasAnchor'] );
-		$this->assertFalse( $data['protectedOwner']['isEstablished'] );
-		$this->assertFalse( $data['protectedOwner']['isConnectedNonAdmin'] );
-		$this->assertSame( array(), $data['protectedOwner']['requestingPlugins'] );
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $data['protectedOwner']['status'] );
+	}
+
+	/**
+	 * The confirmation script loads only when this viewer can open the dialog.
+	 */
+	public function test_protected_owner_confirmation_script_follows_who_can_confirm() {
+		$this->map_connection_caps();
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_confirmation' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$manager = new Manager();
+
+		$this->assertFalse( $method->invoke( null, $manager ) );
+
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$this->assertFalse( $method->invoke( null, $manager ) );
+
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array( $this->admin_id => 'ownerkey.private.' . $this->admin_id )
+		);
+		$this->assertTrue( $method->invoke( null, new Manager() ) );
+
+		Protected_Owner::set( 4242, $this->admin_id );
+		$this->assertFalse( $method->invoke( null, new Manager() ) );
+	}
+
+	/**
+	 * Register the connection capability mapping configure() would have registered.
+	 */
+	private function map_connection_caps() {
+		$this->caps_manager = new Manager();
+		add_filter( 'map_meta_cap', array( $this->caps_manager, 'jetpack_connection_custom_caps' ), 1, 4 );
 	}
 
 	/* ── get_connector_data() — offline mode ───────────────────── */

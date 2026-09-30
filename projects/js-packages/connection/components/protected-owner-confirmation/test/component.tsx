@@ -1,10 +1,23 @@
 import { jest } from '@jest/globals';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import ProtectedOwnerConfirmation from '../index';
+import ProtectedOwnerConfirmation, { PROTECTED_OWNER_CLAIMED_BY_OTHER } from '../index';
 
 const mockFetch = jest.fn< typeof fetch >();
 const originalFetch = globalThis.fetch;
+
+/**
+ * The slice of `Response` the component reads, so the cast is written once.
+ *
+ * @param {boolean} ok   - Whether the request succeeded.
+ * @param {unknown} body - What `json()` resolves to.
+ * @return {Response} A stand-in carrying only `ok` and `json`.
+ */
+function jsonResponse( ok: boolean, body: unknown ): Response {
+	const partial: Pick< Response, 'ok' | 'json' > = { ok, json: async () => body };
+
+	return partial as Response;
+}
 
 describe( 'ProtectedOwnerConfirmation', () => {
 	const onClose = jest.fn();
@@ -21,6 +34,10 @@ describe( 'ProtectedOwnerConfirmation', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		globalThis.fetch = mockFetch;
+	} );
+
+	afterEach( () => {
+		delete window.JetpackScriptData;
 	} );
 
 	afterAll( () => {
@@ -52,13 +69,6 @@ describe( 'ProtectedOwnerConfirmation', () => {
 		).toBeInTheDocument();
 	} );
 
-	it( 'names the plugins that requested confirmation', () => {
-		render(
-			<ProtectedOwnerConfirmation { ...props } requestingPlugins={ [ 'WooPayments', 'Jetpack' ] } />
-		);
-		expect( screen.getByText( 'Requested by WooPayments and Jetpack.' ) ).toBeInTheDocument();
-	} );
-
 	it( 'closes without a request when cancelled', async () => {
 		const user = userEvent.setup();
 		render( <ProtectedOwnerConfirmation { ...props } /> );
@@ -71,10 +81,7 @@ describe( 'ProtectedOwnerConfirmation', () => {
 	} );
 
 	it( 'posts the claim and reports success', async () => {
-		mockFetch.mockResolvedValue( {
-			ok: true,
-			json: async () => ( { code: 'success' } ),
-		} as Response );
+		mockFetch.mockResolvedValue( jsonResponse( true, { code: 'success' } ) );
 		const user = userEvent.setup();
 		render( <ProtectedOwnerConfirmation { ...props } /> );
 
@@ -91,15 +98,32 @@ describe( 'ProtectedOwnerConfirmation', () => {
 		expect( onClose ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'falls back to the script data when the caller passes no REST details', async () => {
+		window.JetpackScriptData = {
+			connection: { apiRoot: 'https://scriptdata.example/wp-json/', apiNonce: 'script-nonce' },
+		} as unknown as typeof window.JetpackScriptData;
+		mockFetch.mockResolvedValue( jsonResponse( true, { code: 'success' } ) );
+		const user = userEvent.setup();
+		render( <ProtectedOwnerConfirmation isOpen onClose={ onClose } onConfirmed={ onConfirmed } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Confirm' } ) );
+
+		expect( mockFetch ).toHaveBeenCalledWith(
+			'https://scriptdata.example/wp-json/jetpack/v4/connection/owner/protect',
+			expect.objectContaining( {
+				headers: expect.objectContaining( { 'X-WP-Nonce': 'script-nonce' } ),
+			} )
+		);
+	} );
+
 	it( 'shows the support link when another account already holds the site', async () => {
-		mockFetch.mockResolvedValue( {
-			ok: false,
-			json: async () => ( {
-				code: 'protected_owner_claimed_by_other',
+		mockFetch.mockResolvedValue(
+			jsonResponse( false, {
+				code: PROTECTED_OWNER_CLAIMED_BY_OTHER,
 				message:
 					'This site is already protected by a different WordPress.com account. Contact support.',
-			} ),
-		} as Response );
+			} )
+		);
 		const user = userEvent.setup();
 		render( <ProtectedOwnerConfirmation { ...props } /> );
 
@@ -116,5 +140,19 @@ describe( 'ProtectedOwnerConfirmation', () => {
 			expect.stringContaining( 'source=jetpack-support' )
 		);
 		expect( onConfirmed ).not.toHaveBeenCalled();
+	} );
+
+	it( 'falls back to the generic message when the refusal carries no usable one', async () => {
+		mockFetch.mockResolvedValue( jsonResponse( false, { message: 123, code: 456 } ) );
+		const user = userEvent.setup();
+		render( <ProtectedOwnerConfirmation { ...props } /> );
+
+		await user.click( screen.getByRole( 'button', { name: 'Confirm' } ) );
+
+		const dialog = await screen.findByRole( 'dialog', { name: 'Confirm you are the site owner' } );
+		expect(
+			within( dialog ).getByText( 'Could not confirm the protected owner.' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: 'Contact support' } ) ).not.toBeInTheDocument();
 	} );
 } );

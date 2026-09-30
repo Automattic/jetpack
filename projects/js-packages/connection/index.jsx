@@ -32,8 +32,12 @@ export { default as DisconnectDialog } from './components/disconnect-dialog';
 export { default as DisconnectCard } from './components/disconnect-card';
 export { default as useConnection } from './components/use-connection';
 export { default as ManageConnectionDialog } from './components/manage-connection-dialog';
-export { default as ProtectedOwnerConfirmation } from './components/protected-owner-confirmation';
+export {
+	default as ProtectedOwnerConfirmation,
+	PROTECTED_OWNER_CLAIMED_BY_OTHER,
+} from './components/protected-owner-confirmation';
 export { getProtectedOwnerConfirmationCopy } from './components/protected-owner-confirmation/copy.ts';
+export * from './components/protected-owner-confirmation/types.ts';
 
 /**
  * Helpers.

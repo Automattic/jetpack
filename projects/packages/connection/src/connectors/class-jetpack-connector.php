@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
@@ -128,9 +129,9 @@ class Jetpack_Connector {
 		);
 		wp_enqueue_script_module( static::MODULE_ID );
 
-		// The claim link renders ProtectedOwnerConfirmation from the connection script.
-		if ( ( new Manager() )->requires_protected_owner() || Protected_Owner::get_locked() ) {
-			wp_enqueue_script( 'jetpack-connection' );
+		// Assets::enqueue_script also loads the stylesheet registered with the handle.
+		if ( static::should_enqueue_protected_owner_confirmation( new Manager() ) ) {
+			Assets::enqueue_script( 'jetpack-connection' );
 		}
 
 		add_filter(
@@ -241,12 +242,13 @@ class Jetpack_Connector {
 	 * Protected-owner state for the connector card.
 	 *
 	 * Omitted when nothing requests a protected owner and no anchor is stored,
-	 * so the card keeps its current account sections.
+	 * so the card keeps its current account sections. The status is
+	 * Manager::resolve_protected_owner_state(), which the card switches on.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param Manager $manager Connection manager instance.
-	 * @return array{required: bool, hasAnchor: bool, isEstablished: bool, isConnectedNonAdmin: bool, requestingPlugins: string[]}|null
+	 * @return array{status: string}|null
 	 */
 	private static function get_protected_owner_card_state( $manager ) {
 		$requires = $manager->requires_protected_owner();
@@ -256,46 +258,40 @@ class Jetpack_Connector {
 			return null;
 		}
 
+		$state = $manager->resolve_protected_owner_state();
+
+		// No anchor and this viewer cannot confirm: leave the card as it is.
+		if ( ! $anchor && Manager::PO_STATE_NOT_ELIGIBLE === $state['status'] ) {
+			return null;
+		}
+
 		return array(
-			'required'            => $requires,
-			'hasAnchor'           => null !== $anchor,
-			'isEstablished'       => $manager->has_protected_owner(),
-			'isConnectedNonAdmin' => static::is_protected_owner_connected_non_admin( $anchor ),
-			'requestingPlugins'   => static::get_protected_owner_requesting_plugins(),
+			'status' => $state['status'],
 		);
 	}
 
 	/**
-	 * Whether the anchored owner is connected without being an administrator.
+	 * Whether the card can open the shared confirmation dialog.
+	 *
+	 * That dialog is only reachable for a connected administrator, on a site that
+	 * has asked for a protected owner and does not have one yet.
+	 *
+	 * The card always uses the package dialog. `jetpack_connection_protected_owner_default_ui`
+	 * is for a consumer's own surface, not this one.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @todo Detect an anchored account that is connected but is not an administrator.
-	 *       Until then the card uses the missing-account notice for that case too.
-	 *
-	 * @param array|null $anchor Locked protected-owner anchor, or null when none is stored.
-	 * @return bool Always false until the check exists.
+	 * @param Manager $manager Connection manager instance.
+	 * @return bool
 	 */
-	private static function is_protected_owner_connected_non_admin( $anchor ) {
-		if ( ! is_array( $anchor ) ) {
+	private static function should_enqueue_protected_owner_confirmation( $manager ) {
+		if ( ! $manager->requires_protected_owner() ) {
 			return false;
 		}
 
-		return false;
-	}
+		$state = $manager->resolve_protected_owner_state();
 
-	/**
-	 * Display names of plugins requesting a protected owner.
-	 *
-	 * @since $$next-version$$
-	 *
-	 * @todo Collect consumer names. The request filter is only a boolean, so the
-	 *       card cannot name the plugins yet and falls back to a generic phrase.
-	 *
-	 * @return string[] Plugin names. Empty until consumers can identify themselves.
-	 */
-	private static function get_protected_owner_requesting_plugins() {
-		return array();
+		return Manager::PO_STATE_CAN_ESTABLISH === $state['status'];
 	}
 
 	/**

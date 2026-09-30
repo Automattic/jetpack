@@ -1111,7 +1111,13 @@ class REST_Connector {
 	/**
 	 * Whether the current user may confirm a protected owner.
 	 *
-	 * A connected administrator qualifies. Holding the connection owner slot does not matter.
+	 * A connected administrator qualifies, and only while a consumer is requesting a protected
+	 * owner. Holding the connection owner slot does not matter.
+	 *
+	 * `requires_protected_owner()` is documented as a momentary answer, but it is the only opt-in
+	 * signal there is, so a consumer that surfaces a confirmation must keep answering true for as
+	 * long as it is on screen. One that flips to false between render and submit turns its own
+	 * link into a 403.
 	 *
 	 * @since $$next-version$$
 	 *
@@ -1120,13 +1126,15 @@ class REST_Connector {
 	public static function protect_connection_owner_permission_check() {
 		$user_id   = get_current_user_id();
 		$admin_cap = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$manager   = new Manager();
 
 		if (
 			$user_id
 			&& current_user_can( 'jetpack_connect' )
 			&& $admin_cap
 			&& current_user_can( $admin_cap )
-			&& ( new Manager() )->is_user_connected( $user_id )
+			&& $manager->is_user_connected( $user_id )
+			&& $manager->requires_protected_owner()
 		) {
 			return true;
 		}

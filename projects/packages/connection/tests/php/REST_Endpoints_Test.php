@@ -191,6 +191,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
@@ -970,6 +971,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * A connected administrator who is not the connection owner may confirm a protected owner.
 	 */
 	public function test_protect_owner_accepts_a_connected_admin_who_is_not_the_owner() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
 		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
 		$answer = $this->answer_protected_owner_claim(
 			array(
@@ -992,6 +994,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * WordPress.com already having a different protected owner is the support path, and nothing is stored.
 	 */
 	public function test_protect_owner_rejects_a_claim_someone_else_holds() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
 		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
 		$answer = $this->answer_protected_owner_claim(
 			array(
@@ -1015,6 +1018,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * An editor cannot confirm, even with the connect capability and a user token.
 	 */
 	public function test_protect_owner_requires_an_administrator() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
 		$editor = get_user_by( 'id', self::$non_admin_user_id );
 		$editor->add_cap( 'jetpack_connect' );
 		$this->act_as_connected_admin( self::$non_admin_user_id, self::$user_id );
@@ -1030,6 +1034,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * An administrator who has not connected their own account cannot confirm.
 	 */
 	public function test_protect_owner_requires_a_connected_user() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
 		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
 
 		$this->assertSame( 403, $response->get_status() );
@@ -1040,6 +1045,7 @@ class REST_Endpoints_Test extends TestCase {
 	 * The connect capability is required on top of being an administrator.
 	 */
 	public function test_protect_owner_requires_the_connect_capability() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
 		wp_get_current_user()->remove_cap( 'jetpack_connect' );
 		$this->connect_user_for_protect( self::$user_id, self::$user_id );
 
@@ -1047,6 +1053,20 @@ class REST_Endpoints_Test extends TestCase {
 
 		$this->assertSame( 403, $response->get_status() );
 		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+	}
+
+	/**
+	 * The route stays closed until a consumer asks for a protected owner.
+	 */
+	public function test_protect_owner_requires_a_consumer_request() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertSame( self::$user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
 	}
 
 	/**
