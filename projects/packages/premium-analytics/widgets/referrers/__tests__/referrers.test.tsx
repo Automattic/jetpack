@@ -7,6 +7,7 @@ import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import ReferrersWidget, { toReferrerRow } from '../render';
 import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
 
@@ -301,5 +302,38 @@ describe( 'toReferrerRow', () => {
 				},
 			],
 		} );
+	} );
+} );
+
+describe( 'ReferrersWidget CSV export', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads >;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( REFERRERS_RESPONSE );
+		downloads = captureCsvDownloads();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		downloads.restore();
+	} );
+
+	it( 'downloads the Referrers report depth-first, each row with its group', async () => {
+		render(
+			<ReferrersWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+		);
+
+		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+		fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		const lines = await downloads.lines();
+		expect( lines[ 0 ] ).toBe( '"Referrer","Group","Views","URL"' );
+		expect( lines ).toContain( '"google.com","Google Search","3920","https://www.google.com/"' );
+		expect( downloads.files[ 0 ].filename ).toBe( 'referrers-2026-03-01_2026-03-10.csv' );
+		expect( mockApiFetch.mock.calls.at( -1 )?.[ 0 ].path ).toContain( 'max=0' );
 	} );
 } );
