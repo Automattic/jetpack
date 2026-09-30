@@ -1,12 +1,12 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import {
 	BaseControl,
 	Flex,
 	FlexBlock,
 	RadioControl,
 	Spinner,
-	__experimentalToggleGroupControl as ToggleGroupControl, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-	__experimentalToggleGroupControlOption as ToggleGroupControlOption, // eslint-disable-line @wordpress/no-unsafe-wp-apis
+	ToggleControl,
 } from '@wordpress/components';
 import { useInstanceId } from '@wordpress/compose';
 import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/core-data';
@@ -25,13 +25,21 @@ import {
 	META_NAME_FOR_POST_TIER_ID_SETTINGS,
 } from './constants';
 import { getPaidPlanLink, getShowMisconfigurationWarning, MisconfigurationWarning } from './utils';
+import type { ReactElement } from 'react';
+
+interface ReachForAccessLevelKeyArgs {
+	accessLevel: string;
+	subscribers?: number;
+	paidSubscribers?: number;
+	postHasPaywallBlock?: boolean;
+}
 
 export function getReachForAccessLevelKey( {
 	accessLevel,
 	subscribers, // This can be either total subscribers or email subscribers depending on the view where this is used.
 	paidSubscribers,
 	postHasPaywallBlock = false,
-} ) {
+}: ReachForAccessLevelKeyArgs ): number {
 	subscribers = subscribers ?? 0;
 	paidSubscribers = paidSubscribers ?? 0;
 
@@ -58,7 +66,7 @@ export function getReachForAccessLevelKey( {
  * @param {boolean} postHasPaywallBlock - Whether the post contains a paywall block.
  * @return {string} Description of the current access level.
  */
-export function getAccessDescription( accessLevel, postHasPaywallBlock = false ) {
+export function getAccessDescription( accessLevel: string, postHasPaywallBlock = false ): string {
 	// The unused third argument to __() keeps the two calls in each branch from being
 	// merged into a single __( cond ? a : b ) by the production minifier, which would
 	// leave a non-literal msgid and fail the i18n check.
@@ -68,6 +76,7 @@ export function getAccessDescription( accessLevel, postHasPaywallBlock = false )
 				? __(
 						'Only subscribers can read the content below the paywall. Subscribers receive it by email.',
 						'jetpack',
+						// @ts-expect-error -- Intentional extra argument; see the comment above.
 						0
 					)
 				: __(
@@ -79,6 +88,7 @@ export function getAccessDescription( accessLevel, postHasPaywallBlock = false )
 				? __(
 						'Only paid subscribers can read the content below the paywall. All subscribers receive it by email.',
 						'jetpack',
+						// @ts-expect-error -- Intentional extra argument; see the comment above.
 						0
 					)
 				: __(
@@ -90,7 +100,7 @@ export function getAccessDescription( accessLevel, postHasPaywallBlock = false )
 	}
 }
 
-export function useSetAccess() {
+export function useSetAccess(): ( value: string ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
@@ -103,7 +113,7 @@ export function useSetAccess() {
 	};
 }
 
-export function useSetTier() {
+export function useSetTier(): ( value: number | string ) => void {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ metas, setPostMeta ] = useEntityProp( 'postType', postType, 'meta' );
 	return value => {
@@ -114,11 +124,19 @@ export function useSetTier() {
 	};
 }
 
+interface NewsletterTierProduct {
+	id: number | string;
+	title: string;
+	price: number | string;
+	interval: string;
+}
+
 function TierSelector() {
 	// TODO: figure out how to handle different currencies
-	const products = useSelect( select =>
+	const tierProducts: NewsletterTierProduct[] = useSelect( select =>
 		select( membershipProductsStore ).getNewsletterTierProducts()
-	)
+	);
+	const products = tierProducts
 		.filter( product => product.interval === '1 month' )
 		.sort( ( p1, p2 ) => Number( p2.price ) - Number( p1.price ) );
 
@@ -135,7 +153,7 @@ function TierSelector() {
 	// Tiers don't apply if less than 2 products (this is called here because
 	// the hooks have to run before any early returns)
 	if ( products.length < 2 ) {
-		return;
+		return null;
 	}
 
 	return (
@@ -143,16 +161,26 @@ function TierSelector() {
 			<RadioControl
 				label={ __( 'Choose Newsletter Tier', 'jetpack' ) }
 				hideLabelFromVision={ true }
-				selected={ Number( tierId ) }
-				options={ products.map( product => {
-					const label = product.title;
-					const value = Number( product.id );
-					return { label, value };
-				} ) }
-				onChange={ setTier }
+				selected={ String( tierId ) }
+				options={ products.map( product => ( {
+					label: product.title,
+					value: String( product.id ),
+				} ) ) }
+				onChange={ value => setTier( Number( value ) ) }
 			/>
 		</div>
 	);
+}
+
+interface AccessOptionProps {
+	id: string;
+	groupName: string;
+	value: string;
+	label: string;
+	checked: boolean;
+	disabled: boolean;
+	describedBy?: string;
+	onChange: ( value: string ) => void;
 }
 
 /**
@@ -178,9 +206,18 @@ function TierSelector() {
  * @param {boolean}  props.disabled      - Whether this option cannot be chosen.
  * @param {string}   [props.describedBy] - Id of the element explaining why it is unavailable.
  * @param {Function} props.onChange      - Called with the new access level key.
- * @return {import('react').ReactElement} The option.
+ * @return {ReactElement} The option.
  */
-function AccessOption( { id, groupName, value, label, checked, disabled, describedBy, onChange } ) {
+function AccessOption( {
+	id,
+	groupName,
+	value,
+	label,
+	checked,
+	disabled,
+	describedBy,
+	onChange,
+}: AccessOptionProps ): ReactElement {
 	return (
 		<div
 			className={ clsx( 'components-radio-control__option', {
@@ -216,13 +253,21 @@ function AccessOption( { id, groupName, value, label, checked, disabled, describ
 	);
 }
 
+interface NewsletterAccessRadioButtonsProps {
+	accessLevel: string;
+	hasTierPlans: boolean;
+	stripeConnectUrl: string | null;
+	postHasPaywallBlock?: boolean;
+	explainPaywallConstraint?: boolean;
+}
+
 export function NewsletterAccessRadioButtons( {
 	accessLevel,
 	hasTierPlans,
 	stripeConnectUrl,
-	postHasPaywallBlock: postHasPaywallBlock = false,
+	postHasPaywallBlock = false,
 	explainPaywallConstraint = true,
-} ) {
+}: NewsletterAccessRadioButtonsProps ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers } = useSelect( select =>
 		select( membershipProductsStore ).getSubscriberCounts()
@@ -275,7 +320,12 @@ export function NewsletterAccessRadioButtons( {
 	const paywallNoticeId = `${ instanceId }-paywall-notice`;
 	const setupLinkId = `${ instanceId }-paid-setup-link`;
 
-	const options = [
+	const options: Array< {
+		value: string;
+		label: string;
+		disabled?: boolean;
+		describedBy?: string;
+	} > = [
 		{
 			value: accessOptions.everybody.key,
 			label: accessOptions.everybody.label,
@@ -344,12 +394,11 @@ export function NewsletterAccessRadioButtons( {
 	);
 }
 
-export function NewsletterAccessDocumentSettings( { accessLevel } ) {
+export function NewsletterAccessDocumentSettings( { accessLevel }: { accessLevel?: string } ) {
 	const { hasTierPlans, stripeConnectUrl, isLoading, postHasPaywallBlock } = useSelect( select => {
-		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } = select(
-			'jetpack/membership-products'
-		);
-		const { getBlocks } = select( 'core/block-editor' );
+		const { getNewsletterTierProducts, getConnectUrl, isApiStateLoading } =
+			select( membershipProductsStore );
+		const { getBlocks } = select( blockEditorStore );
 
 		return {
 			isLoading: isApiStateLoading(),
@@ -376,10 +425,10 @@ export function NewsletterAccessDocumentSettings( { accessLevel } ) {
 
 	return (
 		<PostVisibilityCheck
-			render={ ( { canEdit } ) => (
+			render={ ( { canEdit }: { canEdit: boolean } ) => (
 				<Flex direction="column">
 					{ showMisconfigurationWarning && <MisconfigurationWarning /> }
-					<FlexBlock direction="row" justify="flex-start">
+					<FlexBlock>
 						{ canEdit && (
 							<NewsletterAccessRadioButtons
 								accessLevel={ _accessLevel }
@@ -415,11 +464,11 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isAlreadySent = postEmailSentState?.email_sent_at != null;
 
-	const toggleSendEmail = value => {
+	const toggleSendEmail = ( checked: boolean ) => {
 		const postMetaUpdate = {
 			...postMeta,
 			// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: value === 'post-only',
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: ! checked,
 		};
 		setPostMeta( postMetaUpdate );
 		saveEditedEntityRecord( 'postType', postType, postId );
@@ -427,8 +476,7 @@ export function NewsletterEmailDocumentSettings() {
 
 	const isSendEmailEnabled = useSelect( select => {
 		const meta = select( editorStore ).getEditedPostAttribute( 'meta' );
-		// Meta value is negated, "don't send", but toggle is truthy when enabled "send"
-		return meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ] ? 'post-only' : 'post-and-email';
+		return ! meta?.[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ];
 	} );
 
 	if ( isAlreadySent ) {
@@ -437,25 +485,15 @@ export function NewsletterEmailDocumentSettings() {
 
 	return (
 		<PostVisibilityCheck
-			render={ ( { canEdit } ) => {
+			render={ ( { canEdit }: { canEdit: boolean } ) => {
 				return (
-					<ToggleGroupControl
-						value={ isSendEmailEnabled }
-						disabled={ isPostPublished || ! canEdit }
-						onChange={ toggleSendEmail }
-						isBlock
-						label={ __( 'Send as email to subscribers?', 'jetpack' ) }
-						hideLabelFromVision={ true }
+					<ToggleControl
 						className="jetpack-subscribe-email-document-setting"
-						__nextHasNoMarginBottom={ true }
-						__next40pxDefaultSize={ true }
-					>
-						<ToggleGroupControlOption
-							label={ __( 'Post & email', 'jetpack' ) }
-							value="post-and-email"
-						/>
-						<ToggleGroupControlOption label={ __( 'Post only', 'jetpack' ) } value="post-only" />
-					</ToggleGroupControl>
+						checked={ isSendEmailEnabled }
+						disabled={ isPostPublished || ! canEdit }
+						label={ __( 'Send this post to subscribers', 'jetpack' ) }
+						onChange={ toggleSendEmail }
+					/>
 				);
 			} }
 		/>
