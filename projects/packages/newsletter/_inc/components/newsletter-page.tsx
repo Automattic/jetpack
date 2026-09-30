@@ -7,7 +7,7 @@ import { useNavigate } from '@wordpress/route';
 import { Tabs } from '@wordpress/ui';
 import { getNewsletterScriptData } from '../../src/settings/script-data';
 import './newsletter-page.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type NewsletterTab = 'overview' | 'stats' | 'subscribers' | 'settings';
 

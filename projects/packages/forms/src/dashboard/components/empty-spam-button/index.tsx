@@ -9,6 +9,7 @@ import { trash } from '@wordpress/icons';
  */
 import useEmptySpam from '../../hooks/use-empty-spam';
 import EmptySpamConfirmationModal from './confirmation-modal';
+import type { JSX } from 'react';
 
 interface EmptySpamButtonProps {
 	totalItemsSpam?: number;

@@ -38,6 +38,7 @@ import {
 	type ReportLocationsTabId,
 } from './config';
 import type { View } from '@jetpack-premium-analytics/externals';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 

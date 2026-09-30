@@ -35,6 +35,7 @@ import {
 	WelcomeEmailSection,
 } from './sections';
 import type { NewsletterSettings } from './types';
+import type { JSX } from 'react';
 
 /**
  * Normalize settings from API response.

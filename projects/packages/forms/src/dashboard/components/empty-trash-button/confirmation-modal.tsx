@@ -4,6 +4,7 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __, _n, sprintf } from '@wordpress/i18n';
+import type { JSX } from 'react';
 
 interface EmptyTrashConfirmationModalProps {
 	isOpen: boolean;

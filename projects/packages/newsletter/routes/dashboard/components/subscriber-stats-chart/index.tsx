@@ -14,7 +14,7 @@ import clsx from 'clsx';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
 import RecentPosts, { type RecentPost } from '../recent-posts';
 import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
-import type { MouseEvent } from 'react';
+import type { JSX, MouseEvent } from 'react';
 import './style.scss';
 
 type SubscribersStatsResponse = {

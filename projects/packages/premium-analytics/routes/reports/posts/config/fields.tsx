@@ -23,7 +23,7 @@ import {
 import { __ } from '@wordpress/i18n';
 import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { useMemo } from 'react';
+import { useMemo, type JSX } from 'react';
 /**
  * Internal dependencies
  */
