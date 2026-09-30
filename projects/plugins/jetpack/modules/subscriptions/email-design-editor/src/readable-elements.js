@@ -10,7 +10,7 @@
 import { contrastRatio, isNeutral, isSameColor, MINIMUM_CONTRAST, readableOn } from './text-color';
 
 // Content links, and headings including the post title (`h1`) and the header's site title (`h2`).
-const MANAGED = [ 'link', 'heading', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
+export const MANAGED = [ 'link', 'heading', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
 
 /**
  * The design's `elements` with the colors the new background calls for.
@@ -42,9 +42,7 @@ export function nextElements( styles, before, background, inherited ) {
 				changed;
 		}
 
-		if ( 'link' === element ) {
-			changed = nextUnderline( elements, original, before, background, ours ) || changed;
-		}
+		changed = nextUnderline( elements, element, original, before, background, ours ) || changed;
 	} );
 
 	return changed ? prune( elements ) : null;
@@ -58,34 +56,42 @@ export function nextElements( styles, before, background, inherited ) {
  * taking the color over.
  *
  * @param {object}  elements   - The design's `elements`, modified in place.
- * @param {*}       original   - The color the site gives the link.
+ * @param {string}  element    - The element being written.
+ * @param {*}       original   - The color the site gives the element.
  * @param {*}       before     - The background before the change.
  * @param {*}       background - The background after it.
  * @param {boolean} ours       - Whether the link's color is this module's to set.
  * @return {boolean} True when the tree changed.
  */
-function nextUnderline( elements, original, before, background, ours ) {
-	const stored = elements.link?.typography?.textDecoration;
+function nextUnderline( elements, element, original, before, background, ours ) {
+	const stored = elements[ element ]?.typography?.textDecoration;
 
-	if ( undefined !== stored && stored !== underlineFor( original, before ) ) {
+	if ( undefined !== stored && stored !== underlineFor( element, original, before ) ) {
 		return false;
 	}
 
 	return setPath(
 		elements,
-		[ 'link', 'typography', 'textDecoration' ],
-		ours ? underlineFor( original, background ) : null
+		[ element, 'typography', 'textDecoration' ],
+		ours ? underlineFor( element, original, background ) : null
 	);
 }
 
 /**
- * Whether a link comes out gray on a background, and so is underlined rather than recolored.
+ * Whether an element comes out gray on a background, and so is underlined rather than recolored.
  *
- * @param {*} original   - The color the site gives the link.
- * @param {*} background - The background it sits on.
- * @return {string|null} `'underline'`, or null when the link keeps a hue of its own.
+ * Only a link is: a heading that loses its hue is left to read as a heading.
+ *
+ * @param {string} element    - The element.
+ * @param {*}      original   - The color the site gives it.
+ * @param {*}      background - The background it sits on.
+ * @return {string|null} `'underline'`, or null when nothing should be underlined.
  */
-function underlineFor( original, background ) {
+export function underlineFor( element, original, background ) {
+	if ( 'link' !== element ) {
+		return null;
+	}
+
 	const readable = readableFor( original, background );
 
 	return null !== readable && isNeutral( readable ) ? 'underline' : null;
@@ -98,7 +104,7 @@ function underlineFor( original, background ) {
  * @param {*} background - The background it sits on.
  * @return {string|null} The readable color, or null to leave the site's own alone.
  */
-function readableFor( original, background ) {
+export function readableFor( original, background ) {
 	const ratio = contrastRatio( original, background );
 
 	// A color that cannot be judged is left as it was: contrast against an unknown is not a number.

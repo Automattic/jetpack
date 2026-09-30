@@ -1,4 +1,6 @@
-import { nextElements } from '../src/readable-elements';
+import { nextElements, readableFor, underlineFor, MANAGED } from '../src/readable-elements';
+import { MINIMUM_CONTRAST } from '../src/text-color';
+import fixture from './data/readable-elements.json';
 
 // From the shared fixture: what #0073aa and gray #333333 become on each background.
 const DARK = '#1e1e1e';
@@ -123,5 +125,27 @@ describe( 'nextElements', () => {
 		nextElements( styles, DARK, DARKER, { link: ACCENT } );
 
 		expect( styles.elements.link.color.text ).toBe( ACCENT_ON_DARK );
+	} );
+} );
+
+describe( 'the rules shared with the WordPress.com renderer', () => {
+	it( 'manages the same elements', () => {
+		expect( fixture.minimumContrast ).toBe( MINIMUM_CONTRAST );
+		expect( MANAGED ).toEqual( fixture.elements );
+	} );
+
+	it( 'makes every shared case readable the same way', () => {
+		expect(
+			fixture.cases.map( ( { color, background } ) => readableFor( color, background ) )
+		).toEqual( fixture.cases.map( ( { readable } ) => readable ) );
+	} );
+
+	it( 'underlines the same cases', () => {
+		expect(
+			fixture.cases.map(
+				( { element, color, background } ) =>
+					'underline' === underlineFor( element, color, background )
+			)
+		).toEqual( fixture.cases.map( ( { underline } ) => underline ) );
 	} );
 } );
