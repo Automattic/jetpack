@@ -79,6 +79,7 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 		remove_all_filters( 'plugins_api_result' );
 		remove_all_filters( 'plugin_install_action_links' );
 		remove_all_filters( 'plugin_install_description' );
+		unset( $_REQUEST['s'] );
 
 		parent::tear_down();
 	}
@@ -208,11 +209,12 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '<span class="wpcom-marketplace-label">WordPress.com Marketplace</span>', $html );
 		$this->assertMatchesRegularExpression( '#<template class="wpcom-marketplace-strip">.*\$109\.00.*</template>#s', $html );
+		$this->assertStringContainsString( '<strong>Compatible</strong> with your version of WordPress', $html );
 		$this->assertSame( 'Core description.', wpcom_marketplace_search_description( 'Core description.', array( 'slug' => 'other' ) ) );
 	}
 
 	/**
-	 * An installed plugin's strip empties rather than showing a price or WordPress.org's stats.
+	 * An installed plugin's strip keeps core's right column but drops the price, as Calypso does.
 	 */
 	public function test_an_installed_plugins_strip_is_empty() {
 		set_site_transient(
@@ -227,9 +229,44 @@ class Wpcom_Marketplace_Search_Test extends \WorDBless\BaseTestCase {
 			)
 		);
 
-		$this->assertStringContainsString(
-			'<template class="wpcom-marketplace-strip"></template>',
-			wpcom_marketplace_search_description( '', $this->card( 'usps', 'USPS Shipping Method' ) )
+		$strip = wpcom_marketplace_search_strip( $this->card( 'usps', 'USPS Shipping Method' ) );
+
+		$this->assertStringContainsString( '<div class="column-rating wpcom-marketplace-card__headline"></div>', $strip );
+		$this->assertStringContainsString( 'Compatible', $strip );
+	}
+
+	/**
+	 * The date comes from the catalog, and a product without one says who keeps it current.
+	 */
+	public function test_the_strip_says_when_it_was_last_updated() {
+		$card = $this->card( 'usps', 'USPS Shipping Method' );
+
+		$card['last_updated'] = gmdate( 'Y-m-d H:i:s', time() - 3 * DAY_IN_SECONDS );
+		$this->assertStringContainsString( '<strong>Last Updated:</strong> 3 days ago', wpcom_marketplace_search_strip( $card ) );
+
+		$card['last_updated'] = '';
+		$this->assertStringContainsString( 'Managed by WordPress.com', wpcom_marketplace_search_strip( $card ) );
+	}
+
+	/**
+	 * Checkout's Back link returns to the search that led there, not to the Marketplace tab.
+	 */
+	public function test_checkout_returns_to_the_search() {
+		$_REQUEST['s'] = 'shipping & more';
+
+		$url = wpcom_marketplace_search_url();
+		$this->assertStringContainsString( 'plugin-install.php', $url );
+		parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+		$this->assertSame(
+			array(
+				's'    => 'shipping & more',
+				'tab'  => 'search',
+				'type' => 'term',
+			),
+			$query
 		);
+
+		unset( $_REQUEST['s'] );
+		$this->assertSame( wpcom_marketplace_tab_url(), wpcom_marketplace_search_url() );
 	}
 }

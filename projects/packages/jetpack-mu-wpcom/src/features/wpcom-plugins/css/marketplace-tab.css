@@ -76,6 +76,14 @@
 	display: none;
 }
 
+/*
+ * Core's rating column sets a 23px line height, which the smaller /year and
+ * saving badge would inherit, growing the row a pixel past core's.
+ */
+.plugin-card-bottom .wpcom-marketplace-card__headline {
+	line-height: inherit;
+}
+
 .wpcom-marketplace-label {
 	display: block;
 	inline-size: fit-content;

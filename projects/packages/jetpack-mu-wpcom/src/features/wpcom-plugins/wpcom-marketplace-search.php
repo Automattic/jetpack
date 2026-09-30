@@ -126,17 +126,42 @@ function wpcom_marketplace_search_action_links( $links, $plugin ) {
 		return $links;
 	}
 
-	$links[0] = wpcom_marketplace_card_button( $plugin );
+	$links[0] = wpcom_marketplace_card_button( $plugin, wpcom_marketplace_search_url() );
 
 	return array_values( array_filter( $links ) );
 }
 
 /**
- * Labels our cards, and carries the price their bottom strip should show.
+ * The search being shown, which is where checkout's Back link should return to.
+ *
+ * Core reads the term from the request for both the page and its Ajax live search.
+ *
+ * @return string Search results URL, or the Marketplace tab when there is no term.
+ */
+function wpcom_marketplace_search_url() {
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Core's handler verifies the Ajax search; this only echoes the term back.
+	$term = isset( $_REQUEST['s'] ) ? sanitize_text_field( wp_unslash( $_REQUEST['s'] ) ) : '';
+	if ( '' === $term ) {
+		return wpcom_marketplace_tab_url();
+	}
+
+	// add_query_arg() does not encode values.
+	return add_query_arg(
+		array(
+			's'    => rawurlencode( $term ),
+			'tab'  => 'search',
+			'type' => 'term',
+		),
+		self_admin_url( 'plugin-install.php' )
+	);
+}
+
+/**
+ * Labels our cards, and carries the bottom strip they should show.
  *
  * Core has no filter for the strip and fills it with WordPress.org ratings and install
- * counts, which these plugins do not have. The price rides in a template, which is valid
- * inside core's <p>, and js/search-results.js moves it into the strip.
+ * counts, which these plugins do not have. Ours rides in a template, which is valid inside
+ * core's <p>, and js/search-results.js moves it into place.
  *
  * @param string $description Card description.
  * @param array  $plugin      Plugin data.
@@ -147,18 +172,49 @@ function wpcom_marketplace_search_description( $description, $plugin ) {
 		return $description;
 	}
 
-	$price = '';
-	if ( 'install' === install_plugin_install_status( $plugin )['status'] ) {
-		ob_start();
-		wpcom_marketplace_render_price( $plugin );
-		$price = ob_get_clean();
-	}
-
 	return sprintf(
 		'<span class="wpcom-marketplace-label">%s</span>%s<template class="wpcom-marketplace-strip">%s</template>',
 		esc_html__( 'WordPress.com Marketplace', 'jetpack-mu-wpcom' ),
 		esc_html( wpcom_marketplace_card_description( $plugin ) ),
-		$price
+		wpcom_marketplace_search_strip( $plugin ) // Built from escaped parts.
+	);
+}
+
+/**
+ * A card's bottom strip, in core's own columns so it lines up with the cards around it.
+ *
+ * The price takes the left column, where core shows ratings and installs, as the tab's flex
+ * rows so its mixed sizes keep core's row heights. The right keeps core's last updated date
+ * and compatibility, which WordPress.com manages for these plugins.
+ *
+ * @param array $plugin Plugin data.
+ * @return string Strip markup, built from escaped parts.
+ */
+function wpcom_marketplace_search_strip( array $plugin ) {
+	// Calypso drops the price once a plugin is installed.
+	$rows = 'install' === install_plugin_install_status( $plugin )['status']
+		? wpcom_marketplace_price_rows( $plugin )
+		: array(
+			'headline' => '',
+			'note'     => '',
+		);
+
+	$updated = strtotime( (string) ( $plugin['last_updated'] ?? '' ) );
+	$updated = $updated
+		? sprintf(
+			'<strong>%s</strong> %s',
+			esc_html__( 'Last Updated:', 'jetpack-mu-wpcom' ),
+			/* translators: %s: Time since the plugin was updated, for example 2 days. */
+			esc_html( sprintf( __( '%s ago', 'jetpack-mu-wpcom' ), human_time_diff( $updated ) ) )
+		)
+		: esc_html__( 'Managed by WordPress.com', 'jetpack-mu-wpcom' );
+
+	return sprintf(
+		'<div class="column-rating wpcom-marketplace-card__headline">%s</div><div class="column-updated">%s</div><div class="column-downloaded wpcom-marketplace-card__alternative">%s</div><div class="column-compatibility"><span class="compatibility-compatible">%s</span></div>',
+		$rows['headline'],
+		$updated,
+		$rows['note'],
+		wp_kses( __( '<strong>Compatible</strong> with your version of WordPress', 'jetpack-mu-wpcom' ), array( 'strong' => array() ) )
 	);
 }
 
@@ -174,14 +230,14 @@ function wpcom_marketplace_search_assets() {
 		'wpcom-marketplace-tab',
 		plugins_url( 'css/marketplace-tab.css', __FILE__ ),
 		array(),
-		\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		(string) filemtime( __DIR__ . '/css/marketplace-tab.css' )
 	);
 
 	wp_enqueue_script(
 		'wpcom-marketplace-search',
 		plugins_url( 'js/search-results.js', __FILE__ ),
 		array(),
-		\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
+		(string) filemtime( __DIR__ . '/js/search-results.js' ),
 		true
 	);
 }

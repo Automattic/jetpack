@@ -1,15 +1,14 @@
 /**
- * Moves each Marketplace card's price into its bottom strip in core's search results.
+ * Swaps each Marketplace card's bottom strip in core's search results for its own.
  *
- * Core fills the strip with WordPress.org stats and has no filter for it, so the price
- * arrives in a template in the description. Jetpack's plugin search hint swaps the strip
- * the same way.
+ * Core fills the strip with WordPress.org stats and has no filter for it, so ours arrives
+ * in a template in the description. Jetpack's plugin search hint swaps the strip the same way.
  */
 ( function () {
 	/**
-	 * Places every price still waiting in a template.
+	 * Places every strip still waiting in a template.
 	 */
-	function placePrices() {
+	function placeStrips() {
 		document
 			.querySelectorAll( '#plugin-filter template.wpcom-marketplace-strip' )
 			.forEach( function ( template ) {
@@ -17,7 +16,6 @@
 				const strip = card && card.querySelector( '.plugin-card-bottom' );
 
 				if ( strip ) {
-					card.classList.add( 'wpcom-marketplace-card' );
 					strip.replaceChildren( template.content.cloneNode( true ) );
 				}
 				template.remove();
@@ -30,9 +28,9 @@
 			return;
 		}
 
-		placePrices();
+		placeStrips();
 
 		// Core's live search empties #plugin-filter and appends the new results to it.
-		new MutationObserver( placePrices ).observe( results, { childList: true, subtree: true } );
+		new MutationObserver( placeStrips ).observe( results, { childList: true, subtree: true } );
 	} );
 } )();
