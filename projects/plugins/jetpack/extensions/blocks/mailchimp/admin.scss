@@ -1,5 +1,14 @@
+// Flex keeps the save status beside the dropdown even where admin styles
+// make labels block-level.
 .jetpack-mailchimp-settings {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
 	margin-block: 8px;
+
+	.notice {
+		flex-basis: 100%;
+	}
 
 	select {
 		margin-left: 8px;
