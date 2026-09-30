@@ -477,10 +477,14 @@ function SectionHeading( { title, showShield = false } ) {
 /**
  * Shield shown beside the Connection owner title while a protected owner is requested or stored.
  *
+ * Nothing is locked until an anchor exists, so a requested owner gets its own wording.
+ *
  * @return {object} React element.
  */
 function ProtectedOwnerShield() {
-	const notice = __( 'Ownership is locked to this account.', 'jetpack-connection' );
+	const notice = protectedOwnerState()?.anchored
+		? __( 'Ownership is locked to the confirmed owner.', 'jetpack-connection' )
+		: __( 'Ownership will be locked once an owner is confirmed.', 'jetpack-connection' );
 	const icon = createElement( 'span', {
 		className: 'dashicons dashicons-shield jetpack-connector__protected-owner-shield',
 		role: 'img',
@@ -514,15 +518,25 @@ function connectedAccountTitle( user ) {
 }
 
 /**
- * Slot each Manager::PO_STATE_* value asks for. Absent means the protected owner is settled
- * (`RE_EVALUATE`) or this viewer has no part in it (`NOT_ELIGIBLE`), so the card is unchanged.
+ * What each Manager::PO_STATE_* value means for the card: which slot it asks for, and whether
+ * an anchor is stored. A status missing here, such as `NOT_ELIGIBLE`, leaves the card as it is.
  */
-const PROTECTED_OWNER_SLOTS = {
-	CAN_ESTABLISH: 'confirm',
-	NEEDS_CONNECT_TO_ESTABLISH: 'connect',
-	NEEDS_OWNER_RECONNECT: 'support',
-	NEEDS_DIFFERENT_OWNER: 'support',
+const PROTECTED_OWNER_STATES = {
+	CAN_ESTABLISH: { slot: 'confirm', anchored: false },
+	NEEDS_CONNECT_TO_ESTABLISH: { slot: 'connect', anchored: false },
+	NEEDS_OWNER_RECONNECT: { slot: 'support', anchored: true },
+	NEEDS_DIFFERENT_OWNER: { slot: 'support', anchored: true },
+	RE_EVALUATE: { slot: null, anchored: true },
 };
+
+/**
+ * What the card should do about this site's protected owner.
+ *
+ * @return {object|null} Entry from PROTECTED_OWNER_STATES, or null when there is nothing to do.
+ */
+function protectedOwnerState() {
+	return ( protectedOwner && PROTECTED_OWNER_STATES[ protectedOwner.status ] ) || null;
+}
 
 /**
  * Which protected-owner slot to render, if any.
@@ -530,7 +544,7 @@ const PROTECTED_OWNER_SLOTS = {
  * @return {string|null} `confirm`, `connect`, `support`, or null.
  */
 function protectedOwnerSlotKind() {
-	return ( protectedOwner && PROTECTED_OWNER_SLOTS[ protectedOwner.status ] ) || null;
+	return protectedOwnerState()?.slot || null;
 }
 
 /**
@@ -542,6 +556,15 @@ function protectedOwnerSlotKind() {
  */
 function protectedOwnerIsPending() {
 	return protectedOwnerSlotKind() !== null;
+}
+
+/**
+ * Whether the connection owner is the protected owner the anchor names.
+ *
+ * @return {boolean} True once a protected owner is settled.
+ */
+function protectedOwnerIsEstablished() {
+	return Boolean( protectedOwnerState()?.anchored ) && ! protectedOwnerIsPending();
 }
 
 /**
@@ -1380,6 +1403,9 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 			? createElement( UserSection, {
 					title: connectedAccountTitle( currentUser ),
 					user: currentUser,
+					// This row stands in for the connection-owner row when the viewer is the
+					// owner, so it carries the shield the other row would have shown.
+					showShield: Boolean( currentUser.isOwner ) && protectedOwnerIsEstablished(),
 					actionSlot:
 						isManagedPlatformSite && currentUser.isOwner
 							? null
@@ -1427,7 +1453,7 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
 					subtitle: false,
-					showShield: Boolean( protectedOwner ),
+					showShield: protectedOwnerIsEstablished(),
 				} )
 			: null,
 
