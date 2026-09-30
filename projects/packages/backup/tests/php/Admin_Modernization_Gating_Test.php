@@ -38,6 +38,7 @@ use function wp_set_current_user;
 
 require_once __DIR__ . '/mock-wp-build-render-page.php';
 require_once __DIR__ . '/mock-wpcomsh-site-sticker.php';
+require_once __DIR__ . '/trait-wp-build-entry-fixture.php';
 
 /**
  * Tests the flag -> menu callback -> enqueue chain.
@@ -46,6 +47,7 @@ require_once __DIR__ . '/mock-wpcomsh-site-sticker.php';
  */
 #[CoversClass( Jetpack_Backup::class )]
 class Admin_Modernization_Gating_Test extends TestCase {
+	use Wp_Build_Entry_Fixture;
 
 	/** @var string[] Handles the code under test registers itself. */
 	private const OWNED_SCRIPT_HANDLES = array( 'jetpack-backup', 'jp-tracks', 'jp-tracks-functions' );
@@ -90,6 +92,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 		Status_Cache::clear();
 		WorDBless_Options::init()->clear_options();
+		$this->remove_wp_build_entry();
 
 		parent::tearDown();
 	}
@@ -253,6 +256,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 
 	public function test_add_wp_admin_submenu_uses_wp_build_callback_when_modernized() {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
+		$this->ensure_wp_build_entry();
 
 		Jetpack_Backup::add_wp_admin_submenu();
 

@@ -245,10 +245,11 @@ class Jetpack_Backup {
 			? 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page'
 			: array( __CLASS__, 'plugin_settings_page' );
 
-		// The relabel rides the modernized dashboard rather than the filter alone,
-		// so a fallback to the legacy page also falls back to the legacy title.
-		$page_title = $wp_build_active ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
-		$menu_title = $wp_build_active ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
+		// The build loads only on the Backup page, so the label checks the shipped file to read the same everywhere.
+		// A missing build falls back to the legacy page, and to the legacy title with it.
+		$relabel    = self::is_modernized() && file_exists( self::wp_build_entry_file() );
+		$page_title = $relabel ? 'Jetpack VaultPress Backup' : 'Jetpack Backup';
+		$menu_title = $relabel ? 'VaultPress Backup' : 'Backup'; // Product name, do not translate.
 
 		$page_suffix = Admin_Menu::add_menu(
 			$page_title,
@@ -1205,7 +1206,7 @@ class Jetpack_Backup {
 	 * @return void
 	 */
 	private static function load_wp_build() {
-		$build_index = dirname( __DIR__ ) . '/build/build.php';
+		$build_index = self::wp_build_entry_file();
 
 		if ( ! file_exists( $build_index ) ) {
 			return;
@@ -1220,6 +1221,15 @@ class Jetpack_Backup {
 				\Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills::MODULE_IDS
 			)
 		);
+	}
+
+	/**
+	 * Path to the wp-build entry file. `build/` is gitignored, so it may not exist.
+	 *
+	 * @return string
+	 */
+	private static function wp_build_entry_file() {
+		return dirname( __DIR__ ) . '/build/build.php';
 	}
 
 	/**
