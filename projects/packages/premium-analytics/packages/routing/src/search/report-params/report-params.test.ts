@@ -4,6 +4,8 @@ import {
 	hasPrimaryDateDraft,
 	omitComparisonReportParams,
 	pickReportDateParams,
+	pickReportOriginWindowParams,
+	toReportOriginWindowParams,
 } from './report-params';
 
 /**
@@ -98,6 +100,27 @@ describe( 'omitComparisonReportParams', () => {
 	} );
 } );
 
+describe( 'origin window params', () => {
+	it( 'stores the linking window under prefixed keys and picks them back out', () => {
+		const stored = toReportOriginWindowParams( {
+			from: '2026-01-01',
+			preset: 'last-7-days',
+			post_id: '7',
+		} );
+
+		expect( stored ).toEqual( { ref_from: '2026-01-01', ref_preset: 'last-7-days' } );
+		expect(
+			pickReportOriginWindowParams( { ...stored, from: '2020-03-04', ref: 'posts' } )
+		).toEqual( stored );
+	} );
+
+	it( 'stores nothing for an all-time window', () => {
+		expect(
+			toReportOriginWindowParams( { from: '2020-03-04', to: '2026-01-31', preset: 'all-time' } )
+		).toEqual( {} );
+	} );
+} );
+
 describe( 'buildDashboardLink', () => {
 	it( 'returns the bare dashboard path when no report params are set', () => {
 		expect( buildDashboardLink( {} ) ).toBe( '/' );
@@ -140,11 +163,26 @@ describe( 'buildDashboardLink', () => {
 			buildDashboardLink( {
 				from: '2026-01-01',
 				period: 'week',
-				post_id: '42',
 				section: 'archives',
 			} ),
 			'/',
 			{ from: '2026-01-01' }
+		);
+	} );
+
+	it( 'returns a detail page to the window it was opened from, not its own', () => {
+		expect.assertions( 2 );
+		expectLink(
+			buildDashboardLink( {
+				from: '2020-03-04',
+				preset: 'all-time',
+				post_id: '42',
+				ref_from: '2026-01-01',
+				ref_preset: 'last-7-days',
+				ref_comp: '1',
+			} ),
+			'/',
+			{ from: '2026-01-01', preset: 'last-7-days', comp: '1' }
 		);
 	} );
 
@@ -214,14 +252,21 @@ describe( 'buildReportLink', () => {
 		expect.assertions( 2 );
 		expectLink(
 			buildReportLink( 'emails', {
-				from: '2026-01-01',
+				from: '2020-03-04',
 				post_id: '42',
 				section: 'email-opens',
 				ref: 'emails',
 				ref_section: 'posts',
+				ref_from: '2026-01-01',
 			} ),
 			'/reports/emails',
 			{ from: '2026-01-01' }
+		);
+	} );
+
+	it( 'carries no window from a detail page opened without one', () => {
+		expect( buildReportLink( 'posts', { from: '2020-03-04', post_id: '42' } ) ).toBe(
+			'/reports/posts'
 		);
 	} );
 

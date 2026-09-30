@@ -293,7 +293,7 @@ export function stage(): JSX.Element {
 		<AnalyticsQueryClientProvider>
 			{ /*
 			 * The page names no compared period, so nothing below may fetch or draw
-			 * one. The params stay on the URL for the breadcrumb to carry back out.
+			 * one, even when a hand-edited URL carries comparison params.
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
 				<PeriodChangeSignalProvider>

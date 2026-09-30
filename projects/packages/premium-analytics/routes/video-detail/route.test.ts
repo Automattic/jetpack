@@ -9,6 +9,10 @@ import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	computeDateRangeFromPreset: jest.fn( () => ( {
+		from: '2021-01-01T00:00:00',
+		to: '2026-06-16T23:59:59',
+	} ) ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Mirrors the real normalizer's relevant behavior: carries incoming params
 	// through and adds a default comparison preset on top.
@@ -131,35 +135,40 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
-	// The page renders no comparison, but the dashboard link carries the URL state
-	// back out — stripping the params would lose it on a round trip.
 	it( 'passes through comparison params without redirecting on a settled URL', async () => {
 		await expect(
 			beforeLoad( { videoId: '42' }, { ...settledSearch, comp: 'previous_period' } )
 		).resolves.toBeUndefined();
 	} );
 
-	it( 'carries comparison params through the seeded URL untouched', async () => {
+	it( 'opens a linked video on all time and keeps the linking window, comparison included', async () => {
 		let thrown: { search?: Record< string, unknown > } | undefined;
 		try {
 			await beforeLoad(
 				{ videoId: '42' },
 				{
-					...settledSearch,
-					post_id: '7',
-					comp: 'previous_period',
-					compare_from: '2026-05-01T00:00:00',
+					from: '2026-06-10T00:00:00',
+					to: '2026-06-16T23:59:59',
+					preset: 'last-7-days',
+					comp: '1',
+					compare_from: '2026-06-03T00:00:00',
 				}
 			);
 		} catch ( error ) {
 			thrown = error as { search?: Record< string, unknown > };
 		}
 
-		expect( thrown ).toMatchObject( { to: '/video/$videoId' } );
+		expect( normalizeReportParams ).toHaveBeenCalledWith(
+			expect.objectContaining( { preset: 'all-time', from: '2021-01-01T00:00:00' } )
+		);
 		expect( thrown?.search ).toMatchObject( {
 			post_id: '42',
-			comp: 'previous_period',
-			compare_from: '2026-05-01T00:00:00',
+			preset: 'all-time',
+			ref_from: '2026-06-10T00:00:00',
+			ref_to: '2026-06-16T23:59:59',
+			ref_preset: 'last-7-days',
+			ref_comp: '1',
+			ref_compare_from: '2026-06-03T00:00:00',
 		} );
 	} );
 } );

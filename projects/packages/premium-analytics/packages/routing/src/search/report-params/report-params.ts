@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
 import { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from '../dashboard-origin';
@@ -50,8 +54,81 @@ export function pickReportDateParams(
 }
 
 /**
- * Pick the params a link to another analytics route carries forward: the shared
- * report window plus the dashboard tab to return to.
+ * Prefix of the params a detail page keeps the linking page's window under, so
+ * the page can open on its own range while its way back restores the original.
+ */
+const ORIGIN_WINDOW_PREFIX = 'ref_';
+
+/**
+ * Store the linking page's window under the origin-window params.
+ *
+ * An all-time window is dropped: the dashboard's range tabs and the reports
+ * cannot name it, so the way back falls to the destination's default instead.
+ *
+ * @param search - The search params the detail page was linked with.
+ * @return The origin-window params.
+ */
+export function toReportOriginWindowParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	const linkedWindow = pickReportDateParams( search );
+	if ( linkedWindow.preset === PRESET_ALL_TIME ) {
+		return {};
+	}
+
+	return Object.fromEntries(
+		Object.entries( linkedWindow ).map( ( [ key, value ] ) => [
+			ORIGIN_WINDOW_PREFIX + key,
+			value,
+		] )
+	);
+}
+
+/**
+ * Pick the origin-window params out of a search object, still prefixed, so a
+ * detail route that allowlists its params can keep them across a seed.
+ *
+ * @param search - The current route search params.
+ * @return Only the origin-window params that are set.
+ */
+export function pickReportOriginWindowParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	const picked: Record< string, unknown > = {};
+	for ( const key of REPORT_DATE_PARAM_KEYS ) {
+		const value = search?.[ ORIGIN_WINDOW_PREFIX + key ];
+		if ( value !== undefined ) {
+			picked[ ORIGIN_WINDOW_PREFIX + key ] = value;
+		}
+	}
+	return picked;
+}
+
+/**
+ * Pick the window a link out of the current page returns to: on a detail page
+ * (scoped by `post_id`), the one it was opened from; elsewhere, the page's own.
+ *
+ * @param search - The current route search params.
+ * @return The unprefixed report-window params to carry.
+ */
+function pickReturnDateParams(
+	search: Record< string, unknown > | undefined
+): Record< string, unknown > {
+	if ( search?.post_id === undefined ) {
+		return pickReportDateParams( search );
+	}
+
+	return Object.fromEntries(
+		Object.entries( pickReportOriginWindowParams( search ) ).map( ( [ key, value ] ) => [
+			key.slice( ORIGIN_WINDOW_PREFIX.length ),
+			value,
+		] )
+	);
+}
+
+/**
+ * Pick the params a link to another analytics route carries forward: the
+ * report window to return to plus the dashboard tab.
  *
  * @param search - The current route search params.
  * @return A new object with the carried params that are set.
@@ -59,7 +136,7 @@ export function pickReportDateParams(
 export function pickReportNavigationParams(
 	search: Record< string, unknown > | undefined
 ): Record< string, unknown > {
-	return { ...pickReportDateParams( search ), ...pickDashboardOriginParams( search ) };
+	return { ...pickReturnDateParams( search ), ...pickDashboardOriginParams( search ) };
 }
 
 /**
@@ -95,12 +172,10 @@ const COMPARISON_PARAM_KEYS = [ 'comp', 'compare_from', 'compare_to', 'compare_p
 /**
  * Drop the comparison params from a search object, keeping everything else.
  *
- * Detail pages have no period-over-period comparison by design. The params
- * stay in the URL so the breadcrumb round trip preserves the dashboard's
- * comparison state, but the page strips them from the `reportParams` it
- * injects into its widgets, so no widget can render comparison data — the
- * page-wide invariant holds by construction instead of relying on every
- * widget to ignore them.
+ * Detail pages have no period-over-period comparison by design, so the page
+ * strips these from the `reportParams` it injects into its widgets: the
+ * invariant holds by construction instead of relying on every widget to
+ * ignore them.
  *
  * @param search - The current route search params.
  * @return A new object without the comparison params.
@@ -175,7 +250,7 @@ function buildReportWindowLink(
  */
 export function buildDashboardLink( search: Record< string, unknown > | undefined ): string {
 	const { [ DASHBOARD_ORIGIN_PARAM ]: section } = pickDashboardOriginParams( search );
-	return buildReportWindowLink( '/', pickReportDateParams( search ), section ? { section } : {} );
+	return buildReportWindowLink( '/', pickReturnDateParams( search ), section ? { section } : {} );
 }
 
 /**
