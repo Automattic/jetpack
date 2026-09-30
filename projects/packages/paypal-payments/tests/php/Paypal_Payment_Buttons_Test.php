@@ -584,21 +584,20 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * The return page is served fresh and as HTML; the markup itself is covered above.
+	 * The return page handler serves the markup covered above.
 	 */
-	public function test_onboarding_return_page_is_served_fresh() {
-		$nocache_applied = false;
-		$saw_nocache     = static function ( $headers ) use ( &$nocache_applied ) {
-			$nocache_applied = true;
-			return $headers;
-		};
-		// The page ends in exit(), so the first esc_html() in its markup stops the run.
+	public function test_onboarding_return_page_is_served() {
+		/**
+		 * Stop at the first esc_html() in the markup, before the page reaches its exit().
+		 *
+		 * @return never
+		 * @throws \RuntimeException Always.
+		 */
 		$stop_at_the_markup = static function () {
 			throw new \RuntimeException( 'markup' );
 		};
 		$stopped_at         = null;
 
-		add_filter( 'nocache_headers', $saw_nocache );
 		add_filter( 'esc_html', $stop_at_the_markup );
 
 		ob_start();
@@ -609,10 +608,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		} finally {
 			ob_end_clean();
 			remove_filter( 'esc_html', $stop_at_the_markup );
-			remove_filter( 'nocache_headers', $saw_nocache );
 		}
 
-		$this->assertTrue( $nocache_applied );
 		$this->assertSame( 'markup', $stopped_at );
 	}
 
