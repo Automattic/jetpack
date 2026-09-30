@@ -107,8 +107,8 @@ export function getPostsFields(
 		},
 		{
 			id: 'thumbnail',
+			type: 'media',
 			label: __( 'Thumbnail', 'jetpack-premium-analytics-pkg' ),
-			enableSorting: false,
 			enableHiding: false,
 			render: ( { item } ) => (
 				<ReportThumbnail
