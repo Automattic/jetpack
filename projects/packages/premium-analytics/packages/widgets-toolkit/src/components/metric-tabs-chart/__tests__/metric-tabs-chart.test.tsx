@@ -723,6 +723,34 @@ describe( 'MetricTabsChart tooltipMetrics', () => {
 		expect( recordedExtras( mockLineSpy ) ).toBeUndefined();
 	} );
 
+	it( "appends the drawn metric's own extras after the other metrics", () => {
+		const ratio = {
+			label: 'Views per visitor',
+			data: [ { date: new Date( '2026-07-01T00:00:00Z' ), value: 2.5 } ],
+			dataFormat: { type: 'number' as const, options: { decimals: 2 } },
+		};
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...METRIC, tooltipExtras: [ ratio ] }, CPM ] }
+				dataFormat={ DATA_FORMAT }
+			/>
+		);
+		expect( recordedExtras( mockLineSpy ) ).toEqual( [ ratio ] );
+
+		render(
+			<MetricTabsChart
+				metrics={ [ { ...METRIC, tooltipExtras: [ ratio ] }, CPM ] }
+				dataFormat={ DATA_FORMAT }
+				tooltipMetrics="all"
+			/>
+		);
+		expect( recordedExtras( mockLineSpy ) ).toEqual( [
+			{ label: 'Average CPM', data: CPM.current, dataFormat: CURRENCY },
+			ratio,
+		] );
+	} );
+
 	it( 'hands every other metric to the tooltip, each in its own format, when set to all', () => {
 		render(
 			<MetricTabsChart

@@ -23,6 +23,7 @@ import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	appendTooltipExtras,
 	formatTooltipPointLabel,
+	formatTooltipTextLabel,
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
@@ -222,7 +223,7 @@ export function ComparativeBarChart( {
 	// `realDate`.
 	const getTooltipLabel = useCallback(
 		(
-			datum: { date: Date; realDate?: Date },
+			datum: { date: Date; realDate?: Date; tooltipText?: string },
 			_index: number,
 			key: string,
 			value: string | null,
@@ -230,6 +231,9 @@ export function ComparativeBarChart( {
 		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
+			if ( datum.tooltipText ) {
+				return formatTooltipTextLabel( datum.tooltipText, date );
+			}
 			const unit = tooltipUnits.get( key );
 			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},

@@ -52,3 +52,19 @@ export function formatTooltipPointLabel(
 		date
 	);
 }
+
+/**
+ * Compose a tooltip row from text that is not a value: `Post published: Hello world · September 17, 2026`.
+ *
+ * @param text - The row's text, already translated.
+ * @param date - Formatted date.
+ * @return The tooltip row label.
+ */
+export function formatTooltipTextLabel( text: string, date: string ): string {
+	return sprintf(
+		/* translators: 1: a count with its unit, such as "1 Subscriber", 2: date. */
+		_x( '%1$s · %2$s', 'chart tooltip: count and date', 'jetpack-premium-analytics-pkg' ),
+		text,
+		date
+	);
+}

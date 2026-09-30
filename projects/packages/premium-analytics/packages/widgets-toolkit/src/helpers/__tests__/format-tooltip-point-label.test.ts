@@ -5,7 +5,7 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { formatTooltipPointLabel } from '../format-tooltip-point-label';
+import { formatTooltipPointLabel, formatTooltipTextLabel } from '../format-tooltip-point-label';
 
 const subscribers = ( count: number ) =>
 	/* translators: %s: number of subscribers. */
@@ -34,5 +34,13 @@ describe( 'formatTooltipPointLabel', () => {
 		expect(
 			formatTooltipPointLabel( null, 'Subscribers', 'March 1, 2026', null, subscribers )
 		).toBe( 'No data for Subscribers · March 1, 2026' );
+	} );
+} );
+
+describe( 'formatTooltipTextLabel', () => {
+	it( 'reads the text as the row, then the date', () => {
+		expect( formatTooltipTextLabel( 'Post published: Hello world', 'March 1, 2026' ) ).toBe(
+			'Post published: Hello world · March 1, 2026'
+		);
 	} );
 } );

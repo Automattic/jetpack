@@ -79,6 +79,12 @@ export interface MetricTab {
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
 	/**
+	 * Rows the chart's tooltip reads out at the hovered date while this metric is
+	 * drawn, after the other metrics `tooltipMetrics` lists: derived figures such
+	 * as views per visitor, or the posts published that day.
+	 */
+	tooltipExtras?: TooltipExtraSeries[];
+	/**
 	 * Key of the metric to draw beside this one, visible from the start unless
 	 * `counterpartHidden` is set. A key naming no metric in the list, the metric
 	 * itself, or a metric without a series, is ignored.
@@ -234,11 +240,13 @@ function MetricChart( {
 	// the legend does not duplicate its row, and hiding it again lists it as a
 	// supplementary row instead. Memoised so the chart's tooltip memos hold.
 	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
+		const own = metric.tooltipExtras ?? [];
+
 		if ( tooltipMetrics !== 'all' ) {
-			return undefined;
+			return own.length ? own : undefined;
 		}
 
-		return metrics
+		const others = metrics
 			.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
 			.map( candidate => ( {
 				label: candidate.label,
@@ -246,7 +254,9 @@ function MetricChart( {
 				dataFormat: candidate.dataFormat ?? dataFormat,
 				countLabel: candidate.countLabel,
 			} ) );
-	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
+
+		return [ ...others, ...own ];
+	}, [ metrics, metric.key, metric.tooltipExtras, tooltipMetrics, dataFormat ] );
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );

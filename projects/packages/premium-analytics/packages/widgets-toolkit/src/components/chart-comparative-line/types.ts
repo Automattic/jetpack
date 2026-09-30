@@ -14,6 +14,11 @@ import type { CountLabel, DataFormat } from '../../types';
 export type ComparativeDatePointDate = DataPointDate & {
 	date: Date; // <- date is required by the comparative line chart.
 	realDate?: Date;
+	/**
+	 * Read out in place of the value and unit, for a row that is not a number:
+	 * `Post published: Hello world`. The tooltip still appends the date.
+	 */
+	tooltipText?: string;
 };
 
 export type ComparativeLineChartSeries = SeriesData & {
