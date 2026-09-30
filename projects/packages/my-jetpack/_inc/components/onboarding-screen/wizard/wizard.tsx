@@ -16,6 +16,8 @@ import { useCallback, useEffect, useId, useRef, useState, useMemo } from 'react'
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
 import { assignLocation } from './assign-location';
 import { ConnectedNotice } from './connected-notice';
+import { DataInArt } from './data-in';
+import { EverywhereArt } from './everywhere';
 import {
 	canContinue,
 	isLastStep,
@@ -25,9 +27,12 @@ import {
 	settleOnboarding,
 	TOTAL_STEPS,
 	wizardSteps,
+	type SettleOutcome,
+	type WizardState,
+	type WizardStep,
+	type WizardStepKind,
 } from './lib';
 import { PanelArt } from './panel-art';
-import { hasPortrait, SitePortrait } from './site-portrait';
 import { ChoiceStep } from './steps/choice-step';
 import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
@@ -36,8 +41,6 @@ import styles from './styles.module.scss';
 import { useJustConnected } from './use-just-connected';
 import { readSavedRun, useSavedRun } from './use-saved-run';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
-import { useSiteShot } from './use-site-shot';
-import type { OnboardingSite, SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
 import type { MouseEvent } from 'react';
 
@@ -75,14 +78,35 @@ function stepGlyph( index: number, current: number ) {
 	return index === current ? drafts : border;
 }
 
+/**
+ * The artwork that belongs beside a step.
+ *
+ * The panel takes the subject of the step it is next to: a site being run on the
+ * step that asks what the site is for, the plugins feeding the screen on the step
+ * that asks which to switch on, and the mark everywhere else.
+ *
+ * @param props      - The component props.
+ * @param props.kind - The kind of step the panel is beside.
+ * @return The artwork for that step.
+ */
+function PanelArtwork( { kind }: { kind: WizardStepKind } ) {
+	if ( kind === 'question' ) {
+		return <EverywhereArt />;
+	}
+
+	if ( kind === 'features' ) {
+		return <DataInArt />;
+	}
+
+	return <PanelArt animate />;
+}
+
 type WizardProps = {
 	// Where skipping the wizard lands. The admin menu is hidden here, so leaving is never
 	// more than one click.
 	exitUrl: string;
 	// Where the rail's control lands: out of Jetpack entirely, back to wp-admin.
 	dashboardUrl: string;
-	// What the page knows about this site, for the panel's portrait.
-	site?: OnboardingSite | null;
 };
 
 /**
@@ -95,10 +119,9 @@ type WizardProps = {
  * @param props              - The component props.
  * @param props.exitUrl      - The My Jetpack URL the footer's skip leads to.
  * @param props.dashboardUrl - The wp-admin URL the rail's control leads to.
- * @param props.site         - What the page knows about this site.
  * @return The rendered wizard.
  */
-export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
+export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const steps = wizardSteps();
 
 	// Connecting leaves wp-admin for WordPress.com and comes back to a fresh page,
@@ -164,15 +187,6 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 
 	const justConnected = useJustConnected();
 	const arrivedOn = useRef< WizardStep | null >( null );
-
-	/*
-	 * Asked for here rather than inside the panel, which is two steps away and
-	 * mounts too late. The service takes five seconds or so on a page it has not
-	 * seen, and the connect step sends the user to WordPress.com and back through
-	 * a fresh page load — so the request goes out now, and the render happens
-	 * while they are away.
-	 */
-	const shot = useSiteShot( site?.url, Boolean( site?.canPhotograph ) );
 
 	const titleId = useId();
 	const panelRef = useRef< HTMLElement >( null );
@@ -285,7 +299,6 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 	const showConnected = justConnected && arrivedOn.current === step;
 	const isFeatures = meta.kind === 'features';
 	const isFinish = meta.kind === 'finish';
-	const showPortrait = meta.kind === 'question' && hasPortrait( site );
 
 	/*
 	 * Continue sits in the same place on every step, so the second half of a
@@ -574,20 +587,14 @@ export function Wizard( { exitUrl, dashboardUrl, site }: WizardProps ) {
 								/>
 
 								{ /*
-								 * The site takes the panel on the one step that asks about it, as
-								 * the prototype does: that screen says what we read the site as and
-								 * asks whether it is right, so the site is the subject of it.
-								 *
-								 * Everywhere else the art is the subject, and it is drawn once. It
-								 * used to be keyed by step, which remounts it and replays the draw:
-								 * 2.6 seconds of the same mark erasing and redrawing itself on every
-								 * Continue, saying something changed when nothing had.
+								 * Deliberately NOT keyed by step. The mark is the same object on the
+								 * start and finish steps, and keying would remount it on every
+								 * Continue and replay its draw, saying something changed when
+								 * nothing had. The two compositions do still mount and unmount as
+								 * their own step comes and goes, so returning to a step replays it,
+								 * which is what returning to a step should look like.
 								 */ }
-								{ showPortrait ? (
-									<SitePortrait site={ site } shot={ shot } />
-								) : (
-									<PanelArt animate />
-								) }
+								<PanelArtwork kind={ meta.kind } />
 							</div>
 						</div>
 					</ThemeProvider>

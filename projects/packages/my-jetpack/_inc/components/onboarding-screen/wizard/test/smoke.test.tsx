@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { bell, chartBar, border, drafts, published } from '@wordpress/icons';
@@ -484,6 +485,88 @@ describe( 'Wizard resume after connecting', () => {
 		expect( railStep( 'Connect' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( railStep( 'What you need' ) ).toHaveAttribute( 'aria-disabled', 'true' );
 		expect( railStep( 'Your site' ) ).not.toHaveAttribute( 'aria-disabled', 'true' );
+	} );
+} );
+
+/*
+ * The two compositions are injected as raw markup and marked aria-hidden, as
+ * decoration should be, so there is no accessible query for either. Both are
+ * counted off the DOM by the id their own stylesheets target.
+ */
+const onScreen = ( id: string ) =>
+	// eslint-disable-next-line testing-library/no-node-access -- See above.
+	document.querySelectorAll( `#${ id }` ).length;
+
+const isDecorative = ( id: string ) =>
+	// eslint-disable-next-line testing-library/no-node-access -- See above.
+	Boolean( document.querySelector( `#${ id }` )?.closest( '[aria-hidden="true"]' ) );
+
+describe( 'What the brand panel is showing', () => {
+	/*
+	 * The panel takes the subject of the step beside it: a site being run on the
+	 * step that asks what the site is for, the plugins feeding the screen on the
+	 * step that asks which to switch on.
+	 */
+	it( 'shows a site being run on the step that asks what the site is for', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( onScreen( 'ev-scene' ) ).toBe( 1 );
+		expect( isDecorative( 'ev-scene' ) ).toBe( true );
+
+		await advance( user, 1 );
+		expect( onScreen( 'ev-scene' ) ).toBe( 0 );
+	} );
+
+	it( 'shows the plugins feeding the screen on the feature step, and only there', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( onScreen( 'di-scene' ) ).toBe( 0 );
+
+		await advance( user, 1 );
+		expect( onScreen( 'di-scene' ) ).toBe( 1 );
+		expect( isDecorative( 'di-scene' ) ).toBe( true );
+
+		await advance( user, 1 );
+		expect( onScreen( 'di-scene' ) ).toBe( 0 );
+	} );
+
+	/*
+	 * Read off the source, not the DOM: Jest stubs the Sass module, so no rule of
+	 * ours is ever applied and a computed property comes back empty. The flow is
+	 * meant to keep running here, which it does by leaving `--flow-runs` unset —
+	 * an absence no rendered assertion can see.
+	 */
+	it( 'lets the composition keep looping', () => {
+		const sheet = readFileSync( `${ __dirname }/../styles.module.scss`, 'utf8' );
+		const from = sheet.indexOf( '.data-in {' );
+
+		expect( from ).toBeGreaterThan( -1 );
+
+		// Count braces from the rule's OWN opening one to its match. Stopping at the
+		// first `}` instead stops at the end of the nested `svg` block, so
+		// `--flow-runs` set anywhere after it went unnoticed.
+		const open = sheet.indexOf( '{', from );
+		let depth = 0;
+		let end = open;
+
+		while ( end < sheet.length ) {
+			if ( sheet[ end ] === '{' ) {
+				depth++;
+			} else if ( sheet[ end ] === '}' ) {
+				depth--;
+
+				if ( depth === 0 ) {
+					break;
+				}
+			}
+
+			end++;
+		}
+
+		const rule = sheet.slice( from, end + 1 );
+
+		expect( rule ).toMatch( /svg\s*\{/ );
+		expect( rule ).not.toMatch( /--flow-runs/ );
 	} );
 } );
 

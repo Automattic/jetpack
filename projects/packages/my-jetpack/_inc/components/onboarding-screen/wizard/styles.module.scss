@@ -87,33 +87,15 @@ $mesh-opacity-mid: 0.8;
 $mesh-opacity-blue: 0.58;
 $mesh-opacity-deep: 0.62;
 
-/*
- * The site portrait, from the prototype's card-stack.tsx and step-panel.tsx,
- * copied rather than re-derived. The two backs are PROPORTIONAL: fixed ones
- * poked out of both sides once the panel narrowed.
- */
-$portrait-width: 440px;
-$portrait-back-far-width: 80.8%;
-$portrait-back-far-rise: 23px;
-$portrait-back-near-width: 89.7%;
-$portrait-back-near-rise: 16px;
-$portrait-bar-height: 30px;
-$portrait-back-bar-height: 22px;
-$portrait-light: 8.5px;
-$portrait-back-light: 7px;
-$portrait-stat-size-min: 30px;
-$portrait-stat-size-max: 46px;
+// The publish-everywhere composition's own width, straight off the Figma frame.
+// It is landscape where the panel is portrait, so the width leads and it is
+// never scaled past the size it was drawn at.
+$everywhere-width: 773px;
 
-/*
- * Five layers, verbatim. A single flat shadow reads as a sticker, and the
- * stack depends on these reading as three separate planes.
- */
-$portrait-shadow:
-	0 3.819px 3.819px rgba(15, 36, 117, 0.01),
-	0 6.668px 6.668px rgba(15, 36, 117, 0.02),
-	0 11.604px 11.604px rgba(15, 36, 117, 0.03),
-	0 21.255px 21.255px rgba(15, 36, 117, 0.05),
-	0 42px 42px rgba(15, 36, 117, 0.1);
+// The data-in composition's own height, straight off the Figma frame. It is a
+// ceiling, not a size: the piece shrinks into a shorter panel but is never
+// scaled past the size it was drawn at.
+$data-in-height: 779px;
 
 // The artwork's share of the panel, and the prototype's own draw. The nearest
 // WPDS duration is 400ms, far too fast to read as drawing.
@@ -584,10 +566,6 @@ $rail-row-min-height: 40px;
 	flex-direction: column;
 	block-size: 100%;
 
-	// The query container the portrait's numerals are sized against. Its inline
-	// size comes from the grid, never from its contents, which is what
-	// inline-size containment requires.
-	container-type: inline-size;
 	padding-block: var(--wpds-dimension-padding-3xl) $panel-bottom-inset;
 
 	// The prototype's own inset.
@@ -704,9 +682,10 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * The artwork takes the panel's free space.
+ * Where artwork sits in the panel: the free space under the glow, centred, and
+ * allowed to shrink. Shared by all three pieces that can occupy it.
  */
-.brand-panel__art {
+@mixin panel-artwork {
 	display: flex;
 	position: relative;
 	z-index: 2;
@@ -714,6 +693,11 @@ $rail-row-min-height: 40px;
 	align-items: center;
 	justify-content: center;
 	min-block-size: 0;
+}
+
+.brand-panel__art {
+
+	@include panel-artwork;
 
 	// The one place the artwork's hairline colour lives; its paths inherit it.
 	color: $brand-gradient-green-bright;
@@ -723,6 +707,43 @@ $rail-row-min-height: 40px;
 	inline-size: $panel-art-width;
 	max-block-size: 100%;
 	block-size: auto;
+}
+
+/*
+ * A site being run, on the step that asks what the site is for. It is landscape
+ * where the panel is portrait, so the width leads and the height follows, never
+ * scaled past the size it was drawn at.
+ */
+.everywhere {
+
+	@include panel-artwork;
+
+	svg {
+		inline-size: 100%;
+		max-inline-size: $everywhere-width;
+		block-size: auto;
+		max-block-size: 100%;
+	}
+}
+
+/*
+ * The plugins feeding the screen, on the features step. Portrait like the
+ * panel, so the height leads and the width follows.
+ *
+ * The flow keeps looping, as it does on the marketing page, by leaving
+ * `--flow-runs` unset. The composition carries its own stylesheet, so
+ * nothing here reaches inside it.
+ */
+.data-in {
+
+	@include panel-artwork;
+
+	svg {
+		inline-size: auto;
+		max-inline-size: 100%;
+		block-size: 100%;
+		max-block-size: $data-in-height;
+	}
 }
 
 /*
@@ -757,12 +778,6 @@ $rail-row-min-height: 40px;
 		animation-fill-mode: both;
 	}
 }
-
-/*
- * The lines are outlines sized in em, so this font-size is what scales them:
- * a share of the panel's own width, which no token can express.
- */
-
 
 @keyframes option-cascade {
 
@@ -880,181 +895,6 @@ $rail-row-min-height: 40px;
 	to {
 		transform: translate3d(0, 0, 0);
 	}
-}
-
-/* -------------------------------------------------------- site portrait */
-
-.portrait {
-	display: flex;
-	position: relative;
-	z-index: 1;
-	flex-direction: column;
-	flex-grow: 1;
-	align-items: center;
-	justify-content: center;
-	gap: var(--wpds-dimension-gap-3xl);
-	min-block-size: 0;
-}
-
-.portrait-stack {
-	position: relative;
-	inline-size: 100%;
-	max-inline-size: $portrait-width;
-}
-
-// Render before the front card: these are its backdrop, and both are absolute
-// so they take no space of their own.
-.portrait-back {
-	display: block;
-	position: absolute;
-
-	// Centred by margin, not by a transform: the entrance animates `transform`,
-	// and a translateY keyframe replaces a translateX here rather than adding to
-	// it — which threw both backs off to one side and out of the panel.
-	inset-inline: 0;
-	margin-inline: auto;
-	border-radius: var(--wpds-border-radius-xl);
-	background: rgba(252, 252, 252, 0.65);
-	backdrop-filter: blur(5px);
-	box-shadow: $portrait-shadow;
-	overflow: hidden;
-	animation: step-enter $appear-duration $house-easing both;
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-		animation-duration: $appear-reduced-duration;
-	}
-}
-
-.portrait-back--far {
-	inset-block-start: -$portrait-back-far-rise;
-	inline-size: $portrait-back-far-width;
-	block-size: 150px;
-	animation-delay: $wave-base;
-}
-
-.portrait-back--near {
-	inset-block-start: -$portrait-back-near-rise;
-	inline-size: $portrait-back-near-width;
-	block-size: 200px;
-	background: rgba(252, 252, 252, 0.8);
-	animation-delay: $wave-base + $wave-step;
-}
-
-.portrait-back__chrome {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-xs);
-	block-size: $portrait-back-bar-height;
-	padding-inline: var(--wpds-dimension-padding-xs);
-	border-block-end: var(--wpds-border-width-xs) solid rgba(0, 0, 0, 0.05);
-
-	.portrait-light {
-		inline-size: $portrait-back-light;
-		block-size: $portrait-back-light;
-	}
-}
-
-.portrait-window {
-	position: relative;
-	border-radius: var(--wpds-border-radius-xl);
-	background: var(--jp-white);
-	box-shadow: $portrait-shadow;
-	overflow: hidden;
-	animation: step-enter $appear-duration $house-easing both;
-	animation-delay: $wave-base + 2 * $wave-step;
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-		animation-duration: $appear-reduced-duration;
-	}
-}
-
-.portrait-window__bar {
-	display: flex;
-	align-items: center;
-	gap: var(--wpds-dimension-gap-sm);
-	block-size: $portrait-bar-height;
-	padding-inline: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-md);
-	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-}
-
-.portrait-light {
-	flex-shrink: 0;
-	inline-size: $portrait-light;
-	block-size: $portrait-light;
-	border-radius: 50%;
-}
-
-.portrait-window__url {
-	min-inline-size: 0;
-	flex-grow: 1;
-	padding-block: 2px;
-	padding-inline: var(--wpds-dimension-padding-sm);
-	border-radius: 999px;
-	background: var(--wpds-color-background-surface-neutral-weak);
-	color: var(--wpds-color-foreground-content-neutral-weak);
-	font-size: var(--wpds-typography-font-size-sm);
-	line-height: var(--wpds-typography-line-height-xs);
-	text-overflow: ellipsis;
-	white-space: nowrap;
-	overflow: hidden;
-}
-
-/*
- * Drawn whether a picture arrives or not, so the stack does not jump when one
- * does. 16:10 is the prototype's crop; the service is asked for the same shape.
- */
-.portrait-window__plate {
-	aspect-ratio: 16 / 10;
-	background: var(--wpds-color-background-surface-neutral-weak);
-}
-
-.portrait-window__shot {
-	display: block;
-	inline-size: 100%;
-	block-size: 100%;
-	object-fit: cover;
-	object-position: top;
-	animation: fade-in var(--wpds-motion-duration-xl) var(--wpds-motion-easing-subtle) both;
-}
-
-.portrait-stats {
-	display: grid;
-	inline-size: 100%;
-	max-inline-size: $portrait-width;
-	grid-template-columns: repeat(2, minmax(0, 1fr));
-	gap: var(--wpds-dimension-gap-xl) var(--wpds-dimension-gap-3xl);
-}
-
-.portrait-stat {
-	margin: 0;
-	// The panel's own mint, dimmed, so the label sits under the numeral rather
-	// than beside it in a second green.
-	color: color-mix(in sRGB, var(--jp-green-mint) 70%, transparent);
-	font-size: var(--wpds-typography-font-size-md);
-	line-height: var(--wpds-typography-line-height-sm);
-	animation: step-enter $appear-duration $house-easing both;
-	animation-delay: $wave-base + 3 * $wave-step;
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-		animation-duration: $appear-reduced-duration;
-	}
-}
-
-/*
- * The prototype sets this as a share of the viewport; the panel is the query
- * container here, so the share is of the panel, and 7cqw is the same size at
- * the width the two were compared at.
- */
-.portrait-stat__value {
-	display: block;
-	color: var(--jp-green-mint);
-	font-size: clamp($portrait-stat-size-min, 7cqw, $portrait-stat-size-max);
-	font-variant-numeric: tabular-nums;
-	line-height: 1;
-	letter-spacing: -0.005em;
 }
 
 /* ----------------------------------------------------------- step body */
@@ -1387,18 +1227,6 @@ $rail-row-min-height: 40px;
 	text-wrap: pretty;
 }
 
-/*
- * The finish step takes the whole sheet. Hiding the rail and the panel here
- * rather than not rendering them keeps the grid and the region landmarks intact
- * for the steps either side of it.
- */
-
-/*
- * The start screen is one screen rather than a step in a sequence, so it
- * centres in the sheet instead of sitting in the block that holds the heading
- * still across the steps that follow. In that block it was top-anchored and
- * read high: 236px of white above it and 471 below.
- */
 
 /*
  * The two steps that share the block. Each stretches to fill it, so the heading
@@ -1438,6 +1266,12 @@ $rail-row-min-height: 40px;
 	min-block-size: 0;
 }
 
+/*
+ * The start screen is one screen rather than a step in a sequence, so it
+ * centres in the sheet instead of sitting in the block that holds the heading
+ * still across the steps that follow. In that block it was top-anchored and
+ * read high: 236px of white above it and 471 below.
+ */
 .layout--start {
 
 	.panel-content {
@@ -1450,11 +1284,6 @@ $rail-row-min-height: 40px;
 }
 
 .layout--finish {
-
-	.rail,
-	.brand-panel {
-		display: none;
-	}
 
 	/*
 	 * The finish screen replaces the sheet rather than sitting in it, so it does
