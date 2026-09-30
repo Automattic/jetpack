@@ -78,9 +78,8 @@ const SETTLED_ROW_STATUSES = new Set( [
  *
  * Both, because `Restore_Bridge::STATUS_MAP` maps `success` to `finished` while
  * `GET /jetpack/v4/restores` returns WordPress.com's body unmapped. Matching
- * only `finished` would silence the review prompt's restore trigger site-wide
- * with nothing to notice. `success-with-errors` stays out, and an unrecognised
- * spelling counts as not succeeded — the harmless direction here is not asking.
+ * only `finished` would report every `success` restore as failed.
+ * `success-with-errors` stays out, and an unrecognised spelling counts as not succeeded.
  */
 const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
 
@@ -106,8 +105,7 @@ export type RecentRestore = {
 	 * A separate reading from `settled` rather than a refinement of it,
 	 * because the two answer different questions: `settled` is "is there
 	 * anything left to wait for", which an aborted or failed restore also
-	 * satisfies, and this is "did the site actually come back". Only the
-	 * review prompt asks the second one.
+	 * satisfies, and this is "did the site actually come back".
 	 */
 	succeeded: boolean;
 };
