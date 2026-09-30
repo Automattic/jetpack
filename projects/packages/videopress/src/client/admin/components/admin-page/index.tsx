@@ -54,7 +54,7 @@ const Admin = () => {
 		hasVideoPressPurchase,
 	} = useDashboardVideos();
 
-	const { canPerformAction, isRegistered, hasConnectedOwner, isUserConnected } = usePermission();
+	const { canPerformAction, isRegistered, hasConnectedOwner } = usePermission();
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const { adminUri, registrationNonce } = window.jetpackVideoPressInitialState;
 	const { handleRegisterSite } = useConnection( {
@@ -131,7 +131,7 @@ const Admin = () => {
 									</Col>
 								) }
 
-								{ ( ! hasConnectedOwner || ! isUserConnected ) && (
+								{ ! hasConnectedOwner && (
 									<Col sm={ 4 } md={ 8 } lg={ 12 }>
 										<Notice.Root intent="error">
 											<Notice.Description>
