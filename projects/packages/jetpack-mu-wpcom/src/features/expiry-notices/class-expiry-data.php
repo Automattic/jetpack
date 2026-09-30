@@ -101,10 +101,11 @@ class Expiry_Data {
 		if ( false === $expiry_start ) {
 			return null;
 		}
-		$expiry_ts = self::end_of_utc_day( $expiry_start );
+		$expiry_day = self::start_of_utc_day( $expiry_start );
+		$expiry_ts  = self::end_of_utc_day( $expiry_start );
 
 		$now          ??= time();
-		$days_remaining = (int) floor( ( $expiry_ts - $now ) / DAY_IN_SECONDS );
+		$days_remaining = self::calendar_days_until( $expiry_day, $now );
 		$product_slug   = (string) $purchase->product_slug;
 		$is_monthly     = false !== stripos( $product_slug, 'monthly' );
 
@@ -117,7 +118,7 @@ class Expiry_Data {
 			? ( self::might_still_auto_renew( $purchase ) ?? $raw_auto_renew )
 			: $raw_auto_renew;
 
-		if ( $days_remaining < 0 ) {
+		if ( $expiry_ts < $now ) {
 			// Still in the purchases list, so billing still takes a renewal.
 			$state = self::STATE_EXPIRED_GRACE;
 		} elseif ( ! $in_notice_range ) {
@@ -212,15 +213,39 @@ class Expiry_Data {
 	}
 
 	/**
+	 * The first second of the UTC day a timestamp falls on: the instant a
+	 * billing date names, and the one to display it by.
+	 *
+	 * @param int $timestamp Timestamp.
+	 */
+	public static function start_of_utc_day( int $timestamp ): int {
+		return $timestamp - ( $timestamp % DAY_IN_SECONDS );
+	}
+
+	/**
 	 * The last second of the UTC day a timestamp falls on.
 	 *
-	 * Billing dates land on the start of a UTC day, but billing only counts one
-	 * as passed once that whole day is over, as `Store_Subscription` does.
+	 * Billing only counts one of its dates as passed once that whole day is
+	 * over, as `Store_Subscription` does.
 	 *
 	 * @param int $timestamp Timestamp.
 	 */
 	private static function end_of_utc_day( int $timestamp ): int {
-		return $timestamp - ( $timestamp % DAY_IN_SECONDS ) + DAY_IN_SECONDS - 1;
+		return self::start_of_utc_day( $timestamp ) + DAY_IN_SECONDS - 1;
+	}
+
+	/**
+	 * Calendar days in the site's timezone from `$now` to `$timestamp`, as the
+	 * Dashboard counts them, so the count agrees with the date shown beside it.
+	 *
+	 * @param int $timestamp Timestamp to count to.
+	 * @param int $now       Timestamp to count from.
+	 */
+	private static function calendar_days_until( int $timestamp, int $now ): int {
+		$timezone = wp_timezone();
+		$today    = ( new \DateTimeImmutable( '@' . $now ) )->setTimezone( $timezone )->setTime( 0, 0 );
+		$day      = ( new \DateTimeImmutable( '@' . $timestamp ) )->setTimezone( $timezone )->setTime( 0, 0 );
+		return (int) $today->diff( $day )->format( '%r%a' );
 	}
 
 	/**

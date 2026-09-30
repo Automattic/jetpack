@@ -187,6 +187,9 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 			$this->assertSame( $expected, wpcom_expiry_notices_banner_heading( $this->message_state( $overrides ) ) );
 		}
 
+		// West of UTC the displayed date can pass before billing's day ends: still "today".
+		$this->assertSame( 'Your Business plan expires today', wpcom_expiry_notices_banner_heading( $this->message_state( array( 'days_remaining' => -1 ) ) ) );
+
 		// The day of expiry is never "expired", and never a neutral countdown either.
 		$this->assertSame(
 			'Your Business plan expires today',
@@ -209,6 +212,10 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 			),
 			array(
 				array( 'days_remaining' => 0 ),
+				'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
+			),
+			array(
+				array( 'days_remaining' => -1 ),
 				'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and 50 GB of storage. Renew now to keep everything in place.',
 			),
 			array(
