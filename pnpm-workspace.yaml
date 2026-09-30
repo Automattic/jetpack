@@ -40,8 +40,6 @@ minimumReleaseAgeExclude:
   - 'wpcom-proxy-request'
   # Renovate security update: moment@2.31.0
   - moment@2.31.0
-  # Renovate security update: axios@1.20.0
-  - axios@1.20.0
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
