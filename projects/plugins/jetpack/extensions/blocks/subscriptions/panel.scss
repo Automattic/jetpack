@@ -1,3 +1,5 @@
+@use "@automattic/color-studio/dist/color-variables" as studio;
+
 .jetpack-subscribe-pre-publish-panel,
 .jetpack-subscribe-post-publish-panel {
 
@@ -27,7 +29,7 @@
 			margin-top: 0;
 
 			&.is-info {
-				border-inline-start-color: #fff;
+				border-inline-start-color: studio.$studio-white;
 
 				a {
 					text-decoration: underline;
@@ -52,7 +54,7 @@
 
 	// Jetpack green, kept faint so body copy stays readable.
 	15% {
-		background-color: rgba(6, 158, 8, 0.12);
+		background-color: rgba(studio.$studio-jetpack-green-40, 0.12);
 	}
 }
 
@@ -151,7 +153,7 @@
 }
 
 .jetpack-newsletter-overview__details {
-	color: #757575;
+	color: studio.$studio-gray-40;
 	font-size: 12px;
 }
 
@@ -166,7 +168,7 @@
 	li {
 		margin: 0;
 		padding: 2px 8px;
-		border: 1px solid #ddd;
+		border: 1px solid studio.$studio-gray-5;
 		border-radius: 4px;
 		font-size: 12px;
 	}
