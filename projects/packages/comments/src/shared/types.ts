@@ -65,6 +65,8 @@ export type FormSettings = {
 };
 
 export type Strings = {
+	blockTools: string;
+	formatTools: string;
 	reply: string;
 	commentLabel: string;
 	replyLabel: string;
@@ -103,6 +105,10 @@ export type Settings = {
 	requireNameEmail: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
+	/** Whether the block editor replaces the textarea. */
+	blocks: boolean;
+	/** Where core's translations for the editor come from; empty in English. */
+	editorI18nUrl: string;
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };

@@ -12,6 +12,7 @@
 // One box around the textarea and the footer, in the post's own colours
 // and the theme's textarea radius. Nested to outrank a block theme's rules.
 .jetpack-comments .jetpack-comments__box {
+	position: relative;
 	border: 2px solid currentColor;
 	border-radius: var(--jetpack-comments-radius, 0);
 }
@@ -21,11 +22,21 @@
 	display: block;
 	box-sizing: border-box;
 	inline-size: 100%;
-	// Two lines plus the padding; field-sizing ignores rows.
-	min-block-size: 3lh;
+	// A few lines, padding included, as the editor has; field-sizing ignores rows.
+	min-block-size: 6lh;
 	field-sizing: content;
 	padding: var(--jetpack-comments-pad);
 	resize: none;
+
+	&[hidden] {
+		display: none;
+	}
+
+	// The shade the editor gives its own placeholder, so the handoff keeps it.
+	&::placeholder {
+		color: currentColor;
+		opacity: 0.62;
+	}
 
 	// Pinned: themes reach for a textarea's border with every kind of selector.
 	&,
@@ -36,6 +47,63 @@
 		color: inherit;
 		outline: none !important;
 	}
+}
+
+// The placeholder, over the textarea while the editor downloads, its dots
+// bouncing one after another.
+.jetpack-comments__loading {
+	position: absolute;
+	inset-block-start: var(--jetpack-comments-pad);
+	inset-inline-start: var(--jetpack-comments-pad);
+	font-family: var(--jetpack-comments-font-family, inherit);
+	font-size: var(--jetpack-comments-font-size, inherit);
+	line-height: var(--jetpack-comments-line-height, inherit);
+	opacity: 0.62;
+	pointer-events: none;
+}
+
+.jetpack-comments__loading span {
+	display: inline-block;
+	animation: jetpack-comments-bounce 1s ease-in-out infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+.jetpack-comments__loading span:nth-child(2) {
+	animation-delay: 0.15s;
+}
+
+.jetpack-comments__loading span:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+@keyframes jetpack-comments-bounce {
+
+	0%,
+	60%,
+	100% {
+		transform: none;
+	}
+
+	30% {
+		transform: translateY(-0.3em);
+	}
+}
+
+// The editor's text alignment, in the editor and in posted comments, for themes
+// that leave out core's block styles.
+.has-text-align-left {
+	text-align: left;
+}
+
+.has-text-align-center {
+	text-align: center;
+}
+
+.has-text-align-right {
+	text-align: right;
 }
 
 // The footer inside the box and the options below it open and close the same

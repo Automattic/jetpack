@@ -1,6 +1,6 @@
 import clsx from 'clsx';
-import { render } from 'preact';
-import { useContext, useEffect, useRef } from 'preact/hooks';
+import { render, type TargetedEvent } from 'preact';
+import { useCallback, useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { Identity, Options } from '../identity';
 import { Dialog, DialogHost } from '../identity/dialog';
 import { CommentSignals, createSignals } from '../shared/state';
@@ -8,6 +8,33 @@ import { markSubmitted, resolveSubmitted, saveDraft } from './draft';
 import type { FormSettings } from '../shared/types';
 
 import './style.scss';
+
+// Shared by every form on the page. A failure clears it, so the next reach tries again.
+let editorModule: Promise< typeof import( '../editor' ) > | null = null;
+
+const loadEditor = () => {
+	// Translations first, as the chunk reads them while it loads; English without them.
+	editorModule ??= (
+		JetpackComments.editorI18nUrl
+			? fetch( JetpackComments.editorI18nUrl )
+					.then( response => response.json() )
+					.then( data => ( window.jetpackCommentsEditorLocale = data ) )
+					.catch( () => undefined )
+			: Promise.resolve()
+	)
+		.then( () => import( /* webpackChunkName: "editor" */ '../editor' ) )
+		.catch( error => {
+			editorModule = null;
+			throw error;
+		} );
+
+	return editorModule;
+};
+
+// Started when a reader reaches for the box, so it is often there by the time they click.
+const preloadEditor = () => {
+	loadEditor().catch( () => undefined );
+};
 
 const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	const {
@@ -22,8 +49,55 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isOptionsOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl, maxLength } = JetpackComments;
+	const { mustLogIn, identity, strings, avatarUrl, maxLength, blocks } = JetpackComments;
 	const isSubmitting = useRef( false );
+	const editorRef = useRef< HTMLDivElement >( null );
+	// Downloaded on first focus; the textarea stays if it never arrives.
+	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
+	const placeholder = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
+
+	const openEditor = useCallback(
+		( focus = true ) => {
+			if ( ! blocks || editor !== 'none' ) {
+				return;
+			}
+
+			setEditor( 'loading' );
+			loadEditor()
+				.then( ( { mountEditor } ) => {
+					mountEditor( editorRef.current!, {
+						initialContent: commentValue.peek(),
+						labels: { blockTools: strings.blockTools, formatTools: strings.formatTools },
+						focus,
+						placeholder,
+						onChange: content => ( commentValue.value = content ),
+						onError: () => setEditor( 'failed' ),
+					} );
+					setEditor( 'ready' );
+				} )
+				.catch( () => setEditor( 'failed' ) );
+		},
+		[ blocks, editor, placeholder, strings, commentValue ]
+	);
+
+	const onFocus = useCallback( () => {
+		isFooterOpen.value = true;
+		openEditor();
+	}, [ isFooterOpen, openEditor ] );
+	const onEditorFocus = useCallback( () => ( isFooterOpen.value = true ), [ isFooterOpen ] );
+	const onInput = useCallback(
+		( event: TargetedEvent< HTMLTextAreaElement > ) =>
+			( commentValue.value = event.currentTarget.value ),
+		[ commentValue ]
+	);
+
+	// A draft saved from the editor is block markup, which the textarea would show raw.
+	useEffect( () => {
+		if ( commentValue.peek().includes( '<!-- wp:' ) ) {
+			openEditor( false );
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount.
+	}, [] );
 
 	useEffect( () => {
 		if ( ! isEmptyComment.value ) {
@@ -60,7 +134,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			document.removeEventListener( 'pointerdown', onPointerDown );
 			form.removeEventListener( 'focusout', onFocusOut );
 		};
-	}, [ form, isEmptyComment, isFooterOpen ] );
+	}, [ form, isEmptyComment, isFooterOpen, isOptionsOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -137,10 +211,18 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			( current.kind === 'unknown' ? identity.defaultAvatar : avatarUrl ) );
 	const { submit } = formSettings;
 
+	// A draft from the editor is block markup, which only the editor shows.
+	const text =
+		editor !== 'ready' && commentValue.value.includes( '<!-- wp:' ) ? '' : commentValue.value;
+
 	return (
 		<>
-			<div className="jetpack-comments__box">
+			<div
+				className={ clsx( 'jetpack-comments__box', { 'is-open': isFooterOpen.value } ) }
+				onPointerEnter={ blocks ? preloadEditor : undefined }
+			>
 				<textarea
+					hidden={ editor === 'ready' }
 					id="comment"
 					name="comment"
 					className="jetpack-comments__textarea"
@@ -148,11 +230,33 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 					required
 					maxLength={ maxLength }
 					aria-label={ commentParent.value ? strings.replyLabel : strings.commentLabel }
-					value={ commentValue.value }
-					placeholder={ commentParent.value ? strings.replyPlaceholder : strings.placeholder }
-					onFocus={ () => ( isFooterOpen.value = true ) }
-					onInput={ event => ( commentValue.value = event.currentTarget.value ) }
+					value={ text }
+					// The draft restores it; the browser's own restore on reload would put back markup.
+					autoComplete="off"
+					// Held while the editor arrives, so nothing typed lands in a box about to go.
+					readOnly={ editor === 'loading' }
+					aria-busy={ editor === 'loading' }
+					// Its loading copy, below, takes the placeholder's place.
+					placeholder={ editor === 'loading' ? '' : placeholder }
+					onFocus={ onFocus }
+					onInput={ onInput }
 				/>
+				{ editor === 'loading' && ! text && (
+					<span className="jetpack-comments__loading" aria-hidden="true">
+						{ placeholder.replace( /[.…]+$/, '' ) }
+						<span>.</span>
+						<span>.</span>
+						<span>.</span>
+					</span>
+				) }
+				{ editor !== 'none' && editor !== 'failed' && (
+					<div
+						ref={ editorRef }
+						className="jetpack-comments__editor"
+						hidden={ editor !== 'ready' }
+						onFocusCapture={ onEditorFocus }
+					/>
+				) }
 				<div className={ clsx( 'jetpack-comments__footer', { 'is-open': isFooterOpen.value } ) }>
 					<div className="jetpack-comments__actions">
 						<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
@@ -250,12 +354,28 @@ if (
 			host.attachShadow( { mode: 'open' } )
 		);
 
-		// The box wears the radius and inset the theme gives its textarea; nothing exposes them otherwise.
+		// The box wears the radius, inset, and type the theme gives its textarea, so the
+		// block editor can match it; nothing exposes them otherwise.
 		const textarea = element.querySelector( 'textarea' );
 		if ( textarea ) {
-			const { borderRadius, paddingInlineStart } = getComputedStyle( textarea );
+			const { borderRadius, paddingInlineStart, fontFamily, fontSize, lineHeight } =
+				getComputedStyle( textarea );
 			element.style.setProperty( '--jetpack-comments-radius', borderRadius );
 			element.style.setProperty( '--jetpack-comments-inset', paddingInlineStart );
+			element.style.setProperty( '--jetpack-comments-font-family', fontFamily );
+			element.style.setProperty( '--jetpack-comments-font-size', fontSize );
+			element.style.setProperty( '--jetpack-comments-line-height', lineHeight );
+		}
+
+		// The theme's text colour and the page behind the box, for the editor's toolbar and
+		// popovers; the background is the first ancestor that paints one.
+		element.style.setProperty( '--jetpack-comments-color', getComputedStyle( element ).color );
+		for ( let node = element.parentElement; node; node = node.parentElement ) {
+			const { backgroundColor } = getComputedStyle( node );
+			if ( backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent' ) {
+				element.style.setProperty( '--jetpack-comments-background', backgroundColor );
+				break;
+			}
 		}
 	} );
 }

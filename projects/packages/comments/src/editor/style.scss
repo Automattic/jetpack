@@ -1,0 +1,144 @@
+@use "@wordpress/components/build-style/style.css" as *;
+@use "@wordpress/block-editor/build-style/style.css" as *;
+@use "@wordpress/block-editor/build-style/content.css" as *;
+@use "@wordpress/block-library/build-style/code/style.css" as *;
+
+// Gutenberg's components in the theme's colours and type, not core's black
+// on white. Values, not currentColor: a pressed button recolours its text and
+// would take its own background with it.
+.jetpack-comments__editor {
+	--wp-components-color-foreground: var(--jetpack-comments-color, currentColor);
+	--wp-components-color-background: var(--jetpack-comments-background, Canvas);
+	// A pressed button's icon, drawn over the foreground.
+	--wp-components-color-foreground-inverted: var(--jetpack-comments-background, Canvas);
+
+	// Not the unstyled ones Gutenberg keeps around blocks, as between two of them.
+	.components-popover:not(.is-unstyled) .components-popover__content {
+		background: var(--jetpack-comments-background, Canvas);
+		box-shadow: 0 0 0 1px currentColor;
+		color: inherit;
+	}
+
+	// The link field's own rule ties a two-class selector, so this carries three.
+	.components-popover__content,
+	.components-popover .components-popover__content input,
+	.components-dropdown-menu__menu {
+		font-family: var(--jetpack-comments-font-family, inherit);
+	}
+}
+
+// @wordpress/ui hides screen-reader text from inside a cascade layer, which any
+// unlayered rule beats: block-editor's mover stretches it across the toolbar.
+// Pinned, as screen-reader text always is; nothing should size it.
+.jetpack-comments__editor [data-visually-hidden] {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	margin: -1px !important;
+	padding: 0 !important;
+	overflow: hidden !important;
+	clip-path: inset(50%) !important;
+	border: 0 !important;
+}
+
+// Across the top of the box, opening and closing with the footer. Hidden, not
+// just collapsed, so nothing inside a closed one takes focus.
+.jetpack-comments__toolbar {
+	display: grid;
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	border-block-end: 1px solid transparent;
+	transition:
+		grid-template-rows 0.25s ease-in-out,
+		min-block-size 0.25s ease-in-out,
+		border-color 0.25s ease-in-out,
+		visibility 0s linear 0.25s;
+
+	> * {
+		min-block-size: 0;
+		overflow: hidden;
+	}
+
+	// A narrow phone wraps the groups to a second row, not a sideways scroll.
+	.jetpack-comments__block-tools {
+		display: flex;
+		flex-wrap: wrap;
+	}
+}
+
+// The line between blocks that offered a "+" there; the "+" itself is stubbed.
+.jetpack-comments__editor .block-editor-block-list__insertion-point {
+	display: none;
+}
+
+// One row of formatting tools, as wide as they need.
+.jetpack-comments__format-tools {
+
+	.components-popover__content {
+		width: max-content;
+		padding: 0;
+	}
+
+	.components-accessible-toolbar {
+		display: flex;
+	}
+
+	// Nothing to format in this block: no empty box at the selection.
+	&:not(:has(button)) {
+		display: none;
+	}
+}
+
+// Open once a selected block has tools to show, sliding down a beat after;
+// `backwards` holds it shut through the delay.
+.jetpack-comments__box.is-open .jetpack-comments__toolbar:has(.jetpack-comments__block-tools) {
+	grid-template-rows: 1fr;
+	min-block-size: 48px;
+	visibility: visible;
+	border-block-end-color: currentColor;
+	transition: visibility 0s;
+	animation: jetpack-comments-toolbar-in 0.25s ease-in-out 0.4s backwards;
+}
+
+@keyframes jetpack-comments-toolbar-in {
+
+	from {
+		grid-template-rows: 0fr;
+		min-block-size: 0;
+		border-block-end-color: transparent;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.jetpack-comments__toolbar,
+	.jetpack-comments__box.is-open .jetpack-comments__toolbar:has(.jetpack-comments__block-tools) {
+		transition: none;
+		animation: none;
+	}
+}
+
+// The textarea's box and type, so the words stay put as the editor takes over.
+.jetpack-comments__editor .editor-styles-wrapper {
+	box-sizing: border-box;
+	min-block-size: 6lh;
+	padding: var(--jetpack-comments-pad);
+	font-family: var(--jetpack-comments-font-family, inherit);
+	font-size: var(--jetpack-comments-font-size, inherit);
+	line-height: var(--jetpack-comments-line-height, inherit);
+
+	.is-root-container > :first-child {
+		margin-block-start: 0;
+	}
+
+	.is-root-container > :last-child {
+		margin-block-end: 0;
+	}
+}
+
+// Over the theme's paragraph and list styles; code keeps the theme's monospace.
+.jetpack-comments__editor .editor-styles-wrapper .wp-block:not(.wp-block-code) {
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+}

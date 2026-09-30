@@ -403,6 +403,8 @@ class Comment_Form {
 		if ( ! $this->settings_printed ) {
 			$strings = array(
 				'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
+				'blockTools'          => __( 'Block tools', 'jetpack-comments' ),
+				'formatTools'         => __( 'Format tools', 'jetpack-comments' ),
 				'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
 				'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
 				'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
@@ -479,6 +481,8 @@ class Comment_Form {
 					'requireNameEmail'    => (bool) get_option( 'require_name_email' ),
 					'mustLogIn'           => (bool) get_option( 'comment_registration' ) && ! is_user_logged_in(),
 					'maxLength'           => isset( $lengths['comment_content'] ) ? (int) $lengths['comment_content'] : 65525,
+					'blocks'              => Block_Editor::is_enabled(),
+					'editorI18nUrl'       => Block_Editor::i18n_url(),
 					'site'                => array(
 						'name'    => get_bloginfo( 'name' ),
 						'iconUrl' => (string) get_site_icon_url( 64 ),
