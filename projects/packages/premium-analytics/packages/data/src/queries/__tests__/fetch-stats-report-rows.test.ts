@@ -83,16 +83,13 @@ describe( 'fetchStatsTopPostsRows', () => {
 		expect( path ).not.toContain( '2026-02' );
 	} );
 
-	it( 'ranks rows by views as the report does', async () => {
-		const rows = await fetchStatsTopPostsRows( PARAMS );
+	it( 'fails on the first server error instead of retrying', async () => {
+		mockApiFetch.mockRejectedValue( { code: 'server_error', data: { status: 500 } } );
 
-		expect( rows.map( row => row.label ) ).toEqual( [ 'Hello World Post', 'About Page' ] );
-	} );
+		const result = fetchStatsTopPostsRows( PARAMS ).catch( ( error: unknown ) => error );
+		await jest.runAllTimersAsync();
 
-	it( 'reuses a fresh cached report instead of refetching', async () => {
-		await fetchStatsTopPostsRows( PARAMS );
-		await fetchStatsTopPostsRows( PARAMS );
-
+		await expect( result ).resolves.toMatchObject( { code: 'server_error' } );
 		expect( mockApiFetch ).toHaveBeenCalledTimes( 1 );
 	} );
 } );

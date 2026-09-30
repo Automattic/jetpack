@@ -16,11 +16,15 @@ import type { StatsReportParams } from './stats-query';
 // Same primary query key and row processing as the report hooks; no comparison
 // request, because exports carry no previous-period columns.
 
+// A click can be retried, so a failed download should report at once, not after backoff.
+const fetchReport: typeof queryClient.fetchQuery = options =>
+	queryClient.fetchQuery( { ...options, retry: false } );
+
 /** Fetch every top-posts row for a report window, ranked as the report ranks them. */
 export async function fetchStatsTopPostsRows(
 	params: StatsReportParams
 ): Promise< StatsTopPostsComparisonItem[] > {
-	const report = await queryClient.fetchQuery( statsTopPostsQuery( withoutComparison( params ) ) );
+	const report = await fetchReport( statsTopPostsQuery( withoutComparison( params ) ) );
 	return mergeStatsTopPostsComparisonRows( report, undefined ).rows;
 }
 
@@ -28,6 +32,6 @@ export async function fetchStatsTopPostsRows(
 export async function fetchStatsArchivesRows(
 	params: StatsReportParams
 ): Promise< StatsArchivesComparisonItem[] > {
-	const report = await queryClient.fetchQuery( statsArchivesQuery( withoutComparison( params ) ) );
+	const report = await fetchReport( statsArchivesQuery( withoutComparison( params ) ) );
 	return mergeStatsArchivesComparisonRows( report, undefined ).rows;
 }
