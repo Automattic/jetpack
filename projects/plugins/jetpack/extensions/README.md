@@ -353,7 +353,7 @@ See [Publicize](blocks/publicize/index.js) and [Shortlinks](blocks/shortlinks/in
 
 To stay consistent with Gutenberg, your extensions should follow [Gutenberg styles and visuals](https://wordpress.org/gutenberg/handbook/designers-developers/designers/block-design/).
 
-Prefer WordPress Design System tokens from [`@wordpress/theme`](https://github.com/WordPress/gutenberg/tree/trunk/packages/theme) (e.g. `var(--wpds-color-foreground-content-neutral)`). The build injects static fallbacks for `--wpds-*` custom properties via PostCSS.
+Prefer WordPress Design System tokens from [`@wordpress/theme`](https://github.com/WordPress/gutenberg/tree/trunk/packages/theme) (e.g. `var(--wpds-color-foreground-content-neutral)`). The build injects static fallbacks via PostCSS for `--wpds-*`, and also for Calypso / Color Studio / Jetpack tokens (`--color-*`, `--studio-*`, `--jp-*`).
 
 ### Icons
 
