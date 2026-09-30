@@ -14,7 +14,7 @@
 		display: inline-flex;
 		font-weight: 600;
 		line-height: 1.666;
-		margin-left: auto;
+		margin-inline-start: auto;
 		white-space: nowrap;
 
 		.waf__standalone__mode__indicator {
@@ -22,7 +22,7 @@
 			border-radius: 50%;
 			flex-shrink: 0;
 			height: 0.666em;
-			margin-right: 4px;
+			margin-inline-end: 4px;
 			width: 0.666em;
 		}
 	}
@@ -31,7 +31,7 @@
 
 .waf__settings {
 	margin-top: 24px;
-	margin-left: 64px;
+	margin-inline-start: 64px;
 	margin-bottom: 24px;
 
 	&__toggle-setting {
@@ -56,10 +56,10 @@
 
 	&__ips {
 		width: 100%;
-		margin-left: 64px;
+		margin-inline-start: 64px;
 
 		&__button-container {
-			margin-left: 64px;
+			margin-inline-start: 64px;
 			width: 100%;
 			display: flex;
 			justify-content: space-between;
@@ -68,19 +68,19 @@
 
 		&__save-button {
 			margin-top: 0.5rem;
-			float: right;
+			float: inline-end;
 		}
 	}
 
 	&__share-data-popover {
 		display: flex;
 		align-items: center;
-		margin-left: 4px;
+		margin-inline-start: 4px;
 	}
 
 	&__upgrade-popover {
 		vertical-align: middle;
-		margin-left: 8px;
+		margin-inline-start: 8px;
 	}
 
 }
@@ -101,7 +101,7 @@
 		list-style: disc;
 		margin-top: 0;
 		margin-bottom: 0;
-		padding-left: 32px;
+		padding-inline-start: 32px;
 	}
 
 	code {
@@ -112,7 +112,7 @@
 
 .modal-survey-notice {
 	position: fixed;
-	left: 0;
+	inset-inline-start: 0;
 	top: 0;
 	height: 100%;
 	width: 100%;
@@ -122,7 +122,7 @@
 		background: #000;
 		opacity: 0.2;
 		position: absolute;
-		left: 0;
+		inset-inline-start: 0;
 		top: 0;
 		width: 100%;
 		height: 100%;
@@ -132,7 +132,7 @@
 
 	.modal-survey-notice__popup {
 		position: absolute;
-		right: 25px;
+		inset-inline-end: 25px;
 		bottom: 25px;
 		width: 416px;
 		max-width: calc(100% - 50px);
@@ -145,7 +145,9 @@
 			background: #0675c4;
 			border-bottom: 1px solid #f6f7f7;
 			height: 56px;
-			padding: 0 14px 0 16px;
+			padding-block: 0;
+			padding-inline-start: 16px;
+			padding-inline-end: 14px;
 			display: flex;
 			align-items: center;
 			justify-content: space-between;

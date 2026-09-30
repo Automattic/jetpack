@@ -191,6 +191,8 @@ export default function VideoPressEdit( {
 		error: syncError,
 		isOverwriteChapterAllowed,
 		isGeneratingPoster,
+		posterError,
+		retryPosterGeneration,
 		videoBelongToSite,
 	} = useSyncMedia( attributes, setAttributes );
 
@@ -625,6 +627,8 @@ export default function VideoPressEdit( {
 					attributes={ attributes }
 					setAttributes={ setAttributes }
 					isGeneratingPoster={ isGeneratingPoster }
+					posterError={ posterError }
+					onRetryPoster={ retryPosterGeneration }
 					videoBelongToSite={ videoBelongToSite }
 				/>
 

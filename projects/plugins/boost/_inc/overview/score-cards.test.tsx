@@ -50,7 +50,7 @@ test( 'the legacy grade explanation keeps its full default description', () => {
 	render( <GradeExplanation /> );
 	expect(
 		screen.getByText(
-			"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance."
+			"Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance."
 		)
 	).toBeInTheDocument();
 } );
@@ -112,7 +112,7 @@ test.each( [
 test.each( [
 	[ 'positive', 70, '+10 points', 'informational' ],
 	[ 'zero', 80, '0 points', 'none' ],
-	[ 'negative', 90, '-10 points', 'none' ],
+	[ 'negative', 90, '0 points', 'none' ],
 ] )( 'shows a %s delta badge', ( _description, baseline, label, intent ) => {
 	render(
 		<ScoreCards
@@ -136,6 +136,7 @@ test( 'hides unknown and stale deltas', () => {
 	};
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
 	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button', { name: 'About points' } ) ).not.toBeInTheDocument();
 	rerender(
 		<ScoreCards scores={ { ...scores, noBoost: { desktop: 70, mobile: 50 }, isStale: true } } />
 	);
@@ -165,6 +166,56 @@ test( 'opens the points explanation beside the badge', async () => {
 	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
 	expect( trigger ).toHaveFocus();
 } );
+
+test.each( [
+	[ 'a zero delta', 60, 'No improvements in score' ],
+	[ 'a clamped negative delta', 80, 'Speed score has fallen' ],
+	[ 'a positive delta', 50, 'Points gained from optimizations' ],
+] )( 'explains %s in the points tooltip', async ( _description, baseline, explanation ) => {
+	render(
+		<ScoreCards
+			scores={ {
+				current: { desktop: 80, mobile: 60 },
+				noBoost: { desktop: 80, mobile: baseline },
+				isStale: false,
+			} }
+		/>
+	);
+	const trigger = within( screen.getByRole( 'region', { name: 'Mobile' } ) ).getByRole( 'button', {
+		name: 'About points',
+	} );
+	fireEvent.click( trigger );
+
+	await waitFor( () => expect( screen.getByText( explanation ) ).toBeVisible() );
+} );
+
+test.each( [
+	[ 'a positive', 50, '+10 points', 'Points gained from optimizations' ],
+	[ 'a clamped negative', 80, '0 points', 'Speed score has fallen' ],
+] )(
+	'opens the points explanation when %s badge is hovered',
+	async ( _description, baseline, label, explanation ) => {
+		render(
+			<ScoreCards
+				scores={ {
+					current: { desktop: 80, mobile: 60 },
+					noBoost: { desktop: 80, mobile: baseline },
+					isStale: false,
+				} }
+			/>
+		);
+		const card = within( screen.getByRole( 'region', { name: 'Mobile' } ) );
+		const badge = card.getByText( label );
+		expect( badge ).not.toHaveAttribute( 'tabindex' );
+		expect( badge ).not.toHaveAttribute( 'role' );
+		expect( card.getAllByRole( 'button' ) ).toEqual( [
+			card.getByRole( 'button', { name: 'About points' } ),
+		] );
+		fireEvent.mouseEnter( badge );
+		fireEvent.mouseMove( badge );
+		await waitFor( () => expect( screen.getByText( explanation ) ).toBeVisible() );
+	}
+);
 
 test( 'shows one calculating status instead of the score sections before scores load', () => {
 	const { container } = render(

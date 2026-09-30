@@ -43,6 +43,14 @@ test( 'mounts the upgrade UI once and cleans up once when removed', () => {
 	}
 } );
 
+test( 'falls back to an upgrade link when nothing mounts into the slot', () => {
+	render( <UpgradeCTA /> );
+	expect( screen.getByRole( 'link', { name: 'Upgrade now' } ) ).toHaveAttribute(
+		'href',
+		'admin.php?page=my-jetpack#/add-boost'
+	);
+} );
+
 test.each( [
 	[ 'the site is offline', { online: false, myJetpack: false } ],
 	[ 'My Jetpack is filtered off', { online: true, myJetpack: false } ],

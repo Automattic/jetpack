@@ -70,6 +70,20 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 						return current_user_can( 'manage_options' );
 					},
 				),
+				array(
+					'methods'             => WP_REST_Server::EDITABLE,
+					'callback'            => array( $this, 'update_mailchimp_settings' ),
+					'permission_callback' => function () {
+						return current_user_can( 'manage_options' );
+					},
+					'args'                => array(
+						'follower_list_id' => array(
+							'type'              => 'string',
+							'required'          => true,
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+					),
+				),
 			)
 		);
 	}
@@ -187,6 +201,26 @@ class WPCOM_REST_API_V2_Endpoint_Mailchimp extends WP_REST_Controller {
 		}
 
 		return $settings;
+	}
+
+	/**
+	 * Save the Mailchimp audience that block subscribers join.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The request.
+	 * @return array|WP_Error
+	 */
+	public function update_mailchimp_settings( $request ) {
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class-jetpack-mailchimp-helper.php';
+
+		$audience = $request['follower_list_id'];
+		$result   = Jetpack_Mailchimp_Helper::save_audience( $audience );
+		if ( is_wp_error( $result ) ) {
+			return new WP_Error( $result->get_error_code(), $result->get_error_message(), array( 'status' => 400 ) );
+		}
+
+		return array( 'follower_list_id' => $audience );
 	}
 }
 

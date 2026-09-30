@@ -3,13 +3,14 @@
  */
 import { Button, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { formatDateRange } from '@jetpack-premium-analytics/formatters';
-import { Dropdown, MenuGroup, MenuItem, NavigableMenu, Tooltip } from '@wordpress/components';
+import { MenuGroup, MenuItem, NavigableMenu } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { check, chevronDown, plus } from '@wordpress/icons';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { DateControlPopover } from '../date-control-popover';
 import {
 	DATE_CONTROL_TRIGGER_DEFAULTS,
 	openOnArrowDown,
@@ -73,10 +74,14 @@ export function DateComparisonDropdown( {
 		];
 	}, [ noComparisonLabel, presets ] );
 
-	// A preset the current range cannot produce leaves the trigger with nothing
-	// to name, so the control falls back to its additive state.
+	// A preset folded into another entry checks that entry. One the current
+	// range cannot produce leaves the trigger with nothing to name, so the
+	// control falls back to its additive state.
 	const selectedPreset = useMemo(
-		() => ( enabled && presetId ? presets.find( preset => preset.id === presetId ) : undefined ),
+		() =>
+			enabled && presetId
+				? presets.find( preset => preset.id === presetId || preset.aliases.includes( presetId ) )
+				: undefined,
 		[ enabled, presetId, presets ]
 	);
 
@@ -96,6 +101,7 @@ export function DateComparisonDropdown( {
 	);
 
 	const controlLabel = label ?? ( isComparisonActive ? compareToLabel : additiveLabel );
+	const [ isOpen, setIsOpen ] = useState( false );
 
 	/*
 	 * Additive: `Compare +` until a preset is picked, then a trigger naming it —
@@ -114,54 +120,56 @@ export function DateComparisonDropdown( {
 				</span>
 			) : null }
 
-			<Dropdown
-				popoverProps={ { placement: 'bottom-start' } }
-				renderToggle={ ( { isOpen, onToggle } ) => (
-					// The window the abbreviation stands for. Over the additive state
-					// a tooltip would repeat the label, so it stays empty there.
-					<Tooltip text={ selectedPreset && formatDateRange( selectedPreset.range ) }>
-						<Button
-							{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
-							{ ...triggerProps }
-							disabled={ disabled }
-							onClick={ onToggle }
-							onKeyDown={ openOnArrowDown( { isOpen, onToggle, disabled } ) }
-							aria-expanded={ isOpen }
-							aria-haspopup="true"
-							// The trigger shows an abbreviation, so carry the full preset name
-							// for anyone not reading the glyphs — same as the preset pills.
-							aria-label={ selectedPreset?.label }
-						>
-							{ selectedPreset?.shortLabel ?? additiveLabel }
-							<Icon icon={ isComparisonActive ? chevronDown : plus } size={ 18 } />
-						</Button>
-					</Tooltip>
-				) }
-				renderContent={ ( { onClose } ) => (
-					<NavigableMenu role="menu" aria-label={ controlLabel }>
-						<MenuGroup>
-							{ items.map( item => {
-								const isSelected = item.value === selectedValue;
+			<DateControlPopover
+				align="start"
+				title={ controlLabel }
+				open={ isOpen }
+				onOpenChange={ setIsOpen }
+				// The window the abbreviation stands for. Over the additive state
+				// a tooltip would repeat the label, so it stays empty there.
+				tooltip={ selectedPreset && formatDateRange( selectedPreset.range ) }
+				trigger={
+					<Button
+						{ ...DATE_CONTROL_TRIGGER_DEFAULTS }
+						{ ...triggerProps }
+						disabled={ disabled }
+						onKeyDown={ openOnArrowDown( {
+							isOpen,
+							onToggle: () => setIsOpen( true ),
+							disabled,
+						} ) }
+						// The trigger shows an abbreviation, so carry the full preset name
+						// for anyone not reading the glyphs — same as the preset pills.
+						aria-label={ selectedPreset?.label }
+					>
+						{ selectedPreset?.shortLabel ?? additiveLabel }
+						<Icon icon={ isComparisonActive ? chevronDown : plus } size={ 18 } />
+					</Button>
+				}
+			>
+				<NavigableMenu role="menu" aria-label={ controlLabel }>
+					<MenuGroup>
+						{ items.map( item => {
+							const isSelected = item.value === selectedValue;
 
-								return (
-									<MenuItem
-										key={ item.value }
-										role="menuitemradio"
-										isSelected={ isSelected }
-										icon={ isSelected ? check : undefined }
-										onClick={ () => {
-											handleSelect( item.value );
-											onClose();
-										} }
-									>
-										{ item.label }
-									</MenuItem>
-								);
-							} ) }
-						</MenuGroup>
-					</NavigableMenu>
-				) }
-			/>
+							return (
+								<MenuItem
+									key={ item.value }
+									role="menuitemradio"
+									isSelected={ isSelected }
+									icon={ isSelected ? check : undefined }
+									onClick={ () => {
+										handleSelect( item.value );
+										setIsOpen( false );
+									} }
+								>
+									{ item.label }
+								</MenuItem>
+							);
+						} ) }
+					</MenuGroup>
+				</NavigableMenu>
+			</DateControlPopover>
 		</Stack>
 	);
 }

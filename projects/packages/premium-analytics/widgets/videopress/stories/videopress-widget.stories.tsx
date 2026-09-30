@@ -125,8 +125,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the video glyph and
- * the "learn which videos your visitors watch most" hint).
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderVideoPressOnPreset( 'last-365-days' ),

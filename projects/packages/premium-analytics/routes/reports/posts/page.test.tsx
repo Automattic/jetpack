@@ -5,6 +5,7 @@ import { usePostThumbnails } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportDrilldownTable,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportRecordsTable,
 	ReportCsvAction,
@@ -44,6 +45,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	formatLegendLabels: () => [],
+	ReportEmptyState: jest.fn( () => <div data-testid="report-empty-state" /> ),
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
 			<span>{ title }</span>
@@ -86,6 +88,7 @@ const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
+const reportEmptyStateMock = jest.mocked( ReportEmptyState );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
@@ -203,6 +206,18 @@ describe( 'PostsReportPage', () => {
 		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
 	} );
 
+	it( 'draws each post thumbnail beside its title', () => {
+		useRecordsMock.mockReturnValue( buildRecords() );
+
+		render( <PostsReportPage /> );
+
+		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		expect( initialView ).toMatchObject( { titleField: 'title', mediaField: 'thumbnail' } );
+		expect( fields.map( field => field.id ) ).toEqual(
+			expect.arrayContaining( [ 'title', 'thumbnail' ] )
+		);
+	} );
+
 	it( 'does not render a page action when the hook disables export', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
 		useReportCsvExportMock.mockReturnValue( {
@@ -318,6 +333,50 @@ describe( 'PostsReportPage', () => {
 		expect( drilldownProps.getItemParentId?.( records.archives.rows[ 1 ] ) ).toBe( 'tags-0' );
 		expect( drilldownProps.getItemId( records.archives.rows[ 1 ] ) ).toBe( 'tags-0-0' );
 		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'replaces the Posts table with the empty state when the period has no posts', () => {
+		const records = buildRecords();
+		records.posts.rows = [];
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps the loading table while a changed range is loading over no posts', () => {
+		const records = buildRecords( { isLoading: true, isFetching: true } );
+		records.posts.rows = [];
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( reportEmptyStateMock ).not.toHaveBeenCalled();
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
+	} );
+
+	it( 'keeps the empty state while the same empty range revalidates', () => {
+		const records = buildRecords( { isFetching: true } );
+		records.posts.rows = [];
+		useRecordsMock.mockReturnValue( records );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'shows the empty state for the Archives tab from its own rows', () => {
+		// The Posts rows stay populated, so only the Archives rows can empty the page.
+		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
+		useRecordsMock.mockReturnValue( buildRecords() );
+
+		render( <PostsReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'renders the error state instead of the records table', () => {

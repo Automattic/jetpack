@@ -1,10 +1,4 @@
-import {
-	EARNINGS_BUCKETS,
-	EARNINGS_TAB_IDS,
-	getEarningsReportTabs,
-	hasAdsServed,
-	resolveSection,
-} from './tabs';
+import { EARNINGS_BUCKETS, EARNINGS_TAB_IDS, getEarningsReportTabs, resolveSection } from './tabs';
 
 describe( 'Earnings report tabs', () => {
 	it( 'lists the three earnings buckets and defaults to WordAds', () => {
@@ -24,13 +18,5 @@ describe( 'Earnings report tabs', () => {
 			'sponsored',
 			'adjustment',
 		] );
-	} );
-
-	it.each( [
-		[ 'wordads', true ],
-		[ 'sponsored', false ],
-		[ 'adjustments', false ],
-	] as const )( 'reports Ads Served support for %s as %s', ( tab, expected ) => {
-		expect( hasAdsServed( tab ) ).toBe( expected );
 	} );
 } );

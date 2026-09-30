@@ -20,7 +20,7 @@ class Admin_Chrome_Logo {
 	 * Pass a label only where the mark is the element's accessible name. Beside visible
 	 * "Jetpack" text it is decorative, and a second announcement is noise.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @param int    $height Pixel height.
 	 * @param string $class  Optional class attribute.

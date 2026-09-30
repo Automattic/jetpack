@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Modules: Keep modules forced on or off by a filter out of the saved list when another module is switched.

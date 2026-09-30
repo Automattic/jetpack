@@ -407,4 +407,114 @@ class Widget_Type_Registry_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->doing_it_wrong );
 		$this->assertArrayHasKey( self::MANIFEST_WIDGET, get_registered_widget_types() );
 	}
+
+	/**
+	 * A former name resolves to the current type, without showing up as a type of its own.
+	 */
+	public function test_former_names_resolve_to_the_current_type() {
+		register_widget_type(
+			'videopress/top-videos',
+			array(
+				'render_module' => 'videopress/render',
+				'former_names'  => array( 'jpa/videopress' ),
+			)
+		);
+
+		$registry = Widget_Type_Registry::get_instance();
+		$this->assertSame( 'videopress/top-videos', $registry->resolve_name( 'jpa/videopress' ) );
+		$this->assertSame( 'jpa/clicks', $registry->resolve_name( 'jpa/clicks' ) );
+		$this->assertSame( 'videopress/top-videos', $registry->get_registered( 'jpa/videopress' )->name );
+		$this->assertFalse( $registry->is_registered( 'jpa/videopress' ) );
+		$this->assertArrayNotHasKey( 'jpa/videopress', get_registered_widget_types() );
+	}
+
+	/**
+	 * A former name another type holds, or a name someone claims as former, is refused.
+	 */
+	public function test_former_names_cannot_collide_with_registered_or_claimed_names() {
+		register_widget_type( 'plugin/taken', array( 'render_module' => 'plugin/taken/render' ) );
+		register_widget_type( 'plugin/current', array( 'former_names' => array( 'plugin/old' ) ) );
+		$this->capture_doing_it_wrong();
+
+		$this->assertFalse( register_widget_type( 'plugin/other', array( 'former_names' => array( 'plugin/taken' ) ) ) );
+		$this->assertFalse( register_widget_type( 'plugin/another', array( 'former_names' => array( 'plugin/old' ) ) ) );
+		$this->assertFalse( register_widget_type( 'plugin/old' ) );
+		$this->assertFalse( register_widget_type( 'plugin/shouty', array( 'former_names' => array( 'Plugin/Old' ) ) ) );
+		$this->assertFalse( register_widget_type( 'plugin/numeric', array( 'former_names' => array( 42 ) ) ) );
+		$this->assertFalse( register_widget_type( 'plugin/scalar', array( 'former_names' => 'plugin/old-scalar' ) ) );
+
+		$this->assertSame(
+			array(
+				Widget_Type_Registry::class . '::former_names_are_free',
+				Widget_Type_Registry::class . '::former_names_are_free',
+				Widget_Type_Registry::class . '::register',
+				Widget_Type_Registry::class . '::former_names_are_free',
+				Widget_Type_Registry::class . '::former_names_are_free',
+				Widget_Type_Registry::class . '::former_names_are_free',
+			),
+			$this->doing_it_wrong
+		);
+		$this->assertSame( 'plugin/current', Widget_Type_Registry::get_instance()->resolve_name( 'plugin/old' ) );
+	}
+
+	/**
+	 * Unregistering a type releases its former names.
+	 */
+	public function test_unregister_releases_the_former_names() {
+		$registry = Widget_Type_Registry::get_instance();
+		$registry->register( 'plugin/current', array( 'former_names' => array( 'plugin/old' ) ) );
+
+		$registry->unregister( 'plugin/current' );
+
+		$this->assertSame( 'plugin/old', $registry->resolve_name( 'plugin/old' ) );
+		$this->assertInstanceOf( Widget_Type::class, $registry->register( 'plugin/old' ) );
+	}
+
+	/**
+	 * The registry stores former names as a list of distinct names, whatever shape the caller passed:
+	 * a keyed array would reach the client as an object.
+	 */
+	public function test_register_normalizes_the_former_names_into_a_list() {
+		$registry = Widget_Type_Registry::get_instance();
+
+		$keyed = $registry->register( 'plugin/keyed', array( 'former_names' => array_unique( array( 'plugin/old', 'plugin/old', 'plugin/older' ) ) ) );
+		$this->assertSame( array( 'plugin/old', 'plugin/older' ), $keyed->former_names );
+		$this->assertSame( 'plugin/keyed', $registry->resolve_name( 'plugin/older' ) );
+
+		$this->assertNull( $registry->register( 'plugin/none', array( 'former_names' => array() ) )->former_names );
+
+		$instance = new Widget_Type( 'plugin/instance', array( 'former_names' => array( 3 => 'plugin/third' ) ) );
+		$this->assertSame( array( 'plugin/third' ), $registry->register( $instance )->former_names );
+	}
+
+	/**
+	 * The manifest helper takes former names from the candidate, or from the registrant's map.
+	 */
+	public function test_manifest_helper_stamps_the_former_names_onto_the_type() {
+		register_widget_types_from_manifest(
+			array(
+				array(
+					'name'          => 'plugin/first',
+					'render_module' => 'plugin/first/render',
+				),
+				array(
+					'name'          => 'plugin/second',
+					'render_module' => 'plugin/second/render',
+					'former_names'  => array( 'jpa/second', 'jpa/second' ),
+				),
+			),
+			array(
+				'former_names' => array(
+					'plugin/first'  => array( 'jpa/first' ),
+					'plugin/second' => array( 'jpa/ignored' ),
+				),
+			)
+		);
+
+		$registry = Widget_Type_Registry::get_instance();
+		$this->assertSame( array( 'jpa/first' ), $registry->get_registered( 'plugin/first' )->former_names );
+		$this->assertSame( array( 'jpa/second' ), $registry->get_registered( 'plugin/second' )->former_names );
+		$this->assertSame( 'plugin/second', $registry->resolve_name( 'jpa/second' ) );
+		$this->assertSame( 'jpa/ignored', $registry->resolve_name( 'jpa/ignored' ) );
+	}
 }

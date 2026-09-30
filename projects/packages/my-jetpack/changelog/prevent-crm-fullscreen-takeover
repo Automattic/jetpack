@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-CRM: keep the site owner on My Jetpack after activating Jetpack CRM, instead of sending them to CRM's full-screen setup wizard.

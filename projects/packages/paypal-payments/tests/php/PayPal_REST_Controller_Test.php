@@ -545,7 +545,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$data = $result->get_error_data();
 		// The REST controller normalizes 0 to 503.
-		$this->assertGreaterThan( 0, $data['status'] );
+		$this->assertSame( 503, $data['status'] );
 	}
 
 	// --- handle_delete_button: 404 treated as success ---
@@ -1956,6 +1956,37 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$second_read = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-RT1' ) );
 		$this->assertEquals( $first_read->get_data(), $second_read->get_data(), 'An update with no changes changed the payment.' );
+	}
+
+	/**
+	 * An http return URL goes through to PayPal unchanged.
+	 */
+	public function test_create_button_sends_an_http_return_url() {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		$create = $this->dispatch_json(
+			'POST',
+			'/wpcom/v2/paypal/buttons',
+			array(
+				'line_items' => array(
+					array(
+						'name'        => 'Widget',
+						'unit_amount' => array(
+							'currency_code' => 'USD',
+							'value'         => '10.00',
+						),
+					),
+				),
+				'return_url' => 'http://example.com/thanks',
+			)
+		);
+
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( 'http://example.com/thanks', $store['return_url'] );
 	}
 
 	/**

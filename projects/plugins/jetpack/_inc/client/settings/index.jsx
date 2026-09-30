@@ -1,6 +1,7 @@
-import { GlobalNotices, ThemeProvider } from '@automattic/jetpack-components';
+import { ThemeProvider } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
 import { search } from '@wordpress/icons';
+import { SnackbarNotices } from '@wordpress/notices';
 import { EmptyState, Stack } from '@wordpress/ui';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -113,7 +114,7 @@ class Settings extends Component {
 					<Subscriptions siteAdminUrl={ siteAdminUrl } searchTerm={ searchTerm } />
 					<SearchableModules searchTerm={ searchTerm } />
 				</div>
-				<GlobalNotices />
+				<SnackbarNotices className="jp-settings-snackbar-notices" />
 			</ThemeProvider>
 		);
 	}

@@ -125,8 +125,19 @@ export function ReportRecordsTable< Item >( {
 				search: '',
 				// DataViews renders only the columns listed in `view.fields` —
 				// there is no "all fields" default — so seed it with every
-				// configured field. `initialView` can still narrow it.
-				fields: fields.map( field => field.id ),
+				// configured field. `initialView` can still narrow it. A primary
+				// field (title, media, description) has its own column, so listing
+				// it here would draw it twice.
+				fields: fields
+					.map( field => field.id )
+					.filter(
+						id =>
+							! [
+								initialView?.titleField,
+								initialView?.mediaField,
+								initialView?.descriptionField,
+							].includes( id )
+					),
 				...initialView,
 			} ) as View
 	);

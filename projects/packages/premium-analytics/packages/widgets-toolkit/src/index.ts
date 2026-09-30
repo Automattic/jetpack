@@ -88,6 +88,8 @@ export {
 	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
+	InfoTip,
+	type InfoTipProps,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
@@ -113,6 +115,7 @@ export {
 	SemiCircleChart,
 	type SemiCircleChartData,
 	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -139,6 +142,7 @@ export {
 	type LocationsGeoRow,
 	ReportChartSection,
 	ReportDrilldownTable,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -148,6 +152,8 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
@@ -247,8 +253,10 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
+	compareOptionalNumbers,
 	formatEmailRate,
 	formatViewCount,
+	getKnownEmailRate,
 	isEmailRateKnown,
 	type EmailRateSignals,
 	MONTHS_IN_YEAR,
@@ -275,8 +283,10 @@ export {
  * Hooks
  */
 export {
+	DashboardSectionProvider,
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
 	useWidgetNavigationSearch,
@@ -285,6 +295,7 @@ export {
 	useStoredDetailLayout,
 	useTrackCustomize,
 	useTrackEvent,
+	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -320,7 +331,14 @@ export {
 /**
  * Types
  */
-export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type {
+	CountLabel,
+	MetricKey,
+	OrderMetricKey,
+	OrderMetrics,
+	OrdersSummary,
+	DataFormat,
+} from './types';
 
 /**
  * Charts passthrough. Widgets must import chart components from here, never

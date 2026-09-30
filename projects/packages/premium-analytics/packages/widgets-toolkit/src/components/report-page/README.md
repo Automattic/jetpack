@@ -13,7 +13,7 @@ const label = __( 'All pages' );
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	actions={ downloadButton }
 >
-	<ReportPageLayout title={ getTabTitle( activeTab ) } dateFilters={ dateFilters }>
+	<ReportPageLayout title={ getTabLabel( activeTab ) } dateFilters={ dateFilters }>
 		<ReportPerformanceChart
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
@@ -57,6 +57,17 @@ const label = __( 'All pages' );
 - **`ReportRecordsTable`** — a Core DataViews table over the module's
   summarized rows; search, sorting, column config, and pagination run
   client-side via `filterSortAndPaginate`.
+- **`ReportThumbnail`** — a records-table row thumbnail for the view's
+  `mediaField`, falling back to `fallbackIcon` when there is none or it fails
+  to load. DataViews draws it beside the `titleField` in its fixed 32px box.
+- **`REPORT_TITLE_LINK_CLASS_NAMES`** — the `classNames` to pass a
+  `PostTitleLink` or `VideoTitleLink` rendered in a records table's
+  `titleField`, so a long title ellipsizes and keeps its outbound marker.
+- **`ReportEmptyState`** — replaces the records table (and, on Locations, the
+  map) when the selected period returned no rows. Pages render it only when the
+  rows they pass to the table are empty and the table is not loading, so a
+  search that matches nothing keeps the table's own "No results" and its search
+  box.
 - **`ReportPageTabs`** — the presentational tab bar for report pages with
   multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
   and reports selection upward; panel children render inside the same `Tabs.Root`
@@ -79,17 +90,9 @@ The picker offers the range alone — no interval control, no comparison. Both
 stay on the URL untouched, so the dashboard keeps them. Declaring this per
 report is WOOA7S-1952.
 
-A report page carries three names:
-
-| name          | where it shows          | example                     |
-| ------------- | ----------------------- | --------------------------- |
-| report label  | the trailing breadcrumb | `All pages`                 |
-| tab label     | the tab strip           | `Posts & Pages`, `Archives` |
-| section title | the header's `h2`       | `Posts & Pages report`      |
-
-The first two come from `routes/reports/registry.ts` (`getLabel`) and the tab
-set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which
-falls back to the tab's label, and the report's `getTitle()` otherwise.
+The header's `h2` reuses a name the page already shows: the open tab's label
+on a tabbed report (`getTabLabel( activeTab )`, e.g. `Posts & Pages`), and the
+report's own label from `routes/reports/registry.ts` otherwise (`All pages`).
 
 Omit `dateFilters` on a report with no date window; the header is then the title
 alone. It pins at the top of the layout's scroll area and condenses on scroll,

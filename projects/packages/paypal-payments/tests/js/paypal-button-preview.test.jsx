@@ -202,9 +202,9 @@ describe( 'PayPalButtonPreview', () => {
 		).not.toHaveClass( 'is-style-outline' );
 	} );
 
-	// Width and Border hang on the button, not the product card around it — the
-	// card has no background, so a radius there rounds nothing.
-	it( 'sizes and borders the button, not the card around it', () => {
+	// Border stays on the button, since the card has no background for a radius
+	// to round.
+	it( 'sizes the card and borders the button', () => {
 		render(
 			<PayPalButtonPreview
 				{ ...defaultProps }
@@ -218,22 +218,21 @@ describe( 'PayPalButtonPreview', () => {
 			/>
 		);
 
-		expect(
-			document.querySelector( '.jetpack-paypal-button-preview__checkout-button' )
-		).toHaveStyle( {
-			width: '75%',
-			maxWidth: '100%',
+		const button = document.querySelector( '.jetpack-paypal-button-preview__checkout-button' );
+		expect( button ).toHaveStyle( {
 			borderRadius: '8px',
 			borderWidth: '2px',
 			borderColor: '#1e1e1e',
 			borderStyle: 'solid',
 		} );
+		// Width goes on the card. The regex matches at the start of a declaration,
+		// so it skips border-width.
+		expect( button.getAttribute( 'style' ) ).not.toMatch( /(^|;)\s*(max-)?width:/ );
 
-		// The card takes the margin and nothing else.
+		// The card takes Width and drops a margin left over from QR.
 		const card = document.querySelector( '.jetpack-paypal-button-preview' );
-		expect( card ).toHaveStyle( { marginTop: '8px' } );
-		expect( card ).not.toHaveStyle( { maxWidth: '75%' } );
-		expect( card ).not.toHaveStyle( { borderRadius: '8px' } );
+		expect( card ).toHaveStyle( { width: '75%', maxWidth: '100%' } );
+		expect( card.getAttribute( 'style' ) ).not.toMatch( /margin|border/ );
 	} );
 
 	it( 'never renders a debit/credit button', () => {

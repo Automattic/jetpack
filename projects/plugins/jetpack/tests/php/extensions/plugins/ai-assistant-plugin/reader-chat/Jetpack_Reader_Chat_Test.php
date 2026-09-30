@@ -137,6 +137,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		}
 
 		$wpcom_plan_info_class::$supports_search = true;
+		$wpcom_plan_info_class::$is_free         = false;
 
 		$wpcom_plan_info_class::$disabled_due_to_overage = false;
 
@@ -507,6 +508,39 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
 			'Script should not be enqueued when cached Search plan info is missing.'
 		);
+	}
+
+	public function test_enqueue_scripts_skips_free_search_plan() {
+		$this->override_ai_features( true );
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		$plan_info['effective_subscription']['product_slug'] = Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG;
+		update_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $plan_info );
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'jetpack-reader-chat', 'enqueued' ) );
+	}
+
+	public function test_enqueue_scripts_skips_forced_free_plan() {
+		$this->override_ai_features( true );
+		$_GET['free_plan'] = '1';
+		try {
+			Jetpack_Reader_Chat::enqueue_scripts();
+			$this->assertFalse( wp_script_is( 'jetpack-reader-chat', 'enqueued' ) );
+		} finally {
+			unset( $_GET['free_plan'] );
+		}
+	}
+
+	public function test_enqueue_scripts_skips_wpcom_simple_free_search_plan() {
+		$this->register_wpcom_plan_info_test_double();
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->override_ai_features( true );
+		\Jetpack\Search\Plan_Info::$is_free = true;
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'jetpack-reader-chat', 'enqueued' ) );
 	}
 
 	/**

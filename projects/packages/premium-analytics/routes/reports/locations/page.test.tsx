@@ -1,9 +1,11 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportCsvAction,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageTabs,
@@ -32,6 +34,11 @@ jest.mock( './config', () => {
 	};
 } );
 
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	usePrefetchViewerCountry: jest.fn(),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
@@ -47,6 +54,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
+	ReportEmptyState: jest.fn( () => <div data-testid="report-empty-state" /> ),
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
 			<span>{ title }</span>
@@ -91,6 +99,7 @@ jest.mock( '@wordpress/route', () => ( {
 
 const useRecordsMock = jest.mocked( useLocationsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
+const reportEmptyStateMock = jest.mocked( ReportEmptyState );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
@@ -313,6 +322,31 @@ describe( 'LocationsReportPage', () => {
 		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
 	} );
 
+	it( 'replaces the map and the records table with the empty state when the period has no rows', () => {
+		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	// The table holds the country filter, so hiding it would leave no way to
+	// clear a country that scoped the rows down to none.
+	it( 'keeps the records table when a picked country has no rows', () => {
+		mockTabState( 'regions' );
+		mockRecords();
+
+		render( <LocationsReportPage /> );
+		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
+		pickCountry( 'DE' );
+
+		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
+		expect( screen.getByTestId( 'records-table' ) ).toBeInTheDocument();
+		expect( reportEmptyStateMock ).not.toHaveBeenCalled();
+	} );
+
 	// The Countries tab is already the whole country list, so scoping it to one
 	// country would leave a single row.
 	it( 'offers no country filter on the Countries tab', () => {
@@ -396,6 +430,16 @@ describe( 'LocationsReportPage', () => {
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'cities', expect.anything(), undefined );
 	} );
 	describe( 'map', () => {
+		// The map waits for the country, so the lookup has to start with the page,
+		// not with the map.
+		it( "starts the viewer's country lookup while the rows are still loading", () => {
+			mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
+
+			render( <LocationsReportPage /> );
+
+			expect( usePrefetchViewerCountry ).toHaveBeenCalled();
+		} );
+
 		it( 'plots the tab own rows at the tab granularity', () => {
 			mockTabState( 'cities' );
 			mockRecords();

@@ -8,9 +8,14 @@ import {
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
-import { toDay, type DataFormat, type MetricTab } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	toDay,
+	type CountLabel,
+	type DataFormat,
+	type MetricTab,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import {
 	addDays,
 	eachDayOfInterval,
@@ -234,7 +239,8 @@ export default function useVideoMetrics(
 			label: string,
 			points: StatsSingleVideoDataPoint[],
 			serverTotal: number | undefined,
-			dataFormat: DataFormat
+			dataFormat: DataFormat,
+			countLabel?: CountLabel
 		): MetricTab => {
 			const current = toBucketPoints( buckets, bucketTotals( points, buckets ), timezone );
 			return {
@@ -243,6 +249,7 @@ export default function useVideoMetrics(
 				value: serverTotal ?? current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 				dataFormat,
+				countLabel,
 			};
 		};
 
@@ -252,7 +259,10 @@ export default function useVideoMetrics(
 				__( 'Views', 'jetpack-premium-analytics-pkg' ),
 				playsSeries,
 				total?.plays,
-				COUNT_FORMAT
+				COUNT_FORMAT,
+				count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' )
 			),
 		];
 
@@ -265,7 +275,10 @@ export default function useVideoMetrics(
 					__( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 					data.series.impressions,
 					total?.impressions,
-					COUNT_FORMAT
+					COUNT_FORMAT,
+					count =>
+						/* translators: %s: number of impressions. */
+						_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' )
 				)
 			);
 		}

@@ -8,6 +8,7 @@ import {
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -53,9 +54,10 @@ function getVideoRowId( video: StatsVideoPlaysComparisonItem ): string {
 
 const RECORDS_VIEW = {
 	sort: { field: 'plays', direction: 'desc' as const },
+	titleField: 'label',
+	mediaField: 'poster',
 	layout: {
 		styles: {
-			label: { width: '100%' },
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
 		},
@@ -121,7 +123,20 @@ function VideosReport(): JSX.Element {
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.videos;
+	const { getLabel } = REPORTS.videos;
+
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! records.isLoading && records.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
 
 	return (
 		<ReportPageShell
@@ -133,13 +148,8 @@ function VideosReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
 						data={ records.rows }
 						fields={ fields }

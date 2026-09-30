@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import JitmSlot from '@automattic/jetpack-components/jitm-slot';
 import { formatNumberCompact } from '@automattic/number-formatters';
 /**
  * WordPress dependencies
@@ -85,7 +86,10 @@ export default function DataViewsHeaderRow( {
 
 	return (
 		<>
-			<Stack className="jp-forms-dataviews__view-actions" justify="space-between">
+			<Stack
+				className="jp-forms-dataviews__view-actions jp-admin-page-has-tabs"
+				justify="space-between"
+			>
 				<Stack align="center" gap="sm">
 					{ isSingleFormView ? (
 						<InboxStatusToggle
@@ -124,6 +128,7 @@ export default function DataViewsHeaderRow( {
 					<DataViews.ViewConfig />
 				</Stack>
 			</Stack>
+			<JitmSlot inset />
 			<DataViews.FiltersToggled className="jp-forms-dataviews-filters__container" />
 		</>
 	);

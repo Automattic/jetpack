@@ -38,7 +38,7 @@ filters.
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
-src/dashboard-sections.php              # section API: registry helpers, preview scope, REST
+src/dashboard-sections.php              # section API: registry helpers, section script data, REST
 src/default-dashboard-sections.php      # the package's own sections, registered through that API
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
@@ -91,7 +91,8 @@ Add widget types from another plugin: hook `jetpack_premium_analytics_register_w
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
 that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
 registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
-action once; `src/widget-types.php` registers the package's own build manifest the same way.
+action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
+that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
 `docs/dashboard-widgets.md` walks through the path.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
@@ -102,7 +103,7 @@ Any Jest test that waits on time — `waitFor`, React Query updates, debounces, 
 call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
 a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
 driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
-See `widgets/wordads-chart-tabs/__tests__/wordads-chart-tabs.test.tsx`.
+See `widgets/posting-activity/__tests__/posting-activity.test.tsx`.
 
 ## API
 
@@ -168,16 +169,13 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
-Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
-customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
-override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
-overrides that per section — `__return_true` gives a development or test site the whole dashboard.
-The `premium-analytics-a11n-all-sections` flag does the same for Automatticians only; see
+Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
+opt-in, the Store tab also needs the `premium-analytics-store-section` feature flag, off by default; see
 `docs/dashboard-sections.md`.
 
 The same list the tab bar gets over REST also reaches the client as
-`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
-scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+`premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
+tab out of reach: each report declares the tab it belongs to, and `getReportDefinition()` treats one
 behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
 `authors`) rather than declaring a tab.
 
@@ -705,7 +703,7 @@ interpolated into a shared frame) so translators see the whole sentence:
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,
 	} ) }
-	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ) } }
+	// No `empty`: a period with no rows gets the generic "no results" state.
 >
 	<LeaderboardChart … />
 </WidgetState>
@@ -733,9 +731,12 @@ area. Notes:
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.
-- Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
-  `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
-  a caution glyph: empty is not an error.
+- Omit `empty` for a period with no data: `<WidgetState>` then draws `ChartEmptyState`'s generic
+  state, the `search` magnifier and "We couldn’t find results for this time period.". Pass
+  `empty` only for a case that copy does not describe, such as a scope prompt ("Open a post to
+  see…") or a fixed window. Its `icon` is then the widget's own neutral glyph from
+  `@jetpack-premium-analytics/icons`, or none when omitted. Don't use a caution glyph: empty is
+  not an error.
 - Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
   of `<WidgetState>`, not inside it, so it stays available in every state.
 - `<WidgetState>` covers only a widget's own data state; the host still owns the crash error

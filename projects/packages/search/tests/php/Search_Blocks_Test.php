@@ -310,6 +310,49 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * @dataProvider provider_widget_area_hiding_blocks
+	 *
+	 * @param bool        $sidebar_registered Whether the legacy Overlay sidebar is registered.
+	 * @param string|null $screen_id          Current admin screen, or null for none.
+	 * @param bool        $expect_overlay     Whether the Overlay sidebar is expected, rather than null.
+	 */
+	#[DataProvider( 'provider_widget_area_hiding_blocks' )]
+	public function test_widget_area_hiding_blocks( bool $sidebar_registered, ?string $screen_id, bool $expect_overlay ) {
+		if ( $sidebar_registered ) {
+			register_sidebar( array( 'id' => Instant_Search::INSTANT_SEARCH_SIDEBAR ) );
+		}
+		if ( null !== $screen_id ) {
+			set_current_screen( $screen_id );
+		}
+
+		try {
+			$this->assertSame(
+				$expect_overlay ? Instant_Search::INSTANT_SEARCH_SIDEBAR : null,
+				Search_Blocks::widget_area_hiding_blocks()
+			);
+		} finally {
+			unregister_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR );
+			unset( $GLOBALS['current_screen'] );
+		}
+	}
+
+	/**
+	 * Cases for `test_widget_area_hiding_blocks`.
+	 *
+	 * @return array<string, array{0: bool, 1: string|null, 2: bool}>
+	 */
+	public static function provider_widget_area_hiding_blocks(): array {
+		return array(
+			'overlay sidebar, widgets screen'    => array( true, 'widgets', true ),
+			'overlay sidebar, customizer'        => array( true, 'customize', true ),
+			'overlay sidebar, post editor'       => array( true, 'post', false ),
+			'overlay sidebar, no screen'         => array( true, null, false ),
+			'no overlay sidebar, widgets screen' => array( false, 'widgets', false ),
+			'no overlay sidebar, customizer'     => array( false, 'customize', false ),
+		);
+	}
+
+	/**
 	 * Seeded `activeFilters` is the raw URL params — gating moved to
 	 * Store/index.js's `initialize()` callback, which can apply it once
 	 * Every filter block's render.php has contributed its filterConfig (and

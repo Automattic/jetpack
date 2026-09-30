@@ -209,58 +209,58 @@ class Jetpack_Likes_Settings {
 	/**
 	 * Should we register the Settings > Sharing screen ourselves?
 	 *
-	 * @deprecated $$next-version$$ Settings > Sharing is registered by Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page.
+	 * @deprecated 16.3 Settings > Sharing is registered by Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page.
 	 *
 	 * @param bool $sharedaddy_active Whether the Sharing (sharedaddy) module is active.
 	 * @return bool
 	 */
 	public function needs_own_sharing_menu( $sharedaddy_active ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3' );
 		return false;
 	}
 
 	/**
 	 * Adds the 'sharing' menu to the settings menu.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_menu() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
 	}
 
 	/**
 	 * Provides a sharing page with the sharing_global_options hook so we can display the setting.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Returns the settings have been saved message.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function updated_message() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Returns the Likes options block, so it can be inserted into different sharing page contexts.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_block() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
 	}
 
 	/**
@@ -590,67 +590,13 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * The actual options block to be inserted into the sharing page.
+	 *
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render() instead.
+	 *
+	 * @return void
 	 */
 	public function admin_settings_init() {
-		?>
-		<tr>
-			<th scope="row">
-				<label><?php esc_html_e( 'WordPress.com Likes are', 'jetpack' ); ?></label>
-			</th>
-			<td>
-				<div>
-					<label>
-						<input type="radio" class="code" name="wpl_default" value="on" <?php checked( $this->is_enabled_sitewide(), true ); ?> />
-						<?php esc_html_e( 'On for all posts', 'jetpack' ); ?>
-					</label>
-				</div>
-				<div>
-					<label>
-						<input type="radio" class="code" name="wpl_default" value="off" <?php checked( $this->is_enabled_sitewide(), false ); ?> />
-						<?php esc_html_e( 'Turned on per post', 'jetpack' ); ?>
-					</label>
-					<div>
-			</td>
-		</tr>
-		<?php if ( ! $this->in_jetpack ) : ?>
-			<tr>
-				<th scope="row">
-					<label><?php esc_html_e( 'WordPress.com Reblog Button', 'jetpack' ); ?></label>
-				</th>
-				<td>
-					<div>
-						<label>
-							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="on" <?php checked( $this->reblogs_enabled_sitewide(), true ); ?> />
-							<?php esc_html_e( 'Show the Reblog button on posts', 'jetpack' ); ?>
-						</label>
-					</div>
-					<div>
-						<label>
-							<input type="radio" class="code" name="jetpack_reblogs_enabled" value="off" <?php checked( $this->reblogs_enabled_sitewide(), false ); ?> />
-							<?php esc_html_e( 'Don\'t show the Reblog button on posts', 'jetpack' ); ?>
-						</label>
-					</div>
-				</td>
-			</tr>
-			<!-- WPCOM only: Comment Likes -->
-			<?php if ( ! $this->in_jetpack ) : ?>
-				<tr>
-					<th scope="row">
-						<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
-					</th>
-					<td>
-						<div>
-							<label>
-								<input type="checkbox" class="code" name="jetpack_comment_likes_enabled" value="1" <?php checked( $this->is_comments_enabled(), true ); ?> />
-								<?php esc_html_e( 'On for all comments', 'jetpack' ); ?>
-							</label>
-						</div>
-					</td>
-				</tr>
-			<?php endif; ?>
-		<?php endif; ?>
-		</tbody> <?php // closes the tbody attached to sharing_show_buttons_on_row_start... ?>
-		<?php
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Likes_Section::render' );
 	}
 
 	/**
@@ -694,96 +640,45 @@ class Jetpack_Likes_Settings {
 
 	/**
 	 * Saves the setting in the database.
+	 *
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
+	 *
+	 * @return void
 	 */
 	public function admin_settings_callback() {
-		if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'sharing-options' ) ) { // phpcs:ignore WordPress.Security.ValidatedSanitizedInput -- WordPress core doesn't unslash or verify nonces either.
-			return;
-		}
-
-		// We're looking for these, and doing a dance to set some stats and save
-		// them together in array option.
-		if ( ! empty( $_POST['wpl_default'] ) ) {
-			$new_state = sanitize_text_field( wp_unslash( $_POST['wpl_default'] ) );
-		} else {
-			$new_state = 'on';
-		}
-
-		if ( ! empty( $_POST['jetpack_reblogs_enabled'] ) ) {
-			$reblogs_new_state = sanitize_text_field( wp_unslash( $_POST['jetpack_reblogs_enabled'] ) );
-		} else {
-			$reblogs_new_state = 'on';
-		}
-
-		// Checked (enabled)
-		switch ( $new_state ) {
-			case 'off':
-				update_option( 'disabled_likes', 1 );
-				break;
-			case 'on':
-			default:
-				delete_option( 'disabled_likes' );
-				break;
-		}
-
-		switch ( $reblogs_new_state ) {
-			case 'off':
-				update_option( 'disabled_reblogs', 1 );
-				break;
-			case 'on':
-			default:
-				delete_option( 'disabled_reblogs' );
-				break;
-		}
-
-		// WPCOM only: Comment Likes
-		if ( ! $this->in_jetpack ) {
-			if ( ! empty( $_POST['jetpack_comment_likes_enabled'] ) ) {
-				$new_comments_state = sanitize_text_field( wp_unslash( $_POST['jetpack_comment_likes_enabled'] ) );
-			} else {
-				$new_comments_state = false;
-			}
-			switch ( (bool) $new_comments_state ) {
-				case true:
-					update_option( 'jetpack_comment_likes_enabled', 1 );
-					break;
-				case false:
-				default:
-					update_option( 'jetpack_comment_likes_enabled', 0 );
-					break;
-			}
-		}
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 
 	/**
 	 * Adds the admin update hook so we can save settings even if Sharedaddy is not enabled.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
 	 *
 	 * @return void
 	 */
 	public function process_update_requests_if_sharedaddy_not_loaded() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 
 	/**
 	 * If sharedaddy is not loaded, we don't have the "Show buttons on" yet, so we need to add that since it affects likes too.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function admin_settings_showbuttonon_init() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Placement_Section::render' );
 	}
 
 	/**
 	 * If sharedaddy is not loaded, we still need to save the the settings of the "Show buttons on" option.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle() instead.
 	 *
 	 * @return void
 	 */
 	public function admin_settings_showbuttonon_callback() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::maybe_handle' );
 	}
 }

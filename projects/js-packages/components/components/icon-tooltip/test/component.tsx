@@ -1,8 +1,11 @@
 import { jest } from '@jest/globals';
-import { render, screen } from '@testing-library/react';
+import { act, configure, render, screen, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import IconTooltip from '../index.tsx';
 import { IconTooltipProps } from '../types.ts';
+
+// speak() copies tooltip text into `@wordpress/a11y`'s live region; match the tooltip only.
+configure( { defaultIgnore: 'script, style, #a11y-speak-polite' } );
 
 /**
  * Make elements measurable, since jsdom reports no layout and the tabbable helpers skip
@@ -20,7 +23,17 @@ const withLayout = () => {
 	};
 };
 
+/**
+ * WordPress's shared polite live region, where speak() announces.
+ *
+ * @return The region, or null before `@wordpress/a11y` has set it up.
+ */
+// eslint-disable-next-line testing-library/no-node-access
+const politeRegion = () => document.getElementById( 'a11y-speak-polite' );
+
 describe( 'IconTooltip', () => {
+	afterEach( () => jest.useRealTimers() );
+
 	const testProps: IconTooltipProps = {
 		title: 'Title',
 		children: <div>Content block</div>,
@@ -50,7 +63,12 @@ describe( 'IconTooltip', () => {
 		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'leaves focus alone when opening on hover', async () => {
+	it( 'names the icon trigger with label', () => {
+		render( <IconTooltip { ...testProps } label="About Image Quality" /> );
+		expect( screen.getByRole( 'button', { name: 'About Image Quality' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'leaves focus alone when opening on hover, and closes on Escape from anywhere', async () => {
 		const user = userEvent.setup();
 		render(
 			<>
@@ -62,6 +80,9 @@ describe( 'IconTooltip', () => {
 		await user.click( field );
 		await user.hover( screen.getByTestId( 'icon-tooltip_wrapper' ) );
 		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		expect( field ).toHaveFocus();
+		await user.keyboard( '{Escape}' );
+		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 		expect( field ).toHaveFocus();
 	} );
 
@@ -144,7 +165,7 @@ describe( 'IconTooltip', () => {
 			}
 		);
 
-		it( 'focuses a portaled popover link, tabs back and forth, and closes with Escape from inside', async () => {
+		it( 'keeps focus on the trigger, tabs into a portaled popover and back, and closes with Escape from inside', async () => {
 			const restoreLayout = withLayout();
 			const user = userEvent.setup();
 			render(
@@ -155,6 +176,8 @@ describe( 'IconTooltip', () => {
 			const trigger = screen.getByRole( 'button', { name: 'See an example' } );
 			await user.tab();
 			await user.keyboard( '{Enter}' );
+			expect( trigger ).toHaveFocus();
+			await user.tab();
 			expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
 			await user.tab( { shift: true } );
 			expect( trigger ).toHaveFocus();
@@ -232,6 +255,97 @@ describe( 'IconTooltip', () => {
 			await user.pointer( { keys: '[/MouseLeft]', target: trigger } );
 			expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 		} );
+	} );
+
+	it( 'keeps focus on the icon when a tooltip with a link opens, and announces it', async () => {
+		const restoreLayout = withLayout();
+		const user = userEvent.setup();
+		render(
+			<IconTooltip title="Title">
+				<a href="#learn">Learn more</a>
+			</IconTooltip>
+		);
+		const trigger = screen.getByRole( 'button' );
+		await user.tab();
+		await user.keyboard( '{Enter}' );
+		expect( trigger ).toHaveFocus();
+		expect( politeRegion() ).toHaveTextContent( 'Learn more' );
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
+		await user.keyboard( '{Escape}' );
+		expect( trigger ).toHaveFocus();
+		restoreLayout();
+	} );
+
+	it( 'does not announce a tooltip opened on hover', async () => {
+		const user = userEvent.setup();
+		politeRegion()?.replaceChildren();
+		render( <IconTooltip { ...testProps } hoverShow /> );
+		await user.hover( screen.getByTestId( 'icon-tooltip_wrapper' ) );
+		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		expect( politeRegion() ).not.toHaveTextContent( 'Content block' );
+	} );
+
+	it( 'tabs through the popover links and on to the next control', async () => {
+		const restoreLayout = withLayout();
+		const user = userEvent.setup();
+		render(
+			<>
+				<button>Before</button>
+				<IconTooltip title="Title" inline={ false }>
+					<a href="#one">One</a> <a href="#two">Two</a>
+				</IconTooltip>
+				<button>After</button>
+			</>
+		);
+		await user.click( screen.getByRole( 'button', { name: 'Before' } ) );
+		await user.tab();
+		await user.keyboard( '{Enter}' );
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'One' } ) ).toHaveFocus();
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'Two' } ) ).toHaveFocus();
+		await user.tab();
+		expect( screen.queryByRole( 'link', { name: 'Two' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'After' } ) ).toHaveFocus();
+		restoreLayout();
+	} );
+
+	it( 'closes when focus leaves the popover some other way', async () => {
+		const restoreLayout = withLayout();
+		const user = userEvent.setup();
+		render(
+			<>
+				<IconTooltip title="Title">
+					<a href="#learn">Learn more</a>
+				</IconTooltip>
+				<input aria-label="Elsewhere" />
+			</>
+		);
+		await user.tab();
+		await user.keyboard( '{Enter}' );
+		await user.tab();
+		expect( screen.getByRole( 'link', { name: 'Learn more' } ) ).toHaveFocus();
+		act( () => screen.getByRole( 'textbox', { name: 'Elsewhere' } ).focus() );
+		await waitFor( () =>
+			expect( screen.queryByRole( 'link', { name: 'Learn more' } ) ).not.toBeInTheDocument()
+		);
+		restoreLayout();
+	} );
+
+	it( 'closes a hover tooltip shortly after the pointer leaves, unless it comes back', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		render( <IconTooltip { ...testProps } hoverShow /> );
+		const wrapper = screen.getByTestId( 'icon-tooltip_wrapper' );
+		await user.hover( wrapper );
+		await user.unhover( wrapper );
+		await user.hover( wrapper );
+		await act( () => jest.advanceTimersByTimeAsync( 150 ) );
+		expect( screen.getByText( 'Content block' ) ).toBeInTheDocument();
+		await user.unhover( wrapper );
+		await act( () => jest.advanceTimersByTimeAsync( 150 ) );
+		expect( screen.queryByText( 'Content block' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the icon tooltip', () => {

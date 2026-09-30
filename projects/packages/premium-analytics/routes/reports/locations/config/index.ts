@@ -3,7 +3,7 @@ export { getLocationFields, type LocationRow, type LocationsCountryOption } from
 export {
 	GEO_MODES,
 	getReportLocationsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveSection,
 	supportsCountryFilter,
 	type ReportLocationsTabId,

@@ -190,7 +190,7 @@ const FIRST_RUN_COUNT_VIEW: View = {
  * @return The total library count, and whether its request has settled.
  */
 function useLibraryVideoCount(): { videoCount: number; isSettled: boolean } {
-	const { paginationInfo, isLoading } = useLibrary( FIRST_RUN_COUNT_VIEW );
+	const { paginationInfo, isLoading } = useLibrary( FIRST_RUN_COUNT_VIEW, { poll: false } );
 
 	return { videoCount: paginationInfo?.totalItems ?? 0, isSettled: ! isLoading };
 }

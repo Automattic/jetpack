@@ -195,7 +195,9 @@ describe( 'PopularHoursWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 

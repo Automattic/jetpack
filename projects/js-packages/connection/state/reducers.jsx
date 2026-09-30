@@ -95,6 +95,20 @@ const connectionOwner = ( state = null, action ) => {
 	}
 };
 
+/*
+ * Protected owner. The server sends these already decided, and nothing in the client changes
+ * them, so each is a pass-through: `combineReducers` drops any key it has no reducer for, which
+ * would leave the selectors reading `undefined` instead of what PHP put on the page.
+ *
+ * `null` is the initial value on purpose. The server withholds all three from a viewer who
+ * cannot manage the connection, and "cannot say" must not read as "no".
+ */
+const hasProtectedOwner = ( state = null ) => state;
+
+const requiresProtectedOwner = ( state = null ) => state;
+
+const useDefaultProtectedOwnerUi = ( state = null ) => state;
+
 const connectionErrors = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case SET_CONNECTION_ERRORS:
@@ -132,6 +146,9 @@ const reducers = combineReducers( {
 	userConnectionData,
 	connectedPlugins,
 	connectionOwner,
+	hasProtectedOwner,
+	requiresProtectedOwner,
+	useDefaultProtectedOwnerUi,
 	connectionErrors,
 	connectionHealthErrors,
 	isOfflineMode,

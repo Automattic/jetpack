@@ -6,8 +6,17 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	useBlockProps,
+	useInnerBlocksProps,
 } from '@wordpress/block-editor';
-import { Button, Notice, PanelBody, Placeholder, TextControl } from '@wordpress/components';
+import {
+	Button,
+	Notice,
+	PanelBody,
+	Placeholder,
+	TextareaControl,
+	TextControl,
+	ToggleControl,
+} from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __, _n, sprintf } from '@wordpress/i18n';
@@ -24,7 +33,9 @@ import { PlaylistSettingsPanels, PlaylistStylesControls } from './inspector-cont
 import LatestVideosInnerPlaylist from './latest-videos-inner';
 import PlaylistPreview from './preview';
 import usePlaylistLiveMetadata, { liveMetadataWithSignedPoster } from './use-live-metadata';
+import usePlaylistId from './use-playlist-id';
 import usePublishTracking from './use-publish-tracking';
+import useTitleHeading from './use-title-heading';
 import {
 	formatTimecode,
 	moveEntry,
@@ -142,7 +153,15 @@ function StandalonePlaylistEdit( {
 	setAttributes,
 	clientId,
 }: BlockEditProps< PlaylistAttributes > ) {
-	const { videos, layout, entryTitleFontFamily } = attributes;
+	const {
+		playlistId,
+		playlistTitle,
+		playlistDescription,
+		showPlaylistTitle,
+		videos,
+		layout,
+		entryTitleFontFamily,
+	} = attributes;
 
 	const [ previewIndex, setPreviewIndex ] = useState( 0 );
 	const [ urlInput, setUrlInput ] = useState( '' );
@@ -157,6 +176,9 @@ function StandalonePlaylistEdit( {
 
 	const displayTitle = ( guid: string ) => liveMetadata[ guid ]?.title || guid;
 
+	// Keys this playlist in the site's playlist index.
+	usePlaylistId( { clientId, playlistId, setAttributes } );
+
 	// Records a Tracks event when a post/page is published with the playlist.
 	usePublishTracking( { clientId, layout, videoCount: videos.length } );
 
@@ -170,6 +192,23 @@ function StandalonePlaylistEdit( {
 			: 'videopress-playlist is-empty',
 		style: playlistFontVariables( entryTitleFontFamily ),
 	} );
+
+	const { template: headingTemplate, setPlaylistTitle } = useTitleHeading( {
+		clientId,
+		playlistTitle,
+		showPlaylistTitle,
+		setAttributes,
+	} );
+	const headingProps = useInnerBlocksProps(
+		{ className: 'videopress-playlist__heading' },
+		{
+			allowedBlocks: [ 'core/heading' ],
+			template: headingTemplate,
+			templateLock: 'all',
+			renderAppender: false,
+		}
+	);
+	const heading = showPlaylistTitle && <div { ...headingProps } />;
 
 	const clearFeedback = () => {
 		setAddError( null );
@@ -408,6 +447,40 @@ function StandalonePlaylistEdit( {
 
 	const inspectorControls = (
 		<InspectorControls>
+			<PanelBody title={ __( 'Playlist details', 'jetpack-videopress-pkg' ) }>
+				<TextControl
+					__next40pxDefaultSize
+					__nextHasNoMarginBottom
+					label={ __( 'Title', 'jetpack-videopress-pkg' ) }
+					value={ playlistTitle }
+					onChange={ setPlaylistTitle }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					className="videopress-playlist-editor__title-toggle"
+					label={ __( 'Show title as heading', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Adds the title above the playlist as a Heading block you can edit and style in place.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ showPlaylistTitle }
+					onChange={ ( value: boolean ) => setAttributes( { showPlaylistTitle: value } ) }
+				/>
+				<TextareaControl
+					__nextHasNoMarginBottom
+					className="videopress-playlist-editor__description"
+					label={ __( 'Description', 'jetpack-videopress-pkg' ) }
+					value={ playlistDescription }
+					onChange={ ( value: string ) => setAttributes( { playlistDescription: value } ) }
+				/>
+				<p className="videopress-playlist-editor__help">
+					{ __(
+						'The title and description are shown wherever the site lists its playlists.',
+						'jetpack-videopress-pkg'
+					) }
+				</p>
+			</PanelBody>
+
 			<PanelBody title={ __( 'Add a video', 'jetpack-videopress-pkg' ) }>
 				{ addForm }
 				<p className="videopress-playlist-editor__help">
@@ -590,6 +663,7 @@ function StandalonePlaylistEdit( {
 			<div { ...blockProps }>
 				{ inspectorControls }
 				{ stylesControls }
+				{ heading }
 				<Placeholder
 					icon={ VideoPressIcon }
 					label={ __( 'Build a video playlist', 'jetpack-videopress-pkg' ) }
@@ -620,6 +694,7 @@ function StandalonePlaylistEdit( {
 		<figure { ...blockProps }>
 			{ inspectorControls }
 			{ stylesControls }
+			{ heading }
 			<PlaylistPreview
 				videos={ videos }
 				attributes={ attributes }

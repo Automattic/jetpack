@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import { check, moreVertical } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
 /**
@@ -40,10 +40,34 @@ const DEFAULT_INTERVAL_OPTIONS: IntervalType[] = [ 'day', 'week', 'month' ];
  */
 function getDefaultMetrics(): ReportChartMetric[] {
 	return [
-		{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
-		{ key: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
-		{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
-		{ key: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+		{
+			key: 'views',
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of views. */
+				_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			key: 'visitors',
+			label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of visitors. */
+				_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			key: 'comments',
+			label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of comments. */
+				_n( '%s Comment', '%s Comments', count, 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			key: 'likes',
+			label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of likes. */
+				_n( '%s Like', '%s Likes', count, 'jetpack-premium-analytics-pkg' ),
+		},
 	];
 }
 

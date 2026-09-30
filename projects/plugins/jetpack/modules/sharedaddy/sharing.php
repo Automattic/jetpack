@@ -115,86 +115,86 @@ class Sharing_Admin {
 	/**
 	 * Save changes to sharing settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests() instead.
 	 *
 	 * @return void
 	 */
 	public function process_requests() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests' );
 	}
 
 	/**
 	 * Register Sharing settings menu page in Settings > Sharing.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
 	 *
 	 * @return void
 	 */
 	public function subscription_menu() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
 	}
 
 	/**
 	 * Save changes to sharing services via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_save_services() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services' );
 	}
 
 	/**
 	 * Create a new custom sharing service via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_new_service() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service' );
 	}
 
 	/**
 	 * Delete a sharing service via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_delete_service() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service' );
 	}
 
 	/**
 	 * Save changes to sharing settings via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_save_options() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options' );
 	}
 
 	/**
 	 * Display a preview of a sharing service.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview() instead.
 	 *
 	 * @param object $service Sharing service object.
 	 *
 	 * @return void
 	 */
 	public function output_preview( $service ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview' );
 	}
 
 	/**
 	 * Display a specific sharing service.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service() instead.
 	 *
 	 * @param string $id            Service unique ID.
 	 * @param object $service       Sharing service.
@@ -203,74 +203,74 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function output_service( $id, $service, $show_dropdown = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service' );
 	}
 
 	/**
 	 * Display admin UI within a Jetpack header and footer.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function wrapper_admin_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Sharing settings inner page structure.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function management_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Check if we should encourage to use the site editor instead of the legacy sharing settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Environment instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Environment instead.
 	 *
 	 * @return bool
 	 */
 	public function should_use_site_editor() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Environment' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Environment' );
 		return false;
 	}
 
 	/**
 	 * Display services admin UI for settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render() instead.
 	 *
 	 * @return void
 	 */
 	public function services_config_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render' );
 	}
 
 	/**
 	 * Display sharing block admin UI for settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_block_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
 	}
 
 	/**
 	 * Display the "Go to the site editor" prompt.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function site_editor_prompt_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
 	}
 }
 

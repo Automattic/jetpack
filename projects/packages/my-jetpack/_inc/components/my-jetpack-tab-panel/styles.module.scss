@@ -48,10 +48,19 @@
 // TabPanel) matches the tabbed layout exactly.
 @mixin tab-content-surface {
 	background-color: #fcfcfc;
+	display: flex;
+	flex-direction: column;
 
 	.my-jetpack-tab-panel-inner {
 
 		@include full-width-container;
+		// Takes the slack on a tab that does not fill the screen. Overview and Help
+		// render their footer as the next sibling, so without this the extra height
+		// lands after the footer as a band of surface below it.
+		flex: 1;
+		// The auto inline margins above suppress a flex item's cross-axis
+		// stretch, so without this the column shrinks to fit its content.
+		inline-size: 100%;
 	}
 }
 
@@ -66,6 +75,12 @@
 	width: 100%;
 	max-width: none;
 	margin: 0;
+	// The scrolling middle is a flex column, but a block child of it is only as
+	// tall as its content, which left the content surface short of the fold on
+	// any tab whose content does not fill the screen.
+	display: flex;
+	flex: 1;
+	flex-direction: column;
 
 	:global(.components-tab-panel__tabs) {
 		// @TODO: remove this once we can keep tabs consistent looking with core
@@ -80,5 +95,6 @@
 	:global(.components-tab-panel__tab-content) {
 
 		@include tab-content-surface;
+		flex: 1;
 	}
 }

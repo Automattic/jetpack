@@ -40,7 +40,6 @@
 		"@automattic/i18n-utils": "1.3.0",
 		"@automattic/jetpack-base-styles": "workspace:*",
 		"@automattic/jetpack-components": "workspace:*",
-		"@automattic/jetpack-explat": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@automattic/jetpack-shared-extension-utils": "workspace:*",
 		"@automattic/launchpad": "1.3.0",

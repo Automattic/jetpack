@@ -28,6 +28,7 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		remove_all_filters( Admin_UI::CHAPTERS_EDITOR_FILTER );
+		remove_all_filters( 'jetpack_videopress_trim_cut' );
 		unset( $GLOBALS[ self::ROUTES_GLOBAL ] );
 	}
 
@@ -94,6 +95,24 @@ class Admin_UI_Chapters_Editor_Test extends BaseTestCase {
 		add_filter( Admin_UI::CHAPTERS_EDITOR_FILTER, '__return_true' );
 
 		$this->assertTrue( Admin_UI::is_chapters_editor_enabled() );
+	}
+
+	/** Test trim and cut requires an explicit opt-in. */
+	public function test_trim_cut_defaults_to_disabled() {
+		$this->assertFalse( Admin_UI::is_trim_cut_enabled() );
+	}
+
+	/** Test trim and cut keeps the shared route when chapters are disabled. */
+	public function test_trim_cut_enabled_keeps_editor_route_without_chapters() {
+		$this->disable_chapters_editor();
+		add_filter( 'jetpack_videopress_trim_cut', '__return_true' );
+		$fixture                        = $this->get_fixture_routes();
+		$GLOBALS[ self::ROUTES_GLOBAL ] = $fixture;
+
+		Admin_UI::maybe_strip_chapters_editor_routes();
+
+		$this->assertTrue( Admin_UI::is_trim_cut_enabled() );
+		$this->assertSame( $fixture, $GLOBALS[ self::ROUTES_GLOBAL ] );
 	}
 
 	/** Tests that the editor route is the only path the constant covers. */
