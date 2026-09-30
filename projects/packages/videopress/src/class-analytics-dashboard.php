@@ -118,9 +118,9 @@ class Analytics_Dashboard {
 	 * that already holds the instance, under this name or a former one, is left alone; and one
 	 * seeded on a site where the type never registers loses it to the dashboard's own policy.
 	 *
-	 * @param array  $layout     The section's default widget instances.
+	 * @param mixed  $layout     The section's default widget instances; anything but an array passes through.
 	 * @param string $section_id Namespaced section identifier.
-	 * @return array
+	 * @return mixed The layout, with the instance appended when it is an array.
 	 */
 	public static function add_default_layout_instance( $layout, $section_id ) {
 		if ( self::TRAFFIC_SECTION_ID !== $section_id || ! is_array( $layout ) ) {
@@ -176,7 +176,10 @@ class Analytics_Dashboard {
 	 */
 	private static function get_widget_manifest() {
 		self::load_build();
-		$widgets = function_exists( 'jetpack_videopress_get_registered_widget_modules' ) ? jetpack_videopress_get_registered_widget_modules() : array();
+		$widgets = array();
+		if ( function_exists( 'jetpack_videopress_get_registered_widget_modules' ) ) {
+			$widgets = jetpack_videopress_get_registered_widget_modules();
+		}
 
 		/**
 		 * Filters the widget manifest the package registers on the Premium Analytics dashboard.
