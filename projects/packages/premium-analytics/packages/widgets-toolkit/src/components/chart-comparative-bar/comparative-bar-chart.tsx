@@ -22,10 +22,10 @@ import { useCallback, useId, useMemo, useState } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	appendTooltipExtras,
-	isEmptyTooltipExtras,
 	formatTooltipPointLabel,
 	formatTooltipTextLabel,
 	isEmptyChartData,
+	isEmptyTooltipExtras,
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveTooltipUnits,

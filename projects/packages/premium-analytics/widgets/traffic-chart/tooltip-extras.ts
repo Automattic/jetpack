@@ -13,11 +13,12 @@ const MAX_LISTED_TITLES = 2;
 
 type TooltipPoint = TooltipExtraSeries[ 'data' ][ number ];
 
+/** Every post the bucket reports, an untitled one as an empty string, so the count matches classic Stats. */
 function postTitlesOf( point: Record< string, unknown > ): string[] {
 	const titles = point.post_titles;
 
 	return Array.isArray( titles )
-		? titles.filter( ( title ): title is string => typeof title === 'string' && title !== '' )
+		? titles.filter( ( title ): title is string => typeof title === 'string' )
 		: [];
 }
 
@@ -61,8 +62,9 @@ export function buildTrafficTooltipExtras(
 			postsPublished.push( {
 				date,
 				value: titles.length,
+				// Listed only when every post has a title to list; an untitled one leaves the count.
 				tooltipText:
-					titles.length <= MAX_LISTED_TITLES
+					titles.length <= MAX_LISTED_TITLES && titles.every( title => title !== '' )
 						? sprintf(
 								/* translators: %s: the titles of the posts published that day, comma separated. */
 								_n(

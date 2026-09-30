@@ -19,10 +19,10 @@ import { type ComponentProps } from 'react';
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
 import {
 	appendTooltipExtras,
-	isEmptyTooltipExtras,
 	formatTooltipPointLabel,
 	formatTooltipTextLabel,
 	isEmptyChartData,
+	isEmptyTooltipExtras,
 	getFixedYAxis,
 	getPaddedYAxis,
 	getPinnedYTicks,

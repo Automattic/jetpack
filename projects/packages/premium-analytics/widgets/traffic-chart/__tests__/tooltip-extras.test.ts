@@ -74,7 +74,8 @@ describe( 'buildTrafficTooltipExtras', () => {
 		expect( posts?.derived ).toBe( true );
 	} );
 
-	it( 'drops an untitled post from the list', () => {
+	// Classic counts every post the bucket reports; only the listing needs a title.
+	it( 'counts an untitled post but falls back to the count rather than listing it', () => {
 		const extras = buildTrafficTooltipExtras(
 			report( [ { views: 1, visitors: 1, post_titles: [ '', 'Hello world' ] } ] ),
 			ZONE
@@ -82,7 +83,7 @@ describe( 'buildTrafficTooltipExtras', () => {
 		const posts = extras.find( extra => extra.label === 'Posts published' );
 
 		expect( posts?.data ).toEqual( [
-			expect.objectContaining( { value: 1, tooltipText: 'Post published: Hello world' } ),
+			expect.objectContaining( { value: 2, tooltipText: undefined } ),
 		] );
 	} );
 
