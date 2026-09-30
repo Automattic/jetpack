@@ -574,12 +574,70 @@ export function completeReconnect( keyringResult?: KeyringResult ) {
 			return false;
 		}
 
+		// Leave it to the confirmation view, which asks the owner to pick the Page or account.
+		if ( select.reconnectNeedsAccountSelection( keyringResult ) ) {
+			return false;
+		}
+
+		await dispatch( finishReconnect( reconnectingAccount.connection_id ) );
+
+		return true;
+	};
+}
+
+/**
+ * Completes a reconnect by saving the Page or account the connection shares to.
+ *
+ * @param connectionId   - ID of the connection being reconnected.
+ * @param externalUserId - External ID of the selected Page or account.
+ *
+ * @return A thunk.
+ */
+export function reconnectWithAccount( connectionId: string, externalUserId: string ) {
+	return async function ( { dispatch } ) {
+		const { createErrorNotice } = coreDispatch( noticesStore );
+
+		dispatch( abortRefreshConnectionsRequest() );
+		dispatch( updatingConnection( connectionId ) );
+
+		try {
+			await apiFetch( {
+				method: 'POST',
+				path: `/wpcom/v2/publicize/connections/${ connectionId }`,
+				data: { external_user_ID: externalUserId },
+			} );
+		} catch ( error ) {
+			let message: string = __( 'Error updating account.', 'jetpack-publicize-pkg' );
+
+			if ( typeof error === 'object' && 'message' in error && error.message ) {
+				message = `${ message } ${ error.message }`;
+			}
+
+			dispatch( setReconnectingAccount( undefined ) );
+			createErrorNotice( message, { type: 'snackbar', isDismissible: true } );
+
+			return;
+		} finally {
+			dispatch( updatingConnection( connectionId, false ) );
+		}
+
+		await dispatch( finishReconnect( connectionId ) );
+	};
+}
+
+/**
+ * Refreshes the connection test results and reports whether the reconnected connection recovered.
+ *
+ * @param connectionId - ID of the connection being reconnected.
+ *
+ * @return A thunk.
+ */
+function finishReconnect( connectionId: string ) {
+	return async function ( { dispatch, select } ) {
 		await dispatch( refreshConnectionTestResults() );
 
-		// The account matched, but confirm the refreshed connection actually recovered before
-		// reporting success — re-authing doesn't guarantee the token now passes the test.
-		const recovered =
-			select.getConnectionById( reconnectingAccount.connection_id )?.status === 'ok';
+		// Re-authing doesn't guarantee the token now passes the test, so check before reporting.
+		const recovered = select.getConnectionById( connectionId )?.status === 'ok';
 
 		// Clear the reconnecting account only after the refresh, so the busy state stays until
 		// the connection list reflects the reconnection.
@@ -598,8 +656,6 @@ export function completeReconnect( keyringResult?: KeyringResult ) {
 				{ type: 'snackbar', isDismissible: true }
 			);
 		}
-
-		return true;
 	};
 }
 
