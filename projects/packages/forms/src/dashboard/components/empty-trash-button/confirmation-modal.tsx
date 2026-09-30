@@ -42,7 +42,8 @@ export default function EmptyTrashConfirmationModal( {
 		[ onCancel ]
 	);
 
-	// Discard the handler's promise: it closes the dialog itself, so a spinner would only flash.
+	// Callers close the dialog themselves, so onConfirm's return value isn't passed on:
+	// AlertDialog would treat a promise as a confirm still in progress.
 	const handleConfirm = useCallback( () => {
 		onConfirm();
 	}, [ onConfirm ] );
