@@ -88,7 +88,6 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		if ( commentValue.peek().includes( '<!-- wp:' ) ) {
 			openEditor( false );
 		}
-		// eslint-disable-next-line react-hooks/exhaustive-deps -- once, on mount.
 	}, [] );
 
 	useEffect( () => {
