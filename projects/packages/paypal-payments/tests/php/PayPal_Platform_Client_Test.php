@@ -16,8 +16,10 @@ use PHPUnit\Framework\TestCase;
  * Class PayPal_Platform_Client_Test
  *
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Platform_Client
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_API_Client
  */
 #[CoversClass( PayPal_Platform_Client::class )]
+#[CoversClass( PayPal_API_Client::class )]
 class PayPal_Platform_Client_Test extends TestCase {
 
 	/**
@@ -194,6 +196,27 @@ class PayPal_Platform_Client_Test extends TestCase {
 	}
 
 	/**
+	 * Test that an answer from WordPress.com without PayPal's status is not passed off as one.
+	 */
+	public function test_request_reports_an_answer_without_a_status() {
+		$this->set_up_referred_merchant();
+		$this->mock_http_routes(
+			array(
+				PayPal_Platform_Client::WPCOM_REQUEST_ROUTE => array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'body' => '{}' ), JSON_UNESCAPED_SLASHES ),
+				),
+			)
+		);
+
+		$result = PayPal_Platform_Client::request( 'GET', '/v1/checkout/payment-resources' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_platform_invalid_response', $result->get_error_code() );
+		$this->assertSame( 502, $result->get_error_data()['status'] );
+	}
+
+	/**
 	 * Test that the seller lookup goes to WordPress.com with the identifiers as query arguments.
 	 */
 	public function test_get_merchant_integration_queries_wpcom() {
@@ -216,6 +239,29 @@ class PayPal_Platform_Client_Test extends TestCase {
 		$this->assertStringContainsString( 'environment=sandbox', $requests[0]['url'] );
 		$this->assertStringContainsString( 'tracking_id=woo-ncps-1234-1', $requests[0]['url'] );
 		$this->assertStringNotContainsString( 'merchant_id=', $requests[0]['url'] );
+	}
+
+	/**
+	 * Test that a known seller is looked up by merchant ID.
+	 */
+	public function test_get_merchant_integration_queries_wpcom_by_merchant_id() {
+		$this->set_up_referred_merchant();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				PayPal_Platform_Client::WPCOM_MERCHANT_INTEGRATION_ROUTE => array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode( array( 'merchant_id' => 'MERCHANT1' ), JSON_UNESCAPED_SLASHES ),
+				),
+			),
+			$requests
+		);
+
+		$result = PayPal_Platform_Client::get_merchant_integration( 'MERCHANT1' );
+
+		$this->assertSame( array( 'merchant_id' => 'MERCHANT1' ), $result );
+		$this->assertStringContainsString( 'merchant_id=MERCHANT1', $requests[0]['url'] );
+		$this->assertStringNotContainsString( 'tracking_id=', $requests[0]['url'] );
 	}
 
 	// --- Routing from the API client ---

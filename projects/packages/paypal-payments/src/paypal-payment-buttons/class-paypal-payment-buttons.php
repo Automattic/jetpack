@@ -1751,8 +1751,8 @@ class PayPal_Payment_Buttons {
 	 * post contains the PayPal payment buttons block, otherwise passes
 	 * through the existing value unchanged.
 	 *
-	 * @param bool     $show Whether to show sharing buttons.
-	 * @param \WP_Post $post The current post object.
+	 * @param bool          $show Whether to show sharing buttons.
+	 * @param \WP_Post|null $post The current post object.
 	 * @return bool Whether to show sharing buttons.
 	 */
 	public static function enable_sharing_on_payment_pages( $show, $post = null ) {

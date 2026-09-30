@@ -10,6 +10,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 //phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.NotAbsolutePath
 require_once \Automattic\Jetpack\Jetpack_Mu_Wpcom::PKG_DIR . 'src/features/wpcom-endpoints/class-wpcom-rest-api-v2-endpoint-paypal-onboarding.php';
 require_once __DIR__ . '/fixtures/class-jetpack-server-version.php';
+require_once __DIR__ . '/fixtures/wpcom-functions.php';
 use Automattic\Jetpack\Constants;
 
 /**
@@ -68,6 +69,7 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'is_jetpack_authorized_for_site' );
 		unset( $GLOBALS['wpcom_paypal_platform_test_token'] );
+		unset( $GLOBALS['wpcom_paypal_platform_test_suspended'] );
 		$GLOBALS['blog_id'] = $this->original_blog_id;
 		foreach ( array( 'sandbox', 'production' ) as $environment ) {
 			delete_transient( WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::token_cache_key( $environment ) );
@@ -612,6 +614,16 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
+	 * Test that a suspended blog's token is refused.
+	 */
+	public function test_a_suspended_blogs_token_is_refused() {
+		$this->sign_request_as( self::SITE_ID );
+		$GLOBALS['wpcom_paypal_platform_test_suspended'] = array( self::SITE_ID );
+
+		$this->assertInstanceOf( WP_Error::class, $this->endpoint->permission_check() );
+	}
+
+	/**
 	 * Test that a token that failed to verify is refused.
 	 */
 	public function test_a_token_that_failed_to_verify_is_refused() {
@@ -724,6 +736,72 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 	}
 
 	/**
+	 * Test that a lookup needs the platform credentials before it needs an identifier.
+	 */
+	public function test_merchant_integration_needs_platform_credentials() {
+		$this->connect_site();
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'merchant_id' => 'MERCHANT1' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'platform_credentials_missing', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that PayPal being unreachable during the tracking ID lookup is reported.
+	 */
+	public function test_merchant_integration_reports_paypal_unreachable_by_tracking_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->token_response(),
+				'?tracking_id='    => new WP_Error( 'http_request_failed', 'Connection reset' ),
+			)
+		);
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'tracking_id' => 'woo-ncps-1234-1700000000' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_request_failed', $result->get_error_code() );
+		$this->assertSame( 502, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that a seller record PayPal would not hand over is reported with PayPal's diagnostics.
+	 */
+	public function test_merchant_integration_reports_a_record_paypal_refused() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->http_response(
+					500,
+					array(
+						'name'     => 'INTERNAL_SERVICE_ERROR',
+						'debug_id' => 'abc123',
+					)
+				),
+			)
+		);
+
+		$result = $this->endpoint->get_merchant_integration_status(
+			$this->merchant_integration_request( array( 'merchant_id' => 'MERCHANT1' ) )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_status_error', $result->get_error_code() );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+		$this->assertSame( 'INTERNAL_SERVICE_ERROR', $result->get_error_data()['paypal_error'] );
+		$this->assertSame( 'abc123', $result->get_error_data()['paypal_debug_id'] );
+	}
+
+	/**
 	 * Test that a lookup needs one identifier.
 	 */
 	public function test_merchant_integration_requires_an_identifier() {
@@ -792,6 +870,75 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			),
 			json_decode( base64_decode( $payload ), true ) // phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obfuscation_base64_decode
 		);
+	}
+
+	/**
+	 * Test that a call needs the platform credentials.
+	 */
+	public function test_forwarded_request_needs_platform_credentials() {
+		$this->connect_site();
+
+		$result = $this->endpoint->forward_request( $this->forward_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'platform_credentials_missing', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that a call naming no seller is refused before PayPal is asked.
+	 */
+	public function test_forwarded_request_needs_a_merchant_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes( array(), $requests );
+
+		$result = $this->endpoint->forward_request( $this->forward_request( array( 'merchant_id' => '' ) ) );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertEmpty( $requests );
+	}
+
+	/**
+	 * Test that PayPal being unreachable while the seller is checked is reported, not treated as a refusal.
+	 */
+	public function test_forwarded_request_reports_paypal_unreachable_during_the_seller_check() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => new WP_Error( 'http_request_failed', 'Connection reset' ),
+			)
+		);
+
+		$result = $this->endpoint->forward_request( $this->forward_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_request_failed', $result->get_error_code() );
+		$this->assertSame( 502, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that PayPal being unreachable for the call itself is reported.
+	 */
+	public function test_forwarded_request_reports_paypal_unreachable() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'                 => $this->token_response(),
+				'/merchant-integrations/MERCHANT1' => $this->merchant_integration_response(),
+				'/v1/checkout/payment-resources'   => new WP_Error( 'http_request_failed', 'Connection reset' ),
+			)
+		);
+
+		$result = $this->endpoint->forward_request( $this->forward_request() );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'paypal_request_failed', $result->get_error_code() );
+		$this->assertSame( 502, $result->get_error_data()['status'] );
 	}
 
 	/**

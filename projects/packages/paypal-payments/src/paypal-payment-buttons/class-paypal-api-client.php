@@ -517,15 +517,10 @@ class PayPal_API_Client {
 	 * @param string     $endpoint        API endpoint path (appended to base URL).
 	 * @param array|null $body            Request body data (JSON-encoded for POST/PUT).
 	 * @param int|array  $expected_status Status code, or codes, that count as success.
-	 * @param string     $request_id      Optional. Idempotency key. Auto-generated if empty.
+	 * @param string     $request_id      Idempotency key.
 	 * @return array|null|\WP_Error Decoded response body, null for 204, or WP_Error.
 	 */
-	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id = '' ) {
-		// Generate a unique request ID for idempotency if not provided.
-		if ( empty( $request_id ) ) {
-			$request_id = wp_generate_uuid4();
-		}
-
+	private static function make_request( $method, $endpoint, $body, $expected_status, $request_id ) {
 		$response = PayPal_Partner_Onboarding::is_platform_managed()
 			? PayPal_Platform_Client::request( $method, $endpoint, $body, $request_id )
 			: self::make_direct_request( $method, $endpoint, $body, $request_id );

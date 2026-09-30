@@ -584,6 +584,39 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * The return page is served fresh and as HTML; the markup itself is covered above.
+	 */
+	public function test_onboarding_return_page_is_served_fresh() {
+		$nocache_applied = false;
+		$saw_nocache     = static function ( $headers ) use ( &$nocache_applied ) {
+			$nocache_applied = true;
+			return $headers;
+		};
+		// The page ends in exit(), so the first esc_html() in its markup stops the run.
+		$stop_at_the_markup = static function () {
+			throw new \RuntimeException( 'markup' );
+		};
+		$stopped_at         = null;
+
+		add_filter( 'nocache_headers', $saw_nocache );
+		add_filter( 'esc_html', $stop_at_the_markup );
+
+		ob_start();
+		try {
+			PayPal_Payment_Buttons::render_onboarding_return();
+		} catch ( \RuntimeException $e ) {
+			$stopped_at = $e->getMessage();
+		} finally {
+			ob_end_clean();
+			remove_filter( 'esc_html', $stop_at_the_markup );
+			remove_filter( 'nocache_headers', $saw_nocache );
+		}
+
+		$this->assertTrue( $nocache_applied );
+		$this->assertSame( 'markup', $stopped_at );
+	}
+
+	/**
 	 * The arguments wp_die() was last called with.
 	 *
 	 * @var array|null
@@ -2663,5 +2696,43 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'unpriced'       => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
 			'id only'        => array( array( 'id' => 'PLB-EMPTY' ), '' ),
 		);
+	}
+
+	// --- Sharing buttons ---
+
+	/**
+	 * A published post, for the sharing filter to look at.
+	 *
+	 * @param string $content The post content.
+	 * @return \WP_Post
+	 */
+	private function published_post( $content ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Sharing',
+				'post_content' => $content,
+				'post_status'  => 'publish',
+			)
+		);
+
+		return get_post( $post_id );
+	}
+
+	public function test_sharing_is_enabled_on_a_post_with_the_block() {
+		$post = $this->published_post( '<!-- wp:jetpack/paypal-payment-buttons /-->' );
+
+		$this->assertTrue( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, $post ) );
+
+		wp_delete_post( $post->ID, true );
+	}
+
+	public function test_sharing_is_left_as_it_was_elsewhere() {
+		$post = $this->published_post( '<!-- wp:paragraph --><p>No buttons here.</p><!-- /wp:paragraph -->' );
+
+		$this->assertFalse( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, $post ) );
+		$this->assertFalse( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, null ) );
+		$this->assertTrue( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( true, $post ) );
+
+		wp_delete_post( $post->ID, true );
 	}
 }
