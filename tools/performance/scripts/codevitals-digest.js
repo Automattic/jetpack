@@ -1,21 +1,9 @@
 /**
- * Weekly CodeVitals regression digest.
- *
- * Reads a repository's metric inventory and per-metric evolution series from a
- * CodeVitals-compatible read API, judges each regression flag through a
- * confirmation gate, and posts one Slack Block Kit digest: sustained
- * regressions, late confirmations, pending flags, suppressed transient spikes,
- * and pipeline-health warnings.
- *
- * Runs headless on a weekly CI schedule. DRY_RUN=1 prints the exact Slack
- * payload and never posts. Any degraded signal exits non-zero even when the
- * digest posts, so the scheduler sees the problem, not a false-clean
- * heartbeat. Operating notes, gate thresholds, and environment variables:
- * "Weekly Slack digest" in ../README.md.
+ * Weekly CodeVitals regression digest; see "Weekly Slack digest" in ../README.md.
  */
 import { WebClient } from '@slack/web-api';
 import { isDirectInvocation } from './post-to-codevitals.js';
-import { median } from './stats.js';
+import { median, stdDev } from './stats.js';
 
 // Day-count knobs parse strict decimal only: Number() also accepts hex ("0x10" is 16) and
 // exponents, and a finite 1e300 passes a finiteness guard yet silently disables the window or the
@@ -46,10 +34,10 @@ const clip = raw => {
 // rule cannot drift.
 const mrkdwn = text => ( { type: 'mrkdwn', text, verbatim: true } );
 const section = text => ( { type: 'section', text: mrkdwn( text ) } );
-// stats.js median returns 0 for an empty array. Both consumers guard it: the gate's `pre > 0`
-// sends an empty window down the same fail-open report path as a NaN (an empty window must report
-// the flag, never suppress it), and the render's `pre > 0` keeps a fabricated "med 0→…" baseline
-// out of the message.
+const LEVEL_WINDOW = 10;
+const robustScale = ( values, level ) =>
+	Math.max( 1.4826 * median( values.map( value => Math.abs( value - level ) ) ), 0.002 * level );
+
 const fmt = v => ( Number.isInteger( v ) ? String( v ) : Number( v ).toFixed( 1 ) );
 const pctStr = p => {
 	const n = Number( p );
@@ -272,10 +260,11 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const discoveryFailed = ! metricIds || metricIds.length === 0;
 
 	const confirmed = []; // in-window regressions that held after the flagged commit
-	const confirmedLate = []; // regressions older than the window whose confirmation only completed now (backfill/recovery)
-	const pending = []; // regressions at the data edge — too few later points to judge yet
-	const reverted = []; // regression flags (in-window OR late) that reverted within the next commits — transient spikes, suppressed but always visible in the context line: a silent verdict channel would also hide a wrong verdict
+	const confirmedLate = []; // Confirmed changes older than the window; may repeat.
+	const pending = []; // Flags with incomplete or inconclusive level evidence.
+	const reverted = []; // Flags without a confirmed level change; retained in the context line.
 	const failedIds = []; // metrics whose evolution data could not be read this run
+	const invalidBaselines = new Set();
 	const badPoints = new Map(); // id -> count of malformed points (null point, unparseable/far-future measuredAt, non-finite value)
 	const newestByMetric = new Map(); // id -> newest valid measuredAt ms (0 = no valid points)
 	const warmingUp = []; // ids younger than STALENESS_DAYS — exempt from the dead-man (a brand-new metric with no data is not a stalled one)
@@ -485,6 +474,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 								serverFrom,
 							};
 							kept.flagV = v;
+							kept.flagFrom = p.serverFrom;
 						} else kept.p.serverFrom = serverFrom;
 					} else {
 						// Judged at its own serve position below; the value stays out of the series.
@@ -493,7 +483,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				}
 				continue;
 			}
-			const rec = { t, p, v };
+			const rec = { t, p, v, flagFrom: p.serverFrom };
 			if ( t <= now ) newest = Math.max( newest, t );
 			keptByHash.set( h, rec );
 			pts.push( rec );
@@ -515,21 +505,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		// The kept rows in SERVE order: the id tie-sort above may have moved equal-time rows,
 		// and every flag's windows below are built around its position in the response.
 		const byServe = [ ...pts ].sort( ( a, b ) => a.p.sIdx - b.p.sIdx );
-		// Flag events to judge: a kept row's own (possibly transferred) flag, or an off-time
-		// re-run flag riding on a dropped row. Every flag is judged at its serve position(s)
-		// below; `self` only decides whose numbers the entry displays and which anchors apply.
-		// Own flags are judged first, and only REPORTING verdicts (pending/confirmed) claim a
-		// commit against later re-run flags. A reverted own flag deliberately does not: it must
-		// leave the door open for an independent later flag on the same commit, or a live
-		// re-landed regression renders as the green tick.
-		// A commit can carry SEVERAL off-time re-run flags (a batch re-posting an old commit
-		// more than once). They merge into ONE event judged at every sibling's serve position
-		// under the lowest base (the strictest server anchor) — or the first sibling judged
-		// would claim the commit (reportedHashes below) while another with conclusive held
-		// evidence went unread: a pending verdict behind the green tick, decided by the tie's
-		// arbitrary listing order. The entry renders the sibling at the DECIDING position: the
-		// merge's worst percent or newest time can belong to a sibling whose own position
-		// recovered, and would render a weeks-old hold as a fresh, larger regression.
+		// Judge folded and off-time flags at their own serve positions; duplicate values stay excluded.
 		const offByHash = new Map();
 		for ( const f of offFlags ) {
 			// An aged-out sibling stays OUT of the merge: merged in, any fresh re-run would
@@ -555,56 +531,22 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		for ( const g of offByHash.values() )
 			events.push( { self: false, ...g, fIdxs: g.sibs.map( f => f.p.sIdx ) } );
 		const reportedHashes = new Set();
+		const sustained = [];
 		for ( const ev of events ) {
-			const { self, t, p, v, flagV, fIdxs, sibs } = ev;
+			const { self, t, p, v, flagV, flagFrom, fIdxs, sibs } = ev;
 			if ( now - t > detectMs ) {
 				agedOutFlags++; // beyond even the late look-back — counted for stderr, see after the loop
 				continue;
 			}
 			const evHash = p.hash.toLowerCase();
 			if ( ! self && reportedHashes.has( evHash ) ) continue;
-			// ---- confirmation gate ----
-			// Observed flag precision without a gate was 0/3: every flagged point over a month of
-			// live data was a one-commit spike that reverted immediately. So a flag becomes an
-			// alert only when the metric's median over the NEXT commits holds above the median
-			// over the previous ones. Suppression needs positive evidence: any non-finite median
-			// reports, and so does a non-positive pre or baseline (a zero or negative value
-			// sign-flips the ratio tests below).
-			// Every flag's windows are built in SERVE order around the flag's own row (each of
-			// fIdxs for a folded event; otherwise the flagged row's sIdx — a dropped re-run's
-			// included), excluding the flagged commit's rows BY HASH from both sides: the
-			// server's evidence for a flag is the rows before and after it IN THE RESPONSE, and
-			// which side the commit's own kept row lands on is decided only by the response's
-			// arbitrary equal-time listing order — counting it as evidence lets that order flip
-			// the verdict (a held regression filed as transient behind the green tick). A folded
-			// event is judged at EVERY folded flag's position: one reporting position forces the
-			// alert; a position with too few later rows defers the event (pending) only when no
-			// position reports; suppression requires every position to recover.
-			//
-			// Anchors shared by every window — half 3, re-run flags only: the kept row just
-			// before a re-run's judging position is NOT the baseline its commit regressed from.
-			// On an already-regressed plateau (every commit unflagged because each is ~0% worse
-			// than its neighbour) the windows and the positional anchor all read the plateau
-			// itself, and suppression would file the only surviving evidence of a live
-			// regression as a transient. So a re-run flag may only be suppressed when the metric
-			// ALSO sits back at its commit's own pre-regression level: the kept row's
-			// predecessor. No such row (first point, or unresolvable): report, never suppress.
-			// (keptByHash holds the same record objects pts does, so the indexOf below resolves
-			// by identity.)
+			// Re-run anchors protect provenance, but cannot establish a sustained level change.
 			let ownFrom = NaN;
 			if ( ! self ) {
 				const kIdx = pts.indexOf( keptByHash.get( evHash ) );
 				if ( kIdx > 0 ) ownFrom = pts[ kIdx - 1 ].v;
 			}
 			const ownValid = Number.isFinite( ownFrom ) && ownFrom > 0;
-			// ...half 4, every flag: the server computed this flag against the row immediately
-			// before it IN THE RESPONSE (serverFrom, captured before the tie-sort), a row the
-			// dedup may have dropped. When a catch-up batch first re-runs an old baseline commit
-			// (dropped, its value never enters the series) and the next re-run is flagged against
-			// it, every kept-series anchor reads the plateau, and suppression would bury the
-			// only fresh evidence of a live regression. So suppression also requires the metric
-			// to sit back at the server's own comparison base; an unresolvable or non-positive
-			// base reports, never suppresses.
 			const serverFrom = Number( p.serverFrom );
 			const serverValid = Number.isFinite( serverFrom ) && serverFrom > 0;
 			const wins = ( fIdxs ?? [ p.sIdx ] ).map( s => {
@@ -612,53 +554,43 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				const prior = [];
 				for ( const r of byServe )
 					if ( r.p.hash.toLowerCase() !== evHash ) ( r.p.sIdx > s ? later : prior ).push( r.v );
-				const pre = median( prior.slice( -5 ) );
-				const post = median( later.slice( 0, 5 ) );
-				const from = prior.length > 0 ? prior[ prior.length - 1 ] : undefined; // the kept value served just before the flag: the revert anchor
-				// Suppression evidence half 1: the window medians agree the metric did not rise.
-				const medianHeld =
-					Number.isFinite( pre ) &&
-					pre > 0 &&
-					Number.isFinite( post ) &&
-					( post - pre ) / pre < 0.05;
-				// ...half 2: the metric RETURNED to the level of the commit just before the flag.
-				// The pre-window median alone fails after a revert-and-re-land cycle (the window
-				// itself sits at the regressed level), and the flagged sample's own value fails
-				// as a reference when it overshoots the level the regression settles at (post <
-				// v*0.95 held while the metric stayed regressed).
-				const anchorValid = Number.isFinite( from ) && from > 0;
-				const anchorOk = anchorValid && post <= from * 1.05;
+				const preValues = prior.slice( -LEVEL_WINDOW );
+				const postValues = later.slice( 0, LEVEL_WINDOW );
+				const pre = median( preValues );
+				const post = median( postValues );
+				const from = prior.at( -1 );
+				const complete = preValues.length === LEVEL_WINDOW && postValues.length === LEVEL_WINDOW;
+				const usable = pre > 0 && Number.isFinite( pre ) && Number.isFinite( post );
+				if ( preValues.length === LEVEL_WINDOW && ! usable ) invalidBaselines.add( id );
+				const sPre = robustScale( preValues, pre );
+				const sPost = robustScale( postValues, post );
+				const bar = 3 * 1.2533 * Math.sqrt( ( sPre ** 2 + sPost ** 2 ) / LEVEL_WINDOW );
+				const levelHeld = usable && post - pre >= 0.05 * pre && post - pre >= bar;
 				const ownAnchorOk = self || ( ownValid && post <= ownFrom * 1.05 );
 				const serverAnchorOk = serverValid && post <= serverFrom * 1.05;
-				let verdict = 'report';
-				if ( later.length <= 2 ) {
-					verdict = 'pending'; // need >=3 later kept rows at this position for a verdict
-				} else if ( medianHeld && anchorOk && ownAnchorOk && serverAnchorOk ) {
-					verdict = 'suppress';
+				const reRunUncertain =
+					( ! self || fIdxs !== undefined || serverFrom !== from ) &&
+					( ! ownAnchorOk || ! serverAnchorOk );
+				let verdict = 'pending';
+				if ( complete && usable ) {
+					if ( levelHeld ) verdict = 'report';
+					else if ( ! reRunUncertain ) verdict = 'suppress';
 				}
-				return {
-					s,
-					pre,
-					post,
-					from,
-					medianHeld,
-					anchorValid,
-					anchorOk,
-					ownAnchorOk,
-					serverAnchorOk,
-					verdict,
-				};
+				// Localization includes the candidate; confirmation requires ten OTHER later commits.
+				const localPost = byServe
+					.filter( r => r.p.sIdx >= s )
+					.slice( 0, LEVEL_WINDOW )
+					.map( r => r.v );
+				const score =
+					( median( localPost ) - pre ) /
+					Math.max(
+						Math.sqrt( ( stdDev( preValues ) ** 2 + stdDev( localPost ) ** 2 ) / LEVEL_WINDOW ),
+						0.001
+					);
+				return { s, pre, post, verdict, score, position: prior.length };
 			} );
 			const reporting = wins.filter( w => w.verdict === 'report' );
-			// The entry renders the deciding window: the reporting one with the highest post
-			// median (the strongest held evidence), else the loudest deferring one, else the
-			// closest-call suppressed one. Adjacent same-hash siblings see byte-identical
-			// windows (own rows are excluded from both sides), so a post tie carries no
-			// evidence either way — it breaks toward the loudest render (worst percent, then
-			// newest sibling), never the serve order, which would caption whichever sibling the
-			// server listed first and flip with its listing order. Recency alone would not do
-			// either: adjacent re-runs measure the step and then the increment, so the newest
-			// sibling's percent can understate a step regression just as badly as the oldest's.
+			// A tied deciding window renders the worst percent, then the newest sibling.
 			const sibOf = w => ( sibs ? sibs[ fIdxs.indexOf( w.s ) ] : ev );
 			const pctOf = f => {
 				const n = Number( f.p.regressionPercent );
@@ -676,10 +608,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				if ( b.post !== a.post ) return b.post > a.post ? b : a;
 				return loudest( a, b );
 			};
-			// Deferring windows rank on the percent, not on the post median. A window defers
-			// because it holds one or two later rows, so its post median is the very evidence the
-			// verdict calls too thin — ranking on it first lets the thinnest reading in the digest
-			// outvote the percent and caption a held step with a later re-run's increment.
+			// Thin windows cannot rank on their incomplete post median.
 			const deferring = wins.filter( w => w.verdict === 'pending' );
 			let win;
 			if ( reporting.length > 0 ) win = reporting.reduce( stronger );
@@ -697,56 +626,38 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				unit: meta.unit || '',
 				hash: p.hash,
 				pct: sib.p.regressionPercent, // the server's percent vs the row served just before the flag — for a re-run sibling, possibly this commit's own earlier re-run row
-				// `from` — the rendered baseline — is the judging window's (the kept value served
-				// just before it), or overridden by the anchor that held the alert up. It matches
-				// the server's comparison base (serverFrom) only when no duplicate row was
-				// dropped between the two, so from→to need not match the percent.
-				from: win.from,
-				// Display the value the flag was computed on (a re-post or re-run row's). A
-				// re-run flag's percent was computed server-side against a row this series may
-				// not even hold, so the "(flag from a re-run)" marker attributes its numbers
-				// instead. The gate itself never sees this value; its medians and anchors judge
-				// the kept series only.
+				from: self ? flagFrom : sib.p.serverFrom,
 				to: self ? ( flagV ?? v ) : sib.v,
-				reRun: self ? fIdxs !== undefined : true, // marks a flag whose event folded in a re-post/re-run row: its numbers or comparison base MAY come from that row (a same-time fold or an off-time merge), so the reader is not shown an attribution the kept data need not support
+				reRun: self ? fIdxs !== undefined : true,
 			};
 			if ( win.verdict === 'pending' ) {
-				pending.push( entry ); // data edge — re-judged next digest (window rolls, batch fills in)
+				pending.push( entry );
 				reportedHashes.add( evHash );
 			} else if ( win.verdict === 'suppress' ) {
-				// Transient spike: no folded flag held, the metric sits back at its pre-flag
-				// level.
 				reverted.push( { ...entry, pre: win.pre, post: win.post } );
 			} else {
-				// A re-run flag confirmed because only its OWN baseline failed: the local anchor
-				// cleared, so render the commit's own baseline. The alert stands on that level;
-				// the positional value would read as a self-refuting "holds above" line.
-				if ( ! self && win.medianHeld && win.anchorOk && ownValid ) entry.from = ownFrom;
-				// A flag confirmed because only the SERVER's comparison base failed: every
-				// kept-series anchor cleared, so the alert stands on that base. Render it — for
-				// a folded event this is the LOWEST folded base, so the percent shown (a same-time
-				// fold's worst flag or an off-time merge's deciding flag, judged against its own
-				// base) need not match from→to.
-				if ( win.medianHeld && win.anchorOk && win.ownAnchorOk && serverValid )
-					entry.from = serverFrom;
-				// heldAboveAnchor: the window medians did NOT move, so the alert stands only on
-				// an anchor comparison. When that anchor commit is a one-commit dip this shape is
-				// indistinguishable from a recovered dip; the gate deliberately resolves the
-				// ambiguity toward reporting (fail loud, never false-clean), and the rendered
-				// copy says what was compared so a reader can judge it. The anchor that holds the
-				// alert up must also be the renderable one: positional when it failed, the re-run
-				// commit's own when only IT failed, the server's base when every kept-series
-				// anchor cleared.
-				let anchorRenderable = win.anchorValid;
-				if ( win.anchorOk ) anchorRenderable = win.ownAnchorOk ? serverValid : ownValid;
-				( late ? confirmedLate : confirmed ).push( {
+				sustained.push( {
 					...entry,
 					pre: win.pre,
 					post: win.post,
-					heldAboveAnchor: win.medianHeld && anchorRenderable,
+					score: win.score,
+					position: win.position,
 				} );
 				reportedHashes.add( evHash );
 			}
+		}
+		// Connect accepted boundaries at gaps <= ten commits, then keep the strongest split.
+		const groups = [];
+		for ( const entry of sustained.sort( ( a, b ) => a.position - b.position ) ) {
+			const group = groups.at( -1 );
+			if ( group && entry.position - group.at( -1 ).position <= LEVEL_WINDOW ) group.push( entry );
+			else groups.push( [ entry ] );
+		}
+		for ( const group of groups ) {
+			const entry = group.reduce( ( best, candidate ) =>
+				candidate.score > best.score ? candidate : best
+			);
+			( entry.late ? confirmedLate : confirmed ).push( { ...entry, grouped: group.length } );
 		}
 	}
 
@@ -818,7 +729,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	// double-spaced the line) and a (late) marker — a weeks-old orphaned flag must not render
 	// byte-identically to one raised this week.
 	const lateRow = r =>
-		`${ pctStr( r.pct ) || 'regressed' } ${ commitLink( r.hash ) }${ r.late ? ' (late)' : '' }`;
+		`${ pctStr( r.pct ) || 'regressed' } ${ commitLink( r.hash ) }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.late ? ' (late)' : '' }`;
 	const blocks = [
 		{
 			type: 'header',
@@ -885,6 +796,13 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				)
 			);
 		}
+		if ( invalidBaselines.size > 0 ) {
+			blocks.push(
+				section(
+					`:warning: Unusable level baseline on ${ [ ...invalidBaselines ].map( label ).join( ', ' ) } — sustained changes cannot be confirmed from a non-positive or non-finite median.`
+				)
+			);
+		}
 		if ( allStale ) {
 			blocks.push(
 				section(
@@ -912,7 +830,11 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			// A degraded week must not wear the green tick next to its own alert blocks: the
 			// clean claim only covers the data that could be read.
 			const degraded =
-				failedIds.length > 0 || badPoints.size > 0 || staleInfo.length > 0 || droppedIds > 0;
+				failedIds.length > 0 ||
+				badPoints.size > 0 ||
+				invalidBaselines.size > 0 ||
+				staleInfo.length > 0 ||
+				droppedIds > 0;
 			blocks.push(
 				section(
 					degraded
@@ -936,48 +858,20 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				for ( const r of confirmed.slice( 0, MAX_LINES ) ) {
 					const pct = pctStr( r.pct ) || 'regressed';
 					const delta =
-						r.from != null && r.to != null
+						Number.isFinite( r.from ) && Number.isFinite( r.to )
 							? ` (${ fmt( r.from ) }→${ fmt( r.to ) }${ esc( clip( r.unit ) ) })`
 							: '';
 					// A transferred flag's percent, value, or comparison base comes from a re-run
 					// row, not the kept first measurement. Say so, or the line asserts an
 					// attribution the series data does not support.
 					const reRun = r.reRun ? ' (flag from a re-run)' : '';
-					// heldAboveAnchor alerts say what was compared (the medians did not move;
-					// only an anchor comparison holds the alert up). The rest render the median
-					// movement ONLY when the medians actually rose: an entry confirmed solely
-					// because its anchor was unusable (a zero pre-flag value) must not justify
-					// itself with medians that sat flat, and a tie renders as a single level
-					// ("holding at med 200ms"), never a self-contradictory "100→100" arrow. pre >
-					// 0 (not just finite): an empty pre-window medians to 0, and a fabricated
-					// "med 0→…" baseline must never reach the message.
-					let sustained = '';
-					if ( r.heldAboveAnchor ) {
-						// "has not risen" is spelled out (the guard's literal test): this branch
-						// is the one shape the gate cannot tell apart from a recovered one-commit
-						// dip, and no number it computes disambiguates. The reader must check the
-						// chart, so the line says so.
-						sustained = ` · holds above the pre-flag ${ fmt( r.from ) }${ esc(
-							clip( r.unit )
-						) } (window med ${ fmt( r.post ) }${ esc(
-							clip( r.unit )
-						) } has not risen — check the chart)`;
-					} else if (
-						Number.isFinite( r.pre ) &&
-						r.pre > 0 &&
-						Number.isFinite( r.post ) &&
-						( r.post - r.pre ) / r.pre >= 0.05
-					) {
-						sustained = ` · holding at med ${ r.pre === r.post ? '' : `${ fmt( r.pre ) }→` }${ fmt(
-							r.post
-						) }${ esc( clip( r.unit ) ) }`;
-					}
+					const sustained = ` · median ${ pctStr( ( ( r.post - r.pre ) / r.pre ) * 100 ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) })`;
 					const chart = r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '';
 					blocks.push(
 						section(
 							`• *${ esc(
 								clip( r.name )
-							) }* ${ pct }${ delta }${ reRun }${ sustained } — ${ commitLink( r.hash ) }${ chart }`
+							) }* ${ pct }${ delta } (single-pair)${ reRun }${ sustained }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — ${ commitLink( r.hash ) }${ chart }`
 						)
 					);
 				}
@@ -990,16 +884,16 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			if ( confirmedLate.length > 0 ) {
 				blocks.push(
 					section(
-						`:warning: *${ confirmedLate.length } late-confirmed regression${
+						`:warning: *${ confirmedLate.length } older confirmed change${
 							confirmedLate.length > 1 ? 's' : ''
 						}* — flagged commit${
 							confirmedLate.length > 1 ? 's' : ''
-						} older than the ${ WINDOW_DAYS }d window that still hold as sustained (typically backfilled or recovered data): ${ joinRows(
+						} older than the ${ WINDOW_DAYS }d window (may repeat): ${ joinRows(
 							confirmedLate,
 							r =>
 								`*${ esc( clip( r.name ) ) }* ${ pctStr( r.pct ) || 'regressed' }${
 									r.reRun ? ' (flag from a re-run)' : ''
-								} ${ commitLink( r.hash ) }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`
+								} (single-pair) · median ${ pctStr( ( ( r.post - r.pre ) / r.pre ) * 100 ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) })${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } ${ commitLink( r.hash ) }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`
 						) }`
 					)
 				);
@@ -1010,7 +904,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				section(
 					`:hourglass_flipped: *${ pending.length } flagged change${
 						pending.length > 1 ? 's' : ''
-					} awaiting confirmation* (at the data edge — too few later commits to judge; re-checked each digest while the flag stays inside the ${
+					} awaiting confirmation* (too few other commits or inconclusive level evidence; re-checked each digest while the flag stays inside the ${
 						2 * WINDOW_DAYS
 					}d look-back): ${ joinRows(
 						pending,
@@ -1026,7 +920,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 					mrkdwn(
 						`:leftwards_arrow_with_hook: ${ reverted.length } transient spike${
 							reverted.length > 1 ? 's' : ''
-						} suppressed (flag did not hold over the next commits): ${ joinRows(
+						} suppressed (no confirmed level change in the kept data): ${ joinRows(
 							reverted,
 							r => `${ esc( clip( r.name ) ) } ${ lateRow( r ) }`
 						) }`
@@ -1052,7 +946,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	if ( discoveryFailed ) summaryParts.push( 'METRIC DISCOVERY FAILURE' );
 	else if ( allFailed ) summaryParts.push( 'DATA READ FAILURE' );
 	else {
-		// Late-confirmed regressions are named too (top 2, newest first): the alerts a recipient
+		// Older confirmed changes are named too (top 2, newest first): the alerts a recipient
 		// is most likely to triage from the notification alone.
 		const summaryName = r => `${ esc( clip( r.name ) ) } ${ pctStr( r.pct ) || 'regressed' }`;
 		const topNames = confirmed.slice( 0, 3 ).map( summaryName );
@@ -1069,7 +963,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				.slice( 0, 2 )
 				.map( summaryName );
 			summaryParts.push(
-				`${ confirmedLate.length } late-confirmed: ${ lateNames.join( ', ' ) }${
+				`${ confirmedLate.length } older confirmed changes (may repeat): ${ lateNames.join( ', ' ) }${
 					confirmedLate.length > 2 ? ', …' : ''
 				}`
 			);
@@ -1078,6 +972,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		if ( failedIds.length > 0 ) summaryParts.push( `${ failedIds.length } metric read failure(s)` );
 		if ( droppedIds > 0 ) summaryParts.push( `${ droppedIds } id(s) dropped` );
 		if ( badPoints.size > 0 ) summaryParts.push( 'MALFORMED DATA SKIPPED' );
+		if ( invalidBaselines.size > 0 ) summaryParts.push( 'UNUSABLE LEVEL BASELINE' );
 		if ( staleInfo.length > 0 ) summaryParts.push( 'DATA STALE' );
 	}
 	const payload = {
@@ -1096,12 +991,13 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 
 	// Any degraded signal must leave the build red, even after posting: discovery/read failures,
 	// dropped ids, malformed points, and stale/dead metrics are all act-on conditions
-	// (pending/suppressed spikes and late confirmations are informational).
+	// (pending/suppressed spikes and older confirmations are informational).
 	if (
 		discoveryFailed ||
 		failedIds.length > 0 ||
 		droppedIds > 0 ||
 		badPoints.size > 0 ||
+		invalidBaselines.size > 0 ||
 		staleInfo.length > 0
 	)
 		exitCode = 1;

@@ -64,6 +64,11 @@ const steady = ( n, daysEnd, v, pfx = 'c' ) =>
 const seq = ( n, daysStart, v, pfx = 'd' ) =>
 	Array.from( { length: n }, ( _, i ) => pt( daysStart - i * 0.1, v, pfx + i, false ) );
 
+const levelSeries = ( pre, flagged, post, prefix = 'level' ) =>
+	[ ...pre, flagged, ...post ].map( ( value, i ) =>
+		pt( 5 - i * 0.1, value, prefix + i, i === pre.length, ( flagged / pre.at( -1 ) - 1 ) * 100 )
+	);
+
 const metricRow = ( id, name, key, createdDaysAgo = 40 ) => ( {
 	id,
 	repoId: 25,
@@ -76,12 +81,12 @@ const metricRow = ( id, name, key, createdDaysAgo = 40 ) => ( {
 	createdAt: naive( NOW - createdDaysAgo * D ),
 } );
 
-// 20 steady 100s, a 115 spike flagged 5d ago, then 8 later points that either hold (sustained) or
+// 20 steady 100s, a 115 spike flagged 5d ago, then 10 later points that either hold (sustained) or
 // return to baseline (transient).
 const spikeSeries = recover => [
 	...steady( 20, 5.1, 100 ),
 	pt( 5, 115, 'feedbeef1', true, 15.0 ),
-	...seq( 8, 4.9, recover ? 100 : 114 ),
+	...seq( 10, 4.9, recover ? 100 : 114 ),
 ];
 
 /**
@@ -91,6 +96,70 @@ const spikeSeries = recover => [
  * serve a 404 for every metric).
  */
 const SCENARIOS = {
+	levelstep: () => ( {
+		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 300, Array( 10 ).fill( 120 ) ) },
+	} ),
+	diprecovery: () => ( {
+		series: { 301: levelSeries( [ ...Array( 9 ).fill( 100 ), 80 ], 110, Array( 10 ).fill( 100 ) ) },
+	} ),
+	noisystep: () => {
+		const pre = [ 80, 84, 88, 92, 96, 104, 108, 112, 116, 120 ];
+		return {
+			series: {
+				301: levelSeries(
+					pre,
+					160,
+					pre.map( v => v + 15 )
+				),
+			},
+		};
+	},
+	quietstep: () => ( {
+		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 115, Array( 10 ).fill( 105 ) ) },
+	} ),
+	zerobaseline: () => ( {
+		series: { 301: levelSeries( Array( 10 ).fill( 0 ), 100, Array( 10 ).fill( 100 ) ) },
+	} ),
+	shorttail: () => ( {
+		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 200, Array( 9 ).fill( 200 ) ) },
+	} ),
+	groupedsteps: () => {
+		const values = [
+			...Array( 20 ).fill( 100 ),
+			...Array( 30 ).fill( 200 ),
+			...Array( 20 ).fill( 300 ),
+			...Array( 20 ).fill( 100 ),
+			...Array( 20 ).fill( 200 ),
+		];
+		values[ 24 ] = 225;
+		return {
+			series: {
+				301: values.map( ( value, i ) =>
+					pt(
+						12 - i * 0.1,
+						value,
+						'group' + i,
+						[ 20, 24, 50, 90 ].includes( i ),
+						( value / values[ i - 1 ] - 1 ) * 100
+					)
+				),
+			},
+		};
+	},
+
+	groupedstrongest: () => {
+		const spec = SCENARIOS.groupedsteps();
+		for ( const [ i, value ] of [
+			[ 10, 200 ],
+			[ 11, 0 ],
+			[ 12, 200 ],
+			[ 13, 0 ],
+		] ) {
+			spec.series[ 301 ][ i ].value = value;
+		}
+		return spec;
+	},
+
 	clean: () => ( { series: { 301: steady( 30, 0.5, 100 ) } } ),
 	confirmed: () => ( { series: { 301: spikeSeries( false ) } } ),
 	// A verdict channel must stay visible even when it suppresses: the verbatim payload test
@@ -114,7 +183,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 5.1, 100 ).map( p => ( { ...p, value: 'garbage', rawValue: 'garbage' } ) ),
 				pt( 5, 115, 'feedbeef3', true, 15.0 ),
-				...Array.from( { length: 8 }, ( _, i ) => ( {
+				...Array.from( { length: 10 }, ( _, i ) => ( {
 					...pt( 4.9 - i * 0.1, 100, 'g' + i, false ),
 					rawValue: 'garbage', // value (the judged field) stays numeric — these points are valid
 				} ) ),
@@ -170,7 +239,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 5.1, 100 ),
 				pt( 5, 115, 'feedbeef5', true, 15.0 ),
-				...Array.from( { length: 8 }, ( _, i ) => ( {
+				...Array.from( { length: 10 }, ( _, i ) => ( {
 					...pt( 4.9 - i * 0.1, 100, 'n' + i, false ),
 					value: null,
 					rawValue: 100, // finite: a rawValue fallback would suppress via a 100 post-median
@@ -185,7 +254,7 @@ const SCENARIOS = {
 				...steady( 20, 5.3, 100 ),
 				{ ...pt( 5.1, 100, 'inj1', false ), value: '<!channel>', rawValue: '<!channel>' },
 				pt( 5, 115, 'feedbeef6', true, 15.0 ),
-				...seq( 8, 4.9, 114, 's' ),
+				...seq( 10, 4.9, 114, 's' ),
 			],
 		},
 	} ),
@@ -196,7 +265,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 20.1, 100 ),
 				pt( 20, 115, 'feedbeef7', true, 15.0 ),
-				...seq( 8, 19.9, 114, 'l' ),
+				...seq( 10, 19.9, 114, 'l' ),
 				...steady( 10, 0.5, 114, 'tl' ),
 			],
 		},
@@ -234,14 +303,12 @@ const SCENARIOS = {
 		series[ 505 ] = [
 			...steady( 20, 20.1, 100, 'q' ),
 			pt( 20, 115, 'feedbf41', true, 15.0 ),
-			...seq( 8, 19.9, 114, 'ql' ),
+			...seq( 10, 19.9, 114, 'ql' ),
 			...steady( 10, 0.5, 114, 'qt' ),
-		]; // late-confirmed
+		]; // older confirmed
 		return { metrics, series };
 	},
-	// A regression lands, is reverted, then RE-LANDS within the pre window. The second flag's
-	// baseline is contaminated with the regressed level (pre ≈ post), so only the revert-anchor
-	// check (post vs the pre-flag commit) sees the regression is still live.
+	// A short revert does not establish a new median level.
 	relanded: () => ( {
 		series: {
 			301: [
@@ -249,7 +316,7 @@ const SCENARIOS = {
 				...seq( 5, 5.9, 200, 'r' ),
 				pt( 5.4, 100, 'rrev', false ),
 				pt( 5.3, 200, 'feedbeefb', true, 100.0 ),
-				...seq( 8, 5.2, 200, 'rp' ),
+				...seq( 10, 5.2, 200, 'rp' ),
 			],
 		},
 	} ),
@@ -261,7 +328,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 5.1, 100 ),
 				pt( 5, 103, 'feedbeefe', true, 3.0 ),
-				...seq( 8, 4.9, 100, 'w' ),
+				...seq( 10, 4.9, 100, 'w' ),
 			],
 		},
 	} ),
@@ -277,7 +344,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 5.1, 100 ),
 				pt( 5, 115, 'feedbeeff', true, -5.3 ),
-				...seq( 8, 4.9, 114, 'u' ),
+				...seq( 10, 4.9, 114, 'u' ),
 			],
 		},
 	} ),
@@ -288,9 +355,7 @@ const SCENARIOS = {
 		p.isRegression = 'false';
 		return { series: { 301: [ p ] } };
 	},
-	// A duplicate row (re-measured commit b2 at the regressed level) sits in the anchor slot
-	// right before the flag. Without hash dedup it becomes entry.from and a live +100% re-land is
-	// suppressed as a transient: a false clean.
+	// Dropped duplicate values must not create a median level change.
 	dupanchor: () => ( {
 		series: {
 			301: [
@@ -299,7 +364,7 @@ const SCENARIOS = {
 				pt( 5.4, 100, 'beef99', false ),
 				pt( 5.35, 200, 'b2', false ), // duplicate of landing commit b2
 				pt( 5.3, 200, 'feedbf03', true, 100.0 ),
-				...seq( 8, 5.2, 200, 'dd' ),
+				...seq( 10, 5.2, 200, 'dd' ),
 			],
 		},
 	} ),
@@ -322,10 +387,9 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// The flag is the series' FIRST valid point: the pre-window is empty (median 0), which must
-	// fail open to a report. The render must never print the fabricated "med 0→…" baseline.
+	// A flag without a complete pre-window stays pending.
 	flagfirst: () => ( {
-		series: { 301: [ pt( 5, 115, 'feedbf06', true, 15.0 ), ...seq( 8, 4.9, 114, 'ff' ) ] },
+		series: { 301: [ pt( 5, 115, 'feedbf06', true, 15.0 ), ...seq( 10, 4.9, 114, 'ff' ) ] },
 	} ),
 	// The server computes flags on the NORMALIZED value; here it regresses 100→120 and holds
 	// while rawValue stays flat at 100. Judging rawValue would suppress a server-flagged
@@ -335,7 +399,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 5.1, 100 ),
 				{ ...pt( 5, 120, 'feedbf07', true, 20.0 ), rawValue: 100 },
-				...Array.from( { length: 8 }, ( _, i ) => ( {
+				...Array.from( { length: 10 }, ( _, i ) => ( {
 					...pt( 4.9 - i * 0.1, 120, 'ee' + i, false ),
 					rawValue: 100,
 				} ) ),
@@ -394,7 +458,7 @@ const SCENARIOS = {
 			301: [ ...steady( 12, 5, 100 ), { ...pt( 0.5, 100, 'x1', false ), hash: [ hx( 'x1' ) ] } ],
 		},
 	} ),
-	// 12 late-confirmed regressions: the joined block must cap its entries and say how many were
+	// 12 older confirmed changes: the joined block must cap its entries and say how many were
 	// cut, so the header count and the body always agree.
 	latecrowd: () => {
 		const metrics = Array.from( { length: 12 }, ( _, i ) =>
@@ -413,32 +477,24 @@ const SCENARIOS = {
 		}
 		return { metrics, series, no302: true };
 	},
-	// A FLAGGED re-post of the fix-landing commit carries the regressed value. The dedup must
-	// transfer only its flag: written into the kept row's historical slot, the value would poison
-	// the next flag's revert anchor and flip a live +100% re-land to a green all-clear.
 	dupvalpoison: () => ( {
 		series: {
 			301: [
 				...steady( 5, 6.0, 200, 'pa' ),
 				pt( 5.5, 100, 'pfix', false ), // the fix lands
 				pt( 5.5, 250, 'pfix', true, 150.0 ), // flagged re-post of the fix commit
-				pt( 5.4, 200, 'feedbf09', true, 100.0 ), // the re-land the digest must report
-				...seq( 8, 5.3, 200, 'pb' ),
+				pt( 5.4, 200, 'feedbf09', true, 100.0 ), // re-land candidate, without a complete pre-window
+				...seq( 10, 5.3, 200, 'pb' ),
 			],
 		},
 	} ),
-	// A flagged run-time-stamped re-run of an ancient commit, held by four later commits: the
-	// server flagged it at the data edge, so the FLAG must be judged THERE against the kept
-	// series (its value stays out). Relocated onto the 45d-old original, it would be judged
-	// against windows from 45 days ago ("transient", green, exit 0), or aged out unread on the
-	// commit date.
 	rerunflag: () => ( {
 		series: {
 			301: [
 				pt( 45, 100, 'oldx', false ),
-				...steady( 12, 5, 100, 'ha' ),
-				pt( 0.5, 130, 'oldx', true, 30.0 ), // fresh no-provenance re-run, flagged
-				...seq( 4, 0.4, 130, 'hb' ),
+				...steady( 12, 6, 100, 'ha' ),
+				pt( 5, 130, 'oldx', true, 30.0 ), // fresh no-provenance re-run, flagged
+				...seq( 10, 4.9, 130, 'hb' ),
 			],
 		},
 	} ),
@@ -484,12 +540,6 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// The onset flag ages out, and the regression's only surviving evidence is a flagged
-	// provenance-less re-run landing MID-PLATEAU: every kept row around its judging position
-	// already sits at the regressed level (each plateau commit is ~0% worse than its neighbour,
-	// so none is flagged). A gate anchored only on position-local rows reads pre = post = anchor
-	// = 140 and suppresses the live +40% as a transient behind the green tick. Suppression must
-	// also clear the commit's OWN pre-regression baseline.
 	rerunplateau: () => ( {
 		series: {
 			301: [
@@ -497,13 +547,10 @@ const SCENARIOS = {
 				pt( 35, 140, 'baddad00', true, 40.0 ), // onset — its own flag ages out unread
 				...steady( 10, 6, 140, 'pb' ), // the plateau: real, individually-unflagged commits
 				pt( 5, 140, 'baddad00', true, 40.0 ), // flagged run-time-stamped re-run of the onset commit
-				...steady( 6, 0.5, 140, 'pc' ),
+				...steady( 10, 0.5, 140, 'pc' ),
 			],
 		},
 	} ),
-	// The counterpart guard: a flagged re-run of a commit whose spike genuinely reverted clears
-	// the position-local anchor AND the commit's own baseline. It must stay a suppressed
-	// transient, or every routine re-run becomes an alert.
 	reruntransient: () => ( {
 		series: {
 			301: [
@@ -511,17 +558,10 @@ const SCENARIOS = {
 				pt( 12, 130, 'beefcaf3', false ), // the spike commit's own row (unflagged here)
 				...steady( 10, 4, 100, 'qb' ), // fully recovered
 				pt( 3, 128, 'beefcaf3', true, 28.0 ), // flagged re-run, metric back at baseline around it
-				...steady( 6, 0.5, 100, 'qc' ),
+				...steady( 10, 0.5, 100, 'qc' ),
 			],
 		},
 	} ),
-	// The server flags at serve time, each row against the row immediately before it in the
-	// response: here a catch-up re-run that reproduced the old 100 baseline and is then dropped
-	// by the dedup (its value never enters the series). Every kept-series anchor around the next
-	// re-run's flag (positional, own-baseline) reads the 140 plateau, so a gate blind to the
-	// server's own comparison base would file the only fresh evidence of the live +40% as a
-	// transient behind the green tick. Every flag below is derivable by the server's serve-time
-	// rule.
 	dedupbase: () => ( {
 		series: {
 			301: [
@@ -531,14 +571,10 @@ const SCENARIOS = {
 				pt( 5.9, 140, 'cafe0140', false ), // newest plateau commit, first measurement
 				pt( 5, 100, 'pa9', false ), // catch-up re-run of baseline commit pa9 — reproduces 100 (a drop vs the plateau, so unflagged); the dedup discards it
 				pt( 4.9, 140, 'cafe0140', true, 40.0 ), // re-run the server flags +40% against the dropped 100 row above — its true comparison base
-				...steady( 6, 0.5, 140, 'pc' ),
+				...steady( 10, 0.5, 140, 'pc' ),
 			],
 		},
 	} ),
-	// dedupbase plus a noisy same-time re-post of the flagged commit: the server flags the re-post
-	// +42.86% against the kept row's own 140 (a base the gate would clear). Worst-percent-wins
-	// must not carry that base over the kept flag's 100: suppression has to clear the base of
-	// EVERY flag folded into the event.
 	dedupbasetie: () => ( {
 		series: {
 			301: [
@@ -548,13 +584,10 @@ const SCENARIOS = {
 				pt( 5, 100, 'pa9', false ), // dropped catch-up re-run of the baseline commit
 				pt( 4.9, 140, 'cafe0140', true, 40.0 ), // first measurement, flagged against the dropped 100
 				pt( 4.9, 200, 'cafe0140', true, 42.86 ), // same-time re-post, flagged against the 140 above
-				...steady( 6, 0.5, 140, 'pc' ),
+				...steady( 10, 0.5, 140, 'pc' ),
 			],
 		},
 	} ),
-	// dedupbasetie with the tie-sort REVERSING the two flagged rows: the re-post (lower id, so
-	// the row the dedup keeps) carries the higher percent, so the comparator skips the listed-
-	// first flag whose base is the dropped 100. The base fold must not depend on the comparator.
 	dedupbaseskip: () => ( {
 		series: {
 			301: [
@@ -564,89 +597,70 @@ const SCENARIOS = {
 				pt( 5, 100, 'pa9', false ),
 				{ ...pt( 4.9, 140, 'cafe0140', true, 40.0 ), id: 2 }, // listed first, flagged against the dropped 100
 				{ ...pt( 4.9, 200, 'cafe0140', true, 42.86 ), id: 1 }, // listed second, flagged against the 140 above; kept after the tie-sort
-				...steady( 6, 0.5, 140, 'pc' ),
+				...steady( 10, 0.5, 140, 'pc' ),
 			],
 		},
 	} ),
-	// The tie-sort must never move a flagged row's served-before tie-mates into its post window:
-	// the server flags the +100% against the last-served 100 in a four-commit same-second run (a
-	// backfill reusing one provenanced timestamp), and the flagged row's low id sorts it FIRST in
-	// the tie. Judged at the sorted slot, the three base-level tie-mates would read as "after"
-	// evidence, dilute the post median, and file the held regression as a transient behind the
-	// green tick. Every flag is derivable by the server's serve-time rule.
 	tierelocate: () => ( {
 		series: {
 			301: [
-				...steady( 6, 11, 100, 'ra' ),
+				...steady( 7, 11, 100, 'ra' ),
 				{ ...pt( 5, 100, 'rt1', false ), id: 20 },
 				{ ...pt( 5, 100, 'rt2', false ), id: 21 },
 				{ ...pt( 5, 100, 'rt3', false ), id: 22 },
 				{ ...pt( 5, 200, 'cafe0200', true, 100.0 ), id: 5 }, // served last, flagged against the 100 above; the tie-sort moves it first
-				...steady( 4, 4, 200, 'rc' ),
+				...steady( 10, 4, 200, 'rc' ),
 			],
 		},
 	} ),
-	// The dedup variant of the same defect: a flagged same-time re-post folds onto its original
-	// across three interposed base-level commits (the server flagged it against the last of
-	// them). The transfer must not move the flag's judging position backward onto the kept row's
-	// sorted slot, or the tie-mates read as "after" evidence and the held +100% files as a
-	// transient.
 	tietransfer: () => ( {
 		series: {
 			301: [
-				...steady( 6, 11, 100, 'ta' ),
+				...steady( 7, 11, 100, 'ta' ),
 				{ ...pt( 5, 100, 'tt1', false ), id: 20 },
 				{ ...pt( 5, 100, 'tt2', false ), id: 21 },
 				{ ...pt( 5, 100, 'tt3', false ), id: 22 },
 				{ ...pt( 5, 200, 'cafe0200', true, 100.0 ), id: 15 }, // flagged re-post, served fourth
 				{ ...pt( 5, 200, 'cafe0200', false ), id: 10 }, // original, served last; kept by the tie-sort
-				...steady( 4, 4, 200, 'tc' ),
+				...steady( 10, 4, 200, 'tc' ),
 			],
 		},
 	} ),
-	// Control: a genuinely transient spike inside a re-ordered tie still suppresses — the
-	// serve-position windows must not turn routine recoveries into alerts.
 	tietransient: () => ( {
 		series: {
 			301: [
-				...steady( 6, 11, 100, 'va' ),
+				...steady( 10, 11, 100, 'va' ),
 				{ ...pt( 5, 130, 'cafe0130', true, 30.0 ), id: 20 }, // spike, served first in the tie
 				{ ...pt( 5, 100, 'vt1', false ), id: 5 }, // recovery commits with lower ids: the sort moves them before the spike
 				{ ...pt( 5, 100, 'vt2', false ), id: 6 },
-				...steady( 6, 4, 100, 'vc' ),
+				...steady( 8, 4, 100, 'vc' ),
 			],
 		},
 	} ),
-	// The flagged commit's OWN kept row must count as evidence for neither side of its flag's
-	// windows: it is excluded by hash, not by serve index. A folded flag's serve index belongs
-	// to the DROPPED re-post, so an index-based exclusion excludes nothing and the kept
-	// original — served after the flag here, at the API's whim for two equal-time rows — lands
-	// in the post window, dilutes the median below the 5% threshold, and files the held drift
-	// as a transient. The opposite listing order reports: same stored rows, coin-flip verdict.
 	tiecoinflip: () => ( {
 		series: {
 			301: [
-				...steady( 6, 11, 100, 'fa' ),
+				...steady( 10, 11, 100, 'fa' ),
 				{ ...pt( 5, 130, 'cafe0130', true, 30.0 ), id: 100 }, // flagged re-post, served first in the tie
 				{ ...pt( 5, 100, 'cafe0130', false ), id: 50 }, // original, served second; kept by the tie-sort
 				pt( 4, 101, 'fc1', false ), // held drift just above the gate's 5% threshold
 				pt( 3, 106, 'fc2', false ),
 				pt( 2, 107, 'fc3', false ),
+				...seq( 7, 1.9, 106, 'ft' ),
 			],
 		},
 	} ),
-	// One folded flag with conclusive held evidence must never be vetoed by a sibling folded
-	// flag that sits too close to the data edge: the edge position may defer the event only
-	// when NO position reports. Here the first flag has five later commits holding the +100%
-	// and the second (a same-second re-post of the same commit) has two — a some()-style edge
-	// veto would demote the confirmed alert to pending behind the green tick.
 	foldveto: () => ( {
 		series: {
 			301: [
-				...steady( 5, 11, 100, 'ga' ),
+				...steady( 10, 11, 100, 'ga' ),
 				{ ...pt( 5, 200, 'deed0200', true, 100.0 ), id: 10 }, // first flag: conclusive held window
 				{ ...pt( 5, 200, 'gb1', false ), id: 11 },
 				{ ...pt( 5, 200, 'gb2', false ), id: 12 },
+				...Array.from( { length: 5 }, ( _, i ) => ( {
+					...pt( 5, 200, 'gm' + i, false ),
+					id: 30 + i,
+				} ) ),
 				{ ...pt( 5, 100, 'gb3', false ), id: 13 }, // one-commit dip: the second flag's base
 				{ ...pt( 5, 200, 'deed0200', true, 100.0 ), id: 14 }, // same-commit re-post, flagged against the dip; only two rows follow
 				{ ...pt( 5, 200, 'gb4', false ), id: 15 },
@@ -654,11 +668,6 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// An off-time re-run flag is judged at its own SERVE position, not inserted after every
-	// equal-time kept row: the server saw the three held 200s AFTER the flag, and a
-	// timestamp-slot insertion would file them all as "before" evidence, judge the flag on the
-	// wall-clock-later recovered rows alone, and suppress a regression the serve-order median
-	// holds. Every flag is derivable by the server's serve-time rule.
 	offtieserve: () => ( {
 		series: {
 			301: [
@@ -667,23 +676,22 @@ const SCENARIOS = {
 				pt( 10, 100, 'wa2', false ),
 				pt( 9, 100, 'wa3', false ),
 				pt( 8, 100, 'wa4', false ),
+				...steady( 5, 6, 100, 'wp' ),
 				{ ...pt( 5, 100, 'wb1', false ), id: 50 }, // served first in the tie: the re-run's base
 				{ ...pt( 5, 200, '0ddeed00', true, 100.0 ), id: 40 }, // off-time re-run, dropped by the dedup
 				{ ...pt( 5, 200, 'wh1', false ), id: 30 }, // held tie-mates the server served AFTER the flag
 				{ ...pt( 5, 200, 'wh2', false ), id: 20 },
 				{ ...pt( 5, 200, 'wh3', false ), id: 10 },
+				...Array.from( { length: 4 }, ( _, i ) => ( {
+					...pt( 5, 200, 'wm' + i, false ),
+					id: 60 + i,
+				} ) ),
 				pt( 4, 100, 'wr1', false ), // wall-clock-later recovery: the whole post view of a time-slot window
 				pt( 3, 100, 'wr2', false ),
 				pt( 2, 100, 'wr3', false ),
 			],
 		},
 	} ),
-	// Two off-time re-run flags on ONE commit must merge into one event judged at both serve
-	// positions: judged separately, whichever sibling the tie-sort scans first claims the
-	// commit, and here the low-id sibling sits at the data edge (two later rows) — its pending
-	// verdict would mask the other sibling's conclusive held +100% behind the green tick,
-	// decided purely by the tie's listing order. Every flag is derivable by the server's
-	// serve-time rule.
 	offsiblingmask: () => ( {
 		series: {
 			301: [
@@ -692,11 +700,16 @@ const SCENARIOS = {
 				pt( 10, 100, 'xa2', false ),
 				pt( 9, 100, 'xa3', false ),
 				pt( 8, 100, 'xa4', false ),
+				...steady( 5, 6, 100, 'xp' ),
 				{ ...pt( 5, 100, 'xb1', false ), id: 60 }, // served first in the tie: sibling A's base
 				{ ...pt( 5, 200, '0ffdeed0', true, 100.0 ), id: 70 }, // sibling A: held evidence follows
 				{ ...pt( 5, 200, 'xh1', false ), id: 80 },
 				{ ...pt( 5, 200, 'xh2', false ), id: 90 },
 				{ ...pt( 5, 200, 'xh3', false ), id: 95 },
+				...Array.from( { length: 5 }, ( _, i ) => ( {
+					...pt( 5, 200, 'xm' + i, false ),
+					id: 100 + i,
+				} ) ),
 				{ ...pt( 5, 100, 'xb2', false ), id: 96 }, // one-commit dip: sibling B's base
 				{ ...pt( 5, 200, '0ffdeed0', true, 100.0 ), id: 10 }, // sibling B: low id, scanned first, only two rows follow
 				pt( 4, 100, 'xr1', false ),
@@ -704,13 +717,6 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// A commit's AGED off-time re-run flag (older than the 2×WINDOW_DAYS look-back) must stay
-	// out of the sibling merge: merged in, its weeks-old held window would join the fresh
-	// event's verdict — or, the merged event's time being its oldest sibling's, age out the
-	// WHOLE event, fresh flag included, behind the green tick — and it would vanish from the
-	// stderr aged-flags count, the only signal that the digest was down longer than the
-	// look-back. The aged flag counts per flag; the fresh sibling is judged alone and
-	// suppresses on the recovered series. Every flag is derivable by the serve-time rule.
 	offagedsibling: () => ( {
 		series: {
 			301: [
@@ -721,84 +727,63 @@ const SCENARIOS = {
 				...steady( 4, 39, 200, 'kh' ), // the aged position's held post window
 				...steady( 10, 26, 100, 'kr' ), // long since recovered
 				pt( 11, 200, 'a9edee00', true, 100.0 ), // FRESH re-run flag, in-window
-				...steady( 5, 2, 100, 'ks' ), // fresh position's post window: recovered
+				...steady( 10, 2, 100, 'ks' ), // fresh position's post window: recovered
 			],
 		},
 	} ),
-	// A commit's two fresh off-time re-run flags: an OLD one (20d) whose position holds at 200,
-	// and a NEW one (1.1d, the larger percent) whose position recovered. The event reports on
-	// the old position's evidence, so the alert must render THAT flag — +100%, late-confirmed —
-	// not the newest sibling's time and worst percent (+150%, current), which would show a
-	// weeks-old hold as a fresh, larger regression. Every flag is derivable by the serve-time rule.
 	offmixedage: () => ( {
 		series: {
 			301: [
 				...steady( 5, 30, 100, 'ma' ),
 				pt( 28, 100, 'a9edee01', false ), // original measurement of the re-run commit
-				...steady( 3, 26, 100, 'mb' ),
+				...steady( 5, 26, 100, 'mb' ),
 				pt( 20, 200, 'a9edee01', true, 100.0 ), // OLD re-run flag: held evidence follows
 				...steady( 5, 18, 200, 'mh' ),
 				...steady( 5, 12, 200, 'mk' ), // plateau
 				pt( 1.2, 100, 'mdip', false ), // one-commit dip: the new flag's base
 				pt( 1.1, 250, 'a9edee01', true, 150.0 ), // NEW re-run flag: recovery follows
-				...steady( 4, 0.3, 100, 'mr' ),
+				...steady( 10, 0.1, 100, 'mr' ),
 			],
 		},
 	} ),
-	// The mirror of offmixedage: the OLD sibling's position recovered and the NEW sibling's
-	// holds, so the deciding window is the fresh position and the alert must render the NEW
-	// flag — +150%, current-window — never the first-listed sibling's recovered +100% filed as
-	// a weeks-old late confirmation. Every flag is derivable by the serve-time rule.
 	offmirrorage: () => ( {
 		series: {
 			301: [
 				...steady( 5, 30, 100, 'na' ),
 				pt( 28, 100, 'a9edee02', false ), // original measurement of the re-run commit
-				...steady( 3, 26, 100, 'nb' ),
+				...steady( 5, 26, 100, 'nb' ),
 				pt( 20, 200, 'a9edee02', true, 100.0 ), // OLD re-run flag: recovery follows
 				...steady( 5, 18, 100, 'nh' ),
 				...steady( 5, 12, 100, 'nk' ), // long recovered
 				pt( 1.2, 100, 'ndip', false ), // the new flag's serve-time base
 				pt( 1.1, 250, 'a9edee02', true, 150.0 ), // NEW re-run flag: held evidence follows
-				...steady( 4, 0.3, 250, 'nr' ),
+				...steady( 10, 0.1, 250, 'nr' ),
 			],
 		},
 	} ),
-	// A catch-up batch re-runs one commit twice back to back, so the two off-time siblings see
-	// byte-identical windows (only their own rows sit between them) and tie on post. The first
-	// re-run measures the whole step (+300% against the kept 100) and the second, newer one only
-	// the increment (+5% against the first). The tie must break toward the worst percent, not
-	// toward the newest sibling, which would caption a series holding at 420 with +5.0%. These
-	// two siblings carry different times, so serve order and recency agree here and only
-	// `offsibtiet` and `offsibpend` below rule the listing order out. Every flag is derivable by
-	// the serve-time rule.
 	offsibtie: () => ( {
 		series: {
 			301: [
 				...steady( 5, 12, 100, 'ua' ),
 				pt( 11, 100, 'b9edee03', false ), // original measurement of the re-run commit
-				...steady( 3, 10, 100, 'ub' ),
+				...steady( 5, 10, 100, 'ub' ),
 				pt( 6, 400, 'b9edee03', true, 300.0 ), // first re-run flag: the whole step
 				pt( 5.9, 420, 'b9edee03', true, 5.0 ), // second re-run flag: newer, the increment only
 				...steady( 5, 5, 420, 'uh' ),
-				...steady( 4, 0.5, 420, 'uk' ),
+				...steady( 5, 0.5, 420, 'uk' ),
 			],
 		},
 	} ),
-	// The same tie with EQUAL percents (each re-run doubles the last: +100% then +100%): only
-	// recency separates the siblings, and the newer one must win so the alert renders the
-	// current level and files under the current window — not the 20-day-old sibling's
-	// (100→200ms) as a late confirmation. Every flag is derivable by the serve-time rule.
 	offsibtiet: () => ( {
 		series: {
 			301: [
 				...steady( 5, 30, 100, 'va' ),
 				pt( 28, 100, 'c9edee04', false ), // original measurement of the re-run commit
-				...steady( 3, 26, 100, 'vb' ),
+				...steady( 5, 26, 100, 'vb' ),
 				pt( 20, 200, 'c9edee04', true, 100.0 ), // older re-run flag, past the 15d window
 				pt( 3, 400, 'c9edee04', true, 100.0 ), // newer re-run flag, same percent
 				...steady( 5, 2.5, 400, 'vh' ),
-				...steady( 4, 0.5, 400, 'vk' ),
+				...steady( 5, 0.5, 400, 'vk' ),
 			],
 		},
 	} ),
@@ -838,11 +823,7 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// The flagged sample OVERSHOOTS the level the metric holds at (flag 250, holds at 200), and a
-	// dropped duplicate at the plateau level sits directly before the flag, so the server's own
-	// comparison base (200) clears. Only the pre-flag-commit anchor (100) blocks suppression: any
-	// reference to the flagged sample's own noisy value (post < v*0.95 says "reverted" here)
-	// would file the live +100% hold (200 over the 100 anchor) as a transient.
+	// An overshoot and flat medians cannot confirm a sustained change.
 	overshootbase: () => ( {
 		series: {
 			301: [
@@ -879,16 +860,14 @@ const SCENARIOS = {
 			301: [ ...steady( 12, 5, 100 ), { ...pt( 0.5, 100, 'u1', false ), hash: 'unknown' } ],
 		},
 	} ),
-	// The commit before the flag measured 0: suppression is impossible to evaluate (a zero
-	// baseline sign-breaks both ratio tests), so the gate reports. The line must not justify
-	// itself with medians that sat flat, nor with the anchor.
+	// A zero predecessor does not invalidate an otherwise positive median baseline.
 	zeroanchor: () => ( {
 		series: {
 			301: [
 				...steady( 9, 5.4, 100 ),
 				pt( 5.3, 0, 'za1', false ),
 				pt( 5.2, 100, 'feedbf08', true, 100.0 ),
-				...seq( 8, 5.1, 100, 'zb' ),
+				...seq( 10, 5.1, 100, 'zb' ),
 				...steady( 10, 0.5, 100, 'zc' ),
 			],
 		},
@@ -899,7 +878,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 20.1, 100 ),
 				pt( 20, 115, 'feedbeef8', true, 15.0 ),
-				...seq( 8, 19.9, 100, 'm' ),
+				...seq( 10, 19.9, 100, 'm' ),
 				...steady( 10, 0.5, 100, 'tl' ),
 			],
 		},
@@ -910,7 +889,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 35.1, 100 ),
 				pt( 35, 115, 'feedbeef9', true, 15.0 ),
-				...seq( 8, 34.9, 114, 'o' ),
+				...seq( 10, 34.9, 114, 'o' ),
 				...steady( 10, 0.5, 114, 'tl' ),
 			],
 		},
@@ -931,7 +910,7 @@ const SCENARIOS = {
 			301: [
 				...steady( 20, 5.1, 100 ),
 				pt( 5, 115, 'feedbeefa', true, '15.0<!here>' ),
-				...seq( 8, 4.9, 114, 'q' ),
+				...seq( 10, 4.9, 114, 'q' ),
 			],
 		},
 	} ),
@@ -1141,6 +1120,75 @@ async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	}
 }
 
+test( 'level gate confirms a step with median magnitude and rejects a dip recovery', async () => {
+	const step = await runDigest( 'levelstep' );
+	assert.equal( step.code, 0, step.err );
+	assert.ok( step.out.includes( '1 sustained regression' ), step.out );
+	assert.ok( step.out.includes( '+200.0% (100→300ms) (single-pair)' ), step.out );
+	assert.ok( step.out.includes( 'median +20.0% (100→120ms)' ), step.out );
+	const dip = await runDigest( 'diprecovery' );
+	assert.equal( dip.code, 0, dip.err );
+	assert.ok( dip.out.includes( '1 transient spike' ), dip.out );
+	assert.ok( ! dip.out.includes( 'sustained regression*' ), dip.out );
+	assert.ok( ! dip.out.includes( 'holds above the pre-flag' ), dip.out );
+} );
+
+test( 'MAD bar rejects a noisy rise, accepts a constant 5% step, and degrades zero baselines', async () => {
+	const noisy = await runDigest( 'noisystep' );
+	assert.equal( noisy.code, 0, noisy.err );
+	assert.ok( noisy.out.includes( '1 transient spike' ), noisy.out );
+	const quiet = await runDigest( 'quietstep' );
+	assert.equal( quiet.code, 0, quiet.err );
+	assert.ok( quiet.out.includes( 'median +5.0% (100→105ms)' ), quiet.out );
+	const zero = await runDigest( 'zerobaseline' );
+	assert.equal( zero.code, 1, zero.err );
+	assert.ok( zero.out.includes( 'UNUSABLE LEVEL BASELINE' ), zero.out );
+	assert.ok( zero.out.includes( '1 pending' ), zero.out );
+	assert.ok( ! zero.out.includes( 'sustained regression*' ), zero.out );
+} );
+
+test( 'grouping localizes repeated evidence and retains a second step and a re-land', async () => {
+	const r = await runDigest( 'groupedsteps' );
+	assert.equal( r.code, 0, r.err );
+	const payload = JSON.parse( r.out );
+	const lines = payload.blocks
+		.filter( b => b.text?.text.startsWith( '•' ) )
+		.map( b => b.text.text );
+	assert.equal( lines.length, 3 );
+	for ( const index of [ 20, 50, 90 ] )
+		assert.ok(
+			lines.some( line => line.includes( hx( 'group' + index ) ) ),
+			lines
+		);
+	assert.ok( ! lines.some( line => line.includes( hx( 'group24' ) ) ), lines );
+	assert.ok(
+		lines.some( line => line.includes( '(2 flags grouped)' ) ),
+		lines
+	);
+	const localized = await runDigest( 'groupedstrongest' );
+	assert.equal( localized.code, 0, localized.err );
+	assert.ok( localized.out.includes( hx( 'group24' ) ), localized.out );
+	assert.ok( ! localized.out.includes( hx( 'group20' ) ), localized.out );
+} );
+
+test( 'older bucket reports age and repetition without claiming a late confirmation', async () => {
+	const r = await runDigest( 'late' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( 'older confirmed change' ), r.out );
+	assert.ok( r.out.includes( '(may repeat)' ), r.out );
+	assert.ok( r.out.includes( 'median +14.0% (100→114ms)' ), r.out );
+	assert.ok( ! r.out.includes( 'late-confirmed' ), r.out );
+	assert.ok( ! r.out.includes( 'backfilled' ), r.out );
+} );
+
+test( 'a flag with nine other later commits stays pending', async () => {
+	const r = await runDigest( 'shorttail' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 pending' ), r.out );
+	assert.ok( ! r.out.includes( 'sustained regression*' ), r.out );
+	assert.ok( ! r.out.includes( 'transient spike' ), r.out );
+} );
+
 // ---- the scenario matrix ----
 // Each case pins exit code plus required/forbidden substrings on both streams.
 
@@ -1204,7 +1252,7 @@ const CASES = [
 		out: [
 			'1 sustained regression',
 			'Alpha: TTFB* +15.0% (100→115ms)',
-			'holding at med 100→114ms',
+			'median +14.0% (100→114ms)',
 			'feedbeef',
 		],
 	},
@@ -1216,12 +1264,10 @@ const CASES = [
 		not: [ 'sustained regression*' ],
 	},
 	{
-		// Garbage values are malformed (red), but the flag still REPORTS via the empty-pre
-		// fail-open path: suppression needs positive evidence.
 		n: 'failopen-reports',
 		sc: 'failopen',
 		exit: 1,
-		out: [ '1 sustained regression', 'feedbeef', 'MALFORMED DATA SKIPPED' ],
+		out: [ '1 pending', 'feedbeef', 'MALFORMED DATA SKIPPED' ],
 		not: [ 'transient spike' ],
 	},
 	// --- value validation / gate horizon / render guards ---
@@ -1239,18 +1285,16 @@ const CASES = [
 		n: 'strvals-no-injection',
 		sc: 'strvals',
 		exit: 1,
-		out: [ '1 sustained regression', '(100→115', 'MALFORMED DATA SKIPPED' ],
+		out: [ '1 sustained regression', '(single-pair)', 'MALFORMED DATA SKIPPED' ],
 		not: [ '<!channel>' ],
 	},
 	{
-		// Also covers the late re-land right after a revert dip: the alert must surface as
-		// late-confirmed in the message, never vanish into a stderr-only "reverted" verdict.
-		n: 'late-confirmed-reported',
+		n: 'older-confirmed-reported',
 		sc: 'late',
 		exit: 0,
 		out: [
-			'late-confirmed regression',
-			'1 late-confirmed',
+			'older confirmed change',
+			'1 older confirmed changes (may repeat)',
 			'feedbeef7',
 			'older than the 15d window',
 		],
@@ -1266,44 +1310,26 @@ const CASES = [
 		not: [ 'late-confirmed' ],
 	},
 	{
-		// A re-landed regression must never be judged "reverted" against its own contaminated
-		// baseline (pre ≈ post at the regressed level). The revert anchor is the pre-flag commit,
-		// never the flagged sample's own noisy value; when the window medians never moved, the
-		// copy names the anchor comparison instead of claiming they did.
-		n: 'relanded-still-confirmed',
+		n: 'short-reland-has-no-confirmed-level',
 		sc: 'relanded',
 		exit: 0,
-		out: [
-			'1 sustained regression',
-			'+100.0% (100→200ms)',
-			'holds above the pre-flag 100ms',
-			'feedbeefb',
-		],
-		not: [ 'transient spike' ],
+		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
+		not: [ 'sustained regression*', 'holds above the pre-flag' ],
 	},
 	{
-		// The flagged sample's own value must never become a suppression reference: the flag
-		// (250) overshoots the level the metric holds at (200), the medians sit flat at the
-		// plateau, and the server's own comparison base (a dropped duplicate at 200) clears. Only
-		// the pre-flag-commit anchor blocks suppression; a post < v*0.95 reference would file the
-		// live +100% hold (200 over the 100 anchor) as a transient.
 		n: 'overshoot-flag-value-is-never-a-suppression-reference',
 		sc: 'overshootbase',
 		exit: 0,
-		out: [ '1 sustained regression', '+25.0%', 'holds above the pre-flag 100ms', 'deedfeed' ],
-		err: [ 'dropped 1 duplicate row' ],
-		not: [ 'transient spike', 'No sustained metric regressions' ],
+		out: [ '1 pending', 'awaiting confirmation' ],
+		err: [ 'duplicate row' ],
+		not: [ 'sustained regression*', 'transient spike' ],
 	},
 	{
-		// A duplicate row for an already-measured commit in the anchor slot must not become
-		// entry.from and flip a live re-land to "transient": dedup keeps each commit's first
-		// measurement.
-		n: 'dup-anchor-still-confirmed',
+		n: 'duplicate-anchor-does-not-confirm-a-level',
 		sc: 'dupanchor',
 		exit: 0,
-		out: [ '1 sustained regression', 'holds above the pre-flag 100ms', 'feedbf03' ],
-		err: [ 'duplicate row' ],
-		not: [ 'transient spike' ],
+		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
+		not: [ 'sustained regression*', 'holds above the pre-flag' ],
 	},
 	{
 		// Recent-stamped re-runs of old commits must neither dilute the post window nor satisfy
@@ -1329,32 +1355,19 @@ const CASES = [
 			'1 sustained regression',
 			'+150.0% (100→250ms)',
 			'(flag from a re-run)',
-			'holding at med 100→250ms',
+			'median +150.0% (100→250ms)',
 		],
 		err: [ 'duplicate row', 'carried a regression flag — transferred to the kept row' ],
 		not: [ 'No sustained metric regressions', 'transient spike' ],
 	},
 	{
-		// ...but the flagged re-run's VALUE must never enter the kept series: it is the revert
-		// anchor of the NEXT flag, and adopting it flips a live re-land to "transient" behind a
-		// green all-clear.
 		n: 'dup-flag-value-never-poisons-anchor',
 		sc: 'dupvalpoison',
 		exit: 0,
-		// TWO alerts: the re-land (judged against the unpoisoned 100 anchor) AND the transferred
-		// re-post flag. The metric holds at 200 against that flag's own server base of 100, so
-		// suppressing it as a transient would discard live evidence (on server-real data it is
-		// the ONLY flag this sequence produces).
-		out: [
-			'2 sustained regressions',
-			'+100.0% (100→200ms)',
-			'holds above the pre-flag 100ms',
-			'feedbf09',
-			'+150.0% (100→250ms)',
-			'(flag from a re-run)',
-		],
-		err: [ 'carried a regression flag' ],
-		not: [ 'No sustained metric regressions', 'transient spike' ],
+
+		out: [ '2 pending', 'feedbf09', '(flag from a re-run)' ],
+		err: [ 'duplicate row' ],
+		not: [ 'sustained regression*', 'transient spike' ],
 	},
 	{
 		// A re-run measures nothing new: weeks of re-runs of already-measured commits must fire
@@ -1417,22 +1430,12 @@ const CASES = [
 		not: [ 'transient spike', 'No sustained metric regressions' ],
 	},
 	{
-		// A flagged re-run landing mid-plateau must not be suppressed against its position-local
-		// neighbours (pre = post = anchor = the plateau): the alert stands on the commit's own
-		// pre-regression baseline, and the line renders THAT level so the reader sees what was
-		// compared.
 		n: 'plateau-rerun-flag-cannot-be-suppressed-as-transient',
 		sc: 'rerunplateau',
 		exit: 0,
-		out: [
-			'1 sustained regression',
-			'+40.0% (100→140ms)',
-			'(flag from a re-run)',
-			'holds above the pre-flag 100ms',
-			'baddad00',
-		],
-		err: [ 'dropped 1 duplicate row', '1 regression flag(s) older than the 30d look-back' ],
-		not: [ 'transient spike', 'No sustained metric regressions' ],
+		out: [ '1 pending', 'awaiting confirmation' ],
+		err: [ 'duplicate row' ],
+		not: [ 'sustained regression*', 'transient spike' ],
 	},
 	{
 		// ...and its counterpart: a re-run flag whose metric genuinely recovered clears both
@@ -1448,44 +1451,28 @@ const CASES = [
 		not: [ 'sustained regression*' ],
 	},
 	{
-		// The server computes flags at serve time against the row immediately before the flagged
-		// one in the response, a row the dedup may have dropped (a catch-up re-run reproducing
-		// the pre-regression baseline). Suppression must also clear that base, or the only fresh
-		// evidence of a live regression is filed as a transient. The alert renders the server's
-		// base, so from→to matches the flagged percent.
 		n: 'dedup-dropped-server-base-cannot-be-suppressed-as-transient',
 		sc: 'dedupbase',
 		exit: 0,
-		out: [
-			'1 sustained regression',
-			'+40.0% (100→140ms)',
-			'(flag from a re-run)',
-			'holds above the pre-flag 100ms',
-			'cafe0140',
-		],
-		err: [ 'dropped 2 duplicate row', '1 regression flag(s) older than the 30d look-back' ],
-		not: [ 'transient spike', 'No sustained metric regressions' ],
+		out: [ '1 pending', 'awaiting confirmation' ],
+		err: [ 'duplicate row' ],
+		not: [ 'sustained regression*', 'transient spike' ],
 	},
 	{
-		// The folded event keeps the LOWER server base (100, not the re-post's 140), so the
-		// +40% cannot be filed as a transient. Also the only case reaching the worst-percent
-		// comparator with two flagged rows on one hash.
 		n: 'same-time-repost-cannot-replace-the-kept-flags-server-base',
 		sc: 'dedupbasetie',
 		exit: 0,
-		out: [ '1 sustained regression', '(100→', 'cafe0140' ],
-		err: [ 'dropped 2 duplicate row', '1 carried a regression flag' ],
-		not: [ 'transient spike', 'No sustained metric regressions' ],
+		out: [ '1 pending', 'awaiting confirmation' ],
+		err: [ 'duplicate row' ],
+		not: [ 'sustained regression*', 'transient spike' ],
 	},
 	{
-		// Mirror: the kept row wins the comparator, so the listed-first flag's lower base (100)
-		// must still fold in, or the +42.9% files as a transient against the plateau.
 		n: 'kept-flag-winning-the-comparator-still-folds-in-the-lower-server-base',
 		sc: 'dedupbaseskip',
 		exit: 0,
-		out: [ '1 sustained regression', '(100→200', 'cafe0140' ],
-		err: [ 'dropped 2 duplicate row', '1 carried a regression flag' ],
-		not: [ 'transient spike', 'No sustained metric regressions' ],
+		out: [ '1 pending', 'awaiting confirmation' ],
+		err: [ 'duplicate row' ],
+		not: [ 'sustained regression*', 'transient spike' ],
 	},
 	{
 		// The server judged the flag against the rows around it IN THE RESPONSE; after the id
@@ -1578,12 +1565,17 @@ const CASES = [
 	},
 	{
 		// A merged off-time event renders the sibling at the DECIDING position: the held old
-		// flag's percent and time (late-confirmed), never the recovered new sibling's larger
+		// flag's percent and time (older confirmed), never the recovered new sibling's larger
 		// percent under a current-window header.
 		n: 'a-merged-off-time-event-renders-the-sibling-whose-position-held',
 		sc: 'offmixedage',
 		exit: 0,
-		out: [ '1 late-confirmed', '+100.0%', '(flag from a re-run)', 'a9edee01' ],
+		out: [
+			'1 older confirmed changes (may repeat)',
+			'+100.0%',
+			'(flag from a re-run)',
+			'a9edee01',
+		],
 		err: [ 'dropped 2 duplicate row', '2 carried a regression flag' ],
 		not: [ '+150.0%', 'sustained regression*', 'awaiting confirmation', 'transient spike' ],
 	},
@@ -1608,7 +1600,7 @@ const CASES = [
 		exit: 0,
 		out: [ '1 sustained regression', '+300.0% (100→400ms)', '(flag from a re-run)', 'b9edee03' ],
 		err: [ 'dropped 2 duplicate row', '2 carried a regression flag' ],
-		not: [ '+5.0%', '(100→420ms)', 'late-confirmed', 'transient spike' ],
+		not: [ '+5.0% (single-pair)', 'late-confirmed', 'transient spike' ],
 	},
 	{
 		// Equal percents leave only recency to separate tied siblings: the newer one renders,
@@ -1616,7 +1608,7 @@ const CASES = [
 		n: 'equal-percent-tied-siblings-break-toward-the-newest',
 		sc: 'offsibtiet',
 		exit: 0,
-		out: [ '1 sustained regression', '+100.0% (100→400ms)', '(flag from a re-run)', 'c9edee04' ],
+		out: [ '1 sustained regression', '+100.0% (200→400ms)', '(flag from a re-run)', 'c9edee04' ],
 		err: [ 'dropped 2 duplicate row', '2 carried a regression flag' ],
 		not: [ '(100→200ms)', 'late-confirmed', 'transient spike' ],
 	},
@@ -1684,30 +1676,25 @@ const CASES = [
 		errNot: [ 'malformed point' ],
 	},
 	{
-		// The joined late-confirmed block caps its entries and says how many were cut, so the
+		// The joined older-confirmed block caps its entries and says how many were cut, so the
 		// header count and the body agree (no silent tail-drop inside the char clamp).
 		n: 'late-crowd-capped-with-count',
 		sc: 'latecrowd',
 		exit: 0,
-		out: [ '*12 late-confirmed regressions*', 'and 4 more' ],
+		out: [ '*12 older confirmed changes*', 'and 4 more' ],
 	},
 	{
-		// A zero pre-flag anchor makes suppression unevaluable, so the gate reports. With the
-		// medians flat the line must carry NEITHER median copy: flat medians justify nothing, and
-		// the anchor copy belongs to a usable anchor.
-		n: 'zero-anchor-reports-without-flat-median-copy',
+		n: 'zero-anchor-does-not-confirm-flat-medians',
 		sc: 'zeroanchor',
 		exit: 0,
-		out: [ '1 sustained regression', 'feedbf08' ],
-		not: [ 'holding at med', 'holds above the pre-flag', 'transient spike' ],
+		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
+		not: [ 'sustained regression*', 'holds above the pre-flag' ],
 	},
 	{
-		// An empty pre-window medians to 0 and must fail open to a report, without a fabricated
-		// "med 0→…" baseline in the message.
 		n: 'flag-at-series-start-no-zero-baseline',
 		sc: 'flagfirst',
 		exit: 0,
-		out: [ '1 sustained regression', 'feedbf06' ],
+		out: [ '1 pending', 'feedbf06' ],
 		not: [ 'med 0→', 'holding at med', 'transient spike' ],
 	},
 	{
@@ -1984,15 +1971,18 @@ test( 'every mrkdwn object in the payload sets verbatim (no Slack auto-parsing)'
 } );
 
 // The top-level text is the notification/screen-reader surface (Slack's accessibility contract
-// reads it, not the blocks): it must name late-confirmed alerts too, opt out of mrkdwn parsing,
+// reads it, not the blocks): it must name older confirmed changes too, opt out of mrkdwn parsing,
 // and never grow link previews under the bot identity.
-test( 'notification fallback names late-confirmed regressions and disables mrkdwn/unfurls', async () => {
+test( 'notification fallback names older confirmed changes and disables mrkdwn/unfurls', async () => {
 	const late = await runDigest( 'late' );
 	const payload = JSON.parse( late.out.slice( late.out.indexOf( '{' ) ) );
 	assert.strictEqual( payload.mrkdwn, false );
 	assert.strictEqual( payload.unfurl_links, false );
 	assert.strictEqual( payload.unfurl_media, false );
-	assert.ok( payload.text.includes( '1 late-confirmed: Alpha: TTFB' ), payload.text );
+	assert.ok(
+		payload.text.includes( '1 older confirmed changes (may repeat): Alpha: TTFB' ),
+		payload.text
+	);
 	// Asserted on payload.text itself, not the whole serialized output, so a block naming the
 	// metric can never satisfy this in the fallback's place.
 	const current = await runDigest( 'confirmed' );
@@ -2201,9 +2191,9 @@ test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 		'*Stale metric',
 		'sustained regressions* in the last',
 		'more — see the metric charts',
-		'late-confirmed regression',
+		'older confirmed change',
 		'awaiting confirmation',
-		'suppressed (flag did not hold',
+		'suppressed (no confirmed level change',
 	] ) {
 		assert.ok(
 			texts.some( t => t.includes( needle ) ),
