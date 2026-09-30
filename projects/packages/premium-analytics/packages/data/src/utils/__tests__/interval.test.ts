@@ -162,8 +162,8 @@ describe( 'resolveIntervalForRange', () => {
 		).toBe( 'month' );
 	} );
 
-	// A stepped window carries no preset, so a week picked on a year-length
-	// preset has to survive the range path too.
+	// A year picked on the calendar reaches the range path, so a week chosen on
+	// a year-length preset has to survive there too.
 	it( 'keeps a weekly interval on a year-length custom range', () => {
 		expect(
 			resolveIntervalForRange(
