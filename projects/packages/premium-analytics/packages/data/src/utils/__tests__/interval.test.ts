@@ -113,9 +113,12 @@ describe( 'resolveIntervalForRange', () => {
 				'2025-07-01T00:00:00.000Z',
 				'2026-06-30T23:59:59.999Z'
 			)
-		).toEqual( [ 'month' ] );
-		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [ 'month' ] );
-		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month' ] );
+		).toEqual( [ 'month', 'week' ] );
+		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [
+			'month',
+			'week',
+		] );
+		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month', 'week' ] );
 		expect(
 			getAllowedIntervalsForPreset(
 				'all-time',
@@ -125,16 +128,30 @@ describe( 'resolveIntervalForRange', () => {
 		).toEqual( [ 'month', 'year' ] );
 	} );
 
+	it( 'keeps months as the default on a year-length preset, with weeks on offer', () => {
+		for ( const preset of [ 'last-12-months', 'last-365-days', 'last-year' ] as const ) {
+			expect( resolveIntervalForRange( preset, 'a', 'b' ) ).toBe( 'month' );
+			expect( resolveIntervalForRange( preset, 'a', 'b', 'week' ) ).toBe( 'week' );
+		}
+	} );
+
 	// The year surface carries a `year-YYYY` preset the switch does not know, so
 	// its list comes from the range instead and needs its own guard.
-	it( 'offers months alone on a year-length range with no matching preset', () => {
+	it( 'offers months and weeks on a year-length range with no matching preset', () => {
 		expect(
 			getAllowedIntervalsForPreset(
 				'year-2025',
 				'2025-01-01T00:00:00.000Z',
 				'2025-12-31T23:59:59.999Z'
 			)
-		).toEqual( [ 'month' ] );
+		).toEqual( [ 'month', 'week' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'year-2024',
+				'2024-01-01T00:00:00.000Z',
+				'2024-12-31T23:59:59.999Z'
+			)
+		).toEqual( [ 'month', 'week' ] );
 		expect(
 			resolveIntervalForRange(
 				'year-2025',
@@ -143,6 +160,40 @@ describe( 'resolveIntervalForRange', () => {
 				'quarter'
 			)
 		).toBe( 'month' );
+	} );
+
+	// A stepped window carries no preset, so a week picked on a year-length
+	// preset has to survive the range path too.
+	it( 'keeps a weekly interval on a year-length custom range', () => {
+		expect(
+			resolveIntervalForRange(
+				'custom',
+				'2024-10-01T00:00:00.000Z',
+				'2025-09-30T23:59:59.999Z',
+				'week'
+			)
+		).toBe( 'week' );
+	} );
+
+	it( 'flips the default from weeks to months where a range reaches a year', () => {
+		const from = '2025-01-01T00:00:00.000Z';
+
+		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-30T23:59:59.999Z' ) ).toEqual( [
+			'week',
+			'month',
+		] );
+		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-31T23:59:59.999Z' ) ).toEqual( [
+			'month',
+			'week',
+		] );
+	} );
+
+	it( 'drops weeks once a range outgrows a year', () => {
+		const from = '2025-01-01T00:00:00.000Z';
+		const to = '2026-01-02T23:59:59.999Z';
+
+		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month' ] );
+		expect( resolveIntervalForRange( 'custom', from, to, 'week' ) ).toBe( 'month' );
 	} );
 
 	it( 'coerces a stored quarter onto the range default', () => {
