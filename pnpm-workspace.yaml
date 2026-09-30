@@ -40,6 +40,8 @@ minimumReleaseAgeExclude:
   - 'wpcom-proxy-request'
   # Renovate security update: moment@2.31.0
   - moment@2.31.0
+  # Renovate security update: dompurify@3.4.16
+  - dompurify@3.4.16
 
 trustPolicy: no-downgrade
 trustPolicyExclude:
