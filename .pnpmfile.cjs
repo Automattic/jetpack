@@ -1,54 +1,3 @@
-// Packages we need to copy versions from for `@wordpress/dataviews/wp`.
-const wpPkgs = [
-	[ '@wordpress/components', 'change-case' ],
-	[ '@wordpress/components', '@emotion/cache' ],
-	[ '@wordpress/components', '@emotion/css' ],
-	[ '@wordpress/components', '@emotion/react' ],
-	[ '@wordpress/components', '@emotion/styled' ],
-	[ '@wordpress/components', '@emotion/utils' ],
-	[ '@wordpress/components', '@floating-ui/react-dom' ],
-	[ '@wordpress/components', 'framer-motion' ],
-	[ '@wordpress/components', 'highlight-words-core' ],
-	[ '@wordpress/components', 'is-plain-object' ],
-	[ '@wordpress/components', 'memize' ],
-	[ '@wordpress/components', '@use-gesture/react' ],
-	[ '@wordpress/components', 'uuid' ],
-	[ '@wordpress/components', '@wordpress/hooks' ],
-	[ '@wordpress/components', 'react-colorful' ],
-	[ '@wordpress/data', 'use-memo-one' ],
-	[ '@wordpress/ui', '@base-ui/react' ],
-	[ '@wordpress/ui', '@daypicker/react' ],
-	[ '@wordpress/ui', '@wordpress/theme', 'colorjs.io' ],
-];
-const wpPkgFetches = {};
-const wpPkgsUsed = new Set();
-const addWpPkgDep = async ( pkg, fromPkg, ver, deplist ) => {
-	const [ dep, ...rest ] = deplist;
-
-	if ( ! wpPkgFetches[ fromPkg ] ) {
-		wpPkgFetches[ fromPkg ] = fetch( `https://registry.npmjs.org/${ fromPkg }` ).then( r =>
-			r.json()
-		);
-	}
-	const deps = ( await wpPkgFetches[ fromPkg ] ).versions[ ver ].dependencies;
-
-	if ( rest.length > 0 ) {
-		if ( deps[ dep ] === undefined ) {
-			// This version of the package lacks the dep? We'll check in afterAllResolved for no version having it.
-			return;
-		}
-		const ver2 = deps[ dep ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-		await addWpPkgDep( pkg, dep, ver2, rest );
-	} else {
-		if ( deps[ dep ] === undefined ) {
-			// Ditto.
-			return;
-		}
-		wpPkgsUsed.add( dep );
-		pkg.optionalDependencies[ dep ] = deps[ dep ];
-	}
-};
-
 /**
  * Fix package dependencies.
  *
@@ -61,12 +10,9 @@ async function fixDeps( pkg ) {
 	// Deps tend to get outdated due to a slow release cycle.
 	// So change `^` to `>=` to avoid many duplicate packages (most are dependency-extracted in the build anyway), and hope any breaking changes will not really break.
 	if (
-		pkg.name === '@automattic/api-core' ||
-		pkg.name === '@automattic/components' ||
-		pkg.name === '@automattic/data-stores' ||
 		pkg.name === '@automattic/i18n-utils' ||
 		pkg.name === '@automattic/launchpad' ||
-		pkg.name === '@automattic/ui'
+		pkg.name === '@automattic/site-launch-modals'
 	) {
 		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
 			if ( dep.startsWith( '@wordpress/' ) ) {
@@ -101,63 +47,6 @@ async function fixDeps( pkg ) {
 					pkg.dependencies[ dep ] = '>=' + ver;
 				}
 			}
-		}
-	}
-
-	// Unused, vulnerable dep.
-	if (
-		pkg.name === '@automattic/components' &&
-		pkg.dependencies[ 'react-router-dom' ]?.startsWith( '^6' )
-	) {
-		delete pkg.dependencies[ 'react-router-dom' ];
-	}
-
-	// Oddly pinned dep.
-	if (
-		pkg.name === '@automattic/components' &&
-		pkg.dependencies.colord &&
-		! pkg.dependencies.colord.startsWith( '^' )
-	) {
-		pkg.dependencies.colord = '^' + pkg.dependencies.colord;
-	}
-
-	// Breaking change in @wordpress/icons v11.
-	if (
-		pkg.name === '@automattic/components' &&
-		pkg.dependencies[ '@wordpress/icons' ]?.startsWith( '>=10' )
-	) {
-		pkg.dependencies[ '@wordpress/icons' ] += ' <11';
-	}
-
-	// Outdated dependency version causing dependabot warnings.
-	// Once we can drop @wordpress/icons v10 (see above), looks like this can go away.
-	// https://github.com/WordPress/gutenberg/issues/69557
-	if ( pkg.name === '@wordpress/icons' && pkg.dependencies?.[ '@babel/runtime' ] === '7.25.7' ) {
-		pkg.dependencies[ '@babel/runtime' ] = '^7.26.10';
-	}
-
-	// Missing dep or peer dep on react.
-	// https://github.com/WordPress/gutenberg/issues/73257 (fixed in @wordpress/icons v11, but see above)
-	if (
-		pkg.name === '@wordpress/icons' &&
-		! pkg.dependencies?.react &&
-		! pkg.peerDependencies?.react
-	) {
-		pkg.peerDependencies.react = '^18';
-	}
-
-	// We need to add the missing deps for `@wordpress/dataviews` because
-	// the build fails when using pnpm with hoisting.
-	// @see https://github.com/WordPress/gutenberg/issues/67864
-	if ( pkg.name === '@wordpress/dataviews' ) {
-		for ( const deplist of wpPkgs ) {
-			const [ fromPkg, ...rest ] = deplist;
-			if ( ! pkg.dependencies[ fromPkg ] ) {
-				// Old version of dataviews lacks a new dep? We'll check in afterAllResolved for it being an old dep instead.
-				continue;
-			}
-			const ver = pkg.dependencies[ fromPkg ].replace( /^\^/, '' ).replace( /\+[0-9a-f]+$/, '' );
-			await addWpPkgDep( pkg, fromPkg, ver, rest );
 		}
 	}
 
@@ -210,15 +99,6 @@ async function fixDeps( pkg ) {
 		}
 	}
 
-	// Outdated dependency
-	if ( pkg.name === '@wordpress/jest-console' ) {
-		for ( const [ dep, ver ] of Object.entries( pkg.dependencies ) ) {
-			if ( dep.startsWith( 'jest-' ) && ver.startsWith( '^29.' ) ) {
-				pkg.dependencies[ dep ] = '>=' + ver.substring( 1 );
-			}
-		}
-	}
-
 	// Update localtunnel axios dep to avoid CVE
 	// https://github.com/localtunnel/localtunnel/issues/632
 	if ( pkg.name === 'localtunnel' && pkg.dependencies.axios === '0.21.4' ) {
@@ -236,28 +116,9 @@ async function fixDeps( pkg ) {
 	}
 
 	// Outdated dependency.
-	// https://github.com/jestjs/jest/issues/15236
-	if (
-		( pkg.name === 'babel-jest' || pkg.name === '@jest/transform' ) &&
-		pkg.dependencies[ 'babel-plugin-istanbul' ] === '^7.0.1'
-	) {
-		pkg.dependencies[ 'babel-plugin-istanbul' ] = '^8.0.0';
-	}
-
-	// Outdated dependency.
 	// https://github.com/egoist/rollup-plugin-postcss/issues/469
 	if ( pkg.name === 'rollup-plugin-postcss' && pkg.dependencies.cssnano === '^5.0.1' ) {
 		pkg.dependencies.cssnano = '^5.0.1 || ^6 || ^7';
-	}
-
-	// Missing dep or peer dep on @babel/runtime
-	// https://github.com/zillow/react-slider/issues/296
-	if (
-		pkg.name === 'react-slider' &&
-		! pkg.dependencies?.[ '@babel/runtime' ] &&
-		! pkg.peerDependencies?.[ '@babel/runtime' ]
-	) {
-		pkg.peerDependencies[ '@babel/runtime' ] = '^7';
 	}
 
 	// Apparently this package tried to switch from a dep to a peer dep, but screwed it up.
@@ -408,22 +269,6 @@ function fixPeerDeps( pkg ) {
 		pkg.peerDependenciesMeta[ '@size-limit/file' ] = { optional: true };
 	}
 
-	// Override @automattic/launchpad outdated peer dependencies.
-	if ( pkg.name === '@automattic/launchpad' ) {
-		if (
-			pkg.peerDependencies?.[ '@wordpress/element' ] &&
-			pkg.peerDependencies?.[ '@wordpress/element' ].startsWith( '^6.' )
-		) {
-			pkg.peerDependencies[ '@wordpress/element' ] = '^8';
-		}
-		if (
-			pkg.peerDependencies?.[ '@wordpress/i18n' ] &&
-			pkg.peerDependencies?.[ '@wordpress/i18n' ].startsWith( '^5.' )
-		) {
-			pkg.peerDependencies[ '@wordpress/i18n' ] = '^6';
-		}
-	}
-
 	// Outdated peer dependency because Gutenberg is still on node 20.
 	if (
 		pkg.name === '@wordpress/e2e-test-utils-playwright' &&
@@ -475,10 +320,9 @@ async function readPackage( pkg, context ) {
  *
  * @see https://pnpm.io/pnpmfile#hooksafterallresolvedlockfile-context-lockfile--promiselockfile
  * @param {object} lockfile - Lockfile data.
- * @param {object} context  - Pnpm object of some sort.
  * @return {object} Modified lockfile.
  */
-function afterAllResolved( lockfile, context ) {
+function afterAllResolved( lockfile ) {
 	// If there's only one "importer", it's probably pnpx rather than the monorepo. Don't interfere.
 	if ( Object.keys( lockfile.importers ).length === 1 ) {
 		return lockfile;
@@ -489,6 +333,13 @@ function afterAllResolved( lockfile, context ) {
 		if ( k.startsWith( '@wordpress/scripts@' ) ) {
 			throw new Error(
 				"Please don't bring in `@wordpress/scripts`. It brings in different versions of a lot of dependencies, and we generally have our own way to do the things that it tries to do.\nFor example, instead of `wp-scripts build`, run `webpack` directly with a config based on our monorepo-internal `@automattic/jetpack-webpack-config` package."
+			);
+		}
+
+		// We want `@wordpress/i18n`, not `i18n-calypso`.
+		if ( k.startsWith( 'i18n-calypso@' ) ) {
+			throw new Error(
+				"Please don't bring in `i18n-calypso`. We use `@wordpress/i18n` for GlotPress compatibility."
 			);
 		}
 
@@ -514,17 +365,6 @@ function afterAllResolved( lockfile, context ) {
 			throw new Error(
 				"Something you've done is trying to add a dependency on webpack without webpack-cli.\nThis is not allowed, as it tends to result in pnpm lockfile flip-flopping.\nSee https://github.com/pnpm/pnpm/issues/3935 for the upstream bug report.\n"
 			);
-		}
-	}
-
-	for ( const deplist of wpPkgs ) {
-		for ( const dep of deplist ) {
-			if ( ! wpPkgFetches[ dep ] && ! wpPkgsUsed.has( dep ) ) {
-				context.log(
-					// prettier-ignore
-					`pnpmfile hack needs updating: wpPkgs entry [ ${ deplist.join( ', ' ) } ] was not used. Is it obsolete?`
-				);
-			}
 		}
 	}
 

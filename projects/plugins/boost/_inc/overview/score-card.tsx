@@ -1,7 +1,8 @@
-import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Skeleton, Stack, Text, VisuallyHidden } from '@wordpress/ui';
-import { useId } from 'react';
+import { ProgressBar } from '@wordpress/components';
+import { Icon, info } from '@wordpress/icons';
+import { Badge, Popover, Stack, Text, VisuallyHidden } from '@wordpress/ui';
+import { useId, useState } from 'react';
 import {
 	formatScoreDelta,
 	getScoreDelta,
@@ -19,9 +20,27 @@ type Props = {
 	score?: number;
 	tier?: ScoreTier;
 	noBoost?: number | null;
-	isLoading?: boolean;
-	showPlaceholder?: boolean;
 };
+
+/**
+ * What the badge's tooltip says about the comparison behind it.
+ *
+ * The badge clamps a worse-than-baseline comparison to zero, so a drop is only legible in words —
+ * these match the "Speed score has fallen" notice that reports the same drop.
+ *
+ * @param delta - Points against the Boost-disabled baseline, or null when there is no comparison.
+ */
+function explainDelta( delta: number | null ): string {
+	if ( delta !== null && delta > 0 ) {
+		return __( 'Points gained from optimizations', 'jetpack-boost' );
+	}
+
+	if ( delta !== null && delta < 0 ) {
+		return __( 'Speed score has fallen', 'jetpack-boost' );
+	}
+
+	return __( 'No improvements in score', 'jetpack-boost' );
+}
 
 export default function ScoreCard( {
 	icon,
@@ -31,17 +50,14 @@ export default function ScoreCard( {
 	score,
 	tier = score === undefined ? undefined : getScoreTier( score ),
 	noBoost,
-	isLoading,
-	showPlaceholder = isLoading,
 }: Props ) {
 	const headingId = useId();
+	const [ infoTrigger, setInfoTrigger ] = useState< HTMLButtonElement | null >( null );
 	const delta = score === undefined ? null : getScoreDelta( score, noBoost );
+	// The badge states what Boost improved, so a worse-than-baseline comparison reads as zero.
+	const gain = delta === null ? null : Math.max( 0, delta );
 	return (
-		<section
-			className="jetpack-boost-overview__score-section"
-			aria-labelledby={ headingId }
-			aria-busy={ isLoading }
-		>
+		<section className="jetpack-boost-overview__score-section" aria-labelledby={ headingId }>
 			<Stack direction="row" align="center" gap="sm">
 				{ icon }
 				<Text render={ <h3 id={ headingId } /> } variant="heading-md">
@@ -49,39 +65,68 @@ export default function ScoreCard( {
 				</Text>
 				{ help }
 			</Stack>
-			{ showPlaceholder && ! isLoading && (
-				<VisuallyHidden>{ __( 'Score unavailable', 'jetpack-boost' ) }</VisuallyHidden>
-			) }
-			<Stack direction="row" align="center" gap="md">
-				{ showPlaceholder ? (
-					<Skeleton className="jetpack-boost-overview__score-placeholder" />
-				) : (
-					<>
-						<Text variant="heading-2xl">{ value }</Text>
-						{ tier !== undefined && (
-							<Text
-								className={ `jetpack-boost-overview__tier jetpack-boost-overview__tier--${ tier }` }
-							>
-								{ getScoreTierLabel( tier ) }
-							</Text>
-						) }
-					</>
+			<Stack direction="row" align="baseline" gap="md">
+				<Text variant="heading-2xl">{ value }</Text>
+				{ tier !== undefined && (
+					<Text
+						className={ `jetpack-boost-overview__tier jetpack-boost-overview__tier--${ tier }` }
+					>
+						{ getScoreTierLabel( tier ) }
+					</Text>
 				) }
 			</Stack>
-			{ ! showPlaceholder && score !== undefined && (
-				<ProgressBar
-					className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
-					value={ score }
-					aria-label={ label }
-				/>
-			) }
-			{ ! showPlaceholder && delta !== null && delta > 0 && (
-				<Text
-					variant="body-md"
-					className="jetpack-boost-overview__delta jetpack-boost-overview__delta--up"
-				>
-					{ formatScoreDelta( delta ) }
-				</Text>
+			{ score !== undefined && (
+				<div className="jetpack-boost-overview__score-meter">
+					<ProgressBar
+						className={ `jetpack-boost-overview__progress jetpack-boost-overview__progress--${ tier }` }
+						value={ score }
+						aria-label={ label }
+					/>
+					{ gain !== null && (
+						<Stack
+							direction="row"
+							align="center"
+							gap="sm"
+							className="jetpack-boost-overview__delta"
+						>
+							<Popover.Root>
+								<Popover.Trigger
+									openOnHover
+									delay={ 200 }
+									nativeButton={ false }
+									// The badge only adds a hover target; the info button stays the control.
+									role={ undefined }
+									tabIndex={ undefined }
+									aria-haspopup={ undefined }
+									aria-expanded={ undefined }
+									render={
+										<Badge intent={ gain > 0 ? 'informational' : 'none' }>
+											{ formatScoreDelta( gain ) }
+										</Badge>
+									}
+								/>
+								<Popover.Trigger
+									ref={ setInfoTrigger }
+									openOnHover
+									delay={ 200 }
+									aria-label={ __( 'About points', 'jetpack-boost' ) }
+									className="jetpack-boost-overview__info-trigger"
+								>
+									<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
+								</Popover.Trigger>
+								<Popover.Popup
+									className="jetpack-boost-overview__score-popover jetpack-boost-overview__points-tooltip"
+									positioner={ <Popover.Positioner anchor={ infoTrigger } /> }
+								>
+									<VisuallyHidden render={ <Popover.Title /> }>
+										{ __( 'About points', 'jetpack-boost' ) }
+									</VisuallyHidden>
+									<Popover.Description>{ explainDelta( delta ) }</Popover.Description>
+								</Popover.Popup>
+							</Popover.Root>
+						</Stack>
+					) }
+				</div>
 			) }
 		</section>
 	);

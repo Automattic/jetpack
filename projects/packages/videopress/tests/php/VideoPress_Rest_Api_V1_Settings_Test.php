@@ -191,4 +191,21 @@ class VideoPress_Rest_Api_V1_Settings_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'videopress_player_preload_disabled', $data );
 		$this->assertTrue( $data['videopress_player_preload_disabled'] );
 	}
+
+	/**
+	 * Test that the inline player setting round-trips through the endpoint.
+	 */
+	public function test_inline_player_setting_round_trips() {
+		delete_option( 'videopress_inline_player_enabled' );
+
+		$response = $this->update_settings( array( 'videopress_inline_player_enabled' => true ) );
+		$this->assertEquals( 200, $response->get_status() );
+		$this->assertTrue( boolval( get_option( 'videopress_inline_player_enabled' ) ) );
+
+		$request  = new WP_REST_Request( 'GET', '/videopress/v1/settings' );
+		$response = $this->server->dispatch( $request );
+		$this->assertTrue( $response->get_data()['videopress_inline_player_enabled'] );
+
+		delete_option( 'videopress_inline_player_enabled' );
+	}
 }

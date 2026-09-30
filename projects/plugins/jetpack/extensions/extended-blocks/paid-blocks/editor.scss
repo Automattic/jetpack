@@ -61,6 +61,19 @@
 		margin-bottom: 12px;
 	}
 
+	// A button wrapped under the text lines up with it instead of the right edge.
+	&.jetpack-nudge-canvas .jetpack-upgrade-plan-banner__wrapper {
+
+		.banner-description {
+			flex-grow: 1;
+			text-wrap: balance;
+		}
+
+		.components-button {
+			margin-inline-start: 0;
+		}
+	}
+
 	&.jetpack-nudge-canvas[data-align="right"],
 	&.jetpack-nudge-canvas[data-align="left"] {
 

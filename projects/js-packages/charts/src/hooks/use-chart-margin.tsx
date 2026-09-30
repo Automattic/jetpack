@@ -111,8 +111,13 @@ export const useChartMargin = (
 			return options.axis.y.tickValues;
 		}
 
-		const minY = Math.min( ...allDataPoints.map( d => d.value ) );
-		const maxY = Math.max( ...allDataPoints.map( d => d.value ) );
+		const values = allDataPoints
+			.map( d => d.value )
+			.filter(
+				( value ): value is number => typeof value === 'number' && Number.isFinite( value )
+			);
+		const minY = values.length ? Math.min( ...values ) : 0;
+		const maxY = values.length ? Math.max( ...values ) : 1;
 		const yScale = createScale( {
 			...options.yScale,
 			// A pinned domain is what the axis actually renders, so measure those

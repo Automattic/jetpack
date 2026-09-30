@@ -512,7 +512,7 @@ class Sharing_Service {
 	/**
 	 * Save a sharing service for use.
 	 *
-	 * @param int                     $id Sharing unique ID.
+	 * @param string                  $id Sharing unique ID.
 	 * @param Sharing_Advanced_Source $service Sharing service.
 	 *
 	 * @return void

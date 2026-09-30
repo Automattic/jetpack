@@ -21,6 +21,8 @@ import { useCommentsReportRecords } from './comments/config';
 import CommentsReportPage from './comments/page';
 import { useDownloadsReportRecords } from './downloads/config';
 import DownloadsReportPage from './downloads/page';
+import { useEarningsReportRecords } from './earnings/config';
+import EarningsReportPage from './earnings/page';
 import { useEmailsReportRecords } from './emails/config';
 import EmailsReportPage from './emails/page';
 import { useLocationsReportRecords } from './locations/config';
@@ -41,6 +43,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 		...search,
 		interval: 'day',
 	} ),
+	usePrefetchViewerCountry: () => {},
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
@@ -78,6 +81,15 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 
 	return {
 		MetricValue: () => null,
+		// The real status map, so the Earnings history case asserts the label a
+		// reader gets rather than one the mock was told to return.
+		getEarningsStatus: jest.requireActual(
+			'../../packages/widgets-toolkit/src/components/wordads-earnings-history/fields'
+		).getEarningsStatus,
+		getKnownEmailRate: jest.requireActual(
+			'../../packages/widgets-toolkit/src/helpers/format-email-rate'
+		).getKnownEmailRate,
+		getWordAdsHistoryFields: () => [],
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
 		ReportErrorState: () => null,
@@ -141,6 +153,13 @@ jest.mock( './annual-insights/config', () => ( {
 	useAnnualInsightsReportRecords: jest.fn(),
 } ) );
 
+jest.mock( './earnings/config', () => ( {
+	getEarningsReportTabs: () => [ { id: 'wordads', label: 'Earnings history' } ],
+	getTabLabel: ( id: string ) => ( id === 'wordads' ? 'Earnings history' : id ),
+	resolveSection: ( value: string | undefined ) => value ?? 'wordads',
+	useEarningsReportRecords: jest.fn(),
+} ) );
+
 jest.mock( './clicks/config', () => ( {
 	getClickCsvGroup: () => 'Social',
 	getClicksFields: () => [],
@@ -155,7 +174,7 @@ jest.mock( './comment-followers/config', () => ( {
 jest.mock( './comments/config', () => ( {
 	getCommentsFields: () => [],
 	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
-	getTabTitle: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
+	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
 	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
 	useCommentsReportRecords: jest.fn(),
 } ) );
@@ -166,7 +185,9 @@ jest.mock( './downloads/config', () => ( {
 } ) );
 
 jest.mock( './emails/config', () => ( {
+	getClicksRateSignals: jest.requireActual( './emails/config' ).getClicksRateSignals,
 	getEmailsFields: () => [],
+	getOpensRateSignals: jest.requireActual( './emails/config' ).getOpensRateSignals,
 	useEmailsReportRecords: jest.fn(),
 } ) );
 
@@ -174,7 +195,7 @@ jest.mock( './locations/config', () => ( {
 	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
 	getLocationFields: () => [],
 	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
-	getTabTitle: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
+	getTabLabel: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
 	resolveSection: ( value: string | undefined ) => value ?? 'countries',
 	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
 	useLocationsReportRecords: jest.fn(),
@@ -198,7 +219,6 @@ jest.mock( './tags/config', () => ( {
 
 jest.mock( './utm/config', () => ( {
 	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
-	getTabTitle: ( id: string ) => ( id === 'source-medium' ? 'Source / medium' : id ),
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
@@ -210,6 +230,7 @@ const useClicksReportRecordsMock = jest.mocked( useClicksReportRecords );
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
 const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
 const useDownloadsReportRecordsMock = jest.mocked( useDownloadsReportRecords );
+const useEarningsReportRecordsMock = jest.mocked( useEarningsReportRecords );
 const useEmailsReportRecordsMock = jest.mocked( useEmailsReportRecords );
 const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
 const useReferrersReportRecordsMock = jest.mocked( useReferrersReportRecords );
@@ -333,6 +354,45 @@ describe( 'report CSV exports', () => {
 		);
 	} );
 
+	// Rows arrive oldest-first, as the endpoint's period-keyed payload does, so a
+	// missing export sort would ship the table's order reversed.
+	it( 'configures the Earnings history export, newest period first', () => {
+		const rows = [
+			{ id: '2025-12', period: '2025-12', amount: 10.5, pageviews: 100, status: 1 },
+			{ id: '2026-09', period: '2026-09', amount: 30.25, pageviews: 300, status: 0 },
+		];
+		useEarningsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			tab: 'wordads',
+			availableTabs: [ 'wordads' ],
+			rows,
+		} as ReturnType< typeof useEarningsReportRecords > );
+
+		expectCsvExport(
+			EarningsReportPage,
+			'earnings-wordads',
+			[ rows[ 1 ], rows[ 0 ] ],
+			[ '2026-09', 30.25, 300, 'Unpaid' ]
+		);
+	} );
+
+	it( 'exports a pending status with its reason', () => {
+		const rows = [ { id: '2026-09', period: '2026-09', amount: 30.25, pageviews: 300, status: 3 } ];
+		useEarningsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			tab: 'wordads',
+			availableTabs: [ 'wordads' ],
+			rows,
+		} as ReturnType< typeof useEarningsReportRecords > );
+
+		expectCsvExport( EarningsReportPage, 'earnings-wordads', rows, [
+			'2026-09',
+			30.25,
+			300,
+			'Pending (Missing tax info)',
+		] );
+	} );
+
 	it( 'configures the Clicks export with parent rows in hierarchy order', () => {
 		const group = { id: 'social', clickedUrl: 'Social', isGroup: true, clicks: 10 };
 		const lowerRow = {
@@ -433,6 +493,9 @@ describe( 'report CSV exports', () => {
 				opens_rate: 20,
 				clicks: 2,
 				clicks_rate: 4,
+				unique_opens: 8,
+				unique_clicks: 2,
+				total_sends: 40,
 			},
 			{
 				id: 2,
@@ -441,7 +504,11 @@ describe( 'report CSV exports', () => {
 				opens: 20,
 				opens_rate: 40,
 				clicks: 4,
-				clicks_rate: 8,
+				// Clicks with no attributable recipient: the click rate alone is unknown.
+				clicks_rate: 0,
+				unique_opens: 16,
+				unique_clicks: 0,
+				total_sends: 40,
 			},
 		];
 		useEmailsReportRecordsMock.mockReturnValue( {
@@ -453,8 +520,39 @@ describe( 'report CSV exports', () => {
 			EmailsReportPage,
 			'emails',
 			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Second email', '2026-02-01', 20, 40, 4, 8 ]
+			[ 'Second email', '2026-02-01', 20, 40, 4, undefined ]
 		);
+	} );
+
+	it( 'leaves Emails rates blank when the sends went unrecorded', () => {
+		// The summary collapses the unknown rate to 0; only `total_sends` gives it away.
+		const rows = [
+			{
+				id: 1,
+				label: 'Legacy email',
+				date: '2026-01-01',
+				opens: 120,
+				opens_rate: 0,
+				clicks: 5,
+				clicks_rate: 0,
+				unique_opens: 0,
+				unique_clicks: 0,
+				total_sends: 0,
+			},
+		];
+		useEmailsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			rows,
+		} as unknown as ReturnType< typeof useEmailsReportRecords > );
+
+		expectCsvExport( EmailsReportPage, 'emails', rows, [
+			'Legacy email',
+			'2026-01-01',
+			120,
+			undefined,
+			5,
+			undefined,
+		] );
 	} );
 
 	it( 'configures the Referrers export in hierarchy order', () => {

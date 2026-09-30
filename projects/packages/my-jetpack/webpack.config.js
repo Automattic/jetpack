@@ -6,7 +6,7 @@ const __dirname = import.meta.dirname;
 export default [
 	{
 		entry: {
-			index: './_inc/admin.jsx',
+			onboarding: './_inc/onboarding.jsx',
 			'async-notification-bubble': './_inc/utils/async-notification-bubble.ts',
 		},
 		mode: jetpackWebpackConfig.mode,

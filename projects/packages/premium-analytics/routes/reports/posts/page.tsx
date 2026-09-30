@@ -1,10 +1,14 @@
 /**
  * External dependencies
  */
-import { type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
+import {
+	usePostThumbnails,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -16,7 +20,7 @@ import {
 	useReportRetry,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -29,17 +33,20 @@ import {
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	usePostsReportRecords,
 	type ArchiveRow,
 } from './config';
+import type { JSX } from 'react';
 
 // Every report shares the single dynamic route, so route-level hooks and
 // navigations target this path with the `posts` param.
 const ROUTE_FROM = route.path;
 
 type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
+
+const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
 
 const sortReportCsvRows = ( a: ReportCsvRow, b: ReportCsvRow ) => b.views - a.views;
 
@@ -75,18 +82,19 @@ function getArchiveRowParentId( item: ArchiveRow ): string | undefined {
 }
 
 /**
- * Shared initial view for both tabs: sorted by views, title absorbs spare width so
- * metric columns shrink to content instead of table-layout auto stretching them.
+ * Shared initial view for both tabs, sorted by views. The title is the primary
+ * column on both, and absorbs the spare width so the metric column shrinks to content.
  */
 const RECORDS_VIEW = {
 	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
-			title: { width: '100%' },
 			views: { align: 'end' as const },
 		},
 	},
 };
+
+const POSTS_VIEW = { ...RECORDS_VIEW, titleField: 'title', mediaField: 'thumbnail' };
 
 /**
  * Second-level "view all" report for the Posts & Pages traffic module. Post titles
@@ -104,10 +112,22 @@ function PostsReport(): JSX.Element {
 
 	const records = usePostsReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
+	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
+	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
+		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
+		setVisiblePostRows( previous =>
+			previous.length === rows.length && previous.every( ( row, index ) => row === rows[ index ] )
+				? previous
+				: rows
+		);
+	}, [] );
+	const thumbnailUrls = usePostThumbnails(
+		activeTab === 'posts-pages' ? visiblePostRows : EMPTY_POST_ROWS
+	);
 
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison, activeTab ),
-		[ activeTab, records.posts.hasComparison ]
+		() => getPostsFields( records.posts.hasComparison, activeTab, thumbnailUrls ),
+		[ activeTab, records.posts.hasComparison, thumbnailUrls ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),
@@ -164,8 +184,9 @@ function PostsReport(): JSX.Element {
 				fields={ postsFields }
 				getItemId={ getPostRowId }
 				isLoading={ records.posts.isLoading || records.posts.isFetching }
-				initialView={ RECORDS_VIEW }
+				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
@@ -183,6 +204,19 @@ function PostsReport(): JSX.Element {
 
 	const { getLabel } = REPORTS.posts;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! activeRecords.isLoading && activeRecords.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -194,18 +228,11 @@ function PostsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					recordsTable
-				) }
+				{ tableReplacement ?? recordsTable }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

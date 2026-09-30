@@ -1,8 +1,8 @@
 /**
  * Webpack configuration for wp-build-polyfills.
  *
- * Bundles `@wordpress` packages not available in WordPress Core < 7.0
- * as both classic scripts (IIFE) and script modules (ESM).
+ * Bundles the `@wordpress` packages `WP_Build_Polyfills` registers, as both
+ * classic scripts (IIFE) and script modules (ESM).
  *
  * IIFE builds use `@wordpress/dependency-extraction-webpack-plugin` (via
  * jetpack-webpack-config's StandardPlugins) for externals and .asset.php.
@@ -158,8 +158,8 @@ const sharedConfig = {
 };
 
 // Plugins disabled for all polyfill builds: no CSS is bundled, and the i18n
-// loader/checker are unnecessary since Core doesn't provide translations for
-// these packages (they aren't shipped with Core in the first place).
+// loader/checker serve this package's own text domain, which the bundles never
+// use — their strings are upstream ones in Core's `default` domain.
 const disabledPlugins = {
 	MiniCssExtractPlugin: false,
 	MiniCssWithRtlPlugin: false,

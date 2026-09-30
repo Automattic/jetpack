@@ -5,6 +5,78 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.0] - 2026-09-29
+### Added
+- Playlist blocks: Add a "Show player" setting; when off, clicking a video opens it on VideoPress. [#52808]
+
+### Changed
+- Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
+
+### Fixed
+- Admin: Keep the "Learn more" support link up to date through the redirect service. [#52907]
+- Dashboard: Ask before deleting videos, and warn before leaving the page while an upload is running. [#52815]
+- Dashboard: Stop logging a console error about missing Jetpack configuration. [#52809]
+
+## [0.53.0] - 2026-09-28
+### Added
+- Add an All Playlists block that lists every Video Playlist published on the site as a grid or a list. [#52724]
+- Add a site-wide playlist index option that records every published Video Playlist, and give the Video Playlist block title and description settings. [#52729]
+- Add a trim and cut editor with preview, undo and original video restoration, behind the `jetpack_videopress_trim_cut` filter. [#52857]
+
+### Fixed
+- Dashboard: Fix a just-uploaded video briefly showing up a second time as a local video in the Library. [#52822]
+- Library: Prevent the empty library prompt from appearing while videos are loading. [#52819]
+- Show Jetpack in-dashboard messages on the dashboard again. [#52641]
+- Show poster generation errors and allow retrying a failed video frame. [#52759]
+
+## [0.52.0] - 2026-09-23
+### Added
+- Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings. [#52665]
+
+### Changed
+- Inline player: Draw the facade's play button like the player's and show the player's loading spinner from the click until the player has mounted. [#52574]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- Exclude `wordpress-augmentations.d.ts` from published package. [#52650]
+- Fix private video playback on sites using WPML. [#52659]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Inline player: Show the poster of private videos, and of videos the server could not look up, before they are played instead of a black box. [#52574]
+
+## [0.51.1] - 2026-09-21
+### Fixed
+- Chapters: Explain which formatting requirements prevent chapters in video descriptions from being saved. [#52488]
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
+## [0.51.0] - 2026-09-18
+### Added
+- Add an inline player mode that loads the VideoPress player once per page instead of once per embedded frame. [#52244]
+- Inline player: show each video's poster and load the player only when it is played. [#52011]
+- Inline player mode: the block editor previews video blocks with the same shared player instead of one frame per block. [#52052]
+
+### Changed
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+- Welcome modal: body copy stepped up to the design system's lg size with the lede in the same colour as the value cards, and the dialog now sits at true center. Library: the upload dropzone text matches the design system's empty state, and the header's Upload button steps aside while that dropzone is the only thing to upload into. [#52061]
+
+### Fixed
+- Admin: Keep the notice, video list and video card icons colored now that @wordpress/icons 16 draws them as strokes. [#52187]
+- Dashboard: Keep the video editor footer at the bottom of the page. [#52489]
+
+## [0.50.2] - 2026-09-15
+### Added
+- Add a "Learn more" support link to the admin page. [#52111]
+
+### Changed
+- Dashboard: Display video library thumbnails in a 16:9 aspect ratio. [#52318]
+- Hide the VideoPress sidebar item when VideoPress is not active. [#52156]
+- Inline player: Let the `jetpack_videopress_player_use_iframe` filter switch video blocks, shortcodes and embeds to the shared in-page player. [#52242]
+- Update package dependencies. [#52200] [#52297]
+
+### Fixed
+- Fix selecting thumbnail frames from private videos and prefer browser-compatible video renditions. [#52158]
+- Follow the admin color scheme for the support link. [#52222]
+
 ## [0.50.1] - 2026-09-09
 ### Changed
 - Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
@@ -2226,6 +2298,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.54.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.53.0...v0.54.0
+[0.53.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.52.0...v0.53.0
+[0.52.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.1...v0.52.0
+[0.51.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.0...v0.51.1
+[0.51.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.2...v0.51.0
+[0.50.2]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.1...v0.50.2
 [0.50.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.0...v0.50.1
 [0.50.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.49.0...v0.50.0
 [0.49.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.48.0...v0.49.0

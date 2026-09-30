@@ -28,7 +28,6 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { globe } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -123,7 +122,7 @@ function buildLeaderboardData(
 									__( 'View referrers for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: undefined,
 				} ),
 			} ),
@@ -228,7 +227,7 @@ function ReferrersInner() {
 	}, [ drillPath, trail, isLoading, isFetching, isError, setDrillPath, resetDrillDown ] );
 
 	const currentRow = trail.length ? trail[ trail.length - 1 ] : null;
-	const activeRows = currentRow ? currentRow.children ?? [] : rows;
+	const activeRows = currentRow ? ( currentRow.children ?? [] ) : rows;
 	// Drilled levels gate the comparison UI on their own rows' overlap, so a
 	// subtree without comparison matches doesn't render placeholder deltas.
 	const withComparison = currentRow ? !! currentRow.childrenHaveComparison : hasComparison;
@@ -261,7 +260,7 @@ function ReferrersInner() {
 				/* translators: %s is the parent referrer group or source label. */
 				__( 'Back to %s', 'jetpack-premium-analytics-pkg' ),
 				parentLabel
-		  )
+			)
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
 	return (
@@ -282,10 +281,6 @@ function ReferrersInner() {
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: globe,
-					description: __( 'No referrers in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 			>

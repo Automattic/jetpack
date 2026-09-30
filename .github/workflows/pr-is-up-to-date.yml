@@ -26,7 +26,7 @@ jobs:
       # On a PR, we need to fetch (but not check out) the actual PR too.
       - name: Deepen to merge base
         if: github.event_name != 'push'
-        uses: ./.github/actions/deepen-to-merge-base
+        uses: $/.github/actions/deepen-to-merge-base
         with:
           checkout: false
 
@@ -60,7 +60,7 @@ jobs:
           echo "push-paths=$PATHS" >> "$GITHUB_OUTPUT"
 
       - name: Check PR or tag push
-        uses: ./projects/github-actions/pr-is-up-to-date
+        uses: $/projects/github-actions/pr-is-up-to-date
         with:
           tags: ${{ steps.determine.outputs.pr-tags }}
           tag: ${{ steps.determine.outputs.push-tag }}

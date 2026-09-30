@@ -33,12 +33,11 @@ const versions = Object.fromEntries(
 const workspaceYaml = fs.readFileSync( path.join( monorepoBase, 'pnpm-workspace.yaml' ), 'utf8' );
 const minimumReleaseAge = workspaceYaml.match( /^minimumReleaseAge: (\d+)$/m )[ 1 ];
 const minimumReleaseAgeExcludes = [];
-for ( const exclude of
-	 // prettier-ignore
-	 workspaceYaml
-		.match( /^minimumReleaseAgeExclude:\n(\n|[ \t][^\n]+\n)+/m )[ 0 ]
-		.matchAll( /^[ \t]+- \x27?([^\x27\n]+)\x27?$/gm )
-) {
+
+const exclusions = workspaceYaml
+	.match( /^minimumReleaseAgeExclude:\n(\n|[ \t][^\n]+\n)+/m )[ 0 ]
+	.matchAll( /^[ \t]+- \x27?([^\x27\n]+)\x27?$/gm );
+for ( const exclude of exclusions ) {
 	// Ignore any versioned excludes. They're probably for security updates, which Renovate already ignores its own minimumReleaseAge setting for.
 	if ( ! /.@/.test( exclude[ 1 ] ) ) {
 		minimumReleaseAgeExcludes.push( exclude[ 1 ] );

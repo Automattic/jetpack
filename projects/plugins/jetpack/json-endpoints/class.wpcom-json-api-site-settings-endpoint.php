@@ -11,6 +11,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
+require_once dirname( __DIR__ ) . '/modules/verification-tools/verification-tools-utils.php';
+
 new WPCOM_JSON_API_Site_Settings_Endpoint(
 	array(
 		'description'      => 'Get detailed settings information about a site.',
@@ -646,7 +648,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
 			// Compare the locales before/after switch to decide if we should switch back
 			$locale_before = determine_locale();
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Checked above. See also https://github.com/phan/phan/issues/1204.
 			wpcom_switch_to_user_locale();
 			$switched_locale = determine_locale() !== $locale_before;
 		}
@@ -1234,7 +1235,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'verification_services_codes':
-					$verification_codes = jetpack_verification_validate( $value );
+					foreach ( $value as $raw_code ) {
+						if ( '' === $raw_code || null === $raw_code || false === $raw_code ) {
+							continue;
+						}
+
+						if ( false === jetpack_verification_validate_code( $raw_code ) ) {
+							return new WP_Error(
+								'invalid_input',
+								__( 'Invalid site verification code. Enter a verification code or verification tag.', 'jetpack' ),
+								400
+							);
+						}
+					}
+
+					$verification_codes = jetpack_verification_validate_codes( $value );
 
 					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
 						$updated[ $key ] = $verification_codes;

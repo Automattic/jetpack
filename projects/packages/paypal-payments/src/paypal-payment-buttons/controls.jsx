@@ -5,18 +5,24 @@
  * @package
  */
 
-import { InspectorControls } from '@wordpress/block-editor';
-import { Button, PanelBody } from '@wordpress/components';
+import { getAdminUrl } from '@automattic/jetpack-script-data';
+import { Button, ExternalLink, PanelBody } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 
 /**
- * The Settings tab — connection info.
+ * The admin page that lists every payment link on the site.
+ */
+const MANAGE_LINKS_PATH = 'admin.php?page=paypal-payment-links';
+
+/**
+ * The Settings panel — connection info, and a link to the admin page that lists every link.
+ *
+ * Panels only: the caller wraps them in the one fill the Settings tab uses.
  *
  * Embed as and everything that styles the output live in the Styles tab, in
  * components/format-controls.jsx.
  *
  * @param {object}   props                    - Component props.
- * @param {string}   props.resourceId         - The PayPal resource ID attribute.
  * @param {boolean}  props.isConnected        - Whether the site is connected to PayPal.
  * @param {string}   props.environment        - 'production' or 'sandbox'.
  * @param {Function} props.setShowReconnect   - Setter for the reconnect request.
@@ -24,10 +30,9 @@ import { __ } from '@wordpress/i18n';
  * @param {Function} props.handleDeleteButton - Delete the PayPal payment.
  * @param {Function} props.handleDisconnect   - Disconnect the PayPal account.
  * @param {boolean}  props.hasButton          - Whether the block has a saved button.
- * @return {Element} The Settings tab.
+ * @return {Element} The connection panel.
  */
 export default function PayPalInspectorControls( {
-	resourceId,
 	isConnected,
 	environment,
 	setShowReconnect,
@@ -37,15 +42,12 @@ export default function PayPalInspectorControls( {
 	hasButton,
 } ) {
 	return (
-		<InspectorControls>
+		<>
 			{ hasButton && (
 				<PanelBody
 					title={ __( 'PayPal Connection', 'jetpack-paypal-payments' ) }
 					initialOpen={ false }
 				>
-					<p>
-						{ __( 'Resource ID:', 'jetpack-paypal-payments' ) } <code>{ resourceId }</code>
-					</p>
 					<p>
 						{ __( 'Environment:', 'jetpack-paypal-payments' ) } <strong>{ environment }</strong>
 					</p>
@@ -56,7 +58,7 @@ export default function PayPalInspectorControls( {
 							onClick={ handleDeleteButton }
 							disabled={ isBusy || ! isConnected }
 						>
-							{ __( 'Delete Button', 'jetpack-paypal-payments' ) }
+							{ __( 'Delete payment link', 'jetpack-paypal-payments' ) }
 						</Button>
 						{ isConnected ? (
 							<Button variant="secondary" isDestructive onClick={ handleDisconnect }>
@@ -68,6 +70,11 @@ export default function PayPalInspectorControls( {
 							</Button>
 						) }
 					</div>
+					<p className="jetpack-paypal-payment-buttons__manage-links">
+						<ExternalLink href={ getAdminUrl( MANAGE_LINKS_PATH ) }>
+							{ __( 'Manage PayPal Payment Links', 'jetpack-paypal-payments' ) }
+						</ExternalLink>
+					</p>
 				</PanelBody>
 			) }
 
@@ -90,6 +97,6 @@ export default function PayPalInspectorControls( {
 					) }
 				</PanelBody>
 			) }
-		</InspectorControls>
+		</>
 	);
 }

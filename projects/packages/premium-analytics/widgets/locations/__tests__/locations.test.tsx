@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { queryClient } from '@jetpack-premium-analytics/data';
 import { LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -49,7 +50,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 
 // Typed off the hook so the mocked state and the rows passed to
 // `mockReturnValue` are type-checked rather than cast away.
-type LocationViewsState = ReturnType< typeof import('../use-location-views').default >;
+type LocationViewsState = ReturnType< typeof import( '../use-location-views' ).default >;
 
 const LOADING_STATE: LocationViewsState = {
 	data: [],
@@ -78,6 +79,27 @@ describe( 'LocationsWidget', () => {
 	beforeEach( () => {
 		mockUseLocationViews.mockReset();
 		mockUseLocationViews.mockReturnValue( LOADING_STATE );
+	} );
+
+	// The map waits for the country, so the lookup has to be under way before the
+	// rows arrive or it delays the map.
+	it( "starts the viewer's country lookup while the rows are still loading", () => {
+		queryClient.clear();
+		// jsdom has no `fetch`, so there is nothing for `jest.spyOn()` to wrap.
+		// eslint-disable-next-line jest/prefer-spy-on
+		globalThis.fetch = jest.fn( () => new Promise< Response >( () => {} ) );
+
+		try {
+			render( <LocationsWidget attributes={ {} } /> );
+
+			expect( globalThis.fetch ).toHaveBeenCalledWith(
+				'https://public-api.wordpress.com/geo/',
+				expect.anything()
+			);
+			expect( locationsGeoChartMock ).not.toHaveBeenCalled();
+		} finally {
+			delete ( globalThis as { fetch?: unknown } ).fetch;
+		}
 	} );
 
 	it( 'links to the Locations report', () => {
@@ -164,5 +186,42 @@ describe( 'LocationsWidget', () => {
 		expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 			expect.objectContaining( { geoMode: 'country', countryFilter: undefined } )
 		);
+	} );
+	it( 'lists an unknown country without mapping or drilling down', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			data: [
+				{
+					key: 'US:United States',
+					label: 'United States',
+					countryCode: 'US',
+					countryFull: 'United States',
+					value: 10,
+					region: '',
+				},
+				{
+					key: ':Unknown',
+					label: 'Unknown',
+					countryCode: '',
+					countryFull: 'Unknown',
+					value: 4,
+					region: '',
+				},
+			],
+			isLoading: false,
+			isFetching: false,
+			hasData: true,
+		} );
+
+		render( <LocationsWidget attributes={ {} } /> );
+
+		expect( screen.getByText( 'Unknown' ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'button', { name: 'View regions in United States' } )
+		).toBeInTheDocument();
+		expect(
+			screen.queryByRole( 'button', { name: 'View regions in Unknown' } )
+		).not.toBeInTheDocument();
+		expect( lastMapProps().rows ).toEqual( [ expect.objectContaining( { countryCode: 'US' } ) ] );
 	} );
 } );

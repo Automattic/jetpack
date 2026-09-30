@@ -22,6 +22,7 @@ import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../../go-back-link';
 import LoadingBlock from '../../loading-block';
+import { getProductsSectionPath } from '../../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 
 /**
@@ -34,7 +35,7 @@ import styles from './style.module.scss';
  * @return {object} React component for the product page
  */
 export default function ProtectProductPage() {
-	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: '/products' } );
+	const { onClickGoBack } = useGoBack( { slug: 'protect', fallback: getProductsSectionPath() } );
 	const { detail, isLoading: isLoadingProduct } = useProduct( 'protect' );
 	const { isSiteConnected } = useMyJetpackConnection();
 	const { recordEvent } = useAnalytics();
@@ -87,7 +88,7 @@ export default function ProtectProductPage() {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ onClickGoBack }
-					to="/products"
+					to={ getProductsSectionPath() }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

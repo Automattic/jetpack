@@ -1,4 +1,5 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
+import { useDispatch } from '@wordpress/data';
+import { store as noticesStore } from '@wordpress/notices';
 import { useEffect } from 'react';
 
 /**
@@ -46,7 +47,7 @@ export function consumePendingSuccessNotice(): string | null {
  * On mount, replays any success notice persisted before a page reload.
  */
 export function useReplayPendingNotice(): void {
-	const { createSuccessNotice } = useGlobalNotices();
+	const { createSuccessNotice } = useDispatch( noticesStore );
 
 	// Consume the stored notice exactly once on mount. It must not re-run on later
 	// re-renders (e.g. a product refetch), or it would consume the notice on the page
@@ -54,7 +55,7 @@ export function useReplayPendingNotice(): void {
 	useEffect( () => {
 		const message = consumePendingSuccessNotice();
 		if ( message ) {
-			createSuccessNotice( message );
+			createSuccessNotice( message, { type: 'snackbar' } );
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps -- run once on mount.
 	}, [] );

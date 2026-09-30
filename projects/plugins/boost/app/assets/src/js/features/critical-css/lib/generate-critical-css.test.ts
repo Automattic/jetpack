@@ -136,4 +136,50 @@ describe( 'runLocalGenerator - per-provider error resilience', () => {
 		);
 		expect( allUnknown ).toBe( true );
 	} );
+
+	it( 'marks only the page the site answered with its login gate', async () => {
+		const home = 'https://example.com/';
+		const members = 'https://example.com/members/';
+		const { SuccessTargetError } = jest.requireMock( '@automattic/jetpack-critical-css-gen' );
+
+		const originalFetch = global.fetch;
+		global.fetch = jest.fn( async ( url: string ) => ( {
+			headers: {
+				get: ( header: string ) =>
+					header === 'x-jetpack-boost-generation-blocked' && url.startsWith( members )
+						? 'login-required'
+						: null,
+			},
+		} ) ) as unknown as typeof global.fetch;
+
+		type FetchingInterface = { fetch: ( url: string, options: RequestInit ) => Promise< unknown > };
+		mockGenerateCriticalCSS.mockImplementationOnce(
+			async ( { browserInterface }: { browserInterface: FetchingInterface } ) => {
+				await browserInterface.fetch( `${ home }?jb-generate-critical-css=1700000000000`, {} );
+				await browserInterface.fetch( `${ members }?jb-generate-critical-css=1700000000000`, {} );
+
+				throw new SuccessTargetError( {
+					[ home ]: { message: 'HTTP 500', type: 'HttpError', meta: { code: 500 } },
+					[ members ]: { message: 'HTTP 403', type: 'HttpError', meta: { code: 403 } },
+				} );
+			}
+		);
+
+		const callbacks = makeCallbacks();
+		try {
+			runLocalGenerator(
+				[ { ...makeProvider( 'provider_a' ), urls: [ home, members ] } ],
+				'nonce',
+				callbacks
+			);
+			await callbacks.finished;
+		} finally {
+			global.fetch = originalFetch;
+		}
+
+		const [ , errors ] = callbacks.setProviderErrors.mock.calls[ 0 ];
+		const byUrl = Object.fromEntries( errors.map( error => [ error.url, error ] ) );
+		expect( byUrl[ members ].meta ).toMatchObject( { code: 403, login_required: true } );
+		expect( byUrl[ home ].meta ).toEqual( { code: 500 } );
+	} );
 } );

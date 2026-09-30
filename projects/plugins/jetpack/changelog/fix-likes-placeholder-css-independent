@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Likes: Hide the "Loading…" placeholder from the widget itself, so it disappears even when the Likes stylesheet fails to load.

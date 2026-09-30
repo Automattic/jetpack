@@ -5,15 +5,28 @@ import {
 	useSiteHomeUrl,
 	type StatsArchivesComparisonItem,
 	type StatsArchivesItem,
+	type PostThumbnailUrls,
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { Link as UiLink } from '@jetpack-premium-analytics/externals';
-import { createReportOriginSearch, pickReportDateParams } from '@jetpack-premium-analytics/routing';
+import {
+	createReportOriginSearch,
+	pickReportNavigationParams,
+} from '@jetpack-premium-analytics/routing';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison, PostTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	MetricWithComparison,
+	PostTitleLink,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ReportThumbnail,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 import { useSearch } from '@wordpress/route';
-import { useMemo } from 'react';
+import { useMemo, type JSX } from 'react';
+/**
+ * Internal dependencies
+ */
 import type { ReportPostsTabId } from './tabs';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -21,6 +34,11 @@ const VIEWS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
 } as const;
+
+type PostTitleProps = {
+	item: StatsTopPostsComparisonItem;
+	originSection: ReportPostsTabId;
+};
 
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
@@ -32,22 +50,14 @@ const VIEWS_DATA_FORMAT = {
  * resolved from core settings. They never take the detail page: the homepage
  * is not a single post.
  *
- * @param props               - Component props.
- * @param props.item          - The posts report row.
- * @param props.originSection - The active Posts & Pages report tab.
+ * @param {PostTitleProps} props - Component props.
  * @return The linked or plain post title.
  */
-function PostTitle( {
-	item,
-	originSection,
-}: {
-	item: StatsTopPostsComparisonItem;
-	originSection: ReportPostsTabId;
-} ) {
+function PostTitle( { item, originSection }: PostTitleProps ): JSX.Element {
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
 	const detailSearch = useMemo(
 		() => ( {
-			...pickReportDateParams( search ),
+			...pickReportNavigationParams( search ),
 			...createReportOriginSearch( 'posts', originSection ),
 		} ),
 		[ search, originSection ]
@@ -63,6 +73,8 @@ function PostTitle( {
 			label={ title }
 			link={ isHomepage ? homeUrl : item.link }
 			search={ detailSearch }
+			classNames={ REPORT_TITLE_LINK_CLASS_NAMES }
+			title={ title }
 		/>
 	);
 }
@@ -76,11 +88,13 @@ function PostTitle( {
  *
  * @param withComparison - Whether to render available period-over-period deltas.
  * @param originSection  - The active Posts & Pages report tab.
+ * @param thumbnailUrls  - Thumbnail URLs keyed by post ID.
  * @return The field config.
  */
 export function getPostsFields(
 	withComparison: boolean,
-	originSection: ReportPostsTabId
+	originSection: ReportPostsTabId,
+	thumbnailUrls: PostThumbnailUrls = {}
 ): Field< StatsTopPostsComparisonItem >[] {
 	return [
 		{
@@ -90,6 +104,18 @@ export function getPostsFields(
 			enableHiding: false,
 			getValue: ( { item } ) => String( item.label ?? '' ),
 			render: ( { item } ) => <PostTitle item={ item } originSection={ originSection } />,
+		},
+		{
+			id: 'thumbnail',
+			type: 'media',
+			label: __( 'Thumbnail', 'jetpack-premium-analytics-pkg' ),
+			enableHiding: false,
+			render: ( { item } ) => (
+				<ReportThumbnail
+					thumbnailUrl={ thumbnailUrls[ Number( item.id ) ] }
+					fallbackIcon={ item.type === 'page' ? pageIcon : postIcon }
+				/>
+			),
 		},
 		{
 			id: 'views',

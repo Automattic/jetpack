@@ -56,6 +56,19 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		update_user_meta( $this->user_id, Expiry_Notice_Dismiss::meta_key( $base ), $when );
 	}
 
+	public function test_dismiss_stamps_now_for_each_of_this_sites_keys_only(): void {
+		foreach ( array( Expiry_Notice_Dismiss::META_BANNER, Expiry_Notice_Dismiss::META_MODAL, Expiry_Notice_Dismiss::META_MODAL_GRACE ) as $base ) {
+			$key = Expiry_Notice_Dismiss::meta_key( $base );
+			$this->assertTrue( Expiry_Notice_Dismiss::dismiss( $this->user_id, $key ) );
+			$this->assertEqualsWithDelta( time(), (int) get_user_meta( $this->user_id, $key, true ), 2 );
+		}
+
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( $this->user_id, 'wp_999_' . Expiry_Notice_Dismiss::META_BANNER ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( $this->user_id, 'description' ) );
+		$this->assertSame( '', get_user_meta( $this->user_id, 'description', true ) );
+		$this->assertFalse( Expiry_Notice_Dismiss::dismiss( 0, Expiry_Notice_Dismiss::banner_meta_key() ) );
+	}
+
 	public function test_a_dismissal_holds_for_its_own_term_and_not_the_next(): void {
 		$expiry_ts = time() - 40 * DAY_IN_SECONDS;
 		$state     = $this->state( Expiry_Data::STATE_EXPIRED, $expiry_ts );
@@ -121,6 +134,17 @@ class Expiry_Notice_Dismiss_Test extends \WorDBless\BaseTestCase {
 		// Inside the TTL, but recorded against a term that has since renewed and lapsed again.
 		$this->dismiss( Expiry_Notice_Dismiss::META_MODAL_GRACE, time() - HOUR_IN_SECONDS );
 		$this->assertTrue( Expiry_Notice_Dismiss::should_show_modal( $this->state( Expiry_Data::STATE_EXPIRED_GRACE, time() - 60 ), $this->user_id ) );
+	}
+
+	public function test_a_post_grace_dismissal_is_measured_against_the_revert(): void {
+		$reverted_at = time() - ( 10 * DAY_IN_SECONDS );
+		$state       = $this->state( Expiry_Data::STATE_EXPIRED, $reverted_at );
+
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, $reverted_at - DAY_IN_SECONDS );
+		$this->assertTrue( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ), 'a dismissal from before the revert belongs to a previous term' );
+
+		$this->dismiss( Expiry_Notice_Dismiss::META_BANNER, $reverted_at + DAY_IN_SECONDS );
+		$this->assertFalse( Expiry_Notice_Dismiss::should_show_banner( $state, $this->user_id ) );
 	}
 
 	public function test_a_dismissal_belongs_to_one_site(): void {

@@ -9,7 +9,7 @@ import {
 	type View,
 } from '@jetpack-premium-analytics/externals';
 import { usePaginatedView } from '@jetpack-premium-analytics/ui';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
@@ -76,6 +76,8 @@ export interface ReportRecordsTableProps< Item > {
 	 * request stays scoped by a filter the table no longer shows.
 	 */
 	onChangeView?: ( view: View ) => void;
+	/** Called with the rows on the current page after client-side view processing. */
+	onChangePageItems?: ( items: Item[] ) => void;
 	/** Whether a record's primary field should render as an interactive link. */
 	isItemClickable?: ( item: Item ) => boolean;
 	/** Render the primary-field link while preserving DataViews table styling. */
@@ -110,6 +112,7 @@ export function ReportRecordsTable< Item >( {
 	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	onChangeView,
+	onChangePageItems,
 	isItemClickable,
 	renderItemLink,
 }: ReportRecordsTableProps< Item > ) {
@@ -122,8 +125,19 @@ export function ReportRecordsTable< Item >( {
 				search: '',
 				// DataViews renders only the columns listed in `view.fields` —
 				// there is no "all fields" default — so seed it with every
-				// configured field. `initialView` can still narrow it.
-				fields: fields.map( field => field.id ),
+				// configured field. `initialView` can still narrow it. A primary
+				// field (title, media, description) has its own column, so listing
+				// it here would draw it twice.
+				fields: fields
+					.map( field => field.id )
+					.filter(
+						id =>
+							! [
+								initialView?.titleField,
+								initialView?.mediaField,
+								initialView?.descriptionField,
+							].includes( id )
+					),
 				...initialView,
 			} ) as View
 	);
@@ -141,6 +155,10 @@ export function ReportRecordsTable< Item >( {
 		data: pageItems,
 		paginationInfo,
 	} = usePaginatedView( data, view, fields, handleChangeView );
+
+	useEffect( () => {
+		onChangePageItems?.( pageItems );
+	}, [ onChangePageItems, pageItems ] );
 
 	return (
 		<ReportPageSection className={ styles.root }>

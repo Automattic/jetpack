@@ -1,4 +1,3 @@
-import apiFetch from '@wordpress/api-fetch';
 import { dispatch } from '@wordpress/data';
 import { wpcomTrackEvent } from '../../../common/tracks';
 
@@ -19,21 +18,41 @@ export type TrackProps = Record< string, string | number >;
  * @param keepalive - Let the write survive a page unload the caller is starting.
  * @return The pending write.
  */
-export const recordDismissal = ( metaKey: string, keepalive = false ): Promise< unknown > =>
-	apiFetch( {
-		path: '/wp/v2/users/me',
-		method: 'POST',
-		data: { meta: { [ metaKey ]: 1 } },
-		keepalive,
-	} );
+declare global {
+	interface Window {
+		wpcomExpiryDismiss?: { ajaxUrl: string; nonce: string };
+	}
+}
 
 /**
- * Record an event once per browser session.
+ * Stamp the dismissal through the site's own admin-ajax, which is same-origin
+ * on every platform; the REST API is not on WordPress.com.
  *
- * @param key       - Session flag the event is counted under.
- * @param eventName - Tracks event name.
- * @param props     - Event properties.
+ * @param metaKey   - The notice's dismissal meta key.
+ * @param keepalive - Let the request outlive the page, for a dismissal on unload.
  */
+export const recordDismissal = async ( metaKey: string, keepalive = false ): Promise< void > => {
+	const { ajaxUrl, nonce } = window.wpcomExpiryDismiss ?? {};
+	if ( ! ajaxUrl || ! nonce ) {
+		throw new Error( 'Dismissal endpoint not configured' );
+	}
+	const body = new URLSearchParams( {
+		action: 'wpcom_expiry_notice_dismiss',
+		metaKey,
+		_ajax_nonce: nonce,
+	} );
+	const response = await fetch( ajaxUrl, {
+		method: 'POST',
+		credentials: 'same-origin',
+		body,
+		keepalive,
+	} );
+	const json = await response.json().catch( () => null );
+	if ( ! response.ok || ! json?.success ) {
+		throw new Error( json?.data?.message ?? `HTTP ${ response.status }` );
+	}
+};
+
 export const trackOncePerSession = ( key: string, eventName: string, props: TrackProps ): void => {
 	// Storage can throw in private browsing or sandboxed frames; the event then fires again.
 	try {

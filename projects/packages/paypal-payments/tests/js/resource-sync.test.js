@@ -4,10 +4,15 @@
  * @package
  */
 
+import metadata from '../../src/paypal-payment-buttons/block.json';
 import {
+	GATED_ATTRIBUTES,
 	getResourceAttributeUpdates,
+	isBookkeeping,
 	normalizeResourceVariants,
 	RESOURCE_ATTRIBUTES,
+	resetToDefaults,
+	turnGateOff,
 	withCurrency,
 } from '../../src/paypal-payment-buttons/utils/resource-sync';
 
@@ -19,6 +24,7 @@ const blockAttributes = {
 	price: '9.99',
 	currencyCode: 'USD',
 	productDescription: '',
+	productId: '',
 	variantsEnabled: false,
 	variants: null,
 	adjustableQuantity: false,
@@ -28,8 +34,13 @@ const blockAttributes = {
 	taxType: 'PERCENTAGE',
 	taxName: 'Sales Tax',
 	taxValue: '',
+	handlingEnabled: false,
+	handlingValue: '',
+	discountEnabled: false,
+	discountType: 'FLAT',
+	discountValue: '',
 	returnUrl: '',
-	collectShippingAddress: true,
+	collectShippingAddress: false,
 	imageUrl: 'https://example.com/widget.jpg',
 	format: 'QR',
 };
@@ -73,20 +84,142 @@ describe( 'getResourceAttributeUpdates', () => {
 				{
 					...blockAttributes,
 					productDescription: 'Old copy',
+					productId: 'SKU-1',
 					returnUrl: 'https://example.com/thanks',
 				},
 				resourceAttributes
 			)
-		).toEqual( { productDescription: '', returnUrl: '' } );
+		).toEqual( { productDescription: '', productId: '', returnUrl: '' } );
+	} );
+
+	it( 'keeps the block link when the payment comes back with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, { ...resourceAttributes, paymentLink: '' } )
+		).toEqual( {} );
+	} );
+
+	it( 'fills in the link for a block with an empty link', () => {
+		expect(
+			getResourceAttributeUpdates( { ...blockAttributes, paymentLink: '' }, resourceAttributes )
+		).toEqual( { paymentLink: resourceAttributes.paymentLink } );
+	} );
+
+	it( 'reads the product id back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				productId: 'SKU-1',
+			} )
+		).toEqual( { productId: 'SKU-1' } );
+	} );
+
+	it( 'leaves the product id alone when it already matches', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{ ...blockAttributes, productId: 'SKU-1' },
+				{ ...resourceAttributes, productId: 'SKU-1' }
+			)
+		).toEqual( {} );
+	} );
+
+	it( 'reads the handling fee back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				handlingEnabled: true,
+				handlingValue: '4.00',
+			} )
+		).toEqual( { handlingEnabled: true, handlingValue: '4.00' } );
+	} );
+
+	it( 'clears a handling fee the payment no longer has', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{ ...blockAttributes, handlingEnabled: true, handlingValue: '4.00' },
+				resourceAttributes
+			)
+		).toEqual( { handlingEnabled: false, handlingValue: '' } );
+	} );
+
+	it( 'reads quantity-based shipping back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				shippingEnabled: true,
+				shippingMode: 'QUANTITY',
+				shippingValue: '5.00',
+				shippingAdditionalValue: '2.00',
+			} )
+		).toEqual( {
+			shippingEnabled: true,
+			shippingMode: 'QUANTITY',
+			shippingValue: '5.00',
+			shippingAdditionalValue: '2.00',
+		} );
+	} );
+
+	// Free shipping has no fee, so the amounts clear along with the mode.
+	it( 'clears the fees when the payment switches to free shipping', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{
+					...blockAttributes,
+					shippingEnabled: true,
+					shippingMode: 'QUANTITY',
+					shippingValue: '5.00',
+					shippingAdditionalValue: '2.00',
+				},
+				{ ...resourceAttributes, shippingEnabled: true, shippingMode: 'FREE', shippingValue: '' }
+			)
+		).toEqual( { shippingMode: 'FREE', shippingValue: '', shippingAdditionalValue: '' } );
+	} );
+
+	it( 'clears shipping the payment no longer has', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{
+					...blockAttributes,
+					shippingEnabled: true,
+					shippingMode: 'FLAT',
+					shippingValue: '5.00',
+				},
+				resourceAttributes
+			)
+		).toEqual( { shippingEnabled: false, shippingValue: '' } );
+	} );
+
+	it( 'reads the discount back from the payment', () => {
+		expect(
+			getResourceAttributeUpdates( blockAttributes, {
+				...resourceAttributes,
+				discountEnabled: true,
+				discountType: 'PERCENTAGE',
+				discountValue: '15',
+			} )
+		).toEqual( { discountEnabled: true, discountType: 'PERCENTAGE', discountValue: '15' } );
+	} );
+
+	it( 'clears a discount the payment no longer has', () => {
+		expect(
+			getResourceAttributeUpdates(
+				{
+					...blockAttributes,
+					discountEnabled: true,
+					discountType: 'PERCENTAGE',
+					discountValue: '15',
+				},
+				resourceAttributes
+			)
+		).toEqual( { discountEnabled: false, discountType: 'FLAT', discountValue: '' } );
 	} );
 
 	it( 'reads address collection back from the payment', () => {
 		expect(
 			getResourceAttributeUpdates( blockAttributes, {
 				...resourceAttributes,
-				collectShippingAddress: false,
+				collectShippingAddress: true,
 			} )
-		).toEqual( { collectShippingAddress: false } );
+		).toEqual( { collectShippingAddress: true } );
 	} );
 
 	it( 'clears a leftover product price when the payment prices per option', () => {
@@ -198,6 +331,15 @@ describe( 'a block built from a fully populated payment', () => {
 		taxType: 'PERCENTAGE',
 		taxName: 'VAT',
 		taxValue: '7.5',
+		handlingEnabled: true,
+		handlingValue: '4.00',
+		discountEnabled: true,
+		discountType: 'FLAT',
+		discountValue: '2.00',
+		shippingEnabled: true,
+		shippingMode: 'QUANTITY',
+		shippingValue: '5.00',
+		shippingAdditionalValue: '2.00',
 		returnUrl: 'https://example.com/thanks',
 		collectShippingAddress: false,
 	};
@@ -316,5 +458,123 @@ describe( 'withCurrency', () => {
 	it( 'passes through variants it cannot price', () => {
 		expect( withCurrency( null, 'EUR' ) ).toBeNull();
 		expect( withCurrency( { dimensions: [] }, 'EUR' ) ).toEqual( { dimensions: [] } );
+	} );
+} );
+
+describe( 'GATED_ATTRIBUTES', () => {
+	// Every resource attribute is either owned by a gate or owned by none, so a new
+	// one goes in GATED_ATTRIBUTES or in this list.
+	const UNGATED = [
+		'paymentLink',
+		'productName',
+		'price',
+		'currencyCode',
+		'productDescription',
+		'productId',
+		'customerNotes',
+		'returnUrl',
+		// Shown under the shipping toggle, but PayPal stores it on every payment, so the
+		// toggle leaves it alone.
+		'collectShippingAddress',
+		// Both come off the payment rather than a form field, so a gate would have
+		// nothing to open or close.
+		'integrationMode',
+		'scriptSrc',
+	];
+
+	it( 'accounts for every resource attribute exactly once', () => {
+		const gates = Object.keys( GATED_ATTRIBUTES );
+		const owned = Object.values( GATED_ATTRIBUTES ).flat();
+		const classified = [ ...gates, ...owned, ...UNGATED ];
+
+		expect( classified.slice().sort() ).toEqual( RESOURCE_ATTRIBUTES.slice().sort() );
+	} );
+
+	it( 'lists only attributes block.json declares', () => {
+		const named = [
+			...Object.keys( GATED_ATTRIBUTES ),
+			...Object.values( GATED_ATTRIBUTES ).flat(),
+		];
+
+		named.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
+
+		// The resource attributes too, which overlap but are a separate list: the
+		// read-back falls back to the block.json default, so one missing from
+		// block.json resolves to undefined and never settles.
+		RESOURCE_ATTRIBUTES.forEach( key => expect( metadata.attributes ).toHaveProperty( key ) );
+	} );
+
+	it( 'resets an attribute to its block.json default', () => {
+		expect( resetToDefaults( 'taxName', 'maxQuantity' ) ).toEqual( {
+			taxName: metadata.attributes.taxName.default,
+			maxQuantity: metadata.attributes.maxQuantity.default,
+		} );
+	} );
+
+	// Turning a gate off has to reset everything it owns. Leftovers show up here
+	// as updates.
+	it.each( Object.keys( GATED_ATTRIBUTES ) )(
+		'agrees with the payment once %s is turned off',
+		gate => {
+			const populated = {
+				...blockAttributes,
+				[ gate ]: true,
+				taxName: 'VAT',
+				taxType: 'FLAT',
+				taxValue: '1.50',
+				handlingValue: '4.00',
+				discountType: 'PERCENTAGE',
+				discountValue: '15',
+				shippingMode: 'QUANTITY',
+				shippingValue: '5.00',
+				shippingAdditionalValue: '2.00',
+				collectShippingAddress: true,
+				maxQuantity: 25,
+				variants: { dimensions: [ { name: 'Size', options: [] } ] },
+			};
+
+			const afterTurningOff = { ...populated, ...turnGateOff( gate ) };
+			const updates = getResourceAttributeUpdates( afterTurningOff, {} );
+
+			// The other gates are still on, so check only the one under test.
+			expect(
+				Object.fromEntries(
+					Object.entries( updates ).filter( ( [ key ] ) =>
+						[ gate, ...GATED_ATTRIBUTES[ gate ] ].includes( key )
+					)
+				)
+			).toEqual( {} );
+		}
+	);
+} );
+
+describe( 'isBookkeeping', () => {
+	// A link block sharing the payment with a stacked one takes BUTTON on mount,
+	// which is the payment's doing rather than the merchant's.
+	it( 'counts a mode change as bookkeeping whatever the block had', () => {
+		expect( isBookkeeping( 'integrationMode', '' ) ).toBe( true );
+		expect( isBookkeeping( 'integrationMode', 'LINK' ) ).toBe( true );
+	} );
+
+	it( 'counts a first SDK URL on a stacked block as bookkeeping', () => {
+		expect( isBookkeeping( 'scriptSrc', '', 'STACKED' ) ).toBe( true );
+		expect( isBookkeeping( 'scriptSrc', undefined, 'STACKED' ) ).toBe( true );
+	} );
+
+	it( 'counts a cleared SDK URL on a link block as bookkeeping', () => {
+		// scriptSrc is written to every block sharing the payment, and only a stacked
+		// sibling draws with it.
+		expect( isBookkeeping( 'scriptSrc', 'https://www.paypal.test/sdk/js', 'LINK' ) ).toBe( true );
+	} );
+
+	// The payment lost BUTTON mode at PayPal, so the stacked block has nothing to draw.
+	it( 'leaves a cleared SDK URL on a stacked block for the merchant', () => {
+		expect( isBookkeeping( 'scriptSrc', 'https://www.paypal.com/sdk/js', 'STACKED' ) ).toBe(
+			false
+		);
+	} );
+
+	it( 'leaves a price change for the merchant', () => {
+		expect( isBookkeeping( 'price', metadata.attributes.price.default ) ).toBe( false );
 	} );
 } );

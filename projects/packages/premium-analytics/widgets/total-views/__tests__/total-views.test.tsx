@@ -135,7 +135,28 @@ describe( 'TotalViewsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( 'No views in this period.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the empty state for a zero-filled range, not a flat sparkline', () => {
+		mockUseStatsVisits.mockReturnValue(
+			visitsResult( {
+				summary: { views: 0 },
+				data: [
+					{ date_start: '2026-07-01', views: 0, visitors: 0 },
+					{ date_start: '2026-07-02', views: 0, visitors: 0 },
+				],
+			} )
+		);
+
+		renderWidget();
+
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 

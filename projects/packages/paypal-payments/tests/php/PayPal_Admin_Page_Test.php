@@ -11,6 +11,8 @@ use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class PayPal_Admin_Page_Test
  *
@@ -18,6 +20,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Admin_Page::class )]
 class PayPal_Admin_Page_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Per-flag filter that forces the API-managed buttons on.
@@ -63,7 +67,9 @@ class PayPal_Admin_Page_Test extends TestCase {
 		delete_transient( 'paypal_resource_plb-abc123' );
 		delete_transient( 'paypal_resource_plb-notfound' );
 		delete_transient( 'paypal_resource_plb-deleted' );
-		delete_transient( 'paypal_list_cache_' . md5( '' ) );
+		delete_transient( 'paypal_resource_plb-zc45rdyzrhs9' );
+		delete_transient( 'paypal_resource_plb-q5z4gdyfs367' );
+		PayPal_API_Client::forget_cached_resources();
 
 		// Reset $_GET superglobal.
 		$_GET = array();
@@ -148,8 +154,7 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * The post being saved can be left out of the count, so its own block does not
-	 * keep the link alive.
+	 * One post can be left out of the count.
 	 */
 	public function test_count_published_embeds_can_leave_one_post_out() {
 		$post = new \WP_Post(
@@ -173,6 +178,72 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertSame( 1, PayPal_Admin_Page::count_published_embeds( 999 )['PLB-ABC123'] );
 
 		remove_all_filters( 'posts_pre_query' );
+	}
+
+	// --- Deleted link notice ---
+
+	/**
+	 * Test the notice names the published posts that still embed the deleted link, with edit links.
+	 */
+	public function test_deleted_link_notice_lists_the_posts_still_embedding_it() {
+		$embedding = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-GONE1"} /-->' );
+		$other     = $this->make_post( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-OTHER1"} /-->' );
+		add_filter(
+			'posts_pre_query',
+			function () use ( $embedding, $other ) {
+				return array( $embedding, $other );
+			}
+		);
+
+		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
+
+		$this->assertSame( 'success', $notice['type'] );
+		$this->assertStringContainsString( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertStringContainsString( '1 published post still embeds it and now shows nothing', $notice['message'] );
+		$this->assertCount( 1, $notice['links'] );
+		// make_post() gives the post no title.
+		$this->assertSame( '(no title)', $notice['links'][0]['label'] );
+		$this->assertStringContainsString( 'post=' . $embedding->ID, $notice['links'][0]['url'] );
+	}
+
+	/**
+	 * Test the notice stays a plain success when nothing embeds the link.
+	 */
+	public function test_deleted_link_notice_is_plain_when_nothing_embeds_it() {
+		add_filter( 'posts_pre_query', '__return_empty_array' );
+
+		$notice = PayPal_Admin_Page::deleted_link_notice( 'PLB-GONE1' );
+
+		$this->assertSame( 'Payment link deleted successfully.', $notice['message'] );
+		$this->assertSame( array(), $notice['links'] );
+	}
+
+	/**
+	 * Test render_page prints the notice's links.
+	 */
+	public function test_render_page_prints_the_notice_links() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+		set_transient(
+			'paypal_admin_notice_' . get_current_user_id(),
+			array(
+				'type'    => 'success',
+				'message' => 'Payment link deleted successfully. 1 published post still embeds it:',
+				'links'   => array(
+					array(
+						'url'   => 'http://example.org/wp-admin/post.php?post=12&action=edit',
+						'label' => 'Croissant <b>day</b>',
+					),
+				),
+			),
+			30
+		);
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<ul class="paypal-admin-notice__posts"><li><a href="http://example.org/wp-admin/post.php?post=12&#038;action=edit">Croissant &lt;b&gt;day&lt;/b&gt;</a></li></ul>', $output );
 	}
 
 	// --- Delete confirmation ---
@@ -416,6 +487,86 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'notice-error', $output );
 	}
 
+	// --- render_page: delete confirmation ---
+
+	/**
+	 * Test the list view carries the delete dialog with its acknowledgement and a disabled confirm.
+	 */
+	public function test_render_page_list_includes_the_delete_dialog() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response(
+			array(
+				'items'       => array(),
+				'total_items' => 0,
+				'links'       => array(),
+			)
+		);
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<dialog id="paypal-delete-dialog"', $output );
+		$this->assertStringContainsString( 'cannot pause, deactivate, or restore a payment link', $output );
+		$this->assertStringContainsString( 'id="paypal-delete-acknowledge"', $output );
+		$this->assertStringContainsString( 'I understand this cannot be undone.', $output );
+		$this->assertStringContainsString( 'id="paypal-delete-confirm" disabled', $output );
+	}
+
+	/**
+	 * Test the detail view carries the delete dialog too, since it has its own Delete button.
+	 */
+	public function test_render_page_detail_view_includes_the_delete_dialog() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $this->get_sample_resource() );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( '<dialog id="paypal-delete-dialog"', $output );
+		$this->assertStringContainsString( 'class="button paypal-delete-link" data-confirm="', $output );
+	}
+
+	/**
+	 * Test the disconnected state, which has nothing to delete, does not render the dialog.
+	 */
+	public function test_render_page_disconnected_state_has_no_delete_dialog() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+		// Clears the in-memory credentials cache as well as the option.
+		PayPal_OAuth::delete_credentials();
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'paypal-delete-dialog', $output );
+	}
+
+	/**
+	 * Test the inline script opens the dialog and only falls back to window.confirm without <dialog> support.
+	 */
+	public function test_enqueue_assets_opens_the_delete_dialog_instead_of_confirm() {
+		PayPal_Admin_Page::enqueue_assets( 'toplevel_page_' . PayPal_Admin_Page::PAGE_SLUG );
+
+		$script = implode( "\n", (array) wp_scripts()->get_data( 'jetpack-paypal-admin', 'after' ) );
+
+		$this->assertStringContainsString( 'deleteDialog.showModal()', $script );
+		$this->assertStringContainsString( 'deleteConfirm.disabled = !deleteAcknowledge.checked', $script );
+		$this->assertStringContainsString( 'typeof deleteDialog.showModal !== "function"', $script );
+		$this->assertStringContainsString( 'window.confirm(link.getAttribute("data-confirm"))', $script );
+	}
+
 	// --- render_page: detail view (WOOPTP-167) ---
 
 	/**
@@ -441,6 +592,61 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'Back to Payment Links', $output );
 		// Should show resource ID.
 		$this->assertStringContainsString( 'PLB-ABC123', $output );
+	}
+
+	/**
+	 * Test the detail view is read fresh right after the link is edited.
+	 */
+	public function test_detail_view_reads_fresh_after_an_update() {
+		$admin = $this->create_admin_user();
+		wp_set_current_user( $admin );
+		$this->set_up_connected_state();
+
+		$resource = $this->get_sample_resource();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$resource ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				if ( 'PUT' === $args['method'] ) {
+					return array(
+						'response' => array(
+							'code'    => 204,
+							'message' => '',
+						),
+						'body'     => '',
+					);
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = 'PLB-ABC123';
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Premium Widget', ob_get_clean() );
+
+		// Renamed on PayPal, but the cache is still warm.
+		$resource['line_items'][0]['name'] = 'Renamed Widget';
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Premium Widget', ob_get_clean() );
+
+		PayPal_API_Client::update_resource( 'PLB-ABC123', array( 'type' => 'BUY_NOW' ) );
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		$this->assertStringContainsString( 'Renamed Widget', ob_get_clean() );
 	}
 
 	/**
@@ -486,6 +692,65 @@ class PayPal_Admin_Page_Test extends TestCase {
 		$this->assertStringContainsString( 'USD', $output );
 		$this->assertStringContainsString( 'BUY_NOW', $output );
 		$this->assertStringContainsString( 'LINK', $output );
+	}
+
+	/**
+	 * Test detail view shows the product price in the Price and Currency rows.
+	 */
+	public function test_detail_view_shows_the_product_price() {
+		$output = $this->render_detail_view( $this->get_sample_resource() );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>$29.99</td></tr>', $output );
+		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>USD</td></tr>', $output );
+	}
+
+	/**
+	 * Test detail view shows the cheapest option for a link priced per option.
+	 */
+	public function test_detail_view_shows_the_from_price_for_priced_options() {
+		$output = $this->render_detail_view( self::get_per_option_resource() );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>From $24.50</td></tr>', $output );
+		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>USD</td></tr>', $output );
+	}
+
+	/**
+	 * Test detail view takes the currency from the options for a link priced per option.
+	 */
+	public function test_detail_view_shows_the_option_currency() {
+		$output = $this->render_detail_view( self::get_per_option_yen_resource() );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Price</th><td>From ¥1000</td></tr>', $output );
+		$this->assertStringContainsString( '<tr><th scope="row">Currency</th><td>JPY</td></tr>', $output );
+		$this->assertStringNotContainsString( '<td>USD</td>', $output );
+	}
+
+	/**
+	 * Test detail view hides the Price and Currency rows for an unpriced link.
+	 */
+	public function test_detail_view_hides_the_price_rows_for_an_unpriced_link() {
+		$resource = $this->get_sample_resource();
+		unset( $resource['line_items'][0]['unit_amount'] );
+
+		$output = $this->render_detail_view( $resource );
+
+		$this->assertStringContainsString( '<tr><th scope="row">Product Name</th><td>Premium Widget</td></tr>', $output );
+		$this->assertStringNotContainsString( '<th scope="row">Price</th>', $output );
+		$this->assertStringNotContainsString( '<th scope="row">Currency</th>', $output );
+	}
+
+	/**
+	 * Test the email form posts only the resource ID.
+	 */
+	public function test_detail_view_email_form_posts_only_the_resource_id() {
+		$output = $this->render_detail_view( self::get_per_option_resource() );
+
+		$this->assertStringContainsString( 'id="paypal-send-email-form"', $output );
+		$this->assertStringContainsString( '<input type="hidden" name="resource_id" value="PLB-ZC45RDYZRHS9" />', $output );
+		$this->assertStringNotContainsString( 'name="price"', $output );
+		$this->assertStringNotContainsString( 'name="currency"', $output );
+		$this->assertStringNotContainsString( 'name="payment_link"', $output );
+		$this->assertStringNotContainsString( 'name="product_name"', $output );
 	}
 
 	/**
@@ -845,28 +1110,22 @@ class PayPal_Admin_Page_Test extends TestCase {
 	}
 
 	/**
-	 * Mock a get_resource API response.
+	 * Render the detail view for a resource as an admin.
 	 *
-	 * @param array $resource The resource data to return.
+	 * @param array $resource The resource PayPal returns.
+	 * @return string The page HTML.
 	 */
-	private function mock_get_resource_response( $resource ) {
-		add_filter(
-			'pre_http_request',
-			function ( $preempt, $args, $url ) use ( $resource ) {
-				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
-					return $preempt;
-				}
-				return array(
-					'response' => array(
-						'code'    => 200,
-						'message' => '',
-					),
-					'body'     => wp_json_encode( $resource, JSON_UNESCAPED_SLASHES ),
-				);
-			},
-			10,
-			3
-		);
+	private function render_detail_view( $resource ) {
+		wp_set_current_user( $this->create_admin_user() );
+		$this->set_up_connected_state();
+		$this->mock_get_resource_response( $resource );
+
+		$_GET['action']      = 'view';
+		$_GET['resource_id'] = $resource['id'];
+
+		ob_start();
+		PayPal_Admin_Page::render_page();
+		return ob_get_clean();
 	}
 
 	/**

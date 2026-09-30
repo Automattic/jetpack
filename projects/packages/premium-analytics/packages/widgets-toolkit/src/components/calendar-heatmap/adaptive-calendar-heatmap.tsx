@@ -18,8 +18,8 @@ import type { CalendarHeatmapWindow } from '../../helpers/calendar-heatmap-windo
 import type { HeatmapColumn } from '@jetpack-premium-analytics/externals';
 import type { ReactNode } from 'react';
 
-// Both calendar heatmaps use the design's 61:40 cell; the ratio is preserved as
-// the cells grow or shrink to fit the tile's height.
+// The design's 61:40 cell; the ratio is preserved as the cells grow or shrink
+// to fit the tile's height.
 const CELL_ASPECT_RATIO = 61 / 40;
 // Labelled cells narrower than this have no room for a number.
 const VALUE_MIN_CELL_WIDTH = 30;

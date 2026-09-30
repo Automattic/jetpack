@@ -2,6 +2,45 @@
 
 A responsive leaderboard (horizontal bar) chart component for displaying ranking and "top X by Y" data visualizations.
 
+## Widgets: use `Leaderboard`
+
+A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. It must render inside `WidgetRoot`.
+
+```tsx
+// Inside `WidgetRoot`. Memoize the rows: the component rebuilds the chart data when they change.
+const rows = useMemo(
+	() =>
+		videos.map( video => ( {
+			id: video.key,
+			label: video.label,
+			value: video.plays,
+			previousValue: video.previousPlays,
+			action: { kind: 'videoLink', id: video.id, href: video.link },
+		} ) ),
+	[ videos ]
+);
+
+return (
+	<Leaderboard
+		rows={ rows }
+		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+		error={ describeError( error, {
+			retryDescription: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+			onRetry: refetch,
+		} ) }
+		footer={ <ReportLink report="videos" /> }
+	/>
+);
+```
+
+A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose.
+
+Pass `error` as `describeError()` builds it, so an access-denied failure offers no Retry. Without an `error`, the component shows the generic message with a Retry bound to `status.refetch`.
+
+Rows may carry `children`. With a `drillDown` (`backLabel`, `rowAriaLabel`) every such row becomes a button that shows its children under a back link, any number of levels deep; the selection heals itself when the settled data no longer backs it, and a widget whose rows change under a control of its own resets it by giving the leaderboard a `key`.
+
+The rest of this document covers the chart on its own.
+
 ## Features
 
 - **Context-aware styling**: Integrates with GlobalChartsProvider for consistent theming
@@ -149,16 +188,19 @@ detail route instead of the post one. Same constraints: no media, never a chart 
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
 ```
 
-Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads
-the report window from `WidgetRootContext` and passes it as `search`, so the detail page opens on
-the range the row was read against:
+Inside a widget, use `LeaderboardPostLabel` instead of building a post action by hand. It reads the report window from `WidgetRootContext` and names the report the detail breadcrumb returns to:
 
 ```tsx
-<LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />
+<LeaderboardPostLabel
+	id={ row.postId }
+	label={ row.label }
+	link={ row.link }
+	origin={ { report: 'posts', section: 'posts-pages' } }
+/>
 ```
 
 Pass `section` to `LeaderboardPostLabel` to open a named tab on the detail page, such as
-`email-opens`.
+`email-opens`. That destination tab is distinct from `origin.section`, which becomes `ref_section`.
 
 There is no `LeaderboardVideoLabel`, so a widget building a `videoLink` action takes that same
 window from `useWidgetNavigationSearch()` and passes it as `search`.
@@ -175,7 +217,7 @@ fallback, and default alt-text policy:
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
 
-`icon` takes a `@wordpress/icons` glyph rather than a URL: `media: { kind: 'icon', icon: category }`.
+`icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 
 Use `resolveLeaderboardRowAction` when raw data can contain both an external URL and children.
 It applies the shared precedence: drill-down for rows with children, external links for
@@ -198,8 +240,8 @@ inline padding.
 | `showLegend`       | `boolean`              | `true`                                                                 | Whether to show the legend                                         |
 | `dataFormat`       | `DataFormat`           | `{ type: 'currency', options: { useMultipliers: true } }` | Value formatting configuration                                     |
 | `emptyState`       | `ReactNode`            | -                                                                      | Custom empty state content (overrides default)                     |
-| `emptyStateIcon`   | `ReactNode`            | -                                                                      | Icon to display in default empty state                             |
-| `emptyStateText`   | `string`               | `'No data available'`                                                  | Text for default empty state                                       |
+| `emptyStateIcon`   | `ReactNode`            | The `search` magnifier                                                 | Icon to display in default empty state                             |
+| `emptyStateText`   | `string`               | `'We couldn’t find results for this time period.'`                     | Text for default empty state                                       |
 | `fitRows`          | `boolean`              | `true`                                                                 | Show only the rows that fit the widget height instead of scrolling |
 
 ### LeaderboardChartData Type

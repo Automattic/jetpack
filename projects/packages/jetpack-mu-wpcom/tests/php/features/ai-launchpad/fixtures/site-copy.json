@@ -1,0 +1,28 @@
+{
+	"about_page_title": "About",
+	"contact_page_title": "Contact",
+	"contact_page_heading": "Get in touch",
+	"contact_form_name_label": "Name",
+	"contact_form_email_label": "Email",
+	"contact_form_message_label": "Message",
+	"events_page_title": "Events",
+	"events_page_heading": "Upcoming events",
+	"event_name_placeholder": "Event name",
+	"event_details_placeholder": "Date, time, and place",
+	"video_page_title": "Videos",
+	"video_page_heading": "Watch",
+	"gallery_page_title": "Gallery",
+	"gallery_page_heading": "Take a look",
+	"portfolio_piece_placeholder": "What this project was, who it was for, and what you did.",
+	"fallback_site_name": "your new site",
+	"fallback_post_title": "Getting started with %s",
+	"fallback_post_subtitle": "Introduce %s to your readers.",
+	"fallback_post_paragraphs": [
+		"This is the first post on %s. It marks the starting point of something new, and there is plenty more to come.",
+		"Thanks for being here at the very beginning. Stay tuned for what comes next."
+	],
+	"fallback_about_paragraphs": [
+		"This is where the story of %s begins. Use this page to share who is behind the site and what it is all about.",
+		"Tell visitors how it started, what they can expect to find here, and where it is headed next."
+	]
+}

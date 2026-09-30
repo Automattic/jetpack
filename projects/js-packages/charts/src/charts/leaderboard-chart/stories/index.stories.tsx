@@ -187,7 +187,7 @@ const zeroChangeData: LeaderboardEntry[] = sampleData.map( ( entry, index ) =>
 				currentShare: 0,
 				previousShare: 0,
 				delta: 0,
-		  }
+			}
 		: entry
 );
 
@@ -220,7 +220,7 @@ const unavailableDeltaData: LeaderboardEntry[] = sampleData.map( ( entry, index 
 				previousValue: 0,
 				previousShare: 0,
 				delta: undefined,
-		  }
+			}
 		: entry
 );
 
@@ -259,7 +259,7 @@ const missingComparisonData: LeaderboardEntry[] = sampleData.map( entry =>
 				label: entry.label,
 				currentValue: entry.currentValue,
 				currentShare: entry.currentShare,
-		  }
+			}
 		: entry
 );
 

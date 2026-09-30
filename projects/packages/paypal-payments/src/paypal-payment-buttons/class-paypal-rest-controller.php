@@ -125,7 +125,7 @@ class PayPal_REST_Controller {
 			)
 		);
 
-		// Partner Referrals onboarding — complete (exchange auth code for credentials).
+		// Partner Referrals onboarding — complete (record the seller PayPal just onboarded).
 		register_rest_route(
 			self::REST_NAMESPACE,
 			self::ROUTE_BASE . '/onboarding/complete',
@@ -135,20 +135,6 @@ class PayPal_REST_Controller {
 					'callback'            => array( __CLASS__, 'handle_onboarding_complete' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
 					'args'                => array(
-						'auth_code'             => array(
-							'required'          => true,
-							'type'              => 'string',
-							'sanitize_callback' => array( __CLASS__, 'sanitize_oauth_value' ),
-							'validate_callback' => array( __CLASS__, 'validate_non_empty_string' ),
-							'description'       => __( 'Authorization code from PayPal onboarding callback.', 'jetpack-paypal-payments' ),
-						),
-						'shared_id'             => array(
-							'required'          => true,
-							'type'              => 'string',
-							'sanitize_callback' => array( __CLASS__, 'sanitize_oauth_value' ),
-							'validate_callback' => array( __CLASS__, 'validate_non_empty_string' ),
-							'description'       => __( 'Shared ID from PayPal onboarding callback.', 'jetpack-paypal-payments' ),
-						),
 						'merchant_id_in_paypal' => array(
 							'required'          => false,
 							'type'              => 'string',
@@ -270,7 +256,17 @@ class PayPal_REST_Controller {
 					'methods'             => 'PUT',
 					'callback'            => array( __CLASS__, 'handle_update_button' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
-					'args'                => self::get_button_create_args(),
+					'args'                => array_merge(
+						self::get_button_create_args(),
+						array(
+							'include_snippets' => array(
+								'required'    => false,
+								'type'        => 'boolean',
+								'default'     => false,
+								'description' => __( 'Read the payment back after updating it, for the SDK snippets a stacked block needs.', 'jetpack-paypal-payments' ),
+							),
+						)
+					),
 				),
 			)
 		);
@@ -293,7 +289,7 @@ class PayPal_REST_Controller {
 						'post_id'     => array(
 							'type'        => 'integer',
 							'default'     => 0,
-							'description' => __( 'The post being saved, which does not count as still embedding the link.', 'jetpack-paypal-payments' ),
+							'description' => __( 'One post to leave out of the embed count.', 'jetpack-paypal-payments' ),
 						),
 					),
 				),
@@ -455,6 +451,9 @@ class PayPal_REST_Controller {
 			);
 		}
 
+		// These credentials replace any seller referred earlier.
+		PayPal_Partner_Onboarding::cleanup();
+
 		return new WP_REST_Response(
 			array(
 				'connected'   => true,
@@ -556,7 +555,7 @@ class PayPal_REST_Controller {
 	}
 
 	/**
-	 * Handle POST /paypal/onboarding/complete -- exchange auth code for credentials.
+	 * Handle POST /paypal/onboarding/complete -- record the seller PayPal just onboarded.
 	 *
 	 * Called by the block editor after the merchant completes the PayPal
 	 * mini-browser onboarding flow.
@@ -565,14 +564,8 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
 	 */
 	public static function handle_onboarding_complete( WP_REST_Request $request ) {
-		$auth_code             = $request->get_param( 'auth_code' );
-		$shared_id             = $request->get_param( 'shared_id' );
-		$merchant_id_in_paypal = $request->get_param( 'merchant_id_in_paypal' );
-
 		$result = PayPal_Partner_Onboarding::complete_onboarding(
-			$auth_code,
-			$shared_id,
-			$merchant_id_in_paypal
+			(string) $request->get_param( 'merchant_id_in_paypal' )
 		);
 
 		if ( is_wp_error( $result ) ) {
@@ -581,11 +574,12 @@ class PayPal_REST_Controller {
 
 		return new WP_REST_Response(
 			array(
-				'connected'   => true,
-				'environment' => PayPal_OAuth::get_environment(),
-				'merchant_id' => PayPal_Partner_Onboarding::get_merchant_id(),
-				'method'      => 'partner_referrals',
-				'message'     => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
+				'connected'     => true,
+				'environment'   => PayPal_OAuth::get_environment(),
+				'merchant_id'   => PayPal_Partner_Onboarding::get_merchant_id(),
+				'account_email' => PayPal_Partner_Onboarding::get_merchant_email(),
+				'method'        => 'partner_referrals',
+				'message'       => __( 'PayPal account connected successfully via Connect with PayPal.', 'jetpack-paypal-payments' ),
 			),
 			200
 		);
@@ -632,6 +626,10 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
+		// The 201 includes code_snippets, so map it here too: a new stacked block would
+		// otherwise save an empty scriptSrc, and the mount GET comes too late to fix it.
+		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+
 		return new WP_REST_Response( $result, 201 );
 	}
 
@@ -670,10 +668,52 @@ class PayPal_REST_Controller {
 		}
 
 		// The editor reads a payment back to line its block up with what PayPal
-		// holds, so hand it the block shape alongside the raw resource.
+		// holds, so hand it the block shape alongside the raw resource, and the
+		// published posts embedding it for the link details view.
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+		$result['embeds']     = PayPal_Admin_Page::count_published_embeds()[ $resource_id ] ?? 0;
+
+		// The editor's stacked preview loads PayPal's SDK from this until the block has a scriptSrc.
+		$result['sdk_url'] = self::get_sdk_url( $result['attributes']['currencyCode'] ?? 'USD' );
 
 		return new WP_REST_Response( $result, 200 );
+	}
+
+	/**
+	 * Build the PayPal SDK URL for the connected account, with the same parameters as
+	 * PayPal's stacked buttons snippet.
+	 *
+	 * @param string $currency The payment's currency.
+	 * @return string The URL, or '' when PayPal is disconnected.
+	 */
+	private static function get_sdk_url( $currency ) {
+		// add_query_arg() leaves values as they are, and a client id can contain + / =.
+		if ( PayPal_Partner_Onboarding::is_platform_managed() ) {
+			// A referred seller's buttons load under the platform's client ID, on the seller's account.
+			$partner_client_id = PayPal_Partner_Onboarding::get_partner_client_id();
+			if ( '' === $partner_client_id ) {
+				return '';
+			}
+			$account = array(
+				'client-id'   => rawurlencode( $partner_client_id ),
+				'merchant-id' => rawurlencode( PayPal_Partner_Onboarding::get_merchant_id() ),
+			);
+		} else {
+			$credentials = PayPal_OAuth::get_credentials();
+			if ( false === $credentials ) {
+				return '';
+			}
+			$account = array( 'client-id' => rawurlencode( $credentials['client_id'] ) );
+		}
+
+		return add_query_arg(
+			$account + array(
+				'components'     => 'hosted-buttons',
+				'enable-funding' => 'venmo',
+				'currency'       => rawurlencode( $currency ),
+			),
+			PayPal_OAuth::get_sdk_base_url()
+		);
 	}
 
 	/**
@@ -700,6 +740,18 @@ class PayPal_REST_Controller {
 			return self::api_error_to_rest_error( $result );
 		}
 
+		// PayPal answers a PUT with 204 and no code_snippets, so a caller that needs them asks
+		// for the resource to be read back; that read is how a block switching to stacked draws
+		// in the same save rather than after a reload. Only the re-read gets `attributes`: the
+		// echo has no `id`, and mapping it would blank the block's resourceId.
+		if ( $request->get_param( 'include_snippets' ) ) {
+			$fresh = PayPal_API_Client::get_resource( $resource_id );
+			if ( ! is_wp_error( $fresh ) ) {
+				$result               = $fresh;
+				$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+			}
+		}
+
 		return new WP_REST_Response( $result, 200 );
 	}
 
@@ -712,8 +764,7 @@ class PayPal_REST_Controller {
 	public static function handle_delete_button( WP_REST_Request $request ) {
 		$resource_id = $request->get_param( 'resource_id' );
 
-		// The editor deletes a link when a post is saved without its block, but a
-		// link is shared by every block that points at it, on any post.
+		// Spare a link another published post still embeds.
 		if ( $request->get_param( 'unused_only' ) ) {
 			$embeds = PayPal_Admin_Page::count_published_embeds( absint( $request->get_param( 'post_id' ) ) );
 			$others = $embeds[ $resource_id ] ?? 0;
@@ -812,6 +863,10 @@ class PayPal_REST_Controller {
 			}
 		}
 
+		if ( ! empty( $first_item['product_id'] ) ) {
+			$attributes['productId'] = $first_item['product_id'];
+		}
+
 		if ( ! empty( $first_item['description'] ) ) {
 			$attributes['productDescription'] = $first_item['description'];
 		}
@@ -842,7 +897,7 @@ class PayPal_REST_Controller {
 	 * Used when a line item has no product-level `unit_amount` because its
 	 * options carry their own prices.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 *
 	 * @param array $variants Variants structure from the request.
 	 * @return string The currency code, defaulting to USD.
@@ -863,7 +918,6 @@ class PayPal_REST_Controller {
 	 * Get REST API arg definitions for button create/update endpoints.
 	 *
 	 * Defines the line_items schema matching PayPal's Pay Links & Buttons API.
-	 * Phase 1 supports BUY_NOW type with LINK integration mode.
 	 *
 	 * @return array REST API args definition.
 	 */
@@ -1027,8 +1081,6 @@ class PayPal_REST_Controller {
 								),
 							),
 						),
-						// Set outside the form, but a PUT replaces the whole resource,
-						// so the editor sends them back.
 						'product_id'               => array(
 							'type'     => 'string',
 							'required' => false,
@@ -1049,8 +1101,7 @@ class PayPal_REST_Controller {
 	/**
 	 * Build the resource data array from a REST request for PayPal API submission.
 	 *
-	 * Extracts and sanitizes relevant parameters, stripping null/empty optional values
-	 * so only populated fields are sent to PayPal.
+	 * Sanitizes the line items and adds name and return_url when the request sent them.
 	 *
 	 * @param WP_REST_Request $request The incoming REST request.
 	 * @return array The sanitized resource data ready for the PayPal API.
@@ -1085,9 +1136,6 @@ class PayPal_REST_Controller {
 	/**
 	 * Sanitize line items array for PayPal API submission.
 	 *
-	 * Applies sanitize_text_field to string values and keeps an image URL only when
-	 * it is HTTPS.
-	 *
 	 * @param array $line_items Raw line items from the REST request.
 	 * @return array Sanitized line items.
 	 */
@@ -1120,7 +1168,8 @@ class PayPal_REST_Controller {
 
 			// Optional fields.
 			if ( ! empty( $item['description'] ) ) {
-				$clean_item['description'] = sanitize_text_field( $item['description'] );
+				// The control is a textarea, so keep the line breaks PayPal stores.
+				$clean_item['description'] = sanitize_textarea_field( $item['description'] );
 			}
 
 			// PayPal fetches the image itself, so anything but a public HTTPS URL is
@@ -1160,7 +1209,8 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Tax configuration.
+			// The type decides how the value reads, so a type outside this list falls
+			// back to PERCENTAGE and turns a flat 5.00 into 5%.
 			if ( ! empty( $item['taxes'] ) && is_array( $item['taxes'] ) ) {
 				$clean_taxes = array();
 				$valid_types = array( 'PERCENTAGE', 'PREFERENCE', 'FLAT' );
@@ -1206,10 +1256,11 @@ class PayPal_REST_Controller {
 				}
 			}
 
-			// Copied back from the payment by the editor. Drop one here and Update
-			// deletes it at PayPal.
-			if ( isset( $item['product_id'] ) && '' !== $item['product_id'] ) {
-				$clean_item['product_id'] = sanitize_text_field( $item['product_id'] );
+			// An id of only whitespace or tags sanitizes down to '', and PayPal rejects an
+			// empty one, so drop it.
+			$product_id = sanitize_text_field( (string) ( $item['product_id'] ?? '' ) );
+			if ( '' !== $product_id ) {
+				$clean_item['product_id'] = $product_id;
 			}
 			foreach ( array( 'shipping', 'handling', 'discounts' ) as $field ) {
 				if ( ! empty( $item[ $field ] ) && is_array( $item[ $field ] ) ) {
@@ -1234,9 +1285,8 @@ class PayPal_REST_Controller {
 	/**
 	 * Sanitize a shipping, handling or discount list for PayPal API submission.
 	 *
-	 * All three take a type, a value, and for per-unit shipping a rate for each
-	 * extra unit. The type passes straight through: these come back off the payment,
-	 * so anything PayPal accepted must survive the round trip.
+	 * All three take a type, a value, and for per-unit shipping a rate per extra unit.
+	 * The type passes through as sent, so one set in PayPal's dashboard survives a PUT.
 	 *
 	 * @param array $amounts Raw entries from the REST request.
 	 * @return array Sanitized entries.
@@ -1332,7 +1382,7 @@ class PayPal_REST_Controller {
 	 * @param WP_Error $error The API client error.
 	 * @return WP_Error Error with appropriate REST status code.
 	 */
-	private static function api_error_to_rest_error( WP_Error $error ) {
+	public static function api_error_to_rest_error( WP_Error $error ) {
 		$data   = $error->get_error_data();
 		$status = $data['status'] ?? 500;
 

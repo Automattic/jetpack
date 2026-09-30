@@ -146,6 +146,7 @@ class Products {
 			'growth'           => Products\Growth::class,
 			'complete'         => Products\Complete::class,
 			// Features.
+			'activity-log'     => Products\Activity_Log::class,
 			'newsletter'       => Products\Newsletter::class,
 			'site-accelerator' => Products\Site_Accelerator::class,
 			'related-posts'    => Products\Related_Posts::class,

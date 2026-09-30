@@ -4,6 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSpeedScores } from './use-speed-scores';
+import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
 
 declare global {
 	interface Window {
@@ -66,14 +67,16 @@ test( 'preserves the exact cornerstone URL for cached and regenerated scores', a
 		false,
 		wpApiSettings.root,
 		'https://example.org/',
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
 		true,
 		wpApiSettings.root,
 		'https://example.org/',
-		wpApiSettings.nonce
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 } );
 
@@ -87,7 +90,8 @@ test.each( [ undefined, { predefined_pages: [] }, { predefined_pages: [ '' ] } ]
 			false,
 			wpApiSettings.root,
 			'https://example.org',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 	}
 );
@@ -139,7 +143,8 @@ test( 'regenerates after changed module configuration settles and waits two seco
 			true,
 			wpApiSettings.root,
 			'https://example.org',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		);
 	} finally {
 		jest.useRealTimers();
@@ -161,7 +166,8 @@ test( 'refreshes scores for live cornerstone changes on mount and refetch', asyn
 			false,
 			wpApiSettings.root,
 			'https://example.org/current/',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		)
 	);
 	jest.mocked( apiFetch ).mockResolvedValue( {
@@ -176,7 +182,112 @@ test( 'refreshes scores for live cornerstone changes on mount and refetch', asyn
 			false,
 			wpApiSettings.root,
 			'https://example.org/updated/',
-			wpApiSettings.nonce
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
 		)
 	);
+} );
+
+test( 'makes no score requests while disabled and resumes when the subpage closes', async () => {
+	jest.useFakeTimers();
+	jest.mocked( recordBoostEvent ).mockClear();
+	try {
+		const { result, rerender } = renderHook(
+			( { enabled, config } ) => useSpeedScores( { config, isPending: false }, enabled ),
+			{ wrapper, initialProps: { enabled: false, config: 'initial' } }
+		);
+		rerender( { enabled: false, config: 'changed' } );
+		await act( async () => {
+			await result.current[ 1 ]( true );
+			await jest.advanceTimersByTimeAsync( 5000 );
+		} );
+		expect( requestSpeedScores ).not.toHaveBeenCalled();
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		rerender( { enabled: true, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		jest.useRealTimers();
+	}
+} );
+
+test( 'ignores a pending score failure after entering a subpage', async () => {
+	jest.mocked( recordBoostEvent ).mockClear();
+	let rejectRequest: ( error: Error ) => void = () => undefined;
+	jest.mocked( requestSpeedScores ).mockImplementation(
+		() =>
+			new Promise( ( _, reject ) => {
+				rejectRequest = reject;
+			} )
+	);
+	const { rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+		wrapper,
+		initialProps: true,
+	} );
+	rerender( false );
+	await act( async () => rejectRequest( new Error( 'Service unavailable' ) ) );
+	expect( recordBoostEvent ).not.toHaveBeenCalled();
+} );
+
+test( 'stops posting pending scores when Purchase Success opens', async () => {
+	jest.useFakeTimers();
+	jest.mocked( recordBoostEvent ).mockClear();
+	const originalFetch = globalThis.fetch;
+	const post = jest.fn().mockResolvedValue( {
+		ok: true,
+		text: async () => JSON.stringify( { status: 'pending' } ),
+	} );
+	globalThis.fetch = post;
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementation(
+			jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
+		);
+	try {
+		const { rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+			wrapper,
+			initialProps: false,
+		} );
+		rerender( true );
+		await act( async () => jest.advanceTimersByTimeAsync( 5001 ) );
+		expect( post ).toHaveBeenCalledTimes( 2 );
+		expect( post ).toHaveBeenLastCalledWith(
+			expect.stringContaining( '/speed-scores' ),
+			expect.objectContaining( { method: 'post' } )
+		);
+		rerender( false );
+		await act( async () => jest.advanceTimersByTimeAsync( 240000 ) );
+		expect( post ).toHaveBeenCalledTimes( 2 );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+	} finally {
+		globalThis.fetch = originalFetch;
+		jest.useRealTimers();
+	}
+} );
+
+test( 'refreshes a configuration change after leaving a subpage', async () => {
+	jest.useFakeTimers();
+	try {
+		const { rerender } = renderHook(
+			( { enabled, config } ) => useSpeedScores( { config, isPending: false }, enabled ),
+			{ wrapper, initialProps: { enabled: true, config: 'initial' } }
+		);
+		await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+		jest.mocked( requestSpeedScores ).mockClear();
+		rerender( { enabled: false, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 2500 ) );
+		expect( requestSpeedScores ).not.toHaveBeenCalled();
+		rerender( { enabled: true, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 2500 ) );
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			expect.any( String ),
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
+		);
+	} finally {
+		jest.useRealTimers();
+	}
 } );

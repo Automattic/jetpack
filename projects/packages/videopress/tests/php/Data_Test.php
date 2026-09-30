@@ -222,18 +222,19 @@ class Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that off-WPCOM the new WPCOM-only `videopress_has_guid` param is a
-	 * no-op: the videos-table ID-set logic is IS_WPCOM-guarded, so on a
+	 * Test that off-WPCOM `videopress_has_guid` narrows by the video/videopress
+	 * mime: the videos-table ID-set logic is IS_WPCOM-guarded, so on a
 	 * self-hosted site it must not add a post__in constraint or a meta_query
 	 * entry. (The WPCOM branch itself can't be exercised here because IS_WPCOM
 	 * can't be defined in this test environment.)
 	 */
-	public function test_videopress_has_guid_is_ignored_off_wpcom() {
+	public function test_videopress_has_guid_narrows_by_mime_off_wpcom() {
 		$request = new \WP_REST_Request( 'GET', '/wp/v2/media' );
 		$request->set_param( 'videopress_has_guid', 1 );
 
 		$args = self::$videopress_rest_data->filter_attachments_by_jetpack_videopress_fields( array(), $request );
 
+		$this->assertSame( 'video/videopress', $args['post_mime_type'] );
 		$this->assertArrayNotHasKey( 'post__in', $args, 'Off-WPCOM the param must not add a post__in constraint' );
 		$this->assertSame( array(), $args['meta_query'], 'No meta_query entries should be added for this param' );
 	}
@@ -580,14 +581,16 @@ class Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the inline player is off by default and honors the stored option.
+	 * Test that the inline player is off by default, honors the stored option, and is exposed in the settings.
 	 */
 	public function test_inline_player_enabled_option() {
 		delete_option( 'videopress_inline_player_enabled' );
 		$this->assertFalse( Data::get_videopress_inline_player_enabled() );
+		$this->assertFalse( Data::get_videopress_settings()['videopress_inline_player_enabled'] );
 
 		update_option( 'videopress_inline_player_enabled', true );
 		$this->assertTrue( Data::get_videopress_inline_player_enabled() );
+		$this->assertTrue( Data::get_videopress_settings()['videopress_inline_player_enabled'] );
 
 		delete_option( 'videopress_inline_player_enabled' );
 	}

@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-types.php';
-require_once __DIR__ . '/../../src/dashboard-sections.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/../../src/widget-availability.php';
 
 /**

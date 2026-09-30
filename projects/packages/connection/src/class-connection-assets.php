@@ -30,7 +30,7 @@ class Connection_Assets {
 	 *
 	 * Other plugins' bundles request the disconnect dialog's images from this copy, so never rename one.
 	 *
-	 * @since $$next-version$$
+	 * @since 9.3.0
 	 *
 	 * @param array $data Script data.
 	 * @return array

@@ -4,6 +4,7 @@
 import { formatNumber } from '@automattic/number-formatters';
 import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
 import { __, _n, sprintf } from '@wordpress/i18n';
+import type { JSX } from 'react';
 
 interface EmptySpamConfirmationModalProps {
 	isOpen: boolean;
@@ -50,11 +51,11 @@ export default function EmptySpamConfirmationModal( {
 								'jetpack-forms'
 							),
 							formatNumber( totalItemsSpam )
-					  )
+						)
 					: __(
 							'All responses in spam will be deleted forever. This action cannot be undone.',
 							'jetpack-forms'
-					  ) }
+						) }
 			</p>
 		</ConfirmDialog>
 	);

@@ -1,8 +1,9 @@
-import { getRedirectUrl, useGlobalNotices } from '@automattic/jetpack-components';
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { CheckboxControl, Notice, Button } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, _x } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { Link } from '@wordpress/ui';
 import { store as socialStore } from '../../../social-store';
 import { KeyringResult } from '../../../social-store/types';
@@ -107,7 +108,7 @@ export function ConfirmationForm( {
 		};
 	}, [] );
 
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 
 	const service = supportedServices.find(
 		supportedService => supportedService.id === keyringResult.service
@@ -178,7 +179,9 @@ export function ConfirmationForm( {
 			const external_user_ID = formData.get( 'external_user_ID' );
 
 			if ( ! external_user_ID ) {
-				createErrorNotice( __( 'Please select an account to connect.', 'jetpack-publicize-pkg' ) );
+				createErrorNotice( __( 'Please select an account to connect.', 'jetpack-publicize-pkg' ), {
+					type: 'snackbar',
+				} );
 				return;
 			}
 
@@ -228,7 +231,7 @@ export function ConfirmationForm( {
 								'No more accounts/pages found.',
 								'Message shown when there are no connections found to connect',
 								'jetpack-publicize-pkg'
-						  )
+							)
 						: getNoAccountsFoundMessage( keyringResult.additional_external_users_empty_reason ) }
 				</p>
 			) : (
@@ -274,7 +277,7 @@ export function ConfirmationForm( {
 								// otherwise, preselect the first account
 								const defaultChecked = reconnectingAccount
 									? reconnectingAccount.service_name === service?.id &&
-									  reconnectingAccount.external_id === option.value
+										reconnectingAccount.external_id === option.value
 									: index === 0;
 
 								return (

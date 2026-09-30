@@ -36,8 +36,7 @@ interface ClicksStoryControls {
 }
 
 interface ClicksDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ClicksStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ClicksStoryControls {}
 
 function renderClicksWidget( { withComparison }: ClicksStoryControls ) {
 	return <ClicksRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />;
@@ -130,8 +129,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral chart
- * glyph and "No clicks in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderClicksOnPreset( 'last-365-days' ),

@@ -19,6 +19,7 @@ import {
 import { Spinner } from '@wordpress/components';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -85,7 +86,7 @@ function CommentFollowersReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS[ 'comment-followers' ];
+	const { getLabel } = REPORTS[ 'comment-followers' ];
 
 	return (
 		<ReportPageShell
@@ -97,7 +98,7 @@ function CommentFollowersReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }

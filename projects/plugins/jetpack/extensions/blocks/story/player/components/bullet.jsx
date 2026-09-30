@@ -10,12 +10,12 @@ export default function Bullet( { isEllipsis, disabled, index, isSelected, progr
 					/* translators: %d: Slide number. */
 					__( 'Slide %d, currently selected', 'jetpack' ),
 					index + 1
-			  )
+				)
 			: sprintf(
 					/* translators: %d: Slide number. */
 					__( 'Go to slide %d', 'jetpack' ),
 					index + 1
-			  );
+				);
 	}
 	return (
 		<button

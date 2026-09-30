@@ -136,6 +136,8 @@ describe( 'TopPostsWidget', () => {
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
 		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
@@ -555,12 +557,14 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the empty state when there are no views', async () => {
+	it( 'renders the generic empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
 		render( <TopPostsWidget attributes={ {} } /> );
 
-		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'caps the visible posts list at the row limit including the homepage entry', async () => {
@@ -668,13 +672,13 @@ describe( 'TopPostsWidget', () => {
 									{ value: 'post', href: 'https://example.com/type/post/', views: '9' },
 								],
 							},
-					  }
+						}
 					: {
 							date: '2026-06-10',
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
 							},
-					  }
+						}
 			)
 		);
 
@@ -708,13 +712,13 @@ describe( 'TopPostsWidget', () => {
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '6' } ],
 							},
-					  }
+						}
 					: {
 							date: '2026-06-10',
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
 							},
-					  }
+						}
 			)
 		);
 

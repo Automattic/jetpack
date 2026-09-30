@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Likes: Load like buttons that a late page reflow brings into view, instead of waiting for the reader to scroll.

@@ -7,7 +7,7 @@ It is intended to be used while Jetpack supports WordPress versions whose bundle
 
 ## Problem
 
-WordPress 7.0 introduces several new packages (`@wordpress/boot`, `@wordpress/route`, `@wordpress/theme`, etc.) that plugins built with [`@wordpress/build`](https://github.com/WordPress/gutenberg/tree/trunk/packages/wp-build) depend on. On older WordPress versions, these packages are missing or ship incomplete implementations — for example, `wp-private-apis` has an allowlist that rejects `@wordpress/theme`, `@wordpress/route`, and newer dashboard packages, and `wp-notices` lacks component exports that `@wordpress/boot` requires.
+Plugins built with [`@wordpress/build`](https://github.com/WordPress/gutenberg/tree/trunk/packages/wp-build) depend on `@wordpress/*` packages newer than the ones WordPress 7.0, Jetpack's minimum, bundles. WordPress 7.0 ships no `wp-views` script or `@wordpress/widget-primitives` module, its `wp-private-apis` allowlist rejects newer dashboard packages such as `@wordpress/views` and `@wordpress/widget-dashboard`, and its `wp-rich-text` locks only `useRichText` into `privateApis`.
 
 This package provides those missing or updated packages so that plugins using `@wordpress/build` can work across Jetpack's supported WordPress versions.
 
@@ -23,7 +23,7 @@ This package provides those missing or updated packages so that plugins using `@
 | `wp-theme`        | `@wordpress/theme`      | No — only registered if absent |
 | `wp-views`        | `@wordpress/views`      | No — only registered if absent |
 
-`wp-rich-text`, `wp-theme` and `wp-views` require `wp-private-apis`, because each opts into private APIs under a package name Core's allowlist rejects (WP 6.9 rejects all three; WP 7.0 still rejects `@wordpress/compose`, which the rich-text polyfill bundles). Requesting any of them implicitly requests `wp-private-apis` too — see `WP_Build_Polyfills::SCRIPT_DEPENDENCIES`.
+`wp-rich-text`, `wp-theme` and `wp-views` require `wp-private-apis`: requesting any of them implicitly requests `wp-private-apis` too — see `WP_Build_Polyfills::SCRIPT_DEPENDENCIES` for why.
 
 ### Script modules (ESM)
 
@@ -32,15 +32,16 @@ This package provides those missing or updated packages so that plugins using `@
 | `@wordpress/boot`  | `@wordpress/boot`    |
 | `@wordpress/route` | `@wordpress/route`   |
 | `@wordpress/a11y`  | `@wordpress/a11y`    |
+| `@wordpress/widget-primitives` | `@wordpress/widget-primitives` |
 
-Script modules use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored.
+Script modules use "first-wins" semantics — if Core or Gutenberg already registered the module, the polyfill is silently ignored. The exception is `@wordpress/widget-primitives`, which replaces the copy an active Gutenberg older than 23.9.0 registers.
 
 ## How it works
 
-1. `WP_Build_Polyfills::register()` hooks into `wp_default_scripts` at **priority 20**, after Core (priority 0) and Gutenberg (priority 10) have registered their scripts.
+1. `WP_Build_Polyfills::register()` hooks into `wp_default_scripts` at **priority 20**, after Core and Gutenberg (both at the default priority 10) have registered their scripts.
 2. For each polyfill, it checks whether a built asset file exists (`build/scripts/*/index.asset.php` or `build/modules/*/index.asset.php`).
 3. For classic scripts, it checks whether the handle is already registered. Scripts marked for force replacement are deregistered and re-registered with the polyfill version when the WordPress version is below the script's threshold and active Gutenberg is not known to provide a compatible implementation. Non-force scripts are skipped if already registered.
-4. For script modules, it calls `wp_register_script_module()`, which silently ignores duplicates.
+4. For script modules, it calls `wp_register_script_module()`, which ignores duplicates, except that `@wordpress/widget-primitives` first deregisters the copy an active Gutenberg older than 23.9.0 registers.
 
 `wp-private-apis` has an additional Gutenberg-version guard because the dashboard packages require a private-apis allowlist that includes `@wordpress/widget-dashboard`. Gutenberg 23.4.0 and older do not include that allowlist entry; Gutenberg 23.5.0 is expected to be the first active-Gutenberg version that matches the current `@next` package build used here.
 
@@ -69,9 +70,15 @@ The version threshold for force-replacements can be overridden with a third para
 WP_Build_Polyfills::register( 'my-plugin', array( 'wp-notices' ), '7.1' );
 ```
 
-## Admin frame backdrop
+## Admin frame
 
-`WP_Build_Admin_Frame` makes the `@wordpress/boot` single-page backdrop continue the wp-admin menu color. `@wordpress/admin-ui` only knows Core's color schemes and paints a near-black backdrop for WordPress.com and third-party ones, and on WordPress 7.0+ the boot module that runs is Core's bundled copy, so the override is applied from PHP: `WP_Build_Polyfills::register()` arms it, and it prints a stylesheet on `admin_head` plus a script on `in_admin_header` that samples the `#adminmenuback` background into `--wp-build-admin-menu-background`. It lives here because this package is the one runtime every wp-build page already loads, and it is temporary until wp-build or boot ship the same behavior.
+`WP_Build_Admin_Frame` reconciles the `@wordpress/boot` single-page layout with the wp-admin frame. On WordPress 7.0+ the boot module that runs is Core's bundled copy, so the fixes are applied from PHP around the page, and `WP_Build_Polyfills::register()` arms them:
+
+- **Backdrop color.** `@wordpress/admin-ui` only knows Core's color schemes and paints a near-black backdrop for WordPress.com and third-party ones. A script on `in_admin_header` samples the `#adminmenuback` background into `--wp-build-admin-menu-background`, which a stylesheet on `admin_head` applies.
+- **First paint.** The same stylesheet paints the backdrop and a stage-shaped panel on the empty app container, so the page does not flash white before boot mounts.
+- **Cross-document view transitions.** Where Core enables them, a render-blocking deferred script on `admin_head` holds a wp-build page's first render until its admin menu has parsed, and boot's surfaces are unnamed while the page leaves so they do not zoom or slide over the next one.
+
+It lives here because this package is the one runtime every wp-build page already loads, and it is temporary until wp-build or boot ship the same behavior.
 
 ## Boot module asset file
 

@@ -2,8 +2,7 @@
  * Runtime tests for the `wp-rich-text` polyfill's private-APIs contract.
  *
  * The polyfill exists because Core's rich-text `privateApis` is unusable by
- * current dashboard dependencies: WP 6.9 exports none at all ("Cannot unlock
- * an undefined object"), and WP 7.0 exports one locked with only
+ * current dashboard dependencies: WP 7.0 exports one locked with only
  * `useRichText`, so the other keys destructure to `undefined`.
  *
  * Two things can silently break it, and static assertions on the bundle text
@@ -14,8 +13,7 @@
  * (compose is bundled in, because Core's compose lacks the
  * `subscribeDelegatedListener` private API rich-text unlocks). Those calls throw
  * unless the `wp-private-apis` implementation that actually loads allowlists
- * both names. Core's does not — WP 6.9 allowlists neither, and WP 7.0
- * allowlists rich-text but still not compose. Hence
+ * both names. WP 7.0's allowlists rich-text but not compose. Hence
  * `WP_Build_Polyfills::SCRIPT_DEPENDENCIES` forcing `wp-private-apis` alongside
  * `wp-rich-text`.
  *
@@ -214,10 +212,9 @@ describe( 'wp-rich-text polyfill: private-APIs contract', { skip: missingBuild }
 	} );
 
 	it( 'still opts in for @wordpress/compose, so it cannot run on Core private-apis', () => {
-		// Documents WHY `SCRIPT_DEPENDENCIES` forces `wp-private-apis`: even the
-		// newest Core allowlist rejects the bundled compose opt-in. If Core ever
-		// allowlists `@wordpress/compose`, this test fails — at which point the
-		// PHP dependency can be revisited rather than silently kept forever.
+		// Documents WHY `SCRIPT_DEPENDENCIES` forces `wp-private-apis`: WP 7.0, the
+		// newest Core whose private-apis the polyfill replaces, rejects the bundled
+		// compose opt-in.
 		assert.throws(
 			() => runRichTextAgainst( createPrivateApis( WP_70_ALLOWLIST ) ),
 			/opt-in to unstable APIs as module "@wordpress\/compose"/,

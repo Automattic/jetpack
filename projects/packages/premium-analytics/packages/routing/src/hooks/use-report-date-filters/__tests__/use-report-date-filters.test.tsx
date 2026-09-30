@@ -19,12 +19,18 @@ jest.mock( '@wordpress/route', () => ( {
  * External dependencies
  */
 import { TZDate } from '@date-fns/tz';
+import {
+	PeriodChangeSignalProvider,
+	useRaisePeriodChange,
+	useSettlePeriodChange,
+} from '@jetpack-premium-analytics/data';
 import { act, renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import { useReportDateFilters } from '../use-report-date-filters';
+import type { ReactNode } from 'react';
 
 // The hook reads the site zone from the WordPress date settings, so pin it to
 // UTC and keep day-bound math independent of the machine timezone.
@@ -397,6 +403,119 @@ describe( 'useReportDateFilters', () => {
 		expect( mockNavigate ).toHaveBeenCalledTimes( 1 );
 		expect( mockNavigate.mock.calls[ 0 ][ 0 ].replace ).toBe( true );
 		expect( result.current.appliedPresetId ).toBe( 'last-7-days' );
+	} );
+
+	it( 'resets the interval to the new preset default when the user picks a different preset', () => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () =>
+			result.current.onChange(
+				{
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
+				},
+				'last-month'
+			)
+		);
+		act( () => result.current.onApply() );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-month', interval: 'day' } );
+	} );
+
+	it( 'keeps the chosen interval when the user edits the range by hand', () => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () =>
+			result.current.onChange(
+				{
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-10T23:59:59.999Z', 'UTC' ),
+				},
+				'custom'
+			)
+		);
+		act( () => result.current.onApply() );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'custom', interval: 'week' } );
+	} );
+
+	it( 'keeps the chosen interval when a reconciliation swaps the preset', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () =>
+			result.current.replaceRange(
+				{
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
+				},
+				'last-month'
+			)
+		);
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-month', interval: 'week' } );
+	} );
+
+	it( 'stores a computed range exactly as given when asked', () => {
+		const { result } = renderDateFilters( { preset: 'last-30-days' } );
+		const range = {
+			from: new TZDate( '2026-09-01T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2026-09-14T15:30:00.000Z', 'UTC' ),
+		};
+
+		act( () => result.current.onChange( range, 'custom', { exactRange: true } ) );
+		act( () => result.current.onApply() );
+
+		expect( mockSearch.to ).toBe( '2026-09-14T15:30:00.000+00:00' );
+	} );
+
+	// A card raises the signal with the range it computed, so the range it then
+	// commits must round-trip to the same instants for the two to match.
+	it( 'lands a raised period change when a card commits its range exactly', () => {
+		const wrapper = ( { children }: { children: ReactNode } ) => (
+			<PeriodChangeSignalProvider>{ children }</PeriodChangeSignalProvider>
+		);
+		mockSearch = { preset: 'last-30-days' };
+		const { result, rerender } = renderHook(
+			() => {
+				const filters = useReportDateFilters( '/' );
+				return {
+					filters,
+					raise: useRaisePeriodChange(),
+					control: useSettlePeriodChange( 'post:1', filters.appliedRange, true ),
+				};
+			},
+			{ wrapper }
+		);
+		const currentMonth = {
+			from: new TZDate( '2026-09-01T00:00:00.000Z', 'UTC' ),
+			to: new TZDate( '2026-09-14T15:30:00.000Z', 'UTC' ),
+		};
+
+		act( () => {
+			result.current.raise( 'post:1', currentMonth );
+			result.current.filters.onChange( currentMonth, 'custom', { exactRange: true } );
+			result.current.filters.onApply();
+		} );
+		rerender();
+
+		expect( result.current.control ).toEqual( expect.any( Number ) );
 	} );
 
 	it( 'binds to the route it is given', () => {

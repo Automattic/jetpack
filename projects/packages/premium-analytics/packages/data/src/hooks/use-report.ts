@@ -48,10 +48,10 @@ export function useReport<
 					to: params.compare_to,
 				},
 				'comparison'
-		  )
+			)
 		: {
 				queryKey: options?.disabledComparisonKey ?? [ 'reports', '__comparison__', 'disabled' ],
-		  };
+			};
 
 	const primaryEnabled = queryEnabled && ( primaryQueryOptions.enabled ?? true );
 	const comparisonQueryEnabled =

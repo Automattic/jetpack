@@ -8,6 +8,7 @@ import {
 	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
+	getKnownEmailRate,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -18,8 +19,14 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
-import { getEmailsFields, useEmailsReportRecords } from './config';
+import {
+	getClicksRateSignals,
+	getEmailsFields,
+	getOpensRateSignals,
+	useEmailsReportRecords,
+} from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: newest emails first (matching the endpoint's
@@ -75,12 +82,12 @@ function EmailsReport(): JSX.Element {
 			{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), getValue: row => row.opens },
 			{
 				label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.opens_rate,
+				getValue: row => getKnownEmailRate( row.opens_rate, getOpensRateSignals( row ) ),
 			},
 			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
 			{
 				label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.clicks_rate,
+				getValue: row => getKnownEmailRate( row.clicks_rate, getClicksRateSignals( row ) ),
 			},
 		],
 		[]
@@ -97,7 +104,7 @@ function EmailsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.emails;
+	const { getLabel } = REPORTS.emails;
 
 	return (
 		<ReportPageShell
@@ -109,7 +116,7 @@ function EmailsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout title={ getLabel() }>
 				{ /*
 				 * The error state replaces the table rather than sitting beside it:
 				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch

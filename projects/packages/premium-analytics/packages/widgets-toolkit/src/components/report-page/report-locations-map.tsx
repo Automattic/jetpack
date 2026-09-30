@@ -12,8 +12,10 @@ import { ReportChartSection } from './report-chart-section';
 import styles from './report-locations-map.module.scss';
 import type { LocationsGeoChartProps } from '../locations-geo-chart';
 
-export interface ReportLocationsMapProps
-	extends Pick< LocationsGeoChartProps, 'rows' | 'mode' | 'focusCountry' > {
+export interface ReportLocationsMapProps extends Pick<
+	LocationsGeoChartProps,
+	'rows' | 'mode' | 'focusCountry'
+> {
 	/** Whether to show the loading overlay over the map. */
 	isLoading?: boolean;
 }
@@ -36,7 +38,7 @@ export function ReportLocationsMap( {
 			icon={ globe }
 			title={ __( 'Views by location', 'jetpack-premium-analytics-pkg' ) }
 			help={ __(
-				'Views shaded by country. Pick a country on the Regions tab to see its regions instead.',
+				'Views shaded by country, with each city as a dot on the Cities tab. Pick a country on the Regions tab to see its regions instead.',
 				'jetpack-premium-analytics-pkg'
 			) }
 			hideLabel={ __( 'Hide map', 'jetpack-premium-analytics-pkg' ) }

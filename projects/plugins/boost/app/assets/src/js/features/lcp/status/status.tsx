@@ -1,3 +1,4 @@
+import { useModuleSurface } from '$features/module/surface';
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
 import { __ } from '@wordpress/i18n';
 import { useLcpState } from '../lib/stores/lcp-state';
@@ -5,6 +6,15 @@ import styles from './status.module.scss';
 import type { FC } from 'react';
 
 const Status: FC = () => {
+	const legacyProgress = __(
+		"Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
+		'jetpack-boost'
+	);
+	const modernProgress = __(
+		"Jetpack Boost is optimizing your Cornerstone Page's LCP…",
+		'jetpack-boost'
+	);
+	const isModern = useModuleSurface() === 'row';
 	const [ query ] = useLcpState();
 	const lcpState = query?.data;
 
@@ -33,12 +43,7 @@ const Status: FC = () => {
 
 	if ( lcpState?.status === 'pending' ) {
 		return (
-			<div className={ styles?.generating }>
-				{ __(
-					"Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
-					'jetpack-boost'
-				) }
-			</div>
+			<div className={ styles?.generating }>{ isModern ? modernProgress : legacyProgress }</div>
 		);
 	}
 

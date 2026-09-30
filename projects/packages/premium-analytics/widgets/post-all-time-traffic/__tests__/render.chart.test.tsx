@@ -86,7 +86,8 @@ describe( 'PostAllTimeTraffic on the real HeatmapChart', () => {
 				from: new Date( '2025-11-10T00:00:00.000Z' ),
 				to: new Date( '2025-11-30T23:59:59.999Z' ),
 			},
-			'custom'
+			'custom',
+			{ exactRange: true }
 		);
 		expect( mockOnApply ).toHaveBeenCalledTimes( 1 );
 	} );

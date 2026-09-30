@@ -13,6 +13,7 @@ import {
 	resolveStoryInterval,
 } from '../../date-interval-dropdown/stories/story-interval-options';
 import { DateFiltersPanel } from '../date-filters-panel';
+import type { DateControlTriggerProps } from '../../utils/date-control-trigger';
 import type { DateRange } from '../date-filters-panel';
 import type { Meta, StoryObj } from '@storybook/react';
 
@@ -82,6 +83,7 @@ type DateFiltersPanelStoryProps = {
 	/** The detail-page surface: all time first, no custom range. */
 	detailSurface?: boolean;
 	disabled?: boolean;
+	triggerProps?: DateControlTriggerProps;
 };
 
 // The day the detail story's resource was published: where its all time starts.
@@ -98,6 +100,7 @@ function DateFiltersPanelStory( {
 	containerWidth = '100%',
 	detailSurface = false,
 	disabled = false,
+	triggerProps,
 }: DateFiltersPanelStoryProps ) {
 	const initialPrimary = buildPrimaryState( initialPreset );
 
@@ -183,7 +186,7 @@ function DateFiltersPanelStory( {
 					? {
 							presetIds: DETAIL_SURFACE_PRESETS,
 							allTimeStart: STORY_PUBLISHED_DATE,
-					  }
+						}
 					: {} ) }
 				withIntervalControl
 				interval={ interval }
@@ -196,6 +199,7 @@ function DateFiltersPanelStory( {
 				canApply={ canApplyPrimary }
 				timeZone={ STORYBOOK_TIMEZONE }
 				disabled={ disabled }
+				triggerProps={ triggerProps }
 			/>
 		</div>
 	);
@@ -242,6 +246,14 @@ export const CustomRangeWithComparison: Story = {
  */
 export const Disabled: Story = {
 	render: () => <DateFiltersPanelStory disabled />,
+};
+
+/**
+ * Every trigger at the compact size, as a widget header draws its own date
+ * control beside the other header fields.
+ */
+export const CompactTriggers: Story = {
+	render: () => <DateFiltersPanelStory triggerProps={ { size: 'compact' } } />,
 };
 
 /**

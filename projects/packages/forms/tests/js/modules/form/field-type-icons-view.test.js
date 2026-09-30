@@ -9,9 +9,8 @@ const getContext = jest.fn();
 jest.unstable_mockModule( '@wordpress/interactivity', () => ( { store, getElement, getContext } ) );
 
 await import( '../../../../src/modules/form/field-type-icons-view.js' );
-const { getFieldTypeIconHtml, getFieldTypeIconKey } = await import(
-	'../../../../src/modules/form/field-type-icons.js'
-);
+const { getFieldTypeIconHtml, getFieldTypeIconKey } =
+	await import( '../../../../src/modules/form/field-type-icons.js' );
 
 const { watchFieldTypeIcon } = store.mock.calls[ 0 ][ 1 ].callbacks;
 

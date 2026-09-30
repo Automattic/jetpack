@@ -20,7 +20,7 @@ import {
 	FloatingIllustration,
 } from './placement-illustrations';
 import type { NewsletterSettings } from '../types';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 // Static map from setting key -> readable placement slug, used as the
 // `placement` field on `jetpack_newsletter_placement_toggle` and
@@ -123,7 +123,7 @@ export function SubscriptionsSection( {
 						postType: 'wp_template_part',
 						postId: `${ newsletterScriptData.themeStylesheet }//jetpack-subscribe-overlay`,
 						canvas: 'edit',
-				  } )
+					} )
 				: undefined,
 		},
 		{
@@ -135,7 +135,7 @@ export function SubscriptionsSection( {
 						postType: 'wp_template_part',
 						postId: `${ newsletterScriptData.themeStylesheet }//jetpack-subscribe-modal`,
 						canvas: 'edit',
-				  } )
+					} )
 				: undefined,
 		},
 		{
@@ -147,7 +147,7 @@ export function SubscriptionsSection( {
 						postType: 'wp_template',
 						postId: `${ newsletterScriptData.themeStylesheet }//single`,
 						canvas: 'edit',
-				  } )
+					} )
 				: undefined,
 		},
 		{
@@ -159,7 +159,7 @@ export function SubscriptionsSection( {
 						postType: 'wp_template_part',
 						postId: `${ newsletterScriptData.themeStylesheet }//jetpack-subscribe-floating-button`,
 						canvas: 'edit',
-				  } )
+					} )
 				: undefined,
 		},
 	];
@@ -216,7 +216,7 @@ export function SubscriptionsSection( {
 				postType: 'wp_template',
 				postId: `${ newsletterScriptData.themeStylesheet }//index`,
 				canvas: 'edit',
-		  } )
+			} )
 		: undefined;
 
 	const handleNavLinkClick = useCallback( () => {

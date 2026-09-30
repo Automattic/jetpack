@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Premium Analytics: keep the dialog focus ring from being clipped by the dialog footer.

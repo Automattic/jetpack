@@ -51,6 +51,7 @@ class Connection_Health_Tests_Test extends TestCase {
 		unset( $_SERVER['SERVER_PORT'], $_SERVER['HTTP_X_FORWARDED_PORT'], $_SERVER['HTTPS'] );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_is_in_safe_mode' );
 		remove_all_filters( 'jetpack_debugger_run_self_test' );
 		remove_all_filters( 'jetpack_connection_reconnect_url' );
 		remove_all_filters( 'jetpack_connection_support_url' );
@@ -89,8 +90,6 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertArrayHasKey( 'test__check_if_connected', $tests );
 		$this->assertArrayHasKey( 'test__master_user_exists_on_site', $tests );
 		$this->assertArrayHasKey( 'test__master_user_can_manage_options', $tests );
-		$this->assertArrayHasKey( 'test__outbound_http', $tests );
-		$this->assertArrayHasKey( 'test__outbound_https', $tests );
 		$this->assertArrayHasKey( 'test__identity_crisis', $tests );
 		$this->assertArrayHasKey( 'test__connection_token_health', $tests );
 		$this->assertArrayHasKey( 'test__wpcom_connection_test', $tests );
@@ -352,101 +351,6 @@ class Connection_Health_Tests_Test extends TestCase {
 		$this->assertFalse( $result['pass'] );
 	}
 
-	// -------------------------------------------------------------------------
-	// test__outbound_http
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test outbound_http passes with mocked successful response.
-	 */
-	public function test_outbound_http_passes_on_success() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => 'OK',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertTrue( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_http fails when request returns an error code.
-	 */
-	public function test_outbound_http_fails_on_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 500 ),
-					'body'     => 'Error',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertFalse( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_http fails when request returns a WP_Error.
-	 */
-	public function test_outbound_http_fails_on_wp_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return new \WP_Error( 'http_request_failed', 'Connection refused' );
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_http' );
-		$this->assertFalse( $result['pass'] );
-	}
-
-	// -------------------------------------------------------------------------
-	// test__outbound_https
-	// -------------------------------------------------------------------------
-
-	/**
-	 * Test outbound_https passes with mocked successful response.
-	 */
-	public function test_outbound_https_passes_on_success() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 200 ),
-					'body'     => 'OK',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_https' );
-		$this->assertTrue( $result['pass'] );
-	}
-
-	/**
-	 * Test outbound_https fails when request returns an error code.
-	 */
-	public function test_outbound_https_fails_on_error() {
-		add_filter(
-			'pre_http_request',
-			function () {
-				return array(
-					'response' => array( 'code' => 500 ),
-					'body'     => 'Error',
-				);
-			}
-		);
-
-		$result = $this->tests->run_test( 'test__outbound_https' );
-		$this->assertFalse( $result['pass'] );
-	}
-
 	/**
 	 * Test an SSL-verification result reports a verified local_state error to the Error_Handler.
 	 */
@@ -582,10 +486,6 @@ class Connection_Health_Tests_Test extends TestCase {
 
 	/**
 	 * Test an inconclusive result preserves previously reported local_state errors.
-	 *
-	 * WP.com flags probe failures it could not classify (e.g. timeouts) as
-	 * inconclusive; they neither confirm nor disprove a stored error, and clearing
-	 * on them would flap the notice for a broken site that is occasionally slow.
 	 */
 	public function test_wpcom_connection_test_inconclusive_result_preserves_errors() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -598,6 +498,21 @@ class Connection_Health_Tests_Test extends TestCase {
 		);
 		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 
+		$this->evaluate_response(
+			array(
+				'connected'    => false,
+				'message'      => 'Example Site is not connected.',
+				'inconclusive' => true,
+			)
+		);
+
+		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+	}
+
+	/**
+	 * Test an inconclusive result is skipped rather than presented as a reconnect-worthy failure.
+	 */
+	public function test_wpcom_connection_test_inconclusive_result_is_skipped() {
 		$result = $this->evaluate_response(
 			array(
 				'connected'    => false,
@@ -606,8 +521,7 @@ class Connection_Health_Tests_Test extends TestCase {
 			)
 		);
 
-		$this->assertFalse( $result['pass'] );
-		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
+		$this->assertEquals( 'skipped', $result['pass'] );
 	}
 
 	// -------------------------------------------------------------------------
@@ -696,7 +610,96 @@ class Connection_Health_Tests_Test extends TestCase {
 	 */
 	public function test_wpcom_connection_test_skipped_when_not_connected() {
 		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
-		$this->assertEquals( 'skipped', $result['pass'] );
+		$this->assertSame( 'skipped', $result['pass'] );
+	}
+
+	/**
+	 * Force the two deliberate-state checks off so a skip can only come from the
+	 * connection itself.
+	 *
+	 * Both are checked before the connection, and Status caches each result, so a test
+	 * that does not pin them can pass through a branch it did not mean to exercise.
+	 */
+	private function disable_offline_and_safe_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_false' );
+	}
+
+	/**
+	 * Test the skip explains that the site is not talking to WordPress.com, rather
+	 * than blaming a deliberate state such as offline mode.
+	 */
+	public function test_wpcom_connection_test_skip_reports_missing_connection() {
+		$this->disable_offline_and_safe_mode();
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is not communicating with WordPress.com, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names offline mode, which is a deliberate state rather than a
+	 * communication failure.
+	 */
+	public function test_wpcom_connection_test_skip_reports_offline_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is in Offline Mode, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names safe mode. Offline mode is checked first, so it has to be
+	 * ruled out for this branch to be reached.
+	 */
+	public function test_wpcom_connection_test_skip_reports_safe_mode() {
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		add_filter( 'jetpack_is_in_safe_mode', '__return_true' );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'Your site is in Safe Mode, so this test was skipped.',
+			$result['short_description']
+		);
+	}
+
+	/**
+	 * Test the skip names the earlier failure. Offline mode, safe mode, and the
+	 * connection are all checked first, so each has to be ruled out to reach it.
+	 */
+	public function test_wpcom_connection_test_skip_reports_earlier_failure() {
+		$this->disable_offline_and_safe_mode();
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		( new Manager() )->reset_connection_status();
+
+		// Only run_tests() sets this, and it would need an earlier test to fail first.
+		$reflection = new \ReflectionClass( Connection_Health_Tests::class );
+		$property   = $reflection->getProperty( 'pass' );
+		// @todo Remove this call once we no longer need to support PHP <8.1.
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $this->tests, false );
+
+		$result = $this->tests->run_test( 'test__wpcom_connection_test' );
+
+		$this->assertSame( 'skipped', $result['pass'] );
+		$this->assertSame(
+			'A previous connection health test failed, so this test was skipped.',
+			$result['short_description']
+		);
 	}
 
 	/**
@@ -894,6 +897,28 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$this->assertFalse( $result['pass'] );
 		$this->assertStringContainsString( 'blocked', $result['short_description'] );
+		$this->assertStringNotContainsString( 'HTTP', $result['short_description'] );
+		// The explanation is shared with the status-code variant, so it must still be present.
+		$this->assertStringContainsString( 'security plugin, firewall, or server rule', $result['short_description'] );
+	}
+
+	/**
+	 * Test the blocked-request result carries its own heading rather than relying on
+	 * the generic fallback.
+	 */
+	public function test_wpcom_connection_test_blocked_has_specific_label() {
+		$result = $this->evaluate_response(
+			array(
+				'connected'        => false,
+				'error_code'       => 'xmlrpc_request_blocked',
+				'site_http_status' => 403,
+			)
+		);
+
+		$this->assertSame( 'Your site is blocking requests from WordPress.com', $result['label'] );
+		// Both variants share one explanation sentence.
+		$this->assertStringContainsString( '(HTTP 403).', $result['short_description'] );
+		$this->assertStringContainsString( 'security plugin, firewall, or server rule', $result['short_description'] );
 	}
 
 	/**
@@ -917,9 +942,9 @@ class Connection_Health_Tests_Test extends TestCase {
 
 		$this->assertFalse( $result['pass'] );
 		$this->assertSame( 'https://example.com/reconnect', $result['action'] );
-		// WP.com's message is preserved and the status code is appended in a labeled form.
+		// WP.com's message is preserved, and a 200 status code is not appended (it adds no signal).
 		$this->assertStringContainsString( 'Invalid token.', $result['short_description'] );
-		$this->assertStringContainsString( '(status code: 200)', $result['short_description'] );
+		$this->assertStringNotContainsString( 'status code', $result['short_description'] );
 	}
 
 	/**

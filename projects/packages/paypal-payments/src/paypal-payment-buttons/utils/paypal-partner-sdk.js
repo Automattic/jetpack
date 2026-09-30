@@ -26,6 +26,22 @@ const ANCHOR_BINDING_TIMEOUT_MS = 10000;
 export const ONBOARD_CALLBACK_NAME = 'jetpackPayPalOnboardComplete';
 
 /**
+ * The `type` of the message the plugin's return page posts when PayPal sends
+ * the seller back to it. Mirrors PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE.
+ */
+export const ONBOARDING_RETURN_MESSAGE = 'jetpack-paypal-onboarding-return';
+
+/**
+ * The page PayPal sends the seller back to, or the editor itself when the
+ * plugin did not provide one.
+ *
+ * @return {string} The return URL.
+ */
+export function getOnboardingReturnUrl() {
+	return window.jetpackPayPalPayments?.onboardingReturnUrl || window.location.href;
+}
+
+/**
  * Sandbox flags for the frame PayPal's lightbox opens in.
  *
  * `allow-top-navigation` is deliberately absent: without it the browser blocks
@@ -67,7 +83,7 @@ export function loadPartnerScript( environment, doc ) {
 			: new Promise( ( resolve, reject ) => {
 					existing.addEventListener( 'load', resolve );
 					existing.addEventListener( 'error', reject );
-			  } );
+				} );
 	}
 
 	return new Promise( ( resolve, reject ) => {

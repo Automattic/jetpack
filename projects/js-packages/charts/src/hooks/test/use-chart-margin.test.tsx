@@ -353,6 +353,41 @@ describe( 'useChartMargin', () => {
 
 			expect( result.current.left ).toBe( 20 );
 		} );
+
+		it( 'measures ticks from readings that exist', () => {
+			const partialData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ date: new Date( '2024-01-01' ), value: null },
+						{ date: new Date( '2024-01-02' ), value: 100 },
+						{ date: new Date( '2024-01-03' ), value: 200 },
+					],
+				},
+			];
+
+			renderHook( () => useChartMargin( 300, optionsBase, partialData, baseTheme ) );
+
+			const ticks = mockGetLongestTickWidth.mock.calls[ 0 ][ 0 ] as number[];
+			expect( Math.min( ...ticks ) ).toBe( 100 );
+		} );
+
+		it( 'measures a unit range when no bucket has a reading', () => {
+			const allNullData = [
+				{
+					label: 'Series 1',
+					data: [
+						{ date: new Date( '2024-01-01' ), value: null },
+						{ date: new Date( '2024-01-02' ), value: null },
+					],
+				},
+			];
+
+			renderHook( () => useChartMargin( 300, optionsBase, allNullData, baseTheme ) );
+
+			const ticks = mockGetLongestTickWidth.mock.calls[ 0 ][ 0 ] as number[];
+			expect( Math.max( ...ticks ) ).toBe( 1 );
+		} );
 	} );
 
 	describe( 'horizontal y ticks', () => {

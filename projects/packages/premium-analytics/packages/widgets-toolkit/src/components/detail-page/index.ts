@@ -1,10 +1,12 @@
 export {
+	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageLayout,
 	DetailPageSection,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 } from './detail-page-layout';
+export { DetailPageEmptyState, type DetailPageEmptyStateProps } from './detail-page-empty-state';
 export { DetailPageShell, type DetailPageShellProps } from './detail-page-shell';
 export {
 	DetailPageActions,

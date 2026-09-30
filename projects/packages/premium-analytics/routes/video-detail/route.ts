@@ -6,7 +6,10 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
+import {
+	pickDashboardOriginParams,
+	pickReportOriginParams,
+} from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -77,11 +80,14 @@ export const route = {
 
 			// The report origin joins the allowlist below so the breadcrumb keeps
 			// its link back to the referring report across this seed.
+			const reportParams = normalizeReportParams(
+				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
+			);
+			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
-				...normalizeReportParams(
-					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
-				),
+				...reportParams,
 				...pickReportOriginParams( currentSearch ),
+				...pickDashboardOriginParams( currentSearch ),
 				post_id: videoId,
 			};
 

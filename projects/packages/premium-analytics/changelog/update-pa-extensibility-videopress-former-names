@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Dashboard: Let a widget type declare its former names, so layouts saved before a rename keep rendering it; the widget contract is 1.1.0.

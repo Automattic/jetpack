@@ -5,6 +5,7 @@ import { wordpress } from '@wordpress/icons';
 import { Card, Stack, Text, Icon } from '@wordpress/ui';
 import GuidesCard from './guides-card';
 import OnboardingChecklist from './onboarding-checklist';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**
@@ -19,7 +20,7 @@ export default function OverviewBody(): JSX.Element {
 				/* translators: %s: Current user's display name. */
 				__( 'Welcome, %s', 'jetpack-newsletter' ),
 				displayName
-		  )
+			)
 		: __( 'Welcome', 'jetpack-newsletter' );
 
 	return (

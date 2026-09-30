@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [8.2.1] - 2026-09-29
+### Fixed
+- Dashboard: Show the connection error at the top of the page on every tab. [#52820]
+
+## [8.2.0] - 2026-09-28
+### Changed
+- Show the dashboard in the new rounded admin page frame. [#52506]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Fixed
+- AI Answers: Keep the preview hidden when answers are turned off. [#52753]
+- AI Answers: Turn off answers when the `jetpack_ai_enabled` filter returns false. [#52748]
+- Blocks: Stop offering Search blocks in the Overlay search sidebar's widget inserter, and flag any already there. [#52670]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Show Jetpack in-dashboard messages on every Search tab, not just Overview. [#52641]
+- Site Chat: Require a paid Search plan to enable and display chat. [#52386]
+
+## [8.1.3] - 2026-09-21
+### Changed
+- No Results block: Show each empty-state message as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure. [#51530]
+- Update package dependencies. [#52187]
+
+## [8.1.2] - 2026-09-15
+### Changed
+- Hide the Search sidebar item when the Search module is not active. [#52156]
+- Update package dependencies. [#52297]
+
+### Fixed
+- Instant Search: Fix a leaked scroll handler that could trigger stray page loads after several searches. [#51913]
+- Prevent a malformed WordPress.com request on unregistered sites that could record a spurious connection error. [#52264]
+
 ## [8.1.1] - 2026-09-09
 ### Changed
 - Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
@@ -1910,6 +1941,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated package dependencies.
 - Update PHPUnit configs to include just what needs coverage rather than include everything then try to exclude stuff that doesn't.
 
+[8.2.1]: https://github.com/Automattic/jetpack-search/compare/v8.2.0...v8.2.1
+[8.2.0]: https://github.com/Automattic/jetpack-search/compare/v8.1.3...v8.2.0
+[8.1.3]: https://github.com/Automattic/jetpack-search/compare/v8.1.2...v8.1.3
+[8.1.2]: https://github.com/Automattic/jetpack-search/compare/v8.1.1...v8.1.2
 [8.1.1]: https://github.com/Automattic/jetpack-search/compare/v8.1.0...v8.1.1
 [8.1.0]: https://github.com/Automattic/jetpack-search/compare/v8.0.0...v8.1.0
 [8.0.0]: https://github.com/Automattic/jetpack-search/compare/v7.4.1...v8.0.0

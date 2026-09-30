@@ -8,6 +8,7 @@ import md5 from 'md5';
 /**
  * Internal dependencies
  */
+import { getFeatureAvailability } from '../../../../../blocks/ai-assistant/lib/utils/get-feature-availability';
 import features from '../features';
 import registerEvents from '../features/events';
 import highlight from '../highlight/highlight';
@@ -140,6 +141,12 @@ export function registerBreveHighlight( feature: BreveFeature ) {
 }
 
 export function registerBreveHighlights() {
+	// WordPress consults every registered format type on each RichText render, and
+	// ours reach the AI feature endpoint to decide what to highlight.
+	if ( ! getFeatureAvailability( 'ai-proofread-breve' ) ) {
+		return;
+	}
+
 	features.forEach( feature => {
 		registerBreveHighlight( feature );
 	} );

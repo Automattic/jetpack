@@ -29,12 +29,12 @@ export default function withErrorBoundary( WrappedComponent ) {
 								? __(
 										'The podcast player cannot be displayed as your browser settings do not allow for sounds to be played in webpages. This can be changed in your browser’s "Internet options" settings. In the "Advanced" tab you will have to check the box next to "Play sounds in webpages" in the "Multimedia" section. Once you have confirmed that the box is checked, please press "Apply" and then reload this page.',
 										'jetpack'
-								  )
+									)
 								: __(
 										'An unexpected error occurred within the Podcast Player. Reloading this page might fix the problem.',
 										'jetpack',
 										/* dummy arg to avoid bad minification */ 0
-								  ) }
+									) }
 						</p>
 					</section>
 				);

@@ -21,7 +21,8 @@ Jetpack Premium Analytics is the unified analytics dashboard for Jetpack-connect
 (not on front-end page views, REST, cron, `admin-ajax.php`, or `admin-post.php` — see
 `renders_admin_chrome()`). The dashboard is served from one URL,
 `?page=jetpack-premium-analytics-wp-admin` (`Analytics::MENU_PAGE_SLUG`), registered with
-`add_menu_page()` and gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
+`Admin_Menu::add_top_level_menu()` so hosts can hide it via `jetpack_admin_menu_visibility`, and
+gated on `Capabilities::VIEW_ANALYTICS`. REST requests reach the dashboard's data
 without the build: `Dashboard_Support_Routes::boot_routes()` registers the routes on
 `rest_api_init`, and `ensure_widget_registry_ready()` loads the widget manifest lazily, when a
 route callback actually reads it. `@wordpress/boot` provides the SPA shell and routing; each route
@@ -37,9 +38,14 @@ filters.
 
 ```text
 src/class-analytics.php                 # entry: loads build, registers menu + routes
+src/dashboard-sections.php              # section API: registry helpers, section script data, REST
+src/default-dashboard-sections.php      # the package's own sections, registered through that API
+docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
+src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
+docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
 src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
 src/REST/class-notices-controller.php   # /notices route
-src/Sync/                               # interim woocommerce_analytics sync (WOOA7S-1550)
+src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
 packages/externals/                     # passthrough module for shared third-party libraries
 routes/                                 # lazy-loaded SPA pages; build/ is generated
@@ -72,7 +78,32 @@ packages.
 Add a route: create `routes/<name>/package.json` (with `route.path` + `route.page`) and a
 `stage.tsx` exporting `stage()`; rebuild — routes are auto-discovered.
 
+Add a dashboard section, from this package or from another plugin: hook
+`jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()`
+there; the callback receives the registry being hydrated, for lookups such as
+`get_registered_by_slug()`. The section registry hydrates on its first read, from wp-admin or from
+REST, and fires that action once; `src/default-dashboard-sections.php` registers the package's own sections the same
+way. A section declares its default layout in the registration; the
+`jetpack_premium_analytics_dashboard_default_layout` filter lets another plugin add an instance to
+any section by id. `docs/dashboard-sections.md` walks through the whole path with diagrams.
+
+Add widget types from another plugin: hook `jetpack_premium_analytics_register_widget_types`,
+compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
+that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
+registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
+action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
+that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
+`docs/dashboard-widgets.md` walks through the path.
+
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
+
+### Timing-dependent JS tests use fake timers
+
+Any Jest test that waits on time — `waitFor`, React Query updates, debounces, `setTimeout` — must
+call `jest.useFakeTimers()` and restore with `jest.useRealTimers()` in `afterEach`. On real timers
+a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake the test. Tests
+driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
+See `widgets/posting-activity/__tests__/posting-activity.test.tsx`.
 
 ## API
 
@@ -138,16 +169,15 @@ and reaches `public-api.wordpress.com` directly. `jetpack-mu-wpcom` boots the pa
 opt-in or the `jetpack-premium-analytics` blog sticker, whichever says yes. Both answer the
 shared `jetpack_premium_analytics_enabled` filter, as they do on the other platforms.
 
-Which one says yes also decides how many tabs the dashboard offers: the site's own opt-in is the
-customer preview and exposes only the sections in `PREVIEW_SECTIONS`, while a sticker or filter
-override exposes every section the site qualifies for. `jetpack_premium_analytics_dashboard_preview_scope`
-overrides that per section — `__return_true` gives a development or test site the whole dashboard.
+Every section the site qualifies for is shown as a tab, whichever one says yes. On the site's own
+opt-in, the Store tab also needs the `premium-analytics-store-section` feature flag, off by default; see
+`docs/dashboard-sections.md`.
 
 The same list the tab bar gets over REST also reaches the client as
-`premium_analytics.preview_sections` in the script data, which is what keeps `/reports/…` out of a
-scoped preview: each report declares the tab it belongs to, and `getReportDefinition()` treats one
-behind a hidden tab as unknown. The two detail routes follow their own report (`posts`, `videos`)
-rather than declaring a tab.
+`premium_analytics.sections` in the script data, which is what keeps `/reports/…` behind a hidden
+tab out of reach: each report declares the tab it belongs to, and `getReportDefinition()` treats one
+behind a hidden tab as unknown. The detail routes follow their own report (`posts`, `videos`,
+`authors`) rather than declaring a tab.
 
 ### Route guards must use the shared site-readiness helpers
 
@@ -183,7 +213,7 @@ script data.
 
 ### Why the dashboard support routes moved from `jetpack/v4` to `wpcom/v2`
 
-The dashboard support routes (widget modules, default layout, sections) used to live under
+The dashboard support routes (widget modules, sections) used to live under
 `jetpack/v4` — the self-hosted Jetpack plugin's own namespace. WPCOM's REST centralization doesn't
 recognize or expose that namespace for Simple sites, which run no Jetpack plugin at all, so those
 routes were unreachable from public-api. `wpcom/v2` is a namespace WPCOM's centralization already
@@ -203,7 +233,7 @@ notices) can stay under `jetpack-premium-analytics/v1`, since Simple never calls
 
 **WPCOM's public-api process calls `Dashboard_Support_Routes::register()` directly**
 (`src/class-dashboard-support-routes.php`) to register the dashboard's REST support routes
-(widget modules, default layout, sections) standalone. The WPCOM-side caller is
+(widget modules, sections) standalone. The WPCOM-side caller is
 `wp-content/rest-api-plugins/jetpack-endpoints/premium-analytics-dashboard.php` in the `wpcom`
 repo — it `require_once`s this exact file and calls `::register()` by name.
 
@@ -216,7 +246,9 @@ See Automattic/jetpack#50266 for the PR that established this contract.
 - A proxy 404 usually means the prefix isn't in `PREFIX_CONFIG`, not a missing WPCOM endpoint.
 - Reads are cached 5 min; add `force_refresh` if a screen looks stale.
 - `v2` vs `v1.x` changes the WPCOM base — a wrong version silently hits a different endpoint.
-- Sync code under `src/Sync/` is interim (WOOA7S-1550); don't build on it.
+- The `woocommerce_analytics` sync module lives in the jetpack-sync package
+  (`Sync\Configuration::register()` is the opt-in); `src/Sync/` holds only
+  PA-specific glue (Config bootstrap, bookings meta whitelist, milestone tracker).
 - Don't edit dashboard React in Calypso — it lives here now.
 - Internal package names use `@jetpack-premium-analytics/*` aliases throughout the package —
   never `@automattic/jetpack-premium-analytics-*`.
@@ -226,6 +258,12 @@ See Automattic/jetpack#50266 for the PR that established this contract.
   `@automattic/charts` follows the same rule under `packages/`, but under `widgets/` and
   `routes/` it must come from `@jetpack-premium-analytics/widgets-toolkit` instead. See
   `packages/externals/README.md`.
+- An internal package's public API is every name its root `src/index.ts` exports, including
+  names re-exported from a sub-barrel, whether by `export *` (`data` → `./hooks`) or by name
+  (`widgets-toolkit` → `useElementSize` from `./hooks`). Add a name there only when something
+  outside the package imports it — types included; `git grep` outside the package to check. A
+  sub-barrel name the root does not re-export, like `reportBookingsQuery` in
+  `data/src/queries/index.ts`, is internal and may serve the package's own imports.
 
 ## Comments and documentation
 
@@ -297,7 +335,8 @@ widgets/<widget-name>/
 Notes:
 
 - `name` lives in `widget.json` and MUST use the `jpa/` prefix
-  (e.g. `jpa/<widget-name>`). `widget.ts` no longer declares it.
+  (e.g. `jpa/<widget-name>`); a widget another plugin ships uses that plugin's namespace.
+  `widget.ts` no longer declares it.
 - Keep `render.tsx` thin: compose toolkit primitives (`WidgetRoot`,
   `OrderMetricWidget`, etc.) rather than reimplementing data fetching, chart wiring, or
   theming.
@@ -645,7 +684,10 @@ parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 **Loading / error / empty state**
 
-Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
+A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's status; the
+component owns the states, the skeleton, the shares and deltas, and the detail-link window
+(`widgets/search-terms/render.tsx` is the reference). Everything else renders its states through
+`<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
 shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
@@ -664,7 +706,7 @@ interpolated into a shared frame) so translators see the whole sentence:
 		retryDescription: __( "We couldn't load search terms. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
 		onRetry: refetch,
 	} ) }
-	empty={ { icon: search, description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ) } }
+	// No `empty`: a period with no rows gets the generic "no results" state.
 >
 	<LeaderboardChart … />
 </WidgetState>
@@ -692,9 +734,12 @@ area. Notes:
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.
-- Give `empty.icon` a neutral glyph distinct from the error icon — the widget's own glyph from
-  `@jetpack-premium-analytics/icons` (e.g. `search`, `customer`); omit it for no icon. Don't use
-  a caution glyph: empty is not an error.
+- Omit `empty` for a period with no data: `<WidgetState>` then draws `ChartEmptyState`'s generic
+  state, the `search` magnifier and "We couldn’t find results for this time period.". Pass
+  `empty` only for a case that copy does not describe, such as a scope prompt ("Open a post to
+  see…") or a fixed window. Its `icon` is then the widget's own neutral glyph from
+  `@jetpack-premium-analytics/icons`, or none when omitted. Don't use a caution glyph: empty is
+  not an error.
 - Keep interactive body chrome (dropdown, view selector, drill-down back link) as a **sibling**
   of `<WidgetState>`, not inside it, so it stays available in every state.
 - `<WidgetState>` covers only a widget's own data state; the host still owns the crash error
@@ -702,9 +747,8 @@ area. Notes:
 
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
-> migrated to `<WidgetState>` — follow the contract above, not those widgets.
-> `widgets/search-terms/render.tsx` is the reference. (A `ReportWidget` wrapper that removes the
-> remaining per-widget state boilerplate is a planned follow-up.)
+> migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
+> `<Leaderboard>` is that wrapper; the other widget kinds get theirs as follow-ups.
 
 **Comparison data**
 
@@ -792,6 +836,9 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
   leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
   label — at the 370px tile a long name ellipsizes where the compact form left it room.
+- Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the combined-period
+  denominator, the deltas and the row builder for you. The notes below are for the few widgets
+  that must drive `LeaderboardChart` themselves.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in

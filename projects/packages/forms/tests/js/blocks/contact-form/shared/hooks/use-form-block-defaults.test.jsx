@@ -16,9 +16,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 		} ) ),
 } ) );
 
-const { default: useFormBlockDefaults } = await import(
-	'../../../../../../src/blocks/contact-form/shared/hooks/use-form-block-defaults.js'
-);
+const { default: useFormBlockDefaults } =
+	await import( '../../../../../../src/blocks/contact-form/shared/hooks/use-form-block-defaults.js' );
 
 describe( 'useFormBlockDefaults', () => {
 	beforeEach( () => {

@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DateIntervalDropdown } from '../date-interval-dropdown';
 
@@ -80,8 +80,21 @@ describe( 'DateIntervalDropdown', () => {
 		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
 
 		// The Button drops clicks but not keys, so the arrow shortcut is shut apart.
-		trigger.focus();
+		act( () => trigger.focus() );
 		await user.keyboard( '{ArrowDown}' );
 		expect( screen.queryByRole( 'menuitemradio' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'opens its menu on ArrowDown', async () => {
+		const user = userEvent.setup();
+
+		render(
+			<DateIntervalDropdown options={ [ 'day', 'week' ] } value="day" onChange={ jest.fn() } />
+		);
+
+		act( () => screen.getByRole( 'button', { name: 'Chart interval: By days' } ).focus() );
+		await user.keyboard( '{ArrowDown}' );
+
+		expect( screen.getByRole( 'menuitemradio', { name: 'By days' } ) ).toBeChecked();
 	} );
 } );

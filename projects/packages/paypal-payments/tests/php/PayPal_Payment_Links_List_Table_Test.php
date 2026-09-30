@@ -10,6 +10,8 @@ namespace Automattic\Jetpack\PaypalPayments;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+
 /**
  * Class PayPal_Payment_Links_List_Table_Test
  *
@@ -17,6 +19,8 @@ use PHPUnit\Framework\TestCase;
  */
 #[CoversClass( PayPal_Payment_Links_List_Table::class )]
 class PayPal_Payment_Links_List_Table_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
 
 	/**
 	 * Clean up after each test.
@@ -31,7 +35,7 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		remove_all_filters( 'posts_pre_query' );
 
 		// Clear list table API response caches.
-		delete_transient( 'paypal_list_cache_' . md5( '' ) );
+		PayPal_API_Client::forget_cached_resources();
 	}
 
 	/**
@@ -61,6 +65,56 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 
 		$this->assertCount( 2, $table->items );
 		$this->assertNull( $table->api_error );
+	}
+
+	/**
+	 * Test the list is read fresh right after a delete, and from cache otherwise.
+	 */
+	public function test_prepare_items_reads_fresh_after_a_delete() {
+		$this->set_up_connected_state();
+		$items = $this->get_sample_items();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( &$items ) {
+				if ( false !== strpos( $url, '/v1/oauth2/token' ) ) {
+					return $preempt;
+				}
+				if ( 'DELETE' === $args['method'] ) {
+					return array(
+						'response' => array(
+							'code'    => 204,
+							'message' => '',
+						),
+						'body'     => '',
+					);
+				}
+				return array(
+					'response' => array(
+						'code'    => 200,
+						'message' => '',
+					),
+					'body'     => wp_json_encode( array( 'resources' => $items ), JSON_UNESCAPED_SLASHES ),
+				);
+			},
+			10,
+			3
+		);
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+		$this->assertCount( 2, $table->items );
+
+		// PayPal now has one item, but the cache is still warm.
+		array_pop( $items );
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+		$this->assertCount( 2, $table->items );
+
+		PayPal_API_Client::delete_resource( 'PLB-DEF456' );
+
+		$table = new PayPal_Payment_Links_List_Table();
+		$table->prepare_items();
+		$this->assertCount( 1, $table->items );
 	}
 
 	/**
@@ -269,6 +323,37 @@ class PayPal_Payment_Links_List_Table_Test extends TestCase {
 		$output = $table->column_price( array( 'line_items' => array( array( 'name' => 'Test' ) ) ) );
 
 		$this->assertEquals( '—', $output );
+	}
+
+	/**
+	 * Test column_price shows the product price.
+	 */
+	public function test_column_price_shows_the_product_price() {
+		$table = new PayPal_Payment_Links_List_Table();
+
+		$this->assertSame( '$29.99', $table->column_price( $this->get_sample_items()[0] ) );
+		$this->assertSame( '€9.99', $table->column_price( $this->get_sample_items()[1] ) );
+	}
+
+	/**
+	 * Test column_price shows the cheapest option for a link priced per option.
+	 */
+	public function test_column_price_shows_the_from_price_for_priced_options() {
+		$table = new PayPal_Payment_Links_List_Table();
+
+		$this->assertSame( 'From $24.50', $table->column_price( self::get_per_option_resource() ) );
+	}
+
+	/**
+	 * Test column_price escapes the price.
+	 */
+	public function test_column_price_escapes_the_price() {
+		$table = new PayPal_Payment_Links_List_Table();
+		$item  = $this->get_sample_items()[0];
+
+		$item['line_items'][0]['unit_amount']['value'] = '9.99 & "up"';
+
+		$this->assertSame( '$9.99 &amp; &quot;up&quot;', $table->column_price( $item ) );
 	}
 
 	/**

@@ -54,11 +54,11 @@ function toTimeSeriesResponse(
 			date_start:
 				typeof report.summary.date_start === 'string'
 					? report.summary.date_start
-					: first?.date_start ?? '',
+					: ( first?.date_start ?? '' ),
 			date_end:
 				typeof report.summary.date_end === 'string'
 					? report.summary.date_end
-					: last?.date_end ?? last?.date_start ?? '',
+					: ( last?.date_end ?? last?.date_start ?? '' ),
 		},
 		data: ( report.data ?? [] ).map( point => ( {
 			date_start: point.date_start,
@@ -81,6 +81,7 @@ function buildSingleMetricSeries(
 		metricKey: metric.key,
 		zone,
 		label: metric.label,
+		countLabel: metric.countLabel,
 	} );
 
 	// Group by metric rather than the helper's shared `primary`, so each metric on
@@ -134,6 +135,7 @@ export function buildReportMetricSeries( {
 		label: metric.label,
 		group: metric.key,
 		data: toChartPoints( primary, metric.key, zone ),
+		countLabel: metric.countLabel,
 	} ) );
 
 	return series;

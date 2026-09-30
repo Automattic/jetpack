@@ -82,6 +82,10 @@ Disconnecting removes your stored credentials and cached token. Existing publish
 
 This means your PayPal app may not have the required permissions. In the PayPal Developer Dashboard, ensure your app has the **Payment Links & Buttons** feature enabled. If you're using a sandbox account, create a new sandbox business account with full permissions.
 
+= Can I pause or deactivate a payment link instead of deleting it? =
+
+No. PayPal only supports deleting a payment link, and deletion is permanent. The link stops working everywhere it was shared, including emails and printed QR codes, and buyers who open it see a PayPal "not found" page. The plugin asks you to acknowledge this before it deletes anything. If you might need the link again, leave it in place.
+
 = Can I use this with WooCommerce? =
 
 This plugin is designed for standalone PayPal payment buttons on posts and pages. It's separate from the WooCommerce PayPal payment gateway. Both can coexist on the same site.

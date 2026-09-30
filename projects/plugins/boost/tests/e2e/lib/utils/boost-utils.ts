@@ -191,17 +191,17 @@ export async function createTestPosts( testPostTitles: string[] ): Promise< void
  */
 export async function setDashboardModernization( enabled: boolean ) {
 	await executeWpCommand( 'plugin activate e2e-dashboard-modernization' );
+	// update_option() never creates a missing option with a false value, so store '0' instead.
 	await executeWpCommand( [
 		'option',
 		'update',
 		'e2e_boost_dashboard_modernization',
-		JSON.stringify( enabled ),
-		'--format=json',
+		enabled ? '1' : '0',
 	] );
 }
 
 /**
- * Restore the default dashboard filter and remove the test option.
+ * Restore the default (modern) dashboard and remove the test option.
  */
 export async function resetDashboardModernization() {
 	await executeWpCommand( [
@@ -211,11 +211,38 @@ export async function resetDashboardModernization() {
 }
 
 /**
+ * Configure the targeted dashboard message fixture.
+ * @param enabled - Whether to inject the message.
+ */
+export async function setDashboardJitm( enabled: boolean ) {
+	await executeWpCommand( 'plugin activate e2e-dashboard-jitm' );
+	await executeWpCommand( [
+		'option',
+		'update',
+		'e2e_boost_dashboard_jitm',
+		JSON.stringify( enabled ),
+		'--format=json',
+	] );
+}
+
+/**
+ * Deactivate the message fixture and remove its option.
+ */
+export async function resetDashboardJitm() {
+	await executeWpCommand( [
+		'eval',
+		"if ( is_plugin_active( 'e2e-dashboard-jitm.php' ) ) { deactivate_plugins( 'e2e-dashboard-jitm.php' ); } delete_option( 'e2e_boost_dashboard_jitm' );",
+	] );
+}
+
+/**
  * Reset the environment.
  */
 export async function resetEnvironment() {
 	logger.debug( 'Resetting Jetpack Boost' );
-	await resetDashboardModernization();
+	// The feature specs target the legacy dashboard, so pin it over the modern default (BOOST-767).
+	await setDashboardModernization( false );
+	await resetDashboardJitm();
 	await executeWpCommand( 'plugin activate jetpack-boost' );
 	await disconnect();
 	await unMockConnection();

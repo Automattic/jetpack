@@ -227,6 +227,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_difm_lite_in_progress',
 		'difm_lite_site_options',
 		'is_gating_business_q1',
+		'is_legacy_gating_site',
 		'site_intent',
 		'site_partner_bundle',
 		'onboarding_segment',
@@ -244,6 +245,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
 		'jetpack_recovery_mode_status',
+		'jetpack_sso_require_two_step',
 		'apm_enabled',
 		'wpcom_ai_launchpad_enabled',
 		'wpcom_ai_launchpad_dismissed',
@@ -320,6 +322,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'wpcom_admin_interface',
 		'wpcom_classic_early_release',
 		'jetpack_recovery_mode_status',
+		'jetpack_sso_require_two_step',
 		'apm_enabled',
 	);
 
@@ -966,6 +969,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'is_gating_business_q1':
 					$options[ $key ] = $site->is_gating_business_q1();
 					break;
+				case 'is_legacy_gating_site':
+					$options[ $key ] = $site->is_legacy_gating_site();
+					break;
 				case 'site_intent':
 					$options[ $key ] = $site->get_site_intent();
 					break;
@@ -1021,6 +1027,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'jetpack_recovery_mode_status':
 					$options[ $key ] = $site->get_jetpack_recovery_mode_status();
+					break;
+				case 'jetpack_sso_require_two_step':
+					$options[ $key ] = $site->get_jetpack_sso_require_two_step();
 					break;
 				case 'apm_enabled':
 					$options[ $key ] = $site->get_apm_enabled();

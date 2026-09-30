@@ -24,9 +24,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => ( {
 
 await jest.unstable_mockModule( '@wordpress/core-data', () => ( { store: 'core' } ) );
 
-const { default: useResponseActions } = await import(
-	'../../../../routes/response/use-response-actions.ts'
-);
+const { default: useResponseActions } =
+	await import( '../../../../routes/response/use-response-actions.ts' );
 const { DEFAULT_PINNED_VIEW } = await import( '../../../../routes/response/pinned-view.ts' );
 
 /**

@@ -17,6 +17,11 @@ export type AbbreviatedTextProps = {
 	display: string;
 	/** The full text restored in a tooltip and for assistive tech, e.g. `'18,432'`. */
 	exact: string;
+	/**
+	 * Restored in place of `exact`, e.g. `'18,432 opens'`. A unit the display
+	 * omits keeps the tooltip even when nothing was shortened.
+	 */
+	restored?: string;
 	className?: string;
 };
 
@@ -24,18 +29,20 @@ export type AbbreviatedTextProps = {
  * Shows the shortened text and restores the full one in a tooltip and for
  * assistive tech; a plain span when the two agree.
  */
-export function AbbreviatedText( { display, exact, className }: AbbreviatedTextProps ) {
-	if ( display === exact ) {
+export function AbbreviatedText( { display, exact, restored, className }: AbbreviatedTextProps ) {
+	const full = restored ?? exact;
+
+	if ( display === full ) {
 		return <span className={ className }>{ display }</span>;
 	}
 
 	// Out of the tab order: assistive tech reads the exact figure below, and a
 	// focusable span would nest inside leaderboard row buttons and metric tabs.
 	return (
-		<Tooltip text={ exact }>
+		<Tooltip text={ full } placement="bottom">
 			<span className={ clsx( styles.anchor, className ) } tabIndex={ -1 }>
 				<span aria-hidden="true">{ display }</span>
-				<VisuallyHidden render={ <span /> }>{ exact }</VisuallyHidden>
+				<VisuallyHidden render={ <span /> }>{ full }</VisuallyHidden>
 			</span>
 		</Tooltip>
 	);
@@ -55,6 +62,12 @@ export type AbbreviatedValueProps = {
 	 */
 	currencyCode?: string;
 
+	/**
+	 * Restored in place of the exact figure, e.g. `'18,432 opens'`. A unit the
+	 * display omits keeps the tooltip even when nothing was shortened.
+	 */
+	restored?: string;
+
 	className?: string;
 };
 
@@ -66,6 +79,7 @@ export function AbbreviatedValue( {
 	value,
 	dataFormat = { type: 'number' },
 	currencyCode,
+	restored,
 	className,
 }: AbbreviatedValueProps ) {
 	const { display, exact } = useMemo( () => {
@@ -77,5 +91,12 @@ export function AbbreviatedValue( {
 		};
 	}, [ value, dataFormat, currencyCode ] );
 
-	return <AbbreviatedText display={ display } exact={ exact } className={ className } />;
+	return (
+		<AbbreviatedText
+			display={ display }
+			exact={ exact }
+			restored={ restored }
+			className={ className }
+		/>
+	);
 }

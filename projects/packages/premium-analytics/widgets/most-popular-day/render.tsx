@@ -64,7 +64,7 @@ export const MostPopularDayHighlight = ( { date, views, share }: MostPopularDayH
 								/* translators: %s is a percentage, e.g. "0.32%". */
 								__( '%s of views', 'jetpack-premium-analytics-pkg' ),
 								formatMetricValue( share, 'percentage', { decimals: 2, signDisplay: 'never' } )
-						  )
+							)
 				}
 			/>
 		</HighlightGroup>

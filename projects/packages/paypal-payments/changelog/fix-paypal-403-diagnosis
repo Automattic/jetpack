@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Include PayPal's own error and debug ID when Payment Links & Buttons access is refused, instead of guessing at the cause.

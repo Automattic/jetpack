@@ -130,7 +130,7 @@ export function ConnectionTemplateEditor( props: ConnectionTemplateEditorProps )
 						'jetpack-publicize-pkg'
 					),
 					planName
-			  )
+				)
 			: genericUpsellText;
 
 		const upsellHelp = createInterpolateElement( upsellText, {

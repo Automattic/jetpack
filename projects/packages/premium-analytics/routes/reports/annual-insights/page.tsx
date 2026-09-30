@@ -20,6 +20,7 @@ import { __ } from '@wordpress/i18n';
 import { REPORTS } from '../registry';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 const RECORDS_VIEW = {
 	sort: { field: 'year', direction: 'desc' as const },
@@ -114,7 +115,7 @@ function AnnualInsightsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS[ 'annual-insights' ];
+	const { getLabel } = REPORTS[ 'annual-insights' ];
 
 	return (
 		<ReportPageShell
@@ -126,7 +127,7 @@ function AnnualInsightsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout title={ getLabel() }>
 				{ /*
 				 * The error state replaces the table rather than sitting beside it:
 				 * `ReportRecordsTable`'s empty state is row-count based, so a failed

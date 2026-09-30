@@ -41,7 +41,6 @@ const fixture: TailoredOutput = {
 		niche: 'handmade ceramics and pottery',
 		vibe: 'warm, earthy, artisanal',
 		audience: 'design-conscious home decorators',
-		tagline: 'Handmade pottery for everyday rituals',
 	},
 	first_post_draft: {
 		title: 'Meet Terra Ceramics',

@@ -8,12 +8,35 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import PostCommentsWidget from '../render';
+import * as fittedRoster from '../../../packages/widgets-toolkit/src/components/subscriber-list/use-fitted-roster-rows';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+const COMMENT = {
+	ID: 101,
+	author: { name: 'Olivia Park' },
+	URL: 'https://example.com/post/#comment-101',
+	date: new Date().toISOString(),
+};
+
+function makeComments( count: number, firstId: number ) {
+	return Array.from( { length: count }, ( _, index ) => ( {
+		...COMMENT,
+		ID: firstId + index,
+		author: { name: `Commenter ${ firstId + index }` },
+	} ) );
+}
+
+/** Answers the comments request from `replies` and the post stats request from `post`. */
+function mockEndpoints( replies: jest.Mock, post: Record< string, unknown > ) {
+	mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+		path.includes( '/replies' ) ? replies() : Promise.resolve( { post } )
+	);
+}
 
 function renderWidget( postId: number ) {
 	return render(
@@ -27,8 +50,14 @@ function renderWidget( postId: number ) {
 
 describe( 'PostCommentsWidget', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		queryClient.clear();
 		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.restoreAllMocks();
+		jest.useRealTimers();
 	} );
 
 	it( 'treats a non-integer post ID as missing scope without requesting data', () => {
@@ -41,7 +70,7 @@ describe( 'PostCommentsWidget', () => {
 	} );
 
 	it( 'uses a neutral empty state for a post or page with no comments', async () => {
-		mockApiFetch.mockResolvedValue( { found: 0, comments: [] } );
+		mockApiFetch.mockResolvedValue( { comments: [] } );
 
 		renderWidget( 779 );
 
@@ -53,24 +82,26 @@ describe( 'PostCommentsWidget', () => {
 		);
 	} );
 
-	it( 'renders commenters, comment links, and the remaining count', async () => {
-		mockApiFetch.mockResolvedValue( {
-			found: 24,
-			comments: [
-				{
-					ID: 101,
-					author: { name: 'Olivia Park', avatar_URL: 'https://gravatar.com/avatar/1' },
-					URL: 'https://example.com/post/#comment-101',
-					date: new Date().toISOString(),
-				},
-			],
-		} );
+	it( 'renders commenters, comment links, and the remaining count from the post', async () => {
+		mockEndpoints(
+			jest.fn().mockResolvedValue( {
+				found: -1,
+				comments: [
+					{
+						...COMMENT,
+						author: { name: 'Olivia Park', avatar_URL: 'https://gravatar.com/avatar/1' },
+					},
+					...makeComments( 9, 102 ),
+				],
+			} ),
+			{ comment_count: 24 }
+		);
 
 		renderWidget( 779 );
 
 		const author = await screen.findByRole( 'link', { name: /Olivia Park/ } );
 		expect( author ).toHaveAttribute( 'href', 'https://example.com/post/#comment-101' );
-		expect( screen.getByText( '23 more' ) ).toBeInTheDocument();
+		await expect( screen.findByText( '14 more' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'uses a neutral error state when comments cannot be loaded', async () => {
@@ -84,19 +115,11 @@ describe( 'PostCommentsWidget', () => {
 	} );
 
 	it( 'keeps existing comments visible when a background refetch fails', async () => {
-		mockApiFetch
-			.mockResolvedValueOnce( {
-				found: 1,
-				comments: [
-					{
-						ID: 101,
-						author: { name: 'Olivia Park' },
-						URL: 'https://example.com/post/#comment-101',
-						date: new Date().toISOString(),
-					},
-				],
-			} )
+		const replies = jest
+			.fn()
+			.mockResolvedValueOnce( { comments: [ COMMENT ] } )
 			.mockRejectedValueOnce( { status: 403 } );
+		mockEndpoints( replies, {} );
 
 		renderWidget( 779 );
 
@@ -108,10 +131,51 @@ describe( 'PostCommentsWidget', () => {
 			await queryClient.invalidateQueries( { queryKey: [ 'stats', 'post-comments' ] } );
 		} );
 
-		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
+		await waitFor( () => expect( replies ).toHaveBeenCalledTimes( 2 ) );
 		expect( screen.getByRole( 'link', { name: /Olivia Park/ } ) ).toBeInTheDocument();
 		expect(
 			screen.queryByText( "We couldn't load these comments. Please try again in a moment." )
 		).not.toBeInTheDocument();
+	} );
+
+	it.each( [
+		[ 2, 30, '1 more' ],
+		[ 10, 30, '29 more' ],
+		[ 10, undefined, '9 more' ],
+	] )(
+		'counts %s fetched comments, one fitted, with post total %s as %s',
+		async ( fetched, commentCount, expectedFooter ) => {
+			jest.spyOn( fittedRoster, 'useFittedRosterRows' ).mockReturnValue( {
+				listRef: { current: null },
+				fittedCount: 1,
+			} );
+			mockEndpoints(
+				jest.fn().mockResolvedValue( { found: -1, comments: makeComments( fetched, 101 ) } ),
+				{ comment_count: commentCount }
+			);
+
+			renderWidget( 779 );
+
+			await expect(
+				screen.findByRole( 'link', { name: /Commenter 101/ } )
+			).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( screen.queryByText( /\d+ more/ )?.textContent ?? null ).toBe( expectedFooter )
+			);
+		}
+	);
+
+	it( 'reads the post total when a full page loses a nameless comment', async () => {
+		mockEndpoints(
+			jest.fn().mockResolvedValue( {
+				found: -1,
+				comments: [ ...makeComments( 9, 101 ), { ...COMMENT, ID: 110, author: {} } ],
+			} ),
+			{ comment_count: 30 }
+		);
+
+		renderWidget( 779 );
+
+		await expect( screen.findByText( '21 more' ) ).resolves.toBeInTheDocument();
 	} );
 } );

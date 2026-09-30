@@ -1,6 +1,6 @@
 <?php
 /**
- * Expiry_Data: derives plan-expiry state from the site's active purchases.
+ * Expiry_Data: derives plan-expiry state from the site's active purchases, or from its revert once the plan is gone.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -21,20 +21,26 @@ class Expiry_Data {
 	const STATE_EXPIRED_GRACE = 'expired_grace';
 	const STATE_EXPIRED       = 'expired';
 
-	const GRACE_PERIOD_DAYS      = 30;
+	// How long after the automatic revert the site can still be restored by support.
 	const POST_GRACE_PERIOD_DAYS = 30;
 	const ANNUAL_NOTICE_DAYS     = 60;
 	const MONTHLY_NOTICE_DAYS    = 7;
 
 	/**
-	 * The expiry state for the current site, or null if there's no
-	 * notice-eligible plan purchase.
+	 * The expiry state for the current site, or null if there's nothing to say.
+	 *
+	 * A plan purchase decides the states before and during grace; once billing
+	 * has removed it, only the site's automatic revert can say the plan lapsed.
 	 *
 	 * @return array<string,mixed>|null
 	 */
 	public static function get_expiry_state(): ?array {
 		$plan = self::pick_primary_plan_purchase( wpcom_expiry_get_purchases() );
-		return null === $plan ? null : self::compute_state_from_purchase( $plan );
+		if ( null !== $plan ) {
+			return self::compute_state_from_purchase( $plan );
+		}
+		$revert = wpcom_expiry_get_reverted_transfer();
+		return null === $revert ? null : self::compute_state_from_revert( $revert );
 	}
 
 	/**
@@ -76,8 +82,11 @@ class Expiry_Data {
 	}
 
 	/**
-	 * The normalized state of one plan purchase, or null when it is unusable or
-	 * too long expired to say anything about.
+	 * The normalized state of one plan purchase, or null when it is unusable.
+	 *
+	 * A purchase still present is billing's to renew however long ago it
+	 * expired, so there is no day limit on the grace state here; only the
+	 * revert, once the purchase is gone, can end it.
 	 *
 	 * @param object   $purchase Purchase object (see wpcom_get_site_purchases() shape).
 	 * @param int|null $now      Timestamp to judge against. Defaults to time().
@@ -88,13 +97,15 @@ class Expiry_Data {
 			return null;
 		}
 
-		$expiry_ts = strtotime( (string) $purchase->expiry_date );
-		if ( false === $expiry_ts ) {
+		$expiry_start = strtotime( (string) $purchase->expiry_date );
+		if ( false === $expiry_start ) {
 			return null;
 		}
+		$expiry_day = self::start_of_utc_day( $expiry_start );
+		$expiry_ts  = self::end_of_utc_day( $expiry_start );
 
 		$now          ??= time();
-		$days_remaining = (int) floor( ( $expiry_ts - $now ) / DAY_IN_SECONDS );
+		$days_remaining = self::calendar_days_until( $expiry_day, $now );
 		$product_slug   = (string) $purchase->product_slug;
 		$is_monthly     = false !== stripos( $product_slug, 'monthly' );
 
@@ -107,12 +118,9 @@ class Expiry_Data {
 			? ( self::might_still_auto_renew( $purchase ) ?? $raw_auto_renew )
 			: $raw_auto_renew;
 
-		if ( $days_remaining < 0 ) {
-			$days_past = -$days_remaining;
-			if ( $days_past >= self::GRACE_PERIOD_DAYS + self::POST_GRACE_PERIOD_DAYS ) {
-				return null;
-			}
-			$state = $days_past < self::GRACE_PERIOD_DAYS ? self::STATE_EXPIRED_GRACE : self::STATE_EXPIRED;
+		if ( $expiry_ts < $now ) {
+			// Still in the purchases list, so billing still takes a renewal.
+			$state = self::STATE_EXPIRED_GRACE;
 		} elseif ( ! $in_notice_range ) {
 			$state = self::STATE_ACTIVE;
 		} elseif ( ! $will_renew ) {
@@ -135,6 +143,35 @@ class Expiry_Data {
 			// Whether a renewal is still expected, once past active; outside the
 			// notice window this is the raw flag. Don't trust it on an active plan.
 			'auto_renew'      => $will_renew,
+		);
+	}
+
+	/**
+	 * The post-grace state of a site reverted for an expired plan, or null when
+	 * the revert was for something else or support can no longer restore it.
+	 *
+	 * @param array<string,mixed> $revert `reverted_at` timestamp and `for_expired_plan` flag.
+	 * @param int|null            $now    Timestamp to judge against. Defaults to time().
+	 * @return array<string,mixed>|null
+	 */
+	public static function compute_state_from_revert( array $revert, ?int $now = null ): ?array {
+		if ( empty( $revert['for_expired_plan'] ) || empty( $revert['reverted_at'] ) ) {
+			return null;
+		}
+		$reverted_at = (int) $revert['reverted_at'];
+		$now       ??= time();
+		$days_since = max( 0, (int) floor( ( $now - $reverted_at ) / DAY_IN_SECONDS ) );
+		if ( $days_since >= self::POST_GRACE_PERIOD_DAYS ) {
+			return null;
+		}
+
+		return array(
+			'state'           => self::STATE_EXPIRED,
+			'expiry_ts'       => $reverted_at,
+			'days_remaining'  => -$days_since,
+			'product_slug'    => '',
+			'subscription_id' => '',
+			'auto_renew'      => false,
 		);
 	}
 
@@ -172,7 +209,43 @@ class Expiry_Data {
 		}
 
 		$attempt_ts = strtotime( $attempt_date );
-		return false !== $attempt_ts && $attempt_ts < $now;
+		return false !== $attempt_ts && self::end_of_utc_day( $attempt_ts ) < $now;
+	}
+
+	/**
+	 * The first second of the UTC day a timestamp falls on: the instant a
+	 * billing date names, and the one to display it by.
+	 *
+	 * @param int $timestamp Timestamp.
+	 */
+	public static function start_of_utc_day( int $timestamp ): int {
+		return $timestamp - ( $timestamp % DAY_IN_SECONDS );
+	}
+
+	/**
+	 * The last second of the UTC day a timestamp falls on.
+	 *
+	 * Billing only counts one of its dates as passed once that whole day is
+	 * over, as `Store_Subscription` does.
+	 *
+	 * @param int $timestamp Timestamp.
+	 */
+	private static function end_of_utc_day( int $timestamp ): int {
+		return self::start_of_utc_day( $timestamp ) + DAY_IN_SECONDS - 1;
+	}
+
+	/**
+	 * Calendar days in the site's timezone from `$now` to `$timestamp`, as the
+	 * Dashboard counts them, so the count agrees with the date shown beside it.
+	 *
+	 * @param int $timestamp Timestamp to count to.
+	 * @param int $now       Timestamp to count from.
+	 */
+	private static function calendar_days_until( int $timestamp, int $now ): int {
+		$timezone = wp_timezone();
+		$today    = ( new \DateTimeImmutable( '@' . $now ) )->setTimezone( $timezone )->setTime( 0, 0 );
+		$day      = ( new \DateTimeImmutable( '@' . $timestamp ) )->setTimezone( $timezone )->setTime( 0, 0 );
+		return (int) $today->diff( $day )->format( '%r%a' );
 	}
 
 	/**

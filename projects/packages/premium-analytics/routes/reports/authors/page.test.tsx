@@ -182,4 +182,27 @@ describe( 'AuthorsReportPage', () => {
 			} )
 		);
 	} );
+
+	it( 'keeps the loading table on first load, before any authors arrive', () => {
+		useRecordsMock.mockReturnValue( buildRecords( { isLoading: true, isFetching: true } ) );
+
+		render( <AuthorsReportPage /> );
+
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { data: [], isLoading: true } )
+		);
+	} );
+
+	it( 'replaces the authors table with the empty state when the period has no authors', () => {
+		useRecordsMock.mockReturnValue( buildRecords( {} ) );
+
+		render( <AuthorsReportPage /> );
+
+		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
+	} );
 } );

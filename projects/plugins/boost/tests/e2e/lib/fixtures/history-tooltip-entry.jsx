@@ -1,15 +1,18 @@
 /* global document, window */
 import '@wordpress/theme/design-tokens.css';
+import '@wordpress/components/build-style/style.css';
 import '@automattic/jetpack-base-styles/root-variables';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useCallback, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import HistoryChartCard from '../../../../_inc/overview/history-chart-card';
+import { useHistoryRange } from '../../../../_inc/overview/lib/use-history-range';
 import ScoreCards from '../../../../_inc/overview/score-cards';
 import '../../../../_inc/overview/overview.scss';
 // Boost also loads My Jetpack styles, so verify the tooltip with that stylesheet present.
 import '../../../../../../packages/my-jetpack/_inc/components/stats-section/stats-chart-tooltip.module.scss';
 
-const startDate = Date.UTC( 2026, 8, 1 );
+const startDate = Date.UTC( 2026, 8, 1, 12 );
 const day = 24 * 60 * 60 * 1000;
 const data = {
 	startDate,
@@ -17,8 +20,8 @@ const data = {
 	periods: Array.from( { length: 7 }, ( _, index ) => ( {
 		timestamp: startDate + index * day,
 		dimensions: {
-			desktop_overall_score: 80 + index,
-			mobile_overall_score: 65 + index,
+			desktop_overall_score: index === 6 ? 0 : 80 + index,
+			mobile_overall_score: index === 6 ? 0 : 65 + index,
 			desktop_lcp: 1.2,
 			mobile_lcp: 2.1,
 			desktop_tbt: 0.1,
@@ -27,50 +30,102 @@ const data = {
 			mobile_cls: 0.04,
 		},
 	} ) ),
-	annotations: [
-		{ timestamp: startDate + 3 * day, text: 'Optimization enabled' },
-		{ timestamp: startDate + 4 * day, text: 'Configuration updated' },
-	],
+	annotations: [],
 };
 
+if ( new URLSearchParams( window.location.search ).has( 'zeros' ) ) {
+	data.periods = data.periods.map( period => ( {
+		...period,
+		dimensions: { ...period.dimensions, desktop_overall_score: 0, mobile_overall_score: 0 },
+	} ) );
+}
+
+const firstEntry = new URLSearchParams( window.location.search ).has( 'firstEntry' );
+if ( firstEntry ) {
+	data.periods = [ { ...data.periods[ 0 ], timestamp: Date.UTC( 2026, 8, 9, 12 ) } ];
+}
+
 const noop = () => {};
+const loadedScores = {
+	current: { desktop: 80, mobile: 68 },
+	noBoost: { desktop: 70, mobile: 68 },
+	isStale: false,
+};
+const queryClient = new QueryClient();
 
 const HistoryFixture = () => {
+	const paging = useHistoryRange();
 	const [ isVisible, setVisible ] = useState( true );
 	const toggleVisibility = useCallback( () => setVisible( visible => ! visible ), [] );
 	return (
-		<>
+		<div>
 			<button onClick={ toggleVisibility }>Toggle history</button>
 			<HistoryChartCard
+				{ ...paging }
 				data={ data }
 				isVisible={ isVisible }
+				canGoPrevious={
+					! firstEntry && ! new URLSearchParams( window.location.search ).has( 'noOlderHistory' )
+				}
+				showSingleDate={ firstEntry }
+				hasOlderHistory={
+					firstEntry || new URLSearchParams( window.location.search ).has( 'noOlderHistory' )
+						? false
+						: undefined
+				}
 				onRetry={ noop }
-				onDismissFreshStart={ noop }
 			/>
-		</>
+		</div>
 	);
 };
+
+const ScoreStatesFixture = () => (
+	<>
+		<ScoreCards scores={ loadedScores } isLoading hasScores={ false } />
+		<ScoreCards
+			scores={ loadedScores }
+			hasScores={ false }
+			error={ new Error( 'Timed out while waiting for speed-score.' ) }
+			onRetry={ noop }
+		/>
+		<ScoreCards
+			scores={ loadedScores }
+			error={ new Error( 'Timed out while waiting for speed-score.' ) }
+			onRetry={ noop }
+		/>
+	</>
+);
+
+const ScoresFixture = () => (
+	<>
+		<ScoreCards
+			scores={ {
+				current: { desktop: 90, mobile: 60 },
+				noBoost: { desktop: 80, mobile: 70 },
+				isStale: false,
+			} }
+		/>
+		<ScoreCards
+			scores={ { current: { desktop: 40, mobile: 40 }, noBoost: null, isStale: false } }
+		/>
+	</>
+);
+
+const params = new URLSearchParams( window.location.search );
+let Fixture = HistoryFixture;
+if ( params.has( 'score-states' ) ) {
+	Fixture = ScoreStatesFixture;
+} else if ( params.has( 'scores' ) ) {
+	Fixture = ScoresFixture;
+}
 
 createRoot( document.getElementById( 'root' ) ).render(
 	<div
 		className="jetpack-boost-overview"
 		style={ { '--wp-admin-theme-color': 'var(--wpds-color-foreground-interactive-brand)' } }
 	>
-		{ new URLSearchParams( window.location.search ).has( 'scores' ) ? (
-			<>
-				<ScoreCards
-					scores={ {
-						current: { desktop: 90, mobile: 60 },
-						noBoost: { desktop: 80, mobile: 70 },
-						isStale: false,
-					} }
-				/>
-				<ScoreCards
-					scores={ { current: { desktop: 40, mobile: 40 }, noBoost: null, isStale: false } }
-				/>
-			</>
-		) : (
-			<HistoryFixture />
-		) }
+		<QueryClientProvider client={ queryClient }>
+			<Fixture />
+		</QueryClientProvider>
 	</div>
 );

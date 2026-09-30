@@ -1,11 +1,12 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
-import { DropZone, Spinner, Tooltip } from '@wordpress/components';
+import { DropZone, Tooltip } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { DataViews } from '@wordpress/dataviews';
 import { useCallback, useMemo, useRef, useState } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useNavigate } from '@wordpress/route';
-import { Button, Card, VisuallyHidden } from '@wordpress/ui';
+import { Button, Card } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FetchErrorNotice from '../../src/dashboard/components/fetch-error-notice';
@@ -50,6 +51,11 @@ const GRID_VISIBLE_FIELDS: string[] = [ 'orientation' ];
 // visibility control.
 const TABLE_VISIBLE_FIELDS = [ 'filename', 'duration', 'orientation', 'uploadDate', 'privacy' ];
 
+const defaultLayouts = {
+	grid: { layout: { previewSize: 220, density: 'comfortable', aspectRatio: '16/9' } },
+	table: { layout: { density: 'balanced', aspectRatio: '16/9' } },
+} satisfies SupportedLayouts;
+
 const DEFAULT_VIEW: View = {
 	type: 'grid',
 	page: 1,
@@ -57,15 +63,10 @@ const DEFAULT_VIEW: View = {
 	titleField: 'title',
 	mediaField: 'thumbnail',
 	fields: GRID_VISIBLE_FIELDS,
-	layout: { previewSize: 220, density: 'comfortable' },
+	layout: defaultLayouts.grid.layout,
 	sort: { field: 'uploadDate', direction: 'desc' },
 	filters: [],
 	search: '',
-};
-
-const defaultLayouts: SupportedLayouts = {
-	grid: { layout: { previewSize: 220, density: 'comfortable' } },
-	table: { layout: { density: 'balanced' } },
 };
 
 // The whole library, unfiltered — `paginationInfo` on the user's own view is
@@ -83,7 +84,7 @@ const TOTAL_COUNT_VIEW: View = {
 };
 
 const StageInner = () => {
-	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW );
+	const [ initialView, persistView ] = usePersistedView( DEFAULT_VIEW, defaultLayouts );
 	const [ view, setView ] = useState< View >( initialView );
 	const [ selection, setSelection ] = useState< string[] >( [] );
 	const [ captionVideo, setCaptionVideo ] = useState< LibraryItem | null >( null );
@@ -99,6 +100,10 @@ const StageInner = () => {
 	// table) until the post-delete refetch removes them from the listing.
 	const [ deletingIds, setDeletingIds ] = useState< Set< string > >( () => new Set() );
 
+	const { uploadQueue, retryUpload } = useUpload();
+	// Every byte is sent but the server is still creating the attachment, which
+	// a poll would list half-made; the upload's response triggers the refetch.
+	const isFinalizingUpload = uploadQueue.some( u => u.status === 'uploading' && u.progress >= 1 );
 	const {
 		items,
 		isLoading,
@@ -106,13 +111,16 @@ const StageInner = () => {
 		isError,
 		error: libraryError,
 		refetch,
-	} = useLibrary( view );
-	const { uploadQueue, retryUpload } = useUpload();
+	} = useLibrary( view, { poll: ! isFinalizingUpload } );
 	// Read the store's existing errors so a failed row can name the cause; the
 	// notice this dashboard already renders carries the diagnosis and the
 	// reconnect button, so the row only has to point at it.
 	const { hasConnectionError } = useConnectionErrorNotice();
-	const { paginationInfo: totalPagination } = useLibrary( TOTAL_COUNT_VIEW );
+	const {
+		paginationInfo: totalPagination,
+		isLoading: isTotalLoading,
+		isError: isTotalError,
+	} = useLibrary( TOTAL_COUNT_VIEW, { poll: false } );
 	const { mutateAsync: deleteVideo } = useDeleteVideo();
 	const { mutateAsync: setPrivacyAsync } = useSetPrivacy();
 	const { mutateAsync: uploadFromLibrary } = useUploadFromLibrary();
@@ -127,7 +135,7 @@ const StageInner = () => {
 						: {
 								...next,
 								fields: next.type === 'table' ? TABLE_VISIBLE_FIELDS : GRID_VISIBLE_FIELDS,
-						  };
+							};
 				persistView( resolved );
 				return resolved;
 			} );
@@ -152,7 +160,7 @@ const StageInner = () => {
 		[ navigate ]
 	);
 
-	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice, createInfoNotice } = useDispatch( noticesStore );
 
 	// Shared multi-file entry point for the DropZone, the header "Upload
 	// video" file picker, and (via the same hook) the welcome modal's CTA.
@@ -174,12 +182,10 @@ const StageInner = () => {
 	// The factory owns the in-flight progress map (re-entry guard + overlay
 	// snapshots, chunk progress folded in) and reacts via the mutateAsync
 	// promise; see promote-local.ts for why.
-	// Deliberately created ONCE per stage instance: useGlobalNotices() returns
-	// fresh wrapper closures every render, so a dep-keyed useMemo would rebuild
-	// the factory (emptying its in-flight state) on each render — including the
-	// renders its own publishes trigger. All captured deps are stable: the
-	// notice wrappers forward to registry-bound dispatchers, mutateAsync is
-	// referentially stable in TanStack v5, and state setters never change.
+	// Deliberately created ONCE per stage instance: the in-flight map lives
+	// in this closure, so a fresh factory would forget mid-promote rows.
+	// Captured deps are stable (useDispatch notice creators, mutateAsync,
+	// state setters).
 	const [ promoteLocal ] = useState( () =>
 		createPromoteLocal( {
 			promote: uploadFromLibrary,
@@ -217,7 +223,7 @@ const StageInner = () => {
 							),
 							ids.length
 						),
-						{ id: noticeId, explicitDismiss: true }
+						{ id: noticeId, explicitDismiss: true, type: 'snackbar' }
 					);
 					// React via the mutateAsync promise, not mutate-level callbacks:
 					// those are dropped if another delete starts while this one is in
@@ -240,7 +246,7 @@ const StageInner = () => {
 								),
 								ids.length
 							),
-							{ id: noticeId }
+							{ id: noticeId, type: 'snackbar' }
 						);
 					} catch ( error ) {
 						// Unknown error shape → assume nothing was deleted.
@@ -259,7 +265,7 @@ const StageInner = () => {
 								),
 								failedIds.size
 							),
-							{ id: noticeId }
+							{ id: noticeId, type: 'snackbar' }
 						);
 					}
 					setDeletingIds( prev => {
@@ -291,7 +297,8 @@ const StageInner = () => {
 										),
 										succeeded.length,
 										PRIVACY_LABELS[ privacy ]
-									)
+									),
+									{ type: 'snackbar' }
 								);
 								return;
 							}
@@ -303,7 +310,8 @@ const StageInner = () => {
 										'Failed to update privacy for the selected videos.',
 										failed.length,
 										'jetpack-videopress-pkg'
-									)
+									),
+									{ type: 'snackbar' }
 								);
 								return;
 							}
@@ -317,11 +325,14 @@ const StageInner = () => {
 									),
 									succeeded.length,
 									failed.length
-								)
+								),
+								{ type: 'snackbar' }
 							);
 						} )
 						.catch( () => {
-							createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ) );
+							createErrorNotice( __( 'Failed to update privacy.', 'jetpack-videopress-pkg' ), {
+								type: 'snackbar',
+							} );
 						} );
 				},
 			} ),
@@ -340,8 +351,10 @@ const StageInner = () => {
 	// Splice in-flight uploads at the top of the listing so the user sees
 	// their upload immediately, before the next server refetch.
 	const renderedItems = useMemo< LibraryItem[] >( () => {
+		const listedIds = new Set( items.map( item => item.id ) );
 		const inFlight: LibraryItem[] = uploadQueue
-			.filter( u => u.status === 'pending' || u.status === 'uploading' || u.status === 'failed' )
+			// A finished upload keeps its row until the listing has the attachment.
+			.filter( u => ! ( u.mediaId && listedIds.has( u.mediaId ) ) )
 			.map( u => ( {
 				id: u.id,
 				guid: '',
@@ -399,15 +412,21 @@ const StageInner = () => {
 			onChangeSelection={ setSelection }
 			getItemId={ getItemId }
 			paginationInfo={ paginationInfo }
-			isLoading={ isLoading }
+			isLoading={ isLoading || ( isTotalLoading && renderedItems.length === 0 ) }
 			defaultLayouts={ defaultLayouts }
 		/>
 	);
 
-	// The viewport's four mutually exclusive surfaces, flattened out of
-	// nested ternaries so each branch can say why it exists. Order matters:
-	// error first, then anything already listable, then the undecided wait,
-	// then the empty-vs-listing verdict.
+	// The hook defaults its count to zero; only settled, successful reads confirm an empty library.
+	const showsEmptyDropzone =
+		! isLoading &&
+		! isTotalLoading &&
+		! isError &&
+		! isTotalError &&
+		items.length === 0 &&
+		uploadQueue.length === 0 &&
+		totalPagination.totalItems === 0;
+
 	const renderViewport = () => {
 		// A failed listing request would otherwise render as DataViews'
 		// "No results" — indistinguishable from an empty library. Surface
@@ -430,34 +449,14 @@ const StageInner = () => {
 			);
 		}
 
-		// Anything to list — fetched rows or in-flight uploads being spliced
-		// in — and the listing owns the surface, whatever the count says.
-		if ( items.length > 0 || uploadQueue.length > 0 ) {
-			return renderDataViews();
-		}
-
-		// The initial state: the unfiltered count hasn't answered yet, so
-		// whether this library is empty is genuinely unknown. Painting the
-		// grid skeleton and then swapping in the dropzone (or vice versa)
-		// reads as the page loading twice; an explicit wait reads as loading
-		// once. `undefined` rather than `isLoading` so a background refetch
-		// of a settled count never re-shows the wait.
-		if ( totalPagination === undefined ) {
-			return (
-				<div className="vp-library__deciding" role="status">
-					<Spinner />
-					<VisuallyHidden>{ __( 'Loading…', 'jetpack-videopress-pkg' ) }</VisuallyHidden>
-				</div>
-			);
-		}
-
 		// An empty library gets an upload dropzone instead of DataViews'
 		// "No results" — a first-video invitation rather than a failed
 		// search. Dropping or picking files lands in the same
-		// `handleFilesSelected` pipeline as the page-wide DropZone and the
-		// header button, so the listing (with its spliced in-flight rows)
-		// takes over the moment anything enters the queue.
-		if ( totalPagination.totalItems === 0 ) {
+		// `handleFilesSelected` pipeline as the page-wide DropZone (and the
+		// header's Upload button, once the listing shows), so the listing
+		// (with its spliced in-flight rows) takes over the moment anything
+		// enters the queue.
+		if ( showsEmptyDropzone ) {
 			return (
 				<div className="vp-library__empty-state">
 					<Card.Root className="vp-library__empty-card">
@@ -478,8 +477,7 @@ const StageInner = () => {
 			);
 		}
 
-		// A non-empty library whose current view matched nothing is a filter
-		// story, and DataViews' own "No results" tells it.
+		// DataViews owns loading and filtered results, including "No results".
 		return renderDataViews();
 	};
 
@@ -492,35 +490,37 @@ const StageInner = () => {
 			activeTab="library"
 			hideFooter
 			actions={
-				<>
-					<input
-						ref={ filePickerRef }
-						type="file"
-						accept="video/*"
-						// The capped free tier can only ever host `limit` videos, so
-						// multi-select there would only produce skipped-file notices;
-						// paid and grandfathered-unlimited plans get bulk selection.
-						multiple={ ! isFree || isUnlimited }
-						style={ { display: 'none' } }
-						onChange={ onFilePicked }
-					/>
-					<Tooltip
-						text={
-							isAtLimit
-								? FREE_TIER_AT_LIMIT_MESSAGE
-								: __( 'Upload a new video', 'jetpack-videopress-pkg' )
-						}
-					>
-						<Button
-							className="vp-library__upload-button"
-							size="compact"
-							onClick={ onClickHeaderUpload }
-							aria-disabled={ isAtLimit }
+				showsEmptyDropzone ? undefined : (
+					<>
+						<input
+							ref={ filePickerRef }
+							type="file"
+							accept="video/*"
+							// The capped free tier can only ever host `limit` videos, so
+							// multi-select there would only produce skipped-file notices;
+							// paid and grandfathered-unlimited plans get bulk selection.
+							multiple={ ! isFree || isUnlimited }
+							style={ { display: 'none' } }
+							onChange={ onFilePicked }
+						/>
+						<Tooltip
+							text={
+								isAtLimit
+									? FREE_TIER_AT_LIMIT_MESSAGE
+									: __( 'Upload a new video', 'jetpack-videopress-pkg' )
+							}
 						>
-							{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
-						</Button>
-					</Tooltip>
-				</>
+							<Button
+								className="vp-library__upload-button"
+								size="compact"
+								onClick={ onClickHeaderUpload }
+								aria-disabled={ isAtLimit }
+							>
+								{ __( 'Upload video', 'jetpack-videopress-pkg' ) }
+							</Button>
+						</Tooltip>
+					</>
+				)
 			}
 		>
 			{ isAtLimit && (

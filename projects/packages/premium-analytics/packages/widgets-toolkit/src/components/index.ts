@@ -13,6 +13,7 @@ export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 } from './chart-comparative-line';
 export {
 	ComparativeBarChart,
@@ -57,6 +58,13 @@ export {
 	type LeaderboardRowProps,
 } from './chart-leaderboard';
 export {
+	Leaderboard,
+	type LeaderboardDrillDown,
+	type LeaderboardProps,
+	type LeaderboardRowInput,
+	type LeaderboardStatus,
+} from './leaderboard';
+export {
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -81,6 +89,7 @@ export {
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
 } from './calendar-heatmap';
+export { MonthCalendarHeatmap, type MonthCalendarHeatmapProps } from './month-calendar-heatmap';
 export {
 	MonthlyHeatmap,
 	type MonthlyHeatmapProps,
@@ -95,8 +104,14 @@ export {
 	type WidgetStateEmpty,
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
-export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
+export {
+	WidgetFooter,
+	type WidgetFooterProps,
+	WidgetFooterLink,
+	type WidgetFooterLinkProps,
+} from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
+export { InfoTip, type InfoTipProps } from './info-tip';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
 export {
@@ -123,6 +138,7 @@ export {
 export {
 	ReportChartSection,
 	ReportDrilldownTable,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -132,6 +148,8 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,
@@ -153,6 +171,8 @@ export {
 export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
+	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
@@ -165,7 +185,12 @@ export {
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';
-export { PageOptionsMenu, type PageOptionsMenuProps } from './page-options-menu';
+export {
+	FeedbackModal,
+	PageOptionsMenu,
+	type FeedbackSource,
+	type PageOptionsMenuProps,
+} from './page-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
 	ReportCsvDownloadButton,
@@ -178,8 +203,10 @@ export {
 } from './download-csv';
 export { WidgetDataTable, type WidgetDataTableProps } from './widget-data-table';
 export {
-	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 } from './wordads-earnings-history';
@@ -187,6 +214,7 @@ export {
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,

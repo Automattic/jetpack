@@ -88,11 +88,6 @@
 				"audience": {
 					"type": "string",
 					"maxLength": 200
-				},
-				"tagline": {
-					"type": "string",
-					"maxLength": 200,
-					"description": "Used as the site tagline by the wizard's tagline-write completion."
 				}
 			}
 		},

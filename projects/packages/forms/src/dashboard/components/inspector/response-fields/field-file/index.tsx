@@ -18,7 +18,7 @@ const FieldFile = ( { files, handleFilePreview }: FieldFileProps ) => {
 						return (
 							<File file={ file } onClick={ handleFilePreview( file ) } key={ file.file_id } />
 						);
-				  } )
+					} )
 				: '-' }
 		</div>
 	);

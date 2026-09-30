@@ -37,11 +37,17 @@ export {
 	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
 	type LeaderboardSkeletonProps,
+	Leaderboard,
+	type LeaderboardDrillDown,
+	type LeaderboardProps,
+	type LeaderboardRowInput,
+	type LeaderboardStatus,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -67,6 +73,8 @@ export {
 	type CalendarHeatmapPager,
 	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
+	MonthCalendarHeatmap,
+	type MonthCalendarHeatmapProps,
 	MonthlyHeatmap,
 	type MonthlyHeatmapProps,
 	type MonthlyHeatmapRow,
@@ -81,8 +89,12 @@ export {
 	type WidgetBackLinkProps,
 	WidgetFooter,
 	type WidgetFooterProps,
+	WidgetFooterLink,
+	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
+	InfoTip,
+	type InfoTipProps,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
@@ -107,6 +119,8 @@ export {
 	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -120,6 +134,8 @@ export {
 	type DetailPageLayoutProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
+	FeedbackModal,
+	type FeedbackSource,
 	PageOptionsMenu,
 	type PageOptionsMenuProps,
 	ResetLayoutAction,
@@ -131,6 +147,7 @@ export {
 	type LocationsGeoRow,
 	ReportChartSection,
 	ReportDrilldownTable,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -140,6 +157,8 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
@@ -166,13 +185,16 @@ export {
 	type UseReportCsvExportResult,
 	WidgetDataTable,
 	type WidgetDataTableProps,
-	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
 	AnnualHighlightsSkeleton,
 	GenericSkeleton,
 	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
 	MetricSparklineSkeleton,
 	type MetricSparklineSkeletonProps,
 	SkeletonRoot,
@@ -182,7 +204,11 @@ export {
 /**
  * Constants
  */
-export { COLOR_GRAY_100, WIDGET_ROW_LIMIT } from './constants';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_SECTION_LAYOUTS_KEY,
+	WIDGET_ROW_LIMIT,
+} from './constants';
 
 /**
  * Widget edit fields
@@ -232,42 +258,49 @@ export {
 	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
-	formatDailyViewCount,
+	compareOptionalNumbers,
+	formatEmailRate,
 	formatViewCount,
+	getKnownEmailRate,
+	isEmailRateKnown,
+	type EmailRateSignals,
 	MONTHS_IN_YEAR,
 	monthOrder,
 	type MonthKey,
+	MONTHLY_HEATMAP_METRICS,
 	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
 	resolveMonthlyHeatmapMetric,
 	type MonthlyHeatmapMetric,
+	monthlyHeatmapLifeStart,
 	monthRange,
 	yearRange,
 	type PeriodBounds,
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
  * Hooks
  */
 export {
+	DashboardSectionProvider,
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
 	useWidgetNavigationSearch,
 	useSegmentStyles,
 	useSeriesStyles,
 	useStoredDetailLayout,
+	useTrackCustomize,
 	useTrackEvent,
-	useViewportWidth,
+	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -303,7 +336,14 @@ export {
 /**
  * Types
  */
-export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type {
+	CountLabel,
+	MetricKey,
+	OrderMetricKey,
+	OrderMetrics,
+	OrdersSummary,
+	DataFormat,
+} from './types';
 
 /**
  * Charts passthrough. Widgets must import chart components from here, never
@@ -333,4 +373,4 @@ export {
  * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
  * once instead of once per widget.
  */
-export { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';

@@ -5,6 +5,23 @@ const BOX = { width: 208, height: 36 };
 const OFFSETS = { offsetLeft: 10, offsetTop: 10 };
 
 describe( 'getBoundedPosition', () => {
+	test.each( [
+		[ 40, 50 ],
+		[ 700, 425 ],
+	] )( 'keeps a beside tooltip at its anchor and flips horizontally at %s', ( left, x ) => {
+		expect(
+			getBoundedPosition( {
+				left,
+				top: -20,
+				...OFFSETS,
+				box: { width: 265, height: 382 },
+				wrapper: { left: 0, top: 0, right: 800, bottom: 300 },
+				bounds: { left: 0, top: -100, right: 800, bottom: 500 },
+				placement: 'beside',
+			} )
+		).toEqual( { x, y: -20 } );
+	} );
+
 	test( 'sits below and to the right of the anchor when that fits', () => {
 		expect(
 			getBoundedPosition( {

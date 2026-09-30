@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useDispatch } from '@wordpress/data';
 import { Link } from '@wordpress/ui';
@@ -14,6 +15,7 @@ type Props = {
 };
 
 const SUPPORT_POST_ID = 4458;
+const WPCOM_SUPPORT_URL = 'https://wordpress.com/support/videopress/';
 
 /**
  * Links to the VideoPress support doc. WordPress.com sites open it in the Help
@@ -25,13 +27,14 @@ const SUPPORT_POST_ID = 4458;
  */
 export default function SupportLink( { children }: Props ) {
 	const helpCenter = useDispatch( 'automattic/help-center' ) as
-		| { setShowSupportDoc?: ( url: string, postId: number ) => void }
-		| undefined;
+		{ setShowSupportDoc?: ( url: string, postId: number ) => void } | undefined;
 	const setShowSupportDoc = helpCenter?.setShowSupportDoc;
 
-	const supportUrl = isWpcomPlatformSite()
-		? 'https://wordpress.com/support/videopress/'
-		: 'https://jetpack.com/support/jetpack-videopress/';
+	const supportUrl = getRedirectUrl(
+		isWpcomPlatformSite()
+			? 'wpcom-videopress-admin-learn-more'
+			: 'jetpack-videopress-admin-learn-more'
+	);
 
 	if ( setShowSupportDoc ) {
 		return (
@@ -39,7 +42,8 @@ export default function SupportLink( { children }: Props ) {
 				href={ supportUrl }
 				onClick={ event => {
 					event.preventDefault();
-					setShowSupportDoc( supportUrl, SUPPORT_POST_ID );
+					// The Help Center article API requires a support URL, not a redirect URL.
+					setShowSupportDoc( WPCOM_SUPPORT_URL, SUPPORT_POST_ID );
 				} }
 			>
 				{ children }

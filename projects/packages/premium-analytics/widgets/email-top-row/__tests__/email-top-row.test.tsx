@@ -17,40 +17,66 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw per-post `rate` breakdown responses: flat scalars, one endpoint per view.
+// Raw per-post `rate` responses, shaped as wpcom's Email_Opens_Rate_Stats and
+// Email_Clicks_Rate_Stats return them.
 const OPENS_RATE_RESPONSE = {
 	total_sends: 1000,
+	unique_opens: 381,
 	total_opens: 400,
-	unique_opens: 380,
 	opens_rate: 0.381,
 };
 
 const CLICKS_RATE_RESPONSE = {
+	total_clicks: 40,
+	unique_clicks: 38,
 	total_sends: 1000,
 	total_opens: 400,
-	total_clicks: 40,
-	clicks_rate: 0.0381,
+	clicks_rate: 0.038,
+};
+
+// A legacy send: sends went unrecorded, so the opens endpoint nulls everything and
+// only the clicks endpoint carries the opens.
+const LEGACY_OPENS_RATE_RESPONSE = {
+	total_sends: null,
+	unique_opens: null,
+	total_opens: null,
+	opens_rate: null,
+};
+
+const LEGACY_CLICKS_RATE_RESPONSE = {
+	total_clicks: 5,
+	unique_clicks: 0,
+	total_sends: 0,
+	total_opens: 120,
+	clicks_rate: null,
+};
+
+let rateResponses = {
+	opens: OPENS_RATE_RESPONSE as object,
+	clicks: CLICKS_RATE_RESPONSE as object,
 };
 
 function routeRateResponse( options: unknown ) {
-	const path = typeof options === 'string' ? options : ( options as { path?: string } )?.path ?? '';
+	const path =
+		typeof options === 'string' ? options : ( ( options as { path?: string } )?.path ?? '' );
 
 	if ( path.includes( '/clicks/emails/' ) ) {
-		return Promise.resolve( CLICKS_RATE_RESPONSE );
+		return Promise.resolve( rateResponses.clicks );
 	}
 	if ( path.includes( '/opens/emails/' ) ) {
-		return Promise.resolve( OPENS_RATE_RESPONSE );
+		return Promise.resolve( rateResponses.opens );
 	}
 	return Promise.resolve( {} );
 }
 
 // The summary type is index-signature only; tests build fixtures as plain objects.
-const asSummary = ( fields: Record< string, number > ) =>
+const asSummary = ( fields: Record< string, number | null > ) =>
 	fields as unknown as StatsEmailBreakdown[ 'summary' ];
 
 describe( 'EmailTopRowWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
+		rateResponses = { opens: OPENS_RATE_RESPONSE, clicks: CLICKS_RATE_RESPONSE };
 		mockApiFetch.mockReset();
 		mockApiFetch.mockImplementation( routeRateResponse );
 	} );
@@ -75,6 +101,45 @@ describe( 'EmailTopRowWidget', () => {
 		expect( screen.getByText( '38.1%' ) ).toBeInTheDocument();
 	} );
 
+	it( 'renders the Opens view without asking the clicks endpoint when sends are recorded', async () => {
+		mockApiFetch.mockImplementation( options =>
+			String( ( options as { path?: string } )?.path ).includes( '/clicks/emails/' )
+				? Promise.reject( { status: 403, message: 'Forbidden' } )
+				: routeRateResponse( options )
+		);
+
+		render(
+			<EmailTopRowWidget
+				attributes={ {
+					metric: 'opens',
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( '38.1%' ) ).resolves.toBeInTheDocument();
+		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
+		expect( requestedPaths.some( path => path.includes( '/clicks/emails/' ) ) ).toBe( false );
+	} );
+
+	it( "shows a legacy send's opens from the clicks endpoint instead of an empty state", async () => {
+		rateResponses = { opens: LEGACY_OPENS_RATE_RESPONSE, clicks: LEGACY_CLICKS_RATE_RESPONSE };
+
+		render(
+			<EmailTopRowWidget
+				attributes={ {
+					metric: 'opens',
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( '120' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Unique opens' ) ).not.toBeInTheDocument();
+		// Emails sent and Open rate are unknown, not zero.
+		expect( screen.getAllByText( '—' ) ).toHaveLength( 2 );
+	} );
+
 	it( 'renders the Clicks view tiles when metric is clicks', async () => {
 		render(
 			<EmailTopRowWidget
@@ -92,8 +157,7 @@ describe( 'EmailTopRowWidget', () => {
 		expect( screen.queryByText( 'Emails sent' ) ).not.toBeInTheDocument();
 		expect( screen.queryByText( 'Unique opens' ) ).not.toBeInTheDocument();
 
-		// The Clicks design combines the total-opens context from the opens summary
-		// with click totals from the clicks summary.
+		// Total opens comes from the opens summary.
 		const requestedPaths = mockApiFetch.mock.calls.map( call => call[ 0 ].path as string );
 		expect( requestedPaths.some( path => path.includes( 'stats/opens/emails/2000/rate' ) ) ).toBe(
 			true
@@ -101,6 +165,25 @@ describe( 'EmailTopRowWidget', () => {
 		expect( requestedPaths.some( path => path.includes( 'stats/clicks/emails/2000/rate' ) ) ).toBe(
 			true
 		);
+	} );
+
+	it( 'lets the clicks summary win a shared key in the Clicks view', async () => {
+		rateResponses = {
+			opens: { ...OPENS_RATE_RESPONSE, total_opens: 400 },
+			clicks: { ...CLICKS_RATE_RESPONSE, total_opens: 999 },
+		};
+
+		render(
+			<EmailTopRowWidget
+				attributes={ {
+					metric: 'clicks',
+					reportParams: { ...getDefaultQueryParams( false ), post_id: 2000 },
+				} }
+			/>
+		);
+
+		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( '400' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the empty state when the email has no stats', async () => {
@@ -185,6 +268,7 @@ describe( 'toEmailTopRowMetrics', () => {
 				unique_opens: 380,
 				total_opens: 400,
 				total_clicks: 40,
+				unique_clicks: 38,
 				clicks_rate: 0.0381,
 			} ),
 			'clicks'
@@ -198,22 +282,54 @@ describe( 'toEmailTopRowMetrics', () => {
 		expect( metrics.find( metric => metric.key === 'clicks_rate' )?.value ).toBeCloseTo( 0.0381 );
 	} );
 
-	it( 'hides the Unique opens tile when there are no unique opens', () => {
+	it( 'shows a real 0% and zero unique opens for a sent, unopened email', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 400, unique_opens: 0, opens_rate: 0.381 } ),
+			asSummary( { total_sends: 1, unique_opens: 0, total_opens: 0, opens_rate: 0 } ),
+			'opens'
+		);
+
+		expect( Object.fromEntries( metrics.map( metric => [ metric.key, metric.value ] ) ) ).toEqual( {
+			total_sends: 1,
+			unique_opens: 0,
+			total_opens: 0,
+			opens_rate: 0,
+		} );
+	} );
+
+	it( 'hides Unique opens and the rate when opens have no attributable recipient', () => {
+		const metrics = toEmailTopRowMetrics(
+			asSummary( { total_sends: 1000, unique_opens: 0, total_opens: 400, opens_rate: 0 } ),
 			'opens'
 		);
 
 		expect( metrics.map( metric => metric.key ) ).not.toContain( 'unique_opens' );
+		expect( metrics.find( metric => metric.key === 'opens_rate' )?.value ).toBeNull();
 	} );
 
-	it( 'renders a missing or zero rate as null so the tile shows a placeholder', () => {
+	it( 'shows unrecorded sends and their rate as unknown, not zero', () => {
 		const metrics = toEmailTopRowMetrics(
-			asSummary( { total_sends: 1000, total_opens: 0, unique_opens: 0 } ),
+			asSummary( { total_clicks: 5, unique_clicks: 0, total_sends: 0, total_opens: 120 } ),
 			'opens'
 		);
 
-		expect( metrics.find( metric => metric.key === 'opens_rate' )?.value ).toBeNull();
+		expect( Object.fromEntries( metrics.map( metric => [ metric.key, metric.value ] ) ) ).toEqual( {
+			total_sends: null,
+			total_opens: 120,
+			opens_rate: null,
+		} );
+	} );
+
+	it( 'shows a real 0% click rate and a missing total as unknown', () => {
+		const metrics = toEmailTopRowMetrics(
+			asSummary( { total_clicks: 0, unique_clicks: 0, total_sends: 1, clicks_rate: 0 } ),
+			'clicks'
+		);
+
+		expect( Object.fromEntries( metrics.map( metric => [ metric.key, metric.value ] ) ) ).toEqual( {
+			total_opens: null,
+			total_clicks: 0,
+			clicks_rate: 0,
+		} );
 	} );
 } );
 

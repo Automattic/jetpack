@@ -32,7 +32,7 @@ export function UpgradeNotice() {
 					'jetpack-publicize-pkg'
 				),
 				planName
-		  )
+			)
 		: genericMessage;
 
 	return (

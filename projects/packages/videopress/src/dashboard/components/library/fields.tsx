@@ -128,7 +128,7 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 						__( '%1$s: %2$s', 'jetpack-videopress-pkg' ),
 						summary,
 						cause
-				  )
+					)
 				: summary,
 		};
 	} else if ( isProcessing ) {
@@ -140,7 +140,7 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 							/* translators: %d: transcoding progress percentage */
 							__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
 							processingProgress
-					  )
+						)
 					: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( type === 'local' ) {

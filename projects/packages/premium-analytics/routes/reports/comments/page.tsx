@@ -24,11 +24,12 @@ import { REPORTS } from '../registry';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	useCommentsReportRecords,
 	type CommentReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -97,7 +98,7 @@ function CommentsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
 				{ /*

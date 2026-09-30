@@ -1,7 +1,8 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { ToggleControl } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { Card, Stack } from '@wordpress/ui';
 import DashboardLayout from '../../src/dashboard/components/dashboard-layout';
 import FreeTierNotice, {
@@ -20,10 +21,11 @@ import type { SettingsPatch } from '../../src/dashboard/hooks/use-settings';
 const SettingsForm = () => {
 	const settings = useSettings();
 	const update = useUpdateSettings();
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const privateForSite = settings.data?.videoPressVideosPrivateForSite ?? false;
 	const autoSubtitlesDisabled = settings.data?.videoPressAutoSubtitlesDisabled ?? false;
 	const playerPreloadDisabled = settings.data?.videoPressPlayerPreloadDisabled ?? false;
+	const inlinePlayerEnabled = settings.data?.videoPressInlinePlayerEnabled ?? false;
 	const disabled = settings.isLoading || update.isPending;
 
 	// The mutation rolls the optimistic value back on failure; without a notice
@@ -36,7 +38,8 @@ const SettingsForm = () => {
 			mutate( patch, {
 				onError: () =>
 					createErrorNotice(
-						__( 'Your setting couldn’t be saved. Please try again.', 'jetpack-videopress-pkg' )
+						__( 'Your setting couldn’t be saved. Please try again.', 'jetpack-videopress-pkg' ),
+						{ type: 'snackbar' }
 					),
 			} ),
 		[ mutate, createErrorNotice ]
@@ -65,11 +68,11 @@ const SettingsForm = () => {
 								? __(
 										'This follows your site’s Privacy setting. To change who can view your videos, update your site’s visibility in Settings → General.',
 										'jetpack-videopress-pkg'
-								  )
+									)
 								: __(
 										"Private videos won't play for signed-out visitors.",
 										'jetpack-videopress-pkg'
-								  )
+									)
 						}
 						checked={ privateForSite }
 						disabled={ disabled || privateForSiteServerControlled }
@@ -99,6 +102,20 @@ const SettingsForm = () => {
 						checked={ ! playerPreloadDisabled }
 						disabled={ disabled }
 						onChange={ next => save( { videoPressPlayerPreloadDisabled: ! next } ) }
+					/>
+					<ToggleControl
+						__nextHasNoMarginBottom
+						label={ __(
+							'Load the player once per page instead of once per video',
+							'jetpack-videopress-pkg'
+						) }
+						help={ __(
+							'Renders every video directly in your page from one shared player script instead of a separate embedded frame per video, so page-speed tools stop counting the player once for each video. Playlists and videos with hover previews keep using frames.',
+							'jetpack-videopress-pkg'
+						) }
+						checked={ inlinePlayerEnabled }
+						disabled={ disabled }
+						onChange={ next => save( { videoPressInlinePlayerEnabled: next } ) }
 					/>
 				</Stack>
 			</Card.Content>

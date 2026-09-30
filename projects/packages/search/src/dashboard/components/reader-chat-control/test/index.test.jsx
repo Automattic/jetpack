@@ -1,3 +1,13 @@
+const mockPlan = { supportsSearch: true, isFreePlan: false };
+jest.mock( '@wordpress/data', () => ( {
+	useSelect: callback =>
+		callback( () => ( {
+			supportsSearch: () => mockPlan.supportsSearch,
+			isFreePlan: () => mockPlan.isFreePlan,
+		} ) ),
+} ) );
+jest.mock( 'store', () => ( { STORE_ID: 'search' } ) );
+
 // Mocks must precede module imports so Jest can hoist them above the
 // component file's own dependency chain (which would otherwise drag in
 // the full `@wordpress/components` + admin-ui stack at test time).
@@ -61,6 +71,32 @@ const defaultProps = {
 describe( 'ReaderChatControl', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
+		mockPlan.supportsSearch = true;
+		mockPlan.isFreePlan = false;
+	} );
+
+	test.each( [ 'free', 'no Search' ] )( 'blocks activation on a %s plan', plan => {
+		mockPlan.isFreePlan = plan === 'free';
+		mockPlan.supportsSearch = plan !== 'no Search';
+		render( <ReaderChatControl { ...defaultProps } /> );
+		expect( screen.getByRole( 'checkbox', { name: /Enable Site Chat/i } ) ).toBeDisabled();
+		expect( screen.getByRole( 'link', { name: /Upgrade Jetpack Search/i } ) ).toBeInTheDocument();
+	} );
+
+	test( 'allows activation on a paid plan', () => {
+		render( <ReaderChatControl { ...defaultProps } /> );
+		expect( screen.getByRole( 'checkbox', { name: /Enable Site Chat/i } ) ).toBeEnabled();
+		expect(
+			screen.queryByRole( 'link', { name: /Upgrade Jetpack Search/i } )
+		).not.toBeInTheDocument();
+	} );
+
+	test( 'allows disabling Site Chat after a downgrade', () => {
+		mockPlan.isFreePlan = true;
+		const updateOptions = jest.fn();
+		render( <ReaderChatControl { ...defaultProps } isEnabled updateOptions={ updateOptions } /> );
+		fireEvent.click( screen.getByRole( 'checkbox', { name: /Enable Site Chat/i } ) );
+		expect( updateOptions ).toHaveBeenCalledWith( { reader_chat: false } );
 	} );
 
 	test( 'renders nothing when the setting is not available', () => {

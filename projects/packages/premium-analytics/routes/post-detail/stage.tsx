@@ -1,12 +1,16 @@
 import {
 	AnalyticsQueryClientProvider,
 	GlobalErrorProvider,
+	PeriodChangeSignalProvider,
+	postSurface,
 	ReportScopeProvider,
+	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
 import { LinkButton } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
+	PeriodChangeStatus,
 	safeHttpUrl,
 	SectionTabs,
 	StatsBreadcrumbs,
@@ -15,27 +19,29 @@ import {
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { store as coreStore } from '@wordpress/core-data';
-import { useSelect } from '@wordpress/data';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
-import { type WidgetModuleRecord } from '@wordpress/widget-primitives';
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModules } from '../use-widget-modules';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { withWidgetTypeAliases } from '../widget-type-aliases';
 import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -63,6 +69,28 @@ function PostDetail(): JSX.Element {
 	// The resource, date range, and comparison all live in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'post_detail', offersComparison: false }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
 
 	// The email tabs report over the first 30 days after the send rather than
 	// the URL range (WOOA7S-1945): their widgets take these params in place of
@@ -78,7 +106,9 @@ function PostDetail(): JSX.Element {
 		activeTab,
 		setActiveTab,
 		layout: fixedLayout,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+		isEmailNotSent,
+		isEmailSendPending,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
 
 	// The stored per-tab arrangement, layered over the fixed composition.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
@@ -96,68 +126,72 @@ function PostDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { layoutId: activeTab, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		layoutId: activeTab,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'post_detail',
+	} );
 
 	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
+	// The email header names the send ("Email sent on…"), so a post that was
+	// never sent gets the page-level state in place of the header and widgets.
+	const showNotSent = isEmailTab && isEmailNotSent;
+	// Until the send check answers, the email header stays a skeleton, so it
+	// never names a send that the not-sent state then replaces.
+	const headerSummary =
+		isEmailTab && isEmailSendPending ? { ...summary, isLoading: true } : summary;
 
-	const widgetModules = useSelect(
-		select =>
-			(
-				select( coreStore ) as unknown as {
-					getEntityRecords: (
-						kind: string,
-						name: string,
-						query?: Record< string, unknown >
-					) => WidgetModuleRecord[] | null;
-				}
-			 )
-				// `per_page: -1` returns every widget type; core-data's default query
-				// (`per_page: 10`) could silently drop ones this fixed layout requires.
-				.getEntityRecords( 'root', 'widgetModule', { per_page: -1 } ),
-		[]
-	);
+	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
-	// The host titles a card by its widget *type*; fixed compositions reuse
-	// registered types under page-local aliases to carry the design title.
-	const pageWidgetTypes = useMemo( () => {
-		const aliases = POST_DETAIL_WIDGET_TYPE_ALIASES.flatMap( ( { baseType, variants } ) => {
-			const base = widgetTypes.find( widgetType => widgetType.name === baseType );
-
-			return base
-				? variants.map( variant => ( {
-						...base,
-						name: variant.name,
-						title: variant.getTitle(),
-						...( variant.getHelp ? { help: variant.getHelp() } : {} ),
-						...( variant.icon ? { icon: variant.icon } : {} ),
-				  } ) )
-				: [];
-		} );
-
-		return aliases.length ? [ ...widgetTypes, ...aliases ] : widgetTypes;
-	}, [ widgetTypes ] );
+	const pageWidgetTypes = useMemo(
+		() => withWidgetTypeAliases( widgetTypes, POST_DETAIL_WIDGET_TYPE_ALIASES ),
+		[ widgetTypes ]
+	);
 
 	const breadcrumbs = useDetailBreadcrumbs( summary.title );
+
+	// A card on this page can set the period (the All-time traffic card opens a
+	// month); the control then draws attention to it, the change is read out, and
+	// the page returns to the top, where the re-scoped cards are.
+	const attentionId = useSettlePeriodChange(
+		postSurface( postId ),
+		dateFilters.appliedRange,
+		! isEmailTab
+	);
 
 	// The email tabs are pinned to the send window, so the filter would only
 	// suggest a choice they do not offer; the range stays in the URL so the Post
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
 	const dateFiltersPanel = isEmailTab ? null : (
-		<DateFiltersPanel { ...dateFilters } { ...dateControls } />
+		<DateFiltersPanel
+			{ ...dateFilters }
+			{ ...dateControls }
+			onChange={ onDateChange }
+			onApply={ onDateApply }
+			attentionId={ attentionId }
+		/>
 	);
 
 	return (
 		<GlobalErrorProvider>
+			<PeriodChangeStatus
+				attentionId={ attentionId }
+				appliedPresetId={ dateFilters.appliedPresetId }
+				appliedRange={ dateFilters.appliedRange }
+			/>
 			<WidgetDashboard.Policy canPerform={ canPerform }>
 				<WidgetDashboard
 					widgetTypes={ pageWidgetTypes }
 					isResolvingWidgetTypes={ isResolvingWidgetTypes }
-					resolveWidgetModule={ resolveWidgetModuleWithI18n }
+					resolveWidgetModule={ resolveWidgetModule }
 					layout={ layout }
-					onLayoutChange={ setLayout }
+					onLayoutChange={ onLayoutChange }
 					onLayoutReset={ resetLayout }
 					gridSettings={ DETAIL_GRID }
 					editMode={ isCustomizing }
@@ -200,18 +234,46 @@ function PostDetail(): JSX.Element {
 						 */ }
 						<DetailPageLayout
 							tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-							header={ postHeaderSlots( {
-								summary,
-								variant: isEmailTab ? 'email' : 'post',
-								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-							} ) }
+							header={
+								showNotSent
+									? undefined
+									: postHeaderSlots( {
+											summary: headerSummary,
+											variant: isEmailTab ? 'email' : 'post',
+											performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+										} )
+							}
 							controls={ dateFiltersPanel }
+							returnToTopKey={ attentionId }
 						>
-							{ /* Keyed by tab: each tab is its own layout, so the grid mounts
-							     fresh rather than reflowing one arrangement into the next. */ }
-							<DetailPageSection key={ activeTab }>
-								<WidgetDashboard.Widgets />
-							</DetailPageSection>
+							{ showNotSent ? (
+								<DetailPageEmptyState
+									title={ __(
+										'This post hasn’t been sent as a newsletter',
+										'jetpack-premium-analytics-pkg'
+									) }
+									description={ __(
+										'Newsletter can help you reach subscribers in their inbox.',
+										'jetpack-premium-analytics-pkg'
+									) }
+									actions={
+										<LinkButton
+											variant="outline"
+											size="compact"
+											href="https://jetpack.com/support/newsletter/"
+											openInNewTab
+										>
+											{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+										</LinkButton>
+									}
+								/>
+							) : (
+								/* Keyed by tab: each tab is its own layout, so the grid mounts
+								   fresh rather than reflowing one arrangement into the next. */
+								<DetailPageSection key={ activeTab }>
+									<WidgetDashboard.Widgets />
+								</DetailPageSection>
+							) }
 						</DetailPageLayout>
 					</DetailPageShell>
 				</WidgetDashboard>
@@ -235,7 +297,9 @@ export function stage(): JSX.Element {
 			 * one. The params stay on the URL for the breadcrumb to carry back out.
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
-				<PostDetail />
+				<PeriodChangeSignalProvider>
+					<PostDetail />
+				</PeriodChangeSignalProvider>
 			</ReportScopeProvider>
 		</AnalyticsQueryClientProvider>
 	);

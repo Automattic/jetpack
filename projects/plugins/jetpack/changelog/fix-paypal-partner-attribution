@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-PayPal Payment Buttons: include the PayPal partner attribution code in every copied and emailed payment link, matching the link the published button uses.

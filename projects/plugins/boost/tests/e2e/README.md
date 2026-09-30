@@ -50,7 +50,7 @@ However, Boost has some shortcuts to get the environment started and run all the
 
 ## History tooltip rendering regression
 
-`specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check the tooltip surface and annotation stacking.
+`specs/base/history-tooltip-overlap.test.ts` bundles the production history card, Charts, and dashboard styles with deterministic data. It uses the runner's Chromium and includes My Jetpack's global tooltip styles to check both daily bar charts, the recorded-day popover's scores, dots and hoverability, empty days, and narrow-screen bounds.
 
 After installing the monorepo dependencies, run it without WordPress or authentication setup from this directory:
 
@@ -58,6 +58,16 @@ After installing the monorepo dependencies, run it without WordPress or authenti
 TEST_SITE=fixture NODE_CONFIG='{"testSites":{"fixture":{"url":"http://boost.test","username":"unused","password":"unused"}}}' \
   pnpm run test:run specs/base/history-tooltip-overlap.test.ts --project='jetpack boost e2e' --no-deps
 ```
+
+## Modern Settings tooltip clipping regression
+
+`specs/base/modern-settings-tooltip-clip.test.ts` bundles the modern Settings layout, shared
+`@wordpress/ui` collapsible cards and the Critical CSS premium tooltip, so the card's
+`overflow: clip` is the real one. It needs no WordPress. It uses the runner's Chromium and
+checks that the popover is whole and on screen at
+1440, 782 and 390 in both directions, that the legacy dashboard keeps its inline popover and its
+70vw mobile width, and that focus and Escape still work. Run it with the command above,
+substituting this spec's path.
 
 ## Fixtures and Utilities
 
@@ -130,26 +140,28 @@ test.afterAll(async ({ boostUtils }) => {
 
 ### Dashboard modernization
 
-The `e2e-dashboard-modernization` plugin is mounted in the Docker E2E environment.
-Use `boostUtils.setDashboardModernization( true )` to opt in, or pass `false` to
-force the legacy dashboard. Call `boostUtils.resetDashboardModernization()` in
-teardown to deactivate the fixture and remove its option. Calling
-`resetEnvironment()` during suite setup also resets the filter.
+The modern dashboard is the default. The `e2e-dashboard-modernization` plugin is
+mounted in the Docker E2E environment to switch dashboards. Use
+`boostUtils.setDashboardModernization( false )` to force the legacy dashboard, or
+pass `true` to force the modern one. `resetEnvironment()` pins the legacy
+dashboard, because the feature specs still target it. Call
+`boostUtils.resetDashboardModernization()` to deactivate the fixture, remove its
+option, and return to the modern default.
 
-For a local demo, run these commands from the monorepo root after starting your
-E2E environment:
+To see the legacy dashboard locally, run these commands from the monorepo root
+after starting your E2E environment:
 
 ```sh
 pnpm jetpack docker --type e2e --name t1 wp -- plugin activate e2e-dashboard-modernization
-pnpm jetpack docker --type e2e --name t1 wp -- option update e2e_boost_dashboard_modernization true --format=json
+pnpm jetpack docker --type e2e --name t1 wp -- option update e2e_boost_dashboard_modernization 0
 ```
 
-Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the default dashboard with:
+Open `/wp-admin/admin.php?page=jetpack-boost`. Restore the modern dashboard with:
 
 ```sh
 pnpm jetpack docker --type e2e --name t1 wp -- plugin deactivate e2e-dashboard-modernization
 ```
 
-Run the foundation smoke tests from this directory with
+Run the modern dashboard foundation and feature tests from this directory with
 `pnpm test:run specs/modernization`. CI discovers this directory through
 `.github/files/e2e-tests/e2e-matrix.js`.

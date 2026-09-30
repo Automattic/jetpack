@@ -269,4 +269,40 @@ describe( 'buildCalendarHeatmapData with a grid wider than the series', () => {
 		expect( data[ 0 ].data[ 0 ].hidden ).toBe( true );
 		expect( data[ 0 ].data[ 0 ].placeholder ).toBeUndefined();
 	} );
+
+	test( 'labels Gregorian months under a locale whose default calendar is not Gregorian', () => {
+		// fa-IR defaults to the Persian calendar, under which Sep 1 and Sep 30 fall in different months.
+		const september: DataPointDate[] = [
+			{ dateString: '2026-09-01', value: 1 },
+			{ dateString: '2026-09-30', value: 1 },
+		];
+		const { data } = buildCalendarHeatmapData( september, { weekStartsOn: 1, locale: 'fa-IR' } );
+
+		const gregorianMonth = new Intl.DateTimeFormat( 'fa-IR', {
+			month: 'short',
+			calendar: 'gregory',
+			timeZone: 'UTC',
+		} );
+		const gregorianDay = new Intl.DateTimeFormat( 'fa-IR', {
+			weekday: 'short',
+			month: 'short',
+			day: 'numeric',
+			year: 'numeric',
+			calendar: 'gregory',
+			timeZone: 'UTC',
+		} );
+
+		// The grid opens on Mon Aug 31, whose one-week month goes unlabeled, so the
+		// month label sits on the first September-starting column.
+		expect( data.map( column => column.label ).filter( Boolean ) ).toEqual( [
+			gregorianMonth.format( new Date( '2026-09-01T00:00:00Z' ) ),
+		] );
+		// Tue Sep 1 is column 0 row 1; Wed Sep 30 is column 4 row 2.
+		expect( data[ 0 ].data[ 1 ].label ).toBe(
+			gregorianDay.format( new Date( '2026-09-01T00:00:00Z' ) )
+		);
+		expect( data[ 4 ].data[ 2 ].label ).toBe(
+			gregorianDay.format( new Date( '2026-09-30T00:00:00Z' ) )
+		);
+	} );
 } );

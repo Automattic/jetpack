@@ -76,6 +76,24 @@ class Expiry_Notice_Dismiss {
 	}
 
 	/**
+	 * Stamp a dismissal for a user, now. False for a key that is not one of
+	 * this site's dismissal keys, so nothing can write other user meta through
+	 * it, and for a user who does not exist.
+	 *
+	 * @param int    $user_id  The dismissing user.
+	 * @param string $meta_key One of this site's dismissal keys, as the surface was given it.
+	 */
+	public static function dismiss( int $user_id, string $meta_key ): bool {
+		$allowed = array_map( array( self::class, 'meta_key' ), array( self::META_BANNER, self::META_MODAL, self::META_MODAL_GRACE ) );
+		if ( ! $user_id || ! in_array( $meta_key, $allowed, true ) ) {
+			return false;
+		}
+		$now = time();
+		update_user_meta( $user_id, $meta_key, $now );
+		return (int) get_user_meta( $user_id, $meta_key, true ) === $now;
+	}
+
+	/**
 	 * Whether the banner for this state can be dismissed at all.
 	 *
 	 * Only once the revert has happened: before that the site still has
@@ -149,8 +167,9 @@ class Expiry_Notice_Dismiss {
 	 * Whether this user has dismissed the notice for the term the state describes.
 	 *
 	 * A stamp older than the term's own expiry belongs to a purchase since
-	 * renewed and does not count: nothing is dismissible until 30 days past
-	 * expiry, so a dismissal of the current term is always the later one.
+	 * renewed and does not count: once the plan is gone, expiry_ts is the
+	 * revert time itself, so a dismissal from before the revert never
+	 * carries over into the state after it.
 	 *
 	 * @param int|null $user_id   Defaults to the current user.
 	 * @param string   $meta_key  A stored key, from meta_key().

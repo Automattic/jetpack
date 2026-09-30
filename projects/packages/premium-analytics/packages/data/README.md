@@ -268,6 +268,23 @@ allowed; otherwise returns the range default.
 
 **Returns:** `IntervalType`
 
+### `resolveIntervalForPresetChange( currentPreset, nextPreset, from, to, currentInterval? )`
+
+Returns a valid interval for a range picked while `currentPreset` was active.
+Switching to a different named preset returns that preset's default; any other
+change (same preset, `custom`, no preset) keeps `currentInterval` when still
+allowed.
+
+**Parameters:**
+
+- `currentPreset`: `PrimaryPresetId | undefined`
+- `nextPreset`: `PrimaryPresetId | undefined`
+- `from`: `string`
+- `to`: `string`
+- `currentInterval`: `string | undefined` - Candidate interval to keep when still allowed
+
+**Returns:** `IntervalType`
+
 ### `needsReportDateParamsSeed( search? )`
 
 Returns whether report date params are incomplete or the interval is invalid
@@ -404,6 +421,7 @@ This package exports the following public API:
 - `normalizeReportParams` - Normalize and validate parameters
 - `getDefaultIntervalForPeriod` - Default (finest) interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
+- `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 
 ### Core Settings

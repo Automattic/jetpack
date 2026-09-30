@@ -90,8 +90,7 @@ interface ConversionRateStoryControls {
 type ConversionRateStoryProps = ConversionRateWidgetProps & ConversionRateStoryControls;
 
 interface ConversionRateDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ConversionRateStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ConversionRateStoryControls {}
 
 function getConversionRateAttributes(
 	withComparison = false,
