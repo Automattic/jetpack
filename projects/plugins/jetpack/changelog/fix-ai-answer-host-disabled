@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Search: Hide AI Answer from the block inserter when Jetpack AI is disabled and show the disabled notice before the upgrade prompt.
+Search: Show the AI Answer disabled notice when the host turns off AI, and hide the block from the inserter whenever Jetpack AI is off.

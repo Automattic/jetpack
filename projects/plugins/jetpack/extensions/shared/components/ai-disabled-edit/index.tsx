@@ -22,14 +22,14 @@ export default function AiDisabledEdit( { name }: Props ) {
 		'jetpack/ai-assistant': {
 			label: __( 'AI Assistant', 'jetpack' ),
 			instructions: __(
-				'Jetpack AI is disabled so this block can’t generate content. Enable Jetpack AI to use it again.',
+				'Jetpack AI is disabled, so this block can’t generate content. Enable Jetpack AI to use it again.',
 				'jetpack'
 			),
 		},
 		'jetpack/ai-chat': {
 			label: __( 'Jetpack AI Search', 'jetpack' ),
 			instructions: __(
-				'Jetpack AI is disabled so visitors won’t see this block. Enable Jetpack AI to let visitors ask questions about your content.',
+				'Jetpack AI is disabled, so visitors won’t see this block. Enable Jetpack AI to let visitors ask questions about your content.',
 				'jetpack'
 			),
 		},

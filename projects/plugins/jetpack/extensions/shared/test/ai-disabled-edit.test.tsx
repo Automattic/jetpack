@@ -14,12 +14,12 @@ it.each( [
 	[
 		'AI Assistant',
 		'jetpack/ai-assistant',
-		'Jetpack AI is disabled so this block can’t generate content. Enable Jetpack AI to use it again.',
+		'Jetpack AI is disabled, so this block can’t generate content. Enable Jetpack AI to use it again.',
 	],
 	[
 		'Jetpack AI Search',
 		'jetpack/ai-chat',
-		'Jetpack AI is disabled so visitors won’t see this block. Enable Jetpack AI to let visitors ask questions about your content.',
+		'Jetpack AI is disabled, so visitors won’t see this block. Enable Jetpack AI to let visitors ask questions about your content.',
 	],
 ] as const )( 'shows the disabled notice for %s', ( label, name, instructions ) => {
 	render( <AiDisabledEdit name={ name } /> );
