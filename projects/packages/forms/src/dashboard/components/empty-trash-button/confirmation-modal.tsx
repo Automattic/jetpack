@@ -32,9 +32,10 @@ export default function EmptyTrashConfirmationModal( {
 	totalItemsTrash,
 	selectedResponsesCount,
 }: EmptyTrashConfirmationModalProps ): JSX.Element {
+	// A successful confirm also closes through here, with the 'imperative-action' reason.
 	const handleOpenChange = useCallback(
-		( open: boolean ) => {
-			if ( ! open ) {
+		( open: boolean, { reason }: { reason: string } ) => {
+			if ( ! open && reason !== 'imperative-action' ) {
 				onCancel();
 			}
 		},
