@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-2/4sxnwf1gm9iTBBRlBfP44BTtZ8LKNM2aZcYMyEBqM=
+pnpmfileChecksum: sha256-GIavWP5TCBJB6CbbMkwcYgGm4CtAoHnaA4u+FUCns7c=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -11540,7 +11540,7 @@ packages:
     engines: {node: '>=22.19.0', npm: '>=8.19.2'}
     peerDependencies:
       '@playwright/test': '>=1'
-      '@types/node': '>=20 || ^24.0.0'
+      '@types/node': '>=20'
 
   '@wordpress/edit-post@8.55.0':
     resolution: {integrity: sha512-/4c6I3wTlcVrhyeqOy7x/+wGk4FU4cNvO1CL0mynP84l6WzVcNl9u08CJ5gGbqXEMoAeaPOiXT4wnJefOO+P/w==}
@@ -11917,7 +11917,7 @@ packages:
     engines: {node: ^20.19.0 || >=22.13.0, npm: '>=8.19.2'}
     peerDependencies:
       '@stylistic/stylelint-plugin': '>=5.2.1'
-      '@wordpress/theme': '*'
+      '@wordpress/theme': '>=2.1.0'
       stylelint: '>=17.14.1'
       stylelint-config-recommended: '>=18.0.0'
       stylelint-config-recommended-scss: '>=17.0.1'
