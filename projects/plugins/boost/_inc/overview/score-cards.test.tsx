@@ -234,16 +234,21 @@ test( 'shows one calculating status instead of the score sections before scores 
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 } );
 
-test( 'shows calculating instead of loaded scores during a run', () => {
-	render(
-		<ScoreCards
-			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
-			isLoading
-			isRunning
-		/>
-	);
-	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
-	expect( screen.queryByRole( 'progressbar', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+test( 'overlays calculating while retaining hidden scores and restores the row on completion', () => {
+	const scores = { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false };
+	const { rerender } = render( <ScoreCards scores={ scores } /> );
+	const desktop = screen.getByRole( 'progressbar', { name: 'Desktop' } );
+	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+	expect( desktop ).toBeInTheDocument();
+	expect( desktop ).not.toBeVisible();
+	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
+	rerender( <ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } /> );
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toBe( desktop );
+	expect( desktop ).toBeVisible();
+	expect( desktop ).toHaveValue( 90 );
+	expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 } );
 
 test( 'shows a failure without scores inside the card and retries from it', () => {
@@ -302,7 +307,7 @@ test.each( [
 	[ 'About points', 1, true ],
 	[ 'Try again', 0, true ],
 	[ 'Try again', 0, false ],
-] )( 'preserves focus when a run removes %s', ( name, index, hasScores ) => {
+] )( 'preserves focus when a run hides %s', ( name, index, hasScores ) => {
 	const props = {
 		scores: {
 			current: { desktop: 80, mobile: 60 },
@@ -317,3 +322,29 @@ test.each( [
 	rerender( <ScoreCards { ...props } error={ undefined } isLoading isRunning /> );
 	expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
 } );
+
+test.each( [ 'How the overall grade is calculated', 'About points' ] )(
+	'hides an open %s popover when a real run starts',
+	async name => {
+		const scores = {
+			current: { desktop: 80, mobile: 60 },
+			noBoost: { desktop: 70, mobile: 50 },
+			isStale: false,
+		};
+		const { rerender } = render( <ScoreCards scores={ scores } /> );
+		const trigger = screen.getAllByRole( 'button', { name } )[ 0 ];
+		trigger.focus();
+		fireEvent.click( trigger );
+		await expect( screen.findByRole( 'dialog' ) ).resolves.toBeVisible();
+		rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus()
+		);
+		rerender( <ScoreCards scores={ scores } /> );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
+		fireEvent.click( screen.getAllByRole( 'button', { name } )[ 0 ] );
+		await expect( screen.findByRole( 'dialog' ) ).resolves.toBeVisible();
+	}
+);

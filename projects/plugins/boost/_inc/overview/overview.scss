@@ -47,6 +47,21 @@
 	flex-shrink: 0;
 }
 
+.jetpack-boost-overview__scores-area {
+	position: relative;
+}
+
+.jetpack-boost-overview__scores-overlay {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+
+	.jetpack-boost-overview__scores-status {
+		padding-block: 0;
+	}
+}
+
 .jetpack-boost-overview__score-row {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));

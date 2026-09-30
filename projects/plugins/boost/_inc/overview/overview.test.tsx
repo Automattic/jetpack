@@ -673,12 +673,50 @@ test( 'shows calculating after Run speed test and replaces it with new scores', 
 	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
-	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
+	expect( screen.getByText( '91' ) ).not.toBeVisible();
 	await act( async () => resolveRefresh( { ...scores, current: { desktop: 95, mobile: 85 } } ) );
 	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 95 );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 85 );
+} );
+
+test( 'keeps scores visible and focused while re-enabling cached reads', async () => {
+	const client = createQueryClient();
+	const dashboard = ( scoresEnabled: boolean ) => (
+		<QueryClientProvider client={ client }>
+			<Overview scoresEnabled={ scoresEnabled } onHeaderActionChange={ () => {} } />
+		</QueryClientProvider>
+	);
+	const { rerender } = render( dashboard( true ) );
+	await expect( screen.findByText( '91' ) ).resolves.toBeVisible();
+	rerender( dashboard( false ) );
+	const trigger = screen.getByRole( 'button', { name: 'How the overall grade is calculated' } );
+	act( () => trigger.focus() );
+	let resolveRead: ( value: typeof scores ) => void = () => {};
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( resolve => {
+			resolveRead = resolve;
+		} )
+	);
+	rerender( dashboard( true ) );
+	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+		false,
+		wpApiSettings.root,
+		Jetpack_Boost.site.url,
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
+	);
+	expect( screen.getByText( '91' ) ).toBeVisible();
+	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toBeVisible();
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( trigger ).toHaveFocus();
+	// eslint-disable-next-line testing-library/no-node-access
+	const scoreRow = trigger.closest( '[aria-busy]' );
+	expect( scoreRow ).toHaveAttribute( 'aria-busy', 'true' );
+	await act( async () => resolveRead( scores ) );
+	expect( scoreRow ).toHaveAttribute( 'aria-busy', 'false' );
+	expect( trigger ).toHaveFocus();
+	expect( screen.getByText( '91' ) ).toBeVisible();
 } );
 
 test( 'retains loaded scores and Run speed test alongside a subsequent score error', async () => {
@@ -703,7 +741,7 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 			'true'
 		)
 	);
-	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
+	expect( screen.getByText( '91' ) ).not.toBeVisible();
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
 	await act( async () => rejectRefresh( new Error( 'Refresh failed' ) ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();

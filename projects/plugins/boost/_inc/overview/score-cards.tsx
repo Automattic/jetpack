@@ -56,71 +56,85 @@ export default function ScoreCards( {
 			</Notice.Root>
 		</Card.Content>
 	);
+	const calculating = (
+		<Card.Content className="jetpack-boost-overview__scores-status" role="status">
+			<Stack direction="row" justify="center" align="center" gap="md">
+				<Spinner />
+				<Text>{ __( 'Calculating…', 'jetpack-boost' ) }</Text>
+			</Stack>
+		</Card.Content>
+	);
+	const showOverlay = showCalculating && ! error;
 	let body: ReactNode;
-	if ( showCalculating ) {
-		body = notice || (
-			<Card.Content className="jetpack-boost-overview__scores-status" role="status">
-				<Stack direction="row" justify="center" align="center" gap="md">
-					<Spinner />
-					<Text>{ __( 'Calculating…', 'jetpack-boost' ) }</Text>
-				</Stack>
-			</Card.Content>
-		);
+	if ( ! hasScores ) {
+		body = notice || calculating;
 	} else {
 		body = (
 			<>
 				{ notice }
-				<div className="jetpack-boost-overview__score-row" aria-busy={ isLoading }>
-					<ScoreCard
-						icon={ <Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" /> }
-						label={ _x( 'Overall', 'combined speed score grade', 'jetpack-boost' ) }
-						help={
-							<Popover.Root>
-								<Popover.Trigger
-									openOnHover
-									delay={ 200 }
-									aria-label={ __( 'How the overall grade is calculated', 'jetpack-boost' ) }
-									className="jetpack-boost-overview__info-trigger"
-								>
-									<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
-								</Popover.Trigger>
-								<Popover.Popup
-									className="jetpack-boost-overview__score-popover jetpack-boost-overview__grade-tooltip"
-									positioner={
-										<Popover.Positioner align="start" alignOffset={ -15 } sideOffset={ 5 } />
-									}
-								>
-									<VisuallyHidden render={ <Popover.Title /> }>
-										{ __( 'Overall grade', 'jetpack-boost' ) }
-									</VisuallyHidden>
-									<GradeExplanation
-										description={ __(
-											'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.',
-											'jetpack-boost'
-										) }
-										descriptionComponent={ Popover.Description }
-										tableClassName="jetpack-boost-overview__grade-ranges"
-									/>
-								</Popover.Popup>
-							</Popover.Root>
-						}
-						value={ grade }
-						tier={ getScoreTier( ( current.mobile + current.desktop ) / 2 ) }
-					/>
-					<ScoreCard
-						icon={ <Icon icon={ desktop } className="jetpack-boost-overview__score-icon" /> }
-						label={ __( 'Desktop', 'jetpack-boost' ) }
-						value={ current.desktop }
-						score={ current.desktop }
-						noBoost={ noBoost?.desktop }
-					/>
-					<ScoreCard
-						icon={ <Icon icon={ mobile } className="jetpack-boost-overview__score-icon" /> }
-						label={ __( 'Mobile', 'jetpack-boost' ) }
-						value={ current.mobile }
-						score={ current.mobile }
-						noBoost={ noBoost?.mobile }
-					/>
+				<div className="jetpack-boost-overview__scores-area">
+					<div
+						className="jetpack-boost-overview__score-row"
+						aria-busy={ isLoading }
+						aria-hidden={ showOverlay || undefined }
+						style={ showOverlay ? { visibility: 'hidden' } : undefined }
+					>
+						<ScoreCard
+							icon={ <Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" /> }
+							label={ _x( 'Overall', 'combined speed score grade', 'jetpack-boost' ) }
+							help={
+								<Popover.Root key={ showOverlay ? 'running' : 'loaded' }>
+									<Popover.Trigger
+										openOnHover
+										delay={ 200 }
+										aria-label={ __( 'How the overall grade is calculated', 'jetpack-boost' ) }
+										className="jetpack-boost-overview__info-trigger"
+									>
+										<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
+									</Popover.Trigger>
+									<Popover.Popup
+										className="jetpack-boost-overview__score-popover jetpack-boost-overview__grade-tooltip"
+										positioner={
+											<Popover.Positioner align="start" alignOffset={ -15 } sideOffset={ 5 } />
+										}
+									>
+										<VisuallyHidden render={ <Popover.Title /> }>
+											{ __( 'Overall grade', 'jetpack-boost' ) }
+										</VisuallyHidden>
+										<GradeExplanation
+											description={ __(
+												'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.',
+												'jetpack-boost'
+											) }
+											descriptionComponent={ Popover.Description }
+											tableClassName="jetpack-boost-overview__grade-ranges"
+										/>
+									</Popover.Popup>
+								</Popover.Root>
+							}
+							value={ grade }
+							tier={ getScoreTier( ( current.mobile + current.desktop ) / 2 ) }
+						/>
+						<ScoreCard
+							icon={ <Icon icon={ desktop } className="jetpack-boost-overview__score-icon" /> }
+							label={ __( 'Desktop', 'jetpack-boost' ) }
+							value={ current.desktop }
+							score={ current.desktop }
+							noBoost={ noBoost?.desktop }
+							isRunning={ showOverlay }
+						/>
+						<ScoreCard
+							icon={ <Icon icon={ mobile } className="jetpack-boost-overview__score-icon" /> }
+							label={ __( 'Mobile', 'jetpack-boost' ) }
+							value={ current.mobile }
+							score={ current.mobile }
+							noBoost={ noBoost?.mobile }
+							isRunning={ showOverlay }
+						/>
+					</div>
+					{ showOverlay && (
+						<div className="jetpack-boost-overview__scores-overlay">{ calculating }</div>
+					) }
 				</div>
 			</>
 		);
