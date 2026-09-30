@@ -60,6 +60,9 @@ const label = __( 'All pages' );
 - **`ReportThumbnail`** — a records-table row thumbnail for the view's
   `mediaField`, falling back to `fallbackIcon` when there is none or it fails
   to load. DataViews draws it beside the `titleField` in its fixed 32px box.
+- **`REPORT_TITLE_LINK_CLASS_NAMES`** — the `classNames` to pass a
+  `PostTitleLink` or `VideoTitleLink` rendered in a records table's
+  `titleField`, so a long title ellipsizes and keeps its outbound marker.
 - **`ReportEmptyState`** — replaces the records table (and, on Locations, the
   map) when the selected period returned no rows. Pages render it only when the
   rows they pass to the table are empty and the table is not loading, so a

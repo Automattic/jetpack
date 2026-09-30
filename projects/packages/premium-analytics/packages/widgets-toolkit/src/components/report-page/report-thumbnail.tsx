@@ -30,15 +30,7 @@ export function ReportThumbnail( {
 	const handleError = useCallback( () => setFailedUrl( thumbnailUrl ), [ thumbnailUrl ] );
 
 	if ( thumbnailUrl && failedUrl !== thumbnailUrl ) {
-		return (
-			<img
-				src={ thumbnailUrl }
-				alt=""
-				loading="lazy"
-				className={ styles.thumbnail }
-				onError={ handleError }
-			/>
-		);
+		return <img src={ thumbnailUrl } alt="" loading="lazy" onError={ handleError } />;
 	}
 
 	return (
