@@ -4,15 +4,16 @@
 
 ## [3.3.0] - 2026-09-28
 ### Added
-- Add a JitmSlot component so every dashboard renders the Jetpack in-dashboard message slot the same way, and keeps the message across route changes. [#52641]
+- Add a `JitmSlot` component that renders the Jetpack in-dashboard message slot and keeps the message across route changes. [#52641]
 - IconTooltip: Add a `label` prop to give the icon trigger an accessible name. [#52800]
 
 ### Changed
-- IconTooltip: Keep focus on the trigger when a tooltip opens, announce its content to screen readers, and show the trigger's focus ring the way other WordPress buttons do. [#52736]
+- IconTooltip: Keep focus on the trigger when a tooltip opens, and announce its content to screen readers. [#52736]
+- IconTooltip: Show the trigger's focus ring the way other WordPress buttons do. [#52736]
 - Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
 
 ### Deprecated
-- Deprecate GlobalNotices and useGlobalNotices. Use SnackbarNotices from @wordpress/notices instead. [#52193]
+- Deprecate `GlobalNotices` and `useGlobalNotices`. Use `SnackbarNotices` from `@wordpress/notices` instead. [#52193]
 
 ### Fixed
 - IconTooltip: Close a tooltip opened on hover when Escape is pressed, without moving focus. [#52799]

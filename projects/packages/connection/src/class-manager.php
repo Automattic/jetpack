@@ -1592,16 +1592,10 @@ class Manager {
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
 	protected function query_protected_owner_record( $anchored_wpcom_user_id ) {
-		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
-		$xml->query( 'jetpack.reconcileProtectedOwner', array( 'anchored_wpcom_user_id' => $anchored_wpcom_user_id ) );
-
-		if ( $xml->isError() ) {
-			return null;
-		}
-
-		$response = $xml->getResponse();
-
-		return is_array( $response ) ? $response : null;
+		return $this->request_protected_owner_record(
+			'/reconcile',
+			array( 'anchored_wpcom_user_id' => (int) $anchored_wpcom_user_id )
+		);
 	}
 
 	/**
@@ -1615,16 +1609,36 @@ class Manager {
 	 * @return array|null The record, or null when WordPress.com could not answer.
 	 */
 	protected function assert_protected_owner_record() {
-		$xml = new Jetpack_IXR_Client( array( 'user_id' => get_current_user_id() ) );
-		$xml->query( 'jetpack.assertProtectedOwner' );
+		return $this->request_protected_owner_record();
+	}
 
-		if ( $xml->isError() ) {
+	/**
+	 * Call this site's protected-owner resource on WordPress.com, signed as the current user.
+	 *
+	 * @since 9.8.1
+	 *
+	 * @param string     $route The route below the resource, empty for the resource itself.
+	 * @param array|null $body  The request body, or null to send none.
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	private function request_protected_owner_record( $route = '', $body = null ) {
+		$path = sprintf(
+			'/sites/%d/jetpack-protected-owner%s',
+			(int) \Jetpack_Options::get_option( 'id' ),
+			$route
+		);
+
+		$response = Client::wpcom_json_api_request_as_user( $path, '2', array( 'method' => 'POST' ), $body );
+
+		// Anything but a 200 is silence rather than an answer: unreachable, refused, or a
+		// WordPress.com that does not implement the route. Every caller fails closed on null.
+		if ( is_wp_error( $response ) || 200 !== (int) wp_remote_retrieve_response_code( $response ) ) {
 			return null;
 		}
 
-		$response = $xml->getResponse();
+		$record = json_decode( wp_remote_retrieve_body( $response ), true );
 
-		return is_array( $response ) ? $response : null;
+		return is_array( $record ) ? $record : null;
 	}
 
 	/**
@@ -2769,6 +2783,8 @@ class Manager {
 	/**
 	 * Validate the tokens, and refresh the invalid ones.
 	 *
+	 * @since 9.8.1 When token validation is inconclusive, check the blog token on its own instead of assuming both are broken.
+	 *
 	 * @return string|bool|WP_Error True if connection restored or string indicating what's to be done next. A `WP_Error` object or false otherwise.
 	 */
 	public function restore() {
@@ -2780,15 +2796,18 @@ class Manager {
 
 		$validate_tokens_response = $this->get_tokens()->validate();
 
-		// If token validation failed, trigger a full reconnection.
 		if ( is_array( $validate_tokens_response ) &&
 			isset( $validate_tokens_response['blog_token']['is_healthy'] ) &&
 			isset( $validate_tokens_response['user_token']['is_healthy'] ) ) {
 			$blog_token_healthy = $validate_tokens_response['blog_token']['is_healthy'];
 			$user_token_healthy = $validate_tokens_response['user_token']['is_healthy'];
 		} else {
-			$blog_token_healthy = false;
-			$user_token_healthy = false;
+			// The paired health check could not run (a token is missing locally — e.g. a
+			// deleted owner token — or the request failed): no evidence the blog token is
+			// broken, and it's the one credential reconnect() would revoke for every user,
+			// so check it on its own before that teardown.
+			$blog_token_healthy = true === $this->get_tokens()->validate_blog_token();
+			$user_token_healthy = false; // Unknown, treated as unhealthy.
 		}
 
 		// Tokens are both valid, or both invalid. We can't fix the problem we don't see, so the full reconnection is needed.
@@ -3015,6 +3034,8 @@ class Manager {
 	/**
 	 * Authorizes the user by obtaining and storing the user token.
 	 *
+	 * @since 9.8.1 Only a user with `jetpack_connect` can take a vacant connection owner slot.
+	 *
 	 * @param array $data The request data.
 	 * @return string|\WP_Error Returns a string on success.
 	 *                          Returns a \WP_Error on failure.
@@ -3075,7 +3096,8 @@ class Manager {
 			return new \WP_Error( 'no_token', 'Error generating token.', 400 );
 		}
 
-		$is_connection_owner = ! $this->has_connected_owner();
+		// Only a user who may manage the site connection takes a vacant owner slot; others link as secondary users.
+		$is_connection_owner = ! $this->has_connected_owner() && current_user_can( 'jetpack_connect' );
 
 		$this->get_tokens()->update_user_token( $current_user_id, sprintf( '%s.%d', $token, $current_user_id ), $is_connection_owner );
 

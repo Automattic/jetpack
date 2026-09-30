@@ -275,6 +275,84 @@ class Dashboard_Layout_Test extends BaseTestCase {
 	}
 
 	/**
+	 * An instance a plugin still adds under a former name is renamed, and so survives the
+	 * unregistered-type check under the current one.
+	 */
+	public function test_default_renames_an_instance_added_under_a_former_type_name() {
+		$this->assertInstanceOf(
+			Widget_Type::class,
+			register_widget_type(
+				'example/current',
+				array(
+					'render_module' => 'example/render',
+					'former_names'  => array( 'example/former' ),
+				)
+			)
+		);
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					$layout[] = get_dashboard_default_widget_instance( 'example-former', 'example/former', 20 );
+				}
+				return $layout;
+			}
+		);
+
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
+
+		$this->assertContains( 'example/current', $layout_types );
+		$this->assertNotContains( 'example/former', $layout_types );
+	}
+
+	/**
+	 * An instance whose type is not a string, such as the Widget_Type object
+	 * register_widget_type() returns, is an unknown type: dropped, without failing the route.
+	 */
+	public function test_default_drops_an_instance_whose_type_is_not_a_string() {
+		$widget_type = register_widget_type( 'example/object-typed', array( 'render_module' => 'example/render' ) );
+		$this->assertInstanceOf( Widget_Type::class, $widget_type );
+		$this->filter_default_layout(
+			static function ( $layout, $section_id ) use ( $widget_type ) {
+				if ( 'analytics/traffic' === $section_id ) {
+					// What a plugin gets by passing the object register_widget_type() returns, or a list.
+					$object_typed         = get_dashboard_default_widget_instance( 'object-typed', 'example/object-typed', 20 );
+					$object_typed['type'] = $widget_type;
+					$array_typed          = get_dashboard_default_widget_instance( 'array-typed', 'example/object-typed', 21 );
+					$array_typed['type']  = array( 'example/object-typed' );
+					$layout[]             = $object_typed;
+					$layout[]             = $array_typed;
+					$layout[]             = get_dashboard_default_widget_instance( 'string-typed', 'example/object-typed', 22 );
+				}
+				return $layout;
+			}
+		);
+
+		$layout_types = $this->served_layout_types( 'analytics/traffic' );
+
+		$this->assertNotContains( $widget_type, $layout_types );
+		$this->assertNotContains( array( 'example/object-typed' ), $layout_types );
+		$this->assertSame( array( 'example/object-typed' ), array_values( array_filter( $layout_types, 'is_string' ) ) );
+	}
+
+	/**
+	 * Something that is not an instance at all passes through the policy untouched.
+	 */
+	public function test_policy_leaves_non_instances_alone() {
+		$this->register_example_widget_type( 'example/registered' );
+
+		$layout = remove_unsupported_default_layout_items(
+			array(
+				'not-an-instance',
+				get_dashboard_default_widget_instance( 'registered', 'example/registered', 20 ),
+				get_dashboard_default_widget_instance( 'unregistered', 'example/unregistered', 21 ),
+			)
+		);
+
+		$this->assertSame( array( 'not-an-instance', 'registered' ), array( $layout[0], $layout[1]['uuid'] ) );
+		$this->assertCount( 2, $layout );
+	}
+
+	/**
 	 * Before init the registry cannot hydrate, so the policy leaves the default as declared.
 	 */
 	public function test_default_keeps_unregistered_instances_before_init() {

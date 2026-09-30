@@ -5,32 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [6.7.1] - 2026-09-29
+### Changed
+- Backup: Send Manage and checkout to the in-plugin Backup dashboard when the Jetpack plugin hosts it. [#52495]
+
+### Fixed
+- Show the missing user connection notice as a warning only when no connection owner is recorded and the current user can set up the connection. [#52880]
+
 ## [6.7.0] - 2026-09-28
 ### Added
-- Add a More Features section to the Features tab that groups and switches Jetpack's other modules, behind the my-jetpack-features-tab feature flag. [#52591]
-- Features: Record Tracks events for the Features tab. [#52630]
+- Add additional analytics to the Features tab. [#52630]
+- Add a More Features section to the Features tab that groups and switches Jetpack's other modules. [#52591] [#52786] [#52829]
 - Features tab: Add a dismissible banner explaining the tab. [#52733]
+- Features tab: Add support for arrow key navigation between features in the details modal. [#52742]
 
 ### Changed
-- Features: Say why a plugin can't be installed, show progress while it installs, and keep the reason on the card when an install fails. [#52735]
-- Features tab: reorganize the feature details modal around what is free and what a paid plan adds, with an upgrade for every feature a paid plan covers and arrow keys to step between features, behind the my-jetpack-features-tab feature flag. [#52742]
-- Features tab: say why the list is empty and offer a way forward, behind the my-jetpack-features-tab feature flag. [#52633]
-- Features tab: Show a Configure link beside the switch of an active module, and stop Brute Force Protection from switching the Protect card on. [#52829]
-- Features tab: Sort the More Features groups and their modules by name, add settings links, and show only the modules that apply to the site. [#52786]
-- My Jetpack: add an icon to the Features tab's empty states. [#52633]
-- Remove the hardcoded text color override on the wp-build dashboard, so text follows the design system color. [#52713]
+- Features: Say why a plugin can't be installed, and show install progress and failures on its card. [#52735]
+- Features tab: Reorganize the feature details modal around what is free and what a paid plan adds, with an "Upgrade" button for paid features. [#52742]
+- Features tab: Say why the list is empty and offer a way forward. [#52633]
+- Follow the design system text color on the dashboard instead of a hardcoded override. [#52713]
 - Render the Jetpack in-dashboard message slot from the shared component. [#52641]
 - Show the Features tab in place of the Products tab by default, and link the footer's modules links to the Features list view. [#52785]
 - Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
-- Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
 
 ### Fixed
 - Admin menu: Avoid a fatal error when an older version of the admin UI package is loaded. [#52806]
 - Features: Don't offer to install or activate a standalone plugin for a module your host or site administrator has disabled. [#52726]
-- Features tab: Show VaultPress Backup and Protect as active, with an Open link, when a paid plan runs them without their plugin. [#52827]
-- My Jetpack: keep the tab footer flush with the bottom of the content surface. [#52633]
-- My Jetpack: stretch the tab content background to the full height of the page. [#52633]
-- Show a note instead of Activate or purchase buttons on an Overview card whose module your host or site administrator has disabled. [#52730]
+- Features tab: Show VaultPress Backup and Protect as active, with an "Open" link, when a paid plan runs them without their plugin. [#52827]
+- Features tab: Stop Brute Force Protection from switching the Protect card on. [#52829]
+- Fix the layout of the connection screen for right-to-left languages. [#52749]
+- Show a note instead of "Activate" or purchase buttons on an Overview card whose module your host or site administrator has disabled. [#52730]
+- Stretch the tab content background to the full height of the page. [#52633]
 
 ## [6.6.0] - 2026-09-23
 ### Added
@@ -2999,6 +3004,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created package
 
+[6.7.1]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.7.0...6.7.1
 [6.7.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.6.0...6.7.0
 [6.6.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.5.0...6.6.0
 [6.5.0]: https://github.com/Automattic/jetpack-my-jetpack/compare/6.4.1...6.5.0

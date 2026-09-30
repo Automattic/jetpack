@@ -4,7 +4,6 @@ describe( 'sanitizeStatsPostCommentsResponse', () => {
 	it( 'normalizes comments and drops malformed rows', () => {
 		expect(
 			sanitizeStatsPostCommentsResponse( {
-				found: '23',
 				comments: [
 					{
 						ID: 101,
@@ -23,7 +22,6 @@ describe( 'sanitizeStatsPostCommentsResponse', () => {
 				],
 			} )
 		).toEqual( {
-			found: 23,
 			comments: [
 				{
 					ID: 101,
@@ -34,17 +32,15 @@ describe( 'sanitizeStatsPostCommentsResponse', () => {
 				},
 				{ ID: 102, name: 'hiroshit' },
 			],
+			fetchedCount: 5,
 		} );
 	} );
 
 	it( 'returns an empty result for missing or invalid payloads', () => {
 		expect( sanitizeStatsPostCommentsResponse( null ) ).toEqual( {
-			found: 0,
 			comments: [],
+			fetchedCount: 0,
 		} );
-		expect( sanitizeStatsPostCommentsResponse( [] ) ).toEqual( {
-			found: 0,
-			comments: [],
-		} );
+		expect( sanitizeStatsPostCommentsResponse( [] ) ).toEqual( { comments: [], fetchedCount: 0 } );
 	} );
 } );

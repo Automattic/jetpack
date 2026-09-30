@@ -79,11 +79,13 @@ export interface MetricTab {
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
 	/**
-	 * Key of the metric to draw beside this one, hidden until the reader reveals it
-	 * from the legend. A key naming no metric in the list, the metric itself, or a
-	 * metric without a series, is ignored.
+	 * Key of the metric to draw beside this one, visible from the start unless
+	 * `counterpartHidden` is set. A key naming no metric in the list, the metric
+	 * itself, or a metric without a series, is ignored.
 	 */
 	counterpartKey?: string;
+	/** Start the counterpart hidden, so the legend offers it as a one-click comparison. */
+	counterpartHidden?: boolean;
 	/**
 	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
@@ -197,8 +199,8 @@ function buildSeries(
 
 /**
  * The chart for a single metric — the current period with its previous-period
- * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it but
- * seeded hidden, so the legend offers it as a one-click comparison.
+ * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it, seeded
+ * hidden only when the metric sets `counterpartHidden`.
  *
  * @return The chart for the metric.
  */
@@ -256,7 +258,7 @@ function MetricChart( {
 		const paired = buildSeries( counterpart, chartType );
 		return {
 			series: [ ...active, ...paired ],
-			defaultHiddenSeries: paired.map( item => item.label ),
+			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
 	}, [ metric, counterpart, chartType ] );
 	const formatTooltipDate = useCallback(

@@ -54,9 +54,10 @@ function getVideoRowId( video: StatsVideoPlaysComparisonItem ): string {
 
 const RECORDS_VIEW = {
 	sort: { field: 'plays', direction: 'desc' as const },
+	titleField: 'label',
+	mediaField: 'poster',
 	layout: {
 		styles: {
-			label: { width: '100%' },
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
 		},
@@ -122,7 +123,7 @@ function VideosReport(): JSX.Element {
 	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.videos;
+	const { getLabel } = REPORTS.videos;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -147,7 +148,7 @@ function VideosReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
 						data={ records.rows }

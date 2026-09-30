@@ -1,6 +1,6 @@
 <?php
 /**
- * Dashboard Sections API: the registry helpers, the preview scope, and the REST routes.
+ * Dashboard Sections API: the registry helpers, the section script data, and the REST routes.
  *
  * The package's own sections register through this API from default-dashboard-sections.php,
  * the same way a plugin extending the dashboard does.
@@ -20,18 +20,6 @@ require_once __DIR__ . '/class-dashboard-section-registry.php';
 if ( ! function_exists( __NAMESPACE__ . '\\register_dashboard_feature_flags' ) ) {
 	require_once __DIR__ . '/dashboard-policy.php';
 }
-
-/**
- * Filter through which the preview's section scope is resolved.
- */
-const DASHBOARD_PREVIEW_SCOPE_FILTER = 'jetpack_premium_analytics_dashboard_preview_scope';
-
-/**
- * Section slugs the customer preview exposes as tabs. A section still rolling out to some
- * sites is opened through the filter instead. Widget types are registered independently of
- * this, as they are of the per-section availability checks.
- */
-const PREVIEW_SECTIONS = array( 'traffic', 'insights', 'subscribers', 'ads' );
 
 /**
  * Registers a dashboard section.
@@ -67,61 +55,17 @@ function get_available_dashboard_sections( $dashboard_name ) {
 }
 
 /**
- * Whether the dashboard is running as the customer-facing preview.
- *
- * The site's own opt-in means the preview. Anything else that switches the dashboard on, the
- * WordPress.com blog sticker or the `jetpack_premium_analytics_enabled` filter, means us.
- *
- * @since 0.6.0
- *
- * @return bool
- */
-function is_dashboard_preview_scoped() {
-	return (bool) get_option( Enablement_Setting::ENABLED_OPTION );
-}
-
-/**
- * Whether the preview exposes a dashboard section.
- *
- * @since 0.6.0
- *
- * @param string $dashboard_name Dashboard identifier. Only this package's own dashboard is scoped.
- * @param string $slug           URL-facing section slug.
- * @return bool
- */
-function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) {
-	$in_scope = DASHBOARD_NAME !== $dashboard_name
-		|| ! is_dashboard_preview_scoped()
-		|| in_array( $slug, PREVIEW_SECTIONS, true )
-		|| is_dashboard_unlocked_for_a11n();
-
-	/**
-	 * Filters whether the preview exposes a dashboard section.
-	 *
-	 * `__return_true` restores the whole dashboard, which is how a development or test site
-	 * sees every tab.
-	 *
-	 * @since 0.6.0
-	 *
-	 * @param bool   $in_scope       Whether the preview exposes the section.
-	 * @param string $slug           URL-facing section slug.
-	 * @param string $dashboard_name Dashboard the section belongs to.
-	 */
-	return (bool) apply_filters( DASHBOARD_PREVIEW_SCOPE_FILTER, $in_scope, $slug, $dashboard_name );
-}
-
-/**
  * Slugs of the tabs the dashboard exposes, for the client's report routes.
  *
  * Reads the same sections the tab list does, so a report cannot outlive the tab it sits
- * behind. Null, never `array()`, while nothing is registered: an empty array is a
- * published scope that exposes nothing.
+ * behind. Null, never `array()`, while nothing is registered: an empty array means no
+ * tab is available.
  *
  * @since 0.6.0
  *
  * @return string[]|null
  */
-function get_dashboard_preview_scope_sections() {
+function get_available_dashboard_section_slugs() {
 	$registry = Dashboard_Section_Registry::get_instance();
 
 	if ( empty( $registry->get_all_registered( DASHBOARD_NAME ) ) ) {
@@ -137,29 +81,57 @@ function get_dashboard_preview_scope_sections() {
 }
 
 /**
- * Configures the preview scope script data.
+ * Configures the section script data.
  *
  * @since 0.6.0
  *
  * @return void
  */
-function configure_dashboard_preview_scope() {
-	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_preview_scope_script_data', 20 );
+function configure_dashboard_sections_script_data() {
+	add_filter( 'jetpack_admin_js_script_data', __NAMESPACE__ . '\\inject_dashboard_sections_script_data', 20 );
 }
 
 /**
- * Injects the preview's section scope into JetpackScriptData.
+ * Kept for older copies of the package, whose Dashboard_Section::is_available() calls it on every
+ * availability check. Every section is in scope now, so the section's own rule decides.
+ *
+ * @since 0.6.0
+ * @deprecated 0.10.0 The preview scope is gone.
+ *
+ * @param string $dashboard_name Dashboard identifier.
+ * @param string $slug           URL-facing section slug.
+ * @return bool Always true.
+ */
+function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- Kept for the signature older copies call.
+	return true;
+}
+
+/**
+ * Kept for older copies of the package: they guard their include of this file on another
+ * symbol and call this, so a newer copy loading first must still define it.
+ *
+ * @since 0.6.0
+ * @deprecated 0.10.0 Use configure_dashboard_sections_script_data().
+ *
+ * @return void
+ */
+function configure_dashboard_preview_scope() {
+	configure_dashboard_sections_script_data();
+}
+
+/**
+ * Injects the available section slugs into JetpackScriptData.
  *
  * The same list travels over REST for the tab bar, but a report route reads no REST before
- * choosing its redirect, so it reads the scope from boot data instead.
+ * choosing its redirect, so it reads the slugs from boot data instead.
  *
  * @since 0.6.0
  *
  * @param array $data The script data passed by the assets package.
  * @return array
  */
-function inject_dashboard_preview_scope_script_data( array $data ): array {
-	$sections = get_dashboard_preview_scope_sections();
+function inject_dashboard_sections_script_data( array $data ): array {
+	$sections = get_available_dashboard_section_slugs();
 
 	if ( null === $sections ) {
 		return $data;
@@ -169,7 +141,7 @@ function inject_dashboard_preview_scope_script_data( array $data ): array {
 		$data['premium_analytics'] = array();
 	}
 
-	$data['premium_analytics']['preview_sections'] = $sections;
+	$data['premium_analytics']['sections'] = $sections;
 
 	return $data;
 }

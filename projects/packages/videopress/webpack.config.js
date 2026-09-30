@@ -68,7 +68,7 @@ module.exports = [
 			'block-editor/blocks/video/view': './src/client/block-editor/blocks/video/view.ts',
 
 			// Video Playlist block
-			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.ts',
+			'block-editor/blocks/playlist/index': './src/client/block-editor/blocks/playlist/index.tsx',
 			'block-editor/blocks/playlist/view': './src/client/block-editor/blocks/playlist/view.ts',
 
 			// Latest Videos Playlist block: editor only, it shares the playlist block's view assets.

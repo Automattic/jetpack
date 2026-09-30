@@ -97,7 +97,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, hidden until the reader reveals it from the legend. Shared by the subscribers and traffic charts.',
+					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, visible from the start unless `counterpartHidden` is set. Shared by the subscribers and traffic charts.',
 			},
 		},
 	},
@@ -137,9 +137,9 @@ export const Bars: Story = {
 
 /**
  * Metrics that name each other as `counterpartKey` are drawn together: the
- * selected one solid, the other struck through in the legend and hidden until
- * clicked. Selecting the other card swaps the roles, and revealing a metric
- * brings its previous-period overlay with it.
+ * selected one solid and the other beside it, both toggled from the legend.
+ * Selecting the other card swaps the roles, and hiding a metric takes its
+ * previous-period overlay with it.
  */
 export const PairedMetrics: Story = {
 	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT },

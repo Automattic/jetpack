@@ -775,7 +775,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The card's action buys the plugin, at the one term the tab sells.
+	 * The card's action buys the plugin, at the one term the tab sells, styled as core's Install Now.
 	 */
 	public function test_button_targets_yearly_checkout() {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -785,7 +785,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'gravityforms_yearly', $button );
 		$this->assertStringNotContainsString( 'gravityforms_monthly', $button );
-		$this->assertStringContainsString( 'button-primary', $button );
+		$this->assertStringContainsString( 'class="button button-compact"', $button );
 		$this->assertStringContainsString( 'Purchase', $button );
 	}
 
@@ -1041,10 +1041,9 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The category gives a reader something to orient by between the author and the
-	 * description. 54 of the 56 live products carry one.
+	 * Core's own card markup, so core's CSS lays it out as on every other tab, with the price where core puts ratings.
 	 */
-	public function test_card_shows_the_category() {
+	public function test_card_uses_cores_plugin_card_markup() {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
@@ -1055,8 +1054,31 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		wpcom_marketplace_render_card( $card );
 		$html = self::squash( ob_get_clean() );
 
-		$this->assertStringContainsString( 'wpcom-marketplace-card__category', $html );
-		$this->assertStringContainsString( 'SEO', $html );
+		foreach ( array( 'plugin-card plugin-card-gravityforms', 'plugin-card-top', 'name column-name', 'class="plugin-icon"', 'plugin-action-buttons', 'desc column-description', '<cite>', '>More Details</a>' ) as $piece ) {
+			$this->assertStringContainsString( $piece, $html );
+		}
+
+		$this->assertGreaterThan( strpos( $html, 'plugin-card-bottom' ), strpos( $html, 'wpcom-marketplace-card__price' ) );
+		$this->assertStringNotContainsString( 'SEO', $html, 'Core\'s card has no slot for a category.' );
+	}
+
+	/**
+	 * Cut at a word, near the 150 characters WordPress.org allows, so cards stay core's height.
+	 */
+	public function test_long_descriptions_are_cut_to_wordpress_org_length() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$card                      = $this->priced_card();
+		$card['short_description'] = str_repeat( 'Forms for every project. ', 12 );
+
+		ob_start();
+		wpcom_marketplace_render_card( $card );
+		preg_match( '#<p>([^<]*)</p>#', self::squash( ob_get_clean() ), $matches );
+		$description = trim( $matches[1] ?? '' );
+
+		$this->assertLessThanOrEqual( 151, mb_strlen( $description ) );
+		$this->assertStringEndsWith( 'project…', $description );
 	}
 
 	/**
@@ -1265,6 +1287,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 			wpcom_marketplace_render_card( $card );
 			$html = ob_get_clean();
 
+			$this->assertStringContainsString( 'data-installed="true"', $html );
 			$this->assertStringNotContainsString( 'wpcom-marketplace-card__price', $html );
 			$this->assertStringNotContainsString( 'Start for free', $html );
 			$this->assertStringNotContainsString( 'Purchase', $html );
@@ -1284,6 +1307,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'data-plugin="gravityforms"', $priced );
 		$this->assertStringContainsString( 'data-saas="false"', $priced );
+		$this->assertStringContainsString( 'data-installed="false"', $priced );
 		$this->assertSame( 2, substr_count( $priced, 'data-wpcom-marketplace-track="details"' ) );
 		$this->assertStringContainsString( 'data-wpcom-marketplace-track="purchase"', $priced );
 
@@ -1340,7 +1364,9 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		wpcom_marketplace_render_grid();
 		$html = ob_get_clean();
 
-		$this->assertSame( 2, substr_count( $html, 'wpcom-marketplace-card ' ) );
+		$this->assertSame( 2, substr_count( $html, 'wpcom-marketplace-card"' ) );
+		$this->assertStringContainsString( '<div class="wp-list-table widefat plugin-install">', $html );
+		$this->assertStringContainsString( '<div id="the-list" class="wpcom-marketplace-grid">', $html );
 		$this->assertStringContainsString( '2 items', $html );
 		$this->assertLessThan(
 			strpos( $html, 'Second Plugin' ),

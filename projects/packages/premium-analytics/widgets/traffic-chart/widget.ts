@@ -14,6 +14,7 @@ import {
 	type ChartDisplayChartType,
 	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
  * The bucket sizes this chart draws. The bucket follows the dashboard's interval
@@ -25,6 +26,15 @@ export const TRAFFIC_PERIODS = [
 	'week',
 	'month',
 ] as const satisfies readonly StatsPeriod[];
+
+/**
+ * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else bars.
+ *
+ * @return The default chart type.
+ */
+export function defaultChartType(): TrafficChartType {
+	return readStatsV1ChartType() ?? 'bar';
+}
 
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
@@ -41,6 +51,7 @@ export type TrafficChartMetricId = 'views' | 'visitors' | 'comments' | 'likes';
  * Metric tabs in display order; id doubles as the `stat_fields` value. Views
  * and Visitors pair via `counterpartId` (unavailable at the hourly bucket);
  * `counterpartId` is typed to the id set so a typo can't silently drop the pairing.
+ * Visitors starts with Views hidden, since Views' scale would flatten its line.
  */
 export const TRAFFIC_CHART_METRICS = [
 	{
@@ -58,6 +69,7 @@ export const TRAFFIC_CHART_METRICS = [
 			/* translators: %s: number of visitors. */
 			_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
 		counterpartId: 'views',
+		counterpartHidden: true,
 	},
 	{
 		id: 'comments',
@@ -78,13 +90,14 @@ export const TRAFFIC_CHART_METRICS = [
 	label: string;
 	countLabel: CountLabel;
 	counterpartId?: TrafficChartMetricId;
+	counterpartHidden?: boolean;
 }[];
 
 /**
  * Configurable attributes for the Traffic chart widget; report params still
  * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property chartType - How to draw the selected metric. Defaults to `line`.
+ * @property chartType - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
  */
 export type TrafficChartAttributes = {
 	chartType?: TrafficChartType;
@@ -97,10 +110,15 @@ export type TrafficChartAttributes = {
  */
 export default {
 	icon: trendingUp,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< TrafficChartAttributes >[],
-	example: {
-		attributes: {
-			chartType: 'line',
+	attributes: [
+		{
+			...chartTypeAttributeField< TrafficChartAttributes >(),
+			// The switch must show what the chart draws, and the default depends on Stats v1.
+			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
+				item.chartType ?? defaultChartType(),
 		},
+	] as WidgetAttributeField< TrafficChartAttributes >[],
+	example: {
+		attributes: {},
 	},
 };

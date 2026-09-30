@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 4.8.0-beta
+Stable tag: 4.8.0-beta2
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -189,7 +189,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.8.0-beta - 2026-09-28
+### 4.8.0-beta2 - 2026-09-29
 #### Security
 - Critical CSS: Only enter generation mode while a front-end page renders, so a link carrying the generation parameter can no longer force an admin, REST or login-page request to render as a logged-out visitor.
 
@@ -215,7 +215,11 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - My Jetpack: Show a Features tab in place of the Products tab.
 - My Jetpack: Show the dashboard in the new rounded admin page frame.
 - My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
+- Overview: Open the points explanation when hovering the points badge.
+- Overview: Show empty days in the score history in the same details popover as recorded days.
+- Refer to Cornerstone Pages consistently, matching the support documentation.
 - Restyle error notices to match the WordPress design system.
+- Settings: Add a Clear cache button to Page Cache and show logging as a toggle with a link to the logs.
 - Settings: Group Image CDN controls and LCP optimization status in inset panels on the modern dashboard, and label the auto-resize toggle.
 - Settings: Keep focus on tooltip triggers when their tooltips open, announce the content to screen readers, and show a focus ring after clicking an info icon.
 - Settings: Organize modern settings into collapsible sections with descriptions and icons.
@@ -235,6 +239,7 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else.
 - Critical CSS: Avoid duplicate status requests for CSS and LCP generation in the modern dashboard.
 - Critical CSS: Hide only the group of blocked pages you dismiss, instead of both.
+- Critical CSS: Match the recommendations page text size and colour to the modern dashboard.
 - Critical CSS: Show a focus ring around the manual regeneration info icon when it is reached with the keyboard.
 - Critical CSS: Stop generation from logging administrators out on sites whose login gate redirects without using WordPress.
 - Critical CSS: Stop local generation at login-protected pages to keep administrators logged in, and prevent automatic restarts after a failed run throughout the dashboard page session.
@@ -263,23 +268,32 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 - Overview: Let Tab move straight into and out of the score history while the pointer shows a day's details.
 - Overview: Let the pointer reach every day in the score history while a day's details are open, and leave a gap between the day and its details.
 - Overview: Let the pointer take over from the arrow keys in the score history, instead of flickering between the hovered and selected days.
+- Overview: Match the score help popovers, score history day details and paging tooltips to the design.
 - Overview: Show a day's score details on hover again after paging the score history with the keyboard.
 - Overview: Show a focus ring on the score history day selected with the arrow keys.
 - Overview: Show an upgrade link when the score history upgrade prompt cannot load.
 - Overview: Show the first recorded day of performance history immediately after upgrading.
+- Overview: Show the score history's Previous and Next arrows in dark grey instead of blue, to match the rest of the page.
 - Overview: Stop the score history from swallowing keys it does not use, such as Page Down, and close a day’s details when the series it describes is hidden.
 - Page Cache: Show the module as running, without contradictory setup errors, on WP Cloud hosts such as Pressable that already cache pages.
 - Performance history: Load the Overview faster on sites with little or no score history.
 - Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers.
 - Performance scores: Cancel pending background score requests while viewing a sub-page.
+- Settings: Add space between a module's description and its status notice in the modern dashboard.
+- Settings: Announce to screen readers whether the image quality options are expanded.
 - Settings: Avoid duplicate navigation when returning from a sub-page.
 - Settings: Close the Page Cache example and Cornerstone Pages warning tooltips with Escape, and the warning with a click elsewhere.
 - Settings: Give information icons an accessible name for screen readers.
 - Settings: Hide upgrade and license links when their My Jetpack screens are unavailable.
 - Settings: Let keyboard users open tooltips with Enter or Space and dismiss them with Escape.
+- Settings: Match notice text to the rest of the page.
+- Settings: Match the Customize pages list label, image quality toggle, and Critical CSS status to the design.
+- Settings: Match the Save buttons in the exceptions panels and Cornerstone Pages editor to the rest of the page.
 - Settings: Nest the settings section headings under the page heading for screen readers.
 - Settings: Show text links in the brand colour and enlarge the Critical CSS info icon in the modern dashboard.
 - Settings: Show tooltips in full on the modernized Settings page instead of cutting them off at the card edge.
+- Settings: Tighten the Cornerstone Pages list editor and match its text size and color to the rest of the page.
+- Settings: Use the same text size and color for the exceptions panels and Image CDN help text as the rest of the page.
 
 --------
 

@@ -209,4 +209,16 @@ class Likes_Section_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'activate-likes', $markup );
 		$this->assertStringContainsString( 'Like buttons need a connection to WordPress.com', $markup );
 	}
+
+	public function test_offers_nothing_offline_even_on_a_connected_site(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'likes' ) );
+		$this->given_offline_mode();
+
+		$markup = $this->render();
+
+		$this->assertStringNotContainsString( 'name="wpl_default"', $markup );
+		$this->assertStringNotContainsString( 'Connect your site', $markup );
+		$this->assertStringContainsString( 'unavailable while your site is in offline mode', $markup );
+	}
 }

@@ -308,6 +308,32 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The player settings reach the shared renderer: hidden with new-tab links,
+	 * or hidden until a click reveals it.
+	 */
+	public function test_render_honors_the_player_settings() {
+		$this->create_video( 'newest02', '2024-02-01 10:00:00', 120000, 1080 );
+
+		$links = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array( 'showPlayer' => false )
+		);
+		$this->assertStringContainsString( 'hide-player', $links );
+		$this->assertStringNotContainsString( 'videopress-playlist__stage', $links );
+		$this->assertStringContainsString( 'href="https://videopress.com/v/newest02" target="_blank"', $links );
+
+		$reveal = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'showPlayer'       => false,
+				'entryClickAction' => 'show-player',
+			)
+		);
+		$this->assertStringContainsString( 'hide-player', $reveal );
+		$this->assertStringContainsString( '<div class="videopress-playlist__stage" hidden>', $reveal );
+		$this->assertStringContainsString( 'data-embed-url="https://videopress.com/embed/newest02', $reveal );
+		$this->assertStringNotContainsString( 'target="_blank"', $reveal );
+	}
+
+	/**
 	 * The count attribute caps the entries and is clamped to the supported range.
 	 */
 	public function test_render_honors_and_clamps_the_count() {
@@ -373,6 +399,26 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-guid="library1"', $markup );
 		$this->assertStringNotContainsString( 'injected1', $markup );
 		$this->assertStringNotContainsString( 'is-layout-grid', $markup );
+	}
+
+	/**
+	 * A dynamic playlist has no title, so no heading renders even when one is
+	 * stored or passed in.
+	 */
+	public function test_render_has_no_title_heading() {
+		$this->create_video( 'library1', '2024-01-01 10:00:00' );
+
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'playlistTitle'     => 'Injected',
+				'showPlaylistTitle' => true,
+			),
+			'<h2 class="wp-block-heading">Injected</h2>'
+		);
+
+		$this->assertStringContainsString( 'data-guid="library1"', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__heading', $markup );
+		$this->assertStringNotContainsString( 'Injected', $markup );
 	}
 
 	/**

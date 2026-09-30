@@ -111,9 +111,7 @@ describe( 'EarningsReportPage', () => {
 		render( <EarningsReportPage /> );
 
 		expect( reportPageTabsMock ).not.toHaveBeenCalled();
-		expect(
-			screen.getByRole( 'heading', { name: 'Earnings history report' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Earnings history' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers a tab for each bucket that has rows', () => {
@@ -143,9 +141,7 @@ describe( 'EarningsReportPage', () => {
 
 		render( <EarningsReportPage /> );
 
-		expect(
-			screen.getByRole( 'heading', { name: 'Adjustments history report' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Adjustments history' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'columnheader', { name: /Ads Served/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'June 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-$50.00' ) ).toBeInTheDocument();
