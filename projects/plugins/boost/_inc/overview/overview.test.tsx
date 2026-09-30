@@ -656,6 +656,31 @@ test( 'tracks score errors and offers a successful retry', async () => {
 	expect( screen.queryByText( 'Score service unavailable' ) ).not.toBeInTheDocument();
 } );
 
+test( 'shows calculating after Run speed test and replaces it with new scores', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let resolveRefresh: ( value: typeof scores ) => void = () => {};
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( resolve => {
+			resolveRefresh = resolve;
+		} )
+	);
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'false'
+		)
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
+	await act( async () => resolveRefresh( { ...scores, current: { desktop: 95, mobile: 85 } } ) );
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 95 );
+	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 85 );
+} );
+
 test( 'retains loaded scores and Run speed test alongside a subsequent score error', async () => {
 	const { container } = renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
@@ -678,8 +703,8 @@ test( 'retains loaded scores and Run speed test alongside a subsequent score err
 			'true'
 		)
 	);
-	expect( screen.getByText( '91' ) ).toBeVisible();
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '91' ) ).not.toBeInTheDocument();
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
 	await act( async () => rejectRefresh( new Error( 'Refresh failed' ) ) );
 	await expect( screen.findByText( 'Refresh failed' ) ).resolves.toBeTruthy();
 	expect( screen.getByText( '91' ) ).toBeInTheDocument();

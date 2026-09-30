@@ -46,7 +46,7 @@ export default function ScoreCards( {
 		</Card.Content>
 	);
 	let body: ReactNode;
-	if ( ! hasScores ) {
+	if ( isLoading || ! hasScores ) {
 		body = notice || (
 			<Card.Content className="jetpack-boost-overview__scores-status" role="status">
 				<Stack direction="row" justify="center" align="center" gap="md">

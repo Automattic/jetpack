@@ -234,15 +234,15 @@ test( 'shows one calculating status instead of the score sections before scores 
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 } );
 
-test( 'keeps loaded scores visible while they refresh', () => {
+test( 'shows calculating instead of loaded scores while they refresh', () => {
 	render(
 		<ScoreCards
 			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
 			isLoading
 		/>
 	);
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	expect( screen.queryByRole( 'progressbar', { name: 'Desktop' } ) ).not.toBeInTheDocument();
 } );
 
 test( 'shows a failure without scores inside the card and retries from it', () => {
