@@ -635,6 +635,45 @@ describe( 'ComparativeBarChart tooltip extras', () => {
 		expect( tooltipLabelFor( JULY_1 ) ).toBe( '100 July · July 1, 2026' );
 	} );
 
+	// A row that is not a number, such as the posts published that day, reads its
+	// own text in place of the value and unit, and still ends with the date.
+	it( "reads a point's own text when it carries one", () => {
+		const posts = { date: JULY_1, value: 1, tooltipText: 'Post published: Hello world' };
+		render(
+			<ComparativeBarChart
+				series={ SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { label: 'Posts published', data: [ posts ], derived: true } ] }
+			/>
+		);
+
+		/* eslint-disable testing-library/render-result-naming-convention --
+		   The chart's `renderTooltip` prop, not testing-library's `render()`. */
+		const tooltipNode = recordedProps().renderTooltip( {
+			tooltipData: {
+				nearestDatum: { datum: posts, key: 'Posts published' },
+				datumByKey: { 'Posts published': { datum: posts, index: 1, key: 'Posts published' } },
+			},
+		} );
+		/* eslint-enable testing-library/render-result-naming-convention */
+
+		expect( tooltipNode.props.getLabel( posts, 1, 'Posts published', '1' ) ).toBe(
+			'Post published: Hello world · July 1, 2026'
+		);
+	} );
+
+	it( 'leaves the tooltip off for an all-zero drawn series when only a derived extra has data', () => {
+		render(
+			<ComparativeBarChart
+				series={ ZERO_SERIES }
+				dataFormat={ DATA_FORMAT }
+				tooltipExtras={ [ { ...CPM_EXTRA, derived: true } ] }
+			/>
+		);
+
+		expect( recordedProps().withTooltips ).toBe( false );
+	} );
+
 	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {
 		render(
 			<ComparativeBarChart
