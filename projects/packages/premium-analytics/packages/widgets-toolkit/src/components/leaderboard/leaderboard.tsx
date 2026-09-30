@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useMemo, type ReactNode } from 'react';
@@ -28,22 +29,18 @@ export type LeaderboardStatus = {
 	 * Nothing on screen answers the current params.
 	 */
 	isLoading: boolean;
-
 	/**
 	 * Unchanged params being revalidated.
 	 */
 	isFetching?: boolean;
-
 	/**
 	 * The request failed.
 	 */
 	isError?: boolean;
-
 	/**
 	 * The comparison period is on and at least one row has a match there.
 	 */
 	hasComparison?: boolean;
-
 	/**
 	 * Re-runs the request; the default error state offers it as Retry.
 	 */
@@ -55,62 +52,38 @@ export type LeaderboardProps = {
 	 * Ranked rows, in display order.
 	 */
 	rows: readonly LeaderboardRowInput[];
-
 	/**
 	 * Request state, from the widget's data hook.
 	 */
 	status: LeaderboardStatus;
-
 	/**
 	 * Error copy. Without `actions`, a `status.refetch` becomes the Retry action.
 	 */
 	error?: WidgetStateError;
-
 	/**
 	 * A widget's own empty state; omit for the generic one.
 	 */
 	empty?: WidgetStateEmpty;
-
 	/**
 	 * Rows shown, and the skeleton's height. Defaults to the widget row limit.
 	 */
 	maxRows?: number;
-
 	/**
 	 * Value format. Defaults to compact integers.
 	 */
 	format?: DataFormat;
-
 	/**
-	 * Draw the value over the bar.
+	 * Labels of the period legend under the chart. No legend when omitted.
 	 */
-	withOverlayLabel?: boolean;
-
+	legend?: LegendLabels;
 	/**
-	 * Show the legend.
-	 */
-	showLegend?: boolean;
-
-	/**
-	 * Legend labels.
-	 */
-	legendLabels?: LegendLabels;
-
-	/**
-	 * Destination tab and origin report for detail links, see `useWidgetNavigationSearch()`.
+	 * Destination tab and origin report for the detail links, see `useWidgetNavigationSearch()`.
 	 */
 	navigation?: Parameters< typeof useWidgetNavigationSearch >[ 0 ];
-
-	/**
-	 * Rendered above the chart, inside the content column.
-	 */
-	header?: ReactNode;
-
 	/**
 	 * Rendered in the widget footer, typically a `ReportLink`.
 	 */
 	footer?: ReactNode;
-
 	/**
 	 * Additional CSS classes.
 	 */
@@ -126,6 +99,9 @@ const DEFAULT_FORMAT: DataFormat = {
  * A ranked-rows widget body: the leaderboard chart with its loading, error and empty
  * states, the row limit, the comparison shares and deltas, and the dashboard window on
  * detail links. Renders inside `WidgetRoot`, which provides the report params it reads.
+ *
+ * @param {LeaderboardProps} props - The props for the Leaderboard component.
+ * @return {JSX.Element} The Leaderboard component.
  */
 export function Leaderboard( {
 	rows,
@@ -134,14 +110,11 @@ export function Leaderboard( {
 	empty,
 	maxRows = WIDGET_ROW_LIMIT,
 	format = DEFAULT_FORMAT,
-	withOverlayLabel = true,
-	showLegend = false,
-	legendLabels,
+	legend,
 	navigation,
-	header,
 	footer,
 	className,
-}: LeaderboardProps ) {
+}: LeaderboardProps ): JSX.Element {
 	const detailSearch = useWidgetNavigationSearch( navigation );
 	const hasComparison = !! status.hasComparison;
 	const refetch = status.refetch;
@@ -155,6 +128,7 @@ export function Leaderboard( {
 		if ( error?.actions || ! refetch ) {
 			return error;
 		}
+
 		return {
 			...error,
 			description:
@@ -175,9 +149,8 @@ export function Leaderboard( {
 	}, [ error, refetch ] );
 
 	return (
-		<div className={ clsx( styles.root, className ) }>
-			<div className={ styles.content }>
-				{ header }
+		<Stack direction="column" className={ clsx( styles.root, className ) }>
+			<Stack direction="column" className={ styles.content }>
 				<WidgetState
 					isLoading={ status.isLoading }
 					isFetching={ status.isFetching }
@@ -190,14 +163,14 @@ export function Leaderboard( {
 					<LeaderboardChart
 						data={ data }
 						withComparison={ hasComparison }
-						withOverlayLabel={ withOverlayLabel }
-						showLegend={ showLegend }
-						legendLabels={ legendLabels }
+						withOverlayLabel
+						showLegend={ !! legend }
+						legendLabels={ legend }
 						dataFormat={ format }
 					/>
 				</WidgetState>
-			</div>
+			</Stack>
 			{ footer && <WidgetFooter>{ footer }</WidgetFooter> }
-		</div>
+		</Stack>
 	);
 }

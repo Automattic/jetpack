@@ -32,26 +32,44 @@ export type LeaderboardRowInputAction =
  * One ranked row, in the widget's own terms.
  */
 export type LeaderboardRowInput = {
-	/** Stable row key. */
+	/**
+	 * Stable row key.
+	 */
 	id: string;
-	/** Label text. */
+	/**
+	 * Label text.
+	 */
 	label: string;
-	/** Value for the selected period. */
+	/**
+	 * Value for the selected period.
+	 */
 	value: number;
-	/** Value for the comparison period; `undefined` when the row has no match there. */
+	/**
+	 * Value for the comparison period; `undefined` when the row has no match there.
+	 */
 	previousValue?: number;
-	/** Media before the label. Defaults to none. */
+	/**
+	 * Media before the label. Defaults to none.
+	 */
 	media?: LeaderboardRowMedia;
-	/** What selecting the row does. Defaults to nothing. */
+	/**
+	 * What selecting the row does. Defaults to nothing.
+	 */
 	action?: LeaderboardRowInputAction;
 };
 
 export type BuildLeaderboardChartDataOptions = {
-	/** Whether the comparison period is on: shares and deltas read `previousValue` only then. */
+	/**
+	 * Whether the comparison period is on: shares and deltas read `previousValue` only then.
+	 */
 	hasComparison?: boolean;
-	/** Rows past this count are dropped; `0` keeps every row. */
+	/**
+	 * Rows past this count are dropped; `0` keeps every row.
+	 */
 	maxRows?: number;
-	/** The dashboard window a detail link carries when the row declares none. */
+	/**
+	 * The dashboard window a detail link carries when the row declares none.
+	 */
 	detailSearch?: Record< string, unknown >;
 };
 
