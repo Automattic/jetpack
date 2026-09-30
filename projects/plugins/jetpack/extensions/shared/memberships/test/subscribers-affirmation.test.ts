@@ -13,7 +13,7 @@ import {
 } from '../subscribers-affirmation';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getAdminUrl: jest.fn( path => `https://admin.example.com/${ path }` ),
+	getAdminUrl: jest.fn( ( path: string ) => `https://admin.example.com/${ path }` ),
 } ) );
 
 jest.mock( '../../../../_inc/shared/analytics-url', () => ( {
@@ -40,16 +40,16 @@ describe( 'getFormattedCategories', () => {
 		expect( result ).toContain( '<strong>' );
 	} );
 
-	test( 'single category returns strong-wrapped name', () => {
+	test( 'single category is listed with "All content" as "X and Y"', () => {
 		const result = getFormattedCategories( [ 2 ], newsletterCategories );
-		expect( result ).toBe( '<strong>Tech</strong>' );
+		expect( result ).toBe( '<strong>Tech</strong> and <strong>All content</strong>' );
 	} );
 
-	test( 'two categories returns "X and Y"', () => {
+	test( 'two categories plus "All content" returns "X, Y, and Z"', () => {
 		const result = getFormattedCategories( [ 2, 3 ], newsletterCategories );
-		expect( result ).toContain( '<strong>Tech</strong>' );
-		expect( result ).toContain( '<strong>News</strong>' );
-		expect( result ).toMatch( /and/ );
+		expect( result ).toBe(
+			'<strong>Tech</strong>, <strong>News</strong>, and <strong>All content</strong>'
+		);
 	} );
 
 	test( 'three or more categories returns "X, Y, and Z" style', () => {
@@ -58,16 +58,17 @@ describe( 'getFormattedCategories', () => {
 		expect( result ).toMatch( /and/ );
 	} );
 
-	test( 'appends "All content" when post has non-newsletter category', () => {
-		const result = getFormattedCategories( [ 2, 99 ], newsletterCategories );
-		expect( result ).toContain( 'All content' );
-		expect( result ).toContain( 'Tech' );
+	test( 'returns only "All content" when post has no newsletter category', () => {
+		const result = getFormattedCategories( [ 99 ], newsletterCategories );
+		expect( result ).toBe( '<strong>All content</strong>' );
 	} );
 
 	test( 'uses stats newsletter_categories when provided as second arg', () => {
 		const statsCategories = [ { id: 2, name: 'Tech (at send time)' } ];
 		const result = getFormattedCategories( [ 2 ], statsCategories, false );
-		expect( result ).toBe( '<strong>Tech (at send time)</strong>' );
+		expect( result ).toBe(
+			'<strong>Tech (at send time)</strong> and <strong>All content</strong>'
+		);
 	} );
 
 	test( 'handles undefined postCategories with optional chaining when fallback is false', () => {
@@ -488,9 +489,9 @@ describe( 'getSentCopyLine', () => {
 
 describe( 'getJetpackEmailStatsLink', () => {
 	beforeEach( () => {
-		getAdminUrl.mockClear();
-		getAnalyticsUrl.mockClear();
-		hasAnalyticsDashboard.mockReturnValue( true );
+		jest.mocked( getAdminUrl ).mockClear();
+		jest.mocked( getAnalyticsUrl ).mockClear();
+		jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
 	} );
 
 	// Where the dashboard is the analytics UI, delegate to the shared helper — it
@@ -507,14 +508,14 @@ describe( 'getJetpackEmailStatsLink', () => {
 	} );
 
 	test( 'passes through null when the user cannot open the dashboard', () => {
-		getAnalyticsUrl.mockReturnValueOnce( null );
+		jest.mocked( getAnalyticsUrl ).mockReturnValueOnce( null );
 
 		expect( getJetpackEmailStatsLink( 123, 456 ) ).toBeNull();
 	} );
 
 	// Everywhere else the existing Stats deep link is untouched.
 	test( 'returns the Stats deep link when the dashboard has not replaced it', () => {
-		hasAnalyticsDashboard.mockReturnValue( false );
+		jest.mocked( hasAnalyticsDashboard ).mockReturnValue( false );
 
 		const result = getJetpackEmailStatsLink( 123, 456 );
 
@@ -530,7 +531,7 @@ describe( 'getJetpackEmailStatsLink', () => {
 	// The Stats deep link points at admin.php?page=stats, which only exists while
 	// the Stats module is active.
 	test( 'returns null for the Stats deep link when the Stats module is off', () => {
-		hasAnalyticsDashboard.mockReturnValue( false );
+		jest.mocked( hasAnalyticsDashboard ).mockReturnValue( false );
 
 		const result = getJetpackEmailStatsLink( 123, 456, false );
 
@@ -540,7 +541,7 @@ describe( 'getJetpackEmailStatsLink', () => {
 
 	// The module only gates the deep link; the dashboard URL is independent of it.
 	test( 'still returns the dashboard URL when the Stats module is off', () => {
-		hasAnalyticsDashboard.mockReturnValue( true );
+		jest.mocked( hasAnalyticsDashboard ).mockReturnValue( true );
 
 		const result = getJetpackEmailStatsLink( 123, 456, false );
 
@@ -550,7 +551,7 @@ describe( 'getJetpackEmailStatsLink', () => {
 
 describe( 'getSiteVisibilitySettingsLink', () => {
 	beforeEach( () => {
-		getAdminUrl.mockClear();
+		jest.mocked( getAdminUrl ).mockClear();
 	} );
 
 	test( 'links to the Reading settings page where site visibility is changed', () => {
