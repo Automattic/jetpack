@@ -9,6 +9,8 @@ import type { FormSettings } from '../shared/types';
 
 import './style.scss';
 
+const utf8 = new TextEncoder();
+
 // Shared by every form on the page. A failure clears it, so the next reach tries again.
 let editorModule: Promise< typeof import( '../editor' ) > | null = null;
 
@@ -202,9 +204,8 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		( ( current.kind === 'wordpress' && current.avatar ) ||
 			( current.kind === 'unknown' ? identity.defaultAvatar : avatarUrl ) );
 	const { submit } = formSettings;
-	// The textarea's maxLength holds back typing, not the editor. Counted as PHP counts, by code point.
-	const isTooLong =
-		commentValue.value.length > maxLength && [ ...commentValue.value ].length > maxLength;
+	// The textarea's maxLength holds back typing, not the editor. Counted as PHP counts, in UTF-8 bytes.
+	const isTooLong = utf8.encode( commentValue.value ).length > maxLength;
 
 	// A draft from the editor is block markup, which only the editor shows.
 	const text =

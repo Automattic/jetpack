@@ -69,14 +69,13 @@ class Block_Editor {
 			return (object) array();
 		}
 
-		// Keyed by the WordPress version and the string list, whose updates bring new strings.
-		$strings  = __DIR__ . '/strings.php';
-		$key      = 'jetpack_comments_editor_i18n_' . md5( $locale . get_bloginfo( 'version' ) . md5_file( $strings ) );
+		// Keyed by the WordPress version and the package version, whose updates bring new strings.
+		$key      = 'jetpack_comments_editor_i18n_' . md5( $locale . get_bloginfo( 'version' ) . Comments::PACKAGE_VERSION );
 		$messages = get_transient( $key );
 
 		if ( ! is_array( $messages ) ) {
 			$messages = array();
-			$wanted   = array_flip( require $strings ) + array( '' => true );
+			$wanted   = array_flip( require __DIR__ . '/strings.php' ) + array( '' => true );
 
 			foreach ( array( 'wp-a11y', 'wp-block-editor', 'wp-block-library', 'wp-blocks', 'wp-components', 'wp-format-library', 'wp-rich-text' ) as $handle ) {
 				$json = load_script_textdomain( $handle, 'default' );
@@ -111,8 +110,8 @@ class Block_Editor {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $enabled Whether to offer the block editor. Default the site's "blocks in
-		 *                      comments" Discussion setting, which is on unless turned off.
+		 * @param bool $enabled Whether to offer the block editor. Default true, unless WordPress.com's
+		 *                      "blocks in comments" Discussion setting is off.
 		 */
 		return (bool) apply_filters( 'jetpack_comments_block_editor', (bool) get_option( 'enable_blocks_comments', true ) );
 	}
@@ -141,12 +140,15 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function keep_alignment_classes( $content ) {
-		if ( ! $this->has_blocks ) {
+		$has_blocks       = $this->has_blocks;
+		$this->has_blocks = false;
+
+		// Commenters with unfiltered_html go through post kses, which allows any class.
+		if ( ! $has_blocks || false === has_filter( 'pre_comment_content', 'wp_filter_kses' ) ) {
 			return $content;
 		}
 
-		$this->has_blocks = false;
-		$tags             = new \WP_HTML_Tag_Processor( wp_unslash( $content ) );
+		$tags = new \WP_HTML_Tag_Processor( wp_unslash( $content ) );
 
 		while ( $tags->next_tag() ) {
 			$classes = array_intersect(
