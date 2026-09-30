@@ -95,22 +95,7 @@ export function getNewsletterOverviewText( args: OverviewTextArgs ): OverviewTex
 		};
 	}
 
-	const text = getEmailedAudienceText( args );
-
-	// Password protection changes what the email contains, not who receives it.
-	if ( args.isPasswordProtected ) {
-		return {
-			...text,
-			details: [
-				__(
-					'The post stays password protected on your site. Only people with the password can read it there.',
-					'jetpack'
-				),
-			],
-		};
-	}
-
-	return text;
+	return getEmailedAudienceText( args );
 }
 
 /**
@@ -121,6 +106,7 @@ export function getNewsletterOverviewText( args: OverviewTextArgs ): OverviewTex
  */
 function getEmailedAudienceText( {
 	accessLevel,
+	isPasswordProtected,
 	hasPaywall,
 	tierName,
 	categoryNames,
@@ -131,7 +117,13 @@ function getEmailedAudienceText( {
 	const audience = isPaid ? 'paid' : 'all';
 
 	// Same sentence the Audience settings show, so both views describe site access alike.
-	const readAccess = getAccessDescription( level, hasPaywall, tierName );
+	// Password protection changes what the email contains, not who receives it.
+	const readAccess = isPasswordProtected
+		? __(
+				'The post stays password protected on your site. Only people with the password can read it there.',
+				'jetpack'
+			)
+		: getAccessDescription( level, hasPaywall, tierName );
 
 	if ( categoryNames.length ) {
 		const toCategories = {
@@ -162,7 +154,16 @@ function getEmailedAudienceText( {
 						)
 					: toCategories[ audience ],
 			categoryNames,
-			details: [ plusAllContent[ audience ], readAccess ],
+			details: [
+				isPaid && tierName
+					? sprintf(
+							/* translators: %s: paid newsletter tier name, e.g. "VIP". */
+							__( 'Plus subscribers on your ‘%s’ tier who chose ‘All content’.', 'jetpack' ),
+							tierName
+						)
+					: plusAllContent[ audience ],
+				readAccess,
+			],
 		};
 	}
 
