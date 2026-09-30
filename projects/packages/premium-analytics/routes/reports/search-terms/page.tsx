@@ -82,7 +82,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
-	const { getLabel, getTitle } = REPORTS[ 'search-terms' ];
+	const { getLabel } = REPORTS[ 'search-terms' ];
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -107,7 +107,7 @@ export default function SearchTermsReportPage(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportRecordsTable< SearchTermRow >
 						data={ records.table.rows }

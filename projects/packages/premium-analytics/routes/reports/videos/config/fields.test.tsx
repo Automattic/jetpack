@@ -72,6 +72,22 @@ function renderMetricField(
 }
 
 describe( 'videos fields', () => {
+	it( 'renders the poster resized for a table row beside the title', () => {
+		renderTitleField( { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://i0.wp.com/v/launch.jpg?resize=80%2C80'
+		);
+	} );
+
+	it( 'renders the placeholder for an unsafe poster URL', () => {
+		renderTitleField( { ...video, poster: 'javascript:alert(1)' } );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
 	it( 'links a video title to its internal detail page, carrying the date window', () => {
 		renderTitleField( video );
 

@@ -94,7 +94,7 @@ function DownloadsReport(): JSX.Element {
 	const isRecordsLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.downloads;
+	const { getLabel } = REPORTS.downloads;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -119,7 +119,7 @@ function DownloadsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
 						data={ records.rows }

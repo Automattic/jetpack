@@ -24,7 +24,7 @@ import { REPORTS } from '../registry';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	useCommentsReportRecords,
 	type CommentReportRow,
@@ -97,7 +97,7 @@ function CommentsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
 				{ /*

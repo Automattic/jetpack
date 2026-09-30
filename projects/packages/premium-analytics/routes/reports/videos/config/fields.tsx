@@ -5,8 +5,14 @@ import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
-import { MetricWithComparison, VideoTitleLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+import {
+	MetricWithComparison,
+	ReportThumbnailTitle,
+	VideoTitleLink,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import { video as videoIcon } from '@wordpress/icons';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -41,6 +47,25 @@ function getVideoDetailSearch( current: Record< string, unknown > ) {
 }
 
 /**
+ * Ask Photon for the poster at twice the largest row thumbnail, as wpcom sends it full-size.
+ *
+ * @param poster - The row's poster URL.
+ * @return The resized poster URL, or undefined when there is no safe poster.
+ */
+function getPosterThumbnailUrl( poster: string | undefined ): string | undefined {
+	const url = safeHttpUrl( poster );
+
+	if ( ! url ) {
+		return undefined;
+	}
+
+	const resized = new URL( url );
+	resized.searchParams.set( 'resize', '80,80' );
+
+	return resized.toString();
+}
+
+/**
  * Render a video row's title. Rows with an attachment ID link to the internal
  * video detail page, carrying the report's current date window so the detail
  * page and its "Stats" breadcrumb keep the range being inspected; the public
@@ -54,12 +79,21 @@ function VideoTitle( { item }: { item: StatsVideoPlaysComparisonItem } ) {
 	const title = getVideoTitle( item );
 
 	return (
-		<VideoTitleLink
-			id={ item.id }
-			label={ title }
-			link={ item.link }
-			search={ getVideoDetailSearch }
-		/>
+		<ReportThumbnailTitle
+			thumbnailUrl={ getPosterThumbnailUrl( item.poster ) }
+			fallbackIcon={ videoIcon }
+		>
+			{ classNames => (
+				<VideoTitleLink
+					id={ item.id }
+					label={ title }
+					link={ item.link }
+					search={ getVideoDetailSearch }
+					classNames={ classNames }
+					title={ title }
+				/>
+			) }
+		</ReportThumbnailTitle>
 	);
 }
 
