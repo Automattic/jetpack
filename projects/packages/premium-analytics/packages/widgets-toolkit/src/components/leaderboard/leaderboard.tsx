@@ -78,7 +78,8 @@ export type LeaderboardProps = {
 	 */
 	status: LeaderboardStatus;
 	/**
-	 * Error copy. Without `actions`, a `status.refetch` becomes the Retry action.
+	 * Error copy and actions, as `describeError()` builds them. Omit for the generic
+	 * message with a Retry bound to `status.refetch`.
 	 */
 	error?: WidgetStateError;
 	/**
@@ -196,18 +197,16 @@ export function Leaderboard( {
 	);
 
 	const errorState = useMemo< WidgetStateError | undefined >( () => {
-		if ( error?.actions || ! refetch ) {
+		// A widget's own error already says whether a retry can help: only the default offers one.
+		if ( error || ! refetch ) {
 			return error;
 		}
 
 		return {
-			...error,
-			description:
-				error?.description ??
-				__(
-					"We couldn't load this data. Please try again in a moment.",
-					'jetpack-premium-analytics-pkg'
-				),
+			description: __(
+				"We couldn't load this data. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
 			actions: [
 				{
 					label: __( 'Retry', 'jetpack-premium-analytics-pkg' ),

@@ -7,6 +7,7 @@ import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { describeError } from '../../../helpers/describe-error';
 import { useWidgetRootContext } from '../../widget-root';
 import { Leaderboard, type LeaderboardStatus } from '../leaderboard';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -107,32 +108,52 @@ describe( 'Leaderboard', () => {
 		expect( screen.queryByText( 'Getting Started' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'offers a retry bound to refetch on error', async () => {
+	it( 'offers the generic error with a retry when the widget passes none', async () => {
+		const refetch = jest.fn();
+		renderLeaderboard(
+			<Leaderboard rows={ [] } status={ { isLoading: false, isError: true, refetch } } />
+		);
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( "We couldn't load this data." );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'adds no retry to an access-denied error from describeError()', () => {
 		const refetch = jest.fn();
 		renderLeaderboard(
 			<Leaderboard
 				rows={ [] }
 				status={ { isLoading: false, isError: true, refetch } }
-				error={ { description: 'Could not load videos.' } }
+				error={ describeError(
+					{ status: 403 },
+					{ retryDescription: 'Could not load videos.', onRetry: refetch }
+				) }
+			/>
+		);
+
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
+			"You don't have access to this data."
+		);
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the retry describeError() offers for a retryable error', async () => {
+		const refetch = jest.fn();
+		renderLeaderboard(
+			<Leaderboard
+				rows={ [] }
+				status={ { isLoading: false, isError: true, refetch } }
+				error={ describeError(
+					{ status: 500 },
+					{ retryDescription: 'Could not load videos.', onRetry: refetch }
+				) }
 			/>
 		);
 
 		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( 'Could not load videos.' );
 		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
-	} );
-
-	it( 'keeps the error actions a widget declares', () => {
-		const refetch = jest.fn();
-		renderLeaderboard(
-			<Leaderboard
-				rows={ [] }
-				status={ { isLoading: false, isError: true, refetch } }
-				error={ { description: 'No access.', actions: [] } }
-			/>
-		);
-
-		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'shows the generic empty state without rows', () => {

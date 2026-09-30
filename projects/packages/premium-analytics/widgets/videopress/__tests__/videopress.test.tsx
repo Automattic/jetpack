@@ -170,10 +170,23 @@ describe( 'VideoPressWidget', () => {
 		);
 	} );
 
-	it( 'shows the error state with a retry action when the request fails', async () => {
-		// Reject with a non-retryable (403) error so React Query surfaces the
-		// error state immediately instead of retrying with backoff.
+	it( 'says the data is off limits, without a retry, when the request is denied', async () => {
 		mockApiFetch.mockRejectedValue( { status: 403, message: 'Forbidden' } );
+
+		renderInDashboard(
+			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />
+		);
+
+		await expect(
+			screen.findByText( "You don't have access to this data." )
+		).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows the error state with a retry action when the request fails', async () => {
+		// A 404 is not retried automatically, so React Query surfaces the error state
+		// immediately, and it is worth a manual retry.
+		mockApiFetch.mockRejectedValue( { status: 404, message: 'Not found' } );
 
 		renderInDashboard(
 			<VideoPressWidget attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } } />

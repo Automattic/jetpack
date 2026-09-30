@@ -7,23 +7,35 @@ A responsive leaderboard (horizontal bar) chart component for displaying ranking
 A widget does not compose this chart by hand. `Leaderboard` (`components/leaderboard`) takes ranked rows in the widget's own terms and the request status, and renders the chart with its loading, error and empty states, the row limit, the shares against the largest value of either period, the deltas, and the dashboard window on detail links. It must render inside `WidgetRoot`.
 
 ```tsx
-<WidgetRoot attributes={ attributes }>
+// Inside `WidgetRoot`. Memoize the rows: the component rebuilds the chart data when they change.
+const rows = useMemo(
+	() =>
+		videos.map( video => ( {
+			id: video.key,
+			label: video.label,
+			value: video.plays,
+			previousValue: video.previousPlays,
+			action: { kind: 'videoLink', id: video.id, href: video.link },
+		} ) ),
+	[ videos ]
+);
+
+return (
 	<Leaderboard
-		rows={ rows.map( row => ( {
-			id: row.key,
-			label: row.label,
-			value: row.plays,
-			previousValue: row.previousPlays,
-			action: { kind: 'videoLink', id: row.id, href: row.link },
-		} ) ) }
+		rows={ rows }
 		status={ { isLoading, isFetching, isError, hasComparison, refetch } }
-		error={ { description: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ) } }
+		error={ describeError( error, {
+			retryDescription: __( "We couldn't load video plays. Please try again in a moment.", 'jetpack-premium-analytics-pkg' ),
+			onRetry: refetch,
+		} ) }
 		footer={ <ReportLink report="videos" /> }
 	/>
-</WidgetRoot>
+);
 ```
 
-A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose. `buildLeaderboardChartData()` is the pure step behind it, for a widget that must draw the chart itself.
+A row's `media` defaults to none and its `action` to static. A `postLink` or `videoLink` action without `search` gets the dashboard window; pass `search: {}` to navigate without one on purpose.
+
+Pass `error` as `describeError()` builds it, so an access-denied failure offers no Retry. Without an `error`, the component shows the generic message with a Retry bound to `status.refetch`.
 
 Rows may carry `children`. With a `drillDown` (`backLabel`, `rowAriaLabel`) every such row becomes a button that shows its children under a back link, any number of levels deep; the selection heals itself when the settled data no longer backs it, and a widget whose rows change under a control of its own resets it by giving the leaderboard a `key`.
 

@@ -7,6 +7,7 @@ import {
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
+	describeError,
 	useWidgetRootContext,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
@@ -55,7 +56,7 @@ function VideoPressReport() {
 
 	// The hook merges comparison rows and gates `hasComparison` on at least one
 	// visible row having a match, so the chart never fabricates vs-zero deltas.
-	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
 		useStatsVideoPlays( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -77,12 +78,13 @@ function VideoPressReport() {
 				hasComparison,
 				refetch,
 			} }
-			error={ {
-				description: __(
+			error={ describeError( error, {
+				retryDescription: __(
 					"We couldn't load video plays. Please try again in a moment.",
 					'jetpack-premium-analytics-pkg'
 				),
-			} }
+				onRetry: refetch,
+			} ) }
 			footer={ <ReportLink report="videos" /> }
 		/>
 	);

@@ -59,12 +59,9 @@ export {
 } from './chart-leaderboard';
 export {
 	Leaderboard,
-	buildLeaderboardChartData,
-	type BuildLeaderboardChartDataOptions,
 	type LeaderboardDrillDown,
 	type LeaderboardProps,
 	type LeaderboardRowInput,
-	type LeaderboardRowInputAction,
 	type LeaderboardStatus,
 } from './leaderboard';
 export {
