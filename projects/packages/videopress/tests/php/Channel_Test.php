@@ -102,7 +102,7 @@ class Channel_Test extends BaseTestCase {
 		$this->assertSame( 'abcDEF12', Channel::guid( $id ) );
 		$this->assertSame( $id, Channel::attachment_id( 'abcDEF12' ) );
 		$this->assertSame( 0, Channel::attachment_id( 'nope' ) );
-		$this->assertSame( home_url( '/videopress?v=abcDEF12' ), Channel::video_url( $id ) );
+		$this->assertSame( add_query_arg( 'v', 'abcDEF12', user_trailingslashit( home_url( '/videopress' ) ) ), Channel::video_url( $id ) );
 
 		$text = wp_insert_post(
 			array(
@@ -115,14 +115,50 @@ class Channel_Test extends BaseTestCase {
 	}
 
 	/**
+	 * WordPress.com Simple keeps the uploaded file's attachment ( video/mp4 ) and
+	 * maps GUIDs in the platform's videos table: a video/mp4 attachment with a
+	 * GUID is a video, and a GUID resolves through video_get_info_by_guid().
+	 */
+	public function test_wpcom_videos_table_fallback() {
+		$id                                    = wp_insert_post(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => 'video/mp4',
+				'post_title'     => 'Uploaded on Simple',
+			)
+		);
+		$GLOBALS['vp_channel_test_video_info'] = (object) array(
+			'guid'    => 'wpcomGU1',
+			'blog_id' => get_current_blog_id(),
+			'post_id' => $id,
+		);
+		update_post_meta( $id, 'videopress_guid', 'wpcomGU1' );
+		require_once __DIR__ . '/stubs/wpcom-video-lookups.php';
+
+		$this->assertSame( 'wpcomGU1', Channel::guid( $id ) );
+		$this->assertSame( $id, Channel::attachment_id( 'wpcomGU1' ) );
+		$this->assertSame( add_query_arg( 'v', 'wpcomGU1', user_trailingslashit( home_url( '/videopress' ) ) ), Channel::video_url( $id ) );
+		$GLOBALS['post'] = get_post( $id ); // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited
+		$block           = Channel::queried_video_block(
+			array(
+				'blockName' => 'videopress/video',
+				'attrs'     => array( 'useQueriedVideo' => true ),
+			)
+		);
+		$this->assertSame( 'wpcomGU1', $block['attrs']['guid'] );
+		$this->assertSame( $id, $block['attrs']['id'] );
+	}
+
+	/**
 	 * Attachment links and player-less playlist entries point to the video page.
 	 */
 	public function test_links() {
 		$id = $this->video( 'abcDEF12' );
 
-		$this->assertSame( home_url( '/videopress?v=abcDEF12' ), Channel::attachment_link( 'https://example.com/?attachment_id=' . $id, $id ) );
+		$this->assertSame( add_query_arg( 'v', 'abcDEF12', user_trailingslashit( home_url( '/videopress' ) ) ), Channel::attachment_link( 'https://example.com/?attachment_id=' . $id, $id ) );
 		$this->assertSame( 'https://x.test/keep', Channel::attachment_link( 'https://x.test/keep', 999999 ) );
-		$this->assertSame( home_url( '/videopress?v=abcDEF12' ), Channel::playlist_entry_url( 'https://videopress.com/v/abcDEF12', 'abcDEF12' ) );
+		$this->assertSame( add_query_arg( 'v', 'abcDEF12', user_trailingslashit( home_url( '/videopress' ) ) ), Channel::playlist_entry_url( 'https://videopress.com/v/abcDEF12', 'abcDEF12' ) );
 		$this->assertSame( 'https://videopress.com/v/zzzzzzzz', Channel::playlist_entry_url( 'https://videopress.com/v/zzzzzzzz', 'zzzzzzzz' ) );
 	}
 

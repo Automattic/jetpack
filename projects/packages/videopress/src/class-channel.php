@@ -90,18 +90,27 @@ class Channel {
 	/**
 	 * The VideoPress GUID of an attachment, or an empty string.
 	 *
+	 * Jetpack sites store it in attachment meta; WordPress.com Simple keeps the
+	 * uploaded file's attachment ( still `video/mp4` ) and maps it in the
+	 * platform's videos table.
+	 *
 	 * @param int|WP_Post $attachment The attachment.
 	 * @return string
 	 */
 	public static function guid( $attachment ) {
 		$post = get_post( $attachment );
-		if ( ! $post instanceof WP_Post || self::MIME_TYPE !== $post->post_mime_type ) {
+		if ( ! $post instanceof WP_Post || 'attachment' !== $post->post_type || 0 !== strpos( (string) $post->post_mime_type, 'video/' ) ) {
 			return '';
 		}
 		$guid = (string) get_post_meta( $post->ID, 'videopress_guid', true );
 		if ( '' === $guid ) {
 			$meta = wp_get_attachment_metadata( $post->ID );
 			$guid = isset( $meta['videopress']['guid'] ) ? (string) $meta['videopress']['guid'] : '';
+		}
+		if ( '' === $guid && function_exists( 'video_get_info_by_blogpostid' ) ) {
+			// WordPress.com's videos table; the package shims this from post meta elsewhere.
+			$info = video_get_info_by_blogpostid( get_current_blog_id(), $post->ID );
+			$guid = is_object( $info ) && ! empty( $info->guid ) ? (string) $info->guid : '';
 		}
 		return preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ? $guid : '';
 	}
@@ -113,11 +122,17 @@ class Channel {
 	 * @return int
 	 */
 	public static function attachment_id( $guid ) {
-		if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) || ! function_exists( 'videopress_get_post_id_by_guid' ) ) {
+		if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ) {
 			return 0;
 		}
-		$id = videopress_get_post_id_by_guid( $guid );
-		return is_int( $id ) ? $id : 0;
+		$id = function_exists( 'videopress_get_post_id_by_guid' ) ? videopress_get_post_id_by_guid( $guid ) : false;
+		if ( ! is_int( $id ) && function_exists( 'video_get_info_by_guid' ) ) {
+			$info = video_get_info_by_guid( $guid );
+			if ( is_object( $info ) && ! empty( $info->post_id ) && (int) $info->blog_id === get_current_blog_id() ) {
+				$id = (int) $info->post_id;
+			}
+		}
+		return is_int( $id ) && $id > 0 ? $id : 0;
 	}
 
 	/**
@@ -128,7 +143,7 @@ class Channel {
 	 */
 	public static function video_url( $attachment ) {
 		$guid = self::guid( $attachment );
-		return '' === $guid ? '' : add_query_arg( 'v', $guid, home_url( '/' . self::ENDPOINT ) );
+		return '' === $guid ? '' : add_query_arg( 'v', $guid, user_trailingslashit( home_url( '/' . self::ENDPOINT ) ) );
 	}
 
 	/**
@@ -223,7 +238,7 @@ class Channel {
 		}
 		foreach ( $candidates as $id ) {
 			$post = $id ? get_post( $id ) : null;
-			if ( $post instanceof WP_Post && self::MIME_TYPE === $post->post_mime_type ) {
+			if ( $post instanceof WP_Post && '' !== self::guid( $post ) ) {
 				return $post;
 			}
 		}
