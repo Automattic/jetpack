@@ -486,10 +486,6 @@ class Connection_Health_Tests_Test extends TestCase {
 
 	/**
 	 * Test an inconclusive result preserves previously reported local_state errors.
-	 *
-	 * WP.com flags probe failures it could not classify (e.g. timeouts) as
-	 * inconclusive; they neither confirm nor disprove a stored error, and clearing
-	 * on them would flap the notice for a broken site that is occasionally slow.
 	 */
 	public function test_wpcom_connection_test_inconclusive_result_preserves_errors() {
 		add_filter( 'jetpack_connection_bypass_error_reporting_gate', '__return_true' );
@@ -502,7 +498,7 @@ class Connection_Health_Tests_Test extends TestCase {
 		);
 		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 
-		$result = $this->evaluate_response(
+		$this->evaluate_response(
 			array(
 				'connected'    => false,
 				'message'      => 'Example Site is not connected.',
@@ -510,16 +506,11 @@ class Connection_Health_Tests_Test extends TestCase {
 			)
 		);
 
-		$this->assertEquals( 'skipped', $result['pass'] );
 		$this->assertArrayHasKey( 'wpcom_ssl_verification_failed', Error_Handler::get_instance()->get_verified_errors() );
 	}
 
 	/**
 	 * Test an inconclusive result is skipped rather than presented as a reconnect-worthy failure.
-	 *
-	 * WP.com marks a probe it could not complete (e.g. it can't reach a dev/sandbox site back)
-	 * as inconclusive; that isn't evidence the connection is broken, so it must not show a
-	 * "reconnect" CTA.
 	 */
 	public function test_wpcom_connection_test_inconclusive_result_is_skipped() {
 		$result = $this->evaluate_response(
