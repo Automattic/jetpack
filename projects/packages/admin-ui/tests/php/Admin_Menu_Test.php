@@ -88,11 +88,12 @@ class Admin_Menu_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		// A leftover top-level `jetpack` makes core add a second parent copy to the submenu.
-		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		global $menu, $submenu, $_parent_pages, $_registered_pages, $admin_page_hooks;
 		$menu              = array();
 		$submenu           = array();
 		$_parent_pages     = array();
 		$_registered_pages = array();
+		$admin_page_hooks  = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
@@ -134,17 +135,18 @@ class Admin_Menu_Test extends TestCase {
 
 		static $top_registered = false;
 
+		add_menu_page(
+			'Jetpack',
+			'Jetpack',
+			'edit_posts',
+			'jetpack',
+			'__return_null',
+			'div',
+			3
+		);
+
 		if ( ! $top_registered ) {
 			$top_registered = true;
-			add_menu_page(
-				'Jetpack',
-				'Jetpack',
-				'edit_posts',
-				'jetpack',
-				'__return_null',
-				'div',
-				3
-			);
 
 			$user_id = wp_insert_user(
 				array(
@@ -203,18 +205,7 @@ class Admin_Menu_Test extends TestCase {
 	 * A page core registers as admin_page_<slug>, for a user without the Jetpack menu, gets the same hooks.
 	 */
 	public function test_add_menu_covers_the_admin_page_fallback_hook() {
-		// test_page_suffix_matches leaves a `jetpack` entry behind, which would give core's jetpack_page_ name.
-		global $admin_page_hooks;
-		unset( $admin_page_hooks['jetpack'] );
-		wp_set_current_user(
-			wp_insert_user(
-				array(
-					'user_login' => 'fallback_editor',
-					'user_pass'  => 'pass',
-					'role'       => 'editor',
-				)
-			)
-		);
+		wp_set_current_user( self::$editor_user_id );
 
 		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
 		$wp_suffix = add_submenu_page( 'jetpack', 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
