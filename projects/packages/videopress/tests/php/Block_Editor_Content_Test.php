@@ -28,7 +28,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 	public function test_shortcode_uses_video_ratio() {
 		$html = Block_Editor_Content::videopress_embed_shortcode(
 			array(
-				'abcDEF12',
+				0            => 'abcDEF12',
 				'w'          => 360,
 				'videoratio' => 160,
 			)
@@ -41,7 +41,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 	public function test_shortcode_preserves_explicit_height() {
 		$html = Block_Editor_Content::videopress_embed_shortcode(
 			array(
-				'abcDEF12',
+				0            => 'abcDEF12',
 				'w'          => 360,
 				'h'          => 200,
 				'videoratio' => 160,
@@ -55,7 +55,7 @@ class Block_Editor_Content_Test extends BaseTestCase {
 		foreach ( array( null, 0, -10, 'invalid', INF, array( 100 ) ) as $ratio ) {
 			$html = Block_Editor_Content::videopress_embed_shortcode(
 				array(
-					'abcDEF12',
+					0            => 'abcDEF12',
 					'w'          => 640,
 					'videoratio' => $ratio,
 				)

@@ -485,7 +485,7 @@ class Initializer {
 					'<iframe title="%1$s" aria-label="%1$s" src="%2$s" width="640" height="%3$s" allowfullscreen data-resize-to-parent="true" allow="clipboard-write; presentation"></iframe>',
 					esc_attr__( 'VideoPress Video Player', 'jetpack-videopress-pkg' ),
 					esc_url( preg_replace( '#/v/#', '/embed/', $url, 1 ) ),
-					esc_attr( 640 * ( $video_ratio ?? 56.25 ) / 100 )
+					esc_attr( (string) ( 640 * ( $video_ratio ?? 56.25 ) / 100 ) )
 				);
 			};
 
@@ -499,7 +499,7 @@ class Initializer {
 				if ( $processor->next_tag( 'IFRAME' ) ) {
 					$width = $processor->get_attribute( 'width' );
 					if ( is_numeric( $width ) && is_finite( (float) $width ) && $width > 0 ) {
-						$processor->set_attribute( 'height', (float) $width * $video_ratio / 100 );
+						$processor->set_attribute( 'height', (string) ( (float) $width * $video_ratio / 100 ) );
 						$oembed_html = $processor->get_updated_html();
 					}
 				}
