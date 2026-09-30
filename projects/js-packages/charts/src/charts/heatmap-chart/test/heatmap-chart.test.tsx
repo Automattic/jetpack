@@ -546,6 +546,40 @@ describe( 'HeatmapChart value text contrast', () => {
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--white' );
 	} );
 
+	test( 'measures a translucent label role as it paints over each cell', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.translucent-heatmap { --a8c-charts-color-label: rgba(30, 30, 30, 0.87); }';
+		document.head.appendChild( injectedStyle );
+
+		renderScale( 'translucent-heatmap' );
+
+		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
+	test( 'leaves a summary value, which sits on no fill, on the default role', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.swapped-heatmap { --a8c-charts-color-label: #f0f0f0; --a8c-charts-color-label-inverse: #1e1e1e; }';
+		document.head.appendChild( injectedStyle );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					className="swapped-heatmap"
+					primaryColor="#3858e9"
+					data={ [ ...scale, { label: 'Total', summary: true, data: [ { value: 7 } ] } ] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( '7' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
 	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
 		injectedStyle = document.createElement( 'style' );
 		injectedStyle.textContent =

@@ -21,7 +21,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
-import { mixedLuminance } from '../../providers/chart-context/private/perceptual-color';
+import { mixRgb } from '../../providers/chart-context/private/perceptual-color';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
@@ -31,7 +31,7 @@ import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import {
-	pickLabelTextColorForLuminance,
+	pickLabelTextColorForFill,
 	resolveLabelRoles,
 	sameLabelRoles,
 } from '../private/label-text-color';
@@ -70,6 +70,9 @@ const CELL_VALUE_MODIFIER: Record< LabelTextColor, string | undefined > = {
 	black: styles[ 'heatmap-chart__cell-value--black' ],
 	white: styles[ 'heatmap-chart__cell-value--white' ],
 };
+
+// Avoids React's SSR warning; on the client the roles are read before paint.
+const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 // One instance, not a `[]` default in the signature: `buildTooltipData` keys on
 // it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
@@ -154,8 +157,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const cellTextColor = ( intensity: number ): LabelTextColor =>
 		isValidHexColor( primaryHex ) && isValidHexColor( chartBackgroundHex )
-			? pickLabelTextColorForLuminance(
-					mixedLuminance(
+			? pickLabelTextColorForFill(
+					mixRgb(
 						primaryHex,
 						chartBackgroundHex,
 						CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity
@@ -167,7 +170,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	// Read inside the chart's own class, where the cell text inherits them. Keyed on `data` too,
 	// because the grid is not mounted while there is nothing to draw.
-	useLayoutEffect( () => {
+	useIsomorphicLayoutEffect( () => {
 		if ( ! containerRef.current ) {
 			return;
 		}

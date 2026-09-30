@@ -197,25 +197,39 @@ export const hexToOklch = ( hex: string ): { chroma: number; hue: number } => {
 	};
 };
 
+/** sRGB channels from 0 to 255, left unrounded. */
+export type Rgb = readonly [ number, number, number ];
+
 /**
- * Relative luminance of `fromHex` mixed over `toHex` in sRGB, left unrounded as CSS `color-mix` leaves it.
+ * `fromHex` mixed over `toHex` in sRGB, left unrounded as CSS `color-mix` leaves it.
  *
  * A mix rounded to hex can land on the other side of a contrast threshold from the fill the browser paints.
  *
  * @param fromHex    - The color weighted by `fromWeight`.
  * @param toHex      - The color it is mixed over.
  * @param fromWeight - Share of `fromHex`, from 0 to 1.
- * @return Relative luminance from 0 to 1.
+ * @return The mixed channels.
  */
-export const mixedLuminance = ( fromHex: string, toHex: string, fromWeight: number ): number => {
+export const mixRgb = ( fromHex: string, toHex: string, fromWeight: number ): Rgb => {
 	validateHexColor( fromHex );
 	validateHexColor( toHex );
 	const weight = Math.min( 1, Math.max( 0, fromWeight ) );
 	const [ r, g, b ] = [ 1, 3, 5 ].map( start => {
 		const from = parseInt( fromHex.slice( start, start + 2 ), 16 );
 		const to = parseInt( toHex.slice( start, start + 2 ), 16 );
-		return toLinear( ( to + ( from - to ) * weight ) / 255 );
+		return to + ( from - to ) * weight;
 	} );
+	return [ r, g, b ];
+};
+
+/**
+ * WCAG relative luminance of unrounded sRGB channels.
+ *
+ * @param rgb - Channels from 0 to 255.
+ * @return Relative luminance from 0 to 1.
+ */
+export const rgbLuminance = ( rgb: Rgb ): number => {
+	const [ r, g, b ] = rgb.map( channel => toLinear( channel / 255 ) );
 	return 0.2126 * r + 0.7152 * g + 0.0722 * b;
 };
 

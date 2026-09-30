@@ -239,7 +239,7 @@ describe( 'PieChart', () => {
 				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
 		} );
 
-		test( 'uses the label role on every slice when the inverse role is see-through', () => {
+		test( 'never picks a see-through inverse role, falling back to white where the label role fails', () => {
 			injectedStyle = document.createElement( 'style' );
 			injectedStyle.textContent =
 				'.clear-inverse-pie { --a8c-charts-color-label-inverse: rgba(255, 255, 255, 0); }';
@@ -247,9 +247,9 @@ describe( 'PieChart', () => {
 
 			renderWithTheme( { data: contrastData, className: 'clear-inverse-pie' } );
 
-			screen
-				.getAllByTestId( 'pie-label' )
-				.forEach( label => expect( label ).toHaveClass( 'pie-chart__label-text--on-light' ) );
+			const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+			expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+			expect( dark ).toHaveClass( 'pie-chart__label-text--white' );
 		} );
 
 		test( 'falls back to black or white on a slice where neither label role reaches AA', () => {

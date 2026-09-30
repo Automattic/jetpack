@@ -1,17 +1,19 @@
 import { color as d3Color } from '@visx/vendor/d3-color';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { MIN_LABEL_CONTRAST } from '../../providers/chart-context/private/palette-generator';
-import { luminanceContrastRatio } from '../../providers/chart-context/private/perceptual-color';
-import { isValidHexColor, normalizeColorToHex, relativeLuminance } from '../../utils/color-utils';
+import {
+	luminanceContrastRatio,
+	rgbLuminance,
+} from '../../providers/chart-context/private/perceptual-color';
+import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
+import type { Rgb } from '../../providers/chart-context/private/perceptual-color';
 
 /** Which color a label drawn on a fill paints with: one of the two catalog roles, or the black/white floor. */
 export type LabelTextColor = 'label' | 'label-inverse' | 'black' | 'white';
 
 /** A label role as the chart's own element resolves it. `unreadable` keeps the raw value, which CSS may still paint. */
 export type ResolvedRole =
-	| { kind: 'opaque'; hex: string }
-	| { kind: 'see-through' }
-	| { kind: 'unreadable'; raw: string | null };
+	{ kind: 'color'; rgb: Rgb; alpha: number } | { kind: 'unreadable'; raw: string | null };
 
 export interface LabelRoles {
 	label: ResolvedRole;
@@ -28,24 +30,19 @@ const resolveRole = (
 	if ( ! parsed ) {
 		return { kind: 'unreadable', raw };
 	}
-	// Hex drops alpha, so a see-through role would otherwise win the comparison and paint nothing.
-	if ( parsed.opacity < 1 ) {
-		return { kind: 'see-through' };
-	}
-	const hex = normalizeColorToHex( pointer, null, resolve );
-	return isValidHexColor( hex )
-		? { kind: 'opaque', hex: hex.toLowerCase() }
-		: { kind: 'unreadable', raw };
+	// d3 gives `transparent` NaN channels; with no alpha they never reach the composite anyway.
+	const { r, g, b } = parsed.opacity > 0 ? parsed.rgb() : { r: 0, g: 0, b: 0 };
+	return { kind: 'color', rgb: [ r, g, b ], alpha: parsed.opacity };
 };
 
 const sameRole = ( first: ResolvedRole, second: ResolvedRole ): boolean => {
-	if ( first.kind === 'opaque' && second.kind === 'opaque' ) {
-		return first.hex === second.hex;
+	if ( first.kind === 'color' && second.kind === 'color' ) {
+		return first.alpha === second.alpha && first.rgb.every( ( c, i ) => c === second.rgb[ i ] );
 	}
 	if ( first.kind === 'unreadable' && second.kind === 'unreadable' ) {
 		return first.raw === second.raw;
 	}
-	return first.kind === second.kind;
+	return false;
 };
 
 /**
@@ -73,24 +70,29 @@ export const sameLabelRoles = ( first: LabelRoles | null, second: LabelRoles | n
 		sameRole( first.label, second.label ) &&
 		sameRole( first.labelInverse, second.labelInverse ) );
 
-// On any opaque fill one of these reaches at least 4.58:1.
-const blackOrWhite = ( fillLuminance: number ): LabelTextColor =>
-	luminanceContrastRatio( fillLuminance, 0 ) > luminanceContrastRatio( fillLuminance, 1 )
-		? 'black'
-		: 'white';
+// Text with alpha shows the fill through it, so it is measured as the blend the browser paints.
+const roleContrast = ( role: ResolvedRole, fill: Rgb, fillLuminance: number ): number => {
+	if ( role.kind === 'unreadable' ) {
+		return 0;
+	}
+	const painted = role.rgb.map(
+		( channel, i ) => role.alpha * channel + ( 1 - role.alpha ) * fill[ i ]
+	) as unknown as Rgb;
+	return luminanceContrastRatio( fillLuminance, rgbLuminance( painted ) );
+};
 
 /**
  * Picks the label color for text drawn on a fill: the role that contrasts more, or black/white when neither reaches AA.
  *
  * Both roles set to one color is a host's choice to keep that color, so it never falls back.
  *
- * @param fillLuminance - Relative luminance of the fill the text sits on.
- * @param roles         - The label roles resolved at the chart's element, or null before they are read.
- * @param defaultRole   - The role the chart's stylesheet paints when nothing can be decided.
+ * @param fill        - The fill the text sits on, as unrounded sRGB channels.
+ * @param roles       - The label roles resolved at the chart's element, or null before they are read.
+ * @param defaultRole - The role the chart's stylesheet paints when nothing can be decided.
  * @return The color the label should paint with.
  */
-export const pickLabelTextColorForLuminance = (
-	fillLuminance: number,
+export const pickLabelTextColorForFill = (
+	fill: Rgb,
 	roles: LabelRoles | null,
 	defaultRole: 'label' | 'label-inverse'
 ): LabelTextColor => {
@@ -98,32 +100,21 @@ export const pickLabelTextColorForLuminance = (
 		return defaultRole;
 	}
 
-	const { label, labelInverse } = roles;
-	if ( label.kind === 'see-through' ) {
-		return 'label-inverse';
-	}
-	if ( labelInverse.kind === 'see-through' ) {
-		return 'label';
-	}
-	// A role JS cannot read cannot be measured, so only the floor is known to pass.
-	if ( label.kind === 'unreadable' || labelInverse.kind === 'unreadable' ) {
-		return blackOrWhite( fillLuminance );
-	}
-
-	const labelContrast = luminanceContrastRatio( fillLuminance, relativeLuminance( label.hex ) );
-	const inverseContrast = luminanceContrastRatio(
-		fillLuminance,
-		relativeLuminance( labelInverse.hex )
-	);
+	const fillLuminance = rgbLuminance( fill );
+	const labelContrast = roleContrast( roles.label, fill, fillLuminance );
+	const inverseContrast = roleContrast( roles.labelInverse, fill, fillLuminance );
 	if ( Math.max( labelContrast, inverseContrast ) >= MIN_LABEL_CONTRAST ) {
 		return labelContrast > inverseContrast ? 'label' : 'label-inverse';
 	}
 
-	return blackOrWhite( fillLuminance );
+	// On any opaque fill one of these reaches at least 4.58:1.
+	return luminanceContrastRatio( fillLuminance, 0 ) > luminanceContrastRatio( fillLuminance, 1 )
+		? 'black'
+		: 'white';
 };
 
 /**
- * `pickLabelTextColorForLuminance` for a fill given as a color.
+ * `pickLabelTextColorForFill` for a fill given as a color.
  *
  * @param fill        - The fill, in any color syntax `normalizeColorToHex` reads.
  * @param roles       - The label roles resolved at the chart's element, or null before they are read.
@@ -136,7 +127,11 @@ export const pickLabelTextColor = (
 	defaultRole: 'label' | 'label-inverse'
 ): LabelTextColor => {
 	const fillHex = normalizeColorToHex( fill );
-	return isValidHexColor( fillHex )
-		? pickLabelTextColorForLuminance( relativeLuminance( fillHex ), roles, defaultRole )
-		: defaultRole;
+	if ( ! isValidHexColor( fillHex ) ) {
+		return defaultRole;
+	}
+	const rgb = [ 1, 3, 5 ].map( start =>
+		parseInt( fillHex.slice( start, start + 2 ), 16 )
+	) as unknown as Rgb;
+	return pickLabelTextColorForFill( rgb, roles, defaultRole );
 };
