@@ -317,7 +317,7 @@ export function NewsletterAccessRadioButtons( {
 			) }
 			<fieldset role="radiogroup" className="components-radio-control">
 				<BaseControl.VisualLabel as="legend">
-					{ __( 'Who can read this post?', 'jetpack' ) }
+					{ __( 'Who can read this on your site?', 'jetpack' ) }
 				</BaseControl.VisualLabel>
 				<div className="components-radio-control__group-wrapper">
 					{ options.map( option => (

@@ -25,7 +25,7 @@ export function getAccessDescription(
 		accessLevel === accessOptions.paid_subscribers.key;
 
 	if ( ! isRestricted ) {
-		return __( 'Anyone can read it on your site.', 'jetpack' );
+		return __( 'Anyone can read it on your site, even if they’ve never subscribed.', 'jetpack' );
 	}
 
 	if ( accessLevel === accessOptions.paid_subscribers.key && tierName && ! postHasPaywallBlock ) {
@@ -43,15 +43,15 @@ export function getAccessDescription(
 			'jetpack'
 		),
 		paid_subscribers: __(
-			'Only paid subscribers can read it on your site. Others see a preview and can subscribe or upgrade.',
+			'Only paid subscribers can read it on your site. Others see a preview and can subscribe.',
 			'jetpack'
 		),
 		subscribers_paywall: __(
-			'Anyone can read it up to your paywall. Only subscribers can read the rest.',
+			'Only subscribers can read the full post. Others see a preview and can subscribe.',
 			'jetpack'
 		),
 		paid_subscribers_paywall: __(
-			'Anyone can read it up to your paywall. Only paid subscribers can read the rest.',
+			'Only paid subscribers can read the full post. Others see a preview and can subscribe.',
 			'jetpack'
 		),
 	};
@@ -145,7 +145,7 @@ function getEmailedAudienceText( {
 					? sprintf(
 							/* translators: %s: paid newsletter tier name, e.g. "VIP". */
 							__(
-								'This post is emailed to subscribers on your ‘%s’ tier who chose these newsletter categories.',
+								'This post is emailed to ‘%s’ subscribers who chose these newsletter categories.',
 								'jetpack'
 							),
 							tierName
@@ -169,7 +169,7 @@ function getEmailedAudienceText( {
 		return {
 			main: sprintf(
 				/* translators: %s: paid newsletter tier name, e.g. "Plus". */
-				__( 'Only subscribers on your ‘%s’ tier are emailed this post.', 'jetpack' ),
+				__( 'Only your ‘%s’ subscribers are emailed this post.', 'jetpack' ),
 				tierName
 			),
 			details: [ readAccess ],
