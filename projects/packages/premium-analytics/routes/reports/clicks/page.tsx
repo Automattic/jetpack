@@ -9,12 +9,10 @@ import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
 	clicksCsvExporter,
 	useReportRetry,
 	type ClickRow,
-	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -63,8 +61,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-type ClickCsvRow = ClickRow & { group: string };
-
 /**
  * Premium Analytics Clicks report page component.
  *
@@ -79,31 +75,6 @@ function ClicksReport(): JSX.Element {
 		() => getClicksFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
-	const csvRows = useMemo< ClickCsvRow[] >(
-		() => clicksCsvExporter.toCsvRows( records.rows ),
-		[ records.rows ]
-	);
-	const csvColumns = useMemo< CsvColumn< ClickCsvRow >[] >(
-		() => [
-			{
-				label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.clickedUrl,
-			},
-			{ label: __( 'Group', 'jetpack-premium-analytics-pkg' ), getValue: row => row.group },
-			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: exportRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: csvRows,
-		filenamePrefix: 'clicks',
-		range: reportParams,
-		status: records,
-	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const isTableLoading = records.isLoading || records.isFetching;
@@ -128,9 +99,12 @@ function ClicksReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ exportRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ clicksCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>

@@ -2,9 +2,9 @@
  * External dependencies
  */
 import {
-	ReportCsvAction,
+	ExporterCsvAction,
 	ReportDrilldownTable,
-	useReportCsvExport,
+	authorsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 /**
@@ -32,9 +32,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	ReportCsvAction: jest.fn( () => <button>Download</button> ),
+	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
 	ReportDrilldownTable: jest.fn( () => null ),
-	useReportCsvExport: jest.fn(),
 } ) );
 
 // `Breadcrumbs` reaches for router context this page-level test has no need to provide.
@@ -49,8 +48,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( useAuthorsReportRecords );
-const useReportCsvExportMock = jest.mocked( useReportCsvExport );
-const reportCsvActionMock = jest.mocked( ReportCsvAction );
+const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 
 /**
@@ -74,11 +72,6 @@ function buildRecords( overrides: Partial< ReturnType< typeof useAuthorsReportRe
 describe( 'AuthorsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: false,
-			rows: [],
-			filename: 'top-authors',
-		} );
 	} );
 
 	it( 'opens folded to its top-level authors', () => {
@@ -127,7 +120,7 @@ describe( 'AuthorsReportPage', () => {
 		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'exports displayed author names in their existing hierarchy order', () => {
+	it( 'wires the loaded author rows into the page export action', () => {
 		const rows: AuthorRow[] = [
 			{
 				id: 'id:42',
@@ -148,34 +141,12 @@ describe( 'AuthorsReportPage', () => {
 		];
 		const records = buildRecords( { rows } );
 		useRecordsMock.mockReturnValue( records );
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: true,
-			rows,
-			filename: 'top-authors-2026-06-01_2026-06-30',
-		} );
 
 		render( <AuthorsReportPage /> );
 
 		expect( screen.getByRole( 'button', { name: 'Download' } ) ).toBeInTheDocument();
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				rows,
-				filenamePrefix: 'top-authors',
-				status: records,
-			} )
-		);
-		expect( useReportCsvExportMock.mock.calls[ 0 ][ 0 ].sort ).toBeUndefined();
-
-		const { columns, rows: exportRows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( exportRows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [
-			[ 'Untracked authors', 12 ],
-			[ 'Untracked authors > Analytical Engine', 7 ],
-		] );
-		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				rows,
-				filename: 'top-authors-2026-06-01_2026-06-30',
-			} )
+		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { exporter: authorsCsvExporter, items: rows, status: records } )
 		);
 	} );
 

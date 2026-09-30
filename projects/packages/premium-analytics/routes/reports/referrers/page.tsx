@@ -9,10 +9,9 @@ import {
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
+	referrersCsvExporter,
 	useReportRetry,
-	type CsvColumn,
 	type ReferrerRecord,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -72,28 +71,6 @@ function ReferrersReport(): JSX.Element {
 	const records = useReferrersReportRecords( reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getReferrerFields(), [] );
-	const csvColumns = useMemo< CsvColumn< ReferrerRecord >[] >(
-		() => [
-			{ label: __( 'Referrer', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			{
-				label: __( 'Group', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.parentLabel ?? '',
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'referrers',
-		range: reportParams,
-		status: records,
-	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.referrers;
@@ -116,9 +93,12 @@ function ReferrersReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ referrersCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>

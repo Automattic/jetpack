@@ -31,13 +31,12 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportCsvAction: () => null,
+	ExporterCsvAction: () => null,
 	ReportEmptyState: jest.fn( () => <div data-testid="report-empty-state" /> ),
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportRecordsTable: jest.fn( () => null ),
-	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'search-terms' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
 } ) );
 
