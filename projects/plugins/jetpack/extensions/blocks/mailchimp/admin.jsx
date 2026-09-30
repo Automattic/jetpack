@@ -1,3 +1,4 @@
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { useEffect, useState } from '@wordpress/element';
 import { addFilter } from '@wordpress/hooks';
@@ -9,7 +10,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 	const [ audiences, setAudiences ] = useState( [ { id: 'none', name: __( 'None', 'jetpack' ) } ] );
 	const [ selectedAudience, setSelectedAudience ] = useState( 'none' );
 	const [ isLoading, setIsLoading ] = useState( false );
-	const [ saveStatus, setSaveStatus ] = useState( '' );
+	const [ saveError, setSaveError ] = useState( '' );
 	const [ isSaving, setIsSaving ] = useState( false );
 
 	useEffect( () => {
@@ -46,16 +47,18 @@ const MailchimpSettings = ( { isConnected } ) => {
 		const previousAudience = selectedAudience;
 		setSelectedAudience( audience );
 		setIsSaving( true );
-		setSaveStatus( __( 'Saving…', 'jetpack' ) );
+		setSaveError( '' );
 		apiFetch( {
 			path: '/wpcom/v2/mailchimp/settings',
 			method: 'POST',
 			data: { follower_list_id: audience },
 		} )
-			.then( () => setSaveStatus( __( 'Saved.', 'jetpack' ) ) )
+			.then( () => speak( __( 'Audience saved.', 'jetpack' ) ) )
 			.catch( error => {
+				const message = error?.message || __( 'Settings save failed.', 'jetpack' );
 				setSelectedAudience( previousAudience );
-				setSaveStatus( error?.message || __( 'Settings save failed.', 'jetpack' ) );
+				setSaveError( message );
+				speak( message, 'assertive' );
 			} )
 			.finally( () => setIsSaving( false ) );
 	};
@@ -77,14 +80,17 @@ const MailchimpSettings = ( { isConnected } ) => {
 						</option>
 					) ) }
 				</select>
+				{ isSaving && <span className="spinner is-active" style={ { float: 'none' } } /> }
 			</label>
 			{ /* A disabled select is left out of the form, so Save Changes mid-save would drop the pick. */ }
 			{ isSaving && (
 				<input type="hidden" name="jetpack-mailchimp-audience" value={ selectedAudience } />
 			) }
-			<p className="description" role="status">
-				{ saveStatus }
-			</p>
+			{ saveError && (
+				<div className="notice notice-error inline">
+					<p>{ saveError }</p>
+				</div>
+			) }
 		</div>
 	);
 };

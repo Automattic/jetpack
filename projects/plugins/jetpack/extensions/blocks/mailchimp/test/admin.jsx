@@ -1,9 +1,11 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
 import { applyFilters } from '@wordpress/hooks';
 import '../admin';
 
+jest.mock( '@wordpress/a11y' );
 jest.mock( '@wordpress/api-fetch' );
 
 const MailchimpSettings = applyFilters(
@@ -42,7 +44,7 @@ describe( 'Mailchimp audience setting', () => {
 		).resolves.toBeInTheDocument();
 
 		await user.selectOptions( select, 'none' );
-		await expect( screen.findByText( 'Saved.' ) ).resolves.toBeInTheDocument();
+		await waitFor( () => expect( speak ).toHaveBeenCalledWith( 'Audience saved.' ) );
 		await user.selectOptions( select, 'b' );
 
 		expect( select ).toBeDisabled();
@@ -52,6 +54,7 @@ describe( 'Mailchimp audience setting', () => {
 
 		expect( select ).toHaveValue( 'none' );
 		expect( select ).toBeEnabled();
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Rejected by Mailchimp.' );
+		expect( screen.getByText( 'Rejected by Mailchimp.' ) ).toBeInTheDocument();
+		expect( speak ).toHaveBeenCalledWith( 'Rejected by Mailchimp.', 'assertive' );
 	} );
 } );
