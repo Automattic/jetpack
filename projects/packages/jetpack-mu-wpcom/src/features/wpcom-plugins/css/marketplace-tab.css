@@ -2,7 +2,7 @@
  * Marketplace tab on the Add Plugins screen.
  *
  * The cards are core's `.plugin-card`, laid out by core's CSS. This only styles
- * the price that sits in each card's bottom strip.
+ * the price in each card's bottom strip, on the tab and in search results.
  */
 
 /*
@@ -16,14 +16,14 @@
 	min-block-size: 45px;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-card__price {
+.wpcom-marketplace-card__price {
 	display: flex;
 	flex-direction: column;
 	gap: 4px;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-card__headline,
-.wpcom-marketplace-tab .wpcom-marketplace-card__alternative {
+.wpcom-marketplace-card__headline,
+.wpcom-marketplace-card__alternative {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
@@ -31,7 +31,7 @@
 	margin: 0;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-card__amount {
+.wpcom-marketplace-card__amount {
 
 	/* Core's rating row height, so price and monthly line fill its 45px. */
 	font-size: 16px;
@@ -41,13 +41,13 @@
 	letter-spacing: -0.01em;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-card__per {
+.wpcom-marketplace-card__per {
 	margin-inline-start: -6px;
 	color: #646970;
 	font-size: 13px;
 }
 
-.wpcom-marketplace-tab .wpcom-marketplace-card__note {
+.wpcom-marketplace-card__note {
 	color: #646970;
 	font-size: 12px;
 }
@@ -56,7 +56,7 @@
  * Centred rather than on the baseline: the badge's bottom padding sits below
  * the text baseline, which grows the line and shifts the row it sits on.
  */
-.wpcom-marketplace-tab .wpcom-marketplace-card__saving {
+.wpcom-marketplace-card__saving {
 	align-self: center;
 	border-radius: 3px;
 	padding: 2px 6px;
@@ -66,6 +66,27 @@
 	font-weight: 600;
 	line-height: 1.45;
 	white-space: nowrap;
+}
+
+/*
+ * WordPress.org's stats, for plugins it does not list. Hidden until
+ * js/search-results.js puts the price in their place.
+ */
+.plugin-card:has(.wpcom-marketplace-strip) .plugin-card-bottom > * {
+	display: none;
+}
+
+.wpcom-marketplace-label {
+	display: block;
+	inline-size: fit-content;
+	margin-block-end: 6px;
+	border-radius: 3px;
+	padding: 2px 6px;
+	background: #f0f6fc;
+	color: #135e96;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.45;
 }
 
 /*
