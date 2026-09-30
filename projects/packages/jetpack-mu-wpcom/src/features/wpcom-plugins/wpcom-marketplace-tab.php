@@ -149,9 +149,13 @@ function wpcom_marketplace_term_noun( $term ) {
 function wpcom_marketplace_render_grid() {
 	$products = Marketplace_Catalog::get_products();
 
+	// Everything goes in #plugin-filter, which core's live search empties before showing its results.
+	echo '<form id="plugin-filter" method="post">';
+	wpcom_marketplace_intro();
+
 	if ( empty( $products ) ) {
 		printf(
-			'<div class="notice notice-warning inline"><p>%s</p></div>',
+			'<div class="notice notice-warning inline"><p>%s</p></div></form>',
 			esc_html__( 'These plugins could not be loaded right now. Please try again in a few minutes.', 'jetpack-mu-wpcom' )
 		);
 		return;
@@ -174,7 +178,7 @@ function wpcom_marketplace_render_grid() {
 	 * updates.js also delegates its button clicks from #plugin-filter.
 	 */
 	printf(
-		'<form id="plugin-filter" method="post"><div class="wp-list-table widefat plugin-install"><h2 class="screen-reader-text">%s</h2><div id="the-list" class="wpcom-marketplace-grid">',
+		'<div class="wp-list-table widefat plugin-install"><h2 class="screen-reader-text">%s</h2><div id="the-list" class="wpcom-marketplace-grid">',
 		esc_html__( 'Plugins list', 'jetpack-mu-wpcom' )
 	);
 	foreach ( $products as $card ) {
@@ -475,5 +479,4 @@ function wpcom_marketplace_intro() {
 	);
 }
 
-add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_intro', 9 );
 add_action( 'install_plugins_' . WPCOM_MARKETPLACE_TAB, 'wpcom_marketplace_render_grid' );
