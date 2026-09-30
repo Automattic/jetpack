@@ -42,7 +42,6 @@ const ProtectValueSection = () => {
 						text={ pluginsThemesTooltip.text }
 						tracksEventProps={ {
 							location: 'plugins&themes',
-							feature: 'jetpack-protect',
 							status: 'inactive',
 						} }
 					/>

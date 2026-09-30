@@ -16,19 +16,16 @@
 		}
 	}
 
-	// The row's label; specific enough to beat the card's shared heading styles.
-	> div > div:first-child {
-		gap: calc(var(--spacing-base) / 2);
-		margin-bottom: 0;
-		font-size: var(--font-body-small);
-		font-weight: 400;
-		color: var(--jp-gray-100);
-	}
-
-	&__heading {
+	// The row's label; scoped to beat the Backup card's global heading rule.
+	& &__heading {
 		display: flex;
 		align-items: center;
+		gap: calc(var(--spacing-base) / 2);
 		text-wrap: nowrap;
+		font-size: var(--font-body-small);
+		line-height: var(--font-title-small);
+		font-weight: 400;
+		color: var(--jp-gray-100);
 	}
 
 	&__last-scan {
@@ -77,12 +74,10 @@
 	}
 }
 
-.scan-threats {
-
-	&__threat-count {
-		font-weight: 600;
-		color: var(--jp-black);
-	}
+.scan-threats__threat-count,
+.logins_blocked__count {
+	font-weight: 600;
+	color: var(--jp-black);
 }
 
 .protect-info-popover {
@@ -109,21 +104,13 @@
 		}
 
 		&:focus-visible {
-			outline: 2px solid var(--wp-admin-theme-color, #3858e9);
+			outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
 			outline-offset: 1px;
 		}
-	}
-}
 
-// After the trigger rules, so the count stays red on hover too.
-.protect-info-popover__trigger.scan-threats__critical-threat-trigger {
-	color: var(--jp-red-50);
-}
-
-.logins_blocked {
-
-	&__count {
-		font-weight: 600;
-		color: var(--jp-black);
+		&--critical,
+		&--critical:hover {
+			color: var(--jp-red-50);
+		}
 	}
 }

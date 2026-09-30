@@ -29,6 +29,7 @@ export const InfoPopover: FC< InfoPopoverProps > = ( {
 			if ( open ) {
 				recordEvent( 'jetpack_protect_card_tooltip_open', {
 					page: 'my-jetpack',
+					feature: 'jetpack-protect',
 					...tracksEventProps,
 				} );
 			}
@@ -58,9 +59,7 @@ export const InfoPopover: FC< InfoPopoverProps > = ( {
 			/>
 			<Popover.Popup className="protect-info-popover">
 				{ /* Hidden but kept: the popup is aria-labelledby its Title. */ }
-				<VisuallyHidden>
-					<Popover.Title>{ title }</Popover.Title>
-				</VisuallyHidden>
+				<VisuallyHidden render={ <Popover.Title /> }>{ title }</VisuallyHidden>
 				<Popover.Description>{ text }</Popover.Description>
 			</Popover.Popup>
 		</Popover.Root>

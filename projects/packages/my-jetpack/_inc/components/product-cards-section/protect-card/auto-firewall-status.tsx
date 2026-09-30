@@ -1,5 +1,4 @@
 import { __ } from '@wordpress/i18n';
-import clsx from 'clsx';
 import {
 	protectCardShieldInactive as ShieldInactive,
 	protectCardShieldOff as ShieldOff,
@@ -7,7 +6,6 @@ import {
 } from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import baseStyles from '../style.module.scss';
 import { InfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
@@ -51,7 +49,7 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	if ( status === 'active' ) {
 		return (
 			<>
-				<div className={ baseStyles.valueSectionHeading }>
+				<div className="value-section__heading">
 					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
 				</div>
 				<div className="value-section__data">
@@ -70,7 +68,7 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	if ( status === 'inactive' ) {
 		return (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
 					<InfoPopover
 						label={ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
@@ -79,7 +77,6 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 						tracksEventProps={ {
 							location: 'auto-firewall',
 							status: status,
-							feature: 'jetpack-protect',
 							has_paid_plan: hasPaidPlanForProduct,
 						} }
 					/>
@@ -101,9 +98,7 @@ const WafStatus: FC< WafStatusProps > = ( { status, data } ) => {
 	}
 	return (
 		<>
-			<div className={ baseStyles.valueSectionHeading }>
-				{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }
-			</div>
+			<div className="value-section__heading">{ __( 'Auto-Firewall', 'jetpack-my-jetpack' ) }</div>
 			<div className="value-section__data">
 				<div>
 					<img

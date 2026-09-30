@@ -1,7 +1,6 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { info } from '@wordpress/icons';
 import { Button } from '@wordpress/ui';
-import clsx from 'clsx';
 import { useMemo } from 'react';
 import {
 	protectCardShieldOff as ShieldOff,
@@ -10,7 +9,6 @@ import {
 } from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
-import baseStyles from '../style.module.scss';
 import { InfoPopover } from './info-popover';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
@@ -84,14 +82,13 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 	if ( criticalThreatCount ) {
 		return (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Threats', 'jetpack-my-jetpack' ) }
 					<InfoPopover
 						label={ __( 'Threats', 'jetpack-my-jetpack' ) }
 						title={ scanThreatsTooltip.title }
 						text={ scanThreatsTooltip.text }
 						tracksEventProps={ {
-							feature: 'jetpack-protect',
 							location: 'scan',
 							has_paid_plan: true,
 							threats: numThreats,
@@ -99,7 +96,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 						trigger={
 							<Button
 								variant="unstyled"
-								className="protect-info-popover__trigger scan-threats__critical-threat-trigger"
+								className="protect-info-popover__trigger protect-info-popover__trigger--critical"
 								aria-label={ sprintf(
 									/* translators: %d is the number of critical threats found by the last scan. */
 									_n(
@@ -126,7 +123,7 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 
 	return (
 		<>
-			<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+			<div className="value-section__heading">
 				{ __( 'Threats', 'jetpack-my-jetpack' ) }
 				<InfoPopover
 					label={ __( 'Threats', 'jetpack-my-jetpack' ) }
@@ -134,7 +131,6 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 					text={ scanThreatsTooltip.text }
 					tracksEventProps={ {
 						location: 'threats',
-						feature: 'jetpack-protect',
 						has_paid_plan: true,
 						threats: numThreats,
 					} }
@@ -159,9 +155,7 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 	if ( status === 'success' ) {
 		return (
 			<>
-				<div className={ baseStyles.valueSectionHeading }>
-					{ __( 'Scan', 'jetpack-my-jetpack' ) }
-				</div>
+				<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
 				<div className="value-section__data">
 					<div>
 						<img
@@ -178,7 +172,7 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 	if ( status === 'partial' ) {
 		return (
 			<>
-				<div className={ clsx( baseStyles.valueSectionHeading, 'value-section__heading' ) }>
+				<div className="value-section__heading">
 					{ __( 'Scan', 'jetpack-my-jetpack' ) }
 					<InfoPopover
 						label={ __( 'Scan', 'jetpack-my-jetpack' ) }
@@ -187,7 +181,6 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 						tracksEventProps={ {
 							location: 'scan',
 							status: status,
-							feature: 'jetpack-protect',
 							has_paid_plan: false,
 							threats: 0,
 						} }
@@ -210,7 +203,7 @@ const ScanStatus: FC< ScanStatusProps > = ( { data, status } ) => {
 	}
 	return (
 		<>
-			<div className={ baseStyles.valueSectionHeading }>{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
+			<div className="value-section__heading">{ __( 'Scan', 'jetpack-my-jetpack' ) }</div>
 			<div className="value-section__data">
 				<div>
 					<img
