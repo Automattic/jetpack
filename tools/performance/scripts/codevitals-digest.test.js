@@ -118,6 +118,50 @@ const SCENARIOS = {
 	shorttail: () => ( {
 		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 200, Array( 9 ).fill( 200 ) ) },
 	} ),
+	noiseBeforeStep: () => {
+		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 120 ) ];
+		values[ 17 ] = 108;
+		return { series: { 301: flaggedSeries( values, [ 17, 20 ], 'noise' ) } };
+	},
+	noiseImmediatelyBeforeStep: () => {
+		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 120 ) ];
+		values[ 19 ] = 106;
+		return { series: { 301: flaggedSeries( values, [ 19, 20 ], 'close' ) } };
+	},
+	noiseChainBeforeStep: () => {
+		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 120 ) ];
+		values[ 17 ] = 106;
+		values[ 18 ] = 112;
+		return { series: { 301: flaggedSeries( values, [ 17, 18, 20 ], 'chain' ) } };
+	},
+	plateauAcrossAgeBoundary: () => {
+		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 29 ).fill( 200 ) ];
+		values[ 24 ] = 215;
+		return { series: { 301: flaggedSeries( values, [ 20, 24 ], 'cross', 26, 0.5 ) } };
+	},
+	noisyPendingStep: () => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 20 ).fill( 100 ),
+					200,
+					...Array( 3 ).fill( [ 188, 212, 200 ] ).flat(),
+					216,
+					216,
+					216,
+				],
+				[ 20, 30 ],
+				'noisytail'
+			),
+		},
+	} ),
+	foldedOriginal: () => {
+		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 200 ) ];
+		values[ 24 ] = 215;
+		const rows = flaggedSeries( values, [ 20, 24 ], 'foldstep' );
+		rows.splice( 21, 0, { ...rows[ 20 ] } );
+		return { series: { 301: rows } };
+	},
 	nearbySteps: () => ( {
 		series: {
 			301: flaggedSeries(
@@ -1244,6 +1288,48 @@ test( 'grouping localizes repeated evidence and retains a second step and a re-l
 	assert.ok( localized.out.includes( 'single-pair +12.5% (200→225ms)' ), localized.out );
 } );
 
+test( 'pre-step noise flags cannot borrow the real step or name sustained culprits', async () => {
+	for ( const [ scenario, prefix, noise ] of [
+		[ 'noiseBeforeStep', 'noise', [ 17 ] ],
+		[ 'noiseImmediatelyBeforeStep', 'close', [ 19 ] ],
+		[ 'noiseChainBeforeStep', 'chain', [ 17, 18 ] ],
+	] ) {
+		const r = await runDigest( scenario );
+		assert.equal( r.code, 0, r.err );
+		assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+		const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+		assert.ok( line.includes( hx( prefix + 20 ) ), line );
+		assert.ok( line.includes( 'median +20.0% (100→120ms)' ), line );
+		for ( const i of noise ) assert.ok( ! line.includes( hx( prefix + i ) ), line );
+		assert.ok( r.out.includes( `${ noise.length } transient spike` ), r.out );
+	}
+} );
+
+test( 'a plateau re-flag across the age boundary stays with the older step', async () => {
+	const r = await runDigest( 'plateauAcrossAgeBoundary' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '0 sustained regression(s)' ), r.out );
+	assert.ok( r.out.includes( '1 older confirmed change (may repeat)' ), r.out );
+	assert.ok( r.out.includes( '2 flags grouped' ), r.out );
+} );
+
+test( 'a noisy confirmed plateau does not absorb a smaller pending step', async () => {
+	const r = await runDigest( 'noisyPendingStep' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( '1 pending' ), r.out );
+	assert.ok( r.out.includes( hx( 'noisytail30' ) ), r.out );
+} );
+
+test( 'a folded re-post does not exclude the original step from localization', async () => {
+	const r = await runDigest( 'foldedOriginal' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+	assert.ok( line.includes( 'single-pair +100.0% (100→200ms)' ), line );
+	assert.ok( line.includes( hx( 'foldstep20' ) ), line );
+} );
+
 test( 'grouping preserves a distinct second step inside ten commits', async () => {
 	const r = await runDigest( 'nearbySteps' );
 	assert.equal( r.code, 0, r.err );
@@ -1265,7 +1351,7 @@ test( 'grouping preserves each step in a staircase', async () => {
 	for ( const i of [ 20, 28, 36, 44, 52 ] ) assert.ok( r.out.includes( hx( 'stair' + i ) ), r.out );
 } );
 
-test( 'grouping cannot put a fresh flag in the older bucket', async () => {
+test( 'a distinct fresh step stays separate from an older step', async () => {
 	const r = await runDigest( 'ageBoundary' );
 	assert.equal( r.code, 0, r.err );
 	assert.ok( r.out.includes( '1 sustained regression' ), r.out );

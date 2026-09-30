@@ -632,6 +632,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				from: self ? flagFrom : sib.p.serverFrom,
 				to: self ? ( flagV ?? v ) : sib.v,
 				reRun,
+				self,
 				s: win.s,
 				position: win.position,
 				preValues: win.preValues,
@@ -654,20 +655,33 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				reportedHashes.add( evHash );
 			}
 		}
-		const distinct = ( previous, candidate ) => {
+		const rises = ( previous, candidate ) => {
 			const between = byServe
-				.filter( r => r.p.sIdx >= previous.s && r.p.sIdx < candidate.s )
+				.filter(
+					r =>
+						r.p.sIdx > previous.s &&
+						r.p.sIdx < candidate.s &&
+						r.p.hash.toLowerCase() !== previous.hash.toLowerCase()
+				)
 				.map( r => r.v );
-			return (
-				hasLevelRise( between, candidate.postValues ) ||
-				hasLevelRise( between.slice( -3 ), candidate.postValues )
-			);
+			const baseline = between.length > 0 ? between : previous.preValues;
+			return {
+				own:
+					hasLevelRise( previous.preValues, between ) ||
+					hasLevelRise( previous.preValues, between.slice( 0, 3 ) ),
+				later:
+					hasLevelRise( baseline, candidate.postValues ) ||
+					hasLevelRise( baseline.slice( -3 ), candidate.postValues ),
+			};
+		};
+		const distinct = ( previous, candidate ) => {
+			const rise = rises( previous, candidate );
+			return rise.own && rise.later;
 		};
 		const canGroup = ( group, candidate ) => {
 			const first = group[ 0 ];
 			const previous = group.at( -1 );
 			return (
-				first.late === candidate.late &&
 				candidate.position >= previous.position &&
 				candidate.position - first.position <= LEVEL_WINDOW &&
 				! distinct( previous, candidate )
@@ -683,7 +697,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			const group = groups.find( g => canGroup( g, entry ) );
 			const level = group && group[ 0 ];
 			const tolerance =
-				level && Math.max( 0.05 * level.post, 3 * robustScale( level.postValues, level.post ) );
+				level && Math.min( 0.05 * level.post, 3 * robustScale( level.postValues, level.post ) );
 			if (
 				level &&
 				entry.preValues.length === LEVEL_WINDOW &&
@@ -697,15 +711,26 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			else pending.push( entry );
 		}
 		for ( const group of groups ) {
-			const accepted = group.filter( entry => entry.pre !== undefined );
-			const originals = accepted.filter( entry => ! entry.reRun );
+			const complete = group.filter( entry => entry.pre !== undefined );
+			// A pre-step flag cannot borrow a later step's rise to become a sustained culprit.
+			const borrowed = complete.filter( member =>
+				complete.some( candidate => {
+					if ( candidate.position <= member.position ) return false;
+					const rise = rises( member, candidate );
+					return ! rise.own && rise.later;
+				} )
+			);
+			reverted.push( ...borrowed );
+			const members = group.filter( member => ! borrowed.includes( member ) );
+			const accepted = complete.filter( member => ! borrowed.includes( member ) );
+			const originals = accepted.filter( entry => entry.self );
 			const entry = ( originals.length > 0 ? originals : accepted ).reduce( ( best, candidate ) =>
 				candidate.score > best.score ? candidate : best
 			);
 			( entry.late ? confirmedLate : confirmed ).push( {
 				...entry,
-				members: group,
-				grouped: group.length,
+				members,
+				grouped: members.length,
 			} );
 		}
 	}
