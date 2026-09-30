@@ -75,8 +75,8 @@ class Stats_Links_Test extends BaseTestCase {
 			Stats_Links::filter_url(
 				self::LEGACY_URL,
 				array(
-					'view'    => 'post',
-					'post_id' => 123,
+					'view' => 'post',
+					'id'   => 123,
 				)
 			)
 		);
@@ -99,8 +99,8 @@ class Stats_Links_Test extends BaseTestCase {
 			Stats_Links::filter_url(
 				self::LEGACY_URL,
 				array(
-					'view'    => 'settings',
-					'post_id' => 123,
+					'view' => 'settings',
+					'id'   => 123,
 				)
 			)
 		);

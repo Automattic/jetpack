@@ -271,8 +271,8 @@ class Action_Bar {
 			'jetpack_stats_url',
 			$url,
 			array(
-				'view'    => 'post',
-				'post_id' => $post_id,
+				'view' => 'post',
+				'id'   => $post_id,
 			)
 		);
 	}

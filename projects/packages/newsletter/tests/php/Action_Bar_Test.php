@@ -208,8 +208,8 @@ class Action_Bar_Test extends BaseTestCase {
 		$this->assertSame( 'https://example.org/new-stats', Action_Bar::get_post_stats_url( 12, 345, 'example.org', true ) );
 		$this->assertSame(
 			array(
-				'view'    => 'post',
-				'post_id' => 12,
+				'view' => 'post',
+				'id'   => 12,
 			),
 			$received
 		);

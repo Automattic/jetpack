@@ -30,7 +30,7 @@ class Stats_Links {
 	 * Point a Stats link at the dashboard page for the view it opens.
 	 *
 	 * @param string $url  Stats URL.
-	 * @param array  $args The page the link opens: `view`, plus `post_id` for the `post` view.
+	 * @param array  $args The page the link opens: `view`, plus `id` for the `post` view.
 	 * @return string
 	 */
 	public static function filter_url( $url, $args ) {
@@ -41,7 +41,7 @@ class Stats_Links {
 		}
 
 		if ( 'post' === $view ) {
-			return self::post_url( $url, $args['post_id'] ?? 0 );
+			return self::post_url( $url, $args['id'] ?? 0 );
 		}
 
 		return $url;
