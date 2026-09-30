@@ -6,39 +6,36 @@ import { video as videoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
-import { ReportThumbnailTitle } from '../report-thumbnail-title';
+import { ReportThumbnail } from '../report-thumbnail';
 
-const renderTitle = ( thumbnailUrl?: string ) => (
-	<ReportThumbnailTitle thumbnailUrl={ thumbnailUrl } fallbackIcon={ videoIcon }>
-		{ classNames => <span className={ classNames.text }>Launch video</span> }
-	</ReportThumbnailTitle>
+const renderThumbnail = ( thumbnailUrl?: string ) => (
+	<ReportThumbnail thumbnailUrl={ thumbnailUrl } fallbackIcon={ videoIcon } />
 );
 
-describe( 'ReportThumbnailTitle', () => {
-	it( 'renders the thumbnail beside the title', () => {
-		render( renderTitle( 'https://example.com/a.jpg' ) );
+describe( 'ReportThumbnail', () => {
+	it( 'renders the thumbnail', () => {
+		render( renderThumbnail( 'https://example.com/a.jpg' ) );
 
 		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
 			'src',
 			'https://example.com/a.jpg'
 		);
-		expect( screen.getByText( 'Launch video' ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders the fallback icon without a thumbnail', () => {
-		render( renderTitle() );
+		render( renderThumbnail() );
 
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
 	it( 'falls back after a load failure and retries when the URL changes', () => {
-		const { rerender } = render( renderTitle( 'https://example.com/a.jpg' ) );
+		const { rerender } = render( renderThumbnail( 'https://example.com/a.jpg' ) );
 
 		fireEvent.error( screen.getByRole( 'presentation' ) );
 		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 
-		rerender( renderTitle( 'https://example.com/b.jpg' ) );
+		rerender( renderThumbnail( 'https://example.com/b.jpg' ) );
 		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
 			'src',
 			'https://example.com/b.jpg'

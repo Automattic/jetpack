@@ -48,6 +48,24 @@ function renderTitleField( item: StatsVideoPlaysComparisonItem ) {
 }
 
 /**
+ * Render the videos table's poster field for one row.
+ *
+ * @param item - The video row to render.
+ * @return The RTL render result.
+ */
+function renderPosterField( item: StatsVideoPlaysComparisonItem ) {
+	const field = getVideosFields().find( candidate => candidate.id === 'poster' );
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+	const PosterField = field?.render;
+
+	if ( ! field || ! PosterField ) {
+		throw new Error( 'Videos poster field render callback is unavailable' );
+	}
+
+	return render( <PosterField item={ item } field={ field as never } /> );
+}
+
+/**
  * Render one metric field for a video row.
  *
  * @param fieldId        - The metric field to render.
@@ -72,17 +90,17 @@ function renderMetricField(
 }
 
 describe( 'videos fields', () => {
-	it( 'renders the poster resized for a table row beside the title', () => {
-		renderTitleField( { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
+	it( 'renders the poster resized for a table row', () => {
+		renderPosterField( { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
 
 		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
 			'src',
-			'https://i0.wp.com/v/launch.jpg?resize=80%2C80'
+			'https://i0.wp.com/v/launch.jpg?resize=64%2C64'
 		);
 	} );
 
 	it( 'renders the placeholder for an unsafe poster URL', () => {
-		renderTitleField( { ...video, poster: 'javascript:alert(1)' } );
+		renderPosterField( { ...video, poster: 'javascript:alert(1)' } );
 
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
@@ -146,7 +164,12 @@ describe( 'videos fields', () => {
 	it( 'exposes searchable title and sortable metric fields', () => {
 		const fields = getVideosFields();
 
-		expect( fields.map( field => field.id ) ).toEqual( [ 'label', 'plays', 'impressions' ] );
+		expect( fields.map( field => field.id ) ).toEqual( [
+			'label',
+			'poster',
+			'plays',
+			'impressions',
+		] );
 		expect( fields.find( field => field.id === 'label' )?.enableGlobalSearch ).toBe( true );
 		expect( fields.find( field => field.id === 'plays' )?.getValue?.( { item: video } ) ).toBe(
 			11

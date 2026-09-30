@@ -59,15 +59,11 @@ const homepage: StatsTopPostsComparisonItem = {
 /**
  * Mount the posts title field's render component for a table row.
  *
- * @param item          - The top-posts row to render the title cell for.
- * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
+ * @param item - The top-posts row to render the title cell for.
  * @return The Testing Library render result.
  */
-function renderTitleField(
-	item: StatsTopPostsComparisonItem,
-	thumbnailUrls: PostThumbnailUrls = {}
-) {
-	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
+function renderTitleField( item: StatsTopPostsComparisonItem ) {
+	const field = getPostsFields( false, 'posts-pages' ).find(
 		candidate => candidate.id === 'title'
 	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
@@ -78,6 +74,30 @@ function renderTitleField(
 	}
 
 	return render( <TitleField item={ item } field={ field as never } /> );
+}
+
+/**
+ * Mount the posts thumbnail field's render component for a table row.
+ *
+ * @param item          - The top-posts row to render the thumbnail for.
+ * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
+ * @return The Testing Library render result.
+ */
+function renderThumbnailField(
+	item: StatsTopPostsComparisonItem,
+	thumbnailUrls: PostThumbnailUrls = {}
+) {
+	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
+		candidate => candidate.id === 'thumbnail'
+	);
+	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
+	const ThumbnailField = field?.render;
+
+	if ( ! field || ! ThumbnailField ) {
+		throw new Error( 'Posts thumbnail field render callback is unavailable' );
+	}
+
+	return render( <ThumbnailField item={ item } field={ field as never } /> );
 }
 
 /**
@@ -143,8 +163,8 @@ describe( 'posts title field', () => {
 		mockUseSiteHomeUrl.mockReset();
 	} );
 
-	it( 'renders the post thumbnail beside its title', () => {
-		renderTitleField(
+	it( 'renders the post thumbnail', () => {
+		renderThumbnailField(
 			{
 				id: 42,
 				label: 'Hello world',
@@ -166,7 +186,7 @@ describe( 'posts title field', () => {
 		[ 'post', postIcon ],
 		[ 'homepage', postIcon ],
 	] )( 'renders the matching icon for a %s row without a thumbnail', ( type, icon ) => {
-		renderTitleField( { ...homepage, type } );
+		renderThumbnailField( { ...homepage, type } );
 
 		expect( glyphPath( screen.getByTestId( 'report-thumbnail-placeholder' ) ) ).toBe(
 			glyphPath( render( icon ).container )
