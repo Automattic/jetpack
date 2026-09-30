@@ -406,8 +406,10 @@ class Comment_Form {
 				'blockTools'          => __( 'Block tools', 'jetpack-comments' ),
 				'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
 				'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
-				'placeholder'         => __( 'Write a comment...', 'jetpack-comments' ),
-				'replyPlaceholder'    => __( 'Write a reply...', 'jetpack-comments' ),
+				/* translators: The empty comment box's placeholder. The form adds "..." after it. */
+				'placeholder'         => __( 'Write a comment', 'jetpack-comments' ),
+				/* translators: The empty reply box's placeholder. The form adds "..." after it. */
+				'replyPlaceholder'    => __( 'Write a reply', 'jetpack-comments' ),
 				'name'                => __( 'Name', 'jetpack-comments' ),
 				'email'               => __( 'Email', 'jetpack-comments' ),
 				'emailHint'           => __( 'Address never made public', 'jetpack-comments' ),
@@ -430,6 +432,7 @@ class Comment_Form {
 				'addYourName'         => __( 'Add your name', 'jetpack-comments' ),
 				'cancel'              => __( 'Cancel', 'jetpack-comments' ),
 				'signInFailed'        => __( 'We could not sign you in. Please try again.', 'jetpack-comments' ),
+				'tooLong'             => __( 'This comment is too long to post. Shorten it to send it.', 'jetpack-comments' ),
 				'signInRateLimited'   => __( 'Too many sign-in attempts. Please wait a moment and try again.', 'jetpack-comments' ),
 			);
 

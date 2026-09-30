@@ -46,7 +46,8 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	const editorRef = useRef< HTMLDivElement >( null );
 	// Downloaded on first focus; the textarea stays if it never arrives.
 	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
-	const placeholder = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
+	const prompt = commentParent.value ? strings.replyPlaceholder : strings.placeholder;
+	const placeholder = `${ prompt }...`;
 
 	const openEditor = useCallback(
 		( focus = true ) => {
@@ -201,6 +202,9 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		( ( current.kind === 'wordpress' && current.avatar ) ||
 			( current.kind === 'unknown' ? identity.defaultAvatar : avatarUrl ) );
 	const { submit } = formSettings;
+	// The textarea's maxLength holds back typing, not the editor. Counted as PHP counts, by code point.
+	const isTooLong =
+		commentValue.value.length > maxLength && [ ...commentValue.value ].length > maxLength;
 
 	// A draft from the editor is block markup, which only the editor shows.
 	const text =
@@ -234,7 +238,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				/>
 				{ editor === 'loading' && ! text && (
 					<span className="jetpack-comments__loading" aria-hidden="true">
-						{ placeholder.replace( /[.…]+$/, '' ) }
+						{ prompt }
 						<span>.</span>
 						<span>.</span>
 						<span>.</span>
@@ -244,12 +248,20 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 					<div
 						ref={ editorRef }
 						className="jetpack-comments__editor"
+						// The textarea's name, which goes with it when the editor takes over.
+						role="group"
+						aria-label={ commentParent.value ? strings.replyLabel : strings.commentLabel }
 						hidden={ editor !== 'ready' }
 						onFocusCapture={ onEditorFocus }
 					/>
 				) }
 				<div className={ clsx( 'jetpack-comments__footer', { 'is-open': isFooterOpen.value } ) }>
 					<div className="jetpack-comments__actions">
+						{ isTooLong && (
+							<p className="jetpack-comments__too-long" role="alert">
+								{ strings.tooLong }
+							</p>
+						) }
 						<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
 							<input
 								id={ submit.id }
@@ -259,6 +271,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 								disabled={
 									( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
 									isEmptyComment.value ||
+									isTooLong ||
 									isPosting.value
 								}
 								value={ commentParent.value ? strings.reply : submit.label }

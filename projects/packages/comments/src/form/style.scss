@@ -143,6 +143,12 @@
 	padding: 0 calc(var(--jetpack-comments-pad) + 4px) calc(var(--jetpack-comments-pad) + 4px);
 }
 
+// Its own row, under the submit it disables.
+.jetpack-comments__too-long {
+	flex-basis: 100%;
+	margin: 0;
+}
+
 // Shares the row with the submit down to 10em; below that it wraps above it.
 .jetpack-comments__identity {
 	display: flex;

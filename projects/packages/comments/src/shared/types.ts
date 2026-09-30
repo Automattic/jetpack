@@ -95,6 +95,7 @@ export type Strings = {
 	addYourName: string;
 	cancel: string;
 	signInFailed: string;
+	tooLong: string;
 	signInRateLimited: string;
 };
 
