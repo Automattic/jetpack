@@ -24,41 +24,96 @@ import type { DataFormat } from '../../types';
  * What the widget knows about its request, in the data layer's terms.
  */
 export type LeaderboardStatus = {
-	/** Nothing on screen answers the current params. */
+	/**
+	 * Nothing on screen answers the current params.
+	 */
 	isLoading: boolean;
-	/** Unchanged params being revalidated. */
+
+	/**
+	 * Unchanged params being revalidated.
+	 */
 	isFetching?: boolean;
-	/** The request failed. */
+
+	/**
+	 * The request failed.
+	 */
 	isError?: boolean;
-	/** The comparison period is on and at least one row has a match there. */
+
+	/**
+	 * The comparison period is on and at least one row has a match there.
+	 */
 	hasComparison?: boolean;
-	/** Re-runs the request; the default error state offers it as Retry. */
+
+	/**
+	 * Re-runs the request; the default error state offers it as Retry.
+	 */
 	refetch?: () => unknown;
 };
 
 export type LeaderboardProps = {
-	/** Ranked rows, in display order. */
+	/**
+	 * Ranked rows, in display order.
+	 */
 	rows: readonly LeaderboardRowInput[];
-	/** Request state, from the widget's data hook. */
+
+	/**
+	 * Request state, from the widget's data hook.
+	 */
 	status: LeaderboardStatus;
-	/** Error copy. Without `actions`, a `status.refetch` becomes the Retry action. */
+
+	/**
+	 * Error copy. Without `actions`, a `status.refetch` becomes the Retry action.
+	 */
 	error?: WidgetStateError;
-	/** A widget's own empty state; omit for the generic one. */
+
+	/**
+	 * A widget's own empty state; omit for the generic one.
+	 */
 	empty?: WidgetStateEmpty;
-	/** Rows shown, and the skeleton's height. Defaults to the widget row limit. */
+
+	/**
+	 * Rows shown, and the skeleton's height. Defaults to the widget row limit.
+	 */
 	maxRows?: number;
-	/** Value format. Defaults to compact integers. */
+
+	/**
+	 * Value format. Defaults to compact integers.
+	 */
 	format?: DataFormat;
-	/** Draw the value over the bar. */
+
+	/**
+	 * Draw the value over the bar.
+	 */
 	withOverlayLabel?: boolean;
+
+	/**
+	 * Show the legend.
+	 */
 	showLegend?: boolean;
+
+	/**
+	 * Legend labels.
+	 */
 	legendLabels?: LegendLabels;
-	/** Destination tab and origin report for detail links, see `useWidgetNavigationSearch()`. */
+
+	/**
+	 * Destination tab and origin report for detail links, see `useWidgetNavigationSearch()`.
+	 */
 	navigation?: Parameters< typeof useWidgetNavigationSearch >[ 0 ];
-	/** Rendered above the chart, inside the content column. */
+
+	/**
+	 * Rendered above the chart, inside the content column.
+	 */
 	header?: ReactNode;
-	/** Rendered in the widget footer, typically a `ReportLink`. */
+
+	/**
+	 * Rendered in the widget footer, typically a `ReportLink`.
+	 */
 	footer?: ReactNode;
+
+	/**
+	 * Additional CSS classes.
+	 */
 	className?: string;
 };
 

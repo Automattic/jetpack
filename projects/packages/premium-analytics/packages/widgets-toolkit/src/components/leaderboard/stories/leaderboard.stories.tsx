@@ -1,16 +1,20 @@
 /**
  * External dependencies
  */
-import { getDefaultQueryParams } from '@jetpack-premium-analytics/data';
+import { getDefaultQueryParams, normalizeReportParams } from '@jetpack-premium-analytics/data';
 /**
  * Internal dependencies
  */
+import { withStoryRouter } from '../../../../../../widgets/stories/with-story-router';
+import { registerReportMocks } from '../../../stories/mocks/register-report-mocks';
 import { WidgetCard } from '../../../stories/widget-card';
-import { withWidgetRoot } from '../../../stories/with-widget-root';
 import { ReportLink } from '../../report-link';
+import { WidgetRoot } from '../../widget-root';
 import { Leaderboard, type LeaderboardProps } from '../leaderboard';
 import type { LeaderboardRowInput } from '../build-leaderboard-chart-data';
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Decorator, Meta, StoryObj } from '@storybook/react';
+
+registerReportMocks();
 
 const ROWS: LeaderboardRowInput[] = [
 	{ id: '1', label: 'Getting Started Walkthrough', value: 3820, previousValue: 3000 },
@@ -21,6 +25,26 @@ const ROWS: LeaderboardRowInput[] = [
 ];
 
 const READY = { isLoading: false, isError: false };
+
+// One `WidgetRoot` per story, seeded from `parameters.reportParams` so a story can
+// turn the comparison on without a second provider.
+const withWidgetRoot: Decorator = ( Story, context ) => (
+	<WidgetRoot
+		attributes={ {
+			reportParams: normalizeReportParams(
+				context.parameters.reportParams ?? getDefaultQueryParams()
+			),
+		} }
+	>
+		<Story />
+	</WidgetRoot>
+);
+
+const withCard: Decorator = Story => (
+	<WidgetCard height="360px">
+		<Story />
+	</WidgetCard>
+);
 
 const meta: Meta< typeof Leaderboard > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/Leaderboard',
@@ -34,14 +58,8 @@ const meta: Meta< typeof Leaderboard > = {
 			},
 		},
 	},
-	decorators: [
-		Story => (
-			<WidgetCard height="360px">
-				<Story />
-			</WidgetCard>
-		),
-		withWidgetRoot(),
-	],
+	// The router is outermost: `ReportLink` and the detail links render route links.
+	decorators: [ withCard, withWidgetRoot, withStoryRouter ],
 	args: {
 		rows: ROWS,
 		status: READY,
@@ -57,7 +75,7 @@ export const Default: Story = {};
 
 export const WithComparison: Story = {
 	args: { status: { ...READY, hasComparison: true } },
-	decorators: [ withWidgetRoot( getDefaultQueryParams( true ) ) ],
+	parameters: { reportParams: getDefaultQueryParams( true ) },
 };
 
 export const WithMediaAndLinks: Story = {
