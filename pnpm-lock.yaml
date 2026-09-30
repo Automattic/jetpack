@@ -4,7 +4,7 @@ settings:
   autoInstallPeers: false
   excludeLinksFromLockfile: false
 
-pnpmfileChecksum: sha256-zGNi8mz9uCR5gA0VhCnDJhNXNkituNw0wYNmcl+ad7U=
+pnpmfileChecksum: sha256-2/4sxnwf1gm9iTBBRlBfP44BTtZ8LKNM2aZcYMyEBqM=
 
 patchedDependencies:
   '@wordpress/build': 151ae1c0c3786b862724512e48d8cfcb4b34faf4cac98e352a450abd4741e022
@@ -2980,8 +2980,8 @@ importers:
         specifier: workspace:*
         version: link:../../js-packages/shared-extension-utils
       '@automattic/launchpad':
-        specifier: 1.3.0
-        version: 1.3.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(@wordpress/i18n@6.28.0)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: 1.3.1
+        version: 1.3.1(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(@wordpress/i18n@6.28.0)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@automattic/site-launch-modals':
         specifier: 1.0.3
         version: 1.0.3(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -3166,8 +3166,8 @@ importers:
         specifier: 1.1.3
         version: 1.1.3
       newspack-icons:
-        specifier: 1.1.1
-        version: 1.1.1(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
+        specifier: 1.1.3
+        version: 1.1.3(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       preact:
         specifier: 10.28.2
         version: 10.28.2
@@ -7329,8 +7329,8 @@ packages:
   '@automattic/languages@1.0.0':
     resolution: {integrity: sha512-froTyDbTmLitHkvY9WLCpFdjUo6moOLkDKw63J2fLiB2gBApy2thkBV+LRx4Z0kIF5iXVkQF4yYOPYkT9Sr13Q==}
 
-  '@automattic/launchpad@1.3.0':
-    resolution: {integrity: sha512-HFJNtjRlCgPVmleS4kGk1Xu/MaTSxWHAAnjhBYx2BXSESsKMb87vS1aZ3TGohefOzDJShL8kur+U7vzQmcOZ1g==}
+  '@automattic/launchpad@1.3.1':
+    resolution: {integrity: sha512-39/AsGpkp/2ZeE2geHligAfslr5KQvK446JnO4kTAbEEHjPveSqrzoiseG93rW1dQWxzVangFSS+Esckw8D8iw==}
     peerDependencies:
       '@wordpress/i18n': ^6.21.0
       react: ^18.3.1 || ^19.0.0
@@ -15765,11 +15765,11 @@ packages:
   newspack-colors@1.1.3:
     resolution: {integrity: sha512-XjQWVIrTIATm66zmP0JoFmLVcYPAZZ+4zWcTdSTAvQ3y/SeWC5mPcWgdn/BO2NZE3qDXLJL1EZ4JymBU02mo8A==}
 
-  newspack-icons@1.1.1:
-    resolution: {integrity: sha512-puoKC6Op/icAUzArSuXnj89iCLmGrimldUKuLf1VKqyxw8z0ozOx2KmnJAUX6R0eCVuMEYpwRv/2XZE3E99MKw==}
+  newspack-icons@1.1.3:
+    resolution: {integrity: sha512-UFtHqlVUyqDjYZSAh0tPv5hR8ioXawAJ5kJJIHwda4y+vYi+bxUbczbdIoDL/eYLQ9/dyKbsEZk/UraSwa+xiQ==}
     peerDependencies:
       '@wordpress/primitives': ^3.0.0 || ^4.0.0
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+      react: ^17.0.0 || ^18.0.0 || ^19.0.0
 
   no-case@3.0.4:
     resolution: {integrity: sha512-fgAN3jGAh+RoxUGZHTSOLJIqUc2wmoBwGR4tbpNAKmmovFoWq0OdRkb0VkldReO2a2iBT/OEulG9XSUc10r3zg==}
@@ -17390,11 +17390,11 @@ packages:
   snake-case@3.0.4:
     resolution: {integrity: sha512-LAOh4z89bGQvl9pFfNF8V146i7o7/CqFPbqzYgP+yYzDIDeS9HaNFtXABamRW+AQzEVODcvE79ljJ+8a9YSdMg==}
 
-  social-logos@3.3.19:
-    resolution: {integrity: sha512-gepdnetYjvDp96iAfJYyF1jbwv3xBRL4XbdSjMXLBQRhOwbxcNyg558vXaZH606RDOSMoO/Zuw5QdXVJtj1zKQ==}
+  social-logos@3.4.0:
+    resolution: {integrity: sha512-dwzrc4pmbZ6nWf9G9xI9Ox/DKvFpFmhrKokeK7axC8XqkftmhY8/3kVJAhAmvnstVlcliBju62t1q1NT4asOlA==}
     peerDependencies:
-      react: ^18.0.0
-      react-dom: ^18.0.0
+      react: ^18.0.0 || ^19.0.0
+      react-dom: ^18.0.0 || ^19.0.0
 
   socket.io-client@4.8.3:
     resolution: {integrity: sha512-uP0bpjWrjQmUt5DTHq9RuoCBdFJF10cdX9X+a368j/Ft0wmaVgxlrjvK3kjvgCODOMMOz9lcaRzxmso0bTWZ/g==}
@@ -18929,7 +18929,7 @@ snapshots:
     dependencies:
       tslib: 2.8.1
 
-  '@automattic/launchpad@1.3.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(@wordpress/i18n@6.28.0)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@automattic/launchpad@1.3.1(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(@wordpress/i18n@6.28.0)(postcss@8.5.23)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
       '@automattic/calypso-analytics': 1.1.5
       '@automattic/i18n-utils': 1.3.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -18947,7 +18947,7 @@ snapshots:
       clsx: 2.1.1
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
-      social-logos: 3.3.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      social-logos: 3.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       tslib: 2.8.1
       wpcom-proxy-request: 7.1.0
     transitivePeerDependencies:
@@ -35217,7 +35217,7 @@ snapshots:
 
   newspack-colors@1.1.3: {}
 
-  newspack-icons@1.1.1(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
+  newspack-icons@1.1.3(@wordpress/primitives@4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1):
     dependencies:
       '@wordpress/primitives': 4.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
@@ -36947,7 +36947,7 @@ snapshots:
       dot-case: 3.0.4
       tslib: 2.8.1
 
-  social-logos@3.3.19(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  social-logos@3.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       prop-types: 15.8.1
       react: 18.3.1
