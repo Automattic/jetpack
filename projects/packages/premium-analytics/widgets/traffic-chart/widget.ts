@@ -14,6 +14,7 @@ import {
 	type ChartDisplayChartType,
 	type CountLabel,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { readStatsV1ChartType } from './stats-v1-chart-type';
 
 /**
  * The bucket sizes this chart draws. The bucket follows the dashboard's interval
@@ -25,6 +26,15 @@ export const TRAFFIC_PERIODS = [
 	'week',
 	'month',
 ] as const satisfies readonly StatsPeriod[];
+
+/**
+ * The chart type drawn when nothing is saved: the one Stats v1 saved in this browser, else bars.
+ *
+ * @return The default chart type.
+ */
+export function defaultChartType(): TrafficChartType {
+	return readStatsV1ChartType() ?? 'bar';
+}
 
 export type TrafficChartGranularity = ( typeof TRAFFIC_PERIODS )[ number ];
 
@@ -87,7 +97,7 @@ export const TRAFFIC_CHART_METRICS = [
  * Configurable attributes for the Traffic chart widget; report params still
  * reach it through WidgetRoot or `attributes.reportParams` from a host.
  *
- * @property chartType - How to draw the selected metric. Defaults to `line`.
+ * @property chartType - How to draw the selected metric. Defaults to the Stats v1 choice, else `bar`.
  */
 export type TrafficChartAttributes = {
 	chartType?: TrafficChartType;
@@ -100,10 +110,15 @@ export type TrafficChartAttributes = {
  */
 export default {
 	icon: trendingUp,
-	attributes: [ chartTypeAttributeField() ] as WidgetAttributeField< TrafficChartAttributes >[],
-	example: {
-		attributes: {
-			chartType: 'line',
+	attributes: [
+		{
+			...chartTypeAttributeField< TrafficChartAttributes >(),
+			// The switch must show what the chart draws, and the default depends on Stats v1.
+			getValue: ( { item }: { item: TrafficChartAttributes } ) =>
+				item.chartType ?? defaultChartType(),
 		},
+	] as WidgetAttributeField< TrafficChartAttributes >[],
+	example: {
+		attributes: {},
 	},
 };
