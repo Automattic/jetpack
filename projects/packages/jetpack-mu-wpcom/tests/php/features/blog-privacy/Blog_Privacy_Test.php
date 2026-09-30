@@ -233,7 +233,7 @@ AI_BLOCKS;
 	}
 
 	/**
-	 * Staging sites get no robots.txt Disallow, which would stop crawlers from seeing the noindex.
+	 * Staging robots.txt stays open, so crawlers can fetch pages and see the noindex.
 	 */
 	public function test_staging_site_robots_txt_is_unchanged() {
 		\update_option( 'home', 'https://staging-c603-mysite.wpcomstaging.com' );
