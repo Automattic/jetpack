@@ -7,7 +7,7 @@ import { DETAIL_SURFACE_PRESETS, dateToISOStringWithTZ } from '@jetpack-premium-
 /**
  * Internal dependencies
  */
-import { useDetailDateControls } from './use-detail-date-controls';
+import { useAllTimeAnchorPending, useDetailDateControls } from './use-detail-date-controls';
 
 // A zone ahead of UTC, so a visitor-zone reading of the wall time would land on
 // a different day than the site's.
@@ -129,5 +129,39 @@ describe( 'useDetailDateControls', () => {
 		);
 
 		expect( replaceRange ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'useAllTimeAnchorPending', () => {
+	const PUBLISHED = new Date( '2026-07-08T00:00:00+08:00' );
+	const PROVISIONAL = { from: new Date( '2021-01-01T00:00:00+08:00' ), to: new Date() };
+
+	it.each( [
+		[ 'holds widgets while the start is still loading', undefined, PROVISIONAL, true, true ],
+		[ 'releases them once the start will not arrive', undefined, PROVISIONAL, false, false ],
+		[ 'holds them until the range moves to the start', PUBLISHED, PROVISIONAL, false, true ],
+		[ 'releases them once anchored', PUBLISHED, { from: PUBLISHED, to: new Date() }, false, false ],
+	] )( '%s', ( _case, start, appliedRange, isStartPending, expected ) => {
+		const { result } = renderHook( () =>
+			useAllTimeAnchorPending(
+				start,
+				filters( { appliedPresetId: 'all-time', appliedRange } ),
+				isStartPending
+			)
+		);
+
+		expect( result.current ).toBe( expected );
+	} );
+
+	it( 'never holds a range that is not all time', () => {
+		const { result } = renderHook( () =>
+			useAllTimeAnchorPending(
+				undefined,
+				filters( { appliedPresetId: 'last-7-days', appliedRange: PROVISIONAL } ),
+				true
+			)
+		);
+
+		expect( result.current ).toBe( false );
 	} );
 } );

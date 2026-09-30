@@ -30,10 +30,10 @@ import {
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
-import { useDetailDateControls } from '../use-detail-date-controls';
+import { useAllTimeAnchorPending, useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
 import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { withWidgetTypeAliases } from '../widget-type-aliases';
@@ -47,6 +47,8 @@ const ROUTE_FROM = route.path;
 // Its own preferences scope: the routes are separate packages, and the detail
 // surfaces' stored arrangements have no reason to share a namespace.
 const PREFERENCES_SCOPE = 'jetpack-premium-analytics/post-detail';
+
+const NO_WIDGETS: DashboardWidget[] = [];
 
 /**
  * Premium Analytics post/page detail page stage component.
@@ -68,6 +70,11 @@ function PostDetail(): JSX.Element {
 	// The resource, date range, and comparison all live in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const isAnchoringAllTime = useAllTimeAnchorPending(
+		dateControls.allTimeStart,
+		dateFilters,
+		summary.isLoading
+	);
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -109,11 +116,14 @@ function PostDetail(): JSX.Element {
 		isEmailSendPending,
 	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
 
-	// The stored per-tab arrangement, layered over the fixed composition.
+	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
+
+	// The stored per-tab arrangement, layered over the fixed composition. The URL
+	// range tab waits for all time to anchor, as the email tabs wait for their window.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
 		PREFERENCES_SCOPE,
 		activeTab,
-		fixedLayout
+		! isEmailTab && isAnchoringAllTime ? NO_WIDGETS : fixedLayout
 	);
 
 	// Each tab is its own layout, so leaving the tab, by click, Back, or a deep
@@ -133,7 +143,6 @@ function PostDetail(): JSX.Element {
 		surface: 'post_detail',
 	} );
 
-	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
 	// The email header names the send ("Email sent on…"), so a post that was
 	// never sent gets the page-level state in place of the header and widgets.
 	const showNotSent = isEmailTab && isEmailNotSent;

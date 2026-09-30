@@ -53,24 +53,21 @@ export function useDetailDateControls(
 	// Read in the site timezone, matching the header subtitle, so the pill and
 	// the "published on" sentence name the same day for every visitor.
 	const allTimeStart = useMemo( () => parseSiteDateTime( publishedDate ), [ publishedDate ] );
+	const anchored = useAnchoredAllTime( allTimeStart, timeZone );
 
 	const appliedFrom = appliedRange.from?.getTime();
 
 	useEffect( () => {
-		if ( ! allTimeStart || appliedPresetId !== PRESET_ALL_TIME ) {
-			return;
-		}
-
-		const anchored = computePrimaryRange( PRESET_ALL_TIME, timeZone, {
-			startDate: allTimeStart,
-		} );
-
 		// Only the start can be stale: the end is today either way. Replacing
 		// rather than pushing, so Back does not return to the unanchored range.
-		if ( anchored && anchored.from.getTime() !== appliedFrom ) {
+		if (
+			anchored &&
+			appliedPresetId === PRESET_ALL_TIME &&
+			anchored.from.getTime() !== appliedFrom
+		) {
 			replaceRange( anchored, PRESET_ALL_TIME );
 		}
-	}, [ allTimeStart, appliedFrom, appliedPresetId, replaceRange, timeZone ] );
+	}, [ anchored, appliedFrom, appliedPresetId, replaceRange ] );
 
 	return useMemo(
 		() => ( {
@@ -79,5 +76,47 @@ export function useDetailDateControls(
 			withIntervalControl: false,
 		} ),
 		[ allTimeStart ]
+	);
+}
+
+/**
+ * Whether the page is on all time but not yet anchored on the resource's start,
+ * so widgets that read the range would first fetch the provisional window.
+ *
+ * @param allTimeStart   - The resource's start, as `useDetailDateControls` returns it.
+ * @param dateFilters    - The page's date-filter controller.
+ * @param isStartPending - Whether the start can still arrive; false once its summary settles.
+ * @return Whether to hold the range-reading widgets back.
+ */
+export function useAllTimeAnchorPending(
+	allTimeStart: Date | undefined,
+	dateFilters: Omit< DetailDateFilters, 'replaceRange' >,
+	isStartPending: boolean
+): boolean {
+	const anchored = useAnchoredAllTime( allTimeStart, dateFilters.timeZone );
+
+	if ( dateFilters.appliedPresetId !== PRESET_ALL_TIME ) {
+		return false;
+	}
+
+	return anchored
+		? anchored.from.getTime() !== dateFilters.appliedRange.from?.getTime()
+		: isStartPending;
+}
+
+/**
+ * The all-time range anchored on the resource's start, once the start is known.
+ *
+ * @param allTimeStart - The resource's start.
+ * @param timeZone     - The site timezone.
+ * @return The anchored range, or undefined without a start.
+ */
+function useAnchoredAllTime( allTimeStart: Date | undefined, timeZone: string ) {
+	return useMemo(
+		() =>
+			allTimeStart
+				? computePrimaryRange( PRESET_ALL_TIME, timeZone, { startDate: allTimeStart } )
+				: undefined,
+		[ allTimeStart, timeZone ]
 	);
 }
