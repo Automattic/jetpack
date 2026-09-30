@@ -48,7 +48,7 @@ describe( 'nextElements', () => {
 		expect( nextElements( styles, DARK, DARKER, { link: ACCENT } ) ).toBeNull();
 	} );
 
-	it( 'takes its color and underline back off when the link passes again', () => {
+	it( "writes the site's own color out and drops the underline when the link passes again", () => {
 		const styles = {
 			elements: {
 				link: {

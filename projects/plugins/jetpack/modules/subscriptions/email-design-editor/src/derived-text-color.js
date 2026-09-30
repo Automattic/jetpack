@@ -12,7 +12,13 @@ import { storeName as EMAIL_EDITOR_STORE } from '@woocommerce/email-editor';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select, subscribe } from '@wordpress/data';
 import { nextElements, MANAGED } from './readable-elements';
-import { contrastRatio, deriveTextColor, isSameColor, MINIMUM_CONTRAST } from './text-color';
+import {
+	colorToStore,
+	contrastRatio,
+	deriveTextColor,
+	isSameColor,
+	MINIMUM_CONTRAST,
+} from './text-color';
 
 // What the editor stores for a palette pick, in both the shorthand the package rewrites values to
 // and the CSS custom property it rewrites them from.
@@ -26,7 +32,8 @@ const PALETTE_ORIGINS = [ 'default', 'theme', 'custom' ];
  * Derive the text color whenever the creator changes the background.
  *
  * @param {number|null} id        - The global-styles id the bundle named.
- * @param {object}      inherited - The colors the site gives links and headings, keyed by element.
+ * @param {object}      inherited - The colors the site gives text, links and headings, keyed by
+ *                                `text` and by element.
  * @return {Function} Stops watching, for a caller that unmounts the editor.
  */
 export function watchDerivedTextColor( id, inherited = {} ) {
@@ -39,9 +46,11 @@ export function watchDerivedTextColor( id, inherited = {} ) {
 	// The background to measure changes against is whatever is stored, which is not a change the
 	// creator made. Taken here when the record is already loaded, so that a pick arriving before any
 	// other store activity is seen as a change rather than swallowed as the baseline.
-	let previous = read()?.styles?.color?.background;
-	let previousColors = managedColors( read() );
-	let seeded = !! read();
+	const opened = read();
+
+	let previous = opened?.styles?.color?.background;
+	let previousColors = managedColors( opened );
+	let seeded = !! opened;
 
 	return subscribe( () => {
 		const record = read();
@@ -102,7 +111,8 @@ export function watchDerivedTextColor( id, inherited = {} ) {
  * @param {object} record     - The edited design record.
  * @param {*}      before     - The background before the change.
  * @param {*}      background - The background after it.
- * @param {object} inherited  - The colors the site gives links and headings, keyed by element.
+ * @param {object} inherited  - The colors the site gives text, links and headings, keyed by `text`
+ *                            and by element.
  * @return {object|null} The new `styles`, or null when nothing changes.
  */
 function nextStyles( record, before, background, inherited ) {
@@ -182,29 +192,6 @@ export function textFor( inherited, background ) {
 }
 
 /**
- * The text color to store for a background.
- *
- * {@link textFor} is the renderer's rule, where keeping a color means falling back to the site's
- * own. The editor has no such fallback: its baseline is the color the renderer already adjusted
- * for the background that was *saved*, so a keep has to be written out or that stale color stays
- * on screen until the next save.
- *
- * @param {*} inherited  - The text color the site supplies.
- * @param {*} background - The background.
- * @return {string|null} The color to store, or null to leave whatever is there.
- */
-function textToStore( inherited, background ) {
-	const readable = textFor( inherited, background );
-
-	if ( null !== readable ) {
-		return readable;
-	}
-
-	// A keep has something to write only when the site supplies a color that can be judged.
-	return null === contrastRatio( inherited, background ) ? null : inherited;
-}
-
-/**
  * The design's `styles` with the text color the new background calls for.
  *
  * A text color the creator chose survives a background change; one this derived for the previous
@@ -220,11 +207,11 @@ function withDerivedTextColor( record, before, background, inherited ) {
 	const text = record.styles?.color?.text;
 	const hasText = undefined !== text && null !== text;
 
-	if ( hasText && ! isSameColor( text, textToStore( inherited, before ) ) ) {
+	if ( hasText && ! isSameColor( text, colorToStore( textFor, inherited, before ) ) ) {
 		return null;
 	}
 
-	const derived = textToStore( inherited, background );
+	const derived = colorToStore( textFor, inherited, background );
 
 	if ( null === derived ) {
 		// Nothing to derive from, so a text color that only existed for the old background goes too.

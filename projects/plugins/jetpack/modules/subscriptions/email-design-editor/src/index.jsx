@@ -246,7 +246,7 @@ export function buildPreloadMap( bundle, templateId ) {
 }
 
 /**
- * The colors the site gives links and headings, before WordPress.com made any of them readable.
+ * The colors the site gives text, links and headings, before WordPress.com made any readable.
  *
  * A bundle from before WordPress.com reported these omits the key, and the watcher then leaves
  * links and headings to WordPress.com — which is what every blog saw before.

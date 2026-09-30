@@ -102,6 +102,30 @@ export function readableOn( color, background ) {
 }
 
 /**
+ * The color to store for a background, given the renderer's rule for it.
+ *
+ * The renderer keeps a color by writing nothing, because its fallback is the site's own. The
+ * editor's fallback is not: its baseline is the color the renderer already adjusted for the
+ * background that was *saved*, so a keep has to be written out or that stale color stays on screen
+ * until the next save.
+ *
+ * @param {Function} rule       - The renderer's rule, answering null for a color it keeps.
+ * @param {*}        color      - The color the site supplies.
+ * @param {*}        background - The background it sits on.
+ * @return {string|null} The color to store, or null to leave whatever is there.
+ */
+export function colorToStore( rule, color, background ) {
+	const readable = rule( color, background );
+
+	if ( null !== readable ) {
+		return readable;
+	}
+
+	// A keep has something to write only when the site supplies a color that can be judged.
+	return null === contrastRatio( color, background ) ? null : color;
+}
+
+/**
  * Whether two colors are the same color, however each is written.
  *
  * @param {*} first  - A color.
