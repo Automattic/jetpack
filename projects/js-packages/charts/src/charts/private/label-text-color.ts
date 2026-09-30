@@ -7,8 +7,11 @@ import { isValidHexColor, normalizeColorToHex, relativeLuminance } from '../../u
 /** Which color a label drawn on a fill paints with: one of the two catalog roles, or the black/white floor. */
 export type LabelTextColor = 'label' | 'label-inverse' | 'black' | 'white';
 
-/** A label role as the chart's own element resolves it: an opaque hex, `'see-through'`, or `null` when unreadable. */
-type ResolvedRole = string | 'see-through' | null;
+/** A label role as the chart's own element resolves it. `unreadable` keeps the raw value, which CSS may still paint. */
+export type ResolvedRole =
+	| { kind: 'opaque'; hex: string }
+	| { kind: 'see-through' }
+	| { kind: 'unreadable'; raw: string | null };
 
 export interface LabelRoles {
 	label: ResolvedRole;
@@ -20,16 +23,29 @@ const resolveRole = (
 	resolve: ( value: string ) => string | null
 ): ResolvedRole => {
 	const raw = resolve( pointer );
+	// d3 reads no CSS Color 4 syntax (`rgb(0 0 0)`, `oklch()`), though the browser paints it.
 	const parsed = raw ? d3Color( raw ) : null;
 	if ( ! parsed ) {
-		return null;
+		return { kind: 'unreadable', raw };
 	}
 	// Hex drops alpha, so a see-through role would otherwise win the comparison and paint nothing.
 	if ( parsed.opacity < 1 ) {
-		return 'see-through';
+		return { kind: 'see-through' };
 	}
 	const hex = normalizeColorToHex( pointer, null, resolve );
-	return isValidHexColor( hex ) ? hex.toLowerCase() : null;
+	return isValidHexColor( hex )
+		? { kind: 'opaque', hex: hex.toLowerCase() }
+		: { kind: 'unreadable', raw };
+};
+
+const sameRole = ( first: ResolvedRole, second: ResolvedRole ): boolean => {
+	if ( first.kind === 'opaque' && second.kind === 'opaque' ) {
+		return first.hex === second.hex;
+	}
+	if ( first.kind === 'unreadable' && second.kind === 'unreadable' ) {
+		return first.raw === second.raw;
+	}
+	return first.kind === second.kind;
 };
 
 /**
@@ -54,8 +70,14 @@ export const sameLabelRoles = ( first: LabelRoles | null, second: LabelRoles | n
 	first === second ||
 	( !! first &&
 		!! second &&
-		first.label === second.label &&
-		first.labelInverse === second.labelInverse );
+		sameRole( first.label, second.label ) &&
+		sameRole( first.labelInverse, second.labelInverse ) );
+
+// On any opaque fill one of these reaches at least 4.58:1.
+const blackOrWhite = ( fillLuminance: number ): LabelTextColor =>
+	luminanceContrastRatio( fillLuminance, 0 ) > luminanceContrastRatio( fillLuminance, 1 )
+		? 'black'
+		: 'white';
 
 /**
  * Picks the label color for text drawn on a fill: the role that contrasts more, or black/white when neither reaches AA.
@@ -72,38 +94,32 @@ export const pickLabelTextColorForLuminance = (
 	roles: LabelRoles | null,
 	defaultRole: 'label' | 'label-inverse'
 ): LabelTextColor => {
-	if ( ! roles || ! Number.isFinite( fillLuminance ) ) {
+	if ( ! roles || sameRole( roles.label, roles.labelInverse ) ) {
 		return defaultRole;
 	}
 
 	const { label, labelInverse } = roles;
-	if ( label === null || labelInverse === null ) {
-		return defaultRole;
+	if ( label.kind === 'see-through' ) {
+		return 'label-inverse';
 	}
-	if ( label === 'see-through' || labelInverse === 'see-through' ) {
-		// Only the other role can be seen; with both see-through there is nothing to choose.
-		if ( label === labelInverse ) {
-			return defaultRole;
-		}
-		return label === 'see-through' ? 'label-inverse' : 'label';
+	if ( labelInverse.kind === 'see-through' ) {
+		return 'label';
 	}
-	if ( label === labelInverse ) {
-		return defaultRole;
+	// A role JS cannot read cannot be measured, so only the floor is known to pass.
+	if ( label.kind === 'unreadable' || labelInverse.kind === 'unreadable' ) {
+		return blackOrWhite( fillLuminance );
 	}
 
-	const labelContrast = luminanceContrastRatio( fillLuminance, relativeLuminance( label ) );
+	const labelContrast = luminanceContrastRatio( fillLuminance, relativeLuminance( label.hex ) );
 	const inverseContrast = luminanceContrastRatio(
 		fillLuminance,
-		relativeLuminance( labelInverse )
+		relativeLuminance( labelInverse.hex )
 	);
 	if ( Math.max( labelContrast, inverseContrast ) >= MIN_LABEL_CONTRAST ) {
 		return labelContrast > inverseContrast ? 'label' : 'label-inverse';
 	}
 
-	// On any opaque fill one of these reaches at least 4.58:1.
-	return luminanceContrastRatio( fillLuminance, 0 ) > luminanceContrastRatio( fillLuminance, 1 )
-		? 'black'
-		: 'white';
+	return blackOrWhite( fillLuminance );
 };
 
 /**

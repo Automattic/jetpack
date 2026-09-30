@@ -9,9 +9,12 @@ import {
 	pickLabelTextColorForLuminance,
 	resolveLabelRoles,
 } from '../label-text-color';
-import type { LabelRoles, LabelTextColor } from '../label-text-color';
+import type { LabelRoles, LabelTextColor, ResolvedRole } from '../label-text-color';
 
-const DEFAULT_ROLES: LabelRoles = { label: '#1e1e1e', labelInverse: '#f0f0f0' };
+const opaque = ( hex: string ): ResolvedRole => ( { kind: 'opaque', hex } );
+const SEE_THROUGH: ResolvedRole = { kind: 'see-through' };
+
+const DEFAULT_ROLES: LabelRoles = { label: opaque( '#1e1e1e' ), labelInverse: opaque( '#f0f0f0' ) };
 
 const paintedLuminance = ( choice: LabelTextColor, roles: LabelRoles ): number => {
 	if ( choice === 'black' ) {
@@ -20,7 +23,11 @@ const paintedLuminance = ( choice: LabelTextColor, roles: LabelRoles ): number =
 	if ( choice === 'white' ) {
 		return 1;
 	}
-	return relativeLuminance( ( choice === 'label' ? roles.label : roles.labelInverse ) as string );
+	const role = choice === 'label' ? roles.label : roles.labelInverse;
+	if ( role.kind !== 'opaque' ) {
+		throw new Error( `Expected an opaque ${ choice } role` );
+	}
+	return relativeLuminance( role.hex );
 };
 
 describe( 'resolveLabelRoles', () => {
@@ -31,21 +38,21 @@ describe( 'resolveLabelRoles', () => {
 
 	it( 'resolves opaque roles to lowercase hex', () => {
 		expect( resolveLabelRoles( resolverFor( '#1E1E1E', 'rgb(240, 240, 240)' ) ) ).toEqual( {
-			label: '#1e1e1e',
-			labelInverse: '#f0f0f0',
+			label: opaque( '#1e1e1e' ),
+			labelInverse: opaque( '#f0f0f0' ),
 		} );
 	} );
 
 	it( 'marks a role with alpha as see-through', () => {
-		expect( resolveLabelRoles( resolverFor( 'rgba(0, 0, 0, 0.5)', '#f0f0f0' ) ).label ).toBe(
-			'see-through'
+		expect( resolveLabelRoles( resolverFor( 'rgba(0, 0, 0, 0.5)', '#f0f0f0' ) ).label ).toEqual(
+			SEE_THROUGH
 		);
 	} );
 
-	it( 'returns null for a role it cannot read', () => {
-		expect( resolveLabelRoles( resolverFor( null, 'rgb(0 0 0 / 50%)' ) ) ).toEqual( {
-			label: null,
-			labelInverse: null,
+	it( 'keeps the raw value of a role it cannot read', () => {
+		expect( resolveLabelRoles( resolverFor( null, 'oklch(98% 0 0)' ) ) ).toEqual( {
+			label: { kind: 'unreadable', raw: null },
+			labelInverse: { kind: 'unreadable', raw: 'oklch(98% 0 0)' },
 		} );
 	} );
 } );
@@ -56,15 +63,19 @@ describe( 'pickLabelTextColorForLuminance', () => {
 		expect( pickLabelTextColorForLuminance( 0.2, null, 'label-inverse' ) ).toBe( 'label-inverse' );
 	} );
 
-	it( 'keeps the default role when either role is unreadable', () => {
-		expect(
-			pickLabelTextColorForLuminance( 0.2, { label: null, labelInverse: '#f0f0f0' }, 'label' )
-		).toBe( 'label' );
+	it( 'falls back to black or white when a role cannot be read', () => {
+		const unreadableInverse: LabelRoles = {
+			label: opaque( '#1e1e1e' ),
+			labelInverse: { kind: 'unreadable', raw: 'rgb(255 255 255)' },
+		};
+
+		expect( pickLabelTextColorForLuminance( 0.13, unreadableInverse, 'label' ) ).toBe( 'white' );
+		expect( pickLabelTextColorForLuminance( 0.9, unreadableInverse, 'label' ) ).toBe( 'black' );
 	} );
 
 	it( 'uses the only visible role when the other is see-through', () => {
-		const clearLabel: LabelRoles = { label: 'see-through', labelInverse: '#f0f0f0' };
-		const clearInverse: LabelRoles = { label: '#1e1e1e', labelInverse: 'see-through' };
+		const clearLabel: LabelRoles = { label: SEE_THROUGH, labelInverse: opaque( '#f0f0f0' ) };
+		const clearInverse: LabelRoles = { label: opaque( '#1e1e1e' ), labelInverse: SEE_THROUGH };
 
 		expect( pickLabelTextColorForLuminance( 0.9, clearLabel, 'label' ) ).toBe( 'label-inverse' );
 		expect( pickLabelTextColorForLuminance( 0.01, clearInverse, 'label-inverse' ) ).toBe( 'label' );
@@ -82,8 +93,11 @@ describe( 'pickLabelTextColorForLuminance', () => {
 		expect( pickLabelTextColorForLuminance( 0.16, DEFAULT_ROLES, 'label' ) ).toBe( 'white' );
 	} );
 
-	it( 'never falls back when both roles are the same color', () => {
-		const pinned: LabelRoles = { label: '#767676', labelInverse: '#767676' };
+	it.each( [
+		[ 'readable', opaque( '#767676' ) ],
+		[ 'unreadable', { kind: 'unreadable', raw: 'oklch(55% 0 0)' } as ResolvedRole ],
+	] )( 'never falls back when both roles are the same %s color', ( _name, role ) => {
+		const pinned: LabelRoles = { label: role, labelInverse: { ...role } };
 
 		expect( pickLabelTextColorForLuminance( 0.2, pinned, 'label' ) ).toBe( 'label' );
 		expect( pickLabelTextColorForLuminance( 0.2, pinned, 'label-inverse' ) ).toBe(

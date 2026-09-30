@@ -519,6 +519,33 @@ describe( 'HeatmapChart value text contrast', () => {
 		expect( screen.getByText( '85' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 	} );
 
+	test( 'reads the label roles once data arrives after an empty first render', () => {
+		const { rerender } = render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ [] } primaryColor="#3858e9" />
+			</GlobalChartsProvider>
+		);
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ scale } primaryColor="#3858e9" />
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
+	test( 'falls back to black or white when a label role uses syntax it cannot read', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.modern-heatmap { --a8c-charts-color-label-inverse: rgb(255 255 255); }';
+		document.head.appendChild( injectedStyle );
+
+		renderScale( 'modern-heatmap' );
+
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--white' );
+	} );
+
 	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
 		injectedStyle = document.createElement( 'style' );
 		injectedStyle.textContent =
