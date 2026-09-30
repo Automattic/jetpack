@@ -234,15 +234,35 @@ test( 'shows one calculating status instead of the score sections before scores 
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 } );
 
-test( 'keeps loaded scores visible while they refresh', () => {
-	render(
-		<ScoreCards
-			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
-			isLoading
-		/>
+test( 'keeps the live region mounted before adding the calculating message', () => {
+	const scores = { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false };
+	const { rerender } = render( <ScoreCards scores={ scores } /> );
+	const status = screen.getByRole( 'status' );
+	expect( status ).toBeEmptyDOMElement();
+	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
+	expect( screen.getByRole( 'status' ) ).toBe( status );
+	expect( status ).toHaveTextContent( 'Calculating…' );
+	rerender( <ScoreCards scores={ scores } /> );
+	expect( screen.getByRole( 'status' ) ).toBe( status );
+	expect( status ).toBeEmptyDOMElement();
+} );
+
+test( 'overlays calculating while retaining hidden scores and restores the row on completion', () => {
+	const scores = { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false };
+	const { rerender } = render( <ScoreCards scores={ scores } /> );
+	const desktop = screen.getByRole( 'progressbar', { name: 'Desktop' } );
+	rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+	expect( desktop ).toBeInTheDocument();
+	// eslint-disable-next-line testing-library/no-node-access -- Styles are verified in the browser.
+	expect( desktop.closest( '.jetpack-boost-overview__score-row' ) ).toHaveClass(
+		'jetpack-boost-overview__score-row--hidden'
 	);
-	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( 80 );
+	rerender( <ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } /> );
+	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toBe( desktop );
+	expect( desktop ).toBeVisible();
+	expect( desktop ).toHaveValue( 90 );
+	expect( screen.getByRole( 'status' ) ).toBeEmptyDOMElement();
 } );
 
 test( 'shows a failure without scores inside the card and retries from it', () => {
@@ -280,3 +300,65 @@ test( 'shows a failed refresh inside the card above the retained scores', () => 
 	expect( within( desktop ).getByRole( 'progressbar' ) ).toHaveValue( 80 );
 	expect( notice.compareDocumentPosition( desktop ) ).toBe( Node.DOCUMENT_POSITION_FOLLOWING );
 } );
+
+test( 'retains scores with a busy state during a cached read', () => {
+	render(
+		<ScoreCards
+			scores={ { current: { desktop: 80, mobile: 60 }, noBoost: null, isStale: false } }
+			isLoading
+		/>
+	);
+	const desktop = screen.getByRole( 'progressbar', { name: 'Desktop' } );
+	expect( desktop ).toHaveValue( 80 );
+	// eslint-disable-next-line testing-library/no-node-access -- Assert the rendered busy ancestor of the score.
+	expect( desktop.closest( '[aria-busy]' ) ).toHaveAttribute( 'aria-busy', 'true' );
+	expect( screen.queryByText( 'Calculating…' ) ).not.toBeInTheDocument();
+} );
+
+test.each< [ string, number, boolean ] >( [
+	[ 'How the overall grade is calculated', 0, true ],
+	[ 'About points', 0, true ],
+	[ 'About points', 1, true ],
+	[ 'Try again', 0, true ],
+	[ 'Try again', 0, false ],
+] )( 'preserves focus when a run hides %s', ( name, index, hasScores ) => {
+	const props = {
+		scores: {
+			current: { desktop: 80, mobile: 60 },
+			noBoost: { desktop: 70, mobile: 50 },
+			isStale: false,
+		},
+		error: new Error( 'Refresh failed' ),
+		hasScores,
+	};
+	const { rerender } = render( <ScoreCards { ...props } /> );
+	screen.getAllByRole( 'button', { name } )[ index ].focus();
+	rerender( <ScoreCards { ...props } error={ undefined } isLoading isRunning /> );
+	expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
+} );
+
+test.each( [ 'How the overall grade is calculated', 'About points' ] )(
+	'hides an open %s popover when a real run starts',
+	async name => {
+		const scores = {
+			current: { desktop: 80, mobile: 60 },
+			noBoost: { desktop: 70, mobile: 50 },
+			isStale: false,
+		};
+		const { rerender } = render( <ScoreCards scores={ scores } /> );
+		const trigger = screen.getAllByRole( 'button', { name } )[ 0 ];
+		trigger.focus();
+		fireEvent.click( trigger );
+		await expect( screen.findByRole( 'dialog' ) ).resolves.toBeVisible();
+		rerender( <ScoreCards scores={ scores } isLoading isRunning /> );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus()
+		);
+		rerender( <ScoreCards scores={ scores } /> );
+		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
+		fireEvent.click( screen.getAllByRole( 'button', { name } )[ 0 ] );
+		await expect( screen.findByRole( 'dialog' ) ).resolves.toBeVisible();
+	}
+);

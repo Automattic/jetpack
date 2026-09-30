@@ -20,6 +20,7 @@ type Props = {
 	score?: number;
 	tier?: ScoreTier;
 	noBoost?: number | null;
+	closePopover?: boolean;
 };
 
 /**
@@ -50,6 +51,7 @@ export default function ScoreCard( {
 	score,
 	tier = score === undefined ? undefined : getScoreTier( score ),
 	noBoost,
+	closePopover = false,
 }: Props ) {
 	const headingId = useId();
 	const [ infoTrigger, setInfoTrigger ] = useState< HTMLButtonElement | null >( null );
@@ -89,7 +91,7 @@ export default function ScoreCard( {
 							gap="sm"
 							className="jetpack-boost-overview__delta"
 						>
-							<Popover.Root>
+							<Popover.Root key={ closePopover ? 'running' : 'loaded' }>
 								<Popover.Trigger
 									openOnHover
 									delay={ 200 }
