@@ -44,15 +44,16 @@ const { watchDerivedTextColor } = require( '../src/derived-text-color' );
 /**
  * Start a watcher, let it see the record as it stands, then hand back a way to change it.
  *
- * @param {object} initial - The design record the screen opens on.
+ * @param {object} initial   - The design record the screen opens on.
+ * @param {object} inherited - The colors the site gives links and headings.
  * @return {Function} Replaces the record and runs the watcher, as a creator's pick would.
  */
-function watching( initial ) {
+function watching( initial, inherited = {} ) {
 	mockRecord = initial;
 	mockHasEdits = false;
 	mockTheme = undefined;
 
-	watchDerivedTextColor( ID );
+	watchDerivedTextColor( ID, inherited );
 	mockListener();
 
 	return next => {
@@ -286,6 +287,36 @@ describe( 'watchDerivedTextColor', () => {
 		mockListener();
 
 		expect( mockEditEntityRecord ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'derives the inherited link and heading colors alongside the text', () => {
+		const pick = watching( { styles: {} }, { link: '#0073aa', heading: '#333333' } );
+
+		pick( { styles: { color: { background: '#000000' } } } );
+
+		expect( written() ).toEqual( {
+			color: { background: '#000000', text: BLACK_TEXT },
+			elements: {
+				link: { color: { text: '#007cb8' } },
+				heading: { color: { text: '#757575' } },
+			},
+		} );
+	} );
+
+	it( 'writes the elements in one edit with the text color', () => {
+		const pick = watching( { styles: {} }, { link: '#0073aa' } );
+
+		pick( { styles: { color: { background: '#000000' } } } );
+
+		expect( mockEditEntityRecord ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'derives nothing for elements when the bundle reported no inherited colors', () => {
+		const pick = watching( { styles: {} } );
+
+		pick( { styles: { color: { background: '#000000' } } } );
+
+		expect( written().elements ).toBeUndefined();
 	} );
 
 	it( 'does nothing without a global-styles id', () => {

@@ -25,6 +25,9 @@ const DARK_LIGHTNESS = 15;
 // Lightness a derived light text color starts from, on HSL's 0-100 scale.
 const LIGHT_LIGHTNESS = 95;
 
+// Saturation below which a color reads as gray rather than as a hue, on HSL's 0-1 scale.
+const NEUTRAL_SATURATION = 0.1;
+
 const HEX = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/;
 const FUNCTIONAL = /^(rgb|hsl)a?\(\s*([^()]*?)\s*\)$/;
 const NUMBER = /^(\d+(?:\.\d+)?|\.\d+)(%?)$/;
@@ -49,15 +52,112 @@ export function deriveTextColor( background ) {
 	}
 
 	const backgroundLuminance = relativeLuminance( rgb );
-	const dark = ratio( 0, backgroundLuminance ) >= ratio( 1, backgroundLuminance );
+	const dark = darkTextOn( backgroundLuminance );
 	const [ hue, saturation ] = rgbToHsl( rgb );
+
+	return search(
+		hue,
+		saturation,
+		dark ? DARK_LIGHTNESS : LIGHT_LIGHTNESS,
+		dark,
+		backgroundLuminance
+	);
+}
+
+/**
+ * Make a color readable on a background, keeping its own hue and saturation.
+ *
+ * For a color that should stay recognizable — a site's link color, say — where `deriveTextColor`
+ * would replace it with a tint of the background. Lightness moves from the color's own toward the
+ * side that derivation would choose, so the change is the smallest that passes. A color that
+ * already passes comes back unchanged.
+ *
+ * @param {*} color      - The color.
+ * @param {*} background - The background it sits on.
+ * @return {string|null} Lowercase `#rrggbb`, or null when either color cannot be parsed.
+ */
+export function readableOn( color, background ) {
+	const rgb = parseColor( color );
+	const backgroundRgb = parseColor( background );
+
+	if ( null === rgb || null === backgroundRgb ) {
+		return null;
+	}
+
+	const backgroundLuminance = relativeLuminance( backgroundRgb );
+
+	if ( ratio( relativeLuminance( rgb ), backgroundLuminance ) >= MINIMUM_CONTRAST ) {
+		return toHex( rgb );
+	}
+
+	const [ hue, saturation, lightness ] = rgbToHsl( rgb );
+
+	return search(
+		hue,
+		saturation,
+		Math.round( lightness * 100 ),
+		darkTextOn( backgroundLuminance ),
+		backgroundLuminance
+	);
+}
+
+/**
+ * Whether two colors are the same color, however each is written.
+ *
+ * @param {*} first  - A color.
+ * @param {*} second - A color.
+ * @return {boolean} True when both parse to the same channels.
+ */
+export function isSameColor( first, second ) {
+	const firstRgb = parseColor( first );
+	const secondRgb = parseColor( second );
+
+	if ( null === firstRgb || null === secondRgb ) {
+		return false;
+	}
+
+	return firstRgb.every( ( channel, at ) => channel === secondRgb[ at ] );
+}
+
+/**
+ * Whether a color has too little saturation to read as a hue of its own.
+ *
+ * @param {*} color - The color.
+ * @return {boolean|null} Null when the color cannot be parsed.
+ */
+export function isNeutral( color ) {
+	const rgb = parseColor( color );
+
+	return null === rgb ? null : rgbToHsl( rgb )[ 1 ] < NEUTRAL_SATURATION;
+}
+
+/**
+ * Whether dark text reads better than light text on a background.
+ *
+ * @param {number} backgroundLuminance - The background's relative luminance.
+ * @return {boolean} True when dark text contrasts more.
+ */
+function darkTextOn( backgroundLuminance ) {
+	return ratio( 0, backgroundLuminance ) >= ratio( 1, backgroundLuminance );
+}
+
+/**
+ * Step lightness from `start` toward black or white until the color passes the minimum.
+ *
+ * Black or white on the chosen side is always at least 4.58:1 (the square root of 21), so the
+ * search ends.
+ *
+ * @param {number}  hue                 - Hue in degrees.
+ * @param {number}  saturation          - Saturation, 0-1.
+ * @param {number}  start               - Lightness to start from, 0-100.
+ * @param {boolean} dark                - Whether to step toward black rather than white.
+ * @param {number}  backgroundLuminance - The background's relative luminance.
+ * @return {string} Lowercase `#rrggbb`.
+ */
+function search( hue, saturation, start, dark, backgroundLuminance ) {
 	const step = dark ? -1 : 1;
 
-	for (
-		let lightness = dark ? DARK_LIGHTNESS : LIGHT_LIGHTNESS;
-		lightness >= 0 && lightness <= 100;
-		lightness += step
-	) {
+	for ( let lightness = start; lightness >= 0 && lightness <= 100; lightness += step ) {
 		const candidate = hslToRgb( hue, saturation, lightness / 100 );
 
 		if ( ratio( relativeLuminance( candidate ), backgroundLuminance ) >= MINIMUM_CONTRAST ) {
@@ -251,24 +351,22 @@ function ratio( first, second ) {
 }
 
 /**
- * Convert sRGB to hue (0-360) and saturation (0-1).
- *
- * Lightness is not returned because derivation sets its own.
+ * Convert sRGB to hue (0-360), saturation (0-1) and lightness (0-1).
  *
  * @param {number[]} rgb - `[ r, g, b ]`, each 0-255.
- * @return {number[]} `[ hue, saturation ]`.
+ * @return {number[]} `[ hue, saturation, lightness ]`.
  */
 function rgbToHsl( rgb ) {
 	const [ red, green, blue ] = rgb.map( channel => channel / 255 );
 	const max = Math.max( red, green, blue );
 	const min = Math.min( red, green, blue );
 	const delta = max - min;
+	const lightness = ( max + min ) / 2;
 
 	if ( 0 === delta ) {
-		return [ 0, 0 ];
+		return [ 0, 0, lightness ];
 	}
 
-	const lightness = ( max + min ) / 2;
 	const saturation = delta / ( 1 - Math.abs( 2 * lightness - 1 ) );
 	let hue;
 
@@ -280,7 +378,7 @@ function rgbToHsl( rgb ) {
 		hue = 60 * ( ( red - green ) / delta + 4 );
 	}
 
-	return [ hue, Math.min( 1, saturation ) ];
+	return [ hue, Math.min( 1, saturation ), lightness ];
 }
 
 /**

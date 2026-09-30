@@ -1,4 +1,12 @@
-import { contrastRatio, deriveTextColor, parseColor, MINIMUM_CONTRAST } from '../src/text-color';
+import {
+	contrastRatio,
+	deriveTextColor,
+	isNeutral,
+	parseColor,
+	readableOn,
+	MINIMUM_CONTRAST,
+} from '../src/text-color';
+import readableFixture from './data/readable-on.json';
 import fixture from './data/text-color-derivation.json';
 
 describe( 'contrastRatio', () => {
@@ -127,5 +135,71 @@ describe( 'deriveTextColor', () => {
 			expect( red ).toBe( green );
 			expect( green ).toBe( blue );
 		}
+	} );
+} );
+
+describe( 'readableOn', () => {
+	it( 'matches every pair shared with the WordPress.com renderer', () => {
+		expect( readableFixture.minimumContrast ).toBe( MINIMUM_CONTRAST );
+		expect( readableFixture.cases.length ).toBeGreaterThan( 0 );
+
+		expect(
+			readableFixture.cases.map( ( { color, background } ) => readableOn( color, background ) )
+		).toEqual( readableFixture.cases.map( ( { readable } ) => readable ) );
+	} );
+
+	it( 'keeps the hue it was given', () => {
+		const [ red, green, blue ] = parseColor( readableOn( '#0073aa', '#1e1e1e' ) );
+
+		expect( blue ).toBeGreaterThan( green );
+		expect( green ).toBeGreaterThan( red );
+	} );
+
+	// What separates it from deriveTextColor, which replaces a color outright.
+	it( 'leaves a color that already passes exactly as it was', () => {
+		expect( readableOn( '#0073aa', '#ffffff' ) ).toBe( '#0073aa' );
+		expect( readableOn( 'rgb(0 115 170)', '#ffffff' ) ).toBe( '#0073aa' );
+	} );
+
+	it( 'meets the minimum on every hue, saturation and lightness', () => {
+		const failures = [];
+
+		for ( const background of [ '#ffffff', '#1e1e1e', '#113af5', '#f59e0b' ] ) {
+			for ( let hue = 0; hue <= 330; hue += 30 ) {
+				for ( const saturation of [ 0, 50, 100 ] ) {
+					for ( let lightness = 0; lightness <= 100; lightness += 10 ) {
+						const color = `hsl(${ hue }, ${ saturation }%, ${ lightness }%)`;
+						const readable = readableOn( color, background );
+
+						if ( contrastRatio( readable, background ) < MINIMUM_CONTRAST ) {
+							failures.push( `${ readable } on ${ background }` );
+						}
+					}
+				}
+			}
+		}
+
+		expect( failures ).toEqual( [] );
+	} );
+
+	it( 'is null when either color cannot be read', () => {
+		expect( readableOn( 'var(--accent)', '#ffffff' ) ).toBeNull();
+		expect( readableOn( '#0073aa', 'rgba(0, 0, 0, 0.5)' ) ).toBeNull();
+	} );
+} );
+
+describe( 'isNeutral', () => {
+	it( 'matches the WordPress.com renderer on every shared color', () => {
+		expect( readableFixture.neutral.map( ( { color } ) => isNeutral( color ) ) ).toEqual(
+			readableFixture.neutral.map( ( { neutral } ) => neutral )
+		);
+
+		expect( readableFixture.cases.map( ( { readable } ) => isNeutral( readable ) ) ).toEqual(
+			readableFixture.cases.map( ( { neutral } ) => neutral )
+		);
+	} );
+
+	it( 'is null when the color cannot be read', () => {
+		expect( isNeutral( 'var(--accent)' ) ).toBeNull();
 	} );
 } );

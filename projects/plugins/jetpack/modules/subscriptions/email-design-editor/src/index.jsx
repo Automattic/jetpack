@@ -246,6 +246,21 @@ export function buildPreloadMap( bundle, templateId ) {
 }
 
 /**
+ * The colors the site gives links and headings, before WordPress.com made any of them readable.
+ *
+ * A bundle from before WordPress.com reported these omits the key, and the watcher then leaves
+ * links and headings to WordPress.com — which is what every blog saw before.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {object} The inherited colors, keyed by element.
+ */
+export function inheritedColors( bundle ) {
+	const colors = bundle?.inherited_colors;
+
+	return colors && 'object' === typeof colors ? colors : {};
+}
+
+/**
  * The id of the global-styles record the bundle points at, or null when it sent no usable one.
  *
  * Validated because it is interpolated into the preload's path keys, which are
@@ -1117,7 +1132,10 @@ export async function mountEmailDesignEditor() {
 		// error screen.
 		if ( canEditDesign( bundle ) ) {
 			stopWatchingSidebar = openStylesSidebarOnLoad();
-			stopDerivingTextColor = watchDerivedTextColor( config.globalStylesPostId );
+			stopDerivingTextColor = watchDerivedTextColor(
+				config.globalStylesPostId,
+				inheritedColors( bundle )
+			);
 		}
 
 		root.render(

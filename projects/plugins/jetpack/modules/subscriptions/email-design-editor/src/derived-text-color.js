@@ -2,15 +2,17 @@
  * Keep the email's text color readable on the background the creator picked.
  *
  * Core's color panel offers no hook for a background change, so this watches the design record the
- * panel writes — `root`/`globalStyles` in core-data — and derives `styles.color.text` from
- * `styles.color.background` there. Writing it into the record rather than at render is what puts a
- * real value in the Text control, so the creator can see it and override it. See NL-959.
+ * panel writes — `root`/`globalStyles` in core-data — and derives the text color, and the
+ * inherited link and heading colors, from `styles.color.background` there. Writing them into the
+ * record rather than at render is what puts real values in the Styles controls, so the creator
+ * can see them and override them. See NL-959.
  */
 
 import { storeName as EMAIL_EDITOR_STORE } from '@woocommerce/email-editor';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select, subscribe } from '@wordpress/data';
-import { deriveTextColor, parseColor } from './text-color';
+import { nextElements } from './readable-elements';
+import { deriveTextColor, isSameColor } from './text-color';
 
 // What the editor stores for a palette pick, in both the shorthand the package rewrites values to
 // and the CSS custom property it rewrites them from.
@@ -23,10 +25,11 @@ const PALETTE_ORIGINS = [ 'default', 'theme', 'custom' ];
 /**
  * Derive the text color whenever the creator changes the background.
  *
- * @param {number|null} id - The global-styles id the bundle named.
+ * @param {number|null} id        - The global-styles id the bundle named.
+ * @param {object}      inherited - The colors the site gives links and headings, keyed by element.
  * @return {Function} Stops watching, for a caller that unmounts the editor.
  */
-export function watchDerivedTextColor( id ) {
+export function watchDerivedTextColor( id, inherited = {} ) {
 	if ( ! id ) {
 		return () => {};
 	}
@@ -68,7 +71,7 @@ export function watchDerivedTextColor( id ) {
 			return;
 		}
 
-		const styles = nextStyles( record, before, background );
+		const styles = nextStyles( record, before, background, inherited );
 
 		if ( ! styles ) {
 			return;
@@ -87,6 +90,35 @@ export function watchDerivedTextColor( id ) {
 }
 
 /**
+ * The design's `styles` with everything the new background calls for.
+ *
+ * @param {object} record     - The edited design record.
+ * @param {*}      before     - The background before the change.
+ * @param {*}      background - The background after it.
+ * @param {object} inherited  - The colors the site gives links and headings, keyed by element.
+ * @return {object|null} The new `styles`, or null when nothing changes.
+ */
+function nextStyles( record, before, background, inherited ) {
+	const withText = nextTextColor( record, before, background );
+	const styles = withText ?? record.styles ?? {};
+	const elements = nextElements( styles, before, background, inherited );
+
+	if ( null === elements ) {
+		return withText;
+	}
+
+	const next = { ...styles };
+
+	if ( 0 === Object.keys( elements ).length ) {
+		delete next.elements;
+	} else {
+		next.elements = elements;
+	}
+
+	return next;
+}
+
+/**
  * The design's `styles` with the text color the new background calls for.
  *
  * A text color the creator chose survives a background change; one this derived for the previous
@@ -97,7 +129,7 @@ export function watchDerivedTextColor( id ) {
  * @param {*}      background - The background after it.
  * @return {object|null} The new `styles`, or null when the text color should be left alone.
  */
-function nextStyles( record, before, background ) {
+function nextTextColor( record, before, background ) {
 	const text = record.styles?.color?.text;
 	const hasText = undefined !== text && null !== text;
 
@@ -141,24 +173,6 @@ function withoutTextColor( styles ) {
 	}
 
 	return next;
-}
-
-/**
- * Whether two colors are the same color, however each is written.
- *
- * @param {*} first  - A color.
- * @param {*} second - A color.
- * @return {boolean} True when both parse to the same channels.
- */
-function isSameColor( first, second ) {
-	const firstRgb = parseColor( first );
-	const secondRgb = parseColor( second );
-
-	if ( null === firstRgb || null === secondRgb ) {
-		return false;
-	}
-
-	return firstRgb.every( ( channel, at ) => channel === secondRgb[ at ] );
 }
 
 /**
