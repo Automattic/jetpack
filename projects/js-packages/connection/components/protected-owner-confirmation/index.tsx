@@ -1,8 +1,8 @@
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { Button, Modal, Notice } from '@wordpress/components';
 import { useCallback, useEffect, useState } from 'react';
-import { getProtectedOwnerConfirmationCopy } from './copy';
-import type { ProtectedOwnerConfirmError, ProtectedOwnerConfirmationProps } from './types';
+import { getProtectedOwnerConfirmationCopy } from './copy.ts';
+import type { ProtectedOwnerConfirmError, ProtectedOwnerConfirmationProps } from './types.ts';
 import './style.scss';
 
 /** REST error code for a site a different WordPress.com account already protects. */

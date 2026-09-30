@@ -1,6 +1,6 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { __, sprintf } from '@wordpress/i18n';
-import type { ProtectedOwnerConfirmationCopy } from './types';
+import type { ProtectedOwnerConfirmationCopy } from './types.ts';
 
 /**
  * Wording for the protected-owner confirmation.
