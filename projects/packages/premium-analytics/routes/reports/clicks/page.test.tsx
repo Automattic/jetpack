@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { useClicksReportRecords } from './config';
 import ClicksReportPage from './page';
-import type { ClickRow } from './config';
+import type { ClickRow } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
@@ -29,6 +29,8 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	clicksCsvExporter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.clicksCsvExporter,
 	ReportCsvAction: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportEmptyState: () => <div data-testid="report-empty-state" />,

@@ -81,6 +81,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 
 	return {
 		MetricValue: () => null,
+		clicksCsvExporter: jest.requireActual(
+			'../../packages/widgets-toolkit/src/report-exports/clicks'
+		).clicksCsvExporter,
 		// The real status map, so the Earnings history case asserts the label a
 		// reader gets rather than one the mock was told to return.
 		getEarningsStatus: jest.requireActual(
@@ -161,7 +164,6 @@ jest.mock( './earnings/config', () => ( {
 } ) );
 
 jest.mock( './clicks/config', () => ( {
-	getClickCsvGroup: () => 'Social',
 	getClicksFields: () => [],
 	useClicksReportRecords: jest.fn(),
 } ) );
@@ -420,8 +422,8 @@ describe( 'report CSV exports', () => {
 			'clicks',
 			[
 				{ ...group, group: '' },
-				{ ...higherRow, group: 'Social' },
-				{ ...lowerRow, group: 'Social' },
+				{ ...higherRow, group: 'social' },
+				{ ...lowerRow, group: 'social' },
 			],
 			[ 'Social', '', 10 ]
 		);

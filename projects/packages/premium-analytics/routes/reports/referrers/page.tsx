@@ -13,6 +13,7 @@ import {
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
+	type ReferrerRecord,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -22,7 +23,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getReferrerFields, useReferrersReportRecords, type ReferrerRecord } from './config';
+import { getReferrerFields, useReferrersReportRecords } from './config';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;

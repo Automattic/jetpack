@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { useStatsTopAuthors, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	aggregateAuthorRows,
+	getAuthorsReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { aggregateAuthorRows } from './aggregate';
 
 /**
  * Fetch the same top-authors report used by Jetpack Stats and derive the
@@ -16,18 +16,9 @@ import { aggregateAuthorRows } from './aggregate';
  * @return The author table rows, comparison availability, and request state.
  */
 export function useAuthorsReportRecords( reportParams: ReportParams ) {
-	/*
-	 * Calypso's Jetpack Stats Authors report sends `max: 0` to
-	 * `stats/top-authors`. With no chart requiring daily buckets, let the shared
-	 * Stats query use its summarized range request. The hook's shared comparison
-	 * mapper aligns authors and posts across periods before the hierarchy is
-	 * flattened for the client-side table.
-	 */
+	// Calypso's Authors report sends max: 0; the shared mapper aligns authors and posts across periods.
 	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-		} ),
+		() => getAuthorsReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const authors = useStatsTopAuthors( recordsParams );

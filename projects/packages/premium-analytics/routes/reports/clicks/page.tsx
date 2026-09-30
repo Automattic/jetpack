@@ -11,7 +11,9 @@ import {
 	ReportPageShell,
 	ReportCsvAction,
 	useReportCsvExport,
+	clicksCsvExporter,
 	useReportRetry,
+	type ClickRow,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -22,7 +24,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getClickCsvGroup, getClicksFields, useClicksReportRecords, type ClickRow } from './config';
+import { getClicksFields, useClicksReportRecords } from './config';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -78,11 +80,7 @@ function ClicksReport(): JSX.Element {
 		[ records.hasComparison ]
 	);
 	const csvRows = useMemo< ClickCsvRow[] >(
-		() =>
-			records.rows.map( row => ( {
-				...row,
-				group: row.isGroup ? '' : getClickCsvGroup( row ),
-			} ) ),
+		() => clicksCsvExporter.toCsvRows( records.rows ),
 		[ records.rows ]
 	);
 	const csvColumns = useMemo< CsvColumn< ClickCsvRow >[] >(

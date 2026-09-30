@@ -8,7 +8,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { useReferrersReportRecords } from './config';
 import ReferrersReportPage from './page';
-import type { ReferrerRecord } from './config';
+import type { ReferrerRecord } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {

@@ -15,3 +15,12 @@ export {
 	type SearchTermRow,
 } from './search-terms';
 export { videosCsvExporter } from './videos';
+export {
+	aggregateAuthorRows,
+	authorsCsvExporter,
+	getAuthorName,
+	getAuthorsReportQueryParams,
+	type AuthorRow,
+} from './authors';
+export { aggregateClickRows, clicksCsvExporter, type ClickRow } from './clicks';
+export { flattenReferrerRows, referrersCsvExporter, type ReferrerRecord } from './referrers';

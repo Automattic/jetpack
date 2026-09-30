@@ -11,7 +11,9 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	useReportCsvExport,
+	getAuthorName,
 	useReportRetry,
+	type AuthorRow,
 	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
@@ -22,7 +24,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
+import { getAuthorsFields, useAuthorsReportRecords } from './config';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;

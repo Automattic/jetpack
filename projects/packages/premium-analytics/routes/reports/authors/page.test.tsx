@@ -10,13 +10,11 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { getAuthorName, useAuthorsReportRecords, type AuthorRow } from './config';
+import { useAuthorsReportRecords } from './config';
 import AuthorsReportPage from './page';
+import type { AuthorRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( './config', () => ( {
-	getAuthorName: jest.fn( ( name: string ) =>
-		name === 'Untracked Authors' ? 'Untracked authors' : name
-	),
 	getAuthorsFields: () => [],
 	useAuthorsReportRecords: jest.fn(),
 } ) );
@@ -54,7 +52,6 @@ const useRecordsMock = jest.mocked( useAuthorsReportRecords );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
-const getAuthorNameMock = jest.mocked( getAuthorName );
 
 /**
  * Build a records-hook return value for the page under test.
@@ -174,7 +171,6 @@ describe( 'AuthorsReportPage', () => {
 			[ 'Untracked authors', 12 ],
 			[ 'Untracked authors > Analytical Engine', 7 ],
 		] );
-		expect( getAuthorNameMock ).toHaveBeenCalledWith( 'Untracked Authors' );
 		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				rows,

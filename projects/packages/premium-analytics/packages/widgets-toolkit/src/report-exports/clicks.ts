@@ -3,15 +3,32 @@
  */
 import {
 	aggregateStatsDrilldownRows,
+	fetchStatsClicksRows,
 	type StatsClicksComparisonItem,
 	type StatsClicksItem,
 	type StatsDrilldownItemContext,
 	type StatsDrilldownSourceReport,
 } from '@jetpack-premium-analytics/data';
+import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { ClickRow } from './fields';
+import { getSummarizedReportQueryParams } from './query-params';
+import type { ReportCsvExporter } from './types';
+
+export type ClickRow = {
+	id: string;
+	/** The click-group parent row id; unset on group rows and single-URL groups. */
+	parentId?: string;
+	clickedUrl: string;
+	/** The external URL; group parent rows have none. */
+	href?: string;
+	/** Group parent rows keep the title-field styling; leaf rows opt out. */
+	isGroup?: boolean;
+	clicks: number;
+	/** Click count for the matching row in the comparison period. */
+	previousClicks?: number;
+};
 
 type ClickDrilldownMetadata = {
 	href?: string;
@@ -167,3 +184,45 @@ export function aggregateClickRows( report?: StatsDrilldownSourceReport< ClickIt
 		...( row.previousClicks !== undefined ? { previousClicks: row.previousClicks } : {} ),
 	} ) );
 }
+
+/**
+ * Recover the source group encoded in a click row.
+ *
+ * Nested leaf rows expose the group directly as their parent id. A group with
+ * only one URL stays flat, so its id retains the original `group|url` key.
+ *
+ * @param row - The click row to export.
+ * @return The source click group.
+ */
+export function getClickCsvGroup( row: ClickRow ): string {
+	if ( row.parentId ) {
+		return row.parentId;
+	}
+
+	const urlSuffix = row.href ? `|${ row.href }` : '';
+	return urlSuffix && row.id.endsWith( urlSuffix ) ? row.id.slice( 0, -urlSuffix.length ) : '';
+}
+
+type ClickCsvRow = ClickRow & { group: string };
+
+// Rows stay in hierarchy order: a global sort would split groups from their URLs.
+export const clicksCsvExporter: ReportCsvExporter< ClickRow, ClickCsvRow > = {
+	filenamePrefix: 'clicks',
+	hasDateRange: true,
+	fetchItems: async reportParams =>
+		aggregateClickRows( {
+			data: [
+				{ items: await fetchStatsClicksRows( getSummarizedReportQueryParams( reportParams ) ) },
+			],
+		} ),
+	toCsvRows: items =>
+		items.map( row => ( { ...row, group: row.isGroup ? '' : getClickCsvGroup( row ) } ) ),
+	getColumns: () => [
+		{
+			label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),
+			getValue: row => row.clickedUrl,
+		},
+		{ label: __( 'Group', 'jetpack-premium-analytics-pkg' ), getValue: row => row.group },
+		{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
+	],
+};

@@ -3,6 +3,9 @@
  */
 import {
 	aggregateStatsDrilldownRows,
+	fetchStatsTopAuthorsRows,
+	type ReportParams,
+	type StatsReportParams,
 	type StatsDrilldownItemContext,
 	type StatsDrilldownRow,
 	type StatsDrilldownRowContext,
@@ -12,6 +15,13 @@ import {
 	type StatsTopAuthorsPostComparisonItem,
 	type StatsTopPostsItem,
 } from '@jetpack-premium-analytics/data';
+import { __ } from '@wordpress/i18n';
+/**
+ * Internal dependencies
+ */
+import type { ReportCsvExporter } from './types';
+
+const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
 
 type AuthorDrilldownItem =
 	| StatsTopAuthorsItem
@@ -139,3 +149,53 @@ export function aggregateAuthorRows(
 		getRowMetadata: getAuthorDrilldownMetadata,
 	} ).map( ( { value, ...row } ) => ( { ...row, views: value } ) );
 }
+
+/**
+ * Resolve the author name shown and searched in the table.
+ *
+ * @param name - The raw author name.
+ * @return The localized author display name.
+ */
+export function getAuthorName( name: string ): string {
+	if ( ! name || name === UNTRACKED_AUTHORS_SENTINEL ) {
+		return __( 'Untracked authors', 'jetpack-premium-analytics-pkg' );
+	}
+
+	return name;
+}
+
+/** The Authors report's query: every author, summarized over the window. */
+export function getAuthorsReportQueryParams( reportParams: ReportParams ): StatsReportParams {
+	return { ...reportParams, max: 0 };
+}
+
+/**
+ * Keep nested posts identifiable after the table hierarchy is flattened into CSV rows.
+ *
+ * @param item - The author or nested post row.
+ * @return The author name or author-qualified post title.
+ */
+function getAuthorCsvLabel( item: AuthorRow ): string {
+	return item.parentName
+		? `${ getAuthorName( item.parentName ) } > ${ item.label }`
+		: getAuthorName( item.label );
+}
+
+export const authorsCsvExporter: ReportCsvExporter< AuthorRow, AuthorRow > = {
+	filenamePrefix: 'top-authors',
+	hasDateRange: true,
+	fetchItems: async reportParams =>
+		aggregateAuthorRows( {
+			data: [
+				{ items: await fetchStatsTopAuthorsRows( getAuthorsReportQueryParams( reportParams ) ) },
+			],
+		} ),
+	toCsvRows: items => items,
+	getColumns: () => [
+		{
+			label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
+			getValue: getAuthorCsvLabel,
+		},
+		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+	],
+};
