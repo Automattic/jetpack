@@ -1,4 +1,5 @@
-Significance: minor
-Type: enhancement
+Significance: patch
+Type: other
+Comment: Update composer.lock.
 
-Activity Log: Add an "All AI agents" option to the "Performed by" filter.
+

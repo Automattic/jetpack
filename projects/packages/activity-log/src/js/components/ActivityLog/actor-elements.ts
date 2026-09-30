@@ -10,7 +10,7 @@ export const ALL_AI_AGENTS_ACTOR_ID = 'mcp:*';
  *
  * @param actors              - Distinct actors from /activity-log/actors.
  * @param isAllAiAgentsActive - Whether the current filter includes "All AI agents".
- * @return Options for the `actor` field, "All AI agents" first when it applies.
+ * @return Options for the `actor` field, "All AI agents" first while that filter is on.
  */
 export const getActorElements = (
 	actors: ActorSummary[] = [],
@@ -25,9 +25,7 @@ export const getActorElements = (
 		} )
 		.sort( ( a, b ) => a.label.localeCompare( b.label ) );
 
-	const showAllAiAgents = actors.some( actor => actor.is_mcp_agent ) || isAllAiAgentsActive;
-
-	return showAllAiAgents
+	return isAllAiAgentsActive
 		? [
 				{ value: ALL_AI_AGENTS_ACTOR_ID, label: __( 'All AI agents', 'jetpack-activity-log' ) },
 				...elements,

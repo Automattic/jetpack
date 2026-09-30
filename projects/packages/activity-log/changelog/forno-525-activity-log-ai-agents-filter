@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add an "All AI agents" option to the "Performed by" filter, and let a link preset it.
+Let a link open the log filtered to AI agent actions.
