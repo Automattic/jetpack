@@ -8,26 +8,25 @@ import {
 	type StatsTopPostsComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import {
+	FullReportCsvDownloadButton,
 	LeaderboardChart,
 	LeaderboardSkeleton,
 	ReportLink,
-	RowsCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	archivesCsvExporter,
 	buildLeaderboardRow,
 	calculateDelta,
 	getCombinedPeriodMax,
+	postsPagesCsvExporter,
 	safeHttpUrl,
 	sharePercentage,
-	useReportCsvExport,
 	useWidgetDrillDown,
 	useWidgetNavigationSearch,
 	useWidgetRootContext,
-	withComparisonColumns,
-	type CsvColumn,
 	type LeaderboardChartData,
 	type LeaderboardRowAction,
 	type ReportParamsFieldAttributes,
@@ -245,39 +244,6 @@ function TopPostsReport() {
 	} );
 	const withComparison = hasComparison;
 
-	// Serialize whatever the leaderboard has loaded, mirroring the Jetpack Stats
-	// client-side "Download CSV" (bounded to the rows already in the browser).
-	const csvColumns = useMemo< CsvColumn< TopPostRow >[] >(
-		() =>
-			withComparisonColumns(
-				[
-					{ label: __( 'Title', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-					{
-						label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
-						getValue: row => row.value,
-						getPreviousValue: row => row.previousValue,
-					},
-					{ label: __( 'Type', 'jetpack-premium-analytics-pkg' ), getValue: row => row.type },
-					{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.href },
-				],
-				withComparison
-			),
-		[ withComparison ]
-	);
-
-	// Stats queries keep placeholder rows during a refetch; the shared hook hides
-	// export until rows belong to the active date range.
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows,
-		filenamePrefix: 'top-posts',
-		range: reportParams,
-		status: { isLoading, isFetching, isError },
-	} );
-
 	return (
 		<>
 			<div className={ styles.content }>
@@ -308,9 +274,10 @@ function TopPostsReport() {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="posts" section="posts-pages" />
-				{ canExport && (
-					<RowsCsvDownloadButton columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) }
+				<FullReportCsvDownloadButton
+					exporter={ postsPagesCsvExporter }
+					isReady={ rows.length > 0 && ! isLoading && ! isFetching && ! isError }
+				/>
 			</WidgetFooter>
 		</>
 	);
@@ -473,31 +440,42 @@ function ArchivesReport() {
 		);
 
 	return (
-		<div className={ styles.content }>
-			{ backLink }
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// As above: keep the drilled rows visible through a transient refetch
-				// failure and only surface the error when there is nothing to show.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ activeRows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load archives. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-			>
-				<TopPostsLeaderboard
-					rows={ activeRows }
-					withComparison={ withComparison }
-					onDrillDown={ handleDrillDown }
+		<>
+			<div className={ styles.content }>
+				{ backLink }
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// As above: keep the drilled rows visible through a transient refetch
+					// failure and only surface the error when there is nothing to show.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ activeRows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load archives. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<TopPostsLeaderboard
+						rows={ activeRows }
+						withComparison={ withComparison }
+						onDrillDown={ handleDrillDown }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="posts" section="archives" />
+				<FullReportCsvDownloadButton
+					exporter={ archivesCsvExporter }
+					isReady={ rows.length > 0 && ! isLoading && ! isFetching && ! isError }
 				/>
-			</WidgetState>
-		</div>
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -511,16 +489,7 @@ export default function TopPosts( { attributes = {} }: TopPostsWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				{ contentView === 'archives' ? (
-					<>
-						<ArchivesReport />
-						<WidgetFooter>
-							<ReportLink report="posts" section="archives" />
-						</WidgetFooter>
-					</>
-				) : (
-					<TopPostsReport />
-				) }
+				{ contentView === 'archives' ? <ArchivesReport /> : <TopPostsReport /> }
 			</div>
 		</WidgetRoot>
 	);
