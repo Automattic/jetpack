@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
+Comment: Fix to the new Overview, which has not shipped yet.
 
-Dashboard: Show the calculating state when running a new speed test.
