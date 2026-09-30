@@ -217,19 +217,38 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 				),
 				2,
 			),
+			'hierarchical comments'           => array(
+				array(
+					'type'         => 'comment',
+					'hierarchical' => 'true',
+				),
+				4,
+			),
 		);
 	}
 
 	/**
-	 * An untyped post request keeps the wp_count_comments() total.
+	 * An untyped post request keeps the wp_count_comments() total without a count query.
 	 *
 	 * @group json-api
 	 */
 	#[Group( 'json-api' )]
 	public function test_untyped_post_request_counts_every_type() {
+		$count_queries = 0;
+		add_action(
+			'pre_get_comments',
+			static function ( $comment_query ) use ( &$count_queries ) {
+				// Only the endpoint's own queries exclude types; core's get_comment_count() also runs counts.
+				if ( $comment_query->query_vars['count'] && $comment_query->query_vars['type__not_in'] ) {
+					++$count_queries;
+				}
+			}
+		);
+
 		$response = $this->get_post_replies( array() );
 
 		$this->assertSame( 7, $response['found'] );
+		$this->assertSame( 0, $count_queries );
 	}
 
 	/**
