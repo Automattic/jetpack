@@ -49,4 +49,19 @@ describe( 'ReportDrilldownTable', () => {
 
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
 	} );
+
+	it( 'shows the table loading state while rows on screen revalidate', () => {
+		render(
+			<ReportDrilldownTable< { id: string; label: string } >
+				data={ [ { id: 'google', label: 'Google Search' } ] }
+				fields={ [ { id: 'label', label: 'Referrer', getValue: ( { item } ) => item.label } ] }
+				getItemId={ item => item.id }
+				getItemParentId={ () => null }
+				isFetching
+			/>
+		);
+
+		expect( screen.getByRole( 'searchbox' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Google Search' ) ).not.toBeInTheDocument();
+	} );
 } );

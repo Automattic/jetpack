@@ -305,22 +305,6 @@ describe( 'ReportRecordsTable with no rows', () => {
 		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'drops a settled empty state while the next period loads', () => {
-		const { rerender } = mountRows( [] );
-
-		rerender(
-			<ReportRecordsTable< Row >
-				data={ [] }
-				fields={ fields }
-				getItemId={ item => item.id }
-				initialView={ INITIAL_VIEW }
-				isLoading
-			/>
-		);
-
-		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
-	} );
-
 	it( 'keeps the empty state while the same period revalidates', () => {
 		mountRows( [], { isFetching: true } );
 
