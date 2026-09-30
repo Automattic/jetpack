@@ -92,14 +92,10 @@ export default function useTrafficChart(
 	);
 
 	// Memoize each request's params (as sibling Stats widgets do) so the query key
-	// is stable across renders. `post_titles` feeds the tooltip's posts-published row.
+	// is stable across renders. `post_titles` feeds the tooltip's posts-published
+	// row; the hourly report has none to give, so it is not asked for it.
 	const viewsVisitorsParams = useMemo(
-		() =>
-			toVisitsParams(
-				reportParams,
-				isHourly ? 'views,post_titles' : 'views,visitors,post_titles',
-				period
-			),
+		() => toVisitsParams( reportParams, isHourly ? 'views' : 'views,visitors,post_titles', period ),
 		[ reportParams, period, isHourly ]
 	);
 	const likesCommentsParams = useMemo(

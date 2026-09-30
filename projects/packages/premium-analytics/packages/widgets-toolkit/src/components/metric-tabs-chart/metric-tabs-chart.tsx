@@ -16,12 +16,7 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import {
-	formatComparisonSeriesLabel,
-	isEmptyChartData,
-	isEmptyTooltipExtras,
-	type ChartBaseline,
-} from '../../helpers';
+import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
@@ -86,7 +81,8 @@ export interface MetricTab {
 	/**
 	 * Rows the chart's tooltip reads out at the hovered date while this metric is
 	 * drawn, after the other metrics `tooltipMetrics` lists: derived figures such
-	 * as views per visitor, or the posts published that day.
+	 * as views per visitor, or the posts published that day. They never keep an
+	 * otherwise empty chart up.
 	 */
 	tooltipExtras?: TooltipExtraSeries[];
 	/**
@@ -244,24 +240,25 @@ function MetricChart( {
 	// is included too: the chart lists a drawn series once, so revealing it from
 	// the legend does not duplicate its row, and hiding it again lists it as a
 	// supplementary row instead. Memoised so the chart's tooltip memos hold.
+	const otherMetricExtras = useMemo(
+		(): TooltipExtraSeries[] =>
+			tooltipMetrics === 'all'
+				? metrics
+						.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
+						.map( candidate => ( {
+							label: candidate.label,
+							data: candidate.current,
+							dataFormat: candidate.dataFormat ?? dataFormat,
+							countLabel: candidate.countLabel,
+						} ) )
+				: [],
+		[ metrics, metric.key, tooltipMetrics, dataFormat ]
+	);
 	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
-		const own = metric.tooltipExtras ?? [];
+		const all = [ ...otherMetricExtras, ...( metric.tooltipExtras ?? [] ) ];
 
-		if ( tooltipMetrics !== 'all' ) {
-			return own.length ? own : undefined;
-		}
-
-		const others = metrics
-			.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
-			.map( candidate => ( {
-				label: candidate.label,
-				data: candidate.current,
-				dataFormat: candidate.dataFormat ?? dataFormat,
-				countLabel: candidate.countLabel,
-			} ) );
-
-		return [ ...others, ...own ];
-	}, [ metrics, metric.key, metric.tooltipExtras, tooltipMetrics, dataFormat ] );
+		return tooltipMetrics === 'all' || all.length ? all : undefined;
+	}, [ otherMetricExtras, metric.tooltipExtras, tooltipMetrics ] );
 
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );
@@ -355,11 +352,12 @@ function MetricChart( {
 		);
 	}
 
-	// The other metrics' hover readout keeps the graph up while any of them has data.
+	// The other metrics' hover readout keeps the graph up while any of them has
+	// data; the metric's own extras do not, being read beside its data, not data.
 	if (
 		empty &&
 		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] ) &&
-		isEmptyTooltipExtras( tooltipExtras )
+		isEmptyChartData( otherMetricExtras )
 	) {
 		return <>{ empty }</>;
 	}

@@ -294,7 +294,7 @@ describe( 'useTrafficChart', () => {
 			expect( hourly ).toContain(
 				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00.000+00:00' ) }`
 			);
-			expect( hourly ).toContain( `stat_fields=${ encodeURIComponent( 'views,post_titles' ) }` );
+			expect( hourly ).toContain( `stat_fields=${ encodeURIComponent( 'views' ) }` );
 			expect( daily ).toContain(
 				`stat_fields=${ encodeURIComponent( 'visitors,likes,comments' ) }`
 			);

@@ -4,16 +4,17 @@
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import type { StatsVisitsResponse } from '@jetpack-premium-analytics/data';
-import type { TooltipExtraSeries } from '@jetpack-premium-analytics/widgets-toolkit';
+import type {
+	TooltipExtraPoint,
+	TooltipExtraSeries,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
-const VIEWS_PER_VISITOR_FORMAT = { type: 'number' as const, options: { decimals: 2 } };
+const VIEWS_PER_VISITOR_FORMAT = { type: 'average' as const };
 
 /** Titles are listed up to here; past it the row carries a count, as classic Stats does. */
 const MAX_LISTED_TITLES = 2;
 
-type TooltipPoint = TooltipExtraSeries[ 'data' ][ number ];
-
-/** Every post the bucket reports, an untitled one as an empty string, so the count matches classic Stats. */
+/** The bucket's `post_titles` strings; an untitled post arrives as `''` and still counts, as in classic Stats. */
 function postTitlesOf( point: Record< string, unknown > ): string[] {
 	const titles = point.post_titles;
 
@@ -41,8 +42,8 @@ export function buildTrafficTooltipExtras(
 	report: StatsVisitsResponse | undefined,
 	zone: string
 ): TooltipExtraSeries[] {
-	const viewsPerVisitor: TooltipPoint[] = [];
-	const postsPublished: TooltipPoint[] = [];
+	const viewsPerVisitor: TooltipExtraPoint[] = [];
+	const postsPublished: TooltipExtraPoint[] = [];
 
 	for ( const point of report?.data ?? [] ) {
 		const date = resolveBucketStamp( point.date_start, zone );
@@ -87,7 +88,6 @@ export function buildTrafficTooltipExtras(
 			label: __( 'Views per visitor', 'jetpack-premium-analytics-pkg' ),
 			data: viewsPerVisitor,
 			dataFormat: VIEWS_PER_VISITOR_FORMAT,
-			derived: true,
 		} );
 	}
 
@@ -98,7 +98,6 @@ export function buildTrafficTooltipExtras(
 			countLabel: count =>
 				/* translators: %s: number of posts published. */
 				_n( '%s Post published', '%s Posts published', count, 'jetpack-premium-analytics-pkg' ),
-			derived: true,
 		} );
 	}
 

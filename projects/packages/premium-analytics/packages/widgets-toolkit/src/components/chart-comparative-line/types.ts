@@ -14,11 +14,6 @@ import type { CountLabel, DataFormat } from '../../types';
 export type ComparativeDatePointDate = DataPointDate & {
 	date: Date; // <- date is required by the comparative line chart.
 	realDate?: Date;
-	/**
-	 * Read out in place of the value and unit, for a row that is not a number:
-	 * `Post published: Hello world`. The tooltip still appends the date.
-	 */
-	tooltipText?: string;
 };
 
 export type ComparativeLineChartSeries = SeriesData & {
@@ -29,20 +24,24 @@ export type ComparativeLineChartSeries = SeriesData & {
 };
 
 /**
+ * A point of a series the tooltip reads out but does not draw. Only such a
+ * point may carry its own text, read in place of the value and unit for a row
+ * that is not a number: `Post published: Hello world`. The date still follows.
+ */
+export type TooltipExtraPoint = ComparativeDatePointDate & {
+	tooltipText?: string;
+};
+
+/**
  * A series the tooltip reads out but the chart does not draw: its point for the
  * hovered date joins the rows, named after `label` and formatted its own way.
  */
 export type TooltipExtraSeries = {
 	label: string;
-	data: ComparativeDatePointDate[];
+	data: TooltipExtraPoint[];
 	/** Falls back to the chart's `dataFormat`. */
 	dataFormat?: DataFormat;
 	countLabel?: CountLabel;
-	/**
-	 * A row computed from the drawn data or noted beside it, such as views per
-	 * visitor or the posts published: it never keeps an otherwise empty chart up.
-	 */
-	derived?: boolean;
 };
 
 /**

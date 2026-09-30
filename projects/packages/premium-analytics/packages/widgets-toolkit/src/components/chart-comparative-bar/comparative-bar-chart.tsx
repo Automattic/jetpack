@@ -25,7 +25,6 @@ import {
 	formatTooltipPointLabel,
 	formatTooltipTextLabel,
 	isEmptyChartData,
-	isEmptyTooltipExtras,
 	getFixedYAxis,
 	dateFormatForResolution,
 	resolveTooltipUnits,
@@ -177,7 +176,7 @@ export function ComparativeBarChart( {
 	const isEmptyData = useMemo( () => isEmptyChartData( alignedSeries ), [ alignedSeries ] );
 	// An all-zero selected metric must not hide the extras that do have data.
 	const hasTooltipRows = useMemo(
-		() => ! isEmptyData || ! isEmptyTooltipExtras( tooltipExtras ),
+		() => ! isEmptyData || ! isEmptyChartData( tooltipExtras ?? [] ),
 		[ isEmptyData, tooltipExtras ]
 	);
 

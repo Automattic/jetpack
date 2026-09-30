@@ -36,9 +36,7 @@ describe( 'buildTrafficTooltipExtras', () => {
 		);
 
 		expect( ratio.label ).toBe( 'Views per visitor' );
-		expect( ratio.dataFormat ).toEqual( { type: 'number', options: { decimals: 2 } } );
-		// Neither row is traffic: a day with a post but no views still reads as empty.
-		expect( ratio.derived ).toBe( true );
+		expect( ratio.dataFormat ).toEqual( { type: 'average' } );
 		expect( ratio.data ).toHaveLength( 1 );
 		expect( ratio.data[ 0 ].value ).toBeCloseTo( 3.33, 2 );
 	} );
@@ -71,7 +69,6 @@ describe( 'buildTrafficTooltipExtras', () => {
 		] );
 		expect( posts?.countLabel?.( 3 ) ).toBe( '%s Posts published' );
 		expect( posts?.countLabel?.( 1 ) ).toBe( '%s Post published' );
-		expect( posts?.derived ).toBe( true );
 	} );
 
 	// Classic counts every post the bucket reports; only the listing needs a title.

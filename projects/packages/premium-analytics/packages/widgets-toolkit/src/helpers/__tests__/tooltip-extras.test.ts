@@ -5,7 +5,7 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { appendTooltipExtras, isEmptyTooltipExtras, resolveTooltipUnits } from '../tooltip-extras';
+import { appendTooltipExtras, resolveTooltipUnits } from '../tooltip-extras';
 
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
@@ -149,23 +149,5 @@ describe( 'resolveTooltipUnits', () => {
 		} );
 		expect( units.get( 'Views' ) ).toEqual( { name: 'Views', countLabel: views } );
 		expect( units.get( 'Average CPM' ) ).toEqual( { name: 'Average CPM', countLabel: undefined } );
-	} );
-} );
-
-describe( 'isEmptyTooltipExtras', () => {
-	it( 'is empty with no extras, or with extras that only carry zeros', () => {
-		expect( isEmptyTooltipExtras( undefined ) ).toBe( true );
-		expect( isEmptyTooltipExtras( [ { ...CPM, data: [ { date: JULY_1, value: 0 } ] } ] ) ).toBe(
-			true
-		);
-	} );
-
-	it( 'counts a metric extra with a reading as data', () => {
-		expect( isEmptyTooltipExtras( [ CPM ] ) ).toBe( false );
-	} );
-
-	// A ratio or a note reads out beside the data; it is not data an empty chart should stay up for.
-	it( 'ignores a derived extra whatever it holds', () => {
-		expect( isEmptyTooltipExtras( [ { ...REVENUE, derived: true } ] ) ).toBe( true );
 	} );
 } );

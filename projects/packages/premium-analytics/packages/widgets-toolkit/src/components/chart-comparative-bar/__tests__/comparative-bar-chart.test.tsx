@@ -643,7 +643,7 @@ describe( 'ComparativeBarChart tooltip extras', () => {
 			<ComparativeBarChart
 				series={ SERIES }
 				dataFormat={ DATA_FORMAT }
-				tooltipExtras={ [ { label: 'Posts published', data: [ posts ], derived: true } ] }
+				tooltipExtras={ [ { label: 'Posts published', data: [ posts ] } ] }
 			/>
 		);
 
@@ -660,18 +660,6 @@ describe( 'ComparativeBarChart tooltip extras', () => {
 		expect( tooltipNode.props.getLabel( posts, 1, 'Posts published', '1' ) ).toBe(
 			'Post published: Hello world · July 1, 2026'
 		);
-	} );
-
-	it( 'leaves the tooltip off for an all-zero drawn series when only a derived extra has data', () => {
-		render(
-			<ComparativeBarChart
-				series={ ZERO_SERIES }
-				dataFormat={ DATA_FORMAT }
-				tooltipExtras={ [ { ...CPM_EXTRA, derived: true } ] }
-			/>
-		);
-
-		expect( recordedProps().withTooltips ).toBe( false );
 	} );
 
 	it( 'keeps the tooltip on for an all-zero drawn series once an extra has data', () => {

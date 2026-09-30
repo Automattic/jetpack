@@ -302,11 +302,10 @@ describe( 'MetricTabsChart', () => {
 		} );
 
 		// A post published on a day with no views is a row to read out, not traffic to draw.
-		it( "shows it when only the metric's derived extras have readings", () => {
+		it( "shows it when only the metric's own extras have readings", () => {
 			const posts = {
 				label: 'Posts published',
 				data: [ { date: new Date( '2026-07-01T00:00:00Z' ), value: 1 } ],
-				derived: true,
 			};
 
 			render(
