@@ -12,6 +12,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ saveError, setSaveError ] = useState( '' );
 	const [ isSaving, setIsSaving ] = useState( false );
+	const [ isSaved, setIsSaved ] = useState( false );
 
 	useEffect( () => {
 		if ( ! isConnected ) {
@@ -47,13 +48,14 @@ const MailchimpSettings = ( { isConnected } ) => {
 		const previousAudience = selectedAudience;
 		setSelectedAudience( audience );
 		setIsSaving( true );
+		setIsSaved( false );
 		setSaveError( '' );
 		apiFetch( {
 			path: '/wpcom/v2/mailchimp/settings',
 			method: 'POST',
 			data: { follower_list_id: audience },
 		} )
-			.then( () => speak( __( 'Audience saved.', 'jetpack' ) ) )
+			.then( () => setIsSaved( true ) )
 			.catch( error => {
 				const message = error?.message || __( 'Settings save failed.', 'jetpack' );
 				setSelectedAudience( previousAudience );
@@ -80,8 +82,14 @@ const MailchimpSettings = ( { isConnected } ) => {
 						</option>
 					) ) }
 				</select>
-				{ isSaving && <span className="spinner is-active" style={ { float: 'none' } } /> }
 			</label>
+			{ /* Same status as the Media Library's self-saving fields: spinner, then "Saved.". */ }
+			<span role="status" style={ { marginInlineStart: '8px' } }>
+				{ isSaving && (
+					<span className="spinner is-active" style={ { float: 'none', margin: 0 } } />
+				) }
+				{ isSaved && __( 'Saved.', 'jetpack' ) }
+			</span>
 			{ /* A disabled select is left out of the form, so Save Changes mid-save would drop the pick. */ }
 			{ isSaving && (
 				<input type="hidden" name="jetpack-mailchimp-audience" value={ selectedAudience } />

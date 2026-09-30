@@ -1,4 +1,4 @@
-import { render, screen, act, waitFor } from '@testing-library/react';
+import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { speak } from '@wordpress/a11y';
 import apiFetch from '@wordpress/api-fetch';
@@ -44,7 +44,7 @@ describe( 'Mailchimp audience setting', () => {
 		).resolves.toBeInTheDocument();
 
 		await user.selectOptions( select, 'none' );
-		await waitFor( () => expect( speak ).toHaveBeenCalledWith( 'Audience saved.' ) );
+		await expect( screen.findByText( 'Saved.' ) ).resolves.toBeInTheDocument();
 		await user.selectOptions( select, 'b' );
 
 		expect( select ).toBeDisabled();
