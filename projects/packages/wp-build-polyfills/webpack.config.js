@@ -449,9 +449,6 @@ const esmConfigs = modulePolyfills.map( polyfill => ( {
 		environment: { module: true },
 		library: { type: 'module' },
 	},
-	experiments: {
-		outputModule: true,
-	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {
 			DependencyExtractionPlugin: false,
