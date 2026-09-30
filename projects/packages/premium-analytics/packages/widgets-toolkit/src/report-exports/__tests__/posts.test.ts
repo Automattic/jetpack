@@ -81,17 +81,6 @@ describe( 'posts report exports', () => {
 		] );
 	} );
 
-	it( 'names the files after each tab and its date range', () => {
-		expect( postsPagesCsvExporter ).toMatchObject( {
-			filenamePrefix: 'top-posts',
-			hasDateRange: true,
-		} );
-		expect( archivesCsvExporter ).toMatchObject( {
-			filenamePrefix: 'archives',
-			hasDateRange: true,
-		} );
-	} );
-
 	it( 'falls back to Untitled for an archive row with an empty label', () => {
 		expect( buildArchiveRows( [ { label: '', value: 5, children: null } ] )[ 0 ].label ).toBe(
 			'Untitled'

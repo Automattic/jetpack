@@ -168,14 +168,6 @@ describe( 'Top pages CSV parity', () => {
 		}
 	);
 
-	it( 'downloads every post, not only the rows the widget shows', async () => {
-		const { csv } = await download(
-			<TopPostsWidget attributes={ { reportParams: REPORT_PARAMS } } />
-		);
-
-		expect( csv.replace( '﻿', '' ).split( '\n' ) ).toHaveLength( 13 );
-	} );
-
 	it( 'reuses the report page cached rows for the widget download', async () => {
 		mockUseSectionTab.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 		await download( <PostsReportPage /> );

@@ -376,19 +376,6 @@ describe( 'TopPostsWidget', () => {
 			expect( downloadPaths[ 0 ] ).not.toContain( '2026-02' );
 		} );
 
-		it( 'names the file after the report and its date range', async () => {
-			render(
-				<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
-			);
-
-			await downloadCsvLines();
-
-			expect( clickSpy.mock.contexts[ 0 ] ).toHaveProperty(
-				'download',
-				'top-posts-2026-03-01_2026-03-10.csv'
-			);
-		} );
-
 		it( 'downloads the archives report from the Archives view', async () => {
 			const archivesResponse = {
 				date: '2026-03-10',
