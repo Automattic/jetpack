@@ -183,7 +183,7 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	font-size: var(--wpds-typography-font-size-md);
 }
 
-// Chosen per cell in JS from the blended fill; see pickLabelTextColor.
+// Chosen per cell in JS from the blended fill; see pickLabelTextColorForFill.
 .heatmap-chart__cell-value--inverse {
 	color: var(--a8c-charts-color-label-inverse);
 }

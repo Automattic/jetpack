@@ -3,6 +3,7 @@ import { Pie } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
+import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
@@ -28,7 +29,7 @@ import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import { pickLabelTextColor, resolveLabelRoles, sameLabelRoles } from '../private/label-text-color';
+import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-color';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -243,7 +244,7 @@ const PieChartInternal = ( {
 		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
 		const hasPlate = rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false;
 		const next = hasPlate ? null : resolveLabelRoles( resolve );
-		setLabelRoles( previous => ( sameLabelRoles( previous, next ) ? previous : next ) );
+		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
 	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)

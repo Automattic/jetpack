@@ -2,6 +2,7 @@ import { formatNumber, formatNumberCompact } from '@automattic/number-formatters
 import { defaultStyles as visxTooltipStyles, useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import isEqual from 'fast-deep-equal';
 import {
 	useCallback,
 	useContext,
@@ -21,7 +22,7 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
-import { mixRgb } from '../../providers/chart-context/private/perceptual-color';
+import { blendRgb, hexToRgb } from '../../providers/chart-context/private/perceptual-color';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
@@ -30,11 +31,7 @@ import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
-import {
-	pickLabelTextColorForFill,
-	resolveLabelRoles,
-	sameLabelRoles,
-} from '../private/label-text-color';
+import { pickLabelTextColorForFill, resolveLabelRoles } from '../private/label-text-color';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
@@ -155,12 +152,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	// Choose text color from the blended fill, not the raw value.
 	// If either color cannot resolve to hex, keep the stylesheet's default role.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
-	const cellTextColor = ( intensity: number ): LabelTextColor =>
+	const cellMix =
 		isValidHexColor( primaryHex ) && isValidHexColor( chartBackgroundHex )
+			? { primary: hexToRgb( primaryHex ), background: hexToRgb( chartBackgroundHex ) }
+			: null;
+	const cellTextColor = ( intensity: number ): LabelTextColor =>
+		cellMix
 			? pickLabelTextColorForFill(
-					mixRgb(
-						primaryHex,
-						chartBackgroundHex,
+					blendRgb(
+						cellMix.primary,
+						cellMix.background,
 						CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity
 					),
 					labelRoles,
@@ -175,7 +176,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 			return;
 		}
 		const next = resolveLabelRoles( createCssVariableResolver( containerRef.current ) );
-		setLabelRoles( previous => ( sameLabelRoles( previous, next ) ? previous : next ) );
+		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
 	}, [ data, className, primaryColorHex, chartBackgroundHex ] );
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );

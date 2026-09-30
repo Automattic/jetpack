@@ -549,12 +549,12 @@ describe( 'HeatmapChart value text contrast', () => {
 	test( 'measures a translucent label role as it paints over each cell', () => {
 		injectedStyle = document.createElement( 'style' );
 		injectedStyle.textContent =
-			'.translucent-heatmap { --a8c-charts-color-label: rgba(30, 30, 30, 0.87); }';
+			'.translucent-heatmap { --a8c-charts-color-label: rgba(30, 30, 30, 0.3); }';
 		document.head.appendChild( injectedStyle );
 
 		renderScale( 'translucent-heatmap' );
 
-		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 

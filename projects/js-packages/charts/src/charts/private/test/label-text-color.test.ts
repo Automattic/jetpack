@@ -1,7 +1,8 @@
 import { MIN_LABEL_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
 import {
+	blendRgb,
+	hexToRgb,
 	luminanceContrastRatio,
-	mixRgb,
 	rgbLuminance,
 } from '../../../providers/chart-context/private/perceptual-color';
 import {
@@ -12,12 +13,9 @@ import {
 import type { Rgb } from '../../../providers/chart-context/private/perceptual-color';
 import type { LabelRoles, LabelTextColor, ResolvedRole } from '../label-text-color';
 
-const rgbOf = ( hex: string ): Rgb =>
-	[ 1, 3, 5 ].map( start => parseInt( hex.slice( start, start + 2 ), 16 ) ) as unknown as Rgb;
-
 const color = ( hex: string, alpha = 1 ): ResolvedRole => ( {
 	kind: 'color',
-	rgb: rgbOf( hex ),
+	rgb: hexToRgb( hex ),
 	alpha,
 } );
 
@@ -25,8 +23,8 @@ const unreadable = ( raw: string | null ): ResolvedRole => ( { kind: 'unreadable
 
 const DEFAULT_ROLES: LabelRoles = { label: color( '#1e1e1e' ), labelInverse: color( '#f0f0f0' ) };
 
-const WHITE = rgbOf( '#ffffff' );
-const MID_BLUE = rgbOf( '#3858e9' );
+const WHITE = hexToRgb( '#ffffff' );
+const MID_BLUE = hexToRgb( '#3858e9' );
 
 describe( 'resolveLabelRoles', () => {
 	const resolverFor =
@@ -72,24 +70,22 @@ describe( 'pickLabelTextColorForFill', () => {
 	} );
 
 	it( 'falls back to black or white when neither role reaches AA', () => {
-		expect( pickLabelTextColorForFill( rgbOf( '#516dec' ), DEFAULT_ROLES, 'label' ) ).toBe(
+		expect( pickLabelTextColorForFill( hexToRgb( '#516dec' ), DEFAULT_ROLES, 'label' ) ).toBe(
 			'black'
 		);
-		expect( pickLabelTextColorForFill( rgbOf( '#4663ea' ), DEFAULT_ROLES, 'label' ) ).toBe(
+		expect( pickLabelTextColorForFill( hexToRgb( '#4663ea' ), DEFAULT_ROLES, 'label' ) ).toBe(
 			'white'
 		);
 	} );
 
 	it( 'measures a translucent role as it paints over the fill', () => {
-		const translucentLabel: LabelRoles = {
-			label: color( '#1e1e1e', 0.87 ),
+		// Opaque, this label would read 16:1 on white; at 30% it paints a pale gray that fails AA.
+		const faintLabel: LabelRoles = {
+			label: color( '#1e1e1e', 0.3 ),
 			labelInverse: color( '#f0f0f0' ),
 		};
 
-		expect( pickLabelTextColorForFill( WHITE, translucentLabel, 'label-inverse' ) ).toBe( 'label' );
-		expect( pickLabelTextColorForFill( MID_BLUE, translucentLabel, 'label' ) ).toBe(
-			'label-inverse'
-		);
+		expect( pickLabelTextColorForFill( WHITE, faintLabel, 'label-inverse' ) ).toBe( 'black' );
 	} );
 
 	it( 'never picks a fully transparent role', () => {
@@ -128,8 +124,8 @@ describe( 'pickLabelTextColorForFill', () => {
 	] )( 'never falls back when both roles are the same %s color', ( _name, role ) => {
 		const pinned: LabelRoles = { label: role, labelInverse: { ...role } };
 
-		expect( pickLabelTextColorForFill( rgbOf( '#516dec' ), pinned, 'label' ) ).toBe( 'label' );
-		expect( pickLabelTextColorForFill( rgbOf( '#516dec' ), pinned, 'label-inverse' ) ).toBe(
+		expect( pickLabelTextColorForFill( hexToRgb( '#516dec' ), pinned, 'label' ) ).toBe( 'label' );
+		expect( pickLabelTextColorForFill( hexToRgb( '#516dec' ), pinned, 'label-inverse' ) ).toBe(
 			'label-inverse'
 		);
 	} );
@@ -139,8 +135,8 @@ describe( 'pickLabelTextColorForFill', () => {
 		[ 'dark', '#1e1e1e' ],
 	] )( 'across a heatmap scale on a %s background', ( _name, background ) => {
 		const painted: Record< LabelTextColor, number > = {
-			label: rgbLuminance( rgbOf( '#1e1e1e' ) ),
-			'label-inverse': rgbLuminance( rgbOf( '#f0f0f0' ) ),
+			label: rgbLuminance( hexToRgb( '#1e1e1e' ) ),
+			'label-inverse': rgbLuminance( hexToRgb( '#f0f0f0' ) ),
 			black: 0,
 			white: 1,
 		};
@@ -160,10 +156,15 @@ describe( 'pickLabelTextColorForFill', () => {
 
 		it.each( primaries )( 'reaches AA on every intensity of %s', primary => {
 			for ( let step = 0; step <= 200; step++ ) {
-				const fill = mixRgb( primary, background, 0.15 + 0.85 * ( step / 200 ) );
+				const fill = blendRgb(
+					hexToRgb( primary ),
+					hexToRgb( background ),
+					0.15 + 0.85 * ( step / 200 )
+				);
 				const choice = pickLabelTextColorForFill( fill, DEFAULT_ROLES, 'label' );
 				// Checked on the 8-bit channels the browser paints as well as the exact mix.
-				const painted8Bit = fill.map( Math.round ) as unknown as Rgb;
+				const [ r, g, b ] = fill.map( Math.round );
+				const painted8Bit: Rgb = [ r, g, b ];
 
 				for ( const shown of [ fill, painted8Bit ] ) {
 					expect(

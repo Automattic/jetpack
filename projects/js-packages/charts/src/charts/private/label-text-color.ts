@@ -1,7 +1,10 @@
 import { color as d3Color } from '@visx/vendor/d3-color';
+import isEqual from 'fast-deep-equal';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { MIN_LABEL_CONTRAST } from '../../providers/chart-context/private/palette-generator';
 import {
+	blendRgb,
+	hexToRgb,
 	luminanceContrastRatio,
 	rgbLuminance,
 } from '../../providers/chart-context/private/perceptual-color';
@@ -38,16 +41,6 @@ const resolveRole = (
 	return { kind: 'color', rgb: [ r, g, b ], alpha: parsed.opacity };
 };
 
-const sameRole = ( first: ResolvedRole, second: ResolvedRole ): boolean => {
-	if ( first.kind === 'color' && second.kind === 'color' ) {
-		return first.alpha === second.alpha && first.rgb.every( ( c, i ) => c === second.rgb[ i ] );
-	}
-	if ( first.kind === 'unreadable' && second.kind === 'unreadable' ) {
-		return first.raw === second.raw;
-	}
-	return false;
-};
-
 /**
  * Reads both label roles at the element the label text inherits from, so JS and CSS agree on what paints.
  *
@@ -59,29 +52,15 @@ export const resolveLabelRoles = ( resolve: ( value: string ) => string | null )
 	labelInverse: resolveRole( CATALOG_POINTERS.labelInverse, resolve ),
 } );
 
-/**
- * Whether two resolved label role pairs would paint the same.
- *
- * @param first  - One pair, or null.
- * @param second - The other pair, or null.
- * @return True when both are null or both roles match.
- */
-export const sameLabelRoles = ( first: LabelRoles | null, second: LabelRoles | null ): boolean =>
-	first === second ||
-	( !! first &&
-		!! second &&
-		sameRole( first.label, second.label ) &&
-		sameRole( first.labelInverse, second.labelInverse ) );
-
 // Text with alpha shows the fill through it, so it is measured as the blend the browser paints.
 const roleContrast = ( role: ResolvedRole, fill: Rgb, fillLuminance: number ): number => {
 	if ( role.kind === 'unreadable' ) {
 		return 0;
 	}
-	const painted = role.rgb.map(
-		( channel, i ) => role.alpha * channel + ( 1 - role.alpha ) * fill[ i ]
-	) as unknown as Rgb;
-	return luminanceContrastRatio( fillLuminance, rgbLuminance( painted ) );
+	return luminanceContrastRatio(
+		fillLuminance,
+		rgbLuminance( blendRgb( role.rgb, fill, role.alpha ) )
+	);
 };
 
 /**
@@ -99,7 +78,7 @@ export const pickLabelTextColorForFill = (
 	roles: LabelRoles | null,
 	defaultRole: 'label' | 'label-inverse'
 ): LabelTextColor => {
-	if ( ! roles || sameRole( roles.label, roles.labelInverse ) ) {
+	if ( ! roles || isEqual( roles.label, roles.labelInverse ) ) {
 		return defaultRole;
 	}
 
@@ -133,8 +112,5 @@ export const pickLabelTextColor = (
 	if ( ! isValidHexColor( fillHex ) ) {
 		return defaultRole;
 	}
-	const rgb = [ 1, 3, 5 ].map( start =>
-		parseInt( fillHex.slice( start, start + 2 ), 16 )
-	) as unknown as Rgb;
-	return pickLabelTextColorForFill( rgb, roles, defaultRole );
+	return pickLabelTextColorForFill( hexToRgb( fillHex ), roles, defaultRole );
 };

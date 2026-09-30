@@ -3,7 +3,8 @@ import {
 	deltaE2000,
 	hexToOklch,
 	hexToViews,
-	mixRgb,
+	blendRgb,
+	hexToRgb,
 	rgbLuminance,
 	oklchToHex,
 	viewDistance,
@@ -76,14 +77,23 @@ describe( 'contrastRatio', () => {
 	} );
 } );
 
-describe( 'mixRgb', () => {
+describe( 'hexToRgb', () => {
+	it( 'reads each channel', () => {
+		expect( hexToRgb( '#3858e9' ) ).toEqual( [ 56, 88, 233 ] );
+	} );
+} );
+
+describe( 'blendRgb', () => {
+	const blue = hexToRgb( '#3858e9' );
+	const white = hexToRgb( '#ffffff' );
+
 	it( 'matches each endpoint at full weight', () => {
-		expect( mixRgb( '#3858e9', '#ffffff', 1 ) ).toEqual( [ 56, 88, 233 ] );
-		expect( mixRgb( '#3858e9', '#ffffff', 0 ) ).toEqual( [ 255, 255, 255 ] );
+		expect( blendRgb( blue, white, 1 ) ).toEqual( [ 56, 88, 233 ] );
+		expect( blendRgb( blue, white, 0 ) ).toEqual( [ 255, 255, 255 ] );
 	} );
 
 	it( 'does not round the mix to a hex channel', () => {
-		expect( mixRgb( '#000000', '#ffffff', 0.5 ) ).toEqual( [ 127.5, 127.5, 127.5 ] );
+		expect( blendRgb( hexToRgb( '#000000' ), white, 0.5 ) ).toEqual( [ 127.5, 127.5, 127.5 ] );
 	} );
 } );
 
