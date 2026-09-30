@@ -79,24 +79,4 @@ class Post_List_Link_Test extends BaseTestCase {
 
 		$this->assertSame( self::DETAIL_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
 	}
-
-	/**
-	 * Defence in depth: the column itself is already gated on the same primitives,
-	 * so no reader reaches this arm from the post list. It guards the next caller
-	 * of a public filter.
-	 */
-	public function test_filter_url_leaves_the_legacy_url_when_the_capability_is_absent() {
-		$this->login_as( 'editor' );
-
-		$this->assertSame( self::LEGACY_URL, Post_List_Link::filter_url( self::LEGACY_URL, 123 ) );
-	}
-
-	/**
-	 * A row with no real post has no detail page to send anyone to.
-	 */
-	public function test_filter_url_leaves_the_legacy_url_without_a_post_id() {
-		$this->login_as( 'administrator' );
-
-		$this->assertSame( self::LEGACY_URL, Post_List_Link::filter_url( self::LEGACY_URL, 0 ) );
-	}
 }

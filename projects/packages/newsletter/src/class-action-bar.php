@@ -260,7 +260,6 @@ class Action_Bar {
 	/**
 	 * Where the bar's post stats link goes.
 	 *
-	 * @internal
 	 * @since $$next-version$$
 	 *
 	 * @param int    $post_id           The post.
