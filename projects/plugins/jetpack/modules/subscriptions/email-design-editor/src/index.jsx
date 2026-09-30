@@ -36,6 +36,7 @@ import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { registerPlugin } from '@wordpress/plugins';
 import { addQueryArgs } from '@wordpress/url';
+import { watchDerivedTextColor } from './derived-text-color';
 
 // Declared by the Jetpack plugin on every platform, answered by WordPress.com, so
 // the browser calls one local URL everywhere.
@@ -242,6 +243,21 @@ export function buildPreloadMap( bundle, templateId ) {
 	};
 
 	return Object.keys( map ).length > 0 ? map : null;
+}
+
+/**
+ * The colors the site gives text, links and headings, before WordPress.com made any readable.
+ *
+ * A bundle from before WordPress.com reported these omits the key, and the watcher then leaves
+ * links and headings to WordPress.com — which is what every blog saw before.
+ *
+ * @param {object} bundle - The response from the bootstrap route.
+ * @return {object} The inherited colors, keyed by element.
+ */
+export function inheritedColors( bundle ) {
+	const colors = bundle?.inherited_colors;
+
+	return colors && 'object' === typeof colors ? colors : {};
 }
 
 /**
@@ -1071,6 +1087,7 @@ export async function mountEmailDesignEditor() {
 
 	const root = createRoot( container );
 	let stopWatchingSidebar = null;
+	let stopDerivingTextColor = null;
 
 	try {
 		const bundle = await apiFetch( {
@@ -1115,6 +1132,10 @@ export async function mountEmailDesignEditor() {
 		// error screen.
 		if ( canEditDesign( bundle ) ) {
 			stopWatchingSidebar = openStylesSidebarOnLoad();
+			stopDerivingTextColor = watchDerivedTextColor(
+				config.globalStylesPostId,
+				inheritedColors( bundle )
+			);
 		}
 
 		root.render(
@@ -1128,6 +1149,7 @@ export async function mountEmailDesignEditor() {
 		);
 	} catch ( error ) {
 		stopWatchingSidebar?.();
+		stopDerivingTextColor?.();
 
 		// The notice deliberately does not name which half failed; this does.
 		// eslint-disable-next-line no-console
