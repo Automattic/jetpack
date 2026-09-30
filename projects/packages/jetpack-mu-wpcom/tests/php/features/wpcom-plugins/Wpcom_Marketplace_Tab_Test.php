@@ -1367,6 +1367,12 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 2, substr_count( $html, 'wpcom-marketplace-card"' ) );
 		$this->assertStringContainsString( '<div class="wp-list-table widefat plugin-install">', $html );
 		$this->assertStringContainsString( '<div id="the-list" class="wpcom-marketplace-grid">', $html );
+
+		// Core's live search empties #plugin-filter, so nothing of the tab may sit outside it.
+		$form = strpos( $html, '<form id="plugin-filter"' );
+		foreach ( array( 'wpcom-marketplace-intro', 'displaying-num', 'wpcom-marketplace-grid' ) as $piece ) {
+			$this->assertGreaterThan( $form, strpos( $html, $piece ), $piece );
+		}
 		$this->assertStringContainsString( '2 items', $html );
 		$this->assertLessThan(
 			strpos( $html, 'Second Plugin' ),
