@@ -466,6 +466,16 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
+	 * 16.3-a.7 shipped the dashboard without the module, so upgrading from it must switch the module on.
+	 */
+	public function test_backup_module_auto_activates_on_upgrade_from_the_release_without_it() {
+		$info = jetpack_get_module_info( 'backup' );
+		$this->assertIsArray( $info );
+		$this->assertSame( 1, version_compare( $info['introduced'], '16.3-a.7' ) );
+		$this->assertContains( 'backup', Jetpack::get_default_modules( '16.3-a.7', $info['introduced'] ) );
+	}
+
+	/**
 	 * Connect the site with an administrator as its owner.
 	 */
 	private function connect_owner() {

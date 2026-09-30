@@ -3,7 +3,7 @@
  * Module Name: Backup
  * Module Description: Browse your backups and restore your site right from your dashboard.
  * Sort Order: 33
- * First Introduced: 16.3-beta
+ * First Introduced: 16.3-a.8
  * Requires Connection: Yes
  * Requires User Connection: Yes
  * Auto Activate: Yes
