@@ -48,7 +48,7 @@ class Block_Editor {
 	private function __construct() {
 		// Either side of kses at 10, which lets the markup of these blocks through.
 		add_filter( 'pre_comment_content', array( $this, 'keep_allowed_blocks' ), 9 );
-		add_filter( 'pre_comment_content', array( $this, 'keep_alignment_classes' ), 11 );
+		add_filter( 'pre_comment_content', array( $this, 'forget_blocks' ), 11 );
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5 );
@@ -133,37 +133,15 @@ class Block_Editor {
 	}
 
 	/**
-	 * Cut every class kses let through down to the editor's text alignment. After kses,
-	 * so this filters what is stored, not what one parser thinks kses will keep.
+	 * End the wider kses rules with the comment they were for.
 	 *
 	 * @param string $content Slashed comment content.
 	 * @return string
 	 */
-	public function keep_alignment_classes( $content ) {
-		$has_blocks       = $this->has_blocks;
+	public function forget_blocks( $content ) {
 		$this->has_blocks = false;
 
-		// Commenters with unfiltered_html go through post kses, which allows any class.
-		if ( ! $has_blocks || false === has_filter( 'pre_comment_content', 'wp_filter_kses' ) ) {
-			return $content;
-		}
-
-		$tags = new \WP_HTML_Tag_Processor( wp_unslash( $content ) );
-
-		while ( $tags->next_tag() ) {
-			$classes = array_intersect(
-				preg_split( '/\s+/', (string) $tags->get_attribute( 'class' ) ),
-				array( 'has-text-align-left', 'has-text-align-center', 'has-text-align-right' )
-			);
-
-			if ( $classes ) {
-				$tags->set_attribute( 'class', implode( ' ', $classes ) );
-			} else {
-				$tags->remove_attribute( 'class' );
-			}
-		}
-
-		return wp_slash( $tags->get_updated_html() );
+		return $content;
 	}
 
 	/**
@@ -181,20 +159,12 @@ class Block_Editor {
 		return array_merge(
 			$tags,
 			array(
-				// Class is safe to allow: keep_alignment_classes() cuts it down after.
-				'p'          => array( 'class' => true ),
-				'blockquote' => array(
-					'cite'  => true,
-					'class' => true,
-				),
-				'br'         => array(),
-				'pre'        => array(),
-				'ul'         => array(),
-				'ol'         => array(
-					'start'    => true,
-					'reversed' => true,
-				),
-				'li'         => array(),
+				'p'   => array(),
+				'br'  => array(),
+				'pre' => array(),
+				'ul'  => array(),
+				'ol'  => array(),
+				'li'  => array(),
 			)
 		);
 	}

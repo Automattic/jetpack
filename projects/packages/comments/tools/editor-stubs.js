@@ -53,6 +53,8 @@ const stubs = [
 		'unit-control',
 	].map( name => `@wordpress/components/build-module/${ name }/index.mjs` ),
 	...[
+		// The quote block's text alignment: a comment is not laid out.
+		'alignment-control',
 		'background-image-control',
 		'block-inspector',
 		'block-preview',

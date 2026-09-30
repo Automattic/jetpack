@@ -142,39 +142,6 @@
 		}
 	}
 
-	// The mover's arrows: side by side on a phone, stacked above that.
-	.block-editor-block-mover__move-button-container {
-		display: flex;
-	}
-
-	@media (min-width: 600px) {
-
-		.block-editor-block-mover__move-button-container {
-			flex-direction: column;
-			justify-content: center;
-
-			> .components-button {
-				width: 100%;
-				height: 20px;
-				overflow: hidden;
-
-				&::before {
-					inset: 2px;
-				}
-			}
-
-			.is-up-button svg {
-				position: relative;
-				top: 3px;
-			}
-
-			.is-down-button svg {
-				position: relative;
-				bottom: 3px;
-			}
-		}
-	}
-
 	// Popovers, for the formatting tools, menus, and the link field.
 	.components-popover {
 		z-index: 1000000;
@@ -375,18 +342,6 @@
 			content: attr(data-rich-text-placeholder);
 			opacity: 0.62;
 		}
-	}
-
-	.has-text-align-left {
-		text-align: left;
-	}
-
-	.has-text-align-center {
-		text-align: center;
-	}
-
-	.has-text-align-right {
-		text-align: right;
 	}
 
 	.wp-block-code code {

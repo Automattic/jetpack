@@ -27,10 +27,10 @@ import {
 	useRef,
 } from '@wordpress/element';
 import '@wordpress/format-library';
-import { create, unregisterFormatType } from '@wordpress/rich-text';
+import { unregisterFormatType } from '@wordpress/rich-text';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
-import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 
 import './style.scss';
 
@@ -54,7 +54,6 @@ const settings = {
 	hasFixedToolbar: true,
 	// A comment has no wide or full width.
 	supportsLayout: false,
-	__experimentalFeatures: { typography: { textAlign: true } },
 };
 
 type EditorProps = {
@@ -106,31 +105,8 @@ const FocusOnMount = () => {
 
 type WritingAreaProps = { undo: () => void; redo: () => void; children: ReactNode };
 
-// Inside the provider, to put the caret at the end of the comment: where a reader expects
-// to carry on after an undo or redo, which restores blocks but not the caret, and after a
-// press on the empty space around the blocks, as in the textarea it replaced.
+// The undo and redo shortcuts, which live in the post editor, not the block editor.
 const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
-	const { selectBlock, selectionChange } = useDispatch( blockEditorStore );
-	const { getBlockOrder, getBlockAttributes } = useSelect( blockEditorStore );
-
-	const toEnd = useCallback( () => {
-		// The innermost last block, where the text is: a list's last item, not the list.
-		let last = getBlockOrder().at( -1 );
-		while ( last && getBlockOrder( last ).length ) {
-			last = getBlockOrder( last ).at( -1 );
-		}
-
-		if ( last ) {
-			// selectBlock() focuses a block that is not selected; an undo rewrites the selected
-			// one's text in place, dropping the caret at its start, so the offset moves it back.
-			const { length } = create( {
-				html: String( getBlockAttributes( last )?.content ?? '' ),
-			} ).text;
-			selectBlock( last, -1 );
-			selectionChange( last, 'content', length, length );
-		}
-	}, [ getBlockOrder, getBlockAttributes, selectBlock, selectionChange ] );
-
 	const onKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLDivElement > ) => {
 			if ( ( event.metaKey || event.ctrlKey ) && event.key.toLowerCase() === 'z' ) {
@@ -140,29 +116,12 @@ const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
 				} else {
 					undo();
 				}
-				requestAnimationFrame( toEnd );
 			}
 		},
-		[ undo, redo, toEnd ]
+		[ undo, redo ]
 	);
 
-	// A click, a frame late: the editor syncs its selection from the page's as the press ends.
-	const onClick = useCallback(
-		( event: MouseEvent< HTMLDivElement > ) => {
-			const target = event.target as Element;
-			if ( target.closest( '.editor-styles-wrapper' ) && ! target.closest( '.wp-block' ) ) {
-				requestAnimationFrame( toEnd );
-			}
-		},
-		[ toEnd ]
-	);
-
-	return (
-		// eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- listens for the editable text inside, which keyboards already reach.
-		<div onKeyDownCapture={ onKeyDown } onClick={ onClick }>
-			{ children }
-		</div>
-	);
+	return <div onKeyDownCapture={ onKeyDown }>{ children }</div>;
 };
 
 const Editor = ( {

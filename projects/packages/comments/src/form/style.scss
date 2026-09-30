@@ -92,20 +92,6 @@
 	}
 }
 
-// The editor's text alignment in posted comments, for themes that leave
-// out core's block styles. Core gives every comment the comment class.
-.comment .has-text-align-left {
-	text-align: left;
-}
-
-.comment .has-text-align-center {
-	text-align: center;
-}
-
-.comment .has-text-align-right {
-	text-align: right;
-}
-
 // The footer inside the box and the options below it open and close the same
 // way. Hidden, not just collapsed, so nothing inside a closed one takes focus.
 .jetpack-comments__footer,
