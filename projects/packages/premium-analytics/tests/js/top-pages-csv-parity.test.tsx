@@ -53,7 +53,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 const mockUseSectionTab = jest.mocked( useSectionTab );
 
-// Comparison on, as on the dashboard by default: the report fetches it, the export must not need it.
+// Comparison on: the report fetches it, the export must not need it.
 const REPORT_PARAMS = {
 	from: '2026-03-01',
 	to: '2026-03-10',

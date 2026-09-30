@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Top pages widget: Download the full report for the selected dates, and add the download to the Archives view.
+Top pages widget: Download the full report for the selected dates instead of the rows on screen, using the report's Title, Views, and URL columns, and add the download to the Archives view.
