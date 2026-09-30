@@ -1,3 +1,5 @@
+import type { LocaleData } from '@wordpress/i18n';
+
 export type Details = {
 	author: string;
 	email: string;
@@ -66,7 +68,6 @@ export type FormSettings = {
 
 export type Strings = {
 	blockTools: string;
-	formatTools: string;
 	reply: string;
 	commentLabel: string;
 	replyLabel: string;
@@ -107,8 +108,8 @@ export type Settings = {
 	maxLength: number;
 	/** Whether the block editor replaces the textarea. */
 	blocks: boolean;
-	/** Where core's translations for the editor come from; empty in English. */
-	editorI18nUrl: string;
+	/** Core's translations of the editor strings a commenter meets; empty in English. */
+	editorLocale: LocaleData;
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };

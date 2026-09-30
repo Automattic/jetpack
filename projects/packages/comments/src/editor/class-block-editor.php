@@ -14,8 +14,6 @@ use Automattic\Jetpack\Assets;
  */
 class Block_Editor {
 
-	const I18N_ACTION = 'jetpack_comments_editor_i18n';
-
 	/**
 	 * Singleton instance.
 	 *
@@ -30,13 +28,6 @@ class Block_Editor {
 	 * @var bool
 	 */
 	private $has_blocks = false;
-
-	/**
-	 * Whether register_routes() has run.
-	 *
-	 * @var bool
-	 */
-	private static $routes_registered = false;
 
 	/**
 	 * Register the hooks. Safe to call more than once.
@@ -64,84 +55,46 @@ class Block_Editor {
 		// The edit-comment screen, for a comment that holds blocks.
 		add_filter( 'wp_editor_settings', array( __CLASS__, 'plain_editor' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
-		self::register_routes();
 	}
 
 	/**
-	 * Register the translations route. Safe to call more than once: jetpack-mu-wpcom calls it
-	 * ahead of the gates that keep init() off admin-ajax on WordPress.com.
-	 *
-	 * @return void
-	 */
-	public static function register_routes() {
-		if ( self::$routes_registered ) {
-			return;
-		}
-
-		self::$routes_registered = true;
-
-		// Admin-ajax, not REST: Simple sites have no /wp-json of their own.
-		add_action( 'wp_ajax_' . self::I18N_ACTION, array( __CLASS__, 'send_locale_data' ) );
-		add_action( 'wp_ajax_nopriv_' . self::I18N_ACTION, array( __CLASS__, 'send_locale_data' ) );
-	}
-
-	/**
-	 * Where the comment form fetches the editor's translations from; empty in English.
-	 *
-	 * @return string
-	 */
-	public static function i18n_url() {
-		if ( 'en_US' === determine_locale() ) {
-			return '';
-		}
-
-		// Relative: on Simple, admin_url() is on the wordpress.com host. The locale and
-		// version only key the cache.
-		return wp_make_link_relative(
-			add_query_arg(
-				array(
-					'action' => self::I18N_ACTION,
-					'locale' => determine_locale(),
-					'ver'    => get_bloginfo( 'version' ),
-				),
-				admin_url( 'admin-ajax.php' )
-			)
-		);
-	}
-
-	/**
-	 * Core's translations for the scripts the editor bundles, in one Jed messages set.
+	 * Core's translations of the strings in strings.php, and the plural rules under '', in one Jed messages set.
 	 *
 	 * @return object
 	 */
-	private static function locale_data() {
-		$messages = array();
+	public static function locale_data() {
+		$locale = determine_locale();
 
-		foreach ( array( 'wp-block-editor', 'wp-block-library', 'wp-blocks', 'wp-components', 'wp-format-library', 'wp-rich-text', 'wp-keycodes' ) as $handle ) {
-			$json = load_script_textdomain( $handle, 'default' );
-			$data = is_string( $json ) ? json_decode( $json, true ) : null;
+		if ( 'en_US' === $locale ) {
+			return (object) array();
+		}
 
-			if ( isset( $data['locale_data']['messages'] ) && is_array( $data['locale_data']['messages'] ) ) {
-				$messages += $data['locale_data']['messages'];
+		// Keyed by version too: an update brings new translation files.
+		$key      = 'jetpack_comments_editor_i18n_' . md5( $locale . get_bloginfo( 'version' ) );
+		$messages = get_transient( $key );
+
+		if ( ! is_array( $messages ) ) {
+			$messages = array();
+
+			foreach ( array( 'wp-a11y', 'wp-block-editor', 'wp-block-library', 'wp-blocks', 'wp-components', 'wp-format-library', 'wp-rich-text' ) as $handle ) {
+				$json = load_script_textdomain( $handle, 'default' );
+				$data = is_string( $json ) ? json_decode( $json, true ) : null;
+
+				if ( isset( $data['locale_data']['messages'] ) && is_array( $data['locale_data']['messages'] ) ) {
+					$messages += array_intersect_key( $data['locale_data']['messages'], array_flip( require __DIR__ . '/strings.php' ) + array( '' => true ) );
+				}
 			}
+
+			// Core translates block titles in PHP, so they are in its .mo, not the script files.
+			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code' ) as $title ) {
+				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch -- Core's own strings.
+				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
+			}
+
+			set_transient( $key, $messages, WEEK_IN_SECONDS );
 		}
 
 		return (object) $messages;
-	}
-
-	/**
-	 * Answer the comment form's request for the editor's translations.
-	 *
-	 * @return void
-	 */
-	public static function send_locale_data() {
-		// Registered on every WordPress.com request, so it gates itself as the form does.
-		if ( ! Comments::is_enabled() || ! self::is_enabled() ) {
-			wp_send_json( null, 404, JSON_UNESCAPED_SLASHES );
-		}
-
-		header( 'Cache-Control: public, max-age=' . DAY_IN_SECONDS );
-		wp_send_json( self::locale_data(), 200, JSON_UNESCAPED_SLASHES );
 	}
 
 	/**
@@ -308,8 +261,7 @@ class Block_Editor {
 		);
 
 		$labels = array(
-			'blockTools'  => __( 'Block tools', 'jetpack-comments' ),
-			'formatTools' => __( 'Format tools', 'jetpack-comments' ),
+			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
 		);
 
 		wp_add_inline_script(

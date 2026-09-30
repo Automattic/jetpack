@@ -13,20 +13,12 @@ import './style.scss';
 let editorModule: Promise< typeof import( '../editor' ) > | null = null;
 
 const loadEditor = () => {
-	// Translations first, as the chunk reads them while it loads; English without them.
-	editorModule ??= (
-		JetpackComments.editorI18nUrl
-			? fetch( JetpackComments.editorI18nUrl )
-					.then( response => response.json() )
-					.then( data => ( window.jetpackCommentsEditorLocale = data ) )
-					.catch( () => undefined )
-			: Promise.resolve()
-	)
-		.then( () => import( /* webpackChunkName: "editor" */ '../editor' ) )
-		.catch( error => {
-			editorModule = null;
-			throw error;
-		} );
+	// The chunk reads its translations as it loads.
+	window.jetpackCommentsEditorLocale = JetpackComments.editorLocale;
+	editorModule ??= import( /* webpackChunkName: "editor" */ '../editor' ).catch( error => {
+		editorModule = null;
+		throw error;
+	} );
 
 	return editorModule;
 };
@@ -67,7 +59,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				.then( ( { mountEditor } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
-						labels: { blockTools: strings.blockTools, formatTools: strings.formatTools },
+						labels: { blockTools: strings.blockTools },
 						focus,
 						placeholder,
 						onChange: content => ( commentValue.value = content ),

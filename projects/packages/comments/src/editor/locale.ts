@@ -5,8 +5,8 @@ declare global {
 	interface Window {
 		/** Core's translations for the editor, handed over before the chunk loads. */
 		jetpackCommentsEditorLocale?: LocaleData;
-		/** The toolbars' accessible names on the edit-comment screen, translated in PHP. */
-		jetpackCommentsEditorLabels: { blockTools: string; formatTools: string };
+		/** The toolbar's accessible name on the edit-comment screen, translated in PHP. */
+		jetpackCommentsEditorLabels: { blockTools: string };
 	}
 }
 

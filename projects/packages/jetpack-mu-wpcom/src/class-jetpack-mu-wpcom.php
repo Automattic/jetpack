@@ -845,10 +845,6 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
 			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		}
-
-		if ( method_exists( '\Automattic\Jetpack\Comments\Block_Editor', 'register_routes' ) ) {
-			\Automattic\Jetpack\Comments\Block_Editor::register_routes();
-		}
 	}
 
 	/**

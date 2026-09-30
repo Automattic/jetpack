@@ -23,7 +23,7 @@
 	box-sizing: border-box;
 	inline-size: 100%;
 	// A few lines, padding included, as the editor has; field-sizing ignores rows.
-	min-block-size: 6lh;
+	min-block-size: 5lh;
 	field-sizing: content;
 	padding: var(--jetpack-comments-pad);
 	resize: none;

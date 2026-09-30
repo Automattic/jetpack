@@ -39,12 +39,12 @@ import {
 	createRoot,
 	useCallback,
 	useEffect,
+	useMemo,
 	useReducer,
 	useRef,
-	useState,
 } from '@wordpress/element';
 import '@wordpress/format-library';
-import { unregisterFormatType } from '@wordpress/rich-text';
+import { create, unregisterFormatType } from '@wordpress/rich-text';
 import type { ComponentProps, KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
 type IconType = ComponentProps< typeof DropdownMenu >[ 'icon' ];
@@ -76,8 +76,8 @@ const settings = {
 
 type EditorProps = {
 	initialContent: string;
-	/** The toolbars' accessible names, translated in PHP. */
-	labels: { blockTools: string; formatTools: string };
+	/** The toolbar's accessible name, translated in PHP. */
+	labels: { blockTools: string };
 	focus: boolean;
 	placeholder: string;
 	onChange: ( content: string ) => void;
@@ -188,8 +188,7 @@ const FocusOnMount = () => {
 	return null;
 };
 
-// The toolbar across the top: what to do with the selected block. Formatting has its
-// own popover at the selection, so this renders every block controls group but that one.
+// The toolbar across the top, for the selected block and its text.
 const BlockToolbar = ( { label }: { label: string } ) => {
 	const { clientIds, root } = useSelect( select => {
 		const { getSelectedBlockClientIds, getBlock, getBlockHierarchyRootClientId } =
@@ -241,63 +240,10 @@ const BlockToolbar = ( { label }: { label: string } ) => {
 			</ToolbarGroup>
 			<BlockControls.Slot group="parent" />
 			<BlockControls.Slot group="block" />
+			<BlockControls.Slot group="inline" />
 			<BlockControls.Slot />
 			<BlockControls.Slot group="other" />
 		</Toolbar>
-	);
-};
-
-type Anchor = { getBoundingClientRect: () => DOMRect; ownerDocument: Document };
-
-// The formatting tools, in a popover at selected text: above it, or below on a touch
-// screen, where the system's own copy and paste menu sits above.
-const FormatToolbar = ( { label }: { label: string } ) => {
-	const marker = useRef< HTMLSpanElement >( null );
-	const [ anchor, setAnchor ] = useState< Anchor | null >( null );
-
-	useEffect( () => {
-		const doc = marker.current!.ownerDocument;
-		const editor = marker.current!.closest( '.jetpack-comments__editor' );
-
-		const onSelectionChange = () => {
-			const selection = doc.getSelection();
-			const node = selection?.anchorNode;
-			const editable = ( node instanceof Element ? node : node?.parentElement )?.closest(
-				'[contenteditable="true"]'
-			);
-
-			if ( ! selection || selection.isCollapsed || ! editable || ! editor?.contains( editable ) ) {
-				setAnchor( null );
-				return;
-			}
-
-			const range = selection.getRangeAt( 0 ).cloneRange();
-			setAnchor( {
-				getBoundingClientRect: () => range.getBoundingClientRect(),
-				ownerDocument: doc,
-			} );
-		};
-
-		doc.addEventListener( 'selectionchange', onSelectionChange );
-		return () => doc.removeEventListener( 'selectionchange', onSelectionChange );
-	}, [] );
-
-	return (
-		<>
-			<span ref={ marker } hidden />
-			{ anchor && (
-				<Popover
-					anchor={ anchor }
-					placement={ matchMedia( '(pointer: coarse)' ).matches ? 'bottom' : 'top' }
-					focusOnMount={ false }
-					className="jetpack-comments__format-tools"
-				>
-					<Toolbar label={ label } variant="unstyled">
-						<BlockControls.Slot group="inline" />
-					</Toolbar>
-				</Popover>
-			) }
-		</>
 	);
 };
 
@@ -307,8 +253,8 @@ type WritingAreaProps = { undo: () => void; redo: () => void; children: ReactNod
 // to carry on after an undo or redo, which restores blocks but not the caret, and after a
 // press on the empty space around the blocks, as in the textarea it replaced.
 const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
-	const { selectBlock } = useDispatch( blockEditorStore );
-	const { getBlockOrder } = useSelect( blockEditorStore );
+	const { selectBlock, selectionChange } = useDispatch( blockEditorStore );
+	const { getBlockOrder, getBlockAttributes } = useSelect( blockEditorStore );
 
 	const toEnd = useCallback( () => {
 		// The innermost last block, where the text is: a list's last item, not the list.
@@ -318,9 +264,15 @@ const WritingArea = ( { undo, redo, children }: WritingAreaProps ) => {
 		}
 
 		if ( last ) {
+			// selectBlock() focuses a block that is not selected; an undo rewrites the selected
+			// one's text in place, dropping the caret at its start, so the offset moves it back.
+			const { length } = create( {
+				html: String( getBlockAttributes( last )?.content ?? '' ),
+			} ).text;
 			selectBlock( last, -1 );
+			selectionChange( last, 'content', length, length );
 		}
-	}, [ getBlockOrder, selectBlock ] );
+	}, [ getBlockOrder, getBlockAttributes, selectBlock, selectionChange ] );
 
 	const onKeyDown = useCallback(
 		( event: KeyboardEvent< HTMLDivElement > ) => {
@@ -401,6 +353,8 @@ const Editor = ( {
 	);
 	const undo = useCallback( () => dispatch( { type: 'undo' } ), [] );
 	const redo = useCallback( () => dispatch( { type: 'redo' } ), [] );
+	// Backspace just after a shortcut such as "- " calls this to undo the conversion.
+	const editorSettings = useMemo( () => ( { ...settings, __experimentalUndo: undo } ), [ undo ] );
 
 	return (
 		<SlotFillProvider>
@@ -408,7 +362,7 @@ const Editor = ( {
 				value={ blocks }
 				onInput={ onEdit }
 				onChange={ onEdit }
-				settings={ settings }
+				settings={ editorSettings }
 				useSubRegistry
 			>
 				{ focus && <FocusOnMount /> }
@@ -416,7 +370,6 @@ const Editor = ( {
 					<div className="jetpack-comments__toolbar">
 						<BlockToolbar label={ labels.blockTools } />
 					</div>
-					<FormatToolbar label={ labels.formatTools } />
 					{ /* In the page, not an iframe, so the blocks wear the theme's type. */ }
 					<BlockTools>
 						<WritingFlow className="editor-styles-wrapper">
