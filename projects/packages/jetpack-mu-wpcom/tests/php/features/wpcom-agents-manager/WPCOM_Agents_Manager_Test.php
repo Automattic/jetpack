@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the WordPress.com Agents Manager block-editor gate.
+ * Tests for the WordPress.com Agents Manager gates.
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -22,6 +22,7 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function tear_down() {
 		delete_option( 'big_sky_enable' );
+		remove_filter( 'agents_manager_should_load', '__return_true' );
 		parent::tear_down();
 	}
 
@@ -99,5 +100,37 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		update_option( 'big_sky_enable', 0 );
 
 		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
+	}
+
+	/**
+	 * The feature asks for the shell when the Dashboard loads.
+	 */
+	public function test_hooks_the_dashboard_load_action() {
+		$this->assertSame( 10, has_action( 'load-index.php', 'wpcom_agents_manager_load_on_dashboard' ) );
+	}
+
+	/**
+	 * Without the WordPress Agent on the site, the Dashboard does not request the shell.
+	 */
+	public function test_dashboard_stays_off_without_the_wordpress_agent() {
+		wpcom_agents_manager_load_on_dashboard();
+
+		$this->assertFalse( apply_filters( 'agents_manager_should_load', false ) );
+	}
+
+	/**
+	 * With the WordPress Agent on the site, the Dashboard requests the shell.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_dashboard_requests_the_shell_with_the_wordpress_agent() {
+		eval( 'function big_sky_is_enabled() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
+
+		wpcom_agents_manager_load_on_dashboard();
+
+		$this->assertTrue( apply_filters( 'agents_manager_should_load', false ) );
 	}
 }
