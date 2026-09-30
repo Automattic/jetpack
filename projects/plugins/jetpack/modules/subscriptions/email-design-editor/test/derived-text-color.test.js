@@ -345,6 +345,68 @@ describe( 'watchDerivedTextColor', () => {
 		expect( written().elements ).toBeUndefined();
 	} );
 
+	it( 'derives again when the creator clears the text color', () => {
+		const pick = watching(
+			{ styles: { color: { background: '#000000', text: '#ff00ff' } } },
+			{ text: '#333333' }
+		);
+
+		pick( { styles: { color: { background: '#000000' } } } );
+
+		expect( written() ).toEqual( { color: { background: '#000000', text: BLACK_TEXT } } );
+	} );
+
+	it( "leaves it empty when the site's own text color already reads on the background", () => {
+		const pick = watching(
+			{ styles: { color: { background: '#ffffff', text: '#ff00ff' } } },
+			{ text: '#333333' }
+		);
+
+		pick( { styles: { color: { background: '#ffffff' } } } );
+
+		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
+	} );
+
+	it( "gives the site's own text color back when a new background suits it", () => {
+		const pick = watching(
+			{ styles: { color: { background: '#000000', text: BLACK_TEXT } } },
+			{ text: '#333333' }
+		);
+
+		pick( { styles: { color: { background: '#ffffff', text: BLACK_TEXT } } } );
+
+		expect( written() ).toEqual( { color: { background: '#ffffff' } } );
+	} );
+
+	it( 'keeps a site text color it cannot judge', () => {
+		const pick = watching(
+			{ styles: { color: { background: '#000000', text: '#ff00ff' } } },
+			{ text: 'var(--wp--preset--color--foreground)' }
+		);
+
+		pick( { styles: { color: { background: '#000000' } } } );
+
+		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
+	} );
+
+	it( 'derives again when the creator clears a link color', () => {
+		const pick = watching(
+			{
+				styles: {
+					color: { background: '#000000', text: '#ff00ff' },
+					elements: { link: { color: { text: '#ff00ff' } } },
+				},
+			},
+			{ text: '#ffffff', link: '#0073aa' }
+		);
+
+		pick( {
+			styles: { color: { background: '#000000', text: '#ff00ff' }, elements: {} },
+		} );
+
+		expect( written().elements ).toEqual( { link: { color: { text: '#007cb8' } } } );
+	} );
+
 	it( 'does nothing without a global-styles id', () => {
 		expect( watchDerivedTextColor( null )() ).toBeUndefined();
 		expect( mockListener ).toBeUndefined();
