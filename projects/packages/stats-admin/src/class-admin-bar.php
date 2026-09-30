@@ -139,7 +139,7 @@ class Admin_Bar {
 		/**
 		 * Filters a link to a Stats page, so a newer analytics dashboard can claim it.
 		 *
-		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with `$args['post_id']`.
+		 * `$args['view']` names the page the link opens: `dashboard`, or `post` with the post in `$args['id']`.
 		 * Return `$url` unchanged for a view the dashboard has no page for.
 		 *
 		 * @since $$next-version$$

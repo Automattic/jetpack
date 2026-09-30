@@ -38,8 +38,8 @@ class Post_List_Link {
 		return Stats_Links::filter_url(
 			$url,
 			array(
-				'view'    => 'post',
-				'post_id' => $post_id,
+				'view' => 'post',
+				'id'   => $post_id,
 			)
 		);
 	}
