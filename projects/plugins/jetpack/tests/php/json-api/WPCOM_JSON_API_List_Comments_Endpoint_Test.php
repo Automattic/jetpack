@@ -85,8 +85,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint_Test extends WP_UnitTestCase {
 				'comment_date_gmt' => '2026-03-02 10:00:00',
 			)
 		);
-		$factory->comment->create( $approved + array( 'comment_type' => 'pingback' ) );
-		$factory->comment->create( $approved + array( 'comment_type' => 'pingback' ) );
+		$factory->comment->create_many( 2, $approved + array( 'comment_type' => 'pingback' ) );
 		$factory->comment->create( $approved + array( 'comment_type' => 'trackback' ) );
 		$factory->comment->create(
 			array(
