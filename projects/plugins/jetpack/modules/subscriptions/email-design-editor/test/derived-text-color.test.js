@@ -303,6 +303,29 @@ describe( 'watchDerivedTextColor', () => {
 		} );
 	} );
 
+	it( 'resolves a palette pick before deriving the element colors', () => {
+		const pick = watching( { styles: {} }, { link: '#0073aa' } );
+		mockTheme = { settings: { color: { palette: [ { slug: 'brand', color: '#000000' } ] } } };
+
+		pick( { styles: { color: { background: 'var:preset|color|brand' } } } );
+
+		expect( written().elements ).toEqual( { link: { color: { text: '#007cb8' } } } );
+	} );
+
+	it( 'derives the element colors even when the creator set the text color', () => {
+		const pick = watching(
+			{ styles: { color: { background: '#ffffff', text: '#ff00ff' } } },
+			{ link: '#0073aa' }
+		);
+
+		pick( { styles: { color: { background: '#000000', text: '#ff00ff' } } } );
+
+		expect( written() ).toEqual( {
+			color: { background: '#000000', text: '#ff00ff' },
+			elements: { link: { color: { text: '#007cb8' } } },
+		} );
+	} );
+
 	it( 'writes the elements in one edit with the text color', () => {
 		const pick = watching( { styles: {} }, { link: '#0073aa' } );
 

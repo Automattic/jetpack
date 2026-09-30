@@ -99,9 +99,13 @@ export function watchDerivedTextColor( id, inherited = {} ) {
  * @return {object|null} The new `styles`, or null when nothing changes.
  */
 function nextStyles( record, before, background, inherited ) {
-	const withText = nextTextColor( record, before, background );
+	// Resolved once, here, so the text color and the element colors are derived from the same
+	// literal: `parseColor` refuses a `var:preset|color|slug`, and every element would be skipped.
+	const from = resolvePresetColor( before, record );
+	const to = resolvePresetColor( background, record );
+	const withText = withDerivedTextColor( record, from, to );
 	const styles = withText ?? record.styles ?? {};
-	const elements = nextElements( styles, before, background, inherited );
+	const elements = nextElements( styles, from, to, inherited );
 
 	if ( null === elements ) {
 		return withText;
@@ -125,19 +129,19 @@ function nextStyles( record, before, background, inherited ) {
  * background does not, which is what makes the Text control both real and overridable.
  *
  * @param {object} record     - The edited design record.
- * @param {*}      before     - The background before the change.
- * @param {*}      background - The background after it.
+ * @param {*}      before     - The background before the change, resolved.
+ * @param {*}      background - The background after it, resolved.
  * @return {object|null} The new `styles`, or null when the text color should be left alone.
  */
-function nextTextColor( record, before, background ) {
+function withDerivedTextColor( record, before, background ) {
 	const text = record.styles?.color?.text;
 	const hasText = undefined !== text && null !== text;
 
-	if ( hasText && ! isSameColor( text, deriveTextColor( resolvePresetColor( before, record ) ) ) ) {
+	if ( hasText && ! isSameColor( text, deriveTextColor( before ) ) ) {
 		return null;
 	}
 
-	const derived = deriveTextColor( resolvePresetColor( background, record ) );
+	const derived = deriveTextColor( background );
 
 	if ( null === derived ) {
 		// Nothing to derive from, so a text color that only existed for the old background goes too.

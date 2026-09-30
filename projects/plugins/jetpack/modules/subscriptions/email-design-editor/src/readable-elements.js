@@ -31,29 +31,64 @@ export function nextElements( styles, before, background, inherited ) {
 
 		// A color the creator chose survives a background change; one derived for the previous
 		// background does not, which is what keeps these controls both real and overridable.
-		if (
-			undefined !== stored &&
-			null !== stored &&
-			! isSameColor( stored, readableFor( original, before ) )
-		) {
-			return;
+		const ours =
+			undefined === stored ||
+			null === stored ||
+			isSameColor( stored, readableFor( original, before ) );
+
+		if ( ours ) {
+			changed =
+				setPath( elements, [ element, 'color', 'text' ], readableFor( original, background ) ) ||
+				changed;
 		}
 
-		const readable = readableFor( original, background );
-
-		changed = setPath( elements, [ element, 'color', 'text' ], readable ) || changed;
-
 		if ( 'link' === element ) {
-			// A gray link has no hue to keep and would come out matching the text, so it is
-			// underlined rather than recolored into one.
-			const underline = null !== readable && isNeutral( readable ) ? 'underline' : null;
-
-			changed =
-				setPath( elements, [ element, 'typography', 'textDecoration' ], underline ) || changed;
+			changed = nextUnderline( elements, original, before, background, ours ) || changed;
 		}
 	} );
 
 	return changed ? prune( elements ) : null;
+}
+
+/**
+ * Underline a link with no hue to keep, and take that underline back off with the color.
+ *
+ * Owned by the same test the color uses, applied to the decoration itself — so one the creator
+ * set on a link this never underlined survives, and one this wrote does not outlive the creator
+ * taking the color over.
+ *
+ * @param {object}  elements   - The design's `elements`, modified in place.
+ * @param {*}       original   - The color the site gives the link.
+ * @param {*}       before     - The background before the change.
+ * @param {*}       background - The background after it.
+ * @param {boolean} ours       - Whether the link's color is this module's to set.
+ * @return {boolean} True when the tree changed.
+ */
+function nextUnderline( elements, original, before, background, ours ) {
+	const stored = elements.link?.typography?.textDecoration;
+
+	if ( undefined !== stored && stored !== underlineFor( original, before ) ) {
+		return false;
+	}
+
+	return setPath(
+		elements,
+		[ 'link', 'typography', 'textDecoration' ],
+		ours ? underlineFor( original, background ) : null
+	);
+}
+
+/**
+ * Whether a link comes out gray on a background, and so is underlined rather than recolored.
+ *
+ * @param {*} original   - The color the site gives the link.
+ * @param {*} background - The background it sits on.
+ * @return {string|null} `'underline'`, or null when the link keeps a hue of its own.
+ */
+function underlineFor( original, background ) {
+	const readable = readableFor( original, background );
+
+	return null !== readable && isNeutral( readable ) ? 'underline' : null;
 }
 
 /**

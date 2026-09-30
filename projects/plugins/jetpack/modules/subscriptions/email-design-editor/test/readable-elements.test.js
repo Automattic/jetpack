@@ -70,6 +70,32 @@ describe( 'nextElements', () => {
 		} );
 	} );
 
+	it( 'takes its underline back off when the creator overrides the link color', () => {
+		const styles = {
+			elements: {
+				link: {
+					color: { text: '#ff00ff' },
+					typography: { textDecoration: 'underline' },
+				},
+			},
+		};
+
+		expect( nextElements( styles, DARK, LIGHT, { link: GRAY } ) ).toEqual( {
+			link: { color: { text: '#ff00ff' } },
+		} );
+	} );
+
+	it( 'leaves an underline the creator set on a link it never underlined', () => {
+		const styles = { elements: { link: { typography: { textDecoration: 'underline' } } } };
+
+		expect( nextElements( styles, LIGHT, DARK, { link: ACCENT } ) ).toEqual( {
+			link: {
+				color: { text: ACCENT_ON_DARK },
+				typography: { textDecoration: 'underline' },
+			},
+		} );
+	} );
+
 	it.each( [ [ 'var(--accent)' ], [ 'rgba(0, 0, 0, 0.5)' ], [ 'red' ], [ undefined ], [ null ] ] )(
 		'leaves a link of %p alone',
 		link => {
