@@ -16,9 +16,12 @@ import {
 	ReportDrilldownTable,
 	ReportRecordsTable,
 	ReportCsvAction,
+	archivesCsvExporter,
+	getPostsCsvColumns,
+	postsPagesCsvExporter,
 	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -29,14 +32,12 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
-	buildArchiveCsvRows,
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
 	getTabLabel,
 	resolveTabId,
 	usePostsReportRecords,
-	type ArchiveRow,
 } from './config';
 import type { JSX } from 'react';
 
@@ -47,8 +48,6 @@ const ROUTE_FROM = route.path;
 type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
 
 const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
-
-const sortReportCsvRows = ( a: ReportCsvRow, b: ReportCsvRow ) => b.views - a.views;
 
 /**
  * Stable row id for the records table — the post ID, or the label for rows
@@ -134,25 +133,15 @@ function PostsReport(): JSX.Element {
 		[ records.archives.hasComparison ]
 	);
 
-	const csvColumns = useMemo< CsvColumn< ReportCsvRow >[] >(
-		() => [
-			{
-				label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => String( row.label ?? '' ),
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
+	const csvColumns = useMemo( () => getPostsCsvColumns< ReportCsvRow >(), [] );
 	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
-
+	const csvExporter = activeTab === 'posts-pages' ? postsPagesCsvExporter : archivesCsvExporter;
 	const csvExportRows = useMemo< ReportCsvRow[] >(
 		() =>
 			activeTab === 'posts-pages'
-				? records.posts.rows
-				: buildArchiveCsvRows( records.archives.rows ),
-		[ activeTab, records.posts.rows, records.archives.rows ]
+				? postsPagesCsvExporter.toCsvRows( records.posts.rows )
+				: archivesCsvExporter.toCsvRows( records.archives.items ),
+		[ activeTab, records.posts.rows, records.archives.items ]
 	);
 	const {
 		canExport,
@@ -160,12 +149,9 @@ function PostsReport(): JSX.Element {
 		filename: csvFilename,
 	} = useReportCsvExport< ReportCsvRow >( {
 		rows: csvExportRows,
-		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
-		range: reportParams,
+		filenamePrefix: csvExporter.filenamePrefix,
+		range: csvExporter.hasDateRange ? reportParams : undefined,
 		status: activeRecords,
-		// Archives are already ordered depth-first by views within each group;
-		// sorting the flattened rows again would interleave the groups.
-		sort: activeTab === 'posts-pages' ? sortReportCsvRows : undefined,
 	} );
 
 	// Date-range state lives in the URL search params, staged and committed by
