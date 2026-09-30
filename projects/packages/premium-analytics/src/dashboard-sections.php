@@ -96,7 +96,7 @@ function configure_dashboard_sections_script_data() {
  * availability check. Every section is in scope now, so the section's own rule decides.
  *
  * @since 0.6.0
- * @deprecated $$next-version$$ The preview scope is gone.
+ * @deprecated 0.10.0 The preview scope is gone.
  *
  * @param string $dashboard_name Dashboard identifier.
  * @param string $slug           URL-facing section slug.
@@ -111,7 +111,7 @@ function is_dashboard_section_in_preview_scope( $dashboard_name, $slug ) { // ph
  * symbol and call this, so a newer copy loading first must still define it.
  *
  * @since 0.6.0
- * @deprecated $$next-version$$ Use configure_dashboard_sections_script_data().
+ * @deprecated 0.10.0 Use configure_dashboard_sections_script_data().
  *
  * @return void
  */

@@ -6,6 +6,7 @@ import {
 	MediaUpload,
 	MediaUploadCheck,
 	useBlockProps,
+	useInnerBlocksProps,
 } from '@wordpress/block-editor';
 import {
 	Button,
@@ -14,6 +15,7 @@ import {
 	Placeholder,
 	TextareaControl,
 	TextControl,
+	ToggleControl,
 } from '@wordpress/components';
 import { useState } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
@@ -33,6 +35,7 @@ import PlaylistPreview from './preview';
 import usePlaylistLiveMetadata, { liveMetadataWithSignedPoster } from './use-live-metadata';
 import usePlaylistId from './use-playlist-id';
 import usePublishTracking from './use-publish-tracking';
+import useTitleHeading from './use-title-heading';
 import {
 	formatTimecode,
 	moveEntry,
@@ -150,8 +153,15 @@ function StandalonePlaylistEdit( {
 	setAttributes,
 	clientId,
 }: BlockEditProps< PlaylistAttributes > ) {
-	const { playlistId, playlistTitle, playlistDescription, videos, layout, entryTitleFontFamily } =
-		attributes;
+	const {
+		playlistId,
+		playlistTitle,
+		playlistDescription,
+		showPlaylistTitle,
+		videos,
+		layout,
+		entryTitleFontFamily,
+	} = attributes;
 
 	const [ previewIndex, setPreviewIndex ] = useState( 0 );
 	const [ urlInput, setUrlInput ] = useState( '' );
@@ -182,6 +192,23 @@ function StandalonePlaylistEdit( {
 			: 'videopress-playlist is-empty',
 		style: playlistFontVariables( entryTitleFontFamily ),
 	} );
+
+	const { template: headingTemplate, setPlaylistTitle } = useTitleHeading( {
+		clientId,
+		playlistTitle,
+		showPlaylistTitle,
+		setAttributes,
+	} );
+	const headingProps = useInnerBlocksProps(
+		{ className: 'videopress-playlist__heading' },
+		{
+			allowedBlocks: [ 'core/heading' ],
+			template: headingTemplate,
+			templateLock: 'all',
+			renderAppender: false,
+		}
+	);
+	const heading = showPlaylistTitle && <div { ...headingProps } />;
 
 	const clearFeedback = () => {
 		setAddError( null );
@@ -426,7 +453,18 @@ function StandalonePlaylistEdit( {
 					__nextHasNoMarginBottom
 					label={ __( 'Title', 'jetpack-videopress-pkg' ) }
 					value={ playlistTitle }
-					onChange={ ( value: string ) => setAttributes( { playlistTitle: value } ) }
+					onChange={ setPlaylistTitle }
+				/>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					className="videopress-playlist-editor__title-toggle"
+					label={ __( 'Show title as heading', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'Adds the title above the playlist as a Heading block you can edit and style in place.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ showPlaylistTitle }
+					onChange={ ( value: boolean ) => setAttributes( { showPlaylistTitle: value } ) }
 				/>
 				<TextareaControl
 					__nextHasNoMarginBottom
@@ -436,7 +474,10 @@ function StandalonePlaylistEdit( {
 					onChange={ ( value: string ) => setAttributes( { playlistDescription: value } ) }
 				/>
 				<p className="videopress-playlist-editor__help">
-					{ __( 'Shown wherever the site lists its playlists.', 'jetpack-videopress-pkg' ) }
+					{ __(
+						'The title and description are shown wherever the site lists its playlists.',
+						'jetpack-videopress-pkg'
+					) }
 				</p>
 			</PanelBody>
 
@@ -622,6 +663,7 @@ function StandalonePlaylistEdit( {
 			<div { ...blockProps }>
 				{ inspectorControls }
 				{ stylesControls }
+				{ heading }
 				<Placeholder
 					icon={ VideoPressIcon }
 					label={ __( 'Build a video playlist', 'jetpack-videopress-pkg' ) }
@@ -652,6 +694,7 @@ function StandalonePlaylistEdit( {
 		<figure { ...blockProps }>
 			{ inspectorControls }
 			{ stylesControls }
+			{ heading }
 			<PlaylistPreview
 				videos={ videos }
 				attributes={ attributes }

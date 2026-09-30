@@ -73,7 +73,12 @@ export default function ScoreCards( {
 								>
 									<Icon icon={ info } className="jetpack-boost-overview__score-icon" />
 								</Popover.Trigger>
-								<Popover.Popup className="jetpack-boost-overview__grade-tooltip">
+								<Popover.Popup
+									className="jetpack-boost-overview__score-popover jetpack-boost-overview__grade-tooltip"
+									positioner={
+										<Popover.Positioner align="start" alignOffset={ -15 } sideOffset={ 5 } />
+									}
+								>
 									<VisuallyHidden render={ <Popover.Title /> }>
 										{ __( 'Overall grade', 'jetpack-boost' ) }
 									</VisuallyHidden>

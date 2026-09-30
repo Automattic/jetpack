@@ -312,18 +312,32 @@ test( 'keeps a hovered day open when it is clicked with a mouse', async () => {
 	expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent( '90/100' );
 } );
 
-test( 'shows nothing beyond the empty-day tooltip when an empty day is clicked', async () => {
+test( 'shows a clicked empty day in the popover, not the chart tooltip box', async () => {
 	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
 	await pressDay( 3, 'mouse' );
-	await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+	await expect( screen.findByTestId( 'history-popover' ) ).resolves.toHaveTextContent(
 		'No scores recorded for this day.'
 	);
+	expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' );
 	expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( {
 		padding: '0px',
 		backgroundColor: 'rgba(0, 0, 0, 0)',
 		boxShadow: 'none',
 	} );
-	await expect( screen.findByTestId( 'history-popover' ) ).rejects.toThrow();
+} );
+
+test( 'shows a keyboard-selected empty day in the popover beside its column', async () => {
+	render( <HistoryChartCard data={ history } { ...callbacks } />, { wrapper } );
+	const desktop = screen.getAllByRole( 'grid' )[ 0 ];
+	for ( let step = 0; step < 4; step++ ) {
+		fireEvent.keyDown( desktop, { key: 'ArrowRight' } );
+	}
+	await waitFor( () =>
+		expect( screen.getByTestId( 'history-popover' ) ).toHaveTextContent(
+			'No scores recorded for this day.'
+		)
+	);
+	expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'No scores recorded for this day.' );
 } );
 
 test( "keeps a keyboard-opened day showing through the chart's own keys", async () => {

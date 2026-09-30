@@ -75,6 +75,21 @@ describe( 'useTrackedDateRangeApply', () => {
 		} );
 	} );
 
+	it( 'records the new preset default when switching from a preset that allowed the rendered interval', () => {
+		const { trackedOnChange, trackedOnApply } = renderTracked( {
+			presetId: 'year-to-date',
+			range: computePrimaryRange( 'year-to-date', 'UTC' )!,
+			interval: 'week',
+		} );
+
+		act( () => {
+			trackedOnChange( LAST_30_DAYS, 'last-30-days' );
+			trackedOnApply();
+		} );
+
+		expect( trackedProperties() ).toMatchObject( { preset: 'last-30-days', interval: 'day' } );
+	} );
+
 	// Over a year allows months only; the rendered 30 days would keep weeks.
 	it( 'records a custom range staged in the same tick from its own dates', () => {
 		const { trackedOnChange, trackedOnApply } = renderTracked();

@@ -17,9 +17,9 @@ export type StatsPostComment = {
 };
 
 export type StatsPostCommentsResponse = {
-	/** Total approved comments on the post (the list itself is capped by `number`). */
-	found: number;
 	comments: StatsPostComment[];
+	/** Rows the endpoint returned, counting the ones dropped as unusable. */
+	fetchedCount: number;
 };
 
 function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
@@ -51,15 +51,16 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 	];
 }
 
+// The endpoint's `found` is always -1 for a typed request, so the total comes from the post.
 export function sanitizeStatsPostCommentsResponse( response: unknown ): StatsPostCommentsResponse {
 	if ( ! isStatsRecord( response ) ) {
-		return { found: 0, comments: [] };
+		return { comments: [], fetchedCount: 0 };
 	}
 
-	const payload = coerceStatsRecord( response );
+	const rows = coerceStatsArray( coerceStatsRecord( response ).comments );
 
 	return {
-		found: safeParseFloat( payload.found ),
-		comments: coerceStatsArray( payload.comments ).flatMap( normalizeStatsPostComment ),
+		comments: rows.flatMap( normalizeStatsPostComment ),
+		fetchedCount: rows.length,
 	};
 }

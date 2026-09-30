@@ -58,6 +58,13 @@ export {
 	type LeaderboardRowProps,
 } from './chart-leaderboard';
 export {
+	Leaderboard,
+	type LeaderboardDrillDown,
+	type LeaderboardProps,
+	type LeaderboardRowInput,
+	type LeaderboardStatus,
+} from './leaderboard';
+export {
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -141,6 +148,8 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,

@@ -54,8 +54,8 @@ importers:
         specifier: 16.12.0
         version: 16.12.0
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       openai:
         specifier: 5.3.0
         version: 5.3.0
@@ -100,8 +100,8 @@ importers:
         specifier: 10.4.0
         version: 10.4.0
       js-yaml:
-        specifier: 5.2.2
-        version: 5.2.2
+        specifier: 5.4.1
+        version: 5.4.1
       picomatch:
         specifier: 4.0.4
         version: 4.0.4
@@ -228,8 +228,8 @@ importers:
         specifier: 4.4.3
         version: 4.4.3
       markdown-it:
-        specifier: 14.2.0
-        version: 14.2.0
+        specifier: 14.3.1
+        version: 14.3.1
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -2153,8 +2153,8 @@ importers:
         specifier: 4.55.0
         version: 4.55.0
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       prop-types:
         specifier: ^15.8.1
         version: 15.8.1
@@ -2667,8 +2667,8 @@ importers:
         specifier: 4.18.1
         version: 4.18.1
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       react:
         specifier: 18.3.1
         version: 18.3.1
@@ -3160,8 +3160,8 @@ importers:
         specifier: 4.18.1
         version: 4.18.1
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       newspack-colors:
         specifier: 1.1.3
         version: 1.1.3
@@ -6158,8 +6158,8 @@ importers:
         specifier: 1.13.3
         version: 1.13.3
       markdown-it:
-        specifier: 14.2.0
-        version: 14.2.0
+        specifier: 14.3.1
+        version: 14.3.1
       markdown-it-footnote:
         specifier: 3.0.3
         version: 3.0.3
@@ -6505,8 +6505,8 @@ importers:
         specifier: 2.1.1
         version: 2.1.1
       moment:
-        specifier: 2.30.1
-        version: 2.30.1
+        specifier: 2.31.0
+        version: 2.31.0
       prop-types:
         specifier: 15.8.1
         version: 15.8.1
@@ -6876,8 +6876,8 @@ importers:
         specifier: 7.0.0
         version: 7.0.0
       js-yaml:
-        specifier: 5.2.2
-        version: 5.2.2
+        specifier: 5.4.1
+        version: 5.4.1
       listr:
         specifier: 0.14.3
         version: 0.14.3
@@ -15043,8 +15043,8 @@ packages:
     resolution: {integrity: sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==}
     hasBin: true
 
-  js-yaml@5.2.2:
-    resolution: {integrity: sha512-dayzUzKkJ1MkuUtZglSebU43utNXH0OWQByK9rKOOuYIO8M5TV1y+n8ALMdG0rdzBnfNkOmZEqrURepb0ejqBw==}
+  js-yaml@5.4.1:
+    resolution: {integrity: sha512-28R/k+NAjeuf7+CKlTxWZVExJGwVVLwY06DgEnOMz2gEpfNkDcD7QvyiVPT0xy0XXhU8vHsd4Ot42OOPdJG7dQ==}
     hasBin: true
 
   jsdoc-type-pratt-parser@9.2.1:
@@ -15420,8 +15420,8 @@ packages:
   markdown-it-footnote@3.0.3:
     resolution: {integrity: sha512-YZMSuCGVZAjzKMn+xqIco9d1cLGxbELHZ9do/TSYVzraooV8ypsppKNmUJ0fVH5ljkCInQAtFpm8Rb3eXSrt5w==}
 
-  markdown-it@14.2.0:
-    resolution: {integrity: sha512-1TGiQiJVRQ3NPmZH6sx5Cfnmg6GQm9jvC1ch4TK511NjSJvjzKLzn5pPfZRNZkRPZP0HqCioSndqH8v2nRaWVQ==}
+  markdown-it@14.3.1:
+    resolution: {integrity: sha512-4Ej49aYTDFIQ+uBkfX8GBvJGccoARxxPep+7aWTs55ozbjQJpW9M26Fe53vnGgvLeVzva/amzjQQaQu9w0vMhA==}
     hasBin: true
 
   markdown-table@3.0.4:
@@ -15682,8 +15682,8 @@ packages:
   moment-timezone@0.5.48:
     resolution: {integrity: sha512-f22b8LV1gbTO2ms2j2z13MuPogNoh5UzxL3nzNAYKGraILnbGc9NEE6dyiiiLv46DGRb8A4kg8UKWLjPthxBHw==}
 
-  moment@2.30.1:
-    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==}
+  moment@2.31.0:
+    resolution: {integrity: sha512-0acOTfMiWOheYS4eoWb80yYMb/JLvVv9SHbs2PehaDzfUG0Bw855SKyk0IKTnPGa5+U2bmi3W68l1+sGLX/pvw==}
 
   motion-dom@11.18.1:
     resolution: {integrity: sha512-g76KvA001z+atjfxczdRtw/RXOM3OMSdd1f4DL77qCTF/+avrRJiawSG4yDibEQ215sr9kpinSlX2pCTJ9zbhw==}
@@ -26538,7 +26538,7 @@ snapshots:
   '@wordpress/date@5.55.0':
     dependencies:
       '@wordpress/deprecated': 4.55.0
-      moment: 2.30.1
+      moment: 2.31.0
       moment-timezone: 0.5.48
 
   '@wordpress/dependency-extraction-webpack-plugin@6.55.0(webpack@5.107.2)':
@@ -34326,7 +34326,7 @@ snapshots:
     dependencies:
       argparse: 2.0.1
 
-  js-yaml@5.2.2:
+  js-yaml@5.4.1:
     dependencies:
       argparse: 2.0.1
 
@@ -34721,7 +34721,7 @@ snapshots:
 
   markdown-it-footnote@3.0.3: {}
 
-  markdown-it@14.2.0:
+  markdown-it@14.3.1:
     dependencies:
       argparse: 2.0.1
       entities: 4.5.0
@@ -35138,9 +35138,9 @@ snapshots:
 
   moment-timezone@0.5.48:
     dependencies:
-      moment: 2.30.1
+      moment: 2.31.0
 
-  moment@2.30.1: {}
+  moment@2.31.0: {}
 
   motion-dom@11.18.1:
     dependencies:
@@ -36465,7 +36465,7 @@ snapshots:
       fdir: 6.5.0
       lodash: 4.18.1
       magic-string: 0.30.21
-      moment: 2.30.1
+      moment: 2.31.0
       package-name-regex: 2.0.6
       spdx-expression-validate: 2.0.0
       spdx-satisfies: 5.0.1
@@ -36478,7 +36478,7 @@ snapshots:
       fdir: 6.5.0(picomatch@4.0.4)
       lodash: 4.18.1
       magic-string: 0.30.21
-      moment: 2.30.1
+      moment: 2.31.0
       package-name-regex: 2.0.6
       spdx-expression-validate: 2.0.0
       spdx-satisfies: 5.0.1

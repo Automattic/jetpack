@@ -87,6 +87,22 @@ class PayPal_Payment_Buttons {
 	public const SDK_HOST_ACTION = 'jetpack_paypal_sdk_host';
 
 	/**
+	 * The admin-post.php action PayPal sends the seller back to after onboarding.
+	 *
+	 * @var string
+	 */
+	public const ONBOARDING_RETURN_ACTION = 'jetpack_paypal_return';
+
+	/**
+	 * The `type` of the message the return page posts to the editor.
+	 *
+	 * Mirrored by ONBOARDING_RETURN_MESSAGE in utils/paypal-partner-sdk.js.
+	 *
+	 * @var string
+	 */
+	public const ONBOARDING_RETURN_MESSAGE = 'jetpack-paypal-onboarding-return';
+
+	/**
 	 * The handle the PayPal SDK is enqueued under.
 	 *
 	 * One handle for every stacked block on a page: WordPress keeps the first URL and
@@ -1433,15 +1449,93 @@ class PayPal_Payment_Buttons {
 			)
 		);
 
-		// The stacked preview needs a same-origin URL it can point an iframe at.
+		// The stacked preview needs a same-origin URL it can point an iframe at, and
+		// the connection wizard a page PayPal can send the seller back to.
 		wp_add_inline_script(
 			'jp-paypal-payments-ncps-blocks',
 			'window.jetpackPayPalPayments = ' . wp_json_encode(
-				array( 'sdkHostUrl' => self::get_sdk_host_url() ),
+				array(
+					'sdkHostUrl'          => self::get_sdk_host_url(),
+					'onboardingReturnUrl' => self::get_onboarding_return_url(),
+				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * URL of the page PayPal sends the seller back to once onboarding is done.
+	 *
+	 * @return string
+	 */
+	public static function get_onboarding_return_url() {
+		return admin_url( 'admin-post.php?action=' . self::ONBOARDING_RETURN_ACTION );
+	}
+
+	/**
+	 * Emit the page PayPal sends the seller back to once onboarding is done.
+	 *
+	 * PayPal's third-party flow reports completion by navigating to the return
+	 * URL rather than through the SDK callback, and the navigation lands in the
+	 * onboarding frame or in PayPal's popup. This page relays the query string
+	 * PayPal appended to the editor as a message, so the editor can record the
+	 * seller, and the editor itself is never loaded inside its own frame.
+	 *
+	 * @return never
+	 */
+	public static function render_onboarding_return() {
+		nocache_headers();
+
+		if ( ! headers_sent() ) {
+			header( 'Content-Type: text/html; charset=' . get_option( 'blog_charset' ) );
+		}
+
+		echo self::onboarding_return_markup(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Built from escaped parts.
+		exit;
+	}
+
+	/**
+	 * The return page's markup.
+	 *
+	 * It holds no data of its own: the only values on it are the ones PayPal put in
+	 * the query string, and they go only to same-origin windows. A BroadcastChannel
+	 * carries them first: the editor document is cross-origin isolated, which leaves
+	 * PayPal's popup with no opener to post to once it has been through paypal.com.
+	 *
+	 * @return string
+	 */
+	public static function onboarding_return_markup() {
+		$script = sprintf(
+			'( function () {
+	var params = new URLSearchParams( window.location.search );
+	var message = { type: %1$s };
+	[ "merchantIdInPayPal", "merchantId", "permissionsGranted", "consentStatus", "accountStatus", "isEmailConfirmed", "riskStatus" ].forEach( function ( key ) {
+		message[ key ] = params.get( key ) || "";
+	} );
+	try {
+		var channel = new BroadcastChannel( %1$s );
+		channel.postMessage( message );
+		channel.close();
+	} catch ( e ) {}
+	var framed = window.parent && window.parent !== window;
+	var target = framed ? window.parent : window.opener;
+	if ( target ) {
+		try {
+			target.postMessage( message, window.location.origin );
+		} catch ( e ) {}
+	}
+	if ( ! framed ) {
+		window.close();
+	}
+} )();',
+			wp_json_encode( self::ONBOARDING_RETURN_MESSAGE, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+		);
+
+		return '<!DOCTYPE html><html><head><meta charset="' . esc_attr( get_option( 'blog_charset' ) ) . '" />'
+			. '<title>' . esc_html__( 'Returning to your site', 'jetpack-paypal-payments' ) . '</title></head>'
+			. '<body><p>' . esc_html__( 'You can close this window and return to the editor.', 'jetpack-paypal-payments' ) . '</p>'
+			. '<script>' . $script . '</script></body></html>';
 	}
 
 	/**
@@ -1657,8 +1751,8 @@ class PayPal_Payment_Buttons {
 	 * post contains the PayPal payment buttons block, otherwise passes
 	 * through the existing value unchanged.
 	 *
-	 * @param bool     $show Whether to show sharing buttons.
-	 * @param \WP_Post $post The current post object.
+	 * @param bool          $show Whether to show sharing buttons.
+	 * @param \WP_Post|null $post The current post object.
 	 * @return bool Whether to show sharing buttons.
 	 */
 	public static function enable_sharing_on_payment_pages( $show, $post = null ) {
@@ -1701,6 +1795,11 @@ class PayPal_Payment_Buttons {
 				// The stacked preview's frame, served from admin-post.php so it can send a
 				// Document-Isolation-Policy header. Editor-only, so no `admin_post_nopriv_`.
 				add_action( 'admin_post_' . self::SDK_HOST_ACTION, array( __CLASS__, 'render_sdk_host' ) );
+
+				// PayPal navigates to this from its own popup, which need not carry the
+				// login cookie, so it answers logged-out requests too. It holds nothing.
+				add_action( 'admin_post_' . self::ONBOARDING_RETURN_ACTION, array( __CLASS__, 'render_onboarding_return' ) );
+				add_action( 'admin_post_nopriv_' . self::ONBOARDING_RETURN_ACTION, array( __CLASS__, 'render_onboarding_return' ) );
 			}
 		);
 	}

@@ -11,7 +11,7 @@ import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
 export interface ReportPageLayoutProps {
-	/** Heading for the section on screen: `Posts & Pages report`. */
+	/** Heading for the section on screen: `Posts & Pages`. */
 	title: string;
 	/** Date-filter controller, from `useReportDateFilters`. Omit on a report with no date window. */
 	dateFilters?: ReportDateFilters;

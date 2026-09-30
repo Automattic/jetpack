@@ -312,7 +312,7 @@ class Tokens {
 		 * Fires when the user token gets replaced.
 		 *
 		 * @since 1.29.0
-		 * @since $$next-version$$ Fired from Tokens::update_user_token() so every write path (authorize, provisioning, CLI) clears stale connection errors, not just the REST endpoint.
+		 * @since 9.8.1 Fired from Tokens::update_user_token() so every write path (authorize, provisioning, CLI) clears stale connection errors, not just the REST endpoint.
 		 *
 		 * @param int    $user_id User ID.
 		 * @param string $token   New user token.

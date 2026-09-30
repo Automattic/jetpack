@@ -145,7 +145,7 @@ class Red_Bubble_Notifications {
 	/**
 	 * Add an alert slug if the site is missing a site connection, or has no connection owner recorded and the current user can become one.
 	 *
-	 * @since $$next-version$$ Only alerts about a missing user connection when no connection owner is recorded, and to users who can take the vacant owner slot.
+	 * @since 6.7.1 Only alerts about a missing user connection when no connection owner is recorded, and to users who can take the vacant owner slot.
 	 *
 	 * @param array $red_bubble_slugs - slugs that describe the reasons the red bubble is showing.
 	 * @return array

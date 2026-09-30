@@ -13,7 +13,6 @@ import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
 	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
-	getTabTitle: () => 'Source / medium',
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',

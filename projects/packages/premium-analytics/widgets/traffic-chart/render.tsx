@@ -19,7 +19,7 @@ import { useCallback } from 'react';
  */
 import styles from './style.module.css';
 import useTrafficChart from './use-traffic-chart';
-import { TRAFFIC_PERIODS } from './widget';
+import { TRAFFIC_PERIODS, defaultChartType } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -39,9 +39,9 @@ const DATA_FORMAT = {
 
 type TrafficChartInnerProps = {
 	/**
-	 * How to draw the selected metric. `MetricTabsChart` owns the default.
+	 * How to draw the selected metric.
 	 */
-	chartType?: TrafficChartType;
+	chartType: TrafficChartType;
 };
 
 /**
@@ -110,7 +110,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner chartType={ attributes.chartType } />
+			<TrafficChartInner chartType={ attributes.chartType ?? defaultChartType() } />
 		</WidgetRoot>
 	);
 }

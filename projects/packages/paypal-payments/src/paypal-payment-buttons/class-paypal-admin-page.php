@@ -566,7 +566,7 @@ class PayPal_Admin_Page {
 		echo '</div>';
 
 		// Disconnected state.
-		if ( ! PayPal_OAuth::has_credentials() ) {
+		if ( ! PayPal_OAuth::is_connected() ) {
 			self::render_disconnected_state();
 			echo '</div>';
 			return;

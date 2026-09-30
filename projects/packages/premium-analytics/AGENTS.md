@@ -91,7 +91,8 @@ Add widget types from another plugin: hook `jetpack_premium_analytics_register_w
 compare `WIDGET_API_VERSION`, and call `register_widget_types_from_manifest()` there with the manifest
 that plugin's wp-build generates (`register_widget_type()` registers a single type). The widget type
 registry hydrates on its first read, from the page boot dependencies or from REST, and fires that
-action once; `src/widget-types.php` registers the package's own build manifest the same way.
+action once; `src/widget-types.php` registers the package's own build manifest the same way. A type
+that changes its name declares `former_names`, so layouts saved under the old one keep rendering it.
 `docs/dashboard-widgets.md` walks through the path.
 
 Depends on `jetpack-connection`, `jetpack-stats`, `jetpack-sync`, `jetpack-config`.
@@ -683,7 +684,10 @@ parameters treat `max` as a page size, so `0` does not mean "all rows" there.
 
 **Loading / error / empty state**
 
-Render these states through `<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
+A ranked-rows widget renders `<Leaderboard>` and passes its rows and the hook's status; the
+component owns the states, the skeleton, the shares and deltas, and the detail-link window
+(`widgets/search-terms/render.tsx` is the reference). Everything else renders its states through
+`<WidgetState>` from `@jetpack-premium-analytics/widgets-toolkit`
 rather than hand-rolling `if ( isError )` / empty branches or a `WidgetLoadingOverlay`. Map the
 data/view hook's result to its four signals. For Stats API errors, pass the raw `error` to the
 shared `describeError()` mapper so 403 access failures have neutral copy and no retry action,
@@ -743,9 +747,8 @@ area. Notes:
 
 > Many Stats widgets predate this and still hand-roll loading/empty via `<WidgetLoadingOverlay>`,
 > `isLoading && data.length === 0`, and `LeaderboardChart`'s `emptyStateText`. They are being
-> migrated to `<WidgetState>` — follow the contract above, not those widgets.
-> `widgets/search-terms/render.tsx` is the reference. (A `ReportWidget` wrapper that removes the
-> remaining per-widget state boilerplate is a planned follow-up.)
+> migrated to `<WidgetState>` — follow the contract above, not those widgets. For a leaderboard,
+> `<Leaderboard>` is that wrapper; the other widget kinds get theirs as follow-ups.
 
 **Comparison data**
 
@@ -833,6 +836,9 @@ wire a handler in `routeStatsReport()` inside `register-report-mocks.ts`. See
   whether the rest follow is a product call to raise, not a refactor to do. It is not free: the
   leaderboard grid is `minmax(0, 1fr) auto`, so the wider value permanently takes width from the
   label — at the 370px tile a long name ellipsizes where the compact form left it room.
+- Leaderboard widgets: render `<Leaderboard>` with domain rows; it applies the combined-period
+  denominator, the deltas and the row builder for you. The notes below are for the few widgets
+  that must drive `LeaderboardChart` themselves.
 - Leaderboard rows: spread `buildLeaderboardRow()` into the chart entry — it carries the
   drill-down `onClick`/`ariaLabel` that a bare `<LeaderboardRow>` label silently drops. Use
   `<LeaderboardRow>` directly only outside a chart, as `widgets/tags` does for its drilled-in
