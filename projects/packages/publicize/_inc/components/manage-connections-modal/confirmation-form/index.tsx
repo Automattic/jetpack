@@ -237,7 +237,7 @@ export function ConfirmationForm( {
 	);
 
 	const emptyReason = keyringResult.additional_external_users_empty_reason;
-	let noAccountsMessage = getNoAccountsFoundMessage( emptyReason );
+	let noAccountsMessage: string = getNoAccountsFoundMessage( emptyReason );
 
 	if ( isSelectingAccount && ! emptyReason ) {
 		noAccountsMessage = __(
