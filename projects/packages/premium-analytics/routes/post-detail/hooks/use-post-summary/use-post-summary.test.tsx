@@ -118,6 +118,7 @@ describe( 'usePostSummary', () => {
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
 			isError: false,
+			refetch: expect.any( Function ),
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
 		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', POST_ID, {

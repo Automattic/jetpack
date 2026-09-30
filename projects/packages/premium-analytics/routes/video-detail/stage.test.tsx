@@ -1,4 +1,5 @@
 import { useReportScope } from '@jetpack-premium-analytics/data';
+import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -7,6 +8,7 @@ import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+let mockDateFilterOverrides: Record< string, unknown > = {};
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -33,6 +35,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		timeZone: 'UTC',
 		interval: 'day',
 		intervalOptions: [ 'day', 'week' ],
+		...mockDateFilterOverrides,
 	} ),
 } ) );
 
@@ -219,6 +222,7 @@ describe( 'video detail stage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockDashboardLayouts.length = 0;
+		mockDateFilterOverrides = {};
 		mockSearch = {
 			from: '2026-06-01',
 			to: '2026-06-16',
@@ -410,6 +414,28 @@ describe( 'video detail stage', () => {
 		for ( const widget of layout ) {
 			expect( widget.attributes ?? {} ).not.toHaveProperty( 'reportParams' );
 		}
+	} );
+
+	it( 'renders the widgets only once all time anchors on the upload day', () => {
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC' ),
+		};
+		mockSummary( { title: 'Launch recap', publishedDate: '2026-06-22 18:00:00' } );
+
+		const { rerender } = render( stage() );
+
+		expect( screen.queryByText( 'Video widgets' ) ).not.toBeInTheDocument();
+
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC', {
+				startDate: new Date( '2026-06-22T18:00:00Z' ),
+			} ),
+		};
+		rerender( stage() );
+
+		expect( screen.getByText( 'Video widgets' ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers Customize in a page options menu once the video resolves', async () => {

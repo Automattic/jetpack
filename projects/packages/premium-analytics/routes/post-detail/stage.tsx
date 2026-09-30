@@ -6,7 +6,7 @@ import {
 	ReportScopeProvider,
 	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
-import { LinkButton } from '@jetpack-premium-analytics/externals';
+import { Button, LinkButton, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -73,7 +73,7 @@ function PostDetail(): JSX.Element {
 	const isAnchoringAllTime = useAllTimeAnchorPending(
 		dateControls.allTimeStart,
 		dateFilters,
-		summary.isLoading
+		summary.isLoading || summary.isError
 	);
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
@@ -176,6 +176,22 @@ function PostDetail(): JSX.Element {
 	// suggest a choice they do not offer; the range stays in the URL so the Post
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
+	// Without the publish day, all time has no start to report from.
+	const anchorErrorNotice =
+		! isEmailTab && isAnchoringAllTime && summary.isError ? (
+			<Stack direction="column" align="flex-start" gap="sm">
+				<Text>
+					{ __(
+						"We couldn't load this post. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					) }
+				</Text>
+				<Button variant="outline" onClick={ summary.refetch }>
+					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
+				</Button>
+			</Stack>
+		) : null;
+
 	const dateFiltersPanel = isEmailTab ? null : (
 		<DateFiltersPanel
 			{ ...dateFilters }
@@ -276,11 +292,13 @@ function PostDetail(): JSX.Element {
 									}
 								/>
 							) : (
-								/* Keyed by tab: each tab is its own layout, so the grid mounts
-								   fresh rather than reflowing one arrangement into the next. */
-								<DetailPageSection key={ activeTab }>
-									<WidgetDashboard.Widgets />
-								</DetailPageSection>
+								( anchorErrorNotice ?? (
+									/* Keyed by tab: each tab is its own layout, so the grid mounts
+									   fresh rather than reflowing one arrangement into the next. */
+									<DetailPageSection key={ activeTab }>
+										<WidgetDashboard.Widgets />
+									</DetailPageSection>
+								) )
 							) }
 						</DetailPageLayout>
 					</DetailPageShell>

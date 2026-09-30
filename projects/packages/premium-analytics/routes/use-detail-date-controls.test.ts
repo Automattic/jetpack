@@ -3,7 +3,12 @@
  */
 import { renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
-import { DETAIL_SURFACE_PRESETS, dateToISOStringWithTZ } from '@jetpack-premium-analytics/datetime';
+import {
+	DETAIL_SURFACE_PRESETS,
+	PRESET_ALL_TIME,
+	computePrimaryRange,
+	dateToISOStringWithTZ,
+} from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -134,13 +139,21 @@ describe( 'useDetailDateControls', () => {
 
 describe( 'useAllTimeAnchorPending', () => {
 	const PUBLISHED = new Date( '2026-07-08T00:00:00+08:00' );
-	const PROVISIONAL = { from: new Date( '2021-01-01T00:00:00+08:00' ), to: new Date() };
+	const PROVISIONAL = computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE );
+	const ANCHORED = computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE, { startDate: PUBLISHED } );
 
 	it.each( [
 		[ 'holds widgets while the start is still loading', undefined, PROVISIONAL, true, true ],
 		[ 'releases them once the start will not arrive', undefined, PROVISIONAL, false, false ],
 		[ 'holds them until the range moves to the start', PUBLISHED, PROVISIONAL, false, true ],
-		[ 'releases them once anchored', PUBLISHED, { from: PUBLISHED, to: new Date() }, false, false ],
+		[ 'releases them once anchored', PUBLISHED, ANCHORED, false, false ],
+		[
+			'never holds a reload already anchored while the start loads',
+			undefined,
+			ANCHORED,
+			true,
+			false,
+		],
 	] )( '%s', ( _case, start, appliedRange, isStartPending, expected ) => {
 		const { result } = renderHook( () =>
 			useAllTimeAnchorPending(

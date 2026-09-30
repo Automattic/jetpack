@@ -72,7 +72,7 @@ function VideoDetail(): JSX.Element {
 	const isAnchoringAllTime = useAllTimeAnchorPending(
 		dateControls.allTimeStart,
 		dateFilters,
-		summary.isLoading
+		summary.isLoading || summary.isError
 	);
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(

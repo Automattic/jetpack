@@ -80,12 +80,12 @@ export function useDetailDateControls(
 }
 
 /**
- * Whether the page is on all time but not yet anchored on the resource's start,
- * so widgets that read the range would first fetch the provisional window.
+ * Whether the page is still on the provisional all-time window the route seeds,
+ * which widgets that read the range would fetch before the resource's start anchors it.
  *
  * @param allTimeStart   - The resource's start, as `useDetailDateControls` returns it.
  * @param dateFilters    - The page's date-filter controller.
- * @param isStartPending - Whether the start can still arrive; false once its summary settles.
+ * @param isStartPending - Whether the start can still arrive: while its summary loads or can be retried.
  * @return Whether to hold the range-reading widgets back.
  */
 export function useAllTimeAnchorPending(
@@ -93,15 +93,19 @@ export function useAllTimeAnchorPending(
 	dateFilters: Omit< DetailDateFilters, 'replaceRange' >,
 	isStartPending: boolean
 ): boolean {
-	const anchored = useAnchoredAllTime( allTimeStart, dateFilters.timeZone );
+	const { appliedPresetId, appliedRange, timeZone } = dateFilters;
+	const anchored = useAnchoredAllTime( allTimeStart, timeZone );
+	const provisionalFrom = useMemo(
+		() => computePrimaryRange( PRESET_ALL_TIME, timeZone )?.from.getTime(),
+		[ timeZone ]
+	);
+	const appliedFrom = appliedRange.from?.getTime();
 
-	if ( dateFilters.appliedPresetId !== PRESET_ALL_TIME ) {
+	if ( appliedPresetId !== PRESET_ALL_TIME || appliedFrom !== provisionalFrom ) {
 		return false;
 	}
 
-	return anchored
-		? anchored.from.getTime() !== dateFilters.appliedRange.from?.getTime()
-		: isStartPending;
+	return anchored ? anchored.from.getTime() !== appliedFrom : isStartPending;
 }
 
 /**

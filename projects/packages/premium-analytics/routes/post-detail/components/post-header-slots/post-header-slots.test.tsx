@@ -12,6 +12,7 @@ const SUMMARY: PostSummary = {
 	url: 'https://example.com/hello-world',
 	isLoading: false,
 	isError: false,
+	refetch: () => {},
 };
 
 // UTC-anchored: the sentence renders in the site zone, so a browser-local
