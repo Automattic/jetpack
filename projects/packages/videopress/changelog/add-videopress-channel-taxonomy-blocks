@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Channel: Give every VideoPress video its own page at /videopress?v=GUID, rendered by the theme's videopress-video template, for themes that opt in; add a "Show the video being viewed" option to the video block, and point attachment links and player-less playlist entries at those pages.
