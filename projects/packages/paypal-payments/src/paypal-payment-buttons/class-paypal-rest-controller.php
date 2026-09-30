@@ -125,7 +125,7 @@ class PayPal_REST_Controller {
 			)
 		);
 
-		// Partner Referrals onboarding — complete (exchange auth code for credentials).
+		// Partner Referrals onboarding — complete (record the seller PayPal just onboarded).
 		register_rest_route(
 			self::REST_NAMESPACE,
 			self::ROUTE_BASE . '/onboarding/complete',
@@ -135,20 +135,6 @@ class PayPal_REST_Controller {
 					'callback'            => array( __CLASS__, 'handle_onboarding_complete' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
 					'args'                => array(
-						'auth_code'             => array(
-							'required'          => true,
-							'type'              => 'string',
-							'sanitize_callback' => array( __CLASS__, 'sanitize_oauth_value' ),
-							'validate_callback' => array( __CLASS__, 'validate_non_empty_string' ),
-							'description'       => __( 'Authorization code from PayPal onboarding callback.', 'jetpack-paypal-payments' ),
-						),
-						'shared_id'             => array(
-							'required'          => true,
-							'type'              => 'string',
-							'sanitize_callback' => array( __CLASS__, 'sanitize_oauth_value' ),
-							'validate_callback' => array( __CLASS__, 'validate_non_empty_string' ),
-							'description'       => __( 'Shared ID from PayPal onboarding callback.', 'jetpack-paypal-payments' ),
-						),
 						'merchant_id_in_paypal' => array(
 							'required'          => false,
 							'type'              => 'string',
@@ -465,6 +451,9 @@ class PayPal_REST_Controller {
 			);
 		}
 
+		// These credentials replace any seller referred earlier.
+		PayPal_Partner_Onboarding::cleanup();
+
 		return new WP_REST_Response(
 			array(
 				'connected'   => true,
@@ -566,7 +555,7 @@ class PayPal_REST_Controller {
 	}
 
 	/**
-	 * Handle POST /paypal/onboarding/complete -- exchange auth code for credentials.
+	 * Handle POST /paypal/onboarding/complete -- record the seller PayPal just onboarded.
 	 *
 	 * Called by the block editor after the merchant completes the PayPal
 	 * mini-browser onboarding flow.
@@ -575,14 +564,8 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
 	 */
 	public static function handle_onboarding_complete( WP_REST_Request $request ) {
-		$auth_code             = $request->get_param( 'auth_code' );
-		$shared_id             = $request->get_param( 'shared_id' );
-		$merchant_id_in_paypal = $request->get_param( 'merchant_id_in_paypal' );
-
 		$result = PayPal_Partner_Onboarding::complete_onboarding(
-			$auth_code,
-			$shared_id,
-			$merchant_id_in_paypal
+			(string) $request->get_param( 'merchant_id_in_paypal' )
 		);
 
 		if ( is_wp_error( $result ) ) {
@@ -704,15 +687,27 @@ class PayPal_REST_Controller {
 	 * @return string The URL, or '' when PayPal is disconnected.
 	 */
 	private static function get_sdk_url( $currency ) {
-		$credentials = PayPal_OAuth::get_credentials();
-		if ( false === $credentials ) {
-			return '';
+		// add_query_arg() leaves values as they are, and a client id can contain + / =.
+		if ( PayPal_Partner_Onboarding::is_platform_managed() ) {
+			// A referred seller's buttons load under the platform's client ID, on the seller's account.
+			$partner_client_id = PayPal_Partner_Onboarding::get_partner_client_id();
+			if ( '' === $partner_client_id ) {
+				return '';
+			}
+			$account = array(
+				'client-id'   => rawurlencode( $partner_client_id ),
+				'merchant-id' => rawurlencode( PayPal_Partner_Onboarding::get_merchant_id() ),
+			);
+		} else {
+			$credentials = PayPal_OAuth::get_credentials();
+			if ( false === $credentials ) {
+				return '';
+			}
+			$account = array( 'client-id' => rawurlencode( $credentials['client_id'] ) );
 		}
 
-		// add_query_arg() leaves values as they are, and a client id can contain + / =.
 		return add_query_arg(
-			array(
-				'client-id'      => rawurlencode( $credentials['client_id'] ),
+			$account + array(
 				'components'     => 'hosted-buttons',
 				'enable-funding' => 'venmo',
 				'currency'       => rawurlencode( $currency ),
@@ -1387,7 +1382,7 @@ class PayPal_REST_Controller {
 	 * @param WP_Error $error The API client error.
 	 * @return WP_Error Error with appropriate REST status code.
 	 */
-	private static function api_error_to_rest_error( WP_Error $error ) {
+	public static function api_error_to_rest_error( WP_Error $error ) {
 		$data   = $error->get_error_data();
 		$status = $data['status'] ?? 500;
 

@@ -86,6 +86,7 @@ export {
 	Tabs,
 	Text,
 	TextareaControl,
+	Tooltip,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

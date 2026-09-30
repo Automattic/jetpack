@@ -50,7 +50,7 @@ export function readinessSummary( readiness: StatsFeedbackReadiness ) {
 		not_yet: 'Not yet',
 	};
 
-	return `[Ready to replace the old Traffic and Insights tabs? ${ answers[ readiness ] }]`;
+	return `[Ready to replace the old Stats? ${ answers[ readiness ] }]`;
 }
 
 /**
@@ -125,10 +125,7 @@ export function ReadinessFields( {
 }: ReadinessFieldsProps ) {
 	const readinessQuestion =
 		question ??
-		__(
-			'Are the new Traffic and Insights tabs ready to replace the old ones?',
-			'jetpack-premium-analytics-pkg'
-		);
+		__( 'Is the new Stats ready to replace the old one?', 'jetpack-premium-analytics-pkg' );
 
 	// "What's missing?" reads oddly after "Yes", where nothing is missing by definition.
 	const commentQuestion =

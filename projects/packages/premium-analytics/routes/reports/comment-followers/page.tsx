@@ -85,7 +85,7 @@ function CommentFollowersReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS[ 'comment-followers' ];
+	const { getLabel } = REPORTS[ 'comment-followers' ];
 
 	return (
 		<ReportPageShell
@@ -97,7 +97,7 @@ function CommentFollowersReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load subscribers', 'jetpack-premium-analytics-pkg' ) }

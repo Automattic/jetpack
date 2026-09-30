@@ -50,6 +50,11 @@ function register_videopress_blocks( $playlist_metadata_file = null, $latest_vid
 	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_latest_videos_playlist_block' ) ) {
 		VideoPress_Pkg_Initializer::register_videopress_latest_videos_playlist_block( $latest_videos_playlist_metadata_file );
 	}
+
+	// The All Playlists block only registers once the playlist block has.
+	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_all_playlists_block' ) ) {
+		VideoPress_Pkg_Initializer::register_videopress_all_playlists_block();
+	}
 }
 // Ignore the empty argument supplied by do_action( 'init' ) so metadata uses the package default.
 add_action( 'init', __NAMESPACE__ . '\register_videopress_blocks', 10, 0 );

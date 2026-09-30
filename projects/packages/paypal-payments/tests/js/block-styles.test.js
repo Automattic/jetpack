@@ -11,6 +11,7 @@ import {
 	getMarginStyle,
 	getTextStyle,
 	getWidthAndBorderStyle,
+	getWidthStyle,
 } from '../../src/paypal-payment-buttons/utils/block-styles';
 import parity from '../fixtures/style-parity.json';
 
@@ -29,18 +30,20 @@ const asDeclarations = style =>
 		] )
 	);
 
-// Each case says which element it belongs on — the card takes margin, the frame
-// takes Width and the stroke. The PHP half reads the same field.
-const QR_TARGETS = {
+// Each case says which element it belongs on — the QR card takes margin, the
+// frame takes Width and the stroke, and the button card takes Width alone. The
+// PHP half reads the same field.
+const TARGETS = {
 	card: getMarginStyle,
 	frame: getWidthAndBorderStyle,
+	buttonCard: getWidthStyle,
 };
 
 // The other half of this table runs in tests/php. A value one side drops and the
 // other keeps is drift between the canvas and the published page, so it fails here.
 describe( 'style parity with the published page', () => {
 	it.each( parity.cases.map( c => [ c.name, c ] ) )( '%s', ( _name, testCase ) => {
-		expect( asDeclarations( QR_TARGETS[ testCase.target ]( testCase.attributes ) ) ).toEqual(
+		expect( asDeclarations( TARGETS[ testCase.target ]( testCase.attributes ) ) ).toEqual(
 			testCase.declarations
 		);
 	} );
@@ -59,6 +62,7 @@ describe( 'style parity with the published page', () => {
 	it.each( parity.rejectedCases.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
 		expect( getMarginStyle( testCase.attributes ) ).toEqual( {} );
 		expect( getWidthAndBorderStyle( testCase.attributes ) ).toEqual( {} );
+		expect( getWidthStyle( testCase.attributes ) ).toEqual( {} );
 	} );
 
 	it.each( parity.rejectedTextCases.map( c => [ c.name, c ] ) )(
@@ -98,7 +102,7 @@ describe( 'getMarginStyle', () => {
 		).toEqual( { marginTop: 'var(--wp--preset--spacing--50)' } );
 	} );
 
-	it( 'takes the margin and leaves Width and the stroke to the button or the frame', () => {
+	it( 'takes the margin and leaves Width and the stroke to the QR frame', () => {
 		expect(
 			getMarginStyle( {
 				blockWidth: '75%',
@@ -190,11 +194,8 @@ describe( 'getButtonStyle', () => {
 		expect( getButtonStyle( {} ) ).toEqual( {} );
 	} );
 
-	it( 'caps a width so it cannot spill out of the card', () => {
-		expect( getButtonStyle( { blockWidth: '900px' } ) ).toEqual( {
-			width: '900px',
-			maxWidth: '100%',
-		} );
+	it( 'leaves Width to the card around the button', () => {
+		expect( getButtonStyle( { blockWidth: '900px' } ) ).toEqual( {} );
 	} );
 
 	it( 'drops the background under Outline and keeps everything else', () => {

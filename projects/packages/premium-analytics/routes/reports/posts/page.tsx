@@ -8,6 +8,7 @@ import {
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -32,7 +33,7 @@ import {
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	usePostsReportRecords,
 	type ArchiveRow,
@@ -80,18 +81,19 @@ function getArchiveRowParentId( item: ArchiveRow ): string | undefined {
 }
 
 /**
- * Shared initial view for both tabs: sorted by views, title absorbs spare width so
- * metric columns shrink to content instead of table-layout auto stretching them.
+ * Shared initial view for both tabs, sorted by views. The title is the primary
+ * column on both, and absorbs the spare width so the metric column shrinks to content.
  */
 const RECORDS_VIEW = {
 	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
-			title: { width: '100%' },
 			views: { align: 'end' as const },
 		},
 	},
 };
+
+const POSTS_VIEW = { ...RECORDS_VIEW, titleField: 'title', mediaField: 'thumbnail' };
 
 /**
  * Second-level "view all" report for the Posts & Pages traffic module. Post titles
@@ -181,7 +183,7 @@ function PostsReport(): JSX.Element {
 				fields={ postsFields }
 				getItemId={ getPostRowId }
 				isLoading={ records.posts.isLoading || records.posts.isFetching }
-				initialView={ RECORDS_VIEW }
+				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
@@ -201,6 +203,19 @@ function PostsReport(): JSX.Element {
 
 	const { getLabel } = REPORTS.posts;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! activeRecords.isLoading && activeRecords.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
+
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
@@ -212,18 +227,11 @@ function PostsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					recordsTable
-				) }
+				{ tableReplacement ?? recordsTable }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);

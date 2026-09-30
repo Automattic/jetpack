@@ -11,7 +11,6 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { download } from '@wordpress/icons';
 import {
 	WIDGET_ROW_LIMIT,
 	calculateDelta,
@@ -161,10 +160,6 @@ function FileDownloadsInner() {
 						actions: [
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
-					} }
-					empty={ {
-						icon: download,
-						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics-pkg' ),
 					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>

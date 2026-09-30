@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReportDrilldownTable } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -13,7 +13,6 @@ import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
 	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
-	getTabTitle: () => 'Source / medium',
 	getUtmFields: () => [],
 	getUtmTabLabel: () => 'Source / medium',
 	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
@@ -36,6 +35,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportCsvAction: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
+	ReportEmptyState: () => <div data-testid="report-empty-state" />,
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
@@ -86,5 +86,39 @@ describe( 'UtmReportPage', () => {
 				defaultExpanded: 'none',
 			} )
 		);
+	} );
+
+	it( 'keeps the loading table on first load, before any UTM rows arrive', () => {
+		useRecordsMock.mockReturnValue( {
+			isError: false,
+			refetch: jest.fn(),
+			rows: [],
+			hasComparison: false,
+			isLoading: true,
+			isFetching: true,
+		} as unknown as ReturnType< typeof useUtmReportRecords > );
+
+		render( <UtmReportPage /> );
+
+		expect( screen.queryByTestId( 'report-empty-state' ) ).not.toBeInTheDocument();
+		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { data: [], isLoading: true } )
+		);
+	} );
+
+	it( 'replaces the UTM table with the empty state when the period has no UTM rows', () => {
+		useRecordsMock.mockReturnValue( {
+			isError: false,
+			refetch: jest.fn(),
+			rows: [],
+			hasComparison: false,
+			isLoading: false,
+			isFetching: false,
+		} as unknown as ReturnType< typeof useUtmReportRecords > );
+
+		render( <UtmReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
 	} );
 } );

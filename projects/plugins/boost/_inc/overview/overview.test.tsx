@@ -761,10 +761,12 @@ test( 'opens the overall grade explanation and dismisses it with Escape', async 
 	expect( trigger ).toHaveFocus();
 } );
 
-test( 'shows a negative baseline delta while preserving the current measured bar', () => {
+test( 'reads a negative baseline delta as zero while preserving the current measured bar', () => {
 	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
 	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
-	expect( screen.getByText( '-20 points' ) ).toBeInTheDocument();
+	expect( screen.getByText( '0 points' ) ).toBeInTheDocument();
+	expect( screen.queryByText( '-20 points' ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'About points' } ) ).toBeInTheDocument();
 	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
 } );
 
@@ -961,7 +963,7 @@ test.each( [
 			);
 			const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
 			fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
-			await expect( screen.findByText( copy ) ).resolves.toBeInTheDocument();
+			await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent( copy );
 			expect(
 				screen
 					.getByRole( 'button', { name: 'Previous 30 days' } )
@@ -1029,9 +1031,9 @@ test( 'labels empty days as locked only after older history absence is confirmed
 		await waitFor( () => expect( completeOlderHistory ).toBeDefined() );
 		const charts = await screen.findAllByRole( 'grid', { name: 'Bar chart' } );
 		fireEvent.keyDown( charts[ 0 ], { key: 'ArrowRight' } );
-		await expect(
-			screen.findByText( 'No scores recorded for this day.' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByRole( 'tooltip' ) ).resolves.toHaveTextContent(
+			'No scores recorded for this day.'
+		);
 		expect(
 			screen.queryByText( 'No scores recorded before the feature was unlocked.' )
 		).not.toBeInTheDocument();
@@ -1040,9 +1042,11 @@ test( 'labels empty days as locked only after older history absence is confirmed
 			'true'
 		);
 		await act( async () => completeOlderHistory() );
-		await expect(
-			screen.findByText( 'No scores recorded before the feature was unlocked.' )
-		).resolves.toBeInTheDocument();
+		await waitFor( () =>
+			expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent(
+				'No scores recorded before the feature was unlocked.'
+			)
+		);
 		expect( screen.getByRole( 'button', { name: 'Previous 30 days' } ) ).toHaveAttribute(
 			'aria-disabled',
 			'true'

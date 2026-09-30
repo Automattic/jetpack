@@ -1,6 +1,6 @@
-import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
+import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
-	isDashboardSectionInPreviewScope,
+	isDashboardSectionAvailable,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 	isVideoPressAvailable,
@@ -24,7 +24,7 @@ jest.mock( '../site-readiness', () => ( {
 	isPremiumAnalyticsSiteConnected: jest.fn( () => true ),
 	isPremiumAnalyticsInitialSyncFinished: jest.fn( () => true ),
 	isVideoPressAvailable: jest.fn( () => true ),
-	isDashboardSectionInPreviewScope: jest.fn( () => true ),
+	isDashboardSectionAvailable: jest.fn( () => true ),
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
@@ -77,7 +77,7 @@ describe( 'video detail route.beforeLoad', () => {
 	} );
 
 	it( 'redirects home when the Videos report is behind a hidden tab', async () => {
-		( isDashboardSectionInPreviewScope as jest.Mock ).mockReturnValueOnce( false );
+		( isDashboardSectionAvailable as jest.Mock ).mockReturnValueOnce( false );
 
 		await expect( beforeLoad( { videoId: '42' }, settledSearch ) ).rejects.toMatchObject( {
 			to: '/',
@@ -109,6 +109,17 @@ describe( 'video detail route.beforeLoad', () => {
 
 		expect( thrown?.search ).toMatchObject( { post_id: '42' } );
 		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+	} );
+
+	it( 'keeps the dashboard origin through the seeding redirect', async () => {
+		// The real normalizer drops params it does not own, so the seed has to add `ds` back.
+		( normalizeReportParams as jest.Mock ).mockImplementationOnce( () => ( {
+			from: '2026-06-01',
+		} ) );
+
+		await expect(
+			beforeLoad( { videoId: '42' }, { ...settledSearch, post_id: '7', ds: 'insights' } )
+		).rejects.toMatchObject( { search: { ds: 'insights', post_id: '42' } } );
 	} );
 
 	it( 'seeds when the date params are missing', async () => {

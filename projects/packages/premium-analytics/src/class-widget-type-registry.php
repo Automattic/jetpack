@@ -25,7 +25,7 @@ final class Widget_Type_Registry {
 	/**
 	 * Action through which widget types are registered, fired once on the first read.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.9.0
 	 * @var string
 	 */
 	const REGISTER_ACTION = 'jetpack_premium_analytics_register_widget_types';
@@ -36,6 +36,13 @@ final class Widget_Type_Registry {
 	 * @var Widget_Type[]
 	 */
 	private $registered_widget_types = array();
+
+	/**
+	 * Former names of the registered widget types, as `$former_name => $current_name` pairs.
+	 *
+	 * @var string[]
+	 */
+	private $former_names = array();
 
 	/**
 	 * Whether the registration action has fired.
@@ -112,13 +119,89 @@ final class Widget_Type_Registry {
 			return false;
 		}
 
+		if ( isset( $this->former_names[ $name ] ) ) {
+			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+			_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: 1: Widget type name. 2: Widget type name. */ __( 'Widget type "%1$s" is a former name of "%2$s".', 'jetpack-premium-analytics-pkg' ), $name, $this->former_names[ $name ] ) ), 'jetpack-premium-analytics-$$next-version$$' );
+			return false;
+		}
+
+		$former_names = self::normalize_former_names( $widget_type ? $widget_type->former_names : ( $args['former_names'] ?? null ) );
+		if ( null !== $former_names && ! $this->former_names_are_free( $name, $former_names ) ) {
+			return false;
+		}
+		// The type keeps the normalized list: it is what the REST record publishes.
+		if ( $widget_type ) {
+			$widget_type->former_names = $former_names;
+		} else {
+			$args['former_names'] = $former_names;
+		}
+
 		if ( ! $widget_type ) {
 			$widget_type = new Widget_Type( $name, $args );
 		}
 
 		$this->registered_widget_types[ $name ] = $widget_type;
+		foreach ( (array) $widget_type->former_names as $former_name ) {
+			$this->former_names[ $former_name ] = $name;
+		}
 
 		return $widget_type;
+	}
+
+	/**
+	 * Normalizes declared former names to a list of distinct values, or null when there are none.
+	 *
+	 * A keyed array, say what `array_unique()` leaves behind, would reach the client as an object
+	 * instead of a list. Anything but an array passes through for `former_names_are_free()` to refuse.
+	 *
+	 * @param mixed $former_names The declared former names.
+	 * @return mixed
+	 */
+	private static function normalize_former_names( $former_names ) {
+		if ( ! is_array( $former_names ) ) {
+			return $former_names;
+		}
+
+		$former_names = array_values( array_unique( $former_names, SORT_REGULAR ) );
+
+		return $former_names ? $former_names : null;
+	}
+
+	/**
+	 * Whether a widget type may claim the given former names.
+	 *
+	 * Each one must be a namespaced lowercase name that no registered type or other former name
+	 * holds; a failure is a `_doing_it_wrong()`.
+	 *
+	 * @param string $name         The widget type claiming the names.
+	 * @param mixed  $former_names The claimed former names.
+	 * @return bool
+	 */
+	private function former_names_are_free( $name, $former_names ) {
+		$taken = null;
+		if ( is_array( $former_names ) ) {
+			foreach ( $former_names as $former_name ) {
+				if ( ! is_string( $former_name ) || ! preg_match( '/^[a-z0-9-]+\/[a-z0-9-]+$/', $former_name ) || $former_name === $name ) {
+					$taken = is_string( $former_name ) ? $former_name : gettype( $former_name );
+					break;
+				}
+				$owner = $this->former_names[ $former_name ] ?? null;
+				if ( $this->is_registered( $former_name ) || ( null !== $owner && $owner !== $name ) ) {
+					$taken = $former_name;
+					break;
+				}
+			}
+		} else {
+			$taken = is_scalar( $former_names ) ? (string) $former_names : gettype( $former_names );
+		}
+
+		if ( null === $taken ) {
+			return true;
+		}
+
+		// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
+		_doing_it_wrong( __METHOD__, esc_html( sprintf( /* translators: 1: Widget type name. 2: Former name. */ __( 'Widget type "%1$s" cannot claim "%2$s" as a former name: it must be a namespaced lowercase name that no registered widget type holds.', 'jetpack-premium-analytics-pkg' ), $name, $taken ) ), 'jetpack-premium-analytics-$$next-version$$' );
+		return false;
 	}
 
 	/**
@@ -149,8 +232,29 @@ final class Widget_Type_Registry {
 
 		$unregistered_widget_type = $this->registered_widget_types[ $name ];
 		unset( $this->registered_widget_types[ $name ] );
+		$this->former_names = array_filter(
+			$this->former_names,
+			static function ( $current_name ) use ( $name ) {
+				return $current_name !== $name;
+			}
+		);
 
 		return $unregistered_widget_type;
+	}
+
+	/**
+	 * Resolves a possibly former name to the current widget type name.
+	 *
+	 * Does not hydrate: call it after a read, since former names arrive with their types'
+	 * registration. An unknown name comes back unchanged.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $name Widget type name, current or former.
+	 * @return string The current name.
+	 */
+	public function resolve_name( $name ) {
+		return $this->former_names[ $name ] ?? $name;
 	}
 
 	/**
@@ -163,6 +267,7 @@ final class Widget_Type_Registry {
 	public function get_registered( $name ) {
 		$this->ensure_hydrated();
 
+		$name = $this->resolve_name( $name );
 		if ( ! $this->is_registered( $name ) ) {
 			return null;
 		}
@@ -206,7 +311,7 @@ final class Widget_Type_Registry {
 		if ( ! did_action( 'init' ) ) {
 			$message = __( 'Widget types are read after init. A read before it does not hydrate the registry and answers only what was registered directly.', 'jetpack-premium-analytics-pkg' );
 			// One line: tools/replace-next-version-tag.sh only rewrites the token in a single-line call.
-			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-$$next-version$$' );
+			_doing_it_wrong( __METHOD__, esc_html( $message ), 'jetpack-premium-analytics-0.9.0' );
 			return;
 		}
 
@@ -220,7 +325,7 @@ final class Widget_Type_Registry {
 		 * boot dependencies are built and from REST, and each path loads it at a different
 		 * moment. A registrant that may run twice guards with `is_registered()`.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.9.0
 		 *
 		 * @param Widget_Type_Registry $registry The registry being hydrated.
 		 */

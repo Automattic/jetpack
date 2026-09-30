@@ -54,6 +54,27 @@ describe( 'Stats video plays normalizer', () => {
 		} );
 	} );
 
+	it( 'keeps a complete-stats row poster and drops an empty one', () => {
+		const response = ( poster: unknown ) => ( {
+			date: '2026-06-22',
+			period: 'day',
+			days: {
+				'2026-06-22': { data: [ { post_id: 12, title: 'Launch video', views: 3, poster } ] },
+			},
+		} );
+		const query = { period: 'day', end_date: '2026-06-22', complete_stats: true } as const;
+
+		expect(
+			sanitizeStatsVideoPlaysResponse( response( 'https://i0.wp.com/v/launch.jpg' ), query )
+				.data[ 0 ].items[ 0 ].poster
+		).toBe( 'https://i0.wp.com/v/launch.jpg' );
+		for ( const poster of [ null, '' ] ) {
+			expect(
+				sanitizeStatsVideoPlaysResponse( response( poster ), query ).data[ 0 ].items[ 0 ]
+			).not.toHaveProperty( 'poster' );
+		}
+	} );
+
 	it( 'does not add link actions when video rows have no URL', () => {
 		const result = sanitizeStatsVideoPlaysResponse(
 			{

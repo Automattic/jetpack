@@ -1,5 +1,6 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
+import { useDispatch } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { REST_API_SITE_PRODUCTS_ENDPOINT, QUERY_INSTALL_PRODUCT_KEY } from '../constants';
 import useSimpleMutation from '../use-simple-mutation';
 import useProducts from './use-products';
@@ -8,7 +9,7 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 	const productIds = Array.isArray( productSlugs ) ? productSlugs : [ productSlugs ];
 
 	const { products, refetch } = useProducts( productIds );
-	const { createSuccessNotice } = useGlobalNotices();
+	const { createSuccessNotice } = useDispatch( noticesStore );
 
 	const successMessageSingular = sprintf(
 		/* translators: %s is the name of a Jetpack plugin, i.e.- "VaultPress Backup" or "Boost" or "Social" or "Search" or "VideoPress", etc. */
@@ -28,7 +29,7 @@ const useInstallPlugins = ( productSlugs: string | string[] ) => {
 		options: {
 			onSuccess: () => {
 				refetch().then( () => {
-					createSuccessNotice( successMessage );
+					createSuccessNotice( successMessage, { type: 'snackbar' } );
 				} );
 			},
 		},

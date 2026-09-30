@@ -161,7 +161,7 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$self_hosted = $this->render( array( $chrome, 'render_footer' ) );
 
 		$this->assertStringContainsString( 'class="jp-akismet-footer__menu"', $self_hosted );
-		$this->assertStringContainsString( 'page=my-jetpack#/products', $self_hosted );
+		$this->assertStringContainsString( 'page=my-jetpack#/features', $self_hosted );
 
 		Constants::set_constant( 'IS_WPCOM', true );
 		Status_Cache::clear();
@@ -237,15 +237,15 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * With My Jetpack's Features tab on, the footer links to it under its new name.
+	 * With My Jetpack's Features tab filtered off, the footer links to the Products tab instead.
 	 */
-	public function test_render_footer_links_to_the_features_tab_when_it_replaces_products() {
-		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_true' );
+	public function test_render_footer_links_to_the_products_tab_when_the_features_tab_is_off() {
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_false' );
 
 		$footer = $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
 
-		$this->assertStringContainsString( 'page=my-jetpack#/features', $footer );
-		$this->assertStringContainsString( '>Features</a>', $footer );
-		$this->assertStringNotContainsString( 'page=my-jetpack#/products', $footer );
+		$this->assertStringContainsString( 'page=my-jetpack#/products', $footer );
+		$this->assertStringContainsString( '>Products</a>', $footer );
+		$this->assertStringNotContainsString( 'page=my-jetpack#/features', $footer );
 	}
 }

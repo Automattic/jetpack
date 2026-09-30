@@ -346,6 +346,7 @@ class Jetpack_AI_Page {
 				// The route, not a flag: each one documents a different hook.
 				'masterForcedOff'   => Jetpack_AI_Settings::get_master_forced_off_route(),
 				'isOfflineMode'     => $is_offline_mode,
+				'canConnectSite'    => current_user_can( 'jetpack_connect' ),
 				// These three answer one question; a filter changing one alone leaves
 				// a label pointing at a page that is not there.
 				'hasMyJetpack'      => $has_my_jetpack,
@@ -370,6 +371,7 @@ class Jetpack_AI_Page {
 			'blogId'            => $blog_id ? (int) $blog_id : 0,
 			'activityLogUrl'    => $activity_log_url,
 			'seoSettingsUrl'    => $seo_settings_url,
+			'searchSettingsUrl' => self::get_search_settings_url(),
 			'siteAdminUrl'      => admin_url(),
 			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
 			'manageUrl'         => esc_url_raw( $config['manageUrl'] ?? '' ),
@@ -387,6 +389,7 @@ class Jetpack_AI_Page {
 				true
 			) ? $config['masterForcedOff'] : '',
 			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
+			'canConnectSite'    => ! empty( $config['canConnectSite'] ),
 			'apiRoot'           => esc_url_raw( rest_url() ),
 			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
 			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
@@ -489,6 +492,30 @@ class Jetpack_AI_Page {
 			: '';
 
 		return '' !== $email && '@automattic.com' === substr( $email, -15 );
+	}
+
+	/**
+	 * The Search dashboard page the AI Answers row links to, or '' once a host
+	 * has removed it. Removal is remove_submenu_page() on `admin_menu`, which only
+	 * unsets the registry entry — menu_page_url() still answers for the page and
+	 * wp-admin then denies it — so the registry is read after that hook has run.
+	 *
+	 * @return string
+	 */
+	private static function get_search_settings_url() {
+		global $submenu;
+
+		// Search registers under the Jetpack menu, or menu-less (parent '') when
+		// `jetpack_search_should_add_search_submenu` says no; both are reachable.
+		foreach ( array( 'jetpack', '' ) as $parent ) {
+			foreach ( (array) ( $submenu[ $parent ] ?? array() ) as $item ) {
+				if ( isset( $item[2] ) && 'jetpack-search' === $item[2] ) {
+					return admin_url( 'admin.php?page=jetpack-search#/ai-answers' );
+				}
+			}
+		}
+
+		return '';
 	}
 
 	/**

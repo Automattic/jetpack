@@ -35,10 +35,8 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
 		delete_option( PayPal_OAuth::TOKEN_EXPIRES_AT_OPTION_KEY );
-		delete_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY );
-		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
+		PayPal_Partner_Onboarding::cleanup();
+		delete_option( PayPal_Partner_Onboarding::PARTNER_CLIENT_ID_OPTION_KEY );
 		delete_option( 'jetpack_private_options' );
 		\Jetpack_Options::delete_option( 'id' );
 		Constants::clear_constants();
@@ -545,7 +543,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$data = $result->get_error_data();
 		// The REST controller normalizes 0 to 503.
-		$this->assertGreaterThan( 0, $data['status'] );
+		$this->assertSame( 503, $data['status'] );
 	}
 
 	// --- handle_delete_button: 404 treated as success ---
@@ -632,9 +630,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 				PayPal_Partner_Onboarding::WPCOM_SIGNUP_LINK_ROUTE => $this->http_response(
 					200,
 					array(
-						'action_url'          => 'https://www.sandbox.paypal.com/merchantsignup/x',
-						'referral_id'         => 'REF1',
-						'partner_merchant_id' => 'PARTNER_FROM_WPCOM',
+						'action_url'  => 'https://www.sandbox.paypal.com/merchantsignup/x',
+						'referral_id' => 'REF1',
+						'tracking_id' => 'woo-ncps-1234-1',
 					)
 				),
 			)
@@ -676,14 +674,83 @@ class PayPal_REST_Controller_Test extends TestCase {
 		wp_set_current_user( self::factory_create_admin_user() );
 
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
-		$request->set_param( 'auth_code', 'code' );
-		$request->set_param( 'shared_id', 'shared' );
-		$request->set_param( 'merchant_id_in_paypal', 'MERCHANT1' );
 
 		$result = PayPal_REST_Controller::handle_onboarding_complete( $request );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_onboarding_no_nonce', $result->get_error_code() );
+		$this->assertEquals( 'paypal_onboarding_no_session', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that completing onboarding reports the referred seller.
+	 */
+	public function test_onboarding_complete_reports_the_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'   => 'MERCHANT1',
+						'tracking_id'   => 'woo-ncps-1234-1',
+						'primary_email' => 'junior@sports.com',
+					)
+				),
+				'/paypal/platform/request'              => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
+					)
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertTrue( $result->get_data()['connected'] );
+		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
+		$this->assertSame( 'junior@sports.com', $result->get_data()['account_email'] );
+		$this->assertSame( 'partner_referrals', $result->get_data()['method'] );
+	}
+
+	/**
+	 * Test that pasting credentials replaces a seller referred earlier.
+	 */
+	public function test_connect_replaces_a_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'resources' => array() ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
+		$request->set_param( 'client_id', 'client_id' );
+		$request->set_param( 'client_secret', 'client_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertTrue( PayPal_OAuth::has_credentials() );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertFalse( PayPal_Partner_Onboarding::is_platform_managed() );
 	}
 
 	/**
@@ -929,6 +996,45 @@ class PayPal_REST_Controller_Test extends TestCase {
 		PayPal_OAuth::delete_credentials();
 
 		$this->assertSame( '', $this->read_button_with_sdk_url()['sdk_url'] );
+	}
+
+	/**
+	 * A referred seller's SDK URL names the platform's client ID and the seller's merchant ID.
+	 */
+	public function test_get_button_sdk_url_for_a_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+		update_option( PayPal_Partner_Onboarding::PARTNER_CLIENT_ID_OPTION_KEY, 'platform+id', false );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/request' => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode(
+							array(
+								'id'         => 'PLB-42',
+								'line_items' => array( array( 'name' => 'Test' ) ),
+							),
+							JSON_UNESCAPED_SLASHES
+						),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		$data = PayPal_REST_Controller::handle_get_button( $request )->get_data();
+
+		$this->assertSame(
+			'https://www.sandbox.paypal.com/sdk/js?client-id=platform%2Bid&merchant-id=MERCHANT1&components=hosted-buttons&enable-funding=venmo&currency=USD',
+			$data['sdk_url']
+		);
 	}
 
 	/**
@@ -1956,6 +2062,37 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$second_read = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-RT1' ) );
 		$this->assertEquals( $first_read->get_data(), $second_read->get_data(), 'An update with no changes changed the payment.' );
+	}
+
+	/**
+	 * An http return URL goes through to PayPal unchanged.
+	 */
+	public function test_create_button_sends_an_http_return_url() {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		$create = $this->dispatch_json(
+			'POST',
+			'/wpcom/v2/paypal/buttons',
+			array(
+				'line_items' => array(
+					array(
+						'name'        => 'Widget',
+						'unit_amount' => array(
+							'currency_code' => 'USD',
+							'value'         => '10.00',
+						),
+					),
+				),
+				'return_url' => 'http://example.com/thanks',
+			)
+		);
+
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( 'http://example.com/thanks', $store['return_url'] );
 	}
 
 	/**

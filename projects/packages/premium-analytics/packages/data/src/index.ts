@@ -77,6 +77,7 @@ export {
 	getAllowedIntervalsForPreset,
 	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
+	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';
@@ -129,6 +130,7 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,

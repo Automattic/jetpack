@@ -103,8 +103,10 @@ test( 'opens the Critical CSS info icon with its explanatory text', async () => 
 	// eslint-disable-next-line testing-library/prefer-user-event -- This project does not provide user-event.
 	fireEvent.click( icon );
 	await expect(
+		// speak() also writes this text into `@wordpress/a11y`'s live region; match the tooltip only.
 		screen.findByText(
-			'Critical CSS is the small set of styles needed to show the top of each page. Boost loads it first so pages appear faster while the rest of the CSS loads.'
+			'Critical CSS is the small set of styles needed to show the top of each page. Boost loads it first so pages appear faster while the rest of the CSS loads.',
+			{ ignore: '#a11y-speak-polite, script, style' }
 		)
 	).resolves.toBeTruthy();
 } );

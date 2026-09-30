@@ -51,16 +51,15 @@ class PayPal_OAuth_Test extends TestCase {
 		// credentials cache, which otherwise leaks between tests in the same
 		// process and makes has_credentials() report a stale true.
 		PayPal_OAuth::disconnect();
-		// The partner id and the account email live on another class's options, which
-		// disconnect() leaves alone.
-		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY );
+		// The referred seller lives on another class's options, which disconnect() leaves alone.
+		PayPal_Partner_Onboarding::cleanup();
 
 		// The blog connection is per-test; leaving it set makes later tests that
 		// expect a disconnected site pass or fail depending on test order.
 		delete_option( 'jetpack_private_options' );
 		\Jetpack_Options::delete_option( 'id' );
 		Constants::clear_constants();
+		remove_all_filters( 'pre_http_request' );
 	}
 
 	/**
@@ -382,13 +381,27 @@ class PayPal_OAuth_Test extends TestCase {
 	}
 
 	/**
-	 * Test Partner Referrals is unavailable off WordPress.com, even with credentials
-	 * and a partner ID stored.
+	 * Test a referred seller counts as connected although the site holds no credentials.
 	 */
-	public function test_connection_status_partner_referrals_ignores_credentials_and_partner_id() {
+	public function test_connection_status_reports_a_referred_seller_as_connected() {
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+
+		$status = PayPal_OAuth::get_connection_status();
+
+		$this->assertFalse( PayPal_OAuth::has_credentials() );
+		$this->assertTrue( PayPal_OAuth::is_connected() );
+		$this->assertTrue( $status['connected'] );
+		$this->assertSame( 'MERCHANT1', $status['merchant_id'] );
+		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_METHOD, $status['onboarding_method'] );
+	}
+
+	/**
+	 * Test Partner Referrals is unavailable off WordPress.com, even with credentials stored.
+	 */
+	public function test_connection_status_partner_referrals_ignores_credentials() {
 		$this->assertFalse( ( new Manager() )->is_connected(), 'This case needs a disconnected site.' );
 
-		PayPal_Partner_Onboarding::set_partner_id( 'TEST_PARTNER_123' );
 		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
 
 		$status = PayPal_OAuth::get_connection_status();
@@ -501,5 +514,227 @@ class PayPal_OAuth_Test extends TestCase {
 	public function test_token_expiry_buffer_is_reasonable() {
 		$this->assertGreaterThanOrEqual( 60, PayPal_OAuth::TOKEN_EXPIRY_BUFFER );
 		$this->assertLessThanOrEqual( 600, PayPal_OAuth::TOKEN_EXPIRY_BUFFER );
+	}
+
+	// --- validate_api_access() ---
+
+	/**
+	 * Store credentials with a token already cached, so the probe is the only call made.
+	 */
+	private function set_up_stored_credentials_with_a_token() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		PayPal_OAuth::store_credentials( 'test_client_id', 'test_client_secret' );
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'cached_token' ), 3600 );
+	}
+
+	/**
+	 * A referred seller on a site connected to WordPress.com.
+	 */
+	private function set_up_referred_merchant() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		$this->set_up_connected_site();
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+	}
+
+	/**
+	 * Answer every HTTP request with one response, recording the requests.
+	 *
+	 * @param array|\WP_Error $response The response.
+	 * @param array           $requests Collected by reference as [ url, args ] pairs.
+	 */
+	private function mock_http( $response, &$requests = null ) {
+		$requests = array();
+
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args, $url ) use ( $response, &$requests ) {
+				$requests[] = array(
+					'url'  => $url,
+					'args' => $args,
+				);
+				return $response;
+			},
+			10,
+			3
+		);
+	}
+
+	/**
+	 * A PayPal answer relayed by the WordPress.com request proxy.
+	 *
+	 * @param int   $status PayPal's HTTP status.
+	 * @param array $body   PayPal's response body.
+	 * @return array
+	 */
+	private function platform_response( $status, array $body ) {
+		return array(
+			'response' => array( 'code' => 200 ),
+			'body'     => wp_json_encode(
+				array(
+					'status' => $status,
+					'body'   => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+				),
+				JSON_UNESCAPED_SLASHES
+			),
+		);
+	}
+
+	/**
+	 * Test that the probe needs a token, so a site without credentials gets that error.
+	 */
+	public function test_validate_api_access_needs_credentials() {
+		$requests = array();
+		$this->mock_http( array( 'response' => array( 'code' => 200 ) ), $requests );
+
+		$result = PayPal_OAuth::validate_api_access();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEmpty( $requests );
+	}
+
+	/**
+	 * Test that the probe reads one payment resource with the account's token.
+	 */
+	public function test_validate_api_access_probes_payment_resources() {
+		$this->set_up_stored_credentials_with_a_token();
+		$requests = array();
+		$this->mock_http(
+			array(
+				'response' => array( 'code' => 200 ),
+				'body'     => '{"resources":[]}',
+			),
+			$requests
+		);
+
+		$this->assertTrue( PayPal_OAuth::validate_api_access() );
+		$this->assertCount( 1, $requests );
+		$this->assertSame( 'https://api-m.sandbox.paypal.com/v1/checkout/payment-resources?page_size=1', $requests[0]['url'] );
+		$this->assertSame( 'Bearer cached_token', $requests[0]['args']['headers']['Authorization'] );
+	}
+
+	/**
+	 * Test that PayPal being unreachable or down does not block connecting.
+	 *
+	 * @dataProvider provide_transient_probe_failures
+	 *
+	 * @param array|\WP_Error $response What the probe got back.
+	 */
+	#[DataProvider( 'provide_transient_probe_failures' )]
+	public function test_validate_api_access_does_not_block_on_a_transient_failure( $response ) {
+		$this->set_up_stored_credentials_with_a_token();
+		$this->mock_http( $response );
+
+		$this->assertTrue( PayPal_OAuth::validate_api_access() );
+	}
+
+	/**
+	 * Probe outcomes that say nothing about the account's access.
+	 *
+	 * @return array<string, array{0: array|\WP_Error}>
+	 */
+	public static function provide_transient_probe_failures() {
+		return array(
+			'network failure' => array( new \WP_Error( 'http_request_failed', 'Connection timed out' ) ),
+			'server error'    => array( array( 'response' => array( 'code' => 503 ) ) ),
+			'no status'       => array( array( 'response' => array( 'code' => 0 ) ) ),
+		);
+	}
+
+	/**
+	 * Test that a 403 names the missing app feature and carries PayPal's diagnosis.
+	 */
+	public function test_validate_api_access_reports_a_missing_app_feature() {
+		$this->set_up_stored_credentials_with_a_token();
+		$this->mock_http(
+			array(
+				'response' => array( 'code' => 403 ),
+				'body'     => '{"name":"NOT_AUTHORIZED","debug_id":"abc123"}',
+			)
+		);
+
+		$result = PayPal_OAuth::validate_api_access();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+		$this->assertStringContainsString( 'PayPal Developer Dashboard', $result->get_error_message() );
+		$this->assertStringContainsString( 'PayPal reported: NOT_AUTHORIZED (debug ID abc123).', $result->get_error_message() );
+	}
+
+	/**
+	 * Test that a 403 without a body is reported without a diagnosis.
+	 */
+	public function test_validate_api_access_reports_a_403_without_diagnostics() {
+		$this->set_up_stored_credentials_with_a_token();
+		$this->mock_http( array( 'response' => array( 'code' => 403 ) ) );
+
+		$result = PayPal_OAuth::validate_api_access();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
+		$this->assertStringNotContainsString( 'PayPal reported', $result->get_error_message() );
+	}
+
+	/**
+	 * Test that a referred seller's probe goes through WordPress.com, with no token on the site.
+	 */
+	public function test_validate_api_access_probes_through_wpcom_for_a_referred_seller() {
+		$this->set_up_referred_merchant();
+		$requests = array();
+		$this->mock_http( $this->platform_response( 200, array( 'resources' => array() ) ), $requests );
+
+		$this->assertTrue( PayPal_OAuth::validate_api_access() );
+		$this->assertCount( 1, $requests );
+		$this->assertStringContainsString( PayPal_Platform_Client::WPCOM_REQUEST_ROUTE, $requests[0]['url'] );
+
+		$body = (array) json_decode( $requests[0]['args']['body'], true );
+		$this->assertSame( 'GET', $body['method'] );
+		$this->assertSame( '/v1/checkout/payment-resources?page_size=1', $body['path'] );
+	}
+
+	/**
+	 * Test that a relayed 403 tells the seller to grant the permissions, not to configure an app.
+	 */
+	public function test_validate_api_access_reports_a_referred_seller_paypal_did_not_grant() {
+		$this->set_up_referred_merchant();
+		$this->mock_http( $this->platform_response( 403, array( 'name' => 'NOT_AUTHORIZED' ) ) );
+
+		$result = PayPal_OAuth::validate_api_access();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
+		$this->assertStringContainsString( 'accept every permission PayPal asks for', $result->get_error_message() );
+		$this->assertStringNotContainsString( 'PayPal Developer Dashboard', $result->get_error_message() );
+		$this->assertStringContainsString( 'NOT_AUTHORIZED', $result->get_error_message() );
+	}
+
+	/**
+	 * Test that WordPress.com refusing to act for the seller is as final as PayPal's own 403.
+	 */
+	public function test_validate_api_access_reports_a_referred_seller_wpcom_refused() {
+		$this->set_up_referred_merchant();
+		$this->mock_http(
+			array(
+				'response' => array( 'code' => 403 ),
+				'body'     => '{"code":"paypal_merchant_not_for_site","message":"This PayPal account was not connected through this site.","data":{"status":403}}',
+			)
+		);
+
+		$result = PayPal_OAuth::validate_api_access();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that WordPress.com being unreachable does not block a referred seller from connecting.
+	 */
+	public function test_validate_api_access_does_not_block_a_referred_seller_on_a_wpcom_outage() {
+		$this->set_up_referred_merchant();
+		$this->mock_http( new \WP_Error( 'http_request_failed', 'Connection refused' ) );
+
+		$this->assertTrue( PayPal_OAuth::validate_api_access() );
 	}
 }

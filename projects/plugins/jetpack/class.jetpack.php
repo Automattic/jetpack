@@ -840,6 +840,44 @@ class Jetpack {
 	}
 
 	/**
+	 * Enable the bundled Backup dashboard.
+	 *
+	 * The standalone plugin initializes the package first, so with both active this is a no-op.
+	 *
+	 * @return void
+	 */
+	public static function configure_backup_package() {
+		// Not offered on multisite, which the Backup package does not support, or without a
+		// connected owner, since buying and managing backups needs a linked account.
+		if ( is_multisite() || ! self::is_connection_ready() || ! self::connection()->has_connected_owner() ) {
+			return;
+		}
+
+		/**
+		 * Filters whether the Jetpack plugin offers its bundled Backup dashboard.
+		 *
+		 * Resolved at the earliest `plugins_loaded` priority, so hook it from a mu-plugin.
+		 *
+		 * @since 16.3
+		 *
+		 * @param bool $enabled Whether to initialize the bundled Backup dashboard. Default true.
+		 */
+		if ( ! apply_filters( 'jetpack_backup_dashboard_enabled', true ) ) {
+			return;
+		}
+
+		$backup = 'Automattic\\Jetpack\\Backup\\V0005\\Jetpack_Backup';
+
+		// An older package would take over the connection (see Jetpack_Backup::DEFAULT_INIT_OPTIONS);
+		// only the standalone plugin ships one that old, and it draws its own menu.
+		if ( ! class_exists( $backup ) || ! defined( $backup . '::DEFAULT_INIT_OPTIONS' ) ) {
+			return;
+		}
+
+		$backup::initialize( array( 'manage_connection' => false ) );
+	}
+
+	/**
 	 * Whether the bundled Stats v2 dashboard is enabled.
 	 *
 	 * Stats v2 (formerly "Premium Analytics") ships with the plugin behind this
@@ -934,6 +972,13 @@ class Jetpack {
 		// only renders when the VideoPress module is active (Status::is_active()); when it
 		// is not, the menu item links to the My Jetpack interstitial to activate it.
 		$config->ensure( 'videopress', array( 'admin_ui' => true ) );
+
+		// The Backup dashboard is only an admin menu and REST routes, so it is deferred like Import below.
+		if ( self::should_eager_load_packages() ) {
+			self::configure_backup_package();
+		} else {
+			add_action( 'rest_api_init', array( __CLASS__, 'configure_backup_package' ), 0 );
+		}
 
 		/*
 		 * The Import package only registers `jetpack/v4/import` REST routes — it
@@ -3113,7 +3158,7 @@ p {
 	/**
 	 * Deletes obsolete SEO module-state options without changing module activation.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 */
 	public static function cleanup_seo_module_state_options() {
 		delete_option( 'jetpack_seo_sitemap_enabled' );
@@ -3993,7 +4038,7 @@ p {
 
 			// Add objects to be passed to the initial state of the app.
 			// Use wp_add_inline_script instead of wp_localize_script, see https://core.trac.wordpress.org/ticket/25280.
-			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=' . wp_json_encode( Jetpack_Redux_State_Helper::get_minimal_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
+			wp_add_inline_script( 'jetpack-plugins-page-js', 'var Initial_State=' . wp_json_encode( Jetpack_Redux_State_Helper::get_plugins_page_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';', 'before' );
 
 			add_action( 'admin_footer', array( $this, 'jetpack_plugin_portal_containers' ) );
 		}

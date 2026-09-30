@@ -744,14 +744,18 @@ class REST_Connector {
 	}
 
 	/**
-	 * Verify that user is allowed to disconnect Jetpack.
+	 * Verify that user is allowed to restore the connection.
+	 *
+	 * Users with only 'jetpack_connect_user' get through, but connection_reconnect()
+	 * limits them to refreshing their own user token.
 	 *
 	 * @since 1.15.0
+	 * @since 9.8.0 Also allows 'jetpack_connect_user'.
 	 *
-	 * @return bool|WP_Error Whether user has the capability 'jetpack_disconnect'.
+	 * @return bool|WP_Error Whether user has the capability 'jetpack_reconnect' or 'jetpack_connect_user'.
 	 */
 	public static function jetpack_reconnect_permission_check() {
-		if ( current_user_can( 'jetpack_reconnect' ) ) {
+		if ( current_user_can( 'jetpack_reconnect' ) || current_user_can( 'jetpack_connect_user' ) ) {
 			return true;
 		}
 
@@ -771,6 +775,7 @@ class REST_Connector {
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
 	 * @since 1.15.0
+	 * @since 9.8.0 Users without 'jetpack_reconnect' only refresh their own user token.
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -779,7 +784,9 @@ class REST_Connector {
 
 		$next = null;
 
-		$result = $this->connection->restore();
+		$result = current_user_can( 'jetpack_reconnect' )
+			? $this->connection->restore()
+			: $this->connection->refresh_user_token( false );
 
 		if ( is_wp_error( $result ) ) {
 			$response = $result;
@@ -934,17 +941,8 @@ class REST_Connector {
 			? (bool) $request['is_connection_owner']
 			: ( new Manager() )->get_connection_owner_id() === $user_id;
 
+		// Tokens::update_user_token() fires jetpack_updated_user_token itself.
 		( new Tokens() )->update_user_token( $user_id, $request['user_token'], $is_connection_owner );
-
-		/**
-		 * Fires when the user token gets successfully replaced.
-		 *
-		 * @since 1.29.0
-		 *
-		 * @param int $user_id User ID.
-		 * @param string $token New user token.
-		 */
-		do_action( 'jetpack_updated_user_token', $user_id, $request['user_token'] );
 
 		return rest_ensure_response(
 			array(

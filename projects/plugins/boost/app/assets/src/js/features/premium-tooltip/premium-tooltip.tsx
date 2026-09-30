@@ -10,6 +10,7 @@ const PremiumTooltip = () => {
 	return (
 		<IconTooltip
 			title={ __( 'Manual Critical CSS regeneration', 'jetpack-boost' ) }
+			label={ __( 'When to regenerate Critical CSS', 'jetpack-boost' ) }
 			placement={ 'bottom' }
 			className={ styles.tooltip }
 			popoverClassName={ styles.popover }

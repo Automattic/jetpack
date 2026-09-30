@@ -8,6 +8,7 @@ import { useCallback } from 'react';
 import styles from './styles.module.scss';
 import { getFeatureFilters } from './use-feature-filter';
 import type { FeatureFilter } from './use-feature-filter';
+import type { ReactNode } from 'react';
 
 type FilterPillProps = {
 	countPending?: boolean;
@@ -97,6 +98,7 @@ type ToolbarProps = {
 	countsPending?: boolean;
 	search: string;
 	onSearchChange: ( search: string ) => void;
+	bulk?: ReactNode;
 };
 
 // Only these two are counted from live state; the rest come from the catalog and are
@@ -115,6 +117,7 @@ const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
  * @param {boolean}      props.countsPending  - Whether those counts are still settling.
  * @param {string}       props.search         - The search term.
  * @param {Function}     props.onSearchChange - Updates the search term.
+ * @param {ReactNode}    props.bulk           - The bulk bar, which sticks to the top with the filters.
  * @return The rendered component.
  */
 export function Toolbar( {
@@ -126,6 +129,7 @@ export function Toolbar( {
 	countsPending,
 	search,
 	onSearchChange,
+	bulk,
 }: ToolbarProps ) {
 	const onSelectFilter = useCallback(
 		( value: string ) => onFilterChange( value as FeatureFilter ),
@@ -197,6 +201,8 @@ export function Toolbar( {
 					<ViewButton value="list" current={ view } onSelect={ onViewChange } />
 				</Stack>
 			</Stack>
+
+			{ bulk }
 		</div>
 	);
 }

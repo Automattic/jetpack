@@ -36,7 +36,8 @@
 }
 
 // The button has no box, since the icon is out of flow, so ring the icon.
-.tooltip > :global(.components-button.is-link):focus-visible {
+// Same states as WordPress's own button ring: any focus, but not while pressed.
+.tooltip > :global(.components-button.is-link):focus:not(:active) {
 	outline: none;
 
 	svg {

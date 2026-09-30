@@ -67,7 +67,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			),
 			'zero-bs-crm'  => array(
 				'type'                    => 'plugin',
-				'file'                    => 'zero-bs-crm/ZeroBSCRM.php',
+				// White-label builds rename the folder and main file, so ask the CRM where it lives.
+				// Not ZBS_ROOTPLUGIN: it names a symlink's target folder, which WordPress does not key plugins by.
+				'file'                    => defined( 'ZBS_ROOTFILE' ) ? plugin_basename( ZBS_ROOTFILE ) : 'zero-bs-crm/ZeroBSCRM.php',
 				'settings_url'            => 'admin.php?page=zerobscrm-plugin-settings',
 				'marketing_redirect_slug' => 'org-crm',
 				'title'                   => __( 'Jetpack CRM', 'jetpack-forms' ),

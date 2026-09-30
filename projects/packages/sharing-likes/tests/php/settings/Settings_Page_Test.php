@@ -12,6 +12,7 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
 use Automattic\Jetpack\Constants;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../lib/class-sharing-service.php';
@@ -21,6 +22,7 @@ require_once __DIR__ . '/../lib/trait-section-environment.php';
  * The screen exists whichever modules are active. That is the guarantee this
  * class was written for, and the one the old per-module registration could not
  * make: with sharedaddy, likes and comment-likes all off, there was no screen.
+ * It still needs a site that can load them: Simple, connected, or offline.
  *
  * @covers \Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page
  */
@@ -56,6 +58,8 @@ class Settings_Page_Test extends BaseTestCase {
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'pre_admin_screen_sharing' );
 		remove_all_actions( 'sharing_global_options' );
+		remove_all_filters( 'jetpack_offline_mode' );
+		remove_all_filters( 'jetpack_disable_twitter_cards' );
 
 		$submenu           = array();
 		$_registered_pages = array();
@@ -92,31 +96,67 @@ class Settings_Page_Test extends BaseTestCase {
 	 * Comparing against the constant would follow a rename that broke both.
 	 */
 	public function test_registers_the_menu_with_no_module_active(): void {
-		global $submenu;
-
+		$this->given_connection( true );
 		Jetpack_Options::update_option( 'active_modules', array() );
 		wp_set_current_user( $this->create_user( 'administrator' ) );
 
-		Settings_Page::register_menu();
-
-		$slugs = wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
-
-		$this->assertContains( 'sharing', $slugs );
+		$this->assertContains( 'sharing', $this->register_and_list_settings_slugs() );
 	}
 
 	/**
-	 * Registering unconditionally must not mean registering for everyone.
+	 * Registering whatever the modules are doing must not mean registering for everyone.
 	 */
 	public function test_does_not_register_for_users_without_the_capability(): void {
-		global $submenu;
-
+		$this->given_connection( true );
 		wp_set_current_user( $this->create_user( 'subscriber' ) );
+
+		$this->assertNotContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Neither the legacy features nor their blocks load on such a site, so the
+	 * screen would have nothing to configure and no way to turn anything on.
+	 */
+	public function test_does_not_register_the_menu_on_a_disconnected_site_outside_offline_mode(): void {
+		$this->given_connection( false );
+		wp_set_current_user( $this->create_user( 'administrator' ) );
+
+		$this->assertNotContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Offline mode loads the blocks and lets the Sharing module be turned on.
+	 */
+	public function test_registers_the_menu_in_offline_mode_without_a_connection(): void {
+		$this->given_connection( false );
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		wp_set_current_user( $this->create_user( 'administrator' ) );
+
+		$this->assertContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Simple loads both features without a Jetpack connection.
+	 */
+	public function test_registers_the_menu_on_simple_without_a_connection(): void {
+		$this->given_connection( false );
+		Constants::set_constant( 'IS_WPCOM', true );
+		wp_set_current_user( $this->create_user( 'administrator' ) );
+
+		$this->assertContains( Settings_Page::SLUG, $this->register_and_list_settings_slugs() );
+	}
+
+	/**
+	 * Run the registration and hand back every slug under Settings.
+	 *
+	 * @return string[]
+	 */
+	private function register_and_list_settings_slugs(): array {
+		global $submenu;
 
 		Settings_Page::register_menu();
 
-		$slugs = wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
-
-		$this->assertNotContains( Settings_Page::SLUG, $slugs );
+		return wp_list_pluck( $submenu['options-general.php'] ?? array(), 2 );
 	}
 
 	/**
@@ -179,6 +219,13 @@ class Settings_Page_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'Settings have been saved', $this->render_screen() );
 	}
 
+	public function test_warns_when_the_comment_likes_switch_did_not_take(): void {
+		$_GET['update']                                 = 'saved';
+		$_GET[ Settings_Page::COMMENT_LIKES_UNCHANGED ] = '1';
+
+		$this->assertStringContainsString( 'Comment Likes could not be switched on or off', $this->render_screen() );
+	}
+
 	/**
 	 * A plain visit is not a save, so it must not claim one happened.
 	 */
@@ -188,15 +235,69 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Sections are ruled off from one another, but a section that declines to
-	 * render must not leave a rule with nothing after it. Here the two feature
-	 * sections render and the extras section does not, so there is exactly one.
+	 * render must not leave a rule with nothing after it. Here the three feature
+	 * sections render and the extras section does not, so there are exactly two.
 	 */
 	public function test_rules_off_between_sections_but_not_after_the_last(): void {
-		$this->assertSame( 1, substr_count( $this->render_screen(), '<hr />' ) );
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$this->assertSame( 2, substr_count( $this->render_screen(), '<hr />' ) );
 	}
 
 	/**
-	 * Hook a field onto `sharing_global_options`, as Twitter Cards does.
+	 * Comment Likes follow the placement, so it stays on screen with the Like
+	 * buttons off, headed by the one feature it still governs.
+	 */
+	public function test_keeps_placement_for_comment_likes_after_the_like_buttons(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'comment-likes' ) );
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$html = $this->render_screen();
+
+		$this->assertStringContainsString( 'Where Comment Likes appear', $html );
+		$this->assertGreaterThan(
+			strpos( $html, 'id="' . Likes_Section::ANCHOR . '"' ),
+			strpos( $html, 'id="' . Comment_Likes_Section::ANCHOR . '"' )
+		);
+		$this->assertLessThan(
+			strpos( $html, 'id="' . Placement_Section::ANCHOR . '"' ),
+			strpos( $html, 'id="' . Comment_Likes_Section::ANCHOR . '"' )
+		);
+	}
+
+	/**
+	 * @return array<string, array{0: string[], 1: string}>
+	 */
+	public static function provide_placement_headings(): array {
+		return array(
+			'all three'            => array( array( 'sharedaddy', 'likes', 'comment-likes' ), 'Where sharing buttons, Like buttons, and Comment Likes appear' ),
+			'sharing and likes'    => array( array( 'sharedaddy', 'likes' ), 'Where sharing and Like buttons appear' ),
+			'sharing and comments' => array( array( 'sharedaddy', 'comment-likes' ), 'Where sharing buttons and Comment Likes appear' ),
+			'likes and comments'   => array( array( 'likes', 'comment-likes' ), 'Where Like buttons and Comment Likes appear' ),
+			'likes alone'          => array( array( 'likes' ), 'Where Like buttons appear' ),
+			'comments alone'       => array( array( 'comment-likes' ), 'Where Comment Likes appear' ),
+			'sharing alone'        => array( array( 'sharedaddy' ), 'Where sharing buttons appear' ),
+		);
+	}
+
+	/**
+	 * A key missing from the heading map silently falls back to the sharing-only heading.
+	 *
+	 * @param string[] $modules Active modules.
+	 * @param string   $heading Expected placement heading.
+	 * @dataProvider provide_placement_headings
+	 */
+	#[DataProvider( 'provide_placement_headings' )]
+	public function test_names_every_feature_placement_governs( array $modules, string $heading ): void {
+		$this->given_connection( true );
+		$this->given_modules( $modules );
+
+		$this->assertStringContainsString( '<h2>' . $heading . '</h2>', $this->render_screen() );
+	}
+
+	/**
+	 * Hook a field onto `sharing_global_options`, as a third party does.
 	 */
 	private function given_extra_field(): void {
 		add_action(
@@ -222,7 +323,7 @@ class Settings_Page_Test extends BaseTestCase {
 
 	/**
 	 * Once both features moved to their blocks, placement governs nothing left on
-	 * the page. Fields like the Twitter Site Tag stay: the Sharing Buttons block reads it.
+	 * the page. Fields third parties hang there stay.
 	 */
 	public function test_leaves_the_block_prompts_and_the_extras_once_simple_switched_both_off(): void {
 		Constants::set_constant( 'IS_WPCOM', true );
@@ -276,13 +377,7 @@ class Settings_Page_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_LIKES . '"', $html );
 		$this->assertStringContainsString( 'value="' . Settings_Form::SECTION_PLACEMENT . '"', $html );
 
-		preg_match_all( '/<(?:input|select|textarea)\b[^>]*>/', $html, $fields );
-		foreach ( $fields[0] as $field ) {
-			if ( str_contains( $field, 'name="_wp' ) || str_contains( $field, 'name="jetpack_sharing_action"' ) || str_contains( $field, 'name="submit"' ) ) {
-				continue;
-			}
-			$this->assertStringContainsString( 'form="' . Settings_Form::ID . '"', $field );
-		}
+		$this->assert_every_field_joins_the_form( $html );
 
 		preg_match( '/<form[^>]*id="' . Settings_Form::ID . '"[^>]*>.*?name="_wpnonce" value="([^"]+)"/s', $html, $matches );
 
@@ -292,9 +387,50 @@ class Settings_Page_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The services table's rows sit outside any form of their own, so the `form`
+	 * attribute is the only thing that submits them. A Likes-only screen never
+	 * renders that table, which is how the checkbox below escaped the check above.
+	 */
+	public function test_saves_the_services_sections_own_rows_through_the_same_button(): void {
+		$this->given_connection( true );
+		$this->given_modules( array( 'sharedaddy' ) );
+
+		$html = $this->render_screen();
+
+		$this->assertStringContainsString( 'name="disable_resources"', $html );
+		$this->assertStringContainsString( 'name="jetpack-twitter-cards-site-tag"', $html );
+		$this->assert_every_field_joins_the_form( $html );
+	}
+
+	/**
+	 * Every field on the screen names the page form, bar the ones the form prints itself.
+	 *
+	 * The services list nests its own forms, which its script submits over AJAX;
+	 * fields inside a form of their own need no `form` attribute.
+	 *
+	 * @param string $html Rendered screen.
+	 */
+	private function assert_every_field_joins_the_form( string $html ): void {
+		$loose = preg_replace( '/<form\b(?![^>]*id="' . Settings_Form::ID . '")[^>]*>.*?<\/form>/s', '', $html );
+
+		preg_match_all( '/<(?:input|select|textarea)\b[^>]*>/', (string) $loose, $fields );
+
+		$this->assertNotEmpty( $fields[0], 'The screen rendered no fields to check.' );
+
+		foreach ( $fields[0] as $field ) {
+			if ( str_contains( $field, 'name="_wp' ) || str_contains( $field, 'name="jetpack_sharing_action"' ) || str_contains( $field, 'name="submit"' ) ) {
+				continue;
+			}
+			$this->assertStringContainsString( 'form="' . Settings_Form::ID . '"', $field );
+		}
+	}
+
+	/**
 	 * With no section offering settings, a Save button would save nothing.
 	 */
 	public function test_renders_no_save_button_without_settings(): void {
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
 		$this->assertStringNotContainsString( 'Save Changes', $this->render_screen() );
 	}
 }
