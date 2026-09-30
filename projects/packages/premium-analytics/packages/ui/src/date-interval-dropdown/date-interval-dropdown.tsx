@@ -19,7 +19,7 @@ import {
 
 type DateIntervalDropdownProps = {
 	/**
-	 * The buckets to list, finest first. Derived upstream from the range and, for
+	 * The buckets to list, default first. Derived upstream from the range and, for
 	 * a widget that owns its control, from what its chart draws.
 	 */
 	options: readonly IntervalType[];
