@@ -6,12 +6,13 @@
 	overflow: hidden;
 }
 
+/* Fills the row, which the back link's 50% cap is measured against. */
 .trail {
 	order: 1;
 	display: flex;
+	flex-grow: 1;
 	align-items: center;
 	min-inline-size: 0;
-	margin-inline-end: auto;
 	font-size: 13px;
 	font-weight: 500;
 	line-height: 20px;
