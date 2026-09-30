@@ -78,6 +78,10 @@ const MailchimpSettings = ( { isConnected } ) => {
 					) ) }
 				</select>
 			</label>
+			{ /* A disabled select is left out of the form, so Save Changes mid-save would drop the pick. */ }
+			{ isSaving && (
+				<input type="hidden" name="jetpack-mailchimp-audience" value={ selectedAudience } />
+			) }
 			<p className="description" role="status">
 				{ saveStatus }
 			</p>
