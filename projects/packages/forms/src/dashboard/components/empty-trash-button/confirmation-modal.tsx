@@ -20,7 +20,7 @@ interface EmptyTrashConfirmationModalProps {
  * @param {object}   props                        - Component props.
  * @param {boolean}  props.isOpen                 - Whether the modal is open.
  * @param {Function} props.onCancel               - Function to call when the user cancels.
- * @param {Function} props.onConfirm              - Function to call when the user confirms.
+ * @param {Function} props.onConfirm              - Function to call when the user confirms. It must close the modal by setting `isOpen` to false.
  * @param {number}   props.totalItemsTrash        - The total number of trash items.
  * @param {number}   props.selectedResponsesCount - The number of selected responses.
  * @return {JSX.Element} The confirmation modal.
@@ -42,12 +42,6 @@ export default function EmptyTrashConfirmationModal( {
 		[ onCancel ]
 	);
 
-	// Callers close the dialog themselves, so onConfirm's return value isn't passed on:
-	// AlertDialog would treat a promise as a confirm still in progress.
-	const handleConfirm = useCallback( () => {
-		onConfirm();
-	}, [ onConfirm ] );
-
 	const description =
 		selectedResponsesCount > 0
 			? sprintf(
@@ -66,7 +60,7 @@ export default function EmptyTrashConfirmationModal( {
 				);
 
 	return (
-		<AlertDialog.Root open={ isOpen } onOpenChange={ handleOpenChange } onConfirm={ handleConfirm }>
+		<AlertDialog.Root open={ isOpen } onOpenChange={ handleOpenChange } onConfirm={ onConfirm }>
 			<AlertDialog.Popup
 				intent="irreversible"
 				title={ __( 'Delete forever', 'jetpack-forms' ) }
