@@ -342,7 +342,13 @@ export default function SubscriptionControls( {
 								'jetpack'
 							),
 							{
-								link: <ExternalLink href={ getAdminUrl( 'admin.php?page=jetpack-newsletter' ) } />,
+								link: (
+									<ExternalLink
+										href={ getAdminUrl(
+											'admin.php?page=jetpack-newsletter&p=%2F%3Ftab%3Dsettings'
+										) }
+									/>
+								),
 							}
 						) }
 					</p>
