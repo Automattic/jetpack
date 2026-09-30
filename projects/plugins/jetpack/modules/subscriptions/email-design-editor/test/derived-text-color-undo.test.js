@@ -1,8 +1,6 @@
 /**
- * The derived text color against the real core-data store, rather than a stand-in for it.
- *
- * What undo does to a record depends on how core-data records an edit, which a mock can only
- * assert the shape of. These drive the store itself.
+ * Drives the real core-data store: what undo does to a record depends on how core-data records
+ * an edit, which a mock can only assert the shape of.
  */
 
 // Mocked because the real package resolves core's private APIs at module scope, which throws in
@@ -95,9 +93,8 @@ describe( 'watchDerivedTextColor against core-data', () => {
 		expect( styles().color.text ).toBe( BLACK_TEXT );
 	} );
 
-	// One press, and the record is exactly what it was. The derived write is left out of the undo
-	// stack, and the background's own undo record carries the whole `styles` object as it stood
-	// before the pick -- so restoring it takes the derived text with it.
+	// The background's own undo record carries the whole `styles` object as it stood before the
+	// pick, so restoring it takes the derived text with it.
 	it( 'restores the record exactly on one undo', async () => {
 		const stored = { color: { background: GRAY } };
 		open( stored );

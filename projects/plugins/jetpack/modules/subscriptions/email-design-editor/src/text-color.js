@@ -128,8 +128,7 @@ export function parseColor( color ) {
 	const [ , space, body ] = functionalMatch;
 
 	// Two syntaxes, not interchangeable: `rgb(r, g, b[, a])`, or `rgb(r g b[ / a])`. A value mixing
-	// them is invalid CSS that a mail client ignores, so it is refused rather than read — explicitly
-	// below, rather than relying on `number()` to reject the channel that swallowed the separator.
+	// them is invalid CSS that a mail client ignores, so it is refused rather than read.
 	let parts;
 	let alpha = null;
 

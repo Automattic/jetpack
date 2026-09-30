@@ -260,8 +260,6 @@ describe( 'watchDerivedTextColor', () => {
 		expect( mockEditEntityRecord ).not.toHaveBeenCalled();
 	} );
 
-	// One undo puts the background back, and this re-derives from it, so the derived text needs no
-	// undo step of its own -- and must not add one, or undoing would take two presses.
 	it( 'keeps its write out of the undo stack, and re-derives after an undo', () => {
 		const pick = watching( { styles: { color: { background: '#ffffff', text: WHITE_TEXT } } } );
 

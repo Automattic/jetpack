@@ -7,7 +7,7 @@
  * real value in the Text control, so the creator can see it and override it. See NL-959.
  */
 
-import { storeName as EDITOR_STORE } from '@woocommerce/email-editor';
+import { storeName as EMAIL_EDITOR_STORE } from '@woocommerce/email-editor';
 import { store as coreStore } from '@wordpress/core-data';
 import { dispatch, select, subscribe } from '@wordpress/data';
 import { deriveTextColor, parseColor } from './text-color';
@@ -180,7 +180,7 @@ function resolvePresetColor( value, record ) {
 		return value;
 	}
 
-	const theme = select( EDITOR_STORE )?.getTheme?.();
+	const theme = select( EMAIL_EDITOR_STORE )?.getTheme?.();
 	const palettes = [ theme?.settings?.color?.palette, record?.settings?.color?.palette ];
 
 	let resolved;
