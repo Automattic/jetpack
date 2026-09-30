@@ -4,7 +4,6 @@
 import {
 	Leaderboard,
 	ReportLink,
-	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	describeError,
 	useStatsVideoPlays,
@@ -21,6 +20,9 @@ import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
 import type { TopVideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
+
+// Videos the widget asks for. The leaderboard applies the dashboard's own cap to what it shows.
+const TOP_VIDEOS_LIMIT = 10;
 
 // The dashboard injects its date range and comparison state through
 // `reportParams`; the widget has no settings of its own.
@@ -58,14 +60,14 @@ function toLeaderboardRow( row: VideoPlaysRow ): LeaderboardRowInput {
 function TopVideosReport() {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo(
-		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		() => ( { ...reportParams, max: TOP_VIDEOS_LIMIT } ),
 		[ reportParams ]
 	);
 
 	// The hook merges comparison rows and gates `hasComparison` on at least one
 	// visible row having a match, so the chart never fabricates vs-zero deltas.
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
-		useStatsVideoPlays( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
+		useStatsVideoPlays( statsParams, { maxRows: TOP_VIDEOS_LIMIT } );
 
 	const rows = useMemo(
 		() => toVideoPlaysRows( comparisonRows?.rows ?? [] ).map( toLeaderboardRow ),

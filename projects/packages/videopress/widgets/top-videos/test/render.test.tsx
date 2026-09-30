@@ -15,7 +15,6 @@ const mockDescribeError = jest.fn();
 
 // The SDK has no implementation outside the dashboard, so the suite stands in for it.
 jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
-	WIDGET_ROW_LIMIT: 7,
 	Leaderboard: ( props: { footer?: ReactNode } ) => {
 		mockLeaderboard( props );
 		return <div>{ props.footer }</div>;
@@ -64,12 +63,12 @@ describe( 'Top videos widget', () => {
 		mockDescribeError.mockReturnValue( { description: 'Described.' } );
 	} );
 
-	it( 'requests the dashboard window, capped at the row limit', () => {
+	it( 'requests its own number of videos for the dashboard window', () => {
 		render( <TopVideos attributes={ {} } /> );
 
 		expect( mockUseStatsVideoPlays ).toHaveBeenCalledWith(
-			{ from: '2026-06-01', to: '2026-06-16', max: 7 },
-			{ maxRows: 7 }
+			{ from: '2026-06-01', to: '2026-06-16', max: 10 },
+			{ maxRows: 10 }
 		);
 	} );
 
