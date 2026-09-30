@@ -1,20 +1,4 @@
-/**
- * Tests for the weekly CodeVitals digest.
- *
- * The digest must be a trustworthy alarm, so these tests pin the failure-mode
- * contract, not just the happy path: a clean week exits 0 with a green
- * heartbeat, and every degraded signal (discovery failure, unreadable series,
- * malformed points, stale metrics, misconfiguration) exits 1 and says WHAT
- * degraded. A silent skip or a false-clean digest is the exact bug class the
- * script exists to catch.
- *
- * The full flow runs in-process against a mock CodeVitals read API on an
- * ephemeral port, with an injected mock Slack WebClient and captured console
- * output, so exit codes and both streams are asserted directly with no
- * child-process races. Child processes appear only where the direct-invocation
- * contract (argv wiring + process exit code) is itself under test. Run with
- * `pnpm test:unit`. No Docker, no token, no external network.
- */
+// Exercise the full digest with a mock read API and Slack client; no live posts.
 
 import assert from 'node:assert/strict';
 import { spawn, spawnSync } from 'node:child_process';
@@ -67,6 +51,17 @@ const seq = ( n, daysStart, v, pfx = 'd' ) =>
 const levelSeries = ( pre, flagged, post, prefix = 'level' ) =>
 	[ ...pre, flagged, ...post ].map( ( value, i ) =>
 		pt( 5 - i * 0.1, value, prefix + i, i === pre.length, ( flagged / pre.at( -1 ) - 1 ) * 100 )
+	);
+
+const flaggedSeries = ( values, flags, prefix, daysStart = 8, spacing = 0.1 ) =>
+	values.map( ( value, i ) =>
+		pt(
+			daysStart - i * spacing,
+			value,
+			prefix + i,
+			flags.includes( i ),
+			( value / values[ i - 1 ] - 1 ) * 100
+		)
 	);
 
 const metricRow = ( id, name, key, createdDaysAgo = 40 ) => ( {
@@ -123,6 +118,84 @@ const SCENARIOS = {
 	shorttail: () => ( {
 		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 200, Array( 9 ).fill( 200 ) ) },
 	} ),
+	nearbySteps: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 20 ).fill( 100 ), ...Array( 7 ).fill( 150 ), ...Array( 20 ).fill( 250 ) ],
+				[ 20, 27 ],
+				'near'
+			),
+		},
+	} ),
+	nearbyReland: () => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 20 ).fill( 100 ),
+					...Array( 4 ).fill( 150 ),
+					...Array( 4 ).fill( 100 ),
+					...Array( 20 ).fill( 150 ),
+				],
+				[ 20, 28 ],
+				'reland'
+			),
+		},
+	} ),
+	staircase: () => ( {
+		series: {
+			301: flaggedSeries(
+				[
+					...Array( 20 ).fill( 100 ),
+					...Array.from( { length: 5 }, ( _, i ) =>
+						Array( i === 4 ? 20 : 8 ).fill( 100 * 1.08 ** ( i + 1 ) )
+					).flat(),
+				],
+				[ 20, 28, 36, 44, 52 ],
+				'stair'
+			),
+		},
+	} ),
+	ageBoundary: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 20 ).fill( 100 ), ...Array( 8 ).fill( 200 ), ...Array( 21 ).fill( 230 ) ],
+				[ 20, 28 ],
+				'age',
+				27,
+				0.5
+			),
+		},
+	} ),
+	groupedPending: () => {
+		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 12 ).fill( 200 ) ];
+		values[ 28 ] = 175;
+		return { series: { 301: flaggedSeries( values, [ 20, 29 ], 'tail' ) } };
+	},
+	distinctPending: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 20 ).fill( 100 ), ...Array( 9 ).fill( 200 ), ...Array( 3 ).fill( 250 ) ],
+				[ 20, 29 ],
+				'newtail'
+			),
+		},
+	} ),
+	groupedRerun: () => {
+		const values = [ ...Array( 20 ).fill( 100 ), ...Array( 20 ).fill( 200 ) ];
+		values.splice( 10, 4, 200, 0, 200, 0 );
+		const rows = flaggedSeries( values, [ 20 ], 'rerungroup' );
+		rows.splice( 24, 0, pt( 8 - 23.5 * 0.1, 220, 'rerungroup5', true, 120 ) );
+		return { series: { 301: rows } };
+	},
+	longOlderRows: () => {
+		const fixture = SCENARIOS.latecrowd();
+		fixture.metrics = fixture.metrics.map( m => ( {
+			...m,
+			name: 'N'.repeat( 120 ),
+			unit: 'U'.repeat( 120 ),
+		} ) );
+		return fixture;
+	},
 	groupedsteps: () => {
 		const values = [
 			...Array( 20 ).fill( 100 ),
@@ -176,9 +249,8 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// Non-numeric values around the flag make the medians NaN. The gate must REPORT, never
-	// suppress.
-	failopen: () => ( {
+	// Malformed pre-window values leave the flag pending and degrade the digest.
+	missingPre: () => ( {
 		series: {
 			301: [
 				...steady( 20, 5.1, 100 ).map( p => ( { ...p, value: 'garbage', rawValue: 'garbage' } ) ),
@@ -258,8 +330,7 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// Sustained flag OLDER than the window but inside the 2x look-back (a backfill/recovery
-	// shape).
+	// Confirmed flag older than the window but inside the look-back.
 	late: () => ( {
 		series: {
 			301: [
@@ -270,9 +341,7 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// The worst week the digest can render: every warning block, every verdict block, and more
-	// sustained regressions than MAX_LINES. Slack rejects a message over 50 blocks outright, so
-	// this is the shape that would silently lose the digest exactly when it matters most.
+	// Every warning and verdict block, with more confirmed changes than MAX_LINES.
 	blockflood: () => {
 		const metrics = [];
 		const series = {};
@@ -306,6 +375,8 @@ const SCENARIOS = {
 			...seq( 10, 19.9, 114, 'ql' ),
 			...steady( 10, 0.5, 114, 'qt' ),
 		]; // older confirmed
+		metrics.push( metricRow( 506, 'Zero: CLS', 'zero-cls' ) );
+		series[ 506 ] = levelSeries( Array( 10 ).fill( 0 ), 100, Array( 10 ).fill( 100 ) );
 		return { metrics, series };
 	},
 	// A short revert does not establish a new median level.
@@ -356,7 +427,7 @@ const SCENARIOS = {
 		return { series: { 301: [ p ] } };
 	},
 	// Dropped duplicate values must not create a median level change.
-	dupanchor: () => ( {
+	duplicateLevel: () => ( {
 		series: {
 			301: [
 				...steady( 10, 6.0, 100 ),
@@ -498,11 +569,7 @@ const SCENARIOS = {
 			],
 		},
 	} ),
-	// A flagged recovery re-run batch of old commits, all beyond the look-back, then a real held
-	// +8% regression. Retained, the batch rows put systematically-high foreign values into the
-	// regression's pre-window median and revert anchor, flipping the live +8% to a suppressed
-	// "transient" behind a green tick. The batch values must never enter the series; its aged
-	// flags drain to stderr.
+	// Re-run batch values must not enter the kept series or dilute a later level change.
 	rerunbatch: () => ( {
 		series: {
 			301: [
@@ -861,7 +928,7 @@ const SCENARIOS = {
 		},
 	} ),
 	// A zero predecessor does not invalidate an otherwise positive median baseline.
-	zeroanchor: () => ( {
+	zeroPairBase: () => ( {
 		series: {
 			301: [
 				...steady( 9, 5.4, 100 ),
@@ -1124,13 +1191,16 @@ test( 'level gate confirms a step with median magnitude and rejects a dip recove
 	const step = await runDigest( 'levelstep' );
 	assert.equal( step.code, 0, step.err );
 	assert.ok( step.out.includes( '1 sustained regression' ), step.out );
-	assert.ok( step.out.includes( '+200.0% (100→300ms) (single-pair)' ), step.out );
+	assert.ok( step.out.includes( 'single-pair +200.0% (100→300ms)' ), step.out );
 	assert.ok( step.out.includes( 'median +20.0% (100→120ms)' ), step.out );
+	assert.ok(
+		JSON.parse( step.out ).text.includes( 'Alpha: TTFB median +20.0% (single-pair +200.0%)' ),
+		step.out
+	);
 	const dip = await runDigest( 'diprecovery' );
 	assert.equal( dip.code, 0, dip.err );
 	assert.ok( dip.out.includes( '1 transient spike' ), dip.out );
 	assert.ok( ! dip.out.includes( 'sustained regression*' ), dip.out );
-	assert.ok( ! dip.out.includes( 'holds above the pre-flag' ), dip.out );
 } );
 
 test( 'MAD bar rejects a noisy rise, accepts a constant 5% step, and degrades zero baselines', async () => {
@@ -1160,7 +1230,10 @@ test( 'grouping localizes repeated evidence and retains a second step and a re-l
 			lines.some( line => line.includes( hx( 'group' + index ) ) ),
 			lines
 		);
-	assert.ok( ! lines.some( line => line.includes( hx( 'group24' ) ) ), lines );
+	assert.ok(
+		lines.some( line => line.includes( hx( 'group24' ) ) ),
+		lines
+	);
 	assert.ok(
 		lines.some( line => line.includes( '(2 flags grouped)' ) ),
 		lines
@@ -1168,16 +1241,80 @@ test( 'grouping localizes repeated evidence and retains a second step and a re-l
 	const localized = await runDigest( 'groupedstrongest' );
 	assert.equal( localized.code, 0, localized.err );
 	assert.ok( localized.out.includes( hx( 'group24' ) ), localized.out );
-	assert.ok( ! localized.out.includes( hx( 'group20' ) ), localized.out );
+	assert.ok( localized.out.includes( 'single-pair +12.5% (200→225ms)' ), localized.out );
 } );
 
-test( 'older bucket reports age and repetition without claiming a late confirmation', async () => {
+test( 'grouping preserves a distinct second step inside ten commits', async () => {
+	const r = await runDigest( 'nearbySteps' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '2 sustained regression' ), r.out );
+	for ( const i of [ 20, 27 ] ) assert.ok( r.out.includes( hx( 'near' + i ) ), r.out );
+} );
+
+test( 'grouping preserves a nearby revert and re-land', async () => {
+	const r = await runDigest( 'nearbyReland' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '2 sustained regression' ), r.out );
+	for ( const i of [ 20, 28 ] ) assert.ok( r.out.includes( hx( 'reland' + i ) ), r.out );
+} );
+
+test( 'grouping preserves each step in a staircase', async () => {
+	const r = await runDigest( 'staircase' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '5 sustained regression' ), r.out );
+	for ( const i of [ 20, 28, 36, 44, 52 ] ) assert.ok( r.out.includes( hx( 'stair' + i ) ), r.out );
+} );
+
+test( 'grouping cannot put a fresh flag in the older bucket', async () => {
+	const r = await runDigest( 'ageBoundary' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( '1 older confirmed change (may repeat)' ), r.out );
+	assert.ok( r.out.includes( hx( 'age28' ) ), r.out );
+} );
+
+test( 'pending evidence for a confirmed plateau groups but a distinct short tail stays pending', async () => {
+	const same = await runDigest( 'groupedPending' );
+	assert.equal( same.code, 0, same.err );
+	assert.ok( same.out.includes( '2 flags grouped' ), same.out );
+	assert.ok( same.out.includes( hx( 'tail29' ) ), same.out );
+	assert.ok( ! same.out.includes( 'awaiting confirmation' ), same.out );
+	const different = await runDigest( 'distinctPending' );
+	assert.equal( different.code, 0, different.err );
+	assert.ok( different.out.includes( '1 pending' ), different.out );
+	assert.ok( different.out.includes( hx( 'newtail29' ) ), different.out );
+} );
+
+test( 'a grouped re-run names its commit without displacing the original flag', async () => {
+	const r = await runDigest( 'groupedRerun' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+	assert.ok( line.includes( 'single-pair +100.0% (100→200ms)' ), line );
+	for ( const i of [ 20, 5 ] ) assert.ok( line.includes( hx( 'rerungroup' + i ) ), line );
+	assert.ok( line.includes( '(re-run)' ), line );
+} );
+
+test( 'older rows fit the Slack text limit without cutting links and count omitted rows', async () => {
+	const r = await runDigest( 'longOlderRows' );
+	assert.equal( r.code, 0, r.err );
+	const text = JSON.parse( r.out ).blocks.find( b => b.text?.text.includes( '*12 older' ) ).text
+		.text;
+	assert.ok( text.length <= 3000, text.length );
+	const hidden = Number( text.match( /and (\d+) more/ )[ 1 ] );
+	assert.equal( ( text.match( /<https:[^>]+\/commit\/[^>]+>/g ) || [] ).length, 12 - hidden );
+	assert.equal(
+		( text.match( /<https:/g ) || [] ).length,
+		( text.match( /\|[^>]+>/g ) || [] ).length
+	);
+} );
+
+test( 'older bucket reports age and possible repetition', async () => {
 	const r = await runDigest( 'late' );
 	assert.equal( r.code, 0, r.err );
 	assert.ok( r.out.includes( 'older confirmed change' ), r.out );
 	assert.ok( r.out.includes( '(may repeat)' ), r.out );
 	assert.ok( r.out.includes( 'median +14.0% (100→114ms)' ), r.out );
-	assert.ok( ! r.out.includes( 'late-confirmed' ), r.out );
 	assert.ok( ! r.out.includes( 'backfilled' ), r.out );
 } );
 
@@ -1251,7 +1388,7 @@ const CASES = [
 		exit: 0,
 		out: [
 			'1 sustained regression',
-			'Alpha: TTFB* +15.0% (100→115ms)',
+			'Alpha: TTFB* median +14.0% (100→114ms) · single-pair +15.0% (100→115ms)',
 			'median +14.0% (100→114ms)',
 			'feedbeef',
 		],
@@ -1264,8 +1401,8 @@ const CASES = [
 		not: [ 'sustained regression*' ],
 	},
 	{
-		n: 'failopen-reports',
-		sc: 'failopen',
+		n: 'malformed-pre-window-stays-pending',
+		sc: 'missingPre',
 		exit: 1,
 		out: [ '1 pending', 'feedbeef', 'MALFORMED DATA SKIPPED' ],
 		not: [ 'transient spike' ],
@@ -1285,7 +1422,7 @@ const CASES = [
 		n: 'strvals-no-injection',
 		sc: 'strvals',
 		exit: 1,
-		out: [ '1 sustained regression', '(single-pair)', 'MALFORMED DATA SKIPPED' ],
+		out: [ '1 sustained regression', 'single-pair', 'MALFORMED DATA SKIPPED' ],
 		not: [ '<!channel>' ],
 	},
 	{
@@ -1294,7 +1431,7 @@ const CASES = [
 		exit: 0,
 		out: [
 			'older confirmed change',
-			'1 older confirmed changes (may repeat)',
+			'1 older confirmed change (may repeat)',
 			'feedbeef7',
 			'older than the 15d window',
 		],
@@ -1307,14 +1444,13 @@ const CASES = [
 		sc: 'latereverted',
 		exit: 0,
 		out: [ 'No sustained metric regressions', '1 transient spike', 'feedbeef8', '(late)' ],
-		not: [ 'late-confirmed' ],
 	},
 	{
 		n: 'short-reland-has-no-confirmed-level',
 		sc: 'relanded',
 		exit: 0,
 		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
-		not: [ 'sustained regression*', 'holds above the pre-flag' ],
+		not: [ 'sustained regression*' ],
 	},
 	{
 		n: 'overshoot-flag-value-is-never-a-suppression-reference',
@@ -1325,11 +1461,11 @@ const CASES = [
 		not: [ 'sustained regression*', 'transient spike' ],
 	},
 	{
-		n: 'duplicate-anchor-does-not-confirm-a-level',
-		sc: 'dupanchor',
+		n: 'duplicate-values-do-not-confirm-a-level',
+		sc: 'duplicateLevel',
 		exit: 0,
 		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
-		not: [ 'sustained regression*', 'holds above the pre-flag' ],
+		not: [ 'sustained regression*' ],
 	},
 	{
 		// Recent-stamped re-runs of old commits must neither dilute the post window nor satisfy
@@ -1361,7 +1497,7 @@ const CASES = [
 		not: [ 'No sustained metric regressions', 'transient spike' ],
 	},
 	{
-		n: 'dup-flag-value-never-poisons-anchor',
+		n: 'dup-flag-value-never-poisons-the-kept-level',
 		sc: 'dupvalpoison',
 		exit: 0,
 
@@ -1394,10 +1530,7 @@ const CASES = [
 		not: [ 'transient spike', 'No sustained metric regressions' ],
 	},
 	{
-		// A flagged recovery re-run batch (old commits re-measured high, beyond the look-back)
-		// must not leak its values into a later flag's pre-window median or revert anchor: with
-		// the batch rows retained in the series, the held +8% regression reads "transient" behind
-		// a green tick.
+		// Dropped re-run values must not dilute the later flag's pre-window.
 		n: 'rerun-batch-values-never-dilute-the-gate',
 		sc: 'rerunbatch',
 		exit: 0,
@@ -1570,12 +1703,7 @@ const CASES = [
 		n: 'a-merged-off-time-event-renders-the-sibling-whose-position-held',
 		sc: 'offmixedage',
 		exit: 0,
-		out: [
-			'1 older confirmed changes (may repeat)',
-			'+100.0%',
-			'(flag from a re-run)',
-			'a9edee01',
-		],
+		out: [ '1 older confirmed change (may repeat)', '+100.0%', '(flag from a re-run)', 'a9edee01' ],
 		err: [ 'dropped 2 duplicate row', '2 carried a regression flag' ],
 		not: [ '+150.0%', 'sustained regression*', 'awaiting confirmation', 'transient spike' ],
 	},
@@ -1589,7 +1717,7 @@ const CASES = [
 		exit: 0,
 		out: [ '1 sustained regression', '+150.0%', '(100→250ms)', '(flag from a re-run)', 'a9edee02' ],
 		err: [ 'dropped 2 duplicate row', '2 carried a regression flag' ],
-		not: [ '+100.0%', 'late-confirmed', 'awaiting confirmation', 'transient spike' ],
+		not: [ '+100.0%', 'awaiting confirmation', 'transient spike' ],
 	},
 	{
 		// Byte-identical tied windows carry no deciding evidence, so the tie breaks toward the
@@ -1600,7 +1728,7 @@ const CASES = [
 		exit: 0,
 		out: [ '1 sustained regression', '+300.0% (100→400ms)', '(flag from a re-run)', 'b9edee03' ],
 		err: [ 'dropped 2 duplicate row', '2 carried a regression flag' ],
-		not: [ '+5.0% (single-pair)', 'late-confirmed', 'transient spike' ],
+		not: [ 'single-pair +5.0%', 'transient spike' ],
 	},
 	{
 		// Equal percents leave only recency to separate tied siblings: the newer one renders,
@@ -1610,7 +1738,7 @@ const CASES = [
 		exit: 0,
 		out: [ '1 sustained regression', '+100.0% (200→400ms)', '(flag from a re-run)', 'c9edee04' ],
 		err: [ 'dropped 2 duplicate row', '2 carried a regression flag' ],
-		not: [ '(100→200ms)', 'late-confirmed', 'transient spike' ],
+		not: [ '(100→200ms)', 'transient spike' ],
 	},
 	{
 		// The pending branch obeys the same tie rule: the deferring line captions the worst
@@ -1684,18 +1812,18 @@ const CASES = [
 		out: [ '*12 older confirmed changes*', 'and 4 more' ],
 	},
 	{
-		n: 'zero-anchor-does-not-confirm-flat-medians',
-		sc: 'zeroanchor',
+		n: 'zero-pair-base-does-not-confirm-flat-medians',
+		sc: 'zeroPairBase',
 		exit: 0,
 		out: [ '1 transient spike', 'no confirmed level change in the kept data' ],
-		not: [ 'sustained regression*', 'holds above the pre-flag' ],
+		not: [ 'sustained regression*' ],
 	},
 	{
 		n: 'flag-at-series-start-no-zero-baseline',
 		sc: 'flagfirst',
 		exit: 0,
 		out: [ '1 pending', 'feedbf06' ],
-		not: [ 'med 0→', 'holding at med', 'transient spike' ],
+		not: [ 'med 0→', 'transient spike' ],
 	},
 	{
 		// The gate judges the server's flag domain (normalized value): a normalized regression
@@ -1740,7 +1868,7 @@ const CASES = [
 		exit: 0,
 		out: [ 'No sustained metric regressions' ],
 		err: [ 'look-back skipped' ],
-		not: [ 'late-confirmed', 'sustained regression*' ],
+		not: [ 'sustained regression*' ],
 	},
 	{
 		n: 'dropped-ids-loud',
@@ -1980,14 +2108,14 @@ test( 'notification fallback names older confirmed changes and disables mrkdwn/u
 	assert.strictEqual( payload.unfurl_links, false );
 	assert.strictEqual( payload.unfurl_media, false );
 	assert.ok(
-		payload.text.includes( '1 older confirmed changes (may repeat): Alpha: TTFB' ),
+		payload.text.includes( '1 older confirmed change (may repeat): Alpha: TTFB' ),
 		payload.text
 	);
 	// Asserted on payload.text itself, not the whole serialized output, so a block naming the
 	// metric can never satisfy this in the fallback's place.
 	const current = await runDigest( 'confirmed' );
 	const p2 = JSON.parse( current.out.slice( current.out.indexOf( '{' ) ) );
-	assert.ok( p2.text.includes( 'Alpha: TTFB +15.0%' ), p2.text );
+	assert.ok( p2.text.includes( 'Alpha: TTFB median +14.0% (single-pair +15.0%)' ), p2.text );
 } );
 
 // The catch around chat.postMessage must be total: a null/primitive throw must not TypeError
@@ -2168,11 +2296,7 @@ test( 'the dashboard link sits under the header, clean week included', async () 
 	}
 } );
 
-// Slack rejects a >50-block message outright, so the worst week is the one that loses the whole
-// digest. MAX_LINES is hand-audited against the wrapper blocks around it; this pins that
-// arithmetic by rendering every wrapper at once. Asserted as an exact count rather than a
-// ceiling, so that BOTH a new wrapper block and a raised MAX_LINES have to come back through
-// this test and re-count, not just the ones that happen to cross 50.
+// Render every wrapper to pin the Slack block budget.
 test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 	const r = await runDigest( 'blockflood' );
 	assert.strictEqual( r.code, 1, r.err ); // degraded signal: read failure, dropped id, malformed, stale
@@ -2189,6 +2313,7 @@ test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 		'did not look numeric',
 		'Skipped malformed data point',
 		'*Stale metric',
+		'Unusable level baseline',
 		'sustained regressions* in the last',
 		'more — see the metric charts',
 		'older confirmed change',
@@ -2200,10 +2325,8 @@ test( 'the worst week stays inside the 50-block Slack ceiling', async () => {
 			`${ needle } missing from:\n${ texts.join( '\n' ) }`
 		);
 	}
-	// 35 regression lines + these 11 wrappers = 46, four blocks below Slack's hard 50. The
-	// headroom is deliberate: it is the margin a future wrapper block can be added into without
-	// the digest silently becoming unpostable in exactly the week it matters most.
-	assert.strictEqual( payload.blocks.length, 46, texts.join( '\n' ) );
+	// 35 regression lines + 12 wrappers leave three blocks below Slack's limit.
+	assert.strictEqual( payload.blocks.length, 47, texts.join( '\n' ) );
 	assert.ok( payload.blocks.length <= 50, 'Slack rejects a message over 50 blocks' );
 } );
 

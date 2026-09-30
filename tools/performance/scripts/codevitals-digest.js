@@ -38,6 +38,22 @@ const LEVEL_WINDOW = 10;
 const robustScale = ( values, level ) =>
 	Math.max( 1.4826 * median( values.map( value => Math.abs( value - level ) ) ), 0.002 * level );
 
+// Shorter windows only distinguish grouped candidates; sustained confirmation still requires 10/10.
+const hasLevelRise = ( before, after ) => {
+	if ( before.length === 0 || after.length === 0 ) return false;
+	const pre = median( before );
+	const post = median( after );
+	if ( ! ( pre > 0 ) || ! Number.isFinite( pre ) || ! Number.isFinite( post ) ) return false;
+	const bar =
+		3 *
+		1.2533 *
+		Math.sqrt(
+			robustScale( before, pre ) ** 2 / before.length +
+				robustScale( after, post ) ** 2 / after.length
+		);
+	return post - pre >= 0.05 * pre && post - pre >= bar;
+};
+
 const fmt = v => ( Number.isInteger( v ) ? String( v ) : Number( v ).toFixed( 1 ) );
 const pctStr = p => {
 	const n = Number( p );
@@ -184,7 +200,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	const TOKEN = /^\*+$/.test( rawToken ) ? '' : rawToken;
 	const CHANNEL = ( env.SLACK_CHANNEL_ID || '' ).trim();
 	const DRY_RUN = /^(1|true|yes)$/i.test( ( env.DRY_RUN || '' ).trim() ); // trimmed: a pasted "true " must still never post live
-	const MAX_LINES = 35; // Slack rejects >50 blocks/message; 35 lines + the 11 wrapper blocks around them = 46, leaving 4 blocks of headroom (pinned by the 'worst week' test)
+	const MAX_LINES = 35; // 35 lines + 12 wrapper blocks = 47, leaving three below Slack's limit.
 	// LIMIT is a newest-N slice. Numeric limits NEVER set meta.isDownsampled (the server computes
 	// it from the slice length, so it is structurally false here) and silently drop the OLDEST
 	// points, the window edge. 1000 is ~5x the observed 15-day volume; the coverage assertion
@@ -357,27 +373,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		// Validate every point first; the confirmation medians below must see the full valid
 		// series.
 		const pts = [];
-		// Re-run measurement builds APPEND a second row for an already-measured commit
-		// (write-side dedup is opt-in and off; the server has no uniqueness constraint), and a
-		// re-run without git provenance is stamped with run time, landing an old commit's value
-		// at the newest end. The gate below identifies commits positionally (pre/post windows,
-		// the later-commit count, the pre-flag anchor), so duplicate rows corrupt every verdict:
-		// keep each commit's FIRST row (after the id tie-sort above, the original measurement) in
-		// its historical slot, its VALUE untouched. NO duplicate's value ever enters the series;
-		// any rule that lets one in (adopting it, min-wins, max-wins, or keeping the row as its
-		// own entry) is fail-open somewhere in the window. But the server flags ROWS, not
-		// commits, so a flag riding on a duplicate must never vanish unread:
-		//  - SAME measured_at as its original (a provenanced re-post): the flag and its percent
-		//    transfer onto the kept row; the gate still judges the event at each folded flag's
-		//    own serve position (fIdxs). Across several such rows the LARGEST percent wins
-		//    (order-independent); the flagged value is carried separately (flagV) for display
-		//    only.
-		//  - DIFFERENT time (a run-time-stamped re-run): the flag is judged at its own serve
-		//    position against the kept series (offFlags below); the re-run row never renews the
-		//    staleness clock. Relocated onto the original's slot instead, it would be judged
-		//    against windows weeks old: a "transient" verdict on a live regression, exit 0.
-		// The dedup only sees the fetched slice, so a duplicate whose original fell off the slice
-		// edge goes unrecognized. Routine re-runs stay stderr-only.
+		// Keep each commit's first measurement; re-run values never enter the gate or freshness clock.
+		// Same-time flags transfer to the kept event; later re-runs retain their own serve positions.
 		const keptByHash = new Map();
 		const offFlags = [];
 		let dupRows = 0;
@@ -532,6 +529,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			events.push( { self: false, ...g, fIdxs: g.sibs.map( f => f.p.sIdx ) } );
 		const reportedHashes = new Set();
 		const sustained = [];
+		const metricPending = [];
 		for ( const ev of events ) {
 			const { self, t, p, v, flagV, flagFrom, fIdxs, sibs } = ev;
 			if ( now - t > detectMs ) {
@@ -549,6 +547,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			const ownValid = Number.isFinite( ownFrom ) && ownFrom > 0;
 			const serverFrom = Number( p.serverFrom );
 			const serverValid = Number.isFinite( serverFrom ) && serverFrom > 0;
+			const reRun = ! self || fIdxs !== undefined;
 			const wins = ( fIdxs ?? [ p.sIdx ] ).map( s => {
 				const later = [];
 				const prior = [];
@@ -562,21 +561,16 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				const complete = preValues.length === LEVEL_WINDOW && postValues.length === LEVEL_WINDOW;
 				const usable = pre > 0 && Number.isFinite( pre ) && Number.isFinite( post );
 				if ( preValues.length === LEVEL_WINDOW && ! usable ) invalidBaselines.add( id );
-				const sPre = robustScale( preValues, pre );
-				const sPost = robustScale( postValues, post );
-				const bar = 3 * 1.2533 * Math.sqrt( ( sPre ** 2 + sPost ** 2 ) / LEVEL_WINDOW );
-				const levelHeld = usable && post - pre >= 0.05 * pre && post - pre >= bar;
 				const ownAnchorOk = self || ( ownValid && post <= ownFrom * 1.05 );
 				const serverAnchorOk = serverValid && post <= serverFrom * 1.05;
 				const reRunUncertain =
-					( ! self || fIdxs !== undefined || serverFrom !== from ) &&
-					( ! ownAnchorOk || ! serverAnchorOk );
+					( reRun || serverFrom !== from ) && ( ! ownAnchorOk || ! serverAnchorOk );
 				let verdict = 'pending';
 				if ( complete && usable ) {
-					if ( levelHeld ) verdict = 'report';
+					if ( hasLevelRise( preValues, postValues ) ) verdict = 'report';
 					else if ( ! reRunUncertain ) verdict = 'suppress';
 				}
-				// Localization includes the candidate; confirmation requires ten OTHER later commits.
+				// Ordinary flags localize from the kept candidate; dropped re-run rows remain excluded.
 				const localPost = byServe
 					.filter( r => r.p.sIdx >= s )
 					.slice( 0, LEVEL_WINDOW )
@@ -587,7 +581,16 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 						Math.sqrt( ( stdDev( preValues ) ** 2 + stdDev( localPost ) ** 2 ) / LEVEL_WINDOW ),
 						0.001
 					);
-				return { s, pre, post, verdict, score, position: prior.length };
+				return {
+					s,
+					pre,
+					post,
+					preValues,
+					postValues,
+					verdict,
+					score,
+					position: byServe.filter( r => r.p.sIdx < s ).length,
+				};
 			} );
 			const reporting = wins.filter( w => w.verdict === 'report' );
 			// A tied deciding window renders the worst percent, then the newest sibling.
@@ -628,10 +631,15 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				pct: sib.p.regressionPercent, // the server's percent vs the row served just before the flag — for a re-run sibling, possibly this commit's own earlier re-run row
 				from: self ? flagFrom : sib.p.serverFrom,
 				to: self ? ( flagV ?? v ) : sib.v,
-				reRun: self ? fIdxs !== undefined : true,
+				reRun,
+				s: win.s,
+				position: win.position,
+				preValues: win.preValues,
+				postValues: win.postValues,
+				value: self ? ( flagV ?? v ) : sib.v,
 			};
 			if ( win.verdict === 'pending' ) {
-				pending.push( entry );
+				metricPending.push( entry );
 				reportedHashes.add( evHash );
 			} else if ( win.verdict === 'suppress' ) {
 				reverted.push( { ...entry, pre: win.pre, post: win.post } );
@@ -646,18 +654,59 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				reportedHashes.add( evHash );
 			}
 		}
-		// Connect accepted boundaries at gaps <= ten commits, then keep the strongest split.
+		const distinct = ( previous, candidate ) => {
+			const between = byServe
+				.filter( r => r.p.sIdx >= previous.s && r.p.sIdx < candidate.s )
+				.map( r => r.v );
+			return (
+				hasLevelRise( between, candidate.postValues ) ||
+				hasLevelRise( between.slice( -3 ), candidate.postValues )
+			);
+		};
+		const canGroup = ( group, candidate ) => {
+			const first = group[ 0 ];
+			const previous = group.at( -1 );
+			return (
+				first.late === candidate.late &&
+				candidate.position >= previous.position &&
+				candidate.position - first.position <= LEVEL_WINDOW &&
+				! distinct( previous, candidate )
+			);
+		};
 		const groups = [];
 		for ( const entry of sustained.sort( ( a, b ) => a.position - b.position ) ) {
 			const group = groups.at( -1 );
-			if ( group && entry.position - group.at( -1 ).position <= LEVEL_WINDOW ) group.push( entry );
+			if ( group && canGroup( group, entry ) ) group.push( entry );
 			else groups.push( [ entry ] );
 		}
+		for ( const entry of metricPending.sort( ( a, b ) => a.position - b.position ) ) {
+			const group = groups.find( g => canGroup( g, entry ) );
+			const level = group && group[ 0 ];
+			const tolerance =
+				level && Math.max( 0.05 * level.post, 3 * robustScale( level.postValues, level.post ) );
+			if (
+				level &&
+				entry.preValues.length === LEVEL_WINDOW &&
+				median( entry.preValues ) > 0 &&
+				entry.postValues.length > 0 &&
+				entry.postValues.length < LEVEL_WINDOW &&
+				Math.abs( median( entry.postValues ) - level.post ) <= tolerance &&
+				Math.abs( entry.value - level.post ) <= tolerance
+			)
+				group.push( entry );
+			else pending.push( entry );
+		}
 		for ( const group of groups ) {
-			const entry = group.reduce( ( best, candidate ) =>
+			const accepted = group.filter( entry => entry.pre !== undefined );
+			const originals = accepted.filter( entry => ! entry.reRun );
+			const entry = ( originals.length > 0 ? originals : accepted ).reduce( ( best, candidate ) =>
 				candidate.score > best.score ? candidate : best
 			);
-			( entry.late ? confirmedLate : confirmed ).push( { ...entry, grouped: group.length } );
+			( entry.late ? confirmedLate : confirmed ).push( {
+				...entry,
+				members: group,
+				grouped: group.length,
+			} );
 		}
 	}
 
@@ -713,17 +762,35 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		newestByMetric.size > warmingUp.length;
 
 	// ---- Block Kit ----
-	// The three joined single-block lists below (late / pending / suppressed) hold the 50-block
-	// budget by capping ENTRIES, not just characters: the blunt 3000-char clamp at the end would
-	// cut entries mid-link while the header still claimed the full count. Cap first and say how
-	// many were cut, so header and body agree.
-	const MAX_JOINED = 8; // worst-case ~330 chars/entry (120-char clipped name + two links) × 8 ≈ 2650 < 3000
-	const joinRows = ( items, rowFn ) => {
-		const sorted = [ ...items ].sort( ( a, b ) => b.t - a.t ); // newest first, so the cap drops the oldest
-		const shown = sorted.slice( 0, MAX_JOINED ).map( rowFn ).join( ' · ' );
-		return sorted.length > MAX_JOINED
-			? `${ shown } — and ${ sorted.length - MAX_JOINED } more (see the metric charts)`
-			: shown;
+	// Joined lists fit complete rows and an overflow notice inside one Slack text object.
+	const MAX_JOINED = 8; // Also enforce 3000 characters including the heading and overflow notice.
+	const joinRows = ( items, rowFn, heading ) => {
+		const sorted = [ ...items ].sort( ( a, b ) => b.t - a.t );
+		const shown = [];
+		const overflow = n => ( n > 0 ? ` — and ${ n } more (see the metric charts)` : '' );
+		for ( const item of sorted.slice( 0, MAX_JOINED ) ) {
+			const row = rowFn( item );
+			const candidate = [ ...shown, row ].join( ' · ' );
+			if (
+				heading.length + candidate.length + overflow( sorted.length - shown.length - 1 ).length >
+				3000
+			)
+				break;
+			shown.push( row );
+		}
+		return heading + shown.join( ' · ' ) + overflow( sorted.length - shown.length );
+	};
+	const medianPct = r => pctStr( ( ( r.post - r.pre ) / r.pre ) * 100 );
+	const confirmedRow = r => {
+		const delta =
+			Number.isFinite( r.from ) && Number.isFinite( r.to )
+				? ` (${ fmt( r.from ) }→${ fmt( r.to ) }${ esc( clip( r.unit ) ) })`
+				: '';
+		const members = [ ...new Map( r.members.map( member => [ member.hash, member ] ) ).values() ];
+		const commits = members
+			.map( member => commitLink( member.hash ) + ( member.reRun ? ' (re-run)' : '' ) )
+			.join( ', ' );
+		return `*${ esc( clip( r.name ) ) }* median ${ medianPct( r ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) }) · single-pair ${ pctStr( r.pct ) || 'regressed' }${ delta }${ r.reRun ? ' (flag from a re-run)' : '' }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — ${ commits }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`;
 	};
 	// Pending and suppressed rows share this tail: the 'regressed' fallback (a '' fallback
 	// double-spaced the line) and a (late) marker — a weeks-old orphaned flag must not render
@@ -855,26 +922,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 						}* in the last ${ WINDOW_DAYS } days:`
 					)
 				);
-				for ( const r of confirmed.slice( 0, MAX_LINES ) ) {
-					const pct = pctStr( r.pct ) || 'regressed';
-					const delta =
-						Number.isFinite( r.from ) && Number.isFinite( r.to )
-							? ` (${ fmt( r.from ) }→${ fmt( r.to ) }${ esc( clip( r.unit ) ) })`
-							: '';
-					// A transferred flag's percent, value, or comparison base comes from a re-run
-					// row, not the kept first measurement. Say so, or the line asserts an
-					// attribution the series data does not support.
-					const reRun = r.reRun ? ' (flag from a re-run)' : '';
-					const sustained = ` · median ${ pctStr( ( ( r.post - r.pre ) / r.pre ) * 100 ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) })`;
-					const chart = r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '';
-					blocks.push(
-						section(
-							`• *${ esc(
-								clip( r.name )
-							) }* ${ pct }${ delta } (single-pair)${ reRun }${ sustained }${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } — ${ commitLink( r.hash ) }${ chart }`
-						)
-					);
-				}
+				for ( const r of confirmed.slice( 0, MAX_LINES ) )
+					blocks.push( section( `• ${ confirmedRow( r ) }` ) );
 				if ( confirmed.length > MAX_LINES ) {
 					blocks.push(
 						section( `…and ${ confirmed.length - MAX_LINES } more — see the metric charts.` )
@@ -884,17 +933,11 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			if ( confirmedLate.length > 0 ) {
 				blocks.push(
 					section(
-						`:warning: *${ confirmedLate.length } older confirmed change${
-							confirmedLate.length > 1 ? 's' : ''
-						}* — flagged commit${
-							confirmedLate.length > 1 ? 's' : ''
-						} older than the ${ WINDOW_DAYS }d window (may repeat): ${ joinRows(
+						joinRows(
 							confirmedLate,
-							r =>
-								`*${ esc( clip( r.name ) ) }* ${ pctStr( r.pct ) || 'regressed' }${
-									r.reRun ? ' (flag from a re-run)' : ''
-								} (single-pair) · median ${ pctStr( ( ( r.post - r.pre ) / r.pre ) * 100 ) } (${ fmt( r.pre ) }→${ fmt( r.post ) }${ esc( clip( r.unit ) ) })${ r.grouped > 1 ? ` (${ r.grouped } flags grouped)` : '' } ${ commitLink( r.hash ) }${ r.key ? ` · <${ chartUrl( r.key ) }|chart>` : '' }`
-						) }`
+							confirmedRow,
+							`:warning: *${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' }* — flagged commit${ confirmedLate.length > 1 ? 's' : '' } older than the ${ WINDOW_DAYS }d window (may repeat): `
+						)
 					)
 				);
 			}
@@ -902,14 +945,11 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		if ( pending.length > 0 ) {
 			blocks.push(
 				section(
-					`:hourglass_flipped: *${ pending.length } flagged change${
-						pending.length > 1 ? 's' : ''
-					} awaiting confirmation* (too few other commits or inconclusive level evidence; re-checked each digest while the flag stays inside the ${
-						2 * WINDOW_DAYS
-					}d look-back): ${ joinRows(
+					joinRows(
 						pending,
-						r => `*${ esc( clip( r.name ) ) }* ${ lateRow( r ) }`
-					) }`
+						r => `*${ esc( clip( r.name ) ) }* ${ lateRow( r ) }`,
+						`:hourglass_flipped: *${ pending.length } flagged change${ pending.length > 1 ? 's' : '' } awaiting confirmation* (too few other commits or inconclusive level evidence; re-checked each digest while the flag stays inside the ${ 2 * WINDOW_DAYS }d look-back): `
+					)
 				)
 			);
 		}
@@ -918,12 +958,11 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				type: 'context',
 				elements: [
 					mrkdwn(
-						`:leftwards_arrow_with_hook: ${ reverted.length } transient spike${
-							reverted.length > 1 ? 's' : ''
-						} suppressed (no confirmed level change in the kept data): ${ joinRows(
+						joinRows(
 							reverted,
-							r => `${ esc( clip( r.name ) ) } ${ lateRow( r ) }`
-						) }`
+							r => `${ esc( clip( r.name ) ) } ${ lateRow( r ) }`,
+							`:leftwards_arrow_with_hook: ${ reverted.length } transient spike${ reverted.length > 1 ? 's' : '' } suppressed (no confirmed level change in the kept data): `
+						)
 					),
 				],
 			} );
@@ -948,7 +987,8 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 	else {
 		// Older confirmed changes are named too (top 2, newest first): the alerts a recipient
 		// is most likely to triage from the notification alone.
-		const summaryName = r => `${ esc( clip( r.name ) ) } ${ pctStr( r.pct ) || 'regressed' }`;
+		const summaryName = r =>
+			`${ esc( clip( r.name ) ) } median ${ medianPct( r ) } (single-pair ${ pctStr( r.pct ) || 'regressed' })`;
 		const topNames = confirmed.slice( 0, 3 ).map( summaryName );
 		summaryParts.push(
 			`${ confirmed.length } sustained regression(s)${
@@ -963,7 +1003,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				.slice( 0, 2 )
 				.map( summaryName );
 			summaryParts.push(
-				`${ confirmedLate.length } older confirmed changes (may repeat): ${ lateNames.join( ', ' ) }${
+				`${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' } (may repeat): ${ lateNames.join( ', ' ) }${
 					confirmedLate.length > 2 ? ', …' : ''
 				}`
 			);
