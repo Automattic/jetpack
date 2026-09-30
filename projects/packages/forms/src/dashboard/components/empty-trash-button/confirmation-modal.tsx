@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { AlertDialog } from '@wordpress/ui';
 
 interface EmptyTrashConfirmationModalProps {
 	isOpen: boolean;
@@ -31,31 +32,46 @@ export default function EmptyTrashConfirmationModal( {
 	totalItemsTrash,
 	selectedResponsesCount,
 }: EmptyTrashConfirmationModalProps ): JSX.Element {
+	const handleOpenChange = useCallback(
+		( open: boolean ) => {
+			if ( ! open ) {
+				onCancel();
+			}
+		},
+		[ onCancel ]
+	);
+
+	// Discard the handler's promise: it closes the dialog itself, so a spinner would only flash.
+	const handleConfirm = useCallback( () => {
+		onConfirm();
+	}, [ onConfirm ] );
+
+	const description =
+		selectedResponsesCount > 0
+			? sprintf(
+					// translators: %s: the number of responses in the trash.
+					_n(
+						'%s response in trash will be deleted forever. This action cannot be undone.',
+						'All %s responses in trash will be deleted forever. This action cannot be undone.',
+						totalItemsTrash || 0,
+						'jetpack-forms'
+					),
+					formatNumber( totalItemsTrash )
+				)
+			: __(
+					'All responses in trash will be deleted forever. This action cannot be undone.',
+					'jetpack-forms'
+				);
+
 	return (
-		<ConfirmDialog
-			onCancel={ onCancel }
-			onConfirm={ onConfirm }
-			isOpen={ isOpen }
-			confirmButtonText={ __( 'Delete', 'jetpack-forms' ) }
-		>
-			<h3>{ __( 'Delete forever', 'jetpack-forms' ) }</h3>
-			<p>
-				{ selectedResponsesCount > 0
-					? sprintf(
-							// translators: %s: the number of responses in the trash.
-							_n(
-								'%s response in trash will be deleted forever. This action cannot be undone.',
-								'All %s responses in trash will be deleted forever. This action cannot be undone.',
-								totalItemsTrash || 0,
-								'jetpack-forms'
-							),
-							formatNumber( totalItemsTrash )
-						)
-					: __(
-							'All responses in trash will be deleted forever. This action cannot be undone.',
-							'jetpack-forms'
-						) }
-			</p>
-		</ConfirmDialog>
+		<AlertDialog.Root open={ isOpen } onOpenChange={ handleOpenChange } onConfirm={ handleConfirm }>
+			<AlertDialog.Popup
+				intent="irreversible"
+				title={ __( 'Delete forever', 'jetpack-forms' ) }
+				description={ description }
+				confirmButtonText={ __( 'Delete', 'jetpack-forms' ) }
+				cancelButtonText={ __( 'Cancel', 'jetpack-forms' ) }
+			/>
+		</AlertDialog.Root>
 	);
 }

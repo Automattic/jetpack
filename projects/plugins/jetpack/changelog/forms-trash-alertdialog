@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Prevent Enter from emptying the trash as soon as the confirmation dialog opens.
