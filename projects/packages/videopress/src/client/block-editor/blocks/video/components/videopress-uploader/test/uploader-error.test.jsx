@@ -5,7 +5,12 @@ import { __ } from '@wordpress/i18n';
 import UploadError from '../uploader-error.jsx';
 
 const mockUseConnectionErrorNotice = jest.fn();
-const mockPlaceholderWrapper = jest.fn( ( { children } ) => <div>{ children }</div> );
+const mockPlaceholderWrapper = jest.fn( ( { instructions, children } ) => (
+	<div>
+		{ instructions }
+		{ children }
+	</div>
+) );
 const mockGoToCheckout = jest.fn( event => event.preventDefault() );
 
 jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => ( {
@@ -15,7 +20,6 @@ jest.mock( '@automattic/jetpack-connection/use-connection-error-notice', () => (
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	getRequiredPlan: jest.fn(),
 	useUpgradeFlow: jest.fn(),
-	getSiteFragment: () => 'example.com',
 } ) );
 jest.mock( '@wordpress/i18n', () => ( {
 	...jest.requireActual( '@wordpress/i18n' ),
@@ -86,6 +90,8 @@ describe( 'UploadError', () => {
 		);
 
 		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( FREE_QUOTA_MESSAGE );
+		expect( mockPlaceholderWrapper.mock.calls[ 0 ][ 0 ].errorMessage ).toBeUndefined();
 		expect( upgrade ).toHaveAttribute(
 			'href',
 			'https://wordpress.com/checkout/example.com/jetpack_videopress'
@@ -103,9 +109,8 @@ describe( 'UploadError', () => {
 		const translatedMessage = 'Has usado tu vídeo gratuito.';
 		__.mockImplementation( s => ( s === FREE_QUOTA_MESSAGE ? translatedMessage : s ) );
 
-		expect( renderError( { data: { message: translatedMessage } }, false ) ).toBe(
-			translatedMessage
-		);
+		renderError( { data: { message: translatedMessage } }, false );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( translatedMessage );
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 	} );
 
@@ -120,6 +125,10 @@ describe( 'UploadError', () => {
 		renderError( { data: { message: 'Invalid Mime' } }, false );
 
 		expect( useUpgradeFlow ).toHaveBeenCalledWith( 'business' );
+		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
+			'Your plan does not include video uploads. Upgrade to upload videos.'
+		);
+		expect( mockPlaceholderWrapper.mock.calls[ 0 ][ 0 ].errorMessage ).toBeUndefined();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 	} );

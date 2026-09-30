@@ -2,11 +2,7 @@
  * External dependencies
  */
 import useConnectionErrorNotice from '@automattic/jetpack-connection/use-connection-error-notice';
-import {
-	getRequiredPlan,
-	getSiteFragment,
-	useUpgradeFlow,
-} from '@automattic/jetpack-shared-extension-utils';
+import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 import { Button } from '@wordpress/components';
 import { createInterpolateElement } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -30,21 +26,28 @@ const isUpgradeRequired = errorData => {
 	);
 };
 
-const UpgradeButton = () => {
+const UpgradePlaceholder = ( { message, onCancel } ) => {
 	const [ checkoutUrl, goToCheckoutPage, isRedirecting ] = useUpgradeFlow(
 		getRequiredPlan( 'videopress/video' ) || 'jetpack_videopress'
 	);
 
 	return (
-		<Button
-			variant="primary"
-			href={ checkoutUrl }
-			onClick={ goToCheckoutPage }
-			isBusy={ isRedirecting }
-			disabled={ isRedirecting }
-		>
-			{ __( 'Upgrade', 'jetpack-videopress-pkg' ) }
-		</Button>
+		<PlaceholderWrapper instructions={ <span role="alert">{ message }</span> }>
+			<div className="videopress-uploader-progress__error-actions">
+				<Button
+					variant="primary"
+					href={ checkoutUrl }
+					onClick={ goToCheckoutPage }
+					isBusy={ isRedirecting }
+					disabled={ isRedirecting }
+				>
+					{ __( 'Upgrade', 'jetpack-videopress-pkg' ) }
+				</Button>
+				<Button variant="secondary" onClick={ onCancel }>
+					{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
+				</Button>
+			</div>
+		</PlaceholderWrapper>
 	);
 };
 
@@ -69,16 +72,9 @@ const getErrorMessage = ( uploadErrorData, hasConnectionError ) => {
 
 	// "Invalid Mime" on sites without VideoPress = plan doesn't include video uploads
 	if ( errorMessage === 'Invalid Mime' && needsUpgrade ) {
-		return createInterpolateElement(
-			__(
-				'Your plan does not include video uploads. <upgradeLink>Upgrade to upload videos</upgradeLink>.',
-				'jetpack-videopress-pkg'
-			),
-			{
-				upgradeLink: (
-					<Link openInNewTab href={ `https://wordpress.com/plans/${ getSiteFragment() }` } />
-				),
-			}
+		return __(
+			'Your plan does not include video uploads. Upgrade to upload videos.',
+			'jetpack-videopress-pkg'
 		);
 	}
 
@@ -108,16 +104,16 @@ const UploadError = ( { errorData, onRetry, onCancel } ) => {
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const message = getErrorMessage( errorData, hasConnectionError );
 
+	if ( isUpgradeRequired( errorData ) ) {
+		return <UpgradePlaceholder message={ message } onCancel={ onCancel } />;
+	}
+
 	return (
 		<PlaceholderWrapper errorMessage={ message } onNoticeRemove={ onCancel }>
 			<div className="videopress-uploader-progress__error-actions">
-				{ isUpgradeRequired( errorData ) ? (
-					<UpgradeButton />
-				) : (
-					<Button variant="primary" onClick={ onRetry }>
-						{ __( 'Try again', 'jetpack-videopress-pkg' ) }
-					</Button>
-				) }
+				<Button variant="primary" onClick={ onRetry }>
+					{ __( 'Try again', 'jetpack-videopress-pkg' ) }
+				</Button>
 				<Button variant="secondary" onClick={ onCancel }>
 					{ __( 'Cancel', 'jetpack-videopress-pkg' ) }
 				</Button>
