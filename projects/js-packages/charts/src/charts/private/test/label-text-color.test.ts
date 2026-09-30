@@ -162,10 +162,14 @@ describe( 'pickLabelTextColorForFill', () => {
 			for ( let step = 0; step <= 200; step++ ) {
 				const fill = mixRgb( primary, background, 0.15 + 0.85 * ( step / 200 ) );
 				const choice = pickLabelTextColorForFill( fill, DEFAULT_ROLES, 'label' );
+				// Checked on the 8-bit channels the browser paints as well as the exact mix.
+				const painted8Bit = fill.map( Math.round ) as unknown as Rgb;
 
-				expect(
-					luminanceContrastRatio( rgbLuminance( fill ), painted[ choice ] )
-				).toBeGreaterThanOrEqual( MIN_LABEL_CONTRAST );
+				for ( const shown of [ fill, painted8Bit ] ) {
+					expect(
+						luminanceContrastRatio( rgbLuminance( shown ), painted[ choice ] )
+					).toBeGreaterThanOrEqual( MIN_LABEL_CONTRAST );
+				}
 			}
 		} );
 	} );

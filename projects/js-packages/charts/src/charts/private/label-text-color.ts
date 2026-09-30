@@ -8,6 +8,9 @@ import {
 import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
 import type { Rgb } from '../../providers/chart-context/private/perceptual-color';
 
+// The browser paints the fill on 8-bit channels, which can cost a mid-tone ~0.03 of contrast.
+const ROUNDING_HEADROOM = 0.05;
+
 /** Which color a label drawn on a fill paints with: one of the two catalog roles, or the black/white floor. */
 export type LabelTextColor = 'label' | 'label-inverse' | 'black' | 'white';
 
@@ -103,7 +106,7 @@ export const pickLabelTextColorForFill = (
 	const fillLuminance = rgbLuminance( fill );
 	const labelContrast = roleContrast( roles.label, fill, fillLuminance );
 	const inverseContrast = roleContrast( roles.labelInverse, fill, fillLuminance );
-	if ( Math.max( labelContrast, inverseContrast ) >= MIN_LABEL_CONTRAST ) {
+	if ( Math.max( labelContrast, inverseContrast ) >= MIN_LABEL_CONTRAST + ROUNDING_HEADROOM ) {
 		return labelContrast > inverseContrast ? 'label' : 'label-inverse';
 	}
 
