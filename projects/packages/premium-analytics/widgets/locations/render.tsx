@@ -41,7 +41,7 @@ type LocationsWidgetProps = WidgetRenderProps< LocationsRenderAttributes >;
 type DrillDownCountry = { code: string; name: string };
 
 type GeoGranularity = NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
-// A region always carries its country, because region names repeat across countries.
+// A region is only meaningful inside its country, so the path always carries both.
 type LocationsDrillDown = {
 	country: DrillDownCountry;
 	region?: string;
@@ -88,8 +88,9 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
 		geoMode,
-		countryFilter: focusCountry?.code,
-		regionFilter: drillDownPath?.region,
+		filter: drillDownPath
+			? { country: drillDownPath.country.code, region: drillDownPath.region }
+			: undefined,
 	} );
 
 	const geoRows = useMemo(
@@ -104,8 +105,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		[ data ]
 	);
 
-	const getDrillDownAction = useCallback(
-		( location: LocationView ) => {
+	const leaderboardData = useMemo( () => {
+		const getDrillDownAction = ( location: LocationView ) => {
 			const country = { code: location.countryCode, name: location.countryFull };
 
 			if ( geoMode === 'country' ) {
@@ -133,11 +134,8 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			}
 
 			return { kind: 'static' as const };
-		},
-		[ geoMode, setDrillDownPath ]
-	);
+		};
 
-	const leaderboardData = useMemo( () => {
 		const maxValue = getCombinedPeriodMax(
 			data.map( location => location.value ),
 			hasComparison ? data.map( location => location.previousValue ) : []
@@ -171,7 +169,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, getDrillDownAction, hasComparison ] );
+	}, [ data, geoMode, hasComparison, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -184,7 +182,6 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		}
 	}, [ parentCountry, resetDrillDown, setDrillDownPath ] );
 
-	// Named after the list it returns to.
 	const backLink = drillDownPath ? (
 		<WidgetBackLink
 			label={ parentCountry?.name ?? __( 'All locations', 'jetpack-premium-analytics-pkg' ) }

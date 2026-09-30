@@ -25,9 +25,8 @@ export type StatsLocationsItem = StatsNormalizedItemBase & {
 	views: number;
 	countryCode?: string;
 	countryFull?: string;
+	/** The country's UN M49 map region, such as `021`; never a state or province. */
 	region?: string;
-	/** The region a city row sits in; the endpoint sends it only on `filter_by_region` requests. */
-	cityRegion?: string;
 	/** Only city rows carry coordinates. */
 	coordinates?: StatsLocationCoordinates;
 	children: null;
@@ -77,7 +76,6 @@ export function sanitizeStatsLocationsResponse(
 			countryCode: typeof item.country_code === 'string' ? item.country_code : undefined,
 			countryFull: typeof country.country_full === 'string' ? country.country_full : undefined,
 			region: typeof country.map_region === 'string' ? country.map_region : undefined,
-			cityRegion: typeof item.region === 'string' ? item.region : undefined,
 			coordinates: parseCoordinates( item.coordinates ),
 			children: null,
 		};

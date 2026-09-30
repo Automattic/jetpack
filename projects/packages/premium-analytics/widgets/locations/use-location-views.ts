@@ -24,6 +24,17 @@ export interface LocationView {
 	coordinates?: StatsLocationCoordinates;
 }
 
+interface LocationFilter {
+	/**
+	 * ISO country code.
+	 */
+	country: string;
+	/**
+	 * Region name, such as a state or province.
+	 */
+	region?: string;
+}
+
 interface UseLocationViewsArgs {
 	/**
 	 * PA ReportParams from WidgetRoot context.
@@ -38,13 +49,9 @@ interface UseLocationViewsArgs {
 	 */
 	geoMode?: GeoMode;
 	/**
-	 * ISO country code to filter regions or cities by.
+	 * Country, or a region inside it, to narrow the rows to.
 	 */
-	countryFilter?: string;
-	/**
-	 * Region name to filter cities by; ignored without `countryFilter`.
-	 */
-	regionFilter?: string;
+	filter?: LocationFilter;
 }
 
 interface LocationViewsState {
@@ -90,27 +97,20 @@ export default function useLocationViews( {
 	reportParams,
 	max,
 	geoMode = 'country',
-	countryFilter,
-	regionFilter,
+	filter,
 }: UseLocationViewsArgs ): LocationViewsState {
-	// The endpoint rejects a region without its country, since region names repeat across countries.
-	const region = countryFilter ? regionFilter : undefined;
 	const statsParams: Parameters< typeof useStatsLocations >[ 0 ] = {
 		...reportParams,
 		geoMode,
 		max,
-		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
-		...( region ? { filter_by_region: region } : {} ),
+		...( filter ? { filter_by_country: filter.country } : {} ),
+		...( filter?.region ? { filter_by_region: filter.region } : {} ),
 	};
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );
 
-	const rows = comparisonRows?.rows ?? [];
-	// Until 245370-ghe-Automattic/wpcom deploys, the endpoint ignores `filter_by_region` and
-	// returns the whole country's cities without a `region`; show none rather than those.
-	const regionIgnored = !! region && ! rows.some( item => item.cityRegion );
-	const items = ( regionIgnored ? [] : rows )
+	const items = ( comparisonRows?.rows ?? [] )
 		.map( toLocationView )
 		.filter( ( v ): v is LocationView => v !== null );
 

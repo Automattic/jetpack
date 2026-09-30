@@ -151,18 +151,4 @@ describe( 'Stats locations normalizer', () => {
 
 		expect( result.data[ 0 ].items[ 0 ].coordinates ).toBeUndefined();
 	} );
-
-	it( 'reads the region a filtered city row carries', () => {
-		const result = sanitizeStatsLocationsResponse(
-			{
-				date: '2026-06-22',
-				summary: {
-					views: [ { location: 'Saint Cloud', region: 'Minnesota', views: 3, country_code: 'US' } ],
-				},
-			},
-			{ period: 'day', start_date: '2026-06-16', end_date: '2026-06-22', summarize: true }
-		);
-
-		expect( result.data[ 0 ].items[ 0 ].cityRegion ).toBe( 'Minnesota' );
-	} );
 } );
