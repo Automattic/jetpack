@@ -47,11 +47,6 @@
 		},
 
 		// Various other monorepos and package groupings.
-		//
-		// One group for every @wordpress/* package, bundled or externalized. The two trains
-		// pin exact versions of each other (notices types against data, dataviews peers against
-		// components), so updating them in separate PRs left the tree carrying two copies of
-		// components, element and core-data until the second one landed (#51701, #52187).
 		{
 			extends: [ 'monorepo:wordpress' ],
 			separateMajorMinor: false,
