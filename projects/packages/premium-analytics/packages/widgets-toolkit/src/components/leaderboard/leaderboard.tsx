@@ -3,7 +3,6 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import clsx from 'clsx';
 import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
 /**
  * Internal dependencies
@@ -111,10 +110,6 @@ export type LeaderboardProps = {
 	 * Rendered in the widget footer, typically a `ReportLink`.
 	 */
 	footer?: ReactNode;
-	/**
-	 * Additional CSS classes.
-	 */
-	className?: string;
 };
 
 const DEFAULT_FORMAT: DataFormat = {
@@ -142,7 +137,6 @@ export function Leaderboard( {
 	drillDown,
 	navigation,
 	footer,
-	className,
 }: LeaderboardProps ): JSX.Element {
 	const detailSearch = useWidgetNavigationSearch( navigation );
 	const refetch = status.refetch;
@@ -245,7 +239,7 @@ export function Leaderboard( {
 		) : null;
 
 	return (
-		<Stack direction="column" className={ clsx( styles.root, className ) }>
+		<Stack direction="column" className={ styles.root }>
 			<Stack direction="column" className={ styles.content }>
 				{ backLink }
 				<WidgetState
