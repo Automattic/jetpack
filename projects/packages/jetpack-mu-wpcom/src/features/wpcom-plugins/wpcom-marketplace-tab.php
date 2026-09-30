@@ -279,24 +279,22 @@ function wpcom_marketplace_render_card( array $card ) {
 }
 
 /**
- * The price block.
+ * The price as its two rows of markup: the headline, and the line under it.
  *
- * The headline is the yearly price, which is what the button charges, with the
- * saving beside it. The monthly price follows in small type so the saving can be
- * checked rather than taken on trust. Both are prices a buyer can really be
- * charged: neither is the year divided by twelve.
+ * The headline is the yearly price, which is what the button charges, with the saving
+ * beside it. The monthly price follows so the saving can be checked rather than taken on
+ * trust. Both are prices a buyer can really be charged: neither is the year divided by twelve.
  *
  * @param array $card Normalized product data.
- * @return void
+ * @return array{headline: string, note: string} Escaped markup, empty when there is nothing to show.
  */
-function wpcom_marketplace_render_price( array $card ) {
+function wpcom_marketplace_price_rows( array $card ) {
 	// The vendor sets a referral's price, so it gets Calypso's list-card wording, not the store's figures.
 	if ( Marketplace_Catalog::is_referral( $card ) ) {
-		printf(
-			'<div class="wpcom-marketplace-card__price"><p class="wpcom-marketplace-card__headline"><span class="wpcom-marketplace-card__amount">%s</span></p></div>',
-			esc_html__( 'Start for free', 'jetpack-mu-wpcom' )
+		return array(
+			'headline' => '<span class="wpcom-marketplace-card__amount">' . esc_html__( 'Start for free', 'jetpack-mu-wpcom' ) . '</span>',
+			'note'     => '',
 		);
-		return;
 	}
 
 	$pricing = $card['wpcom_pricing'] ?? array();
@@ -305,44 +303,56 @@ function wpcom_marketplace_render_price( array $card ) {
 	$saving  = (int) ( $card['wpcom_saving'] ?? 0 );
 
 	if ( '' === $yearly && '' === $monthly ) {
-		return;
+		return array(
+			'headline' => '',
+			'note'     => '',
+		);
 	}
 
 	// Only a product we cannot sell by the year falls back to pricing by the month.
 	$has_yearly = '' !== $yearly;
-	$amount     = $has_yearly ? $yearly : $monthly;
-	$per        = wpcom_marketplace_term_noun( $has_yearly ? 'yearly' : 'monthly' );
-	?>
-	<div class="wpcom-marketplace-card__price">
-		<p class="wpcom-marketplace-card__headline">
-			<span class="wpcom-marketplace-card__amount"><?php echo esc_html( $amount ); ?></span>
-			<span class="wpcom-marketplace-card__per">/<?php echo esc_html( $per ); ?></span>
-			<?php if ( $has_yearly && $saving >= 5 ) : ?>
-				<span class="wpcom-marketplace-card__saving">
-					<?php
-					/* translators: %d: Percentage saved, for example 31. */
-					echo esc_html( sprintf( __( 'Save %d%%', 'jetpack-mu-wpcom' ), $saving ) );
-					?>
-				</span>
-			<?php endif; ?>
-		</p>
-		<?php if ( $has_yearly && '' !== $monthly ) : ?>
-			<p class="wpcom-marketplace-card__alternative">
-				<span class="wpcom-marketplace-card__note">
-					<?php
-					/*
-					 * "or" read as a second option the reader could pick here, which they
-					 * cannot: the button buys the year. Stated as a condition instead, so
-					 * it is plainly the price this one is being measured against.
-					 */
-					/* translators: %s: Price per month, for example $9.90. */
-					echo esc_html( sprintf( __( '%s/month if billed monthly', 'jetpack-mu-wpcom' ), $monthly ) );
-					?>
-				</span>
-			</p>
-		<?php endif; ?>
-	</div>
-	<?php
+
+	$headline = sprintf(
+		'<span class="wpcom-marketplace-card__amount">%s</span> <span class="wpcom-marketplace-card__per">/%s</span>',
+		esc_html( $has_yearly ? $yearly : $monthly ),
+		esc_html( wpcom_marketplace_term_noun( $has_yearly ? 'yearly' : 'monthly' ) )
+	);
+	if ( $has_yearly && $saving >= 5 ) {
+		/* translators: %d: Percentage saved, for example 31. */
+		$headline .= ' <span class="wpcom-marketplace-card__saving">' . esc_html( sprintf( __( 'Save %d%%', 'jetpack-mu-wpcom' ), $saving ) ) . '</span>';
+	}
+
+	$note = '';
+	if ( $has_yearly && '' !== $monthly ) {
+		// Worded as a condition, not "or": the button buys the year, so this is only what it is measured against.
+		/* translators: %s: Price per month, for example $9.90. */
+		$note = '<span class="wpcom-marketplace-card__note">' . esc_html( sprintf( __( '%s/month if billed monthly', 'jetpack-mu-wpcom' ), $monthly ) ) . '</span>';
+	}
+
+	return array(
+		'headline' => $headline,
+		'note'     => $note,
+	);
+}
+
+/**
+ * The price block, for the Marketplace tab's bottom strip.
+ *
+ * @param array $card Normalized product data.
+ * @return void
+ */
+function wpcom_marketplace_render_price( array $card ) {
+	$rows = wpcom_marketplace_price_rows( $card );
+	if ( '' === $rows['headline'] ) {
+		return;
+	}
+
+	// Both rows are built from escaped parts.
+	printf(
+		'<div class="wpcom-marketplace-card__price"><p class="wpcom-marketplace-card__headline">%s</p>%s</div>',
+		$rows['headline'], // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		'' === $rows['note'] ? '' : '<p class="wpcom-marketplace-card__alternative">' . $rows['note'] . '</p>' // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+	);
 }
 
 /**
@@ -351,10 +361,11 @@ function wpcom_marketplace_render_price( array $card ) {
  * Installed products keep core's button: Marketplace_Products_Updater already gives
  * core the right package URL, so Activate, Update and Active all behave.
  *
- * @param array $card Normalized product data.
+ * @param array  $card     Normalized product data.
+ * @param string $back_url Where checkout's Back link returns to. Defaults to the Marketplace tab.
  * @return string Button markup.
  */
-function wpcom_marketplace_card_button( array $card ) {
+function wpcom_marketplace_card_button( array $card, $back_url = '' ) {
 	$name   = (string) ( $card['name'] ?? $card['slug'] ?? '' );
 	$status = install_plugin_install_status( $card );
 
@@ -393,7 +404,7 @@ function wpcom_marketplace_card_button( array $card ) {
 		);
 	}
 
-	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM, wpcom_marketplace_tab_url() );
+	$checkout = Marketplace_Catalog::checkout_url( $card, WPCOM_MARKETPLACE_TERM, '' === $back_url ? wpcom_marketplace_tab_url() : $back_url );
 
 	// Without a store product there is nothing to buy, so fall back to the product page.
 	if ( '' === $checkout ) {
@@ -460,7 +471,7 @@ function wpcom_marketplace_render_tab() {
 		'wpcom-marketplace-tab',
 		plugins_url( 'css/marketplace-tab.css', __FILE__ ),
 		array(),
-		\Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION
+		(string) filemtime( __DIR__ . '/css/marketplace-tab.css' )
 	);
 
 	\Automattic\Jetpack\Jetpack_Mu_Wpcom\Common\wpcom_enqueue_tracking_scripts(
