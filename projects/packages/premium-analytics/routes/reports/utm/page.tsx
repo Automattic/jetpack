@@ -31,6 +31,7 @@ import {
 	useUtmReportRecords,
 	type UtmReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 

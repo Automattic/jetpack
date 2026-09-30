@@ -13,7 +13,7 @@ import { getScoreTier, getScoreTierColor } from './lib/score-utils';
 import './history-chart-card.scss';
 import type { PerformanceHistoryData } from './lib/use-performance-history';
 import type { BandHighlightSelection, DataPointDate, SeriesData } from '@automattic/charts';
-import type { ComponentProps, ElementType, PointerEvent as ReactPointerEvent } from 'react';
+import type { JSX, ComponentProps, ElementType, PointerEvent as ReactPointerEvent } from 'react';
 
 type Props = {
 	range: HistoryWindow;

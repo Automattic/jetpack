@@ -6,6 +6,7 @@ import { store as editorStore } from '@wordpress/editor';
 import { addFilter } from '@wordpress/hooks';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
+import type { JSX } from 'react';
 
 interface Placement {
 	label: string;

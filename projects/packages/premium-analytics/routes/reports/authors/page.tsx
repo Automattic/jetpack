@@ -23,6 +23,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 

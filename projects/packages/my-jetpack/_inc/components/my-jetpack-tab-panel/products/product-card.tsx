@@ -15,6 +15,7 @@ import { PRODUCT_ICONS } from './mappings';
 import { ProductCardAction } from './product-card-action';
 import styles from './styles.module.scss';
 import { getProductStatus } from './utils';
+import type { JSX } from 'react';
 
 export type ProductCardProps = {
 	product: ProductCamelCase;

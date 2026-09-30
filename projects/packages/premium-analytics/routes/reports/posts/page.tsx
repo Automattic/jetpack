@@ -38,6 +38,7 @@ import {
 	usePostsReportRecords,
 	type ArchiveRow,
 } from './config';
+import type { JSX } from 'react';
 
 // Every report shares the single dynamic route, so route-level hooks and
 // navigations target this path with the `posts` param.
