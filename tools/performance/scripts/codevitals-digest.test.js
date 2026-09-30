@@ -162,6 +162,42 @@ const SCENARIOS = {
 		rows.splice( 21, 0, { ...rows[ 20 ] } );
 		return { series: { 301: rows } };
 	},
+	adjacentPlateauFlag: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 20 ).fill( 100 ), 190, 215, ...Array( 20 ).fill( 200 ) ],
+				[ 20, 21 ],
+				'p7'
+			),
+		},
+	} ),
+	oneGapPlateauFlag: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 20 ).fill( 100 ), 190, 180, 215, ...Array( 20 ).fill( 200 ) ],
+				[ 20, 22 ],
+				'p7b'
+			),
+		},
+	} ),
+	adjacentSteps: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 20 ).fill( 100 ), 150, ...Array( 21 ).fill( 250 ) ],
+				[ 20, 21 ],
+				'p7c'
+			),
+		},
+	} ),
+	threeLowReadings: () => ( {
+		series: {
+			301: flaggedSeries(
+				[ ...Array( 20 ).fill( 100 ), 200, 185, 185, 185, 215, ...Array( 20 ).fill( 200 ) ],
+				[ 20, 24 ],
+				'x3'
+			),
+		},
+	} ),
 	nearbySteps: () => ( {
 		series: {
 			301: flaggedSeries(
@@ -1288,7 +1324,7 @@ test( 'grouping localizes repeated evidence and retains a second step and a re-l
 	assert.ok( localized.out.includes( 'single-pair +12.5% (200→225ms)' ), localized.out );
 } );
 
-test( 'pre-step noise flags cannot borrow the real step or name sustained culprits', async () => {
+test( 'pre-step noise flags share one line with the step and all flagged commits', async () => {
 	for ( const [ scenario, prefix, noise ] of [
 		[ 'noiseBeforeStep', 'noise', [ 17 ] ],
 		[ 'noiseImmediatelyBeforeStep', 'close', [ 19 ] ],
@@ -1300,17 +1336,19 @@ test( 'pre-step noise flags cannot borrow the real step or name sustained culpri
 		const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
 		assert.ok( line.includes( hx( prefix + 20 ) ), line );
 		assert.ok( line.includes( 'median +20.0% (100→120ms)' ), line );
-		for ( const i of noise ) assert.ok( ! line.includes( hx( prefix + i ) ), line );
-		assert.ok( r.out.includes( `${ noise.length } transient spike` ), r.out );
+		for ( const i of noise ) assert.ok( line.includes( hx( prefix + i ) ), line );
+		assert.ok( line.includes( `${ noise.length + 1 } flags grouped` ), line );
+		assert.ok( ! r.out.includes( 'transient spike' ), r.out );
 	}
 } );
 
-test( 'a plateau re-flag across the age boundary stays with the older step', async () => {
+test( 'an in-window plateau re-flag brings the whole group into the sustained bucket', async () => {
 	const r = await runDigest( 'plateauAcrossAgeBoundary' );
 	assert.equal( r.code, 0, r.err );
-	assert.ok( r.out.includes( '0 sustained regression(s)' ), r.out );
-	assert.ok( r.out.includes( '1 older confirmed change (may repeat)' ), r.out );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( ! r.out.includes( 'older confirmed change' ), r.out );
 	assert.ok( r.out.includes( '2 flags grouped' ), r.out );
+	for ( const i of [ 20, 24 ] ) assert.ok( r.out.includes( hx( 'cross' + i ) ), r.out );
 } );
 
 test( 'a noisy confirmed plateau does not absorb a smaller pending step', async () => {
@@ -1330,33 +1368,78 @@ test( 'a folded re-post does not exclude the original step from localization', a
 	assert.ok( line.includes( hx( 'foldstep20' ) ), line );
 } );
 
-test( 'grouping preserves a distinct second step inside ten commits', async () => {
+test( 'adjacent plateau flags p7 group without suppressing the step commit', async () => {
+	const r = await runDigest( 'adjacentPlateauFlag' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( 'median +100.0% (100→200ms)' ), r.out );
+	assert.ok( ! r.out.includes( 'transient spike' ), r.out );
+	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+	for ( const i of [ 20, 21 ] ) assert.ok( line.includes( hx( 'p7' + i ) ), line );
+} );
+
+test( 'a one-reading dip between plateau flags p7b still shares one line', async () => {
+	const r = await runDigest( 'oneGapPlateauFlag' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( 'median +100.0% (100→200ms)' ), r.out );
+	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+	for ( const i of [ 20, 22 ] ) assert.ok( line.includes( hx( 'p7b' + i ) ), line );
+} );
+
+test( 'adjacent distinct steps p7c share one line with all commits and total change', async () => {
+	const r = await runDigest( 'adjacentSteps' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( 'median +150.0% (100→250ms)' ), r.out );
+	assert.ok( ! r.out.includes( 'transient spike' ), r.out );
+	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+	for ( const i of [ 20, 21 ] ) assert.ok( line.includes( hx( 'p7c' + i ) ), line );
+} );
+
+test( 'three low plateau readings x3 do not split the group', async () => {
+	const r = await runDigest( 'threeLowReadings' );
+	assert.equal( r.code, 0, r.err );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( 'median +100.0% (100→200ms)' ), r.out );
+	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+	for ( const i of [ 20, 24 ] ) assert.ok( line.includes( hx( 'x3' + i ) ), line );
+} );
+
+test( 'round-0 double step shares one line naming both commits and the total change', async () => {
 	const r = await runDigest( 'nearbySteps' );
 	assert.equal( r.code, 0, r.err );
-	assert.ok( r.out.includes( '2 sustained regression' ), r.out );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( 'median +150.0% (100→250ms)' ), r.out );
+	assert.ok( r.out.includes( 'single-pair +66.7% (150→250ms)' ), r.out );
 	for ( const i of [ 20, 27 ] ) assert.ok( r.out.includes( hx( 'near' + i ) ), r.out );
 } );
 
-test( 'grouping preserves a nearby revert and re-land', async () => {
+test( 'a nearby revert and re-land share one line naming both flags', async () => {
 	const r = await runDigest( 'nearbyReland' );
 	assert.equal( r.code, 0, r.err );
-	assert.ok( r.out.includes( '2 sustained regression' ), r.out );
+	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
+	assert.ok( r.out.includes( 'median +50.0% (100→150ms)' ), r.out );
 	for ( const i of [ 20, 28 ] ) assert.ok( r.out.includes( hx( 'reland' + i ) ), r.out );
 } );
 
-test( 'grouping preserves each step in a staircase', async () => {
+test( 'staircase groups have spans of ten commits and show each group’s total change', async () => {
 	const r = await runDigest( 'staircase' );
 	assert.equal( r.code, 0, r.err );
-	assert.ok( r.out.includes( '5 sustained regression' ), r.out );
+	assert.ok( r.out.includes( '3 sustained regression' ), r.out );
+	const lines = JSON.parse( r.out ).blocks.filter( b => b.text?.text.startsWith( '•' ) );
+	assert.equal( lines.filter( b => b.text.text.includes( 'median +16.6%' ) ).length, 2 );
+	assert.equal( lines.filter( b => b.text.text.includes( 'median +8.0%' ) ).length, 1 );
 	for ( const i of [ 20, 28, 36, 44, 52 ] ) assert.ok( r.out.includes( hx( 'stair' + i ) ), r.out );
 } );
 
-test( 'a distinct fresh step stays separate from an older step', async () => {
+test( 'a fresh second step keeps its group sustained and shows the total change', async () => {
 	const r = await runDigest( 'ageBoundary' );
 	assert.equal( r.code, 0, r.err );
 	assert.ok( r.out.includes( '1 sustained regression' ), r.out );
-	assert.ok( r.out.includes( '1 older confirmed change (may repeat)' ), r.out );
-	assert.ok( r.out.includes( hx( 'age28' ) ), r.out );
+	assert.ok( ! r.out.includes( 'older confirmed change' ), r.out );
+	assert.ok( r.out.includes( 'median +130.0% (100→230ms)' ), r.out );
+	for ( const i of [ 20, 28 ] ) assert.ok( r.out.includes( hx( 'age' + i ) ), r.out );
 } );
 
 test( 'pending evidence for a confirmed plateau groups but a distinct short tail stays pending', async () => {

@@ -38,7 +38,6 @@ const LEVEL_WINDOW = 10;
 const robustScale = ( values, level ) =>
 	Math.max( 1.4826 * median( values.map( value => Math.abs( value - level ) ) ), 0.002 * level );
 
-// Shorter windows only distinguish grouped candidates; sustained confirmation still requires 10/10.
 const hasLevelRise = ( before, after ) => {
 	if ( before.length === 0 || after.length === 0 ) return false;
 	const pre = median( before );
@@ -655,38 +654,9 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 				reportedHashes.add( evHash );
 			}
 		}
-		const rises = ( previous, candidate ) => {
-			const between = byServe
-				.filter(
-					r =>
-						r.p.sIdx > previous.s &&
-						r.p.sIdx < candidate.s &&
-						r.p.hash.toLowerCase() !== previous.hash.toLowerCase()
-				)
-				.map( r => r.v );
-			const baseline = between.length > 0 ? between : previous.preValues;
-			return {
-				own:
-					hasLevelRise( previous.preValues, between ) ||
-					hasLevelRise( previous.preValues, between.slice( 0, 3 ) ),
-				later:
-					hasLevelRise( baseline, candidate.postValues ) ||
-					hasLevelRise( baseline.slice( -3 ), candidate.postValues ),
-			};
-		};
-		const distinct = ( previous, candidate ) => {
-			const rise = rises( previous, candidate );
-			return rise.own && rise.later;
-		};
-		const canGroup = ( group, candidate ) => {
-			const first = group[ 0 ];
-			const previous = group.at( -1 );
-			return (
-				candidate.position >= previous.position &&
-				candidate.position - first.position <= LEVEL_WINDOW &&
-				! distinct( previous, candidate )
-			);
-		};
+		const canGroup = ( group, candidate ) =>
+			candidate.position >= group.at( -1 ).position &&
+			candidate.position - group[ 0 ].position <= LEVEL_WINDOW;
 		const groups = [];
 		for ( const entry of sustained.sort( ( a, b ) => a.position - b.position ) ) {
 			const group = groups.at( -1 );
@@ -712,25 +682,20 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 		}
 		for ( const group of groups ) {
 			const complete = group.filter( entry => entry.pre !== undefined );
-			// A pre-step flag cannot borrow a later step's rise to become a sustained culprit.
-			const borrowed = complete.filter( member =>
-				complete.some( candidate => {
-					if ( candidate.position <= member.position ) return false;
-					const rise = rises( member, candidate );
-					return ! rise.own && rise.later;
-				} )
-			);
-			reverted.push( ...borrowed );
-			const members = group.filter( member => ! borrowed.includes( member ) );
-			const accepted = complete.filter( member => ! borrowed.includes( member ) );
-			const originals = accepted.filter( entry => entry.self );
-			const entry = ( originals.length > 0 ? originals : accepted ).reduce( ( best, candidate ) =>
+			const originals = complete.filter( entry => entry.self );
+			const pool = originals.length > 0 ? originals : complete;
+			const entry = pool.reduce( ( best, candidate ) =>
 				candidate.score > best.score ? candidate : best
 			);
-			( entry.late ? confirmedLate : confirmed ).push( {
+			// Any in-window member keeps the group in the sustained bucket.
+			const late = group.every( member => member.late );
+			( late ? confirmedLate : confirmed ).push( {
 				...entry,
-				members,
-				grouped: members.length,
+				pre: complete[ 0 ].pre,
+				post: complete.at( -1 ).post,
+				late,
+				members: group,
+				grouped: group.length,
 			} );
 		}
 	}
