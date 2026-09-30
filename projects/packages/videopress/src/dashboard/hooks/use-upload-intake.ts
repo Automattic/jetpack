@@ -1,6 +1,7 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useDispatch } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { FREE_TIER_AT_LIMIT_MESSAGE } from '../components/free-tier-notice';
 import {
 	INVALID_FILE_NOTICE_ID,
@@ -25,7 +26,7 @@ import { useVideoPressUpgrade } from './use-videopress-upgrade';
 export function useUploadIntake(): ( files: File[] ) => number {
 	const { isFree, isUnlimited, limit, videoCount } = useFreeTier();
 	const { startUpload } = useUpload();
-	const { createErrorNotice } = useGlobalNotices();
+	const { createErrorNotice } = useDispatch( noticesStore );
 	const runUpgrade = useVideoPressUpgrade();
 
 	return useCallback(
@@ -38,13 +39,17 @@ export function useUploadIntake(): ( files: File[] ) => number {
 			} );
 
 			if ( decision.kind === 'no-videos' ) {
-				createErrorNotice( NOT_A_VIDEO_MESSAGE, { id: INVALID_FILE_NOTICE_ID } );
+				createErrorNotice( NOT_A_VIDEO_MESSAGE, {
+					id: INVALID_FILE_NOTICE_ID,
+					type: 'snackbar',
+				} );
 				return 0;
 			}
 
 			if ( decision.kind === 'at-limit' ) {
 				createErrorNotice( FREE_TIER_AT_LIMIT_MESSAGE, {
 					actions: [ { label: __( 'Upgrade', 'jetpack-videopress-pkg' ), onClick: runUpgrade } ],
+					type: 'snackbar',
 				} );
 				return 0;
 			}
@@ -62,7 +67,8 @@ export function useUploadIntake(): ( files: File[] ) => number {
 							'jetpack-videopress-pkg'
 						),
 						decision.skipped
-					)
+					),
+					{ type: 'snackbar' }
 				);
 			}
 

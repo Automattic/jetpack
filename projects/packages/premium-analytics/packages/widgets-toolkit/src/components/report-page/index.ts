@@ -5,6 +5,7 @@ export {
 	type ReportPageSectionProps,
 } from './report-page-layout';
 export { ReportChartSection, type ReportChartSectionProps } from './report-chart-section';
+export { ReportEmptyState } from './report-empty-state';
 export { ReportErrorState, type ReportErrorStateProps } from './report-error-state';
 export { ReportLocationsMap, type ReportLocationsMapProps } from './report-locations-map';
 export { ReportCsvAction, type ReportCsvActionProps } from './report-csv-action';
@@ -15,6 +16,8 @@ export {
 } from './report-performance-chart';
 export { ReportDrilldownTable, type ReportDrilldownTableProps } from './report-drilldown-table';
 export { ReportRecordsTable, type ReportRecordsTableProps } from './report-records-table';
+export { ReportThumbnail } from './report-thumbnail';
+export { REPORT_TITLE_LINK_CLASS_NAMES } from './report-title-link';
 export { useReportRetry } from './use-report-retry';
 export {
 	ReportPageTabPanel,

@@ -187,7 +187,7 @@ function mockSummary( overrides: Record< string, unknown > = {} ) {
 }
 
 describe( 'author detail stage', () => {
-	// The Authors report behind the crumb reads the preview scope off script data;
+	// The Authors report behind the crumb reads the available tabs off script data;
 	// the page options menu reads the reader's capabilities off it too.
 	beforeAll( () => {
 		Object.defineProperty( window, 'JetpackScriptData', {

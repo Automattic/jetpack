@@ -2,7 +2,11 @@
  * Internal dependencies
  */
 import { useStatsLocations } from '@jetpack-premium-analytics/data';
-import type { ReportParams, StatsLocationsComparisonItem } from '@jetpack-premium-analytics/data';
+import type {
+	ReportParams,
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -17,6 +21,7 @@ export interface LocationView {
 	value: number;
 	previousValue?: number;
 	region: string;
+	coordinates?: StatsLocationCoordinates;
 }
 
 interface UseLocationViewsArgs {
@@ -48,25 +53,21 @@ interface LocationViewsState {
 	refetch: () => void;
 }
 
-/**
- * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView`
- * shape. Returns `null` for an item with no country code.
- */
-function toLocationView( item: StatsLocationsComparisonItem ): LocationView | null {
-	if ( ! item.countryCode ) {
-		return null;
-	}
+/** Map a Stats location row to the widget's view shape, including unknown countries. */
+function toLocationView( item: StatsLocationsComparisonItem ): LocationView {
 	const label = typeof item.label === 'string' ? item.label : String( item.label );
-	const countryFull = item.countryFull ?? item.countryCode;
+	const countryCode = item.countryCode ?? '';
+	const countryFull = item.countryFull ?? countryCode;
 
 	return {
-		key: `${ item.countryCode }:${ label }`,
+		key: `${ countryCode }:${ label }`,
 		label,
-		countryCode: item.countryCode,
+		countryCode,
 		countryFull,
 		value: item.views,
 		previousValue: item.previousViews,
 		region: item.region ?? '',
+		coordinates: item.coordinates,
 	};
 }
 
@@ -92,9 +93,7 @@ export default function useLocationViews( {
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );
 
-	const items = ( comparisonRows?.rows ?? [] )
-		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null );
+	const items = ( comparisonRows?.rows ?? [] ).map( toLocationView );
 
 	return {
 		data: items,

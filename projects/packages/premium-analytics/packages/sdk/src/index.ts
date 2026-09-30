@@ -4,6 +4,7 @@
  * imports the SDK gets the same instances the dashboard renders with.
  */
 export {
+	ChartEmptyState,
 	EarningsHistoryList,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,

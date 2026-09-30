@@ -215,6 +215,19 @@ describe( 'Newsletter dashboard Stage analytics', () => {
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith( 'jetpack_newsletter_tab_view', {
 			site_type: 'jetpack',
 			tab: 'settings',
+			previous_tab: 'overview',
+		} );
+	} );
+
+	it( 'records the Stats tab without a previous tab when the route deep-links to ?tab=stats', () => {
+		mockSearch.mockReturnValue( { tab: 'stats' } );
+
+		render( <Stage /> );
+
+		expect( mockRecordEvent ).toHaveBeenCalledTimes( 1 );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_newsletter_tab_view', {
+			site_type: 'jetpack',
+			tab: 'stats',
 		} );
 	} );
 

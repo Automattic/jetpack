@@ -17,6 +17,7 @@ export declare const WidgetFooter: AnyComponent;
 export declare const ReportLink: AnyComponent;
 
 // Charts and metrics.
+export declare const ChartEmptyState: AnyComponent;
 export declare const MetricTabsChart: AnyComponent;
 export declare const MetricTabsChartSkeleton: AnyComponent;
 export declare const MetricTileGrid: AnyComponent;

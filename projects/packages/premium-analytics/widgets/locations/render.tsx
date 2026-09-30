@@ -93,12 +93,15 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 
 	const geoRows = useMemo(
 		(): LocationsGeoRow[] =>
-			data.map( location => ( {
-				label: location.label,
-				value: location.value,
-				countryCode: location.countryCode,
-				countryFull: location.countryFull,
-			} ) ),
+			data
+				.filter( location => location.countryCode )
+				.map( location => ( {
+					label: location.label,
+					value: location.value,
+					countryCode: location.countryCode,
+					countryFull: location.countryFull,
+					coordinates: location.coordinates,
+				} ) ),
 		[ data ]
 	);
 

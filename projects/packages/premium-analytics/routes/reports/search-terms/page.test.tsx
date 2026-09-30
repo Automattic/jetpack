@@ -1,18 +1,19 @@
 /**
  * External dependencies
  */
-import { ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render } from '@testing-library/react';
+import { ReportEmptyState, ReportRecordsTable } from '@jetpack-premium-analytics/widgets-toolkit';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
-import { useSearchTermsReportRecords } from './config';
+import { getSearchTermsFields, useSearchTermsReportRecords } from './config';
 import SearchTermsReportPage from './page';
 import type { SearchTermRow } from './config';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
-	getSearchTermsFields: () => [],
+	getSearchTermsFields: jest.fn( () => [] ),
 	useSearchTermsReportRecords: jest.fn(),
 } ) );
 
@@ -23,6 +24,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
@@ -30,6 +32,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportCsvAction: () => null,
+	ReportEmptyState: jest.fn( () => <div data-testid="report-empty-state" /> ),
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
@@ -51,6 +54,8 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( useSearchTermsReportRecords );
+const getSearchTermsFieldsMock = jest.mocked( getSearchTermsFields );
+const reportEmptyStateMock = jest.mocked( ReportEmptyState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
 const row: SearchTermRow = {
@@ -113,5 +118,38 @@ describe( 'SearchTermsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( { data: [ row ], isLoading: false } )
 		);
+	} );
+
+	it( 'replaces the records table with the empty state when the period has no terms', () => {
+		mockRecords( { rows: [] } );
+
+		render( <SearchTermsReportPage /> );
+
+		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
+		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'keeps the table and its search box when a search matches no terms', async () => {
+		const { ReportRecordsTable: ActualReportRecordsTable } = jest.requireActual(
+			'../../../packages/widgets-toolkit/src/components/report-page/report-records-table'
+		);
+		reportRecordsTableMock.mockImplementation( ActualReportRecordsTable );
+		getSearchTermsFieldsMock.mockReturnValue( [
+			{
+				id: 'term',
+				label: 'Search term',
+				enableGlobalSearch: true,
+				getValue: ( { item } ) => item.term,
+			},
+		] );
+		mockRecords( {} );
+		const user = userEvent.setup();
+
+		render( <SearchTermsReportPage /> );
+		await user.type( screen.getByRole( 'searchbox' ), 'no visitor searched this' );
+
+		await expect( screen.findByText( 'No results' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'searchbox' ) ).toBeInTheDocument();
+		expect( reportEmptyStateMock ).not.toHaveBeenCalled();
 	} );
 } );

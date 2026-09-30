@@ -50,7 +50,7 @@ test( 'the legacy grade explanation keeps its full default description', () => {
 	render( <GradeExplanation /> );
 	expect(
 		screen.getByText(
-			"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance."
+			"Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance."
 		)
 	).toBeInTheDocument();
 } );
@@ -188,6 +188,34 @@ test.each( [
 
 	await waitFor( () => expect( screen.getByText( explanation ) ).toBeVisible() );
 } );
+
+test.each( [
+	[ 'a positive', 50, '+10 points', 'Points gained from optimizations' ],
+	[ 'a clamped negative', 80, '0 points', 'Speed score has fallen' ],
+] )(
+	'opens the points explanation when %s badge is hovered',
+	async ( _description, baseline, label, explanation ) => {
+		render(
+			<ScoreCards
+				scores={ {
+					current: { desktop: 80, mobile: 60 },
+					noBoost: { desktop: 80, mobile: baseline },
+					isStale: false,
+				} }
+			/>
+		);
+		const card = within( screen.getByRole( 'region', { name: 'Mobile' } ) );
+		const badge = card.getByText( label );
+		expect( badge ).not.toHaveAttribute( 'tabindex' );
+		expect( badge ).not.toHaveAttribute( 'role' );
+		expect( card.getAllByRole( 'button' ) ).toEqual( [
+			card.getByRole( 'button', { name: 'About points' } ),
+		] );
+		fireEvent.mouseEnter( badge );
+		fireEvent.mouseMove( badge );
+		await waitFor( () => expect( screen.getByText( explanation ) ).toBeVisible() );
+	}
+);
 
 test( 'shows one calculating status instead of the score sections before scores load', () => {
 	const { container } = render(

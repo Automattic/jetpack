@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-IconTooltip: Add a `label` prop to give the icon trigger an accessible name.

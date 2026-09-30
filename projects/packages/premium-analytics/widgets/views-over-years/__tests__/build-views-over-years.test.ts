@@ -153,8 +153,14 @@ describe( 'buildViewsOverYearsRows', () => {
 		expect( rows[ 1 ].total ).toBe( 0 );
 	} );
 
-	it( 'returns nothing without a month of views', () => {
-		expect( buildViewsOverYearsRows( [], 'total', TODAY ) ).toEqual( [] );
-		expect( buildViewsOverYearsRows( [ bucket( 2026, 0, 0 ) ], 'total', TODAY ) ).toEqual( [] );
+	it( 'draws the current month alone, at zero, without a month of views', () => {
+		const currentMonthOnly = [
+			{ year: 2026, months: [ null, null, 0, ...Array( 9 ).fill( null ) ], total: 0 },
+		];
+
+		expect( buildViewsOverYearsRows( [], 'total', TODAY ) ).toEqual( currentMonthOnly );
+		expect( buildViewsOverYearsRows( [ bucket( 2026, 0, 0 ) ], 'average', TODAY ) ).toEqual(
+			currentMonthOnly
+		);
 	} );
 } );

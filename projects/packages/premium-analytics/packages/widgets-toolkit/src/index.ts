@@ -115,6 +115,7 @@ export {
 	SemiCircleChart,
 	type SemiCircleChartData,
 	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageActions,
@@ -141,6 +142,7 @@ export {
 	type LocationsGeoRow,
 	ReportChartSection,
 	ReportDrilldownTable,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -150,6 +152,8 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
@@ -279,8 +283,10 @@ export {
  * Hooks
  */
 export {
+	DashboardSectionProvider,
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
 	useWidgetNavigationSearch,

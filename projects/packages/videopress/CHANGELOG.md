@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.54.0] - 2026-09-29
+### Added
+- Playlist blocks: Add a "Show player" setting; when off, clicking a video opens it on VideoPress. [#52808]
+
+### Changed
+- Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
+
+### Fixed
+- Admin: Keep the "Learn more" support link up to date through the redirect service. [#52907]
+- Dashboard: Ask before deleting videos, and warn before leaving the page while an upload is running. [#52815]
+- Dashboard: Stop logging a console error about missing Jetpack configuration. [#52809]
+
+## [0.53.0] - 2026-09-28
+### Added
+- Add an All Playlists block that lists every Video Playlist published on the site as a grid or a list. [#52724]
+- Add a site-wide playlist index option that records every published Video Playlist, and give the Video Playlist block title and description settings. [#52729]
+- Add a trim and cut editor with preview, undo and original video restoration, behind the `jetpack_videopress_trim_cut` filter. [#52857]
+
+### Fixed
+- Dashboard: Fix a just-uploaded video briefly showing up a second time as a local video in the Library. [#52822]
+- Library: Prevent the empty library prompt from appearing while videos are loading. [#52819]
+- Show Jetpack in-dashboard messages on the dashboard again. [#52641]
+- Show poster generation errors and allow retrying a failed video frame. [#52759]
+
 ## [0.52.0] - 2026-09-23
 ### Added
 - Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings. [#52665]
@@ -2274,6 +2298,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Created empty package [#24952]
 
+[0.54.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.53.0...v0.54.0
+[0.53.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.52.0...v0.53.0
 [0.52.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.1...v0.52.0
 [0.51.1]: https://github.com/Automattic/jetpack-videopress/compare/v0.51.0...v0.51.1
 [0.51.0]: https://github.com/Automattic/jetpack-videopress/compare/v0.50.2...v0.51.0

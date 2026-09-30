@@ -1,5 +1,6 @@
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
+import { useDispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import {
 	createHistory,
@@ -13,7 +14,6 @@ import { createEditSession, editSessionReducer, sessionEditsEqual } from './stat
 import { isDirty, sessionToOperations } from './state/serialize';
 import type { EditSession, EditSessionAction } from './state/edit-session';
 import type { HistoryAction } from '../../../client/components/chapters-editor/state/history';
-import type { SaveVideoCopyVars } from '../../hooks/use-save-video-copy';
 import type { SaveEditsResponse, VideoEdits } from '../../types/edits';
 import type { LibraryItem } from '../../types/library';
 
@@ -25,16 +25,15 @@ const reducer = withHistory< EditSession, EditSessionAction >( editSessionReduce
 /**
  * Keep local edits against the revision they were made on until a processing job commits.
  *
- * @param video       - The attachment being edited.
- * @param copyRequest - Recover the draft and its revision from a pending copy after navigation.
+ * @param video - The attachment being edited.
  * @return The edit session, processing state, and save/restore actions.
  */
-export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyVars | null ) {
+export function useEditSession( video: LibraryItem ) {
 	const query = useVideoEdits( video.guid );
 	const saveMutation = useSaveVideoEdits();
 	const restoreMutation = useRestoreOriginal();
 	const retryMutation = useRetryVideoProcessing();
-	const notices = useGlobalNotices();
+	const notices = useDispatch( noticesStore );
 	const noticesRef = useRef( notices );
 	noticesRef.current = notices;
 	const [ history, dispatch ] = useReducer( reducer, video.durationSeconds, duration =>
@@ -102,19 +101,12 @@ export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyV
 			if ( edits.job.status === 'complete' ) {
 				adopt( edits );
 				noticesRef.current.createSuccessNotice(
-					__( 'Video edits applied.', 'jetpack-videopress-pkg' )
+					__( 'Video edits applied.', 'jetpack-videopress-pkg' ),
+					{ type: 'snackbar' }
 				);
 			}
 		} else if ( ! currentBaseline ) {
 			adopt( edits );
-			if ( copyRequest ) {
-				dispatch( {
-					type: 'LOAD',
-					operations: copyRequest.operations,
-					durationMs: edits.original_duration_ms,
-				} );
-				setConflict( copyRequest.baseRevision !== edits.revision );
-			}
 		} else if ( edits.revision !== currentBaseline.revision ) {
 			if ( pendingJob || current.dirty ) {
 				pendingRef.current = null;
@@ -124,7 +116,7 @@ export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyV
 				adopt( edits );
 			}
 		}
-	}, [ query.edits, pending, adopt, copyRequest ] );
+	}, [ query.edits, pending, adopt ] );
 
 	const guardedDispatch = useCallback( ( action: HistoryAction< EditSessionAction > ) => {
 		if ( ! stateRef.current.locked && ! stateRef.current.conflict ) {
@@ -166,7 +158,8 @@ export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyV
 					setConflict( true );
 				} else {
 					noticesRef.current.createErrorNotice(
-						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' )
+						__( 'Unable to apply video edits. Please try again.', 'jetpack-videopress-pkg' ),
+						{ type: 'snackbar' }
 					);
 				}
 			} finally {
@@ -192,7 +185,8 @@ export function useEditSession( video: LibraryItem, copyRequest?: SaveVideoCopyV
 			setPending( response );
 		} catch {
 			noticesRef.current.createErrorNotice(
-				__( 'Unable to retry processing. Please try again.', 'jetpack-videopress-pkg' )
+				__( 'Unable to retry processing. Please try again.', 'jetpack-videopress-pkg' ),
+				{ type: 'snackbar' }
 			);
 			void query.refetch();
 		} finally {

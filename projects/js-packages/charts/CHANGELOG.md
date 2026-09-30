@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.6.0] - 2026-09-29
+### Added
+- Geo Chart: Add a displayMode prop to draw rows as markers. [#52859]
+
+## [4.5.0] - 2026-09-28
+### Added
+- GeoChart: Add a `domain` prop that draws disputed borders from a given country's viewpoint. [#52805]
+
+### Deprecated
+- Deprecate `getColorDistance`, which is no longer used to generate palette colors. [#52680]
+
+### Fixed
+- Bar chart: End a keyboard selection when the pointer moves over the chart, instead of flickering between the hovered and selected bars. [#52821]
+- Keep generated series colors distinguishable from each other, including for color-blind viewers, and legible on the chart background. [#52680]
+- Pick pie label text that contrasts with each slice. [#52680]
+
 ## [4.4.0] - 2026-09-23
 ### Added
 - Bar chart: Add per-datum bar classes and tooltip box style overrides. [#52547]
@@ -1115,6 +1131,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed lints following ESLint rule changes for TS [#40584]
 - Fixing a bug in Chart storybook data. [#40640]
 
+[4.6.0]: https://github.com/Automattic/charts/compare/v4.5.0...v4.6.0
+[4.5.0]: https://github.com/Automattic/charts/compare/v4.4.0...v4.5.0
 [4.4.0]: https://github.com/Automattic/charts/compare/v4.3.0...v4.4.0
 [4.3.0]: https://github.com/Automattic/charts/compare/v4.2.0...v4.3.0
 [4.2.0]: https://github.com/Automattic/charts/compare/v4.1.1...v4.2.0

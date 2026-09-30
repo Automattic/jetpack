@@ -6,6 +6,7 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportCsvAction,
+	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -103,7 +104,25 @@ function AuthorsReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.authors;
+	const { getLabel } = REPORTS.authors;
+
+	let tableReplacement: JSX.Element | undefined;
+
+	/*
+	 * Replace the row-count-based table state when either request fails,
+	 * so cached rows are not shown as current and an initial failure does
+	 * not look like a legitimate empty report.
+	 */
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load authors', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	} else if ( ! records.isLoading && records.rows.length === 0 ) {
+		tableReplacement = <ReportEmptyState />;
+	}
 
 	return (
 		<ReportPageShell
@@ -115,18 +134,8 @@ function AuthorsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ /*
-				 * Replace the row-count-based table state when either request fails,
-				 * so cached rows are not shown as current and an initial failure does
-				 * not look like a legitimate empty report.
-				 */ }
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load authors', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				{ tableReplacement ?? (
 					<ReportDrilldownTable< AuthorRow >
 						data={ records.rows }
 						fields={ fields }

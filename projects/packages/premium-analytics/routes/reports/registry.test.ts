@@ -25,13 +25,13 @@ function setVideoPress( hasVideoPress: boolean ) {
 }
 
 /**
- * Point the mocked script data at a preview exposing only the given tabs.
+ * Point the mocked script data at a dashboard exposing only the given tabs.
  *
- * @param sections - URL-facing slugs of the tabs the preview exposes.
+ * @param sections - URL-facing slugs of the tabs the dashboard exposes.
  */
-function setPreviewSections( sections: string[] ) {
+function setAvailableSections( sections: string[] ) {
 	mockGetScriptData.mockReturnValue( {
-		premium_analytics: { has_videopress: true, preview_sections: sections },
+		premium_analytics: { has_videopress: true, sections },
 	} );
 }
 
@@ -89,31 +89,31 @@ describe( 'getReportDefinition', () => {
 		expect( getReportDefinition( 'videos' ) ).toBeUndefined();
 	} );
 
-	it( 'hides a report whose tab the preview does not expose', () => {
-		setPreviewSections( [ 'traffic' ] );
+	it( 'hides a report whose tab the dashboard does not expose', () => {
+		setAvailableSections( [ 'traffic' ] );
 
 		expect( getReportDefinition( 'comments' ) ).toBeUndefined();
 		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
 		// The Ads tab carries its own availability gate (WordAds active, and the
-		// user can read ad reports), which reaches this report only through the scope.
+		// user can read ad reports), which reaches this report only through the published tabs.
 		expect( getReportDefinition( 'earnings' ) ).toBeUndefined();
 	} );
 
-	it( 'keeps the Traffic reports while the preview is scoped', () => {
-		setPreviewSections( [ 'traffic' ] );
+	it( 'keeps the Traffic reports while other tabs are hidden', () => {
+		setAvailableSections( [ 'traffic' ] );
 
 		expect( getReportDefinition( 'posts' )?.id ).toBe( 'posts' );
 		expect( getReportDefinition( 'videos' )?.id ).toBe( 'videos' );
 	} );
 
-	it( 'opens a report once its tab joins the scope', () => {
-		setPreviewSections( [ 'traffic', 'insights' ] );
+	it( 'opens a report once its tab is available', () => {
+		setAvailableSections( [ 'traffic', 'insights' ] );
 
 		expect( getReportDefinition( 'comments' )?.id ).toBe( 'comments' );
 		expect( getReportDefinition( 'emails' ) ).toBeUndefined();
 	} );
 
-	it( 'leaves every report available when no scope was published', () => {
+	it( 'leaves every report available when no tab list was published', () => {
 		expect( getReportDefinition( 'comments' )?.id ).toBe( 'comments' );
 		expect( getReportDefinition( 'emails' )?.id ).toBe( 'emails' );
 	} );
@@ -135,8 +135,12 @@ describe( 'REPORTS', () => {
 		return grouped;
 	}
 
+	it.each( Object.keys( REPORTS ) )( 'keys %s by its own id', key => {
+		expect( REPORTS[ key ].id ).toBe( key );
+	} );
+
 	// Most reports are Traffic, so a new one lands on the right tab by accident far more
-	// often than by intent; a wrong tab is silent until a scoped preview hides the report.
+	// often than by intent; a wrong tab is silent until a hidden tab hides the report.
 	it( 'places every report on its intended tab', () => {
 		expect( reportsBySection() ).toEqual( {
 			traffic: [

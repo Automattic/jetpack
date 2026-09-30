@@ -144,7 +144,7 @@ describe( 'useConnectionErrorNotice — error detection', () => {
 				real_code: { 1: { error_message: 'Real WPCOM error', error_type: 'a' } },
 			},
 			connectionHealthErrors: {
-				failed_test__outbound_https: {
+				failed_test__wpcom_connection_test: {
 					0: { error_message: 'Health error', error_type: 'connection_health' },
 				},
 			},

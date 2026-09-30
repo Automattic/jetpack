@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
+import { useStatsPost, useStatsPostComments, toPostId } from '@jetpack-premium-analytics/data';
 import { formatRelativeSince } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
@@ -25,7 +25,7 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type PostCommentsRenderAttributes = PostCommentsAttributes & Partial< ReportParamsFieldAttributes >;
 type PostCommentsWidgetProps = WidgetRenderProps< PostCommentsRenderAttributes >;
 
-/** How many comments to list; `found` feeds the "N more" footer. */
+/** How many comments to list. */
 const COMMENTS_SHOWN = 10;
 
 /**
@@ -39,6 +39,8 @@ function PostCommentsInner() {
 		postId,
 		number: COMMENTS_SHOWN,
 	} );
+
+	const { data: postStats } = useStatsPost( { postId, fields: [ 'post' ] } );
 
 	const items = useMemo< SubscriberListItem[] >(
 		() =>
@@ -54,7 +56,9 @@ function PostCommentsInner() {
 		[ data ]
 	);
 
-	const found = data?.found ?? 0;
+	// A short page holds every comment; only a full one needs the post's total.
+	const isShortPage = ( data?.fetchedCount ?? 0 ) < COMMENTS_SHOWN;
+	const total = isShortPage ? items.length : postStats?.post?.comment_count;
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (
@@ -85,7 +89,10 @@ function PostCommentsInner() {
 							: __( 'There are no comments yet.', 'jetpack-premium-analytics-pkg' ),
 				} }
 			>
-				<SubscriberList items={ items } moreCount={ Math.max( 0, found - items.length ) } />
+				<SubscriberList
+					items={ items }
+					moreCount={ total === undefined ? null : Math.max( 0, total - items.length ) }
+				/>
 			</WidgetState>
 		</div>
 	);

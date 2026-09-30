@@ -6,6 +6,7 @@ import {
 	needsReportDateParamsSeed,
 	queryClient,
 } from '@jetpack-premium-analytics/data';
+import { DashboardSectionProvider } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import { getSettings, setSettings } from '@wordpress/date';
@@ -224,6 +225,18 @@ describe( 'PopularPostWidget', () => {
 				preset: search.get( 'preset' ) as 'last-12-months',
 			} )
 		).toBe( false );
+	} );
+
+	it( 'names the dashboard tab the detail page should return to', async () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<PopularPostWidget attributes={ { reportParams: yearReportParams( 2022 ) } } />
+			</DashboardSectionProvider>
+		);
+
+		const link = await screen.findByRole( 'link', { name: 'Winning post' } );
+
+		expect( getMockRouteLinkUrl( link ).searchParams.get( 'ds' ) ).toBe( 'insights' );
 	} );
 
 	it( 'renders on a saved instance that carries no report params', async () => {

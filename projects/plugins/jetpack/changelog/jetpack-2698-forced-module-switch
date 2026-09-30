@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Modules: Report an error instead of success in WP-CLI and the REST API when switching a module your host or site administrator has enabled or disabled.

@@ -536,6 +536,17 @@ class Post_Handler_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A form rendered before the site went offline must not switch the module off on its way back.
+	 */
+	public function test_comment_likes_save_leaves_the_module_alone_offline(): void {
+		$this->given_offline_mode();
+
+		$active = $this->save_comment_likes_with( array( 'likes', 'comment-likes' ), array( Settings_Form::SECTION_COMMENT_LIKES ), array() );
+
+		$this->assertSame( array( 'likes', 'comment-likes' ), $active );
+	}
+
+	/**
 	 * Count `sharing_admin_update` over one save claiming the given sections.
 	 *
 	 * @param string[] $sections Sections the form claims.
