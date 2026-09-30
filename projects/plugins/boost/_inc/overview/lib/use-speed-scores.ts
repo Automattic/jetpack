@@ -56,7 +56,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 			setState( previous => ( {
 				...previous,
 				status: 'loading',
-				isRunning: regenerate,
+				isRunning: regenerate || ( previous.status === 'loading' && previous.isRunning ),
 				error: undefined,
 			} ) );
 			try {

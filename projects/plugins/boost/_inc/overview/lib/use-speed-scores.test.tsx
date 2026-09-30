@@ -158,6 +158,45 @@ test.each( [ false, true ] )(
 	}
 );
 
+test( 'retains a pending run when the subpage closes', async () => {
+	const { result, rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+		wrapper,
+		initialProps: true,
+	} );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	const nextScores = { current: { mobile: 88, desktop: 95 }, noBoost: null, isStale: false };
+	let resolveRequest!: ( scores: typeof nextScores ) => void;
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( () => new Promise( () => {} ) )
+		.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveRequest = resolve;
+				} )
+		);
+	act( () => {
+		void result.current[ 1 ]( true );
+	} );
+	expect( result.current[ 0 ].isRunning ).toBe( true );
+	rerender( false );
+	rerender( true );
+	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+		false,
+		wpApiSettings.root,
+		'https://example.org',
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
+	);
+	expect( result.current[ 0 ] ).toMatchObject( { status: 'loading', isRunning: true } );
+	await act( async () => resolveRequest( nextScores ) );
+	expect( result.current[ 0 ] ).toMatchObject( {
+		status: 'loaded',
+		isRunning: false,
+		scores: nextScores,
+	} );
+} );
+
 test( 'regenerates after changed module configuration settles and waits two seconds', async () => {
 	jest.useFakeTimers();
 	try {
