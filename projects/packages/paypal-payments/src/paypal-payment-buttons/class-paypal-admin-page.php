@@ -299,6 +299,15 @@ class PayPal_Admin_Page {
 			);
 		} else {
 			set_transient( 'paypal_admin_notice_' . get_current_user_id(), self::deleted_link_notice( $resource_id ), 30 );
+
+			PayPal_Tracks::record_event(
+				'jetpack_paypal_button_deleted',
+				array(
+					'environment'  => PayPal_OAuth::get_environment(),
+					'source'       => 'admin',
+					'already_gone' => false,
+				)
+			);
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) );
@@ -582,6 +591,8 @@ class PayPal_Admin_Page {
 			return;
 		}
 
+		PayPal_Tracks::record_event( 'jetpack_paypal_admin_page_viewed', array( 'environment' => PayPal_OAuth::get_environment() ) );
+
 		// List table.
 		$table = new PayPal_Payment_Links_List_Table();
 		$table->prepare_items();
@@ -664,6 +675,8 @@ class PayPal_Admin_Page {
 			);
 			return;
 		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_admin_detail_viewed', array( 'environment' => PayPal_OAuth::get_environment() ) );
 
 		$line_item = $resource['line_items'][0] ?? array();
 		$name      = $line_item['name'] ?? $resource_id;

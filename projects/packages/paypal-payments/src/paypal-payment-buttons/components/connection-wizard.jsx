@@ -5,6 +5,7 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import { Button, Notice, TextControl, ToggleControl } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { ONBOARDING_SANDBOX } from '../utils/paypal-partner-sdk';
@@ -96,6 +97,7 @@ export function OnboardingFrame( { signupUrl, isOverlayOpen, setFrameNode, cance
  * @param {Function} props.handleClientSecretChange  - Change handler for the Client Secret field.
  * @param {string}   props.clientIdWarning           - Client ID format warning, or null.
  * @param {Function} props.handleConnect             - Submit the manual credentials.
+ * @param {Function} props.recordWizardStarted       - Record the merchant's first click in the wizard.
  * @param {Function} props.fetchSignupLink           - Fetch the Partner Referrals link.
  * @return {Element} The connection wizard.
  */
@@ -125,6 +127,7 @@ export default function ConnectionWizard( {
 	handleClientSecretChange,
 	clientIdWarning,
 	handleConnect,
+	recordWizardStarted,
 	fetchSignupLink,
 } ) {
 	// Pre-compute the "Connect PayPal" button label to avoid nested ternary.
@@ -209,6 +212,8 @@ export default function ConnectionWizard( {
 						<Button
 							variant="primary"
 							onClick={ () => {
+								recordWizardStarted();
+
 								// A frame built after the click misses that click's user
 								// activation, so PayPal's window.open inside it is
 								// popup-blocked. Fetch the referral and stop; that
@@ -218,6 +223,10 @@ export default function ConnectionWizard( {
 									return;
 								}
 
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_connection_attempted', {
+									environment,
+									method: 'partner_referrals',
+								} );
 								setOnboardingRequested( true );
 							} }
 							isBusy={ isOpeningPayPal || isCompletingOnboarding }
@@ -236,7 +245,13 @@ export default function ConnectionWizard( {
 						</Notice>
 					) }
 					<p className="jetpack-paypal-wizard__hint">
-						<Button variant="link" onClick={ () => setWizardStep( 'dashboard' ) }>
+						<Button
+							variant="link"
+							onClick={ () => {
+								recordWizardStarted();
+								setWizardStep( 'dashboard' );
+							} }
+						>
 							{ __( 'Or enter your API credentials manually', 'jetpack-paypal-payments' ) }
 						</Button>
 					</p>
@@ -271,6 +286,7 @@ export default function ConnectionWizard( {
 							}` }
 							target="_blank"
 							rel="noopener noreferrer"
+							onClick={ recordWizardStarted }
 						>
 							{ __( 'Open PayPal Dashboard ↗', 'jetpack-paypal-payments' ) }
 						</Button>
@@ -282,7 +298,16 @@ export default function ConnectionWizard( {
 						) }
 					</p>
 					<div className="jetpack-paypal-wizard__actions">
-						<Button variant="primary" onClick={ () => setWizardStep( 'credentials' ) }>
+						<Button
+							variant="primary"
+							onClick={ () => {
+								recordWizardStarted();
+								jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_wizard_credentials_reached', {
+									environment,
+								} );
+								setWizardStep( 'credentials' );
+							} }
+						>
 							{ __( 'I have my credentials — Next', 'jetpack-paypal-payments' ) }
 						</Button>
 					</div>
