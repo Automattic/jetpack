@@ -69,19 +69,21 @@ class Block_Editor {
 			return (object) array();
 		}
 
-		// Keyed by version too: an update brings new translation files.
-		$key      = 'jetpack_comments_editor_i18n_' . md5( $locale . get_bloginfo( 'version' ) );
+		// Keyed by the WordPress version and the string list, whose updates bring new strings.
+		$strings  = __DIR__ . '/strings.php';
+		$key      = 'jetpack_comments_editor_i18n_' . md5( $locale . get_bloginfo( 'version' ) . md5_file( $strings ) );
 		$messages = get_transient( $key );
 
 		if ( ! is_array( $messages ) ) {
 			$messages = array();
+			$wanted   = array_flip( require $strings ) + array( '' => true );
 
 			foreach ( array( 'wp-a11y', 'wp-block-editor', 'wp-block-library', 'wp-blocks', 'wp-components', 'wp-format-library', 'wp-rich-text' ) as $handle ) {
 				$json = load_script_textdomain( $handle, 'default' );
 				$data = is_string( $json ) ? json_decode( $json, true ) : null;
 
 				if ( isset( $data['locale_data']['messages'] ) && is_array( $data['locale_data']['messages'] ) ) {
-					$messages += array_intersect_key( $data['locale_data']['messages'], array_flip( require __DIR__ . '/strings.php' ) + array( '' => true ) );
+					$messages += array_intersect_key( $data['locale_data']['messages'], $wanted );
 				}
 			}
 
@@ -91,7 +93,8 @@ class Block_Editor {
 				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
 			}
 
-			set_transient( $key, $messages, WEEK_IN_SECONDS );
+			// A day, so an updated language pack shows soon after.
+			set_transient( $key, $messages, DAY_IN_SECONDS );
 		}
 
 		return (object) $messages;
@@ -210,12 +213,17 @@ class Block_Editor {
 	}
 
 	/**
-	 * Whether the edit-comment screen is open on a comment that holds blocks.
+	 * Whether the edit-comment screen is open on a comment that holds blocks, and the
+	 * block editor is on.
 	 *
 	 * @return bool
 	 */
 	private static function is_editing_blocks() {
 		global $pagenow;
+
+		if ( ! self::is_enabled() ) {
+			return false;
+		}
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- which comment the screen shows, read only.
 		$comment = 'comment.php' === $pagenow && isset( $_GET['c'] ) ? get_comment( absint( $_GET['c'] ) ) : null;

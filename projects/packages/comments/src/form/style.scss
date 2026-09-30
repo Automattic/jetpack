@@ -92,17 +92,17 @@
 	}
 }
 
-// The editor's text alignment, in the editor and in posted comments, for themes
-// that leave out core's block styles.
-.has-text-align-left {
+// The editor's text alignment in posted comments, for themes that leave
+// out core's block styles. Core gives every comment the comment class.
+.comment .has-text-align-left {
 	text-align: left;
 }
 
-.has-text-align-center {
+.comment .has-text-align-center {
 	text-align: center;
 }
 
-.has-text-align-right {
+.comment .has-text-align-right {
 	text-align: right;
 }
 

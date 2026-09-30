@@ -73,11 +73,6 @@
 			height: 32px;
 		}
 
-		&.is-compact.has-icon:not(.has-text) {
-			min-width: 32px;
-			padding: 0;
-		}
-
 		&.is-small {
 			min-width: 24px;
 			height: 24px;
@@ -190,6 +185,12 @@
 		::before,
 		::after {
 			box-sizing: inherit;
+		}
+
+		// Not in the toolbar, whose formatting buttons are compact too.
+		.components-button.is-compact.has-icon:not(.has-text) {
+			min-width: 32px;
+			padding: 0;
 		}
 	}
 
@@ -374,6 +375,18 @@
 			content: attr(data-rich-text-placeholder);
 			opacity: 0.62;
 		}
+	}
+
+	.has-text-align-left {
+		text-align: left;
+	}
+
+	.has-text-align-center {
+		text-align: center;
+	}
+
+	.has-text-align-right {
+		text-align: right;
 	}
 
 	.wp-block-code code {
