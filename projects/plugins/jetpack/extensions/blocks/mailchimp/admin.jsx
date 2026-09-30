@@ -10,6 +10,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 	const [ selectedAudience, setSelectedAudience ] = useState( 'none' );
 	const [ isLoading, setIsLoading ] = useState( false );
 	const [ saveStatus, setSaveStatus ] = useState( '' );
+	const [ isSaving, setIsSaving ] = useState( false );
 
 	useEffect( () => {
 		if ( ! isConnected ) {
@@ -39,6 +40,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 	}
 
 	// Save right away so the block works without submitting the form; "None" still waits for Save Changes.
+	// One save at a time, or responses landing out of order could store an earlier pick.
 	const onChange = e => {
 		const audience = e.target.value;
 		setSelectedAudience( audience );
@@ -46,6 +48,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 			setSaveStatus( '' );
 			return;
 		}
+		setIsSaving( true );
 		setSaveStatus( __( 'Saving…', 'jetpack' ) );
 		apiFetch( {
 			path: '/wpcom/v2/mailchimp/settings',
@@ -53,9 +56,8 @@ const MailchimpSettings = ( { isConnected } ) => {
 			data: { follower_list_id: audience },
 		} )
 			.then( () => setSaveStatus( __( 'Saved.', 'jetpack' ) ) )
-			.catch( error =>
-				setSaveStatus( error?.message || __( 'Settings save failed.', 'jetpack' ) )
-			);
+			.catch( error => setSaveStatus( error?.message || __( 'Settings save failed.', 'jetpack' ) ) )
+			.finally( () => setIsSaving( false ) );
 	};
 
 	return (
@@ -67,7 +69,7 @@ const MailchimpSettings = ( { isConnected } ) => {
 					name="jetpack-mailchimp-audience"
 					onChange={ onChange }
 					value={ selectedAudience }
-					disabled={ isLoading }
+					disabled={ isLoading || isSaving }
 				>
 					{ audiences.map( audience => (
 						<option key={ audience.id } value={ audience.id }>
@@ -76,9 +78,9 @@ const MailchimpSettings = ( { isConnected } ) => {
 					) ) }
 				</select>
 			</label>
-			<span className="jetpack-mailchimp-settings__status" role="status">
+			<p className="description" role="status">
 				{ saveStatus }
-			</span>
+			</p>
 		</div>
 	);
 };
