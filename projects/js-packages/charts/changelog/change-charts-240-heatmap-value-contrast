@@ -1,4 +1,4 @@
-Significance: patch
+Significance: minor
 Type: fixed
 
 Heatmap and pie charts: Keep values drawn on a fill at WCAG AA contrast, falling back to black or white where neither label color passes, and deprecate prefersLightText.
