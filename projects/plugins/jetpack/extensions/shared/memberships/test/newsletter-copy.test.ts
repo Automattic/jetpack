@@ -2,7 +2,9 @@ import { getAccessDescription, getNewsletterOverviewText } from '../newsletter-c
 
 describe( 'getAccessDescription', () => {
 	test( 'describes open access for everybody', () => {
-		expect( getAccessDescription( 'everybody' ) ).toBe( 'Anyone can read it on your site.' );
+		expect( getAccessDescription( 'everybody' ) ).toBe(
+			'Anyone can read it on your site, even if they’ve never subscribed.'
+		);
 	} );
 
 	test( 'describes the subscriber preview for subscribers', () => {
@@ -13,7 +15,7 @@ describe( 'getAccessDescription', () => {
 
 	test( 'describes the paid preview for paid subscribers', () => {
 		expect( getAccessDescription( 'paid_subscribers' ) ).toBe(
-			'Only paid subscribers can read it on your site. Others see a preview and can subscribe or upgrade.'
+			'Only paid subscribers can read it on your site. Others see a preview and can subscribe.'
 		);
 	} );
 
@@ -25,15 +27,17 @@ describe( 'getAccessDescription', () => {
 
 	test( 'splits access at the paywall when one is present', () => {
 		expect( getAccessDescription( 'subscribers', true ) ).toBe(
-			'Anyone can read it up to your paywall. Only subscribers can read the rest.'
+			'Only subscribers can read the full post. Others see a preview and can subscribe.'
 		);
 		expect( getAccessDescription( 'paid_subscribers', true, 'Plus' ) ).toBe(
-			'Anyone can read it up to your paywall. Only paid subscribers can read the rest.'
+			'Only paid subscribers can read the full post. Others see a preview and can subscribe.'
 		);
 	} );
 
 	test( 'falls back to the open description for an unknown access level', () => {
-		expect( getAccessDescription( undefined ) ).toBe( 'Anyone can read it on your site.' );
+		expect( getAccessDescription( undefined ) ).toBe(
+			'Anyone can read it on your site, even if they’ve never subscribed.'
+		);
 	} );
 } );
 
@@ -90,7 +94,7 @@ describe( 'getNewsletterOverviewText', () => {
 		).toEqual( {
 			main: 'This post is emailed to all subscribers. Free subscribers get it up to your paywall.',
 			details: [
-				'Anyone can read it up to your paywall. Only paid subscribers can read the rest.',
+				'Only paid subscribers can read the full post. Others see a preview and can subscribe.',
 			],
 		} );
 	} );
@@ -102,7 +106,7 @@ describe( 'getNewsletterOverviewText', () => {
 				accessLevel: 'paid_subscribers',
 				tierName: 'Plus',
 			} ).main
-		).toBe( 'Only subscribers on your ‘Plus’ tier are emailed this post.' );
+		).toBe( 'Only your ‘Plus’ subscribers are emailed this post.' );
 	} );
 
 	test( 'narrows the email to the chosen categories, plus All content subscribers', () => {
@@ -147,7 +151,7 @@ describe( 'getNewsletterOverviewText', () => {
 					isPasswordProtected,
 				} )
 			).toEqual( {
-				main: 'This post is emailed to subscribers on your ‘Plus’ tier who chose these newsletter categories.',
+				main: 'This post is emailed to ‘Plus’ subscribers who chose these newsletter categories.',
 				categoryNames: [ 'Movies' ],
 				details: [
 					'Plus subscribers on your ‘Plus’ tier who chose ‘All content’.',
@@ -173,7 +177,7 @@ describe( 'getNewsletterOverviewText', () => {
 			categoryNames: [ 'Movies' ],
 			details: [
 				'Plus subscribers who chose ‘All content’.',
-				'Anyone can read it up to your paywall. Only paid subscribers can read the rest.',
+				'Only paid subscribers can read the full post. Others see a preview and can subscribe.',
 			],
 		} );
 	} );
@@ -196,7 +200,7 @@ describe( 'getNewsletterOverviewText', () => {
 
 	test( 'treats an unknown access level as public', () => {
 		expect( getNewsletterOverviewText( { ...settings, accessLevel: undefined } ).details ).toEqual(
-			[ 'Anyone can read it on your site.' ]
+			[ 'Anyone can read it on your site, even if they’ve never subscribed.' ]
 		);
 	} );
 } );

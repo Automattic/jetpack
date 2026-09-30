@@ -165,7 +165,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 	test( 'labels the radio group with the question it answers', () => {
 		renderPanel();
 		expect(
-			screen.getByRole( 'radiogroup', { name: /who can read this post\?/i } )
+			screen.getByRole( 'radiogroup', { name: /who can read this on your site\?/i } )
 		).toBeInTheDocument();
 	} );
 
