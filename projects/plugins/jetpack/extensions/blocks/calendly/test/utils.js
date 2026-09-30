@@ -141,6 +141,7 @@ describe( 'normalizeCalendlyUrl', () => {
 		'https://calendly.com.evil.example/fake',
 		'https://calendly.com@evil.example/fake',
 		'https://evil.example/fake',
+		'javascript://calendly.com/%0aalert(1)',
 	] )( 'rejects %s', url => {
 		expect( normalizeCalendlyUrl( url ) ).toBeUndefined();
 	} );

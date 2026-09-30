@@ -10,7 +10,13 @@ export function normalizeCalendlyUrl( input ) {
 	try {
 		const url = new URL( input );
 
-		if ( 'calendly.com' !== url.hostname || url.username || url.password || url.port ) {
+		if (
+			! [ 'http:', 'https:' ].includes( url.protocol ) ||
+			'calendly.com' !== url.hostname ||
+			url.username ||
+			url.password ||
+			url.port
+		) {
 			return undefined;
 		}
 
