@@ -1,5 +1,4 @@
 $actions-size: 28px;
-$status-size: 8px;
 
 .container {
 	position: relative;
@@ -88,45 +87,9 @@ $status-size: 8px;
 	display: flex;
 	align-items: center;
 
-	&::before {
-		content: "";
-		display: inline-block;
-		width: $status-size;
-		height: $status-size;
-		margin-right: var(--spacing-base);
-		border-radius: 50%;
+	&.is-fetching > * {
+		animation: blink-animation 0.5s linear infinite;
 	}
-
-	// in plugin absent case, there's not status flag
-	$statuses: (
-		"active": "--jp-green-50",
-		"inactive": "--jp-gray-50",
-		"warning": "--jp-yellow-50",
-		"error": "--jp-red-60"
-	);
-
-	@each $status, $var in $statuses {
-		$color: var(#{$var});
-
-		&.#{$status} {
-			color: $color;
-
-			&::before {
-				background: $color;
-			}
-		}
-	}
-
-	&.is-fetching {
-
-		&::before {
-			animation: blink-animation 0.5s linear infinite;
-		}
-	}
-}
-
-.is-slim {
-	padding: 0;
 }
 
 @keyframes blink-animation {
