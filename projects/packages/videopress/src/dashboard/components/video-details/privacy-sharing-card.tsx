@@ -8,6 +8,7 @@ type Props = {
 	privacy: LibraryItemPrivacy;
 	displayEmbed: boolean;
 	allowDownloads: boolean;
+	shareMenuDisabledForSite?: boolean;
 	onChange: ( partial: {
 		privacy?: LibraryItemPrivacy;
 		displayEmbed?: boolean;
@@ -32,17 +33,19 @@ const PRIVACY_OPTIONS: { label: string; value: LibraryItemPrivacy }[] = [
  * collapsing costs no information at a glance — you still see "Public" or
  * "Private" without opening anything.
  *
- * @param props                - Component props.
- * @param props.privacy        - Current privacy value.
- * @param props.displayEmbed   - Whether the share menu is displayed.
- * @param props.allowDownloads - Whether downloads are allowed.
- * @param props.onChange       - Partial-update handler from the form hook.
+ * @param props                          - Component props.
+ * @param props.privacy                  - Current privacy value.
+ * @param props.displayEmbed             - Whether the share menu is displayed.
+ * @param props.allowDownloads           - Whether downloads are allowed.
+ * @param props.shareMenuDisabledForSite - Whether the site setting hides the share menu on every video.
+ * @param props.onChange                 - Partial-update handler from the form hook.
  * @return The card element.
  */
 export default function PrivacySharingCard( {
 	privacy,
 	displayEmbed,
 	allowDownloads,
+	shareMenuDisabledForSite = false,
 	onChange,
 }: Props ): ReactElement {
 	const currentPrivacyLabel =
@@ -70,11 +73,19 @@ export default function PrivacySharingCard( {
 					<ToggleControl
 						__nextHasNoMarginBottom
 						label={ __( 'Share', 'jetpack-videopress-pkg' ) }
-						help={ __(
-							'Display share menu and allow viewers to copy a link or embed this video',
-							'jetpack-videopress-pkg'
-						) }
-						checked={ displayEmbed }
+						help={
+							shareMenuDisabledForSite
+								? __(
+										'Sharing is turned off for all videos in VideoPress Settings.',
+										'jetpack-videopress-pkg'
+									)
+								: __(
+										'Display share menu and allow viewers to copy a link or embed this video',
+										'jetpack-videopress-pkg'
+									)
+						}
+						checked={ displayEmbed && ! shareMenuDisabledForSite }
+						disabled={ shareMenuDisabledForSite }
 						onChange={ next => onChange( { displayEmbed: next } ) }
 					/>
 					<ToggleControl

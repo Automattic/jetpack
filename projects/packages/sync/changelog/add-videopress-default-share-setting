@@ -1,4 +1,4 @@
 Significance: patch
 Type: added
 
-Sync the VideoPress default share setting (video_player_default_embed_status).
+Sync the VideoPress site setting that turns off sharing for every video.

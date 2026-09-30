@@ -87,7 +87,7 @@ jest.mock( '../../../src/dashboard/hooks/use-settings', () => ( {
 			videoPressAutoSubtitlesDisabled: false,
 			videoPressPlayerPreloadDisabled: false,
 			videoPressInlinePlayerEnabled: false,
-			videoPressDefaultShareEnabled: true,
+			videoPressShareMenuDisabled: false,
 		},
 		isLoading: false,
 	} ),
@@ -180,18 +180,18 @@ describe( 'Settings stage', () => {
 		);
 	} );
 
-	it( 'turns the share menu off for new videos when its toggle is switched off', async () => {
+	it( 'turns sharing off for every video when its toggle is switched off', async () => {
 		mockedUseFreeTier.mockReturnValue( freeTierState() );
 
 		render( <Stage /> );
 
-		const toggle = screen.getByLabelText( 'Show the share menu on new videos' );
+		const toggle = screen.getByLabelText( 'Allow sharing' );
 		expect( toggle ).toBeChecked();
 
 		await userEvent.click( toggle );
 
 		expect( mockMutate ).toHaveBeenCalledWith(
-			{ videoPressDefaultShareEnabled: false },
+			{ videoPressShareMenuDisabled: true },
 			expect.objectContaining( { onError: expect.any( Function ) } )
 		);
 	} );

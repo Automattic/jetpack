@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Add a site setting to hide the share menu on new videos by default.
+Add a site setting that turns off sharing for every video and stops it from being turned on for individual videos.

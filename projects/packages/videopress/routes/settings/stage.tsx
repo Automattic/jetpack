@@ -26,7 +26,7 @@ const SettingsForm = () => {
 	const autoSubtitlesDisabled = settings.data?.videoPressAutoSubtitlesDisabled ?? false;
 	const playerPreloadDisabled = settings.data?.videoPressPlayerPreloadDisabled ?? false;
 	const inlinePlayerEnabled = settings.data?.videoPressInlinePlayerEnabled ?? false;
-	const defaultShareEnabled = settings.data?.videoPressDefaultShareEnabled ?? true;
+	const shareMenuDisabled = settings.data?.videoPressShareMenuDisabled ?? false;
 	const disabled = settings.isLoading || update.isPending;
 
 	// The mutation rolls the optimistic value back on failure; without a notice
@@ -81,14 +81,14 @@ const SettingsForm = () => {
 					/>
 					<ToggleControl
 						__nextHasNoMarginBottom
-						label={ __( 'Show the share menu on new videos', 'jetpack-videopress-pkg' ) }
+						label={ __( 'Allow sharing', 'jetpack-videopress-pkg' ) }
 						help={ __(
-							'Sets the default for videos you upload from now on, letting viewers copy a link or embed the video. Existing videos keep their current setting, and you can still change it for each video.',
+							'When enabled, each video’s own Share setting decides whether viewers can copy a link or embed it. Turn it off to hide the share menu on every video and stop it from being turned on for individual videos.',
 							'jetpack-videopress-pkg'
 						) }
-						checked={ defaultShareEnabled }
+						checked={ ! shareMenuDisabled }
 						disabled={ disabled }
-						onChange={ next => save( { videoPressDefaultShareEnabled: next } ) }
+						onChange={ next => save( { videoPressShareMenuDisabled: ! next } ) }
 					/>
 					<ToggleControl
 						__nextHasNoMarginBottom

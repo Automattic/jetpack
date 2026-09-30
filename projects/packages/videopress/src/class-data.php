@@ -84,15 +84,14 @@ class Data {
 	}
 
 	/**
-	 * Gets whether new videos show the share menu by default.
+	 * Gets whether the share menu is turned off for every video on the site.
 	 *
-	 * WordPress.com reads this option when it creates a video, and Simple sites already
-	 * set it from Settings → Media, so the name must stay `video_player_default_embed_status`.
+	 * Sharing follows each video's own setting by default, so this opt-out option defaults to false.
 	 *
-	 * @return boolean If videos uploaded from now on should display the share menu.
+	 * @return boolean If no video may display the share menu, whatever its own setting.
 	 */
-	public static function get_videopress_default_share_enabled() {
-		return boolval( get_option( 'video_player_default_embed_status', 1 ) );
+	public static function get_videopress_share_menu_disabled() {
+		return boolval( get_option( 'videopress_share_menu_disabled', false ) );
 	}
 
 	/**
@@ -117,7 +116,7 @@ class Data {
 			'videopress_auto_subtitles_disabled' => self::get_videopress_auto_subtitles_disabled(),
 			'videopress_player_preload_disabled' => self::get_videopress_player_preload_disabled(),
 			'videopress_inline_player_enabled'   => self::get_videopress_inline_player_enabled(),
-			'videopress_default_share_enabled'   => self::get_videopress_default_share_enabled(),
+			'videopress_share_menu_disabled'     => self::get_videopress_share_menu_disabled(),
 			'site_is_private'                    => $site_is_private,
 			'site_type'                          => $site_type,
 		);

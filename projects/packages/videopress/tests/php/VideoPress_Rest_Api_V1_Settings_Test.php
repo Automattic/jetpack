@@ -210,22 +210,19 @@ class VideoPress_Rest_Api_V1_Settings_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that the default share setting round-trips and is stored as the 0/1 WordPress.com reads.
+	 * Test that the share menu override round-trips through the endpoint.
 	 */
-	public function test_default_share_setting_round_trips() {
-		delete_option( 'video_player_default_embed_status' );
+	public function test_share_menu_disabled_setting_round_trips() {
+		delete_option( 'videopress_share_menu_disabled' );
 
-		$response = $this->update_settings( array( 'videopress_default_share_enabled' => false ) );
+		$response = $this->update_settings( array( 'videopress_share_menu_disabled' => true ) );
 		$this->assertEquals( 200, $response->get_status() );
-		$this->assertSame( '0', (string) get_option( 'video_player_default_embed_status' ) );
+		$this->assertTrue( boolval( get_option( 'videopress_share_menu_disabled' ) ) );
 
 		$request  = new WP_REST_Request( 'GET', '/videopress/v1/settings' );
 		$response = $this->server->dispatch( $request );
-		$this->assertFalse( $response->get_data()['videopress_default_share_enabled'] );
+		$this->assertTrue( $response->get_data()['videopress_share_menu_disabled'] );
 
-		$this->update_settings( array( 'videopress_default_share_enabled' => true ) );
-		$this->assertSame( '1', (string) get_option( 'video_player_default_embed_status' ) );
-
-		delete_option( 'video_player_default_embed_status' );
+		delete_option( 'videopress_share_menu_disabled' );
 	}
 }

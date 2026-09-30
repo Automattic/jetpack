@@ -291,8 +291,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 							'description' => __( 'If videos should render an inline player from one shared script instead of one frame per video', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
-						'videopress_default_share_enabled' => array(
-							'description' => __( 'If new videos should display the share menu by default', 'jetpack-videopress-pkg' ),
+						'videopress_share_menu_disabled'   => array(
+							'description' => __( 'If the share menu should be hidden on every video, overriding each video’s own setting', 'jetpack-videopress-pkg' ),
 							'type'        => 'boolean',
 						),
 					),
@@ -368,7 +368,7 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 		$auto_subtitles_disabled = $request->get_param( 'videopress_auto_subtitles_disabled' );
 		$player_preload_disabled = $request->get_param( 'videopress_player_preload_disabled' );
 		$inline_player_enabled   = $request->get_param( 'videopress_inline_player_enabled' );
-		$default_share_enabled   = $request->get_param( 'videopress_default_share_enabled' );
+		$share_menu_disabled     = $request->get_param( 'videopress_share_menu_disabled' );
 
 		$ignored = array();
 
@@ -399,8 +399,8 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 			update_option( 'videopress_inline_player_enabled', $inline_player_enabled );
 		}
 
-		if ( null !== $default_share_enabled ) {
-			update_option( 'video_player_default_embed_status', (int) $default_share_enabled );
+		if ( null !== $share_menu_disabled ) {
+			update_option( 'videopress_share_menu_disabled', $share_menu_disabled );
 		}
 
 		$response = array(
@@ -973,6 +973,11 @@ class WPCOM_REST_API_V2_Endpoint_VideoPress extends WP_REST_Controller {
 	public function videopress_block_update_meta( $request ) {
 		$json_params = $request->get_json_params();
 		$post_id     = $json_params['id'];
+
+		// The site setting overrides every video, so drop attempts to turn sharing on and keep the stored value.
+		if ( ! empty( $json_params['display_embed'] ) && Data::get_videopress_share_menu_disabled() ) {
+			unset( $json_params['display_embed'] );
+		}
 
 		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
 			$guid = get_post_meta( $post_id, 'videopress_guid', true );

@@ -596,17 +596,17 @@ class Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Test that new videos show the share menu by default and honor the stored option.
+	 * Test that sharing follows each video by default and honors the site-wide override.
 	 */
-	public function test_default_share_enabled_option() {
-		delete_option( 'video_player_default_embed_status' );
-		$this->assertTrue( Data::get_videopress_default_share_enabled() );
-		$this->assertTrue( Data::get_videopress_settings()['videopress_default_share_enabled'] );
+	public function test_share_menu_disabled_option() {
+		delete_option( 'videopress_share_menu_disabled' );
+		$this->assertFalse( Data::get_videopress_share_menu_disabled() );
+		$this->assertFalse( Data::get_videopress_settings()['videopress_share_menu_disabled'] );
 
-		update_option( 'video_player_default_embed_status', 0 );
-		$this->assertFalse( Data::get_videopress_default_share_enabled() );
-		$this->assertFalse( Data::get_videopress_settings()['videopress_default_share_enabled'] );
+		update_option( 'videopress_share_menu_disabled', true );
+		$this->assertTrue( Data::get_videopress_share_menu_disabled() );
+		$this->assertTrue( Data::get_videopress_settings()['videopress_share_menu_disabled'] );
 
-		delete_option( 'video_player_default_embed_status' );
+		delete_option( 'videopress_share_menu_disabled' );
 	}
 }

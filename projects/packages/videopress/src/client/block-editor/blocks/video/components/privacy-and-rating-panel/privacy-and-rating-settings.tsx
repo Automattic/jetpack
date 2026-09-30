@@ -34,6 +34,7 @@ export default function PrivacyAndRatingSettings( {
 	videoBelongToSite,
 }: PrivacyAndRatingPanelProps ): ReactElement {
 	const { privacySetting, rating, allowDownload, displayEmbed } = attributes;
+	const shareMenuDisabledForSite = Boolean( window?.videoPressEditorState?.shareMenuDisabled );
 
 	const privacyLabels = {
 		private: _x( 'Site Default (Private)', 'VideoPress privacy setting', 'jetpack-videopress-pkg' ),
@@ -125,15 +126,22 @@ export default function PrivacyAndRatingSettings( {
 
 			<ToggleControl
 				label={ __( 'Show video sharing menu', 'jetpack-videopress-pkg' ) }
-				checked={ displayEmbed }
+				checked={ displayEmbed && ! shareMenuDisabledForSite }
 				onChange={ value => {
 					setAttributes( { displayEmbed: value } );
 				} }
-				help={ __(
-					'Gives viewers the option to share the video link and HTML embed code',
-					'jetpack-videopress-pkg'
-				) }
-				disabled={ ! videoBelongToSite }
+				help={
+					shareMenuDisabledForSite
+						? __(
+								'Sharing is turned off for all videos in VideoPress Settings.',
+								'jetpack-videopress-pkg'
+							)
+						: __(
+								'Gives viewers the option to share the video link and HTML embed code',
+								'jetpack-videopress-pkg'
+							)
+				}
+				disabled={ ! videoBelongToSite || shareMenuDisabledForSite }
 				__nextHasNoMarginBottom={ true }
 			/>
 		</PanelBody>

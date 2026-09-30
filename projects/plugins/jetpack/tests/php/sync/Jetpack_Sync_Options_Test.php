@@ -253,10 +253,10 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'jetpack_sync_settings_taxonomies_blacklist'   => array( 'jetpack', 'pineapple' ),
 			'ce4wp_referred_by'                            => array(),
 			'wpcom_is_fse_activated'                       => '1',
-			'video_player_default_embed_status'            => 0,
 			'videopress_private_enabled_for_site'          => false,
 			'videopress_auto_subtitles_disabled'           => true,
 			'videopress_player_preload_disabled'           => true,
+			'videopress_share_menu_disabled'               => true,
 			'videopress_playlist_index'                    => array(
 				'pineapple' => array(
 					'title'       => 'pineapple',

@@ -35,10 +35,10 @@ class Media extends Component {
 		} );
 	};
 
-	toggleDefaultShareSetting = () => {
+	toggleShareMenuSetting = () => {
 		this.props.updateOptions( {
-			video_player_default_embed_status: ! this.props.getOptionValue(
-				'video_player_default_embed_status'
+			videopress_share_menu_disabled: ! this.props.getOptionValue(
+				'videopress_share_menu_disabled'
 			),
 		} );
 	};
@@ -142,16 +142,16 @@ class Media extends Component {
 							/>
 							<ToggleControl
 								__nextHasNoMarginBottom
-								id="videopress-default-share"
+								id="videopress-share-menu"
 								disabled={
 									! this.props.getOptionValue( 'videopress' ) ||
-									this.props.isSavingAnyOption( 'video_player_default_embed_status' )
+									this.props.isSavingAnyOption( 'videopress_share_menu_disabled' )
 								}
-								checked={ this.props.getOptionValue( 'video_player_default_embed_status' ) }
-								onChange={ this.toggleDefaultShareSetting }
+								checked={ ! this.props.getOptionValue( 'videopress_share_menu_disabled' ) }
+								onChange={ this.toggleShareMenuSetting }
 								label={
 									<span className="jp-form-toggle-explanation">
-										{ __( 'Show the share menu on new videos', 'jetpack' ) }
+										{ __( 'Video Sharing: Allow each video to show its share menu', 'jetpack' ) }
 									</span>
 								}
 							/>

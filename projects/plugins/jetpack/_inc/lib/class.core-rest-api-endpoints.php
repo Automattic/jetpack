@@ -2556,10 +2556,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'videopress',
 			),
-			'video_player_default_embed_status'         => array(
-				'description'       => esc_html__( 'Show the share menu on new videos', 'jetpack' ),
+			'videopress_share_menu_disabled'            => array(
+				'description'       => esc_html__( 'Hide the share menu on every video, overriding each video’s own setting', 'jetpack' ),
 				'type'              => 'boolean',
-				'default'           => 1,
+				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'videopress',
 			),

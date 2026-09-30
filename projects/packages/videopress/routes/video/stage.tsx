@@ -26,6 +26,7 @@ import VideoDetailsCard from '../../src/dashboard/components/video-details/video
 import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
 import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useSettings } from '../../src/dashboard/hooks/use-settings';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
@@ -119,6 +120,7 @@ const Editor = ( {
 }: EditorProps ) => {
 	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const shareMenuDisabled = useSettings().data?.videoPressShareMenuDisabled ?? false;
 
 	// The sub-nav's only sibling tab is the Editor, whose route is stripped
 	// from the registry when the chapters editor is off — a one-tab strip
@@ -258,6 +260,7 @@ const Editor = ( {
 							privacy={ values.privacy }
 							displayEmbed={ values.displayEmbed }
 							allowDownloads={ values.allowDownloads }
+							shareMenuDisabledForSite={ shareMenuDisabled }
 							onChange={ update }
 						/>
 						<RatingCard value={ values.rating } onChange={ onRatingChange } />
