@@ -483,7 +483,7 @@ class Password_Detection_Test extends BaseTestCase {
 		);
 		$this->assertStringContainsString(
 			htmlentities(
-				'This security feature was automatically activated with a recent Jetpack update to help keep your account safe.',
+				'This security feature is enabled on this site to help keep your account safe.',
 				ENT_QUOTES | ENT_SUBSTITUTE | ENT_HTML401
 			),
 			$output
