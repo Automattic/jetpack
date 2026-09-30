@@ -56,9 +56,10 @@ function PostCommentsInner() {
 		[ data ]
 	);
 
-	// A short page holds every comment; only a full one needs the post's total.
+	// Endpoints that predate a typed `found` report -1: a short page then counts itself,
+	// and a full one falls back to the post's total, which also counts pingbacks.
 	const isShortPage = ( data?.fetchedCount ?? 0 ) < COMMENTS_SHOWN;
-	const total = isShortPage ? items.length : postStats?.post?.comment_count;
+	const total = data?.found ?? ( isShortPage ? items.length : postStats?.post?.comment_count );
 	const isEmpty = postId <= 0 || ( !! data && items.length === 0 );
 
 	return (

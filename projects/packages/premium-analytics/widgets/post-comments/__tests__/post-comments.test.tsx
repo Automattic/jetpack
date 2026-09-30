@@ -82,7 +82,7 @@ describe( 'PostCommentsWidget', () => {
 		);
 	} );
 
-	it( 'renders commenters, comment links, and the remaining count from the post', async () => {
+	it( 'falls back to the post total when found is unknown', async () => {
 		mockEndpoints(
 			jest.fn().mockResolvedValue( {
 				found: -1,
@@ -102,6 +102,17 @@ describe( 'PostCommentsWidget', () => {
 		const author = await screen.findByRole( 'link', { name: /Olivia Park/ } );
 		expect( author ).toHaveAttribute( 'href', 'https://example.com/post/#comment-101' );
 		await expect( screen.findByText( '14 more' ) ).resolves.toBeInTheDocument();
+	} );
+
+	it( 'counts the remaining comments from found, leaving pingbacks out', async () => {
+		mockEndpoints(
+			jest.fn().mockResolvedValue( { found: 12, comments: makeComments( 10, 101 ) } ),
+			{ comment_count: 17 }
+		);
+
+		renderWidget( 779 );
+
+		await expect( screen.findByText( '2 more' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'uses a neutral error state when comments cannot be loaded', async () => {

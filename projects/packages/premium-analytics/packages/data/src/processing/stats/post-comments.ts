@@ -20,6 +20,8 @@ export type StatsPostCommentsResponse = {
 	comments: StatsPostComment[];
 	/** Rows the endpoint returned, counting the ones dropped as unusable. */
 	fetchedCount: number;
+	/** Matching comments across every page; absent when the endpoint reports -1 (unknown). */
+	found?: number;
 };
 
 function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
@@ -51,16 +53,18 @@ function normalizeStatsPostComment( value: unknown ): StatsPostComment[] {
 	];
 }
 
-// The endpoint's `found` is always -1 for a typed request, so the total comes from the post.
 export function sanitizeStatsPostCommentsResponse( response: unknown ): StatsPostCommentsResponse {
 	if ( ! isStatsRecord( response ) ) {
 		return { comments: [], fetchedCount: 0 };
 	}
 
-	const rows = coerceStatsArray( coerceStatsRecord( response ).comments );
+	const payload = coerceStatsRecord( response );
+	const rows = coerceStatsArray( payload.comments );
+	const found = safeParseFloat( payload.found, -1 );
 
 	return {
 		comments: rows.flatMap( normalizeStatsPostComment ),
 		fetchedCount: rows.length,
+		...( Number.isInteger( found ) && found >= 0 ? { found } : {} ),
 	};
 }

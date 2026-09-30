@@ -36,6 +36,18 @@ describe( 'sanitizeStatsPostCommentsResponse', () => {
 		} );
 	} );
 
+	it.each( [
+		[ 12, 12 ],
+		[ '0', 0 ],
+		[ -1, undefined ],
+		[ 2.5, undefined ],
+		[ 'many', undefined ],
+		[ null, undefined ],
+		[ undefined, undefined ],
+	] )( 'reads found %p as total %p', ( found, total ) => {
+		expect( sanitizeStatsPostCommentsResponse( { found, comments: [] } ).found ).toBe( total );
+	} );
+
 	it( 'returns an empty result for missing or invalid payloads', () => {
 		expect( sanitizeStatsPostCommentsResponse( null ) ).toEqual( {
 			comments: [],
