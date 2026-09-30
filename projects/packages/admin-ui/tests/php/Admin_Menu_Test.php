@@ -206,6 +206,8 @@ class Admin_Menu_Test extends TestCase {
 	 */
 	public function test_add_menu_covers_the_admin_page_fallback_hook() {
 		wp_set_current_user( self::$editor_user_id );
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
 
 		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
 		$wp_suffix = add_submenu_page( 'jetpack', 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
