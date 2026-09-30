@@ -138,7 +138,9 @@ export default function PrivacyAndRatingSettings( {
 							)
 						: __(
 								'Gives viewers the option to share the video link and HTML embed code',
-								'jetpack-videopress-pkg'
+								'jetpack-videopress-pkg',
+								// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+								/* dummy arg to avoid bad minification */ 0
 							)
 				}
 				disabled={ ! videoBelongToSite || shareMenuDisabledForSite }

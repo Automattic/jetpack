@@ -81,7 +81,9 @@ export default function PrivacySharingCard( {
 									)
 								: __(
 										'Display share menu and allow viewers to copy a link or embed this video',
-										'jetpack-videopress-pkg'
+										'jetpack-videopress-pkg',
+										// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
+										/* dummy arg to avoid bad minification */ 0
 									)
 						}
 						checked={ displayEmbed && ! shareMenuDisabledForSite }
