@@ -284,7 +284,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * REST bootstrap callback.
 	 */
 	public function test_admin_request_does_not_defer_backup_to_rest_api_init() {
-		$this->skip_unless_backup_is_supported();
+		$this->set_up_backup_test();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		set_current_screen( 'dashboard' );
@@ -387,7 +387,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * End-to-end counterpart for Backup, via `/has-backup-plan`, which only `initialize()` registers.
 	 */
 	public function test_deferred_backup_routes_register_when_rest_api_init_fires() {
-		$this->skip_unless_backup_is_supported();
+		$this->set_up_backup_test();
 		$this->connect_owner();
 
 		// Clean slate so registration can only happen via the re-add below.
@@ -410,7 +410,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * A site without a connected owner does not get the Backup dashboard.
 	 */
 	public function test_backup_needs_a_connected_owner() {
-		$this->skip_unless_backup_is_supported();
+		$this->set_up_backup_test();
 		Jetpack_Options::update_option( 'blog_token', 'dummy.blogtoken' );
 		Jetpack_Options::update_option( 'id', 1234 );
 		Jetpack::connection()->reset_connection_status();
@@ -425,7 +425,7 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	 * A host can keep the Backup dashboard off, as WordPress.com does for WoA sites without a backup plan.
 	 */
 	public function test_backup_dashboard_can_be_filtered_off() {
-		$this->skip_unless_backup_is_supported();
+		$this->set_up_backup_test();
 		$this->connect_owner();
 		$this->force_unfire_action( 'jetpack_backup_initialized' );
 		add_filter( 'jetpack_backup_dashboard_enabled', '__return_false' );
@@ -449,11 +449,14 @@ class Jetpack_Eager_Load_Packages_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Skip a test whose subject is the bundled Backup dashboard, which multisite never gets.
+	 * Prepare a test whose subject is the bundled Backup dashboard, skipping on multisite, which never gets it.
 	 */
-	private function skip_unless_backup_is_supported() {
+	private function set_up_backup_test() {
 		if ( is_multisite() ) {
 			$this->markTestSkipped( 'The bundled Backup dashboard is not initialized on multisite.' );
 		}
+
+		// jetpack-mu-wpcom turns the dashboard off on WoA without a backup plan, which the wpcomsh run simulates.
+		remove_all_filters( 'jetpack_backup_dashboard_enabled' );
 	}
 }
