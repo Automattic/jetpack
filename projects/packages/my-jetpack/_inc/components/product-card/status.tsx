@@ -1,9 +1,9 @@
 import { __ } from '@wordpress/i18n';
-import { Badge } from '@wordpress/ui';
+import { Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { PRODUCT_STATUSES } from '../../constants';
 import styles from './style.module.scss';
-import type { ComponentProps, FC } from 'react';
+import type { FC } from 'react';
 
 interface StatusProps {
 	status: ProductStatus;
@@ -13,19 +13,13 @@ interface StatusProps {
 	suppressNeedsAttention?: boolean;
 }
 
-type BadgeIntent = ComponentProps< typeof Badge >[ 'intent' ];
-
-type StatusStateFunction< T > = (
+type StatusStateFunction = (
 	status: ProductStatus,
 	isOwned: boolean,
 	suppressNeedsAttention: boolean
-) => T;
+) => string;
 
-const getStatusLabel: StatusStateFunction< string > = (
-	status,
-	isOwned,
-	suppressNeedsAttention
-) => {
+const getStatusLabel: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
@@ -65,28 +59,23 @@ const getStatusLabel: StatusStateFunction< string > = (
 	}
 };
 
-const getStatusIntent: StatusStateFunction< BadgeIntent > = (
-	status,
-	isOwned,
-	suppressNeedsAttention
-) => {
+const getStatusClassName: StatusStateFunction = ( status, isOwned, suppressNeedsAttention ) => {
 	switch ( status ) {
 		case PRODUCT_STATUSES.ACTIVE:
 		case PRODUCT_STATUSES.CAN_UPGRADE:
-			return 'stable';
+			return styles.active;
 		case PRODUCT_STATUSES.ABSENT_WITH_PLAN:
 		case PRODUCT_STATUSES.SITE_CONNECTION_ERROR:
 		case PRODUCT_STATUSES.USER_CONNECTION_ERROR:
 		case PRODUCT_STATUSES.EXPIRING_SOON:
-			return 'medium';
+			return styles.warning;
 		case PRODUCT_STATUSES.INACTIVE:
 		case PRODUCT_STATUSES.NEEDS_FIRST_SITE_CONNECTION:
 		case PRODUCT_STATUSES.NEEDS_ACTIVATION:
-			return 'none';
+			return styles.inactive;
 		case PRODUCT_STATUSES.NEEDS_PLAN:
-			return isOwned ? 'medium' : 'none';
+			return isOwned ? styles.warning : styles.inactive;
 		case PRODUCT_STATUSES.EXPIRED:
-			return 'medium';
 		case PRODUCT_STATUSES.NEEDS_ATTENTION__WARNING:
 			/**
 			 * For the Protect card, even when it has a NEEDS_ATTENTION__{WARNING | ERROR}
@@ -94,16 +83,16 @@ const getStatusIntent: StatusStateFunction< BadgeIntent > = (
 			 * status as 'Active'.
 			 */
 			if ( suppressNeedsAttention ) {
-				return 'stable';
+				return styles.active;
 			}
-			return 'medium';
+			return styles.warning;
 		case PRODUCT_STATUSES.NEEDS_ATTENTION__ERROR:
 			if ( suppressNeedsAttention ) {
-				return 'stable';
+				return styles.active;
 			}
-			return 'high';
+			return styles.error;
 		default:
-			return 'none';
+			return styles.inactive;
 	}
 };
 
@@ -114,16 +103,19 @@ const Status: FC< StatusProps > = ( {
 	isOwned,
 	suppressNeedsAttention = false,
 } ) => {
+	const flagLabel = getStatusLabel( status, isOwned, suppressNeedsAttention );
+	const statusClassName = clsx(
+		styles.status,
+		getStatusClassName( status, isOwned, suppressNeedsAttention ),
+		{
+			[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
+		}
+	);
+
 	return (
-		<span
-			className={ clsx( styles.status, {
-				[ styles[ 'is-fetching' ] ]: isFetching || isInstallingStandalone,
-			} ) }
-		>
-			<Badge intent={ getStatusIntent( status, isOwned, suppressNeedsAttention ) }>
-				{ getStatusLabel( status, isOwned, suppressNeedsAttention ) }
-			</Badge>
-		</span>
+		<Text variant="body-sm" className={ statusClassName }>
+			{ flagLabel }
+		</Text>
 	);
 };
 
