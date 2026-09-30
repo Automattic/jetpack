@@ -1,4 +1,4 @@
-import { render, screen, act } from '@testing-library/react';
+import { render, screen, act, within } from '@testing-library/react';
 import { VideoBlockAttributes } from '../../../types';
 import Player from '../index';
 
@@ -39,6 +39,7 @@ jest.mock( '@wordpress/components', () => {
 					return;
 				}
 				const iframe = host.ownerDocument.createElement( 'iframe' );
+				iframe.title = 'VideoPress sandbox';
 				iframe.className = 'components-sandbox';
 				iframe.setAttribute(
 					'sandbox',
@@ -52,11 +53,11 @@ jest.mock( '@wordpress/components', () => {
 						.join( ' ' )
 				);
 
+				host.appendChild( iframe );
 				if ( allowSameOrigin ) {
-					Object.defineProperty( iframe, 'contentWindow', {
-						value: globalThis,
-						configurable: true,
-					} );
+					const player = iframe.contentDocument.createElement( 'iframe' );
+					player.title = 'VideoPress player';
+					iframe.contentDocument.body.appendChild( player );
 				} else {
 					// Any property read/write on a cross-origin Window throws
 					// a SecurityError. The Proxy mirrors that.
@@ -72,8 +73,6 @@ jest.mock( '@wordpress/components', () => {
 						configurable: true,
 					} );
 				}
-
-				host.appendChild( iframe );
 			},
 		} );
 	}
@@ -121,6 +120,19 @@ const defaultProps = {
 };
 
 /**
+ * Get the two iframe windows involved in player-to-sandbox messages.
+ *
+ * @return The sandbox window and its embedded player's window.
+ */
+function getPlayerWindows() {
+	const sandbox = screen.getByTitle< HTMLIFrameElement >( 'VideoPress sandbox' );
+	const player = within( sandbox.contentDocument.body ).getByTitle< HTMLIFrameElement >(
+		'VideoPress player'
+	);
+	return { sandboxWindow: sandbox.contentWindow, playerWindow: player.contentWindow };
+}
+
+/**
  * Render while capturing the console.error stream. React routes errors
  * thrown inside effects through console.error instead of propagating out of
  * render(), so spying on that stream is how tests detect a SecurityError
@@ -148,11 +160,12 @@ describe( 'Player', () => {
 		it( 'reports a valid shape from its own player', () => {
 			const onVideoRatioChange = jest.fn();
 			render( <Player { ...defaultProps } onVideoRatioChange={ onVideoRatioChange } /> );
+			const { sandboxWindow, playerWindow } = getPlayerWindows();
 			act( () =>
-				window.dispatchEvent(
+				sandboxWindow.dispatchEvent(
 					new MessageEvent( 'message', {
 						origin: 'https://videopress.com',
-						source: window,
+						source: playerWindow,
 						data: {
 							event: 'videopress_dimensionschange',
 							id: 'abcDEF12',
@@ -170,11 +183,12 @@ describe( 'Player', () => {
 			data => {
 				const onVideoRatioChange = jest.fn();
 				render( <Player { ...defaultProps } onVideoRatioChange={ onVideoRatioChange } /> );
+				const { sandboxWindow, playerWindow } = getPlayerWindows();
 				act( () =>
-					window.dispatchEvent(
+					sandboxWindow.dispatchEvent(
 						new MessageEvent( 'message', {
 							origin: 'https://videopress.com',
-							source: window,
+							source: playerWindow,
 							data: {
 								event: 'videopress_dimensionschange',
 								id: 'abcDEF12',
@@ -192,6 +206,7 @@ describe( 'Player', () => {
 		it( 'rejects dimensions from another window or origin', () => {
 			const onVideoRatioChange = jest.fn();
 			render( <Player { ...defaultProps } onVideoRatioChange={ onVideoRatioChange } /> );
+			const { sandboxWindow, playerWindow } = getPlayerWindows();
 			const data = {
 				event: 'videopress_dimensionschange',
 				id: 'abcDEF12',
@@ -199,11 +214,11 @@ describe( 'Player', () => {
 				height: 1920,
 			};
 			act( () => {
-				window.dispatchEvent(
-					new MessageEvent( 'message', { origin: 'https://evil.test', source: window, data } )
+				sandboxWindow.dispatchEvent(
+					new MessageEvent( 'message', { origin: 'https://evil.test', source: playerWindow, data } )
 				);
-				window.dispatchEvent(
-					new MessageEvent( 'message', { origin: 'https://videopress.com', source: null, data } )
+				sandboxWindow.dispatchEvent(
+					new MessageEvent( 'message', { origin: 'https://videopress.com', source: window, data } )
 				);
 			} );
 			expect( onVideoRatioChange ).not.toHaveBeenCalled();
@@ -267,12 +282,13 @@ describe( 'Player', () => {
 	describe( 'videoPlayerEventsHandler origin check', () => {
 		it( 'ignores videopress_loading_state events from untrusted origins', () => {
 			render( <Player { ...defaultProps } /> );
+			const { sandboxWindow } = getPlayerWindows();
 
 			// Loading indicator is visible before any messages arrive.
 			expect( screen.getByText( 'Loading\u2026' ) ).toBeInTheDocument();
 
 			act( () => {
-				window.dispatchEvent(
+				sandboxWindow.dispatchEvent(
 					new MessageEvent( 'message', {
 						data: { event: 'videopress_loading_state', state: 'loaded' },
 						origin: 'https://evil.com',
@@ -286,9 +302,10 @@ describe( 'Player', () => {
 
 		it( 'processes videopress_loading_state events from trusted origins', () => {
 			render( <Player { ...defaultProps } /> );
+			const { sandboxWindow } = getPlayerWindows();
 
 			act( () => {
-				window.dispatchEvent(
+				sandboxWindow.dispatchEvent(
 					new MessageEvent( 'message', {
 						data: { event: 'videopress_loading_state', state: 'loaded' },
 						origin: 'https://videopress.com',
