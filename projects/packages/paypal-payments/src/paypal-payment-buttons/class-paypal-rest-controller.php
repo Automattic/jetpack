@@ -475,7 +475,7 @@ class PayPal_REST_Controller {
 
 		// The editor appends this to payment links it copies to the clipboard,
 		// so those links are attributed the same way the rendered button is.
-		$status['partner_attribution_id'] = PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID;
+		$status['partner_attribution_id'] = PayPal_Payment_Buttons::get_partner_attribution_id();
 
 		return new WP_REST_Response( $status, 200 );
 	}
