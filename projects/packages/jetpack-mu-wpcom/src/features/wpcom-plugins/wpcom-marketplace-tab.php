@@ -139,12 +139,10 @@ function wpcom_marketplace_term_noun( $term ) {
 }
 
 /**
- * Draws the marketplace as its own grid of cards.
+ * Draws the marketplace as core's plugin cards.
  *
- * Core's list table is not used here. It fixes the action column at 120px and lets
- * every card's height follow its description, which left the tab ragged and gave the
- * price nowhere to live but inside the button. Everything else core offers is kept:
- * the details modal, install status, and its buttons for products already installed.
+ * Printed here rather than through core's list table, whose bottom strip only takes
+ * core's own fields, so the price can sit where core shows ratings and installs.
  *
  * @return void
  */
@@ -172,22 +170,21 @@ function wpcom_marketplace_render_grid() {
 	);
 
 	/*
-	 * Wrapped in core's own id because that is the element updates.js delegates its
-	 * plugin clicks from: `$( '#plugin-filter, #plugin-information-footer' )`.
-	 * `display_plugins_table()` renders it, and dropping that call took it with it,
-	 * which left an installed plugin's Update button falling back to a full-page
-	 * update.php run. The cards already carry the `plugin-card-{slug}` class those
-	 * handlers look a card up by.
+	 * Core's list table wrapper, so core's card CSS lays these out as on every other tab.
+	 * updates.js also delegates its button clicks from #plugin-filter.
 	 */
-	echo '<form id="plugin-filter" method="post"><div class="wpcom-marketplace-grid">';
+	printf(
+		'<form id="plugin-filter" method="post"><div class="wp-list-table widefat plugin-install"><h2 class="screen-reader-text">%s</h2><div id="the-list" class="wpcom-marketplace-grid">',
+		esc_html__( 'Plugins list', 'jetpack-mu-wpcom' )
+	);
 	foreach ( $products as $card ) {
 		wpcom_marketplace_render_card( $card );
 	}
-	echo '</div></form>';
+	echo '</div></div></form>';
 }
 
 /**
- * One plugin card.
+ * One plugin card, in core's markup, with Purchase for Install Now and the price in the bottom strip.
  *
  * @param array $card Normalized product data.
  * @return void
@@ -199,55 +196,66 @@ function wpcom_marketplace_render_card( array $card ) {
 	}
 
 	$name      = (string) ( $card['name'] ?? $slug );
-	$icon      = (string) ( $card['icons']['1x'] ?? '' );
+	$icon      = (string) ( $card['icons']['2x'] ?? $card['icons']['1x'] ?? '' );
 	$details   = wpcom_marketplace_details_url( $slug );
 	$installed = 'install' !== install_plugin_install_status( $card )['status'];
 
-	/* translators: %s: Plugin name. */
-	$more_information = sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name );
+	// WordPress.org caps short descriptions at 150 characters, which is what core's card is sized for.
+	$description = wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) );
+	if ( mb_strlen( $description ) > 150 ) {
+		$cut         = mb_substr( $description, 0, 150 );
+		$space       = mb_strrpos( $cut, ' ' );
+		$description = rtrim( false === $space ? $cut : mb_substr( $cut, 0, $space ), ' .,;:' ) . '…';
+	}
+
+	$actions = array_filter(
+		array(
+			wpcom_marketplace_card_button( $card ),
+			sprintf(
+				'<a href="%s" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details" aria-label="%s" data-title="%s">%s</a>',
+				esc_url( $details ),
+				/* translators: %s: Plugin name. */
+				esc_attr( sprintf( __( 'More information about %s', 'jetpack-mu-wpcom' ), $name ) ),
+				esc_attr( $name ),
+				esc_html__( 'More Details', 'jetpack-mu-wpcom' )
+			),
+		)
+	);
 	?>
-	<div class="wpcom-marketplace-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?>" data-plugin="<?php echo esc_attr( (string) ( $card['wpcom_product_slug'] ?? $slug ) ); ?>" data-saas="<?php echo Marketplace_Catalog::is_referral( $card ) ? 'true' : 'false'; ?>" data-installed="<?php echo $installed ? 'true' : 'false'; ?>">
-		<div class="wpcom-marketplace-card__head">
-			<?php if ( '' !== $icon ) : ?>
-				<img class="wpcom-marketplace-card__icon" src="<?php echo esc_url( $icon ); ?>" alt="" />
-			<?php endif; ?>
-			<div>
-				<h3 class="wpcom-marketplace-card__name">
-					<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php echo esc_html( $name ); ?></a>
+	<div class="plugin-card plugin-card-<?php echo esc_attr( sanitize_html_class( $slug ) ); ?> wpcom-marketplace-card" data-plugin="<?php echo esc_attr( (string) ( $card['wpcom_product_slug'] ?? $slug ) ); ?>" data-saas="<?php echo Marketplace_Catalog::is_referral( $card ) ? 'true' : 'false'; ?>" data-installed="<?php echo $installed ? 'true' : 'false'; ?>">
+		<div class="plugin-card-top">
+			<div class="name column-name">
+				<h3>
+					<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details">
+						<?php echo esc_html( $name ); ?>
+						<?php if ( '' !== $icon ) : ?>
+							<img src="<?php echo esc_url( $icon ); ?>" class="plugin-icon" alt="" />
+						<?php endif; ?>
+					</a>
 				</h3>
+			</div>
+			<div class="action-links">
+				<?php // Buttons are built from escaped parts, and core's own button carries data attributes. ?>
+				<ul class="plugin-action-buttons"><li><?php echo implode( '</li><li>', $actions ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?></li></ul>
+			</div>
+			<div class="desc column-description">
+				<p><?php echo esc_html( $description ); ?></p>
 				<?php if ( ! empty( $card['author'] ) ) : ?>
-					<p class="wpcom-marketplace-card__author">
+					<p class="authors"><cite>
 						<?php
 						/* translators: %s: Plugin author name. */
 						echo esc_html( sprintf( __( 'By %s', 'jetpack-mu-wpcom' ), $card['author'] ) );
 						?>
-					</p>
+					</cite></p>
 				<?php endif; ?>
 			</div>
 		</div>
-
-		<?php if ( ! empty( $card['wpcom_category'] ) ) : ?>
-			<p class="wpcom-marketplace-card__category"><?php echo esc_html( $card['wpcom_category'] ); ?></p>
-		<?php endif; ?>
-
-		<p class="wpcom-marketplace-card__desc">
-			<?php echo esc_html( wp_strip_all_tags( (string) ( $card['short_description'] ?? '' ) ) ); ?>
-		</p>
-
-		<p class="wpcom-marketplace-card__details">
-			<?php // Named like core's own Details link, or 56 cards contribute 56 identical ones. ?>
-			<a href="<?php echo esc_url( $details ); ?>" class="thickbox open-plugin-details-modal" data-wpcom-marketplace-track="details" aria-label="<?php echo esc_attr( $more_information ); ?>"><?php esc_html_e( 'Details', 'jetpack-mu-wpcom' ); ?></a>
-		</p>
-
-		<?php // Price sits with the button that charges it, rather than a row away from it. ?>
-		<div class="wpcom-marketplace-card__footer">
+		<div class="plugin-card-bottom">
 			<?php
-			// Calypso drops the price once a plugin is installed, leaving only its status.
+			// Where core puts ratings and installs. Calypso drops the price once a plugin is installed.
 			if ( ! $installed ) {
 				wpcom_marketplace_render_price( $card );
 			}
-			// Buttons are built from escaped parts, and core's own button carries data attributes.
-			echo wpcom_marketplace_card_button( $card ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 			?>
 		</div>
 	</div>
@@ -362,7 +370,7 @@ function wpcom_marketplace_card_button( array $card ) {
 
 		// No noreferrer: Calypso's link lets the vendor see where the visit came from, and so does this one.
 		return sprintf(
-			'<a class="button" href="%s" target="_blank" rel="noopener" data-wpcom-marketplace-track="get_started" aria-label="%s">%s</a>',
+			'<a class="button button-compact" href="%s" target="_blank" rel="noopener" data-wpcom-marketplace-track="get_started" aria-label="%s">%s</a>',
 			esc_url( $referral ),
 			esc_attr( sprintf( $label, $name ) ),
 			esc_html__( 'Get started', 'jetpack-mu-wpcom' )
@@ -374,7 +382,7 @@ function wpcom_marketplace_card_button( array $card ) {
 	// Without a store product there is nothing to buy, so fall back to the product page.
 	if ( '' === $checkout ) {
 		return sprintf(
-			'<a class="button" href="%s" data-wpcom-marketplace-track="get_started" aria-label="%s">%s</a>',
+			'<a class="button button-compact" href="%s" data-wpcom-marketplace-track="get_started" aria-label="%s">%s</a>',
 			esc_url( Marketplace_Catalog::product_url( $card['wpcom_product_slug'] ?? $card['slug'] ) ),
 			/* translators: %s: Plugin name. */
 			esc_attr( sprintf( __( 'Get started with %s', 'jetpack-mu-wpcom' ), $name ) ),
@@ -383,7 +391,7 @@ function wpcom_marketplace_card_button( array $card ) {
 	}
 
 	return sprintf(
-		'<a class="button button-primary" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
+		'<a class="button button-compact" href="%s" data-wpcom-marketplace-track="purchase" aria-label="%s">%s</a>',
 		esc_url( $checkout ),
 		/* translators: %s: Plugin name. */
 		esc_attr( sprintf( __( 'Purchase and activate %s', 'jetpack-mu-wpcom' ), $name ) ),
