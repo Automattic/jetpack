@@ -280,6 +280,25 @@ class Expiry_Notices_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringStartsWith( 'Your site will move to the Free plan,', wpcom_expiry_notices_banner_body( $state, true ) );
 	}
 
+	public function test_the_early_reminder_dates_the_start_of_billings_day_in_the_site_timezone(): void {
+		$state = $this->message_state( array( 'expiry_ts' => 1767311999 ) ); // 2026-01-01 23:59:59 UTC.
+
+		update_option( 'date_format', 'F j, Y' );
+		$expected = array(
+			'Europe/Rome'     => 'After January 1, 2026,',
+			'America/Chicago' => 'After December 31, 2025,',
+		);
+		$original = get_option( 'timezone_string' );
+		try {
+			foreach ( $expected as $timezone => $start ) {
+				update_option( 'timezone_string', $timezone );
+				$this->assertStringStartsWith( $start, wpcom_expiry_notices_banner_body( $state, true ), "wrong date in {$timezone}" );
+			}
+		} finally {
+			update_option( 'timezone_string', $original );
+		}
+	}
+
 	public function test_after_the_revert_the_body_and_cta_ask_for_support(): void {
 		$state = $this->message_state(
 			array(

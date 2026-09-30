@@ -500,7 +500,10 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
  * @param int|null            $storage_gb Storage the plan includes, or null when unknown.
  */
 function wpcom_expiry_notices_early_warning_body( array $state, ?int $storage_gb ): string {
-	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), (int) $state['expiry_ts'] );
+	// The start of billing's UTC day in the site's timezone, as the Purchases
+	// pages show it: west of UTC that is the day before, never a day too late.
+	$expiry_ts   = (int) $state['expiry_ts'];
+	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), $expiry_ts - ( $expiry_ts % DAY_IN_SECONDS ) );
 
 	if ( '' === $expiry_date ) {
 		return null === $storage_gb

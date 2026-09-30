@@ -97,10 +97,11 @@ class Expiry_Data {
 			return null;
 		}
 
-		$expiry_ts = strtotime( (string) $purchase->expiry_date );
-		if ( false === $expiry_ts ) {
+		$expiry_start = strtotime( (string) $purchase->expiry_date );
+		if ( false === $expiry_start ) {
 			return null;
 		}
+		$expiry_ts = self::end_of_utc_day( $expiry_start );
 
 		$now          ??= time();
 		$days_remaining = (int) floor( ( $expiry_ts - $now ) / DAY_IN_SECONDS );
@@ -207,7 +208,19 @@ class Expiry_Data {
 		}
 
 		$attempt_ts = strtotime( $attempt_date );
-		return false !== $attempt_ts && $attempt_ts < $now;
+		return false !== $attempt_ts && self::end_of_utc_day( $attempt_ts ) < $now;
+	}
+
+	/**
+	 * The last second of the UTC day a timestamp falls on.
+	 *
+	 * Billing dates land on the start of a UTC day, but billing only counts one
+	 * as passed once that whole day is over, as `Store_Subscription` does.
+	 *
+	 * @param int $timestamp Timestamp.
+	 */
+	private static function end_of_utc_day( int $timestamp ): int {
+		return $timestamp - ( $timestamp % DAY_IN_SECONDS ) + DAY_IN_SECONDS - 1;
 	}
 
 	/**
