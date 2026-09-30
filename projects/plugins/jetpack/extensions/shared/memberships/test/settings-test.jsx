@@ -324,13 +324,18 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			expect( mockSetPostMeta ).not.toHaveBeenCalled();
 		} );
 
-		// Asserted through the computed accessible description, so it proves the option
-		// actually points at the explanation rather than the text merely being present.
+		// The notice only helps a screen reader user if the option points at it, so the
+		// copy is asserted through the description as it is actually computed from
+		// aria-describedby rather than by reading the notice on its own.
 		test( 'explains why Everyone is unavailable, in a way the option points at', () => {
 			renderPaywalled();
 
-			expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).toHaveAccessibleDescription(
-				'Anyone can read it up to your paywall. Only subscribers can read the rest.'
+			expect( screen.getByText( 'Paywall active' ) ).toBeInTheDocument();
+
+			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+			expect( everyone ).toHaveAccessibleDescription( /^Paywall active/ );
+			expect( everyone ).toHaveAccessibleDescription(
+				/Choose who can read the full post\. Everyone can still read the content above the paywall\.$/
 			);
 		} );
 
@@ -374,6 +379,41 @@ describe( 'NewsletterAccessRadioButtons', () => {
 			const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
 			expect( everyone ).toBeChecked();
 			expect( everyone ).not.toHaveAttribute( 'aria-disabled' );
+			expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
+		} );
+
+		// The paywall block's own inspector opts out, because Gutenberg's block card
+		// directly above it already explains the paywall.
+		describe( 'when the caller opts out of the explanation', () => {
+			const renderOptedOut = () => renderPaywalled( { explainPaywallConstraint: false } );
+
+			test( 'hides the notice but keeps Everyone visible and disabled', () => {
+				renderOptedOut();
+
+				expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
+				expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).toHaveAttribute(
+					'aria-disabled',
+					'true'
+				);
+			} );
+
+			// Gating the notice without gating aria-describedby would leave the option
+			// pointing at an id that is no longer rendered, which assistive tech reports as
+			// no description at all — worse than deliberately having none.
+			test( 'leaves no dangling description reference behind', () => {
+				renderOptedOut();
+
+				const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
+				expect( everyone ).not.toHaveAttribute( 'aria-describedby' );
+				expect( everyone ).toHaveAccessibleDescription( '' );
+			} );
+
+			test( 'still refuses to save the everybody level', async () => {
+				renderOptedOut();
+
+				await userEvent.click( screen.getByRole( 'radio', { name: 'Everyone' } ) );
+				expect( mockSetPostMeta ).not.toHaveBeenCalled();
+			} );
 		} );
 	} );
 
@@ -383,6 +423,7 @@ describe( 'NewsletterAccessRadioButtons', () => {
 		const everyone = screen.getByRole( 'radio', { name: 'Everyone' } );
 		expect( everyone ).toBeChecked();
 		expect( everyone ).not.toHaveAttribute( 'aria-disabled' );
+		expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
 	} );
 
 	// The counts report how many people can read each level. Switching the paid count to
@@ -440,16 +481,15 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 		jest.restoreAllMocks();
 	} );
 
-	// The paywall description is what makes the card's absence meaningful: it proves the
-	// paywall block was detected in this render, not that the card vanished for another reason.
+	// The card used to sit above the radio group with an "Edit the block." button that
+	// selected the paywall block without switching the sidebar to the Block tab, so it
+	// looked inert. The notice explains the constraint instead. Asserting the notice is
+	// present is what makes the card's absence meaningful: it proves the paywall block
+	// was detected in this render, rather than the card being missing for some other reason.
 	test( 'explains the paywall in the panel instead of linking out to the block', () => {
 		renderSettings( { blocks: [ PAYWALL_BLOCK ] } );
 
-		expect(
-			screen.getByText(
-				'Anyone can read it up to your paywall. Only subscribers can read the rest.'
-			)
-		).toBeInTheDocument();
+		expect( screen.getByText( 'Paywall active' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: /edit the block/i } ) ).not.toBeInTheDocument();
 		expect(
 			screen.queryByText( /content below the paywall block is exclusive/i )
@@ -462,6 +502,7 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 		expect( screen.getByRole( 'radio', { name: 'Everyone' } ) ).not.toHaveAttribute(
 			'aria-disabled'
 		);
+		expect( screen.queryByText( 'Paywall active' ) ).not.toBeInTheDocument();
 	} );
 } );
 

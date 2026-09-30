@@ -13,7 +13,7 @@ import { useEntityId, useEntityProp, store as coreDataStore } from '@wordpress/c
 import { useDispatch, useSelect } from '@wordpress/data';
 import { PostVisibilityCheck, store as editorStore } from '@wordpress/editor';
 import { __ } from '@wordpress/i18n';
-import { Link } from '@wordpress/ui';
+import { Link, Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import paywallBlockMetadata from '../../blocks/paywall/block.json';
 import { store as membershipProductsStore } from '../../store/membership-products';
@@ -214,6 +214,7 @@ interface NewsletterAccessRadioButtonsProps {
 	hasTierPlans: boolean;
 	stripeConnectUrl: string | null;
 	postHasPaywallBlock?: boolean;
+	explainPaywallConstraint?: boolean;
 }
 
 export function NewsletterAccessRadioButtons( {
@@ -221,6 +222,7 @@ export function NewsletterAccessRadioButtons( {
 	hasTierPlans,
 	stripeConnectUrl,
 	postHasPaywallBlock = false,
+	explainPaywallConstraint = true,
 }: NewsletterAccessRadioButtonsProps ) {
 	const isStripeConnected = stripeConnectUrl === null;
 	const { totalSubscribers, paidSubscribers } = useSelect( select =>
@@ -237,11 +239,20 @@ export function NewsletterAccessRadioButtons( {
 	const showPaidAsDisabled = ! isPaidAvailable && ! isPaidSelected;
 
 	// A paywall block splits the post, so "the whole post is public" stops being an
-	// option it can express. The option stays visible and disabled, described by the
-	// access description below, which explains the paywall split. Same saved-value guard
-	// as above: never leave the group with nothing selected.
+	// option it can express. The option stays visible and disabled — the same treatment
+	// paid subscribers gets — with a notice saying why, rather than the panel silently
+	// changing shape. The saved-value guard is the same as above: the paywall block
+	// moves the post off "everybody" when it is inserted, but until that lands we must
+	// not leave the group with nothing selected.
 	const isEverybodySelected = accessLevel === accessOptions.everybody.key;
 	const showEverybodyAsDisabled = !! postHasPaywallBlock && ! isEverybodySelected;
+
+	// The paywall block's own inspector opts out: it sits directly under Gutenberg's
+	// block card, which already says what a paywall does, so the notice repeats the
+	// heading above it. Both the notice and the option's aria-describedby derive from
+	// this one flag — gating only the notice would leave the option pointing at an id
+	// that is no longer in the DOM, which reads as no description at all.
+	const showPaywallNotice = showEverybodyAsDisabled && explainPaywallConstraint;
 
 	const setAccess = useSetAccess();
 	// The count beside each option is the size of the audience that can read it, which
@@ -262,7 +273,7 @@ export function NewsletterAccessRadioButtons( {
 
 	const instanceId = useInstanceId( NewsletterAccessRadioButtons, 'jetpack-newsletter-access' );
 	const groupName = `${ instanceId }-group`;
-	const descriptionId = `${ instanceId }-description`;
+	const paywallNoticeId = `${ instanceId }-paywall-notice`;
 	const setupLinkId = `${ instanceId }-paid-setup-link`;
 
 	const options: Array< {
@@ -275,7 +286,7 @@ export function NewsletterAccessRadioButtons( {
 			value: accessOptions.everybody.key,
 			label: accessOptions.everybody.label,
 			disabled: showEverybodyAsDisabled,
-			describedBy: showEverybodyAsDisabled ? descriptionId : undefined,
+			describedBy: showPaywallNotice ? paywallNoticeId : undefined,
 		},
 		{
 			value: accessOptions.subscribers.key,
@@ -293,6 +304,17 @@ export function NewsletterAccessRadioButtons( {
 
 	return (
 		<div className="jetpack-newsletter-access-radio-buttons">
+			{ showPaywallNotice && (
+				<Notice.Root intent="info" icon={ null } id={ paywallNoticeId }>
+					<Notice.Title>{ __( 'Paywall active', 'jetpack' ) }</Notice.Title>
+					<Notice.Description>
+						{ __(
+							'Choose who can read the full post. Everyone can still read the content above the paywall.',
+							'jetpack'
+						) }
+					</Notice.Description>
+				</Notice.Root>
+			) }
 			<fieldset role="radiogroup" className="components-radio-control">
 				<BaseControl.VisualLabel as="legend">
 					{ __( 'Who can read this post?', 'jetpack' ) }
@@ -319,7 +341,7 @@ export function NewsletterAccessRadioButtons( {
 				</Link>
 			) }
 			{ isPaidSelected && isPaidAvailable && <TierSelector></TierSelector> }
-			<p id={ descriptionId } className="jetpack-newsletter-access-radio-buttons__description">
+			<p className="jetpack-newsletter-access-radio-buttons__description">
 				{ getAccessDescription( accessLevel, !! postHasPaywallBlock ) }
 			</p>
 		</div>
