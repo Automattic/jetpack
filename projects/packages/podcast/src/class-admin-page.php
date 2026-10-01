@@ -287,6 +287,7 @@ class Admin_Page {
 		// module (which loads its translations) would be missing from the import map. It guards
 		// against running twice, so calling it directly is safe either way.
 		if ( did_action( 'wp_default_scripts' ) && function_exists( 'wp_register_script_module' ) && function_exists( 'jetpack_podcast_register_script_modules' ) ) {
+			// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by the generated build/modules.php.
 			jetpack_podcast_register_script_modules();
 		}
 
