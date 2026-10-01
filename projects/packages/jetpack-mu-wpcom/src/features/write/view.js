@@ -4695,6 +4695,7 @@ const { state } = store( 'wpcom-write', {
 		// --- Block formatting ---
 
 		formatQuote() {
+			flushUndoDebounce();
 			if ( state.formatQuote ) {
 				if ( ! exitListAndApplyBlock( 'p' ) ) {
 					const bq = getActiveBlockquote();
@@ -4721,6 +4722,9 @@ const { state } = store( 'wpcom-write', {
 			}
 			state.formatUList = false;
 			state.formatOList = false;
+			// unwrapQuote fires no input event, and formatBlock's is still debounced.
+			flushUndoDebounce();
+			pushToUndoHistory();
 		},
 
 		// --- Link ---
