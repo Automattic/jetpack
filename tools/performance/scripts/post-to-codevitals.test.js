@@ -612,15 +612,28 @@ test( 'Settings extracts four typed staging metrics and rejects wrong routes or 
 		} ) )
 	);
 	assert.equal( scenario.optional, true );
-	for ( const slug of [ 'jetpack', 'jetpack-settings' ] ) {
-		assert.doesNotThrow( () =>
+	assert.equal( scenario.path, '/wp-admin/admin.php?page=jetpack#/settings' );
+	assert.equal(
+		scenario.waitForSelector,
+		'.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])'
+	);
+	assert.equal( scenario.expectUrlIncludes, 'page=jetpack-settings' );
+	assert.doesNotThrow( () =>
+		assertExpectedUrl(
+			'http://localhost/wp-admin/admin.php?page=jetpack-settings#/settings',
+			scenario.expectUrlIncludes,
+			scenario.expectUrlHash
+		)
+	);
+	assert.throws(
+		() =>
 			assertExpectedUrl(
-				`http://localhost/wp-admin/admin.php?page=${ slug }#/settings`,
+				'http://localhost/wp-admin/admin.php?page=my-jetpack#/settings',
 				scenario.expectUrlIncludes,
 				scenario.expectUrlHash
-			)
-		);
-	}
+			),
+		/Wrong page: expected URL to include/
+	);
 	for ( const hash of [ '', '#/security', '#/settings-other' ] ) {
 		assert.throws(
 			() =>
@@ -866,11 +879,16 @@ test( 'dry-run with both scenarios present posts 14 keys, including zero Forms s
 	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
 } );
 
-test( 'dry-run with all three scenarios present posts 22 keys, including My Jetpack staging TBT', async () => {
+test( 'dry-run with all four scenarios posts 26 keys, including staging TBT and Settings metrics', async () => {
 	const file = writeResults( 120, {
 		forms: { decodedBytesKB: 8229 },
 		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860, tbt: 120 },
 	} );
+	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	results.measurements.jetpackSettings = {
+		summary: formsSummary( { lcp: 1060, ttfb: 327, fcp: 684, decodedBytesKB: 6782 } ),
+	};
+	fs.writeFileSync( file, JSON.stringify( results ) );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
 	assert.equal( result.payload.metrics[ MJ_LCP_KEY ], 640 );
@@ -878,7 +896,16 @@ test( 'dry-run with all three scenarios present posts 22 keys, including My Jetp
 	assert.equal( result.payload.metrics[ MJ_FCP_KEY ], 560 );
 	assert.equal( result.payload.metrics[ MJ_DECODED_KEY ], 5860 );
 	assert.equal( result.payload.metrics[ MJ_TBT_KEY ], 120 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
+	assert.deepEqual(
+		Object.entries( result.payload.metrics ).filter( ( [ key ] ) => key.startsWith( 'jetpack-settings-connection-sim-' ) ),
+		[
+			[ 'jetpack-settings-connection-sim-largestContentfulPaint-staging', 1060 ],
+			[ 'jetpack-settings-connection-sim-timeToFirstByte-staging', 327 ],
+			[ 'jetpack-settings-connection-sim-firstContentfulPaint-staging', 684 ],
+			[ 'jetpack-settings-connection-sim-decodedBytesKB-staging', 6782 ],
+		]
+	);
+	assert.equal( Object.keys( result.payload.metrics ).length, 26 );
 } );
 
 test( 'dry-run adds six separate staging control keys and preserves all connected keys', async () => {

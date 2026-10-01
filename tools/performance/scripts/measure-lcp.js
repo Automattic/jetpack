@@ -927,23 +927,15 @@ function assertCaptureComplete( resourceStats, scenario ) {
 }
 
 /**
- * Refuse to measure the wrong page.
+ * Refuse a final URL that fails the configured substring or exact hash guard.
  *
- * Scope, on purpose: this catches a page whose FINAL URL no longer contains the expected route —
- * the concrete threat here is class-dashboard.php server-redirecting a bare page URL to the forms
- * LIST, which strips the pinned `p=/responses/inbox` from the URL, so this fires. It does NOT prove
- * the SPA client-rendered the inbox: a client-side route divergence that keeps the URL would pass.
- * That is a deliberate trade — a stricter DOM-selector assertion would throw on every iteration if
- * the guessed selector is wrong or the markup shifts, which blackholes the scenario's whole series
- * on the append-only store. The URL check defends the real redirect without that failure mode.
- *
- * decodeURIComponent can throw on a malformed URL; we catch and re-throw as a mis-target so the
- * iteration fails closed (no post) with a clear message rather than an opaque URIError.
+ * URL guards do not prove rendered content; targeted scenarios also supply a visible selector.
+ * Malformed URLs fail the iteration closed rather than allowing an off-target measurement.
  *
  * @param {string}      currentUrl        - The page's final URL (page.url()).
  * @param {string|null} expectUrlIncludes - Substring the final URL must contain, or null to skip.
  * @param {string}      [expectUrlHash]   - Exact final hash route, including the leading #.
- * @throws {Error} When the final URL does not contain the expected route (or cannot be decoded).
+ * @throws {Error} When the final URL cannot be parsed/decoded or fails either configured guard.
  */
 function assertExpectedUrl( currentUrl, expectUrlIncludes, expectUrlHash ) {
 	if ( expectUrlHash && new URL( currentUrl ).hash !== expectUrlHash ) {

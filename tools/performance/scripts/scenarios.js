@@ -348,11 +348,12 @@ export const SCENARIOS = [
 		defaultUrl: 'http://localhost:8083',
 		header: 'Jetpack Settings (simulated WP.com connection)',
 		path: '/wp-admin/admin.php?page=jetpack#/settings',
-		// A rendered settings card with a control excludes empty, loading and connection shells.
+		// A settings card with a control proves Settings content rendered, even while data loads.
 		waitForSelector: '.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])',
-		// The current app canonicalizes page=jetpack to page=jetpack-settings, retaining the hash.
-		expectUrlIncludes: 'page=jetpack',
+		// The PHP redirect document canonicalizes the legacy slug, retaining the hash.
+		expectUrlIncludes: 'page=jetpack-settings',
 		expectUrlHash: '#/settings',
+		// Observed 105–106 resources; 74 retains about 70% of the minimum rendered load.
 		minResourceCount: 74,
 		metrics: [
 			{
@@ -400,7 +401,7 @@ export const SANITY_RANGES = {
 	wpDbQueries: { min: 1, max: 10000 },
 	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
 	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
-	// Summed per-resource decodedBodySize, in KB, shared by Forms, My Jetpack and Settings.
+	// Summed per-resource decodedBodySize, in KB, shared across rendered admin pages.
 	// Keep broad bounds: 1MB catches an unloaded app; 50MB catches a bytes-vs-KB scale error
 	// without clipping legitimate changes in any one page's bundle size.
 	decodedBytesKB: { min: 1000, max: 51200 },
