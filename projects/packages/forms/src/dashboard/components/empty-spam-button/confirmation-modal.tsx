@@ -2,8 +2,9 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components'; // eslint-disable-line @wordpress/no-unsafe-wp-apis
+import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
+import { AlertDialog } from '@wordpress/ui';
 import type { JSX } from 'react';
 
 interface EmptySpamConfirmationModalProps {
@@ -20,7 +21,7 @@ interface EmptySpamConfirmationModalProps {
  * @param {object}   props                        - Component props.
  * @param {boolean}  props.isOpen                 - Whether the modal is open.
  * @param {Function} props.onCancel               - Function to call when the user cancels.
- * @param {Function} props.onConfirm              - Function to call when the user confirms.
+ * @param {Function} props.onConfirm              - Function to call when the user confirms. It must close the modal by setting `isOpen` to false.
  * @param {number}   props.totalItemsSpam         - The total number of spam items.
  * @param {number}   props.selectedResponsesCount - The number of selected responses.
  * @return {JSX.Element} The confirmation modal.
@@ -32,31 +33,40 @@ export default function EmptySpamConfirmationModal( {
 	totalItemsSpam,
 	selectedResponsesCount,
 }: EmptySpamConfirmationModalProps ): JSX.Element {
+	const handleOpenChange = useCallback(
+		( open: boolean, { reason }: { reason: string } ) => {
+			if ( ! open && reason !== 'imperative-action' ) {
+				onCancel();
+			}
+		},
+		[ onCancel ]
+	);
+
+	const description =
+		selectedResponsesCount > 0
+			? sprintf(
+					// translators: %s: the number of responses in spam
+					_n(
+						'%s response in spam will be deleted forever. This action cannot be undone.',
+						'All %s responses in spam will be deleted forever. This action cannot be undone.',
+						totalItemsSpam || 0,
+						'jetpack-forms'
+					),
+					formatNumber( totalItemsSpam )
+				)
+			: __(
+					'All responses in spam will be deleted forever. This action cannot be undone.',
+					'jetpack-forms'
+				);
+
 	return (
-		<ConfirmDialog
-			onCancel={ onCancel }
-			onConfirm={ onConfirm }
-			isOpen={ isOpen }
-			confirmButtonText={ __( 'Delete', 'jetpack-forms' ) }
-		>
-			<h3>{ __( 'Delete forever', 'jetpack-forms' ) }</h3>
-			<p>
-				{ selectedResponsesCount > 0
-					? sprintf(
-							// translators: %s: the number of responses in spam
-							_n(
-								'%s response in spam will be deleted forever. This action cannot be undone.',
-								'All %s responses in spam will be deleted forever. This action cannot be undone.',
-								totalItemsSpam || 0,
-								'jetpack-forms'
-							),
-							formatNumber( totalItemsSpam )
-						)
-					: __(
-							'All responses in spam will be deleted forever. This action cannot be undone.',
-							'jetpack-forms'
-						) }
-			</p>
-		</ConfirmDialog>
+		<AlertDialog.Root open={ isOpen } onOpenChange={ handleOpenChange } onConfirm={ onConfirm }>
+			<AlertDialog.Popup
+				intent="irreversible"
+				title={ __( 'Delete forever', 'jetpack-forms' ) }
+				description={ description }
+				confirmButtonText={ __( 'Delete', 'jetpack-forms' ) }
+			/>
+		</AlertDialog.Root>
 	);
 }
