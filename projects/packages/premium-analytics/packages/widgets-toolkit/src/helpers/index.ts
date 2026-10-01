@@ -64,6 +64,7 @@ export {
 } from './build-csv';
 export { sharePercentage } from './share-percentage';
 export { getCombinedPeriodMax } from './get-combined-period-max';
+export { getVideoPosterUrl } from './video-poster-url';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';

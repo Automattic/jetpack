@@ -61,6 +61,11 @@ export type StatsWordAdsEarningsResponse = any;
 // The video plays hook is provisional the same way: shared with the dashboard's Videos report until
 // that report moves to the VideoPress package.
 export declare function useStatsVideoPlays( ...args: any[] ): any;
+export declare function getVideoPosterUrl(
+	poster: unknown,
+	width: number,
+	height: number
+): string | undefined;
 export type StatsVideoPlaysComparisonItem = any;
 
 // Ads earnings history, provisional too: shared with the dashboard's Earnings report until that report
