@@ -15,19 +15,23 @@ export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
  * Complete earns no pill of its own, but an old link can still select it — so it joins the
  * list while it is the active one, or the narrow layout's select would have nothing to show.
  * Included in plan only shows for a site that pays for something, or when a link selects it.
+ * A visit that arrived on Included in plan is about what the site owns, so it drops the
+ * category pills.
  *
  * @param active      - The filter in play, if any.
  * @param hasIncluded - Whether the site pays for any feature.
+ * @param ownedView   - Whether the visit arrived on Included in plan.
  * @return One entry per filter, each with its label.
  */
 export const getFeatureFilters = (
 	active?: FeatureFilter,
-	hasIncluded = false
+	hasIncluded = false,
+	ownedView = false
 ): Array< { value: FeatureFilter; label: string } > => [
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
 	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
-	...( hasIncluded || 'included' === active
+	...( hasIncluded || ownedView || 'included' === active
 		? [
 				{
 					value: 'included' as FeatureFilter,
@@ -35,9 +39,13 @@ export const getFeatureFilters = (
 				},
 			]
 		: [] ),
-	{ value: 'essential', label: __( 'Essential', 'jetpack-my-jetpack' ) },
-	{ value: 'security', label: __( 'Security', 'jetpack-my-jetpack' ) },
-	{ value: 'growth', label: __( 'Growth', 'jetpack-my-jetpack' ) },
+	...( ownedView
+		? []
+		: [
+				{ value: 'essential' as FeatureFilter, label: __( 'Essential', 'jetpack-my-jetpack' ) },
+				{ value: 'security' as FeatureFilter, label: __( 'Security', 'jetpack-my-jetpack' ) },
+				{ value: 'growth' as FeatureFilter, label: __( 'Growth', 'jetpack-my-jetpack' ) },
+			] ),
 	...( 'complete' === active
 		? [ { value: 'complete' as FeatureFilter, label: __( 'Complete', 'jetpack-my-jetpack' ) } ]
 		: [] ),

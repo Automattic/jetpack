@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { FeaturesContent } from '../content';
@@ -139,6 +139,21 @@ describe( 'FeaturesContent', () => {
 		screen
 			.getAllByRole( 'button', { pressed: true } )
 			.forEach( pressed => expect( pressed ).not.toHaveTextContent( /Growth|All/ ) );
+	} );
+
+	it( 'drops the category pills for a visit that arrived on Included in plan, until it leaves the tab', async () => {
+		renderAt( '/features?filter=included' );
+
+		const pillNames = () =>
+			within( screen.getByRole( 'group', { name: 'Filter features' } ) )
+				.getAllByRole( 'button' )
+				.map( pill => pill.textContent?.replace( /\d+$/, '' ) );
+
+		expect( pillNames() ).toEqual( [ 'All', 'Active', 'Inactive', 'Included in plan' ] );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^All/ } ) );
+
+		expect( pillNames() ).toEqual( [ 'All', 'Active', 'Inactive', 'Included in plan' ] );
 	} );
 
 	it( 'shows the grid by default and switches to the list from the toolbar', async () => {

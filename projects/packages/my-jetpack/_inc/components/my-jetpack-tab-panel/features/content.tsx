@@ -1,5 +1,5 @@
 import { _n, sprintf } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { BulkBar } from './bulk-bar';
 import { FeaturesEmptyState } from './empty-state';
@@ -140,13 +140,16 @@ function FeaturesTabContent() {
 		[ states, moreFeatures ]
 	);
 
+	// Read once, so the pills hold steady until the visitor leaves the tab.
+	const [ ownedView ] = useState( () => filter === 'included' );
 	const filters = useMemo(
 		() =>
 			getFeatureFilters(
 				filter,
-				states.some( state => state.feature.included )
+				states.some( state => state.feature.included ),
+				ownedView
 			),
-		[ filter, states ]
+		[ filter, ownedView, states ]
 	);
 	// Counted against every feature, not the visible ones, so a pill says how many it
 	// would show rather than how many survived the filter already in play.
