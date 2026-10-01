@@ -98,24 +98,32 @@ describe( 'ModernApp', () => {
 	} );
 
 	it( 'delivers one completion snackbar across roots and cleans up its StrictMode listener', () => {
-		const { slots, unmount } = renderApp();
-		const producer = document.createElement( 'div' );
-		const button = document.createElement( 'button' );
-		producer.appendChild( button );
-		document.body.appendChild( producer );
-		button.addEventListener( 'click', () =>
-			window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) )
-		);
-		act( () => button.click() );
-		expect( within( slots.settings ).getAllByText( 'Speed test complete.' ) ).toHaveLength( 1 );
-		unmount();
-		act( () => button.click() );
-		const { slots: remountedSlots } = renderApp();
-		expect( within( remountedSlots.settings ).queryByText( 'Speed test complete.' ) ).toBeNull();
-		act( () => button.click() );
-		expect( within( remountedSlots.settings ).getAllByText( 'Speed test complete.' ) ).toHaveLength(
-			1
-		);
+		const addListener = jest.spyOn( window, 'addEventListener' );
+		const removeListener = jest.spyOn( window, 'removeEventListener' );
+		try {
+			const { slots, unmount } = renderApp();
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			expect( within( slots.settings ).getAllByText( 'Speed test complete.' ) ).toHaveLength( 1 );
+			unmount();
+			const registered = addListener.mock.calls.filter(
+				( [ event ] ) => event === SPEED_TEST_COMPLETE_EVENT
+			);
+			const removed = removeListener.mock.calls.filter(
+				( [ event ] ) => event === SPEED_TEST_COMPLETE_EVENT
+			);
+			expect( registered ).toHaveLength( 2 );
+			expect( removed ).toEqual( registered );
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			const { slots: remountedSlots } = renderApp();
+			expect( within( remountedSlots.settings ).queryByText( 'Speed test complete.' ) ).toBeNull();
+			act( () => window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) ) );
+			expect(
+				within( remountedSlots.settings ).getAllByText( 'Speed test complete.' )
+			).toHaveLength( 1 );
+		} finally {
+			addListener.mockRestore();
+			removeListener.mockRestore();
+		}
 	} );
 
 	it( 'renders Settings in the slot it mounts into, leaving the sub-page slot empty', () => {

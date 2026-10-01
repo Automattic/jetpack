@@ -149,12 +149,22 @@ function queryWrapper() {
 	);
 }
 
-function OverviewWithHeader( { isVisible }: { isVisible?: boolean } ) {
+function OverviewWithHeader( {
+	isVisible,
+	scoresEnabled,
+}: {
+	isVisible?: boolean;
+	scoresEnabled?: boolean;
+} ) {
 	const [ action, setAction ] = useState< ReactNode >( null );
 	return (
 		<>
 			<header>{ action }</header>
-			<Overview isVisible={ isVisible } onHeaderActionChange={ setAction } />
+			<Overview
+				isVisible={ isVisible }
+				scoresEnabled={ scoresEnabled }
+				onHeaderActionChange={ setAction }
+			/>
 		</>
 	);
 }
@@ -302,6 +312,48 @@ test( 'does not announce an automatic module-change refresh', async () => {
 		} );
 		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
 		expect( completed ).not.toHaveBeenCalled();
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'announces a user run exactly once when it resumes after a subpage visit', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const client = createQueryClient();
+		const dashboard = ( open: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( false ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		let resolveResumed!: ( value: typeof scores ) => void;
+		jest
+			.mocked( requestSpeedScores )
+			.mockImplementationOnce( () => new Promise( () => {} ) )
+			.mockImplementationOnce(
+				() =>
+					new Promise( resolve => {
+						resolveResumed = resolve;
+					} )
+			);
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		expect( jest.mocked( requestSpeedScores ).mock.lastCall![ 0 ] ).toBe( true );
+		view.rerender( dashboard( true ) );
+		view.rerender( dashboard( false ) );
+		expect( jest.mocked( requestSpeedScores ).mock.lastCall![ 0 ] ).toBe( false );
+		expect( screen.getByText( 'Calculating…' ) ).toBeInTheDocument();
+		await act( async () =>
+			resolveResumed( {
+				current: { desktop: 77, mobile: 66 },
+				noBoost: null,
+				isStale: false,
+			} )
+		);
+		await expect( screen.findByText( '77' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
 	} finally {
 		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
 	}

@@ -75,7 +75,14 @@ function OverviewContent( {
 }: Props & { focusFallback: () => void } ) {
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
-	const [ scoreState, refreshScores ] = useSpeedScores( refreshState, scoresEnabled );
+	const onUserRunComplete = useCallback( () => {
+		window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) );
+	}, [] );
+	const [ scoreState, refreshScores ] = useSpeedScores(
+		refreshState,
+		scoresEnabled,
+		onUserRunComplete
+	);
 	const historyAvailable = modules.data?.performance_history?.available === true;
 	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
@@ -120,11 +127,9 @@ function OverviewContent( {
 	}, [ online, scoreState.status, queryClient ] );
 
 	const onRefresh = useCallback(
-		async ( source: 'header' | 'score_card' ) => {
+		( source: 'header' | 'score_card' ) => {
 			recordBoostEvent( 'speed_score_refresh_clicked', { source } );
-			if ( await refreshScores( true ) ) {
-				window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) );
-			}
+			void refreshScores( true, { userStarted: true } );
 		},
 		[ refreshScores ]
 	);
