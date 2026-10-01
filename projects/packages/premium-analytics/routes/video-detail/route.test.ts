@@ -8,6 +8,7 @@ import {
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
 	computeDateRangeFromPreset: jest.fn( () => ( {
 		from: '2021-01-01T00:00:00',
@@ -170,6 +171,8 @@ describe( 'video detail route.beforeLoad', () => {
 				preset: 'last-7-days',
 				comp: '1',
 				compare_from: '2026-06-03T00:00:00',
+				compare_to: '2026-06-09T23:59:59',
+				compare_preset: 'previous-period',
 			}
 		);
 
@@ -177,13 +180,11 @@ describe( 'video detail route.beforeLoad', () => {
 			search: {
 				post_id: '42',
 				preset: 'all-time',
-				ref_from: '2026-06-10T00:00:00',
-				ref_to: '2026-06-16T23:59:59',
 				ref_preset: 'last-7-days',
-				ref_comp: '1',
-				ref_compare_from: '2026-06-03T00:00:00',
+				ref_compare_preset: 'previous-period',
 			},
 		} );
+		await expect( redirect ).rejects.not.toHaveProperty( 'search.ref_from' );
 		expect( normalizeReportParams ).toHaveBeenCalledWith(
 			expect.objectContaining( { preset: 'all-time', from: '2021-01-01T00:00:00' } )
 		);

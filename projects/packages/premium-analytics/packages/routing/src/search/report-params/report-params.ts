@@ -1,11 +1,20 @@
 /**
  * External dependencies
  */
-import { PRESET_ALL_TIME } from '@jetpack-premium-analytics/datetime';
+import { hasComparisonEnabled, normalizeReportParams } from '@jetpack-premium-analytics/data';
+import {
+	PRESET_ALL_TIME,
+	isComparisonPresetId,
+	isSelectablePreset,
+	isYearPresetId,
+} from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
+import { deriveComparisonRange } from '../comparison';
 import { DASHBOARD_ORIGIN_PARAM, pickDashboardOriginParams } from '../dashboard-origin';
+
+type NormalizeInput = NonNullable< Parameters< typeof normalizeReportParams >[ 0 ] >;
 
 /**
  * The URL search params that describe the shared report window (date range,
@@ -60,7 +69,8 @@ export function pickReportDateParams(
 const ORIGIN_WINDOW_PREFIX = 'ref_';
 
 /**
- * Store the linking page's window under the origin-window params.
+ * Store the linking page's window under the origin-window params, keeping only
+ * what `expandOriginWindow()` cannot rebuild: a named range is its preset alone.
  *
  * An all-time window is dropped: the dashboard's range tabs and the reports
  * cannot name it, so the way back falls to the destination's default instead.
@@ -71,17 +81,62 @@ const ORIGIN_WINDOW_PREFIX = 'ref_';
 export function toReportOriginWindowParams(
 	search: Record< string, unknown > | undefined
 ): Record< string, unknown > {
-	const linkedWindow = pickReportDateParams( search );
-	if ( linkedWindow.preset === PRESET_ALL_TIME ) {
+	const linked = pickReportDateParams( search ) as NormalizeInput;
+	if ( linked.preset === PRESET_ALL_TIME ) {
 		return {};
 	}
 
-	return Object.fromEntries(
-		Object.entries( linkedWindow ).map( ( [ key, value ] ) => [
-			ORIGIN_WINDOW_PREFIX + key,
-			value,
-		] )
-	);
+	const origin: Record< string, unknown > =
+		isSelectablePreset( linked.preset ) || isYearPresetId( linked.preset )
+			? { preset: linked.preset }
+			: { from: linked.from, to: linked.to };
+
+	const rebuilt = normalizeReportParams( origin as NormalizeInput );
+	for ( const key of [ 'interval', 'date_type' ] as const ) {
+		if ( linked[ key ] !== undefined && linked[ key ] !== rebuilt[ key ] ) {
+			origin[ key ] = linked[ key ];
+		}
+	}
+
+	if ( hasComparisonEnabled( linked ) ) {
+		Object.assign(
+			origin,
+			isComparisonPresetId( linked.compare_preset )
+				? { compare_preset: linked.compare_preset }
+				: { compare_from: linked.compare_from, compare_to: linked.compare_to }
+		);
+	}
+
+	const stored: Record< string, unknown > = {};
+	for ( const [ key, value ] of Object.entries( origin ) ) {
+		if ( value !== undefined ) {
+			stored[ ORIGIN_WINDOW_PREFIX + key ] = value;
+		}
+	}
+	return stored;
+}
+
+/**
+ * Rebuild the comparison a stored origin window names by preset; the destination
+ * route seeds the rest of the window, as it does for any link that omits dates.
+ *
+ * @param origin - The unprefixed origin-window params.
+ * @return The report-window params to carry.
+ */
+function expandOriginWindow( origin: Record< string, unknown > ): Record< string, unknown > {
+	if ( origin.compare_from !== undefined ) {
+		return { ...origin, comp: '1' };
+	}
+	if ( origin.compare_preset === undefined ) {
+		return origin;
+	}
+
+	const comparison = deriveComparisonRange( {
+		...normalizeReportParams( origin as NormalizeInput ),
+		comp: '1',
+		compare_preset: origin.compare_preset,
+	} as NormalizeInput );
+	return comparison ? { ...origin, ...comparison, comp: '1' } : origin;
 }
 
 /**
@@ -118,14 +173,14 @@ function pickReturnDateParams(
 		return pickReportDateParams( search );
 	}
 
-	const picked: Record< string, unknown > = {};
+	const origin: Record< string, unknown > = {};
 	for ( const key of REPORT_DATE_PARAM_KEYS ) {
 		const value = search[ ORIGIN_WINDOW_PREFIX + key ];
 		if ( value !== undefined ) {
-			picked[ key ] = value;
+			origin[ key ] = value;
 		}
 	}
-	return picked;
+	return expandOriginWindow( origin );
 }
 
 /**

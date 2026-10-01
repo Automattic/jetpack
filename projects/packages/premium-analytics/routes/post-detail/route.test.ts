@@ -78,19 +78,13 @@ describe( 'post detail route report origin', () => {
 			},
 		} );
 
-		await expect( result ).rejects.toMatchObject( {
-			search: {
-				preset: 'all-time',
-				ref_from: '2026-06-10',
-				ref_to: '2026-06-16',
-				ref_interval: 'day',
-				ref_preset: 'last-7-days',
-				ref_comp: '1',
-				ref_compare_from: '2026-06-03',
-				ref_compare_to: '2026-06-09',
-				ref_compare_preset: 'previous-period',
-			},
-		} );
+		await expect( result ).rejects.toMatchObject( { search: { preset: 'all-time' } } );
+		const { search } = mockRedirect.mock.calls[ 0 ][ 0 ];
+		expect(
+			Object.fromEntries(
+				Object.entries( search ).filter( ( [ key ] ) => key.startsWith( 'ref_' ) )
+			)
+		).toEqual( { ref_preset: 'last-7-days', ref_compare_preset: 'previous-period' } );
 		await expect( result ).rejects.not.toHaveProperty( 'search.from', '2026-06-10' );
 		await expect( result ).rejects.not.toHaveProperty( 'search.comp' );
 	} );

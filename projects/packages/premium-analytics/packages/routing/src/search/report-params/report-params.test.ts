@@ -1,3 +1,5 @@
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
+import { deriveComparisonRange } from '../comparison';
 import {
 	buildDashboardLink,
 	buildReportLink,
@@ -101,23 +103,86 @@ describe( 'omitComparisonReportParams', () => {
 } );
 
 describe( 'origin window params', () => {
-	it( 'stores the linking window under prefixed keys and picks them back out', () => {
+	beforeEach( () => {
+		jest.useFakeTimers().setSystemTime( Date.parse( '2026-09-15T12:00:00.000Z' ) );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'stores a named range as its preset alone', () => {
 		const stored = toReportOriginWindowParams( {
-			from: '2026-01-01',
-			preset: 'last-7-days',
+			...normalizeReportParams( { preset: 'last-7-days' } ),
 			post_id: '7',
 		} );
 
-		expect( stored ).toEqual( { ref_from: '2026-01-01', ref_preset: 'last-7-days' } );
+		expect( stored ).toEqual( { ref_preset: 'last-7-days' } );
 		expect(
 			pickReportOriginWindowParams( { ...stored, from: '2020-03-04', ref: 'posts' } )
 		).toEqual( stored );
+	} );
+
+	it( 'keeps an interval the preset would not default to', () => {
+		expect(
+			toReportOriginWindowParams( {
+				...normalizeReportParams( { preset: 'last-30-days' } ),
+				interval: 'week',
+			} )
+		).toEqual( { ref_preset: 'last-30-days', ref_interval: 'week' } );
+	} );
+
+	it( 'stores a custom range by its dates', () => {
+		expect(
+			toReportOriginWindowParams( { from: '2026-01-01', to: '2026-01-31', interval: 'day' } )
+		).toEqual( { ref_from: '2026-01-01', ref_to: '2026-01-31' } );
+	} );
+
+	it( 'stores a named comparison as its preset alone', () => {
+		const window = normalizeReportParams( { preset: 'last-7-days' } );
+
+		expect(
+			toReportOriginWindowParams( {
+				...window,
+				...deriveComparisonRange( { ...window, comp: '1', compare_preset: 'previous-year' } ),
+				comp: '1',
+			} )
+		).toEqual( { ref_preset: 'last-7-days', ref_compare_preset: 'previous-year' } );
 	} );
 
 	it( 'stores nothing for an all-time window', () => {
 		expect(
 			toReportOriginWindowParams( { from: '2020-03-04', to: '2026-01-31', preset: 'all-time' } )
 		).toEqual( {} );
+	} );
+
+	it( 'returns a detail page to its linking window, leaving the dates to the seed', () => {
+		const window = normalizeReportParams( { preset: 'last-30-days' } );
+		const linked = {
+			...window,
+			interval: 'week',
+			...deriveComparisonRange( { ...window, comp: '1', compare_preset: 'previous-year' } ),
+			comp: '1',
+		};
+
+		const carried = Object.fromEntries(
+			[ 'preset', 'interval', 'compare_from', 'compare_to', 'compare_preset', 'comp' ].map( key => [
+				key,
+				linked[ key as keyof typeof linked ],
+			] )
+		);
+
+		expect.assertions( 2 );
+		expectLink(
+			buildDashboardLink( {
+				from: '2020-03-04',
+				preset: 'all-time',
+				post_id: '42',
+				...toReportOriginWindowParams( linked ),
+			} ),
+			'/',
+			carried
+		);
 	} );
 } );
 
@@ -167,22 +232,6 @@ describe( 'buildDashboardLink', () => {
 			} ),
 			'/',
 			{ from: '2026-01-01' }
-		);
-	} );
-
-	it( 'returns a detail page to the window it was opened from, not its own', () => {
-		expect.assertions( 2 );
-		expectLink(
-			buildDashboardLink( {
-				from: '2020-03-04',
-				preset: 'all-time',
-				post_id: '42',
-				ref_from: '2026-01-01',
-				ref_preset: 'last-7-days',
-				ref_comp: '1',
-			} ),
-			'/',
-			{ from: '2026-01-01', preset: 'last-7-days', comp: '1' }
 		);
 	} );
 
