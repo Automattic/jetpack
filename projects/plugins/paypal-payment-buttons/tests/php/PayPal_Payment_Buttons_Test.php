@@ -41,8 +41,9 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 	public function tear_down() {
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+		wp_deregister_script( 'jp-paypal-payments-ncps-blocks' );
 
-		unset( $_SERVER['REQUEST_METHOD'] );
+		unset( $_SERVER['REQUEST_METHOD'], $GLOBALS['current_screen'] );
 		$_GET = array();
 	}
 
@@ -77,5 +78,22 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 	public function test_plugin_construction() {
 		$plugin = PayPal_Payment_Buttons::instance();
 		$this->assertInstanceOf( 'PayPal_Payment_Buttons', $plugin );
+	}
+
+	public function test_block_availability_data_extends_the_shared_editor_state() {
+		$handle = 'jp-paypal-payments-ncps-blocks';
+		set_current_screen( 'post' );
+		get_current_screen()->is_block_editor( true );
+		wp_register_script( $handle, 'https://example.org/editor.js', array(), '1.0', true );
+
+		$this->paypal_plugin->enqueue_block_availability_data();
+
+		$before = implode( "\n", array_filter( (array) wp_scripts()->get_data( $handle, 'before' ) ) );
+		$this->assertStringNotContainsString( 'var Jetpack_Editor_Initial_State', (string) wp_scripts()->get_data( $handle, 'data' ) );
+		$this->assertStringContainsString( 'window.Jetpack_Editor_Initial_State || {}', $before );
+		$this->assertStringContainsString( 'Object.assign( {}, state.available_blocks, data.available_blocks )', $before );
+		$this->assertStringContainsString( 'Object.assign( {}, state.feature_flags, data.feature_flags )', $before );
+		$this->assertStringContainsString( '"paypal-payment-buttons":{"available":true}', $before );
+		$this->assertStringContainsString( '"feature_flags":{', $before );
 	}
 }
