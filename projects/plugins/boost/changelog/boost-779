@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Reduce duplicated styles, place page metadata first, and use normal stylesheets for oversized Critical CSS.

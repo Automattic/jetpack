@@ -17,7 +17,25 @@ class Display_Critical_CSS {
 	 * @param string $css
 	 */
 	public function __construct( $css ) {
-		$this->css = $css;
+		// Match the existing 1 MB guidance; oversized CSS must keep normal stylesheet loading.
+		$this->css = strlen( $css ) > MB_IN_BYTES ? '' : $css;
+	}
+
+	/**
+	 * Register inline output and stylesheet optimization for usable Critical CSS.
+	 *
+	 * @since $$next-version$$
+	 */
+	public function register_hooks() {
+		if ( ! $this->css ) {
+			return;
+		}
+
+		// Print after head metadata, including providers that run after WordPress's title tag.
+		add_action( 'wp_head', array( $this, 'display_critical_css' ), PHP_INT_MAX );
+		add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
+		add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
+		Admin_Bar_Compatibility::init();
 	}
 
 	/**

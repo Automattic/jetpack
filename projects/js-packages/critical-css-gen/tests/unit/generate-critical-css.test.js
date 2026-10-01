@@ -1,5 +1,6 @@
 const path = require( 'path' );
 const { chromium } = require( 'playwright' );
+const { deduplicateCss } = require( '../../build/deduplicate-css.js' );
 const { generateCriticalCSS, BrowserInterfacePlaywright } = require( '../../build/playwright.js' );
 const { dataDirectory } = require( '../lib/data-directory.js' );
 const mockFetch = require( '../lib/mock-fetch.js' );
@@ -83,6 +84,71 @@ describe( 'Generate Critical CSS', () => {
 	} );
 
 	describe( 'Inclusions and Exclusions', () => {
+		it( 'Deduplicates overlapping combined sources after pruning unused page rules', async () => {
+			const shared =
+				'@font-face{font-family:Fixture;src:url(/fixture.woff2)}' +
+				'@custom-media --small (width<700px);' +
+				'div.top{color:red;background:white;font-family:Fixture}@media screen{div.top{padding:8px}}' +
+				'@supports(display:grid){div.top{display:grid}}';
+			class CombinedInterface extends MockedFetchInterface {
+				async getCssIncludes( url ) {
+					return { [ '/combined.css' + new URL( url ).search ]: { media: 'all' } };
+				}
+				async getInternalStyles() {
+					return '';
+				}
+				async fetch( url ) {
+					const page = new URL( url ).searchParams.get( 'copy' );
+					return { ok: true, text: async () => shared + `.unused-${ page }{color:blue}` };
+				}
+			}
+			const urls = Array.from( { length: 10 }, ( _, i ) => testPageUrls.pageA + '?copy=' + i );
+			const generate = pages =>
+				generateCriticalCSS( {
+					urls: pages,
+					viewports: [ { width: 640, height: 480 } ],
+					browserInterface: new CombinedInterface( browser, pages ),
+				} );
+			const [ single, singleWarnings ] = await generate( urls.slice( 0, 1 ) );
+			const [ combined, warnings ] = await generate( urls );
+			expect( singleWarnings ).toHaveLength( 0 );
+			expect( warnings ).toHaveLength( 0 );
+			expect( single ).toContain( 'div.top' );
+			expect( combined ).toBe( single );
+			expect( combined ).not.toContain( '.unused-' );
+		} );
+
+		it( 'Preserves the cascade across overrides, conditional contexts and layer registration', async () => {
+			const css =
+				'@layer alpha{.top{color:red}}@layer beta{.top{color:blue}}' +
+				'@layer alpha{.top{color:red}}' +
+				'.top{background:red}.top{background:blue}.top{background:red}' +
+				'@media(min-width:700px){.top{padding:8px}}' +
+				'@media(min-width:700px){.top{padding:16px}}' +
+				'@media(min-width:700px){.top{padding:8px}}' +
+				'@media(max-width:699px){.top{padding:16px}}';
+			const deduplicated = deduplicateCss( css );
+			expect( deduplicated.length ).toBeLessThan( css.length );
+			expect( deduplicated.match( /@layer alpha/g ) ).toHaveLength( 2 );
+			const page = await browser.newPage();
+			try {
+				await page.setContent( '<style></style><div class="top">Test</div>' );
+				for ( const width of [ 640, 1200 ] ) {
+					await page.setViewportSize( { width, height: 800 } );
+					const measure = styles =>
+						page.evaluate( text => {
+							document.querySelector( 'style' ).textContent = text;
+							const computed = getComputedStyle( document.querySelector( '.top' ) );
+							return [ computed.color, computed.backgroundColor, computed.padding ];
+						}, styles );
+					const original = await measure( css );
+					await expect( measure( deduplicated ) ).resolves.toEqual( original );
+				}
+			} finally {
+				await page.close();
+			}
+		} );
+
 		// eslint-disable-next-line jest/expect-expect
 		it( 'Excludes elements below the fold', async () => {
 			await runTestSet( [

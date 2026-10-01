@@ -57,6 +57,77 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Metadata from early and late head callbacks precedes Critical CSS.
+	 */
+	public function test_register_hooks_prints_css_after_metadata() {
+		add_action(
+			'wp_head',
+			function () {
+				echo '<title>Preview</title>';
+			},
+			1
+		);
+		add_action(
+			'wp_head',
+			function () {
+				echo '<meta property="og:title" content="Preview">';
+			},
+			100
+		);
+		$this->instance->register_hooks();
+
+		ob_start();
+		do_action( 'wp_head' );
+		$output = ob_get_clean();
+
+		$this->assertLessThan( strpos( $output, 'jetpack-boost-critical-css' ), strpos( $output, '<title>' ) );
+		$this->assertLessThan( strpos( $output, 'jetpack-boost-critical-css' ), strpos( $output, 'og:title' ) );
+		$this->assertStringContainsString( $this->sample_css, $output );
+	}
+
+	/**
+	 * The byte budget preserves full accepted CSS and leaves rejected stylesheets synchronous.
+	 *
+	 * @dataProvider provide_css_budget_cases
+	 * @param string $css      CSS at or above the byte budget.
+	 * @param bool   $accepted Whether the complete CSS should be served.
+	 */
+	#[DataProvider( 'provide_css_budget_cases' )]
+	public function test_css_budget_falls_back_without_truncation( $css, $accepted ) {
+		$instance = new Display_Critical_CSS( $css );
+		$instance->register_hooks();
+		$html = '<link rel="stylesheet" href="style.css" media="all" />';
+
+		ob_start();
+		$instance->display_critical_css();
+		$output = ob_get_clean();
+		$style  = apply_filters( 'style_loader_tag', $html, 'handle', 'style.css', 'all' );
+
+		if ( $accepted ) {
+			$this->assertSame( '<style id="jetpack-boost-critical-css">' . $css . '</style>', $output );
+			$this->assertStringContainsString( 'media="not all"', $style );
+		} else {
+			$this->assertSame( '', $output );
+			$this->assertSame( $html, $style );
+			$this->assertFalse( has_action( 'wp_footer', array( $instance, 'onload_flip_stylesheets' ) ) );
+			$this->assertFalse( has_filter( 'jetpack_boost_async_style' ) );
+		}
+	}
+
+	/**
+	 * CSS byte-budget boundaries, including UTF-8 whose character count is below the limit.
+	 *
+	 * @return array
+	 */
+	public static function provide_css_budget_cases() {
+		return array(
+			'at limit'      => array( str_repeat( ' ', MB_IN_BYTES ), true ),
+			'over limit'    => array( str_repeat( ' ', MB_IN_BYTES + 1 ), false ),
+			'multibyte CSS' => array( 'a{content:"' . str_repeat( 'é', MB_IN_BYTES / 2 ) . '"}', false ),
+		);
+	}
+
+	/**
 	 * Test display_critical_css() with empty CSS.
 	 */
 	public function test_display_critical_css_with_empty_css() {
@@ -304,5 +375,9 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	public function tear_down() {
 		parent::tear_down();
 		remove_all_filters( 'jetpack_boost_async_style' );
+		remove_all_actions( 'wp_head' );
+		remove_all_actions( 'wp_footer' );
+		remove_all_filters( 'style_loader_tag' );
+		remove_all_actions( 'wp_before_admin_bar_render' );
 	}
 }
