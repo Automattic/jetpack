@@ -1,11 +1,13 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { Spinner, ProgressBar } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, mobile } from '@wordpress/icons';
 import { Badge, Text, VisuallyHidden } from '@wordpress/ui';
 import {
 	formatScoreDelta,
-	getScoreDelta,
+	getOverallScoreTier,
+	getScoreDisplayState,
+	getScoreGain,
 	getScoreTier,
 	getScoreTierLabel,
 } from './lib/score-utils';
@@ -13,19 +15,20 @@ import type { SpeedScoreState } from './lib/use-speed-scores';
 import './score-bar.scss';
 
 export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
-	const { scores, error, hasScores, isRunning, status } = state;
-	const isGenerating = ! error && ( isRunning || status === 'loading' || ! hasScores );
-	const overallTier = getScoreTier( ( scores.current.desktop + scores.current.mobile ) / 2 );
+	const { scores } = state;
+	const displayState = getScoreDisplayState( state );
+	const overallTier = getOverallScoreTier( scores );
 	return (
 		<section
 			className="jetpack-boost-score-bar"
 			aria-label={ __( 'Site speed summary', 'jetpack-boost' ) }
+			aria-hidden="true"
 		>
-			{ error ? (
+			{ displayState === 'error' ? (
 				<Text className="jetpack-boost-score-bar__error">
 					{ __( 'Failed to load speed scores', 'jetpack-boost' ) }
 				</Text>
-			) : isGenerating ? (
+			) : displayState === 'generating' ? (
 				<div className="jetpack-boost-score-bar__message">
 					<Spinner />
 					<Text>{ __( 'Calculating score…', 'jetpack-boost' ) }</Text>
@@ -34,7 +37,9 @@ export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
 				<>
 					<div className="jetpack-boost-score-bar__overall">
 						<Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" />
-						<VisuallyHidden>{ __( 'Overall', 'jetpack-boost' ) }</VisuallyHidden>
+						<VisuallyHidden>
+							{ _x( 'Overall', 'combined speed score grade', 'jetpack-boost' ) }
+						</VisuallyHidden>
 						<Text variant="heading-md">
 							{ getScoreLetter( scores.current.mobile, scores.current.desktop ) }
 						</Text>
@@ -47,11 +52,7 @@ export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
 					{ ( [ 'desktop', 'mobile' ] as const ).map( device => {
 						const score = scores.current[ device ];
 						const tier = getScoreTier( score );
-						const delta = getScoreDelta(
-							score,
-							scores.isStale ? null : scores.noBoost?.[ device ]
-						);
-						const gain = delta === null ? null : Math.max( 0, delta );
+						const gain = getScoreGain( score, scores.noBoost?.[ device ], scores.isStale );
 						const label =
 							device === 'desktop'
 								? __( 'Desktop', 'jetpack-boost' )

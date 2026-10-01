@@ -25,7 +25,8 @@ export function useScoreCardVisibility( cardRef: RefObject< HTMLDivElement >, en
 		page.insertBefore( mount, page.firstElementChild?.nextSibling ?? null );
 		setSlot( mount );
 		const observer = new IntersectionObserver(
-			( [ entry ] ) => {
+			entries => {
+				const entry = entries[ entries.length - 1 ];
 				setIsAboveViewport(
 					! entry.isIntersecting &&
 						entry.boundingClientRect.bottom <=

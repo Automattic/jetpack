@@ -6,7 +6,7 @@ import { Button, Card, Notice, Stack, Popover, Text, VisuallyHidden } from '@wor
 import clsx from 'clsx';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import GradeExplanation from './grade-explanation';
-import { getScoreTier } from './lib/score-utils';
+import { getOverallScoreTier, getScoreDisplayState } from './lib/score-utils';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
 import type { ReactNode } from 'react';
@@ -32,20 +32,18 @@ export default function ScoreCards( {
 }: Props ) {
 	const titleRef = useRef< HTMLHeadingElement >( null );
 	const hasFocus = useRef( false );
-	const showCalculating = isRunning || ! hasScores;
-	const showOverlay = showCalculating && ! error;
+	const showOverlay = getScoreDisplayState( { isRunning, hasScores, error } ) === 'generating';
 	const [ announceCalculating, setAnnounceCalculating ] = useState( false );
 	useEffect( () => {
 		setAnnounceCalculating( Boolean( showOverlay ) );
 	}, [ showOverlay ] );
 	useLayoutEffect( () => {
-		if ( showCalculating && ! error && hasFocus.current ) {
+		if ( showOverlay && hasFocus.current ) {
 			titleRef.current?.focus();
 		}
-	}, [ showCalculating, error ] );
+	}, [ showOverlay ] );
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
-	const noBoost = ! scores.isStale ? scores.noBoost : null;
 	const notice = error && (
 		<Card.Content className="jetpack-boost-overview__scores-error">
 			<Notice.Root
@@ -125,14 +123,15 @@ export default function ScoreCards( {
 								</Popover.Root>
 							}
 							value={ grade }
-							tier={ getScoreTier( ( current.mobile + current.desktop ) / 2 ) }
+							tier={ getOverallScoreTier( scores ) }
 						/>
 						<ScoreCard
 							icon={ <Icon icon={ desktop } className="jetpack-boost-overview__score-icon" /> }
 							label={ __( 'Desktop', 'jetpack-boost' ) }
 							value={ current.desktop }
 							score={ current.desktop }
-							noBoost={ noBoost?.desktop }
+							noBoost={ scores.noBoost?.desktop }
+							isStale={ scores.isStale }
 							closePopover={ showOverlay }
 						/>
 						<ScoreCard
@@ -140,7 +139,8 @@ export default function ScoreCards( {
 							label={ __( 'Mobile', 'jetpack-boost' ) }
 							value={ current.mobile }
 							score={ current.mobile }
-							noBoost={ noBoost?.mobile }
+							noBoost={ scores.noBoost?.mobile }
+							isStale={ scores.isStale }
 							closePopover={ showOverlay }
 						/>
 					</div>

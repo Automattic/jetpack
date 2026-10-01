@@ -1,4 +1,5 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
+import type { SpeedScoresSet } from './use-speed-scores';
 
 export type ScoreTier = 'good' | 'medium' | 'poor';
 
@@ -16,8 +17,40 @@ export function getScoreTierLabel( tier: ScoreTier ): string {
 	return labels[ tier ];
 }
 
-export function getScoreDelta( current: number, noBoost?: number | null ): number | null {
-	return noBoost == null ? null : Math.round( current - noBoost );
+export function getOverallScoreTier( scores: SpeedScoresSet ): ScoreTier {
+	return getScoreTier( ( scores.current.mobile + scores.current.desktop ) / 2 );
+}
+
+export function getScoreDisplayState( {
+	isRunning = false,
+	hasScores = true,
+	error,
+}: {
+	isRunning?: boolean;
+	hasScores?: boolean;
+	error?: Error | null;
+} ): 'generating' | 'error' | 'scores' {
+	return error ? 'error' : isRunning || ! hasScores ? 'generating' : 'scores';
+}
+
+export function getScoreDelta(
+	current: number | undefined,
+	noBoost?: number | null,
+	isStale = false
+): number | null {
+	return current === undefined || noBoost == null || isStale
+		? null
+		: Math.round( current - noBoost );
+}
+
+export function getScoreGain(
+	current: number | undefined,
+	noBoost?: number | null,
+	isStale = false
+): number | null {
+	const delta = getScoreDelta( current, noBoost, isStale );
+	// The badge states what Boost improved, so a worse-than-baseline comparison reads as zero.
+	return delta === null ? null : Math.max( 0, delta );
 }
 
 export function formatScoreDelta( delta: number ): string {
