@@ -2215,6 +2215,40 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * A PayPal call that fails records the error with its debug ID, and the REST
+	 * error hands the ID to the editor.
+	 */
+	public function test_a_failed_paypal_call_records_api_error_with_the_debug_id() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response(
+			500,
+			array(
+				'name'     => 'INTERNAL_SERVER_ERROR',
+				'debug_id' => 'abc123def456',
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_create_button( $this->create_request( $this->one_line_item()[0] ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'abc123def456', $result->get_error_data()['paypal_debug_id'] );
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_api_error',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'error_code'  => 'paypal_api_internal_server_error',
+						'status'      => 500,
+						'debug_id'    => 'abc123def456',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
 	 * Completing partner-referrals onboarding records its success with the stored environment.
 	 */
 	public function test_onboarding_complete_records_connection_succeeded() {
