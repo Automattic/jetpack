@@ -133,6 +133,7 @@ require_once __DIR__ . '/endpoints/rest-api.php';
 // Load feature plugins.
 require_once __DIR__ . '/feature-plugins/activitypub.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
+require_once __DIR__ . '/feature-plugins/ai-launchpad.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
