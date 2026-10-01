@@ -1086,7 +1086,7 @@ final class Image_CDN {
 
 			foreach ( $multipliers as $multiplier ) {
 
-				$newwidth = $base * $multiplier;
+				$newwidth = (int) round( $base * $multiplier );
 				foreach ( $currentwidths as $currentwidth ) {
 					// If a new width would be within 100 pixes of an existing one or larger than the full size image, skip.
 					if ( abs( $currentwidth - $newwidth ) < 50 || ( $newwidth > $fullwidth ) ) {
