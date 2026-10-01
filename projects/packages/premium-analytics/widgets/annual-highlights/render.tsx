@@ -112,7 +112,8 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 				<ReportLink report="annual-insights" />
 				<ExporterCsvDownloadButton
 					exporter={ annualInsightsCsvExporter }
-					status={ { isLoading, isFetching, isError } }
+					// Same gate as the error state: a failed refetch keeps the cached years.
+					status={ { isLoading, isFetching, isError: ! data && isError } }
 					rowCount={ data?.years?.length ?? 0 }
 				/>
 			</WidgetFooter>
