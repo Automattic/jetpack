@@ -844,7 +844,11 @@ final class Image_CDN {
 
 					if ( isset( $image_meta['width'] ) && isset( $image_meta['height'] ) ) {
 						$image_resized = image_resize_dimensions( $image_meta['width'], $image_meta['height'], $image_args['width'], $image_args['height'], $image_args['crop'] );
-						if ( $image_resized ) { // This could be false when the requested image size is larger than the full-size image.
+						if (
+							$image_resized // This could be false when the requested image size is larger than the full-size image.
+							&& isset( $image_resized[6] ) // This key can be manipulated by the `image_resize_dimensions` filter
+							&& isset( $image_resized[7] ) // This key can be manipulated by the `image_resize_dimensions` filter
+						) {
 							$image_meta['width']  = $image_resized[6];
 							$image_meta['height'] = $image_resized[7];
 						}
