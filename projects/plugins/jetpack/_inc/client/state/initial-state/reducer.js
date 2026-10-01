@@ -779,6 +779,16 @@ export function isSubscriptionSiteEnabled( state ) {
 }
 
 /**
+ * Returns true if the rebuilt Jetpack Comments form is on, which alone offers blocks.
+ *
+ * @param {object} state - Global state tree.
+ * @return {boolean} Whether the rebuilt comment form is on.
+ */
+export function isNewCommentsEnabled( state ) {
+	return !! state.jetpack.initialState.isNewCommentsEnabled;
+}
+
+/**
  * returns the newletter date example.
  *
  * @param {object} state - Global state tree.

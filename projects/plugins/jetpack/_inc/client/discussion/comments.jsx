@@ -34,6 +34,10 @@ class CommentsComponent extends Component {
 		);
 	};
 
+	handleBlocksToggle = () => {
+		this.props.updateFormStateModuleOption( 'comments', 'enable_blocks_comments' );
+	};
+
 	handleMarkdownCommentsToggle = () => {
 		this.props.updateFormStateModuleOption( 'markdown', 'wpcom_publish_comments_with_markdown' );
 	};
@@ -131,6 +135,23 @@ class CommentsComponent extends Component {
 									rna
 								/>
 							</FormLabel>
+							{ this.props.isNewCommentsEnabled && (
+								<ToggleControl
+									checked={ !! getOptionValue( 'enable_blocks_comments', 'comments' ) }
+									disabled={
+										! isCommentsActive ||
+										commentsUnavailableInOfflineMode ||
+										this.props.isSavingAnyOption( 'enable_blocks_comments' )
+									}
+									onChange={ this.handleBlocksToggle }
+									label={
+										<span className="jp-form-toggle-explanation">
+											{ __( 'Enable blocks in comments', 'jetpack' ) }
+										</span>
+									}
+									__nextHasNoMarginBottom={ true }
+								/>
+							) }
 						</FormFieldset>
 					</SettingsGroup>
 				) }

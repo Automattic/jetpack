@@ -52,6 +52,7 @@ class Block_Editor {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5 );
+		add_action( 'admin_init', array( __CLASS__, 'add_setting' ) );
 		// The edit-comment screen, for a comment that holds blocks.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 	}
@@ -113,6 +114,41 @@ class Block_Editor {
 		 *                      "blocks in comments" Discussion setting is off.
 		 */
 		return (bool) apply_filters( 'jetpack_comments_block_editor', (bool) get_option( 'enable_blocks_comments', true ) );
+	}
+
+	/**
+	 * Offer the editor's switch on Settings > Discussion. WordPress.com's Verbum already does.
+	 *
+	 * @return void
+	 */
+	public static function add_setting() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return;
+		}
+
+		add_settings_field(
+			'enable_blocks_comments',
+			__( 'Blocks in comments', 'jetpack-comments' ),
+			array( __CLASS__, 'setting_field' ),
+			'discussion'
+		);
+
+		// 1 or 0, as Jetpack's settings page stores it.
+		register_setting( 'discussion', 'enable_blocks_comments', array( 'sanitize_callback' => 'absint' ) );
+	}
+
+	/**
+	 * The checkbox for add_setting().
+	 *
+	 * @return void
+	 */
+	public static function setting_field() {
+		?>
+		<label>
+			<input name="enable_blocks_comments" type="checkbox" value="1" <?php checked( (bool) get_option( 'enable_blocks_comments', true ) ); ?> />
+			<?php esc_html_e( 'Enable blocks in comments', 'jetpack-comments' ); ?>
+		</label>
+		<?php
 	}
 
 	/**

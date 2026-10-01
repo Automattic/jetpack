@@ -7,6 +7,7 @@
  */
 
 use Automattic\Jetpack\Blaze;
+use Automattic\Jetpack\Comments\Comments;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\Plugin_Storage as Connection_Plugin_Storage;
 use Automattic\Jetpack\Connection\REST_Connector;
@@ -251,6 +252,8 @@ class Jetpack_Redux_State_Helper {
 			// automatic half must follow it too.
 			'isAiSeoEnabled'                       => Jetpack_AI_Settings::is_ai_seo_enabled(),
 			'isSubscriptionSiteEnabled'            => apply_filters( 'jetpack_subscription_site_enabled', false ),
+			// Only the rebuilt comment form offers blocks. Guarded for a staged deploy.
+			'isNewCommentsEnabled'                 => class_exists( Comments::class ) && Comments::is_enabled(),
 			'newsletterDateExample'                => gmdate( get_option( 'date_format' ), time() ),
 			'subscriptionSiteEditSupported'        => $current_theme->is_block_theme(),
 
