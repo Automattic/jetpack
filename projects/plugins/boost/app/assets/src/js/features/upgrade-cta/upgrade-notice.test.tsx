@@ -2,6 +2,7 @@
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom. */
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ModuleSurfaceProvider } from '$features/module/surface';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 import { recordBoostEvent, recordBoostEventAndRedirect } from '$lib/utils/analytics';
 import UpgradeNotice from './upgrade-notice';
 
@@ -13,6 +14,7 @@ jest.mock(
 	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
 	() => ''
 );
+jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( 'jetpackConfig', () => ( { consumer_slug: 'jetpack-boost' } ), { virtual: true } );
 
 beforeEach( () => {
@@ -23,10 +25,12 @@ beforeEach( () => {
 } );
 
 function renderNotice( identifier = 'critical-css' ) {
+	render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
 	render(
 		<ModuleSurfaceProvider value="row">
 			<UpgradeNotice identifier={ identifier } description="Upgrade description." />
-		</ModuleSurfaceProvider>
+		</ModuleSurfaceProvider>,
+		{ container: screen.getByTestId( 'dashboard-root' ) }
 	);
 }
 

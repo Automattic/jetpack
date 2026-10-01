@@ -9,7 +9,6 @@ import './modern-overview-upgrade';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
 jest.mock( '@automattic/jetpack-analytics', () => ( {} ) );
-jest.mock( '$lib/stores/premium-features', () => ( { usePremiumFeatures: () => [] } ) );
 jest.mock( '@wordpress/element', () => ( {
 	...jest.requireActual( '@wordpress/element' ),
 	createRoot: jest.fn( jest.requireActual( '@wordpress/element' ).createRoot ),

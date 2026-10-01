@@ -1,4 +1,4 @@
-import { DataSyncProvider, queryClient } from '@automattic/jetpack-react-data-sync-client';
+import { queryClient } from '@automattic/jetpack-react-data-sync-client';
 import { createRoot } from '@wordpress/element';
 import {
 	observeLegacyModulesState,
@@ -6,7 +6,6 @@ import {
 } from '../../../../_inc/overview/lib/modules-state-bridge';
 import { OVERVIEW_UPGRADE_EVENT } from '../../../../_inc/overview/lib/upgrade-bridge';
 import ModernUpgradeLink from './features/upgrade-cta/modern-upgrade-link';
-import './modern-overview-upgrade.scss';
 import type { UpgradeSlotRequest } from '../../../../_inc/overview/lib/upgrade-bridge';
 
 observeLegacyModulesState( queryClient );
@@ -28,17 +27,13 @@ window.addEventListener( OVERVIEW_UPGRADE_EVENT, ( event: Event ) => {
 		}
 		root = createRoot( request.container );
 		root.render(
-			<DataSyncProvider>
-				<span className="jb-modern-upgrade-actions">
-					<ModernUpgradeLink
-						eventName="performance_history_upgrade_cta_click"
-						eventProperties={ {
-							identifier: 'historical-performance',
-							destination: 'interstitial',
-						} }
-					/>
-				</span>
-			</DataSyncProvider>
+			<ModernUpgradeLink
+				eventName="performance_history_upgrade_cta_click"
+				eventProperties={ {
+					identifier: 'historical-performance',
+					destination: 'interstitial',
+				} }
+			/>
 		);
 	} );
 } );

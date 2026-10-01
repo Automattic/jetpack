@@ -1,4 +1,5 @@
 import { ModuleSurfaceProvider } from '$features/module/surface';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 /* No jest-dom or user-event in this project. */
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-to-have-value, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -29,9 +30,8 @@ jest.mock( '$features/notice/context', () => ( {
 } ) );
 jest.mock(
 	'$features/upgrade-cta/interstitial-modal-cta',
-	() => ( props: { description: string; showLicenseKeyLink?: boolean } ) => (
-		<div data-license-link={ String( !! props.showLicenseKeyLink ) }>{ props.description }</div>
-	)
+	() =>
+		( { description }: { description: string } ) => <div>{ description }</div>
 );
 jest.mock( '$lib/stores/premium-features', () => ( {
 	usePremiumFeatures: () => mockPremiumFeatures,
@@ -62,7 +62,13 @@ describe( 'Cornerstone Pages meta', () => {
 		};
 		mockPremiumFeatures = [];
 		( globalThis as unknown as { Jetpack_Boost: unknown } ).Jetpack_Boost = {
-			site: { url: 'https://example.com/', online: true, myJetpack: true },
+			site: {
+				url: 'https://example.com/',
+				online: true,
+				myJetpack: true,
+				addLicense: true,
+				host: 'other',
+			},
 		};
 		jest.clearAllMocks();
 	} );
@@ -100,7 +106,6 @@ describe( 'Cornerstone Pages meta', () => {
 		const { rerender } = render( <CornerstonePagesUpgradeCTA /> );
 		const prompt = screen.getByText( 'Premium users can add up to 10 Cornerstone Pages.' );
 		expect( prompt ).toBeTruthy();
-		expect( prompt.getAttribute( 'data-license-link' ) ).toBe( 'true' );
 
 		mockPremiumFeatures = [ 'cornerstone-10-pages' ];
 		rerender( <CornerstonePagesUpgradeCTA /> );
@@ -137,11 +142,13 @@ describe( 'Cornerstone Pages meta', () => {
 	} );
 
 	test( 'uses shorter modern Cornerstone copy and preserves the legacy description and upsell', () => {
+		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
 		const view = render(
 			<ModuleSurfaceProvider value="row">
 				<CornerstonePagesDescription />
 				<CornerstonePagesUpgradeCTA />
-			</ModuleSurfaceProvider>
+			</ModuleSurfaceProvider>,
+			{ container: screen.getByTestId( 'dashboard-root' ) }
 		);
 		expect(
 			screen.getByText( /Add your most important pages for targeted optimizations/ )

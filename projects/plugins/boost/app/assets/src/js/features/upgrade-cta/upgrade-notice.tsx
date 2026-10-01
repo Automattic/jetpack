@@ -12,13 +12,7 @@ type UpgradeNoticeProps = {
 
 export default function UpgradeNotice( { description, identifier }: UpgradeNoticeProps ) {
 	if ( useModuleSurface() !== 'row' ) {
-		return (
-			<InterstitialModalCTA
-				description={ description }
-				identifier={ identifier }
-				showLicenseKeyLink
-			/>
-		);
+		return <InterstitialModalCTA description={ description } identifier={ identifier } />;
 	}
 
 	if ( ! canOfferUpgrade() ) {

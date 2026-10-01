@@ -11,7 +11,6 @@ jest.mock(
 	'@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp',
 	() => ''
 );
-jest.mock( './upgrade-cta.module.scss', () => ( { 'license-key-link': 'license-key-link' } ) );
 jest.mock( '$lib/stores/pricing', () => ( { usePricing: () => null } ) );
 jest.mock( '$lib/stores/premium-features', () => ( {
 	usePremiumFeatures: jest.fn( () => [] ),
@@ -87,7 +86,7 @@ describe( 'InterstitialModalCTA', () => {
 		rootId => {
 			boostGlobal.site.myJetpack = false;
 			render( <div id={ rootId } data-testid="dashboard-root" /> );
-			render( <InterstitialModalCTA identifier="critical-css" showLicenseKeyLink />, {
+			render( <InterstitialModalCTA identifier="critical-css" />, {
 				container: screen.getByTestId( 'dashboard-root' ),
 			} );
 			expect( screen.queryByRole( 'button' ) ).toBeNull();
@@ -97,22 +96,25 @@ describe( 'InterstitialModalCTA', () => {
 		}
 	);
 
-	it( 'keeps the upsell when the add-license screen is disabled', () => {
+	it( 'keeps the legacy upsell when the add-license screen is disabled', () => {
 		boostGlobal.site.addLicense = false;
-		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
-		render( <InterstitialModalCTA identifier="critical-css" showLicenseKeyLink />, {
+		render( <div id={ LEGACY_ROOT_ID } data-testid="dashboard-root" /> );
+		render( <InterstitialModalCTA identifier="critical-css" />, {
 			container: screen.getByTestId( 'dashboard-root' ),
 		} );
 		expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
 		expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
 	} );
 
-	it( 'hides a standalone license link when My Jetpack is unavailable', () => {
-		boostGlobal.site.myJetpack = false;
-		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
-		render( <LicenseKeyLink />, { container: screen.getByTestId( 'dashboard-root' ) } );
-		expect( screen.queryByRole( 'link' ) ).toBeNull();
-	} );
+	it.each( [ 'myJetpack', 'addLicense' ] as const )(
+		'hides a standalone license link when %s is unavailable',
+		flag => {
+			boostGlobal.site[ flag ] = false;
+			render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
+			render( <LicenseKeyLink />, { container: screen.getByTestId( 'dashboard-root' ) } );
+			expect( screen.queryByRole( 'link' ) ).toBeNull();
+		}
+	);
 
 	it.each( [
 		{ rootId: MODERN_ROOT_ID, features: [], host: 'unknown', visible: true },
@@ -120,26 +122,20 @@ describe( 'InterstitialModalCTA', () => {
 		{ rootId: MODERN_ROOT_ID, features: [], host: 'woa', visible: false },
 		{ rootId: LEGACY_ROOT_ID, features: [], host: 'unknown', visible: false },
 	] )(
-		'offers license redemption beside modern free-site prompts (%o)',
+		'offers standalone license redemption only to eligible modern sites (%o)',
 		( { rootId, features, host, visible } ) => {
 			boostGlobal.site.online = true;
 			boostGlobal.site.host = host;
 			jest.mocked( usePremiumFeatures ).mockReturnValue( features );
 			render( <div id={ rootId } data-testid="dashboard-root" /> );
-			render(
-				<InterstitialModalCTA identifier="critical-css" description="Upgrade" showLicenseKeyLink />,
-				{
-					container: screen.getByTestId( 'dashboard-root' ),
-				}
-			);
+			render( <LicenseKeyLink />, {
+				container: screen.getByTestId( 'dashboard-root' ),
+			} );
 
-			expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
 			const link = screen.queryByRole( 'link', { name: 'Use license key' } );
 			expect( link?.getAttribute( 'href' ) ).toBe(
 				visible ? 'admin.php?page=my-jetpack#/add-license' : undefined
 			);
-			// The wrapper keeps the click target at the text's width.
-			expect( link?.parentElement.className ).toBe( visible ? 'license-key-link' : undefined );
 		}
 	);
 } );

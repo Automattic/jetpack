@@ -100,7 +100,7 @@ test.afterAll( async () => {
 
 for ( const direction of [ 'ltr', 'rtl' ] as const ) {
 	for ( const width of [ 1440, 782, 390 ] ) {
-		test( `${ direction } ${ width }: the card does not clip the premium tooltip`, async ( {
+		test( `${ direction } ${ width }: the card does not clip the fixture tooltip`, async ( {
 			page,
 		}, testInfo ) => {
 			await page.setViewportSize( { width, height: 900 } );
@@ -128,9 +128,9 @@ for ( const direction of [ 'ltr', 'rtl' ] as const ) {
 			expect( box.y + box.height ).toBeLessThanOrEqual( 900 );
 			expect( await paintedBy( page, box ) ).toEqual( Array( 9 ).fill( true ) );
 
-			// The upgrade button is sized by the popover, not spilling out of it.
+			// The upgrade link is sized by the popover, not spilling out of it.
 			const cta = ( await page
-				.locator( '.icon-tooltip-container button', { hasText: 'Upgrade now' } )
+				.locator( '.icon-tooltip-container a', { hasText: 'Upgrade now' } )
 				.boundingBox() )!;
 			expect( cta.x ).toBeGreaterThanOrEqual( box.x );
 			expect( cta.x + cta.width ).toBeLessThanOrEqual( box.x + box.width );
@@ -173,7 +173,7 @@ test( 'tabbing out of the portaled tooltip resumes from the trigger', async ( { 
 
 	// This tooltip holds a CTA, so the first Tab has to reach it rather than dismiss.
 	await page.keyboard.press( 'Tab' );
-	await expect( page.getByRole( 'button', { name: 'Upgrade now' } ) ).toBeFocused();
+	await expect( page.getByRole( 'link', { name: 'Upgrade now' } ) ).toBeFocused();
 	await expect( content ).toBeVisible();
 
 	// Leaving it: the popover renders in a portal at the end of the document, so document order
