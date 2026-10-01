@@ -79,7 +79,7 @@ Jetpack Boost makes small changes to the way that data is sent from your WordPre
 
 Jetpack Boost includes a growing number of separate features which can be turned on individually to improve your site’s performance. These include:
 
-* **Optimize CSS Loading**: This feature determines the most important CSS that your site needs to display your site’s initial content as quickly as possible, and embeds it directly into your site header.
+* **Optimize CSS Loading**: This feature identifies the styles needed to display your site’s initial content quickly. See “Can I also defer non-essential CSS with Jetpack Boost?” below for how Critical CSS is applied.
 * **Page Cache**: This feature stores your website's pages as static HTML files, bypassing the need for dynamic generation. This means visitors receive pages faster, reducing wait times and improving overall site performance.
 * **Defer Non-Essential JavaScript**: This feature forces all of the JavaScript which is not deemed essential to displaying your site to load after your site’s main content has been loaded.
 * **Image CDN**: This feature automatically resizes images to a more appropriate size for your visitors' screens, converts them to modern image formats, and serves them from Jetpack's worldwide network of servers.
@@ -98,9 +98,11 @@ We recommend that you install Jetpack Boost, and try it for yourself. It include
 
 = Can I also defer non-essential CSS with Jetpack Boost? =
 
-Jetpack Boost automatically defers non-essential CSS when its “Optimize CSS Loading” feature is enabled and Critical CSS has been generated.
+Jetpack Boost automatically defers non-essential CSS when its “Optimize CSS Loading” feature is enabled and usable Critical CSS is available for the page.
 
 The “Optimize CSS Loading” feature identifies the most important CSS rules your site needs to display your pages as quickly as possible (commonly called “Critical CSS”), and defers all other CSS rules from loading until your main content has loaded.
+
+Boost embeds Critical CSS in the page header after the page title. Generated CSS larger than 512 KiB is rejected with an error message, and any previous CSS for that page group is removed. Previously saved CSS above this limit is also not embedded. Without usable Critical CSS, this feature leaves stylesheets loading normally; other page groups can still be optimized.
 
 = What are Web Vitals? =
 
