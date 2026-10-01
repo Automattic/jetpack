@@ -1,16 +1,19 @@
 // `.surface` is the look alone, for a chart that positions the box itself.
 .surface,
 .tooltip {
-	padding: var(--wpds-dimension-padding-sm);
+	padding: var(--wpds-dimension-padding-md);
 	background-color: var(--a8c-charts-color-surface, #fff);
 	color: var(--a8c-charts-color-label, #1e1e1e);
+	border: var(--wpds-border-width-xs) solid var(--a8c-charts-color-surface-stroke, #dbdbdb);
 	border-radius: var(--wpds-border-radius-md);
+	font-family: var(--wpds-typography-font-family-body);
 	font-size: var(--wpds-typography-font-size-md);
-	box-shadow: var(--a8c-charts-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
+	line-height: var(--wpds-typography-line-height-md);
+	box-shadow: var(--a8c-charts-elevation-md, 0 2px 3px 0 #0000000d, 0 4px 5px 0 #0000000a, 0 12px 12px 0 #00000008, 0 16px 16px 0 #00000005);
 	pointer-events: none;
 
 	@media (forced-colors: active) {
-		border: var(--wpds-border-width-xs) solid CanvasText;
+		border-color: CanvasText;
 	}
 }
 

@@ -19,7 +19,7 @@ const DEFAULT_OFFSET = 10;
 // Above anything else layered inside a chart, such as the zoom reset button (2).
 // Chart wrappers isolate their stacking context, so it never reaches page chrome.
 export const TOOLTIP_Z_INDEX = 3;
-const POINTER_HEIGHT = 6;
+const BELOW_AXIS_GAP = 6;
 
 const clamp = ( position: number, min: number, max: number, size: number ) =>
 	Math.min( Math.max( position, min ), Math.max( min, max - size ) );
@@ -87,7 +87,7 @@ export const getBoundedPosition = ( {
 	if ( placement === 'below-axis' ) {
 		return {
 			x: Math.round( clamp( left - box.width / 2, bounds.left, bounds.right, box.width ) ),
-			y: top + POINTER_HEIGHT,
+			y: top + BELOW_AXIS_GAP,
 		};
 	}
 
@@ -200,7 +200,7 @@ export const BoundedTooltip = ( {
 	}, [ left, top, offsetLeft, offsetTop, children, placement ] );
 
 	const x = position?.x ?? left + offsetLeft;
-	const y = position?.y ?? top + ( placement === 'below-axis' ? POINTER_HEIGHT : offsetTop );
+	const y = position?.y ?? top + ( placement === 'below-axis' ? BELOW_AXIS_GAP : offsetTop );
 
 	return (
 		<Tooltip
@@ -216,22 +216,6 @@ export const BoundedTooltip = ( {
 			} }
 			{ ...rest }
 		>
-			{ placement === 'below-axis' && (
-				<span
-					aria-hidden="true"
-					data-testid="tooltip-axis-pointer"
-					style={ {
-						position: 'absolute',
-						left: left - x - POINTER_HEIGHT,
-						top: -POINTER_HEIGHT,
-						width: POINTER_HEIGHT * 2,
-						height: POINTER_HEIGHT,
-						background: 'inherit',
-						clipPath: 'polygon(50% 0, 100% 100%, 0 100%)',
-						pointerEvents: 'none',
-					} }
-				/>
-			) }
 			{ children }
 		</Tooltip>
 	);
