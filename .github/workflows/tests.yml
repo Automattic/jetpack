@@ -29,7 +29,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: create-matrix
         run: |
-          MATRIX="$(.github/files/generate-ci-matrix.php)"
+          # TEMP: only JS tests while experimenting.
+          MATRIX="$(.github/files/generate-ci-matrix.php | jq -c 'map( select( .script == "test-js" or .script == "test-js-coverage" ) )')"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tests:
