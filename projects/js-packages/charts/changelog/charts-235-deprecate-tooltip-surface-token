@@ -1,4 +1,0 @@
-Significance: minor
-Type: deprecated
-
-Tooltips: Deprecate `--a8c-charts-color-tooltip-surface`, which no longer has an effect.
