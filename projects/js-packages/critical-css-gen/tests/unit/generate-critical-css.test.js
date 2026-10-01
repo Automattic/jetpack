@@ -219,9 +219,13 @@ describe( 'Generate Critical CSS', () => {
 			expect( deduplicateCss( `${ dotted }{.top{color:red}}` ) ).toContain( '.top{color:red}' );
 		} );
 
-		it( 'Does not register names from invalid layer block preludes', () => {
+		it( 'Does not register names from invalid layer preludes', () => {
 			for ( const prelude of [ 'a,,b', ',a', '1' ] ) {
 				const css = `@layer ${ prelude }{.top{color:red}}`;
+				expect( deduplicateCss( css ) ).toBe( csstree.generate( csstree.parse( css ) ) );
+			}
+			for ( const prelude of [ 'a,,b', '1,b', ',b' ] ) {
+				const css = `@layer ${ prelude };@layer b;@layer c;@layer c{.top{color:blue}}@layer b{.top{color:green}}`;
 				expect( deduplicateCss( css ) ).toBe( csstree.generate( csstree.parse( css ) ) );
 			}
 		} );
