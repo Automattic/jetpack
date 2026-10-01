@@ -86,7 +86,7 @@ class Block_Editor {
 			}
 
 			// Core translates block titles in PHP, so they are in its .mo, not the script files.
-			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code' ) as $title ) {
+			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed' ) as $title ) {
 				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch -- Core's own strings.
 				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
 			}
@@ -243,7 +243,7 @@ class Block_Editor {
 	}
 
 	/**
-	 * The editor's own strings, translated here: the chunk carries none.
+	 * What the editor needs from PHP: its one string of its own, and the embed route.
 	 *
 	 * @return array
 	 */
@@ -251,15 +251,6 @@ class Block_Editor {
 		return array(
 			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
 			'embedUrl'   => Embeds::is_enabled() ? Checkpoint_Endpoint::route_url( Embeds::ROUTE ) : '',
-			'embed'      => array(
-				'title'       => _x( 'Embed', 'block title', 'jetpack-comments' ),
-				'hint'        => __( 'Paste a link to a video, song, post, or other content to show it here.', 'jetpack-comments' ),
-				'placeholder' => __( 'Enter a URL to embed', 'jetpack-comments' ),
-				'button'      => _x( 'Embed', 'verb', 'jetpack-comments' ),
-				'editUrl'     => __( 'Edit URL', 'jetpack-comments' ),
-				/* translators: %s is the site the content comes from, such as www.youtube.com. */
-				'from'        => __( 'Embedded content from %s', 'jetpack-comments' ),
-			),
 		);
 	}
 

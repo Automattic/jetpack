@@ -45,18 +45,10 @@ export type IdentitySettings = {
 	logoutAction: string;
 };
 
-/** The editor's own strings, translated in PHP, and the embed preview route: empty where embeds are off. */
+/** The toolbar's name, translated in PHP, and the embed preview route: empty where embeds are off. */
 export type EditorLabels = {
 	blockTools: string;
 	embedUrl: string;
-	embed: {
-		title: string;
-		hint: string;
-		placeholder: string;
-		button: string;
-		editUrl: string;
-		from: string;
-	};
 };
 
 /** A subscribe checkbox the host draws itself, posted under the host's own field name. */

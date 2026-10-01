@@ -97,8 +97,9 @@ export default {
 		...jetpackWebpackConfig.StandardPlugins( {
 			// Bundled, not core's wp-* scripts: the editor chunk pins its own versions.
 			DependencyExtractionPlugin: { requestToExternal: () => false },
-			// Its strings come from PHP; the editor chunk carries none of its own.
+			// The editor speaks core's strings, in the default domain, which PHP hands over translated.
 			I18nLoaderPlugin: false,
+			I18nCheckPlugin: { expectDomain: 'default' },
 		} ),
 		editorStubs,
 		new webpack.ProvidePlugin( {

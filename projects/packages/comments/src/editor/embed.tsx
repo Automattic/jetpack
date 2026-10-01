@@ -17,6 +17,7 @@ import {
 	ToolbarGroup,
 } from '@wordpress/components';
 import { renderToString, useCallback, useEffect, useRef, useState } from '@wordpress/element';
+import { __, _x, sprintf } from '@wordpress/i18n';
 import type { EditorLabels } from '../shared/types';
 import type { ChangeEvent, FormEvent } from 'react';
 
@@ -99,19 +100,18 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 			<div { ...blockProps }>
 				<Placeholder
 					icon={ <BlockIcon icon={ embedContentIcon } showColors /> }
-					label={ labels.embed.title }
-					instructions={ labels.embed.hint }
+					label={ _x( 'Embed', 'block title', 'default' ) }
 				>
 					<form onSubmit={ onSubmit }>
 						<input
 							type="url"
-							aria-label={ labels.embed.title }
-							placeholder={ labels.embed.placeholder }
+							aria-label={ _x( 'Embed', 'block title', 'default' ) }
+							placeholder={ __( 'Enter URL to embed here…', 'default' ) }
 							value={ draft }
 							onChange={ onInput }
 						/>
 						<Button __next40pxDefaultSize variant="primary" type="submit">
-							{ labels.embed.button }
+							{ _x( 'Embed', 'button label', 'default' ) }
 						</Button>
 					</form>
 				</Placeholder>
@@ -131,7 +131,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 		<>
 			<BlockControls>
 				<ToolbarGroup>
-					<ToolbarButton onClick={ onEdit }>{ labels.embed.editUrl }</ToolbarButton>
+					<ToolbarButton onClick={ onEdit }>{ __( 'Edit URL', 'default' ) }</ToolbarButton>
 				</ToolbarGroup>
 			</BlockControls>
 			<figure { ...blockProps }>
@@ -141,7 +141,11 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 						allowSameOrigin
 						html={ preview.html }
 						scripts={ preview.scripts }
-						title={ labels.embed.from.replace( '%s', new URL( url ).host ) }
+						title={ sprintf(
+							/* translators: %s: host providing embed content e.g: www.youtube.com */
+							__( 'Embedded content from %s', 'default' ),
+							new URL( url ).host
+						) }
 						onFocus={ onInteract }
 					/>
 					{ /* Catches the first click, so the block is selected before the frame gets the pointer. */ }
@@ -159,7 +163,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
  * Register the embed block: core's name, so the comment stores `wp:embed`, with an edit of
  * this package's own. Nothing registers without the preview route.
  *
- * @param editorLabels - The editor's strings, with the route.
+ * @param editorLabels - The editor's labels, with the route.
  */
 export const registerEmbedBlock = ( editorLabels: EditorLabels ) => {
 	labels = editorLabels;
@@ -169,7 +173,7 @@ export const registerEmbedBlock = ( editorLabels: EditorLabels ) => {
 	}
 
 	registerBlockType< Attributes >( NAME, {
-		title: labels.embed.title,
+		title: _x( 'Embed', 'block title', 'default' ),
 		category: 'embed',
 		icon: embedContentIcon,
 		attributes: { url: { type: 'string' } },
