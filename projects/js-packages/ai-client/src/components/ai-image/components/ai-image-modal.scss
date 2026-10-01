@@ -37,7 +37,7 @@
 		textarea {
 			width: 100%;
 			outline: none;
-			border: 1px solid #ccc;
+			border: 1px solid var(--wpds-color-stroke-interactive-neutral);
 			border-radius: 6px;
 			padding: 12px;
 			color: var(--wpds-color-foreground-interactive-neutral);
@@ -84,7 +84,7 @@
 		margin-top: 32px;
 		margin-bottom: -32px;
 		padding: 8px 32px;
-		border-top: solid 1px #dcdcde;
+		border-top: solid 1px var(--wpds-color-stroke-surface-neutral);
 		height: 60px;
 	}
 }

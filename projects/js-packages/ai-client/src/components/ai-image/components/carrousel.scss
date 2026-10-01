@@ -37,7 +37,7 @@ $scale-factor: 0.55;
 
 		&-message {
 			font-size: 10px;
-			color: #f00;
+			color: var(--wpds-color-foreground-content-error-weak);
 		}
 	}
 
@@ -85,10 +85,10 @@ $scale-factor: 0.55;
 					}
 
 					&-icon {
-						color: #fff;
+						color: var(--wpds-color-foreground-interactive-neutral-strong);
 
 						&.is-disabled {
-							color: #808080;
+							color: var(--wpds-color-foreground-interactive-neutral-disabled);
 						}
 					}
 				}
@@ -128,7 +128,7 @@ $scale-factor: 0.55;
 					&-icon {
 
 						&.is-disabled {
-							color: #808080;
+							color: var(--wpds-color-foreground-interactive-neutral-disabled);
 						}
 					}
 				}
