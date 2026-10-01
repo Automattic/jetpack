@@ -207,13 +207,18 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 					'callback'            => array( $this, 'generate_signup_link' ),
 					'permission_callback' => array( $this, 'permission_check' ),
 					'args'                => array(
-						'environment' => $environment_arg,
-						'return_url'  => array(
+						'environment'            => $environment_arg,
+						'return_url'             => array(
 							'required'          => true,
 							'type'              => 'string',
 							'validate_callback' => array( $this, 'validate_return_url' ),
 							'sanitize_callback' => 'esc_url_raw',
 							'description'       => 'The site page PayPal sends the seller back to.',
+						),
+						'partner_attribution_id' => array(
+							'type'              => 'string',
+							'sanitize_callback' => array( $this, 'sanitize_partner_attribution_id' ),
+							'description'       => 'The partner attribution (BN) code the site resolved for its environment.',
 						),
 					),
 				),
@@ -358,6 +363,16 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	}
 
 	/**
+	 * BN codes are alphanumeric with underscores and hyphens; anything else is dropped.
+	 *
+	 * @param mixed $value The partner_attribution_id parameter.
+	 * @return string
+	 */
+	public function sanitize_partner_attribution_id( $value ) {
+		return is_string( $value ) ? preg_replace( '/[^A-Za-z0-9_-]/', '', $value ) : '';
+	}
+
+	/**
 	 * Only the Payment Links & Buttons API may be called on a seller's behalf.
 	 *
 	 * @param mixed $value The path parameter.
@@ -389,12 +404,20 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 		// The tracking ID is what later ties the seller back to this blog.
 		$tracking_id = self::TRACKING_ID_PREFIX . $this->site_id() . '-' . time();
 
+		// The site resolves the BN code, since only it knows whether a sandbox override applies.
+		$headers                = array();
+		$partner_attribution_id = (string) $request->get_param( 'partner_attribution_id' );
+		if ( '' !== $partner_attribution_id ) {
+			$headers['PayPal-Partner-Attribution-Id'] = $partner_attribution_id;
+		}
+
 		$response = $this->paypal_request(
 			$environment,
 			$credentials,
 			'POST',
 			self::PAYPAL_REFERRALS_ENDPOINT,
-			self::build_referral( $tracking_id, (string) $request->get_param( 'return_url' ) )
+			self::build_referral( $tracking_id, (string) $request->get_param( 'return_url' ) ),
+			$headers
 		);
 
 		if ( is_wp_error( $response ) ) {

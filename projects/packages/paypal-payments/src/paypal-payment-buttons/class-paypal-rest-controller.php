@@ -1514,10 +1514,27 @@ class PayPal_REST_Controller {
 			$status = 503;
 		}
 
+		$rest_data = array( 'status' => $status );
+
+		// PayPal's debug ID is what their support resolves a failed request by, so
+		// keep it for the editor and record it. Send only the code, not the message.
+		if ( ! empty( $data['paypal_debug_id'] ) ) {
+			$rest_data['paypal_debug_id'] = $data['paypal_debug_id'];
+			PayPal_Tracks::record_event(
+				'jetpack_paypal_api_error',
+				array(
+					'environment' => PayPal_OAuth::get_environment(),
+					'error_code'  => $error->get_error_code(),
+					'status'      => (int) $status,
+					'debug_id'    => $data['paypal_debug_id'],
+				)
+			);
+		}
+
 		return new WP_Error(
 			$error->get_error_code(),
 			$error->get_error_message(),
-			array( 'status' => $status )
+			$rest_data
 		);
 	}
 }
