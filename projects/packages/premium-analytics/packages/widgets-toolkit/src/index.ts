@@ -220,6 +220,7 @@ export {
 	getAuthorsReportQueryParams,
 	getPostsReportQueryParams,
 	getSummarizedReportQueryParams,
+	getVideosReportQueryParams,
 	postsPagesCsvExporter,
 	referrersCsvExporter,
 	searchTermsCsvExporter,

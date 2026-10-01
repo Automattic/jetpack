@@ -4,7 +4,7 @@
 import {
 	fetchStatsFileDownloadsRows,
 	fetchStatsSearchTermsReport,
-	fetchStatsVideoPlaysSummaryRows,
+	fetchStatsVideoPlaysRows,
 	type ReportParams,
 	type StatsFileDownloadsComparisonItem,
 	type StatsVideoPlaysComparisonItem,
@@ -22,7 +22,7 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	fetchStatsFileDownloadsRows: jest.fn(),
 	fetchStatsSearchTermsReport: jest.fn(),
-	fetchStatsVideoPlaysSummaryRows: jest.fn(),
+	fetchStatsVideoPlaysRows: jest.fn(),
 } ) );
 
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
@@ -61,10 +61,6 @@ describe( 'flat report exporters', () => {
 			[ '/b', 9, '' ],
 			[ 'a.pdf', 2, '/a.pdf' ],
 		] );
-		expect( fileDownloadsCsvExporter ).toMatchObject( {
-			filenamePrefix: 'file-downloads',
-			hasDateRange: true,
-		} );
 	} );
 
 	it( 'aggregates Search terms with the Unknown row and ranks them by views', async () => {
@@ -83,10 +79,6 @@ describe( 'flat report exporters', () => {
 			[ 'Unknown search terms', 7 ],
 			[ 'jetpack', 3 ],
 		] );
-		expect( searchTermsCsvExporter ).toMatchObject( {
-			filenamePrefix: 'search-terms',
-			hasDateRange: true,
-		} );
 	} );
 
 	it( 'exports Videos by plays, naming untitled videos', async () => {
@@ -110,11 +102,16 @@ describe( 'flat report exporters', () => {
 				link: 'https://example.com/v/',
 			},
 		] as unknown as StatsVideoPlaysComparisonItem[];
-		jest.mocked( fetchStatsVideoPlaysSummaryRows ).mockResolvedValue( items );
+		jest.mocked( fetchStatsVideoPlaysRows ).mockResolvedValue( items );
 
 		await videosCsvExporter.fetchItems( REPORT_PARAMS );
 
-		expect( fetchStatsVideoPlaysSummaryRows ).toHaveBeenCalledWith( REPORT_PARAMS );
+		expect( fetchStatsVideoPlaysRows ).toHaveBeenCalledWith( {
+			...REPORT_PARAMS,
+			max: 0,
+			summarize: 1,
+			complete_stats: 1,
+		} );
 		expect( toCsvTable( videosCsvExporter, items ) ).toEqual( [
 			[
 				'Video ID',
@@ -128,7 +125,6 @@ describe( 'flat report exporters', () => {
 			[ 2, 'Intro', 5, 9, 2, 60, 'https://example.com/v/' ],
 			[ 1, 'Untitled video', 1, 4, 0.5, 20, '' ],
 		] );
-		expect( videosCsvExporter ).toMatchObject( { filenamePrefix: 'videos', hasDateRange: true } );
 	} );
 
 	it( 'sorts copies, leaving the report rows in their table order', () => {

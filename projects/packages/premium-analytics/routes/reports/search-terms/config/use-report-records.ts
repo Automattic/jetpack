@@ -11,7 +11,6 @@ import {
 	getSummarizedReportQueryParams,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
 
 /**
  * Fetch and derive the table records for the Search terms report.
@@ -25,7 +24,6 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 		[ reportParams ]
 	);
 	const report = useStatsSearchTerms( recordsParams );
-	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics-pkg' );
 	const comparisonEnabled = hasComparisonEnabled( reportParams );
 	const comparisonSettled =
 		comparisonEnabled &&
@@ -40,10 +38,9 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 		() =>
 			aggregateSearchTermRows(
 				report.primary.data,
-				unknownLabel,
 				comparisonSettled ? report.comparison.data : undefined
 			),
-		[ comparisonSettled, report.primary.data, report.comparison.data, unknownLabel ]
+		[ comparisonSettled, report.primary.data, report.comparison.data ]
 	);
 
 	return {
