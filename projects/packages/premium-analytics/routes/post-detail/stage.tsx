@@ -178,17 +178,19 @@ function PostDetail(): JSX.Element {
 	// Without the publish day, all time has no start to report from.
 	const anchorErrorNotice =
 		! isEmailTab && isAnchoringAllTime && summary.isError ? (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>
-					{ __(
-						"We couldn't load this post. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					) }
-				</Text>
-				<Button variant="outline" onClick={ summary.refetch }>
-					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
-			</Stack>
+			<DetailPageSection>
+				<Stack direction="column" align="flex-start" gap="sm">
+					<Text>
+						{ __(
+							"We couldn't load this post. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						) }
+					</Text>
+					<Button variant="outline" onClick={ summary.refetch }>
+						{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
+					</Button>
+				</Stack>
+			</DetailPageSection>
 		) : null;
 
 	const dateFiltersPanel = isEmailTab ? null : (
