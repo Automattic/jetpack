@@ -149,7 +149,17 @@
 	padding: 0 !important;
 
 	input {
-		margin: 0 !important;
+
+		&:not(:focus, :active) {
+			margin: 0 !important;
+		}
+
+		// Its top margin let through, for a theme that trades the bottom border
+		// for it as the button is pressed; pinned, the row would jump.
+		&:is(:focus, :active) {
+			margin-inline: 0 !important;
+			margin-block-end: 0 !important;
+		}
 
 		&:disabled {
 			cursor: not-allowed;
