@@ -309,7 +309,6 @@ describe( 'a block built from a fully populated payment', () => {
 		productName: 'Widget',
 		currencyCode: 'USD',
 		productDescription: 'A fine widget.',
-		imageUrl: 'https://example.com/widget.png',
 		variantsEnabled: true,
 		variants: {
 			dimensions: [
