@@ -9,7 +9,7 @@ import { useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 import { Link, useNavigate, useParams } from '@wordpress/route';
-import { Stack, Text } from '@wordpress/ui';
+import { Card, Stack, Text } from '@wordpress/ui';
 import CaptionManagerModal from '../../src/client/components/caption-manager-modal/lazy';
 import { getVideoInfoQueryKeyPrefix } from '../../src/client/components/caption-manager-modal/use-video-tracks';
 import { DeleteVideoConfirmationDialog } from '../../src/dashboard/components/delete-video-confirmation-modal';
@@ -21,7 +21,7 @@ import PrivacySharingCard from '../../src/dashboard/components/video-details/pri
 import RatingCard from '../../src/dashboard/components/video-details/rating-card';
 import SubtitlesCard from '../../src/dashboard/components/video-details/subtitles-card';
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
-import UploadDetails from '../../src/dashboard/components/video-details/upload-details';
+import UploadProgress from '../../src/dashboard/components/video-details/upload-progress';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
@@ -34,8 +34,15 @@ import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unloa
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
 import { isTrimCutEnabled } from '../../src/dashboard/utils/trim-cut';
+import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library-item';
 import './style.scss';
-import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
+import type { UploadProgressStatus } from '../../src/dashboard/components/video-details/upload-progress';
+import type { UploadItem } from '../../src/dashboard/hooks/use-upload';
+import type {
+	LibraryItem,
+	VideoDetailsPatch,
+	VideoRating,
+} from '../../src/dashboard/types/library';
 
 const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
@@ -95,7 +102,15 @@ const Loading = () => (
 	</AdminPage>
 );
 
-type EditorProps = {
+type UploadEditorProps = {
+	upload?: UploadItem;
+	uploadId?: string;
+	isUploadComplete?: boolean;
+	hasVideoError?: boolean;
+	onRetryVideo?: () => void;
+};
+
+type EditorProps = UploadEditorProps & {
 	video: LibraryItem;
 	onSave: (
 		values: ReturnType< typeof useVideoDetailsForm >[ 'values' ],
@@ -109,6 +124,19 @@ type EditorProps = {
 	setChaptersOpen: ( open: boolean ) => void;
 };
 
+const PendingCard = ( { title }: { title: string } ) => (
+	<Card.Root>
+		<Card.Header>
+			<Card.Title>{ title }</Card.Title>
+		</Card.Header>
+		<Card.Content>
+			<Text>
+				{ __( 'Available when the video finishes processing.', 'jetpack-videopress-pkg' ) }
+			</Text>
+		</Card.Content>
+	</Card.Root>
+);
+
 const Editor = ( {
 	video,
 	onSave,
@@ -118,40 +146,66 @@ const Editor = ( {
 	onManageCaptions,
 	chaptersOpen,
 	setChaptersOpen,
+	upload,
+	uploadId,
+	isUploadComplete,
+	hasVideoError,
+	onRetryVideo,
 }: EditorProps ) => {
-	const { values, update, isDirty, reset } = useVideoDetailsForm( video );
+	const {
+		values,
+		update: updateForm,
+		isDirty,
+		reset,
+	} = useVideoDetailsForm( video, {
+		uploadId,
+		draft: upload?.details,
+	} );
+	const { updateUploadDetails, retryUpload, retryUploadDetails } = useUpload();
 	const { hasConnectionError } = useConnectionErrorNotice();
-
-	// The sub-nav's only sibling tab is the Editor, whose route is stripped
-	// from the registry when the chapters editor is off — a one-tab strip
-	// would be pointless chrome, and its Editor tab would dead-end.
+	const isPendingUpload = Boolean( upload && video.id === upload.id );
+	const isProcessingUpload = Boolean( uploadId && video.isProcessing );
 	const showVideoNav = isChaptersEditorEnabled() || isTrimCutEnabled();
+	const hasUnsavedDetails = isPendingUpload
+		? isUploadComplete &&
+			( Object.keys( values ) as ( keyof typeof values )[] ).some(
+				key => values[ key ] !== video[ key ]
+			)
+		: isDirty;
 
-	const openChapters = useCallback( () => {
-		setChaptersOpen( true );
-	}, [ setChaptersOpen ] );
+	useEffect( () => {
+		if ( ! hasUnsavedDetails ) {
+			return;
+		}
+		const onBeforeUnload = ( event: BeforeUnloadEvent ) => {
+			event.preventDefault();
+			event.returnValue = '';
+		};
+		window.addEventListener( 'beforeunload', onBeforeUnload );
+		return () => window.removeEventListener( 'beforeunload', onBeforeUnload );
+	}, [ hasUnsavedDetails ] );
 
-	const closeChapters = useCallback( () => {
-		setChaptersOpen( false );
-	}, [ setChaptersOpen ] );
-
-	const onRatingChange = useCallback(
-		( next: VideoRating ) => {
-			update( { rating: next } );
+	const update = useCallback(
+		( patch: VideoDetailsPatch ) => {
+			updateForm( patch );
+			if ( upload && ! isUploadComplete ) {
+				updateUploadDetails( upload.id, patch );
+			}
 		},
-		[ update ]
+		[ updateForm, upload, isUploadComplete, updateUploadDetails ]
 	);
 
-	const handleSave = useCallback( () => {
-		onSave( values, reset );
-	}, [ onSave, values, reset ] );
-
-	// Guard the sub-nav against losing unsaved form edits: the Editor tab
-	// is a sibling route, so switching tabs unmounts this form entirely.
+	const openChapters = useCallback( () => setChaptersOpen( true ), [ setChaptersOpen ] );
+	const closeChapters = useCallback( () => setChaptersOpen( false ), [ setChaptersOpen ] );
+	const onRatingChange = useCallback(
+		( next: VideoRating ) => update( { rating: next } ),
+		[ update ]
+	);
+	const handleSave = useCallback( () => onSave( values, reset ), [ onSave, values, reset ] );
 	const confirmNavigation = useCallback( () => {
 		return (
-			! isDirty ||
-			// eslint-disable-next-line no-alert -- deliberate synchronous guard; the sub-nav navigation can't await a custom dialog.
+			! hasUnsavedDetails ||
+			// eslint-disable-next-line no-alert -- Navigation must synchronously confirm before leaving the form.
 			window.confirm(
 				__(
 					'You have unsaved changes. Leave this page and discard them?',
@@ -159,32 +213,43 @@ const Editor = ( {
 				)
 			)
 		);
-	}, [ isDirty ] );
+	}, [ hasUnsavedDetails ] );
+
+	let progressStatus: UploadProgressStatus = 'processing';
+	let onRetry: ( () => void ) | undefined;
+	if ( isPendingUpload ) {
+		if ( upload.detailsError ) {
+			progressStatus = 'details-error';
+			onRetry = () => retryUploadDetails( upload.id );
+		} else if ( upload.status === 'failed' ) {
+			progressStatus = 'failed';
+			onRetry = () => retryUpload( upload.id );
+		} else if ( isUploadComplete ) {
+			progressStatus = hasVideoError ? 'loading-error' : 'loading';
+			onRetry = onRetryVideo;
+		} else {
+			progressStatus = upload.status === 'success' ? 'saving' : upload.status;
+		}
+	}
 
 	return (
 		<AdminPage
 			breadcrumbs={
-				// display: contents wrapper — a pure scoping hook so the
-				// stylesheet can clamp long video titles in the current-item
-				// crumb (Breadcrumbs' own class names are CSS-module hashes).
-				<div className="vp-video-details__breadcrumbs">
-					{ /*
-					 * The crumb reads the FORM's title, not the saved record, so
-					 * the page heading tracks what is being typed without
-					 * committing it. Two side benefits over reading
-					 * `video.title`: no old→new flicker when the post-save
-					 * refetch lands, and the 2s processing `refetchInterval`
-					 * can't clobber the crumb mid-edit.
-					 *
-					 * `.trim()` matters. Breadcrumbs only short-circuits on
-					 * `items.length === 0`, so a whitespace-only title would
-					 * render an empty <h1> — and that <h1> is this page's only
-					 * accessible name.
-					 */ }
+				<div
+					className="vp-video-details__breadcrumbs"
+					onClickCapture={ event => {
+						if ( ( event.target as HTMLElement ).closest( 'a' ) && ! confirmNavigation() ) {
+							event.preventDefault();
+							event.stopPropagation();
+						}
+					} }
+				>
 					<Breadcrumbs
 						items={ [
 							getParentBreadcrumbItem(),
-							{ label: values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' ) },
+							{
+								label: values.title.trim() || __( 'Untitled', 'jetpack-videopress-pkg' ),
+							},
 						] }
 					/>
 				</div>
@@ -192,7 +257,8 @@ const Editor = ( {
 			actions={
 				<HeaderActions
 					guid={ video.guid }
-					canSave={ isDirty && ! isSaving }
+					canSave={ ! isPendingUpload && isDirty && ! isSaving }
+					showMenu={ ! isPendingUpload }
 					onSave={ handleSave }
 					onManageCaptions={ onManageCaptions }
 					onDownload={ onDownload }
@@ -209,28 +275,11 @@ const Editor = ( {
 				<VideoNav
 					videoId={ video.id }
 					activeTab="details"
+					editorDisabled={ isPendingUpload }
 					confirmNavigation={ confirmNavigation }
 				/>
 			) }
 			<div className="vp-video-details">
-				{ /*
-				 * Placement rule for this screen: the canvas holds what a person
-				 * authors about this video — the words, the still, the captions.
-				 * The right-hand column holds the video itself, the values that
-				 * address it, and the settings picked once from a fixed set.
-				 *
-				 * The split is authoring vs. configuring rather than editable vs.
-				 * read-only, which is why Privacy & sharing and Rating sit beside
-				 * the read-outs: all three are things you set and leave, not
-				 * things you write.
-				 *
-				 * The player used to lead the canvas. It was measured at 502px
-				 * tall on a 1080p display — over half the visible page before a
-				 * single field had been read — while the settings it pushed
-				 * down could not fit their own column and grew a second
-				 * scrollbar with no visible boundary. Those are the same
-				 * problem, and moving one element fixes both.
-				 */ }
 				<div className="vp-video-details__layout">
 					<div className="vp-video-details__canvas">
 						<VideoDetailsCard
@@ -240,22 +289,48 @@ const Editor = ( {
 							onChange={ update }
 							onOpenChapters={ openChapters }
 							confirmNavigation={ confirmNavigation }
+							showChapters={ ! isPendingUpload }
 						/>
-						<ThumbnailCard video={ video } />
-						<SubtitlesCard video={ video } onManageSubtitles={ onManageCaptions } />
+						{ isPendingUpload || video.isProcessing ? (
+							<PendingCard title={ __( 'Thumbnail', 'jetpack-videopress-pkg' ) } />
+						) : (
+							<ThumbnailCard video={ video } />
+						) }
+						{ isPendingUpload ? (
+							<PendingCard title={ __( 'Subtitles', 'jetpack-videopress-pkg' ) } />
+						) : (
+							<SubtitlesCard video={ video } onManageSubtitles={ onManageCaptions } />
+						) }
 					</div>
-					{ /*
-					 * Deliberately a sibling of the canvas rather than the first
-					 * child of the aside: it is placed by grid area, so the stacked
-					 * layout below 1100px can lead with the player while the
-					 * settings stay at the bottom.
-					 */ }
-					<PreviewPlayer video={ video } />
+					<section
+						className="vp-video-details__player-slot"
+						aria-label={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
+					>
+						{ /* Keep the iframe mounted and unfocusable beneath the processing placeholder. */ }
+						<div
+							className={ isProcessingUpload ? 'vp-video-details__player-hidden' : undefined }
+							aria-hidden={ isProcessingUpload || undefined }
+						>
+							{ ! isPendingUpload && <PreviewPlayer video={ video } /> }
+						</div>
+						{ ( isPendingUpload || isProcessingUpload ) && (
+							<UploadProgress
+								status={ progressStatus }
+								fileName={ video.filename }
+								progress={ upload?.progress }
+								onRetry={ onRetry }
+							/>
+						) }
+					</section>
 					<aside
 						className="vp-video-details__inspector"
 						aria-label={ __( 'Video settings', 'jetpack-videopress-pkg' ) }
 					>
-						<VideoInfoCard video={ video } />
+						{ isPendingUpload ? (
+							<PendingCard title={ __( 'Video info', 'jetpack-videopress-pkg' ) } />
+						) : (
+							<VideoInfoCard video={ video } />
+						) }
 						<PrivacySharingCard
 							privacy={ values.privacy }
 							displayEmbed={ values.displayEmbed }
@@ -271,7 +346,7 @@ const Editor = ( {
 	);
 };
 
-type StageReadyProps = { video: LibraryItem };
+type StageReadyProps = UploadEditorProps & { video: LibraryItem };
 
 // Per-video id so the settle notices replace the in-progress snackbar in
 // place (the notices store drops an existing notice with the same id on
@@ -280,7 +355,7 @@ type StageReadyProps = { video: LibraryItem };
 // another — can't clobber each other's notices.
 const deletingNoticeId = ( videoId: string ) => `vp-video-deleting-${ videoId }`;
 
-const StageReady = ( { video }: StageReadyProps ) => {
+const StageReady = ( { video, ...uploadProps }: StageReadyProps ) => {
 	const navigate = useNavigate();
 	const invalidateVideo = useInvalidateVideo();
 	const { mutate: updateMeta, isPending: isSaving } = useUpdateVideoMeta();
@@ -354,6 +429,7 @@ const StageReady = ( { video }: StageReadyProps ) => {
 		<>
 			<Editor
 				video={ video }
+				{ ...uploadProps }
 				// Treat an in-flight delete like an in-flight save: Save stays
 				// disabled so a slow delete can't be raced by a meta update
 				// against the attachment being removed.
@@ -429,31 +505,52 @@ const StageInner = () => {
 	const navigate = useNavigate();
 	const isUpload = id.startsWith( 'upload-' );
 	const completedId = completedUploads[ id ];
-	const upload = uploadQueue.find( item => item.id === id );
-	const { video, isLoading } = useVideo( isUpload ? '' : id );
+	const uploadId = isUpload
+		? id
+		: Object.keys( completedUploads ).find( key => completedUploads[ key ] === id );
+	const queuedUpload = uploadQueue.find( item => item.id === id );
+	const retainedUpload = useRef< UploadItem >();
+	// Keep the editor present if queue cleanup precedes a slow attachment fetch.
+	if ( queuedUpload ) {
+		retainedUpload.current = queuedUpload;
+	} else if ( retainedUpload.current?.id !== id ) {
+		retainedUpload.current = undefined;
+	}
+	const upload = queuedUpload ?? retainedUpload.current;
+	const { video, isLoading, isError, refetch } = useVideo( isUpload ? ( completedId ?? '' ) : id, {
+		pollForRegistration: Boolean( uploadId ),
+	} );
+	const ready = Boolean( video && isEditable( video ) );
 
 	useEffect( () => {
-		if ( isUpload && completedId ) {
-			navigate( { href: `/video/${ completedId }`, replace: true } );
+		if ( isUpload && completedId && ready ) {
+			navigate( {
+				href: `/video/${ completedId }`,
+				replace: true,
+				resetScroll: false,
+				viewTransition: false,
+			} );
 		}
-	}, [ isUpload, completedId, navigate ] );
+	}, [ isUpload, completedId, ready, navigate ] );
 
-	if ( isUpload ) {
-		if ( completedId ) {
-			return <Loading />;
-		}
-		return upload ? <UploadDetails upload={ upload } /> : <NotFound />;
+	if ( upload || ready ) {
+		return (
+			<StageReady
+				video={ ready ? video : uploadToLibraryItem( upload ) }
+				upload={ upload }
+				uploadId={ uploadId }
+				isUploadComplete={ Boolean( completedId ) }
+				hasVideoError={ isError }
+				onRetryVideo={ () => void refetch() }
+			/>
+		);
 	}
 
-	if ( isLoading ) {
+	if ( isLoading || ( completedId && video?.type === 'local' ) ) {
 		return <Loading />;
 	}
 
-	if ( ! video || ! isEditable( video ) ) {
-		return <NotFound />;
-	}
-
-	return <StageReady video={ video } />;
+	return <NotFound />;
 };
 
 const Stage = () => (

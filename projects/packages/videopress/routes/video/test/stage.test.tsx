@@ -1,4 +1,12 @@
-import { act, render, renderHook, screen, waitFor, within } from '@testing-library/react';
+import {
+	isInaccessible,
+	act,
+	render,
+	renderHook,
+	screen,
+	waitFor,
+	within,
+} from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { useNavigate } from '@wordpress/route';
@@ -133,10 +141,19 @@ jest.mock( '../../../src/dashboard/components/query-client-wrapper', () => {
 // Heavy children irrelevant to the wiring under test (VideoNav, the dirty-form
 // guard, and the save → chapters-sync sequencing). The form fields the tests
 // type into live in VideoDetailsCard, which stays real.
-jest.mock( '../../../src/dashboard/components/video-details/preview-player', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="preview-player" />,
-} ) );
+jest.mock( '../../../src/dashboard/components/video-details/preview-player', () => {
+	const Component = jest.requireActual(
+		'../../../src/dashboard/components/video-details/preview-player'
+	).default;
+	return {
+		__esModule: true,
+		default: ( props: Record< string, unknown > ) => (
+			<div data-testid="preview-player">
+				<Component { ...props } />
+			</div>
+		),
+	};
+} );
 jest.mock( '../../../src/dashboard/components/video-details/video-info-card', () => ( {
 	__esModule: true,
 	default: () => <div data-testid="video-info-card" />,
@@ -153,14 +170,32 @@ jest.mock( '../../../src/dashboard/components/video-details/subtitles-card', () 
 	__esModule: true,
 	default: () => <div data-testid="subtitles-card" />,
 } ) );
-jest.mock( '../../../src/dashboard/components/video-details/privacy-sharing-card', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="privacy-sharing-card" />,
-} ) );
-jest.mock( '../../../src/dashboard/components/video-details/rating-card', () => ( {
-	__esModule: true,
-	default: () => <div data-testid="rating-card" />,
-} ) );
+jest.mock( '../../../src/dashboard/components/video-details/privacy-sharing-card', () => {
+	const Component = jest.requireActual(
+		'../../../src/dashboard/components/video-details/privacy-sharing-card'
+	).default;
+	return {
+		__esModule: true,
+		default: ( props: Record< string, unknown > ) => (
+			<div data-testid="privacy-sharing-card">
+				<Component { ...props } />
+			</div>
+		),
+	};
+} );
+jest.mock( '../../../src/dashboard/components/video-details/rating-card', () => {
+	const Component = jest.requireActual(
+		'../../../src/dashboard/components/video-details/rating-card'
+	).default;
+	return {
+		__esModule: true,
+		default: ( props: Record< string, unknown > ) => (
+			<div data-testid="rating-card">
+				<Component { ...props } />
+			</div>
+		),
+	};
+} );
 jest.mock( '../../../src/dashboard/components/video-details/chapters-help-modal', () => ( {
 	__esModule: true,
 	default: ( { isOpen }: { isOpen: boolean } ) =>
@@ -242,6 +277,20 @@ async function renderReadyStage() {
 }
 
 /**
+ * Render a new upload in the details route.
+ * @return The rendered route and upload queue.
+ */
+async function renderUploadingStage() {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper( mockTestClient ) } );
+	await act( async () => {
+		mockVideoId = result.current.startUpload(
+			new File( [ 'video' ], 'draft.mp4', { type: 'video/mp4' } )
+		);
+	} );
+	return { ...( await renderReadyStage() ), uploadResult: result };
+}
+
+/**
  * Pull the vars and mutate-level callbacks out of the sole updateMeta call.
  *
  * @return The mutation vars and callbacks.
@@ -285,18 +334,6 @@ describe( 'video stage', () => {
 	 * is outside.
 	 */
 	it( 'edits an upload without fetching its temporary ID and keeps the draft across navigation', async () => {
-		Object.defineProperty( URL, 'createObjectURL', {
-			configurable: true,
-			value: () => 'blob:preview',
-			writable: true,
-		} );
-		jest.spyOn( URL, 'createObjectURL' );
-		Object.defineProperty( URL, 'revokeObjectURL', {
-			configurable: true,
-			value: () => {},
-			writable: true,
-		} );
-		jest.spyOn( URL, 'revokeObjectURL' );
 		const { result } = renderHook( useUpload, { wrapper: createTestWrapper( mockTestClient ) } );
 		await act( async () => {
 			mockVideoId = result.current.startUpload(
@@ -309,9 +346,11 @@ describe( 'video stage', () => {
 		await user.type( screen.getByLabelText( 'Title' ), 'Draft title' );
 		expect( screen.getByRole( 'heading', { name: 'Draft title' } ) ).toBeInTheDocument();
 		expect( apiFetch ).not.toHaveBeenCalled();
-		expect( screen.queryByRole( 'button', { name: 'Save' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
 		unmount();
-		expect( URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:preview' );
 		await renderReadyStage();
 		expect( screen.getByLabelText( 'Title' ) ).toHaveValue( 'Draft title' );
 		await act( async () => {
@@ -324,8 +363,221 @@ describe( 'video stage', () => {
 		expect( apiFetch ).toHaveBeenCalledWith(
 			expect.objectContaining( { method: 'POST', data: { id: 42, title: 'Draft title' } } )
 		);
-		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42', replace: true } );
+		await waitFor( () =>
+			expect( navigate ).toHaveBeenCalledWith( {
+				href: '/video/42',
+				replace: true,
+				resetScroll: false,
+				viewTransition: false,
+			} )
+		);
 	} );
+
+	it( 'keeps the form, focus, and player mounted through registration and processing', async () => {
+		let resolveMedia: ( media: ReturnType< typeof makeRawMedia > ) => void;
+		mockApiFetch( ( { path } ) =>
+			path.startsWith( '/wp/v2/media/' )
+				? new Promise( resolve => {
+						resolveMedia = resolve;
+					} )
+				: Promise.resolve( {} )
+		);
+		const { rerender } = await renderUploadingStage();
+		const user = userEvent.setup();
+		const title = screen.getByLabelText( 'Title' ) as HTMLInputElement;
+		await user.clear( title );
+		await user.type( title, 'Draft title' );
+		expect(
+			screen.queryByLabelText( 'Video preview', { selector: 'video' } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'tab', { name: 'Editor' } ) ).toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		expect( screen.queryByRole( 'button', { name: 'More actions' } ) ).not.toBeInTheDocument();
+		await act( async () =>
+			mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+				id: 42,
+				guid: GUID,
+				src: 'https://example.com/clip.mp4',
+			} )
+		);
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalledWith( { path: '/wp/v2/media/42' } ) );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Preparing video…' );
+		expect( navigate ).not.toHaveBeenCalled();
+		expect( screen.getByLabelText( 'Title' ) ).toBe( title );
+		expect( title ).toHaveFocus();
+		await user.clear( title );
+		await user.type( title, 'Last-minute title' );
+		title.setSelectionRange( 4, 4 );
+		const unload = new Event( 'beforeunload', { cancelable: true } );
+		window.dispatchEvent( unload );
+		expect( unload.defaultPrevented ).toBe( true );
+		const media = makeRawMedia();
+		media.title.rendered = 'Draft title';
+		media.media_details.videopress.finished = false;
+		media.media_details.videopress.poster = '';
+		await act( async () => resolveMedia( media ) );
+		await waitFor( () =>
+			expect( navigate ).toHaveBeenCalledWith( {
+				href: '/video/42',
+				replace: true,
+				resetScroll: false,
+				viewTransition: false,
+			} )
+		);
+		expect( screen.getByLabelText( 'Title' ) ).toBe( title );
+		expect( title ).toHaveValue( 'Last-minute title' );
+		expect( title ).toHaveFocus();
+		expect( title.selectionStart ).toBe( 4 );
+		const player = screen.getByTitle( 'Video preview' );
+		expect( player ).toHaveAttribute(
+			'src',
+			expect.stringContaining( `https://videopress.com/embed/${ GUID }` )
+		);
+		expect( isInaccessible( player ) ).toBe( true );
+		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Upload complete — processing…' );
+		mockVideoId = '42';
+		rerender( <Stage /> );
+		expect( screen.getByLabelText( 'Title' ) ).toBe( title );
+		expect( title ).toHaveFocus();
+		mockApiFetch( () => ( { ...media, media_details: makeRawMedia().media_details } ) );
+		await act( async () => {
+			await mockTestClient.invalidateQueries();
+		} );
+		await waitFor( () => expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument() );
+		expect( screen.getByTitle( 'Video preview' ) ).toBe( player );
+		expect( isInaccessible( player ) ).toBe( false );
+		expect( title ).toHaveFocus();
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( metaCall().vars.patch.title ).toBe( 'Last-minute title' );
+		act( () => metaCall().callbacks.onSuccess() );
+		const savedUnload = new Event( 'beforeunload', { cancelable: true } );
+		window.dispatchEvent( savedUnload );
+		expect( savedUnload.defaultPrevented ).toBe( false );
+	} );
+
+	it( 'keeps editing available and retries a failed attachment lookup without reuploading', async () => {
+		mockApiFetch( ( { path } ) =>
+			path.startsWith( '/wp/v2/media/' )
+				? Promise.reject( new Error( 'Offline' ) )
+				: Promise.resolve( {} )
+		);
+		await renderUploadingStage();
+		const title = screen.getByLabelText( 'Title' );
+		await act( async () =>
+			mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+				id: 42,
+				guid: GUID,
+				src: 'https://example.com/clip.mp4',
+			} )
+		);
+		await expect(
+			screen.findByRole( 'button', { name: 'Retry loading details' } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByLabelText( 'Title' ) ).toBe( title );
+		expect( title ).toBeEnabled();
+		expect( navigate ).not.toHaveBeenCalled();
+		installApi();
+		await userEvent
+			.setup()
+			.click( screen.getByRole( 'button', { name: 'Retry loading details' } ) );
+		await waitFor( () => expect( navigate ).toHaveBeenCalled() );
+		expect( mockResumable ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'keeps the draft visible until the attachment has registered with VideoPress', async () => {
+		mockApiFetch( ( { path } ) =>
+			path.startsWith( '/wp/v2/media/' )
+				? { ...makeRawMedia(), jetpack_videopress: undefined, media_details: {} }
+				: {}
+		);
+		await renderUploadingStage();
+		await act( async () =>
+			mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+				id: 42,
+				guid: GUID,
+				src: 'https://example.com/clip.mp4',
+			} )
+		);
+		await waitFor( () => expect( apiFetch ).toHaveBeenCalledWith( { path: '/wp/v2/media/42' } ) );
+		expect( navigate ).not.toHaveBeenCalled();
+		expect( screen.getByLabelText( 'Title' ) ).toBeEnabled();
+		expect( screen.queryByText( "We couldn't find that video." ) ).not.toBeInTheDocument();
+		installApi();
+		await act( async () => {
+			await mockTestClient.invalidateQueries();
+		} );
+		await waitFor( () => expect( navigate ).toHaveBeenCalled() );
+	} );
+
+	it( 'edits every supported field while uploading without showing a native preview or explanation card', async () => {
+		const { uploadResult } = await renderUploadingStage();
+		const user = userEvent.setup();
+		await user.clear( screen.getByLabelText( 'Title' ) );
+		await user.click( screen.getByLabelText( 'Description' ) );
+		await user.paste( 'A draft description' );
+		await user.click( screen.getByRole( 'button', { name: /Privacy & sharing/ } ) );
+		await user.selectOptions( screen.getByLabelText( 'Privacy' ), 'private' );
+		await user.click( screen.getByLabelText( 'Share' ) );
+		await user.click( screen.getByLabelText( 'Allow downloads' ) );
+		await user.click( screen.getByRole( 'button', { name: /Rating/ } ) );
+		await user.click( screen.getByRole( 'radio', { name: 'R' } ) );
+		expect( uploadResult.current.uploadQueue[ 0 ].details ).toEqual( {
+			title: '',
+			description: 'A draft description',
+			privacy: 'private',
+			displayEmbed: true,
+			allowDownloads: true,
+			rating: 'R',
+		} );
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect(
+			screen.queryByLabelText( 'Video preview', { selector: 'video' } )
+		).not.toBeInTheDocument();
+		expect( screen.queryByTitle( 'Video preview' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( /Start editing now/ ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Untitled' } ) ).toBeInTheDocument();
+		expect(
+			within( screen.getByRole( 'region', { name: 'Video preview' } ) ).getByRole( 'progressbar' )
+		).toBeInTheDocument();
+	} );
+
+	it.each( [ 'upload', 'details' ] )(
+		'retries a failed %s in the player area with edits intact',
+		async failure => {
+			await renderUploadingStage();
+			const user = userEvent.setup();
+			const title = screen.getByLabelText( 'Title' );
+			await user.clear( title );
+			await user.type( title, 'Keep me' );
+			if ( failure === 'upload' ) {
+				await act( async () =>
+					mockResumable.mock.calls[ 0 ][ 0 ].onError( new Error( 'Offline' ) )
+				);
+			} else {
+				jest.mocked( apiFetch ).mockRejectedValueOnce( new Error( 'Offline' ) );
+				await act( async () =>
+					mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+						id: 42,
+						guid: GUID,
+						src: 'https://example.com/clip.mp4',
+					} )
+				);
+			}
+			const retry = within( screen.getByRole( 'region', { name: 'Video preview' } ) ).getByRole(
+				'button',
+				{
+					name: failure === 'upload' ? 'Retry upload' : 'Retry saving details',
+				}
+			);
+			await user.click( retry );
+			expect( title ).toHaveValue( 'Keep me' );
+			expect( screen.getByLabelText( 'Title' ) ).toBe( title );
+			expect( mockResumable ).toHaveBeenCalledTimes( failure === 'upload' ? 2 : 1 );
+		}
+	);
 
 	it( 'renders a missing temporary upload as not found without requesting an attachment', async () => {
 		mockVideoId = 'upload-missing';

@@ -330,14 +330,50 @@
 	border-radius: var(--wpds-border-radius-sm);
 }
 
-.vp-video-details__upload-preview {
+.vp-video-details__player-slot {
 	grid-area: preview;
+	position: relative;
 	min-inline-size: 0;
+	aspect-ratio: 16 / 9;
+	border-radius: 4px;
+	background: #000;
+	overflow: hidden;
+}
 
-	video {
-		display: block;
-		inline-size: 100%;
-		max-block-size: 300px;
-		background: #000;
+.vp-video-details__player-hidden {
+	visibility: hidden;
+}
+
+.vp-video-details__upload-progress {
+	position: absolute;
+	inset: 0;
+	box-sizing: border-box;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-sm);
+	padding: var(--wpds-dimension-padding-lg);
+	background: #000;
+	text-align: center;
+
+	button {
+		color: #fff;
 	}
+}
+
+.vp-video-details__upload-name {
+	max-inline-size: 100%;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	color: #fff;
+}
+
+.vp-video-details__upload-bar {
+	inline-size: 70%;
+}
+
+.vp-video-details__upload-status {
+	color: rgb(255 255 255 / 80%);
 }
