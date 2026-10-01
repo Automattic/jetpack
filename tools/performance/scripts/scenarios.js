@@ -31,10 +31,8 @@ export const SCENARIOS = [
 		//   codevitalsKey — the exact CodeVitals metric key to post to
 		//   type          — the SANITY_RANGES key; REQUIRED, drives the range check in
 		//                   post-to-codevitals.js. A keyed metric with no type is refused.
-		// When introducing a NEW metric, post it to a `-staging` key first (e.g.
-		// `…-timeToFirstByte-staging`) for 2-3 builds, inspect it in the CodeVitals UI, then
-		// rename to the production key. See the "Safeguards" section of README.md for the
-		// full convention. (LCP/TTFB/FCP below post straight to production keys by decision.)
+		// See README.md "Staging keys" and "Admin backend metrics" for enrollment requirements.
+		// LCP/TTFB/FCP below use production keys under the existing staging waiver.
 		metrics: [
 			{
 				field: 'lcp',

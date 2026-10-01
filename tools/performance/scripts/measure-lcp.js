@@ -483,13 +483,9 @@ function readIterationField( result, field ) {
 }
 
 /**
- * Summary stats for one field across the valid iterations, rounded to whole ms to match
- * the original LCP-only summary. Non-finite samples (a browser that reported null for a
- * field on some iteration) are dropped before aggregating. A field whose finite samples do
- * not cover a MAJORITY of the valid iterations returns null so the caller omits it and the
- * poster fails closed on the missing field rather than posting a fabricated 0 — or, worse, a
- * thin value (e.g. a field captured on 1 of 5 runs) as a full "median" with stdDev 0, a
- * low-confidence point indistinguishable from a real full-sample median in the append-only store.
+ * Summarize one field across valid iterations, rounded to whole units.
+ * Require a strict majority of finite samples so missing captures cannot become
+ * fabricated zeros or low-confidence medians in the append-only store.
  *
  * @param {Array<number|null|undefined>} values - Raw per-iteration values for the field.
  * @return {{median:number,mean:number,min:number,max:number,stdDev:number}|null} Rounded stats, or null.

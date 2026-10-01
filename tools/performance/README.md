@@ -123,7 +123,6 @@ Buffering can move TTFB to the shutdown flush. Ten interleaved pre/post runs of 
 
 All timing differences stayed inside the local digest noise bars (TTFB 5.64–11.46 ms; LCP 22.30–103.47 ms). This evidence cannot exclude smaller effects or predict CI-host behavior; inspect the three `timeToFirstByte` series at the landing commit. Peak memory rose about 131 KB across 20 candidate runs; the cause was not established, so its MAD describes drift as well as noise. Staging builds and measured per-key floors remain necessary.
 
-
 ### Known fixture behavior on the My Jetpack page
 
 Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
@@ -211,25 +210,13 @@ CodeVitals is an **append-only** store with no self-service rollback. Once a bad
 
 `post-to-codevitals.js` checks every typed metric against `SANITY_RANGES` in `scenarios.js` before posting. A value outside its range is logged and rejected, and the script exits non-zero so CI surfaces the failure. Live posting is all-or-nothing per run: any sanity failure suppresses the entire POST, so nothing lands and retrying the red build posts the full set exactly once. (That guarantee covers the validation-failure retry only — re-running a green build appends duplicate points unless opt-in cross-commit dedup is enabled.) A dry run still prints the surviving metrics, if any, for diagnostics.
 
-| Metric           | Min     | Max       | Unit  |
-| ---------------- | ------- | --------- | ----- |
-| `lcp`            | 100     | 60000     | ms    |
-| `ttfb`           | 10      | 10000     | ms    |
-| `fcp`            | 50      | 30000     | ms    |
-| `tbt`            | 0       | 10000     | ms    |
-| `cls`            | 0       | 5         | —     |
-| `decodedBytesKB` | 1000    | 51200     | KB    |
-| `wpTotal`        | 10      | 60000     | ms    |
-| `wpMemoryUsage`  | 1048576 | 536870912 | bytes |
-| `wpDbQueries`    | 1       | 10000     | count |
-
-Add a row when a new metric type starts being posted, and set the `type` on the metric so the check applies to it — either `type` on a `metrics[]` entry (the multi-metric shape) or the scenario-level `metricType` (the legacy single-key shape). A keyed metric with no type is refused (never posted unchecked).
+The authoritative ranges are `SANITY_RANGES` in [scripts/scenarios.js](scripts/scenarios.js). Add an entry there when a new metric type starts being posted, and set the `type` on the metric so the check applies to it — either `type` on a `metrics[]` entry (the multi-metric shape) or the scenario-level `metricType` (the legacy single-key shape). A keyed metric with no type is refused (never posted unchecked).
 
 ### Staging keys
 
 Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByte-staging`) for 2-3 builds. Inspect the values in the CodeVitals UI, then rename to the production key. This gives a safety window before a new metric reaches production.
 
-**Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the `formsResponses` and `myJetpack` metrics do. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
+**Waiving the staging window (owner decision).** A scenario may post straight to production keys when the build owner accepts the risk, as the existing `formsResponses` and `myJetpack` browser metrics do. The [admin backend metrics](#admin-backend-metrics-server-timing) have no waiver. The waiver is not automatic — it requires all of: the `SANITY_RANGES` row + the all-or-nothing gate as the substitute guardrail, manual sign-off before the first live post, and the PR that introduces the keys listing them and naming the waiver so the impact is visible in review. A dry run's `stdDev: 0` shows repeatability, not correctness, so it is not the safeguard. The per-scenario comment in `scenarios.js` records where a waiver is in effect.
 
 ### Capture guards for targeted-page scenarios
 
