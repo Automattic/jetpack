@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Load the dashboard's JavaScript translation catalogs so its strings are translated.
