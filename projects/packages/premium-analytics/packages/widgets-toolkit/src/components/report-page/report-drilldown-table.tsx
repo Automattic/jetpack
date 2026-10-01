@@ -11,6 +11,7 @@ import {
 import styles from './report-drilldown-table.module.scss';
 import { ReportTableEmptyState } from './report-empty-state';
 import { ReportPageSection } from './report-page-layout';
+import { useTableRevalidating } from './use-table-revalidating';
 
 export type ReportDrilldownTableProps< Item > = DataViewsDrilldownNativeProps< Item > & {
 	/** Whether the rows on screen are revalidating; see `ReportRecordsTable`. */
@@ -29,13 +30,18 @@ export function ReportDrilldownTable< Item >( {
 	isFetching = false,
 	...props
 }: ReportDrilldownTableProps< Item > ) {
+	const isRevalidating = useTableRevalidating( isFetching );
+
 	if ( props.data.length === 0 ) {
 		return <ReportTableEmptyState isLoading={ props.isLoading ?? false } />;
 	}
 
 	return (
 		<ReportPageSection className={ styles.root }>
-			<DataViewsDrilldownNative< Item > { ...props } isLoading={ props.isLoading || isFetching } />
+			<DataViewsDrilldownNative< Item >
+				{ ...props }
+				isLoading={ props.isLoading || isRevalidating }
+			/>
 		</ReportPageSection>
 	);
 }

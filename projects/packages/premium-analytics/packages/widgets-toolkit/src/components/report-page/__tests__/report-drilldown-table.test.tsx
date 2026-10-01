@@ -50,18 +50,36 @@ describe( 'ReportDrilldownTable', () => {
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the table loading state while rows on screen revalidate', () => {
-		render(
+	/**
+	 * Render the table over one referrer row.
+	 *
+	 * @param isFetching - Whether the row on screen is revalidating.
+	 * @return The table element.
+	 */
+	function referrerTable( isFetching = false ) {
+		return (
 			<ReportDrilldownTable< { id: string; label: string } >
 				data={ [ { id: 'google', label: 'Google Search' } ] }
 				fields={ [ { id: 'label', label: 'Referrer', getValue: ( { item } ) => item.label } ] }
 				getItemId={ item => item.id }
 				getItemParentId={ () => null }
-				isFetching
+				isFetching={ isFetching }
 			/>
 		);
+	}
 
-		expect( screen.getByRole( 'searchbox' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Google Search' ) ).not.toBeInTheDocument();
+	it( 'shows cached rows that mount already revalidating', () => {
+		render( referrerTable( true ) );
+
+		expect( screen.getByText( 'Google Search' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the rows on screen and marks the table busy while they revalidate', () => {
+		const { rerender } = render( referrerTable() );
+
+		rerender( referrerTable( true ) );
+
+		expect( screen.getByText( 'Google Search' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'table' ) ).toHaveAttribute( 'aria-busy', 'true' );
 	} );
 } );

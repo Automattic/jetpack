@@ -17,6 +17,7 @@ import { ReportTableEmptyState } from './report-empty-state';
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import './report-records-table.scss';
+import { useTableRevalidating } from './use-table-revalidating';
 import type { ComponentProps, ReactElement } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
@@ -161,6 +162,8 @@ export function ReportRecordsTable< Item >( {
 		onChangePageItems?.( pageItems );
 	}, [ onChangePageItems, pageItems ] );
 
+	const isRevalidating = useTableRevalidating( isFetching );
+
 	// A filter the API applies server-side can scope the rows to none, and the table carries the control that clears it.
 	if ( data.length === 0 && ! view.filters?.length ) {
 		return <ReportTableEmptyState isLoading={ isLoading } />;
@@ -174,7 +177,7 @@ export function ReportRecordsTable< Item >( {
 				fields={ fields }
 				data={ pageItems }
 				getItemId={ getItemId }
-				isLoading={ isLoading || isFetching }
+				isLoading={ isLoading || isRevalidating }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ { table: {} } }
 				actions={ actions }

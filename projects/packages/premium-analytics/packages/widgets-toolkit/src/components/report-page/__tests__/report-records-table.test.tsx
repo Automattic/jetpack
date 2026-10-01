@@ -311,11 +311,27 @@ describe( 'ReportRecordsTable with no rows', () => {
 		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the table loading state while rows on screen revalidate', () => {
+	it( 'shows cached rows that mount already revalidating', () => {
 		mountRows( rows, { isFetching: true } );
 
-		expect( screen.getByRole( 'searchbox' ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'Maharashtra' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the rows on screen and marks the table busy while they revalidate', () => {
+		const { rerender } = mountRows( rows );
+
+		rerender(
+			<ReportRecordsTable< Row >
+				data={ rows }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ INITIAL_VIEW }
+				isFetching
+			/>
+		);
+
+		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'table' ) ).toHaveAttribute( 'aria-busy', 'true' );
 	} );
 
 	it( 'keeps the table while a filter has scoped the rows to none', () => {
