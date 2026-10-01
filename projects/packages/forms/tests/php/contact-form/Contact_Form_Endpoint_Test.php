@@ -809,6 +809,38 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertStringContainsString( 'IS NULL', $queries[0] );
 	}
 
+	public function test_delete_feedback_trash_limit_caps_the_query_and_reports_has_more() {
+		list( $response, $queries ) = $this->dispatch_trash_and_capture_queries(
+			array(
+				'status' => 'spam',
+				'limit'  => 2,
+			)
+		);
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( 'LIMIT 0, 2', $queries[0] );
+		$this->assertArrayHasKey( 'has_more', $response->get_data() );
+		$this->assertIsBool( $response->get_data()['has_more'] );
+	}
+
+	public function test_delete_feedback_trash_without_limit_keeps_full_batches() {
+		list( $response, $queries ) = $this->dispatch_trash_and_capture_queries( array( 'status' => 'spam' ) );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertStringContainsString( 'LIMIT 0, 1000', $queries[0] );
+		$this->assertFalse( $response->get_data()['has_more'] );
+	}
+
+	public function test_delete_feedback_trash_rejects_out_of_range_limit() {
+		foreach ( array( 0, 5001 ) as $limit ) {
+			$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+			$request->set_param( 'status', 'spam' );
+			$request->set_param( 'limit', $limit );
+
+			$this->assertSame( 400, $this->server->dispatch( $request )->get_status(), "limit={$limit}" );
+		}
+	}
+
 	public function test_delete_feedback_trash_removes_source_filter_hooks() {
 		list( $response ) = $this->dispatch_trash_and_capture_queries(
 			array(

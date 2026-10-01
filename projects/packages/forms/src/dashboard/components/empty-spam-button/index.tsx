@@ -8,6 +8,7 @@ import { trash } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { getDeletingLabel } from '../../hooks/use-empty-responses';
 import useEmptySpam, { type EmptySpamScope } from '../../hooks/use-empty-spam';
 import EmptySpamConfirmationModal from './confirmation-modal';
 import type { JSX } from 'react';
@@ -51,6 +52,7 @@ const EmptySpamButton = ( {
 		onConfirmEmptying,
 		isEmpty,
 		isEmptying,
+		progress,
 		scope,
 	} = useEmptySpam( {
 		totalItemsSpam: totalItemsSpamProp,
@@ -69,7 +71,7 @@ const EmptySpamButton = ( {
 				showTooltip={ isEmpty }
 				variant="primary"
 			>
-				{ labelForScope( scope ) }
+				{ progress ? getDeletingLabel( progress ) : labelForScope( scope ) }
 			</Button>
 			<EmptySpamConfirmationModal
 				isOpen={ isConfirmDialogOpen }

@@ -45,6 +45,8 @@ let selectedIdsFromStore = [];
 await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
+		createInfoNotice: jest.fn(),
+		removeNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		invalidateResolutionForStoreSelector: jest.fn(),
 		invalidateCounts: jest.fn(),
@@ -55,6 +57,8 @@ await jest.unstable_mockModule( '@wordpress/data', () => {
 			if ( store === 'notices' ) {
 				return {
 					createSuccessNotice: mockDispatch.createSuccessNotice,
+					createInfoNotice: mockDispatch.createInfoNotice,
+					removeNotice: mockDispatch.removeNotice,
 					createErrorNotice: mockDispatch.createErrorNotice,
 				};
 			}
@@ -228,7 +232,7 @@ describe( 'useEmptySpam', () => {
 			expect( apiFetchModule.default ).toHaveBeenCalledWith( {
 				method: 'DELETE',
 				path: '/wp/v2/feedback/trash',
-				data: { status: 'spam', search: 'spammy' },
+				data: { status: 'spam', search: 'spammy', limit: 500 },
 			} );
 		} );
 
@@ -259,7 +263,7 @@ describe( 'useEmptySpam', () => {
 			expect( apiFetchModule.default ).toHaveBeenCalledWith( {
 				method: 'DELETE',
 				path: '/wp/v2/feedback/trash',
-				data: { status: 'spam', post_ids: [ 1, 2, 3 ] },
+				data: { status: 'spam', post_ids: [ 1, 2, 3 ], limit: 500 },
 			} );
 		} );
 	} );
@@ -303,5 +307,71 @@ describe( 'useEmptySpam', () => {
 
 		expect( result.current.totalItemsSpam ).toBe( 10 );
 		expect( result.current.scope.count ).toBe( 10 );
+	} );
+
+	describe( 'chunked deletion', () => {
+		const deleteCalls = () =>
+			apiFetchModule.default.mock.calls.filter( ( [ req ] ) => req.method === 'DELETE' );
+
+		it( 'keeps requesting chunks while the server reports has_more', async () => {
+			useInboxDataModule.default.mockReturnValue( {
+				totalItemsSpam: 700,
+				selectedResponsesCount: 0,
+				currentQuery: { status: 'spam' },
+			} );
+			apiFetchModule.default
+				.mockImplementationOnce( () => Promise.resolve( { deleted: 500, has_more: true } ) )
+				.mockImplementationOnce( () => Promise.resolve( { deleted: 200, has_more: false } ) );
+
+			const { result } = renderHook( () => useEmptySpam() );
+			await act( async () => {
+				await result.current.onConfirmEmptying();
+			} );
+
+			expect( deleteCalls() ).toHaveLength( 2 );
+			const noticesDispatch = useDispatch( 'notices' );
+			expect( noticesDispatch.createInfoNotice ).toHaveBeenLastCalledWith(
+				'Deleting 500 of 700 responses… Keep this page open.',
+				{ type: 'snackbar', id: 'empty-spam', explicitDismiss: true }
+			);
+			expect( noticesDispatch.createSuccessNotice ).toHaveBeenCalledWith(
+				'700 responses deleted permanently.',
+				{ type: 'snackbar', id: 'empty-spam' }
+			);
+			expect( result.current.progress ).toBeNull();
+		} );
+
+		it( 'stops when a chunk deletes nothing, even if has_more is set', async () => {
+			apiFetchModule.default.mockImplementation( () =>
+				Promise.resolve( { deleted: 0, has_more: true } )
+			);
+
+			const { result } = renderHook( () => useEmptySpam() );
+			await act( async () => {
+				await result.current.onConfirmEmptying();
+			} );
+
+			expect( deleteCalls() ).toHaveLength( 1 );
+		} );
+
+		it( 'reports how many were deleted when a later chunk fails', async () => {
+			apiFetchModule.default
+				.mockImplementationOnce( () => Promise.resolve( { deleted: 500, has_more: true } ) )
+				.mockImplementationOnce( () =>
+					Promise.reject( { error: 'Failed to empty spam.', deleted: 20 } )
+				);
+
+			const { result } = renderHook( () => useEmptySpam() );
+			await act( async () => {
+				await result.current.onConfirmEmptying();
+			} );
+
+			const noticesDispatch = useDispatch( 'notices' );
+			expect( noticesDispatch.removeNotice ).toHaveBeenCalledWith( 'empty-spam' );
+			expect( noticesDispatch.createErrorNotice ).toHaveBeenCalledWith(
+				'520 responses were deleted, then an error stopped the rest.',
+				{ type: 'snackbar', id: 'empty-spam-error' }
+			);
+		} );
 	} );
 } );

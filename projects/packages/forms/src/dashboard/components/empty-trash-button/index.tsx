@@ -7,6 +7,7 @@ import { trash } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
+import { getDeletingLabel } from '../../hooks/use-empty-responses';
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import EmptyTrashConfirmationModal from './confirmation-modal';
 import type { JSX } from 'react';
@@ -32,6 +33,7 @@ const EmptyTrashButton = ( {
 		onConfirmEmptying,
 		isEmpty,
 		isEmptying,
+		progress,
 		totalItemsTrash,
 		selectedResponsesCount,
 	} = useEmptyTrash( {
@@ -51,7 +53,7 @@ const EmptyTrashButton = ( {
 				showTooltip={ isEmpty }
 				variant="primary"
 			>
-				{ __( 'Empty trash', 'jetpack-forms' ) }
+				{ progress ? getDeletingLabel( progress ) : __( 'Empty trash', 'jetpack-forms' ) }
 			</Button>
 			<EmptyTrashConfirmationModal
 				isOpen={ isConfirmDialogOpen }

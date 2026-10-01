@@ -33,6 +33,15 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 	/**
+	 * Seconds a chunked bulk delete may run before it stops and reports `has_more`.
+	 *
+	 * Kept well under the 120s gateway timeout measured on Atomic.
+	 *
+	 * @var int
+	 */
+	const BULK_DELETE_TIME_BUDGET = 20;
+
+	/**
 	 * Temporary storage for the source filter ID used in query modifications.
 	 *
 	 * @var int|null
@@ -1365,6 +1374,13 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'required'          => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
 			),
+			'limit'     => array(
+				'description' => __( 'Delete at most this many responses, then report whether more remain.', 'jetpack-forms' ),
+				'type'        => 'integer',
+				'minimum'     => 1,
+				'maximum'     => 5000,
+				'required'    => false,
+			),
 		);
 	}
 
@@ -1483,6 +1499,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 *    deletes every response in `status` matching those filters.
 	 *  - Else → deletes every response in `status` (legacy behavior).
 	 *
+	 * With `limit`, at most that many are deleted (stopping early after
+	 * BULK_DELETE_TIME_BUDGET seconds) and `has_more` tells the caller to repeat the request.
+	 *
 	 * The operation is non-reversible; restricted to statuses spam and trash via the
 	 * route args enum, and re-checked here for defense in depth.
 	 *
@@ -1503,6 +1522,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		}
 
 		$status        = $from_status;
+		$limit         = $request->get_param( 'limit' );
+		$limit         = is_numeric( $limit ) ? (int) $limit : 0;
+		$deadline      = $limit > 0 ? microtime( true ) + self::BULK_DELETE_TIME_BUDGET : 0;
 		$batch_size    = 1000;
 		$total_deleted = 0;
 		$has_more      = true;
@@ -1511,7 +1533,8 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$has_source_hooks = $this->maybe_attach_source_filter_hooks( $request );
 
 		while ( $has_more ) {
-			$fetched_ids = $this->fetch_bulk_scope_batch( $request, $status, $batch_size );
+			$want        = $limit > 0 ? min( $batch_size, $limit - $total_deleted ) : $batch_size;
+			$fetched_ids = $this->fetch_bulk_scope_batch( $request, $status, $want );
 			// Skip IDs already handled, so a delete short-circuited by `pre_delete_post` can't loop forever.
 			$post_ids = array_values( array_diff( $fetched_ids, $processed_ids ) );
 
@@ -1529,23 +1552,45 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 					$error = $status === 'spam'
 						? __( 'Failed to empty spam.', 'jetpack-forms' )
 						: __( 'Failed to empty trash.', 'jetpack-forms' );
-					return new WP_REST_Response( array( 'error' => $error ), 400 );
+					return new WP_REST_Response(
+						array(
+							'error'   => $error,
+							'deleted' => $total_deleted,
+						),
+						400
+					);
 				}
 
 				$processed_ids[] = $post_id;
 				++$total_deleted;
+
+				if ( $deadline && microtime( true ) >= $deadline ) {
+					break 2;
+				}
 			}
 
-			if ( count( $fetched_ids ) < $batch_size ) {
+			if ( count( $fetched_ids ) < $want || ( $limit > 0 && $total_deleted >= $limit ) ) {
 				$has_more = false;
 			}
+		}
+
+		$has_more = false;
+		if ( $limit > 0 ) {
+			$next     = array_diff( $this->fetch_bulk_scope_batch( $request, $status, 1 ), $processed_ids );
+			$has_more = ! empty( $next );
 		}
 
 		if ( $has_source_hooks ) {
 			$this->remove_source_filter_hooks();
 		}
 
-		return new WP_REST_Response( array( 'deleted' => $total_deleted ), 200 );
+		return new WP_REST_Response(
+			array(
+				'deleted'  => $total_deleted,
+				'has_more' => $has_more,
+			),
+			200
+		);
 	}
 
 	/**

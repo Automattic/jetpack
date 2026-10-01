@@ -70,6 +70,8 @@ await jest.unstable_mockModule( 'lodash', () => ( {
 await jest.unstable_mockModule( '@wordpress/data', () => {
 	const mockDispatch = {
 		createSuccessNotice: jest.fn(),
+		createInfoNotice: jest.fn(),
+		removeNotice: jest.fn(),
 		createErrorNotice: jest.fn(),
 		setCounts: jest.fn(),
 		setCurrentQuery: jest.fn(),
@@ -233,7 +235,7 @@ describe( 'EmptySpamButton', () => {
 			expect( apiFetch ).toHaveBeenCalledWith( {
 				method: 'DELETE',
 				path: '/wp/v2/feedback/trash',
-				data: { status: 'spam' },
+				data: { status: 'spam', limit: 500 },
 			} )
 		);
 

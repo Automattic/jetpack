@@ -57,6 +57,28 @@ const FLOW_SETTINGS: Record<
 	},
 };
 
+/** Responses deleted per request; each request also stops early on a server-side time budget. */
+const DELETE_CHUNK_SIZE = 500;
+
+type DeleteChunkResponse = { deleted?: number; has_more?: boolean };
+
+export type EmptyProgress = { deleted: number; total: number };
+
+/**
+ * Button label shown while a chunked delete is running.
+ *
+ * @param progress - Responses deleted so far and the total expected.
+ * @return Localized label.
+ */
+export function getDeletingLabel( progress: EmptyProgress ): string {
+	return sprintf(
+		/* translators: 1: Responses deleted so far. 2: Total responses being deleted. */
+		__( 'Deleting %1$s of %2$s…', 'jetpack-forms' ),
+		formatNumber( progress.deleted ),
+		formatNumber( progress.total )
+	);
+}
+
 export type UseEmptyResponsesReturn = {
 	isConfirmDialogOpen: boolean;
 	openConfirmDialog: () => void;
@@ -64,6 +86,7 @@ export type UseEmptyResponsesReturn = {
 	onConfirmEmptying: () => Promise< void >;
 	isEmpty: boolean;
 	isEmptying: boolean;
+	progress: EmptyProgress | null;
 	totalItems: number;
 	selectedResponsesCount: number;
 };
@@ -99,7 +122,9 @@ export default function useEmptyResponses( {
 	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
 	const [ isEmptying, setIsEmptying ] = useState( false );
 	const [ isEmpty, setIsEmpty ] = useState( true );
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
+	const [ progress, setProgress ] = useState< EmptyProgress | null >( null );
+	const { createSuccessNotice, createErrorNotice, createInfoNotice, removeNotice } =
+		useDispatch( noticesStore );
 	const { invalidateResolutionForStoreSelector } = useDispatch( coreStore ) as unknown as {
 		invalidateResolutionForStoreSelector: ( selector: string ) => void;
 	};
@@ -136,53 +161,95 @@ export default function useEmptyResponses( {
 			jetpackAnalytics.tracks.recordEvent( analyticsEvent );
 		}
 
-		apiFetch(
-			scope
-				? {
-						method: 'DELETE',
-						path: '/wp/v2/feedback/trash',
-						data: { ...scope.params, status: status ?? 'trash' },
-					}
-				: {
-						method: 'DELETE',
-						path: status ? `/wp/v2/feedback/trash?status=${ status }` : '/wp/v2/feedback/trash',
-					}
-		)
-			.then( ( response: { deleted?: number } ) => {
-				const deleted = response?.deleted ?? 0;
-				const successMessage =
-					deleted === 1
-						? __( 'Response deleted permanently.', 'jetpack-forms' )
-						: sprintf(
-								/* translators: %s: The number of responses. */
-								_n(
-									'%s response deleted permanently.',
-									'%s responses deleted permanently.',
-									deleted,
-									'jetpack-forms'
-								),
-								formatNumber( deleted )
-							);
+		const total = affectedCount;
+		const data = {
+			...( scope?.params ?? {} ),
+			status: status ?? 'trash',
+			limit: DELETE_CHUNK_SIZE,
+		};
+		let deleted = 0;
+		// Same id as the success notice, so the final message replaces this one.
+		const showProgress = ( current: EmptyProgress ) => {
+			setProgress( current );
+			createInfoNotice(
+				sprintf(
+					/* translators: 1: Responses deleted so far. 2: Total responses being deleted. */
+					__( 'Deleting %1$s of %2$s responses… Keep this page open.', 'jetpack-forms' ),
+					formatNumber( current.deleted ),
+					formatNumber( current.total )
+				),
+				{ type: 'snackbar', id: noticeId, explicitDismiss: true }
+			);
+		};
+		showProgress( { deleted, total } );
 
-				createSuccessNotice( successMessage, { type: 'snackbar', id: noticeId } );
-			} )
-			.catch( () => {
-				createErrorNotice( errorMessage, {
-					type: 'snackbar',
-					id: `${ noticeId }-error`,
+		try {
+			// Delete in chunks so a large queue never outlives a single request's timeout.
+			for (;;) {
+				const response = await apiFetch< DeleteChunkResponse >( {
+					method: 'DELETE',
+					path: '/wp/v2/feedback/trash',
+					data,
 				} );
-			} )
-			.finally( () => {
-				setIsEmptying( false );
-				// invalidate counts to refresh the counts across all status tabs
-				invalidateCounts();
-				// invalidate all entity record resolutions (feedback items, forms list entries_count, etc.)
-				invalidateResolutionForStoreSelector( 'getEntityRecords' );
+				const chunkDeleted = response?.deleted ?? 0;
+				deleted += chunkDeleted;
+
+				// Stop on an empty chunk too, so a row that can't be deleted can't spin forever.
+				if ( ! response?.has_more || chunkDeleted === 0 ) {
+					break;
+				}
+				showProgress( { deleted, total: Math.max( total, deleted ) } );
+			}
+
+			const successMessage =
+				deleted === 1
+					? __( 'Response deleted permanently.', 'jetpack-forms' )
+					: sprintf(
+							/* translators: %s: The number of responses. */
+							_n(
+								'%s response deleted permanently.',
+								'%s responses deleted permanently.',
+								deleted,
+								'jetpack-forms'
+							),
+							formatNumber( deleted )
+						);
+
+			createSuccessNotice( successMessage, { type: 'snackbar', id: noticeId } );
+		} catch ( error ) {
+			removeNotice( noticeId );
+			deleted += ( error as DeleteChunkResponse )?.deleted ?? 0;
+			const message =
+				deleted > 0
+					? sprintf(
+							/* translators: %s: The number of responses deleted before the error. */
+							_n(
+								'%s response was deleted, then an error stopped the rest.',
+								'%s responses were deleted, then an error stopped the rest.',
+								deleted,
+								'jetpack-forms'
+							),
+							formatNumber( deleted )
+						)
+					: errorMessage;
+			createErrorNotice( message, {
+				type: 'snackbar',
+				id: `${ noticeId }-error`,
 			} );
+		} finally {
+			setIsEmptying( false );
+			setProgress( null );
+			// invalidate counts to refresh the counts across all status tabs
+			invalidateCounts();
+			// invalidate all entity record resolutions (feedback items, forms list entries_count, etc.)
+			invalidateResolutionForStoreSelector( 'getEntityRecords' );
+		}
 	}, [
+		affectedCount,
 		analyticsEvent,
 		closeConfirmDialog,
 		createErrorNotice,
+		createInfoNotice,
 		createSuccessNotice,
 		errorMessage,
 		invalidateResolutionForStoreSelector,
@@ -190,6 +257,7 @@ export default function useEmptyResponses( {
 		isEmpty,
 		isEmptying,
 		noticeId,
+		removeNotice,
 		scope,
 		status,
 	] );
@@ -201,6 +269,7 @@ export default function useEmptyResponses( {
 		onConfirmEmptying,
 		isEmpty,
 		isEmptying,
+		progress,
 		totalItems,
 		selectedResponsesCount,
 	};
