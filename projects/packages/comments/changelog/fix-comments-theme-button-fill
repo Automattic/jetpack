@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Keep a theme's button and field styles off the editor toolbar, link field, and options toggle.
