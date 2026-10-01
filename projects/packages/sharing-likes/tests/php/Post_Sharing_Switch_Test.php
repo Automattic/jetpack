@@ -50,7 +50,7 @@ class Post_Sharing_Switch_Test extends BaseTestCase {
 	}
 
 	/**
-	 * More than one module calls `init()`.
+	 * Why: see Post_Likes_Switch_Test::test_init_twice_hooks_each_action_once().
 	 */
 	public function test_init_twice_hooks_each_action_once(): void {
 		$rest_api_init      = $this->count_callbacks( 'rest_api_init' );
@@ -98,9 +98,10 @@ class Post_Sharing_Switch_Test extends BaseTestCase {
 	 */
 	public static function provide_stored_values(): array {
 		return array(
-			'unset' => array( null, true ),
-			"'1'"   => array( '1', false ),
-			"'0'"   => array( '0', true ),
+			'unset'        => array( null, true ),
+			"'1'"          => array( '1', false ),
+			"'0'"          => array( '0', true ),
+			'other truthy' => array( 'yes', false ),
 		);
 	}
 
@@ -139,7 +140,7 @@ class Post_Sharing_Switch_Test extends BaseTestCase {
 	}
 
 	/**
-	 * WorDBless reports `true` for a new opt-out where a database would return its meta ID.
+	 * Why `true`: see Post_Likes_Switch_Test::test_update_value_returns_what_update_post_meta_returned().
 	 */
 	public function test_update_value_returns_what_update_post_meta_returned(): void {
 		$this->assertTrue( Post_Sharing_Switch::update_value( false, get_post( $this->post_id ) ) );

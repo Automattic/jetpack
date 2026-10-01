@@ -46,12 +46,16 @@ plugin.
 ## Per-post switches
 
 `Post_Likes_Switch` and `Post_Sharing_Switch` own the Likes and Sharing switches
-the block editor shows on each post. `init()` hooks each on `rest_api_init`, and on
-`restapi_theme_init` at priority 20 so theme-dependent post types are registered
-first. Every public post type then gets a boolean REST field, `jetpack_likes_enabled`
-or `jetpack_sharing_enabled`, and a post type support, `jetpack-post-likes` or
-`jetpack-sharing-buttons`, which the editor checks before offering the switch. The
-fields read and write the `switch_like_status` and `sharing_disabled` post meta.
+the block editor shows on each post. `init()` hooks each on `rest_api_init` and
+`restapi_theme_init`. Every public post type then gets a boolean REST field,
+`jetpack_likes_enabled` or `jetpack_sharing_enabled`, and a post type support,
+`jetpack-post-likes` or `jetpack-sharing-buttons`, which the editor checks before
+offering the switch. The fields read and write the `switch_like_status` and
+`sharing_disabled` post meta.
+
+Nothing calls `init()` yet: until the modules move over, the fields the editor
+sees still come from `modules/likes.php` and `modules/sharedaddy/sharing.php` in
+the Jetpack plugin.
 
 They are namespaced classes rather than a file both environments include because
 WordPress.com Simple defines same-named global Likes functions in
