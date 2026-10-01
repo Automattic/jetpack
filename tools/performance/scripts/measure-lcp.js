@@ -1052,7 +1052,9 @@ async function main() {
 	console.log(
 		'  2. Reload the scenario page (Dashboard, or a targeted admin page) for a clean load'
 	);
-	console.log( '  3. Measure LCP, TTFB, FCP, load TBT, runtime bundle size and configured backend fields' );
+	console.log(
+		'  3. Measure LCP, TTFB, FCP, load TBT, runtime bundle size and configured backend fields'
+	);
 	console.log( '' );
 	console.log( 'Configuration:' );
 	for ( const scenario of SCENARIOS ) {
