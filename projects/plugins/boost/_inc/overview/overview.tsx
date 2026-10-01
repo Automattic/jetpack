@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import HistoryChartCard from './history-chart-card';
 import HistoryUpsell from './history-upsell';
 import { bucketHistoryDays } from './lib/history-days';
@@ -119,9 +120,11 @@ function OverviewContent( {
 	}, [ online, scoreState.status, queryClient ] );
 
 	const onRefresh = useCallback(
-		( source: 'header' | 'score_card' ) => {
+		async ( source: 'header' | 'score_card' ) => {
 			recordBoostEvent( 'speed_score_refresh_clicked', { source } );
-			refreshScores( true );
+			if ( await refreshScores( true ) ) {
+				window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) );
+			}
 		},
 		[ refreshScores ]
 	);

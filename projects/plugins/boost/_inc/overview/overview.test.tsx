@@ -18,6 +18,7 @@ import { useSingleModuleState } from '../../app/assets/src/js/features/module/li
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import { observeLegacyModulesState } from './lib/modules-state-bridge';
 import { getHistoryWindow } from './lib/history-days';
 import * as speedScores from './lib/use-speed-scores';
@@ -246,6 +247,64 @@ test( 'clears the busy button after a rejected speed test request', async () => 
 		'aria-disabled',
 		'false'
 	);
+} );
+
+test( 'announces one user-run success without announcing the initial score load', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce failure and announces a successful user retry', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Service unavailable' ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await expect( screen.findByText( 'Service unavailable' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce an automatic module-change refresh', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const { client } = renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		await act( async () => {
+			await client.cancelQueries();
+		} );
+		act( () =>
+			client.setQueryData( [ 'modules_state' ], {
+				performance_history: { available: true, active: true },
+				defer_js: { available: true, active: true },
+			} )
+		);
+		await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ), {
+			timeout: 4000,
+		} );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
 } );
 
 test( 'contains a render failure with the Overview error fallback', () => {

@@ -77,6 +77,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 				);
 				if ( id === requestId.current && scores ) {
 					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
+					return true;
 				}
 			} catch ( cause ) {
 				if ( id !== requestId.current ) {

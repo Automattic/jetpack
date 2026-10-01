@@ -5,6 +5,7 @@ import {
 	LOCATION_CHANGE_EVENT,
 	SETTINGS_SLOT_ID,
 	SUBPAGE_SLOT_ID,
+	SPEED_TEST_COMPLETE_EVENT,
 } from '../../../../../../_inc/runtime-contract';
 import ModernApp from './modern-app';
 
@@ -29,10 +30,17 @@ jest.mock( '$features/critical-css/critical-css-context/critical-css-context-pro
 	__esModule: true,
 	default: ( { children }: { children: React.ReactNode } ) => children,
 } ) );
-jest.mock( './modern-settings', () => ( {
-	__esModule: true,
-	default: ( { hidden }: { hidden?: boolean } ) => <div data-testid="settings" hidden={ hidden } />,
-} ) );
+jest.mock( './modern-settings', () => {
+	const NoticeManager = jest.requireActual( '$features/notice/manager' ).default;
+	return {
+		__esModule: true,
+		default: ( { hidden }: { hidden?: boolean } ) => (
+			<div data-testid="settings" hidden={ hidden }>
+				<NoticeManager />
+			</div>
+		),
+	};
+} );
 jest.mock( './modern-subpage', () => {
 	const { navigateTo, settingsUrl } =
 		jest.requireActual< typeof import( '$lib/modern/routes' ) >( '$lib/modern/routes' );
@@ -87,6 +95,27 @@ describe( 'ModernApp', () => {
 
 	afterEach( () => {
 		document.body.innerHTML = '';
+	} );
+
+	it( 'delivers one completion snackbar across roots and cleans up its StrictMode listener', () => {
+		const { slots, unmount } = renderApp();
+		const producer = document.createElement( 'div' );
+		const button = document.createElement( 'button' );
+		producer.appendChild( button );
+		document.body.appendChild( producer );
+		button.addEventListener( 'click', () =>
+			window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) )
+		);
+		act( () => button.click() );
+		expect( within( slots.settings ).getAllByText( 'Speed test complete.' ) ).toHaveLength( 1 );
+		unmount();
+		act( () => button.click() );
+		const { slots: remountedSlots } = renderApp();
+		expect( within( remountedSlots.settings ).queryByText( 'Speed test complete.' ) ).toBeNull();
+		act( () => button.click() );
+		expect( within( remountedSlots.settings ).getAllByText( 'Speed test complete.' ) ).toHaveLength(
+			1
+		);
 	} );
 
 	it( 'renders Settings in the slot it mounts into, leaving the sub-page slot empty', () => {

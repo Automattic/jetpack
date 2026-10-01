@@ -136,7 +136,7 @@ test.each( [ false, true ] )(
 					resolveRequest = resolve;
 				} )
 		);
-		let request!: Promise< void >;
+		let request!: ReturnType< ( typeof result.current )[ 1 ] >;
 		act( () => {
 			request = result.current[ 1 ]( regenerate );
 		} );
@@ -148,13 +148,45 @@ test.each( [ false, true ] )(
 		} );
 		await act( async () => {
 			resolveRequest( nextScores );
-			await request;
+			await expect( request ).resolves.toBe( true );
 		} );
 		expect( result.current[ 0 ] ).toMatchObject( {
 			status: 'loaded',
 			isRunning: false,
 			scores: nextScores,
 		} );
+	}
+);
+
+test.each( [ 'cancelled', 'superseded', 'empty' ] )(
+	'does not report success for a %s score request',
+	async scenario => {
+		const { result, unmount } = renderHook( () => useSpeedScores(), { wrapper } );
+		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+		let resolveRequest!: ( value: Awaited< ReturnType< typeof requestSpeedScores > > ) => void;
+		jest.mocked( requestSpeedScores ).mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveRequest = resolve;
+				} )
+		);
+		let request!: ReturnType< ( typeof result.current )[ 1 ] >;
+		act( () => {
+			request = result.current[ 1 ]( true );
+		} );
+		const signal = jest.mocked( requestSpeedScores ).mock.lastCall![ 4 ]!.signal;
+		if ( scenario === 'cancelled' ) {
+			unmount();
+		} else if ( scenario === 'superseded' ) {
+			await act( async () => {
+				await result.current[ 1 ]();
+			} );
+		}
+		await act( async () => {
+			resolveRequest( scenario === 'empty' ? undefined : result.current[ 0 ].scores );
+			await expect( request ).resolves.toBeUndefined();
+		} );
+		expect( signal?.aborted ).toBe( scenario !== 'empty' );
 	}
 );
 
