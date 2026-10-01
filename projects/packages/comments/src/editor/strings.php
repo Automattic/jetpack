@@ -39,6 +39,8 @@ return array(
 	'Strikethrough',
 	'%s applied.',
 	'%s removed.',
+	// Embed providers, such as "YouTube Embed".
+	'%s Embed',
 	// Links.
 	'Search or type URL',
 	'Submit',

@@ -51,7 +51,7 @@ class Block_Editor {
 		add_filter( 'pre_comment_content', array( $this, 'forget_blocks' ), 11 );
 		add_filter( 'wp_kses_allowed_html', array( $this, 'allowed_html' ), 10, 2 );
 		// Ahead of wpautop at 30.
-		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5 );
+		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5, 2 );
 		// The edit-comment screen, for a comment that holds blocks.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 	}
@@ -86,7 +86,7 @@ class Block_Editor {
 			}
 
 			// Core translates block titles in PHP, so they are in its .mo, not the script files.
-			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code' ) as $title ) {
+			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed' ) as $title ) {
 				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch -- Core's own strings.
 				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
 			}
@@ -122,6 +122,7 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function keep_allowed_blocks( $content ) {
+		Embeds::forget();
 		$this->has_blocks = self::is_enabled() && has_blocks( $content );
 
 		if ( ! $this->has_blocks ) {
@@ -139,6 +140,7 @@ class Block_Editor {
 	 */
 	public function forget_blocks( $content ) {
 		$this->has_blocks = false;
+		Embeds::forget();
 
 		return $content;
 	}
@@ -155,7 +157,7 @@ class Block_Editor {
 			return $tags;
 		}
 
-		return array_merge(
+		$tags = array_merge(
 			$tags,
 			array(
 				'p'          => array(),
@@ -171,21 +173,35 @@ class Block_Editor {
 				'ol'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
 			)
 		);
+
+		// The embed figures this comment holds, with the exact classes written for them.
+		$classes = Embeds::saved_classes();
+		if ( $classes ) {
+			$tags['figure']     = array( 'class' => array( 'values' => $classes ) );
+			$tags['div']        = array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) );
+			$tags['figcaption'] = array( 'class' => array( 'values' => array( 'wp-element-caption' ) ) );
+		}
+
+		return $tags;
 	}
 
 	/**
 	 * The comment's HTML without the block delimiters, and without any block the editor does not offer.
 	 *
-	 * @param string $content Comment content.
+	 * @param string           $content Comment content.
+	 * @param \WP_Comment|null $comment The comment, where the caller has it.
 	 * @return string
 	 */
-	public static function render( $content ) {
+	public static function render( $content, $comment = null ) {
 		if ( ! has_blocks( $content ) ) {
 			return $content;
 		}
 
+		// Only an approved comment on the front end draws a provider's embed; the rest show its link.
+		$embed = $comment instanceof \WP_Comment && '1' === (string) $comment->comment_approved && ! is_admin();
+
 		// With their attributes cleared, what is left of the delimiters is this shape alone.
-		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ) ) ) );
+		return (string) preg_replace( '#<!-- /?wp:[a-z0-9/-]+ /?-->#', '', serialize_blocks( self::allowed( parse_blocks( $content ), $embed ) ) );
 	}
 
 	/**
@@ -228,28 +244,57 @@ class Block_Editor {
 			)
 		);
 
-		$labels = array(
-			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
-		);
-
 		wp_add_inline_script(
 			'jetpack-comments-admin',
 			'window.jetpackCommentsEditorLocale = ' . wp_json_encode( self::locale_data(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
-				. 'window.jetpackCommentsEditorLabels = ' . wp_json_encode( $labels, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
+				. 'window.jetpackCommentsEditorLabels = ' . wp_json_encode( self::labels(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';',
 			'before'
+		);
+	}
+
+	/**
+	 * The editor's own strings, translated here: the chunk carries none.
+	 *
+	 * @return array
+	 */
+	public static function labels() {
+		return array(
+			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
+			'embedUrl'   => Embeds::url(),
+			'embed'      => array(
+				'hint'        => __( 'Paste a link to a video, song, post, or other content to show it here.', 'jetpack-comments' ),
+				'placeholder' => __( 'Enter a URL to embed', 'jetpack-comments' ),
+				'button'      => _x( 'Embed', 'verb', 'jetpack-comments' ),
+				'failed'      => __( 'Sorry, this content could not be embedded.', 'jetpack-comments' ),
+				'retry'       => __( 'Try again', 'jetpack-comments' ),
+				'toLink'      => __( 'Convert to link', 'jetpack-comments' ),
+				'editUrl'     => __( 'Edit URL', 'jetpack-comments' ),
+				/* translators: %s is the site the content comes from, such as www.youtube.com. */
+				'from'        => __( 'Embedded content from %s', 'jetpack-comments' ),
+				'caption'     => __( 'Add caption', 'jetpack-comments' ),
+			),
 		);
 	}
 
 	/**
 	 * The allowed blocks, at every depth.
 	 *
-	 * @param array $blocks Parsed blocks.
+	 * @param array     $blocks Parsed blocks.
+	 * @param bool|null $render Null while saving; at render, whether embeds may draw.
 	 * @return array
 	 */
-	private static function allowed( array $blocks ) {
+	private static function allowed( array $blocks, $render = null ) {
 		$kept = array();
 
 		foreach ( $blocks as $block ) {
+			if ( 'core/embed' === $block['blockName'] ) {
+				$block = Embeds::block( $block, $render );
+				if ( $block ) {
+					$kept[] = $block;
+				}
+				continue;
+			}
+
 			// A null name is the markup between blocks, which kses sees like any other.
 			if ( null !== $block['blockName'] && ! in_array( $block['blockName'], array( 'core/paragraph', 'core/list', 'core/list-item', 'core/quote', 'core/code' ), true ) ) {
 				continue;
@@ -270,7 +315,7 @@ class Block_Editor {
 					continue;
 				}
 
-				$child = self::allowed( array( array_shift( $inner ) ) );
+				$child = self::allowed( array( array_shift( $inner ) ), $render );
 				if ( $child ) {
 					$block['innerBlocks'][]  = $child[0];
 					$block['innerContent'][] = null;

@@ -45,6 +45,23 @@ export type IdentitySettings = {
 	logoutAction: string;
 };
 
+/** The editor's own strings, translated in PHP, and the embed preview route: empty where embeds are off. */
+export type EditorLabels = {
+	blockTools: string;
+	embedUrl: string;
+	embed: {
+		hint: string;
+		placeholder: string;
+		button: string;
+		failed: string;
+		retry: string;
+		toLink: string;
+		editUrl: string;
+		from: string;
+		caption: string;
+	};
+};
+
 /** A subscribe checkbox the host draws itself, posted under the host's own field name. */
 export type Subscription = {
 	name: string;
@@ -67,7 +84,6 @@ export type FormSettings = {
 };
 
 export type Strings = {
-	blockTools: string;
 	reply: string;
 	commentLabel: string;
 	replyLabel: string;
@@ -111,6 +127,7 @@ export type Settings = {
 	blocks: boolean;
 	/** Core's translations of the editor strings a commenter meets; empty in English. */
 	editorLocale: LocaleData;
+	editor: EditorLabels;
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };
@@ -129,7 +146,7 @@ declare global {
 	interface Window {
 		/** Core's translations for the editor, handed over before the chunk loads. */
 		jetpackCommentsEditorLocale?: LocaleData;
-		/** The toolbar's accessible name on the edit-comment screen, translated in PHP. */
-		jetpackCommentsEditorLabels?: { blockTools: string };
+		/** The editor's strings on the edit-comment screen, translated in PHP. */
+		jetpackCommentsEditorLabels?: EditorLabels;
 	}
 }
