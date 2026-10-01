@@ -4,16 +4,15 @@
 	visibility: hidden;
 }
 
-// The theme's textarea inset, but never a cramped one.
 .jetpack-comments.is-mounted {
-	--jetpack-comments-pad: max(var(--jetpack-comments-inset, 1em), 1em);
+	--jetpack-comments-pad: 1em;
 }
 
-// One box around the textarea and the footer, in the post's own colours
-// and the theme's textarea radius. Nested to outrank a block theme's rules.
+// One box around the textarea and the footer, in the post's own colours.
+// Nested to outrank a block theme's rules.
 .jetpack-comments .jetpack-comments__box {
+	position: relative;
 	border: 2px solid currentColor;
-	border-radius: var(--jetpack-comments-radius, 0);
 }
 
 // Three classes: block themes reach it with two classes and a tag.
@@ -21,11 +20,21 @@
 	display: block;
 	box-sizing: border-box;
 	inline-size: 100%;
-	// Two lines plus the padding; field-sizing ignores rows.
-	min-block-size: 3lh;
+	// A few lines, padding included, as the editor has; field-sizing ignores rows.
+	min-block-size: 5lh;
 	field-sizing: content;
 	padding: var(--jetpack-comments-pad);
 	resize: none;
+
+	&[hidden] {
+		display: none;
+	}
+
+	// The shade the editor gives its own placeholder, so the handoff keeps it.
+	&::placeholder {
+		color: currentColor;
+		opacity: 0.62;
+	}
 
 	// Pinned: themes reach for a textarea's border with every kind of selector.
 	&,
@@ -35,6 +44,49 @@
 		box-shadow: none !important;
 		color: inherit;
 		outline: none !important;
+	}
+}
+
+// The placeholder, over the textarea while the editor downloads, its dots
+// bouncing one after another.
+.jetpack-comments__loading {
+	position: absolute;
+	inset-block-start: var(--jetpack-comments-pad);
+	inset-inline-start: var(--jetpack-comments-pad);
+	font-family: var(--jetpack-comments-font-family, inherit);
+	font-size: var(--jetpack-comments-font-size, inherit);
+	line-height: var(--jetpack-comments-line-height, inherit);
+	opacity: 0.62;
+	pointer-events: none;
+}
+
+.jetpack-comments__loading span {
+	display: inline-block;
+	animation: jetpack-comments-bounce 1s ease-in-out infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+.jetpack-comments__loading span:nth-child(2) {
+	animation-delay: 0.15s;
+}
+
+.jetpack-comments__loading span:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+@keyframes jetpack-comments-bounce {
+
+	0%,
+	60%,
+	100% {
+		transform: none;
+	}
+
+	30% {
+		transform: translateY(-0.3em);
 	}
 }
 
@@ -75,16 +127,18 @@
 	padding: 0 calc(var(--jetpack-comments-pad) + 4px) calc(var(--jetpack-comments-pad) + 4px);
 }
 
+// Its own row, under the submit it disables.
+.jetpack-comments__too-long {
+	flex-basis: 100%;
+	margin: 0;
+}
+
 // Shares the row with the submit down to 10em; below that it wraps above it.
 .jetpack-comments__identity {
 	display: flex;
 	align-items: center;
 	gap: 0.75em;
 	flex: 1 1 10em;
-}
-
-.jetpack-comments__avatar {
-	border-radius: var(--jetpack-comments-radius, 0);
 }
 
 // A flex item, so the button sits on no text baseline and centres with
