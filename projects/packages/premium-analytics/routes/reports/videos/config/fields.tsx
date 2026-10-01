@@ -5,17 +5,22 @@ import {
 	createReportOriginSearch,
 	pickReportNavigationParams,
 } from '@jetpack-premium-analytics/routing';
-import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import {
 	MetricWithComparison,
 	REPORT_TITLE_LINK_CLASS_NAMES,
 	ReportThumbnail,
+	VideoDetailLink,
 	VideoTitleLink,
+	getVideoPosterUrl,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import { video as videoIcon } from '@wordpress/icons';
+import styles from './fields.module.scss';
 import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
+/**
+ * Internal dependencies
+ */
 
 const METRIC_DATA_FORMAT = {
 	type: 'number',
@@ -48,22 +53,36 @@ function getVideoDetailSearch( current: Record< string, unknown > ) {
 }
 
 /**
- * Ask Photon for the poster at twice the row thumbnail's size, as wpcom sends it full-size.
+ * Render a video row's poster, linked to the detail page when the row has an ID.
  *
- * @param poster - The row's poster URL.
- * @return The resized poster URL, or undefined when there is no safe poster.
+ * @param props      - Component props.
+ * @param props.item - The video report row.
+ * @return The linked or plain poster thumbnail.
  */
-function getPosterThumbnailUrl( poster: string | undefined ): string | undefined {
-	const url = safeHttpUrl( poster );
+function VideoPoster( { item }: { item: StatsVideoPlaysComparisonItem } ) {
+	const thumbnail = (
+		<ReportThumbnail
+			thumbnailUrl={ getVideoPosterUrl( item.poster, 114, 64 ) }
+			fallbackIcon={ videoIcon }
+		/>
+	);
+	const videoId = Number( item.id );
 
-	if ( ! url ) {
-		return undefined;
+	if ( ! Number.isInteger( videoId ) || videoId <= 0 ) {
+		return thumbnail;
 	}
 
-	const resized = new URL( url );
-	resized.searchParams.set( 'resize', '64,64' );
-
-	return resized.toString();
+	return (
+		<VideoDetailLink
+			videoId={ videoId }
+			search={ getVideoDetailSearch }
+			className={ styles.poster }
+			tabIndex={ -1 }
+			aria-hidden
+		>
+			{ thumbnail }
+		</VideoDetailLink>
+	);
 }
 
 /**
@@ -114,12 +133,7 @@ export function getVideosFields(
 			type: 'media',
 			label: __( 'Poster', 'jetpack-premium-analytics-pkg' ),
 			enableHiding: false,
-			render: ( { item } ) => (
-				<ReportThumbnail
-					thumbnailUrl={ getPosterThumbnailUrl( item.poster ) }
-					fallbackIcon={ videoIcon }
-				/>
-			),
+			render: ( { item } ) => <VideoPoster item={ item } />,
 		},
 		{
 			id: 'plays',

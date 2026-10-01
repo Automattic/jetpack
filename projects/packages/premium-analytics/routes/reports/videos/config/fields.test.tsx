@@ -76,10 +76,36 @@ describe( 'videos fields', () => {
 	it( 'renders the poster resized for a table row', () => {
 		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
 
-		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+		expect( screen.getByRole( 'presentation', { hidden: true } ) ).toHaveAttribute(
 			'src',
-			'https://i0.wp.com/v/launch.jpg?resize=64%2C64'
+			'https://i0.wp.com/v/launch.jpg?resize=114%2C64'
 		);
+	} );
+
+	it( 'links the poster to the detail page, out of the tab order', () => {
+		renderVideosField( 'poster', { ...video, poster: 'https://i0.wp.com/v/launch.jpg' } );
+
+		const link = screen.getByRole( 'link', { hidden: true } );
+		const url = getMockRouteLinkUrl( link );
+		expect( url.pathname ).toBe( '/video/12' );
+		expect( Object.fromEntries( url.searchParams ) ).toEqual( {
+			from: '2026-06-01',
+			to: '2026-06-16',
+			interval: 'day',
+			ref: 'videos',
+		} );
+		expect( link ).toHaveAttribute( 'tabindex', '-1' );
+		expect( link ).toHaveAttribute( 'aria-hidden', 'true' );
+	} );
+
+	it( 'leaves the poster unlinked for a row without an ID', () => {
+		renderVideosField( 'poster', {
+			...video,
+			id: undefined,
+			poster: 'https://i0.wp.com/v/launch.jpg',
+		} );
+
+		expect( screen.queryByRole( 'link', { hidden: true } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders the placeholder for an unsafe poster URL', () => {
