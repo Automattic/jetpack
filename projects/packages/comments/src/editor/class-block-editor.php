@@ -159,12 +159,17 @@ class Block_Editor {
 		return array_merge(
 			$tags,
 			array(
-				'p'   => array(),
-				'br'  => array(),
-				'pre' => array(),
-				'ul'  => array(),
-				'ol'  => array(),
-				'li'  => array(),
+				'p'          => array(),
+				'br'         => array(),
+				'li'         => array(),
+				// The one class each block saves, without which the editor reads it as invalid.
+				'blockquote' => array(
+					'cite'  => true,
+					'class' => array( 'values' => array( 'wp-block-quote' ) ),
+				),
+				'pre'        => array( 'class' => array( 'values' => array( 'wp-block-code' ) ) ),
+				'ul'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
+				'ol'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
 			)
 		);
 	}
