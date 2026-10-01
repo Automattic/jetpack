@@ -43,7 +43,7 @@ import type {
 } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
 import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
-import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
+import type { JSX, SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 /**
  * Parameters passed to the renderTooltip function for pie charts.

@@ -41,6 +41,7 @@ import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 

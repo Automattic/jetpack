@@ -27,15 +27,9 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		delete_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY );
-		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
-		delete_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
-		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
-		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
-		delete_option( PayPal_OAuth::TOKEN_EXPIRES_AT_OPTION_KEY );
+		PayPal_Partner_Onboarding::cleanup();
+		delete_option( PayPal_Partner_Onboarding::PARTNER_CLIENT_ID_OPTION_KEY );
+		PayPal_OAuth::disconnect();
 
 		// The blog connection is per-test; leaving it set makes later tests that
 		// expect a disconnected site pass or fail depending on test order.
@@ -49,7 +43,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	/**
 	 * Put the site in a state where it can talk to WordPress.com as a blog.
 	 *
-	 * The signup-link call proxies through WordPress.com, which needs a blog ID
+	 * Every call here proxies through WordPress.com, which needs a blog ID
 	 * and a blog token to sign the request.
 	 */
 	private function set_up_connected_site() {
@@ -64,17 +58,12 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Put the site in a state where merchant credentials are stored.
-	 *
-	 * Caches an access token directly so the OAuth token exchange does not need
-	 * to be mocked by every test.
+	 * Put the site in the state a finished referral leaves it in.
 	 */
-	private function set_up_partner_state() {
-		PayPal_OAuth::set_environment( 'sandbox' );
-		PayPal_OAuth::store_credentials( 'partner_client_id', 'partner_client_secret' );
-		PayPal_Partner_Onboarding::set_partner_id( 'PARTNER123' );
-
-		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'partner_access_token' ), 3600 );
+	private function set_up_referred_merchant() {
+		$this->set_up_connected_site();
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
 	}
 
 	/**
@@ -99,9 +88,50 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		return $this->http_response(
 			200,
 			array(
-				'action_url'          => 'https://www.sandbox.paypal.com/merchantsignup/x',
-				'referral_id'         => 'REFERRAL789',
-				'partner_merchant_id' => 'PARTNER_FROM_WPCOM',
+				'action_url'        => 'https://www.sandbox.paypal.com/merchantsignup/x',
+				'referral_id'       => 'REFERRAL789',
+				'tracking_id'       => 'woo-ncps-1234-1700000000',
+				'partner_client_id' => 'PLATFORM_CLIENT_ID',
+			)
+		);
+	}
+
+	/**
+	 * A merchant integration record as WordPress.com relays it from PayPal.
+	 *
+	 * @param array $overrides Fields to change.
+	 * @return array
+	 */
+	private function merchant_integration( array $overrides = array() ) {
+		return $this->http_response(
+			200,
+			array_merge(
+				array(
+					'merchant_id'             => 'MERCHANT1',
+					'tracking_id'             => 'woo-ncps-1234-1700000000',
+					'primary_email'           => 'junior@sports.com',
+					'payments_receivable'     => true,
+					'primary_email_confirmed' => true,
+					'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+				),
+				$overrides
+			)
+		);
+	}
+
+	/**
+	 * A PayPal answer relayed by the WordPress.com request proxy.
+	 *
+	 * @param int   $status PayPal's HTTP status.
+	 * @param array $body   PayPal's response body.
+	 * @return array
+	 */
+	private function platform_response( $status, array $body ) {
+		return $this->http_response(
+			200,
+			array(
+				'status' => $status,
+				'body'   => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
 			)
 		);
 	}
@@ -154,20 +184,40 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Test partner ID storage and retrieval.
-	 */
-	public function test_partner_id_storage() {
-		$this->assertEmpty( PayPal_Partner_Onboarding::get_partner_id() );
-
-		PayPal_Partner_Onboarding::set_partner_id( 'TEST_PARTNER_123' );
-		$this->assertEquals( 'TEST_PARTNER_123', PayPal_Partner_Onboarding::get_partner_id() );
-	}
-
-	/**
 	 * Test merchant ID retrieval when not set.
 	 */
 	public function test_merchant_id_empty_by_default() {
 		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	// --- is_platform_managed ---
+
+	/**
+	 * Test a referred seller's calls are routed through WordPress.com.
+	 */
+	public function test_is_platform_managed_after_a_referral() {
+		$this->set_up_referred_merchant();
+
+		$this->assertTrue( PayPal_Partner_Onboarding::is_platform_managed() );
+	}
+
+	/**
+	 * Test pasted credentials take precedence over a referred seller.
+	 */
+	public function test_is_platform_managed_defers_to_stored_credentials() {
+		$this->set_up_referred_merchant();
+		PayPal_OAuth::store_credentials( 'client_id', 'client_secret' );
+
+		$this->assertFalse( PayPal_Partner_Onboarding::is_platform_managed() );
+	}
+
+	/**
+	 * Test a merchant ID alone, without the referral method, is not a platform connection.
+	 */
+	public function test_is_platform_managed_requires_the_referral_method() {
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+
+		$this->assertFalse( PayPal_Partner_Onboarding::is_platform_managed() );
 	}
 
 	// --- generate_signup_link ---
@@ -213,7 +263,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertIsArray( $result );
 		$this->assertSame( 'https://www.sandbox.paypal.com/merchantsignup/x', $result['action_url'] );
 		$this->assertSame( 'REFERRAL789', $result['referral_id'] );
-		$this->assertNotEmpty( $result['tracking_id'] );
+		$this->assertSame( 'woo-ncps-1234-1700000000', $result['tracking_id'] );
 	}
 
 	/**
@@ -237,44 +287,57 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Test that generating a signup link stores an encrypted, single-use seller nonce.
+	 * Test that the tracking ID WordPress.com issued is kept for the seller lookup.
 	 *
-	 * The nonce is the PKCE code_verifier for the later auth code exchange, so it
-	 * has to stay on the site and match what WordPress.com forwards to PayPal.
+	 * PayPal's THIRD_PARTY flow reports nothing back that identifies the seller,
+	 * so the tracking ID is the only way to find them once they finish.
 	 */
-	public function test_generate_signup_link_stores_encrypted_seller_nonce() {
+	public function test_generate_signup_link_stores_the_tracking_id() {
 		$this->set_up_connected_site();
-		$requests = array();
-		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
+		$this->mock_wpcom_signup_link( $this->signup_link_success() );
 
 		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
 
-		$stored = get_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY );
-		$this->assertNotEmpty( $stored );
-
-		$nonce = PayPal_OAuth::decrypt( $stored );
-		$this->assertNotFalse( $nonce, 'The stored nonce should decrypt with the site key.' );
-
-		/*
-		 * PayPal's schema sets minLength 44 / maxLength 128 on seller_nonce and
-		 * rejects anything shorter with a bare "violates schema" 400. Its own
-		 * field description says "43-128", which is what this assertion used to
-		 * allow — and the generator produced exactly 43, so every real referral
-		 * failed while the test passed. Assert the enforced bound, not the prose.
-		 */
-		$this->assertGreaterThanOrEqual( 44, strlen( $nonce ) );
-		$this->assertLessThanOrEqual( 128, strlen( $nonce ) );
-		$this->assertMatchesRegularExpression( '/^[a-zA-Z0-9\-_:]+$/', $nonce );
-
-		$body = (array) json_decode( end( $requests )['args']['body'], true );
-		$sent = $body['referral']['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['seller_nonce'];
-		$this->assertSame( $nonce, $sent );
+		$this->assertSame(
+			'woo-ncps-1234-1700000000',
+			get_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY )
+		);
 	}
 
 	/**
-	 * Test that the referral body sent to WordPress.com carries the expected products and features.
+	 * Test that a signup link without a tracking ID is refused.
 	 */
-	public function test_generate_signup_link_sends_expected_referral_body() {
+	public function test_generate_signup_link_requires_a_tracking_id() {
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link(
+			$this->http_response( 200, array( 'action_url' => 'https://www.sandbox.paypal.com/merchantsignup/x' ) )
+		);
+
+		$result = PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_referral_no_tracking_id', $result->get_error_code() );
+		$this->assertFalse( get_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY ) );
+	}
+
+	/**
+	 * Test that the platform's client ID is stored for the JS SDK URL.
+	 */
+	public function test_generate_signup_link_stores_the_partner_client_id() {
+		$this->set_up_connected_site();
+		$this->mock_wpcom_signup_link( $this->signup_link_success() );
+
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_partner_client_id() );
+
+		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$this->assertSame( 'PLATFORM_CLIENT_ID', PayPal_Partner_Onboarding::get_partner_client_id() );
+	}
+
+	/**
+	 * Test that the site sends only where PayPal returns the seller; WordPress.com builds the referral.
+	 */
+	public function test_generate_signup_link_sends_only_the_return_url() {
 		$this->set_up_connected_site();
 		$requests = array();
 		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
@@ -283,25 +346,13 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		$body = (array) json_decode( end( $requests )['args']['body'], true );
 
-		$this->assertSame( 'sandbox', $body['environment'] );
-		$this->assertSame( PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS, $body['referral']['products'] );
 		$this->assertSame(
-			PayPal_Partner_Onboarding::ONBOARDING_FEATURES,
-			$body['referral']['operations'][0]['api_integration_preference']['rest_api_integration']['first_party_details']['features']
+			array(
+				'environment' => 'sandbox',
+				'return_url'  => 'https://example.com/return',
+			),
+			$body
 		);
-		$this->assertSame( 'https://example.com/return', $body['referral']['partner_config_override']['return_url'] );
-		$this->assertTrue( $body['referral']['legal_consents'][0]['granted'] );
-
-		// PayPal caps return_url at 127 characters and rejects longer ones.
-		$this->assertLessThanOrEqual( 127, strlen( $body['referral']['partner_config_override']['return_url'] ) );
-		$this->assertLessThanOrEqual(
-			127,
-			strlen( $body['referral']['partner_config_override']['return_url_description'] )
-		);
-
-		// tracking_id is 1-127 characters.
-		$this->assertGreaterThanOrEqual( 1, strlen( $body['referral']['tracking_id'] ) );
-		$this->assertLessThanOrEqual( 127, strlen( $body['referral']['tracking_id'] ) );
 	}
 
 	/**
@@ -326,8 +377,8 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 							'paypal_debug_id' => 'abc123def456',
 							'paypal_details'  => array(
 								array(
-									'field' => '/operations/0/api_integration_preference/rest_api_integration/first_party_details/seller_nonce',
-									'issue' => 'INVALID_STRING_LENGTH',
+									'field' => '/operations/0/api_integration_preference/rest_api_integration/third_party_details/features',
+									'issue' => 'INVALID_PARAMETER_VALUE',
 								),
 							),
 						),
@@ -344,31 +395,14 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		$this->assertSame( 'INVALID_REQUEST', $data['paypal_error'] );
 		$this->assertSame( 'abc123def456', $data['paypal_debug_id'] );
-		$this->assertSame( 'INVALID_STRING_LENGTH', $data['paypal_details'][0]['issue'] );
-		$this->assertStringContainsString( 'seller_nonce', $data['paypal_details'][0]['field'] );
+		$this->assertSame( 'INVALID_PARAMETER_VALUE', $data['paypal_details'][0]['issue'] );
+		$this->assertStringContainsString( 'features', $data['paypal_details'][0]['field'] );
 
 		// The same diagnostics belong in the visible message: the error data
 		// never reaches a merchant reading the editor notice.
-		$this->assertStringContainsString( 'INVALID_STRING_LENGTH', $result->get_error_message() );
-		$this->assertStringContainsString( 'seller_nonce', $result->get_error_message() );
+		$this->assertStringContainsString( 'INVALID_PARAMETER_VALUE', $result->get_error_message() );
+		$this->assertStringContainsString( 'features', $result->get_error_message() );
 		$this->assertStringContainsString( 'abc123def456', $result->get_error_message() );
-	}
-
-	/**
-	 * Test that the partner merchant ID returned by WordPress.com is stored.
-	 *
-	 * The auth code exchange and the status check both address PayPal as the
-	 * partner, so without this the flow cannot continue past the signup link.
-	 */
-	public function test_generate_signup_link_stores_partner_merchant_id() {
-		$this->set_up_connected_site();
-		$this->mock_wpcom_signup_link( $this->signup_link_success() );
-
-		$this->assertEmpty( PayPal_Partner_Onboarding::get_partner_id() );
-
-		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
-
-		$this->assertSame( 'PARTNER_FROM_WPCOM', PayPal_Partner_Onboarding::get_partner_id() );
 	}
 
 	/**
@@ -427,218 +461,6 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_referral_request_failed', $result->get_error_code() );
-	}
-
-	/**
-	 * Test complete_onboarding fails without seller nonce.
-	 */
-	public function test_complete_onboarding_requires_seller_nonce() {
-		$result = PayPal_Partner_Onboarding::complete_onboarding(
-			'test_auth_code',
-			'test_shared_id',
-			'TEST_MERCHANT_ID'
-		);
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_onboarding_no_nonce', $result->get_error_code() );
-	}
-
-	/**
-	 * Test check_merchant_status fails without merchant info.
-	 */
-	public function test_check_merchant_status_requires_merchant_info() {
-		$result = PayPal_Partner_Onboarding::check_merchant_status();
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
-	}
-
-	/**
-	 * Test that an undecryptable nonce is reported and cleared.
-	 *
-	 * A nonce that will not decrypt means the stored value is corrupt or the site
-	 * key changed; either way the flow cannot continue and the stale transient
-	 * must not be left behind to fail again on the next attempt.
-	 */
-	public function test_complete_onboarding_rejects_corrupt_seller_nonce() {
-		$this->set_up_partner_state();
-		set_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY, 'not-a-valid-ciphertext', 1800 );
-
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_onboarding_nonce_corrupt', $result->get_error_code() );
-		$this->assertEmpty(
-			get_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY ),
-			'A corrupt nonce should be deleted so the next attempt starts clean.'
-		);
-	}
-
-	/**
-	 * Test that a failed token exchange surfaces PayPal's error description.
-	 */
-	public function test_complete_onboarding_surfaces_token_error_description() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token' => $this->http_response(
-					401,
-					array( 'error_description' => 'Client Authentication failed' )
-				),
-			)
-		);
-
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_onboarding_token_error', $result->get_error_code() );
-		$this->assertStringContainsString( 'Client Authentication failed', $result->get_error_message() );
-		$this->assertEquals( 401, $result->get_error_data()['status'] );
-	}
-
-	/**
-	 * Test that credentials missing from PayPal's response are treated as an error.
-	 */
-	public function test_complete_onboarding_rejects_incomplete_credentials() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token'                    => $this->http_response(
-					200,
-					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/merchant-integrations/credentials/' => $this->http_response(
-					200,
-					array( 'client_id' => 'only_the_id' )
-				),
-			)
-		);
-
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_onboarding_creds_error', $result->get_error_code() );
-	}
-
-	/**
-	 * Test the full onboarding exchange: credentials stored, merchant recorded, nonce consumed.
-	 */
-	public function test_complete_onboarding_stores_credentials_and_consumes_nonce() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token'                    => $this->http_response(
-					200,
-					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/merchant-integrations/credentials/' => $this->http_response(
-					200,
-					array(
-						'client_id'     => 'merchant_client_id',
-						'client_secret' => 'merchant_client_secret',
-					)
-				),
-				'/v1/checkout/payment-resources'      => $this->http_response( 200, array( 'items' => array() ) ),
-			)
-		);
-
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', '  MERCHANT1  ' );
-
-		$this->assertTrue( $result );
-		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
-		$this->assertSame(
-			'partner_referrals',
-			get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY )
-		);
-		$this->assertEmpty(
-			get_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY ),
-			'The seller nonce is single-use and must be deleted after a successful exchange.'
-		);
-
-		// The merchant's credentials replace the partner credentials that were seeded.
-		$credentials = get_option( PayPal_OAuth::CREDENTIALS_OPTION_KEY );
-		$this->assertSame( 'merchant_client_id', PayPal_OAuth::decrypt( $credentials['encrypted_client_id'] ) );
-		$this->assertSame( 'merchant_client_secret', PayPal_OAuth::decrypt( $credentials['encrypted_client_secret'] ) );
-	}
-
-	/**
-	 * Test that a 403 on the feature probe leaves nothing connected behind.
-	 *
-	 * The credentials are stored before they are validated, so without a
-	 * rollback the site reports itself connected while the editor shows the
-	 * failure -- and the merchant is told to reconnect an account every other
-	 * screen already treats as connected.
-	 */
-	public function test_complete_onboarding_discards_credentials_when_the_api_is_not_authorized() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token'                    => $this->http_response(
-					200,
-					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/merchant-integrations/credentials/' => $this->http_response(
-					200,
-					array(
-						'client_id'     => 'merchant_client_id',
-						'client_secret' => 'merchant_client_secret',
-					)
-				),
-				'/v1/checkout/payment-resources'      => $this->http_response(
-					403,
-					array(
-						'name'     => 'NOT_AUTHORIZED',
-						'debug_id' => 'debug123',
-					)
-				),
-			)
-		);
-
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
-
-		// PayPal's own diagnosis and the debug ID its support traces on belong
-		// in the visible message, not only in error data nobody reads.
-		$this->assertStringContainsString( 'NOT_AUTHORIZED', $result->get_error_message() );
-		$this->assertStringContainsString( 'debug123', $result->get_error_message() );
-
-		$this->assertFalse(
-			PayPal_OAuth::has_credentials(),
-			'A failed onboarding must not leave the site looking connected.'
-		);
-		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
-		$this->assertEmpty( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
 	}
 
 	/**
@@ -704,197 +526,251 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertStringContainsString( 'violates schema', $result->get_error_data()['paypal_message'] );
 	}
 
+	// --- complete_onboarding ---
+
 	/**
-	 * Test that the merchant ID falls back to PayPal's payer_id.
-	 *
-	 * PayPal puts `merchantIdInPayPal` on the return URL but sends `authCode`
-	 * and `sharedId` by postMessage, so a caller that only sees the postMessage
-	 * has no merchant ID to pass. The credentials response carries the same
-	 * value as `payer_id`, which is what PayPal recommends identifying a
-	 * merchant by.
+	 * Test complete_onboarding fails with neither a referral in progress nor a merchant ID.
 	 */
-	public function test_complete_onboarding_falls_back_to_payer_id_for_merchant_id() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token'                    => $this->http_response(
-					200,
-					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/merchant-integrations/credentials/' => $this->http_response(
-					200,
-					array(
-						'client_id'     => 'merchant_client_id',
-						'client_secret' => 'merchant_client_secret',
-						'payer_id'      => 'PAYERID123',
-					)
-				),
-				'/v1/checkout/payment-resources'      => $this->http_response( 200, array( 'items' => array() ) ),
-			)
-		);
+	public function test_complete_onboarding_requires_a_session() {
+		$this->set_up_connected_site();
 
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', '' );
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
 
-		$this->assertTrue( $result );
-		$this->assertSame( 'PAYERID123', PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertEquals( 'paypal_onboarding_no_session', $result->get_error_code() );
 	}
 
 	/**
-	 * Test that an explicit merchant ID wins over payer_id.
+	 * Test the full flow: the seller is found by tracking ID and recorded, and no credentials are stored.
 	 */
-	public function test_complete_onboarding_prefers_the_supplied_merchant_id() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
+	public function test_complete_onboarding_records_the_seller_found_by_tracking_id() {
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$requests = array();
 		$this->mock_http_routes(
 			array(
-				'/v1/oauth2/token'                    => $this->http_response(
-					200,
-					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/merchant-integrations/credentials/' => $this->http_response(
-					200,
-					array(
-						'client_id'     => 'merchant_client_id',
-						'client_secret' => 'merchant_client_secret',
-						'payer_id'      => 'PAYERID123',
-					)
-				),
-				'/v1/checkout/payment-resources'      => $this->http_response( 200, array( 'items' => array() ) ),
-			)
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			),
+			$requests
 		);
 
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
 
 		$this->assertTrue( $result );
 		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertSame( 'junior@sports.com', PayPal_Partner_Onboarding::get_merchant_email() );
+		$this->assertSame(
+			PayPal_Partner_Onboarding::ONBOARDING_METHOD,
+			get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY )
+		);
+		$this->assertTrue( PayPal_Partner_Onboarding::is_platform_managed() );
+		$this->assertFalse( PayPal_OAuth::has_credentials(), 'A third-party seller holds no credentials on the site.' );
+		$this->assertFalse(
+			get_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY ),
+			'The tracking ID is single-use and must be deleted after a successful lookup.'
+		);
+
+		// The lookup named the tracking ID, and nothing went to PayPal from the site.
+		$lookup = $requests[0]['url'];
+		$this->assertStringContainsString( 'tracking_id=woo-ncps-1234-1700000000', $lookup );
+		foreach ( $requests as $request ) {
+			$this->assertStringNotContainsString( 'paypal.com', $request['url'] );
+		}
+	}
+
+	/**
+	 * Test that a supplied merchant ID stands in for an expired tracking ID.
+	 */
+	public function test_complete_onboarding_accepts_a_merchant_id_without_a_session() {
+		$this->set_up_connected_site();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			),
+			$requests
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding( '  MERCHANT1  ' );
+
+		$this->assertTrue( $result );
+		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertStringContainsString( 'merchant_id=MERCHANT1', $requests[0]['url'] );
+	}
+
+	/**
+	 * Test that a seller WordPress.com will not vouch for is not recorded.
+	 *
+	 * The error is WordPress.com's own, so the merchant reads why.
+	 */
+	public function test_complete_onboarding_refuses_a_seller_this_site_did_not_refer() {
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => array(
+					'response' => array( 'code' => 403 ),
+					'body'     => wp_json_encode(
+						array(
+							'code'    => 'paypal_merchant_not_for_site',
+							'message' => 'This PayPal account was not connected through this site.',
+							'data'    => array( 'status' => 403 ),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_for_site', $result->get_error_code() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
+	 * Test that a seller PayPal has not tied to the referral yet is reported so the editor can retry.
+	 */
+	public function test_complete_onboarding_reports_a_seller_paypal_has_not_found_yet() {
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => array(
+					'response' => array( 'code' => 404 ),
+					'body'     => wp_json_encode(
+						array(
+							'code'    => 'paypal_merchant_not_found',
+							'message' => 'PayPal has no seller for this onboarding session yet.',
+							'data'    => array( 'status' => 404 ),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_merchant_not_found', $result->get_error_code() );
+		// The tracking ID stays, so the next attempt can look again.
+		$this->assertSame( 'woo-ncps-1234-1700000000', get_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY ) );
+	}
+
+	/**
+	 * Test that a 403 on the feature probe leaves nothing connected behind.
+	 *
+	 * The seller is recorded before the grant is validated, so without a
+	 * rollback the site reports itself connected while the editor shows the
+	 * failure -- and the merchant is told to reconnect an account every other
+	 * screen already treats as connected.
+	 */
+	public function test_complete_onboarding_discards_the_seller_when_the_api_is_not_authorized() {
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(),
+				'/paypal/platform/request'              => $this->platform_response(
+					403,
+					array(
+						'name'     => 'NOT_AUTHORIZED',
+						'debug_id' => 'debug123',
+					)
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_api_not_authorized', $result->get_error_code() );
+
+		// PayPal's own diagnosis and the debug ID its support traces on belong
+		// in the visible message, not only in error data nobody reads.
+		$this->assertStringContainsString( 'NOT_AUTHORIZED', $result->get_error_message() );
+		$this->assertStringContainsString( 'debug123', $result->get_error_message() );
+
+		$this->assertFalse( PayPal_OAuth::is_connected(), 'A failed onboarding must not leave the site looking connected.' );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertEmpty( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
+	}
+
+	/**
+	 * Test that connecting through PayPal replaces credentials the merchant pasted earlier.
+	 *
+	 * Stored credentials take precedence over a referral, so leaving them in
+	 * place would keep calling PayPal with the old account.
+	 */
+	public function test_complete_onboarding_replaces_stored_credentials() {
+		$this->set_up_connected_site();
+		PayPal_OAuth::store_credentials( 'old_client_id', 'old_client_secret' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
+
+		$this->assertTrue( $result );
+		$this->assertFalse( PayPal_OAuth::has_credentials() );
+		$this->assertTrue( PayPal_Partner_Onboarding::is_platform_managed() );
 	}
 
 	/**
 	 * Test that onboarding fails rather than storing an empty merchant ID.
-	 *
-	 * Storing an empty value left the site connected but unable to report its
-	 * own integration status, which surfaced much later as "Merchant
-	 * integration info not available".
 	 */
 	public function test_complete_onboarding_rejects_a_missing_merchant_id() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
 		$this->mock_http_routes(
 			array(
-				'/v1/oauth2/token'                    => $this->http_response(
-					200,
-					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/merchant-integrations/credentials/' => $this->http_response(
-					200,
-					array(
-						'client_id'     => 'merchant_client_id',
-						'client_secret' => 'merchant_client_secret',
-					)
-				),
+				'/paypal/platform/merchant-integration' => $this->merchant_integration( array( 'merchant_id' => '' ) ),
 			)
 		);
 
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', '' );
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_onboarding_no_merchant_id', $result->get_error_code() );
 		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
 	}
 
-	/**
-	 * Test that a missing merchant status names which half is absent.
-	 */
-	public function test_check_merchant_status_reports_which_id_is_missing() {
-		update_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY, 'PARTNER1' );
+	// --- check_merchant_status ---
 
+	/**
+	 * Test check_merchant_status fails without merchant info.
+	 */
+	public function test_check_merchant_status_requires_merchant_info() {
 		$result = PayPal_Partner_Onboarding::check_merchant_status();
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
-
-		$data = $result->get_error_data();
-		$this->assertTrue( $data['has_partner_id'] );
-		$this->assertFalse( $data['has_merchant_id'] );
 	}
 
 	/**
-	 * Test that an account without Payment Links access fails the final validation step.
-	 */
-	public function test_complete_onboarding_reports_missing_api_access() {
-		$this->set_up_partner_state();
-		set_transient(
-			PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY,
-			PayPal_OAuth::encrypt( 'seller_nonce_value' ),
-			1800
-		);
-		$this->mock_http_routes(
-			array(
-				'/v1/oauth2/token'                    => $this->http_response(
-					200,
-					array(
-						'access_token' => 'seller_token',
-						'expires_in'   => 3600,
-					)
-				),
-				'/merchant-integrations/credentials/' => $this->http_response(
-					200,
-					array(
-						'client_id'     => 'merchant_client_id',
-						'client_secret' => 'merchant_client_secret',
-					)
-				),
-				'/v1/checkout/payment-resources'      => $this->http_response( 403, array( 'name' => 'NOT_AUTHORIZED' ) ),
-			)
-		);
-
-		$result = PayPal_Partner_Onboarding::complete_onboarding( 'auth_code', 'shared_id', 'MERCHANT1' );
-
-		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_api_not_authorized', $result->get_error_code() );
-	}
-
-	// --- check_merchant_status ---
-
-	/**
-	 * Test that merchant status is normalized into booleans the UI can rely on.
+	 * Test that merchant status is read through WordPress.com and normalized into booleans the UI can rely on.
 	 */
 	public function test_check_merchant_status_returns_normalized_status() {
-		$this->set_up_partner_state();
-		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		$this->set_up_referred_merchant();
+		$requests = array();
 		$this->mock_http_routes(
 			array(
-				'/merchant-integrations/' => $this->http_response(
-					200,
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
 					array(
-						'payments_receivable'     => true,
 						'primary_email_confirmed' => false,
-						'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
 					)
 				),
-			)
+			),
+			$requests
 		);
 
 		$result = PayPal_Partner_Onboarding::check_merchant_status();
@@ -904,22 +780,20 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertTrue( $result['payments_receivable'] );
 		$this->assertFalse( $result['primary_email_confirmed'] );
 		$this->assertSame( array( array( 'name' => 'EXPRESS_CHECKOUT' ) ), $result['products'] );
+
+		$this->assertStringContainsString( 'merchant_id=MERCHANT1', $requests[0]['url'] );
+		$this->assertStringNotContainsString( 'paypal.com', $requests[0]['url'] );
 	}
 
 	/**
 	 * Test the merchant's email is cached for the account menu, trimmed by sanitize_email().
 	 */
 	public function test_check_merchant_status_caches_the_account_email() {
-		$this->set_up_partner_state();
-		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		$this->set_up_referred_merchant();
 		$this->mock_http_routes(
 			array(
-				'/merchant-integrations/' => $this->http_response(
-					200,
-					array(
-						'payments_receivable' => true,
-						'primary_email'       => ' Junior@Sports.com ',
-					)
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
+					array( 'primary_email' => ' Junior@Sports.com ' )
 				),
 			)
 		);
@@ -933,13 +807,15 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	 * Test the account email stays empty when PayPal's response omits it.
 	 */
 	public function test_check_merchant_status_leaves_the_account_email_empty_when_paypal_omits_it() {
-		$this->set_up_partner_state();
-		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		$this->set_up_referred_merchant();
 		$this->mock_http_routes(
 			array(
-				'/merchant-integrations/' => $this->http_response(
+				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
-					array( 'payments_receivable' => true )
+					array(
+						'merchant_id'         => 'MERCHANT1',
+						'payments_receivable' => true,
+					)
 				),
 			)
 		);
@@ -953,13 +829,15 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	 * Test that a missing products key defaults to an empty array rather than a notice.
 	 */
 	public function test_check_merchant_status_defaults_missing_products() {
-		$this->set_up_partner_state();
-		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		$this->set_up_referred_merchant();
 		$this->mock_http_routes(
 			array(
-				'/merchant-integrations/' => $this->http_response(
+				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
-					array( 'payments_receivable' => true )
+					array(
+						'merchant_id'         => 'MERCHANT1',
+						'payments_receivable' => true,
+					)
 				),
 			)
 		);
@@ -971,14 +849,23 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Test that a non-200 merchant status response is reported as an error.
+	 * Test that an error from WordPress.com is reported with its status.
 	 */
 	public function test_check_merchant_status_handles_error_status() {
-		$this->set_up_partner_state();
-		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		$this->set_up_referred_merchant();
 		$this->mock_http_routes(
 			array(
-				'/merchant-integrations/' => $this->http_response( 404, array( 'name' => 'NOT_FOUND' ) ),
+				'/paypal/platform/merchant-integration' => array(
+					'response' => array( 'code' => 404 ),
+					'body'     => wp_json_encode(
+						array(
+							'code'    => 'paypal_merchant_status_error',
+							'message' => 'Could not retrieve merchant integration status from PayPal.',
+							'data'    => array( 'status' => 404 ),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				),
 			)
 		);
 
@@ -989,58 +876,33 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertEquals( 404, $result->get_error_data()['status'] );
 	}
 
-	/**
-	 * Test that the partner ID is sanitized on the way in.
-	 */
-	public function test_set_partner_id_sanitizes_input() {
-		PayPal_Partner_Onboarding::set_partner_id( '  <b>PARTNER9</b>  ' );
-
-		$this->assertSame( 'PARTNER9', PayPal_Partner_Onboarding::get_partner_id() );
-	}
+	// --- cleanup ---
 
 	/**
 	 * Test cleanup removes all onboarding options.
 	 */
 	public function test_cleanup_removes_onboarding_data() {
-		set_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY, 'test_nonce', 30 * MINUTE_IN_SECONDS );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 30 * MINUTE_IN_SECONDS );
 		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'test_merchant' );
 		update_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY, 'junior@sports.com' );
-		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals' );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD );
 
 		PayPal_Partner_Onboarding::cleanup();
 
-		$this->assertFalse( get_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY ) );
+		$this->assertFalse( get_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
 	}
 
 	/**
-	 * Test cleanup does not remove partner ID (site-level config).
+	 * Test cleanup does not remove the partner client ID (site-level config).
 	 */
-	public function test_cleanup_preserves_partner_id() {
-		PayPal_Partner_Onboarding::set_partner_id( 'TEST_PARTNER_123' );
+	public function test_cleanup_preserves_partner_client_id() {
+		update_option( PayPal_Partner_Onboarding::PARTNER_CLIENT_ID_OPTION_KEY, 'PLATFORM_CLIENT_ID', false );
 
 		PayPal_Partner_Onboarding::cleanup();
 
-		$this->assertEquals( 'TEST_PARTNER_123', PayPal_Partner_Onboarding::get_partner_id() );
-	}
-
-	/**
-	 * Test onboarding products constant.
-	 */
-	public function test_onboarding_products() {
-		$this->assertContains( 'EXPRESS_CHECKOUT', PayPal_Partner_Onboarding::ONBOARDING_PRODUCTS );
-	}
-
-	/**
-	 * Test onboarding features constant.
-	 */
-	public function test_onboarding_features() {
-		$features = PayPal_Partner_Onboarding::ONBOARDING_FEATURES;
-		$this->assertContains( 'PAYMENT', $features );
-		$this->assertContains( 'REFUND', $features );
-		$this->assertContains( 'ACCESS_MERCHANT_INFORMATION', $features );
-		$this->assertContains( 'PAYMENT_LINKS_AND_BUTTONS', $features );
+		$this->assertEquals( 'PLATFORM_CLIENT_ID', PayPal_Partner_Onboarding::get_partner_client_id() );
 	}
 }

@@ -3,6 +3,7 @@ import { __, _x } from '@wordpress/i18n';
 import { Button, Link, Stack, Text } from '@wordpress/ui';
 import { formatMetric, formatRate } from '../../../../_inc/subscribers/lib/format-metric';
 import { recordStatsEvent, useStatsStateView } from '../stats-tracks';
+import type { JSX } from 'react';
 import './style.scss';
 
 export type RecentPost = {

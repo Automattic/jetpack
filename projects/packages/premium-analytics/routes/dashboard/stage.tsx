@@ -63,6 +63,7 @@ import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
+import type { JSX } from 'react';
 
 /**
  * Premium Analytics dashboard page stage component.

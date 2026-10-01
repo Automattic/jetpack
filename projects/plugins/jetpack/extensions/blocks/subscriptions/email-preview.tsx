@@ -42,6 +42,7 @@ import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { SendIcon } from './icons';
+import type { JSX } from 'react';
 
 interface PreviewErrorInfo {
 	code?: string;

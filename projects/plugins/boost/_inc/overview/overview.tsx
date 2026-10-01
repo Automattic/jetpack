@@ -182,6 +182,7 @@ function OverviewContent( {
 			<ScoreCards
 				scores={ scoreState.scores }
 				isLoading={ isLoading }
+				isRunning={ scoreState.isRunning }
 				hasScores={ scoreState.hasScores }
 				error={ scoreState.error }
 				onRetry={ () => onRefresh( 'score_card' ) }

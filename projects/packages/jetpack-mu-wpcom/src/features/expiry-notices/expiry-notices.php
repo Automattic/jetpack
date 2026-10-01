@@ -423,8 +423,9 @@ function wpcom_expiry_notices_banner_heading( array $state ): string {
 			: sprintf( _n( 'Your %1$s plan has %2$d day remaining', 'Your %1$s plan has %2$d days remaining', $days, 'jetpack-mu-wpcom' ), $plan, $days );
 	}
 
-	// Never "expired" while the day of expiry is still running.
-	if ( 0 === $days ) {
+	// Never "expired" while billing's day of expiry is still running, even where
+	// the site's calendar has already moved past the date shown.
+	if ( $days <= 0 ) {
 		return '' === $plan
 			? __( 'Your plan expires today', 'jetpack-mu-wpcom' )
 			/* translators: %s is the plan name (e.g. Business). */
@@ -477,7 +478,7 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and %d GB of storage.', 'jetpack-mu-wpcom' );
 		$without_storage = __( 'If renewal doesn’t go through, your site will move to the Free plan, and you’ll lose access to plugins, custom themes, and additional storage.', 'jetpack-mu-wpcom' );
-	} elseif ( 0 === $days ) {
+	} elseif ( $days <= 0 ) {
 		/* translators: %d is a number of gigabytes of storage. */
 		$with_storage    = __( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and %d GB of storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
 		$without_storage = __( 'Unless you renew your plan, your site will move to the Free plan, and you’ll lose plugins, custom themes, and additional storage. Renew now to keep everything in place.', 'jetpack-mu-wpcom' );
@@ -500,7 +501,9 @@ function wpcom_expiry_notices_banner_body( array $state, bool $is_owner ): strin
  * @param int|null            $storage_gb Storage the plan includes, or null when unknown.
  */
 function wpcom_expiry_notices_early_warning_body( array $state, ?int $storage_gb ): string {
-	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), (int) $state['expiry_ts'] );
+	// The start of billing's UTC day in the site's timezone, as the Purchases
+	// pages show it: west of UTC that is the day before, never a day too late.
+	$expiry_date = (string) wp_date( (string) get_option( 'date_format' ), Expiry_Data::start_of_utc_day( (int) $state['expiry_ts'] ) );
 
 	if ( '' === $expiry_date ) {
 		return null === $storage_gb
