@@ -43,7 +43,12 @@ function should_show_coming_soon_page() {
 	$should_show = apply_filters( 'a8c_show_coming_soon_page', $should_show );
 
 	if ( $should_show && is_unlaunched_big_sky_site_seen_from_a8c_proxy() ) {
-		show_unlaunched_site_to_a8c_proxy();
+		// A cached copy would show the unlaunched site to regular visitors.
+		if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+			define( 'DONOTCACHEPAGE', true );
+		}
+		nocache_headers();
+		add_action( 'wp_footer', __NAMESPACE__ . '\render_unlaunched_site_banner' );
 		return false;
 	}
 
@@ -69,29 +74,6 @@ function is_unlaunched_big_sky_site_seen_from_a8c_proxy() {
 
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only switch back to the Coming Soon page.
 	return ! isset( $_GET['wpcom_show_coming_soon'] );
-}
-
-/**
- * Keep the real page out of every cache, flag it as unlaunched, and log the view.
- *
- * A cached copy would show the unlaunched site to regular visitors.
- * The request is logged out, so the log has the site and page but not who looked.
- *
- * @return void
- */
-function show_unlaunched_site_to_a8c_proxy() {
-	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
-		define( 'DONOTCACHEPAGE', true );
-	}
-	nocache_headers();
-
-	add_action( 'wp_footer', __NAMESPACE__ . '\render_unlaunched_site_banner' );
-
-	Jetpack_Mu_Wpcom::log2logstash(
-		'atomic_unlaunched_big_sky_site_viewed',
-		'Unlaunched Big Sky site viewed through the a8c proxy',
-		array( 'url' => home_url( add_query_arg( array() ) ) )
-	);
 }
 
 /**

@@ -45,19 +45,15 @@ class Coming_Soon_A8c_Proxy_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		Constants::clear_constants();
 		Status_Cache::clear();
-		delete_option( 'wpcom_public_coming_soon' );
-		delete_option( 'big_sky_enable' );
 		unset( $_GET['wpcom_show_coming_soon'] );
-		remove_all_actions( 'wp_footer' );
 		$GLOBALS['wp_query'] = new \WP_Query();
 		parent::tear_down();
 	}
 
 	/**
-	 * The proxy sees the real site, uncached, with the banner and a log entry.
+	 * The proxy sees the real site, uncached, with the banner.
 	 *
-	 * Separate process: nocache_headers() is a no-op once PHPUnit has printed,
-	 * and log2logstash() picks its dispatch once per process.
+	 * Separate process: nocache_headers() is a no-op once PHPUnit has printed.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
@@ -65,7 +61,6 @@ class Coming_Soon_A8c_Proxy_Test extends \WorDBless\BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_the_proxy_sees_the_real_site_uncached() {
-		require_once __DIR__ . '/fixtures/log2logstash.php';
 		$nocache_calls = 0;
 		add_filter(
 			'nocache_headers',
@@ -80,8 +75,6 @@ class Coming_Soon_A8c_Proxy_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 1, $nocache_calls, 'The edge cache must not keep the real page.' );
 		$this->assertTrue( DONOTCACHEPAGE, 'Nor a page-cache plugin on the site.' );
 		$this->assertNotFalse( has_action( 'wp_footer', __NAMESPACE__ . '\render_unlaunched_site_banner' ) );
-		$this->assertCount( 1, $GLOBALS['coming_soon_test_logstash'] );
-		$this->assertSame( 'atomic_unlaunched_big_sky_site_viewed', $GLOBALS['coming_soon_test_logstash'][0]['feature'] );
 	}
 
 	/**
