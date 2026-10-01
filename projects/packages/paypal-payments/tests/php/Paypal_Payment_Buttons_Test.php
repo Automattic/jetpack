@@ -59,6 +59,8 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		\WP_Block_Supports::$block_to_render = null;
 
 		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
+		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		wp_set_current_user( 0 );
 		PayPal_OAuth::delete_credentials();
 		Feature_Flags::reset();
@@ -2303,6 +2305,72 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'https://evil.example.com/pay',
 			PayPal_Payment_Buttons::add_partner_attribution( 'https://evil.example.com/pay' )
 		);
+	}
+
+	public function test_get_partner_attribution_id_defaults_to_the_production_code() {
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_is_ignored_in_production() {
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_overrides_the_code_in_sandbox() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$this->assertSame( 'Sandbox_BN', PayPal_Payment_Buttons::get_partner_attribution_id() );
+		$this->assertStringContainsString(
+			'at_code=Sandbox_BN',
+			PayPal_Payment_Buttons::add_partner_attribution( 'https://www.paypal.com/ncp/payment/ABC123' )
+		);
+
+		$tag = PayPal_Payment_Buttons::tag_paypal_sdk_script(
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+			'<script src="https://www.sandbox.paypal.com/sdk/js"></script>',
+			PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE
+		);
+		$this->assertStringContainsString( 'data-paypal-partner-attribution-id="Sandbox_BN"', $tag );
+	}
+
+	/**
+	 * @dataProvider provide_unusable_sandbox_partner_attribution_values
+	 *
+	 * @param mixed $value What the filter returns.
+	 */
+	#[DataProvider( 'provide_unusable_sandbox_partner_attribution_values' )]
+	public function test_sandbox_partner_attribution_filter_falls_back_on_unusable_values( $value ) {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => $value );
+
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public static function provide_unusable_sandbox_partner_attribution_values() {
+		return array(
+			'empty string'      => array( '' ),
+			'null'              => array( null ),
+			'array'             => array( array( 'Sandbox_BN' ) ),
+			'only unsafe chars' => array( '"><>& ' ),
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_strips_unsafe_characters() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sand"box <BN>&' );
+
+		$this->assertSame( 'SandboxBN', PayPal_Payment_Buttons::get_partner_attribution_id() );
 	}
 
 	// --- Per-option pricing display ---

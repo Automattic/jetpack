@@ -2795,6 +2795,19 @@ class PayPal_REST_Controller_Test extends TestCase {
 		);
 	}
 
+	public function test_connection_status_exposes_the_filtered_sandbox_partner_attribution_id() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$result = PayPal_REST_Controller::handle_connection_status(
+			new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/connection' )
+		);
+
+		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
+
+		$this->assertSame( 'Sandbox_BN', $result->get_data()['partner_attribution_id'] );
+	}
+
 	/**
 	 * Test that a line item priced only through its options is accepted.
 	 *
