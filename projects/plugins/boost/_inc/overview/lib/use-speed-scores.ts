@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
+import api from '../../../app/assets/src/js/lib/api/api';
 import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
 import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-string';
 import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
@@ -16,6 +17,7 @@ export type SpeedScoreState = {
 	scores: SpeedScoresSet;
 };
 
+const refreshResponseSchema = z.object( { status: z.enum( [ 'pending', 'success' ] ) } );
 const cornerstonePagesSchema = z.object( { predefined_pages: z.array( z.string() ) } );
 
 export function useSpeedScores(
@@ -42,6 +44,7 @@ export function useSpeedScores(
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
+	const acceptedUserRun = useRef< string >( undefined );
 	const requestController = useRef< AbortController >( undefined );
 	const lastConfig = useRef< string >( undefined );
 	const cancelPending = useCallback( () => {
@@ -49,9 +52,12 @@ export function useSpeedScores(
 		requestController.current?.abort();
 	}, [] );
 	const refresh = useCallback(
-		async ( regenerate = false, { userStarted = false } = {} ): Promise< true | undefined > => {
+		async ( regenerate = false, { userStarted = false } = {} ) => {
 			if ( ! online || ! enabled ) {
 				return;
+			}
+			if ( regenerate || acceptedUserRun.current !== url ) {
+				acceptedUserRun.current = undefined;
 			}
 			cancelPending();
 			const id = requestId.current;
@@ -60,12 +66,26 @@ export function useSpeedScores(
 			setState( previous => ( {
 				...previous,
 				status: 'loading',
-				isRunning: regenerate || ( previous.status === 'loading' && previous.isRunning ),
+				isRunning:
+					regenerate ||
+					acceptedUserRun.current === url ||
+					( previous.status === 'loading' && previous.isRunning ),
 				error: undefined,
 			} ) );
 			try {
+				if ( regenerate && userStarted ) {
+					const response = await api.post( '/speed-scores/refresh', { url } );
+					if ( id !== requestId.current ) {
+						return;
+					}
+					if ( response.error ) {
+						throw response.error;
+					}
+					refreshResponseSchema.parse( response );
+					acceptedUserRun.current = url;
+				}
 				const scores = await requestSpeedScores(
-					regenerate,
+					regenerate && ! userStarted,
 					wpApiSettings.root,
 					url,
 					wpApiSettings.nonce,
@@ -80,16 +100,18 @@ export function useSpeedScores(
 					}
 				);
 				if ( id === requestId.current && scores ) {
+					const completedUserRun = acceptedUserRun.current === url;
+					acceptedUserRun.current = undefined;
 					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
-					if ( regenerate && userStarted ) {
+					if ( completedUserRun ) {
 						onUserRunComplete?.();
 					}
-					return true;
 				}
 			} catch ( cause ) {
 				if ( id !== requestId.current ) {
 					return;
 				}
+				acceptedUserRun.current = undefined;
 				const error = standardizeError(
 					cause ?? {},
 					__( 'Error requesting speed scores', 'jetpack-boost' )

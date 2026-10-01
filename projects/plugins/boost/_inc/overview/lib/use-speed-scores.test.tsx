@@ -4,6 +4,7 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSpeedScores } from './use-speed-scores';
+import api from '../../../app/assets/src/js/lib/api/api';
 import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
 
 declare global {
@@ -20,6 +21,11 @@ jest.mock( '../../../app/assets/src/js/lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
 } ) );
 
+jest.mock( '../../../app/assets/src/js/lib/api/api', () => ( {
+	__esModule: true,
+	default: { post: jest.fn() },
+} ) );
+
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 let queryClient: QueryClient;
 function wrapper( { children }: PropsWithChildren ) {
@@ -27,6 +33,7 @@ function wrapper( { children }: PropsWithChildren ) {
 }
 
 beforeEach( () => {
+	jest.mocked( api.post ).mockReset().mockResolvedValue( { status: 'pending' } );
 	queryClient = new QueryClient( {
 		defaultOptions: { queries: { retry: false, gcTime: Infinity } },
 	} );
@@ -77,6 +84,17 @@ test( 'preserves the exact cornerstone URL for cached and regenerated scores', a
 		'https://example.org/',
 		wpApiSettings.nonce,
 		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
+	);
+	await act( async () => result.current[ 1 ]( true, { userStarted: true } ) );
+	expect( api.post ).toHaveBeenCalledWith( '/speed-scores/refresh', {
+		url: 'https://example.org/',
+	} );
+	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+		false,
+		wpApiSettings.root,
+		'https://example.org/',
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
 	);
 } );
 
@@ -150,7 +168,7 @@ test.each( [ false, true ] )(
 		} );
 		await act( async () => {
 			resolveRequest( nextScores );
-			await expect( request ).resolves.toBe( true );
+			await request;
 		} );
 		expect( result.current[ 0 ] ).toMatchObject( {
 			status: 'loaded',
@@ -176,7 +194,7 @@ test.each( [ 'cancelled', 'superseded', 'empty' ] )(
 				} )
 		);
 		let request!: ReturnType< ( typeof result.current )[ 1 ] >;
-		act( () => {
+		await act( async () => {
 			request = result.current[ 1 ]( true, { userStarted: true } );
 		} );
 		const signal = jest.mocked( requestSpeedScores ).mock.lastCall![ 4 ]!.signal;
@@ -189,7 +207,7 @@ test.each( [ 'cancelled', 'superseded', 'empty' ] )(
 		}
 		await act( async () => {
 			resolveRequest( scenario === 'empty' ? undefined : result.current[ 0 ].scores );
-			await expect( request ).resolves.toBeUndefined();
+			await request;
 		} );
 		expect( signal?.aborted ).toBe( scenario !== 'empty' );
 		expect( completed ).not.toHaveBeenCalled();
