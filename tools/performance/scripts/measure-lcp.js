@@ -188,7 +188,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 
 			// Step 2: Reload for a clean measurement of the current page — the Dashboard, or the
 			// page navigated to above.
-			await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
+			const navigationResponse = await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
+			const serverTimingHeader = await navigationResponse?.headerValue( 'server-timing' );
+			const serverMetrics = parseServerTiming( serverTimingHeader );
 
 			// Wait for the measured page's content to be present after reload.
 			if ( pageReadySelector ) {
@@ -298,6 +300,12 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 					transferSize: navigation ? navigation.transferSize : null,
 					encodedBodySize: navigation ? navigation.encodedBodySize : null,
 					decodedBodySize: navigation ? navigation.decodedBodySize : null,
+					serverTiming: navigation
+						? navigation.serverTiming.map( entry => ( {
+								name: entry.name,
+								duration: entry.duration,
+							} ) )
+						: [],
 				};
 			} );
 
@@ -331,7 +339,14 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				// Fold the summed decoded payload into the per-iteration metrics block (as KB) so
 				// readIterationField/buildSummary aggregate it alongside lcp/ttfb/fcp. It lives on
 				// resourceStats too (the `resources` block below) for the saved results file.
-				metrics: { ...metrics, decodedBytesKB: resourceStats.totalDecodedBodySizeKB },
+				metrics: {
+					...metrics,
+					...serverMetrics,
+					decodedBytesKB: resourceStats.totalDecodedBodySizeKB,
+				},
+				serverTimingHeader,
+				navigationUrl: navigationResponse.url(),
+				navigationStatus: navigationResponse.status(),
 				resources: resourceStats,
 				timestamp: new Date().toISOString(),
 			} );
@@ -375,7 +390,62 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
  * scenarios that don't (the dashboard) keep it as diagnostic data in `results.json` and never
  * send it to CodeVitals.
  */
-const SUMMARY_FIELDS = [ 'lcp', 'ttfb', 'fcp', 'decodedBytesKB' ];
+const SUMMARY_FIELDS = [
+	'lcp',
+	'ttfb',
+	'fcp',
+	'decodedBytesKB',
+	'wpTotal',
+	'wpMemoryUsage',
+	'wpDbQueries',
+];
+
+/**
+ * Extract the fixture's three admin metrics, rejecting missing or malformed durations.
+ *
+ * @param {string|null} header - The measured navigation's Server-Timing header.
+ * @return {object} PHP time in ms, peak memory in bytes, and database query count.
+ */
+function parseServerTiming( header ) {
+	const fields = {
+		'wp-total': 'wpTotal',
+		'wp-memory-usage': 'wpMemoryUsage',
+		'wp-db-queries': 'wpDbQueries',
+	};
+	const metrics = {};
+	// Quoted descriptions may contain commas or semicolons, including escaped quotes.
+	const members = ( header || '' ).match( /(?:[^,";]+|"(?:[^"\\]|\\.)*"|;)+/g ) || [];
+	for ( const member of members ) {
+		const parts = member.match( /(?:[^;"]+|"(?:[^"\\]|\\.)*")+/g ) || [];
+		const name = parts.shift()?.trim();
+		if ( ! Object.hasOwn( fields, name ) ) {
+			continue;
+		}
+		const durations = parts.filter( part => /^\s*dur\s*(?:=|$)/i.test( part ) );
+		const raw =
+			durations.length === 1
+				? durations[ 0 ].match( /^\s*dur\s*=\s*(\d+(?:\.\d+)?)\s*$/i )?.[ 1 ]
+				: null;
+		const value = raw == null ? NaN : Number( raw );
+		if (
+			Object.hasOwn( metrics, fields[ name ] ) ||
+			! Number.isFinite( value ) ||
+			( name !== 'wp-total' && ! Number.isSafeInteger( value ) )
+		) {
+			throw new Error( `Invalid Server-Timing duration for ${ name }` );
+		}
+		metrics[ fields[ name ] ] = value;
+	}
+	const missing = Object.entries( fields ).filter(
+		( [ , field ] ) => ! Object.hasOwn( metrics, field )
+	);
+	if ( missing.length ) {
+		throw new Error(
+			`Missing Server-Timing metric(s): ${ missing.map( ( [ name ] ) => name ).join( ', ' ) }`
+		);
+	}
+	return metrics;
+}
 
 /**
  * Read one metric field from a single iteration's result.
@@ -1049,6 +1119,7 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 
 export {
 	measureLCP,
+	parseServerTiming,
 	resolveResultsGit,
 	buildSummary,
 	findIncompleteSummaryFields,

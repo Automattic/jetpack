@@ -151,6 +151,9 @@ test( 'empty measurements: exit 1 (backstop behind the validated filter)', () =>
 test( 'findIncompleteSummaryFields returns [] for a complete summary', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const summary = {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: 300,
 		lcp: { median: 300 },
 		ttfb: { median: 200 },
@@ -168,6 +171,9 @@ test( 'findIncompleteSummaryFields names a posted field whose block the summary 
 	// optional field blanking the required Dashboard's post with no warning naming it.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const summary = {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: 300,
 		lcp: { median: 300 },
 		fcp: { median: 500 },
@@ -195,9 +201,39 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 	// check must flag it so the measure step records a scenario error, not a green partial.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const iterations = [
-		{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
-		{ lcp: 310, metrics: { ttfb: null, fcp: 510, decodedBytesKB: 8229 } },
-		{ lcp: 305, metrics: { ttfb: null, fcp: 505, decodedBytesKB: 8229 } },
+		{
+			lcp: 300,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: 200,
+				fcp: 500,
+				decodedBytesKB: 8229,
+			},
+		},
+		{
+			lcp: 310,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: null,
+				fcp: 510,
+				decodedBytesKB: 8229,
+			},
+		},
+		{
+			lcp: 305,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: null,
+				fcp: 505,
+				decodedBytesKB: 8229,
+			},
+		},
 	];
 	const summary = buildSummary( iterations, 3 );
 	assert.equal( summary.ttfb, undefined, 'precondition: the majority rule dropped ttfb' );
@@ -219,8 +255,28 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 	// posting shapes.
 	const summary = buildSummary(
 		[
-			{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
-			{ lcp: 310, metrics: { ttfb: 210, fcp: 510, decodedBytesKB: 8229 } },
+			{
+				lcp: 300,
+				metrics: {
+					wpTotal: 100,
+					wpMemoryUsage: 20971520,
+					wpDbQueries: 42,
+					ttfb: 200,
+					fcp: 500,
+					decodedBytesKB: 8229,
+				},
+			},
+			{
+				lcp: 310,
+				metrics: {
+					wpTotal: 100,
+					wpMemoryUsage: 20971520,
+					wpDbQueries: 42,
+					ttfb: 210,
+					fcp: 510,
+					decodedBytesKB: 8229,
+				},
+			},
 		],
 		2
 	);
@@ -235,7 +291,14 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 const healthyIteration = i => ( {
 	iteration: i,
 	lcp: 300 + i,
-	metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 },
+	metrics: {
+		wpTotal: 100,
+		wpMemoryUsage: 20971520,
+		wpDbQueries: 42,
+		ttfb: 200,
+		fcp: 500,
+		decodedBytesKB: 8229,
+	},
 } );
 
 test( 'finalizeMeasurement returns the measurement for healthy iterations', () => {
@@ -254,6 +317,18 @@ test( 'finalizeMeasurement throws when every iteration failed', () => {
 		() => finalizeMeasurement( forms, [ { iteration: 1, error: 'boom' } ], 1, 'u' ),
 		/All iterations failed/
 	);
+} );
+
+test( 'a backend field without a majority fails the optional scenario before posting', () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	const results = [ 1, 2, 3 ].map( healthyIteration );
+	delete results[ 1 ].metrics.wpTotal;
+	delete results[ 2 ].metrics.wpTotal;
+	assert.throws(
+		() => finalizeMeasurement( forms, results, 3, 'url' ),
+		/missing posted field\(s\): wpTotal/
+	);
+	assert.equal( computeRunOutcome( { req: ok, optA: failed }, DOUBLES ).exitCode, 0 );
 } );
 
 test( 'finalizeMeasurement throws on a partial summary, naming the dropped field', () => {

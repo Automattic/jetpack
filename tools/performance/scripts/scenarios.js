@@ -51,6 +51,24 @@ export const SCENARIOS = [
 				codevitalsKey: 'wp-admin-dashboard-connection-sim-firstContentfulPaint',
 				type: 'fcp',
 			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
+			},
 		],
 		postToCodeVitals: true,
 		// Scenario failure policy, read by measure-lcp.js (computeRunOutcome):
@@ -158,6 +176,24 @@ export const SCENARIOS = [
 				codevitalsKey: 'forms-responses-connection-sim-decodedBytesKB',
 				type: 'decodedBytesKB',
 			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'forms-responses-connection-sim-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'forms-responses-connection-sim-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'forms-responses-connection-sim-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
+			},
 		],
 		postToCodeVitals: true,
 		// A failure here logs loudly and skips this scenario's keys for the build, but never
@@ -226,6 +262,24 @@ export const SCENARIOS = [
 				codevitalsKey: 'my-jetpack-connection-sim-decodedBytesKB',
 				type: 'decodedBytesKB',
 			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'my-jetpack-connection-sim-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'my-jetpack-connection-sim-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'my-jetpack-connection-sim-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
+			},
 		],
 		postToCodeVitals: true,
 		// A failure here logs loudly and skips this scenario's keys for the build, but never
@@ -248,6 +302,9 @@ export const SANITY_RANGES = {
 	lcp: { min: 100, max: 60000 }, // <100ms is suspicious; >60s means the page never loaded.
 	ttfb: { min: 10, max: 10000 }, // <10ms is unrealistic; >10s means server failure.
 	fcp: { min: 50, max: 30000 },
+	wpTotal: { min: 10, max: 60000 },
+	wpMemoryUsage: { min: 1048576, max: 536870912 },
+	wpDbQueries: { min: 1, max: 10000 },
 	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
 	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
 	// Summed per-resource decodedBodySize, in KB. This row now guards two scenarios: the Forms

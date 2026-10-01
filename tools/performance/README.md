@@ -1,6 +1,6 @@
 # Jetpack Performance Testing
 
-Measures Jetpack admin-page performance (LCP, TTFB, FCP, and runtime bundle size) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
+Measures Jetpack admin-page performance (LCP, TTFB, FCP, runtime bundle size, and PHP/database metrics) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
 
 ## CI Usage
 
@@ -82,6 +82,30 @@ Two conditions must hold for My Jetpack to render in the fixture:
 
 1. **Offline mode off.** The fixture's site URL (`http://localhost:<port>`) has no dot, so `Status::is_local_site()` treats it as a local site and Jetpack enters offline mode, which makes `Initializer::should_initialize()` return false — My Jetpack never registers (no menu, no assets; the page is the generic "invalid page" admin shell). The `simulate-wpcom-connection` mu-plugin flips this with `add_filter( 'jetpack_offline_mode', '__return_false' )`. This is **install-wide** — see the attribution note below.
 2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [#50291](https://github.com/Automattic/jetpack/pull/50291) fixed this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). It merged on 2026-07-08 and is present in the `jetpack-production` mirror the fixture clones (verified against mirror commit `9ef44a8`, 2026-07-10: a clean checkout renders My Jetpack and passes every capture guard). Treat it as a baseline prerequisite: a mirror checkout that predates #50291 renders the page empty and fails the `waitForSelector`.
+
+### Admin backend metrics (`Server-Timing`)
+
+The fixture's `emit-server-timing.php` mu-plugin buffers admin HTML responses before output is committed. The measured reload's navigation response supplies three metrics; login, warm-up, AJAX, CLI, cron, redirects and non-HTML responses do not supply samples. The raw header and browser `navigation.serverTiming` entries are retained in each iteration for inspection. Missing, duplicate or invalid `dur` parameters fail the iteration rather than becoming zero. Existing summary rounding (whole units) and completeness/failure policies apply; Dashboard remains required, Forms and My Jetpack remain optional.
+
+| Header            | Summary field / type | Unit  | Meaning                                                                                                                                           |
+| ----------------- | -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `wp-total`        | `wpTotal`            | ms    | Wall time from PHP's request start to final buffered response completion, including simulator delays; distinct from browser TTFB.                 |
+| `wp-memory-usage` | `wpMemoryUsage`      | bytes | `memory_get_peak_usage()` (PHP-managed allocated memory, including instrumentation buffers), rather than Gutenberg's current live-memory reading. |
+| `wp-db-queries`   | `wpDbQueries`        | count | `$wpdb->num_queries` at response completion; excludes later AJAX/REST requests.                                                                   |
+
+Each field maps to `<prefix>-wp-total-staging`, `<prefix>-wp-memory-usage-staging` or `<prefix>-wp-db-queries-staging`. The exact prefixes are:
+
+| Scenario                       | Prefix                              |
+| ------------------------------ | ----------------------------------- |
+| Dashboard (`jetpackConnected`) | `wp-admin-dashboard-connection-sim` |
+| Forms (`formsResponses`)       | `forms-responses-connection-sim`    |
+| My Jetpack (`myJetpack`)       | `my-jetpack-connection-sim`         |
+
+These nine keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
+
+Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including the simulated connection and instrumentation. A matched no-Jetpack control and overhead deltas require a separate change.
+
+Buffering can move TTFB to response completion. For local verification, pin plugin mirror/upstream hashes, WordPress/PHP images and assets, content, CPU calibration, warm-cache policy and mock latency. Interleave ten pre/post runs of five iterations on the same revision, retain raw samples and capture failures, and compare HTML/status and existing medians. Inspect the header against browser entries; validate counts and peak memory at the emitter boundary and milliseconds with a bounded PHP delay. Summarize per-run medians, MAD, min/max and stddev, then compare 5%, 10% and 20% sustained changes with the digest's noise bar below. Repeated same-hash runs are local variance evidence, never ten commits of digest history. Use `pnpm test:unit`, `pnpm test -- --skip-codevitals`, `pnpm report:dry` and `CODEVITALS_EVOLUTION_URL=... pnpm digest:dry`; dry runs do not validate enrollment.
 
 ### Offline-mode flip — attribution note
 
@@ -184,6 +208,9 @@ CodeVitals is an **append-only** store with no self-service rollback. Once a bad
 | `tbt`            | 0    | 10000 | ms   |
 | `cls`            | 0    | 5     | —    |
 | `decodedBytesKB` | 1000 | 51200 | KB   |
+| `wpTotal`        | 10   | 60000 | ms   |
+| `wpMemoryUsage`  | 1048576 | 536870912 | bytes |
+| `wpDbQueries`    | 1    | 10000 | count |
 
 Add a row when a new metric type starts being posted, and set the `type` on the metric so the check applies to it — either `type` on a `metrics[]` entry (the multi-metric shape) or the scenario-level `metricType` (the legacy single-key shape). A keyed metric with no type is refused (never posted unchecked).
 
