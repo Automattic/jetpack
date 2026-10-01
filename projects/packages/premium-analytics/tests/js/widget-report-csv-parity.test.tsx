@@ -22,6 +22,7 @@ import ClicksWidget from '../../widgets/clicks/render';
 import FileDownloadsWidget from '../../widgets/file-downloads/render';
 import ReferrersWidget from '../../widgets/referrers/render';
 import SearchTermsWidget from '../../widgets/search-terms/render';
+import { captureCsvDownloads } from '../../widgets/test-utils';
 import VideoPressWidget from '../../widgets/videopress/render';
 import { setMockRouteSearch } from './route-test-utils';
 import type { ReactElement, ReactNode } from 'react';
@@ -162,10 +163,7 @@ const RESPONSES: Record< string, unknown > = {
 };
 
 describe( 'Widget and report CSV parity', () => {
-	let blobs: Blob[];
-	let clickSpy: jest.SpyInstance;
-	let originalCreateObjectURL: typeof window.URL.createObjectURL;
-	let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
+	let downloads: ReturnType< typeof captureCsvDownloads >;
 
 	beforeEach( () => {
 		jest.useFakeTimers();
@@ -183,25 +181,12 @@ describe( 'Widget and report CSV parity', () => {
 				}
 			)
 		);
-		blobs = [];
-		originalCreateObjectURL = window.URL.createObjectURL;
-		originalRevokeObjectURL = window.URL.revokeObjectURL;
-		// jsdom defines neither, so `jest.spyOn` has nothing to wrap.
-		const createObjectURL = jest.fn( ( blob: Blob ) => {
-			blobs.push( blob );
-			return 'blob:mock';
-		} );
-		const revokeObjectURL = jest.fn();
-		window.URL.createObjectURL = createObjectURL;
-		window.URL.revokeObjectURL = revokeObjectURL;
-		clickSpy = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+		downloads = captureCsvDownloads();
 	} );
 
 	afterEach( () => {
 		jest.useRealTimers();
-		clickSpy.mockRestore();
-		window.URL.createObjectURL = originalCreateObjectURL;
-		window.URL.revokeObjectURL = originalRevokeObjectURL;
+		downloads.restore();
 	} );
 
 	/**
@@ -219,15 +204,11 @@ describe( 'Widget and report CSV parity', () => {
 
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
-		await waitFor( () => expect( blobs ).toHaveLength( 1 ) );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
 
-		const file = {
-			filename: ( clickSpy.mock.contexts[ 0 ] as HTMLAnchorElement ).download,
-			csv: await blobs[ 0 ].text(),
-		};
+		const [ saved ] = downloads.files.splice( 0 );
+		const file = { filename: saved.filename, csv: await saved.blob.text() };
 		view.unmount();
-		blobs = [];
-		clickSpy.mockClear();
 
 		return file;
 	}
