@@ -1,5 +1,7 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
 require_once __DIR__ . '/../../../../modules/shortcodes/archiveorg.php';
 

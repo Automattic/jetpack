@@ -221,6 +221,12 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 		}
 		$shortcode .= ']';
 
+		/*
+		 * IFRAME is a “special atomic element”, meaning that the
+		 * HTML API treats its opener, the RAWTEXT contents, and
+		 * the closer as a single token. It’s therefore not
+		 * necessary to look for the closing tag.
+		 */
 		$processor->replace_entire_token( $shortcode );
 	}
 
