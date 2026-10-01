@@ -39,6 +39,11 @@ return array(
 	'Strikethrough',
 	'%s applied.',
 	'%s removed.',
+	// Embeds.
+	'Enter URL to embed here…',
+	"button label\u{0004}Embed",
+	'Edit URL',
+	'Embedded content from %s',
 	// Links.
 	'Search or type URL',
 	'Submit',
