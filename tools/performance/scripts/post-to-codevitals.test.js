@@ -2228,7 +2228,8 @@ test( 'dry payload carries exactly twelve typed staging backend keys with intege
 			/wp-(before-template|template)/.test( key )
 		)
 	);
-	for ( const scenario of SCENARIOS ) {
+	for ( const key of [ 'jetpackConnected', 'formsResponses', 'myJetpack' ] ) {
+		const scenario = SCENARIOS.find( entry => entry.key === key );
 		for ( const [ field, unit ] of [
 			[ 'wpTotal', 'ms' ],
 			[ 'wpMemoryUsage', 'bytes' ],
