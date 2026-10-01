@@ -3,7 +3,6 @@
  */
 import {
 	ReportCsvAction,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportRecordsTable,
 	useReportCsvExport,
@@ -36,7 +35,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportEmptyState: jest.fn( () => <div data-testid="report-empty-state" /> ),
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
 			<span>{ title }</span>
@@ -74,7 +72,6 @@ const useRecordsMock = jest.mocked( useVideosReportRecords );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
 const getVideosFieldsMock = jest.mocked( getVideosFields );
-const reportEmptyStateMock = jest.mocked( ReportEmptyState );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
@@ -231,7 +228,8 @@ describe( 'VideosReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				data: rows,
-				isLoading: true,
+				isLoading: false,
+				isFetching: true,
 			} )
 		);
 	} );
@@ -283,37 +281,6 @@ describe( 'VideosReportPage', () => {
 		expect( getItemId( video ) ).toBe( 'https://example.com/video/' );
 		expect( getItemId( { ...video, link: null } ) ).toBe( 'video:Launch video' );
 		expect( getItemId( { ...video, label: '', link: null } ) ).toBe( 'video:unknown' );
-	} );
-
-	it( 'replaces the records table with the empty state when the period has no rows', () => {
-		useRecordsMock.mockReturnValue( buildRecords( { rows: [] } ) );
-
-		render( <VideosReportPage /> );
-
-		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
-		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
-	} );
-
-	it( 'keeps the loading table while a changed range is loading over no rows', () => {
-		useRecordsMock.mockReturnValue(
-			buildRecords( { rows: [], isLoading: true, isFetching: true } )
-		);
-
-		render( <VideosReportPage /> );
-
-		expect( reportEmptyStateMock ).not.toHaveBeenCalled();
-		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [], isLoading: true } )
-		);
-	} );
-
-	it( 'keeps the empty state while the same empty range revalidates', () => {
-		useRecordsMock.mockReturnValue( buildRecords( { rows: [], isFetching: true } ) );
-
-		render( <VideosReportPage /> );
-
-		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
-		expect( reportRecordsTableMock ).not.toHaveBeenCalled();
 	} );
 
 	it( 'renders the error state instead of the records table', () => {

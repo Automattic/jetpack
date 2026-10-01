@@ -7,6 +7,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { ReportEmptyState } from '../report-empty-state';
 import { ReportPageLayout } from '../report-page-layout';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
@@ -99,6 +100,18 @@ describe( 'ReportPageLayout', () => {
 		expect( panelProps.interval ).toBe( 'week' );
 		expect( dateFilters.onComparisonChange ).not.toHaveBeenCalled();
 		expect( dateFilters.onIntervalChange ).not.toHaveBeenCalled();
+	} );
+
+	it( 'tells the empty state its report has a time period', () => {
+		render(
+			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
+				<ReportEmptyState />
+			</ReportPageLayout>
+		);
+
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 	} );
 
 	it( 'mounts no date picker on a report with no date window', () => {
