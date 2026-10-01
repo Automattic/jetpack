@@ -182,6 +182,9 @@ jobs:
 
           # Put some known slow things at the start of the queue.
           echo projects/plugins/jetpack/composer.json >> "$QUEUEFILE"
+          echo projects/packages/premium-analytics/composer.json >> "$QUEUEFILE"
+          echo projects/packages/publicize/composer.json >> "$QUEUEFILE"
+          echo projects/packages/backup/composer.json >> "$QUEUEFILE"
 
           # Then everything else.
           for P in composer.json projects/*/*/composer.json; do
@@ -214,7 +217,7 @@ jobs:
               exit 0
             fi
 
-            # Experiment with forcing one CPU per worker with JS tests
+            # Force one CPU per worker with JS tests, as Jest uses everything it can.
             if [[ "$TEST_SCRIPT" == test-js || "$TEST_SCRIPT" == test-js-coverage ]]; then
               taskset -cp "$WORKERID" $$ > /dev/null
               echo "Worker $WORKERID has availableParallelism() set to $( node -p 'require( "os" ).availableParallelism()' )"
