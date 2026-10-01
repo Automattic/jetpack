@@ -90,6 +90,8 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 	useEffect( () => {
 		if ( online && enabled ) {
 			refresh();
+		} else if ( online && ! enabled ) {
+			setState( previous => ( { ...previous, isRunning: false } ) );
 		} else if ( ! online ) {
 			setState( previous => ( {
 				...previous,

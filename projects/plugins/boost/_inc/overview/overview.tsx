@@ -140,7 +140,7 @@ function OverviewContent( {
 				size="compact"
 				disabled={ isLoading }
 				loading={ scoreState.isRunning }
-				loadingAnnouncement={ __( 'Running speed test', 'jetpack-boost' ) }
+				loadingAnnouncement=""
 				onClick={ () => onRefresh( 'header' ) }
 			>
 				{ __( 'Run speed test', 'jetpack-boost' ) }

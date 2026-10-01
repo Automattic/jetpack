@@ -158,7 +158,7 @@ test.each( [ false, true ] )(
 	}
 );
 
-test( 'retains a pending run when the subpage closes', async () => {
+test( 'clears a cancelled run on a subpage and reads cached scores on return', async () => {
 	const { result, rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
 		wrapper,
 		initialProps: true,
@@ -180,6 +180,8 @@ test( 'retains a pending run when the subpage closes', async () => {
 	} );
 	expect( result.current[ 0 ].isRunning ).toBe( true );
 	rerender( false );
+	expect( result.current[ 0 ].isRunning ).toBe( false );
+	expect( jest.mocked( requestSpeedScores ).mock.calls[ 1 ][ 4 ]?.signal?.aborted ).toBe( true );
 	rerender( true );
 	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
 		false,
@@ -188,7 +190,7 @@ test( 'retains a pending run when the subpage closes', async () => {
 		wpApiSettings.nonce,
 		{ signal: expect.any( AbortSignal ) }
 	);
-	expect( result.current[ 0 ] ).toMatchObject( { status: 'loading', isRunning: true } );
+	expect( result.current[ 0 ] ).toMatchObject( { status: 'loading', isRunning: false } );
 	await act( async () => resolveRequest( nextScores ) );
 	expect( result.current[ 0 ] ).toMatchObject( {
 		status: 'loaded',

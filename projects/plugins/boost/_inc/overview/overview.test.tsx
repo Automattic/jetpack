@@ -26,6 +26,10 @@ import ScoreCard from './score-card';
 import ScoreCards from './score-cards';
 import type { ReactNode } from 'react';
 
+declare const require: {
+	resolve: ( id: string, options?: { paths: string[] } ) => string;
+};
+
 jest.mock( '@automattic/jetpack-boost-score-api', () => ( {
 	...jest.requireActual( '@automattic/jetpack-boost-score-api' ),
 	requestSpeedScores: jest.fn(),
@@ -39,6 +43,18 @@ const { queryClient: legacyQueryClient } = jest.requireActual(
 	'@automattic/jetpack-react-data-sync-client'
 );
 jest.mock( '@wordpress/api-fetch' );
+jest.mock(
+	require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } ),
+	() => {
+		const actual = jest.requireActual(
+			require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } )
+		);
+		return { ...actual, speak: jest.fn( actual.speak ) };
+	}
+);
+const mockSpeak = jest.requireMock(
+	require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } )
+).speak;
 jest.mock( '@wordpress/compose', () => ( {
 	...jest.requireActual( '@wordpress/compose' ),
 	useViewportMatch: jest.fn(),
@@ -177,6 +193,42 @@ test( 'shows the stock button loading treatment while a user speed test runs', a
 		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
 			/__is-loading$/
 		)
+	);
+} );
+
+test( 'announces a user run through the card status without a second button announcement', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	mockSpeak.mockClear();
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce( new Promise( () => {} ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () => expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' ) );
+	expect( mockSpeak ).not.toHaveBeenCalled();
+} );
+
+test( 'clears the busy button after a rejected speed test request', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let rejectRequest!: ( error: Error ) => void;
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( ( _, reject ) => {
+			rejectRequest = reject;
+		} )
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	await act( async () => rejectRequest( new Error( 'Service unavailable' ) ) );
+	await expect( screen.findByText( 'Service unavailable' ) ).resolves.toBeInTheDocument();
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
+		/__is-loading$/
+	);
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'false'
 	);
 } );
 
