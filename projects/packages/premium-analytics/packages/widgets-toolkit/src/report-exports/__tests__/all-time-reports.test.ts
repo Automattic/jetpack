@@ -7,7 +7,9 @@ import {
 	fetchStatsInsightsYears,
 	fetchStatsTagsRows,
 	type StatsCommentsResponse,
+	type StatsCommentsRow,
 	type StatsEmailSummaryItem,
+	type ReportParams,
 	type StatsInsightsYear,
 	type StatsTagsItem,
 } from '@jetpack-premium-analytics/data';
@@ -15,12 +17,7 @@ import {
  * Internal dependencies
  */
 import { annualInsightsCsvExporter } from '../annual-insights';
-import {
-	commentsAuthorsCsvExporter,
-	commentsPostsCsvExporter,
-	toCommentRows,
-	type CommentRow,
-} from '../comments';
+import { commentsAuthorsCsvExporter, commentsPostsCsvExporter, toCommentRows } from '../comments';
 import { EMAILS_REPORT_ROW_LIMIT, emailsCsvExporter } from '../emails';
 import { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from '../tags';
 import type { ReportCsvExporter } from '../types';
@@ -32,6 +29,9 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	fetchStatsInsightsYears: jest.fn(),
 	fetchStatsTagsRows: jest.fn(),
 } ) );
+
+// All-time exporters ignore the date range they are handed.
+const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
 
 function toCsvTable< TItem, TRow >( exporter: ReportCsvExporter< TItem, TRow >, items: TItem[] ) {
 	const columns = exporter.getColumns();
@@ -98,7 +98,7 @@ describe( 'all-time report exporters', () => {
 		] as StatsInsightsYear[];
 		jest.mocked( fetchStatsInsightsYears ).mockResolvedValue( years );
 
-		await expect( annualInsightsCsvExporter.fetchItems() ).resolves.toBe( years );
+		await expect( annualInsightsCsvExporter.fetchItems( REPORT_PARAMS ) ).resolves.toBe( years );
 		expect( toCsvTable( annualInsightsCsvExporter, years ) ).toEqual( [
 			[
 				'Year',
@@ -115,10 +115,6 @@ describe( 'all-time report exporters', () => {
 			[ '2026', 12, 24, 2, 36, 3, 1200, 120.6, 5, 1 ],
 			[ '2025', 10, 20, 2, 30, 3, 1000, 100.4, 4, 1 ],
 		] );
-		expect( annualInsightsCsvExporter ).toMatchObject( {
-			filenamePrefix: 'annual-insights',
-			hasDateRange: false,
-		} );
 	} );
 
 	it( 'keeps relative author links and drops unsafe post links', () => {
@@ -135,20 +131,16 @@ describe( 'all-time report exporters', () => {
 	it.each( [
 		[ 'authors', commentsAuthorsCsvExporter, [ 'Bo', 5, 'edit-comments.php?user_id=8' ] ],
 		[ 'posts', commentsPostsCsvExporter, [ 'Hello', 3, 'https://example.com/hello/' ] ],
-	] as const )( 'exports the Comments %s tab by comments', async ( group, exporter, firstRow ) => {
+	] as const )( 'exports the Comments %s tab by comments', async ( _group, exporter, firstRow ) => {
 		jest.mocked( fetchStatsComments ).mockResolvedValue( COMMENTS_REPORT );
 
-		const items: CommentRow[] = await exporter.fetchItems();
+		const items: StatsCommentsRow[] = await exporter.fetchItems( REPORT_PARAMS );
 
 		expect( fetchStatsComments ).toHaveBeenCalledWith();
 		expect( toCsvTable( exporter, items ).slice( 0, 2 ) ).toEqual( [
 			[ 'Name', 'Comments', 'URL' ],
 			firstRow,
 		] );
-		expect( exporter ).toMatchObject( {
-			filenamePrefix: `comments-${ group }`,
-			hasDateRange: false,
-		} );
 	} );
 
 	it( 'exports Tags and categories by views from the report-sized request', async () => {
@@ -158,17 +150,13 @@ describe( 'all-time report exporters', () => {
 		] as unknown as StatsTagsItem[];
 		jest.mocked( fetchStatsTagsRows ).mockResolvedValue( items );
 
-		await expect( tagsCsvExporter.fetchItems() ).resolves.toBe( items );
+		await expect( tagsCsvExporter.fetchItems( REPORT_PARAMS ) ).resolves.toBe( items );
 		expect( fetchStatsTagsRows ).toHaveBeenCalledWith( { max: TAGS_REPORT_ROW_LIMIT } );
 		expect( toCsvTable( tagsCsvExporter, items ) ).toEqual( [
 			[ 'Tag or category', 'Views', 'URL' ],
 			[ 'Second tag', 5, '' ],
 			[ 'First tag', 2, '/first' ],
 		] );
-		expect( tagsCsvExporter ).toMatchObject( {
-			filenamePrefix: 'tags-and-categories',
-			hasDateRange: false,
-		} );
 	} );
 
 	it( 'exports Emails newest first, leaving unknown rates blank', async () => {
@@ -214,7 +202,7 @@ describe( 'all-time report exporters', () => {
 		] as unknown as StatsEmailSummaryItem[];
 		jest.mocked( fetchStatsEmailSummaryRows ).mockResolvedValue( items );
 
-		await expect( emailsCsvExporter.fetchItems() ).resolves.toBe( items );
+		await expect( emailsCsvExporter.fetchItems( REPORT_PARAMS ) ).resolves.toBe( items );
 		expect( fetchStatsEmailSummaryRows ).toHaveBeenCalledWith( {
 			quantity: EMAILS_REPORT_ROW_LIMIT,
 		} );
@@ -224,6 +212,5 @@ describe( 'all-time report exporters', () => {
 			[ 'First email', '2026-01-01', 10, 20, 2, 4 ],
 			[ 'Legacy email', '2025-12-01', 120, undefined, 5, undefined ],
 		] );
-		expect( emailsCsvExporter ).toMatchObject( { filenamePrefix: 'emails', hasDateRange: false } );
 	} );
 } );

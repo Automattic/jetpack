@@ -19,7 +19,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { DatedReportCsvExporter } from './types';
+import type { ReportCsvExporter } from './types';
 
 const UNTRACKED_AUTHORS_SENTINEL = 'Untracked Authors';
 
@@ -181,7 +181,7 @@ function getAuthorCsvLabel( item: AuthorRow ): string {
 		: getAuthorName( item.label );
 }
 
-export const authorsCsvExporter: DatedReportCsvExporter< AuthorRow, AuthorRow > = {
+export const authorsCsvExporter: ReportCsvExporter< AuthorRow, AuthorRow > = {
 	filenamePrefix: 'top-authors',
 	hasDateRange: true,
 	fetchItems: async reportParams =>

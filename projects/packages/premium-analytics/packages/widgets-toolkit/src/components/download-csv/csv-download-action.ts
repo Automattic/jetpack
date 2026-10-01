@@ -57,7 +57,7 @@ export function useExporterCsvAction< TItem, TRow >( {
 	rowCount,
 }: UseExporterCsvActionOptions< TItem, TRow > ): CsvDownloadAction | null {
 	const { reportParams } = useWidgetRootContext();
-	// The download can refetch the widget's own query, which must not unmount its button.
+	// The download can refetch the widget's own query; unmounting the button then drops focus.
 	const [ isDownloading, setIsDownloading ] = useState( false );
 
 	return useCsvDownloadAction(

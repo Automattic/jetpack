@@ -1,15 +1,19 @@
 /**
  * External dependencies
  */
-import { useStatsComments, type StatsCommentsResponse } from '@jetpack-premium-analytics/data';
-import { toCommentRows, type CommentRow } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	useStatsComments,
+	type StatsCommentsResponse,
+	type StatsCommentsRow,
+} from '@jetpack-premium-analytics/data';
+import { toCommentRows } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import type { CommentsReportTabId } from './tabs';
 
-export type CommentReportRow = CommentRow;
+export type CommentReportRow = StatsCommentsRow;
 
 /**
  * Fetch the all-time Comments report and expose the active tab's rows.

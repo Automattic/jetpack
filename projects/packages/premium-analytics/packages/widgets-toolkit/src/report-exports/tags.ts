@@ -6,15 +6,15 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { UndatedReportCsvExporter } from './types';
+import type { ReportCsvExporter } from './types';
 
 /**
- * `stats/tags` has no "all rows" value, so the report names a ceiling past what a real site
- * produces (the endpoint ranks at most ~51 posts a day over seven days).
+ * `stats/tags` has no "all rows" value (see `StatsTagsParams`), so the report names a ceiling
+ * past what a real site produces (the endpoint ranks at most ~51 posts a day over seven days).
  */
 export const TAGS_REPORT_ROW_LIMIT = 1000;
 
-export const tagsCsvExporter: UndatedReportCsvExporter< StatsTagsItem, StatsTagsItem > = {
+export const tagsCsvExporter: ReportCsvExporter< StatsTagsItem, StatsTagsItem > = {
 	filenamePrefix: 'tags-and-categories',
 	hasDateRange: false,
 	fetchItems: () => fetchStatsTagsRows( { max: TAGS_REPORT_ROW_LIMIT } ),

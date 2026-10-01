@@ -12,7 +12,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSummarizedReportQueryParams } from './query-params';
-import type { DatedReportCsvExporter } from './types';
+import type { ReportCsvExporter } from './types';
 
 /**
  * A row in the Search terms records table.
@@ -164,7 +164,7 @@ export function aggregateSearchTermRows(
 	};
 }
 
-export const searchTermsCsvExporter: DatedReportCsvExporter< SearchTermRow, SearchTermRow > = {
+export const searchTermsCsvExporter: ReportCsvExporter< SearchTermRow, SearchTermRow > = {
 	filenamePrefix: 'search-terms',
 	hasDateRange: true,
 	fetchItems: async reportParams =>

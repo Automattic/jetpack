@@ -295,14 +295,14 @@ describe( 'Widget and report CSV parity', () => {
 	);
 
 	it.each( [
-		[ 'Annual insights', AnnualInsightsReportPage, AnnualHighlightsWidget, undefined ],
-		[ 'Comments authors', CommentsReportPage, MostCommentedAuthorsWidget, 'authors' ],
-		[ 'Comments posts', CommentsReportPage, MostCommentedPostsWidget, 'posts' ],
-		[ 'Tags', TagsReportPage, TagsWidget, undefined ],
-		[ 'Emails', EmailsReportPage, EmailsWidget, undefined ],
+		[ 'annual-insights.csv', AnnualInsightsReportPage, AnnualHighlightsWidget, undefined ],
+		[ 'comments-authors.csv', CommentsReportPage, MostCommentedAuthorsWidget, 'authors' ],
+		[ 'comments-posts.csv', CommentsReportPage, MostCommentedPostsWidget, 'posts' ],
+		[ 'tags-and-categories.csv', TagsReportPage, TagsWidget, undefined ],
+		[ 'emails.csv', EmailsReportPage, EmailsWidget, undefined ],
 	] as const )(
-		'downloads the same all-time %s file from the widget as from the report page',
-		async ( _name, ReportPage, Widget, section ) => {
+		'downloads the same all-time %s from the widget as from the report page',
+		async ( filename, ReportPage, Widget, section ) => {
 			setMockRouteSearch( section ? { ...REPORT_PARAMS, section } : REPORT_PARAMS );
 			const reportFile = await download( <ReportPage /> );
 			queryClient.clear();
@@ -311,7 +311,7 @@ describe( 'Widget and report CSV parity', () => {
 			);
 
 			expect( widgetFile ).toEqual( reportFile );
-			expect( widgetFile.filename ).not.toMatch( /\d{4}-\d{2}-\d{2}/ );
+			expect( widgetFile.filename ).toBe( filename );
 			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
 		}
 	);

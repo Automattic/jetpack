@@ -69,8 +69,6 @@ describe( 'useExporterCsvAction', () => {
 		} );
 	} );
 
-	// The widget's query can share the download's cache key, so the download itself
-	// can set `isFetching`; unmounting the button then would drop focus mid-download.
 	it( 'stays available while its own download refetches the widget query', async () => {
 		let finishDownload: () => void = () => {};
 		jest.mocked( downloadReportCsv ).mockReturnValue(
