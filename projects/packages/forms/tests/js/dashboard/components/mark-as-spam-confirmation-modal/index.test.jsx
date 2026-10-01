@@ -24,11 +24,11 @@ const renderModal = ( onConfirm = jest.fn( async () => {} ) ) => {
 };
 
 describe( 'MarkAsSpamConfirmationModal', () => {
-	it( 'uses the message as the dialog title and opens on Cancel', async () => {
+	it( 'shows the message as the description and opens on Cancel', async () => {
 		renderModal();
 
 		await expect(
-			screen.findByRole( 'alertdialog', { name: MESSAGE } )
+			screen.findByRole( 'alertdialog', { name: 'Mark as spam', description: MESSAGE } )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
 	} );

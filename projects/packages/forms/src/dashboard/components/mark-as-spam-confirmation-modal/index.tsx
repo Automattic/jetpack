@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { __ } from '@wordpress/i18n';
 import { AlertDialog } from '@wordpress/ui';
 /**
  * Internal dependencies
@@ -35,7 +36,7 @@ export default function MarkAsSpamConfirmationModal( {
 
 	return (
 		<AlertDialog.Root open={ isOpen } onOpenChange={ handleOpenChange } onConfirm={ onConfirm }>
-			<AlertDialog.Popup title={ message } />
+			<AlertDialog.Popup title={ __( 'Mark as spam', 'jetpack-forms' ) } description={ message } />
 		</AlertDialog.Root>
 	);
 }
