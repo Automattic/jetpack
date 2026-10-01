@@ -71,7 +71,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isBoxOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, maxLength, blocks } = JetpackComments;
+	const { mustLogIn, identity, strings, maxLength, blocks, editor: labels } = JetpackComments;
 	const isSubmitting = useRef( false );
 	const boxRef = useRef< HTMLDivElement >( null );
 	const textareaRef = useRef< HTMLTextAreaElement >( null );
@@ -95,7 +95,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				.then( ( { mountEditor } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
-						labels: { blockTools: strings.blockTools, addBlock: strings.addBlock },
+						labels,
 						// Read once the editor renders, after the click has placed the textarea's caret.
 						focus: focus
 							? () => ( clicked.current ? textareaRef.current!.selectionStart : -1 )
@@ -108,7 +108,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				} )
 				.catch( () => setEditor( 'failed' ) );
 		},
-		[ blocks, editor, placeholder, strings, commentValue ]
+		[ blocks, editor, placeholder, labels, commentValue ]
 	);
 
 	const onFocus = useCallback( () => {

@@ -367,6 +367,93 @@
 	.block-editor-writing-flow__canvas-stop-hint {
 		display: none;
 	}
+
+	// The embed block: its URL box, loading state, and preview frame.
+	.components-placeholder {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+		box-sizing: border-box;
+		padding: 16px;
+		border: 1px solid currentColor;
+		border-radius: 2px;
+		font-size: 13px;
+
+		form {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 8px;
+		}
+
+		input {
+			flex: 1 1 12em;
+			min-inline-size: 0;
+			box-sizing: border-box;
+			height: 40px;
+			padding: 6px 8px;
+			border: 1px solid currentColor;
+			border-radius: 2px;
+			background: var(--wp-components-color-background);
+			color: inherit;
+			font: inherit;
+			font-size: 13px;
+
+			&:focus {
+				outline: 2px solid var(--wp-admin-theme-color);
+				outline-offset: -1px;
+			}
+		}
+	}
+
+	.components-placeholder__label {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin: 0;
+		font-weight: 600;
+	}
+
+	.components-placeholder__instructions {
+		margin: 0;
+	}
+
+	.components-placeholder__error {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 8px;
+
+		p {
+			flex-basis: 100%;
+		}
+	}
+
+	.wp-block-embed.is-loading {
+		display: flex;
+		justify-content: center;
+		padding: 16px;
+	}
+
+	.wp-block-embed__wrapper {
+		position: relative;
+	}
+
+	.components-sandbox {
+		display: block;
+		inline-size: 100%;
+		max-inline-size: 100%;
+		border: 0;
+	}
+
+	.jetpack-comments__embed-overlay {
+		position: absolute;
+		inset: 0;
+	}
+
+	.wp-element-caption {
+		margin-block-start: 8px;
+		font-size: 0.9em;
+	}
 }
 
 // Past a theme that fills every button with !important, seasonal variants and
