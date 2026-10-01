@@ -852,7 +852,7 @@ class Images {
 
 		if ( is_array( $media ) ) {
 			foreach ( $media as $item ) {
-				if ( 'image' === $item['type'] ) {
+				if ( is_array( $item ) && isset( $item['type'] ) && 'image' === $item['type'] ) {
 					$image = $item;
 					break;
 				}
