@@ -21,17 +21,11 @@ await jest.unstable_mockModule( '@wordpress/components', () => ( {
 			</button>
 		);
 	},
-	__experimentalConfirmDialog: ( { children, onCancel, onConfirm, isOpen, confirmButtonText } ) =>
-		isOpen ? (
-			<div data-testid="confirm-dialog">
-				{ children }
-				<button onClick={ onCancel }>Cancel</button>
-				<button onClick={ onConfirm }>{ confirmButtonText }</button>
-			</div>
-		) : null,
 } ) );
 
+const actualIcons = await import( '@wordpress/icons' );
 await jest.unstable_mockModule( '@wordpress/icons', () => ( {
+	...actualIcons,
 	trash: 'trash-icon-mock',
 } ) );
 
@@ -200,9 +194,21 @@ describe( 'EmptyTrashButton', () => {
 		const button = screen.getByText( 'Empty trash' );
 		await userEvent.click( button );
 
-		const dialog = screen.getByTestId( 'confirm-dialog' );
+		const dialog = await screen.findByRole( 'alertdialog', { name: 'Delete forever' } );
 		expect( dialog ).toBeInTheDocument();
-		expect( screen.getByText( 'Delete forever' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus();
+	} );
+
+	it( 'does not empty trash when Enter is pressed on open', async () => {
+		const { default: apiFetch } = await import( '@wordpress/api-fetch' );
+
+		renderWithProvider( <EmptyTrashButton totalItemsTrash={ 1 } /> );
+
+		await userEvent.click( screen.getByText( 'Empty trash' ) );
+		await expect( screen.findByRole( 'alertdialog' ) ).resolves.toBeInTheDocument();
+		await userEvent.keyboard( '{Enter}' );
+
+		expect( apiFetch ).not.toHaveBeenCalledWith( expect.objectContaining( { method: 'DELETE' } ) );
 	} );
 
 	it( 'empties trash when confirmed', async () => {
@@ -217,7 +223,7 @@ describe( 'EmptyTrashButton', () => {
 		await userEvent.click( button );
 
 		// Click confirm button
-		const confirmButton = screen.getByText( 'Delete' );
+		const confirmButton = await screen.findByRole( 'button', { name: 'Delete' } );
 		await userEvent.click( confirmButton );
 
 		// Verify API call
