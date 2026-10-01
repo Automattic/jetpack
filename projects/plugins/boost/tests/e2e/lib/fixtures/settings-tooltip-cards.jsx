@@ -28,7 +28,7 @@ const Group = ( { title, description, icon, children } ) => (
 	</CollapsibleCard.Root>
 );
 
-// The legacy premium tooltip no longer renders in modern Settings; this fixture tests the layer.
+// Stands in for a row tooltip holding a CTA, to exercise the portaled layer.
 const SettingsTooltip = () => {
 	const tooltipLayer = useTooltipLayer();
 	return (

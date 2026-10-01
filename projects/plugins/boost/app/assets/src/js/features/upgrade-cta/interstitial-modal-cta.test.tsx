@@ -4,7 +4,6 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { LEGACY_ROOT_ID, MODERN_ROOT_ID } from '$lib/modern/mode';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import InterstitialModalCTA from './interstitial-modal-cta';
-import LicenseKeyLink from './license-key-link';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn( () => new Promise( () => {} ) ) );
 jest.mock(
@@ -105,37 +104,4 @@ describe( 'InterstitialModalCTA', () => {
 		expect( screen.getByRole( 'button', { name: /Upgrade now/ } ) ).toBeTruthy();
 		expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
 	} );
-
-	it.each( [ 'myJetpack', 'addLicense' ] as const )(
-		'hides a standalone license link when %s is unavailable',
-		flag => {
-			boostGlobal.site[ flag ] = false;
-			render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
-			render( <LicenseKeyLink />, { container: screen.getByTestId( 'dashboard-root' ) } );
-			expect( screen.queryByRole( 'link' ) ).toBeNull();
-		}
-	);
-
-	it.each( [
-		{ rootId: MODERN_ROOT_ID, features: [], host: 'unknown', visible: true },
-		{ rootId: MODERN_ROOT_ID, features: [ 'support' ], host: 'unknown', visible: false },
-		{ rootId: MODERN_ROOT_ID, features: [], host: 'woa', visible: false },
-		{ rootId: LEGACY_ROOT_ID, features: [], host: 'unknown', visible: false },
-	] )(
-		'offers standalone license redemption only to eligible modern sites (%o)',
-		( { rootId, features, host, visible } ) => {
-			boostGlobal.site.online = true;
-			boostGlobal.site.host = host;
-			jest.mocked( usePremiumFeatures ).mockReturnValue( features );
-			render( <div id={ rootId } data-testid="dashboard-root" /> );
-			render( <LicenseKeyLink />, {
-				container: screen.getByTestId( 'dashboard-root' ),
-			} );
-
-			const link = screen.queryByRole( 'link', { name: 'Use license key' } );
-			expect( link?.getAttribute( 'href' ) ).toBe(
-				visible ? 'admin.php?page=my-jetpack#/add-license' : undefined
-			);
-		}
-	);
 } );

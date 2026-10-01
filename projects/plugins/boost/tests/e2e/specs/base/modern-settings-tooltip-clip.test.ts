@@ -12,7 +12,7 @@ let fixtureDirectory: string;
 type Box = { x: number; y: number; width: number; height: number };
 
 /**
- * Open the premium tooltip and return its popover content box.
+ * Open the first info tooltip and return its popover content box.
  *
  * @param page - Fixture page.
  * @return Popover content locator.
@@ -190,7 +190,7 @@ test( 'tabbing out of the portaled tooltip resumes from the trigger', async ( { 
 	await expect( trigger ).not.toBeFocused();
 } );
 
-test( 'the premium tooltip keeps focus on its icon and closes on Escape', async ( { page } ) => {
+test( 'the fixture tooltip keeps focus on its icon and closes on Escape', async ( { page } ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
 	await page.goto( 'http://boost-settings.test/' );
 	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
@@ -202,7 +202,7 @@ test( 'the premium tooltip keeps focus on its icon and closes on Escape', async 
 	await expect( trigger ).toBeFocused();
 } );
 
-test( 'holding Enter on the premium tooltip leaves it open', async ( { page } ) => {
+test( 'holding Enter on the fixture tooltip leaves it open', async ( { page } ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
 	await page.goto( 'http://boost-settings.test/' );
 	const trigger = page.locator( '.icon-tooltip-wrapper button' ).first();
@@ -217,7 +217,7 @@ test( 'holding Enter on the premium tooltip leaves it open', async ( { page } ) 
 	await page.keyboard.up( 'Enter' );
 } );
 
-test( 'the premium tooltip rings its icon when focused, like other WordPress buttons', async ( {
+test( 'the fixture tooltip rings its icon when focused, like other WordPress buttons', async ( {
 	page,
 } ) => {
 	await page.setViewportSize( { width: 1440, height: 900 } );
