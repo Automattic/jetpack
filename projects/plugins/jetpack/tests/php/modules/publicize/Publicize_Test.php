@@ -177,6 +177,44 @@ class Publicize_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'old', 'old' ), get_post_meta( $this->post->ID, '_wpas_mess', false ) );
 	}
 
+	public function test_update_succeeds_when_a_duplicate_row_is_already_deleted() {
+		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Duplicate rows are the fixture.
+		add_post_meta( $this->post->ID, '_wpas_mess', 'old' );
+		add_filter( 'delete_post_metadata_by_mid', '__return_false' );
+
+		$this->assertTrue( update_post_meta( $this->post->ID, '_wpas_mess', 'new' ) );
+		$this->assertSame( 'new', get_post_meta( $this->post->ID, '_wpas_mess', true ) );
+	}
+
+	public function test_rest_publish_completes_with_duplicate_publicize_meta_rows() {
+		$this->publicize->add_post_type_support();
+		$this->publicize->register_post_meta();
+		wp_set_current_user( self::factory()->user->create( array( 'role' => 'administrator' ) ) );
+		add_post_meta( $this->post->ID, '_wpas_mess', 'Message' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Duplicate rows are the fixture.
+		add_post_meta( $this->post->ID, '_wpas_mess', 'Message' );
+		$after_insert_runs  = 0;
+		$count_after_insert = function ( $post_id ) use ( &$after_insert_runs ) {
+			$after_insert_runs += (int) ( $this->post->ID === $post_id );
+		};
+		add_action( 'wp_after_insert_post', $count_after_insert );
+
+		$request = new WP_REST_Request( 'POST', '/wp/v2/posts/' . $this->post->ID );
+		$request->set_body_params(
+			array(
+				'status' => 'publish',
+				'meta'   => array( 'jetpack_publicize_message' => 'Message' ),
+			)
+		);
+		$response = rest_do_request( $request );
+		remove_action( 'wp_after_insert_post', $count_after_insert );
+
+		$this->assertFalse( $response->is_error() );
+		$this->assertSame( 1, $after_insert_runs );
+		$this->assertSame( array( 'Message' ), get_post_meta( $this->post->ID, '_wpas_mess', false ) );
+	}
+
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
 		$this->post->post_status = 'publish';
 

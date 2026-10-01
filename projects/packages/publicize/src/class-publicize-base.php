@@ -1322,7 +1322,8 @@ abstract class Publicize_Base {
 	 * @return null|bool Null to let core update the meta, otherwise whether the update succeeded.
 	 */
 	public function collapse_duplicate_post_meta( $check, $object_id, $meta_key, $meta_value, $prev_value ) {
-		if ( null !== $check || ! empty( $prev_value ) ) {
+		// Cheap bail first: this runs on every post meta update site-wide.
+		if ( null !== $check || ! empty( $prev_value ) || 0 !== strncmp( $meta_key, '_wpas_', 6 ) ) {
 			return $check;
 		}
 
@@ -1350,19 +1351,28 @@ abstract class Publicize_Base {
 			return $check;
 		}
 
-		// Update the row reads return before deleting the others, so a failed write loses nothing.
+		// Bail before deleting, so a failed write leaves every row intact.
 		$keep = array_shift( $rows );
 		// Cast like `$wpdb` does, e.g. `true` is stored as "1".
-		if ( (string) maybe_serialize( $meta_value ) !== $keep->meta_value && ! update_metadata_by_mid( 'post', (int) $keep->meta_id, $meta_value ) ) {
-			return false;
+		$wanted = (string) maybe_serialize( $meta_value );
+		if ( $wanted !== $keep->meta_value && ! update_metadata_by_mid( 'post', (int) $keep->meta_id, $meta_value ) ) {
+			// A 0-row UPDATE (e.g. a concurrent collapse) looks like a failure, so confirm the row.
+			$current = get_metadata_by_mid( 'post', (int) $keep->meta_id );
+			if ( ! $current || $wanted !== (string) maybe_serialize( $current->meta_value ) ) {
+				return false;
+			}
 		}
 
-		$deleted = true;
+		// The kept row holds the value, so a redundant row that is already gone is not a failure.
 		foreach ( $rows as $row ) {
-			$deleted = delete_metadata_by_mid( 'post', (int) $row->meta_id ) && $deleted;
+			delete_metadata_by_mid( 'post', (int) $row->meta_id );
 		}
 
-		return $deleted;
+		// The 0-row and already-deleted paths skip core's cache flush.
+		wp_cache_delete( $object_id, 'post_meta' );
+
+		// Unlike core, report an unchanged value as success, which is what lets the REST save complete.
+		return true;
 	}
 
 	/**
