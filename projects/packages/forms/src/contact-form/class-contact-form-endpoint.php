@@ -1297,7 +1297,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 * Builds the REST args for the scope-aware `/trash` endpoint.
 	 *
 	 * Scope is either an explicit list of `post_ids`, or the set of filters the
-	 * inbox list view exposes (search / source / date range / read-unread).
+	 * inbox list view exposes (search / source / date range / read-unread / test).
 	 * When `post_ids` is present, filter params are ignored.
 	 *
 	 * @param string[] $allowed_statuses Statuses that may be operated on.
@@ -1316,14 +1316,22 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'type'              => 'array',
 				'items'             => array( 'type' => 'integer' ),
 				'required'          => false,
-				'default'           => array(),
 				'sanitize_callback' => function ( $param ) {
-					return array_values( array_filter( array_map( 'absint', (array) $param ) ) );
+					$ids = array_map( 'intval', (array) $param );
+					return array_values(
+						array_filter(
+							$ids,
+							function ( $id ) {
+								return $id > 0;
+							}
+						)
+					);
 				},
 			),
 			'search'    => array(
-				'type'     => 'string',
-				'required' => false,
+				'type'              => 'string',
+				'required'          => false,
+				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'parent'    => array(
 				'type'              => 'integer',
@@ -1348,6 +1356,11 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				'sanitize_callback' => 'sanitize_text_field',
 			),
 			'is_unread' => array(
+				'type'              => 'boolean',
+				'required'          => false,
+				'sanitize_callback' => 'rest_sanitize_boolean',
+			),
+			'is_test'   => array(
 				'type'              => 'boolean',
 				'required'          => false,
 				'sanitize_callback' => 'rest_sanitize_boolean',
@@ -1405,6 +1418,22 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			if ( null !== $is_unread ) {
 				$query_args['comment_status'] = $is_unread ? Feedback::STATUS_UNREAD : Feedback::STATUS_READ;
 			}
+
+			$is_test = $request->get_param( 'is_test' );
+			if ( null !== $is_test ) {
+				$query_args['meta_query'] = array(
+					$is_test
+						? array(
+							'key'     => Feedback::IS_TEST_META_KEY,
+							'value'   => '1',
+							'compare' => '=',
+						)
+						: array(
+							'key'     => Feedback::IS_TEST_META_KEY,
+							'compare' => 'NOT EXISTS',
+						),
+				);
+			}
 		}
 
 		$query = new \WP_Query( $query_args );
@@ -1450,7 +1479,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	 *
 	 * Scope resolution:
 	 *  - With `post_ids` → deletes those IDs (filtered to rows actually in `status`).
-	 *  - Else with any filter (search / source / before / after / is_unread) →
+	 *  - Else with any filter (search / parent / source / before / after / is_unread / is_test) →
 	 *    deletes every response in `status` matching those filters.
 	 *  - Else → deletes every response in `status` (legacy behavior).
 	 *
@@ -1468,8 +1497,12 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 			return new WP_REST_Response( array( 'error' => __( 'Bad request', 'jetpack-forms' ) ), 400 );
 		}
 
-		$status        = $from_status ?? 'trash';
-		$has_explicit  = ! empty( (array) $request->get_param( 'post_ids' ) );
+		// A `post_ids` that sanitizes to nothing must not fall through to "delete everything".
+		if ( $request->has_param( 'post_ids' ) && empty( (array) $request->get_param( 'post_ids' ) ) ) {
+			return new WP_REST_Response( array( 'error' => __( 'No valid responses to delete.', 'jetpack-forms' ) ), 400 );
+		}
+
+		$status        = $from_status;
 		$batch_size    = 1000;
 		$total_deleted = 0;
 		$has_more      = true;
@@ -1478,11 +1511,9 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 		$has_source_hooks = $this->maybe_attach_source_filter_hooks( $request );
 
 		while ( $has_more ) {
-			$post_ids = $this->fetch_bulk_scope_batch( $request, $status, $batch_size );
-
-			if ( $has_explicit ) {
-				$post_ids = array_values( array_diff( $post_ids, $processed_ids ) );
-			}
+			$fetched_ids = $this->fetch_bulk_scope_batch( $request, $status, $batch_size );
+			// Skip IDs already handled, so a delete short-circuited by `pre_delete_post` can't loop forever.
+			$post_ids = array_values( array_diff( $fetched_ids, $processed_ids ) );
 
 			if ( empty( $post_ids ) ) {
 				break;
@@ -1505,7 +1536,7 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 				++$total_deleted;
 			}
 
-			if ( count( $post_ids ) < $batch_size ) {
+			if ( count( $fetched_ids ) < $batch_size ) {
 				$has_more = false;
 			}
 		}

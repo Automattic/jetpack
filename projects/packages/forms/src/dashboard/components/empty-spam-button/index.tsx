@@ -22,7 +22,7 @@ interface EmptySpamButtonProps {
  * @param scope - Current scope descriptor from the hook.
  * @return Localized label.
  */
-function labelForScope( scope: EmptySpamScope ): string {
+export function labelForScope( scope: EmptySpamScope ): string {
 	if ( scope.mode === 'all' ) {
 		return __( 'Delete spam', 'jetpack-forms' );
 	}

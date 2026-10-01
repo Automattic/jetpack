@@ -144,6 +144,7 @@ afterAll( () => {
 const EmptySpamButtonModule =
 	await import( '../../../../../src/dashboard/components/empty-spam-button' );
 const EmptySpamButton = EmptySpamButtonModule.default;
+const { labelForScope } = EmptySpamButtonModule;
 
 const DashboardSearchParamsModule =
 	await import( '../../../../../src/dashboard/router/dashboard-search-params-context' );
@@ -175,7 +176,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'renders correctly', () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
-		const button = screen.getByText( /^Delete spam/ );
+		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeInTheDocument();
 		expect( button ).toHaveAttribute( 'type', 'button' );
 		expect( button ).toBeEnabled();
@@ -184,7 +185,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'shows disabled state when spam is empty', () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 0 } /> );
 
-		const button = screen.getByText( /^Delete spam/ );
+		const button = screen.getByText( 'Delete spam' );
 		expect( button ).toBeDisabled();
 		expect( button ).toHaveAttribute( 'aria-label', 'Spam is already empty.' );
 	} );
@@ -192,7 +193,7 @@ describe( 'EmptySpamButton', () => {
 	it( 'shows confirmation dialog when clicked', async () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
-		const button = screen.getByText( /^Delete spam/ );
+		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 
 		const dialog = await screen.findByRole( 'alertdialog', { name: 'Delete 1 spam response?' } );
@@ -220,7 +221,7 @@ describe( 'EmptySpamButton', () => {
 		renderWithProvider( <EmptySpamButton totalItemsSpam={ 1 } /> );
 
 		// Click empty spam button
-		const button = screen.getByText( /^Delete spam/ );
+		const button = screen.getByText( 'Delete spam' );
 		await userEvent.click( button );
 
 		// Click confirm button
@@ -242,6 +243,21 @@ describe( 'EmptySpamButton', () => {
 				expect.stringContaining( 'deleted permanently' ),
 				{ type: 'snackbar', id: 'empty-spam' }
 			)
+		);
+	} );
+} );
+
+describe( 'labelForScope', () => {
+	it( 'omits the count when deleting all spam', () => {
+		expect( labelForScope( { mode: 'all', count: 140, params: {} } ) ).toBe( 'Delete spam' );
+	} );
+
+	it( 'shows the count for a filter or a selection', () => {
+		expect( labelForScope( { mode: 'filtered', count: 26, params: {} } ) ).toBe(
+			'Delete spam (26)'
+		);
+		expect( labelForScope( { mode: 'selection', count: 3, params: {} } ) ).toBe(
+			'Delete spam (3)'
 		);
 	} );
 } );

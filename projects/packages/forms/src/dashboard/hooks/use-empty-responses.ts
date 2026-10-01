@@ -17,6 +17,18 @@ import useInboxData from './use-inbox-data';
 
 type EmptyFlow = 'spam' | 'trash';
 
+export type EmptyScopeMode = 'selection' | 'filtered' | 'all';
+
+/**
+ * What a bulk delete will act on: the mode shown to the user, how many responses it
+ * affects, and the params sent to `DELETE /wp/v2/feedback/trash` to select them.
+ */
+export type EmptyScope = {
+	mode: EmptyScopeMode;
+	count: number;
+	params: Record< string, unknown >;
+};
+
 /**
  * Per-flow settings. Keyed on `flow` so the count, delete status filter, Tracks
  * event, and notice id can't be mixed up (e.g. a spam status on the trash count).
@@ -64,14 +76,17 @@ export type UseEmptyResponsesReturn = {
  * @param props                - Hook props.
  * @param props.flow           - Which flow to run: `'spam'` or `'trash'`.
  * @param props.totalItemsProp - Optional count override; falls back to the inbox count.
+ * @param props.scope          - Optional scope; when set, only the responses it selects are deleted.
  * @return Object with empty-responses state and handlers.
  */
 export default function useEmptyResponses( {
 	flow,
 	totalItemsProp,
+	scope,
 }: {
 	flow: EmptyFlow;
 	totalItemsProp?: number;
+	scope?: EmptyScope;
 } ): UseEmptyResponsesReturn {
 	const { countKey, status, analyticsEvent, noticeId } = FLOW_SETTINGS[ flow ];
 	// Keyed lookup rather than a ternary so production minification can't hoist the two
@@ -95,9 +110,11 @@ export default function useEmptyResponses( {
 	const totalItems = totalItemsProp ?? hookData[ countKey ] ?? 0;
 	const { selectedResponsesCount } = hookData;
 
+	const affectedCount = scope ? scope.count : totalItems;
+
 	useEffect( () => {
-		setIsEmpty( ! totalItems );
-	}, [ totalItems ] );
+		setIsEmpty( ! affectedCount );
+	}, [ affectedCount ] );
 
 	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
 	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
@@ -110,12 +127,27 @@ export default function useEmptyResponses( {
 		closeConfirmDialog();
 		setIsEmptying( true );
 
-		jetpackAnalytics.tracks.recordEvent( analyticsEvent );
+		if ( scope ) {
+			jetpackAnalytics.tracks.recordEvent( analyticsEvent, {
+				scope: scope.mode,
+				count: scope.count,
+			} );
+		} else {
+			jetpackAnalytics.tracks.recordEvent( analyticsEvent );
+		}
 
-		apiFetch( {
-			method: 'DELETE',
-			path: status ? `/wp/v2/feedback/trash?status=${ status }` : '/wp/v2/feedback/trash',
-		} )
+		apiFetch(
+			scope
+				? {
+						method: 'DELETE',
+						path: '/wp/v2/feedback/trash',
+						data: { ...scope.params, status: status ?? 'trash' },
+					}
+				: {
+						method: 'DELETE',
+						path: status ? `/wp/v2/feedback/trash?status=${ status }` : '/wp/v2/feedback/trash',
+					}
+		)
 			.then( ( response: { deleted?: number } ) => {
 				const deleted = response?.deleted ?? 0;
 				const successMessage =
@@ -158,6 +190,7 @@ export default function useEmptyResponses( {
 		isEmpty,
 		isEmptying,
 		noticeId,
+		scope,
 		status,
 	] );
 

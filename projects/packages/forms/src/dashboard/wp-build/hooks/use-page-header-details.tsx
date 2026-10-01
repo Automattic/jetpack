@@ -26,7 +26,7 @@ import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
-import EmptySpamButton from '../../components/empty-spam-button';
+import EmptySpamButton, { labelForScope } from '../../components/empty-spam-button';
 import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
@@ -587,7 +587,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
 						onClick: emptySpam.openConfirmDialog,
-						title: __( 'Delete spam', 'jetpack-forms' ),
+						title: labelForScope( emptySpam.scope ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
 					} );
 				}
@@ -629,7 +629,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
 						onClick: emptySpam.openConfirmDialog,
-						title: __( 'Delete spam', 'jetpack-forms' ),
+						title: labelForScope( emptySpam.scope ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
 					} );
 				}
@@ -861,8 +861,7 @@ export default function usePageHeaderDetails(
 		emptySpam.isConfirmDialogOpen,
 		emptySpam.closeConfirmDialog,
 		emptySpam.onConfirmEmptying,
-		emptySpam.scope.mode,
-		emptySpam.scope.count,
+		emptySpam.scope,
 		renameFormItem,
 		closeRenameModal,
 		handleRename,

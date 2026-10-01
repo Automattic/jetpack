@@ -55,7 +55,7 @@ function titleForScope( mode: EmptySpamScopeMode, count: number ): string {
 		default:
 			return sprintf(
 				/* translators: %s: The total number of spam responses. */
-				_n( 'Delete %s spam response?', 'Delete all %s spam responses?', count, 'jetpack-forms' ),
+				_n( 'Delete %s spam response?', 'Delete %s spam responses?', count, 'jetpack-forms' ),
 				formatted
 			);
 	}

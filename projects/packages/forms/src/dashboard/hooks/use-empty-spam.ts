@@ -1,47 +1,24 @@
 /**
  * External dependencies
  */
-import jetpackAnalytics from '@automattic/jetpack-analytics';
-import { formatNumber } from '@automattic/number-formatters';
-import apiFetch from '@wordpress/api-fetch';
-import { store as coreStore } from '@wordpress/core-data';
-import { useDispatch, useSelect } from '@wordpress/data';
-import { useState, useCallback, useMemo } from '@wordpress/element';
-import { __, _n, sprintf } from '@wordpress/i18n';
-import { store as noticesStore } from '@wordpress/notices';
+import { useSelect } from '@wordpress/data';
+import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
 import { store as dashboardStore } from '../store/index';
+import useEmptyResponses, {
+	type EmptyScope,
+	type EmptyScopeMode,
+	type UseEmptyResponsesReturn,
+} from './use-empty-responses';
 import useInboxData from './use-inbox-data';
 
-export type EmptySpamScopeMode = 'selection' | 'filtered' | 'all';
+export type EmptySpamScopeMode = EmptyScopeMode;
+export type EmptySpamScope = EmptyScope;
 
-type BulkScopeParams = {
-	post_ids?: number[];
-	search?: string;
-	parent?: number;
-	source?: number;
-	before?: string;
-	after?: string;
-	is_unread?: boolean;
-};
-
-export type EmptySpamScope = {
-	mode: EmptySpamScopeMode;
-	count: number;
-	params: BulkScopeParams;
-};
-
-type UseEmptySpamReturn = {
-	isConfirmDialogOpen: boolean;
-	openConfirmDialog: () => void;
-	closeConfirmDialog: () => void;
-	onConfirmEmptying: () => Promise< void >;
-	isEmpty: boolean;
-	isEmptying: boolean;
+type UseEmptySpamReturn = Omit< UseEmptyResponsesReturn, 'totalItems' > & {
 	totalItemsSpam: number;
-	selectedResponsesCount: number;
 	scope: EmptySpamScope;
 };
 
@@ -58,7 +35,7 @@ const nonEmptyString = ( value: unknown ): string | undefined =>
  *
  * The button can act on three different scopes, in priority order:
  * 1. `selection` — explicitly selected rows (`post_ids`).
- * 2. `filtered` — every spam response matching the current search/source/date/read filters.
+ * 2. `filtered` — every spam response matching the current search/form/date/read/test filters.
  * 3. `all` — every spam response (legacy behavior when no selection or filter).
  *
  * @param props                - Optional props.
@@ -70,17 +47,11 @@ export default function useEmptySpam( {
 }: {
 	totalItemsSpam?: number;
 } = {} ): UseEmptySpamReturn {
-	const [ isConfirmDialogOpen, setConfirmDialogOpen ] = useState( false );
-	const [ isEmptying, setIsEmptying ] = useState( false );
-	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
-	const { invalidateResolutionForStoreSelector } = useDispatch( coreStore ) as unknown as {
-		invalidateResolutionForStoreSelector: ( selector: string ) => void;
-	};
-	const { invalidateCounts } = useDispatch( dashboardStore );
-
 	const hookData = useInboxData();
 	const totalItemsSpam = totalItemsSpamProp ?? hookData.totalItemsSpam ?? 0;
-	const { selectedResponsesCount, currentQuery } = hookData;
+	const { currentQuery } = hookData;
+	// The list's own total, from the same WP_Query the delete runs; `/counts` matches search differently.
+	const totalItemsListed = hookData.totalItems ?? 0;
 
 	const selectedIds = useSelect(
 		select =>
@@ -105,7 +76,7 @@ export default function useEmptySpam( {
 			};
 		}
 
-		const params: BulkScopeParams = {};
+		const params: Record< string, unknown > = {};
 		const search = nonEmptyString( currentQuery?.search );
 		if ( search ) {
 			params.search = search;
@@ -129,86 +100,22 @@ export default function useEmptySpam( {
 		if ( currentQuery?.is_unread !== undefined ) {
 			params.is_unread = Boolean( currentQuery.is_unread );
 		}
-
-		const hasFilter = Object.keys( params ).length > 0;
-		return {
-			mode: hasFilter ? 'filtered' : 'all',
-			count: totalItemsSpam,
-			params,
-		};
-	}, [ selectedIds, currentQuery, totalItemsSpam ] );
-
-	const isEmpty = scope.count === 0;
-
-	const openConfirmDialog = useCallback( () => setConfirmDialogOpen( true ), [] );
-	const closeConfirmDialog = useCallback( () => setConfirmDialogOpen( false ), [] );
-
-	const onConfirmEmptying = useCallback( async () => {
-		if ( isEmptying || isEmpty ) {
-			return;
+		if ( currentQuery?.is_test !== undefined ) {
+			params.is_test = Boolean( currentQuery.is_test );
 		}
 
-		closeConfirmDialog();
-		setIsEmptying( true );
+		if ( Object.keys( params ).length > 0 ) {
+			return { mode: 'filtered', count: totalItemsListed, params };
+		}
 
-		jetpackAnalytics.tracks.recordEvent( 'jetpack_forms_empty_spam_click', {
-			scope: scope.mode,
-			count: scope.count,
-		} );
+		return { mode: 'all', count: totalItemsSpam, params };
+	}, [ selectedIds, currentQuery, totalItemsSpam, totalItemsListed ] );
 
-		const payload: Record< string, unknown > = { status: 'spam', ...scope.params };
-
-		apiFetch< { deleted?: number } >( {
-			method: 'DELETE',
-			path: '/wp/v2/feedback/trash',
-			data: payload,
-		} )
-			.then( response => {
-				const deleted = response?.deleted ?? 0;
-				const message = sprintf(
-					/* translators: %s: The number of responses. */
-					_n(
-						'%s spam response deleted permanently.',
-						'%s spam responses deleted permanently.',
-						deleted,
-						'jetpack-forms'
-					),
-					formatNumber( deleted )
-				);
-
-				createSuccessNotice( message, { type: 'snackbar', id: 'empty-spam' } );
-			} )
-			.catch( () => {
-				createErrorNotice( __( 'Could not empty spam.', 'jetpack-forms' ), {
-					type: 'snackbar',
-					id: 'empty-spam-error',
-				} );
-			} )
-			.finally( () => {
-				setIsEmptying( false );
-				invalidateCounts();
-				invalidateResolutionForStoreSelector( 'getEntityRecords' );
-			} );
-	}, [
-		closeConfirmDialog,
-		createErrorNotice,
-		createSuccessNotice,
-		invalidateResolutionForStoreSelector,
-		invalidateCounts,
-		isEmpty,
-		isEmptying,
+	const { totalItems, ...rest } = useEmptyResponses( {
+		flow: 'spam',
+		totalItemsProp: totalItemsSpamProp,
 		scope,
-	] );
+	} );
 
-	return {
-		isConfirmDialogOpen,
-		openConfirmDialog,
-		closeConfirmDialog,
-		onConfirmEmptying,
-		isEmpty,
-		isEmptying,
-		totalItemsSpam,
-		selectedResponsesCount,
-		scope,
-	};
+	return { ...rest, totalItemsSpam: totalItems, scope };
 }

@@ -126,11 +126,15 @@ describe( 'useEmptySpam', () => {
 	it( 'reports filtered scope when filters are active and no selection', () => {
 		useInboxDataModule.default.mockReturnValue( {
 			totalItemsSpam: 42,
+			totalItems: 42,
 			selectedResponsesCount: 0,
 			currentQuery: {
 				status: 'spam',
 				search: 'viagra',
+				parent: '7',
 				source: 99,
+				before: '2026-09-30T23:59:59',
+				after: '2026-09-01T00:00:00',
 				is_unread: true,
 			},
 		} );
@@ -138,12 +142,41 @@ describe( 'useEmptySpam', () => {
 		const { result } = renderHook( () => useEmptySpam() );
 
 		expect( result.current.scope.mode ).toBe( 'filtered' );
-		expect( result.current.scope.count ).toBe( 42 );
 		expect( result.current.scope.params ).toEqual( {
 			search: 'viagra',
+			parent: 7,
 			source: 99,
+			before: '2026-09-30T23:59:59',
+			after: '2026-09-01T00:00:00',
 			is_unread: true,
 		} );
+	} );
+
+	it( 'counts filtered scope from the list total, not the /counts total', () => {
+		useInboxDataModule.default.mockReturnValue( {
+			totalItemsSpam: 3,
+			totalItems: 300,
+			selectedResponsesCount: 0,
+			currentQuery: { status: 'spam', search: 'cheap pills' },
+		} );
+
+		const { result } = renderHook( () => useEmptySpam() );
+
+		expect( result.current.scope.count ).toBe( 300 );
+	} );
+
+	it( 'keeps the Form preview filter in scope instead of falling back to all', () => {
+		useInboxDataModule.default.mockReturnValue( {
+			totalItemsSpam: 2,
+			totalItems: 2,
+			selectedResponsesCount: 0,
+			currentQuery: { status: 'spam', is_test: true },
+		} );
+
+		const { result } = renderHook( () => useEmptySpam() );
+
+		expect( result.current.scope.mode ).toBe( 'filtered' );
+		expect( result.current.scope.params ).toEqual( { is_test: true } );
 	} );
 
 	it( 'marks as empty when scope count is 0', () => {
@@ -175,6 +208,7 @@ describe( 'useEmptySpam', () => {
 	it( 'calls DELETE /trash with filter params and shows success notice', async () => {
 		useInboxDataModule.default.mockReturnValue( {
 			totalItemsSpam: 5,
+			totalItems: 5,
 			selectedResponsesCount: 0,
 			currentQuery: { status: 'spam', search: 'spammy' },
 		} );
