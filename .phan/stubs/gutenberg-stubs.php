@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from Gutenberg 24.0.0
+ * Stubs automatically generated from Gutenberg 24.1.0
  * using the definition file `tools/stubs/gutenberg-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -14,14 +14,6 @@
  * @return string Root path to the gutenberg plugin.
  */
 function gutenberg_dir_path()
-{
-}
-/**
- * Prints font-face styles for fonts on the frontend.
- *
- * @since Gutenberg 20.0.0
- */
-function gutenberg_print_font_faces()
 {
 }
 /**
