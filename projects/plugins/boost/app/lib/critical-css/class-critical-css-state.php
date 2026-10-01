@@ -147,7 +147,7 @@ class Critical_CSS_State {
 			$errors[] = array(
 				'url'     => $url,
 				'type'    => 'PayloadTooLargeError',
-				'message' => __( 'Critical CSS exceeds the 512 KiB inline limit; standard stylesheets will be used instead.', 'jetpack-boost' ),
+				'message' => __( 'The generated Critical CSS exceeds the 512 KiB inline limit and was not saved.', 'jetpack-boost' ),
 			);
 		}
 		$this->state['providers'][ $provider_index ]['status'] = self::PROVIDER_STATES['error'];

@@ -596,7 +596,7 @@ const errorTypeSpecs: { [ type: string ]: ErrorTypeSpec } = {
 			),
 			list: [
 				__(
-					'<strong>These pages use standard stylesheet loading</strong> instead of the rejected Critical CSS.',
+					'The generated Critical CSS for these pages was too large and was not saved.',
 					'jetpack-boost'
 				),
 				__( 'Boost will continue optimizing your other pages.', 'jetpack-boost' ),

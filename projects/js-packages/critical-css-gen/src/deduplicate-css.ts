@@ -125,6 +125,9 @@ export function deduplicateCss( css: string ): string {
 					return;
 				}
 				const names = layerNames( preludeOf( node ) );
+				if ( node.block && ( names.length !== 1 || ! names[ 0 ].parts.length ) ) {
+					return;
+				}
 				if ( ! registrations.has( context ) ) {
 					registrations.set( context, new Set() );
 				}

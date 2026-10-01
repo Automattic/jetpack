@@ -1,7 +1,9 @@
 const path = require( 'path' );
+const csstree = require( 'css-tree' );
 const { chromium } = require( 'playwright' );
 const dedupe = require( '../../build/deduplicate-css.js' );
 const { deduplicateCss } = dedupe;
+const { minifyCss } = require( '../../build/minify-css.js' );
 const { generateCriticalCSS, BrowserInterfacePlaywright } = require( '../../build/playwright.js' );
 const { dataDirectory } = require( '../lib/data-directory.js' );
 const mockFetch = require( '../lib/mock-fetch.js' );
@@ -204,14 +206,24 @@ describe( 'Generate Critical CSS', () => {
 		it( 'Handles long layer names and conditional preludes without repeating context keys per rule', () => {
 			const rules = Array.from( { length: 5000 }, ( _, i ) => `.x${ i }{color:red}` ).join( '' );
 			for ( const context of [
-				'@layer ' + 'x'.repeat( 16000 ),
+				'@layer L' + 'x'.repeat( 16400 ),
 				'@media (' + 'x'.repeat( 16000 ) + ')',
 			] ) {
-				const output = deduplicateCss( `${ context }{${ rules }${ rules }}` );
+				const [ input ] = minifyCss( `${ context }{${ rules }}` );
+				const start = performance.now();
+				const output = deduplicateCss( input );
+				expect( performance.now() - start ).toBeLessThan( 3000 );
 				expect( output.match( /\.x\d+\{/g ) ).toHaveLength( 5000 );
 			}
 			const dotted = '@layer ' + Array( 25000 ).fill( 'x' ).join( '.' );
 			expect( deduplicateCss( `${ dotted }{.top{color:red}}` ) ).toContain( '.top{color:red}' );
+		} );
+
+		it( 'Does not register names from invalid layer block preludes', () => {
+			for ( const prelude of [ 'a,,b', ',a', '1' ] ) {
+				const css = `@layer ${ prelude }{.top{color:red}}`;
+				expect( deduplicateCss( css ) ).toBe( csstree.generate( csstree.parse( css ) ) );
+			}
 		} );
 
 		it( 'Falls back to the minified join and reports a deduplication failure', async () => {

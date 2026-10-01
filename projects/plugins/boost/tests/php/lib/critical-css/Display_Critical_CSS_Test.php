@@ -128,7 +128,9 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 			$paths->method( 'get_current_critical_css_key' )->willReturn( 'fixture_key' );
 			$module   = new $class();
 			$property = new \ReflectionProperty( $class, 'paths' );
-			$property->setAccessible( true );
+			if ( PHP_VERSION_ID < 80100 ) {
+				$property->setAccessible( true );
+			}
 			$property->setValue( $module, $paths );
 			$module->display_critical_css();
 			ob_start();

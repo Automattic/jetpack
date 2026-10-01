@@ -80,11 +80,7 @@ class Update_Cloud_CSS implements Endpoint {
 			if ( ! empty( $result['success'] ) && ! empty( $data['css'] ) && is_string( $data['css'] ) ) {
 				if ( strlen( $data['css'] ) > Display_Critical_CSS::MAX_CSS_BYTES ) {
 					$storage->delete_css( $provider_key );
-					$error = $state->set_provider_payload_too_large( $provider_key );
-					if ( is_wp_error( $error ) ) {
-						$state->set_error( $error->get_error_message() )->save();
-						return $error;
-					}
+					$state->set_provider_payload_too_large( $provider_key );
 					continue;
 				}
 				$storage->store_css( $provider_key, $data['css'] );

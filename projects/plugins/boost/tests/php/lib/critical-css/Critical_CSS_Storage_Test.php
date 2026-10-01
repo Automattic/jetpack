@@ -232,7 +232,7 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Missing providers produce an explicit error instead of silently acknowledging rejection.
+	 * Unknown local providers report rejection instead of silently acknowledging it.
 	 */
 	public function test_rejected_delivery_reports_unknown_provider() {
 		jetpack_boost_register_option( 'critical_css_state', Data_Sync_Schema::critical_css_state() );
@@ -250,20 +250,58 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 		$this->assertFalse( $response['success'] );
 		$this->assertNotEmpty( $response['error'] );
 		$this->assertSame( 'error', $response['state']['status'] );
+
+		$state->clear();
+	}
+
+	/**
+	 * Unknown oversized Cloud providers do not block later results or leave stored CSS.
+	 */
+	public function test_cloud_unknown_oversized_provider_does_not_abort_delivery() {
+		jetpack_boost_register_option( 'critical_css_state', Data_Sync_Schema::critical_css_state() );
+		$state = new Critical_CSS_State();
+		$state->prepare_request()->set_pending_providers(
+			array(
+				array(
+					'key'           => 'known',
+					'label'         => 'Fixture',
+					'urls'          => array( home_url( '/' ) ),
+					'success_ratio' => 1,
+				),
+			)
+		)->save();
+		$storage = new Critical_CSS_Storage();
+		$storage->store_css( 'unknown', '.old{color:red}' );
+		$request = new \WP_REST_Request( 'POST' );
 		$request->set_body_params(
 			array(
 				'success'   => true,
 				'providers' => array(
-					'missing' => array(
+					'unknown' => array(
 						'success' => true,
-						'data'    => array( 'css' => $css ),
+						'data'    => array( 'css' => str_repeat( ' ', 512 * KB_IN_BYTES + 1 ) ),
+					),
+					'known'   => array(
+						'success' => true,
+						'data'    => array( 'css' => '.new{color:blue}' ),
 					),
 				),
 			)
 		);
 		$response = ( new Update_Cloud_CSS() )->response( $request );
-		$this->assertInstanceOf( \WP_Error::class, $response );
-		$this->assertSame( 'invalid_provider_key', $response->get_error_code() );
+		$this->assertTrue( $response['success'] );
+		$this->assertFalse( $storage->get_css( array( 'unknown' ) ) );
+		$this->assertSame(
+			array(
+				'key' => 'known',
+				'css' => '.new{color:blue}',
+			),
+			$storage->get_css( array( 'known' ) )
+		);
+		$saved = $state->get();
+		$this->assertIsArray( $saved );
+		$this->assertSame( 'generated', $saved['status'] );
+		$this->assertSame( 'success', $saved['providers'][0]['status'] );
 		$state->clear();
 	}
 
