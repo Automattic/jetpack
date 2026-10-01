@@ -8,7 +8,6 @@ import {
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -129,7 +128,6 @@ function PostsReport(): JSX.Element {
 		[ records.archives.hasComparison ]
 	);
 
-	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
 	// One element per tab: the two exporters' row types cannot share one generic call.
 	const csvAction =
 		activeTab === 'posts-pages' ? (
@@ -163,7 +161,8 @@ function PostsReport(): JSX.Element {
 				data={ records.posts.rows }
 				fields={ postsFields }
 				getItemId={ getPostRowId }
-				isLoading={ records.posts.isLoading || records.posts.isFetching }
+				isLoading={ records.posts.isLoading }
+				isFetching={ records.posts.isFetching }
 				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
 				onChangePageItems={ handleVisiblePostRowsChange }
@@ -175,7 +174,8 @@ function PostsReport(): JSX.Element {
 				fields={ archivesFields }
 				getItemId={ getArchiveRowId }
 				getItemParentId={ getArchiveRowParentId }
-				isLoading={ records.archives.isLoading || records.archives.isFetching }
+				isLoading={ records.archives.isLoading }
+				isFetching={ records.archives.isFetching }
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
@@ -193,8 +193,6 @@ function PostsReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! activeRecords.isLoading && activeRecords.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (

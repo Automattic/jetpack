@@ -74,13 +74,11 @@ function getTermLabel( item: StatsSearchTermsItem ): string {
  * Prefer it over bucket metadata so the Unknown row follows the API contract
  * without folding `other_search_terms` into it.
  *
- * @param report       - The search-terms report.
- * @param unknownLabel - Translated label for encrypted search terms.
+ * @param report - The search-terms report.
  * @return Aggregated rows for one report period.
  */
 function aggregateSingleSearchTermReport(
-	report: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
-	unknownLabel: string
+	report: StatsNormalizedReport< StatsSearchTermsItem > | undefined
 ): SearchTermRow[] {
 	const byTerm = new Map< string, SearchTermRow >();
 	const summaryEncryptedViews = getCount( report?.summary.encrypted_search_terms );
@@ -111,7 +109,11 @@ function aggregateSingleSearchTermReport(
 	const rows = [ ...byTerm.values() ];
 
 	if ( encryptedViews > 0 && hasEncryptedViews ) {
-		rows.push( { id: 'unknown-search-terms', term: unknownLabel, views: encryptedViews } );
+		rows.push( {
+			id: 'unknown-search-terms',
+			term: __( 'Unknown search terms', 'jetpack-premium-analytics-pkg' ),
+			views: encryptedViews,
+		} );
 	}
 
 	return rows;
@@ -124,22 +126,20 @@ function aggregateSingleSearchTermReport(
  * row and participates in comparison matching like a regular term.
  *
  * @param primaryReport    - The current search-terms report.
- * @param unknownLabel     - Translated label for encrypted search terms.
  * @param comparisonReport - A successfully settled comparison report, when enabled.
  * @return Comparison-aware rows and whether the comparison is available.
  */
 export function aggregateSearchTermRows(
 	primaryReport: StatsNormalizedReport< StatsSearchTermsItem > | undefined,
-	unknownLabel: string,
 	comparisonReport?: StatsNormalizedReport< StatsSearchTermsItem >
 ): { rows: SearchTermRow[]; hasComparison: boolean } {
-	const primaryRows = aggregateSingleSearchTermReport( primaryReport, unknownLabel );
+	const primaryRows = aggregateSingleSearchTermReport( primaryReport );
 
 	if ( comparisonReport === undefined ) {
 		return { rows: primaryRows, hasComparison: false };
 	}
 
-	const comparisonRows = aggregateSingleSearchTermReport( comparisonReport, unknownLabel );
+	const comparisonRows = aggregateSingleSearchTermReport( comparisonReport );
 	const comparisonById = new Map( comparisonRows.map( row => [ row.id, row.views ] ) );
 
 	// A term missing from a truncated comparison list may have fallen off the
@@ -169,8 +169,7 @@ export const searchTermsCsvExporter: ReportCsvExporter< SearchTermRow, SearchTer
 	hasDateRange: true,
 	fetchItems: async reportParams =>
 		aggregateSearchTermRows(
-			await fetchStatsSearchTermsReport( getSummarizedReportQueryParams( reportParams ) ),
-			__( 'Unknown search terms', 'jetpack-premium-analytics-pkg' )
+			await fetchStatsSearchTermsReport( getSummarizedReportQueryParams( reportParams ) )
 		).rows,
 	toCsvRows: items => [ ...items ].sort( ( a, b ) => b.views - a.views ),
 	getColumns: () => [

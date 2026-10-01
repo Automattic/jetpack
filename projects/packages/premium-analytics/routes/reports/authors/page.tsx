@@ -6,7 +6,6 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ExporterCsvAction,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -77,11 +76,6 @@ function AuthorsReport(): JSX.Element {
 
 	let tableReplacement: JSX.Element | undefined;
 
-	/*
-	 * Replace the row-count-based table state when either request fails,
-	 * so cached rows are not shown as current and an initial failure does
-	 * not look like a legitimate empty report.
-	 */
 	if ( records.isError ) {
 		tableReplacement = (
 			<ReportErrorState
@@ -89,8 +83,6 @@ function AuthorsReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.isLoading && records.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -114,6 +106,7 @@ function AuthorsReport(): JSX.Element {
 						getItemId={ getAuthorRowId }
 						getItemParentId={ getAuthorRowParentId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers

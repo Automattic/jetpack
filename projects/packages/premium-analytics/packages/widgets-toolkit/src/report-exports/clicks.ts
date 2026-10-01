@@ -23,7 +23,7 @@ export type ClickRow = {
 	clickedUrl: string;
 	/** The external URL; group parent rows have none. */
 	href?: string;
-	/** Group parent rows keep the title-field styling; leaf rows opt out. */
+	/** Marks a group parent row: styled as a title in the table and given no CSV group. */
 	isGroup?: boolean;
 	clicks: number;
 	/** Click count for the matching row in the comparison period. */

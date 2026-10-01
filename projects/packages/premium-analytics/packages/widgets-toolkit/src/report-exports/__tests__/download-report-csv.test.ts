@@ -59,7 +59,7 @@ describe( 'downloadReportCsv', () => {
 		expect( mockSaveCsv ).toHaveBeenCalledWith( 'things', expect.any( String ) );
 	} );
 
-	it( 'does not save a file when the fetch fails', async () => {
+	it( 'rejects instead of saving a header-only file when the fetch fails', async () => {
 		const exporter = buildExporter( {
 			fetchItems: jest.fn().mockRejectedValue( new Error( 'Stats is down' ) ),
 		} );
