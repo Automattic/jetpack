@@ -7,6 +7,7 @@
 
 namespace A8C\FSE\Coming_soon;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 require_once __DIR__ . '/../../utils.php';
@@ -39,7 +40,76 @@ function should_show_coming_soon_page() {
 
 	// Allow folks to hook into this method to set their own rules.
 	// We'll use to on WordPress.com to check further user privileges.
-	return apply_filters( 'a8c_show_coming_soon_page', $should_show );
+	$should_show = apply_filters( 'a8c_show_coming_soon_page', $should_show );
+
+	if ( $should_show && is_unlaunched_big_sky_site_seen_from_a8c_proxy() ) {
+		show_unlaunched_site_to_a8c_proxy();
+		return false;
+	}
+
+	return $should_show;
+}
+
+/**
+ * Whether an Automattician on the a8c proxy is opening an unlaunched Big Sky site on WordPress.com on Atomic.
+ *
+ * Lets us look at the Big Sky builds customers never launched, without a support session.
+ * WordPress.com writes `big_sky_enable` when it turns Big Sky on, so a missing option means no.
+ *
+ * @return bool
+ */
+function is_unlaunched_big_sky_site_seen_from_a8c_proxy() {
+	if ( ! Constants::is_true( 'AT_PROXIED_REQUEST' ) || ! is_woa_site() ) {
+		return false;
+	}
+
+	if ( '1' !== (string) get_option( 'big_sky_enable' ) ) {
+		return false;
+	}
+
+	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only switch back to the Coming Soon page.
+	return ! isset( $_GET['wpcom_show_coming_soon'] );
+}
+
+/**
+ * Keep the real page out of every cache, flag it as unlaunched, and log the view.
+ *
+ * A cached copy would show the unlaunched site to regular visitors.
+ * The request is logged out, so the log has the site and page but not who looked.
+ *
+ * @return void
+ */
+function show_unlaunched_site_to_a8c_proxy() {
+	if ( ! defined( 'DONOTCACHEPAGE' ) ) {
+		define( 'DONOTCACHEPAGE', true );
+	}
+	nocache_headers();
+
+	add_action( 'wp_footer', __NAMESPACE__ . '\render_unlaunched_site_banner' );
+
+	Jetpack_Mu_Wpcom::log2logstash(
+		'atomic_unlaunched_big_sky_site_viewed',
+		'Unlaunched Big Sky site viewed through the a8c proxy',
+		array( 'url' => home_url( add_query_arg( array() ) ) )
+	);
+}
+
+/**
+ * Render the banner that tells an Automattician the site is not launched.
+ *
+ * @return void
+ */
+function render_unlaunched_site_banner() {
+	$coming_soon_url = add_query_arg( 'wpcom_show_coming_soon', '1' );
+	?>
+	<div role="status" style="position:fixed;inset:auto 16px 16px 16px;z-index:100000;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;padding:12px 16px;border-radius:8px;background:#1e1e1e;color:#fff;font:14px/1.4 -apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.3);">
+		<span>
+			<strong><?php esc_html_e( 'This site is not launched.', 'jetpack-mu-wpcom' ); ?></strong>
+			<?php esc_html_e( 'You see it because you are on the Automattic proxy. Visitors see Coming Soon.', 'jetpack-mu-wpcom' ); ?>
+		</span>
+		<a href="<?php echo esc_url( $coming_soon_url ); ?>" style="padding:6px 12px;border-radius:4px;background:#fff;color:#1e1e1e;text-decoration:none;font-weight:600;"><?php esc_html_e( 'See what visitors see', 'jetpack-mu-wpcom' ); ?></a>
+	</div>
+	<?php
 }
 
 /**
