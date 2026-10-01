@@ -73,7 +73,7 @@ describe( 'ModernSettings', () => {
 		const { container } = render( <ModernSettings /> );
 		const card = screen.getByTestId( 'card' );
 
-		fireEvent.mouseDown( card.querySelector( 'button' ) as HTMLElement );
+		fireEvent.click( card.querySelector( 'button' ) as HTMLElement );
 
 		const title = screen.getByText( 'Manual Critical CSS regeneration' );
 		expect( card.contains( title ) ).toBe( false );

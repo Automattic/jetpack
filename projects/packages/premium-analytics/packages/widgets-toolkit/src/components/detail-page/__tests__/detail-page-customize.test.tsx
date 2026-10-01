@@ -7,6 +7,18 @@ import {
 } from '../detail-page-customize';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
 
+const mockRecordEvent = jest.fn();
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: {
+		setUser: jest.fn(),
+		identifyUser: jest.fn(),
+		assignSuperProps: jest.fn(),
+		tracks: { recordEvent: ( ...args: unknown[] ) => mockRecordEvent( ...args ) },
+	},
+} ) );
+
 const layout = [ { uuid: 'card', type: 'jpa/card' } ] as DashboardWidget[];
 
 const editingActions = <div data-testid="dashboard-actions" />;
@@ -52,6 +64,38 @@ describe( 'useDetailPageCustomize', () => {
 
 		expect( onLayoutReset ).toHaveBeenCalledTimes( 1 );
 		expect( result.current.isCustomizing ).toBe( false );
+	} );
+
+	it( 'stores the committed layout and tracks the customize session', () => {
+		mockRecordEvent.mockClear();
+		const onLayoutChange = jest.fn();
+		const onLayoutReset = jest.fn();
+		const moved = [ { ...layout[ 0 ], attributes: { view: 'list' } } ] as DashboardWidget[];
+		const { result } = renderHook( () =>
+			useDetailPageCustomize( layout, { onLayoutChange, onLayoutReset, surface: 'post_detail' } )
+		);
+
+		act( () => result.current.startCustomizing() );
+		// Done: the dashboard commits, then leaves edit mode, in one call.
+		act( () => {
+			result.current.onLayoutChange( moved );
+			result.current.onEditChange( false );
+		} );
+		act( () => result.current.startCustomizing() );
+		act( () => result.current.resetToDefault() );
+
+		expect( onLayoutChange ).toHaveBeenCalledWith( moved );
+		expect( mockRecordEvent.mock.calls.map( ( [ name ] ) => name ) ).toEqual( [
+			'jetpack_premium_analytics_customize_start',
+			'jetpack_premium_analytics_customize_save',
+			'jetpack_premium_analytics_customize_exit',
+			'jetpack_premium_analytics_customize_start',
+			'jetpack_premium_analytics_customize_reset',
+		] );
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_premium_analytics_customize_exit', {
+			surface: 'post_detail',
+			saved: true,
+		} );
 	} );
 
 	it( 'will not open on an empty layout, from the menu or the dashboard', () => {

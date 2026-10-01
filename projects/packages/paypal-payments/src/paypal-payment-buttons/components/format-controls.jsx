@@ -26,6 +26,7 @@ import {
 	BorderControl,
 	Button,
 	CheckboxControl,
+	ExternalLink,
 	PanelBody,
 	TextControl,
 	__experimentalToolsPanel as ToolsPanel, // eslint-disable-line @wordpress/no-unsafe-wp-apis
@@ -43,6 +44,13 @@ import QrCodePreview from './qr-code-preview';
 
 // ToolsPanel and the dropdown inside it have to agree on the panel they belong to.
 const PANEL_ID = 'paypal-color';
+
+// PayPal's no-code payment settings, opened on the stacked-button tab. Same page as
+// the account menu's Customize checkout settings.
+const STACKED_SETTINGS_URL = {
+	sandbox: 'https://www.sandbox.paypal.com/ncp/settings?initial_tab=stackedButtons',
+	production: 'https://www.paypal.com/ncp/settings?initial_tab=stackedButtons',
+};
 
 // Hoisted: the production build folds a ternary around __() and then fails the
 // i18n check on the result. Only that build does it, so it surfaces in CI.
@@ -246,7 +254,6 @@ function QrOutputControls( { attributes, setAttributes, qrUrl, disabled } ) {
 					caption={ qrCaption }
 					captionStyle={ getTextStyle( attributes.captionColor, attributes.captionFontSize ) }
 					showDownload
-					showPendingLabel={ false }
 				/>
 			</div>
 
@@ -423,7 +430,7 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
 				disabled={ disabled }
 			/>
 
-			{ /* No URL until the post is saved and the payment exists. */ }
+			{ /* Hidden once PayPal has deleted the link, until the next save makes a new one. */ }
 			{ !! paymentUrl && (
 				<div className="jetpack-paypal-payment-buttons__link-url">
 					<TextControl
@@ -453,11 +460,12 @@ function LinkOutputControls( { attributes, setAttributes, paymentUrl, disabled }
  * product form in the default group becomes the Settings tab at the same time.
  *
  * @param {object}   props               - Component props.
- * @param {string}   props.format        - Display format: BUTTON, LINK or QR.
+ * @param {string}   props.format        - Display format: BUTTON, STACKED, LINK or QR.
  * @param {object}   props.attributes    - The block attributes.
  * @param {Function} props.setAttributes - Update block attributes.
- * @param {string}   props.paymentUrl    - The attributed payment URL — encoded by QR, copied by LINK.
+ * @param {string}   props.paymentUrl    - The attributed payment URL — encoded by QR, copied by LINK. Empty once PayPal has deleted the link.
  * @param {boolean}  props.disabled      - Whether the format switcher and the per-format output controls are locked.
+ * @param {string}   props.environment   - 'production' or 'sandbox', for the PayPal settings link.
  * @return {Element} The Styles tab contents.
  */
 export default function PayPalFormatControls( {
@@ -466,6 +474,7 @@ export default function PayPalFormatControls( {
 	setAttributes,
 	paymentUrl,
 	disabled,
+	environment,
 } ) {
 	const isOutline = isOutlineButton( attributes );
 
@@ -494,7 +503,7 @@ export default function PayPalFormatControls( {
 						{ /* TODO: add a `Show payment method logos` checkbox above this one,
 						     once legal signs off on the card-network marks. */ }
 						<CheckboxControl
-							label={ __( 'Show "Powered by PayPal" text', 'jetpack-paypal-payments' ) }
+							label={ __( 'Show "Powered by PayPal"', 'jetpack-paypal-payments' ) }
 							checked={ !! attributes.buttonShowPoweredBy }
 							onChange={ value => setAttributes( { buttonShowPoweredBy: value } ) }
 							disabled={ disabled }
@@ -519,6 +528,17 @@ export default function PayPalFormatControls( {
 						qrUrl={ paymentUrl }
 						disabled={ disabled }
 					/>
+				) }
+
+				{ /* Stacked buttons are styled account-wide at PayPal, so the only control
+				     here is a link out to those settings. ExternalLink supplies the anchor,
+				     target="_blank" and the "(opens in a new tab)" label. */ }
+				{ 'STACKED' === format && (
+					<ExternalLink
+						href={ STACKED_SETTINGS_URL[ environment ] || STACKED_SETTINGS_URL.production }
+					>
+						{ __( 'Edit default settings in PayPal', 'jetpack-paypal-payments' ) }
+					</ExternalLink>
 				) }
 			</div>
 

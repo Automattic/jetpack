@@ -2,9 +2,11 @@ import { formatNumber, formatNumberCompact } from '@automattic/number-formatters
 import { defaultStyles as visxTooltipStyles, useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import tooltipStyles from '../../components/tooltip/base-tooltip.module.scss';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from '../../components/tooltip/private/bounded-tooltip';
+import { useIsomorphicLayoutEffect } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -13,19 +15,16 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import { blendRgb, hexToRgb } from '../../providers/chart-context/private/perceptual-color';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
-import {
-	isValidHexColor,
-	mixHexColors,
-	normalizeColorToHex,
-	prefersLightText,
-} from '../../utils/color-utils';
-import { resolveCssVariable } from '../../utils/resolve-css-var';
+import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
+import { createCssVariableResolver, resolveCssVariable } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { pickLabelTextColorForFill, resolveLabelRoles } from '../private/label-text-color';
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
@@ -46,12 +45,21 @@ import {
 import type { HeatmapContextValue } from './private';
 import type { CellBlock, CellPosition } from './private/keyboard-navigation';
 import type { HeatmapChartProps, HeatmapTooltipData } from './types';
+import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { CSSProperties, FC } from 'react';
 
 // Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
 // the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
 const CELL_MIX_FLOOR = 0.15;
+
+// `label` is the stylesheet's default, so it needs no modifier.
+const CELL_VALUE_MODIFIER: Record< LabelTextColor, string | undefined > = {
+	label: undefined,
+	'label-inverse': styles[ 'heatmap-chart__cell-value--inverse' ],
+	black: styles[ 'heatmap-chart__cell-value--black' ],
+	white: styles[ 'heatmap-chart__cell-value--white' ],
+};
 
 // One instance, not a `[]` default in the signature: `buildTooltipData` keys on
 // it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
@@ -106,6 +114,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		useTooltip< HeatmapTooltipData >();
 	const standaloneScopeClass = useStandaloneScopeClass();
 	const containerRef = useRef< HTMLDivElement >( null );
+	const [ labelRoles, setLabelRoles ] = useState< LabelRoles | null >( null );
 	// The chart root positions the tooltip, so pointer and cell coordinates are
 	// measured against it — found by its id rather than by walking up, so
 	// whatever ChartLayout wraps the grid in cannot shift the origin.
@@ -131,18 +140,34 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	);
 
 	// Choose text color from the blended fill, not the raw value.
-	// If either color cannot resolve to hex, keep dark text.
+	// If either color cannot resolve to hex, keep the stylesheet's default role.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
-	const cellHasLightText = ( intensity: number ): boolean =>
-		isValidHexColor( primaryHex ) &&
-		isValidHexColor( chartBackgroundHex ) &&
-		prefersLightText(
-			mixHexColors(
-				primaryHex,
-				chartBackgroundHex,
-				1 - ( CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity )
-			)
-		);
+	const cellMix =
+		isValidHexColor( primaryHex ) && isValidHexColor( chartBackgroundHex )
+			? { primary: hexToRgb( primaryHex ), background: hexToRgb( chartBackgroundHex ) }
+			: null;
+	const cellTextColor = ( intensity: number ): LabelTextColor =>
+		cellMix
+			? pickLabelTextColorForFill(
+					blendRgb(
+						cellMix.primary,
+						cellMix.background,
+						CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity
+					),
+					labelRoles,
+					'label'
+				)
+			: 'label';
+
+	// Read inside the chart's own class, where the cell text inherits them. Keyed on `data` too,
+	// because the grid is not mounted while there is nothing to draw.
+	useIsomorphicLayoutEffect( () => {
+		if ( ! containerRef.current ) {
+			return;
+		}
+		const next = resolveLabelRoles( createCssVariableResolver( containerRef.current ) );
+		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
+	}, [ data, className, primaryColorHex, chartBackgroundHex ] );
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
 	const heatmapContext = useMemo< HeatmapContextValue >(
@@ -547,8 +572,6 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												data-row={ rowIndex }
 												className={ clsx( styles[ 'heatmap-chart__cell' ], {
 													[ styles[ 'heatmap-chart__cell--filled' ] ]: filled,
-													[ styles[ 'heatmap-chart__cell--strong' ] ]:
-														filled && cellHasLightText( normalized ),
 													[ styles[ 'heatmap-chart__cell--summary' ] ]: column.summary,
 													...summaryGaps( columnIndex ),
 													[ styles[ 'heatmap-chart__cell--selected' ] ]:
@@ -566,7 +589,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 												onMouseLeave={ handleCellMouseLeave }
 											>
 												{ ( drawValues || column.summary ) && present && (
-													<span className={ styles[ 'heatmap-chart__cell-value' ] }>
+													<span
+														className={ clsx(
+															styles[ 'heatmap-chart__cell-value' ],
+															filled && CELL_VALUE_MODIFIER[ cellTextColor( normalized ) ]
+														) }
+													>
 														{ /* Compact display; tooltip and aria-label keep full precision. */ }
 														{ formatNumberCompact( value ) }
 													</span>

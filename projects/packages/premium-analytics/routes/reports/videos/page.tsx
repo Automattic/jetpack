@@ -19,6 +19,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -53,9 +54,10 @@ function getVideoRowId( video: StatsVideoPlaysComparisonItem ): string {
 
 const RECORDS_VIEW = {
 	sort: { field: 'plays', direction: 'desc' as const },
+	titleField: 'label',
+	mediaField: 'poster',
 	layout: {
 		styles: {
-			label: { width: '100%' },
 			plays: { align: 'end' as const },
 			impressions: { align: 'end' as const },
 		},
@@ -118,10 +120,20 @@ function VideosReport(): JSX.Element {
 		status: records,
 		sort: sortVideoCsvRows,
 	} );
-	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.videos;
+	const { getLabel } = REPORTS.videos;
+
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	}
 
 	return (
 		<ReportPageShell
@@ -133,18 +145,14 @@ function VideosReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load videos', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsVideoPlaysComparisonItem >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getVideoRowId }
-						isLoading={ isTableLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
 					/>

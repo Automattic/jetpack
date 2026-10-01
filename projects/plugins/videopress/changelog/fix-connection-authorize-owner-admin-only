@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.

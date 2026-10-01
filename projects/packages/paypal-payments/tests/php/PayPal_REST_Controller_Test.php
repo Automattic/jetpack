@@ -12,17 +12,24 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Status\Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
+require_once __DIR__ . '/trait-paypal-tracks-events.php';
 
 /**
  * Class PayPal_REST_Controller_Test
  *
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_REST_Controller
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Tracks
  */
 #[CoversClass( PayPal_REST_Controller::class )]
+#[CoversClass( PayPal_Tracks::class )]
 class PayPal_REST_Controller_Test extends TestCase {
+
+	use PayPal_Tracks_Events;
 
 	/**
 	 * Clean up after each test.
@@ -35,13 +42,13 @@ class PayPal_REST_Controller_Test extends TestCase {
 		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
 		delete_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY );
 		delete_option( PayPal_OAuth::TOKEN_EXPIRES_AT_OPTION_KEY );
-		delete_transient( PayPal_Partner_Onboarding::SELLER_NONCE_TRANSIENT_KEY );
-		delete_option( PayPal_Partner_Onboarding::PARTNER_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY );
-		delete_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY );
+		PayPal_Partner_Onboarding::cleanup();
+		delete_option( PayPal_Partner_Onboarding::PARTNER_CLIENT_ID_OPTION_KEY );
 		delete_option( 'jetpack_private_options' );
 		\Jetpack_Options::delete_option( 'id' );
 		Constants::clear_constants();
+		Cache::clear();
+		unset( $GLOBALS['jetpack_paypal_test_captured_events'], $GLOBALS['jetpack_paypal_test_tracks_throws'] );
 
 		// Remove any HTTP request filters.
 		remove_all_filters( 'pre_http_request' );
@@ -545,7 +552,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$data = $result->get_error_data();
 		// The REST controller normalizes 0 to 503.
-		$this->assertGreaterThan( 0, $data['status'] );
+		$this->assertSame( 503, $data['status'] );
 	}
 
 	// --- handle_delete_button: 404 treated as success ---
@@ -632,9 +639,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 				PayPal_Partner_Onboarding::WPCOM_SIGNUP_LINK_ROUTE => $this->http_response(
 					200,
 					array(
-						'action_url'          => 'https://www.sandbox.paypal.com/merchantsignup/x',
-						'referral_id'         => 'REF1',
-						'partner_merchant_id' => 'PARTNER_FROM_WPCOM',
+						'action_url'  => 'https://www.sandbox.paypal.com/merchantsignup/x',
+						'referral_id' => 'REF1',
+						'tracking_id' => 'woo-ncps-1234-1',
 					)
 				),
 			)
@@ -676,14 +683,83 @@ class PayPal_REST_Controller_Test extends TestCase {
 		wp_set_current_user( self::factory_create_admin_user() );
 
 		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
-		$request->set_param( 'auth_code', 'code' );
-		$request->set_param( 'shared_id', 'shared' );
-		$request->set_param( 'merchant_id_in_paypal', 'MERCHANT1' );
 
 		$result = PayPal_REST_Controller::handle_onboarding_complete( $request );
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
-		$this->assertEquals( 'paypal_onboarding_no_nonce', $result->get_error_code() );
+		$this->assertEquals( 'paypal_onboarding_no_session', $result->get_error_code() );
+	}
+
+	/**
+	 * Test that completing onboarding reports the referred seller.
+	 */
+	public function test_onboarding_complete_reports_the_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'   => 'MERCHANT1',
+						'tracking_id'   => 'woo-ncps-1234-1',
+						'primary_email' => 'junior@sports.com',
+					)
+				),
+				'/paypal/platform/request'              => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
+					)
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertTrue( $result->get_data()['connected'] );
+		$this->assertSame( 'MERCHANT1', $result->get_data()['merchant_id'] );
+		$this->assertSame( 'junior@sports.com', $result->get_data()['account_email'] );
+		$this->assertSame( 'partner_referrals', $result->get_data()['method'] );
+	}
+
+	/**
+	 * Test that pasting credentials replaces a seller referred earlier.
+	 */
+	public function test_connect_replaces_a_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'resources' => array() ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
+		$request->set_param( 'client_id', 'client_id' );
+		$request->set_param( 'client_secret', 'client_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertTrue( PayPal_OAuth::has_credentials() );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertFalse( PayPal_Partner_Onboarding::is_platform_managed() );
 	}
 
 	/**
@@ -835,6 +911,142 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Read PLB-42 as a LINK-mode payment in the given currency, using a cached token.
+	 *
+	 * @param string|null $currency The payment's currency, or null for none on the line item.
+	 * @return array The response data.
+	 */
+	private function read_button_with_sdk_url( $currency = 'EUR' ) {
+		set_transient( PayPal_OAuth::TOKEN_TRANSIENT_KEY, PayPal_OAuth::encrypt( 'fake_access_token_12345' ), 3600 );
+		$line_item = array( 'name' => 'Widget' );
+		if ( $currency ) {
+			$line_item['unit_amount'] = array(
+				'currency_code' => $currency,
+				'value'         => '49.00',
+			);
+		}
+		$this->mock_http_routes(
+			array(
+				'/v1/checkout/payment-resources' => $this->http_response(
+					200,
+					array(
+						'id'               => 'PLB-42',
+						'integration_mode' => 'LINK',
+						'line_items'       => array( $line_item ),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		return PayPal_REST_Controller::handle_get_button( $request )->get_data();
+	}
+
+	/**
+	 * The SDK host for each stored environment.
+	 *
+	 * @return array<string, array<int, string|null>>
+	 */
+	public static function provide_sdk_hosts() {
+		return array(
+			'no environment stored' => array( null, 'https://www.paypal.com/sdk/js' ),
+			'production'            => array( 'production', 'https://www.paypal.com/sdk/js' ),
+			'sandbox'               => array( 'sandbox', 'https://www.sandbox.paypal.com/sdk/js' ),
+		);
+	}
+
+	/**
+	 * A read includes the SDK URL for the payment, in the format of PayPal's stacked button snippet.
+	 *
+	 * @dataProvider provide_sdk_hosts
+	 *
+	 * @param string|null $environment The stored environment, or null for none.
+	 * @param string      $sdk_url     The SDK URL for it.
+	 */
+	#[DataProvider( 'provide_sdk_hosts' )]
+	public function test_get_button_includes_the_sdk_url_for_the_environment( $environment, $sdk_url ) {
+		$this->set_up_connected_admin_state();
+		if ( $environment ) {
+			PayPal_OAuth::set_environment( $environment );
+		} else {
+			delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
+		}
+
+		$data = $this->read_button_with_sdk_url();
+
+		$this->assertSame(
+			$sdk_url . '?client-id=test_client_id&components=hosted-buttons&enable-funding=venmo&currency=EUR',
+			$data['sdk_url']
+		);
+		$this->assertStringNotContainsString( 'test_client_secret', wp_json_encode( $data, JSON_UNESCAPED_SLASHES ) );
+	}
+
+	public function test_get_button_sdk_url_falls_back_to_usd() {
+		$this->set_up_connected_admin_state();
+
+		$this->assertStringEndsWith( '&currency=USD', $this->read_button_with_sdk_url( null )['sdk_url'] );
+	}
+
+	public function test_get_button_sdk_url_encodes_the_client_id() {
+		$this->set_up_connected_admin_state();
+		// store_credentials() keeps + / =, and a bare + in a query reads as a space.
+		PayPal_OAuth::store_credentials( 'id+with/slash=', 'test_client_secret' );
+
+		$this->assertStringContainsString(
+			'?client-id=id%2Bwith%2Fslash%3D&',
+			$this->read_button_with_sdk_url()['sdk_url']
+		);
+	}
+
+	public function test_get_button_sdk_url_is_empty_when_credentials_are_deleted() {
+		$this->set_up_connected_admin_state();
+		PayPal_OAuth::delete_credentials();
+
+		$this->assertSame( '', $this->read_button_with_sdk_url()['sdk_url'] );
+	}
+
+	/**
+	 * A referred seller's SDK URL names the platform's client ID and the seller's merchant ID.
+	 */
+	public function test_get_button_sdk_url_for_a_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+		update_option( PayPal_Partner_Onboarding::PARTNER_CLIENT_ID_OPTION_KEY, 'platform+id', false );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/request' => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode(
+							array(
+								'id'         => 'PLB-42',
+								'line_items' => array( array( 'name' => 'Test' ) ),
+							),
+							JSON_UNESCAPED_SLASHES
+						),
+					)
+				),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+
+		$data = PayPal_REST_Controller::handle_get_button( $request )->get_data();
+
+		$this->assertSame(
+			'https://www.sandbox.paypal.com/sdk/js?client-id=platform%2Bid&merchant-id=MERCHANT1&components=hosted-buttons&enable-funding=venmo&currency=USD',
+			$data['sdk_url']
+		);
+	}
+
+	/**
 	 * Test that an API failure while listing is surfaced as a REST error.
 	 */
 	public function test_list_buttons_converts_api_error() {
@@ -875,6 +1087,192 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'missing_line_items', $result->get_error_code() );
+	}
+
+	/**
+	 * The stacked snippets, as the live API returns them.
+	 *
+	 * @return array
+	 */
+	private function stacked_snippets() {
+		return array(
+			'stacked' => array(
+				array(
+					'framework'        => 'HTML',
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'head'             => '<script src="https://www.paypal.com/sdk/js?client-id=abc"></script>',
+					'button_placement' => 'BODY',
+				),
+			),
+		);
+	}
+
+	/**
+	 * A line item complete enough to pass validation.
+	 *
+	 * @return array
+	 */
+	private function one_line_item() {
+		return array(
+			array(
+				'name'        => 'Widget',
+				'unit_amount' => array(
+					'currency_code' => 'USD',
+					'value'         => '29.99',
+				),
+			),
+		);
+	}
+
+	public function test_create_button_returns_the_block_attributes_with_the_sdk_url() {
+		// Otherwise a new stacked block saves an empty scriptSrc and stays that way:
+		// the mount GET comes after the post is serialized.
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response(
+			201,
+			array(
+				'id'               => 'PLB-NEW',
+				'integration_mode' => 'BUTTON',
+				'payment_link'     => 'https://www.paypal.com/ncp/payment/PLB-NEW',
+				'code_snippets'    => $this->stacked_snippets(),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_create_button( $request );
+
+		$this->assertSame( 201, $result->get_status() );
+		$data = $result->get_data();
+		$this->assertSame( 'BUTTON', $data['attributes']['integrationMode'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc',
+			$data['attributes']['scriptSrc']
+		);
+	}
+
+	public function test_update_button_re_reads_the_resource_when_the_caller_asks_for_snippets() {
+		// A PUT answers 204 with no code_snippets, so a block switching to stacked
+		// would sit blank until the post was reloaded.
+		$this->set_up_connected_admin_state();
+		// The PUT and the re-read share a URL, so they can only be told apart by method.
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args ) {
+				if ( 'PUT' === ( $args['method'] ?? '' ) ) {
+					return $this->http_response( 204, array() );
+				}
+				return $this->http_response(
+					200,
+					array(
+						'id'               => 'PLB-42',
+						'integration_mode' => 'BUTTON',
+						'code_snippets'    => $this->stacked_snippets(),
+						'line_items'       => $this->one_line_item(),
+					)
+				);
+			},
+			10,
+			3
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'include_snippets', true );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
+
+		$this->assertSame( 'PLB-42', $data['id'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc',
+			$data['attributes']['scriptSrc']
+		);
+	}
+
+	/**
+	 * Test that an update makes one round trip in either mode while the snippets flag
+	 * is absent.
+	 *
+	 * A link or QR block sharing a stacked block's payment sends BUTTON too, and only ever
+	 * wants the echo. The flag alone buys the read.
+	 *
+	 * @param string $integration_mode The mode the update sends.
+	 * @dataProvider integration_modes_provider
+	 */
+	#[DataProvider( 'integration_modes_provider' )]
+	public function test_update_button_keeps_its_single_round_trip_without_the_snippets_flag( $integration_mode ) {
+		$this->set_up_connected_admin_state();
+		$requests = array();
+		$this->mock_http_routes(
+			array( '/v1/checkout/payment-resources' => $this->http_response( 204, array() ) ),
+			$requests
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-43' );
+		$request->set_param( 'resource_id', 'PLB-43' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', $integration_mode );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$data = PayPal_REST_Controller::handle_update_button( $request )->get_data();
+
+		$this->assertCount( 1, $requests );
+		// The echo has no `id`, so mapping it would blank the block's resourceId.
+		$this->assertArrayNotHasKey( 'attributes', $data );
+	}
+
+	/**
+	 * Both modes reach the update route; the snippets flag is what asks for the re-read.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function integration_modes_provider() {
+		return array(
+			'link mode'   => array( 'LINK' ),
+			'button mode' => array( 'BUTTON' ),
+		);
+	}
+
+	public function test_update_button_falls_back_to_the_echo_when_the_re_read_fails() {
+		$this->set_up_connected_admin_state();
+		$methods = array();
+		add_filter(
+			'pre_http_request',
+			function ( $preempt, $args ) use ( &$methods ) {
+				$methods[] = $args['method'] ?? '';
+				if ( 'PUT' === ( $args['method'] ?? '' ) ) {
+					return $this->http_response( 204, array() );
+				}
+				return new \WP_Error( 'http_request_failed', 'Connection timed out' );
+			},
+			10,
+			3
+		);
+
+		$request = new \WP_REST_Request( 'PUT', '/wpcom/v2/paypal/buttons/PLB-44' );
+		$request->set_param( 'resource_id', 'PLB-44' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'include_snippets', true );
+		$request->set_param( 'line_items', $this->one_line_item() );
+
+		$result = PayPal_REST_Controller::handle_update_button( $request );
+
+		// The save still succeeds, and the block gets the SDK URL on its next read.
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertArrayNotHasKey( 'attributes', $result->get_data() );
+		// The save goes out once, whatever the re-read does.
+		$this->assertCount( 1, array_keys( $methods, 'PUT', true ) );
+		$this->assertNotEmpty(
+			array_keys( $methods, 'GET', true ),
+			'The echo is the fallback -- the re-read still has to be attempted.'
+		);
 	}
 
 	/**
@@ -1063,6 +1461,31 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertNotNull( $args, 'No DELETE endpoint registered.' );
 		$this->assertArrayHasKey( 'unused_only', $args );
 		$this->assertArrayHasKey( 'post_id', $args );
+	}
+
+	/**
+	 * Test that the update route declares the snippets flag alongside the create args.
+	 */
+	public function test_update_route_declares_the_snippets_flag() {
+		$routes = $this->register_paypal_routes();
+
+		$args = null;
+		foreach ( $routes['/wpcom/v2/paypal/buttons/(?P<resource_id>PLB-[A-Za-z0-9]+)'] as $endpoint ) {
+			if ( ! empty( $endpoint['methods']['PUT'] ) ) {
+				$args = $endpoint['args'];
+			}
+		}
+
+		$this->assertNotNull( $args, 'No PUT endpoint registered.' );
+		// Registering it is what gives the flag a default and a sanitizer.
+		$this->assertArrayHasKey( 'include_snippets', $args );
+		$this->assertFalse( $args['include_snippets']['default'] );
+		// Typed, the string "false" comes through as false rather than buying a round trip.
+		$this->assertSame( 'boolean', $args['include_snippets']['type'] );
+		// The resource fields the create shares have to survive the merge.
+		$this->assertArrayHasKey( 'line_items', $args );
+		// Only the create takes the recreated flag.
+		$this->assertArrayNotHasKey( 'recreated', $args );
 	}
 
 	/**
@@ -1439,7 +1862,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertNotNull( $create_args, 'No POST endpoint registered for /buttons.' );
 
-		foreach ( array( 'name', 'type', 'integration_mode', 'reusable', 'return_url', 'line_items' ) as $arg ) {
+		foreach ( array( 'name', 'type', 'integration_mode', 'reusable', 'return_url', 'recreated', 'line_items' ) as $arg ) {
 			$this->assertArrayHasKey( $arg, $create_args, "Missing '$arg' argument on button creation." );
 		}
 
@@ -1653,6 +2076,37 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * An http return URL goes through to PayPal unchanged.
+	 */
+	public function test_create_button_sends_an_http_return_url() {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+
+		$store = array();
+		$this->mock_paypal_store( $store );
+
+		$create = $this->dispatch_json(
+			'POST',
+			'/wpcom/v2/paypal/buttons',
+			array(
+				'line_items' => array(
+					array(
+						'name'        => 'Widget',
+						'unit_amount' => array(
+							'currency_code' => 'USD',
+							'value'         => '10.00',
+						),
+					),
+				),
+				'return_url' => 'http://example.com/thanks',
+			)
+		);
+
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame( 'http://example.com/thanks', $store['return_url'] );
+	}
+
+	/**
 	 * PayPal fetches the image itself, so a URL it cannot fetch is left out
 	 * rather than failing the save.
 	 */
@@ -1684,7 +2138,643 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertArrayNotHasKey( 'image_url', $store['line_items'][0] );
 	}
 
+	// --- Tracks events ---
+
+	/**
+	 * A manual connect records success with the requested environment.
+	 */
+	public function test_connect_records_connection_succeeded() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->http_response(
+					200,
+					array(
+						'access_token' => 'good_token',
+						'expires_in'   => 3600,
+					)
+				),
+				'/v1/checkout/payment-resources' => $this->http_response( 200, array( 'items' => array() ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
+		$request->set_param( 'client_id', 'test_client_id' );
+		$request->set_param( 'client_secret', 'test_client_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_succeeded',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'manual',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * A failed manual connect records the error code and the environment it tried,
+	 * rather than the one it restores.
+	 */
+	public function test_connect_records_connection_failed_with_the_error_code() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		PayPal_OAuth::set_environment( 'production' );
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->http_response( 401, array( 'error' => 'invalid_client' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/connect' );
+		$request->set_param( 'client_id', 'wrong_client_id' );
+		$request->set_param( 'client_secret', 'wrong_secret' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		PayPal_REST_Controller::handle_connect( $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_failed',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'manual',
+						'error_code'  => 'paypal_credentials_invalid',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * A PayPal call that fails records the error with its debug ID, and the REST
+	 * error hands the ID to the editor.
+	 */
+	public function test_a_failed_paypal_call_records_api_error_with_the_debug_id() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response(
+			500,
+			array(
+				'name'     => 'INTERNAL_SERVER_ERROR',
+				'debug_id' => 'abc123def456',
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_create_button( $this->create_request( $this->one_line_item()[0] ) );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'abc123def456', $result->get_error_data()['paypal_debug_id'] );
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_api_error',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'error_code'  => 'paypal_api_internal_server_error',
+						'status'      => 500,
+						'debug_id'    => 'abc123def456',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Completing partner-referrals onboarding records its success with the stored environment.
+	 */
+	public function test_onboarding_complete_records_connection_succeeded() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id' => 'MERCHANT1',
+						'tracking_id' => 'woo-ncps-1234-1',
+					)
+				),
+				'/paypal/platform/request'              => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
+					)
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_succeeded',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'partner_referrals',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Failed partner-referrals onboarding records the error code.
+	 */
+	public function test_onboarding_complete_records_connection_failed() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		PayPal_OAuth::set_environment( 'sandbox' );
+
+		PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_failed',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'partner_referrals',
+						'error_code'  => 'paypal_onboarding_no_session',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Closing PayPal before a seller exists is a cancel, so the close check skips the event.
+	 *
+	 * @param string $tracking_id The stored tracking ID, if any.
+	 * @dataProvider cancelled_onboarding_provider
+	 */
+	#[DataProvider( 'cancelled_onboarding_provider' )]
+	public function test_quiet_onboarding_complete_skips_the_event_for_a_cancel( $tracking_id ) {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		if ( $tracking_id ) {
+			set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, $tracking_id, 1800 );
+		}
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response( 404, array( 'code' => 'paypal_merchant_not_found' ) ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
+		$request->set_param( 'quiet', true );
+
+		$this->assertInstanceOf( \WP_Error::class, PayPal_REST_Controller::handle_onboarding_complete( $request ) );
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
+	/**
+	 * A close check before PayPal knows the seller, and one after the referral expired.
+	 *
+	 * @return array
+	 */
+	public static function cancelled_onboarding_provider() {
+		return array(
+			'seller not found' => array( 'woo-ncps-1234-1' ),
+			'no session'       => array( '' ),
+		);
+	}
+
+	/**
+	 * Any other failure on the close check is still a failed connect.
+	 */
+	public function test_quiet_onboarding_complete_records_other_failures() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response( 500, array() ),
+			)
+		);
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' );
+		$request->set_param( 'quiet', true );
+
+		PayPal_REST_Controller::handle_onboarding_complete( $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_failed',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'partner_referrals',
+						'error_code'  => 'paypal_platform_request_failed',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * The editor fetches the signup link before the merchant clicks Connect,
+	 * so fetching it skips the connection events.
+	 */
+	public function test_signup_link_skips_the_connection_events() {
+		$this->set_up_connected_admin_state();
+
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/signup-link' );
+		$request->set_param( 'return_url', 'https://example.com/return' );
+		$request->set_param( 'environment', 'sandbox' );
+
+		// Fails until the site connects to WordPress.com.
+		$this->assertInstanceOf( \WP_Error::class, PayPal_REST_Controller::handle_generate_signup_link( $request ) );
+
+		$this->set_up_blog_connection();
+		$this->mock_http_routes(
+			array(
+				PayPal_Partner_Onboarding::WPCOM_SIGNUP_LINK_ROUTE => $this->http_response(
+					200,
+					array(
+						'action_url'  => 'https://www.sandbox.paypal.com/merchantsignup/x',
+						'referral_id' => 'REF1',
+						'tracking_id' => 'woo-ncps-1234-1',
+					)
+				),
+			)
+		);
+		$this->assertInstanceOf( \WP_REST_Response::class, PayPal_REST_Controller::handle_generate_signup_link( $request ) );
+
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
+	/**
+	 * Disconnect records the environment it disconnected from.
+	 */
+	public function test_disconnect_records_the_environment_it_disconnected() {
+		$this->set_up_connected_admin_state();
+
+		PayPal_REST_Controller::handle_disconnect( new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/disconnect' ) );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_disconnected',
+					'properties' => array( 'environment' => 'sandbox' ),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Disconnecting a seller referred through Connect with PayPal records the event too.
+	 */
+	public function test_disconnect_records_a_referred_seller() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		PayPal_OAuth::set_environment( 'sandbox' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1' );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, 'partner_referrals' );
+
+		PayPal_REST_Controller::handle_disconnect( new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/disconnect' ) );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_disconnected',
+					'properties' => array( 'environment' => 'sandbox' ),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * A repeat disconnect, e.g. from a stale tab, skips the event.
+	 */
+	public function test_disconnect_skips_the_event_when_already_disconnected() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		PayPal_OAuth::set_environment( 'sandbox' );
+
+		$result = PayPal_REST_Controller::handle_disconnect( new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/disconnect' ) );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
+	/**
+	 * Creating a link records button_created with the data sent to PayPal, or
+	 * button_recreated when the recreated flag is true.
+	 *
+	 * @param array  $flag       The recreated param to send, if any.
+	 * @param string $event_name The event it records.
+	 * @dataProvider recreated_flags_provider
+	 */
+	#[DataProvider( 'recreated_flags_provider' )]
+	public function test_create_button_records_button_created_or_recreated( $flag, $event_name ) {
+		$this->set_up_connected_admin_state();
+		$this->register_paypal_routes();
+		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
+
+		$create = $this->dispatch_json(
+			'POST',
+			'/wpcom/v2/paypal/buttons',
+			array_merge(
+				array(
+					'integration_mode' => 'BUTTON',
+					'line_items'       => array(
+						array(
+							'name'        => 'Widget',
+							'unit_amount' => array(
+								'currency_code' => 'EUR',
+								'value'         => '10.00',
+							),
+							'image_url'   => 'https://example.com/widget.png',
+						),
+					),
+				),
+				$flag
+			)
+		);
+
+		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => $event_name,
+					'properties' => array(
+						'environment'      => 'sandbox',
+						'integration_mode' => 'BUTTON',
+						'currency'         => 'EUR',
+						'has_variants'     => false,
+						'has_image'        => true,
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Only a true recreated flag records button_recreated.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function recreated_flags_provider() {
+		return array(
+			'no flag'      => array( array(), 'jetpack_paypal_button_created' ),
+			'flag false'   => array( array( 'recreated' => false ), 'jetpack_paypal_button_created' ),
+			// The boolean type turns the string "false" into false.
+			'flag "false"' => array( array( 'recreated' => 'false' ), 'jetpack_paypal_button_created' ),
+			'flag true'    => array( array( 'recreated' => true ), 'jetpack_paypal_button_recreated' ),
+		);
+	}
+
+	/**
+	 * The create event uses the sanitized data, which drops an http:// image
+	 * and uppercases the currency.
+	 */
+	public function test_create_button_records_the_sanitized_image_and_uppercased_currency() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
+
+		PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'usd',
+						'value'         => '10.00',
+					),
+					'image_url'   => 'http://example.com/widget.png',
+				)
+			)
+		);
+
+		$properties = $this->recorded_events()[0]['properties'];
+		$this->assertFalse( $properties['has_image'] );
+		$this->assertSame( 'USD', $properties['currency'] );
+	}
+
+	/**
+	 * With priced options, the currency comes from the options.
+	 */
+	public function test_create_button_records_the_option_currency_for_priced_variants() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
+
+		$variants = $this->variants_with_prices( array( '5.00', '10.00' ) );
+
+		$variants['dimensions'][0]['options'][0]['unit_amount']['currency_code'] = 'EUR';
+		$variants['dimensions'][0]['options'][1]['unit_amount']['currency_code'] = 'EUR';
+
+		PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'     => 'Widget',
+					'variants' => $variants,
+				)
+			)
+		);
+
+		$properties = $this->recorded_events()[0]['properties'];
+		$this->assertSame( 'EUR', $properties['currency'] );
+		$this->assertTrue( $properties['has_variants'] );
+	}
+
+	/**
+	 * A delete from the editor records `already_gone` as false.
+	 */
+	public function test_delete_button_records_button_deleted() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-DEL123' );
+		$request->set_param( 'resource_id', 'PLB-DEL123' );
+
+		PayPal_REST_Controller::handle_delete_button( $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_button_deleted',
+					'properties' => array(
+						'environment'  => 'sandbox',
+						'source'       => 'editor',
+						'already_gone' => false,
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * A 404 from PayPal on delete records the link as already gone.
+	 */
+	public function test_delete_button_records_already_gone_on_404() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 404, array( 'name' => 'RESOURCE_NOT_FOUND' ) );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-GONE123' );
+		$request->set_param( 'resource_id', 'PLB-GONE123' );
+
+		PayPal_REST_Controller::handle_delete_button( $request );
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_button_deleted',
+					'properties' => array(
+						'environment'  => 'sandbox',
+						'source'       => 'editor',
+						'already_gone' => true,
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
+	 * Keeping a link that another published post uses skips the event.
+	 */
+	public function test_delete_button_skips_the_event_when_it_keeps_the_link() {
+		$this->set_up_connected_admin_state();
+		$this->embed_in_published_post( 1000, 'PLB-42' );
+		$this->mock_http_response( 204, '' );
+
+		$request = new \WP_REST_Request( 'DELETE', '/wpcom/v2/paypal/buttons/PLB-42' );
+		$request->set_param( 'resource_id', 'PLB-42' );
+		$request->set_param( 'unused_only', true );
+		$request->set_param( 'post_id', 1 );
+
+		$this->assertFalse( PayPal_REST_Controller::handle_delete_button( $request )->get_data()['deleted'] );
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
+	/**
+	 * An event is recorded as the current user, with the site's blog_id and
+	 * platform added and the merchant's description left out.
+	 */
+	public function test_tracks_events_include_the_blog_id_and_platform() {
+		$this->set_up_connected_admin_state();
+		$this->set_up_blog_connection();
+		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
+
+		PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'        => 'Widget',
+					'description' => 'A widget for buyer@example.com',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+				)
+			)
+		);
+
+		$events = $GLOBALS['jetpack_paypal_test_captured_events'];
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'jetpack_paypal_button_created', $events[0]['event_name'] );
+		$this->assertSame( get_current_user_id(), $events[0]['user']->ID );
+		$this->assertSame(
+			array( 'environment', 'integration_mode', 'currency', 'has_variants', 'has_image', 'blog_id', 'platform' ),
+			array_keys( $events[0]['properties'] )
+		);
+		$this->assertSame( 1234, $events[0]['properties']['blog_id'] );
+		$this->assertSame( 'self_hosted', $events[0]['properties']['platform'] );
+	}
+
+	/**
+	 * An event from an Atomic site is recorded with the `atomic` platform.
+	 */
+	public function test_tracks_events_include_the_atomic_platform() {
+		$this->set_up_connected_admin_state();
+		Constants::set_constant( 'ATOMIC_SITE_ID', 123 );
+		Constants::set_constant( 'ATOMIC_CLIENT_ID', 456 );
+		Constants::set_constant( 'WPCOMSH__PLUGIN_FILE', '/plugins/wpcomsh/wpcomsh.php' );
+		// Host caches is_woa_site(), so drop any answer an earlier test left behind.
+		Cache::clear();
+		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
+
+		PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+				)
+			)
+		);
+
+		$events = $GLOBALS['jetpack_paypal_test_captured_events'];
+		$this->assertCount( 1, $events );
+		$this->assertSame( 'atomic', $events[0]['properties']['platform'] );
+	}
+
+	/**
+	 * The handler returns its usual response when Tracks throws.
+	 */
+	public function test_create_button_succeeds_when_tracks_throws() {
+		$this->set_up_connected_admin_state();
+		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
+		$GLOBALS['jetpack_paypal_test_tracks_throws'] = true;
+
+		$result = PayPal_REST_Controller::handle_create_button(
+			$this->create_request(
+				array(
+					'name'        => 'Widget',
+					'unit_amount' => array(
+						'currency_code' => 'USD',
+						'value'         => '10.00',
+					),
+				)
+			)
+		);
+
+		$this->assertInstanceOf( \WP_REST_Response::class, $result );
+		$this->assertSame( 201, $result->get_status() );
+		$this->assertSame( 'PLB-CREATED123', $result->get_data()['id'] );
+	}
+
 	// --- Helpers ---
+
+	/**
+	 * Build a create request for one line item.
+	 *
+	 * @param array $line_item The line item.
+	 * @return \WP_REST_Request
+	 */
+	private function create_request( array $line_item ) {
+		$request = new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/buttons' );
+		$request->set_param( 'type', 'BUY_NOW' );
+		$request->set_param( 'integration_mode', 'BUTTON' );
+		$request->set_param( 'reusable', 'MULTIPLE' );
+		$request->set_param( 'line_items', array( $line_item ) );
+
+		return $request;
+	}
 
 	/**
 	 * Set up an admin user with manage_options and a connected PayPal state.
@@ -1737,6 +2827,19 @@ class PayPal_REST_Controller_Test extends TestCase {
 			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
 			$result->get_data()['partner_attribution_id']
 		);
+	}
+
+	public function test_connection_status_exposes_the_filtered_sandbox_partner_attribution_id() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$result = PayPal_REST_Controller::handle_connection_status(
+			new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/connection' )
+		);
+
+		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
+
+		$this->assertSame( 'Sandbox_BN', $result->get_data()['partner_attribution_id'] );
 	}
 
 	/**

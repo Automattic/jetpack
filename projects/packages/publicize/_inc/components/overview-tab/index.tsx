@@ -13,6 +13,7 @@ import { ConnectionFlowModal } from '../connection-flow';
 import ConnectionManagement from '../connection-management';
 import { ThemedConnectionsModal } from '../manage-connections-modal';
 import TrafficChartCard from './traffic-chart-card';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**
@@ -88,7 +89,7 @@ export default function OverviewTab(): JSX.Element {
 		<div className="jetpack-social-overview">
 			{ hasConnectionError && (
 				<div className="jetpack-social-overview__notice">
-					<ConnectionError />
+					<ConnectionError trackingContext="social" />
 				</div>
 			) }
 			{ /*

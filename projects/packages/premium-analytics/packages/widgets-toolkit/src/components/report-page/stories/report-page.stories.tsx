@@ -14,6 +14,7 @@ import { FIXTURE_SITE_TIME_ZONE } from '../../../__fixtures__/wp-date-settings';
 import { siteChartFormatting } from '../../../helpers';
 import { useChartTheme } from '../../../hooks';
 import { applyFixtureSiteSettings } from '../../../stories/fixture-site';
+import { ReportEmptyState } from '../report-empty-state';
 import { ReportPageLayout } from '../report-page-layout';
 import { ReportPageShell } from '../report-page-shell';
 import { ReportPerformanceChart } from '../report-performance-chart';
@@ -126,6 +127,7 @@ const POST_FIELDS: Field< PostRow >[] = [
 interface ReportPageStoryControls {
 	withComparison: boolean;
 	isLoading: boolean;
+	isEmpty?: boolean;
 }
 
 /**
@@ -198,7 +200,7 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
  * @param {ReportPageStoryControls} props - The story controls.
  * @return The composed report page.
  */
-function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryControls ) {
+function ComposedReportPage( { withComparison, isLoading, isEmpty }: ReportPageStoryControls ) {
 	const [ interval, setInterval ] = useState< IntervalType >( 'day' );
 
 	return (
@@ -215,35 +217,39 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 					interval={ interval }
 					onIntervalChange={ setInterval }
 				/>
-				<ReportRecordsTable
-					data={ POSTS }
-					fields={ POST_FIELDS }
-					getItemId={ ( item: PostRow ) => item.id }
-					isLoading={ isLoading }
-					initialView={ {
-						sort: { field: 'views', direction: 'desc' },
-						titleField: 'title',
-						fields: [ 'views' ],
-					} }
-					searchLabel="Search posts"
-					isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
-					renderItemLink={ ( { item, className, children, ...linkProps } ) => (
-						<a
-							{ ...linkProps }
-							className={ [ className, item.isExternal ? styles.externalLink : '' ]
-								.filter( Boolean )
-								.join( ' ' ) }
-							href={ item.link }
-							target={ item.isExternal ? '_blank' : undefined }
-							rel={ item.isExternal ? 'noopener noreferrer' : undefined }
-						>
-							{ children }
-							{ item.isExternal ? (
-								<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-							) : null }
-						</a>
-					) }
-				/>
+				{ isEmpty ? (
+					<ReportEmptyState />
+				) : (
+					<ReportRecordsTable
+						data={ POSTS }
+						fields={ POST_FIELDS }
+						getItemId={ ( item: PostRow ) => item.id }
+						isLoading={ isLoading }
+						initialView={ {
+							sort: { field: 'views', direction: 'desc' },
+							titleField: 'title',
+							fields: [ 'views' ],
+						} }
+						searchLabel="Search posts"
+						isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
+						renderItemLink={ ( { item, className, children, ...linkProps } ) => (
+							<a
+								{ ...linkProps }
+								className={ [ className, item.isExternal ? styles.externalLink : '' ]
+									.filter( Boolean )
+									.join( ' ' ) }
+								href={ item.link }
+								target={ item.isExternal ? '_blank' : undefined }
+								rel={ item.isExternal ? 'noopener noreferrer' : undefined }
+							>
+								{ children }
+								{ item.isExternal ? (
+									<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
+								) : null }
+							</a>
+						) }
+					/>
+				) }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
@@ -256,6 +262,7 @@ const meta = {
 	argTypes: {
 		withComparison: { control: 'boolean' },
 		isLoading: { control: 'boolean' },
+		isEmpty: { control: 'boolean' },
 	},
 	decorators: [ withChartProviders ],
 	parameters: {
@@ -289,4 +296,13 @@ export const Default: Story = {
 export const Loading: Story = {
 	render: args => <ComposedReportPage { ...args } />,
 	args: { withComparison: false, isLoading: true },
+};
+
+/**
+ * The selected period returned no rows, so the empty state replaces the
+ * records table.
+ */
+export const EmptyPeriod: Story = {
+	render: args => <ComposedReportPage { ...args } />,
+	args: { withComparison: false, isLoading: false, isEmpty: true },
 };

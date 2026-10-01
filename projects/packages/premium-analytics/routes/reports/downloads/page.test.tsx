@@ -104,7 +104,8 @@ describe( 'DownloadsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				data: [ row ],
-				isLoading: true,
+				isLoading: false,
+				isFetching: true,
 			} )
 		);
 	} );

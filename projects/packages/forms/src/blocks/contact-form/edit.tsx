@@ -405,8 +405,8 @@ function JetpackContactFormEdit( {
 		[ clientId, steps ]
 	);
 
-	const wrapperRef = useRef();
-	const innerRef = useRef();
+	const wrapperRef = useRef( undefined );
+	const innerRef = useRef( undefined );
 	const blockProps = useBlockProps( {
 		ref: wrapperRef,
 		className: clsx( className, {

@@ -42,6 +42,7 @@ import './email-preview.scss';
 import { accessOptions } from '../../shared/memberships/constants';
 import { useAccessLevel } from '../../shared/memberships/edit';
 import { SendIcon } from './icons';
+import type { JSX } from 'react';
 
 interface PreviewErrorInfo {
 	code?: string;
@@ -243,7 +244,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 								sendTestEmail();
 							} }
 						>
-							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
+							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto">
 								<InputControl
 									type="email"
 									value={ recipientEmail }

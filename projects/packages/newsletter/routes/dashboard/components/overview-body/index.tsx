@@ -5,6 +5,7 @@ import { wordpress } from '@wordpress/icons';
 import { Card, Stack, Text, Icon } from '@wordpress/ui';
 import GuidesCard from './guides-card';
 import OnboardingChecklist from './onboarding-checklist';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**

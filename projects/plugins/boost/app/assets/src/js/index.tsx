@@ -4,7 +4,7 @@ import ModernApp from '$layout/modern/modern-app';
 import { detectMode, LEGACY_ROOT_ID, waitForSlots } from '$lib/modern/mode';
 
 /**
- * Render today's dashboard into the root PHP gives it.
+ * Render the legacy dashboard into the root PHP gives it.
  */
 function renderLegacy() {
 	const container = document.getElementById( LEGACY_ROOT_ID );

@@ -22,6 +22,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getSearchTermsFields, useSearchTermsReportRecords, type SearchTermRow } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -79,9 +80,19 @@ export default function SearchTermsReportPage(): JSX.Element {
 		sort: sortSearchTermCsvRows,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
-	const { getLabel, getTitle } = REPORTS[ 'search-terms' ];
+	const { getLabel } = REPORTS[ 'search-terms' ];
+
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load search terms', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	}
 
 	return (
 		<ReportPageShell
@@ -93,18 +104,14 @@ export default function SearchTermsReportPage(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load search terms', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				{ tableReplacement ?? (
 					<ReportRecordsTable< SearchTermRow >
 						data={ records.table.rows }
 						fields={ fields }
 						getItemId={ getSearchTermRowId }
-						isLoading={ tableIsLoading }
+						isLoading={ records.table.isLoading }
+						isFetching={ records.table.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search terms', 'jetpack-premium-analytics-pkg' ) }
 					/>

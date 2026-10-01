@@ -451,6 +451,7 @@ class WPCOM_Features {
 	public const EMAIL_SUBSCRIPTION                = 'email-subscription';
 	public const EMAIL_FORWARDS_EXTENDED_LIMIT     = 'email-forwards-extended-limit';
 	public const FIELD_FILE                        = 'field-file';
+	public const FORM_CONDITIONAL_LOGIC            = 'form-conditional-logic';
 	public const FORM_INTEGRATIONS                 = 'form-integrations';
 	public const FORM_WEBHOOKS                     = 'form-webhooks';
 	public const FREE_BLOG                         = 'free-blog';
@@ -868,6 +869,10 @@ class WPCOM_Features {
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 		),
+		self::FORM_CONDITIONAL_LOGIC            => array(
+			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::JETPACK_ALL_SITES,
+		),
 		self::FORM_INTEGRATIONS                 => array(
 			array(
 				'before_feature_gating_2026' => true,
@@ -1165,7 +1170,9 @@ class WPCOM_Features {
 			self::JETPACK_BUSINESS_PLANS,
 		),
 		self::PARTNER_THEMES                    => array(
+			// We do not want all paid plans to have the feature, just Personal, Premium, and Business or higher plans.
 			self::WPCOM_BUSINESS_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_PREMIUM_PLANS,
 			self::WPCOM_PRO_PLANS,
 			self::EXCLUDE_PLANS => array(
 				self::WPCOM_ECOMMERCE_TRIAL_PLANS,

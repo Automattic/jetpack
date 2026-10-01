@@ -53,6 +53,16 @@ function get_admin_menu_class() {
 		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
 			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+
+			// While the content form is still open the customer needs to read
+			// their own Posts, Media and Pages to fill it in. The sticker is
+			// absent for builds that predate it and whenever wpcom has not set
+			// it, so the fallback is the existing full lockout.
+			if ( wpcomsh_is_site_sticker_active( 'difm-lite-awaiting-content' ) ) {
+				require_once __DIR__ . '/class-difm-lite-admin-menu.php';
+				return DIFM_Lite_Admin_Menu::class;
+			}
+
 			return Domain_Only_Admin_Menu::class;
 		}
 
@@ -78,6 +88,15 @@ function get_admin_menu_class() {
 		$is_support_session       = defined( 'WPCOM_SUPPORT_SESSION' ) && WPCOM_SUPPORT_SESSION;
 		if ( $is_difm_lite_in_progress && ! $is_support_session ) {
 			require_once __DIR__ . '/class-domain-only-admin-menu.php';
+
+			// See the Atomic branch above: pre-submit the customer keeps access
+			// to their own content, and an absent sticker falls back to the
+			// existing full lockout.
+			if ( has_blog_sticker( 'difm-lite-awaiting-content' ) ) {
+				require_once __DIR__ . '/class-difm-lite-admin-menu.php';
+				return DIFM_Lite_Admin_Menu::class;
+			}
+
 			return Domain_Only_Admin_Menu::class;
 		}
 

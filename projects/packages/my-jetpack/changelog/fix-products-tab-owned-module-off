@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Products: Show a switch instead of a purchase link for a product you own whose module is turned off.

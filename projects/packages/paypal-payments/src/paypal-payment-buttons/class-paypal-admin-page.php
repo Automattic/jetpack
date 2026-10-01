@@ -299,6 +299,15 @@ class PayPal_Admin_Page {
 			);
 		} else {
 			set_transient( 'paypal_admin_notice_' . get_current_user_id(), self::deleted_link_notice( $resource_id ), 30 );
+
+			PayPal_Tracks::record_event(
+				'jetpack_paypal_button_deleted',
+				array(
+					'environment'  => PayPal_OAuth::get_environment(),
+					'source'       => 'admin',
+					'already_gone' => false,
+				)
+			);
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) );
@@ -566,7 +575,7 @@ class PayPal_Admin_Page {
 		echo '</div>';
 
 		// Disconnected state.
-		if ( ! PayPal_OAuth::has_credentials() ) {
+		if ( ! PayPal_OAuth::is_connected() ) {
 			self::render_disconnected_state();
 			echo '</div>';
 			return;
@@ -581,6 +590,8 @@ class PayPal_Admin_Page {
 			echo '</div>';
 			return;
 		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_admin_page_viewed', array( 'environment' => PayPal_OAuth::get_environment() ) );
 
 		// List table.
 		$table = new PayPal_Payment_Links_List_Table();
@@ -664,6 +675,8 @@ class PayPal_Admin_Page {
 			);
 			return;
 		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_admin_detail_viewed', array( 'environment' => PayPal_OAuth::get_environment() ) );
 
 		$line_item = $resource['line_items'][0] ?? array();
 		$name      = $line_item['name'] ?? $resource_id;
@@ -751,13 +764,12 @@ class PayPal_Admin_Page {
 			self::render_detail_row( __( 'Description', 'jetpack-paypal-payments' ), $line_item['description'] );
 		}
 
-		if ( isset( $line_item['unit_amount'] ) ) {
-			$price_display = PayPal_Payment_Buttons::format_price(
-				$line_item['unit_amount']['value'] ?? '0.00',
-				$line_item['unit_amount']['currency_code'] ?? 'USD'
-			);
+		// Same price the block shows, so a link priced per option shows "From" the cheapest option.
+		$link_attributes = PayPal_Attribute_Mapper::api_response_to_attributes( $resource );
+		$price_display   = PayPal_Payment_Buttons::link_price( $link_attributes );
+		if ( '' !== $price_display ) {
 			self::render_detail_row( __( 'Price', 'jetpack-paypal-payments' ), $price_display );
-			self::render_detail_row( __( 'Currency', 'jetpack-paypal-payments' ), $line_item['unit_amount']['currency_code'] ?? 'USD' );
+			self::render_detail_row( __( 'Currency', 'jetpack-paypal-payments' ), $link_attributes['currencyCode'] ?? 'USD' );
 		}
 
 		if ( ! empty( $line_item['product_id'] ) ) {
@@ -882,10 +894,6 @@ class PayPal_Admin_Page {
 				'<form id="paypal-send-email-form" class="paypal-send-email-form">
 					<input type="hidden" name="action" value="%s" />
 					<input type="hidden" name="_wpnonce" value="%s" />
-					<input type="hidden" name="payment_link" value="%s" />
-					<input type="hidden" name="product_name" value="%s" />
-					<input type="hidden" name="price" value="%s" />
-					<input type="hidden" name="currency" value="%s" />
 					<input type="hidden" name="resource_id" value="%s" />
 					<p>
 						<label for="paypal-email-recipient"><strong>%s</strong></label><br />
@@ -902,10 +910,6 @@ class PayPal_Admin_Page {
 				</form>',
 				esc_attr( PayPal_Email_Sender::AJAX_ACTION ),
 				esc_attr( $nonce ),
-				esc_attr( $payment_link ),
-				esc_attr( $name ),
-				esc_attr( $line_item['unit_amount']['value'] ?? '' ),
-				esc_attr( $line_item['unit_amount']['currency_code'] ?? 'USD' ),
 				esc_attr( $resource_id ),
 				esc_html__( 'Recipient email', 'jetpack-paypal-payments' ),
 				esc_attr__( 'customer@example.com', 'jetpack-paypal-payments' ),

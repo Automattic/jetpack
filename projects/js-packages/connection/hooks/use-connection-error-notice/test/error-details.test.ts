@@ -4,7 +4,7 @@ import {
 	getConnectionErrorDetailLines,
 	getConnectionErrorDetails,
 	getConnectionErrorNoticeLinks,
-	getConnectionErrorScope,
+	getConnectionErrorScopeLabel,
 	getConnectionErrorTitle,
 	groupConnectionErrorsByMessage,
 	hasSupportLink,
@@ -155,26 +155,26 @@ describe( 'excludeOtherUsersErrors', () => {
 	// adds on top of it.
 } );
 
-describe( 'getConnectionErrorScope', () => {
+describe( 'getConnectionErrorScopeLabel', () => {
 	describe( 'owner-audience errors', () => {
 		const ownerError = anError( { audience: 'owner', user_id: '3' } );
 
 		it( 'speaks in the first person to the owner themselves', () => {
 			expect(
-				getConnectionErrorScope( ownerError, { isOwner: true, ownerName: 'Site Owner' } )
+				getConnectionErrorScopeLabel( ownerError, { isOwner: true, ownerName: 'Site Owner' } )
 			).toBe( 'Your account (connection owner)' );
 		} );
 
 		it( 'names the owner to a viewer allowed to see who they are', () => {
 			expect(
-				getConnectionErrorScope( ownerError, { isOwner: false, ownerName: 'Site Owner' } )
+				getConnectionErrorScopeLabel( ownerError, { isOwner: false, ownerName: 'Site Owner' } )
 			).toBe( "Connection owner's account (Site Owner)" );
 		} );
 
 		// `connectionOwner` is gated on `jetpack_connect` server-side, so a viewer
 		// without it gets the role without the identity.
 		it( 'omits the name when the owner identity is withheld', () => {
-			expect( getConnectionErrorScope( ownerError, { isOwner: false } ) ).toBe(
+			expect( getConnectionErrorScopeLabel( ownerError, { isOwner: false } ) ).toBe(
 				"Connection owner's account"
 			);
 		} );
@@ -184,7 +184,7 @@ describe( 'getConnectionErrorScope', () => {
 		it( "claims the viewer's own error as theirs", () => {
 			const error = anError( { audience: 'user', user_id: '7' } );
 
-			expect( getConnectionErrorScope( error, { currentUserId: 7 } ) ).toBe( 'Your account' );
+			expect( getConnectionErrorScopeLabel( error, { currentUserId: 7 } ) ).toBe( 'Your account' );
 		} );
 
 		// `user_id` arrives as a string from the REST payload while the viewer's ID
@@ -192,7 +192,7 @@ describe( 'getConnectionErrorScope', () => {
 		it( 'matches a string user_id against the numeric viewer ID', () => {
 			const error = anError( { audience: 'user', user_id: '007' } );
 
-			expect( getConnectionErrorScope( error, { currentUserId: 7 } ) ).toBe( 'Your account' );
+			expect( getConnectionErrorScopeLabel( error, { currentUserId: 7 } ) ).toBe( 'Your account' );
 		} );
 
 		// `Error_Handler` keeps another user's error out of this viewer's set, so the
@@ -200,7 +200,7 @@ describe( 'getConnectionErrorScope', () => {
 		it( "attributes someone else's error to another user", () => {
 			const error = anError( { audience: 'user', user_id: '9' } );
 
-			expect( getConnectionErrorScope( error, { currentUserId: 7 } ) ).toBe(
+			expect( getConnectionErrorScopeLabel( error, { currentUserId: 7 } ) ).toBe(
 				"Another user's account"
 			);
 		} );
@@ -211,36 +211,40 @@ describe( 'getConnectionErrorScope', () => {
 		it( 'does not claim an unattributed error when the viewer is unknown', () => {
 			const error = anError( { audience: 'user' } );
 
-			expect( getConnectionErrorScope( error, {} ) ).toBe( 'User connection' );
+			expect( getConnectionErrorScopeLabel( error, {} ) ).toBe( 'User connection' );
 		} );
 
 		it( 'does not claim an attributed error when the viewer is unknown', () => {
 			const error = anError( { audience: 'user', user_id: '9' } );
 
-			expect( getConnectionErrorScope( error, {} ) ).toBe( 'User connection' );
+			expect( getConnectionErrorScopeLabel( error, {} ) ).toBe( 'User connection' );
 		} );
 
 		it( 'does not claim an unattributed error when the viewer is known', () => {
 			const error = anError( { audience: 'user' } );
 
-			expect( getConnectionErrorScope( error, { currentUserId: 7 } ) ).toBe( 'User connection' );
+			expect( getConnectionErrorScopeLabel( error, { currentUserId: 7 } ) ).toBe(
+				'User connection'
+			);
 		} );
 	} );
 
 	it( 'describes a site-audience error as the site connection', () => {
-		expect( getConnectionErrorScope( anError( { audience: 'site' } ), { currentUserId: 7 } ) ).toBe(
-			'Site connection'
-		);
+		expect(
+			getConnectionErrorScopeLabel( anError( { audience: 'site' } ), { currentUserId: 7 } )
+		).toBe( 'Site connection' );
 	} );
 
 	// Older payloads predate the `audience` field; site-wide is the safe reading
 	// because it claims nothing about any particular user.
 	it( 'treats a missing audience as site-wide', () => {
-		expect( getConnectionErrorScope( anError(), { currentUserId: 7 } ) ).toBe( 'Site connection' );
+		expect( getConnectionErrorScopeLabel( anError(), { currentUserId: 7 } ) ).toBe(
+			'Site connection'
+		);
 	} );
 
 	it( 'works with no viewer at all', () => {
-		expect( getConnectionErrorScope( anError( { audience: 'owner' } ) ) ).toBe(
+		expect( getConnectionErrorScopeLabel( anError( { audience: 'owner' } ) ) ).toBe(
 			"Connection owner's account"
 		);
 	} );

@@ -9,6 +9,9 @@ export type TGlobalNotices = ReturnType< NoticesStore[ 'getActions' ] > &
 /**
  * The global notices hook.
  *
+ * @deprecated Dispatch to `@wordpress/notices` directly, passing
+ * `{ type: 'snackbar' }` — this hook only defaulted that option.
+ *
  * @return {TGlobalNotices} The global notices selectors and actions.
  */
 export function useGlobalNotices(): TGlobalNotices {

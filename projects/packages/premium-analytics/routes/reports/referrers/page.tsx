@@ -22,6 +22,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getReferrerFields, useReferrersReportRecords, type ReferrerRecord } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -93,7 +94,18 @@ function ReferrersReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.referrers;
+	const { getLabel } = REPORTS.referrers;
+
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	}
 
 	return (
 		<ReportPageShell
@@ -105,13 +117,8 @@ function ReferrersReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load referrers', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				{ tableReplacement ?? (
 					<ReportDrilldownTable< ReferrerRecord >
 						data={ records.rows }
 						fields={ fields }
@@ -121,6 +128,7 @@ function ReferrersReport(): JSX.Element {
 						collapsible
 						defaultExpanded="none"
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search referrers', 'jetpack-premium-analytics-pkg' ) }
 					/>

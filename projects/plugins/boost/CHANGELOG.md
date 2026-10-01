@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.8.0-beta2] - 2026-09-29
+### Security
+- Critical CSS: Improve the security of Critical CSS generation. [#52462]
+
+### Added
+- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice, and flag connection errors with a badge on the Jetpack menu. [#52035] [#52332]
+- Critical CSS: Explain when pages could not be optimized because they are only shown to logged-in visitors, and let each group of these pages be dismissed separately. [#52462] [#52644]
+
+### Changed
+- Dashboard: Redesign the Overview around a "Your site speed" score card with score gain badges, a score history chart with day details that works with a keyboard and screen reader, and a "Run speed test" button. [#50140] [#52268] [#52284] [#52315] [#52331] [#52382] [#52383] [#52397] [#52429] [#52434] [#52447] [#52449] [#52460] [#52461] [#52481] [#52497] [#52547] [#52611] [#52613] [#52620] [#52625] [#52626] [#52640] [#52802] [#52803] [#52821] [#52830] [#52943] [#52945] [#52946]
+- Dashboard: Show the modernized dashboard by default. Add `add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );` to restore the previous dashboard. [#52496]
+- My Jetpack: Show the dashboard in the new rounded admin page frame, with restyled notices and a Features tab in place of the Products tab. [#52290] [#52446] [#52633] [#52785]
+- Settings: Show performance scores and optimization settings together in collapsible sections with short descriptions and restyled notices, and make tooltips and toggles work with a keyboard and screen reader. [#52286] [#52465] [#52498] [#52562] [#52563] [#52564] [#52566] [#52567] [#52609] [#52612] [#52624] [#52629] [#52642] [#52643] [#52645] [#52649] [#52661] [#52705] [#52706] [#52736] [#52800] [#52920] [#52926] [#52927] [#52935] [#52938] [#52939] [#52942] [#52952]
+- Update package dependencies. [#52187] [#52297]
+
+### Fixed
+- Activity Log: Honor the module setting, so the page can be turned off, and stop the frame from flashing while loading. [#52235] [#52409]
+- Connection: Report a broken connection on the My Jetpack connection card instead of saying everything looks good, stop showing stale connection error notices, and let users without admin access reconnect their own account or find an administrator who can. [#52130] [#52264] [#52614] [#52718]
+- Critical CSS: Stop generation from logging administrators out on sites with login-protected pages, and stop it restarting on its own after a failed run. [#52462] [#52731]
+- Defer JS: Keep scripts that come before a script left in place in their original order, fixing hidden product images and unclickable tabs on some sites using Jetpack Likes. [#52863]
+- Hide links to My Jetpack screens, including upgrade, license and footer links, when My Jetpack is unavailable. [#52499] [#52529] [#52557] [#52606]
+- My Jetpack: Fix the dashboard failing to load on WordPress.com-hosted sites. [#52362]
+- My Jetpack: Show each notice once, respond to module switches immediately, and fix the connection screen layout for right-to-left languages. [#52494] [#52749]
+- Page Cache: Show the module as running, without contradictory setup errors, on WP Cloud hosts such as Pressable that already cache pages. [#52348]
+- Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers. [#52444]
+
 ## [4.7.1] - 2026-09-16
 ### Added
 - My Jetpack: Allow the Automattic for Agencies banner to be dismissed. [#51441]
@@ -1045,6 +1071,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - First public alpha release
 
+[4.8.0-beta2]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.1...4.8.0-beta2
 [4.7.1]: https://github.com/Automattic/jetpack-boost-production/compare/4.7.0...4.7.1
 [4.7.0]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.3...4.7.0
 [4.6.3]: https://github.com/Automattic/jetpack-boost-production/compare/4.6.2...4.6.3

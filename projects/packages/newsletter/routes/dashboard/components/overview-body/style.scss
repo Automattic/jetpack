@@ -133,4 +133,13 @@
 		color: var(--wpds-color-foreground-content-neutral-weak);
 		white-space: nowrap;
 	}
+
+	@media ( max-width: 600px ) {
+
+		// !important beats Text's same-specificity heading-2xl variant class.
+		// No font-size token matches 24px; nearest are xl (20px) and 2xl (32px).
+		&__title {
+			font-size: 24px !important;
+		}
+	}
 }

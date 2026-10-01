@@ -19,6 +19,7 @@ import {
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -90,10 +91,20 @@ function DownloadsReport(): JSX.Element {
 		status: records,
 		sort: sortDownloadCsvRows,
 	} );
-	const isRecordsLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.downloads;
+	const { getLabel } = REPORTS.downloads;
+
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	}
 
 	return (
 		<ReportPageShell
@@ -105,18 +116,14 @@ function DownloadsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
+				{ tableReplacement ?? (
 					<ReportRecordsTable< StatsFileDownloadsComparisonItem >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getDownloadRowId }
-						isLoading={ isRecordsLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search files', 'jetpack-premium-analytics-pkg' ) }
 					/>

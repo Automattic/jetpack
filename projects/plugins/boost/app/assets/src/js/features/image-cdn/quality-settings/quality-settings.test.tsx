@@ -1,5 +1,5 @@
 /* eslint-disable testing-library/prefer-user-event -- Range controls use synchronous changes in this project. */
-/* eslint-disable jest-dom/prefer-in-document -- This Jest project does not load jest-dom. */
+/* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute -- This Jest project does not load jest-dom. */
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { resetLocaleData, setLocaleData } from '@wordpress/i18n';
 import { ModuleSurfaceProvider } from '$features/module/surface';
@@ -77,6 +77,18 @@ test( 'expands existing quality values and preserves other formats when saving q
 		...quality,
 		png: { quality: 60, lossless: false },
 	} );
+} );
+
+test( 'exposes the modern Adjust Quality toggle as a disclosure of the quality controls', () => {
+	renderSettings();
+	const toggle = screen.getByRole( 'button', { name: 'Adjust Quality' } );
+	expect( toggle.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	expect( screen.queryAllByRole( 'slider' ) ).toHaveLength( 0 );
+	fireEvent.click( toggle );
+	expect( toggle.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+	// eslint-disable-next-line testing-library/no-node-access -- aria-controls names the panel by id.
+	const panel = document.getElementById( toggle.getAttribute( 'aria-controls' )! );
+	expect( panel?.contains( screen.getAllByRole( 'slider' )[ 0 ] ) ).toBe( true );
 } );
 
 test( 'keeps the Image Quality heading and summary on the default legacy surface', () => {

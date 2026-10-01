@@ -66,13 +66,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	private $original_current_screen;
 
 	/**
-	 * Original next_admin_init action count to restore after tests.
-	 *
-	 * @var int
-	 */
-	private $original_next_admin_init_count;
-
-	/**
 	 * Original jetpack_agents_manager_initialized action count to restore after tests.
 	 *
 	 * @var int
@@ -114,9 +107,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Save original current_screen global.
 		$this->original_current_screen = $GLOBALS['current_screen'] ?? null;
 
-		// Save original next_admin_init action count (CIAB detection).
 		global $wp_actions;
-		$this->original_next_admin_init_count = $wp_actions['next_admin_init'] ?? 0;
 
 		// Save original init guard action count; did_action() accumulates per-process.
 		$this->original_agents_manager_initialized_count = $wp_actions['jetpack_agents_manager_initialized'] ?? 0;
@@ -131,11 +122,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		remove_filter( 'calypso_preferences_update', array( $this->agents_manager, 'calypso_preferences_update' ) );
 		remove_action( 'wp_enqueue_scripts', array( $this->agents_manager, 'enqueue_scripts' ), 101 );
 		remove_action( 'admin_enqueue_scripts', array( $this->agents_manager, 'enqueue_scripts' ), 101 );
-		remove_action( 'next_admin_init', array( $this->agents_manager, 'enqueue_scripts' ), 1001 );
-		remove_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) );
 		remove_all_filters( 'jetpack_ai_sidebar_agents_manager_data' );
 		remove_action( 'admin_bar_menu', array( $this->agents_manager, 'add_admin_bar_nodes' ), 100 );
-		remove_all_filters( 'agents_manager_use_unified_experience' );
 		remove_all_filters( 'agents_manager_enabled_in_block_editor' );
 		remove_all_filters( 'agents_manager_should_load' );
 
@@ -176,13 +164,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Log out any logged-in user.
 		wp_set_current_user( 0 );
 
-		// Restore next_admin_init action count (CIAB detection).
 		global $wp_actions;
-		if ( $this->original_next_admin_init_count === 0 ) {
-			unset( $wp_actions['next_admin_init'] );
-		} else {
-			$wp_actions['next_admin_init'] = $this->original_next_admin_init_count;
-		}
 
 		// Restore init guard action count.
 		if ( $this->original_agents_manager_initialized_count === 0 ) {
@@ -422,7 +404,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that enqueue_scripts adds script with empty providers and useUnifiedExperience false by default.
+	 * Tests that enqueue_scripts adds script with empty providers by default.
 	 */
 	public function test_enqueue_scripts_with_empty_providers() {
 		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
@@ -434,9 +416,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Register the agents-manager script so we can attach inline script to it.
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Add a filter to enable unified experience.
+		// Add a filter to request the Agents Manager shell.
 		add_filter(
-			'agents_manager_use_unified_experience',
+			'agents_manager_should_load',
 			'__return_true',
 			// Use a higher priority to ensure it runs after the class's own filter.
 			20
@@ -454,7 +436,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"agentProviders":[]', $inline_script );
 		$this->assertStringContainsString( '"isA11n":false', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -471,7 +453,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Register the agents-manager script so we can attach inline script to it.
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		$force_variant = static function () {
 			return 'wp-admin';
 		};
@@ -494,7 +476,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"isDevMode":true', $inline_script );
 		$this->assertStringContainsString( '"version":"wp-admin:abc123"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'agents_manager_variant', $force_variant );
 		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
 	}
@@ -522,9 +504,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			}
 		);
 
-		// Add a filter to enable unified experience.
+		// Add a filter to request the Agents Manager shell.
 		add_filter(
-			'agents_manager_use_unified_experience',
+			'agents_manager_should_load',
 			'__return_true',
 			// Use a higher priority to ensure it runs after the class's own filter.
 			20
@@ -544,49 +526,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		// Clean up the filter.
 		remove_all_filters( 'agents_manager_agent_providers' );
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-	}
-
-	/**
-	 * Tests that enqueue_scripts includes useUnifiedExperience true when filter returns true.
-	 */
-	public function test_enqueue_scripts_includes_use_unified_experience_when_enabled() {
-		Functions\when( 'wpcom_is_proxied_request' )->justReturn( false );
-		Functions\when( 'is_automattician' )->justReturn( true );
-
-		// Set admin context - scripts only enqueue in admin.
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( 'dashboard' );
-
-		// Reset the script registry to ensure test isolation.
-		global $wp_scripts;
-		$wp_scripts = null;
-
-		// Register the agents-manager script so we can attach inline script to it.
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		// Add a filter to enable unified experience.
-		add_filter(
-			'agents_manager_use_unified_experience',
-			'__return_true',
-			// Use a higher priority to ensure it runs after the class's own filter.
-			20
-		);
-
-		$this->agents_manager->enqueue_scripts();
-
-		// Re-fetch global after wp_register_script initializes it.
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array(); // @phan-suppress-current-line PhanTypeExpectedObjectPropAccessButGotNull
-
-		// Find the inline script containing agentsManagerData.
-		$inline_script = implode( "\n", array_filter( $inline_scripts ) );
-
-		$this->assertStringContainsString( 'const agentsManagerData =', $inline_script );
-		$this->assertStringContainsString( '"useUnifiedExperience":true', $inline_script );
-		$this->assertStringContainsString( '"isA11n":true', $inline_script );
-
-		// Clean up the filter.
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -614,9 +554,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// Register the agents-manager script so we can attach inline script to it.
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Add a filter to enable unified experience.
+		// Add a filter to request the Agents Manager shell.
 		add_filter(
-			'agents_manager_use_unified_experience',
+			'agents_manager_should_load',
 			'__return_true',
 			// Use a higher priority to ensure it runs after the class's own filter.
 			20
@@ -633,7 +573,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"isWpcomPlatform":' . $expected, $inline_script );
 
 		// Clean up the filter.
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -647,43 +587,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			'Simple site'    => array( 'simple', 'true' ),
 			'WoA site'       => array( 'woa', 'true' ),
 		);
-	}
-
-	/**
-	 * Tests that Help Center is dequeued in the block editor when the unified experience
-	 * (Help Center takeover) is active — Agents Manager becomes the single help affordance.
-	 */
-	public function test_help_center_dequeued_in_block_editor_when_unified() {
-		require_once ABSPATH . 'wp-admin/includes/screen.php';
-		set_current_screen( 'post' );
-		$screen     = get_current_screen();
-		$reflection = new \ReflectionClass( $screen );
-		$property   = $reflection->getProperty( 'is_block_editor' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$property->setAccessible( true );
-		}
-		$property->setValue( $screen, true );
-
-		// Reset registries for isolation.
-		global $wp_scripts, $wp_styles;
-		$wp_scripts = null;
-		$wp_styles  = null;
-
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		// Help Center enqueues before Agents Manager (priority 100 vs 101), so it is already queued.
-		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
-		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
-
-		// Full unified experience: Agents Manager takes over the Help Center.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertFalse( wp_script_is( 'help-center', 'enqueued' ), 'Help Center script should be dequeued in the unified experience.' );
-		$this->assertFalse( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should be dequeued in the unified experience.' );
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
 	}
 
 	/**
@@ -711,7 +614,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		wp_enqueue_script( 'help-center', 'https://example.com/help-center.js', array(), '1.0', true );
 		wp_enqueue_style( 'help-center-style', 'https://example.com/help-center.css', array(), '1.0' );
 
-		// Block-editor-only enablement, without the unified (Help Center takeover) experience.
+		// Enable Agents Manager in the block editor without taking over Help Center.
 		add_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
 
 		$this->agents_manager->enqueue_scripts();
@@ -720,65 +623,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertTrue( wp_style_is( 'help-center-style', 'enqueued' ), 'Help Center style should remain enqueued in block-editor-only mode.' );
 
 		remove_filter( 'agents_manager_enabled_in_block_editor', '__return_true' );
-	}
-
-	/**
-	 * Tests that each panel item carries the label and route the client renders from.
-	 *
-	 * @param string      $id         Node ID.
-	 * @param string      $menu_title Expected label.
-	 * @param string|null $route      Expected in-app route, or null for external links.
-	 * @dataProvider provide_panel_node_data
-	 */
-	#[DataProvider( 'provide_panel_node_data' )]
-	public function test_panel_nodes_carry_their_label_and_route( $id, $menu_title, $route ) {
-		$this->apply_admin_bar_context( array( 'unified' => true ) );
-
-		$node = $this->render_admin_bar()->get_node( $id );
-
-		$this->assertNotNull( $node );
-		$this->assertSame( $menu_title, $node->meta['menu_title'] ?? null );
-		$this->assertSame( $route, $node->meta['route'] ?? null );
-	}
-
-	/**
-	 * Data provider for the panel item label and route pairs.
-	 *
-	 * @return array<string, array{0: string, 1: string, 2: string|null}>
-	 */
-	public static function provide_panel_node_data() {
-		return array(
-			'chat support'    => array( 'agents-manager-chat-support', 'Chat support', '/chat' ),
-			'chat history'    => array( 'agents-manager-chat-history', 'Chat history', '/history' ),
-			'support guides'  => array( 'agents-manager-support-guides', 'Support guides', '/support-guides' ),
-			'courses'         => array( 'agents-manager-courses', 'Courses', null ),
-			'product updates' => array( 'agents-manager-product-updates', 'Product updates', null ),
-		);
-	}
-
-	/**
-	 * Tests that the Help node replaces the legacy Help Center node rather than sitting beside it.
-	 */
-	public function test_help_node_replaces_the_legacy_help_center_node() {
-		$this->apply_admin_bar_context( array( 'unified' => true ) );
-
-		// Help Center registers its own node at the default priority, below ours.
-		$help_center = static function ( $wp_admin_bar ) {
-			$wp_admin_bar->add_menu(
-				array(
-					'id'     => 'help-center',
-					'parent' => 'top-secondary',
-				)
-			);
-		};
-		add_action( 'admin_bar_menu', $help_center );
-
-		$ids = array_keys( $this->render_admin_bar()->get_nodes() ?? array() );
-
-		remove_action( 'admin_bar_menu', $help_center );
-
-		$this->assertContains( 'agents-manager', $ids );
-		$this->assertNotContains( 'help-center', $ids );
 	}
 
 	/**
@@ -812,51 +656,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that `meta.icon` names the glyph wp-admin renders, so the two cannot drift.
-	 *
-	 * @param string $id            Node ID.
-	 * @param string $expected_name Glyph name the node is expected to advertise.
-	 * @dataProvider provide_icon_bearing_node_ids
-	 */
-	#[DataProvider( 'provide_icon_bearing_node_ids' )]
-	public function test_meta_icon_names_the_rendered_icon( $id, $expected_name ) {
-		$this->apply_admin_bar_context( array( 'unified' => true ) );
-
-		$node = $this->render_admin_bar()->get_node( $id );
-
-		$this->assertNotNull( $node );
-		$this->assertSame( $expected_name, $node->meta['icon'] ?? '' );
-
-		// The name must resolve to the glyph wp-admin draws, so the two cannot drift.
-		$get_icon = new \ReflectionMethod( Agents_Manager::class, 'get_icon' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$get_icon->setAccessible( true );
-		}
-		$markup = $get_icon->invoke( Agents_Manager::get_instance(), $expected_name );
-
-		// `get_icon()` returns '' for a name it does not know, which would make the check below vacuous.
-		$this->assertNotSame( '', $markup );
-		$this->assertStringContainsString( $markup, $node->title );
-	}
-
-	/**
-	 * Data provider for the nodes that carry an icon.
-	 *
-	 * @return array<string, array{0: string, 1: string}>
-	 */
-	public static function provide_icon_bearing_node_ids() {
-		return array(
-			'help'            => array( 'agents-manager', 'help' ),
-			'ai chat'         => array( 'agents-manager-ai-chat', 'sparkle' ),
-			'chat support'    => array( 'agents-manager-chat-support', 'comment' ),
-			'chat history'    => array( 'agents-manager-chat-history', 'backup' ),
-			'support guides'  => array( 'agents-manager-support-guides', 'page' ),
-			'courses'         => array( 'agents-manager-courses', 'video' ),
-			'product updates' => array( 'agents-manager-product-updates', 'rss' ),
-		);
-	}
-
-	/**
 	 * Tests that `menu_title` is not HTML-escaped.
 	 *
 	 * It is API data, and core escapes it again when rendering the group's aria-label.
@@ -877,59 +676,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that Help is registered before the AI chat button, matching the wp-admin admin bar order.
-	 */
-	public function test_help_node_is_registered_before_the_ai_chat_button() {
-		$this->apply_admin_bar_context( array( 'unified' => true ) );
-
-		$ids = array_keys( $this->render_admin_bar()->get_nodes() ?? array() );
-
-		$this->assertContains( 'agents-manager', $ids );
-		$this->assertContains( 'agents-manager-ai-chat', $ids );
-		$this->assertLessThan(
-			array_search( 'agents-manager-ai-chat', $ids, true ),
-			array_search( 'agents-manager', $ids, true )
-		);
-	}
-
-	/**
-	 * Tests that the Help node links straight out only for disconnected variants.
-	 *
-	 * Drives `admin_bar_menu` so the caller's choice of argument is covered, not just the method.
-	 *
-	 * @param string|null $variant     Forced variant, or null for the connected default.
-	 * @param bool        $expect_href Whether the node should carry the Help Center URL.
-	 * @dataProvider provide_help_menu_connection_states
-	 */
-	#[DataProvider( 'provide_help_menu_connection_states' )]
-	public function test_help_menu_links_out_only_when_disconnected( $variant, $expect_href ) {
-		$this->apply_admin_bar_context(
-			array(
-				'unified' => true,
-				'variant' => $variant,
-			)
-		);
-
-		$node = $this->render_admin_bar()->get_node( 'agents-manager' );
-
-		$this->assertNotNull( $node );
-		$this->assertSame( $expect_href, ! empty( $node->href ) );
-	}
-
-	/**
-	 * Data provider for the Help node connection states.
-	 *
-	 * @return array<string, array{0: string|null, 1: bool}>
-	 */
-	public static function provide_help_menu_connection_states() {
-		return array(
-			'disconnected links to the Help Center' => array( 'wp-admin-disconnected', true ),
-			'connected opens the dropdown'          => array( null, false ),
-		);
-	}
-
-	/**
-	 * Tests that the full UI mount target belongs to the AI chat button rather than Help.
+	 * Tests that the AI chat button owns the full UI mount target.
 	 */
 	public function test_ai_chat_button_owns_full_ui_mount_target() {
 		global $wp_admin_bar;
@@ -938,15 +685,11 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$wp_admin_bar = new \WP_Admin_Bar();
 		$wp_admin_bar->initialize();
 
-		$this->agents_manager->add_help_menu( $wp_admin_bar, false );
 		$this->agents_manager->add_ai_chat_button( $wp_admin_bar );
 
-		$help_node = $wp_admin_bar->get_node( 'agents-manager' );
-		$ai_node   = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
+		$ai_node = $wp_admin_bar->get_node( 'agents-manager-ai-chat' );
 
-		$this->assertNotNull( $help_node );
 		$this->assertNotNull( $ai_node );
-		$this->assertStringNotContainsString( 'agents-manager-masterbar', $help_node->meta['html'] ?? '' );
 		$this->assertStringContainsString( 'agents-manager-masterbar', $ai_node->meta['html'] ?? '' );
 	}
 
@@ -1017,507 +760,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				false,
 			),
 		);
-	}
-
-	/**
-	 * Tests that should_display_menu_panel returns false by default.
-	 */
-	public function test_should_display_menu_panel_returns_false_by_default() {
-		wp_set_current_user( 0 );
-
-		$result = $this->agents_manager->should_display_menu_panel();
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_display_menu_panel respects the agents_manager_use_unified_experience filter.
-	 * External code (e.g. mu-plugins in test environments) should be able to control
-	 * whether the admin bar menu panel is displayed via the filter.
-	 */
-	public function test_should_display_menu_panel_respects_filter() {
-		add_filter(
-			'agents_manager_use_unified_experience',
-			'__return_true',
-			// Use a higher priority to ensure it runs after the class's own filter.
-			20
-		);
-
-		$result = $this->agents_manager->should_display_menu_panel();
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Tests that the agents_manager_use_unified_experience filter is registered.
-	 */
-	public function test_unified_experience_filter_is_registered() {
-		$this->assertNotFalse(
-			has_filter( 'agents_manager_use_unified_experience', array( $this->agents_manager, 'should_use_unified_experience' ) )
-		);
-	}
-
-	/**
-	 * Tests that should_use_unified_experience returns false when no user is logged in.
-	 */
-	public function test_should_use_unified_experience_returns_false_when_no_user() {
-		wp_set_current_user( 0 );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience returns false for non-Automattician users on Simple sites.
-	 */
-	public function test_should_use_unified_experience_returns_false_for_non_automattician() {
-		// Simulate being on a Simple site.
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		Functions\stubs(
-			array(
-				'is_automattician' => false,
-			)
-		);
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_non_automattician',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience returns true for Automattician with opt-in enabled on Simple sites.
-	 */
-	public function test_should_use_unified_experience_returns_true_for_automattician_with_opt_in() {
-		// Simulate being on a Simple site.
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		Functions\stubs(
-			array(
-				'is_automattician'         => true,
-				// Return calypso_preferences with unified_ai_chat enabled.
-				'get_user_attribute'       => array( 'unified_ai_chat' => true ),
-				// Simulate proxied request (required for unified experience).
-				'wpcom_is_proxied_request' => true,
-			)
-		);
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_automattician_with_opt_in',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience returns false for Automattician without opt-in on Simple sites.
-	 */
-	public function test_should_use_unified_experience_returns_false_for_automattician_without_opt_in() {
-		// Simulate being on a Simple site.
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		Functions\stubs(
-			array(
-				'is_automattician'   => true,
-				// Return calypso_preferences without unified_ai_chat (or with it set to false).
-				'get_user_attribute' => array( 'unified_ai_chat' => false ),
-			)
-		);
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_automattician_no_opt_in',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that the filter can be used to get the unified experience value.
-	 */
-	public function test_unified_experience_filter_returns_expected_value() {
-		wp_set_current_user( 0 );
-
-		$result = apply_filters( 'agents_manager_use_unified_experience', null );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience returns false on Atomic site when API call fails.
-	 * On Atomic sites, the decision is delegated to wpcom via the /me endpoint.
-	 * If the API call fails, it should return false.
-	 */
-	public function test_should_use_unified_experience_returns_false_on_atomic_when_api_fails() {
-		// Simulate being on an Atomic (WoA) site.
-		Cache::set( 'is_woa_site', true );
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_atomic_user',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// Since we can't mock the API call in this test environment,
-		// the call to /me?fields=unified_ai_chat will fail and return false.
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience returns false when wpcom_is_proxied_request returns false.
-	 * On Simple sites, proxy detection uses the wpcom_is_proxied_request function.
-	 */
-	public function test_should_use_unified_experience_returns_false_when_wpcom_proxy_function_returns_false() {
-		// Simulate being on a Simple site.
-		Constants::set_constant( 'IS_WPCOM', true );
-
-		Functions\stubs(
-			array(
-				// Simulate non-proxied request via wpcom function.
-				'wpcom_is_proxied_request' => false,
-			)
-		);
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_not_proxied_simple',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience returns false on WoA when not proxied (no constant/server var).
-	 * On WoA/Garden sites, proxy detection falls back to A8C_PROXIED_REQUEST constant or server variable.
-	 */
-	public function test_should_use_unified_experience_returns_false_on_woa_when_not_proxied() {
-		// Simulate being on an Atomic (WoA) site without proxy.
-		Cache::set( 'is_woa_site', true );
-		// Do NOT set A8C_PROXIED_REQUEST constant or $_SERVER variable.
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_not_proxied_woa',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience checks proxy via A8C_PROXIED_REQUEST constant on WoA.
-	 * On WoA/Garden sites where wpcom_is_proxied_request doesn't exist,
-	 * proxy detection uses the A8C_PROXIED_REQUEST constant.
-	 */
-	public function test_should_use_unified_experience_uses_constant_for_proxy_on_woa() {
-		// Simulate being on an Atomic (WoA) site with proxy via constant.
-		Cache::set( 'is_woa_site', true );
-		Constants::set_constant( 'A8C_PROXIED_REQUEST', true );
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_proxied_woa_constant',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// The proxy check passes, but the API call will fail in test environment,
-		// so the result will still be false. This test verifies the proxy check
-		// doesn't block execution when the constant is set.
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		// Result is false because API call fails, but importantly we got past the proxy check.
-		// If proxy check failed, we would have returned false before any API call attempt.
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that should_use_unified_experience checks proxy via $_SERVER on WoA.
-	 * On WoA/Garden sites where wpcom_is_proxied_request doesn't exist,
-	 * proxy detection can also use the A8C_PROXIED_REQUEST server variable.
-	 */
-	public function test_should_use_unified_experience_uses_server_var_for_proxy_on_woa() {
-		// Simulate being on an Atomic (WoA) site with proxy via server variable.
-		Cache::set( 'is_woa_site', true );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_proxied_woa_server',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// The proxy check passes, but the API call will fail in test environment.
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		// Clean up server variable.
-		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
-
-		// Result is false because API call fails, but we verified the proxy check passed.
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that fetch_unified_experience_preference returns true when API returns unified_ai_chat enabled.
-	 */
-	public function test_fetch_unified_experience_preference_returns_true_when_api_returns_enabled() {
-		// Simulate being on an Atomic (WoA) site with proxy.
-		Cache::set( 'is_woa_site', true );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		// Set up Jetpack connection mocking.
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_api_enabled',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// Mock user connection by setting user tokens.
-		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
-		\Jetpack_Options::update_option( 'id', 12345 );
-
-		// Mock the API response.
-		add_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_enabled' ), 10, 3 );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		remove_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_enabled' ), 10 );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Tests that fetch_unified_experience_preference returns false when API returns unified_ai_chat disabled.
-	 */
-	public function test_fetch_unified_experience_preference_returns_false_when_api_returns_disabled() {
-		// Simulate being on an Atomic (WoA) site with proxy.
-		Cache::set( 'is_woa_site', true );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		// Set up Jetpack connection mocking.
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_api_disabled',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// Mock user connection by setting user tokens.
-		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
-		\Jetpack_Options::update_option( 'id', 12345 );
-
-		// Mock the API response.
-		add_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_disabled' ), 10, 3 );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		remove_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_disabled' ), 10 );
-
-		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that fetch_unified_experience_preference uses cached value on subsequent calls.
-	 */
-	public function test_fetch_unified_experience_preference_uses_cache() {
-		// Simulate being on an Atomic (WoA) site with proxy.
-		Cache::set( 'is_woa_site', true );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		// Set up Jetpack connection mocking.
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_cache',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// Mock user connection by setting user tokens.
-		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
-		\Jetpack_Options::update_option( 'id', 12345 );
-
-		// Set transient cache directly.
-		set_transient( 'unified-experience-' . $user_id, 1, MINUTE_IN_SECONDS );
-
-		// Track API calls - should not be called if cache is used.
-		$api_call_count = 0;
-		$count_callback = function () use ( &$api_call_count ) {
-			++$api_call_count;
-			return array(
-				'body'     => wp_json_encode( true, JSON_UNESCAPED_SLASHES ),
-				'response' => array(
-					'code'    => 200,
-					'message' => 'OK',
-				),
-			);
-		};
-		add_filter( 'pre_http_request', $count_callback, 10, 3 );
-
-		$result = $this->agents_manager->should_use_unified_experience();
-
-		remove_filter( 'pre_http_request', $count_callback, 10 );
-
-		// Should return true from cache and not make any API calls.
-		$this->assertTrue( $result );
-		$this->assertSame( 0, $api_call_count );
-	}
-
-	/**
-	 * Tests that fetch_unified_experience_preference caches API failures.
-	 */
-	public function test_fetch_unified_experience_preference_caches_failures() {
-		// Simulate being on an Atomic (WoA) site with proxy.
-		Cache::set( 'is_woa_site', true );
-		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
-
-		// Set up Jetpack connection mocking.
-		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
-
-		$user_id = wp_insert_user(
-			array(
-				'user_login' => 'test_cache_failure',
-				'user_pass'  => 'password',
-				'role'       => 'subscriber',
-			)
-		);
-		wp_set_current_user( $user_id );
-
-		// Mock user connection by setting user tokens.
-		\Jetpack_Options::update_option( 'user_tokens', array( $user_id => 'test.token.' . $user_id ) );
-		\Jetpack_Options::update_option( 'id', 12345 );
-
-		// Mock API failure.
-		add_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_error' ), 10, 3 );
-
-		// First call - should fail and cache the failure.
-		$result1 = $this->agents_manager->should_use_unified_experience();
-
-		remove_filter( 'pre_http_request', array( $this, 'mock_agents_manager_state_api_error' ), 10 );
-
-		$this->assertFalse( $result1 );
-
-		// Verify failure is cached.
-		$cached = get_transient( 'unified-experience-' . $user_id );
-		$this->assertSame( 0, $cached );
-	}
-
-	/**
-	 * Mock the preferences API to return enabled.
-	 *
-	 * @param mixed  $response The response.
-	 * @param array  $args The request args.
-	 * @param string $url The URL.
-	 * @return array The mocked response.
-	 */
-	public function mock_agents_manager_state_api_enabled( $response, $args, $url ) {
-		if ( strpos( $url, '/agents-manager/state' ) === false ) {
-			return $response;
-		}
-
-		return array(
-			'body'     => wp_json_encode( array( 'unified_ai_chat' => true ), JSON_UNESCAPED_SLASHES ),
-			'response' => array(
-				'code'    => 200,
-				'message' => 'OK',
-			),
-		);
-	}
-
-	/**
-	 * Mock the preferences API to return disabled.
-	 *
-	 * @param mixed  $response The response.
-	 * @param array  $args The request args.
-	 * @param string $url The URL.
-	 * @return array The mocked response.
-	 */
-	public function mock_agents_manager_state_api_disabled( $response, $args, $url ) {
-		if ( strpos( $url, '/agents-manager/state' ) === false ) {
-			return $response;
-		}
-
-		return array(
-			'body'     => wp_json_encode( array( 'unified_ai_chat' => false ), JSON_UNESCAPED_SLASHES ),
-			'response' => array(
-				'code'    => 200,
-				'message' => 'OK',
-			),
-		);
-	}
-
-	/**
-	 * Mock the preferences API to return an error.
-	 *
-	 * @param mixed  $response The response.
-	 * @param array  $args The request args.
-	 * @param string $url The URL.
-	 * @return \WP_Error The mocked error response.
-	 */
-	public function mock_agents_manager_state_api_error( $response, $args, $url ) {
-		if ( strpos( $url, '/agents-manager/state' ) === false ) {
-			return $response;
-		}
-
-		return new \WP_Error( 'http_request_failed', 'Connection failed' );
 	}
 
 	/**
@@ -1771,11 +1013,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that get_variant returns wp-admin-disconnected on the frontend for eligible logged-in editors.
-	 * Covers the frontend loading path in get_variant(): a logged-in editor (can edit_posts + member of blog)
-	 * on a non-admin, non-P2 page with unified experience enabled should get the wp-admin-disconnected variant.
+	 * Tests that Agents Manager remains inactive on the frontend for eligible logged-in editors.
 	 */
-	public function test_get_variant_returns_wp_admin_disconnected_on_frontend_for_eligible_editor() {
+	public function test_get_variant_returns_null_on_frontend_for_eligible_editor() {
 		// Ensure we're on the frontend (not admin) - default test state.
 		$this->assertFalse( is_admin() );
 
@@ -1789,15 +1029,15 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 		wp_set_current_user( $user_id );
 
-		// Enable unified experience.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$variant = $this->call_get_variant();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		wp_set_current_user( 0 );
 
-		$this->assertSame( 'wp-admin-disconnected', $variant );
+		$this->assertNull( $variant );
 	}
 
 	/**
@@ -1847,50 +1087,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$_SERVER['REQUEST_URI'] = '/wp-content/plugins/gutenberg-core/build/block-library/style.css';
 
 		$this->assertFalse( $this->call_should_enqueue_script() );
-	}
-
-	/**
-	 * Tests that should_enqueue_script returns true when unified experience is enabled and not in preview context.
-	 */
-	public function test_should_enqueue_script_returns_true_when_unified_experience_enabled() {
-		$this->set_admin_context();
-		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
-
-		// Add a filter to enable unified experience.
-		add_filter(
-			'agents_manager_use_unified_experience',
-			'__return_true',
-			20
-		);
-
-		$result = $this->call_should_enqueue_script();
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Tests that should_enqueue_script returns false when preview=true even if unified experience is enabled.
-	 * The preview check should take precedence over the unified experience filter.
-	 */
-	public function test_should_enqueue_script_preview_check_takes_precedence_over_unified_experience() {
-		$this->set_admin_context();
-		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
-		$_GET['preview']        = 'true';
-
-		// Add a filter to enable unified experience.
-		add_filter(
-			'agents_manager_use_unified_experience',
-			'__return_true',
-			20
-		);
-
-		$result = $this->call_should_enqueue_script();
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->assertFalse( $result );
 	}
 
 	/**
@@ -2023,7 +1219,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -2034,7 +1230,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"currentUser":', $inline_script );
 		$this->assertStringContainsString( 'Enqueue Test', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -2051,7 +1247,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Force a non-null variant so enqueue_scripts() reaches the inline-data block.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		add_filter(
 			'jetpack_ai_sidebar_agents_manager_data',
@@ -2069,7 +1265,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"customFeatureEnabled":true', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -2086,7 +1282,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
 		// Force a non-null variant so enqueue_scripts() reaches the inline-data block.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'jetpack_ai_sidebar_agents_manager_data', '__return_null' );
 
 		$this->agents_manager->enqueue_scripts();
@@ -2096,9 +1292,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
 
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
-		$this->assertStringContainsString( '"helpCenterUrl":"https://wordpress.com/help?help-center=home"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -2116,7 +1311,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -2127,34 +1322,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$this->assertStringContainsString( '"site":', $inline_script );
 		$this->assertStringContainsString( 'testsite.example.com', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-	}
-
-	/**
-	 * Tests that enqueue_scripts includes helpCenterUrl in agentsManagerData.
-	 */
-	public function test_enqueue_scripts_includes_help_center_url() {
-		// Set admin context - scripts only enqueue in admin.
-		$this->set_admin_context();
-
-		// Reset the script registry.
-		global $wp_scripts;
-		$wp_scripts = null;
-
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
-
-		$this->assertStringContainsString( '"helpCenterUrl":', $inline_script );
-		$this->assertStringContainsString( 'https://wordpress.com/help?help-center=home', $inline_script );
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -2170,9 +1338,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable unified experience. Jetpack is not connected (default test state),
+		// Request the Agents Manager shell. Jetpack is not connected (default test state),
 		// so is_jetpack_disconnected() returns false for non-Jetpack sites.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -2182,7 +1350,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -2209,9 +1377,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable unified experience. Jetpack is not connected (default test state),
+		// Request the Agents Manager shell. Jetpack is not connected (default test state),
 		// so is_jetpack_disconnected() returns false for non-Jetpack sites.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -2221,7 +1389,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"gutenberg"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
@@ -2250,9 +1418,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable unified experience. Jetpack is not connected (default test state),
+		// Request the Agents Manager shell. Jetpack is not connected (default test state),
 		// so is_jetpack_disconnected() returns false for non-Jetpack sites.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -2262,14 +1430,13 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that enqueue_scripts includes sectionName as wp-admin-disconnected when unified experience
-	 * is enabled but Jetpack is disconnected.
+	 * Tests that wp-admin does not enqueue Agents Manager when Jetpack is disconnected.
 	 */
-	public function test_enqueue_scripts_includes_section_name_wp_admin_disconnected() {
+	public function test_enqueue_scripts_skips_disconnected_wp_admin() {
 		// Set admin context - scripts only enqueue in admin.
 		$this->set_admin_context();
 
@@ -2279,26 +1446,22 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable unified experience and simulate a Jetpack site with a disconnected user.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 		// Do not connect the user - is_user_connected() will return false by default.
 
 		$this->agents_manager->enqueue_scripts();
 
-		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
+		$this->assertFalse( wp_script_is( 'agents-manager', 'enqueued' ) );
 
-		$this->assertStringContainsString( '"sectionName":"wp-admin-disconnected"', $inline_script );
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 	}
 
 	/**
 	 * Tests that enqueue_scripts includes sectionName as gutenberg-disconnected in block editor
-	 * when unified experience is enabled but Jetpack is disconnected.
+	 * when the Agents Manager shell is requested but Jetpack is disconnected.
 	 */
 	public function test_enqueue_scripts_includes_section_name_gutenberg_disconnected() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -2321,8 +1484,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 
-		// Enable unified experience and simulate a Jetpack site with a disconnected user.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 		// Do not connect the user - is_user_connected() will return false by default.
 
@@ -2334,117 +1497,32 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( '"sectionName":"gutenberg-disconnected"', $inline_script );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 	}
 
 	/**
-	 * Tests that enqueue_scripts includes sectionName as ciab-disconnected in CIAB environment
-	 * when Jetpack is disconnected.
+	 * Tests that should_enqueue_script returns false when Jetpack is disconnected in wp-admin.
 	 */
-	public function test_enqueue_scripts_includes_section_name_ciab_disconnected() {
-		// Set admin context - scripts only enqueue in admin.
-		$this->set_admin_context();
-
-		// Save the current did_action counter for next_admin_init to restore later.
-		global $wp_actions;
-		$original_action_count = $wp_actions['next_admin_init'] ?? 0;
-
-		// Simulate CIAB environment by incrementing the action counter directly
-		// (avoids side effects from firing the action, which would trigger enqueue_scripts).
-		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
-
-		// Reset the script registry.
-		global $wp_scripts;
-		$wp_scripts = null;
-
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		// Simulate a Jetpack site with a disconnected user.
-		add_filter( 'is_jetpack_site', '__return_true', 20 );
-		// Do not connect the user - is_user_connected() will return false by default.
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
-
-		$this->assertStringContainsString( '"sectionName":"ciab-disconnected"', $inline_script );
-
-		remove_filter( 'is_jetpack_site', '__return_true', 20 );
-
-		// Restore the original did_action counter to prevent test order dependencies.
-		if ( $original_action_count === 0 ) {
-			unset( $wp_actions['next_admin_init'] );
-		} else {
-			$wp_actions['next_admin_init'] = $original_action_count;
-		}
-	}
-
-	/**
-	 * Tests that enqueue_scripts includes sectionName as ciab in CIAB environment
-	 * when is_jetpack_disconnected() returns false (non-Jetpack site or connected user).
-	 */
-	public function test_enqueue_scripts_includes_section_name_ciab_connected() {
-		// Set admin context - scripts only enqueue in admin.
-		$this->set_admin_context();
-
-		// Save the current did_action counter for next_admin_init to restore later.
-		global $wp_actions;
-		$original_action_count = $wp_actions['next_admin_init'] ?? 0;
-
-		// Simulate CIAB environment by incrementing the action counter directly
-		// (avoids side effects from firing the action, which would trigger enqueue_scripts).
-		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
-
-		// Reset the script registry.
-		global $wp_scripts;
-		$wp_scripts = null;
-
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		// Do NOT simulate a Jetpack disconnected site.
-		// is_jetpack_disconnected() returns false for non-Jetpack sites.
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
-
-		$this->assertStringContainsString( '"sectionName":"ciab"', $inline_script );
-
-		// Restore the original did_action counter to prevent test order dependencies.
-		if ( $original_action_count === 0 ) {
-			unset( $wp_actions['next_admin_init'] );
-		} else {
-			$wp_actions['next_admin_init'] = $original_action_count;
-		}
-	}
-
-	/**
-	 * Tests that should_enqueue_script returns true when unified experience is enabled but Jetpack is disconnected (in wp-admin).
-	 */
-	public function test_should_enqueue_script_returns_true_when_disconnected_variant_enabled_in_admin() {
+	public function test_should_enqueue_script_returns_false_when_disconnected_in_admin() {
 		$this->set_admin_context();
 		$_SERVER['REQUEST_URI'] = '/wp-admin/index.php';
 
-		// Enable unified experience and simulate a Jetpack site with a disconnected user.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 		// Do not connect the user - is_user_connected() will return false by default.
 
 		$result = $this->call_should_enqueue_script();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 
-		$this->assertTrue( $result );
+		$this->assertFalse( $result );
 	}
 
 	/**
-	 * Tests that should_enqueue_script returns true when unified experience is enabled but Jetpack is disconnected (in block editor).
+	 * Tests that should_enqueue_script returns true when the Agents Manager shell is requested but Jetpack is disconnected (in block editor).
 	 */
 	public function test_should_enqueue_script_returns_true_when_disconnected_variant_enabled_in_block_editor() {
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
@@ -2461,52 +1539,21 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		}
 		$property->setValue( $screen, true );
 
-		// Enable unified experience and simulate a Jetpack site with a disconnected user.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 		// Do not connect the user - is_user_connected() will return false by default.
 
 		$result = $this->call_should_enqueue_script();
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
 
 		$this->assertTrue( $result );
 	}
 
 	/**
-	 * Tests that disconnected variant is not used when unified experience is enabled and Jetpack is connected.
-	 */
-	public function test_disconnected_variant_not_used_when_unified_experience_enabled_and_connected() {
-		// Set admin context.
-		$this->set_admin_context();
-
-		// Reset the script registry.
-		global $wp_scripts;
-		$wp_scripts = null;
-
-		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
-
-		// Enable unified experience. Do not simulate a Jetpack site, so is_jetpack_disconnected() returns false.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->agents_manager->enqueue_scripts();
-
-		$this->assertNotNull( $wp_scripts, 'wp_scripts should be initialized after enqueue_scripts' );
-		$inline_scripts = $wp_scripts->registered['agents-manager']->extra['before'] ?? array();
-		$inline_script  = implode( "\n", array_filter( $inline_scripts ) );
-
-		// Should use wp-admin, not wp-admin-disconnected, because Jetpack is connected (or not a Jetpack site).
-		$this->assertStringContainsString( '"sectionName":"wp-admin"', $inline_script );
-		$this->assertStringNotContainsString( '"sectionName":"wp-admin-disconnected"', $inline_script );
-		$this->assertStringNotContainsString( '"sectionName":"gutenberg-disconnected"', $inline_script );
-		$this->assertStringNotContainsString( '"sectionName":"ciab-disconnected"', $inline_script );
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-	}
-
-	/**
-	 * Tests that CSS is enqueued for connected variants but not for gutenberg-disconnected or ciab-disconnected.
+	 * Tests that CSS is enqueued for connected variants but not for gutenberg-disconnected.
 	 */
 	public function test_css_enqueued_only_for_wp_admin_variants() {
 		// Test wp-admin variant (connected) - should enqueue CSS.
@@ -2516,18 +1563,26 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
 		wp_register_style( 'agents-manager-style', 'https://example.com/agents-manager.css', array(), '1.0' );
+		set_transient(
+			'agents-manager-asset-wp-admin.asset.json',
+			array(
+				'dependencies' => array(),
+				'version'      => '1.0',
+			)
+		);
 
-		// Enable unified experience. Not a Jetpack site, so is_jetpack_disconnected() returns false.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell. Not a Jetpack site, so is_jetpack_disconnected() returns false.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
 		$this->assertNotNull( $wp_styles, 'wp_styles should be initialized' );
 		$this->assertTrue( wp_style_is( 'agents-manager-style', 'enqueued' ), 'CSS should be enqueued for wp-admin variant' );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
 
-		// Test gutenberg-disconnected variant (unified experience enabled + Jetpack disconnected) - should NOT enqueue CSS.
+		// Test gutenberg-disconnected variant (the Agents Manager shell requested + Jetpack disconnected) - should NOT enqueue CSS.
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 		set_current_screen( 'post' );
 		$screen = get_current_screen();
@@ -2541,9 +1596,16 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 
 		$wp_styles = null;
 		wp_register_script( 'agents-manager', 'https://example.com/agents-manager.js', array(), '1.0', true );
+		set_transient(
+			'agents-manager-asset-gutenberg-disconnected.asset.json',
+			array(
+				'dependencies' => array(),
+				'version'      => '1.0',
+			)
+		);
 
-		// Enable unified experience and simulate a Jetpack site with a disconnected user.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell and simulate a Jetpack site with a disconnected user.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 		// Do not connect the user - is_user_connected() will return false by default.
 
@@ -2552,8 +1614,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		// For gutenberg-disconnected variant, CSS should not be enqueued.
 		$this->assertFalse( wp_style_is( 'agents-manager-style', 'enqueued' ), 'CSS should NOT be enqueued for gutenberg-disconnected variant' );
 
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
+		delete_transient( 'agents-manager-asset-gutenberg-disconnected.asset.json' );
 	}
 
 	/**
@@ -2591,31 +1654,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that get_variant returns ciab in CIAB environment
-	 * when is_jetpack_disconnected() returns false (non-Jetpack site or connected user).
-	 */
-	public function test_get_variant_returns_ciab_in_ciab_when_connected() {
-		$this->set_admin_context();
-
-		// Save and simulate CIAB environment.
-		global $wp_actions;
-		$original_action_count         = $wp_actions['next_admin_init'] ?? 0;
-		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
-
-		// is_jetpack_disconnected() returns false for non-Jetpack sites.
-		$result = $this->call_get_variant();
-
-		// Restore did_action counter.
-		if ( $original_action_count === 0 ) {
-			unset( $wp_actions['next_admin_init'] );
-		} else {
-			$wp_actions['next_admin_init'] = $original_action_count;
-		}
-
-		$this->assertSame( 'ciab', $result );
-	}
-
-	/**
 	 * Tests that is_enabled returns false by default when no filters are active.
 	 */
 	public function test_is_enabled_returns_false_by_default() {
@@ -2625,19 +1663,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		$result = Agents_Manager::is_enabled();
 
 		$this->assertFalse( $result );
-	}
-
-	/**
-	 * Tests that is_enabled returns true when the unified experience filter returns true.
-	 */
-	public function test_is_enabled_returns_true_when_unified_experience_enabled() {
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$result = Agents_Manager::is_enabled();
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->assertTrue( $result );
 	}
 
 	/**
@@ -2746,52 +1771,6 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Tests that is_enabled prioritises the unified experience filter over the block editor filter.
-	 * When the unified experience filter is true, is_enabled should return true
-	 * regardless of block editor state.
-	 */
-	public function test_is_enabled_unified_experience_takes_priority_over_block_editor() {
-		// Not in block editor context.
-		$this->assertFalse( is_admin() );
-
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$result = Agents_Manager::is_enabled();
-
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
-
-		$this->assertTrue( $result );
-	}
-
-	/**
-	 * Tests that get_variant returns null in CIAB when agents_manager_enabled_in_ciab filter returns false.
-	 */
-	public function test_get_variant_returns_null_in_ciab_when_disabled_by_filter() {
-		$this->set_admin_context();
-
-		// Save and simulate CIAB environment.
-		global $wp_actions;
-		$original_action_count         = $wp_actions['next_admin_init'] ?? 0;
-		$wp_actions['next_admin_init'] = ( $wp_actions['next_admin_init'] ?? 0 ) + 1;
-
-		// Disable AM in CIAB via filter.
-		add_filter( 'agents_manager_enabled_in_ciab', '__return_false', 20 );
-
-		$result = $this->call_get_variant();
-
-		remove_filter( 'agents_manager_enabled_in_ciab', '__return_false', 20 );
-
-		// Restore did_action counter.
-		if ( $original_action_count === 0 ) {
-			unset( $wp_actions['next_admin_init'] );
-		} else {
-			$wp_actions['next_admin_init'] = $original_action_count;
-		}
-
-		$this->assertNull( $result );
-	}
-
-	/**
 	 * Tests that an integration can load Agents Manager on WooCommerce Admin.
 	 */
 	public function test_should_enqueue_script_returns_true_on_woocommerce_admin_when_requested() {
@@ -2847,8 +1826,8 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		};
 		add_filter( 'locale', $locale_filter );
 
-		// Enable unified experience. Not a Jetpack site, so the connected wp-admin variant is used.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// Request the Agents Manager shell. Not a Jetpack site, so the connected wp-admin variant is used.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -2869,7 +1848,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 
 		remove_filter( 'locale', $locale_filter );
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
 	}
 
@@ -2895,7 +1874,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			return 'en_US';
 		};
 		add_filter( 'locale', $locale_filter );
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
@@ -2905,7 +1884,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		);
 
 		remove_filter( 'locale', $locale_filter );
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		delete_transient( 'agents-manager-asset-wp-admin.asset.json' );
 	}
 
@@ -2914,12 +1893,22 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * bundles have no translatable in-app UI. Mirrors Help Center's behavior.
 	 */
 	public function test_translations_not_enqueued_for_disconnected_variant() {
-		$this->set_admin_context();
+		require_once ABSPATH . 'wp-admin/includes/screen.php';
+		set_current_screen( 'post' );
+		$screen = get_current_screen();
+
+		$reflection = new \ReflectionClass( $screen );
+		$property   = $reflection->getProperty( 'is_block_editor' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$property->setAccessible( true );
+		}
+		$property->setValue( $screen, true );
+
 		global $wp_scripts;
 		$wp_scripts = null;
 
 		set_transient(
-			'agents-manager-asset-wp-admin-disconnected.asset.json',
+			'agents-manager-asset-gutenberg-disconnected.asset.json',
 			array(
 				'version'      => '1.2.3',
 				'dependencies' => array(),
@@ -2932,21 +1921,21 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 		};
 		add_filter( 'locale', $locale_filter );
 
-		// Unified experience on a Jetpack site with a disconnected user yields wp-admin-disconnected.
-		add_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		// A requested shell in the editor with a disconnected user yields gutenberg-disconnected.
+		add_filter( 'agents_manager_should_load', '__return_true', 20 );
 		add_filter( 'is_jetpack_site', '__return_true', 20 );
 
 		$this->agents_manager->enqueue_scripts();
 
 		$this->assertFalse(
 			wp_script_is( 'agents-manager-translations', 'enqueued' ),
-			'Translation script should not be enqueued for the wp-admin-disconnected variant'
+			'Translation script should not be enqueued for the gutenberg-disconnected variant'
 		);
 
 		remove_filter( 'locale', $locale_filter );
-		remove_filter( 'agents_manager_use_unified_experience', '__return_true', 20 );
+		remove_filter( 'agents_manager_should_load', '__return_true', 20 );
 		remove_filter( 'is_jetpack_site', '__return_true', 20 );
-		delete_transient( 'agents-manager-asset-wp-admin-disconnected.asset.json' );
+		delete_transient( 'agents-manager-asset-gutenberg-disconnected.asset.json' );
 	}
 
 	/**
@@ -2997,11 +1986,9 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				'screen'         => 'dashboard',
 				'block_editor'   => false,
 				'admin_bar'      => true,
-				'unified'        => false,
 				'variant'        => null,
 				'editor_enabled' => false,
 				'should_load'    => false,
-				'ciab'           => false,
 				'p2'             => false,
 				'iframe_tab'     => false,
 				'editor_user'    => false,
@@ -3052,15 +2039,7 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 			$_GET['tab'] = 'plugin-information';
 		}
 
-		if ( $ctx['ciab'] ) {
-			global $wp_actions;
-			$wp_actions['next_admin_init'] = 1;
-		}
-
 		Functions\when( 'is_admin_bar_showing' )->justReturn( $ctx['admin_bar'] );
-
-		// Priority 20 runs after the class's own filter.
-		add_filter( 'agents_manager_use_unified_experience', $ctx['unified'] ? '__return_true' : '__return_false', 20 );
 
 		if ( null !== $ctx['variant'] ) {
 			$variant = $ctx['variant'];
@@ -3134,56 +2113,20 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	 * @return array<string, array{0: array<string, mixed>, 1: string[]}>
 	 */
 	public static function provide_admin_bar_contexts() {
-		$help    = 'agents-manager';
 		$ai_chat = 'agents-manager-ai-chat';
-		$panel   = array(
-			'agents-manager-chat-history',
-			'agents-manager-chat-support',
-			'agents-manager-courses',
-			'agents-manager-menu-panel-chat',
-			'agents-manager-menu-panel-links',
-			'agents-manager-product-updates',
-			'agents-manager-support-guides',
-		);
-
-		$unified_nodes = array_merge( array( $help, $ai_chat ), $panel );
-		sort( $unified_nodes );
 
 		return array(
-			'wp-admin, unified experience'           => array(
-				array( 'unified' => true ),
-				$unified_nodes,
-			),
-			'wp-admin, requested shell only'         => array(
+			'wp-admin, requested shell'              => array(
 				array( 'should_load' => true ),
 				array( $ai_chat ),
 			),
-			'wp-admin, disconnected is help-only'    => array(
-				array( 'variant' => 'wp-admin-disconnected' ),
-				array( $help ),
-			),
-			'wp-admin, disconnected and unified'     => array(
-				array(
-					'variant' => 'wp-admin-disconnected',
-					'unified' => true,
-				),
-				array( $help ),
-			),
-			'front end, disconnected is help-only'   => array(
+			'front end, disconnected adds no nodes'  => array(
 				array(
 					'screen'      => null,
 					'editor_user' => true,
 					'should_load' => true,
 				),
-				array( $help ),
-			),
-			'editor with admin bar, unified'         => array(
-				array(
-					'screen'       => 'post',
-					'block_editor' => true,
-					'unified'      => true,
-				),
-				$unified_nodes,
+				array(),
 			),
 			'editor with admin bar, editor-only'     => array(
 				array(
@@ -3225,32 +2168,25 @@ class Agents_Manager_Test extends \WorDBless\BaseTestCase {
 				array(
 					'screen'       => 'post',
 					'block_editor' => true,
-					'unified'      => true,
+					'should_load'  => true,
 					'variant'      => 'gutenberg-disconnected',
-				),
-				array(),
-			),
-			'CIAB has its own Site Hub'              => array(
-				array(
-					'ciab'    => true,
-					'unified' => true,
 				),
 				array(),
 			),
 			'P2 frontend is excluded'                => array(
 				array(
-					'screen'  => null,
-					'p2'      => true,
-					'unified' => true,
-					'variant' => 'wp-admin',
+					'screen'      => null,
+					'p2'          => true,
+					'should_load' => true,
+					'variant'     => 'wp-admin',
 				),
 				array(),
 			),
 			'plugin information iframe is excluded'  => array(
 				array(
-					'screen'     => 'plugin-install',
-					'iframe_tab' => true,
-					'unified'    => true,
+					'screen'      => 'plugin-install',
+					'iframe_tab'  => true,
+					'should_load' => true,
 				),
 				array(),
 			),

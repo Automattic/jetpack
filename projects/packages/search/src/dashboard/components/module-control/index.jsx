@@ -177,7 +177,9 @@ export default function SearchModuleControl( {
 					<ReaderChatControl
 						isAvailable={ isReaderChatControlAvailable }
 						isEnabled={ isReaderChatEnabled }
-						isSaving={ isSavingEitherOption || isDisabledFromOverLimit }
+						isSaving={
+							isSavingEitherOption || ( isDisabledFromOverLimit && ! isReaderChatEnabled )
+						}
 						guidelinesUrl={ readerChatGuidelinesUrl }
 						updateOptions={ updateOptions }
 					/>

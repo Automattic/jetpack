@@ -564,6 +564,7 @@ export default function ActivityLog() {
 							// or it re-computes `hasConnectionError` as false and renders
 							// nothing.
 							includeHealthErrors
+							trackingContext="activity-log"
 							context={ __(
 								'Your activity log couldn’t load because your site isn’t fully connected to WordPress.com.',
 								'jetpack-activity-log'

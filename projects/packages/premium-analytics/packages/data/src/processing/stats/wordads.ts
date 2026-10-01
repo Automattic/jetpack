@@ -15,7 +15,8 @@ export type StatsWordAdsRawResponse = {
 export type StatsWordAdsDataPoint = StatsTimeSeriesDataPoint & {
 	impressions?: number;
 	revenue?: number;
-	cpm?: number;
+	/** Null when no ads were served: CPM is undefined there, not zero. */
+	cpm?: number | null;
 };
 
 export type StatsWordAdsResponse = StatsNormalizedReport & {
@@ -92,8 +93,13 @@ function summarizeWordAdsStats(
 		...baseSummary,
 		impressions: totals.impressions,
 		revenue: totals.revenue,
-		cpm: totals.impressions ? ( totals.revenue / totals.impressions ) * 1000 : 0,
+		cpm: totals.impressions ? ( totals.revenue / totals.impressions ) * 1000 : null,
 	};
+}
+
+// WPCOM writes `cpm = 0` for a bucket with no impressions, as a divide-by-zero guard.
+function withoutUnservedCpm( row: StatsWordAdsDataPoint ): StatsWordAdsDataPoint {
+	return row.impressions === 0 ? { ...row, cpm: null } : row;
 }
 
 function normalizeEarningsPeriod( value: StatsRecord ): StatsWordAdsEarningsPeriod {
@@ -130,6 +136,7 @@ export function sanitizeStatsWordAdsStatsResponse(
 
 	return {
 		...report,
+		data: report.data.map( withoutUnservedCpm ),
 		summary: summarizeWordAdsStats( report.data, report.summary ),
 	};
 }

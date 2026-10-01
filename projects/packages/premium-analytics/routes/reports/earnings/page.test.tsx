@@ -90,7 +90,6 @@ describe( 'EarningsReportPage', () => {
 		expect( screen.getByText( 'September 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '1,414,489' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Unpaid' ) ).toBeInTheDocument();
-		expect( screen.getByText( /Ads Served is the number of ads/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'renders a dash rather than zero when a row has no Ads Served count', () => {
@@ -112,9 +111,7 @@ describe( 'EarningsReportPage', () => {
 		render( <EarningsReportPage /> );
 
 		expect( reportPageTabsMock ).not.toHaveBeenCalled();
-		expect(
-			screen.getByRole( 'heading', { name: 'Earnings history report' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Earnings history' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'offers a tab for each bucket that has rows', () => {
@@ -133,7 +130,7 @@ describe( 'EarningsReportPage', () => {
 		} );
 	} );
 
-	it( 'drops Ads Served and its note on the Adjustments tab', () => {
+	it( 'drops Ads Served on the Adjustments tab', () => {
 		useRecordsMock.mockReturnValue(
 			buildRecords( {
 				tab: 'adjustments',
@@ -144,11 +141,8 @@ describe( 'EarningsReportPage', () => {
 
 		render( <EarningsReportPage /> );
 
-		expect(
-			screen.getByRole( 'heading', { name: 'Adjustments history report' } )
-		).toBeInTheDocument();
+		expect( screen.getByRole( 'heading', { name: 'Adjustments history' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'columnheader', { name: /Ads Served/ } ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( /Ads Served is the number of ads/ ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'June 2026' ) ).toBeInTheDocument();
 		expect( screen.getByText( '-$50.00' ) ).toBeInTheDocument();
 	} );

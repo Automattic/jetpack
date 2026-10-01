@@ -161,7 +161,7 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$self_hosted = $this->render( array( $chrome, 'render_footer' ) );
 
 		$this->assertStringContainsString( 'class="jp-akismet-footer__menu"', $self_hosted );
-		$this->assertStringContainsString( 'page=my-jetpack#/products', $self_hosted );
+		$this->assertStringContainsString( 'page=my-jetpack#/features', $self_hosted );
 
 		Constants::set_constant( 'IS_WPCOM', true );
 		Status_Cache::clear();
@@ -212,16 +212,40 @@ class Akismet_Admin_Chrome_Test extends WP_UnitTestCase {
 		$this->assertStringContainsString( 'class="jp-footer__a8c-logo"', $footer );
 	}
 
+	public function test_wrap_ui_masthead_requires_available_my_jetpack() {
+		global $_registered_pages;
+
+		$_GET['page']    = 'jetpack_modules';
+		$render_masthead = function () {
+			$markup = $this->render(
+				static function () {
+					Jetpack_Admin_Page::wrap_ui( '__return_empty_string' );
+				}
+			);
+			return substr( $markup, 0, strpos( $markup, '</header>' ) );
+		};
+
+		$masthead = $render_masthead();
+		$this->assertSame( 2, substr_count( $masthead, 'page=my-jetpack#/overview' ), 'Both the logo and the title should link to My Jetpack.' );
+		$this->assertStringContainsString( '<a class="jp-masthead__logo-link"', $masthead );
+		unset( $_registered_pages[ get_plugin_page_hookname( 'my-jetpack', 'jetpack' ) ] );
+		$masthead = $render_masthead();
+		$this->assertStringNotContainsString( 'page=my-jetpack', $masthead );
+		$this->assertStringContainsString( '<span class="jp-masthead__logo-link">', $masthead );
+		$this->assertStringContainsString( '<svg', $masthead );
+		$this->assertMatchesRegularExpression( '/<h2 class="jp-masthead__title">\s*Jetpack\s*<span/', $masthead );
+	}
+
 	/**
-	 * With My Jetpack's Features tab on, the footer links to it under its new name.
+	 * With My Jetpack's Features tab filtered off, the footer links to the Products tab instead.
 	 */
-	public function test_render_footer_links_to_the_features_tab_when_it_replaces_products() {
-		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_true' );
+	public function test_render_footer_links_to_the_products_tab_when_the_features_tab_is_off() {
+		add_filter( 'jetpack_feature_flag_enabled_my-jetpack-features-tab', '__return_false' );
 
 		$footer = $this->render( array( new Akismet_Admin_Chrome(), 'render_footer' ) );
 
-		$this->assertStringContainsString( 'page=my-jetpack#/features', $footer );
-		$this->assertStringContainsString( '>Features</a>', $footer );
-		$this->assertStringNotContainsString( 'page=my-jetpack#/products', $footer );
+		$this->assertStringContainsString( 'page=my-jetpack#/products', $footer );
+		$this->assertStringContainsString( '>Products</a>', $footer );
+		$this->assertStringNotContainsString( 'page=my-jetpack#/features', $footer );
 	}
 }

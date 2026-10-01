@@ -19,6 +19,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
+use Automattic\Jetpack\Newsletter\Urls as Newsletter_Urls;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -150,7 +151,7 @@ class Jetpack_Subscriptions {
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
 			function () {
-				return Jetpack::admin_url( array( 'page' => 'jetpack#/newsletter' ) );
+				return Newsletter_Urls::get_newsletter_settings_url();
 			}
 		);
 
@@ -1077,13 +1078,15 @@ class Jetpack_Subscriptions {
 			array( 'site' => $blog_id ? $blog_id : $status->get_site_suffix() )
 		);
 
+		$position = defined( Admin_Menu::class . '::POSITION_EXTERNAL' ) ? Admin_Menu::POSITION_EXTERNAL : 100;
+
 		Admin_Menu::add_menu(
 			__( 'Subscribers', 'jetpack' ),
 			__( 'Subscribers', 'jetpack' ) . ' <span aria-hidden="true">↗</span>',
 			'manage_options',
 			esc_url( $link ),
 			null,
-			Admin_Menu::POSITION_EXTERNAL,
+			$position,
 			array( 'key' => 'jetpack-subscribers' )
 		);
 	}

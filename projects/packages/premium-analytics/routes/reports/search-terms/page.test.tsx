@@ -12,7 +12,7 @@ import type { SearchTermRow } from './config';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
-	getSearchTermsFields: () => [],
+	getSearchTermsFields: jest.fn( () => [] ),
 	useSearchTermsReportRecords: jest.fn(),
 } ) );
 
@@ -23,6 +23,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
 	DateFiltersPanel: () => null,
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
@@ -101,7 +102,7 @@ describe( 'SearchTermsReportPage', () => {
 		render( <SearchTermsReportPage /> );
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: true } )
+			expect.objectContaining( { data: [ row ], isLoading: false, isFetching: true } )
 		);
 	} );
 

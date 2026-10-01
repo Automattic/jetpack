@@ -23,11 +23,13 @@ import {
 	validateDiscountPercentage,
 	validateDiscountAmount,
 	validateReturnUrl,
+	sanitizePayPalUrl,
 	getUserFriendlyError,
 	MAX_NAME_LENGTH,
 	MAX_DESCRIPTION_LENGTH,
 	REQUIRED_FIELD_ERROR,
 } from '../../src/paypal-payment-buttons/utils/validation';
+import parity from '../fixtures/url-parity.json';
 
 // The only test that spells out the wording. The rest read the const.
 describe( 'REQUIRED_FIELD_ERROR', () => {
@@ -306,38 +308,79 @@ describe( 'validateDiscountAmount', () => {
 } );
 
 describe( 'validateReturnUrl', () => {
-	const httpsOnly = 'Return URL must use HTTPS (e.g., https://example.com/thank-you).';
+	const invalidUrl = 'Return URL must be a valid URL (e.g., https://example.com/thank-you).';
 
 	// The field is optional, so no URL is a valid answer.
 	it.each( [ null, undefined, '' ] )( 'returns null for %p', value => {
 		expect( validateReturnUrl( value ) ).toBeNull();
 	} );
 
-	it( 'returns null for an HTTPS URL', () => {
-		expect( validateReturnUrl( 'https://example.com/thanks' ) ).toBeNull();
+	// A port and an @ in the query are both allowed.
+	it.each( [
+		'http://example.com/thanks',
+		'https://example.com/thanks',
+		'https://example.com:8080/thanks',
+		'https://example.com/thanks?email=buyer@example.com',
+	] )( 'returns null for %s', value => {
+		expect( validateReturnUrl( value ) ).toBeNull();
 	} );
 
-	// PayPal's limit; an editor URL with its query string can run past it.
-	it( 'accepts a URL of exactly 127 characters, and rejects one more', () => {
-		const atLimit = 'https://example.com/'.padEnd( 127, 'a' );
-		expect( atLimit ).toHaveLength( 127 );
+	// PayPal's limit: one more character is a 400.
+	it( 'accepts a URL of exactly 1024 characters, and rejects one more', () => {
+		const atLimit = 'https://example.com/'.padEnd( 1024, 'a' );
+		expect( atLimit ).toHaveLength( 1024 );
 		expect( validateReturnUrl( atLimit ) ).toBeNull();
 		expect( validateReturnUrl( `${ atLimit }a` ) ).toBe(
-			'Return URL must be 127 characters or fewer.'
+			'Return URL must be 1024 characters or fewer.'
 		);
 	} );
 
 	it( 'reports the scheme before the length', () => {
-		expect( validateReturnUrl( 'http://example.com/'.padEnd( 200, 'a' ) ) ).toBe( httpsOnly );
+		expect( validateReturnUrl( 'ftp://example.com/'.padEnd( 1025, 'a' ) ) ).toBe( invalidUrl );
 	} );
 
 	it.each( [
-		[ 'plain HTTP', 'http://example.com/thanks' ],
 		[ 'a scheme-relative URL', '//example.com/thanks' ],
 		[ 'a bare host', 'example.com' ],
+		[ 'a URL with no scheme', 'example.com/thanks' ],
+		[ 'an FTP URL', 'ftp://example.com/thanks' ],
+		// The server lowercases the scheme, which changes the URL PayPal stores.
+		[ 'an uppercase scheme', 'HTTPS://example.com' ],
+		[ 'a URL with a space', 'https://example.com/thank you' ],
 		[ 'the scheme on its own', 'https://' ],
+		[ 'an empty host', 'https:///x' ],
+		[ 'a query where the host should be', 'http://?q' ],
+		[ 'a username before the host', 'https://user@host.com/x' ],
 	] )( 'returns an error for %s', ( _label, value ) => {
-		expect( validateReturnUrl( value ) ).toBe( httpsOnly );
+		expect( validateReturnUrl( value ) ).toBe( invalidUrl );
+	} );
+} );
+
+// The other half of this table runs in tests/php against sanitize_paypal_script_url().
+// The two are meant to be mirrors, so a rebuild that lands on one side only fails
+// there as well as here. The host list they share is pinned there too, by
+// test_paypal_host_allow_lists_are_in_sync().
+describe( 'sanitizePayPalUrl', () => {
+	it.each( parity.accepted.map( c => [ c.name, c ] ) )( 'accepts %s', ( _name, testCase ) => {
+		expect( sanitizePayPalUrl( testCase.url ) ).toBe( testCase.sanitized );
+	} );
+
+	it.each( parity.rejected.map( c => [ c.name, c ] ) )( 'refuses %s', ( _name, testCase ) => {
+		expect( sanitizePayPalUrl( testCase.url ) ).toBe( '' );
+	} );
+
+	// Where the two sides part company. Each case pins this side's answer as well as
+	// the PHP's, so closing a gap fails just as loudly as opening one.
+	it.each( [ ...parity.strictEditor, ...parity.parserSplit ].map( c => [ c.name, c ] ) )(
+		'differs from the published page on %s',
+		( _name, testCase ) => {
+			expect( sanitizePayPalUrl( testCase.url ) ).toBe( testCase.js );
+		}
+	);
+
+	// JSON cannot carry `undefined`, so the no-argument call stays out of the fixture.
+	it( 'refuses a missing argument', () => {
+		expect( sanitizePayPalUrl() ).toBe( '' );
 	} );
 } );
 

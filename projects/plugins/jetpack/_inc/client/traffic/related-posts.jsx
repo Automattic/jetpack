@@ -92,7 +92,7 @@ export class RelatedPostsComponent extends Component {
 					siteAdminUrl +
 					'customize.php?autofocus[section]=jetpack_relatedposts' +
 					'&return=' +
-					encodeURIComponent( siteAdminUrl + 'admin.php?page=jetpack#/traffic' ) +
+					encodeURIComponent( siteAdminUrl + 'admin.php?page=jetpack-settings#/traffic' ) +
 					'&url=' +
 					encodeURIComponent( lastPostUrl )
 				}

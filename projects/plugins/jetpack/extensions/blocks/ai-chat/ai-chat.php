@@ -10,12 +10,9 @@
 namespace Automattic\Jetpack\Extensions\AIChat;
 
 use Automattic\Jetpack\Blocks;
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Search\Module_Control as Search_Module_Control;
 use Automattic\Jetpack\Search\Plan as Search_Plan;
 use Automattic\Jetpack\Search\Search_Blocks;
-use Automattic\Jetpack\Status;
-use Automattic\Jetpack\Status\Host;
 use Jetpack_Gutenberg;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -34,16 +31,26 @@ require_once __DIR__ . '/../../../_inc/lib/class-jetpack-ai-settings.php';
  * registration if we need to.
  */
 function register_block() {
-	if (
-		(
-			( new Host() )->is_wpcom_simple()
-			|| ( ( new Connection_Manager( 'jetpack' ) )->has_connected_owner() && ! ( new Status() )->is_offline_mode() )
-		)
-		&& \Jetpack_AI_Settings::is_ai_enabled()
-	) {
-		Blocks::jetpack_register_block(
-			__DIR__,
-			array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	if ( ! \Jetpack_AI_Settings::site_is_connected() ) {
+		return;
+	}
+
+	// The block stays registered while Jetpack AI is off so the render callback
+	// runs and can output nothing. Otherwise WordPress echoes the saved markup,
+	// an empty div, wherever the block sits.
+	Blocks::jetpack_register_block(
+		__DIR__,
+		array( 'render_callback' => __NAMESPACE__ . '\load_assets' )
+	);
+
+	// Registration queues its own "available" mark on this action, so run after it.
+	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
+		add_action(
+			'jetpack_register_gutenberg_extensions',
+			static function () {
+				Jetpack_Gutenberg::set_extension_unavailable( 'ai-chat', 'ai_disabled' );
+			},
+			20
 		);
 	}
 }
@@ -57,6 +64,12 @@ add_action( 'init', __NAMESPACE__ . '\register_block' );
  * @return string
  */
 function load_assets( $attr ) {
+	// With Jetpack AI off there is nothing to ask, so render nothing rather
+	// than an empty container.
+	if ( ! \Jetpack_AI_Settings::is_ai_enabled() ) {
+		return '';
+	}
+
 	/*
 	 * Enqueue necessary scripts and styles.
 	 */

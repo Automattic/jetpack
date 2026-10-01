@@ -3,7 +3,7 @@ import { act, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import { dispatch, select } from '@wordpress/data';
-import { store as noticesStore } from '@wordpress/notices';
+import { SnackbarNotices, store as noticesStore } from '@wordpress/notices';
 import analytics from 'lib/analytics';
 import App from '../main';
 // Compiles the lazy tab module before the tests run, so the flag test's 1s wait
@@ -13,6 +13,16 @@ import '../scheduled-tasks/index';
 // main.jsx imports the webpack-aliased 'lib/analytics', which doesn't resolve
 // under jest — provide it virtually. (jest.mock is hoisted above the imports.)
 jest.mock( 'lib/analytics', () => ( { tracks: { recordEvent: jest.fn() } } ), { virtual: true } );
+
+// boot's layout renders the page's snackbars, so the app no longer mounts a
+// list of its own. Pair them here to keep asserting on what a user reads.
+const renderWithSnackbars = () =>
+	render(
+		<>
+			<App />
+			<SnackbarNotices />
+		</>
+	);
 jest.mock( '@automattic/jetpack-ai-client/jwt', () => ( {
 	__esModule: true,
 	default: jest.fn(),
@@ -127,7 +137,7 @@ const mcpViewCount = () =>
 	).length;
 
 beforeEach( () => {
-	// GlobalNotices renders SnackbarList, whose framer-motion animations
+	// SnackbarNotices renders SnackbarList, whose framer-motion animations
 	// measure keyframes via window.scrollTo — not implemented in jsdom.
 	jest.spyOn( window, 'scrollTo' ).mockImplementation();
 	apiFetch.mockReset();
@@ -172,6 +182,134 @@ describe( 'AI admin page (main.jsx)', () => {
 		).not.toBeInTheDocument();
 	} );
 
+	describe( 'Hub view tracking', () => {
+		const hubViews = () =>
+			analytics.tracks.recordEvent.mock.calls
+				.filter( ( [ event ] ) => event === 'jetpack_ai_hub_viewed' )
+				.map( ( [ , props ] ) => props );
+		const viewedTabs = () => hubViews().map( ( { tab } ) => tab );
+
+		beforeEach( () => {
+			window.jetpackAiSettings = {
+				showFeaturesView: true,
+				blogId: 1,
+				featureFlags: { 'ai-hub-scheduled-tasks': true },
+			};
+			mockApiFetch( { mcpGet: connectedMcpGet() } );
+		} );
+
+		test.each( [ 'overview', 'features', 'mcp', 'mcp/read', 'mcp/write', 'mcp/setup' ] )(
+			'records a direct visit to %s once',
+			async view => {
+				window.history.replaceState( null, '', '#/' + view );
+				const { rerender } = render( <App /> );
+
+				await waitFor( () =>
+					expect( hubViews() ).toEqual( [
+						{
+							site_type: 'jetpack',
+							is_a11n: 'false',
+							is_test: 'false',
+							tab: view.split( '/' )[ 0 ],
+						},
+					] )
+				);
+				rerender( <App /> );
+				expect( hubViews() ).toHaveLength( 1 );
+			}
+		);
+
+		test( 'records a direct visit to scheduled-tasks once after the tab loads', async () => {
+			window.history.replaceState( null, '', '#/scheduled-tasks' );
+			const { rerender } = render( <App /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Try again' } )
+			).resolves.toBeInTheDocument();
+			expect( hubViews() ).toEqual( [
+				{ site_type: 'jetpack', is_a11n: 'false', is_test: 'false', tab: 'scheduled-tasks' },
+			] );
+			rerender( <App /> );
+			expect( hubViews() ).toHaveLength( 1 );
+		} );
+
+		test( 'records the default Overview visit and each tab change, including return visits', async () => {
+			window.history.replaceState( null, '', window.location.pathname );
+			render( <App /> );
+			await waitFor( () => expect( viewedTabs() ).toEqual( [ 'overview' ] ) );
+
+			await userEvent.click( screen.getByRole( 'tab', { name: 'AI Features' } ) );
+			await userEvent.click( screen.getByRole( 'tab', { name: 'Scheduled tasks' } ) );
+			await expect(
+				screen.findByRole( 'button', { name: 'Try again' } )
+			).resolves.toBeInTheDocument();
+			await userEvent.click( screen.getByRole( 'tab', { name: 'MCP and Connectors' } ) );
+			await userEvent.click( screen.getByRole( 'tab', { name: 'Overview' } ) );
+			expect( viewedTabs() ).toEqual( [
+				'overview',
+				'features',
+				'scheduled-tasks',
+				'mcp',
+				'overview',
+			] );
+			expect( mcpViewCount() ).toBe( 1 );
+			await userEvent.click( screen.getByRole( 'tab', { name: 'Overview' } ) );
+			expect( hubViews() ).toHaveLength( 5 );
+		} );
+
+		test( 'records hash and history navigation without counting MCP sub-view changes', async () => {
+			window.history.replaceState( null, '', '#/features' );
+			render( <App /> );
+
+			for ( const [ view, event ] of [
+				[ 'mcp', 'hashchange' ],
+				[ 'mcp/read', 'hashchange' ],
+				[ 'mcp/write', 'hashchange' ],
+				[ 'mcp/setup', 'hashchange' ],
+				[ 'mcp', 'popstate' ],
+				[ 'features', 'popstate' ],
+			] ) {
+				await act( async () => {
+					window.history.replaceState( null, '', '#/' + view );
+					window.dispatchEvent( new Event( event ) );
+				} );
+			}
+			expect( viewedTabs() ).toEqual( [ 'features', 'mcp', 'features' ] );
+			expect( mcpViewCount() ).toBe( 1 );
+		} );
+
+		test.each( [ '', '#/overview', '#/features', '#/mcp/setup' ] )(
+			'keeps Hub tracking off when the Hub is hidden, with hash %s',
+			async hash => {
+				window.jetpackAiSettings = { blogId: 1 };
+				window.history.replaceState( null, '', window.location.pathname + hash );
+				render( <App /> );
+
+				await waitFor( () => expect( mcpViewCount() ).toBe( 1 ) );
+				expect( hubViews() ).toEqual( [] );
+			}
+		);
+
+		test( 'the separate Scheduled tasks flag does not enable Hub tracking', async () => {
+			window.jetpackAiSettings.showFeaturesView = false;
+			window.history.replaceState( null, '', '#/scheduled-tasks' );
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'button', { name: 'Try again' } )
+			).resolves.toBeInTheDocument();
+			expect( hubViews() ).toEqual( [] );
+		} );
+
+		test( 'records the visible fallback tab for a hidden Scheduled tasks deep link', async () => {
+			delete window.jetpackAiSettings.featureFlags;
+			window.history.replaceState( null, '', '#/scheduled-tasks' );
+			render( <App /> );
+
+			await waitFor( () => expect( viewedTabs() ).toEqual( [ 'overview' ] ) );
+		} );
+	} );
+
 	test( 'host-off: shows the host-off notice and does not mount AiFeatures', async () => {
 		window.jetpackAiSettings = { ...window.jetpackAiSettings, hostAllowsAi: false };
 		mockApiFetch( {
@@ -195,6 +333,17 @@ describe( 'AI admin page (main.jsx)', () => {
 			'href',
 			expect.stringContaining( 'source=jetpack-ai-hub-notice-host-off' )
 		);
+	} );
+
+	test( 'renders the shared JITM slot', async () => {
+		mockApiFetch();
+
+		render( <App /> );
+
+		await expect(
+			screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+		).resolves.toBeInTheDocument();
+		expect( screen.getByTestId( 'jp-jitm-slot' ) ).toBeInTheDocument();
 	} );
 
 	describe( 'master-off notice', () => {
@@ -277,6 +426,59 @@ describe( 'AI admin page (main.jsx)', () => {
 				screen.findByText( 'Jetpack AI is turned off by custom code on this site.', IGNORE_A11Y )
 			).resolves.toBeInTheDocument();
 		} );
+
+		test.each( [ 'filter', 'filter-vip', 'modules', 'future-reason' ] )(
+			'%s disables every feature toggle without changing saved values',
+			async masterForcedOff => {
+				window.jetpackAiSettings = {
+					showFeaturesView: true,
+					blogId: 1,
+					isUserConnected: true,
+					masterForcedOff,
+				};
+				mockApiFetch( {
+					featureGet: {
+						...enabledSettings(),
+						features: {
+							writing_assistant: { enabled: true },
+							image_editor: { enabled: false },
+							ai_seo: { enabled: true },
+							ai_search: { enabled: false },
+						},
+					},
+				} );
+
+				render( <App /> );
+
+				const toggles = await screen.findAllByRole( 'checkbox' );
+				expect( toggles ).toHaveLength( 4 );
+				toggles.forEach( toggle => expect( toggle ).toBeDisabled() );
+				expect( toggles.map( toggle => toggle.checked ) ).toEqual( [ true, false, true, false ] );
+				await userEvent.click( toggles[ 0 ] );
+				expect( apiFetch.mock.calls.some( ( [ request ] ) => request.method === 'POST' ) ).toBe(
+					false
+				);
+			}
+		);
+
+		test.each( [ '', null, undefined ] )(
+			'masterForcedOff=%s leaves usable feature toggles enabled',
+			async masterForcedOff => {
+				window.jetpackAiSettings = {
+					showFeaturesView: true,
+					blogId: 1,
+					isUserConnected: true,
+					masterForcedOff,
+				};
+				mockApiFetch();
+
+				render( <App /> );
+
+				await expect(
+					screen.findByRole( 'checkbox', { name: /Writing Assistant/ } )
+				).resolves.toBeEnabled();
+			}
+		);
 
 		// Trunk shows the card in offline mode and on a broken connection; this PR
 		// consolidates notices and must not quietly change that.
@@ -515,6 +717,30 @@ describe( 'AI admin page (main.jsx)', () => {
 			).toHaveLength( 1 );
 		} );
 
+		test( 'not connected: page data without canConnectSite keeps the connect link', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0 };
+			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'link', { name: 'Connect Jetpack' } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: /Learn more/ } ) ).not.toBeInTheDocument();
+		} );
+
+		test( 'not connected: a user who cannot connect gets the doc, not the link', async () => {
+			window.jetpackAiSettings = { showFeaturesView: true, blogId: 0, canConnectSite: false };
+			mockApiFetch( { featureGet: { ...enabledSettings(), is_connected: false } } );
+
+			render( <App /> );
+
+			await expect(
+				screen.findByRole( 'link', { name: /Learn more/ } )
+			).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'link', { name: 'Connect Jetpack' } ) ).not.toBeInTheDocument();
+		} );
+
 		test( 'not connected: the connect ask wins over the master-off notice', async () => {
 			mockApiFetch( { featureGet: { ...masterOffSettings(), is_connected: false } } );
 
@@ -570,13 +796,13 @@ describe( 'AI admin page (main.jsx)', () => {
 	test( 'save-confirmation: a successful AI-settings save shows a success snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.resolve( enabledSettings() ) } );
 
-		render( <App /> );
+		renderWithSnackbars();
 
 		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
 		await userEvent.click( toggle );
 
 		// Save feedback is transient, so it renders through the shared
-		// GlobalNotices snackbars (the design-system SnackbarList), not a
+		// Core SnackbarNotices snackbars (SnackbarList), not a
 		// persistent Notice banner. The snackbar's signature is its
 		// click-to-dismiss button wrapper.
 		const snackbar = await screen.findByRole( 'button', { name: 'Dismiss this notice' } );
@@ -590,7 +816,7 @@ describe( 'AI admin page (main.jsx)', () => {
 	test( 'save-confirmation: a failed AI-settings save shows an explicit-dismiss error snackbar', async () => {
 		mockApiFetch( { featurePost: () => Promise.reject( new Error( 'nope' ) ) } );
 
-		render( <App /> );
+		renderWithSnackbars();
 
 		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
 		await userEvent.click( toggle );
@@ -623,7 +849,7 @@ describe( 'AI admin page (main.jsx)', () => {
 			},
 		} );
 
-		render( <App /> );
+		renderWithSnackbars();
 
 		const toggle = await screen.findByRole( 'checkbox', { name: /Writing Assistant/ } );
 		await userEvent.click( toggle );

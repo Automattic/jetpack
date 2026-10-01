@@ -75,17 +75,28 @@ const getVideosFieldsMock = jest.mocked( getVideosFields );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 
+const videoRow = {
+	id: 7,
+	label: 'Settled video',
+	plays: 3,
+	impressions: 9,
+	watch_time: 0.5,
+	retention_rate: 40,
+	link: null,
+	children: null,
+} satisfies StatsVideoPlaysComparisonItem;
+
 /**
  * Build the report records used by the page test.
  *
- * @param overrides - The fields to override on the successful-empty default.
+ * @param overrides - The fields to override on the settled one-row default.
  * @return The mocked records hook result.
  */
 function buildRecords( overrides: Partial< ReturnType< typeof useVideosReportRecords > > = {} ) {
 	return {
 		isError: false,
 		refetch: jest.fn(),
-		rows: [],
+		rows: [ videoRow ],
 		hasComparison: false,
 		isLoading: false,
 		isFetching: false,
@@ -110,6 +121,21 @@ describe( 'VideosReportPage', () => {
 
 		expect( reportRecordsTableMock ).toHaveBeenCalled();
 		expect( reportErrorStateMock ).not.toHaveBeenCalled();
+	} );
+
+	it( 'draws each video poster beside its title', () => {
+		getVideosFieldsMock.mockImplementationOnce(
+			jest.requireActual< typeof import( './config' ) >( './config' ).getVideosFields
+		);
+		useRecordsMock.mockReturnValue( buildRecords() );
+
+		render( <VideosReportPage /> );
+
+		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
+		expect( fields.map( field => field.id ) ).toEqual(
+			expect.arrayContaining( [ 'label', 'poster' ] )
+		);
 	} );
 
 	it( 'wires loaded video rows into the page export action', () => {
@@ -202,7 +228,8 @@ describe( 'VideosReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				data: rows,
-				isLoading: true,
+				isLoading: false,
+				isFetching: true,
 			} )
 		);
 	} );

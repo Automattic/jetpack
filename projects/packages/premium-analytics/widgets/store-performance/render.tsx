@@ -7,6 +7,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	BOOKINGS_FILTER,
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -330,6 +331,7 @@ function StorePerformanceContent() {
 					previous: series[ 1 ]?.data,
 					dataFormat: getFormatByMetricKey( metric.metricKey ),
 					description: metric.description,
+					countLabel: metric.countLabel,
 				};
 			} ),
 		[ enrichedMetrics, dataSources ]
@@ -360,6 +362,7 @@ function StorePerformanceContent() {
 					metrics={ metricTabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

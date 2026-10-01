@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.3-a.3
+Stable tag: 16.3-a.7
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -326,38 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.3-a.3 - 2026-09-21
+### 16.3-a.7 - 2026-09-29
 #### Enhancements
-- Activity Log: Make it a Jetpack module so it can be turned on and off from My Jetpack, hiding the sidebar entry when off.
-- AI: Hide the legacy AI panel once a site is eligible to turn on the WordPress Agent, and offer to open or enable the Agent in its place.
-- AI: Serve the Jetpack AI page through the standard Jetpack admin frame.
-- AI: Show one notice explaining why Jetpack AI is unavailable, worded the same on the Overview and AI Features tabs.
-- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor.
-- Donations Form: Replace the "Accept Donations with Stripe" modal with a link to Stripe's donation requirements.
-- Forms: Add a "Done" button to the conditional logic rules dialog, and open the Conditional logic panel by default on a field that has conditions.
-- Forms: Reopen the dashboard on the last tab used instead of always the default.
-- My Jetpack: Show the dashboard in the new rounded admin page frame.
-- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
-- Newsletter: Show the email itself in the email design canvas, and limit editing there to the Styles panel.
-- Search: Show each of the No Results block's empty-state messages as it will appear to visitors while editing, and tell the messages apart by name when browsing the page structure.
-- Settings: Open the Instagram Business help link as the WordPress.com support doc inside the Help Center on WordPress.com sites.
-- Stats: Hide WordPress admin notices on the Stats dashboard, and let hosts show or hide the Stats sidebar entry.
-- VideoPress: Add a setting to render players from one shared player script instead of one frame per video.
+- Backup: Show the VaultPress Backup dashboard in wp-admin, instead of linking out to Jetpack Cloud.
+- Settings: Show the updated Settings page to sites in right-to-left languages.
+- VideoPress: Add a "Show player" setting to the playlist blocks; when off, clicking a video opens it on VideoPress.
 
 #### Bug fixes
-- Charts: Fix keyboard focus and tooltip selection.
-- Dashboards: Stop the frame from flashing while loading and when switching admin pages.
-- Fix Jetpack admin pages and Jetpack blocks in the editor failing to load on WordPress.com-hosted sites.
-- Forms: Open the Forms tab when it is requested directly instead of falling back to Responses.
-- Heartbeat: Prevent fatal errors when another plugin loads an older Connection package.
-- Jetpack Manage: Only show the sidebar link to agency accounts.
-- My Jetpack: Restore the link from the stats card heading and chart to the Stats page.
-- SEO: Fix the Settings tab failing to load after a page title structure was cleared from WordPress.com.
-- Site Verification: Reject invalid verification codes instead of reporting a successful save.
-- Social: Pre-fill the Bluesky handle field when reconnecting an account.
-- Social: Show contextual messages on the dashboard again.
-- VideoPress: Keep the video editor footer at the bottom of the page.
-- VideoPress: Show specific validation messages for chapters entered in video descriptions.
+- Blocks: Show the selected style in the Calendly and Eventbrite style pickers.
+- Connection: Reconnect only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt.
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.
+- Mailchimp: Show progress and explain what is missing when re-checking the connection from the block.
+- Newsletter: Fix a fatal error when a theme's preset list is a single value instead of a list.
+- Newsletter: Restrict posts to subscribers when a Paywall block is saved outside the block editor.
+- Search: Show the connection error at the top of the dashboard on every tab.
+- Settings: Keep the Copy button on the left and show the start of URLs in copy fields for right-to-left languages.
+- VideoPress: Ask before deleting videos, and warn before leaving the page while an upload is running.
+- VideoPress: Keep the "Learn more" support link up to date through the redirect service.
 
 --------
 

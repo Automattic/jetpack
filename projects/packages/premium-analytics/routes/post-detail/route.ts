@@ -6,7 +6,10 @@ import {
 	needsReportDateParamsSeed,
 	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
+import {
+	pickDashboardOriginParams,
+	pickReportOriginParams,
+} from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
@@ -87,6 +90,7 @@ export const route = {
 			const seeded: Record< string, unknown > = {
 				...reportParams,
 				...pickReportOriginParams( currentSearch ),
+				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 				post_id: postId,
 			};

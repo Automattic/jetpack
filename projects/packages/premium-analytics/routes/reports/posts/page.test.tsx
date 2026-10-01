@@ -4,11 +4,12 @@
 import { usePostThumbnails } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
+	ExporterCsvAction,
 	ReportDrilldownTable,
 	ReportErrorState,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
+	archivesCsvExporter,
+	postsPagesCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -43,6 +44,13 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...( () => {
+		const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+		return {
+			archivesCsvExporter: actual.archivesCsvExporter,
+			postsPagesCsvExporter: actual.postsPagesCsvExporter,
+		};
+	} )(),
 	formatLegendLabels: () => [],
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
@@ -60,8 +68,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportPageTabs: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportRecordsTable: jest.fn( () => null ),
-	ReportCsvAction: jest.fn( () => <button>Download</button> ),
-	useReportCsvExport: jest.fn(),
+	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -84,11 +91,10 @@ jest.mock( '@wordpress/route', () => ( {
 const useRecordsMock = jest.mocked( usePostsReportRecords );
 const usePostThumbnailsMock = jest.mocked( usePostThumbnails );
 const useSectionTabMock = jest.mocked( useSectionTab );
-const useReportCsvExportMock = jest.mocked( useReportCsvExport );
+const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const reportDrilldownTableMock = jest.mocked( ReportDrilldownTable );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
-const reportCsvActionMock = jest.mocked( ReportCsvAction );
 
 /**
  * Build the report records used by the page tests.
@@ -127,6 +133,7 @@ function buildRecords( {
 			isError,
 		},
 		archives: {
+			items: [],
 			rows: [],
 			hasComparison: false,
 			isLoading: false,
@@ -141,14 +148,9 @@ describe( 'PostsReportPage', () => {
 		jest.clearAllMocks();
 		usePostThumbnailsMock.mockReturnValue( {} );
 		useSectionTabMock.mockReturnValue( [ 'posts-pages', jest.fn() ] );
-		useReportCsvExportMock.mockImplementation( options => ( {
-			canExport: true,
-			rows: options.rows,
-			filename: `${ options.filenamePrefix }-2026-06-01_2026-06-30`,
-		} ) );
 	} );
 
-	it( 'wires the active report export into the page actions area', () => {
+	it( 'wires the Posts & pages export into the page actions area', () => {
 		const records = buildRecords();
 		useRecordsMock.mockReturnValue( records );
 
@@ -157,25 +159,15 @@ describe( 'PostsReportPage', () => {
 		expect(
 			within( screen.getByTestId( 'page-actions' ) ).getByRole( 'button' )
 		).toHaveTextContent( 'Download' );
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
+		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
-				rows: records.posts.rows,
-				filenamePrefix: 'top-posts',
+				exporter: postsPagesCsvExporter,
+				items: records.posts.rows,
 				status: records.posts,
-				sort: expect.any( Function ),
-			} )
-		);
-
-		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.getValue( records.posts.rows[ 0 ] ) ) ).toEqual( [
-			'Hello world',
-			12,
-			'https://example.com/hello-world',
-		] );
-		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				filename: 'top-posts-2026-06-01_2026-06-30',
-				rows: records.posts.rows,
+				reportParams: expect.objectContaining( {
+					from: '2026-06-01T00:00:00+02:00',
+					to: '2026-06-30T23:59:59+02:00',
+				} ),
 			} )
 		);
 	} );
@@ -185,7 +177,7 @@ describe( 'PostsReportPage', () => {
 
 		render( <PostsReportPage /> );
 
-		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isLoading ).toBe( true );
+		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].isFetching ).toBe( true );
 	} );
 
 	it( 'resolves thumbnails for the visible posts page', () => {
@@ -203,82 +195,34 @@ describe( 'PostsReportPage', () => {
 		expect( usePostThumbnailsMock ).toHaveBeenLastCalledWith( records.posts.rows );
 	} );
 
-	it( 'does not render a page action when the hook disables export', () => {
+	it( 'draws each post thumbnail beside its title', () => {
 		useRecordsMock.mockReturnValue( buildRecords() );
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: false,
-			rows: [],
-			filename: 'top-posts',
-		} );
 
 		render( <PostsReportPage /> );
 
-		expect( screen.queryByTestId( 'page-actions' ) ).not.toBeInTheDocument();
-		expect( reportCsvActionMock ).not.toHaveBeenCalled();
+		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		expect( initialView ).toMatchObject( { titleField: 'title', mediaField: 'thumbnail' } );
+		expect( fields.map( field => field.id ) ).toEqual(
+			expect.arrayContaining( [ 'title', 'thumbnail' ] )
+		);
 	} );
 
-	it( 'configures the active Archives tab with its own rows and filename', () => {
+	it( 'wires the Archives export to the archives tree', () => {
 		const records = buildRecords();
-		records.archives.rows = [
-			{
-				id: 'category-1',
-				label: '/category/news',
-				views: 8,
-				link: 'https://example.com/category/news',
-				isGroup: false,
-			},
-		];
+		records.archives.items = [
+			{ label: 'cat', value: 8, link: 'https://example.com/category/news', children: null },
+		] as typeof records.archives.items;
 		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
 		useRecordsMock.mockReturnValue( records );
 
 		render( <PostsReportPage /> );
 
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
+		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
-				rows: records.archives.rows,
-				filenamePrefix: 'archives',
+				exporter: archivesCsvExporter,
+				items: records.archives.items,
 				status: records.archives,
 			} )
-		);
-		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.getValue( records.archives.rows[ 0 ] ) ) ).toEqual( [
-			'/category/news',
-			8,
-			'https://example.com/category/news',
-		] );
-	} );
-
-	// Legacy Stats exports the archives tree depth-first, keeping each group as a
-	// subtotal row and qualifying its descendants — `"Tags",300` then
-	// `"Tags > video",80`. Re-sorting the flattened rows by views would break
-	// that grouping, so the export leaves the order alone.
-	it( 'exports the archives tree with its groups and ancestor-qualified labels', () => {
-		const records = buildRecords();
-		records.archives.rows = [
-			{ id: 'tags-0', label: 'Tags', views: 300, isGroup: true },
-			{
-				id: 'tags-0-0',
-				parentId: 'tags-0',
-				label: 'video',
-				views: 80,
-				link: 'https://example.com/tag/video/',
-				isGroup: false,
-			},
-			{ id: 'cat-1', label: 'Categories', views: 201, isGroup: true },
-		];
-		useSectionTabMock.mockReturnValue( [ 'archives', jest.fn() ] );
-		useRecordsMock.mockReturnValue( records );
-
-		render( <PostsReportPage /> );
-
-		const { columns, rows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( rows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [
-			[ 'Tags', 300, '' ],
-			[ 'Tags > video', 80, 'https://example.com/tag/video/' ],
-			[ 'Categories', 201, '' ],
-		] );
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
-			expect.objectContaining( { sort: undefined } )
 		);
 	} );
 
@@ -311,7 +255,7 @@ describe( 'PostsReportPage', () => {
 			expect.objectContaining( {
 				data: records.archives.rows,
 				hideLevelMarkers: true,
-				isLoading: true,
+				isFetching: true,
 				searchLabel: 'Search archives',
 			} )
 		);

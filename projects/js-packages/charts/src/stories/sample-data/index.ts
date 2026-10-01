@@ -350,6 +350,19 @@ export const trafficData: SeriesData[] = [
 ];
 
 /**
+ * A week of 921 to 989 views a day: a 7% swing that a fitted axis would draw as empty-to-full bars.
+ */
+export const steadyTrafficData: SeriesData[] = [
+	{
+		label: 'Views',
+		data: [ 921, 989, 954, 924, 967, 933, 978 ].map( ( value, index ) => ( {
+			label: `Sep ${ 12 + index }`,
+			value,
+		} ) ),
+	},
+];
+
+/**
  * Traffic sources leaderboard data
  *
  * Traffic source performance with current vs previous comparisons

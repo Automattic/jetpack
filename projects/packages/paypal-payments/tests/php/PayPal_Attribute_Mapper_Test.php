@@ -482,14 +482,18 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 
 	/**
 	 * Test that an invalid return URL is rejected.
+	 *
+	 * @param string $return_url The invalid return URL to test.
+	 * @dataProvider invalid_return_url_provider
 	 */
-	public function test_validate_rejects_invalid_return_url() {
+	#[DataProvider( 'invalid_return_url_provider' )]
+	public function test_validate_rejects_invalid_return_url( $return_url ) {
 		$result = PayPal_Attribute_Mapper::validate_attributes(
 			array(
 				'productName'  => 'Widget',
 				'price'        => '10.00',
 				'currencyCode' => 'USD',
-				'returnUrl'    => 'javascript:alert(1)',
+				'returnUrl'    => $return_url,
 			)
 		);
 
@@ -498,10 +502,56 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	/**
-	 * PayPal's limit: a return URL of 127 characters passes, one more is rejected.
+	 * Data provider for invalid return URLs.
+	 *
+	 * @return array[] Test cases.
 	 */
-	public function test_validate_caps_the_return_url_at_127_characters() {
-		$at_limit   = str_pad( 'https://example.com/', 127, 'a' );
+	public static function invalid_return_url_provider(): array {
+		return array(
+			'javascript'      => array( 'javascript:alert(1)' ),
+			'ftp'             => array( 'ftp://example.com/thanks' ),
+			// wp_http_validate_url() accepts this one; the scheme check rejects it.
+			'scheme-relative' => array( '//example.com/thanks' ),
+		);
+	}
+
+	/**
+	 * Test that http and https return URLs are accepted.
+	 *
+	 * @param string $return_url The valid return URL to test.
+	 * @dataProvider valid_return_url_provider
+	 */
+	#[DataProvider( 'valid_return_url_provider' )]
+	public function test_validate_accepts_http_and_https_return_urls( $return_url ) {
+		$result = PayPal_Attribute_Mapper::validate_attributes(
+			array(
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'returnUrl'    => $return_url,
+			)
+		);
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * Data provider for valid return URLs.
+	 *
+	 * @return array[] Test cases.
+	 */
+	public static function valid_return_url_provider(): array {
+		return array(
+			'http'  => array( 'http://example.com/thanks' ),
+			'https' => array( 'https://example.com/thanks' ),
+		);
+	}
+
+	/**
+	 * PayPal's limit: a return URL of 1024 characters passes, one more is rejected.
+	 */
+	public function test_validate_caps_the_return_url_at_1024_characters() {
+		$at_limit   = str_pad( 'https://example.com/', 1024, 'a' );
 		$attributes = array(
 			'productName'  => 'Widget',
 			'price'        => '10.00',
@@ -596,6 +646,126 @@ class PayPal_Attribute_Mapper_Test extends TestCase {
 	}
 
 	// --- api_response_to_attributes ---
+
+	/**
+	 * A payment's stacked snippets, as the live API returns them.
+	 *
+	 * @param string $head The HTML framework's head snippet.
+	 * @return array
+	 */
+	private function code_snippets( $head ) {
+		return array(
+			'stacked' => array(
+				array(
+					'framework'        => 'HTML',
+					'head'             => $head,
+					'button_placement' => 'BODY',
+				),
+				array(
+					'framework'        => 'REACT',
+					'head'             => '<PayPalScriptProvider options={{ clientId: "abc" }}>',
+					'button_placement' => 'BODY',
+				),
+			),
+		);
+	}
+
+	public function test_api_response_to_attributes_reads_the_stacked_script_src() {
+		// `&equals;` decodes only under ENT_HTML5. `&amp;` proves nothing on its own:
+		// the URL sanitizer unescapes that one itself.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'               => 'PLB-STACKED',
+				'integration_mode' => 'BUTTON',
+				'code_snippets'    => $this->code_snippets(
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'<script src="https://www.paypal.com/sdk/js?client-id=abc&amp;components=hosted-buttons&amp;currency&equals;USD"></script>'
+				),
+			)
+		);
+
+		$this->assertSame( 'BUTTON', $attributes['integrationMode'] );
+		$this->assertSame(
+			'https://www.paypal.com/sdk/js?client-id=abc&components=hosted-buttons&currency=USD',
+			$attributes['scriptSrc']
+		);
+	}
+
+	public function test_api_response_to_attributes_leaves_the_script_src_empty_for_link_mode() {
+		// Only a BUTTON-mode payment has snippets, which is why nothing may
+		// downgrade the mode.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'               => 'PLB-LINK',
+				'integration_mode' => 'LINK',
+			)
+		);
+
+		$this->assertSame( 'LINK', $attributes['integrationMode'] );
+		$this->assertSame( '', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_ignores_a_snippet_for_another_framework() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'            => 'PLB-REACT',
+				'code_snippets' => array(
+					'stacked' => array(
+						array(
+							'framework' => 'REACT',
+							// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+							'head'      => '<script src="https://www.paypal.com/sdk/js?client-id=abc"></script>',
+						),
+					),
+				),
+			)
+		);
+
+		$this->assertSame( '', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_rejects_a_script_src_off_paypal() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'            => 'PLB-EVIL',
+				'code_snippets' => $this->code_snippets(
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'<script src="https://evil.example.com/sdk.js"></script>'
+				),
+			)
+		);
+
+		$this->assertSame( '', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_takes_the_src_from_the_script_tag() {
+		// The snippet is PayPal's, so the first src= in it can belong to anything.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'            => 'PLB-IMG',
+				'code_snippets' => $this->code_snippets(
+					'<img src="https://www.paypalobjects.com/pixel.gif" />' .
+					// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+					'<script src="https://www.paypal.com/sdk/js?client-id=abc"></script>'
+				),
+			)
+		);
+
+		$this->assertSame( 'https://www.paypal.com/sdk/js?client-id=abc', $attributes['scriptSrc'] );
+	}
+
+	public function test_api_response_to_attributes_drops_an_integration_mode_outside_the_enum() {
+		// The REST argument allows LINK or BUTTON only, so storing a third value
+		// would 400 every later save with no way out from the editor.
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes(
+			array(
+				'id'               => 'PLB-WEIRD',
+				'integration_mode' => 'SOMETHING_NEW',
+			)
+		);
+
+		$this->assertSame( '', $attributes['integrationMode'] );
+	}
 
 	/**
 	 * Test that api_response_to_attributes extracts id and payment_link.

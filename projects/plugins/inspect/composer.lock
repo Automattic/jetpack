@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9d7a2d9a744a739274f43ce61fd10fa1",
+    "content-hash": "efc1880d900daff88f98065c4563e4eb",
     "packages": [
         {
             "name": "automattic/jetpack-a8c-mc-stats",
@@ -65,7 +65,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/admin-ui",
-                "reference": "5d08ef57c5a5cf61953c9d56a758acb921a69bd9"
+                "reference": "0cf9cbcaa3fc3781a502120bf1c34edb741466c1"
             },
             "require": {
                 "automattic/jetpack-redirect": "@dev",
@@ -91,7 +91,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-admin-ui/compare/${old}...${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.13.x-dev"
+                    "dev-trunk": "0.14.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -414,7 +414,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/connection",
-                "reference": "c710f312c0b7c14fb24207ae55a00317158118cb"
+                "reference": "b2a4bae2f69c1662763ebacc77c9517c36411a91"
             },
             "require": {
                 "automattic/jetpack-a8c-mc-stats": "@dev",
@@ -451,7 +451,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-connection/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "9.5.x-dev"
+                    "dev-trunk": "9.8.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -556,7 +556,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/ip",
-                "reference": "56f25b07b2ba1a7423e9335e1c744dd5c1bf1702"
+                "reference": "958f6d3944e9839db8f22a4875e61a80500ee1e7"
             },
             "require": {
                 "php": ">=7.4"
@@ -577,7 +577,7 @@
                     "link-template": "https://github.com/automattic/jetpack-ip/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "0.6.x-dev"
+                    "dev-trunk": "0.7.x-dev"
                 },
                 "textdomain": "jetpack-ip",
                 "version-constants": {
@@ -723,7 +723,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/status",
-                "reference": "85f7e6993d26c87357788708a2ba5fa1bbe81b30"
+                "reference": "b4d480b82597c1bc07fffbeda5936d88a333a685"
             },
             "require": {
                 "automattic/jetpack-constants": "@dev",
@@ -748,7 +748,7 @@
                     "link-template": "https://github.com/Automattic/jetpack-status/compare/v${old}...v${new}"
                 },
                 "branch-alias": {
-                    "dev-trunk": "7.0.x-dev"
+                    "dev-trunk": "7.1.x-dev"
                 },
                 "dependencies": {
                     "test-only": [
@@ -783,6 +783,58 @@
         }
     ],
     "packages-dev": [
+        {
+            "name": "automattic/jetpack-test-environment",
+            "version": "dev-trunk",
+            "dist": {
+                "type": "path",
+                "url": "../../packages/test-environment",
+                "reference": "e9a187ef89c4e2ea3716948128cce7a450e51a22"
+            },
+            "require": {
+                "php": ">=7.4"
+            },
+            "require-dev": {
+                "automattic/phpunit-select-config": "@dev",
+                "yoast/phpunit-polyfills": "^4.0.0"
+            },
+            "suggest": {
+                "automattic/jetpack-autoloader": "Allow for better interoperability with other plugins that use this package."
+            },
+            "type": "jetpack-library",
+            "extra": {
+                "branch-alias": {
+                    "dev-trunk": "0.3.x-dev"
+                },
+                "textdomain": "jetpack-test-environment",
+                "version-constants": {
+                    "::PACKAGE_VERSION": "src/class-test-environment.php"
+                }
+            },
+            "autoload": {
+                "classmap": [
+                    "src/"
+                ]
+            },
+            "scripts": {
+                "phpunit": [
+                    "phpunit-select-config phpunit.#.xml.dist --colors=always"
+                ],
+                "test-php": [
+                    "@composer phpunit"
+                ],
+                "test-php-coverage": [
+                    "php -dpcov.directory=. ./vendor/bin/phpunit-select-config phpunit.#.xml.dist --coverage-php \"$COVERAGE_DIR/php.cov\""
+                ]
+            },
+            "license": [
+                "GPL-2.0-or-later"
+            ],
+            "description": "Shared WordPress test environment for Jetpack monorepo projects",
+            "transport-options": {
+                "relative": true
+            }
+        },
         {
             "name": "automattic/phpunit-select-config",
             "version": "dev-trunk",
@@ -2609,6 +2661,7 @@
         "automattic/jetpack-composer-plugin": 20,
         "automattic/jetpack-config": 20,
         "automattic/jetpack-connection": 20,
+        "automattic/jetpack-test-environment": 20,
         "automattic/phpunit-select-config": 20
     },
     "prefer-stable": true,

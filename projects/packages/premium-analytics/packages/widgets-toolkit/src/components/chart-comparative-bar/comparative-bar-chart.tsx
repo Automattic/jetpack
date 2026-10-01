@@ -26,9 +26,9 @@ import {
 	isEmptyChartData,
 	getFixedYAxis,
 	dateFormatForResolution,
-	resolveSeriesNames,
-	resolveTooltipNames,
+	resolveTooltipUnits,
 } from '../../helpers';
+import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
@@ -204,7 +204,7 @@ export function ComparativeBarChart( {
 		[ xTickFormatType ]
 	);
 
-	const { primaryByGroup, seriesNames } = useMemo( () => resolveSeriesNames( series ), [ series ] );
+	const primarySeriesByGroup = useMemo( () => resolvePrimarySeriesByGroup( series ), [ series ] );
 	// A legend item names a metric; the solid mark against its previous-period twin
 	// is what tells the periods apart, so a metric's two periods always collapse.
 	const legendConfig = useMemo(
@@ -213,9 +213,9 @@ export function ComparativeBarChart( {
 	);
 	const legendItems = useLockedPrimaryLegendItems( alignedSeries, legendConfig );
 
-	const tooltipNames = useMemo(
-		() => resolveTooltipNames( seriesNames, tooltipExtras ),
-		[ seriesNames, tooltipExtras ]
+	const tooltipUnits = useMemo(
+		() => resolveTooltipUnits( series, tooltipExtras ),
+		[ series, tooltipExtras ]
 	);
 
 	// Comparison points carry the primary's date for axis alignment, so read
@@ -225,13 +225,15 @@ export function ComparativeBarChart( {
 			datum: { date: Date; realDate?: Date },
 			_index: number,
 			key: string,
-			value: string
+			value: string | null,
+			rawValue: number | null
 		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, date );
+			const unit = tooltipUnits.get( key );
+			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipNames, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	/**
@@ -262,7 +264,9 @@ export function ComparativeBarChart( {
 				// A hidden metric contributes no bar, so re-adding its shadow would put a
 				// series the reader chose not to see back in the tooltip.
 				const primaryLabel =
-					seriesData.group !== undefined ? primaryByGroup.get( seriesData.group ) : undefined;
+					seriesData.group !== undefined
+						? primarySeriesByGroup.get( seriesData.group )?.label
+						: undefined;
 				if ( primaryLabel && ! datumByKey[ primaryLabel ] ) {
 					continue;
 				}
@@ -278,7 +282,7 @@ export function ComparativeBarChart( {
 
 			return { ...tooltipData, datumByKey: augmented };
 		},
-		[ alignedSeries, primaryByGroup ]
+		[ alignedSeries, primarySeriesByGroup ]
 	);
 
 	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
