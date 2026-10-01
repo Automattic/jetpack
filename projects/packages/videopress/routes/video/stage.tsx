@@ -21,6 +21,7 @@ import PrivacySharingCard from '../../src/dashboard/components/video-details/pri
 import RatingCard from '../../src/dashboard/components/video-details/rating-card';
 import SubtitlesCard from '../../src/dashboard/components/video-details/subtitles-card';
 import ThumbnailCard from '../../src/dashboard/components/video-details/thumbnail-card';
+import UploadDetails from '../../src/dashboard/components/video-details/upload-details';
 import { useVideoDetailsForm } from '../../src/dashboard/components/video-details/use-video-details-form';
 import VideoDetailsCard from '../../src/dashboard/components/video-details/video-details-card';
 import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
@@ -28,6 +29,7 @@ import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
+import { useUpload } from '../../src/dashboard/hooks/use-upload';
 import { useUploadUnloadGuard } from '../../src/dashboard/hooks/use-upload-unload-guard';
 import { useInvalidateVideo, useVideo } from '../../src/dashboard/hooks/use-video';
 import { isChaptersEditorEnabled } from '../../src/dashboard/utils/chapters-editor';
@@ -423,7 +425,25 @@ const StageReady = ( { video }: StageReadyProps ) => {
 const StageInner = () => {
 	useUploadUnloadGuard();
 	const { id } = useParams( { from: '/video/$id' } );
-	const { video, isLoading } = useVideo( id );
+	const { uploadQueue, completedUploads } = useUpload();
+	const navigate = useNavigate();
+	const isUpload = id.startsWith( 'upload-' );
+	const completedId = completedUploads[ id ];
+	const upload = uploadQueue.find( item => item.id === id );
+	const { video, isLoading } = useVideo( isUpload ? '' : id );
+
+	useEffect( () => {
+		if ( isUpload && completedId ) {
+			navigate( { href: `/video/${ completedId }`, replace: true } );
+		}
+	}, [ isUpload, completedId, navigate ] );
+
+	if ( isUpload ) {
+		if ( completedId ) {
+			return <Loading />;
+		}
+		return upload ? <UploadDetails upload={ upload } /> : <NotFound />;
+	}
 
 	if ( isLoading ) {
 		return <Loading />;

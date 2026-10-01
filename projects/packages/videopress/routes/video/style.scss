@@ -329,3 +329,15 @@
 	block-size: 1lh;
 	border-radius: var(--wpds-border-radius-sm);
 }
+
+.vp-video-details__upload-preview {
+	grid-area: preview;
+	min-inline-size: 0;
+
+	video {
+		display: block;
+		inline-size: 100%;
+		max-block-size: 300px;
+		background: #000;
+	}
+}

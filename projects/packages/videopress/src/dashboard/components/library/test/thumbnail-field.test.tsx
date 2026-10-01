@@ -36,6 +36,30 @@ const FilenameRender = ( libraryFields.find( f => f.id === 'filename' ) as Field
 	.render as ( args: { item: LibraryItem } ) => React.ReactNode;
 
 describe( 'ThumbnailField — grid Details access', () => {
+	it( 'opens an uploading video from either its title or its thumbnail', async () => {
+		const actions = makeActions();
+		const upload = item( {
+			id: 'upload-1',
+			type: 'local',
+			title: 'Draft',
+			upload: { status: 'uploading', progress: 40 },
+		} );
+		renderField(
+			<>
+				<ThumbnailField item={ upload } />
+				<TitleCellRender item={ upload } />
+			</>,
+			actions
+		);
+		await userEvent.click( screen.getByRole( 'button', { name: 'Edit details for Draft' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Draft' } ) );
+		expect( jest.mocked( actions.openVideoDetails ).mock.calls ).toEqual( [
+			[ 'upload-1' ],
+			[ 'upload-1' ],
+		] );
+		expect( screen.getByText( '40%' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders an "Edit details" button that opens details for an idle VideoPress video', async () => {
 		const actions = makeActions();
 		renderField( <ThumbnailField item={ item( { id: '7', title: 'Holiday' } ) } />, actions );

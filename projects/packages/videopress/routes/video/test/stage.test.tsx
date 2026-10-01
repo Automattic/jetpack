@@ -1,6 +1,8 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
 import { useNavigate } from '@wordpress/route';
+import { useUpload, __resetUploadStoreForTests } from '../../../src/dashboard/hooks/use-upload';
 import { resetFeatures, setFeatures } from '../../../src/dashboard/test-utils/features';
 import { mockApiFetch } from '../../../src/dashboard/test-utils/mock-api-fetch';
 import {
@@ -20,10 +22,21 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 	default: jest.fn(),
 } ) );
 
+const mockResumable = jest.fn();
+let mockVideoId = '42';
+jest.mock( '../../../src/client/lib/get-media-token', () => ( {
+	__esModule: true,
+	default: async () => ( { token: 'token' } ),
+} ) );
+jest.mock( '../../../src/client/lib/resumable-file-uploader', () => ( {
+	__esModule: true,
+	default: ( ...args: unknown[] ) => mockResumable( ...args ),
+} ) );
+
 jest.mock( '@wordpress/route', () => ( {
 	__esModule: true,
 	useNavigate: jest.fn(),
-	useParams: () => ( { id: '42' } ),
+	useParams: () => ( { id: mockVideoId } ),
 	// ChaptersSummary builds its deep link through useLinkProps.
 	useLinkProps: ( { to }: { to: string } ) => ( { href: to } ),
 	Link: ( { to, children }: { to: string; children: ReactNode } ) => (
@@ -170,6 +183,7 @@ jest.mock( '../../../src/dashboard/hooks/use-update-chapters', () => ( {
 // fire the stage's onSuccess/onError callbacks deterministically.
 const mockUpdateMeta = jest.fn();
 jest.mock( '../../../src/dashboard/hooks/use-update-video-meta', () => ( {
+	...jest.requireActual( '../../../src/dashboard/hooks/use-update-video-meta' ),
 	useUpdateVideoMeta: () => ( { mutate: mockUpdateMeta, isPending: false } ),
 } ) );
 
@@ -246,6 +260,8 @@ describe( 'video stage', () => {
 
 	beforeEach( () => {
 		jest.clearAllMocks();
+		__resetUploadStoreForTests();
+		mockVideoId = '42';
 		mockTestClient = createTestQueryClient();
 		navigate = jest.fn();
 		mockUseNavigate.mockReturnValue( navigate );
@@ -268,6 +284,56 @@ describe( 'video stage', () => {
 	 * equivalent and silently invert the narrow-viewport order, so pin that it
 	 * is outside.
 	 */
+	it( 'edits an upload without fetching its temporary ID and keeps the draft across navigation', async () => {
+		Object.defineProperty( URL, 'createObjectURL', {
+			configurable: true,
+			value: () => 'blob:preview',
+			writable: true,
+		} );
+		jest.spyOn( URL, 'createObjectURL' );
+		Object.defineProperty( URL, 'revokeObjectURL', {
+			configurable: true,
+			value: () => {},
+			writable: true,
+		} );
+		jest.spyOn( URL, 'revokeObjectURL' );
+		const { result } = renderHook( useUpload, { wrapper: createTestWrapper( mockTestClient ) } );
+		await act( async () => {
+			mockVideoId = result.current.startUpload(
+				new File( [ 'video' ], 'draft.mp4', { type: 'video/mp4' } )
+			);
+		} );
+		const { unmount } = await renderReadyStage();
+		const user = userEvent.setup();
+		await user.clear( screen.getByLabelText( 'Title' ) );
+		await user.type( screen.getByLabelText( 'Title' ), 'Draft title' );
+		expect( screen.getByRole( 'heading', { name: 'Draft title' } ) ).toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( screen.queryByRole( 'button', { name: 'Save' } ) ).not.toBeInTheDocument();
+		unmount();
+		expect( URL.revokeObjectURL ).toHaveBeenCalledWith( 'blob:preview' );
+		await renderReadyStage();
+		expect( screen.getByLabelText( 'Title' ) ).toHaveValue( 'Draft title' );
+		await act( async () => {
+			mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+				id: 42,
+				guid: GUID,
+				src: 'https://example.com/clip.mp4',
+			} );
+		} );
+		expect( apiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { method: 'POST', data: { id: 42, title: 'Draft title' } } )
+		);
+		expect( navigate ).toHaveBeenCalledWith( { href: '/video/42', replace: true } );
+	} );
+
+	it( 'renders a missing temporary upload as not found without requesting an attachment', async () => {
+		mockVideoId = 'upload-missing';
+		render( <Stage /> );
+		expect( screen.getByText( "We couldn't find that video." ) ).toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+	} );
+
 	it( 'keeps the player out of the settings panel', async () => {
 		await renderReadyStage();
 
