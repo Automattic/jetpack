@@ -19,14 +19,13 @@ let originBlock = null;
 export function rememberStripeConnectOrigin( clientId ) {
 	const { getBlockName, getBlocksByName } = select( blockEditorStore );
 	const name = getBlockName( clientId );
-	if ( ! name ) {
+	const index = name ? getBlocksByName( name ).indexOf( clientId ) : -1;
+	// Storing nothing keeps the editor-wide notice; an unresolvable origin would show none.
+	if ( index < 0 ) {
 		return;
 	}
 	try {
-		window.sessionStorage.setItem(
-			ORIGIN_BLOCK_KEY,
-			JSON.stringify( { name, index: getBlocksByName( name ).indexOf( clientId ) } )
-		);
+		window.sessionStorage.setItem( ORIGIN_BLOCK_KEY, JSON.stringify( { name, index } ) );
 	} catch {
 		// Storage unavailable; the result falls back to the editor-wide notice.
 	}
