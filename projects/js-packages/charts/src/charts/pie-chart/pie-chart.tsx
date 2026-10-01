@@ -3,6 +3,7 @@ import { Pie } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
 import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
+import isEqual from 'fast-deep-equal';
 import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
@@ -21,20 +22,14 @@ import {
 	GlobalChartsContext,
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
-import { contrastRatio } from '../../providers/chart-context/private/perceptual-color';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
-import {
-	attachSubComponents,
-	createCssVariableResolver,
-	isValidHexColor,
-	normalizeColorToHex,
-	resolveFontSize,
-} from '../../utils';
+import { attachSubComponents, createCssVariableResolver, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-color';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -47,6 +42,7 @@ import type {
 	Optional,
 } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
+import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
 import type { JSX, SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 /**
@@ -170,48 +166,12 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	return { isValid: true, message: '' };
 };
 
-/**
- * The label pointers, resolved at the pie chart's own root element so JS and CSS agree on what paints.
- */
-interface ResolvedLabelPointers {
-	/** True while a label plate is set; the label text then always uses the inverse role. */
-	hasPlate: boolean;
-	labelHex: string;
-	labelInverseHex: string;
-	/** True when the inverse role is see-through, so only the `label` role can be seen on a fill. */
-	isInverseSeeThrough: boolean;
-}
-
-/**
- * Whether a pie slice's label should use the dark `label` role instead of the default `label-inverse` role.
- *
- * A label plate always wins: the text sits on the plate, not the slice fill, so it never flips.
- * Otherwise the role that contrasts more with the resolved slice fill wins. `null` pointers (not
- * yet resolved, or labels off) keep the default inverse role.
- *
- * @param fill     - The slice's resolved fill color.
- * @param pointers - The label pointers, resolved at the chart's own root element.
- * @return Whether the label needs dark text.
- */
-const labelNeedsDarkText = ( fill: string, pointers: ResolvedLabelPointers | null ): boolean => {
-	if ( ! pointers || pointers.hasPlate ) {
-		return false;
-	}
-
-	const fillHex = normalizeColorToHex( fill );
-	if ( ! isValidHexColor( fillHex ) || ! isValidHexColor( pointers.labelHex ) ) {
-		return false;
-	}
-	if ( pointers.isInverseSeeThrough ) {
-		return true;
-	}
-	if ( ! isValidHexColor( pointers.labelInverseHex ) ) {
-		return false;
-	}
-
-	return (
-		contrastRatio( fillHex, pointers.labelHex ) > contrastRatio( fillHex, pointers.labelInverseHex )
-	);
+// `label-inverse` is the stylesheet's default, so it needs no modifier.
+const LABEL_TEXT_MODIFIER: Record< LabelTextColor, string | undefined > = {
+	label: styles[ 'pie-chart__label-text--on-light' ],
+	'label-inverse': undefined,
+	black: styles[ 'pie-chart__label-text--black' ],
+	white: styles[ 'pie-chart__label-text--white' ],
 };
 
 /**
@@ -258,7 +218,8 @@ const PieChartInternal = ( {
 	// The element the chart's own `className` lands on, so an override set there reaches this
 	// decision the same way it reaches CSS.
 	const rootRef = useRef< HTMLDivElement >( null );
-	const [ labelPointers, setLabelPointers ] = useState< ResolvedLabelPointers | null >( null );
+	// Null until read, and while a label plate is set: text on the plate keeps the inverse role.
+	const [ labelRoles, setLabelRoles ] = useState< LabelRoles | null >( null );
 
 	const onMouseLeave = useCallback( () => {
 		if ( ! withTooltips ) {
@@ -279,28 +240,11 @@ const PieChartInternal = ( {
 
 		const resolve = createCssVariableResolver( rootRef.current );
 		const rawLabelBackground = resolve( CATALOG_POINTERS.labelBackground );
-		// Hex drops alpha, so a see-through label role would win the comparison and paint nothing.
-		const rawLabel = resolve( CATALOG_POINTERS.label );
-		const isLabelOpaque = rawLabel ? d3Color( rawLabel )?.opacity === 1 : false;
-		const rawLabelInverse = resolve( CATALOG_POINTERS.labelInverse );
-		const labelInverseColor = rawLabelInverse ? d3Color( rawLabelInverse ) : null;
 		// A plate value d3 cannot parse (CSS Color 4 syntax, say) is still one CSS paints, so it counts.
 		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
-		const next: ResolvedLabelPointers = {
-			hasPlate: rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false,
-			labelHex: isLabelOpaque ? normalizeColorToHex( CATALOG_POINTERS.label, null, resolve ) : '',
-			labelInverseHex: normalizeColorToHex( CATALOG_POINTERS.labelInverse, null, resolve ),
-			isInverseSeeThrough: labelInverseColor ? labelInverseColor.opacity < 1 : false,
-		};
-		setLabelPointers( previous =>
-			previous &&
-			previous.hasPlate === next.hasPlate &&
-			previous.labelHex === next.labelHex &&
-			previous.labelInverseHex === next.labelInverseHex &&
-			previous.isInverseSeeThrough === next.isInverseSeeThrough
-				? previous
-				: next
-		);
+		const hasPlate = rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false;
+		const next = hasPlate ? null : resolveLabelRoles( resolve );
+		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
 	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)
@@ -538,10 +482,12 @@ const PieChartInternal = ( {
 																		pointerEvents="none"
 																	/>
 																	<text
-																		className={ clsx( styles[ 'pie-chart__label-text' ], {
-																			[ styles[ 'pie-chart__label-text--on-light' ] ]:
-																				labelNeedsDarkText( fill, labelPointers ),
-																		} ) }
+																		className={ clsx(
+																			styles[ 'pie-chart__label-text' ],
+																			LABEL_TEXT_MODIFIER[
+																				pickLabelTextColor( fill, labelRoles, 'label-inverse' )
+																			]
+																		) }
 																		data-testid="pie-label"
 																		x={ centroidX }
 																		y={ centroidY }
