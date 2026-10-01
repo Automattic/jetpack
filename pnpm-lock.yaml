@@ -5218,9 +5218,6 @@ importers:
       react-dom:
         specifier: 18.3.1
         version: 18.3.1(react@18.3.1)
-      react-router:
-        specifier: 7.18.2
-        version: 7.18.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       socket.io-client:
         specifier: 4.8.3
         version: 4.8.3
@@ -5240,9 +5237,6 @@ importers:
       '@automattic/jetpack-wp-build-polyfills':
         specifier: workspace:*
         version: link:../wp-build-polyfills
-      '@automattic/number-formatters':
-        specifier: workspace:*
-        version: link:../../js-packages/number-formatters
       '@babel/core':
         specifier: 7.29.7
         version: 7.29.7
