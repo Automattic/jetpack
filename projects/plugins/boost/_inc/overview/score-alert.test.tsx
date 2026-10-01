@@ -113,7 +113,7 @@ test( 'permanently dismissed prompts remain hidden and do not record impressions
 	expect( recordBoostEvent ).not.toHaveBeenCalled();
 } );
 
-test( 'the default presentation retains the legacy close link and action callbacks', () => {
+test( 'the legacy pop out retains the legacy close link and action callbacks', () => {
 	const close = jest.fn();
 	render(
 		<VanillaPopOut

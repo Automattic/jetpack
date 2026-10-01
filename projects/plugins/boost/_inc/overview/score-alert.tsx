@@ -2,8 +2,8 @@ import { VisuallyHidden } from '@wordpress/ui';
 import { useEffect, useRef, useState } from 'react';
 import {
 	fasterMessage,
+	ModernPopOut,
 	slowerMessage,
-	VanillaPopOut,
 } from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { useDismissibleAlertState } from './lib/use-performance-history';
@@ -25,6 +25,7 @@ export default function ScoreAlert( { scoreChange, isVisible, onBeforeHide }: Pr
 		isVisible && hasScoreChanged && Math.abs( scoreChange ) > 5 && ! isDismissed && ! isClosed;
 	const scoreDirection = hasScoreChanged && scoreChange > 0 ? 'up' : 'down';
 
+	// Set after mount so the live region announces it; the render gate clears it without waiting a render.
 	useEffect( () => {
 		setAnnouncement( showAlert ? message.title : '' );
 	}, [ showAlert, message.title ] );
@@ -51,8 +52,7 @@ export default function ScoreAlert( { scoreChange, isVisible, onBeforeHide }: Pr
 			<VisuallyHidden render={ <div role="status" aria-live="polite" aria-atomic="true" /> }>
 				{ showAlert ? announcement : '' }
 			</VisuallyHidden>
-			<VanillaPopOut
-				presentation="modern"
+			<ModernPopOut
 				message={ message }
 				onClose={ () => {
 					onBeforeHide?.();
