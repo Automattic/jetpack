@@ -1,4 +1,4 @@
 Significance: patch
-Type: fixed
-Comment: Keep the modernized dashboard's menu label the same on every admin page; the dashboard is behind a feature flag.
+Type: changed
 
+Use the VaultPress Backup name for the Backup admin menu item on every page.

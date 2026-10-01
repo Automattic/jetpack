@@ -16,10 +16,8 @@ use PHPUnit\Framework\TestCase;
 use ReflectionMethod;
 use ReflectionProperty;
 
-require_once __DIR__ . '/trait-wp-build-entry-fixture.php';
-
 /**
- * The menu callback, the menu titles and the legacy script enqueue all have to
+ * The menu callback and the legacy script enqueue both have to
  * read the same predicate. When they disagreed, a modernization flag switched on
  * without a wp-build present rendered an empty div and enqueued nothing.
  *
@@ -29,7 +27,6 @@ require_once __DIR__ . '/trait-wp-build-entry-fixture.php';
  * they did before the predicate was extracted.
  */
 class Admin_Wp_Build_Fallback_Test extends TestCase {
-	use Wp_Build_Entry_Fixture;
 
 	/**
 	 * Declare the wp-build render function the predicate probes for.
@@ -50,8 +47,6 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		$this->set_admin_menu_items( array() );
 		wp_dequeue_script( 'jetpack-backup' );
 		wp_deregister_script( 'jetpack-backup' );
-		$this->remove_wp_build_entry();
-		unset( $_GET['page'] );
 
 		parent::tearDown();
 	}
@@ -126,7 +121,6 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 
 	public function test_menu_uses_the_wp_build_dashboard_when_the_build_is_present() {
 		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		$this->ensure_wp_build_entry();
 
 		Jetpack_Backup::add_wp_admin_submenu();
 
@@ -136,50 +130,13 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		$this->assertSame( 'VaultPress Backup', $item['menu_title'] );
 	}
 
-	/** The build loads only on the Backup page, so the label must not depend on it being loaded. */
-	public function test_menu_label_is_the_modernized_one_off_the_backup_page() {
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-		$this->ensure_wp_build_entry();
-		$_GET['page'] = 'jetpack';
-
-		Jetpack_Backup::add_wp_admin_submenu();
-
-		$item = $this->get_queued_backup_menu_item();
-		$this->assertSame( 'Jetpack VaultPress Backup', $item['page_title'] );
-		$this->assertSame( 'VaultPress Backup', $item['menu_title'] );
-	}
-
-	public function test_menu_label_is_the_legacy_one_off_the_backup_page_when_the_filter_is_off() {
-		$this->ensure_wp_build_entry();
-		$_GET['page'] = 'jetpack';
-
-		Jetpack_Backup::add_wp_admin_submenu();
-
-		$item = $this->get_queued_backup_menu_item();
-		$this->assertSame( 'Jetpack Backup', $item['page_title'] );
-		$this->assertSame( 'Backup', $item['menu_title'] );
-	}
-
-	public function test_menu_label_is_the_legacy_one_when_the_build_is_absent() {
-		if ( $this->has_real_wp_build_entry() ) {
-			$this->markTestSkipped( 'Needs a checkout without build/build.php.' );
-		}
-		add_filter( Jetpack_Backup::MODERNIZATION_FILTER, '__return_true' );
-
-		Jetpack_Backup::add_wp_admin_submenu();
-
-		$item = $this->get_queued_backup_menu_item();
-		$this->assertSame( 'Jetpack Backup', $item['page_title'] );
-		$this->assertSame( 'Backup', $item['menu_title'] );
-	}
-
 	public function test_menu_uses_the_legacy_dashboard_when_the_filter_is_off() {
 		Jetpack_Backup::add_wp_admin_submenu();
 
 		$item = $this->get_queued_backup_menu_item();
 		$this->assertSame( array( Jetpack_Backup::class, 'plugin_settings_page' ), $item['function'] );
-		$this->assertSame( 'Jetpack Backup', $item['page_title'] );
-		$this->assertSame( 'Backup', $item['menu_title'] );
+		$this->assertSame( 'Jetpack VaultPress Backup', $item['page_title'] );
+		$this->assertSame( 'VaultPress Backup', $item['menu_title'] );
 	}
 
 	public function test_enqueue_skips_the_legacy_script_when_the_build_is_present() {
