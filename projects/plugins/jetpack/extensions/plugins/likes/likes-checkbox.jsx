@@ -51,7 +51,7 @@ const LikesCheckbox = () => {
 					label={
 						isLikesModuleActive
 							? __( 'Show likes', 'jetpack' )
-							: __( 'Show comment likes', 'jetpack' )
+							: __( 'Show comment likes', 'jetpack', /* dummy arg to avoid bad minification */ 0 )
 					}
 					checked={ areLikesEnabled }
 					onChange={ value => {
