@@ -17,7 +17,7 @@ use ReflectionMethod;
 use ReflectionProperty;
 
 /**
- * The menu callback, the menu titles and the legacy script enqueue all have to
+ * The menu callback and the legacy script enqueue both have to
  * read the same predicate. When they disagreed, a modernization flag switched on
  * without a wp-build present rendered an empty div and enqueued nothing.
  *
@@ -135,8 +135,8 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 
 		$item = $this->get_queued_backup_menu_item();
 		$this->assertSame( array( Jetpack_Backup::class, 'plugin_settings_page' ), $item['function'] );
-		$this->assertSame( 'Jetpack Backup', $item['page_title'] );
-		$this->assertSame( 'Backup', $item['menu_title'] );
+		$this->assertSame( 'Jetpack VaultPress Backup', $item['page_title'] );
+		$this->assertSame( 'VaultPress Backup', $item['menu_title'] );
 	}
 
 	public function test_enqueue_skips_the_legacy_script_when_the_build_is_present() {

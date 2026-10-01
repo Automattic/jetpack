@@ -247,8 +247,8 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertCount( 1, $items );
 		$this->assertSame( Jetpack_Backup::JETPACK_BACKUP_SLUG, $items[0]['menu_slug'] );
 		$this->assertSame( array( Jetpack_Backup::class, 'plugin_settings_page' ), $items[0]['function'] );
-		$this->assertSame( 'Jetpack Backup', $items[0]['page_title'] );
-		$this->assertSame( 'Backup', $items[0]['menu_title'] );
+		$this->assertSame( 'Jetpack VaultPress Backup', $items[0]['page_title'] );
+		$this->assertSame( 'VaultPress Backup', $items[0]['menu_title'] );
 	}
 
 	public function test_add_wp_admin_submenu_uses_wp_build_callback_when_modernized() {
