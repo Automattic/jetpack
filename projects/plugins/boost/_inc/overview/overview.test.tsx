@@ -152,6 +152,34 @@ function renderOverview() {
 	return { ...view, client };
 }
 
+test( 'shows the stock button loading treatment while a user speed test runs', async () => {
+	renderOverview();
+	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
+	let finish!: ( value: typeof scores ) => void;
+	jest.mocked( requestSpeedScores ).mockReturnValueOnce(
+		new Promise( resolve => {
+			finish = resolve;
+		} )
+	);
+	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+		'aria-disabled',
+		'true'
+	);
+	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
+	await act( async () => finish( scores ) );
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).not.toHaveClass(
+			/__is-loading$/
+		)
+	);
+} );
+
 test( 'contains a render failure with the Overview error fallback', () => {
 	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
 		throw new Error( 'Score rendering failed' );

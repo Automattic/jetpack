@@ -1,3 +1,5 @@
+@use "@wordpress/base-styles/mixins" as wp;
+
 .wrapper {
 	display: grid;
 	justify-items: end;
@@ -12,5 +14,24 @@
 	// Space between notices
 	:global(.components-snackbar + .components-snackbar) {
 		margin-top: 16px;
+	}
+}
+
+.modern {
+
+	@include wp.snackbar-container();
+
+	inset-block-end: var(--wpds-dimension-size-md);
+	inset-inline: 0;
+	padding-inline: var(--wpds-dimension-padding-lg);
+	z-index: 900;
+
+	:global(.components-snackbar) {
+		max-inline-size: 100%;
+		margin-inline: auto;
+
+		+ :global(.components-snackbar) {
+			margin-block-start: var(--wpds-dimension-gap-lg);
+		}
 	}
 }

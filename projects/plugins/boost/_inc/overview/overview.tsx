@@ -139,6 +139,8 @@ function OverviewContent( {
 				variant="solid"
 				size="compact"
 				disabled={ isLoading }
+				loading={ scoreState.isRunning }
+				loadingAnnouncement={ __( 'Running speed test', 'jetpack-boost' ) }
 				onClick={ () => onRefresh( 'header' ) }
 			>
 				{ __( 'Run speed test', 'jetpack-boost' ) }
@@ -152,7 +154,15 @@ function OverviewContent( {
 			}
 			onHeaderActionChange( null );
 		};
-	}, [ isVisible, online, isLoading, onRefresh, onHeaderActionChange, focusFallback ] );
+	}, [
+		isVisible,
+		online,
+		isLoading,
+		scoreState.isRunning,
+		onRefresh,
+		onHeaderActionChange,
+		focusFallback,
+	] );
 
 	if ( ! online ) {
 		return (
