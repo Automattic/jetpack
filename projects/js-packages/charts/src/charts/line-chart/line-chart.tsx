@@ -147,13 +147,7 @@ export const renderDefaultTooltip = (
 				/>
 			</div>
 			{ tooltipPoints.map( point => (
-				<Stack
-					key={ point.key }
-					direction="row"
-					align="center"
-					justify="space-between"
-					className={ styles[ 'line-chart__tooltip-row' ] }
-				>
+				<Stack key={ point.key } direction="row" align="center" justify="space-between">
 					<span className={ styles[ 'line-chart__tooltip-label' ] }>{ point.key }:</span>
 					<span className={ styles[ 'line-chart__tooltip-value' ] }>
 						{ formatReading( point.value ) }
