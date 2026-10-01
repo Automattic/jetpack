@@ -1,9 +1,10 @@
 import Gravatar from '@automattic/jetpack-components/gravatar';
 import { Spinner } from '@wordpress/components';
 import { dateI18n, getSettings as getDateSettings } from '@wordpress/date';
+import { useCallback } from '@wordpress/element';
 import { decodeEntities } from '@wordpress/html-entities';
 import { __ } from '@wordpress/i18n';
-import { Card, Link, Stack, Text } from '@wordpress/ui';
+import { Card, Link, Notice, Stack, Text } from '@wordpress/ui';
 import {
 	useSubscribedNewsletterCategories,
 	useSubscriberDetails,
@@ -172,6 +173,11 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 		user_id: open.userId,
 	} );
 
+	const { refetch } = detailsQuery;
+	const retry = useCallback( () => {
+		void refetch();
+	}, [ refetch ] );
+
 	const subscriber = detailsQuery.data;
 	const stats = statsQuery.data;
 
@@ -181,6 +187,22 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 	const subscribedCategories = ( categoriesQuery.data?.newsletter_categories ?? [] )
 		.filter( category => category.subscribed )
 		.map( category => decodeEntities( category.name ) );
+
+	if ( detailsQuery.isError ) {
+		return (
+			<Notice.Root intent="error">
+				<Notice.Title>
+					{ __( 'Could not load subscriber details.', 'jetpack-newsletter' ) }
+				</Notice.Title>
+				<Notice.Description>{ detailsQuery.error.message }</Notice.Description>
+				<Notice.Actions>
+					<Notice.ActionButton disabled={ detailsQuery.isFetching } onClick={ retry }>
+						{ __( 'Try again', 'jetpack-newsletter' ) }
+					</Notice.ActionButton>
+				</Notice.Actions>
+			</Notice.Root>
+		);
+	}
 
 	if ( detailsQuery.isLoading || ! subscriber ) {
 		return (
