@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { video as videoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -102,6 +103,7 @@ describe( 'Top videos widget', () => {
 					url: 'https://i0.wp.com/v/a.jpg?resize=100%2C56',
 					alt: '',
 					aspectRatio: '16/9',
+					fallbackIcon: videoIcon,
 				},
 				action: { kind: 'videoLink', id: 101, href: 'https://example.com/a/' },
 			},
@@ -110,7 +112,13 @@ describe( 'Top videos widget', () => {
 				label: 'Teaser',
 				value: 40,
 				previousValue: undefined,
-				media: { kind: 'thumbnail', url: undefined, alt: '', aspectRatio: '16/9' },
+				media: {
+					kind: 'thumbnail',
+					url: undefined,
+					alt: '',
+					aspectRatio: '16/9',
+					fallbackIcon: videoIcon,
+				},
 				action: { kind: 'videoLink', id: 102, href: null },
 			},
 		] );

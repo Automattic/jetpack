@@ -61,6 +61,39 @@ describe( 'LeaderboardLabel', () => {
 		expect( image ).toHaveAttribute( 'src', expect.stringMatching( /^data:image\/svg\+xml/ ) );
 	} );
 
+	it( 'draws the fallback icon when a thumbnail has no image', () => {
+		render(
+			<LeaderboardLabel
+				label="No poster"
+				media={ { kind: 'thumbnail', alt: '', fallbackIcon: category } }
+			/>
+		);
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( glyphPath( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ) ).toBe(
+			iconPath( category )
+		);
+	} );
+
+	it( 'swaps a failed thumbnail for its fallback icon', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ {
+					kind: 'thumbnail',
+					url: 'https://example.com/private.jpg',
+					alt: '',
+					fallbackIcon: category,
+				} }
+			/>
+		);
+
+		fireEvent.error( screen.getByRole( 'presentation' ) );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'leaderboard-thumbnail-placeholder' ) ).toBeInTheDocument();
+	} );
+
 	it( 'supports a first-class no-media label', () => {
 		render( <LeaderboardLabel label="Desktop" media={ { kind: 'none' } } /> );
 
