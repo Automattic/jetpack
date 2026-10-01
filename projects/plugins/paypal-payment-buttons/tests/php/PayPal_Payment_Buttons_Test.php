@@ -80,7 +80,10 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 		$this->assertInstanceOf( 'PayPal_Payment_Buttons', $plugin );
 	}
 
-	public function test_block_availability_data_extends_the_shared_editor_state() {
+	/**
+	 * Verify that Jest exercises the script emitted by WordPress.
+	 */
+	public function test_block_availability_data_matches_the_executable_fixture() {
 		$handle = 'jp-paypal-payments-ncps-blocks';
 		set_current_screen( 'post' );
 		get_current_screen()->is_block_editor( true );
@@ -89,11 +92,7 @@ class PayPal_Payment_Buttons_Test extends BaseTestCase {
 		$this->paypal_plugin->enqueue_block_availability_data();
 
 		$before = implode( "\n", array_filter( (array) wp_scripts()->get_data( $handle, 'before' ) ) );
-		$this->assertStringNotContainsString( 'var Jetpack_Editor_Initial_State', (string) wp_scripts()->get_data( $handle, 'data' ) );
-		$this->assertStringContainsString( 'window.Jetpack_Editor_Initial_State || {}', $before );
-		$this->assertStringContainsString( 'Object.assign( {}, state.available_blocks, data.available_blocks )', $before );
-		$this->assertStringContainsString( 'Object.assign( {}, state.feature_flags, data.feature_flags )', $before );
-		$this->assertStringContainsString( '"paypal-payment-buttons":{"available":true}', $before );
-		$this->assertStringContainsString( '"feature_flags":{', $before );
+		$this->assertEmpty( wp_scripts()->get_data( $handle, 'data' ) );
+		$this->assertSame( trim( file_get_contents( __DIR__ . '/../fixtures/editor-initial-state.js.txt' ) ), $before );
 	}
 }
