@@ -179,7 +179,12 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 			continue;
 		}
 
-		$shortcode_args['id'] = urldecode( $id_match['id'] );
+		$embed_id = urldecode( $id_match['id'] );
+
+		// Reject URLs whose embed id would include invalid characters for a shortcode.
+		if ( strlen( $embed_id ) !== strcspn( $embed_id, '<>] ' ) ) {
+			continue;
+		}
 
 		$query = wp_parse_url( $src, PHP_URL_QUERY );
 		if ( ! is_string( $query ) || ! str_contains( $query, '=' ) ) {
@@ -209,7 +214,7 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 			$shortcode_args['height'] = "{$height}";
 		}
 
-		$shortcode = '[archiveorg';
+		$shortcode = "[archiveorg {$embed_id}";
 		foreach ( $shortcode_args as $name => $value ) {
 			$value      = strtr( $value, array( '"' => '&quot;' ) );
 			$shortcode .= " {$name}=\"{$value}\"";
