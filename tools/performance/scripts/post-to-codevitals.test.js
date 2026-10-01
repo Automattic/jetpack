@@ -490,6 +490,10 @@ test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production
 	);
 } );
 
+/**
+ * Pin Forms fields, types and keys so a dropped or renamed key fails here
+ * before a live post changes the append-only store.
+ */
 test( 'the formsResponses scenario retains production keys and adds staging TBT', () => {
 	const scenario = SCENARIOS.find( s => s.key === 'formsResponses' );
 	assert.ok( scenario, 'formsResponses scenario must exist' );
@@ -536,6 +540,10 @@ test( 'the formsResponses scenario retains production keys and adds staging TBT'
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
+/**
+ * Pin My Jetpack fields, types and keys so a dropped or renamed key fails here
+ * before a live post changes the append-only store.
+ */
 test( 'the myJetpack scenario retains production keys and adds staging TBT', () => {
 	const scenario = SCENARIOS.find( s => s.key === 'myJetpack' );
 	assert.ok( scenario, 'myJetpack scenario must exist' );
@@ -3009,6 +3017,14 @@ test( 'formsResponses opts out of networkidle so a stuck request cannot blackhol
 	// The scenarios that measure a settled page keep the default (undefined → 'networkidle').
 	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).loadState, undefined );
 	assert.equal( SCENARIOS.find( s => s.key === 'myJetpack' ).loadState, undefined );
+} );
+
+test( 'staging TBT above 500 ms is accepted within the existing sanity range', async () => {
+	const file = writeResults( 120, { forms: { tbt: 750 }, myJetpack: { tbt: 9999 } } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ FORMS_TBT_KEY ], 750 );
+	assert.equal( result.payload.metrics[ MJ_TBT_KEY ], 9999 );
 } );
 
 test( 'out-of-range staging TBT rejects the entire dry payload without clipping', async () => {

@@ -544,7 +544,13 @@ test( 'reportSkippedScenarios warns readably (no TeamCity message) on a missing/
 } );
 
 /** Execute the browser initializer with a controllable observer implementation. */
-function longTaskHarness( { supported = true, observeError = false, drainError = false } = {} ) {
+function longTaskHarness( {
+	supported = true,
+	observeError = false,
+	drainError = false,
+	disconnectError = false,
+	synchronousEntries,
+} = {} ) {
 	const descriptors = Object.fromEntries(
 		[ 'window', 'performance', 'PerformanceObserver' ].map( key => [
 			key,
@@ -566,6 +572,9 @@ function longTaskHarness( { supported = true, observeError = false, drainError =
 				if ( observeError ) {
 					throw new Error( 'capture failed' );
 				}
+				if ( synchronousEntries ) {
+					this.callback( { getEntries: () => synchronousEntries } );
+				}
 			}
 		}
 		takeRecords() {
@@ -576,6 +585,9 @@ function longTaskHarness( { supported = true, observeError = false, drainError =
 		}
 		disconnect() {
 			this.disconnected = true;
+			if ( disconnectError ) {
+				throw new Error( 'disconnect failed' );
+			}
 		}
 	}
 	try {
@@ -603,12 +615,20 @@ test( 'load TBT includes pre-paint tasks, drains pending records and excludes ta
 	observer.callback( { getEntries: () => [ early, { startTime: 130, duration: 40 } ] } );
 	observer.pending = [
 		{ startTime: 200, duration: 80 },
+		{ startTime: 200, duration: 100 },
+		{ startTime: 250, duration: 50 },
 		{ startTime: 280, duration: 60 },
 		{ startTime: 400, duration: 100 },
 	];
 	assert.deepEqual( finalize( 300 ), {
-		tbt: 100,
-		longTasks: [ early, { startTime: 130, duration: 40 }, { startTime: 200, duration: 80 } ],
+		tbt: 150,
+		longTasks: [
+			early,
+			{ startTime: 130, duration: 40 },
+			{ startTime: 200, duration: 80 },
+			{ startTime: 200, duration: 100 },
+			{ startTime: 250, duration: 50 },
+		],
 	} );
 	assert.deepEqual( observer.pending, [] );
 	assert.equal( observer.disconnected, true );
@@ -619,6 +639,54 @@ test( 'working empty capture is zero; unsupported or failed capture is missing',
 	for ( const options of [ { supported: false }, { observeError: true }, { drainError: true } ] ) {
 		assert.deepEqual( longTaskHarness( options ).finalize( 300 ), { tbt: null, longTasks: null } );
 	}
+} );
+
+test( 'a throwing long-task callback remains missing after a later successful callback', () => {
+	const { finalize, observer } = longTaskHarness();
+	observer.callback( {
+		getEntries() {
+			throw new Error( 'callback failed' );
+		},
+	} );
+	observer.callback( { getEntries: () => [ { startTime: 0, duration: 120 } ] } );
+	assert.deepEqual( finalize( 300 ), { tbt: null, longTasks: null } );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'non-finite or negative long-task timings are missing data', () => {
+	for ( const entry of [
+		{ startTime: NaN, duration: 120 },
+		{ startTime: 0, duration: NaN },
+		{ startTime: -1, duration: 120 },
+		{ startTime: 0, duration: -1 },
+	] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ entry ];
+		assert.deepEqual( finalize( 300 ), { tbt: null, longTasks: null } );
+	}
+} );
+
+test( 'a non-finite load-finalization cutoff is missing data', () => {
+	for ( const cutoff of [ undefined, NaN, Infinity ] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ { startTime: 0, duration: 120 } ];
+		assert.deepEqual( finalize( cutoff ), { tbt: null, longTasks: null } );
+		assert.equal( observer.disconnected, true );
+	}
+} );
+
+test( 'long-task entries delivered synchronously during observe are preserved', () => {
+	const early = { startTime: 0, duration: 120 };
+	const { finalize } = longTaskHarness( { synchronousEntries: [ early ] } );
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+} );
+
+test( 'a disconnect failure does not discard the long-task capture', () => {
+	const { finalize, observer } = longTaskHarness( { disconnectError: true } );
+	const early = { startTime: 0, duration: 120 };
+	observer.pending = [ early ];
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+	assert.equal( observer.disconnected, true );
 } );
 
 test( 'TBT preserves zero in summary and requires a majority for optional-page posting', () => {

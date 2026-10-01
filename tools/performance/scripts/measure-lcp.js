@@ -66,8 +66,8 @@ function initializeLoadObservers() {
 					entries = null;
 				}
 			} );
-			observer.observe( { type: 'longtask', buffered: true } );
 			entries = [];
+			observer.observe( { type: 'longtask', buffered: true } );
 		}
 	} catch {
 		entries = null;
@@ -75,7 +75,7 @@ function initializeLoadObservers() {
 
 	window.__finalizeLongTasks = cutoff => {
 		try {
-			if ( entries === null ) {
+			if ( entries === null || ! Number.isFinite( cutoff ) ) {
 				return { tbt: null, longTasks: null };
 			}
 			// Flush completed tasks whose observer callback has not run yet.
@@ -99,7 +99,11 @@ function initializeLoadObservers() {
 		} catch {
 			return { tbt: null, longTasks: null };
 		} finally {
-			observer?.disconnect();
+			try {
+				observer?.disconnect();
+			} catch {
+				// Cleanup failure must not discard the captured result.
+			}
 		}
 	};
 }
@@ -186,7 +190,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 		try {
 			console.log( `  Iteration ${ i + 1 }/${ iterations }...` );
 
-			// Step 0: Set up LCP capture and the enlarged Resource Timing buffer via addInitScript.
+			// Step 0: Install buffered LCP/long-task capture and the enlarged Resource Timing buffer.
 			// This injects code that runs BEFORE any page script on EVERY navigation from here on
 			// (login, warm-up and the measured reload — each document gets a fresh copy, so the
 			// reload's __lcpEntries never contain earlier pages' entries). Installed before the
@@ -405,6 +409,11 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			console.log(
 				`    LCP: ${ metrics.lcp.toFixed( 2 ) }ms (element: ${ metrics.lcpElement }, entries: ${
 					metrics.lcpEntriesCount
+				})`
+			);
+			console.log(
+				`    TBT: ${ Number.isFinite( metrics.tbt ) ? `${ metrics.tbt.toFixed( 2 ) }ms` : 'missing' } (long tasks: ${
+					metrics.longTasks?.length ?? 'missing'
 				})`
 			);
 		} catch ( error ) {
@@ -1048,7 +1057,7 @@ async function main() {
 	console.log(
 		'  2. Reload the scenario page (Dashboard, or a targeted admin page) for a clean load'
 	);
-	console.log( '  3. Measure LCP, TTFB, FCP, runtime bundle size and configured backend fields' );
+	console.log( '  3. Measure LCP, TTFB, FCP, load TBT, runtime bundle size and configured backend fields' );
 	console.log( '' );
 	console.log( 'Configuration:' );
 	for ( const scenario of SCENARIOS ) {
@@ -1077,7 +1086,11 @@ async function main() {
 				scenario
 			);
 			console.log(
-				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms\n`
+				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms; median TBT: ${
+					measurements[ scenario.key ].summary.tbt
+						? `${ measurements[ scenario.key ].summary.tbt.median }ms`
+						: 'missing'
+				}\n`
 			);
 		} catch ( error ) {
 			console.error( `✗ ${ scenario.name } measurement failed:`, error.message, '\n' );
@@ -1099,7 +1112,11 @@ async function main() {
 			continue;
 		}
 		if ( measurement && ! measurement.error ) {
-			console.log( `  ${ scenario.name }: ${ measurement.summary.median }ms` );
+			console.log(
+				`  ${ scenario.name }: median LCP ${ measurement.summary.median }ms; median TBT ${
+					measurement.summary.tbt ? `${ measurement.summary.tbt.median }ms` : 'missing'
+				}`
+			);
 		} else if ( scenario.optional ) {
 			console.log(
 				`  ${ scenario.name }: FAILED (optional — build continues, its keys skip this build) - ${
