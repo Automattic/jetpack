@@ -266,7 +266,7 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 | `price` | string | — | Price value (e.g., `29.99`) |
 | `currencyCode` | string | `USD` | ISO currency code |
 | `productDescription` | string | — | Product description |
-| `imageUrl` | string | — | Product image URL. Kept on the site only |
+| `imageUrl` | string | — | Product image URL |
 | `returnUrl` | string | — | Post-payment redirect URL |
 | `scriptSrc` | string | — | Legacy: PayPal script URL |
 | `hostedButtonId` | string | — | Legacy: hosted button ID |
