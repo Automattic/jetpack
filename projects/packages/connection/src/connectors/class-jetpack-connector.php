@@ -245,10 +245,13 @@ class Jetpack_Connector {
 	 * so the card keeps its current account sections. The status is
 	 * Manager::resolve_protected_owner_state(), which the card switches on.
 	 *
+	 * `viewerIsConfirmedOwner` is that method's `is_current_user_the_po`. It tells the recovery
+	 * copy apart: an owner whose own token broke is asked to reconnect, not to connect.
+	 *
 	 * @since $$next-version$$
 	 *
 	 * @param Manager $manager Connection manager instance.
-	 * @return array{status: string}|null
+	 * @return array{status: string, viewerIsConfirmedOwner: bool}|null
 	 */
 	private static function get_protected_owner_card_state( $manager ) {
 		$requires = $manager->requires_protected_owner();
@@ -266,7 +269,8 @@ class Jetpack_Connector {
 		}
 
 		return array(
-			'status' => $state['status'],
+			'status'                 => $state['status'],
+			'viewerIsConfirmedOwner' => $state['is_current_user_the_po'],
 		);
 	}
 

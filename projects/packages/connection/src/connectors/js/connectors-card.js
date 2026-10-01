@@ -524,8 +524,8 @@ function connectedAccountTitle( user ) {
 const PROTECTED_OWNER_STATES = {
 	CAN_ESTABLISH: { slot: 'confirm', anchored: false },
 	NEEDS_CONNECT_TO_ESTABLISH: { slot: 'connect', anchored: false },
-	NEEDS_OWNER_RECONNECT: { slot: 'support', anchored: true },
-	NEEDS_DIFFERENT_OWNER: { slot: 'support', anchored: true },
+	NEEDS_OWNER_RECONNECT: { slot: 'reconnect', anchored: true },
+	NEEDS_DIFFERENT_OWNER: { slot: 'other-owner', anchored: true },
 	RE_EVALUATE: { slot: null, anchored: true },
 };
 
@@ -541,10 +541,23 @@ function protectedOwnerState() {
 /**
  * Which protected-owner slot to render, if any.
  *
- * @return {string|null} `confirm`, `connect`, `support`, or null.
+ * @return {string|null} `confirm`, `connect`, `reconnect`, `other-owner`, or null.
  */
 function protectedOwnerSlotKind() {
 	return protectedOwnerState()?.slot || null;
+}
+
+/**
+ * Support link for the protected-owner recovery copy.
+ *
+ * @return {object} React element for createInterpolateElement's `support` tag.
+ */
+function supportLink() {
+	return createElement( 'a', {
+		href: 'https://jetpack.com/redirect/?source=jetpack-support',
+		target: '_blank',
+		rel: 'noopener noreferrer',
+	} );
 }
 
 /**
@@ -578,22 +591,38 @@ function ProtectedOwnerSection() {
 	const kind = protectedOwnerSlotKind();
 	let body;
 
-	if ( kind === 'support' ) {
+	if ( kind === 'reconnect' ) {
+		// The owner's own token is what could not be read, so the viewer who holds the
+		// anchored identity is asked to reconnect rather than to connect a second account.
+		const text = protectedOwner.viewerIsConfirmedOwner
+			? __(
+					'Reconnect your account to restore ownership, or <support>contact support</support>.',
+					'jetpack-connection'
+				)
+			: __(
+					'The confirmed owner account could not be read. Reconnecting it restores ownership, or <support>contact support</support>.',
+					'jetpack-connection'
+				);
+
+		body = createElement(
+			Text,
+			{ size: 13 },
+			createInterpolateElement( text, { support: supportLink() } )
+		);
+	} else if ( kind === 'other-owner' ) {
 		body = createElement(
 			Text,
 			{ size: 13 },
 			createInterpolateElement(
-				__(
-					'The connection owner needs to create or connect their account, or <support>contact support</support>.',
-					'jetpack-connection'
+				sprintf(
+					// translators: %s: "site" or "store".
+					__(
+						'The confirmed %s owner needs to connect their account, or <support>contact support</support>.',
+						'jetpack-connection'
+					),
+					subjectNoun
 				),
-				{
-					support: createElement( 'a', {
-						href: 'https://jetpack.com/redirect/?source=jetpack-support',
-						target: '_blank',
-						rel: 'noopener noreferrer',
-					} ),
-				}
+				{ support: supportLink() }
 			)
 		);
 	} else if ( kind === 'connect' ) {

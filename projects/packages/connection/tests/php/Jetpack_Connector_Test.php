@@ -207,6 +207,7 @@ class Jetpack_Connector_Test extends TestCase {
 		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertSame( Manager::PO_STATE_NEEDS_CONNECT_TO_ESTABLISH, $data['protectedOwner']['status'] );
+		$this->assertFalse( $data['protectedOwner']['viewerIsConfirmedOwner'] );
 	}
 
 	/**
@@ -236,6 +237,23 @@ class Jetpack_Connector_Test extends TestCase {
 		$data = Jetpack_Connector::get_connector_data( array() );
 
 		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $data['protectedOwner']['status'] );
+		$this->assertFalse( $data['protectedOwner']['viewerIsConfirmedOwner'] );
+	}
+
+	/**
+	 * The owner whose own token cannot be read is told they are the one to reconnect.
+	 *
+	 * `resolve_wpcom_user_id()` answers 0 without a live token while the binding survives, so
+	 * this is the ordinary way into the reconnect state rather than an edge case.
+	 */
+	public function test_protected_owner_card_state_marks_the_viewer_as_the_confirmed_owner() {
+		Protected_Owner::set( 4242, $this->admin_id );
+		Utils::set_wpcom_user_id( $this->admin_id, 4242 );
+
+		$data = Jetpack_Connector::get_connector_data( array() );
+
+		$this->assertSame( Manager::PO_STATE_NEEDS_OWNER_RECONNECT, $data['protectedOwner']['status'] );
+		$this->assertTrue( $data['protectedOwner']['viewerIsConfirmedOwner'] );
 	}
 
 	/**

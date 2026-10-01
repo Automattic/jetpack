@@ -101,7 +101,7 @@ describe( 'ProtectedOwnerConfirmation', () => {
 	it( 'falls back to the script data when the caller passes no REST details', async () => {
 		window.JetpackScriptData = {
 			connection: { apiRoot: 'https://scriptdata.example/wp-json/', apiNonce: 'script-nonce' },
-		} as unknown as typeof window.JetpackScriptData;
+		} as typeof window.JetpackScriptData;
 		mockFetch.mockResolvedValue( jsonResponse( true, { code: 'success' } ) );
 		const user = userEvent.setup();
 		render( <ProtectedOwnerConfirmation isOpen onClose={ onClose } onConfirmed={ onConfirmed } /> );
