@@ -9,32 +9,32 @@ const { default: useDismissHandler } =
 
 describe( 'useDismissHandler', () => {
 	it.each( [ 'close-press', 'escape-key', 'outside-press' ] )(
-		'calls onDismiss when closed with the %s reason',
+		'calls onCancel when closed with the %s reason',
 		reason => {
-			const onDismiss = jest.fn();
-			const { result } = renderHook( () => useDismissHandler( onDismiss ) );
+			const onCancel = jest.fn();
+			const { result } = renderHook( () => useDismissHandler( onCancel ) );
 
 			result.current( false, { reason } );
 
-			expect( onDismiss ).toHaveBeenCalledTimes( 1 );
+			expect( onCancel ).toHaveBeenCalledTimes( 1 );
 		}
 	);
 
-	it( 'does not call onDismiss after a confirm', () => {
-		const onDismiss = jest.fn();
-		const { result } = renderHook( () => useDismissHandler( onDismiss ) );
+	it( 'does not call onCancel after a confirm', () => {
+		const onCancel = jest.fn();
+		const { result } = renderHook( () => useDismissHandler( onCancel ) );
 
 		result.current( false, { reason: 'imperative-action' } );
 
-		expect( onDismiss ).not.toHaveBeenCalled();
+		expect( onCancel ).not.toHaveBeenCalled();
 	} );
 
-	it( 'does not call onDismiss when opening', () => {
-		const onDismiss = jest.fn();
-		const { result } = renderHook( () => useDismissHandler( onDismiss ) );
+	it( 'does not call onCancel when opening', () => {
+		const onCancel = jest.fn();
+		const { result } = renderHook( () => useDismissHandler( onCancel ) );
 
 		result.current( true, { reason: 'trigger-press' } );
 
-		expect( onDismiss ).not.toHaveBeenCalled();
+		expect( onCancel ).not.toHaveBeenCalled();
 	} );
 } );
