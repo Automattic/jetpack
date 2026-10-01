@@ -148,9 +148,9 @@ export function buildLocationsGeoChart( {
 	const useCountrySummaryMap = mode === 'region' && ! focusCountry;
 	const scope = {
 		region: focusCountry && ! useCountryFallbackMap ? focusCountry.code.toUpperCase() : 'world',
-		resolution: ( useProvinceMap ? 'provinces' : 'countries' ) as 'countries' | 'provinces',
-		displayMode: ( mode === 'city' ? 'markers' : 'regions' ) as GeoDisplayMode,
-	};
+		resolution: useProvinceMap ? 'provinces' : 'countries',
+		displayMode: mode === 'city' ? 'markers' : 'regions',
+	} satisfies Omit< LocationsGeoChartConfig, 'data' >;
 
 	if ( mode === 'city' ) {
 		return {
