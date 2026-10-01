@@ -2082,6 +2082,8 @@ class Manager {
 	 *
 	 * @since 1.29.0
 	 * @since 9.3.0 Refused while ownership is locked.
+	 * @since $$next-version$$ The anchored owner passes the lock, and moving the site off them
+	 *                         releases the anchor.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *
@@ -2090,7 +2092,7 @@ class Manager {
 	public function update_connection_owner( $new_owner_id ) {
 		// Answered before the arguments are validated: no candidate is valid while ownership is
 		// locked, and an argument error would suggest a retry that cannot work.
-		if ( ! $this->is_ownership_transferable() ) {
+		if ( ! $this->is_ownership_transferable() && ! $this->current_user_may_move_locked_ownership() ) {
 			return new WP_Error(
 				'ownership_locked',
 				__( 'The connection owner is locked on this site.', 'jetpack-connection' ),
@@ -2136,6 +2138,8 @@ class Manager {
 			// Clear the memoized connection owner ID since it changed
 			self::$connection_owner_id = null;
 
+			$this->release_anchor_after_transfer( $new_owner_id );
+
 			// Track it.
 			( new Tracking() )->record_user_event( 'set_connection_owner_success' );
 
@@ -2146,6 +2150,65 @@ class Manager {
 			__( 'Could not confirm new owner.', 'jetpack-connection' ),
 			array( 'status' => 500 )
 		);
+	}
+
+	/**
+	 * Whether the current user may move the connection despite a locked anchor.
+	 *
+	 * The anchor protects an identity, so the owner it names is the one person it is not against.
+	 * WordPress.com reads the same thing from the request signature, which is what lets it accept
+	 * a switch the owner signed.
+	 *
+	 * A consumer locking ownership through the filter is a separate refusal that still applies to
+	 * everybody, so it is re-read here with the anchor out of the way.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function current_user_may_move_locked_ownership() {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return false;
+		}
+
+		// The stored binding, never a search for whoever holds the anchored ID, so a row written
+		// on another user cannot let them move the site.
+		if ( Utils::get_wpcom_user_id( get_current_user_id() ) !== (int) $anchor['wpcom_user_id'] ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/packages/connection/src/class-manager.php */
+		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+	}
+
+	/**
+	 * Drop the anchor once the site has been handed to somebody other than the owner it names.
+	 *
+	 * The anchor protects an identity, not the master slot. Handing the site to the anchored owner
+	 * is the lock being satisfied, so it stays; handing it to anyone else ends the protection,
+	 * which is what WordPress.com has already recorded for a switch that owner signed.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $new_owner_id The local user who now holds the connection.
+	 */
+	private function release_anchor_after_transfer( $new_owner_id ) {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return;
+		}
+
+		// A zero reads as "could not determine" elsewhere, and it clears here too: WordPress.com
+		// has already dropped its record for this switch, so an anchor it will no longer confirm
+		// would only lock the site to nobody.
+		if ( $this->resolve_wpcom_user_id( $new_owner_id ) === (int) $anchor['wpcom_user_id'] ) {
+			return;
+		}
+
+		Protected_Owner::clear();
 	}
 
 	/**

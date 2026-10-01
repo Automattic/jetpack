@@ -516,6 +516,94 @@ class Protected_Owner_Test extends TestCase {
 		$this->assertSame( 'ownership_locked', $result->get_error_code() );
 	}
 
+	/**
+	 * The lock protects an identity, so the owner it names is the one person it is not against.
+	 */
+	public function test_the_anchored_owner_may_move_the_connection() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once() );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertSame( $candidate, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Handing the site to somebody else ends the protection, matching the record WordPress.com
+	 * drops for a switch the owner signed. An anchor it will no longer confirm locks nobody.
+	 */
+	public function test_moving_the_site_off_the_anchored_owner_releases_the_anchor() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once() );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNull( Protected_Owner::get_locked(), 'The anchor should be released.' );
+	}
+
+	/**
+	 * Taking the master slot back is the lock being satisfied rather than given up, which is the
+	 * ordinary way an owner recovers a site an agency connected for them.
+	 */
+	public function test_handing_the_site_to_the_anchored_owner_keeps_the_anchor() {
+		$interloper = $this->candidate( 'transfer_interloper' );
+		Utils::set_wpcom_user_id( $interloper, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $interloper, $this->once() );
+
+		$this->assertTrue( $manager->update_connection_owner( $this->owner_id ) );
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * It is the stored binding that lets somebody through, not merely being a connected
+	 * administrator on a locked site.
+	 */
+	public function test_a_connected_administrator_who_is_not_the_anchored_owner_is_still_refused() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
+		$result  = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * A consumer locking ownership through the filter is a separate refusal, and it still applies
+	 * to the anchored owner.
+	 */
+	public function test_a_consumer_locking_ownership_also_refuses_the_anchored_owner() {
+		$this->act_as_confirmed_owner();
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
+		$result  = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * Passing the lock is not the same as being told the site is transferable: the predicate
+	 * answers for the site, and consumers read it to decide whether to offer a transfer at all.
+	 */
+	public function test_the_anchored_owner_does_not_make_the_site_transferable() {
+		$this->act_as_confirmed_owner();
+
+		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+	}
+
 	// ── requires_protected_owner ─────────────────────────────────────────
 
 	/**
