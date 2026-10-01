@@ -52,6 +52,12 @@ class Async_Options {
 	 */
 	public function add_to_plugin_page( $plugin_page, $parent_page ) {
 		$plugin_page_hook = get_plugin_page_hook( $plugin_page, $parent_page );
+
+		// On admin-ajax.php and other requests where the admin menu is not built, get_plugin_page_hook() returns null.
+		if ( ! $plugin_page_hook ) {
+			return;
+		}
+
 		add_action( $plugin_page_hook, array( $this, '_print_options_script_tag' ) );
 	}
 
