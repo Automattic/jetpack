@@ -172,6 +172,30 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * Build a Manager whose WordPress.com release is stubbed.
+	 *
+	 * @param mixed $record  What the release should answer, or null for an unreachable WordPress.com.
+	 * @param mixed $matcher Optional invocation matcher for the release call.
+	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
+	 */
+	private function releasing_manager( $record, $matcher = null ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'relinquish_protected_owner_record' ) )
+			->getMock();
+
+		$manager->method( 'get_connection_owner_id' )->willReturn( $this->owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $this->connected_tokens( $this->owner_id ) );
+
+		if ( null === $matcher ) {
+			$manager->method( 'relinquish_protected_owner_record' )->willReturn( $record );
+		} else {
+			$manager->expects( $matcher )->method( 'relinquish_protected_owner_record' )->willReturn( $record );
+		}
+
+		return $manager;
+	}
+
+	/**
 	 * Act as the connection owner, an administrator, who holds the capability the setters need.
 	 */
 	private function act_as_administrator() {
@@ -179,21 +203,35 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * Anchor the site and act as the administrator the anchor names.
+	 */
+	private function act_as_confirmed_owner() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		$this->act_as_administrator();
+	}
+
+	/**
 	 * Build a Manager whose WordPress.com ownership call is stubbed, so an attempted transfer
 	 * can be asserted on without a network round trip.
 	 *
-	 * @param int   $owner_id      What `get_connection_owner_id()` should report.
-	 * @param mixed $wpcom_matcher Invocation matcher for the WordPress.com ownership call.
+	 * @param int        $owner_id      What `get_connection_owner_id()` should report.
+	 * @param mixed      $wpcom_matcher Invocation matcher for the WordPress.com ownership call.
+	 * @param true|array $accepted      What WordPress.com answers the switch with.
 	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
 	 */
-	private function transfer_manager( $owner_id, $wpcom_matcher ) {
+	private function transfer_manager( $owner_id, $wpcom_matcher, $accepted = true ) {
 		$manager = $this->getMockBuilder( Manager::class )
-			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'update_connection_owner_wpcom' ) )
+			->onlyMethods(
+				array( 'get_connection_owner_id', 'get_tokens', 'get_connected_user_data', 'update_connection_owner_wpcom' )
+			)
 			->getMock();
 
 		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
 		$manager->method( 'get_tokens' )->willReturn( $this->connected_tokens( $owner_id ) );
-		$manager->expects( $wpcom_matcher )->method( 'update_connection_owner_wpcom' )->willReturn( true );
+		// Nobody resolves over the network here, so each test states the bindings it relies on.
+		$manager->method( 'get_connected_user_data' )->willReturn( false );
+		$manager->expects( $wpcom_matcher )->method( 'update_connection_owner_wpcom' )->willReturn( $accepted );
 
 		return $manager;
 	}
@@ -481,6 +519,175 @@ class Protected_Owner_Test extends TestCase {
 
 		$this->assertInstanceOf( 'WP_Error', $result );
 		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+	}
+
+	/**
+	 * The lock protects an identity, so the owner it names is the one person it is not against.
+	 */
+	public function test_the_anchored_owner_may_move_the_connection() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once() );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertSame( $candidate, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Handing the site to somebody else ends the protection, matching the record WordPress.com
+	 * drops for a switch the owner signed. An anchor it will no longer confirm locks nobody.
+	 */
+	public function test_moving_the_site_off_the_anchored_owner_releases_the_anchor() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once() );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNull( Protected_Owner::get_locked(), 'The anchor should be released.' );
+	}
+
+	/**
+	 * Taking the master slot back is the lock being satisfied rather than given up, which is the
+	 * ordinary way an owner recovers a site an agency connected for them.
+	 */
+	public function test_handing_the_site_to_the_anchored_owner_keeps_the_anchor() {
+		$interloper = $this->candidate( 'transfer_interloper' );
+		Utils::set_wpcom_user_id( $interloper, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $interloper, $this->once() );
+
+		$this->assertTrue( $manager->update_connection_owner( $this->owner_id ) );
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * It is the stored binding that lets somebody through, not merely being a connected
+	 * administrator on a locked site.
+	 */
+	public function test_a_connected_administrator_who_is_not_the_anchored_owner_is_still_refused() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
+		$result  = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * A consumer locking ownership through the filter is a separate refusal, and it still applies
+	 * to the anchored owner.
+	 */
+	public function test_a_consumer_locking_ownership_also_refuses_the_anchored_owner() {
+		$this->act_as_confirmed_owner();
+		add_filter( 'jetpack_connection_ownership_transferable', '__return_false' );
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->never() );
+		$result  = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * Passing the lock is not the same as being told the site is transferable: the predicate
+	 * answers for the site, and consumers read it to decide whether to offer a transfer at all.
+	 */
+	public function test_the_anchored_owner_does_not_make_the_site_transferable() {
+		$this->act_as_confirmed_owner();
+
+		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	/**
+	 * The binding outlives the token, so carrying the anchored ID without a live connection is
+	 * not the owner — the same pair `resolve_wpcom_user_id()` insists on.
+	 */
+	public function test_an_unconnected_user_carrying_the_anchored_id_cannot_move_the_site() {
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'update_connection_owner_wpcom' ) )
+			->getMock();
+
+		$manager->method( 'get_connection_owner_id' )->willReturn( $this->owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $this->disconnected_tokens() );
+		$manager->expects( $this->never() )->method( 'update_connection_owner_wpcom' );
+
+		$result = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+	}
+
+	/**
+	 * WordPress.com accepts switches it does not release its own record for, and a bare `true`
+	 * does not say which happened. An anchor dropped against a record WordPress.com kept locks
+	 * the site to nobody, and reconcile cannot repair it: it returns before asking when there is
+	 * no local anchor left. The reverse mistake repairs itself, so an unresolvable owner stays.
+	 */
+	public function test_a_transfer_to_an_unresolvable_owner_keeps_the_anchor() {
+		$candidate = $this->candidate();
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once() );
+
+		$this->assertSame( 0, $manager->resolve_wpcom_user_id( $candidate ), 'Test setup: unresolvable.' );
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * Once WordPress.com reports what the switch did, that report decides on its own.
+	 */
+	public function test_wordpress_com_reporting_a_release_clears_the_anchor() {
+		$candidate = $this->candidate();
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once(), array( 'released' => true ) );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNull( Protected_Owner::get_locked(), 'The anchor should be released.' );
+	}
+
+	/**
+	 * A report with no `released` key is a WordPress.com that did not say, which is the same
+	 * silence a bare `true` carries — and silence never clears.
+	 */
+	public function test_a_report_that_says_nothing_about_the_record_keeps_the_anchor() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once(), array( 'switched' => true ) );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * The report is believed in both directions, including over a local comparison that would
+	 * otherwise have cleared.
+	 */
+	public function test_wordpress_com_keeping_its_record_keeps_the_anchor() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once(), array( 'released' => false ) );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
 	}
 
 	// ── requires_protected_owner ─────────────────────────────────────────
@@ -1052,6 +1259,150 @@ class Protected_Owner_Test extends TestCase {
 		$this->act_as_administrator();
 
 		$this->assertTrue( ( new Manager() )->clear_protected_owner() );
+	}
+
+	// ── release_protected_owner ──────────────────────────────────────────
+
+	/**
+	 * The confirmed owner gives up the lock once WordPress.com accepts.
+	 */
+	public function test_release_protected_owner_clears_the_anchor_when_wpcom_accepts() {
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->releasing_manager( array( 'status' => 'released' ) );
+
+		$this->assertTrue( $manager->release_protected_owner() );
+		$this->assertNull( Protected_Owner::get_locked() );
+	}
+
+	/**
+	 * Releasing unlocks ownership without handing the connection to somebody else.
+	 */
+	public function test_release_protected_owner_leaves_the_connection_owner_alone() {
+		$this->act_as_confirmed_owner();
+		Jetpack_Options::update_option( 'master_user', $this->owner_id );
+
+		$manager = $this->releasing_manager( array( 'status' => 'released' ) );
+
+		$this->assertTrue( $manager->release_protected_owner() );
+		$this->assertSame( $this->owner_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * An administrator who is not the anchored identity is refused without asking WordPress.com.
+	 */
+	public function test_release_protected_owner_refuses_an_administrator_who_is_not_the_owner() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_administrator();
+
+		$manager = $this->releasing_manager( null, $this->never() );
+		$result  = $manager->release_protected_owner();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_owner', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * Silence is not consent: an unreachable WordPress.com leaves the lock exactly as it was,
+	 * because clearing here would unlock a site WordPress.com still holds.
+	 */
+	public function test_release_protected_owner_keeps_the_anchor_when_wpcom_is_unreachable() {
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->releasing_manager( null );
+		$result  = $manager->release_protected_owner();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_unreleased', $result->get_error_code() );
+		$this->assertSame( 503, $result->get_error_data()['status'] );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * WordPress.com is the one that decides, so its refusal overrides the local binding.
+	 */
+	public function test_release_protected_owner_refuses_when_wpcom_says_the_caller_is_not_the_owner() {
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->releasing_manager( array( 'status' => 'not_owner' ) );
+		$result  = $manager->release_protected_owner();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_owner', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * Only an accepted verdict clears the anchor, even one that arrived as a 200.
+	 */
+	public function test_release_protected_owner_keeps_the_anchor_on_an_unrecognized_verdict() {
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->releasing_manager( array( 'status' => 'maybe_later' ) );
+		$result  = $manager->release_protected_owner();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_not_released', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * WordPress.com holding nothing is the state the call asks for, so a stale anchor clears.
+	 */
+	public function test_release_protected_owner_clears_a_stale_anchor_when_wpcom_holds_nothing() {
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->releasing_manager( array( 'status' => 'no_owner' ) );
+
+		$this->assertTrue( $manager->release_protected_owner() );
+		$this->assertNull( Protected_Owner::get_locked() );
+	}
+
+	/**
+	 * An anchor already absent is the state the caller asked for, and costs no round trip. It
+	 * warns all the same, because the other way to reach it is an anchor lost while
+	 * WordPress.com kept its record, which leaves the site unable to claim ownership again.
+	 */
+	public function test_release_protected_owner_succeeds_when_there_is_no_anchor() {
+		$this->act_as_administrator();
+
+		$manager = $this->releasing_manager( null, $this->never() );
+		$warning = '';
+
+		set_error_handler(
+			static function ( $errno, $errstr ) use ( &$warning ) {
+				$warning = (string) $errstr;
+				return true;
+			},
+			E_USER_WARNING
+		);
+
+		try {
+			$released = $manager->release_protected_owner();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue( $released );
+		$this->assertStringContainsString( 'no protected owner on record', $warning );
+	}
+
+	/**
+	 * Authorization precedes everything, so an unauthorized actor never reaches WordPress.com.
+	 */
+	public function test_release_protected_owner_refuses_an_unauthorized_actor() {
+		$this->anchor();
+		Utils::set_wpcom_user_id( $this->owner_id, self::ANCHORED_WPCOM_ID );
+		wp_set_current_user( 0 );
+
+		$manager = $this->releasing_manager( null, $this->never() );
+		$result  = $manager->release_protected_owner();
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'protected_owner_forbidden', $result->get_error_code() );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The lock is still in place.' );
 	}
 
 	// ── anchor shape ─────────────────────────────────────────────────────
