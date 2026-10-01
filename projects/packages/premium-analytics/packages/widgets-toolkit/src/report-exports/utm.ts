@@ -13,7 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { DatedReportCsvExporter } from './types';
+import type { ReportCsvExporter } from './types';
 
 /** The UTM report's tabs, one per endpoint dimension. */
 export type UtmReportSection =
@@ -139,7 +139,7 @@ function getUtmCsvLabel( item: UtmReportRow ): string {
 
 function utmCsvExporter(
 	section: UtmReportSection
-): DatedReportCsvExporter< UtmReportRow, UtmReportRow > {
+): ReportCsvExporter< UtmReportRow, UtmReportRow > {
 	return {
 		filenamePrefix: `utm-${ section }`,
 		hasDateRange: true,
@@ -157,7 +157,7 @@ function utmCsvExporter(
 
 export const utmCsvExporters: Record<
 	UtmReportSection,
-	DatedReportCsvExporter< UtmReportRow, UtmReportRow >
+	ReportCsvExporter< UtmReportRow, UtmReportRow >
 > = {
 	'source-medium': utmCsvExporter( 'source-medium' ),
 	'campaign-source-medium': utmCsvExporter( 'campaign-source-medium' ),

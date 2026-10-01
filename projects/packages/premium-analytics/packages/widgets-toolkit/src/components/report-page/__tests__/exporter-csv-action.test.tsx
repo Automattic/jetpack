@@ -8,7 +8,7 @@ import { render } from '@testing-library/react';
  */
 import { ExporterCsvAction } from '../exporter-csv-action';
 import { ReportCsvAction } from '../report-csv-action';
-import type { DatedReportCsvExporter } from '../../../report-exports/types';
+import type { ReportCsvExporter } from '../../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -29,7 +29,7 @@ const ITEMS: Item[] = [
 	{ name: 'a', count: 2 },
 ];
 
-function buildExporter(): DatedReportCsvExporter< Item, Item > {
+function buildExporter(): ReportCsvExporter< Item, Item > {
 	return {
 		filenamePrefix: 'things',
 		hasDateRange: true,

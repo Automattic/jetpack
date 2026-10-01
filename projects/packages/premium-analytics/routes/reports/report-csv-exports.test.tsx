@@ -3,7 +3,6 @@
  */
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
-	ExporterCsvAction,
 	ReportCsvAction,
 	useReportCsvExport,
 	type CsvColumn,
@@ -14,8 +13,6 @@ import { render } from '@testing-library/react';
  */
 import { useCommentFollowersReportRecords } from './comment-followers/config';
 import CommentFollowersReportPage from './comment-followers/page';
-import { useCommentsReportRecords } from './comments/config';
-import CommentsReportPage from './comments/page';
 import { useEarningsReportRecords } from './earnings/config';
 import EarningsReportPage from './earnings/page';
 import { useLocationsReportRecords } from './locations/config';
@@ -64,15 +61,8 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		</>
 	);
 
-	const commentsExports = jest.requireActual(
-		'../../packages/widgets-toolkit/src/report-exports/comments'
-	);
-
 	return {
-		ExporterCsvAction: jest.fn( () => null ),
 		MetricValue: () => null,
-		commentsAuthorsCsvExporter: commentsExports.commentsAuthorsCsvExporter,
-		commentsPostsCsvExporter: commentsExports.commentsPostsCsvExporter,
 		// The real status map, so the Earnings history case asserts the label a
 		// reader gets rather than one the mock was told to return.
 		getEarningsStatus: jest.requireActual(
@@ -149,14 +139,6 @@ jest.mock( './comment-followers/config', () => ( {
 	useCommentFollowersReportRecords: jest.fn(),
 } ) );
 
-jest.mock( './comments/config', () => ( {
-	getCommentsFields: () => [],
-	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
-	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
-	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
-	useCommentsReportRecords: jest.fn(),
-} ) );
-
 jest.mock( './locations/config', () => ( {
 	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
 	getLocationFields: () => [],
@@ -168,7 +150,6 @@ jest.mock( './locations/config', () => ( {
 } ) );
 
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
-const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
 const useEarningsReportRecordsMock = jest.mocked( useEarningsReportRecords );
 const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
@@ -295,20 +276,6 @@ describe( 'report CSV exports', () => {
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ 'Second post', 5, '/second' ]
 		);
-	} );
-
-	it.each( [ 'authors', 'posts' ] as const )( 'exports the active Comments tab (%s)', tab => {
-		useSectionTabMock.mockReturnValue( [ tab, jest.fn() ] as ReturnType< typeof useSectionTab > );
-		useCommentsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows: [],
-		} as ReturnType< typeof useCommentsReportRecords > );
-
-		render( <CommentsReportPage /> );
-
-		const props = jest.mocked( ExporterCsvAction ).mock.calls.at( -1 )?.[ 0 ];
-		expect( props.exporter.filenamePrefix ).toBe( `comments-${ tab }` );
-		expect( props ).not.toHaveProperty( 'reportParams' );
 	} );
 
 	it( 'configures the Locations export', () => {

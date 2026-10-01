@@ -8,9 +8,9 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 /** The report's CSV filename, dated when the report covers a date range. */
 export function getReportCsvFilename< TItem, TRow >(
 	exporter: ReportCsvExporter< TItem, TRow >,
-	reportParams?: ReportParams
+	reportParams: ReportParams
 ): string {
-	return exporter.hasDateRange && reportParams
+	return exporter.hasDateRange
 		? buildCsvDateRangeFilename( exporter.filenamePrefix, reportParams )
 		: exporter.filenamePrefix;
 }
@@ -20,13 +20,9 @@ export async function downloadReportCsv< TItem, TRow >(
 	exporter: ReportCsvExporter< TItem, TRow >,
 	reportParams: ReportParams
 ): Promise< void > {
-	// `=== false`, not truthiness: without strictNullChecks a falsy check does not narrow.
-	const items =
-		exporter.hasDateRange === false
-			? await exporter.fetchItems()
-			: await exporter.fetchItems( reportParams );
+	const rows = exporter.toCsvRows( await exporter.fetchItems( reportParams ) );
 	saveCsv(
 		getReportCsvFilename( exporter, reportParams ),
-		buildCsv( exporter.getColumns(), exporter.toCsvRows( items ) )
+		buildCsv( exporter.getColumns(), rows )
 	);
 }

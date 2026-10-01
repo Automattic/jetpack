@@ -240,7 +240,6 @@ export {
 	type ArchiveRow,
 	type AuthorRow,
 	type ClickRow,
-	type CommentRow,
 	type ReferrerRecord,
 	type SearchTermRow,
 	type UtmReportRow,

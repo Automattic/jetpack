@@ -10,9 +10,9 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSummarizedReportQueryParams } from './query-params';
-import type { DatedReportCsvExporter } from './types';
+import type { ReportCsvExporter } from './types';
 
-export const fileDownloadsCsvExporter: DatedReportCsvExporter<
+export const fileDownloadsCsvExporter: ReportCsvExporter<
 	StatsFileDownloadsComparisonItem,
 	StatsFileDownloadsComparisonItem
 > = {

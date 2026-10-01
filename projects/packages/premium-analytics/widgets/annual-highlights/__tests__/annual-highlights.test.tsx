@@ -164,8 +164,6 @@ describe( 'AnnualHighlightsWidget', () => {
 		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
 	} );
 
-	// The download shares the widget's query key, so a failed download fails the
-	// widget's query too while its highlights stay on screen.
 	it( 'keeps the download available after a failed download of stale highlights', async () => {
 		jest.useFakeTimers();
 		try {
@@ -180,7 +178,6 @@ describe( 'AnnualHighlightsWidget', () => {
 			fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
 			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
 
-			// Back to clickable, not just mounted: the failure must leave a working retry.
 			await waitFor( () =>
 				expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).not.toHaveAttribute(
 					'aria-disabled',

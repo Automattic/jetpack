@@ -25,12 +25,7 @@ export {
 export { aggregateClickRows, clicksCsvExporter, type ClickRow } from './clicks';
 export { flattenReferrerRows, referrersCsvExporter, type ReferrerRecord } from './referrers';
 export { annualInsightsCsvExporter } from './annual-insights';
-export {
-	commentsAuthorsCsvExporter,
-	commentsPostsCsvExporter,
-	toCommentRows,
-	type CommentRow,
-} from './comments';
+export { commentsAuthorsCsvExporter, commentsPostsCsvExporter, toCommentRows } from './comments';
 export { EMAILS_REPORT_ROW_LIMIT, emailsCsvExporter } from './emails';
 export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from './tags';
 export {

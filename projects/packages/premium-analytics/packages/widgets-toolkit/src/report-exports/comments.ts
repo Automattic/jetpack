@@ -13,9 +13,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { UndatedReportCsvExporter } from './types';
-
-export type CommentRow = StatsCommentsRow;
+import type { ReportCsvExporter } from './types';
 
 /**
  * Rank one Comments group's rows by comments, guarding remote post permalinks.
@@ -27,7 +25,7 @@ export type CommentRow = StatsCommentsRow;
 export function toCommentRows(
 	report: StatsCommentsResponse | undefined,
 	group: StatsCommentsGroup
-): CommentRow[] {
+): StatsCommentsRow[] {
 	const rows = selectStatsCommentsRows( report, group );
 
 	// Author links are relative `edit-comments.php` filters the scheme guard would reject.
@@ -41,7 +39,7 @@ export function toCommentRows(
 
 function commentsCsvExporter(
 	group: StatsCommentsGroup
-): UndatedReportCsvExporter< CommentRow, CommentRow > {
+): ReportCsvExporter< StatsCommentsRow, StatsCommentsRow > {
 	return {
 		filenamePrefix: `comments-${ group }`,
 		hasDateRange: false,
