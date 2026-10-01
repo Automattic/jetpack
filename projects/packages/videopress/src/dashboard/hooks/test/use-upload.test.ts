@@ -4,6 +4,7 @@ import getMediaToken from '../../../client/lib/get-media-token';
 import resumableFileUploader from '../../../client/lib/resumable-file-uploader';
 import { syncChapters } from '../../../client/utils/video-chapters/sync-chapters';
 import { createTestQueryClient, createTestWrapper } from '../../test-utils/query-client-wrapper';
+import { LIBRARY_QUERY_KEY } from '../use-library';
 import { useUpload, __resetUploadStoreForTests } from '../use-upload';
 
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
@@ -128,6 +129,18 @@ it( 'retains a failed metadata draft and retries its save without uploading agai
 		expect.objectContaining( { data: { id: 101, title: '' } } )
 	);
 	expect( result.current.completedUploads[ id ] ).toBe( '101' );
+} );
+
+it( 'refreshes the library before saving edits so a failed save still counts the attachment', async () => {
+	const client = createTestQueryClient();
+	const invalidate = jest.spyOn( client, 'invalidateQueries' );
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper( client ) } );
+	const id = await start( result );
+	act( () => result.current.updateUploadDetails( id, { title: 'Draft' } ) );
+	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
+	await succeed();
+	expect( result.current.uploadQueue[ 0 ].detailsError ).toBe( true );
+	expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 } );
 
 it( 'retains edits after transport failure, continues the queue, and serializes retries', async () => {

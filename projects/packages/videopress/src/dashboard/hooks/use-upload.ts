@@ -107,6 +107,10 @@ async function finishUpload( id: string, client: QueryClient ): Promise< void > 
 		return;
 	}
 	updateItem( id, { isSavingDetails: true, detailsError: false } );
+	if ( initial.details ) {
+		// The free-tier count skips finished uploads, so list this one while its edits save.
+		void client.invalidateQueries( { queryKey: [ LIBRARY_QUERY_KEY ] } );
+	}
 	try {
 		let saved: VideoDetailsPatch | undefined;
 		// Edits made during a request must be sent before the form changes routes.
