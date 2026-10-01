@@ -6,14 +6,20 @@ import { __ } from '@wordpress/i18n';
 import { rememberStripeConnectOrigin } from '../../stripe-connection-notification';
 import './style.scss';
 
-export default function StripeConnectToolbarButton( { blockName, connectUrl } ) {
-	const { autosaveAndRedirect } = useAutosaveAndRedirect( connectUrl );
-	const { tracks } = useAnalytics();
+export default function StripeConnectToolbarButton( {
+	blockName,
+	connectUrl,
+	showResultInBlock = false,
+} ) {
 	const { clientId } = useBlockEditContext();
+	const { autosaveAndRedirect } = useAutosaveAndRedirect(
+		connectUrl,
+		showResultInBlock ? () => rememberStripeConnectOrigin( clientId ) : undefined
+	);
+	const { tracks } = useAnalytics();
 
 	const handleClick = event => {
 		event.preventDefault();
-		rememberStripeConnectOrigin( clientId );
 		tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
 			block: blockName,
 		} );

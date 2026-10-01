@@ -149,7 +149,7 @@ function Edit( { clientId, isSelected, attributes, setAttributes } ) {
 			{ ! isApiLoading && (
 				<>
 					<StripeConnectionNotice />
-					<StripeNudge blockName={ BLOCK_NAME } />
+					<StripeNudge blockName={ BLOCK_NAME } showResultInBlock />
 					<Context.Provider value={ { selectedTab } }>
 						<Blocks />
 					</Context.Provider>

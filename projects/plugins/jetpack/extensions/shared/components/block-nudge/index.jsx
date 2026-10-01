@@ -13,10 +13,11 @@ export default function BlockNudge( {
 	icon,
 	links,
 	onClick,
+	onRedirect,
 	subtitle,
 	title,
 } ) {
-	const { autosaveAndRedirect } = useAutosaveAndRedirect( href );
+	const { autosaveAndRedirect } = useAutosaveAndRedirect( href, onRedirect );
 
 	const handleClick = event => {
 		event.preventDefault();

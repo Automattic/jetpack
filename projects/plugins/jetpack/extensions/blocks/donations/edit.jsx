@@ -250,7 +250,7 @@ const Edit = props => {
 		content = <LoadingError error={ loadingError } />;
 	} else if ( ! isPreviewMode && stripeConnectUrl ) {
 		// Need to connect Stripe first
-		content = <StripeNudge blockName="donations" />;
+		content = <StripeNudge blockName="donations" showResultInBlock />;
 	} else if ( ! isPreviewMode && ! currency ) {
 		// Memberships settings are still loading
 		content = <Spinner />;

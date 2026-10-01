@@ -130,7 +130,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 				/>
 			</InspectorControls>
 			<StripeConnectionNotice />
-			{ showStripeNudge && <StripeNudge blockName={ BLOCK_NAME } /> }
+			{ showStripeNudge && <StripeNudge blockName={ BLOCK_NAME } showResultInBlock /> }
 			<div { ...innerBlocksProps } />
 		</div>
 	);

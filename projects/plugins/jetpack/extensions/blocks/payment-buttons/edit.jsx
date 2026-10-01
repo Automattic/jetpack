@@ -98,11 +98,12 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 					<StripeConnectToolbarButton
 						blockName="jetpack/payment-buttons"
 						connectUrl={ connectUrl }
+						showResultInBlock
 					/>
 				</BlockControls>
 			) }
 			<StripeConnectionNotice />
-			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" /> }
+			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" showResultInBlock /> }
 			<div { ...innerBlocksProps } />
 		</div>
 	);
