@@ -2,13 +2,15 @@
 import { render } from '@testing-library/react';
 import { BlockEdit, store as blockEditorStore } from '@wordpress/block-editor';
 import { createBlock, registerBlockType } from '@wordpress/blocks';
-import { dispatch } from '@wordpress/data';
+import { dispatch, select } from '@wordpress/data';
+
+const ORIGIN_BLOCK_KEY = 'jetpackStripeConnectOriginBlock';
 
 describe( 'StripeConnectionNotice', () => {
 	test( 'shows the result only in the block that started the connection, after reload', () => {
 		window.history.pushState( {}, '', '/?stripe_connect_success=1' );
 		const stored = JSON.stringify( { name: 'test/payment', index: 1 } );
-		window.sessionStorage.setItem( 'jetpackStripeConnectOriginBlock', stored );
+		window.sessionStorage.setItem( ORIGIN_BLOCK_KEY, stored );
 
 		const {
 			StripeConnectionNotice,
@@ -31,8 +33,9 @@ describe( 'StripeConnectionNotice', () => {
 
 		expect( first ).not.toHaveTextContent( /now connected to Stripe/ );
 		expect( second ).toHaveTextContent( /now connected to Stripe/ );
+		expect( select( 'core/notices' ).getNotices() ).toHaveLength( 0 );
 
 		rememberStripeConnectOrigin( blocks[ 1 ].clientId );
-		expect( window.sessionStorage.getItem( 'jetpackStripeConnectOriginBlock' ) ).toBe( stored );
+		expect( window.sessionStorage.getItem( ORIGIN_BLOCK_KEY ) ).toBe( stored );
 	} );
 } );

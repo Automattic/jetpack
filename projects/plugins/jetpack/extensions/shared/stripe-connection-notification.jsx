@@ -1,6 +1,6 @@
 import { store as blockEditorStore, useBlockEditContext } from '@wordpress/block-editor';
 import { Notice } from '@wordpress/components';
-import { dispatch, select, subscribe, useDispatch, useSelect } from '@wordpress/data';
+import { dispatch, select, useDispatch, useSelect } from '@wordpress/data';
 import { useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import '@wordpress/notices';
@@ -98,16 +98,9 @@ if ( 'undefined' !== typeof window && window.location ) {
 		originBlock = null;
 	}
 
-	// Without a stored origin block that's still in the post, keep the editor-wide notice.
-	if ( result ) {
-		const unsubscribe = subscribe( () => {
-			if ( ! select( 'core/editor' )?.__unstableIsEditorReady?.() ) {
-				return;
-			}
-			unsubscribe();
-			if ( ! getOriginClientId( select ) ) {
-				dispatch( 'core/notices' ).createNotice( result.status, result.message );
-			}
-		} );
+	// Don't fall back once the editor is ready: blocks load after that, so the notice would show twice.
+	// An origin that can't be found shows nothing; the connect buttons save the post before redirecting.
+	if ( result && ! originBlock ) {
+		dispatch( 'core/notices' ).createNotice( result.status, result.message );
 	}
 }
