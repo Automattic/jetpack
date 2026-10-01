@@ -81,7 +81,7 @@ interface ThreatStatusProps {
 
 const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThreatCount } ) => {
 	const { recordEvent } = useAnalytics();
-	const useTooltipRef = useRef< HTMLButtonElement >();
+	const useTooltipRef = useRef< HTMLButtonElement >( undefined );
 	const isMobileViewport: boolean = useViewportMatch( 'medium', '<' );
 	const [ isPopoverVisible, setIsPopoverVisible ] = useState( false );
 
