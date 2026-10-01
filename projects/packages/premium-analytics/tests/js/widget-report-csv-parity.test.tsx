@@ -20,6 +20,7 @@ import EmailsReportPage from '../../routes/reports/emails/page';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
 import TagsReportPage from '../../routes/reports/tags/page';
+import UtmReportPage from '../../routes/reports/utm/page';
 import VideosReportPage from '../../routes/reports/videos/page';
 import AnnualHighlightsWidget from '../../widgets/annual-highlights/render';
 import AuthorsWidget from '../../widgets/authors/render';
@@ -32,6 +33,7 @@ import ReferrersWidget from '../../widgets/referrers/render';
 import SearchTermsWidget from '../../widgets/search-terms/render';
 import TagsWidget from '../../widgets/tags/render';
 import { captureCsvDownloads } from '../../widgets/test-utils';
+import UtmInsightsWidget from '../../widgets/utm-insights/render';
 import VideoPressWidget from '../../widgets/videopress/render';
 import { setMockRouteSearch } from './route-test-utils';
 import type { ReactElement, ReactNode } from 'react';
@@ -205,6 +207,19 @@ const RESPONSES: Record< string, unknown > = {
 			views: ( ( index * 5 ) % 12 ) + 1,
 		} ) ),
 	},
+	'stats/utm/': {
+		top_utm_values: Object.fromEntries(
+			Array.from( { length: 12 }, ( _, index ) => [
+				JSON.stringify( [ `source-${ index }`, 'email' ] ),
+				( ( index * 5 ) % 12 ) + 1,
+			] )
+		),
+		top_posts: {
+			[ JSON.stringify( [ 'source-7', 'email' ] ) ]: [
+				{ id: 41, title: 'Landing page', views: 3, href: 'https://example.com/landing/' },
+			],
+		},
+	},
 	'stats/emails/summary': {
 		posts: Array.from( { length: 12 }, ( _, index ) => ( {
 			id: index + 1,
@@ -315,4 +330,53 @@ describe( 'Widget and report CSV parity', () => {
 			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
 		}
 	);
+
+	it.each( [
+		[ 'source-medium', 'utm_source,utm_medium' ],
+		[ 'campaign-source-medium', 'utm_campaign,utm_source,utm_medium' ],
+		[ 'source', 'utm_source' ],
+		[ 'medium', 'utm_medium' ],
+		[ 'campaign', 'utm_campaign' ],
+	] as const )(
+		'downloads the same UTM %s file from the widget as from the report page',
+		async ( section, utmDimension ) => {
+			setMockRouteSearch( { ...REPORT_PARAMS, section } );
+			const reportFile = await download( <UtmReportPage /> );
+			queryClient.clear();
+			const widgetFile = await download(
+				<UtmInsightsWidget attributes={ { reportParams: REPORT_PARAMS, utmDimension } } />
+			);
+
+			expect( widgetFile ).toEqual( reportFile );
+			expect( widgetFile.filename ).toContain( `utm-${ section }-` );
+			// 12 values and one post: more than the widget's 10 rows.
+			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( 14 );
+		}
+	);
+
+	it( 'downloads the whole UTM report from a widget drilled into one value', async () => {
+		setMockRouteSearch( { ...REPORT_PARAMS, section: 'source-medium' } );
+		const reportFile = await download( <UtmReportPage /> );
+		queryClient.clear();
+
+		const view = render(
+			<AnalyticsQueryClientProvider>
+				<GlobalErrorProvider>
+					<UtmInsightsWidget attributes={ { reportParams: REPORT_PARAMS } } />
+				</GlobalErrorProvider>
+			</AnalyticsQueryClientProvider>
+		);
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click(
+			await screen.findByRole( 'button', { name: 'View posts for source-7 / email' } )
+		);
+		await expect( screen.findByText( 'All UTM insights' ) ).resolves.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/prefer-user-event
+		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		const [ saved ] = downloads.files.splice( 0 );
+		view.unmount();
+		expect( { filename: saved.filename, csv: await saved.blob.text() } ).toEqual( reportFile );
+	} );
 } );

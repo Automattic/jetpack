@@ -21,8 +21,11 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	utmCsvExporters,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
+	type UtmReportSection,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -38,9 +41,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
-
-type UtmReportSection =
-	'source-medium' | 'campaign-source-medium' | 'source' | 'medium' | 'campaign';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -75,6 +75,7 @@ function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
 
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const reportSection = getUtmReportSection( utmDimension );
 	const {
 		drillDownItem: selectedUtmLabel,
 		drillDown: selectUtmLabel,
@@ -135,7 +136,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									link={ postRow.href }
 									origin={ {
 										report: 'utm',
-										section: getUtmReportSection( utmDimension ),
+										section: reportSection,
 									} }
 								/>
 							),
@@ -168,7 +169,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						: undefined,
 			};
 		} );
-	}, [ activeData, isDrillDown, selectUtmLabel, utmDimension, withComparison ] );
+	}, [ activeData, isDrillDown, reportSection, selectUtmLabel, withComparison ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
@@ -205,9 +206,15 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					/>
 				</WidgetState>
 			</div>
+			{ /* Post detail hides the footer: its rows cover one post, not the site-wide report. */ }
 			{ showReportLink && (
 				<WidgetFooter>
-					<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+					<ReportLink report="utm" section={ reportSection } />
+					<ExporterCsvDownloadButton
+						exporter={ utmCsvExporters[ reportSection ] }
+						status={ { isLoading, isFetching, isError } }
+						rowCount={ data.length }
+					/>
 				</WidgetFooter>
 			) }
 		</>
