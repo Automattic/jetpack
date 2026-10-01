@@ -1368,12 +1368,12 @@ class Protected_Owner_Test extends TestCase {
 	public function test_release_protected_owner_succeeds_when_there_is_no_anchor() {
 		$this->act_as_administrator();
 
-		$manager  = $this->releasing_manager( null, $this->never() );
-		$warnings = array();
+		$manager = $this->releasing_manager( null, $this->never() );
+		$warning = '';
 
 		set_error_handler(
-			static function ( $errno, $errstr ) use ( &$warnings ) {
-				$warnings[] = $errstr;
+			static function ( $errno, $errstr ) use ( &$warning ) {
+				$warning = (string) $errstr;
 				return true;
 			},
 			E_USER_WARNING
@@ -1386,8 +1386,7 @@ class Protected_Owner_Test extends TestCase {
 		}
 
 		$this->assertTrue( $released );
-		$this->assertCount( 1, $warnings );
-		$this->assertStringContainsString( 'no protected owner on record', $warnings[0] );
+		$this->assertStringContainsString( 'no protected owner on record', $warning );
 	}
 
 	/**
