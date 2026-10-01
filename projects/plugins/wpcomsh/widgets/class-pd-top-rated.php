@@ -80,11 +80,11 @@ class PD_Top_Rated extends WP_Widget {
 				}
 
 				if ( is_array( $current_category ) && isset( $current_category[0]->cat_ID ) && (int) $current_category[0]->cat_ID > 0 ) {
-					$args     = array(
+					$post_query_args = array(
 						'category' => $current_category[0]->cat_ID,
 						'fields'   => 'ids',
 					);
-					$post_ids = get_posts( $args );
+					$post_ids        = get_posts( $post_query_args );
 				}
 
 				if ( ! empty( $post_ids ) ) { // set variable
