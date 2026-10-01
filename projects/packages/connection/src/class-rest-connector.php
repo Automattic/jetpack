@@ -1181,9 +1181,8 @@ class REST_Connector {
 	/**
 	 * Whether the current user may release the protected owner.
 	 *
-	 * Only the confirmed owner qualifies, on the stored binding rather than a search, so the
-	 * check costs no WordPress.com round trip. WordPress.com is asked again before anything is
-	 * cleared, and its answer is the one that decides.
+	 * Only the confirmed owner qualifies. WordPress.com is asked again before anything is cleared,
+	 * and its answer is the one that decides.
 	 *
 	 * Deliberately not gated on `requires_protected_owner()`, unlike confirming: a consumer that
 	 * has stopped asking must not strand a site holding a lock it can no longer release.
@@ -1203,10 +1202,14 @@ class REST_Connector {
 			&& $admin_cap
 			&& current_user_can( $admin_cap )
 			&& $manager->is_user_connected( $user_id )
-			&& $manager->has_protected_owner()
-			&& $manager->resolve_protected_owner_state()['is_current_user_the_po']
 		) {
-			return true;
+			// One resolve for both halves, the same pair the script enqueue reads: the status
+			// settles that the owner matches the anchor, the hint that it is this user.
+			$state = $manager->resolve_protected_owner_state();
+
+			if ( Manager::PO_STATE_RE_EVALUATE === $state['status'] && $state['is_current_user_the_po'] ) {
+				return true;
+			}
 		}
 
 		return new WP_Error(

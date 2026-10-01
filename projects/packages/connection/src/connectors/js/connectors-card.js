@@ -595,9 +595,11 @@ function canReleaseProtectedOwner() {
 /**
  * Release-ownership row, shown under the confirmed owner's own account.
  *
+ * @param {object}  props        - Component props.
+ * @param {boolean} props.isBusy - Whether another account action is in progress (disables the link).
  * @return {object} React element.
  */
-function ReleaseOwnershipSection() {
+function ReleaseOwnershipSection( { isBusy = false } ) {
 	const [ isReleaseOpen, setIsReleaseOpen ] = useState( false );
 	const [ releaseError, setReleaseError ] = useState( null );
 	const Release = window.JetpackConnection?.ProtectedOwnerRelease;
@@ -610,6 +612,7 @@ function ReleaseOwnershipSection() {
 			{
 				variant: 'link',
 				className: 'jetpack-connector__inline-action',
+				disabled: isBusy || isOfflineMode,
 				onClick: () => {
 					if ( ! window.JetpackConnection?.ProtectedOwnerRelease ) {
 						setReleaseError(
@@ -1525,7 +1528,9 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 			: null,
 
 		// Release link, directly under the confirmed owner's own account row.
-		canReleaseProtectedOwner() ? createElement( ReleaseOwnershipSection ) : null,
+		canReleaseProtectedOwner()
+			? createElement( ReleaseOwnershipSection, { isBusy: isUnlinking || isDisconnecting } )
+			: null,
 
 		// Connect prompt (only when the viewing admin is NOT linked).
 		! currentUser && onConnect

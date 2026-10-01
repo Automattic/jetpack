@@ -1824,7 +1824,19 @@ class Manager {
 			);
 		}
 
-		return $this->clear_protected_owner();
+		$cleared = $this->clear_protected_owner();
+
+		// WordPress.com has already let go, so a local delete that failed is a cleanup the next
+		// reconcile finishes rather than a release that did not happen.
+		if ( is_wp_error( $cleared ) && 'protected_owner_not_cleared' === $cleared->get_error_code() ) {
+			return new WP_Error(
+				'protected_owner_not_cleared',
+				__( 'Ownership was released with WordPress.com, but this site could not finish clearing it. It will catch up shortly.', 'jetpack-connection' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $cleared;
 	}
 
 	/**
@@ -2138,7 +2150,7 @@ class Manager {
 			// Clear the memoized connection owner ID since it changed
 			self::$connection_owner_id = null;
 
-			$this->release_anchor_after_transfer( $new_owner_id );
+			$this->release_anchor_after_transfer( $new_owner_id, $owner_updated_wpcom );
 
 			// Track it.
 			( new Tracking() )->record_user_event( 'set_connection_owner_success' );
@@ -2167,15 +2179,22 @@ class Manager {
 	 * @return bool
 	 */
 	private function current_user_may_move_locked_ownership() {
-		$anchor = Protected_Owner::get_locked();
+		$anchor  = Protected_Owner::get_locked();
+		$user_id = get_current_user_id();
 
-		if ( ! $anchor ) {
+		if ( ! $anchor || ! $user_id ) {
+			return false;
+		}
+
+		// Both halves, as everywhere else the binding is trusted: it outlives the token, so a
+		// disconnected user can still carry the anchored ID.
+		if ( ! $this->is_user_connected( $user_id ) ) {
 			return false;
 		}
 
 		// The stored binding, never a search for whoever holds the anchored ID, so a row written
 		// on another user cannot let them move the site.
-		if ( Utils::get_wpcom_user_id( get_current_user_id() ) !== (int) $anchor['wpcom_user_id'] ) {
+		if ( Utils::get_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
 			return false;
 		}
 
@@ -2184,41 +2203,57 @@ class Manager {
 	}
 
 	/**
-	 * Drop the anchor once the site has been handed to somebody other than the owner it names.
+	 * Drop the anchor once WordPress.com has released its own record for an accepted switch.
 	 *
-	 * The anchor protects an identity, not the master slot. Handing the site to the anchored owner
-	 * is the lock being satisfied, so it stays; handing it to anyone else ends the protection,
-	 * which is what WordPress.com has already recorded for a switch that owner signed.
+	 * The two mistakes here do not cost the same. An anchor kept while WordPress.com let go is
+	 * repaired by the next `reconcile_protected_owner()`, which sees no owner of record. An anchor
+	 * dropped while WordPress.com kept its own leaves the site locked to nobody, refusing every
+	 * later claim as `locked_to_other`, and reconcile returns before asking when there is no local
+	 * anchor to reconcile. So anything short of knowing leaves the anchor alone.
 	 *
 	 * @since $$next-version$$
 	 *
-	 * @param int $new_owner_id The local user who now holds the connection.
+	 * @param int        $new_owner_id The local user who now holds the connection.
+	 * @param true|array $accepted     What WordPress.com answered the switch with.
 	 */
-	private function release_anchor_after_transfer( $new_owner_id ) {
+	private function release_anchor_after_transfer( $new_owner_id, $accepted ) {
 		$anchor = Protected_Owner::get_locked();
 
 		if ( ! $anchor ) {
 			return;
 		}
 
-		// A zero reads as "could not determine" elsewhere, and it clears here too: WordPress.com
-		// has already dropped its record for this switch, so an anchor it will no longer confirm
-		// would only lock the site to nobody.
-		if ( $this->resolve_wpcom_user_id( $new_owner_id ) === (int) $anchor['wpcom_user_id'] ) {
+		// WordPress.com resolves the new owner itself and keeps its record for reasons this site
+		// cannot see, so where it reports what it did, that is the whole answer.
+		if ( is_array( $accepted ) ) {
+			if ( ! empty( $accepted['released'] ) ) {
+				Protected_Owner::clear();
+			}
+
 			return;
 		}
 
-		Protected_Owner::clear();
+		// A bare `true` says the switch happened and nothing about the record, leaving only who
+		// the site went to. A zero is "could not determine", which includes the owner taking the
+		// site back — the case WordPress.com keeps its record for.
+		$new_owner_wpcom_id = $this->resolve_wpcom_user_id( $new_owner_id );
+
+		if ( $new_owner_wpcom_id && $new_owner_wpcom_id !== (int) $anchor['wpcom_user_id'] ) {
+			Protected_Owner::clear();
+		}
 	}
 
 	/**
 	 * Request to WPCOM to update the connection owner.
 	 *
 	 * @since 1.29.0
+	 * @since $$next-version$$ Returns what WordPress.com answered rather than casting it, so a
+	 *                         report of what the switch did can be read. Still falsy on failure.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *
-	 * @return bool Whether the ownership transfer was successful.
+	 * @return false|true|array False if the transfer failed, otherwise what WordPress.com
+	 *                          answered: `true`, or a report such as `array( 'released' => bool )`.
 	 */
 	public function update_connection_owner_wpcom( $new_owner_id ) {
 		// Notify WPCOM about the connection owner change.
@@ -2237,7 +2272,11 @@ class Manager {
 			return false;
 		}
 
-		return (bool) $xml->getResponse();
+		$response = $xml->getResponse();
+
+		// Anything falsy is a refusal, and anything else is passed through: an array carries what
+		// the switch did, which the caller needs and a cast would throw away.
+		return $response ? $response : false;
 	}
 
 	/**

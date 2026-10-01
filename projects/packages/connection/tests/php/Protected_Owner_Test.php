@@ -215,18 +215,23 @@ class Protected_Owner_Test extends TestCase {
 	 * Build a Manager whose WordPress.com ownership call is stubbed, so an attempted transfer
 	 * can be asserted on without a network round trip.
 	 *
-	 * @param int   $owner_id      What `get_connection_owner_id()` should report.
-	 * @param mixed $wpcom_matcher Invocation matcher for the WordPress.com ownership call.
+	 * @param int        $owner_id      What `get_connection_owner_id()` should report.
+	 * @param mixed      $wpcom_matcher Invocation matcher for the WordPress.com ownership call.
+	 * @param true|array $accepted      What WordPress.com answers the switch with.
 	 * @return \PHPUnit\Framework\MockObject\MockObject|Manager
 	 */
-	private function transfer_manager( $owner_id, $wpcom_matcher ) {
+	private function transfer_manager( $owner_id, $wpcom_matcher, $accepted = true ) {
 		$manager = $this->getMockBuilder( Manager::class )
-			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'update_connection_owner_wpcom' ) )
+			->onlyMethods(
+				array( 'get_connection_owner_id', 'get_tokens', 'get_connected_user_data', 'update_connection_owner_wpcom' )
+			)
 			->getMock();
 
 		$manager->method( 'get_connection_owner_id' )->willReturn( $owner_id );
 		$manager->method( 'get_tokens' )->willReturn( $this->connected_tokens( $owner_id ) );
-		$manager->expects( $wpcom_matcher )->method( 'update_connection_owner_wpcom' )->willReturn( true );
+		// Nobody resolves over the network here, so each test states the bindings it relies on.
+		$manager->method( 'get_connected_user_data' )->willReturn( false );
+		$manager->expects( $wpcom_matcher )->method( 'update_connection_owner_wpcom' )->willReturn( $accepted );
 
 		return $manager;
 	}
@@ -602,6 +607,72 @@ class Protected_Owner_Test extends TestCase {
 		$this->act_as_confirmed_owner();
 
 		$this->assertFalse( ( new Manager() )->is_ownership_transferable() );
+	}
+
+	/**
+	 * The binding outlives the token, so carrying the anchored ID without a live connection is
+	 * not the owner — the same pair `resolve_wpcom_user_id()` insists on.
+	 */
+	public function test_an_unconnected_user_carrying_the_anchored_id_cannot_move_the_site() {
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'get_connection_owner_id', 'get_tokens', 'update_connection_owner_wpcom' ) )
+			->getMock();
+
+		$manager->method( 'get_connection_owner_id' )->willReturn( $this->owner_id );
+		$manager->method( 'get_tokens' )->willReturn( $this->disconnected_tokens() );
+		$manager->expects( $this->never() )->method( 'update_connection_owner_wpcom' );
+
+		$result = $manager->update_connection_owner( $this->candidate() );
+
+		$this->assertInstanceOf( 'WP_Error', $result );
+		$this->assertSame( 'ownership_locked', $result->get_error_code() );
+	}
+
+	/**
+	 * WordPress.com accepts switches it does not release its own record for, and a bare `true`
+	 * does not say which happened. An anchor dropped against a record WordPress.com kept locks
+	 * the site to nobody, and reconcile cannot repair it: it returns before asking when there is
+	 * no local anchor left. The reverse mistake repairs itself, so an unresolvable owner stays.
+	 */
+	public function test_a_transfer_to_an_unresolvable_owner_keeps_the_anchor() {
+		$candidate = $this->candidate();
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once() );
+
+		$this->assertSame( 0, $manager->resolve_wpcom_user_id( $candidate ), 'Test setup: unresolvable.' );
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
+	 * Once WordPress.com reports what the switch did, that report decides on its own.
+	 */
+	public function test_wordpress_com_reporting_a_release_clears_the_anchor() {
+		$candidate = $this->candidate();
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once(), array( 'released' => true ) );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNull( Protected_Owner::get_locked(), 'The anchor should be released.' );
+	}
+
+	/**
+	 * The report is believed in both directions, including over a local comparison that would
+	 * otherwise have cleared.
+	 */
+	public function test_wordpress_com_keeping_its_record_keeps_the_anchor() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once(), array( 'released' => false ) );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
 	}
 
 	// ── requires_protected_owner ─────────────────────────────────────────

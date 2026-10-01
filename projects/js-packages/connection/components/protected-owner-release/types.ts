@@ -6,7 +6,7 @@
 export interface ProtectedOwnerReleaseProps {
 	/** Whether the dialog is open. */
 	isOpen: boolean;
-	/** Called when the dialog closes without a successful release. */
+	/** Called whenever the dialog closes, including after a release, where it follows `onReleased`. */
 	onClose: () => void;
 	/** Called after WordPress.com accepts the release. */
 	onReleased?: () => void;
