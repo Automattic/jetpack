@@ -136,6 +136,7 @@ class Main_Features {
 				'icon'             => 'backup',
 				'product'          => 'backup',
 				'interstitial'     => '/add-backup',
+				'setup_note'       => __( 'Backups start once you add a paid plan.', 'jetpack-my-jetpack' ),
 				'paid_highlights'  => array(
 					__( 'Real-time backups of your files, database and WooCommerce orders', 'jetpack-my-jetpack' ),
 					__( 'One-click restores, even from the Jetpack mobile app', 'jetpack-my-jetpack' ),
