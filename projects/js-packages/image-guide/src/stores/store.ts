@@ -90,6 +90,7 @@ export const store = createReduxStore( 'jetpack/image-guide', {
 			( state: State, id: string ) => [
 				state.images[ id ].sizeOnPage,
 				state.revisions[ id ]?.sizeOnPage,
+				window.devicePixelRatio,
 			]
 		),
 		getOversizedRatio: createSelector(
@@ -97,14 +98,22 @@ export const store = createReduxStore( 'jetpack/image-guide', {
 				const { fileSize, sizeOnPage } = state.images[ id ];
 				return MeasurableImage.prototype.getOversizedRatio( fileSize, sizeOnPage );
 			},
-			( state: State, id: string ) => [ state.images[ id ], state.revisions[ id ] ]
+			( state: State, id: string ) => [
+				state.images[ id ],
+				state.revisions[ id ],
+				window.devicePixelRatio,
+			]
 		),
 		getPotentialSavings: createSelector(
 			( state: State, id: string ) => {
 				const { fileSize, fileWeight, sizeOnPage } = state.images[ id ];
 				return MeasurableImage.prototype.getPotentialSavings( fileSize, fileWeight, sizeOnPage );
 			},
-			( state: State, id: string ) => [ state.images[ id ], state.revisions[ id ] ]
+			( state: State, id: string ) => [
+				state.images[ id ],
+				state.revisions[ id ],
+				window.devicePixelRatio,
+			]
 		),
 	},
 } );
@@ -137,7 +146,10 @@ export function subscribeToFacts( listener: () => void, id?: string ) {
 		imageListeners.set( id, entry );
 	}
 	entry.listeners.add( listener );
+	let active = true;
 	return () => {
+		if ( ! active ) return;
+		active = false;
 		entry.listeners.delete( listener );
 		if ( ! entry.listeners.size ) imageListeners.delete( id );
 	};

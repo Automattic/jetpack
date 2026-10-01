@@ -85,6 +85,46 @@ it( 'keeps per-image facts separate and delegates DPR, area ratio and savings ca
 	expect( controller.getSnapshot().fileSize ).toEqual( { width: -1, height: -1 } );
 } );
 
+it( 'refreshes memoized measurements after a DPR change without dispatch', async () => {
+	const api = await load();
+	const { controller } = image( api );
+	controller.sizeOnPage.set( { width: 100, height: 100 } );
+	controller.fileSize.set( { width: 400, height: 400 } );
+	controller.fileWeight.set( { weight: 80 } );
+	expect( controller.getSnapshot() ).toMatchObject( {
+		expectedSize: { width: 100, height: 100 },
+		oversizedRatio: 16,
+		potentialSavings: 75,
+	} );
+	controller.oversizedRatio.subscribe( () => {} )();
+	const facts = api.selectors.getImageFacts( controller.id );
+	Object.defineProperty( window, 'devicePixelRatio', { configurable: true, value: 2 } );
+	const ratio = jest.fn();
+	controller.oversizedRatio.subscribe( ratio )();
+	expect( ratio ).toHaveBeenCalledWith( 4 );
+	expect( controller.getSnapshot() ).toMatchObject( {
+		expectedSize: { width: 200, height: 200 },
+		oversizedRatio: 4,
+		potentialSavings: 60,
+	} );
+	expect( api.selectors.getImageFacts( controller.id ) ).toBe( facts );
+} );
+
+it( 'keeps a recreated image subscription after an old unsubscribe is called twice', async () => {
+	const api = await load();
+	const { controller } = image( api );
+	const old = api.subscribeToFacts( () => {}, controller.id );
+	old();
+	const listener = jest.fn();
+	const stop = api.subscribeToFacts( listener, controller.id );
+	old();
+	controller.loading.set( false );
+	expect( listener ).toHaveBeenCalledTimes( 1 );
+	stop();
+	controller.loading.set( true );
+	expect( listener ).toHaveBeenCalledTimes( 1 );
+} );
+
 it( 'notifies immediately, invalidates before updates and unsubscribes idempotently', async () => {
 	const api = await load();
 	const { guideState, guideLabel } = api;
@@ -154,9 +194,10 @@ it( 'restarts weight fetching after double unsubscribe and the last savings unsu
 	restarted();
 } );
 
-it( 'routes one resize of 500 images with linear selector reads', async () => {
+it( 'routes one resize of 500 images with linear selector reads and routing checks', async () => {
 	const api = await load();
 	const counts = [];
+	const routingCounts = [];
 	for ( const count of [ 50, 500 ] ) {
 		const controllers = Array.from( { length: count }, () => image( api ).controller );
 		let reads = 0;
@@ -174,13 +215,20 @@ it( 'routes one resize of 500 images with linear selector reads', async () => {
 				)
 			)
 		);
+		const factsReads = jest.spyOn( api.selectors, 'getImageFacts' );
 		reads = 0;
 		await Promise.all( controllers.map( controller => controller.updateDimensions() ) );
 		expect( reads ).toBeLessThanOrEqual( count * 16 );
+		// Each snapshot reads facts once; the remaining reads count notifyImage routing checks.
+		const routingChecks = factsReads.mock.calls.length - reads;
+		expect( routingChecks ).toBe( count * 3 );
+		routingCounts.push( routingChecks );
+		factsReads.mockRestore();
 		counts.push( reads );
 		stops.forEach( stop => stop() );
 	}
 	expect( counts[ 1 ] ).toBe( counts[ 0 ] * 10 );
+	expect( routingCounts[ 1 ] ).toBe( routingCounts[ 0 ] * 10 );
 	const { use } = await import( '@wordpress/data' );
 	const registry = use( () => ( {} ) );
 	const controllers = [ image( api ).controller, image( api ).controller ];
