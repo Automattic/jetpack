@@ -359,6 +359,39 @@ test( 'announces a user run exactly once when it resumes after a subpage visit',
 	}
 } );
 
+test( 'a later subpage visit after a completed user run does not announce again', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const client = createQueryClient();
+		const dashboard = ( open: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( false ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		const before = jest.mocked( requestSpeedScores ).mock.calls.length;
+		view.rerender( dashboard( true ) );
+		view.rerender( dashboard( false ) );
+		await waitFor( () =>
+			expect( jest.mocked( requestSpeedScores ).mock.calls ).toHaveLength( before + 1 )
+		);
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'false'
+			)
+		);
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
 test( 'contains a render failure with the Overview error fallback', () => {
 	const scoreHook = jest.spyOn( speedScores, 'useSpeedScores' ).mockImplementation( () => {
 		throw new Error( 'Score rendering failed' );
