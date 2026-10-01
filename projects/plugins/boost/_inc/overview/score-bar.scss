@@ -1,0 +1,113 @@
+@use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
+
+#wpbody-content .jetpack-boost-score-bar-slot {
+	position: relative;
+	z-index: 1;
+	flex: 0 0 auto;
+	min-block-size: 0;
+	overflow: visible;
+	display: block;
+}
+
+#wpbody-content .jetpack-boost-score-bar {
+	--jetpack-boost-score-medium: var(--jp-orange-20);
+
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border-block-end: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	color: var(--wpds-color-foreground-content-neutral);
+	inline-size: 100%;
+
+	&__overall,
+	&__device,
+	&__message,
+	&__error {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-sm);
+		padding: var(--wpds-dimension-padding-lg) var(--wpds-dimension-padding-2xl);
+		min-inline-size: 0;
+	}
+
+	&__device {
+		border-inline-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__points {
+		margin-inline-start: auto;
+	}
+
+	&__message,
+	&__error {
+		grid-column: 1 / -1;
+		justify-content: flex-start;
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__error {
+		color: var(--wpds-color-foreground-content-error-weak);
+	}
+
+	.components-spinner {
+		margin: 0;
+	}
+
+	&__meter {
+		flex: 1;
+		block-size: var(--wpds-dimension-size-5xs);
+		border-radius: var(--wpds-border-radius-md);
+		background: transparent;
+
+		progress {
+			transition: none;
+		}
+	}
+
+	&__dot {
+		display: none;
+		flex-shrink: 0;
+		inline-size: var(--wpds-dimension-size-4xs);
+		block-size: var(--wpds-dimension-size-4xs);
+		border-radius: var(--wpds-border-radius-lg);
+
+		&--good {
+			background: var(--wpds-color-foreground-content-success-weak);
+		}
+
+		&--medium {
+			background: var(--jp-orange-20);
+		}
+
+		&--poor {
+			background: var(--wpds-color-foreground-content-error-weak);
+		}
+	}
+
+	@media (max-width: wpbreakpoints.$break-medium) {
+		grid-template-columns: minmax(0, 1fr) repeat(2, minmax(0, 1.5fr));
+
+		&__overall,
+		&__device {
+			padding: var(--wpds-dimension-padding-md);
+			gap: var(--wpds-dimension-gap-xs);
+		}
+
+		&__band,
+		&__meter {
+			display: none;
+		}
+
+		&__dot {
+			display: inline-block;
+		}
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.jetpack-boost-score-bar .components-spinner,
+	.jetpack-boost-score-bar .components-spinner * {
+		animation: none;
+	}
+}
