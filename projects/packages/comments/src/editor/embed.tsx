@@ -15,6 +15,7 @@ import {
 	Spinner,
 	ToolbarButton,
 	ToolbarGroup,
+	VisuallyHidden,
 } from '@wordpress/components';
 import { renderToString, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
@@ -29,6 +30,15 @@ type Preview = { html?: string; scripts?: string[] };
 type EditProps = BlockEditProps< Attributes > & { onReplace: ( blocks: Block | Block[] ) => void };
 
 let labels: EditorLabels;
+
+// The server already vetted the URL; a parse failure here should cost the block, not the editor.
+const hostOf = ( url: string ) => {
+	try {
+		return new URL( url ).host;
+	} catch {
+		return url;
+	}
+};
 
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
@@ -121,8 +131,9 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 
 	if ( ! preview ) {
 		return (
-			<div { ...blockProps }>
+			<div { ...blockProps } aria-busy="true">
 				<Spinner />
+				<VisuallyHidden>{ __( 'Loading…', 'default' ) }</VisuallyHidden>
 			</div>
 		);
 	}
@@ -144,7 +155,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 						title={ sprintf(
 							/* translators: %s: host providing embed content e.g: www.youtube.com */
 							__( 'Embedded content from %s', 'default' ),
-							new URL( url ).host
+							hostOf( url )
 						) }
 						onFocus={ onInteract }
 					/>

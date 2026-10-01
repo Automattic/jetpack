@@ -44,6 +44,7 @@ return array(
 	"button label\u{0004}Embed",
 	'Edit URL',
 	'Embedded content from %s',
+	'Loading…',
 	// Links.
 	'Search or type URL',
 	'Submit',
