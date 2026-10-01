@@ -91,7 +91,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 		if ( online && enabled ) {
 			refresh();
 		} else if ( online && ! enabled ) {
-			setState( previous => ( { ...previous, isRunning: false } ) );
+			setState( previous => ( previous.isRunning ? { ...previous, isRunning: false } : previous ) );
 		} else if ( ! online ) {
 			setState( previous => ( {
 				...previous,
