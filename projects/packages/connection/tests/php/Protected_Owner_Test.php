@@ -1361,14 +1361,33 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
-	 * An anchor already absent is the state the caller asked for, and costs no round trip.
+	 * An anchor already absent is the state the caller asked for, and costs no round trip. It
+	 * warns all the same, because the other way to reach it is an anchor lost while
+	 * WordPress.com kept its record, which leaves the site unable to claim ownership again.
 	 */
 	public function test_release_protected_owner_succeeds_when_there_is_no_anchor() {
 		$this->act_as_administrator();
 
-		$manager = $this->releasing_manager( null, $this->never() );
+		$manager  = $this->releasing_manager( null, $this->never() );
+		$warnings = array();
 
-		$this->assertTrue( $manager->release_protected_owner() );
+		set_error_handler(
+			static function ( $errno, $errstr ) use ( &$warnings ) {
+				$warnings[] = $errstr;
+				return true;
+			},
+			E_USER_WARNING
+		);
+
+		try {
+			$released = $manager->release_protected_owner();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue( $released );
+		$this->assertCount( 1, $warnings );
+		$this->assertStringContainsString( 'no protected owner on record', $warnings[0] );
 	}
 
 	/**

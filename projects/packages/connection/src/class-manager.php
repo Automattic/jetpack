@@ -1785,10 +1785,18 @@ class Manager {
 			);
 		}
 
-		// Nothing anchored is already released, so repeating the call is not an error.
+		// Nothing anchored is already released, so repeating the call is not an error. It can also
+		// be an anchor lost while WordPress.com kept its record, which this site cannot tell apart
+		// and cannot recover from alone — hence a warning rather than silence.
 		$anchor = Protected_Owner::get_locked();
 
 		if ( ! $anchor ) {
+			wp_trigger_error(
+				__METHOD__,
+				'Released with no protected owner on record. If WordPress.com still holds one, this site can no longer claim it back.',
+				E_USER_WARNING
+			);
+
 			return true;
 		}
 
