@@ -156,7 +156,7 @@ export function ChartTooltip< TDatum >( {
 	}
 
 	return (
-		<Stack direction="column" className={ styles.tooltip } gap="xs">
+		<Stack direction="column" gap="xs">
 			{ datumEntries.map( ( entry, index ) => {
 				if ( ! isChartDatumEntry< TDatum >( entry ) ) {
 					return null;
