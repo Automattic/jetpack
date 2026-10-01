@@ -13,12 +13,12 @@
 		"@date-fns/tz": "1.5.0",
 		"@jetpack-premium-analytics/datetime": "workspace:*",
 		"@tanstack/react-query": "5.102.8",
-		"@wordpress/api-fetch": "7.55.0",
-		"@wordpress/core-data": "8.0.0",
-		"@wordpress/data": "10.55.0",
-		"@wordpress/html-entities": "4.55.0",
+		"@wordpress/api-fetch": "7.56.0",
+		"@wordpress/core-data": "8.1.0",
+		"@wordpress/data": "10.56.0",
+		"@wordpress/html-entities": "4.56.0",
 		"@wordpress/i18n": "^6.9.0",
-		"@wordpress/url": "4.55.0",
+		"@wordpress/url": "4.56.0",
 		"date-fns": "4.4.0"
 	}
 }

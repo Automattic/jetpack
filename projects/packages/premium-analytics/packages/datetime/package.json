@@ -8,7 +8,7 @@
 	"sideEffects": false,
 	"dependencies": {
 		"@date-fns/tz": "1.5.0",
-		"@wordpress/date": "5.55.0",
+		"@wordpress/date": "5.56.0",
 		"@wordpress/i18n": "^6.9.0",
 		"date-fns": "4.4.0"
 	}
