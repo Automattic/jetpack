@@ -71,7 +71,10 @@ function useCarriedPostUrl(): string | undefined {
 export function usePostSummary( postId: number ): PostSummary {
 	// The header only needs the post row, so scope the query to the `post` field
 	// instead of pulling the full stats payload.
-	const { data, isLoading, isError, refetch } = useStatsPost( { postId, fields: [ 'post' ] } );
+	const { data, isLoading, isPending, isPaused, isError, refetch } = useStatsPost( {
+		postId,
+		fields: [ 'post' ],
+	} );
 	const post = data?.post;
 	const type = post?.post_type;
 	const imageUrl = usePostThumbnail( postId, type );
@@ -117,7 +120,8 @@ export function usePostSummary( postId: number ): PostSummary {
 		// The entity permalink is authoritative; the carried URL only covers the
 		// post types core data cannot resolve.
 		url: url ?? carriedUrl,
-		isLoading,
+		// React Query calls a first load paused offline or in a hidden tab not loading.
+		isLoading: isLoading || ( isPending && isPaused ),
 		isError,
 		refetch: retry,
 	};

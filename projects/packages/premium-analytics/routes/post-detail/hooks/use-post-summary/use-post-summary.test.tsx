@@ -79,6 +79,8 @@ function mockStatsPost( post?: Record< string, unknown >, isLoading = false, isE
 	mockUseStatsPost.mockReturnValue( {
 		data: post ? { post } : undefined,
 		isLoading,
+		isPending: isLoading,
+		isPaused: false,
 		isError,
 	} as unknown as ReturnType< typeof useStatsPost > );
 }
@@ -179,6 +181,21 @@ describe( 'usePostSummary', () => {
 
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'reports a first load paused offline or in a hidden tab as loading', () => {
+		mockUseStatsPost.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isPending: true,
+			isPaused: true,
+			isError: false,
+		} as unknown as ReturnType< typeof useStatsPost > );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
 		expect( result.current.isLoading ).toBe( true );
 	} );
 
