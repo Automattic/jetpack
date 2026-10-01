@@ -16,7 +16,6 @@ import { useMemo } from '@wordpress/element';
  * @return The author table rows, comparison availability, and request state.
  */
 export function useAuthorsReportRecords( reportParams: ReportParams ) {
-	// Calypso's Authors report sends max: 0; the shared mapper aligns authors and posts across periods.
 	const recordsParams = useMemo(
 		() => getAuthorsReportQueryParams( reportParams ),
 		[ reportParams ]

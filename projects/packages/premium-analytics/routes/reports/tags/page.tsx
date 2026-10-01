@@ -86,11 +86,6 @@ function TagsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>
-				{ /*
-				 * The error state replaces the table: `ReportRecordsTable`'s `empty` renders on
-				 * row count, not fetch status, so a failed refetch over cached rows would
-				 * otherwise leave stale data on screen with no notice or retry.
-				 */ }
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
@@ -102,6 +97,7 @@ function TagsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getTagRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 					/>

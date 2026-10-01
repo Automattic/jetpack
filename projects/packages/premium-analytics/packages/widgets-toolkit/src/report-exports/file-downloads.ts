@@ -12,9 +12,10 @@ import { __ } from '@wordpress/i18n';
 import { getSummarizedReportQueryParams } from './query-params';
 import type { ReportCsvExporter } from './types';
 
-type FileDownloadRow = StatsFileDownloadsComparisonItem;
-
-export const fileDownloadsCsvExporter: ReportCsvExporter< FileDownloadRow, FileDownloadRow > = {
+export const fileDownloadsCsvExporter: ReportCsvExporter<
+	StatsFileDownloadsComparisonItem,
+	StatsFileDownloadsComparisonItem
+> = {
 	filenamePrefix: 'file-downloads',
 	hasDateRange: true,
 	fetchItems: reportParams =>

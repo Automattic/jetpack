@@ -29,7 +29,7 @@ export {
 	fetchStatsSearchTermsReport,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
-	fetchStatsVideoPlaysSummaryRows,
+	fetchStatsVideoPlaysRows,
 } from './queries/fetch-stats-report-rows';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
