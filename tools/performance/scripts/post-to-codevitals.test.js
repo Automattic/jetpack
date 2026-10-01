@@ -500,7 +500,7 @@ test( 'the formsResponses scenario retains production keys and adds staging TBT'
 	assert.ok( Array.isArray( scenario.metrics ), 'formsResponses must use the metrics array' );
 	assert.deepEqual(
 		scenario.metrics
-			.filter( m => ! m.codevitalsKey.endsWith( '-staging' ) )
+			.filter( m => m.field === 'tbt' || ! m.codevitalsKey.endsWith( '-staging' ) )
 			.map( m => ( {
 				field: m.field,
 				codevitalsKey: m.codevitalsKey,
@@ -550,7 +550,7 @@ test( 'the myJetpack scenario retains production keys and adds staging TBT', () 
 	assert.ok( Array.isArray( scenario.metrics ), 'myJetpack must use the metrics array' );
 	assert.deepEqual(
 		scenario.metrics
-			.filter( m => ! m.codevitalsKey.endsWith( '-staging' ) )
+			.filter( m => m.field === 'tbt' || ! m.codevitalsKey.endsWith( '-staging' ) )
 			.map( m => ( {
 				field: m.field,
 				codevitalsKey: m.codevitalsKey,
@@ -2111,7 +2111,7 @@ test( 'dry payload carries exactly nine typed staging backend keys with integer 
 		assert.equal( result.payload.metrics[ `${ prefix }-wp-memory-usage-staging` ], 20971520 );
 		assert.equal( result.payload.metrics[ `${ prefix }-wp-db-queries-staging` ], 42 );
 	}
-	assert.equal( Object.keys( result.payload.metrics ).length, 20 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
 	assert.ok(
 		! Object.keys( result.payload.metrics ).some( key =>
 			/wp-(before-template|template)/.test( key )

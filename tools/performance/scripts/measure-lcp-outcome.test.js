@@ -389,6 +389,7 @@ test( 'backend capture failures preserve browser samples and use the per-field m
 						ttfb: 200,
 						fcp: 500,
 						decodedBytesKB: 8229,
+						tbt: 0,
 					} ) ),
 				};
 			} )
