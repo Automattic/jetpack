@@ -30,15 +30,21 @@ beforeEach( () => {
 
 test( 'records one impression per loaded score result when the retained Overview becomes visible', () => {
 	const { rerender } = render( <ScoreAlert scoreChange={ 10 } isVisible={ false } /> );
-	expect( screen.getByText( 'Your site got faster' ) ).not.toBeVisible();
+	expect(
+		screen.getByRole( 'heading', { name: 'Your site got faster', hidden: true } )
+	).not.toBeVisible();
 	expect( recordBoostEvent ).not.toHaveBeenCalled();
 	rerender( <ScoreAlert scoreChange={ 10 } isVisible /> );
-	expect( screen.getByText( 'Your site got faster' ) ).toBeVisible();
+	expect(
+		screen.getByRole( 'heading', { name: 'Your site got faster', hidden: true } )
+	).toBeVisible();
 	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_alert_shown', {
 		score_direction: 'up',
 	} );
 	rerender( <ScoreAlert scoreChange={ 10 } isVisible={ false } /> );
-	expect( screen.getByText( 'Your site got faster' ) ).not.toBeVisible();
+	expect(
+		screen.getByRole( 'heading', { name: 'Your site got faster', hidden: true } )
+	).not.toBeVisible();
 	rerender( <ScoreAlert scoreChange={ 10 } isVisible /> );
 	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
 	rerender( <ScoreAlert scoreChange={ 11 } isVisible /> );
@@ -50,7 +56,9 @@ test( 'closing remains temporary and suppresses impressions when returning to Ov
 	fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 	rerender( <ScoreAlert scoreChange={ 10 } isVisible={ false } /> );
 	rerender( <ScoreAlert scoreChange={ 10 } isVisible /> );
-	expect( screen.getByText( 'Your site got faster' ) ).not.toBeVisible();
+	expect(
+		screen.getByRole( 'heading', { name: 'Your site got faster', hidden: true } )
+	).not.toBeVisible();
 	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
 	expect( dismissAlert ).not.toHaveBeenCalled();
 } );
@@ -85,7 +93,10 @@ test.each< number | false >( [ false, 0, 5, -5 ] )(
 test( 'rating opens the same destination in a new tab and permanently dismisses the prompt', () => {
 	render( <ScoreAlert scoreChange={ 6 } isVisible /> );
 	const rating = screen.getByRole( 'link', { name: /Rate the Plugin/ } );
-	expect( rating ).toHaveAttribute( 'href', fasterMessage.ctaLink );
+	expect( rating ).toHaveAttribute(
+		'href',
+		'https://jetpack.com/redirect/?source=boost-rate-plugin'
+	);
 	expect( rating ).toHaveAttribute( 'target', '_blank' );
 	fireEvent.click( rating );
 	expect( useDismissibleAlertState ).toHaveBeenCalledWith( 'score_increase' );
@@ -116,9 +127,28 @@ test( 'the default presentation retains the legacy close link and action callbac
 	expect( close ).toHaveBeenCalledTimes( 1 );
 	expect( dismissAlert ).not.toHaveBeenCalled();
 	const rating = screen.getByRole( 'link', { name: /Rate the Plugin/ } );
-	expect( rating ).toHaveAttribute( 'href', fasterMessage.ctaLink );
+	expect( rating ).toHaveAttribute(
+		'href',
+		'https://jetpack.com/redirect/?source=boost-rate-plugin'
+	);
 	expect( rating ).toHaveAttribute( 'target', '_blank' );
 	fireEvent.click( rating );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Do not show me again' } ) );
 	expect( dismissAlert ).toHaveBeenCalledTimes( 2 );
+} );
+
+test( 'politely announces only qualifying prompts while Overview is visible', () => {
+	const { rerender } = render( <ScoreAlert scoreChange={ 5 } isVisible /> );
+	const announcement = screen.getByRole( 'status' );
+	expect( announcement ).toHaveAttribute( 'aria-live', 'polite' );
+	expect( announcement ).toHaveAttribute( 'aria-atomic', 'true' );
+	expect( announcement ).toBeEmptyDOMElement();
+	rerender( <ScoreAlert scoreChange={ 6 } isVisible /> );
+	expect( announcement ).toHaveTextContent( 'Your site got faster' );
+	rerender( <ScoreAlert scoreChange={ 6 } isVisible={ false } /> );
+	expect( announcement ).toBeEmptyDOMElement();
+	rerender( <ScoreAlert scoreChange={ -6 } isVisible /> );
+	expect( announcement ).toHaveTextContent( 'Speed score has fallen' );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
+	expect( announcement ).toBeEmptyDOMElement();
 } );

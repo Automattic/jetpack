@@ -1369,7 +1369,11 @@ const decreasedScores = {
 test( 'shows a score decrease with guidance and persists permanent dismissal', async () => {
 	jest.mocked( requestSpeedScores ).mockResolvedValue( decreasedScores );
 	renderOverview();
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).toBeVisible()
+	);
 	expect( screen.getByRole( 'link', { name: /Read the guide/ } ) ).toHaveAttribute(
 		'href',
 		expect.stringContaining( 'boost-improve-site-speed-score' )
@@ -1384,15 +1388,25 @@ test( 'shows a score decrease with guidance and persists permanent dismissal', a
 			} )
 		)
 	);
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible() );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).not.toBeVisible()
+	);
 } );
 
 test( 'temporarily closes the score decrease without persisting dismissal', async () => {
 	jest.mocked( requestSpeedScores ).mockResolvedValue( decreasedScores );
 	renderOverview();
-	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
+	await waitFor( () =>
+		expect(
+			screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+		).toBeVisible()
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
-	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
+	expect(
+		screen.getByRole( 'heading', { name: 'Speed score has fallen', hidden: true } )
+	).not.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
 			url: 'https://example.org/wp-json/jetpack-boost-ds/dismissed-alerts/set',
@@ -1440,12 +1454,12 @@ test( 'uses the legacy dismissal hook when no alert adapter is supplied', () => 
 	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
 	const { rerender } = render( <PopOut scoreChange={ -20 } /> );
 	expect( useLegacyAlertState ).toHaveBeenCalledWith( 'score_decrease' );
-	expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible();
+	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).toBeVisible();
 	fireEvent.click( screen.getByRole( 'button', { name: 'Do not show me again' } ) );
 	expect( dismiss ).toHaveBeenCalledTimes( 1 );
 	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
 	rerender( <PopOut scoreChange={ -20 } /> );
-	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
+	expect( screen.getByText( 'Speed score has fallen', { selector: 'h3' } ) ).not.toBeVisible();
 } );
 
 test( 'reports module request errors independently and retries only modules', async () => {
@@ -1591,4 +1605,52 @@ test( 'owns history paging, retry, and the responsive fifteen-day window', async
 		unmount();
 		client.clear();
 	}
+} );
+
+test.each( [ 'Dismiss', 'Rate the Plugin', 'Do not show me again' ] )(
+	'returns focus to the Overview heading before %s hides the prompt',
+	async label => {
+		jest.mocked( requestSpeedScores ).mockResolvedValue( {
+			...scores,
+			current: { desktop: 90, mobile: 90 },
+		} );
+		renderOverview();
+		const prompt = await screen.findByRole( 'heading', { name: 'Your site got faster' } );
+		const action = screen.getByRole( label === 'Rate the Plugin' ? 'link' : 'button', {
+			name: new RegExp( label ),
+		} );
+		act( () => action.focus() );
+		expect( action ).toHaveFocus();
+		fireEvent.click( action );
+		expect( screen.getByRole( 'heading', { name: 'Your site speed' } ) ).toHaveFocus();
+		await waitFor( () => expect( prompt ).not.toBeVisible() );
+	}
+);
+
+test( 'legacy rating preserves the threshold boundary, destination and both tracking events', () => {
+	const dismiss = jest.fn();
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ false, dismiss ] );
+	const { rerender } = render( <PopOut scoreChange={ 5 } /> );
+	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
+	expect( recordBoostEvent ).not.toHaveBeenCalled();
+	rerender( <PopOut scoreChange={ 6 } /> );
+	expect( screen.getByRole( 'heading', { name: 'Your site got faster' } ) ).toBeVisible();
+	expect( recordBoostEvent ).toHaveBeenCalledTimes( 1 );
+	expect( recordBoostEvent ).toHaveBeenCalledWith( 'speed_score_alert_shown', {
+		score_direction: 'up',
+	} );
+	const rating = screen.getByRole( 'link', { name: /Rate the Plugin/ } );
+	expect( rating ).toHaveAttribute(
+		'href',
+		'https://jetpack.com/redirect/?source=boost-rate-plugin'
+	);
+	fireEvent.click( rating );
+	expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );
+	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'speed_score_alert_cta_clicked', {
+		score_direction: 'up',
+	} );
+	expect( dismiss ).toHaveBeenCalledTimes( 1 );
+	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
+	rerender( <PopOut scoreChange={ 6 } /> );
+	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
 } );

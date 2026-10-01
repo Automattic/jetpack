@@ -76,22 +76,10 @@ export const VanillaPopOut = ( {
 	isVisible,
 	presentation = 'legacy',
 }: VanillaPopOutProps ) => {
-	const animationStyles = useSpring( {
-		from: {
-			right: '-100%',
-		},
-		to: {
-			right: isVisible ? '0%' : '-100%',
-		},
-	} );
-
 	if ( presentation === 'modern' ) {
 		return (
 			<div className={ styles[ 'modern-wrapper' ] } hidden={ ! isVisible }>
-				<Card.Root
-					className={ styles[ 'modern-card' ] }
-					render={ <animated.div style={ { insetInlineEnd: animationStyles.right } } /> }
-				>
+				<Card.Root className={ styles[ 'modern-card' ] }>
 					<Card.Content>
 						<Stack direction="column" gap="md">
 							<Stack direction="row" align="center" justify="space-between" gap="sm">
@@ -131,6 +119,26 @@ export const VanillaPopOut = ( {
 	}
 
 	return (
+		<LegacyPopOut
+			message={ message }
+			onClose={ onClose }
+			onDismiss={ onDismiss }
+			isVisible={ isVisible }
+		/>
+	);
+};
+
+function LegacyPopOut( { message, onClose, onDismiss, isVisible }: VanillaPopOutProps ) {
+	const animationStyles = useSpring( {
+		from: {
+			right: '-100%',
+		},
+		to: {
+			right: isVisible ? '0%' : '-100%',
+		},
+	} );
+
+	return (
 		<div id="parent" className={ styles.wrapper }>
 			<animated.div
 				className={ styles.card }
@@ -164,7 +172,7 @@ export const VanillaPopOut = ( {
 			</animated.div>
 		</div>
 	);
-};
+}
 
 function PopOut( { scoreChange }: Props ) {
 	/*

@@ -33,7 +33,7 @@
 
 .modern-wrapper {
 	position: absolute;
-	inset-block-start: var(--wpds-dimension-size-md);
+	inset-block-start: var(--wpds-dimension-size-lg);
 	inset-inline-end: 0;
 	z-index: 60;
 	inline-size: min(100%, var(--wpds-dimension-surface-width-sm));
@@ -57,5 +57,23 @@
 
 	+ p {
 		margin-block-start: var(--wpds-dimension-gap-md);
+	}
+}
+
+@media ( prefers-reduced-motion: no-preference ) {
+
+	.modern-card {
+		animation: modern-entry var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
+	}
+}
+
+@keyframes modern-entry {
+
+	from {
+		opacity: 0;
+	}
+
+	to {
+		opacity: 1;
 	}
 }
