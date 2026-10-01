@@ -1,3 +1,5 @@
+@use "@wordpress/base-styles/variables" as wpvariables;
+
 .wrapper {
 	width: 420px;
 	position: absolute;
@@ -27,4 +29,33 @@
 
 .headline {
 	margin-right: 21px;
+}
+
+.modern-wrapper {
+	position: absolute;
+	inset-block-start: var(--wpds-dimension-size-md);
+	inset-inline-end: 0;
+	z-index: 60;
+	inline-size: min(100%, var(--wpds-dimension-surface-width-sm));
+	overflow: hidden;
+	padding: var(--wpds-dimension-padding-lg);
+	box-sizing: border-box;
+	pointer-events: none;
+}
+
+.modern-card {
+	--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
+	position: relative;
+	box-shadow: wpvariables.$elevation-medium;
+	pointer-events: auto;
+}
+
+.modern-body p {
+	margin: 0;
+	font: inherit;
+	color: inherit;
+
+	+ p {
+		margin-block-start: var(--wpds-dimension-gap-md);
+	}
 }

@@ -2,6 +2,8 @@ import { animated, useSpring } from '@react-spring/web';
 import CloseButton from '$features/ui/close-button/close-button';
 import styles from './pop-out.module.scss';
 import { __ } from '@wordpress/i18n';
+import { close } from '@wordpress/icons';
+import { Button as UIButton, Card, IconButton, LinkButton, Stack, Text } from '@wordpress/ui';
 import { ReactNode, useState, useEffect } from 'react';
 import { Button, getRedirectUrl } from '@automattic/jetpack-components';
 import { useDismissibleAlertState } from '$features/performance-history/lib/hooks';
@@ -58,6 +60,7 @@ type VanillaPopOutProps = {
 	onClose: () => void;
 	onDismiss: () => void;
 	isVisible: boolean;
+	presentation?: 'legacy' | 'modern';
 };
 
 /**
@@ -66,7 +69,13 @@ type VanillaPopOutProps = {
  * @param {VanillaPopOutProps} props
  * @return {ReactNode} Vanilla PopOut component.
  */
-export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: VanillaPopOutProps ) => {
+export const VanillaPopOut = ( {
+	message,
+	onClose,
+	onDismiss,
+	isVisible,
+	presentation = 'legacy',
+}: VanillaPopOutProps ) => {
 	const animationStyles = useSpring( {
 		from: {
 			right: '-100%',
@@ -75,6 +84,51 @@ export const VanillaPopOut = ( { message, onClose, onDismiss, isVisible }: Vanil
 			right: isVisible ? '0%' : '-100%',
 		},
 	} );
+
+	if ( presentation === 'modern' ) {
+		return (
+			<div className={ styles[ 'modern-wrapper' ] } hidden={ ! isVisible }>
+				<Card.Root
+					className={ styles[ 'modern-card' ] }
+					render={ <animated.div style={ { insetInlineEnd: animationStyles.right } } /> }
+				>
+					<Card.Content>
+						<Stack direction="column" gap="md">
+							<Stack direction="row" align="center" justify="space-between" gap="sm">
+								<Text variant="heading-md" render={ <h3 /> }>
+									{ message.title }
+								</Text>
+								<IconButton
+									icon={ close }
+									label={ __( 'Dismiss', 'jetpack-boost' ) }
+									variant="minimal"
+									tone="neutral"
+									size="small"
+									onClick={ onClose }
+								/>
+							</Stack>
+							<Text variant="body-md" render={ <div /> } className={ styles[ 'modern-body' ] }>
+								{ message.body }
+							</Text>
+							<Stack direction="row" wrap="wrap" gap="sm">
+								<LinkButton
+									size="compact"
+									href={ message.ctaLink }
+									openInNewTab
+									onClick={ onDismiss }
+								>
+									{ message.cta }
+								</LinkButton>
+								<UIButton variant="minimal" size="compact" onClick={ onDismiss }>
+									{ __( 'Do not show me again', 'jetpack-boost' ) }
+								</UIButton>
+							</Stack>
+						</Stack>
+					</Card.Content>
+				</Card.Root>
+			</div>
+		);
+	}
 
 	return (
 		<div id="parent" className={ styles.wrapper }>

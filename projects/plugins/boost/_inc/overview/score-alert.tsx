@@ -40,6 +40,7 @@ export default function ScoreAlert( { scoreChange, isVisible }: Props ) {
 
 	return (
 		<VanillaPopOut
+			presentation="modern"
 			message={ message }
 			onClose={ () => setClosed( true ) }
 			onDismiss={ handleDismiss }

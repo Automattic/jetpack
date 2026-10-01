@@ -1391,7 +1391,7 @@ test( 'temporarily closes the score decrease without persisting dismissal', asyn
 	jest.mocked( requestSpeedScores ).mockResolvedValue( decreasedScores );
 	renderOverview();
 	await waitFor( () => expect( screen.getByText( 'Speed score has fallen' ) ).toBeVisible() );
-	fireEvent.click( screen.getByRole( 'link', { name: 'Dismiss' } ) );
+	fireEvent.click( screen.getByRole( 'button', { name: 'Dismiss' } ) );
 	expect( screen.getByText( 'Speed score has fallen' ) ).not.toBeVisible();
 	expect( apiFetch ).not.toHaveBeenCalledWith(
 		expect.objectContaining( {
