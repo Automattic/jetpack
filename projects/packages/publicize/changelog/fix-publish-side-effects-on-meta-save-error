@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix share message updates failing when a post has duplicate Social meta rows.
+Fix post updates failing when Social post meta has duplicate rows.

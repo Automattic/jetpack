@@ -1,4 +1,4 @@
 Significance: patch
 Type: bugfix
 
-Social: Share posts and send newsletters even when the editor reports a post meta error on publish.
+Social: Fix publishing failing with a share message database error, which also prevented newsletters and social shares from being sent.
