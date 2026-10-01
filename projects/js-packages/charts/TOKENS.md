@@ -94,6 +94,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-background` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
 | `--a8c-charts-color-surface` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
 | `--a8c-charts-color-surface-secondary` | `--wpds-color-background-surface-neutral-weak` | `#f4f4f4` |
+| `--a8c-charts-color-surface-stroke` | `--wpds-color-stroke-surface-neutral` | `#dbdbdb` |
 | `--a8c-charts-color-track` | `--wpds-color-background-track-neutral-weak` | `#f0f0f0` |
 | `--a8c-charts-color-tooltip-surface` | _(none — deprecated, no chart reads it)_ | `rgb(0 0 0 / 85%)` |
 
@@ -153,6 +154,7 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 | `--a8c-charts-dimension-leaderboard-column-gap` | `--wpds-dimension-gap-xs` | `4px` |
 | `--a8c-charts-elevation-xs` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003` |
 | `--a8c-charts-elevation-sm` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005` |
+| `--a8c-charts-elevation-md` | _(none — `--wpds-elevation-*` removed in theme 1.0.0)_ | `0 2px 3px 0 #0000000d, 0 4px 5px 0 #0000000a, 0 12px 12px 0 #00000008, 0 16px 16px 0 #00000005` |
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
 

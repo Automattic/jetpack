@@ -199,10 +199,6 @@ describe( 'XyChartTooltip', () => {
 			const box = await screen.findByTestId( 'tooltip-box' );
 			expect( box ).toHaveStyle( { transform: 'translate(70px, 106px)' } );
 			expect( screen.getByTestId( 'wrapper' ) ).toContainElement( box );
-			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveStyle( {
-				left: '34px',
-				top: '-6px',
-			} );
 			expect( screen.getByTestId( 'xy-chart-tooltip-glyph-group-A' ) ).toHaveAttribute(
 				'transform',
 				'translate(110, 40)'

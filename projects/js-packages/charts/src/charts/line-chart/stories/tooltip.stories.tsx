@@ -172,6 +172,7 @@ BelowAxis.args = {
 	tooltipStyle: {
 		'--a8c-charts-color-surface': 'var(--wpds-color-background-interactive-neutral-strong)',
 		'--a8c-charts-color-label': 'var(--a8c-charts-color-label-inverse)',
+		'--a8c-charts-color-surface-stroke': 'var(--a8c-charts-color-surface)',
 	} as React.CSSProperties,
 	renderTooltip: renderWideTooltip( 120 ),
 	withTooltipCrosshairs: {
@@ -183,7 +184,7 @@ BelowAxis.parameters = {
 	docs: {
 		description: {
 			story:
-				'Hover a datum or focus the chart and use the arrow keys. A broad translucent crosshair highlights the active column. The tooltip stays below the x-axis label band and can extend past the chart. Its pointer touches the bottom of that band. At horizontal edges, the panel shifts while its pointer stays anchored to the datum.',
+				'Hover a datum or focus the chart and use the arrow keys. A broad translucent crosshair highlights the active column. The tooltip stays just below the x-axis label band, centered on the datum, and can extend past the chart. At horizontal edges, the panel shifts to stay inside the card.',
 		},
 	},
 };

@@ -221,12 +221,12 @@ describe( 'BoundedTooltip', () => {
 	} );
 
 	test.each( [
-		{ anchor: 20, x: 0, pointerLeft: 14 },
-		{ anchor: 150, x: 46, pointerLeft: 98 },
-		{ anchor: 280, x: 92, pointerLeft: 182 },
+		{ anchor: 20, x: 0 },
+		{ anchor: 150, x: 46 },
+		{ anchor: 280, x: 92 },
 	] )(
-		'keeps the below-axis pointer at x=$anchor after clamping',
-		( { anchor, x, pointerLeft } ) => {
+		'centers the below-axis box on x=$anchor, clamped inside the clipping ancestor',
+		( { anchor, x } ) => {
 			jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
 				this: Element
 			) {
@@ -248,16 +248,6 @@ describe( 'BoundedTooltip', () => {
 			expect( screen.getByTestId( 'box' ) ).toHaveStyle( {
 				transform: `translate(${ x }px, 106px)`,
 			} );
-			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveStyle( {
-				left: `${ pointerLeft }px`,
-				top: '-6px',
-				width: '12px',
-				height: '6px',
-			} );
-			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveAttribute(
-				'aria-hidden',
-				'true'
-			);
 		}
 	);
 
