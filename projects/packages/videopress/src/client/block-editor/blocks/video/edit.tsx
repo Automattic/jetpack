@@ -233,7 +233,7 @@ export default function VideoPressEdit( {
 	const onVideoRatioChange = useCallback(
 		( ratio: number ) => {
 			setReportedVideoRatio( current =>
-				current?.guid === guid && current.ratio === ratio ? current : { guid, ratio }
+				current && current.guid === guid && current.ratio === ratio ? current : { guid, ratio }
 			);
 		},
 		[ guid ]
@@ -242,7 +242,7 @@ export default function VideoPressEdit( {
 	// Player dimensions take precedence over the cached oEmbed preview for this GUID.
 	useEffect( () => {
 		let ratio = previewWidth && previewHeight ? ( previewHeight / previewWidth ) * 100 : null;
-		if ( reportedVideoRatio?.guid === guid ) {
+		if ( reportedVideoRatio && reportedVideoRatio.guid === guid ) {
 			ratio = reportedVideoRatio.ratio;
 		}
 		if ( ! ratio || ratio === videoRatio ) {

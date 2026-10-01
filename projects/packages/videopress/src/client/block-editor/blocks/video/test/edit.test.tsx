@@ -2,6 +2,7 @@ import { act, render } from '@testing-library/react';
 import { useDispatch } from '@wordpress/data';
 import { usePreview } from '../../../hooks/use-preview';
 import Player from '../components/player';
+import VideoPressUploader from '../components/videopress-uploader';
 import VideoPressEdit from '../edit';
 import type { VideoBlockAttributes, VideoPreviewProps } from '../types';
 
@@ -46,7 +47,7 @@ jest.mock( '../components/poster-panel', () => () => null );
 jest.mock( '../components/privacy-and-rating-panel', () => () => null );
 jest.mock( '../components/replace-control', () => () => null );
 jest.mock( '../components/tracks-control', () => () => null );
-jest.mock( '../components/videopress-uploader', () => () => null );
+jest.mock( '../components/videopress-uploader', () => jest.fn( () => null ) );
 
 const preview: VideoPreviewProps = {
 	html: '<iframe src="https://videopress.com/embed/abcDEF12"></iframe>',
@@ -105,6 +106,40 @@ describe( 'VideoPress editor aspect ratio', () => {
 			invalidateResolution: jest.fn(),
 		} );
 		jest.mocked( usePreview ).mockReturnValue( { preview, isRequestingEmbedPreview: false } );
+	} );
+
+	it.each( [ undefined, null, '' ] )( 'renders the uploader before a GUID exists: %p', guid => {
+		jest.mocked( usePreview ).mockReturnValue( {
+			preview: { ...preview, html: null, width: null, height: null },
+			isRequestingEmbedPreview: false,
+		} );
+
+		render( editor( { guid, cacheHtml: '' } ) );
+
+		expect( VideoPressUploader ).toHaveBeenCalled();
+		expect( Player ).not.toHaveBeenCalled();
+		expect( setAttributes ).not.toHaveBeenCalled();
+	} );
+
+	it( 'accepts player dimensions after a video is added to an empty block', () => {
+		jest.mocked( usePreview ).mockReturnValue( {
+			preview: { ...preview, html: null, width: null, height: null },
+			isRequestingEmbedPreview: false,
+		} );
+		const { rerender } = render( editor( { guid: undefined, cacheHtml: '' } ) );
+
+		act( () => {
+			jest.mocked( VideoPressUploader ).mock.lastCall[ 0 ].handleDoneUpload( defaultAttributes );
+		} );
+		jest.mocked( usePreview ).mockReturnValue( { preview, isRequestingEmbedPreview: false } );
+		rerender( editor() );
+		setAttributes.mockClear();
+
+		const portraitRatio = ( 1024 / 576 ) * 100;
+		reportVideoRatio( portraitRatio );
+
+		expect( setAttributes ).toHaveBeenCalledTimes( 1 );
+		expect( setAttributes ).toHaveBeenCalledWith( { videoRatio: portraitRatio } );
 	} );
 
 	it( 'uses preview dimensions until the player reports its ratio', () => {
