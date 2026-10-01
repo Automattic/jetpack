@@ -86,7 +86,7 @@ class Block_Editor {
 			}
 
 			// Core translates block titles in PHP, so they are in its .mo, not the script files.
-			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code', 'Embed' ) as $title ) {
+			foreach ( array( 'Paragraph', 'List', 'List Item', 'Quote', 'Code' ) as $title ) {
 				// phpcs:ignore WordPress.WP.I18n.NonSingularStringLiteralText, WordPress.WP.I18n.TextDomainMismatch -- Core's own strings.
 				$messages[ "block title\u{0004}$title" ] = array( _x( $title, 'block title', 'default' ) );
 			}
@@ -122,7 +122,6 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function keep_allowed_blocks( $content ) {
-		Embeds::forget();
 		$this->has_blocks = self::is_enabled() && has_blocks( $content );
 
 		if ( ! $this->has_blocks ) {
@@ -140,7 +139,6 @@ class Block_Editor {
 	 */
 	public function forget_blocks( $content ) {
 		$this->has_blocks = false;
-		Embeds::forget();
 
 		return $content;
 	}
@@ -157,7 +155,7 @@ class Block_Editor {
 			return $tags;
 		}
 
-		$tags = array_merge(
+		return array_merge(
 			$tags,
 			array(
 				'p'          => array(),
@@ -171,18 +169,10 @@ class Block_Editor {
 				'pre'        => array( 'class' => array( 'values' => array( 'wp-block-code' ) ) ),
 				'ul'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
 				'ol'         => array( 'class' => array( 'values' => array( 'wp-block-list' ) ) ),
+				'figure'     => array( 'class' => array( 'values' => array( 'wp-block-embed' ) ) ),
+				'div'        => array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) ),
 			)
 		);
-
-		// The embed figures this comment holds, with the exact classes written for them.
-		$classes = Embeds::saved_classes();
-		if ( $classes ) {
-			$tags['figure']     = array( 'class' => array( 'values' => $classes ) );
-			$tags['div']        = array( 'class' => array( 'values' => array( 'wp-block-embed__wrapper' ) ) );
-			$tags['figcaption'] = array( 'class' => array( 'values' => array( 'wp-element-caption' ) ) );
-		}
-
-		return $tags;
 	}
 
 	/**
@@ -261,18 +251,15 @@ class Block_Editor {
 		return array(
 			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
 			'addBlock'   => __( 'Add block', 'jetpack-comments' ),
-			'embedUrl'   => Embeds::url(),
+			'embedUrl'   => Embeds::is_enabled() ? Checkpoint_Endpoint::route_url( Embeds::ROUTE ) : '',
 			'embed'      => array(
+				'title'       => _x( 'Embed', 'block title', 'jetpack-comments' ),
 				'hint'        => __( 'Paste a link to a video, song, post, or other content to show it here.', 'jetpack-comments' ),
 				'placeholder' => __( 'Enter a URL to embed', 'jetpack-comments' ),
 				'button'      => _x( 'Embed', 'verb', 'jetpack-comments' ),
-				'failed'      => __( 'Sorry, this content could not be embedded.', 'jetpack-comments' ),
-				'retry'       => __( 'Try again', 'jetpack-comments' ),
-				'toLink'      => __( 'Convert to link', 'jetpack-comments' ),
 				'editUrl'     => __( 'Edit URL', 'jetpack-comments' ),
 				/* translators: %s is the site the content comes from, such as www.youtube.com. */
 				'from'        => __( 'Embedded content from %s', 'jetpack-comments' ),
-				'caption'     => __( 'Add caption', 'jetpack-comments' ),
 			),
 		);
 	}

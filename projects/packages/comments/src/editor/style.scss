@@ -368,7 +368,7 @@
 		display: none;
 	}
 
-	// The embed block: its URL box, loading state, and preview frame.
+	// The embed block: its URL box and preview frame.
 	.components-placeholder {
 		display: flex;
 		flex-direction: column;
@@ -417,23 +417,6 @@
 		margin: 0;
 	}
 
-	.components-placeholder__error {
-		display: flex;
-		flex-wrap: wrap;
-		align-items: center;
-		gap: 8px;
-
-		p {
-			flex-basis: 100%;
-		}
-	}
-
-	.wp-block-embed.is-loading {
-		display: flex;
-		justify-content: center;
-		padding: 16px;
-	}
-
 	.wp-block-embed__wrapper {
 		position: relative;
 	}
@@ -448,11 +431,6 @@
 	.jetpack-comments__embed-overlay {
 		position: absolute;
 		inset: 0;
-	}
-
-	.wp-element-caption {
-		margin-block-start: 8px;
-		font-size: 0.9em;
 	}
 }
 
