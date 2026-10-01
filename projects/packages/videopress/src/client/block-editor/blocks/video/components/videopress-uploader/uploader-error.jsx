@@ -32,7 +32,7 @@ const UpgradePlaceholder = ( { message, onCancel } ) => {
 	);
 
 	return (
-		<PlaceholderWrapper instructions={ <span role="alert">{ message }</span> }>
+		<PlaceholderWrapper instructions={ message }>
 			<div className="videopress-uploader-progress__error-actions">
 				<Button
 					variant="primary"

@@ -1,15 +1,13 @@
 import { getRequiredPlan, useUpgradeFlow } from '@automattic/jetpack-shared-extension-utils';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { Placeholder } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import UploadError from '../uploader-error.jsx';
 
 const mockUseConnectionErrorNotice = jest.fn();
 const mockPlaceholderWrapper = jest.fn( ( { instructions, children } ) => (
-	<div>
-		{ instructions }
-		{ children }
-	</div>
+	<Placeholder instructions={ instructions }>{ children }</Placeholder>
 ) );
 const mockGoToCheckout = jest.fn( event => event.preventDefault() );
 
@@ -90,13 +88,18 @@ describe( 'UploadError', () => {
 		);
 
 		const upgrade = screen.getByRole( 'link', { name: 'Upgrade' } );
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( FREE_QUOTA_MESSAGE );
+		expect(
+			screen.getByText( FREE_QUOTA_MESSAGE, { selector: '.components-placeholder__instructions' } )
+		).toBeInTheDocument();
 		expect( mockPlaceholderWrapper.mock.calls[ 0 ][ 0 ].errorMessage ).toBeUndefined();
 		expect( upgrade ).toHaveAttribute(
 			'href',
 			'https://wordpress.com/checkout/example.com/jetpack_videopress'
 		);
 		expect( useUpgradeFlow ).toHaveBeenCalledWith( 'jetpack_videopress' );
+		expect(
+			screen.getByText( FREE_QUOTA_MESSAGE, { selector: '[aria-live="polite"]' } )
+		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();
 		await userEvent.click( upgrade );
 		expect( mockGoToCheckout ).toHaveBeenCalledTimes( 1 );
@@ -110,7 +113,9 @@ describe( 'UploadError', () => {
 		__.mockImplementation( s => ( s === FREE_QUOTA_MESSAGE ? translatedMessage : s ) );
 
 		renderError( { data: { message: translatedMessage } }, false );
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent( translatedMessage );
+		expect(
+			screen.getByText( translatedMessage, { selector: '.components-placeholder__instructions' } )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 	} );
 
@@ -125,9 +130,11 @@ describe( 'UploadError', () => {
 		renderError( { data: { message: 'Invalid Mime' } }, false );
 
 		expect( useUpgradeFlow ).toHaveBeenCalledWith( 'business' );
-		expect( screen.getByRole( 'alert' ) ).toHaveTextContent(
-			'Your plan does not include video uploads. Upgrade to upload videos.'
-		);
+		expect(
+			screen.getByText( 'Your plan does not include video uploads. Upgrade to upload videos.', {
+				selector: '.components-placeholder__instructions',
+			} )
+		).toBeInTheDocument();
 		expect( mockPlaceholderWrapper.mock.calls[ 0 ][ 0 ].errorMessage ).toBeUndefined();
 		expect( screen.getByRole( 'link', { name: 'Upgrade' } ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Try again' } ) ).not.toBeInTheDocument();

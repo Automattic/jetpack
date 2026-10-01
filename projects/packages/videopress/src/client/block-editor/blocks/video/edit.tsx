@@ -59,7 +59,7 @@ type PlaceholderWrapperProps = {
 	className?: string;
 	disableInstructions?: boolean;
 	errorMessage?: string;
-	instructions?: ReactNode;
+	instructions?: string;
 	onNoticeRemove?: ( ...args: unknown[] ) => unknown;
 };
 
