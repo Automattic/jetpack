@@ -142,15 +142,7 @@ function FeaturesTabContent() {
 
 	// Read once, so the pills hold steady until the visitor leaves the tab.
 	const [ ownedView ] = useState( () => filter === 'included' );
-	const filters = useMemo(
-		() =>
-			getFeatureFilters(
-				filter,
-				states.some( state => state.feature.included ),
-				ownedView
-			),
-		[ filter, ownedView, states ]
-	);
+	const filters = useMemo( () => getFeatureFilters( filter, ownedView ), [ filter, ownedView ] );
 	// Counted against every feature, not the visible ones, so a pill says how many it
 	// would show rather than how many survived the filter already in play.
 	const counts = useMemo(

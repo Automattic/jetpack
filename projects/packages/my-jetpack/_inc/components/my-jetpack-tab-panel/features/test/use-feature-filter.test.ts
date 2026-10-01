@@ -57,13 +57,19 @@ describe( 'getFeatureFilters', () => {
 		expect( getFeatureFilters().map( ( { value } ) => value ) ).not.toContain( 'complete' );
 	} );
 
-	it( 'offers Included in plan only to a site that pays for something, or a link that asks for it', () => {
+	it( 'swaps the category pills for Included in plan only on a visit that arrived on it', () => {
 		const values = ( ...args: Parameters< typeof getFeatureFilters > ) =>
 			getFeatureFilters( ...args ).map( ( { value } ) => value );
 
-		expect( values() ).not.toContain( 'included' );
-		expect( values( 'all', true ) ).toContain( 'included' );
-		expect( values( 'included' ) ).toContain( 'included' );
+		expect( values( 'all' ) ).toEqual( [
+			'all',
+			'active',
+			'inactive',
+			'essential',
+			'security',
+			'growth',
+		] );
+		expect( values( 'all', true ) ).toEqual( [ 'all', 'active', 'inactive', 'included' ] );
 	} );
 
 	it( 'rejects a filter the grid does not know', () => {
