@@ -282,19 +282,32 @@ class Admin_Page {
 
 		require_once $build_index;
 
-		// The generated registrar hooks `wp_default_scripts`, which has often already fired by
-		// `admin_menu` on admin requests, so the hook would never run and the dashboard's init
-		// module (which loads its translations) would be missing from the import map. It guards
-		// against running twice, so calling it directly is safe either way.
-		if ( did_action( 'wp_default_scripts' ) && function_exists( 'wp_register_script_module' ) && function_exists( 'jetpack_podcast_register_script_modules' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by the generated build/modules.php.
-			jetpack_podcast_register_script_modules();
-		}
+		self::register_script_modules_if_default_scripts_fired();
 
 		WP_Build_Polyfills::register(
 			'jetpack-podcast',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+	}
+
+	/**
+	 * Register the generated script modules now if `wp_default_scripts` has already fired.
+	 *
+	 * The generated registrar hooks `wp_default_scripts`, which has often already fired by
+	 * `admin_menu` on admin requests, so the hook would never run and the dashboard's init
+	 * module (which loads its translations) would be missing from the import map. The
+	 * registrar guards against running twice, so calling it directly is safe either way.
+	 *
+	 * @param string|\Closure $registrar The generated registrar. Defaults to the one wp-build generates.
+	 * @return bool Whether the registrar was called.
+	 */
+	public static function register_script_modules_if_default_scripts_fired( $registrar = 'jetpack_podcast_register_script_modules' ) {
+		if ( ! did_action( 'wp_default_scripts' ) || ! function_exists( 'wp_register_script_module' ) || ! is_callable( $registrar ) ) {
+			return false;
+		}
+
+		$registrar();
+		return true;
 	}
 
 	/**

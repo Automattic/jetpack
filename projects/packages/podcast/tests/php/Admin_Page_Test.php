@@ -37,6 +37,11 @@ class Admin_Page_Test extends BaseTestCase {
 	protected function tearDown(): void {
 		Constants::clear_constants();
 		remove_all_actions( 'load-jetpack_page_' . Admin_Page::ADMIN_PAGE_SLUG );
+		remove_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_tracks_transport' ) );
+		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) );
+		wp_dequeue_script( 'wp-jp-i18n-loader' );
+		wp_deregister_script( 'wp-jp-i18n-loader' );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'alias_screen_id_for_wp_build' ) );
 		remove_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'restore_screen_id_after_wp_build' ) );
 		remove_filter( 'jetpack_admin_js_script_data', array( Admin_Page::class, 'inject_podcast_script_data' ) );
@@ -307,5 +312,47 @@ class Admin_Page_Test extends BaseTestCase {
 	private function enter_podcast_admin_request(): void {
 		set_current_screen( 'jetpack_page_jetpack-podcast' );
 		$_GET['page'] = Admin_Page::ADMIN_PAGE_SLUG;
+	}
+
+	public function test_admin_init_queues_the_i18n_loader_enqueue() {
+		Admin_Page::admin_init();
+
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Admin_Page::class, 'enqueue_i18n_loader' ) ) );
+	}
+
+	public function test_enqueue_i18n_loader_enqueues_the_loader_when_it_is_registered() {
+		wp_register_script( 'wp-jp-i18n-loader', false, array(), '1.0', true );
+
+		Admin_Page::enqueue_i18n_loader();
+
+		$this->assertTrue( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+	}
+
+	public function test_enqueue_i18n_loader_does_nothing_when_the_loader_is_not_registered() {
+		wp_deregister_script( 'wp-jp-i18n-loader' );
+
+		Admin_Page::enqueue_i18n_loader();
+
+		$this->assertFalse( wp_script_is( 'wp-jp-i18n-loader', 'enqueued' ) );
+	}
+
+	public function test_register_script_modules_calls_the_registrar_once_default_scripts_have_fired() {
+		if ( ! did_action( 'wp_default_scripts' ) ) {
+			do_action( 'wp_default_scripts', wp_scripts() );
+		}
+		$calls = 0;
+
+		$called = Admin_Page::register_script_modules_if_default_scripts_fired(
+			function () use ( &$calls ) {
+				++$calls;
+			}
+		);
+
+		$this->assertTrue( $called );
+		$this->assertSame( 1, $calls );
+	}
+
+	public function test_register_script_modules_skips_a_registrar_that_does_not_exist() {
+		$this->assertFalse( Admin_Page::register_script_modules_if_default_scripts_fired( 'jetpack_podcast_no_such_registrar' ) );
 	}
 }
