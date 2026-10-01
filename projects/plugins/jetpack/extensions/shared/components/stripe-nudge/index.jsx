@@ -1,11 +1,13 @@
 import { getRedirectUrl } from '@automattic/jetpack-components';
 import { isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
+import { useBlockEditContext } from '@wordpress/block-editor';
 import { select } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import GridiconStar from 'gridicons/dist/star';
 import { store as membershipProductsStore } from '../../../store/membership-products';
+import { rememberStripeConnectOrigin } from '../../stripe-connection-notification';
 import BlockNudge from '../block-nudge';
 
 import './style.scss';
@@ -14,11 +16,14 @@ export const StripeNudge = ( { blockName } ) => {
 	const store = select( membershipProductsStore );
 	const stripeConnectUrl = store.getConnectUrl();
 	const { tracks } = useAnalytics();
+	const { clientId } = useBlockEditContext();
 
-	const recordTracksEvent = () =>
+	const recordTracksEvent = () => {
+		rememberStripeConnectOrigin( clientId );
 		tracks.recordEvent( 'jetpack_editor_block_stripe_connect_click', {
 			block: blockName,
 		} );
+	};
 
 	if ( ! stripeConnectUrl ) {
 		return null;

@@ -8,6 +8,7 @@ import ConnectBanner from '../../shared/components/connect-banner';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { PRODUCT_TYPE_SUBSCRIPTION } from '../../shared/components/product-management-controls/constants';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
+import { StripeConnectionNotice } from '../../shared/stripe-connection-notification';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import Blocks from './_inc/blocks';
@@ -147,6 +148,7 @@ function Edit( { clientId, isSelected, attributes, setAttributes } ) {
 			) }
 			{ ! isApiLoading && (
 				<>
+					<StripeConnectionNotice />
 					<StripeNudge blockName={ BLOCK_NAME } />
 					<Context.Provider value={ { selectedTab } }>
 						<Blocks />

@@ -6,6 +6,7 @@ import { applyFilters } from '@wordpress/hooks';
 import ProductManagementControls from '../../shared/components/product-management-controls';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { getEditorType, POST_EDITOR } from '../../shared/get-editor-type';
+import { StripeConnectionNotice } from '../../shared/stripe-connection-notification';
 import useWidth from '../../shared/use-width';
 import { WidthPanel } from '../../shared/width-panel';
 import { getBlockStyles } from './util';
@@ -128,6 +129,7 @@ export default function Edit( { attributes, clientId, setAttributes } ) {
 					onChange={ newWidth => setAttributes( { width: newWidth } ) }
 				/>
 			</InspectorControls>
+			<StripeConnectionNotice />
 			{ showStripeNudge && <StripeNudge blockName={ BLOCK_NAME } /> }
 			<div { ...innerBlocksProps } />
 		</div>

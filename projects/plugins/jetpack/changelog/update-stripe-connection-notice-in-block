@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Payments: Show the Stripe connection result inside the block that started it.

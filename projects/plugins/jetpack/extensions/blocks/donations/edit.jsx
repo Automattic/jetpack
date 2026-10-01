@@ -9,6 +9,7 @@ import ConnectBanner from '../../shared/components/connect-banner';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
 import { SUPPORTED_CURRENCIES } from '../../shared/currencies';
 import getConnectUrl from '../../shared/get-connect-url';
+import { StripeConnectionNotice } from '../../shared/stripe-connection-notification';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { STORE_NAME as MEMBERSHIPS_PRODUCTS_STORE } from '../../store/membership-products/constants';
@@ -279,6 +280,7 @@ const Edit = props => {
 		<div { ...blockProps }>
 			<StyleControls attributes={ attributes } setAttributes={ setAttributes } />
 			{ customStyles && <style>{ customStyles }</style> }
+			<StripeConnectionNotice />
 			{ content }
 		</div>
 	);

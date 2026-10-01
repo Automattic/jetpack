@@ -7,6 +7,7 @@ import clsx from 'clsx';
 import ConnectBanner from '../../shared/components/connect-banner';
 import StripeConnectToolbarButton from '../../shared/components/stripe-connect-toolbar-button';
 import { StripeNudge } from '../../shared/components/stripe-nudge';
+import { StripeConnectionNotice } from '../../shared/stripe-connection-notification';
 import useIsUserConnected from '../../shared/use-is-user-connected';
 import { store as membershipProductsStore } from '../../store/membership-products';
 
@@ -100,6 +101,7 @@ function PaymentButtonsEdit( { clientId, attributes } ) {
 					/>
 				</BlockControls>
 			) }
+			<StripeConnectionNotice />
 			{ showStripeConnectAction && <StripeNudge blockName="payment-buttons" /> }
 			<div { ...innerBlocksProps } />
 		</div>
