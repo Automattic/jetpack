@@ -27,6 +27,12 @@ setup_instance() {
     local db_name=$4
     local activate_jetpack=$5
 
+    if [ "$activate_jetpack" = "true" ]; then
+        export WPCOM_SIMULATED_LATENCY_MS="${WPCOM_SIMULATED_LATENCY_MS:-200}"
+    else
+        unset WPCOM_SIMULATED_LATENCY_MS
+    fi
+
     echo ""
     echo "Setting up: $name"
     echo "----------------------------------------"
@@ -66,7 +72,7 @@ setup_instance() {
         tr -dc 'a-zA-Z0-9' < /dev/urandom | head -c 64 || echo "fallback-salt-$(date +%s)-$RANDOM"
     }
 
-    cat > "$wp_config" << WPCONFIG
+    cat > "$wp_config" << WPCONFIG || return 1
 <?php
 define( 'DB_NAME', '$db_name' );
 define( 'DB_USER', '$DB_USER' );
@@ -131,8 +137,8 @@ WPCONFIG
             echo "  ⚠ Warning: Jetpack plugin not found at $wp_path/wp-content/plugins/jetpack"
         fi
     else
-        wp plugin deactivate jetpack --path="$wp_path"
-        wp eval 'if ( ! file_exists( WP_PLUGIN_DIR . "/jetpack/jetpack.php" ) || is_plugin_active( "jetpack/jetpack.php" ) || class_exists( "Jetpack" ) || class_exists( "Jetpack_WPCom_Connection_Simulator" ) ) { WP_CLI::error( "Invalid deactivated Jetpack control" ); }' --path="$wp_path"
+        wp plugin deactivate jetpack --path="$wp_path" || return 1
+        wp eval 'if ( ! file_exists( WP_PLUGIN_DIR . "/jetpack/jetpack.php" ) || ! file_exists( WPMU_PLUGIN_DIR . "/simulate-wpcom-connection.php" ) || false !== getenv( "WPCOM_SIMULATED_LATENCY_MS" ) || is_plugin_active( "jetpack/jetpack.php" ) || class_exists( "Jetpack" ) || class_exists( "Jetpack_WPCom_Connection_Simulator" ) ) { WP_CLI::error( "Invalid deactivated Jetpack control" ); }' --path="$wp_path" || return 1
     fi
 
     # Flush rewrite rules
@@ -179,7 +185,11 @@ setup_instance \
     "/var/www/html/no-jetpack" \
     "http://localhost:8084" \
     "wp_no_jetpack" \
-    "false"
+    "false" || {
+        # A failed control must not remain measurable with an invalid plugin state.
+        rm -f /var/www/html/no-jetpack/wp-config.php
+        echo "  ⚠ Warning: Optional Dashboard control setup failed; required measurements continue"
+    }
 
 echo ""
 echo "========================================"

@@ -41,9 +41,9 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 
 ### `jetpackConnected-noJetpack` — matched wp-admin Dashboard control
 
-Jetpack's files are mounted from the same mirror checkout, but the plugin is deactivated and the connection simulator is not mounted or loaded. The control uses a separate database and WordPress volume, with the same WordPress/PHP image, default theme, installation content, site title, admin credentials and preferences as the connected instance. Both instances mount `docker/mu-plugins/shared/` and `load-shared-instrumentation.php` to load common instrumentation; only the connected instance additionally mounts `simulate-wpcom-connection.php`.
+Jetpack's files are mounted from the same mirror checkout, but the plugin is deactivated and the connection simulator does not bootstrap. The control uses a separate database and WordPress volume, with the same WordPress/PHP image, default theme, installation content, site title, admin credentials and preferences as the connected instance. Both instances mount the whole `docker/mu-plugins/` directory, so top-level instrumentation loads in both. The simulator returns before declaring its class or registering hooks unless `WPCOM_SIMULATED_LATENCY_MS` is set; only the connected service sets it, and setup enables it only for connected WP-CLI commands.
 
-The existing runner discovers both dynamic ports and uses the same iteration count, CPU calibration, viewport, login and warm-cache Dashboard reload flow. Use `SCENARIO=no-jetpack pnpm test -- --skip-codevitals` for a targeted local run, or omit the filter to measure all scenarios. `WP_NO_JETPACK_URL` overrides the control's discovered URL (default `http://localhost:8084`). Setup asserts that Jetpack's files exist, Jetpack is inactive, and neither Jetpack nor the simulator has bootstrapped in the control.
+The existing runner discovers both dynamic ports and uses the same iteration count, CPU calibration, viewport, login and warm-cache Dashboard reload flow. Use `SCENARIO=no-jetpack pnpm test -- --skip-codevitals` for a targeted local run, or omit the filter to measure all scenarios. `WP_NO_JETPACK_URL` supplies the URL for direct `pnpm measure` (default `http://localhost:8084`); the test runner replaces it with the discovered Docker URL. Setup checks the control through WP-CLI: plugin and simulator files exist, Jetpack is inactive, and neither class has bootstrapped.
 
 | CodeVitals key                                                | Field  | Type   | Unit |
 | ------------------------------------------------------------- | ------ | ------ | ---- |
@@ -51,9 +51,11 @@ The existing runner discovers both dynamic ports and uses the same iteration cou
 | `wp-admin-dashboard-noJetpack-timeToFirstByte-staging`        | `ttfb` | `ttfb` | ms   |
 | `wp-admin-dashboard-noJetpack-firstContentfulPaint-staging`   | `fcp`  | `fcp`  | ms   |
 
-The control is optional: capture failure skips its keys while successful required measurements survive. These are staging keys, with no enrollment waiver; local verification must use `--skip-codevitals` and `pnpm report:dry`. Registration, staging posts and production promotion require a separate enrollment step following Safeguards below. Digest discovery will include these keys once registered, so staging IDs require intentional deployment filtering.
+The control is optional: setup or capture failure skips its keys while successful required measurements survive. Failed control setup removes its configuration to prevent measuring an invalid plugin state; readiness gates only required instances. These are staging keys, with no enrollment waiver; local verification must use `--skip-codevitals` and `pnpm report:dry`. Staging posts begin on the first build after merge; inspect 2–3 builds before promoting to production keys following Safeguards below. Digest discovery includes every registered metric, including staging keys; use `METRIC_IDS` to restrict a deployment to an explicit watch list when needed.
 
-Backend control keys await the shared Server-Timing capture; it is not available on trunk yet. This change adds no overhead deltas or controls for other pages. Future controls should reuse the matched images, setup and shared instrumentation, omit connection simulation, and prove repeatability before enrollment.
+Backend control keys await shared Server-Timing capture.
+
+Future Dashboard controls should reuse the matched images, setup and instrumentation, disable connection simulation, and prove repeatability before staging.
 
 ### `formsResponses` — Forms responses wp-build dashboard (simulated connection)
 

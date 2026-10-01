@@ -382,12 +382,12 @@ function checkPlugin() {
 }
 
 /** Check if WordPress instances are ready and installed. */
-async function checkWordPressInstances() {
+async function checkWordPressInstances( scenarios = SCENARIOS ) {
 	console.log( 'Checking WordPress instances...' );
 
 	let allReady = true;
 
-	for ( const scenario of SCENARIOS ) {
+	for ( const scenario of scenarios.filter( item => ! item.optional ) ) {
 		const url = getScenarioUrl( scenario );
 		const controller = new AbortController();
 		const timeout = setTimeout( () => controller.abort(), 5000 );
@@ -678,6 +678,7 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 }
 
 export {
+	checkWordPressInstances,
 	shouldFailBuildOnPostError,
 	getGitInfo,
 	resolveCommitTimestampEnv,
