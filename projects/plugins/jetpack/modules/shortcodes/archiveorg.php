@@ -140,7 +140,7 @@ add_shortcode( 'archiveorg', 'jetpack_archiveorg_shortcode' );
  * @return mixed
  */
 function jetpack_archiveorg_embed_to_shortcode( $content ) {
-	if ( ! is_string( $content ) || false === stripos( $content, 'archive.org/embed/' ) ) {
+	if ( ! is_string( $content ) || ! str_contains( $content, 'archive.org/embed/' ) ) {
 		return $content;
 	}
 
@@ -186,24 +186,24 @@ function jetpack_archiveorg_embed_to_shortcode( $content ) {
 			continue;
 		}
 
-		$query = wp_parse_url( $src, PHP_URL_QUERY );
-		if ( ! is_string( $query ) || ! str_contains( $query, '=' ) ) {
-			continue;
-		}
-
-		$query_args     = array();
 		$shortcode_args = array();
 
-		wp_parse_str( $query, $query_args );
+		// Source attributes from the URL search params.
+		$query = wp_parse_url( $src, PHP_URL_QUERY );
+		if ( is_string( $query ) && str_contains( $query, '=' ) ) {
+			$query_args = array();
+			wp_parse_str( $query, $query_args );
 
-		if ( '1' === ( $query_args['autoplay'] ?? null ) ) {
-			$shortcode_args['autoplay'] = '1';
+			if ( '1' === ( $query_args['autoplay'] ?? null ) ) {
+				$shortcode_args['autoplay'] = '1';
+			}
+
+			if ( is_string( $query_args['poster'] ?? null ) ) {
+				$shortcode_args['poster'] = $query_args['poster'];
+			}
 		}
 
-		if ( is_string( $query_args['poster'] ?? null ) ) {
-			$shortcode_args['poster'] = $query_args['poster'];
-		}
-
+		// Source attributes from the IFRAME attributes.
 		$width  = $processor->get_attribute( 'width' );
 		$width  = is_string( $width ) ? (int) $width : 0;
 		$height = $processor->get_attribute( 'height' );

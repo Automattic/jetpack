@@ -160,15 +160,15 @@ class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 		return array(
 			'Normative book embed' => array(
 				'<iframe src="https://archive.org/embed/shuttle-video-tapes" width="560" height="384" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>',
-				'[archiveorg shuttle-video-tapes width=560 height=384]',
+				'[archiveorg shuttle-video-tapes width="560" height="384"]',
 			),
 			'Video with autoplay'  => array(
 				'<iframe src="https://archive.org/embed/peril_of_doc_ock?autoplay=1" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>',
-				'[archiveorg peril_of_doc_ock autoplay=1 width=640 height=480]',
+				'[archiveorg peril_of_doc_ock autoplay="1" width="640" height="480"]',
 			),
 			'Video with poster'    => array(
 				'<iframe src="https://archive.org/embed/peril_of_doc_ock?poster=https://archive.org/images/astronaut.jpg" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>',
-				'[archiveorg peril_of_doc_ock poster=https://archive.org/images/astronaut.jpg width=640 height=480]',
+				'[archiveorg peril_of_doc_ock poster="https://archive.org/images/astronaut.jpg" width="640" height="480"]',
 			),
 		);
 	}
