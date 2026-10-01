@@ -24,8 +24,16 @@ type PlanLinkProps = {
  * @return The rendered component.
  */
 function PlanLink( { plan, feature }: PlanLinkProps ) {
+	const { recordEvent } = useAnalytics();
+	const onClick = useCallback(
+		() => recordEvent( 'jetpack_myjetpack_features_plan_click', { feature, plan: plan.slug } ),
+		[ feature, plan.slug, recordEvent ]
+	);
+
 	return (
-		<Link href={ getFeaturePricingHref( `/add-${ plan.slug }`, feature ) }>{ plan.name }</Link>
+		<Link href={ getFeaturePricingHref( `/add-${ plan.slug }`, feature ) } onClick={ onClick }>
+			{ plan.name }
+		</Link>
 	);
 }
 
@@ -48,14 +56,23 @@ function getIncludedIn( count: number ): string {
 }
 
 /**
+ * Whether a host forced the feature off, which a purchase cannot change.
+ *
+ * @param state - Live state for the feature.
+ * @return True when the feature is off and the host decides that.
+ */
+function isForcedOff( state: FeatureState ): boolean {
+	return state.status !== 'active' && !! getForcedReason( state );
+}
+
+/**
  * The pricing route that sells a feature, or empty when there is nothing to sell.
  *
  * @param state - Live state for the feature.
  * @return The My Jetpack route.
  */
 function getUpgradePath( state: FeatureState ): string {
-	// A host that forced it off decides this, not a purchase.
-	if ( state.status !== 'active' && getForcedReason( state ) ) {
+	if ( isForcedOff( state ) ) {
 		return '';
 	}
 
@@ -123,9 +140,7 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 	const { feature } = state;
 	const plans = feature.plans ?? [];
 	const highlights = feature.paid_highlights ?? [];
-	// A host that forced it off decides this, not a purchase.
-	const isForcedOff = state.status !== 'active' && !! getForcedReason( state );
-	const showPlans = ! isForcedOff && plans.length > 0;
+	const showPlans = ! isForcedOff( state ) && plans.length > 0;
 
 	if ( ! highlights.length && ! showPlans ) {
 		return null;

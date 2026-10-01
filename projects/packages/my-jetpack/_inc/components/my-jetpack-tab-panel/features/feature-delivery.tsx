@@ -84,24 +84,30 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	}
 
 	const pluginName = feature.plugin_name || feature.name;
-	const note = [ getNote( state, pluginName ), feature.setup_note ].filter( Boolean ).join( ' ' );
+	const note = getNote( state, pluginName );
 
-	if ( ! note ) {
+	if ( ! note && ! feature.setup_note ) {
 		return null;
 	}
 
 	return (
 		<Stack direction="row" align="start" gap="sm" className={ styles[ 'delivery-note' ] }>
 			<Icon icon={ info } size={ 20 } className={ styles[ 'inline-icon' ] } />
-			<Text variant="body-sm">
-				{ createInterpolateElement( note, {
-					plugin: feature.plugin_url ? (
-						<a href={ feature.plugin_url } target="_blank" rel="noreferrer" />
-					) : (
-						<span />
-					),
-				} ) }
-			</Text>
+			{ /* Separate sentences rather than a joined string: not every script spaces them. */ }
+			<Stack direction="column" gap="xs">
+				{ note ? (
+					<Text variant="body-sm">
+						{ createInterpolateElement( note, {
+							plugin: feature.plugin_url ? (
+								<a href={ feature.plugin_url } target="_blank" rel="noreferrer" />
+							) : (
+								<span />
+							),
+						} ) }
+					</Text>
+				) : null }
+				{ feature.setup_note ? <Text variant="body-sm">{ feature.setup_note }</Text> : null }
+			</Stack>
 		</Stack>
 	);
 }

@@ -9,7 +9,7 @@ import {
 	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
 import {
-	getCheckoutReturnUrl,
+	getFeatureCheckoutReturnUrl,
 	getFeaturePricingHref,
 	getModulesListPath,
 	getMyJetpackSections,
@@ -159,12 +159,12 @@ describe( 'checkout return', () => {
 		const href = getFeaturePricingHref( '/add-social', 'social' );
 
 		expect( href ).toBe( '#/add-social?return_feature=social' );
-		expect( getCheckoutReturnUrl( new URLSearchParams( href.split( '?' )[ 1 ] ) ) ).toBe(
+		expect( getFeatureCheckoutReturnUrl( href ) ).toBe(
 			'admin.php?page=my-jetpack#/features?feature=social'
 		);
 	} );
 
-	it( 'returns to My Jetpack when the pricing page was not opened from a feature', () => {
-		expect( getCheckoutReturnUrl( new URLSearchParams() ) ).toBe( 'admin.php?page=my-jetpack' );
+	it( 'leaves the return to the caller when the pricing page was not opened from a feature', () => {
+		expect( getFeatureCheckoutReturnUrl( '#/add-social' ) ).toBe( '' );
 	} );
 } );

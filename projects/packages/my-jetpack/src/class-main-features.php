@@ -981,7 +981,8 @@ class Main_Features {
 				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
 				'upgrade'          => self::get_upgrade( $definition, $product_class, $included ),
 				'included'         => $included,
-				'setup_note'       => $definition['setup_note'] ?? '',
+				// Both notes tell the site what to buy next, which a site that pays already has.
+				'setup_note'       => $included ? '' : ( $definition['setup_note'] ?? '' ),
 				'screenshot'       => $definition['image'],
 				'plans'            => self::get_plan_badges( $definition ),
 				'info_url'         => $definition['info_url'],

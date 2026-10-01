@@ -62,6 +62,19 @@ describe( 'FeatureDelivery', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
+	it( 'adds what to expect next as its own sentence', () => {
+		const state = {
+			...installedPlugin,
+			feature: { ...installedPlugin.feature, setup_note: 'Choose a plan next.' },
+		} as FeatureState;
+		render( <FeatureDelivery state={ state } /> );
+
+		expect( screen.getByText( 'Choose a plan next.' ) ).toBeInTheDocument();
+		expect( screen.getByText( /plugin is already installed/ ) ).not.toHaveTextContent(
+			'Choose a plan next.'
+		);
+	} );
+
 	it( 'says nothing about turning on a plugin a host forced off', () => {
 		const { container } = render( <FeatureDelivery state={ forcedOffPlugin } /> );
 
@@ -167,6 +180,17 @@ describe( 'FeaturePaid', () => {
 		expect( screen.getByText( /Included in/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'records which plan a feature\u2019s details sent the site to', async () => {
+		render( <FeaturePaid state={ moduleState( false, 'inactive' ) } /> );
+
+		await userEvent.click( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_plan_click', {
+			feature: 'jetpack-forms',
+			plan: 'complete',
+		} );
+	} );
+
 	it( 'records which feature an upgrade was chosen from', async () => {
 		render( <UpgradeButton state={ installedPlugin } /> );
 
@@ -220,5 +244,19 @@ describe( 'FeatureModal Free column', () => {
 		renderModal( modalState( [] ) );
 
 		expect( screen.queryByRole( 'heading', { name: 'Free' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'says how a feature sold without a plan is paid for, only when the catalog does', () => {
+		const withNotes = modalState( [] );
+		withNotes.feature.pricing_notes = [ 'No subscription required' ];
+		const { unmount } = renderModal( withNotes );
+
+		expect( screen.getByRole( 'heading', { name: 'How you pay' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'No subscription required' ) ).toBeInTheDocument();
+
+		unmount();
+		renderModal( modalState( [] ) );
+
+		expect( screen.queryByRole( 'heading', { name: 'How you pay' } ) ).not.toBeInTheDocument();
 	} );
 } );

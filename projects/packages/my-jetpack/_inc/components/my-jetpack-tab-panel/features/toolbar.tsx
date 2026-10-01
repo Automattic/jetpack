@@ -171,15 +171,28 @@ export function Toolbar( {
 						__nextHasNoMarginBottom
 						label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 						hideLabelFromVision
-						value={ filter }
-						options={ filters.map( ( { value, label } ) => ( {
-							value,
-							// No count until it is a count; the pills alongside do the same.
-							label:
-								countsPending && LIVE_COUNTS.includes( value )
-									? label
-									: `${ label } (${ counts[ value ] ?? 0 })`,
-						} ) ) }
+						// Like the pills, no filter is in play while a search covers every feature; the
+						// placeholder lets any filter, the current one included, end the search.
+						value={ search ? '' : filter }
+						options={ [
+							...( search
+								? [
+										{
+											value: '',
+											label: __( 'Searching all features', 'jetpack-my-jetpack' ),
+											disabled: true,
+										},
+									]
+								: [] ),
+							...filters.map( ( { value, label } ) => ( {
+								value,
+								// No count until it is a count; the pills alongside do the same.
+								label:
+									countsPending && LIVE_COUNTS.includes( value )
+										? label
+										: `${ label } (${ counts[ value ] ?? 0 })`,
+							} ) ),
+						] }
 						onChange={ onSelectFilter }
 					/>
 				</div>

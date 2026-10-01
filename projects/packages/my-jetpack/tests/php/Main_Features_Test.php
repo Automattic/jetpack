@@ -521,6 +521,20 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * A site that already pays for a feature is not told to buy a plan before it can use it.
+	 */
+	public function test_setup_note_is_dropped_for_a_site_that_pays() {
+		$notes = array_column( Main_Features::get_features(), 'setup_note', 'slug' );
+		$this->assertNotSame( '', $notes['backup'] );
+
+		$this->own( array( 'jetpack_complete' ) );
+
+		$notes = array_column( Main_Features::get_features(), 'setup_note', 'slug' );
+		$this->assertSame( '', $notes['backup'] );
+		$this->assertSame( '', $notes['search'] );
+	}
+
+	/**
 	 * A plan no bundle class lists still covers Activity Log when WordPress.com grants its paid history.
 	 */
 	public function test_no_activity_log_upgrade_for_a_site_with_full_activity_log() {

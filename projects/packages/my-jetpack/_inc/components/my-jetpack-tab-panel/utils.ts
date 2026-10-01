@@ -61,17 +61,21 @@ export function getFeaturePricingHref( path: string, feature: string ) {
 }
 
 /**
- * Where checkout returns to: the feature the pricing page was opened from, else My Jetpack.
+ * Where checkout returns to when the pricing page was opened from a feature's details.
  *
- * @param searchParams - The pricing page's query.
- * @return The admin URL.
+ * Read from the hash rather than the router, so the detail cards outside a route can use it.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the feature's details, or an empty string.
  */
-export function getCheckoutReturnUrl( searchParams: URLSearchParams ) {
-	const feature = searchParams.get( RETURN_FEATURE_PARAM );
+export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
+	const feature = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
 
-	return getMyJetpackUrl(
-		feature ? `#${ getProductsSectionPath( `?${ new URLSearchParams( { feature } ) }` ) }` : ''
-	);
+	return feature
+		? getMyJetpackUrl(
+				`#${ getProductsSectionPath( `?${ new URLSearchParams( { feature } ) }` ) }`
+			)
+		: '';
 }
 
 /**
