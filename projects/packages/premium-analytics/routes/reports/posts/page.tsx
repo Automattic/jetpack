@@ -128,7 +128,6 @@ function PostsReport(): JSX.Element {
 		[ records.archives.hasComparison ]
 	);
 
-	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
 	// One element per tab: the two exporters' row types cannot share one generic call.
 	const csvAction =
 		activeTab === 'posts-pages' ? (
