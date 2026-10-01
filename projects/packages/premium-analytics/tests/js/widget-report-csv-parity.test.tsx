@@ -85,7 +85,7 @@ const REPORT_PARAMS = {
 	compare_to: '2026-02-10',
 };
 
-const RESPONSES: Record< string, unknown > = {
+const RESPONSES: Record< string, unknown | ( ( path: string ) => unknown ) > = {
 	'stats/file-downloads': {
 		date: '2026-03-10',
 		days: {},
@@ -207,18 +207,22 @@ const RESPONSES: Record< string, unknown > = {
 			views: ( ( index * 5 ) % 12 ) + 1,
 		} ) ),
 	},
-	'stats/utm/': {
-		top_utm_values: Object.fromEntries(
-			Array.from( { length: 12 }, ( _, index ) => [
-				JSON.stringify( [ `source-${ index }`, 'email' ] ),
-				( ( index * 5 ) % 12 ) + 1,
-			] )
-		),
-		top_posts: {
-			[ JSON.stringify( [ 'source-7', 'email' ] ) ]: [
-				{ id: 41, title: 'Landing page', views: 3, href: 'https://example.com/landing/' },
-			],
-		},
+	// Honors `max` as the endpoint does, so a download reusing the widget's 10-row query fails.
+	'stats/utm/': ( path: string ) => {
+		const max = Number( new URL( path, 'https://example.com' ).searchParams.get( 'max' ) );
+		const values = Array.from( { length: 12 }, ( _, index ) => [
+			JSON.stringify( [ `source-${ index }`, 'email' ] ),
+			( ( index * 5 ) % 12 ) + 1,
+		] ).sort( ( a, b ) => Number( b[ 1 ] ) - Number( a[ 1 ] ) );
+
+		return {
+			top_utm_values: Object.fromEntries( values.slice( 0, max > 0 ? max : undefined ) ),
+			top_posts: {
+				[ JSON.stringify( [ 'source-7', 'email' ] ) ]: [
+					{ id: 41, title: 'Landing page', views: 3, href: 'https://example.com/landing/' },
+				],
+			},
+		};
 	},
 	'stats/emails/summary': {
 		posts: Array.from( { length: 12 }, ( _, index ) => ( {
@@ -245,17 +249,17 @@ describe( 'Widget and report CSV parity', () => {
 		queryClient.clear();
 		setMockRouteSearch( REPORT_PARAMS );
 		mockApiFetch.mockReset();
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			Promise.resolve(
-				Object.entries( RESPONSES ).find( ( [ endpoint ] ) =>
-					path.includes( endpoint )
-				)?.[ 1 ] ?? {
-					date: '2026-03-10',
-					days: {},
-					summary: {},
-				}
-			)
-		);
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
+			const response = Object.entries( RESPONSES ).find( ( [ endpoint ] ) =>
+				path.includes( endpoint )
+			)?.[ 1 ];
+
+			return Promise.resolve(
+				typeof response === 'function'
+					? response( path )
+					: ( response ?? { date: '2026-03-10', days: {}, summary: {} } )
+			);
+		} );
 		downloads = captureCsvDownloads();
 	} );
 
