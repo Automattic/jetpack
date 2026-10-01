@@ -62,7 +62,7 @@ describe( 'Cornerstone Pages meta', () => {
 		};
 		mockPremiumFeatures = [];
 		( globalThis as unknown as { Jetpack_Boost: unknown } ).Jetpack_Boost = {
-			site: { url: 'https://example.com/' },
+			site: { url: 'https://example.com/', online: true, myJetpack: true },
 		};
 		jest.clearAllMocks();
 	} );
@@ -148,6 +148,10 @@ describe( 'Cornerstone Pages meta', () => {
 		).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn more/ } ) ).toBeTruthy();
 		expect( screen.getByText( 'Add up to 10 Cornerstone Pages.' ) ).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: 'Upgrade now' } ).getAttribute( 'href' ) ).toBe(
+			'admin.php?page=my-jetpack#/add-boost'
+		);
+		expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
 		view.rerender(
 			<ModuleSurfaceProvider value="block">
 				<CornerstonePagesDescription />
