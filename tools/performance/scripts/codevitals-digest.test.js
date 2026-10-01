@@ -259,6 +259,14 @@ const SCENARIOS = {
 		} ) );
 		return fixture;
 	},
+	slowPending: () => {
+		const fixture = SCENARIOS.groupedPending();
+		fixture.series[ 301 ] = fixture.series[ 301 ].map( ( row, i ) => ( {
+			...row,
+			measuredAt: iso( NOW - ( 35.5 - i ) * D ),
+		} ) );
+		return fixture;
+	},
 	distinctPending: () => ( {
 		series: {
 			301: flaggedSeries(
@@ -289,6 +297,20 @@ const SCENARIOS = {
 		fixture.metrics = fixture.metrics.slice( 0, 3 );
 		fixture.metrics[ 0 ].key = 'k'.repeat( 4000 );
 		fixture.series = Object.fromEntries( Object.entries( fixture.series ).slice( 0, 3 ) );
+		return fixture;
+	},
+	mixedOlderRows: () => {
+		const fixture = SCENARIOS.latecrowd();
+		fixture.metrics = fixture.metrics.slice( 0, 8 ).map( ( m, i ) => ( {
+			...m,
+			name: i % 2 === 0 ? '&'.repeat( 120 ) : m.name,
+		} ) );
+		for ( const [ i, metric ] of fixture.metrics.entries() ) {
+			fixture.series[ metric.id ] = fixture.series[ metric.id ].map( row => ( {
+				...row,
+				measuredAt: iso( Date.parse( row.measuredAt ) - i * 0.01 * D ),
+			} ) );
+		}
 		return fixture;
 	},
 	groupedsteps: () => {
@@ -1379,6 +1401,17 @@ test( 'an absorbed in-window pending tail keeps an older confirmed group in the 
 	assert.ok( ! r.out.includes( 'awaiting confirmation' ), r.out );
 } );
 
+test( 'the older heading describes confirmed commits when an in-window pending member joins', async () => {
+	const r = await runDigest( 'slowPending' );
+	assert.equal( r.code, 0, r.err );
+	const payload = JSON.parse( r.out );
+	assert.ok( payload.text.includes( '1 older confirmed change' ), payload.text );
+	assert.ok( ! payload.text.includes( 'DATA STALE' ), payload.text );
+	const line = payload.blocks.find( b => b.text?.text.includes( '*1 older' ) ).text.text;
+	assert.ok( line.includes( 'confirmed at commits older than the 15d window' ), line );
+	for ( const i of [ 20, 29 ] ) assert.ok( line.includes( hx( 'tail' + i ) ), line );
+} );
+
 test( 'a noisy confirmed plateau does not absorb a smaller pending step', async () => {
 	const r = await runDigest( 'noisyPendingStep' );
 	assert.equal( r.code, 0, r.err );
@@ -1526,6 +1559,17 @@ test( 'an oversize older row does not hide the other rows and is counted as omit
 	assert.ok( text.includes( 'and 1 more' ), text );
 	assert.equal( ( text.match( /<https:/g ) || [] ).length, 4 );
 	assert.equal( ( text.match( /\|[^>]+>/g ) || [] ).length, 4 );
+} );
+
+test( 'ordinary mixed-length overflow keeps the newest contiguous older rows', async () => {
+	const r = await runDigest( 'mixedOlderRows' );
+	assert.equal( r.code, 0, r.err );
+	const text = JSON.parse( r.out ).blocks.find( b => b.text?.text.includes( '*8 older' ) ).text
+		.text;
+	assert.ok( text.length <= 3000, text.length );
+	for ( const i of [ 0, 1, 2, 3 ] ) assert.ok( text.includes( hx( 'lcf' + i ) ), text );
+	for ( const i of [ 4, 5, 6, 7 ] ) assert.ok( ! text.includes( hx( 'lcf' + i ) ), text );
+	assert.ok( text.includes( 'and 4 more' ), text );
 } );
 
 test( 'older bucket reports age and possible repetition', async () => {

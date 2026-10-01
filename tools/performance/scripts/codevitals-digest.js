@@ -764,8 +764,10 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 			if (
 				heading.length + candidate.length + overflow( sorted.length - shown.length - 1 ).length >
 				3000
-			)
-				continue;
+			) {
+				if ( heading.length + row.length + overflow( sorted.length - 1 ).length > 3000 ) continue;
+				break;
+			}
 			shown.push( row );
 		}
 		return heading + shown.join( ' · ' ) + overflow( sorted.length - shown.length );
@@ -926,7 +928,7 @@ async function main( { env = process.env, WebClientClass = WebClient } = {} ) {
 						joinRows(
 							confirmedLate,
 							confirmedRow,
-							`:warning: *${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' }* — flagged commit${ confirmedLate.length > 1 ? 's' : '' } older than the ${ WINDOW_DAYS }d window (may repeat): `
+							`:warning: *${ confirmedLate.length } older confirmed change${ confirmedLate.length > 1 ? 's' : '' }* — confirmed at commits older than the ${ WINDOW_DAYS }d window (may repeat): `
 						)
 					)
 				);
