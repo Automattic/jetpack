@@ -1203,11 +1203,12 @@ class REST_Connector {
 			&& current_user_can( $admin_cap )
 			&& $manager->is_user_connected( $user_id )
 		) {
-			// One resolve for both halves, the same pair the script enqueue reads: the status
-			// settles that the owner matches the anchor, the hint that it is this user.
+			// `RE_EVALUATE` settles that the connection owner matches the anchor, so pinning this
+			// user to that owner is what makes it their identity. A matching binding would not:
+			// Premium Content writes the same key directly, so the IDs are not unique site-wide.
 			$state = $manager->resolve_protected_owner_state();
 
-			if ( Manager::PO_STATE_RE_EVALUATE === $state['status'] && $state['is_current_user_the_po'] ) {
+			if ( Manager::PO_STATE_RE_EVALUATE === $state['status'] && $user_id === (int) $manager->get_connection_owner_id() ) {
 				return true;
 			}
 		}

@@ -661,6 +661,21 @@ class Protected_Owner_Test extends TestCase {
 	}
 
 	/**
+	 * A report with no `released` key is a WordPress.com that did not say, which is the same
+	 * silence a bare `true` carries — and silence never clears.
+	 */
+	public function test_a_report_that_says_nothing_about_the_record_keeps_the_anchor() {
+		$candidate = $this->candidate();
+		Utils::set_wpcom_user_id( $candidate, self::BYSTANDER_WPCOM_ID );
+		$this->act_as_confirmed_owner();
+
+		$manager = $this->transfer_manager( $this->owner_id, $this->once(), array( 'switched' => true ) );
+
+		$this->assertTrue( $manager->update_connection_owner( $candidate ) );
+		$this->assertNotNull( Protected_Owner::get_locked(), 'The anchor should survive.' );
+	}
+
+	/**
 	 * The report is believed in both directions, including over a local comparison that would
 	 * otherwise have cleared.
 	 */

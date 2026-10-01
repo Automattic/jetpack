@@ -1826,12 +1826,13 @@ class Manager {
 
 		$cleared = $this->clear_protected_owner();
 
-		// WordPress.com has already let go, so a local delete that failed is a cleanup the next
-		// reconcile finishes rather than a release that did not happen.
+		// WordPress.com has already let go, so a local delete that failed is unfinished cleanup
+		// rather than a release that did not happen. Retrying is what fixes it: reconcile only
+		// runs when somebody authorizes, and WordPress.com now answers this call with `no_owner`.
 		if ( is_wp_error( $cleared ) && 'protected_owner_not_cleared' === $cleared->get_error_code() ) {
 			return new WP_Error(
 				'protected_owner_not_cleared',
-				__( 'Ownership was released with WordPress.com, but this site could not finish clearing it. It will catch up shortly.', 'jetpack-connection' ),
+				__( 'Ownership was released with WordPress.com, but this site could not finish clearing it. Try again.', 'jetpack-connection' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -2203,18 +2204,17 @@ class Manager {
 	}
 
 	/**
-	 * Drop the anchor once WordPress.com has released its own record for an accepted switch.
+	 * Drop the anchor once the site has left the owner it names.
 	 *
-	 * The two mistakes here do not cost the same. An anchor kept while WordPress.com let go is
-	 * repaired by the next `reconcile_protected_owner()`, which sees no owner of record. An anchor
-	 * dropped while WordPress.com kept its own leaves the site locked to nobody, refusing every
-	 * later claim as `locked_to_other`, and reconcile returns before asking when there is no local
-	 * anchor to reconcile. So anything short of knowing leaves the anchor alone.
+	 * Do not make this clear more eagerly. An anchor dropped while WordPress.com kept its own
+	 * locks the site to nobody, and `reconcile_protected_owner()` returns before asking when
+	 * there is no local anchor left to repair it with. The reverse mistake costs nothing.
 	 *
 	 * @since $$next-version$$
 	 *
 	 * @param int        $new_owner_id The local user who now holds the connection.
-	 * @param true|array $accepted     What WordPress.com answered the switch with.
+	 * @param true|array $accepted     What WordPress.com answered the switch with: a report of
+	 *                                 what it did where available, otherwise a bare `true`.
 	 */
 	private function release_anchor_after_transfer( $new_owner_id, $accepted ) {
 		$anchor = Protected_Owner::get_locked();
@@ -2223,8 +2223,8 @@ class Manager {
 			return;
 		}
 
-		// WordPress.com resolves the new owner itself and keeps its record for reasons this site
-		// cannot see, so where it reports what it did, that is the whole answer.
+		// WordPress.com resolves the new owner itself and knows what it kept, so where it reports
+		// what it did, that report is the whole answer.
 		if ( is_array( $accepted ) ) {
 			if ( ! empty( $accepted['released'] ) ) {
 				Protected_Owner::clear();
@@ -2233,8 +2233,8 @@ class Manager {
 			return;
 		}
 
-		// A bare `true` says the switch happened and nothing about the record, leaving only who
-		// the site went to. A zero is "could not determine", which includes the owner taking the
+		// A bare `true` says only that the switch happened, leaving who the site went to as the
+		// best guess available. A zero is "could not determine", which covers the owner taking the
 		// site back — the case WordPress.com keeps its record for.
 		$new_owner_wpcom_id = $this->resolve_wpcom_user_id( $new_owner_id );
 
@@ -2252,8 +2252,8 @@ class Manager {
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *
-	 * @return false|true|array False if the transfer failed, otherwise what WordPress.com
-	 *                          answered: `true`, or a report such as `array( 'released' => bool )`.
+	 * @return bool|array False if the transfer failed, otherwise what WordPress.com answered:
+	 *                    `true`, or a non-empty report such as `array( 'released' => bool )`.
 	 */
 	public function update_connection_owner_wpcom( $new_owner_id ) {
 		// Notify WPCOM about the connection owner change.
@@ -2274,9 +2274,13 @@ class Manager {
 
 		$response = $xml->getResponse();
 
-		// Anything falsy is a refusal, and anything else is passed through: an array carries what
-		// the switch did, which the caller needs and a cast would throw away.
-		return $response ? $response : false;
+		// An array is the switch reporting what it did, and an empty one reports nothing rather
+		// than refusing — a bare `true` by another name. Only a falsy non-array is a refusal.
+		if ( is_array( $response ) ) {
+			return empty( $response ) ? true : $response;
+		}
+
+		return (bool) $response;
 	}
 
 	/**

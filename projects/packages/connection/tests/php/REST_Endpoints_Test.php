@@ -1116,6 +1116,24 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * A matching binding is not an identity: `Utils::set_wpcom_user_id()` clears the previous
+	 * holder, but Premium Content writes the same key directly, so two local users can carry one
+	 * WordPress.com ID. Only the user holding the connection is the owner the anchor names.
+	 */
+	public function test_release_owner_rejects_an_admin_sharing_the_anchored_id() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		update_user_meta( self::$user_id, 'wpcom_user_id', 4242 );
+		update_user_meta( self::$secondary_user_id, 'wpcom_user_id', 4242 );
+		Protected_Owner::set( 4242, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_release_owner', $response->get_data()['code'] );
+		$this->assertNotNull( Protected_Owner::get(), 'The lock is still in place.' );
+	}
+
+	/**
 	 * There is nothing to release on a site that was never locked, so the route stays closed.
 	 */
 	public function test_release_owner_requires_an_anchored_owner() {
