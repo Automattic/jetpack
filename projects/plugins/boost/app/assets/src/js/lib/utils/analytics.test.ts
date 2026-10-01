@@ -60,6 +60,7 @@ const settingsEvents = [
 	'critical_css_retry',
 	'critical_css_contact_support',
 	'upsell_cta_from_settings_page_in_plugin',
+	'module_toggle_clicked',
 	'settings_view',
 	'settings_group_view',
 	'settings_group_toggle',
@@ -67,6 +68,9 @@ const settingsEvents = [
 	'page_view_overview',
 	'page_view_cache_debug_log',
 	'page_view_critical_css_advanced',
+	'page_view_getting_started',
+	'page_view_purchase_successful',
+	'page_view_unknown_legacy_route',
 ];
 
 describe( 'Settings event context', () => {
@@ -117,7 +121,7 @@ describe( 'Settings event context', () => {
 				[ 'page_cache_exceptions_panel_toggle', cacheScope ],
 				[ 'cornerstone_pages_panel_toggle', cornerstoneScope ],
 			] ) {
-				await recordBoostEvent( event, { status: 'open' } );
+				await recordBoostEvent( event, { status: 'open', panel_scope: scope } );
 				expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
 					status: 'open',
 					panel_scope: scope,
@@ -126,6 +130,41 @@ describe( 'Settings event context', () => {
 				} );
 			}
 			expect( mockRecordAjaxEvent ).toHaveBeenCalledTimes( 2 );
+		}
+	);
+
+	it( 'preserves caller properties over version and rendered dashboard context', async () => {
+		const element = document.createElement( 'div' );
+		element.id = MODERN_ROOT_ID;
+		document.body.append( element );
+		await recordBoostEvent( 'cornerstone_pages_panel_toggle', {
+			boost_version: 'caller-version',
+			dashboard_variant: 'legacy',
+			panel_scope: 'section',
+			status: 'close',
+		} );
+		expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith(
+			'boost_cornerstone_pages_panel_toggle',
+			'click',
+			{
+				boost_version: 'caller-version',
+				dashboard_variant: 'legacy',
+				panel_scope: 'section',
+				status: 'close',
+			}
+		);
+	} );
+
+	it.each( [ 'speed_score_request_error', 'performance_history_toggle' ] )(
+		'leaves %s outside the Settings action context',
+		async event => {
+			const element = document.createElement( 'div' );
+			element.id = MODERN_ROOT_ID;
+			document.body.append( element );
+			await recordBoostEvent( event, {} );
+			expect( mockRecordAjaxEvent ).toHaveBeenLastCalledWith( `boost_${ event }`, 'click', {
+				boost_version: '4.8.1',
+			} );
 		}
 	);
 

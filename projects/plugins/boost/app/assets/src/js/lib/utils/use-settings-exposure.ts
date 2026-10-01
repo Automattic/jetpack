@@ -4,53 +4,91 @@ import type { RefObject } from 'react';
 
 export type SettingsGroup = 'cornerstone_pages' | 'page_loading' | 'code_optimization' | 'images';
 
+type SettingsVisit = { active: boolean; seen: Set< string > };
+type ExposureOptions = { visit: SettingsVisit } & (
+	{ group: SettingsGroup; open: RefObject< boolean > } | { group?: never; open?: never }
+);
+
+/**
+ * @param active - Whether the Settings route can be seen.
+ * @return Shared exposure state for one root-route visit.
+ */
+export function useSettingsVisit( active = true ): SettingsVisit {
+	const seen = useRef( new Set< string >() );
+	useEffect( () => {
+		if ( ! active ) {
+			seen.current.clear();
+		}
+	}, [ active ] );
+	return { active, seen: seen.current };
+}
+
+/**
+ * @param ref                  - Element whose viewport exposure is measured.
+ * @param options              - Exposure target and its visit.
+ * @param options.visit        - Shared visit state.
+ * @param options.visit.active - Whether the Settings route can be seen.
+ * @param options.visit.seen   - Events already sent for this visit.
+ * @param options.group        - Stable group slug; omit for the Settings stack.
+ * @param options.open         - Current group open state, read when exposure is sent.
+ */
 export function useSettingsExposure(
 	ref: RefObject< HTMLElement >,
-	enabled = true,
-	visit?: Set< string >,
-	group?: SettingsGroup,
-	initialOpen = true
+	{ visit: { active, seen }, group, open }: ExposureOptions
 ): void {
-	const seen = useRef( new Set< string >() );
-	const events = visit ?? seen.current;
-
 	useEffect( () => {
 		const element = ref.current;
-		if ( ! enabled || ! element || typeof IntersectionObserver === 'undefined' ) {
+		if ( ! active || ! element || typeof IntersectionObserver === 'undefined' ) {
 			return;
 		}
 
-		let active = true;
+		let observing = true;
 		let visible = false;
+		let observer: IntersectionObserver;
 		const recordExposure = () => {
 			const key = group ?? 'settings';
-			if (
-				! active ||
-				! visible ||
-				document.visibilityState === 'hidden' ||
-				element.closest( '[hidden]' ) ||
-				events.has( key )
-			) {
+			if ( ! observing || ! visible || document.visibilityState === 'hidden' || seen.has( key ) ) {
 				return;
 			}
 
-			events.add( key );
+			seen.add( key );
 			recordBoostEvent(
 				group ? 'settings_group_view' : 'settings_view',
-				group ? { group, initial_open: initialOpen ? 1 : 0 } : {}
+				group ? { group, initial_open: open?.current ? 1 : 0 } : {}
 			);
 		};
-		const observer = new IntersectionObserver( entries => {
-			visible = entries.some( entry => entry.isIntersecting && entry.intersectionRatio > 0 );
-			recordExposure();
-		} );
-		observer.observe( element );
+		const observe = () => {
+			const height = element.getBoundingClientRect().height;
+			const threshold = group ? 1 : Math.min( 1, window.innerHeight / 10 / Math.max( height, 1 ) );
+			observer?.disconnect();
+			visible = false;
+			const next = new IntersectionObserver(
+				entries => {
+					if ( observer !== next ) {
+						return;
+					}
+					visible = entries.some(
+						entry => entry.isIntersecting && entry.intersectionRatio >= threshold
+					);
+					recordExposure();
+				},
+				{ threshold }
+			);
+			observer = next;
+			observer.observe( element );
+		};
+		observe();
+		const resize = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver( observe );
+		resize?.observe( element );
+		window.addEventListener( 'resize', observe );
 		document.addEventListener( 'visibilitychange', recordExposure );
 
 		return () => {
-			active = false;
+			observing = false;
 			observer.disconnect();
+			resize?.disconnect();
+			window.removeEventListener( 'resize', observe );
 			document.removeEventListener( 'visibilitychange', recordExposure );
 		};
-	}, [ ref, enabled, events, group, initialOpen ] );
+	}, [ ref, active, seen, group, open ] );
 }

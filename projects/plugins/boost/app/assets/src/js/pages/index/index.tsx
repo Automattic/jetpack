@@ -9,12 +9,13 @@ import MinifyJs from '$features/minify-js/minify-js';
 import PageCacheModule from '$features/page-cache/page-cache';
 import RenderBlockingJs from '$features/render-blocking-js/render-blocking-js';
 import { useRef } from 'react';
-import { useSettingsExposure } from '$lib/utils/use-settings-exposure';
+import { useSettingsExposure, useSettingsVisit } from '$lib/utils/use-settings-exposure';
 import styles from './index.module.scss';
 
 const Index = () => {
 	const section = useRef< HTMLDivElement >( null );
-	useSettingsExposure( section );
+	const visit = useSettingsVisit();
+	useSettingsExposure( section, { visit } );
 
 	return (
 		<div ref={ section } className="jb-container--narrow">

@@ -3,6 +3,7 @@ import { detectMode } from '$lib/modern/mode';
 
 export type TracksEventProperties = { [ key: string ]: string | number };
 
+// Include Settings controls and their help/upgrade actions; exclude scores, history, and generation outcomes.
 const settingsActions = new Set( [
 	'cornerstone_pages_panel_toggle',
 	'cornerstone_pages_save',
@@ -42,6 +43,7 @@ const settingsActions = new Set( [
 	'critical_css_retry',
 	'critical_css_contact_support',
 	'upsell_cta_from_settings_page_in_plugin',
+	'module_toggle_clicked',
 	'settings_view',
 	'settings_group_view',
 	'settings_group_toggle',
@@ -120,18 +122,14 @@ function addBoostProps( eventName: string, props: TracksEventProperties ): Track
 		defaultProps.boost_version = Jetpack_Boost.version;
 	}
 
-	const mode = typeof document === 'undefined' ? null : detectMode();
+	const mode = detectMode();
 	const context: TracksEventProperties = {};
+	// Tag every dashboard page view, including onboarding and purchase routes.
 	if ( mode && ( settingsActions.has( eventName ) || eventName.startsWith( 'page_view_' ) ) ) {
 		context.dashboard_variant = mode;
-		if ( eventName === 'page_cache_exceptions_panel_toggle' ) {
-			context.panel_scope = mode === 'modern' ? 'exceptions' : 'all_options';
-		} else if ( eventName === 'cornerstone_pages_panel_toggle' ) {
-			context.panel_scope = mode === 'modern' ? 'editor' : 'section';
-		}
 	}
 
-	return { ...defaultProps, ...props, ...context };
+	return { ...defaultProps, ...context, ...props };
 }
 
 export async function recordBoostEventAndRedirect(

@@ -136,7 +136,7 @@ const observers: {
 }[] = [];
 const originalObserver = globalThis.IntersectionObserver;
 
-const exposeHeaders = () => {
+const exposeHeaders = ( ratio = 1 ) => {
 	act( () => {
 		for ( const observer of observers ) {
 			if ( observer.connected && observer.target ) {
@@ -145,7 +145,7 @@ const exposeHeaders = () => {
 						{
 							target: observer.target,
 							isIntersecting: true,
-							intersectionRatio: 1,
+							intersectionRatio: ratio,
 						} as IntersectionObserverEntry,
 					],
 					{} as IntersectionObserver
@@ -200,20 +200,30 @@ describe( 'Settings exposure and group interactions', () => {
 			} );
 		}
 
+		fireEvent.click( screen.getByRole( 'button', { name: 'Page loading' } ) );
 		view.rerender(
 			<StrictMode>
 				<Settings active={ false } />
 			</StrictMode>
 		);
 		exposeHeaders();
-		expect( recordBoostEvent ).toHaveBeenCalledTimes( 5 );
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 6 );
 		view.rerender(
 			<StrictMode>
 				<Settings />
 			</StrictMode>
 		);
 		exposeHeaders();
-		expect( recordBoostEvent ).toHaveBeenCalledTimes( 10 );
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 11 );
+		expect( jest.mocked( recordBoostEvent ).mock.calls.slice( 6 ) ).toEqual(
+			expect.arrayContaining( [
+				[ 'settings_view', {} ],
+				[ 'settings_group_view', { group: 'cornerstone_pages', initial_open: 0 } ],
+				[ 'settings_group_view', { group: 'page_loading', initial_open: 0 } ],
+				[ 'settings_group_view', { group: 'code_optimization', initial_open: 1 } ],
+				[ 'settings_group_view', { group: 'images', initial_open: 1 } ],
+			] )
+		);
 	} );
 
 	it( 'ignores hidden redirects and headers outside the viewport', () => {
@@ -240,6 +250,38 @@ describe( 'Settings exposure and group interactions', () => {
 		expect( recordBoostEvent ).not.toHaveBeenCalled();
 		exposeHeaders();
 		expect( recordBoostEvent ).toHaveBeenCalledTimes( 5 );
+	} );
+
+	it( 'waits for the whole header before recording group exposure', () => {
+		render( <Settings /> );
+		exposeHeaders( 0.99 );
+		expect(
+			jest
+				.mocked( recordBoostEvent )
+				.mock.calls.filter( ( [ name ] ) => name === 'settings_group_view' )
+		).toEqual( [] );
+		exposeHeaders();
+		expect(
+			jest
+				.mocked( recordBoostEvent )
+				.mock.calls.filter( ( [ name ] ) => name === 'settings_group_view' )
+		).toHaveLength( 4 );
+	} );
+
+	it( 'records find-in-page opening as live state without a click toggle', () => {
+		render( <Settings /> );
+		const header = screen.getByRole( 'button', { name: 'Cornerstone Pages' } );
+		const content = screen
+			.getByText( 'cornerstone description' )
+			.closest( '[hidden="until-found"]' );
+		fireEvent( content as HTMLElement, new Event( 'beforematch' ) );
+		expect( header.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledWith( 'settings_group_view', {
+			group: 'cornerstone_pages',
+			initial_open: 1,
+		} );
 	} );
 
 	it( 'records intentional group changes only, using stable slugs', () => {

@@ -145,10 +145,12 @@ it( 'records the Page Cache Except toggle events', () => {
 	const except = screen.getByRole( 'button', { name: 'Except None' } );
 	fireEvent.click( except );
 	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_exceptions_panel_toggle', {
+		panel_scope: 'exceptions',
 		status: 'open',
 	} );
 	fireEvent.click( except );
 	expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'page_cache_exceptions_panel_toggle', {
+		panel_scope: 'exceptions',
 		status: 'close',
 	} );
 	expect( recordBoostEvent ).toHaveBeenCalledTimes( 2 );

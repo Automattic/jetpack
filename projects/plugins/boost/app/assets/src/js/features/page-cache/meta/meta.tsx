@@ -172,6 +172,7 @@ const Meta = () => {
 					countExceptions
 					toggleText=""
 					tracksEvent="page_cache_exceptions_panel_toggle"
+					tracksEventProps={ { panel_scope: 'exceptions' } }
 				>
 					<div className={ styles.body }>{ exceptions }</div>
 				</CollapsibleMeta>
@@ -210,6 +211,7 @@ const Meta = () => {
 				extraButtons={ extraButtons }
 				toggleText={ __( 'Show Options', 'jetpack-boost' ) }
 				tracksEvent={ 'page_cache_exceptions_panel_toggle' }
+				tracksEventProps={ { panel_scope: 'all_options' } }
 			>
 				{ content }
 			</CollapsibleMeta>
