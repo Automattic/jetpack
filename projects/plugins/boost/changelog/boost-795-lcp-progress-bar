@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-LCP Images: Show an indeterminate progress bar while optimizing images in the modern dashboard.
+Comment: Part of the new Settings, which has not shipped yet.
