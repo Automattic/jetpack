@@ -8,7 +8,7 @@
 	--jetpack-comments-pad: 1em;
 }
 
-// One box around the textarea and the footer, in the post's own colours.
+// One box around the textarea and the submit row, in the post's own colours.
 // Nested to outrank a block theme's rules.
 .jetpack-comments .jetpack-comments__box {
 	position: relative;
@@ -90,9 +90,8 @@
 	}
 }
 
-// The footer inside the box and the options below it open and close the same
-// way. Hidden, not just collapsed, so nothing inside a closed one takes focus.
-.jetpack-comments__footer,
+// The options below the box slide open and closed. Hidden, not just collapsed,
+// so nothing inside a closed one takes focus.
 .jetpack-comments__options {
 	display: grid;
 	grid-template-rows: 0fr;
@@ -110,21 +109,15 @@
 	}
 }
 
-.jetpack-comments__footer > div {
-	overflow: hidden;
-}
-
 // Reversed so the submit precedes the identity line in the DOM, and Tab
 // reaches it straight from the textarea; wrapped in reverse too, so the
-// identity line stacks above the submit. The negative margins give focus
-// rings room inside the footer's clipped box.
+// identity line stacks above the submit.
 .jetpack-comments__actions {
 	display: flex;
 	flex-flow: row-reverse wrap-reverse;
 	align-items: center;
 	gap: 12px;
-	margin: 0 -4px -4px;
-	padding: 0 calc(var(--jetpack-comments-pad) + 4px) calc(var(--jetpack-comments-pad) + 4px);
+	padding: 0 var(--jetpack-comments-pad) var(--jetpack-comments-pad);
 }
 
 // Its own row, under the submit it disables.

@@ -68,7 +68,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isPosting,
 		commenter,
 		rememberDetails,
-		isFooterOpen,
+		isBoxOpen,
 		isOptionsOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
@@ -108,10 +108,10 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	);
 
 	const onFocus = useCallback( () => {
-		isFooterOpen.value = true;
+		isBoxOpen.value = true;
 		openEditor();
-	}, [ isFooterOpen, openEditor ] );
-	const onEditorFocus = useCallback( () => ( isFooterOpen.value = true ), [ isFooterOpen ] );
+	}, [ isBoxOpen, openEditor ] );
+	const onEditorFocus = useCallback( () => ( isBoxOpen.value = true ), [ isBoxOpen ] );
 	const onInput = useCallback(
 		( event: TargetedEvent< HTMLTextAreaElement > ) =>
 			( commentValue.value = event.currentTarget.value ),
@@ -127,16 +127,16 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 
 	useEffect( () => {
 		if ( ! isEmptyComment.value ) {
-			isFooterOpen.value = true;
+			isBoxOpen.value = true;
 		}
-	}, [ isEmptyComment.value, isFooterOpen ] );
+	}, [ isEmptyComment.value, isBoxOpen ] );
 
 	// Clicks are read from pointerdown, not focusout: Safari fires focusout for a
 	// button inside the form too, with no relatedTarget to tell the two apart.
 	useEffect( () => {
 		const close = () => {
 			if ( isEmptyComment.peek() ) {
-				isFooterOpen.value = false;
+				isBoxOpen.value = false;
 				isOptionsOpen.value = false;
 			}
 		};
@@ -160,7 +160,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 			document.removeEventListener( 'pointerdown', onPointerDown );
 			form.removeEventListener( 'focusout', onFocusOut );
 		};
-	}, [ form, isEmptyComment, isFooterOpen, isOptionsOpen ] );
+	}, [ form, isEmptyComment, isBoxOpen, isOptionsOpen ] );
 
 	useEffect( () => {
 		const parentInput = form.querySelector< HTMLInputElement >( '#comment_parent' );
@@ -247,7 +247,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		<>
 			<div
 				ref={ boxRef }
-				className={ clsx( 'jetpack-comments__box', { 'is-open': isFooterOpen.value } ) }
+				className={ clsx( 'jetpack-comments__box', { 'is-open': isBoxOpen.value } ) }
 				onPointerEnter={ blocks ? preloadEditor : undefined }
 			>
 				<textarea
@@ -290,41 +290,39 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 						onFocusCapture={ onEditorFocus }
 					/>
 				) }
-				<div className={ clsx( 'jetpack-comments__footer', { 'is-open': isFooterOpen.value } ) }>
-					<div className="jetpack-comments__actions">
-						{ isTooLong && (
-							<p className="jetpack-comments__too-long" role="alert">
-								{ strings.tooLong }
-							</p>
-						) }
-						<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
-							<input
-								id={ submit.id }
-								name={ submit.name }
-								type="submit"
-								className={ submit.class }
-								disabled={
-									( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
-									isEmptyComment.value ||
-									isTooLong ||
-									isPosting.value
-								}
-								value={ commentParent.value ? strings.reply : submit.label }
+				<div className="jetpack-comments__actions">
+					{ isTooLong && (
+						<p className="jetpack-comments__too-long" role="alert">
+							{ strings.tooLong }
+						</p>
+					) }
+					<span className={ clsx( 'jetpack-comments__submit', submit.wrapClass ) }>
+						<input
+							id={ submit.id }
+							name={ submit.name }
+							type="submit"
+							className={ submit.class }
+							disabled={
+								( mustLogIn && commenter.value.kind === 'unknown' && ! identity.canSignIn ) ||
+								isEmptyComment.value ||
+								isTooLong ||
+								isPosting.value
+							}
+							value={ commentParent.value ? strings.reply : submit.label }
+						/>
+					</span>
+					<span className="jetpack-comments__identity">
+						{ avatar && (
+							<img
+								className="jetpack-comments__avatar avatar avatar-40 photo"
+								src={ avatar }
+								alt=""
+								width="40"
+								height="40"
 							/>
-						</span>
-						<span className="jetpack-comments__identity">
-							{ avatar && (
-								<img
-									className="jetpack-comments__avatar avatar avatar-40 photo"
-									src={ avatar }
-									alt=""
-									width="40"
-									height="40"
-								/>
-							) }
-							<Identity />
-						</span>
-					</div>
+						) }
+						<Identity />
+					</span>
 				</div>
 			</div>
 			<Options />
