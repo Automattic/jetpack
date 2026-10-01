@@ -332,14 +332,19 @@ test.each( [ 'failed', 'delayed', 'accepted' ] )(
 		const completed = jest.fn();
 		const hadFetch = Object.hasOwn( globalThis, 'fetch' );
 		const originalFetch = globalThis.fetch;
-		const response = { ok: true, text: async () => JSON.stringify( { status: 'success', scores } ) };
+		const response = {
+			ok: true,
+			text: async () => JSON.stringify( { status: 'success', scores } ),
+		};
 		let resolveRefresh!: ( value: typeof response ) => void;
 		let rejectRefresh!: ( error: Error ) => void;
 		const post = jest.fn().mockResolvedValue( response );
 		globalThis.fetch = post;
-		jest.mocked( api.post ).mockImplementation(
-			jest.requireActual( '../../app/assets/src/js/lib/api/api' ).default.post
-		);
+		jest
+			.mocked( api.post )
+			.mockImplementation(
+				jest.requireActual( '../../app/assets/src/js/lib/api/api' ).default.post
+			);
 		jest
 			.mocked( requestSpeedScores )
 			.mockImplementation(
