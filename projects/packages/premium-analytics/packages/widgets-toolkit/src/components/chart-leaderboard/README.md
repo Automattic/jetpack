@@ -216,7 +216,7 @@ fallback, and default alt-text policy:
 | `icon`      | 20 × 20px                 | No image; takes a glyph          |
 | `none`      | No media                  | Renders text only                |
 
-A `thumbnail` with `aspectRatio: '16/9'` is sized by width plus CSS `aspect-ratio`, like `flag`, because the dashboard shell's `img { height: auto }` overrides a fixed height.
+A `thumbnail` with `aspectRatio: '16/9'` is sized by width plus CSS `aspect-ratio`, like `flag`, because the dashboard shell's `img { height: auto }` overrides a fixed height. Pass `fallbackIcon` to draw that glyph in a bordered box, instead of the grey placeholder, when there is no image or it fails to load: `media: { kind: 'thumbnail', url, alt: '', aspectRatio: '16/9', fallbackIcon: video }`.
 
 `icon` takes a `@wordpress/icons` glyph rather than a URL and draws it in the muted neutral color: `media: { kind: 'icon', icon: category }`.
 
