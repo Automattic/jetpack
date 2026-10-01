@@ -15,9 +15,20 @@ describe( 'SubscriberList', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'link', { name: /Ada Lovelace/ } ) ).toHaveAttribute(
-			'target',
-			'_blank'
+		const link = screen.getByRole( 'link', { name: /Ada Lovelace/ } );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
+	} );
+
+	it( 'keeps a row link in the same tab when the item opts out', () => {
+		render(
+			<SubscriberList
+				items={ [
+					{ id: 'ada', name: 'Ada Lovelace', href: 'https://example.com/ada', openInNewTab: false },
+				] }
+			/>
 		);
+
+		expect( screen.getByRole( 'link', { name: 'Ada Lovelace' } ) ).not.toHaveAttribute( 'target' );
 	} );
 } );

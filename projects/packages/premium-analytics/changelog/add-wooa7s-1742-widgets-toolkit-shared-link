@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets toolkit: Add shared internal and external link components, and set rel on every link that opens in a new tab.
