@@ -530,7 +530,7 @@ Set `tooltipPlacement="below-axis"` to place the panel below the bottom x-axis l
 
 To recolor one chart's tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in `tooltipStyle`; to recolor every tooltip, set `--a8c-charts-color-tooltip-surface`. The default content paints nothing of its own, so it follows the box, and the below-axis pointer inherits the box background. Other `tooltipStyle` properties, such as `boxShadow`, apply to the box directly. Choose colors with sufficient contrast. A custom `renderTooltip` keeps control of its own content styles: content that sets its own text color or background draws it on the dark box, so let it inherit instead.
 
-The public `AccessibleTooltip` component's `style` prop overrides the tooltip surface. Use its `unstyled` prop to strip the box styles.
+`AccessibleTooltip` is the tooltip LineChart renders, exported for a custom visx `XYChart`. Its `style` prop overrides the tooltip surface. Use its `unstyled` prop to strip the box styles.
 
 Use `withTooltipCrosshairs.verticalStyle` to turn the vertical guide into a broad translucent highlight, as shown above. Both `verticalStyle` and `horizontalStyle` accept paint properties (`stroke`, `strokeWidth`, `strokeOpacity`, `strokeDasharray`, `strokeLinecap`, and `opacity`), `className`, and a `style` object limited to those paint properties; their corresponding `showVertical` or `showHorizontal` option enables the guide.
 
