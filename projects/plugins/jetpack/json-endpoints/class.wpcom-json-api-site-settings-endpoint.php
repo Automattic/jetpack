@@ -510,7 +510,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'supports_free_tier_customization' => true,
 						'jetpack_verbum_subscription_modal' => (bool) get_option( 'jetpack_verbum_subscription_modal', true ),
 						'enable_verbum_commenting'         => (bool) get_option( 'enable_verbum_commenting', true ),
-						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', true ),
+						'enable_blocks_comments'           => (bool) get_option( 'enable_blocks_comments', ! $this->rebuilt_comment_form_enabled() ),
 						'highlander_comment_form_prompt'   => $this->get_highlander_comment_form_prompt_option(),
 						'jetpack_comment_form_color_scheme' => (string) get_option( 'jetpack_comment_form_color_scheme' ),
 						'in_site_migration_flow'           => (string) get_option( 'in_site_migration_flow', '' ),
@@ -597,6 +597,17 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 		return $response;
+	}
+
+	/**
+	 * Whether the rebuilt Jetpack Comments form, which keeps blocks off by default, has replaced Verbum.
+	 *
+	 * Guarded because this file and the jetpack-comments package can land in either order on a staged deploy.
+	 *
+	 * @return bool
+	 */
+	protected function rebuilt_comment_form_enabled() {
+		return class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled();
 	}
 
 	/**

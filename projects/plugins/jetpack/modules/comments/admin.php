@@ -5,6 +5,9 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Comments\Block_Editor;
+use Automattic\Jetpack\Comments\Comments;
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
@@ -133,6 +136,49 @@ class Jetpack_Comments_Settings {
 			'jetpack_comment_form_color_scheme',
 			array( $this, 'comment_form_color_scheme_sanitize' )
 		);
+
+		// The rebuilt comment form is what offers blocks; the package may lag this file on a staged deploy.
+		if ( ! class_exists( Block_Editor::class ) || ! Comments::is_enabled() ) {
+			return;
+		}
+
+		add_settings_field(
+			'enable_blocks_comments',
+			__( 'Allow Blocks', 'jetpack' ),
+			array( $this, 'allow_blocks_field' ),
+			'discussion',
+			'jetpack_comment_form'
+		);
+
+		register_setting(
+			'discussion',
+			'enable_blocks_comments',
+			array( $this, 'allow_blocks_sanitize' )
+		);
+	}
+
+	/**
+	 * Blocks in comments setting.
+	 */
+	public function allow_blocks_field() {
+		?>
+
+		<label>
+			<input name="enable_blocks_comments" type="checkbox" value="1" <?php checked( (bool) get_option( 'enable_blocks_comments' ) ); ?>>
+			<?php esc_html_e( 'Enable blocks in comments', 'jetpack' ); ?>
+		</label>
+
+		<?php
+	}
+
+	/**
+	 * Sanitize the blocks in comments setting.
+	 *
+	 * @param mixed $val The submitted value.
+	 * @return string
+	 */
+	public function allow_blocks_sanitize( $val ) {
+		return $val ? '1' : '0';
 	}
 
 	/**

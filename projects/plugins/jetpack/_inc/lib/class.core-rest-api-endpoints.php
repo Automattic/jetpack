@@ -1729,6 +1729,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_list_item',
 				'jp_group'          => 'comments',
 			),
+			'enable_blocks_comments'                    => array(
+				'description'       => esc_html__( 'Enable blocks in comments', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'comments',
+			),
 
 			// Custom Content Types.
 			'jetpack_portfolio'                         => array(

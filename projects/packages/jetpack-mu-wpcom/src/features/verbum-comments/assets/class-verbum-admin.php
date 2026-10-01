@@ -68,8 +68,8 @@ class Verbum_Admin {
 		// Default commenting experience
 		$this->default_verbum_commenting = true;
 
-		// Default allow blocks in comments
-		$this->default_allow_blocks = true;
+		// Verbum allows blocks by default; the rebuilt Jetpack Comments form keeps them off until the setting is on.
+		$this->default_allow_blocks = ! ( class_exists( '\Automattic\Jetpack\Comments\Comments' ) && \Automattic\Jetpack\Comments\Comments::is_enabled() );
 
 		// Default option values.
 		$this->default_greeting = __( 'Leave a Reply', 'jetpack-mu-wpcom' );
