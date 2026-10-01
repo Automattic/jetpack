@@ -36,6 +36,30 @@ const FilenameRender = ( libraryFields.find( f => f.id === 'filename' ) as Field
 	.render as ( args: { item: LibraryItem } ) => React.ReactNode;
 
 describe( 'ThumbnailField — grid Details access', () => {
+	it( 'opens an uploading video from either its title or its thumbnail', async () => {
+		const actions = makeActions();
+		const upload = item( {
+			id: 'upload-1',
+			type: 'local',
+			title: 'Draft',
+			upload: { status: 'uploading', progress: 40 },
+		} );
+		renderField(
+			<>
+				<ThumbnailField item={ upload } />
+				<TitleCellRender item={ upload } />
+			</>,
+			actions
+		);
+		await userEvent.click( screen.getByRole( 'button', { name: 'Edit details for Draft' } ) );
+		await userEvent.click( screen.getByRole( 'button', { name: 'Draft' } ) );
+		expect( jest.mocked( actions.openVideoDetails ).mock.calls ).toEqual( [
+			[ 'upload-1' ],
+			[ 'upload-1' ],
+		] );
+		expect( screen.getByText( '40%' ) ).toBeInTheDocument();
+	} );
+
 	it( 'renders an "Edit details" button that opens details for an idle VideoPress video', async () => {
 		const actions = makeActions();
 		renderField( <ThumbnailField item={ item( { id: '7', title: 'Holiday' } ) } />, actions );
@@ -103,6 +127,25 @@ describe( 'ThumbnailField — grid Details access', () => {
 
 		expect( screen.getByText( 'Upload failed' ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Jetpack connection issue' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers a details retry without claiming the video upload failed', async () => {
+		const actions = makeActions();
+		renderField(
+			<ThumbnailField
+				item={ item( {
+					id: 'upload-1',
+					type: 'local',
+					upload: { status: 'failed', progress: 100, failureReason: 'details' },
+				} ) }
+			/>,
+			actions
+		);
+
+		expect( screen.getByText( 'Details weren’t saved' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Upload failed' ) ).not.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( actions.retryUpload ).toHaveBeenCalledWith( 'upload-1' );
 	} );
 
 	it( 'leaves the summary alone for a failure attributed to nothing in particular', () => {

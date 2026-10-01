@@ -53,9 +53,13 @@ the block editor shows on each post. `init()` hooks each on `rest_api_init` and
 offering the switch. The fields read and write the `switch_like_status` and
 `sharing_disabled` post meta.
 
-Nothing calls `init()` yet: until the modules move over, the fields the editor
-sees still come from `modules/likes.php` and `modules/sharedaddy/sharing.php` in
-the Jetpack plugin.
+In the Jetpack plugin, `modules/likes.php` and `modules/comment-likes.php` both
+call `Post_Likes_Switch::init()`, since Comment Likes follow the same per-post
+switch, and `modules/sharedaddy/sharing.php` calls `Post_Sharing_Switch::init()`.
+Simple loads that `sharing.php` too, but neither Likes module, so
+`wp-content/mu-plugins/likes/jetpack-likes.php` calls `Post_Likes_Switch::init()`
+there. The `jetpack_post_likes_*` and `jetpack_post_sharing_*` functions those
+files still define are deprecated wrappers around these classes.
 
 They are namespaced classes rather than a file both environments include because
 WordPress.com Simple defines same-named global Likes functions in

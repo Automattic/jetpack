@@ -11,6 +11,7 @@ import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import TopPostsWidget from '../render';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -276,43 +277,23 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	describe( 'CSV export', () => {
-		let blobs: Blob[];
-		let clickSpy: jest.SpyInstance;
-		let originalCreateObjectURL: typeof window.URL.createObjectURL;
-		let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
+		let downloads: ReturnType< typeof captureCsvDownloads >;
 
 		beforeEach( () => {
 			jest.useFakeTimers();
-			blobs = [];
-			originalCreateObjectURL = window.URL.createObjectURL;
-			originalRevokeObjectURL = window.URL.revokeObjectURL;
-			// jsdom defines neither, so `jest.spyOn` has nothing to wrap.
-			const createObjectURL = jest.fn( ( blob: Blob ) => {
-				blobs.push( blob );
-				return 'blob:mock';
-			} );
-			const revokeObjectURL = jest.fn();
-			window.URL.createObjectURL = createObjectURL;
-			window.URL.revokeObjectURL = revokeObjectURL;
-			// An anchor click would reach jsdom's unimplemented navigation.
-			clickSpy = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+			downloads = captureCsvDownloads();
 		} );
 
 		afterEach( () => {
 			jest.useRealTimers();
-			clickSpy.mockRestore();
-			window.URL.createObjectURL = originalCreateObjectURL;
-			window.URL.revokeObjectURL = originalRevokeObjectURL;
+			downloads.restore();
 		} );
 
 		async function downloadCsvLines() {
-			// This package does not depend on @testing-library/user-event.
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+			const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+			await downloads.clickAndSave( button );
 
-			await waitFor( () => expect( blobs ).toHaveLength( 1 ) );
-
-			return ( await blobs[ 0 ].text() ).replace( '\ufeff', '' ).split( '\n' );
+			return downloads.lines();
 		}
 
 		it( 'downloads the full Posts & pages report instead of the rows on screen', async () => {
@@ -404,10 +385,7 @@ describe( 'TopPostsWidget', () => {
 				'"Tags","80",""',
 				'"Tags > video","80","https://example.com/tag/video/"',
 			] );
-			expect( clickSpy.mock.contexts[ 0 ] ).toHaveProperty(
-				'download',
-				'archives-2026-03-01_2026-03-10.csv'
-			);
+			expect( downloads.files[ 0 ].filename ).toBe( 'archives-2026-03-01_2026-03-10.csv' );
 		} );
 	} );
 

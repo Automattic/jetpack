@@ -75,7 +75,7 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/videopress',
+				'name'     => 'jpa/video-detail-embeds',
 				'category' => 'stats',
 			),
 			array(
@@ -256,7 +256,7 @@ class Widget_Availability_Test extends BaseTestCase {
 	public function test_type_policy_keeps_video_widgets_with_videopress() {
 		$names = $this->available_names( false, true );
 
-		$this->assertContains( 'jpa/videopress', $names );
+		$this->assertContains( 'jpa/video-detail-embeds', $names );
 		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
@@ -342,7 +342,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertNotContains( 'jpa/videopress', $names );
+		$this->assertNotContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**
@@ -360,7 +360,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertNotContains( 'jpa/videopress', $names, 'An active module does not stand in for the plan feature on Atomic.' );
+		$this->assertNotContains( 'jpa/video-detail-views-performance', $names, 'An active module does not stand in for the plan feature on Atomic.' );
 
 		$GLOBALS['jpa_test_wpcom_features'] = array( 'videopress' );
 
@@ -369,7 +369,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertContains( 'jpa/videopress', $names, 'The plan feature brings the video widgets back on Atomic.' );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names, 'The plan feature brings the video widgets back on Atomic.' );
 	}
 
 	/**
@@ -383,7 +383,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertContains( 'jpa/videopress', $names );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**

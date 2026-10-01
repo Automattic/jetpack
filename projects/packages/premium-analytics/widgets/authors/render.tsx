@@ -16,6 +16,8 @@ import {
 	formatLegendLabels,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	authorsCsvExporter,
 	type LeaderboardChartData,
 	type LegendLabels,
 	type ReportParamsFieldAttributes,
@@ -220,6 +222,11 @@ function AuthorsReport() {
 			/>
 			<WidgetFooter>
 				<ReportLink report="authors" />
+				<ExporterCsvDownloadButton
+					exporter={ authorsCsvExporter }
+					status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);

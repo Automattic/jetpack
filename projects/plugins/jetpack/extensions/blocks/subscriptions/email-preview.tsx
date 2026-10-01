@@ -244,7 +244,7 @@ export function NewsletterTestEmailModal( { isOpen, onClose }: NewsletterTestEma
 								sendTestEmail();
 							} }
 						>
-							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto;">
+							<Grid alignment="bottom" columns={ 2 } gap={ 2 } templateColumns="2fr auto">
 								<InputControl
 									type="email"
 									value={ recipientEmail }

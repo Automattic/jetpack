@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
 import {
 	buildSummary,
+	parseServerTiming,
 	resolveResultsGit,
 	assertCaptureComplete,
 	assertExpectedUrl,
@@ -60,6 +61,8 @@ const MJ_LCP_KEY = 'my-jetpack-connection-sim-largestContentfulPaint';
 const MJ_TTFB_KEY = 'my-jetpack-connection-sim-timeToFirstByte';
 const MJ_FCP_KEY = 'my-jetpack-connection-sim-firstContentfulPaint';
 const MJ_DECODED_KEY = 'my-jetpack-connection-sim-decodedBytesKB';
+const FORMS_TBT_KEY = 'forms-responses-connection-sim-loadBlockingTime-staging';
+const MJ_TBT_KEY = 'my-jetpack-connection-sim-loadBlockingTime-staging';
 
 /**
  * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
@@ -68,6 +71,9 @@ const MJ_DECODED_KEY = 'my-jetpack-connection-sim-decodedBytesKB';
  */
 function jetpackSummary( { lcp = 120, ttfb = 150, fcp = 400 } = {} ) {
 	return {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: lcp, // flat LCP mirror (backward-compat)
 		lcp: { median: lcp },
 		ttfb: { median: ttfb },
@@ -75,34 +81,37 @@ function jetpackSummary( { lcp = 120, ttfb = 150, fcp = 400 } = {} ) {
 	};
 }
 
-/**
- * Build the nested per-field summary the formsResponses scenario reads: the same three timing
- * fields plus the FORMS-704 bundle-size field (summary.decodedBytesKB.median). Defaults are
- * in-range so all four post cleanly unless a test overrides one to exercise a rejection.
- */
-function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229 } = {} ) {
+function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229, tbt = 0 } = {} ) {
 	return {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: lcp,
 		lcp: { median: lcp },
 		ttfb: { median: ttfb },
 		fcp: { median: fcp },
 		decodedBytesKB: { median: decodedBytesKB },
+		tbt: { median: tbt },
 	};
 }
 
-/**
- * Build the nested per-field summary the myJetpack scenario reads: the same shape as
- * formsSummary (three timing fields + the bundle-size field). LCP (~640) and decodedBytesKB
- * (~5860) track the observed local medians; ttfb/fcp are plausible in-range fillers. All four
- * sit inside SANITY_RANGES so they post cleanly unless a test overrides one.
- */
-function myJetpackSummary( { lcp = 640, ttfb = 220, fcp = 560, decodedBytesKB = 5860 } = {} ) {
+function myJetpackSummary( {
+	lcp = 640,
+	ttfb = 220,
+	fcp = 560,
+	decodedBytesKB = 5860,
+	tbt = 0,
+} = {} ) {
 	return {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: lcp,
 		lcp: { median: lcp },
 		ttfb: { median: ttfb },
 		fcp: { median: fcp },
 		decodedBytesKB: { median: decodedBytesKB },
+		tbt: { median: tbt },
 	};
 }
 
@@ -466,11 +475,13 @@ test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production
 	const scenario = SCENARIOS.find( s => s.key === 'jetpackConnected' );
 	assert.ok( Array.isArray( scenario.metrics ), 'jetpackConnected must use the metrics array' );
 	assert.deepEqual(
-		scenario.metrics.map( m => ( {
-			field: m.field,
-			codevitalsKey: m.codevitalsKey,
-			type: m.type,
-		} ) ),
+		scenario.metrics
+			.filter( m => ! m.codevitalsKey.endsWith( '-staging' ) )
+			.map( m => ( {
+				field: m.field,
+				codevitalsKey: m.codevitalsKey,
+				type: m.type,
+			} ) ),
 		[
 			{ field: 'lcp', codevitalsKey: LCP_KEY, type: 'lcp' },
 			{ field: 'ttfb', codevitalsKey: TTFB_KEY, type: 'ttfb' },
@@ -479,25 +490,28 @@ test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production
 	);
 } );
 
-test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
-	// Pins the FORMS-704 config: the Forms responses wp-build page carries the bundle-size
-	// metric (summary.decodedBytesKB.median) alongside the timing metrics, each on its own
-	// production key. A dropped/renamed key, or a decoded metric with no type (which would
-	// post unchecked), fails here rather than silently in the append-only store.
+/**
+ * Pin Forms fields, types and keys so a dropped or renamed key fails here
+ * before a live post changes the append-only store.
+ */
+test( 'the formsResponses scenario retains production keys and adds staging TBT', () => {
 	const scenario = SCENARIOS.find( s => s.key === 'formsResponses' );
 	assert.ok( scenario, 'formsResponses scenario must exist' );
 	assert.ok( Array.isArray( scenario.metrics ), 'formsResponses must use the metrics array' );
 	assert.deepEqual(
-		scenario.metrics.map( m => ( {
-			field: m.field,
-			codevitalsKey: m.codevitalsKey,
-			type: m.type,
-		} ) ),
+		scenario.metrics
+			.filter( m => m.field === 'tbt' || ! m.codevitalsKey.endsWith( '-staging' ) )
+			.map( m => ( {
+				field: m.field,
+				codevitalsKey: m.codevitalsKey,
+				type: m.type,
+			} ) ),
 		[
 			{ field: 'lcp', codevitalsKey: FORMS_LCP_KEY, type: 'lcp' },
 			{ field: 'ttfb', codevitalsKey: FORMS_TTFB_KEY, type: 'ttfb' },
 			{ field: 'fcp', codevitalsKey: FORMS_FCP_KEY, type: 'fcp' },
 			{ field: 'decodedBytesKB', codevitalsKey: FORMS_DECODED_KEY, type: 'decodedBytesKB' },
+			{ field: 'tbt', codevitalsKey: FORMS_TBT_KEY, type: 'tbt' },
 		]
 	);
 	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
@@ -526,25 +540,28 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
-test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
-	// Pins the FORMS-717 config: the My Jetpack admin page (the heaviest Jetpack admin bundle)
-	// carries the bundle-size metric (summary.decodedBytesKB.median) alongside the timing metrics,
-	// each on its own production key. A dropped/renamed key, or a decoded metric with no type
-	// (which would post unchecked), fails here rather than silently in the append-only store.
+/**
+ * Pin My Jetpack fields, types and keys so a dropped or renamed key fails here
+ * before a live post changes the append-only store.
+ */
+test( 'the myJetpack scenario retains production keys and adds staging TBT', () => {
 	const scenario = SCENARIOS.find( s => s.key === 'myJetpack' );
 	assert.ok( scenario, 'myJetpack scenario must exist' );
 	assert.ok( Array.isArray( scenario.metrics ), 'myJetpack must use the metrics array' );
 	assert.deepEqual(
-		scenario.metrics.map( m => ( {
-			field: m.field,
-			codevitalsKey: m.codevitalsKey,
-			type: m.type,
-		} ) ),
+		scenario.metrics
+			.filter( m => m.field === 'tbt' || ! m.codevitalsKey.endsWith( '-staging' ) )
+			.map( m => ( {
+				field: m.field,
+				codevitalsKey: m.codevitalsKey,
+				type: m.type,
+			} ) ),
 		[
 			{ field: 'lcp', codevitalsKey: MJ_LCP_KEY, type: 'lcp' },
 			{ field: 'ttfb', codevitalsKey: MJ_TTFB_KEY, type: 'ttfb' },
 			{ field: 'fcp', codevitalsKey: MJ_FCP_KEY, type: 'fcp' },
 			{ field: 'decodedBytesKB', codevitalsKey: MJ_DECODED_KEY, type: 'decodedBytesKB' },
+			{ field: 'tbt', codevitalsKey: MJ_TBT_KEY, type: 'tbt' },
 		]
 	);
 	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
@@ -666,7 +683,7 @@ test( 'a targeted optional-run artifact (required scenario absent, not errored) 
 	);
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
-	assert.equal( Object.keys( result.payload.metrics ).length, 4 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 8 );
 	assert.equal( result.payload.metrics[ FORMS_LCP_KEY ], 300 );
 } );
 
@@ -776,7 +793,7 @@ test( 'redactToken strips the exact token and any token query param', () => {
 
 // --- postToCodeVitals (the accumulation loop + exit semantics) ---
 
-test( 'dry-run posts all three scenario metrics into the payload, nothing rejected', async () => {
+test( 'dry-run posts all six Dashboard metrics into the payload, nothing rejected', async () => {
 	const file = writeResults( 120, { ttfb: 150, fcp: 400 } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.posted, false ); // dry run never posts
@@ -785,14 +802,10 @@ test( 'dry-run posts all three scenario metrics into the payload, nothing reject
 	assert.equal( result.payload.metrics[ LCP_KEY ], 120 );
 	assert.equal( result.payload.metrics[ TTFB_KEY ], 150 );
 	assert.equal( result.payload.metrics[ FCP_KEY ], 400 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 3 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 6 );
 } );
 
-test( 'dry-run with both scenarios present posts all 7 keys, including the Forms decoded-bytes key', async () => {
-	// The real automated run measures both scenarios, so the payload carries jetpackConnected's
-	// 3 timing keys AND formsResponses' 4 (timing + decodedBytesKB). This exercises the full
-	// posting loop for the Forms scenario — the config test pins the keys statically; this proves
-	// they actually reach the payload with the right values under the exact production key names.
+test( 'dry-run with both scenarios present posts 14 keys, including zero Forms staging TBT', async () => {
 	const file = writeResults( 120, { forms: { decodedBytesKB: 8229 } } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
@@ -800,18 +813,14 @@ test( 'dry-run with both scenarios present posts all 7 keys, including the Forms
 	assert.equal( result.payload.metrics[ FORMS_TTFB_KEY ], 200 );
 	assert.equal( result.payload.metrics[ FORMS_FCP_KEY ], 500 );
 	assert.equal( result.payload.metrics[ FORMS_DECODED_KEY ], 8229 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 7 );
+	assert.equal( result.payload.metrics[ FORMS_TBT_KEY ], 0 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
 } );
 
-test( 'dry-run with all three scenarios present posts all 11 keys, including the My Jetpack decoded-bytes key', async () => {
-	// The full automated run measures all three scenarios, so the payload carries jetpackConnected's
-	// 3 timing keys, formsResponses' 4, AND myJetpack's 4 (timing + decodedBytesKB). The config test
-	// pins the myJetpack keys statically; this proves they reach the payload with the right values
-	// under the exact production key names, so a wiring regression in the scenario-agnostic loop
-	// (a dropped/renamed myJetpack metric) fails here rather than silently in the append-only store.
+test( 'dry-run with all three scenarios present posts 22 keys, including My Jetpack staging TBT', async () => {
 	const file = writeResults( 120, {
 		forms: { decodedBytesKB: 8229 },
-		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860 },
+		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860, tbt: 120 },
 	} );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
@@ -819,7 +828,8 @@ test( 'dry-run with all three scenarios present posts all 11 keys, including the
 	assert.equal( result.payload.metrics[ MJ_TTFB_KEY ], 220 );
 	assert.equal( result.payload.metrics[ MJ_FCP_KEY ], 560 );
 	assert.equal( result.payload.metrics[ MJ_DECODED_KEY ], 5860 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 11 );
+	assert.equal( result.payload.metrics[ MJ_TBT_KEY ], 120 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
 } );
 
 test( 'dry-run adds three separate staging control keys and preserves all production keys', async () => {
@@ -1193,7 +1203,7 @@ test( 'a live post sends the payload as POST and returns posted:true', async () 
 		assert.equal( sentMetrics[ LCP_KEY ], 120 );
 		assert.equal( sentMetrics[ TTFB_KEY ], 150 );
 		assert.equal( sentMetrics[ FCP_KEY ], 400 );
-		assert.equal( Object.keys( sentMetrics ).length, 3 );
+		assert.equal( Object.keys( sentMetrics ).length, 6 );
 	} finally {
 		global.fetch = origFetch;
 	}
@@ -2071,6 +2081,117 @@ test( 'buildSummary strict-majority floor: even-count 1-of-2 is omitted, but sin
 	assert.equal( oneSummary.median, 150, 'single-iteration LCP still mirrored flat' );
 } );
 
+test( 'Server-Timing captures ms, bytes and count without inventing template metrics', () => {
+	const header =
+		'cache;desc="hit, warm; \\"quoted\\"", wp-total;dur=123.456, wp-memory-usage;dur=20971520, wp-db-queries;dur=42';
+	const metrics = parseServerTiming( header );
+	assert.deepEqual( metrics, { wpTotal: 123.456, wpMemoryUsage: 20971520, wpDbQueries: 42 } );
+	const summary = buildSummary( [ { lcp: 200, metrics } ], 1 );
+	assert.equal( summary.wpTotal.median, 123 );
+	assert.equal( summary.wpMemoryUsage.median, 20971520 );
+	assert.equal( summary.wpDbQueries.median, 42 );
+} );
+
+test( 'Server-Timing rejects missing, duplicate and invalid durations', () => {
+	assert.throws( () => parseServerTiming( '"' + '\\"'.repeat( 4096 ) ), /exceeds 4096/ );
+	const suffix = ', wp-memory-usage;dur=20971520, wp-db-queries;dur=42';
+	for ( const header of [ null, '', 'wp-total;dur=10' ] ) {
+		assert.throws( () => parseServerTiming( header ), /Missing Server-Timing/ );
+	}
+	for ( const value of [ '', '-1', 'NaN', 'Infinity', '1e3', '"10"', '12ms' ] ) {
+		assert.throws(
+			() => parseServerTiming( `wp-total;dur=${ value }${ suffix }` ),
+			/Invalid Server-Timing/
+		);
+	}
+	for ( const total of [
+		'wp-total',
+		'wp-total;dur=10;dur=20',
+		'wp-total;dur=10, wp-total;dur=20',
+	] ) {
+		assert.throws( () => parseServerTiming( total + suffix ), /Invalid Server-Timing/ );
+	}
+	assert.throws(
+		() => parseServerTiming( 'wp-total;dur=10' + suffix.replace( '42', '42.5' ) ),
+		/Invalid Server-Timing/
+	);
+} );
+
+test( 'dry payload carries exactly nine typed staging backend keys with integer bytes and counts', async () => {
+	const result = await silenced( () =>
+		postToCodeVitals( writeResults( 120, { forms: {}, myJetpack: {} } ), { dryRun: true } )
+	);
+	const prefixes = [
+		'wp-admin-dashboard-connection-sim',
+		'forms-responses-connection-sim',
+		'my-jetpack-connection-sim',
+	];
+	for ( const prefix of prefixes ) {
+		assert.equal( result.payload.metrics[ `${ prefix }-wp-total-staging` ], 100 );
+		assert.equal( result.payload.metrics[ `${ prefix }-wp-memory-usage-staging` ], 20971520 );
+		assert.equal( result.payload.metrics[ `${ prefix }-wp-db-queries-staging` ], 42 );
+	}
+	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
+	assert.ok(
+		! Object.keys( result.payload.metrics ).some( key =>
+			/wp-(before-template|template)/.test( key )
+		)
+	);
+	for ( const scenario of SCENARIOS ) {
+		for ( const [ field, unit ] of [
+			[ 'wpTotal', 'ms' ],
+			[ 'wpMemoryUsage', 'bytes' ],
+			[ 'wpDbQueries', 'count' ],
+		] ) {
+			assert.equal( scenario.metrics.find( metric => metric.field === field ).unit, unit );
+		}
+	}
+	for ( const key of [ 'formsResponses', 'myJetpack' ] ) {
+		const scenario = SCENARIOS.find( s => s.key === key );
+		assert.equal( scenario.metrics.find( metric => metric.field === 'tbt' ).unit, 'ms' );
+	}
+} );
+
+test( 'a zero median for every backend type refuses the dry payload', async () => {
+	for ( const field of [ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ] ) {
+		const summary = jetpackSummary();
+		summary[ field ].median = 0;
+		const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-backend-zero-' ) );
+		const file = path.join( dir, 'results.json' );
+		fs.writeFileSync( file, JSON.stringify( { measurements: { jetpackConnected: { summary } } } ) );
+		try {
+			const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+			assert.equal( result.validationFailed, true, field );
+			assert.equal( result.posted, false, field );
+		} finally {
+			fs.rmSync( dir, { recursive: true } );
+		}
+	}
+} );
+
+test( 'missing backend summary refuses the whole live post before any network call', async () => {
+	const summary = jetpackSummary();
+	delete summary.wpMemoryUsage;
+	const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-server-timing-' ) );
+	const file = path.join( dir, 'results.json' );
+	fs.writeFileSync( file, JSON.stringify( { measurements: { jetpackConnected: { summary } } } ) );
+	const originalFetch = global.fetch;
+	let fetched = false;
+	global.fetch = async () => {
+		fetched = true;
+		throw new Error( 'unexpected fetch' );
+	};
+	try {
+		const result = await silenced( () => postToCodeVitals( file, { dryRun: false } ) );
+		assert.equal( result.validationFailed, true );
+		assert.equal( result.posted, false );
+		assert.equal( fetched, false );
+	} finally {
+		global.fetch = originalFetch;
+		fs.rmSync( dir, { recursive: true } );
+	}
+} );
+
 test( 'buildSummary aggregates decodedBytesKB from the per-iteration metrics block', () => {
 	// FORMS-704: measure-lcp.js folds the summed per-resource decodedBodySize into each
 	// iteration's metrics as decodedBytesKB, and SUMMARY_FIELDS now includes it, so buildSummary
@@ -2920,4 +3041,20 @@ test( 'formsResponses opts out of networkidle so a stuck request cannot blackhol
 	// The scenarios that measure a settled page keep the default (undefined → 'networkidle').
 	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).loadState, undefined );
 	assert.equal( SCENARIOS.find( s => s.key === 'myJetpack' ).loadState, undefined );
+} );
+
+test( 'staging TBT above 500 ms is accepted within the existing sanity range', async () => {
+	const file = writeResults( 120, { forms: { tbt: 750 }, myJetpack: { tbt: 9999 } } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, false );
+	assert.equal( result.payload.metrics[ FORMS_TBT_KEY ], 750 );
+	assert.equal( result.payload.metrics[ MJ_TBT_KEY ], 9999 );
+} );
+
+test( 'out-of-range staging TBT rejects the entire dry payload without clipping', async () => {
+	const file = writeResults( 120, { forms: { tbt: 10001 } } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, true );
+	assert.equal( result.posted, false );
+	assert.equal( result.payload.metrics[ FORMS_TBT_KEY ], undefined );
 } );

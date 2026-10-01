@@ -29,13 +29,9 @@ type DetailDateFilters = {
 };
 
 /**
- * The date controls a resource detail page (post, video) offers: the period
- * menu alone, with all time anchored to the resource's publish date. The
- * controls render before the summary loads, so an all-time range applied
- * against an unknown or stale start is re-anchored in place once it resolves.
+ * Provide detail date controls and hold widgets until the all-time start resolves.
  *
- * Spread after the date-filter controller's props: the interval props it
- * hands out are what this unsets.
+ * Spread dateControls after the date-filter props to disable the interval control.
  *
  * @param publishedDate               - The resource's publish date, as the summary carries it:
  *                                    a site-local wall time, or an offset-bearing instant.
@@ -44,35 +40,40 @@ type DetailDateFilters = {
  * @param dateFilters.appliedRange    - The applied range.
  * @param dateFilters.replaceRange    - Commits a range in place of the current history entry.
  * @param dateFilters.timeZone        - The site timezone.
- * @return The props to pass to `DateFiltersPanel`.
+ * @param isStartPending              - Whether the start is loading or can be retried.
+ * @return The date panel props and whether range-reading widgets must wait.
  */
 export function useDetailDateControls(
 	publishedDate: string | undefined,
-	{ appliedPresetId, appliedRange, replaceRange, timeZone }: DetailDateFilters
-): DetailDateControls {
+	{ appliedPresetId, appliedRange, replaceRange, timeZone }: DetailDateFilters,
+	isStartPending = false
+): { dateControls: DetailDateControls; isAnchoringAllTime: boolean } {
 	// Read in the site timezone, matching the header subtitle, so the pill and
 	// the "published on" sentence name the same day for every visitor.
 	const allTimeStart = useMemo( () => parseSiteDateTime( publishedDate ), [ publishedDate ] );
+	const anchored = useMemo(
+		() =>
+			allTimeStart
+				? computePrimaryRange( PRESET_ALL_TIME, timeZone, { startDate: allTimeStart } )
+				: undefined,
+		[ allTimeStart, timeZone ]
+	);
 
 	const appliedFrom = appliedRange.from?.getTime();
 
 	useEffect( () => {
-		if ( ! allTimeStart || appliedPresetId !== PRESET_ALL_TIME ) {
-			return;
-		}
-
-		const anchored = computePrimaryRange( PRESET_ALL_TIME, timeZone, {
-			startDate: allTimeStart,
-		} );
-
 		// Only the start can be stale: the end is today either way. Replacing
 		// rather than pushing, so Back does not return to the unanchored range.
-		if ( anchored && anchored.from.getTime() !== appliedFrom ) {
+		if (
+			anchored &&
+			appliedPresetId === PRESET_ALL_TIME &&
+			anchored.from.getTime() !== appliedFrom
+		) {
 			replaceRange( anchored, PRESET_ALL_TIME );
 		}
-	}, [ allTimeStart, appliedFrom, appliedPresetId, replaceRange, timeZone ] );
+	}, [ anchored, appliedFrom, appliedPresetId, replaceRange ] );
 
-	return useMemo(
+	const dateControls = useMemo< DetailDateControls >(
 		() => ( {
 			presetIds: DETAIL_SURFACE_PRESETS,
 			allTimeStart,
@@ -80,4 +81,14 @@ export function useDetailDateControls(
 		} ),
 		[ allTimeStart ]
 	);
+	const provisionalFrom = useMemo(
+		() => computePrimaryRange( PRESET_ALL_TIME, timeZone )?.from.getTime(),
+		[ timeZone ]
+	);
+	const isAnchoringAllTime =
+		appliedPresetId === PRESET_ALL_TIME &&
+		appliedFrom === provisionalFrom &&
+		( anchored ? anchored.from.getTime() !== appliedFrom : isStartPending );
+
+	return { dateControls, isAnchoringAllTime };
 }

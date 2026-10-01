@@ -13,11 +13,14 @@ type AnyComponent = ComponentType< any >;
 export declare const WidgetRoot: AnyComponent;
 export declare function useWidgetRootContext(): any;
 export declare const WidgetState: AnyComponent;
-export declare const WidgetFooter: AnyComponent;
-export declare const ReportLink: AnyComponent;
 export declare function describeError( ...args: any[] ): any;
 
-// Charts and metrics.
+// Footer chrome, until widgets declare their footer as actions the host renders.
+export declare const WidgetFooter: AnyComponent;
+export declare const ReportLink: AnyComponent;
+export declare const ExporterCsvDownloadButton: AnyComponent;
+
+// Charts and metrics: parts of the metric tabs and metric tiles kinds, until those kinds exist.
 export declare const ChartEmptyState: AnyComponent;
 export declare const MetricTabsChart: AnyComponent;
 export declare const MetricTabsChartSkeleton: AnyComponent;

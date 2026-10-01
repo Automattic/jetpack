@@ -6,6 +6,7 @@
 export {
 	ChartEmptyState,
 	EarningsHistoryList,
+	ExporterCsvDownloadButton,
 	Leaderboard,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,

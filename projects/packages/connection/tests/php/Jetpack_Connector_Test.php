@@ -257,11 +257,11 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * The confirmation script loads only when this viewer can open the dialog.
+	 * The dialog script loads only when this viewer can open one of the dialogs.
 	 */
-	public function test_protected_owner_confirmation_script_follows_who_can_confirm() {
+	public function test_protected_owner_dialog_script_follows_who_can_act() {
 		$this->map_connection_caps();
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_confirmation' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_dialogs' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -281,6 +281,54 @@ class Jetpack_Connector_Test extends TestCase {
 
 		Protected_Owner::set( 4242, $this->admin_id );
 		$this->assertFalse( $method->invoke( null, new Manager() ) );
+
+		// The confirmed owner can release, and that does not depend on a consumer still asking.
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		Utils::set_wpcom_user_id( $this->admin_id, 4242 );
+		$this->assertTrue( $method->invoke( null, new Manager() ) );
+	}
+
+	/**
+	 * A second admin carrying the anchored ID — which Premium Content can write directly — is
+	 * offered no dialog, matching the endpoint that would refuse them.
+	 */
+	public function test_protected_owner_dialog_script_skips_an_admin_sharing_the_anchored_id() {
+		$this->map_connection_caps();
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_dialogs' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$method->setAccessible( true );
+		}
+
+		$bystander = wp_insert_user(
+			array(
+				'user_login' => 'sharing_admin',
+				'user_pass'  => 'pass',
+				'user_email' => 'sharing_admin@example.com',
+				'role'       => 'administrator',
+			)
+		);
+
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		\Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				$this->admin_id => 'ownerkey.private.' . $this->admin_id,
+				$bystander      => 'ownerkey.private.' . $bystander,
+			)
+		);
+		update_user_meta( $this->admin_id, 'wpcom_user_id', 4242 );
+		update_user_meta( $bystander, 'wpcom_user_id', 4242 );
+		Protected_Owner::set( 4242, $this->admin_id );
+
+		wp_set_current_user( $bystander );
+		$manager = new Manager();
+
+		$state = $manager->resolve_protected_owner_state();
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'], 'Test setup: the site is settled.' );
+		$this->assertTrue( $state['is_current_user_the_po'], 'Test setup: the binding alone would admit them.' );
+
+		$this->assertFalse( $method->invoke( null, $manager ) );
 	}
 
 	/**
