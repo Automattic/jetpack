@@ -13,6 +13,7 @@
 .jetpack-comments .jetpack-comments__box {
 	position: relative;
 	border: 2px solid currentColor;
+	overflow-anchor: none;
 }
 
 // Three classes: block themes reach it with two classes and a tag.
