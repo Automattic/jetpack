@@ -130,7 +130,7 @@ class Jetpack_Connector {
 		wp_enqueue_script_module( static::MODULE_ID );
 
 		// Assets::enqueue_script also loads the stylesheet registered with the handle.
-		if ( static::should_enqueue_protected_owner_confirmation( new Manager() ) ) {
+		if ( static::should_enqueue_protected_owner_dialogs( new Manager() ) ) {
 			Assets::enqueue_script( 'jetpack-connection' );
 		}
 
@@ -275,12 +275,17 @@ class Jetpack_Connector {
 	}
 
 	/**
-	 * Whether the card can open the shared confirmation dialog.
+	 * Whether the card can open one of the shared protected-owner dialogs.
 	 *
-	 * That dialog is only reachable for a connected administrator, on a site that
-	 * has asked for a protected owner and does not have one yet.
+	 * Confirming is only reachable for a connected administrator, on a site that has asked for a
+	 * protected owner and does not have one yet. Releasing is only reachable for the confirmed
+	 * owner, and deliberately does not depend on a consumer still asking: a site has to be able
+	 * to give up a lock after the plugin that wanted it is gone.
 	 *
-	 * The card always uses the package dialog. `jetpack_connection_protected_owner_default_ui`
+	 * Both read the one state call rather than asking again, so neither adds a WordPress.com
+	 * round trip to a screen load.
+	 *
+	 * The card always uses the package dialogs. `jetpack_connection_protected_owner_default_ui`
 	 * is for a consumer's own surface, not this one.
 	 *
 	 * @since $$next-version$$
@@ -288,14 +293,16 @@ class Jetpack_Connector {
 	 * @param Manager $manager Connection manager instance.
 	 * @return bool
 	 */
-	private static function should_enqueue_protected_owner_confirmation( $manager ) {
-		if ( ! $manager->requires_protected_owner() ) {
-			return false;
-		}
-
+	private static function should_enqueue_protected_owner_dialogs( $manager ) {
 		$state = $manager->resolve_protected_owner_state();
 
-		return Manager::PO_STATE_CAN_ESTABLISH === $state['status'];
+		if ( $manager->requires_protected_owner() && Manager::PO_STATE_CAN_ESTABLISH === $state['status'] ) {
+			return true;
+		}
+
+		// `RE_EVALUATE` is the anchored state where the connection owner matches the anchor,
+		// which is what `has_protected_owner()` answers true to.
+		return Manager::PO_STATE_RE_EVALUATE === $state['status'] && $state['is_current_user_the_po'];
 	}
 
 	/**

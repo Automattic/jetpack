@@ -257,11 +257,11 @@ class Jetpack_Connector_Test extends TestCase {
 	}
 
 	/**
-	 * The confirmation script loads only when this viewer can open the dialog.
+	 * The dialog script loads only when this viewer can open one of the dialogs.
 	 */
-	public function test_protected_owner_confirmation_script_follows_who_can_confirm() {
+	public function test_protected_owner_dialog_script_follows_who_can_act() {
 		$this->map_connection_caps();
-		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_confirmation' );
+		$method = new \ReflectionMethod( Jetpack_Connector::class, 'should_enqueue_protected_owner_dialogs' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$method->setAccessible( true );
 		}
@@ -281,6 +281,12 @@ class Jetpack_Connector_Test extends TestCase {
 
 		Protected_Owner::set( 4242, $this->admin_id );
 		$this->assertFalse( $method->invoke( null, new Manager() ) );
+
+		// The confirmed owner can release, and that does not depend on a consumer still asking.
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
+		\Jetpack_Options::update_option( 'master_user', $this->admin_id );
+		Utils::set_wpcom_user_id( $this->admin_id, 4242 );
+		$this->assertTrue( $method->invoke( null, new Manager() ) );
 	}
 
 	/**

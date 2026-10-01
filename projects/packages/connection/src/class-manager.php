@@ -1613,6 +1613,21 @@ class Manager {
 	}
 
 	/**
+	 * Give up this site's protected ownership with WordPress.com.
+	 *
+	 * Split from `release_protected_owner()` so the decision it drives can be exercised without a
+	 * network. The identity travels in the signature rather than the payload, so WordPress.com
+	 * decides whether the caller is the owner it holds.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function relinquish_protected_owner_record() {
+		return $this->request_protected_owner_record( '/release' );
+	}
+
+	/**
 	 * Call this site's protected-owner resource on WordPress.com, signed as the current user.
 	 *
 	 * @since 9.8.1
@@ -1744,6 +1759,87 @@ class Manager {
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 
 		return true;
+	}
+
+	/**
+	 * Release the protected owner, leaving ownership open to any connected administrator.
+	 *
+	 * WordPress.com holds the record, so it is cleared there first. An anchor dropped only here
+	 * would leave WordPress.com refusing every later claim as `locked_to_other`, locking the site
+	 * to nobody rather than unlocking it.
+	 *
+	 * Leaves `master_user` alone: releasing the lock does not change who the owner is.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error True on success, WP_Error otherwise.
+	 */
+	public function release_protected_owner() {
+		// Authorization precedes everything else, so an unauthorized caller cannot use the
+		// refusals below to learn whether this site is protected or by whom.
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return new WP_Error(
+				'protected_owner_forbidden',
+				__( 'You do not have permission to manage the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// Nothing anchored is already released, so repeating the call is not an error.
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return true;
+		}
+
+		// A local hint that spares an obvious refusal a round trip. WordPress.com is asked anyway
+		// whenever this passes, and its answer is the one that decides.
+		if ( Utils::get_wpcom_user_id( get_current_user_id() ) !== (int) $anchor['wpcom_user_id'] ) {
+			return $this->protected_owner_release_refused();
+		}
+
+		$record = $this->relinquish_protected_owner_record();
+
+		// Fail closed: unreachable, refused, or a WordPress.com that does not implement the call.
+		// Clearing on silence would unlock a site WordPress.com still holds.
+		if ( ! is_array( $record ) || empty( $record['status'] ) ) {
+			return new WP_Error(
+				'protected_owner_unreleased',
+				__( 'Could not reach WordPress.com to release the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		if ( 'not_owner' === $record['status'] ) {
+			return $this->protected_owner_release_refused();
+		}
+
+		// `no_owner` is WordPress.com reporting it holds nothing to release, which is the state
+		// this call asks for, so the stale anchor here clears alongside an accepted release.
+		if ( ! in_array( $record['status'], array( 'released', 'no_owner' ), true ) ) {
+			return new WP_Error(
+				'protected_owner_not_released',
+				__( 'Could not release the protected owner with WordPress.com.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		return $this->clear_protected_owner();
+	}
+
+	/**
+	 * The refusal for a caller who is not the owner WordPress.com holds.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_Error
+	 */
+	private function protected_owner_release_refused() {
+		return new WP_Error(
+			'protected_owner_not_owner',
+			__( 'Only the confirmed owner can release ownership of this site.', 'jetpack-connection' ),
+			array( 'status' => 403 )
+		);
 	}
 
 	/**

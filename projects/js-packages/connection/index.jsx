@@ -38,6 +38,12 @@ export {
 } from './components/protected-owner-confirmation';
 export { getProtectedOwnerConfirmationCopy } from './components/protected-owner-confirmation/copy.ts';
 export * from './components/protected-owner-confirmation/types.ts';
+export {
+	default as ProtectedOwnerRelease,
+	PROTECTED_OWNER_NOT_OWNER,
+} from './components/protected-owner-release';
+export { getProtectedOwnerReleaseCopy } from './components/protected-owner-release/copy.ts';
+export * from './components/protected-owner-release/types.ts';
 
 /**
  * Helpers.
