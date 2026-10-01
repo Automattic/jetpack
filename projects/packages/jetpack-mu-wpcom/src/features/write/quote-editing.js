@@ -223,9 +223,12 @@ export function insertLeadingParagraph( content ) {
  */
 export function keepSelectionAcross( selection, mutate ) {
 	const { anchorNode, anchorOffset, focusNode, focusOffset } = selection;
+	const order = () => anchorNode?.compareDocumentPosition( focusNode );
+	const orderBefore = order();
 	const fallback = mutate();
 	const isLiveText = node => node?.nodeType === TEXT_NODE && node.isConnected;
-	if ( isLiveText( anchorNode ) && isLiveText( focusNode ) ) {
+	// Moving a citation can swap the ends, so the highlight would cover other text.
+	if ( isLiveText( anchorNode ) && isLiveText( focusNode ) && order() === orderBefore ) {
 		selection.setBaseAndExtent( anchorNode, anchorOffset, focusNode, focusOffset );
 	} else if ( isLiveText( anchorNode ) ) {
 		selection.collapse( anchorNode, anchorOffset );

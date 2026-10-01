@@ -268,6 +268,19 @@ describe( 'keepSelectionAcross', () => {
 		assert.equal( selection.focusOffset, 5 );
 	} );
 
+	it( 'collapses the highlight when unwrapping reorders its ends', () => {
+		const bq = render( '<blockquote><cite>Ann</cite><p>body text</p></blockquote>' ).firstChild;
+		const selection = bq.ownerDocument.getSelection();
+		const cite = bq.firstChild.firstChild;
+		selection.setBaseAndExtent( cite, 1, bq.lastChild.firstChild, 4 );
+
+		keepSelectionAcross( selection, () => unwrapQuote( bq ) );
+
+		assert.equal( selection.isCollapsed, true );
+		assert.equal( selection.anchorNode, cite );
+		assert.equal( selection.anchorOffset, 1 );
+	} );
+
 	it( 'puts the caret back in the text it was in', () => {
 		const bq = render( '<blockquote>quote</blockquote>' ).firstChild;
 		const selection = bq.ownerDocument.getSelection();
