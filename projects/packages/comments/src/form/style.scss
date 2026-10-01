@@ -4,17 +4,15 @@
 	visibility: hidden;
 }
 
-// The theme's textarea inset, but never a cramped one.
 .jetpack-comments.is-mounted {
-	--jetpack-comments-pad: max(var(--jetpack-comments-inset, 1em), 1em);
+	--jetpack-comments-pad: 1em;
 }
 
-// One box around the textarea and the footer, in the post's own colours
-// and the theme's textarea radius. Nested to outrank a block theme's rules.
+// One box around the textarea and the footer, in the post's own colours.
+// Nested to outrank a block theme's rules.
 .jetpack-comments .jetpack-comments__box {
 	position: relative;
 	border: 2px solid currentColor;
-	border-radius: var(--jetpack-comments-radius, 0);
 }
 
 // Three classes: block themes reach it with two classes and a tag.
@@ -141,10 +139,6 @@
 	align-items: center;
 	gap: 0.75em;
 	flex: 1 1 10em;
-}
-
-.jetpack-comments__avatar {
-	border-radius: var(--jetpack-comments-radius, 0);
 }
 
 // A flex item, so the button sits on no text baseline and centres with

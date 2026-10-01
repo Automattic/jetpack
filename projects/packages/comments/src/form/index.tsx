@@ -30,6 +30,35 @@ const preloadEditor = () => {
 	loadEditor().catch( () => undefined );
 };
 
+/**
+ * Hand the editor the theme's type from its textarea and the colours around the box.
+ * Read as the editor opens, so a stylesheet that loads late has arrived.
+ *
+ * @param box - The comment box.
+ */
+const matchTheme = ( box: HTMLElement ) => {
+	const textarea = box.querySelector( 'textarea' ) ?? box;
+	const { fontFamily, fontSize, lineHeight } = getComputedStyle( textarea );
+	const { color } = getComputedStyle( box );
+	// The first ancestor that paints a background.
+	let background = '';
+	for ( let node = box.parentElement; node && ! background; node = node.parentElement ) {
+		const { backgroundColor } = getComputedStyle( node );
+		if ( backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent' ) {
+			background = backgroundColor;
+		}
+	}
+
+	// Every read before any write, so the page restyles once.
+	box.style.setProperty( '--jetpack-comments-font-family', fontFamily );
+	box.style.setProperty( '--jetpack-comments-font-size', fontSize );
+	box.style.setProperty( '--jetpack-comments-line-height', lineHeight );
+	box.style.setProperty( '--jetpack-comments-color', color );
+	if ( background ) {
+		box.style.setProperty( '--jetpack-comments-background', background );
+	}
+};
+
 const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	const {
 		formSettings,
@@ -45,6 +74,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	} = useContext( CommentSignals );
 	const { mustLogIn, identity, strings, avatarUrl, maxLength, blocks } = JetpackComments;
 	const isSubmitting = useRef( false );
+	const boxRef = useRef< HTMLDivElement >( null );
 	const editorRef = useRef< HTMLDivElement >( null );
 	// Downloaded on first focus; the textarea stays if it never arrives.
 	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
@@ -57,6 +87,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				return;
 			}
 
+			matchTheme( boxRef.current! );
 			setEditor( 'loading' );
 			loadEditor()
 				.then( ( { mountEditor } ) => {
@@ -214,6 +245,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	return (
 		<>
 			<div
+				ref={ boxRef }
 				className={ clsx( 'jetpack-comments__box', { 'is-open': isFooterOpen.value } ) }
 				onPointerEnter={ blocks ? preloadEditor : undefined }
 			>
@@ -358,29 +390,5 @@ if (
 			</CommentSignals.Provider>,
 			host.attachShadow( { mode: 'open' } )
 		);
-
-		// The box wears the radius, inset, and type the theme gives its textarea, so the
-		// block editor can match it; nothing exposes them otherwise.
-		const textarea = element.querySelector( 'textarea' );
-		if ( textarea ) {
-			const { borderRadius, paddingInlineStart, fontFamily, fontSize, lineHeight } =
-				getComputedStyle( textarea );
-			element.style.setProperty( '--jetpack-comments-radius', borderRadius );
-			element.style.setProperty( '--jetpack-comments-inset', paddingInlineStart );
-			element.style.setProperty( '--jetpack-comments-font-family', fontFamily );
-			element.style.setProperty( '--jetpack-comments-font-size', fontSize );
-			element.style.setProperty( '--jetpack-comments-line-height', lineHeight );
-		}
-
-		// The theme's text colour and the page behind the box, for the editor's toolbar and
-		// popovers; the background is the first ancestor that paints one.
-		element.style.setProperty( '--jetpack-comments-color', getComputedStyle( element ).color );
-		for ( let node = element.parentElement; node; node = node.parentElement ) {
-			const { backgroundColor } = getComputedStyle( node );
-			if ( backgroundColor !== 'rgba(0, 0, 0, 0)' && backgroundColor !== 'transparent' ) {
-				element.style.setProperty( '--jetpack-comments-background', backgroundColor );
-				break;
-			}
-		}
 	} );
 }

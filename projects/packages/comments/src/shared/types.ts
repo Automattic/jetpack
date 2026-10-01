@@ -125,4 +125,11 @@ export type Settings = {
 declare global {
 	const JetpackComments: Settings;
 	const JETPACK_COMMENTS_VERSION: string;
+
+	interface Window {
+		/** Core's translations for the editor, handed over before the chunk loads. */
+		jetpackCommentsEditorLocale?: LocaleData;
+		/** The toolbar's accessible name on the edit-comment screen, translated in PHP. */
+		jetpackCommentsEditorLabels?: { blockTools: string };
+	}
 }

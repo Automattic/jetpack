@@ -53,7 +53,6 @@ class Block_Editor {
 		// Ahead of wpautop at 30.
 		add_filter( 'comment_text', array( __CLASS__, 'render' ), 5 );
 		// The edit-comment screen, for a comment that holds blocks.
-		add_filter( 'wp_editor_settings', array( __CLASS__, 'plain_editor' ), 10, 2 );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_admin' ) );
 	}
 
@@ -206,22 +205,6 @@ class Block_Editor {
 		$comment = 'comment.php' === $pagenow && isset( $_GET['c'] ) ? get_comment( absint( $_GET['c'] ) ) : null;
 
 		return $comment instanceof \WP_Comment && has_blocks( $comment->comment_content );
-	}
-
-	/**
-	 * A bare textarea for the editor to take over, in place of TinyMCE and quicktags.
-	 *
-	 * @param array  $settings  Editor settings.
-	 * @param string $editor_id The editor's id.
-	 * @return array
-	 */
-	public static function plain_editor( $settings, $editor_id ) {
-		if ( 'content' === $editor_id && self::is_editing_blocks() ) {
-			$settings['tinymce']   = false;
-			$settings['quicktags'] = false;
-		}
-
-		return $settings;
 	}
 
 	/**
