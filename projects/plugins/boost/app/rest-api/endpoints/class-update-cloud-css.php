@@ -25,7 +25,9 @@ use WP_REST_Server;
  * - data: Either a successful CSS block, or a CSS error.
  *
  * Each CSS block looks like:
- * - css: string - containing CSS data.
+ * - css: string - containing CSS data, at most Display_Critical_CSS::MAX_CSS_BYTES.
+ * Oversized results delete any previous block and record PayloadTooLargeError;
+ * success:true acknowledges delivery, not acceptance of every CSS block.
  *
  * Each CSS error looks like:
  * - urls: Object describing each URL which failed. Keys are URLs.
@@ -77,7 +79,12 @@ class Update_Cloud_CSS implements Endpoint {
 			// Success
 			if ( ! empty( $result['success'] ) && ! empty( $data['css'] ) && is_string( $data['css'] ) ) {
 				if ( strlen( $data['css'] ) > Display_Critical_CSS::MAX_CSS_BYTES ) {
-					$state->set_provider_payload_too_large( $provider_key );
+					$storage->delete_css( $provider_key );
+					$error = $state->set_provider_payload_too_large( $provider_key );
+					if ( is_wp_error( $error ) ) {
+						$state->set_error( $error->get_error_message() )->save();
+						return $error;
+					}
 					continue;
 				}
 				$storage->store_css( $provider_key, $data['css'] );

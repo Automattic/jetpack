@@ -233,7 +233,14 @@ export async function generateCriticalCSS( {
 		// Convert ASTs to CSS.
 		const results = asts.map( ast => minifyCss( ast.toCSS() ) );
 		const cssErrors = results.flatMap( result => result[ 1 ] );
-		const css = deduplicateCss( results.map( result => result[ 0 ] ).join( '\n' ) );
+		const joined = results.map( result => result[ 0 ] ).join( '\n' );
+		let css = joined;
+		try {
+			css = deduplicateCss( joined );
+		} catch ( error ) {
+			// Parser failures must not discard otherwise usable Critical CSS.
+			cssErrors.push( error instanceof Error ? error.message : String( error ) );
+		}
 
 		// If there is no Critical CSS, it means the URLs did not have any CSS in their external style sheet(s).
 		if ( ! css ) {

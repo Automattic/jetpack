@@ -10,6 +10,9 @@ namespace Automattic\Jetpack_Boost\Tests\Lib\Critical_CSS;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Source_Providers\Source_Providers;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Critical_CSS\Critical_CSS;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
@@ -93,6 +96,56 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 		$this->assertGreaterThan( $block, strpos( $output, '<link' ) );
 		$this->assertGreaterThan( $block, strpos( $output, 'theme-inline-css' ) );
 		$this->assertStringContainsString( $this->sample_css, $output );
+	}
+
+	/**
+	 * Module paths retain early metadata, inline overrides and bounded late Open Graph tags.
+	 */
+	public function test_module_output_order_and_debug_budget() {
+		foreach ( array( Critical_CSS::class, Cloud_CSS::class ) as $class ) {
+			remove_all_actions( 'wp_head' );
+			$GLOBALS['wp_styles'] = null;
+			add_action( 'wp_head', 'wp_print_styles', 8 );
+			add_action(
+				'wp_head',
+				function () {
+					echo '<title>Preview</title>';
+				},
+				1
+			);
+			add_action(
+				'wp_head',
+				function () {
+					echo '<meta property="og:title" content="Preview">';
+				},
+				10
+			);
+			wp_enqueue_style( 'theme', 'https://example.test/style.css', array(), '1' );
+			wp_add_inline_style( 'theme', 'body { color: blue; }' );
+			$css   = str_repeat( ' ', 512 * KB_IN_BYTES );
+			$paths = $this->createStub( Source_Providers::class );
+			$paths->method( 'get_current_request_css' )->willReturn( $css );
+			$paths->method( 'get_current_critical_css_key' )->willReturn( 'fixture_key' );
+			$module   = new $class();
+			$property = new \ReflectionProperty( $class, 'paths' );
+			$property->setAccessible( true );
+			$property->setValue( $module, $paths );
+			$module->display_critical_css();
+			ob_start();
+			do_action( 'wp_head' );
+			$output = ob_get_clean();
+			$block  = strpos( $output, '<style id="jetpack-boost-critical-css">' );
+			$this->assertNotFalse( $block );
+			$this->assertLessThan( $block, strpos( $output, '<title>' ) );
+			$this->assertGreaterThan( $block, strpos( $output, '<link' ) );
+			$this->assertGreaterThan( $block, strpos( $output, 'theme-inline-css' ) );
+			$this->assertGreaterThan( $block, strpos( $output, 'og:title' ) );
+			$this->assertLessThan( MB_IN_BYTES, strpos( $output, 'og:title' ) );
+			$this->assertStringContainsString( $css . '</style>', $output );
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				$this->assertStringContainsString( '/* Critical CSS Key: fixture_key */', $output );
+			}
+		}
 	}
 
 	/**

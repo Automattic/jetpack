@@ -17,10 +17,14 @@ class Display_Critical_CSS {
 	protected $css;
 
 	/**
-	 * @param string $css
+	 * @param string      $css CSS payload, excluding the optional debug key comment.
+	 * @param string|null $key Provider key for debug output.
 	 */
-	public function __construct( $css ) {
+	public function __construct( $css, $key = null ) {
 		$this->css = strlen( $css ) > self::MAX_CSS_BYTES ? '' : $css;
+		if ( $this->css && null !== $key && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			$this->css = "/* Critical CSS Key: {$key} */\n" . $this->css;
+		}
 	}
 
 	/**

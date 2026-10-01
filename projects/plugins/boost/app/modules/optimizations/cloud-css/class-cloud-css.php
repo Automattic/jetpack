@@ -137,11 +137,7 @@ class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints
 			return;
 		}
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG === true ) {
-			$critical_css = "/* Critical CSS Key: {$this->paths->get_current_critical_css_key()} */\n" . $critical_css;
-		}
-
-		$display = new Display_Critical_CSS( $critical_css );
+		$display = new Display_Critical_CSS( $critical_css, $this->paths->get_current_critical_css_key() );
 		$display->register_hooks();
 	}
 

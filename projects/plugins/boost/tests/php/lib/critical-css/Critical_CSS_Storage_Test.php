@@ -18,6 +18,7 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../mocks/class-boost-poi-test-gadget.php';
+require_once __DIR__ . '/Display_Critical_CSS_Test.php';
 require_once dirname( __DIR__, 4 ) . '/wp-js-data-sync.php';
 
 /**
@@ -188,6 +189,7 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 			);
 			$state    = new Critical_CSS_State();
 			$state->prepare_request()->set_pending_providers( array( $provider ) )->save();
+			( new Critical_CSS_Storage() )->store_css( $key, '.old{color:red}' );
 			$request = new \WP_REST_Request( 'POST' );
 			if ( 'local' === $delivery ) {
 				$response = ( new Set_Provider_CSS() )->handle(
@@ -211,7 +213,7 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 				);
 				$response = ( new Update_Cloud_CSS() )->response( $request );
 			}
-			$this->assertTrue( $response['success'] );
+			$this->assertSame( 'cloud' === $delivery || $accepted, $response['success'] );
 			$saved = $state->get();
 			$this->assertIsArray( $saved );
 			$provider = $saved['providers'][0];
@@ -230,16 +232,48 @@ class Critical_CSS_Storage_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Missing providers produce an explicit error instead of silently acknowledging rejection.
+	 */
+	public function test_rejected_delivery_reports_unknown_provider() {
+		jetpack_boost_register_option( 'critical_css_state', Data_Sync_Schema::critical_css_state() );
+		$state = new Critical_CSS_State();
+		$state->prepare_request()->set_pending_providers( array() )->save();
+		$css      = str_repeat( ' ', 512 * KB_IN_BYTES + 1 );
+		$request  = new \WP_REST_Request( 'POST' );
+		$response = ( new Set_Provider_CSS() )->handle(
+			array(
+				'key' => 'missing',
+				'css' => $css,
+			),
+			$request
+		);
+		$this->assertFalse( $response['success'] );
+		$this->assertNotEmpty( $response['error'] );
+		$this->assertSame( 'error', $response['state']['status'] );
+		$request->set_body_params(
+			array(
+				'success'   => true,
+				'providers' => array(
+					'missing' => array(
+						'success' => true,
+						'data'    => array( 'css' => $css ),
+					),
+				),
+			)
+		);
+		$response = ( new Update_Cloud_CSS() )->response( $request );
+		$this->assertInstanceOf( \WP_Error::class, $response );
+		$this->assertSame( 'invalid_provider_key', $response->get_error_code() );
+		$state->clear();
+	}
+
+	/**
 	 * Byte boundaries shared by local and cloud delivery.
 	 *
 	 * @return array
 	 */
 	public static function provide_delivery_budget_cases() {
-		return array(
-			'at limit'      => array( str_repeat( ' ', 512 * KB_IN_BYTES ), true ),
-			'over limit'    => array( str_repeat( ' ', 512 * KB_IN_BYTES + 1 ), false ),
-			'multibyte CSS' => array( 'a{content:"' . str_repeat( 'é', 256 * KB_IN_BYTES ) . '"}', false ),
-		);
+		return Display_Critical_CSS_Test::provide_css_budget_cases();
 	}
 
 	/**

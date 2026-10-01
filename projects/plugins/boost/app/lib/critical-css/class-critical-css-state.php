@@ -138,22 +138,22 @@ class Critical_CSS_State {
 		if ( empty( $this->state['providers'] ) ) {
 			return new WP_Error( 'invalid_provider_key', 'No providers exist' );
 		}
-		foreach ( $this->state['providers'] as $provider ) {
-			if ( $provider['key'] !== $provider_key ) {
-				continue;
-			}
-			$errors = array();
-			foreach ( $provider['urls'] as $url ) {
-				$errors[] = array(
-					'url'     => $url,
-					'type'    => 'PayloadTooLargeError',
-					'message' => __( 'Critical CSS exceeds the inline size limit.', 'jetpack-boost' ),
-					'meta'    => array(),
-				);
-			}
-			return $this->set_provider_errors( $provider_key, $errors );
+		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
+		if ( false === $provider_index ) {
+			return new WP_Error( 'invalid_provider_key', 'Invalid provider key' );
 		}
-		return new WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+		$errors = array();
+		foreach ( $this->state['providers'][ $provider_index ]['urls'] as $url ) {
+			$errors[] = array(
+				'url'     => $url,
+				'type'    => 'PayloadTooLargeError',
+				'message' => __( 'Critical CSS exceeds the 512 KiB inline limit; standard stylesheets will be used instead.', 'jetpack-boost' ),
+			);
+		}
+		$this->state['providers'][ $provider_index ]['status'] = self::PROVIDER_STATES['error'];
+		$this->state['providers'][ $provider_index ]['errors'] = $errors;
+		$this->maybe_set_generated();
+		return true;
 	}
 
 	/**

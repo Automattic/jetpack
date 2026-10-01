@@ -1,6 +1,7 @@
 const path = require( 'path' );
 const { chromium } = require( 'playwright' );
-const { deduplicateCss } = require( '../../build/deduplicate-css.js' );
+const dedupe = require( '../../build/deduplicate-css.js' );
+const { deduplicateCss } = dedupe;
 const { generateCriticalCSS, BrowserInterfacePlaywright } = require( '../../build/playwright.js' );
 const { dataDirectory } = require( '../lib/data-directory.js' );
 const mockFetch = require( '../lib/mock-fetch.js' );
@@ -103,6 +104,7 @@ describe( 'Generate Critical CSS', () => {
 			[ 'stray brace', '', '}.top{color:green}' ],
 			[ 'pruned keyframes', '', '@keyframes spin{from{opacity:0}to{opacity:1}}' ],
 			[ 'pruned print media', '', '@media print{div.top{color:#000}}' ],
+			[ 'escaped import', '@\\69mport url(x.css);', '' ],
 			[ 'pruned import and charset', '@charset "utf-8";@import url(x.css);', '' ],
 		] )(
 			'Deduplicates overlapping sources containing %s after pruning',
@@ -116,7 +118,11 @@ describe( 'Generate Critical CSS', () => {
 					suffix;
 				class CombinedInterface extends MockedFetchInterface {
 					async getCssIncludes( url ) {
-						return { [ '/combined.css' + new URL( url ).search ]: { media: 'all' } };
+						return {
+							[ '/combined.css' + new URL( url ).search ]: {
+								media: _name === 'escaped import' ? '' : 'all',
+							},
+						};
 					}
 					async getInternalStyles() {
 						return '';
@@ -140,6 +146,7 @@ describe( 'Generate Critical CSS', () => {
 				expect( single ).toContain( 'div.top' );
 				expect( combined ).toBe( single );
 				expect( combined ).not.toContain( '.unused-' );
+				expect( combined ).not.toContain( 'x.css' );
 			}
 		);
 
@@ -155,11 +162,7 @@ describe( 'Generate Critical CSS', () => {
 			const deduplicated = deduplicateCss( css );
 			expect( deduplicated.length ).toBeLessThan( css.length );
 			expect( deduplicated ).toContain( '@layer alpha;' );
-			const namespaceHeader =
-				'@namespace svg url(http://www.w3.org/2000/svg);@namespace svg url(urn:other);@namespace svg url(http://www.w3.org/2000/svg);';
-			expect( deduplicateCss( namespaceHeader + '.top{color:red}' ) ).toBe(
-				namespaceHeader + '.top{color:red}'
-			);
+
 			const page = await browser.newPage();
 			try {
 				await page.setContent( '<style></style><div class="top">Test</div>' );
@@ -176,7 +179,9 @@ describe( 'Generate Critical CSS', () => {
 						'@media(min-width:700px){.top{padding:8px}}@media(max-width:699px){.top{padding:8px}}',
 						'@media(min-width:700px){@layer alpha{.top{color:red}}}@layer beta{.top{color:blue}}@layer alpha{.top{color:red}}',
 						'@layer alpha{.top{color:red}}@layer alpha{.top{color:green}}@layer alpha{.top{color:red}}',
-						'@layer{.top{color:red}}@layer{.top{color:blue}}@layer{.top{color:red}}',
+						'@layer{.top{color:red!important}}@layer{.top{color:blue!important}}@layer{.top{color:red!important}}',
+						'.top{@layer alpha{color:red}}.top{@layer beta{color:blue}}.top{@layer alpha{color:red}}',
+						'@layer a\\,b{.top{color:red}}@layer b;@layer c{.top{color:blue}}@layer b{.top{color:green}}',
 						'@namespace svg url(http://www.w3.org/2000/svg);@namespace svg url(http://www.w3.org/2000/svg);.top{color:red}',
 					] ) {
 						const original = await measure( input );
@@ -185,6 +190,44 @@ describe( 'Generate Critical CSS', () => {
 				}
 			} finally {
 				await page.close();
+			}
+		} );
+
+		it( 'Preserves the valid namespace header in its original order', () => {
+			const namespaceHeader =
+				'@namespace svg url(http://www.w3.org/2000/svg);@namespace svg url(urn:other);@namespace svg url(http://www.w3.org/2000/svg);';
+			expect( deduplicateCss( namespaceHeader + '.top{color:red}' ) ).toBe(
+				namespaceHeader + '.top{color:red}'
+			);
+		} );
+
+		it( 'Handles long layer names and conditional preludes without repeating context keys per rule', () => {
+			const rules = Array.from( { length: 5000 }, ( _, i ) => `.x${ i }{color:red}` ).join( '' );
+			for ( const context of [
+				'@layer ' + 'x'.repeat( 16000 ),
+				'@media (' + 'x'.repeat( 16000 ) + ')',
+			] ) {
+				const output = deduplicateCss( `${ context }{${ rules }${ rules }}` );
+				expect( output.match( /\.x\d+\{/g ) ).toHaveLength( 5000 );
+			}
+			const dotted = '@layer ' + Array( 25000 ).fill( 'x' ).join( '.' );
+			expect( deduplicateCss( `${ dotted }{.top{color:red}}` ) ).toContain( '.top{color:red}' );
+		} );
+
+		it( 'Falls back to the minified join and reports a deduplication failure', async () => {
+			const spy = jest.spyOn( dedupe, 'deduplicateCss' ).mockImplementation( () => {
+				throw new Error( 'Parser failure' );
+			} );
+			try {
+				const [ css, warnings ] = await generateCriticalCSS( {
+					urls: [ testPageUrls.pageA ],
+					viewports: [ { width: 640, height: 480 } ],
+					browserInterface: new MockedFetchInterface( browser, [ testPageUrls.pageA ] ),
+				} );
+				expect( css ).toContain( 'div.top' );
+				expect( warnings.map( error => error.message ) ).toContain( 'Parser failure' );
+			} finally {
+				spy.mockRestore();
 			}
 		} );
 
