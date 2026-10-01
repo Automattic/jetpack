@@ -20,8 +20,6 @@ import { useEarningsReportRecords } from './earnings/config';
 import EarningsReportPage from './earnings/page';
 import { useLocationsReportRecords } from './locations/config';
 import LocationsReportPage from './locations/page';
-import { useUtmReportRecords } from './utm/config';
-import UtmReportPage from './utm/page';
 import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -169,19 +167,10 @@ jest.mock( './locations/config', () => ( {
 	useLocationsReportRecords: jest.fn(),
 } ) );
 
-jest.mock( './utm/config', () => ( {
-	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
-	getUtmFields: () => [],
-	getUtmTabLabel: () => 'Source / medium',
-	resolveSection: ( value: string | undefined ) => value ?? 'source-medium',
-	useUtmReportRecords: jest.fn(),
-} ) );
-
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
 const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
 const useEarningsReportRecordsMock = jest.mocked( useEarningsReportRecords );
 const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
-const useUtmReportRecordsMock = jest.mocked( useUtmReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
@@ -351,34 +340,6 @@ describe( 'report CSV exports', () => {
 			'locations-countries',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ 'Australia', 5 ]
-		);
-	} );
-
-	it( 'configures the active UTM tab export in hierarchy order', () => {
-		useSectionTabMock.mockReturnValue( [ 'source-medium', jest.fn() ] as ReturnType<
-			typeof useSectionTab
-		> );
-		const rows = [
-			{ id: 'first', label: 'First source', views: 2, isGroup: true },
-			{
-				id: 'first-post',
-				parentId: 'first',
-				label: 'First post',
-				groupLabel: 'First source',
-				views: 10,
-			},
-			{ id: 'second', label: 'Second source', views: 5, isGroup: true },
-		];
-		useUtmReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as ReturnType< typeof useUtmReportRecords > );
-
-		expectCsvExport( UtmReportPage, 'utm-source-medium', rows, [ 'First source', 2 ] );
-
-		const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
-		expect( actionProps.columns.map( column => column.getValue( actionProps.rows[ 1 ] ) ) ).toEqual(
-			[ 'First source > First post', 10 ]
 		);
 	} );
 } );

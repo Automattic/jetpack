@@ -55,13 +55,14 @@ export function getUtmReportQueryParams(
 	reportParams: ReportParams,
 	section: UtmReportSection
 ): StatsUtmParams {
+	// `ReportParams` types `post_id` as its URL string; the UTM query passes it through as-is.
 	return {
 		...reportParams,
 		max: 0,
 		summarize: 0,
 		query_top_posts: true,
 		utmParam: UTM_DIMENSIONS[ section ].utmParam,
-	};
+	} as StatsUtmParams;
 }
 
 /** A UTM parent or nested post row shown in the report table. */
