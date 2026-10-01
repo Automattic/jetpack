@@ -85,6 +85,15 @@ class Odyssey_Config_Data_Test extends Stats_TestCase {
 		);
 	}
 
+	public function test_config_data_carries_the_site_timezone() {
+		update_option( 'timezone_string', 'America/New_York' );
+
+		$data = ( new Odyssey_Config_Data() )->get_data();
+
+		delete_option( 'timezone_string' );
+		$this->assertSame( 'America/New_York', $data['timezone'] );
+	}
+
 	/**
 	 * A site that disconnects keeps its blog ID, but the app cannot sign a single request with
 	 * it, so it has to be told there is no site rather than handed one that does not work.
