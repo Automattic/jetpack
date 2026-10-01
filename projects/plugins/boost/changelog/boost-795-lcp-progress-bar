@@ -1,4 +1,3 @@
 Significance: patch
 Type: changed
-
-Settings: Show a progress bar while LCP images are being optimized.
+Comment: Part of the new Settings, which has not shipped yet.
