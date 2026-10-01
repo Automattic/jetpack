@@ -14,7 +14,7 @@ import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
  * Widget attributes shape.
  *
  * @property utmDimension   - UTM dimension to break down by. Defaults to 'utm_source,utm_medium'.
- * @property showReportLink - Whether to render the "View all" footer link. Defaults to true.
+ * @property showReportLink - Whether to render the footer: View all and Download CSV. Defaults to true.
  *                          Host compositions on terminal pages (post detail) set this to false;
  *                          it is not a user-facing control.
  */

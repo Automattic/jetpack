@@ -10,7 +10,7 @@ import {
 /**
  * Internal dependencies
  */
-import { aggregateUtmRows, utmCsvExporters } from '../utm';
+import { aggregateUtmRows, getUtmReportSection, utmCsvExporters } from '../utm';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -148,6 +148,7 @@ describe( 'utmCsvExporters', () => {
 			query_top_posts: true,
 			utmParam,
 		} );
+		expect( getUtmReportSection( utmParam ) ).toBe( section );
 		expect( exporter.filenamePrefix ).toBe( `utm-${ section }` );
 		expect( columns.map( column => column.label ) ).toEqual( [ label, 'Views' ] );
 		expect( rows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [

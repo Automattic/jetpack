@@ -227,6 +227,7 @@ export {
 	getSummarizedReportQueryParams,
 	getUtmDimensionLabel,
 	getUtmReportQueryParams,
+	getUtmReportSection,
 	getVideosReportQueryParams,
 	postsPagesCsvExporter,
 	referrersCsvExporter,

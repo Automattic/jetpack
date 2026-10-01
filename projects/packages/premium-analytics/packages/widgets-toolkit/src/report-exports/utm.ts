@@ -50,6 +50,13 @@ export function getUtmDimensionLabel( section: UtmReportSection ): string {
 	return UTM_DIMENSIONS[ section ].getLabel();
 }
 
+/** The report tab that lists a widget's UTM dimension. */
+export function getUtmReportSection( utmParam: StatsUtmParam ): UtmReportSection {
+	return ( Object.keys( UTM_DIMENSIONS ) as UtmReportSection[] ).find(
+		section => UTM_DIMENSIONS[ section ].utmParam === utmParam
+	);
+}
+
 /** The UTM report's query: every value with its top posts, as Calypso's full UTM report requests. */
 export function getUtmReportQueryParams(
 	reportParams: ReportParams,

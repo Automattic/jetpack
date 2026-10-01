@@ -22,10 +22,10 @@ import {
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	ExporterCsvDownloadButton,
+	getUtmReportSection,
 	utmCsvExporters,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
-	type UtmReportSection,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 /**
  * Internal dependencies
@@ -52,26 +52,10 @@ type UtmInsightsInnerProps = {
 	 */
 	utmDimension: StatsUtmParam;
 	/**
-	 * Whether to render the "View all" footer link.
+	 * Whether to render the footer: View all and Download CSV.
 	 */
 	showReportLink: boolean;
 };
-
-/** Map a widget dimension to a section supported by the UTM report. */
-function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
-	switch ( utmDimension ) {
-		case 'utm_source,utm_medium':
-			return 'source-medium';
-		case 'utm_campaign,utm_source,utm_medium':
-			return 'campaign-source-medium';
-		case 'utm_source':
-			return 'source';
-		case 'utm_medium':
-			return 'medium';
-		case 'utm_campaign':
-			return 'campaign';
-	}
-}
 
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -206,7 +190,6 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 					/>
 				</WidgetState>
 			</div>
-			{ /* Post detail hides the footer: its rows cover one post, not the site-wide report. */ }
 			{ showReportLink && (
 				<WidgetFooter>
 					<ReportLink report="utm" section={ reportSection } />

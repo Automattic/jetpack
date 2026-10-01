@@ -37,6 +37,7 @@ export {
 	aggregateUtmRows,
 	getUtmDimensionLabel,
 	getUtmReportQueryParams,
+	getUtmReportSection,
 	utmCsvExporters,
 	type UtmReportRow,
 	type UtmReportSection,
