@@ -8,6 +8,7 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Lib\Critical_CSS;
 
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Admin_Bar_Compatibility;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -57,9 +58,13 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Metadata from early and late head callbacks precedes Critical CSS.
+	 * Critical CSS follows the title and precedes stylesheet links and inline overrides.
 	 */
-	public function test_register_hooks_prints_css_after_metadata() {
+	public function test_register_hooks_prints_css_before_stylesheets() {
+		remove_all_actions( 'wp_head' );
+		$GLOBALS['wp_styles'] = null;
+		add_action( 'wp_head', 'wp_print_styles', 8 );
+		$this->instance->register_hooks();
 		add_action(
 			'wp_head',
 			function () {
@@ -72,16 +77,21 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 			function () {
 				echo '<meta property="og:title" content="Preview">';
 			},
-			100
+			6
 		);
-		$this->instance->register_hooks();
+		wp_enqueue_style( 'theme', 'https://example.test/style.css', array(), '1' );
+		wp_add_inline_style( 'theme', 'body { color: blue; }' );
 
 		ob_start();
 		do_action( 'wp_head' );
 		$output = ob_get_clean();
+		$block  = strpos( $output, 'jetpack-boost-critical-css' );
 
-		$this->assertLessThan( strpos( $output, 'jetpack-boost-critical-css' ), strpos( $output, '<title>' ) );
-		$this->assertLessThan( strpos( $output, 'jetpack-boost-critical-css' ), strpos( $output, 'og:title' ) );
+		$this->assertNotFalse( $block );
+		$this->assertLessThan( $block, strpos( $output, '<title>' ) );
+		$this->assertLessThan( $block, strpos( $output, 'og:title' ) );
+		$this->assertGreaterThan( $block, strpos( $output, '<link' ) );
+		$this->assertGreaterThan( $block, strpos( $output, 'theme-inline-css' ) );
 		$this->assertStringContainsString( $this->sample_css, $output );
 	}
 
@@ -106,6 +116,10 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 		if ( $accepted ) {
 			$this->assertSame( '<style id="jetpack-boost-critical-css">' . $css . '</style>', $output );
 			$this->assertStringContainsString( 'media="not all"', $style );
+			$this->assertSame( 10, has_action( 'wp_footer', array( $instance, 'onload_flip_stylesheets' ) ) );
+			$this->assertSame( 10, has_filter( 'jetpack_boost_async_style', array( Admin_Bar_Compatibility::class, 'enable_asynchronous_admin_bar' ) ) );
+			$this->assertSame( 10, has_action( 'wp_before_admin_bar_render', array( Admin_Bar_Compatibility::class, 'force_admin_bar_stylesheet' ) ) );
+			$this->assertFalse( apply_filters( 'jetpack_boost_async_style', 'async', 'admin-bar', 'all' ) );
 		} else {
 			$this->assertSame( '', $output );
 			$this->assertSame( $html, $style );
@@ -121,9 +135,9 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 	 */
 	public static function provide_css_budget_cases() {
 		return array(
-			'at limit'      => array( str_repeat( ' ', MB_IN_BYTES ), true ),
-			'over limit'    => array( str_repeat( ' ', MB_IN_BYTES + 1 ), false ),
-			'multibyte CSS' => array( 'a{content:"' . str_repeat( 'é', MB_IN_BYTES / 2 ) . '"}', false ),
+			'at limit'      => array( str_repeat( ' ', 512 * KB_IN_BYTES ), true ),
+			'over limit'    => array( str_repeat( ' ', 512 * KB_IN_BYTES + 1 ), false ),
+			'multibyte CSS' => array( 'a{content:"' . str_repeat( 'é', 256 * KB_IN_BYTES ) . '"}', false ),
 		);
 	}
 
@@ -379,5 +393,6 @@ class Display_Critical_CSS_Test extends BaseTestCase {
 		remove_all_actions( 'wp_footer' );
 		remove_all_filters( 'style_loader_tag' );
 		remove_all_actions( 'wp_before_admin_bar_render' );
+		$GLOBALS['wp_styles'] = null;
 	}
 }

@@ -84,39 +84,64 @@ describe( 'Generate Critical CSS', () => {
 	} );
 
 	describe( 'Inclusions and Exclusions', () => {
-		it( 'Deduplicates overlapping combined sources after pruning unused page rules', async () => {
-			const shared =
-				'@font-face{font-family:Fixture;src:url(/fixture.woff2)}' +
-				'@custom-media --small (width<700px);' +
-				'div.top{color:red;background:white;font-family:Fixture}@media screen{div.top{padding:8px}}' +
-				'@supports(display:grid){div.top{display:grid}}';
-			class CombinedInterface extends MockedFetchInterface {
-				async getCssIncludes( url ) {
-					return { [ '/combined.css' + new URL( url ).search ]: { media: 'all' } };
+		it.each( [
+			[ 'ordinary rules', '', '' ],
+			[ 'layer block', '', '@layer base{div.top{margin:0}}' ],
+			[ 'layer statement', '@layer reset,base;', '' ],
+			[ 'container', '', '@container (min-width:400px){div.top{gap:1px}}' ],
+			[ 'empty container', '', '@container (min-width:400px){.unused-x{gap:1px}}' ],
+			[ 'property', '', "@property --x{syntax:'<length>';inherits:false;initial-value:0}" ],
+			[ 'page', '', '@page{margin:1cm}' ],
+			[ 'vendor viewport', '@-ms-viewport{width:device-width}', '' ],
+			[ 'vendor document', '', '@-moz-document url-prefix(){div.top{color:red}}' ],
+			[ 'counter-style', '', '@counter-style x{system:cyclic;symbols:"-"}' ],
+			[ 'namespace', '@namespace svg url(http://www.w3.org/2000/svg);', '' ],
+			[ 'scope', '', '@scope (div.top){div.top{color:blue}}' ],
+			[ 'starting-style', '', '@starting-style{div.top{opacity:0}}' ],
+			[ 'nested at-rule', '', 'div.top{color:red;@media (min-width:1px){color:blue}}' ],
+			[ 'nested rule', '', 'div.top{color:red;.top{color:blue}}' ],
+			[ 'stray brace', '', '}.top{color:green}' ],
+			[ 'pruned keyframes', '', '@keyframes spin{from{opacity:0}to{opacity:1}}' ],
+			[ 'pruned print media', '', '@media print{div.top{color:#000}}' ],
+			[ 'pruned import and charset', '@charset "utf-8";@import url(x.css);', '' ],
+		] )(
+			'Deduplicates overlapping sources containing %s after pruning',
+			async ( _name, prefix, suffix ) => {
+				const shared =
+					prefix +
+					'@font-face{font-family:Fixture;src:url(/fixture.woff2)}' +
+					'@custom-media --small (width<700px);' +
+					'div.top{color:red;background:white;font-family:Fixture}@media screen{div.top{padding:8px}}' +
+					'@supports(display:grid){div.top{display:grid}}' +
+					suffix;
+				class CombinedInterface extends MockedFetchInterface {
+					async getCssIncludes( url ) {
+						return { [ '/combined.css' + new URL( url ).search ]: { media: 'all' } };
+					}
+					async getInternalStyles() {
+						return '';
+					}
+					async fetch( url ) {
+						const page = new URL( url ).searchParams.get( 'copy' );
+						return { ok: true, text: async () => shared + `.unused-${ page }{color:blue}` };
+					}
 				}
-				async getInternalStyles() {
-					return '';
-				}
-				async fetch( url ) {
-					const page = new URL( url ).searchParams.get( 'copy' );
-					return { ok: true, text: async () => shared + `.unused-${ page }{color:blue}` };
-				}
+				const urls = Array.from( { length: 10 }, ( _, i ) => testPageUrls.pageA + '?copy=' + i );
+				const generate = pages =>
+					generateCriticalCSS( {
+						urls: pages,
+						viewports: [ { width: 640, height: 480 } ],
+						browserInterface: new CombinedInterface( browser, pages ),
+					} );
+				const [ single, singleWarnings ] = await generate( urls.slice( 0, 1 ) );
+				const [ combined, warnings ] = await generate( urls );
+				expect( singleWarnings ).toHaveLength( 0 );
+				expect( warnings ).toHaveLength( 0 );
+				expect( single ).toContain( 'div.top' );
+				expect( combined ).toBe( single );
+				expect( combined ).not.toContain( '.unused-' );
 			}
-			const urls = Array.from( { length: 10 }, ( _, i ) => testPageUrls.pageA + '?copy=' + i );
-			const generate = pages =>
-				generateCriticalCSS( {
-					urls: pages,
-					viewports: [ { width: 640, height: 480 } ],
-					browserInterface: new CombinedInterface( browser, pages ),
-				} );
-			const [ single, singleWarnings ] = await generate( urls.slice( 0, 1 ) );
-			const [ combined, warnings ] = await generate( urls );
-			expect( singleWarnings ).toHaveLength( 0 );
-			expect( warnings ).toHaveLength( 0 );
-			expect( single ).toContain( 'div.top' );
-			expect( combined ).toBe( single );
-			expect( combined ).not.toContain( '.unused-' );
-		} );
+		);
 
 		it( 'Preserves the cascade across overrides, conditional contexts and layer registration', async () => {
 			const css =
@@ -129,7 +154,12 @@ describe( 'Generate Critical CSS', () => {
 				'@media(max-width:699px){.top{padding:16px}}';
 			const deduplicated = deduplicateCss( css );
 			expect( deduplicated.length ).toBeLessThan( css.length );
-			expect( deduplicated.match( /@layer alpha/g ) ).toHaveLength( 2 );
+			expect( deduplicated ).toContain( '@layer alpha;' );
+			const namespaceHeader =
+				'@namespace svg url(http://www.w3.org/2000/svg);@namespace svg url(urn:other);@namespace svg url(http://www.w3.org/2000/svg);';
+			expect( deduplicateCss( namespaceHeader + '.top{color:red}' ) ).toBe(
+				namespaceHeader + '.top{color:red}'
+			);
 			const page = await browser.newPage();
 			try {
 				await page.setContent( '<style></style><div class="top">Test</div>' );
@@ -141,8 +171,17 @@ describe( 'Generate Critical CSS', () => {
 							const computed = getComputedStyle( document.querySelector( '.top' ) );
 							return [ computed.color, computed.backgroundColor, computed.padding ];
 						}, styles );
-					const original = await measure( css );
-					await expect( measure( deduplicated ) ).resolves.toEqual( original );
+					for ( const input of [
+						css,
+						'@media(min-width:700px){.top{padding:8px}}@media(max-width:699px){.top{padding:8px}}',
+						'@media(min-width:700px){@layer alpha{.top{color:red}}}@layer beta{.top{color:blue}}@layer alpha{.top{color:red}}',
+						'@layer alpha{.top{color:red}}@layer alpha{.top{color:green}}@layer alpha{.top{color:red}}',
+						'@layer{.top{color:red}}@layer{.top{color:blue}}@layer{.top{color:red}}',
+						'@namespace svg url(http://www.w3.org/2000/svg);@namespace svg url(http://www.w3.org/2000/svg);.top{color:red}',
+					] ) {
+						const original = await measure( input );
+						await expect( measure( deduplicateCss( input ) ) ).resolves.toEqual( original );
+					}
 				}
 			} finally {
 				await page.close();

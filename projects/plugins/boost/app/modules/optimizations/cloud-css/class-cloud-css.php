@@ -132,7 +132,7 @@ class Cloud_CSS implements Feature, Has_Activate, Has_Always_Available_Endpoints
 			// If Cloud CSS is still generating and the user is logged in, render the status information in a comment.
 			if ( $pending && is_user_logged_in() ) {
 				$display = new Display_Critical_CSS( '/* ' . __( 'Jetpack Boost is currently generating critical css for this page', 'jetpack-boost' ) . ' */' );
-				add_action( 'wp_head', array( $display, 'display_critical_css' ), PHP_INT_MAX );
+				add_action( 'wp_head', array( $display, 'display_critical_css' ), Display_Critical_CSS::HEAD_PRIORITY );
 			}
 			return;
 		}

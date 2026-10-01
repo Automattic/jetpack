@@ -231,9 +231,9 @@ export async function generateCriticalCSS( {
 		const asts = cssFiles.prunedAsts( aboveFoldSelectors );
 
 		// Convert ASTs to CSS.
-		const [ css, cssErrors ] = minifyCss(
-			deduplicateCss( asts.map( ast => ast.toCSS() ).join( '\n' ) )
-		);
+		const results = asts.map( ast => minifyCss( ast.toCSS() ) );
+		const cssErrors = results.flatMap( result => result[ 1 ] );
+		const css = deduplicateCss( results.map( result => result[ 0 ] ).join( '\n' ) );
 
 		// If there is no Critical CSS, it means the URLs did not have any CSS in their external style sheet(s).
 		if ( ! css ) {

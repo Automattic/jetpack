@@ -7,6 +7,9 @@
 namespace Automattic\Jetpack_Boost\Lib\Critical_CSS;
 
 class Display_Critical_CSS {
+	// Leave room for later head metadata within a bounded crawler response.
+	const MAX_CSS_BYTES = 512 * KB_IN_BYTES;
+	const HEAD_PRIORITY = 7;
 
 	/**
 	 * @var string The Critical CSS to display.
@@ -17,8 +20,7 @@ class Display_Critical_CSS {
 	 * @param string $css
 	 */
 	public function __construct( $css ) {
-		// Match the existing 1 MB guidance; oversized CSS must keep normal stylesheet loading.
-		$this->css = strlen( $css ) > MB_IN_BYTES ? '' : $css;
+		$this->css = strlen( $css ) > self::MAX_CSS_BYTES ? '' : $css;
 	}
 
 	/**
@@ -31,8 +33,8 @@ class Display_Critical_CSS {
 			return;
 		}
 
-		// Print after head metadata, including providers that run after WordPress's title tag.
-		add_action( 'wp_head', array( $this, 'display_critical_css' ), PHP_INT_MAX );
+		// Follow the title and precede core's stylesheet links and their inline overrides.
+		add_action( 'wp_head', array( $this, 'display_critical_css' ), self::HEAD_PRIORITY );
 		add_filter( 'style_loader_tag', array( $this, 'asynchronize_stylesheets' ), 10, 4 );
 		add_action( 'wp_footer', array( $this, 'onload_flip_stylesheets' ) );
 		Admin_Bar_Compatibility::init();

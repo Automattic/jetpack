@@ -9,6 +9,7 @@ namespace Automattic\Jetpack_Boost\REST_API\Endpoints;
 
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_State;
 use Automattic\Jetpack_Boost\Lib\Critical_CSS\Critical_CSS_Storage;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Display_Critical_CSS;
 use Automattic\Jetpack_Boost\REST_API\Contracts\Endpoint;
 use Automattic\Jetpack_Boost\REST_API\Permissions\Signed_With_Blog_Token;
 use WP_REST_Server;
@@ -75,6 +76,10 @@ class Update_Cloud_CSS implements Endpoint {
 
 			// Success
 			if ( ! empty( $result['success'] ) && ! empty( $data['css'] ) && is_string( $data['css'] ) ) {
+				if ( strlen( $data['css'] ) > Display_Critical_CSS::MAX_CSS_BYTES ) {
+					$state->set_provider_payload_too_large( $provider_key );
+					continue;
+				}
 				$storage->store_css( $provider_key, $data['css'] );
 				$state->set_provider_success( $provider_key );
 				continue;

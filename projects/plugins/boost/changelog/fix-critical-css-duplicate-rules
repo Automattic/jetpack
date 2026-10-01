@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Critical CSS: Reduce repeated styles during local generation, preserve inline style overrides, and report oversized CSS while keeping normal stylesheet loading.
