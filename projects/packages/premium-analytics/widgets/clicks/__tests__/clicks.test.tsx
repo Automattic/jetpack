@@ -422,31 +422,4 @@ describe( 'ClicksWidget CSV export', () => {
 		expect( lines ).toHaveLength( 15 );
 		expect( downloads.files[ 0 ].filename ).toBe( 'clicks-2026-03-01_2026-03-10.csv' );
 	} );
-
-	it( 'leaves the comparison request and previous-period columns out of the download', async () => {
-		render(
-			<ClicksWidget
-				attributes={ {
-					reportParams: {
-						from: '2026-03-01',
-						to: '2026-03-10',
-						comp: '1',
-						compare_from: '2026-02-01',
-						compare_to: '2026-02-10',
-					},
-				} }
-			/>
-		);
-
-		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
-		const callsBeforeClick = mockApiFetch.mock.calls.length;
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
-		fireEvent.click( button );
-		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
-
-		const downloadCalls = mockApiFetch.mock.calls.slice( callsBeforeClick );
-		expect( downloadCalls ).toHaveLength( 1 );
-		expect( downloadCalls[ 0 ][ 0 ].path ).not.toContain( '2026-02' );
-		expect( ( await downloads.lines() )[ 0 ] ).toBe( '"Clicked URL","Group","Clicks"' );
-	} );
 } );

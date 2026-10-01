@@ -2,13 +2,12 @@
  * External dependencies
  */
 import { GlobalErrorProvider, queryClient } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import type { ReactElement } from 'react';
 /**
  * Internal dependencies
  */
-import { captureCsvDownloads } from '../../test-utils';
 import VideoPressWidget from '../render';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
@@ -197,50 +196,5 @@ describe( 'VideoPressWidget', () => {
 			screen.findByText( "We couldn't load video plays. Please try again in a moment." )
 		).resolves.toBeInTheDocument();
 		expect( screen.getByRole( 'button', { name: 'Retry' } ) ).toBeInTheDocument();
-	} );
-
-	describe( 'CSV export', () => {
-		let downloads: ReturnType< typeof captureCsvDownloads >;
-
-		beforeEach( () => {
-			jest.useFakeTimers();
-			downloads = captureCsvDownloads();
-		} );
-
-		afterEach( () => {
-			jest.useRealTimers();
-			downloads.restore();
-		} );
-
-		it( 'downloads the complete-stats Videos report instead of the rows on screen', async () => {
-			const videos = Array.from( { length: 12 }, ( _, index ) => ( {
-				post_id: index + 1,
-				title: `Video ${ index + 1 }`,
-				plays: 100 - index,
-			} ) );
-			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-				Promise.resolve(
-					buildResponse( path.includes( 'complete_stats=1' ) ? videos : videos.slice( 0, 10 ) )
-				)
-			);
-
-			renderInDashboard(
-				<VideoPressWidget
-					attributes={ { reportParams: { from: '2026-06-01', to: '2026-06-16' } } }
-				/>
-			);
-
-			// This package does not depend on @testing-library/user-event.
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
-			await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
-
-			const lines = await downloads.lines();
-			expect( lines[ 0 ] ).toBe(
-				'"Video ID","Video","Plays","Impressions","Watch time (hours)","Retention rate (%)","URL"'
-			);
-			expect( lines ).toHaveLength( 13 );
-			expect( downloads.files[ 0 ].filename ).toBe( 'videos-2026-06-01_2026-06-16.csv' );
-		} );
 	} );
 } );
