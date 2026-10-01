@@ -135,6 +135,8 @@ class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 	/**
 	 * Ensure that Archive.org embeds are properly converted to Shortcodes.
 	 *
+	 * @dataProvider data_archiveorg_embed_shortcode_pairings
+	 *
 	 * @param string $full_embed         HTML snippet consisting solely of an IFRAME embed.
 	 * @param string $expected_shortcode Expected translation of IFRAME into Shortcode form.
 	 */
