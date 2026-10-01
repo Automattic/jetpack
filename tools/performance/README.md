@@ -45,11 +45,14 @@ Jetpack's files are mounted from the same mirror checkout, but the plugin is dea
 
 The existing runner discovers both dynamic ports and uses the same iteration count, CPU calibration, viewport, login and warm-cache Dashboard reload flow. Use `SCENARIO=no-jetpack pnpm test -- --skip-codevitals` for a targeted local run, or omit the filter to measure all scenarios. `WP_NO_JETPACK_URL` supplies the URL for direct `pnpm measure` (default `http://localhost:8084`); the test runner replaces it with the discovered Docker URL. Setup checks the control through WP-CLI: plugin and simulator files exist, Jetpack is inactive, and neither class has bootstrapped.
 
-| CodeVitals key                                                | Field  | Type   | Unit |
-| ------------------------------------------------------------- | ------ | ------ | ---- |
-| `wp-admin-dashboard-noJetpack-largestContentfulPaint-staging` | `lcp`  | `lcp`  | ms   |
-| `wp-admin-dashboard-noJetpack-timeToFirstByte-staging`        | `ttfb` | `ttfb` | ms   |
-| `wp-admin-dashboard-noJetpack-firstContentfulPaint-staging`   | `fcp`  | `fcp`  | ms   |
+| CodeVitals key                                                | Field           | Type            | Unit  |
+| ------------------------------------------------------------- | --------------- | --------------- | ----- |
+| `wp-admin-dashboard-noJetpack-largestContentfulPaint-staging` | `lcp`           | `lcp`           | ms    |
+| `wp-admin-dashboard-noJetpack-timeToFirstByte-staging`        | `ttfb`          | `ttfb`          | ms    |
+| `wp-admin-dashboard-noJetpack-firstContentfulPaint-staging`   | `fcp`           | `fcp`           | ms    |
+| `wp-admin-dashboard-noJetpack-wp-total-staging`               | `wpTotal`       | `wpTotal`       | ms    |
+| `wp-admin-dashboard-noJetpack-wp-memory-usage-staging`        | `wpMemoryUsage` | `wpMemoryUsage` | bytes |
+| `wp-admin-dashboard-noJetpack-wp-db-queries-staging`          | `wpDbQueries`   | `wpDbQueries`   | count |
 
 The control is optional: setup or capture failure skips its keys while successful required measurements survive. Failed control setup removes its configuration to prevent measuring an invalid plugin state; readiness gates only required instances. These are staging keys, with no enrollment waiver; local verification must use `--skip-codevitals` and `pnpm report:dry`. Staging posts begin on the first build after merge; inspect 2–3 builds before promoting to production keys following Safeguards below. Digest discovery includes every registered metric, including staging keys; use `METRIC_IDS` to restrict a deployment to an explicit watch list when needed.
 
@@ -135,11 +138,12 @@ All three values are read when WordPress flushes output at `shutdown` priority 1
 
 Each field maps to `<prefix>-wp-total-staging`, `<prefix>-wp-memory-usage-staging` or `<prefix>-wp-db-queries-staging`. The exact prefixes are:
 
-| Scenario                       | Prefix                              |
-| ------------------------------ | ----------------------------------- |
-| Dashboard (`jetpackConnected`) | `wp-admin-dashboard-connection-sim` |
-| Forms (`formsResponses`)       | `forms-responses-connection-sim`    |
-| My Jetpack (`myJetpack`)       | `my-jetpack-connection-sim`         |
+| Scenario                                         | Prefix                              |
+| ------------------------------------------------ | ----------------------------------- |
+| Dashboard (`jetpackConnected`)                   | `wp-admin-dashboard-connection-sim` |
+| Forms (`formsResponses`)                         | `forms-responses-connection-sim`    |
+| My Jetpack (`myJetpack`)                         | `my-jetpack-connection-sim`         |
+| Dashboard control (`jetpackConnected-noJetpack`) | `wp-admin-dashboard-noJetpack`      |
 
 These nine keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
 
