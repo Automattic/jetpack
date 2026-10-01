@@ -3,17 +3,10 @@ import { defaultStyles as visxTooltipStyles, useTooltip } from '@visx/tooltip';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
 import isEqual from 'fast-deep-equal';
-import {
-	useCallback,
-	useContext,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from 'react';
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import tooltipStyles from '../../components/tooltip/base-tooltip.module.scss';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from '../../components/tooltip/private/bounded-tooltip';
+import { useIsomorphicLayoutEffect } from '../../hooks';
 import {
 	GlobalChartsProvider,
 	useChartId,
@@ -67,9 +60,6 @@ const CELL_VALUE_MODIFIER: Record< LabelTextColor, string | undefined > = {
 	black: styles[ 'heatmap-chart__cell-value--black' ],
 	white: styles[ 'heatmap-chart__cell-value--white' ],
 };
-
-// Avoids React's SSR warning; on the client the roles are read before paint.
-const useIsomorphicLayoutEffect = typeof window !== 'undefined' ? useLayoutEffect : useEffect;
 
 // One instance, not a `[]` default in the signature: `buildTooltipData` keys on
 // it, and a fresh array per render re-ran the keyboard tooltip effect endlessly.
