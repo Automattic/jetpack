@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+PayPal Payment Buttons: keep the product image on the site only. It is no longer sent to PayPal.
