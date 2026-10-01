@@ -4,7 +4,8 @@
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
 @use "@wordpress/base-styles/mixins" as wpmixins;
 
-.jp-admin-page__page {
+.jp-admin-page__page,
+.jetpack-boost-overview {
 	--jetpack-boost-score-good: var(--wpds-color-foreground-content-success-weak);
 	// Marks only: under 3:1 on white, so medium tier text keeps warning-weak.
 	--jetpack-boost-score-medium: var(--jp-orange-20);
