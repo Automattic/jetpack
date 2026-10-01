@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Make the Delete spam button act on selected responses or the current filter, and show how many responses will be deleted.
