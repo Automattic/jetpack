@@ -50,15 +50,12 @@ export type EditorLabels = {
 	blockTools: string;
 	embedUrl: string;
 	embed: {
+		title: string;
 		hint: string;
 		placeholder: string;
 		button: string;
-		failed: string;
-		retry: string;
-		toLink: string;
 		editUrl: string;
 		from: string;
-		caption: string;
 	};
 };
 
