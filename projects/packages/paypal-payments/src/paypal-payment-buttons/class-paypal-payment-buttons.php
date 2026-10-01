@@ -1109,7 +1109,7 @@ class PayPal_Payment_Buttons {
 
 		// ─── BUTTON format (default): existing full button card ──────────
 
-		// Product image. PayPal receives it too, as the line item's image_url.
+		// Product image (WordPress-side only, not sent to PayPal).
 		$image_html = '';
 		if ( ! empty( $image_url ) ) {
 			$image_html = sprintf(
