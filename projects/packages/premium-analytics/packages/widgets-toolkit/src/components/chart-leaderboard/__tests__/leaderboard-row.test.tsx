@@ -167,6 +167,26 @@ describe( 'buildLeaderboardRow', () => {
 		);
 	} );
 
+	it( 'opens a video row without a valid ID as an external link around the poster and title', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch',
+			media: {
+				kind: 'thumbnail',
+				url: 'https://example.com/p.jpg',
+				alt: '',
+				aspectRatio: '16/9',
+			},
+			action: { kind: 'videoLink', href: 'https://example.com/launch/', search: {} },
+		} );
+
+		render( row.label );
+
+		const link = screen.getByRole( 'link', { name: /Launch/ } );
+		expect( link ).toHaveAttribute( 'href', 'https://example.com/launch/' );
+		expect( link ).toHaveAttribute( 'target', '_blank' );
+		expect( link ).toContainElement( screen.getByRole( 'presentation' ) );
+	} );
+
 	it( 'keeps post rows as a bare title link', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Hello',
