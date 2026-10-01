@@ -4,11 +4,7 @@
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import JetpackLogo from '@automattic/jetpack-components/jetpack-logo';
 import { Breadcrumbs } from '@wordpress/admin-ui';
-import {
-	DropdownMenu,
-	Button,
-	__experimentalConfirmDialog as ConfirmDialog, // eslint-disable-line @wordpress/no-unsafe-wp-apis
-} from '@wordpress/components';
+import { DropdownMenu, Button } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { store as coreDataStore } from '@wordpress/core-data';
 import { useSelect, useDispatch } from '@wordpress/data';
@@ -25,6 +21,7 @@ import { Badge } from '@wordpress/ui';
 import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
+import DeleteFormConfirmationModal from '../../components/delete-form-confirmation-modal';
 import EditFormButton from '../../components/edit-form-button';
 import EmptySpamButton from '../../components/empty-spam-button';
 import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
@@ -706,21 +703,12 @@ export default function usePageHeaderDetails(
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
-							<ConfirmDialog
+							<DeleteFormConfirmationModal
 								key="permanent-delete-confirm"
+								isOpen={ isPermanentDeleteConfirmOpen }
 								onCancel={ closePermanentDeleteConfirm }
 								onConfirm={ confirmPermanentDelete }
-								isOpen={ isPermanentDeleteConfirmOpen }
-								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
-							>
-								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
-								<p>
-									{ __(
-										'This will permanently delete this form. This action cannot be undone.',
-										'jetpack-forms'
-									) }
-								</p>
-							</ConfirmDialog>,
+							/>,
 						]
 					: [] ),
 			];
@@ -780,21 +768,12 @@ export default function usePageHeaderDetails(
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
-							<ConfirmDialog
+							<DeleteFormConfirmationModal
 								key="permanent-delete-confirm"
+								isOpen={ isPermanentDeleteConfirmOpen }
 								onCancel={ closePermanentDeleteConfirm }
 								onConfirm={ confirmPermanentDelete }
-								isOpen={ isPermanentDeleteConfirmOpen }
-								confirmButtonText={ __( 'Delete permanently', 'jetpack-forms' ) }
-							>
-								<h3>{ __( 'Delete permanently', 'jetpack-forms' ) }</h3>
-								<p>
-									{ __(
-										'This will permanently delete this form. This action cannot be undone.',
-										'jetpack-forms'
-									) }
-								</p>
-							</ConfirmDialog>,
+							/>,
 						]
 					: [] ),
 			];
