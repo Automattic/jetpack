@@ -7,6 +7,9 @@
 
 namespace A8C\FSE;
 
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Constants;
+
 /**
  * Class Survicate
  */
@@ -155,17 +158,50 @@ class Survicate {
 	}
 
 	/**
+	 * The current user's WordPress.com user ID, or null when they have none.
+	 *
+	 * On Atomic the local user ID differs from the WordPress.com one, so it comes
+	 * from the SSO user meta or the connection; null is an admin created on the
+	 * site itself.
+	 *
+	 * @return int|null
+	 */
+	private function get_wpcom_user_id() {
+		$user_id = get_current_user_id();
+		if ( ! $user_id ) {
+			return null;
+		}
+
+		if ( Constants::is_true( 'IS_WPCOM' ) ) {
+			return $user_id;
+		}
+
+		$wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true );
+		if ( is_numeric( $wpcom_user_id ) && (int) $wpcom_user_id > 0 ) {
+			return (int) $wpcom_user_id;
+		}
+
+		$user_data = ( new Connection_Manager() )->get_connected_user_data( $user_id );
+		if ( ! is_array( $user_data ) || empty( $user_data['ID'] ) || ! is_numeric( $user_data['ID'] ) ) {
+			return null;
+		}
+
+		return (int) $user_data['ID'];
+	}
+
+	/**
 	 * Get visitor traits for Survicate.
 	 *
 	 * @return array
 	 */
 	private function get_visitor_traits() {
-		$user_data = get_userdata( get_current_user_id() );
-		$email     = $user_data ? $user_data->user_email : '';
-		$site_id   = get_wpcom_blog_id();
-		$site_type = ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) ? 'atomic' : 'simple';
+		$user_data     = get_userdata( get_current_user_id() );
+		$email         = $user_data ? $user_data->user_email : '';
+		$site_id       = get_wpcom_blog_id();
+		$site_type     = ( defined( 'IS_ATOMIC' ) && IS_ATOMIC ) ? 'atomic' : 'simple';
+		$wpcom_user_id = $this->get_wpcom_user_id();
 
-		return array(
+		$traits = array(
 			'email'           => $email,
 			'site_id'         => $site_id ? (string) $site_id : '',
 			'site_type'       => $site_type,
@@ -173,6 +209,15 @@ class Survicate {
 			// Stringified for Survicate's trait targeting UI, which matches on string equality.
 			'is_big_sky_site' => $this->is_big_sky_site() ? 'true' : 'false',
 		);
+
+		// Survicate only treats a visitor as identified, and so eligible for
+		// "Users" audiences, when `user_id` is set. It must match the ID Calypso
+		// sends so a respondent's history is shared across both.
+		if ( $wpcom_user_id ) {
+			$traits['user_id'] = (string) $wpcom_user_id;
+		}
+
+		return $traits;
 	}
 
 	/**

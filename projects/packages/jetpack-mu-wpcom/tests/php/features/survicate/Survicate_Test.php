@@ -553,6 +553,60 @@ class Survicate_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'false', $traits['is_big_sky_site'] );
 	}
 
+	/**
+	 * Tests that get_visitor_traits sends the local user ID as user_id on WordPress.com,
+	 * where it is already the WordPress.com user ID.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_get_visitor_traits_returns_local_user_id_on_wpcom() {
+		if ( ! defined( 'IS_WPCOM' ) ) {
+			define( 'IS_WPCOM', true );
+		}
+
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$user_id = $this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( (string) $user_id, $traits['user_id'] );
+	}
+
+	/**
+	 * Tests that get_visitor_traits sends the WordPress.com user ID from the SSO user meta
+	 * off WordPress.com, not the local user ID.
+	 */
+	public function test_get_visitor_traits_returns_wpcom_user_id_from_user_meta() {
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$user_id = $this->create_and_login_user();
+		update_user_meta( $user_id, 'wpcom_user_id', 19261507 );
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertSame( '19261507', $traits['user_id'] );
+	}
+
+	/**
+	 * Tests that get_visitor_traits omits user_id for a user without a WordPress.com account.
+	 */
+	public function test_get_visitor_traits_omits_user_id_without_wpcom_account() {
+		global $pagenow;
+		$pagenow = 'index.php';
+		$this->set_admin_context();
+		$this->create_and_login_user();
+
+		$traits = $this->call_private_method( 'get_visitor_traits' );
+
+		$this->assertArrayNotHasKey( 'user_id', $traits );
+	}
+
 	// ---- enqueue_scripts() tests ----
 
 	/**
