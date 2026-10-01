@@ -33,3 +33,11 @@ export {
 } from './comments';
 export { EMAILS_REPORT_ROW_LIMIT, emailsCsvExporter } from './emails';
 export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from './tags';
+export {
+	aggregateUtmRows,
+	getUtmDimensionLabel,
+	getUtmReportQueryParams,
+	utmCsvExporters,
+	type UtmReportRow,
+	type UtmReportSection,
+} from './utm';
