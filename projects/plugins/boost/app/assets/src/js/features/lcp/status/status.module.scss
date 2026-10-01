@@ -49,7 +49,28 @@
 
 	.summary {
 		flex-grow: 1;
+		min-inline-size: 0;
 		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+}
+
+.pending {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+
+	.progress {
+		inline-size: 100%;
+		block-size: var(--wpds-dimension-size-5xs);
+		border-radius: var(--wpds-border-radius-md);
+
+		@media (prefers-reduced-motion: reduce) {
+
+			> div {
+				animation: none;
+				inset-inline-start: 25%;
+			}
+		}
 	}
 }
 

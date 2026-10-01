@@ -1,11 +1,14 @@
 import { useModuleSurface } from '$features/module/surface';
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
+import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
+import { useId } from 'react';
 import { useLcpState } from '../lib/stores/lcp-state';
 import styles from './status.module.scss';
 import type { FC } from 'react';
 
 const Status: FC = () => {
+	const progressLabelId = useId();
 	const legacyProgress = __(
 		"Jetpack Boost is optimizing your Cornerstone Page's LCP for you.",
 		'jetpack-boost'
@@ -42,9 +45,20 @@ const Status: FC = () => {
 	}
 
 	if ( lcpState?.status === 'pending' ) {
-		return (
-			<div className={ styles?.generating }>{ isModern ? modernProgress : legacyProgress }</div>
-		);
+		if ( isModern ) {
+			return (
+				<div className={ styles.pending }>
+					<span id={ progressLabelId }>{ modernProgress }</span>
+					<ProgressBar
+						className={ styles.progress }
+						aria-label={ undefined }
+						aria-labelledby={ progressLabelId }
+					/>
+				</div>
+			);
+		}
+
+		return <div className={ styles?.generating }>{ legacyProgress }</div>;
 	}
 
 	if ( lcpState?.status !== 'analyzed' || ! lcpState?.updated ) {
