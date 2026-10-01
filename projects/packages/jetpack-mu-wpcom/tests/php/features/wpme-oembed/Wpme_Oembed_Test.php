@@ -58,6 +58,7 @@ class Wpme_Oembed_Test extends \WorDBless\BaseTestCase {
 			'own post'              => array( 0, 'https://wp.me/p3d7-G', 42 ),
 			'own page'              => array( 0, 'https://wp.me/P3d7-G', 42 ),
 			'own attachment'        => array( 0, 'http://wp.me/a3d7-G', 42 ),
+			'uppercase host'        => array( 0, 'HTTPS://WP.ME/p3d7-G', 42 ),
 			'other blog'            => array( 0, 'https://wp.me/p3d8-G', 0 ),
 			'already resolved'      => array( 7, 'https://wp.me/p3d7-G', 7 ),
 			'not a shortlink'       => array( 0, 'https://example.com/?p=42', 0 ),

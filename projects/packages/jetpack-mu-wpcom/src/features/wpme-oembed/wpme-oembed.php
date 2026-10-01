@@ -31,7 +31,7 @@ function wpcom_wpme_base62_decode( $str ) {
  */
 function wpcom_wpme_oembed_request_post_id( $post_id, $url ) {
 	// Capped at 10 characters so the decoded IDs fit in an int.
-	if ( $post_id || ! preg_match( '#^https?://wp\.me/([pPas])([0-9a-zA-Z]{1,10})-([0-9a-zA-Z]{1,10})$#', (string) $url, $matches ) ) {
+	if ( $post_id || ! preg_match( '#^(?i:https?://wp\.me)/([pPas])([0-9a-zA-Z]{1,10})-([0-9a-zA-Z]{1,10})$#', (string) $url, $matches ) ) {
 		return $post_id;
 	}
 
