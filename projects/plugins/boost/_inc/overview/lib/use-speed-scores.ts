@@ -42,7 +42,6 @@ export function useSpeedScores(
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
-	const userRun = useRef( false );
 	const requestController = useRef< AbortController >( undefined );
 	const lastConfig = useRef< string >( undefined );
 	const cancelPending = useCallback( () => {
@@ -54,9 +53,6 @@ export function useSpeedScores(
 			if ( ! online || ! enabled ) {
 				return;
 			}
-			if ( regenerate ) {
-				userRun.current = userStarted;
-			}
 			cancelPending();
 			const id = requestId.current;
 			const controller = new AbortController();
@@ -64,8 +60,7 @@ export function useSpeedScores(
 			setState( previous => ( {
 				...previous,
 				status: 'loading',
-				isRunning:
-					regenerate || userRun.current || ( previous.status === 'loading' && previous.isRunning ),
+				isRunning: regenerate || ( previous.status === 'loading' && previous.isRunning ),
 				error: undefined,
 			} ) );
 			try {
@@ -85,10 +80,8 @@ export function useSpeedScores(
 					}
 				);
 				if ( id === requestId.current && scores ) {
-					const completedUserRun = userRun.current;
-					userRun.current = false;
 					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
-					if ( completedUserRun ) {
+					if ( regenerate && userStarted ) {
 						onUserRunComplete?.();
 					}
 					return true;
@@ -97,7 +90,6 @@ export function useSpeedScores(
 				if ( id !== requestId.current ) {
 					return;
 				}
-				userRun.current = false;
 				const error = standardizeError(
 					cause ?? {},
 					__( 'Error requesting speed scores', 'jetpack-boost' )
