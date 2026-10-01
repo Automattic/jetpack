@@ -138,9 +138,35 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function forget_blocks( $content ) {
+		if ( $this->has_blocks ) {
+			// Core's own kses pass over block attributes wrote & as &amp; in each embed's URL.
+			// Put it back, or the editor's save no longer matches the markup when the comment is edited.
+			$content = wp_slash( serialize_blocks( self::restore_urls( parse_blocks( wp_unslash( $content ) ) ) ) );
+		}
+
 		$this->has_blocks = false;
 
 		return $content;
+	}
+
+	/**
+	 * The embed URLs as they were before kses, at every depth.
+	 *
+	 * @param array $blocks Parsed blocks.
+	 * @return array
+	 */
+	private static function restore_urls( array $blocks ) {
+		foreach ( $blocks as &$block ) {
+			if ( 'core/embed' === $block['blockName'] && isset( $block['attrs']['url'] ) && is_string( $block['attrs']['url'] ) ) {
+				$block['attrs']['url'] = html_entity_decode( $block['attrs']['url'], ENT_QUOTES );
+			}
+
+			if ( $block['innerBlocks'] ) {
+				$block['innerBlocks'] = self::restore_urls( $block['innerBlocks'] );
+			}
+		}
+
+		return $blocks;
 	}
 
 	/**
