@@ -129,6 +129,25 @@ describe( 'ThumbnailField — grid Details access', () => {
 		expect( screen.getByText( 'Jetpack connection issue' ) ).toBeInTheDocument();
 	} );
 
+	it( 'offers a details retry without claiming the video upload failed', async () => {
+		const actions = makeActions();
+		renderField(
+			<ThumbnailField
+				item={ item( {
+					id: 'upload-1',
+					type: 'local',
+					upload: { status: 'failed', progress: 100, failureReason: 'details' },
+				} ) }
+			/>,
+			actions
+		);
+
+		expect( screen.getByText( 'Details weren’t saved' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Upload failed' ) ).not.toBeInTheDocument();
+		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( actions.retryUpload ).toHaveBeenCalledWith( 'upload-1' );
+	} );
+
 	it( 'leaves the summary alone for a failure attributed to nothing in particular', () => {
 		renderField(
 			<ThumbnailField
