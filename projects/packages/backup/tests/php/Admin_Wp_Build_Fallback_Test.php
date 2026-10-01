@@ -127,7 +127,7 @@ class Admin_Wp_Build_Fallback_Test extends TestCase {
 		$item = $this->get_queued_backup_menu_item();
 		$this->assertSame( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page', $item['function'] );
 		$this->assertSame( 'Jetpack VaultPress Backup', $item['page_title'] );
-		$this->assertSame( 'VaultPress Backup', $item['menu_title'] );
+		$this->assertSame( 'Backup', $item['menu_title'] );
 	}
 
 	public function test_menu_uses_the_legacy_dashboard_when_the_filter_is_off() {

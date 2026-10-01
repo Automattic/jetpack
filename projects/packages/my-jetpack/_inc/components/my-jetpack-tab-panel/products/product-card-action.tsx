@@ -194,6 +194,18 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 		);
 	}
 
+	// A plan holder who switched the module off turns it back on here, rather than being sent to buy it again.
+	if ( product.status === PRODUCT_STATUSES.MODULE_DISABLED && product.hasPaidPlanForProduct ) {
+		return (
+			<ActivationToggle
+				product={ product }
+				active={ false }
+				disabled={ ! $module?.available }
+				reloadOnToggle={ reloadOnToggle }
+			/>
+		);
+	}
+
 	switch ( product.status ) {
 		case PRODUCT_STATUSES.INACTIVE:
 		case PRODUCT_STATUSES.MODULE_DISABLED:
