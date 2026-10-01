@@ -118,6 +118,19 @@ Forms and My Jetpack use `-staging` TBT keys and remain optional. Register both 
 
 The digest auto-discovers these staging ids from their first post unless `METRIC_IDS` overrides discovery. Its current gate reports "Unusable level baseline" and exits non-zero when a flagged series has a complete pre-window with a non-positive median. Live posting of these keys depends on the digest accepting zero-baseline TBT. At production promotion, have the CodeVitals owner retire the staging id from discovery, or supply a complete `METRIC_IDS` allow-list excluding it; otherwise its stopped series produces stale-data warnings.
 
+### `jetpackSettings` — Jetpack Settings (simulated connection)
+
+Measures `/wp-admin/admin.php?page=jetpack#/settings` on the same connected instance. The app may canonicalize the admin slug to `jetpack-settings`; the final hash must still be exactly `#/settings`. Readiness requires a visible `.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])`, so an empty mount point, loading screen or connection shell cannot satisfy it. The resource-count floor in `scenarios.js` comes from healthy Settings captures, alongside the existing network settle and warm-cache reload policy. No fixture or module changes are required.
+
+| CodeVitals key                                                   | Field            | Type             | Description                       |
+| ---------------------------------------------------------------- | ---------------- | ---------------- | --------------------------------- |
+| `jetpack-settings-connection-sim-largestContentfulPaint-staging` | `lcp`            | `lcp`            | Settings LCP (ms)                 |
+| `jetpack-settings-connection-sim-timeToFirstByte-staging`        | `ttfb`           | `ttfb`           | Settings TTFB (ms)                |
+| `jetpack-settings-connection-sim-firstContentfulPaint-staging`   | `fcp`            | `fcp`            | Settings FCP (ms)                 |
+| `jetpack-settings-connection-sim-decodedBytesKB-staging`         | `decodedBytesKB` | `decodedBytesKB` | Summed resource decoded size (KB) |
+
+This scenario is optional and uses staging keys. Local verification (`SCENARIO=jetpack-settings pnpm test -- --skip-codevitals`, then `pnpm report:dry`) does not enroll or post them. Production enrollment is a separate step after the staging review described below. The digest discovers registered keys automatically; no watch-list edit is needed, but staging IDs require intentional deployment filtering. Stats remains deferred until its assets and rendered empty-data state are reproducible.
+
 ### Offline-mode flip — attribution note
 
 This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because all connected scenarios share one WordPress install, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
@@ -256,9 +269,10 @@ Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByt
 
 ### Capture guards for targeted-page scenarios
 
-A scenario that measures a specific admin page (a `path` + `waitForSelector`, like `formsResponses`) can declare two optional guards so a mis-captured page never reaches its permanent keys. Both fail the iteration closed — a failed capture posts nothing rather than a wrong number.
+A scenario that measures a specific admin page (a `path` + `waitForSelector`, like `formsResponses`) can declare optional guards so a mis-captured page never reaches its permanent keys. Each fails the iteration closed — a failed capture posts nothing rather than a wrong number.
 
 - **`expectUrlIncludes`** — a substring the page's final URL must contain after every redirect settles. It defends the concrete redirect threat: `class-dashboard.php` sends a bare page URL to the forms LIST, which strips the pinned `p=/responses/inbox`, so the guard fires. It does not prove the SPA client-rendered the target route — a client-side divergence that keeps the URL would pass. That is deliberate: a guessed DOM-selector assertion would throw on every iteration if the markup shifts, blackholing the whole series on the append-only store, so the URL check is the safer defense for the redirect it targets.
+- **`expectUrlHash`** — an exact final hash, including `#`, checked after route and resource settling. Settings uses it to reject other tabs and routes that merely start with `#/settings`. The rendered-content selector independently proves that Settings controls appeared.
 - **`minResourceCount`** — an iteration whose capture returns fewer resources than a healthy load is dropped from the sample; if every iteration falls short the run posts nothing. The current values live in `scenarios.js` (the single source of truth — as of FORMS-729, 64 for `formsResponses` and `myJetpack`, ~70% of each page's real load) rather than being restated here where they would drift. This is a **count** floor, not an "editor asset is present" check: the bundle-size metric is meant to fall when the editor lazy-loads, which removes a few large files rather than the bulk of the count, so a count floor catches a truncated capture without clipping the legitimate improvement. Scope: the floor catches captures _below_ its value; a capture between the floor and the real count relies on the readiness settle (see the `formsResponses` readiness note above) and `SANITY_RANGES`.
 
 ### Per-scenario failure isolation

@@ -129,7 +129,7 @@ function initializeLoadObservers() {
  * @param {string} password   - wp-admin password.
  * @param {number} iterations - Number of measurement iterations.
  * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, `loadState`, `minResourceCount`, and `metrics`.
+ *                            `expectUrlIncludes`, `expectUrlHash`, `loadState`, `minResourceCount`, and `metrics`.
  * @return {Promise<object>} { summary, results, url }.
  */
 async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
@@ -294,7 +294,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Refuse to measure the wrong page. Asserted here (after every redirect and the client
 			// route settle) so a mis-targeted or redirected page fails the iteration instead of
 			// posting off-target bytes to this scenario's permanent, no-rollback CodeVitals keys.
-			assertExpectedUrl( page.url(), expectUrlIncludes );
+			assertExpectedUrl( page.url(), expectUrlIncludes, scenario.expectUrlHash );
 
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */
@@ -942,9 +942,15 @@ function assertCaptureComplete( resourceStats, scenario ) {
  *
  * @param {string}      currentUrl        - The page's final URL (page.url()).
  * @param {string|null} expectUrlIncludes - Substring the final URL must contain, or null to skip.
+ * @param {string}      [expectUrlHash]   - Exact final hash route, including the leading #.
  * @throws {Error} When the final URL does not contain the expected route (or cannot be decoded).
  */
-function assertExpectedUrl( currentUrl, expectUrlIncludes ) {
+function assertExpectedUrl( currentUrl, expectUrlIncludes, expectUrlHash ) {
+	if ( expectUrlHash && new URL( currentUrl ).hash !== expectUrlHash ) {
+		throw new Error(
+			`Wrong page: expected hash "${ expectUrlHash }" but landed on "${ currentUrl }"`
+		);
+	}
 	if ( ! expectUrlIncludes ) {
 		return;
 	}

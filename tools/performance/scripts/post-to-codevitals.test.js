@@ -590,6 +590,55 @@ test( 'the myJetpack scenario retains production keys and adds staging TBT', () 
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
+test( 'Settings extracts four typed staging metrics and rejects wrong routes or partial captures', () => {
+	const scenario = SCENARIOS.find( s => s.key === 'jetpackSettings' );
+	const summary = {
+		lcp: { median: 400 },
+		ttfb: { median: 60 },
+		fcp: { median: 200 },
+		decodedBytesKB: { median: 6800 },
+	};
+	assert.deepEqual(
+		extractScenarioMetrics( scenario, summary ),
+		[
+			[ 'largestContentfulPaint', 'lcp', 400 ],
+			[ 'timeToFirstByte', 'ttfb', 60 ],
+			[ 'firstContentfulPaint', 'fcp', 200 ],
+			[ 'decodedBytesKB', 'decodedBytesKB', 6800 ],
+		].map( ( [ suffix, type, value ] ) => ( {
+			key: `jetpack-settings-connection-sim-${ suffix }-staging`,
+			type,
+			value,
+		} ) )
+	);
+	assert.equal( scenario.optional, true );
+	for ( const slug of [ 'jetpack', 'jetpack-settings' ] ) {
+		assert.doesNotThrow( () =>
+			assertExpectedUrl(
+				`http://localhost/wp-admin/admin.php?page=${ slug }#/settings`,
+				scenario.expectUrlIncludes,
+				scenario.expectUrlHash
+			)
+		);
+	}
+	for ( const hash of [ '', '#/security', '#/settings-other' ] ) {
+		assert.throws(
+			() =>
+				assertExpectedUrl(
+					`http://localhost/?page=jetpack${ hash }`,
+					null,
+					scenario.expectUrlHash
+				),
+			/Wrong page: expected hash/
+		);
+	}
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 73 }, scenario ),
+		/Incomplete capture/
+	);
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 74 }, scenario ) );
+} );
+
 test( 'every scenario declares an explicit failure policy; the Dashboard stays required', () => {
 	// FORMS-728: computeRunOutcome reads `optional` off every scenario, so the flag must be
 	// an explicit boolean — a missing flag would silently classify a scenario as required
