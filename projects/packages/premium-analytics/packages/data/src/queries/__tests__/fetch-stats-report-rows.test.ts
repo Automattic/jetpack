@@ -13,6 +13,7 @@ import { useStatsFileDownloads } from '../../hooks/use-stats-file-downloads';
 import { useStatsReferrers } from '../../hooks/use-stats-referrers';
 import { useStatsSearchTerms } from '../../hooks/use-stats-search-terms';
 import { useStatsTopAuthors } from '../../hooks/use-stats-top-authors';
+import { useStatsUtm, type StatsUtmParams } from '../../hooks/use-stats-utm';
 import { useStatsVideoPlays } from '../../hooks/use-stats-video-plays';
 import { queryClient } from '../../providers/query-client-provider';
 import {
@@ -27,6 +28,7 @@ import {
 	fetchStatsTagsRows,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
+	fetchStatsUtmRows,
 	fetchStatsVideoPlaysRows,
 } from '../fetch-stats-report-rows';
 import type { StatsReportParams } from '../stats-query';
@@ -150,6 +152,13 @@ const RANGE = {
 const FULL = { ...RANGE, max: 0, summarize: 1, period: 'day' } as StatsReportParams;
 const AUTHORS = { ...RANGE, max: 0 } as StatsReportParams;
 const VIDEO_SUMMARY = { ...RANGE, max: 0, summarize: 1, complete_stats: 1 } as StatsReportParams;
+const UTM = {
+	...RANGE,
+	max: 0,
+	summarize: 0,
+	query_top_posts: true,
+	utmParam: 'utm_campaign',
+} as StatsUtmParams;
 
 describe( 'report row fetchers', () => {
 	beforeEach( () => {
@@ -353,6 +362,7 @@ const SHARED_QUERY_CASES: [
 		() => fetchStatsVideoPlaysRows( VIDEO_SUMMARY ),
 		() => useStatsVideoPlays( VIDEO_SUMMARY ),
 	],
+	[ 'UTM', () => fetchStatsUtmRows( UTM ), () => useStatsUtm( UTM ) ],
 ];
 
 describe( 'report row fetchers and the report hooks', () => {
