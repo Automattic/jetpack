@@ -15,6 +15,7 @@ import { useCallback, useMemo, useState, useEffect } from 'react';
 import { useAllProducts } from '../../data/products/use-all-products';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
+import useCheckoutErrorNotice from '../../hooks/use-checkout-error-notice';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import LoadingBlock from '../loading-block';
 import styles from './style.module.scss';
@@ -116,7 +117,11 @@ const ProductDetailTableColumn = ( {
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
 	// Set up the checkout workflow hook.
-	const { run: runCheckout, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const {
+		run: runCheckout,
+		hasCheckoutStarted,
+		checkoutError,
+	} = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
 		redirectUrl: checkoutRedirectUrl,
@@ -126,6 +131,7 @@ const ProductDetailTableColumn = ( {
 		quantity,
 		adminUrl,
 	} );
+	useCheckoutErrorNotice( checkoutError );
 
 	// Compute the price per month.
 	const price = fullPrice ? Math.round( ( fullPrice / 12 ) * 100 ) / 100 : null;

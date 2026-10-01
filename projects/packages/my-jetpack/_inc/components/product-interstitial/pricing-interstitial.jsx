@@ -24,6 +24,7 @@ import { MyJetpackRoutes } from '../../constants';
 import useActivatePlugins from '../../data/products/use-activate-plugins';
 import useProduct from '../../data/products/use-product';
 import useAnalytics from '../../hooks/use-analytics';
+import useCheckoutErrorNotice from '../../hooks/use-checkout-error-notice';
 import { useGoBack } from '../../hooks/use-go-back';
 import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
@@ -67,7 +68,7 @@ export default function PricingInterstitial( { slug } ) {
 	const paidCheckoutRedirectUrl = detail?.postActivationUrl || myJetpackCheckoutUri;
 	const bundleCheckoutRedirectUrl = bundleDetail?.postActivationUrl || myJetpackCheckoutUri;
 
-	const { run: paidCheckoutRun } = useProductCheckoutWorkflow( {
+	const { run: paidCheckoutRun, checkoutError: paidCheckoutError } = useProductCheckoutWorkflow( {
 		productSlug:
 			detail?.pricingForUi?.tiers?.upgraded?.wpcomProductSlug ||
 			detail?.pricingForUi?.wpcomProductSlug,
@@ -79,17 +80,19 @@ export default function PricingInterstitial( { slug } ) {
 		useBlogIdSuffix: true,
 	} );
 
-	const { run: bundleCheckoutRun } = useProductCheckoutWorkflow( {
-		productSlug: bundleDetail?.pricingForUi?.wpcomProductSlug,
-		redirectUrl: bundleCheckoutRedirectUrl,
-		siteSuffix,
-		adminUrl,
-		connectAfterCheckout: true,
-		from: 'my-jetpack',
-		useBlogIdSuffix: true,
-	} );
+	const { run: bundleCheckoutRun, checkoutError: bundleCheckoutError } = useProductCheckoutWorkflow(
+		{
+			productSlug: bundleDetail?.pricingForUi?.wpcomProductSlug,
+			redirectUrl: bundleCheckoutRedirectUrl,
+			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
+			from: 'my-jetpack',
+			useBlogIdSuffix: true,
+		}
+	);
 
-	const { run: freeCheckoutRun } = useProductCheckoutWorkflow( {
+	const { run: freeCheckoutRun, checkoutError: freeCheckoutError } = useProductCheckoutWorkflow( {
 		productSlug: detail?.pricingForUi?.wpcomFreeProductSlug,
 		redirectUrl: paidCheckoutRedirectUrl,
 		siteSuffix,
@@ -98,6 +101,8 @@ export default function PricingInterstitial( { slug } ) {
 		from: 'my-jetpack',
 		useBlogIdSuffix: true,
 	} );
+
+	useCheckoutErrorNotice( paidCheckoutError || bundleCheckoutError || freeCheckoutError );
 
 	// Handle tiered pricing like trunk does - check for tiers.upgraded first
 	const productPricing = useMemo( () => {

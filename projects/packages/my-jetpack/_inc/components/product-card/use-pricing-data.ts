@@ -8,6 +8,7 @@ import useProduct from '../../data/products/use-product';
 import { ProductCamelCase } from '../../data/types';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
+import useCheckoutErrorNotice from '../../hooks/use-checkout-error-notice';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 
 const parsePricingData = ( pricingForUi: ProductCamelCase[ 'pricingForUi' ] ) => {
@@ -143,20 +144,22 @@ const usePricingData = ( slug: string ) => {
 	const { isUserConnected } = useMyJetpackConnection();
 	const { myJetpackUrl, siteSuffix } = getMyJetpackWindowInitialState();
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
-	const { run: runCheckout } = useProductCheckoutWorkflow( {
+	const { run: runCheckout, checkoutError } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomProductSlug,
 		redirectUrl: myJetpackUrl,
 		connectAfterCheckout: ! isUserConnected,
 		siteSuffix,
 	} );
-	const { run: runFreeCheckout } = useProductCheckoutWorkflow( {
+	const { run: runFreeCheckout, checkoutError: freeCheckoutError } = useProductCheckoutWorkflow( {
 		from: 'my-jetpack',
 		productSlug: wpcomFreeProductSlug,
 		redirectUrl: myJetpackUrl,
 		connectAfterCheckout: ! isUserConnected,
 		siteSuffix,
 	} );
+
+	useCheckoutErrorNotice( checkoutError || freeCheckoutError );
 
 	const handleActivate = useCallback( () => {
 		if ( wpcomFreeProductSlug ) {

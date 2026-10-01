@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Show an error when checkout cannot start, instead of leaving the button busy.
