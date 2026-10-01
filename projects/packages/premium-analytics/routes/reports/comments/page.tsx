@@ -4,15 +4,15 @@
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
+	ExporterCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	commentsAuthorsCsvExporter,
+	commentsPostsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -43,8 +43,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortCommentsCsvRows = ( a: CommentReportRow, b: CommentReportRow ) => b.value - a.value;
-
 /**
  * Get the DataViews row id for a Comments report row.
  *
@@ -65,24 +63,6 @@ function CommentsReport(): JSX.Element {
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
 	const fields = useMemo( () => getCommentsFields( activeTab ), [ activeTab ] );
-	const csvColumns = useMemo< CsvColumn< CommentReportRow >[] >(
-		() => [
-			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: `comments-${ activeTab }`,
-		status: records,
-		sort: sortCommentsCsvRows,
-	} );
 	const retry = useReportRetry( records.refetch );
 
 	const { getLabel } = REPORTS.comments;
@@ -92,9 +72,11 @@ function CommentsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ activeTab === 'posts' ? commentsPostsCsvExporter : commentsAuthorsCsvExporter }
+					items={ records.rows }
+					status={ records }
+				/>
 			}
 		>
 			<ReportPageLayout

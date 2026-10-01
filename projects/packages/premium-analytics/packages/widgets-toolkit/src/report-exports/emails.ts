@@ -16,7 +16,10 @@ import {
 } from '../helpers/format-email-rate';
 import type { UndatedReportCsvExporter } from './types';
 
-/** The summary endpoint's maximum; it resets anything above it to 10. */
+/**
+ * The endpoint's hard row cap: `quantity` accepts 1–30 and resets anything else to 10,
+ * so the report is a top-30 list, not a full archive.
+ */
 export const EMAILS_REPORT_ROW_LIMIT = 30;
 
 export const emailsCsvExporter: UndatedReportCsvExporter<

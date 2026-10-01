@@ -8,7 +8,10 @@ import { __ } from '@wordpress/i18n';
  */
 import type { UndatedReportCsvExporter } from './types';
 
-/** The Tags report's row cap; the widget's ten-row request would truncate the file. */
+/**
+ * `stats/tags` has no "all rows" value, so the report names a ceiling past what a real site
+ * produces (the endpoint ranks at most ~51 posts a day over seven days).
+ */
 export const TAGS_REPORT_ROW_LIMIT = 1000;
 
 export const tagsCsvExporter: UndatedReportCsvExporter< StatsTagsItem, StatsTagsItem > = {
