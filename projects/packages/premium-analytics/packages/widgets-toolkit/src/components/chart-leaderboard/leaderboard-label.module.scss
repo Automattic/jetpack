@@ -16,6 +16,7 @@
 	flex: none;
 	width: var(--jpa-leaderboard-image-width);
 	height: var(--jpa-leaderboard-image-height);
+	aspect-ratio: var(--jpa-leaderboard-image-aspect-ratio, auto);
 	vertical-align: middle;
 	border-radius: var(--jpa-leaderboard-image-radius);
 	object-fit: var(--jpa-leaderboard-image-fit);
@@ -48,6 +49,14 @@
 .thumbnail {
 	--jpa-leaderboard-image-width: 28px;
 	--jpa-leaderboard-image-height: 28px;
+	--jpa-leaderboard-image-radius: var(--wpds-border-radius-md);
+	--jpa-leaderboard-image-fit: cover;
+}
+
+.thumbnailWide {
+	--jpa-leaderboard-image-width: 50px;
+	--jpa-leaderboard-image-height: auto;
+	--jpa-leaderboard-image-aspect-ratio: 16 / 9;
 	--jpa-leaderboard-image-radius: var(--wpds-border-radius-md);
 	--jpa-leaderboard-image-fit: cover;
 }
@@ -91,6 +100,7 @@
 :global([inert]) .container .media {
 	width: var(--jpa-leaderboard-image-width);
 	height: var(--jpa-leaderboard-image-height);
+	aspect-ratio: var(--jpa-leaderboard-image-aspect-ratio, auto);
 	object-fit: var(--jpa-leaderboard-image-fit);
 }
 

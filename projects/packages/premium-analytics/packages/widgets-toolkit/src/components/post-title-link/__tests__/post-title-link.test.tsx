@@ -72,3 +72,15 @@ describe( 'PostTitleLink', () => {
 		);
 	} );
 } );
+
+describe( 'VideoTitleLink', () => {
+	it( 'renders custom content inside the detail link', () => {
+		render(
+			<VideoTitleLink id={ 12 } label="Launch" search={ {} }>
+				<span>custom</span>
+			</VideoTitleLink>
+		);
+
+		expect( screen.getByRole( 'link' ) ).toContainElement( screen.getByText( 'custom' ) );
+	} );
+} );

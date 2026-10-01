@@ -15,7 +15,7 @@ export type LeaderboardRowMedia =
 	| { kind: 'avatar'; url?: string; name: string }
 	| { kind: 'favicon'; url?: string }
 	| { kind: 'flag'; url?: string; country: string }
-	| { kind: 'thumbnail'; url?: string; alt: string }
+	| { kind: 'thumbnail'; url?: string; alt: string; aspectRatio?: '1/1' | '16/9' }
 	| { kind: 'icon'; icon: ComponentProps< typeof Icon >[ 'icon' ] }
 	| { kind: 'none' };
 
@@ -68,7 +68,7 @@ function getMediaDetails(
 		case 'thumbnail':
 			return {
 				alt: media.alt,
-				className: styles.thumbnail,
+				className: media.aspectRatio === '16/9' ? styles.thumbnailWide : styles.thumbnail,
 				fallback: 'placeholder' as const,
 				url: media.url,
 			};
