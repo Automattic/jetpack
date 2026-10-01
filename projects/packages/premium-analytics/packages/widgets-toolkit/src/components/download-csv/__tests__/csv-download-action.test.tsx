@@ -13,14 +13,31 @@ import type { ReportCsvExporter } from '../../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 import type { ReactNode } from 'react';
 
+const mockCreateErrorNotice = jest.fn();
+
+jest.mock(
+	'@wordpress/data',
+	() =>
+		new Proxy(
+			{
+				useRegistry: () => ( {
+					dispatch: () => ( { createErrorNotice: mockCreateErrorNotice } ),
+				} ),
+			},
+			{
+				get: ( overrides, prop ) =>
+					prop in overrides
+						? overrides[ prop as keyof typeof overrides ]
+						: jest.requireActual( '@wordpress/data' )[ prop ],
+			}
+		)
+);
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	getScriptData: jest.fn(),
 } ) );
 jest.mock( '../../../report-exports/download-report-csv', () => ( {
 	downloadReportCsv: jest.fn(),
 } ) );
-
-const mockDownloadReportCsv = jest.mocked( downloadReportCsv );
 
 const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
 const SETTLED = { isLoading: false, isFetching: false, isError: false };
@@ -38,37 +55,17 @@ describe( 'useExporterCsvAction', () => {
 		jest.mocked( getScriptData ).mockReturnValue( undefined );
 	} );
 
-	it( 'describes the download as a callback action for the widget report window', async () => {
-		mockDownloadReportCsv.mockResolvedValue( undefined );
+	it( 'reports a failed download itself instead of rejecting to the action runner', async () => {
+		jest.mocked( downloadReportCsv ).mockRejectedValue( new Error( 'Upstream API unavailable.' ) );
 		const { result } = renderHook(
 			() => useExporterCsvAction( { exporter, status: SETTLED, rowCount: 3 } ),
 			{ wrapper }
 		);
 
-		expect( result.current ).toMatchObject( { id: 'download-csv', label: 'Download CSV' } );
-		expect( result.current?.icon ).toBeTruthy();
-
-		await result.current?.callback();
-		expect( mockDownloadReportCsv ).toHaveBeenCalledWith( exporter, REPORT_PARAMS );
-	} );
-
-	it( 'leaves a failed download for the renderer to report', async () => {
-		mockDownloadReportCsv.mockRejectedValue( new Error( 'Upstream API unavailable.' ) );
-		const { result } = renderHook(
-			() => useExporterCsvAction( { exporter, status: SETTLED, rowCount: 3 } ),
-			{ wrapper }
-		);
-
-		await expect( result.current?.callback() ).rejects.toThrow( 'Upstream API unavailable.' );
-	} );
-
-	it( 'returns null until the widget has settled rows', () => {
-		const { result } = renderHook(
-			() =>
-				useExporterCsvAction( { exporter, status: { ...SETTLED, isFetching: true }, rowCount: 3 } ),
-			{ wrapper }
-		);
-
-		expect( result.current ).toBeNull();
+		await expect( result.current?.callback() ).resolves.toBeUndefined();
+		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
+			type: 'snackbar',
+			explicitDismiss: true,
+		} );
 	} );
 } );

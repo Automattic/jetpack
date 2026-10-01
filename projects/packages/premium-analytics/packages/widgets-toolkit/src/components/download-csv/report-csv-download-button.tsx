@@ -7,7 +7,10 @@ import {
 } from './csv-download-action';
 import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-button';
 
-export type ReportCsvDownloadButtonProps = Omit< CsvDownloadButtonProps, 'onDownload' | 'label' > &
+export type ReportCsvDownloadButtonProps = Omit<
+	CsvDownloadButtonProps,
+	'onDownload' | 'label' | 'icon'
+> &
 	UseServerReportCsvActionOptions;
 
 /**
@@ -27,6 +30,11 @@ export function ReportCsvDownloadButton( {
 	}
 
 	return (
-		<CsvDownloadButton { ...buttonProps } label={ action.label } onDownload={ action.callback } />
+		<CsvDownloadButton
+			{ ...buttonProps }
+			label={ action.label }
+			icon={ action.icon }
+			onDownload={ action.callback }
+		/>
 	);
 }

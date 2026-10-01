@@ -6,7 +6,7 @@ import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-b
 
 type ExporterCsvDownloadButtonProps< TItem, TRow > = Omit<
 	CsvDownloadButtonProps,
-	'onDownload' | 'label'
+	'onDownload' | 'label' | 'icon'
 > &
 	UseExporterCsvActionOptions< TItem, TRow >;
 
@@ -24,6 +24,11 @@ export function ExporterCsvDownloadButton< TItem, TRow >( {
 	}
 
 	return (
-		<CsvDownloadButton { ...buttonProps } label={ action.label } onDownload={ action.callback } />
+		<CsvDownloadButton
+			{ ...buttonProps }
+			label={ action.label }
+			icon={ action.icon }
+			onDownload={ action.callback }
+		/>
 	);
 }
