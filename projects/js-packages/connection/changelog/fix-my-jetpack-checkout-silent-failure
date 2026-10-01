@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Checkout workflow: Stop the busy state and expose a checkoutError when site registration or the product lookup fails.
