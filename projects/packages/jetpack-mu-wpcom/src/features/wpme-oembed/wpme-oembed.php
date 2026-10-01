@@ -15,9 +15,10 @@
  * @return int The decoded number.
  */
 function wpcom_wpme_base62_decode( $str ) {
-	$num = 0;
+	$digits = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+	$num    = 0;
 	foreach ( str_split( $str ) as $char ) {
-		$num = $num * 62 + strpos( '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', $char );
+		$num = $num * 62 + strpos( $digits, $char );
 	}
 	return $num;
 }
