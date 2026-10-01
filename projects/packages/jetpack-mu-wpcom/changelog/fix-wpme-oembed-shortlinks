@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Embeds: Allow the site oEmbed endpoint to resolve its own wp.me shortlinks.
