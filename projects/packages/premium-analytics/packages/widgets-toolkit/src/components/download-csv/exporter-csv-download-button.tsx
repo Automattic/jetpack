@@ -1,22 +1,14 @@
 /**
  * Internal dependencies
  */
-import { downloadReportCsv } from '../../report-exports/download-report-csv';
-import { useWidgetRootContext } from '../widget-root';
+import { useExporterCsvAction, type UseExporterCsvActionOptions } from './csv-download-action';
 import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-button';
-import { isReportCsvReady, type ReportCsvExportStatus } from './use-report-csv-export';
-import type { ReportCsvExporter } from '../../report-exports/types';
 
 type ExporterCsvDownloadButtonProps< TItem, TRow > = Omit<
 	CsvDownloadButtonProps,
-	'onDownload'
-> & {
-	exporter: ReportCsvExporter< TItem, TRow >;
-	/** The widget's own request state for the active range. */
-	status: ReportCsvExportStatus;
-	/** How many rows the widget shows; an empty widget offers no download. */
-	rowCount: number;
-};
+	'onDownload' | 'label'
+> &
+	UseExporterCsvActionOptions< TItem, TRow >;
 
 /** Widget action that downloads the linked report's full CSV once the widget's rows settle. */
 export function ExporterCsvDownloadButton< TItem, TRow >( {
@@ -25,16 +17,13 @@ export function ExporterCsvDownloadButton< TItem, TRow >( {
 	rowCount,
 	...buttonProps
 }: ExporterCsvDownloadButtonProps< TItem, TRow > ) {
-	const { reportParams } = useWidgetRootContext();
+	const action = useExporterCsvAction( { exporter, status, rowCount } );
 
-	if ( ! isReportCsvReady( status, rowCount ) ) {
+	if ( ! action ) {
 		return null;
 	}
 
 	return (
-		<CsvDownloadButton
-			{ ...buttonProps }
-			onDownload={ () => downloadReportCsv( exporter, reportParams ) }
-		/>
+		<CsvDownloadButton { ...buttonProps } label={ action.label } onDownload={ action.callback } />
 	);
 }

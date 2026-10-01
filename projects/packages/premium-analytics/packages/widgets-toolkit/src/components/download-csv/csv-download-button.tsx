@@ -2,7 +2,6 @@
  * External dependencies
  */
 import { Button, IconButton } from '@jetpack-premium-analytics/externals';
-import { useRegistry } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import clsx from 'clsx';
@@ -11,6 +10,7 @@ import { useState, type ComponentProps } from 'react';
  * Internal dependencies
  */
 import styles from './csv-download-button.module.scss';
+import { useDownloadWithErrorNotice } from './use-download-with-error-notice';
 
 export type CsvDownloadButtonProps = {
 	onDownload: () => Promise< unknown > | void;
@@ -41,23 +41,6 @@ export type CsvDownloadButtonProps = {
 	showLabel?: boolean;
 };
 
-function getErrorMessage( error: unknown ): string {
-	if ( error instanceof Error && error.message ) {
-		return error.message;
-	}
-	if (
-		typeof error === 'object' &&
-		error !== null &&
-		'message' in error &&
-		typeof error.message === 'string' &&
-		error.message
-	) {
-		return error.message;
-	}
-
-	return __( 'Could not download report.', 'jetpack-premium-analytics-pkg' );
-}
-
 /**
  * Shared CSV download action with loading state and snackbar errors.
  *
@@ -72,7 +55,7 @@ export function CsvDownloadButton( {
 	showLabel = false,
 }: CsvDownloadButtonProps ) {
 	const [ isBusy, setIsBusy ] = useState( false );
-	const registry = useRegistry();
+	const runDownload = useDownloadWithErrorNotice( onDownload );
 
 	const onClick = async () => {
 		if ( isBusy ) {
@@ -82,12 +65,7 @@ export function CsvDownloadButton( {
 		setIsBusy( true );
 
 		try {
-			await onDownload();
-		} catch ( error ) {
-			registry.dispatch( 'core/notices' ).createErrorNotice( getErrorMessage( error ), {
-				type: 'snackbar',
-				explicitDismiss: true,
-			} );
+			await runDownload();
 		} finally {
 			setIsBusy( false );
 		}
