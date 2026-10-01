@@ -36,7 +36,6 @@ const openModal = ( props: { previous?: typeof stats; next?: typeof stats } ) =>
 			total={ 3 }
 			onStep={ onStep }
 			onClose={ jest.fn() }
-			onFilterByPlan={ jest.fn() }
 			{ ...props }
 		/>
 	);
@@ -82,14 +81,13 @@ describe( 'FeatureModal stepping', () => {
 				total={ 2 }
 				onStep={ onStep }
 				onClose={ jest.fn() }
-				onFilterByPlan={ jest.fn() }
 			/>
 		);
 		const onStep = jest.fn();
 		const { rerender } = render( modal( withLinks( 'forms' ), onStep ) );
 		// Let the dialog place its own initial focus first, then move away from it.
 		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Close' } ) ).toHaveFocus() );
-		screen.getByRole( 'link', { name: /Feature page/ } ).focus();
+		screen.getByRole( 'link', { name: /Learn more/ } ).focus();
 
 		await userEvent.keyboard( '{ArrowRight}' );
 		rerender( modal( withLinks( 'podcast', { manage_url: '/podcast' } ), onStep ) );
@@ -114,7 +112,6 @@ describe( 'FeatureModal stepping', () => {
 				total={ 3 }
 				onStep={ jest.fn() }
 				onClose={ jest.fn() }
-				onFilterByPlan={ jest.fn() }
 			/>
 		);
 		const { rerender } = render( modal( withAction( 'forms' ), undefined, podcast ) );
@@ -152,7 +149,6 @@ describe( 'FeatureModal stepping', () => {
 				total={ 2 }
 				onStep={ jest.fn() }
 				onClose={ jest.fn() }
-				onFilterByPlan={ jest.fn() }
 			/>
 		);
 		const { rerender } = render( modal( withScreenshot( 'forms', 'Forms' ) ) );

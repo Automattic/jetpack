@@ -17,6 +17,7 @@ import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router';
 /**
  * Internal dependencies
  */
@@ -29,7 +30,7 @@ import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
-import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
+import { getCheckoutReturnUrl, getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -49,7 +50,8 @@ export default function PricingInterstitial( { slug } ) {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
-	const myJetpackCheckoutUri = getMyJetpackUrl();
+	const [ searchParams ] = useSearchParams();
+	const myJetpackCheckoutUri = getCheckoutReturnUrl( searchParams );
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,

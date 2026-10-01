@@ -508,6 +508,19 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * Included in plan marks exactly the features the owned bundle covers.
+	 */
+	public function test_included_marks_what_the_owned_bundle_covers() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$included = array_column( Main_Features::get_features(), 'included', 'slug' );
+
+		$this->assertTrue( $included['newsletter'] );
+		$this->assertFalse( $included['activity-log'] );
+		$this->assertFalse( $included['blaze'] );
+	}
+
+	/**
 	 * A plan no bundle class lists still covers Activity Log when WordPress.com grants its paid history.
 	 */
 	public function test_no_activity_log_upgrade_for_a_site_with_full_activity_log() {

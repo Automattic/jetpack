@@ -9,6 +9,8 @@ import {
 	MY_JETPACK_SECTION_PRODUCTS,
 } from '../constants';
 import {
+	getCheckoutReturnUrl,
+	getFeaturePricingHref,
 	getModulesListPath,
 	getMyJetpackSections,
 	getProductsSectionPath,
@@ -16,6 +18,7 @@ import {
 } from '../utils';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
+	getMyJetpackUrl: ( section = '' ) => `admin.php?page=my-jetpack${ section }`,
 	currentUserCan: jest.fn(),
 	getScriptData: jest.fn(),
 	isSimpleSite: jest.fn(),
@@ -147,5 +150,21 @@ describe( 'resolveMyJetpackSection', () => {
 		expect( resolveMyJetpackSection( MY_JETPACK_SECTION_PRODUCTS ) ).toBe(
 			MY_JETPACK_SECTION_OVERVIEW
 		);
+	} );
+} );
+
+describe( 'checkout return', () => {
+	it( 'sends checkout from a feature\u2019s pricing page back to that feature\u2019s details', () => {
+		setFeaturesTab( true );
+		const href = getFeaturePricingHref( '/add-social', 'social' );
+
+		expect( href ).toBe( '#/add-social?return_feature=social' );
+		expect( getCheckoutReturnUrl( new URLSearchParams( href.split( '?' )[ 1 ] ) ) ).toBe(
+			'admin.php?page=my-jetpack#/features?feature=social'
+		);
+	} );
+
+	it( 'returns to My Jetpack when the pricing page was not opened from a feature', () => {
+		expect( getCheckoutReturnUrl( new URLSearchParams() ) ).toBe( 'admin.php?page=my-jetpack' );
 	} );
 } );

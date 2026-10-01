@@ -140,17 +140,25 @@ function FeaturesTabContent() {
 		[ states, moreFeatures ]
 	);
 
+	const filters = useMemo(
+		() =>
+			getFeatureFilters(
+				filter,
+				states.some( state => state.feature.included )
+			),
+		[ filter, states ]
+	);
 	// Counted against every feature, not the visible ones, so a pill says how many it
 	// would show rather than how many survived the filter already in play.
 	const counts = useMemo(
 		() =>
 			Object.fromEntries(
-				getFeatureFilters( filter ).map( ( { value } ) => [
+				filters.map( ( { value } ) => [
 					value,
 					countable.filter( state => matchesFilter( state, value ) ).length,
 				] )
 			) as Record< FeatureFilter, number >,
-		[ countable, filter ]
+		[ countable, filters ]
 	);
 
 	const open = states.find( item => item.feature.slug === openSlug );
@@ -281,13 +289,6 @@ function FeaturesTabContent() {
 		[ sendSearch, updateParams ]
 	);
 
-	// How many the tab would show, counted here rather than read from `counts`, which
-	// only holds the filters offered as pills — a plan badge can pick one that is not.
-	const countFor = useCallback(
-		( next: FeatureFilter ) => countable.filter( state => matchesFilter( state, next ) ).length,
-		[ countable ]
-	);
-
 	const onFilterChange = useCallback(
 		// Clears the search: a term in play replaces the grid outright, so a pill picked
 		// while searching would otherwise light up and change nothing.
@@ -295,26 +296,13 @@ function FeaturesTabContent() {
 			// The pills stay clickable while active, and picking the one already in play
 			// changes nothing to report.
 			if ( next !== filter ) {
-				tracking?.trackFilterChange( next, countFor( next ) );
+				tracking?.trackFilterChange( next, counts[ next ] ?? 0 );
 			}
 
 			forgetPendingSearch();
 			updateParams( { filter: next === 'all' ? null : next, search: null } );
 		},
-		[ countFor, filter, forgetPendingSearch, tracking, updateParams ]
-	);
-
-	// A plan badge answers "what else is in this?", so it filters and steps out of the modal.
-	const onFilterByPlan = useCallback(
-		( plan: FeatureFilter ) => {
-			if ( plan !== filter ) {
-				tracking?.trackFilterChange( plan, countFor( plan ) );
-			}
-
-			forgetPendingSearch();
-			updateParams( { filter: plan, feature: null, search: null } );
-		},
-		[ countFor, filter, forgetPendingSearch, tracking, updateParams ]
+		[ counts, filter, forgetPendingSearch, tracking, updateParams ]
 	);
 
 	const onViewChange = useCallback(
@@ -352,6 +340,7 @@ function FeaturesTabContent() {
 				view={ view }
 				onViewChange={ onViewChange }
 				filter={ filter }
+				filters={ filters }
 				onFilterChange={ onFilterChange }
 				counts={ counts }
 				countsPending={ isLoading }
@@ -397,6 +386,7 @@ function FeaturesTabContent() {
 				jetpack={ mainFeatures.jetpack }
 				isList={ view === 'list' }
 				isNarrowed={ filter !== 'all' || Boolean( search ) }
+				isSearching={ Boolean( search ) }
 			/>
 
 			{ open && (
@@ -408,7 +398,6 @@ function FeaturesTabContent() {
 					total={ stepOrder.length }
 					onStep={ stepFeature }
 					onClose={ closeFeature }
-					onFilterByPlan={ onFilterByPlan }
 				/>
 			) }
 		</section>

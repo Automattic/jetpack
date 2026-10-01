@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { FeatureDelivery } from '../feature-delivery';
 import { FeatureModal } from '../feature-modal';
-import { FeaturePaid } from '../feature-paid';
+import { FeaturePaid, UpgradeButton } from '../feature-paid';
 import type { FeatureState } from '../feature-state';
 
 const mockRecordEvent = jest.fn();
@@ -110,48 +110,45 @@ describe( 'FeatureDelivery', () => {
 
 describe( 'FeaturePaid', () => {
 	it( 'leaves out the plans for a module a host forced off', () => {
-		render(
-			<FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } onFilterByPlan={ jest.fn() } />
-		);
+		render( <FeaturePaid state={ moduleState( 'inactive', 'inactive' ) } /> );
 
 		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves out the plans and the upgrade for a plugin a host forced off', () => {
+		const state = {
+			...forcedOffPlugin,
+			feature: {
+				...forcedOffPlugin.feature,
+				upgrade: { path: '/add-boost', name: 'Jetpack Boost' },
+			},
+		} as FeatureState;
 		render(
-			<FeaturePaid
-				state={ {
-					...forcedOffPlugin,
-					feature: {
-						...forcedOffPlugin.feature,
-						upgrade: { path: '/add-boost', name: 'Jetpack Boost' },
-					},
-				} }
-				onFilterByPlan={ jest.fn() }
-			/>
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
 		);
 
 		expect( screen.queryByText( /Included in/ ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'filters the list by a plan when its name is clicked', async () => {
-		const onFilterByPlan = jest.fn();
-		render(
-			<FeaturePaid state={ moduleState( false, 'inactive' ) } onFilterByPlan={ onFilterByPlan } />
+	it( 'links a plan name to its pricing page, which returns to this feature', () => {
+		render( <FeaturePaid state={ moduleState( false, 'inactive' ) } /> );
+
+		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toHaveAttribute(
+			'href',
+			'#/add-complete?return_feature=jetpack-forms'
 		);
-
-		await userEvent.click( screen.getByRole( 'button', { name: 'Jetpack Complete' } ) );
-
-		expect( onFilterByPlan ).toHaveBeenCalledWith( 'complete' );
 	} );
 
-	it( 'links to the upgrade for a feature that sells on its own', () => {
-		render( <FeaturePaid state={ installedPlugin } onFilterByPlan={ jest.fn() } /> );
+	it( 'links to the upgrade for a feature that sells on its own, returning to it after checkout', () => {
+		render( <UpgradeButton state={ installedPlugin } /> );
 
 		expect(
 			screen.getByRole( 'link', { name: 'Upgrade to Jetpack Akismet Anti-spam' } )
-		).toHaveAttribute( 'href', '#/add-akismet' );
+		).toHaveAttribute( 'href', '#/add-akismet?return_feature=anti-spam' );
 	} );
 
 	it( 'drops the upgrade when the catalog has nothing to sell this site', () => {
@@ -159,14 +156,19 @@ describe( 'FeaturePaid', () => {
 			...installedPlugin,
 			feature: { ...installedPlugin.feature, upgrade: { path: '', name: '' } },
 		} as FeatureState;
-		render( <FeaturePaid state={ state } onFilterByPlan={ jest.fn() } /> );
+		render(
+			<>
+				<FeaturePaid state={ state } />
+				<UpgradeButton state={ state } />
+			</>
+		);
 
 		expect( screen.queryByRole( 'link', { name: /Upgrade/ } ) ).not.toBeInTheDocument();
 		expect( screen.getByText( /Included in/ ) ).toBeInTheDocument();
 	} );
 
 	it( 'records which feature an upgrade was chosen from', async () => {
-		render( <FeaturePaid state={ installedPlugin } onFilterByPlan={ jest.fn() } /> );
+		render( <UpgradeButton state={ installedPlugin } /> );
 
 		await userEvent.click(
 			screen.getByRole( 'link', { name: 'Upgrade to Jetpack Akismet Anti-spam' } )
@@ -204,7 +206,6 @@ describe( 'FeatureModal Free column', () => {
 				total={ 1 }
 				onStep={ jest.fn() }
 				onClose={ jest.fn() }
-				onFilterByPlan={ jest.fn() }
 			/>
 		);
 

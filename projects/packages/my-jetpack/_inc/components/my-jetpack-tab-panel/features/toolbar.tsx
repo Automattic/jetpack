@@ -6,7 +6,6 @@ import { IconButton, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback } from 'react';
 import styles from './styles.module.scss';
-import { getFeatureFilters } from './use-feature-filter';
 import type { FeatureFilter } from './use-feature-filter';
 import type { ReactNode } from 'react';
 
@@ -93,6 +92,7 @@ type ToolbarProps = {
 	view: FeaturesView;
 	onViewChange: ( view: FeaturesView ) => void;
 	filter: FeatureFilter;
+	filters: Array< { value: FeatureFilter; label: string } >;
 	onFilterChange: ( filter: FeatureFilter ) => void;
 	counts: Record< FeatureFilter, number >;
 	countsPending?: boolean;
@@ -112,6 +112,7 @@ const LIVE_COUNTS: FeatureFilter[] = [ 'active', 'inactive' ];
  * @param {string}       props.view           - Whether the features show as a grid or a list.
  * @param {Function}     props.onViewChange   - Switches between the grid and the list.
  * @param {string}       props.filter         - The active filter.
+ * @param {Array}        props.filters        - The filters on offer, in order.
  * @param {Function}     props.onFilterChange - Switches the active filter.
  * @param {object}       props.counts         - How many features each filter shows.
  * @param {boolean}      props.countsPending  - Whether those counts are still settling.
@@ -124,6 +125,7 @@ export function Toolbar( {
 	view,
 	onViewChange,
 	filter,
+	filters,
 	onFilterChange,
 	counts,
 	countsPending,
@@ -148,14 +150,15 @@ export function Toolbar( {
 					aria-label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 					className={ styles.pills }
 				>
-					{ getFeatureFilters( filter ).map( ( { value, label } ) => (
+					{ filters.map( ( { value, label } ) => (
 						<FilterPill
 							key={ value }
 							value={ value }
 							label={ label }
 							count={ counts[ value ] ?? 0 }
 							countPending={ countsPending && LIVE_COUNTS.includes( value ) }
-							isActive={ value === filter }
+							// A search covers every feature, so no pill is in play while one runs.
+							isActive={ ! search && value === filter }
 							onSelect={ onFilterChange }
 						/>
 					) ) }
@@ -169,7 +172,7 @@ export function Toolbar( {
 						label={ __( 'Filter features', 'jetpack-my-jetpack' ) }
 						hideLabelFromVision
 						value={ filter }
-						options={ getFeatureFilters( filter ).map( ( { value, label } ) => ( {
+						options={ filters.map( ( { value, label } ) => ( {
 							value,
 							// No count until it is a count; the pills alongside do the same.
 							label:

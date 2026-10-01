@@ -536,6 +536,12 @@ $band-ground: #f8f8f8;
 	view-transition-name: jetpack-feature-modal-backdrop;
 }
 
+// Named too, or the backdrop's layer paints over it and stepping dims the
+// admin bar.
+:global(body):has(.modal-portal) :global(#wpadminbar) {
+	view-transition-name: jetpack-feature-modal-admin-bar;
+}
+
 // Mounts already open, so `@wordpress/ui`'s entrance never plays. Rise in by
 // translating rather than scaling, which would resample the text.
 @media (min-width: 600px) and (prefers-reduced-motion: no-preference) {
@@ -838,14 +844,6 @@ $band-props: (
 
 .paid-routes {
 	margin-block-start: var(--wpds-dimension-gap-sm);
-}
-
-.plan-link {
-	background: none;
-	border: 0;
-	cursor: pointer;
-	font: inherit;
-	padding: 0;
 }
 
 // The artwork took nearly a third of the dialog's height at its desktop size,

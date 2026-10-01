@@ -157,10 +157,16 @@ class Main_Features {
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/blaze.png',
 				'name'             => __( 'Blaze Ads', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Put your best posts in front of new readers on WordPress.com and Tumblr.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Turn a post or page into an ad shown across Tumblr and WordPress.com, aimed at the locations, languages and interests you choose. There is no plan to buy: set a budget for each campaign and pay only for the ad views you get.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Turn a post or page into an ad shown across Tumblr and WordPress.com, aimed at the locations, languages and interests you choose.', 'jetpack-my-jetpack' ),
 				'icon'             => 'megaphone',
 				'admin_page'       => 'advertising',
 				'module'           => 'blaze',
+				// No plan sells Blaze, so it says how campaigns are paid for instead.
+				'pricing_notes'    => array(
+					__( 'No subscription required', 'jetpack-my-jetpack' ),
+					__( 'Set a budget for each campaign', 'jetpack-my-jetpack' ),
+					__( 'Pay only for the ad views you get', 'jetpack-my-jetpack' ),
+				),
 				'delivery'         => array(
 					'jetpack'     => true,
 					'plugin'      => 'blaze-ads',
@@ -290,19 +296,23 @@ class Main_Features {
 				'docs_url'         => 'https://jetpack.com/support/newsletter/',
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/newsletter.png',
 				'name'             => __( 'Newsletter', 'jetpack-my-jetpack' ),
-				'description'      => __( 'Turn every post you publish into an email your readers receive.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Subscribers get each new post by email as soon as you publish, or in a daily or weekly digest they choose. You can also earn from your writing with paid subscriptions for exclusive posts.', 'jetpack-my-jetpack' ),
+				'description'      => __( 'Build your subscriber list and email your newsletter automatically.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Every post you publish goes out by email, with no cap on subscribers or sends. New readers find you through the WordPress.com Reader, and when you’re ready, you can charge for your newsletter.', 'jetpack-my-jetpack' ),
 				'icon'             => 'envelope',
 				'product'          => 'newsletter',
 				'module'           => 'subscriptions',
 				'free_highlights'  => array(
-					__( 'Each new post emailed to your subscribers', 'jetpack-my-jetpack' ),
-					__( 'Daily or weekly digests your readers choose', 'jetpack-my-jetpack' ),
-					__( 'Paid subscriptions for exclusive posts', 'jetpack-my-jetpack' ),
+					__( 'No limit on subscribers or email sends', 'jetpack-my-jetpack' ),
+					__( 'Import up to 100 subscribers', 'jetpack-my-jetpack' ),
+					__( 'Subscribe forms and pop-ups to collect subscribers on your site', 'jetpack-my-jetpack' ),
+					__( 'New subscribers from the WordPress.com Reader', 'jetpack-my-jetpack' ),
+					/* translators: %d is the percentage fee, such as 10. */
+					sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 10 ),
 				),
 				'paid_highlights'  => array(
-					__( 'Keep more of what you earn with lower fees on paid subscriptions', 'jetpack-my-jetpack' ),
 					__( 'Import as many subscribers as you like', 'jetpack-my-jetpack' ),
+					/* translators: %d is the percentage fee, such as 10. */
+					sprintf( __( 'Paid newsletter with a %d%% fee on subscriptions', 'jetpack-my-jetpack' ), 2 ),
 				),
 				'delivery'         => array(
 					'jetpack' => true,
@@ -317,19 +327,21 @@ class Main_Features {
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/podcast.png',
 				'name'             => __( 'Podcast', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Start a podcast on your own site and reach listeners on every major app.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Publish unlimited episodes as posts, with your podcast feed served from your own domain. Submit your show to Apple Podcasts, Spotify, Pocket Casts and more from one place.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Your show lives on your own site, so the feed, the audio and your listeners stay yours, with no separate podcast service to sign up for. Submit it to Apple Podcasts, Spotify, Pocket Casts and more, and your newsletter subscribers get new episodes too.', 'jetpack-my-jetpack' ),
 				'icon'             => 'audio',
 				'admin_page'       => 'jetpack-podcast',
 				'module'           => 'podcast',
 				'free_highlights'  => array(
-					__( 'Unlimited episodes, published as posts', 'jetpack-my-jetpack' ),
+					__( 'Unlimited episodes, each one a post on your site', 'jetpack-my-jetpack' ),
 					__( 'A podcast feed on your own domain', 'jetpack-my-jetpack' ),
 					__( 'Submit to Apple Podcasts, Spotify and more', 'jetpack-my-jetpack' ),
+					__( 'New episodes go out to your newsletter subscribers and the WordPress.com Reader', 'jetpack-my-jetpack' ),
 				),
 				'paid_highlights'  => array(
 					__( 'Listener stats by episode, app and country', 'jetpack-my-jetpack' ),
 					__( 'An episodes dashboard for your whole back catalog', 'jetpack-my-jetpack' ),
 					__( 'An episode player with chapters, transcripts and soundbites', 'jetpack-my-jetpack' ),
+					__( 'Video episodes and Podcasting 2.0 support', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
 					'jetpack' => true,
@@ -381,7 +393,9 @@ class Main_Features {
 				'icon'             => 'search',
 				'product'          => 'search',
 				'interstitial'     => '/add-search',
+				'setup_note'       => __( 'To start using it, choose a plan next, including a free one.', 'jetpack-my-jetpack' ),
 				'free_highlights'  => array(
+					__( 'Up to 500 search requests per month', 'jetpack-my-jetpack' ),
 					__( 'Results as visitors type', 'jetpack-my-jetpack' ),
 					__( 'Filters for category, tag, date and author', 'jetpack-my-jetpack' ),
 				),
@@ -411,6 +425,7 @@ class Main_Features {
 				'product'          => 'social',
 				'interstitial'     => '/add-social',
 				'free_highlights'  => array(
+					__( 'Unlimited shares', 'jetpack-my-jetpack' ),
 					__( 'Automatic sharing when you publish', 'jetpack-my-jetpack' ),
 					__( 'Facebook, Instagram, Threads, Bluesky, LinkedIn and more', 'jetpack-my-jetpack' ),
 				),
@@ -523,29 +538,17 @@ class Main_Features {
 	 *
 	 * @param array       $definition    A single entry from the feature catalog.
 	 * @param string|null $product_class The product behind the feature, when it has one.
+	 * @param bool        $included      Whether the site already pays for the feature.
 	 * @return array{path: string, name: string} The My Jetpack route and the product it sells, both empty when nothing does.
 	 */
-	private static function get_upgrade( $definition, $product_class ) {
+	private static function get_upgrade( $definition, $product_class, $included ) {
 		$none = array(
 			'path' => '',
 			'name' => '',
 		);
 
-		// Nothing to sell a site that already pays for the feature, directly or through a bundle.
-		if ( $product_class && self::pays_for_product( $product_class ) ) {
-			return $none;
-		}
-
-		foreach ( $definition['plans'] ?? array() as $plan ) {
-			$bundle_class = Products::get_product_class( $plan );
-
-			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() ) {
-				return $none;
-			}
-		}
-
-		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
-		if ( ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] ) ) {
+		// Nothing to sell a site that already pays for the feature.
+		if ( $included ) {
 			return $none;
 		}
 
@@ -569,6 +572,30 @@ class Main_Features {
 		}
 
 		return $none;
+	}
+
+	/**
+	 * Whether the site already pays for a feature, directly or through a bundle.
+	 *
+	 * @param array       $definition    A single entry from the feature catalog.
+	 * @param string|null $product_class The product behind the feature, when it has one.
+	 * @return bool
+	 */
+	private static function is_included_in_plan( $definition, $product_class ) {
+		if ( $product_class && self::pays_for_product( $product_class ) ) {
+			return true;
+		}
+
+		foreach ( $definition['plans'] ?? array() as $plan ) {
+			$bundle_class = Products::get_product_class( $plan );
+
+			if ( $bundle_class && $bundle_class::has_paid_plan_for_product() ) {
+				return true;
+			}
+		}
+
+		// Covers plans no bundle class lists, such as the legacy Jetpack Personal, Premium and Professional.
+		return ! empty( $definition['paid_feature'] ) && Product::does_site_have_feature( $definition['paid_feature'] );
 	}
 
 	/**
@@ -932,6 +959,7 @@ class Main_Features {
 			$delivery      = $definition['delivery'] ?? array();
 			$plugin        = $delivery['plugin'] ?? '';
 			$product_class = isset( $definition['product'] ) ? Products::get_product_class( $definition['product'] ) : null;
+			$included      = self::is_included_in_plan( $definition, $product_class );
 
 			$features[] = array(
 				'slug'             => $slug,
@@ -949,7 +977,10 @@ class Main_Features {
 				'plugin_override'  => $plugin ? self::get_plugin_override( $plugin, $product_class ) : '',
 				'free_highlights'  => $definition['free_highlights'] ?? array(),
 				'paid_highlights'  => $definition['paid_highlights'] ?? array(),
-				'upgrade'          => self::get_upgrade( $definition, $product_class ),
+				'pricing_notes'    => $definition['pricing_notes'] ?? array(),
+				'upgrade'          => self::get_upgrade( $definition, $product_class, $included ),
+				'included'         => $included,
+				'setup_note'       => $definition['setup_note'] ?? '',
 				'screenshot'       => $definition['image'],
 				'plans'            => self::get_plan_badges( $definition ),
 				'info_url'         => $definition['info_url'],

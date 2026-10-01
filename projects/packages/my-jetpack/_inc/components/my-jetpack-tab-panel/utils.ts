@@ -1,4 +1,9 @@
-import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getMyJetpackUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	MY_JETPACK_SECTION_FEATURES,
@@ -39,6 +44,34 @@ export function getProductsSectionTitle() {
  */
 export function getProductsSectionPath( search = '' ) {
 	return `/${ getProductsSection() }${ search }`;
+}
+
+// Carried by a pricing page opened from a feature's details, so checkout can return there.
+const RETURN_FEATURE_PARAM = 'return_feature';
+
+/**
+ * Link to a pricing page that sends checkout back to a feature's details.
+ *
+ * @param path    - The pricing route, such as `/add-social`.
+ * @param feature - The feature's slug.
+ * @return The hash link.
+ */
+export function getFeaturePricingHref( path: string, feature: string ) {
+	return `#${ path }?${ new URLSearchParams( { [ RETURN_FEATURE_PARAM ]: feature } ) }`;
+}
+
+/**
+ * Where checkout returns to: the feature the pricing page was opened from, else My Jetpack.
+ *
+ * @param searchParams - The pricing page's query.
+ * @return The admin URL.
+ */
+export function getCheckoutReturnUrl( searchParams: URLSearchParams ) {
+	const feature = searchParams.get( RETURN_FEATURE_PARAM );
+
+	return getMyJetpackUrl(
+		feature ? `#${ getProductsSectionPath( `?${ new URLSearchParams( { feature } ) }` ) }` : ''
+	);
 }
 
 /**

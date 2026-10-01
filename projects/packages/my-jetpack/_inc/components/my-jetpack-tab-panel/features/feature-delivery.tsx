@@ -31,7 +31,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			return sprintf(
 				/* translators: %s is a plugin name. Keep the <plugin> tags around it. */
 				__(
-					'Installing adds the <plugin>%s</plugin> plugin and turns it on. It does not buy anything.',
+					'Installing adds the free <plugin>%s</plugin> plugin and turns it on. You won’t be charged.',
 					'jetpack-my-jetpack'
 				),
 				pluginName
@@ -49,7 +49,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 
 		case 'module':
 			return __(
-				'Built into Jetpack. Activating turns it on, with nothing to install or buy.',
+				'Built into Jetpack, so there is nothing to install. Activating turns it on.',
 				'jetpack-my-jetpack'
 			);
 
@@ -57,7 +57,7 @@ function getNote( state: FeatureState, pluginName: string ): string {
 			return sprintf(
 				/* translators: %s is a feature name, such as "Stats". */
 				__(
-					'%s is part of the Jetpack plugin. Installing Jetpack turns it on; it does not buy anything.',
+					'%s is part of the Jetpack plugin. Installing Jetpack turns it on. You won’t be charged.',
 					'jetpack-my-jetpack'
 				),
 				feature.name
@@ -84,7 +84,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 	}
 
 	const pluginName = feature.plugin_name || feature.name;
-	const note = getNote( state, pluginName );
+	const note = [ getNote( state, pluginName ), feature.setup_note ].filter( Boolean ).join( ' ' );
 
 	if ( ! note ) {
 		return null;

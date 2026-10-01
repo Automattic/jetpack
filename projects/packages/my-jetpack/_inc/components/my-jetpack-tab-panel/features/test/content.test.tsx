@@ -133,6 +133,14 @@ describe( 'FeaturesContent', () => {
 		).toBeVisible();
 	} );
 
+	it( 'leaves every filter pill unpressed while a search covers all features', () => {
+		renderAt( '/features?filter=growth&search=stats' );
+
+		screen
+			.getAllByRole( 'button', { pressed: true } )
+			.forEach( pressed => expect( pressed ).not.toHaveTextContent( /Growth|All/ ) );
+	} );
+
 	it( 'shows the grid by default and switches to the list from the toolbar', async () => {
 		renderAt( '/features' );
 

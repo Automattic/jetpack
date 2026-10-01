@@ -107,23 +107,19 @@ jest.mock( '../use-more-features', () => ( {
 	...jest.requireActual( '../use-more-features' ),
 	useMoreFeatures: () => mockMoreFeatures,
 } ) );
-// The plan badges live inside the real modal; here the handler is held onto and called.
+// The real modal is not under test; its step handler is held onto and called.
 const mockModal: {
-	onFilterByPlan?: ( plan: string ) => void;
 	onStep?: ( slug: string ) => void;
 } = {};
 
 jest.mock( '../feature-modal', () => ( {
 	FeatureModal: ( {
 		onClose,
-		onFilterByPlan,
 		onStep,
 	}: {
 		onClose: () => void;
-		onFilterByPlan: ( plan: string ) => void;
 		onStep: ( slug: string ) => void;
 	} ) => {
-		mockModal.onFilterByPlan = onFilterByPlan;
 		mockModal.onStep = onStep;
 
 		// ds-allow: button -- stands in for the real modal, which is not under test.
@@ -196,7 +192,6 @@ beforeEach( () => {
 	mockMoreFeatures = [];
 	mockPending = false;
 	mockModuleSwitch.onSwitch = undefined;
-	mockModal.onFilterByPlan = undefined;
 	mockModal.onStep = undefined;
 	mockGrid.onOpen = undefined;
 	mockUseAnalytics.mockReturnValue( { recordEvent } );
@@ -669,26 +664,6 @@ describe( 'What is not worth an event', () => {
 } );
 
 describe( 'How many a filter would show', () => {
-	it( 'counts a plan the pills do not offer', async () => {
-		renderAt( '/features?feature=stats' );
-
-		await waitFor( () =>
-			expect( eventNames() ).toContain( 'jetpack_myjetpack_feature_modal_view' )
-		);
-		act( () => mockModal.onFilterByPlan?.( 'complete' ) );
-
-		// Both fixtures are on the Complete plan; `counts` never holds that filter unless it
-		// is already in play, which is what made this read as 0.
-		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
-			filter: 'complete',
-			count: 2,
-		} );
-		// The badge also steps out of the modal, which is a close.
-		expect( lastEvent( 'jetpack_myjetpack_feature_modal_close' ) ).toMatchObject( {
-			feature_slug: 'stats',
-		} );
-	} );
-
 	it( 'counts the More Features rows the pill counts, not the grid alone', async () => {
 		mockMoreFeatures = [ { label: 'Engagement', states: [ moduleRow( 'monitor', 'Monitor' ) ] } ];
 		renderAt( '/features' );

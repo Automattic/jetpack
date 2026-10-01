@@ -36,6 +36,11 @@ describe( 'matchesFilter', () => {
 		expect( matchesFilter( state, 'growth' ) ).toBe( false );
 	} );
 
+	it( 'matches Included in plan on what the site already pays for', () => {
+		expect( matchesFilter( buildState( { included: true } ), 'included' ) ).toBe( true );
+		expect( matchesFilter( buildState( { plans: [ security ] } ), 'included' ) ).toBe( false );
+	} );
+
 	it( 'matches Essential on the feature, not on a plan', () => {
 		expect( matchesFilter( buildState( { essential: true } ), 'essential' ) ).toBe( true );
 		expect( matchesFilter( buildState( { plans: [ security ] } ), 'essential' ) ).toBe( false );
@@ -50,6 +55,15 @@ describe( 'getFeatureFilters', () => {
 	it( 'keeps Complete selectable without giving it a pill', () => {
 		expect( isFeatureFilter( 'complete' ) ).toBe( true );
 		expect( getFeatureFilters().map( ( { value } ) => value ) ).not.toContain( 'complete' );
+	} );
+
+	it( 'offers Included in plan only to a site that pays for something, or a link that asks for it', () => {
+		const values = ( ...args: Parameters< typeof getFeatureFilters > ) =>
+			getFeatureFilters( ...args ).map( ( { value } ) => value );
+
+		expect( values() ).not.toContain( 'included' );
+		expect( values( 'all', true ) ).toContain( 'included' );
+		expect( values( 'included' ) ).toContain( 'included' );
 	} );
 
 	it( 'rejects a filter the grid does not know', () => {
