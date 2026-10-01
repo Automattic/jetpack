@@ -34,10 +34,10 @@ const preloadEditor = () => {
  * Hand the editor the theme's type from its textarea and the colours around the box.
  * Read as the editor opens, so a stylesheet that loads late has arrived.
  *
- * @param box - The comment box.
+ * @param box      - The comment box.
+ * @param textarea - The theme-styled textarea in it.
  */
-const matchTheme = ( box: HTMLElement ) => {
-	const textarea = box.querySelector( 'textarea' ) ?? box;
+const matchTheme = ( box: HTMLElement, textarea: HTMLTextAreaElement ) => {
 	const { fontFamily, fontSize, lineHeight } = getComputedStyle( textarea );
 	const { color } = getComputedStyle( box );
 	// The first ancestor that paints a background.
@@ -75,6 +75,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 	const { mustLogIn, identity, strings, avatarUrl, maxLength, blocks } = JetpackComments;
 	const isSubmitting = useRef( false );
 	const boxRef = useRef< HTMLDivElement >( null );
+	const textareaRef = useRef< HTMLTextAreaElement >( null );
 	const editorRef = useRef< HTMLDivElement >( null );
 	// Downloaded on first focus; the textarea stays if it never arrives.
 	const [ editor, setEditor ] = useState< 'none' | 'loading' | 'ready' | 'failed' >( 'none' );
@@ -87,7 +88,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				return;
 			}
 
-			matchTheme( boxRef.current! );
+			matchTheme( boxRef.current!, textareaRef.current! );
 			setEditor( 'loading' );
 			loadEditor()
 				.then( ( { mountEditor } ) => {
@@ -250,6 +251,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				onPointerEnter={ blocks ? preloadEditor : undefined }
 			>
 				<textarea
+					ref={ textareaRef }
 					hidden={ editor === 'ready' }
 					id="comment"
 					name="comment"
