@@ -312,7 +312,6 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 				open={ isConfirmOpen }
 				onOpenChange={ setConfirmOpen }
 				onConfirm={ () => {
-					// Not returned: a promise would hold the dialog open until the save settles.
 					saveExperience( experience );
 				} }
 			>
