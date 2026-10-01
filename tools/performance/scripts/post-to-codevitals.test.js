@@ -879,7 +879,7 @@ test( 'dry-run with both scenarios present posts 14 keys, including zero Forms s
 	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
 } );
 
-test( 'dry-run with all four scenarios posts 26 keys, including staging TBT and Settings metrics', async () => {
+test( 'dry-run with all four scenarios posts 11 production keys and 15 staging keys', async () => {
 	const file = writeResults( 120, {
 		forms: { decodedBytesKB: 8229 },
 		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860, tbt: 120 },
@@ -897,7 +897,9 @@ test( 'dry-run with all four scenarios posts 26 keys, including staging TBT and 
 	assert.equal( result.payload.metrics[ MJ_DECODED_KEY ], 5860 );
 	assert.equal( result.payload.metrics[ MJ_TBT_KEY ], 120 );
 	assert.deepEqual(
-		Object.entries( result.payload.metrics ).filter( ( [ key ] ) => key.startsWith( 'jetpack-settings-connection-sim-' ) ),
+		Object.entries( result.payload.metrics ).filter( ( [ key ] ) =>
+			key.startsWith( 'jetpack-settings-' )
+		),
 		[
 			[ 'jetpack-settings-connection-sim-largestContentfulPaint-staging', 1060 ],
 			[ 'jetpack-settings-connection-sim-timeToFirstByte-staging', 327 ],
