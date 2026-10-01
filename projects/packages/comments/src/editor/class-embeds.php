@@ -124,41 +124,31 @@ class Embeds extends WP_REST_Controller {
 			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
 
-		$key  = 'jetpack_comments_embed_' . md5( $url );
-		$data = get_transient( $key );
+		// Each lookup is a request to a provider on the visitor's behalf. Thirty in ten minutes covers
+		// a reader trying links, not a script. Transients, so a site with no object cache has a limit too.
+		$ip        = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$count_key = 'jetpack_comments_embed_previews_' . md5( $ip );
+		$count     = (int) get_transient( $count_key );
 
-		if ( false === $data ) {
-			// Each miss is a request to a provider on the visitor's behalf. Thirty in ten minutes
-			// covers a reader trying links, not a script. Transients, so a site with no object cache has a limit too.
-			$ip        = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-			$count_key = 'jetpack_comments_embed_previews_' . md5( $ip );
-			$count     = (int) get_transient( $count_key );
-
-			if ( $count >= 30 ) {
-				return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
-			}
-
-			set_transient( $count_key, $count + 1, 10 * MINUTE_IN_SECONDS );
-
-			$oembed = _wp_oembed_get_object();
-			$args   = array_merge( wp_embed_defaults( $url ), array( 'discover' => false ) );
-			$data   = $oembed->get_data( $url, $args );
-
-			if ( is_object( $data ) ) {
-				/** This filter is documented in wp-includes/class-wp-oembed.php */
-				$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $url ), $url, $args );
-			}
-
-			// A miss is kept too, for less time, so a dead link is not asked for again and again.
-			set_transient( $key, is_object( $data ) ? $data : 0, is_object( $data ) ? DAY_IN_SECONDS : HOUR_IN_SECONDS );
+		if ( $count >= 30 ) {
+			return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
 		}
 
-		if ( ! $data ) {
+		set_transient( $count_key, $count + 1, 10 * MINUTE_IN_SECONDS );
+
+		$oembed = _wp_oembed_get_object();
+		$args   = array_merge( wp_embed_defaults( $url ), array( 'discover' => false ) );
+		$data   = $oembed->get_data( $url, $args );
+
+		if ( ! is_object( $data ) ) {
 			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
 
+		/** This filter is documented in wp-includes/class-wp-oembed.php */
+		$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $url ), $url, $args );
+
 		$response = new WP_REST_Response( $data );
-		// The same for every visitor, so a cache between them may keep it.
+		// The same for every visitor, so the browser and any cache between may keep it.
 		$response->header( 'Cache-Control', 'public, max-age=' . HOUR_IN_SECONDS );
 
 		return $response;
