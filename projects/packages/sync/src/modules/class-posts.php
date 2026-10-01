@@ -31,27 +31,6 @@ class Posts extends Module {
 	private $just_published = array();
 
 	/**
-	 * Nesting depth of REST callbacks currently running.
-	 *
-	 * @var int
-	 */
-	private $rest_callback_depth = 0;
-
-	/**
-	 * Depth of the REST callback each post was published in, until that callback completes.
-	 *
-	 * @var int[]
-	 */
-	private $published_in_rest_callback = array();
-
-	/**
-	 * Posts as they were before a running REST callback first updated them.
-	 *
-	 * @var \WP_Post[]
-	 */
-	private $rest_posts_before = array();
-
-	/**
 	 * The previous status of posts that we use for calculating post status transitions.
 	 *
 	 * @access private
@@ -108,19 +87,6 @@ class Posts extends Module {
 	 * @var string
 	 */
 	const DEFAULT_PREVIOUS_STATE = 'new';
-
-	/**
-	 * REST meta fields that decide whether a publish emails subscribers or shares to Social.
-	 * A publish is never completed when one of them failed to save.
-	 *
-	 * @var string[]
-	 */
-	const PUBLISH_CONTROL_META_FIELDS = array(
-		'_jetpack_dont_email_post_to_subs',
-		'_jetpack_newsletter_access',
-		'_jetpack_newsletter_tier_id',
-		'jetpack_publicize_feature_enabled',
-	);
 
 	/**
 	 * Sync module name.
@@ -198,9 +164,6 @@ class Posts extends Module {
 		add_filter( 'jetpack_sync_before_enqueue_deleted_post', array( $this, 'filter_blacklisted_post_types_deleted' ) );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
-		add_filter( 'rest_request_before_callbacks', array( $this, 'enter_rest_callback' ) );
-		add_action( 'pre_post_update', array( $this, 'remember_rest_post_before' ) );
-		add_filter( 'rest_request_after_callbacks', array( $this, 'leave_rest_callback' ), 10, 3 );
 
 		// Listen for meta changes.
 		$this->init_listeners_for_meta_type( 'post', $callable );
@@ -862,119 +825,9 @@ class Posts extends Module {
 		}
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[ $post->ID ] = true;
-			if ( $this->rest_callback_depth > 0 ) {
-				$this->published_in_rest_callback[ $post->ID ] = $this->rest_callback_depth;
-			}
 		}
 
 		$this->previous_status[ $post->ID ] = $old_status;
-	}
-
-	/**
-	 * Track that a REST callback started.
-	 *
-	 * @param \WP_REST_Response|\WP_Error|mixed $response Result to send, if a filter already set one.
-	 * @return \WP_REST_Response|\WP_Error|mixed Unchanged response.
-	 */
-	public function enter_rest_callback( $response ) {
-		++$this->rest_callback_depth;
-		return $response;
-	}
-
-	/**
-	 * Remember a post before a REST callback updates it, for `wp_after_insert_post`.
-	 *
-	 * @param int $post_id Post ID.
-	 */
-	public function remember_rest_post_before( $post_id ) {
-		if ( $this->rest_callback_depth > 0 && ! isset( $this->rest_posts_before[ $post_id ] ) ) {
-			$post = get_post( $post_id );
-			if ( $post instanceof \WP_Post ) {
-				$this->rest_posts_before[ $post_id ] = clone $post;
-			}
-		}
-	}
-
-	/**
-	 * Complete `wp_after_insert_post` for posts a failed REST callback published.
-	 *
-	 * The posts controller skips that hook when saving meta fails. It is completed only when a
-	 * single meta field failed and every other requested field is stored, so stale newsletter or
-	 * sharing settings can't trigger emails or shares.
-	 *
-	 * @param \WP_REST_Response|\WP_Error|mixed $response Result of the REST callback.
-	 * @param array                             $handler  Route handler.
-	 * @param \WP_REST_Request                  $request  Request.
-	 * @return \WP_REST_Response|\WP_Error|mixed Unchanged response.
-	 */
-	public function leave_rest_callback( $response, $handler, $request ) {
-		$failed_field = null;
-		if ( is_wp_error( $response ) && array( 'rest_meta_database_error' ) === $response->get_error_codes() ) {
-			$failures     = $response->get_all_error_data( 'rest_meta_database_error' );
-			$failed_field = 1 === count( $failures ) && is_array( $failures[0] ) ? ( $failures[0]['key'] ?? null ) : null;
-			if ( in_array( $failed_field, self::PUBLISH_CONTROL_META_FIELDS, true ) ) {
-				$failed_field = null;
-			}
-		}
-
-		foreach ( $this->published_in_rest_callback as $post_id => $depth ) {
-			// Posts from an outer callback are settled when that one completes.
-			if ( $depth < $this->rest_callback_depth ) {
-				continue;
-			}
-			unset( $this->published_in_rest_callback[ $post_id ] );
-			$post_before = $this->rest_posts_before[ $post_id ] ?? null;
-			unset( $this->rest_posts_before[ $post_id ] );
-
-			if ( ! is_wp_error( $response ) || ! isset( $this->just_published[ $post_id ] ) ) {
-				continue;
-			}
-
-			$post = get_post( $post_id );
-			if ( null !== $failed_field && $post instanceof \WP_Post && 'publish' === $post->post_status && $this->stored_meta_matches_request( $post_id, $request, $failed_field ) ) {
-				wp_after_insert_post( $post, null !== $post_before, $post_before );
-			}
-			unset( $this->just_published[ $post_id ] );
-		}
-
-		if ( 1 === $this->rest_callback_depth ) {
-			$this->rest_posts_before = array();
-		}
-		$this->rest_callback_depth = max( 0, $this->rest_callback_depth - 1 );
-		return $response;
-	}
-
-	/**
-	 * Whether every requested REST meta field, except the one that failed, is stored as requested.
-	 *
-	 * @param int              $post_id      Post ID.
-	 * @param \WP_REST_Request $request      Request.
-	 * @param string           $failed_field REST name of the meta field that failed to save.
-	 * @return bool
-	 */
-	private function stored_meta_matches_request( $post_id, $request, $failed_field ) {
-		$requested = $request['meta'];
-		if ( ! is_array( $requested ) ) {
-			return true;
-		}
-
-		$post = get_post( $post_id );
-		if ( ! $post instanceof \WP_Post || ! class_exists( 'WP_REST_Post_Meta_Fields' ) ) {
-			return false;
-		}
-
-		$stored = ( new \WP_REST_Post_Meta_Fields( $post->post_type ) )->get_value( $post_id, $request );
-		foreach ( $requested as $name => $value ) {
-			// A reset (`null`) that failed would have been a second meta error.
-			if ( $name === $failed_field || null === $value ) {
-				continue;
-			}
-			if ( ! array_key_exists( $name, $stored ) || $stored[ $name ] !== $value ) {
-				return false;
-			}
-		}
-
-		return true;
 	}
 
 	/**
