@@ -68,7 +68,7 @@ test( 'preserves the exact cornerstone URL for cached and regenerated scores', a
 		wpApiSettings.root,
 		'https://example.org/',
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
@@ -76,7 +76,7 @@ test( 'preserves the exact cornerstone URL for cached and regenerated scores', a
 		wpApiSettings.root,
 		'https://example.org/',
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 } );
 
@@ -91,7 +91,7 @@ test.each( [ undefined, { predefined_pages: [] }, { predefined_pages: [ '' ] } ]
 			wpApiSettings.root,
 			'https://example.org',
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		);
 	}
 );
@@ -158,7 +158,7 @@ test.each( [ false, true ] )(
 	}
 );
 
-test( 'clears a cancelled run on a subpage and reads cached scores on return', async () => {
+test( 'clears a run on a subpage and restores it while the site is still measuring', async () => {
 	const { result, rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
 		wrapper,
 		initialProps: true,
@@ -169,12 +169,12 @@ test( 'clears a cancelled run on a subpage and reads cached scores on return', a
 	jest
 		.mocked( requestSpeedScores )
 		.mockImplementationOnce( () => new Promise( () => {} ) )
-		.mockImplementationOnce(
-			() =>
-				new Promise( resolve => {
-					resolveRequest = resolve;
-				} )
-		);
+		.mockImplementationOnce( ( _force, _root, _url, _nonce, options ) => {
+			options?.onPending?.();
+			return new Promise( resolve => {
+				resolveRequest = resolve;
+			} );
+		} );
 	act( () => {
 		void result.current[ 1 ]( true );
 	} );
@@ -188,9 +188,9 @@ test( 'clears a cancelled run on a subpage and reads cached scores on return', a
 		wpApiSettings.root,
 		'https://example.org',
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
-	expect( result.current[ 0 ] ).toMatchObject( { status: 'loading', isRunning: false } );
+	expect( result.current[ 0 ] ).toMatchObject( { status: 'loading', isRunning: true } );
 	await act( async () => resolveRequest( nextScores ) );
 	expect( result.current[ 0 ] ).toMatchObject( {
 		status: 'loaded',
@@ -222,7 +222,7 @@ test( 'regenerates after changed module configuration settles and waits two seco
 			wpApiSettings.root,
 			'https://example.org',
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		);
 	} finally {
 		jest.useRealTimers();
@@ -245,7 +245,7 @@ test( 'refreshes scores for live cornerstone changes on mount and refetch', asyn
 			wpApiSettings.root,
 			'https://example.org/current/',
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		)
 	);
 	jest.mocked( apiFetch ).mockResolvedValue( {
@@ -261,7 +261,7 @@ test( 'refreshes scores for live cornerstone changes on mount and refetch', asyn
 			wpApiSettings.root,
 			'https://example.org/updated/',
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		)
 	);
 } );
@@ -363,9 +363,26 @@ test( 'refreshes a configuration change after leaving a subpage', async () => {
 			wpApiSettings.root,
 			expect.any( String ),
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		);
 	} finally {
 		jest.useRealTimers();
 	}
+} );
+
+test( 'ignores a pending report from a superseded request', async () => {
+	let reportPending!: () => void;
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( ( _force, _root, _url, _nonce, options ) => {
+			reportPending = () => options?.onPending?.();
+			return new Promise( () => {} );
+		} );
+	const { result, rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+		wrapper,
+		initialProps: true,
+	} );
+	rerender( false );
+	act( () => reportPending() );
+	expect( result.current[ 0 ].isRunning ).toBe( false );
 } );

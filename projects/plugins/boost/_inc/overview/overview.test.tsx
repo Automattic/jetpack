@@ -206,6 +206,22 @@ test( 'announces a user run through the card status without a second button anno
 	expect( mockSpeak ).not.toHaveBeenCalled();
 } );
 
+test( 'shows a run already in progress when the Overview opens', async () => {
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( ( _force, _root, _url, _nonce, options ) => {
+			options?.onPending?.();
+			return new Promise( () => {} );
+		} );
+	renderOverview();
+	await waitFor( () =>
+		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
+			/__is-loading$/
+		)
+	);
+	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+} );
+
 test( 'clears the busy button after a rejected speed test request', async () => {
 	renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
@@ -408,7 +424,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	await waitFor( () =>
@@ -424,7 +440,7 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		)
 	);
 	expect(
@@ -672,7 +688,7 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 				wpApiSettings.root,
 				Jetpack_Boost.site.url,
 				wpApiSettings.nonce,
-				{ signal: expect.any( AbortSignal ) }
+				expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 			);
 		} finally {
 			jest.useRealTimers();
@@ -726,7 +742,7 @@ test( 'tracks score errors and offers a successful retry', async () => {
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	expect(
 		jest
@@ -787,7 +803,7 @@ test( 'keeps scores visible and focused while re-enabling cached reads', async (
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 	expect( screen.getByText( '91' ) ).toBeVisible();
 	expect( screen.getByRole( 'region', { name: 'Desktop' } ) ).toBeVisible();
@@ -1409,7 +1425,7 @@ test( 'debounces optimization changes and waits for generation to finish', async
 			wpApiSettings.root,
 			Jetpack_Boost.site.url,
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		);
 		unmount();
 	} finally {

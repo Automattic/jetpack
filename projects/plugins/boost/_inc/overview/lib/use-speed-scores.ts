@@ -65,7 +65,15 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 					wpApiSettings.root,
 					url,
 					wpApiSettings.nonce,
-					{ signal: controller.signal }
+					{
+						signal: controller.signal,
+						// A run started elsewhere (another tab, before a subpage visit) is still a run.
+						onPending: () => {
+							if ( id === requestId.current ) {
+								setState( previous => ( { ...previous, isRunning: true } ) );
+							}
+						},
+					}
 				);
 				if ( id === requestId.current && scores ) {
 					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
