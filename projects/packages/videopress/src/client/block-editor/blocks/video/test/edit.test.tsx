@@ -23,6 +23,8 @@ jest.mock( '@wordpress/data', () => ( { useDispatch: jest.fn() } ) );
 jest.mock( '@wordpress/components', () => ( {
 	withNotices: component => component,
 	ToolbarButton: () => null,
+	PanelBody: () => null,
+	ToggleControl: () => null,
 } ) );
 jest.mock( '../../../../lib/connection', () => ( {
 	isStandaloneActive: () => true,
