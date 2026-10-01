@@ -1,5 +1,0 @@
-Significance: patch
-Type: other
-Comment: Settings > Sharing no longer shows Like buttons or Comment Likes settings while a connected site is in offline mode, as before the screen moved into the jetpack-sharing-likes package. Amends an unreleased change.
-
-

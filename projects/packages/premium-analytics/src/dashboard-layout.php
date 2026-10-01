@@ -87,6 +87,56 @@ function remove_unsupported_default_layout_items( $layout ) {
 add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_unsupported_default_layout_items', 100 );
 
 /**
+ * The widget type registry once it can answer, or null before that.
+ *
+ * It cannot answer before `init`, without the widget type API loaded, or with nothing registered,
+ * which is a checkout without a build.
+ *
+ * @since $$next-version$$
+ *
+ * @return Widget_Type_Registry|null
+ */
+function get_answering_widget_type_registry() {
+	if ( ! did_action( 'init' ) || ! function_exists( __NAMESPACE__ . '\\ensure_widget_registry_ready' ) ) {
+		return null;
+	}
+
+	ensure_widget_registry_ready();
+	$registry = Widget_Type_Registry::get_instance();
+
+	return $registry->get_all_registered() ? $registry : null;
+}
+
+/**
+ * Renames the widget instances whose type is a former name of a registered widget type.
+ *
+ * Hooked before the unregistered-type check, so an instance a plugin still adds under an old
+ * name survives it under the current one.
+ *
+ * @since $$next-version$$
+ *
+ * @param array $layout Default widget instances.
+ * @return array The layout with current type names.
+ */
+function resolve_former_widget_types_in_default_layout( $layout ) {
+	$registry = get_answering_widget_type_registry();
+	if ( ! $registry || ! is_array( $layout ) ) {
+		return $layout;
+	}
+
+	return array_map(
+		static function ( $item ) use ( $registry ) {
+			if ( is_array( $item ) && is_string( $item['type'] ?? null ) ) {
+				$item['type'] = $registry->resolve_name( $item['type'] );
+			}
+			return $item;
+		},
+		$layout
+	);
+}
+add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\resolve_former_widget_types_in_default_layout', 99 );
+
+/**
  * Drops the widget instances whose type the widget type registry does not know.
  *
  * Only once the registry can answer: after `init`, with the widget type API loaded and at least
@@ -99,21 +149,23 @@ add_filter( DASHBOARD_DEFAULT_LAYOUT_FILTER, __NAMESPACE__ . '\\remove_unsupport
  * @return array The layout minus the instances of unregistered types.
  */
 function remove_unregistered_default_layout_items( $layout ) {
-	if ( ! did_action( 'init' ) || ! function_exists( __NAMESPACE__ . '\\ensure_widget_registry_ready' ) ) {
+	$registry = get_answering_widget_type_registry();
+	if ( ! $registry ) {
 		return $layout;
 	}
-
-	ensure_widget_registry_ready();
-	$registered = Widget_Type_Registry::get_instance()->get_all_registered();
-	if ( empty( $registered ) ) {
-		return $layout;
-	}
+	$registered = $registry->get_all_registered();
 
 	return array_values(
 		array_filter(
 			$layout,
 			static function ( $item ) use ( $registered ) {
-				return ! is_array( $item ) || isset( $registered[ $item['type'] ?? '' ] );
+				if ( ! is_array( $item ) ) {
+					return true;
+				}
+				// A non-string type, say the Widget_Type object register_widget_type() returns, is an
+				// unknown type, not a TypeError for the whole sections route.
+				$type = $item['type'] ?? '';
+				return is_string( $type ) && isset( $registered[ $type ] );
 			}
 		)
 	);

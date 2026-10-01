@@ -42,6 +42,7 @@ import {
 	SectionSyncNotice,
 } from './components';
 import {
+	buildWidgetTypeRenames,
 	DATE_FILTER_YEAR,
 	getInsertableWidgetTypeNames,
 	isSectionAwaitingSync,
@@ -62,6 +63,7 @@ import './overlay-focus-ring.scss';
 import styles from './stage.module.scss';
 import type { DateRange, YearSurfacePresetId } from '@jetpack-premium-analytics/datetime';
 import type { DashboardWidget } from '@wordpress/widget-dashboard';
+import type { JSX } from 'react';
 
 /**
  * Premium Analytics dashboard page stage component.
@@ -71,7 +73,16 @@ import type { DashboardWidget } from '@wordpress/widget-dashboard';
 function Dashboard(): JSX.Element {
 	const { sections, hasResolved: hasResolvedSections } = useDashboardSections();
 	const [ activeSection, setActiveSection ] = useActiveSection( sections );
-	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout( activeSection, sections );
+	const widgetModules = useWidgetModules();
+	const widgetTypeRenames = useMemo(
+		() => buildWidgetTypeRenames( widgetModules ),
+		[ widgetModules ]
+	);
+	const [ layout, setLayout, resetLayout ] = useDashboardSectionLayout(
+		activeSection,
+		sections,
+		widgetTypeRenames
+	);
 	const [ gridSettings ] = useDashboardGridSettings();
 
 	const activeSectionRecord = sections.find( section => section.slug === activeSection );
@@ -119,7 +130,6 @@ function Dashboard(): JSX.Element {
 		}
 	}, [ isSyncComplete ] );
 
-	const widgetModules = useWidgetModules();
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ editMode, setEditMode ] = useState( false );

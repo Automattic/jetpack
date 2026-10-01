@@ -12,7 +12,15 @@ import {
 	BlockControls,
 } from '@wordpress/block-editor';
 import { createBlock } from '@wordpress/blocks';
-import { Spinner, Placeholder, Button, withNotices, ToolbarButton } from '@wordpress/components';
+import {
+	Spinner,
+	Placeholder,
+	Button,
+	withNotices,
+	ToolbarButton,
+	PanelBody,
+	ToggleControl,
+} from '@wordpress/components';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
 import { useEffect, useState, useCallback, useRef } from '@wordpress/element';
@@ -59,7 +67,7 @@ type PlaceholderWrapperProps = {
 	className?: string;
 	disableInstructions?: boolean;
 	errorMessage?: string;
-	instructions?: ReactNode;
+	instructions?: string;
 	onNoticeRemove?: ( ...args: unknown[] ) => unknown;
 };
 
@@ -158,6 +166,7 @@ export default function VideoPressEdit( {
 		src,
 		caption,
 		isExample,
+		useQueriedVideo,
 	} = attributes;
 
 	const videoPressUrl = getVideoPressUrl( guid, {
@@ -390,6 +399,40 @@ export default function VideoPressEdit( {
 	};
 
 	// Render Example block view
+	// Channel video pages: the block renders whichever video the page is for.
+	const queriedVideoControls = (
+		<InspectorControls>
+			<PanelBody title={ __( 'Channel', 'jetpack-videopress-pkg' ) } initialOpen={ false }>
+				<ToggleControl
+					__nextHasNoMarginBottom
+					label={ __( 'Show the video being viewed', 'jetpack-videopress-pkg' ) }
+					help={ __(
+						'For channel video pages: renders the video of the page or of the list entry instead of a fixed one.',
+						'jetpack-videopress-pkg'
+					) }
+					checked={ !! useQueriedVideo }
+					onChange={ ( value: boolean ) => setAttributes( { useQueriedVideo: value } ) }
+				/>
+			</PanelBody>
+		</InspectorControls>
+	);
+
+	if ( useQueriedVideo ) {
+		return (
+			<div { ...blockProps } className={ blockMainClassName }>
+				{ queriedVideoControls }
+				<Placeholder
+					icon={ VideoPressIcon }
+					label={ __( 'Video being viewed', 'jetpack-videopress-pkg' ) }
+					instructions={ __(
+						'On the site, this shows the VideoPress video of the page or list entry.',
+						'jetpack-videopress-pkg'
+					) }
+				/>
+			</div>
+		);
+	}
+
 	if ( isExample ) {
 		return (
 			<img
@@ -608,6 +651,8 @@ export default function VideoPressEdit( {
 					} }
 				/>
 			</BlockControls>
+
+			{ queriedVideoControls }
 
 			<InspectorControls>
 				<DetailsPanel

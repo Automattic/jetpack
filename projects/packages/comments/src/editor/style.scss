@@ -1,0 +1,465 @@
+// Our own styles for the Gutenberg pieces the comment editor shows, in the
+// theme's colours and type. All inside the editor, so none reach the page.
+.jetpack-comments__editor {
+	// Read by the styles Gutenberg's components inject as they render.
+	--wp-admin-theme-color: #007cba;
+	--wp-admin-theme-color--rgb: 0, 124, 186;
+	--wp-admin-theme-color-darker-10: #006ba1;
+	--wp-admin-border-width-focus: 2px;
+	--wp-components-color-foreground: var(--jetpack-comments-color, currentColor);
+	--wp-components-color-background: var(--jetpack-comments-background, Canvas);
+
+	// Buttons.
+	.components-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		min-width: 36px;
+		height: 36px;
+		margin: 0;
+		padding: 4px 12px;
+		border: 0;
+		border-radius: 2px;
+		background: none;
+		color: inherit;
+		font-family: inherit;
+		font-size: 13px;
+		text-decoration: none;
+		cursor: pointer;
+		appearance: none;
+
+		svg {
+			flex-shrink: 0;
+			fill: currentColor;
+		}
+
+		&:focus {
+			outline: none;
+		}
+
+		&:focus:not(:active) {
+			outline: 2px solid var(--wp-admin-theme-color);
+			outline-offset: 2px;
+		}
+
+		&:hover:not(:disabled),
+		&[aria-expanded="true"] {
+			color: var(--wp-admin-theme-color);
+		}
+
+		// The selected "/" result.
+		&.is-primary {
+			background: var(--wp-admin-theme-color);
+			color: #fff;
+		}
+
+		&.is-primary:hover:not(:disabled) {
+			background: var(--wp-admin-theme-color-darker-10);
+			color: #fff;
+		}
+
+		&:disabled,
+		&[aria-disabled="true"] {
+			opacity: 0.4;
+			cursor: default;
+		}
+
+		&.has-icon {
+			padding: 6px;
+		}
+
+		&.is-compact {
+			height: 32px;
+		}
+
+		&.is-small {
+			min-width: 24px;
+			height: 24px;
+			padding: 0;
+		}
+
+		&.has-icon.has-text {
+			justify-content: start;
+			gap: 4px;
+			padding-inline: 8px 12px;
+		}
+	}
+
+	// Toolbars: 48px buttons whose pressed and focused states are a pill inside.
+	.components-accessible-toolbar,
+	.components-dropdown {
+		display: inline-flex;
+	}
+
+	.components-toolbar-group {
+		display: inline-flex;
+		flex-wrap: wrap;
+		min-height: 48px;
+		padding-inline: 6px;
+		line-height: 0;
+
+		// Room for a list's nine buttons in one row on a phone.
+		@media (max-width: 599px) {
+			padding-inline: 0;
+		}
+	}
+
+	.components-toolbar-group .components-button {
+		position: relative;
+		z-index: 1;
+		height: 48px;
+
+		// Nine to a row on the narrowest phones too.
+		@media (max-width: 359px) {
+			min-width: 32px;
+			padding-inline: 4px;
+		}
+
+		&::before {
+			content: "";
+			position: absolute;
+			inset: 8px 2px;
+			z-index: -1;
+			border-radius: 2px;
+		}
+
+		&.is-pressed,
+		&.is-pressed:hover {
+			color: var(--wp-components-color-background);
+
+			&::before {
+				background: var(--wp-components-color-foreground);
+			}
+		}
+
+		&:focus {
+			outline: none;
+
+			&::before {
+				box-shadow: 0 0 0 2px var(--wp-admin-theme-color);
+			}
+		}
+	}
+
+	// Popovers, for the formatting tools, menus, and the link field.
+	.components-popover {
+		z-index: 1000000;
+		box-sizing: border-box;
+
+		// Or the link preview's padding pushes it wider than the popover.
+		*,
+		::before,
+		::after {
+			box-sizing: inherit;
+		}
+
+		// Not in the toolbar, whose formatting buttons are compact too.
+		.components-button.is-compact.has-icon:not(.has-text) {
+			min-width: 32px;
+			padding: 0;
+		}
+	}
+
+	.components-popover:not(.is-unstyled) .components-popover__content {
+		box-sizing: border-box;
+		border-radius: 4px;
+		background: var(--jetpack-comments-background, Canvas);
+		box-shadow: 0 0 0 1px currentColor;
+		color: inherit;
+		font-family: var(--jetpack-comments-font-family, inherit);
+
+		// The link field's wrapper sets its own font.
+		input {
+			font-family: var(--jetpack-comments-font-family, inherit);
+		}
+	}
+
+	// Menus as narrow as their longest item.
+	.components-dropdown__content .components-popover__content,
+	.components-autocomplete__popover .components-popover__content {
+		width: min-content;
+		padding: 8px;
+	}
+
+	// Menus.
+	.components-dropdown-menu__menu {
+		width: 100%;
+		font-size: 13px;
+		line-height: 1.4;
+	}
+
+	.components-dropdown-menu__menu .components-button {
+		width: 100%;
+		white-space: nowrap;
+	}
+
+	.components-menu-item__info-wrapper {
+		display: flex;
+		flex-direction: column;
+		margin-inline-end: auto;
+	}
+
+	.components-menu-item__item {
+		display: inline-flex;
+		align-items: center;
+		min-width: 160px;
+		margin-inline-end: auto;
+	}
+
+	.components-menu-item__shortcut {
+		margin-inline-start: auto;
+		padding-inline-start: 24px;
+	}
+
+	// The "/" block menu.
+	.components-autocomplete__popover .components-popover__content {
+		min-width: 200px;
+	}
+
+	.components-autocomplete__result {
+		width: 100%;
+		height: auto;
+		min-height: 36px;
+		justify-content: start;
+		white-space: nowrap;
+	}
+
+	.block-editor-block-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 24px;
+		height: 24px;
+		margin-inline-end: 8px;
+	}
+
+	// The link field, its suggestions, and the link's preview.
+	.block-editor-link-control {
+		width: 90vw;
+		max-width: 350px;
+	}
+
+	.block-editor-link-control__field {
+		margin: 16px;
+		padding: 1px;
+	}
+
+	.block-editor-link-control__search-input-wrapper {
+		margin-bottom: 8px;
+	}
+
+	.block-editor-link-control__search-results {
+		max-height: 200px;
+		margin-top: -16px;
+		padding: 8px;
+		overflow-y: auto;
+	}
+
+	.block-editor-link-control__search-item.components-button {
+		height: auto;
+		text-align: start;
+
+		.components-menu-item__item {
+			display: inline-block;
+			overflow: hidden;
+			text-overflow: ellipsis;
+		}
+
+		mark {
+			background: none;
+			color: inherit;
+			font-weight: 600;
+		}
+	}
+
+	.block-editor-link-control__preview {
+		padding: 16px;
+	}
+
+	.block-editor-link-control__preview-info,
+	.components-menu-item__info,
+	.block-editor-link-control__search-item .components-menu-item__shortcut {
+		opacity: 0.62;
+		font-size: 12px;
+		line-height: 1.1;
+	}
+
+	.components-menu-item__info {
+		margin-top: 4px;
+		white-space: normal;
+	}
+
+	.block-editor-link-control__preview-icon {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		flex-shrink: 0;
+		width: 32px;
+		height: 32px;
+		border-radius: 2px;
+		background: color-mix(in sRGB, currentColor 8%, transparent);
+	}
+
+	.block-editor-link-control__preview-title {
+		color: var(--wp-admin-theme-color);
+		line-height: 20px;
+		text-decoration: none;
+
+		&:focus-visible {
+			outline: 2px solid var(--wp-admin-theme-color);
+		}
+
+		.components-external-link__icon {
+			display: none;
+		}
+	}
+
+	.components-input-control__container:focus-within .components-input-control__backdrop {
+		outline: 2px solid var(--wp-admin-theme-color);
+		outline-offset: 2px;
+	}
+
+	// Blocks.
+	.block-editor-block-list__block {
+		position: relative;
+		overflow-wrap: break-word;
+
+		&:not([contenteditable="true"]):focus {
+			outline: 2px solid var(--wp-admin-theme-color);
+			outline-offset: -2px;
+		}
+	}
+
+	.rich-text:focus {
+		outline: none;
+	}
+
+	[data-rich-text-placeholder] {
+		pointer-events: none;
+
+		&::after {
+			content: attr(data-rich-text-placeholder);
+			opacity: 0.62;
+		}
+	}
+
+	.wp-block-code code {
+		display: block;
+		direction: ltr;
+		font-family: inherit;
+		text-align: initial;
+		white-space: break-spaces;
+		overflow-wrap: break-word;
+	}
+
+	// The "+" between blocks and the tip for leaving the editor by keyboard.
+	.block-editor-block-list__insertion-point,
+	.block-editor-writing-flow__canvas-stop-hint {
+		display: none;
+	}
+}
+
+// Tooltips render at the end of the page body, outside the editor.
+.components-tooltip {
+	z-index: 1000002;
+	padding: 4px 8px;
+	border-radius: 4px;
+	background: #000;
+	color: #f0f0f0;
+	font: 12px/1.4 -apple-system, system-ui, "Segoe UI", Roboto, sans-serif;
+	text-align: center;
+}
+
+.components-tooltip__shortcut {
+	margin-inline-start: 8px;
+}
+
+// @wordpress/ui hides screen-reader text from inside a cascade layer, which any
+// unlayered rule beats. Pinned, as screen-reader text always is.
+.jetpack-comments__editor [data-visually-hidden] {
+	position: absolute !important;
+	width: 1px !important;
+	height: 1px !important;
+	margin: -1px !important;
+	padding: 0 !important;
+	overflow: hidden !important;
+	clip-path: inset(50%) !important;
+	border: 0 !important;
+}
+
+// Across the top of the box, opening and closing with the footer. Hidden, not
+// just collapsed, so nothing inside a closed one takes focus.
+.jetpack-comments__toolbar {
+	display: grid;
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	border-block-end: 1px solid transparent;
+	transition:
+		grid-template-rows 0.25s ease-in-out,
+		border-color 0.25s ease-in-out,
+		visibility 0s linear 0.25s;
+
+	> * {
+		min-block-size: 0;
+		overflow: hidden;
+	}
+
+	// A narrow phone wraps the groups to a second row, not a sideways scroll.
+	.jetpack-comments__block-tools {
+		display: flex;
+		flex-wrap: wrap;
+	}
+}
+
+// Open once a selected block has tools to show, sliding down a beat after;
+// `backwards` holds it shut through the delay.
+.jetpack-comments__box.is-open .jetpack-comments__toolbar:has(.jetpack-comments__block-tools) {
+	grid-template-rows: 1fr;
+	visibility: visible;
+	border-block-end-color: currentColor;
+	transition: visibility 0s;
+	animation: jetpack-comments-toolbar-in 0.25s ease-in-out 0.4s backwards;
+}
+
+@keyframes jetpack-comments-toolbar-in {
+
+	from {
+		grid-template-rows: 0fr;
+		border-block-end-color: transparent;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+	.jetpack-comments__toolbar,
+	.jetpack-comments__box.is-open .jetpack-comments__toolbar:has(.jetpack-comments__block-tools) {
+		transition: none;
+		animation: none;
+	}
+}
+
+// The textarea's box and type, so the words stay put as the editor takes over.
+.jetpack-comments__editor .editor-styles-wrapper {
+	box-sizing: border-box;
+	min-block-size: 5lh;
+	padding: var(--jetpack-comments-pad);
+	font-family: var(--jetpack-comments-font-family, inherit);
+	font-size: var(--jetpack-comments-font-size, inherit);
+	line-height: var(--jetpack-comments-line-height, inherit);
+
+	.is-root-container > :first-child {
+		margin-block-start: 0;
+	}
+
+	.is-root-container > :last-child {
+		margin-block-end: 0;
+	}
+}
+
+// Over the theme's paragraph and list styles; code keeps the theme's monospace.
+.jetpack-comments__editor .editor-styles-wrapper .wp-block:not(.wp-block-code) {
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+}

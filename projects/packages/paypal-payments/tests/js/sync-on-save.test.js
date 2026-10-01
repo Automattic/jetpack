@@ -906,7 +906,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			// A 404 replaces the payment, and the create goes out in the block's own mode
 			// rather than the shared one.
-			it( 'creates the sibling a replacement payment in its own mode', async () => {
+			it( "recreates the sibling's payment in its own mode", async () => {
 				const deps = fakeDeps( options =>
 					options.method === 'PUT'
 						? Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
@@ -915,10 +915,13 @@ describe( 'syncBlocksBeforeSave', () => {
 
 				await syncBlocksBeforeSave( [ stackedBlock, sibling ], deps );
 
-				const created = deps.requests.filter( r => r.method === 'POST' );
-				expect( created.map( r => r.data.integration_mode ).sort() ).toEqual( [
-					'BUTTON',
-					'LINK',
+				const created = deps.requests
+					.filter( r => r.method === 'POST' )
+					.map( r => [ r.data.integration_mode, r.data.recreated ] )
+					.sort();
+				expect( created ).toEqual( [
+					[ 'BUTTON', true ],
+					[ 'LINK', true ],
 				] );
 			} );
 
@@ -992,6 +995,27 @@ describe( 'syncBlocksBeforeSave', () => {
 				} )
 			);
 			expect( deps.reportSaved.mock.calls ).toEqual( [ [ true ] ] );
+		} );
+
+		it( 'flags only the replacement for a deleted payment as recreated', async () => {
+			const deps = fakeDeps( options =>
+				options.method === 'POST'
+					? Promise.resolve( { id: 'PLB-NEW1' } )
+					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
+			);
+
+			await syncBlocksBeforeSave(
+				[
+					{ clientId: 'a', attributes: saved },
+					{ clientId: 'b', attributes: { ...product, productName: 'Other Widget' } },
+				],
+				deps
+			);
+
+			const created = name =>
+				deps.requests.find( r => r.method === 'POST' && r.data.line_items[ 0 ].name === name ).data;
+			expect( created( 'Test Widget' ).recreated ).toBe( true );
+			expect( created( 'Other Widget' ) ).not.toHaveProperty( 'recreated' );
 		} );
 
 		it( 'swaps the deleted link for the new one in the list of existing links', async () => {

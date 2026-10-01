@@ -20,6 +20,7 @@ import { __ } from '@wordpress/i18n';
 import { REPORTS } from '../registry';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: views sort descending, the label column absorbs
@@ -72,7 +73,7 @@ function TagsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.tags;
+	const { getLabel } = REPORTS.tags;
 
 	return (
 		<ReportPageShell
@@ -84,12 +85,7 @@ function TagsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table: `ReportRecordsTable`'s `empty` renders on
-				 * row count, not fetch status, so a failed refetch over cached rows would
-				 * otherwise leave stale data on screen with no notice or retry.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
@@ -101,6 +97,7 @@ function TagsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getTagRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 					/>

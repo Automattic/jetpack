@@ -301,4 +301,4 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 6. On 401/403, token is refreshed and request retried once
 7. On 500/502/503, request retried up to 3 times with exponential backoff
 
-**BN Code:** The PayPal-Partner-Attribution-Id header is **not** supported on the Pay Links & Buttons API. Partner attribution is applied via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time. This parameter is not visible in WordPress REST API responses.
+**BN Code:** The PayPal-Partner-Attribution-Id header is **not** supported on the Pay Links & Buttons API. Partner attribution is applied via the `?at_code=WooNCPS_Ecom_Wordpress` query parameter appended to the `payment_link` URL at render time. This parameter is not visible in WordPress REST API responses. Sandbox accounts are issued a different BN code: while the site is connected to the sandbox, the `jetpack_paypal_sandbox_partner_attribution_id` filter overrides it (the production code is not filterable).

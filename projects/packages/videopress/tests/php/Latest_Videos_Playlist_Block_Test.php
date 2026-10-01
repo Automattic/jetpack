@@ -254,6 +254,36 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Without the media endpoint ( WordPress.com Simple page renders ) the
+	 * entries come straight from the attachments, in the same order and shape.
+	 */
+	public function test_latest_entries_without_the_media_endpoint() {
+		$this->create_video( 'oldest01', '2024-01-01 10:00:00', 60000, 720 );
+		$this->create_video( 'newest03', '2024-03-01 10:00:00', 180000, 2160 );
+		$this->create_attachment( 'video/mp4', '2024-04-01 10:00:00' );
+		$no_route = function () {
+			return new \WP_Error( 'rest_no_route', 'No route was found matching the URL and request method.', array( 'status' => 404 ) );
+		};
+		add_filter( 'rest_pre_dispatch', $no_route );
+
+		$entries = Data::get_latest_videopress_playlist_entries( 1 );
+		remove_filter( 'rest_pre_dispatch', $no_route );
+
+		$this->assertSame(
+			array(
+				array(
+					'guid'       => 'newest03',
+					'durationMs' => 180000,
+					'height'     => 2160,
+				),
+			),
+			$entries
+		);
+		$this->assertSame( 'video/videopress', $this->captured_query->get( 'post_mime_type' ) );
+		$this->assertSame( 1, $this->captured_query->get( 'posts_per_page' ) );
+	}
+
+	/**
 	 * Attachments flagged as VideoPress without a usable GUID are skipped, and
 	 * missing metadata leaves the numeric fields at zero.
 	 */
@@ -399,6 +429,26 @@ class Latest_Videos_Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-guid="library1"', $markup );
 		$this->assertStringNotContainsString( 'injected1', $markup );
 		$this->assertStringNotContainsString( 'is-layout-grid', $markup );
+	}
+
+	/**
+	 * A dynamic playlist has no title, so no heading renders even when one is
+	 * stored or passed in.
+	 */
+	public function test_render_has_no_title_heading() {
+		$this->create_video( 'library1', '2024-01-01 10:00:00' );
+
+		$markup = VideoPress_Initializer::render_videopress_latest_videos_playlist_block(
+			array(
+				'playlistTitle'     => 'Injected',
+				'showPlaylistTitle' => true,
+			),
+			'<h2 class="wp-block-heading">Injected</h2>'
+		);
+
+		$this->assertStringContainsString( 'data-guid="library1"', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__heading', $markup );
+		$this->assertStringNotContainsString( 'Injected', $markup );
 	}
 
 	/**

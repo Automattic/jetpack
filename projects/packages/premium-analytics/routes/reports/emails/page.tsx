@@ -26,6 +26,7 @@ import {
 	useEmailsReportRecords,
 } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: newest emails first (matching the endpoint's
@@ -103,7 +104,7 @@ function EmailsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.emails;
+	const { getLabel } = REPORTS.emails;
 
 	return (
 		<ReportPageShell
@@ -115,13 +116,7 @@ function EmailsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-				 * status, so a failed refetch over cached rows would otherwise leave
-				 * stale data on screen with no notice and no way to retry.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
@@ -133,6 +128,7 @@ function EmailsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getEmailRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
 					/>

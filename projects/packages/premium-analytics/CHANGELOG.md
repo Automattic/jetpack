@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-09-29
+### Changed
+- Dashboard: Offer in the widget picker only the widgets the current tab shows by default. [#52922]
+- Dashboard: Show every section a site qualifies for instead of a fixed preview list, with the Store tab off unless the site opts in. [#52865]
+- Dashboard: Show the no-results message in chart widgets for a period with no data, instead of a flat zero line. [#52868]
+- Locations: Show each city as a marker on the map when Cities is selected. [#52859]
+- Refresh Stats data automatically every 30 minutes while the tab stays open, except for date ranges that ended before today. [#52898]
+- Traffic summary: Show Visitors on the chart alongside Views by default. [#52896]
+- Update package dependencies. [#52757]
+
+### Fixed
+- Reports: Give report cards a raised background so charts no longer sit in a lighter box on the page. [#52852]
+- Traffic summary: Show the day totals for visitors, likes, and comments when the chart shows hours. [#52858]
+
 ## [0.9.0] - 2026-09-28
 ### Added
 - Add a "Manage subscribers" link to the Latest subscribers widget, opening the Newsletter subscribers screen in wp-admin. [#52604]
@@ -452,6 +466,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - VideoPress: Add a video detail page with plays leaderboard, video highlights, and embed locations. [#50311] [#50536]
 - WordAds: Add widgets for ads served, average CPM and revenue over time, all-time earnings highlights, and earnings, sponsored content and adjustments history. [#50314] [#50490]
 
+[0.10.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.9.0...0.10.0
 [0.9.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.8.0...0.9.0
 [0.8.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.7.0...0.8.0
 [0.7.0]: https://github.com/Automattic/jetpack-premium-analytics/compare/0.6.1...0.7.0

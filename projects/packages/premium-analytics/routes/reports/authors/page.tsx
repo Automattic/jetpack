@@ -6,7 +6,6 @@ import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
 	ReportCsvAction,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -23,6 +22,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -104,15 +104,10 @@ function AuthorsReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const { getLabel, getTitle } = REPORTS.authors;
+	const { getLabel } = REPORTS.authors;
 
 	let tableReplacement: JSX.Element | undefined;
 
-	/*
-	 * Replace the row-count-based table state when either request fails,
-	 * so cached rows are not shown as current and an initial failure does
-	 * not look like a legitimate empty report.
-	 */
 	if ( records.isError ) {
 		tableReplacement = (
 			<ReportErrorState
@@ -120,8 +115,6 @@ function AuthorsReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.isLoading && records.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -134,7 +127,7 @@ function AuthorsReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< AuthorRow >
 						data={ records.rows }
@@ -142,6 +135,7 @@ function AuthorsReport(): JSX.Element {
 						getItemId={ getAuthorRowId }
 						getItemParentId={ getAuthorRowParentId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search authors', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers

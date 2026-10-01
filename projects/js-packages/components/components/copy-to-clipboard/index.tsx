@@ -4,7 +4,7 @@ import { __ } from '@wordpress/i18n';
 import Button from '../button/index.tsx';
 import { ClipboardIcon, CheckmarkIcon } from '../icons/index.tsx';
 import { CopyToClipboardProps } from './types.ts';
-import type { FC } from 'react';
+import type { JSX, FC } from 'react';
 
 export const CopyToClipboard: FC< CopyToClipboardProps > = ( {
 	buttonStyle = 'icon',

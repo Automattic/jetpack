@@ -58,6 +58,13 @@ export {
 	type LeaderboardRowProps,
 } from './chart-leaderboard';
 export {
+	Leaderboard,
+	type LeaderboardDrillDown,
+	type LeaderboardProps,
+	type LeaderboardRowInput,
+	type LeaderboardStatus,
+} from './leaderboard';
+export {
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -131,7 +138,6 @@ export {
 export {
 	ReportChartSection,
 	ReportDrilldownTable,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -141,6 +147,9 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ExporterCsvAction,
 	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,
@@ -184,10 +193,9 @@ export {
 } from './page-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
+	ExporterCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
-	RowsCsvDownloadButton,
-	type RowsCsvDownloadButtonProps,
 	useReportCsvExport,
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,

@@ -20,7 +20,7 @@ import {
 	FloatingIllustration,
 } from './placement-illustrations';
 import type { NewsletterSettings } from '../types';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 // Static map from setting key -> readable placement slug, used as the
 // `placement` field on `jetpack_newsletter_placement_toggle` and

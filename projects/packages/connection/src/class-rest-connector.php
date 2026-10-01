@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
@@ -342,6 +343,17 @@ class REST_Connector {
 						'required'    => true,
 					),
 				),
+			)
+		);
+
+		// Confirm the current user as the protected owner. Not the connection-owner change above.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/protect',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'protect_connection_owner' ),
+				'permission_callback' => array( static::class, 'protect_connection_owner_permission_check' ),
 			)
 		);
 	}
@@ -1071,6 +1083,67 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Confirm the current user as the protected owner.
+	 *
+	 * The claim is always for the signed-in user. A caller cannot name someone else.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function protect_connection_owner() {
+		$result = ( new Manager() )->set_protected_owner( get_current_user_id() );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Whether the current user may confirm a protected owner.
+	 *
+	 * A connected administrator qualifies, and only while a consumer is requesting a protected
+	 * owner. Holding the connection owner slot does not matter.
+	 *
+	 * `requires_protected_owner()` is documented as a momentary answer, but it is the only opt-in
+	 * signal there is, so a consumer that surfaces a confirmation must keep answering true for as
+	 * long as it is on screen. One that flips to false between render and submit turns its own
+	 * link into a 403.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function protect_connection_owner_permission_check() {
+		$user_id   = get_current_user_id();
+		$admin_cap = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$manager   = new Manager();
+
+		if (
+			$user_id
+			&& current_user_can( 'jetpack_connect' )
+			&& $admin_cap
+			&& current_user_can( $admin_cap )
+			&& $manager->is_user_connected( $user_id )
+			&& $manager->requires_protected_owner()
+		) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_protect_owner',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**

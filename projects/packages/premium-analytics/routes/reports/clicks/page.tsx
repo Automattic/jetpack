@@ -5,7 +5,6 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -23,6 +22,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getClickCsvGroup, getClicksFields, useClicksReportRecords, type ClickRow } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -107,9 +107,8 @@ function ClicksReport(): JSX.Element {
 	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const isTableLoading = records.isLoading || records.isFetching;
 
-	const { getLabel, getTitle } = REPORTS.clicks;
+	const { getLabel } = REPORTS.clicks;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -120,8 +119,6 @@ function ClicksReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.isLoading && records.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -134,14 +131,15 @@ function ClicksReport(): JSX.Element {
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() } dateFilters={ dateFilters }>
+			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
 				{ tableReplacement ?? (
 					<ReportDrilldownTable< ClickRow >
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getClickRowId }
 						getItemParentId={ getClickRowParentId }
-						isLoading={ isTableLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search clicked URLs', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers

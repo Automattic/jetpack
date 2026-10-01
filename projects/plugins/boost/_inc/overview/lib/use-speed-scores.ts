@@ -12,6 +12,7 @@ export type SpeedScoreState = {
 	status: 'loading' | 'loaded' | 'error' | 'offline';
 	error?: Error;
 	hasScores: boolean;
+	isRunning: boolean;
 	scores: SpeedScoresSet;
 };
 
@@ -33,6 +34,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 	const [ state, setState ] = useState< SpeedScoreState >( {
 		status: online ? 'loading' : 'offline',
 		hasScores: false,
+		isRunning: false,
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
@@ -51,7 +53,12 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 			const id = requestId.current;
 			const controller = new AbortController();
 			requestController.current = controller;
-			setState( previous => ( { ...previous, status: 'loading', error: undefined } ) );
+			setState( previous => ( {
+				...previous,
+				status: 'loading',
+				isRunning: regenerate || ( previous.status === 'loading' && previous.isRunning ),
+				error: undefined,
+			} ) );
 			try {
 				const scores = await requestSpeedScores(
 					regenerate,
@@ -61,7 +68,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 					{ signal: controller.signal }
 				);
 				if ( id === requestId.current && scores ) {
-					setState( { status: 'loaded', hasScores: true, scores } );
+					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
 				}
 			} catch ( cause ) {
 				if ( id !== requestId.current ) {
@@ -74,7 +81,7 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 				recordBoostEvent( 'speed_score_request_error', {
 					error_message: castToString( error.message ),
 				} );
-				setState( previous => ( { ...previous, status: 'error', error } ) );
+				setState( previous => ( { ...previous, status: 'error', isRunning: false, error } ) );
 			}
 		},
 		[ online, url, enabled, cancelPending ]
@@ -84,7 +91,12 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 		if ( online && enabled ) {
 			refresh();
 		} else if ( ! online ) {
-			setState( previous => ( { ...previous, status: 'offline', error: undefined } ) );
+			setState( previous => ( {
+				...previous,
+				status: 'offline',
+				isRunning: false,
+				error: undefined,
+			} ) );
 		}
 		return cancelPending;
 	}, [ online, enabled, refresh, cancelPending ] );

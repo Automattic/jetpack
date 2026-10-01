@@ -11,6 +11,7 @@ import { SnackbarNotices } from '@wordpress/notices';
  * Internal dependencies
  */
 import { NewsletterSettingsBody } from './newsletter-settings';
+import type { JSX } from 'react';
 import './style.scss';
 
 /**

@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-comments",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"private": true,
 	"description": "Replaces the default WordPress comment form.",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/comments/#readme",
@@ -27,14 +27,26 @@
 	},
 	"dependencies": {
 		"@preact/signals": "1.2.2",
+		"@wordpress/block-editor": "17.1.0",
+		"@wordpress/block-library": "11.0.0",
+		"@wordpress/blocks": "16.0.0",
+		"@wordpress/components": "40.1.0",
+		"@wordpress/data": "10.55.0",
+		"@wordpress/element": "8.7.0",
+		"@wordpress/format-library": "5.55.0",
+		"@wordpress/i18n": "6.28.0",
+		"@wordpress/rich-text": "7.55.0",
 		"clsx": "2.1.1",
-		"preact": "10.28.2"
+		"preact": "10.28.2",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
 	},
 	"devDependencies": {
 		"@automattic/jetpack-webpack-config": "workspace:*",
 		"@babel/core": "7.29.7",
 		"@babel/plugin-transform-react-jsx": "7.29.7",
 		"@babel/runtime": "7.29.7",
+		"@types/react": "18.3.31",
 		"@typescript/native-preview": "7.0.0-dev.20260707.2",
 		"@wordpress/base-styles": "13.1.0",
 		"@wordpress/browserslist-config": "6.55.0",
@@ -45,7 +57,7 @@
 		"postcss-loader": "8.2.0",
 		"sass-embedded": "1.97.3",
 		"sass-loader": "16.0.5",
-		"webpack": "5.107.2",
+		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"
 	}
 }

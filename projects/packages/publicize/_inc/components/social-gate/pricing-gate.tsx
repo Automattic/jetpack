@@ -9,6 +9,7 @@ import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
 import useProductInfo from '../../hooks/use-product-info';
 import { store as socialStore } from '../../social-store';
 import { getRefreshPlanQuery, getSocialScriptData } from '../../utils';
+import type { JSX } from 'react';
 
 const PAID_FEATURES = [
 	__( 'Schedule posts in advance', 'jetpack-publicize-pkg' ),

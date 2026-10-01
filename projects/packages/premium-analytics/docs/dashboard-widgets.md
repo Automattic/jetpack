@@ -115,7 +115,7 @@ The name must be a lowercase `<namespace>/<name>` string, and must not be regist
 
 ### Arguments
 
-Any public property of `Widget_Type`: `render_module`, `widget_module`, `presentation` (`framed`, `content-bleed` or `full-bleed`), `category`, `title`, `description`, `help` (`content` plus optional `links`), `icon` (`collection/name`), `actions`, `keywords`, `textdomain`, `i18n_manifest`. `set_props()` copies every key onto the instance.
+Any public property of `Widget_Type`: `render_module`, `widget_module`, `presentation` (`framed`, `content-bleed` or `full-bleed`), `category`, `title`, `description`, `help` (`content` plus optional `links`), `icon` (`collection/name`), `actions`, `keywords`, `textdomain`, `i18n_manifest`, `former_names`. `set_props()` copies every key onto the instance.
 
 Through `register_widget_type()` the strings arrive translated and `help`, `icon` and `actions` in shape. The manifest helper translates and sanitizes them itself.
 
@@ -130,6 +130,16 @@ Through `register_widget_type()` the strings arrive translated and `help`, `icon
 `is_registered()` does not hydrate: `register()` relies on it, and a registrant may run before the action.
 
 The package's own widget types register at priority 10. A plugin that wants to see them registered first hooks later.
+
+### Renaming a widget type
+
+A type that changes its name declares the old one in `former_names`: in `widget.json`, in the `$args['former_names']` map of `register_widget_types_from_manifest()` (current name to former names), or in the arguments of `register_widget_type()`. Moving a widget to its owner's package is such a rename, `jpa/x` to `owner/x`. Declaring former names needs `WIDGET_API_VERSION` 1.1.0.
+
+The registry maps each former name to the current one. `get_registered()` answers for both, `resolve_name()` gives the current name, and `register()` refuses a former name a registered type or another type's former name holds, and a name that is someone's former name.
+
+The REST record publishes `former_names`. The dashboard stage maps a stored layout's types through them before rendering (`buildWidgetTypeRenames()`, `useDashboardSectionLayout()`), with no write-back: the current name persists with the section's next commit. On the server, `resolve_former_widget_types_in_default_layout()` renames default-layout instances at priority 99, ahead of the unregistered-type check, so a plugin that still adds an instance under the old name keeps it.
+
+A rename keeps the attributes as they are. One that changes them needs a migration, which nothing offers yet.
 
 ### Script modules
 
@@ -159,7 +169,7 @@ On the server, `get_available_widget_types()` runs the registered map through `j
 
 ### The REST record
 
-`GET /wpcom/v2/widget-modules` returns one record per available type: `name`, `render_module`, `widget_module`, the metadata fields, `textdomain` and `i18n_manifest`.
+`GET /wpcom/v2/widget-modules` returns one record per available type: `name`, `render_module`, `widget_module`, the metadata fields, `textdomain`, `i18n_manifest` and `former_names`.
 
 It is gated on `Capabilities::current_user_can_view_analytics()`, the dashboard's own gate. The `wpcom/v2` namespace is what lets WordPress.com expose it through public-api for Simple sites.
 
@@ -201,7 +211,7 @@ It reads the package's fixed list and, once the registry can answer, the registr
 
 `WIDGET_API_VERSION` names the contract a widget is built against: the `@automattic/jetpack-premium-analytics-sdk` module and the exports it declares, the dashboard modules the facade re-exports from (`@jetpack-premium-analytics/widgets-toolkit`, `data`, `fields`, `datetime`, `externals`), and the `Widget_Type` fields the client reads.
 
-The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new.
+The major changes when a widget built against the previous contract stops working; the minor when a consumer can rely on something new. So far, 1.1.0 added `former_names` and 1.2.0 `Leaderboard`, `describeError()` and `useStatsVideoPlays`.
 
 Inside `plugins/jetpack` the package and a consumer module ship together, so the check is a formality. With the standalone `plugins/premium-analytics` next to another plugin, each brings its own copy, and the check is what keeps a widget built against 1.x from registering on a 2.x package.
 
@@ -254,5 +264,5 @@ The types were `jpa/wordads-*` while they lived here. A layout persisted with th
 
 - Stories and JS tests for a plugin's widgets: the Ads widgets left this package's Storybook and jest harness with their move, and `packages/ads` has neither yet.
 - Precise types for the SDK: `projects/js-packages/premium-analytics-sdk` declares its exports loosely until a build step emits them from the facade.
-- An alias for a renamed widget type in persisted layouts, so a move like the Ads one needs no reset.
+- A migration for a rename that also changes attributes, the `deprecated` equivalent of blocks, and the upstream ask: `@wordpress/widget-primitives` knows neither former names nor deprecations.
 - The metadata strings of `widget.json`, which reach no catalog in any package until the strings stub ships.

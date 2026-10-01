@@ -300,6 +300,29 @@ describe( 'AiFeatures rendering', () => {
 		expect( screen.queryByText( 'Learn more' ) ).not.toBeInTheDocument();
 	} );
 
+	test( 'forced off by code: toggles disable, links hidden as with master off', () => {
+		render(
+			<AiFeatures
+				settings={ {
+					master_enabled: true,
+					is_connected: true,
+					features: {
+						writing_assistant: { enabled: true },
+						image_editor: { enabled: true },
+					},
+				} }
+				masterForcedOff="constant"
+				savingKeys={ new Set() }
+				onUpdate={ jest.fn() }
+			/>
+		);
+
+		const toggle = screen.getByRole( 'checkbox', { name: /Image Editor/ } );
+		expect( toggle ).toBeChecked();
+		expect( toggle ).toBeDisabled();
+		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
+	} );
+
 	test( 'not connected: toggles keep saved values but disable, links and badge hidden', () => {
 		renderFeatures( { is_connected: false } );
 

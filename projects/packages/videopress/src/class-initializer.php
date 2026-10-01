@@ -204,6 +204,7 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Channel::init();
 		Playlist_Index::init();
 
 		/*
@@ -726,7 +727,10 @@ class Initializer {
 
 		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
 
-		return self::render_videopress_playlist_block( $block_attributes, $content, $block );
+		// Dynamic playlists have no title of their own, so no heading either.
+		unset( $block_attributes['playlistTitle'], $block_attributes['showPlaylistTitle'] );
+
+		return self::render_videopress_playlist_block( $block_attributes, '', $block );
 	}
 
 	/**
@@ -865,7 +869,7 @@ class Initializer {
 	 * Video Playlist block render callback.
 	 *
 	 * @param array          $block_attributes Block attributes.
-	 * @param string         $content          Current block markup.
+	 * @param string         $content          Rendered inner blocks: the title heading, when there is one.
 	 * @param \WP_Block|null $block            Current block.
 	 *
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
@@ -1007,9 +1011,17 @@ class Initializer {
 				$entry_close = '</button>';
 			} else {
 				// No player to load the video into: the entry opens its VideoPress page instead.
-				$entry_open  = sprintf(
+				$entry_open = sprintf(
 					'<a class="videopress-playlist__select" href="%1$s" target="_blank" rel="noopener noreferrer" data-guid="%2$s" data-title="%3$s" data-position="%4$s" data-details="%5$s">',
-					esc_url( 'https://videopress.com/v/' . $entry['guid'] ),
+					/**
+					 * Filters where a playlist entry opens when the block has no player.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string $url  The video's page on videopress.com.
+					 * @param string $guid The video GUID.
+					 */
+					esc_url( apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] ) ),
 					esc_attr( $entry['guid'] ),
 					esc_attr( $title ),
 					esc_attr( $position ),
@@ -1136,9 +1148,19 @@ class Initializer {
 
 		$wrapper_attributes = get_block_wrapper_attributes( $wrapper_extra_attributes );
 
+		// The Heading inner block saved with the post; an empty title renders none.
+		$playlist_title = isset( $block_attributes['playlistTitle'] ) && is_string( $block_attributes['playlistTitle'] )
+			? trim( $block_attributes['playlistTitle'] )
+			: '';
+		$content        = is_string( $content ) ? trim( $content ) : '';
+		$heading_markup = $enabled( 'showPlaylistTitle' ) && '' !== $playlist_title && '' !== $content
+			? '<div class="videopress-playlist__heading">' . $content . '</div>'
+			: '';
+
 		return sprintf(
-			'<figure %1$s><div class="videopress-playlist__body">%2$s%3$s</div></figure>',
+			'<figure %1$s>%2$s<div class="videopress-playlist__body">%3$s%4$s</div></figure>',
 			$wrapper_attributes,
+			$heading_markup,
 			$stage_markup,
 			$list_markup
 		);

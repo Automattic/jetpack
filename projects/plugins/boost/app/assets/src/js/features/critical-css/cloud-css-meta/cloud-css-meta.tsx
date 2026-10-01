@@ -1,9 +1,10 @@
 import { __ } from '@wordpress/i18n';
 import { useModuleSurface } from '$features/module/surface';
-import ModernCriticalCssStatus from '../critical-css-meta/modern-critical-css-status';
+import { Text } from '@wordpress/ui';
 import Status from '../status/status';
 import { useCriticalCssState } from '../lib/stores/critical-css-state';
 import { isFatalError } from '../lib/critical-css-errors';
+import styles from './cloud-css-meta.module.scss';
 
 export default function CloudCssMetaProps() {
 	const isModern = useModuleSurface() === 'row';
@@ -12,12 +13,12 @@ export default function CloudCssMetaProps() {
 
 	if ( isModern && ! showFatalError ) {
 		return (
-			<ModernCriticalCssStatus
-				cssState={ cssState }
-				isGenerating={ false }
-				progress={ 0 }
-				isCloud
-			/>
+			<Text variant="body-sm" render={ <p /> } className={ styles.well }>
+				{ __(
+					'Boost will automatically generate your Critical CSS whenever you make changes.',
+					'jetpack-boost'
+				) }
+			</Text>
 		);
 	}
 

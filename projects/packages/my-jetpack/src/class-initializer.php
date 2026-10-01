@@ -47,7 +47,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.7.0';
+	const PACKAGE_VERSION = '6.7.1';
 
 	/**
 	 * Feature flag that swaps the My Jetpack Products tab for a Features tab.
@@ -951,7 +951,6 @@ class Initializer {
 	public static function register_rest_endpoints() {
 		new REST_Products();
 		new REST_Purchases();
-		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 

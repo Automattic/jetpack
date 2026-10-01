@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Search: Show the AI Answer disabled notice when the host turns off AI, and hide the block from the inserter whenever Jetpack AI is off.

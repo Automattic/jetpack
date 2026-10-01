@@ -24,6 +24,17 @@ export interface LocationView {
 	coordinates?: StatsLocationCoordinates;
 }
 
+interface LocationFilter {
+	/**
+	 * ISO country code.
+	 */
+	country: string;
+	/**
+	 * Region name, such as a state or province.
+	 */
+	region?: string;
+}
+
 interface UseLocationViewsArgs {
 	/**
 	 * PA ReportParams from WidgetRoot context.
@@ -38,9 +49,9 @@ interface UseLocationViewsArgs {
 	 */
 	geoMode?: GeoMode;
 	/**
-	 * ISO country code to filter regions by (region mode).
+	 * Country, or a region inside it, to narrow the rows to.
 	 */
-	countryFilter?: string;
+	filter?: LocationFilter;
 }
 
 interface LocationViewsState {
@@ -53,21 +64,16 @@ interface LocationViewsState {
 	refetch: () => void;
 }
 
-/**
- * Map a `StatsLocationsItem` from the data layer to the widget's `LocationView`
- * shape. Returns `null` for an item with no country code.
- */
-function toLocationView( item: StatsLocationsComparisonItem ): LocationView | null {
-	if ( ! item.countryCode ) {
-		return null;
-	}
+/** Map a Stats location row to the widget's view shape, including unknown countries. */
+function toLocationView( item: StatsLocationsComparisonItem ): LocationView {
 	const label = typeof item.label === 'string' ? item.label : String( item.label );
-	const countryFull = item.countryFull ?? item.countryCode;
+	const countryCode = item.countryCode ?? '';
+	const countryFull = item.countryFull ?? countryCode;
 
 	return {
-		key: `${ item.countryCode }:${ label }`,
+		key: `${ countryCode }:${ label }`,
 		label,
-		countryCode: item.countryCode,
+		countryCode,
 		countryFull,
 		value: item.views,
 		previousValue: item.previousViews,
@@ -86,21 +92,20 @@ export default function useLocationViews( {
 	reportParams,
 	max,
 	geoMode = 'country',
-	countryFilter,
+	filter,
 }: UseLocationViewsArgs ): LocationViewsState {
-	const statsParams = {
+	const statsParams: Parameters< typeof useStatsLocations >[ 0 ] = {
 		...reportParams,
 		geoMode,
 		max,
-		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
-	} as Parameters< typeof useStatsLocations >[ 0 ];
+		...( filter ? { filter_by_country: filter.country } : {} ),
+		...( filter?.region ? { filter_by_region: filter.region } : {} ),
+	};
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );
 
-	const items = ( comparisonRows?.rows ?? [] )
-		.map( toLocationView )
-		.filter( ( v ): v is LocationView => v !== null );
+	const items = ( comparisonRows?.rows ?? [] ).map( toLocationView );
 
 	return {
 		data: items,

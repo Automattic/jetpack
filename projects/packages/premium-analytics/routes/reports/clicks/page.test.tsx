@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { ReportDrilldownTable } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
+import { render } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -31,7 +31,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	ReportCsvAction: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
-	ReportEmptyState: () => <div data-testid="report-empty-state" />,
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
@@ -101,7 +100,7 @@ describe( 'ClicksReportPage', () => {
 		render( <ClicksReportPage /> );
 
 		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: true } )
+			expect.objectContaining( { data: [ row ], isLoading: false, isFetching: true } )
 		);
 	} );
 
@@ -118,14 +117,5 @@ describe( 'ClicksReportPage', () => {
 				defaultExpanded: 'none',
 			} )
 		);
-	} );
-
-	it( 'replaces the clicked-URL table with the empty state when the period has no clicks', () => {
-		mockRecords( { rows: [] } );
-
-		render( <ClicksReportPage /> );
-
-		expect( screen.getByTestId( 'report-empty-state' ) ).toBeInTheDocument();
-		expect( reportDrilldownTableMock ).not.toHaveBeenCalled();
 	} );
 } );
