@@ -1118,7 +1118,7 @@ class Images {
 			return false;
 		}
 
-		if ( ! empty( $meta['videopress'] ) ) {
+		if ( isset( $meta['videopress']['poster'] ) && isset( $meta['videopress']['width'] ) && isset( $meta['videopress']['height'] ) ) {
 			// Use poster image for VideoPress videos.
 			$url         = $meta['videopress']['poster'];
 			$meta_width  = $meta['videopress']['width'];
