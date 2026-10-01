@@ -12,21 +12,21 @@ import { __ } from '@wordpress/i18n';
 import { getSummarizedReportQueryParams } from './query-params';
 import type { DatedReportCsvExporter } from './types';
 
-type FileDownloadRow = StatsFileDownloadsComparisonItem;
-
-export const fileDownloadsCsvExporter: DatedReportCsvExporter< FileDownloadRow, FileDownloadRow > =
-	{
-		filenamePrefix: 'file-downloads',
-		hasDateRange: true,
-		fetchItems: reportParams =>
-			fetchStatsFileDownloadsRows( getSummarizedReportQueryParams( reportParams ) ),
-		toCsvRows: items => [ ...items ].sort( ( a, b ) => b.downloads - a.downloads ),
-		getColumns: () => [
-			{
-				label: __( 'File', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.shortLabel ?? String( row.label ?? '' ),
-			},
-			{ label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ), getValue: row => row.downloads },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-	};
+export const fileDownloadsCsvExporter: DatedReportCsvExporter<
+	StatsFileDownloadsComparisonItem,
+	StatsFileDownloadsComparisonItem
+> = {
+	filenamePrefix: 'file-downloads',
+	hasDateRange: true,
+	fetchItems: reportParams =>
+		fetchStatsFileDownloadsRows( getSummarizedReportQueryParams( reportParams ) ),
+	toCsvRows: items => [ ...items ].sort( ( a, b ) => b.downloads - a.downloads ),
+	getColumns: () => [
+		{
+			label: __( 'File', 'jetpack-premium-analytics-pkg' ),
+			getValue: row => row.shortLabel ?? String( row.label ?? '' ),
+		},
+		{ label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ), getValue: row => row.downloads },
+		{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+	],
+};

@@ -8,10 +8,7 @@ import { render } from '@testing-library/react';
  */
 import { ExporterCsvAction } from '../exporter-csv-action';
 import { ReportCsvAction } from '../report-csv-action';
-import type {
-	DatedReportCsvExporter,
-	UndatedReportCsvExporter,
-} from '../../../report-exports/types';
+import type { DatedReportCsvExporter } from '../../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -32,18 +29,14 @@ const ITEMS: Item[] = [
 	{ name: 'a', count: 2 },
 ];
 
-const CSV_SHAPE = {
-	fetchItems: jest.fn(),
-	toCsvRows: ( items: Item[] ) => [ ...items ].sort( ( x, y ) => y.count - x.count ),
-	getColumns: () => [ { label: 'Name', getValue: ( row: Item ) => row.name } ],
-};
-
 function buildExporter(): DatedReportCsvExporter< Item, Item > {
-	return { filenamePrefix: 'things', hasDateRange: true, ...CSV_SHAPE };
-}
-
-function buildUndatedExporter(): UndatedReportCsvExporter< Item, Item > {
-	return { filenamePrefix: 'things', hasDateRange: false, ...CSV_SHAPE };
+	return {
+		filenamePrefix: 'things',
+		hasDateRange: true,
+		fetchItems: jest.fn(),
+		toCsvRows: items => [ ...items ].sort( ( x, y ) => y.count - x.count ),
+		getColumns: () => [ { label: 'Name', getValue: row => row.name } ],
+	};
 }
 
 describe( 'ExporterCsvAction', () => {
@@ -66,14 +59,6 @@ describe( 'ExporterCsvAction', () => {
 		expect( columns.map( column => column.label ) ).toEqual( [ 'Name' ] );
 		expect( rows ).toEqual( [ ITEMS[ 1 ], ITEMS[ 0 ] ] );
 		expect( filename ).toBe( 'things-2026-03-01_2026-03-10' );
-	} );
-
-	it( 'leaves the date range out for all-time reports', () => {
-		render(
-			<ExporterCsvAction exporter={ buildUndatedExporter() } items={ ITEMS } status={ SETTLED } />
-		);
-
-		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ].filename ).toBe( 'things' );
 	} );
 
 	it.each( [

@@ -71,7 +71,7 @@ describe( 'downloadReportCsv', () => {
 		expect( mockSaveCsv ).toHaveBeenCalledWith( 'things', '"Name","Count"\n"a","2"\n"b","1"' );
 	} );
 
-	it( 'does not save a file when the fetch fails', async () => {
+	it( 'rejects instead of saving a header-only file when the fetch fails', async () => {
 		const exporter = buildExporter( jest.fn().mockRejectedValue( new Error( 'Stats is down' ) ) );
 
 		await expect( downloadReportCsv( exporter, REPORT_PARAMS ) ).rejects.toThrow( 'Stats is down' );

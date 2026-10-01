@@ -4,7 +4,6 @@
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -61,7 +60,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 		[ records.table.hasComparison ]
 	);
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
 	const { getLabel } = REPORTS[ 'search-terms' ];
 
@@ -74,8 +72,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.table.isLoading && records.table.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -97,7 +93,8 @@ export default function SearchTermsReportPage(): JSX.Element {
 						data={ records.table.rows }
 						fields={ fields }
 						getItemId={ getSearchTermRowId }
-						isLoading={ tableIsLoading }
+						isLoading={ records.table.isLoading }
+						isFetching={ records.table.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search terms', 'jetpack-premium-analytics-pkg' ) }
 					/>

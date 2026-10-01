@@ -151,7 +151,7 @@ export function aggregateAuthorRows(
 }
 
 /**
- * Resolve the author name shown and searched in the table.
+ * Resolve the localized author display name shown in the table and exported to CSV.
  *
  * @param name - The raw author name.
  * @return The localized author display name.
@@ -164,7 +164,7 @@ export function getAuthorName( name: string ): string {
 	return name;
 }
 
-/** The Authors report's query: every author, summarized over the window. */
+/** The Authors report's query: `max: 0` returns every author, as Calypso's Authors report does. */
 export function getAuthorsReportQueryParams( reportParams: ReportParams ): StatsReportParams {
 	return { ...reportParams, max: 0 };
 }

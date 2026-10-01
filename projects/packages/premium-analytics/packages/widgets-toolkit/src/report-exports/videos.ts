@@ -2,7 +2,9 @@
  * External dependencies
  */
 import {
-	fetchStatsVideoPlaysSummaryRows,
+	fetchStatsVideoPlaysRows,
+	type ReportParams,
+	type StatsReportParams,
 	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
@@ -11,13 +13,19 @@ import { __ } from '@wordpress/i18n';
  */
 import type { DatedReportCsvExporter } from './types';
 
-type VideoRow = StatsVideoPlaysComparisonItem;
+/** The Videos report's query: the complete-stats summary of every video in the window. */
+export function getVideosReportQueryParams( reportParams: ReportParams ): StatsReportParams {
+	return { ...reportParams, max: 0, summarize: 1, complete_stats: 1 };
+}
 
-// The summary query builds its own fixed request, so the report window is all it needs.
-export const videosCsvExporter: DatedReportCsvExporter< VideoRow, VideoRow > = {
+export const videosCsvExporter: DatedReportCsvExporter<
+	StatsVideoPlaysComparisonItem,
+	StatsVideoPlaysComparisonItem
+> = {
 	filenamePrefix: 'videos',
 	hasDateRange: true,
-	fetchItems: reportParams => fetchStatsVideoPlaysSummaryRows( reportParams ),
+	fetchItems: reportParams =>
+		fetchStatsVideoPlaysRows( getVideosReportQueryParams( reportParams ) ),
 	toCsvRows: items => [ ...items ].sort( ( a, b ) => b.plays - a.plays ),
 	getColumns: () => [
 		{ label: __( 'Video ID', 'jetpack-premium-analytics-pkg' ), getValue: row => row.id ?? '' },

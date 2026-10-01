@@ -14,7 +14,7 @@ export {
 	searchTermsCsvExporter,
 	type SearchTermRow,
 } from './search-terms';
-export { videosCsvExporter } from './videos';
+export { getVideosReportQueryParams, videosCsvExporter } from './videos';
 export {
 	aggregateAuthorRows,
 	authorsCsvExporter,

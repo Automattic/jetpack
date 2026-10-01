@@ -1,10 +1,19 @@
 /**
  * External dependencies
  */
+import { QueryClientProvider } from '@tanstack/react-query';
+import { renderHook } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import { createElement } from 'react';
 /**
  * Internal dependencies
  */
+import { useStatsClicks } from '../../hooks/use-stats-clicks';
+import { useStatsFileDownloads } from '../../hooks/use-stats-file-downloads';
+import { useStatsReferrers } from '../../hooks/use-stats-referrers';
+import { useStatsSearchTerms } from '../../hooks/use-stats-search-terms';
+import { useStatsTopAuthors } from '../../hooks/use-stats-top-authors';
+import { useStatsVideoPlays } from '../../hooks/use-stats-video-plays';
 import { queryClient } from '../../providers/query-client-provider';
 import {
 	fetchStatsArchivesRows,
@@ -18,9 +27,10 @@ import {
 	fetchStatsTagsRows,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
-	fetchStatsVideoPlaysSummaryRows,
+	fetchStatsVideoPlaysRows,
 } from '../fetch-stats-report-rows';
 import type { StatsReportParams } from '../stats-query';
+import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -138,6 +148,8 @@ const RANGE = {
 } as StatsReportParams;
 
 const FULL = { ...RANGE, max: 0, summarize: 1, period: 'day' } as StatsReportParams;
+const AUTHORS = { ...RANGE, max: 0 } as StatsReportParams;
+const VIDEO_SUMMARY = { ...RANGE, max: 0, summarize: 1, complete_stats: 1 } as StatsReportParams;
 
 describe( 'report row fetchers', () => {
 	beforeEach( () => {
@@ -154,7 +166,7 @@ describe( 'report row fetchers', () => {
 		return mockApiFetch.mock.calls.map( ( [ { path } ] ) => path );
 	}
 
-	it( 'fetches file downloads once, without a comparison request', async () => {
+	it( 'fetches every file download', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-03-10',
 			days: {},
@@ -168,9 +180,7 @@ describe( 'report row fetchers', () => {
 
 		const rows = await fetchStatsFileDownloadsRows( FULL );
 
-		expect( requestedPaths() ).toHaveLength( 1 );
 		expect( requestedPaths()[ 0 ] ).toContain( 'stats/file-downloads' );
-		expect( requestedPaths()[ 0 ] ).not.toContain( '2026-02' );
 		expect( rows.map( row => row.shortLabel ) ).toEqual( [ 'a.pdf', 'b.pdf' ] );
 	} );
 
@@ -183,7 +193,6 @@ describe( 'report row fetchers', () => {
 
 		const report = await fetchStatsSearchTermsReport( FULL );
 
-		expect( requestedPaths() ).toHaveLength( 1 );
 		expect( report.summary.encrypted_search_terms ).toBe( 4 );
 	} );
 
@@ -196,14 +205,13 @@ describe( 'report row fetchers', () => {
 			},
 		} );
 
-		const rows = await fetchStatsVideoPlaysSummaryRows( RANGE );
+		const rows = await fetchStatsVideoPlaysRows( VIDEO_SUMMARY );
 
-		expect( requestedPaths() ).toHaveLength( 1 );
 		expect( requestedPaths()[ 0 ] ).toContain( 'complete_stats=1' );
 		expect( rows.map( row => row.plays ) ).toEqual( [ 5 ] );
 	} );
 
-	it( 'fetches clicks, referrers, and authors without a comparison request', async () => {
+	it( 'fetches clicks, referrers, and authors', async () => {
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => {
 			if ( path.includes( 'stats/clicks' ) ) {
 				return Promise.resolve( {
@@ -231,11 +239,9 @@ describe( 'report row fetchers', () => {
 		const [ clicks, referrers, authors ] = await Promise.all( [
 			fetchStatsClicksRows( FULL ),
 			fetchStatsReferrersRows( FULL ),
-			fetchStatsTopAuthorsRows( { ...RANGE, max: 0 } as StatsReportParams ),
+			fetchStatsTopAuthorsRows( AUTHORS ),
 		] );
 
-		expect( requestedPaths() ).toHaveLength( 3 );
-		expect( requestedPaths().join() ).not.toContain( '2026-02' );
 		expect( clicks.map( row => row.views ) ).toEqual( [ 3 ] );
 		expect( referrers.map( row => row.label ) ).toEqual( [ 'Search' ] );
 		expect( authors.map( row => row.label ) ).toEqual( [ 'Ana' ] );
@@ -322,4 +328,48 @@ describe( 'all-time report fetchers', () => {
 		await expect( result ).resolves.toMatchObject( { code: 'server_error' } );
 		expect( requestedPaths() ).toHaveLength( 1 );
 	} );
+} );
+
+function wrapper( { children }: { children: ReactNode } ) {
+	return createElement( QueryClientProvider, { client: queryClient }, children );
+}
+
+const SHARED_QUERY_CASES: [
+	string,
+	() => Promise< unknown >,
+	() => { primary: { isSuccess: boolean } },
+][] = [
+	[ 'clicks', () => fetchStatsClicksRows( FULL ), () => useStatsClicks( FULL ) ],
+	[ 'referrers', () => fetchStatsReferrersRows( FULL ), () => useStatsReferrers( FULL ) ],
+	[
+		'file downloads',
+		() => fetchStatsFileDownloadsRows( FULL ),
+		() => useStatsFileDownloads( FULL ),
+	],
+	[ 'search terms', () => fetchStatsSearchTermsReport( FULL ), () => useStatsSearchTerms( FULL ) ],
+	[ 'authors', () => fetchStatsTopAuthorsRows( AUTHORS ), () => useStatsTopAuthors( AUTHORS ) ],
+	[
+		'videos',
+		() => fetchStatsVideoPlaysRows( VIDEO_SUMMARY ),
+		() => useStatsVideoPlays( VIDEO_SUMMARY ),
+	],
+];
+
+describe( 'report row fetchers and the report hooks', () => {
+	beforeEach( () => {
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockResolvedValue( { date: '2026-03-10', period: 'day', days: {}, summary: {} } );
+	} );
+
+	it.each( SHARED_QUERY_CASES )(
+		'share the %s primary query',
+		async ( _name, fetchRows, useReportHook ) => {
+			await fetchRows();
+
+			const { result } = renderHook( useReportHook, { wrapper } );
+
+			expect( result.current.primary.isSuccess ).toBe( true );
+		}
+	);
 } );

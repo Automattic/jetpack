@@ -61,9 +61,8 @@ describe( 'ExporterCsvDownloadButton', () => {
 		// eslint-disable-next-line testing-library/prefer-user-event
 		fireEvent.click( button );
 
-		// Wait for the settled state first, so the download's own updates land inside act.
-		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 		expect( mockDownloadReportCsv ).toHaveBeenCalledWith( exporter, REPORT_PARAMS );
+		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 
 	it.each( [

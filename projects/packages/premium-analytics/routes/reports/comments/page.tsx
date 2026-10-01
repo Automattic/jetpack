@@ -83,11 +83,6 @@ function CommentsReport(): JSX.Element {
 				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-				 * request would otherwise look like a legitimate empty report.
-				 */ }
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
@@ -100,6 +95,7 @@ function CommentsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getCommentRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
 					/>

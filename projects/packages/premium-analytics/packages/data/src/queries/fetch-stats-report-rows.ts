@@ -36,7 +36,7 @@ import { statsSearchTermsQuery } from './stats-search-terms-query';
 import { statsTagsQuery, type StatsTagsParams } from './stats-tags-query';
 import { statsTopAuthorsQuery } from './stats-top-authors-query';
 import { statsTopPostsQuery } from './stats-top-posts-query';
-import { statsVideoPlaysSummaryQuery } from './stats-video-plays-summary-query';
+import { statsVideoPlaysReportQuery } from './stats-video-plays-query';
 import type { StatsReportParams } from './stats-query';
 
 // Same primary query key and row processing as the report hooks; no comparison
@@ -77,11 +77,11 @@ export function fetchStatsSearchTermsReport(
 	return fetchReport( statsSearchTermsQuery( withoutComparison( params ) ) );
 }
 
-/** Fetch the complete-stats video summary the Videos report shows. */
-export async function fetchStatsVideoPlaysSummaryRows(
+/** Fetch every video row for a report window. */
+export async function fetchStatsVideoPlaysRows(
 	params: StatsReportParams
 ): Promise< StatsVideoPlaysComparisonItem[] > {
-	const report = await fetchReport( statsVideoPlaysSummaryQuery( withoutComparison( params ) ) );
+	const report = await fetchReport( statsVideoPlaysReportQuery( withoutComparison( params ) ) );
 	return mergeStatsVideoPlaysComparisonRows( report, undefined ).rows;
 }
 

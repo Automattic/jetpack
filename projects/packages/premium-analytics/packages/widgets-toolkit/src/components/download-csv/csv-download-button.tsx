@@ -5,7 +5,7 @@ import { Button, IconButton } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useState, type ComponentProps } from 'react';
+import { useState, type ComponentProps, type ReactElement } from 'react';
 /**
  * Internal dependencies
  */
@@ -20,6 +20,9 @@ export type CsvDownloadButtonProps = {
 	 * becomes the icon button's tooltip and accessible name.
 	 */
 	label?: string;
+
+	/** Defaults to the download icon. */
+	icon?: ReactElement;
 
 	className?: string;
 
@@ -49,6 +52,7 @@ export type CsvDownloadButtonProps = {
 export function CsvDownloadButton( {
 	onDownload,
 	label = __( 'Download CSV', 'jetpack-premium-analytics-pkg' ),
+	icon = download,
 	className,
 	variant = 'minimal',
 	showIcon = true,
@@ -81,12 +85,12 @@ export function CsvDownloadButton( {
 	} as const;
 
 	if ( ! showLabel ) {
-		return <IconButton { ...buttonProps } icon={ download } label={ label } />;
+		return <IconButton { ...buttonProps } icon={ icon } label={ label } />;
 	}
 
 	return (
 		<Button { ...buttonProps }>
-			{ showIcon ? <Button.Icon icon={ download } /> : null }
+			{ showIcon ? <Button.Icon icon={ icon } /> : null }
 			<span className={ styles.label }>{ label }</span>
 		</Button>
 	);

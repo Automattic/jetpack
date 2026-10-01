@@ -12,19 +12,28 @@ import { downloadReportCsv } from '../../report-exports/download-report-csv';
 import { WidgetRootContext, useWidgetRootContext } from '../widget-root';
 import { isCsvExportEnabled } from './is-csv-export-enabled';
 import { toDownloadReportParams } from './to-download-report-params';
+import { useDownloadWithErrorNotice } from './use-download-with-error-notice';
 import { isReportCsvReady, type ReportCsvExportStatus } from './use-report-csv-export';
 import type { ReportCsvExporter } from '../../report-exports/types';
 
-/** A widget's CSV download, shaped like the dashboard's `WidgetCallbackAction`. */
+/** A widget's CSV download, assignable to `WidgetCallbackAction` from WordPress/gutenberg#83877. */
 export type CsvDownloadAction = {
 	id: string;
 	label: string;
 	icon: ReactElement;
-	/** May reject: whatever renders the action reports the failure. */
-	callback: () => Promise< unknown >;
+	/** Never rejects: the dashboard's action runner reports no failure, so this shows the snackbar. */
+	callback: () => Promise< void >;
 };
 
-function toCsvDownloadAction( callback: () => Promise< unknown > ): CsvDownloadAction {
+function useCsvDownloadAction(
+	startDownload: ( () => Promise< unknown > ) | null
+): CsvDownloadAction | null {
+	const callback = useDownloadWithErrorNotice( () => startDownload?.() );
+
+	if ( ! startDownload ) {
+		return null;
+	}
+
 	return {
 		id: 'download-csv',
 		label: __( 'Download CSV', 'jetpack-premium-analytics-pkg' ),
@@ -51,18 +60,18 @@ export function useExporterCsvAction< TItem, TRow >( {
 	// The download can refetch the widget's own query, which must not unmount its button.
 	const [ isDownloading, setIsDownloading ] = useState( false );
 
-	if ( ! isDownloading && ! isReportCsvReady( status, rowCount ) ) {
-		return null;
-	}
-
-	return toCsvDownloadAction( async () => {
-		setIsDownloading( true );
-		try {
-			await downloadReportCsv( exporter, reportParams );
-		} finally {
-			setIsDownloading( false );
-		}
-	} );
+	return useCsvDownloadAction(
+		isDownloading || isReportCsvReady( status, rowCount )
+			? async () => {
+					setIsDownloading( true );
+					try {
+						await downloadReportCsv( exporter, reportParams );
+					} finally {
+						setIsDownloading( false );
+					}
+				}
+			: null
+	);
 }
 
 export type UseServerReportCsvActionOptions = {
@@ -78,21 +87,17 @@ export function useServerReportCsvAction( {
 	reportParams,
 }: UseServerReportCsvActionOptions ): CsvDownloadAction | null {
 	const context = useContext( WidgetRootContext );
-
-	if ( ! isCsvExportEnabled() ) {
-		return null;
-	}
-
+	const isEnabled = isCsvExportEnabled();
 	const resolvedReportParams = reportParams ?? context?.reportParams;
-	if ( ! resolvedReportParams ) {
-		if ( process.env.NODE_ENV !== 'production' ) {
-			// eslint-disable-next-line no-console -- Surface a developer integration error without taking down the widget.
-			console.warn( 'ReportCsvDownloadButton requires reportParams or a surrounding WidgetRoot.' );
-		}
-		return null;
+
+	if ( isEnabled && ! resolvedReportParams && process.env.NODE_ENV !== 'production' ) {
+		// eslint-disable-next-line no-console -- Surface a developer integration error without taking down the widget.
+		console.warn( 'useServerReportCsvAction requires reportParams or a surrounding WidgetRoot.' );
 	}
 
-	return toCsvDownloadAction( () =>
-		downloadReport( toDownloadReportParams( reportType, resolvedReportParams ) )
+	return useCsvDownloadAction(
+		isEnabled && resolvedReportParams
+			? () => downloadReport( toDownloadReportParams( reportType, resolvedReportParams ) )
+			: null
 	);
 }

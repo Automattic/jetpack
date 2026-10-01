@@ -10,7 +10,7 @@
 
 	.waf__standalone__mode {
 		align-items: center;
-		color: var(--wpds-color-foreground-content-success-weak, #008030);
+		color: var(--wpds-color-foreground-content-success-weak);
 		display: inline-flex;
 		font-weight: 600;
 		line-height: 1.666;
@@ -18,7 +18,7 @@
 		white-space: nowrap;
 
 		.waf__standalone__mode__indicator {
-			background-color: var(--wpds-color-foreground-content-success-weak, #008030);
+			background-color: var(--wpds-color-foreground-content-success-weak);
 			border-radius: 50%;
 			flex-shrink: 0;
 			height: 0.666em;
