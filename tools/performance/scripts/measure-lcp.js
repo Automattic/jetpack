@@ -273,8 +273,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Wait for the resource payload to finish loading and LCP to finalize (LCP stops
 			// updating after user input or visibility change).
 			if ( ! useResourceSettle ) {
-				// Default path (Dashboard, My Jetpack): network quiescence is a reliable
-				// "everything loaded" signal and more robust than a fixed timeout on slow systems.
+				// Wait for network quiescence rather than a fixed timeout on slow systems.
 				await page.waitForLoadState( 'networkidle', { timeout: 30000 } );
 			} else {
 				// Resilient path (scenarios with a perpetually-pending request, e.g. Forms — see
