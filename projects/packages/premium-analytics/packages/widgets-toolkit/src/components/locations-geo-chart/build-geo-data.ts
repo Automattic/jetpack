@@ -4,6 +4,7 @@
 import {
 	GoogleDataTableColumnRoleType,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 } from '@jetpack-premium-analytics/externals';
@@ -42,7 +43,7 @@ export interface LocationsGeoChartConfig {
 	data: GeoData;
 	region: string;
 	resolution: 'countries' | 'provinces';
-	displayMode: 'regions' | 'markers';
+	displayMode: GeoDisplayMode;
 }
 
 type CountrySummary = {
@@ -148,7 +149,7 @@ export function buildLocationsGeoChart( {
 	const scope = {
 		region: focusCountry && ! useCountryFallbackMap ? focusCountry.code.toUpperCase() : 'world',
 		resolution: ( useProvinceMap ? 'provinces' : 'countries' ) as 'countries' | 'provinces',
-		displayMode: ( mode === 'city' ? 'markers' : 'regions' ) as 'regions' | 'markers',
+		displayMode: ( mode === 'city' ? 'markers' : 'regions' ) as GeoDisplayMode,
 	};
 
 	if ( mode === 'city' ) {
