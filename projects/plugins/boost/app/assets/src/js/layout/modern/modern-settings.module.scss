@@ -1,5 +1,6 @@
 .settings {
 	display: flex;
+	container-type: inline-size;
 
 	// display:flex here would otherwise beat the UA rule for the hidden attribute.
 	&[hidden] {

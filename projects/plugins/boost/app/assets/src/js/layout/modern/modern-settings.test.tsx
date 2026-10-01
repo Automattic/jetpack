@@ -32,7 +32,9 @@ jest.mock( '$layout/settings-page/support/support', () => ( {
 } ) );
 jest.mock( '$features/notice/manager', () => ( {
 	__esModule: true,
-	default: () => <div>notices</div>,
+	default: ( { modern }: { modern?: boolean } ) => (
+		<div>{ modern ? 'modern notices' : 'legacy notices' }</div>
+	),
 } ) );
 
 let mockPremiumFeatures: string[] = [];
@@ -46,6 +48,7 @@ describe( 'ModernSettings', () => {
 		const { container } = render( <ModernSettings /> );
 
 		expect( screen.getByText( 'settings body' ) ).toBeTruthy();
+		expect( screen.getByText( 'modern notices' ) ).toBeTruthy();
 		expect( container.querySelector( '.jb-dashboard' ) ).toBeNull();
 	} );
 
