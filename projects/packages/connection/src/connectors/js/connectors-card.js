@@ -511,7 +511,7 @@ function connectedAccountTitle( user ) {
 	}
 
 	if ( protectedOwnerIsPending() ) {
-		return __( 'Connected as manager', 'jetpack-connection' );
+		return __( 'Connection owner — unconfirmed', 'jetpack-connection' );
 	}
 
 	return __( 'Connected as owner', 'jetpack-connection' );
@@ -565,7 +565,7 @@ function supportLink() {
  *
  * Derived from the same table as the slot so the two cannot disagree about one site.
  *
- * @return {boolean} True while the connection owner is only a manager.
+ * @return {boolean} True while the connection owner is unconfirmed.
  */
 function protectedOwnerIsPending() {
 	return protectedOwnerSlotKind() !== null;
@@ -589,9 +589,12 @@ function ProtectedOwnerSection() {
 	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
 	const [ confirmError, setConfirmError ] = useState( null );
 	const kind = protectedOwnerSlotKind();
+	let title;
 	let body;
 
 	if ( kind === 'reconnect' ) {
+		title = __( 'Restore ownership', 'jetpack-connection' );
+
 		// The owner's own token is what could not be read, so the viewer who holds the
 		// anchored identity is asked to reconnect rather than to connect a second account.
 		const text = protectedOwner.viewerIsConfirmedOwner
@@ -610,6 +613,7 @@ function ProtectedOwnerSection() {
 			createInterpolateElement( text, { support: supportLink() } )
 		);
 	} else if ( kind === 'other-owner' ) {
+		title = __( 'Restore ownership', 'jetpack-connection' );
 		body = createElement(
 			Text,
 			{ size: 13 },
@@ -626,6 +630,7 @@ function ProtectedOwnerSection() {
 			)
 		);
 	} else if ( kind === 'connect' ) {
+		title = __( 'Confirm ownership', 'jetpack-connection' );
 		body = createElement(
 			Text,
 			{ size: 13 },
@@ -639,6 +644,8 @@ function ProtectedOwnerSection() {
 			)
 		);
 	} else {
+		title = __( 'Confirm ownership', 'jetpack-connection' );
+
 		const requestedBy = sprintf(
 			// translators: %s: "site" or "store".
 			__( 'a plugin on this %s', 'jetpack-connection' ),
@@ -679,7 +686,7 @@ function ProtectedOwnerSection() {
 				sprintf(
 					// translators: %1$s: who asked for a protected owner. %2$s: "site" or "store".
 					__(
-						'Confirming ownership is requested by %1$s, so important features stay tied to one account. Until an owner is confirmed, some features stay locked and the account that connected this %2$s is shown as a manager. Ownership can be transferred later.',
+						'Confirming ownership is requested by %1$s, so important features stay tied to one account. Until an owner is confirmed, some features stay locked and the account that connected this %2$s is shown as the unconfirmed owner. Ownership can be transferred later.',
 						'jetpack-connection'
 					),
 					requestedBy,
@@ -694,10 +701,7 @@ function ProtectedOwnerSection() {
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
-		createElement( SectionHeading, {
-			title: __( 'Connection owner', 'jetpack-connection' ),
-			showShield: true,
-		} ),
+		createElement( SectionHeading, { title, showShield: true } ),
 		body,
 		confirmError
 			? createElement( ErrorNotice, {
@@ -1464,11 +1468,12 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				} )
 			: null,
 
-		// Manager row for a viewer who is not the master. It replaces the connection-owner
-		// row while a protected owner is pending, so the same account is not labeled twice.
+		// Unconfirmed owner row for a viewer who is not the master. It replaces the
+		// connection-owner row while a protected owner is pending, so the same account is
+		// not labeled twice.
 		protectedOwnerIsPending() && connectionOwner && ! currentUser?.isOwner
 			? createElement( UserSection, {
-					title: __( 'Connected as manager', 'jetpack-connection' ),
+					title: __( 'Connection owner — unconfirmed', 'jetpack-connection' ),
 					user: connectionOwner,
 					subtitle: false,
 				} )
