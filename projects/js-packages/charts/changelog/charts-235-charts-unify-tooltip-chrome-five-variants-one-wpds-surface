@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Tooltips: Draw every chart tooltip on one light surface that matches the WordPress design system popover, with a border, a medium shadow and medium padding, and add the `--a8c-charts-color-surface-stroke` and `--a8c-charts-elevation-md` roles. The below-axis line chart tooltip no longer draws a pointer. For a dark tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in `tooltipStyle`: LineChart no longer adds a dark background when `tooltipStyle` sets only `color`. A custom `renderGlyph` can now receive a `var()` color instead of a hex when the series has no palette color.
+Tooltips: Draw every chart tooltip on one dark surface that matches the WordPress design system tooltip. `--a8c-charts-color-tooltip-surface` now sets that surface for every chart. For a light tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in `tooltipStyle`: LineChart no longer adds a dark background when `tooltipStyle` sets only `color`. A custom `renderGlyph` can now receive a `var()` color instead of a hex when the series has no palette color.

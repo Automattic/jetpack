@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Show chart tooltips, including heatmap tooltips, on the light WordPress design system popover surface.
+Show chart tooltips on the dark WordPress design system tooltip surface, matching the heatmap tooltips.
