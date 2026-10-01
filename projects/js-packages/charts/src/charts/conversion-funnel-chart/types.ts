@@ -81,4 +81,6 @@ export interface ConversionFunnelChartProps extends Pick<
 	renderMainMetric?: ( props: MainMetricRenderProps ) => React.ReactNode;
 	/** Custom render function for tooltip content */
 	renderTooltip?: ( props: TooltipRenderProps ) => React.ReactNode;
+	/** Inline styles merged over the tooltip box defaults. */
+	tooltipStyle?: React.CSSProperties;
 }
