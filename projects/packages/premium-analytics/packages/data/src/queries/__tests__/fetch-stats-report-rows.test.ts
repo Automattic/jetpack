@@ -9,9 +9,13 @@ import { queryClient } from '../../providers/query-client-provider';
 import {
 	fetchStatsArchivesRows,
 	fetchStatsClicksRows,
+	fetchStatsComments,
+	fetchStatsEmailSummaryRows,
 	fetchStatsFileDownloadsRows,
+	fetchStatsInsightsYears,
 	fetchStatsReferrersRows,
 	fetchStatsSearchTermsReport,
+	fetchStatsTagsRows,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
 	fetchStatsVideoPlaysSummaryRows,
@@ -235,5 +239,87 @@ describe( 'report row fetchers', () => {
 		expect( clicks.map( row => row.views ) ).toEqual( [ 3 ] );
 		expect( referrers.map( row => row.label ) ).toEqual( [ 'Search' ] );
 		expect( authors.map( row => row.label ) ).toEqual( [ 'Ana' ] );
+	} );
+} );
+
+describe( 'all-time report fetchers', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	function requestedPaths(): string[] {
+		return mockApiFetch.mock.calls.map( ( [ { path } ] ) => path );
+	}
+
+	it( 'fetches every insights year once', async () => {
+		mockApiFetch.mockResolvedValue( { years: [ { year: '2025', total_posts: 3 } ] } );
+
+		const years = await fetchStatsInsightsYears();
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/insights' );
+		expect( years.map( year => year.year ) ).toEqual( [ '2025' ] );
+	} );
+
+	it( 'fetches the whole comments report once', async () => {
+		mockApiFetch.mockResolvedValue( {
+			authors: [ { name: 'Ana', comments: 4, link: '?user_id=7', gravatar: null } ],
+			posts: [ { id: 9, name: 'Hello', comments: 2, link: 'https://example.com/hello/' } ],
+		} );
+
+		const report = await fetchStatsComments();
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/comments' );
+		expect( report.data?.[ 0 ]?.items.map( item => item.label ) ).toEqual( [ 'authors', 'posts' ] );
+	} );
+
+	it( 'fetches tags with the requested row cap', async () => {
+		mockApiFetch.mockResolvedValue( {
+			tags: [
+				{
+					tags: [ { type: 'tag', name: 'news', link: 'https://example.com/tag/news/' } ],
+					views: 5,
+				},
+			],
+		} );
+
+		const rows = await fetchStatsTagsRows( { max: 1000 } );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/tags' );
+		expect( requestedPaths()[ 0 ] ).toContain( 'max=1000' );
+		expect( rows.map( row => row.labelText ) ).toEqual( [ 'news' ] );
+	} );
+
+	it( 'fetches the email summary with the requested row count', async () => {
+		mockApiFetch.mockResolvedValue( {
+			posts: [
+				{ id: 1, title: 'Issue 1', href: 'https://example.com/1/', date: '2026-01-01', opens: 3 },
+			],
+		} );
+
+		const rows = await fetchStatsEmailSummaryRows( { quantity: 30 } );
+
+		expect( requestedPaths() ).toHaveLength( 1 );
+		expect( requestedPaths()[ 0 ] ).toContain( 'stats/emails/summary' );
+		expect( requestedPaths()[ 0 ] ).toContain( 'quantity=30' );
+		expect( rows.map( row => row.label ) ).toEqual( [ 'Issue 1' ] );
+	} );
+
+	it( 'fails on the first server error instead of retrying', async () => {
+		mockApiFetch.mockRejectedValue( { code: 'server_error', data: { status: 500 } } );
+
+		const result = fetchStatsTagsRows( { max: 1000 } ).catch( ( error: unknown ) => error );
+		await jest.runAllTimersAsync();
+
+		await expect( result ).resolves.toMatchObject( { code: 'server_error' } );
+		expect( requestedPaths() ).toHaveLength( 1 );
 	} );
 } );
