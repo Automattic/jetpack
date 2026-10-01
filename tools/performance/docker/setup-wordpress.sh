@@ -136,6 +136,7 @@ WPCONFIG
         else
             echo "  ⚠ Warning: Jetpack plugin not found at $wp_path/wp-content/plugins/jetpack"
         fi
+        wp eval 'class_exists( "Jetpack_WPCom_Connection_Simulator" ) || WP_CLI::error( "Connection simulator did not bootstrap" );' --path="$wp_path" || return 1
     else
         wp plugin deactivate jetpack --path="$wp_path" || return 1
         wp eval 'if ( ! file_exists( WP_PLUGIN_DIR . "/jetpack/jetpack.php" ) || ! file_exists( WPMU_PLUGIN_DIR . "/simulate-wpcom-connection.php" ) || false !== getenv( "WPCOM_SIMULATED_LATENCY_MS" ) || is_plugin_active( "jetpack/jetpack.php" ) || class_exists( "Jetpack" ) || class_exists( "Jetpack_WPCom_Connection_Simulator" ) ) { WP_CLI::error( "Invalid deactivated Jetpack control" ); }' --path="$wp_path" || return 1
