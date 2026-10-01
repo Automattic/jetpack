@@ -4,7 +4,7 @@
 import { downloadReport, type ReportParams } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
 import { download } from '@wordpress/icons';
-import { useContext, type ReactElement } from 'react';
+import { useContext, useState, type ReactElement } from 'react';
 /**
  * Internal dependencies
  */
@@ -48,12 +48,21 @@ export function useExporterCsvAction< TItem, TRow >( {
 	rowCount,
 }: UseExporterCsvActionOptions< TItem, TRow > ): CsvDownloadAction | null {
 	const { reportParams } = useWidgetRootContext();
+	// The download can refetch the widget's own query, which must not unmount its button.
+	const [ isDownloading, setIsDownloading ] = useState( false );
 
-	if ( ! isReportCsvReady( status, rowCount ) ) {
+	if ( ! isDownloading && ! isReportCsvReady( status, rowCount ) ) {
 		return null;
 	}
 
-	return toCsvDownloadAction( () => downloadReportCsv( exporter, reportParams ) );
+	return toCsvDownloadAction( async () => {
+		setIsDownloading( true );
+		try {
+			await downloadReportCsv( exporter, reportParams );
+		} finally {
+			setIsDownloading( false );
+		}
+	} );
 }
 
 export type UseServerReportCsvActionOptions = {

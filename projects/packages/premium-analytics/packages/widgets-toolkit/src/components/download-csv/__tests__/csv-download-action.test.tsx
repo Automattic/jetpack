@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -48,7 +48,7 @@ describe( 'useExporterCsvAction', () => {
 		expect( result.current ).toMatchObject( { id: 'download-csv', label: 'Download CSV' } );
 		expect( result.current?.icon ).toBeTruthy();
 
-		await result.current?.callback();
+		await act( () => result.current?.callback() );
 		expect( mockDownloadReportCsv ).toHaveBeenCalledWith( exporter, REPORT_PARAMS );
 	} );
 
@@ -59,7 +59,9 @@ describe( 'useExporterCsvAction', () => {
 			{ wrapper }
 		);
 
-		await expect( result.current?.callback() ).rejects.toThrow( 'Upstream API unavailable.' );
+		await act( () =>
+			expect( result.current?.callback() ).rejects.toThrow( 'Upstream API unavailable.' )
+		);
 	} );
 
 	it( 'returns null until the widget has settled rows', () => {
@@ -69,6 +71,34 @@ describe( 'useExporterCsvAction', () => {
 			{ wrapper }
 		);
 
+		expect( result.current ).toBeNull();
+	} );
+
+	// The widget's query can share the download's cache key, so the download itself
+	// can set `isFetching`; unmounting the button then would drop focus mid-download.
+	it( 'stays available while its own download refetches the widget query', async () => {
+		let finishDownload: () => void = () => {};
+		mockDownloadReportCsv.mockReturnValue(
+			new Promise< void >( resolve => {
+				finishDownload = resolve;
+			} )
+		);
+		const { result, rerender } = renderHook(
+			( { status } ) => useExporterCsvAction( { exporter, status, rowCount: 3 } ),
+			{ wrapper, initialProps: { status: SETTLED } }
+		);
+
+		let download: Promise< unknown >;
+		act( () => {
+			download = result.current.callback();
+		} );
+		rerender( { status: { ...SETTLED, isFetching: true } } );
+		expect( result.current ).not.toBeNull();
+
+		await act( async () => {
+			finishDownload();
+			await download;
+		} );
 		expect( result.current ).toBeNull();
 	} );
 } );
