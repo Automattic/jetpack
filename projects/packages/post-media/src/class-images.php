@@ -283,6 +283,9 @@ class Images {
 		$permalink = get_permalink( $post_id );
 
 		foreach ( $post_images as $post_image ) {
+			if ( ! $post_image instanceof \WP_Post ) {
+				continue;
+			}
 			$current_image = self::get_attachment_data( $post_image->ID, $permalink, $width, $height );
 			if ( false !== $current_image ) {
 				$images[] = $current_image;
