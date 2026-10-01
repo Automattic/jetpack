@@ -39,6 +39,22 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 | `wp-admin-dashboard-connection-sim-timeToFirstByte`        | `ttfb` | `ttfb` | Dashboard TTFB (navigation `responseStart`)     |
 | `wp-admin-dashboard-connection-sim-firstContentfulPaint`   | `fcp`  | `fcp`  | Dashboard FCP (first-contentful-paint)          |
 
+### `jetpackConnected-noJetpack` — matched wp-admin Dashboard control
+
+Jetpack's files are mounted from the same mirror checkout, but the plugin is deactivated and the connection simulator is not mounted or loaded. The control uses a separate database and WordPress volume, with the same WordPress/PHP image, default theme, installation content, site title, admin credentials and preferences as the connected instance. Both instances mount `docker/mu-plugins/shared/` and `load-shared-instrumentation.php` to load common instrumentation; only the connected instance additionally mounts `simulate-wpcom-connection.php`.
+
+The existing runner discovers both dynamic ports and uses the same iteration count, CPU calibration, viewport, login and warm-cache Dashboard reload flow. Use `SCENARIO=no-jetpack pnpm test -- --skip-codevitals` for a targeted local run, or omit the filter to measure all scenarios. `WP_NO_JETPACK_URL` overrides the control's discovered URL (default `http://localhost:8084`). Setup asserts that Jetpack's files exist, Jetpack is inactive, and neither Jetpack nor the simulator has bootstrapped in the control.
+
+| CodeVitals key                                                | Field  | Type   | Unit |
+| ------------------------------------------------------------- | ------ | ------ | ---- |
+| `wp-admin-dashboard-noJetpack-largestContentfulPaint-staging` | `lcp`  | `lcp`  | ms   |
+| `wp-admin-dashboard-noJetpack-timeToFirstByte-staging`        | `ttfb` | `ttfb` | ms   |
+| `wp-admin-dashboard-noJetpack-firstContentfulPaint-staging`   | `fcp`  | `fcp`  | ms   |
+
+The control is optional: capture failure skips its keys while successful required measurements survive. These are staging keys, with no enrollment waiver; local verification must use `--skip-codevitals` and `pnpm report:dry`. Registration, staging posts and production promotion require a separate enrollment step following Safeguards below. Digest discovery will include these keys once registered, so staging IDs require intentional deployment filtering.
+
+Backend control keys await the shared Server-Timing capture; it is not available on trunk yet. This change adds no overhead deltas or controls for other pages. Future controls should reuse the matched images, setup and shared instrumentation, omit connection simulation, and prove repeatability before enrollment.
+
 ### `formsResponses` — Forms responses wp-build dashboard (simulated connection)
 
 `admin.php?page=jetpack-forms-responses-wp-admin&p=%2Fresponses%2Finbox`, measured on the same simulated-connection instance as the Dashboard. The `p` route is pinned to the responses inbox: a bare page URL server-redirects to the default tab (`/forms`, the forms list, under Central Form Management), so the scenario asserts the final URL to avoid measuring the wrong page.
@@ -99,7 +115,7 @@ Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
 ## How It Works
 
 1. **Plugin Source**: Uses pre-built plugin from [jetpack-production](https://github.com/Automattic/jetpack-production) mirror (auto-cloned for local dev)
-2. **Docker Setup**: Spins up WordPress with Jetpack and a simulated WordPress.com connection (fake tokens + mocked API with 200ms latency)
+2. **Docker Setup**: Spins up matched WordPress instances with connected Jetpack (fake tokens + mocked API with 200ms latency) and deactivated Jetpack for the Dashboard control
 3. **CPU Calibration**: Normalizes CPU speed across different machines for consistent results
 4. **LCP Measurement**: Uses Playwright to log in to wp-admin and measure Largest Contentful Paint
 5. **Results**: Posts metrics to CodeVitals for tracking over time

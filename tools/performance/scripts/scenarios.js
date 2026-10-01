@@ -232,6 +232,35 @@ export const SCENARIOS = [
 		// blocks the required Dashboard scenario from posting (see the flag's docs above).
 		optional: true,
 	},
+	{
+		key: 'jetpackConnected-noJetpack',
+		name: 'Dashboard (Jetpack deactivated)',
+		cliName: 'no-jetpack',
+		dockerService: 'wordpress-no-jetpack',
+		wpPath: '/var/www/html/no-jetpack',
+		envVar: 'WP_NO_JETPACK_URL',
+		defaultUrl: 'http://localhost:8084',
+		header: 'Dashboard Control (Jetpack Present but Deactivated)',
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-largestContentfulPaint-staging',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-timeToFirstByte-staging',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-firstContentfulPaint-staging',
+				type: 'fcp',
+			},
+		],
+		postToCodeVitals: true,
+		optional: true,
+	},
 ];
 
 /**

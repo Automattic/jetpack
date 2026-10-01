@@ -822,6 +822,26 @@ test( 'dry-run with all three scenarios present posts all 11 keys, including the
 	assert.equal( Object.keys( result.payload.metrics ).length, 11 );
 } );
 
+test( 'dry-run adds three separate staging control keys and preserves all production keys', async () => {
+	const file = writeResults( 120, { forms: {}, myJetpack: {} } );
+	const baseline = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	data.measurements[ 'jetpackConnected-noJetpack' ] = {
+		summary: jetpackSummary( { lcp: 160, ttfb: 80, fcp: 140 } ),
+	};
+	fs.writeFileSync( file, JSON.stringify( data ) );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.posted, false );
+	assert.equal( result.validationFailed, false );
+	assert.deepEqual( result.payload.metrics, {
+		...baseline.payload.metrics,
+		'wp-admin-dashboard-noJetpack-largestContentfulPaint-staging': 160,
+		'wp-admin-dashboard-noJetpack-timeToFirstByte-staging': 80,
+		'wp-admin-dashboard-noJetpack-firstContentfulPaint-staging': 140,
+	} );
+	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
+} );
+
 test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {
 	// The append-only guarantee end to end: one out-of-range decoded value (52000 > max 51200)
 	// fails its sanity check, the per-run atomic gate commits to posting nothing, and fetch is

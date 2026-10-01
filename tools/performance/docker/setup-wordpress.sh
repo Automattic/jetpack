@@ -10,7 +10,7 @@ echo ""
 WP_ADMIN_USER="${WP_ADMIN_USER:-admin}"
 WP_ADMIN_PASS="${WP_ADMIN_PASS:-password}"
 WP_ADMIN_EMAIL="${WP_ADMIN_EMAIL:-admin@example.com}"
-WP_SITE_TITLE="Jetpack Performance Test"
+WP_SITE_TITLE="Jetpack Performance Test - Jetpack Connected (Simulated)"
 
 # Database configuration
 DB_HOST="${WORDPRESS_DB_HOST:-db}"
@@ -110,7 +110,7 @@ WPCONFIG
     wp core install \
         --path="$wp_path" \
         --url="$site_url" \
-        --title="$WP_SITE_TITLE - $name" \
+        --title="$WP_SITE_TITLE" \
         --admin_user="$WP_ADMIN_USER" \
         --admin_password="$WP_ADMIN_PASS" \
         --admin_email="$WP_ADMIN_EMAIL" \
@@ -130,6 +130,9 @@ WPCONFIG
         else
             echo "  ⚠ Warning: Jetpack plugin not found at $wp_path/wp-content/plugins/jetpack"
         fi
+    else
+        wp plugin deactivate jetpack --path="$wp_path"
+        wp eval 'if ( ! file_exists( WP_PLUGIN_DIR . "/jetpack/jetpack.php" ) || is_plugin_active( "jetpack/jetpack.php" ) || class_exists( "Jetpack" ) || class_exists( "Jetpack_WPCom_Connection_Simulator" ) ) { WP_CLI::error( "Invalid deactivated Jetpack control" ); }' --path="$wp_path"
     fi
 
     # Flush rewrite rules
@@ -170,12 +173,20 @@ setup_instance \
     "wp_jetpack_connected" \
     "true"
 
+# Setup the matched Dashboard control with Jetpack present but deactivated.
+setup_instance \
+    "Jetpack Deactivated" \
+    "/var/www/html/no-jetpack" \
+    "http://localhost:8084" \
+    "wp_no_jetpack" \
+    "false"
+
 echo ""
 echo "========================================"
 echo "✓ Setup Complete!"
 echo "========================================"
 echo ""
-echo "WordPress instance is configured."
+echo "WordPress instances are configured."
 echo "Port is assigned dynamically - the test runner will discover it."
 echo ""
 echo "Admin credentials:"

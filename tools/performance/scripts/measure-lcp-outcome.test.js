@@ -87,6 +87,18 @@ test( 'resolveScenarioSet matches exactly one scenario by cliName', () => {
 	assert.equal( myJetpack[ 0 ].key, 'myJetpack' );
 } );
 
+test( 'the targeted Dashboard control fails alone and skips alongside a measured Dashboard', () => {
+	const [ control ] = resolveScenarioSet( 'no-jetpack', SCENARIOS );
+	assert.equal( control.key, 'jetpackConnected-noJetpack' );
+	assert.equal( control.optional, true );
+	assert.equal( control.path, undefined );
+	const measurements = { jetpackConnected: ok, [ control.key ]: failed };
+	const outcome = computeRunOutcome( measurements, SCENARIOS );
+	assert.equal( outcome.exitCode, 0 );
+	assert.deepEqual( outcome.optionalFailures, [ control.name ] );
+	assert.equal( computeRunOutcome( { [ control.key ]: failed }, [ control ] ).exitCode, 1 );
+} );
+
 test( 'resolveScenarioSet throws on an unknown filter, listing the valid values', () => {
 	// The ticket's motivating typo: before this guard, `SCENARIO=my-jetpak` matched nothing,
 	// wrote an empty measurements object, and exited 0 — a green build that measured nothing.
