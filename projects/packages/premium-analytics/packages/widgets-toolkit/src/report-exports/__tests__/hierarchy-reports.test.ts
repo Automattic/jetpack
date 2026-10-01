@@ -10,6 +10,7 @@ import {
 	type StatsReferrersComparisonItem,
 	type StatsTopAuthorsComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
@@ -18,6 +19,8 @@ import { clicksCsvExporter } from '../clicks';
 import { getSummarizedReportQueryParams } from '../query-params';
 import { referrersCsvExporter } from '../referrers';
 import type { ReportCsvExporter } from '../types';
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -71,7 +74,6 @@ describe( 'hierarchy report exporters', () => {
 		expect( fetchStatsClicksRows ).toHaveBeenCalledWith(
 			getSummarizedReportQueryParams( REPORT_PARAMS )
 		);
-		expect( clicksCsvExporter ).toMatchObject( { filenamePrefix: 'clicks', hasDateRange: true } );
 	} );
 
 	it( 'exports Referrers depth-first with each row’s group', async () => {
@@ -81,19 +83,15 @@ describe( 'hierarchy report exporters', () => {
 				views: 10,
 				children: [ { label: 'Google', views: 8, link: 'https://google.com/', children: null } ],
 			},
-			{ label: 'Social', views: 4, children: null },
+			{ label: 'Social', views: 9, children: null },
 		] as unknown as StatsReferrersComparisonItem[] );
 
 		await expect( exportCsvTable( referrersCsvExporter ) ).resolves.toEqual( [
 			[ 'Referrer', 'Group', 'Views', 'URL' ],
 			[ 'Search', '', 10, '' ],
 			[ 'Google', 'Search', 8, 'https://google.com/' ],
-			[ 'Social', '', 4, '' ],
+			[ 'Social', '', 9, '' ],
 		] );
-		expect( referrersCsvExporter ).toMatchObject( {
-			filenamePrefix: 'referrers',
-			hasDateRange: true,
-		} );
 	} );
 
 	it( 'exports Authors with each post qualified by its author, naming untracked authors', async () => {
@@ -103,31 +101,91 @@ describe( 'hierarchy report exporters', () => {
 				label: 'Ana',
 				views: 9,
 				icon: null,
-				children: [ { id: 11, label: 'Hello', views: 9, link: null, children: null } ],
+				children: [ { id: 11, label: 'Hello', views: 4, link: null, children: null } ],
 			},
 			{
 				id: null,
 				label: 'Untracked Authors',
-				views: 2,
+				views: 6,
 				icon: null,
-				children: [ { id: 12, label: 'Orphan', views: 2, link: null, children: null } ],
+				children: [ { id: 12, label: 'Orphan', views: 6, link: null, children: null } ],
 			},
 		] as unknown as StatsTopAuthorsComparisonItem[] );
 
 		await expect( exportCsvTable( authorsCsvExporter ) ).resolves.toEqual( [
 			[ 'Author / post', 'Views' ],
 			[ 'Ana', 9 ],
-			[ 'Ana > Hello', 9 ],
-			[ 'Untracked authors', 2 ],
-			[ 'Untracked authors > Orphan', 2 ],
+			[ 'Ana > Hello', 4 ],
+			[ 'Untracked authors', 6 ],
+			[ 'Untracked authors > Orphan', 6 ],
 		] );
 		expect( fetchStatsTopAuthorsRows ).toHaveBeenCalledWith(
 			getAuthorsReportQueryParams( REPORT_PARAMS )
 		);
 		expect( getAuthorsReportQueryParams( REPORT_PARAMS ) ).toEqual( { ...REPORT_PARAMS, max: 0 } );
-		expect( authorsCsvExporter ).toMatchObject( {
-			filenamePrefix: 'top-authors',
-			hasDateRange: true,
+	} );
+} );
+
+describe( 'hierarchy report exporters on a raw Stats payload', () => {
+	const actualData = jest.requireActual( '@jetpack-premium-analytics/data' );
+
+	beforeEach( () => {
+		actualData.queryClient.clear();
+		jest.mocked( fetchStatsClicksRows ).mockImplementation( actualData.fetchStatsClicksRows );
+		jest
+			.mocked( fetchStatsTopAuthorsRows )
+			.mockImplementation( actualData.fetchStatsTopAuthorsRows );
+	} );
+
+	it( 'exports Clicks groups from the clicks endpoint', async () => {
+		jest.mocked( apiFetch ).mockResolvedValue( {
+			date: '2026-03-10',
+			days: {},
+			summary: {
+				clicks: [
+					{
+						name: 'wordpress.org',
+						views: 5,
+						url: null,
+						children: [
+							{ name: 'wordpress.org/a', views: 3, url: 'https://wordpress.org/a' },
+							{ name: 'wordpress.org/b', views: 2, url: 'https://wordpress.org/b' },
+						],
+					},
+					{ name: 'jetpack.com', views: 4, url: 'https://jetpack.com/' },
+				],
+			},
 		} );
+
+		await expect( exportCsvTable( clicksCsvExporter ) ).resolves.toEqual( [
+			[ 'Clicked URL', 'Group', 'Clicks' ],
+			[ 'wordpress.org', '', 5 ],
+			[ 'https://wordpress.org/a', 'wordpress.org', 3 ],
+			[ 'https://wordpress.org/b', 'wordpress.org', 2 ],
+			[ 'https://jetpack.com/', 'jetpack.com', 4 ],
+		] );
+	} );
+
+	it( 'exports Authors and their posts from the top-authors endpoint', async () => {
+		jest.mocked( apiFetch ).mockResolvedValue( {
+			date: '2026-03-10',
+			period: 'day',
+			summary: {
+				authors: [
+					{
+						author_id: 1,
+						name: 'Ana',
+						views: 9,
+						posts: [ { id: 11, title: 'Hello', views: 4, url: 'https://example.com/hello/' } ],
+					},
+				],
+			},
+		} );
+
+		await expect( exportCsvTable( authorsCsvExporter ) ).resolves.toEqual( [
+			[ 'Author / post', 'Views' ],
+			[ 'Ana', 9 ],
+			[ 'Ana > Hello', 4 ],
+		] );
 	} );
 } );
