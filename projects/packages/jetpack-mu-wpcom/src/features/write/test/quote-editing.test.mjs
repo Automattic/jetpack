@@ -6,6 +6,7 @@ import {
 	insertLeadingParagraph,
 	isCaretAtQuoteStart,
 	isCaretAtStartOfFirstLine,
+	keepSelectionAcross,
 	liftFirstQuoteLine,
 	unwrapQuote,
 	wrapLooseQuoteContent,
@@ -241,5 +242,51 @@ describe( 'insertLeadingParagraph', () => {
 		const content = render( '' );
 		assert.equal( insertLeadingParagraph( content ), null );
 		assert.equal( content.innerHTML, '' );
+	} );
+} );
+
+describe( 'keepSelectionAcross', () => {
+	it( 'keeps highlighted text selected when the quote wraps it in a paragraph', () => {
+		const bq = render( '<blockquote>some quoted text</blockquote>' ).firstChild;
+		const selection = bq.ownerDocument.getSelection();
+		selection.setBaseAndExtent( bq.firstChild, 5, bq.firstChild, 11 );
+
+		keepSelectionAcross( selection, () => wrapLooseQuoteContent( bq ) );
+
+		assert.equal( selection.isCollapsed, false );
+		assert.equal( selection.toString(), 'quoted' );
+	} );
+
+	it( 'keeps a backwards selection running backwards', () => {
+		const bq = render( '<blockquote>some quoted text</blockquote>' ).firstChild;
+		const selection = bq.ownerDocument.getSelection();
+		selection.setBaseAndExtent( bq.firstChild, 11, bq.firstChild, 5 );
+
+		keepSelectionAcross( selection, () => unwrapQuote( bq ) );
+
+		assert.equal( selection.anchorOffset, 11 );
+		assert.equal( selection.focusOffset, 5 );
+	} );
+
+	it( 'puts the caret back in the text it was in', () => {
+		const bq = render( '<blockquote>quote</blockquote>' ).firstChild;
+		const selection = bq.ownerDocument.getSelection();
+		selection.collapse( bq.firstChild, 3 );
+
+		keepSelectionAcross( selection, () => wrapLooseQuoteContent( bq ) );
+
+		assert.equal( selection.anchorNode.parentNode.tagName, 'P' );
+		assert.equal( selection.anchorOffset, 3 );
+		assert.equal( selection.isCollapsed, true );
+	} );
+
+	it( 'falls back to the returned element when the caret was not in text', () => {
+		const bq = render( '<blockquote><p><br></p></blockquote>' ).firstChild;
+		const selection = bq.ownerDocument.getSelection();
+		selection.collapse( bq.firstChild, 0 );
+
+		keepSelectionAcross( selection, () => unwrapQuote( bq ) );
+
+		assert.equal( selection.anchorNode, document.getElementById( 'content' ).firstChild );
 	} );
 } );

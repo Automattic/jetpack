@@ -24,6 +24,7 @@ import {
 	insertLeadingParagraph,
 	isCaretAtQuoteStart,
 	isCaretAtStartOfFirstLine,
+	keepSelectionAcross,
 	liftFirstQuoteLine,
 	unwrapQuote,
 	wrapLooseQuoteContent,
@@ -2621,22 +2622,6 @@ function applyMarkdownQuoteShortcut( paragraph ) {
 }
 
 /**
- * Run a DOM change that moves the text node holding the cursor, then put the cursor back.
- *
- * @param {Function} mutate - Performs the change; returns the element to fall back to.
- */
-function keepCursorAcross( mutate ) {
-	const sel = window.getSelection();
-	const { anchorNode, anchorOffset } = sel;
-	const fallback = mutate();
-	if ( anchorNode?.nodeType === Node.TEXT_NODE && anchorNode.isConnected ) {
-		sel.collapse( anchorNode, anchorOffset );
-	} else if ( fallback ) {
-		placeCursorAt( fallback );
-	}
-}
-
-/**
  * Find the blockquote element containing the current cursor, if any.
  *
  * @return {HTMLElement|null} The blockquote element or null.
@@ -4714,7 +4699,7 @@ const { state } = store( 'wpcom-write', {
 				if ( ! exitListAndApplyBlock( 'p' ) ) {
 					const bq = getActiveBlockquote();
 					if ( bq ) {
-						keepCursorAcross( () => unwrapQuote( bq ) );
+						keepSelectionAcross( window.getSelection(), () => unwrapQuote( bq ) );
 					} else {
 						document.execCommand( 'formatBlock', false, 'p' );
 					}
@@ -4726,7 +4711,7 @@ const { state } = store( 'wpcom-write', {
 				}
 				const bq = getActiveBlockquote();
 				if ( bq ) {
-					keepCursorAcross( () => {
+					keepSelectionAcross( window.getSelection(), () => {
 						wrapLooseQuoteContent( bq );
 						return bq.querySelector( 'p' ) || bq;
 					} );
