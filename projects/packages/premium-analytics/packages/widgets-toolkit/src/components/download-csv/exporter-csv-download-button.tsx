@@ -12,7 +12,7 @@ type ExporterCsvDownloadButtonProps< TItem, TRow > = Omit<
 	'onDownload'
 > & {
 	exporter: ReportCsvExporter< TItem, TRow >;
-	/** The widget's own request state for the active range. */
+	/** The widget's request state for the active range; the error is the primary period's alone. */
 	status: ReportCsvExportStatus;
 	/** How many rows the widget shows; an empty widget offers no download. */
 	rowCount: number;
