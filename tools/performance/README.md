@@ -95,7 +95,7 @@ A working observer with no long tasks records zero; unsupported or failed captur
 
 Forms and My Jetpack use `-staging` TBT keys and remain optional. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms.
 
-The digest auto-discovers these staging ids from their first post unless `METRIC_IDS` overrides discovery. Its current gate reports "Unusable level baseline" and exits non-zero when a flagged series has a complete pre-window with a non-positive median. Merge this capture change only after the companion digest change supports zero-baseline TBT. At production promotion, have the CodeVitals owner retire the staging id from discovery, or supply a complete `METRIC_IDS` allow-list excluding it; otherwise its stopped series produces stale-data warnings. This capture change does not modify digest discovery or gates.
+The digest auto-discovers these staging ids from their first post unless `METRIC_IDS` overrides discovery. Its current gate reports "Unusable level baseline" and exits non-zero when a flagged series has a complete pre-window with a non-positive median. Live posting of these keys depends on the digest accepting zero-baseline TBT. At production promotion, have the CodeVitals owner retire the staging id from discovery, or supply a complete `METRIC_IDS` allow-list excluding it; otherwise its stopped series produces stale-data warnings.
 
 ### Offline-mode flip — attribution note
 

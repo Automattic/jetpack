@@ -144,7 +144,7 @@ export const SCENARIOS = [
 		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
 		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
 		minResourceCount: 64,
-		// The first four metrics retain their production-key staging waiver (owner decision).
+		// The first four metrics retain their waiver of the staging window (owner decision).
 		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
@@ -235,7 +235,7 @@ export const SCENARIOS = [
 		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
 		// count (count-based, not asset-based) so it only catches gross capture truncation.
 		minResourceCount: 64,
-		// The first four metrics retain their production-key staging waiver (owner decision).
+		// The first four metrics retain their waiver of the staging window (owner decision).
 		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
