@@ -295,6 +295,7 @@ export {
 	type CsvDateRange,
 	getCombinedPeriodMax,
 	sharePercentage,
+	getVideoPosterUrl,
 	describeError,
 	summaryCount,
 	toDay,
