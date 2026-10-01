@@ -1355,19 +1355,57 @@ function buildVideoPlaysResponse( requestPath: string ) {
 	const endDate = getQueryParam( requestPath, 'end_date' ) ?? getQueryParam( requestPath, 'date' );
 	const date = endDate ?? new Date().toISOString().slice( 0, 10 );
 	const factor = playsFactorForWindow( endDate );
-	const videos = [
-		{ post_id: 101, title: 'Getting Started Walkthrough', plays: 3820, hours: 72.4 },
-		{ post_id: 102, title: 'Product Launch Highlights', plays: 2640, hours: 51.8 },
-		{ post_id: 103, title: 'Customer Story: Acme Co.', plays: 1980, hours: 38.2 },
-		{ post_id: 104, title: 'How-To: Advanced Settings', plays: 1410, hours: 27.6 },
-		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9 },
-		{ post_id: 106, title: 'Weekly Recap', plays: 540, hours: 10.7 },
-		{ post_id: 107, title: '', plays: 320, hours: 6.1 },
+	const posterFor = ( id: number ) => `https://picsum.photos/seed/jpa-video-${ id }/640/360`;
+	const videos: Array< {
+		post_id: number;
+		title: string;
+		plays: number;
+		hours: number;
+		poster?: string | null;
+	} > = [
+		{
+			post_id: 101,
+			title: 'Getting Started Walkthrough',
+			plays: 3820,
+			hours: 72.4,
+			poster: posterFor( 101 ),
+		},
+		{
+			post_id: 102,
+			title: 'Product Launch Highlights',
+			plays: 2640,
+			hours: 51.8,
+			poster: posterFor( 102 ),
+		},
+		{
+			post_id: 103,
+			title: 'Customer Story: Acme Co.',
+			plays: 1980,
+			hours: 38.2,
+			poster: posterFor( 103 ),
+		},
+		{
+			post_id: 104,
+			title: 'How-To: Advanced Settings',
+			plays: 1410,
+			hours: 27.6,
+			poster: posterFor( 104 ),
+		},
+		{ post_id: 105, title: 'Behind the Scenes', plays: 980, hours: 18.9, poster: null },
+		{
+			post_id: 106,
+			title: 'Weekly Recap',
+			plays: 540,
+			hours: 10.7,
+			poster: 'https://videos.files.wordpress.com/jpa-missing/poster.jpg',
+		},
+		{ post_id: 107, title: '', plays: 320, hours: 6.1, poster: posterFor( 107 ) },
 	];
 	const rows = videos.map( video => ( {
 		post_id: video.post_id,
 		title: video.title,
 		url: `https://example.com/video/${ video.post_id }/`,
+		...( video.poster !== undefined ? { poster: video.poster } : {} ),
 		plays: Math.round( video.plays * factor ),
 		impressions: Math.round( video.plays * factor * 1.8 ),
 		watch_time: Number( ( video.hours * factor ).toFixed( 1 ) ),
