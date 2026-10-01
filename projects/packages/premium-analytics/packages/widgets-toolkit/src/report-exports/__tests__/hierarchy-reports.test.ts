@@ -96,7 +96,7 @@ describe( 'hierarchy report exporters', () => {
 		} );
 	} );
 
-	it( 'exports Authors with each post qualified by its author', async () => {
+	it( 'exports Authors with each post qualified by its author, naming untracked authors', async () => {
 		jest.mocked( fetchStatsTopAuthorsRows ).mockResolvedValue( [
 			{
 				id: 1,
@@ -105,7 +105,13 @@ describe( 'hierarchy report exporters', () => {
 				icon: null,
 				children: [ { id: 11, label: 'Hello', views: 9, link: null, children: null } ],
 			},
-			{ id: null, label: 'Untracked Authors', views: 2, icon: null, children: null },
+			{
+				id: null,
+				label: 'Untracked Authors',
+				views: 2,
+				icon: null,
+				children: [ { id: 12, label: 'Orphan', views: 2, link: null, children: null } ],
+			},
 		] as unknown as StatsTopAuthorsComparisonItem[] );
 
 		await expect( exportCsvTable( authorsCsvExporter ) ).resolves.toEqual( [
@@ -113,6 +119,7 @@ describe( 'hierarchy report exporters', () => {
 			[ 'Ana', 9 ],
 			[ 'Ana > Hello', 9 ],
 			[ 'Untracked authors', 2 ],
+			[ 'Untracked authors > Orphan', 2 ],
 		] );
 		expect( fetchStatsTopAuthorsRows ).toHaveBeenCalledWith(
 			getAuthorsReportQueryParams( REPORT_PARAMS )
