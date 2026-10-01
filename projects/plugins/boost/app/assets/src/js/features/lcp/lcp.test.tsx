@@ -20,7 +20,7 @@ jest.mock( './lib/stores/lcp-state', () => ( {
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
 const mutate = jest.fn();
-const mockState = ( state: LcpState ) => {
+const mockState = ( state: LcpState | undefined ) => {
 	jest
 		.mocked( useLcpState )
 		.mockReturnValue( [ { data: state } ] as unknown as ReturnType< typeof useLcpState > );
@@ -29,7 +29,7 @@ const mockState = ( state: LcpState ) => {
 		.mockReturnValue( { mutate } as unknown as ReturnType< typeof useOptimizeLcpAction > );
 };
 
-const renderState = ( state: LcpState ) => {
+const renderState = ( state: LcpState | undefined ) => {
 	mockState( state );
 	render(
 		<ModuleSurfaceProvider value="row">
@@ -59,10 +59,16 @@ test.each( [
 test( 'labels pending progress without reporting a completion percentage', () => {
 	renderState( { status: 'pending', pages: [] } );
 	const progress = screen.getByRole( 'progressbar', {
-		name: "Jetpack Boost is optimizing your Cornerstone Page's LCP…",
+		name: 'Optimizing LCP images',
 	} ) as HTMLProgressElement;
 	expect( progress.position ).toBe( -1 );
 	expect( progress.attributes.getNamedItem( 'aria-valuenow' ) ).toBeNull();
+} );
+
+test( 'does not show progress while the LCP state is loading', () => {
+	renderState( undefined );
+	const well = within( screen.getByTestId( 'lcp-status-well' ) );
+	expect( well.queryByRole( 'progressbar' ) ).toBeNull();
 } );
 
 test( 'keeps the issues notice and its expandable details beside the analyzed status', () => {

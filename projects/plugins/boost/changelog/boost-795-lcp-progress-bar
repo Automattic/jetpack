@@ -1,5 +1,4 @@
 Significance: patch
 Type: changed
-Comment: Add pending LCP progress to the unreleased modern dashboard.
 
-
+Settings: Show a progress bar while LCP images are being optimized.

@@ -49,7 +49,6 @@
 
 	.summary {
 		flex-grow: 1;
-		min-inline-size: 0;
 		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 }
@@ -64,6 +63,7 @@
 		block-size: var(--wpds-dimension-size-5xs);
 		border-radius: var(--wpds-border-radius-md);
 
+		// Core ProgressBar lacks reduced motion; remove when minimum WP supports it.
 		@media (prefers-reduced-motion: reduce) {
 
 			> div {
