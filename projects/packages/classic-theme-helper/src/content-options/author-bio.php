@@ -98,7 +98,8 @@ if ( ! function_exists( 'jetpack_has_gravatar' ) ) {
 	function jetpack_has_gravatar( $email ) {
 
 		$url = get_avatar_url( $email, array( 'default' => '404' ) );
-		if ( ! is_string( $url ) || $url === '' ) {
+		// Avatar filters may result in invalid URLs that get_headers() rejects.
+		if ( ! wp_http_validate_url( $url ) ) {
 			return false;
 		}
 
