@@ -10,7 +10,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSummarizedReportQueryParams } from './query-params';
-import type { ReportCsvExporter } from './types';
+import type { DatedReportCsvExporter } from './types';
 
 /**
  * A flattened referrer group, source, or domain shown in the records table.
@@ -74,7 +74,7 @@ export function flattenReferrerRows(
 	return rows;
 }
 
-export const referrersCsvExporter: ReportCsvExporter< ReferrerRecord, ReferrerRecord > = {
+export const referrersCsvExporter: DatedReportCsvExporter< ReferrerRecord, ReferrerRecord > = {
 	filenamePrefix: 'referrers',
 	hasDateRange: true,
 	fetchItems: async reportParams =>

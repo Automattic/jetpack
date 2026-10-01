@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { ReportCsvExporter } from './types';
+import type { DatedReportCsvExporter } from './types';
 import type { CsvColumn } from '../helpers/build-csv';
 
 /** The Posts & pages report's query: every row, summarized over the window. */
@@ -149,7 +149,7 @@ export function buildArchiveCsvRows( rows: ArchiveRow[] ): ArchiveRow[] {
 const byViewsDescending = ( a: StatsTopPostsComparisonItem, b: StatsTopPostsComparisonItem ) =>
 	b.views - a.views;
 
-export const postsPagesCsvExporter: ReportCsvExporter<
+export const postsPagesCsvExporter: DatedReportCsvExporter<
 	StatsTopPostsComparisonItem,
 	StatsTopPostsComparisonItem
 > = {
@@ -161,7 +161,10 @@ export const postsPagesCsvExporter: ReportCsvExporter<
 };
 
 // No sort here: a global sort would split each archive group from its children.
-export const archivesCsvExporter: ReportCsvExporter< StatsArchivesComparisonItem, ArchiveRow > = {
+export const archivesCsvExporter: DatedReportCsvExporter<
+	StatsArchivesComparisonItem,
+	ArchiveRow
+> = {
 	filenamePrefix: 'archives',
 	hasDateRange: true,
 	fetchItems: reportParams => fetchStatsArchivesRows( getPostsReportQueryParams( reportParams ) ),

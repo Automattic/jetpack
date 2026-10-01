@@ -14,7 +14,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { getSummarizedReportQueryParams } from './query-params';
-import type { ReportCsvExporter } from './types';
+import type { DatedReportCsvExporter } from './types';
 
 export type ClickRow = {
 	id: string;
@@ -206,7 +206,7 @@ export function getClickCsvGroup( row: ClickRow ): string {
 type ClickCsvRow = ClickRow & { group: string };
 
 // Rows stay in hierarchy order: a global sort would split groups from their URLs.
-export const clicksCsvExporter: ReportCsvExporter< ClickRow, ClickCsvRow > = {
+export const clicksCsvExporter: DatedReportCsvExporter< ClickRow, ClickCsvRow > = {
 	filenamePrefix: 'clicks',
 	hasDateRange: true,
 	fetchItems: async reportParams =>

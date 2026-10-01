@@ -9,12 +9,12 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import type { ReportCsvExporter } from './types';
+import type { DatedReportCsvExporter } from './types';
 
 type VideoRow = StatsVideoPlaysComparisonItem;
 
 // The summary query builds its own fixed request, so the report window is all it needs.
-export const videosCsvExporter: ReportCsvExporter< VideoRow, VideoRow > = {
+export const videosCsvExporter: DatedReportCsvExporter< VideoRow, VideoRow > = {
 	filenamePrefix: 'videos',
 	hasDateRange: true,
 	fetchItems: reportParams => fetchStatsVideoPlaysSummaryRows( reportParams ),

@@ -3,7 +3,7 @@
  */
 import { saveCsv } from '../../helpers/build-csv';
 import { downloadReportCsv } from '../download-report-csv';
-import type { ReportCsvExporter } from '../types';
+import type { DatedReportCsvExporter, UndatedReportCsvExporter } from '../types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 jest.mock( '../../helpers/build-csv', () => ( {
@@ -15,22 +15,31 @@ const mockSaveCsv = jest.mocked( saveCsv );
 
 type Row = { name: string; count: number };
 
+const ITEMS: Row[] = [
+	{ name: 'b', count: 1 },
+	{ name: 'a', count: 2 },
+];
+
+const CSV_SHAPE = {
+	toCsvRows: ( items: Row[] ) => [ ...items ].reverse(),
+	getColumns: () => [
+		{ label: 'Name', getValue: ( row: Row ) => row.name },
+		{ label: 'Count', getValue: ( row: Row ) => row.count },
+	],
+};
+
 function buildExporter(
-	overrides: Partial< ReportCsvExporter< Row, Row > > = {}
-): ReportCsvExporter< Row, Row > {
+	fetchItems = jest.fn().mockResolvedValue( ITEMS )
+): DatedReportCsvExporter< Row, Row > {
+	return { filenamePrefix: 'things', hasDateRange: true, fetchItems, ...CSV_SHAPE };
+}
+
+function buildUndatedExporter(): UndatedReportCsvExporter< Row, Row > {
 	return {
 		filenamePrefix: 'things',
-		hasDateRange: true,
-		fetchItems: jest.fn().mockResolvedValue( [
-			{ name: 'b', count: 1 },
-			{ name: 'a', count: 2 },
-		] ),
-		toCsvRows: items => [ ...items ].reverse(),
-		getColumns: () => [
-			{ label: 'Name', getValue: row => row.name },
-			{ label: 'Count', getValue: row => row.count },
-		],
-		...overrides,
+		hasDateRange: false,
+		fetchItems: jest.fn().mockResolvedValue( ITEMS ),
+		...CSV_SHAPE,
 	};
 }
 
@@ -53,16 +62,17 @@ describe( 'downloadReportCsv', () => {
 		);
 	} );
 
-	it( 'leaves the date range out for all-time reports', async () => {
-		await downloadReportCsv( buildExporter( { hasDateRange: false } ), REPORT_PARAMS );
+	it( 'fetches an all-time report without params and leaves the date range out', async () => {
+		const exporter = buildUndatedExporter();
 
-		expect( mockSaveCsv ).toHaveBeenCalledWith( 'things', expect.any( String ) );
+		await downloadReportCsv( exporter, REPORT_PARAMS );
+
+		expect( exporter.fetchItems ).toHaveBeenCalledWith();
+		expect( mockSaveCsv ).toHaveBeenCalledWith( 'things', '"Name","Count"\n"a","2"\n"b","1"' );
 	} );
 
 	it( 'does not save a file when the fetch fails', async () => {
-		const exporter = buildExporter( {
-			fetchItems: jest.fn().mockRejectedValue( new Error( 'Stats is down' ) ),
-		} );
+		const exporter = buildExporter( jest.fn().mockRejectedValue( new Error( 'Stats is down' ) ) );
 
 		await expect( downloadReportCsv( exporter, REPORT_PARAMS ) ).rejects.toThrow( 'Stats is down' );
 		expect( mockSaveCsv ).not.toHaveBeenCalled();

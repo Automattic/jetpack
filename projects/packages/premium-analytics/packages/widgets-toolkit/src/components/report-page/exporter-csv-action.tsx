@@ -11,16 +11,17 @@ import {
 	type ReportCsvExportStatus,
 } from '../download-csv/use-report-csv-export';
 import { ReportCsvAction } from './report-csv-action';
-import type { ReportCsvExporter } from '../../report-exports/types';
+import type { DatedReportCsvExporter, UndatedReportCsvExporter } from '../../report-exports/types';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 type ExporterCsvActionProps< TItem, TRow > = {
-	exporter: ReportCsvExporter< TItem, TRow >;
 	/** The report's loaded table rows. */
 	items: TItem[];
 	status: ReportCsvExportStatus;
-	reportParams: ReportParams;
-};
+} & (
+	| { exporter: DatedReportCsvExporter< TItem, TRow >; reportParams: ReportParams }
+	| { exporter: UndatedReportCsvExporter< TItem, TRow >; reportParams?: never }
+);
 
 /** Report header action that saves the settled rows through the report's exporter. */
 export function ExporterCsvAction< TItem, TRow >( {
