@@ -95,6 +95,35 @@ describe( 'Stats video plays normalizer', () => {
 		).toBeNull();
 	} );
 
+	it( 'keeps a default-shape row poster and drops a null one', () => {
+		const response = ( poster: unknown ) => ( {
+			date: '2026-06-22',
+			period: 'day',
+			days: {
+				'2026-06-22': {
+					plays: [
+						{
+							post_id: 12,
+							title: 'Launch video',
+							url: 'https://example.com/video/',
+							plays: 11,
+							poster,
+						},
+					],
+				},
+			},
+		} );
+		const query = { period: 'day', end_date: '2026-06-22' } as const;
+
+		expect(
+			sanitizeStatsVideoPlaysResponse( response( 'https://i0.wp.com/v/launch.jpg' ), query )
+				.data[ 0 ].items[ 0 ].poster
+		).toBe( 'https://i0.wp.com/v/launch.jpg' );
+		expect(
+			sanitizeStatsVideoPlaysResponse( response( null ), query ).data[ 0 ].items[ 0 ]
+		).not.toHaveProperty( 'poster' );
+	} );
+
 	it( 'does not add link actions when video rows have no URL', () => {
 		const result = sanitizeStatsVideoPlaysResponse(
 			{
