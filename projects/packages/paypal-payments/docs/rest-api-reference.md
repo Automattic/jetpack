@@ -146,7 +146,6 @@ Create a payment resource via the PayPal API. Returns both a button-ready resour
 | `line_items[].unit_amount.currency_code` | string | Yes | — | ISO currency code |
 | `line_items[].unit_amount.value` | string | Yes | — | Price (positive, max 2 decimals) |
 | `line_items[].quantity` | string | No | `1` | Quantity |
-| `line_items[].image_url` | string | No | — | Product image URL. HTTPS only; PayPal ignores images outside its own type and size limits |
 | `line_items[].taxes[].type` | string | No | `PERCENTAGE` | `PERCENTAGE`, `FLAT` or `PREFERENCE` |
 | `line_items[].taxes[].value` | string | No | `0` | Rate for `PERCENTAGE`, amount for `FLAT`. `PREFERENCE` always sends `PROFILE` |
 | `line_items[].taxes[].name` | string | No | — | Tax label. Sent only when set |
@@ -267,7 +266,7 @@ Deletion is permanent: PayPal has no pause, deactivate, or restore operation, an
 | `price` | string | — | Price value (e.g., `29.99`) |
 | `currencyCode` | string | `USD` | ISO currency code |
 | `productDescription` | string | — | Product description |
-| `imageUrl` | string | — | Product image URL |
+| `imageUrl` | string | — | Product image URL. Kept on the site only |
 | `returnUrl` | string | — | Post-payment redirect URL |
 | `scriptSrc` | string | — | Legacy: PayPal script URL |
 | `hostedButtonId` | string | — | Legacy: hosted button ID |

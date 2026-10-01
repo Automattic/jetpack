@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-PayPal Payment Buttons: keep the product image on the site only. It is no longer sent to PayPal.
+Keep the product image on the site instead of sending it to PayPal.
