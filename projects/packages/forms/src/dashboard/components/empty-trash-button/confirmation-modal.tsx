@@ -2,9 +2,12 @@
  * External dependencies
  */
 import { formatNumber } from '@automattic/number-formatters';
-import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { AlertDialog } from '@wordpress/ui';
+/**
+ * Internal dependencies
+ */
+import useDismissHandler from '../../hooks/use-dismiss-handler';
 import type { JSX } from 'react';
 
 interface EmptyTrashConfirmationModalProps {
@@ -33,15 +36,7 @@ export default function EmptyTrashConfirmationModal( {
 	totalItemsTrash,
 	selectedResponsesCount,
 }: EmptyTrashConfirmationModalProps ): JSX.Element {
-	// A successful confirm also closes through here, with the 'imperative-action' reason.
-	const handleOpenChange = useCallback(
-		( open: boolean, { reason }: { reason: string } ) => {
-			if ( ! open && reason !== 'imperative-action' ) {
-				onCancel();
-			}
-		},
-		[ onCancel ]
-	);
+	const handleOpenChange = useDismissHandler( onCancel );
 
 	const description =
 		selectedResponsesCount > 0
