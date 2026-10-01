@@ -1,6 +1,8 @@
 /* No jest-dom in this project. */
 /* eslint-disable testing-library/no-node-access, testing-library/prefer-user-event, jest-dom/prefer-to-have-attribute, jest-dom/prefer-in-document */
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { StrictMode } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import Settings from './settings';
 
 /* Each module stub prints its name so the test can assert the order. */
@@ -124,5 +126,143 @@ describe( 'Settings', () => {
 			fireEvent.click( button );
 			expect( button.getAttribute( 'aria-expanded' ) ).toBe( wasOpen );
 		}
+	} );
+} );
+
+const observers: {
+	callback: IntersectionObserverCallback;
+	target?: Element;
+	connected: boolean;
+}[] = [];
+const originalObserver = globalThis.IntersectionObserver;
+
+const exposeHeaders = () => {
+	act( () => {
+		for ( const observer of observers ) {
+			if ( observer.connected && observer.target ) {
+				observer.callback(
+					[
+						{
+							target: observer.target,
+							isIntersecting: true,
+							intersectionRatio: 1,
+						} as IntersectionObserverEntry,
+					],
+					{} as IntersectionObserver
+				);
+			}
+		}
+	} );
+};
+
+describe( 'Settings exposure and group interactions', () => {
+	beforeEach( () => {
+		jest.mocked( recordBoostEvent ).mockClear();
+		observers.length = 0;
+		globalThis.IntersectionObserver = jest.fn( callback => {
+			const state = { callback, connected: true, target: undefined as Element | undefined };
+			observers.push( state );
+			return {
+				observe: ( target: Element ) => {
+					state.target = target;
+				},
+				disconnect: () => {
+					state.connected = false;
+				},
+			};
+		} ) as unknown as typeof IntersectionObserver;
+	} );
+
+	afterEach( () => {
+		globalThis.IntersectionObserver = originalObserver;
+	} );
+
+	it( 'records visible Settings and each header once per visit, including default-open groups', () => {
+		const view = render(
+			<StrictMode>
+				<Settings />
+			</StrictMode>
+		);
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		exposeHeaders();
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 5 );
+		expect( recordBoostEvent ).toHaveBeenCalledWith( 'settings_view', {} );
+		for ( const [ group, initial_open ] of [
+			[ 'cornerstone_pages', 0 ],
+			[ 'page_loading', 1 ],
+			[ 'code_optimization', 1 ],
+			[ 'images', 1 ],
+		] ) {
+			expect( recordBoostEvent ).toHaveBeenCalledWith( 'settings_group_view', {
+				group,
+				initial_open,
+			} );
+		}
+
+		view.rerender(
+			<StrictMode>
+				<Settings active={ false } />
+			</StrictMode>
+		);
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 5 );
+		view.rerender(
+			<StrictMode>
+				<Settings />
+			</StrictMode>
+		);
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 10 );
+	} );
+
+	it( 'ignores hidden redirects and headers outside the viewport', () => {
+		const view = render(
+			<div hidden>
+				<Settings active={ false } />
+			</div>
+		);
+		exposeHeaders();
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		view.rerender(
+			<div>
+				<Settings />
+			</div>
+		);
+		act( () => {
+			for ( const observer of observers.filter( item => item.connected ) ) {
+				observer.callback(
+					[ { isIntersecting: false, intersectionRatio: 0 } as IntersectionObserverEntry ],
+					{} as IntersectionObserver
+				);
+			}
+		} );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 5 );
+	} );
+
+	it( 'records intentional group changes only, using stable slugs', () => {
+		render( <Settings /> );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		for ( const [ name, group, initial ] of [
+			[ 'Cornerstone Pages', 'cornerstone_pages', 'open' ],
+			[ 'Page loading', 'page_loading', 'close' ],
+			[ 'Code optimization', 'code_optimization', 'close' ],
+			[ 'Images', 'images', 'close' ],
+		] ) {
+			const button = screen.getByRole( 'button', { name } );
+			fireEvent.click( button );
+			expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'settings_group_toggle', {
+				group,
+				status: initial,
+			} );
+			fireEvent.click( button );
+			expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'settings_group_toggle', {
+				group,
+				status: initial === 'open' ? 'close' : 'open',
+			} );
+		}
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 8 );
 	} );
 } );

@@ -13,10 +13,17 @@ import MinifyJs from '$features/minify-js/minify-js';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import PageCacheModule from '$features/page-cache/page-cache';
 import RenderBlockingJs from '$features/render-blocking-js/render-blocking-js';
+import { useEffect, useRef } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
+import { useSettingsExposure } from '$lib/utils/use-settings-exposure';
+import type { SettingsGroup } from '$lib/utils/use-settings-exposure';
 import styles from './settings.module.scss';
 import type { ComponentProps, ReactNode } from 'react';
 
 const Group = ( {
+	group,
+	active,
+	visit,
 	title,
 	description,
 	summary,
@@ -24,47 +31,71 @@ const Group = ( {
 	defaultOpen = true,
 	children,
 }: {
+	group: SettingsGroup;
+	active: boolean;
+	visit: Set< string >;
 	title: string;
 	description?: string;
 	summary?: ReactNode;
 	icon: ComponentProps< typeof Icon >[ 'icon' ];
 	defaultOpen?: boolean;
 	children: ReactNode;
-} ) => (
-	<CollapsibleCard.Root defaultOpen={ defaultOpen }>
-		<CollapsibleCard.Header render={ <h3 /> }>
-			<Stack direction="column" gap="md">
-				<Stack direction="row" align="center" gap="sm" wrap="wrap">
-					<Card.Title>
-						<Stack direction="row" align="center" gap="sm">
-							<Icon icon={ icon } />
-							{ title }
-						</Stack>
-					</Card.Title>
-					{ summary && (
-						<CollapsibleCard.HeaderDescription>{ summary }</CollapsibleCard.HeaderDescription>
+} ) => {
+	const header = useRef< HTMLHeadingElement >( null );
+	useSettingsExposure( header, active, visit, group, defaultOpen );
+
+	return (
+		<CollapsibleCard.Root
+			defaultOpen={ defaultOpen }
+			onOpenChange={ open =>
+				recordBoostEvent( 'settings_group_toggle', { group, status: open ? 'open' : 'close' } )
+			}
+		>
+			<CollapsibleCard.Header ref={ header } render={ <h3 /> }>
+				<Stack direction="column" gap="md">
+					<Stack direction="row" align="center" gap="sm" wrap="wrap">
+						<Card.Title>
+							<Stack direction="row" align="center" gap="sm">
+								<Icon icon={ icon } />
+								{ title }
+							</Stack>
+						</Card.Title>
+						{ summary && (
+							<CollapsibleCard.HeaderDescription>{ summary }</CollapsibleCard.HeaderDescription>
+						) }
+					</Stack>
+					{ description && (
+						<CollapsibleCard.HeaderDescription>{ description }</CollapsibleCard.HeaderDescription>
 					) }
 				</Stack>
-				{ description && (
-					<CollapsibleCard.HeaderDescription>{ description }</CollapsibleCard.HeaderDescription>
-				) }
-			</Stack>
-		</CollapsibleCard.Header>
-		<CollapsibleCard.Content>
-			<Stack direction="column" gap="xl" className={ styles.rows }>
-				{ children }
-			</Stack>
-		</CollapsibleCard.Content>
-	</CollapsibleCard.Root>
-);
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<Stack direction="column" gap="xl" className={ styles.rows }>
+					{ children }
+				</Stack>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
+	);
+};
 
-const Settings = () => {
+const Settings = ( { active = true }: { active?: boolean } ) => {
 	const summary = useCornerstoneSummary( false );
+	const section = useRef< HTMLDivElement >( null );
+	const visit = useRef( new Set< string >() );
+	useEffect( () => {
+		if ( ! active ) {
+			visit.current.clear();
+		}
+	}, [ active ] );
+	useSettingsExposure( section, active, visit.current );
 
 	return (
 		<ModuleSurfaceProvider value="row">
-			<Stack direction="column" gap="xl" className={ styles.settings }>
+			<Stack ref={ section } direction="column" gap="xl" className={ styles.settings }>
 				<Group
+					group="cornerstone_pages"
+					active={ active }
+					visit={ visit.current }
 					title={ __( 'Cornerstone Pages', 'jetpack-boost' ) }
 					description={ __(
 						'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
@@ -77,6 +108,9 @@ const Settings = () => {
 					<CornerstonePagesCard />
 				</Group>
 				<Group
+					group="page_loading"
+					active={ active }
+					visit={ visit.current }
 					title={ __( 'Page loading', 'jetpack-boost' ) }
 					description={ __(
 						'Manage how your page content is loaded for visitors.',
@@ -90,6 +124,9 @@ const Settings = () => {
 					<RenderBlockingJs />
 				</Group>
 				<Group
+					group="code_optimization"
+					active={ active }
+					visit={ visit.current }
 					title={ __( 'Code optimization', 'jetpack-boost' ) }
 					description={ __( 'Reduce the code needed to load your site.', 'jetpack-boost' ) }
 					icon={ code }
@@ -98,6 +135,9 @@ const Settings = () => {
 					<MinifyCss />
 				</Group>
 				<Group
+					group="images"
+					active={ active }
+					visit={ visit.current }
 					title={ __( 'Images', 'jetpack-boost' ) }
 					description={ __(
 						'Tools to load and deliver images more efficiently.',

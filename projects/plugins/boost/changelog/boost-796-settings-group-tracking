@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Instrument the new Settings groups, which have not shipped yet.
+
+

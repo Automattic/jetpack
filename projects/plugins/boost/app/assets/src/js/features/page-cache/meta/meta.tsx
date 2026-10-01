@@ -171,7 +171,7 @@ const Meta = () => {
 					exceptions={ bypassPatterns }
 					countExceptions
 					toggleText=""
-					tracksEvent="page_cache_except_panel_toggle"
+					tracksEvent="page_cache_exceptions_panel_toggle"
 				>
 					<div className={ styles.body }>{ exceptions }</div>
 				</CollapsibleMeta>
