@@ -5,10 +5,19 @@
 	@include footer-link;
 }
 
-// Text plus a badge: the flex context stands the badge at its full height
-// and keeps the hover underline on the text only.
+// Label plus a badge: the flex context stands the badge at its full height.
 .hasContent {
 	display: inline-flex;
 	align-items: center;
 	gap: var(--wpds-dimension-gap-xs);
+}
+
+// An underline on the link itself would run through the badge, so the
+// label carries it.
+.hasContent:hover {
+	text-decoration: none;
+
+	.label {
+		text-decoration: underline;
+	}
 }

@@ -70,9 +70,11 @@ function WordAdsEarningsHistoryReport() {
 				/>
 				{ /* Second in the footer: View all keeps its place, this takes the far end. */ }
 				{ adjustmentCount > 0 && (
-					<ReportLink report="earnings" section="adjustments">
-						{ __( 'Adjustments', 'jetpack-ads-pkg' ) }
-						{ /* Keeps the accessible name "Adjustments 2" rather than "Adjustments2". */ }{ ' ' }
+					<ReportLink
+						report="earnings"
+						section="adjustments"
+						label={ __( 'Adjustments', 'jetpack-ads-pkg' ) }
+					>
 						<Badge intent="none">{ String( adjustmentCount ) }</Badge>
 					</ReportLink>
 				) }

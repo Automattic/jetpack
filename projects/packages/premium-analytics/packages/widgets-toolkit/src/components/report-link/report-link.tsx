@@ -39,7 +39,7 @@ export type ReportLinkProps = {
 	className?: string;
 
 	/**
-	 * Rendered in place of the label, e.g. text with a count badge beside it.
+	 * Rendered after the label, e.g. a count badge; the hover underline stays on the label.
 	 */
 	children?: ReactNode;
 };
@@ -61,6 +61,7 @@ export function ReportLink( {
 	children,
 }: ReportLinkProps ) {
 	const search = useWidgetNavigationSearch( { section } );
+	const text = label ?? __( 'View all', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<Link
@@ -74,7 +75,15 @@ export function ReportLink( {
 			className={ clsx( styles.reportLink, children && styles.hasContent, className ) }
 			aria-label={ ariaLabel }
 		>
-			{ children ?? label ?? __( 'View all', 'jetpack-premium-analytics-pkg' ) }
+			{ children ? (
+				<>
+					<span className={ styles.label }>{ text }</span>
+					{ /* Keeps the accessible name "Adjustments 2" rather than "Adjustments2". */ }{ ' ' }
+					{ children }
+				</>
+			) : (
+				text
+			) }
 		</Link>
 	);
 }
