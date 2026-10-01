@@ -3283,6 +3283,9 @@ importers:
       c8:
         specifier: ^11.0.0
         version: 11.0.0
+      jsdom:
+        specifier: 30.0.1
+        version: 30.0.1
       package-directory:
         specifier: ^8.1.0
         version: 8.2.0
