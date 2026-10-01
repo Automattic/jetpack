@@ -158,6 +158,16 @@ describe( 'BoundedTooltip', () => {
 			</BoundedTooltip>
 		);
 		expect( screen.getByTestId( 'box' ) ).not.toHaveClass( 'surface' );
+		expect( screen.getByTestId( 'box' ) ).not.toHaveClass( 'a8c-charts-scope' );
+	} );
+
+	test( 're-declares the chart catalog on a styled box, so its roles resolve for the tooltip theme', () => {
+		render(
+			<BoundedTooltip left={ 10 } top={ 10 } data-testid="box">
+				content
+			</BoundedTooltip>
+		);
+		expect( screen.getByTestId( 'box' ) ).toHaveClass( 'a8c-charts-scope', 'surface' );
 	} );
 
 	test( 'lets an inline style override the surface', () => {

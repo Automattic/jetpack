@@ -1,7 +1,9 @@
 import { Tooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useLayoutEffect, useRef, useState } from 'react';
+import { CHART_SCOPE_CLASS } from '../../../styles/chart-scope-class';
 import styles from '../base-tooltip.module.scss';
+import { TooltipTheme } from './tooltip-theme';
 import type { TooltipPlacement } from '../../../visx/types';
 import type { TooltipProps } from '@visx/tooltip';
 
@@ -27,6 +29,15 @@ const clamp = ( position: number, min: number, max: number, size: number ) =>
 const isClipping = ( element: Element ) => {
 	const { overflow, overflowX, overflowY } = getComputedStyle( element );
 	return [ overflow, overflowX, overflowY ].some( value => value && value !== 'visible' );
+};
+
+// The positioned wrapper the box renders into, past the tooltip theme's `display: contents` element, which has no box to measure.
+const findLayoutParent = ( node: Element ): Element | null => {
+	let element = node.parentElement;
+	while ( element && getComputedStyle( element ).display === 'contents' ) {
+		element = element.parentElement;
+	}
+	return element;
 };
 
 // The first ancestor that cuts its overflow off. The box may leave the chart
@@ -163,7 +174,7 @@ export const BoundedTooltip = ( {
 
 	useLayoutEffect( () => {
 		const node = nodeRef.current;
-		const wrapper = node?.parentElement;
+		const wrapper = node && findLayoutParent( node );
 		if ( ! node || ! wrapper ) {
 			return;
 		}
@@ -202,11 +213,11 @@ export const BoundedTooltip = ( {
 	const x = position?.x ?? left + offsetLeft;
 	const y = position?.y ?? top + ( placement === 'below-axis' ? POINTER_HEIGHT : offsetTop );
 
-	return (
+	const box = (
 		<Tooltip
 			ref={ nodeRef }
 			data-testid="bounded-tooltip"
-			className={ clsx( ! unstyled && styles.surface, className ) }
+			className={ clsx( ! unstyled && [ CHART_SCOPE_CLASS, styles.surface ], className ) }
 			style={ {
 				position: 'absolute',
 				left: 0,
@@ -236,4 +247,6 @@ export const BoundedTooltip = ( {
 			{ children }
 		</Tooltip>
 	);
+
+	return unstyled ? box : <TooltipTheme>{ box }</TooltipTheme>;
 };

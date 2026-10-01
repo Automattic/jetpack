@@ -1,11 +1,8 @@
 // `.surface` is the look alone, for a chart that positions the box itself.
-// An inverted scope, as @wordpress/ui's Tooltip is: content reading the
-// surface and label roles follows the dark box.
+// The box carries the chart scope class inside TooltipTheme, so these roles
+// resolve for the dark tooltip theme, as in @wordpress/ui's Tooltip popup.
 .surface,
 .tooltip {
-	--a8c-charts-color-surface: var(--a8c-charts-color-tooltip-surface, #1e1e1e);
-	--a8c-charts-color-label: var(--a8c-charts-color-label-inverse, #f0f0f0);
-
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 	background-color: var(--a8c-charts-color-surface);
 	color: var(--a8c-charts-color-label);
