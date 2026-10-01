@@ -2126,6 +2126,10 @@ test( 'dry payload carries exactly nine typed staging backend keys with integer 
 			assert.equal( scenario.metrics.find( metric => metric.field === field ).unit, unit );
 		}
 	}
+	for ( const key of [ 'formsResponses', 'myJetpack' ] ) {
+		const scenario = SCENARIOS.find( s => s.key === key );
+		assert.equal( scenario.metrics.find( metric => metric.field === 'tbt' ).unit, 'ms' );
+	}
 } );
 
 test( 'a zero median for every backend type refuses the dry payload', async () => {

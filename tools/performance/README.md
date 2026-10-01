@@ -93,7 +93,7 @@ A buffered Long Tasks observer is installed before page scripts on every navigat
 
 A working observer with no long tasks records zero; unsupported or failed capture records `null`, never a fabricated zero. `summary.tbt` uses the existing strict-majority finite-sample rule and rounded millisecond statistics. Without a strict majority of finite TBT samples, Forms or My Jetpack is incomplete: its optional failure policy skips all eight keys for that build, including its four production keys. An out-of-range TBT median refuses the whole post, including Dashboard keys. Dashboard TBT remains diagnostic in the results and summary and has no posted key.
 
-Forms and My Jetpack use `-staging` TBT keys and remain optional. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms.
+Forms and My Jetpack use `-staging` TBT keys and remain optional. Register both TBT keys with unit `ms` before the first live post. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms.
 
 The digest auto-discovers these staging ids from their first post unless `METRIC_IDS` overrides discovery. Its current gate reports "Unusable level baseline" and exits non-zero when a flagged series has a complete pre-window with a non-positive median. Live posting of these keys depends on the digest accepting zero-baseline TBT. At production promotion, have the CodeVitals owner retire the staging id from discovery, or supply a complete `METRIC_IDS` allow-list excluding it; otherwise its stopped series produces stale-data warnings.
 
@@ -149,7 +149,7 @@ Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
 1. **Plugin Source**: Uses pre-built plugin from [jetpack-production](https://github.com/Automattic/jetpack-production) mirror (auto-cloned for local dev)
 2. **Docker Setup**: Spins up WordPress with Jetpack and a simulated WordPress.com connection (fake tokens + mocked API with 200ms latency)
 3. **CPU Calibration**: Normalizes CPU speed across different machines for consistent results
-4. **Page Measurement**: Uses Playwright to log in to wp-admin and measure page performance
+4. **LCP Measurement**: Uses Playwright to log in to wp-admin and measure Largest Contentful Paint
 5. **Results**: Posts metrics to CodeVitals for tracking over time
 
 ## Scripts
@@ -160,7 +160,7 @@ Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
 | `pnpm test:quick`                | Quick test with 2 iterations                                           |
 | `pnpm test:unit`                 | Run the unit suites only (no Docker, no token, no external network)    |
 | `pnpm calibrate`                 | Run CPU throttling calibration                                         |
-| `pnpm measure`                   | Run page-performance measurement only                                  |
+| `pnpm measure`                   | Run LCP measurement only                                               |
 | `pnpm report`                    | Post results to CodeVitals only                                        |
 | `pnpm report:dry`                | Build and print the CodeVitals payload without posting (CI smoke test) |
 | `pnpm digest`                    | Post the weekly regression digest to Slack (see below)                 |

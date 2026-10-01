@@ -535,6 +535,9 @@ function parseServerTiming( header ) {
 /**
  * Read one metric field from a single iteration's result.
  *
+ * LCP lives at the top level (r.lcp) exactly as before, so its value source is byte-for-byte
+ * unchanged; browser and backend fields come from the per-iteration `metrics` block.
+ *
  * @param {object} result - One entry from the measureLCP results array.
  * @param {string} field  - Metric field name (e.g. 'lcp', 'ttfb', 'fcp').
  * @return {number|null|undefined} The raw value, or null/undefined when capture had none.
@@ -577,8 +580,10 @@ function summarizeField( values ) {
 /**
  * Build the measurement summary from the per-iteration results.
  *
- * Fields must pass summarizeField's sample gate; legacy readers require LCP stats
- * mirrored on the summary root.
+ * Produces a nested `summary.<field>` block ({ median, mean, min, max, stdDev }) for every
+ * field with finite samples, AND mirrors the LCP block's stats flat on the summary root for
+ * backward-compat: the poster's legacy `metricKey` path and older dashboards read
+ * `summary.median` directly, and it must keep returning the same LCP number as before.
  *
  * @param {Array}    validResults - Iteration results already filtered to successful runs.
  * @param {number}   iterations   - Total iterations attempted (for the summary counters).
