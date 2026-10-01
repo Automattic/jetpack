@@ -67,7 +67,6 @@ export default function EmptyTrashConfirmationModal( {
 				title={ __( 'Delete forever', 'jetpack-forms' ) }
 				description={ description }
 				confirmButtonText={ __( 'Delete', 'jetpack-forms' ) }
-				cancelButtonText={ __( 'Cancel', 'jetpack-forms' ) }
 			/>
 		</AlertDialog.Root>
 	);
