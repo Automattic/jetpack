@@ -3,6 +3,7 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -405,15 +406,14 @@ describe( 'ClicksWidget CSV export', () => {
 			<ClicksWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
-		fireEvent.click(
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await user.click(
 			await screen.findByRole( 'button', { name: /view clicked links for wordpress\.org/i } )
 		);
 		await expect(
 			screen.findByRole( 'button', { name: /view all clicks/i } )
 		).resolves.toBeInTheDocument();
-		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
-		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		await user.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
 		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
 
 		const lines = await downloads.lines();
