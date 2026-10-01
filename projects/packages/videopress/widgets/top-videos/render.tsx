@@ -48,6 +48,7 @@ function toLeaderboardRow( row: VideoPlaysRow ): LeaderboardRowInput {
 		label: row.label,
 		value: row.plays,
 		previousValue: row.previousPlays,
+		media: { kind: 'thumbnail', url: row.posterUrl, alt: '', aspectRatio: '16/9' },
 		action: { kind: 'videoLink', id: row.id, href: row.link },
 	};
 }

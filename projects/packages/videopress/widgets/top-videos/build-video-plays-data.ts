@@ -1,8 +1,14 @@
 /**
+ * External dependencies
+ */
+import {
+	getVideoPosterUrl,
+	type StatsVideoPlaysComparisonItem,
+} from '@automattic/jetpack-premium-analytics-sdk';
+/**
  * Internal dependencies
  */
 import { getVideoKey, getVideoLabel } from './video-plays';
-import type { StatsVideoPlaysComparisonItem } from '@automattic/jetpack-premium-analytics-sdk';
 
 /**
  * A single video row with its presentation fields resolved, built from the
@@ -36,6 +42,10 @@ export type VideoPlaysRow = {
 	 * suppress the row's delta instead of fabricating one.
 	 */
 	previousPlays: number | undefined;
+	/**
+	 * Poster resized for the row thumbnail. `undefined` when the video has none or its URL is unsafe.
+	 */
+	posterUrl: string | undefined;
 };
 
 /**
@@ -57,6 +67,7 @@ export function toVideoPlaysRows( videos: StatsVideoPlaysComparisonItem[] = [] )
 			link: video.link,
 			plays: video.plays,
 			previousPlays: video.previousPlays,
+			posterUrl: getVideoPosterUrl( video.poster, 100, 56 ),
 		};
 	} );
 }
