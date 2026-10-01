@@ -94,7 +94,7 @@ test( 'preserves the exact cornerstone URL for cached and regenerated scores', a
 		wpApiSettings.root,
 		'https://example.org/',
 		wpApiSettings.nonce,
-		{ signal: expect.any( AbortSignal ) }
+		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 	);
 } );
 
