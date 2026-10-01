@@ -6,7 +6,6 @@ import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportCsvAction,
-	ReportEmptyState,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageLayout,
@@ -38,6 +37,7 @@ import {
 	type ReportLocationsTabId,
 } from './config';
 import type { View } from '@jetpack-premium-analytics/externals';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -186,6 +186,8 @@ export default function LocationsReportPage(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
+	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.
+	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
 
 	let tableReplacement: JSX.Element | undefined;
 
@@ -196,10 +198,6 @@ export default function LocationsReportPage(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.table.isLoading && ! countryFilter && records.table.rows.length === 0 ) {
-		// A picked country can scope the rows down to none. The table carries the
-		// filter that clears it, so it has to stay on screen then.
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -219,18 +217,21 @@ export default function LocationsReportPage(): JSX.Element {
 			>
 				{ tableReplacement ?? (
 					<>
-						<ReportLocationsMap
-							rows={ geoRows }
-							mode={ GEO_MODES[ activeTab ] }
-							focusCountry={ focusCountry }
-							isLoading={ tableIsLoading }
-						/>
+						{ showMap && (
+							<ReportLocationsMap
+								rows={ geoRows }
+								mode={ GEO_MODES[ activeTab ] }
+								focusCountry={ focusCountry }
+								isLoading={ tableIsLoading }
+							/>
+						) }
 						<ReportRecordsTable< LocationRow >
 							key={ activeTab }
 							data={ records.table.rows }
 							fields={ fields }
 							getItemId={ getLocationRowId }
-							isLoading={ tableIsLoading }
+							isLoading={ records.table.isLoading }
+							isFetching={ records.table.isFetching }
 							initialView={ RECORDS_VIEW }
 							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
 							onChangeView={ handleChangeView }

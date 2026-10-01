@@ -18,9 +18,9 @@ export interface ReportErrorStateProps {
  * Replace report sections with a shared error and retry state.
  *
  * The error state replaces the report sections rather than sitting beside
- * them. `ReportRecordsTable`'s `empty` renders on row count, not fetch status,
- * so a failed refetch over cached rows would otherwise leave stale data on
- * screen with no notice and no way to retry.
+ * them. The report tables pick their empty state from row count, not fetch
+ * status, so a failed first load would read as an empty report, and a failed
+ * refetch over cached rows would leave stale data with no way to retry.
  *
  * @param {ReportErrorStateProps} props - The component props.
  * @return The report error state.

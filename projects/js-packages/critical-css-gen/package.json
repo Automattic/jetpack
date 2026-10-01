@@ -57,7 +57,7 @@
 		"source-map": "0.7.4",
 		"source-map-js": "1.2.0",
 		"tslib": "2.8.1",
-		"webpack": "5.107.2",
+		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"
 	},
 	"peerDependencies": {

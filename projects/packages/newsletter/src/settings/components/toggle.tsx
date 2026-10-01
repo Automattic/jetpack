@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface ToggleProps {
 	data: NewsletterSettings;

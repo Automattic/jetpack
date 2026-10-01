@@ -4,7 +4,6 @@
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -23,6 +22,7 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import { getSearchTermsFields, useSearchTermsReportRecords, type SearchTermRow } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -80,7 +80,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 		sort: sortSearchTermCsvRows,
 	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 
 	const { getLabel } = REPORTS[ 'search-terms' ];
 
@@ -93,8 +92,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.table.isLoading && records.table.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -113,7 +110,8 @@ export default function SearchTermsReportPage(): JSX.Element {
 						data={ records.table.rows }
 						fields={ fields }
 						getItemId={ getSearchTermRowId }
-						isLoading={ tableIsLoading }
+						isLoading={ records.table.isLoading }
+						isFetching={ records.table.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search terms', 'jetpack-premium-analytics-pkg' ) }
 					/>

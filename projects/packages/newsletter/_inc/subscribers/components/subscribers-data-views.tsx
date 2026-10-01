@@ -19,6 +19,7 @@ import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 const DEFAULT_PER_PAGE = 20;
 

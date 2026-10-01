@@ -14,6 +14,7 @@ import { getSubscribedAt } from '../../lib/subscriber-helpers';
 import SubscriptionStatusCell from '../cells/subscription-status-cell';
 import SubscriptionTypeCell from '../cells/subscription-type-cell';
 import type { Subscriber } from '../../data/types';
+import type { JSX } from 'react';
 
 type Props = {
 	open: {

@@ -5,6 +5,7 @@ import { formatNumber } from '@automattic/number-formatters';
 import { useCallback } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { AlertDialog } from '@wordpress/ui';
+import type { JSX } from 'react';
 
 interface EmptyTrashConfirmationModalProps {
 	isOpen: boolean;

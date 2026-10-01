@@ -9,6 +9,7 @@ import { trash } from '@wordpress/icons';
  */
 import useEmptyTrash from '../../hooks/use-empty-trash';
 import EmptyTrashConfirmationModal from './confirmation-modal';
+import type { JSX } from 'react';
 
 interface EmptyTrashButtonProps {
 	totalItemsTrash?: number;

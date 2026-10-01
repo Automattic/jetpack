@@ -204,6 +204,7 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Channel::init();
 		Playlist_Index::init();
 
 		/*
@@ -1010,9 +1011,17 @@ class Initializer {
 				$entry_close = '</button>';
 			} else {
 				// No player to load the video into: the entry opens its VideoPress page instead.
-				$entry_open  = sprintf(
+				$entry_open = sprintf(
 					'<a class="videopress-playlist__select" href="%1$s" target="_blank" rel="noopener noreferrer" data-guid="%2$s" data-title="%3$s" data-position="%4$s" data-details="%5$s">',
-					esc_url( 'https://videopress.com/v/' . $entry['guid'] ),
+					/**
+					 * Filters where a playlist entry opens when the block has no player.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string $url  The video's page on videopress.com.
+					 * @param string $guid The video GUID.
+					 */
+					esc_url( apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] ) ),
 					esc_attr( $entry['guid'] ),
 					esc_attr( $title ),
 					esc_attr( $position ),

@@ -47,9 +47,29 @@
 	flex-shrink: 0;
 }
 
+.jetpack-boost-overview__scores-area {
+	position: relative;
+}
+
+.jetpack-boost-overview__scores-overlay {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	pointer-events: none;
+
+	.jetpack-boost-overview__scores-status {
+		padding-block: 0;
+	}
+}
+
 .jetpack-boost-overview__score-row {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
+
+	&--hidden {
+		visibility: hidden;
+	}
 
 	@media ( max-width: wpbreakpoints.$break-medium ) {
 		grid-template-columns: minmax(0, 1fr);
@@ -164,6 +184,10 @@
 .jetpack-boost-overview__scores-status {
 	padding-block: calc(2 * var(--wpds-dimension-padding-3xl));
 	color: var(--wpds-color-foreground-content-neutral-weak);
+
+	&:empty {
+		padding-block: 0;
+	}
 
 	.components-spinner {
 		margin: 0;

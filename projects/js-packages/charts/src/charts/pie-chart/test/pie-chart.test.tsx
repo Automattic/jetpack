@@ -187,17 +187,17 @@ describe( 'PieChart', () => {
 
 		test( "compares against a label-inverse override set on the chart's own class", () => {
 			injectedStyle = document.createElement( 'style' );
-			// Matches the slice fill exactly, so the inverse role loses to the default dark label role.
-			injectedStyle.textContent = '.overridden-pie { --a8c-charts-color-label-inverse: #1e3a8a; }';
+			// Black out-contrasts the dark label role on a light slice, where the default inverse would lose.
+			injectedStyle.textContent = '.overridden-pie { --a8c-charts-color-label-inverse: #000000; }';
 			document.head.appendChild( injectedStyle );
 
 			renderWithTheme( {
-				data: [ { label: 'Dark', value: 100, color: '#1e3a8a' } ],
+				data: [ { label: 'Light', value: 100, color: '#f5d76e' } ],
 				className: 'overridden-pie',
 			} );
 
 			const [ label ] = screen.getAllByTestId( 'pie-label' );
-			expect( label ).toHaveClass( 'pie-chart__label-text--on-light' );
+			expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' );
 		} );
 
 		test( 'keeps the inverse label color when the plate uses color syntax d3 cannot parse', () => {
@@ -239,7 +239,7 @@ describe( 'PieChart', () => {
 				.forEach( label => expect( label ).not.toHaveClass( 'pie-chart__label-text--on-light' ) );
 		} );
 
-		test( 'uses the label role on every slice when the inverse role is see-through', () => {
+		test( 'never picks a see-through inverse role, falling back to white where the label role fails', () => {
 			injectedStyle = document.createElement( 'style' );
 			injectedStyle.textContent =
 				'.clear-inverse-pie { --a8c-charts-color-label-inverse: rgba(255, 255, 255, 0); }';
@@ -247,9 +247,22 @@ describe( 'PieChart', () => {
 
 			renderWithTheme( { data: contrastData, className: 'clear-inverse-pie' } );
 
-			screen
-				.getAllByTestId( 'pie-label' )
-				.forEach( label => expect( label ).toHaveClass( 'pie-chart__label-text--on-light' ) );
+			const [ light, dark ] = screen.getAllByTestId( 'pie-label' );
+			expect( light ).toHaveClass( 'pie-chart__label-text--on-light' );
+			expect( dark ).toHaveClass( 'pie-chart__label-text--white' );
+		} );
+
+		test( 'falls back to black or white on a slice where neither label role reaches AA', () => {
+			renderWithTheme( {
+				data: [
+					{ label: 'Mid-light', value: 50, color: '#516dec' },
+					{ label: 'Mid-dark', value: 50, color: '#4663ea' },
+				],
+			} );
+
+			const [ midLight, midDark ] = screen.getAllByTestId( 'pie-label' );
+			expect( midLight ).toHaveClass( 'pie-chart__label-text--black' );
+			expect( midDark ).toHaveClass( 'pie-chart__label-text--white' );
 		} );
 
 		test( 'keeps the inverse label color when the fill cannot be resolved', () => {

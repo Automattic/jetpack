@@ -357,7 +357,11 @@ async function syncBlock(
 				// Gone from PayPal, or deleted from the admin page: give the block a new one, in
 				// its own mode — a fresh payment is the block's alone, with no sibling to match.
 				removeExistingLink( resourceId );
-				result = await createPayment( request, clientId, attributes, ownBody );
+				result = await createPayment( request, clientId, attributes, {
+					...ownBody,
+					// Tracked as a replacement for the payment PayPal lost.
+					recreated: true,
+				} );
 			}
 		} else {
 			result = await createPayment( request, clientId, attributes, ownBody );

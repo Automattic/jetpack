@@ -9,6 +9,7 @@
  * @since 0.8.0
  */
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import {
 	BlockControls,
@@ -258,6 +259,9 @@ export default function ApiManagedEdit( {
 
 	const blockProps = useBlockProps();
 
+	// Identifies this bundle's Tracks events with the connected user.
+	useAnalytics();
+
 	const {
 		isConnected,
 		setIsConnected,
@@ -290,6 +294,7 @@ export default function ApiManagedEdit( {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	} = usePayPalConnection();
@@ -881,6 +886,7 @@ export default function ApiManagedEdit( {
 						handleClientSecretChange={ handleClientSecretChange }
 						clientIdWarning={ clientIdWarning }
 						handleConnect={ handleConnect }
+						recordWizardStarted={ recordWizardStarted }
 						fetchSignupLink={ fetchSignupLink }
 					/>
 				</InspectorControls>

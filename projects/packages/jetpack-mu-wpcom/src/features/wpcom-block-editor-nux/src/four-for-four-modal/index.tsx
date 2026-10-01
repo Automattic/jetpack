@@ -6,7 +6,7 @@ import postPublishedImage from '../../../../assets/images/post-published.svg';
 import { isFourForFourPreview, useJustPublishedPost } from '../../../../common/tour-kit';
 import { wpcomTrackEvent } from '../../../../common/tracks';
 import NuxModal from '../nux-modal';
-import type { FC } from 'react';
+import type { JSX, FC } from 'react';
 
 const READER_URL = 'https://wordpress.com/reader/four-for-four?source=editor';
 
