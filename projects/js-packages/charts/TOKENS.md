@@ -8,9 +8,9 @@
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
-Tooltips render inside the chart, so they carry the class only when no provider is above them, the same as `TrendIndicator`, `BaseTooltip` and `BaseLegend` (`useStandaloneScopeClass()`).
+The tooltip box is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries the class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and an override set on the chart does not reach the box. A consumer rule that targets `.a8c-charts-scope` itself does reach it, so scope such a rule to your own wrapper. An `unstyled` box gets neither the theme nor the class.
 
-Inside a provider a tooltip therefore inherits the provider's inline `theme` var and any consumer rule scoped to the provider wrapper, the same as the chart it belongs to.
+`TrendIndicator` and `BaseLegend` carry the class only when no provider is above them (`useStandaloneScopeClass()`), so inside a provider they inherit its overrides like the chart they belong to.
 
 Catalog entries normally map to WPDS tokens. Source writes these mappings bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
 
@@ -41,12 +41,12 @@ Some roles are deliberately narrower than the obvious name, so that moving one t
 
 | Narrow role | Broad role | What the broad one also reaches |
 |---|---|---|
-| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, the line-chart tooltip, pie labels on light slices |
+| `--a8c-charts-color-label-axis` | `--a8c-charts-color-label` | legend labels, `.heatmap-chart__cell-value`, funnel labels, pie labels on light slices |
 | `--a8c-charts-color-background` | — | — |
 
 Outside forced-colors mode, `--a8c-charts-color-label-axis` derives from `--a8c-charts-color-label`, so setting the broad role moves every label at once and setting the narrow one moves only the SVG axis labels. See [One pair of roles per axis](#one-pair-of-roles-per-axis) for forced-colors defaults.
 
-`--a8c-charts-color-surface` — the annotation label, `.x-zoom__reset`, tooltips — is a **sibling** of `--a8c-charts-color-background`, not a child. The chart's own background and the surfaces floating over it are set apart from each other often enough that one has to be able to move without the other. The consequence: no single role repaints both.
+`--a8c-charts-color-surface` (the annotation label, `.x-zoom__reset`) is a **sibling** of `--a8c-charts-color-background`, not a child. The chart's own background and the surfaces floating over it are set apart from each other often enough that one has to be able to move without the other. The consequence: no single role repaints both.
 
 ### The SVG bridge
 
@@ -95,11 +95,11 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 | `--a8c-charts-color-surface` | `--wpds-color-background-surface-neutral-strong` | `#fff` |
 | `--a8c-charts-color-surface-secondary` | `--wpds-color-background-surface-neutral-weak` | `#f4f4f4` |
 | `--a8c-charts-color-track` | `--wpds-color-background-track-neutral-weak` | `#f0f0f0` |
-| `--a8c-charts-color-tooltip-surface` | _(none — WPDS has no inverted surface token yet)_ | `#1e1e1e` |
+| `--a8c-charts-color-tooltip-surface` | _(none: WPDS has no inverted surface token yet)_ | `#1e1e1e` |
 
 The x axis and tick roles share grid's WPDS token but stay distinct roles, so the three can be themed independently.
 
-Tooltips are an inverted scope, like `@wordpress/ui`'s Tooltip. The tooltip box repoints `--a8c-charts-color-surface` to `--a8c-charts-color-tooltip-surface` and `--a8c-charts-color-label` to `--a8c-charts-color-label-inverse`, so content that reads those two roles turns light on the dark box. Set `--a8c-charts-color-tooltip-surface` to recolor every tooltip, or repoint both roles in a chart's `tooltipStyle` to recolor one.
+`--a8c-charts-color-tooltip-surface` is the color the tooltip theme is generated from, as `@wordpress/ui` seeds its Tooltip popup with `#1e1e1e`. Set it on the provider wrapper to retheme every tooltip: the box surface, its text and every role inside follow. To recolor one chart's tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in that chart's `tooltipStyle`.
 
 ### One pair of roles per axis
 
