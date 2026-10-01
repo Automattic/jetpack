@@ -23,6 +23,9 @@ $notice-z-index: 900;
 
 	@include wp.snackbar-container();
 
+	// Follow the Settings container's inline bounds while staying viewport-fixed.
+	inset-inline: auto;
+	inline-size: 100cqi;
 	gap: var(--wpds-dimension-gap-lg);
 	z-index: $notice-z-index;
 
