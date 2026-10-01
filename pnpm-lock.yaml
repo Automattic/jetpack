@@ -3242,8 +3242,8 @@ importers:
         specifier: 7.29.7
         version: 7.29.7
       '@lezer/generator':
-        specifier: 1.8.0
-        version: 1.8.0
+        specifier: 1.8.1
+        version: 1.8.1
       '@playwright/test':
         specifier: 1.60.0
         version: 1.60.0
@@ -9077,8 +9077,8 @@ packages:
   '@lezer/css@1.3.6':
     resolution: {integrity: sha512-YJE78Wcg+zX8f10hiHWQ4Az48Qr/c13eId0VtRQYLBpxHDmDeSrXIlkbl+fJGW42rWC/uoUco9mhBZeVWP/A1g==}
 
-  '@lezer/generator@1.8.0':
-    resolution: {integrity: sha512-/SF4EDWowPqV1jOgoGSGTIFsE7Ezdr7ZYxyihl5eMKVO5tlnpIhFcDavgm1hHY5GEonoOAEnJ0CU0x+tvuAuUg==}
+  '@lezer/generator@1.8.1':
+    resolution: {integrity: sha512-7q7szXqT7EPTs6SODBl58Qoz/4OrhNvm5pW4lbu1ZDnG5e0nn7drLzeN9Nxkm8j/1iMs5QZ9j3i4SV+W4Z6SQA==}
     hasBin: true
 
   '@lezer/go@1.0.1':
@@ -21057,7 +21057,7 @@ snapshots:
       '@lezer/highlight': 1.2.3
       '@lezer/lr': 1.4.3
 
-  '@lezer/generator@1.8.0':
+  '@lezer/generator@1.8.1':
     dependencies:
       '@lezer/common': 1.3.0
       '@lezer/lr': 1.4.3
