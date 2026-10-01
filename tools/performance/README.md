@@ -1,6 +1,6 @@
 # Jetpack Performance Testing
 
-Measures Jetpack admin-page performance (LCP, TTFB, FCP, runtime bundle size, and PHP/database metrics) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
+Measures Jetpack admin-page performance (LCP, TTFB, FCP, load TBT, runtime bundle size, and PHP/database metrics) with a simulated WordPress.com connection, and posts the results to CodeVitals to track them over time.
 
 ## CI Usage
 
@@ -45,12 +45,13 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 
 Readiness (FORMS-729): this scenario is the one that does **not** use `networkidle` — the page's `canUser` OPTIONS probe to `/wp/v2/settings` can stay pending forever in the local fixture, which would black-hole every navigation. It sets `loadState: 'load'` and readiness is carried by the visible `.boot-layout` selector, the hydration wait, and an **in-flight-aware resource settle**: the completed-resource count must hold steady while an in-flight-request ledger (which excludes only that one known-stuck probe) reads zero — `networkidle`'s own quiet + nothing-in-flight guarantee, minus the request that breaks it. If either signal is still active at the settle's deadline the iteration fails closed. The settle proves quiescence, and shares `networkidle`'s inherent blind spot for a gap before the page issues its next resource wave; in that gap the working defense is the settle's ~1s-quiet requirement (double `networkidle`'s 500ms), with `minResourceCount` catching captures below its floor (the wide `decodedBytesKB` sanity range cannot catch an undercount). See the comments on the scenario in `scenarios.js` for the full mechanics.
 
-| CodeVitals key                                          | Field            | Type             | Description                                               |
-| ------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
-| `forms-responses-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | Forms responses LCP                                       |
-| `forms-responses-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | Forms responses TTFB                                      |
-| `forms-responses-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | Forms responses FCP                                       |
-| `forms-responses-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| CodeVitals key                                             | Field            | Type             | Description                                               |
+| ---------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `forms-responses-connection-sim-largestContentfulPaint`    | `lcp`            | `lcp`            | Forms responses LCP                                       |
+| `forms-responses-connection-sim-timeToFirstByte`           | `ttfb`           | `ttfb`           | Forms responses TTFB                                      |
+| `forms-responses-connection-sim-firstContentfulPaint`      | `fcp`            | `fcp`            | Forms responses FCP                                       |
+| `forms-responses-connection-sim-decodedBytesKB`            | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| `forms-responses-connection-sim-totalBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
 
 #### Bundle size (`decodedBytesKB`) — what it measures, and why not build output
 
@@ -67,14 +68,15 @@ Readiness (FORMS-729): this scenario is the one that does **not** use `networkid
 
 The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">` and `createRoot` renders `MyJetpackScreen` into it. The scenario waits for `#my-jetpack-container .jp-admin-page` (a non-hashed class from `@automattic/jetpack-components` `AdminPage`, present only after React renders) and for the container to hydrate before measuring, so LCP and the resource payload reflect the rendered page, not the empty shell.
 
-| CodeVitals key                                     | Field            | Type             | Description                                               |
-| -------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
-| `my-jetpack-connection-sim-largestContentfulPaint` | `lcp`            | `lcp`            | My Jetpack LCP                                            |
-| `my-jetpack-connection-sim-timeToFirstByte`        | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
-| `my-jetpack-connection-sim-firstContentfulPaint`   | `fcp`            | `fcp`            | My Jetpack FCP                                            |
-| `my-jetpack-connection-sim-decodedBytesKB`         | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| CodeVitals key                                        | Field            | Type             | Description                                               |
+| ----------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `my-jetpack-connection-sim-largestContentfulPaint`    | `lcp`            | `lcp`            | My Jetpack LCP                                            |
+| `my-jetpack-connection-sim-timeToFirstByte`           | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
+| `my-jetpack-connection-sim-firstContentfulPaint`      | `fcp`            | `fcp`            | My Jetpack FCP                                            |
+| `my-jetpack-connection-sim-decodedBytesKB`            | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| `my-jetpack-connection-sim-totalBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
 
-These four post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
+The four existing metrics post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
 
 #### Requires offline mode OFF (and the `wp-theme` polyfill in the mirror build)
 
@@ -82,6 +84,16 @@ Two conditions must hold for My Jetpack to render in the fixture:
 
 1. **Offline mode off.** The fixture's site URL (`http://localhost:<port>`) has no dot, so `Status::is_local_site()` treats it as a local site and Jetpack enters offline mode, which makes `Initializer::should_initialize()` return false — My Jetpack never registers (no menu, no assets; the page is the generic "invalid page" admin shell). The `simulate-wpcom-connection` mu-plugin flips this with `add_filter( 'jetpack_offline_mode', '__return_false' )`. This is **install-wide** — see the attribution note below.
 2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [#50291](https://github.com/Automattic/jetpack/pull/50291) fixed this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). It merged on 2026-07-08 and is present in the `jetpack-production` mirror the fixture clones (verified against mirror commit `9ef44a8`, 2026-07-10: a clean checkout renders My Jetpack and passes every capture guard). Treat it as a baseline prerequisite: a mirror checkout that predates #50291 renders the page empty and fails the `waitForSelector`.
+
+### Load blocking time (`tbt`)
+
+A buffered Long Tasks observer is installed before page scripts on every navigation. On the measured warm reload, `metrics.tbt` sums `max(0, duration - 50)` in milliseconds for tasks completed by `metrics.loadFinalizedAt` (a navigation-relative `performance.now()` timestamp). This cutoff is recorded in the same browser evaluation that finalizes LCP, after the existing page readiness, network/resource settle and final 500 ms rendering wait. Pending observer records are drained before disconnecting; completed task start times and durations are saved in `metrics.longTasks`.
+
+**Pre-FCP tasks are included. This is not Lighthouse TBT:** conventional TBT measures a post-FCP interval; this harness measures the full initial load through its own cutoff. Later interaction tasks are excluded. CPU throttling and warm-cache policy are unchanged. Downloaded JavaScript that never executes contributes no blocking time.
+
+A working observer with no long tasks records zero; unsupported or failed capture records `null`, never a fabricated zero. `summary.tbt` uses the existing strict-majority finite-sample rule and rounded millisecond statistics. Missing TBT makes an applicable scenario incomplete, so its optional failure policy skips its keys. Dashboard TBT remains diagnostic in the results and summary and has no posted key.
+
+Forms and My Jetpack use `-staging` TBT keys and remain optional. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms. Zero-baseline digest alerting requires a separate digest change before live alerting; this capture change does not modify digest discovery or gates.
 
 ### Offline-mode flip — attribution note
 

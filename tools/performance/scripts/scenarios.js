@@ -190,6 +190,11 @@ export const SCENARIOS = [
 				type: 'wpDbQueries',
 				unit: 'count',
 			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'forms-responses-connection-sim-totalBlockingTime-staging',
+				type: 'tbt',
+			},
 		],
 		postToCodeVitals: true,
 		// A failure here logs loudly and skips this scenario's keys for the build, but never
@@ -273,6 +278,11 @@ export const SCENARIOS = [
 				codevitalsKey: 'my-jetpack-connection-sim-wp-db-queries-staging',
 				type: 'wpDbQueries',
 				unit: 'count',
+			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'my-jetpack-connection-sim-totalBlockingTime-staging',
+				type: 'tbt',
 			},
 		],
 		postToCodeVitals: true,

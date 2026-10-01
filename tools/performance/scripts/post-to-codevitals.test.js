@@ -61,6 +61,8 @@ const MJ_LCP_KEY = 'my-jetpack-connection-sim-largestContentfulPaint';
 const MJ_TTFB_KEY = 'my-jetpack-connection-sim-timeToFirstByte';
 const MJ_FCP_KEY = 'my-jetpack-connection-sim-firstContentfulPaint';
 const MJ_DECODED_KEY = 'my-jetpack-connection-sim-decodedBytesKB';
+const FORMS_TBT_KEY = 'forms-responses-connection-sim-totalBlockingTime-staging';
+const MJ_TBT_KEY = 'my-jetpack-connection-sim-totalBlockingTime-staging';
 
 /**
  * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.
@@ -79,12 +81,7 @@ function jetpackSummary( { lcp = 120, ttfb = 150, fcp = 400 } = {} ) {
 	};
 }
 
-/**
- * Build the nested per-field summary the formsResponses scenario reads: the same three timing
- * fields plus the FORMS-704 bundle-size field (summary.decodedBytesKB.median). Defaults are
- * in-range so all four post cleanly unless a test overrides one to exercise a rejection.
- */
-function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229 } = {} ) {
+function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229, tbt = 0 } = {} ) {
 	return {
 		wpTotal: { median: 100 },
 		wpMemoryUsage: { median: 20971520 },
@@ -94,16 +91,17 @@ function formsSummary( { lcp = 300, ttfb = 200, fcp = 500, decodedBytesKB = 8229
 		ttfb: { median: ttfb },
 		fcp: { median: fcp },
 		decodedBytesKB: { median: decodedBytesKB },
+		tbt: { median: tbt },
 	};
 }
 
-/**
- * Build the nested per-field summary the myJetpack scenario reads: the same shape as
- * formsSummary (three timing fields + the bundle-size field). LCP (~640) and decodedBytesKB
- * (~5860) track the observed local medians; ttfb/fcp are plausible in-range fillers. All four
- * sit inside SANITY_RANGES so they post cleanly unless a test overrides one.
- */
-function myJetpackSummary( { lcp = 640, ttfb = 220, fcp = 560, decodedBytesKB = 5860 } = {} ) {
+function myJetpackSummary( {
+	lcp = 640,
+	ttfb = 220,
+	fcp = 560,
+	decodedBytesKB = 5860,
+	tbt = 0,
+} = {} ) {
 	return {
 		wpTotal: { median: 100 },
 		wpMemoryUsage: { median: 20971520 },
@@ -113,6 +111,7 @@ function myJetpackSummary( { lcp = 640, ttfb = 220, fcp = 560, decodedBytesKB = 
 		ttfb: { median: ttfb },
 		fcp: { median: fcp },
 		decodedBytesKB: { median: decodedBytesKB },
+		tbt: { median: tbt },
 	};
 }
 
@@ -491,11 +490,7 @@ test( 'the jetpackConnected scenario posts LCP, TTFB and FCP to their production
 	);
 } );
 
-test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
-	// Pins the FORMS-704 config: the Forms responses wp-build page carries the bundle-size
-	// metric (summary.decodedBytesKB.median) alongside the timing metrics, each on its own
-	// production key. A dropped/renamed key, or a decoded metric with no type (which would
-	// post unchecked), fails here rather than silently in the append-only store.
+test( 'the formsResponses scenario retains production keys and adds staging TBT', () => {
 	const scenario = SCENARIOS.find( s => s.key === 'formsResponses' );
 	assert.ok( scenario, 'formsResponses scenario must exist' );
 	assert.ok( Array.isArray( scenario.metrics ), 'formsResponses must use the metrics array' );
@@ -512,6 +507,7 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 			{ field: 'ttfb', codevitalsKey: FORMS_TTFB_KEY, type: 'ttfb' },
 			{ field: 'fcp', codevitalsKey: FORMS_FCP_KEY, type: 'fcp' },
 			{ field: 'decodedBytesKB', codevitalsKey: FORMS_DECODED_KEY, type: 'decodedBytesKB' },
+			{ field: 'tbt', codevitalsKey: FORMS_TBT_KEY, type: 'tbt' },
 		]
 	);
 	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
@@ -540,11 +536,7 @@ test( 'the formsResponses scenario posts LCP, TTFB, FCP and decodedBytes to prod
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
-test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to production keys', () => {
-	// Pins the FORMS-717 config: the My Jetpack admin page (the heaviest Jetpack admin bundle)
-	// carries the bundle-size metric (summary.decodedBytesKB.median) alongside the timing metrics,
-	// each on its own production key. A dropped/renamed key, or a decoded metric with no type
-	// (which would post unchecked), fails here rather than silently in the append-only store.
+test( 'the myJetpack scenario retains production keys and adds staging TBT', () => {
 	const scenario = SCENARIOS.find( s => s.key === 'myJetpack' );
 	assert.ok( scenario, 'myJetpack scenario must exist' );
 	assert.ok( Array.isArray( scenario.metrics ), 'myJetpack must use the metrics array' );
@@ -561,6 +553,7 @@ test( 'the myJetpack scenario posts LCP, TTFB, FCP and decodedBytes to productio
 			{ field: 'ttfb', codevitalsKey: MJ_TTFB_KEY, type: 'ttfb' },
 			{ field: 'fcp', codevitalsKey: MJ_FCP_KEY, type: 'fcp' },
 			{ field: 'decodedBytesKB', codevitalsKey: MJ_DECODED_KEY, type: 'decodedBytesKB' },
+			{ field: 'tbt', codevitalsKey: MJ_TBT_KEY, type: 'tbt' },
 		]
 	);
 	// The page-navigation contract measure-lcp.js reads: a target path + a hydration selector.
@@ -682,7 +675,7 @@ test( 'a targeted optional-run artifact (required scenario absent, not errored) 
 	);
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
-	assert.equal( Object.keys( result.payload.metrics ).length, 7 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 8 );
 	assert.equal( result.payload.metrics[ FORMS_LCP_KEY ], 300 );
 } );
 
@@ -804,7 +797,7 @@ test( 'dry-run posts all six Dashboard metrics into the payload, nothing rejecte
 	assert.equal( Object.keys( result.payload.metrics ).length, 6 );
 } );
 
-test( 'dry-run with both scenarios present posts all 13 keys, including the Forms decoded-bytes key', async () => {
+test( 'dry-run with both scenarios present posts 14 keys, including zero Forms staging TBT', async () => {
 	const file = writeResults( 120, { forms: { decodedBytesKB: 8229 } } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
@@ -812,13 +805,14 @@ test( 'dry-run with both scenarios present posts all 13 keys, including the Form
 	assert.equal( result.payload.metrics[ FORMS_TTFB_KEY ], 200 );
 	assert.equal( result.payload.metrics[ FORMS_FCP_KEY ], 500 );
 	assert.equal( result.payload.metrics[ FORMS_DECODED_KEY ], 8229 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 13 );
+	assert.equal( result.payload.metrics[ FORMS_TBT_KEY ], 0 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
 } );
 
-test( 'dry-run with all three scenarios present posts all 20 keys, including the My Jetpack decoded-bytes key', async () => {
+test( 'dry-run with all three scenarios present posts 22 keys, including My Jetpack staging TBT', async () => {
 	const file = writeResults( 120, {
 		forms: { decodedBytesKB: 8229 },
-		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860 },
+		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860, tbt: 120 },
 	} );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
@@ -826,7 +820,8 @@ test( 'dry-run with all three scenarios present posts all 20 keys, including the
 	assert.equal( result.payload.metrics[ MJ_TTFB_KEY ], 220 );
 	assert.equal( result.payload.metrics[ MJ_FCP_KEY ], 560 );
 	assert.equal( result.payload.metrics[ MJ_DECODED_KEY ], 5860 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 20 );
+	assert.equal( result.payload.metrics[ MJ_TBT_KEY ], 120 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
 } );
 
 test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {
@@ -3014,4 +3009,12 @@ test( 'formsResponses opts out of networkidle so a stuck request cannot blackhol
 	// The scenarios that measure a settled page keep the default (undefined → 'networkidle').
 	assert.equal( SCENARIOS.find( s => s.key === 'jetpackConnected' ).loadState, undefined );
 	assert.equal( SCENARIOS.find( s => s.key === 'myJetpack' ).loadState, undefined );
+} );
+
+test( 'out-of-range staging TBT rejects the entire dry payload without clipping', async () => {
+	const file = writeResults( 120, { forms: { tbt: 10001 } } );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.validationFailed, true );
+	assert.equal( result.posted, false );
+	assert.equal( result.payload.metrics[ FORMS_TBT_KEY ], undefined );
 } );
