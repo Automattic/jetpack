@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Declare Image Guide runtime dependencies and extend state regression coverage; no intended user-facing change.

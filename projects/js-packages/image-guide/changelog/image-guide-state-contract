@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Move state and analytics off Svelte stores without changing the Image Guide UI.

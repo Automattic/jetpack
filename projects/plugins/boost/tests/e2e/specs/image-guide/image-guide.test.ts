@@ -49,5 +49,25 @@ test.describe( 'Image Guide', () => {
 			page.locator( '.jetpack-boost-guide > .guide' ),
 			'Image Guide UI item should be present'
 		).toBeVisible();
+
+		const toggle = page.locator( '#jetpack-boost-guide-bar' );
+		await expect( toggle ).toHaveText( 'Image Guide: Active' );
+		await page.locator( '.interaction-area' ).hover();
+		await expect( page.locator( '.jetpack-boost-guide-popup' ) ).toContainText(
+			'Image File Dimensions'
+		);
+		await toggle.click();
+		await expect( toggle ).toHaveText( 'Image Guide: Paused' );
+		await expect( page.locator( '.jetpack-boost-guide > .guide' ) ).toHaveCount( 0 );
+		await expect
+			.poll( () => page.evaluate( () => localStorage.getItem( 'jetpack-boost-guide' ) ) )
+			.toBe( 'paused' );
+		await page.reload();
+		await expect( toggle ).toHaveText( 'Image Guide: Paused' );
+		await expect( page.locator( '.jetpack-boost-guide > .guide' ) ).toHaveCount( 0 );
+		await toggle.click();
+		await page.reload();
+		await expect( toggle ).toHaveText( 'Image Guide: Active' );
+		await expect( page.locator( '.jetpack-boost-guide > .guide' ) ).toBeVisible();
 	} );
 } );

@@ -23,6 +23,7 @@ const exportConditions = [ 'jetpack:src' ];
  */
 export default {
 	input: `./src/index.ts`,
+	external: [ '@wordpress/data' ],
 	output: {
 		sourcemap: ! production,
 		format: 'esm',

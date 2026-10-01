@@ -1,5 +1,5 @@
-import { get } from 'svelte/store';
-import { guideState } from './stores/GuideState.ts';
+import { observe } from './stores/facade.ts';
+import { selectors } from './stores/store.ts';
 import { MeasurableImageStore } from './stores/MeasurableImageStore.ts';
 
 /**
@@ -55,39 +55,44 @@ export default class ImageGuideAnalytics {
 	): Promise< ImageProperties > {
 		return new Promise( resolve => {
 			// Wait until the image is loaded and then track the state.
-			imageStore.loading.subscribe( loading => {
-				if ( ! loading ) {
-					const oversizedRatio = get( imageStore.oversizedRatio );
-					const severity = getSeverity( oversizedRatio );
-					const fileSize = get( imageStore.fileSize );
-					const sizeOnPage = get( imageStore.sizeOnPage );
-					const expectedSize = get( imageStore.expectedSize );
-					const potentialSavings = get( imageStore.potentialSavings );
-					const imageURL = get( imageStore.url );
+			observe(
+				() => selectors.getImageFacts( imageStore.id ).loading,
+				loading => {
+					if ( ! loading ) {
+						const {
+							oversizedRatio,
+							fileSize,
+							sizeOnPage,
+							expectedSize,
+							potentialSavings,
+							url: imageURL,
+						} = imageStore.getSnapshot();
+						const severity = getSeverity( oversizedRatio );
 
-					const props: ImageProperties = {
-						severity,
-						oversized_ratio: oversizedRatio,
-						file_width: fileSize.width,
-						file_height: fileSize.height,
-						size_on_page_width: sizeOnPage.width,
-						size_on_page_height: sizeOnPage.height,
-						expected_width: expectedSize.width,
-						expected_height: expectedSize.height,
-						potential_savings: potentialSavings,
-						image_url: imageURL,
-					};
+						const props: ImageProperties = {
+							severity,
+							oversized_ratio: oversizedRatio,
+							file_width: fileSize.width,
+							file_height: fileSize.height,
+							size_on_page_width: sizeOnPage.width,
+							size_on_page_height: sizeOnPage.height,
+							expected_width: expectedSize.width,
+							expected_height: expectedSize.height,
+							potential_savings: potentialSavings,
+							image_url: imageURL,
+						};
 
-					ImageGuideAnalytics.tracksCallback( 'image_guide_image_outcome', {
-						...props,
-						window_width: window.innerWidth,
-						window_height: window.innerHeight,
-						device_pixel_ratio: window.devicePixelRatio,
-					} );
+						ImageGuideAnalytics.tracksCallback( 'image_guide_image_outcome', {
+							...props,
+							window_width: window.innerWidth,
+							window_height: window.innerHeight,
+							device_pixel_ratio: window.devicePixelRatio,
+						} );
 
-					resolve( props );
+						resolve( props );
+					}
 				}
-			} );
+			);
 		} );
 	}
 
@@ -131,7 +136,7 @@ export default class ImageGuideAnalytics {
 	 */
 	public static trackInitialState() {
 		ImageGuideAnalytics.tracksCallback( 'image_guide_initial_ui_state', {
-			image_guide_state: get( guideState ),
+			image_guide_state: selectors.getGuideState(),
 		} );
 	}
 
@@ -140,7 +145,7 @@ export default class ImageGuideAnalytics {
 	 */
 	public static trackUIStateChange() {
 		ImageGuideAnalytics.tracksCallback( 'image_guide_ui_state_change', {
-			image_guide_state: get( guideState ),
+			image_guide_state: selectors.getGuideState(),
 		} );
 	}
 }

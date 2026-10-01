@@ -1,15 +1,8 @@
-import { writable, derived, type Writable, type Readable } from 'svelte/store';
+import { readable, writable, type Writable, type Readable } from './facade.ts';
+import { commands, selectors, type ImageFacts } from './store.ts';
 import { MeasurableImage } from '../MeasurableImage.ts';
 import type { Dimensions, Weight } from '../MeasurableImage.ts';
 
-/**
- * Each measurable image has its own set of Svelte stores.
- *
- * This class relies on MeasurableImage to calculate the values
- * and stores them in multiple Svelte stores,
- * so that the dimensions are easily
- * accessible in the components.
- */
 export class MeasurableImageStore {
 	readonly fileSize: Writable< Dimensions >;
 	readonly fileWeight: Writable< Weight >;
@@ -18,7 +11,9 @@ export class MeasurableImageStore {
 	readonly expectedSize: Readable< Dimensions >;
 	readonly oversizedRatio: Readable< number >;
 	readonly url: Writable< string >;
-	readonly loading = writable( true );
+	readonly loading: Writable< boolean >;
+	readonly id: string;
+	private static nextId = 0;
 
 	readonly image: MeasurableImage;
 	readonly node: MeasurableImage[ 'node' ];
@@ -31,46 +26,48 @@ export class MeasurableImageStore {
 		this.image = measurableImage;
 		this.node = measurableImage.node;
 
-		const initialFileSize: Dimensions = {
-			width: 0,
-			height: 0,
-		};
-
-		const initialSizeOnPage: Dimensions = {
-			width: 0,
-			height: 0,
-		};
-
-		this.url = writable( measurableImage.getURL() );
-		this.fileSize = writable( initialFileSize );
-		this.fileWeight = writable( { weight: -1 }, () => {
-			this.maybeUpdateWeight();
+		this.id = String( MeasurableImageStore.nextId++ );
+		commands.setImage( this.id, {
+			fileSize: { width: 0, height: 0 },
+			sizeOnPage: { width: 0, height: 0 },
+			fileWeight: { weight: -1 },
+			url: measurableImage.getURL(),
+			loading: true,
 		} );
-		this.sizeOnPage = writable( initialSizeOnPage );
-		this.potentialSavings = this.derivePotentialSavings();
-		this.oversizedRatio = this.deriveOversizedRatio();
-		this.expectedSize = this.deriveExpectedSize();
-	}
-
-	private deriveOversizedRatio() {
-		return derived( [ this.fileSize, this.sizeOnPage ], ( [ fileSize, sizeOnPage ] ) => {
-			return this.image.getOversizedRatio( fileSize, sizeOnPage );
-		} );
-	}
-
-	private deriveExpectedSize() {
-		return derived( this.sizeOnPage, sizeOnPage => {
-			return this.image.getExpectedSize( sizeOnPage );
-		} );
-	}
-
-	private derivePotentialSavings() {
-		return derived(
-			[ this.fileSize, this.fileWeight, this.sizeOnPage ],
-			( [ fileSize, fileWeight, sizeOnPage ] ) => {
-				return this.image.getPotentialSavings( fileSize, fileWeight, sizeOnPage );
-			}
+		this.url = this.fact( 'url' );
+		this.fileSize = this.fact( 'fileSize' );
+		this.sizeOnPage = this.fact( 'sizeOnPage' );
+		this.loading = this.fact( 'loading' );
+		// Match the former store's first-subscriber fetch, including transient savings reads.
+		this.fileWeight = this.fact( 'fileWeight', () => this.activate() );
+		this.potentialSavings = readable(
+			() => selectors.getPotentialSavings( this.id ),
+			() => this.fileWeight.subscribe( () => {} )
 		);
+		this.oversizedRatio = readable( () => selectors.getOversizedRatio( this.id ) );
+		this.expectedSize = readable( () => selectors.getExpectedSize( this.id ) );
+	}
+
+	private fact< K extends keyof ImageFacts >( key: K, start?: () => void ) {
+		return writable(
+			() => selectors.getImageFacts( this.id )[ key ],
+			value => commands.updateImage( this.id, { [ key ]: value } ),
+			start,
+			() => selectors.getImageRevision( this.id, key )
+		);
+	}
+
+	public getSnapshot() {
+		return {
+			...selectors.getImageFacts( this.id ),
+			expectedSize: selectors.getExpectedSize( this.id ),
+			oversizedRatio: selectors.getOversizedRatio( this.id ),
+			potentialSavings: selectors.getPotentialSavings( this.id ),
+		};
+	}
+
+	public activate() {
+		this.maybeUpdateWeight();
 	}
 
 	public async updateDimensions() {
@@ -80,11 +77,6 @@ export class MeasurableImageStore {
 	}
 
 	private async updateFileDimensions() {
-		/**
-		 * Current source can change when resizing screen.
-		 * If the URL has changed since last update,
-		 * we need to update the weight.
-		 */
 		if ( this.image.getURL() === this.currentSrc ) {
 			return;
 		}
