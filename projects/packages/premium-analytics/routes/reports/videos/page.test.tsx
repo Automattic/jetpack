@@ -112,10 +112,9 @@ describe( 'VideosReportPage', () => {
 
 		render( <VideosReportPage /> );
 
-		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ].initialView ).toMatchObject( {
-			titleField: 'label',
-			mediaField: 'poster',
-		} );
+		const { initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
+		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
+		expect( initialView.layout ).toMatchObject( { aspectRatio: '16/9' } );
 	} );
 
 	it( 'exports the report rows for the selected range', () => {
