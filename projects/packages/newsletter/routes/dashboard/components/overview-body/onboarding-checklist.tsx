@@ -6,6 +6,7 @@ import { __ } from '@wordpress/i18n';
 import { check } from '@wordpress/icons';
 import { Button, Card, CollapsibleCard, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
+import type { JSX } from 'react';
 
 type ChecklistStepId = 'start' | 'customize' | 'write_post' | 'share';
 

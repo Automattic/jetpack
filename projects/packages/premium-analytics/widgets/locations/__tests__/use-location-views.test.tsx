@@ -49,4 +49,25 @@ describe( 'useLocationViews', () => {
 			[ ':Unknown', '', 'Unknown', 7 ],
 		] );
 	} );
+
+	it( 'sends the region filter alongside its country', async () => {
+		mockApiFetch.mockResolvedValue( {} );
+
+		renderHook(
+			() =>
+				useLocationViews( {
+					reportParams: getDefaultQueryParams( false ),
+					max: 10,
+					geoMode: 'city',
+					filter: { country: 'US', region: 'Minnesota' },
+				} ),
+			{ wrapper: queryClientWrapper }
+		);
+
+		await waitFor( () => expect( mockApiFetch ).toHaveBeenCalled() );
+		const requestedPath = decodeURIComponent( mockApiFetch.mock.calls[ 0 ]?.[ 0 ]?.path ?? '' );
+		expect( requestedPath ).toContain( 'stats/location-views/city' );
+		expect( requestedPath ).toContain( 'filter_by_country=US' );
+		expect( requestedPath ).toContain( 'filter_by_region=Minnesota' );
+	} );
 } );

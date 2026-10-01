@@ -29,6 +29,7 @@ import {
 	useCommentsReportRecords,
 	type CommentReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 

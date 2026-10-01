@@ -26,6 +26,7 @@ import {
 	useEmailsReportRecords,
 } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: newest emails first (matching the endpoint's

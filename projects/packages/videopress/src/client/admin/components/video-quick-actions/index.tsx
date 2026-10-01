@@ -38,6 +38,7 @@ import {
 	PrivacyActionsDropdownProps,
 	ConnectVideoQuickActionsProps,
 } from './types';
+import type { JSX } from 'react';
 
 const PopoverWithAnchor = ( {
 	showPopover = false,

@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+AI blocks: Show a consistent placeholder in the editor when Jetpack AI is turned off.

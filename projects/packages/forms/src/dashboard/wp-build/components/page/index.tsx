@@ -3,7 +3,7 @@
  */
 import JetpackFooter from '@automattic/jetpack-components/jetpack-footer';
 import { Page } from '@wordpress/admin-ui';
-import type { ComponentProps, ReactNode } from 'react';
+import type { JSX, ComponentProps, ReactNode } from 'react';
 
 type PageProps = ComponentProps< typeof Page >;
 

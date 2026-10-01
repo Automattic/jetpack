@@ -20,6 +20,7 @@ import { __ } from '@wordpress/i18n';
 import { REPORTS } from '../registry';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 const RECORDS_VIEW = {
 	sort: { field: 'year', direction: 'desc' as const },

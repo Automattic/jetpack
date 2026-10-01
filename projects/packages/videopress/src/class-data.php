@@ -181,8 +181,9 @@ class Data {
 	 * @return array Entries with guid, durationMs and height keys.
 	 */
 	public static function get_latest_videopress_playlist_entries( $count ) {
-		$args = array(
-			'per_page'            => max( 1, (int) $count ),
+		$count = max( 1, (int) $count );
+		$args  = array(
+			'per_page'            => $count,
 			'orderby'             => 'date',
 			'order'               => 'desc',
 			'videopress_has_guid' => 1,
@@ -197,8 +198,10 @@ class Data {
 		$request->set_query_params( $args );
 		$response = rest_do_request( $request );
 
+		// WordPress.com Simple registers the wp/v2 routes only for REST requests, so on a
+		// page render the media endpoint does not exist: query the attachments directly.
 		if ( $response->is_error() ) {
-			return array();
+			return self::query_latest_videopress_playlist_entries( $count );
 		}
 
 		$entries = array();
@@ -211,23 +214,78 @@ class Data {
 				$guid = get_post_meta( (int) $item['id'], 'videopress_guid', true );
 			}
 
-			if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ) {
-				continue;
-			}
-
 			$details    = isset( $item['media_details'] ) ? (array) $item['media_details'] : array();
 			$videopress = isset( $details['videopress'] ) ? (array) $details['videopress'] : array();
-			$duration   = $videopress['duration'] ?? 0;
-			$height     = $details['height'] ?? $videopress['height'] ?? 0;
-
-			$entries[] = array(
-				'guid'       => $guid,
-				'durationMs' => is_numeric( $duration ) ? max( 0, (int) $duration ) : 0,
-				'height'     => is_numeric( $height ) ? max( 0, (int) $height ) : 0,
-			);
+			$entry      = self::playlist_entry( $guid, $videopress['duration'] ?? 0, $details['height'] ?? $videopress['height'] ?? 0 );
+			if ( $entry ) {
+				$entries[] = $entry;
+			}
 		}
 
 		return $entries;
+	}
+
+	/**
+	 * The newest VideoPress videos straight from the posts table, for hosts where the
+	 * media endpoint is unavailable. Mirrors what the endpoint does with the package's
+	 * query filter: by mime off WordPress.com Simple, from wpcom's videos table on it.
+	 *
+	 * @param int $count How many videos to fetch.
+	 *
+	 * @return array Entries with guid, durationMs and height keys.
+	 */
+	private static function query_latest_videopress_playlist_entries( $count ) {
+		$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+		$posts    = get_posts(
+			array(
+				'post_type'      => 'attachment',
+				'post_status'    => 'inherit',
+				'post_mime_type' => $is_wpcom ? 'video' : 'video/videopress',
+				'orderby'        => 'date',
+				'order'          => 'DESC',
+				'posts_per_page' => $count,
+			)
+		);
+
+		$entries = array();
+		foreach ( $posts as $post ) {
+			$guid = get_post_meta( $post->ID, 'videopress_guid', true );
+			if ( ( ! is_string( $guid ) || '' === $guid ) && $is_wpcom && function_exists( 'video_get_info_by_blogpostid' ) ) {
+				$info = video_get_info_by_blogpostid( get_current_blog_id(), $post->ID );
+				$guid = is_object( $info ) && ! empty( $info->guid ) ? (string) $info->guid : '';
+			}
+
+			$meta       = wp_get_attachment_metadata( $post->ID );
+			$meta       = is_array( $meta ) ? $meta : array();
+			$videopress = isset( $meta['videopress'] ) ? (array) $meta['videopress'] : array();
+			$duration   = $videopress['duration'] ?? ( isset( $meta['length'] ) && is_numeric( $meta['length'] ) ? (int) $meta['length'] * 1000 : 0 );
+			$entry      = self::playlist_entry( $guid, $duration, $meta['height'] ?? $videopress['height'] ?? 0 );
+			if ( $entry ) {
+				$entries[] = $entry;
+			}
+		}
+
+		return $entries;
+	}
+
+	/**
+	 * One playlist entry, or null when the GUID is unusable.
+	 *
+	 * @param mixed $guid     VideoPress GUID.
+	 * @param mixed $duration Duration in ms.
+	 * @param mixed $height   Height in px.
+	 *
+	 * @return array|null
+	 */
+	private static function playlist_entry( $guid, $duration, $height ) {
+		if ( ! is_string( $guid ) || ! preg_match( '/^[a-zA-Z0-9]{8}$/', $guid ) ) {
+			return null;
+		}
+		return array(
+			'guid'       => $guid,
+			'durationMs' => is_numeric( $duration ) ? max( 0, (int) $duration ) : 0,
+			'height'     => is_numeric( $height ) ? max( 0, (int) $height ) : 0,
+		);
 	}
 
 	/**

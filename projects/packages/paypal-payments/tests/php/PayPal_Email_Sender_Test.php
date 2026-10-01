@@ -13,16 +13,20 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+require_once __DIR__ . '/trait-paypal-tracks-events.php';
 
 /**
  * Class PayPal_Email_Sender_Test
  *
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Email_Sender
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Tracks
  */
 #[CoversClass( PayPal_Email_Sender::class )]
+#[CoversClass( PayPal_Tracks::class )]
 class PayPal_Email_Sender_Test extends TestCase {
 
 	use PayPal_Resource_Fixtures;
+	use PayPal_Tracks_Events;
 
 	/**
 	 * Per-flag filter that forces the API-managed buttons on.
@@ -72,6 +76,7 @@ class PayPal_Email_Sender_Test extends TestCase {
 		PayPal_API_Client::forget_cached_resources( 'PLB-U7XQRUHKESAZ' );
 		remove_all_filters( 'pre_http_request' );
 		remove_all_filters( 'pre_wp_mail' );
+		unset( $GLOBALS['jetpack_paypal_test_captured_events'] );
 
 		$_POST    = array();
 		$_REQUEST = array();
@@ -126,6 +131,32 @@ class PayPal_Email_Sender_Test extends TestCase {
 	}
 
 	/**
+	 * A sent email records only its environment.
+	 */
+	public function test_send_email_records_email_sent() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( 'pre_wp_mail', '__return_true' );
+
+		PayPal_Email_Sender::send_email(
+			'test@example.com',
+			'https://www.paypal.com/ncp/payment/PLB-TEST123',
+			'Test Product',
+			'$29.99',
+			'Here is your link.'
+		);
+
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_email_sent',
+					'properties' => array( 'environment' => 'sandbox' ),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
 	 * Test send_email returns WP_Error when wp_mail fails.
 	 */
 	public function test_send_email_returns_error_on_failure() {
@@ -146,6 +177,7 @@ class PayPal_Email_Sender_Test extends TestCase {
 
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'email_send_failed', $result->get_error_code() );
+		$this->assertSame( array(), $this->recorded_events(), 'A failed send recorded an event.' );
 	}
 
 	/**

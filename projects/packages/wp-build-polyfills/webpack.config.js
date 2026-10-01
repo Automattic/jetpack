@@ -169,9 +169,6 @@ const disabledPlugins = {
 };
 
 // ── Polyfill definitions ────────────────────────────────────────────────────
-//
-// If adding or removing something here, you'll probably also want to add or remove it
-// from the "Bundled @wordpress/* monorepo" group in `.github/renovate.json5`.
 
 const classicPolyfills = [
 	{
@@ -448,9 +445,6 @@ const esmConfigs = modulePolyfills.map( polyfill => ( {
 		chunkFormat: 'module',
 		environment: { module: true },
 		library: { type: 'module' },
-	},
-	experiments: {
-		outputModule: true,
 	},
 	plugins: [
 		...jetpackWebpackConfig.StandardPlugins( {

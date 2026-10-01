@@ -112,6 +112,7 @@ test( 'retains scores on refresh failure and recovers on retry', async () => {
 	expect( result.current[ 0 ] ).toEqual(
 		expect.objectContaining( {
 			status: 'error',
+			isRunning: false,
 			hasScores: true,
 			scores: { current: { mobile: 81, desktop: 91 }, noBoost: null, isStale: false },
 		} )
@@ -119,6 +120,81 @@ test( 'retains scores on refresh failure and recovers on retry', async () => {
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( result.current[ 0 ].status ).toBe( 'loaded' );
 	expect( result.current[ 0 ].error ).toBeUndefined();
+} );
+
+test.each( [ false, true ] )(
+	'distinguishes cached reads from regeneration: %s',
+	async regenerate => {
+		const { result } = renderHook( () => useSpeedScores(), { wrapper } );
+		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+		const previousScores = result.current[ 0 ].scores;
+		const nextScores = { current: { mobile: 88, desktop: 95 }, noBoost: null, isStale: false };
+		let resolveRequest!: ( scores: typeof nextScores ) => void;
+		jest.mocked( requestSpeedScores ).mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveRequest = resolve;
+				} )
+		);
+		let request!: Promise< void >;
+		act( () => {
+			request = result.current[ 1 ]( regenerate );
+		} );
+		expect( result.current[ 0 ] ).toMatchObject( {
+			status: 'loading',
+			isRunning: regenerate,
+			hasScores: true,
+			scores: previousScores,
+		} );
+		await act( async () => {
+			resolveRequest( nextScores );
+			await request;
+		} );
+		expect( result.current[ 0 ] ).toMatchObject( {
+			status: 'loaded',
+			isRunning: false,
+			scores: nextScores,
+		} );
+	}
+);
+
+test( 'retains a pending run when the subpage closes', async () => {
+	const { result, rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+		wrapper,
+		initialProps: true,
+	} );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	const nextScores = { current: { mobile: 88, desktop: 95 }, noBoost: null, isStale: false };
+	let resolveRequest!: ( scores: typeof nextScores ) => void;
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( () => new Promise( () => {} ) )
+		.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveRequest = resolve;
+				} )
+		);
+	act( () => {
+		void result.current[ 1 ]( true );
+	} );
+	expect( result.current[ 0 ].isRunning ).toBe( true );
+	rerender( false );
+	rerender( true );
+	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+		false,
+		wpApiSettings.root,
+		'https://example.org',
+		wpApiSettings.nonce,
+		{ signal: expect.any( AbortSignal ) }
+	);
+	expect( result.current[ 0 ] ).toMatchObject( { status: 'loading', isRunning: true } );
+	await act( async () => resolveRequest( nextScores ) );
+	expect( result.current[ 0 ] ).toMatchObject( {
+		status: 'loaded',
+		isRunning: false,
+		scores: nextScores,
+	} );
 } );
 
 test( 'regenerates after changed module configuration settles and waits two seconds', async () => {

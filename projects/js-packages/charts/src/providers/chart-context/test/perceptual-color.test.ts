@@ -3,6 +3,9 @@ import {
 	deltaE2000,
 	hexToOklch,
 	hexToViews,
+	blendRgb,
+	hexToRgb,
+	rgbLuminance,
 	oklchToHex,
 	viewDistance,
 } from '../private/perceptual-color';
@@ -71,5 +74,33 @@ describe( 'contrastRatio', () => {
 
 	it( 'is 1 for identical colors', () => {
 		expect( contrastRatio( '#3858e9', '#3858e9' ) ).toBe( 1 );
+	} );
+} );
+
+describe( 'hexToRgb', () => {
+	it( 'reads each channel', () => {
+		expect( hexToRgb( '#3858e9' ) ).toEqual( [ 56, 88, 233 ] );
+	} );
+} );
+
+describe( 'blendRgb', () => {
+	const blue = hexToRgb( '#3858e9' );
+	const white = hexToRgb( '#ffffff' );
+
+	it( 'matches each endpoint at full weight', () => {
+		expect( blendRgb( blue, white, 1 ) ).toEqual( [ 56, 88, 233 ] );
+		expect( blendRgb( blue, white, 0 ) ).toEqual( [ 255, 255, 255 ] );
+	} );
+
+	it( 'does not round the mix to a hex channel', () => {
+		expect( blendRgb( hexToRgb( '#000000' ), white, 0.5 ) ).toEqual( [ 127.5, 127.5, 127.5 ] );
+	} );
+} );
+
+describe( 'rgbLuminance', () => {
+	it( 'reads unrounded channels', () => {
+		// Rounded to #808080 this would read 0.2159.
+		expect( rgbLuminance( [ 127.5, 127.5, 127.5 ] ) ).toBeCloseTo( 0.214, 4 );
+		expect( rgbLuminance( [ 56, 88, 233 ] ) ).toBeCloseTo( 0.137, 4 );
 	} );
 } );
