@@ -68,8 +68,8 @@ it( 'keeps edits per temporary ID and sends nothing until that upload completes'
 	const first = await start( result );
 	const second = await start( result );
 	act( () => {
-		result.current.updateUploadDetails( first, { title: 'First', privacy: 'private' } );
-		result.current.updateUploadDetails( second, { title: 'Second', allowDownloads: true } );
+		result.current.saveUploadDetails( first, { title: 'First', privacy: 'private' } );
+		result.current.saveUploadDetails( second, { title: 'Second', allowDownloads: true } );
 		callbacks().onProgress( 5, 10 );
 	} );
 	expect( mockFetch ).not.toHaveBeenCalled();
@@ -89,10 +89,10 @@ it( 'keeps edits per temporary ID and sends nothing until that upload completes'
 	);
 } );
 
-it( 'sends edits made during the final save before completing the temporary route', async () => {
+it( 'sends another Save queued during the final save before completing the temporary route', async () => {
 	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
 	const id = await start( result );
-	act( () => result.current.updateUploadDetails( id, { title: 'First' } ) );
+	act( () => result.current.saveUploadDetails( id, { title: 'First' } ) );
 	let resolveSave: () => void;
 	mockFetch.mockImplementationOnce(
 		() =>
@@ -102,7 +102,7 @@ it( 'sends edits made during the final save before completing the temporary rout
 	);
 	await succeed();
 	expect( result.current.completedUploads[ id ] ).toBeUndefined();
-	act( () => result.current.updateUploadDetails( id, { title: 'Latest' } ) );
+	act( () => result.current.saveUploadDetails( id, { title: 'Latest' } ) );
 	await act( async () => {
 		resolveSave!();
 	} );
@@ -115,7 +115,7 @@ it( 'sends edits made during the final save before completing the temporary rout
 it( 'retains a failed metadata draft and retries its save without uploading again', async () => {
 	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
 	const id = await start( result );
-	act( () => result.current.updateUploadDetails( id, { title: '' } ) );
+	act( () => result.current.saveUploadDetails( id, { title: '' } ) );
 	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
 	await succeed();
 	expect( result.current.uploadQueue[ 0 ] ).toMatchObject( {
@@ -136,18 +136,35 @@ it( 'refreshes the library before saving edits so a failed save still counts the
 	const invalidate = jest.spyOn( client, 'invalidateQueries' );
 	const { result } = renderHook( useUpload, { wrapper: createTestWrapper( client ) } );
 	const id = await start( result );
-	act( () => result.current.updateUploadDetails( id, { title: 'Draft' } ) );
+	act( () => result.current.saveUploadDetails( id, { title: 'Draft' } ) );
 	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
 	await succeed();
 	expect( result.current.uploadQueue[ 0 ].detailsError ).toBe( true );
 	expect( invalidate ).toHaveBeenCalledWith( { queryKey: [ LIBRARY_QUERY_KEY ] } );
 } );
 
+it( 'applies a new Save after a metadata failure without reuploading', async () => {
+	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
+	const id = await start( result );
+	act( () => result.current.saveUploadDetails( id, { title: 'First' } ) );
+	mockFetch.mockRejectedValueOnce( new Error( 'Offline' ) );
+	await succeed();
+	expect( result.current.uploadQueue[ 0 ].detailsError ).toBe( true );
+	await act( async () =>
+		result.current.saveUploadDetails( id, { title: 'Retry with this title' } )
+	);
+	expect( mockFetch ).toHaveBeenLastCalledWith(
+		expect.objectContaining( { data: { id: 101, title: 'Retry with this title' } } )
+	);
+	expect( mockUploader ).toHaveBeenCalledTimes( 1 );
+	expect( result.current.completedUploads[ id ] ).toBe( '101' );
+} );
+
 it( 'retains edits after transport failure, continues the queue, and serializes retries', async () => {
 	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
 	const first = await start( result );
 	await start( result );
-	act( () => result.current.updateUploadDetails( first, { title: 'Retained' } ) );
+	act( () => result.current.saveUploadDetails( first, { title: 'Retained' } ) );
 	await act( async () =>
 		callbacks().onError( Object.assign( new Error( 'Offline' ), { code: 'offline' } ) )
 	);
@@ -195,7 +212,7 @@ it( 'synchronizes chapters only after the description is saved', async () => {
 	} );
 	const { result } = renderHook( useUpload, { wrapper: createTestWrapper() } );
 	const id = await start( result );
-	act( () => result.current.updateUploadDetails( id, { description: '0:00 Intro' } ) );
+	act( () => result.current.saveUploadDetails( id, { description: '0:00 Intro' } ) );
 	expect( syncChapters ).not.toHaveBeenCalled();
 	await succeed();
 	expect( syncChapters ).toHaveBeenCalledWith(

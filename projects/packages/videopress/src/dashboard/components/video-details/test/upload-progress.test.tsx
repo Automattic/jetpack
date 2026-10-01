@@ -9,7 +9,6 @@ it.each< { status: UploadProgressStatus; progress?: number; message: string; pos
 	{ status: 'uploading', progress: 1, message: 'Finishing upload…', position: -1 },
 	{ status: 'saving', message: 'Saving video details…', position: -1 },
 	{ status: 'loading', message: 'Preparing video…', position: -1 },
-	{ status: 'processing', message: 'Upload complete — processing…', position: -1 },
 ] )( 'shows "$message" in the player placeholder', ( { status, progress, message, position } ) => {
 	render( <UploadProgress fileName="draft.mp4" status={ status } progress={ progress } /> );
 	expect( screen.getByText( 'draft.mp4' ) ).toBeInTheDocument();

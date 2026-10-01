@@ -38,11 +38,7 @@ import { uploadToLibraryItem } from '../../src/dashboard/utils/upload-to-library
 import './style.scss';
 import type { UploadProgressStatus } from '../../src/dashboard/components/video-details/upload-progress';
 import type { UploadItem } from '../../src/dashboard/hooks/use-upload';
-import type {
-	LibraryItem,
-	VideoDetailsPatch,
-	VideoRating,
-} from '../../src/dashboard/types/library';
+import type { LibraryItem, VideoRating } from '../../src/dashboard/types/library';
 
 const isEditable = ( item: LibraryItem ): boolean =>
 	item.type === 'videopress' && item.upload.status !== 'failed';
@@ -152,29 +148,18 @@ const Editor = ( {
 	hasVideoError,
 	onRetryVideo,
 }: EditorProps ) => {
-	const {
-		values,
-		update: updateForm,
-		isDirty,
-		reset,
-	} = useVideoDetailsForm( video, {
+	const { values, update, isDirty, reset } = useVideoDetailsForm( video, {
 		uploadId,
 		draft: upload?.details,
 	} );
-	const { updateUploadDetails, retryUpload, retryUploadDetails } = useUpload();
+	const { saveUploadDetails, retryUpload, retryUploadDetails } = useUpload();
+	const { createInfoNotice } = useDispatch( noticesStore );
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const isPendingUpload = Boolean( upload && video.id === upload.id );
-	const isProcessingUpload = Boolean( uploadId && video.isProcessing );
 	const showVideoNav = isChaptersEditorEnabled() || isTrimCutEnabled();
-	const hasUnsavedDetails = isPendingUpload
-		? isUploadComplete &&
-			( Object.keys( values ) as ( keyof typeof values )[] ).some(
-				key => values[ key ] !== video[ key ]
-			)
-		: isDirty;
 
 	useEffect( () => {
-		if ( ! hasUnsavedDetails ) {
+		if ( ! isDirty ) {
 			return;
 		}
 		const onBeforeUnload = ( event: BeforeUnloadEvent ) => {
@@ -183,17 +168,7 @@ const Editor = ( {
 		};
 		window.addEventListener( 'beforeunload', onBeforeUnload );
 		return () => window.removeEventListener( 'beforeunload', onBeforeUnload );
-	}, [ hasUnsavedDetails ] );
-
-	const update = useCallback(
-		( patch: VideoDetailsPatch ) => {
-			updateForm( patch );
-			if ( upload && ! isUploadComplete ) {
-				updateUploadDetails( upload.id, patch );
-			}
-		},
-		[ updateForm, upload, isUploadComplete, updateUploadDetails ]
-	);
+	}, [ isDirty ] );
 
 	const openChapters = useCallback( () => setChaptersOpen( true ), [ setChaptersOpen ] );
 	const closeChapters = useCallback( () => setChaptersOpen( false ), [ setChaptersOpen ] );
@@ -201,10 +176,39 @@ const Editor = ( {
 		( next: VideoRating ) => update( { rating: next } ),
 		[ update ]
 	);
-	const handleSave = useCallback( () => onSave( values, reset ), [ onSave, values, reset ] );
+	const handleSave = useCallback( () => {
+		if ( isPendingUpload ) {
+			const changedFields = ( Object.keys( values ) as ( keyof typeof values )[] ).filter(
+				key => values[ key ] !== video[ key ]
+			);
+			saveUploadDetails(
+				upload.id,
+				Object.fromEntries( changedFields.map( key => [ key, values[ key ] ] ) )
+			);
+			reset( values );
+			createInfoNotice(
+				__(
+					'Changes queued. They’ll be saved when the upload completes.',
+					'jetpack-videopress-pkg'
+				),
+				{ id: `vp-upload-details-${ upload.id }`, type: 'snackbar' }
+			);
+			return;
+		}
+		onSave( values, reset );
+	}, [
+		isPendingUpload,
+		upload,
+		video,
+		saveUploadDetails,
+		createInfoNotice,
+		onSave,
+		values,
+		reset,
+	] );
 	const confirmNavigation = useCallback( () => {
 		return (
-			! hasUnsavedDetails ||
+			! isDirty ||
 			// eslint-disable-next-line no-alert -- Navigation must synchronously confirm before leaving the form.
 			window.confirm(
 				__(
@@ -213,9 +217,9 @@ const Editor = ( {
 				)
 			)
 		);
-	}, [ hasUnsavedDetails ] );
+	}, [ isDirty ] );
 
-	let progressStatus: UploadProgressStatus = 'processing';
+	let progressStatus: UploadProgressStatus = 'pending';
 	let onRetry: ( () => void ) | undefined;
 	if ( isPendingUpload ) {
 		if ( upload.detailsError ) {
@@ -257,7 +261,7 @@ const Editor = ( {
 			actions={
 				<HeaderActions
 					guid={ video.guid }
-					canSave={ ! isPendingUpload && isDirty && ! isSaving }
+					canSave={ isDirty && ! isSaving && ! ( isPendingUpload && isUploadComplete ) }
 					showMenu={ ! isPendingUpload }
 					onSave={ handleSave }
 					onManageCaptions={ onManageCaptions }
@@ -306,20 +310,15 @@ const Editor = ( {
 						className="vp-video-details__player-slot"
 						aria-label={ __( 'Video preview', 'jetpack-videopress-pkg' ) }
 					>
-						{ /* Keep the iframe mounted and unfocusable beneath the processing placeholder. */ }
-						<div
-							className={ isProcessingUpload ? 'vp-video-details__player-hidden' : undefined }
-							aria-hidden={ isProcessingUpload || undefined }
-						>
-							{ ! isPendingUpload && <PreviewPlayer video={ video } /> }
-						</div>
-						{ ( isPendingUpload || isProcessingUpload ) && (
+						{ isPendingUpload ? (
 							<UploadProgress
 								status={ progressStatus }
 								fileName={ video.filename }
 								progress={ upload?.progress }
 								onRetry={ onRetry }
 							/>
+						) : (
+							<PreviewPlayer video={ video } />
 						) }
 					</section>
 					<aside

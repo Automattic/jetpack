@@ -26,6 +26,7 @@ export type UploadItem = {
 	errorCode?: string;
 	mediaId?: string;
 	media?: VideoMediaProps;
+	/** The metadata accepted by Save, excluding any subsequent form edits. */
 	details?: VideoDetailsPatch;
 	isSavingDetails?: boolean;
 	detailsError?: boolean;
@@ -113,7 +114,7 @@ async function finishUpload( id: string, client: QueryClient ): Promise< void > 
 	}
 	try {
 		let saved: VideoDetailsPatch | undefined;
-		// Edits made during a request must be sent before the form changes routes.
+		// Save clicks during a request must be applied before the form changes routes.
 		while ( readItem( id )?.details !== saved ) {
 			const details = readItem( id )?.details;
 			await apiFetch( {
@@ -243,12 +244,16 @@ export function useUpload() {
 		[ client ]
 	);
 
-	const updateUploadDetails = useCallback( ( id: string, patch: VideoDetailsPatch ) => {
-		const item = readItem( id );
-		if ( item && ! readSnapshot().completed[ id ] ) {
-			updateItem( id, { details: { ...item.details, ...patch } } );
-		}
-	}, [] );
+	const saveUploadDetails = useCallback(
+		( id: string, patch: VideoDetailsPatch ) => {
+			const item = readItem( id );
+			if ( item && ! readSnapshot().completed[ id ] ) {
+				updateItem( id, { details: { ...item.details, ...patch } } );
+				void finishUpload( id, client );
+			}
+		},
+		[ client ]
+	);
 
 	const retryUploadDetails = useCallback(
 		( id: string ) => {
@@ -262,7 +267,7 @@ export function useUpload() {
 		completedUploads: completed,
 		startUpload,
 		retryUpload,
-		updateUploadDetails,
+		saveUploadDetails,
 		retryUploadDetails,
 	};
 }

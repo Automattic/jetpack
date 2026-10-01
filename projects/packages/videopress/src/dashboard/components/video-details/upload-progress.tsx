@@ -3,14 +3,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import { Button, Text } from '@wordpress/ui';
 
 export type UploadProgressStatus =
-	| 'pending'
-	| 'uploading'
-	| 'saving'
-	| 'loading'
-	| 'processing'
-	| 'failed'
-	| 'details-error'
-	| 'loading-error';
+	'pending' | 'uploading' | 'saving' | 'loading' | 'failed' | 'details-error' | 'loading-error';
 
 type Props = {
 	status: UploadProgressStatus;
@@ -38,7 +31,6 @@ export default function UploadProgress( { status, fileName, progress = 0, onRetr
 				: __( 'Uploading…', 'jetpack-videopress-pkg' ),
 		saving: __( 'Saving video details…', 'jetpack-videopress-pkg' ),
 		loading: __( 'Preparing video…', 'jetpack-videopress-pkg' ),
-		processing: __( 'Upload complete — processing…', 'jetpack-videopress-pkg' ),
 		failed: __( 'The upload failed. Your edits are still here.', 'jetpack-videopress-pkg' ),
 		'details-error': __(
 			'Your video uploaded, but its details couldn’t be saved. Your edits are still here.',

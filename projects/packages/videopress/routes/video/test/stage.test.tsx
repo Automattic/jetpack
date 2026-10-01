@@ -333,7 +333,7 @@ describe( 'video stage', () => {
 	 * equivalent and silently invert the narrow-viewport order, so pin that it
 	 * is outside.
 	 */
-	it( 'edits an upload without fetching its temporary ID and keeps the draft across navigation', async () => {
+	it( 'queues Save without a video ID and retains it across navigation', async () => {
 		const { result } = renderHook( useUpload, { wrapper: createTestWrapper( mockTestClient ) } );
 		await act( async () => {
 			mockVideoId = result.current.startUpload(
@@ -345,6 +345,16 @@ describe( 'video stage', () => {
 		await user.clear( screen.getByLabelText( 'Title' ) );
 		await user.type( screen.getByLabelText( 'Title' ), 'Draft title' );
 		expect( screen.getByRole( 'heading', { name: 'Draft title' } ) ).toBeInTheDocument();
+		expect( apiFetch ).not.toHaveBeenCalled();
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( mockInfoNotice ).toHaveBeenCalledWith(
+			'Changes queued. They’ll be saved when the upload completes.',
+			expect.objectContaining( { type: 'snackbar' } )
+		);
 		expect( apiFetch ).not.toHaveBeenCalled();
 		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 			'aria-disabled',
@@ -373,7 +383,116 @@ describe( 'video stage', () => {
 		);
 	} );
 
-	it( 'keeps the form, focus, and player mounted through registration and processing', async () => {
+	it( 'leaves edits after a queued Save unsaved through upload completion', async () => {
+		const media = makeRawMedia();
+		media.title.rendered = 'Queued title';
+		media.media_details.videopress.finished = false;
+		mockApiFetch( ( { path } ) => ( path.startsWith( '/wp/v2/media/' ) ? media : {} ) );
+		const { uploadResult } = await renderUploadingStage();
+		const user = userEvent.setup();
+		const title = screen.getByLabelText( 'Title' );
+		await user.clear( title );
+		await user.type( title, 'Queued title' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.clear( title );
+		await user.type( title, 'Unsaved title' );
+		expect( uploadResult.current.uploadQueue[ 0 ].details ).toEqual( { title: 'Queued title' } );
+		const confirm = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
+		try {
+			await user.click( screen.getByRole( 'link', { name: 'VideoPress' } ) );
+			expect( confirm ).toHaveBeenCalled();
+		} finally {
+			confirm.mockRestore();
+		}
+		await act( async () =>
+			mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+				id: 42,
+				guid: GUID,
+				src: 'https://example.com/clip.mp4',
+			} )
+		);
+		await waitFor( () => expect( navigate ).toHaveBeenCalled() );
+		expect(
+			jest.mocked( apiFetch ).mock.calls.filter( ( [ args ] ) => args.method === 'POST' )
+		).toEqual( [
+			[
+				{
+					path: '/wpcom/v2/videopress/meta',
+					method: 'POST',
+					data: { id: 42, title: 'Queued title' },
+				},
+			],
+		] );
+		expect( title ).toHaveValue( 'Unsaved title' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( metaCall().vars.patch.title ).toBe( 'Unsaved title' );
+	} );
+
+	it( 'queues a second Save during the metadata request without including later typing', async () => {
+		let resolveSave: () => void;
+		let savedTitle = '';
+		mockApiFetch( ( { path, method, data } ) => {
+			if ( method === 'POST' ) {
+				savedTitle = ( data as { title: string } ).title;
+				if ( savedTitle === 'First save' ) {
+					return new Promise( resolve => {
+						resolveSave = () => resolve( {} );
+					} );
+				}
+			}
+			return path.startsWith( '/wp/v2/media/' )
+				? { ...makeRawMedia(), title: { rendered: savedTitle } }
+				: {};
+		} );
+		await renderUploadingStage();
+		const user = userEvent.setup();
+		const title = screen.getByLabelText( 'Title' );
+		await user.clear( title );
+		await user.type( title, 'First save' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await act( async () =>
+			mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+				id: 42,
+				guid: GUID,
+				src: 'https://example.com/clip.mp4',
+			} )
+		);
+		await user.clear( title );
+		await user.type( title, 'Second save' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.clear( title );
+		await user.type( title, 'Not saved' );
+		await act( async () => resolveSave() );
+		await waitFor( () => expect( navigate ).toHaveBeenCalled() );
+		expect( savedTitle ).toBe( 'Second save' );
+		expect( title ).toHaveValue( 'Not saved' );
+		expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
+			'aria-disabled',
+			'true'
+		);
+	} );
+
+	it( 'does not save upload edits until Save is clicked, even when uploading finishes first', async () => {
+		await renderUploadingStage();
+		const user = userEvent.setup();
+		const title = screen.getByLabelText( 'Title' );
+		await user.clear( title );
+		await user.type( title, 'Unsaved draft' );
+		await act( async () =>
+			mockResumable.mock.calls[ 0 ][ 0 ].onSuccess( {
+				id: 42,
+				guid: GUID,
+				src: 'https://example.com/clip.mp4',
+			} )
+		);
+		await waitFor( () => expect( navigate ).toHaveBeenCalled() );
+		expect( apiFetch ).not.toHaveBeenCalledWith( expect.objectContaining( { method: 'POST' } ) );
+		expect( title ).toHaveValue( 'Unsaved draft' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( metaCall().vars ).toMatchObject( { id: '42', patch: { title: 'Unsaved draft' } } );
+	} );
+
+	it( 'keeps the form, focus, and visible player mounted through registration and processing', async () => {
 		let resolveMedia: ( media: ReturnType< typeof makeRawMedia > ) => void;
 		mockApiFetch( ( { path } ) =>
 			path.startsWith( '/wp/v2/media/' )
@@ -387,6 +506,8 @@ describe( 'video stage', () => {
 		const title = screen.getByLabelText( 'Title' ) as HTMLInputElement;
 		await user.clear( title );
 		await user.type( title, 'Draft title' );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.click( title );
 		expect(
 			screen.queryByLabelText( 'Video preview', { selector: 'video' } )
 		).not.toBeInTheDocument();
@@ -436,12 +557,16 @@ describe( 'video stage', () => {
 			'src',
 			expect.stringContaining( `https://videopress.com/embed/${ GUID }` )
 		);
-		expect( isInaccessible( player ) ).toBe( true );
-		expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Upload complete — processing…' );
+		expect( isInaccessible( player ) ).toBe( false );
+		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
 		mockVideoId = '42';
 		rerender( <Stage /> );
 		expect( screen.getByLabelText( 'Title' ) ).toBe( title );
 		expect( title ).toHaveFocus();
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		expect( metaCall().vars.patch.title ).toBe( 'Last-minute title' );
+		act( () => metaCall().callbacks.onSuccess() );
+		await user.click( title );
 		mockApiFetch( () => ( { ...media, media_details: makeRawMedia().media_details } ) );
 		await act( async () => {
 			await mockTestClient.invalidateQueries();
@@ -450,9 +575,6 @@ describe( 'video stage', () => {
 		expect( screen.getByTitle( 'Video preview' ) ).toBe( player );
 		expect( isInaccessible( player ) ).toBe( false );
 		expect( title ).toHaveFocus();
-		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-		expect( metaCall().vars.patch.title ).toBe( 'Last-minute title' );
-		act( () => metaCall().callbacks.onSuccess() );
 		const savedUnload = new Event( 'beforeunload', { cancelable: true } );
 		window.dispatchEvent( savedUnload );
 		expect( savedUnload.defaultPrevented ).toBe( false );
@@ -524,6 +646,8 @@ describe( 'video stage', () => {
 		await user.click( screen.getByLabelText( 'Allow downloads' ) );
 		await user.click( screen.getByRole( 'button', { name: /Rating/ } ) );
 		await user.click( screen.getByRole( 'radio', { name: 'R' } ) );
+		expect( uploadResult.current.uploadQueue[ 0 ].details ).toBeUndefined();
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 		expect( uploadResult.current.uploadQueue[ 0 ].details ).toEqual( {
 			title: '',
 			description: 'A draft description',
@@ -552,6 +676,7 @@ describe( 'video stage', () => {
 			const title = screen.getByLabelText( 'Title' );
 			await user.clear( title );
 			await user.type( title, 'Keep me' );
+			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 			if ( failure === 'upload' ) {
 				await act( async () =>
 					mockResumable.mock.calls[ 0 ][ 0 ].onError( new Error( 'Offline' ) )
