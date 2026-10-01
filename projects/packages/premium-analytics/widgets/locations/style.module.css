@@ -6,38 +6,8 @@
 	overflow: hidden;
 }
 
-/* Fills the row, which the back link's 50% cap is measured against. */
 .trail {
 	order: 1;
-	display: flex;
-	flex-grow: 1;
-	align-items: center;
-	min-inline-size: 0;
-	font-size: 13px;
-	font-weight: 500;
-	line-height: 20px;
-}
-
-/* The current label truncates first, keeping the one control legible. */
-.backLink {
-	flex-shrink: 0;
-	align-self: center;
-	max-inline-size: 50%;
-	margin-block-end: 0;
-}
-
-/* Matches the back link's inline padding, so the slash sits centred. */
-.trailSeparator {
-	padding-inline-end: calc(var(--wpds-dimension-padding-xs) + var(--wpds-border-width-focus));
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
-.currentLocation {
-	min-inline-size: 0;
-	overflow: hidden;
-	color: var(--wpds-color-foreground-content-neutral);
-	text-overflow: ellipsis;
-	white-space: nowrap;
 }
 
 .content {
