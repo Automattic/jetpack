@@ -181,8 +181,7 @@ const row = {
 A `postLink` row carries no media, and never becomes a chart button: a chart row that is a
 button cannot nest an anchor.
 
-Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video
-detail route instead of the post one. Same constraints: no media, never a chart button.
+Video rows use `videoLink`, which delegates to `VideoTitleLink` so the row reaches the video detail route instead of the post one. Unlike `postLink`, a `videoLink` row renders its media inside the detail link. It is never a chart button.
 
 ```tsx
 action: { kind: 'videoLink', id: 9, search: { from: '2026-03-01', to: '2026-03-10' } },
@@ -213,7 +212,7 @@ fallback, and default alt-text policy:
 | `avatar`    | 20 × 20px | Placeholder                      |
 | `favicon`   | 16 × 16px | Hidden; always decorative        |
 | `flag`      | 28px wide | Placeholder; proportional height |
-| `thumbnail` | 28 × 28px | Placeholder                      |
+| `thumbnail` | 28 × 28px; with `aspectRatio: '16/9'`, 50px wide by 28px tall (sized by width plus `aspect-ratio`, like flags) | Placeholder                      |
 | `icon`      | 20 × 20px | No image; takes a glyph          |
 | `none`      | No media  | Renders text only                |
 

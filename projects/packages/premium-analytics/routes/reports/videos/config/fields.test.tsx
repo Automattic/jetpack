@@ -111,7 +111,7 @@ describe( 'videos fields', () => {
 	it( 'renders the placeholder for an unsafe poster URL', () => {
 		renderVideosField( 'poster', { ...video, poster: 'javascript:alert(1)' } );
 
-		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 		expect( screen.getByTestId( 'report-thumbnail-placeholder' ) ).toBeInTheDocument();
 	} );
 
