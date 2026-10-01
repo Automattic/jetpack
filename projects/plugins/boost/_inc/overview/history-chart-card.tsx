@@ -33,12 +33,7 @@ type Props = {
 };
 
 const emptyColor = 'var(--jetpack-boost-history-empty)';
-const tooltipStyle = {
-	padding: 0,
-	backgroundColor: 'transparent',
-	border: 'none',
-	boxShadow: 'none',
-};
+const tooltipStyle = { padding: 0, backgroundColor: 'transparent', boxShadow: 'none' };
 
 export function buildHistorySeries( days: HistoryDay[] ): SeriesData[] {
 	return ( [ 'desktop', 'mobile' ] as const ).map( device => ( {
