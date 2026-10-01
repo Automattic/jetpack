@@ -191,6 +191,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
@@ -964,6 +965,168 @@ class REST_Endpoints_Test extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( self::$secondary_user_id, Jetpack_Options::get_option( 'master_user' ), 'Connection owner should be updated.' );
+	}
+
+	/**
+	 * A connected administrator who is not the connection owner may confirm a protected owner.
+	 */
+	public function test_protect_owner_accepts_a_connected_admin_who_is_not_the_owner() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		$answer = $this->answer_protected_owner_claim(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => 4242,
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response->get_data()['code'] );
+		$this->assertSame( self::$secondary_user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertSame( 4242, Protected_Owner::get()['wpcom_user_id'] ?? null );
+	}
+
+	/**
+	 * WordPress.com already having a different protected owner is the support path, and nothing is stored.
+	 */
+	public function test_protect_owner_rejects_a_claim_someone_else_holds() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		$answer = $this->answer_protected_owner_claim(
+			array(
+				'status' => 'locked_to_other',
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( 'protected_owner_claimed_by_other', $data['code'] );
+		$this->assertStringContainsString( 'Contact support', $data['message'] );
+		$this->assertSame( self::$user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * An editor cannot confirm, even with the connect capability and a user token.
+	 */
+	public function test_protect_owner_requires_an_administrator() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$editor = get_user_by( 'id', self::$non_admin_user_id );
+		$editor->add_cap( 'jetpack_connect' );
+		$this->act_as_connected_admin( self::$non_admin_user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * An administrator who has not connected their own account cannot confirm.
+	 */
+	public function test_protect_owner_requires_a_connected_user() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+	}
+
+	/**
+	 * The connect capability is required on top of being an administrator.
+	 */
+	public function test_protect_owner_requires_the_connect_capability() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		wp_get_current_user()->remove_cap( 'jetpack_connect' );
+		$this->connect_user_for_protect( self::$user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+	}
+
+	/**
+	 * The route stays closed until a consumer asks for a protected owner.
+	 */
+	public function test_protect_owner_requires_a_consumer_request() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertSame( self::$user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * Sign the current user in as a connected administrator, optionally leaving someone else as owner.
+	 *
+	 * @param int $user_id        Local user who will make the request.
+	 * @param int $master_user_id Local user who holds the connection owner slot.
+	 */
+	private function act_as_connected_admin( $user_id, $master_user_id ) {
+		$user = get_user_by( 'id', $user_id );
+		$user->add_cap( 'jetpack_connect' );
+		wp_set_current_user( $user_id );
+		$this->connect_user_for_protect( $user_id, $master_user_id );
+	}
+
+	/**
+	 * Store the tokens a signed protected-owner claim needs.
+	 *
+	 * @param int $user_id        Local user the token belongs to.
+	 * @param int $master_user_id Local user recorded as the connection owner.
+	 */
+	private function connect_user_for_protect( $user_id, $master_user_id ) {
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
+		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
+		Jetpack_Options::update_option( 'master_user', $master_user_id );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array( $user_id => 'ownerkey.private.' . $user_id )
+		);
+	}
+
+	/**
+	 * Answer the protected-owner claim WordPress.com would make.
+	 *
+	 * @param array $record The JSON body to answer with.
+	 * @return callable The filter callback, so the test can remove it.
+	 */
+	private function answer_protected_owner_claim( $record ) {
+		$answer = static function ( $response, $args, $url ) use ( $record ) {
+			unset( $args );
+
+			if ( false === strpos( (string) $url, 'public-api.wordpress.com' ) ) {
+				return $response;
+			}
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( $record, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+
+		add_filter( 'pre_http_request', $answer, 10, 3 );
+
+		return $answer;
 	}
 
 	/**

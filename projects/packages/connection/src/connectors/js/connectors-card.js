@@ -25,7 +25,7 @@ const ConnectorItem = connectors.__experimentalConnectorItem || connectors.Conne
 
 const { createElement, createInterpolateElement, useState, useEffect, useRef } = window.wp.element;
 const { __, _x, sprintf } = window.wp.i18n;
-const { Button, Modal, Notice } = window.wp.components;
+const { Button, Modal, Notice, Tooltip } = window.wp.components;
 const HStack = window.wp.components.__experimentalHStack || window.wp.components.HStack;
 const VStack = window.wp.components.__experimentalVStack || window.wp.components.VStack;
 const Text = window.wp.components.__experimentalText || window.wp.components.Text;
@@ -55,6 +55,7 @@ const isOfflineMode = Boolean( data.isOfflineMode );
 const isInSafeMode = Boolean( data.isInSafeMode );
 const isSafeModeConfirmed = Boolean( data.isSafeModeConfirmed );
 const idc = data.idc || null;
+const protectedOwner = data.protectedOwner || null;
 // Stats and Backups are Jetpack-plugin features, so only cite them as examples
 // of paused features when a Jetpack-family plugin is actually connected.
 // Other plugin families (WooCommerce, Automattic for Agencies) fall back to the
@@ -341,9 +342,10 @@ function StatusBadge( { label, modifier = 'connected' } ) {
  * @param {object|null}       props.user       - User data object with displayName, login, avatar.
  * @param {string|false|null} props.subtitle   - Override for the default login/email line. Pass false to hide entirely.
  * @param {object|null}       props.actionSlot - Optional element rendered at the end of the user row.
+ * @param {boolean}           props.showShield - Whether to show the protected-owner shield beside the title.
  * @return {object|null} React element or null.
  */
-function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
+function UserSection( { title, user, subtitle = null, actionSlot = null, showShield = false } ) {
 	if ( ! user ) {
 		return null;
 	}
@@ -354,16 +356,7 @@ function UserSection( { title, user, subtitle = null, actionSlot = null } ) {
 	return createElement(
 		VStack,
 		{ spacing: 3, className: 'jetpack-connector__section' },
-		createElement(
-			Text,
-			{
-				variant: 'muted',
-				size: 11,
-				upperCase: true,
-				weight: 500,
-			},
-			title
-		),
+		createElement( SectionHeading, { title, showShield } ),
 		createElement(
 			HStack,
 			null,
@@ -446,6 +439,282 @@ function ConnectedPluginsSection() {
 				)
 			)
 		)
+	);
+}
+
+/**
+ * Uppercase section label, with an optional protected-owner shield.
+ *
+ * @param {object}  props            - Component props.
+ * @param {string}  props.title      - Section heading.
+ * @param {boolean} props.showShield - Whether to show the protected-owner shield.
+ * @return {object} React element.
+ */
+function SectionHeading( { title, showShield = false } ) {
+	const label = createElement(
+		Text,
+		{
+			variant: 'muted',
+			size: 11,
+			upperCase: true,
+			weight: 500,
+		},
+		title
+	);
+
+	if ( ! showShield ) {
+		return label;
+	}
+
+	return createElement(
+		HStack,
+		{ spacing: 1, expanded: false, alignment: 'center', justify: 'flex-start' },
+		label,
+		createElement( ProtectedOwnerShield )
+	);
+}
+
+/**
+ * Shield shown beside the Connection owner title while a protected owner is requested or stored.
+ *
+ * Nothing is locked until an anchor exists, so a requested owner gets its own wording.
+ *
+ * @return {object} React element.
+ */
+function ProtectedOwnerShield() {
+	const notice = protectedOwnerState()?.anchored
+		? __( 'Ownership is locked to the confirmed owner.', 'jetpack-connection' )
+		: __( 'Ownership will be locked once an owner is confirmed.', 'jetpack-connection' );
+	const icon = createElement( 'span', {
+		className: 'dashicons dashicons-shield jetpack-connector__protected-owner-shield',
+		role: 'img',
+		tabIndex: 0,
+		'aria-label': notice,
+	} );
+
+	if ( ! Tooltip ) {
+		return createElement( 'span', { title: notice }, icon );
+	}
+
+	return createElement( Tooltip, { text: notice }, icon );
+}
+
+/**
+ * Title for the viewing admin's own account row.
+ *
+ * @param {object} user - Current user data, including isOwner.
+ * @return {string} Section title.
+ */
+function connectedAccountTitle( user ) {
+	if ( ! user.isOwner ) {
+		return __( 'Connected as', 'jetpack-connection' );
+	}
+
+	if ( protectedOwnerIsPending() ) {
+		return __( 'Connected as manager', 'jetpack-connection' );
+	}
+
+	return __( 'Connected as owner', 'jetpack-connection' );
+}
+
+/**
+ * What each Manager::PO_STATE_* value means for the card: which slot it asks for, and whether
+ * an anchor is stored. A status missing here, such as `NOT_ELIGIBLE`, leaves the card as it is.
+ */
+const PROTECTED_OWNER_STATES = {
+	CAN_ESTABLISH: { slot: 'confirm', anchored: false },
+	NEEDS_CONNECT_TO_ESTABLISH: { slot: 'connect', anchored: false },
+	NEEDS_OWNER_RECONNECT: { slot: 'reconnect', anchored: true },
+	NEEDS_DIFFERENT_OWNER: { slot: 'other-owner', anchored: true },
+	RE_EVALUATE: { slot: null, anchored: true },
+};
+
+/**
+ * What the card should do about this site's protected owner.
+ *
+ * @return {object|null} Entry from PROTECTED_OWNER_STATES, or null when there is nothing to do.
+ */
+function protectedOwnerState() {
+	return ( protectedOwner && PROTECTED_OWNER_STATES[ protectedOwner.status ] ) || null;
+}
+
+/**
+ * Which protected-owner slot to render, if any.
+ *
+ * @return {string|null} `confirm`, `connect`, `reconnect`, `other-owner`, or null.
+ */
+function protectedOwnerSlotKind() {
+	return protectedOwnerState()?.slot || null;
+}
+
+/**
+ * Support link for the protected-owner recovery copy.
+ *
+ * @return {object} React element for createInterpolateElement's `support` tag.
+ */
+function supportLink() {
+	return createElement( 'a', {
+		href: 'https://jetpack.com/redirect/?source=jetpack-support',
+		target: '_blank',
+		rel: 'noopener noreferrer',
+	} );
+}
+
+/**
+ * Whether a protected owner is requested or stored but not yet the connection owner.
+ *
+ * Derived from the same table as the slot so the two cannot disagree about one site.
+ *
+ * @return {boolean} True while the connection owner is only a manager.
+ */
+function protectedOwnerIsPending() {
+	return protectedOwnerSlotKind() !== null;
+}
+
+/**
+ * Whether the connection owner is the protected owner the anchor names.
+ *
+ * @return {boolean} True once a protected owner is settled.
+ */
+function protectedOwnerIsEstablished() {
+	return Boolean( protectedOwnerState()?.anchored ) && ! protectedOwnerIsPending();
+}
+
+/**
+ * Protected-owner slot.
+ *
+ * @return {object} React element.
+ */
+function ProtectedOwnerSection() {
+	const [ isConfirmOpen, setIsConfirmOpen ] = useState( false );
+	const [ confirmError, setConfirmError ] = useState( null );
+	const kind = protectedOwnerSlotKind();
+	let body;
+
+	if ( kind === 'reconnect' ) {
+		// The owner's own token is what could not be read, so the viewer who holds the
+		// anchored identity is asked to reconnect rather than to connect a second account.
+		const text = protectedOwner.viewerIsConfirmedOwner
+			? __(
+					'Reconnect your account to restore ownership, or <support>contact support</support>.',
+					'jetpack-connection'
+				)
+			: __(
+					'The confirmed owner account could not be read. Reconnecting it restores ownership, or <support>contact support</support>.',
+					'jetpack-connection'
+				);
+
+		body = createElement(
+			Text,
+			{ size: 13 },
+			createInterpolateElement( text, { support: supportLink() } )
+		);
+	} else if ( kind === 'other-owner' ) {
+		body = createElement(
+			Text,
+			{ size: 13 },
+			createInterpolateElement(
+				sprintf(
+					// translators: %s: "site" or "store".
+					__(
+						'The confirmed %s owner needs to connect their account, or <support>contact support</support>.',
+						'jetpack-connection'
+					),
+					subjectNoun
+				),
+				{ support: supportLink() }
+			)
+		);
+	} else if ( kind === 'connect' ) {
+		body = createElement(
+			Text,
+			{ size: 13 },
+			sprintf(
+				// translators: %s: "site" or "store".
+				__(
+					'Connect your account before you can confirm you are the %s owner.',
+					'jetpack-connection'
+				),
+				subjectNoun
+			)
+		);
+	} else {
+		const requestedBy = sprintf(
+			// translators: %s: "site" or "store".
+			__( 'a plugin on this %s', 'jetpack-connection' ),
+			subjectNoun
+		);
+
+		body = createElement(
+			VStack,
+			{ spacing: 2 },
+			createElement(
+				Button,
+				{
+					variant: 'link',
+					className: 'jetpack-connector__inline-action',
+					onClick: () => {
+						if ( ! window.JetpackConnection?.ProtectedOwnerConfirmation ) {
+							setConfirmError(
+								__(
+									'Could not open the confirmation. Reload the page and try again.',
+									'jetpack-connection'
+								)
+							);
+							return;
+						}
+						setConfirmError( null );
+						setIsConfirmOpen( true );
+					},
+				},
+				sprintf(
+					// translators: %s: "site" or "store".
+					__( 'Confirm you are the %s owner.', 'jetpack-connection' ),
+					subjectNoun
+				)
+			),
+			createElement(
+				Text,
+				{ variant: 'muted', size: 12 },
+				sprintf(
+					// translators: %1$s: who asked for a protected owner. %2$s: "site" or "store".
+					__(
+						'Confirming ownership is requested by %1$s, so important features stay tied to one account. Until an owner is confirmed, some features stay locked and the account that connected this %2$s is shown as a manager. Ownership can be transferred later.',
+						'jetpack-connection'
+					),
+					requestedBy,
+					subjectNoun
+				)
+			)
+		);
+	}
+
+	const Confirmation = window.JetpackConnection?.ProtectedOwnerConfirmation;
+
+	return createElement(
+		VStack,
+		{ spacing: 3, className: 'jetpack-connector__section' },
+		createElement( SectionHeading, {
+			title: __( 'Connection owner', 'jetpack-connection' ),
+			showShield: true,
+		} ),
+		body,
+		confirmError
+			? createElement( ErrorNotice, {
+					message: confirmError,
+					onDismiss: () => setConfirmError( null ),
+				} )
+			: null,
+		isConfirmOpen && Confirmation
+			? createElement( Confirmation, {
+					isOpen: true,
+					apiRoot,
+					apiNonce,
+					subject: subjectNoun,
+					onClose: () => setIsConfirmOpen( false ),
+					onConfirmed: () => window.location.reload(),
+				} )
+			: null
 	);
 }
 
@@ -1161,10 +1430,11 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 		// Current user info + unlink action (only when the viewing admin is linked).
 		currentUser
 			? createElement( UserSection, {
-					title: currentUser.isOwner
-						? __( 'Connected as owner', 'jetpack-connection' )
-						: __( 'Connected as', 'jetpack-connection' ),
+					title: connectedAccountTitle( currentUser ),
 					user: currentUser,
+					// This row stands in for the connection-owner row when the viewer is the
+					// owner, so it carries the shield the other row would have shown.
+					showShield: Boolean( currentUser.isOwner ) && protectedOwnerIsEstablished(),
 					actionSlot:
 						isManagedPlatformSite && currentUser.isOwner
 							? null
@@ -1194,12 +1464,25 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 				} )
 			: null,
 
-		// Connection owner (shown to non-owners and unlinked admins).
-		connectionOwner && ! currentUser?.isOwner
+		// Manager row for a viewer who is not the master. It replaces the connection-owner
+		// row while a protected owner is pending, so the same account is not labeled twice.
+		protectedOwnerIsPending() && connectionOwner && ! currentUser?.isOwner
+			? createElement( UserSection, {
+					title: __( 'Connected as manager', 'jetpack-connection' ),
+					user: connectionOwner,
+					subtitle: false,
+				} )
+			: null,
+
+		protectedOwnerSlotKind() ? createElement( ProtectedOwnerSection ) : null,
+
+		// Connection owner, once a protected owner is established or was never requested.
+		connectionOwner && ! currentUser?.isOwner && ! protectedOwnerIsPending()
 			? createElement( UserSection, {
 					title: __( 'Connection owner', 'jetpack-connection' ),
 					user: connectionOwner,
 					subtitle: false,
+					showShield: protectedOwnerIsEstablished(),
 				} )
 			: null,
 

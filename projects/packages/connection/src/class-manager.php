@@ -1687,6 +1687,12 @@ class Manager {
 			);
 		}
 
+		// A stored binding that already disagrees with the anchor is enough to refuse. WordPress.com
+		// is still asked when this user has no binding, because that answer is what names them.
+		if ( $this->local_anchor_names_someone_else( (int) Utils::get_wpcom_user_id( $user_id ) ) ) {
+			return $this->protected_owner_claimed_by_other();
+		}
+
 		// WordPress.com is asked before anything is written here. It owns the record, so a claim it
 		// has not accepted must not leave a locked anchor behind on this site.
 		$record = $this->assert_protected_owner_record();
@@ -1704,11 +1710,7 @@ class Manager {
 		// Somebody else already holds this site. Beyond support there is no way past this, which is
 		// the point: an owner that could be overwritten by the next claimant protects nobody.
 		if ( 'locked_to_other' === $record['status'] ) {
-			return new WP_Error(
-				'protected_owner_claimed_by_other',
-				__( 'This site is already protected by a different WordPress.com account. Contact support.', 'jetpack-connection' ),
-				array( 'status' => 409 )
-			);
+			return $this->protected_owner_claimed_by_other();
 		}
 
 		// Only an accepted claim is anchored: any other verdict is refused, even one carrying an ID.
@@ -1718,6 +1720,11 @@ class Manager {
 				__( 'Could not confirm the protected owner with WordPress.com.', 'jetpack-connection' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		// A `recorded` answer must not replace an anchor that already names a different account.
+		if ( $this->local_anchor_names_someone_else( (int) $record['wpcom_user_id'] ) ) {
+			return $this->protected_owner_claimed_by_other();
 		}
 
 		// Store the binding the anchor will be compared against, so the gate reads local state from
@@ -1737,6 +1744,37 @@ class Manager {
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 
 		return true;
+	}
+
+	/**
+	 * Whether a WordPress.com user id would replace the stored anchor.
+	 *
+	 * Zero means this user is not named yet, so it is not a conflict.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $wpcom_user_id WordPress.com user the claim would anchor.
+	 * @return bool
+	 */
+	private function local_anchor_names_someone_else( $wpcom_user_id ) {
+		$anchor = Protected_Owner::get_locked();
+
+		return $anchor && $wpcom_user_id && (int) $anchor['wpcom_user_id'] !== (int) $wpcom_user_id;
+	}
+
+	/**
+	 * The support path for a site a different account already protects.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_Error
+	 */
+	private function protected_owner_claimed_by_other() {
+		return new WP_Error(
+			'protected_owner_claimed_by_other',
+			__( 'This site is already protected by a different WordPress.com account. Contact support.', 'jetpack-connection' ),
+			array( 'status' => 409 )
+		);
 	}
 
 	/**
