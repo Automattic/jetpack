@@ -34,7 +34,11 @@ class Image_Guide implements Feature {
 	}
 
 	public function enqueue_assets() {
-		$asset = require __DIR__ . '/dist/guide.min.asset.php';
+		$asset_file = __DIR__ . '/dist/guide.min.asset.php';
+		$asset      = file_exists( $asset_file ) ? require $asset_file : array(
+			'dependencies' => array( 'wp-data', 'wp-i18n', 'wp-polyfill' ),
+			'version'      => JETPACK_BOOST_VERSION,
+		);
 		wp_enqueue_script( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.js', __FILE__ ), $asset['dependencies'], $asset['version'], true );
 		wp_enqueue_style( 'jetpack-boost-guide', plugins_url( 'dist/guide.min.css', __FILE__ ), array(), JETPACK_BOOST_VERSION, 'screen' );
 

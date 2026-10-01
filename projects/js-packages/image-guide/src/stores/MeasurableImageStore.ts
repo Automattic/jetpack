@@ -38,14 +38,26 @@ export class MeasurableImageStore {
 		this.fileSize = this.fact( 'fileSize' );
 		this.sizeOnPage = this.fact( 'sizeOnPage' );
 		this.loading = this.fact( 'loading' );
-		// Match the former store's first-subscriber fetch, including transient savings reads.
+		// Facade weight and savings subscribers activate fetching; analytics snapshots do not.
 		this.fileWeight = this.fact( 'fileWeight', () => this.activate() );
 		this.potentialSavings = readable(
 			() => selectors.getPotentialSavings( this.id ),
-			() => this.fileWeight.subscribe( () => {} )
+			() => this.fileWeight.subscribe( () => {} ),
+			undefined,
+			this.id
 		);
-		this.oversizedRatio = readable( () => selectors.getOversizedRatio( this.id ) );
-		this.expectedSize = readable( () => selectors.getExpectedSize( this.id ) );
+		this.oversizedRatio = readable(
+			() => selectors.getOversizedRatio( this.id ),
+			undefined,
+			undefined,
+			this.id
+		);
+		this.expectedSize = readable(
+			() => selectors.getExpectedSize( this.id ),
+			undefined,
+			undefined,
+			this.id
+		);
 	}
 
 	private fact< K extends keyof ImageFacts >( key: K, start?: () => void ) {
@@ -53,7 +65,8 @@ export class MeasurableImageStore {
 			() => selectors.getImageFacts( this.id )[ key ],
 			value => commands.updateImage( this.id, { [ key ]: value } ),
 			start,
-			() => selectors.getImageRevision( this.id, key )
+			() => selectors.getImageRevision( this.id, key ),
+			this.id
 		);
 	}
 
@@ -77,6 +90,7 @@ export class MeasurableImageStore {
 	}
 
 	private async updateFileDimensions() {
+		// The source can change on resize; subsequent weight activation must use the new URL.
 		if ( this.image.getURL() === this.currentSrc ) {
 			return;
 		}

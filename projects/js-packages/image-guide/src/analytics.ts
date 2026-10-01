@@ -91,7 +91,10 @@ export default class ImageGuideAnalytics {
 
 						resolve( props );
 					}
-				}
+				},
+				undefined,
+				undefined,
+				imageStore.id
 			);
 		} );
 	}

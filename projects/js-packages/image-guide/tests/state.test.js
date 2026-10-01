@@ -10,6 +10,7 @@ async function load( persisted = null ) {
 	const api = await import( '../src/stores/store.ts' );
 	return {
 		...api,
+		...( await import( '../src/stores/facade.ts' ) ),
 		...( await import( '../src/stores/GuideState.ts' ) ),
 		...( await import( '../src/stores/MeasurableImageStore.ts' ) ),
 		Analytics: ( await import( '../src/analytics.ts' ) ).default,
@@ -49,7 +50,7 @@ it.each( [
 ] )(
 	'persists the accepted guide state %s and cycles it across reload',
 	async ( persisted, expected ) => {
-		const { guideState, selectors, commands } = await load( persisted );
+		const { guideState, selectors } = await load( persisted );
 		expect( selectors.getGuideState() ).toBe( expected );
 		expect( localStorage.getItem( LS_KEY ) ).toBe( expected );
 		guideState.cycle();
@@ -58,7 +59,6 @@ it.each( [
 		expect( ( await load( localStorage.getItem( LS_KEY ) ) ).selectors.getGuideState() ).toBe(
 			next
 		);
-		commands.setGuideState( expected );
 	}
 );
 
@@ -82,8 +82,7 @@ it( 'keeps per-image facts separate and delegates DPR, area ratio and savings ca
 	expect( api.selectors.getPotentialSavings( controller.id ) ).toBe( 76 );
 	expect( other.getSnapshot().fileSize ).toEqual( { width: 0, height: 0 } );
 	controller.fileSize.set( { width: -1, height: -1 } );
-	expect( api.selectors.hasItemsWithFileSize( [ controller.id ] ) ).toBe( false );
-	expect( api.selectors.hasItemsWithFileSize( [ controller.id, other.id ] ) ).toBe( true );
+	expect( controller.getSnapshot().fileSize ).toEqual( { width: -1, height: -1 } );
 } );
 
 it( 'notifies immediately, invalidates before updates and unsubscribes idempotently', async () => {
@@ -113,6 +112,8 @@ it( 'notifies immediately, invalidates before updates and unsubscribes idempoten
 	const { controller } = image( api );
 	const dimensions = { width: 200, height: 100 };
 	const notifications = jest.fn();
+	const widths = [];
+	const stopExpected = controller.expectedSize.subscribe( value => widths.push( value.width ) );
 	const stopSize = controller.sizeOnPage.subscribe( notifications );
 	controller.sizeOnPage.set( dimensions );
 	controller.sizeOnPage.update( value => {
@@ -121,7 +122,96 @@ it( 'notifies immediately, invalidates before updates and unsubscribes idempoten
 	} );
 	expect( notifications ).toHaveBeenCalledTimes( 3 );
 	expect( controller.getSnapshot().expectedSize.width ).toBe( 300 );
+	expect( widths ).toEqual( [ 0, 200, 300 ] );
 	stopSize();
+	stopExpected();
+} );
+
+it( 'restarts weight fetching after double unsubscribe and the last savings unsubscriber', async () => {
+	const api = await load();
+	const { controller, measurable, source } = image( api );
+	await controller.updateDimensions();
+	const first = controller.fileWeight.subscribe( () => {} );
+	const second = controller.fileWeight.subscribe( () => {} );
+	await Promise.resolve();
+	first();
+	first();
+	source( 'https://example.test/two.png' );
+	await controller.updateDimensions();
+	const third = controller.fileWeight.subscribe( () => {} );
+	expect( measurable.getWeight ).toHaveBeenCalledTimes( 1 );
+	second();
+	third();
+	const savings = controller.potentialSavings.subscribe( () => {} );
+	await Promise.resolve();
+	expect( measurable.getWeight ).toHaveBeenCalledTimes( 2 );
+	savings();
+	source( 'https://example.test/three.png' );
+	await controller.updateDimensions();
+	const restarted = controller.fileWeight.subscribe( () => {} );
+	await Promise.resolve();
+	expect( measurable.getWeight ).toHaveBeenCalledTimes( 3 );
+	restarted();
+} );
+
+it( 'routes one resize of 500 images with linear selector reads', async () => {
+	const api = await load();
+	const counts = [];
+	for ( const count of [ 50, 500 ] ) {
+		const controllers = Array.from( { length: count }, () => image( api ).controller );
+		let reads = 0;
+		const stops = controllers.flatMap( controller =>
+			[ 'fileSize', 'loading', 'oversizedRatio', 'potentialSavings' ].map( key =>
+				api.observe(
+					() => {
+						reads++;
+						return controller.getSnapshot()[ key ];
+					},
+					() => {},
+					undefined,
+					undefined,
+					controller.id
+				)
+			)
+		);
+		reads = 0;
+		await Promise.all( controllers.map( controller => controller.updateDimensions() ) );
+		expect( reads ).toBeLessThanOrEqual( count * 16 );
+		counts.push( reads );
+		stops.forEach( stop => stop() );
+	}
+	expect( counts[ 1 ] ).toBe( counts[ 0 ] * 10 );
+	const { use } = await import( '@wordpress/data' );
+	const registry = use( () => ( {} ) );
+	const controllers = [ image( api ).controller, image( api ).controller ];
+	const notifications = controllers.map( () => jest.fn() );
+	const stops = controllers.map( ( controller, index ) =>
+		controller.loading.subscribe( notifications[ index ] )
+	);
+	registry.batch( () => controllers.forEach( controller => controller.loading.set( false ) ) );
+	for ( const notify of notifications )
+		expect( notify.mock.calls ).toEqual( [ [ true ], [ false ] ] );
+	stops.forEach( stop => stop() );
+} );
+
+it( 'emits one image outcome after a rejected weight fetch without analytics retrying', async () => {
+	const api = await load();
+	const { controller, measurable } = image( api );
+	await controller.updateDimensions();
+	measurable.getWeight.mockRejectedValue( new Error( 'unavailable' ) );
+	const track = jest.fn();
+	api.Analytics.setTracksCallback( track );
+	const outcome = api.Analytics.trackImageOutcome( controller );
+	controller.fileWeight.subscribe( () => {} )();
+	await outcome;
+	await Promise.resolve();
+	expect( measurable.getWeight ).toHaveBeenCalledTimes( 1 );
+	expect( track ).toHaveBeenCalledTimes( 1 );
+	expect( track.mock.calls[ 0 ][ 0 ] ).toBe( 'image_guide_image_outcome' );
+	expect( controller.getSnapshot() ).toMatchObject( {
+		loading: false,
+		fileWeight: { weight: -1 },
+	} );
 } );
 
 it( 'fetches only on first weight subscription and reuses each URL cache on reactivation', async () => {

@@ -1,5 +1,4 @@
-import { subscribe } from '@wordpress/data';
-import { store } from './store.ts';
+import { subscribeToFacts } from './store.ts';
 
 export type Readable< T > = {
 	subscribe: ( callback: ( value: T ) => void, invalidate?: () => void ) => () => void;
@@ -13,13 +12,15 @@ export function observe< T >(
 	read: () => T,
 	callback: ( value: T ) => void,
 	revision?: () => number,
-	invalidate?: () => void
+	invalidate?: () => void,
+	imageId?: string
 ) {
 	let value = read();
 	let version = revision?.();
-	const unsubscribe = subscribe( () => {
+	const unsubscribe = subscribeToFacts( () => {
 		const next = read();
 		const nextVersion = revision?.();
+		// Mutable object writes notify; equal primitive values do not.
 		const changed =
 			( next !== value && ! Object.is( next, value ) ) ||
 			( next && typeof next === 'object' && nextVersion !== version );
@@ -29,7 +30,7 @@ export function observe< T >(
 			invalidate?.();
 			callback( value );
 		}
-	}, store );
+	}, imageId );
 	callback( value );
 	return unsubscribe;
 }
@@ -37,7 +38,8 @@ export function observe< T >(
 export function readable< T >(
 	read: () => T,
 	start?: () => void | ( () => void ),
-	revision?: () => number
+	revision?: () => number,
+	imageId?: string
 ): Readable< T > {
 	let subscribers = 0;
 	let stop: void | ( () => void );
@@ -46,7 +48,7 @@ export function readable< T >(
 			if ( subscribers++ === 0 ) {
 				stop = start?.();
 			}
-			const unsubscribe = observe( read, callback, revision, invalidate );
+			const unsubscribe = observe( read, callback, revision, invalidate, imageId );
 			let active = true;
 			return () => {
 				if ( ! active ) {
@@ -68,7 +70,12 @@ export function writable< T >(
 	read: () => T,
 	set: ( value: T ) => void,
 	start?: () => void | ( () => void ),
-	revision?: () => number
+	revision?: () => number,
+	imageId?: string
 ): Writable< T > {
-	return { ...readable( read, start, revision ), set, update: updater => set( updater( read() ) ) };
+	return {
+		...readable( read, start, revision, imageId ),
+		set,
+		update: updater => set( updater( read() ) ),
+	};
 }

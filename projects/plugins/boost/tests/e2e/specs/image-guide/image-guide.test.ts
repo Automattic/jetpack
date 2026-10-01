@@ -52,7 +52,7 @@ test.describe( 'Image Guide', () => {
 
 		const toggle = page.locator( '#jetpack-boost-guide-bar' );
 		await expect( toggle ).toHaveText( 'Image Guide: Active' );
-		await page.locator( '.interaction-area' ).hover();
+		await page.locator( '.interaction-area' ).first().hover();
 		await expect( page.locator( '.jetpack-boost-guide-popup' ) ).toContainText(
 			'Image File Dimensions'
 		);
