@@ -589,7 +589,13 @@ function protectedOwnerIsEstablished() {
  * @return {boolean} True when the release row should be shown.
  */
 function canReleaseProtectedOwner() {
-	return protectedOwnerIsEstablished() && Boolean( protectedOwner?.viewerIsConfirmedOwner );
+	// Holding the connection too, which is the gate the release endpoint applies: a settled site
+	// has the anchored owner there, and a shared binding alone would earn a 403.
+	return (
+		protectedOwnerIsEstablished() &&
+		Boolean( protectedOwner?.viewerIsConfirmedOwner ) &&
+		Boolean( currentUser?.isOwner )
+	);
 }
 
 /**

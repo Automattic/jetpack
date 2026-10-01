@@ -300,9 +300,11 @@ class Jetpack_Connector {
 			return true;
 		}
 
-		// `RE_EVALUATE` is the anchored state where the connection owner matches the anchor,
-		// which is what `has_protected_owner()` answers true to.
-		return Manager::PO_STATE_RE_EVALUATE === $state['status'] && $state['is_current_user_the_po'];
+		// `RE_EVALUATE` is the anchored state where the connection owner matches the anchor, so
+		// pinning the viewer to that owner is the same gate the release endpoint applies — a
+		// matching binding alone would offer a dialog the endpoint then refuses.
+		return Manager::PO_STATE_RE_EVALUATE === $state['status']
+			&& get_current_user_id() === (int) $manager->get_connection_owner_id();
 	}
 
 	/**

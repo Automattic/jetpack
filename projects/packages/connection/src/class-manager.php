@@ -2169,8 +2169,11 @@ class Manager {
 	 * Whether the current user may move the connection despite a locked anchor.
 	 *
 	 * The anchor protects an identity, so the owner it names is the one person it is not against.
-	 * WordPress.com reads the same thing from the request signature, which is what lets it accept
-	 * a switch the owner signed.
+	 *
+	 * A local hint rather than proof of who that is: the binding is not unique site-wide, and the
+	 * anchored owner is often not the connection owner here — taking a site back from an agency is
+	 * the point — so there is no stronger identity to check. WordPress.com decides, marking a
+	 * switch `po_signed` only when the signing token belongs to the owner of record.
 	 *
 	 * A consumer locking ownership through the filter is a separate refusal that still applies to
 	 * everybody, so it is re-read here with the anchor out of the way.
@@ -2193,8 +2196,8 @@ class Manager {
 			return false;
 		}
 
-		// The stored binding, never a search for whoever holds the anchored ID, so a row written
-		// on another user cannot let them move the site.
+		// This user's own binding, never a search for whoever holds the anchored ID, which would
+		// hand the site to the first match.
 		if ( Utils::get_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
 			return false;
 		}

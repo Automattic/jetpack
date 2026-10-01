@@ -1122,9 +1122,21 @@ class REST_Endpoints_Test extends TestCase {
 	 */
 	public function test_release_owner_rejects_an_admin_sharing_the_anchored_id() {
 		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		// Both hold tokens, or the owner's missing one settles this before the identity check.
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				self::$user_id           => 'ownerkey.private.' . self::$user_id,
+				self::$secondary_user_id => 'ownerkey.private.' . self::$secondary_user_id,
+			)
+		);
 		update_user_meta( self::$user_id, 'wpcom_user_id', 4242 );
 		update_user_meta( self::$secondary_user_id, 'wpcom_user_id', 4242 );
 		Protected_Owner::set( 4242, self::$user_id );
+
+		$state = ( new Manager() )->resolve_protected_owner_state();
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'], 'Test setup: the site is settled.' );
+		$this->assertTrue( $state['is_current_user_the_po'], 'Test setup: the binding alone would admit them.' );
 
 		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
 
