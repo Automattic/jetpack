@@ -10,6 +10,7 @@ use Automattic\Jetpack\PremiumAnalytics\Widget_Type_Registry;
 use Automattic\Jetpack\VideoPress\Analytics_Dashboard;
 use Brain\Monkey\Functions;
 use PHPUnit\Framework\Attributes\CoversFunction;
+use const Automattic\Jetpack\PremiumAnalytics\REGISTRABLE_WIDGET_TYPES_FILTER;
 
 // Required by path, like the section API below: the vendored classmap predates these classes.
 require_once Jetpack_Mu_Wpcom::PKG_DIR . 'vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
@@ -35,7 +36,7 @@ class Videopress_Widgets_Test extends \WorDBless\BaseTestCase {
 	 */
 	public function set_up() {
 		parent::set_up();
-		add_filter( Analytics_Dashboard::WIDGET_MANIFEST_FILTER, array( $this, 'widget_manifest' ) );
+		add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, array( $this, 'widget_manifest' ) );
 	}
 
 	/**
@@ -62,7 +63,7 @@ class Videopress_Widgets_Test extends \WorDBless\BaseTestCase {
 	 * Reset the widget registry between tests.
 	 */
 	public function tear_down() {
-		remove_filter( Analytics_Dashboard::WIDGET_MANIFEST_FILTER, array( $this, 'widget_manifest' ) );
+		remove_filter( REGISTRABLE_WIDGET_TYPES_FILTER, array( $this, 'widget_manifest' ) );
 		$instance = new ReflectionProperty( Widget_Type_Registry::class, 'instance' );
 		if ( PHP_VERSION_ID < 80100 ) {
 			$instance->setAccessible( true );

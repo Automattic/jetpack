@@ -17,7 +17,6 @@ use WorDBless\BaseTestCase;
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-enablement-setting.php';
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/dashboard-sections.php';
-require_once __DIR__ . '/mocks/analytics-dashboard-manifest-fixture.php';
 
 /**
  * Without the widget contract version, the widget type waits and the layout seed still lands: the
@@ -33,11 +32,6 @@ require_once __DIR__ . '/mocks/analytics-dashboard-manifest-fixture.php';
 #[RunTestsInSeparateProcesses]
 #[PreserveGlobalState( false )]
 class Analytics_Dashboard_Without_Widget_Types_Test extends BaseTestCase {
-
-	public function set_up() {
-		parent::set_up();
-		add_filter( Analytics_Dashboard::WIDGET_MANIFEST_FILTER, 'jetpack_videopress_test_widget_manifest' );
-	}
 
 	public function test_the_widget_type_waits_for_the_widget_contract_version() {
 		$this->assertFalse( defined( 'Automattic\\Jetpack\\PremiumAnalytics\\WIDGET_API_VERSION' ) );

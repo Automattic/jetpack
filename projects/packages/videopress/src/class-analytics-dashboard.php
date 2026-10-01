@@ -53,15 +53,10 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-videopress-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: the leaderboard primitives and the video
+	 * Lowest widget contract the build works against: the Leaderboard component and the video
 	 * plays hook the widget imports reached the SDK in 1.2.0.
 	 */
 	const MIN_WIDGET_API_VERSION = '1.2.0';
-
-	/**
-	 * Filter over the manifest the package registers from.
-	 */
-	const WIDGET_MANIFEST_FILTER = 'jetpack_videopress_analytics_dashboard_widget_manifest';
 
 	/**
 	 * Hook the registrant on the dashboard's registry action and the seed on its layout filter.
@@ -95,13 +90,8 @@ class Analytics_Dashboard {
 			return;
 		}
 
-		$widgets = self::get_widget_manifest();
-		if ( ! $widgets ) {
-			return;
-		}
-
 		register_widget_types_from_manifest(
-			$widgets,
+			self::get_widget_manifest(),
 			array(
 				'textdomain'    => self::TEXTDOMAIN,
 				'i18n_manifest' => add_query_arg( 'ver', Package_Version::PACKAGE_VERSION, plugins_url( 'i18n-manifest.json', self::build_dir() . '/build.php' ) ),
@@ -170,25 +160,17 @@ class Analytics_Dashboard {
 	}
 
 	/**
-	 * The widget manifest the package registers from: what its build generated, unless filtered.
+	 * The widget manifest the package registers from: what its build generated, none without a build.
 	 *
 	 * @return array[] Manifest entries, as `jetpack_videopress_get_registered_widget_modules()` returns them.
 	 */
 	private static function get_widget_manifest() {
 		self::load_build();
-		$widgets = array();
-		if ( function_exists( 'jetpack_videopress_get_registered_widget_modules' ) ) {
-			$widgets = jetpack_videopress_get_registered_widget_modules();
+		if ( ! function_exists( 'jetpack_videopress_get_registered_widget_modules' ) ) {
+			return array();
 		}
 
-		/**
-		 * Filters the widget manifest the package registers on the Premium Analytics dashboard.
-		 *
-		 * @since $$next-version$$
-		 *
-		 * @param array[] $widgets Manifest entries, each with a `name`.
-		 */
-		return (array) apply_filters( self::WIDGET_MANIFEST_FILTER, $widgets );
+		return (array) jetpack_videopress_get_registered_widget_modules();
 	}
 
 	/**

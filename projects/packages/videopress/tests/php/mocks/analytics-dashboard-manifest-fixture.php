@@ -1,7 +1,7 @@
 <?php
 /**
- * Fixture manifest for the Premium Analytics registrant tests, hooked on the package's manifest
- * filter so the tests read the same entries with or without a local build.
+ * Fixture manifest for the Premium Analytics registrant tests, hooked on the dashboard's
+ * registrable-types filter so the tests read the same entries with or without a local build.
  *
  * @package automattic/jetpack-videopress
  */

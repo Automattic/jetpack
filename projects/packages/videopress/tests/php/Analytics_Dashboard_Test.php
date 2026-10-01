@@ -16,6 +16,7 @@ use WorDBless\BaseTestCase;
 use function Automattic\Jetpack\PremiumAnalytics\get_registered_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_default_dashboard_sections;
 use const Automattic\Jetpack\PremiumAnalytics\DASHBOARD_NAME;
+use const Automattic\Jetpack\PremiumAnalytics\REGISTRABLE_WIDGET_TYPES_FILTER;
 
 // Required by path, like the consumers do: the dashboard API is not autoloaded.
 require_once __DIR__ . '/../../vendor/automattic/jetpack-premium-analytics/src/class-capabilities.php';
@@ -40,7 +41,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		parent::set_up();
 
 		add_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
-		add_filter( Analytics_Dashboard::WIDGET_MANIFEST_FILTER, 'jetpack_videopress_test_widget_manifest' );
+		add_filter( REGISTRABLE_WIDGET_TYPES_FILTER, 'jetpack_videopress_test_widget_manifest' );
 	}
 
 	/**
@@ -50,7 +51,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		remove_action( Analytics_Dashboard::REGISTER_WIDGET_TYPES_ACTION, array( Analytics_Dashboard::class, 'register_widget_types' ), 20 );
 		remove_filter( Analytics_Dashboard::DEFAULT_LAYOUT_FILTER, array( Analytics_Dashboard::class, 'add_default_layout_instance' ), 10 );
 		remove_filter( 'jetpack_premium_analytics_widgets_manifest_path', array( $this, 'use_absent_widget_manifest' ) );
-		remove_filter( Analytics_Dashboard::WIDGET_MANIFEST_FILTER, 'jetpack_videopress_test_widget_manifest' );
+		remove_filter( REGISTRABLE_WIDGET_TYPES_FILTER, 'jetpack_videopress_test_widget_manifest' );
 
 		foreach ( array( Dashboard_Section_Registry::class, Widget_Type_Registry::class ) as $class ) {
 			$instance = new \ReflectionProperty( $class, 'instance' );
