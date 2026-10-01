@@ -24,7 +24,6 @@ export function getPostsReportQueryParams( reportParams: ReportParams ): StatsRe
 
 type PostsCsvRow = { label?: unknown; views: number; link?: string | null };
 
-/** Title, Views, and URL: the columns both Posts & pages tabs export. */
 function getPostsCsvColumns< Row extends PostsCsvRow >(): CsvColumn< Row >[] {
 	return [
 		{
@@ -47,12 +46,6 @@ export type ArchiveRow = {
 	isGroup: boolean;
 };
 
-/**
- * Human-readable labels for the archive-type keys returned by the API.
- *
- * @param archiveType - The raw archive-type key.
- * @return The archive type's display label.
- */
 export function getArchiveTypeLabel( archiveType: string ): string {
 	// Mirrors Calypso's `getArchiveKeyLabel`; `post_type` is PA-only, Calypso capitalizes it.
 	switch ( archiveType ) {
@@ -83,26 +76,13 @@ export function getArchiveTypeLabel( archiveType: string ): string {
 	}
 }
 
-/**
- * Humanize an intermediate archive group such as a taxonomy key.
- *
- * @param label - The raw group label.
- * @return The human-readable group label.
- */
+/** Humanize an intermediate archive group such as a taxonomy key. */
 export function getArchiveGroupLabel( label: string ): string {
 	const spaced = label.replace( /_/g, ' ' );
 	return spaced.charAt( 0 ).toUpperCase() + spaced.slice( 1 );
 }
 
-/**
- * Convert one normalized archive item into DataViews' flat hierarchy shape.
- *
- * @param item       - The normalized archive item.
- * @param id         - Stable ID for the item.
- * @param parentId   - Stable ID of the parent item, when nested.
- * @param isTopLevel - Whether this item is an archive-type row.
- * @return The item followed by all of its descendants.
- */
+/** An archive item and its descendants as flat rows; top-level items are archive types. */
 function buildArchiveEntryRows(
 	item: StatsArchivesItem | StatsArchivesComparisonItem,
 	id: string,
@@ -140,14 +120,7 @@ function buildArchiveEntryRows(
 	];
 }
 
-/**
- * Flatten the normalized archives tree while retaining parent IDs for
- * DataViews' native hierarchy. The API's value-sorted order is preserved at
- * each level; the table can also re-sort siblings without breaking nesting.
- *
- * @param items - The top-level archive groups.
- * @return Parent and child rows in depth-first order.
- */
+/** Flatten the archives tree depth-first, keeping parent IDs for DataViews' hierarchy. */
 export function buildArchiveRows(
 	items: Array< StatsArchivesItem | StatsArchivesComparisonItem >
 ): ArchiveRow[] {
@@ -157,14 +130,8 @@ export function buildArchiveRows(
 }
 
 /**
- * Prepare the archive rows for CSV export the way legacy Stats does: group
- * rows stay in as subtotals, and every descendant carries its ancestors in the
- * label (`Tags > video`) so a row still identifies itself once the table's
- * nesting is gone. `buildArchiveRows` emits parents ahead of their children,
- * so each parent's full label is already resolved by the time a child needs it.
- *
- * @param rows - The flat archive rows, in depth-first order.
- * @return The same rows, with ancestor-qualified labels.
+ * Prefix each label with its ancestors (`Tags > video`), as legacy Stats' CSV does.
+ * Relies on depth-first order, so a parent's label resolves before its children's.
  */
 export function buildArchiveCsvRows( rows: ArchiveRow[] ): ArchiveRow[] {
 	const pathById = new Map< string, string >();

@@ -18,11 +18,7 @@ type ExporterCsvDownloadButtonProps< TItem, TRow > = Omit<
 	rowCount: number;
 };
 
-/**
- * Widget action that fetches the linked report through its exporter on click and saves its CSV.
- *
- * @return The rendered action, or null until the widget has settled rows to back it.
- */
+/** Widget action that downloads the linked report's full CSV once the widget's rows settle. */
 export function ExporterCsvDownloadButton< TItem, TRow >( {
 	exporter,
 	status,
