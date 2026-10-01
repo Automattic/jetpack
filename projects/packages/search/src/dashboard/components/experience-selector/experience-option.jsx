@@ -1,10 +1,8 @@
-// eslint-disable-next-line @wordpress/no-unsafe-wp-apis -- ConfirmDialog is the canonical WP confirm pattern; still under the experimental flag in @wordpress/components 33.
-import { __experimentalConfirmDialog as ConfirmDialog } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { createInterpolateElement, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import { Icon, cancelCircleFilled } from '@wordpress/icons';
-import { Badge, Stack } from '@wordpress/ui';
+import { AlertDialog, Badge, Stack } from '@wordpress/ui';
 import clsx from 'clsx';
 import { STORE_ID } from 'store';
 import CardLink from './card-link';
@@ -310,21 +308,24 @@ export default function ExperienceOption( { experience, disabled = false } ) {
 					}
 				/>
 			) }
-			<ConfirmDialog
-				isOpen={ isConfirmOpen }
+			<AlertDialog.Root
+				open={ isConfirmOpen }
+				onOpenChange={ setConfirmOpen }
 				onConfirm={ () => {
+					// Not returned: a promise would hold the dialog open until the save settles.
 					saveExperience( experience );
-					setConfirmOpen( false );
 				} }
-				onCancel={ () => setConfirmOpen( false ) }
-				confirmButtonText={ getCommitLabel( experience ) }
 			>
-				{ sprintf(
-					/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
-					__( 'Switch the visitor-facing search experience to %s?', 'jetpack-search-pkg' ),
-					getCardTitle( experience )
-				) }
-			</ConfirmDialog>
+				<AlertDialog.Popup
+					title={ getCommitLabel( experience ) }
+					description={ sprintf(
+						/* translators: %s — the human-readable experience name (e.g. "Embedded search"). */
+						__( 'Switch the visitor-facing search experience to %s?', 'jetpack-search-pkg' ),
+						getCardTitle( experience )
+					) }
+					confirmButtonText={ getCommitLabel( experience ) }
+				/>
+			</AlertDialog.Root>
 		</Stack>
 	);
 }
