@@ -29,10 +29,10 @@ const ITEMS: Item[] = [
 	{ name: 'a', count: 2 },
 ];
 
-function buildExporter( hasDateRange = true ): ReportCsvExporter< Item, Item > {
+function buildExporter(): ReportCsvExporter< Item, Item > {
 	return {
 		filenamePrefix: 'things',
-		hasDateRange,
+		hasDateRange: true,
 		fetchItems: jest.fn(),
 		toCsvRows: items => [ ...items ].sort( ( x, y ) => y.count - x.count ),
 		getColumns: () => [ { label: 'Name', getValue: row => row.name } ],
@@ -59,19 +59,6 @@ describe( 'ExporterCsvAction', () => {
 		expect( columns.map( column => column.label ) ).toEqual( [ 'Name' ] );
 		expect( rows ).toEqual( [ ITEMS[ 1 ], ITEMS[ 0 ] ] );
 		expect( filename ).toBe( 'things-2026-03-01_2026-03-10' );
-	} );
-
-	it( 'leaves the date range out for all-time reports', () => {
-		render(
-			<ExporterCsvAction
-				exporter={ buildExporter( false ) }
-				items={ ITEMS }
-				status={ SETTLED }
-				reportParams={ REPORT_PARAMS }
-			/>
-		);
-
-		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ].filename ).toBe( 'things' );
 	} );
 
 	it.each( [

@@ -5,7 +5,6 @@ import { type StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/d
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
@@ -74,7 +73,6 @@ function VideosReport(): JSX.Element {
 		() => getVideosFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
-	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.videos;
@@ -88,8 +86,6 @@ function VideosReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.isLoading && records.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -111,7 +107,8 @@ function VideosReport(): JSX.Element {
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getVideoRowId }
-						isLoading={ isTableLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
 					/>
