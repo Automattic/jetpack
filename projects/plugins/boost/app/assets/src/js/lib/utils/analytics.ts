@@ -3,7 +3,8 @@ import { detectMode } from '$lib/modern/mode';
 
 export type TracksEventProperties = { [ key: string ]: string | number };
 
-// Include Settings controls and their help/upgrade actions; exclude scores, history, and generation outcomes.
+// Include Settings controls and their help/upgrade actions; exclude scores, history, generation outcomes,
+// footer tips and navigation.
 const settingsActions = new Set( [
 	'cornerstone_pages_panel_toggle',
 	'cornerstone_pages_save',
