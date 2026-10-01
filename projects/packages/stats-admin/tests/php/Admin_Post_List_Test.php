@@ -346,6 +346,122 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Get a column whose stats client answers each views request through $callback.
+	 *
+	 * @param callable $callback Receives the request args, returns the API response.
+	 *
+	 * @return Admin_Post_List_Column
+	 */
+	private function get_column_with_views_callback( callable $callback ) {
+		$mock_stats = $this->createStub( Automattic\Jetpack\Stats\WPCOM_Stats::class );
+		$mock_stats->method( 'get_total_post_views' )->willReturnCallback( $callback );
+
+		$column = $this->getMockBuilder( Admin_Post_List_Column::class )
+						->onlyMethods( array( 'get_stats' ) )
+						->getMock();
+		$column->method( 'get_stats' )->willReturn( $mock_stats );
+
+		return $column;
+	}
+
+	/**
+	 * Lists with more than 100 posts are fetched in batches the endpoint accepts.
+	 *
+	 * @return void
+	 */
+	public function test_get_post_page_views_for_current_list_batches_post_ids() {
+		global $wp_query;
+
+		$post_ids = range( 1, 250 );
+		$wp_query = (object) array(
+			'posts' => array_map(
+				function ( $id ) {
+					return (object) array( 'ID' => $id );
+				},
+				$post_ids
+			),
+		);
+
+		$batch_sizes = array();
+		$column      = $this->get_column_with_views_callback(
+			function ( $args ) use ( &$batch_sizes ) {
+				$ids           = explode( ',', $args['post_ids'] );
+				$batch_sizes[] = count( $ids );
+
+				return array(
+					'posts' => array_map(
+						function ( $id ) {
+							return array(
+								'ID'    => (int) $id,
+								'views' => (int) $id * 2,
+							);
+						},
+						$ids
+					),
+				);
+			}
+		);
+
+		$views = $column->get_post_page_views_for_current_list();
+
+		$this->assertSame( array( 100, 100, 50 ), $batch_sizes );
+		$this->assertCount( 250, $views );
+		$this->assertSame( 2, $views[1] );
+		$this->assertSame( 500, $views[250] );
+
+		$wp_query = null;
+	}
+
+	/**
+	 * A failed batch leaves only its own rows without views.
+	 *
+	 * @return void
+	 */
+	public function test_get_post_page_views_for_current_list_skips_failed_batch() {
+		global $wp_query;
+
+		$wp_query = (object) array(
+			'posts' => array_map(
+				function ( $id ) {
+					return (object) array( 'ID' => $id );
+				},
+				range( 1, 150 )
+			),
+		);
+
+		$column = $this->get_column_with_views_callback(
+			function ( $args ) {
+				$ids = explode( ',', $args['post_ids'] );
+
+				if ( in_array( '1', $ids, true ) ) {
+					return new WP_Error( 'invalid_input', 'Too many post_ids' );
+				}
+
+				return array(
+					'posts' => array_map(
+						function ( $id ) {
+							return array(
+								'ID'    => (int) $id,
+								'views' => 7,
+							);
+						},
+						$ids
+					),
+				);
+			}
+		);
+
+		$views = $column->get_post_page_views_for_current_list();
+
+		$this->assertArrayNotHasKey( 1, $views );
+		$this->assertArrayNotHasKey( 100, $views );
+		$this->assertCount( 50, $views );
+		$this->assertSame( 7, $views[101] );
+
+		$wp_query = null;
+	}
+
+	/**
 	 * Test the fallback format to compact.
 	 *
 	 * @return void

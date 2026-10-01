@@ -142,8 +142,8 @@ class Admin_Post_List_Column {
 				static $post_views = null;
 
 				/**
-				 * Jetpack_stats_get_post_page_views_for_current_list makes a request with all post ids in the current $wp_query.
-				 * This way, we'll make a single API request instead of making one for each post.
+				 * Jetpack_stats_get_post_page_views_for_current_list requests all post ids in the current $wp_query, 100 per request.
+				 * This way, we avoid making one API request for each post.
 				 *
 				 * For this reason, we'll cache the result with the static $post_views variable.
 				 */
@@ -257,21 +257,24 @@ class Admin_Post_List_Column {
 		}
 
 		$wpcom_stats = $this->get_stats();
-		$post_views  = $wpcom_stats->get_total_post_views(
-			array(
-				'num'      => 30,
-				'post_ids' => implode( ',', $post_ids ),
-			)
-		);
+		$views       = array();
 
-		if ( is_wp_error( $post_views ) || empty( $post_views ) ) {
-			return array();
-		}
+		// The endpoint takes at most 100 post IDs, and hierarchical lists load every post at once.
+		foreach ( array_chunk( $post_ids, 100 ) as $batch ) {
+			$post_views = $wpcom_stats->get_total_post_views(
+				array(
+					'num'      => 30,
+					'post_ids' => implode( ',', $batch ),
+				)
+			);
 
-		$views = array();
+			if ( is_wp_error( $post_views ) || empty( $post_views['posts'] ) ) {
+				continue;
+			}
 
-		foreach ( $post_views['posts'] as $post ) {
-			$views[ $post['ID'] ] = $post['views'];
+			foreach ( $post_views['posts'] as $post ) {
+				$views[ $post['ID'] ] = $post['views'];
+			}
 		}
 
 		return $views;
