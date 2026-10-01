@@ -1,3 +1,4 @@
+import { BaseTooltip } from '@jetpack-premium-analytics/externals';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { formatTooltipPointLabel } from '../../../helpers';
 import { ChartTooltip, type TooltipStyle } from '../chart-tooltip';
@@ -15,19 +16,15 @@ const meta: Meta< typeof ChartTooltip > = {
 export default meta;
 type Story = StoryObj< typeof ChartTooltip >;
 
+const IN_FLOW = { position: 'static', transform: 'none' } as const;
+
 /**
- * Helper wrapper for tooltip stories with consistent background.
+ * The charts tooltip box, taken out of its absolute position so the story can center it.
  */
 const TooltipWrapper = ( { children }: { children: React.ReactNode } ) => (
-	<div
-		style={ {
-			background: 'var(--wpds-color-background-surface-neutral)',
-			padding: '20px',
-			borderRadius: '8px',
-		} }
-	>
+	<BaseTooltip top={ 0 } left={ 0 } style={ IN_FLOW }>
 		{ children }
-	</div>
+	</BaseTooltip>
 );
 
 /**
