@@ -6,6 +6,7 @@
 export {
 	ChartEmptyState,
 	EarningsHistoryList,
+	Leaderboard,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	MetricTileGrid,
@@ -16,12 +17,14 @@ export {
 	WidgetState,
 	buildMetricTab,
 	chartTypeAttributeField,
+	describeError,
 	flattenEarningsBreakdown,
 	useWidgetRootContext,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 export {
 	ReportScopeProvider,
 	chartInterval,
+	useStatsVideoPlays,
 	useStatsWordAdsEarnings,
 	useStatsWordAdsStats,
 } from '@jetpack-premium-analytics/data';
