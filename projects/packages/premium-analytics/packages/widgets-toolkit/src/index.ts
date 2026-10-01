@@ -173,12 +173,12 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	ExporterCsvAction,
 	ReportCsvAction,
 	type ReportCsvActionProps,
+	ExporterCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
-	RowsCsvDownloadButton,
-	type RowsCsvDownloadButtonProps,
 	useReportCsvExport,
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
@@ -199,6 +199,19 @@ export {
 	SkeletonRoot,
 	type SkeletonRootProps,
 } from './components';
+
+/**
+ * Report CSV exports
+ */
+export {
+	archivesCsvExporter,
+	buildArchiveRows,
+	getArchiveGroupLabel,
+	getArchiveTypeLabel,
+	getPostsReportQueryParams,
+	postsPagesCsvExporter,
+	type ArchiveRow,
+} from './report-exports';
 
 /**
  * Constants
@@ -237,7 +250,6 @@ export {
 	buildCsv,
 	buildCsvDateRangeFilename,
 	saveCsv,
-	withComparisonColumns,
 	type CsvColumn,
 	type CsvDateRange,
 	getCombinedPeriodMax,

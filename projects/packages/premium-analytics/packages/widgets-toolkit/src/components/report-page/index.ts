@@ -7,6 +7,7 @@ export {
 export { ReportChartSection, type ReportChartSectionProps } from './report-chart-section';
 export { ReportErrorState, type ReportErrorStateProps } from './report-error-state';
 export { ReportLocationsMap, type ReportLocationsMapProps } from './report-locations-map';
+export { ExporterCsvAction } from './exporter-csv-action';
 export { ReportCsvAction, type ReportCsvActionProps } from './report-csv-action';
 export { ReportPageShell, type ReportPageShellProps } from './report-page-shell';
 export {
