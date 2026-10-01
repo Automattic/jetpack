@@ -13,27 +13,24 @@
 /**
  * Whether the WordPress Agent is enabled on this site.
  *
- * Mirrors the gate that decides whether the Big Sky plugin loads at all:
- * the site-level "Enable WordPress Agent" setting, plus the plugin's own
- * `big_sky_enable` option, which a site admin can switch off under
- * Settings > Writing. The option lives in the site database, so it stays
- * readable whether or not the plugin is loaded.
+ * The `big_sky_enable` option is read on both platforms, but it means
+ * different things. On Simple it is the admin's opt-out under Settings >
+ * Writing, so it defaults to on and the platform's `big_sky_is_enabled()`
+ * (blog sticker, Garden sites, AI-assembler onboarding) owns the site-level
+ * setting. On Atomic it is the site-level setting itself: WordPress.com writes
+ * it to the site when the WordPress Agent is switched on, and the plugin
+ * clears it on deactivation. The `big-sky-enabled` blog sticker is not synced
+ * to Atomic, so it cannot be used there.
  *
  * @return bool
  */
 function wpcom_agents_manager_is_wordpress_agent_enabled(): bool {
-	if ( ! get_option( 'big_sky_enable', '1' ) ) {
-		return false;
-	}
-
-	// On Simple sites the WordPress.com platform owns the full predicate
-	// (blog sticker, Garden sites, AI-assembler onboarding).
 	if ( function_exists( 'big_sky_is_enabled' ) ) {
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Provided by WPCOM's Big Sky mu-plugin; guarded by function_exists() above.
-		return (bool) big_sky_is_enabled();
+		return (bool) get_option( 'big_sky_enable', '1' ) && (bool) big_sky_is_enabled();
 	}
 
-	return wpcom_has_blog_sticker( 'big-sky-enabled', get_wpcom_blog_id() );
+	return (bool) get_option( 'big_sky_enable', '0' );
 }
 
 /**

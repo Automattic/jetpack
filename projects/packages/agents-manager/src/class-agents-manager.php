@@ -305,7 +305,7 @@ class Agents_Manager {
 		$enabled = false;
 
 		if ( self::is_block_editor() && apply_filters( 'agents_manager_enabled_in_block_editor', false ) ) {
-			// Block editor only: Agents Manager replaces Big Sky's native UI. Hooked by Big Sky.
+			// Block editor only. Hooked by hosts such as jetpack-mu-wpcom and the Jetpack AI Sidebar.
 			$enabled = true;
 		}
 

@@ -43,10 +43,20 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Without the WordPress Agent on the site, the filter stays false.
+	 * Off Simple, without the option WordPress.com writes when the WordPress
+	 * Agent is switched on, the filter stays false.
 	 */
 	public function test_stays_false_without_the_wordpress_agent() {
 		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
+	}
+
+	/**
+	 * Off Simple, the option written by WordPress.com decides.
+	 */
+	public function test_enabled_by_the_option_off_simple() {
+		update_option( 'big_sky_enable', '1' );
+
+		$this->assertTrue( wpcom_agents_manager_enable_in_block_editor( false ) );
 	}
 
 	/**
@@ -68,35 +78,31 @@ class WPCOM_Agents_Manager_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Off Simple, the big-sky-enabled blog sticker decides.
+	 * On Simple, the platform saying no wins even though the option defaults to on.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_enabled_by_the_big_sky_enabled_sticker() {
-		if ( ! defined( 'IS_WPCOM' ) ) {
-			define( 'IS_WPCOM', true );
-		}
+	public function test_stays_false_when_the_platform_reports_big_sky_disabled() {
+		eval( 'function big_sky_is_enabled() { return false; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
-		eval( 'function has_blog_sticker( $sticker, $blog_id ) { return "big-sky-enabled" === $sticker; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
-
-		$this->assertTrue( wpcom_agents_manager_enable_in_block_editor( false ) );
+		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
 	}
 
 	/**
-	 * The plugin's own opt-out option wins over the site-level setting.
+	 * On Simple, the admin's opt-out option wins over the site-level setting.
 	 *
 	 * @runInSeparateProcess
 	 * @preserveGlobalState disabled
 	 */
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
-	public function test_big_sky_enable_option_switches_it_off() {
+	public function test_big_sky_enable_option_switches_it_off_on_simple() {
 		eval( 'function big_sky_is_enabled() { return true; }' ); // phpcs:ignore Squiz.PHP.Eval.Discouraged,MediaWiki.Usage.ForbiddenFunctions.eval
 
-		update_option( 'big_sky_enable', 0 );
+		update_option( 'big_sky_enable', '0' );
 
 		$this->assertFalse( wpcom_agents_manager_enable_in_block_editor( false ) );
 	}
