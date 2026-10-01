@@ -83,15 +83,23 @@ Two conditions must hold for My Jetpack to render in the fixture:
 1. **Offline mode off.** The fixture's site URL (`http://localhost:<port>`) has no dot, so `Status::is_local_site()` treats it as a local site and Jetpack enters offline mode, which makes `Initializer::should_initialize()` return false — My Jetpack never registers (no menu, no assets; the page is the generic "invalid page" admin shell). The `simulate-wpcom-connection` mu-plugin flips this with `add_filter( 'jetpack_offline_mode', '__return_false' )`. This is **install-wide** — see the attribution note below.
 2. **`wp-theme` registered.** On trunk (Jetpack 16.1+), `my_jetpack_main_app` gained a `wp-theme` script dependency via the `@wordpress/*` bump (DataViews 17.x → `@wordpress/ui` ThemeProvider → `@wordpress/theme`). WordPress < 7.0 without the Gutenberg plugin does not register `wp-theme`, so WP silently drops the app script and the container stays empty (no console error). [#50291](https://github.com/Automattic/jetpack/pull/50291) fixed this in `My_Jetpack\Initializer` by registering the `WP_Build_Polyfills` shim (as Forms/Social/VideoPress already do). It merged on 2026-07-08 and is present in the `jetpack-production` mirror the fixture clones (verified against mirror commit `9ef44a8`, 2026-07-10: a clean checkout renders My Jetpack and passes every capture guard). Treat it as a baseline prerequisite: a mirror checkout that predates #50291 renders the page empty and fails the `waitForSelector`.
 
+### Offline-mode flip — attribution note
+
+This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because one WordPress install serves every scenario, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
+
+The `forms-responses-*` trends could not be measured before/after locally at the time this landed: the Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalls in the local headless-Chromium fixture (later tracing for FORMS-729 showed the server answers in milliseconds — a browser-side delivery stall, local-only, with offline on or off), so under the scenario's original `networkidle` gate every iteration timed out. FORMS-729 has since moved the Forms scenario to `loadState: 'load'` plus a fail-closed resource-count settle (see `scenarios.js`), which measures cleanly despite the stall. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
+
 ### Admin backend metrics (`Server-Timing`)
 
-The fixture's `emit-server-timing.php` mu-plugin buffers admin HTML responses before output is committed. The measured reload's navigation response supplies three metrics; login, warm-up, AJAX, CLI, cron, redirects and non-HTML responses do not supply samples. The raw header and browser `navigation.serverTiming` entries are retained in each iteration for inspection. Missing, duplicate or invalid `dur` parameters fail the iteration rather than becoming zero. Existing summary rounding (whole units) and completeness/failure policies apply; Dashboard remains required, Forms and My Jetpack remain optional.
+The fixture's `emit-server-timing.php` mu-plugin buffers non-AJAX admin responses and emits headers only for successful HTML responses. The measured reload's navigation response supplies three metrics; login, warm-up, AJAX, CLI, cron, redirects and non-HTML responses do not supply samples. The raw header and browser `navigation.serverTiming` entries are retained in each iteration for inspection. Missing, duplicate or invalid `dur` parameters leave the three backend values absent and retain a `serverTimingError`, response status and valid browser samples. A backend field needs a strict majority of finite samples; an incomplete posted summary fails its scenario rather than becoming zero. Existing summary rounding (whole units) and completeness/failure policies apply; Dashboard remains required, Forms and My Jetpack remain optional.
 
 | Header            | Summary field / type | Unit  | Meaning                                                                                                                                           |
 | ----------------- | -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `wp-total`        | `wpTotal`            | ms    | Wall time from PHP's request start to final buffered response completion, including simulator delays; distinct from browser TTFB.                 |
+| `wp-total`        | `wpTotal`            | ms    | Wall time from `REQUEST_TIME_FLOAT` to the shutdown buffer flush, including simulator delays; distinct from browser TTFB.                         |
 | `wp-memory-usage` | `wpMemoryUsage`      | bytes | `memory_get_peak_usage()` (PHP-managed allocated memory, including instrumentation buffers), rather than Gutenberg's current live-memory reading. |
-| `wp-db-queries`   | `wpDbQueries`        | count | `$wpdb->num_queries` at response completion; excludes later AJAX/REST requests.                                                                   |
+| `wp-db-queries`   | `wpDbQueries`        | count | `$wpdb->num_queries` at the shutdown buffer flush; excludes later AJAX/REST requests.                                                             |
+
+All three values are read when WordPress flushes output at `shutdown` priority 1 and exclude later shutdown hooks, including the Sync sender. An early buffer end produces no sample. `REQUEST_TIME_FLOAT` precedes Gutenberg's `$timestart` origin, so `wp-total` is not comparable with upstream `wp-total`.
 
 Each field maps to `<prefix>-wp-total-staging`, `<prefix>-wp-memory-usage-staging` or `<prefix>-wp-db-queries-staging`. The exact prefixes are:
 
@@ -105,13 +113,16 @@ These nine keys are staging candidates, with no production enrollment or staging
 
 Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including the simulated connection and instrumentation. A matched no-Jetpack control and overhead deltas require a separate change.
 
-Buffering can move TTFB to response completion. For local verification, pin plugin mirror/upstream hashes, WordPress/PHP images and assets, content, CPU calibration, warm-cache policy and mock latency. Interleave ten pre/post runs of five iterations on the same revision, retain raw samples and capture failures, and compare HTML/status and existing medians. Inspect the header against browser entries; validate counts and peak memory at the emitter boundary and milliseconds with a bounded PHP delay. Summarize per-run medians, MAD, min/max and stddev, then compare 5%, 10% and 20% sustained changes with the digest's noise bar below. Repeated same-hash runs are local variance evidence, never ten commits of digest history. Use `pnpm test:unit`, `pnpm test -- --skip-codevitals`, `pnpm report:dry` and `CODEVITALS_EVOLUTION_URL=... pnpm digest:dry`; dry runs do not validate enrollment.
+Buffering can move TTFB to the shutdown flush. Ten interleaved pre/post runs of five iterations on one pinned fixture (PHP 8.2, CPU 3.85x, mock latency 200 ms) gave these medians of run medians:
 
-### Offline-mode flip — attribution note
+| Scenario   | TTFB before → after (ms) | LCP before → after (ms) | FCP before → after (ms) | Bundle before → after (KB) |
+| ---------- | ------------------------ | ----------------------- | ----------------------- | -------------------------- |
+| Dashboard  | 85 → 78.5                | 168 → 162               | 168 → 162               | 4210 → 4210                |
+| Forms      | 90 → 88.5                | 842 → 778               | 476 → 444               | 7163 → 7163                |
+| My Jetpack | 81.5 → 79                | 907 → 876               | 446 → 430               | 8757 → 8757                |
 
-This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because one WordPress install serves every scenario, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
+All timing differences stayed inside the local digest noise bars (TTFB 5.64–11.46 ms; LCP 22.30–103.47 ms). This evidence cannot exclude smaller effects or predict CI-host behavior; inspect the three `timeToFirstByte` series at the landing commit. Peak memory rose about 131 KB across 20 candidate runs; the cause was not established, so its MAD describes drift as well as noise. Staging builds and measured per-key floors remain necessary.
 
-The `forms-responses-*` trends could not be measured before/after locally at the time this landed: the Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalls in the local headless-Chromium fixture (later tracing for FORMS-729 showed the server answers in milliseconds — a browser-side delivery stall, local-only, with offline on or off), so under the scenario's original `networkidle` gate every iteration timed out. FORMS-729 has since moved the Forms scenario to `loadState: 'load'` plus a fail-closed resource-count settle (see `scenarios.js`), which measures cleanly despite the stall. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
 
 ### Known fixture behavior on the My Jetpack page
 
@@ -200,17 +211,17 @@ CodeVitals is an **append-only** store with no self-service rollback. Once a bad
 
 `post-to-codevitals.js` checks every typed metric against `SANITY_RANGES` in `scenarios.js` before posting. A value outside its range is logged and rejected, and the script exits non-zero so CI surfaces the failure. Live posting is all-or-nothing per run: any sanity failure suppresses the entire POST, so nothing lands and retrying the red build posts the full set exactly once. (That guarantee covers the validation-failure retry only — re-running a green build appends duplicate points unless opt-in cross-commit dedup is enabled.) A dry run still prints the surviving metrics, if any, for diagnostics.
 
-| Metric           | Min  | Max   | Unit |
-| ---------------- | ---- | ----- | ---- |
-| `lcp`            | 100  | 60000 | ms   |
-| `ttfb`           | 10   | 10000 | ms   |
-| `fcp`            | 50   | 30000 | ms   |
-| `tbt`            | 0    | 10000 | ms   |
-| `cls`            | 0    | 5     | —    |
-| `decodedBytesKB` | 1000 | 51200 | KB   |
-| `wpTotal`        | 10   | 60000 | ms   |
+| Metric           | Min     | Max       | Unit  |
+| ---------------- | ------- | --------- | ----- |
+| `lcp`            | 100     | 60000     | ms    |
+| `ttfb`           | 10      | 10000     | ms    |
+| `fcp`            | 50      | 30000     | ms    |
+| `tbt`            | 0       | 10000     | ms    |
+| `cls`            | 0       | 5         | —     |
+| `decodedBytesKB` | 1000    | 51200     | KB    |
+| `wpTotal`        | 10      | 60000     | ms    |
 | `wpMemoryUsage`  | 1048576 | 536870912 | bytes |
-| `wpDbQueries`    | 1    | 10000 | count |
+| `wpDbQueries`    | 1       | 10000     | count |
 
 Add a row when a new metric type starts being posted, and set the `type` on the metric so the check applies to it — either `type` on a `metrics[]` entry (the multi-metric shape) or the scenario-level `metricType` (the legacy single-key shape). A keyed metric with no type is refused (never posted unchecked).
 

@@ -1,7 +1,5 @@
 /**
- * Measure page performance for a WordPress wp-admin scenario: LCP (via PerformanceObserver),
- * TTFB, FCP, and the summed runtime bundle size (decodedBytesKB). Logs in, then reloads either
- * the wp-admin Dashboard (default) or a scenario's targeted admin page, and captures the metrics.
+ * Measure browser performance and backend request metrics for a WordPress scenario.
  */
 
 import fs from 'fs';
@@ -35,7 +33,7 @@ function loadCalibration() {
 const calibration = loadCalibration();
 
 /**
- * Measure LCP (and the other summary fields) for a scenario's page.
+ * Measure browser timings, runtime bundle size and configured backend fields for a scenario.
  *
  * Defaults to the wp-admin Dashboard flow (log in, reload, measure). When the scenario
  * targets a specific admin page, `scenario.path` + `scenario.waitForSelector` steer it to
@@ -47,7 +45,7 @@ const calibration = loadCalibration();
  * @param {string} password   - wp-admin password.
  * @param {number} iterations - Number of measurement iterations.
  * @param {object} [scenario] - Scenario config; reads optional `path`, `waitForSelector`,
- *                            `expectUrlIncludes`, `loadState`, and `minResourceCount`.
+ *                            `expectUrlIncludes`, `loadState`, `minResourceCount`, and `metrics`.
  * @return {Promise<object>} { summary, results, url }.
  */
 async function measureLCP( url, username, password, iterations = 5, scenario = {} ) {
@@ -73,7 +71,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 	// the warm-up settle and the measured settle can never disagree about which path they are on.
 	const useResourceSettle = navWaitUntil !== 'networkidle';
 
-	console.log( `Measuring LCP for ${ url }${ targetPath || '' } (${ iterations } iterations)...` );
+	console.log(
+		`Measuring page performance for ${ url }${ targetPath || '' } (${ iterations } iterations)...`
+	);
 
 	for ( let i = 0; i < iterations; i++ ) {
 		const browser = await chromium.launch( {
@@ -189,8 +189,6 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Step 2: Reload for a clean measurement of the current page — the Dashboard, or the
 			// page navigated to above.
 			const navigationResponse = await page.reload( { waitUntil: navWaitUntil, timeout: 60000 } );
-			const serverTimingHeader = await navigationResponse?.headerValue( 'server-timing' );
-			const serverMetrics = parseServerTiming( serverTimingHeader );
 
 			// Wait for the measured page's content to be present after reload.
 			if ( pageReadySelector ) {
@@ -339,14 +337,10 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				// Fold the summed decoded payload into the per-iteration metrics block (as KB) so
 				// readIterationField/buildSummary aggregate it alongside lcp/ttfb/fcp. It lives on
 				// resourceStats too (the `resources` block below) for the saved results file.
-				metrics: {
+				...( await captureNavigationMetrics( navigationResponse, scenario, {
 					...metrics,
-					...serverMetrics,
 					decodedBytesKB: resourceStats.totalDecodedBodySizeKB,
-				},
-				serverTimingHeader,
-				navigationUrl: navigationResponse.url(),
-				navigationStatus: navigationResponse.status(),
+				} ) ),
 				resources: resourceStats,
 				timestamp: new Date().toISOString(),
 			} );
@@ -378,17 +372,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 }
 
 /**
- * Metric fields aggregated into the summary. LCP stays first: it is the load-bearing
- * value (unchanged), and it also populates the flat top-level summary for backward-compat.
- * TTFB and FCP are already captured per iteration (see the page.evaluate block above);
- * this is where they finally get aggregated into the summary.
- *
- * `decodedBytesKB` is the summed per-resource decodedBodySize (folded into the per-iteration
- * metrics block above): the page's runtime payload in KB. Unlike the timing fields it is
- * deterministic — throttle- and noise-independent — so the median across iterations is exact.
- * It is aggregated for every scenario but posted only by those that list it in `metrics[]`;
- * scenarios that don't (the dashboard) keep it as diagnostic data in `results.json` and never
- * send it to CodeVitals.
+ * Browser and backend summary fields, with LCP first for the legacy flat summary.
  */
 const SUMMARY_FIELDS = [
 	'lcp',
@@ -401,12 +385,46 @@ const SUMMARY_FIELDS = [
 ];
 
 /**
+ * Merge configured backend fields into browser metrics, preserving failed-capture diagnostics.
+ *
+ * @param {object|null} response - Measured reload response.
+ * @param {object}      scenario - Scenario metric definitions.
+ * @param {object}      metrics  - Browser metrics for the iteration.
+ * @return {Promise<object>} Merged metrics and navigation diagnostics.
+ */
+async function captureNavigationMetrics( response, scenario, metrics ) {
+	const capture = {
+		metrics: { ...metrics },
+		navigationUrl: response?.url() ?? null,
+		navigationStatus: response?.status() ?? null,
+	};
+	if (
+		! scenario.metrics?.some( metric =>
+			[ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ].includes( metric.field )
+		)
+	) {
+		return capture;
+	}
+	try {
+		capture.serverTimingHeader = ( await response?.headerValue( 'server-timing' ) ) ?? null;
+		capture.metrics = { ...metrics, ...parseServerTiming( capture.serverTimingHeader ) };
+	} catch ( error ) {
+		capture.serverTimingError = error.message;
+	}
+	return capture;
+}
+
+/**
  * Extract the fixture's three admin metrics, rejecting missing or malformed durations.
  *
  * @param {string|null} header - The measured navigation's Server-Timing header.
  * @return {object} PHP time in ms, peak memory in bytes, and database query count.
+ * @throws {Error} Missing, malformed or oversized backend header.
  */
 function parseServerTiming( header ) {
+	if ( header?.length > 4096 ) {
+		throw new Error( 'Server-Timing header exceeds 4096 characters' );
+	}
 	const fields = {
 		'wp-total': 'wpTotal',
 		'wp-memory-usage': 'wpMemoryUsage',
@@ -451,11 +469,11 @@ function parseServerTiming( header ) {
  * Read one metric field from a single iteration's result.
  *
  * LCP lives at the top level (r.lcp) exactly as before, so its value source is byte-for-byte
- * unchanged; the other Core Web Vitals come from the captured per-iteration `metrics` block.
+ * unchanged; browser and backend fields come from the per-iteration `metrics` block.
  *
  * @param {object} result - One entry from the measureLCP results array.
  * @param {string} field  - Metric field name (e.g. 'lcp', 'ttfb', 'fcp').
- * @return {number|null|undefined} The raw value, or null/undefined when the browser had none.
+ * @return {number|null|undefined} The raw value, or null/undefined when capture had none.
  */
 function readIterationField( result, field ) {
 	if ( field === 'lcp' ) {
@@ -976,7 +994,7 @@ async function main() {
 	console.log(
 		'  2. Reload the scenario page (Dashboard, or a targeted admin page) for a clean load'
 	);
-	console.log( '  3. Measure LCP, TTFB, FCP, and the summed bundle size' );
+	console.log( '  3. Measure LCP, TTFB, FCP, runtime bundle size and configured backend fields' );
 	console.log( '' );
 	console.log( 'Configuration:' );
 	for ( const scenario of SCENARIOS ) {
@@ -1119,6 +1137,7 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 
 export {
 	measureLCP,
+	captureNavigationMetrics,
 	parseServerTiming,
 	resolveResultsGit,
 	buildSummary,

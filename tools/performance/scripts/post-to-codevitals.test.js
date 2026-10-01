@@ -2070,6 +2070,7 @@ test( 'Server-Timing captures ms, bytes and count without inventing template met
 } );
 
 test( 'Server-Timing rejects missing, duplicate and invalid durations', () => {
+	assert.throws( () => parseServerTiming( '"' + '\\"'.repeat( 4096 ) ), /exceeds 4096/ );
 	const suffix = ', wp-memory-usage;dur=20971520, wp-db-queries;dur=42';
 	for ( const header of [ null, '', 'wp-total;dur=10' ] ) {
 		assert.throws( () => parseServerTiming( header ), /Missing Server-Timing/ );
@@ -2120,6 +2121,23 @@ test( 'dry payload carries exactly nine typed staging backend keys with integer 
 			[ 'wpDbQueries', 'count' ],
 		] ) {
 			assert.equal( scenario.metrics.find( metric => metric.field === field ).unit, unit );
+		}
+	}
+} );
+
+test( 'a zero median for every backend type refuses the dry payload', async () => {
+	for ( const field of [ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ] ) {
+		const summary = jetpackSummary();
+		summary[ field ].median = 0;
+		const dir = fs.mkdtempSync( path.join( os.tmpdir(), 'cv-backend-zero-' ) );
+		const file = path.join( dir, 'results.json' );
+		fs.writeFileSync( file, JSON.stringify( { measurements: { jetpackConnected: { summary } } } ) );
+		try {
+			const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+			assert.equal( result.validationFailed, true, field );
+			assert.equal( result.posted, false, field );
+		} finally {
+			fs.rmSync( dir, { recursive: true } );
 		}
 	}
 } );

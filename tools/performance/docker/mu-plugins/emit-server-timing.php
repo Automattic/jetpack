@@ -2,8 +2,10 @@
 /**
  * Emit backend metrics for admin HTML responses in the performance fixture.
  *
- * @package automattic/jetpack-performance-testing
+ * @package Jetpack_Performance_Testing
  */
+
+defined( 'ABSPATH' ) || exit;
 
 if ( PHP_SAPI === 'cli' || ! is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'WP_CLI' ) && WP_CLI ) ) {
 	return;
@@ -39,7 +41,7 @@ ob_start(
 			}
 		}
 		$status = http_response_code();
-		if ( ! headers_sent() && isset( $_SERVER['REQUEST_TIME_FLOAT'] ) && $status >= 200 && $status < 300 && stripos( $content_type, 'text/html' ) === 0 ) {
+		if ( did_action( 'shutdown' ) && ! headers_sent() && isset( $_SERVER['REQUEST_TIME_FLOAT'] ) && $status >= 200 && $status < 300 && stripos( $content_type, 'text/html' ) === 0 ) {
 			header(
 				sprintf(
 					'Server-Timing: wp-total;dur=%.3F, wp-memory-usage;dur=%d, wp-db-queries;dur=%d',

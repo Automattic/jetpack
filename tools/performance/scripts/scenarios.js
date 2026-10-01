@@ -146,10 +146,8 @@ export const SCENARIOS = [
 		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
 		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
 		minResourceCount: 64,
-		// These four post straight to PRODUCTION keys — the `-staging` window in the README
-		// Safeguards is deliberately waived here (owner decision). The substitute for that window is
-		// the SANITY_RANGES + all-or-nothing gate plus manual sign-off before the first live post;
-		// the dry-run's stdDev-0 shows repeatability, not correctness, so it is not the safeguard.
+		// The four browser metrics use production keys under the existing staging waiver.
+		// The three backend metrics remain staging candidates.
 		metrics: [
 			{
 				field: 'lcp',
@@ -234,10 +232,8 @@ export const SCENARIOS = [
 		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
 		// count (count-based, not asset-based) so it only catches gross capture truncation.
 		minResourceCount: 64,
-		// These four post straight to PRODUCTION keys — the `-staging` window in the README
-		// Safeguards is deliberately waived here (owner decision, Liam 2026-07-08), same rationale
-		// and substitute guardrails (SANITY_RANGES + all-or-nothing gate + manual sign-off) as the
-		// wp-admin-dashboard and forms-responses keys.
+		// The four browser metrics use production keys under the existing staging waiver.
+		// The three backend metrics remain staging candidates.
 		metrics: [
 			{
 				field: 'lcp',
