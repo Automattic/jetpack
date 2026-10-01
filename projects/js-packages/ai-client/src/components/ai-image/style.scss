@@ -33,7 +33,7 @@
 			border: 1px solid #ccc;
 			border-radius: 6px;
 			padding: 12px;
-			color: var(--studio-black);
+			color: var(--wpds-color-foreground-interactive-neutral);
 		}
 
 		textarea:disabled {
@@ -90,7 +90,7 @@
 		.icon {
 			width: 20px;
 			height: 20px;
-			color: var(--studio-gray-20);
+			color: var(--wpds-color-foreground-content-neutral-weak);
 			margin-left: 4px;
 		}
 	}
