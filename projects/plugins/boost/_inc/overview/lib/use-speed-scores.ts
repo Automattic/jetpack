@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { z } from 'zod';
-import api from '../../../app/assets/src/js/lib/api/api';
 import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
 import { castToString } from '../../../app/assets/src/js/lib/utils/cast-to-string';
 import { requestDataSync, type ScoreRefreshState } from './use-modules-state';
@@ -17,7 +16,6 @@ export type SpeedScoreState = {
 	scores: SpeedScoresSet;
 };
 
-const refreshResponseSchema = z.object( { status: z.enum( [ 'pending', 'success' ] ) } );
 const cornerstonePagesSchema = z.object( { predefined_pages: z.array( z.string() ) } );
 
 export function useSpeedScores(
@@ -73,19 +71,8 @@ export function useSpeedScores(
 				error: undefined,
 			} ) );
 			try {
-				if ( regenerate && userStarted ) {
-					const response = await api.post( '/speed-scores/refresh', { url } );
-					if ( id !== requestId.current ) {
-						return;
-					}
-					if ( response.error ) {
-						throw response.error;
-					}
-					refreshResponseSchema.parse( response );
-					acceptedUserRun.current = url;
-				}
 				const scores = await requestSpeedScores(
-					regenerate && ! userStarted,
+					regenerate,
 					wpApiSettings.root,
 					url,
 					wpApiSettings.nonce,
@@ -94,13 +81,16 @@ export function useSpeedScores(
 						// A run started elsewhere (another tab, before a subpage visit) is still a run.
 						onPending: () => {
 							if ( id === requestId.current ) {
+								if ( regenerate && userStarted ) {
+									acceptedUserRun.current = url;
+								}
 								setState( previous => ( { ...previous, isRunning: true } ) );
 							}
 						},
 					}
 				);
 				if ( id === requestId.current && scores ) {
-					const completedUserRun = acceptedUserRun.current === url;
+					const completedUserRun = ( regenerate && userStarted ) || acceptedUserRun.current === url;
 					acceptedUserRun.current = undefined;
 					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
 					if ( completedUserRun ) {

@@ -4,7 +4,6 @@ import apiFetch from '@wordpress/api-fetch';
 import { createElement, type PropsWithChildren } from 'react';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useSpeedScores } from './use-speed-scores';
-import api from '../../../app/assets/src/js/lib/api/api';
 import { recordBoostEvent } from '../../../app/assets/src/js/lib/utils/analytics';
 
 declare global {
@@ -21,11 +20,6 @@ jest.mock( '../../../app/assets/src/js/lib/utils/analytics', () => ( {
 	recordBoostEvent: jest.fn(),
 } ) );
 
-jest.mock( '../../../app/assets/src/js/lib/api/api', () => ( {
-	__esModule: true,
-	default: { post: jest.fn() },
-} ) );
-
 jest.mock( '@wordpress/api-fetch', () => ( { __esModule: true, default: jest.fn() } ) );
 let queryClient: QueryClient;
 function wrapper( { children }: PropsWithChildren ) {
@@ -33,7 +27,6 @@ function wrapper( { children }: PropsWithChildren ) {
 }
 
 beforeEach( () => {
-	jest.mocked( api.post ).mockReset().mockResolvedValue( { status: 'pending' } );
 	queryClient = new QueryClient( {
 		defaultOptions: { queries: { retry: false, gcTime: Infinity } },
 	} );
@@ -80,17 +73,6 @@ test( 'preserves the exact cornerstone URL for cached and regenerated scores', a
 	await act( async () => result.current[ 1 ]( true ) );
 	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
 		true,
-		wpApiSettings.root,
-		'https://example.org/',
-		wpApiSettings.nonce,
-		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
-	);
-	await act( async () => result.current[ 1 ]( true, { userStarted: true } ) );
-	expect( api.post ).toHaveBeenCalledWith( '/speed-scores/refresh', {
-		url: 'https://example.org/',
-	} );
-	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-		false,
 		wpApiSettings.root,
 		'https://example.org/',
 		wpApiSettings.nonce,

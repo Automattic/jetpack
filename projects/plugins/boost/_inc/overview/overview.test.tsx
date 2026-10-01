@@ -17,7 +17,6 @@ import { useState } from 'react';
 import { useSingleModuleState } from '../../app/assets/src/js/features/module/lib/stores';
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
-import api from '../../app/assets/src/js/lib/api/api';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import { observeLegacyModulesState } from './lib/modules-state-bridge';
@@ -44,10 +43,6 @@ jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( {
 const { queryClient: legacyQueryClient } = jest.requireActual(
 	'@automattic/jetpack-react-data-sync-client'
 );
-jest.mock( '../../app/assets/src/js/lib/api/api', () => ( {
-	__esModule: true,
-	default: { post: jest.fn() },
-} ) );
 jest.mock( '@wordpress/api-fetch' );
 jest.mock(
 	require.resolve( '@wordpress/a11y', { paths: [ require.resolve( '@wordpress/ui' ) ] } ),
@@ -107,13 +102,9 @@ const scores = {
 
 beforeEach( () => {
 	jest.clearAllMocks();
-	jest.mocked( api.post ).mockResolvedValue( { status: 'pending' } );
 	jest.mocked( useViewportMatch ).mockReturnValue( false );
 	Object.assign( window, {
-		Jetpack_Boost: {
-			site: { url: 'https://example.org', online: true, myJetpack: true },
-			api: { namespace: 'jetpack-boost/v1', prefix: '' },
-		},
+		Jetpack_Boost: { site: { url: 'https://example.org', online: true, myJetpack: true } },
 		wpApiSettings: { root: 'https://example.org/wp-json/', nonce: 'wp-nonce' },
 		jetpack_boost_ds: {
 			rest_api: { value: 'https://example.org/wp-json/jetpack-boost-ds', nonce: 'wp-nonce' },
@@ -341,11 +332,6 @@ test.each( [ 'failed', 'delayed', 'accepted' ] )(
 		const post = jest.fn().mockResolvedValue( response );
 		globalThis.fetch = post;
 		jest
-			.mocked( api.post )
-			.mockImplementation(
-				jest.requireActual( '../../app/assets/src/js/lib/api/api' ).default.post
-			);
-		jest
 			.mocked( requestSpeedScores )
 			.mockImplementation(
 				jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
@@ -373,10 +359,6 @@ test.each( [ 'failed', 'delayed', 'accepted' ] )(
 				expect.objectContaining( { method: 'post' } )
 			);
 			if ( scenario === 'accepted' ) {
-				post.mockResolvedValueOnce( {
-					ok: true,
-					text: async () => JSON.stringify( { status: 'pending' } ),
-				} );
 				await act( async () =>
 					resolveRefresh( {
 						ok: true,
@@ -635,16 +617,14 @@ test( 'loads online scores and regenerates them with refresh tracking and histor
 		)
 	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
-	await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ) );
-	expect( api.post ).toHaveBeenCalledWith( '/speed-scores/refresh', {
-		url: Jetpack_Boost.site.url,
-	} );
-	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-		false,
-		wpApiSettings.root,
-		Jetpack_Boost.site.url,
-		wpApiSettings.nonce,
-		expect.objectContaining( { signal: expect.any( AbortSignal ) } )
+	await waitFor( () =>
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			Jetpack_Boost.site.url,
+			wpApiSettings.nonce,
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
+		)
 	);
 	expect(
 		jest
@@ -940,11 +920,8 @@ test( 'tracks score errors and offers a successful retry', async () => {
 	} );
 	fireEvent.click( card.getByRole( 'button', { name: 'Try again' } ) );
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
-	expect( api.post ).toHaveBeenCalledWith( '/speed-scores/refresh', {
-		url: Jetpack_Boost.site.url,
-	} );
 	expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-		false,
+		true,
 		wpApiSettings.root,
 		Jetpack_Boost.site.url,
 		wpApiSettings.nonce,
