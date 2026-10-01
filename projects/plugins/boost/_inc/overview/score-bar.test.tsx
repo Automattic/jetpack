@@ -47,6 +47,13 @@ test.each( [ { status: 'loading' as const, isRunning: true }, { hasScores: false
 		expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		const progress = within( screen.getByLabelText( 'Site speed summary' ) ).getByRole(
+			'progressbar',
+			{ hidden: true }
+		);
+		expect( progress ).toHaveAttribute( 'aria-label', 'Testing site speed' );
+		expect( progress ).not.toHaveAttribute( 'value' );
+		expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
 	}
 );
 
@@ -74,4 +81,34 @@ test( 'retains scores during a plain refetch, matching the card', () => {
 	).toBeVisible();
 	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'region', { name: 'Site speed summary' } ) ).not.toBeInTheDocument();
+} );
+
+test( 'reveals completed scores in both surfaces with a motion-safe CSS entry', () => {
+	const { rerender } = render(
+		<>
+			<ScoreCards scores={ state.scores } isRunning />
+			<ScoreBar state={ { ...state, isRunning: true } } />
+		</>
+	);
+	expect( screen.getAllByRole( 'status' ) ).toHaveLength( 1 );
+	rerender(
+		<>
+			<ScoreCards scores={ state.scores } />
+			<ScoreBar state={ state } />
+		</>
+	);
+	for ( const score of screen.getAllByText( '80' ) ) {
+		// eslint-disable-next-line testing-library/no-node-access -- Both surfaces attach CSS entry to a score ancestor.
+		expect( score.closest( '.jetpack-boost-score-ready' ) ).not.toBeNull();
+	}
+	const css = jest
+		.requireActual( 'fs' )
+		.readFileSync( new URL( './score-ready.scss', import.meta.url ), 'utf8' );
+	expect( css ).toMatch( /@media \(prefers-reduced-motion: no-preference\)\s*\{/ );
+	expect( css ).toMatch(
+		/animation: jetpack-boost-score-entry var\(--wpds-motion-duration-xl\) var\(--wpds-motion-easing-expressive\)/
+	);
+	expect( css ).toMatch( /@keyframes jetpack-boost-score-entry/ );
+	expect( css ).toMatch( /from\s*\{\s*opacity: 0;/ );
+	expect( css ).toMatch( /to\s*\{\s*opacity: 1;/ );
 } );

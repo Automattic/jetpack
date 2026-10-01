@@ -1,8 +1,9 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { Spinner, ProgressBar } from '@wordpress/components';
+import { ProgressBar } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, mobile } from '@wordpress/icons';
 import { Badge, Text, VisuallyHidden } from '@wordpress/ui';
+import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import {
 	formatScoreDelta,
 	getOverallScoreTier,
@@ -13,6 +14,7 @@ import {
 } from './lib/score-utils';
 import type { SpeedScoreState } from './lib/use-speed-scores';
 import './score-bar.scss';
+import './score-ready.scss';
 
 export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
 	const { scores } = state;
@@ -30,12 +32,13 @@ export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
 				</Text>
 			) : displayState === 'generating' ? (
 				<div className="jetpack-boost-score-bar__message">
-					<Spinner />
-					<Text>{ __( 'Calculating score…', 'jetpack-boost' ) }</Text>
+					<IndeterminateProgress label={ __( 'Testing site speed', 'jetpack-boost' ) }>
+						{ __( 'Calculating score…', 'jetpack-boost' ) }
+					</IndeterminateProgress>
 				</div>
 			) : (
 				<>
-					<div className="jetpack-boost-score-bar__overall">
+					<div className="jetpack-boost-score-bar__overall jetpack-boost-score-ready">
 						<Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" />
 						<VisuallyHidden>
 							{ _x( 'Overall', 'combined speed score grade', 'jetpack-boost' ) }
@@ -58,7 +61,10 @@ export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
 								? __( 'Desktop', 'jetpack-boost' )
 								: __( 'Mobile', 'jetpack-boost' );
 						return (
-							<div key={ device } className="jetpack-boost-score-bar__device">
+							<div
+								key={ device }
+								className="jetpack-boost-score-bar__device jetpack-boost-score-ready"
+							>
 								<Icon
 									icon={ device === 'desktop' ? desktop : mobile }
 									className="jetpack-boost-overview__score-icon"

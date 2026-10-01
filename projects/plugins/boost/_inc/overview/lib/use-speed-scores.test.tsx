@@ -367,3 +367,66 @@ test( 'refreshes a configuration change after leaving a subpage', async () => {
 		jest.useRealTimers();
 	}
 } );
+
+test( 'aborts a disabled request and ignores its late result after re-enabling', async () => {
+	let finishOld!: ( scores: typeof oldScores ) => void;
+	let finishNew!: ( scores: typeof oldScores ) => void;
+	const oldScores = { current: { mobile: 20, desktop: 30 }, noBoost: null, isStale: false };
+	const newScores = { ...oldScores, current: { mobile: 80, desktop: 90 } };
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					finishOld = resolve;
+				} )
+		)
+		.mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					finishNew = resolve;
+				} )
+		);
+	const { result, rerender } = renderHook( enabled => useSpeedScores( undefined, enabled ), {
+		wrapper,
+		initialProps: true,
+	} );
+	const signal = jest.mocked( requestSpeedScores ).mock.calls[ 0 ][ 4 ]?.signal;
+	rerender( false );
+	expect( signal?.aborted ).toBe( true );
+	rerender( true );
+	await act( async () => finishOld( oldScores ) );
+	expect( result.current[ 0 ].hasScores ).toBe( false );
+	await act( async () => finishNew( newScores ) );
+	expect( result.current[ 0 ].scores ).toEqual( newScores );
+} );
+
+test( 'cancels a scheduled regeneration while disabled and schedules it again on re-enable', async () => {
+	jest.useFakeTimers();
+	try {
+		const { rerender } = renderHook(
+			( { enabled, config } ) => useSpeedScores( { config, isPending: false }, enabled ),
+			{ wrapper, initialProps: { enabled: true, config: 'initial' } }
+		);
+		await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+		rerender( { enabled: true, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 1000 ) );
+		rerender( { enabled: false, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 5000 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
+		rerender( { enabled: true, config: 'changed' } );
+		await act( async () => jest.advanceTimersByTimeAsync( 1999 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
+		await act( async () => jest.advanceTimersByTimeAsync( 1 ) );
+		expect( requestSpeedScores ).toHaveBeenCalledTimes( 3 );
+		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
+			true,
+			wpApiSettings.root,
+			'https://example.org',
+			wpApiSettings.nonce,
+			{ signal: expect.any( AbortSignal ) }
+		);
+	} finally {
+		jest.useRealTimers();
+	}
+} );

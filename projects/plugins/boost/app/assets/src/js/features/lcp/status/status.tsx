@@ -1,3 +1,4 @@
+import IndeterminateProgress from '$features/ui/indeterminate-progress/indeterminate-progress';
 import { useModuleSurface } from '$features/module/surface';
 import TimeAgo from '$features/critical-css/time-ago/time-ago';
 import { __ } from '@wordpress/i18n';
@@ -42,8 +43,12 @@ const Status: FC = () => {
 	}
 
 	if ( lcpState?.status === 'pending' ) {
-		return (
-			<div className={ styles?.generating }>{ isModern ? modernProgress : legacyProgress }</div>
+		return isModern ? (
+			<IndeterminateProgress label={ __( 'Optimizing LCP images', 'jetpack-boost' ) }>
+				{ modernProgress }
+			</IndeterminateProgress>
+		) : (
+			<div className={ styles?.generating }>{ legacyProgress }</div>
 		);
 	}
 
