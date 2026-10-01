@@ -138,7 +138,7 @@ class Block_Editor {
 	 * @return string
 	 */
 	public function forget_blocks( $content ) {
-		if ( $this->has_blocks ) {
+		if ( $this->has_blocks && has_block( 'core/embed', $content ) ) {
 			// Core's own kses pass over block attributes wrote & as &amp; in each embed's URL.
 			// Put it back, or the editor's save no longer matches the markup when the comment is edited.
 			$content = wp_slash( serialize_blocks( self::restore_urls( parse_blocks( wp_unslash( $content ) ) ) ) );
@@ -165,6 +165,7 @@ class Block_Editor {
 				$block['innerBlocks'] = self::restore_urls( $block['innerBlocks'] );
 			}
 		}
+		unset( $block );
 
 		return $blocks;
 	}
