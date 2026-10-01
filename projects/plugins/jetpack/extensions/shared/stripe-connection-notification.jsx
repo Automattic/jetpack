@@ -14,7 +14,7 @@ let originBlock = null;
  * Remembers which block started the Stripe connection, so the result can be shown inside it.
  * Client IDs don't survive the redirect, so the block is stored as its name and position.
  *
- * Call it right before redirecting, after the post is saved, from a block that renders
+ * Call it right before redirecting, after saving, from a block that renders
  * `StripeConnectionNotice`; otherwise the result is shown nowhere.
  *
  * @param {string} clientId - Client ID of the block whose connect button was clicked.
@@ -23,9 +23,10 @@ export function rememberStripeConnectOrigin( clientId ) {
 	const { getBlockName, getBlocksByName } = select( blockEditorStore );
 	const name = getBlockName( clientId );
 	const index = name ? getBlocksByName( name ).indexOf( clientId ) : -1;
-	// Storing nothing keeps the editor-wide notice; an unresolvable origin would show none,
-	// and a failed save before the redirect can leave the block missing on return.
-	if ( index < 0 || select( 'core/editor' )?.didPostSaveRequestFail?.() ) {
+	// Storing nothing keeps the editor-wide notice. Edits still unsaved here (a failed or skipped
+	// save) may not include the block on return, and an origin that can't be found shows nothing.
+	const hasUnsavedEdits = select( 'core' )?.__experimentalGetDirtyEntityRecords?.().length > 0;
+	if ( index < 0 || hasUnsavedEdits ) {
 		return;
 	}
 	try {
@@ -69,7 +70,14 @@ export function StripeConnectionNotice() {
 	}
 
 	return (
-		<Notice status={ result.status } onRemove={ () => setIsDismissed( true ) }>
+		<Notice
+			status={ result.status }
+			onRemove={ () => {
+				// Blocks remount (e.g. after the code editor), so dismissal can't live in component state alone.
+				result = null;
+				setIsDismissed( true );
+			} }
+		>
 			{ result.message }
 		</Notice>
 	);

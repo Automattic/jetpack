@@ -7,7 +7,7 @@ import { createReduxStore, dispatch, register, select } from '@wordpress/data';
 const ORIGIN_BLOCK_KEY = 'jetpackStripeConnectOriginBlock';
 
 describe( 'StripeConnectionNotice', () => {
-	test( 'shows the result only in the remembered block, which a failed save leaves unremembered', () => {
+	test( 'shows the result only in the remembered block, which unsaved edits leave unremembered', () => {
 		window.history.pushState( {}, '', '/?stripe_connect_success=1' );
 		const stored = JSON.stringify( { name: 'test/payment', index: 1 } );
 		window.sessionStorage.setItem( ORIGIN_BLOCK_KEY, stored );
@@ -40,9 +40,9 @@ describe( 'StripeConnectionNotice', () => {
 
 		window.sessionStorage.clear();
 		register(
-			createReduxStore( 'core/editor', {
+			createReduxStore( 'core', {
 				reducer: () => null,
-				selectors: { didPostSaveRequestFail: () => true },
+				selectors: { __experimentalGetDirtyEntityRecords: () => [ { kind: 'postType' } ] },
 			} )
 		);
 		rememberStripeConnectOrigin( blocks[ 1 ].clientId );
