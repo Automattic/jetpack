@@ -1166,7 +1166,7 @@ class WPCOM_Features {
 			self::WPCOM_UNLIMITED_THEMES,
 			self::BUNDLE_ENTERPRISE,
 			self::WPCOM_PRO_PLANS,
-			self::WPCOM_PREMIUM_AND_HIGHER_PLANS,
+			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_BUSINESS_PLANS,
 		),
 		self::PARTNER_THEMES                    => array(
