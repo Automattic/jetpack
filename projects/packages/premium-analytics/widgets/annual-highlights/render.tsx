@@ -14,6 +14,8 @@ import {
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	ExporterCsvDownloadButton,
+	annualInsightsCsvExporter,
 	type DataFormat,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -108,6 +110,11 @@ function AnnualHighlightsReport( { year }: { year?: YearPresetId } ) {
 			</WidgetState>
 			<WidgetFooter>
 				<ReportLink report="annual-insights" />
+				<ExporterCsvDownloadButton
+					exporter={ annualInsightsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ data?.years?.length ?? 0 }
+				/>
 			</WidgetFooter>
 		</div>
 	);
