@@ -54,6 +54,7 @@
 	// deliberately not derived from it, so either can move without the other.
 	--a8c-charts-color-surface: var(--wpds-color-background-surface-neutral-strong);
 	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak);
+	--a8c-charts-color-surface-stroke: var(--wpds-color-stroke-surface-neutral);
 	--a8c-charts-color-track: var(--wpds-color-background-track-neutral-weak);
 	// Deprecated: no chart reads it, but consumer CSS that does still resolves.
 	--a8c-charts-color-tooltip-surface: rgb(0 0 0 / 85%);
@@ -73,6 +74,11 @@
 		0 2px 3px 0 #0000000a,
 		0 6px 6px 0 #00000008,
 		0 8px 8px 0 #00000005;
+	--a8c-charts-elevation-md:
+		0 2px 3px 0 #0000000d,
+		0 4px 5px 0 #0000000a,
+		0 12px 12px 0 #00000008,
+		0 16px 16px 0 #00000005;
 
 	--a8c-charts-motion-duration-entrance: var(--wpds-motion-duration-xl);
 	--a8c-charts-motion-easing-entrance: var(--wpds-motion-easing-expressive);
