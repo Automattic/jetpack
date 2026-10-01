@@ -5,7 +5,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
-import { VideoTitleLink } from '../video-title-link';
+import { VideoDetailLink, VideoTitleLink } from '../video-title-link';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 
 type MockRouteLinkProps = {
@@ -88,5 +88,29 @@ describe( 'VideoTitleLink', () => {
 
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( 'Sketchy' ) ).toBeInTheDocument();
+	} );
+
+	it( 'renders custom content inside the detail link', () => {
+		render(
+			<VideoTitleLink id={ 12 } label="Launch" search={ {} }>
+				<span>custom</span>
+			</VideoTitleLink>
+		);
+
+		expect( screen.getByRole( 'link' ) ).toContainElement( screen.getByText( 'custom' ) );
+	} );
+} );
+
+describe( 'VideoDetailLink', () => {
+	it( 'hides the link from the tab order and assistive tech when asked', () => {
+		render(
+			<VideoDetailLink videoId={ 12 } search={ {} } tabIndex={ -1 } aria-hidden>
+				<span>poster</span>
+			</VideoDetailLink>
+		);
+
+		const link = screen.getByRole( 'link', { hidden: true } );
+		expect( link ).toHaveAttribute( 'tabindex', '-1' );
+		expect( link ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 } );

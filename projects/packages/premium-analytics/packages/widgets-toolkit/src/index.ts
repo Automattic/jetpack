@@ -110,6 +110,7 @@ export {
 	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
 	type PostHighlightCardProps,
+	VideoDetailLink,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
 	SubscriberList,

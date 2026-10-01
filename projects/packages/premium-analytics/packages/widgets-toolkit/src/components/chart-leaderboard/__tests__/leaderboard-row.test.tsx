@@ -75,6 +75,20 @@ describe( 'LeaderboardLabel', () => {
 		expect( screen.queryByRole( 'button' ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'swaps a thumbnail that fails to load for the placeholder', () => {
+		render(
+			<LeaderboardLabel
+				label="Private"
+				media={ { kind: 'thumbnail', url: 'https://example.com/private.jpg', alt: '' } }
+			/>
+		);
+
+		const image = screen.getByRole( 'presentation' );
+		fireEvent.error( image );
+
+		expect( image ).toHaveAttribute( 'src', expect.stringMatching( /^data:image\/svg\+xml/ ) );
+	} );
+
 	it( 'supports a first-class no-media label', () => {
 		render( <LeaderboardLabel label="Desktop" media={ { kind: 'none' } } /> );
 
@@ -192,6 +206,41 @@ describe( 'buildLeaderboardRow', () => {
 			'/video/9?date_start=2026-08-01&date_end=2026-08-26'
 		);
 		expect( row ).not.toHaveProperty( 'onClick' );
+	} );
+
+	it( 'puts a video row thumbnail inside its detail link', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Launch',
+			media: {
+				kind: 'thumbnail',
+				url: 'https://example.com/p.jpg',
+				alt: '',
+				aspectRatio: '16/9',
+			},
+			action: { kind: 'videoLink', id: 12, search: {} },
+		} );
+
+		render( row.label );
+
+		const link = screen.getByRole( 'link', { name: 'Launch' } );
+		expect( link ).toContainElement( screen.getByRole( 'presentation' ) );
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/p.jpg'
+		);
+	} );
+
+	it( 'keeps post rows as a bare title link', () => {
+		const row = buildLeaderboardRow( {
+			label: 'Hello',
+			media: { kind: 'none' },
+			action: { kind: 'postLink', id: 5, search: {} },
+		} );
+
+		render( row.label );
+
+		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {
