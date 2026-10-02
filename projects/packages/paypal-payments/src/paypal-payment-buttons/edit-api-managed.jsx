@@ -102,7 +102,7 @@ import {
 // payment method selection (PayPal, cards, wallets, etc.).
 
 // What the form edits: the payment's attributes the merchant sets, and the block's
-// image, which is sent with them.
+// image, which stays on the site.
 const FORM_FIELDS = [
 	...RESOURCE_ATTRIBUTES.filter( key => ! PAYPAL_SET_ATTRIBUTES.includes( key ) ),
 	'imageUrl',
@@ -1168,14 +1168,6 @@ export default function ApiManagedEdit( {
 					{ imageUrl ? (
 						<div className="jetpack-paypal-payment-buttons__image-preview">
 							<img src={ imageUrl } alt={ productName || '' } />
-							{ ! /^https:\/\//i.test( imageUrl ) && (
-								<Notice status="warning" isDismissible={ false }>
-									{ __(
-										'PayPal only shows images served from a public HTTPS address, so this one will not appear at checkout.',
-										'jetpack-paypal-payments'
-									) }
-								</Notice>
-							) }
 							<div className="jetpack-paypal-payment-buttons__image-actions">
 								<MediaUploadCheck>
 									<MediaUpload

@@ -1070,6 +1070,119 @@ class REST_Endpoints_Test extends TestCase {
 	}
 
 	/**
+	 * The confirmed owner releases the lock, and no consumer has to be asking for one.
+	 */
+	public function test_release_owner_accepts_the_confirmed_owner() {
+		$this->act_as_confirmed_protected_owner();
+		$answer = $this->answer_protected_owner_claim( array( 'status' => 'released' ) );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response->get_data()['code'] );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * Releasing unlocks ownership without handing the connection to anybody else.
+	 */
+	public function test_release_owner_leaves_the_connection_owner_alone() {
+		$this->act_as_confirmed_protected_owner();
+		$answer = $this->answer_protected_owner_claim( array( 'status' => 'released' ) );
+
+		$this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( self::$user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * A connected administrator who is not the anchored identity cannot release.
+	 */
+	public function test_release_owner_rejects_an_admin_who_is_not_the_confirmed_owner() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		Utils::set_wpcom_user_id( self::$user_id, 4242 );
+		Utils::set_wpcom_user_id( self::$secondary_user_id, 7777 );
+		Protected_Owner::set( 4242, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_release_owner', $response->get_data()['code'] );
+		$this->assertNotNull( Protected_Owner::get(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * A matching binding is not an identity: `Utils::set_wpcom_user_id()` clears the previous
+	 * holder, but Premium Content writes the same key directly, so two local users can carry one
+	 * WordPress.com ID. Only the user holding the connection is the owner the anchor names.
+	 */
+	public function test_release_owner_rejects_an_admin_sharing_the_anchored_id() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		// Both hold tokens, or the owner's missing one settles this before the identity check.
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				self::$user_id           => 'ownerkey.private.' . self::$user_id,
+				self::$secondary_user_id => 'ownerkey.private.' . self::$secondary_user_id,
+			)
+		);
+		update_user_meta( self::$user_id, 'wpcom_user_id', 4242 );
+		update_user_meta( self::$secondary_user_id, 'wpcom_user_id', 4242 );
+		Protected_Owner::set( 4242, self::$user_id );
+
+		$state = ( new Manager() )->resolve_protected_owner_state();
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'], 'Test setup: the site is settled.' );
+		$this->assertTrue( $state['is_current_user_the_po'], 'Test setup: the binding alone would admit them.' );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_release_owner', $response->get_data()['code'] );
+		$this->assertNotNull( Protected_Owner::get(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * There is nothing to release on a site that was never locked, so the route stays closed.
+	 */
+	public function test_release_owner_requires_an_anchored_owner() {
+		$this->act_as_connected_admin( self::$user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_release_owner', $response->get_data()['code'] );
+	}
+
+	/**
+	 * WordPress.com refusing leaves the lock exactly as it was.
+	 */
+	public function test_release_owner_keeps_the_lock_when_wpcom_refuses() {
+		$this->act_as_confirmed_protected_owner();
+		$answer = $this->answer_protected_owner_claim( array( 'status' => 'not_owner' ) );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'protected_owner_not_owner', $response->get_data()['code'] );
+		$this->assertNotNull( Protected_Owner::get(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * Sign in as the connected administrator the anchor names, on a locked site.
+	 */
+	private function act_as_confirmed_protected_owner() {
+		$this->act_as_connected_admin( self::$user_id, self::$user_id );
+		Utils::set_wpcom_user_id( self::$user_id, 4242 );
+		Protected_Owner::set( 4242, self::$user_id );
+	}
+
+	/**
 	 * Sign the current user in as a connected administrator, optionally leaving someone else as owner.
 	 *
 	 * @param int $user_id        Local user who will make the request.

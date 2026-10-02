@@ -2,11 +2,13 @@
  * External dependencies
  */
 import {
+	ExporterCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
 	Leaderboard,
 	ReportLink,
 	WidgetRoot,
 	describeError,
+	searchTermsCsvExporter,
 	useWidgetRootContext,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
@@ -29,7 +31,7 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
  */
 function SearchTermsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
+	const { data, isLoading, isFetching, isError, isPrimaryError, error, hasComparison, refetch } =
 		useSearchTermViews( {
 			reportParams,
 			max: WIDGET_ROW_LIMIT,
@@ -57,7 +59,16 @@ function SearchTermsInner() {
 				),
 				onRetry: refetch,
 			} ) }
-			footer={ <ReportLink report="search-terms" /> }
+			footer={
+				<>
+					<ReportLink report="search-terms" />
+					<ExporterCsvDownloadButton
+						exporter={ searchTermsCsvExporter }
+						status={ { isLoading, isFetching, isError: isPrimaryError } }
+						rowCount={ rows.length }
+					/>
+				</>
+			}
 		/>
 	);
 }

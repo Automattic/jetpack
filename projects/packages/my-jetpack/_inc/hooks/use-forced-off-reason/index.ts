@@ -25,8 +25,7 @@ export default function useForcedOffReason(
 	slug: JetpackModule,
 	status: string
 ): { reason: string | null; isPending: boolean } {
-	// The Products tab maps Backup to vaultpress, but Backup's status never depends on a module.
-	const moduleSlug = slug === 'backup' ? null : getProductModules()[ slug ] || slug;
+	const moduleSlug = getProductModules()[ slug ] || slug;
 	const applies = !! moduleSlug && OFFER_STATUSES.includes( status );
 
 	const { override, isPending } = useSelect(

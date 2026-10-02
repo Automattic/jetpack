@@ -16,9 +16,9 @@ Neither depends on a module being active: the screen and every section on it
 exist whatever the site is running.
 
 It also ships the per-post Likes and Sharing switches the block editor shows, as
-REST fields on every public post type. `Initializer::init()` does not set these
-up yet, because the Jetpack plugin's modules still register the same fields, so
-call them on their own, also outside any `is_admin()` branch:
+REST fields on every public post type. `Initializer::init()` leaves these out:
+each belongs to the feature that reads it, so call it wherever that feature
+loads (Likes or Comment Likes, and Sharing), outside any `is_admin()` branch:
 
 ```php
 \Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::init();

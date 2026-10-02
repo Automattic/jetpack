@@ -91,6 +91,24 @@ const spikeSeries = recover => [
  * serve a 404 for every metric).
  */
 const SCENARIOS = {
+	backend: () => ( {
+		metrics: [
+			{ ...metricRow( 401, 'PHP total', 'admin-wp-total-staging' ), unit: 'ms' },
+			{ ...metricRow( 402, 'Peak memory', 'admin-wp-memory-usage-staging' ), unit: 'bytes' },
+			{ ...metricRow( 403, 'DB queries', 'admin-wp-db-queries-staging' ), unit: 'count' },
+		],
+		series: {
+			401: levelSeries( Array( 10 ).fill( 100 ), 120, Array( 10 ).fill( 120 ), 'php' ),
+			402: levelSeries(
+				Array( 10 ).fill( 20971520 ),
+				25165824,
+				Array( 10 ).fill( 25165824 ),
+				'mem'
+			),
+			403: levelSeries( Array( 10 ).fill( 40 ), 48, Array( 10 ).fill( 48 ), 'db' ),
+		},
+		no302: true,
+	} ),
 	levelstep: () => ( {
 		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 300, Array( 10 ).fill( 120 ) ) },
 	} ),
@@ -1303,6 +1321,16 @@ async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 		await api.close();
 	}
 }
+
+test( 'digest discovers backend staging metrics and renders their service units', async () => {
+	const result = await runDigest( 'backend', { METRIC_IDS: '' } );
+	assert.equal( result.code, 0, result.err );
+	assert.ok( result.out.includes( '3 sustained regressions' ), result.out );
+	for ( const reading of [ '100→120ms', '20971520→25165824bytes', '40→48count' ] ) {
+		assert.ok( result.out.includes( reading ), result.out );
+	}
+	assert.equal( result.calls.length, 0 );
+} );
 
 test( 'level gate confirms a step with median magnitude and rejects a dip recovery', async () => {
 	const step = await runDigest( 'levelstep' );

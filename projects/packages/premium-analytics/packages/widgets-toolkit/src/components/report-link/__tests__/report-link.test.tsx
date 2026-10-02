@@ -127,4 +127,18 @@ describe( 'ReportLink', () => {
 		expect( search.get( 'ds' ) ).toBe( 'insights' );
 		expect( search.has( 'section' ) ).toBe( false );
 	} );
+
+	it( 'renders children after the label, outside the element that carries the underline', () => {
+		render(
+			<ReportLink report="earnings" label="Adjustments">
+				<span data-testid="count">2</span>
+			</ReportLink>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'Adjustments 2' } );
+		const label = screen.getByText( 'Adjustments' );
+		expect( link ).toContainElement( label );
+		expect( label ).not.toBe( link );
+		expect( label ).not.toContainElement( screen.getByTestId( 'count' ) );
+	} );
 } );

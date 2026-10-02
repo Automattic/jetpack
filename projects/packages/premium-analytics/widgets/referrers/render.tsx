@@ -23,6 +23,8 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	referrersCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -170,7 +172,7 @@ function ReferrersInner() {
 
 	// Row matching (per level, so same-named rows at different drill levels can't
 	// cross-match), the row cap, and the comparison-overlap gate live in the merge helper.
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -264,33 +266,45 @@ function ReferrersInner() {
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
 	return (
-		<div className={ styles.content }>
-			{ trail.length > 0 && (
-				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
-			) }
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// `placeholderData` keeps the prior period's rows on screen while `isError`
-				// flips true, so a transient refetch failure should not replace them.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ rows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load referrers. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-			>
-				<ReferrersLeaderboard
-					rows={ activeRows }
-					withComparison={ withComparison }
-					onDrillDown={ drillInto }
+		<>
+			<div className={ styles.content }>
+				{ trail.length > 0 && (
+					<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
+				) }
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// `placeholderData` keeps the prior period's rows on screen while `isError`
+					// flips true, so a transient refetch failure should not replace them.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load referrers. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<ReferrersLeaderboard
+						rows={ activeRows }
+						withComparison={ withComparison }
+						onDrillDown={ drillInto }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="referrers" />
+				<ExporterCsvDownloadButton
+					exporter={ referrersCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
 				/>
-			</WidgetState>
-		</div>
+			</WidgetFooter>
+		</>
 	);
 }
 
@@ -301,9 +315,6 @@ export default function ReferrersWidget( {
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
 				<ReferrersInner />
-				<WidgetFooter>
-					<ReportLink report="referrers" />
-				</WidgetFooter>
 			</div>
 		</WidgetRoot>
 	);
