@@ -4,6 +4,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
+import { useCallback, type ComponentType, type ReactElement, type ReactNode } from 'react';
 import {
 	AnalyticsQueryClientProvider,
 	GlobalErrorProvider,
@@ -19,6 +20,7 @@ import ClicksReportPage from '../../routes/reports/clicks/page';
 import CommentsReportPage from '../../routes/reports/comments/page';
 import DownloadsReportPage from '../../routes/reports/downloads/page';
 import EmailsReportPage from '../../routes/reports/emails/page';
+import LocationsReportPage from '../../routes/reports/locations/page';
 import PostsReportPage from '../../routes/reports/posts/page';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
@@ -30,6 +32,7 @@ import AuthorsWidget from '../../widgets/authors/render';
 import ClicksWidget from '../../widgets/clicks/render';
 import EmailsWidget from '../../widgets/emails/render';
 import FileDownloadsWidget from '../../widgets/file-downloads/render';
+import LocationsWidget from '../../widgets/locations/render';
 import MostCommentedAuthorsWidget from '../../widgets/most-commented-authors/render';
 import MostCommentedPostsWidget from '../../widgets/most-commented-posts/render';
 import ReferrersWidget from '../../widgets/referrers/render';
@@ -40,7 +43,6 @@ import TopPostsWidget from '../../widgets/top-posts/render';
 import UtmInsightsWidget from '../../widgets/utm-insights/render';
 import VideoPressWidget from '../../widgets/videopress/render';
 import { setMockRouteSearch } from './route-test-utils';
-import type { ComponentType, ReactElement, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock(
@@ -67,7 +69,10 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	ReportDrilldownTable: () => null,
-	ReportRecordsTable: () => null,
+	// Google Charts never loads in jsdom.
+	LocationsGeoChart: () => null,
+	ReportLocationsMap: () => null,
+	ReportRecordsTable: MockRecordsTable,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
@@ -79,6 +84,26 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+
+/**
+ * Pick a country the way the Locations table's filter does; other reports ignore it.
+ *
+ * @param props              - The records table props.
+ * @param props.onChangeView - The page's view change handler.
+ * @return A button that picks the United States, or nothing.
+ */
+function MockRecordsTable( { onChangeView }: { onChangeView?: ( view: object ) => void } ) {
+	const pickUnitedStates = useCallback(
+		() => onChangeView?.( { filters: [ { field: 'country', operator: 'is', value: 'US' } ] } ),
+		[ onChangeView ]
+	);
+
+	return onChangeView ? (
+		<button type="button" onClick={ pickUnitedStates }>
+			Pick United States
+		</button>
+	) : null;
+}
 const mockUseSectionTab = jest.mocked( useSectionTab );
 
 // Comparison on: the report fetches it, the export must not need it.
@@ -90,7 +115,70 @@ const REPORT_PARAMS = {
 	compare_to: '2026-02-10',
 };
 
+const COUNTRIES = {
+	US: 'United States',
+	CA: 'Canada',
+	GB: 'United Kingdom',
+	DE: 'Germany',
+	FR: 'France',
+	JP: 'Japan',
+	AU: 'Australia',
+	IN: 'India',
+	BR: 'Brazil',
+	MX: 'Mexico',
+	ES: 'Spain',
+	IT: 'Italy',
+};
+
+const place = (
+	country_code: string,
+	location: string | undefined,
+	views: number,
+	region?: string
+) => ( { country_code, location, views, region } );
+
+// Eleven US regions and eleven Minnesota cities: a scoped download still outgrows the widget's 10 rows.
+const LOCATION_ROWS: Record< string, ReturnType< typeof place >[] > = {
+	country: Object.keys( COUNTRIES ).map( ( code, index ) => place( code, undefined, 40 - index ) ),
+	region: [
+		place( 'US', 'Minnesota', 30 ),
+		...Array.from( { length: 10 }, ( _, index ) =>
+			place( 'US', `US region ${ index }`, 29 - index )
+		),
+		place( 'CA', 'Ontario', 25 ),
+	],
+	city: [
+		...Array.from( { length: 11 }, ( _, index ) =>
+			place( 'US', `Minnesota city ${ index }`, 30 - index, 'Minnesota' )
+		),
+		place( 'US', 'Austin', 26, 'Texas' ),
+		place( 'CA', 'Toronto', 25, 'Ontario' ),
+	],
+};
+
 const RESPONSES: Record< string, unknown | ( ( path: string ) => unknown ) > = {
+	// Honors `max` and both filters, as the endpoint does.
+	'stats/location-views/': ( path: string ) => {
+		const url = new URL( path, 'https://example.com' );
+		const country = url.searchParams.get( 'filter_by_country' );
+		const region = url.searchParams.get( 'filter_by_region' );
+		const max = Number( url.searchParams.get( 'max' ) );
+		const views = LOCATION_ROWS[ /location-views\/(\w+)/.exec( path )?.[ 1 ] ?? '' ]
+			.filter(
+				row =>
+					( ! country || row.country_code === country ) && ( ! region || row.region === region )
+			)
+			.slice( 0, max > 0 ? max : undefined );
+
+		return {
+			date: '2026-03-10',
+			summary: { views },
+			days: { '2026-03-10': { views } },
+			'country-info': Object.fromEntries(
+				Object.entries( COUNTRIES ).map( ( [ code, name ] ) => [ code, { country_full: name } ] )
+			),
+		};
+	},
 	'stats/top-posts': {
 		date: '2026-03-10',
 		days: {},
@@ -382,11 +470,13 @@ describe( 'Widget and report CSV parity', () => {
 	/**
 	 * Render a page or widget, click its Download CSV action, and capture the saved file.
 	 *
-	 * @param ui - The page or widget to render.
+	 * @param ui      - The page or widget to render.
+	 * @param prepare - Interaction to run before downloading.
 	 * @return The saved file's name and contents.
 	 */
-	async function download( ui: ReactElement ) {
+	async function download( ui: ReactElement, prepare?: () => Promise< void > ) {
 		const view = render( withProviders( ui ) );
+		await prepare?.();
 		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
 
 		await downloads.clickAndSave( button );
@@ -527,5 +617,93 @@ describe( 'Widget and report CSV parity', () => {
 		const [ saved ] = downloads.files.splice( 0 );
 		view.unmount();
 		expect( { filename: saved.filename, csv: await saved.blob.text() } ).toEqual( reportFile );
+	} );
+
+	/**
+	 * Click a control by its accessible name.
+	 *
+	 * @param name - The control's accessible name.
+	 */
+	async function click( name: string ) {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await user.click( await screen.findByRole( 'button', { name } ) );
+	}
+
+	it.each( [
+		[ 'countries', 'country', 13 ],
+		[ 'regions', 'region', 13 ],
+		[ 'cities', 'city', 14 ],
+	] as const )(
+		'downloads the same Locations %s file from the widget as from the report page',
+		async ( section, geoGranularity, lines ) => {
+			mockUseSectionTab.mockReturnValue( [ section, jest.fn() ] );
+			const reportFile = await download( <LocationsReportPage /> );
+			queryClient.clear();
+			const widgetFile = await download(
+				<LocationsWidget attributes={ { reportParams: REPORT_PARAMS, geoGranularity } } />
+			);
+
+			expect( widgetFile ).toEqual( reportFile );
+			expect( widgetFile.filename ).toContain( `locations-${ section }-` );
+			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( lines );
+		}
+	);
+
+	it( 'downloads a country’s regions from the widget as the report filtered to it', async () => {
+		mockUseSectionTab.mockReturnValue( [ 'regions', jest.fn() ] );
+		const reportFile = await download( <LocationsReportPage />, () =>
+			click( 'Pick United States' )
+		);
+		queryClient.clear();
+		const widgetFile = await download(
+			<LocationsWidget attributes={ { reportParams: REPORT_PARAMS } } />,
+			() => click( 'View regions in United States' )
+		);
+
+		expect( widgetFile ).toEqual( reportFile );
+		expect( widgetFile.csv ).not.toContain( 'Ontario' );
+		expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( 12 );
+	} );
+
+	it( 'downloads only the cities of the region the widget is drilled into', async () => {
+		const widgetFile = await download(
+			<LocationsWidget attributes={ { reportParams: REPORT_PARAMS } } />,
+			async () => {
+				await click( 'View regions in United States' );
+				await click( 'View cities in Minnesota' );
+			}
+		);
+
+		expect( widgetFile.filename ).toBe( 'locations-cities-2026-03-01_2026-03-10.csv' );
+		expect( widgetFile.csv ).toContain( 'Minnesota city 10' );
+		expect( widgetFile.csv ).not.toContain( 'Austin' );
+		expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( 12 );
+	} );
+
+	it( 'downloads every country again after the widget backs out of a drill-down', async () => {
+		mockUseSectionTab.mockReturnValue( [ 'countries', jest.fn() ] );
+		const reportFile = await download( <LocationsReportPage /> );
+		queryClient.clear();
+		const widgetFile = await download(
+			<LocationsWidget attributes={ { reportParams: REPORT_PARAMS } } />,
+			async () => {
+				await click( 'View regions in United States' );
+				await click( 'View all locations' );
+			}
+		);
+
+		expect( widgetFile ).toEqual( reportFile );
+	} );
+
+	it( 'keeps the Locations download when only the comparison request fails', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( '2026-02' ) ? Promise.reject( FORBIDDEN ) : respond( path )
+		);
+
+		render( withProviders( <LocationsWidget attributes={ { reportParams: REPORT_PARAMS } } /> ) );
+
+		await expect(
+			screen.findByRole( 'button', { name: /Download CSV/ } )
+		).resolves.toBeInTheDocument();
 	} );
 } );

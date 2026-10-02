@@ -2,7 +2,10 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	LocationsGeoChart,
+	locationsCsvExporter,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -43,10 +46,15 @@ jest.mock( '@wordpress/route', () => ( {
 
 // The map loads Google Charts asynchronously, and what it draws is covered by
 // its own tests; here only the props the widget hands it matter.
-jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
-	LocationsGeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
-} ) );
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const actual = jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' );
+
+	return {
+		...actual,
+		LocationsGeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
+		locationsCsvExporter: jest.fn( actual.locationsCsvExporter ),
+	};
+} );
 
 // Typed off the hook so the mocked state and the rows passed to
 // `mockReturnValue` are type-checked rather than cast away.
@@ -64,6 +72,7 @@ const LOADING_STATE: LocationViewsState = {
 
 const mockUseLocationViews = jest.fn( () => LOADING_STATE );
 const locationsGeoChartMock = jest.mocked( LocationsGeoChart );
+const locationsCsvExporterMock = jest.mocked( locationsCsvExporter );
 
 /** Read the props of the map's latest render. */
 function lastMapProps() {
@@ -100,6 +109,27 @@ describe( 'LocationsWidget', () => {
 		} finally {
 			delete ( globalThis as { fetch?: unknown } ).fetch;
 		}
+	} );
+
+	it( 'offers no download while the rows on screen are still loading', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			data: [
+				{
+					key: 'US:United States',
+					label: 'United States',
+					countryCode: 'US',
+					countryFull: 'United States',
+					value: 10,
+					region: '',
+				},
+			],
+			hasData: true,
+		} );
+
+		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'links to the Locations report', () => {
@@ -336,6 +366,33 @@ describe( 'LocationsWidget', () => {
 			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 				expect.objectContaining( { geoMode: 'region', filter: undefined } )
 			);
+		} );
+
+		it( 'scopes the download to the place the widget is drilled into', async () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'countries', undefined );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'regions', {
+				country: 'US',
+				region: undefined,
+			} );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'cities', {
+				country: 'US',
+				region: 'Minnesota',
+			} );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'countries', undefined );
 		} );
 
 		it( 'offers no drill-down in Cities mode', () => {
