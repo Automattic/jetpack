@@ -55,14 +55,20 @@ type AnalyticsPostSection = 'traffic' | 'email-opens' | 'email-clicks';
 /**
  * Where to go, not how the URL is spelled.
  *
- * Only the two views Jetpack links to are modelled; the dashboard also serves
+ * Only the views Jetpack links to are modelled; the dashboard also serves
  * `/reports/$report` and `/video/$videoId`. Deliberately absent: the site and
  * blog identifiers, resolved from script data so callers need not thread them
  * through props.
+ *
+ * `settings` opens the dashboard's Stats settings drawer, which the dashboard
+ * offers only to `manage_options`, so link to it from admin-only screens.
  */
 export type AnalyticsView =
 	| { view: 'dashboard'; section?: AnalyticsDashboardSection; range?: AnalyticsDateRange }
-	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange };
+	| { view: 'post'; id: number; section?: AnalyticsPostSection; range?: AnalyticsDateRange }
+	| { view: 'settings' };
+
+type AnalyticsPageView = Exclude< AnalyticsView, { view: 'settings' } >;
 
 /**
  * `?section=` takes the slug — the segment after the namespace, so
@@ -170,7 +176,7 @@ function rangeParams( range: AnalyticsDateRange, timezone: string ): Record< str
  * @param view - The requested view.
  * @return The search params to merge.
  */
-function analyticsSection( view: AnalyticsView ): Record< string, string > {
+function analyticsSection( view: AnalyticsPageView ): Record< string, string > {
 	const section =
 		view.view === 'dashboard'
 			? view.section && DASHBOARD_SECTIONS.includes( view.section ) && view.section
@@ -200,16 +206,17 @@ export function getAnalyticsUrl( view: AnalyticsView ): string | null {
 		return null;
 	}
 
-	const path = view.view === 'dashboard' ? '/' : view.id > 0 && `/post/${ view.id }`;
+	const query =
+		view.view === 'settings'
+			? new URLSearchParams( { settings: '1' } ).toString()
+			: new URLSearchParams( {
+					...analyticsSection( view ),
+					...( view.range ? rangeParams( view.range, analytics.timezone ) : {} ),
+				} ).toString();
+	const path = view.view === 'post' ? view.id > 0 && `/post/${ view.id }` : '/';
 	if ( ! path ) {
 		return null;
 	}
-
-	const search = new URLSearchParams( {
-		...analyticsSection( view ),
-		...( view.range ? rangeParams( view.range, analytics.timezone ) : {} ),
-	} );
-	const query = search.toString();
 
 	const page = new URLSearchParams( {
 		page: analytics.page_slug,

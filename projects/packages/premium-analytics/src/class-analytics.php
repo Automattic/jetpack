@@ -290,15 +290,16 @@ class Analytics {
 	}
 
 	/**
-	 * Register the site-served REST API: the WPCOM data proxy and notices.
+	 * Register the site-served REST API: the WPCOM data proxy, notices and the Stats settings.
 	 *
-	 * Both self-gate on their own rest_api_init hooks.
+	 * Each self-gates on its own rest_api_init hook.
 	 *
 	 * @return void
 	 */
 	private static function register_local_api() {
 		Api_Proxy_Controller::register();
 		Notices_Controller::register();
+		Stats_Settings::configure();
 	}
 
 	/**

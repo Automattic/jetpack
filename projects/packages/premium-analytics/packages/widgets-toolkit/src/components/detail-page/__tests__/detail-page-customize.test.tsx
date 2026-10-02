@@ -19,6 +19,11 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 	},
 } ) );
 
+jest.mock( '@wordpress/route', () => ( {
+	useSearch: () => ( {} ),
+	useNavigate: () => jest.fn(),
+} ) );
+
 const layout = [ { uuid: 'card', type: 'jpa/card' } ] as DashboardWidget[];
 
 const editingActions = <div data-testid="dashboard-actions" />;

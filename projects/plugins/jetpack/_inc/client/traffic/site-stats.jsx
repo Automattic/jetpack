@@ -17,6 +17,7 @@ import SupportLink from 'components/support-link';
 import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 import { isOdysseyStatsEnabled } from 'state/initial-state';
+import { getAnalyticsUrl } from '../../shared/analytics-url';
 
 // Kept out of the ternary below: the minifier merges `c ? __( a ) : __( b )` into `__( c ? a : b )`, which breaks string extraction.
 const STATS_SETTINGS_DESCRIPTION = __(
@@ -235,7 +236,9 @@ class SiteStatsComponent extends Component {
 						<Card
 							compact
 							className="jp-settings-card__configure-link"
-							href="admin.php?page=stats#!/stats/settings"
+							href={
+								getAnalyticsUrl( { view: 'settings' } ) ?? 'admin.php?page=stats#!/stats/settings'
+							}
 						>
 							{ __( 'Manage Stats settings', 'jetpack' ) }
 						</Card>

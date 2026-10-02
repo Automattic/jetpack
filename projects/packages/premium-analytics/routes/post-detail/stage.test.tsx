@@ -210,6 +210,7 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 jest.mock( '@wordpress/route', () => ( {
 	useParams: () => ( { postId: '41' } ),
 	useSearch: () => mockSearch,
+	useNavigate: () => jest.fn(),
 } ) );
 
 // The report registry is deliberately not mocked so the breadcrumb exercises
