@@ -467,9 +467,6 @@
 	font-family: var(--jetpack-comments-font-family, inherit);
 	font-size: var(--jetpack-comments-font-size, inherit);
 	line-height: var(--jetpack-comments-line-height, inherit);
-	// So the appender fills the box below the last block.
-	display: flex;
-	flex-direction: column;
 
 	.is-root-container > :first-child {
 		margin-block-start: 0;
@@ -480,16 +477,10 @@
 	}
 
 	.jetpack-comments__appender {
-		flex-grow: 1;
-		min-block-size: 1lh;
-		cursor: text;
+		margin-block-start: 8px;
 
-		&:focus {
-			outline: none;
-		}
-
-		&:focus-visible {
-			outline: 2px solid var(--wp-admin-theme-color);
+		.components-button {
+			box-shadow: inset 0 0 0 1px currentColor;
 		}
 	}
 }

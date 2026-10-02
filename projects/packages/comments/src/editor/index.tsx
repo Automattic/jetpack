@@ -15,7 +15,7 @@ import * as listItem from '@wordpress/block-library/build-module/list-item/index
 import * as paragraph from '@wordpress/block-library/build-module/paragraph/index.mjs';
 import * as quote from '@wordpress/block-library/build-module/quote/index.mjs';
 import { createBlock, parse, serialize, setDefaultBlockName, type Block } from '@wordpress/blocks';
-import { Popover, SlotFillProvider } from '@wordpress/components';
+import { Button, Popover, SlotFillProvider } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	Component,
@@ -103,6 +103,20 @@ const FocusOnMount = () => {
 	return null;
 };
 
+// The "+" from @wordpress/icons, a large package for one icon.
+const plus = (
+	<svg
+		xmlns="http://www.w3.org/2000/svg"
+		viewBox="0 0 24 24"
+		width="24"
+		height="24"
+		aria-hidden="true"
+		focusable="false"
+	>
+		<path d="M11 12.5V17.5H12.5V12.5H17.5V11H12.5V6H11V11H6V12.5H11Z" />
+	</svg>
+);
+
 // Core's appender shows only in an empty editor, which strands the caret in a last code block.
 const Appender = ( { label }: { label: string } ) => {
 	const isNeeded = useSelect( select => {
@@ -113,22 +127,12 @@ const Appender = ( { label }: { label: string } ) => {
 	}, [] );
 	const { insertDefaultBlock, clearSelectedBlock } = useDispatch( blockEditorStore );
 	const onClick = useCallback( () => insertDefaultBlock(), [ insertDefaultBlock ] );
-	// Reached by arrow key, so the block above, and its toolbar, let go.
+	// Or WritingFlow takes Enter here to split the block above.
 	const onFocus = useCallback( () => clearSelectedBlock(), [ clearSelectedBlock ] );
 	// A click goes straight to a new block, without the toolbar closing in between.
 	const onMouseDown = useCallback(
-		( event: MouseEvent< HTMLDivElement > ) => event.preventDefault(),
+		( event: MouseEvent< HTMLButtonElement > ) => event.preventDefault(),
 		[]
-	);
-	// Ahead of WritingFlow, which would split the selected block on Enter too.
-	const onKeyDown = useCallback(
-		( event: KeyboardEvent< HTMLDivElement > ) => {
-			if ( event.key === 'Enter' || event.key === ' ' ) {
-				event.preventDefault();
-				insertDefaultBlock();
-			}
-		},
-		[ insertDefaultBlock ]
 	);
 
 	if ( ! isNeeded ) {
@@ -136,19 +140,17 @@ const Appender = ( { label }: { label: string } ) => {
 	}
 
 	return (
-		// eslint-disable-next-line jsx-a11y/click-events-have-key-events -- It listens in the capture phase.
-		<div
-			role="button"
-			tabIndex={ 0 }
-			aria-label={ label }
-			className="jetpack-comments__appender"
-			// WritingFlow turns editable for a selection across blocks.
-			contentEditable={ false }
-			onClick={ onClick }
-			onFocus={ onFocus }
-			onMouseDown={ onMouseDown }
-			onKeyDownCapture={ onKeyDown }
-		/>
+		// WritingFlow turns editable for a selection across blocks.
+		<div className="jetpack-comments__appender" contentEditable={ false }>
+			<Button
+				icon={ plus }
+				label={ label }
+				size="small"
+				onClick={ onClick }
+				onFocus={ onFocus }
+				onMouseDown={ onMouseDown }
+			/>
+		</div>
 	);
 };
 
