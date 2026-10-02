@@ -16,7 +16,7 @@ export default {
 		docs: {
 			description: {
 				component:
-					'Deprecated props aside, a tooltip box with `label: value` content. Prefer `TooltipBox`, which draws the same box and leaves placement to you.',
+					'A tooltip box with `label: value` content or children. Prefer `TooltipBox`; `data`, `component`, `top` and `left` are deprecated.',
 			},
 		},
 	},
@@ -26,11 +26,11 @@ export default {
 			control: 'object',
 		},
 		top: {
-			description: 'Distance from top of container',
+			description: 'Deprecated: position the box with `style`, or use `TooltipBox`.',
 			control: { type: 'range', min: 0, max: 200 },
 		},
 		left: {
-			description: 'Distance from left of container',
+			description: 'Deprecated: position the box with `style`, or use `TooltipBox`.',
 			control: { type: 'range', min: 0, max: 200 },
 		},
 		style: {

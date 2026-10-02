@@ -12,7 +12,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The chart tooltip box: the dark surface every chart tooltip draws. It does not position itself, so place it with `style` or a wrapper. Use it to draw a tooltip outside a visx `XYChart`; inside one, use `XYChartTooltip`. Set `unstyled` to drop the surface.',
+					"The chart tooltip box: the dark surface every chart tooltip draws. It does not position itself, so place it with `style` or a wrapper. Use it to draw a tooltip outside a visx `XYChart`; inside one, use `XYChartTooltip`. Set `unstyled` to drop the surface. Inside a chart's `renderTooltip`, return content only; the chart draws the box.",
 			},
 		},
 	},

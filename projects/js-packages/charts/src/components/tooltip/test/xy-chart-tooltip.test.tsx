@@ -388,10 +388,14 @@ describe( 'XyChartTooltip', () => {
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { zIndex: '9' } );
 	} );
 
-	test.each( [ 'auto', 'below-axis' ] as const )(
+	test.each( [
+		[ 'auto', { tooltipPlacement: 'auto' } ],
+		[ 'below-axis', { tooltipPlacement: 'below-axis' } ],
+		[ 'unbounded', { detectBounds: false } ],
+	] as const )(
 		'keeps the %s surface and stacking under a partial style override',
-		async tooltipPlacement => {
-			renderChart( { tooltipPlacement, style: { color: 'red' } } );
+		async ( _name, placementProps ) => {
+			renderChart( { ...placementProps, style: { color: 'red' } } );
 			const box = await screen.findByTestId( 'tooltip-box' );
 			expect( box ).toHaveClass( 'surface' );
 			expect( box ).toHaveStyle( { zIndex: '3', color: 'rgb(255, 0, 0)' } );

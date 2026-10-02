@@ -27,15 +27,6 @@ describe( 'BaseTooltip', () => {
 		expect( screen.getByText( 'Custom Child Content' ) ).toBeInTheDocument();
 	} );
 
-	test( 'applies correct positioning styles', () => {
-		render( <BaseTooltip { ...defaultProps } /> );
-		const tooltip = screen.getByRole( 'tooltip' );
-		expect( tooltip ).toHaveStyle( {
-			top: '100px',
-			left: '200px',
-		} );
-	} );
-
 	it( 'places a legacy box centered above its point', () => {
 		render( <BaseTooltip { ...defaultProps } /> );
 		expect( screen.getByRole( 'tooltip' ) ).toHaveStyle( {
