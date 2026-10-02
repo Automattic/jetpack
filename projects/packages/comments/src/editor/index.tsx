@@ -27,10 +27,11 @@ import {
 	useRef,
 } from '@wordpress/element';
 import '@wordpress/format-library';
+import { __ } from '@wordpress/i18n';
 import { unregisterFormatType } from '@wordpress/rich-text';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
-import type { KeyboardEvent, ReactNode } from 'react';
+import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
 
 import './style.scss';
 
@@ -101,6 +102,56 @@ const FocusOnMount = () => {
 	}, [ last, selectBlock ] );
 
 	return null;
+};
+
+// Core's appender shows only in an empty editor, which strands the caret in a last code block.
+const Appender = () => {
+	const isNeeded = useSelect( select => {
+		const { getBlockOrder, getBlockName } = select( blockEditorStore );
+		const last = getBlockOrder().at( -1 );
+
+		return !! last && getBlockName( last ) !== paragraph.name;
+	}, [] );
+	const { insertDefaultBlock, clearSelectedBlock } = useDispatch( blockEditorStore );
+	const onClick = useCallback( () => insertDefaultBlock(), [ insertDefaultBlock ] );
+	// Reached by arrow key, so the block above, and its toolbar, let go.
+	const onFocus = useCallback( () => clearSelectedBlock(), [ clearSelectedBlock ] );
+	// A click goes straight to a new block, without the toolbar closing in between.
+	const onMouseDown = useCallback(
+		( event: MouseEvent< HTMLDivElement > ) => event.preventDefault(),
+		[]
+	);
+	// Ahead of WritingFlow, which would split the selected block on Enter too.
+	const onKeyDown = useCallback(
+		( event: KeyboardEvent< HTMLDivElement > ) => {
+			if ( event.key === 'Enter' || event.key === ' ' ) {
+				event.preventDefault();
+				insertDefaultBlock();
+			}
+		},
+		[ insertDefaultBlock ]
+	);
+
+	if ( ! isNeeded ) {
+		return null;
+	}
+
+	return (
+		// eslint-disable-next-line jsx-a11y/click-events-have-key-events -- It listens in the capture phase.
+		<div
+			role="button"
+			tabIndex={ 0 }
+			// eslint-disable-next-line @wordpress/i18n-text-domain -- Core's string, from strings.php.
+			aria-label={ __( 'Add default block' ) }
+			className="jetpack-comments__appender"
+			// WritingFlow turns editable for a selection across blocks.
+			contentEditable={ false }
+			onClick={ onClick }
+			onFocus={ onFocus }
+			onMouseDown={ onMouseDown }
+			onKeyDownCapture={ onKeyDown }
+		/>
+	);
 };
 
 type WritingAreaProps = { undo: () => void; redo: () => void; children: ReactNode };
@@ -192,6 +243,7 @@ const Editor = ( {
 							<ObserveTyping>
 								<BlockList />
 							</ObserveTyping>
+							<Appender />
 						</WritingFlow>
 					</BlockTools>
 				</WritingArea>
