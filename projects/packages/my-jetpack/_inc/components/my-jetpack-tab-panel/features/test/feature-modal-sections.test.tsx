@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { FeatureDelivery } from '../feature-delivery';
 import { FeatureModal } from '../feature-modal';
 import { FeaturePaid, UpgradeButton } from '../feature-paid';
+import { FeaturesTrackingProvider } from '../features-tracking-context';
 import type { FeatureState } from '../feature-state';
 
 const mockRecordEvent = jest.fn();
@@ -196,14 +197,54 @@ describe( 'FeaturePaid', () => {
 	} );
 
 	it( 'records which plan a feature\u2019s details sent the site to', async () => {
-		render( <FeaturePaid state={ moduleState( false, 'inactive' ) } /> );
+		render(
+			<FeaturesTrackingProvider filter="all" search="" view="grid">
+				<FeaturePaid state={ moduleState( false, 'inactive' ) } />
+			</FeaturesTrackingProvider>
+		);
 
 		await userEvent.click( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) );
 
-		expect( mockRecordEvent ).toHaveBeenCalledWith( 'jetpack_myjetpack_features_plan_click', {
-			feature: 'jetpack-forms',
-			plan: 'complete',
-		} );
+		expect( mockRecordEvent ).toHaveBeenCalledWith(
+			'jetpack_myjetpack_features_plan_click',
+			expect.objectContaining( {
+				plan: 'complete',
+				feature_slug: 'jetpack-forms',
+				feature_name: 'Forms',
+				feature_status: 'inactive',
+				control_kind: 'module',
+				event_version: 1,
+				current_filter: 'all',
+				view: 'grid',
+			} )
+		);
+	} );
+
+	it( 'names a plan the site already has without linking it to its own checkout', () => {
+		const owned = {
+			...moduleState( false, 'inactive' ),
+			feature: {
+				...feature,
+				plans: [
+					{ slug: 'growth', name: 'Jetpack Growth', owned: true },
+					{ slug: 'complete', name: 'Jetpack Complete', owned: false },
+				],
+			},
+		} as FeatureState;
+		render( <FeaturePaid state={ owned } /> );
+
+		expect( screen.getByText( /Included in/ ) ).toHaveTextContent( 'Jetpack Growth' );
+		expect( screen.queryByRole( 'link', { name: 'Jetpack Growth' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'records nothing for a plan click outside the tab, where there is no context to report', async () => {
+		render( <FeaturePaid state={ moduleState( false, 'inactive' ) } /> );
+		mockRecordEvent.mockClear();
+
+		await userEvent.click( screen.getByRole( 'link', { name: 'Jetpack Complete' } ) );
+
+		expect( mockRecordEvent ).not.toHaveBeenCalled();
 	} );
 
 	it( 'records which feature an upgrade was chosen from', async () => {

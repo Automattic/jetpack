@@ -7,31 +7,40 @@ import useAnalytics from '../../../hooks/use-analytics';
 import { getFeaturePricingHref } from '../utils';
 import { FeatureHighlights } from './feature-highlights';
 import { getForcedReason } from './feature-state';
+import { useFeaturesTracking } from './features-tracking-context';
 import styles from './styles.module.scss';
 import type { FeatureState } from './feature-state';
 
 type PlanLinkProps = {
-	plan: { slug: string; name: string };
-	feature: string;
+	plan: { slug: string; name: string; owned?: boolean };
+	state: FeatureState;
 };
 
 /**
- * A plan name that opens the plan's own pricing page.
+ * A plan name, linked to its pricing page unless the site is already on that plan.
  *
- * @param {PlanLinkProps} props         - The component props.
- * @param {object}        props.plan    - The plan's slug and display name.
- * @param {string}        props.feature - The feature whose details link here, for checkout to return to.
+ * @param {PlanLinkProps} props       - The component props.
+ * @param {object}        props.plan  - The plan's slug, display name, and whether the site has it.
+ * @param {FeatureState}  props.state - Live state for the feature whose details link here.
  * @return The rendered component.
  */
-function PlanLink( { plan, feature }: PlanLinkProps ) {
-	const { recordEvent } = useAnalytics();
+function PlanLink( { plan, state }: PlanLinkProps ) {
+	const tracking = useFeaturesTracking();
 	const onClick = useCallback(
-		() => recordEvent( 'jetpack_myjetpack_features_plan_click', { feature, plan: plan.slug } ),
-		[ feature, plan.slug, recordEvent ]
+		() => tracking?.trackPlanClick( state, plan.slug ),
+		[ plan.slug, state, tracking ]
 	);
 
+	// Nothing to sell a site the plan already covers, the same reason Upgrade is gone.
+	if ( plan.owned ) {
+		return <>{ plan.name }</>;
+	}
+
 	return (
-		<Link href={ getFeaturePricingHref( `/add-${ plan.slug }`, feature ) } onClick={ onClick }>
+		<Link
+			href={ getFeaturePricingHref( `/add-${ plan.slug }`, state.feature.slug ) }
+			onClick={ onClick }
+		>
 			{ plan.name }
 		</Link>
 	);
@@ -163,7 +172,7 @@ export function FeaturePaid( { state }: FeaturePaidProps ) {
 						Object.fromEntries(
 							plans.map( ( plan, index ) => [
 								`plan${ index }`,
-								<PlanLink key={ plan.slug } plan={ plan } feature={ feature.slug } />,
+								<PlanLink key={ plan.slug } plan={ plan } state={ state } />,
 							] )
 						)
 					) }
