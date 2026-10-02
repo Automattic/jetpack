@@ -29,6 +29,8 @@ export type ComparativeLineChartSeries = SeriesData & {
  */
 export type TooltipExtraSeries = {
 	label: string;
+	/** Row key, for two extras that share a label (a period and its comparison). Defaults to `label`. */
+	key?: string;
 	data: ComparativeDatePointDate[];
 	/** Falls back to the chart's `dataFormat`. */
 	dataFormat?: DataFormat;

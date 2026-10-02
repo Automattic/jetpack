@@ -18,7 +18,7 @@ export type TooltipExtrasResult< T extends TooltipData > = {
 	tooltipData: T | undefined;
 	/**
 	 * `ChartTooltip`'s supplementary rows: the extras this call appended, keyed
-	 * by label with each one's format. A label the chart already reported is not
+	 * by row key with each one's format. A key the chart already reported is not
 	 * here, so a drawn series keeps its swatch even when it is also listed.
 	 */
 	supplementaryRows: Record< string, DataFormat | undefined > | undefined;
@@ -48,7 +48,9 @@ export function appendTooltipExtras< T extends TooltipData >(
 	const supplementaryRows: Record< string, DataFormat | undefined > = {};
 
 	extras.forEach( ( extra, offset ) => {
-		if ( augmented[ extra.label ] ) {
+		const key = extra.key ?? extra.label;
+
+		if ( augmented[ key ] ) {
 			return;
 		}
 
@@ -57,8 +59,8 @@ export function appendTooltipExtras< T extends TooltipData >(
 		// A point with a null value still gets its row, which the tooltip reads as "No data".
 		if ( point ) {
 			// `index` only has to exist for the row shape; the tooltip orders rows itself.
-			augmented[ extra.label ] = { datum: point, index: offset, key: extra.label };
-			supplementaryRows[ extra.label ] = extra.dataFormat;
+			augmented[ key ] = { datum: point, index: offset, key };
+			supplementaryRows[ key ] = extra.dataFormat;
 		}
 	} );
 
@@ -96,8 +98,10 @@ export function resolveTooltipUnits(
 	}
 
 	extras?.forEach( extra => {
-		if ( ! units.has( extra.label ) ) {
-			units.set( extra.label, { name: extra.label, countLabel: extra.countLabel } );
+		const key = extra.key ?? extra.label;
+
+		if ( ! units.has( key ) ) {
+			units.set( key, { name: extra.label, countLabel: extra.countLabel } );
 		}
 	} );
 

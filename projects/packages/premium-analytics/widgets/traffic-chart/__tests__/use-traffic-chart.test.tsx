@@ -294,7 +294,7 @@ describe( 'useTrafficChart', () => {
 			expect( hourly ).toContain(
 				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00.000+00:00' ) }`
 			);
-			expect( hourly ).toMatch( /stat_fields=views(&|$)/ );
+			expect( hourly ).toContain( `stat_fields=${ encodeURIComponent( 'views' ) }` );
 			expect( daily ).toContain(
 				`stat_fields=${ encodeURIComponent( 'visitors,likes,comments' ) }`
 			);
@@ -375,5 +375,60 @@ describe( 'useTrafficChart', () => {
 				expect( path ).not.toContain( 'likes' );
 			}
 		} );
+	} );
+} );
+
+describe( 'useTrafficChart tooltip extras', () => {
+	const WITH_POSTS = {
+		unit: 'month',
+		fields: [ 'period', 'views', 'visitors', 'post_titles' ],
+		data: [
+			[ '2026-05', 1200, 900, [ 'Hello world' ] ],
+			[ '2026-06', 800, 0, [] ],
+		],
+	};
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+			Promise.resolve( path.includes( 'views' ) ? WITH_POSTS : LIKES_COMMENTS_RESPONSE )
+		);
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'asks the views request for the post titles too', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		expect( visitsPaths()[ 0 ] ).toContain(
+			`stat_fields=${ encodeURIComponent( 'views,visitors,post_titles' ) }`
+		);
+	} );
+
+	it( 'reads views per visitor and the posts published out under Views and Visitors only', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ views, visitors, comments, likes ] = result.current.metrics;
+		expect( views.tooltipExtras?.map( extra => extra.label ) ).toEqual( [
+			'Views per visitor',
+			'Posts published',
+		] );
+		expect( visitors.tooltipExtras ).toBe( views.tooltipExtras );
+		expect( comments.tooltipExtras ).toBeUndefined();
+		expect( likes.tooltipExtras ).toBeUndefined();
+
+		// One row per bucket that has a reading: no ratio without visitors, no post row without posts.
+		const [ ratio, posts ] = views.tooltipExtras ?? [];
+		expect( ratio.data ).toHaveLength( 1 );
+		expect( ratio.data[ 0 ].value ).toBeCloseTo( 1.33, 2 );
+		expect( posts.data ).toEqual( [ expect.objectContaining( { value: 1 } ) ] );
 	} );
 } );
