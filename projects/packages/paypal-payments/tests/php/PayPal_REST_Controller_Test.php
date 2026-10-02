@@ -1867,7 +1867,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		}
 
 		$this->assertTrue( $create_args['line_items']['required'], 'line_items should be required.' );
-		$this->assertArrayHasKey( 'image_url', $create_args['line_items']['items']['properties'], 'The product image is not declared on the line item.' );
+		$this->assertArrayNotHasKey( 'image_url', $create_args['line_items']['items']['properties'], 'The line item declares image_url, but the product image stays on the site.' );
 	}
 
 	// --- List route ---
@@ -1936,12 +1936,13 @@ class PayPal_REST_Controller_Test extends TestCase {
 	// --- Round trip ---
 
 	/**
-	 * Every field the editor can set survives create, read, update and read again.
+	 * Every field sent to PayPal survives create, read, update and read again. The
+	 * request also has an image_url, which the route discards.
 	 *
 	 * PayPal is stood in for by a store that keeps what it was sent, so this covers
 	 * the route and the mapper, not PayPal.
 	 */
-	public function test_create_and_update_round_trip_keeps_every_field() {
+	public function test_create_and_update_round_trip_keeps_every_paypal_field() {
 		$this->set_up_connected_admin_state();
 		$this->register_paypal_routes();
 
@@ -2032,10 +2033,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 			'return_url' => 'https://example.com/thanks',
 		);
 
-		// The same item minus the empty amount on the unpriced option. No product
-		// price either: the options carry it.
+		// The same item minus image_url and the empty amount on the unpriced option.
+		// No product price either: the options have their own prices.
 		$expected_item = $sent_item;
-		unset( $expected_item['variants']['dimensions'][1]['options'][0]['unit_amount'] );
+		unset( $expected_item['image_url'], $expected_item['variants']['dimensions'][1]['options'][0]['unit_amount'] );
 
 		$create = $this->dispatch_json( 'POST', '/wpcom/v2/paypal/buttons', $body );
 		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
@@ -2051,7 +2052,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$attributes = $data['attributes'];
 		$this->assertSame( 'Widget', $attributes['productName'] );
 		$this->assertSame( "A fine widget.\n\nShips in two days.", $attributes['productDescription'] );
-		$this->assertSame( 'https://example.com/widget.png', $attributes['imageUrl'] );
+		$this->assertArrayNotHasKey( 'imageUrl', $attributes );
 		$this->assertTrue( $attributes['variantsEnabled'] );
 		$this->assertEquals( $expected_item['variants'], $attributes['variants'] );
 		$this->assertSame( 'USD', $attributes['currencyCode'] );
@@ -2104,38 +2105,6 @@ class PayPal_REST_Controller_Test extends TestCase {
 
 		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
 		$this->assertSame( 'http://example.com/thanks', $store['return_url'] );
-	}
-
-	/**
-	 * PayPal fetches the image itself, so a URL it cannot fetch is left out
-	 * rather than failing the save.
-	 */
-	public function test_create_button_drops_a_non_https_image_url() {
-		$this->set_up_connected_admin_state();
-		$this->register_paypal_routes();
-
-		$store = array();
-		$this->mock_paypal_store( $store );
-
-		$create = $this->dispatch_json(
-			'POST',
-			'/wpcom/v2/paypal/buttons',
-			array(
-				'line_items' => array(
-					array(
-						'name'        => 'Widget',
-						'unit_amount' => array(
-							'currency_code' => 'USD',
-							'value'         => '10.00',
-						),
-						'image_url'   => 'http://example.com/widget.png',
-					),
-				),
-			)
-		);
-
-		$this->assertSame( 201, $create->get_status(), wp_json_encode( $create->get_data(), JSON_UNESCAPED_SLASHES ) );
-		$this->assertArrayNotHasKey( 'image_url', $store['line_items'][0] );
 	}
 
 	// --- Tracks events ---
@@ -2506,7 +2475,6 @@ class PayPal_REST_Controller_Test extends TestCase {
 								'currency_code' => 'EUR',
 								'value'         => '10.00',
 							),
-							'image_url'   => 'https://example.com/widget.png',
 						),
 					),
 				),
@@ -2524,7 +2492,6 @@ class PayPal_REST_Controller_Test extends TestCase {
 						'integration_mode' => 'BUTTON',
 						'currency'         => 'EUR',
 						'has_variants'     => false,
-						'has_image'        => true,
 					),
 				),
 			),
@@ -2548,10 +2515,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
-	 * The create event uses the sanitized data, which drops an http:// image
-	 * and uppercases the currency.
+	 * The create event uses the sanitized data, which uppercases the currency.
 	 */
-	public function test_create_button_records_the_sanitized_image_and_uppercased_currency() {
+	public function test_create_button_records_the_uppercased_currency() {
 		$this->set_up_connected_admin_state();
 		$this->mock_http_response( 201, array( 'id' => 'PLB-CREATED123' ) );
 
@@ -2563,13 +2529,11 @@ class PayPal_REST_Controller_Test extends TestCase {
 						'currency_code' => 'usd',
 						'value'         => '10.00',
 					),
-					'image_url'   => 'http://example.com/widget.png',
 				)
 			)
 		);
 
 		$properties = $this->recorded_events()[0]['properties'];
-		$this->assertFalse( $properties['has_image'] );
 		$this->assertSame( 'USD', $properties['currency'] );
 	}
 
@@ -2697,7 +2661,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertSame( 'jetpack_paypal_button_created', $events[0]['event_name'] );
 		$this->assertSame( get_current_user_id(), $events[0]['user']->ID );
 		$this->assertSame(
-			array( 'environment', 'integration_mode', 'currency', 'has_variants', 'has_image', 'blog_id', 'platform' ),
+			array( 'environment', 'integration_mode', 'currency', 'has_variants', 'blog_id', 'platform' ),
 			array_keys( $events[0]['properties'] )
 		);
 		$this->assertSame( 1234, $events[0]['properties']['blog_id'] );

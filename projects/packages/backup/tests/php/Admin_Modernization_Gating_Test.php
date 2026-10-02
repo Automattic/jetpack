@@ -261,7 +261,7 @@ class Admin_Modernization_Gating_Test extends TestCase {
 		$this->assertSame( Jetpack_Backup::JETPACK_BACKUP_SLUG, $items[0]['menu_slug'] );
 		$this->assertSame( 'jetpack_backup_jetpack_backup_dashboard_wp_admin_render_page', $items[0]['function'] );
 		$this->assertSame( 'Jetpack VaultPress Backup', $items[0]['page_title'] );
-		$this->assertSame( 'VaultPress Backup', $items[0]['menu_title'] );
+		$this->assertSame( 'Backup', $items[0]['menu_title'] );
 	}
 
 	public function test_maybe_load_wp_build_does_nothing_when_not_modernized() {

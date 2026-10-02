@@ -4147,7 +4147,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/videopress",
-                "reference": "b41b2aa518bd9ebee255bdbda9653810dee4e89a"
+                "reference": "038eab668c04c4527c2342a335ec059f00411465"
             },
             "require": {
                 "automattic/jetpack-admin-ui": "@dev",
@@ -4160,6 +4160,7 @@
                 "php": ">=7.4"
             },
             "require-dev": {
+                "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
@@ -4181,7 +4182,12 @@
                 "version-constants": {
                     "::PACKAGE_VERSION": "src/class-package-version.php"
                 },
-                "textdomain": "jetpack-videopress-pkg"
+                "textdomain": "jetpack-videopress-pkg",
+                "dependencies": {
+                    "test-only": [
+                        "packages/premium-analytics"
+                    ]
+                }
             },
             "autoload": {
                 "classmap": [

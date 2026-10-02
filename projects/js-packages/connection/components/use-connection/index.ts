@@ -10,23 +10,21 @@ import type {
 	UseConnectionProps,
 	UseConnectionReturn,
 } from './types.ts';
-import type { ConnectionErrorMap } from '../../hooks/use-connection-error-notice/types.ts';
 import type { SyntheticEvent } from 'react';
 
 type StoreSelector = ( storeId: string ) => Record< string, ( ...args: unknown[] ) => unknown >;
 
 /**
- * Shared empty-value fallbacks for absent store slices.
+ * Shared empty-value fallback for an absent `userConnectionData` slice.
  *
  * `useSelect` shallow-compares the object its callback returns and re-renders on
  * any difference, so a fresh `{}` literal per call would make an absent slice
  * look like a change on every store update, anywhere in the store.
  *
- * Typed rather than asserted: both shapes have no required members, so an empty
- * object really is one of them.
+ * Typed rather than asserted: the shape has no required members, so an empty
+ * object really is one.
  */
 const EMPTY_USER_CONNECTION_DATA: UserConnectionData = {};
-const EMPTY_CONNECTION_ERROR_MAP: ConnectionErrorMap = {};
 
 const initialState =
 	window?.JP_CONNECTION_INITIAL_STATE ||
@@ -86,7 +84,6 @@ export default function useConnection( {
 		connectedPlugins,
 		connectionOwner,
 		connectionErrors,
-		connectionHealthErrors,
 		isRegistered,
 		isUserConnected,
 		hasConnectedOwner,
@@ -109,14 +106,6 @@ export default function useConnection( {
 				Record< string, unknown > | unknown[],
 			connectionOwner: isConnectionOwner( owner ) ? owner : null,
 			connectionErrors: select( STORE_ID ).getConnectionErrors() as Array< string | object >,
-			// Always a code→user→error map (selector defaults to `{}`), unlike
-			// `connectionErrors` which can be an array — so type it as the real
-			// `ConnectionErrorMap` and skip the array normalization downstream.
-			// Optional-call the selector: downstream consumers that register a
-			// partial connection-store mock may not define it.
-			connectionHealthErrors:
-				( select( STORE_ID ).getConnectionHealthErrors?.() as ConnectionErrorMap | undefined ) ??
-				EMPTY_CONNECTION_ERROR_MAP,
 			isOfflineMode: select( STORE_ID ).getIsOfflineMode() as boolean,
 			isRegistered: ( connectionStatus.isRegistered ?? false ) as boolean,
 			isUserConnected: ( connectionStatus.isUserConnected ?? false ) as boolean,
@@ -195,7 +184,6 @@ export default function useConnection( {
 		hasConnectedOwner,
 		connectedPlugins,
 		connectionErrors,
-		connectionHealthErrors,
 		isOfflineMode,
 	};
 }

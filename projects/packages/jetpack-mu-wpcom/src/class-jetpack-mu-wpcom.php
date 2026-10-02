@@ -140,6 +140,9 @@ class Jetpack_Mu_Wpcom {
 		// Premium Analytics offers the Ads tab on Simple and Atomic sites whose plan includes WordAds and that have it on.
 		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_wordads_section' ) );
 
+		// Premium Analytics seeds the Top videos widget wherever the plan includes VideoPress, on Simple and Atomic.
+		add_action( 'plugins_loaded', array( __CLASS__, 'load_premium_analytics_videopress_widgets' ) );
+
 		// Unified navigation fix for changes in WordPress 6.2.
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'unbind_focusout_on_wp_admin_bar_menu_toggle' ) );
 
@@ -411,6 +414,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-unified-admin-page-view/wpcom-unified-admin-page-view.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/wpme-oembed/wpme-oembed.php';
+		}
 
 		require_once __DIR__ . '/features/write/write.php';
 
@@ -920,6 +926,17 @@ class Jetpack_Mu_Wpcom {
 	 */
 	public static function load_premium_analytics_wordads_section() {
 		require_once __DIR__ . '/features/premium-analytics/wordads-section.php';
+	}
+
+	/**
+	 * Register the Top videos widget of the Premium Analytics dashboard by plan feature.
+	 *
+	 * Same seam as the Ads tab: inert on a site without the dashboard.
+	 *
+	 * @since $$next-version$$
+	 */
+	public static function load_premium_analytics_videopress_widgets() {
+		require_once __DIR__ . '/features/premium-analytics/videopress-widgets.php';
 	}
 
 	/**

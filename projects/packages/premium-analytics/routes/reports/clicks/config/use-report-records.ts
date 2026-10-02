@@ -2,11 +2,11 @@
  * External dependencies
  */
 import { useStatsClicks, type ReportParams } from '@jetpack-premium-analytics/data';
+import {
+	aggregateClickRows,
+	getSummarizedReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-/**
- * Internal dependencies
- */
-import { aggregateClickRows } from './aggregate';
 
 /**
  * Fetch and derive the Clicks table records.
@@ -16,12 +16,7 @@ import { aggregateClickRows } from './aggregate';
  */
 export function useClicksReportRecords( reportParams: ReportParams ) {
 	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 1,
-			period: 'day',
-		} ),
+		() => getSummarizedReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const report = useStatsClicks( recordsParams );

@@ -42,7 +42,7 @@ const clearRafInterval = ( handle?: RafHandle | null ) => {
  * @return {Function} Function to clear the interval.
  */
 const useRafInterval = ( callback: () => void, timeout = 0 ) => {
-	const timerRef = useRef< RafHandle >();
+	const timerRef = useRef< RafHandle >( undefined );
 
 	const callbackRef = useRef( callback );
 	callbackRef.current = callback;

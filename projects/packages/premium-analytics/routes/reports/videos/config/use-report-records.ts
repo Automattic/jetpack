@@ -6,6 +6,7 @@ import {
 	type ReportParams,
 	type StatsVideoPlaysComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import { getVideosReportQueryParams } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 
 const EMPTY_VIDEO_ROWS: StatsVideoPlaysComparisonItem[] = [];
@@ -18,12 +19,7 @@ const EMPTY_VIDEO_ROWS: StatsVideoPlaysComparisonItem[] = [];
  */
 export function useVideosReportRecords( reportParams: ReportParams ) {
 	const summaryParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 1,
-			complete_stats: 1,
-		} ),
+		() => getVideosReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const summary = useStatsVideoPlays( summaryParams );

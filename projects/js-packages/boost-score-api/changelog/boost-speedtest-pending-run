@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add an `onPending` option to `requestSpeedScores()`, called when the site is still measuring.

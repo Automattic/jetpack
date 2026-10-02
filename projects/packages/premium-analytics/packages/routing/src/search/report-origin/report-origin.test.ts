@@ -49,7 +49,7 @@ describe( 'report origin search params', () => {
 			extraParams: { section: 'email-opens' },
 		} );
 
-		expect( updateSearch( { from: '2026-06-01', post_id: '42', section: 'archives' } ) ).toEqual( {
+		expect( updateSearch( { from: '2026-06-01', period: 'week', section: 'archives' } ) ).toEqual( {
 			from: '2026-06-01',
 			ref: 'emails',
 			section: 'email-opens',
