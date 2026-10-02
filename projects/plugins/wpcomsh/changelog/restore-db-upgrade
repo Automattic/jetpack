@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Run the WordPress database upgrade automatically after a restore instead of prompting the user to confirm it.
