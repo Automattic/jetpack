@@ -11,6 +11,11 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use WP_Post;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Handles the response for a contact form submission.
  *

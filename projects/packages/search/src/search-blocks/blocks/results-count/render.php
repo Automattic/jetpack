@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 ?>
 <?php
 // Intentionally render the element even when the count text is empty. The
