@@ -1,10 +1,11 @@
 /**
- * Keep the link and heading colors a blog inherits readable on the background the creator picked.
+ * Keep the element colors a blog inherits readable on the background the creator picked.
  *
  * WordPress.com applies the same rules at render, but only against a background already saved, so
- * its answer goes stale the moment the creator picks another one. A failing color keeps its own
- * hue and changes only its lightness, so a link stays the site's accent and stays distinct from
- * the text. See NL-959.
+ * its answer goes stale the moment the creator picks another one. A failing link or heading keeps
+ * its own hue and changes only its lightness, so a link stays the site's accent and stays distinct
+ * from the text. Button text is the exception: a label on a filled shape, so it takes the text
+ * rule against the button's own background instead of keeping its hue. See NL-959 and NL-942.
  */
 
 import {
@@ -14,21 +15,24 @@ import {
 	isSameColor,
 	MINIMUM_CONTRAST,
 	readableOn,
+	textFor,
 } from './text-color';
 
 // Content links, and headings including the post title (`h1`) and the header's site title (`h2`).
+// A button is managed too, but by the text rule rather than these, so it is not in the list.
 export const MANAGED = [ 'link', 'heading', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' ];
 
 /**
- * The design's `elements` with the colors the new background calls for.
+ * The design's `elements` with the colors the new backgrounds call for.
  *
- * @param {object} styles     - The design's `styles`.
- * @param {*}      before     - The background before the change.
- * @param {*}      background - The background after it.
- * @param {object} inherited  - The colors the site gives each element, keyed by element.
+ * @param {object} styles           - The design's `styles`.
+ * @param {*}      before           - The email background before the change.
+ * @param {*}      background       - The email background after it.
+ * @param {object} inherited        - The colors the site gives each element, keyed by element.
+ * @param {object} buttonBackground - The button's own background, keyed by `before` and `after`.
  * @return {object|null} The new `elements`, or null when nothing changes.
  */
-export function nextElements( styles, before, background, inherited ) {
+export function nextElements( styles, before, background, inherited, buttonBackground = {} ) {
 	const elements = JSON.parse( JSON.stringify( styles?.elements ?? {} ) );
 	let changed = false;
 
@@ -55,7 +59,35 @@ export function nextElements( styles, before, background, inherited ) {
 		changed = nextUnderline( elements, element, original, before, background, ours ) || changed;
 	} );
 
+	changed = nextButtonText( elements, inherited?.button, buttonBackground ) || changed;
+
 	return changed ? prune( elements ) : null;
+}
+
+/**
+ * Keep the button's text readable on the button's own background, which is left as it is.
+ *
+ * @param {object} elements   - The design's `elements`, modified in place.
+ * @param {*}      original   - The button text color the site supplies.
+ * @param {object} background - The button's own background, keyed by `before` and `after`.
+ * @return {boolean} True when the tree changed.
+ */
+function nextButtonText( elements, original, background ) {
+	const stored = elements.button?.color?.text;
+	const ours =
+		undefined === stored ||
+		null === stored ||
+		isSameColor( stored, colorToStore( textFor, original, background.before ) );
+
+	if ( ! ours ) {
+		return false;
+	}
+
+	return setPath(
+		elements,
+		[ 'button', 'color', 'text' ],
+		colorToStore( textFor, original, background.after )
+	);
 }
 
 /**
