@@ -1,0 +1,90 @@
+import { Meta, Canvas, Source } from '@storybook/addon-docs/blocks';
+import * as TooltipBoxStories from './tooltip-box.stories';
+
+<Meta title="JS Packages/Charts Library/Components/TooltipBox" of={ TooltipBoxStories } />
+
+# TooltipBox
+
+The chart tooltip box: the dark surface every chart tooltip draws. Use it to draw a tooltip outside a visx `XYChart`.
+
+<Canvas of={ TooltipBoxStories.Default } />
+
+## Overview
+
+`TooltipBox` renders a `div` with the chart tooltip surface, the chart scope class, the dark tooltip theme and the `visx-tooltip` class. It does not position itself. Place it with `style` or a wrapper.
+
+<Source
+	language="tsx"
+	code={`import { TooltipBox } from '@automattic/charts';
+
+<TooltipBox>Monthly Sales: 4,200</TooltipBox>`}
+/>
+
+## API Reference
+
+For detailed information about component props and types, see the [TooltipBox API Reference](./?path=/docs/js-packages-charts-library-components-tooltipbox-api-reference--docs).
+
+## Basic Usage
+
+### Positioning
+
+The box sets no position. Place it with `style`, or put it inside a positioned wrapper:
+
+<Canvas of={ TooltipBoxStories.Positioned } />
+
+<Source
+	language="tsx"
+	code={`<div style={ { position: 'relative' } }>
+	<TooltipBox style={ { position: 'absolute', left: 100, top: 60 } }>
+		Monthly Sales: 4,200
+	</TooltipBox>
+</div>`}
+/>
+
+### Props
+
+`TooltipBox` accepts every `div` attribute, plus `unstyled`.
+
+- **`role`**: Defaults to `"tooltip"`. Pass another value to replace it.
+- **`className`**: Added beside the surface classes, so your class does not remove the default look.
+- **`style`**: Passed to the box. It is kept when `unstyled` is set.
+- **`unstyled`**: Drops the surface, the chart scope class and the dark theme.
+- **`ref`**: Forwarded to the box element.
+
+## Unstyled
+
+Set `unstyled` to draw the whole box yourself. The surface, scope class and dark theme are dropped. `style` and `className` still apply, and the `visx-tooltip` class stays.
+
+<Canvas of={ TooltipBoxStories.Unstyled } />
+
+<Source
+	language="tsx"
+	code={`<TooltipBox
+	unstyled
+	style={ { padding: '12px', background: '#fff', color: '#1e1e1e', borderRadius: '8px' } }
+>
+	Monthly Sales: 4,200
+</TooltipBox>`}
+/>
+
+## Using it in charts
+
+Inside a chart's `renderTooltip`, return content only. The chart draws the `TooltipBox` around it, so returning one yourself nests a second box.
+
+<Source
+	language="tsx"
+	code={`<LineChart
+	data={ data }
+	withTooltips
+	renderTooltip={ ( { tooltipData } ) => (
+		<div>{ tooltipData?.nearestDatum?.datum.label }</div>
+	) }
+/>`}
+/>
+
+For a custom visx `XYChart`, use `XYChartTooltip` instead.
+
+## Accessibility
+
+- The box has `role="tooltip"` by default. Replace it with the `role` prop when the content needs another role.
+- The box is not focusable and does not manage focus.
