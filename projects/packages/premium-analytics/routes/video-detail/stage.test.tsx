@@ -3,6 +3,7 @@ import { PRESET_ALL_TIME, computePrimaryRange } from '@jetpack-premium-analytics
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { useVideoSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -234,34 +235,13 @@ describe( 'video detail stage', () => {
 		delete window.JetpackScriptData;
 	} );
 
-	/**
-	 * Find the notice's announcement: `Notice` speaks `info` politely and `error` assertively.
-	 *
-	 * @param text       - The announced message.
-	 * @param politeness - The live region it should land in.
-	 * @return The live region.
-	 */
-	function getAnnouncement( text: string, politeness: 'polite' | 'assertive' ): HTMLElement {
-		return screen.getByText( text, { selector: `#a11y-speak-${ politeness }` } );
-	}
-
-	/**
-	 * Find the notice's visible message, apart from its live-region copy.
-	 *
-	 * @param text - The message.
-	 * @return The message element.
-	 */
-	function getNoticeText( text: string ): HTMLElement {
-		return screen.getByText( text, { ignore: '.a11y-speak-region, script, style' } );
-	}
-
 	it( 'shows a not-found state with a date-preserving link back to Videos', () => {
 		mockSummary( { isNotFound: true } );
 
 		render( stage() );
 
 		expect( getNoticeText( "We couldn't find this video." ) ).toBeInTheDocument();
-		expect( getAnnouncement( "We couldn't find this video.", 'polite' ) ).toBeInTheDocument();
+		expect( getNoticeAnnouncement( "We couldn't find this video.", 'polite' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Videos' } ) ).toHaveAttribute(
 			'href',
 			'/reports/videos?from=2026-06-01&to=2026-06-16'
@@ -275,7 +255,10 @@ describe( 'video detail stage', () => {
 		render( stage() );
 
 		expect(
-			getAnnouncement( "We couldn't load this video. Please try again in a moment.", 'assertive' )
+			getNoticeAnnouncement(
+				"We couldn't load this video. Please try again in a moment.",
+				'assertive'
+			)
 		).toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
@@ -288,7 +271,7 @@ describe( 'video detail stage', () => {
 
 		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
 		expect(
-			getAnnouncement( "You don't have access to this data.", 'polite' )
+			getNoticeAnnouncement( "You don't have access to this data.", 'polite' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );

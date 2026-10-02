@@ -2,6 +2,7 @@ import { useReportScope } from '@jetpack-premium-analytics/data';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { useAuthorSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -217,27 +218,6 @@ describe( 'author detail stage', () => {
 		return screen.getByRole( 'heading', { level: 2, name } );
 	}
 
-	/**
-	 * Find the notice's announcement: `Notice` speaks `info` politely and `error` assertively.
-	 *
-	 * @param text       - The announced message.
-	 * @param politeness - The live region it should land in.
-	 * @return The live region.
-	 */
-	function getAnnouncement( text: string, politeness: 'polite' | 'assertive' ): HTMLElement {
-		return screen.getByText( text, { selector: `#a11y-speak-${ politeness }` } );
-	}
-
-	/**
-	 * Find the notice's visible message, apart from its live-region copy.
-	 *
-	 * @param text - The message.
-	 * @return The message element.
-	 */
-	function getNoticeText( text: string ): HTMLElement {
-		return screen.getByText( text, { ignore: '.a11y-speak-region, script, style' } );
-	}
-
 	it( 'renders the fixed Stats / All authors / Author trail with date-preserving links', () => {
 		mockSummary();
 
@@ -307,7 +287,9 @@ describe( 'author detail stage', () => {
 		render( stage() );
 
 		expect( getNoticeText( "We couldn't find this author." ) ).toBeInTheDocument();
-		expect( getAnnouncement( "We couldn't find this author.", 'polite' ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "We couldn't find this author.", 'polite' )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Authors' } ) ).toHaveAttribute(
 			'href',
 			'/reports/authors?from=2026-06-01&to=2026-06-16'
@@ -329,7 +311,10 @@ describe( 'author detail stage', () => {
 
 		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
 		expect(
-			getAnnouncement( "We couldn't load this author. Please try again in a moment.", 'assertive' )
+			getNoticeAnnouncement(
+				"We couldn't load this author. Please try again in a moment.",
+				'assertive'
+			)
 		).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
@@ -347,7 +332,7 @@ describe( 'author detail stage', () => {
 
 		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
 		expect(
-			getAnnouncement( "You don't have access to this data.", 'polite' )
+			getNoticeAnnouncement( "You don't have access to this data.", 'polite' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
@@ -363,7 +348,7 @@ describe( 'author detail stage', () => {
 
 		expect( getNoticeText( "This site doesn't share author profiles." ) ).toBeInTheDocument();
 		expect(
-			getAnnouncement( "This site doesn't share author profiles.", 'polite' )
+			getNoticeAnnouncement( "This site doesn't share author profiles.", 'polite' )
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );

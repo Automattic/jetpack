@@ -208,13 +208,22 @@ describe( 'usePostSummary', () => {
 		expect( result.current ).toMatchObject( { title: 'Hello', isError: false } );
 	} );
 
-	it( 'reports a failed load with no post as an error', () => {
-		mockStatsPost( undefined, false, true );
+	it( 'reports a failed load with no post as an error, with the request error', () => {
+		const error = { code: 'rest_forbidden', status: 403 };
+		mockUseStatsPost.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isPending: false,
+			isPaused: false,
+			isError: true,
+			error,
+		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
 		const { result } = renderHook( () => usePostSummary( POST_ID ) );
 
 		expect( result.current.isError ).toBe( true );
+		expect( result.current.error ).toBe( error );
 	} );
 
 	it( 'skips the entity lookups for an invalid post ID', () => {
