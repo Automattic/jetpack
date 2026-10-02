@@ -36,9 +36,20 @@ describe( 'BaseTooltip', () => {
 		} );
 	} );
 
-	test( 'renders the standalone container on the tooltip chrome', () => {
+	it( 'places a legacy box centered above its point', () => {
 		render( <BaseTooltip { ...defaultProps } /> );
-		expect( screen.getByRole( 'tooltip' ) ).toHaveClass( 'tooltip' );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveStyle( {
+			position: 'absolute',
+			top: '100px',
+			left: '200px',
+			transform: 'translate(-50%, -100%)',
+		} );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveClass( 'visx-tooltip', 'surface' );
+	} );
+
+	it( 'renders in flow without top and left', () => {
+		render( <BaseTooltip>Content</BaseTooltip> );
+		expect( screen.getByRole( 'tooltip' ) ).not.toHaveStyle( { position: 'absolute' } );
 	} );
 
 	test( 'handles missing valueDisplay', () => {
