@@ -79,8 +79,13 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
-// Settings > Sharing and its REST routes exist even with the Sharing, Likes and Comment Likes modules off.
-\Automattic\Jetpack\Sharing_Likes\Initializer::init();
+// Another plugin's autoloader can serve a jetpack-sharing-likes release from before the Initializer.
+if ( class_exists( \Automattic\Jetpack\Sharing_Likes\Initializer::class ) ) {
+	\Automattic\Jetpack\Sharing_Likes\Initializer::init();
+} elseif ( is_admin() ) {
+	\Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::init();
+	\Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler::init();
+}
 
 // Play nice with https://wp-cli.org/.
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
