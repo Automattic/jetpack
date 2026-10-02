@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Avoid repeated database queries on every request when the Subscribe and Subscriber Login block placements were never configured.
