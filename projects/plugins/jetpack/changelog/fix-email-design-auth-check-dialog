@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: remove the stray "Session expired" message from the email design canvas.
