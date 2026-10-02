@@ -1,7 +1,7 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
 import { ProgressBar } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
-import { Icon, dashboard, desktop, mobile } from '@wordpress/icons';
+import { Icon, dashboard, desktop, error, mobile } from '@wordpress/icons';
 import { Badge, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
@@ -26,9 +26,10 @@ export default function ScoreBar( {
 	const { scores } = state;
 	const displayState = getScoreDisplayState( state );
 	const overallTier = getOverallScoreTier( scores );
+	const failed = displayState === 'error';
 	return (
 		<div className="jetpack-boost-score-bar" data-testid="score-bar" aria-hidden="true">
-			{ displayState === 'error' ? (
+			{ failed && ! state.hasScores ? (
 				<Text className="jetpack-boost-score-bar__error">
 					{ __( 'Failed to load speed scores', 'jetpack-boost' ) }
 				</Text>
@@ -54,6 +55,14 @@ export default function ScoreBar( {
 						>
 							{ getScoreTierLabel( overallTier ) }
 						</Text>
+						{ failed && (
+							<span className="jetpack-boost-score-bar__failed">
+								<Icon icon={ error } className="jetpack-boost-overview__score-icon" />
+								<Text className="jetpack-boost-score-bar__failed-label">
+									{ __( 'Failed to load speed scores', 'jetpack-boost' ) }
+								</Text>
+							</span>
+						) }
 					</div>
 					{ ( [ 'desktop', 'mobile' ] as const ).map( device => {
 						const score = scores.current[ device ];
