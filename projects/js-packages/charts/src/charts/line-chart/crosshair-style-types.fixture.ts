@@ -1,3 +1,4 @@
+/* istanbul ignore file */ // Compile-only: tsgo checks these assignments; nothing imports or runs them.
 import type { LineChartProps } from './types';
 
 type Crosshairs = NonNullable< LineChartProps[ 'withTooltipCrosshairs' ] >;

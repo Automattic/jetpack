@@ -4,10 +4,6 @@ const baseConfig = require( 'jetpack-js-tools/jest/config.base.js' );
 module.exports = {
 	...baseConfig,
 	rootDir: path.join( __dirname, '..' ),
-	collectCoverageFrom: [
-		...baseConfig.collectCoverageFrom,
-		'!<rootDir>/src/charts/line-chart/crosshair-style-types.fixture.ts',
-	],
 	moduleNameMapper: {
 		...baseConfig.moduleNameMapper,
 		'\\.module\\.scss$': 'identity-obj-proxy',

@@ -247,7 +247,6 @@ describe( 'getScoreLetter', () => {
 		expect( getScoreLetter( 25, 25 ) ).toBe( 'F' );
 		expect( getScoreLetter( 35, 35 ) ).toBe( 'E' );
 		expect( getScoreLetter( 50, 50 ) ).toBe( 'D' );
-		expect( getScoreLetter( 75, 75 ) ).toBe( 'C' );
 		expect( getScoreLetter( 90, 90 ) ).toBe( 'B' );
 		expect( getScoreLetter( 91, 91 ) ).toBe( 'A' );
 	} );

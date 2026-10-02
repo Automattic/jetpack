@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import GradeExplanation from './grade-explanation';
 import ScoreCards from './score-cards';
 
-test( 'the Overall information popover shows the summary sentence and every grade range', async () => {
+test( 'the Overall popover shows its summary and grade ranges, closes on Escape, and returns focus', async () => {
 	render(
 		<ScoreCards
 			scores={ {
@@ -119,28 +119,33 @@ test.each( [
 	}
 } );
 
-test.each( [
-	[ 'positive', 70, '+10 points', 'informational', 80, 'Good' ],
-	[ 'zero', 80, '0 points', 'none', 80, 'Good' ],
-	[ 'negative', 60, '0 points', 'none', 40, 'Poor' ],
-] )( 'shows a %s delta badge', ( _description, baseline, label, intent, score, tierLabel ) => {
-	render(
-		<ScoreCards
-			scores={ {
-				current: { desktop: Number( score ), mobile: Number( score ) },
-				noBoost: { desktop: Number( baseline ), mobile: Number( baseline ) },
-				isStale: false,
-			} }
-		/>
-	);
-	const card = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
-	expect( card.getByText( label ) ).toBeVisible();
-	expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
-	expect( card.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( Number( score ) );
-	expect( card.getByText( tierLabel ) ).toBeVisible();
-	expect( card.getByRole( 'button', { name: 'About points' } ) ).toBeVisible();
-	expect( card.queryByText( '-20 points' ) ).not.toBeInTheDocument();
-} );
+test.each< [ string, number, string, string, number, string, string[] ] >( [
+	[ 'positive', 70, '+10 points', 'informational', 80, 'Good', [] ],
+	[ 'zero', 80, '0 points', 'none', 80, 'Good', [] ],
+	[ 'negative', 60, '0 points', 'none', 40, 'Poor', [ '-20 points' ] ],
+] )(
+	'shows a %s delta badge with its score and tier',
+	( _description, baseline, label, intent, score, tierLabel, absentLabels ) => {
+		render(
+			<ScoreCards
+				scores={ {
+					current: { desktop: Number( score ), mobile: Number( score ) },
+					noBoost: { desktop: Number( baseline ), mobile: Number( baseline ) },
+					isStale: false,
+				} }
+			/>
+		);
+		const card = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
+		expect( card.getByText( label ) ).toBeVisible();
+		expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
+		expect( card.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( Number( score ) );
+		expect( card.getByText( tierLabel ) ).toBeVisible();
+		expect( card.getByRole( 'button', { name: 'About points' } ) ).toBeVisible();
+		for ( const absentLabel of absentLabels ) {
+			expect( card.queryByText( absentLabel ) ).not.toBeInTheDocument();
+		}
+	}
+);
 
 test( 'hides unknown and stale deltas while retaining measured scores', () => {
 	const scores = {
