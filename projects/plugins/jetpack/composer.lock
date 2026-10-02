@@ -3808,7 +3808,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/sharing-likes",
-                "reference": "4423b0c11e1bee9f21ed9222f3600595a94630f6"
+                "reference": "64e942e062c9d516abd7f5ca54bbfa55000b1026"
             },
             "require": {
                 "automattic/jetpack-connection": "@dev",
@@ -3835,7 +3835,7 @@
                 "mirror-repo": "Automattic/jetpack-sharing-likes",
                 "textdomain": "jetpack-sharing-likes",
                 "version-constants": {
-                    "::PACKAGE_VERSION": "src/class-sharing-likes.php"
+                    "::PACKAGE_VERSION": "src/class-initializer.php"
                 }
             },
             "autoload": {

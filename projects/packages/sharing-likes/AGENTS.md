@@ -7,12 +7,14 @@ Guidance for AI coding agents working on the Sharing & Likes package.
 Today it owns the wp-admin Settings > Sharing screen, under `src/settings/`: menu
 registration, the three feature sections (Sharing buttons, Like buttons, Comment
 Likes), the shared placement section, the extras section, and the form handling for all of
-them. The Jetpack plugin hooks it up from the `is_admin()` block in
-`load-jetpack.php`, so the screen and every section on it exist whichever
-modules are active. The menu itself only registers where
+them. It also serves the same settings over REST, under `src/rest/`.
+`Initializer::init()` wires both up: the REST routes on every request, the
+screen in wp-admin. The Jetpack plugin calls it from `load-jetpack.php`, so the
+screen and every section on it exist even with the Sharing, Likes and Comment
+Likes modules off. The menu itself only registers where
 `Environment::settings_screen_supported()` holds (Simple, a connected site, or
-offline mode): anywhere else neither the modules nor their blocks load, so
-the screen would have nothing to offer.
+offline mode): anywhere else neither the modules nor their blocks load, so the
+screen would have nothing to offer.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
@@ -33,11 +35,12 @@ Jetpack dashboard drops its own module toggle on exactly those sites — see
 `moduleAction()` in `_inc/client/sharing/share-buttons.jsx` and `likes.jsx`.
 Adding a way back there reopens a door the dashboard closed on purpose.
 
-`load-jetpack.php` does not run on WordPress.com Simple, so the registration
-above does not happen there. `sharing_admin_init()` in
-`modules/sharedaddy/sharing.php`, the one Sharing file wpcom loads, registers
-the screen and `Post_Handler` under an `is_wpcom_simple()` guard instead. That
-bridge goes once wpcom registers the screen itself (CM-913).
+`load-jetpack.php` does not run on WordPress.com Simple, so the call above does
+not happen there. `sharing_admin_init()` in `modules/sharedaddy/sharing.php`,
+the one Sharing file wpcom loads (public-api included), calls
+`Initializer::init()` under an `is_wpcom_simple()` guard instead. That
+bridge goes once wpcom calls `Initializer::init()` itself (CM-913), since it
+registers the REST routes there as well as the screen.
 
 The screen is plain wp-admin chrome. It deliberately does not render inside
 `Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
@@ -97,7 +100,7 @@ unreachable there, and any "module inactive" behaviour you add is Jetpack and
 Atomic only.
 
 The "Switch to the … block" buttons still work on Simple, through settings
-rather than modules: `Post_Handler` empties `sharing-services`, or sets
+rather than modules: `Feature_Actions` empties `sharing-services`, or sets
 `disabled_likes` and `disabled_reblogs` (the legacy widget renders for either
 button). `Environment::legacy_sharing_switched_off()` and
 `legacy_likes_switched_off()` read them back, and `Section_State` treats that as
@@ -203,6 +206,42 @@ silently saves nothing. A consumer that
 verifies nothing, relying on the caller having done it, writes whatever the
 request carries.
 
+## REST API
+
+`src/rest/` serves the same settings under `wpcom/v2/sharing-likes/` for the
+React screen: `settings`, `status`, `services`, the custom services, and
+`<feature>/switch-to-block` and `<feature>/activate`. `Endpoints` explains the
+namespace. `Initializer::init()` registers the routes outside its `is_admin()`
+branch, since REST requests are not admin requests, and whether or not the
+Sharing, Likes and Comment Likes modules are active. Where the screen itself
+does not exist (`Environment::settings_screen_supported()`), every route
+answers 409.
+
+The routes offer what the PHP screen shows and nothing else. A setting whose
+section does not render it is missing from reads, and a write that includes it
+is refused before anything is saved. Each action is only accepted from the
+section variant that offers it. This is what stops the API from reopening the
+way back that `BLOCK_CALL_TO_ACTION` closes, so do not relax it for
+convenience. `sharing_admin_update` does not fire from REST, because its
+consumers read `$_POST`.
+
+Comment Likes are one boolean, `comment_likes_enabled`, whatever the platform
+stores. They are offered wherever `Environment::likes_supported()` holds, like
+their section. A save switches them before anything else, and if the host
+keeps the module the other way, it answers 409 and writes nothing more. Saving
+them can change `comment_likes.follows_likes_settings` and `placement` in
+`status`, and with them whether `settings` offers `likes_enabled` and `show`,
+so the screen reads `status` again afterwards, and sends a setting that only
+then appears in a save of its own.
+
+The routes and `Post_Handler` save through the same writers:
+`Sharing_Options::update()`, `Placement_Section::update()`, the
+`Likes_Options` setters, `Comment_Likes_Section::update()`,
+`Twitter_Site_Tag::update()`, `Sharing_Resources::update()` and
+`Feature_Actions`. Add a setting to the writer, not to one of its two callers,
+and never call `Sharing_Service::set_global_options()` directly (see
+`Sharing_Options::update()`).
+
 ## Placement defaults
 
 `sharing-options['global']['show']` is frequently absent, and every renderer
@@ -221,8 +260,8 @@ data rather than history.
 test classes extend `WorDBless\BaseTestCase`; create users with `wp_insert_user()`
 rather than a factory.
 
-**`is_admin()` is false under WP-CLI**, so the init in `load-jetpack.php` never
-runs there and `wp eval` will report the menu as absent whatever the code does.
+**`is_admin()` is false under WP-CLI**, so `Initializer::init()` hooks up no
+screen there and `wp eval` will report the menu as absent whatever the code does.
 Call `Settings_Page::init()` by hand to test the class; proving the wiring needs a
 real authenticated admin request.
 

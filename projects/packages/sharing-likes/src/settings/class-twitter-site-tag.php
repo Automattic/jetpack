@@ -64,12 +64,23 @@ final class Twitter_Site_Tag {
 			return;
 		}
 
+		// phpcs:ignore WordPress.Security.NonceVerification.Missing, WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- verified by the caller; update() strips tags.
+		$posted = isset( $_POST[ self::OPTION ] ) && is_string( $_POST[ self::OPTION ] ) ? wp_unslash( $_POST[ self::OPTION ] ) : '';
+
+		self::update( $posted );
+	}
+
+	/**
+	 * Store a username, with or without its leading `@`.
+	 *
+	 * @param string $username Username as entered.
+	 */
+	public static function update( string $username ): void {
 		// Not `sanitize_text_field()`, which encodes a stray `<` rather than dropping it:
 		// the REST writer in plugins/jetpack sanitizes this same option with tag stripping.
-		// phpcs:ignore WordPress.Security.NonceVerification.Missing -- verified by the caller.
-		$posted = isset( $_POST[ self::OPTION ] ) && is_string( $_POST[ self::OPTION ] ) ? wp_strip_all_tags( wp_unslash( $_POST[ self::OPTION ] ) ) : '';
+		$username = wp_strip_all_tags( $username );
 
 		// Trim after the `@`, not just before it: `@ jetpack` would otherwise store a leading space.
-		update_option( self::OPTION, trim( ltrim( $posted, '@' ) ) );
+		update_option( self::OPTION, trim( ltrim( $username, '@' ) ) );
 	}
 }
