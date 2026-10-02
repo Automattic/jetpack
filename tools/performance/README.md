@@ -56,7 +56,7 @@ The existing runner discovers both dynamic ports and uses the same iteration cou
 
 The control is optional: setup or capture failure skips its keys while successful required measurements survive. An out-of-range control value still blocks the whole run under the atomic sanity gate. Failed control setup writes a non-empty configuration stub that exits with HTTP 503 to prevent measuring an invalid plugin state; readiness gates only required instances. These are staging keys, with no enrollment waiver; local verification must use `--skip-codevitals` and `pnpm report:dry`. Staging posts begin on the first build after merge; inspect 2–3 builds before promoting to production keys following Safeguards below. Digest discovery includes every registered metric, including staging keys; use `METRIC_IDS` to restrict a deployment to an explicit watch list when needed.
 
-Backend control keys await shared Server-Timing capture.
+The three backend keys use the shared Server-Timing capture described below.
 
 Future Dashboard controls should reuse the matched images, setup and instrumentation, disable connection simulation, and prove repeatability before staging.
 
@@ -126,7 +126,7 @@ The `forms-responses-*` trends could not be measured before/after locally at the
 
 ### Admin backend metrics (`Server-Timing`)
 
-The fixture's `emit-server-timing.php` mu-plugin buffers non-AJAX admin responses and emits headers only for successful HTML responses. The measured reload's navigation response supplies three metrics; login, warm-up, AJAX, CLI, cron, redirects and non-HTML responses do not supply samples. The raw header and browser `navigation.serverTiming` entries are retained in each iteration for inspection. Missing, duplicate or invalid `dur` parameters leave the three backend values absent and retain a `serverTimingError`, response status and valid browser samples. A backend field needs a strict majority of finite samples; an incomplete posted summary fails its scenario rather than becoming zero. Existing summary rounding (whole units) and completeness/failure policies apply; Dashboard remains required, Forms and My Jetpack remain optional.
+The fixture's `emit-server-timing.php` mu-plugin buffers non-AJAX admin responses and emits headers only for successful HTML responses. The measured reload's navigation response supplies three metrics; login, warm-up, AJAX, CLI, cron, redirects and non-HTML responses do not supply samples. The raw header and browser `navigation.serverTiming` entries are retained in each iteration for inspection. Missing, duplicate or invalid `dur` parameters leave the three backend values absent and retain a `serverTimingError`, response status and valid browser samples. A backend field needs a strict majority of finite samples; an incomplete posted summary fails its scenario rather than becoming zero. Existing summary rounding (whole units) and completeness/failure policies apply; connected Dashboard remains required, Forms, My Jetpack and the control remain optional.
 
 | Header            | Summary field / type | Unit  | Meaning                                                                                                                                           |
 | ----------------- | -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -145,9 +145,9 @@ Each field maps to `<prefix>-wp-total-staging`, `<prefix>-wp-memory-usage-stagin
 | My Jetpack (`myJetpack`)                         | `my-jetpack-connection-sim`         |
 | Dashboard control (`jetpackConnected-noJetpack`) | `wp-admin-dashboard-noJetpack`      |
 
-These nine keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
+These twelve keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
 
-Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including the simulated connection and instrumentation. A matched no-Jetpack control and overhead deltas require a separate change.
+Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including instrumentation and, for connected scenarios, the simulated connection. Overhead deltas require a separate change.
 
 Buffering can move TTFB to the shutdown flush. Ten interleaved pre/post runs of five iterations on one pinned fixture (PHP 8.2, CPU 3.85x, mock latency 200 ms) gave these medians of run medians:
 
