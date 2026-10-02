@@ -21,7 +21,7 @@ final class Endpoints {
 	/**
 	 * REST namespace.
 	 */
-	public const NAMESPACE = 'wpcom/v2';
+	public const REST_NAMESPACE = 'wpcom/v2';
 
 	/**
 	 * Prefix every route shares.

@@ -74,7 +74,7 @@ trait REST_Requests {
 	 * @param array<string,mixed> $body   Request body.
 	 */
 	protected function request( string $method, string $route, array $body = array() ): WP_REST_Response {
-		$request = new WP_REST_Request( $method, '/' . Endpoints::NAMESPACE . '/' . Endpoints::BASE . '/' . $route );
+		$request = new WP_REST_Request( $method, '/' . Endpoints::REST_NAMESPACE . '/' . Endpoints::BASE . '/' . $route );
 
 		if ( $body ) {
 			$request->set_header( 'content-type', 'application/json' );

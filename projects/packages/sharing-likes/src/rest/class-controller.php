@@ -21,7 +21,7 @@ abstract class Controller extends WP_REST_Controller {
 	 * Set the namespace every route shares.
 	 */
 	public function __construct() {
-		$this->namespace = Endpoints::NAMESPACE;
+		$this->namespace = Endpoints::REST_NAMESPACE;
 	}
 
 	/**
