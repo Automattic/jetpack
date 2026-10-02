@@ -21,6 +21,36 @@ class BackupImportManagerTest extends WP_UnitTestCase {
 	}
 
 	/**
+	 * A backup with a database folder but no database file is not detected as a Playground backup.
+	 */
+	public function test_determine_importer_type_with_invalid_sqlite_path() {
+		$result = Backup_Import_Manager::determine_importer_type( __DIR__ . '/fixtures/invalid/wp-invalid-sqlite-path/' );
+
+		$this->assertWPError( $result );
+		$this->assertEquals( 'unknown_importer_type', $result->get_error_code() );
+	}
+
+	/**
+	 * A backup storing the database in the legacy location is detected as a Playground backup.
+	 */
+	public function test_determine_importer_type_with_legacy_sqlite_path() {
+		$this->assertSame(
+			Backup_Import_Manager::WORDPRESS_PLAYGROUND,
+			Backup_Import_Manager::determine_importer_type( __DIR__ . '/fixtures/valid/wp-legacy-sqlite-path/' )
+		);
+	}
+
+	/**
+	 * A backup storing the database in a random `.ht.<hash>` folder is detected as a Playground backup.
+	 */
+	public function test_determine_importer_type_with_random_sqlite_folder() {
+		$this->assertSame(
+			Backup_Import_Manager::WORDPRESS_PLAYGROUND,
+			Backup_Import_Manager::determine_importer_type( __DIR__ . '/fixtures/valid/wp-new-sqlite-path/' )
+		);
+	}
+
+	/**
 	 * Open an empty path.
 	 */
 	public function test_error_open_an_empty_file_path() {

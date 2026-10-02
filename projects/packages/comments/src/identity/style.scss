@@ -4,12 +4,13 @@
 	gap: 0.25em;
 }
 
-// Nested under .jetpack-comments to outrank a theme's `.comment-form button`.
-.jetpack-comments .jetpack-comments__chevron {
+// Three classes deep and pinned, past a theme's `body.winter button:hover`.
+.jetpack-comments .jetpack-comments__who .jetpack-comments__chevron {
 	display: inline-flex;
+	margin: 0;
 	padding: 0;
 	border: 0;
-	background: none;
+	background: none !important;
 	color: inherit;
 	cursor: pointer;
 

@@ -172,7 +172,7 @@ function ReferrersInner() {
 
 	// Row matching (per level, so same-named rows at different drill levels can't
 	// cross-match), the row cap, and the comparison-overlap gate live in the merge helper.
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -300,7 +300,7 @@ function ReferrersInner() {
 				<ReportLink report="referrers" />
 				<ExporterCsvDownloadButton
 					exporter={ referrersCsvExporter }
-					status={ { isLoading, isFetching, isError } }
+					status={ { isLoading, isFetching, isError: primary.isError } }
 					rowCount={ rows.length }
 				/>
 			</WidgetFooter>

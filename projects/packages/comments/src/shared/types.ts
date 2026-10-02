@@ -1,3 +1,5 @@
+import type { LocaleData } from '@wordpress/i18n';
+
 export type Details = {
 	author: string;
 	email: string;
@@ -65,6 +67,7 @@ export type FormSettings = {
 };
 
 export type Strings = {
+	blockTools: string;
 	reply: string;
 	commentLabel: string;
 	replyLabel: string;
@@ -92,6 +95,7 @@ export type Strings = {
 	addYourName: string;
 	cancel: string;
 	signInFailed: string;
+	tooLong: string;
 	signInRateLimited: string;
 };
 
@@ -103,6 +107,10 @@ export type Settings = {
 	requireNameEmail: boolean;
 	mustLogIn: boolean;
 	maxLength: number;
+	/** Whether the block editor replaces the textarea. */
+	blocks: boolean;
+	/** Core's translations of the editor strings a commenter meets; empty in English. */
+	editorLocale: LocaleData;
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };
@@ -117,4 +125,11 @@ export type Settings = {
 declare global {
 	const JetpackComments: Settings;
 	const JETPACK_COMMENTS_VERSION: string;
+
+	interface Window {
+		/** Core's translations for the editor, handed over before the chunk loads. */
+		jetpackCommentsEditorLocale?: LocaleData;
+		/** The toolbar's accessible name on the edit-comment screen, translated in PHP. */
+		jetpackCommentsEditorLabels?: { blockTools: string };
+	}
 }

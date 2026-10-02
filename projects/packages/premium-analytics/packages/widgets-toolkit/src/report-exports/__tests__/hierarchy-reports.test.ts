@@ -6,7 +6,6 @@ import {
 	fetchStatsReferrersRows,
 	fetchStatsTopAuthorsRows,
 	type ReportParams,
-	type StatsClicksComparisonItem,
 	type StatsReferrersComparisonItem,
 	type StatsTopAuthorsComparisonItem,
 } from '@jetpack-premium-analytics/data';
@@ -41,41 +40,6 @@ async function exportCsvTable< TItem, TRow >( exporter: ReportCsvExporter< TItem
 }
 
 describe( 'hierarchy report exporters', () => {
-	it( 'exports Clicks groups before their URLs, naming each URL group', async () => {
-		jest.mocked( fetchStatsClicksRows ).mockResolvedValue( [
-			{
-				label: 'wordpress.org',
-				views: 5,
-				children: [
-					{
-						label: 'wordpress.org/a',
-						views: 3,
-						link: 'https://wordpress.org/a',
-						children: null,
-					},
-					{
-						label: 'wordpress.org/b',
-						views: 2,
-						link: 'https://wordpress.org/b',
-						children: null,
-					},
-				],
-			},
-			{ label: 'jetpack.com', views: 4, link: 'https://jetpack.com/', children: null },
-		] as unknown as StatsClicksComparisonItem[] );
-
-		await expect( exportCsvTable( clicksCsvExporter ) ).resolves.toEqual( [
-			[ 'Clicked URL', 'Group', 'Clicks' ],
-			[ 'wordpress.org', '', 5 ],
-			[ 'https://wordpress.org/a', 'wordpress.org', 3 ],
-			[ 'https://wordpress.org/b', 'wordpress.org', 2 ],
-			[ 'https://jetpack.com/', 'jetpack.com', 4 ],
-		] );
-		expect( fetchStatsClicksRows ).toHaveBeenCalledWith(
-			getSummarizedReportQueryParams( REPORT_PARAMS )
-		);
-	} );
-
 	it( 'exports Referrers depth-first with each row’s group', async () => {
 		jest.mocked( fetchStatsReferrersRows ).mockResolvedValue( [
 			{
@@ -164,6 +128,9 @@ describe( 'hierarchy report exporters on a raw Stats payload', () => {
 			[ 'https://wordpress.org/b', 'wordpress.org', 2 ],
 			[ 'https://jetpack.com/', 'jetpack.com', 4 ],
 		] );
+		expect( fetchStatsClicksRows ).toHaveBeenCalledWith(
+			getSummarizedReportQueryParams( REPORT_PARAMS )
+		);
 	} );
 
 	it( 'exports Authors and their posts from the top-authors endpoint', async () => {

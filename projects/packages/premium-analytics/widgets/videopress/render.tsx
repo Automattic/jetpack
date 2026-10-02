@@ -93,7 +93,7 @@ function VideoPressReport() {
 					<ReportLink report="videos" />
 					<ExporterCsvDownloadButton
 						exporter={ videosCsvExporter }
-						status={ { isLoading: isInitialLoading, isFetching, isError } }
+						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
 						rowCount={ rows.length }
 					/>
 				</>
