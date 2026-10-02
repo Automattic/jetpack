@@ -1,6 +1,9 @@
 <?php
 
+use PHPUnit\Framework\Attributes\DataProvider;
+
 require_once __DIR__ . '/trait.http-request-cache.php';
+require_once __DIR__ . '/../../../../modules/shortcodes/archiveorg.php';
 
 class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
@@ -127,5 +130,46 @@ class Jetpack_Shortcodes_ArchiveOrg_Test extends WP_UnitTestCase {
 		$content           = "[archiveorg-book id='$id' width='600' height='300']";
 		$shortcode_content = do_shortcode( $content );
 		$this->assertStringContainsString( "iframe title=\"$title\" src=\"https://archive.org/stream/$id?ui=embed#mode/1up\" width=\"600\" height=\"300\"", $shortcode_content );
+	}
+
+	/**
+	 * Ensure that Archive.org embeds are properly converted to Shortcodes.
+	 *
+	 * @dataProvider data_archiveorg_embed_shortcode_pairings
+	 *
+	 * @param string $full_embed         HTML snippet consisting solely of an IFRAME embed.
+	 * @param string $expected_shortcode Expected translation of IFRAME into Shortcode form.
+	 */
+	#[DataProvider( 'data_archiveorg_embed_shortcode_pairings' )]
+	public function test_converts_archiveorg_embeds_to_shortcodes( string $full_embed, string $expected_shortcode ): void {
+		$actual_shortcode = \jetpack_archiveorg_embed_to_shortcode( $full_embed );
+
+		$this->assertSame(
+			$expected_shortcode,
+			$actual_shortcode,
+			'Failed to map IFRAME HTML into proper Shortcode.'
+		);
+	}
+
+	/**
+	 * Provides pairings of (embed IFRAME, matching shortcode) for Archive.org embeds.
+	 *
+	 * @return array<string, array{string, string}>
+	 */
+	public static function data_archiveorg_embed_shortcode_pairings(): array {
+		return array(
+			'Normative book embed' => array(
+				'<iframe src="https://archive.org/embed/shuttle-video-tapes" width="560" height="384" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>',
+				'[archiveorg shuttle-video-tapes width="560" height="384"]',
+			),
+			'Video with autoplay'  => array(
+				'<iframe src="https://archive.org/embed/peril_of_doc_ock?autoplay=1" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>',
+				'[archiveorg peril_of_doc_ock autoplay="1" width="640" height="480"]',
+			),
+			'Video with poster'    => array(
+				'<iframe src="https://archive.org/embed/peril_of_doc_ock?poster=https://archive.org/images/astronaut.jpg" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>',
+				'[archiveorg peril_of_doc_ock poster="https://archive.org/images/astronaut.jpg" width="640" height="480"]',
+			),
+		);
 	}
 }
