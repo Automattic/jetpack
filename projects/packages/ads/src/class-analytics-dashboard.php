@@ -8,6 +8,7 @@
 namespace Automattic\Jetpack\WordAds;
 
 use Automattic\Jetpack\PremiumAnalytics\Capabilities;
+use Automattic\Jetpack\Status\Host;
 use function Automattic\Jetpack\PremiumAnalytics\get_dashboard_default_widget_instance;
 use function Automattic\Jetpack\PremiumAnalytics\register_dashboard_section;
 use function Automattic\Jetpack\PremiumAnalytics\register_widget_types_from_manifest;
@@ -52,7 +53,8 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-ads-pkg';
 
 	/**
-	 * Hook both registrants on the dashboard's registry actions.
+	 * Hook both registrants on the dashboard's registry actions, and the package's WordPress.com
+	 * proxy on REST requests.
 	 *
 	 * Priority 20, after the dashboard package's own registrants: an older package that still
 	 * registers the section itself is found by slug and left alone.
@@ -62,6 +64,15 @@ class Analytics_Dashboard {
 	public static function init() {
 		add_action( self::REGISTER_SECTIONS_ACTION, array( __CLASS__, 'register_section' ), 20 );
 		add_action( self::REGISTER_WIDGET_TYPES_ACTION, array( __CLASS__, 'register_widget_types' ), 20 );
+
+		// Simple runs no Jetpack plugin and holds no blog token: its clients reach WordPress.com directly.
+		if ( ( new Host() )->is_wpcom_simple() ) {
+			return;
+		}
+
+		// Class-name callbacks, so the proxy classes load on REST requests and cron only.
+		add_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ), 0 );
+		add_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) );
 	}
 
 	/**
