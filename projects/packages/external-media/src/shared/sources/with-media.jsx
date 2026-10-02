@@ -88,7 +88,14 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 				}
 			};
 
+			// Bumped on disconnect so picker session responses for the old connection are dropped.
+			pickerSessionGeneration = 0;
+
 			setAuthenticated = isAuthenticated => {
+				if ( ! isAuthenticated && mediaSource === MediaSource.GooglePhotos ) {
+					this.pickerSessionGeneration++;
+					setGooglePhotosPickerSession( null );
+				}
 				this.setState( { isAuthenticated } );
 				authenticateMediaSource( mediaSource, isAuthenticated );
 			};
@@ -272,6 +279,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			// Resolves null on failure, after showing an error notice.
 			createPickerSession = () => {
 				const { noticeOperations } = this.props;
+				const generation = this.pickerSessionGeneration;
 				noticeOperations.removeAllNotices();
 
 				return apiFetch( {
@@ -285,10 +293,16 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						return response;
 					} )
 					.then( session => {
+						if ( generation !== this.pickerSessionGeneration ) {
+							return null;
+						}
 						setGooglePhotosPickerSession( session );
 						return session;
 					} )
 					.catch( () => {
+						if ( generation !== this.pickerSessionGeneration ) {
+							return null;
+						}
 						noticeOperations.createErrorNotice(
 							__(
 								"Couldn't connect to Google Photos. Try again, or disconnect and reconnect your Google account.",
@@ -300,6 +314,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			};
 
 			fetchPickerSession = sessionId => {
+				const generation = this.pickerSessionGeneration;
+
 				return apiFetch( {
 					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'GET',
@@ -311,7 +327,9 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						return response;
 					} )
 					.then( session => {
-						setGooglePhotosPickerSession( session );
+						if ( generation === this.pickerSessionGeneration ) {
+							setGooglePhotosPickerSession( session );
+						}
 						return session;
 					} );
 			};
