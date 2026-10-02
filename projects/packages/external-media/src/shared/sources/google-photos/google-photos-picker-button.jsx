@@ -13,10 +13,22 @@ import GooglePhotosAccount from './google-photos-account';
  * @return {import('react').ReactElement} - JSX Element
  */
 export default function GooglePhotosPickerButton( props ) {
-	const { className, pickerSession, fetchPickerSession, setAuthenticated, account } = props;
-	const isButtonBusy = ! pickerSession;
+	const {
+		className,
+		pickerSession,
+		fetchPickerSession,
+		setAuthenticated,
+		account,
+		isSessionFailed,
+		onRetry,
+	} = props;
+	const isButtonBusy = ! pickerSession && ! isSessionFailed;
 
 	const openPicker = () => {
+		if ( isSessionFailed ) {
+			onRetry();
+			return;
+		}
 		pickerSession?.pickerUri && window.open( pickerSession.pickerUri );
 	};
 
@@ -45,9 +57,15 @@ export default function GooglePhotosPickerButton( props ) {
 				className="jetpack-external-media__google-photos-picker-button"
 				onClick={ openPicker }
 			>
-				{ __( 'Open Google Photos Picker', 'jetpack-external-media' ) }
-				&nbsp;
-				<Icon icon={ external } size={ 18 } />
+				{ isSessionFailed ? (
+					__( 'Try again', 'jetpack-external-media' )
+				) : (
+					<>
+						{ __( 'Open Google Photos Picker', 'jetpack-external-media' ) }
+						&nbsp;
+						<Icon icon={ external } size={ 18 } />
+					</>
+				) }
 			</Button>
 			<GooglePhotosAccount
 				account={ account }

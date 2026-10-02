@@ -269,7 +269,11 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 					.catch( this.handleApiError );
 			};
 
+			// Resolves null on failure, after showing an error notice.
 			createPickerSession = () => {
+				const { noticeOperations } = this.props;
+				noticeOperations.removeAllNotices();
+
 				return apiFetch( {
 					path: '/wpcom/v2/external-media/session/google_photos',
 					method: 'POST',
@@ -283,6 +287,15 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 					.then( session => {
 						setGooglePhotosPickerSession( session );
 						return session;
+					} )
+					.catch( () => {
+						noticeOperations.createErrorNotice(
+							__(
+								"Couldn't connect to Google Photos. Try again, or disconnect and reconnect your Google account.",
+								'jetpack-external-media'
+							)
+						);
+						return null;
 					} );
 			};
 

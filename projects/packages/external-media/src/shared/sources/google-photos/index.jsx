@@ -30,6 +30,7 @@ function GooglePhotos( props ) {
 	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
 	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
 	const [ isAuthUpgradeRequired, setIsAuthUpgradeRequired ] = useState( false );
+	const [ isSessionFailed, setIsSessionFailed ] = useState( false );
 
 	const isLoadingState = pickerFeatureEnabled === null;
 	const isPickerSessionAccurate = pickerSession !== null && ! ( 'code' in pickerSession );
@@ -83,12 +84,14 @@ function GooglePhotos( props ) {
 			isCachedSessionChecked &&
 			isAuthenticated &&
 			! isAuthUpgradeRequired &&
+			! isSessionFailed &&
 			( ! isPickerSessionAccurate || isSessionExpired )
 		) {
-			createPickerSession();
+			createPickerSession().then( session => setIsSessionFailed( ! session ) );
 		}
 	}, [
 		pickerFeatureEnabled,
+		isSessionFailed,
 		isAuthUpgradeRequired,
 		isCachedSessionChecked,
 		isPickerSessionAccurate,
@@ -111,7 +114,13 @@ function GooglePhotos( props ) {
 	}
 
 	if ( pickerFeatureEnabled && ! pickerSession?.mediaItemsSet ) {
-		return <GooglePhotosPickerButton { ...props } />;
+		return (
+			<GooglePhotosPickerButton
+				{ ...props }
+				isSessionFailed={ isSessionFailed }
+				onRetry={ () => setIsSessionFailed( false ) }
+			/>
+		);
 	}
 
 	return <GooglePhotosMedia pickerFeatureEnabled={ pickerFeatureEnabled } { ...props } />;
