@@ -1,7 +1,7 @@
+import { TooltipBox } from '@jetpack-premium-analytics/externals';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { formatTooltipPointLabel } from '../../../helpers';
 import { ChartTooltip, type TooltipStyle } from '../chart-tooltip';
-import { TooltipBox } from './tooltip-box';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof ChartTooltip > = {
