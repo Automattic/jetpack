@@ -168,68 +168,91 @@ function renderOverview() {
 	return { ...view, client };
 }
 
-test( 'wires the score summary below the header, uses the latest intersection and removes the slot when hidden', async () => {
-	/* eslint-disable testing-library/no-node-access */
+describe( 'score bar', () => {
 	let intersect: IntersectionObserverCallback;
 	const disconnect = jest.fn();
-	const original = window.IntersectionObserver;
-	const observer = jest.fn( callback => {
+	const observer = jest.fn( ( callback: IntersectionObserverCallback ) => {
 		intersect = callback;
 		return { observe: jest.fn(), disconnect };
 	} );
-	window.IntersectionObserver = observer as unknown as typeof IntersectionObserver;
-	const client = createQueryClient();
-	const onHeaderActionChange = jest.fn();
-	const dashboard = ( isVisible = true ) => (
-		<QueryClientProvider client={ client }>
-			<div className="jp-admin-page__page">
-				<header data-testid="dashboard-header">Boost header</header>
-				<div style={ { overflowY: 'auto' } } data-testid="dashboard-scroller">
-					<Overview isVisible={ isVisible } onHeaderActionChange={ onHeaderActionChange } />
+	const original = window.IntersectionObserver;
+
+	beforeEach( () => {
+		window.IntersectionObserver = observer as unknown as typeof IntersectionObserver;
+	} );
+
+	afterEach( () => {
+		window.IntersectionObserver = original;
+	} );
+
+	async function renderDashboard() {
+		const client = createQueryClient();
+		const onHeaderActionChange = jest.fn();
+		const dashboard = ( isVisible: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<div className="jp-admin-page__page">
+					<header data-testid="dashboard-header">Boost header</header>
+					<div style={ { overflowY: 'auto' } } data-testid="dashboard-scroller">
+						<Overview isVisible={ isVisible } onHeaderActionChange={ onHeaderActionChange } />
+					</div>
 				</div>
-			</div>
-		</QueryClientProvider>
-	);
-	const { rerender, unmount } = render( dashboard() );
-	try {
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( true ) );
 		await expect( screen.findByRole( 'region', { name: 'Desktop' } ) ).resolves.toBeVisible();
-		const header = screen.getByTestId( 'dashboard-header' );
-		const slot = header.nextElementSibling;
+		return { hide: () => view.rerender( dashboard( false ) ) };
+	}
+
+	const entry = ( isIntersecting: boolean, bottom: number ) =>
+		( {
+			isIntersecting,
+			boundingClientRect: { bottom },
+			rootBounds: { top: 100 },
+		} ) as IntersectionObserverEntry;
+
+	const report = ( ...entries: IntersectionObserverEntry[] ) =>
+		act( () => intersect( entries, {} as IntersectionObserver ) );
+
+	test( 'renders into a slot between the header and the scroller it observes', async () => {
+		await renderDashboard();
+		const scroller = screen.getByTestId( 'dashboard-scroller' );
+		// eslint-disable-next-line testing-library/no-node-access
+		const slot = screen.getByTestId( 'dashboard-header' ).nextElementSibling;
 		expect( slot ).toHaveClass( 'jetpack-boost-score-bar-slot' );
-		expect( slot?.nextElementSibling ).toBe( screen.getByTestId( 'dashboard-scroller' ) );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( slot?.nextElementSibling ).toBe( scroller );
 		expect( observer ).toHaveBeenCalledWith( expect.any( Function ), {
-			root: screen.getByTestId( 'dashboard-scroller' ),
+			root: scroller,
 			threshold: 0,
 		} );
-		const entry = ( isIntersecting: boolean, bottom: number ) =>
-			( {
-				isIntersecting,
-				boundingClientRect: { bottom },
-				rootBounds: { top: 100 },
-			} ) as IntersectionObserverEntry;
-		act( () => intersect( [ entry( false, 1200 ) ], {} as IntersectionObserver ) );
-		expect( screen.queryByLabelText( 'Site speed summary' ) ).not.toBeInTheDocument();
-		act( () =>
-			intersect( [ entry( true, 364 ), entry( false, 39 ) ], {} as IntersectionObserver )
+		report( entry( false, 39 ) );
+		expect( slot ).toContainElement( screen.getByTestId( 'score-bar' ) );
+	} );
+
+	test( 'shows only while the latest entry has the card above the scroller', async () => {
+		await renderDashboard();
+		report( entry( false, 1200 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( true, 364 ), entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		report( entry( false, 39 ), entry( true, 364 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+	} );
+
+	test( 'removes the bar, its slot and the observer when the Overview is hidden', async () => {
+		const { hide } = await renderDashboard();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		hide();
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( screen.getByTestId( 'dashboard-header' ).nextElementSibling ).toBe(
+			screen.getByTestId( 'dashboard-scroller' )
 		);
-		expect( screen.getByLabelText( 'Site speed summary' ) ).toBeVisible();
-		expect( slot ).toContainElement( screen.getByLabelText( 'Site speed summary' ) );
-		act( () =>
-			intersect( [ entry( false, 39 ), entry( true, 364 ) ], {} as IntersectionObserver )
-		);
-		expect( screen.queryByLabelText( 'Site speed summary' ) ).not.toBeInTheDocument();
-		act( () => intersect( [ entry( false, 39 ) ], {} as IntersectionObserver ) );
-		expect( screen.getByLabelText( 'Site speed summary' ) ).toBeVisible();
-		rerender( dashboard( false ) );
-		expect( screen.queryByLabelText( 'Site speed summary' ) ).not.toBeInTheDocument();
-		expect( slot ).not.toBeInTheDocument();
-		expect( header.nextElementSibling ).toBe( screen.getByTestId( 'dashboard-scroller' ) );
 		expect( disconnect ).toHaveBeenCalledTimes( 1 );
-	} finally {
-		unmount();
-		window.IntersectionObserver = original;
-	}
-	/* eslint-enable testing-library/no-node-access */
+	} );
 } );
 
 test( 'shows the stock button loading treatment while a user speed test runs', async () => {
@@ -1920,7 +1943,7 @@ test( 'shares one ready signal with the condensed bar and does not replay it on 
 			await act( async () => complete( scores ) );
 		};
 		scroll( true );
-		let bar = screen.getByLabelText( 'Site speed summary' );
+		let bar = screen.getByTestId( 'score-bar' );
 		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
 		await completeRun();
 		const overall = bar.querySelector( '.jetpack-boost-score-bar__overall' )!;
@@ -1937,14 +1960,14 @@ test( 'shares one ready signal with the condensed bar and does not replay it on 
 		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
 		scroll( false );
 		scroll( true );
-		bar = screen.getByLabelText( 'Site speed summary' );
+		bar = screen.getByTestId( 'score-bar' );
 		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
 		await completeRun();
 		expect( bar.querySelectorAll( '.jetpack-boost-score-ready' ) ).toHaveLength( 3 );
 		scroll( false );
-		expect( screen.queryByLabelText( 'Site speed summary' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
 		scroll( true );
-		bar = screen.getByLabelText( 'Site speed summary' );
+		bar = screen.getByTestId( 'score-bar' );
 		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
 		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
 	} finally {
