@@ -310,7 +310,9 @@ const XyChartTooltipContent = < Datum extends object >( {
  * @param props - visx's `Tooltip` options. `scroll`, `debounce` and `resizeObserverPolyfill` are accepted and ignored.
  * @return An anchor in the SVG, plus the overlay and the tooltip box while the tooltip is open.
  */
-export const XyChartTooltip = < Datum extends object >( props: XyChartTooltipProps< Datum > ) => {
+export const XyChartTooltipOverlay = < Datum extends object >(
+	props: XyChartTooltipProps< Datum >
+) => {
 	const tooltipContext = useContext( TooltipContext ) as TooltipContextType< Datum > | null;
 	const [ container, setContainer ] = useState< HTMLElement | null >( null );
 

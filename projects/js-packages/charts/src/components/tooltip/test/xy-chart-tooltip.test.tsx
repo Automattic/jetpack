@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
 import { useContext, useEffect } from 'react';
-import { XyChartTooltip } from '../xy-chart-tooltip';
+import { XyChartTooltipOverlay } from '../xy-chart-tooltip';
 import type { XyChartTooltipProps } from '../../../visx/types';
 import type { EventHandlerParams, XYChartTheme } from '@visx/xychart';
 
@@ -91,7 +91,7 @@ const renderChart = (
 			>
 				<LineSeries dataKey="A" data={ SERIES_A } xAccessor={ xAccessor } yAccessor={ yAccessor } />
 				<LineSeries dataKey="B" data={ SERIES_B } xAccessor={ xAccessor } yAccessor={ yAccessor } />
-				<XyChartTooltip
+				<XyChartTooltipOverlay
 					renderTooltip={ renderTooltip }
 					data-testid="tooltip-box"
 					{ ...tooltipProps }
@@ -101,7 +101,7 @@ const renderChart = (
 		</div>
 	);
 
-describe( 'XyChartTooltip', () => {
+describe( 'XyChartTooltipOverlay', () => {
 	test.each( [
 		[ 'bounded', {} ],
 		[ 'unbounded', { detectBounds: false } ],
@@ -299,7 +299,7 @@ describe( 'XyChartTooltip', () => {
 						xAccessor={ bandXAccessor }
 						yAccessor={ bandYAccessor }
 					/>
-					<XyChartTooltip
+					<XyChartTooltipOverlay
 						renderTooltip={ renderBarTooltip }
 						data-testid="tooltip-box"
 						snapTooltipToDatumX
