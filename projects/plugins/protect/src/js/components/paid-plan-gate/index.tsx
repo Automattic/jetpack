@@ -1,5 +1,6 @@
 import { Navigate } from 'react-router';
 import usePlan from '../../hooks/use-plan';
+import type { JSX } from 'react';
 
 /**
  * Paid Plan Gate

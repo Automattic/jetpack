@@ -54,8 +54,11 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
 		return [ 'month', 'year' ];
-	} else if ( daysDiff >= 365 ) {
+	} else if ( daysDiff > 366 ) {
 		return [ 'month' ];
+	} else if ( daysDiff >= 365 ) {
+		// Months by default; weeks stay on offer for a single year, leap or not.
+		return [ 'month', 'week' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -105,7 +108,7 @@ export function getAllowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month' ];
+			return [ 'month', 'week' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}

@@ -46,5 +46,6 @@ class Comments {
 		Comment_Form::init();
 		Checkpoint::init();
 		Avatars::init();
+		Block_Editor::init();
 	}
 }

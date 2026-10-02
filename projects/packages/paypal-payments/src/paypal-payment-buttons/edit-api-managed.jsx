@@ -9,6 +9,7 @@
  * @since 0.8.0
  */
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import {
 	BlockControls,
@@ -101,7 +102,7 @@ import {
 // payment method selection (PayPal, cards, wallets, etc.).
 
 // What the form edits: the payment's attributes the merchant sets, and the block's
-// image, which is sent with them.
+// image, which stays on the site.
 const FORM_FIELDS = [
 	...RESOURCE_ATTRIBUTES.filter( key => ! PAYPAL_SET_ATTRIBUTES.includes( key ) ),
 	'imageUrl',
@@ -258,6 +259,9 @@ export default function ApiManagedEdit( {
 
 	const blockProps = useBlockProps();
 
+	// Identifies this bundle's Tracks events with the connected user.
+	useAnalytics();
+
 	const {
 		isConnected,
 		setIsConnected,
@@ -290,6 +294,7 @@ export default function ApiManagedEdit( {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	} = usePayPalConnection();
@@ -433,6 +438,7 @@ export default function ApiManagedEdit( {
 		resource,
 		isBusy,
 		linkDeleted,
+		readError,
 		paymentChanged,
 		dismissPaymentChanged,
 		handleDeleteButton,
@@ -881,6 +887,7 @@ export default function ApiManagedEdit( {
 						handleClientSecretChange={ handleClientSecretChange }
 						clientIdWarning={ clientIdWarning }
 						handleConnect={ handleConnect }
+						recordWizardStarted={ recordWizardStarted }
 						fetchSignupLink={ fetchSignupLink }
 					/>
 				</InspectorControls>
@@ -1162,14 +1169,6 @@ export default function ApiManagedEdit( {
 					{ imageUrl ? (
 						<div className="jetpack-paypal-payment-buttons__image-preview">
 							<img src={ imageUrl } alt={ productName || '' } />
-							{ ! /^https:\/\//i.test( imageUrl ) && (
-								<Notice status="warning" isDismissible={ false }>
-									{ __(
-										'PayPal only shows images served from a public HTTPS address, so this one will not appear at checkout.',
-										'jetpack-paypal-payments'
-									) }
-								</Notice>
-							) }
 							<div className="jetpack-paypal-payment-buttons__image-actions">
 								<MediaUploadCheck>
 									<MediaUpload
@@ -1450,8 +1449,16 @@ export default function ApiManagedEdit( {
 					label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
 					help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
 					checked={ shippingEnabled }
+					// A profile tax still needs the address once shipping is off, so that one stays on.
 					onChange={ value =>
-						setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
+						setAttributes(
+							value
+								? { shippingEnabled: true }
+								: {
+										...turnGateOff( 'shippingEnabled' ),
+										...( addressIsRequired ? { collectShippingAddress: true } : {} ),
+									}
+						)
 					}
 					disabled={ isBusy }
 				/>
@@ -1660,6 +1667,19 @@ export default function ApiManagedEdit( {
 					{ __(
 						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
 						'jetpack-paypal-payments'
+					) }
+				</Notice>
+			) }
+
+			{ readError && (
+				<Notice status="error" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %s: the error message from PayPal. */
+						__(
+							'This payment link could not be loaded from PayPal: %s Changes to it will not be saved until it loads. Reload the post to try again.',
+							'jetpack-paypal-payments'
+						),
+						readError
 					) }
 				</Notice>
 			) }

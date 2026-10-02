@@ -30,6 +30,7 @@ import {
 	resolveSection,
 	useEarningsReportRecords,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -158,6 +159,7 @@ function EarningsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getEarningsRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
 					/>

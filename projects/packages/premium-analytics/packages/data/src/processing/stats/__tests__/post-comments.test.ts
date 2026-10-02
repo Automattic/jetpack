@@ -32,15 +32,20 @@ describe( 'sanitizeStatsPostCommentsResponse', () => {
 				},
 				{ ID: 102, name: 'hiroshit' },
 			],
-			fetchedCount: 5,
 		} );
 	} );
 
+	it.each( [
+		[ 12, 12 ],
+		[ 0, 0 ],
+		[ -1, undefined ],
+		[ undefined, undefined ],
+	] )( 'reads found %p as total %p', ( found, total ) => {
+		expect( sanitizeStatsPostCommentsResponse( { found, comments: [] } ).found ).toBe( total );
+	} );
+
 	it( 'returns an empty result for missing or invalid payloads', () => {
-		expect( sanitizeStatsPostCommentsResponse( null ) ).toEqual( {
-			comments: [],
-			fetchedCount: 0,
-		} );
-		expect( sanitizeStatsPostCommentsResponse( [] ) ).toEqual( { comments: [], fetchedCount: 0 } );
+		expect( sanitizeStatsPostCommentsResponse( null ) ).toEqual( { comments: [] } );
+		expect( sanitizeStatsPostCommentsResponse( [] ) ).toEqual( { comments: [] } );
 	} );
 } );

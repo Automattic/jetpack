@@ -13,10 +13,14 @@ type AnyComponent = ComponentType< any >;
 export declare const WidgetRoot: AnyComponent;
 export declare function useWidgetRootContext(): any;
 export declare const WidgetState: AnyComponent;
+export declare function describeError( ...args: any[] ): any;
+
+// Footer chrome, until widgets declare their footer as actions the host renders.
 export declare const WidgetFooter: AnyComponent;
 export declare const ReportLink: AnyComponent;
+export declare const ExporterCsvDownloadButton: AnyComponent;
 
-// Charts and metrics.
+// Charts and metrics: parts of the metric tabs and metric tiles kinds, until those kinds exist.
 export declare const ChartEmptyState: AnyComponent;
 export declare const MetricTabsChart: AnyComponent;
 export declare const MetricTabsChartSkeleton: AnyComponent;
@@ -26,6 +30,13 @@ export declare function buildMetricTab( ...args: any[] ): any;
 export type DataFormat = any;
 export type CountLabel = any;
 export type ChartDisplayChartType = any;
+
+// Leaderboards: ranked rows in, with their states, comparison and drill-down handled.
+export declare const Leaderboard: AnyComponent;
+export type LeaderboardProps = any;
+export type LeaderboardRowInput = any;
+export type LeaderboardStatus = any;
+export type LeaderboardDrillDown = any;
 
 // Widget attributes.
 export declare function reportParamsAttributeField< Attributes = any >( options?: any ): any;
@@ -49,6 +60,11 @@ export declare function useStatsWordAdsStats( ...args: any[] ): any;
 export declare function useStatsWordAdsEarnings( ...args: any[] ): any;
 export type StatsWordAdsResponse = any;
 export type StatsWordAdsEarningsResponse = any;
+
+// The video plays hook is provisional the same way: shared with the dashboard's Videos report until
+// that report moves to the VideoPress package.
+export declare function useStatsVideoPlays( ...args: any[] ): any;
+export type StatsVideoPlaysComparisonItem = any;
 
 // Ads earnings history, provisional too: shared with the dashboard's Earnings report until that report
 // moves to the Ads package.

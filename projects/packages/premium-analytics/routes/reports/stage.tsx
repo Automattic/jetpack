@@ -21,7 +21,7 @@ import { useParams } from '@wordpress/route';
 import { route } from './package.json';
 import { getReportDefinition } from './registry';
 import styles from './stage.module.scss';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 const ROUTE_FROM = route.path;
 

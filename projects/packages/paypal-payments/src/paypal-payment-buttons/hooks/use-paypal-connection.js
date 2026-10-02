@@ -4,6 +4,7 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -252,6 +253,10 @@ export function usePayPalConnection() {
 	const handleConnect = useCallback( () => {
 		setConnectError( null );
 		setIsConnecting( true );
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_connection_attempted', {
+			environment,
+			method: 'manual',
+		} );
 
 		apiFetch( {
 			path: `${ API_BASE }/connect`,
@@ -280,6 +285,24 @@ export function usePayPalConnection() {
 			} );
 	}, [ clientId, clientSecret, environment ] );
 
+	// Kept here rather than in the wizard, which unmounts on deselect.
+	const wizardStartedRef = useRef( false );
+
+	/**
+	 * Record the merchant's first click in the wizard, once per block.
+	 */
+	const recordWizardStarted = useCallback( () => {
+		if ( wizardStartedRef.current ) {
+			return;
+		}
+
+		wizardStartedRef.current = true;
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_wizard_started', {
+			environment,
+			partner_referrals_available: partnerReferralsAvailable,
+		} );
+	}, [ environment, partnerReferralsAvailable ] );
+
 	/**
 	 * Tell the server the merchant finished at PayPal, so it can record them.
 	 *
@@ -304,6 +327,7 @@ export function usePayPalConnection() {
 			method: 'POST',
 			data: {
 				merchant_id_in_paypal: merchantIdInPayPal || '',
+				quiet,
 			},
 		} )
 			.then( response => {
@@ -672,6 +696,7 @@ export function usePayPalConnection() {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	};

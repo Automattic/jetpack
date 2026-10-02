@@ -142,6 +142,12 @@ class PayPal_REST_Controller {
 							'sanitize_callback' => 'sanitize_text_field',
 							'description'       => __( 'Merchant PayPal payer ID from onboarding callback.', 'jetpack-paypal-payments' ),
 						),
+						'quiet'                 => array(
+							'required'    => false,
+							'type'        => 'boolean',
+							'default'     => false,
+							'description' => __( 'Whether this is the check made when the merchant closes PayPal, where no seller yet means they cancelled.', 'jetpack-paypal-payments' ),
+						),
 					),
 				),
 			)
@@ -197,7 +203,17 @@ class PayPal_REST_Controller {
 					'methods'             => WP_REST_Server::CREATABLE,
 					'callback'            => array( __CLASS__, 'handle_create_button' ),
 					'permission_callback' => array( __CLASS__, 'manage_options_permission_check' ),
-					'args'                => self::get_button_create_args(),
+					'args'                => array_merge(
+						self::get_button_create_args(),
+						array(
+							'recreated' => array(
+								'required'    => false,
+								'type'        => 'boolean',
+								'default'     => false,
+								'description' => __( 'Whether this replaces a payment link PayPal no longer has.', 'jetpack-paypal-payments' ),
+							),
+						)
+					),
 				),
 			)
 		);
@@ -385,6 +401,22 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
 	 */
 	public static function handle_connect( WP_REST_Request $request ) {
+		$result = self::connect_with_credentials( $request );
+
+		self::record_connection( $result, $request->get_param( 'environment' ), 'manual' );
+
+		return $result;
+	}
+
+	/**
+	 * Store the credentials from a connect request and check them with PayPal.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param WP_REST_Request $request The REST request.
+	 * @return WP_REST_Response|WP_Error Response on success, WP_Error on failure.
+	 */
+	private static function connect_with_credentials( WP_REST_Request $request ) {
 		$client_id     = $request->get_param( 'client_id' );
 		$client_secret = $request->get_param( 'client_secret' );
 		$environment   = $request->get_param( 'environment' );
@@ -475,7 +507,7 @@ class PayPal_REST_Controller {
 
 		// The editor appends this to payment links it copies to the clipboard,
 		// so those links are attributed the same way the rendered button is.
-		$status['partner_attribution_id'] = PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID;
+		$status['partner_attribution_id'] = PayPal_Payment_Buttons::get_partner_attribution_id();
 
 		return new WP_REST_Response( $status, 200 );
 	}
@@ -487,8 +519,17 @@ class PayPal_REST_Controller {
 	 * @return WP_REST_Response Response confirming disconnection.
 	 */
 	public static function handle_disconnect( WP_REST_Request $request ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		// Read these before disconnect() deletes them.
+		$was_connected = PayPal_OAuth::is_connected();
+		$environment   = PayPal_OAuth::get_environment();
+
 		PayPal_OAuth::disconnect();
 		PayPal_Partner_Onboarding::cleanup();
+
+		// Record only when PayPal was connected, which skips a repeat POST from a stale tab.
+		if ( $was_connected ) {
+			PayPal_Tracks::record_event( 'jetpack_paypal_disconnected', array( 'environment' => $environment ) );
+		}
 
 		return new WP_REST_Response(
 			array(
@@ -568,6 +609,15 @@ class PayPal_REST_Controller {
 			(string) $request->get_param( 'merchant_id_in_paypal' )
 		);
 
+		// No seller yet on the close check is a cancel, not a failed connect.
+		$cancelled = $request->get_param( 'quiet' )
+			&& is_wp_error( $result )
+			&& in_array( $result->get_error_code(), array( 'paypal_merchant_not_found', 'paypal_onboarding_no_session' ), true );
+
+		if ( ! $cancelled ) {
+			self::record_connection( $result, PayPal_OAuth::get_environment(), 'partner_referrals' );
+		}
+
 		if ( is_wp_error( $result ) ) {
 			return self::api_error_to_rest_error( $result );
 		}
@@ -629,6 +679,12 @@ class PayPal_REST_Controller {
 		// The 201 includes code_snippets, so map it here too: a new stacked block would
 		// otherwise save an empty scriptSrc, and the mount GET comes too late to fix it.
 		$result['attributes'] = PayPal_Attribute_Mapper::api_response_to_attributes( $result );
+
+		// Replacements are tracked as recreated, so "created" counts only new links.
+		PayPal_Tracks::record_event(
+			$request->get_param( 'recreated' ) ? 'jetpack_paypal_button_recreated' : 'jetpack_paypal_button_created',
+			self::get_button_event_properties( $resource_data )
+		);
 
 		return new WP_REST_Response( $result, 201 );
 	}
@@ -795,6 +851,15 @@ class PayPal_REST_Controller {
 			// If the resource is already gone (404), treat as success.
 			$error_data = $result->get_error_data();
 			if ( isset( $error_data['status'] ) && 404 === (int) $error_data['status'] ) {
+				PayPal_Tracks::record_event(
+					'jetpack_paypal_button_deleted',
+					array(
+						'environment'  => PayPal_OAuth::get_environment(),
+						'source'       => 'editor',
+						'already_gone' => true,
+					)
+				);
+
 				return new WP_REST_Response(
 					array(
 						'deleted'     => true,
@@ -807,6 +872,15 @@ class PayPal_REST_Controller {
 
 			return self::api_error_to_rest_error( $result );
 		}
+
+		PayPal_Tracks::record_event(
+			'jetpack_paypal_button_deleted',
+			array(
+				'environment'  => PayPal_OAuth::get_environment(),
+				'source'       => 'editor',
+				'already_gone' => false,
+			)
+		);
 
 		return new WP_REST_Response(
 			array(
@@ -915,6 +989,54 @@ class PayPal_REST_Controller {
 	}
 
 	/**
+	 * Record whether a connect attempt succeeded.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param mixed  $result      The connect result; a WP_Error when it failed.
+	 * @param string $environment The environment the connect used.
+	 * @param string $method      `manual` or `partner_referrals`.
+	 * @return void
+	 */
+	private static function record_connection( $result, $environment, $method ) {
+		$properties = array(
+			'environment' => $environment,
+			'method'      => $method,
+		);
+
+		if ( is_wp_error( $result ) ) {
+			// Send only the code, since the message can include PayPal's text.
+			$properties['error_code'] = $result->get_error_code();
+			PayPal_Tracks::record_event( 'jetpack_paypal_connection_failed', $properties );
+			return;
+		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_connection_succeeded', $properties );
+	}
+
+	/**
+	 * Tracks properties for a created payment link, from the data sent to PayPal.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $resource_data The data from build_resource_data().
+	 * @return array Event properties.
+	 */
+	private static function get_button_event_properties( $resource_data ) {
+		$line_item = $resource_data['line_items'][0] ?? array();
+
+		// Priced options replace the product-level price, so take the currency from the options.
+		$currency = $line_item['unit_amount']['currency_code'] ?? self::get_variant_currency( $line_item['variants'] ?? array() );
+
+		return array(
+			'environment'      => PayPal_OAuth::get_environment(),
+			'integration_mode' => $resource_data['integration_mode'],
+			'currency'         => strtoupper( $currency ),
+			'has_variants'     => ! empty( $line_item['variants'] ),
+		);
+	}
+
+	/**
 	 * Get REST API arg definitions for button create/update endpoints.
 	 *
 	 * Defines the line_items schema matching PayPal's Pay Links & Buttons API.
@@ -987,11 +1109,6 @@ class PayPal_REST_Controller {
 							'required' => true,
 						),
 						'description'              => array(
-							'type'     => 'string',
-							'required' => false,
-						),
-						// Shown on the PayPal checkout. The sanitizer keeps it only when HTTPS.
-						'image_url'                => array(
 							'type'     => 'string',
 							'required' => false,
 						),
@@ -1170,15 +1287,6 @@ class PayPal_REST_Controller {
 			if ( ! empty( $item['description'] ) ) {
 				// The control is a textarea, so keep the line breaks PayPal stores.
 				$clean_item['description'] = sanitize_textarea_field( $item['description'] );
-			}
-
-			// PayPal fetches the image itself, so anything but a public HTTPS URL is
-			// dropped rather than rejected: an http:// site can still save its button.
-			if ( ! empty( $item['image_url'] ) ) {
-				$image_url = esc_url_raw( (string) $item['image_url'], array( 'https' ) );
-				if ( 0 === strpos( $image_url, 'https://' ) ) {
-					$clean_item['image_url'] = $image_url;
-				}
 			}
 			if ( ! empty( $item['quantity'] ) ) {
 				$clean_item['quantity'] = (string) max( 1, absint( $item['quantity'] ) );
@@ -1391,10 +1499,27 @@ class PayPal_REST_Controller {
 			$status = 503;
 		}
 
+		$rest_data = array( 'status' => $status );
+
+		// PayPal's debug ID is what their support resolves a failed request by, so
+		// keep it for the editor and record it. Send only the code, not the message.
+		if ( ! empty( $data['paypal_debug_id'] ) ) {
+			$rest_data['paypal_debug_id'] = $data['paypal_debug_id'];
+			PayPal_Tracks::record_event(
+				'jetpack_paypal_api_error',
+				array(
+					'environment' => PayPal_OAuth::get_environment(),
+					'error_code'  => $error->get_error_code(),
+					'status'      => (int) $status,
+					'debug_id'    => $data['paypal_debug_id'],
+				)
+			);
+		}
+
 		return new WP_Error(
 			$error->get_error_code(),
 			$error->get_error_message(),
-			array( 'status' => $status )
+			$rest_data
 		);
 	}
 }

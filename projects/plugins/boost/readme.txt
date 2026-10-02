@@ -5,7 +5,7 @@ Tags: performance, speed, web vitals, critical css, cache
 Requires at least: 7.0
 Tested up to: 7.1
 Requires PHP: 7.4
-Stable tag: 4.8.0-beta2
+Stable tag: 4.8.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -79,7 +79,7 @@ Jetpack Boost makes small changes to the way that data is sent from your WordPre
 
 Jetpack Boost includes a growing number of separate features which can be turned on individually to improve your site’s performance. These include:
 
-* **Optimize CSS Loading**: This feature determines the most important CSS that your site needs to display your site’s initial content as quickly as possible, and embeds it directly into your site header.
+* **Optimize CSS Loading**: This feature identifies the styles needed to display your site’s initial content quickly. See “Can I also defer non-essential CSS with Jetpack Boost?” below for how Critical CSS is applied.
 * **Page Cache**: This feature stores your website's pages as static HTML files, bypassing the need for dynamic generation. This means visitors receive pages faster, reducing wait times and improving overall site performance.
 * **Defer Non-Essential JavaScript**: This feature forces all of the JavaScript which is not deemed essential to displaying your site to load after your site’s main content has been loaded.
 * **Image CDN**: This feature automatically resizes images to a more appropriate size for your visitors' screens, converts them to modern image formats, and serves them from Jetpack's worldwide network of servers.
@@ -98,9 +98,11 @@ We recommend that you install Jetpack Boost, and try it for yourself. It include
 
 = Can I also defer non-essential CSS with Jetpack Boost? =
 
-Jetpack Boost automatically defers non-essential CSS when its “Optimize CSS Loading” feature is enabled and Critical CSS has been generated.
+Jetpack Boost automatically defers non-essential CSS when its “Optimize CSS Loading” feature is enabled and usable Critical CSS is available for the page.
 
 The “Optimize CSS Loading” feature identifies the most important CSS rules your site needs to display your pages as quickly as possible (commonly called “Critical CSS”), and defers all other CSS rules from loading until your main content has loaded.
+
+Boost embeds Critical CSS in the page header after the page title. Generated CSS larger than 512 KiB is rejected with an error message, and any previous CSS for that page group is removed. Previously saved CSS above this limit is also not embedded. Without usable Critical CSS, this feature leaves stylesheets loading normally; other page groups can still be optimized.
 
 = What are Web Vitals? =
 
@@ -189,111 +191,31 @@ If you run into compatibility issues, please do let us know. You can drop us a l
 4. Historical performance tracking with the upgraded plan.
 
 == Changelog ==
-### 4.8.0-beta2 - 2026-09-29
+### 4.8.0 - 2026-10-02
 #### Security
-- Critical CSS: Only enter generation mode while a front-end page renders, so a link carrying the generation parameter can no longer force an admin, REST or login-page request to render as a logged-out visitor.
+- Critical CSS: Improve the security of Critical CSS generation.
 
 #### Added
-- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice.
-- Critical CSS: Explain when pages could not be optimized because they are only shown to logged-in visitors.
-- Settings: Add an explanation of Critical CSS beside its title in the modern dashboard.
+- Connection: Surface SSL certificate verification failures reported by WordPress.com as a connection error notice, and flag connection errors with a badge on the Jetpack menu.
+- Critical CSS: Explain when pages could not be optimized because they are only shown to logged-in visitors, and let each group of these pages be dismissed separately.
 
 #### Changed
-- Cornerstone Pages: Add a short description under the title on the settings page.
-- Cornerstone Pages: Show the section description in the collapsed Settings header.
-- Dashboard: Move the speed test to a "Run speed test" button in the modernized Overview header and add a page subtitle.
-- Dashboard: Replace the free-plan score history prompt in the modernized Overview with a one-line upgrade notice that expands to a preview of the chart.
-- Dashboard: Show a loader instead of the modernized Overview while onboarding redirects to Getting Started.
-- Dashboard: Show score gains as badges in the modern Overview, and explain a score that has not improved or has fallen.
+- Dashboard: Redesign the Overview around a "Your site speed" score card with score gain badges, a score history chart with day details that works with a keyboard and screen reader, and a "Run speed test" button.
 - Dashboard: Show the modernized dashboard by default. Add `add_filter( 'rsm_jetpack_ui_modernization_boost', '__return_false' );` to restore the previous dashboard.
-- Dashboard: Update the modernized Overview score card to show "Your site speed", an overall band, and its calculating and failure states inside the card.
-- Dashboard: Use the same light orange for "Could improve" days in the modernized Overview history chart as in the score card.
-- Hide the Boost sidebar item when Boost is not active.
-- History chart: Give the empty-day tooltip card its own rounded shadow.
-- My Jetpack: Answer module switch clicks immediately, and explain what happened when a change fails.
-- My Jetpack: Restyle dashboard notices to match the WordPress design system.
-- My Jetpack: Show a Features tab in place of the Products tab.
-- My Jetpack: Show the dashboard in the new rounded admin page frame.
-- My Jetpack: Show the Jetpack menu notification badge when a connection error is detected.
-- Overview: Open the points explanation when hovering the points badge.
-- Overview: Show empty days in the score history in the same details popover as recorded days.
-- Refer to Cornerstone Pages consistently, matching the support documentation.
-- Restyle error notices to match the WordPress design system.
-- Settings: Add a Clear cache button to Page Cache and show logging as a toggle with a link to the logs.
-- Settings: Group Image CDN controls and LCP optimization status in inset panels on the modern dashboard, and label the auto-resize toggle.
-- Settings: Keep focus on tooltip triggers when their tooltips open, announce the content to screen readers, and show a focus ring after clicking an info icon.
-- Settings: Organize modern settings into collapsible sections with descriptions and icons.
-- Settings: Show performance scores and optimization settings together on the modern dashboard.
-- Settings: Show upgrade notices without prices and add an explicit Generate step for manual Critical CSS in the modern dashboard.
-- Settings: Simplify modern settings descriptions and labels, and remove tips and priority support from the modern settings page.
-- Settings: Use a shared Except panel for JavaScript, CSS, and page cache exclusions in the modern dashboard.
+- My Jetpack: Show the dashboard in the new rounded admin page frame, with restyled notices and a Features tab in place of the Products tab.
+- Settings: Show performance scores and optimization settings together in collapsible sections with short descriptions and restyled notices, and make tooltips and toggles work with a keyboard and screen reader.
 - Update package dependencies.
 
 #### Fixed
-- Activity Log: Honor the module setting, so the page can be turned off.
-- Activity Log: Stop the frame from flashing while loading and when switching admin pages.
-- Charts: Fix unreadable axis labels in forced-colors mode.
-- Charts: Restore keyboard focus after dismissing line chart tooltips.
-- Connection: Fix a stale connection error notice that could persist on healthy sites.
-- Connection: Let users without admin access reconnect their own broken account from the connection error notice.
-- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else.
-- Critical CSS: Avoid duplicate status requests for CSS and LCP generation in the modern dashboard.
-- Critical CSS: Hide only the group of blocked pages you dismiss, instead of both.
-- Critical CSS: Match the recommendations page text size and colour to the modern dashboard.
-- Critical CSS: Show a focus ring around the manual regeneration info icon when it is reached with the keyboard.
-- Critical CSS: Stop generation from logging administrators out on sites whose login gate redirects without using WordPress.
-- Critical CSS: Stop local generation at login-protected pages to keep administrators logged in, and prevent automatic restarts after a failed run throughout the dashboard page session.
-- Dashboard: Avoid redundant requests when toggling optimization modules.
-- Dashboard: Fix the modernized onboarding loader staying in place of the Overview after onboarding completes.
-- Dashboard: Hide the history upgrade prompt in the modernized Overview when My Jetpack is turned off, so it no longer leads to a page you cannot open.
-- Dashboard: Keep day details in the modernized Overview score history fully on screen, let the pointer move onto them, and show a focus ring on the chart.
-- Dashboard: Remove console errors and blank space under Critical CSS on sites that are not publicly available.
-- Dashboard: Restore button padding on the modernized Overview screen.
-- Dashboard: Restore the "Use license key" link beside upgrade prompts on the modernized dashboard.
-- Dashboard: Restore the padding around the upgrade, error, and welcome notices in the modernized Overview score history card.
-- Dashboard: Show Jetpack in-dashboard messages on the modernized dashboard.
-- Dashboard: Stop the modernized dashboard from logging a console error about missing Jetpack configuration.
-- Dashboard: Target contextual messages at the Boost screen on the modern dashboard.
-- Dashboard: Track Try again as a speed score refresh and keep keyboard focus on the page when a render failure removes the header button.
+- Activity Log: Honor the module setting, so the page can be turned off, and stop the frame from flashing while loading.
+- Connection: Report a broken connection on the My Jetpack connection card instead of saying everything looks good, stop showing stale connection error notices, and let users without admin access reconnect their own account or find an administrator who can.
+- Critical CSS: Stop generation from logging administrators out on sites with login-protected pages, and stop it restarting on its own after a failed run.
 - Defer JS: Keep scripts that come before a script left in place in their original order, fixing hidden product images and unclickable tabs on some sites using Jetpack Likes.
-- Footer: Hide Products and Help links when My Jetpack is unavailable.
-- Hide My Jetpack links when its admin page is unavailable.
-- Modern dashboard: Send the upgrade CTA to the Boost interstitial page instead of opening the modal.
+- Hide links to My Jetpack screens, including upgrade, license and footer links, when My Jetpack is unavailable.
 - My Jetpack: Fix the dashboard failing to load on WordPress.com-hosted sites.
-- My Jetpack: Fix the layout of the connection screen for right-to-left languages.
-- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete.
-- My Jetpack: Show each notice once instead of twice.
-- My Jetpack: Stretch the tab content background to the full height of the page.
-- Overview: Keep keyboard focus on the score history's first or last day instead of leaving the chart, and return focus to the chart when Escape closes a tooltip.
-- Overview: Let Tab move straight into and out of the score history while the pointer shows a day's details.
-- Overview: Let the pointer reach every day in the score history while a day's details are open, and leave a gap between the day and its details.
-- Overview: Let the pointer take over from the arrow keys in the score history, instead of flickering between the hovered and selected days.
-- Overview: Match the score help popovers, score history day details and paging tooltips to the design.
-- Overview: Show a day's score details on hover again after paging the score history with the keyboard.
-- Overview: Show a focus ring on the score history day selected with the arrow keys.
-- Overview: Show an upgrade link when the score history upgrade prompt cannot load.
-- Overview: Show the first recorded day of performance history immediately after upgrading.
-- Overview: Show the score history's Previous and Next arrows in dark grey instead of blue, to match the rest of the page.
-- Overview: Stop the score history from swallowing keys it does not use, such as Page Down, and close a day’s details when the series it describes is hidden.
+- My Jetpack: Show each notice once, respond to module switches immediately, and fix the connection screen layout for right-to-left languages.
 - Page Cache: Show the module as running, without contradictory setup errors, on WP Cloud hosts such as Pressable that already cache pages.
-- Performance history: Load the Overview faster on sites with little or no score history.
 - Performance history: Show the recorded decimal LCP, TBT, and CLS values in the history chart tooltips instead of whole numbers.
-- Performance scores: Cancel pending background score requests while viewing a sub-page.
-- Settings: Add space between a module's description and its status notice in the modern dashboard.
-- Settings: Announce to screen readers whether the image quality options are expanded.
-- Settings: Avoid duplicate navigation when returning from a sub-page.
-- Settings: Close the Page Cache example and Cornerstone Pages warning tooltips with Escape, and the warning with a click elsewhere.
-- Settings: Give information icons an accessible name for screen readers.
-- Settings: Hide upgrade and license links when their My Jetpack screens are unavailable.
-- Settings: Let keyboard users open tooltips with Enter or Space and dismiss them with Escape.
-- Settings: Match notice text to the rest of the page.
-- Settings: Match the Customize pages list label, image quality toggle, and Critical CSS status to the design.
-- Settings: Match the Save buttons in the exceptions panels and Cornerstone Pages editor to the rest of the page.
-- Settings: Nest the settings section headings under the page heading for screen readers.
-- Settings: Show text links in the brand colour and enlarge the Critical CSS info icon in the modern dashboard.
-- Settings: Show tooltips in full on the modernized Settings page instead of cutting them off at the card edge.
-- Settings: Tighten the Cornerstone Pages list editor and match its text size and color to the rest of the page.
-- Settings: Use the same text size and color for the exceptions panels and Image CDN help text as the rest of the page.
 
 --------
 

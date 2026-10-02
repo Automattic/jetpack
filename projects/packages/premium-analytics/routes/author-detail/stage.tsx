@@ -41,6 +41,7 @@ import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useAuthorSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -82,7 +83,7 @@ function AuthorDetail(): JSX.Element {
 	// Stats credits page and product views to the author too, and those can predate
 	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( undefined, dateFilters );
+	const { dateControls } = useDetailDateControls( undefined, dateFilters );
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{

@@ -24,6 +24,17 @@ export interface LocationView {
 	coordinates?: StatsLocationCoordinates;
 }
 
+interface LocationFilter {
+	/**
+	 * ISO country code.
+	 */
+	country: string;
+	/**
+	 * Region name, such as a state or province.
+	 */
+	region?: string;
+}
+
 interface UseLocationViewsArgs {
 	/**
 	 * PA ReportParams from WidgetRoot context.
@@ -38,9 +49,9 @@ interface UseLocationViewsArgs {
 	 */
 	geoMode?: GeoMode;
 	/**
-	 * ISO country code to filter regions by (region mode).
+	 * Country, or a region inside it, to narrow the rows to.
 	 */
-	countryFilter?: string;
+	filter?: LocationFilter;
 }
 
 interface LocationViewsState {
@@ -81,14 +92,15 @@ export default function useLocationViews( {
 	reportParams,
 	max,
 	geoMode = 'country',
-	countryFilter,
+	filter,
 }: UseLocationViewsArgs ): LocationViewsState {
-	const statsParams = {
+	const statsParams: Parameters< typeof useStatsLocations >[ 0 ] = {
 		...reportParams,
 		geoMode,
 		max,
-		...( countryFilter ? { filter_by_country: countryFilter } : {} ),
-	} as Parameters< typeof useStatsLocations >[ 0 ];
+		...( filter ? { filter_by_country: filter.country } : {} ),
+		...( filter?.region ? { filter_by_region: filter.region } : {} ),
+	};
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =
 		useStatsLocations( statsParams, { maxRows: max } );

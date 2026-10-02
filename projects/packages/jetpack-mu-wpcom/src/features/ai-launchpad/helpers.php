@@ -237,7 +237,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 			// server-fired events fire inside REST requests, where $pagenow is index.php, and
 			// the two recorders have to report the same screen for the same user.
 			'screen'        => 'admin.php',
-			'ref'           => 'experiment_wpcom_launchpad_personalization_202607_v1',
+			'ref'           => 'ai_launchpad',
 			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
 			'agent_name'    => 'ai_launchpad',
 			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,

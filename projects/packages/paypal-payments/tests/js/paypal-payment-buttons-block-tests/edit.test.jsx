@@ -8,6 +8,8 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { doActionAsync, removeAction, removeFilter } from '@wordpress/hooks';
@@ -45,6 +47,12 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 
 jest.mock( '@automattic/jetpack-shared-extension-utils', () => ( {
 	hasFeatureFlag: () => true,
+	useAnalytics: jest.fn( () => ( { tracks: {} } ) ),
+} ) );
+
+jest.mock( '@automattic/jetpack-analytics', () => ( {
+	__esModule: true,
+	default: { tracks: { recordEvent: jest.fn() } },
 } ) );
 
 // The paste-code editor has its own suite; keep its imports out of this one.
@@ -744,6 +752,16 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByTestId( 'spinner' ) ).toBeInTheDocument();
 			expect( screen.getByText( /Checking PayPal connection/ ) ).toBeInTheDocument();
 		} );
+
+		// useAnalytics() runs above the early returns, so each screen's events include the user.
+		it( 'calls useAnalytics while the connection check loads', () => {
+			apiFetch.mockReturnValue( new Promise( () => {} ) );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			expect( screen.getByTestId( 'spinner' ) ).toBeInTheDocument();
+			expect( useAnalytics ).toHaveBeenCalled();
+		} );
 	} );
 
 	describe( 'Connection Form (not connected)', () => {
@@ -808,6 +826,80 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await navigateToCredentialsStep( user );
 
 			expect( screen.getByRole( 'button', { name: /^Connect$/i } ) ).toBeDisabled();
+		} );
+
+		it( 'records connection_attempted with method manual when Connect sends the credentials', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+			await user.type( screen.getByLabelText( 'Client ID' ), 'AbcdefghijklmnopqrstuvwxyZ' );
+			await user.type( screen.getByLabelText( 'Client Secret' ), 'secret' );
+
+			await user.click( screen.getByRole( 'button', { name: /^Connect$/i } ) );
+
+			expect( apiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringMatching( /\/connect$/ ), method: 'POST' } )
+			);
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_connection_attempted', { environment: 'sandbox', method: 'manual' } ],
+			] );
+		} );
+
+		it( 'records wizard_started when Open PayPal Dashboard is clicked', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click( await screen.findByRole( 'button', { name: /Open PayPal Dashboard/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+			] );
+		} );
+
+		it( 'records wizard_credentials_reached on each Next and wizard_started once', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+
+			await user.click( screen.getByRole( 'button', { name: /Back/i } ) );
+			await navigateToCredentialsStep( user );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+			] );
+		} );
+
+		it( 'records wizard_credentials_reached with the toggled environment, and only on Next', async () => {
+			const user = userEvent.setup();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await navigateToCredentialsStep( user );
+
+			await user.click( screen.getByRole( 'button', { name: /Switch to Production/i } ) );
+			await user.click( screen.getByRole( 'button', { name: /Back/i } ) );
+			await navigateToCredentialsStep( user );
+			await user.click( screen.getByRole( 'button', { name: /Use Sandbox for testing/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: false },
+				],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'sandbox' } ],
+				[ 'jetpack_paypal_wizard_credentials_reached', { environment: 'production' } ],
+			] );
 		} );
 	} );
 
@@ -1283,6 +1375,81 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			expect( click ).toHaveBeenCalledTimes( 1 );
 			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+		} );
+
+		it( 'records connection_attempted with method partner_referrals when Connect PayPal opens PayPal', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+				[
+					'jetpack_paypal_connection_attempted',
+					{ environment: 'sandbox', method: 'partner_referrals' },
+				],
+			] );
+		} );
+
+		it( 'records only wizard_started on a click that fetches the missing referral', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { reject: new Error( 'Could not create a PayPal onboarding link.' ) } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect(
+				screen.findByText( /Could not create a PayPal onboarding link/ )
+			).resolves.toBeInTheDocument();
+			await user.click( screen.getByRole( 'button', { name: /Connect PayPal/i } ) );
+
+			await waitFor( () => expect( signupLinkCalls() ).toHaveLength( 2 ) );
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+		} );
+
+		it( 'records wizard_started once across two wizard clicks', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await user.click(
+				await screen.findByRole( 'button', { name: /enter your API credentials manually/i } )
+			);
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+
+			await user.click( screen.getByRole( 'button', { name: /Open PayPal Dashboard/i } ) );
+
+			expect( jetpackAnalytics.tracks.recordEvent.mock.calls ).toEqual( [
+				[
+					'jetpack_paypal_wizard_started',
+					{ environment: 'sandbox', partner_referrals_available: true },
+				],
+			] );
+		} );
+
+		it( 'records nothing when the welcome step or a restored credentials step renders', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+			const { unmount } = render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
+			unmount();
+
+			window.localStorage.setItem( 'jetpack-paypal-wizard-step', 'credentials' );
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await expect( screen.findByLabelText( 'Client ID' ) ).resolves.toBeInTheDocument();
+
+			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		} );
 
 		it( 'does not open PayPal when the script loads without the SDK', async () => {
@@ -1798,7 +1965,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
 						method: 'POST',
-						data: { merchant_id_in_paypal: '' },
+						data: { merchant_id_in_paypal: '', quiet: false },
 					} )
 				)
 			);
@@ -1854,7 +2021,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
 						method: 'POST',
-						data: { merchant_id_in_paypal: 'MERCHANT1' },
+						data: { merchant_id_in_paypal: 'MERCHANT1', quiet: false },
 					} )
 				)
 			);
@@ -1931,7 +2098,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				expect( apiFetch ).toHaveBeenCalledWith(
 					expect.objectContaining( {
 						path: expect.stringContaining( '/onboarding/complete' ),
-						data: { merchant_id_in_paypal: 'MERCHANT1' },
+						data: { merchant_id_in_paypal: 'MERCHANT1', quiet: false },
 					} )
 				)
 			);
@@ -2028,7 +2195,10 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// checks with the server. "No seller yet" is a plain cancel, not an error.
 			await waitFor( () =>
 				expect( apiFetch ).toHaveBeenCalledWith(
-					expect.objectContaining( { path: expect.stringContaining( '/onboarding/complete' ) } )
+					expect.objectContaining( {
+						path: expect.stringContaining( '/onboarding/complete' ),
+						data: { merchant_id_in_paypal: '', quiet: true },
+					} )
 				)
 			);
 			await expect(
@@ -2191,6 +2361,14 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( screen.getByLabelText( 'Currency' ) ).toBeInTheDocument();
 			expect( screen.getByLabelText( /Description/ ) ).toBeInTheDocument();
 			expect( screen.getByText( 'Product Image (optional)' ) ).toBeInTheDocument();
+		} );
+
+		it( 'records no wizard events on a connected site', async () => {
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+
+			expect( jetpackAnalytics.tracks.recordEvent ).not.toHaveBeenCalled();
 		} );
 
 		it( 'calls setAttributes when product name changes', async () => {
@@ -4078,6 +4256,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).toHaveClass( 'jetpack-paypal-payment-buttons__shared-link-note' );
 		} );
 
+		it( 'tells the merchant when the read fails for any reason but a deleted payment', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( {
+					code: 'paypal_api_error',
+					message: 'PayPal authentication failed (HTTP 401): Client Authentication failed',
+					data: { status: 401 },
+				} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			const notice = await screen.findByText(
+				'This payment link could not be loaded from PayPal: PayPal authentication failed (HTTP 401): Client Authentication failed Changes to it will not be saved until it loads. Reload the post to try again.'
+			);
+			expect( notice ).toHaveAttribute( 'data-status', 'error' );
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
 		it( 'does not read the payment while PayPal is disconnected', async () => {
 			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
 
@@ -5198,9 +5397,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( expected );
 		} );
 
-		// The toggle resets the mode and both amounts. The address checkbox it also hides
-		// stays put, since PayPal stores that one whether or not shipping is on.
-		it( 'resets the mode and both fees when shipping goes off', async () => {
+		// The toggle hides the address checkbox too, and PayPal keeps asking buyers for an
+		// address the merchant can no longer see unless it goes off with the rest.
+		it( 'resets the mode, both fees and the address checkbox when shipping goes off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingMode: 'QUANTITY',
@@ -5215,6 +5414,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				shippingMode: 'FLAT',
 				shippingValue: '',
 				shippingAdditionalValue: '',
+				collectShippingAddress: false,
+			} );
+		} );
+
+		it( 'keeps collecting the address when shipping goes off under a profile tax', async () => {
+			const user = userEvent.setup();
+			await renderShipping( {
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: true,
+			} );
+
+			await user.click( screen.getByLabelText( 'Add shipping' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				shippingEnabled: false,
+				shippingMode: 'FLAT',
+				shippingValue: '',
+				shippingAdditionalValue: '',
+				collectShippingAddress: true,
 			} );
 		} );
 
@@ -6186,6 +6406,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				imageUrl: undefined,
 				imageId: undefined,
 			} );
+		} );
+
+		// The image stays on the site, so any address works.
+		it( 'shows an http image without a warning', async () => {
+			renderForm( { imageUrl: 'http://example.com/previous.png', imageId: 7 } );
+			await formIsUp();
+
+			expect( details().getByRole( 'img', { name: 'Test Widget' } ) ).toHaveAttribute(
+				'src',
+				'http://example.com/previous.png'
+			);
+			expect( details().queryByTestId( 'notice' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

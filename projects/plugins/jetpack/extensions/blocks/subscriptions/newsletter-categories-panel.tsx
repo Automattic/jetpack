@@ -16,6 +16,7 @@ import { external } from '@wordpress/icons';
 import { Notice } from '@wordpress/ui';
 import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/constants';
 import { store as membershipProductsStore } from '../../store/membership-products';
+import type { JSX } from 'react';
 
 interface NewsletterCategory {
 	id: number;

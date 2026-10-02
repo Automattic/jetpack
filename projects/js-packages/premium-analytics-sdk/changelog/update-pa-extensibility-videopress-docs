@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Group the declarations by stability and document what belongs in the SDK. No user-facing change.
+

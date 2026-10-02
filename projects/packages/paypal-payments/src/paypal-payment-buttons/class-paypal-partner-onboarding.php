@@ -168,8 +168,9 @@ class PayPal_Partner_Onboarding {
 			),
 			wp_json_encode(
 				array(
-					'environment' => $environment,
-					'return_url'  => $return_url,
+					'environment'            => $environment,
+					'return_url'             => $return_url,
+					'partner_attribution_id' => PayPal_Payment_Buttons::get_partner_attribution_id(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE
 			),
