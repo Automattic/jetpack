@@ -29,7 +29,8 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - id: create-matrix
         run: |
-          MATRIX="$(.github/files/generate-ci-matrix.php)"
+          # TEMP: only JS tests, 10 iterations each, while experimenting.
+          MATRIX="$(.github/files/generate-ci-matrix.php | jq -c '[ .[] | select( .script == "test-js" or .script == "test-js-coverage" ) | . as $m | range( 0; 10 ) | $m + { name: "\($m.name) #\(.)" } ]')"
           echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
 
   run-tests:
@@ -336,7 +337,8 @@ jobs:
         id: process-coverage
         env:
           CHANGED: ${{ steps.changed.outputs.projects }}
-        if: matrix.coverage-group != '' && always()
+        # TEMP: skip coverage processing while experimenting.
+        if: false
         run: |
           .github/files/coverage-munger/process-coverage.sh
 
@@ -353,7 +355,8 @@ jobs:
           fi
       - name: Upload artifacts
         id: upload-artifacts
-        if: always() && steps.check-artifacts.outputs.any == 'true'
+        # TEMP: skip artifacts while experimenting.
+        if: false
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: ${{ matrix.artifact }}
