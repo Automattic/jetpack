@@ -1,4 +1,3 @@
-import { color as d3Color } from '@visx/vendor/d3-color';
 import {
 	createContext,
 	useCallback,
@@ -32,6 +31,7 @@ import {
 	LABEL_INVERSE_FALLBACK,
 } from './private/catalog-pointers';
 import { createPaletteGenerator } from './private/palette-generator';
+import { resolveOpaqueHex } from './private/resolve-opaque-hex';
 import { SERIES_PALETTE_POINTERS, SERIES_SLOT_1_FALLBACK } from './private/series-palette';
 import { defaultTheme } from './themes';
 import type { GlobalChartsContextValue, ChartRegistration } from './types';
@@ -44,17 +44,6 @@ interface ColorCache {
 	labelColors: string[];
 	colorAt: ( index: number ) => string;
 }
-
-// A see-through color (transparent, or any alpha below 1) says nothing about what it will look like
-// over the chart, so it resolves to null rather than let its RGB leak into the palette.
-const resolveOpaqueHex = ( pointer: string, element: HTMLElement | null ): string | null => {
-	const raw = resolveCssVariable( pointer, element );
-	if ( ! raw || d3Color( raw )?.opacity !== 1 ) {
-		return null;
-	}
-	const hex = normalizeColorToHex( pointer, element, resolveCssVariable );
-	return isValidHexColor( hex ) ? hex : null;
-};
 
 const PLACEHOLDER_LABEL_COLORS = [ LABEL_FALLBACK, LABEL_INVERSE_FALLBACK ];
 
