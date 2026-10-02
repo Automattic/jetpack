@@ -446,13 +446,14 @@ $band-ground: #f8f8f8;
 	min-inline-size: 12rem;
 }
 
-// Round, like the filter pills beside them.
 // A segmented control: one soft track, the active layout a tile inside it. The
 // padding takes the compact (32px) buttons to the search box's 40px height.
 $view-group-padding: 4px;
 
 .view-group {
-	background: var(--wpds-color-background-interactive-neutral-weak-active);
+	// The groove color, not the button's own hover fill: those are the same
+	// value, so hovering an unpressed button would show no change at all.
+	background: var(--wpds-color-background-track-neutral);
 	// The buttons' radius plus the track's padding, so the corners nest.
 	border-radius: calc(var(--wpds-border-radius-md) + #{$view-group-padding});
 	gap: 2px;
@@ -580,8 +581,7 @@ $view-group-padding: 4px;
 	}
 }
 
-// Fixed height, not an aspect ratio: the artwork is third-party marketing
-// imagery at a dozen ratios, and a ratio-driven band would resize the modal
+// Fixed height, not an aspect ratio: a ratio-driven band would resize the modal
 // on every step.
 .modal-band {
 	align-items: center;
@@ -681,8 +681,8 @@ $band-props: (
 	position: relative;
 }
 
-// `contain`, not `cover`: every one of these assets is square or portrait, so
-// cropping to the band's 4.75:1 would land on empty canvas.
+// `contain`, not `cover`: the artwork is 1.26:1, far narrower than the band's
+// 4.75:1, so cropping to fill would lose most of each image.
 .modal-band__image {
 	block-size: 100%;
 	inline-size: 100%;

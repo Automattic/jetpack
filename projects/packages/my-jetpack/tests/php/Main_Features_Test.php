@@ -117,6 +117,24 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * The band palette lives in TypeScript and is keyed by slug, so only the catalog can
+	 * say whether a key still matches a feature; a stale one falls back to a wrong color.
+	 */
+	public function test_every_feature_has_a_band_palette() {
+		$source = file_get_contents( dirname( __DIR__, 2 ) . '/_inc/components/my-jetpack-tab-panel/features/band-palette.ts' );
+		$body   = substr( $source, (int) strpos( $source, 'PALETTES' ) );
+
+		preg_match_all( "/^\t'?([a-z0-9-]+)'?: \[/m", $body, $matches );
+
+		$keys  = $matches[1];
+		$slugs = array_keys( Main_Features::get_feature_definitions() );
+		sort( $keys );
+		sort( $slugs );
+
+		$this->assertSame( $slugs, $keys );
+	}
+
+	/**
 	 * These are rendered as links straight into the page, so a typo'd or
 	 * non-https value would ship a broken card or a mixed-content warning.
 	 */

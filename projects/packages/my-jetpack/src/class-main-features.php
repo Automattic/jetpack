@@ -477,7 +477,7 @@ class Main_Features {
 				),
 				'paid_highlights'  => array(
 					__( 'Host unlimited videos', 'jetpack-my-jetpack' ),
-					__( 'Up to 1 TB of video storage', 'jetpack-my-jetpack' ),
+					__( 'Up to 1TB of video storage', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
 					'jetpack'     => true,
