@@ -447,8 +447,13 @@ $band-ground: #f8f8f8;
 }
 
 // Round, like the filter pills beside them.
+.view-group {
+	gap: 0;
+}
+
+// Square, borderless and touching, so the two read as one control.
 .view-button {
-	border-radius: 999px;
+	border-radius: 0;
 }
 
 .feature-list {

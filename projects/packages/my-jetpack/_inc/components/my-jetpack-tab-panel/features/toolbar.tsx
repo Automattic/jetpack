@@ -79,7 +79,7 @@ function ViewButton( { value, current, onSelect }: ViewButtonProps ) {
 		<IconButton
 			icon={ value === 'grid' ? category : blockTable }
 			label={ value === 'grid' ? gridLabel : listLabel }
-			variant={ isActive ? 'solid' : 'outline' }
+			variant={ isActive ? 'solid' : 'minimal' }
 			tone="neutral"
 			aria-pressed={ isActive }
 			className={ styles[ 'view-button' ] }
@@ -209,9 +209,9 @@ export function Toolbar( {
 				<Stack
 					direction="row"
 					align="center"
-					gap="sm"
 					role="group"
 					aria-label={ __( 'Layout', 'jetpack-my-jetpack' ) }
+					className={ styles[ 'view-group' ] }
 				>
 					<ViewButton value="grid" current={ view } onSelect={ onViewChange } />
 					<ViewButton value="list" current={ view } onSelect={ onViewChange } />
