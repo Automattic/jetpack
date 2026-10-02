@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Omnibar: Return the Stats chart node from the admin-bar REST endpoint.
