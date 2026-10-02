@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Use the GeoDisplayMode type from Charts for the Locations map display mode.
+
+
