@@ -35,11 +35,9 @@ LINES = {
 	# Step 1 is the start screen, so its panel carries the prototype's start-screen
 	# display copy rather than a line about the wizard.
 	0: [ 'Grow your audience.', 'Speed up your site.', 'Keep it secure.' ],
-	1: [ "Tell us what you're", 'building.' ],
-	2: [ 'Only what you need.', "Nothing you don't." ],
-	# Step 4 is scaffolding: nothing is turned on and nothing is saved, so the
-	# panel must not say the setup is finished. Replace when the step is real.
-	3: [ 'Still being built.' ],
+	1: [ 'Set up in minutes.', 'We do the rest.' ],
+	2: [ 'The essentials,', 'switched on.' ],
+	3: [ 'Ready when you are.' ],
 }
 
 OUT = Path( __file__ ).parent.parent / '_inc/components/onboarding-screen/wizard/panel-type.ts'
