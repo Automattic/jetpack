@@ -27,6 +27,7 @@ import VideoDetailsCard from '../../src/dashboard/components/video-details/video
 import VideoInfoCard from '../../src/dashboard/components/video-details/video-info-card';
 import VideoNav from '../../src/dashboard/components/video-nav';
 import { useDeleteVideo } from '../../src/dashboard/hooks/use-delete-video';
+import { useSettings } from '../../src/dashboard/hooks/use-settings';
 import { useUpdateChapters } from '../../src/dashboard/hooks/use-update-chapters';
 import { useUpdateVideoMeta } from '../../src/dashboard/hooks/use-update-video-meta';
 import { useUpload } from '../../src/dashboard/hooks/use-upload';
@@ -155,6 +156,7 @@ const Editor = ( {
 	const { saveUploadDetails, retryUpload, retryUploadDetails } = useUpload();
 	const { createInfoNotice } = useDispatch( noticesStore );
 	const { hasConnectionError } = useConnectionErrorNotice();
+	const shareMenuDisabled = useSettings().data?.videoPressShareMenuDisabled ?? false;
 	const isPendingUpload = Boolean( upload && video.id === upload.id );
 	const showVideoNav = isChaptersEditorEnabled() || isTrimCutEnabled();
 
@@ -334,6 +336,7 @@ const Editor = ( {
 							privacy={ values.privacy }
 							displayEmbed={ values.displayEmbed }
 							allowDownloads={ values.allowDownloads }
+							shareMenuDisabledForSite={ shareMenuDisabled }
 							onChange={ update }
 						/>
 						<RatingCard value={ values.rating } onChange={ onRatingChange } />

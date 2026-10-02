@@ -2563,6 +2563,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'videopress',
 			),
+			'videopress_share_menu_disabled'            => array(
+				'description'       => esc_html__( 'Hide the share menu on every video, overriding each video’s own setting', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'videopress',
+			),
 		);
 
 		// SEO Tools - SEO Enhancer.
