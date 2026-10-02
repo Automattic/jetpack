@@ -30,7 +30,7 @@ class Dashboard {
 	 *
 	 * @var string
 	 */
-	const PLAN_REFRESH_TRANSIENT = 'jetpack_stats_admin_plan_refresh';
+	private const PLAN_REFRESH_TRANSIENT = 'jetpack_stats_admin_plan_refresh';
 
 	/**
 	 * Priority for the dashboard menu

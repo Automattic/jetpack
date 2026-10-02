@@ -42,7 +42,6 @@ class Dashboard_Test extends Stats_TestCase {
 			remove_filter( 'pre_http_request', $this->site_record_filter, 9 );
 			$this->site_record_filter = null;
 		}
-		delete_transient( Dashboard::PLAN_REFRESH_TRANSIENT );
 		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		wp_dequeue_script( 'jp-stats-dashboard' );
 		wp_deregister_script( 'jp-stats-dashboard' );
@@ -449,5 +448,7 @@ class Dashboard_Test extends Stats_TestCase {
 		( new Dashboard() )->admin_init();
 
 		$this->assertSame( 0, $this->site_record_requests );
+		// The guard returns before the throttle is written; a signing failure alone would leave the count at 0 either way.
+		$this->assertFalse( get_transient( 'jetpack_stats_admin_plan_refresh' ) );
 	}
 }
