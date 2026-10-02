@@ -3069,6 +3069,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 		$spam           = '';
 		$akismet_values = $plugin->prepare_for_akismet( $akismet_vars );
 
+		/*
+		 * The disallowed-list filter below runs even for a test submission, so clear the
+		 * previous submission's verdict whether or not the spam filters run.
+		 */
+		$plugin->reset_spam_verdict_source();
+
 		// Is it spam? Test submissions (from form preview) skip Akismet entirely —
 		// the form owner is explicitly running a test and we don't want Akismet
 		// to learn from synthetic data or bounce the submission.
@@ -3218,6 +3224,23 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 		$response->set_status( $feedback_status );
 
+		/*
+		 * Which check rejected the submission. Both checks feed one boolean, and a
+		 * disallowed-list hit is stored as trash while an Akismet hit is stored as spam,
+		 * so neither the boolean nor the status can answer "why" on its own.
+		 */
+		$spam_verdict = '';
+		if ( $in_comment_disallowed_list || $is_spam ) {
+			$spam_verdict = $plugin->get_spam_verdict_source();
+			if ( '' === $spam_verdict ) {
+				$spam_verdict = 'filter';
+			}
+		}
+
+		if ( '' !== $spam_verdict ) {
+			do_action( 'jetpack_forms_log', 'submission_rejected_as_spam', $spam_verdict );
+		}
+
 		foreach ( (array) $akismet_values as $av_key => $av_value ) {
 			$akismet_values[ $av_key ] = Contact_Form_Plugin::strip_tags( $av_value );
 		}
@@ -3269,6 +3292,10 @@ class Contact_Form extends Contact_Form_Shortcode {
 		remove_filter( 'wp_insert_post_data', array( $plugin, 'insert_feedback_filter' ), 10 );
 
 		update_post_meta( $post_id, '_feedback_extra_fields', $this->addslashes_deep( $extra_values ) );
+
+		if ( '' !== $spam_verdict ) {
+			update_post_meta( $post_id, '_feedback_spam_verdict', $spam_verdict );
+		}
 
 		if ( 'publish' === $feedback_status ) {
 			Contact_Form_Plugin::recalculate_unread_count();

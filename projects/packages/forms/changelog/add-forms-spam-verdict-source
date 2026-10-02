@@ -1,0 +1,4 @@
+Significance: patch
+Type: added
+
+Contact Form: record which check rejected a submission, so a blocked response can be told apart from a spam verdict.
