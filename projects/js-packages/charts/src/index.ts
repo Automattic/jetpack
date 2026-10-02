@@ -21,7 +21,7 @@ export { PieSemiCircleChart, PieSemiCircleChartUnresponsive } from './charts/pie
 export { Sparkline, SparklineUnresponsive } from './charts/sparkline';
 
 // Components
-export { BaseTooltip } from './components/tooltip';
+export { BaseTooltip, TooltipBox } from './components/tooltip';
 export { Legend, useChartLegendItems } from './components/legend';
 export { TrendIndicator } from './components/trend-indicator';
 
@@ -98,7 +98,12 @@ export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
 
 // Previously available via '@automattic/charts/tooltip', '@automattic/charts/legend'
 export { AccessibleTooltip } from './components/tooltip';
-export type { BaseTooltipProps, TooltipData, TooltipProps } from './components/tooltip';
+export type {
+	BaseTooltipProps,
+	TooltipBoxProps,
+	TooltipData,
+	TooltipProps,
+} from './components/tooltip';
 export type { LegendProps, BaseLegendProps, ChartLegendOptions } from './components/legend';
 
 // Previously available via '@automattic/charts/bar-chart', '@automattic/charts/line-chart', etc.
