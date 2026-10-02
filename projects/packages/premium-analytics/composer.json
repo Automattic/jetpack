@@ -14,6 +14,7 @@
 		"automattic/jetpack-status": "@dev",
 		"automattic/jetpack-sync": "@dev",
 		"automattic/jetpack-wp-build-polyfills": "@dev",
+		"automattic/jetpack-wpcom-proxy": "@dev",
 		"automattic/woocommerce-analytics": "^0.18"
 	},
 	"require-dev": {
