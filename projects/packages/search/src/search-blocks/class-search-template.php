@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Search;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Theme-agnostic customization surface for the classic-theme search template
  * via post.php — the equivalent of the Site Editor entry block themes get.
