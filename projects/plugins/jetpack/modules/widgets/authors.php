@@ -290,7 +290,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	 */
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$new_instance['title']       = wp_strip_all_tags( $new_instance['title'] ?? '' );
-		$new_instance['all']         = isset( $new_instance['all'] ) ? (bool) $new_instance['all'] : false;
+		$new_instance['all']         = (bool) ( $new_instance['all'] ?? false );
 		$new_instance['number']      = (int) ( $new_instance['number'] ?? 5 );
 		$new_instance['avatar_size'] = (int) ( $new_instance['avatar_size'] ?? 48 );
 
