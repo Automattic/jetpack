@@ -188,7 +188,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 		.filter( category => category.subscribed )
 		.map( category => decodeEntities( category.name ) );
 
-	if ( detailsQuery.isError ) {
+	if ( detailsQuery.isError && ! subscriber ) {
 		return (
 			<Notice.Root intent="error">
 				<Notice.Title>
@@ -196,7 +196,7 @@ export default function SubscriberDetailContent( { open }: Props ): JSX.Element 
 				</Notice.Title>
 				<Notice.Description>{ detailsQuery.error.message }</Notice.Description>
 				<Notice.Actions>
-					<Notice.ActionButton disabled={ detailsQuery.isFetching } onClick={ retry }>
+					<Notice.ActionButton loading={ detailsQuery.isFetching } onClick={ retry }>
 						{ __( 'Try again', 'jetpack-newsletter' ) }
 					</Notice.ActionButton>
 				</Notice.Actions>

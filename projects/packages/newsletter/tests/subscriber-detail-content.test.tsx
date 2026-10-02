@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import SubscriberDetailContent from '../_inc/subscribers/components/detail/subscriber-detail-content';
 import type {
 	SubscribedNewsletterCategories,
@@ -241,5 +241,24 @@ describe( 'SubscriberDetailContent', () => {
 
 		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
 		expect( mockFetchSubscriberDetails ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'keeps the loaded details when a background refetch fails', async () => {
+		// eslint-disable-next-line testing-library/render-result-naming-convention
+		const queryClient = renderPanel();
+		await expect( screen.findByText( 'Subscription type' ) ).resolves.toBeInTheDocument();
+
+		mockFetchSubscriberDetails.mockRejectedValue( new Error( 'Boom' ) );
+		await act( async () => {
+			await queryClient.refetchQueries( { queryKey: [ 'subscriber-details' ] } );
+		} );
+
+		// Let React Query's batched notification reach the component before asserting an absence.
+		await act( async () => {
+			await new Promise( resolve => setTimeout( resolve, 0 ) );
+		} );
+		expect( mockFetchSubscriberDetails ).toHaveBeenCalledTimes( 2 );
+		expect( screen.getByText( 'Subscription type' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Could not load subscriber details.' ) ).not.toBeInTheDocument();
 	} );
 } );
