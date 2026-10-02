@@ -144,8 +144,8 @@ export const SCENARIOS = [
 		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
 		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
 		minResourceCount: 64,
-		// The four browser metrics use production keys under the existing staging waiver.
-		// The three backend metrics remain staging candidates.
+		// The first four metrics retain their waiver of the staging window (owner decision).
+		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
 				field: 'lcp',
@@ -190,6 +190,12 @@ export const SCENARIOS = [
 				type: 'wpDbQueries',
 				unit: 'count',
 			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'forms-responses-connection-sim-loadBlockingTime-staging',
+				type: 'tbt',
+				unit: 'ms',
+			},
 		],
 		postToCodeVitals: true,
 		// A failure here logs loudly and skips this scenario's keys for the build, but never
@@ -230,8 +236,8 @@ export const SCENARIOS = [
 		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
 		// count (count-based, not asset-based) so it only catches gross capture truncation.
 		minResourceCount: 64,
-		// The four browser metrics use production keys under the existing staging waiver.
-		// The three backend metrics remain staging candidates.
+		// The first four metrics retain their waiver of the staging window (owner decision).
+		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
 				field: 'lcp',
@@ -273,6 +279,12 @@ export const SCENARIOS = [
 				codevitalsKey: 'my-jetpack-connection-sim-wp-db-queries-staging',
 				type: 'wpDbQueries',
 				unit: 'count',
+			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'my-jetpack-connection-sim-loadBlockingTime-staging',
+				type: 'tbt',
+				unit: 'ms',
 			},
 		],
 		postToCodeVitals: true,

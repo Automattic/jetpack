@@ -15,9 +15,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 import {
 	buildSummary,
 	captureNavigationMetrics,
+	initializeLoadObservers,
 	computeRunOutcome,
 	finalizeMeasurement,
 	findIncompleteSummaryFields,
@@ -160,6 +162,7 @@ test( 'findIncompleteSummaryFields returns [] for a complete summary', () => {
 		ttfb: { median: 200 },
 		fcp: { median: 500 },
 		decodedBytesKB: { median: 8229 },
+		tbt: { median: 0 },
 	};
 	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [] );
 } );
@@ -179,6 +182,7 @@ test( 'findIncompleteSummaryFields names a posted field whose block the summary 
 		lcp: { median: 300 },
 		fcp: { median: 500 },
 		decodedBytesKB: { median: 8229 },
+		tbt: { median: 0 },
 	};
 	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [ 'ttfb' ] );
 	// A block that exists but has no finite median is just as unusable as a missing block.
@@ -211,6 +215,7 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 				ttfb: 200,
 				fcp: 500,
 				decodedBytesKB: 8229,
+				tbt: 0,
 			},
 		},
 		{
@@ -222,6 +227,7 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 				ttfb: null,
 				fcp: 510,
 				decodedBytesKB: 8229,
+				tbt: 0,
 			},
 		},
 		{
@@ -233,6 +239,7 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 				ttfb: null,
 				fcp: 505,
 				decodedBytesKB: 8229,
+				tbt: 0,
 			},
 		},
 	];
@@ -265,6 +272,7 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 					ttfb: 200,
 					fcp: 500,
 					decodedBytesKB: 8229,
+					tbt: 0,
 				},
 			},
 			{
@@ -276,6 +284,7 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 					ttfb: 210,
 					fcp: 510,
 					decodedBytesKB: 8229,
+					tbt: 0,
 				},
 			},
 		],
@@ -299,6 +308,7 @@ const healthyIteration = i => ( {
 		ttfb: 200,
 		fcp: 500,
 		decodedBytesKB: 8229,
+		tbt: 0,
 	},
 } );
 
@@ -380,6 +390,7 @@ test( 'backend capture failures preserve browser samples and use the per-field m
 						ttfb: 200,
 						fcp: 500,
 						decodedBytesKB: 8229,
+						tbt: 0,
 					} ) ),
 				};
 			} )
@@ -532,4 +543,209 @@ test( 'reportSkippedScenarios warns readably (no TeamCity message) on a missing/
 	const malformed = captureConsole( () => reportSkippedScenarios( badFile ) );
 	assert.deepEqual( malformed.log, [] );
 	assert.match( malformed.warn[ 0 ], /Could not read results/ );
+} );
+
+/** Execute the browser initializer with a controllable observer implementation. */
+function longTaskHarness( {
+	supported = true,
+	observeError = false,
+	drainError = false,
+	disconnectError = false,
+	synchronousEntries,
+} = {} ) {
+	const descriptors = Object.fromEntries(
+		[ 'window', 'performance', 'PerformanceObserver' ].map( key => [
+			key,
+			Object.getOwnPropertyDescriptor( globalThis, key ),
+		] )
+	);
+	const browserWindow = {};
+	let longTaskObserver;
+	class Observer {
+		static supportedEntryTypes = supported ? [ 'longtask' ] : [];
+		constructor( callback ) {
+			this.callback = callback;
+			this.pending = [];
+		}
+		observe( options ) {
+			if ( options.type === 'longtask' ) {
+				assert.equal( options.buffered, true );
+				longTaskObserver = this;
+				if ( observeError ) {
+					throw new Error( 'capture failed' );
+				}
+				if ( synchronousEntries ) {
+					this.callback( { getEntries: () => synchronousEntries } );
+				}
+			}
+		}
+		takeRecords() {
+			if ( drainError ) {
+				throw new Error( 'drain failed' );
+			}
+			return this.pending.splice( 0 );
+		}
+		disconnect() {
+			this.disconnected = true;
+			if ( disconnectError ) {
+				throw new Error( 'disconnect failed' );
+			}
+		}
+	}
+	try {
+		Object.defineProperties( globalThis, {
+			window: { value: browserWindow, configurable: true },
+			performance: { value: { setResourceTimingBufferSize() {} }, configurable: true },
+			PerformanceObserver: { value: Observer, configurable: true },
+		} );
+		initializeLoadObservers();
+	} finally {
+		for ( const [ key, descriptor ] of Object.entries( descriptors ) ) {
+			if ( descriptor ) {
+				Object.defineProperty( globalThis, key, descriptor );
+			} else {
+				delete globalThis[ key ];
+			}
+		}
+	}
+	return { finalize: browserWindow.__finalizeLongTasks, observer: longTaskObserver };
+}
+
+test( 'load TBT includes pre-paint tasks, drains pending records and excludes tasks beyond cutoff', () => {
+	const { finalize, observer } = longTaskHarness();
+	const early = { startTime: 0, duration: 120 };
+	observer.callback( { getEntries: () => [ early, { startTime: 130, duration: 40 } ] } );
+	observer.pending = [
+		{ startTime: 200, duration: 80 },
+		{ startTime: 200, duration: 100 },
+		{ startTime: 250, duration: 50 },
+		{ startTime: 280, duration: 60 },
+		{ startTime: 400, duration: 100 },
+	];
+	assert.deepEqual( finalize( 300 ), {
+		tbt: 150,
+		longTasks: [
+			early,
+			{ startTime: 130, duration: 40 },
+			{ startTime: 200, duration: 80 },
+			{ startTime: 200, duration: 100 },
+			{ startTime: 250, duration: 50 },
+		],
+	} );
+	assert.deepEqual( observer.pending, [] );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'serialized load observers capture long tasks without module globals', () => {
+	const browserWindow = {};
+	class Observer {
+		static supportedEntryTypes = [ 'longtask' ];
+		observe() {}
+		takeRecords() {
+			return [
+				{ startTime: 0, duration: 120 },
+				{ startTime: 200, duration: 80 },
+				{ startTime: 280, duration: 60 },
+			];
+		}
+		disconnect() {}
+	}
+	runInNewContext( '(' + initializeLoadObservers.toString() + ')()', {
+		window: browserWindow,
+		performance: { setResourceTimingBufferSize() {} },
+		PerformanceObserver: Observer,
+	} );
+	const capture = browserWindow.__finalizeLongTasks( 300 );
+	assert.equal( capture.tbt, 100 );
+	assert.equal( capture.longTasks.length, 2 );
+} );
+
+test( 'working empty capture is zero; unsupported or failed capture is missing', () => {
+	assert.deepEqual( longTaskHarness().finalize( 300 ), { tbt: 0, longTasks: [] } );
+	for ( const [ options, longTaskError ] of [
+		[ { supported: false }, 'unsupported' ],
+		[ { observeError: true }, 'observe-threw' ],
+		[ { drainError: true }, 'finalizer-threw' ],
+	] ) {
+		assert.deepEqual( longTaskHarness( options ).finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError,
+		} );
+	}
+} );
+
+test( 'a throwing long-task callback remains missing after a later successful callback', () => {
+	const { finalize, observer } = longTaskHarness();
+	observer.callback( {
+		getEntries() {
+			throw new Error( 'callback failed' );
+		},
+	} );
+	observer.callback( { getEntries: () => [ { startTime: 0, duration: 120 } ] } );
+	assert.deepEqual( finalize( 300 ), {
+		tbt: null,
+		longTasks: null,
+		longTaskError: 'callback-threw',
+	} );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'non-finite or negative long-task timings are missing data', () => {
+	for ( const entry of [
+		{ startTime: NaN, duration: 120 },
+		{ startTime: 0, duration: NaN },
+		{ startTime: -1, duration: 120 },
+		{ startTime: 0, duration: -1 },
+	] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ entry ];
+		assert.deepEqual( finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-entry',
+		} );
+	}
+} );
+
+test( 'a non-finite load-finalization cutoff is missing data', () => {
+	for ( const cutoff of [ undefined, NaN, Infinity ] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ { startTime: 0, duration: 120 } ];
+		assert.deepEqual( finalize( cutoff ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-cutoff',
+		} );
+		assert.equal( observer.disconnected, true );
+	}
+} );
+
+test( 'long-task entries delivered synchronously during observe are preserved', () => {
+	const early = { startTime: 0, duration: 120 };
+	const { finalize } = longTaskHarness( { synchronousEntries: [ early ] } );
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+} );
+
+test( 'a disconnect failure does not discard the long-task capture', () => {
+	const { finalize, observer } = longTaskHarness( { disconnectError: true } );
+	const early = { startTime: 0, duration: 120 };
+	observer.pending = [ early ];
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'TBT preserves zero in summary and requires a majority for optional-page posting', () => {
+	const forms = SCENARIOS.find( scenario => scenario.key === 'formsResponses' );
+	const results = [ 1, 2, 3 ].map( healthyIteration );
+	assert.equal( finalizeMeasurement( forms, results, 3, 'u' ).summary.tbt.median, 0 );
+	results[ 1 ].metrics.tbt = null;
+	results[ 2 ].metrics.tbt = null;
+	assert.equal( buildSummary( results, 3 ).tbt, undefined );
+	assert.throws(
+		() => finalizeMeasurement( forms, results, 3, 'u' ),
+		/missing posted field\(s\): tbt/
+	);
+	const dashboard = SCENARIOS.find( scenario => scenario.key === 'jetpackConnected' );
+	assert.doesNotThrow( () => finalizeMeasurement( dashboard, results, 3, 'u' ) );
 } );
