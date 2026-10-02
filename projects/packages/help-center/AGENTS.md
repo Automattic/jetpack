@@ -28,6 +28,7 @@ The frontend code lives in a separate repo: `wp-calypso/packages/help-center/`.
 | `/support` or `/forums`, logged out | `logged-out`                             |
 | `/support` or `/forums`, logged in  | `wp-admin` / `wp-admin-disconnected`     |
 | Site frontend (non-admin)           | `wp-admin-disconnected`                  |
+| wordpress.com / Landpack, logged in | `wp-admin-disconnected`                  |
 | Block editor                        | `gutenberg` / `gutenberg-disconnected`   |
 | wp-admin                            | `wp-admin` / `wp-admin-disconnected`     |
 | Customizer                          | `customizer` / `wp-admin-disconnected`   |
