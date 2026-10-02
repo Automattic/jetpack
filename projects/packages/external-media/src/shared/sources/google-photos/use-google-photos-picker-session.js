@@ -1,7 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
 import { useSelect } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
-import moment from 'moment';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import {
 	getGooglePhotosPickerCachedSessionId,
@@ -10,6 +9,9 @@ import {
 import { store as mediaStore } from '../../store';
 
 const SESSION_PATH = '/wpcom/v2/external-media/session/google_photos';
+
+const isExpired = session =>
+	!! session.expireTime && new Date( session.expireTime ).getTime() < Date.now();
 
 /**
  * Owns the Google Photos Picker session: reuses the cached one, creates, polls, and clears it.
@@ -27,7 +29,6 @@ export default function useGooglePhotosPickerSession( {
 } ) {
 	const pickerSession = useSelect( select => select( mediaStore ).mediaPhotosPickerSession(), [] );
 	const [ status, setStatus ] = useState( 'idle' ); // 'idle' | 'pending' | 'failed'
-	const [ isCacheChecked, setIsCacheChecked ] = useState( false );
 
 	// Session requests only update state while their controller is current; replacing it cancels them.
 	const controller = useRef( null );
@@ -44,11 +45,13 @@ export default function useGooglePhotosPickerSession( {
 
 		return apiFetch( { path: `${ SESSION_PATH }/${ sessionId }`, signal } )
 			.then( session => {
-				if ( ! signal.aborted && ! ( 'code' in session ) ) {
-					setGooglePhotosPickerSession( session );
+				if ( signal.aborted || 'code' in session ) {
+					return null;
 				}
+				setGooglePhotosPickerSession( session );
+				return session;
 			} )
-			.catch( () => {} );
+			.catch( () => null );
 	}, [] );
 
 	// Resolves null on failure, after showing an error notice.
@@ -98,39 +101,40 @@ export default function useGooglePhotosPickerSession( {
 			controller.current = null;
 			setGooglePhotosPickerSession( null );
 			setStatus( 'idle' );
-			setIsCacheChecked( false );
 		}
 	}, [ isAuthenticated ] );
 
-	useEffect( () => {
-		if ( ! isReady ) {
-			return;
-		}
+	// Reuse the session saved in the cookie while it's still valid; otherwise create one.
+	const ensurePickerSession = useCallback( () => {
+		const signal = supersedeRequests();
+		setStatus( 'pending' );
 
 		// Read the cookie now: a disconnect since mount clears it.
 		const cachedSessionId = getGooglePhotosPickerCachedSessionId();
-		if ( ! cachedSessionId ) {
-			setIsCacheChecked( true );
-			return;
-		}
+		const reusable =
+			cachedSessionId && cachedSessionId !== pickerSession?.id
+				? fetchPickerSession( cachedSessionId )
+				: Promise.resolve( null );
 
-		let isCurrent = true;
-		fetchPickerSession( cachedSessionId ).then( () => isCurrent && setIsCacheChecked( true ) );
-		return () => {
-			isCurrent = false;
-		};
-	}, [ isReady, fetchPickerSession ] );
+		return reusable.then( session => {
+			if ( signal.aborted ) {
+				return null;
+			}
+			if ( session && ! isExpired( session ) ) {
+				setStatus( 'idle' );
+				return session;
+			}
+			return requestPickerSession();
+		} );
+	}, [ supersedeRequests, fetchPickerSession, requestPickerSession, pickerSession?.id ] );
 
-	const needsNewSession =
-		! pickerSession ||
-		'code' in pickerSession ||
-		!! ( pickerSession.expireTime && moment( pickerSession.expireTime ).isBefore( new Date() ) );
+	const needsNewSession = ! pickerSession || isExpired( pickerSession );
 
 	useEffect( () => {
-		if ( isReady && isCacheChecked && status === 'idle' && needsNewSession ) {
-			requestPickerSession();
+		if ( isReady && status === 'idle' && needsNewSession ) {
+			ensurePickerSession();
 		}
-	}, [ isReady, isCacheChecked, status, needsNewSession, requestPickerSession ] );
+	}, [ isReady, status, needsNewSession, ensurePickerSession ] );
 
 	// Poll until the user finishes picking in Google's window.
 	const pollSessionId =
