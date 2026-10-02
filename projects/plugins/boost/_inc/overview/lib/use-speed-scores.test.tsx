@@ -424,3 +424,52 @@ test( 'ignores a pending report from a superseded request', async () => {
 	act( () => reportPending() );
 	expect( result.current[ 0 ].isRunning ).toBe( false );
 } );
+
+/* eslint-disable jest/no-conditional-expect, testing-library/no-unnecessary-act */
+type PendingOpts = { onPending?: () => void };
+const fresh = { current: { mobile: 66, desktop: 77 }, noBoost: null, isStale: false };
+const acceptThen = ( outcome: Promise< typeof fresh > ) =>
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( async ( _f, _r, _u, _n, opts?: PendingOpts ) => {
+			opts?.onPending?.();
+			return outcome;
+		} );
+
+test.each( [ 'error', 'automatic', 'landed', 'elsewhere' ] )(
+	'accepted-path guard: %s',
+	async scenario => {
+		const completed = jest.fn();
+		const { result } = renderHook( () => useSpeedScores( undefined, true, completed ), {
+			wrapper,
+		} );
+		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+		if ( scenario === 'error' ) {
+			acceptThen( Promise.reject( new Error( 'Service unavailable' ) ) );
+			await act( async () => result.current[ 1 ]( true, { userStarted: true } ) );
+			await act( async () => result.current[ 1 ]() );
+			expect( completed ).toHaveBeenCalledTimes( 0 );
+		} else if ( scenario === 'automatic' ) {
+			acceptThen( new Promise( () => {} ) );
+			act( () => {
+				void result.current[ 1 ]( true, { userStarted: true } );
+			} );
+			await act( async () => {} );
+			await act( async () => result.current[ 1 ]( true ) );
+			expect( completed ).toHaveBeenCalledTimes( 0 );
+		} else if ( scenario === 'landed' ) {
+			acceptThen( Promise.resolve( fresh ) );
+			await act( async () => result.current[ 1 ]( true, { userStarted: true } ) );
+			expect( completed ).toHaveBeenCalledTimes( 1 );
+			await act( async () => result.current[ 1 ]() );
+			expect( completed ).toHaveBeenCalledTimes( 1 );
+		} else {
+			acceptThen( Promise.resolve( fresh ) );
+			await act( async () => result.current[ 1 ]() );
+			acceptThen( Promise.resolve( fresh ) );
+			await act( async () => result.current[ 1 ]( true ) );
+			expect( completed ).toHaveBeenCalledTimes( 0 );
+		}
+	}
+);
+/* eslint-enable jest/no-conditional-expect, testing-library/no-unnecessary-act */
