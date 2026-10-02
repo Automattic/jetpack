@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getGooglePhotosPickerCachedSessionId } from '../../media-service';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
@@ -30,12 +30,24 @@ function GooglePhotos( props ) {
 	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
 	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
 	const [ isAuthUpgradeRequired, setIsAuthUpgradeRequired ] = useState( false );
-	const [ isSessionFailed, setIsSessionFailed ] = useState( false );
+	const [ sessionRequest, setSessionRequest ] = useState( 'idle' ); // 'idle' | 'pending' | 'failed'
 
 	const isLoadingState = pickerFeatureEnabled === null;
 	const isPickerSessionAccurate = pickerSession !== null && ! ( 'code' in pickerSession );
 	const isSessionExpired =
 		pickerSession?.expireTime && moment( pickerSession.expireTime ).isBefore( new Date() );
+
+	const requestPickerSession = useCallback( () => {
+		setSessionRequest( 'pending' );
+		createPickerSession().then( session => setSessionRequest( session ? 'idle' : 'failed' ) );
+	}, [ createPickerSession ] );
+
+	// A failed request shouldn't block the new session after a disconnect and reconnect.
+	useEffect( () => {
+		if ( ! isAuthenticated ) {
+			setSessionRequest( 'idle' );
+		}
+	}, [ isAuthenticated ] );
 
 	// Check if the picker feature is enabled and the connection status
 	useEffect( () => {
@@ -84,20 +96,20 @@ function GooglePhotos( props ) {
 			isCachedSessionChecked &&
 			isAuthenticated &&
 			! isAuthUpgradeRequired &&
-			! isSessionFailed &&
+			sessionRequest === 'idle' &&
 			( ! isPickerSessionAccurate || isSessionExpired )
 		) {
-			createPickerSession().then( session => setIsSessionFailed( ! session ) );
+			requestPickerSession();
 		}
 	}, [
 		pickerFeatureEnabled,
-		isSessionFailed,
+		sessionRequest,
 		isAuthUpgradeRequired,
 		isCachedSessionChecked,
 		isPickerSessionAccurate,
 		isAuthenticated,
 		isSessionExpired,
-		createPickerSession,
+		requestPickerSession,
 		pickerSession,
 	] );
 
@@ -117,8 +129,9 @@ function GooglePhotos( props ) {
 		return (
 			<GooglePhotosPickerButton
 				{ ...props }
-				isSessionFailed={ isSessionFailed }
-				onRetry={ () => setIsSessionFailed( false ) }
+				isSessionPending={ sessionRequest === 'pending' }
+				isSessionFailed={ sessionRequest === 'failed' }
+				onRetry={ requestPickerSession }
 			/>
 		);
 	}

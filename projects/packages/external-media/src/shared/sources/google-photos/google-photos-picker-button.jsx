@@ -19,10 +19,11 @@ export default function GooglePhotosPickerButton( props ) {
 		fetchPickerSession,
 		setAuthenticated,
 		account,
+		isSessionPending,
 		isSessionFailed,
 		onRetry,
 	} = props;
-	const isButtonBusy = ! pickerSession && ! isSessionFailed;
+	const isButtonBusy = isSessionPending || ( ! pickerSession && ! isSessionFailed );
 
 	const openPicker = () => {
 		if ( isSessionFailed ) {
