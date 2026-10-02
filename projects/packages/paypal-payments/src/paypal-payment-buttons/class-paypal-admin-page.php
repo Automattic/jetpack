@@ -48,6 +48,20 @@ class PayPal_Admin_Page {
 	const EMBED_SCAN_LIMIT = 100;
 
 	/**
+	 * PayPal's merchant activity list, per environment.
+	 */
+	const TRANSACTIONS_URLS = array(
+		'sandbox'    => 'https://www.sandbox.paypal.com/unifiedtransactions/',
+		'production' => 'https://www.paypal.com/unifiedtransactions/',
+	);
+
+	/**
+	 * PayPal's help article on issuing a refund. Nothing here refunds through the API, so
+	 * PayPal's certification asks that sellers be pointed at how to do it themselves.
+	 */
+	const REFUND_HELP_URL = 'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101';
+
+	/**
 	 * The confirmation shown before a payment link is deleted from the admin.
 	 *
 	 * Deleting a link orphans every published block embedding it, so the
@@ -359,6 +373,11 @@ class PayPal_Admin_Page {
 				justify-content: space-between;
 				margin-bottom: 12px;
 			}
+			.paypal-admin-header__account {
+				display: flex;
+				align-items: center;
+				gap: 8px;
+			}
 			.paypal-disconnected-notice {
 				max-width: 600px;
 				margin: 40px auto;
@@ -565,11 +584,24 @@ class PayPal_Admin_Page {
 
 		$status = PayPal_OAuth::get_connection_status();
 		if ( ! empty( $status['connected'] ) ) {
+			$environment = $status['environment'] ?? 'production';
+			echo '<div class="paypal-admin-header__account">';
 			printf(
 				'<span class="paypal-status-badge paypal-status-active">%s — %s</span>',
 				esc_html__( 'Connected', 'jetpack-paypal-payments' ),
-				esc_html( ucfirst( $status['environment'] ?? 'production' ) )
+				esc_html( ucfirst( $environment ) )
 			);
+			printf(
+				'<a href="%s" class="button" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( self::TRANSACTIONS_URLS[ $environment ] ?? self::TRANSACTIONS_URLS['production'] ),
+				esc_html__( 'View transactions', 'jetpack-paypal-payments' )
+			);
+			printf(
+				'<a href="%s" class="button" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( self::REFUND_HELP_URL ),
+				esc_html__( 'How to issue a refund', 'jetpack-paypal-payments' )
+			);
+			echo '</div>';
 		}
 
 		echo '</div>';
