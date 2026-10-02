@@ -1,10 +1,7 @@
 /**
- * External dependencies
- */
-import { Link } from '@jetpack-premium-analytics/externals';
-/**
  * Internal dependencies
  */
+import { ExternalLink } from '../external-link';
 import { PostTitleLink } from '../post-title-link';
 import { VideoTitleLink } from '../video-title-link';
 import { LeaderboardLabel, type LeaderboardRowMedia } from './leaderboard-label';
@@ -134,15 +131,9 @@ export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ):
 
 	if ( action.kind === 'link' ) {
 		return (
-			<Link
-				className={ styles.rowLink }
-				href={ action.href }
-				variant="unstyled"
-				openInNewTab
-				title={ label }
-			>
+			<ExternalLink className={ styles.rowLink } href={ action.href } title={ label }>
 				{ content }
-			</Link>
+			</ExternalLink>
 		);
 	}
 
