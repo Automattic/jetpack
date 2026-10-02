@@ -9,6 +9,7 @@ import { trash } from '@wordpress/icons';
  */
 import { getDeletingLabel } from '../../hooks/use-empty-responses';
 import useEmptyTrash from '../../hooks/use-empty-trash';
+import DeletingSpinner from '../deleting-spinner';
 import EmptyTrashConfirmationModal from './confirmation-modal';
 import type { JSX } from 'react';
 
@@ -46,8 +47,8 @@ const EmptyTrashButton = ( {
 				size="compact"
 				accessibleWhenDisabled
 				disabled={ isEmpty || isEmptying }
-				icon={ trash }
-				isBusy={ isEmptying }
+				icon={ isEmptying ? <DeletingSpinner /> : trash }
+				aria-busy={ isEmptying }
 				label={ isEmpty ? __( 'Trash is already empty.', 'jetpack-forms' ) : '' }
 				onClick={ openConfirmDialog }
 				showTooltip={ isEmpty }

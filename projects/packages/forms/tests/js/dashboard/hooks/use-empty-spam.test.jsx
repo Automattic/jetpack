@@ -332,7 +332,7 @@ describe( 'useEmptySpam', () => {
 			const noticesDispatch = useDispatch( 'notices' );
 			expect( noticesDispatch.createInfoNotice ).toHaveBeenLastCalledWith(
 				'Deleting 500 of 700 responses… Keep this page open.',
-				{ type: 'snackbar', id: 'empty-spam', explicitDismiss: true }
+				expect.objectContaining( { type: 'snackbar', id: 'empty-spam', explicitDismiss: true } )
 			);
 			expect( noticesDispatch.createSuccessNotice ).toHaveBeenCalledWith(
 				'700 responses deleted permanently.',

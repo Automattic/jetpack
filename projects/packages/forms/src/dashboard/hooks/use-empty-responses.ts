@@ -6,12 +6,13 @@ import { formatNumber } from '@automattic/number-formatters';
 import apiFetch from '@wordpress/api-fetch';
 import { store as coreStore } from '@wordpress/core-data';
 import { useDispatch } from '@wordpress/data';
-import { useState, useCallback, useEffect } from '@wordpress/element';
+import { createElement, useState, useCallback, useEffect } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { store as noticesStore } from '@wordpress/notices';
 /**
  * Internal dependencies
  */
+import DeletingSpinner from '../components/deleting-spinner';
 import { store as dashboardStore } from '../store/index';
 import useInboxData from './use-inbox-data';
 
@@ -178,7 +179,13 @@ export default function useEmptyResponses( {
 					formatNumber( current.deleted ),
 					formatNumber( current.total )
 				),
-				{ type: 'snackbar', id: noticeId, explicitDismiss: true }
+				{
+					type: 'snackbar',
+					id: noticeId,
+					explicitDismiss: true,
+					// Typed as a string in @wordpress/notices, but Snackbar renders any ReactNode.
+					icon: createElement( DeletingSpinner ) as unknown as string,
+				}
 			);
 		};
 		showProgress( { deleted, total } );

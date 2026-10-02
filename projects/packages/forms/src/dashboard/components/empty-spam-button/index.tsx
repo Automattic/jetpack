@@ -10,6 +10,7 @@ import { trash } from '@wordpress/icons';
  */
 import { getDeletingLabel } from '../../hooks/use-empty-responses';
 import useEmptySpam, { type EmptySpamScope } from '../../hooks/use-empty-spam';
+import DeletingSpinner from '../deleting-spinner';
 import EmptySpamConfirmationModal from './confirmation-modal';
 import type { JSX } from 'react';
 
@@ -64,8 +65,8 @@ const EmptySpamButton = ( {
 				size="compact"
 				accessibleWhenDisabled
 				disabled={ isEmpty || isEmptying }
-				icon={ trash }
-				isBusy={ isEmptying }
+				icon={ isEmptying ? <DeletingSpinner /> : trash }
+				aria-busy={ isEmptying }
 				label={ isEmpty ? __( 'Spam is already empty.', 'jetpack-forms' ) : '' }
 				onClick={ openConfirmDialog }
 				showTooltip={ isEmpty }
