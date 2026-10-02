@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { getGooglePhotosPickerCachedSessionId } from '../../media-service';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
@@ -31,6 +31,7 @@ function GooglePhotos( props ) {
 	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
 	const [ isAuthUpgradeRequired, setIsAuthUpgradeRequired ] = useState( false );
 	const [ sessionRequest, setSessionRequest ] = useState( 'idle' ); // 'idle' | 'pending' | 'failed'
+	const sessionRequestId = useRef( 0 );
 
 	const isLoadingState = pickerFeatureEnabled === null;
 	const isPickerSessionAccurate = pickerSession !== null && ! ( 'code' in pickerSession );
@@ -38,13 +39,19 @@ function GooglePhotos( props ) {
 		pickerSession?.expireTime && moment( pickerSession.expireTime ).isBefore( new Date() );
 
 	const requestPickerSession = useCallback( () => {
+		const requestId = ++sessionRequestId.current;
 		setSessionRequest( 'pending' );
-		createPickerSession().then( session => setSessionRequest( session ? 'idle' : 'failed' ) );
+		createPickerSession().then( session => {
+			if ( requestId === sessionRequestId.current ) {
+				setSessionRequest( session ? 'idle' : 'failed' );
+			}
+		} );
 	}, [ createPickerSession ] );
 
 	// A failed request shouldn't block the new session after a disconnect and reconnect.
 	useEffect( () => {
 		if ( ! isAuthenticated ) {
+			sessionRequestId.current++; // Drop the result of any request still in flight.
 			setSessionRequest( 'idle' );
 		}
 	}, [ isAuthenticated ] );
