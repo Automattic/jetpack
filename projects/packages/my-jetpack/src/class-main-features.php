@@ -481,17 +481,18 @@ class Main_Features {
 				'image'            => 'https://jetpack.com/wp-content/uploads/2026/09/videopress-3.png',
 				'name'             => __( 'VideoPress', 'jetpack-my-jetpack' ),
 				'description'      => __( 'Share ad-free, high-quality video that keeps visitors on your site.', 'jetpack-my-jetpack' ),
-				'long_description' => __( 'Your videos play in an ad-free 4K player you can match to your brand, so visitors stay on your site. Drag and drop uploads right in the WordPress editor.', 'jetpack-my-jetpack' ),
+				'long_description' => __( 'Keep the focus on your videos with ad-free playback that fits your brand. Drag and drop videos into the WordPress editor to get started.', 'jetpack-my-jetpack' ),
 				'icon'             => 'video',
 				'product'          => 'videopress',
 				'interstitial'     => '/add-videopress',
 				'free_highlights'  => array(
-					__( 'One video in an ad-free 4K player', 'jetpack-my-jetpack' ),
-					__( 'A player you can match to your brand', 'jetpack-my-jetpack' ),
+					__( 'Host one video', 'jetpack-my-jetpack' ),
+					__( 'Ad-free playback up to 4K', 'jetpack-my-jetpack' ),
+					__( 'Match the player to your brand', 'jetpack-my-jetpack' ),
 				),
 				'paid_highlights'  => array(
-					__( 'Unlimited videos, instead of one', 'jetpack-my-jetpack' ),
-					__( 'Up to 1TB of video storage', 'jetpack-my-jetpack' ),
+					__( 'Host unlimited videos', 'jetpack-my-jetpack' ),
+					__( 'Up to 1 TB of video storage', 'jetpack-my-jetpack' ),
 				),
 				'delivery'         => array(
 					'jetpack'     => true,
