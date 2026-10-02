@@ -6,10 +6,13 @@
 
 import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
+import { store as blockEditorStore } from '@wordpress/block-editor';
+import { useSelect } from '@wordpress/data';
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
 import { forgetExistingLinks } from '../utils/existing-links';
+import { forgetMerchantStatus, loadMerchantStatus } from '../utils/merchant-status';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
@@ -58,6 +61,8 @@ export function broadcastConnectionChange( connected ) {
 	if ( connected ) {
 		forgetExistingLinks();
 	}
+	// Any connection change takes the old account's status warning down.
+	forgetMerchantStatus();
 	window.dispatchEvent( new CustomEvent( CONNECTION_CHANGED_EVENT, { detail: { connected } } ) );
 }
 
@@ -161,6 +166,13 @@ export function usePayPalConnection() {
 	// Requires the site to be on WordPress.com or connected to it.
 	const [ partnerReferralsAvailable, setPartnerReferralsAvailable ] = useState( false );
 
+	// Block previews (the inserter's example, patterns) render in any post, so only
+	// blocks in the post itself read the account status.
+	const isPreviewMode = useSelect(
+		select => select( blockEditorStore ).getSettings().isPreviewMode,
+		[]
+	);
+
 	/**
 	 * Check PayPal connection status on mount.
 	 */
@@ -172,6 +184,14 @@ export function usePayPalConnection() {
 				setPartnerReferralsAvailable( !! response.partner_referrals_available );
 				setPartnerAttributionId( response.partner_attribution_id || '' );
 				setAccountEmail( response.account_email || '' );
+				// PayPal reports the account's status only for merchants we referred.
+				if (
+					! isPreviewMode &&
+					response.connected &&
+					response.onboarding_method === 'partner_referrals'
+				) {
+					loadMerchantStatus();
+				}
 				if ( ! response.connected && ! response.partner_referrals_available ) {
 					setWizardStep( 'dashboard' );
 				}
@@ -182,7 +202,7 @@ export function usePayPalConnection() {
 			.finally( () => {
 				setConnectionLoading( false );
 			} );
-	}, [] );
+	}, [ isPreviewMode ] );
 
 	/**
 	 * Follow the site-wide connection state when another block changes it.
@@ -338,6 +358,7 @@ export function usePayPalConnection() {
 				setWizardStep( 'success' );
 				setAccountEmail( response?.account_email || '' );
 				broadcastConnectionChange( true );
+				loadMerchantStatus();
 			} )
 			.catch( err => {
 				// A quiet attempt is one nobody asked for, made in case the seller

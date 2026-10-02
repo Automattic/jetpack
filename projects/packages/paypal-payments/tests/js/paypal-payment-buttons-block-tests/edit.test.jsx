@@ -21,6 +21,7 @@ import {
 import Edit from '../../../src/paypal-payment-buttons/edit';
 import { broadcastConnectionChange } from '../../../src/paypal-payment-buttons/hooks/use-paypal-connection';
 import { forgetExistingLinks } from '../../../src/paypal-payment-buttons/utils/existing-links';
+import { forgetMerchantStatus } from '../../../src/paypal-payment-buttons/utils/merchant-status';
 import {
 	forgetPostSaves,
 	registerSaveSync,
@@ -127,14 +128,29 @@ const postSaved = ( options = {} ) =>
 const mockSavePost = jest.fn( () => postSaved() );
 // Whether core/editor is saving. Set per test.
 let mockIsSavingPost = false;
+// Whether the block renders in an inserter or pattern preview. Set per test.
+let mockIsPreviewMode = false;
+// merchant-status.js shows its warning with plain dispatch, outside React.
+const mockCreateWarningNotice = jest.fn();
+const mockRemoveNotice = jest.fn();
+const mockDispatch = jest.fn( () => ( {
+	createWarningNotice: mockCreateWarningNotice,
+	removeNotice: mockRemoveNotice,
+} ) );
 jest.mock( '@wordpress/data', () => ( {
+	dispatch: ( ...args ) => mockDispatch( ...args ),
 	useDispatch: () => ( {
 		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
 		savePost: mockSavePost,
 	} ),
-	useSelect: mapSelect => mapSelect( () => ( { isSavingPost: () => mockIsSavingPost } ) ),
+	useSelect: mapSelect =>
+		mapSelect( () => ( {
+			isSavingPost: () => mockIsSavingPost,
+			getSettings: () => ( { isPreviewMode: mockIsPreviewMode } ),
+		} ) ),
 } ) );
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 // The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
 // there is to assert on.
@@ -643,6 +659,12 @@ afterAll( () => {
 	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/post-saves' );
 } );
 
+// PayPal's required wording, as /onboarding/status returns it.
+const EMAIL_NOTICE =
+	'Attention: Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.';
+const PAYMENTS_NOTICE =
+	'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to https://www.paypal.com for more information.';
+
 describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	const setAttributes = jest.fn();
 
@@ -730,6 +752,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		jest.clearAllMocks();
 		forgetPostSaves();
 		mockIsSavingPost = false;
+		mockIsPreviewMode = false;
 		// One test runs on fake timers; leaving them on hangs every test after it.
 		jest.useRealTimers();
 		mockCopiedText.last = null;
@@ -737,6 +760,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		window.localStorage.removeItem( 'jetpack-paypal-wizard-step' );
 		// Clear the links list every block shares, so each test reads its own.
 		forgetExistingLinks();
+		// Clear the account status too, so each test reads it again.
+		forgetMerchantStatus();
 		// Default: connection check returns not connected.
 		apiFetch.mockReset();
 		apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
@@ -911,7 +936,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		 * The completion route answers "no seller yet" unless a test says the seller
 		 * finished, since closing the overlay now asks it quietly.
 		 *
-		 * @param {object} signupResponse - What the signup-link route returns, or { reject } to fail it; `complete` is what the completion route returns.
+		 * @param {object} signupResponse - What the signup-link route returns, or { reject } to fail it; `complete` is what the completion route returns, `status` what the account status read returns.
 		 */
 		function mockPlatformMode( signupResponse ) {
 			apiFetch.mockImplementation( ( { path } ) => {
@@ -934,6 +959,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 								code: 'paypal_merchant_not_found',
 								message: 'PayPal has no seller for this onboarding session yet.',
 							} );
+				}
+				if ( path.endsWith( '/onboarding/status' ) ) {
+					return Promise.resolve( signupResponse?.status ?? {} );
 				}
 				return Promise.resolve( {} );
 			} );
@@ -1769,6 +1797,33 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// Then the wizard gives way to the connected view.
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTitle( 'PayPal onboarding' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'reads the account status and shows its warning once the seller finishes connecting', async () => {
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: { connected: true, method: 'partner_referrals' },
+				status: { notices: [ EMAIL_NOTICE ] },
+			} );
+
+			await openActiveOverlay();
+
+			// The status read waits for the connection.
+			expect(
+				apiFetch.mock.calls.some( ( [ { path } ] ) => path.endsWith( '/onboarding/status' ) )
+			).toBe( false );
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await waitFor( () =>
+				expect( mockCreateWarningNotice ).toHaveBeenCalledWith( EMAIL_NOTICE, {
+					id: 'jetpack-paypal-merchant-status',
+					isDismissible: true,
+				} )
+			);
 		} );
 
 		it( 'closes the overlay on Escape', async () => {
@@ -7252,6 +7307,179 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
 			expect( screen.queryByTestId( 'paypal-button-preview' ) ).not.toBeInTheDocument();
+		} );
+	} );
+
+	describe( 'PayPal account status', () => {
+		/**
+		 * Answer the connection check and the status read.
+		 *
+		 * @param {object} options            - Options.
+		 * @param {object} options.connection - The connection check's answer, or { reject } to fail it.
+		 * @param {object} options.status     - The status read's answer, or { reject } to fail it.
+		 */
+		const mockStatus = ( {
+			connection = {
+				connected: true,
+				environment: 'sandbox',
+				onboarding_method: 'partner_referrals',
+			},
+			status = { notices: [ EMAIL_NOTICE ] },
+		} = {} ) => {
+			const answer = response =>
+				response.reject ? Promise.reject( response.reject ) : Promise.resolve( response );
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return answer( connection );
+				}
+				if ( path.endsWith( '/onboarding/status' ) ) {
+					return answer( status );
+				}
+				return Promise.resolve( {} );
+			} );
+		};
+
+		const statusCalls = () =>
+			apiFetch.mock.calls.filter( ( [ { path } ] ) => path.endsWith( '/onboarding/status' ) );
+
+		it( 'shows the account status warning when a connected block loads', async () => {
+			mockStatus();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () =>
+				expect( mockCreateWarningNotice ).toHaveBeenCalledWith( EMAIL_NOTICE, {
+					id: 'jetpack-paypal-merchant-status',
+					isDismissible: true,
+				} )
+			);
+			expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
+			expect( statusCalls() ).toEqual( [ [ { path: '/wpcom/v2/paypal/onboarding/status' } ] ] );
+		} );
+
+		it( 'shows both notices in one warning', async () => {
+			mockStatus( {
+				status: { notices: [ EMAIL_NOTICE, PAYMENTS_NOTICE ] },
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( mockCreateWarningNotice ).toHaveBeenCalled() );
+			expect( mockCreateWarningNotice.mock.calls ).toEqual( [
+				[
+					`${ EMAIL_NOTICE } ${ PAYMENTS_NOTICE }`,
+					{ id: 'jetpack-paypal-merchant-status', isDismissible: true },
+				],
+			] );
+		} );
+
+		it( 'reads the status once, and warns once, however many blocks the post has', async () => {
+			mockStatus();
+
+			render(
+				<>
+					<Edit attributes={ {} } setAttributes={ setAttributes } />
+					<Edit attributes={ {} } setAttributes={ setAttributes } />
+					<Edit attributes={ {} } setAttributes={ setAttributes } />
+				</>
+			);
+
+			await waitFor( () => expect( screen.getAllByLabelText( 'Product Name' ) ).toHaveLength( 3 ) );
+			await waitFor( () => expect( mockCreateWarningNotice ).toHaveBeenCalled() );
+			expect( statusCalls() ).toHaveLength( 1 );
+			expect( mockCreateWarningNotice ).toHaveBeenCalledTimes( 1 );
+		} );
+
+		it( 'skips the warning for an account in good standing', async () => {
+			mockStatus( { status: { notices: [] } } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			await waitFor( () => expect( statusCalls() ).toHaveLength( 1 ) );
+			expect( mockCreateWarningNotice ).not.toHaveBeenCalled();
+		} );
+
+		it.each( [
+			[ '5xx', { code: 'paypal_api_error', message: 'Unavailable', data: { status: 503 } } ],
+			[ 'network', new TypeError( 'Failed to fetch' ) ],
+			[ '403', { code: 'paypal_merchant_not_for_site', data: { status: 403 } } ],
+		] )( 'stays connected and skips the warning when the read fails (%s)', async ( _, error ) => {
+			mockStatus( { status: { reject: error } } );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( statusCalls() ).toHaveLength( 1 ) );
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( mockCreateWarningNotice ).not.toHaveBeenCalled();
+			expect( mockToast ).not.toHaveBeenCalled();
+			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'takes the warning down on a disconnect', async () => {
+			const user = userEvent.setup();
+			mockStatus();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( mockCreateWarningNotice ).toHaveBeenCalled() );
+			mockRemoveNotice.mockClear();
+			await user.click( screen.getByRole( 'button', { name: /Disconnect PayPal/i } ) );
+			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
+
+			await waitFor( () =>
+				expect( mockRemoveNotice ).toHaveBeenCalledWith( 'jetpack-paypal-merchant-status' )
+			);
+		} );
+
+		// The inserter previews block.json's example in any post.
+		it( 'skips the status read in a block preview', async () => {
+			mockIsPreviewMode = true;
+			mockStatus();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
+			expect( mockCreateWarningNotice ).not.toHaveBeenCalled();
+		} );
+
+		it( 'skips the status read while the site is disconnected', async () => {
+			mockStatus( {
+				connection: {
+					connected: false,
+					environment: 'sandbox',
+					onboarding_method: 'partner_referrals',
+				},
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
+		} );
+
+		// The connection check sends onboarding_method for Partner Referrals merchants only.
+		it( 'skips the status read for pasted credentials', async () => {
+			mockStatus( {
+				connection: { connected: true, environment: 'sandbox' },
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
+		} );
+
+		it( 'skips the status read when the connection check is refused', async () => {
+			mockStatus( {
+				connection: { reject: { code: 'rest_forbidden', data: { status: 403 } } },
+			} );
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await expect( screen.findByText( /Get Your API Credentials/ ) ).resolves.toBeInTheDocument();
+			expect( statusCalls() ).toHaveLength( 0 );
 		} );
 	} );
 
