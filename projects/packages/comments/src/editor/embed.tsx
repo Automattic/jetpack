@@ -33,6 +33,8 @@ const NAME = 'core/embed';
 type Attributes = { url?: string };
 /** What the preview route answers: core's proxy shape. */
 type Preview = { html?: string; scripts?: string[] };
+/** What a lookup settled on: data, a URL the site will not embed, or a failure worth retrying. */
+type Lookup = Preview | 'unsupported' | null;
 type EditProps = BlockEditProps< Attributes > & {
 	onReplace: ( blocks: Block | Block[] ) => void;
 	insertBlocksAfter: ( blocks: Block | Block[] ) => void;
@@ -63,6 +65,8 @@ const Edit = ( {
 	const [ draft, setDraft ] = useState( url ?? '' );
 	const [ editing, setEditing ] = useState( ! url );
 	const [ preview, setPreview ] = useState< Preview | null >( null );
+	const [ failed, setFailed ] = useState( false );
+	const [ attempt, setAttempt ] = useState( 0 );
 	const [ interactive, setInteractive ] = useState( false );
 	const isLast = useSelect(
 		select => ! select( blockEditorStore ).getNextBlockClientId( clientId ),
@@ -82,7 +86,8 @@ const Edit = ( {
 		}
 	}, [ url ] );
 
-	// A URL the site will not embed becomes a link, with no fuss: most links in a comment are just links.
+	// A URL the site will not embed becomes a link, with no fuss: most links in a comment are just
+	// links. Anything else, a rate limit or a dropped request, keeps the block so the reader can retry.
 	useEffect( () => {
 		if ( ! url ) {
 			return;
@@ -90,26 +95,34 @@ const Edit = ( {
 
 		let stale = false;
 		setPreview( null );
+		setFailed( false );
 		const target = new URL( labels.embedUrl, window.location.href );
 		target.searchParams.set( 'url', url );
 		fetch( target.toString(), { credentials: 'omit' } )
-			.then( response => ( response.ok ? ( response.json() as Promise< Preview > ) : null ) )
-			.catch( () => null )
+			.then( ( response ): Promise< Lookup > | Lookup => {
+				if ( response.status === 404 ) {
+					return 'unsupported';
+				}
+				return response.ok ? ( response.json() as Promise< Preview > ) : null;
+			} )
+			.catch( (): Lookup => null )
 			.then( data => {
 				if ( stale ) {
 					return;
 				}
-				if ( data?.html ) {
+				if ( data === 'unsupported' ) {
+					latest.current.onReplace( toParagraph( url ) );
+				} else if ( data?.html ) {
 					setPreview( data );
 				} else {
-					latest.current.onReplace( toParagraph( url ) );
+					setFailed( true );
 				}
 			} );
 
 		return () => {
 			stale = true;
 		};
-	}, [ url ] );
+	}, [ url, attempt ] );
 
 	useEffect( () => {
 		if ( ! isSelected ) {
@@ -127,6 +140,7 @@ const Edit = ( {
 			const next = draft.trim();
 			if ( next ) {
 				setEditing( false );
+				setAttempt( count => count + 1 );
 				setAttributes( { url: next } );
 			}
 		},
@@ -135,13 +149,18 @@ const Edit = ( {
 	const onEdit = useCallback( () => setEditing( true ), [] );
 	const onInteract = useCallback( () => setInteractive( true ), [] );
 
-	if ( editing || ! url ) {
+	if ( editing || failed || ! url ) {
 		return (
 			<div { ...blockProps }>
 				<Placeholder
 					icon={ <BlockIcon icon={ embedContentIcon } showColors /> }
 					label={ _x( 'Embed', 'block title', 'default' ) }
 				>
+					{ failed && (
+						<p className="components-placeholder__error">
+							{ __( 'Sorry, this content could not be embedded.', 'default' ) }
+						</p>
+					) }
 					<form onSubmit={ onSubmit }>
 						<input
 							type="url"
@@ -151,7 +170,9 @@ const Edit = ( {
 							onChange={ onInput }
 						/>
 						<Button __next40pxDefaultSize variant="primary" type="submit">
-							{ _x( 'Embed', 'button label', 'default' ) }
+							{ failed
+								? _x( 'Try again', 'button label', 'default' )
+								: _x( 'Embed', 'button label', 'default' ) }
 						</Button>
 					</form>
 				</Placeholder>

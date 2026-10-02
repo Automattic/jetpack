@@ -125,6 +125,14 @@ class Embeds extends WP_REST_Controller {
 			return new WP_Error( 'oembed_invalid_url', get_status_header_desc( 404 ), array( 'status' => 404 ) );
 		}
 
+		// A day, as core's proxy keeps its lookups, so a popular link costs one provider request.
+		$cache_key = 'jetpack_comments_embed_' . md5( $url );
+		$data      = get_transient( $cache_key );
+
+		if ( is_object( $data ) ) {
+			return self::respond( $data );
+		}
+
 		// Each lookup is a request to a provider on the visitor's behalf. Thirty in ten minutes covers
 		// a reader trying links, not a script. The object cache counts atomically; a site without a
 		// persistent one falls back to a transient, which a parallel burst can slip past.
@@ -154,8 +162,20 @@ class Embeds extends WP_REST_Controller {
 		/** This filter is documented in wp-includes/class-wp-oembed.php */
 		$data->html = apply_filters( 'oembed_result', $oembed->data2html( $data, $url ), $url, $args );
 
+		/** This filter is documented in wp-includes/class-wp-oembed-controller.php */
+		set_transient( $cache_key, $data, apply_filters( 'rest_oembed_ttl', DAY_IN_SECONDS, $url, $args ) );
+
+		return self::respond( $data );
+	}
+
+	/**
+	 * The oEmbed data as a response the browser and any cache between may keep: it is the same for every visitor.
+	 *
+	 * @param object $data The oEmbed data.
+	 * @return WP_REST_Response
+	 */
+	private static function respond( $data ) {
 		$response = new WP_REST_Response( $data );
-		// The same for every visitor, so the browser and any cache between may keep it.
 		$response->header( 'Cache-Control', 'public, max-age=' . HOUR_IN_SECONDS );
 
 		return $response;
