@@ -92,6 +92,7 @@ declare global {
 		wpCookies: {
 			set: ( name: string, value: string, expires: number, path: string, domain?: string ) => void;
 			get: ( name: string ) => string | null;
+			remove: ( name: string, path: string, domain?: string ) => void;
 		};
 	}
 }
@@ -303,12 +304,19 @@ export const getGooglePhotosPickerSession = () => {
  * @param {string|null} sessionId - Session id
  */
 export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
+	const domain = `.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`;
+
+	if ( ! sessionId ) {
+		wpCookies.remove( GOOGLE_PHOTOS_PICKER_SESSION, '/', domain );
+		return;
+	}
+
 	wpCookies.set(
 		GOOGLE_PHOTOS_PICKER_SESSION,
-		sessionId ?? '', // wpCookies would store null as the string "null".
+		sessionId,
 		604800, // 7 days
 		'/',
-		`.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`
+		domain
 	);
 };
 

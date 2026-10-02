@@ -89,7 +89,8 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			};
 
 			// Picker session requests only touch the store while their controller is still current.
-			pickerSessionController = new window.AbortController();
+			pickerSessionController =
+				mediaSource === MediaSource.GooglePhotos ? new window.AbortController() : null;
 
 			supersedePickerSessionRequests = () => {
 				this.pickerSessionController.abort();

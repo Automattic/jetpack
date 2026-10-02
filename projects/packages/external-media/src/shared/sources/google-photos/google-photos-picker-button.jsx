@@ -34,11 +34,15 @@ export default function GooglePhotosPickerButton( props ) {
 	};
 
 	useEffect( () => {
+		// The current session is being replaced, so there is nothing worth polling.
+		if ( isSessionPending || isSessionFailed ) {
+			return;
+		}
 		const interval = setInterval( () => {
 			pickerSession?.id && fetchPickerSession( pickerSession.id ).catch( () => {} );
 		}, 3000 );
 		return () => clearInterval( interval );
-	}, [ fetchPickerSession, pickerSession?.id ] );
+	}, [ fetchPickerSession, pickerSession?.id, isSessionPending, isSessionFailed ] );
 
 	return (
 		<div className={ clsx( className, 'jetpack-external-media__google-photos-picker' ) }>

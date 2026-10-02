@@ -125,7 +125,6 @@ function GooglePhotos( props ) {
 		isAuthenticated,
 		isSessionExpired,
 		requestPickerSession,
-		pickerSession,
 	] );
 
 	if ( isLoadingState ) {
