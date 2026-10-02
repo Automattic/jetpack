@@ -67,6 +67,38 @@ describe( 'Private Site -- Logged out Access', () => {
 		} );
 	} );
 
+	it( 'Should expose a minimal REST API index for logged out user', async () => {
+		const res = await fetchPath( '/wp-json/' );
+		expect( res.status ).toBe( 200 );
+
+		const index = await res.json();
+
+		// Discovery-only payload -- nothing that fingerprints the site.
+		expect( index.name ).toBe( 'Private Site' );
+		expect( index.description ).toBe( '' );
+		expect( index.namespaces ).toStrictEqual( [] );
+		expect( index.routes ).toStrictEqual( {} );
+		expect( index ).toHaveProperty( 'authentication' );
+		expect( Array.isArray( index.authentication ) ).toBe( false ); // a map, an object even when empty
+		expect( index ).not.toHaveProperty( '_links' );
+		expect( index ).not.toHaveProperty( 'site_icon' );
+		expect( index ).not.toHaveProperty( 'timezone_string' );
+
+		// The real site name and route table must not leak.
+		const serialized = JSON.stringify( index );
+		expect( serialized ).not.toMatch( /wpcomsh test/ );
+		expect( serialized ).not.toMatch( /wp\/v2/ );
+	} );
+
+	it( 'Should advertise the REST API root on the access denied page for logged out user', async () => {
+		const res = await fetchPath();
+
+		expect( res.headers.get( 'link' ) ).toMatch( /rel="https:\/\/api\.w\.org\/"/ );
+
+		const homePage = await res.text();
+		expect( homePage ).toMatch( /<link rel="https:\/\/api\.w\.org\/" href="[^"]+" \/>/ );
+	} );
+
 	it( 'Should not show REST API posts for logged out user with nonce', async () => {
 		const res = await fetchPathLoggedOutWithRestApiNonce( '/wp-json/wp/v2/posts' );
 		const posts = await res.json();
@@ -145,6 +177,18 @@ describe( 'Private Site -- Logged in Access', () => {
 		const loggedIn = await res.json();
 
 		expect( loggedIn ).toBe( 1 );
+	} );
+
+	it( 'Should show the full REST API index for logged in user with nonce', async () => {
+		const res = await fetchPathLoggedInWithRestApiNonce( '/wp-json/' );
+		expect( res.status ).toBe( 200 );
+
+		const index = await res.json();
+
+		// Authenticated members see the unmodified index.
+		expect( index.namespaces ).toContain( 'wp/v2' );
+		expect( Object.keys( index.routes ).length ).toBeGreaterThan( 1 );
+		expect( index.name ).not.toBe( 'Private Site' );
 	} );
 
 	it( 'Should not show REST API posts for logged in user without nonce', async () => {
