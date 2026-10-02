@@ -751,7 +751,11 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			$environment,
 			$credentials,
 			'GET',
-			sprintf( self::PAYPAL_MERCHANT_INTEGRATIONS_ENDPOINT, $credentials['partner_merchant_id'] ) . '?tracking_id=' . rawurlencode( $tracking_id )
+			sprintf( self::PAYPAL_MERCHANT_INTEGRATIONS_ENDPOINT, $credentials['partner_merchant_id'] ) . '?tracking_id=' . rawurlencode( $tracking_id ),
+			null,
+			array(),
+			// Skip logging the 404 PayPal answers until the seller finishes onboarding.
+			array( 404 )
 		);
 
 		if ( is_wp_error( $response ) ) {
@@ -845,15 +849,16 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 	/**
 	 * Make one authenticated call to PayPal with the platform token.
 	 *
-	 * @param string     $environment   'sandbox' or 'production'.
-	 * @param array      $credentials   Platform credentials.
-	 * @param string     $method        HTTP method.
-	 * @param string     $path          API path, with any query string.
-	 * @param array|null $body          JSON body for POST and PUT.
-	 * @param array      $extra_headers Headers added to the standard set.
+	 * @param string     $environment       'sandbox' or 'production'.
+	 * @param array      $credentials       Platform credentials.
+	 * @param string     $method            HTTP method.
+	 * @param string     $path              API path, with any query string.
+	 * @param array|null $body              JSON body for POST and PUT.
+	 * @param array      $extra_headers     Headers added to the standard set.
+	 * @param int[]      $unlogged_statuses Expected error statuses to skip logging.
 	 * @return array|WP_Error The wp_remote_request() response, or WP_Error (502) when PayPal was unreachable.
 	 */
-	private function paypal_request( $environment, $credentials, $method, $path, $body = null, $extra_headers = array() ) {
+	private function paypal_request( $environment, $credentials, $method, $path, $body = null, $extra_headers = array(), $unlogged_statuses = array() ) {
 		$base_url = $this->base_url( $environment );
 
 		$token = $this->get_paypal_access_token( $environment, $base_url, $credentials['client_id'], $credentials['client_secret'] );
@@ -888,7 +893,54 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			);
 		}
 
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
+		if ( ( $status_code < 200 || $status_code >= 300 ) && ! in_array( $status_code, $unlogged_statuses, true ) ) {
+			$this->log_paypal_error( $response, $status_code, $method, $path );
+		}
+
 		return $response;
+	}
+
+	/**
+	 * Log a PayPal error with its debug ID, which PayPal support uses to trace the call.
+	 * Logging errors are caught so the PayPal call still returns.
+	 *
+	 * @param array  $response    The wp_remote_request() response.
+	 * @param int    $status_code PayPal's HTTP status.
+	 * @param string $method      HTTP method.
+	 * @param string $path        API path, with any query string.
+	 */
+	private function log_paypal_error( $response, $status_code, $method, $path ) {
+		try {
+			// A 401 has the debug ID only in the header. Fall back to the body.
+			$debug_id = wp_remote_retrieve_header( $response, 'paypal-debug-id' );
+			if ( ! is_string( $debug_id ) || '' === $debug_id ) {
+				$debug_id = self::decode_body( $response )['debug_id'] ?? '';
+			}
+
+			// Use site_id(). For a self-hosted caller the current blog is public-api's.
+			$extra = array(
+				'debug_id' => $debug_id,
+				'status'   => $status_code,
+				'method'   => $method,
+				'path'     => $path,
+				'site_id'  => $this->site_id(),
+			);
+
+			/**
+			 * Filters whether to send PayPal API errors to logstash.
+			 *
+			 * @param bool  $enabled Whether to send the entry. Default true.
+			 * @param array $extra   The entry's data.
+			 */
+			if ( ! (bool) apply_filters( 'wpcom_paypal_payment_buttons_log_enabled', true, $extra ) ) {
+				return;
+			}
+
+			\Automattic\Jetpack\Jetpack_Mu_Wpcom::log2logstash( 'paypal_payment_buttons', 'api_error', $extra );
+		} catch ( \Throwable $e ) {
+			unset( $e );
+		}
 	}
 
 	/**
