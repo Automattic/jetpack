@@ -2,7 +2,7 @@
 import { act, fireEvent, render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useDispatch } from '@wordpress/data';
-import TrimCutModal from '../../../../client/components/trim-cut-modal';
+import TrimCutModal from '../../../../client/components/trim-cut-modal/lazy';
 import { useRestoreOriginal } from '../../../hooks/use-restore-original';
 import { useRetryVideoProcessing } from '../../../hooks/use-retry-video-processing';
 import { useSaveVideoEdits } from '../../../hooks/use-save-video-edits';
@@ -130,7 +130,7 @@ function loadOriginal( duration = 10 ) {
  * @param ready - Whether the source metadata is available immediately.
  * @return Render helpers and a user interaction controller.
  */
-function renderEditor( ready = true ) {
+async function renderEditor( ready = true ) {
 	const modal = (
 		<TrimCutModal
 			guid={ video.guid }
@@ -140,6 +140,7 @@ function renderEditor( ready = true ) {
 		/>
 	);
 	const view = render( modal );
+	await expect( screen.findByRole( 'dialog', {}, { timeout: 5000 } ) ).resolves.toBeInTheDocument();
 	if ( ready ) {
 		loadOriginal();
 	}
@@ -188,7 +189,7 @@ beforeEach( () => {
 	restore.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
 } );
 it( 'confirms unsaved edits on close and Escape without dismissing the modal on cancel', async () => {
-	const { user } = renderEditor();
+	const { user } = await renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
 	expect( onClose ).not.toHaveBeenCalled();
@@ -212,7 +213,7 @@ it( 'blocks close during submission but allows leaving after processing is accep
 				accept = resolve;
 			} )
 	);
-	const { user } = renderEditor();
+	const { user } = await renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
@@ -229,7 +230,7 @@ it( 'blocks close during submission but allows leaving after processing is accep
 
 it( 'preserves unsaved edits when submission fails', async () => {
 	save.mockRejectedValue( new Error( 'Network error' ) );
-	const { user } = renderEditor();
+	const { user } = await renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
@@ -239,9 +240,9 @@ it( 'preserves unsaved edits when submission fails', async () => {
 	expect( onClose ).not.toHaveBeenCalled();
 } );
 
-it( 'refreshes the block preview once a job completes', () => {
+it( 'refreshes the block preview once a job completes', async () => {
 	setEdits( { job: processingJob } );
-	const { refresh } = renderEditor();
+	const { refresh } = await renderEditor();
 	expect( onProcessed ).not.toHaveBeenCalled();
 	setEdits( { job: { ...processingJob, status: 'complete' }, revision: 3 } );
 	refresh();
@@ -251,7 +252,7 @@ it( 'refreshes the block preview once a job completes', () => {
 } );
 
 it( 'keeps undo shortcuts inside the modal', async () => {
-	const { user } = renderEditor();
+	const { user } = await renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
 	const documentKey = jest.fn();
 	document.addEventListener( 'keydown', documentKey );
@@ -270,11 +271,11 @@ it( 'keeps undo shortcuts inside the modal', async () => {
 	}
 } );
 
-it( 'rejects attachment metadata belonging to another video', () => {
+it( 'rejects attachment metadata belonging to another video', async () => {
 	jest
 		.mocked( useVideo )
 		.mockReturnValue( { video: { ...video, guid: 'other' }, isError: false, refetch } as never );
-	renderEditor( false );
+	await renderEditor( false );
 	expect(
 		within( screen.getByRole( 'dialog' ) ).getByText(
 			'Video information could not be loaded. Please try again.'
