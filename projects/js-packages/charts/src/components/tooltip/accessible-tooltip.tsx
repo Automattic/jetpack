@@ -6,7 +6,7 @@ import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
-import { XyChartTooltip } from './xy-chart-tooltip';
+import { XyChartTooltipOverlay } from './xy-chart-tooltip';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -213,7 +213,7 @@ export const XYChartTooltip: React.FC< XYChartTooltipProps > = ( {
 	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName, standaloneScopeClass ] );
 
 	return (
-		<XyChartTooltip
+		<XyChartTooltipOverlay
 			{ ...props }
 			verticalCrosshairStyle={ { ...crosshairStroke, ...verticalCrosshairStyle } }
 			horizontalCrosshairStyle={ { ...crosshairStroke, ...horizontalCrosshairStyle } }
