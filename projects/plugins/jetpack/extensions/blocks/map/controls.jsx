@@ -85,6 +85,9 @@ export default ( {
 					min={ minHeight }
 					onChange={ newValue => {
 						setAttributes( { mapHeight: newValue } );
+						if ( mapRef.current && mapRef.current.sizeMap ) {
+							setTimeout( mapRef.current.sizeMap, 0 );
+						}
 					} }
 					size="__unstable-large"
 					step={ 10 }
