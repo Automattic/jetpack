@@ -8,7 +8,12 @@ import {
 import { route } from './route';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
 	ensureCoreSettingsReady: jest.fn( () => Promise.resolve() ),
+	computeDateRangeFromPreset: jest.fn( () => ( {
+		from: '2021-01-01T00:00:00',
+		to: '2026-06-16T23:59:59',
+	} ) ),
 	needsReportDateParamsSeed: jest.fn( () => false ),
 	// Mirrors the real normalizer's relevant behavior: carries incoming params
 	// through and adds a default comparison preset on top.
@@ -100,15 +105,13 @@ describe( 'video detail route.beforeLoad', () => {
 	} );
 
 	it( 'drops an author scope while seeding the video scope', async () => {
-		let thrown: { search?: Record< string, unknown > } | undefined;
-		try {
-			await beforeLoad( { videoId: '42' }, { ...settledSearch, post_id: '7', author_id: '3' } );
-		} catch ( error ) {
-			thrown = error as { search?: Record< string, unknown > };
-		}
+		const redirect = beforeLoad(
+			{ videoId: '42' },
+			{ ...settledSearch, post_id: '7', author_id: '3' }
+		);
 
-		expect( thrown?.search ).toMatchObject( { post_id: '42' } );
-		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+		await expect( redirect ).rejects.toMatchObject( { search: { post_id: '42' } } );
+		await expect( redirect ).rejects.not.toHaveProperty( 'search.author_id' );
 	} );
 
 	it( 'keeps the dashboard origin through the seeding redirect', async () => {
@@ -131,36 +134,60 @@ describe( 'video detail route.beforeLoad', () => {
 		} );
 	} );
 
-	// The page renders no comparison, but the dashboard link carries the URL state
-	// back out — stripping the params would lose it on a round trip.
 	it( 'passes through comparison params without redirecting on a settled URL', async () => {
 		await expect(
 			beforeLoad( { videoId: '42' }, { ...settledSearch, comp: 'previous_period' } )
 		).resolves.toBeUndefined();
 	} );
 
-	it( 'carries comparison params through the seeded URL untouched', async () => {
-		let thrown: { search?: Record< string, unknown > } | undefined;
-		try {
-			await beforeLoad(
-				{ videoId: '42' },
-				{
-					...settledSearch,
-					post_id: '7',
-					comp: 'previous_period',
-					compare_from: '2026-05-01T00:00:00',
-				}
-			);
-		} catch ( error ) {
-			thrown = error as { search?: Record< string, unknown > };
-		}
+	it( 'keeps its own range and the linking window when re-seeding a settled URL', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+		const redirect = beforeLoad(
+			{ videoId: '42' },
+			{
+				...settledSearch,
+				preset: 'last-30-days',
+				ref_from: '2026-05-01T00:00:00',
+				ref_preset: 'last-month',
+			}
+		);
 
-		expect( thrown ).toMatchObject( { to: '/video/$videoId' } );
-		expect( thrown?.search ).toMatchObject( {
-			post_id: '42',
-			comp: 'previous_period',
-			compare_from: '2026-05-01T00:00:00',
+		await expect( redirect ).rejects.toMatchObject( {
+			search: {
+				from: '2026-06-01T00:00:00',
+				preset: 'last-30-days',
+				ref_from: '2026-05-01T00:00:00',
+				ref_preset: 'last-month',
+			},
 		} );
+	} );
+
+	it( 'opens a linked video on all time and keeps the linking window, comparison included', async () => {
+		const redirect = beforeLoad(
+			{ videoId: '42' },
+			{
+				from: '2026-06-10T00:00:00',
+				to: '2026-06-16T23:59:59',
+				preset: 'last-7-days',
+				comp: '1',
+				compare_from: '2026-06-03T00:00:00',
+				compare_to: '2026-06-09T23:59:59',
+				compare_preset: 'previous-period',
+			}
+		);
+
+		await expect( redirect ).rejects.toMatchObject( {
+			search: {
+				post_id: '42',
+				preset: 'all-time',
+				ref_preset: 'last-7-days',
+				ref_compare_preset: 'previous-period',
+			},
+		} );
+		await expect( redirect ).rejects.not.toHaveProperty( 'search.ref_from' );
+		expect( normalizeReportParams ).toHaveBeenCalledWith(
+			expect.objectContaining( { preset: 'all-time', from: '2021-01-01T00:00:00' } )
+		);
 	} );
 } );
 

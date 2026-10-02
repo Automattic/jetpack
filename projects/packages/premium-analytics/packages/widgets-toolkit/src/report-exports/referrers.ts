@@ -1,8 +1,31 @@
 /**
+ * External dependencies
+ */
+import {
+	fetchStatsReferrersRows,
+	type StatsReferrersComparisonItem,
+} from '@jetpack-premium-analytics/data';
+import { __ } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
-import type { ReferrerRecord } from './fields';
-import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
+import { getSummarizedReportQueryParams } from './query-params';
+import type { ReportCsvExporter } from './types';
+
+/**
+ * A flattened referrer group, source, or domain shown in the records table.
+ */
+export type ReferrerRecord = {
+	id: string;
+	parentId?: string;
+	parentLabel?: string;
+	label: string;
+	views: number;
+	previousValue?: number;
+	link?: string;
+	icon?: string;
+	hasChildren?: boolean;
+};
 
 /**
  * Flatten nested comparison rows into the parent-linked shape consumed by
@@ -50,3 +73,22 @@ export function flattenReferrerRows(
 
 	return rows;
 }
+
+export const referrersCsvExporter: ReportCsvExporter< ReferrerRecord, ReferrerRecord > = {
+	filenamePrefix: 'referrers',
+	hasDateRange: true,
+	fetchItems: async reportParams =>
+		flattenReferrerRows(
+			await fetchStatsReferrersRows( getSummarizedReportQueryParams( reportParams ) )
+		),
+	toCsvRows: items => items,
+	getColumns: () => [
+		{ label: __( 'Referrer', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+		{
+			label: __( 'Group', 'jetpack-premium-analytics-pkg' ),
+			getValue: row => row.parentLabel ?? '',
+		},
+		{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
+		{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
+	],
+};

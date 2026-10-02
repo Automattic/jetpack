@@ -3,7 +3,7 @@
  */
 import { Link } from '@jetpack-premium-analytics/externals';
 import { DrilldownLeafCell, safeHttpUrl } from '@jetpack-premium-analytics/ui';
-import { MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import { MetricWithComparison, type ClickRow } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
@@ -11,20 +11,6 @@ const CLICKS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },
 } as const;
-
-export type ClickRow = {
-	id: string;
-	/** The click-group parent row id; unset on group rows and single-URL groups. */
-	parentId?: string;
-	clickedUrl: string;
-	/** The external URL; group parent rows have none. */
-	href?: string;
-	/** Group parent rows keep the title-field styling; leaf rows opt out. */
-	isGroup?: boolean;
-	clicks: number;
-	/** Click count for the matching row in the comparison period. */
-	previousClicks?: number;
-};
 
 /**
  * DataViews field config for the Clicks records table.

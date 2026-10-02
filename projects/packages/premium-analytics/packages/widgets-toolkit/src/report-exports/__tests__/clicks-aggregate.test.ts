@@ -1,4 +1,4 @@
-import { aggregateClickRows } from './aggregate';
+import { aggregateClickRows } from '../clicks';
 import type {
 	StatsClicksComparisonItem,
 	StatsClicksItem,

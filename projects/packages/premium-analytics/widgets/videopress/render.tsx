@@ -3,12 +3,14 @@
  */
 import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
+	ExporterCsvDownloadButton,
 	Leaderboard,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	describeError,
 	useWidgetRootContext,
+	videosCsvExporter,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -63,14 +65,15 @@ function VideoPressReport() {
 		() => toVideoPlaysRows( comparisonRows?.rows ?? [] ).map( toLeaderboardRow ),
 		[ comparisonRows ]
 	);
+	// `primary.isPending` also covers the brief window where the query is disabled
+	// while the report params resolve (isLoading is false there).
+	const isInitialLoading = isLoading || primary.isPending;
 
 	return (
 		<Leaderboard
 			rows={ rows }
 			status={ {
-				// `primary.isPending` also covers the brief window where the query is disabled
-				// while the report params resolve (isLoading is false there).
-				isLoading: isLoading || primary.isPending,
+				isLoading: isInitialLoading,
 				isFetching,
 				// `placeholderData` keeps prior rows visible after a failed range change; only
 				// surface the error when nothing is on screen.
@@ -85,7 +88,16 @@ function VideoPressReport() {
 				),
 				onRetry: refetch,
 			} ) }
-			footer={ <ReportLink report="videos" /> }
+			footer={
+				<>
+					<ReportLink report="videos" />
+					<ExporterCsvDownloadButton
+						exporter={ videosCsvExporter }
+						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
+						rowCount={ rows.length }
+					/>
+				</>
+			}
 		/>
 	);
 }

@@ -204,13 +204,31 @@ export {
  * Report CSV exports
  */
 export {
+	aggregateAuthorRows,
+	aggregateClickRows,
+	aggregateSearchTermRows,
 	archivesCsvExporter,
+	authorsCsvExporter,
 	buildArchiveRows,
+	clicksCsvExporter,
+	fileDownloadsCsvExporter,
+	flattenReferrerRows,
 	getArchiveGroupLabel,
 	getArchiveTypeLabel,
+	getAuthorName,
+	getAuthorsReportQueryParams,
 	getPostsReportQueryParams,
+	getSummarizedReportQueryParams,
+	getVideosReportQueryParams,
 	postsPagesCsvExporter,
+	referrersCsvExporter,
+	searchTermsCsvExporter,
+	videosCsvExporter,
 	type ArchiveRow,
+	type AuthorRow,
+	type ClickRow,
+	type ReferrerRecord,
+	type SearchTermRow,
 } from './report-exports';
 
 /**

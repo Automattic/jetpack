@@ -56,13 +56,13 @@ describe( 'ExporterCsvDownloadButton', () => {
 	it( 'downloads the full report for the widget report window', async () => {
 		renderButton();
 
+		const button = screen.getByRole( 'button', { name: /Download CSV/ } );
 		// This package does not depend on @testing-library/user-event.
 		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		fireEvent.click( button );
 
-		await waitFor( () =>
-			expect( mockDownloadReportCsv ).toHaveBeenCalledWith( exporter, REPORT_PARAMS )
-		);
+		expect( mockDownloadReportCsv ).toHaveBeenCalledWith( exporter, REPORT_PARAMS );
+		await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
 	} );
 
 	it.each( [

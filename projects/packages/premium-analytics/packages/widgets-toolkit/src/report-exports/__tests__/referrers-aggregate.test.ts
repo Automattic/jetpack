@@ -1,4 +1,4 @@
-import { flattenReferrerRows } from './aggregate';
+import { flattenReferrerRows } from '../referrers';
 import type { StatsReferrersComparisonItem } from '@jetpack-premium-analytics/data';
 
 const searchEngines: StatsReferrersComparisonItem = {
