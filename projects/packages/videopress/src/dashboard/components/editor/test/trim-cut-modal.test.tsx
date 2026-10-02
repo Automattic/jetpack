@@ -199,7 +199,7 @@ it( 'confirms unsaved edits on close and Escape without dismissing the modal on 
 	expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
 	await user.keyboard( '{Escape}' );
 	await user.click(
-		within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Discard changes' } )
+		within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Discard' } )
 	);
 	expect( onClose ).toHaveBeenCalledTimes( 1 );
 	expect( save ).not.toHaveBeenCalled();

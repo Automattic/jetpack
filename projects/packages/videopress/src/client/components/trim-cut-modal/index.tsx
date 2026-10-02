@@ -186,8 +186,8 @@ function Workspace( {
 	};
 	const labels: Record< Confirmation, string > = {
 		save: __( 'Update video', 'jetpack-videopress-pkg' ),
-		discard: __( 'Discard changes', 'jetpack-videopress-pkg' ),
-		close: __( 'Discard changes', 'jetpack-videopress-pkg' ),
+		discard: __( 'Discard', 'jetpack-videopress-pkg' ),
+		close: __( 'Discard', 'jetpack-videopress-pkg' ),
 		restore: __( 'Restore original', 'jetpack-videopress-pkg' ),
 		reload: __( 'Reload latest', 'jetpack-videopress-pkg' ),
 	};
