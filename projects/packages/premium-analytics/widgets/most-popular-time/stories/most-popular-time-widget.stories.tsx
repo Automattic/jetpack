@@ -39,12 +39,12 @@ const INSIGHTS_PATH_FRAGMENT = 'stats/insights';
 /**
  * Forces the insights request into the given state for a story's lifetime.
  *
- * `useStatsInsights()` has a constant query key — the lifetime insights report
- * ignores the dashboard date range — so distinct date presets cannot give the
- * forced-state stories their own cache entries. Instead, drop the cached report
- * from the shared query client so the widget re-fetches and hits the forced
- * mock, and drop it again on cleanup so a forced empty/error result doesn't
- * leak into the other stories' shared cache entry.
+ * `useStatsInsights()` has a constant query key — the insights report covers a
+ * fixed server-side window and ignores the dashboard date range — so distinct
+ * date presets cannot give the forced-state stories their own cache entries.
+ * Instead, drop the cached report from the shared query client so the widget
+ * re-fetches and hits the forced mock, and drop it again on cleanup so a forced
+ * empty/error result doesn't leak into the other stories' shared cache entry.
  */
 function forceInsightsState( state: 'loading' | 'error' | 'empty' ) {
 	queryClient.removeQueries( { queryKey: [ 'stats', 'insights' ] } );
@@ -67,7 +67,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Most popular time" widget. Shows the day of week and hour of day that draw the most views, each with its share of the total. The insights endpoint reports across the whole lifetime of the site, so there is no date range or comparison period.',
+					'The "Most popular time" widget. Shows the day of week and hour of day that draw the most views, each with its share of the total. The insights endpoint reports over a fixed server-side window, so there is no date range or comparison period.',
 			},
 		},
 	},
@@ -109,9 +109,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved without peak day/hour data: the widget shows its empty state (no
- * icon — the widget's `scheduled` glyph has no neutral counterpart in the
- * analytics icon set).
+ * Resolved without peak day/hour data: the widget shows its empty state, under
+ * the widget's own `scheduled` glyph rather than the error state's icon.
  */
 export const Empty: Story = {
 	render: renderMostPopularTime,

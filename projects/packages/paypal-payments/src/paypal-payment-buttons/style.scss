@@ -1,0 +1,314 @@
+@use "sass:color";
+
+/**
+ * PayPal Payment Buttons — Frontend Styles.
+ *
+ * Styles for the published page rendering of PayPal buttons. Loaded on the
+ * frontend and inside the editor canvas iframe, but not in the sidebar — so a
+ * rule for a frontend class belongs here and covers both, while anything
+ * naming a `-preview__` class belongs in editor.scss.
+ *
+ * The checkout button uses the `wp-element-button` class to inherit
+ * the active theme's button styles (colors, typography, border-radius),
+ * unless the Styles tab overrides them with an inline style. No PayPal
+ * branding on the button itself — the hosted payment page handles
+ * payment method selection. "Powered by PayPal" shows below the button
+ * by default.
+ *
+ * @package automattic/jetpack-paypal-payments
+ * @since 0.9.0
+ */
+
+// WP-standard font stack used by Twenty Twenty-Four, Jetpack blocks,
+// and WordPress.com themes.
+$font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+
+// PayPal blue — used for focus rings and QR code link accents.
+$paypal-blue: #0070ba;
+
+// The PayPal wordmark as a mask, so it takes the text color. Paths from
+// paypalobjects.com/paypal-ui/logos/svg/paypal-color.svg.
+$paypal-wordmark: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='50 8 118 36'><path d='M62.56 28.672a10.111 10.111 0 0 0 9.983-8.56c.78-4.967-3.101-9.303-8.6-9.303H55.08a.689.689 0 0 0-.69.585l-3.95 25.072a.643.643 0 0 0 .634.742h4.69a.689.689 0 0 0 .688-.585l1.162-7.365a.689.689 0 0 1 .689-.586h4.257Zm3.925-8.786c-.29 1.836-1.709 3.189-4.425 3.189h-3.474l1.053-6.68h3.411c2.81.006 3.723 1.663 3.435 3.496v-.005Z'/><path d='M92.863 18.706H88.41a.69.69 0 0 0-.69.585l-.144.924s-3.457-3.775-9.575-1.225c-3.51 1.461-5.194 4.48-5.91 6.69 0 0-2.277 6.718 2.87 10.417 0 0 4.771 3.556 10.145-.22l-.093.589a.642.642 0 0 0 .634.742h4.451a.689.689 0 0 0 .69-.585l2.708-17.175a.643.643 0 0 0-.634-.742Zm-6.547 9.492a4.996 4.996 0 0 1-4.996 4.276 4.513 4.513 0 0 1-1.397-.205c-1.92-.616-3.015-2.462-2.7-4.462a4.996 4.996 0 0 1 5.014-4.277c.474-.005.946.065 1.398.206 1.913.614 3.001 2.46 2.686 4.462h-.005Z'/><path d='m109.205 19.131-5.367 9.059-2.723-8.992a.69.69 0 0 0-.664-.492h-4.842a.516.516 0 0 0-.496.689l4.88 15.146-4.413 7.138a.517.517 0 0 0 .442.794h5.217a.858.858 0 0 0 .741-.418l13.632-22.552a.516.516 0 0 0-.446-.789h-5.215a.858.858 0 0 0-.746.417Z'/><path d='M126.672 28.672a10.115 10.115 0 0 0 9.992-8.56c.779-4.967-3.101-9.303-8.602-9.303h-8.86a.69.69 0 0 0-.689.585l-3.962 25.079a.637.637 0 0 0 .365.683.64.64 0 0 0 .269.06h4.691a.69.69 0 0 0 .689-.586l1.163-7.365a.688.688 0 0 1 .689-.586l4.255-.007Zm3.925-8.786c-.29 1.836-1.709 3.189-4.426 3.189h-3.473l1.054-6.68h3.411c2.808.006 3.723 1.663 3.434 3.496v-.005Z'/><path d='M156.974 18.706h-4.448a.69.69 0 0 0-.689.585l-.146.924s-3.456-3.775-9.574-1.225c-3.509 1.461-5.194 4.48-5.911 6.69 0 0-2.276 6.718 2.87 10.417 0 0 4.772 3.556 10.146-.22l-.093.589a.637.637 0 0 0 .365.683c.084.04.176.06.269.06h4.451a.686.686 0 0 0 .689-.586l2.709-17.175a.657.657 0 0 0-.148-.518.632.632 0 0 0-.49-.224Zm-6.546 9.492a4.986 4.986 0 0 1-4.996 4.276 4.513 4.513 0 0 1-1.399-.205c-1.921-.616-3.017-2.462-2.702-4.462a4.996 4.996 0 0 1 4.996-4.277c.475-.005.947.064 1.399.206 1.933.614 3.024 2.46 2.707 4.462h-.005Z'/><path d='m161.982 11.387-3.962 25.079a.637.637 0 0 0 .365.683c.084.04.176.06.269.06h4.689a.688.688 0 0 0 .689-.586l3.963-25.079a.637.637 0 0 0-.146-.517.645.645 0 0 0-.488-.225h-4.69a.69.69 0 0 0-.689.585Z'/></svg>");
+
+.jetpack-paypal-button {
+	// Defaults. Inline styles override them: margin on the QR card, Width on
+	// the button card.
+	max-width: 400px;
+	margin: 24px 0;
+	font-family: $font-stack;
+	// Long unbroken names and labels wrap to fit a narrow card.
+	overflow-wrap: anywhere;
+}
+
+// ---------------------------------------------------------------
+// Product info
+// ---------------------------------------------------------------
+
+.jetpack-paypal-button__product {
+	text-align: center;
+	margin-bottom: 16px;
+}
+
+.jetpack-paypal-button__product-name {
+	display: block;
+	font-weight: 600;
+	font-size: 16px;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button__product-description {
+	display: block;
+	font-size: 14px;
+	color: #757575;
+	margin-top: 4px;
+	// The editor takes line breaks in the description and PayPal stores
+	// them, so show them here.
+	white-space: pre-line;
+}
+
+.jetpack-paypal-button__product-price {
+	display: block;
+	font-weight: 700;
+	font-size: 20px;
+	color: #1e1e1e;
+	margin-top: 8px;
+}
+
+// ---------------------------------------------------------------
+// Product image
+// ---------------------------------------------------------------
+
+.jetpack-paypal-button__product-image {
+	margin-bottom: 16px;
+	text-align: center;
+
+	img {
+		display: block;
+		max-width: 100%;
+		height: auto;
+		border-radius: 8px;
+		margin: 0 auto;
+	}
+}
+
+// ---------------------------------------------------------------
+// Button container
+// ---------------------------------------------------------------
+
+.jetpack-paypal-button__buttons {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+}
+
+// ---------------------------------------------------------------
+// Checkout button — inherits theme styles via wp-element-button
+// ---------------------------------------------------------------
+
+// The .wp-element-button class applies the active theme's button
+// styles (background, color, font, border-radius, padding) so the
+// button blends with the rest of the site. We only add minimal
+// overrides for layout and text-decoration. border-box keeps the theme's
+// padding and any stroke inside the width, so a 100% button fits the block.
+.jetpack-paypal-button__checkout-link {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	box-sizing: border-box;
+	width: 100%;
+	text-align: center;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+// The Outline style, after core's button block plus the hover states.
+// 1px like extensions/blocks/button/view.scss, and inside the width, so an
+// Outline button is as wide as a Fill one. No padding override, so the
+// theme keeps sizing it. currentColor stops the theme's filled-button text
+// color leaving the label invisible; a color set in the Styles tab comes
+// through inline and wins.
+// The hover/focus/active copies stop the theme repainting the background.
+.jetpack-paypal-button__checkout-link.is-style-outline {
+
+	&,
+	&:hover,
+	&:focus,
+	&:active {
+		background-color: transparent;
+		background-image: none;
+		border: solid 1px currentColor;
+		color: currentColor;
+	}
+}
+
+// ---------------------------------------------------------------
+// "Powered by PayPal" attribution
+// ---------------------------------------------------------------
+
+.jetpack-paypal-button__qr-caption {
+	margin: 8px 0 0;
+}
+
+.jetpack-paypal-button__attribution {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 2px;
+	margin: 8px 0 0;
+	padding: 0;
+	font-size: 10px;
+	letter-spacing: -0.01em;
+	line-height: 1.5;
+}
+
+// Draws the word PayPal as the wordmark, in the text color. The text stays,
+// indented out of view, for screen readers and feeds. print-color-adjust keeps
+// the wordmark when printing without backgrounds.
+.jetpack-paypal-button__logo {
+	flex-shrink: 0;
+	width: 45px;
+	height: 16px;
+	overflow: hidden;
+	white-space: nowrap;
+	text-indent: 100%;
+	background-color: currentColor;
+	mask-image: $paypal-wordmark;
+	mask-repeat: no-repeat;
+	mask-position: center;
+	mask-size: contain;
+	print-color-adjust: exact;
+}
+
+// Forced colors paint backgrounds as Canvas, so the wordmark uses CanvasText.
+@media (forced-colors: active) {
+
+	.jetpack-paypal-button__logo {
+		background-color: CanvasText;
+	}
+}
+
+// Variant options display.
+.jetpack-paypal-button__variants {
+	margin-bottom: 16px;
+	text-align: center;
+}
+
+.jetpack-paypal-button__variants-label {
+	font-size: 12px;
+	color: #757575;
+	margin: 0 0 8px;
+}
+
+.jetpack-paypal-button__variant-group {
+	margin-bottom: 6px;
+	font-size: 13px;
+	line-height: 1.8;
+}
+
+.jetpack-paypal-button__variant-name {
+	font-weight: 600;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button__variant-option {
+	display: inline-block;
+	background: #f0f0f0;
+	border-radius: 12px;
+	padding: 2px 10px;
+	margin: 2px 3px;
+	font-size: 12px;
+	color: #1e1e1e;
+}
+
+.jetpack-paypal-button__variant-price {
+	color: #757575;
+	font-size: 11px;
+}
+
+// Frame, caption and the link row share one center line, so the caption stays
+// under the code at any Width.
+.jetpack-paypal-button__qr-standalone {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+// Border and radius draw here. The frame shrinks to the code, and content-box
+// keeps the border outside it rather than clipping the code.
+.jetpack-paypal-button__qr-frame {
+	box-sizing: content-box;
+	width: fit-content;
+	max-width: 100%;
+}
+
+// QR code canvas. Fills the frame, so Width resizes the code.
+.jetpack-paypal-button__qr-canvas {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.jetpack-paypal-button__qr-link {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+	max-width: 320px;
+}
+
+// Shrinks to 3rem like core's Search block input, so the row fits narrow
+// columns. border-box keeps the padding and border inside that minimum.
+.jetpack-paypal-button__qr-link-input {
+	flex: 1;
+	box-sizing: border-box;
+	min-width: 3rem;
+	font-size: 12px;
+	padding: 6px 8px;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	color: #555;
+	background: #f9f9f9;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.jetpack-paypal-button__qr-copy {
+	flex-shrink: 0;
+	background: none;
+	border: 1px solid #ddd;
+	border-radius: 4px;
+	padding: 6px 12px;
+	font-size: 12px;
+	color: $paypal-blue;
+	cursor: pointer;
+	transition: border-color 0.15s;
+
+	&:hover {
+		border-color: $paypal-blue;
+	}
+
+	&:focus-visible {
+		outline: 2px solid $paypal-blue;
+		outline-offset: 2px;
+	}
+}
+
+.jetpack-paypal-button__qr-download {
+	background: none;
+	border: none;
+	padding: 4px 8px;
+	font-size: 12px;
+	color: $paypal-blue;
+	cursor: pointer;
+	text-decoration: underline;
+
+	&:hover {
+		color: color.adjust($paypal-blue, $lightness: -10%);
+	}
+
+	&:focus-visible {
+		outline: 2px solid $paypal-blue;
+		outline-offset: 2px;
+	}
+}

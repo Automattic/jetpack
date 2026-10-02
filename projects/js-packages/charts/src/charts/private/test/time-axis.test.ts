@@ -1,4 +1,4 @@
-import { getBandTickValues, getBucketResolution, getFormatter } from '../time-axis';
+import { getBandTickValues, getFormatter } from '../time-axis';
 import type { useChartDataTransform } from '../../../hooks';
 
 type SortedData = ReturnType< typeof useChartDataTransform >;
@@ -34,6 +34,14 @@ describe( 'getFormatter', () => {
 
 		expect( formatter( new Date( '2026-08-03T00:00:00' ).getTime() ) ).toMatch( /Aug 3/ );
 		expect( formatter( new Date( '2026-08-02T13:00:00' ).getTime() ) ).toMatch( /1\sPM/ );
+	} );
+
+	it( 'dates the ticks when sub-daily data spans exactly a day', () => {
+		const formatter = getFormatter(
+			toSeries( hourlyDates( new Date( '2026-08-02T00:00:00' ), 25 ) )
+		);
+
+		expect( formatter( new Date( '2026-08-03T00:00:00' ).getTime() ) ).toMatch( /Aug 3/ );
 	} );
 
 	it( 'keeps hour ticks up to a full week of sub-daily data', () => {
@@ -221,71 +229,28 @@ describe( 'getFormatter', () => {
 	} );
 } );
 
-describe( 'getBucketResolution', () => {
-	it( 'infers hourly buckets from sub-daily spacing', () => {
-		expect(
-			getBucketResolution( toSeries( hourlyDates( new Date( '2026-08-02T00:00:00' ), 6 ) ) )
-		).toBe( 'hour' );
-	} );
+describe( 'tick format anchors', () => {
+	// The band axis steers ticks onto boundaries using the predicate the format
+	// hangs off itself. If the two ever disagree, the axis aims at buckets that
+	// do not actually print the coarser label.
+	it( 'marks exactly the buckets whose label carries the coarser unit', () => {
+		const hourly = Array.from( { length: 48 }, ( _, i ) => new Date( 2026, 7, 2, i ) );
+		const hourFormat = getFormatter( toSeries( hourly ) );
 
-	it( 'infers daily buckets from daily spacing', () => {
-		expect(
-			getBucketResolution( toSeries( dailyDates( new Date( '2026-08-01T00:00:00' ), 5 ) ) )
-		).toBe( 'day' );
-	} );
+		expect( hourFormat.isAnchor ).toBeDefined();
+		hourly.forEach( date => {
+			const isDateLabel = ! /(AM|PM)/.test( hourFormat( date.getTime() ) );
+			expect( hourFormat.isAnchor( date ) ).toBe( isDateLabel );
+		} );
 
-	it( 'infers daily buckets from weekly spacing, which labels the same way', () => {
-		const weeklyDates = Array.from(
-			{ length: 5 },
-			( _, i ) => new Date( Date.UTC( 2026, 0, 5 + i * 7 ) )
-		);
+		const monthly = Array.from( { length: 36 }, ( _, i ) => new Date( 2023, 6 + i, 1 ) );
+		const monthFormat = getFormatter( toSeries( monthly ) );
 
-		expect( getBucketResolution( toSeries( weeklyDates ) ) ).toBe( 'day' );
-	} );
-
-	it( 'infers monthly buckets from a shortest-month gap', () => {
-		expect(
-			getBucketResolution(
-				toSeries( [ new Date( '2026-02-01T00:00:00' ), new Date( '2026-03-01T00:00:00' ) ] )
-			)
-		).toBe( 'month' );
-	} );
-
-	it( 'infers yearly buckets from a yearly gap', () => {
-		expect(
-			getBucketResolution(
-				toSeries( [ new Date( '2025-06-01T00:00:00' ), new Date( '2026-06-01T00:00:00' ) ] )
-			)
-		).toBe( 'year' );
-	} );
-
-	it( 'keeps a daily gap across spring-forward out of the hourly bucket', () => {
-		const start = new Date( '2026-03-08T00:00:00' );
-		const dstDates = [ 0, 23, 47 ].map(
-			offsetHours => new Date( start.getTime() + offsetHours * 60 * 60 * 1000 )
-		);
-
-		expect( getBucketResolution( toSeries( dstDates ) ) ).toBe( 'day' );
-	} );
-
-	it( 'reports daily buckets when no series has two points', () => {
-		// Unmeasurable spacing reads as Infinity, which must not be mistaken for a
-		// very coarse bucket.
-		expect( getBucketResolution( toSeries( [ new Date( '2026-08-02T00:00:00' ) ] ) ) ).toBe(
-			'day'
-		);
-	} );
-
-	it( 'reports a declared resolution over the measured spacing', () => {
-		const hourly = toSeries( hourlyDates( new Date( '2026-08-02T00:00:00' ), 6 ) );
-
-		expect( getBucketResolution( hourly, 'month' ) ).toBe( 'month' );
-	} );
-
-	it( 'reports a declared weekly resolution as daily', () => {
-		// Weeks and days are both calendar-date buckets as far as labelling goes,
-		// and 'week' is not a label format of its own.
-		expect( getBucketResolution( toSeries( [] ), 'week' ) ).toBe( 'day' );
+		expect( monthFormat.isAnchor ).toBeDefined();
+		monthly.forEach( date => {
+			const isYearLabel = /^\d{4}$/.test( monthFormat( date.getTime() ) );
+			expect( monthFormat.isAnchor( date ) ).toBe( isYearLabel );
+		} );
 	} );
 } );
 

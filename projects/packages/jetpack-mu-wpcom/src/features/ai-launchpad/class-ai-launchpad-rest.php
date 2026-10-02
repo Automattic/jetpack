@@ -260,7 +260,13 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 							'sanitize_callback' => 'sanitize_textarea_field',
 						),
 						'locale'      => array(
-							'description'       => 'The user locale.',
+							'description'       => 'The site language the AI writes the drafts and page intros in.',
+							'type'              => 'string',
+							'default'           => 'en',
+							'sanitize_callback' => 'sanitize_text_field',
+						),
+						'ui_locale'   => array(
+							'description'       => 'The account language the AI writes the task subtitles in.',
 							'type'              => 'string',
 							'default'           => 'en',
 							'sanitize_callback' => 'sanitize_text_field',
@@ -339,21 +345,34 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 					'callback'            => array( $this, 'update_tailored' ),
 					'permission_callback' => array( $this, 'can_write' ),
 					'args'                => array(
-						'source'      => array(
+						'source'        => array(
 							'description' => 'Whether the payload came from the AI or the deterministic fallback. Query parameter; the JSON body must match the agent output schema exactly.',
 							'type'        => 'string',
 							'enum'        => array( 'ai', 'fallback' ),
 							'default'     => 'ai',
 						),
-						'duration_ms' => array(
+						'duration_ms'   => array(
 							'description' => 'Client-measured tailoring duration in milliseconds, for the tailored Logstash record.',
 							'type'        => 'integer',
 							'minimum'     => 0,
 						),
-						'attempts'    => array(
+						'attempts'      => array(
 							'description' => 'How many jetpack-ai-query attempts the client made, for the tailored Logstash record.',
 							'type'        => 'integer',
 							'minimum'     => 0,
+						),
+						'ai_session_id' => array(
+							'description'       => 'Client-minted id for this tailoring run, carried by every Tracks event fired afterwards.',
+							'type'              => 'string',
+							'default'           => '',
+							// A UUID is 36 characters; 64 leaves headroom without letting an
+							// oversized value reach the option, the inline script, and every
+							// Tracks event. sanitize_key() doesn't bound length on its own, so
+							// the validate_callback is what actually enforces maxLength here —
+							// WP only runs per-arg schema validation when one is wired in.
+							'maxLength'         => 64,
+							'sanitize_callback' => 'sanitize_key',
+							'validate_callback' => 'rest_validate_request_arg',
 						),
 					),
 				),
@@ -444,6 +463,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'checklist_statuses' => $checklist_statuses,
 			'dismissed'          => (bool) get_option( self::OPTION_DISMISSED, false ),
 			'is_eligible'        => true,
+			// The language this request is translated into, which is the reader's own. Task subtitles
+			// follow it, since they are read here and never published.
+			'user_language'      => determine_locale(),
 			// Site context the client needs for the launch-task CTA, the preview thumbnail/title, and wizard prefill.
 			'site'               => array(
 				'url'         => home_url(),
@@ -451,6 +473,9 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 				'description' => get_bloginfo( 'description' ),
 				// Block themes open the Site Editor; classic themes fall back to the Customizer.
 				'edit_url'    => wp_is_block_theme() ? admin_url( 'site-editor.php' ) : admin_url( 'customize.php' ),
+				// The site language, which the AI output and the copy written into pages follow.
+				'language'    => wpcom_ai_launchpad_site_locale(),
+				'copy'        => wpcom_ai_launchpad_site_copy(),
 			),
 		);
 	}
@@ -703,6 +728,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'site_name'    => $request['site_name'],
 			'description'  => $request['description'],
 			'locale'       => $request['locale'],
+			'ui_locale'    => $request['ui_locale'],
 			'generated_at' => time(),
 		);
 
@@ -797,6 +823,12 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 			'payload'      => $payload,
 		);
 
+		// Omitted rather than stored empty, so the props builder reports "none" for a write
+		// that carried no session id (a client from before this shipped, or a direct call).
+		if ( '' !== $request['ai_session_id'] ) {
+			$ai_output['ai_session_id'] = $request['ai_session_id'];
+		}
+
 		update_option( self::OPTION_AI_OUTPUT, $ai_output, false );
 
 		// A fresh list must not inherit the previous one's skips or "done" flag.
@@ -865,8 +897,8 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	 * rendered ids, and their delta — `dropped` is what the unknown-id filter and the visibility gate removed, `added`
 	 * is what synthetics and the backfill floor put in. The delta is diffed post-remap so a selected id that renders
 	 * under its working equivalent does not read as a drop plus an addition. The raw wizard title/description are
-	 * never included, and the inferred fields that can echo the user's own words near-verbatim are stripped:
-	 * `brand_name` restates the title and `tagline` is drafted from the description.
+	 * never included, and the one inferred field that echoes the user's own words near-verbatim is stripped:
+	 * `brand_name` restates the title.
 	 *
 	 * @param array         $ai_output    The persisted AI output envelope.
 	 * @param string[]      $raw_task_ids The AI's selected ids before the unknown-id filter.
@@ -878,7 +910,7 @@ class AI_Launchpad_REST extends WP_REST_Controller {
 	private function tailoring_log_extra( $ai_output, $raw_task_ids, $duration_ms = null, $attempts = null, $rendered_ids = null ) {
 		// Schema-validated on the write path, so `inferred` is always present here.
 		$inferred = $ai_output['payload']['inferred'];
-		unset( $inferred['brand_name'], $inferred['tagline'] );
+		unset( $inferred['brand_name'] );
 
 		$rendered = $rendered_ids ?? array_column( $this->get_current_tasks(), 'id' );
 		$remapped = array_unique( array_map( 'wpcom_ai_launchpad_remap_task_id', $raw_task_ids ) );

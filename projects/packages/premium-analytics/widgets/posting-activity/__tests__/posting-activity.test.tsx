@@ -2,44 +2,16 @@
  * External dependencies
  */
 import { useStatsStreak } from '@jetpack-premium-analytics/data';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { getSettings, setSettings } from '@wordpress/date';
 /**
  * Internal dependencies
  */
 import PostingActivityRender from '../render';
 import type { ReportParams } from '@jetpack-premium-analytics/data';
-import type { HeatmapTooltipData } from '@jetpack-premium-analytics/widgets-toolkit';
-import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mockWordPressRoute );
-
-jest.mock( '@jetpack-premium-analytics/externals', () => {
-	const actual = jest.requireActual( '@jetpack-premium-analytics/externals' );
-
-	return {
-		...actual,
-		// Render the widget's own tooltip too: after the shared `CalendarHeatmapTooltip`
-		// landed, the copy each widget passes in is the only part still its own.
-		HeatmapChartUnresponsive: ( {
-			renderTooltip,
-		}: {
-			renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
-		} ) => (
-			<>
-				<div data-testid="heatmap" />
-				<div data-testid="tooltip-empty">
-					{ renderTooltip?.( { value: null, cellLabel: 'Mon, Jun 2, 2025', row: 0, column: 0 } ) }
-				</div>
-				<div data-testid="tooltip-singular">
-					{ renderTooltip?.( { value: 1, cellLabel: 'Tue, Jun 3, 2025', row: 1, column: 0 } ) }
-				</div>
-				<div data-testid="tooltip-plural">
-					{ renderTooltip?.( { value: 3, cellLabel: 'Wed, Jun 4, 2025', row: 2, column: 0 } ) }
-				</div>
-			</>
-		),
-	};
-} );
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -47,7 +19,20 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 } ) );
 
 const mockUseStatsStreak = jest.mocked( useStatsStreak );
-const REPORT_PARAMS = {
+
+// The window is resolved from "now" in the site timezone, so pin both. UTC+14
+// at noon UTC is already the 15th, and no CI zone reaches it, so a window read
+// off the viewer's clock would fail here whatever the process zone (WOOA7S-2111).
+const NOW = new Date( '2026-09-14T12:00:00.000Z' );
+const SITE_TIMEZONE = {
+	string: 'Pacific/Kiritimati',
+	offset: 14,
+	offsetFormatted: '14',
+	abbr: 'LINT',
+};
+
+// The host still injects the section's range; the card must ignore it.
+const HOST_REPORT_PARAMS = {
 	from: '2025-06-01',
 	to: '2025-06-30',
 	interval: 'day',
@@ -55,7 +40,7 @@ const REPORT_PARAMS = {
 
 function streakResult( overrides: Record< string, unknown > = {} ) {
 	return {
-		data: { '2025-06-02': 1 },
+		data: { '2025-10-03': 2, '2026-09-15': 1 },
 		isLoading: false,
 		isFetching: false,
 		isError: false,
@@ -65,51 +50,107 @@ function streakResult( overrides: Record< string, unknown > = {} ) {
 	} as unknown as ReturnType< typeof useStatsStreak >;
 }
 
-function setViewportWidth( width: number ) {
-	Object.defineProperty( window, 'innerWidth', { value: width, configurable: true } );
+function renderWidget() {
+	return render( <PostingActivityRender attributes={ { reportParams: HOST_REPORT_PARAMS } } /> );
 }
 
 describe( 'PostingActivityWidget', () => {
-	const originalInnerWidth = window.innerWidth;
+	let defaultSettings: ReturnType< typeof getSettings >;
 
 	beforeEach( () => {
 		mockUseStatsStreak.mockReset();
 		mockUseStatsStreak.mockReturnValue( streakResult() );
-		setViewportWidth( 1024 );
+		defaultSettings = getSettings();
+		setSettings( { ...defaultSettings, timezone: SITE_TIMEZONE } );
+		jest.useFakeTimers();
+		jest.setSystemTime( NOW );
 	} );
 
 	afterEach( () => {
-		setViewportWidth( originalInnerWidth );
+		jest.useRealTimers();
+		setSettings( defaultSettings );
 	} );
 
-	it( 'keeps the post wording and leads the tooltip with the count', () => {
-		render( <PostingActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
-
-		// The empty label and the plural forms are this widget's own; the shared
-		// component only decides that the count comes before the date.
-		expect( screen.getByTestId( 'tooltip-empty' ) ).toHaveTextContent( 'No postsMon, Jun 2, 2025' );
-		expect( screen.getByTestId( 'tooltip-singular' ) ).toHaveTextContent(
-			'1 postTue, Jun 3, 2025'
-		);
-		expect( screen.getByTestId( 'tooltip-plural' ) ).toHaveTextContent( '3 postsWed, Jun 4, 2025' );
-	} );
-
-	it( 'updates the shared history window when the viewport is resized', () => {
-		render( <PostingActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+	it( "requests the last 12 months to the site's today, whatever range the host injects", () => {
+		renderWidget();
 
 		expect( mockUseStatsStreak.mock.calls[ 0 ][ 0 ] ).toMatchObject( {
-			startDate: '2023-06-30',
-			endDate: '2025-06-30',
+			from: expect.stringMatching( /^2025-10-01T/ ),
+			to: expect.stringMatching( /^2026-09-15T/ ),
+			max: 3000,
 		} );
+	} );
 
-		setViewportWidth( 2560 );
-		fireEvent.resize( window );
+	it( 'draws those months as one calendar grid, current month last, weeks from Monday', () => {
+		renderWidget();
 
-		const lastCall = mockUseStatsStreak.mock.calls[ mockUseStatsStreak.mock.calls.length - 1 ];
-		expect( lastCall[ 0 ] ).toMatchObject( {
-			startDate: '2021-06-28',
-			endDate: '2025-06-30',
-		} );
+		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+		const months = screen.getAllByTestId( 'heatmap-group-label' ).map( el => el.textContent );
+		expect( months ).toHaveLength( 12 );
+		expect( months[ 0 ] ).toBe( 'Oct' );
+		expect( months[ 11 ] ).toBe( 'Sep' );
+		expect( screen.getByRole( 'gridcell', { name: 'Tue, Sep 15, 2026: 1' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'gridcell', { name: /Sep 16, 2026/ } ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'Fewer posts' ) ).toBeInTheDocument();
+	} );
+
+	it( 'steps the arrow keys day by day across a month boundary', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+		const grid = screen.getByRole( 'grid', { name: 'Monthly posting activity' } );
+		const selectedName = () =>
+			within( grid )
+				.getAllByRole( 'gridcell' )
+				.find( cell => cell.id === grid.getAttribute( 'aria-activedescendant' ) )
+				?.getAttribute( 'aria-label' );
+
+		grid.focus();
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Wed, Oct 1, 2025: No data' );
+		await user.keyboard( '{ArrowDown}{ArrowDown}{ArrowDown}{ArrowDown}{ArrowRight}{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Fri, Oct 31, 2025: No data' );
+		await user.keyboard( '{ArrowRight}' );
+		expect( selectedName() ).toBe( 'Sat, Nov 1, 2025: No data' );
+	} );
+
+	it( 'keeps the post wording and titles the tooltip with the date', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		renderWidget();
+
+		await user.hover( screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: 2' } ) );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Fri, Oct 3, 20252 posts' );
+
+		await user.hover( screen.getByRole( 'gridcell', { name: 'Tue, Sep 15, 2026: 1' } ) );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Tue, Sep 15, 20261 post' );
+
+		await user.hover( screen.getByRole( 'gridcell', { name: 'Sat, Oct 4, 2025: No data' } ) );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveTextContent( 'Sat, Oct 4, 2025No posts' );
+	} );
+
+	it( 'draws the calendar, every day empty, for a year without posts', () => {
+		mockUseStatsStreak.mockReturnValue( streakResult( { data: {} } ) );
+		renderWidget();
+
+		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+		expect(
+			screen.getByRole( 'gridcell', { name: 'Fri, Oct 3, 2025: No data' } )
+		).toBeInTheDocument();
+	} );
+
+	it( 'keeps the calendar when a refetch fails over a response', () => {
+		mockUseStatsStreak.mockReturnValue(
+			streakResult( { data: {}, isError: true, error: new Error( 'boom' ) } )
+		);
+		renderWidget();
+
+		expect( screen.getByRole( 'grid', { name: 'Monthly posting activity' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows the month blocks while loading', () => {
+		mockUseStatsStreak.mockReturnValue( streakResult( { data: undefined, isLoading: true } ) );
+		renderWidget();
+
+		expect( screen.getAllByTestId( 'skeleton-month' ) ).toHaveLength( 12 );
 	} );
 
 	it( 'shows a permission error without a retry action', () => {
@@ -120,8 +161,7 @@ describe( 'PostingActivityWidget', () => {
 				error: { error: 'unauthorized', status: 403 },
 			} )
 		);
-
-		render( <PostingActivityRender attributes={ { reportParams: REPORT_PARAMS } } /> );
+		renderWidget();
 
 		expect( screen.getByText( "You don't have access to this data." ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();

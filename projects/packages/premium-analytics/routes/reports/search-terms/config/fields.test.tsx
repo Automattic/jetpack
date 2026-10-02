@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import { getSearchTermsFields } from './fields';
-import type { SearchTermRow } from './aggregate';
+import type { SearchTermRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const row: SearchTermRow = {
 	id: 'term:jetpack stats',

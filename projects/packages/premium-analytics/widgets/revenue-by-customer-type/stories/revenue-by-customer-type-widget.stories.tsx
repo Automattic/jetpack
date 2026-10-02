@@ -36,8 +36,7 @@ type RevenueByCustomerTypeStoryProps = RevenueByCustomerTypeRenderProps &
 	RevenueByCustomerTypeStoryControls;
 
 interface RevenueByCustomerTypeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		RevenueByCustomerTypeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, RevenueByCustomerTypeStoryControls {}
 
 function getRevenueByCustomerTypeAttributes(
 	withComparison = false,

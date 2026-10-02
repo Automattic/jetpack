@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the connection create/update permission checks.
+ * Tests for the Publicize connections REST controller.
  *
  * @package automattic/jetpack-publicize
  */
@@ -28,6 +28,13 @@ class Connections_Controller_Test extends TestCase {
 	 * @var string
 	 */
 	private const ROUTE = '/wpcom/v2/publicize/connections';
+
+	/**
+	 * The WPCOM-to-site sync route.
+	 *
+	 * @var string
+	 */
+	private const SYNC_ROUTE = '/jetpack/v4/publicize/connections/sync';
 
 	/**
 	 * The user IDs, keyed by role.
@@ -86,6 +93,8 @@ class Connections_Controller_Test extends TestCase {
 		add_action( 'rest_api_init', array( $this->controller, 'register_routes' ) );
 
 		do_action( 'rest_api_init' );
+
+		add_filter( 'pre_http_request', array( $this, 'block_http_requests' ) );
 	}
 
 	/**
@@ -95,6 +104,8 @@ class Connections_Controller_Test extends TestCase {
 		parent::tearDown();
 
 		wp_set_current_user( 0 );
+
+		remove_filter( 'pre_http_request', array( $this, 'block_http_requests' ) );
 
 		// Leaving this registered would add the routes to every later test in the process.
 		remove_action( 'rest_api_init', array( $this->controller, 'register_routes' ) );
@@ -159,6 +170,105 @@ class Connections_Controller_Test extends TestCase {
 		wp_set_current_user( $this->user_ids['editor'] );
 
 		$this->assertTrue( $this->controller->create_item_permissions_check( $this->create_request( true ) ) );
+	}
+
+	/**
+	 * The sync route is registered.
+	 */
+	public function test_sync_route_is_registered() {
+		$this->assertArrayHasKey( self::SYNC_ROUTE, $this->server->get_routes() );
+	}
+
+	/**
+	 * The sync route rejects requests not signed with a Jetpack user token.
+	 */
+	public function test_sync_requires_user_token_signature() {
+		$request = new WP_REST_Request( 'POST', self::SYNC_ROUTE );
+		$request->set_body_params( array( 'connections' => array() ) );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertSame( 401, $response->get_status() );
+
+		wp_set_current_user( $this->user_ids['editor'] );
+
+		$response = $this->server->dispatch( $request );
+		$this->assertSame( 403, $response->get_status() );
+	}
+
+	/**
+	 * Receiving updated connections caches them, like the XML-RPC method does.
+	 */
+	public function test_receive_updated_connections_caches_the_connections() {
+		$connections = array(
+			'facebook' => array(
+				'12345' => array(
+					'connection_data' => array( 'user_id' => 1 ),
+				),
+			),
+		);
+
+		$request = new WP_REST_Request( 'POST', self::SYNC_ROUTE );
+		$request->set_param( 'connections', $connections );
+
+		$response = $this->controller->receive_updated_connections( $request );
+
+		$this->assertTrue( $response->get_data() );
+		$this->assertSame( $connections, get_transient( Publicize::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT ) );
+	}
+
+	/**
+	 * A connection without a usable user ID would read as shared with everyone, so it is dropped.
+	 */
+	public function test_receive_updated_connections_drops_connections_without_a_user_id() {
+		$shared = array( 'connection_data' => array( 'user_id' => 0 ) );
+		$owned  = array( 'connection_data' => array( 'user_id' => 5 ) );
+
+		$request = new WP_REST_Request( 'POST', self::SYNC_ROUTE );
+		$request->set_param(
+			'connections',
+			array(
+				'facebook' => array(
+					'1' => $shared,
+					'2' => $owned,
+					'3' => array( 'connection_data' => array( 'token_id' => 9 ) ),
+					'4' => array( 'connection_data' => array( 'user_id' => null ) ),
+					'5' => array( 'connection_data' => 'not-an-array' ),
+					'6' => array(),
+				),
+				'tumblr'   => 'not-an-array',
+			)
+		);
+
+		$response = $this->controller->receive_updated_connections( $request );
+
+		$this->assertTrue( $response->get_data() );
+		$this->assertSame(
+			array(
+				'facebook' => array(
+					1 => $shared,
+					2 => $owned,
+				),
+			),
+			get_transient( Publicize::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT )
+		);
+	}
+
+	/**
+	 * An empty payload means the site has no connections left, and is stored as such.
+	 */
+	public function test_receive_updated_connections_accepts_an_empty_payload() {
+		$this->assertTrue( $this->publicize->receive_updated_publicize_connections( '' ) );
+
+		$this->assertSame( array(), get_transient( Publicize::JETPACK_SOCIAL_CONNECTIONS_TRANSIENT ) );
+	}
+
+	/**
+	 * Short-circuit any outgoing HTTP request, so tests stay offline.
+	 *
+	 * @return \WP_Error
+	 */
+	public function block_http_requests() {
+		return new \WP_Error( 'http_request_blocked', 'HTTP requests are blocked in tests.' );
 	}
 
 	/**

@@ -17,6 +17,27 @@ type Result = {
 };
 
 /**
+ * The shared `/site/backup/size` query.
+ *
+ * Exported so the storage meter can read the same response rather than
+ * issuing a second one. Two `useQuery` calls on one key already dedupe
+ * the *request*, but only while their options agree — a second observer
+ * with a shorter `staleTime` considers the cached entry stale on mount
+ * and refetches it. Sharing one definition is what makes that impossible
+ * rather than merely unlikely.
+ *
+ * @return The raw React Query result.
+ */
+export function useSiteSizeQuery() {
+	return useQuery( {
+		queryKey: keys.siteSize(),
+		queryFn: fetchSiteSize,
+		staleTime: SITE_SIZE_STALE_MS,
+		enabled: useCanQueryWpcom(),
+	} );
+}
+
+/**
  * React Query hook exposing WPCOM's "backups stopped" flag.
  *
  * The legacy dashboard reads the same flag, but only as a side effect of
@@ -32,12 +53,7 @@ type Result = {
  * @return The stopped flag and its loading state.
  */
 export function useSiteSize(): Result {
-	const query = useQuery( {
-		queryKey: keys.siteSize(),
-		queryFn: fetchSiteSize,
-		staleTime: SITE_SIZE_STALE_MS,
-		enabled: useCanQueryWpcom(),
-	} );
+	const query = useSiteSizeQuery();
 
 	// `ok` is WPCOM's own success flag inside a 200 response; without it
 	// the sibling fields carry no meaning.

@@ -1,6 +1,7 @@
 import { constants as fsconstants, createReadStream } from 'fs';
 import fs from 'fs/promises';
 import { once } from 'node:events';
+import os from 'node:os';
 import { createInterface as rlcreateInterface } from 'node:readline';
 import npath from 'path';
 import chalk from 'chalk';
@@ -44,7 +45,7 @@ export function builder( yargs ) {
 		.option( 'concurrency', {
 			type: 'number',
 			description: 'Maximum number of build tasks to run at once.',
-			default: Infinity,
+			default: os.availableParallelism(),
 			coerce: coerceConcurrency,
 		} )
 		.option( 'deps', {

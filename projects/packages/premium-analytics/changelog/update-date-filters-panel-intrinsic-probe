@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Date filters panel: recover the full preset labels when space returns in the dashboard section header, instead of staying abbreviated.

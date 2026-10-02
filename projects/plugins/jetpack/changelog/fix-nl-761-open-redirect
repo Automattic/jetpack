@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Harden the subscriber authentication endpoint so it only redirects within the current site.

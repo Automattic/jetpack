@@ -5,6 +5,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.4.22] - 2026-09-29
+### Changed
+- Internal updates.
+
+## [1.4.21] - 2026-09-28
+### Changed
+- Update dependencies. [#52691]
+
+## [1.4.20] - 2026-09-21
+### Changed
+- Update package dependencies. [#52187]
+
+## [1.4.19] - 2026-09-15
+### Changed
+- Update dependencies. [#52269]
+- Update package dependencies. [#52297]
+
+## [1.4.18] - 2026-09-09
+### Changed
+- Internal updates.
+
+## [1.4.17] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
+## [1.4.16] - 2026-09-01
+### Changed
+- Update package dependencies. [#51303] [#51802]
+
+## [1.4.15] - 2026-08-20
+### Changed
+- Update dependencies. [#51407]
+
 ## [1.4.14] - 2026-08-10
 ### Changed
 - Update package dependencies. [#50509]
@@ -252,6 +285,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - Updated dependencies. [#39754]
 
+[1.4.22]: https://github.com/Automattic/jetpack-scan/compare/v1.4.21...v1.4.22
+[1.4.21]: https://github.com/Automattic/jetpack-scan/compare/v1.4.20...v1.4.21
+[1.4.20]: https://github.com/Automattic/jetpack-scan/compare/v1.4.19...v1.4.20
+[1.4.19]: https://github.com/Automattic/jetpack-scan/compare/v1.4.18...v1.4.19
+[1.4.18]: https://github.com/Automattic/jetpack-scan/compare/v1.4.17...v1.4.18
+[1.4.17]: https://github.com/Automattic/jetpack-scan/compare/v1.4.16...v1.4.17
+[1.4.16]: https://github.com/Automattic/jetpack-scan/compare/v1.4.15...v1.4.16
+[1.4.15]: https://github.com/Automattic/jetpack-scan/compare/v1.4.14...v1.4.15
 [1.4.14]: https://github.com/Automattic/jetpack-scan/compare/v1.4.13...v1.4.14
 [1.4.13]: https://github.com/Automattic/jetpack-scan/compare/v1.4.12...v1.4.13
 [1.4.12]: https://github.com/Automattic/jetpack-scan/compare/v1.4.11...v1.4.12

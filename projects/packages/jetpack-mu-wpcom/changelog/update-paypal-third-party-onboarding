@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+PayPal Payment Buttons: add platform routes that look up referred sellers and make Payment Links calls on their behalf.

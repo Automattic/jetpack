@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Tiled Gallery: stop routing images through the external Photon domain on VIP sites when galleries are saved, and add a `jetpack_skip_photon_domain` filter to control it. Galleries published before this change keep their existing image URLs until they are saved again.

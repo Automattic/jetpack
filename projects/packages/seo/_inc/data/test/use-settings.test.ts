@@ -21,6 +21,7 @@ const SEED: SettingsResponse = {
 	verification_tools_active: true,
 	verification: { google: '', bing: '', pinterest: '', yandex: '', facebook: '' },
 	search_engines_visible: true,
+	site_is_private: false,
 	sitemap_active: false,
 	sitemap_url: '',
 	canonical_active: false,

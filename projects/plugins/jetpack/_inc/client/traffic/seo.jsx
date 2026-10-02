@@ -26,6 +26,8 @@ import {
 	getSiteIcon,
 	isSeoEnhancerAvailable,
 	getSiteRepresentativeImage,
+	isAiEnabled,
+	isAiSeoEnabled,
 } from 'state/initial-state';
 import { siteHasFeature } from 'state/site';
 import { isFetchingPluginsData, isPluginActive } from 'state/site/plugins';
@@ -187,12 +189,16 @@ export const SEO = withModuleSettingsFormHelpers(
 						'Button caption',
 						'jetpack',
 						/* dummy arg to avoid bad minification */ 0
-				  );
+					);
 
 			return (
-				<SimpleNotice status="is-info" showDismiss={ false } className="jp-seo-optin-banner">
+				<SimpleNotice
+					status="is-info"
+					showDismiss={ false }
+					className="jp-seo-optin-banner"
+					title={ __( 'SEO has a new home', 'jetpack' ) }
+				>
 					<div className="jp-seo-optin-banner__content">
-						<strong>{ __( 'SEO has a new home', 'jetpack' ) }</strong>
 						<p>
 							{ __(
 								'Manage all of your search engine optimization from the redesigned Jetpack SEO dashboard.',
@@ -232,7 +238,7 @@ export const SEO = withModuleSettingsFormHelpers(
 								'Button caption',
 								'jetpack',
 								/* dummy arg to avoid bad minification */ 0
-						  ) }
+							) }
 				</Button>
 			);
 		};
@@ -263,6 +269,7 @@ export const SEO = withModuleSettingsFormHelpers(
 				return acc;
 			}, [] );
 			const hasConflictingSeoPlugin = conflictingSeoPlugins.length > 0;
+			const optInBanner = this.seoOptInBanner();
 
 			const frontPageMetaCharCountClasses = clsx( {
 				'jp-seo-front-page-description-count': true,
@@ -284,7 +291,18 @@ export const SEO = withModuleSettingsFormHelpers(
 					saveDisabled={ this.props.isSavingAnyOption( this.constants.moduleOptionsArray ) }
 					hideButton={ hasConflictingSeoPlugin || ! hasSeoTools }
 				>
-					{ this.seoOptInBanner() }
+					{ optInBanner && <div className="jp-settings-card__notice">{ optInBanner }</div> }
+					{ hasSeoTools && hasConflictingSeoPlugin && (
+						<div className="jp-settings-card__notice">
+							<SimpleNotice showDismiss={ false }>
+								{ sprintf(
+									/* translators: %s is the name of conflicting SEO plugin */
+									__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
+									conflictingSeoPlugins[ 0 ].name
+								) }
+							</SimpleNotice>
+						</div>
+					) }
 					{ hasSeoTools && (
 						<SettingsGroup
 							hasChild
@@ -296,17 +314,9 @@ export const SEO = withModuleSettingsFormHelpers(
 									'jetpack'
 								),
 								link: getRedirectUrl( 'jetpack-support-seo-tools' ),
+								wpcomLink: 'https://wordpress.com/support/seo/seo-tools/',
 							} }
 						>
-							{ hasConflictingSeoPlugin && (
-								<SimpleNotice showDismiss={ false }>
-									{ sprintf(
-										/* translators: %s is the name of conflicting SEO plugin */
-										__( 'Your SEO settings are managed by the following plugin: %s', 'jetpack' ),
-										conflictingSeoPlugins[ 0 ].name
-									) }
-								</SimpleNotice>
-							) }
 							<p>
 								{ __(
 									'Take control of the way search engines represent your site. With Jetpack’s SEO tools you can preview how your content will look on popular search engines and change items like your site name and tagline in seconds.',
@@ -334,7 +344,9 @@ export const SEO = withModuleSettingsFormHelpers(
 										__nextHasNoMarginBottom={ true }
 										id="seo-enhancer"
 										disabled={
-											! this.props.getOptionValue( 'seo-tools' ) || ! this.props.hasSeoEnhancer
+											! this.props.getOptionValue( 'seo-tools' ) ||
+											! this.props.hasSeoEnhancer ||
+											! this.props.aiSeoEnabled
 										}
 										checked={
 											this.props.hasSeoEnhancer &&
@@ -350,6 +362,19 @@ export const SEO = withModuleSettingsFormHelpers(
 											</span>
 										}
 									/>
+									{ this.props.getOptionValue( 'seo-tools' ) && ! this.props.aiSeoEnabled && (
+										<span className="jp-form-setting-explanation">
+											{ this.props.aiEnabled
+												? __(
+														'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
+														'jetpack'
+													)
+												: __(
+														'Jetpack AI is turned off for this site, so nothing is generated. Your choice is saved and applies again when Jetpack AI is turned back on.',
+														'jetpack'
+													) }
+										</span>
+									) }
 								</FormFieldset>
 							) }
 						</SettingsGroup>
@@ -362,6 +387,8 @@ export const SEO = withModuleSettingsFormHelpers(
 								'jetpack'
 							),
 							link: getRedirectUrl( 'jetpack-support-canonical-urls' ),
+							wpcomLink:
+								'https://wordpress.com/support/seo/seo-tools/#add-canonical-urls-to-archive-pages',
 						} }
 					>
 						<ModuleToggle
@@ -514,5 +541,12 @@ export default connect( state => {
 		seoEnhancerAvailable: isSeoEnhancerAvailable( state ),
 		state,
 		hasSeoEnhancer: siteHasFeature( state, 'ai-seo-enhancer' ),
+		// The server-composed AI gate chain: with it closed nothing generates,
+		// so the control says so rather than accepting a change that cannot
+		// take effect.
+		aiEnabled: isAiEnabled( state ),
+		// Automatic generation sits under the AI SEO feature, so the toggle
+		// follows it rather than the site-wide switch alone.
+		aiSeoEnabled: isAiSeoEnabled( state ),
 	};
 } )( SEO );

@@ -51,6 +51,7 @@ require_once __DIR__ . '/customizer-fixes/customizer-fixes.php';
 
 require_once __DIR__ . '/class-wpcomsh-log.php';
 require_once __DIR__ . '/safeguard/plugins.php';
+require_once __DIR__ . '/plugin-conflicts-guardian-rollout.php';
 require_once __DIR__ . '/jetpack-token-error-header/class-atomic-record-jetpack-token-errors.php';
 
 /**
@@ -132,6 +133,7 @@ require_once __DIR__ . '/endpoints/rest-api.php';
 // Load feature plugins.
 require_once __DIR__ . '/feature-plugins/activitypub.php';
 require_once __DIR__ . '/feature-plugins/additional-css.php';
+require_once __DIR__ . '/feature-plugins/ai-launchpad.php';
 require_once __DIR__ . '/feature-plugins/autosave-revision.php';
 require_once __DIR__ . '/feature-plugins/blaze.php';
 require_once __DIR__ . '/feature-plugins/coblocks-mods.php';
@@ -148,7 +150,6 @@ require_once __DIR__ . '/feature-plugins/marketplace.php';
 require_once __DIR__ . '/feature-plugins/masterbar.php';
 require_once __DIR__ . '/feature-plugins/migrate-guru-canary.php';
 require_once __DIR__ . '/feature-plugins/nav-redesign.php';
-require_once __DIR__ . '/feature-plugins/podcast.php';
 require_once __DIR__ . '/feature-plugins/post-list.php';
 require_once __DIR__ . '/feature-plugins/class-wpcomsh-recovery-mode-sync.php';
 require_once __DIR__ . '/feature-plugins/sensei-pro-mods.php';
@@ -158,7 +159,6 @@ require_once __DIR__ . '/feature-plugins/stats.php';
 require_once __DIR__ . '/feature-plugins/woocommerce.php';
 require_once __DIR__ . '/feature-plugins/wordpress-mods.php';
 require_once __DIR__ . '/feature-plugins/wpcom-reader-link.php';
-require_once __DIR__ . '/feature-plugins/reprint-exporter-api.php';
 require_once __DIR__ . '/feature-plugins/featured-image-in-email.php';
 
 /**

@@ -180,6 +180,60 @@ class Admin_Post_List_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Test that the cell links wherever the URL filter points it.
+	 *
+	 * @return void
+	 */
+	public function test_add_stats_post_table_cell_url_is_filterable() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Filtered Test Post',
+				'post_status' => 'publish',
+				'post_author' => 1,
+			)
+		);
+
+		global $wp_query;
+		$wp_query = $this->get_wp_query_mock( $post_id );
+
+		// Shaped like the real replacement: esc_url() encodes the `&` on output, so
+		// a URL without one would not exercise the cell's escaping at all.
+		$filtered_url = 'https://example.com/wp-admin/admin.php?page=analytics&p=%2Fpost%2F' . $post_id;
+		$received_url = '';
+		$received_id  = 0;
+		$filter       = function ( $url, $url_post_id ) use ( &$received_url, &$received_id, $filtered_url ) {
+			$received_url = $url;
+			$received_id  = $url_post_id;
+			return $filtered_url;
+		};
+		add_filter( 'jetpack_stats_post_list_column_url', $filter, 10, 2 );
+
+		$column_mock = $this->getMockBuilder( Admin_Post_List_Column::class )
+							->onlyMethods( array( 'get_stats' ) )
+							->getMock();
+		$column_mock->method( 'get_stats' )->willReturn(
+			$this->createStub( Automattic\Jetpack\Stats\WPCOM_Stats::class )
+		);
+
+		ob_start();
+		$column_mock->add_stats_post_table_cell( 'stats', $post_id );
+		$output = ob_get_clean();
+
+		remove_filter( 'jetpack_stats_post_list_column_url', $filter, 10 );
+
+		$this->assertStringContainsString(
+			'href="' . $filtered_url . '"',
+			html_entity_decode( $output, ENT_QUOTES, 'UTF-8' ),
+			'The filtered URL has to be the anchor target, not just present somewhere in the cell.'
+		);
+		$this->assertStringContainsString( 'admin.php?page=stats', $received_url, 'The filter receives the unfiltered stats URL.' );
+		$this->assertSame( $post_id, $received_id );
+
+		wp_delete_post( $post_id, true );
+		$wp_query = null;
+	}
+
+	/**
 	 * @return void
 	 */
 	public function test_add_stats_post_table_cell_with_no_stats() {

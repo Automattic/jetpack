@@ -36,6 +36,7 @@ export default function GrossSalesOverTimeRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="orders_value_gross"
+				seriesLabel={ __( 'Gross sales', 'jetpack-premium-analytics-pkg' ) }
 				emptyStateText={ __( 'No sales in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load gross sales. Please try again in a moment.",

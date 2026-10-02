@@ -40,7 +40,7 @@ class SearchResults extends Component {
 	};
 
 	hasFilterOptions() {
-		let widgets = [ ...this.props.widgets ];
+		let widgets = [ ...( this.props.widgets ?? [] ) ];
 		if ( this.props.widgetOutsideOverlay?.filters?.length > 0 ) {
 			widgets = [ this.props.widgetOutsideOverlay, ...widgets ];
 		}

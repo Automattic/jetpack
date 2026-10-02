@@ -1,11 +1,7 @@
 /**
- * Client-side CSV helpers.
- *
- * Mirrors the Jetpack Stats "Download CSV" model: serialize rows that are
- * already loaded in the browser (no backend round-trip) and hand the file to
- * the user. Serialization is a pure function so it can be unit tested; the
- * download step reuses the Blob + anchor idiom from Jetpack Forms
- * (`packages/forms/src/dashboard/components/export-responses/csv.tsx`).
+ * Client-side CSV helpers: pure serialization plus the Blob + anchor download idiom from
+ * Jetpack Forms (`packages/forms/src/dashboard/components/export-responses/csv.tsx`).
+ * Callers supply the rows, whether already loaded or fetched on click.
  */
 
 /**

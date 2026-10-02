@@ -16,6 +16,7 @@ import getManageYourPlanUrl from '../../utils/get-manage-your-plan-url';
 import getPurchasePlanUrl from '../../utils/get-purchase-plan-url';
 import { isLifetimePurchase } from '../../utils/is-lifetime-purchase';
 import { GoldenTokenTooltip } from '../golden-token/tooltip';
+import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 import type { FC } from 'react';
 
@@ -207,22 +208,20 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 		recordEvent( 'jetpack_myjetpack_activate_license_click' );
 	}, [ recordEvent ] );
 
-	let activateLicenceDescription: string;
+	/*
+	 * Avoid ternary as code minification will break translation function. :(
+	 * The unconditional initialiser is what keeps the two _x() calls separate. Collapsing
+	 * them fails the I18nCheckPlugin with "msgid argument is not a string literal", and
+	 * since that plugin only runs on production builds, it surfaces in CI rather than dev.
+	 */
+	let activateLicenceDescription: string = _x(
+		'Activate a license',
+		'Activate a license button text',
+		'jetpack-my-jetpack'
+	);
 	if ( ! isUserConnected ) {
 		activateLicenceDescription = _x(
 			'Activate a license (requires a user connection)',
-			'Activate a license button text',
-			'jetpack-my-jetpack'
-		);
-	} else if ( numberOfPurchases > 0 ) {
-		activateLicenceDescription = _x(
-			'Activate a new license',
-			'Activate a new license button text',
-			'jetpack-my-jetpack'
-		);
-	} else {
-		activateLicenceDescription = _x(
-			'Activate a license',
 			'Activate a license button text',
 			'jetpack-my-jetpack'
 		);
@@ -243,7 +242,7 @@ const PlanSectionFooter: FC< PlanSectionHeaderAndFooterProps > = ( { numberOfPur
 				<li className={ styles[ 'actions-list-item' ] }>
 					<Link
 						onClick={ viewIncludedFeaturesClickHandler }
-						href={ getMyJetpackUrl( '#/products?filter=included' ) }
+						href={ getMyJetpackUrl( `#${ getProductsSectionPath( '?filter=included' ) }` ) }
 					>
 						{ __( 'View included features', 'jetpack-my-jetpack' ) }
 					</Link>

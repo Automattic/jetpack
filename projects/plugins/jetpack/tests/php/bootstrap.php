@@ -23,6 +23,10 @@ if ( getenv( 'DOCKER_PHPUNIT_BASE_DIR' ) ) {
  */
 define( 'TESTING_IN_JETPACK', true );
 
+// tools/build-block-manifest.php builds a manifest on include unless it can see it is
+// under test, which needs a built _inc/blocks that the test suite never produces.
+define( 'DOING_TESTS', true );
+
 // Support for:
 // 1. `WORDPRESS_DEVELOP_DIR` environment variable.
 // 2. Plugin installed inside of WordPress.org developer checkout.
@@ -117,6 +121,7 @@ if ( '1' !== getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 
 require __DIR__ . '/lib/mock-functions.php';
 require __DIR__ . '/lib/trait-activates-ai-module.php';
+require __DIR__ . '/lib/trait-reads-block-availability.php';
 require __DIR__ . '/lib/CallableMock.php';
 require __DIR__ . '/_inc/lib/mocks/simplepie.php';
 require $test_root . '/includes/functions.php';

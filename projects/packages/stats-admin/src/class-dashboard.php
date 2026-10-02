@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Stats\Options as Stats_Options;
 
@@ -26,7 +27,8 @@ class Dashboard {
 	/**
 	 * Priority for the dashboard menu
 	 * For Jetpack sites: Jetpack uses 998 and 'Admin_Menu' uses 1000, so we need to use 999.
-	 * For simple site: the value is overriden in a child class with value 100000 to wait for all menus to be registered.
+	 *
+	 * Admin_Menu registers what it has queued at priority 1000, so this has to stay below it.
 	 *
 	 * @var int
 	 */
@@ -54,6 +56,9 @@ class Dashboard {
 	/**
 	 * Add a "Stats" top-level admin menu.
 	 *
+	 * Declares no `product` gate: that resolves false without the Jetpack plugin, which is
+	 * exactly when the standalone Stats plugin registers this page.
+	 *
 	 * @return void
 	 */
 	public function add_wp_admin_menu() {
@@ -66,18 +71,25 @@ class Dashboard {
 			return;
 		}
 
-		$page_suffix = add_menu_page(
-			__( 'Stats', 'jetpack-stats-admin' ),
-			_x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' ),
-			$this->get_capability(),
-			'stats',
-			array( $this, 'render' ),
-			'dashicons-chart-bar',
-			2
-		);
+		$page_title = __( 'Stats', 'jetpack-stats-admin' );
+		$menu_title = _x( 'Stats', 'product name shown in menu', 'jetpack-stats-admin' );
+		$capability = $this->get_capability();
+		$callback   = array( $this, 'render' );
+
+		// An older admin-ui, loaded first by another plugin, may predate add_top_level_menu().
+		if ( method_exists( Admin_Menu::class, 'add_top_level_menu' ) ) {
+			// The key the legacy Stats screen in the Jetpack plugin also declares, so hosts name Stats once.
+			$page_suffix = Admin_Menu::add_top_level_menu( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2, array( 'key' => 'jetpack-stats' ) );
+		} else {
+			$page_suffix = add_menu_page( $page_title, $menu_title, $capability, 'stats', $callback, 'dashicons-chart-bar', 2 );
+		}
 
 		if ( $page_suffix ) {
 			add_action( 'load-' . $page_suffix, array( $this, 'admin_init' ) );
+			// The dashboard renders full bleed, so core notices stacked above it look broken.
+			if ( method_exists( Admin_Menu::class, 'hide_core_admin_notices' ) ) {
+				add_action( 'load-' . $page_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) );
+			}
 		}
 	}
 
@@ -124,26 +136,34 @@ class Dashboard {
 				/>
 			</div>
 		</div>
-		<script>
-			jQuery(document).ready(function($) {
-				// Load SVG sprite.
-				$.get("https://widgets.wp.com/odyssey-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {
-					var div = document.createElement("div");
-					div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
-					div.style = 'display: none';
-					document.body.insertBefore(div, document.body.childNodes[0]);
-				});
-				// we intercept on all anchor tags and change it to hashbang style.
-				$("#wpcom").on('click', 'a', function (e) {
-					const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
-					if( link && link.startsWith( '/stats' ) ) {
-						location.hash = `#!${link}`;
-						return false;
-					}
-				});
-			});
-		</script>
 		<?php
+	}
+
+	/**
+	 * The dashboard bootstrap: load the icon sprite, and keep in-app links inside the dashboard.
+	 *
+	 * @return string
+	 */
+	private function get_bootstrap_script() {
+		return <<<'JS'
+jQuery(document).ready(function($) {
+	// Load SVG sprite.
+	$.get("https://widgets.wp.com/odyssey-stats/common/gridicons-506499ddac13811fee8e.svg", function(data) {
+		var div = document.createElement("div");
+		div.innerHTML = new XMLSerializer().serializeToString(data.documentElement);
+		div.style = 'display: none';
+		document.body.insertBefore(div, document.body.childNodes[0]);
+	});
+	// we intercept on all anchor tags and change it to hashbang style.
+	$("#wpcom").on('click', 'a', function (e) {
+		const link = e && e.currentTarget && e.currentTarget.attributes && e.currentTarget.attributes.href && e.currentTarget.attributes.href.value;
+		if( link && link.startsWith( '/stats' ) ) {
+			location.hash = `#!${link}`;
+			return false;
+		}
+	});
+});
+JS;
 	}
 
 	/**
@@ -158,6 +178,13 @@ class Dashboard {
 	 */
 	public function load_admin_scripts() {
 		( new Odyssey_Assets() )->load_admin_scripts( 'jp-stats-dashboard', 'build.min', array( 'config_variable_name' => 'jetpackStatsOdysseyAppConfigData' ) );
+
+		// The bootstrap runs on jQuery, which the Odyssey bundle does not depend on. It gets its own
+		// handle rather than jQuery being added to that bundle, which the dashboard widget shares
+		// and which has no use for it.
+		wp_register_script( 'jp-stats-dashboard-bootstrap', false, array( 'jquery' ), Main::VERSION, true );
+		wp_enqueue_script( 'jp-stats-dashboard-bootstrap' );
+		wp_add_inline_script( 'jp-stats-dashboard-bootstrap', $this->get_bootstrap_script() );
 
 		// The app is served from our CDN and so cannot bundle the connection package. Print the
 		// state Search and Protect print on their own pages, so it can read the connection status

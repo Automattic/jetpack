@@ -1,0 +1,51 @@
+.jetpack-comments__who {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.25em;
+}
+
+// Three classes deep and pinned, past a theme's `body.winter button:hover`.
+.jetpack-comments .jetpack-comments__who .jetpack-comments__chevron {
+	display: inline-flex;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	background: none !important;
+	color: inherit;
+	cursor: pointer;
+
+	svg {
+		inline-size: 20px;
+		block-size: 20px;
+		transition: transform 0.25s ease-in-out;
+	}
+}
+
+.jetpack-comments__who.is-open .jetpack-comments__chevron svg {
+	transform: rotate(180deg);
+}
+
+// The links slide down from under the box as the row opens and back up under
+// it as it closes. The negative margins give focus rings room in the clip.
+.jetpack-comments__options {
+	overflow: hidden;
+	margin-inline: -4px;
+	padding-inline: 4px;
+
+	// Its own height, not the row's, so the slide moves it the whole way and
+	// its bottom edge tracks the row's as both animate.
+	> div {
+		display: flex;
+		flex-wrap: wrap;
+		align-self: start;
+		gap: 0.25em 1em;
+		// Inset by the box's border and padding, to line up with the avatar.
+		padding: 0.5em calc(var(--jetpack-comments-pad) + 2px) 4px;
+		transform: translateY(-100%);
+		transition: transform 0.25s ease-in-out;
+	}
+
+	&.is-open > div {
+		transform: none;
+	}
+}

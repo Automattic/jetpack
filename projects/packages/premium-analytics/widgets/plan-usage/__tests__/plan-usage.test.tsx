@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { act, render, screen } from '@testing-library/react';
+import { act, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
@@ -132,18 +132,15 @@ describe( 'PlanUsageWidget', () => {
 		expect( screen.queryByText( /surpassed your limit/ ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'does not render the refetch overlay on the first populated render', async () => {
+	it( 'clears the loading state once the meter is populated', async () => {
 		render( <PlanUsageWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		// The overlay's spinner is the only `presentation`-role element on screen.
-		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'layers the loading overlay over the meter during a background refetch', async () => {
+	it( 'leaves the meter on screen through a background refetch (WOOA7S-1934)', async () => {
 		let resolveRefetch: ( value: unknown ) => void = () => {};
-		// First call populates the meter; the background refetch stays pending so
-		// the overlay is observable while stale figures remain visible.
 		mockApiFetch.mockResolvedValueOnce( PLAN_USAGE_RESPONSE ).mockImplementationOnce(
 			() =>
 				new Promise( resolve => {
@@ -154,22 +151,23 @@ describe( 'PlanUsageWidget', () => {
 		render( <PlanUsageWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'presentation', { hidden: true } ) ).not.toBeInTheDocument();
 
-		// Kick off a background refetch; placeholderData keeps the stale meter mounted.
 		await act( async () => {
 			queryClient.refetchQueries();
 		} );
 
-		await expect(
-			screen.findByRole( 'presentation', { hidden: true } )
-		).resolves.toBeInTheDocument();
+		// `aria-busy` lands after the same delay the skeleton used to, so waiting
+		// for it proves that window has elapsed.
+		await waitFor( () =>
+			expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 )
+		);
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( '6,200 / 10,000 views' ) ).toBeInTheDocument();
 
-		// Settle the pending refetch so the query resolves and the overlay clears.
 		await act( async () => {
 			resolveRefetch( PLAN_USAGE_RESPONSE );
 		} );
+		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders an unavailable state when the plan reports no limit', async () => {

@@ -1,7 +1,13 @@
 /**
  * External dependencies
  */
-import { BarChart, Stack, useGlobalChartsContext } from '@jetpack-premium-analytics/externals';
+import {
+	BarChart,
+	Stack,
+	getBucketInfo,
+	useGlobalChartsContext,
+	type TickResolution,
+} from '@jetpack-premium-analytics/externals';
 import {
 	formatDate,
 	formatMetricValue,
@@ -14,21 +20,24 @@ import { useCallback, useId, useMemo, useState } from 'react';
  * Internal dependencies
  */
 import { RESIZE_DEBOUNCE_MS } from '../../constants';
-import { isEmptyChartData, getFixedYAxis } from '../../helpers';
+import {
+	appendTooltipExtras,
+	formatTooltipPointLabel,
+	isEmptyChartData,
+	getFixedYAxis,
+	dateFormatForResolution,
+	resolveTooltipUnits,
+} from '../../helpers';
+import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
+import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
 import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
-import type { ComparativeDatePointDate } from '../chart-comparative-line/types';
+import type { ComparativeDatePointDate, TooltipExtraSeries } from '../chart-comparative-line/types';
 import type { TooltipStyle } from '../chart-tooltip';
 import type { ComponentProps } from 'react';
-
-/**
- * Default margin for charts.
- * Y-axis is on the left, so right margin is always 0.
- */
-const DEFAULT_MARGIN = { right: 0 };
 
 /**
  * Chart-area height (px) below which `compactWhenShort` degrades the chart to
@@ -37,18 +46,12 @@ const DEFAULT_MARGIN = { right: 0 };
  */
 const COMPACT_CHART_HEIGHT = 140;
 
-/**
- * Inferred types from BarChart.
- */
 type BarChartProps = ComponentProps< typeof BarChart >;
 type RenderTooltipParams = Parameters< NonNullable< BarChartProps[ 'renderTooltip' ] > >[ 0 ];
 
 /**
- * Props for the ComparativeBarChart component.
- *
- * Deliberately mirrors `ComparativeLineChartProps` so a consumer can swap the
- * two on one flag without reshaping its data. The one difference is that there
- * is no `styles` prop — see the component docblock for why.
+ * Deliberately mirrors `ComparativeLineChartProps` so a consumer can swap the two
+ * on one flag without reshaping its data. There is no `styles` prop — see below.
  */
 export type ComparativeBarChartProps = {
 	/**
@@ -57,18 +60,26 @@ export type ComparativeBarChartProps = {
 	 */
 	series: ComparativeBarChartSeries[];
 
-	/**
-	 * CSS class for the chart container.
-	 */
 	className?: string;
 
-	/**
-	 * Format configuration for chart values (Y-axis ticks and tooltips).
-	 */
+	/** Format for chart values: y-axis ticks and tooltips. */
 	dataFormat: DataFormat;
 
 	/** Named date format for the X-axis ticks. Uses the chart default when omitted. */
 	tickFormat?: DateFormatName;
+
+	/**
+	 * The series' bucket size. Declaring it lets the tick formatter pick its regime
+	 * from a known granularity instead of measuring the gaps between points, which a
+	 * single-bucket or DST-shortened series gives it no way to read.
+	 */
+	tickResolution?: TickResolution;
+
+	/**
+	 * Renders a point's date for a tooltip row, in the named format this chart
+	 * picked for it. Defaults to `formatDate`.
+	 */
+	formatTooltipDate?: ( date: Date, format: DateFormatName ) => string;
 
 	/**
 	 * Degrade to a sparkline (no y-axis, grid, or legend) when the chart area
@@ -76,22 +87,48 @@ export type ComparativeBarChartProps = {
 	 */
 	compactWhenShort?: boolean;
 
-	/**
-	 * Maximum chart width. Passed through to the underlying chart.
-	 */
 	maxWidth?: number;
+
+	/**
+	 * Chart identity the charts provider keys visibility on. Generated when
+	 * omitted; supply one that changes whenever `defaultHiddenSeries` should be
+	 * applied again.
+	 */
+	chartId?: string;
+
+	/**
+	 * Labels of the series to hide until the reader reveals them. Applied once
+	 * per `chartId`.
+	 */
+	defaultHiddenSeries?: readonly string[];
+
+	/**
+	 * Let the reader click legend items to show and hide series; the first item stays
+	 * locked so the chart is never emptied. Off by default: a chart drawing one metric
+	 * has nothing to compare.
+	 */
+	legendInteractive?: boolean;
+
+	/**
+	 * Series the tooltip reads out but the chart does not draw; see
+	 * `TooltipExtraSeries` for what listing one changes about the rows.
+	 */
+	tooltipExtras?: TooltipExtraSeries[];
+
+	/** Pointer-down on the plot, carrying the datum nearest the pointer. */
+	onPointerDown?: BarChartProps[ 'onPointerDown' ];
+
+	/** Pointer-up on the plot, carrying the datum nearest the pointer. */
+	onPointerUp?: BarChartProps[ 'onPointerUp' ];
+
+	/** Enter or Space on the keyboard-selected bar, carrying its datum. */
+	onDatumActivate?: BarChartProps[ 'onDatumActivate' ];
 };
 
 /**
  * A date-keyed bar chart with previous-period comparison, built on
- * `@automattic/charts` `BarChart`.
- *
- * Bar styling is left to the charts theme rather than passed in: the comparison
- * shadow's geometry is driven by the theme's `barStyles.widthFactor`, so
- * overriding fills here would decouple the shadow from the bar it shadows.
- * Colours are read back through `getElementStyles` only to tint the tooltip
- * swatches, matching what the chart drew. Reading the theme means this must be
- * rendered inside a `GlobalChartsProvider`, unlike `ComparativeLineChart`.
+ * `@automattic/charts` `BarChart`. Styling is left to the theme, whose
+ * `barStyles.widthFactor` drives the shadow's geometry — must render inside a `GlobalChartsProvider`.
  *
  * @param {ComparativeBarChartProps} props - The component props.
  * @return The rendered chart.
@@ -99,12 +136,25 @@ export type ComparativeBarChartProps = {
 export function ComparativeBarChart( {
 	series,
 	className,
+	chartId: providedChartId,
 	dataFormat,
 	tickFormat: xTickFormatType,
+	tickResolution,
+	formatTooltipDate = formatDate,
 	compactWhenShort = false,
 	maxWidth = Infinity,
+	defaultHiddenSeries,
+	legendInteractive = false,
+	tooltipExtras,
+	onPointerDown,
+	onPointerUp,
+	onDatumActivate,
 }: ComparativeBarChartProps ) {
-	const chartId = useId();
+	const tooltipDateFormat = dateFormatForResolution(
+		getBucketInfo( series, tickResolution ).displayResolution
+	);
+	const fallbackChartId = useId();
+	const chartId = providedChartId ?? fallbackChartId;
 	const { getElementStyles } = useGlobalChartsContext();
 
 	// The measured Stack fills its container (flex), so its height is independent
@@ -118,20 +168,19 @@ export function ComparativeBarChart( {
 	} );
 	const isCompact = compactWhenShort && chartAreaHeight < COMPACT_CHART_HEIGHT;
 
-	/**
-	 * Align comparison series dates to the primary series so both land in the
-	 * same band slot. Original dates are preserved in `realDate` for tooltips.
-	 */
+	// Aligning moves comparison dates onto the primary series' band slots; the
+	// originals survive in `realDate` for tooltips.
 	const alignedSeries = useMemo( () => alignSeriesDates( series ), [ series ] );
 
 	const isEmptyData = useMemo( () => isEmptyChartData( alignedSeries ), [ alignedSeries ] );
+	// An all-zero selected metric must not hide the extras that do have data.
+	const hasTooltipRows = useMemo(
+		() => ! isEmptyData || ! isEmptyChartData( tooltipExtras ?? [] ),
+		[ isEmptyData, tooltipExtras ]
+	);
 
-	/**
-	 * Tooltip swatches, resolved from the chart theme so they match the bars the
-	 * chart drew. The opacity matters: a comparison series shares its primary's
-	 * colour and is set apart only by the theme dimming it, so a swatch without
-	 * it renders the previous period as an identical twin of the current one.
-	 */
+	// The opacity matters: a comparison series shares its primary's colour, dimmed
+	// only by the theme — without it the swatch reads as an identical twin.
 	const seriesStyles = useMemo< TooltipStyle[] >(
 		() =>
 			alignedSeries.map( ( seriesData, index ) => {
@@ -141,50 +190,56 @@ export function ComparativeBarChart( {
 		[ alignedSeries, getElementStyles ]
 	);
 
-	/**
-	 * Y-axis formatter using dataFormat configuration, but with multipliers and
-	 * 0 decimals to keep tick strings short.
-	 */
+	// Multipliers keep the tick labels short.
 	const yTickFormat = useMemo(
 		() => ( value: number ) =>
-			formatMetricValue( value, dataFormat.type, {
-				useMultipliers: true,
-				decimals: 0,
-			} ),
+			formatMetricValue( value, dataFormat.type, { useMultipliers: true } ),
 		[ dataFormat ]
 	);
 
-	const xTickFormat = useCallback(
-		( date: number ) => formatDate( date, xTickFormatType ),
+	// `undefined` hands the axis to the chart's derived formatter; `formatDate`'s
+	// `medium` default would otherwise put full site-format dates on every tick.
+	const xTickFormat = useMemo(
+		() => ( xTickFormatType ? ( date: number ) => formatDate( date, xTickFormatType ) : undefined ),
 		[ xTickFormatType ]
 	);
 
-	/**
-	 * Label a tooltip row by its point's own date. Comparison points carry the
-	 * primary series' date for axis alignment, so read `realDate` when present
-	 * or the row would repeat the current period's date.
-	 */
+	const primarySeriesByGroup = useMemo( () => resolvePrimarySeriesByGroup( series ), [ series ] );
+	// A legend item names a metric; the solid mark against its previous-period twin
+	// is what tells the periods apart, so a metric's two periods always collapse.
+	const legendConfig = useMemo(
+		() => ( { collapseGroups: true, interactive: legendInteractive } ),
+		[ legendInteractive ]
+	);
+	const legendItems = useLockedPrimaryLegendItems( alignedSeries, legendConfig );
+
+	const tooltipUnits = useMemo(
+		() => resolveTooltipUnits( series, tooltipExtras ),
+		[ series, tooltipExtras ]
+	);
+
+	// Comparison points carry the primary's date for axis alignment, so read
+	// `realDate`.
 	const getTooltipLabel = useCallback(
-		( datum: { date?: Date; realDate?: Date }, _index: number, key: string ): string => {
+		(
+			datum: { date: Date; realDate?: Date },
+			_index: number,
+			key: string,
+			value: string | null,
+			rawValue: number | null
+		): string => {
 			const displayDate = datum.realDate ?? datum.date;
-			if ( ! displayDate ) {
-				return key;
-			}
-			return formatDate( displayDate );
+			const date = formatTooltipDate( displayDate, tooltipDateFormat );
+			const unit = tooltipUnits.get( key );
+			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[]
+		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	/**
-	 * Re-attach the hovered category's previous-period value to the tooltip data.
-	 *
-	 * The bar chart draws comparison series as a separate shadow layer and hands
-	 * its tooltip only the primary series, so a datum for the previous period
-	 * never reaches a custom renderer. Its own default tooltip compensates by
-	 * looking the pair up, but supplying `renderTooltip` replaces that default
-	 * outright — without this the shadow bar would be visible while its value
-	 * stayed unreadable, including to screen readers. The line chart needs no
-	 * equivalent: it passes every series to its tooltip.
+	 * Re-attaches the hovered category's previous-period value to the tooltip
+	 * data: the bar chart's default tooltip only carries the primary series, so
+	 * without this the shadow bar would be visible but its value unreadable.
 	 *
 	 * @param tooltipData - The tooltip data from the chart.
 	 * @return The same data with a previous-period entry appended when one exists.
@@ -206,9 +261,18 @@ export function ComparativeBarChart( {
 					continue;
 				}
 
+				// A hidden metric contributes no bar, so re-adding its shadow would put a
+				// series the reader chose not to see back in the tooltip.
+				const primaryLabel =
+					seriesData.group !== undefined
+						? primarySeriesByGroup.get( seriesData.group )?.label
+						: undefined;
+				if ( primaryLabel && ! datumByKey[ primaryLabel ] ) {
+					continue;
+				}
+
 				// Comparison dates were aligned onto the primary axis, so the hovered
-				// category matches on `date`; `realDate` still carries the true one and
-				// is what `getTooltipLabel` shows.
+				// category matches on `date`, not on `realDate`.
 				const paired = seriesData.data.find( point => point.date?.getTime() === hoveredTime );
 
 				if ( paired?.value != null ) {
@@ -218,42 +282,51 @@ export function ComparativeBarChart( {
 
 			return { ...tooltipData, datumByKey: augmented };
 		},
-		[ alignedSeries ]
+		[ alignedSeries, primarySeriesByGroup ]
 	);
 
+	// `seriesStyles` follows `alignedSeries`; the tooltip's rows do not, so pair
+	// them by key (see `ChartTooltip`'s `seriesKeys`).
+	const seriesKeys = useMemo( () => alignedSeries.map( item => item.label ), [ alignedSeries ] );
+
 	const renderTooltip = useCallback(
-		( params: RenderTooltipParams ) => (
-			<ChartTooltip
-				tooltipData={ withComparisonDatum( params.tooltipData ) }
-				dataFormat={ dataFormat }
-				seriesStyles={ seriesStyles }
-				indicatorType="rect"
-				getLabel={ getTooltipLabel }
-			/>
-		),
-		[ dataFormat, seriesStyles, getTooltipLabel, withComparisonDatum ]
+		( params: RenderTooltipParams ) => {
+			const { tooltipData, supplementaryRows } = appendTooltipExtras(
+				withComparisonDatum( params.tooltipData ),
+				tooltipExtras
+			);
+
+			return (
+				<ChartTooltip
+					tooltipData={ tooltipData }
+					dataFormat={ dataFormat }
+					seriesStyles={ seriesStyles }
+					seriesKeys={ seriesKeys }
+					indicatorType="rect"
+					layout="inline"
+					supplementaryRows={ supplementaryRows }
+					getLabel={ getTooltipLabel }
+				/>
+			);
+		},
+		[ dataFormat, seriesStyles, seriesKeys, getTooltipLabel, withComparisonDatum, tooltipExtras ]
 	);
 
 	/**
-	 * A pinned domain for percentage metrics and all-zero periods, with the left
-	 * margin its widest tick needs. Null lets the chart scale to the data.
+	 * A pinned domain for percentage metrics and all-zero periods. Null lets the
+	 * chart scale to the data.
 	 */
 	const fixedYAxis = useMemo(
-		() => getFixedYAxis( dataFormat.type, isEmptyData, yTickFormat ),
-		[ dataFormat.type, isEmptyData, yTickFormat ]
+		() => getFixedYAxis( dataFormat.type, isEmptyData ),
+		[ dataFormat.type, isEmptyData ]
 	);
 
 	const chartOptions = useMemo( () => {
 		const baseOptions = {
 			axis: {
 				x: {
-					// Omit the key entirely rather than passing `undefined`: the bar chart
-					// spreads these options over its own defaults, so an explicit
-					// `tickFormat: undefined` overwrites its `formatDateTick` and the axis
-					// falls back to raw `Date.toString()`. Staying conditional also keeps
-					// `formatDate`'s `medium` default from putting full site-format dates
-					// on every tick when no format was asked for.
-					...( xTickFormatType ? { tickFormat: xTickFormat } : {} ),
+					tickFormat: xTickFormat,
+					tickResolution,
 				},
 				y: {
 					tickFormat: yTickFormat,
@@ -268,16 +341,7 @@ export function ComparativeBarChart( {
 		}
 
 		return { ...baseOptions, yScale: { domain: fixedYAxis.domain } };
-	}, [ xTickFormat, xTickFormatType, yTickFormat, isCompact, fixedYAxis ] );
-
-	const margin = useMemo( () => {
-		// With the y-axis hidden, reclaim its reserved left margin for the bars.
-		if ( isCompact ) {
-			return { ...DEFAULT_MARGIN, left: 0 };
-		}
-
-		return fixedYAxis ? { ...DEFAULT_MARGIN, left: fixedYAxis.marginLeft } : DEFAULT_MARGIN;
-	}, [ isCompact, fixedYAxis ] );
+	}, [ xTickFormat, tickResolution, yTickFormat, isCompact, fixedYAxis ] );
 
 	return (
 		<Stack ref={ measureRef } direction="column" className={ clsx( styles.chart, className ) }>
@@ -286,7 +350,8 @@ export function ComparativeBarChart( {
 				className={ styles.chartContent }
 				data={ alignedSeries }
 				options={ chartOptions }
-				margin={ margin }
+				defaultHiddenSeries={ defaultHiddenSeries }
+				legend={ legendConfig }
 				maxWidth={ maxWidth }
 				gridVisibility={ isCompact ? 'none' : undefined }
 				resizeDebounceTime={ RESIZE_DEBOUNCE_MS }
@@ -294,15 +359,18 @@ export function ComparativeBarChart( {
 				// missing data. This draws it as a hairline stub instead.
 				showZeroValues
 				showLegend={ false }
-				withTooltips={ ! isEmptyData }
+				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }
+				onPointerDown={ onPointerDown }
+				onPointerUp={ onPointerUp }
+				onDatumActivate={ onDatumActivate }
 			>
-				{ /* Circle swatches, not the bar's own shape: the legend only needs to name
-				     the two date ranges — the solid bar against its translucent shadow is
-				     what tells the periods apart in the chart itself. */ }
+				{ /* Square swatches only name the metrics; the chart itself tells the periods apart. */ }
 				{ ! isCompact && (
 					<BarChart.Legend
-						shape="circle"
+						items={ legendItems }
+						interactive={ legendInteractive }
+						shape="rect"
 						className={ styles.legend }
 						itemClassName={ styles.legendItem }
 						itemStyles={ { margin: 0 } }
@@ -312,7 +380,7 @@ export function ComparativeBarChart( {
 							textOverflow: 'ellipsis',
 							margin: 0,
 						} }
-						shapeStyles={ { width: 8, height: 8, margin: 0 } }
+						shapeStyles={ { margin: 0 } }
 					/>
 				) }
 			</BarChart>

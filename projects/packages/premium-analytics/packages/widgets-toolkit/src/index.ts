@@ -2,8 +2,15 @@
  * Components
  */
 export {
+	AbbreviatedValue,
+	type AbbreviatedValueProps,
 	MetricDelta,
 	MetricTileGrid,
+	MetricTileGridSkeleton,
+	type MetricTileGridSkeletonProps,
+	MetricList,
+	type MetricListItem,
+	type MetricListProps,
 	MetricValue,
 	MetricWithComparison,
 	PeakDistribution,
@@ -14,9 +21,11 @@ export {
 	type ComparativeBarChartProps,
 	type ComparativeBarChartSeries,
 	DonutChart,
+	DonutChartSkeleton,
 	Legend,
 	ReportMetricWidget,
 	MetricTabsChart,
+	MetricTabsChartSkeleton,
 	type MetricTab,
 	type MetricTabDatum,
 	type MetricTabsChartProps,
@@ -28,9 +37,17 @@ export {
 	type WidgetRootContextValue,
 	type LegendItem,
 	type SeriesStyle,
+	type TooltipExtraSeries,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	type LeaderboardChartProps,
 	type LeaderboardChartData,
+	type LeaderboardSkeletonProps,
+	Leaderboard,
+	type LeaderboardDrillDown,
+	type LeaderboardProps,
+	type LeaderboardRowInput,
+	type LeaderboardStatus,
 	type LegendLabels,
 	LeaderboardLabel,
 	type LeaderboardLabelProps,
@@ -42,17 +59,26 @@ export {
 	type LeaderboardRowChartProps,
 	type LeaderboardRowMedia,
 	type LeaderboardRowProps,
-	type LeaderboardRowVariant,
 	BarChart,
+	BarChartSkeleton,
 	type BarChartProps,
 	type BarChartData,
 	type BarChartStyle,
 	WidgetLoadingOverlay,
 	AdaptiveCalendarHeatmap,
+	CalendarHeatmapPagerOverlay,
 	CalendarHeatmapTooltip,
 	type AdaptiveCalendarHeatmapChartProps,
 	type AdaptiveCalendarHeatmapProps,
+	type CalendarHeatmapPager,
+	type CalendarHeatmapPagerOverlayProps,
 	type CalendarHeatmapTooltipProps,
+	MonthCalendarHeatmap,
+	type MonthCalendarHeatmapProps,
+	MonthlyHeatmap,
+	type MonthlyHeatmapProps,
+	type MonthlyHeatmapRow,
+	type MonthlyHeatmapTarget,
 	ChartEmptyState,
 	type ChartEmptyStateProps,
 	WidgetState,
@@ -63,28 +89,66 @@ export {
 	type WidgetBackLinkProps,
 	WidgetFooter,
 	type WidgetFooterProps,
+	WidgetFooterLink,
+	type WidgetFooterLinkProps,
 	ReportLink,
 	type ReportLinkProps,
+	InfoTip,
+	type InfoTipProps,
 	PostTitleLink,
 	POST_URL_SEARCH_PARAM,
 	type PostTitleLinkProps,
 	PostDetailLink,
 	type PostDetailLinkProps,
+	HighlightField,
+	HighlightGroup,
+	type HighlightFieldProps,
+	type HighlightGroupProps,
 	LeaderboardPostLabel,
 	type LeaderboardPostLabelProps,
-	type LeaderboardPostLabelVariant,
 	PostHighlightCard,
+	PostHighlightCardSkeleton,
 	type PostHighlightCardMetric,
 	type PostHighlightCardProps,
 	VideoTitleLink,
 	type VideoTitleLinkProps,
 	SubscriberList,
+	SubscriberListSkeleton,
 	type SubscriberListItem,
 	type SubscriberListProps,
+	type SubscriberListSkeletonProps,
 	SemiCircleChart,
 	type SemiCircleChartData,
+	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
+	DetailPageLayout,
+	DetailPageSection,
+	DetailPageActions,
+	DetailPageBreadcrumbs,
+	DetailPageShell,
+	useDetailPageCustomize,
+	type DetailPageActionsProps,
+	type DetailPageBreadcrumbsProps,
+	type DetailPageCustomize,
+	type DetailPageHeaderSlots,
+	type DetailPageLayoutProps,
+	type DetailPageSectionProps,
+	type DetailPageShellProps,
+	FeedbackModal,
+	type FeedbackSource,
+	PageOptionsMenu,
+	type PageOptionsMenuProps,
+	ResetLayoutAction,
+	type ResetLayoutActionProps,
+	LocationsGeoChart,
+	type LocationsGeoChartProps,
+	type LocationsGeoFocusCountry,
+	type LocationsGeoMode,
+	type LocationsGeoRow,
+	ReportChartSection,
 	ReportDrilldownTable,
 	ReportErrorState,
+	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageSection,
 	ReportPageShell,
@@ -92,11 +156,15 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
 	useReportRetry,
 	buildReportMetricSeries,
 	type ReportChartMetric,
+	type ReportChartSectionProps,
 	type ReportDrilldownTableProps,
 	type ReportErrorStateProps,
+	type ReportLocationsMapProps,
 	type ReportPageLayoutProps,
 	type ReportPageSectionProps,
 	type ReportPageShellProps,
@@ -105,32 +173,77 @@ export {
 	type ReportPageTabsProps,
 	type ReportPerformanceChartProps,
 	type ReportRecordsTableProps,
+	ExporterCsvAction,
 	ReportCsvAction,
 	type ReportCsvActionProps,
+	ExporterCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
-	RowsCsvDownloadButton,
-	type RowsCsvDownloadButtonProps,
 	useReportCsvExport,
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,
 	WidgetDataTable,
 	type WidgetDataTableProps,
-	EARNINGS_HISTORY_VIEW,
+	EarningsHistoryList,
+	type EarningsHistoryListProps,
 	flattenEarningsBreakdown,
+	getEarningsStatus,
 	getWordAdsHistoryFields,
 	type EarningsHistoryRow,
+	AnnualHighlightsSkeleton,
+	GenericSkeleton,
+	HeatmapSkeleton,
+	MonthCalendarHeatmapSkeleton,
+	MetricSparklineSkeleton,
+	type MetricSparklineSkeletonProps,
+	SkeletonRoot,
+	type SkeletonRootProps,
 } from './components';
+
+/**
+ * Report CSV exports
+ */
+export {
+	aggregateAuthorRows,
+	aggregateClickRows,
+	aggregateSearchTermRows,
+	archivesCsvExporter,
+	authorsCsvExporter,
+	buildArchiveRows,
+	clicksCsvExporter,
+	fileDownloadsCsvExporter,
+	flattenReferrerRows,
+	getArchiveGroupLabel,
+	getArchiveTypeLabel,
+	getAuthorName,
+	getAuthorsReportQueryParams,
+	getPostsReportQueryParams,
+	getSummarizedReportQueryParams,
+	getVideosReportQueryParams,
+	postsPagesCsvExporter,
+	referrersCsvExporter,
+	searchTermsCsvExporter,
+	videosCsvExporter,
+	type ArchiveRow,
+	type AuthorRow,
+	type ClickRow,
+	type ReferrerRecord,
+	type SearchTermRow,
+} from './report-exports';
 
 /**
  * Constants
  */
-export { WOO_COLORS, COLOR_GRAY_100 } from './constants';
+export {
+	DASHBOARD_PREFERENCES_SCOPE,
+	DASHBOARD_SECTION_LAYOUTS_KEY,
+	WIDGET_ROW_LIMIT,
+} from './constants';
 
 /**
  * Widget edit fields
  */
-export { ReportParamsField, type ReportParamsFieldAttributes } from './fields';
+export type { ReportParamsFieldAttributes } from './fields';
 
 /**
  * Helpers and utilities
@@ -159,43 +272,62 @@ export {
 	type CsvDateRange,
 	getCombinedPeriodMax,
 	sharePercentage,
-	getVideoKey,
-	getVideoLabel,
-	toMaxRows,
 	describeError,
 	summaryCount,
 	toDay,
 	defaultPeriodForInterval,
 	buildMetricTab,
+	siteChartFormatting,
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
-	granularityAttributeField,
 	type ChartDisplayChartType,
-	type ChartGranularityOption,
+	CALENDAR_HEATMAP_CELL_GAP,
+	CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
+	compareOptionalNumbers,
+	formatEmailRate,
 	formatViewCount,
+	getKnownEmailRate,
+	isEmailRateKnown,
+	type EmailRateSignals,
+	MONTHS_IN_YEAR,
+	monthOrder,
+	type MonthKey,
+	MONTHLY_HEATMAP_METRICS,
+	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
+	resolveMonthlyHeatmapMetric,
+	type MonthlyHeatmapMetric,
+	monthlyHeatmapLifeStart,
+	monthRange,
+	yearRange,
+	type PeriodBounds,
 	buildDenseDaySeries,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
+	resolveCalendarHeatmapGridStart,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './helpers';
 
 /**
  * Hooks
  */
 export {
+	DashboardSectionProvider,
 	useAttributesWithSearchFallback,
 	useChartTheme,
+	useDashboardOriginSearch,
 	useElementSize,
 	type ElementSize,
+	useWidgetNavigationSearch,
 	useSegmentStyles,
 	useSeriesStyles,
-	useViewportWidth,
+	useStoredDetailLayout,
+	useTrackCustomize,
+	useTrackEvent,
+	useTrackedDateRangeApply,
 	useWidgetDrillDown,
 } from './hooks';
 
@@ -231,37 +363,41 @@ export {
 /**
  * Types
  */
-export type { MetricKey, OrderMetricKey, OrderMetrics, OrdersSummary, DataFormat } from './types';
+export type {
+	CountLabel,
+	MetricKey,
+	OrderMetricKey,
+	OrderMetrics,
+	OrdersSummary,
+	DataFormat,
+} from './types';
 
 /**
- * Charts passthrough
- *
- * Widgets must import chart components from here, never from
- * `@automattic/charts` directly: the toolkit is a shared script module, so
- * charts is bundled once instead of once per widget. The toolkit itself takes
- * charts from `@jetpack-premium-analytics/externals`, which is where the
- * library is actually compiled in.
+ * Charts passthrough. Widgets must import chart components from here, never
+ * from `@automattic/charts` directly: the toolkit bundles charts once instead
+ * of once per widget, itself sourcing them from `@jetpack-premium-analytics/externals`.
  */
 export {
 	GeoChart,
 	GlobalChartsProvider,
+	GoogleDataTableColumnRoleType,
 	HeatmapChart,
 	HeatmapChartUnresponsive,
 	Sparkline,
 	buildCalendarHeatmapData,
+	useCalendarHeatmapData,
 	type DataPointDate,
 	type GeoChartError,
 	type GeoData,
+	type HeatmapColumn,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapTooltipData,
 } from '@jetpack-premium-analytics/externals';
 
 /**
- * UI passthrough
- *
- * Widgets must import these from here, never from
- * `@jetpack-premium-analytics/ui` directly: the toolkit is a shared script
- * module, so the ui package is bundled once instead of once per widget.
+ * UI passthrough. Widgets must import these from here, never from
+ * `@jetpack-premium-analytics/ui` directly: the toolkit bundles the ui package
+ * once instead of once per widget.
  */
-export { safeHttpUrl } from '@jetpack-premium-analytics/ui';
+export { safeHttpUrl, tagRowGlyph } from '@jetpack-premium-analytics/ui';

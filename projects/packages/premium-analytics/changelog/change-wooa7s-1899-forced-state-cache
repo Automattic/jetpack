@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Storybook: keep a widget's forced loading, error, and empty stories from serving each other's cached data.

@@ -1012,4 +1012,45 @@ class Feedback_Data_Integrity_Test extends BaseTestCase {
 		$this->assertSame( 'RSVP < 2026', $saved->get_entry_title(), 'The source title should round-trip unchanged.' );
 		$this->assertCount( 1, $saved->get_fields(), 'The saved response should still hold the submitted field.' );
 	}
+
+	/**
+	 * A file field's values come straight from $_POST, so any entry may be an array rather than the
+	 * JSON string the field writes. `field[1][x]=y` is enough, and stripslashes() raises an uncaught
+	 * TypeError on PHP 8 — an anonymous visitor crashing the submission with a 500.
+	 *
+	 * Reachable on any field configured for more than one file: the submission-time count check
+	 * happens to reject a two-entry payload while the limit is one, and stops doing so above that.
+	 */
+	public function test_process_file_field_value_survives_a_nested_array() {
+		$processed = Feedback::process_file_field_value(
+			array(
+				wp_json_encode(
+					array(
+						'file_id' => 7,
+						'name'    => 'real.pdf',
+						'size'    => 10,
+						'type'    => 'application/pdf',
+					),
+					JSON_UNESCAPED_SLASHES
+				),
+				array( 'x' => 'y' ),
+			)
+		);
+
+		$this->assertCount( 2, $processed['files'] );
+		$this->assertSame( '7', $processed['files'][0]['file_id'] );
+		// The unusable entry is carried through empty rather than taking the request down with it.
+		$this->assertSame( '', $processed['files'][1]['file_id'] );
+	}
+
+	/**
+	 * The same shape, one level up, through the value the storage path actually reads.
+	 */
+	public function test_a_nested_array_in_a_file_field_does_not_fatal() {
+		$this->assertIsArray(
+			Feedback::process_file_field_value( array( array( 'nested' => true ) ) )
+		);
+		$this->assertIsArray( Feedback::process_file_field_value( array( null ) ) );
+		$this->assertIsArray( Feedback::process_file_field_value( array( 42 ) ) );
+	}
 }

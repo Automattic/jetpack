@@ -129,8 +129,8 @@ function pollPackagist( name, versionRange ) {
 						const req = http2Client.request(
 							{
 								...reqHeaders,
-								[ http2.constants
-									.HTTP2_HEADER_PATH ]: `/p2/${ name }.json?cache_is_broken_see_packagist_GH_issue_1612=${ i }`,
+								[ http2.constants.HTTP2_HEADER_PATH ]:
+									`/p2/${ name }.json?cache_is_broken_see_packagist_GH_issue_1612=${ i }`,
 							},
 							{ signal: aborter.signal }
 						);

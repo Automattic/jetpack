@@ -2,7 +2,20 @@ import type { StatsTimeSeriesReport } from './time-series';
 import type { StatsNormalizedDataPoint, StatsNormalizedItem, StatsNormalizedReport } from './types';
 import type { StatsPeriod } from '../../utils/stats-params';
 
-export type StatsChartBucketPeriod = Extract< StatsPeriod, 'day' | 'week' | 'month' >;
+/**
+ * The buckets a client-side bucketed chart can draw. `satisfies` ties the set to
+ * what the Stats endpoints accept, so it cannot drift from `StatsPeriod`.
+ */
+export const STATS_CHART_BUCKET_PERIODS = [
+	'day',
+	'week',
+	'month',
+] as const satisfies readonly StatsPeriod[];
+
+/**
+ * A chart bucket size, derived from the runtime tuple so both stay in sync.
+ */
+export type StatsChartBucketPeriod = ( typeof STATS_CHART_BUCKET_PERIODS )[ number ];
 
 type StatsChartBucketValues = Record< string, number > & { value: number };
 
@@ -35,9 +48,8 @@ export function getStatsChartBucketKey( date: string, period: StatsChartBucketPe
 /**
  * Collapse a normalized daily Stats report into chart buckets.
  *
- * The caller maps each data point to its chart metrics, including the required
- * headline `value`. Metrics are summed when daily points share a chart bucket.
- * Each bucket preserves the first daily point's time and offset.
+ * Metrics are summed when daily points share a bucket, and each bucket keeps the
+ * first daily point's time suffix.
  *
  * @param report          - The normalized daily Stats report.
  * @param period          - The chart bucket period.

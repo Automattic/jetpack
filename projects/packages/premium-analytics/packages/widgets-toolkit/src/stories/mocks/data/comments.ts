@@ -2,8 +2,8 @@
  * Mock response for the Stats `comments` endpoint (`/proxy/v1.1/stats/comments`).
  *
  * The endpoint is all-time and returns two parallel lists — comment authors and
- * commented posts — surfaced by the Top commented authors and Top commented
- * posts widgets. This fixture populates both so either widget is reviewable.
+ * commented posts — surfaced by the two most-commented widgets. This fixture
+ * populates both so either widget is reviewable.
  *
  * Gravatar URLs are used for author avatars: the comments processor strips each
  * URL's query string and re-appends `?d=mm`, so Storybook renders Gravatar's
@@ -51,8 +51,6 @@ export const mockCommentsData = {
 		{
 			name: 'Leah Kim',
 			comments: 22,
-			// WordPress.com-user rows use `?user_id=` and intentionally remain
-			// unlinked because wp-admin has no equivalent author search URL.
 			link: '?user_id=1662656',
 			gravatar: 'https://www.gravatar.com/avatar/00000000000000000000000000000a07?s=96',
 		},

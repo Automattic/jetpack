@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Site options: expose difm_lite_site_options.is_website_content_submitted for sites with an active DIFM Lite build (WordPress.com only).

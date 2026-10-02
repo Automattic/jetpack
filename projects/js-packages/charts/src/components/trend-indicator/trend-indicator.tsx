@@ -1,6 +1,8 @@
 import clsx from 'clsx';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import styles from './trend-indicator.module.scss';
 import type { TrendIndicatorProps, TrendDirection } from './types';
+import type { JSX } from 'react';
 
 const DIRECTION_LABELS: Record< TrendDirection, string > = {
 	up: 'Increase',
@@ -47,10 +49,12 @@ export function TrendIndicator( {
 	showIcon = true,
 }: TrendIndicatorProps ) {
 	const ariaLabel = `${ DIRECTION_LABELS[ direction ] }: ${ value }`;
+	const standaloneScopeClass = useStandaloneScopeClass();
 
 	return (
 		<span
 			className={ clsx(
+				standaloneScopeClass,
 				styles[ 'trend-indicator' ],
 				styles[ `trend-indicator--${ direction }` ],
 				className

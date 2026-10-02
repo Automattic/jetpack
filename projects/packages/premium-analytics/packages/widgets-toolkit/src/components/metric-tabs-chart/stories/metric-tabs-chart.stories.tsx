@@ -1,5 +1,8 @@
+import { search } from '@jetpack-premium-analytics/icons';
 import { withChartTheme } from '../../../stories/with-chart-theme';
+import { ChartEmptyState } from '../../chart-empty-state';
 import { MetricTabsChart, type MetricTab } from '../metric-tabs-chart';
+import { MetricTabsChartSkeleton } from '../metric-tabs-chart-skeleton';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
@@ -25,13 +28,7 @@ const PREVIOUS_DATES = [
 	new Date( '2026-05-31' ),
 ];
 
-/**
- * Pair a value series with a set of dates.
- *
- * @param dates  - One date per value.
- * @param values - The series values.
- * @return The metric points.
- */
+/** Pair a value series with a set of dates. */
 const points = ( dates: Date[], values: number[] ) =>
 	dates.map( ( date, index ) => ( { date, value: values[ index ] } ) );
 
@@ -54,10 +51,40 @@ const METRICS: MetricTab[] = [
 	},
 ];
 
+const PAIRED_METRICS: MetricTab[] = [
+	{ ...METRICS[ 0 ], counterpartKey: 'paid' },
+	{ ...METRICS[ 1 ], counterpartKey: 'subscribers' },
+];
+
 // Close-up canvas so the chart fills the frame.
 const withCanvas: Decorator = Story => (
 	<div style={ { width: '100%', height: '300px' } }>
 		<Story />
+	</div>
+);
+
+const WidgetCard = ( {
+	width,
+	height,
+	children,
+}: {
+	width: string;
+	height: string;
+	children: React.ReactNode;
+} ) => (
+	<div
+		style={ {
+			width,
+			height,
+			border: '1px solid var(--wpds-color-stroke-surface-neutral-weak)',
+			borderRadius: 'var(--wpds-border-radius-md)',
+			background: 'var(--wpds-color-background-surface-neutral)',
+			display: 'flex',
+			flexDirection: 'column',
+			overflow: 'hidden',
+		} }
+	>
+		<div style={ { position: 'relative', flex: 1, minHeight: 0 } }>{ children }</div>
 	</div>
 );
 
@@ -70,7 +97,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. Shared by the subscribers and traffic charts.',
+					'A metric switcher over a comparative chart: selectable cards (value + period-over-period delta), and the selected metric drawn with its previous-period overlay. `chartType` picks the mark — a current line with a dashed previous-period overlay, or bars with a translucent previous-period shadow. A metric naming another through `counterpartKey` draws it alongside, visible from the start unless `counterpartHidden` is set. Shared by the subscribers and traffic charts.',
 			},
 		},
 	},
@@ -109,10 +136,65 @@ export const Bars: Story = {
 };
 
 /**
- * The loading overlay shown over the chart while data resolves.
+ * Metrics that name each other as `counterpartKey` are drawn together: the
+ * selected one solid and the other beside it, both toggled from the legend.
+ * Selecting the other card swaps the roles, and hiding a metric takes its
+ * previous-period overlay with it.
  */
-export const Loading: Story = {
-	args: { metrics: METRICS, dataFormat: DATA_FORMAT, loading: true },
+export const PairedMetrics: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT },
+};
+
+/**
+ * The same pair as bars — four bars per interval once both metrics are shown.
+ */
+export const PairedMetricsAsBars: Story = {
+	args: { metrics: PAIRED_METRICS, dataFormat: DATA_FORMAT, chartType: 'bar' },
+};
+
+/**
+ * `tooltipMetrics="all"`: hovering reads out every metric at that date, not only
+ * the drawn one, as the WordAds chart does with ads served, CPM and revenue.
+ */
+export const AllMetricsInTooltip: Story = {
+	args: { metrics: METRICS, dataFormat: DATA_FORMAT, tooltipMetrics: 'all' },
+};
+
+/**
+ * A window with no readings: the cards keep their zeros and the plot shows the `empty` content instead of a flat zero line.
+ */
+export const Empty: Story = {
+	args: {
+		metrics: METRICS.map( metric => ( {
+			...metric,
+			value: 0,
+			previousValue: undefined,
+			current: metric.current.map( point => ( { ...point, value: 0 } ) ),
+			previous: undefined,
+		} ) ),
+		dataFormat: DATA_FORMAT,
+		empty: (
+			<ChartEmptyState icon={ search } text="We couldn’t find results for this time period." />
+		),
+	},
+};
+
+type SkeletonStory = StoryObj< typeof MetricTabsChartSkeleton >;
+
+export const Skeleton: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="720px" height="320px">
+			<MetricTabsChartSkeleton />
+		</WidgetCard>
+	),
+};
+
+export const SkeletonShortTile: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="360px" height="140px">
+			<MetricTabsChartSkeleton />
+		</WidgetCard>
+	),
 };
 
 /**

@@ -6,6 +6,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { DEFAULT_RESPONSES_QUERY, getResponseStatusFilter } from '../../src/dashboard/constants.ts';
 import { preloadGlobalTabCounts } from '../../src/dashboard/wp-build/utils/preload';
 
 export const route = {
@@ -23,40 +24,32 @@ export const route = {
 	},
 
 	/**
-	 * Preloads data before the route renders.
+	 * Starts loading the list's data as the route is entered.
+	 *
+	 * Deliberately not awaited: the router blocks navigation on a loader that
+	 * returns a promise, so awaiting made every list navigation wait on a round
+	 * trip before anything moved.
 	 * @param props             - Props used while preloading data before the route renders.
 	 * @param props.params      - The parameters.
 	 * @param props.params.view - The view.
 	 * @param props.search      - The search parameters.
 	 * @param props.search.page - The page number.
 	 */
-	loader: async ( {
-		params,
-		search,
-	}: {
-		params: { view?: string };
-		search: { page?: number };
-	} ) => {
-		let status = 'publish';
-
-		if ( params.view === 'spam' ) {
-			status = 'spam';
-		} else if ( params.view === 'trash' ) {
-			status = 'trash';
-		}
-
-		// Preload feedback responses
-		await resolveSelect( 'core' ).getEntityRecords( 'postType', 'feedback', {
-			per_page: 20,
-			page: search.page || 1,
-			status,
-			orderby: 'date',
-			order: 'desc',
-			fields_format: 'collection',
-		} );
+	loader: ( { params, search }: { params: { view?: string }; search: { page?: number } } ) => {
+		// Built from the same default the list itself sends, so this warms the cache
+		// entry the list then reads. It previously preloaded a bare `status: 'publish'`
+		// while the inbox queries `'draft,publish'` — a different key, so the request
+		// was paid for and then thrown away, and the list fetched again anyway.
+		resolveSelect( 'core' )
+			.getEntityRecords( 'postType', 'feedback', {
+				...DEFAULT_RESPONSES_QUERY,
+				status: getResponseStatusFilter( params.view ),
+				page: search.page || 1,
+			} )
+			.catch( () => {} );
 
 		// Preload global header tab counts.
-		await preloadGlobalTabCounts();
+		preloadGlobalTabCounts().catch( () => {} );
 	},
 
 	/**

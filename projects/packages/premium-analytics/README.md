@@ -25,9 +25,40 @@ build time from `package.json` metadata.
 The generated full-page variant is disabled; only the registered,
 capability-gated admin page serves the dashboard.
 
+## Documentation
+
+- [Dashboard sections](docs/dashboard-sections.md): how a section is registered, filtered, served
+  to the client and rendered, and how another plugin registers one.
+- [Dashboard widget types](docs/dashboard-widgets.md): how a widget type is registered, filtered,
+  served to the client and imported, and how another plugin registers one.
+
+## Extending the dashboard from another plugin
+
+The package owns the dashboard, not the features. A section and its widgets belong to the code that knows the feature is there, and `jetpack-mu-wpcom` registers on WordPress.com Simple and Atomic where that fact is a plan feature.
+
+A plugin extends the dashboard from two actions. Each fires once, when its registry hydrates on the first read after `init`.
+
+### Sections
+
+Hook `jetpack_premium_analytics_register_dashboard_sections` and call `register_dashboard_section()` with the section's label, availability rule and default layout. See [Dashboard sections](docs/dashboard-sections.md).
+
+### Widget types
+
+Hook `jetpack_premium_analytics_register_widget_types`, compare `WIDGET_API_VERSION`, require the `build/build.php` wp-build generated for your `widgets/` folder, and call `register_widget_types_from_manifest()` with its manifest, your text domain and the URL of your `i18n-manifest.json`. See [Dashboard widget types](docs/dashboard-widgets.md).
+
+Your widgets import the dashboard through `@automattic/jetpack-premium-analytics-sdk` (`projects/js-packages/premium-analytics-sdk`). Your build keeps that import external, and the dashboard page's import map resolves it to the module this package registers.
+
+### The reference consumers
+
+`projects/packages/ads`: the Ads section and its three widgets, called by the WordAds module of the Jetpack plugin and by `jetpack-mu-wpcom`. The shape for a feature that brings its own section.
+
+`projects/packages/videopress`: the Top videos widget, registered with its former name `jpa/videopress` and seeded into the bundled Traffic section's default layout, called by the package's initializer and by `jetpack-mu-wpcom`. The shape for a widget inside a section this package owns, and for a widget that moved out of this package.
+
+Report pages and detail routes are the next contract; today they are the package's own.
+
 ## Requirements
 
-- **PHP** >= 7.2
+- **PHP** >= 7.4
 - WordPress core or Jetpack's wp-build polyfills provide the WordPress
   script handles/modules used by the dashboard. The Gutenberg plugin is not
   required.
@@ -43,17 +74,19 @@ jetpack build packages/premium-analytics   # via Jetpack CLI
 ### Adding a route
 
 1. Create `routes/<name>/package.json`:
+
    ```json
    {
-     "name": "<name>-route",
-     "route": {
-       "path": "/<name>",
-       "page": "jetpack-premium-analytics"
-     }
+   	"name": "<name>-route",
+   	"route": {
+   		"path": "/<name>",
+   		"page": "jetpack-premium-analytics"
+   	}
    }
    ```
 
 2. Create `routes/<name>/stage.tsx` exporting `stage()`:
+
    ```tsx
    export const stage = () => <div>My new page</div>;
    ```
@@ -74,6 +107,7 @@ Package `automattic/jetpack-wp-build-polyfills` provides a fixed version.
 ### Init module (`packages/init/`)
 
 Serves two purposes:
+
 1. Sets the dashboard menu icon via `@wordpress/boot` store
 2. Forces `@wordpress/build` to track `@wordpress/boot` as a module
    dependency — without an init module that imports boot, the build

@@ -1,5 +1,5 @@
 import type { BaseChartProps } from '../../types';
-import type { ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
 
 /** A single heatmap cell. `value: null` marks an empty cell. */
 export type HeatmapCell = {
@@ -13,6 +13,14 @@ export type HeatmapCell = {
 	 * days completing the first/last week fall outside the covered range.
 	 */
 	hidden?: boolean;
+	/**
+	 * Paint the cell as a faded empty slot that carries no claim about the day:
+	 * it is set apart from a measured day that scored zero, and skipped by
+	 * hover, tooltips, keyboard navigation and the accessibility tree. For grid
+	 * filler — slots drawn only so a short range still fills its container,
+	 * which were never measured.
+	 */
+	placeholder?: boolean;
 };
 
 /** A heatmap column (rendered left→right); its cells render top→bottom. */
@@ -20,21 +28,54 @@ export type HeatmapColumn = {
 	/** x-axis label for this column. Empty/omitted renders blank. */
 	label?: string;
 	data: HeatmapCell[];
+	/**
+	 * A per-row roll-up such as a total or an average. Left out of the color
+	 * scale, drawn unfilled with its figure always printed, on an `auto` track
+	 * one gap apart from the data beside it. The chart never computes it.
+	 */
+	summary?: boolean;
+};
+
+/** A run of consecutive columns sharing one label beneath the grid. */
+export type HeatmapColumnGroup = {
+	label: string;
+	/** Columns covered; a positive integer. */
+	span: number;
 };
 
 export type HeatmapTooltipData = {
 	value: number | null;
 	rowLabel?: string;
 	columnLabel?: string;
+	/** Label of the column group the cell falls in, if any. */
+	groupLabel?: string;
 	cellLabel?: string;
 	row: number;
 	column: number;
 };
 
-export interface HeatmapChartProps
-	extends Omit< BaseChartProps< HeatmapColumn[] >, 'showLegend' | 'legend' | 'gridVisibility' > {
+export interface HeatmapChartProps extends Omit<
+	BaseChartProps< HeatmapColumn[] >,
+	'showLegend' | 'legend' | 'gridVisibility'
+> {
 	/** y-axis labels by row index. Empty entries render blank. */
 	rowLabels?: string[];
+	/**
+	 * Consecutive runs of columns sharing one label beneath the grid, set one
+	 * group gap apart. Runs from the first column; columns past the last group
+	 * stay ungrouped. Ignored, with a warning, when a span is not a positive
+	 * integer or the spans reach past the last column.
+	 */
+	columnGroups?: HeatmapColumnGroup[];
+	/**
+	 * How the arrow keys move the selection. `grid` steps across the whole grid.
+	 * `calendar` reads each column group as a page: Left/Right by one cell (wrapping
+	 * to the next row, then the next group), Up/Down by one row into the neighboring
+	 * group past the edge, Page Up/Down by one group. Default `grid`.
+	 */
+	keyboardNavigation?: 'grid' | 'calendar';
+	/** Accessible name of the grid. Defaults to a localized "Heatmap chart". */
+	ariaLabel?: string;
 	/** Compact mode: hide in-cell values, tighten gap, thin axis labels. Default false. */
 	compact?: boolean;
 	/** Render the numeric value inside each cell. Default `! compact`. */
@@ -61,10 +102,68 @@ export interface HeatmapChartProps
 	/** Floor a cell's height (px) in non-compact mode; see `minCellWidth`. */
 	minCellHeight?: number;
 	/**
-	 * Color the cell scale interpolates toward at the highest value
-	 * (this prop > theme `heatmapChart.primaryColor` > palette `colors[0]`).
+	 * Color the cell scale interpolates toward at the highest value. Defaults to the
+	 * first series palette slot, `--a8c-charts-color-series-1`.
 	 */
 	primaryColor?: string;
 	renderTooltip?: ( data: HeatmapTooltipData ) => ReactNode;
+	/**
+	 * The tooltip box: `light` is the plain white box, `dark` the package's
+	 * tooltip surface, themed through `--a8c-charts-color-tooltip-surface`.
+	 * Default `light`.
+	 */
+	tooltipVariant?: 'light' | 'dark';
+	/** Inline styles merged onto the tooltip box, over the variant's own. */
+	tooltipStyle?: CSSProperties;
 	children?: ReactNode;
 }
+
+export type CalendarHeatmapResult = {
+	data: HeatmapColumn[];
+	rowLabels: string[];
+};
+
+export type CalendarHeatmapOptions = {
+	weekStartsOn?: 0 | 1;
+	/**
+	 * Mark the days completing the first and last week outside the series' span as
+	 * hidden cells rather than blank ones, giving the calendar ragged edges. Days
+	 * inside the span stay blank even where the series has no entry.
+	 */
+	hideOutOfRangeDays?: boolean;
+	/**
+	 * Draw the grid over this span (`yyyy-MM-dd` bounds) instead of the series' own.
+	 * Days inside the grid but outside the series become placeholder cells: painted,
+	 * but reporting nothing, since they were never measured. A start bound opens from
+	 * the beginning of its week, and bounds narrower than the series are ignored.
+	 */
+	gridSpan?: { start?: string; end?: string };
+	/** BCP-47 tag the labels are written in. Defaults to the runtime's locale. */
+	locale?: string;
+	/**
+	 * IANA zone the series' instants are bucketed into days in. Defaults to the
+	 * runtime's zone. A `dateString` carrying no offset is taken as written.
+	 */
+	timeZone?: string;
+};
+
+export type MonthCalendarHeatmapRange = {
+	/** First measured day, `yyyy-MM-dd`. */
+	start: string;
+	/** Last measured day, `yyyy-MM-dd`, inclusive. */
+	end: string;
+};
+
+export type MonthCalendarHeatmapOptions = {
+	/** 0 = Sunday, 1 = Monday. Default 1. */
+	weekStartsOn?: 0 | 1;
+	/** BCP-47 tag the month and day labels are written in. Defaults to the runtime's locale. */
+	locale?: string;
+};
+
+export type MonthCalendarHeatmapResult = {
+	/** For `HeatmapChart`'s `data`: 7 columns per month, 6 cells each. */
+	data: HeatmapColumn[];
+	/** For `HeatmapChart`'s `columnGroups`: one per month, in order. */
+	columnGroups: HeatmapColumnGroup[];
+};

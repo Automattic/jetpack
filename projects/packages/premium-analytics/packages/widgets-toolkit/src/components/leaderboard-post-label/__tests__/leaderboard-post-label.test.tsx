@@ -45,13 +45,26 @@ jest.mock( '../../widget-root', () => ( {
 const mockUseWidgetRootContext = useWidgetRootContext as jest.Mock;
 
 beforeEach( () => {
-	mockUseWidgetRootContext.mockReturnValue( { reportParams: { from: '2026-06-01' } } );
+	mockUseWidgetRootContext.mockReturnValue( {
+		reportParams: { from: '2026-06-01' },
+		navigationParams: {
+			from: '2026-06-01',
+			comp: '1',
+			compare_from: '2026-05-01',
+			compare_to: '2026-05-31',
+		},
+	} );
 } );
 
 describe( 'LeaderboardPostLabel', () => {
 	it( 'links a post to its detail route and carries the report window', () => {
 		render(
-			<LeaderboardPostLabel id={ 12 } label="Hello world" link="https://example.com/hello/" />
+			<LeaderboardPostLabel
+				id={ 12 }
+				label="Hello world"
+				link="https://example.com/hello/"
+				origin={ { report: 'posts', section: 'posts-pages' } }
+			/>
 		);
 
 		const link = screen.getByRole( 'link', { name: 'Hello world' } );
@@ -59,21 +72,40 @@ describe( 'LeaderboardPostLabel', () => {
 
 		expect( url.pathname ).toBe( '/post/12' );
 		expect( url.searchParams.get( 'from' ) ).toBe( '2026-06-01' );
+		expect( url.searchParams.get( 'comp' ) ).toBe( '1' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/hello/' );
+		expect( url.searchParams.get( 'ref' ) ).toBe( 'posts' );
+		expect( url.searchParams.get( 'ref_section' ) ).toBe( 'posts-pages' );
 		expect( link ).not.toHaveAttribute( 'target', '_blank' );
 	} );
 
 	it( 'opens the requested detail tab when a section is given', () => {
-		render( <LeaderboardPostLabel id={ 12 } label="Newsletter" section="email-opens" /> );
-
-		expect( screen.getByRole( 'link', { name: 'Newsletter' } ) ).toHaveAttribute(
-			'href',
-			'/post/12?from=2026-06-01&section=email-opens'
+		render(
+			<LeaderboardPostLabel
+				id={ 12 }
+				label="Newsletter"
+				section="email-opens"
+				origin={ { report: 'emails' } }
+			/>
 		);
+
+		const href = screen.getByRole( 'link', { name: 'Newsletter' } ).getAttribute( 'href' ) ?? '';
+		const url = new URL( href, 'https://example.com' );
+
+		expect( url.pathname ).toBe( '/post/12' );
+		expect( url.searchParams.get( 'section' ) ).toBe( 'email-opens' );
+		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
+		expect( url.searchParams.get( 'comp' ) ).toBe( '1' );
 	} );
 
 	it( 'falls back to the public URL when there is no post ID', () => {
-		render( <LeaderboardPostLabel label="Untracked page" link="https://example.com/untracked/" /> );
+		render(
+			<LeaderboardPostLabel
+				label="Untracked page"
+				link="https://example.com/untracked/"
+				origin={ { report: 'utm', section: 'source-medium' } }
+			/>
+		);
 
 		const link = screen.getByRole( 'link', { name: /Untracked page/ } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/untracked/' );
@@ -81,7 +113,13 @@ describe( 'LeaderboardPostLabel', () => {
 	} );
 
 	it( 'renders plain text when the row has neither a post ID nor a safe URL', () => {
-		render( <LeaderboardPostLabel label="Untitled" link="javascript:alert(1)" /> );
+		render(
+			<LeaderboardPostLabel
+				label="Untitled"
+				link="javascript:alert(1)"
+				origin={ { report: 'posts', section: 'posts-pages' } }
+			/>
+		);
 
 		expect( screen.getByText( 'Untitled' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();

@@ -47,12 +47,12 @@ const NoBackupCapabilities = () => {
 					// translators: %s is the regular monthly price
 					__( 'trial for the first month, then $%s /month, billed yearly', 'jetpack-backup-pkg' ),
 					price
-			  )
+				)
 			: __(
 					'per month, billed yearly',
 					'jetpack-backup-pkg',
 					/* dummy arg to avoid bad minification */ 0
-			  );
+				);
 
 	return (
 		<Container horizontalSpacing={ 3 } horizontalGap={ 3 }>

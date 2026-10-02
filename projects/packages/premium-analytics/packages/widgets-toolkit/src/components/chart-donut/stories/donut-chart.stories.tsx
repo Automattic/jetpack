@@ -1,5 +1,7 @@
+import { WidgetCard } from '../../../stories/widget-card';
 import { withChartTheme } from '../../../stories/with-chart-theme';
 import { DonutChart } from '../donut-chart';
+import { DonutChartSkeleton } from '../donut-chart-skeleton';
 import type { SegmentStyle } from '../../../helpers';
 import type { LegendItem } from '../../legend/legend';
 import type { DonutChartData } from '../donut-chart';
@@ -402,4 +404,32 @@ export const WithTooltips: Story = {
 		dataFormat: { type: 'number' },
 		withTooltips: true,
 	},
+};
+
+type SkeletonStory = StoryObj< typeof DonutChartSkeleton >;
+
+/**
+ * The loading shape widgets pass through `WidgetState`'s `renderLoading`: the
+ * ring beside four legend rows, centred in the body. The legend row count is
+ * fixed, since the donut's segments only arrive with the data.
+ */
+export const Skeleton: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="360px" height="320px">
+			<DonutChartSkeleton />
+		</WidgetCard>
+	),
+};
+
+/**
+ * A height-1 dashboard tile. The ring keeps its 96px, so the body clips it
+ * evenly top and bottom rather than letting it push past into the widget
+ * footer.
+ */
+export const SkeletonShortTile: SkeletonStory = {
+	render: () => (
+		<WidgetCard width="360px" height="140px">
+			<DonutChartSkeleton />
+		</WidgetCard>
+	),
 };

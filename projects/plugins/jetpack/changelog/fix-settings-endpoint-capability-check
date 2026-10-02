@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-REST API: Require the admin capability for all settings in a request that also updates Post by Email.

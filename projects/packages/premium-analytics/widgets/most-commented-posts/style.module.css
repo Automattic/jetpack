@@ -6,10 +6,7 @@
 	overflow: hidden;
 }
 
-/* Positioned anchor so WidgetState's overlay (position: absolute; inset: 0)
-   resolves against the widget body, not the host frame. */
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;

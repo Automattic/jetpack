@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Fix WordPress.WP.EnqueuedResourceParameters in one test file.
-
-

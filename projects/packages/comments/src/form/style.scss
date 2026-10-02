@@ -1,0 +1,171 @@
+// The plain form inside stays unseen until the script mounts the app or
+// leaves it in place, so the swap does not flash. A noscript style reveals it.
+.jetpack-comments:not(.is-mounted):not(.is-plain) {
+	visibility: hidden;
+}
+
+.jetpack-comments.is-mounted {
+	--jetpack-comments-pad: 1em;
+}
+
+// One box around the textarea and the submit row, in the post's own colours.
+// Nested to outrank a block theme's rules.
+.jetpack-comments .jetpack-comments__box {
+	position: relative;
+	border: 2px solid currentColor;
+	overflow-anchor: none;
+}
+
+// Three classes: block themes reach it with two classes and a tag.
+.jetpack-comments .jetpack-comments__box .jetpack-comments__textarea {
+	display: block;
+	box-sizing: border-box;
+	inline-size: 100%;
+	// A few lines, padding included, as the editor has; field-sizing ignores rows.
+	min-block-size: 5lh;
+	field-sizing: content;
+	padding: var(--jetpack-comments-pad);
+	resize: none;
+
+	&[hidden] {
+		display: none;
+	}
+
+	// The shade the editor gives its own placeholder, so the handoff keeps it.
+	&::placeholder {
+		color: currentColor;
+		opacity: 0.62;
+	}
+
+	// Pinned: themes reach for a textarea's border with every kind of selector.
+	&,
+	&:focus {
+		border: 0 !important;
+		background: transparent !important;
+		box-shadow: none !important;
+		color: inherit;
+		outline: none !important;
+	}
+}
+
+// The placeholder, over the textarea while the editor downloads, its dots
+// bouncing one after another.
+.jetpack-comments__loading {
+	position: absolute;
+	inset-block-start: var(--jetpack-comments-pad);
+	inset-inline-start: var(--jetpack-comments-pad);
+	font-family: var(--jetpack-comments-font-family, inherit);
+	font-size: var(--jetpack-comments-font-size, inherit);
+	line-height: var(--jetpack-comments-line-height, inherit);
+	opacity: 0.62;
+	pointer-events: none;
+}
+
+.jetpack-comments__loading span {
+	display: inline-block;
+	animation: jetpack-comments-bounce 1s ease-in-out infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+.jetpack-comments__loading span:nth-child(2) {
+	animation-delay: 0.15s;
+}
+
+.jetpack-comments__loading span:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+@keyframes jetpack-comments-bounce {
+
+	0%,
+	60%,
+	100% {
+		transform: none;
+	}
+
+	30% {
+		transform: translateY(-0.3em);
+	}
+}
+
+// The options below the box slide open and closed. Hidden, not just collapsed,
+// so nothing inside a closed one takes focus.
+.jetpack-comments__options {
+	display: grid;
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	transition:
+		grid-template-rows 0.25s ease-in-out,
+		visibility 0s linear 0.25s;
+
+	&.is-open {
+		grid-template-rows: 1fr;
+		visibility: visible;
+		transition:
+			grid-template-rows 0.25s ease-in-out,
+			visibility 0s;
+	}
+}
+
+// Reversed so the submit precedes the identity line in the DOM, and Tab
+// reaches it straight from the textarea; wrapped in reverse too, so the
+// identity line stacks above the submit.
+.jetpack-comments__actions {
+	display: flex;
+	flex-flow: row-reverse wrap-reverse;
+	align-items: center;
+	gap: 12px;
+	padding: 0 var(--jetpack-comments-pad) var(--jetpack-comments-pad);
+}
+
+// Its own row, under the submit it disables.
+.jetpack-comments__too-long {
+	flex-basis: 100%;
+	margin: 0;
+}
+
+// Shares the row with the submit down to 10em; below that it wraps above it.
+.jetpack-comments__identity {
+	display: flex;
+	align-items: center;
+	gap: 0.75em;
+	flex: 1 1 10em;
+}
+
+// A flex item, so the button sits on no text baseline and centres with
+// the avatar. Pinned against a theme's spacing around its own submit.
+.jetpack-comments .jetpack-comments__submit {
+	display: flex;
+	margin: 0 !important;
+	padding: 0 !important;
+
+	input {
+
+		&:not(:focus, :active) {
+			margin: 0 !important;
+		}
+
+		// Its top margin let through, for a theme that trades the bottom border
+		// for it as the button is pressed; pinned, the row would jump.
+		&:is(:focus, :active) {
+			margin-inline: 0 !important;
+			margin-block-end: 0 !important;
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+		}
+	}
+}
+
+.jetpack-comments__visually-hidden {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}

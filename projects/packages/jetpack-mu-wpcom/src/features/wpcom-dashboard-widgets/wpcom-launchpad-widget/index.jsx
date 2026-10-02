@@ -1,8 +1,13 @@
 import { Launchpad } from '@automattic/launchpad';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useRefEffect } from '@wordpress/compose';
+import { __ } from '@wordpress/i18n';
 import { addQueryArgs } from '@wordpress/url';
+import { useState } from 'react';
 import { useSiteLaunchGatingVariant } from '../../../common/hooks';
+import PreLaunchSiteModal from '../../../common/pre-launch-site-modal';
+import { shouldShowPreLaunchModal } from '../../../common/should-show-pre-launch-modal';
+import { wpcomTrackEvent } from '../../../common/tracks';
 
 import './style.scss';
 
@@ -35,8 +40,23 @@ function useSetHrefBase() {
 	}, [] );
 }
 
-const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
+const LaunchpadWidget = ( {
+	siteDomain,
+	siteIntent,
+	siteName,
+	siteUrl,
+	sitePlan,
+	hasCustomDomain,
+} ) => {
 	const [ , variant ] = useSiteLaunchGatingVariant();
+	const [ showPreLaunchModal, setShowPreLaunchModal ] = useState( false );
+
+	const qualifiesForPreLaunch = shouldShowPreLaunchModal( { sitePlan, hasCustomDomain } );
+
+	const launchUrl = addQueryArgs( 'https://wordpress.com/start/launch-site', {
+		siteSlug: siteDomain,
+		ref: 'wp-admin',
+	} );
 
 	const onTaskClick = task => {
 		if ( ! task.isLaunchTask ) {
@@ -49,32 +69,46 @@ const LaunchpadWidget = ( { siteDomain, siteIntent } ) => {
 			case 'semi_gated_site_launch':
 			case null:
 			default:
-				window.location.assign(
-					addQueryArgs( 'https://wordpress.com/start/launch-site', {
-						siteSlug: siteDomain,
-						ref: 'wp-admin',
-					} )
-				);
+				// Qualifying sites confirm via the pre-launch modal; everyone else
+				// goes straight to the launch flow, preserving today's behavior.
+				if ( qualifiesForPreLaunch ) {
+					wpcomTrackEvent( 'wpcom_launch_site_pre_launch_modal_shown' );
+					setShowPreLaunchModal( true );
+					return false;
+				}
+				window.location.assign( launchUrl );
 				return false;
 		}
 	};
 
 	return (
-		<div ref={ useSetHrefBase() }>
-			<Launchpad
-				siteSlug={ siteDomain }
-				checklistSlug={ siteIntent }
-				launchpadContext="wpadmin-dashboard-widget"
-				onTaskClick={ onTaskClick }
-			/>
-		</div>
+		<>
+			<div ref={ useSetHrefBase() }>
+				<Launchpad
+					siteSlug={ siteDomain }
+					checklistSlug={ siteIntent }
+					launchpadContext="wpadmin-dashboard-widget"
+					onTaskClick={ onTaskClick }
+				/>
+			</div>
+			{ showPreLaunchModal && (
+				<PreLaunchSiteModal
+					siteName={ siteName }
+					siteDomain={ siteDomain }
+					homeUrl={ siteUrl }
+					planName={ sitePlan?.product_name || __( 'Paid plan', 'jetpack-mu-wpcom' ) }
+					launchUrl={ launchUrl }
+					onClose={ () => setShowPreLaunchModal( false ) }
+				/>
+			) }
+		</>
 	);
 };
 
-export default ( { siteDomain, siteIntent } ) => {
+export default props => {
 	return (
 		<QueryClientProvider client={ queryClient }>
-			<LaunchpadWidget siteDomain={ siteDomain } siteIntent={ siteIntent } />
+			<LaunchpadWidget { ...props } />
 		</QueryClientProvider>
 	);
 };

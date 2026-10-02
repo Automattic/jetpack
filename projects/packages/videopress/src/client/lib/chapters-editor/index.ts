@@ -2,11 +2,12 @@
  * Whether the chapters editor is enabled in the block editor.
  *
  * Mirrors the PHP-side `Admin_UI::is_chapters_editor_enabled()` gate (the
- * `jetpack_videopress_chapters_editor` filter, default false) via the
+ * `jetpack_videopress_chapters_editor` filter, default true) via the
  * `videoPressEditorState` object localized by
  * `Block_Editor_Extensions::enqueue_extensions()`, guarding for environments
- * (tests, front end, a stale build) where the global is absent. Defaults to
- * false.
+ * (tests, front end, a stale build) where the global is absent. Falls back to
+ * false there: an absent global is no evidence the feature is on, so the
+ * conservative answer stays right even though the PHP default flipped.
  *
  * `wp_localize_script()` casts every scalar to a string, so a PHP `true`
  * arrives as `'1'` and a PHP `false` as `''` — the same shape the neighboring

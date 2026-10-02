@@ -2,16 +2,15 @@
  * External dependencies
  */
 import { Link } from '@jetpack-premium-analytics/externals';
-import { pickReportDateParams } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 import { Link as RouteLink } from '@wordpress/route';
 import clsx from 'clsx';
-import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
-import { useWidgetRootContext } from '../widget-root';
+import { useWidgetNavigationSearch } from '../../hooks/use-widget-navigation-search';
 import styles from './report-link.module.scss';
+import type { ReactNode } from 'react';
 
 export type ReportLinkProps = {
 	/**
@@ -38,6 +37,11 @@ export type ReportLinkProps = {
 	 * Optional class for widget-specific layout tweaks.
 	 */
 	className?: string;
+
+	/**
+	 * Rendered after the label, e.g. a count badge; the hover underline stays on the label.
+	 */
+	children?: ReactNode;
 };
 
 /**
@@ -48,15 +52,16 @@ export type ReportLinkProps = {
  *
  * @return The rendered report link.
  */
-export function ReportLink( { report, section, label, ariaLabel, className }: ReportLinkProps ) {
-	const { reportParams } = useWidgetRootContext();
-	const search = useMemo(
-		() => ( {
-			...pickReportDateParams( reportParams ),
-			...( section ? { section } : {} ),
-		} ),
-		[ reportParams, section ]
-	);
+export function ReportLink( {
+	report,
+	section,
+	label,
+	ariaLabel,
+	className,
+	children,
+}: ReportLinkProps ) {
+	const search = useWidgetNavigationSearch( { section } );
+	const text = label ?? __( 'View all', 'jetpack-premium-analytics-pkg' );
 
 	return (
 		<Link
@@ -67,10 +72,18 @@ export function ReportLink( { report, section, label, ariaLabel, className }: Re
 					search={ search as unknown as never }
 				/>
 			}
-			className={ clsx( styles.reportLink, className ) }
+			className={ clsx( styles.reportLink, children && styles.hasContent, className ) }
 			aria-label={ ariaLabel }
 		>
-			{ label ?? __( 'View all', 'jetpack-premium-analytics-pkg' ) }
+			{ children ? (
+				<>
+					<span className={ styles.label }>{ text }</span>
+					{ /* Keeps the accessible name "Adjustments 2" rather than "Adjustments2". */ }{ ' ' }
+					{ children }
+				</>
+			) : (
+				text
+			) }
 		</Link>
 	);
 }

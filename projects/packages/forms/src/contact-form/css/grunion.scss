@@ -1,6 +1,7 @@
 /* Import shared visually-hidden utility so editor and frontend match */
 @use "../../blocks/shared/styles/visually-hidden" as *;
 @use "../../blocks/shared/styles/empty_image_option" as *;
+@use "../../blocks/shared/styles/field-hints" as *;
 
 :root {
 	--jetpack--contact-form--border: 1px solid #8c8f94;

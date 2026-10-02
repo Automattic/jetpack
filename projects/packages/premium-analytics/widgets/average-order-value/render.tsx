@@ -20,12 +20,6 @@ type AverageOrderValueWidgetProps = WidgetRenderProps< AverageOrderValueRenderAt
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
-/**
- * Thin composition over the widgets-toolkit: WidgetRoot provides the query
- * client, chart theme, and resolved report params; OrderMetricWidget fetches
- * the orders report and renders the average_order_value metric with a
- * comparison delta and sparkline.
- */
 export default function AverageOrderValueRender( {
 	attributes = {},
 	setError,
@@ -34,6 +28,7 @@ export default function AverageOrderValueRender( {
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
 			<OrderMetricWidget
 				metricKey="average_order_value"
+				seriesLabel={ __( 'Average order value', 'jetpack-premium-analytics-pkg' ) }
 				emptyStateText={ __( 'No orders in this period.', 'jetpack-premium-analytics-pkg' ) }
 				errorText={ __(
 					"We couldn't load average order value. Please try again in a moment.",

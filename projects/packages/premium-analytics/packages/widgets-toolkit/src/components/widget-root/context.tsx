@@ -7,9 +7,17 @@ import type { ReportParams } from '@jetpack-premium-analytics/data';
 
 export type WidgetRootContextValue = {
 	/**
-	 * Normalized report parameters resolved from widget attributes or URL.
+	 * Normalized report parameters used to fetch and render widget data.
 	 */
 	reportParams: ReportParams;
+
+	/**
+	 * The normalized report window before surface-specific fields are removed.
+	 * Link builders use this to preserve state across route transitions.
+	 *
+	 * Optional for backward compatibility with direct context providers.
+	 */
+	navigationParams?: ReportParams;
 
 	/**
 	 * Function to report an error state in the widget.

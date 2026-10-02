@@ -3,25 +3,27 @@
  */
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Text } from '@jetpack-premium-analytics/externals';
 import {
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
 	describeError,
 	getCombinedPeriodMax,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	LeaderboardPostLabel,
 	ReportLink,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
 	WidgetState,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -38,11 +40,7 @@ type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParams
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
 type UtmReportSection =
-	| 'source-medium'
-	| 'campaign-source-medium'
-	| 'source'
-	| 'medium'
-	| 'campaign';
+	'source-medium' | 'campaign-source-medium' | 'source' | 'medium' | 'campaign';
 
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
@@ -53,10 +51,6 @@ type UtmInsightsInnerProps = {
 	 * Active UTM dimension.
 	 */
 	utmDimension: StatsUtmParam;
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
 	/**
 	 * Whether to render the "View all" footer link.
 	 */
@@ -79,7 +73,7 @@ function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
 	}
 }
 
-function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInnerProps ) {
+function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
 	const {
 		drillDownItem: selectedUtmLabel,
@@ -96,7 +90,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 	const { data, hasComparison, isLoading, isFetching, isError, error, refetch } = useUtmInsights( {
 		reportParams,
 		utmParam: utmDimension,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} );
 
 	const selectedUtm = useMemo(
@@ -105,17 +99,14 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 	);
 	const isDrillDown = !! selectedUtm?.children?.length;
 	const activeData = useMemo(
-		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
+		() => ( isDrillDown ? ( selectedUtm?.children ?? [] ) : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
 	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
 
-	// The view already falls back to the top list when the selected row is
-	// missing or no longer drillable (no children); clear the stored selection
-	// too once data has settled without a drillable match, so stale state
-	// can't resurface on a later refetch (WOOA7S-1666). In-flight fetches keep
-	// placeholder rows and errors aren't settled data, so a valid selection
-	// survives refetches and transient failures.
+	// Clear the stored selection only once data has settled without a drillable
+	// match, so it can't resurface on a later refetch (WOOA7S-1666) and a valid
+	// selection survives in-flight fetches and transient failures.
 	useEffect( () => {
 		if ( selectedUtmLabel && ! isDrillDown && ! isLoading && ! isFetching && ! isError ) {
 			clearSelectedUtm();
@@ -131,22 +122,39 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 		return activeData.map( ( item, index ) => {
 			const previousValue = item.previousValue;
 			const postRow = 'postId' in item ? item : null;
+			const hasChildren = ! isDrillDown && 'children' in item && Boolean( item.children?.length );
 
 			return {
 				id: `${ index }-${ item.label }`,
-				label: postRow ? (
-					<LeaderboardPostLabel
-						id={ postRow.postId }
-						label={ postRow.label }
-						link={ postRow.href }
-						variant="overlay"
-						className={ styles.itemLabelInset }
-					/>
-				) : (
-					<span className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText }>{ item.label }</Text>
-					</span>
-				),
+				...( postRow
+					? {
+							label: (
+								<LeaderboardPostLabel
+									id={ postRow.postId }
+									label={ postRow.label }
+									link={ postRow.href }
+									origin={ {
+										report: 'utm',
+										section: getUtmReportSection( utmDimension ),
+									} }
+								/>
+							),
+						}
+					: buildLeaderboardRow( {
+							label: item.label,
+							media: { kind: 'none' },
+							action: resolveLeaderboardRowAction( {
+								hasChildren,
+								drillDown: {
+									onClick: () => selectUtmLabel( item.label ),
+									ariaLabel: sprintf(
+										/* translators: %s is the UTM value label. */
+										__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
+										item.label
+									),
+								},
+							} ),
+						} ) ),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
@@ -158,19 +166,9 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 					withComparison && previousValue !== undefined
 						? calculateDelta( item.value, previousValue )
 						: undefined,
-				...( ! isDrillDown &&
-					'children' in item &&
-					item.children?.length && {
-						onClick: () => selectUtmLabel( item.label ),
-						ariaLabel: sprintf(
-							/* translators: %s is the UTM value label. */
-							__( 'View posts for %s', 'jetpack-premium-analytics-pkg' ),
-							item.label
-						),
-					} ),
 			};
 		} );
-	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, selectUtmLabel, utmDimension, withComparison ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
@@ -196,10 +194,7 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
 						),
 						onRetry: refetch,
 					} ) }
-					empty={ {
-						icon: megaphone,
-						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
 						data={ leaderboardData }
@@ -226,17 +221,12 @@ function UtmInsightsInner( { utmDimension, max, showReportLink }: UtmInsightsInn
  */
 export default function UtmInsightsWidget( { attributes = {} }: UtmInsightsWidgetProps ) {
 	const utmDimension = attributes.utmDimension ?? DEFAULT_UTM_DIMENSION;
-	const max = attributes.max ?? 10;
 	const showReportLink = attributes.showReportLink ?? true;
 
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<UtmInsightsInner
-					utmDimension={ utmDimension }
-					max={ max }
-					showReportLink={ showReportLink }
-				/>
+				<UtmInsightsInner utmDimension={ utmDimension } showReportLink={ showReportLink } />
 			</div>
 		</WidgetRoot>
 	);

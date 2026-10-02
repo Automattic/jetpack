@@ -120,7 +120,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.enterCornerstonePageUrl( testUrls );
 
 		await expect(
-			page.getByText( 'You can add only 1 cornerstone page URL' ),
+			page.getByText( 'You can add only 1 Cornerstone Page URL' ),
 			'Should show limit error for free plan'
 		).toBeVisible();
 
@@ -145,9 +145,9 @@ test.describe( 'Cornerstone Pages', () => {
 
 		// Verify that premium features are detected
 		await expect(
-			page.getByRole( 'button', { name: 'Cornerstone Pages Upgraded' } ),
-			'Premium features should be detected by the frontend'
-		).toBeVisible();
+			page.getByText( 'Premium users can add up to' ),
+			'Upgrade CTA should be hidden when premium features are active'
+		).toBeHidden();
 
 		// Add 10 pages
 		const tenPages = Array.from( { length: 10 }, ( _, i ) => `/page-${ i + 1 }` ).join( '\n' );
@@ -177,7 +177,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.enterCornerstonePageUrl( elevenPages );
 
 		await expect(
-			page.getByText( 'You can add up to 10 cornerstone page URLs' ),
+			page.getByText( 'You can add up to 10 Cornerstone Page URLs' ),
 			'Should show limit error for premium plan'
 		).toBeVisible();
 
@@ -195,7 +195,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		await expect(
-			page.getByText( 'Premium users can add up to 10 cornerstone pages' ),
+			page.getByText( 'Premium users can add up to 10 Cornerstone Pages' ),
 			'Upgrade CTA should be visible on free plan'
 		).toBeVisible();
 	} );

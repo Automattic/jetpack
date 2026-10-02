@@ -86,7 +86,6 @@ describe( 'ReportCsvDownloadButton', () => {
 		mockGetScriptData.mockReturnValue( {
 			premium_analytics: {
 				initial_full_sync_finished: 1,
-				has_store_data: false,
 				csv_exports_enabled: false,
 			},
 		} as ReturnType< typeof getScriptData > );
@@ -112,7 +111,7 @@ describe( 'ReportCsvDownloadButton', () => {
 
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 		expect( warn ).toHaveBeenCalledWith(
-			'ReportCsvDownloadButton requires reportParams or a surrounding WidgetRoot.'
+			'useServerReportCsvAction requires reportParams or a surrounding WidgetRoot.'
 		);
 
 		warn.mockRestore();

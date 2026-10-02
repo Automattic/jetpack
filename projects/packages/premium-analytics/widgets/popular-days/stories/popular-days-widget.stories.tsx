@@ -138,12 +138,8 @@ export const Empty: Story = {
 };
 
 /**
- * Renders the data-connected widget through the shared dashboard harness, so it
- * appears exactly as it does in product (framed card, sizing, edit mode).
- *
  * Comparison params are passed even though the widget strips them, so the story
- * covers the widget against crashing or inventing deltas when the host supplies
- * comparison dates.
+ * covers it against inventing deltas when the host supplies comparison dates.
  *
  * @param {WidgetDashboardWithWidgetControls} dashboardArgs - The dashboard story controls.
  * @return The widget mounted inside the real `WidgetDashboard`.

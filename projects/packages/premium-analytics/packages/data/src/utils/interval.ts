@@ -3,6 +3,7 @@
  */
 import {
 	getDatePart,
+	PRESET_CUSTOM,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_30_DAYS,
@@ -14,29 +15,23 @@ import {
 	PRESET_TODAY,
 	PRESET_YESTERDAY,
 	isIntervalType,
+	localTZDate,
 	type IntervalType,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { differenceInCalendarDays, differenceInHours } from 'date-fns';
-/**
- * Internal dependencies
- */
-import { localTZDate } from './date';
 
 export type { IntervalType };
 
 export function getDaysBetweenInclusive( from: string, to: string ): number {
-	// Extract the calendar day first: callers may now pass a full offset-bearing
-	// ISO datetime (Stats endpoints resolve those correctly, so request params
-	// aren't pre-trimmed anymore) rather than a bare `yyyy-MM-dd`.
+	// Callers may pass a full offset-bearing ISO datetime rather than a bare
+	// `yyyy-MM-dd`, so take the calendar day first.
 	const fromDay = getDatePart( from );
 	const toDay = getDatePart( to );
 
 	// Anchor both dates in UTC before diffing: `differenceInCalendarDays` reads
-	// its arguments' local calendar getters, and a plain UTC-tagged `Date`'s
-	// getters reflect the machine's local timezone, not UTC. Left unanchored,
-	// a negative-offset machine can read a UTC midnight instant as the
-	// previous local calendar day, shifting the day count.
+	// local calendar getters, so on a negative-offset machine a UTC midnight
+	// instant reads as the previous day and shifts the count.
 	const fromDate = localTZDate( `${ fromDay }T00:00:00Z`, '+00:00' );
 	const toDate = localTZDate( `${ toDay }T00:00:00Z`, '+00:00' );
 	const days = differenceInCalendarDays( toDate, fromDate );
@@ -50,17 +45,20 @@ export function getDaysBetweenInclusive( from: string, to: string ): number {
 }
 
 function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] {
-	// Use hours instead of days to handle ranges that are 1 second short of a full day.
-	// E.g., '2024-11-01 00:00:00' to '2025-10-31 23:59:59' is 8759 hours (364.958 days),
-	// which rounds to 365 days, correctly categorizing it as a yearly interval.
+	// Hours, not days, so a range one second short of a full year (8759 hours)
+	// still rounds to 365 and categorizes as yearly.
 	const daysDiff = Math.round(
 		Math.abs( differenceInHours( localTZDate( to ), localTZDate( from ) ) / 24 )
 	);
 
+	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
-		return [ 'quarter', 'year' ];
+		return [ 'month', 'year' ];
+	} else if ( daysDiff > 366 ) {
+		return [ 'month' ];
 	} else if ( daysDiff >= 365 ) {
-		return [ 'month', 'quarter' ];
+		// Months by default; weeks stay on offer for a single year, leap or not.
+		return [ 'month', 'week' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -81,11 +79,9 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 /**
  * Allowed intervals for a preset, default first.
  *
- * Unknown / custom / year-surface presets derive the list from `from`–`to`
- * length.
- *
- * Also what the interval control lists, so the menu can never offer a bucket
- * the range would coerce away.
+ * Where the interval control starts, before a widget narrows it to what its
+ * chart can draw (`drawableIntervals`). Callers pass the range being edited,
+ * not the applied one: a bucket it would coerce away springs back on Apply.
  */
 export function getAllowedIntervalsForPreset(
 	preset: PrimaryPresetId | undefined,
@@ -112,7 +108,7 @@ export function getAllowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month', 'quarter' ];
+			return [ 'month', 'week' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}
@@ -139,6 +135,30 @@ export function resolveIntervalForRange(
 	return allowed[ 0 ] ?? 'day';
 }
 
+/**
+ * Resolve the interval for a range picked while `currentPreset` was active.
+ *
+ * A different named preset starts from its own default; any other change
+ * carries `currentInterval` unless the new range disallows it.
+ */
+export function resolveIntervalForPresetChange(
+	currentPreset: PrimaryPresetId | undefined,
+	nextPreset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	currentInterval?: string
+): IntervalType {
+	const switchesNamedPreset =
+		!! nextPreset && nextPreset !== PRESET_CUSTOM && nextPreset !== currentPreset;
+
+	return resolveIntervalForRange(
+		nextPreset,
+		from,
+		to,
+		switchesNamedPreset ? undefined : currentInterval
+	);
+}
+
 /** Default interval for a preset / date range. */
 export function getDefaultIntervalForPeriod(
 	preset: PrimaryPresetId | undefined,
@@ -163,8 +183,6 @@ export function getDateFormatFromInterval(
 			return 'MMM d';
 		case 'month':
 			return 'MMM yyyy';
-		case 'quarter':
-			return 'qqq yyyy';
 		case 'year':
 			return 'yyyy';
 		default:

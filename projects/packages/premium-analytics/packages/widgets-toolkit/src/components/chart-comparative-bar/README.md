@@ -25,8 +25,9 @@ import { ComparativeBarChart } from '@jetpack-premium-analytics/widgets-toolkit'
 ```
 
 A series marked `options.type: 'comparison'` renders as the previous-period shadow behind its
-same-`group` primary series. Index 0 is the primary; `alignSeriesDates` treats every later series as
-a comparison and aligns it onto the primary's dates.
+same-`group` primary series, and is the only kind `alignSeriesDates` moves: it re-dates such a
+series onto the dates of the first series in the array. A chart may draw more than one metric — a
+second current-period series keeps its own dates.
 
 ## Props
 
@@ -38,6 +39,9 @@ a comparison and aligns it onto the primary's dates.
 | `compactWhenShort` | `boolean`                     | No       | Degrade to a sparkline under 140px of chart area              |
 | `maxWidth`         | `number`                      | No       | Maximum chart width                                           |
 | `className`        | `string`                      | No       | CSS class for the chart container                             |
+| `chartId`          | `string`                      | No       | Identity the charts provider keys visibility on; generated when omitted. Change it whenever `defaultHiddenSeries` should be applied again |
+| `defaultHiddenSeries` | `readonly string[]`        | No       | Labels of series hidden until revealed from the legend. Applied once per `chartId`, so only useful with `legendInteractive` |
+| `legendInteractive` | `boolean`                    | No       | Let the reader click legend items to show and hide series; the first item stays locked. Defaults to `false` |
 
 ## Date alignment and tooltips
 
@@ -52,6 +56,5 @@ unreadable.
 ## Y-axis domain
 
 Percentage metrics are pinned to 0%–100% and an all-zero period gets a readable axis instead of a
-flat baseline, both via the shared `getFixedYAxis` helper, which also supplies the left margin such
-a pinned domain needs. Zero-value bars are drawn as hairline stubs (`showZeroValues`) so a quiet day
-reads as zero rather than missing data.
+flat baseline, both via the shared `getFixedYAxis` helper. Zero-value bars are drawn as hairline
+stubs (`showZeroValues`) so a quiet day reads as zero rather than missing data.

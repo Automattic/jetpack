@@ -1,0 +1,63 @@
+{
+	"name": "@automattic/jetpack-comments",
+	"version": "0.3.0",
+	"private": true,
+	"description": "Replaces the default WordPress comment form.",
+	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/comments/#readme",
+	"bugs": {
+		"url": "https://github.com/Automattic/jetpack/labels/[Package] Comments"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/jetpack.git",
+		"directory": "projects/packages/comments"
+	},
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"scripts": {
+		"build": "pnpm run clean && pnpm run build-js",
+		"build-js": "webpack --config webpack.config.js",
+		"build-production": "pnpm run clean && pnpm run build-production-js && pnpm run validate",
+		"build-production-js": "NODE_ENV=production BABEL_ENV=production pnpm run build-js",
+		"clean": "rm -rf build/",
+		"typecheck": "tsgo --noEmit",
+		"validate": "pnpm exec validate-es build/",
+		"watch": "pnpm run build-js --watch"
+	},
+	"dependencies": {
+		"@preact/signals": "1.2.2",
+		"@wordpress/block-editor": "17.1.0",
+		"@wordpress/block-library": "11.0.0",
+		"@wordpress/blocks": "16.0.0",
+		"@wordpress/components": "40.1.0",
+		"@wordpress/data": "10.55.0",
+		"@wordpress/element": "8.7.0",
+		"@wordpress/format-library": "5.55.0",
+		"@wordpress/i18n": "6.28.0",
+		"@wordpress/rich-text": "7.55.0",
+		"clsx": "2.1.1",
+		"preact": "10.28.2",
+		"react": "18.3.1",
+		"react-dom": "18.3.1"
+	},
+	"devDependencies": {
+		"@automattic/jetpack-webpack-config": "workspace:*",
+		"@babel/core": "7.29.7",
+		"@babel/plugin-transform-react-jsx": "7.29.7",
+		"@babel/runtime": "7.29.7",
+		"@types/react": "18.3.31",
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"@wordpress/base-styles": "13.1.0",
+		"@wordpress/browserslist-config": "6.55.0",
+		"autoprefixer": "10.4.20",
+		"babel-plugin-transform-rename-properties": "0.1.0",
+		"browserslist": "^4.24.0",
+		"postcss": "8.5.23",
+		"postcss-loader": "8.2.0",
+		"sass-embedded": "1.97.3",
+		"sass-loader": "16.0.5",
+		"webpack": "5.111.1",
+		"webpack-cli": "7.2.1"
+	}
+}

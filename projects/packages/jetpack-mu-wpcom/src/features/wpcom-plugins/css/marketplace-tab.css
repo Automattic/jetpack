@@ -1,0 +1,100 @@
+/**
+ * Marketplace cards on Add Plugins, on the tab and in search results.
+ *
+ * The cards are core's `.plugin-card`, laid out by core's CSS. This only styles
+ * the label and the price in each card's bottom strip.
+ */
+
+.wpcom-marketplace-card__headline,
+.wpcom-marketplace-card__alternative {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 2px 8px;
+	margin: 0;
+}
+
+.wpcom-marketplace-card__amount {
+
+	/* Core's rating row height, so price and monthly line fill its 45px. */
+	font-size: 16px;
+	line-height: 23px;
+	font-weight: 600;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: -0.01em;
+}
+
+.wpcom-marketplace-card__per {
+	margin-inline-start: -6px;
+	color: #646970;
+	font-size: 13px;
+}
+
+.wpcom-marketplace-card__note {
+	color: #646970;
+	font-size: 12px;
+}
+
+/*
+ * Centred rather than on the baseline: the badge's bottom padding sits below
+ * the text baseline, which grows the line and shifts the row it sits on.
+ */
+.wpcom-marketplace-card__saving {
+	align-self: center;
+	border-radius: 3px;
+	padding: 2px 6px;
+	background: #d5eddb;
+	color: #00450c;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.45;
+	white-space: nowrap;
+}
+
+/*
+ * WordPress.org's stats, for plugins it does not list. Hidden until
+ * js/marketplace-cards.js swaps in the card's own strip.
+ */
+.plugin-card:has(.wpcom-marketplace-strip) .plugin-card-bottom > * {
+	display: none;
+}
+
+/*
+ * Core's rows, 23px and 18px, kept when empty so every strip in a row lines
+ * up. The /year and badge must not inherit the rating column's 23px line
+ * height, which grows the row a pixel. Specific enough to beat core's rule
+ * whichever stylesheet prints first.
+ */
+.plugin-card .plugin-card-bottom .wpcom-marketplace-card__headline {
+	min-block-size: 23px;
+	line-height: inherit;
+}
+
+.plugin-card .plugin-card-bottom .wpcom-marketplace-card__alternative {
+	min-block-size: 18px;
+}
+
+.wpcom-marketplace-label {
+	display: block;
+	inline-size: fit-content;
+	margin-block-end: 6px;
+	border-radius: 3px;
+	padding: 2px 6px;
+	background: #f0f6fc;
+	color: #135e96;
+	font-size: 11px;
+	font-weight: 600;
+	line-height: 1.45;
+}
+
+/*
+ * Core renders the other tabs' descriptions as unclassed <p>s, so they keep
+ * the admin's 1em block margins. Match those rather than zeroing the top,
+ * which left this tab's text riding up against the filter bar.
+ */
+.wpcom-marketplace-tab .wpcom-marketplace-intro {
+	max-inline-size: 60em;
+	margin-block: 1em;
+	margin-inline: 0;
+	color: #50575e;
+}

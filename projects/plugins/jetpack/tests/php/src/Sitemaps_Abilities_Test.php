@@ -5,8 +5,6 @@
  * @package automattic/jetpack
  */
 
-// @phan-file-suppress PhanUndeclaredFunction, PhanUndeclaredClassMethod @phan-suppress-current-line UnusedSuppression -- Abilities API added in WP 6.9.
-
 // The Sitemaps_Abilities class lives under modules/sitemaps/abilities/ rather
 // than src/, so Composer's classmap autoloader does not see it. Pull it in
 // explicitly — mirrors the Newsletter_Abilities test convention.

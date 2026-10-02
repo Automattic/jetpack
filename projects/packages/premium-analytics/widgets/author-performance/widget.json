@@ -1,0 +1,10 @@
+{
+	"name": "jpa/author-performance",
+	"title": "Author performance",
+	"description": "How the posts of the author being viewed performed over the selected period.",
+	"help": {
+		"content": "This author’s views over the selected period. Views come from the site’s 20 most viewed authors per period, so on a site with more authors, a period where this author ranks lower counts as zero."
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

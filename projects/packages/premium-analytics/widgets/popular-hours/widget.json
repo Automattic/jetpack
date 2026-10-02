@@ -1,0 +1,16 @@
+{
+	"name": "jpa/popular-hours",
+	"title": "Popular hours",
+	"description": "The hour of the day that draws the most views, with the distribution across the day.",
+	"help": {
+		"content": "The hours of the day when your site received the most views on average. Ranges longer than a year show the most recent 12 months.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://wordpress.com/support/stats/learn-insights-about-your-website/"
+			}
+		]
+	},
+	"category": "stats",
+	"presentation": "framed"
+}

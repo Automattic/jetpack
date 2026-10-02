@@ -1,19 +1,11 @@
 /**
  * WordPress dependencies
  */
-import { __ } from '@wordpress/i18n';
 import { link } from '@wordpress/icons';
 import type { WidgetAttributeField } from '@wordpress/widget-primitives';
 
-/**
- * Configurable attributes for the Clicks widget.
- */
-export type ClicksAttributes = {
-	/**
-	 * Maximum rows to display. 0 means all rows returned by the API.
-	 */
-	max?: number;
-};
+/** No configurable attributes; the empty record allows host-provided fields. */
+export type ClicksAttributes = Record< never, never >;
 
 /**
  * Clicks widget type definition.
@@ -23,16 +15,8 @@ export type ClicksAttributes = {
  */
 export default {
 	icon: link,
-	attributes: [
-		{
-			id: 'max',
-			label: __( 'Number of results', 'jetpack-premium-analytics-pkg' ),
-			type: 'integer',
-		},
-	] as WidgetAttributeField< ClicksAttributes >[],
+	attributes: [] as WidgetAttributeField< ClicksAttributes >[],
 	example: {
-		attributes: {
-			max: 10,
-		},
+		attributes: {},
 	},
 };

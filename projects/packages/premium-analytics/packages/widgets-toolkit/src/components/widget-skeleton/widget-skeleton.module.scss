@@ -1,0 +1,37 @@
+// Prevent the skeleton from collapsing inside a row-flex widget body.
+.root {
+	display: flex;
+	flex-direction: column;
+	block-size: 100%;
+	min-block-size: 0;
+}
+
+.lines {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	justify-content: center;
+	gap: var(--wpds-dimension-gap-md);
+	padding: var(--wpds-dimension-padding-md);
+}
+
+.line {
+	block-size: var(--wpds-typography-line-height-xs);
+	border-radius: var(--wpds-border-radius-md);
+}
+
+.line:nth-child(1) {
+	inline-size: 88%;
+}
+
+.line:nth-child(2) {
+	inline-size: 72%;
+}
+
+.line:nth-child(3) {
+	inline-size: 80%;
+}
+
+.line:nth-child(4) {
+	inline-size: 58%;
+}

@@ -1,9 +1,7 @@
 /**
- * Stats API mock middleware for Storybook.
- *
- * Intercepts `@wordpress/api-fetch` requests to the PA Stats proxy and returns
- * fixture data so Stats-backed widgets render in Storybook without a live
- * WordPress + WPCOM connection.
+ * Stats API mock middleware for Storybook: intercepts `@wordpress/api-fetch`
+ * requests to the PA Stats proxy and returns fixture data so Stats-backed
+ * widgets render without a live WordPress + WPCOM connection.
  */
 /**
  * External dependencies
@@ -358,10 +356,8 @@ const MOCK_TOP_POSTS_COMPARISON = {
 	},
 };
 
-// `stats/archives` groups archive-page views by archive type; the widget's
-// Archives view renders one aggregate row per type.
-// With skip_archives=1 (sent to both reports, mirroring the Stats card) the
-// API returns no `home` entry here — it lives in the top-posts response.
+// `stats/archives` groups views by archive type (one row per type); with
+// skip_archives=1 the API omits `home` here — it's in the top-posts response.
 const MOCK_ARCHIVES = {
 	date: '2026-06-29',
 	period: 'day',
@@ -392,11 +388,8 @@ const MOCK_ARCHIVES_COMPARISON = {
 	},
 };
 
-// Exercises every referrer shape the widget renders: a multi-source group that
-// drills down twice (group → source → domain), a single-result group (which the
-// normalizer flattens into the result itself), and childless domains with URLs
-// that render as outbound links (label + favicon), while rows with children
-// drill down.
+// Exercises every referrer shape: multi-source drill-down (group → source →
+// domain), a single-result group (flattened), and childless outbound-link domains.
 const MOCK_REFERRERS = {
 	date: '2026-06-29',
 	period: 'day',
@@ -494,9 +487,8 @@ const MOCK_REFERRERS = {
 	},
 };
 
-// The Search Engines comparison total exceeds every current-period value so the
-// combined-scale contract is visible: the widest current bar stays below 100%
-// and its width agrees with the negative delta (see getCombinedPeriodMax).
+// The comparison total exceeds every current-period value so the combined-scale
+// contract is visible: the widest bar stays under 100%, matching the negative delta.
 const MOCK_REFERRERS_COMPARISON = {
 	date: '2026-05-30',
 	period: 'day',
@@ -823,6 +815,7 @@ type StatsLocationItem = {
 	location: string;
 	views: number;
 	country_code: string;
+	region?: string;
 	coordinates?: {
 		latitude: number;
 		longitude: number;
@@ -934,6 +927,66 @@ const CITY_COMPARISON_ROWS: StatsLocationItem[] = [
 		coordinates: { latitude: 52.52, longitude: 13.405 },
 	},
 ];
+
+// Keyed by `country:region`, matching the drill-down's `filter_by_country` + `filter_by_region`.
+const CITY_ROWS_BY_REGION: Record< string, StatsLocationItem[] > = {
+	'US:California': [
+		{
+			location: 'Los Angeles',
+			views: 640,
+			coordinates: { latitude: 34.0522, longitude: -118.2437 },
+		},
+		{
+			location: 'San Francisco',
+			views: 520,
+			coordinates: { latitude: 37.7749, longitude: -122.4194 },
+		},
+		{
+			location: 'San Diego',
+			views: 310,
+			coordinates: { latitude: 32.7157, longitude: -117.1611 },
+		},
+		{
+			location: 'Sacramento',
+			views: 190,
+			coordinates: { latitude: 38.5816, longitude: -121.4944 },
+		},
+	].map( row => ( { ...row, country_code: 'US', region: 'California' } ) ),
+	'US:New York': [
+		{
+			location: 'New York',
+			views: 980,
+			coordinates: { latitude: 40.7128, longitude: -74.006 },
+		},
+		{
+			location: 'Buffalo',
+			views: 170,
+			coordinates: { latitude: 42.8864, longitude: -78.8784 },
+		},
+		{
+			location: 'Rochester',
+			views: 130,
+			coordinates: { latitude: 43.1566, longitude: -77.6088 },
+		},
+	].map( row => ( { ...row, country_code: 'US', region: 'New York' } ) ),
+	'GB:England': [
+		{
+			location: 'London',
+			views: 476,
+			coordinates: { latitude: 51.5072, longitude: -0.1276 },
+		},
+		{
+			location: 'Manchester',
+			views: 410,
+			coordinates: { latitude: 53.4808, longitude: -2.2426 },
+		},
+		{
+			location: 'Bristol',
+			views: 220,
+			coordinates: { latitude: 51.4545, longitude: -2.5879 },
+		},
+	].map( row => ( { ...row, country_code: 'GB', region: 'England' } ) ),
+};
 
 const REGION_ROWS_BY_COUNTRY: Record< string, StatsLocationItem[] > = {
 	US: [
@@ -1065,11 +1118,8 @@ const MOCK_DEVICES_PLATFORM_COMPARISON = {
 	},
 };
 
-// Heuristic: a request whose `date` param is more than 1 day ago is treated as the
-// comparison-period request. This works for the default `last-30-days` preset (primary
-// date ~= today, comparison date ~= 30 days ago). It would misclassify a `today` preset
-// (comparison date = yesterday, daysFromToday === 1), but the stories only use the default
-// preset so this is fine in practice.
+// Heuristic: a `date` more than 1 day old is the comparison request — works for
+// the default last-30-days preset but would misclassify a `today` preset (fine here).
 function isComparisonRequest( path: string ): boolean {
 	const queryString = path.split( '?' )[ 1 ];
 	const requestDate = queryString ? new URLSearchParams( queryString ).get( 'date' ) : null;
@@ -1096,6 +1146,21 @@ function getLocationRows(
 	isComparison: boolean
 ): StatsLocationItem[] {
 	if ( geoMode === 'city' ) {
+		const regionFilter = query.get( 'filter_by_region' );
+
+		if ( regionFilter ) {
+			const rows = CITY_ROWS_BY_REGION[ `${ query.get( 'filter_by_country' ) }:${ regionFilter }` ];
+
+			// Unknown regions come back empty, as the endpoint does.
+			if ( ! rows ) {
+				return [];
+			}
+
+			return isComparison
+				? rows.map( row => ( { ...row, views: Math.round( row.views * 0.85 ) } ) )
+				: rows;
+		}
+
 		return isComparison ? CITY_COMPARISON_ROWS : CITY_ROWS;
 	}
 
@@ -1229,12 +1294,8 @@ const statsMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOption
 		return prepareStatsMockResponse( mock, options.parse );
 	}
 
-	// Stats endpoints this middleware doesn't know may be owned by the shared
-	// report mocks (register-report-mocks.ts), including its forced-state
-	// overrides. Fall through instead of answering with an empty catch-all:
-	// story-module load order decides which mock middleware runs first, so
-	// swallowing unknown endpoints here starves the other middleware whenever
-	// this one registers later.
+	// Unknown endpoints may belong to the shared report mocks; fall through rather
+	// than swallowing them, since module load order decides which mock runs first.
 	return next( options );
 };
 

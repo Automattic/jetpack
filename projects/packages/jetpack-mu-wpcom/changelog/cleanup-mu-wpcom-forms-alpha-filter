@@ -1,0 +1,4 @@
+Significance: minor
+Type: deprecated
+
+Contact Form Flags: Retire the disable-central-forms-management gating. Central Forms Management is enabled for every site.

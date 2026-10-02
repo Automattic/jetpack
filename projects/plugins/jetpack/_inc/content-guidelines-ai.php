@@ -18,6 +18,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
+ * Check whether the current visitor should be marked as Automattician traffic.
+ *
+ * @since 16.2
+ *
+ * @return bool True when the visitor is Automattician traffic.
+ */
+function jetpack_content_guidelines_ai_is_tracking_automattician() {
+	$visitor = new Visitor();
+
+	// Another plugin can supply an older copy of jetpack-status through its own
+	// autoloader, where this method does not exist yet.
+	if ( ! method_exists( $visitor, 'is_tracking_automattician' ) ) {
+		return ( function_exists( 'is_automattician' ) && is_automattician() )
+			|| ( function_exists( 'wpcom_is_proxied_request' ) && wpcom_is_proxied_request() )
+			|| ( defined( 'AT_PROXIED_REQUEST' ) && AT_PROXIED_REQUEST );
+	}
+
+	return $visitor->is_tracking_automattician();
+}
+
+/**
  * Enqueue content-guidelines-ai script on the Content Guidelines admin page.
  *
  * @since 16.0
@@ -30,11 +51,12 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 	}
 
 	// Content Guidelines AI is only offered on WordPress.com platform sites
-	// (Simple and Atomic) — a hard gate the jetpack_ai_enabled filter below
-	// cannot widen. Free-tier Simple/Atomic sites still load the bundle so
-	// the upgrade path can be shown — the paid-plan requirement is enforced
-	// by the suggest-guidelines API.
-	if ( ! ( new Host() )->is_wpcom_platform() ) {
+	// (Simple and Atomic) and WordPress VIP sites — a hard gate the
+	// jetpack_ai_enabled filter below cannot widen. Free-tier sites still load
+	// the bundle so the upgrade path can be shown — the paid-plan requirement
+	// is enforced by the suggest-guidelines API.
+	$host = new Host();
+	if ( ! $host->is_wpcom_platform() && ! $host->is_vip_site() ) {
 		return;
 	}
 
@@ -90,7 +112,7 @@ function jetpack_content_guidelines_ai_enqueue_scripts( $hook_suffix ) {
 		// Tags every Tracks event fired from this page as internal traffic. The
 		// feature is new and low-volume, so Automattician testing is otherwise a
 		// visible share of the numbers with no way to filter it out after the fact.
-		'isA11n'          => ( new Visitor() )->is_tracking_automattician(),
+		'isA11n'          => jetpack_content_guidelines_ai_is_tracking_automattician(),
 	);
 
 	// Resolve the AI feature state server-side so the bundle can hydrate the

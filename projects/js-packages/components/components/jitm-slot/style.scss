@@ -1,0 +1,16 @@
+// The slot is always rendered and usually empty, so it takes no space
+// of its own; spacing sits on the card so a dismissed one leaves no gap.
+.jp-jitm-slot {
+	margin: 0;
+	padding: 0;
+
+	// `jitm-card` comes from packages/jitm/src/js/jetpack-jitm.js.
+	.jitm-card {
+		margin: var(--wpds-dimension-gap-xl) 0;
+	}
+}
+
+// Same specificity as the rule above, so it has to come after it.
+.jp-jitm-slot--inset .jitm-card {
+	margin-inline: var(--wpds-dimension-padding-2xl);
+}

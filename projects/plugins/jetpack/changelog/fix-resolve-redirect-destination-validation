@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Resolve Redirect endpoint: Validate every redirect hop, and return a 400 error when a URL cannot be fetched, is blocked, or exceeds the redirect limit, instead of a 200 response with an empty URL.

@@ -647,7 +647,7 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return void
 	 */
 	public function apply_initial_field_visibility() {
-		if ( empty( $this->body ) || ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+		if ( empty( $this->body ) || ! $this->conditional_logic_applies() ) {
 			return;
 		}
 
@@ -1527,13 +1527,16 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		$config = array(
-			'error_types'    => array(
+			'error_types'     => array(
 				'is_required'        => __( 'This field is required.', 'jetpack-forms' ),
 				'invalid_form_empty' => __( 'The form you are trying to submit is empty.', 'jetpack-forms' ),
 				'invalid_form'       => __( 'Please fill out the form correctly.', 'jetpack-forms' ),
 				'network_error'      => __( 'Connection issue while submitting the form. Check that you are connected to the Internet and try again.', 'jetpack-forms' ),
 			),
-			'admin_ajax_url' => admin_url( 'admin-ajax.php' ),
+			'admin_ajax_url'  => admin_url( 'admin-ajax.php' ),
+			// Translated here because the interactivity module is a script module with no
+			// i18n dependency, and the string has to match what was rendered server-side.
+			'unchecked_label' => __( 'No', 'jetpack-forms' ),
 		);
 		wp_interactivity_config( 'jetpack/form', $config );
 		\wp_enqueue_script_module(
@@ -1961,7 +1964,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 			$formatted_submission_data[] = array(
 				'label'          => Util::maybe_add_colon_to_label( $field_data['label'] ),
-				'value'          => self::maybe_transform_value( $field_data['value'] ),
+				'value'          => self::get_submission_display_value( $field_data['value'], $type ),
+				// The submitted answer, kept beside the label the summary prints. The checkbox
+				// icon is chosen from it: `is_checked_value()` recognizes only the ASCII `no`
+				// sentinel, so a translated "No" would read as ticked in every locale whose
+				// word for it is not "no".
+				'rawValue'       => $field_data['value'],
 				'images'         => $images,
 				'url'            => $url,
 				'files'          => $files,
@@ -1972,6 +1980,29 @@ class Contact_Form extends Contact_Form_Shortcode {
 		}
 
 		return $formatted_submission_data;
+	}
+
+	/**
+	 * The value a submitted field shows in the confirmation summary.
+	 *
+	 * An unticked checkbox submits nothing, so it arrives empty and the summary drew the
+	 * label over a blank line. The email renderer has always said "No" here.
+	 *
+	 * Mirrored by `getSubmissionDisplayValue()` in src/modules/form/helpers.js, which formats
+	 * the same data for an AJAX submission; the two must produce the same string or the
+	 * summary changes as the Interactivity API hydrates it.
+	 *
+	 * @param mixed  $value The submitted value.
+	 * @param string $type  The field type.
+	 *
+	 * @return mixed The value to display.
+	 */
+	private static function get_submission_display_value( $value, $type ) {
+		if ( 'checkbox' === $type && ! Feedback_Field::is_checked_value( $value ) ) {
+			return __( 'No', 'jetpack-forms' );
+		}
+
+		return self::maybe_transform_value( $value );
 	}
 
 	/**
@@ -2203,8 +2234,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 							<template data-wp-each--image="context.submission.images">
 								<div class="field-image-option" data-wp-class--is-empty="!context.image.src">
 									<figure class="field-image-option__image" data-wp-class--is-empty="!context.image.src">
-										<img data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
-										<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
+										<img alt="" data-wp-bind--src="context.image.src" data-wp-bind--hidden="!context.image.src" />
+										<img alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src" />
 									</figure>
 									<div class="field-image-option__label-wrapper">
 										<span class="field-image-option__label-code" data-wp-text="context.image.letterCode"></span>
@@ -2245,7 +2276,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 					// field-type-icon: rendered based on field type and, for checkboxes, the answer.
 					// The data-rendered-type attribute enables hydration optimization by allowing
 					// the JS callback to skip re-rendering when the icon is already correct.
-					$field_value = $submission['value'] ?? '';
+					// The raw answer, not the printed label -- see `rawValue` above.
+					$field_value = $submission['rawValue'] ?? '';
 					$icon_key    = self::get_field_type_icon_key( $field_type, $field_value );
 					$html       .= '<div class="field-type-icon" data-wp-watch="callbacks.watchFieldTypeIcon" data-rendered-type="' . esc_attr( $icon_key ) . '">' . self::get_field_type_icon( $field_type, $field_value ) . '</div>';
 					// field-name: always present.
@@ -2280,8 +2312,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 
 							$html .= '<div data-wp-each-child class="field-image-option ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
 							$html .= '<figure class="field-image-option__image ' . ( empty( $image_src ) ? 'is-empty' : '' ) . '" data-wp-class--is-empty="!context.image.src">';
-							$html .= '<img data-wp-bind--src="context.image.src" src="' . esc_attr( $image_src ) . '" data-wp-bind--hidden="!context.image.src"' . ( empty( $image_src ) ? ' hidden' : '' ) . '/>';
-							$html .= '<img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src"' . ( empty( $image_src ) ? '' : ' hidden' ) . '/>';
+							$html .= '<img alt="" data-wp-bind--src="context.image.src" src="' . esc_attr( $image_src ) . '" data-wp-bind--hidden="!context.image.src"' . ( empty( $image_src ) ? ' hidden' : '' ) . '/>';
+							$html .= '<img alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" data-wp-bind--hidden="context.image.src"' . ( empty( $image_src ) ? '' : ' hidden' ) . '/>';
 							$html .= '</figure>';
 							$html .= '<div class="field-image-option__label-wrapper">';
 							$html .= '<span class="field-image-option__label-code" data-wp-text="context.image.letterCode">' . esc_html( $image_letter_code ) . '</span>';
@@ -2734,8 +2766,8 @@ class Contact_Form extends Contact_Form_Shortcode {
 			// Contact_Form::validate() re-validates every field once the form is fully parsed,
 			// and skips the ones conditional logic resolves as hidden, so nothing is lost by
 			// deferring: a visible field still gets its error, just a moment later.
-			$defer_to_full_form_validation = Jetpack_Forms::is_conditional_logic_enabled()
-				&& $field->has_conditional_logic();
+			$defer_to_full_form_validation = $field->has_conditional_logic()
+				&& Jetpack_Forms::is_conditional_logic_enabled();
 
 			if ( ! $defer_to_full_form_validation ) {
 				$field->validate();
@@ -3968,10 +4000,6 @@ class Contact_Form extends Contact_Form_Shortcode {
 	 * @return array Either an empty array or `array( 'types' => ..., 'logic' => ... )`.
 	 */
 	public function get_conditional_logic_context() {
-		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
-			return array();
-		}
-
 		$types   = array();
 		$logic   = array();
 		$formats = array();
@@ -3984,13 +4012,12 @@ class Contact_Form extends Contact_Form_Shortcode {
 				$formats[ $field_id ] = $date_format;
 			}
 
-			$field_logic = $field->get_attribute( 'conditionallogic' );
-			if ( is_array( $field_logic ) && ! empty( $field_logic['enabled'] ) ) {
-				$logic[ $field_id ] = $field_logic;
+			if ( $field->has_conditional_logic() ) {
+				$logic[ $field_id ] = $field->get_attribute( 'conditionallogic' );
 			}
 		}
 
-		if ( empty( $logic ) ) {
+		if ( empty( $logic ) || ! Jetpack_Forms::is_conditional_logic_enabled() ) {
 			return array();
 		}
 
@@ -4015,10 +4042,9 @@ class Contact_Form extends Contact_Form_Shortcode {
 			return $this->resolved_field_visibility;
 		}
 
-		// With the feature off every field is visible, so validation and storage behave
-		// exactly as they did before conditional logic existed. This is the single choke
-		// point for the runtime: callers do not need their own flag checks.
-		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
+		// Without applicable conditions every field is visible, so validation and storage behave
+		// exactly as they did before conditional logic existed; callers need no checks of their own.
+		if ( ! $this->conditional_logic_applies() ) {
 			$this->resolved_field_visibility = array();
 
 			return $this->resolved_field_visibility;
@@ -4030,15 +4056,28 @@ class Contact_Form extends Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Whether any field carries conditions and the site's plan includes the feature.
+	 *
+	 * The field scan runs first because it is cheaper than the plan check.
+	 *
+	 * @return bool
+	 */
+	private function conditional_logic_applies() {
+		foreach ( (array) $this->fields as $field ) {
+			if ( $field->has_conditional_logic() ) {
+				return Jetpack_Forms::is_conditional_logic_enabled();
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Resolve which fields are visible, without caching.
 	 *
 	 * @return array Map of field id to bool visibility.
 	 */
 	private function compute_field_visibility() {
-		if ( ! Jetpack_Forms::is_conditional_logic_enabled() ) {
-			return array();
-		}
-
 		if ( ! is_array( $this->fields ) || empty( $this->fields ) ) {
 			return array();
 		}

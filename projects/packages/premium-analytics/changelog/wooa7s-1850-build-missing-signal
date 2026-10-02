@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Report a missing widget manifest as a partial build, so a half-deployed dashboard is no longer silent.

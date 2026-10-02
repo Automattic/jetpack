@@ -191,6 +191,7 @@ class REST_Endpoints_Test extends TestCase {
 
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
+		remove_all_filters( 'jetpack_connection_requires_protected_owner' );
 
 		unset( $_SERVER['REQUEST_METHOD'] );
 		$_GET = array();
@@ -238,7 +239,7 @@ class REST_Endpoints_Test extends TestCase {
 			$reflection->setStaticPropertyValue( 'configured', true );
 			$reflection->setStaticPropertyValue( 'plugins', array() );
 			$reflection->setStaticPropertyValue( 'current_blog_id', null );
-		} catch ( \ReflectionException $e ) { // PHP 7 compat fallback.
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9 compat fallback.
 			foreach ( array( 'configured', 'plugins', 'current_blog_id' ) as $name ) {
 				$prop = $reflection->getProperty( $name );
 				// @todo Remove this call once we no longer need to support PHP <8.1.
@@ -278,9 +279,14 @@ class REST_Endpoints_Test extends TestCase {
 		$request->set_header( 'Content-Type', 'application/json' );
 		$request->set_body( '{ "state": "' . self::$user_id . '", "secret": "' . $secret_1 . '", "redirect_uri": "https://example.org", "code": "54321" }' );
 
+		// `authorize()` checks `jetpack_connect`, which needs the meta-cap map this bootstrap doesn't wire.
+		$manager = new Manager();
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+
 		$response = $this->server->dispatch( $request );
 		$data     = $response->get_data();
 
+		remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
 		remove_filter( 'pre_option_' . Secrets::LEGACY_SECRETS_OPTION_NAME, $options_filter );
 		remove_filter( 'pre_http_request', array( $this, 'intercept_auth_token_request' ) );
 		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
@@ -479,6 +485,200 @@ class REST_Endpoints_Test extends TestCase {
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( 'in_progress', $data['status'] );
 		$this->assertSame( 0, strpos( $data['authorizeUrl'], 'https://jetpack.wordpress.com/jetpack.authorize/' ) );
+	}
+
+	/**
+	 * `restore()` with no current user (cron, WP-CLI) still restores the whole site.
+	 */
+	public function test_restore_without_current_user_restores_site() {
+		wp_set_current_user( 0 );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		add_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10, 3 );
+
+		$result = ( new Manager() )->restore();
+
+		remove_filter( 'pre_http_request', array( static::class, 'intercept_register_request' ), 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', '__return_false' );
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		$this->assertTrue( $result );
+	}
+
+	/**
+	 * A non-admin without `jetpack_connect_user` still cannot use `connection/reconnect`.
+	 */
+	public function test_connection_reconnect_rejects_non_admin_without_connect_user() {
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+
+		$this->assertEquals( 403, $response->get_status() );
+	}
+
+	/**
+	 * A non-admin with a healthy blog token gets their own token refreshed, and nothing else.
+	 */
+	public function test_connection_reconnect_non_admin_refreshes_only_own_token() {
+		$unlinked = $this->dispatch_non_admin_reconnect( true );
+
+		$this->assertEquals( 200, $unlinked['response']->get_status() );
+		$this->assertEquals( 'in_progress', $unlinked['response']->get_data()['status'] );
+		$this->assertSame( array( self::$non_admin_user_id ), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin is sent to an administrator when the blog token is unhealthy, before anything is unlinked.
+	 */
+	public function test_connection_reconnect_non_admin_with_broken_blog_token() {
+		$unlinked = $this->dispatch_non_admin_reconnect( false );
+
+		$this->assertEquals( 409, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_requires_administrator', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin is asked to retry, before anything is unlinked, when the blog token check cannot run.
+	 */
+	public function test_connection_reconnect_non_admin_when_blog_token_check_fails() {
+		$unlinked = $this->dispatch_non_admin_reconnect( null );
+
+		$this->assertEquals( 503, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_check_failed', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A failed WordPress.com unlink leaves the non-admin's local token alone instead of stranding them.
+	 */
+	public function test_connection_reconnect_non_admin_keeps_token_when_unlink_fails() {
+		$unlinked = $this->dispatch_non_admin_reconnect( true, 'mock_xmlrpc_failure' );
+
+		$this->assertEquals( 502, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_unlink_failed', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin with no stored token goes straight to authorize.
+	 */
+	public function test_connection_reconnect_non_admin_without_token_skips_unlink() {
+		$unlinked = $this->dispatch_non_admin_reconnect( true, 'mock_xmlrpc_success', 'mock_jetpack_options_broken_owner_token' );
+
+		$this->assertEquals( 200, $unlinked['response']->get_status() );
+		$this->assertEquals( 'in_progress', $unlinked['response']->get_data()['status'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin connection owner is refused: unlinking them would leave the site without an owner.
+	 */
+	public function test_connection_reconnect_non_admin_owner_is_refused() {
+		$owner_is_non_admin = static function ( $value, $name ) {
+			return 'master_user' === $name ? self::$non_admin_user_id : $value;
+		};
+		add_filter( 'jetpack_options', $owner_is_non_admin, 11, 2 );
+
+		$unlinked = $this->dispatch_non_admin_reconnect( true );
+
+		remove_filter( 'jetpack_options', $owner_is_non_admin, 11 );
+
+		$this->assertEquals( 403, $unlinked['response']->get_status() );
+		$this->assertEquals( 'restore_requires_administrator', $unlinked['response']->get_data()['code'] );
+		$this->assertSame( array(), $unlinked['users'] );
+		$this->assertSame( 0, $unlinked['site_disconnects'] );
+	}
+
+	/**
+	 * A non-admin on a site-only connection is refused rather than re-registering the site.
+	 */
+	public function test_connection_reconnect_non_admin_site_connection_is_refused() {
+		$non_admin = get_user_by( 'id', self::$non_admin_user_id );
+		$non_admin->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( self::$non_admin_user_id );
+		add_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ), 10, 2 );
+		$this->reset_connection_status();
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+
+		remove_filter( 'jetpack_options', array( $this, 'mock_jetpack_site_connection_options' ) );
+
+		$this->assertEquals( 403, $response->get_status() );
+		$this->assertEquals( 'restore_requires_administrator', $response->get_data()['code'] );
+	}
+
+	/**
+	 * Dispatch `connection/reconnect` as a non-admin holding `jetpack_connect_user`.
+	 *
+	 * @param bool|null $blog_token_healthy What the blog token health check reports, or null for a failed check.
+	 * @param string    $xmlrpc_mock        The method mocking the WordPress.com unlink response.
+	 * @param string    $options_mock       The method mocking the connection options.
+	 * @return array The response, the IDs passed to `jetpack_unlinked_user`, and the site disconnect count.
+	 */
+	private function dispatch_non_admin_reconnect( $blog_token_healthy, $xmlrpc_mock = 'mock_xmlrpc_success', $options_mock = 'mock_jetpack_options' ) {
+		$non_admin = get_user_by( 'id', self::$non_admin_user_id );
+		$non_admin->add_cap( 'jetpack_connect_user' );
+		wp_set_current_user( self::$non_admin_user_id );
+
+		$users            = array();
+		$site_disconnects = 0;
+		$record_unlink    = static function ( $user_id ) use ( &$users ) {
+			$users[] = $user_id;
+		};
+		$record_site      = static function ( $check ) use ( &$site_disconnects ) {
+			++$site_disconnects;
+			return $check;
+		};
+		$blog_token_check = static function ( $response, $args, $url ) use ( $blog_token_healthy ) {
+			if ( ! str_contains( $url, 'jetpack-token-health/blog' ) ) {
+				return $response;
+			}
+
+			if ( null === $blog_token_healthy ) {
+				return array(
+					'body'     => '',
+					'response' => array(
+						'code'    => 500,
+						'message' => 'failed',
+					),
+				);
+			}
+
+			return array(
+				'body'     => wp_json_encode( array( 'is_healthy' => $blog_token_healthy ), JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+			);
+		};
+
+		add_action( 'jetpack_unlinked_user', $record_unlink );
+		add_filter( 'jetpack_connection_disconnect_site_wpcom', $record_site );
+		add_filter( 'pre_http_request', $blog_token_check, 10, 3 );
+		add_filter( 'pre_http_request', array( $this, $xmlrpc_mock ), 10, 3 );
+		add_filter( 'jetpack_options', array( $this, $options_mock ), 10, 2 );
+		$this->reset_connection_status();
+
+		$response = $this->server->dispatch( $this->build_reconnect_request() );
+
+		remove_filter( 'jetpack_options', array( $this, $options_mock ) );
+		remove_filter( 'pre_http_request', array( $this, $xmlrpc_mock ), 10 );
+		remove_filter( 'pre_http_request', $blog_token_check, 10 );
+		remove_filter( 'jetpack_connection_disconnect_site_wpcom', $record_site );
+		remove_action( 'jetpack_unlinked_user', $record_unlink );
+
+		return array(
+			'response'         => $response,
+			'users'            => $users,
+			'site_disconnects' => $site_disconnects,
+		);
 	}
 
 	/**
@@ -765,6 +965,281 @@ class REST_Endpoints_Test extends TestCase {
 
 		$this->assertEquals( 200, $response->get_status() );
 		$this->assertEquals( self::$secondary_user_id, Jetpack_Options::get_option( 'master_user' ), 'Connection owner should be updated.' );
+	}
+
+	/**
+	 * A connected administrator who is not the connection owner may confirm a protected owner.
+	 */
+	public function test_protect_owner_accepts_a_connected_admin_who_is_not_the_owner() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		$answer = $this->answer_protected_owner_claim(
+			array(
+				'status'        => 'recorded',
+				'wpcom_user_id' => 4242,
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response->get_data()['code'] );
+		$this->assertSame( self::$secondary_user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertSame( 4242, Protected_Owner::get()['wpcom_user_id'] ?? null );
+	}
+
+	/**
+	 * WordPress.com already having a different protected owner is the support path, and nothing is stored.
+	 */
+	public function test_protect_owner_rejects_a_claim_someone_else_holds() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		$answer = $this->answer_protected_owner_claim(
+			array(
+				'status' => 'locked_to_other',
+			)
+		);
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+		$data     = $response->get_data();
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( 'protected_owner_claimed_by_other', $data['code'] );
+		$this->assertStringContainsString( 'Contact support', $data['message'] );
+		$this->assertSame( self::$user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * An editor cannot confirm, even with the connect capability and a user token.
+	 */
+	public function test_protect_owner_requires_an_administrator() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$editor = get_user_by( 'id', self::$non_admin_user_id );
+		$editor->add_cap( 'jetpack_connect' );
+		$this->act_as_connected_admin( self::$non_admin_user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * An administrator who has not connected their own account cannot confirm.
+	 */
+	public function test_protect_owner_requires_a_connected_user() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+	}
+
+	/**
+	 * The connect capability is required on top of being an administrator.
+	 */
+	public function test_protect_owner_requires_the_connect_capability() {
+		add_filter( 'jetpack_connection_requires_protected_owner', '__return_true' );
+		wp_get_current_user()->remove_cap( 'jetpack_connect' );
+		$this->connect_user_for_protect( self::$user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+	}
+
+	/**
+	 * The route stays closed until a consumer asks for a protected owner.
+	 */
+	public function test_protect_owner_requires_a_consumer_request() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/protect' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_protect_owner', $response->get_data()['code'] );
+		$this->assertNull( Protected_Owner::get() );
+		$this->assertSame( self::$user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * The confirmed owner releases the lock, and no consumer has to be asking for one.
+	 */
+	public function test_release_owner_accepts_the_confirmed_owner() {
+		$this->act_as_confirmed_protected_owner();
+		$answer = $this->answer_protected_owner_claim( array( 'status' => 'released' ) );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( 'success', $response->get_data()['code'] );
+		$this->assertNull( Protected_Owner::get() );
+	}
+
+	/**
+	 * Releasing unlocks ownership without handing the connection to anybody else.
+	 */
+	public function test_release_owner_leaves_the_connection_owner_alone() {
+		$this->act_as_confirmed_protected_owner();
+		$answer = $this->answer_protected_owner_claim( array( 'status' => 'released' ) );
+
+		$this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( self::$user_id, (int) Jetpack_Options::get_option( 'master_user' ) );
+	}
+
+	/**
+	 * A connected administrator who is not the anchored identity cannot release.
+	 */
+	public function test_release_owner_rejects_an_admin_who_is_not_the_confirmed_owner() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		Utils::set_wpcom_user_id( self::$user_id, 4242 );
+		Utils::set_wpcom_user_id( self::$secondary_user_id, 7777 );
+		Protected_Owner::set( 4242, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_release_owner', $response->get_data()['code'] );
+		$this->assertNotNull( Protected_Owner::get(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * A matching binding is not an identity: `Utils::set_wpcom_user_id()` clears the previous
+	 * holder, but Premium Content writes the same key directly, so two local users can carry one
+	 * WordPress.com ID. Only the user holding the connection is the owner the anchor names.
+	 */
+	public function test_release_owner_rejects_an_admin_sharing_the_anchored_id() {
+		$this->act_as_connected_admin( self::$secondary_user_id, self::$user_id );
+		// Both hold tokens, or the owner's missing one settles this before the identity check.
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array(
+				self::$user_id           => 'ownerkey.private.' . self::$user_id,
+				self::$secondary_user_id => 'ownerkey.private.' . self::$secondary_user_id,
+			)
+		);
+		update_user_meta( self::$user_id, 'wpcom_user_id', 4242 );
+		update_user_meta( self::$secondary_user_id, 'wpcom_user_id', 4242 );
+		Protected_Owner::set( 4242, self::$user_id );
+
+		$state = ( new Manager() )->resolve_protected_owner_state();
+		$this->assertSame( Manager::PO_STATE_RE_EVALUATE, $state['status'], 'Test setup: the site is settled.' );
+		$this->assertTrue( $state['is_current_user_the_po'], 'Test setup: the binding alone would admit them.' );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_release_owner', $response->get_data()['code'] );
+		$this->assertNotNull( Protected_Owner::get(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * There is nothing to release on a site that was never locked, so the route stays closed.
+	 */
+	public function test_release_owner_requires_an_anchored_owner() {
+		$this->act_as_connected_admin( self::$user_id, self::$user_id );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'invalid_user_permission_release_owner', $response->get_data()['code'] );
+	}
+
+	/**
+	 * WordPress.com refusing leaves the lock exactly as it was.
+	 */
+	public function test_release_owner_keeps_the_lock_when_wpcom_refuses() {
+		$this->act_as_confirmed_protected_owner();
+		$answer = $this->answer_protected_owner_claim( array( 'status' => 'not_owner' ) );
+
+		$response = $this->server->dispatch( new WP_REST_Request( 'POST', '/jetpack/v4/connection/owner/release' ) );
+
+		remove_filter( 'pre_http_request', $answer, 10 );
+
+		$this->assertSame( 403, $response->get_status() );
+		$this->assertSame( 'protected_owner_not_owner', $response->get_data()['code'] );
+		$this->assertNotNull( Protected_Owner::get(), 'The lock is still in place.' );
+	}
+
+	/**
+	 * Sign in as the connected administrator the anchor names, on a locked site.
+	 */
+	private function act_as_confirmed_protected_owner() {
+		$this->act_as_connected_admin( self::$user_id, self::$user_id );
+		Utils::set_wpcom_user_id( self::$user_id, 4242 );
+		Protected_Owner::set( 4242, self::$user_id );
+	}
+
+	/**
+	 * Sign the current user in as a connected administrator, optionally leaving someone else as owner.
+	 *
+	 * @param int $user_id        Local user who will make the request.
+	 * @param int $master_user_id Local user who holds the connection owner slot.
+	 */
+	private function act_as_connected_admin( $user_id, $master_user_id ) {
+		$user = get_user_by( 'id', $user_id );
+		$user->add_cap( 'jetpack_connect' );
+		wp_set_current_user( $user_id );
+		$this->connect_user_for_protect( $user_id, $master_user_id );
+	}
+
+	/**
+	 * Store the tokens a signed protected-owner claim needs.
+	 *
+	 * @param int $user_id        Local user the token belongs to.
+	 * @param int $master_user_id Local user recorded as the connection owner.
+	 */
+	private function connect_user_for_protect( $user_id, $master_user_id ) {
+		Jetpack_Options::update_option( 'id', self::BLOG_ID );
+		Jetpack_Options::update_option( 'blog_token', 'blogkey.private' );
+		Jetpack_Options::update_option( 'master_user', $master_user_id );
+		Jetpack_Options::update_option(
+			'user_tokens',
+			array( $user_id => 'ownerkey.private.' . $user_id )
+		);
+	}
+
+	/**
+	 * Answer the protected-owner claim WordPress.com would make.
+	 *
+	 * @param array $record The JSON body to answer with.
+	 * @return callable The filter callback, so the test can remove it.
+	 */
+	private function answer_protected_owner_claim( $record ) {
+		$answer = static function ( $response, $args, $url ) use ( $record ) {
+			unset( $args );
+
+			if ( false === strpos( (string) $url, 'public-api.wordpress.com' ) ) {
+				return $response;
+			}
+
+			return array(
+				'headers'  => array(),
+				'body'     => wp_json_encode( $record, JSON_UNESCAPED_SLASHES ),
+				'response' => array(
+					'code'    => 200,
+					'message' => 'OK',
+				),
+				'cookies'  => array(),
+				'filename' => null,
+			);
+		};
+
+		add_filter( 'pre_http_request', $answer, 10, 3 );
+
+		return $answer;
 	}
 
 	/**

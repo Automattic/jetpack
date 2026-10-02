@@ -20,6 +20,7 @@ src/
 ├── class-rest-controller.php         # REST API endpoints
 ├── class-wpcom-client.php            # General-purpose WPCOM API client with caching
 ├── class-notices.php                 # Admin notices handling
+├── class-admin-bar.php               # Admin bar views chart and Stats link
 ├── class-admin-post-list-column.php  # Post list view count column
 └── class-wp-dashboard-odyssey-widget.php # WP Dashboard widget
 ```
@@ -43,7 +44,7 @@ This package depends on several Jetpack packages:
 
 - `jetpack-connection` - WPCOM connection
 - `jetpack-stats` - Backend stats tracking (see sibling `stats` package)
-- `jetpack-blaze` - Blaze integration
+- `jetpack-blaze` - Blaze integration. Development-only dependency; the one runtime call is guarded by `class_exists()`.
 - `jetpack-constants` - Shared constants and environment/context helpers
 - `jetpack-plans` - Plan checking
 - `jetpack-status` - Site status

@@ -343,11 +343,13 @@ class Storage_Post_Type {
 		if ( ! $post_query->have_posts() ) {
 			return false;
 		}
-		if ( ! $post_query->posts[0] instanceof \WP_Post ) {
+
+		$posts = $post_query->posts;
+		if ( ! is_array( $posts ) || ! isset( $posts[0] ) || ! $posts[0] instanceof \WP_Post ) {
 			return false;
 		}
 
-		return $post_query->posts[0];
+		return $posts[0];
 	}
 
 	/**

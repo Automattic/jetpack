@@ -26,14 +26,16 @@ import { FORM_POST_TYPE } from '../../../blocks/shared/util/constants.js';
 import useConfigValue from '../../../hooks/use-config-value';
 import CreateFormButton from '../../components/create-form-button';
 import EditFormButton from '../../components/edit-form-button';
-import EmptySpamButton from '../../components/empty-spam-button';
+import EmptySpamButton, { labelForScope } from '../../components/empty-spam-button';
 import EmptySpamConfirmationModal from '../../components/empty-spam-button/confirmation-modal';
 import EmptyTrashButton from '../../components/empty-trash-button';
 import EmptyTrashConfirmationModal from '../../components/empty-trash-button/confirmation-modal';
 import ExportResponsesButton from '../../components/export-responses/button';
 import ExportResponsesModal from '../../components/export-responses/modal';
 import { FormNameModal } from '../../components/form-name-modal';
+import { CreateFormModal } from '../../components/form-name-modal/create-form-modal';
 import { getFormStatusLabel } from '../../constants';
+import { type TopTab } from '../../constants.ts';
 import useCreateForm from '../../hooks/use-create-form';
 import useEmptySpam from '../../hooks/use-empty-spam';
 import useEmptyTrash from '../../hooks/use-empty-trash';
@@ -49,7 +51,7 @@ import type { ReactNode } from 'react';
 type ResponsesStatusView = 'inbox' | 'spam' | 'trash';
 
 type UsePageHeaderDetailsProps = {
-	screen: 'forms' | 'responses';
+	screen: TopTab;
 	statusView?: ResponsesStatusView;
 	sourceId?: string | number;
 	hasClassicForms?: boolean;
@@ -585,7 +587,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
 						onClick: emptySpam.openConfirmDialog,
-						title: __( 'Delete spam', 'jetpack-forms' ),
+						title: labelForScope( emptySpam.scope ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
 					} );
 				}
@@ -627,7 +629,7 @@ export default function usePageHeaderDetails(
 				if ( statusView === 'spam' ) {
 					dropdownControls.push( {
 						onClick: emptySpam.openConfirmDialog,
-						title: __( 'Delete spam', 'jetpack-forms' ),
+						title: labelForScope( emptySpam.scope ),
 						isDisabled: emptySpam.isEmpty || emptySpam.isEmptying,
 					} );
 				}
@@ -648,17 +650,13 @@ export default function usePageHeaderDetails(
 				// Include modals when on mobile
 				...( isCreateFormModalOpen
 					? [
-							<FormNameModal
+							<CreateFormModal
 								key="create-form-modal"
 								isOpen={ isCreateFormModalOpen }
 								onClose={ closeCreateFormModal }
 								onSave={ handleCreateFormSave }
-								title={ __( 'Create form', 'jetpack-forms' ) }
-								primaryButtonLabel={ __( 'Create', 'jetpack-forms' ) }
-								secondaryButtonLabel={ __( 'Cancel', 'jetpack-forms' ) }
-								placeholder={ __( 'Enter form title', 'jetpack-forms' ) }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( showExportModal
 					? [
@@ -668,7 +666,7 @@ export default function usePageHeaderDetails(
 								onExport={ onExport }
 								autoConnectGdrive={ autoConnectGdrive }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( emptyTrash.isConfirmDialogOpen
 					? [
@@ -680,7 +678,7 @@ export default function usePageHeaderDetails(
 								totalItemsTrash={ emptyTrash.totalItemsTrash }
 								selectedResponsesCount={ emptyTrash.selectedResponsesCount }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( emptySpam.isConfirmDialogOpen
 					? [
@@ -689,10 +687,10 @@ export default function usePageHeaderDetails(
 								isOpen={ emptySpam.isConfirmDialogOpen }
 								onCancel={ emptySpam.closeConfirmDialog }
 								onConfirm={ emptySpam.onConfirmEmptying }
-								totalItemsSpam={ emptySpam.totalItemsSpam }
-								selectedResponsesCount={ emptySpam.selectedResponsesCount }
+								scopeMode={ emptySpam.scope.mode }
+								count={ emptySpam.scope.count }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( renameFormItem
 					? [
@@ -704,7 +702,7 @@ export default function usePageHeaderDetails(
 								title={ __( 'Rename form', 'jetpack-forms' ) }
 								initialValue={ renameFormItem?.title || '' }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
@@ -723,7 +721,7 @@ export default function usePageHeaderDetails(
 									) }
 								</p>
 							</ConfirmDialog>,
-					  ]
+						]
 					: [] ),
 			];
 		}
@@ -747,7 +745,7 @@ export default function usePageHeaderDetails(
 								formId={ sourceIdNumber }
 								onClick={ trackEditFormClick }
 							/>,
-					  ]
+						]
 					: [] ),
 				<ExportResponsesButton
 					key="export"
@@ -766,7 +764,7 @@ export default function usePageHeaderDetails(
 								label={ __( 'More actions', 'jetpack-forms' ) }
 								toggleProps={ { size: 'compact' } }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( renameFormItem
 					? [
@@ -778,7 +776,7 @@ export default function usePageHeaderDetails(
 								title={ __( 'Rename form', 'jetpack-forms' ) }
 								initialValue={ renameFormItem?.title || '' }
 							/>,
-					  ]
+						]
 					: [] ),
 				...( isPermanentDeleteConfirmOpen
 					? [
@@ -797,7 +795,7 @@ export default function usePageHeaderDetails(
 									) }
 								</p>
 							</ConfirmDialog>,
-					  ]
+						]
 					: [] ),
 			];
 		}
@@ -816,7 +814,7 @@ export default function usePageHeaderDetails(
 							showIcon={ false }
 							showNameModal
 						/>,
-				  ]
+					]
 				: [] ),
 			<ExportResponsesButton
 				key="export"
@@ -863,8 +861,7 @@ export default function usePageHeaderDetails(
 		emptySpam.isConfirmDialogOpen,
 		emptySpam.closeConfirmDialog,
 		emptySpam.onConfirmEmptying,
-		emptySpam.totalItemsSpam,
-		emptySpam.selectedResponsesCount,
+		emptySpam.scope,
 		renameFormItem,
 		closeRenameModal,
 		handleRename,

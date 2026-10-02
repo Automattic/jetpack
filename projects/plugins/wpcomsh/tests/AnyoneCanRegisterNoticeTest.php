@@ -5,7 +5,7 @@
  * @package wpcomsh
  */
 
-// @phan-file-suppress PhanTypeVoidAssignment, PhanTypeVoidArgument, PhanTypeMismatchArgument @phan-suppress-current-line UnusedSuppression -- get_echo() was untyped before WP 7.0; suppressions needed for the older-WP compatibility Phan run.
+// @phan-file-suppress PhanTypeVoidAssignment, PhanTypeVoidArgument, PhanTypeMismatchArgument @phan-suppress-current-line UnusedSuppression -- get_echo() was untyped before WP 7.0.1; suppressions needed for the older-WP compatibility Phan run.
 
 use PHPUnit\Framework\Attributes\DataProvider;
 

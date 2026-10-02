@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 /**
  * Internal dependencies
  */
-import { toLocalTZ } from '../tz';
+import { formatToTimezoneNaiveString, toLocalTZ } from '../tz';
 
 /**
  * The calendar day and clock time the value resolves to in its own zone.
@@ -61,9 +61,8 @@ describe( 'toLocalTZ', () => {
 	} );
 
 	describe( 'daylight-saving wall times', () => {
-		// Where DST starts at midnight, a date-only value names a wall time that
-		// does not exist. It normalizes forward to 01:00, and the round-trip
-		// guard has to accept that rather than read it as an impossible date.
+		// Where DST starts at midnight a date-only value names a wall time that does
+		// not exist; it normalizes forward to 01:00 and the guard must accept that.
 		it.each( [
 			[ 'America/Santiago', '2026-09-06' ],
 			[ 'America/Havana', '2026-03-08' ],
@@ -152,5 +151,17 @@ describe( 'toLocalTZ', () => {
 
 		expect( now ).toBeGreaterThanOrEqual( before );
 		expect( now ).toBeLessThanOrEqual( Date.now() );
+	} );
+} );
+
+describe( 'formatToTimezoneNaiveString', () => {
+	it( 'writes an instant as the wall time it names in the zone', () => {
+		expect(
+			formatToTimezoneNaiveString( new Date( '2026-06-29T13:30:00Z' ), 'America/New_York' )
+		).toBe( '2026-06-29T09:30:00.000' );
+	} );
+
+	it( 'refuses an invalid date', () => {
+		expect( () => formatToTimezoneNaiveString( new Date( NaN ), 'America/New_York' ) ).toThrow();
 	} );
 } );

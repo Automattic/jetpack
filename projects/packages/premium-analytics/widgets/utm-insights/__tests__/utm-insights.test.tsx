@@ -83,8 +83,12 @@ describe( 'UtmInsightsWidget', () => {
 		);
 
 		const titleLink = screen.getByRole( 'link', { name: 'Jetpack Forms' } );
-		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( '/post/12' ) );
-		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( 'from=2026-06-01' ) );
+		const href = titleLink.getAttribute( 'href' ) ?? '';
+
+		expect( href ).toContain( '/post/12' );
+		expect( href ).toContain( 'from=2026-06-01' );
+		expect( href ).toContain( 'ref=utm' );
+		expect( href ).toContain( 'ref_section=source-medium' );
 		expect( titleLink ).not.toHaveAttribute( 'target', '_blank' );
 	} );
 
@@ -109,5 +113,34 @@ describe( 'UtmInsightsWidget', () => {
 		const titleLink = screen.getByRole( 'link', { name: /Untracked page/ } );
 		expect( titleLink ).toHaveAttribute( 'href', 'https://example.com/untracked/' );
 		expect( titleLink ).toHaveAttribute( 'target', '_blank' );
+		expect( titleLink.getAttribute( 'href' ) ).not.toContain( 'ref=' );
+	} );
+
+	it( 'names the active UTM dimension as the origin section', async () => {
+		const user = userEvent.setup();
+		mockRows = [
+			{
+				label: 'spring-sale',
+				value: 18,
+				children: [
+					{ postId: 9, label: 'Landing page', value: 11, href: 'https://example.com/landing/' },
+				],
+			},
+		];
+
+		render(
+			<UtmInsightsWidget
+				attributes={ {
+					utmDimension: 'utm_campaign',
+					reportParams: { from: '2026-06-01', to: '2026-06-30' },
+				} }
+			/>
+		);
+
+		await user.click( screen.getByRole( 'button', { name: 'View posts for spring-sale' } ) );
+
+		const href = screen.getByRole( 'link', { name: 'Landing page' } ).getAttribute( 'href' ) ?? '';
+		expect( href ).toContain( 'ref=utm' );
+		expect( href ).toContain( 'ref_section=campaign' );
 	} );
 } );

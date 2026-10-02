@@ -1,198 +1,147 @@
 /**
  * WordPress dependencies
  */
-import { DropdownMenu } from '@wordpress/components';
-import { store as coreStore } from '@wordpress/core-data';
-import { useRegistry } from '@wordpress/data';
-import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/element';
+import { DropdownMenu, MenuGroup, MenuItem } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { moreVertical } from '@wordpress/icons';
-import { useNavigate } from '@wordpress/route';
 import * as React from 'react';
 /**
  * Internal dependencies
  */
-import { getActions } from '../responses/actions.tsx';
-import getResponseQuery from './query.ts';
-import repairResponseRecord from './repair-record.ts';
+import { getShortcutLabel } from './use-keyboard-shortcuts.ts';
+import { canRunAction } from './use-response-actions.ts';
 /**
  * Types
  */
-import type { Action, ReportingAction, Registry } from '../../src/dashboard/inbox/stage/types.tsx';
+import type { ResponseActions } from './use-response-actions.ts';
 import type { FormResponse } from '../../src/types/index.ts';
-
-type Control = {
-	title: string;
-	onClick: () => void;
-	isDestructive?: boolean;
-};
 
 /**
  * Top-bar actions for the standalone single response page.
  *
- * All actions live in a single three-dot dropdown (the `controls` API closes the
- * menu automatically on selection). Reuses the responses route action callbacks.
+ * The handlers come from `useResponseActions`, which the page owns so that the
+ * keyboard shortcuts run the same code — this component only decides which ones to
+ * offer, based on the response's current status.
  *
- * Status changes (spam / not spam / trash / restore) keep the user on this page —
- * the header badge reflects the new status instead. Only a permanent delete
- * navigates away, since there is no longer a response to show. Because the user
- * stays put, each accepted change is followed by a store repair (see
- * `changeStatus`) and the menu is disabled while a change is in flight.
+ * Built from explicit `MenuItem` children rather than `DropdownMenu`'s `controls`
+ * prop: `controls` renders a plain `Button` with a fixed set of props and has no
+ * passthrough, so it cannot show the `shortcut` hints that make the keyboard
+ * shortcuts discoverable. The trade-off is that children have to close the menu
+ * themselves, which `controls` did automatically.
  *
- * @param props              - Component props.
- * @param props.response     - The response being viewed.
- * @param props.isBlocked    - Whether another mutation on this response is in flight
- *                           (e.g. the spam confirmation dialog saving).
- * @param props.onBusyChange - Reports this menu's own in-flight state upwards, so the
- *                           page can gate navigation on it too.
+ * @param props                 - Component props.
+ * @param props.response        - The response being viewed.
+ * @param props.responseActions - The page's shared action handlers.
+ * @param props.isBlocked       - Whether another mutation on this response is in flight
+ *                              (e.g. the spam confirmation dialog saving).
+ * @param props.onOpenChange    - Reports the menu's open state, so the page can suspend
+ *                              its keyboard shortcuts while it is showing.
  * @return The actions dropdown.
  */
 export default function SingleResponseActions( {
 	response,
+	responseActions,
 	isBlocked = false,
-	onBusyChange,
+	onOpenChange,
 }: {
 	response: FormResponse;
+	responseActions: ResponseActions;
 	isBlocked?: boolean;
-	onBusyChange?: ( isBusy: boolean ) => void;
+	onOpenChange?: ( isOpen: boolean ) => void;
 } ): React.JSX.Element {
-	const registry = useRegistry() as unknown as Registry;
-	const navigate = useNavigate();
+	const {
+		isPending,
+		markAsSpam,
+		markAsNotSpam,
+		moveToTrash,
+		restore,
+		deletePermanently,
+		toggleRead,
+		editForm,
+		goToList,
+	} = responseActions;
 
-	const actions = useMemo( () => getActions( { navigate } ), [ navigate ] );
-
-	// One response, one action at a time. Every status change used to navigate away
-	// immediately, which guarded this for free; keeping the user here means a second
-	// click (double-clicked Trash, or Trash then Restore) would otherwise fire against
-	// a stale `response.status`, duplicating requests and double-applying the
-	// optimistic count deltas in `processStatusChange`. The ref blocks re-entry
-	// synchronously; the state only drives the disabled/busy toggle.
-	const isRunningRef = useRef( false );
-	const [ isPending, setIsPending ] = useState( false );
-
-	// The page owns the combined in-flight signal; report ours so navigation is
-	// gated while a menu action runs, not just while the dialog saves.
-	useEffect( () => {
-		onBusyChange?.( isPending );
-	}, [ isPending, onBusyChange ] );
-
-	const runAction = useCallback(
-		async ( action: Action ) => {
-			if ( isRunningRef.current ) {
-				return undefined;
-			}
-
-			isRunningRef.current = true;
-			setIsPending( true );
-
-			try {
-				return await action.callback?.( [ response ], { registry } );
-			} finally {
-				isRunningRef.current = false;
-				setIsPending( false );
-			}
-		},
-		[ response, registry ]
-	);
-
-	// Only act on a change the server accepted — otherwise a failed request would
-	// leave the canonical record (and so the header badge and this menu) advertising
-	// a status the response never got.
-	const changeStatus = useCallback(
-		async ( action: ReportingAction, nextStatus: FormResponse[ 'status' ] ) => {
-			const result = await runAction( action );
-
-			if ( result && result.numberOfErrors === 0 ) {
-				repairResponseRecord(
-					registry.dispatch( coreStore ).receiveEntityRecords,
-					response,
-					nextStatus,
-					getResponseQuery( response.id )
-				);
-			}
-		},
-		[ runAction, registry, response ]
-	);
-
-	const deleteResponse = useCallback( async () => {
-		const result = await runAction( actions.deleteAction );
-
-		// `deleteAction` surfaces failures as a notice rather than throwing, so only
-		// leave the page once the response is actually gone. Delete is offered only
-		// on a trashed response, so that is where we return to.
-		if ( result && result.numberOfErrors === 0 ) {
-			navigate( { to: '/responses/trash' } );
-		}
-	}, [ runAction, actions.deleteAction, navigate ] );
-
-	// Nested arrays render as separate menu groups. Handlers are inlined since they
-	// are only used here.
-	const controls = useMemo< Control[][] >( () => {
-		const toggleRead: Control = {
-			title: response.is_unread
-				? __( 'Mark as read', 'jetpack-forms' )
-				: __( 'Mark as unread', 'jetpack-forms' ),
-			onClick: () =>
-				runAction( response.is_unread ? actions.markAsReadAction : actions.markAsUnreadAction ),
-		};
-
-		let statusControls: Control[];
-		if ( response.status === 'spam' ) {
-			statusControls = [
-				{
-					title: __( 'Not spam', 'jetpack-forms' ),
-					onClick: () => changeStatus( actions.markAsNotSpamAction, 'publish' ),
-				},
-				{
-					title: __( 'Trash', 'jetpack-forms' ),
-					onClick: () => changeStatus( actions.moveToTrashAction, 'trash' ),
-				},
-			];
-		} else if ( response.status === 'trash' ) {
-			statusControls = [
-				{
-					title: __( 'Restore', 'jetpack-forms' ),
-					onClick: () => changeStatus( actions.restoreAction, 'publish' ),
-				},
-				{
-					title: __( 'Delete permanently', 'jetpack-forms' ),
-					onClick: deleteResponse,
-					isDestructive: true,
-				},
-			];
-		} else {
-			statusControls = [
-				{
-					title: __( 'Mark as spam', 'jetpack-forms' ),
-					onClick: () => changeStatus( actions.markAsSpamAction, 'spam' ),
-				},
-				{
-					title: __( 'Trash', 'jetpack-forms' ),
-					onClick: () => changeStatus( actions.moveToTrashAction, 'trash' ),
-				},
-			];
-		}
-
-		const groups: Control[][] = [ [ toggleRead ], statusControls ];
-
-		if ( response.edit_form_url ) {
-			groups.push( [
-				{
-					title: __( 'Edit form', 'jetpack-forms' ),
-					onClick: () => actions.editFormAction.callback?.( [ response ], { registry } ),
-				},
-			] );
-		}
-
-		return groups;
-	}, [ response, runAction, changeStatus, deleteResponse, actions, registry ] );
+	// Rendered from the same table the handlers are guarded on, so the menu cannot
+	// offer an action that would silently do nothing (or hide one that works).
+	const can = ( action: Parameters< typeof canRunAction >[ 0 ] ) =>
+		canRunAction( action, response.status );
 
 	return (
 		<DropdownMenu
 			icon={ moreVertical }
 			label={ __( 'Actions', 'jetpack-forms' ) }
-			controls={ controls }
 			toggleProps={ { disabled: isPending || isBlocked, isBusy: isPending } }
-		/>
+			// The page suspends its shortcuts while this is open. Escape closes the
+			// menu, and without this it would navigate back to the list at the same
+			// time.
+			onToggle={ onOpenChange }
+		>
+			{ ( { onClose }: { onClose: () => void } ) => {
+				// Every item closes the menu first, so the page is not left with an open
+				// dropdown over a response that has just changed underneath it.
+				const run = ( action: () => void ) => () => {
+					onClose();
+					action();
+				};
+
+				return (
+					<>
+						<MenuGroup>
+							<MenuItem onClick={ run( toggleRead ) }>
+								{ response.is_unread
+									? __( 'Mark as read', 'jetpack-forms' )
+									: __( 'Mark as unread', 'jetpack-forms' ) }
+							</MenuItem>
+							<MenuItem onClick={ run( () => window.print() ) }>
+								{ __( 'Print', 'jetpack-forms' ) }
+							</MenuItem>
+						</MenuGroup>
+
+						<MenuGroup>
+							{ can( 'markAsNotSpam' ) && (
+								<MenuItem onClick={ run( markAsNotSpam ) }>
+									{ __( 'Not spam', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ can( 'restore' ) && (
+								<MenuItem onClick={ run( restore ) }>{ __( 'Restore', 'jetpack-forms' ) }</MenuItem>
+							) }
+							{ can( 'markAsSpam' ) && (
+								<MenuItem
+									shortcut={ getShortcutLabel( 'markAsSpam' ) }
+									onClick={ run( markAsSpam ) }
+								>
+									{ __( 'Mark as spam', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ can( 'moveToTrash' ) && (
+								<MenuItem
+									shortcut={ getShortcutLabel( 'moveToTrash' ) }
+									onClick={ run( moveToTrash ) }
+								>
+									{ __( 'Trash', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+							{ can( 'deletePermanently' ) && (
+								<MenuItem isDestructive onClick={ run( deletePermanently ) }>
+									{ __( 'Delete permanently', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+						</MenuGroup>
+
+						<MenuGroup>
+							<MenuItem shortcut={ getShortcutLabel( 'goToList' ) } onClick={ run( goToList ) }>
+								{ __( 'Back to responses', 'jetpack-forms' ) }
+							</MenuItem>
+							{ response.edit_form_url && (
+								<MenuItem onClick={ run( editForm ) }>
+									{ __( 'Edit form', 'jetpack-forms' ) }
+								</MenuItem>
+							) }
+						</MenuGroup>
+					</>
+				);
+			} }
+		</DropdownMenu>
 	);
 }

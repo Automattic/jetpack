@@ -1,4 +1,9 @@
 /**
+ * External dependencies
+ */
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
+import { format, subDays } from 'date-fns';
+/**
  * Internal dependencies
  */
 import { getPeriodsBetweenInclusive, reportParamsToStatsQueryParams } from '../utils/stats-params';
@@ -10,8 +15,8 @@ export const statsSubscribersDefaultStatFields = 'subscribers,subscribers_paid';
 
 /**
  * Granularities the `stats/subscribers` endpoint supports as its `unit`. The
- * dashboard's finer/coarser intervals (`hour`, `quarter`) have no subscriber
- * bucket, so they collapse onto these.
+ * dashboard's `hour` interval has no subscriber bucket, so it collapses onto
+ * these.
  */
 export type StatsSubscribersUnit = 'day' | 'week' | 'month' | 'year';
 
@@ -49,12 +54,8 @@ export const statsSubscribersQuery = (
 /**
  * Build the subscribers time-series query from dashboard report params.
  *
- * The `stats/subscribers` endpoint is quantity-based (`unit` + `quantity` ending
- * at `date`), not `from`/`to`-based, so the dashboard range is translated here:
- * the interval picks the `unit`, the range end becomes `date`, and the number of
- * buckets spanning the range becomes `quantity`. Wrapped in `useStatsReport`,
- * the comparison window is fetched automatically from the dashboard's compare
- * range.
+ * The endpoint is quantity-based (`unit` + `quantity` ending at `date`), not
+ * `from`/`to`-based, so the dashboard range is translated here.
  */
 export const statsSubscribersReportQuery = (
 	params: StatsReportParams
@@ -74,6 +75,18 @@ export const statsSubscribersReportQuery = (
 		enabled: !! endDate,
 	};
 };
+
+/**
+ * The subscriber count on the site-local day `daysAgo` days before today.
+ */
+export const statsSubscribersDaysAgoQuery = (
+	daysAgo: number
+): StatsReportQueryOptions< 'subscribers' > =>
+	statsSubscribersQuery( {
+		unit: 'day',
+		quantity: 1,
+		date: format( subDays( localTZDate(), daysAgo ), 'yyyy-MM-dd' ),
+	} );
 
 export const statsSubscribersCountsQuery = (
 	params: StatsSubscribersCountsParams = {}

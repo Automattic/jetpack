@@ -22,9 +22,8 @@ registerStatsMocks();
 
 const TOP_PLATFORMS_RENDER_MODULE = 'storybook/top-platforms';
 
-// attributes/example flow through from the module so the dashboard host renders
-// the real "View by" toolbar control for the `relevance: 'high'` attribute, as
-// in Locations. `presentation` comes from widget.json ( 'framed' ).
+// attributes/example flow through so the dashboard host renders the real "View by"
+// toolbar control (`relevance: 'high'`); `presentation` comes from widget.json.
 const storyWidgetType = createStoryWidgetType( widgetManifest, widgetDefinition );
 
 interface TopPlatformsStoryControls {
@@ -33,15 +32,13 @@ interface TopPlatformsStoryControls {
 }
 
 interface TopPlatformsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TopPlatformsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TopPlatformsStoryControls {}
 
 function getTopPlatformsAttributes( {
 	withComparison,
 	platformDimension,
 }: TopPlatformsStoryControls ): ComponentProps< typeof TopPlatformsRender >[ 'attributes' ] {
 	return {
-		max: 10,
 		platformDimension,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
@@ -56,7 +53,6 @@ function renderTopPlatformsOnPreset( preset: PresetType ) {
 	return (
 		<TopPlatformsRender
 			attributes={ {
-				max: 10,
 				platformDimension: 'browser',
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }
@@ -180,8 +176,7 @@ export const ErrorRetryable: StoryObj< TopPlatformsStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral device
- * glyph and "No platform data in this period.").
+ * Resolved with no rows: the widget shows the generic empty state.
  */
 export const Empty: StoryObj< TopPlatformsStoryControls > = {
 	render: () => renderTopPlatformsOnPreset( 'last-year' ),

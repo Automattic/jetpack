@@ -99,7 +99,7 @@ class Schema_Parser implements Parser {
 	 */
 	public function parse( $value, $context = null ) {
 
-		$context = $context ?? $this->context ?? new Schema_Context( 'unknown' );
+		$context ??= $this->context ?? new Schema_Context( 'unknown' );
 		$context->set_data( $value );
 		$parser = $this->parser;
 

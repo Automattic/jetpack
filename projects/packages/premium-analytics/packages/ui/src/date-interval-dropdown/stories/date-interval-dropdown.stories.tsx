@@ -62,6 +62,6 @@ export const SingleOption: Story = {
  */
 export const CoarseRange: Story = {
 	render: () => (
-		<DateIntervalDropdownWithState options={ [ 'quarter', 'year' ] } initialValue="quarter" />
+		<DateIntervalDropdownWithState options={ [ 'month', 'year' ] } initialValue="month" />
 	),
 };

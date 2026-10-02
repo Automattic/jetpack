@@ -8,11 +8,16 @@
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom;
 
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
+use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Status;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 
 // helpers.php defines the shared option reader the listeners depend on, so it loads first.
 require_once __DIR__ . '/helpers.php';
-require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 require_once __DIR__ . '/eligibility.php';
 require_once __DIR__ . '/class-ai-launchpad-memberships.php';
 require_once __DIR__ . '/class-ai-launchpad-task-registry.php';
@@ -58,6 +63,8 @@ class AI_Launchpad {
 
 		self::load_wp_build();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_jwt_initial_state' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks' ), 20 );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_script_translations' ), 20 );
 	}
 
 	/**
@@ -73,8 +80,7 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: enabled for the site (see is_enabled_for_site()) and not dismissed (skipping the
-	 * wizard dismisses it, reverting the site to the regular launchpad).
+	 * Gate: enabled for the site (see is_enabled_for_site(), which also excludes a dismissed AI Launchpad).
 	 *
 	 * @return bool
 	 */
@@ -82,28 +88,21 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			$eligible = self::is_enabled_for_site()
-				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
+			$eligible = self::is_enabled_for_site();
 		}
 
 		return $eligible;
 	}
 
 	/**
-	 * Whether the AI Launchpad has been explicitly enabled for this site.
+	 * Whether the AI Launchpad has been enabled for this site.
 	 *
-	 * Set per-site with `wp option update wpcom_ai_launchpad_enabled 1`.
+	 * Set at site creation for new onboarding sites, by the ?enable-ai-launchpad=1 dev handler, or manually.
 	 *
 	 * @return bool
 	 */
 	private static function is_enabled_for_site() {
-		// Explicit per-site switch: set at site creation for the ai_launchpad onboarding
-		// cohort, by the ?enable-ai-launchpad=1 dev handler, or manually.
-		if ( (bool) get_option( 'wpcom_ai_launchpad_enabled' ) ) {
-			return true;
-		}
-
-		return 'ai_launchpad' === Launchpad_Personalization_Experiment::get_variation();
+		return (bool) get_option( 'wpcom_ai_launchpad_enabled' ) && ! wpcom_launchpad_is_no_guidance();
 	}
 
 	/**
@@ -182,5 +181,78 @@ class AI_Launchpad {
 				'wpcomBlogId' => get_wpcom_blog_id(),
 			)
 		);
+	}
+
+	/**
+	 * Install the JS translation catalogs on the prerequisites script, which runs before the boot
+	 * module, so every `__()` in the route bundle evaluates translated.
+	 */
+	public static function enqueue_script_translations() {
+		$handle    = self::MENU_SLUG . '-prerequisites';
+		$build_dir = dirname( __DIR__, 3 ) . '/build';
+		$constants = $build_dir . '/constants.php';
+
+		if ( ! wp_script_is( $handle, 'registered' ) || ! file_exists( $constants ) ) {
+			return;
+		}
+
+		// The same URL the generated route registrations use, so core resolves the same catalog names.
+		$build_constants = require $constants;
+		$translations    = wpcom_ai_launchpad_script_translations( $build_dir . '/i18n-manifest.json', $build_constants['build_url'] );
+
+		if ( null !== $translations ) {
+			wp_add_inline_script( $handle, $translations, 'before' );
+		}
+	}
+
+	/**
+	 * Attach the page's Tracks preconditions: the transport itself on Atomic, and the standard
+	 * event properties as a global the client recorder reads.
+	 *
+	 * On Simple, wpcom's stats.php loads the Tracks transport on every admin page and pushes
+	 * identifyUser and the blog_id super prop with it. On Atomic nothing does — wpcomsh only
+	 * enqueues jp-tracks inside the editor — so `window._tkq` stays an ordinary array, every
+	 * push accumulates in it, and the whole client-side funnel is discarded on unload.
+	 *
+	 * The transport is only enqueued where tracking is actually permitted: "not Simple" also
+	 * covers jurassic.ninja / jurassic.tube and self-hosted sites running this package, where
+	 * the server recorder already stays silent under a declined ToS or offline mode. Gating
+	 * here mirrors `wpcom_enqueue_tracking_scripts()` in `src/common/index.php`. The props/
+	 * identity global below stays ungated: it is inert without the transport.
+	 */
+	public static function enqueue_tracks() {
+		$handle = self::MENU_SLUG . '-prerequisites';
+
+		if ( ! wp_script_is( $handle, 'registered' ) ) {
+			return;
+		}
+
+		if ( ! ( new Host() )->is_wpcom_simple() ) {
+			$tracking = new Tracking( 'jetpack-mu-wpcom', new Connection_Manager() );
+			if ( $tracking->should_enable_tracking( new Terms_Of_Service(), new Status() ) ) {
+				wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
+			}
+		}
+
+		// JSON rather than wp_localize_script(), which stringifies every value: blog_id would
+		// reach Tracks as a string instead of an int.
+		$bootstrap = wp_json_encode(
+			array(
+				'props'    => wpcom_ai_launchpad_standard_props(),
+				'identity' => wpcom_ai_launchpad_tracks_identity(),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		// WordPress concatenates every `before` inline script queued for this handle into one
+		// <script> tag, so a false here (encode failure) would emit a syntax error that also
+		// takes out the other scripts sharing the handle — including JP_CONNECTION_INITIAL_STATE
+		// and Jetpack_Editor_Initial_State.wpcomBlogId, the JWT and blog id the page needs to
+		// function at all. Fall back to an empty object so this global stays inert instead.
+		if ( false === $bootstrap ) {
+			$bootstrap = '{}';
+		}
+
+		wp_add_inline_script( $handle, 'window.wpcomAiLaunchpadTracks = ' . $bootstrap . ';', 'before' );
 	}
 }

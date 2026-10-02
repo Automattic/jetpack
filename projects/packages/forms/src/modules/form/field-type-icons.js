@@ -24,6 +24,7 @@ import textIcon from '../../blocks/field-text/icon.svg?raw';
 import textareaIcon from '../../blocks/field-textarea/icon.svg?raw';
 import timeIcon from '../../blocks/field-time/icon.svg?raw';
 import urlIcon from '../../blocks/field-url/icon.svg?raw';
+import { isCheckedValue } from './helpers.js';
 
 /**
  * Map of icon keys to their raw SVG markup.
@@ -53,30 +54,6 @@ const FIELD_TYPE_ICONS = {
 	'image-select': imageSelectIcon,
 	slider: sliderIcon,
 };
-
-/**
- * Whether a submitted value means the respondent ticked the box.
- *
- * An unticked box submits an empty value, and some stored responses use an
- * explicit "No". The ticked value is a translated string ("Yes"), so this tests
- * for emptiness and the "no" sentinel rather than matching "yes".
- *
- * Must agree with `Feedback_Field::is_checked_value()` in PHP, which renders the
- * server-side icon for the same submission.
- *
- * @param {*} value - The submitted value.
- * @return {boolean} True when the box was ticked.
- */
-function isCheckedValue( value ) {
-	if ( Array.isArray( value ) ) {
-		return value.length > 0;
-	}
-	if ( value === null || value === undefined ) {
-		return false;
-	}
-	const normalized = String( value ).trim().toLowerCase();
-	return normalized !== '' && normalized !== '0' && normalized !== 'no';
-}
 
 /**
  * Returns the icon key for a submitted field.

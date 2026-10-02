@@ -27,7 +27,7 @@ describe( 'ReportCsvAction', () => {
 		expect( rowsCsvDownloadButtonMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				...props,
-				label: 'Download',
+				label: 'Download CSV',
 				variant: 'solid',
 				showIcon: false,
 			} )

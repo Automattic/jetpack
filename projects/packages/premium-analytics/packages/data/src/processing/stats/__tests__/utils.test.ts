@@ -2,6 +2,7 @@ import { combineStatsNormalizedReports, sanitizeStatsTopPostsResponse } from '..
 import { topPostsFixture, topPostsSummaryFixture } from '../__fixtures__/top-posts';
 import {
 	flattenStatsLeaves,
+	getStatsBuckets,
 	getStatsLabel,
 	getStatsSummaryIntervalFields,
 	mergeStatsComparisonRows,
@@ -35,15 +36,44 @@ describe( 'Stats report utilities', () => {
 				status: 'complete',
 				empty_label: '',
 				enabled: true,
-				date_start: '2026-06-16T00:00:00+00:00',
+				date_start: '2026-06-16T00:00:00',
 			} )
 		).toEqual( {
 			total_views: 123,
 			status: 'complete',
 			empty_label: '',
 			enabled: true,
-			date_start: '2026-06-16T00:00:00+00:00',
+			date_start: '2026-06-16T00:00:00',
 		} );
+	} );
+
+	it( 'keeps a week bucket that starts before a mid-week window', () => {
+		const days = {
+			'2026-06-08': { views: 1 },
+			'2026-06-15': { views: 6 },
+			'2026-06-22': { views: 3 },
+			'2026-07-13': { views: 9 },
+		};
+
+		expect(
+			[
+				...getStatsBuckets(
+					{ days },
+					{ period: 'week', start_date: '2026-06-18', end_date: '2026-07-15' }
+				),
+			].map( ( [ date ] ) => date )
+		).toEqual( [ '2026-06-15', '2026-06-22', '2026-07-13' ] );
+	} );
+
+	it( 'keeps a month bucket keyed by month that starts before the window', () => {
+		expect(
+			[
+				...getStatsBuckets(
+					{ days: { '2026-05': { views: 1 }, '2026-06': { views: 2 } } },
+					{ period: 'month', start_date: '2026-06-18', end_date: '2026-07-15' }
+				),
+			].map( ( [ date ] ) => date )
+		).toEqual( [ '2026-06' ] );
 	} );
 
 	it( 'derives summary start date from response buckets when query start date is absent', () => {
@@ -63,8 +93,8 @@ describe( 'Stats report utilities', () => {
 				}
 			)
 		).toEqual( {
-			date_start: '2026-06-16T00:00:00+00:00',
-			date_end: '2026-06-22T23:59:59+00:00',
+			date_start: '2026-06-16T00:00:00',
+			date_end: '2026-06-22T23:59:59',
 		} );
 	} );
 

@@ -1,10 +1,10 @@
 === Jetpack VideoPress  ===
 Contributors: automattic, retrofox, oskosk, thehenridev, renatoagds, lhkowalski, nunyvega, leogermani, cgastrell
 Tags: video, video-hosting, video-player, cdn, video-streaming
-Requires at least: 6.9
-Tested up to: 7.0
-Stable tag: 3.3
-Requires PHP: 7.2
+Requires at least: 7.0
+Tested up to: 7.1
+Stable tag: 3.6
+Requires PHP: 7.4
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 The finest video hosting for WordPress. Drag and drop videos through the WordPress editor and keep the focus on your content, not the ads.
@@ -83,11 +83,22 @@ The file size limit is 5 GB. However, on slower networks, there is a chance the 
 4. Edit your video details, cover image, and privacy from your VideoPress library.
 
 == Changelog ==
-### 3.3 - 2026-08-13
+### 3.6 - 2026-09-23
 #### Added
-- Add the Activity Log page to wp-admin, so it is available without the Jetpack plugin installed.
+- Add a Latest Videos Playlist block that plays the site's newest VideoPress videos, with the number of videos set in the block settings.
 
 #### Changed
-- Update dependencies.
-- Update package dependencies.
+- My Jetpack: Answer module switch clicks immediately, and explain what happened when a change fails.
+- With the inline player setting on, draw the play button like the player's and show a loading spinner from the click until the player has loaded.
+
+#### Fixed
+- Chapters: Show specific validation messages for chapters entered in video descriptions.
+- Connection: Report a broken connection on My Jetpack's connection card instead of claiming everything looks good, and show a break only the connection owner can repair as a warning, not an error, to everyone else.
+- Fix private video playback on sites using WPML.
+- Footer: Hide Products and Help links when My Jetpack is unavailable.
+- My Jetpack: Point users who cannot connect the site at an administrator, instead of an onboarding screen they cannot complete.
+- My Jetpack: Show each notice once instead of twice.
+- Pricing: Open information tooltips with the keyboard and dismiss them with Escape.
+- Show each number on the views trends chart's value axis once when counts are small.
+- With the inline player setting on, show the poster of private videos, and of videos the server could not look up, before they are played instead of a black box.
 

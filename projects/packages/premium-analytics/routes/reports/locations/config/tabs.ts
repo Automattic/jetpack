@@ -6,6 +6,13 @@ import { __ } from '@wordpress/i18n';
 
 export type ReportLocationsTabId = 'countries' | 'regions' | 'cities';
 
+/** The geo mode each tab reports on, as the API and the map both name it. */
+export const GEO_MODES = {
+	countries: 'country',
+	regions: 'region',
+	cities: 'city',
+} as const;
+
 const DEFAULT_TAB_ID: ReportLocationsTabId = 'countries';
 
 const reportLocationsTabs = defineReportTabs< ReportLocationsTabId >(
@@ -13,17 +20,14 @@ const reportLocationsTabs = defineReportTabs< ReportLocationsTabId >(
 		{
 			id: 'countries',
 			getLabel: () => __( 'Countries', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Countries report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'regions',
 			getLabel: () => __( 'Regions', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Regions report', 'jetpack-premium-analytics-pkg' ),
 		},
 		{
 			id: 'cities',
 			getLabel: () => __( 'Cities', 'jetpack-premium-analytics-pkg' ),
-			getTitle: () => __( 'Cities report', 'jetpack-premium-analytics-pkg' ),
 		},
 	],
 	DEFAULT_TAB_ID
@@ -39,8 +43,8 @@ export const getReportLocationsTabs = reportLocationsTabs.getTabs;
  */
 export const resolveSection = reportLocationsTabs.resolve;
 
-/** Heading for the active tab's section, where the tab declares one. */
-export const getTabTitle = reportLocationsTabs.getTabTitle;
+/** Get the translated label for a tab, which also heads its section. */
+export const getTabLabel = reportLocationsTabs.getTabLabel;
 
 /**
  * Whether a tab can be scoped to a single country.

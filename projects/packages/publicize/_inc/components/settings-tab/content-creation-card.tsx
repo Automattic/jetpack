@@ -3,9 +3,10 @@ import { SelectControl, ToggleControl } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Button, Card, Link, Stack, Text } from '@wordpress/ui';
+import { Card, Link, LinkButton, Stack, Text } from '@wordpress/ui';
 import { store as socialStore } from '../../social-store';
 import type { SocialNotesConfig } from '../../social-store/types';
+import type { JSX } from 'react';
 
 /**
  * Content creation card — Social Notes toggle + per-feature options.
@@ -78,14 +79,9 @@ export default function ContentCreationCard(): JSX.Element {
 					{ isEnabled && (
 						<>
 							<Stack direction="row" gap="md" className="jetpack-social-settings__card-actions">
-								<Button
-									variant="outline"
-									size="compact"
-									nativeButton={ false }
-									render={ <a href={ newNoteUrl } /> }
-								>
+								<LinkButton variant="outline" size="compact" href={ newNoteUrl }>
 									{ __( 'Create a note', 'jetpack-publicize-pkg' ) }
-								</Button>
+								</LinkButton>
 							</Stack>
 							<ToggleControl
 								__nextHasNoMarginBottom

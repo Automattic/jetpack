@@ -1,11 +1,7 @@
 /**
  * Internal dependencies
  */
-import {
-	compactCalendarHeatmapCapacity,
-	computeCalendarHeatmapLayout,
-	fitWeekColumns,
-} from '../calendar-heatmap-layout';
+import { computeCalendarHeatmapLayout, fitWeekColumns } from '../calendar-heatmap-layout';
 import type { CalendarHeatmapLayoutInput } from '../calendar-heatmap-layout';
 
 const COMPACT_ASPECT = 1;
@@ -242,21 +238,6 @@ describe( 'computeCalendarHeatmapLayout', () => {
 		} );
 
 		expect( layout.columns ).toBe( 6 );
-	} );
-} );
-
-describe( 'compactCalendarHeatmapCapacity', () => {
-	it( 'reports the columns a width can hold, ignoring the range', () => {
-		// floor( (1024 - 32) / (11 + 2) ) = floor( 76.3 ) = 76.
-		expect( compactCalendarHeatmapCapacity( 1024 ) ).toBe( 76 );
-	} );
-
-	it.each( [
-		[ 'a width narrower than the row labels', 20 ],
-		[ 'zero width', 0 ],
-		[ 'NaN width', Number.NaN ],
-	] )( 'returns 0 for %s', ( _label, width ) => {
-		expect( compactCalendarHeatmapCapacity( width ) ).toBe( 0 );
 	} );
 } );
 

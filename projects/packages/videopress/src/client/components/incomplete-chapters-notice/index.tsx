@@ -13,19 +13,29 @@ import LearnHowModal from '../../block-editor/blocks/video/components/details-pa
 /**
  * Types
  */
+import type { ChapterValidationIssue } from '../../utils/video-chapters/description';
 import type { ReactElement } from 'react';
 
-const IncompleteChaptersNotice = ( { className }: { className?: string } ): ReactElement => {
+type IncompleteChaptersNoticeProps = {
+	className?: string;
+	issues: ChapterValidationIssue[];
+};
+
+const IncompleteChaptersNotice = ( {
+	className,
+	issues,
+}: IncompleteChaptersNoticeProps ): ReactElement => {
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
+	const messages = [ ...new Set( issues.map( issue => issue.message ) ) ];
 
 	return (
 		<>
 			<Notice status="warning" className={ className } isDismissible={ false }>
+				{ messages.map( message => (
+					<p key={ message }>{ message }</p>
+				) ) }
 				{ createInterpolateElement(
-					__(
-						'It seems there are some chapters, but they are incomplete. Check out the <link>format</link> and try again.',
-						'jetpack-videopress-pkg'
-					),
+					__( 'Check the <link>chapter format</link> and try again.', 'jetpack-videopress-pkg' ),
 					{
 						link: <Button variant="link" size="small" onClick={ () => setIsModalOpen( true ) } />,
 					}

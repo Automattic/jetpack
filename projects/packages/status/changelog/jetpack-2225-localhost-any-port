@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Status: detect local development sites served on a port, such as http://127.0.0.1:8080, and stop treating a production site as local when a domain like .test or .localhost appears in its URL path.

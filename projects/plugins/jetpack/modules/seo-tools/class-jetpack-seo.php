@@ -127,7 +127,12 @@ class Jetpack_SEO {
 			$tags['og:title'] = $custom_title;
 		}
 
-		$post_custom_description = Jetpack_SEO_Posts::get_post_custom_description( get_post() );
+		// On archives and a latest-posts homepage, get_post() returns the first post in
+		// the loop, whose description does not represent the page being viewed. Only use
+		// the per-post custom description when we are actually on that singular post/page.
+		$post_custom_description = is_singular()
+			? Jetpack_SEO_Posts::get_post_custom_description( get_post() )
+			: '';
 		$front_page_meta         = Jetpack_SEO_Utils::get_front_page_meta_description();
 
 		if ( class_exists( 'woocommerce' ) && is_shop() ) {

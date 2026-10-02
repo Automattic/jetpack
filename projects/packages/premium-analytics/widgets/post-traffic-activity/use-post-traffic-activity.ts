@@ -15,9 +15,8 @@ import {
 import { toDay, type DataPointDate } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
- * Normalized activity state: one point per calendar day of the visible page
- * plus paging controls and the request's load/error flags. `hasData`
- * distinguishes the first load from refetches.
+ * One point per calendar day of the visible page. `hasData` distinguishes the
+ * first load from refetches.
  */
 export interface PostTrafficActivityState {
 	days: DataPointDate[];
@@ -37,19 +36,9 @@ export interface PostTrafficActivityState {
 }
 
 /**
- * Fetch the scoped post's daily view activity for the dashboard's report
- * params and expose one page of it. The caller derives `pageSpanDays` from
- * the card width (whole week columns that fit), so one page always fills the
- * card exactly: a range at or under one page pads backward to
- * `range end − (pageSpanDays − 1)` with blank filler weeks, and a longer
- * range is paged — the newest page shows first and the header arrows step
- * through the range one page at a time, the oldest page padding backward the
- * same way. Every calendar day of the page through the range end gets a
- * point: days without traffic — and leading filler days before the range —
- * carry `null` (blank cells per the design, not zero labels), while the days
- * completing the newest week past the range end emit no point at all, so the
- * chart's ragged-edge option hides their cells and the current week only
- * draws through today. A `postId` of 0 disables the request.
+ * The caller derives `pageSpanDays` from the card width (whole week columns that
+ * fit), so one page always fills the card exactly; a range longer than a page is
+ * paged, newest first. A `postId` of 0 disables the request.
  */
 export default function usePostTrafficActivity(
 	postId: number,
@@ -79,12 +68,9 @@ export default function usePostTrafficActivity(
 		const history = data?.data ?? [];
 		const viewsByDay = new Map( history.map( day => [ day.date, day.views ] ) );
 
-		// Pages snap to week boundaries: the chart grids Monday-start week
-		// columns from the window's first week, so an unaligned window would
-		// span one more column than the width measurement sized the card for.
-		// With both bounds aligned, a page is exactly `pageSpanDays / 7`
-		// columns; the days past the range edges inside those weeks stay
-		// blank filler.
+		// Pages snap to week boundaries: the chart grids Monday-start week columns
+		// from the window's first week, so an unaligned window would span one more
+		// column than the width measurement sized the card for.
 		const firstWeekStart = startOfWeek( parseISO( from ), { weekStartsOn: 1 } );
 		const newestPageEnd = endOfWeek( parseISO( to ), { weekStartsOn: 1 } );
 		const paged = firstWeekStart < subDays( newestPageEnd, pageSpanDays - 1 );
@@ -92,20 +78,18 @@ export default function usePostTrafficActivity(
 		let pageEnd = subDays( newestPageEnd, pageOffset * pageSpanDays );
 		let pageStart = subDays( pageEnd, pageSpanDays - 1 );
 
-		// The oldest page of a paged range clamps to the range's first week
-		// and fills forward (overlapping the previous page), instead of
-		// padding months of out-of-range blanks before it. Short ranges keep
-		// padding backward from the range end so the grid still fills the card.
+		// The oldest page clamps to the range's first week and fills forward,
+		// overlapping the previous page, instead of padding months of
+		// out-of-range blanks before it.
 		if ( paged && pageStart < firstWeekStart ) {
 			pageStart = firstWeekStart;
 			const clampedEnd = addDays( firstWeekStart, pageSpanDays - 1 );
 			pageEnd = clampedEnd < newestPageEnd ? clampedEnd : newestPageEnd;
 		}
 
-		// No points past the range end: the chart's ragged-edge option then
-		// hides the trailing cells of the newest week (future days, on a
-		// rolling preset), per the design. `pageEnd` itself stays week-aligned
-		// so the column count still matches the width measurement.
+		// No points past the range end, so the chart's ragged-edge option hides the
+		// newest week's future cells. `pageEnd` itself stays week-aligned so the
+		// column count still matches the width measurement.
 		const rangeEnd = parseISO( to );
 		const pointsEnd = rangeEnd < pageEnd ? rangeEnd : pageEnd;
 

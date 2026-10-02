@@ -1,4 +1,0 @@
-Significance: minor
-Type: enhancement
-
-Premium Analytics: label the traffic chart's time axis by the size of the bucket behind the data, and name each bar's period in full in its tooltip.

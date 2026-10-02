@@ -13,6 +13,21 @@ jest.mock( '@jetpack-premium-analytics/data', () => ( {
 		to: '2026-06-16T23:59:59',
 		...search,
 	} ) ),
+	// Real semantics, without pulling the data barrel: the seed's comparison
+	// stripping is under test here.
+	hasComparisonEnabled: ( params: {
+		comp?: unknown;
+		compare_from?: string;
+		compare_to?: string;
+	} ) => String( params.comp ) === '1' && !! params.compare_from && !! params.compare_to,
+	withoutComparison: ( params: Record< string, unknown > ) => {
+		const next = { ...params };
+		delete next.comp;
+		delete next.compare_from;
+		delete next.compare_to;
+		delete next.compare_preset;
+		return next;
+	},
 } ) );
 
 jest.mock( '../site-readiness', () => ( {
@@ -24,15 +39,6 @@ jest.mock( '@wordpress/route', () => ( {
 	redirect: jest.fn( ( options: object ) => ( { isRedirect: true, ...options } ) ),
 } ) );
 
-const mockGetEntityConfig = jest.fn();
-const mockAddEntities = jest.fn();
-jest.mock( '@wordpress/data', () => ( {
-	select: () => ( { getEntityConfig: mockGetEntityConfig } ),
-	dispatch: () => ( { addEntities: mockAddEntities } ),
-} ) );
-
-jest.mock( '@wordpress/core-data', () => ( { store: {} } ) );
-
 // A search that needs no seeding: the seed check is mocked false.
 const settledSearch = {
 	from: '2026-06-01T00:00:00',
@@ -43,21 +49,9 @@ const settledSearch = {
 const beforeLoad = ( search?: object ) =>
 	route.beforeLoad( { search } as Parameters< typeof route.beforeLoad >[ 0 ] );
 
-/**
- * The names registered across all `addEntities` calls.
- *
- * @return The registered entity names.
- */
-function registeredNames(): string[] {
-	return mockAddEntities.mock.calls.flatMap( ( [ entities ] ) =>
-		( entities as { name: string }[] ).map( entity => entity.name )
-	);
-}
-
 describe( 'dashboard route.beforeLoad', () => {
 	afterEach( () => {
 		jest.clearAllMocks();
-		mockGetEntityConfig.mockReset();
 	} );
 
 	it( 'redirects to /connect when the site is not connected', async () => {
@@ -66,10 +60,12 @@ describe( 'dashboard route.beforeLoad', () => {
 		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/connect' } );
 	} );
 
-	it( 'redirects to /syncing before the initial sync finishes', async () => {
+	// Only the store section's data waits on the analytics sync, so an unfinished
+	// sync must not hold back the site sections.
+	it( 'loads the dashboard before the initial sync finishes', async () => {
 		( isPremiumAnalyticsInitialSyncFinished as jest.Mock ).mockReturnValueOnce( false );
 
-		await expect( beforeLoad( settledSearch ) ).rejects.toMatchObject( { to: '/syncing' } );
+		await expect( beforeLoad( settledSearch ) ).resolves.toBeUndefined();
 	} );
 
 	it( 're-seeds the date params when they are missing', async () => {
@@ -78,33 +74,49 @@ describe( 'dashboard route.beforeLoad', () => {
 		await expect( beforeLoad( {} ) ).rejects.toMatchObject( { to: '/', replace: true } );
 	} );
 
-	it( 'registers both dashboard entities on a fresh store', async () => {
-		mockGetEntityConfig.mockReturnValue( undefined );
+	/**
+	 * Run the seed for a search and return the search the redirect writes.
+	 *
+	 * @param search - The URL search params the route loads with.
+	 * @return The seeded search params.
+	 */
+	async function seededSearch( search: object ): Promise< Record< string, unknown > > {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
 
-		await beforeLoad( settledSearch );
+		const thrown = ( await beforeLoad( search ).then(
+			() => null,
+			( redirectResult: unknown ) => redirectResult
+		) ) as { search: Record< string, unknown > } | null;
 
-		expect( registeredNames() ).toEqual( [ 'widgetModule', 'dashboardSection' ] );
+		if ( ! thrown ) {
+			throw new Error( 'expected the seed to redirect' );
+		}
+
+		return thrown.search;
+	}
+
+	// A hand-edited bare `comp=1` (no compare dates) must not ride through the
+	// seed into the URL it writes.
+	it( 'drops stray comparison params from the seed', async () => {
+		const search = await seededSearch( {
+			comp: '1',
+			compare_preset: 'previous-period',
+			section: 'store',
+		} );
+
+		expect( search ).toMatchObject( { section: 'store' } );
+		expect( search ).not.toHaveProperty( 'comp' );
+		expect( search ).not.toHaveProperty( 'compare_preset' );
 	} );
 
-	it( 'registers dashboardSection even when a detail-page entry already registered widgetModule', async () => {
-		// Regression for the empty edit-mode dashboard: reloading on a detail
-		// page registered `widgetModule` alone, and the dashboard's old guard
-		// then skipped `dashboardSection` entirely, so the stage resolved zero
-		// sections and force-opened an empty edit-mode canvas.
-		mockGetEntityConfig.mockImplementation( ( _kind: string, name: string ) =>
-			name === 'widgetModule' ? {} : undefined
-		);
+	it( 'keeps a complete comparison through the seed', async () => {
+		const search = await seededSearch( {
+			comp: '1',
+			compare_from: '2026-05-01T00:00:00',
+			compare_to: '2026-05-16T23:59:59',
+			compare_preset: 'previous-period',
+		} );
 
-		await beforeLoad( settledSearch );
-
-		expect( registeredNames() ).toEqual( [ 'dashboardSection' ] );
-	} );
-
-	it( 'does not re-register entities that already exist', async () => {
-		mockGetEntityConfig.mockReturnValue( {} );
-
-		await beforeLoad( settledSearch );
-
-		expect( mockAddEntities ).not.toHaveBeenCalled();
+		expect( search ).toMatchObject( { comp: '1', compare_preset: 'previous-period' } );
 	} );
 } );

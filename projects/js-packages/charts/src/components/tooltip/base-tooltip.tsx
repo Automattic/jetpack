@@ -1,4 +1,6 @@
 import { formatNumber } from '@automattic/number-formatters';
+import clsx from 'clsx';
+import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import styles from './base-tooltip.module.scss';
 import type { CSSProperties, ComponentType, ReactNode } from 'react';
 
@@ -57,13 +59,18 @@ export const BaseTooltip = ( {
 	renderContainer = true,
 }: BaseTooltipProps ) => {
 	const content = children || ( data && <Component data={ data } className={ className } /> );
+	const standaloneScopeClass = useStandaloneScopeClass();
 
 	if ( ! renderContainer ) {
 		return content;
 	}
 
 	return (
-		<div className={ styles.tooltip } style={ { top, left, ...style } } role="tooltip">
+		<div
+			className={ clsx( standaloneScopeClass, styles.tooltip ) }
+			style={ { top, left, ...style } }
+			role="tooltip"
+		>
 			{ content }
 		</div>
 	);

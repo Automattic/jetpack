@@ -68,6 +68,26 @@ jest.mock( '@wordpress/components', () => ( {
 		);
 	},
 	Icon: () => null,
+	// Minimal stand-in for the "enable newsletter categories" toggle field's
+	// `Edit` control (`Toggle`, which renders the real `ToggleControl`).
+	// Toggle behavior isn't under test here, just that it renders.
+	ToggleControl: ( {
+		label,
+		checked,
+		onChange,
+	}: {
+		label?: string;
+		checked?: boolean;
+		onChange: ( checked: boolean ) => void;
+	} ) => (
+		<input
+			type="checkbox"
+			aria-label={ label }
+			checked={ !! checked }
+			// eslint-disable-next-line react/jsx-no-bind
+			onChange={ () => onChange( ! checked ) }
+		/>
+	),
 } ) );
 
 interface StubField {
@@ -78,9 +98,10 @@ interface StubField {
 
 jest.mock( '@wordpress/dataviews', () => ( {
 	__esModule: true,
-	// Render each field's real custom `Edit` control (the categories field), so
-	// tests drive the actual create/search behavior. Non-custom fields (the
-	// enable toggle) render nothing — they aren't under test here.
+	// Render each field's real custom `Edit` control, so tests drive the
+	// actual create/search behavior for the categories field. The enable
+	// toggle's `Edit` also renders (via the stubbed `ToggleControl` above)
+	// but isn't under test here.
 	DataForm: ( {
 		data,
 		fields,

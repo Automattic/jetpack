@@ -8,7 +8,7 @@ import { useReportOrders } from '@jetpack-premium-analytics/data';
 import { ReportMetricWidget } from '../../components/report-metric';
 import { useWidgetRootContext } from '../../components/widget-root';
 import { getFormatByMetricKey, BOOKINGS_FILTER } from '../../helpers';
-import type { OrderMetricKey } from '../../types';
+import type { CountLabel, OrderMetricKey } from '../../types';
 
 export type BookingOrderMetricWidgetProps = {
 	metricKey: OrderMetricKey;
@@ -16,6 +16,11 @@ export type BookingOrderMetricWidgetProps = {
 	emptyStateText?: string;
 
 	errorText?: string;
+
+	/** The metric's name, for the chart legend. */
+	seriesLabel?: string;
+
+	seriesCountLabel?: CountLabel;
 };
 
 /**
@@ -28,6 +33,8 @@ export function BookingOrderMetricWidget( {
 	metricKey,
 	emptyStateText,
 	errorText,
+	seriesLabel,
+	seriesCountLabel,
 }: BookingOrderMetricWidgetProps ) {
 	const { reportParams } = useWidgetRootContext();
 
@@ -41,6 +48,8 @@ export function BookingOrderMetricWidget( {
 			dataFormat={ getFormatByMetricKey( metricKey ) }
 			emptyStateText={ emptyStateText }
 			errorText={ errorText }
+			seriesLabel={ seriesLabel }
+			seriesCountLabel={ seriesCountLabel }
 		/>
 	);
 }

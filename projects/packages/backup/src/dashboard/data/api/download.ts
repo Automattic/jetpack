@@ -1,4 +1,5 @@
-import { apiCall, apiPath, serializeTypes } from './_helpers';
+import { __ } from '@wordpress/i18n';
+import { ApiError, apiCall, apiPath, requireTypes } from './_helpers';
 import type { RestoreItems } from '../../types/restore';
 
 export type InitiateDownloadResponse = {
@@ -33,6 +34,10 @@ export type DownloadStatusResponse = {
 /**
  * Initiate a backup download.
  *
+ * Always names at least one category — `requireTypes` throws instead of
+ * letting the key be dropped, because an absent `types` asks WPCOM for
+ * the *whole* archive rather than for nothing.
+ *
  * @param rewindId - The backup's rewind id, in full — the decimal suffix is significant.
  * @param types    - Which categories to include in the download.
  * @return The download id.
@@ -44,9 +49,53 @@ export async function initiateDownload(
 	return apiCall< InitiateDownloadResponse >( {
 		path: apiPath( `/backups/download/${ rewindId }` ),
 		method: 'POST',
-		// Omitted entirely when nothing is selected: an empty `types`
-		// asks WPCOM for a download containing nothing.
-		data: { types: serializeTypes( types ) },
+		data: { types: requireTypes( types ) },
+	} );
+}
+
+/**
+ * The `ls` entry ids carried in a `?files=` param.
+ *
+ * The comma is upstream's own separator: a folder's id is the joined ids
+ * of the entries it covers, so splitting yields exactly those entries.
+ *
+ * @param files - The comma-joined `?files=` value.
+ * @return One trimmed, non-empty entry per id.
+ */
+export function splitFileSelection( files: string ): string[] {
+	return files
+		.split( ',' )
+		.map( part => part.trim() )
+		.filter( Boolean );
+}
+
+/**
+ * Initiate a download scoped to named files.
+ *
+ * `types: { paths: true }` and nothing else — the bridge refuses any other
+ * pairing, and upstream would not.
+ *
+ * @param  rewindId - The backup's rewind id, in full.
+ * @param  files    - The comma-joined `ls` entry ids the file browser produced.
+ * @throws {ApiError} When the selection names no entry.
+ * @return The download id.
+ */
+export async function initiateFileDownload(
+	rewindId: string,
+	files: string
+): Promise< InitiateDownloadResponse > {
+	const paths = splitFileSelection( files );
+	if ( ! paths.length ) {
+		throw new ApiError(
+			'no_files_selected',
+			__( 'Select at least one file to download.', 'jetpack-backup-pkg' )
+		);
+	}
+
+	return apiCall< InitiateDownloadResponse >( {
+		path: apiPath( `/backups/download/${ rewindId }` ),
+		method: 'POST',
+		data: { types: { paths: true }, include_path_list: paths },
 	} );
 }
 

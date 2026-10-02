@@ -3,7 +3,24 @@
 // takes the width it is given and left-aligns its own contents rather
 // than inheriting the container's text alignment.
 .jpb-query-error {
+	// `inline-size: 100%` with the notice's own padding and its 4px status
+	// border overflows a content-box by exactly those extra pixels — enough
+	// to put a horizontal scrollbar across the whole dashboard once this is
+	// rendered in ordinary flow rather than inside a box that sizes it.
+	// Measured on a live site at 1440px: 1261px of content in a 1257px
+	// container, gone with this line.
+	box-sizing: border-box;
 	inline-size: 100%;
 	margin: 0;
 	text-align: start;
+}
+
+// Both original slots are boxes that space the notice themselves, so the
+// rule above zeroes its margin. A caller that drops it into ordinary flow
+// — the Overview renders one directly above the two-pane grid, which
+// declares no block margin of its own — has to add that back, or the red
+// notice's border lands flush on the activity card's. 16px matches
+// `.jpb-backup-status-banner`, the sibling that occupies the same slot.
+.jpb-query-error--standalone {
+	margin-block-end: 16px;
 }

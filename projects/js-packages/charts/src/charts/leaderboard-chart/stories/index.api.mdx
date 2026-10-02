@@ -15,9 +15,9 @@ Main chart component for displaying ranked data with optional comparison values.
 | `data` | `LeaderboardEntry[]` | - | **Required.** Array of leaderboard entries to display |
 | `withComparison` | `boolean` | `false` | Whether to show comparison data (previous period bars and delta values) |
 | `withOverlayLabel` | `boolean` | `false` | Whether to overlay the label on top of the bar |
-| `primaryColor` | `string` | theme default | Primary color for current period bars |
-| `secondaryColor` | `string` | theme default | Secondary color for comparison period bars |
-| `valueFormatter` | `(value: number) => string` | `defaultValueFormatter` | Custom formatter for values |
+| `primaryColor` | `string` | first palette slot | Primary color for current period bars |
+| `secondaryColor` | `string` | second palette slot | Secondary color for comparison period bars |
+| `valueFormatter` | `(value: number) => ReactNode` | `defaultValueFormatter` | Custom formatter for values; may return an element, e.g. to attach a tooltip |
 | `deltaFormatter` | `(value: number) => string` | `defaultDeltaFormatter` | Custom formatter for delta values |
 | `loading` | `boolean` | `false` | Whether the chart is in loading state |
 | `fitRows` | `boolean` | `false` | Show only complete rows that fit the chart height instead of scrolling. Needs a height-constrained container; refits are debounced on the responsive export. |

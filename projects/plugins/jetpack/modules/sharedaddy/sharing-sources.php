@@ -48,15 +48,15 @@ abstract class Sharing_Source {
 	/**
 	 * Sharing unique ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	protected $id;
 
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		$this->id = $id;
@@ -103,7 +103,7 @@ abstract class Sharing_Source {
 	/**
 	 * Get unique sharing ID.
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_id() {
 		return $this->id;
@@ -112,7 +112,7 @@ abstract class Sharing_Source {
 	/**
 	 * Get unique sharing ID. Similar to get_id().
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function get_class() {
 		return $this->id;
@@ -678,7 +678,19 @@ abstract class Sharing_Source {
 	}
 
 	/**
-	 * Add extra JavaScript to a sharing service.
+	 * Register a sharing service's popup window features with the front-end script.
+	 *
+	 * Services that open their share link in a popup publish the window features
+	 * they need in `window.WPCOM_sharing_popups`. A single delegated click handler
+	 * in sharing.js reads them and opens the popup, so no per-service handler is
+	 * emitted.
+	 *
+	 * $name has to be the same slug that appears in the share link's `share-<name>`
+	 * class, since that class is all the handler has to look the features back up
+	 * with. Every caller passes $this->shortname, which works because get_link()
+	 * builds the class from get_class() and the built-in services register under
+	 * the slug they declare as their shortname. Share_Custom is the exception: its
+	 * class and shortname do not round-trip, but it does not register a popup.
 	 *
 	 * @param string $name   Sharing service name.
 	 * @param array  $params Array of sharing options.
@@ -706,41 +718,11 @@ abstract class Sharing_Source {
 		// Add JS after sharing-js has been enqueued.
 		wp_add_inline_script(
 			'sharing-js',
-			"var windowOpen;
-			( function () {
-				var shareWindowName = 'wpcom$name-' + Math.random().toString( 36 ).slice( 2 );
-
-				function matches( el, sel ) {
-					return !! (
-						el.matches && el.matches( sel ) ||
-						el.msMatchesSelector && el.msMatchesSelector( sel )
-					);
-				}
-
-				document.body.addEventListener( 'click', function ( event ) {
-					if ( ! event.target ) {
-						return;
-					}
-
-					var el;
-					if ( matches( event.target, 'a.share-$name' ) ) {
-						el = event.target;
-					} else if ( event.target.parentNode && matches( event.target.parentNode, 'a.share-$name' ) ) {
-						el = event.target.parentNode;
-					}
-
-					if ( el ) {
-						event.preventDefault();
-
-						// If there's another sharing window open, close it.
-						if ( typeof windowOpen !== 'undefined' ) {
-							windowOpen.close();
-						}
-						windowOpen = window.open( el.getAttribute( 'href' ), shareWindowName, '$opts' );
-						return false;
-					}
-				} );
-			} )();"
+			sprintf(
+				"window.WPCOM_sharing_popups = window.WPCOM_sharing_popups || {};\nwindow.WPCOM_sharing_popups[ %s ] = %s;",
+				wp_json_encode( (string) $name, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ),
+				wp_json_encode( $opts, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP )
+			)
 		);
 	}
 }
@@ -773,7 +755,7 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	/**
 	 * Sharing unique ID.
 	 *
-	 * @var int
+	 * @var string
 	 */
 	protected $id;
 
@@ -787,8 +769,8 @@ abstract class Deprecated_Sharing_Source extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	final public function __construct( $id, array $settings ) {
 		$this->id = $id;
@@ -962,8 +944,8 @@ class Share_Email extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1004,7 +986,7 @@ class Share_Email extends Sharing_Source {
 	 * @param WP_Post $post Post object.
 	 * @param array   $post_data Array of information about the post we're sharing.
 	 *
-	 * @return void
+	 * @return never
 	 */
 	public function process_request( $post, array $post_data ) {
 		$is_ajax = false;
@@ -1032,8 +1014,6 @@ class Share_Email extends Sharing_Source {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
 			exit( 0 );
 		}
-
-		wp_die();
 	}
 
 	/**
@@ -1134,8 +1114,8 @@ class Share_Twitter extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1405,8 +1385,8 @@ class Share_X extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1710,8 +1690,8 @@ class Share_LinkedIn extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -1873,8 +1853,8 @@ class Share_Facebook extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2073,8 +2053,8 @@ class Share_Print extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2141,8 +2121,8 @@ class Share_PressThis extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2287,8 +2267,8 @@ class Share_Custom extends Sharing_Advanced_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2560,8 +2540,8 @@ class Share_Tumblr extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2684,8 +2664,8 @@ class Share_Pinterest extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) {
 		parent::__construct( $id, $settings );
@@ -2926,8 +2906,8 @@ class Share_Telegram extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		parent::__construct( $id, $settings );
@@ -3011,8 +2991,8 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 	/**
 	 * Constructor.
 	 *
-	 * @param int   $id       Sharing source ID.
-	 * @param array $settings Sharing settings.
+	 * @param string $id       Sharing source ID.
+	 * @param array  $settings Sharing settings.
 	 */
 	public function __construct( $id, array $settings ) { // phpcs:ignore Generic.CodeAnalysis.UselessOverridingMethod.Found
 		parent::__construct( $id, $settings );

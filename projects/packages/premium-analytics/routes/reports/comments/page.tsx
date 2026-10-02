@@ -24,11 +24,12 @@ import { REPORTS } from '../registry';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	useCommentsReportRecords,
 	type CommentReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -88,13 +89,8 @@ function CommentsReport(): JSX.Element {
 
 	return (
 		<ReportPageShell
-			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __(
-				'Learn about the comments your site receives by authors, posts, and pages.',
-				'jetpack-premium-analytics-pkg'
-			) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
@@ -102,14 +98,9 @@ function CommentsReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 			>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-				 * request would otherwise look like a legitimate empty report.
-				 */ }
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load comments', 'jetpack-premium-analytics-pkg' ) }
@@ -122,6 +113,7 @@ function CommentsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getCommentRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search comments', 'jetpack-premium-analytics-pkg' ) }
 					/>

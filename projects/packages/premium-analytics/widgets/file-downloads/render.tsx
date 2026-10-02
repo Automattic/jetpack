@@ -11,14 +11,18 @@ import {
  */
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { download } from '@wordpress/icons';
-import { Link } from '@jetpack-premium-analytics/externals';
 import {
+	ExporterCsvDownloadButton,
+	WIDGET_ROW_LIMIT,
 	calculateDelta,
+	fileDownloadsCsvExporter,
 	getCombinedPeriodMax,
 	safeHttpUrl,
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	buildLeaderboardRow,
+	resolveLeaderboardRowAction,
 	sharePercentage,
 	WidgetFooter,
 	WidgetRoot,
@@ -75,21 +79,11 @@ function buildLeaderboardData(
 
 		return {
 			id: `${ index }-${ row.href ?? row.label }`,
-			label: row.href ? (
-				<Link
-					className={ styles.labelLink }
-					href={ row.href }
-					variant="unstyled"
-					openInNewTab
-					title={ row.label }
-				>
-					{ row.label }
-				</Link>
-			) : (
-				<span className={ styles.labelText } title={ row.label }>
-					{ row.label }
-				</span>
-			),
+			...buildLeaderboardRow( {
+				label: row.label,
+				media: { kind: 'none' },
+				action: resolveLeaderboardRowAction( { href: row.href, hasChildren: false } ),
+			} ),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 			previousValue,
@@ -116,23 +110,13 @@ function toFileDownloadRows( items: StatsFileDownloadsComparisonItem[] ): FileDo
 }
 
 export type FileDownloadsLeaderboardProps = {
-	/**
-	 * Normalized download rows to render.
-	 */
 	rows?: FileDownloadRow[];
-	/**
-	 * When true, render previous-period deltas.
-	 */
 	withComparison?: boolean;
 };
 
 /**
- * Presentational leaderboard for the "File downloads" widget.
- *
- * Accepts already-fetched rows and renders only the populated (ready) state —
- * loading, error, and empty are handled by `<WidgetState>` in the
- * data-connected inner component. Exported so Storybook can render fixture
- * rows without needing a live WordPress backend.
+ * Renders only the populated state — the data-connected inner component owns the
+ * rest. Exported so Storybook can render fixture rows without a live backend.
  */
 export function FileDownloadsLeaderboard( {
 	rows = [],
@@ -149,17 +133,10 @@ export function FileDownloadsLeaderboard( {
 	);
 }
 
-type FileDownloadsInnerProps = {
-	/**
-	 * Max rows to display.
-	 */
-	max: number;
-};
-
-function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
+function FileDownloadsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: max } );
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => toFileDownloadRows( comparisonRows?.rows ?? [] ),
@@ -173,9 +150,8 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 				<WidgetState
 					isLoading={ isLoading }
 					isFetching={ isFetching }
-					// The Stats queries carry `placeholderData`, so a failed range change
-					// keeps the prior period's rows visible; only surface the error when
-					// there is nothing to show.
+					// `placeholderData` keeps the prior period's rows on screen, so a
+					// transient refetch failure should not replace them with an error.
 					isError={ rows.length === 0 && isError }
 					isEmpty={ rows.length === 0 }
 					error={ {
@@ -187,16 +163,18 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
 							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
 						],
 					} }
-					empty={ {
-						icon: download,
-						description: __( 'No file downloads in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<FileDownloadsLeaderboard rows={ rows } withComparison={ withComparison } />
 				</WidgetState>
 			</div>
 			<WidgetFooter>
 				<ReportLink report="downloads" />
+				<ExporterCsvDownloadButton
+					exporter={ fileDownloadsCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
+				/>
 			</WidgetFooter>
 		</>
 	);
@@ -207,12 +185,10 @@ function FileDownloadsInner( { max }: FileDownloadsInnerProps ) {
  * from the shared dashboard date picker via WidgetRoot.
  */
 export default function FileDownloadsWidget( { attributes = {} }: FileDownloadsWidgetProps ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<FileDownloadsInner max={ max } />
+				<FileDownloadsInner />
 			</div>
 		</WidgetRoot>
 	);

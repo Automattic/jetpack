@@ -147,7 +147,7 @@ function Reader( props ) {
 							'Discover and follow your favorite sites with the WordPress.com Reader.',
 							'jetpack',
 							/* dummy arg to avoid bad minification */ 0
-					  ) }
+						) }
 			</h2>
 			<SettingsCard
 				{ ...props }
@@ -155,7 +155,7 @@ function Reader( props ) {
 				hideButton
 				module={ moduleName }
 			>
-				{ woaNotice }
+				{ woaNotice && <div className="jp-settings-card__notice">{ woaNotice }</div> }
 				{ readerToggle }
 				{ visitReaderLink }
 			</SettingsCard>

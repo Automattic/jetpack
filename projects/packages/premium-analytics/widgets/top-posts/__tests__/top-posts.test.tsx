@@ -3,12 +3,15 @@
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
 import { queryClient } from '@jetpack-premium-analytics/data';
+import { WIDGET_ROW_LIMIT } from '@jetpack-premium-analytics/widgets-toolkit';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import TopPostsWidget from '../render';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -40,9 +43,8 @@ function DashboardWidgetChromeFixture( { children }: { children: ReactNode } ) {
 	);
 }
 
-// The widget requests a multi-day window, so the stats query layer summarizes
-// the views into the top-level `summary` bucket rather than per-day `days`
-// buckets.
+// A multi-day window makes the stats query layer summarize into the top-level
+// `summary` bucket rather than per-day `days` buckets.
 const TOP_POSTS_RESPONSE = {
 	date: '2026-06-10',
 	days: {},
@@ -80,17 +82,17 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'routes post titles to the post-detail page with no outbound link', async () => {
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		// The title navigates through the router to the internal post-detail
 		// route, so the dashboard does not reload.
 		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
 		expect( titleLink ).toHaveAttribute( 'href', expect.stringContaining( '/post/1' ) );
 		expect( titleLink ).not.toHaveAttribute( 'target' );
+		expect( titleLink ).toHaveAttribute( 'title', 'Hello World Post' );
 
-		// A row with a detail page carries no link out to the live post: the
-		// external-link icon marks destinations outside the app, and the detail
-		// page holds that link.
+		// A row with a detail page carries no outbound link: the external-link
+		// icon marks destinations outside the app; the detail page holds that link.
 		expect(
 			screen.queryByRole( 'link', { name: /open hello world post in a new tab/i } )
 		).not.toBeInTheDocument();
@@ -101,11 +103,30 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 	} );
 
+	it( 'keeps the exact count behind an abbreviated row value', async () => {
+		const user = userEvent.setup();
+		mockApiFetch.mockResolvedValue( {
+			...TOP_POSTS_RESPONSE,
+			summary: {
+				...TOP_POSTS_RESPONSE.summary,
+				postviews: [ { ...TOP_POSTS_RESPONSE.summary.postviews[ 0 ], views: 18432 } ],
+			},
+		} );
+		render( <TopPostsWidget attributes={ {} } /> );
+
+		const compact = await screen.findByText( '18.4K' );
+		expect( compact ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '18,432' ) ).toBeInTheDocument();
+
+		await user.hover( compact );
+		await expect(
+			screen.findByRole( 'tooltip', undefined, { timeout: 3000 } )
+		).resolves.toHaveTextContent( '18,432' );
+	} );
+
 	it( 'carries the dashboard date range into the post-detail link', async () => {
 		render(
-			<TopPostsWidget
-				attributes={ { max: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
+			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
 		const titleLink = await screen.findByRole( 'link', { name: /^Hello World Post$/ } );
@@ -116,13 +137,13 @@ describe( 'TopPostsWidget', () => {
 		expect( search.get( 'from' ) ).toBe( '2026-03-01' );
 		expect( search.get( 'to' ) ).toBe( '2026-03-10' );
 		expect( search.get( 'post_url' ) ).toBe( 'https://example.com/hello-world/' );
+		expect( search.get( 'ref' ) ).toBe( 'posts' );
+		expect( search.get( 'ref_section' ) ).toBe( 'posts-pages' );
 	} );
 
 	it( 'requests the dashboard date range from report params', async () => {
 		render(
-			<TopPostsWidget
-				attributes={ { max: 10, reportParams: { from: '2026-03-01', to: '2026-03-10' } } }
-			/>
+			<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
 		);
 
 		await expect(
@@ -141,7 +162,7 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'links to the Posts & Pages report', () => {
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
@@ -178,7 +199,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -238,7 +258,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -257,10 +276,123 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.queryByText( /%/ ) ).not.toBeInTheDocument();
 	} );
 
+	describe( 'CSV export', () => {
+		let downloads: ReturnType< typeof captureCsvDownloads >;
+
+		beforeEach( () => {
+			jest.useFakeTimers();
+			downloads = captureCsvDownloads();
+		} );
+
+		afterEach( () => {
+			jest.useRealTimers();
+			downloads.restore();
+		} );
+
+		async function downloadCsvLines() {
+			const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+			await downloads.clickAndSave( button );
+
+			return downloads.lines();
+		}
+
+		it( 'downloads the full Posts & pages report instead of the rows on screen', async () => {
+			const fullReport = {
+				date: '2026-03-10',
+				days: {},
+				summary: {
+					postviews: Array.from( { length: 12 }, ( _, index ) => ( {
+						id: index + 1,
+						href: `https://example.com/post-${ index + 1 }/`,
+						date: '2026-03-01',
+						title: `Post ${ index + 1 }`,
+						type: 'post',
+						views: 100 - index,
+					} ) ),
+					total_views: 1134,
+				},
+			};
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve( path.includes( 'max=0' ) ? fullReport : TOP_POSTS_RESPONSE )
+			);
+
+			render(
+				<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+			);
+
+			const lines = await downloadCsvLines();
+
+			expect( lines[ 0 ] ).toBe( '"Title","Views","URL"' );
+			expect( lines[ 1 ] ).toBe( '"Post 1","100","https://example.com/post-1/"' );
+			expect( lines ).toHaveLength( 13 );
+		} );
+
+		it( 'leaves previous-period columns and the comparison request out of the download', async () => {
+			render(
+				<TopPostsWidget
+					attributes={ {
+						reportParams: {
+							from: '2026-03-01',
+							to: '2026-03-10',
+							comp: '1',
+							compare_from: '2026-02-01',
+							compare_to: '2026-02-10',
+						},
+					} }
+				/>
+			);
+			await expect(
+				screen.findByRole( 'button', { name: /Download CSV/ } )
+			).resolves.toBeInTheDocument();
+			const callsBeforeDownload = mockApiFetch.mock.calls.length;
+
+			const lines = await downloadCsvLines();
+
+			expect( lines[ 0 ] ).toBe( '"Title","Views","URL"' );
+			const downloadPaths = mockApiFetch.mock.calls
+				.slice( callsBeforeDownload )
+				.map( ( [ { path } ] ) => path );
+			expect( downloadPaths ).toHaveLength( 1 );
+			expect( downloadPaths[ 0 ] ).toContain( 'max=0' );
+			expect( downloadPaths[ 0 ] ).not.toContain( '2026-02' );
+		} );
+
+		it( 'downloads the archives report from the Archives view', async () => {
+			const archivesResponse = {
+				date: '2026-03-10',
+				period: 'day',
+				summary: {
+					tag: [ { href: 'https://example.com/tag/video/', value: 'video', views: 80 } ],
+				},
+			};
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve( path.includes( 'stats/archives' ) ? archivesResponse : TOP_POSTS_RESPONSE )
+			);
+
+			render(
+				<TopPostsWidget
+					attributes={ {
+						contentView: 'archives',
+						reportParams: { from: '2026-03-01', to: '2026-03-10' },
+					} }
+				/>
+			);
+
+			const lines = await downloadCsvLines();
+
+			expect( lines ).toEqual( [
+				'"Title","Views","URL"',
+				'"Tags","80",""',
+				'"Tags > video","80","https://example.com/tag/video/"',
+			] );
+			expect( downloads.files[ 0 ].filename ).toBe( 'archives-2026-03-01_2026-03-10.csv' );
+		} );
+	} );
+
 	it( 'exposes the CSV export beside the report link in the widget footer', async () => {
 		render(
 			<DashboardWidgetChromeFixture>
-				<TopPostsWidget attributes={ { max: 10 } } />
+				<TopPostsWidget attributes={ {} } />
 			</DashboardWidgetChromeFixture>
 		);
 
@@ -282,12 +414,11 @@ describe( 'TopPostsWidget', () => {
 		mockGetScriptData.mockReturnValue( {
 			premium_analytics: {
 				initial_full_sync_finished: 1,
-				has_store_data: false,
 				csv_exports_enabled: false,
 			},
 		} as ReturnType< typeof getScriptData > );
 
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		await expect(
 			screen.findByRole( 'link', { name: /^Hello World Post$/ } )
@@ -296,11 +427,6 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	it( 'hides the export while a new date range is still fetching, then restores it', async () => {
-		// Hold the second range's fetch open so we can observe the in-flight
-		// window. During it the stats query keeps the prior period's rows as
-		// placeholder data, so `rows.length > 0` stays true while `isFetching`
-		// is true. That is the exact state that used to let stale rows download
-		// under the new-period filename.
 		let resolveSecond: ( value: unknown ) => void = () => {};
 		const secondFetch = new Promise( resolve => {
 			resolveSecond = resolve;
@@ -313,7 +439,6 @@ describe( 'TopPostsWidget', () => {
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget
 					attributes={ {
-						max: 10,
 						reportParams: { from: '2026-03-01', to: '2026-03-10' },
 					} }
 				/>
@@ -331,19 +456,19 @@ describe( 'TopPostsWidget', () => {
 			<DashboardWidgetChromeFixture>
 				<TopPostsWidget
 					attributes={ {
-						max: 10,
 						reportParams: { from: '2026-05-01', to: '2026-05-10' },
 					} }
 				/>
 			</DashboardWidgetChromeFixture>
 		);
 
-		// Placeholder data keeps the prior rows visible, but the export must be
-		// gated off while the active query is fetching.
 		await waitFor( () =>
 			expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument()
 		);
-		expect( screen.getByRole( 'link', { name: /^Hello World Post$/ } ) ).toBeInTheDocument();
+		// March's rows do not answer a question about May, so they give way to the
+		// skeleton.
+		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'link', { name: /^Hello World Post$/ } ) ).not.toBeInTheDocument();
 
 		// Once the new range settles, the export returns.
 		resolveSecond( TOP_POSTS_RESPONSE );
@@ -379,7 +504,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -425,7 +549,6 @@ describe( 'TopPostsWidget', () => {
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					reportParams: {
 						from: '2026-03-01',
 						to: '2026-03-10',
@@ -446,42 +569,51 @@ describe( 'TopPostsWidget', () => {
 		expect( screen.getByText( 'No comparison data' ) ).toBeInTheDocument();
 	} );
 
-	it( 'renders the empty state when there are no views', async () => {
+	it( 'renders the generic empty state when there are no views', async () => {
 		mockApiFetch.mockResolvedValue( { date: '2026-06-10', days: {} } );
 
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
-		await expect( screen.findByText( 'No views in this period.' ) ).resolves.toBeInTheDocument();
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
-	it( 'caps the visible posts list at max including the homepage entry', async () => {
-		// The API caps postviews at max but appends the homepage entry on top,
-		// so the widget re-caps the ranked list client-side.
+	it( 'caps the visible posts list at the row limit including the homepage entry', async () => {
+		// The API appends the homepage after applying its limit, so re-cap the list.
+		const posts = Array.from( { length: WIDGET_ROW_LIMIT }, ( _, index ) => ( {
+			id: index + 1,
+			href: `https://example.com/post-${ index + 1 }/`,
+			date: '2026-06-01',
+			title: `Post ${ index + 1 }`,
+			type: 'post',
+			views: ( WIDGET_ROW_LIMIT - index ) * 10,
+		} ) );
+
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',
 			days: {},
 			summary: {
 				postviews: [
-					...TOP_POSTS_RESPONSE.summary.postviews,
+					...posts,
 					{
 						id: 0,
 						href: null,
 						date: null,
 						title: 'Homepage (Latest posts)',
 						type: 'homepage',
-						views: 12,
+						views: 15,
 					},
 				],
-				total_views: 61,
+				total_views: 565,
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 2 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
-		// Ranked: Hello World Post (42), Homepage (12) — About Page (7) is cut.
 		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( /Hello World Post/ ) ).toBeInTheDocument();
-		expect( screen.queryByText( 'About Page' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( /Post 1$/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( `Post ${ WIDGET_ROW_LIMIT }` ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'renders aggregate archive rows when contentView is archives', async () => {
@@ -493,7 +625,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { contentView: 'archives' } } /> );
 
 		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
 		// Aggregate rows have no URL, so they must not render as links.
@@ -530,12 +662,13 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10 } } /> );
+		render( <TopPostsWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( 'Homepage (Latest posts)' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( 'About Page' ) ).toBeInTheDocument();
 		// The homepage entry has no URL — it must not render as a link.
 		expect( screen.queryByRole( 'link', { name: /Homepage/ } ) ).not.toBeInTheDocument();
+		expect( screen.getByTitle( 'Homepage (Latest posts)' ) ).toBeInTheDocument();
 	} );
 
 	it( 'gates archive comparison UI on overlapping archive types', async () => {
@@ -551,20 +684,19 @@ describe( 'TopPostsWidget', () => {
 									{ value: 'post', href: 'https://example.com/type/post/', views: '9' },
 								],
 							},
-					  }
+						}
 					: {
 							date: '2026-06-10',
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
 							},
-					  }
+						}
 			)
 		);
 
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					contentView: 'archives',
 					reportParams: {
 						from: '2026-03-01',
@@ -592,20 +724,19 @@ describe( 'TopPostsWidget', () => {
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '6' } ],
 							},
-					  }
+						}
 					: {
 							date: '2026-06-10',
 							summary: {
 								search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '12' } ],
 							},
-					  }
+						}
 			)
 		);
 
 		render(
 			<TopPostsWidget
 				attributes={ {
-					max: 10,
 					contentView: 'archives',
 					reportParams: {
 						from: '2026-03-01',
@@ -633,21 +764,6 @@ describe( 'TopPostsWidget', () => {
 		).toBe( true );
 	} );
 
-	it( 'treats max=0 as "all rows" in the archives view', async () => {
-		mockApiFetch.mockResolvedValue( {
-			date: '2026-06-10',
-			summary: {
-				search: [ { value: 'pricing', href: 'https://example.com/?s=p', views: '3' } ],
-				post_type: [ { value: 'post', href: 'https://example.com/type/post/', views: '2' } ],
-			},
-		} );
-
-		render( <TopPostsWidget attributes={ { max: 0, contentView: 'archives' } } /> );
-
-		await expect( screen.findByText( 'Searches' ) ).resolves.toBeInTheDocument();
-		expect( screen.getByText( 'Post types' ) ).toBeInTheDocument();
-	} );
-
 	it( 'drills down from grouped archive rows and back', async () => {
 		mockApiFetch.mockResolvedValue( {
 			date: '2026-06-10',
@@ -659,7 +775,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { contentView: 'archives' } } /> );
 
 		const drillDownButton = await screen.findByRole( 'button', {
 			name: /view searches archive pages/i,
@@ -695,7 +811,7 @@ describe( 'TopPostsWidget', () => {
 			},
 		} );
 
-		render( <TopPostsWidget attributes={ { max: 10, contentView: 'archives' } } /> );
+		render( <TopPostsWidget attributes={ { contentView: 'archives' } } /> );
 
 		// Level 0 → taxonomy groups.
 		// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.

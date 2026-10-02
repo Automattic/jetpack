@@ -610,7 +610,7 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 				}
 			}
 
-			$insert['post_date'] = $insert['post_date'] ?? '';
+			$insert['post_date'] ??= '';
 
 			if ( $is_dtp_fb_post ) {
 				$insert = $this->dtp_fb_preprocess_post( $insert, $metadata );

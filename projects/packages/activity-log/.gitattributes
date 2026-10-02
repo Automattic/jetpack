@@ -2,6 +2,7 @@
 
 # Files not needed in the production build.
 # (see also entries in the monorepo root .gitattributes)
+/build/**/*.map  production-exclude
 types.d.ts       production-exclude
 /src/js/**       production-exclude
 packages/**      production-exclude

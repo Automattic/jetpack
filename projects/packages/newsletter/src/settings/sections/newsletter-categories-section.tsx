@@ -18,12 +18,14 @@ import { Button, Card, Fieldset, Link, Notice, Stack, Text } from '@wordpress/ui
  * Internal dependencies
  */
 import { fetchCategories } from '../api';
+import { Toggle } from '../components/toggle';
 import {
 	CreatableCategoriesControl,
 	CreatableCategoryContext,
 } from './creatable-categories-control';
 import type { NewsletterSettings, WordPressCategory } from '../types';
 import type { CreatableCategoryContextValue } from './creatable-categories-control';
+import type { JSX } from 'react';
 
 interface NewsletterCategoriesSectionProps {
 	data: NewsletterSettings;
@@ -121,7 +123,7 @@ export function NewsletterCategoriesSection( {
 			id: 'wpcom_newsletter_categories_enabled',
 			label: __( 'Enable newsletter categories', 'jetpack-newsletter' ),
 			type: 'boolean' as const,
-			Edit: 'toggle' as const,
+			Edit: Toggle,
 		},
 		{
 			id: 'wpcom_newsletter_categories',
@@ -193,7 +195,7 @@ export function NewsletterCategoriesSection( {
 		? 'https://wordpress.com/support/wordpress-editor/blocks/subscribe-block/#subscribe-to-specific-categories'
 		: `https://jetpack.com/redirect/?source=jetpack-support-subscribe-block&anchor=subscribe-to-specific-categories&site=${
 				getSiteData()?.wpcom?.blog_id || ''
-		  }`;
+			}`;
 
 	const SubscribeBlockLink = isWpcom ? (
 		<WpcomSupportLink supportLink={ subscribeBlockUrl } supportPostId={ 170164 } />

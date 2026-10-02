@@ -9,13 +9,23 @@ import type { CSSProperties, FC } from 'react';
 export interface HeatmapLegendProps {
 	/** Number of swatches in the scale. Default 5. */
 	steps?: number;
+	/**
+	 * `swatches` spaces the steps out as cell-sized squares; `bar` joins them
+	 * into one continuous band with rounded ends. Default `swatches`.
+	 */
+	variant?: 'swatches' | 'bar';
 	lessLabel?: string;
 	moreLabel?: string;
 }
 
-export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel, moreLabel } ) => {
+export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
+	steps = 5,
+	variant = 'swatches',
+	lessLabel,
+	moreLabel,
+} ) => {
 	const context = useContext( HeatmapContext );
-	const { legend, backgroundColor } = useGlobalChartsTheme();
+	const { legend } = useGlobalChartsTheme();
 	if ( ! context ) {
 		return null;
 	}
@@ -24,21 +34,30 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 
 	return (
 		<Stack direction="row" gap="xs" align="center">
-			<Text variant="body-sm" style={ labelStyle }>
+			<Text
+				variant="body-sm"
+				className={ styles[ 'heatmap-chart__legend-label' ] }
+				style={ labelStyle }
+			>
 				{ lessLabel ?? __( 'Less', 'jetpack-charts' ) }
 			</Text>
-			<Stack direction="row" gap="xs">
+			<Stack
+				direction="row"
+				gap={ variant === 'bar' ? undefined : 'xs' }
+				aria-hidden="true"
+				data-testid="heatmap-legend-scale"
+				className={ variant === 'bar' ? styles[ 'heatmap-chart__legend-scale--bar' ] : undefined }
+			>
 				{ Array.from( { length: steps }, ( _, index ) => {
 					const intensity = steps <= 1 ? 1 : index / ( steps - 1 );
 					return (
 						<span
 							key={ index }
-							aria-hidden="true"
+							data-testid="heatmap-legend-swatch"
 							className={ styles[ 'heatmap-chart__legend-swatch' ] }
 							style={
 								{
 									'--a8c-charts-color-heatmap-primary': primaryColorHex,
-									'--a8c-charts-color-heatmap-background': backgroundColor,
 									'--a8c-charts-heatmap-cell-intensity': intensity,
 								} as CSSProperties
 							}
@@ -46,7 +65,11 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( { steps = 5, lessLabel,
 					);
 				} ) }
 			</Stack>
-			<Text variant="body-sm" style={ labelStyle }>
+			<Text
+				variant="body-sm"
+				className={ styles[ 'heatmap-chart__legend-label' ] }
+				style={ labelStyle }
+			>
 				{ moreLabel ?? __( 'More', 'jetpack-charts' ) }
 			</Text>
 		</Stack>

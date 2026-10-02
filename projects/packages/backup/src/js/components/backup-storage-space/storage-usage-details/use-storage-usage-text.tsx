@@ -33,12 +33,20 @@ export const useStorageUsageText = ( bytesUsed, bytesAvailable ) => {
 		const availableUnitAmount = bytesToUnit( bytesAvailable, availableUnit );
 
 		if ( availableUnit === StorageUnits.Gigabyte ) {
+			// Positional, and it has to stay that way. `@tannin/sprintf`
+			// reads a digit that is not followed by `$` as a min-width
+			// specifier, discards it, and then fills the placeholders in
+			// the order they appear — so the earlier `%1.1f`/`%2f` spelling
+			// rendered correctly in English and transposed the two figures
+			// under any translation that fronts the total, which reads as
+			// "over quota" to someone who is not. The modernized copy in
+			// `dashboard/components/storage-space/usage-details.tsx` shares
+			// this msgid; change the two together or they become separate
+			// GlotPress entries saying the same thing.
 			return createInterpolateElement(
-				// eslint-disable-next-line @wordpress/valid-sprintf
 				sprintf(
-					// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1.1f: numeric amount of disk space used, %2f: numeric amount of disk space available.
-					__( 'Using <strong>%1.1fGB</strong> of %2fGB', 'jetpack-backup-pkg' ),
-					// @ts-expect-error sprintf types seem to be wrong to expect only 1 argument here.
+					// translators: Must use unit abbreviation; describes used vs available storage amounts (e.g. 20.0GB of 30GB used, 0.5GB of 20GB used). %1$.1f: numeric amount of disk space used, %2$f: numeric amount of disk space available.
+					__( 'Using <strong>%1$.1fGB</strong> of %2$fGB', 'jetpack-backup-pkg' ),
 					usedGigabytes,
 					availableUnitAmount
 				),

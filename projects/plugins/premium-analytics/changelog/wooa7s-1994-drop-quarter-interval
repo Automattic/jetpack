@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Charts: Remove the quarterly interval option, which never changed the chart.

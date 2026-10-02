@@ -64,7 +64,6 @@ export interface ILanguage {
 	clear: string;
 	close: string;
 	ariaLabel: {
-		enterPicker: string;
 		dayPicker: string;
 		monthPicker: string;
 		yearPicker: string;

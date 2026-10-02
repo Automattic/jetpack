@@ -1,14 +1,15 @@
 export type CamelCase< S extends string > = S extends `${ infer P1 }-${ infer P2 }${ infer P3 }`
 	? `${ P1 }${ Uppercase< P2 > }${ CamelCase< P3 > }`
 	: S extends `${ infer P1 }_${ infer P2 }${ infer P3 }`
-	? `${ P1 }${ Uppercase< P2 > }${ CamelCase< P3 > }`
-	: S;
+		? `${ P1 }${ Uppercase< P2 > }${ CamelCase< P3 > }`
+		: S;
 
-export type ToCamelCase< T > = T extends Array< infer U >
-	? Array< ToCamelCase< U > >
-	: T extends object
-	? { [ K in keyof T as CamelCase< string & K > ]: ToCamelCase< T[ K ] > }
-	: T;
+export type ToCamelCase< T > =
+	T extends Array< infer U >
+		? Array< ToCamelCase< U > >
+		: T extends object
+			? { [ K in keyof T as CamelCase< string & K > ]: ToCamelCase< T[ K ] > }
+			: T;
 
 export type BackupCountStats = {
 	total_post_count: number;
@@ -17,6 +18,15 @@ export type BackupCountStats = {
 	total_image_count: number;
 	total_video_count: number;
 	total_audio_count: number;
+};
+
+/**
+ * Payload of the `my-jetpack/v1/jetpack-manage/data` endpoint.
+ */
+export type JetpackManageData = {
+	isEnabled: boolean;
+	isAgencyAccount: boolean;
+	isDismissed: boolean;
 };
 
 export type MyJetpackInitialState = Window[ 'myJetpackInitialState' ];

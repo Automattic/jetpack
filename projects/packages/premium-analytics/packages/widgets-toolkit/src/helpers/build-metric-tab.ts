@@ -1,12 +1,12 @@
 /**
  * External dependencies
  */
-import { localTZDate } from '@jetpack-premium-analytics/data';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
-import type { MetricTab } from '../components';
-import type { DataFormat } from '../types';
+import type { MetricTab, MetricTabDatum } from '../components';
+import type { CountLabel, DataFormat } from '../types';
 
 /**
  * The shape `buildMetricTab` reads: a normalized Stats report's summary plus its
@@ -30,6 +30,9 @@ export type BuildMetricTabOptions< TReport extends MetricReport > = {
 	label: string;
 	/** Per-metric format override (e.g. currency); falls back to the chart default. */
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
+	/** The timezone the reports were built and normalized under. */
+	zone: string;
 };
 
 /**
@@ -50,21 +53,26 @@ function total( report: MetricReport | undefined, field: string ): number {
  *
  * @param report - The normalized report, or undefined while loading.
  * @param field  - The metric field to read from each period.
- * @return One point per period, oldest first.
+ * @param zone   - The report's reporting timezone.
+ * @return One point per period, oldest first; a null reading stays null, drawn as a gap.
  */
-function toPoints( report: MetricReport | undefined, field: string ) {
-	return ( report?.data ?? [] ).map( point => ( {
-		date: localTZDate( point.date_start ),
-		value: Number( ( point as Record< string, unknown > )[ field ] ?? 0 ),
-	} ) );
+function toPoints(
+	report: MetricReport | undefined,
+	field: string,
+	zone: string
+): MetricTabDatum[] {
+	return ( report?.data ?? [] ).flatMap( point => {
+		const date = resolveBucketStamp( point.date_start, zone );
+		const raw = ( point as Record< string, unknown > )[ field ];
+
+		return date ? [ { date, value: raw === null ? null : Number( raw ?? 0 ) } ] : [];
+	} );
 }
 
 /**
- * Build one metric tab from a primary/comparison report pair. The headline is
- * the period total; the previous-period total and overlay are included only when
- * comparison is on *and* the comparison request actually returned rows — while
- * that request is still loading or came back empty, its total would be `0`,
- * which would render a misleading previous-period value.
+ * Build one metric tab from a primary/comparison report pair. The previous-period
+ * total/overlay appear only when comparison is on and the comparison request
+ * actually returned rows — an empty or loading response would otherwise total to a misleading 0.
  *
  * @param options - The report pair, field, and presentation options.
  * @return The metric tab.
@@ -72,8 +80,9 @@ function toPoints( report: MetricReport | undefined, field: string ) {
 export function buildMetricTab< TReport extends MetricReport >(
 	options: BuildMetricTabOptions< TReport >
 ): MetricTab {
-	const { primary, comparison, hasComparison, field, label, dataFormat } = options;
-	const previous = hasComparison ? toPoints( comparison, field ) : undefined;
+	const { primary, comparison, hasComparison, field, label, dataFormat, countLabel, zone } =
+		options;
+	const previous = hasComparison ? toPoints( comparison, field, zone ) : undefined;
 	const hasPrevious = !! previous?.length;
 
 	return {
@@ -81,8 +90,9 @@ export function buildMetricTab< TReport extends MetricReport >(
 		label,
 		value: total( primary, field ),
 		previousValue: hasPrevious ? total( comparison, field ) : undefined,
-		current: toPoints( primary, field ),
+		current: toPoints( primary, field, zone ),
 		previous: hasPrevious ? previous : undefined,
 		dataFormat,
+		countLabel,
 	};
 }

@@ -1,6 +1,6 @@
 import { __ } from '@wordpress/i18n';
 import { Icon, link } from '@wordpress/icons';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { Card, LinkButton, Stack, Text } from '@wordpress/ui';
 import { getConnectUrl } from '../connection';
 import './style.scss';
 
@@ -41,13 +41,9 @@ const ConnectPrompt = ( { variant }: { variant: ConnectPromptVariant } ) => {
 							{ description }
 						</Text>
 					</Stack>
-					<Button
-						variant="solid"
-						className="podcast-connect-prompt__cta"
-						render={ <a href={ getConnectUrl() } /> }
-					>
+					<LinkButton variant="solid" href={ getConnectUrl() }>
 						{ __( 'Connect Jetpack', 'jetpack-podcast' ) }
-					</Button>
+					</LinkButton>
 				</Stack>
 			</Card.Content>
 		</Card.Root>

@@ -1,6 +1,6 @@
 <?php
 /**
- * Stubs automatically generated from PHPUnit 12.5.33
+ * Stubs automatically generated from PHPUnit 12.5.37
  * using the definition file `tools/stubs/phpunit-stub-defs.php` in the Jetpack monorepo.
  *
  * Do not edit this directly! Run tools/stubs/update-stubs.sh to regenerate it.
@@ -10657,14 +10657,14 @@ final readonly class RequiresFunction
 final readonly class RequiresMethod
 {
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public function __construct(string $className, string $methodName)
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -15007,6 +15007,16 @@ final readonly class TestSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subs
  * @no-named-arguments
  * @internal
  */
+final readonly class TestSuiteSkippedSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\TestSuite\SkippedSubscriber
+{
+    public function notify(\PHPUnit\Event\TestSuite\Skipped $event): void
+    {
+    }
+}
+/**
+ * @no-named-arguments
+ * @internal
+ */
 final readonly class TestTriggeredDeprecationSubscriber extends \PHPUnit\Logging\TestDox\Subscriber implements \PHPUnit\Event\Test\DeprecationTriggeredSubscriber
 {
     public function notify(\PHPUnit\Event\Test\DeprecationTriggered $event): void
@@ -15239,6 +15249,9 @@ final class TestResultCollector
      * @throws \PHPUnit\Event\InvalidArgumentException
      */
     public function testFinished(\PHPUnit\Event\Test\Finished $event): void
+    {
+    }
+    public function testSuiteSkipped(\PHPUnit\Event\TestSuite\Skipped $event): void
     {
     }
 }
@@ -15888,14 +15901,14 @@ abstract readonly class Metadata
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public static function requiresMethodOnClass(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
     {
     }
     /**
-     * @param class-string     $className
+     * @param non-empty-string $className
      * @param non-empty-string $methodName
      */
     public static function requiresMethodOnMethod(string $className, string $methodName): \PHPUnit\Metadata\RequiresMethod
@@ -16749,7 +16762,7 @@ final readonly class RequiresMethod extends \PHPUnit\Metadata\Metadata
     {
     }
     /**
-     * @return class-string
+     * @return non-empty-string
      */
     public function className(): string
     {
@@ -18319,6 +18332,7 @@ final class Factory
     }
 }
 /**
+ * @extends \RecursiveFilterIterator<int, \PHPUnit\Framework\Test, \RecursiveIterator<int, \PHPUnit\Framework\Test>>
  * @no-named-arguments
  * @internal
  */
@@ -18355,6 +18369,7 @@ final class IncludeNameFilterIterator extends \PHPUnit\Runner\Filter\NameFilterI
 {
 }
 /**
+ * @extends \RecursiveFilterIterator<int, \PHPUnit\Framework\Test, \RecursiveIterator<int, \PHPUnit\Framework\Test>>
  * @no-named-arguments
  * @internal
  */
@@ -18373,6 +18388,7 @@ abstract class NameFilterIterator extends \RecursiveFilterIterator
     abstract protected function doAccept(bool $result): bool;
 }
 /**
+ * @extends \RecursiveFilterIterator<int, \PHPUnit\Framework\Test, \RecursiveIterator<int, \PHPUnit\Framework\Test>>
  * @no-named-arguments
  * @internal
  */
@@ -25615,7 +25631,7 @@ final readonly class Sanitizer
     /**
      * @see https://github.com/sebastianbergmann/phpunit/issues/6605
      */
-    public static function sanitizeBidirectionalControlCharacters(string $value): string
+    public static function sanitizeControlCharacters(string $value): string
     {
     }
 }
@@ -29482,16 +29498,13 @@ final class Differ
     {
     }
 }
-final class ConfigurationException extends \SebastianBergmann\Diff\InvalidArgumentException
+final class ConfigurationException extends \InvalidArgumentException implements \SebastianBergmann\Diff\Exception
 {
     public function __construct(string $option, string $expected, mixed $value, int $code = 0, ?\Exception $previous = null)
     {
     }
 }
 interface Exception extends \Throwable
-{
-}
-class InvalidArgumentException extends \InvalidArgumentException implements \SebastianBergmann\Diff\Exception
 {
 }
 final class Line
@@ -29534,7 +29547,7 @@ final class MemoryEfficientLongestCommonSubsequenceCalculator implements \Sebast
 final class Parser
 {
     /**
-     * @return Diff[]
+     * @return list<Diff>
      */
     public function parse(string $string): array
     {
@@ -29733,6 +29746,7 @@ final readonly class Exporter
 namespace SebastianBergmann\FileIterator;
 
 /**
+ * @extends \RecursiveFilterIterator<string, \SplFileInfo, \RecursiveDirectoryIterator>
  * @internal
  */
 final class ExcludeIterator extends \RecursiveFilterIterator
@@ -29797,8 +29811,9 @@ final class Iterator extends \FilterIterator
     public const int PREFIX = 0;
     public const int SUFFIX = 1;
     /**
-     * @param list<string> $suffixes
-     * @param list<string> $prefixes
+     * @param \Iterator<int, \SplFileInfo> $iterator
+     * @param list<string>                $suffixes
+     * @param list<string>                $prefixes
      */
     public function __construct(string $basePath, \Iterator $iterator, array $suffixes = [], array $prefixes = [])
     {

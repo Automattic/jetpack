@@ -1,0 +1,95 @@
+import { useQuery } from '@tanstack/react-query';
+import { useMemo } from '@wordpress/element';
+import { fetchRestoreStatus, isRestoreInFlight, pickLiveRestore } from '../data/api/restore';
+import { keys } from '../data/query-client';
+import { useRecentRestores } from './use-recent-restores';
+
+export type AdoptedRestore = {
+	id: number;
+	rewindId: string;
+};
+
+type Result = {
+	/** The restore already under way, once one has been confirmed. */
+	adopted: AdoptedRestore | null;
+	/** True while the answer is still unknown. */
+	isChecking: boolean;
+};
+
+/**
+ * Find the restore this site already has running, if any.
+ *
+ * Every piece of restore state used to live in `useState`, so nothing
+ * survived a page load: reloading mid-restore, opening the screen in a
+ * second tab, or arriving after a restore started from Calypso all left
+ * an armed **Confirm restore** button on screen. Following the only
+ * control there would have started a second concurrent whole-site
+ * restore. Upstream does guard against that — `endpoint-site-queue-rewind.php`
+ * calls `is_any_restore_running()` — but it answers as a bare failure the
+ * reader has to decode, which is a worse screen than not offering the button.
+ *
+ * Two reads, in order, because they answer different questions.
+ *
+ * `GET /jetpack/v4/restores` says what exists. It is signed with the blog
+ * token, so it answers for any admin rather than only the one who started
+ * the restore — which is what makes a second tab, or a second person,
+ * work at all.
+ *
+ * Its rows carry a status in a vocabulary that is not ours, so a row we
+ * cannot read as settled is only a *candidate*. The status route decides,
+ * because it speaks the vocabulary the bridge maps. That costs a second
+ * request only when there is something plausible to confirm: a site whose
+ * last restore finished — the overwhelmingly common case — is answered by
+ * the first read alone.
+ *
+ * Until both have answered, `isChecking` is true and the caller must show
+ * neither the form nor a progress bar. Arming first and correcting later
+ * would put a live Confirm button on screen for exactly as long as the
+ * lookup takes, which is the failure this exists to remove.
+ *
+ * @param enabled - False once this screen has a submission of its own, which makes the lookup moot.
+ * @return The adopted restore, and whether the answer is still pending.
+ */
+export function useAdoptedRestore( enabled: boolean ): Result {
+	const collection = useRecentRestores( enabled );
+
+	// Any backup, not just this screen's: a restore of a different point
+	// overwrites the same live site, so a second one is wrong whichever
+	// point it came from.
+	const candidate = useMemo(
+		() => ( enabled ? pickLiveRestore( collection.data ?? null, null ) : null ),
+		[ enabled, collection.data ]
+	);
+
+	// Always-defined key so @tanstack/query/exhaustive-deps stays happy;
+	// `enabled` keeps the placeholder from firing. The key is shared with
+	// the caller's own status poll, so confirming does not cost a request
+	// the poll would have made anyway.
+	const candidateId = candidate?.restore_id ?? -1;
+	const confirmation = useQuery( {
+		queryKey: keys.restoreStatus( candidateId ),
+		queryFn: () => fetchRestoreStatus( candidateId ),
+		// `enabled` as well as the candidate: the two derive from the same
+		// render, and gating on the candidate alone left a single-render
+		// window in which a caller that had just submitted still fired a
+		// confirmation for a restore it was no longer interested in.
+		enabled: enabled && candidate !== null,
+	} );
+
+	const isChecking =
+		enabled && ( collection.isPending || ( candidate !== null && confirmation.isPending ) );
+
+	// Positive evidence only, which is why `not-found` and `unknown` are
+	// both excluded: a row we cannot read as settled, pointing at a
+	// restore upstream cannot find or cannot describe, would take the form
+	// away and never give it back.
+	const isLive = isRestoreInFlight( confirmation.data?.status );
+
+	return {
+		adopted:
+			candidate !== null && isLive
+				? { id: candidate.restore_id, rewindId: candidate.rewind_id }
+				: null,
+		isChecking,
+	};
+}

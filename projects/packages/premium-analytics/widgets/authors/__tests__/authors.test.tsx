@@ -6,6 +6,7 @@ import {
 	GlobalErrorProvider,
 	queryClient,
 } from '@jetpack-premium-analytics/data';
+import { WIDGET_ROW_LIMIT, WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
@@ -13,7 +14,8 @@ import type { AnchorHTMLAttributes, ReactElement, ReactNode } from 'react';
 /**
  * Internal dependencies
  */
-import AuthorsWidget from '../render';
+import AuthorsWidget, { AuthorsLeaderboard } from '../render';
+import type { AuthorLeaderboardRow } from '../build-top-authors-data';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -56,6 +58,21 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 const renderInDashboard = ( ui: ReactElement ) =>
 	render( <GlobalErrorProvider>{ ui }</GlobalErrorProvider> );
 
+const leaderboardInWidgetRoot = ( rows: AuthorLeaderboardRow[] ) => (
+	<WidgetRoot attributes={ {} }>
+		<AuthorsLeaderboard rows={ rows } />
+	</WidgetRoot>
+);
+
+const authorRow = ( posts: AuthorLeaderboardRow[ 'posts' ] ): AuthorLeaderboardRow => ( {
+	id: '101',
+	label: 'Jane Cooper',
+	avatarUrl: null,
+	currentValue: 20,
+	currentShare: 1,
+	posts,
+} );
+
 describe( 'AuthorsWidget', () => {
 	beforeEach( () => {
 		queryClient.clear();
@@ -67,24 +84,24 @@ describe( 'AuthorsWidget', () => {
 		} );
 	} );
 
-	it( 'passes max zero through to request all authors', async () => {
+	it( 'requests the shared widget row limit', async () => {
 		renderInDashboard(
 			<AuthorsWidget
-				attributes={ { max: 0, reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
+				attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } }
 			/>
 		);
 
 		await waitFor( () =>
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( {
-					path: expect.stringMatching( /[?&]max=0(?:&|$)/ ),
+					path: expect.stringMatching( new RegExp( `[?&]max=${ WIDGET_ROW_LIMIT }(?:&|$)` ) ),
 				} )
 			)
 		);
 	} );
 
 	it( 'links to the Authors report', () => {
-		renderInDashboard( <AuthorsWidget attributes={ { max: 7 } } /> );
+		renderInDashboard( <AuthorsWidget attributes={ {} } /> );
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
 			'href',
@@ -119,7 +136,6 @@ describe( 'AuthorsWidget', () => {
 		renderInDashboard(
 			<AuthorsWidget
 				attributes={ {
-					max: 7,
 					reportParams: getDefaultQueryParams( false, 'last-7-days' ),
 				} }
 			/>
@@ -132,5 +148,33 @@ describe( 'AuthorsWidget', () => {
 
 		expect( url.pathname ).toBe( '/post/123' );
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/quarterly-update/' );
+		expect( url.searchParams.get( 'ref' ) ).toBe( 'authors' );
+	} );
+
+	it( 'shows the generic empty state when the period has no author views', () => {
+		render( leaderboardInWidgetRoot( [] ) );
+
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+	} );
+
+	it( 'names the missing post views, not "no results", when a drilled-in author loses its posts on refetch', async () => {
+		const user = userEvent.setup();
+		const post = {
+			id: '123',
+			title: 'Quarterly update',
+			link: 'https://example.com/quarterly-update/',
+			currentValue: 20,
+			currentShare: 1,
+		};
+		const { rerender } = render( leaderboardInWidgetRoot( [ authorRow( [ post ] ) ] ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'View posts by Jane Cooper' } ) );
+		rerender( leaderboardInWidgetRoot( [ authorRow( [] ) ] ) );
+
+		expect(
+			screen.getByText( 'This author has no posts with views for the selected period.' )
+		).toBeInTheDocument();
 	} );
 } );

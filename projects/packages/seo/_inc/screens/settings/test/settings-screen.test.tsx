@@ -67,6 +67,7 @@ const buildForm = ( overrides: Partial< SettingsResponse > = {} ): SettingsForm 
 		verification_tools_active: true,
 		verification: { ...EMPTY_VERIFICATION },
 		search_engines_visible: false,
+		site_is_private: false,
 		sitemap_active: false,
 		sitemap_url: '',
 		canonical_active: false,
@@ -113,6 +114,29 @@ const statusFor = ( moduleTitle: string ): string | undefined => {
 	}
 	return undefined;
 };
+
+describe( 'Indexing toggle on an unpublished site', () => {
+	const indexingToggle = () =>
+		screen.getByRole( 'checkbox', { name: /Allow search engines to index this site/i } );
+
+	// WordPress.com stores a private or coming-soon site as a negative `blog_public`.
+	// Such a site isn't hidden from search by a setting, so no SEO toggle can reveal
+	// it — turning this on would have to publish the site, which isn't this surface's
+	// decision. Disabled and explained, rather than appearing to work.
+	it( 'is disabled and explains why when the site is private', () => {
+		render( <SettingsScreen form={ buildForm( { site_is_private: true } ) } /> );
+
+		expect( indexingToggle() ).toBeDisabled();
+		expect( screen.getByText( /Your site is private/i ) ).toBeInTheDocument();
+	} );
+
+	it( 'is enabled with the usual help text on a public site', () => {
+		render( <SettingsScreen form={ buildForm( { site_is_private: false } ) } /> );
+
+		expect( indexingToggle() ).toBeEnabled();
+		expect( screen.queryByText( /Your site is private/i ) ).not.toBeInTheDocument();
+	} );
+} );
 
 describe( 'Settings module completion status', () => {
 	describe( 'Site visibility — counts its two toggles', () => {

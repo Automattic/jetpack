@@ -14,9 +14,9 @@ describe( 'getStatsPeriodFromInterval', () => {
 		[ 'day', 'day' ],
 		[ 'week', 'week' ],
 		[ 'month', 'month' ],
-		[ 'quarter', 'month' ],
 		[ 'year', 'year' ],
 		[ undefined, 'day' ],
+		[ 'nonsense', 'day' ],
 	] )( 'maps %s to %s', ( interval, period ) => {
 		expect( getStatsPeriodFromInterval( interval ) ).toBe( period );
 	} );
@@ -25,7 +25,6 @@ describe( 'getStatsPeriodFromInterval', () => {
 describe( 'getPeriodsBetweenInclusive', () => {
 	it.each( [
 		[ 'day', '2026-06-01', '2026-06-30', 30 ],
-		[ 'hour', '2026-06-01', '2026-06-02', 2 ],
 		[ 'week', '2026-06-01', '2026-06-28', 4 ],
 		[ 'month', '2026-01-15', '2026-06-15', 6 ],
 		[ 'year', '2024-03-01', '2026-03-01', 3 ],
@@ -35,7 +34,6 @@ describe( 'getPeriodsBetweenInclusive', () => {
 
 	it.each( [
 		[ 'day', '2026-06-01T00:00:00.000-07:00', '2026-06-30T23:59:59.999-07:00', 30 ],
-		[ 'hour', '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 2 ],
 		[ 'week', '2026-06-01T00:00:00.000-07:00', '2026-06-28T23:59:59.999-07:00', 4 ],
 		[ 'month', '2026-01-15T00:00:00.000-07:00', '2026-06-15T23:59:59.999-07:00', 6 ],
 		[ 'year', '2024-03-01T00:00:00.000-07:00', '2026-03-01T23:59:59.999-07:00', 3 ],
@@ -46,10 +44,23 @@ describe( 'getPeriodsBetweenInclusive', () => {
 		}
 	);
 
+	// Hourly buckets count instants, not calendar days, so a range ending on
+	// the hour rounds up rather than always adding a fixed +1.
+	it.each( [
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-01T23:59:59.999-07:00', 24 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-02T08:59:59.999-07:00', 24 ],
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T23:59:59.999-07:00', 48 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:30:00.000-07:00', 1 ],
+		[ '2026-06-01T00:00:00.000-07:00', '2026-06-02T00:00:00.000-07:00', 24 ],
+		[ '2026-06-01', '2026-06-02', 24 ],
+		[ '2026-06-01T09:00:00.000-07:00', '2026-06-01T09:00:00.000-07:00', 1 ],
+	] )( 'counts the hour buckets from %s to %s', ( from, to, expected ) => {
+		expect( getPeriodsBetweenInclusive( 'hour', from, to ) ).toBe( expected );
+	} );
+
 	it( 'reads the site-local calendar day, not the UTC day, at a day boundary', () => {
-		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC. Counting
-		// off the UTC day would report an extra bucket on every negative-offset
-		// site whose range ends late in the evening.
+		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC; counting off
+		// the UTC day would add an extra bucket on negative-offset sites.
 		expect(
 			getPeriodsBetweenInclusive(
 				'day',
@@ -107,9 +118,8 @@ describe( 'reportParamsToStatsQueryParams', () => {
 	} );
 
 	it( 'keeps the time of day on an hourly range, still counting whole days', () => {
-		// The `last-24-hours` shape: an hourly range whose ends are mid-day, not
-		// midnight. The time survives to the wire (the endpoint resolves it),
-		// while `days` stays a calendar-day count for the bucket math.
+		// The `last-24-hours` shape: ends are mid-day, not midnight. Time survives
+		// to the wire for the endpoint to resolve, while `days` stays a day count.
 		expect(
 			reportParamsToStatsQueryParams( {
 				from: '2026-06-14T09:00:00.000-04:00',
@@ -127,14 +137,14 @@ describe( 'reportParamsToStatsQueryParams', () => {
 	} );
 
 	it( 'maps the semantic end date to the Stats API date param', () => {
-		expect(
-			statsQueryParamsToApiParams( {
-				period: 'day',
-				start_date: '2026-06-01',
-				end_date: '2026-06-07',
-				days: 7,
-			} )
-		).toEqual(
+		const apiParams = statsQueryParamsToApiParams( {
+			period: 'day',
+			start_date: '2026-06-01',
+			end_date: '2026-06-07',
+			days: 7,
+		} );
+
+		expect( apiParams ).toEqual(
 			expect.objectContaining( {
 				period: 'day',
 				date: '2026-06-07',
@@ -142,6 +152,20 @@ describe( 'reportParamsToStatsQueryParams', () => {
 				days: 7,
 			} )
 		);
+		// end_date must not survive alongside the API's `date` param — endpoints
+		// read `date`, and a stray end_date would leak into query keys and URLs.
+		expect( apiParams ).not.toHaveProperty( 'end_date' );
+	} );
+
+	it( 'strips the sanitizer-only window bounds from API params', () => {
+		const apiParams = statsQueryParamsToApiParams( {
+			period: 'hour',
+			window_start: '2026-06-14T09:00:00.000-04:00',
+			window_end: '2026-06-15T08:59:59.999-04:00',
+		} );
+
+		expect( apiParams ).not.toHaveProperty( 'window_start' );
+		expect( apiParams ).not.toHaveProperty( 'window_end' );
 	} );
 
 	it( 'falls back to one day for invalid date ranges', () => {

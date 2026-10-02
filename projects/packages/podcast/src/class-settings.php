@@ -365,7 +365,7 @@ class Settings {
 		 * renders that many items in one request, so only where the host can
 		 * absorb it.
 		 *
-		 * @since $$next-version$$
+		 * @since 1.5.0
 		 *
 		 * @param int $max Maximum episodes a podcast feed may carry.
 		 */

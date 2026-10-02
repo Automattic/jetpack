@@ -31,8 +31,7 @@ interface LocationsStoryControls {
 }
 
 interface LocationsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		LocationsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, LocationsStoryControls {}
 
 function getLocationsAttributes( {
 	withComparison,
@@ -40,7 +39,6 @@ function getLocationsAttributes( {
 }: LocationsStoryControls ): ComponentProps< typeof LocationsRender >[ 'attributes' ] {
 	return {
 		geoGranularity,
-		max: 10,
 		reportParams: getDefaultQueryParams( withComparison ),
 	};
 }
@@ -55,7 +53,6 @@ function renderLocationsOnPreset( preset: PresetType ) {
 		<LocationsRender
 			attributes={ {
 				geoGranularity: 'country',
-				max: 10,
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }
 		/>
@@ -101,7 +98,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The "Locations" widget. Shows visitor views by country, region, or city, with country drill-down into regions, using the global dashboard date range. The Countries/Regions/Cities view is the `geoGranularity` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
+					'The "Locations" widget. Shows visitor views by country, region, or city, with drill-down from a country into its regions and from a region into its cities, using the global dashboard date range. The Countries/Regions/Cities view is the `geoGranularity` attribute (`relevance: \'high\'`), exposed as a control by the widget host.',
 			},
 		},
 	},
@@ -123,8 +120,8 @@ export const WithComparison: StoryObj< LocationsStoryControls > = {
 	decorators: [ withWidgetCanvas, withStoryRouter ],
 };
 
-// Regions mode — region rows worldwide in the leaderboard, aggregated by country
-// on the map.
+// Regions mode — region rows worldwide in the leaderboard, summed by country on
+// the map, where each country tooltip lists the regions behind its total.
 export const RegionsMode: StoryObj< LocationsStoryControls > = {
 	render: renderLocationsWidget,
 	args: { withComparison: false, geoGranularity: 'region' },
@@ -168,8 +165,8 @@ export const Error: StoryObj< LocationsStoryControls > = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral location
- * glyph and the "stats will appear here" copy).
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: StoryObj< LocationsStoryControls > = {
 	render: () => renderLocationsOnPreset( 'last-365-days' ),

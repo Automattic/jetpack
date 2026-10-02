@@ -33,18 +33,14 @@ interface SearchTermsStoryControls {
 
 function renderSearchTerms( { withComparison }: SearchTermsStoryControls ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( withComparison ) } } />
 	);
 }
 
 // Distinct preset → own query-cache entry; see forceStatsMockState.
 function renderSearchTermsOnPreset( preset: PresetType ) {
 	return (
-		<SearchTermsRender
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( false, preset ) } }
-		/>
+		<SearchTermsRender attributes={ { reportParams: getDefaultQueryParams( false, preset ) } } />
 	);
 }
 
@@ -131,8 +127,8 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral search
- * glyph and "No search terms in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderSearchTermsOnPreset( 'last-year' ),
@@ -145,8 +141,7 @@ export const Empty: Story = {
 };
 
 interface SearchTermsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SearchTermsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SearchTermsStoryControls {}
 
 function SearchTermsDashboardStory( {
 	withComparison,
@@ -160,7 +155,7 @@ function SearchTermsDashboardStory( {
 			renderComponent={
 				SearchTermsDashboardRender as ComponentType< WidgetRenderProps< unknown > >
 			}
-			attributes={ { max: 10, reportParams: getDefaultQueryParams( withComparison ) } }
+			attributes={ { reportParams: getDefaultQueryParams( withComparison ) } }
 		/>
 	);
 }

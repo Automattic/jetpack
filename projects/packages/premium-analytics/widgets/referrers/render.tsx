@@ -8,7 +8,9 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	LeaderboardChart,
+	LeaderboardSkeleton,
 	ReportLink,
+	WIDGET_ROW_LIMIT,
 	WidgetBackLink,
 	WidgetFooter,
 	WidgetRoot,
@@ -21,12 +23,13 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	referrersCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { globe } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -121,7 +124,7 @@ function buildLeaderboardData(
 									__( 'View referrers for %s', 'jetpack-premium-analytics-pkg' ),
 									row.label
 								),
-						  }
+							}
 						: undefined,
 				} ),
 			} ),
@@ -160,18 +163,17 @@ export function ReferrersLeaderboard( {
 	);
 }
 
-function ReferrersInner( { max }: { max: number } ) {
+function ReferrersInner() {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = {
 		...reportParams,
-		max,
+		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
 
-	// Row matching (per level, so same-named rows at different drill levels
-	// cannot cross-match), the visible-row cap, and the comparison-overlap
-	// gate all live in the data layer's merge helper (see AGENTS.md).
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
-		useStatsReferrers( statsParams, { maxRows: max } );
+	// Row matching (per level, so same-named rows at different drill levels can't
+	// cross-match), the row cap, and the comparison-overlap gate live in the merge helper.
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsReferrers( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toReferrerRow ),
@@ -179,8 +181,7 @@ function ReferrersInner( { max }: { max: number } ) {
 	);
 
 	// Referrer groups nest twice (group → source → domain), so the drill-down
-	// selection is a path of row labels rather than a single row. The shared
-	// hook stores the whole path; append/pop happens here.
+	// selection is a path of row labels; the shared hook stores it, append/pop happens here.
 	const {
 		drillDownItem: drillPath,
 		drillDown: setDrillPath,
@@ -207,13 +208,8 @@ function ReferrersInner( { max }: { max: number } ) {
 		return matched;
 	}, [ rows, drillPath ] );
 
-	// When settled data no longer resolves the whole stored path (e.g. the
-	// date range changed and the drilled group disappeared), trim it to the
-	// deepest level that still exists so stored state matches the view and
-	// stale levels can't resurface on a later refetch (WOOA7S-1666). A path
-	// that still resolves survives range changes; in-flight fetches keep
-	// placeholder rows and errors aren't settled data, so a valid selection
-	// survives refetches and transient failures.
+	// Trim the stored path to the deepest level that still resolves once data
+	// settles, so stale levels can't resurface later (WOOA7S-1666).
 	useEffect( () => {
 		if (
 			! drillPath?.length ||
@@ -233,7 +229,7 @@ function ReferrersInner( { max }: { max: number } ) {
 	}, [ drillPath, trail, isLoading, isFetching, isError, setDrillPath, resetDrillDown ] );
 
 	const currentRow = trail.length ? trail[ trail.length - 1 ] : null;
-	const activeRows = currentRow ? currentRow.children ?? [] : rows;
+	const activeRows = currentRow ? ( currentRow.children ?? [] ) : rows;
 	// Drilled levels gate the comparison UI on their own rows' overlap, so a
 	// subtree without comparison matches doesn't render placeholder deltas.
 	const withComparison = currentRow ? !! currentRow.childrenHaveComparison : hasComparison;
@@ -257,9 +253,8 @@ function ReferrersInner( { max }: { max: number } ) {
 		}
 	}, [ trail, setDrillPath, resetDrillDown ] );
 
-	// The back link is labelled after the list it returns to: the parent row
-	// one level up, or the full top-level list. The visible label stays short
-	// while the accessible name spells out the action.
+	// Labelled after the list it returns to (parent row or full top list); the
+	// visible label stays short while the accessible name spells out the action.
 	const parentLabel = trail.length > 1 ? trail[ trail.length - 2 ].label : null;
 	const backLabel = parentLabel ?? __( 'All referrers', 'jetpack-premium-analytics-pkg' );
 	const backAriaLabel = parentLabel
@@ -267,57 +262,59 @@ function ReferrersInner( { max }: { max: number } ) {
 				/* translators: %s is the parent referrer group or source label. */
 				__( 'Back to %s', 'jetpack-premium-analytics-pkg' ),
 				parentLabel
-		  )
+			)
 		: __( 'View all referrers', 'jetpack-premium-analytics-pkg' );
 
 	return (
-		<div className={ styles.content }>
-			{ trail.length > 0 && (
-				<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
-			) }
-			<WidgetState
-				isLoading={ isLoading }
-				isFetching={ isFetching }
-				// The Stats queries carry `placeholderData: previousData => previousData`, so a
-				// failed range change keeps the prior period's rows while `isError` flips true.
-				// Only surface the error when there's nothing to show, so a transient refetch
-				// failure doesn't replace populated rows with the error state.
-				isError={ rows.length === 0 && isError }
-				isEmpty={ rows.length === 0 }
-				error={ {
-					description: __(
-						"We couldn't load referrers. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					),
-					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: globe,
-					description: __( 'No referrers in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
-			>
-				<ReferrersLeaderboard
-					rows={ activeRows }
-					withComparison={ withComparison }
-					onDrillDown={ drillInto }
+		<>
+			<div className={ styles.content }>
+				{ trail.length > 0 && (
+					<WidgetBackLink label={ backLabel } ariaLabel={ backAriaLabel } onClick={ goBack } />
+				) }
+				<WidgetState
+					isLoading={ isLoading }
+					isFetching={ isFetching }
+					// `placeholderData` keeps the prior period's rows on screen while `isError`
+					// flips true, so a transient refetch failure should not replace them.
+					isError={ rows.length === 0 && isError }
+					isEmpty={ rows.length === 0 }
+					error={ {
+						description: __(
+							"We couldn't load referrers. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						),
+						actions: [
+							{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch },
+						],
+					} }
+					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
+				>
+					<ReferrersLeaderboard
+						rows={ activeRows }
+						withComparison={ withComparison }
+						onDrillDown={ drillInto }
+					/>
+				</WidgetState>
+			</div>
+			<WidgetFooter>
+				<ReportLink report="referrers" />
+				<ExporterCsvDownloadButton
+					exporter={ referrersCsvExporter }
+					status={ { isLoading, isFetching, isError: primary.isError } }
+					rowCount={ rows.length }
 				/>
-			</WidgetState>
-		</div>
+			</WidgetFooter>
+		</>
 	);
 }
 
 export default function ReferrersWidget( {
 	attributes = {},
 }: WidgetRenderProps< ReferrersRenderAttributes > ) {
-	const max = attributes?.max ?? 10;
-
 	return (
 		<WidgetRoot attributes={ attributes }>
 			<div className={ styles.root }>
-				<ReferrersInner max={ max } />
-				<WidgetFooter>
-					<ReportLink report="referrers" />
-				</WidgetFooter>
+				<ReferrersInner />
 			</div>
 		</WidgetRoot>
 	);

@@ -1,4 +1,0 @@
-Significance: patch
-Type: changed
-
-Metric tabs: Spread cards evenly across the chart, wrap them before their contents overlap, match the prototype's card fill, spacing and headline value size, and render a lone metric as a static headline.

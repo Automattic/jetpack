@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Send the site ID as `blog_id` on the email open Tracks event so it lands in the blogid column.

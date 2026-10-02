@@ -3,6 +3,7 @@ import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/com
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp';
 import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import { canOfferUpgrade } from '../../../../../../_inc/overview/lib/use-modules-state';
 import type { ReactNode } from 'react';
 
 type InterstitialModalCTAProps = {
@@ -16,6 +17,11 @@ const InterstitialModalCTA = ( {
 	identifier,
 	customModalTrigger,
 }: InterstitialModalCTAProps ) => {
+	// Mounting the modal fetches products from My Jetpack.
+	if ( ! canOfferUpgrade() ) {
+		return null;
+	}
+
 	const learnMoreUrl = getRedirectUrl( 'jetpack-boost-interstitial-modal-learn-more' );
 
 	return (
@@ -33,14 +39,14 @@ const InterstitialModalCTA = ( {
 			}
 			secondaryButtonHref={ learnMoreUrl }
 			description={ __(
-				'Unlock the full potential of Jetpack Boost with automated performance optimization tools and more.',
+				'Unlock the full potential of Jetpack Boost with automated performance improvements and advanced image optimization for a consistently fast site.',
 				'jetpack-boost'
 			) }
 			features={ [
-				__( 'Automated Critical CSS Generation', 'jetpack-boost' ),
-				__( 'In-depth Performance Insights', 'jetpack-boost' ),
-				__( 'Customizable Image Optimization', 'jetpack-boost' ),
-				__( 'Expert Support With Personal Assistance Available', 'jetpack-boost' ),
+				__( 'Automated critical CSS generation', 'jetpack-boost' ),
+				__( 'Image CDN and quality controls', 'jetpack-boost' ),
+				__( 'Image guide and performance history', 'jetpack-boost' ),
+				__( 'Priority support', 'jetpack-boost' ),
 			] }
 		/>
 	);

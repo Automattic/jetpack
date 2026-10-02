@@ -8,7 +8,7 @@ export const CountedTextArea = ( { suggestedLimit, value, label, ...inputProps }
 					/* translators: %d: the number of characters in a sentence. */
 					_n( '%d character', '%d characters', value.length, 'jetpack' ),
 					value.length
-			  )
+				)
 			: sprintf(
 					/* translators: %1$d: suggested character limit, %2$d: number of characters in a sentence. */
 					__(
@@ -17,7 +17,7 @@ export const CountedTextArea = ( { suggestedLimit, value, label, ...inputProps }
 					),
 					suggestedLimit,
 					value.length
-			  );
+				);
 
 	return (
 		<div className="jetpack-seo-message-box">

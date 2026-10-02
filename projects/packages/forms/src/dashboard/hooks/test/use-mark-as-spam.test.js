@@ -67,11 +67,13 @@ describe( 'useMarkAsSpam', () => {
 			await result.current.onConfirmMarkAsSpam();
 		} );
 
+		// objectContaining, not an exact match: saveResponse() also supplies the
+		// __unstableFetch override that keeps the saved record in collection format.
 		expect( saveEntityRecord ).toHaveBeenCalledWith(
 			'postType',
 			'feedback',
 			{ id: 7, status: 'spam' },
-			{ throwOnError: true }
+			expect.objectContaining( { throwOnError: true } )
 		);
 	} );
 

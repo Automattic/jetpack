@@ -8,6 +8,11 @@ import type { OctokitClient, PullRequestEvent } from '../../types.ts';
  * @param octokit - Initialized Octokit REST client.
  */
 async function assignIssues( payload: PullRequestEvent, octokit: OctokitClient ): Promise< void > {
+	if ( ! payload.pull_request.user ) {
+		debug( 'assignIssues: No user supplied in pull_request event. Aborting.' );
+		return;
+	}
+
 	const regex =
 		/(?:close|closes|closed|fix|fixes|fixed|resolve|resolves|resolved):? +(?:#{1}|https?:\/\/github\.com\/automattic\/jetpack\/issues\/)(\d+)/gi;
 

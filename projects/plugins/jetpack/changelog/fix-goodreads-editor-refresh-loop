@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Blocks: Fix an infinite refresh loop in the Goodreads block editor that regenerated the widget ID on every re-render and hammered the REST API.

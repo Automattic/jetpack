@@ -40,7 +40,7 @@ export default function ImageTransition( { src, alt, spacing } ) {
 		: {
 				margin: containerOffset,
 				height: containerHeight,
-		  };
+			};
 	const imageClasses = clsx( { 'is-loaded': loaded } );
 
 	return (

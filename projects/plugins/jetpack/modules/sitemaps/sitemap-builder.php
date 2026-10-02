@@ -90,6 +90,22 @@ class Jetpack_Sitemap_Buffer_Empty extends Jetpack_Sitemap_Buffer {
 class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructurePerFile.MultipleFound,Generic.Classes.OpeningBraceSameLine.ContentAfterBrace
 
 	/**
+	 * Returned by the master sitemap builders when the entries do not fit in one
+	 * buffer, so the flat listing has to give way to the nested indexes.
+	 *
+	 * @since 16.2
+	 */
+	const MASTER_OVERFLOW = 'overflow';
+
+	/**
+	 * Returned by the master sitemap builders when a sitemap file they would link
+	 * is missing, so any master built now would reach fewer URLs than the last one.
+	 *
+	 * @since 16.2
+	 */
+	const MASTER_INCOMPLETE = 'incomplete';
+
+	/**
 	 * Librarian object for storing and retrieving sitemap data.
 	 *
 	 * @access private
@@ -494,92 +510,70 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 	/**
 	 * Builds the master sitemap index.
 	 *
+	 * A sitemap index file may not list other sitemap index files, so with the
+	 * `jetpack_sitemap_flat_master_index` filter on, the master lists every
+	 * individual sitemap file directly whenever they all fit in one buffer. They
+	 * no longer fit somewhere north of a million URLs, and only then does it fall
+	 * back to linking the per-type `*-sitemap-index-N.xml` files. With the filter
+	 * off, which is still the default, it always links them.
+	 *
+	 * Either way the buffer is only stored once every sitemap this generation
+	 * cycle recorded is accounted for. If one is missing, the master the previous
+	 * cycle stored is left in place: it reaches more URLs than anything that
+	 * could be built right now.
+	 *
+	 * @link https://www.sitemaps.org/protocol.html#index
+	 *
 	 * @param array $max Array of sitemap types with max index and datetime.
 	 *
 	 * @since 4.8.0
 	 */
 	private function build_master_sitemap( $max ) {
-		$page  = array();
-		$image = array();
-		$video = array();
 		if ( $this->logger ) {
 			$this->logger->report( '-- Building Master Sitemap.' );
 		}
 
-		$buffer = Jetpack_Sitemap_Buffer_Factory::create(
-			'master',
-			JP_SITEMAP_MAX_ITEMS,
-			JP_SITEMAP_MAX_BYTES
+		$sitemap_types = array(
+			JP_PAGE_SITEMAP_TYPE,
+			JP_IMAGE_SITEMAP_TYPE,
+			JP_VIDEO_SITEMAP_TYPE,
 		);
 
-		if ( ! $buffer ) {
+		$buffer = null;
+
+		/**
+		 * Whether the master sitemap lists each individual sitemap file directly.
+		 *
+		 * A sitemap index file may not list other sitemap index files, and Google
+		 * Search Console reports the nested layout as "Nested indexing". Listing
+		 * the files directly is what fixes that.
+		 *
+		 * Off by default so the flat layout can be rolled out a site at a time.
+		 * The default is expected to flip once it has been verified in production,
+		 * at which point this filter goes away.
+		 *
+		 * @module sitemaps
+		 *
+		 * @since 16.2
+		 *
+		 * @param bool $flat_master_index Whether to list sitemap files directly. Default false.
+		 */
+		if ( apply_filters( 'jetpack_sitemap_flat_master_index', false ) ) {
+			$buffer = $this->build_flat_master_buffer( $sitemap_types, $max );
+		}
+
+		if ( null === $buffer || self::MASTER_OVERFLOW === $buffer ) {
+			/*
+			 * Either the flat layout is off, or the files did not fit in one
+			 * buffer. Nesting is invalid and Google flags it, but a complete
+			 * invalid tree beats a valid one that drops URLs, and a sitemap
+			 * index cannot be paginated to make the flat layout scale further.
+			 */
+			$buffer = $this->build_nested_master_buffer( $sitemap_types, $max );
+		}
+
+		if ( ! is_object( $buffer ) ) {
 			return;
-		}
-
-		if ( isset( $max[ JP_PAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ JP_PAGE_SITEMAP_TYPE ]['number'] ) {
-				$page['filename']      = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, 1 );
-				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_TYPE ]['lastmod'] );
-			} else {
-				$page['filename']      = jp_sitemap_filename(
-					JP_PAGE_SITEMAP_INDEX_TYPE,
-					$max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['number']
-				);
-				$page['last_modified'] = jp_sitemap_datetime( $max[ JP_PAGE_SITEMAP_INDEX_TYPE ]['lastmod'] );
-			}
-
-			$buffer->append(
-				array(
-					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $page['filename'] ),
-						'lastmod' => $page['last_modified'],
-					),
-				)
-			);
-		}
-
-		if ( isset( $max[ JP_IMAGE_SITEMAP_TYPE ] ) && 0 < $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ JP_IMAGE_SITEMAP_TYPE ]['number'] ) {
-				$image['filename']      = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, 1 );
-				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_TYPE ]['lastmod'] );
-			} else {
-				$image['filename']      = jp_sitemap_filename(
-					JP_IMAGE_SITEMAP_INDEX_TYPE,
-					$max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['number']
-				);
-				$image['last_modified'] = jp_sitemap_datetime( $max[ JP_IMAGE_SITEMAP_INDEX_TYPE ]['lastmod'] );
-			}
-
-			$buffer->append(
-				array(
-					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $image['filename'] ),
-						'lastmod' => $image['last_modified'],
-					),
-				)
-			);
-		}
-
-		if ( isset( $max[ JP_VIDEO_SITEMAP_TYPE ] ) && 0 < $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
-			if ( 1 === $max[ JP_VIDEO_SITEMAP_TYPE ]['number'] ) {
-				$video['filename']      = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, 1 );
-				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_TYPE ]['lastmod'] );
-			} else {
-				$video['filename']      = jp_sitemap_filename(
-					JP_VIDEO_SITEMAP_INDEX_TYPE,
-					$max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['number']
-				);
-				$video['last_modified'] = jp_sitemap_datetime( $max[ JP_VIDEO_SITEMAP_INDEX_TYPE ]['lastmod'] );
-			}
-
-			$buffer->append(
-				array(
-					'sitemap' => array(
-						'loc'     => $this->finder->construct_sitemap_url( $video['filename'] ),
-						'lastmod' => $video['last_modified'],
-					),
-				)
-			);
 		}
 
 		$this->librarian->store_sitemap_data(
@@ -587,6 +581,231 @@ class Jetpack_Sitemap_Builder { // phpcs:ignore Generic.Files.OneObjectStructure
 			JP_MASTER_SITEMAP_TYPE,
 			$buffer->contents(),
 			''
+		);
+	}
+
+	/**
+	 * Create the buffer a master sitemap is assembled in.
+	 *
+	 * Extracted as a protected seam so a test can hand back a buffer small
+	 * enough to overflow without generating a million URLs.
+	 *
+	 * @access protected
+	 * @since 16.2
+	 *
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|false The buffer, or false if one cannot be created.
+	 */
+	protected function create_master_buffer() {
+		return Jetpack_Sitemap_Buffer_Factory::create(
+			'master',
+			JP_SITEMAP_MAX_ITEMS,
+			JP_SITEMAP_MAX_BYTES
+		);
+	}
+
+	/**
+	 * Build a master sitemap buffer listing every individual sitemap file.
+	 *
+	 * The buffer's item and byte limits can both stop this short, and how soon
+	 * the byte limit bites depends on how long this site's URLs are, so the
+	 * partial buffer is discarded and MASTER_OVERFLOW returned rather than
+	 * storing a master that omits sitemaps. Every type is still checked over
+	 * once the buffer overflows, so a missing file is reported as
+	 * MASTER_INCOMPLETE instead of sending the caller off to build a nested
+	 * master out of the same broken state.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param array $sitemap_types The sitemap types to list, in order.
+	 * @param array $max           Array of sitemap types with max index and datetime.
+	 *
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|string The buffer, or MASTER_OVERFLOW / MASTER_INCOMPLETE.
+	 */
+	private function build_flat_master_buffer( $sitemap_types, $max ) {
+		$buffer = $this->create_master_buffer();
+
+		if ( ! $buffer ) {
+			return self::MASTER_INCOMPLETE;
+		}
+
+		$overflowed = false;
+
+		foreach ( $sitemap_types as $sitemap_type ) {
+			$expected = $this->sitemap_count_of( $max, $sitemap_type );
+
+			if ( $expected < 1 ) {
+				continue;
+			}
+
+			$timestamps = $this->stored_sitemap_timestamps( $sitemap_type, $expected );
+
+			if ( false === $timestamps ) {
+				return self::MASTER_INCOMPLETE;
+			}
+
+			if ( $overflowed ) {
+				continue;
+			}
+
+			for ( $number = 1; $number <= $expected; $number++ ) {
+				$filename = jp_sitemap_filename( $sitemap_type, $number );
+
+				if ( ! $this->append_sitemap_to_master( $buffer, $filename, $timestamps[ $filename ] ) ) {
+					if ( $this->logger ) {
+						$this->logger->report( '-- Master Sitemap is full; falling back to nested indexes.' );
+					}
+
+					$overflowed = true;
+					break;
+				}
+			}
+		}
+
+		return $overflowed ? self::MASTER_OVERFLOW : $buffer;
+	}
+
+	/**
+	 * Build a master sitemap buffer linking one file per sitemap type: the single
+	 * sitemap when there is only one, otherwise that type's newest index file.
+	 *
+	 * Only used when the individual files do not all fit. The whole index chain
+	 * has to be intact, because the newest index reaches the older ones only by
+	 * linking back through them, so every index of a type is checked and not just
+	 * the one the master names.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param array $sitemap_types The sitemap types to list, in order.
+	 * @param array $max           Array of sitemap types with max index and datetime.
+	 *
+	 * @return Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter|string The buffer, or MASTER_INCOMPLETE.
+	 */
+	private function build_nested_master_buffer( $sitemap_types, $max ) {
+		$buffer = $this->create_master_buffer();
+
+		if ( ! $buffer ) {
+			return self::MASTER_INCOMPLETE;
+		}
+
+		foreach ( $sitemap_types as $sitemap_type ) {
+			$expected = $this->sitemap_count_of( $max, $sitemap_type );
+
+			if ( $expected < 1 ) {
+				continue;
+			}
+
+			// The files reached through the index still have to be there.
+			$timestamps = $this->stored_sitemap_timestamps( $sitemap_type, $expected );
+
+			if ( false === $timestamps ) {
+				return self::MASTER_INCOMPLETE;
+			}
+
+			$linked_type  = $sitemap_type;
+			$linked_count = $expected;
+
+			if ( 1 !== $expected ) {
+				// Only a type with a single sitemap has no index to link.
+				$linked_type  = jp_sitemap_index_type_of( $sitemap_type );
+				$linked_count = $this->sitemap_count_of( $max, $linked_type );
+				$timestamps   = $this->stored_sitemap_timestamps( $linked_type, $linked_count );
+
+				if ( $linked_count < 1 || false === $timestamps ) {
+					if ( $this->logger ) {
+						$this->logger->report( "-- No usable index for $sitemap_type; keeping the previous Master Sitemap." );
+					}
+
+					return self::MASTER_INCOMPLETE;
+				}
+			}
+
+			$linked_name = jp_sitemap_filename( $linked_type, $linked_count );
+
+			if ( ! $this->append_sitemap_to_master( $buffer, $linked_name, $timestamps[ $linked_name ] ) ) {
+				if ( $this->logger ) {
+					$this->logger->report( "-- No room for $linked_name; keeping the previous Master Sitemap." );
+				}
+
+				return self::MASTER_INCOMPLETE;
+			}
+		}
+
+		return $buffer;
+	}
+
+	/**
+	 * The number of sitemap files of a type the current generation cycle recorded.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param array  $max  Array of sitemap types with max index and datetime.
+	 * @param string $type A sitemap or sitemap index type.
+	 *
+	 * @return int The count, or 0 if the type produced nothing.
+	 */
+	private function sitemap_count_of( $max, $type ) {
+		return isset( $max[ $type ]['number'] ) ? (int) $max[ $type ]['number'] : 0;
+	}
+
+	/**
+	 * Look up the timestamps of files 1..$count of a sitemap type, by filename.
+	 *
+	 * Filenames rather than row order, because a row rewritten by an interrupted
+	 * cleanup no longer sorts where its number says it should.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param string $type  A sitemap or sitemap index type.
+	 * @param int    $count How many files of that type to expect.
+	 *
+	 * @return array|false Map of filename to timestamp, or false if any is missing.
+	 */
+	private function stored_sitemap_timestamps( $type, $count ) {
+		$names = array();
+
+		for ( $number = 1; $number <= $count; $number++ ) {
+			$names[] = jp_sitemap_filename( $type, $number );
+		}
+
+		$timestamps = $this->librarian->query_sitemap_timestamps( $type, $names );
+
+		foreach ( $names as $name ) {
+			if ( ! isset( $timestamps[ $name ] ) ) {
+				if ( $this->logger ) {
+					$this->logger->report( "-- $name is missing; keeping the previous Master Sitemap." );
+				}
+
+				return false;
+			}
+		}
+
+		return $timestamps;
+	}
+
+	/**
+	 * Append one <sitemap> entry to a master sitemap buffer.
+	 *
+	 * @access private
+	 * @since 16.2
+	 *
+	 * @param Jetpack_Sitemap_Buffer|Jetpack_Sitemap_Buffer_XMLWriter $buffer   The master sitemap buffer.
+	 * @param string                                                  $filename The sitemap filename to link.
+	 * @param string                                                  $lastmod  Its timestamp, in 'YYYY-MM-DD hh:mm:ss' format.
+	 *
+	 * @return bool Whether the entry fit.
+	 */
+	private function append_sitemap_to_master( $buffer, $filename, $lastmod ) {
+		return true === $buffer->append(
+			array(
+				'sitemap' => array(
+					'loc'     => $this->finder->construct_sitemap_url( $filename ),
+					'lastmod' => jp_sitemap_datetime( $lastmod ),
+				),
+			)
 		);
 	}
 

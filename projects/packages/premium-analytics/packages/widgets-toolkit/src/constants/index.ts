@@ -1,2 +1,3 @@
 export * from './chart';
-export * from './color-palette';
+export * from './preferences';
+export * from './rows';

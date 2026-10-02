@@ -10,6 +10,7 @@
  */
 require_once __DIR__ . '/../../vendor/autoload.php';
 require_once __DIR__ . '/class-testcase.php';
+require_once __DIR__ . '/trait-toggles-ai-master.php';
 
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Search\Helper;
@@ -32,6 +33,15 @@ function dbless_default_options() {
 		Options::OPTION_PREFIX . 'result_format' => false,
 		'widget_block'                           => array(),
 	);
+}
+
+// The plugin defines this; the package cannot. Stub it so tests can drive both
+// branches of the internal-environment guard in AI_Answers::is_master_enabled().
+// Defaults to true so the master-gate tests exercise the gate.
+if ( ! function_exists( 'jetpack_is_internal_testing_environment' ) ) {
+	function jetpack_is_internal_testing_environment() {
+		return (bool) ( $GLOBALS['jetpack_search_test_internal_env'] ?? true );
+	}
 }
 
 // Initialize WordPress test environment

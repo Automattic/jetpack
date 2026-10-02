@@ -1,4 +1,10 @@
-import { resolveSectionHeading, resolveSectionId, type DashboardSection } from './sections';
+import {
+	getInsertableWidgetTypeNames,
+	isSectionAwaitingSync,
+	resolveSectionHeading,
+	resolveSectionId,
+	type DashboardSection,
+} from './sections';
 
 const SECTIONS: DashboardSection[] = [
 	{
@@ -6,7 +12,6 @@ const SECTIONS: DashboardSection[] = [
 		slug: 'traffic',
 		label: 'Traffic',
 		title: 'Site traffic',
-		description: 'Views, visitors, and where they came from.',
 		order: 10,
 		date_filter: 'range',
 		default_layout: [],
@@ -15,8 +20,7 @@ const SECTIONS: DashboardSection[] = [
 		id: 'analytics/insights',
 		slug: 'insights',
 		label: 'Insights',
-		title: 'Activity insights',
-		description: 'Longer-term patterns in your content and audience.',
+		title: 'Site insights',
 		order: 20,
 		date_filter: 'year',
 		default_layout: [],
@@ -28,7 +32,6 @@ const SECTIONS: DashboardSection[] = [
 		slug: 'subscribers',
 		label: 'Subscribers',
 		title: 'Subscribers stats',
-		description: 'How your subscriber list is growing, and how your emails land.',
 		order: 30,
 		default_layout: [],
 	},
@@ -40,7 +43,6 @@ const STORE: DashboardSection = {
 	slug: 'store',
 	label: 'Store',
 	title: null,
-	description: 'Sales, orders, and what your customers are buying.',
 	order: 40,
 	date_filter: 'range',
 	default_layout: [],
@@ -88,9 +90,64 @@ describe( 'resolveSectionHeading', () => {
 	} );
 
 	it( 'falls back to the label when the heading is an empty string', () => {
-		// The registry normalises `''` to null before it ever reaches here; this
-		// pins the client's own guard, since an empty heading would render an
-		// `<h2>` with no accessible name.
+		// The registry normalises `''` to null before this; this pins the client's
+		// own guard against an accessible-name-less `<h2>`.
 		expect( resolveSectionHeading( { ...STORE, title: '' } ) ).toBe( 'Store' );
+	} );
+} );
+
+describe( 'isSectionAwaitingSync', () => {
+	const STORE_AWAITING: DashboardSection = { ...STORE, requires_sync: true };
+
+	it( 'waits when the section requires the sync and it has not finished', () => {
+		expect( isSectionAwaitingSync( STORE_AWAITING, false ) ).toBe( true );
+	} );
+
+	it( 'does not wait once the sync has finished', () => {
+		expect( isSectionAwaitingSync( STORE_AWAITING, true ) ).toBe( false );
+	} );
+
+	it( 'does not wait for a section whose data needs no sync', () => {
+		expect( isSectionAwaitingSync( SECTIONS[ 0 ], false ) ).toBe( false );
+	} );
+
+	// A payload served by a build predating the field must render, not wait forever.
+	it( 'does not wait when the field is absent', () => {
+		expect( isSectionAwaitingSync( LEGACY, false ) ).toBe( false );
+	} );
+} );
+
+describe( 'getInsertableWidgetTypeNames', () => {
+	const TRAFFIC: DashboardSection = {
+		...SECTIONS[ 0 ],
+		default_layout: [
+			{ uuid: 'default-traffic-chart', type: 'jpa/traffic-chart' },
+			{ uuid: 'default-utm-source', type: 'jpa/utm-insights' },
+			{ uuid: 'default-utm-campaign', type: 'jpa/utm-insights' },
+		],
+	};
+	const INSIGHTS: DashboardSection = {
+		...SECTIONS[ 1 ],
+		default_layout: [
+			{ uuid: 'default-latest-post', type: 'jpa/latest-post' },
+			{ uuid: 'default-insights-utm', type: 'jpa/utm-insights' },
+		],
+	};
+
+	it( 'collects the types every section places by default, each one once', () => {
+		expect( [ ...getInsertableWidgetTypeNames( [ TRAFFIC, INSIGHTS ] ) ] ).toEqual( [
+			'jpa/traffic-chart',
+			'jpa/utm-insights',
+			'jpa/latest-post',
+		] );
+	} );
+
+	it( 'leaves out the types of a section that is not available', () => {
+		expect( getInsertableWidgetTypeNames( [ TRAFFIC ] ).has( 'jpa/latest-post' ) ).toBe( false );
+	} );
+
+	it( 'is empty when no section places a widget', () => {
+		expect( getInsertableWidgetTypeNames( SECTIONS ).size ).toBe( 0 );
+		expect( getInsertableWidgetTypeNames( [] ).size ).toBe( 0 );
 	} );
 } );

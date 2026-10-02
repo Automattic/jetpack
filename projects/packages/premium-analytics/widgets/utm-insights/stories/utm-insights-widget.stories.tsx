@@ -30,8 +30,7 @@ interface UtmInsightsStoryControls {
 }
 
 interface UtmInsightsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		UtmInsightsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, UtmInsightsStoryControls {}
 
 const meta = {
 	title: 'Packages/Premium Analytics/Widgets/UtmInsights',
@@ -64,7 +63,6 @@ export const Default: Story = {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -78,7 +76,6 @@ export const WithComparison: Story = {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -93,7 +90,6 @@ function renderUtmInsightsOnPreset( preset: PresetType ) {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( false, preset ),
 			} }
 		/>
@@ -146,8 +142,8 @@ export const ErrorRetryable: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral megaphone
- * glyph and "No UTM data in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderUtmInsightsOnPreset( 'last-year' ),
@@ -165,7 +161,6 @@ export const ByCampaign: Story = {
 		<UtmInsightsRender
 			attributes={ {
 				utmDimension: 'utm_campaign',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>
@@ -188,7 +183,6 @@ function UtmInsightsDashboardStory( {
 			renderComponent={ UtmInsightsRender as ComponentType< WidgetRenderProps< unknown > > }
 			attributes={ {
 				utmDimension: 'utm_source,utm_medium',
-				max: 10,
 				reportParams: getDefaultQueryParams( withComparison ),
 			} }
 		/>

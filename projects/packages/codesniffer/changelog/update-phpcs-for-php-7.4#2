@@ -1,0 +1,4 @@
+Significance: major
+Type: added
+
+Codesniffer ruleset should now be used with `testVersion` set to `7.4-`. New sniffs may be reported.

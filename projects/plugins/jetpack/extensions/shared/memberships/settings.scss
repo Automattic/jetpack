@@ -9,10 +9,6 @@
 	}
 }
 
-.jetpack-newsletter-link {
-	text-decoration: none;
-}
-
 .jetpack-newsletter-access-radio-buttons {
 	// The container owns the vertical rhythm. Spacing the children with their own
 	// margins does not survive here: wp-admin zeroes paragraph margins inside the
@@ -37,6 +33,14 @@
 			cursor: default;
 			opacity: 0.5;
 		}
+	}
+
+	// The group is built by hand rather than by RadioControl (see AccessOption),
+	// so it supplies the spacing RadioControl would get from its own VStack.
+	.components-radio-control__group-wrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
 	}
 
 	// Two tiers of spacing: the options sit close together, while the legend, the

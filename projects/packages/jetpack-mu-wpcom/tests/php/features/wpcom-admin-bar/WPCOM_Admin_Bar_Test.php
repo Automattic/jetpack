@@ -149,9 +149,14 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 	 * adds in wp-admin), then fires `admin_bar_menu`, the hook our Stats node
 	 * listens on.
 	 *
-	 * @param string|null $site_name_child Child node id to add under 'site-name', or null for none.
+	 * This environment has no Jetpack module files, so `Modules::get_active()` would
+	 * report nothing active. Filter the active module list in explicitly instead, and
+	 * let each test say which state it is exercising.
+	 *
+	 * @param string|null $site_name_child     Child node id to add under 'site-name', or null for none.
+	 * @param bool        $stats_module_active Whether the Stats module is switched on.
 	 */
-	private static function make_test_admin_bar_with_site_name( $site_name_child = null ) {
+	private static function make_test_admin_bar_with_site_name( $site_name_child = null, $stats_module_active = true ) {
 		$admin_bar = new \WP_Admin_Bar();
 		$admin_bar->add_node(
 			array(
@@ -171,7 +176,13 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 			);
 		}
 
+		$active_modules = static function () use ( $stats_module_active ) {
+			return $stats_module_active ? array( 'stats' ) : array();
+		};
+
+		add_filter( 'jetpack_active_modules', $active_modules );
 		do_action( 'admin_bar_menu', $admin_bar );
+		remove_filter( 'jetpack_active_modules', $active_modules );
 
 		return $admin_bar;
 	}
@@ -236,6 +247,20 @@ class WPCOM_Admin_Bar_Test extends \WorDBless\BaseTestCase {
 		$stats_node = $admin_bar->get_node( 'wpcom-stats' );
 
 		$this->assertNull( $stats_node );
+	}
+
+	/**
+	 * Switching the Stats module off unregisters `admin.php?page=stats`, but the Stats
+	 * package still maps `view_stats` on any wp-admin request, so the capability check
+	 * alone keeps passing. Linking there would render "Sorry, you are not allowed to
+	 * access this page" (JETPACK-2366).
+	 */
+	public function test_stats_link_hidden_when_stats_module_inactive() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+		$admin_bar = self::make_test_admin_bar_with_site_name( 'dashboard', false );
+		remove_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$this->assertNull( $admin_bar->get_node( 'wpcom-stats' ) );
 	}
 
 	public function test_stats_link_hidden_when_dashboard_and_view_site_nodes_absent() {

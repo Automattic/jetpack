@@ -20,7 +20,7 @@ class Jetpack_Options_Test extends TestCase {
 	protected function tearDown(): void {
 		parent::tearDown();
 
-		\Jetpack_Options::delete_option( array( 'protected_owner', 'videopress' ) );
+		\Jetpack_Options::delete_option( array( 'protected_owner', 'videopress', 'tos_agreed' ) );
 
 		$reflection = new \ReflectionClass( External_Storage::class );
 
@@ -50,11 +50,8 @@ class Jetpack_Options_Test extends TestCase {
 	private static function anchor() {
 		return array(
 			'wpcom_user_id' => 12345,
-			'email'         => 'owner@example.com',
 			'local_user_id' => 7,
-			'locked'        => true,
 			'confirmed_at'  => '2026-08-13T12:00:00Z',
-			'confirmed_by'  => 'popup',
 		);
 	}
 
@@ -136,6 +133,40 @@ class Jetpack_Options_Test extends TestCase {
 		External_Storage::register_provider( $this->provider_serving( 'videopress', array( 'from' => 'provider' ) ) );
 
 		$this->assertSame( array( 'from' => 'database' ), \Jetpack_Options::get_option( 'videopress' ) );
+	}
+
+	/**
+	 * For a non-compact option, option_exists distinguishes an absent option from one stored as a
+	 * falsy value — the case the tos_agreed seeding relies on.
+	 */
+	public function test_option_exists_non_compact_distinguishes_absent_from_false() {
+		$this->assertFalse( \Jetpack_Options::option_exists( 'tos_agreed' ), 'An absent option should not exist.' );
+
+		add_option( 'jetpack_tos_agreed', false, '', true );
+
+		$this->assertTrue( \Jetpack_Options::option_exists( 'tos_agreed' ), 'A stored false must still count as existing.' );
+	}
+
+	/**
+	 * A compact option counts as existing once written into the jetpack_options row.
+	 */
+	public function test_option_exists_compact() {
+		$this->assertFalse( \Jetpack_Options::option_exists( 'protected_owner' ), 'An absent compact option should not exist.' );
+
+		\Jetpack_Options::update_option( 'protected_owner', self::anchor() );
+
+		$this->assertTrue( \Jetpack_Options::option_exists( 'protected_owner' ) );
+	}
+
+	/**
+	 * A value served only by an external storage provider still counts as existing, with no
+	 * database row.
+	 */
+	public function test_option_exists_via_external_storage() {
+		External_Storage::register_provider( $this->provider_serving( 'protected_owner', self::anchor() ) );
+
+		$this->assertTrue( \Jetpack_Options::option_exists( 'protected_owner' ) );
+		$this->assertFalse( get_option( 'jetpack_protected_owner' ), 'No database row should back the provider value.' );
 	}
 
 	/**

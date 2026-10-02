@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Button block: Add a filter for the default HTML element the block falls back to when it does not specify one.

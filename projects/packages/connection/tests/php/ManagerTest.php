@@ -485,6 +485,76 @@ class ManagerTest extends TestCase {
 	}
 
 	/**
+	 * Test that only a user with `jetpack_connect` takes a vacant connection owner slot in `authorize`.
+	 *
+	 * @param string $role            The authorizing user's role.
+	 * @param bool   $expected_master Whether the token should be stored as the connection owner's.
+	 * @param string $expected_result The expected `authorize` result.
+	 * @param array  $disconnect_cap  Value for the `jetpack_disconnect_cap` filter, which `jetpack_connect` resolves through.
+	 * @dataProvider provide_authorize_vacant_owner_slot
+	 */
+	#[DataProvider( 'provide_authorize_vacant_owner_slot' )]
+	public function test_authorize_vacant_owner_slot( $role, $expected_master, $expected_result, $disconnect_cap = array( 'manage_options' ) ) {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => "test_authorize_vacant_owner_slot_$role",
+				'user_pass'  => '123',
+				'role'       => $role,
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'get', 'update_user_token' ) )
+			->getMock();
+		$tokens->method( 'get' )->willReturn( 'usertoken.secret' );
+		$tokens->expects( $this->once() )
+			->method( 'update_user_token' )
+			->with( $user_id, "usertoken.secret.$user_id", $expected_master )
+			->willReturn( true );
+
+		$manager = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Manager' )
+			->onlyMethods( array( 'get_tokens', 'get_connection_owner_id' ) )
+			->getMock();
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+		$manager->method( 'get_connection_owner_id' )->willReturn( false );
+
+		// Resolve `jetpack_connect` through the real meta-cap map, which this bootstrap doesn't wire.
+		add_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1, 4 );
+		$filter_disconnect_cap = static function () use ( $disconnect_cap ) {
+			return $disconnect_cap;
+		};
+		add_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+
+		try {
+			$result = $manager->authorize(
+				array(
+					'state' => (string) $user_id,
+					'code'  => 'authorization_code',
+				)
+			);
+		} finally {
+			remove_filter( 'map_meta_cap', array( $manager, 'jetpack_connection_custom_caps' ), 1 );
+			remove_filter( 'jetpack_disconnect_cap', $filter_disconnect_cap );
+		}
+
+		$this->assertSame( $expected_result, $result );
+	}
+
+	/**
+	 * Data provider for test_authorize_vacant_owner_slot.
+	 *
+	 * @return array
+	 */
+	public static function provide_authorize_vacant_owner_slot() {
+		return array(
+			'administrator takes the slot' => array( 'administrator', true, 'authorized' ),
+			'editor links as secondary'    => array( 'editor', false, 'linked' ),
+			'editor granted connection rights takes the slot' => array( 'editor', true, 'authorized', array( 'edit_others_posts' ) ),
+		);
+	}
+
+	/**
 	 * Unit test for the "Delete all tokens" functionality.
 	 */
 	public function test_delete_all_connection_tokens() {
@@ -498,6 +568,49 @@ class ManagerTest extends TestCase {
 		$manager = ( new Manager() )->set_plugin_instance( $stub );
 
 		$this->assertFalse( $manager->delete_all_connection_tokens() );
+	}
+
+	/**
+	 * Deleting the tokens directly must invalidate the memoized connection status.
+	 *
+	 * `Tokens::delete_all()` is reachable without going through a disconnect — `get_access_token()`
+	 * calls it when the token lock names a different site URL — so it has to invalidate on its own.
+	 */
+	public function test_deleting_tokens_invalidates_memoized_connection_status() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		( new Tokens() )->delete_all();
+
+		$this->assertFalse(
+			( new Manager() )->is_connected(),
+			'is_connected() should recompute after the tokens are deleted, without an explicit reset.'
+		);
+	}
+
+	/**
+	 * A failed re-registration must not leave `is_connected()` reporting the pre-teardown state.
+	 *
+	 * `Manager::register()` deletes the existing tokens before requesting new ones. When that
+	 * request fails the site is left with a blog ID and no tokens, and the memoized status has to
+	 * reflect that for the rest of the request.
+	 */
+	public function test_connection_status_is_invalidated_when_tokens_are_deleted_without_a_disconnect() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', 1234 );
+		( new Manager() )->reset_connection_status();
+		$this->assertTrue( ( new Manager() )->is_connected(), 'Test setup failed: site should be connected.' );
+
+		// The cleanup `register()` performs before it asks WordPress.com for new tokens.
+		( new Manager() )->delete_all_connection_tokens( true );
+
+		$this->assertSame( 1234, Jetpack_Options::get_option( 'id' ), 'Test setup failed: the blog ID should survive the token deletion.' );
+		$this->assertFalse(
+			( new Manager() )->is_connected(),
+			'is_connected() should be false once the tokens are gone, even though the blog ID remains.'
+		);
 	}
 
 	/**
@@ -1012,7 +1125,7 @@ class ManagerTest extends TestCase {
 			array( 'abcde:1:aaa', 'bogus signature', 'malformed_user_id' ),
 			array( 'bogus token', 'bogus signature', 'malformed_token' ),
 			array( 'abcde:1:987', 'bogus signature', 'unknown_user' ),
-			array( 'abcde:1:0', 'bogus signature', 'unknown_token' ),
+			array( 'abcde:1:0', 'bogus signature', 'tokens_locked' ),
 		);
 	}
 	/**
@@ -1393,7 +1506,7 @@ class ManagerTest extends TestCase {
 	 * `ArrayIterator::__construct()` object-backing notice once that error
 	 * object is iterated by the WP HTTP Requests library downstream.
 	 *
-	 * Compatible with PHP <8.1 where `setStaticPropertyValue()` cannot reach
+	 * Compatible with PHP <7.4.9 where `setStaticPropertyValue()` cannot reach
 	 * private static properties without `setAccessible(true)`.
 	 */
 	private function reset_plugin_storage() {
@@ -1401,7 +1514,7 @@ class ManagerTest extends TestCase {
 		try {
 			$reflection->setStaticPropertyValue( 'configured', true );
 			$reflection->setStaticPropertyValue( 'plugins', array() );
-		} catch ( \ReflectionException $e ) { // PHP <8.1: private statics need setAccessible.
+		} catch ( \ReflectionException $e ) { // PHP <7.4.9: setStaticPropertyValue can only access public properties
 			$values = array(
 				'configured' => true,
 				'plugins'    => array(),
@@ -1415,5 +1528,158 @@ class ManagerTest extends TestCase {
 				$prop->setValue( null, $value );
 			}
 		}
+	}
+
+	/**
+	 * Build a partial-mock Manager for restore(), wired to the given Tokens mock, with
+	 * reconnect()/refresh_* left as spies for the test to assert on.
+	 *
+	 * @param \PHPUnit\Framework\MockObject\MockObject $tokens A Tokens mock.
+	 * @return \PHPUnit\Framework\MockObject\MockObject&Manager
+	 */
+	private function restore_manager_with_tokens( $tokens ) {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_site_connection', 'get_tokens', 'reconnect', 'refresh_blog_token', 'refresh_user_token' ) )
+			->getMock();
+		$manager->method( 'is_site_connection' )->willReturn( false );
+		$manager->method( 'get_tokens' )->willReturn( $tokens );
+
+		return $manager;
+	}
+
+	/**
+	 * Assert restore() invokes only $expected_method (stubbed to return true), never the
+	 * other two repair paths, and returns $expected_return.
+	 *
+	 * @param \PHPUnit\Framework\MockObject\MockObject&Manager $manager         The manager under test.
+	 * @param string                                           $expected_method reconnect|refresh_blog_token|refresh_user_token.
+	 * @param mixed                                            $expected_return The value restore() should return.
+	 */
+	private function assert_restore_routes( $manager, $expected_method, $expected_return ) {
+		foreach ( array( 'reconnect', 'refresh_blog_token', 'refresh_user_token' ) as $method ) {
+			$expectation = $manager->expects( $method === $expected_method ? $this->once() : $this->never() )->method( $method );
+			if ( $method === $expected_method ) {
+				$expectation->willReturn( true );
+			}
+		}
+
+		$this->assertSame( $expected_return, $manager->restore() );
+	}
+
+	/**
+	 * Conclusive validation flags route to the right repair path without ever making the
+	 * extra blog-token request.
+	 *
+	 * @dataProvider provider_restore_conclusive_flags
+	 *
+	 * @param array  $validate        What Tokens::validate() returns.
+	 * @param string $expected_method The repair path restore() should take.
+	 * @param mixed  $expected_return The value restore() should return.
+	 */
+	#[DataProvider( 'provider_restore_conclusive_flags' )]
+	public function test_restore_conclusive_flags_route_without_a_blog_token_check( $validate, $expected_method, $expected_return ) {
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'validate', 'validate_blog_token' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn( $validate );
+		$tokens->expects( $this->never() )->method( 'validate_blog_token' );
+
+		$this->assert_restore_routes( $this->restore_manager_with_tokens( $tokens ), $expected_method, $expected_return );
+	}
+
+	/**
+	 * Data provider for conclusive validation flags.
+	 *
+	 * @return array<string, array{0: array, 1: string, 2: mixed}>
+	 */
+	public static function provider_restore_conclusive_flags() {
+		return array(
+			'both healthy'     => array(
+				array(
+					'blog_token' => array( 'is_healthy' => true ),
+					'user_token' => array( 'is_healthy' => true ),
+				),
+				'reconnect',
+				'authorize',
+			),
+			'both broken'      => array(
+				array(
+					'blog_token' => array( 'is_healthy' => false ),
+					'user_token' => array( 'is_healthy' => false ),
+				),
+				'reconnect',
+				'authorize',
+			),
+			'only blog broken' => array(
+				array(
+					'blog_token' => array( 'is_healthy' => false ),
+					'user_token' => array( 'is_healthy' => true ),
+				),
+				'refresh_blog_token',
+				true,
+			),
+			'only user broken' => array(
+				array(
+					'blog_token' => array( 'is_healthy' => true ),
+					'user_token' => array( 'is_healthy' => false ),
+				),
+				'refresh_user_token',
+				'authorize',
+			),
+		);
+	}
+
+	/**
+	 * CONNECT-455: when validation is inconclusive (any shape lacking paired health flags),
+	 * restore() decides on the blog token alone — refreshing only the user token when it is
+	 * confirmed healthy, and otherwise falling back to a full reconnect.
+	 *
+	 * @dataProvider provider_restore_inconclusive_validation
+	 *
+	 * @param mixed  $validate        What Tokens::validate() returns (a non-paired-flags result).
+	 * @param mixed  $blog_health     What Tokens::validate_blog_token() returns.
+	 * @param string $expected_method The repair path restore() should take.
+	 * @param mixed  $expected_return The value restore() should return.
+	 */
+	#[DataProvider( 'provider_restore_inconclusive_validation' )]
+	public function test_restore_inconclusive_validation_decides_on_the_blog_token( $validate, $blog_health, $expected_method, $expected_return ) {
+		$tokens = $this->getMockBuilder( 'Automattic\Jetpack\Connection\Tokens' )
+			->onlyMethods( array( 'validate', 'validate_blog_token' ) )
+			->getMock();
+		$tokens->method( 'validate' )->willReturn( $validate );
+		$tokens->expects( $this->once() )->method( 'validate_blog_token' )->willReturn( $blog_health );
+
+		$this->assert_restore_routes( $this->restore_manager_with_tokens( $tokens ), $expected_method, $expected_return );
+	}
+
+	/**
+	 * Data provider for inconclusive validation, covering every shape that lacks paired
+	 * health flags (false, a WP_Error, a malformed array) against each blog-token verdict.
+	 *
+	 * @return array<string, array{0: mixed, 1: mixed, 2: string, 3: mixed}>
+	 */
+	public static function provider_restore_inconclusive_validation() {
+		return array(
+			// A confirmed-healthy blog token refreshes only the user token, whatever inconclusive shape validate() returned.
+			'false result, healthy blog'           => array( false, true, 'refresh_user_token', 'authorize' ),
+			'wp_error result, healthy blog'        => array( new \WP_Error( 'validate_failed' ), true, 'refresh_user_token', 'authorize' ),
+			'malformed array result, healthy blog' => array( array( 'blog_token' => array() ), true, 'refresh_user_token', 'authorize' ),
+			// Anything short of a confirmed-healthy blog token still tears down.
+			'false result, broken blog'            => array( false, false, 'reconnect', 'authorize' ),
+			'false result, unverifiable blog'      => array( false, new \WP_Error( 'blog_token_check_failed' ), 'reconnect', 'authorize' ),
+		);
+	}
+
+	/**
+	 * A site (blog-only) connection reconnects directly, ahead of any token validation.
+	 */
+	public function test_restore_site_connection_reconnects() {
+		$manager = $this->getMockBuilder( Manager::class )
+			->onlyMethods( array( 'is_site_connection', 'reconnect' ) )
+			->getMock();
+		$manager->method( 'is_site_connection' )->willReturn( true );
+		$manager->expects( $this->once() )->method( 'reconnect' )->willReturn( true );
+
+		$this->assertTrue( $manager->restore() );
 	}
 }

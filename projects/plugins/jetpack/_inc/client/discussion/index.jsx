@@ -8,7 +8,11 @@ import {
 	isCurrentUserLinked,
 	getConnectUrl,
 } from 'state/connection';
-import { isOdysseyStatsEnabled, getSiteAdminUrl } from 'state/initial-state';
+import {
+	isOdysseyStatsEnabled,
+	getSiteAdminUrl,
+	isCommentBlocksAvailable,
+} from 'state/initial-state';
 import { getModule, getModuleOverride } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSettings } from 'state/settings';
@@ -53,6 +57,7 @@ export class Discussion extends Component {
 					{ ...commonProps }
 					isModuleFound={ this.props.isModuleFound }
 					getModuleOverride={ this.props.getModuleOverride }
+					hasBlockEditor={ this.props.hasBlockEditor }
 				/>
 			</div>
 		);
@@ -71,5 +76,6 @@ export default connect( state => {
 		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isOdysseyStatsEnabled: isOdysseyStatsEnabled( state ),
 		siteAdminUrl: getSiteAdminUrl( state ),
+		hasBlockEditor: isCommentBlocksAvailable( state ),
 	};
 } )( Discussion );

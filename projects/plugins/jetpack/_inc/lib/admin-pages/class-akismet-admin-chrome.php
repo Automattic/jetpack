@@ -26,6 +26,8 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Plugin\Admin_Chrome_Logo;
+use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -38,16 +40,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Wires the unified Jetpack header, footer and contained layout onto Akismet's admin pages.
  */
 class Akismet_Admin_Chrome {
-
-	/**
-	 * The green Jetpack logo mark, sized via the `height` attribute by callers.
-	 *
-	 * @param int $height Pixel height of the logo.
-	 * @return string SVG markup.
-	 */
-	private function jetpack_logo( $height ) {
-		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="' . (int) $height . '" class="jp-akismet-logo" aria-hidden="true"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path></svg>';
-	}
 
 	/**
 	 * The Akismet logo mark — the green rounded square with the white "A", taken from
@@ -111,6 +103,19 @@ class Akismet_Admin_Chrome {
 				display: flex;
 				align-items: center;
 				gap: 8px;
+				text-decoration: none;
+			}
+			/* Keep the ring to keyboard focus. Scoped to the container to outrank
+				wp-admin's `a:focus` and Akismet's `#akismet-plugin-container
+				a:focus-visible`, which both beat a bare class selector. */
+			#akismet-plugin-container .jp-akismet-header__title:focus:not( :focus-visible ) {
+				box-shadow: none;
+				outline: none;
+			}
+			#akismet-plugin-container .jp-akismet-header__title:focus-visible {
+				border-radius: 2px;
+				box-shadow: 0 0 0 2px #2271b1;
+				outline: 2px solid transparent;
 			}
 			/* 24×24 visual slot centering the 20px logo, matching My Jetpack/Boost. */
 			.jp-akismet-header__visual {
@@ -205,11 +210,7 @@ class Akismet_Admin_Chrome {
 				markup (#wpbody-content > #akismet-plugin-container > header/.akismet-lower/footer).
 				Scoped to both menu locations: jetpack_page_… and settings_page_…
 
-				The mixin uses physical `left`/`right` because its SCSS is compiled
-				through rtlcss, which emits a flipped stylesheet. This inline `<style>`
-				has no such build step, so it uses CSS logical properties
-				(`inset-inline-*`, `padding-inline-*`, `margin-inline`) to flip with the
-				admin menu under RTL locales. */
+				Logical properties throughout, like the mixin, so it flips under RTL. */
 			body[class*="_page_akismet-key-config"] #wpcontent {
 				padding-inline-start: 0;
 			}
@@ -313,10 +314,10 @@ class Akismet_Admin_Chrome {
 		$this->print_styles();
 		?>
 		<header class="jp-akismet-header">
-			<div class="jp-akismet-header__title">
+			<a class="jp-akismet-header__title" href="<?php echo esc_url( admin_url( 'admin.php?page=akismet-key-config' ) ); ?>">
 				<span class="jp-akismet-header__visual" aria-hidden="true"><?php echo $this->akismet_logo( 20 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?></span>
 				<h1><?php esc_html_e( 'Akismet Anti-spam', 'jetpack' ); ?></h1>
-			</div>
+			</a>
 		</header>
 		<?php
 	}
@@ -334,12 +335,13 @@ class Akismet_Admin_Chrome {
 		?>
 		<footer class="jp-akismet-footer jetpack-footer" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack' ); ?>" role="contentinfo">
 			<div class="jp-akismet-footer__logo">
-				<?php echo $this->jetpack_logo( 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+				<?php echo Admin_Chrome_Logo::render( 16, 'jp-akismet-logo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 				<span><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 			</div>
-			<?php if ( ! ( new Host() )->is_wpcom_platform() ) : ?>
+			<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>
+				<?php $products_section = Footer_Links::get_my_jetpack_products_section(); ?>
 			<nav class="jp-akismet-footer__menu">
-				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/products' ) ); ?>"><?php echo esc_html_x( 'Products', 'Navigation item', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/' . $products_section['slug'] ) ); ?>"><?php echo esc_html( $products_section['label'] ); ?></a>
 				<a href="<?php echo esc_url( admin_url( 'admin.php?page=my-jetpack#/help' ) ); ?>"><?php echo esc_html_x( 'Help', 'Navigation item', 'jetpack' ); ?></a>
 			</nav>
 			<?php endif; ?>

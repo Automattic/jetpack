@@ -59,8 +59,7 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Override the Registrar lifecycle so the backup abilities only register
 	 * on sites that actually have a Jetpack Backup product provisioned.
-	 * Mirrors the gating done in the Jetpack dashboard / My Jetpack — there's
-	 * no point exposing tool surfaces an agent can never use, and on free
+	 * There's no point exposing tool surfaces an agent can never use, and on free
 	 * sites the upstream wpcom endpoints either silently accept writes (e.g.
 	 * `request-backup` reported `enqueued: true`) or return null payloads
 	 * that confuse callers.
@@ -93,16 +92,10 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Is the Jetpack Backup product actually loaded on this site?
 	 *
-	 * Defaults to `My_Jetpack\Products\Backup::is_active()` — the same
-	 * boolean the Jetpack dashboard uses to decide whether the Backup
-	 * product is usable. That returns true when the plugin is active and
-	 * the site has a Backup plan (covering `STATUS_ACTIVE`,
-	 * `STATUS_EXPIRING_SOON`, and the `STATUS_NEEDS_ATTENTION__*` states),
-	 * and false for `STATUS_EXPIRED`, `STATUS_NEEDS_PLAN`,
-	 * `STATUS_MODULE_DISABLED`, and the connection-error states. The plan
-	 * lookup is cached for 15s in `MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY`,
-	 * so the cost on a real wpcom call is paid at most once per 15 seconds
-	 * across the whole My Jetpack surface.
+	 * True when a plugin that ships Backup is active and the site has a Backup plan. Deliberately
+	 * not `My_Jetpack\Products\Backup::is_active()`: that also follows the backup module, which only
+	 * switches the wp-admin dashboard, while backups keep running on WordPress.com. The plan lookup
+	 * is cached in `MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY`.
 	 *
 	 * The `jetpack_backup_abilities_should_load` filter lets consumers and
 	 * tests override the answer without round-tripping through the My
@@ -111,11 +104,13 @@ class Backup_Abilities extends Registrar {
 	 * @return bool
 	 */
 	private static function backup_is_loaded(): bool {
-		$default = class_exists( My_Jetpack_Backup::class ) && My_Jetpack_Backup::is_active();
+		$default = class_exists( My_Jetpack_Backup::class )
+			&& My_Jetpack_Backup::is_plugin_active()
+			&& My_Jetpack_Backup::has_any_plan_for_product();
 
 		/**
 		 * Filters whether the Jetpack Backup abilities should register on
-		 * this site. Defaults to `My_Jetpack\Products\Backup::is_active()`.
+		 * this site. Defaults to whether Backup's plugin is active and the site has a Backup plan.
 		 *
 		 * @since 0.1.0
 		 *
@@ -191,11 +186,12 @@ class Backup_Abilities extends Registrar {
 								'has_warnings'  => array( 'type' => array( 'boolean', 'null' ) ),
 							),
 						),
+						// Hour only: no WordPress.com endpoint carries a minute,
+						// so a `minute` field could only ever be null.
 						'schedule'            => array(
 							'type'       => array( 'object', 'null' ),
 							'properties' => array(
-								'hour'   => array( 'type' => array( 'integer', 'null' ) ),
-								'minute' => array( 'type' => array( 'integer', 'null' ) ),
+								'hour' => array( 'type' => array( 'integer', 'null' ) ),
 							),
 						),
 						'storage'             => array(
@@ -432,12 +428,16 @@ class Backup_Abilities extends Registrar {
 		$backups       = self::unwrap_response( Jetpack_Backup::get_recent_backups() );
 		$schedule_data = self::unwrap_response( Jetpack_Backup::get_site_backup_schedule_time() );
 		$size_data     = self::unwrap_response( Jetpack_Backup::get_site_backup_size() );
+		// Two round-trips because neither route describes storage alone: `/rewind/size`
+		// reports usage, `/rewind/policies` the limit. Fetched unconditionally so a
+		// usable limit still arrives when usage cannot be measured.
+		$policies_data = self::unwrap_response( Jetpack_Backup::get_site_backup_policies() );
 
 		return array(
 			'recent_backup_count' => is_array( $backups ) ? count( $backups ) : null,
 			'last_backup'         => self::summarize_last_backup( is_array( $backups ) ? ( $backups[0] ?? null ) : null ),
 			'schedule'            => self::summarize_schedule( $schedule_data ),
-			'storage'             => self::summarize_storage( $size_data ),
+			'storage'             => self::summarize_storage( $size_data, $policies_data ),
 		);
 	}
 
@@ -757,8 +757,9 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Normalize a Jetpack_Backup helper result (WP_REST_Response, array, null,
 	 * or WP_Error) to a plain value or null. Jetpack_Backup uses
-	 * `rest_ensure_response()` on success and returns null on http failure, so
-	 * abilities need both shapes flattened before summarising.
+	 * `rest_ensure_response()` on success; on failure its routes return a
+	 * WP_Error and `list_backup_events()` returns null, so abilities need
+	 * every shape flattened before summarising.
 	 *
 	 * @param mixed $maybe_response Result of a Jetpack_Backup helper call.
 	 * @return mixed
@@ -860,7 +861,11 @@ class Backup_Abilities extends Registrar {
 	}
 
 	/**
-	 * Summarize the wpcom schedule payload to `{ hour, minute }`.
+	 * Summarize the `/site/backup/schedule` payload to `{ hour }`.
+	 *
+	 * WordPress.com answers `{ ok, scheduled_hour, scheduled_by }` — the UTC hour of the
+	 * daily backup, and no minute anywhere. `ok` is its own success flag inside a 200
+	 * body, so a payload without it carries no usable hour.
 	 *
 	 * @param mixed $raw Upstream schedule payload.
 	 * @return array|null
@@ -870,30 +875,52 @@ class Backup_Abilities extends Registrar {
 			return null;
 		}
 		$raw = (array) $raw;
+		if ( empty( $raw['ok'] ) ) {
+			return null;
+		}
 		return array(
-			'hour'   => isset( $raw['hour'] ) ? (int) $raw['hour'] : null,
-			'minute' => isset( $raw['minute'] ) ? (int) $raw['minute'] : null,
+			'hour' => isset( $raw['scheduled_hour'] ) ? (int) $raw['scheduled_hour'] : null,
 		);
 	}
 
 	/**
-	 * Maps both the production wpcom field names (`size_in_bytes`, `storage_limit_bytes`)
-	 * and shorter aliases (`used_bytes`, `limit_bytes`) so the ability stays stable
-	 * if the upstream payload is renamed.
+	 * Summarize storage from the two payloads that between them describe it.
 	 *
-	 * @param mixed $raw Upstream storage payload.
+	 * Usage is `size` on `/site/backup/size`, which despite its name carries no limit;
+	 * the limit is `policies.storage_limit_bytes` on `/site/backup/policies`.
+	 *
+	 * The two are read independently, so a site whose usage could not be measured still
+	 * reports what it is allowed. That is deliberately unlike `summarize_schedule()`,
+	 * which has nothing left to report once its hour is gone.
+	 *
+	 * @param mixed $size_raw     Upstream `/site/backup/size` payload.
+	 * @param mixed $policies_raw Upstream `/site/backup/policies` payload.
 	 * @return array|null
 	 */
-	private static function summarize_storage( $raw ): ?array {
-		if ( ! is_array( $raw ) && ! is_object( $raw ) ) {
+	private static function summarize_storage( $size_raw, $policies_raw ): ?array {
+		$size     = ( is_array( $size_raw ) || is_object( $size_raw ) ) ? (array) $size_raw : null;
+		$policies = ( is_array( $policies_raw ) || is_object( $policies_raw ) ) ? (array) $policies_raw : null;
+
+		if ( null === $size && null === $policies ) {
 			return null;
 		}
-		$raw         = (array) $raw;
-		$used_bytes  = $raw['size_in_bytes'] ?? ( $raw['used_bytes'] ?? null );
-		$limit_bytes = $raw['storage_limit_bytes'] ?? ( $raw['limit_bytes'] ?? null );
+
+		$used_bytes = ( null !== $size && ! empty( $size['ok'] ) && isset( $size['size'] ) )
+			? (int) $size['size']
+			: null;
+
+		// `policies` is itself nullable inside a 200: a plan with no retention policy
+		// answers `{ "policies": null }`.
+		$policy = $policies['policies'] ?? null;
+		$policy = ( is_array( $policy ) || is_object( $policy ) ) ? (array) $policy : null;
+
+		$limit_bytes = ( null !== $policy && isset( $policy['storage_limit_bytes'] ) )
+			? (int) $policy['storage_limit_bytes']
+			: null;
+
 		return array(
-			'used_bytes'  => null === $used_bytes ? null : (int) $used_bytes,
-			'limit_bytes' => null === $limit_bytes ? null : (int) $limit_bytes,
+			'used_bytes'  => $used_bytes,
+			'limit_bytes' => $limit_bytes,
 		);
 	}
 }

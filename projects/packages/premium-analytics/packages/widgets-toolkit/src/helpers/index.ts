@@ -45,7 +45,14 @@ export {
 } from './build-visitors-by-location-data';
 export { flagUrl } from './flag-url';
 export { isEmptyChartData, isEmptyPieChartData, getEmptyChartDomain } from './chart-empty-state';
-export { getFixedYAxis, type FixedYAxis } from './fixed-y-axis';
+export {
+	getFixedYAxis,
+	getPaddedYAxis,
+	getPinnedYTicks,
+	getYTickFormat,
+	type ChartBaseline,
+	type FixedYAxis,
+} from './fixed-y-axis';
 export { formatDisplayLabel } from './format-display-label';
 export {
 	buildCsv,
@@ -56,33 +63,50 @@ export {
 } from './build-csv';
 export { sharePercentage } from './share-percentage';
 export { getCombinedPeriodMax } from './get-combined-period-max';
-export { getVideoKey, getVideoLabel } from './video-plays';
-export { toMaxRows } from './to-max-rows';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
-export { defaultPeriodForInterval } from './default-period-for-interval';
+export { defaultPeriodForInterval } from '@jetpack-premium-analytics/data';
 export { buildMetricTab, type MetricReport, type BuildMetricTabOptions } from './build-metric-tab';
+export { dateFormatForResolution } from './tick-resolution-date-format';
 export {
 	CHART_DISPLAY_CHART_TYPES,
 	chartTypeAttributeField,
-	granularityAttributeField,
 	type ChartDisplayChartType,
-	type ChartGranularityOption,
 } from './chart-display-attribute-fields';
 export {
-	compactCalendarHeatmapCapacity,
+	CELL_GAP as CALENDAR_HEATMAP_CELL_GAP,
+	HEADER_HEIGHT as CALENDAR_HEATMAP_HEADER_HEIGHT,
 	computeCalendarHeatmapLayout,
 	fitWeekColumns,
 	type CalendarHeatmapLayout,
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
+export { compareOptionalNumbers } from './compare-optional-numbers';
+export {
+	formatEmailRate,
+	getKnownEmailRate,
+	isEmailRateKnown,
+	type EmailRateSignals,
+} from './format-email-rate';
 export { formatViewCount } from './format-view-count';
+export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
+export {
+	MONTHLY_HEATMAP_METRICS,
+	monthlyHeatmapLabels,
+	monthlyHeatmapMetricAttributeField,
+	resolveMonthlyHeatmapMetric,
+	type MonthlyHeatmapMetric,
+} from './monthly-heatmap-metric';
+export { monthlyHeatmapLifeStart } from './monthly-heatmap-life-start';
+export { monthRange, yearRange, type PeriodBounds } from './period-range';
+export { siteChartFormatting } from './site-chart-formatting';
+export { formatComparisonSeriesLabel } from './format-comparison-series-label';
+export { formatTooltipPointLabel } from './format-tooltip-point-label';
+export { appendTooltipExtras, resolveTooltipUnits, type TooltipUnit } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
-	resolveCalendarHeatmapWindow,
-	resolveCalendarHeatmapWindowDays,
+	resolveCalendarHeatmapGridStart,
 	type CalendarHeatmapWindow,
-	type CalendarHeatmapWindowBounds,
 } from './calendar-heatmap-window';

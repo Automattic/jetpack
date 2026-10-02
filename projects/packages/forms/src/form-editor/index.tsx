@@ -11,6 +11,7 @@ import { createBlock, cloneBlock } from '@wordpress/blocks';
 import { subscribe, select, dispatch } from '@wordpress/data';
 import { __ } from '@wordpress/i18n';
 import { getPlugin, registerPlugin, unregisterPlugin } from '@wordpress/plugins';
+import { store as preferencesStore } from '@wordpress/preferences';
 import { FORM_POST_TYPE } from '../blocks/shared/util/constants.js';
 import { EmbedCodePanel, EMBED_CODE_PANEL_PLUGIN } from './plugins/embed-code-panel';
 import {
@@ -135,6 +136,24 @@ const state = {
 	formBlockStable: false,
 	previousTickFormBlockClientId: null as string | null,
 	hasOpenedInserter: false,
+};
+
+/**
+ * Suppress the generic block editor welcome modal inside the form editor.
+ *
+ * Uses `setDefaults` rather than `set` on purpose: defaults live only for the
+ * current page load, so the user's own `core/edit-post` preference is left
+ * untouched and the generic modal still appears in the post and page editors.
+ * A user who has explicitly re-enabled the core guide keeps it, since a
+ * persisted preference takes precedence over a default.
+ *
+ * @param isSuppressed - Whether the core welcome modal should be suppressed.
+ */
+const setCoreWelcomeGuideSuppressed = ( isSuppressed: boolean ) => {
+	dispatch( preferencesStore ).setDefaults( 'core/edit-post', {
+		welcomeGuide: ! isSuppressed,
+		welcomeGuideTemplate: ! isSuppressed,
+	} );
 };
 
 const BLOCK_DIRECTORY_PLUGIN_NAME = 'block-directory';
@@ -389,6 +408,7 @@ const setupFormEditorSubscription = () => {
 			// 1. Handle form editor enter/leave transitions
 			// Detect if we are in the form editor and detect when this state changes across ticks.
 			if ( isFormEditor !== state.isFormEditor ) {
+				const wasFormEditor = state.isFormEditor;
 				state.isFormEditor = isFormEditor;
 
 				if ( isFormEditor ) {
@@ -406,6 +426,11 @@ const setupFormEditorSubscription = () => {
 					registerPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN, {
 						render: FormPostPublishPanel,
 					} );
+
+					// Suppress the generic block editor welcome modal. The
+					// form-specific guide that replaces it registers itself from
+					// its own bundle (welcome-guide/bootstrap.tsx).
+					setCoreWelcomeGuideSuppressed( true );
 				} else {
 					// We just left the form editor.
 					document.body.classList.remove( 'post-type-jetpack_form' );
@@ -423,6 +448,19 @@ const setupFormEditorSubscription = () => {
 
 					if ( getPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN ) ) {
 						unregisterPlugin( FORM_POST_PUBLISH_PANEL_PLUGIN );
+					}
+
+					/*
+					 * Only undo the suppression if it was ever applied.
+					 * `state.isFormEditor` starts as null, so the first tick of
+					 * every block editor screen lands here — restoring core's
+					 * defaults unconditionally would re-assert welcomeGuide:
+					 * true on posts and pages that never had it suppressed,
+					 * and on the form editor it would set true on the way in,
+					 * moments before the enter branch sets it back to false.
+					 */
+					if ( wasFormEditor === true ) {
+						setCoreWelcomeGuideSuppressed( false );
 					}
 
 					if ( state.categoriesSetUp ) {

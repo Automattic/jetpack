@@ -1,4 +1,5 @@
 import { safeParseFloat, safeParseInt } from '../../utils/parsing';
+import { decodeHtmlText } from '../../utils/text';
 import {
 	coerceStatsArray,
 	coerceStatsRecord,
@@ -88,12 +89,12 @@ function normalizeUtmTopPost(
 		? [
 				{ type: 'link', data: href },
 				{ type: 'url-builder', data: { url: href, ...utmData } },
-		  ]
+			]
 		: [];
 
 	return {
 		id,
-		label: payload.title ?? '',
+		label: decodeHtmlText( payload.title ?? '' ),
 		value: safeParseFloat( payload.views ),
 		href,
 		page: id ? `/stats/post/${ id }` : null,

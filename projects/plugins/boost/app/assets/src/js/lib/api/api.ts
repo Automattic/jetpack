@@ -5,7 +5,7 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { ApiError } from './api-error';
 import { JSONObject } from '$lib/utils/json-types';
-import { standardizeError } from '$lib/utils/standardize-error';
+import { standardizeError } from '@automattic/jetpack-boost-score-api';
 
 function getEndpointUrl( path: string ): string {
 	return wpApiSettings.root + Jetpack_Boost.api.namespace + Jetpack_Boost.api.prefix + path;

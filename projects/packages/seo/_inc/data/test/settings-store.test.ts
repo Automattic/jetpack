@@ -26,4 +26,18 @@ describe( 'settings-store', () => {
 		registry.dispatch( settingsStore ).setSettings( next );
 		expect( registry.select( settingsStore ).getSettings() ).toEqual( next );
 	} );
+
+	it( 'coerces a cleared title format from the server into an empty list', () => {
+		const registry = makeRegistry();
+		const fromServer = {
+			...SEEDED_SETTINGS,
+			// What a site that cleared a page type in Calypso actually stores.
+			title_formats: { front_page: '', posts: [ { type: 'token', value: 'post_title' } ] },
+		} as unknown as SettingsResponse;
+		registry.dispatch( settingsStore ).setSettings( fromServer );
+		expect( registry.select( settingsStore ).getSettings()?.title_formats ).toEqual( {
+			front_page: [],
+			posts: [ { type: 'token', value: 'post_title' } ],
+		} );
+	} );
 } );

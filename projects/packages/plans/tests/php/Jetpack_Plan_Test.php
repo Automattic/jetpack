@@ -5,6 +5,7 @@
 
 namespace Automattic\Jetpack;
 
+use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Current_Plan as Jetpack_Plan;
 use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -17,11 +18,60 @@ use WP_Error;
 class Jetpack_Plan_Test extends TestCase {
 
 	/**
+	 * Blog ID the connection state and the cached site record are keyed on.
+	 */
+	const TEST_BLOG_ID = 1234;
+
+	/**
 	 * Setting up the test.
 	 */
 	public function setUp(): void {
 		parent::setUp();
 		delete_option( 'jetpack_active_plan' );
+	}
+
+	/**
+	 * Returning the environment to its initial state. This class does not roll the database back
+	 * between tests, so connection state a test writes would otherwise reach the next one.
+	 */
+	public function tearDown(): void {
+		Jetpack_Options::delete_option( array( 'id', 'blog_token' ) );
+		delete_transient( Manager::SITE_DATA_TRANSIENT_PREFIX . self::TEST_BLOG_ID );
+		Constants::clear_constants();
+
+		parent::tearDown();
+	}
+
+	/**
+	 * A refresh reads WordPress.com directly, so the shared site record cache can still hold an
+	 * older record. A cached read stores the plan again, so leaving that copy in place would
+	 * revert the plan this fetch just stored — the case a plan purchase hits.
+	 */
+	public function test_a_refresh_drops_the_cached_site_record() {
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'id', self::TEST_BLOG_ID );
+		( new Manager() )->reset_connection_status();
+
+		// Signing needs an absolute URL, so the API base has to resolve.
+		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
+		Constants::set_constant( 'JETPACK__API_VERSION', 1 );
+
+		$transient_key = Manager::SITE_DATA_TRANSIENT_PREFIX . self::TEST_BLOG_ID;
+		set_transient( $transient_key, array( 'body' => wp_json_encode( array( 'plan' => self::get_free_plan() ), JSON_UNESCAPED_SLASHES ) ) );
+
+		$serve_personal_plan = function () {
+			return array(
+				'response' => array( 'code' => 200 ),
+				'body'     => wp_json_encode( array( 'plan' => self::get_personal_plan() ), JSON_UNESCAPED_SLASHES ),
+			);
+		};
+
+		add_filter( 'pre_http_request', $serve_personal_plan );
+		$updated = Jetpack_Plan::refresh_from_wpcom();
+		remove_filter( 'pre_http_request', $serve_personal_plan );
+
+		$this->assertTrue( $updated );
+		$this->assertFalse( get_transient( $transient_key ), 'A stale record would overwrite the plan this refresh stored.' );
 	}
 
 	public function test_update_from_sites_response_failure_to_update() {
@@ -34,6 +84,32 @@ class Jetpack_Plan_Test extends TestCase {
 		Jetpack_Options::update_raw_option( 'jetpack_active_plan', $this->get_personal_plan(), true );
 
 		$this->assertTrue( Jetpack_Plan::update_from_sites_response( $this->get_response_personal_plan() ) );
+	}
+
+	/**
+	 * A record that matches what is already stored must not touch the options. `update_option()`
+	 * reports false for an unchanged value, which previously read as a failure and triggered a
+	 * delete plus a rewrite of an autoloaded option on every fetch.
+	 */
+	public function test_an_unchanged_record_does_not_rewrite_the_options() {
+		$record = array(
+			'plan'     => array( 'product_slug' => 'jetpack_personal' ),
+			'products' => array( array( 'product_slug' => 'jetpack_backup_t1_yearly' ) ),
+		);
+
+		Jetpack_Plan::update_from_site_record( $record );
+
+		$deleted = array();
+		add_action(
+			'delete_option',
+			function ( $option ) use ( &$deleted ) {
+				$deleted[] = $option;
+			}
+		);
+
+		Jetpack_Plan::update_from_site_record( $record );
+
+		$this->assertSame( array(), $deleted );
 	}
 
 	/**

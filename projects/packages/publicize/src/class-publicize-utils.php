@@ -32,7 +32,8 @@ class Publicize_Utils {
 	public static function is_jetpack_settings_page() {
 		$screen = function_exists( 'get_current_screen' ) ? get_current_screen() : null;
 
-		return ! empty( $screen ) && 'toplevel_page_jetpack' === $screen->base;
+		// Older Jetpack plugins still render Settings at page=jetpack.
+		return ! empty( $screen ) && in_array( $screen->base, array( 'jetpack_page_jetpack-settings', 'toplevel_page_jetpack' ), true );
 	}
 
 	/**
@@ -83,6 +84,31 @@ class Publicize_Utils {
 	 */
 	public static function is_publicize_active() {
 		return ( new Modules() )->is_active( 'publicize' );
+	}
+
+	/**
+	 * Whether the current user may be shown Publicize data.
+	 *
+	 * The single definition of that gate. Both the block editor assets and the
+	 * script data ask this, and when they disagreed the script data handed
+	 * connection details to users the editor UI was never loaded for.
+	 *
+	 * Prefers the Publicize instance so any future override is honored, and falls
+	 * back to evaluating the capability directly when the global is not set, so the
+	 * answer never depends on initialization order.
+	 *
+	 * @return bool
+	 */
+	public static function current_user_can_access_publicize_data() {
+
+		global $publicize;
+
+		if ( $publicize instanceof Publicize_Base ) {
+			return $publicize->current_user_can_access_publicize_data();
+		}
+
+		/** This filter is documented in projects/packages/publicize/src/class-publicize-base.php */
+		return current_user_can( apply_filters( 'jetpack_publicize_capability', 'publish_posts' ) );
 	}
 
 	/**

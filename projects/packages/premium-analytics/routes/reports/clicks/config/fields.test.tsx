@@ -1,5 +1,6 @@
 import { render, screen } from '@testing-library/react';
-import { getClicksFields, type ClickRow } from './fields';
+import { getClicksFields } from './fields';
+import type { ClickRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const row: ClickRow = {
 	id: 'wordpress.org|https://wordpress.org/plugins/jetpack-search',

@@ -11,12 +11,14 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
+import { useDispatch } from '@wordpress/data';
 import { useCallback, useEffect, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { globe } from '@wordpress/icons';
 import clsx from 'clsx';
 import { getTranslatedCountryName } from '../../util/country-names-translated.js';
 import JetpackFieldControls from '../shared/components/jetpack-field-controls.jsx';
+import JetpackFieldHints from '../shared/components/jetpack-field-hints.jsx';
 import useFieldSelected from '../shared/hooks/use-field-selected.js';
 import useFormWrapper from '../shared/hooks/use-form-wrapper.js';
 import useJetpackFieldStyles from '../shared/hooks/use-jetpack-field-styles.js';
@@ -43,6 +45,7 @@ export default function PhoneFieldEdit( props ) {
 		requiredIndicator,
 	} = attributes;
 	const [ countryList, setCountryList ] = useState( EMPTY_ARRAY );
+	const { __unstableMarkNextChangeAsNotPersistent } = useDispatch( 'core/block-editor' );
 
 	const { isInnerBlockSelected, hasPlaceholder } = useFieldSelected( clientId );
 	const { blockStyle } = useJetpackFieldStyles( attributes );
@@ -77,29 +80,39 @@ export default function PhoneFieldEdit( props ) {
 
 	useEffect( () => {
 		if ( showCountrySelector === undefined || showCountrySelector === true ) {
+			__unstableMarkNextChangeAsNotPersistent();
 			setAttributes( { showCountrySelector: true, default: defaultCountry || 'US' } );
 			setCountryList( countryPairs );
 		}
-	}, [ showCountrySelector, setAttributes, countryPairs, defaultCountry ] );
+	}, [
+		showCountrySelector,
+		setAttributes,
+		countryPairs,
+		defaultCountry,
+		__unstableMarkNextChangeAsNotPersistent,
+	] );
 
-	const innerBlocksProps = useInnerBlocksProps( blockProps, {
-		allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
-		template: [
-			[
-				'jetpack/label',
-				{
-					label: __( 'Phone number', 'jetpack-forms' ),
-					placeholder,
-					required,
-					requiredText,
-					requiredIndicator,
-				},
+	const innerBlocksProps = useInnerBlocksProps(
+		{ className: 'jetpack-field__control' },
+		{
+			allowedBlocks: [ 'jetpack/label', 'jetpack/phone-input' ],
+			template: [
+				[
+					'jetpack/label',
+					{
+						label: __( 'Phone number', 'jetpack-forms' ),
+						placeholder,
+						required,
+						requiredText,
+						requiredIndicator,
+					},
+				],
+				[ 'jetpack/phone-input', {} ],
 			],
-			[ 'jetpack/phone-input', {} ],
-		],
-		templateLock: 'all',
-		__experimentalCaptureToolbars: true,
-	} );
+			templateLock: 'all',
+			__experimentalCaptureToolbars: true,
+		}
+	);
 
 	useSyncRequiredIndicator( {
 		clientId,
@@ -126,7 +139,14 @@ export default function PhoneFieldEdit( props ) {
 					'jetpack/field-phone-search-placeholder': searchPlaceholder,
 				} }
 			>
-				<div { ...innerBlocksProps } />
+				<div { ...blockProps }>
+					<div { ...innerBlocksProps } />
+					<JetpackFieldHints
+						attributes={ attributes }
+						setAttributes={ setAttributes }
+						isActive={ isSelected || isInnerBlockSelected }
+					/>
+				</div>
 			</BlockContextProvider>
 
 			<BlockControls __experimentalShareWithChildBlocks>
@@ -147,6 +167,7 @@ export default function PhoneFieldEdit( props ) {
 				attributes={ attributes }
 				setAttributes={ setAttributes }
 				width={ width }
+				helpTextSupport
 				extraFieldSettings={ [
 					{
 						index: 2,

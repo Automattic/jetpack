@@ -66,4 +66,42 @@ describe( 'BarListChart', () => {
 		renderChart( { data: [] } );
 		expect( screen.queryByText( 'Behemoth hat ' ) ).not.toBeInTheDocument();
 	} );
+
+	describe( 'single-series bar tint', () => {
+		// visx renders the bars, so they carry no attribute of our own to query by.
+		/* eslint-disable testing-library/no-node-access */
+		const barFills = () =>
+			Array.from(
+				screen.getByRole( 'grid' ).querySelectorAll< SVGRectElement >( '.visx-bar-group rect' )
+			).map( bar => bar.getAttribute( 'fill' ) );
+		/* eslint-enable testing-library/no-node-access */
+
+		// `lightenHexColor( '#3858e9', 1 - BAR_TINT_TOWARD_SERIES )` — the catalog seed traveling
+		// 40% from white toward the series color. Asserted as a literal so a change to the tint has
+		// to be made deliberately here rather than tracking the implementation.
+		const TINTED_SEED = '#afbcf6';
+
+		test( 'tints the bar so the label it carries stays readable', () => {
+			renderChart();
+			expect( barFills() ).not.toHaveLength( 0 );
+			barFills().forEach( fill => expect( fill ).toBe( TINTED_SEED ) );
+		} );
+
+		test( 'leaves a series carrying its own stroke at full strength', () => {
+			renderChart( {
+				data: salesByProduct.map( series => ( {
+					...series,
+					options: { ...series.options, stroke: '#ff0000' },
+				} ) ),
+			} );
+			expect( barFills() ).not.toHaveLength( 0 );
+			barFills().forEach( fill => expect( fill ).toBe( '#ff0000' ) );
+		} );
+
+		test( 'leaves multi-series bars at full strength, where the label is lifted clear', () => {
+			renderChart( { data: salesByChannel } );
+			expect( barFills() ).not.toHaveLength( 0 );
+			expect( barFills() ).not.toContain( TINTED_SEED );
+		} );
+	} );
 } );

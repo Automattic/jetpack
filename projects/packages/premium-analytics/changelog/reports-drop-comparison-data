@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Reports: stop showing period-over-period deltas, which the report header offers no comparison control to explain. A comparison chosen on the dashboard is still kept and restored on the way back.

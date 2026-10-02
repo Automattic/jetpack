@@ -64,4 +64,16 @@ trait Activates_Ai_Module {
 		remove_filter( 'jetpack_active_modules', $this->activates_ai_module_filter );
 		$this->activates_ai_module_filter = null;
 	}
+
+	/**
+	 * Master enforcement only runs on internal testing environments while the
+	 * AI controls are gated; tests asserting master-off behavior must opt in.
+	 * The predicate treats a proxied A8C request as internal — callers unset
+	 * $_SERVER['A8C_PROXIED_REQUEST'] in tear_down().
+	 *
+	 * @return void
+	 */
+	protected function force_master_enforcement_for_test() {
+		$_SERVER['A8C_PROXIED_REQUEST'] = '1';
+	}
 }

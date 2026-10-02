@@ -6,7 +6,7 @@
 	// `color: #1e1e1e` wins over the layered token), so set the color
 	// explicitly here.
 	&__desc {
-		padding-left: 28px;
+		padding-inline-start: 28px;
 		color: var(--wp-components-color-foreground-muted, #757575);
 	}
 }

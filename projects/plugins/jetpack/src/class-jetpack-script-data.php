@@ -65,7 +65,7 @@ class Jetpack_Script_Data {
 	 * isVIP() check used, and switching to the WPCOM_IS_VIP_ENV constant would change which sites get
 	 * site-host URLs — and so which existing galleries need a deprecation to stay valid.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.2
 	 *
 	 * @param array $data The script data, which may already carry the site plan.
 	 * @return bool
@@ -95,7 +95,7 @@ class Jetpack_Script_Data {
 		 *
 		 * @module tiled-gallery
 		 *
-		 * @since $$next-version$$
+		 * @since 16.2
 		 *
 		 * @param bool $skip_photon_domain Whether to skip the external Photon domain.
 		 */

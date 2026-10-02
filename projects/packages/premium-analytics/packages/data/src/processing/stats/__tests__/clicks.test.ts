@@ -15,8 +15,8 @@ describe( 'Stats clicks normalizer', () => {
 		expect( result.summary ).toEqual( {
 			total_clicks: 1323,
 			other_clicks: 0,
-			date_start: '2026-06-16T00:00:00+00:00',
-			date_end: '2026-06-22T23:59:59+00:00',
+			date_start: '2026-06-16T00:00:00',
+			date_end: '2026-06-22T23:59:59',
 		} );
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
@@ -54,8 +54,8 @@ describe( 'Stats clicks normalizer', () => {
 		expect( result.data[ 0 ] ).toEqual(
 			expect.objectContaining( {
 				time_interval: '2026-06-16',
-				date_start: '2026-06-16T00:00:00+00:00',
-				date_end: '2026-06-16T23:59:59+00:00',
+				date_start: '2026-06-16T00:00:00',
+				date_end: '2026-06-16T23:59:59',
 				items: [
 					expect.objectContaining( {
 						label: 'wordpress.org',
@@ -365,9 +365,8 @@ describe( 'Stats clicks normalizer', () => {
 	} );
 
 	it( 'matches rows whose URL cannot be parsed by falling back to the raw value', () => {
-		// Not every `url` the endpoint returns is absolute — a root-relative one
-		// makes `new URL()` throw. Both periods have to key off the same raw
-		// string, or such rows would never match and would lose their delta.
+		// A root-relative `url` makes `new URL()` throw, so both periods must key
+		// off the same raw string or the row loses its delta.
 		const buildReport = ( views: number, date: string ) =>
 			sanitizeStatsClicksResponse(
 				{
@@ -403,8 +402,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items: [
 						{
 							label: 'wordpress.org',
@@ -464,8 +463,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items: [
 						{
 							label: 'wordpress.org',
@@ -524,8 +523,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items: [
 						{
 							label: 'wordpress.org',
@@ -610,8 +609,8 @@ describe( 'Stats clicks normalizer', () => {
 			data: [
 				{
 					time_interval: '2026-06-29',
-					date_start: '2026-06-29T00:00:00+00:00',
-					date_end: '2026-06-29T23:59:59+00:00',
+					date_start: '2026-06-29T00:00:00',
+					date_end: '2026-06-29T23:59:59',
 					items,
 				},
 			],
