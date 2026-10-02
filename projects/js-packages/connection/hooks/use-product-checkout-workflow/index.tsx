@@ -47,6 +47,7 @@ export default function useProductCheckoutWorkflow(
 	debug( 'siteSuffix is %s', siteSuffix );
 	debug( 'from is %s', from );
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
+	const [ checkoutError, setCheckoutError ] = useState< string | null >( null );
 	const { registerSite } = useDispatch( STORE_ID );
 
 	const blogID = useSelect(
@@ -160,6 +161,14 @@ export default function useProductCheckoutWorkflow(
 	const run = ( event?: { preventDefault: () => void }, redirect: string | null = null ) => {
 		event && event.preventDefault();
 		setCheckoutStarted( true );
+		setCheckoutError( null );
+
+		const handleFailure = ( error: unknown ) => {
+			debug( 'run: workflow failed %o', error );
+			setCheckoutError( error instanceof Error ? error.message : String( error ) );
+			setCheckoutStarted( false );
+		};
+
 		// By default we will connect first prior to checkout unless `props.connectAfterCheckout`
 		// is set (true), in which we will connect after purchase is completed.
 		if ( connectAfterCheckout ) {
@@ -167,12 +176,12 @@ export default function useProductCheckoutWorkflow(
 		}
 
 		if ( isRegistered ) {
-			return handleAfterRegistration( redirect );
+			return handleAfterRegistration( redirect ).catch( handleFailure );
 		}
 
-		registerSite( { registrationNonce, redirectUri: redirectUrl } ).then( () =>
-			handleAfterRegistration( redirect )
-		);
+		return registerSite( { registrationNonce, redirectUri: redirectUrl } )
+			.then( () => handleAfterRegistration( redirect ) )
+			.catch( handleFailure );
 	};
 
 	// Initialize/Setup the REST API.
@@ -185,5 +194,6 @@ export default function useProductCheckoutWorkflow(
 		run,
 		isRegistered,
 		hasCheckoutStarted,
+		checkoutError,
 	};
 }
