@@ -18,6 +18,7 @@ import { useSingleModuleState } from '../../app/assets/src/js/features/module/li
 import { useDismissibleAlertState as useLegacyAlertState } from '../../app/assets/src/js/features/performance-history/lib/hooks';
 import PopOut from '../../app/assets/src/js/features/speed-score/pop-out/pop-out';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import { observeLegacyModulesState } from './lib/modules-state-bridge';
 import { getHistoryWindow } from './lib/history-days';
 import * as speedScores from './lib/use-speed-scores';
@@ -148,12 +149,22 @@ function queryWrapper() {
 	);
 }
 
-function OverviewWithHeader( { isVisible }: { isVisible?: boolean } ) {
+function OverviewWithHeader( {
+	isVisible,
+	scoresEnabled,
+}: {
+	isVisible?: boolean;
+	scoresEnabled?: boolean;
+} ) {
 	const [ action, setAction ] = useState< ReactNode >( null );
 	return (
 		<>
 			<header>{ action }</header>
-			<Overview isVisible={ isVisible } onHeaderActionChange={ setAction } />
+			<Overview
+				isVisible={ isVisible }
+				scoresEnabled={ scoresEnabled }
+				onHeaderActionChange={ setAction }
+			/>
 		</>
 	);
 }
@@ -318,6 +329,178 @@ test( 'clears the busy button after a rejected speed test request', async () => 
 		'aria-disabled',
 		'false'
 	);
+} );
+
+test( 'announces one user-run success without announcing the initial score load', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce failure and announces a successful user retry', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Service unavailable' ) );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await expect( screen.findByText( 'Service unavailable' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Try again' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test( 'does not announce an automatic module-change refresh', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const { client } = renderOverview();
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		await act( async () => {
+			await client.cancelQueries();
+		} );
+		act( () =>
+			client.setQueryData( [ 'modules_state' ], {
+				performance_history: { available: true, active: true },
+				defer_js: { available: true, active: true },
+			} )
+		);
+		await waitFor( () => expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 ), {
+			timeout: 4000,
+		} );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).not.toHaveBeenCalled();
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
+} );
+
+test.each( [ 'failed', 'delayed', 'accepted' ] )(
+	'only announces an observed successful refresh across a subpage visit: %s',
+	async scenario => {
+		const completed = jest.fn();
+		const hadFetch = Object.hasOwn( globalThis, 'fetch' );
+		const originalFetch = globalThis.fetch;
+		const response = {
+			ok: true,
+			text: async () => JSON.stringify( { status: 'success', scores } ),
+		};
+		let resolveRefresh!: ( value: typeof response ) => void;
+		let rejectRefresh!: ( error: Error ) => void;
+		const post = jest.fn().mockResolvedValue( response );
+		globalThis.fetch = post;
+		jest
+			.mocked( requestSpeedScores )
+			.mockImplementation(
+				jest.requireActual( '@automattic/jetpack-boost-score-api' ).requestSpeedScores
+			);
+		window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+		try {
+			const client = createQueryClient();
+			const dashboard = ( open: boolean ) => (
+				<QueryClientProvider client={ client }>
+					<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+				</QueryClientProvider>
+			);
+			const view = render( dashboard( false ) );
+			await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+			post.mockImplementationOnce(
+				() =>
+					new Promise( ( resolve, reject ) => {
+						resolveRefresh = resolve;
+						rejectRefresh = reject;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			expect( post ).toHaveBeenLastCalledWith(
+				expect.stringContaining( '/speed-scores/refresh' ),
+				expect.objectContaining( { method: 'post' } )
+			);
+			if ( scenario === 'accepted' ) {
+				await act( async () =>
+					resolveRefresh( {
+						ok: true,
+						text: async () => JSON.stringify( { status: 'pending' } ),
+					} )
+				);
+			}
+			expect( completed ).not.toHaveBeenCalled();
+			view.rerender( dashboard( true ) );
+			if ( scenario === 'failed' ) {
+				await act( async () => rejectRefresh( new Error( 'Network unavailable' ) ) );
+			}
+			view.rerender( dashboard( false ) );
+			await waitFor( () =>
+				expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+					'aria-disabled',
+					'false'
+				)
+			);
+			expect( post ).toHaveBeenLastCalledWith(
+				expect.stringMatching( /\/speed-scores$/ ),
+				expect.objectContaining( { method: 'post' } )
+			);
+			expect( completed ).toHaveBeenCalledTimes( scenario === 'accepted' ? 1 : 0 );
+			if ( scenario === 'delayed' ) {
+				await act( async () => resolveRefresh( response ) );
+			}
+			expect( completed ).toHaveBeenCalledTimes( scenario === 'accepted' ? 1 : 0 );
+		} finally {
+			window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+			if ( hadFetch ) {
+				globalThis.fetch = originalFetch;
+			} else {
+				Reflect.deleteProperty( globalThis, 'fetch' );
+			}
+		}
+	}
+);
+
+test( 'a later subpage visit after a completed user run does not announce again', async () => {
+	const completed = jest.fn();
+	window.addEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	try {
+		const client = createQueryClient();
+		const dashboard = ( open: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<OverviewWithHeader scoresEnabled={ ! open } isVisible={ ! open } />
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( false ) );
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+		await waitFor( () => expect( completed ).toHaveBeenCalledTimes( 1 ) );
+		const before = jest.mocked( requestSpeedScores ).mock.calls.length;
+		view.rerender( dashboard( true ) );
+		view.rerender( dashboard( false ) );
+		await waitFor( () =>
+			expect( jest.mocked( requestSpeedScores ).mock.calls ).toHaveLength( before + 1 )
+		);
+		await waitFor( () =>
+			expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'false'
+			)
+		);
+		await expect( screen.findByText( '91' ) ).resolves.toBeInTheDocument();
+		expect( completed ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		window.removeEventListener( SPEED_TEST_COMPLETE_EVENT, completed );
+	}
 } );
 
 test( 'contains a render failure with the Overview error fallback', () => {
