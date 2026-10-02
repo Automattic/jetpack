@@ -54,6 +54,7 @@ import PosterPanel from './components/poster-panel';
 import PrivacyAndRatingPanel from './components/privacy-and-rating-panel';
 import ReplaceControl from './components/replace-control';
 import TracksControl from './components/tracks-control';
+import TrimCutControl from './components/trim-cut-control';
 import VideoPressUploaderRaw from './components/videopress-uploader';
 import { description, title } from '.';
 /**
@@ -600,6 +601,7 @@ export default function VideoPressEdit( {
 
 				<TracksControl attributes={ attributes } setAttributes={ setAttributes } />
 
+				<TrimCutControl attributes={ attributes } setAttributes={ setAttributes } />
 				<ChaptersControl attributes={ attributes } setAttributes={ setAttributes } />
 			</BlockControls>
 
