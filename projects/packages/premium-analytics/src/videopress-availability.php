@@ -54,8 +54,8 @@ function is_videopress_available() {
 	/**
 	 * Filters whether Premium Analytics treats VideoPress as available.
 	 *
-	 * Hides the Top videos widget, the Videos report, and the video detail page
-	 * when false.
+	 * Hides the Videos report and the video detail page when false. The Top videos
+	 * widget is the VideoPress package's call: it registers the widget.
 	 *
 	 * @param bool $is_available Whether VideoPress was detected in the current request.
 	 */

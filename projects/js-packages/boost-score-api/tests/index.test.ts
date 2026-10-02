@@ -76,6 +76,40 @@ describe( 'requestSpeedScores', () => {
 		] );
 	} );
 
+	it( 'reports a pending measurement once before polling', async () => {
+		jest.useFakeTimers();
+		post.mockResolvedValueOnce( { status: 'pending' } ).mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		const request = requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{ onPending }
+		);
+		await jest.advanceTimersByTimeAsync( 0 );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+		expect( post ).toHaveBeenCalledTimes( 1 );
+		await jest.advanceTimersByTimeAsync( 5000 );
+		await expect( request ).resolves.toEqual( mockData.scores );
+		expect( onPending ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'does not report pending when scores are ready', async () => {
+		post.mockResolvedValue( mockData );
+		const onPending = jest.fn();
+		await requestSpeedScores(
+			false,
+			'https://example.com/wp-json/',
+			'https://example.com',
+			'nonce',
+			{
+				onPending,
+			}
+		);
+		expect( onPending ).not.toHaveBeenCalled();
+	} );
+
 	it( 'does not request scores when already cancelled', async () => {
 		const controller = new AbortController();
 		controller.abort();

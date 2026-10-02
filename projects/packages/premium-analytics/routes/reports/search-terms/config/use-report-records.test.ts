@@ -73,6 +73,7 @@ function mockSearchTermsReport( {
 	comparisonError = false,
 }: MockSearchTermsReportOptions = {} ) {
 	mockUseStatsSearchTerms.mockReturnValue( {
+		isLoading: primaryLoading || comparisonLoading,
 		primary: {
 			data: report,
 			isLoading: primaryLoading,

@@ -19,6 +19,7 @@ import RemoveCompModal from './modals/remove-comp-modal';
 import UnsubscribeModal from './modals/unsubscribe-modal';
 import type { Subscriber, SubscribersFilter, SubscribersSortField } from '../data/types';
 import type { Action, Field, View } from '@wordpress/dataviews';
+import type { JSX } from 'react';
 
 const DEFAULT_PER_PAGE = 20;
 
@@ -177,7 +178,10 @@ export default function SubscribersDataViews( {
 				getValue: ( { item }: { item: Subscriber } ) =>
 					getSubscriptionStatusLabel( item.subscription_status ),
 				render: ( { item }: { item: Subscriber } ) => (
-					<SubscriptionStatusCell status={ item.subscription_status } />
+					<SubscriptionStatusCell
+						status={ item.subscription_status }
+						reason={ item.subscription_status_reason }
+					/>
 				),
 				elements: [
 					{
@@ -193,7 +197,7 @@ export default function SubscribersDataViews( {
 						value: 'unconfirmed_subscriber',
 					},
 					{
-						label: __( 'Not sending', 'jetpack-newsletter' ),
+						label: __( 'Not sending (any reason)', 'jetpack-newsletter' ),
 						value: 'blocked_subscriber',
 					},
 				],

@@ -30,7 +30,7 @@
 	},
 	"devDependencies": {
 		"jest": "30.5.1",
-		"webpack": "5.107.2",
+		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"
 	},
 	"peerDependencies": {

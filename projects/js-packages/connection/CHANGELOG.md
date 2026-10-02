@@ -2,6 +2,32 @@
 
 ### This is a list detailing changes for the Jetpack RNA Connection Component releases.
 
+## [2.9.0] - 2026-09-29
+### Added
+- Add protected owner selectors and types to the connection store. [#52861]
+
+## [2.8.0] - 2026-09-28
+### Added
+- Disconnect dialog: Ask for optional feedback when deactivating Jetpack from the Plugins page. [#52828]
+- Export `getUserConnectionUrl` from a subpath that bundlers without SCSS support can import. [#52810]
+
+### Changed
+- Use logical CSS properties so layouts mirror in right-to-left languages. [#52749]
+
+### Fixed
+- Show restore failures in connection error notices without the "ApiError:" prefix. [#52718]
+
+## [2.7.0] - 2026-09-23
+### Added
+- Add `ConnectionErrorDetails`, for describing a connection error outside a notice, and rate each error for the viewer so the connection error notice shows a break only the connection owner can repair as a warning. [#52130]
+
+### Fixed
+- Explain what to do when the connection store is registered more than once. [#51731]
+
+## [2.6.0] - 2026-09-23
+### Added
+- Track clicks on the reconnect CTA and the Site Health and support links in the connection error notice. [#52617]
+
 ## [2.5.3] - 2026-09-21
 ### Changed
 - Update dependencies.
@@ -1500,6 +1526,10 @@
 - `Main` and `ConnectUser` components added.
 - `JetpackRestApiClient` API client added.
 
+[2.9.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.8.0...v2.9.0
+[2.8.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.7.0...v2.8.0
+[2.7.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.6.0...v2.7.0
+[2.6.0]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.3...v2.6.0
 [2.5.3]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.2...v2.5.3
 [2.5.2]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.1...v2.5.2
 [2.5.1]: https://github.com/Automattic/jetpack-connection-js/compare/v2.5.0...v2.5.1

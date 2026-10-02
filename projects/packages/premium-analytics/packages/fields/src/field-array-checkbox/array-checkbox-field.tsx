@@ -22,7 +22,7 @@ function normalizeSelectedValues( value: unknown ): string[] {
 /**
  * Edit control for `type: 'array'` fields with `elements`.
  */
-export default function ArrayCheckboxField< Item extends Record< string, string[] | undefined > >( {
+export default function ArrayCheckboxField< Item >( {
 	data,
 	field,
 	onChange,

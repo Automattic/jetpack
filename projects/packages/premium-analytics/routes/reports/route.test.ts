@@ -1,4 +1,4 @@
-import { needsReportDateParamsSeed } from '@jetpack-premium-analytics/data';
+import { needsReportDateParamsSeed, normalizeReportParams } from '@jetpack-premium-analytics/data';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { route } from './route';
 
@@ -66,5 +66,17 @@ describe( 'report route.beforeLoad', () => {
 		expect( thrown?.search ).toMatchObject( { from: expect.any( String ) } );
 		expect( thrown?.search ).not.toHaveProperty( 'post_id' );
 		expect( thrown?.search ).not.toHaveProperty( 'author_id' );
+	} );
+
+	it( 'keeps the dashboard origin through the seeding redirect', async () => {
+		( needsReportDateParamsSeed as jest.Mock ).mockReturnValueOnce( true );
+		// The real normalizer drops params it does not own, so the seed has to add `ds` back.
+		( normalizeReportParams as jest.Mock ).mockImplementationOnce( () => ( {
+			from: '2026-06-01',
+		} ) );
+
+		await expect( beforeLoad( { report: 'authors' }, { ds: 'insights' } ) ).rejects.toMatchObject( {
+			search: { ds: 'insights' },
+		} );
 	} );
 } );

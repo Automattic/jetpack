@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Legend: Add a comparisonItem option that appends a static Comparison period item, and let a legend item opt out of interactivity. Keep comparison items visible when their labels match a metric.

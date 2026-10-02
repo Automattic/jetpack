@@ -36,11 +36,11 @@
 
 		.dops-foldable-card__summary,
 		.dops-foldable-card__summary_expanded {
-			margin-right: 48px;
+			margin-inline-end: 48px;
 		}
 
 		.dops-foldable-card__expand {
-			border-left: 1px calypso-colors.$gray-light solid;
+			border-inline-start: 1px calypso-colors.$gray-light solid;
 		}
 	}
 
@@ -67,7 +67,7 @@
 .dops-foldable-card__action {
 	position: absolute;
 	top: 0;
-	right: 0;
+	inset-inline-end: 0;
 	height: 100%;
 	background: none;
 	border: 0;
@@ -95,7 +95,7 @@ button.dops-foldable-card__action {
 	display: block;
 	align-items: center;
 	width: 100%;
-	margin-right: 5px;
+	margin-inline-end: 5px;
 
 	@include calypso-mixins.breakpoint( "<480px" ) {
 		flex: 1 1;
@@ -176,7 +176,7 @@ button.dops-foldable-card__action {
 
 .dops-foldable-card__summary,
 .dops-foldable-card__summary_expanded {
-	margin-right: 40px;
+	margin-inline-end: 40px;
 	color: calypso-colors.$gray;
 	font-size: 12px;
 	transition: opacity 0.2s linear;
@@ -185,7 +185,7 @@ button.dops-foldable-card__action {
 	.dops-foldable-card.has-expanded-summary & {
 		transition: none;
 		flex: 2;
-		text-align: right;
+		text-align: end;
 	}
 
 	@include calypso-mixins.breakpoint( "<480px" ) {

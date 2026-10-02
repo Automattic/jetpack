@@ -27,6 +27,7 @@ import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
 import { formatReading, isInvalidReading } from '../private/readings';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
+import { hasOnlyWholeNumbers, WholeNumberTicks } from '../private/whole-number-ticks';
 import { withResponsive } from '../private/with-responsive';
 import plotStyles from '../private/xy-plot/xy-plot.module.scss';
 import styles from './bar-chart.module.scss';
@@ -34,6 +35,7 @@ import {
 	useBarChartOptions,
 	BandHighlight,
 	BandTooltip,
+	ClassifiedBarSeries,
 	ComparisonBars,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 	COMPARISON_INNER_GAP,
@@ -110,6 +112,8 @@ const BarChartInternal: FC< BarChartProps > = ( {
 	renderTooltip,
 	tooltipPlacement,
 	tooltipAnchorTop,
+	tooltipStyle,
+	barClassName,
 	options = {},
 	orientation = 'vertical',
 	withPatterns = false,
@@ -169,12 +173,24 @@ const BarChartInternal: FC< BarChartProps > = ( {
 		[ isSeriesVisible ]
 	);
 
+	const hasWholeNumberValues = useMemo(
+		() => hasOnlyWholeNumbers( dataSorted.filter( isSeriesRendered ) ),
+		[ dataSorted, isSeriesRendered ]
+	);
+
 	const chartOptions = useBarChartOptions(
 		dataWithVisibleZeros,
 		horizontal,
 		options,
 		isSeriesRendered
 	);
+	const valueAxis = horizontal ? chartOptions.axis.x : chartOptions.axis.y;
+	const callerValueDomain = horizontal ? options.xScale?.domain : options.yScale?.domain;
+	const wholeNumberTicksProps = {
+		axis: horizontal ? ( 'x' as const ) : ( 'y' as const ),
+		numTicks: valueAxis.numTicks,
+		enabled: hasWholeNumberValues && ! valueAxis.tickValues && ! callerValueDomain,
+	};
 	const defaultMargin = useChartMargin( height, chartOptions, dataSorted, theme, horizontal );
 	const chartRef = useRef< HTMLDivElement >( null );
 
@@ -256,16 +272,27 @@ const BarChartInternal: FC< BarChartProps > = ( {
 
 	const visibleSeriesKey = useMemo( () => JSON.stringify( primaryKeys ), [ primaryKeys ] );
 
-	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown } = useKeyboardNavigation( {
-		selectedIndex,
-		setSelectedIndex,
-		isNavigating,
-		setIsNavigating,
-		chartRef,
-		totalPoints,
-		onActivate: activateSelectedBar,
-		visibleSeriesKey,
-	} );
+	const { tooltipRef, onChartFocus, onChartBlur, onChartKeyDown, onChartPointerMove } =
+		useKeyboardNavigation( {
+			selectedIndex,
+			setSelectedIndex,
+			isNavigating,
+			setIsNavigating,
+			chartRef,
+			totalPoints,
+			onActivate: activateSelectedBar,
+			visibleSeriesKey,
+		} );
+
+	const handlePointerMove = useCallback(
+		( { key, index }: { key: string; index: number } ) => {
+			const seriesIndex = primaryKeys.indexOf( key );
+			if ( seriesIndex >= 0 ) {
+				onChartPointerMove( index * primaryKeys.length + seriesIndex );
+			}
+		},
+		[ primaryKeys, onChartPointerMove ]
+	);
 
 	const comparisonEntries = useMemo( () => {
 		const primaryByGroup = new Map< string | undefined, { label: string; index: number } >(
@@ -609,21 +636,33 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) }
 
 										{ ! allSeriesHidden && (
-											<>
-												{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
-												<Grid
-													columns={ gridVisibility.includes( 'y' ) }
-													rows={ false }
-													numTicks={ 4 }
-													{ ...{ tickValues: chartOptions.axis.x.tickValues } }
-												/>
-												<Grid
-													columns={ false }
-													rows={ gridVisibility.includes( 'x' ) }
-													numTicks={ 4 }
-													{ ...{ tickValues: chartOptions.axis.y.tickValues } }
-												/>
-											</>
+											<WholeNumberTicks { ...wholeNumberTicksProps }>
+												{ valueTicks => (
+													<>
+														{ /* Visx forwards tickValues to its grid primitives but omits it from GridProps. */ }
+														<Grid
+															columns={ gridVisibility.includes( 'y' ) }
+															rows={ false }
+															numTicks={ chartOptions.axis.x.numTicks }
+															{ ...{
+																tickValues:
+																	( horizontal ? valueTicks : undefined ) ??
+																	chartOptions.axis.x.tickValues,
+															} }
+														/>
+														<Grid
+															columns={ false }
+															rows={ gridVisibility.includes( 'x' ) }
+															numTicks={ chartOptions.axis.y.numTicks }
+															{ ...{
+																tickValues:
+																	( horizontal ? undefined : valueTicks ) ??
+																	chartOptions.axis.y.tickValues,
+															} }
+														/>
+													</>
+												) }
+											</WholeNumberTicks>
 										) }
 
 										{ withPatterns && (
@@ -679,19 +718,37 @@ const BarChartInternal: FC< BarChartProps > = ( {
 											resolveFill={ resolveComparisonFill }
 										/>
 
-										<BarGroup padding={ groupPadding }>
-											{ primaryEntries.map( ( { series: seriesData, index } ) => (
-												<BarSeries
-													key={ seriesData?.label }
-													dataKey={ seriesData?.label }
-													data={ seriesData.data as DataPointDate[] }
-													yAccessor={ chartOptions.accessors.yAccessor }
-													xAccessor={ chartOptions.accessors.xAccessor }
-													colorAccessor={ getBarBackground( index ) }
-												/>
-											) ) }
-										</BarGroup>
-										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after BarGroup. */ }
+										{ barClassName ? (
+											<g className="visx-bar-group">
+												{ primaryEntries.map( ( { series: seriesData, index } ) => (
+													<ClassifiedBarSeries
+														key={ seriesData.label }
+														dataKey={ seriesData.label }
+														data={ seriesData.data as DataPointDate[] }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														colorAccessor={ getBarBackground( index ) }
+														barClassName={ barClassName }
+														primaryKeys={ primaryKeys }
+														groupPadding={ groupPadding }
+													/>
+												) ) }
+											</g>
+										) : (
+											<BarGroup padding={ groupPadding }>
+												{ primaryEntries.map( ( { series: seriesData, index } ) => (
+													<BarSeries
+														key={ seriesData?.label }
+														dataKey={ seriesData?.label }
+														data={ seriesData.data as DataPointDate[] }
+														yAccessor={ chartOptions.accessors.yAccessor }
+														xAccessor={ chartOptions.accessors.xAccessor }
+														colorAccessor={ getBarBackground( index ) }
+													/>
+												) ) }
+											</BarGroup>
+										) }
+										{ /* Do not reorder: for one key the last showTooltip wins, so this must run after the primary series. */ }
 										{ ( withTooltips || onPointerDown || onPointerUp ) && (
 											<BandTooltip
 												keys={ primaryKeys }
@@ -699,6 +756,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 												withTooltips={ withTooltips }
 												onPointerDown={ onPointerDown }
 												onPointerUp={ onPointerUp }
+												onPointerMove={ handlePointerMove }
 											/>
 										) }
 
@@ -706,16 +764,29 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										     visx collapses the domain and the axes render squished at the top. Drop them
 										     while the empty state stands in. */ }
 										{ ! allSeriesHidden && (
-											<>
-												<Axis { ...chartOptions.axis.x } />
-												<Axis { ...chartOptions.axis.y } />
-											</>
+											<WholeNumberTicks { ...wholeNumberTicksProps }>
+												{ valueTicks => (
+													<>
+														<Axis
+															{ ...chartOptions.axis.x }
+															{ ...( horizontal && valueTicks ? { tickValues: valueTicks } : {} ) }
+														/>
+														<Axis
+															{ ...chartOptions.axis.y }
+															{ ...( ! horizontal && valueTicks
+																? { tickValues: valueTicks }
+																: {} ) }
+														/>
+													</>
+												) }
+											</WholeNumberTicks>
 										) }
 
 										{ withTooltips && (
 											<AccessibleTooltip
 												tooltipPlacement={ tooltipPlacement }
 												tooltipAnchorTop={ tooltipAnchorTop }
+												style={ tooltipStyle }
 												detectBounds
 												snapTooltipToDatumX
 												snapTooltipToDatumY

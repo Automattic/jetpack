@@ -75,6 +75,7 @@ await jest.unstable_mockModule( '../../../../src/dashboard/components/edit-form-
 } ) );
 await jest.unstable_mockModule( '../../../../src/dashboard/components/empty-spam-button', () => ( {
 	default: () => null,
+	labelForScope: () => 'Delete spam',
 } ) );
 await jest.unstable_mockModule(
 	'../../../../src/dashboard/components/empty-spam-button/confirmation-modal',
@@ -121,6 +122,7 @@ await jest.unstable_mockModule( '../../../../src/dashboard/hooks/use-empty-spam'
 		isConfirmDialogOpen: false,
 		totalItemsSpam: 0,
 		selectedResponsesCount: 0,
+		scope: { mode: 'all', count: 0, params: {} },
 	} ),
 } ) );
 

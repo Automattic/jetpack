@@ -3,6 +3,8 @@
  */
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { dispatch } from '@wordpress/data';
+import { store as preferencesStore } from '@wordpress/preferences';
 /**
  * Internal dependencies
  */
@@ -42,6 +44,9 @@ jest.mock( '../return-to-classic-stats', () => ( {
 
 const mockApiFetch = jest.fn();
 
+const DASHBOARD_SCOPE = 'jetpack-premium-analytics/dashboard';
+const DASHBOARD_LAYOUTS_KEY = 'dashboardSectionLayouts';
+
 const READY = "Yes, I'd be happy to switch now";
 const ALMOST = 'Almost — there are a few things missing';
 
@@ -56,6 +61,7 @@ jest.mock( '@wordpress/api-fetch', () => ( {
 beforeEach( () => {
 	jest.clearAllMocks();
 	resetTracksIdentityForTesting();
+	dispatch( preferencesStore ).set( DASHBOARD_SCOPE, DASHBOARD_LAYOUTS_KEY, {} );
 	mockGetScriptData.mockReturnValue( {
 		site: { wpcom: { blog_id: 42 } },
 		user: { current_user: { wpcom: { ID: 7, login: 'reader' } } },
@@ -120,7 +126,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'almost', comment: 'Needs a date picker', source: 'menu' }
+			{ readiness: 'almost', comment: 'Needs a date picker', source: 'menu', has_customized: false }
 		);
 	} );
 
@@ -142,7 +148,7 @@ describe( 'PageOptionsMenu', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'not_yet', comment: '', source: 'menu' }
+			{ readiness: 'not_yet', comment: '', source: 'menu', has_customized: false }
 		);
 	} );
 
@@ -158,7 +164,7 @@ describe( 'PageOptionsMenu', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic and Insights tabs replace the old ones. You can send more any time from the page options menu."
+				"It'll help us decide what to fix before the new Stats replaces the old one. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 		expect( screen.queryByRole( 'radiogroup' ) ).not.toBeInTheDocument();
@@ -208,7 +214,7 @@ describe( 'the readiness question', () => {
 		await openModal();
 
 		expect( screen.getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'Are the new Traffic and Insights tabs ready to replace the old ones?'
+			'Is the new Stats ready to replace the old one?'
 		);
 	} );
 
@@ -310,7 +316,7 @@ describe( 'the Happiness copy of the feedback', () => {
 				data: {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2',
-					feedback: `[Ready to replace the old Traffic and Insights tabs? ${ answer }] Missing the date picker`,
+					feedback: `[Ready to replace the old Stats? ${ answer }] Missing the date picker`,
 				},
 			} )
 		);
@@ -324,9 +330,24 @@ describe( 'the Happiness copy of the feedback', () => {
 
 		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
 			'jetpack_premium_analytics_feedback_submit',
-			{ readiness: 'ready', comment: '', source: 'menu' }
+			{ readiness: 'ready', comment: '', source: 'menu', has_customized: false }
 		);
 		expect( mockApiFetch ).not.toHaveBeenCalled();
+	} );
+
+	it( 'says whether the reader has a customized dashboard layout', async () => {
+		dispatch( preferencesStore ).set( DASHBOARD_SCOPE, DASHBOARD_LAYOUTS_KEY, {
+			traffic: [ { uuid: 'card', type: 'jpa/card' } ],
+		} );
+		const user = await openModal();
+
+		await user.click( screen.getByRole( 'radio', { name: READY } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Send feedback' } ) );
+
+		expect( mockRecordEvent ).toHaveBeenLastCalledWith(
+			'jetpack_premium_analytics_feedback_submit',
+			expect.objectContaining( { has_customized: true } )
+		);
 	} );
 
 	it( 'still thanks the reader when the endpoint fails', async () => {
@@ -341,13 +362,13 @@ describe( 'the Happiness copy of the feedback', () => {
 		expect( dialog.getByText( 'Thanks, your feedback has gone to the team.' ) ).toBeInTheDocument();
 		expect(
 			dialog.getByText(
-				"It'll help us decide what to fix before the new Traffic and Insights tabs replace the old ones. You can send more any time from the page options menu."
+				"It'll help us decide what to fix before the new Stats replaces the old one. You can send more any time from the page options menu."
 			)
 		).toBeInTheDocument();
 	} );
 } );
 
-describe( 'switching the new Traffic and Insights tabs off', () => {
+describe( 'switching the new Stats off', () => {
 	/**
 	 * Opens the menu and picks the switch-off entry, so the confirmation is up.
 	 *
@@ -381,14 +402,14 @@ describe( 'switching the new Traffic and Insights tabs off', () => {
 		const user = await openConfirmation();
 
 		const dialog = screen.getByRole( 'dialog', {
-			name: 'Switch off the new Traffic and Insights tabs?',
+			name: 'Switch off the new Stats?',
 		} );
 		expect( dialog ).toHaveTextContent(
-			"You'll go back to your current Stats. You can switch the new Traffic and Insights tabs on again from the Modules Visibility setting."
+			"You'll go back to your current Stats. You can switch the new Stats on again from the Modules Visibility setting."
 		);
 		// The reason is asked for, never required: the button is live with nothing filled in.
 		expect( within( dialog ).getByRole( 'radiogroup' ) ).toHaveAccessibleName(
-			'Before you go — are the new Traffic and Insights tabs ready to replace the old ones?'
+			'Before you go — is the new Stats ready to replace the old one?'
 		);
 		expect(
 			within( dialog ).getByRole( 'textbox', { name: "What's missing?" } )
@@ -466,7 +487,7 @@ describe( 'switching the new Traffic and Insights tabs off', () => {
 					source_url: window.location.href,
 					product_name: 'Jetpack Stats v2 (switched off)',
 					feedback:
-						'[Ready to replace the old Traffic and Insights tabs? Almost, a few things missing] Too slow on my phone',
+						'[Ready to replace the old Stats? Almost, a few things missing] Too slow on my phone',
 				},
 			} )
 		);

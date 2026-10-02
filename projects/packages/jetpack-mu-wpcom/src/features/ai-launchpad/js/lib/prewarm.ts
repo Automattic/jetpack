@@ -1,12 +1,13 @@
 import { useEffect, useRef } from '@wordpress/element';
-import { tailor } from './tailor.ts';
+import { commitTailoring, type PreparedTailoring } from './commit-tailoring.ts';
+import { prepareTailoring, tailor } from './tailor.ts';
 import type { SiteCopy, TailorResult, WizardInput } from './types.ts';
 
 const PREWARM_DELAY_MS = 1_500;
 
 interface PrewarmCache {
 	key: string;
-	promise: Promise< TailorResult >;
+	promise: Promise< PreparedTailoring | null >;
 }
 
 let cache: PrewarmCache | null = null;
@@ -44,8 +45,9 @@ function cacheKey( input: WizardInput ): string {
 }
 
 /**
- * Start a background tailor call for the input and cache its promise, unless an
- * identical call is already cached.
+ * Start a background tailoring for the input and cache its promise, unless an
+ * identical one is already cached. Prepared only: a speculative run writes
+ * nothing, so the wizard the user abandons leaves no tailored list behind.
  *
  * @param input - The wizard input.
  * @param copy  - The site-language copy for the fallback drafts.
@@ -58,13 +60,13 @@ function startPrewarm( input: WizardInput, copy: SiteCopy ): void {
 	cache = {
 		key,
 		// Swallow rejections so the background fire never surfaces an unhandled rejection; the Finish handler handles errors on its own await.
-		promise: tailor( input, copy ).catch( () => null as unknown as TailorResult ),
+		promise: prepareTailoring( input, copy ).catch( () => null ),
 	};
 }
 
 /**
- * Background-fire the tailor call while the user fills in the wizard, caching its
- * promise for `getPrewarmedTailor` to reuse.
+ * Background-fire the tailoring while the user fills in the wizard, caching its
+ * promise for `getPrewarmedTailor` to commit.
  *
  * @param state - The partial wizard input collected so far.
  * @param copy  - The site-language copy for the fallback drafts.
@@ -87,8 +89,8 @@ export function usePrewarm( state: Partial< WizardInput >, copy: SiteCopy ): voi
 }
 
 /**
- * Return the prewarmed tailor promise for this input if one is in flight or
- * settled, otherwise start a fresh tailor call.
+ * Commit the prewarmed tailoring for this input if one is in flight or settled,
+ * otherwise run a fresh one. Either way the output is written exactly once, here.
  *
  * @param input - The collected wizard input.
  * @param copy  - The site-language copy for the fallback drafts.
@@ -97,7 +99,9 @@ export function usePrewarm( state: Partial< WizardInput >, copy: SiteCopy ): voi
 export function getPrewarmedTailor( input: WizardInput, copy: SiteCopy ): Promise< TailorResult > {
 	const key = cacheKey( input );
 	if ( cache && cache.key === key ) {
-		return cache.promise.then( result => result ?? tailor( input, copy ) );
+		return cache.promise.then( prepared =>
+			prepared ? commitTailoring( prepared, input, copy ) : tailor( input, copy )
+		);
 	}
 	return tailor( input, copy );
 }

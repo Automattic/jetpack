@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Exclude `src/js/` from published package.

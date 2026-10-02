@@ -22,7 +22,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 *
 	 * Mirrors `settingsRoutes` in `_inc/client/main.jsx`, plus the connection screens.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 * @var string[]
 	 */
 	const SETTINGS_ROUTES = array(
@@ -217,7 +217,7 @@ JS;
 	/**
 	 * Replace page=jetpack with the redirect document; nothing else renders here.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 *
 	 * @return never
 	 */
@@ -235,7 +235,7 @@ JS;
 	/**
 	 * Print a bare document that only redirects.
 	 *
-	 * @since $$next-version$$
+	 * @since 16.3
 	 */
 	public function print_redirect_document() {
 		?>
@@ -293,10 +293,10 @@ JS;
 	 * Formerly added the Settings sub-link.
 	 *
 	 * @since 4.3.0
-	 * @deprecated $$next-version$$ Jetpack_Settings_React_Page registers the Settings page.
+	 * @deprecated 16.3 Jetpack_Settings_React_Page registers the Settings page.
 	 */
 	public function jetpack_add_settings_sub_nav_item() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3' );
 	}
 
 	/**

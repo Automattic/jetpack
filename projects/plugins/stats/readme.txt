@@ -1,10 +1,10 @@
 === Jetpack Stats ===
 Contributors: automattic
-Tags: stats, analytics, site stats, traffic, visitors
+Tags: stats, jetpack stats, analytics, site stats, traffic, visitors
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
-Stable tag: 0.1.0-alpha
+Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -83,14 +83,7 @@ No. Any piece of data explicitly identifying a specific user (IP address, WordPr
 
 You can click the title of each feature on your stats page, and scroll to the bottom of that feature to download your stats. Simply click on the "Download data as CSV" link, and download the file to your computer.
 
-== Screenshots ==
-
-1. The Traffic dashboard — views and visitors over time, with your most viewed posts & pages and top referrers.
-2. A world heatmap showing where your visitors come from, plus UTM campaigns and link clicks.
-3. Insights — all-time stats, your most popular day and hour, and a year of posting activity.
-4. Stats for a single post — views, likes, and comments, with daily trends.
-
-== External services ==
+= What external services does Jetpack Stats use? =
 
 This plugin relies on WordPress.com, a service operated by Automattic, to record visits and generate the reports shown in the Stats dashboard. The plugin does not work without it.
 
@@ -143,7 +136,7 @@ This plugin requires a connection to a WordPress.com account. Until that connect
 Service terms: [Terms of Service](https://wordpress.com/tos/)
 Service privacy policy: [Privacy Policy](https://automattic.com/privacy/)
 
-== Source code ==
+= Where can I find the source code? =
 
 Jetpack Stats is developed in the open. The plugin, every bundled `automattic/jetpack-*` package, and the build tools that produce the released package are all in the Jetpack monorepo:
 
@@ -160,12 +153,14 @@ The dashboard interface itself is a React application called Odyssey Stats. It i
 
 To build the plugin from source, follow the instructions in the monorepo [development guide](https://github.com/Automattic/jetpack/blob/trunk/docs/development-environment.md).
 
+== Screenshots ==
+
+1. The Traffic dashboard — views and visitors over time, with your most viewed posts & pages and top referrers.
+2. A world heatmap showing where your visitors come from, plus UTM campaigns and link clicks.
+3. Insights — all-time stats, your most popular day and hour, and a year of posting activity.
+4. Stats for a single post — views, likes, and comments, with daily trends.
+
 == Changelog ==
-
-= 0.1.0-alpha =
-* Initial release.
-
-== Upgrade Notice ==
-
-= 0.1.0-alpha =
-Initial release — install Jetpack Stats to see simple, privacy-friendly traffic insights right inside your WordPress dashboard.
+### 1.0.0 - 2026-09-23
+#### Added
+- Initial release of Jetpack Stats as a standalone plugin.

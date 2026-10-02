@@ -7,7 +7,10 @@ import {
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
-import { pickReportDateParams, useReportDateFilters } from '@jetpack-premium-analytics/routing';
+import {
+	pickReportNavigationParams,
+	useReportDateFilters,
+} from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	DetailPageActions,
@@ -17,7 +20,9 @@ import {
 	DetailPageShell,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
+	useTrackedDateRangeApply,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Link, useParams, useSearch } from '@wordpress/route';
 import { WidgetDashboard } from '@wordpress/widget-dashboard';
@@ -28,11 +33,12 @@ import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
 import { useWidgetModules } from '../use-widget-modules';
-import { resolveWidgetModuleWithI18n, useWidgetTypesWithI18n } from '../widget-module-i18n';
+import { useWidgetModuleResolver, useWidgetTypesWithI18n } from '../widget-module-i18n';
 import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -57,15 +63,42 @@ function VideoDetail(): JSX.Element {
 	const summary = useVideoSummary( Number( videoIdParam ) );
 
 	const widgetModules = useWidgetModules();
+	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
 
 	const [ widgetTypes, isResolvingWidgetTypes ] = useWidgetTypesWithI18n( widgetModules );
 
 	// The applied report date range lives in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
+		summary.publishedDate,
+		dateFilters,
+		summary.isLoading || summary.isError
+	);
+	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
+	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
+		{
+			presetId: dateFilters.presetId,
+			range: dateFilters.range,
+			interval: dateFilters.interval,
+			comparisonPresetId: dateFilters.comparisonPresetId,
+			appliedComparisonRange: dateFilters.appliedComparisonRange,
+		},
+		{ surface: 'video_detail', offersComparison: false }
+	);
+	const onDateChange = useCallback< typeof changeDateRange >(
+		( ...args ) => {
+			changeDateRange( ...args );
+			trackedOnChange( ...args );
+		},
+		[ changeDateRange, trackedOnChange ]
+	);
+	const onDateApply = useCallback( () => {
+		applyDateRange();
+		trackedOnApply();
+	}, [ applyDateRange, trackedOnApply ] );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const reportSearch = pickReportDateParams( search );
+	const reportSearch = pickReportNavigationParams( search );
 
 	// The stored arrangement, layered over the fixed composition.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
@@ -85,7 +118,13 @@ function VideoDetail(): JSX.Element {
 		startCustomizing,
 		resetToDefault,
 		onEditChange,
-	} = useDetailPageCustomize( layout, { enabled: canRenderWidgets, onLayoutReset: resetLayout } );
+		onLayoutChange,
+	} = useDetailPageCustomize( layout, {
+		enabled: canRenderWidgets,
+		onLayoutReset: resetLayout,
+		onLayoutChange: setLayout,
+		surface: 'video_detail',
+	} );
 
 	// Error and not-found responses have no trustworthy title, so only a
 	// resolved video adds the title crumb.
@@ -133,9 +172,9 @@ function VideoDetail(): JSX.Element {
 			<WidgetDashboard
 				widgetTypes={ widgetTypes }
 				isResolvingWidgetTypes={ isResolvingWidgetTypes }
-				resolveWidgetModule={ resolveWidgetModuleWithI18n }
+				resolveWidgetModule={ resolveWidgetModule }
 				layout={ layout }
-				onLayoutChange={ setLayout }
+				onLayoutChange={ onLayoutChange }
 				onLayoutReset={ resetLayout }
 				gridSettings={ DETAIL_GRID }
 				editMode={ isCustomizing }
@@ -164,9 +203,16 @@ function VideoDetail(): JSX.Element {
 						} ) }
 						// The presets render in every summary state, so the range stays
 						// adjustable while the video loads or errors.
-						controls={ <DateFiltersPanel { ...dateFilters } { ...dateControls } /> }
+						controls={
+							<DateFiltersPanel
+								{ ...dateFilters }
+								{ ...dateControls }
+								onChange={ onDateChange }
+								onApply={ onDateApply }
+							/>
+						}
 					>
-						{ canRenderWidgets ? (
+						{ canRenderWidgets && ! isAnchoringAllTime ? (
 							<DetailPageSection>
 								<WidgetDashboard.Widgets />
 							</DetailPageSection>
@@ -190,7 +236,7 @@ export function stage(): JSX.Element {
 			<GlobalErrorProvider>
 				{ /*
 				 * The page names no compared period, so nothing below may fetch or draw
-				 * one. The params stay on the URL for the breadcrumb to carry back out.
+				 * one, even when a hand-edited URL carries comparison params.
 				 */ }
 				<ReportScopeProvider offersComparison={ false }>
 					<VideoDetail />

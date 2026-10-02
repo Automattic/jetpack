@@ -58,6 +58,13 @@ export {
 	type LeaderboardRowProps,
 } from './chart-leaderboard';
 export {
+	Leaderboard,
+	type LeaderboardDrillDown,
+	type LeaderboardProps,
+	type LeaderboardRowInput,
+	type LeaderboardStatus,
+} from './leaderboard';
+export {
 	BarChart,
 	BarChartSkeleton,
 	type BarChartProps,
@@ -97,8 +104,14 @@ export {
 	type WidgetStateEmpty,
 } from './widget-state';
 export { WidgetBackLink, type WidgetBackLinkProps } from './widget-back-link';
-export { WidgetFooter, type WidgetFooterProps } from './widget-footer';
+export {
+	WidgetFooter,
+	type WidgetFooterProps,
+	WidgetFooterLink,
+	type WidgetFooterLinkProps,
+} from './widget-footer';
 export { ReportLink, type ReportLinkProps } from './report-link';
+export { InfoTip, type InfoTipProps } from './info-tip';
 export { PostTitleLink, POST_URL_SEARCH_PARAM, type PostTitleLinkProps } from './post-title-link';
 export { PostDetailLink, type PostDetailLinkProps } from './post-detail-link';
 export {
@@ -134,6 +147,9 @@ export {
 	ReportPageTabs,
 	ReportPerformanceChart,
 	ReportRecordsTable,
+	ReportThumbnail,
+	REPORT_TITLE_LINK_CLASS_NAMES,
+	ExporterCsvAction,
 	ReportCsvAction,
 	useReportRetry,
 	buildReportMetricSeries,
@@ -156,6 +172,7 @@ export {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DETAIL_HEADER_GLYPH_SIZE,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
@@ -176,10 +193,9 @@ export {
 } from './page-options-menu';
 export { ResetLayoutAction, type ResetLayoutActionProps } from './reset-layout';
 export {
+	ExporterCsvDownloadButton,
 	ReportCsvDownloadButton,
 	type ReportCsvDownloadButtonProps,
-	RowsCsvDownloadButton,
-	type RowsCsvDownloadButtonProps,
 	useReportCsvExport,
 	type UseReportCsvExportOptions,
 	type UseReportCsvExportResult,

@@ -8,6 +8,7 @@ import { __ } from '@wordpress/i18n';
 import styles from './styles.module.scss';
 import { MediaSourceType } from './types';
 import { getAttachmentDescription } from './utils/media-source-options';
+import type { JSX } from 'react';
 
 interface CustomMediaToggleProps {
 	/**

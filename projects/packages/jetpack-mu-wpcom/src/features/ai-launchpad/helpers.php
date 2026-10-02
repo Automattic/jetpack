@@ -237,7 +237,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_standard_props' ) ) {
 			// server-fired events fire inside REST requests, where $pagenow is index.php, and
 			// the two recorders have to report the same screen for the same user.
 			'screen'        => 'admin.php',
-			'ref'           => 'experiment_wpcom_launchpad_personalization_202607_v1',
+			'ref'           => 'ai_launchpad',
 			'site_type'     => ( new \Automattic\Jetpack\Status\Host() )->is_wpcom_simple() ? 'simple' : 'atomic',
 			'agent_name'    => 'ai_launchpad',
 			'agent_version' => \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION,
@@ -396,6 +396,31 @@ if ( ! function_exists( 'wpcom_ai_launchpad_get_ai_task_ids' ) ) {
 	}
 }
 
+if ( ! function_exists( 'wpcom_ai_launchpad_site_locale' ) ) {
+	/**
+	 * The site's own language, as opposed to the language the current request is being read in.
+	 *
+	 * `get_locale()` is not it on WordPress.com Simple: there the locale follows the logged-in user
+	 * through wp-admin and the REST calls it makes, so a French site read by an Italian admin reports
+	 * Italian — and the pages we create, plus the language the AI is told to write in, would follow
+	 * the reader instead of the site. `get_blog_lang_code()` is the blog's own `lang_id` setting.
+	 * Same resolution the coming-soon page already uses for the same reason.
+	 *
+	 * @return string A WordPress locale, or a WordPress.com language code on Simple.
+	 */
+	function wpcom_ai_launchpad_site_locale() {
+		if ( function_exists( 'get_blog_lang_code' ) ) {
+			$code = get_blog_lang_code();
+			// Empty when the blog has no language set; fall through to the request's own.
+			if ( is_string( $code ) && '' !== $code ) {
+				return $code;
+			}
+		}
+
+		return get_locale();
+	}
+}
+
 if ( ! function_exists( 'wpcom_ai_launchpad_in_site_language' ) ) {
 	/**
 	 * Runs a callback with translations switched to the site language.
@@ -411,7 +436,7 @@ if ( ! function_exists( 'wpcom_ai_launchpad_in_site_language' ) ) {
 	 * @return mixed The callback's return value.
 	 */
 	function wpcom_ai_launchpad_in_site_language( $callback ) {
-		$site_locale = get_locale();
+		$site_locale = wpcom_ai_launchpad_site_locale();
 		$switched    = false;
 
 		if ( $site_locale !== determine_locale() ) {

@@ -1,3 +1,2 @@
-export { flattenReferrerRows } from './aggregate';
-export { getReferrerFields, type ReferrerRecord } from './fields';
+export { getReferrerFields } from './fields';
 export { useReferrersReportRecords } from './use-report-records';

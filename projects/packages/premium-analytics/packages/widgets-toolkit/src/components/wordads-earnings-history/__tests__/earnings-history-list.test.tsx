@@ -49,4 +49,13 @@ describe( 'EarningsHistoryList', () => {
 
 		expect( hiddenFlags() ).toEqual( [ false, true, true ] );
 	} );
+
+	it( 'renders each status as a badge, with a pending reason in an info button', () => {
+		mockSizes( 200, 36 );
+		render( <EarningsHistoryList rows={ [ ...ROWS, { ...ROWS[ 0 ], id: 'p', status: 3 } ] } /> );
+
+		expect( screen.getAllByText( 'Paid' ) ).toHaveLength( 3 );
+		expect( screen.getByText( 'Pending' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: 'Missing tax info' } ) ).toBeInTheDocument();
+	} );
 } );

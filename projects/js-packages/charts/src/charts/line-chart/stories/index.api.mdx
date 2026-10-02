@@ -160,7 +160,7 @@ type AnnotationStyles = {
 type ChartOptions = {
 	yScale?: {
 		type?: 'linear' | 'log';
-		zero?: boolean;
+		zero?: boolean; // Start the axis at zero; the top is rounded from zero, not from the data floor. Ignored on a log scale.
 		domain?: [number, number];
 		nice?: boolean;
 	};

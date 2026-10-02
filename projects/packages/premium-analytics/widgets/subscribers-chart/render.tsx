@@ -3,6 +3,7 @@
  */
 import { ReportScopeProvider, chartInterval } from '@jetpack-premium-analytics/data';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -10,7 +11,6 @@ import {
 	useWidgetRootContext,
 	type MetricTab,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { customer } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
@@ -51,9 +51,9 @@ const DATA_FORMAT = {
  */
 function latest(
 	points: SubscribersChartPoint[],
-	accessor: ( point: SubscribersChartPoint ) => number
+	accessor: ( point: SubscribersChartPoint ) => number | null
 ): number {
-	return points.length ? accessor( points[ points.length - 1 ] ) : 0;
+	return points.length ? ( accessor( points[ points.length - 1 ] ) ?? 0 ) : 0;
 }
 
 /**
@@ -62,7 +62,7 @@ function latest(
  */
 const METRIC_ACCESSORS: Record<
 	SubscribersChartMetricId,
-	( point: SubscribersChartPoint ) => number
+	( point: SubscribersChartPoint ) => number | null
 > = {
 	subscribers: point => point.subscribers,
 	paid: point => point.paid,
@@ -75,11 +75,12 @@ const METRIC_ACCESSORS: Record<
  */
 function buildMetrics( state: SubscribersChartState ): MetricTab[] {
 	return SUBSCRIBERS_CHART_METRICS.filter( ( { id } ) => id !== 'paid' || state.hasPaid ).map(
-		( { id, label } ) => {
+		( { id, label, countLabel } ) => {
 			const accessor = METRIC_ACCESSORS[ id ];
 			return {
 				key: id,
 				label,
+				countLabel,
 				value: latest( state.current, accessor ),
 				current: state.current.map( point => ( { date: point.date, value: accessor( point ) } ) ),
 			};
@@ -117,7 +118,8 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 				// refetch failure keeps the chart visible; only surface the error
 				// when there is nothing to show.
 				isError={ state.current.length === 0 && state.isError }
-				isEmpty={ state.current.length === 0 }
+				// `stats/subscribers` answers a window before the site had any with `null` rows, so emptiness is judged per metric inside the chart, where the tabs keep showing their zeros.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load subscriber data. Please try again in a moment.",
@@ -127,10 +129,6 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 						{ label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: state.refetch },
 					],
 				} }
-				empty={ {
-					icon: customer,
-					description: __( 'No subscriber data in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
 				<MetricTabsChart
@@ -138,6 +136,8 @@ function SubscribersChartInner( { chartType }: SubscribersChartInnerProps ) {
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
+					baseline="padded"
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

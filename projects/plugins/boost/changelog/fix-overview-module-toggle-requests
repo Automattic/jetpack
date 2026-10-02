@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: Avoid redundant requests when toggling optimization modules.

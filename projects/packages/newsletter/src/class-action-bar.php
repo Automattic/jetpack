@@ -19,6 +19,13 @@ use Automattic\Jetpack\Status\Host;
  */
 class Action_Bar {
 	/**
+	 * Transient caching whether the site has published enough posts to show Subscribe.
+	 *
+	 * @var string
+	 */
+	const ENOUGH_POSTS_TRANSIENT = 'jetpack_action_bar_has_enough_posts';
+
+	/**
 	 * Whether the class has been initialized.
 	 *
 	 * @var bool
@@ -30,7 +37,7 @@ class Action_Bar {
 	 *
 	 * Simple only for now. Yields to the copy wpcom still ships in mu-plugins, so the two never load together.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 */
 	public static function init() {
 		if ( self::$initialized ) {
@@ -53,7 +60,7 @@ class Action_Bar {
 	/**
 	 * Register the bar's hooks unless wpcom's mu-plugin copy is loaded.
 	 *
-	 * @since $$next-version$$
+	 * @since 0.17.0
 	 */
 	public static function load() {
 		if ( function_exists( 'wpcom_actionbar_enqueue_scripts' ) ) {
@@ -62,6 +69,7 @@ class Action_Bar {
 
 		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ), 101 );
 		add_action( 'admin_init', array( __CLASS__, 'settings_field' ) );
+		add_action( 'transition_post_status', array( __CLASS__, 'flush_published_posts_count' ), 10, 3 );
 
 		add_action( 'wp_ajax_fold_actionbar', array( __CLASS__, 'fold' ) );
 		add_action( 'wp_ajax_nopriv_fold_actionbar', array( __CLASS__, 'fold' ) );
@@ -86,7 +94,7 @@ class Action_Bar {
 		 *
 		 * WordPress.com hooks this to keep the bar off its internal sites and off sites marked deleted, spam, archived, or parked.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.17.0
 		 *
 		 * @param bool $enabled Whether to load the bar. Default true.
 		 */
@@ -98,7 +106,6 @@ class Action_Bar {
 
 		// phpcs:disable WordPress.Security.NonceVerification.Recommended -- Read-only checks on preview query args.
 		// Don't show on theme previews and block patterns source sites.
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$is_theme_demo = function_exists( 'wpcom_is_theme_demo_site' ) && wpcom_is_theme_demo_site();
 		// @phan-suppress-next-line PhanUndeclaredFunction -- Defined by jetpack-mu-wpcom, which is not a dependency; guarded by function_exists().
 		$is_pattern_source = function_exists( 'wpcom_has_blog_sticker' ) && wpcom_has_blog_sticker( 'block-patterns-source-site', $site_id );
@@ -218,7 +225,6 @@ class Action_Bar {
 	 * Print the bar's markup, then a loader that appends its CSS and JS after DOMContentLoaded.
 	 */
 	public static function footer() {
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$is_rtl = function_exists( 'wpcom_is_locale_rtl' ) ? wpcom_is_locale_rtl( get_user_locale() ) : is_rtl();
 		self::html( $is_rtl );
 
@@ -287,7 +293,6 @@ class Action_Bar {
 			if ( $folded ) {
 				update_user_attribute( $user_id, 'is_actionbar_folded', 1 );
 			} else {
-				// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 				delete_user_attribute( $user_id, 'is_actionbar_folded' );
 			}
 			return;
@@ -311,11 +316,51 @@ class Action_Bar {
 		/**
 		 * Filters whether logged-out visitors get the bar and its follow actions.
 		 *
-		 * @since $$next-version$$
+		 * @since 0.17.0
 		 *
 		 * @param bool $disabled Whether to disable. Defaults to true on VIP sites with logged-out follow off.
 		 */
 		return (bool) apply_filters( 'wpcom_disable_logged_out_follow', $disabled );
+	}
+
+	/**
+	 * Whether the site has published enough posts for a Subscribe button to make sense.
+	 *
+	 * @return bool
+	 */
+	private static function has_enough_posts() {
+		$has_enough_posts = get_transient( self::ENOUGH_POSTS_TRANSIENT );
+		if ( false === $has_enough_posts ) {
+			// Stored as 1/0: a cached false would read as a cache miss.
+			$has_enough_posts = (int) wp_count_posts( 'post' )->publish >= 2 ? 1 : 0;
+			set_transient( self::ENOUGH_POSTS_TRANSIENT, $has_enough_posts, DAY_IN_SECONDS );
+		}
+
+		return (bool) $has_enough_posts;
+	}
+
+	/**
+	 * Clear the cached Subscribe answer when a post enters or leaves the published state.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string         $new_status New post status.
+	 * @param string         $old_status Old post status.
+	 * @param \WP_Post|mixed $post Post object.
+	 */
+	public static function flush_published_posts_count( $new_status, $old_status, $post ) {
+		if ( ! $post instanceof \WP_Post ) {
+			// Some callers fire the action without a populated post object (e.g. failed get_post lookups).
+			return;
+		}
+
+		if (
+			'post' === $post->post_type
+			&& $new_status !== $old_status
+			&& ( 'publish' === $new_status || 'publish' === $old_status )
+		) {
+			delete_transient( self::ENOUGH_POSTS_TRANSIENT );
+		}
 	}
 
 	/**
@@ -326,7 +371,6 @@ class Action_Bar {
 			return;
 		}
 		if ( function_exists( 'wpcom_switch_to_user_locale' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 			wpcom_switch_to_user_locale( get_current_user_id() );
 		} else {
 			switch_to_user_locale( get_current_user_id() );
@@ -341,7 +385,6 @@ class Action_Bar {
 			return;
 		}
 		if ( function_exists( 'wpcom_restore_current_locale' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 			wpcom_restore_current_locale();
 		} else {
 			restore_previous_locale();
@@ -359,7 +402,6 @@ class Action_Bar {
 			return $current_user->subs_email_default;
 		}
 		if ( function_exists( 'wpcom_subs_get_subscription_delivery_email_default' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 			return wpcom_subs_get_subscription_delivery_email_default();
 		}
 		return 'instantly';
@@ -474,7 +516,6 @@ class Action_Bar {
 		if ( ! function_exists( 'get_blavatar' ) ) {
 			return '';
 		}
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$blavatar_img = get_blavatar( get_option( 'siteurl' ), 50, Assets::staticize_subdomain( 'https://en.wordpress.com/i/logo/wpcom-gray-white.png' ) ); // phpcs:ignore WPCOM.I18nRules.LocalizedUrl.UnlocalizedUrl
 		if ( str_starts_with( $blavatar_img, '<img alt' ) ) {
 			$blavatar_img = "<img loading='lazy' alt" . substr( $blavatar_img, 8 );
@@ -537,7 +578,6 @@ class Action_Bar {
 		// Render this in the user's language.
 		self::switch_to_user_locale();
 
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$is_suspended = function_exists( 'is_suspended' ) && is_suspended( $site_id );
 
 		/*
@@ -581,13 +621,11 @@ class Action_Bar {
 		$is_following       = $subscription_id ? true : false;
 		$signup_url         = 'https://wordpress.com/start/';
 		$theme_slug         = get_stylesheet();
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
-		$theme_url   = function_exists( 'wpcom_get_theme_showcase_url' ) ? wpcom_get_theme_showcase_url( $theme_slug ) : 'https://wordpress.com/theme/' . $theme_slug;
-		$is_singular = false;
-		$is_folded   = $is_logged_in && self::is_folded( $current_user->ID );
-		$feed_id     = false;
+		$theme_url          = function_exists( 'wpcom_get_theme_showcase_url' ) ? wpcom_get_theme_showcase_url( $theme_slug ) : 'https://wordpress.com/theme/' . $theme_slug;
+		$is_singular        = false;
+		$is_folded          = $is_logged_in && self::is_folded( $current_user->ID );
+		$feed_id            = false;
 		if ( class_exists( 'FeedBag' ) ) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- wpcom-only class, guarded by class_exists above.
 			$feed_id = \FeedBag::get_feed_id_for_blog_id( $site_id );
 		}
 		$gdpr_applies = self::gdpr_applies();
@@ -654,7 +692,7 @@ class Action_Bar {
 		$can_comment           = is_single() && ! post_password_required( $post_id ) && comments_open( $post_id );
 		$can_reblog            = is_single() && self::can_reblog( $site_id, $post_id );
 		$can_edit_current_view = $can_edit_post || $can_customize_site;
-		$show_follow           = $can_follow && ! $can_edit_current_view;
+		$show_follow           = $can_follow && ! $can_edit_current_view && self::has_enough_posts();
 
 		$followers = '';
 		if ( $show_follow && ! $is_logged_in ) {
@@ -975,6 +1013,17 @@ class Action_Bar {
 								)
 							);
 						}
+						if ( current_user_can( 'manage_options' ) ) {
+							$items[] = self::menu_item(
+								array(
+									'href'  => self::localized_url( 'https://wordpress.com/support/action-bar/#show-or-hide-the-action-bar' ),
+									'label' => __( 'Turn off this bar', 'jetpack-newsletter' ),
+									'class' => 'actnbr-turn-off',
+									'icon'  => 'external',
+									'blank' => true,
+								)
+							);
+						}
 						self::menu_group( $items );
 						?>
 					</div>
@@ -998,9 +1047,7 @@ class Action_Bar {
 		if ( ! function_exists( 'wpr_can_reblog_post' ) || ! function_exists( 'wpcom_can_user_make_a_reblog' ) ) {
 			return false;
 		}
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$post_ok = (bool) wpr_can_reblog_post( $site_id, $post_id );
-		// @phan-suppress-next-line PhanUndeclaredFunction -- wpcom-only, guarded by function_exists(); stub pending in wpcom stub-defs.php.
 		$user_ok = (bool) wpcom_can_user_make_a_reblog();
 		return $post_ok && $user_ok;
 	}

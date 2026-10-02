@@ -1,6 +1,8 @@
 /* No jest-dom in this project. */
-/* eslint-disable testing-library/no-node-access, testing-library/prefer-user-event, jest-dom/prefer-to-have-attribute */
-import { fireEvent, render, screen, within } from '@testing-library/react';
+/* eslint-disable testing-library/no-node-access, testing-library/prefer-user-event, jest-dom/prefer-to-have-attribute, jest-dom/prefer-in-document */
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { StrictMode } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
 import Settings from './settings';
 
 /* Each module stub prints its name so the test can assert the order. */
@@ -61,7 +63,7 @@ describe( 'Settings', () => {
 		render( <Settings /> );
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
-			'Cornerstone pagesAdded: Homepage',
+			'Cornerstone PagesAdded: HomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
 			'Page loadingManage how your page content is loaded for visitors.',
 			'Code optimizationReduce the code needed to load your site.',
 			'ImagesTools to load and deliver images more efficiently.',
@@ -74,11 +76,35 @@ describe( 'Settings', () => {
 		] );
 		expect( modulesIn( 'Code optimization' ) ).toEqual( [ 'minify_js', 'minify_css' ] );
 		expect( modulesIn( 'Images' ) ).toEqual( [ 'lcp', 'image_cdn', 'image_guide:row' ] );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Cornerstone pages' } ) );
-		expect( modulesIn( 'Cornerstone pages' ) ).toEqual( [ 'prerender' ] );
-		expect( screen.getAllByRole( 'heading', { name: 'Cornerstone pages' } ) ).toHaveLength( 1 );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Cornerstone Pages' } ) );
+		expect( modulesIn( 'Cornerstone Pages' ) ).toEqual( [ 'prerender' ] );
+		expect( screen.getAllByRole( 'heading', { name: 'Cornerstone Pages' } ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( 'cornerstone description' ) ).toHaveLength( 1 );
 		expect( screen.getAllByText( 'Added: Homepage' ) ).toHaveLength( 1 );
+	} );
+
+	it( 'shows the Cornerstone description in the header while collapsed', () => {
+		render( <Settings /> );
+
+		const button = screen.getByRole( 'button', {
+			name: 'Cornerstone Pages',
+			description: /Choose the pages that matter most on your site/,
+		} );
+		expect( button.getAttribute( 'aria-expanded' ) ).toBe( 'false' );
+	} );
+
+	it( 'renders the section titles as h3s beneath the page h2', () => {
+		render( <Settings /> );
+
+		expect(
+			screen.getAllByRole( 'heading', { level: 3 } ).map( heading => heading.textContent )
+		).toEqual( [
+			'Cornerstone PagesAdded: HomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+			'Page loadingManage how your page content is loaded for visitors.',
+			'Code optimizationReduce the code needed to load your site.',
+			'ImagesTools to load and deliver images more efficiently.',
+		] );
+		expect( screen.queryByRole( 'heading', { level: 2 } ) ).toBeNull();
 	} );
 
 	it( 'starts with only Cornerstone collapsed and lets each section toggle independently', () => {
@@ -100,5 +126,185 @@ describe( 'Settings', () => {
 			fireEvent.click( button );
 			expect( button.getAttribute( 'aria-expanded' ) ).toBe( wasOpen );
 		}
+	} );
+} );
+
+const observers: {
+	callback: IntersectionObserverCallback;
+	target?: Element;
+	connected: boolean;
+}[] = [];
+const originalObserver = globalThis.IntersectionObserver;
+
+const exposeHeaders = ( ratio = 1 ) => {
+	act( () => {
+		for ( const observer of observers ) {
+			if ( observer.connected && observer.target ) {
+				observer.callback(
+					[
+						{
+							target: observer.target,
+							isIntersecting: true,
+							intersectionRatio: ratio,
+						} as IntersectionObserverEntry,
+					],
+					{} as IntersectionObserver
+				);
+			}
+		}
+	} );
+};
+
+describe( 'Settings exposure and group interactions', () => {
+	beforeEach( () => {
+		jest.mocked( recordBoostEvent ).mockClear();
+		observers.length = 0;
+		globalThis.IntersectionObserver = jest.fn( callback => {
+			const state = { callback, connected: true, target: undefined as Element | undefined };
+			observers.push( state );
+			return {
+				observe: ( target: Element ) => {
+					state.target = target;
+				},
+				disconnect: () => {
+					state.connected = false;
+				},
+			};
+		} ) as unknown as typeof IntersectionObserver;
+	} );
+
+	afterEach( () => {
+		globalThis.IntersectionObserver = originalObserver;
+	} );
+
+	it( 'records visible Settings and each header once per visit, including default-open groups', () => {
+		const view = render(
+			<StrictMode>
+				<Settings />
+			</StrictMode>
+		);
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		exposeHeaders();
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 5 );
+		expect( recordBoostEvent ).toHaveBeenCalledWith( 'settings_view', {} );
+		for ( const [ group, initial_open ] of [
+			[ 'cornerstone_pages', 0 ],
+			[ 'page_loading', 1 ],
+			[ 'code_optimization', 1 ],
+			[ 'images', 1 ],
+		] ) {
+			expect( recordBoostEvent ).toHaveBeenCalledWith( 'settings_group_view', {
+				group,
+				initial_open,
+			} );
+		}
+
+		fireEvent.click( screen.getByRole( 'button', { name: 'Page loading' } ) );
+		view.rerender(
+			<StrictMode>
+				<Settings active={ false } />
+			</StrictMode>
+		);
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 6 );
+		view.rerender(
+			<StrictMode>
+				<Settings />
+			</StrictMode>
+		);
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 11 );
+		expect( jest.mocked( recordBoostEvent ).mock.calls.slice( 6 ) ).toEqual(
+			expect.arrayContaining( [
+				[ 'settings_view', {} ],
+				[ 'settings_group_view', { group: 'cornerstone_pages', initial_open: 0 } ],
+				[ 'settings_group_view', { group: 'page_loading', initial_open: 0 } ],
+				[ 'settings_group_view', { group: 'code_optimization', initial_open: 1 } ],
+				[ 'settings_group_view', { group: 'images', initial_open: 1 } ],
+			] )
+		);
+	} );
+
+	it( 'ignores hidden redirects and headers outside the viewport', () => {
+		const view = render(
+			<div hidden>
+				<Settings active={ false } />
+			</div>
+		);
+		exposeHeaders();
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		view.rerender(
+			<div>
+				<Settings />
+			</div>
+		);
+		act( () => {
+			for ( const observer of observers.filter( item => item.connected ) ) {
+				observer.callback(
+					[ { isIntersecting: false, intersectionRatio: 0 } as IntersectionObserverEntry ],
+					{} as IntersectionObserver
+				);
+			}
+		} );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 5 );
+	} );
+
+	it( 'waits for the whole header before recording group exposure', () => {
+		render( <Settings /> );
+		exposeHeaders( 0.98 );
+		expect(
+			jest
+				.mocked( recordBoostEvent )
+				.mock.calls.filter( ( [ name ] ) => name === 'settings_group_view' )
+		).toEqual( [] );
+		exposeHeaders( 0.99 );
+		expect(
+			jest
+				.mocked( recordBoostEvent )
+				.mock.calls.filter( ( [ name ] ) => name === 'settings_group_view' )
+		).toHaveLength( 4 );
+	} );
+
+	it( 'records find-in-page opening as live state without a click toggle', () => {
+		render( <Settings /> );
+		const header = screen.getByRole( 'button', { name: 'Cornerstone Pages' } );
+		const content = screen
+			.getByText( 'cornerstone description' )
+			.closest( '[hidden="until-found"]' );
+		fireEvent( content as HTMLElement, new Event( 'beforematch' ) );
+		expect( header.getAttribute( 'aria-expanded' ) ).toBe( 'true' );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		exposeHeaders();
+		expect( recordBoostEvent ).toHaveBeenCalledWith( 'settings_group_view', {
+			group: 'cornerstone_pages',
+			initial_open: 1,
+		} );
+	} );
+
+	it( 'records intentional group changes only, using stable slugs', () => {
+		render( <Settings /> );
+		expect( recordBoostEvent ).not.toHaveBeenCalled();
+		for ( const [ name, group, initial ] of [
+			[ 'Cornerstone Pages', 'cornerstone_pages', 'open' ],
+			[ 'Page loading', 'page_loading', 'close' ],
+			[ 'Code optimization', 'code_optimization', 'close' ],
+			[ 'Images', 'images', 'close' ],
+		] ) {
+			const button = screen.getByRole( 'button', { name } );
+			fireEvent.click( button );
+			expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'settings_group_toggle', {
+				group,
+				status: initial,
+			} );
+			fireEvent.click( button );
+			expect( recordBoostEvent ).toHaveBeenLastCalledWith( 'settings_group_toggle', {
+				group,
+				status: initial === 'open' ? 'close' : 'open',
+			} );
+		}
+		expect( recordBoostEvent ).toHaveBeenCalledTimes( 8 );
 	} );
 } );

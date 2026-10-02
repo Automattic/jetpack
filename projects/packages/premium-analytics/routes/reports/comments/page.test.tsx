@@ -22,8 +22,7 @@ jest.mock( './config', () => ( {
 		},
 	],
 	getCommentsReportTabs: () => [ { id: 'authors', label: 'Authors' } ],
-	// No tab declares a heading yet, so the real helper reads the label back.
-	getTabTitle: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
+	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
 	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
 	useCommentsReportRecords: jest.fn(),
 } ) );

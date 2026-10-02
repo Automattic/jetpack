@@ -38,7 +38,6 @@ const OTHER_CONNECTION_ERRORS = {
 const mockConnection = ( connectionErrors: object = CONNECTION_ERRORS ) =>
 	useConnection.mockReturnValue( {
 		connectionErrors,
-		connectionHealthErrors: {},
 		connectionOwner: { id: 123, displayName: 'Owner' },
 		userConnectionData: { currentUser: { id: 123 } },
 		isRegistered: true,
@@ -65,6 +64,9 @@ describe( 'useConnectionErrorNotice memoization', () => {
 		expect( result.current.errorGroups ).toBe( first.errorGroups );
 		expect( result.current.connectionError ).toBe( first.connectionError );
 		expect( result.current.actions ).toBe( first.actions );
+		// My Jetpack's notice effect depends on these, so they must be stable too.
+		expect( result.current.trackNoticeLinkClick ).toBe( first.trackNoticeLinkClick );
+		expect( result.current.trackSupportLinkClick ).toBe( first.trackSupportLinkClick );
 	} );
 
 	it( 'rebuilds the derived values when the store errors change', () => {

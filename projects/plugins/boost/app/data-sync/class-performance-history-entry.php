@@ -44,7 +44,7 @@ class Performance_History_Entry implements Lazy_Entry, Entry_Can_Get, Entry_Can_
 		$result  = $request->execute();
 
 		/** This filter is documented in app/admin/class-admin.php */
-		if ( is_wp_error( $result ) && $this->surface_errors && apply_filters( Admin::MODERNIZATION_FILTER, false ) ) {
+		if ( is_wp_error( $result ) && $this->surface_errors && apply_filters( Admin::MODERNIZATION_FILTER, true ) ) {
 			throw new \RuntimeException( $result->get_error_message() );
 		}
 

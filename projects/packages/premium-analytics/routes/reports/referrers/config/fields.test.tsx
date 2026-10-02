@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from '@testing-library/react';
-import { getReferrerFields, type ReferrerRecord } from './fields';
+import { getReferrerFields } from './fields';
+import type { ReferrerRecord } from '@jetpack-premium-analytics/widgets-toolkit';
 
 /**
  * Mount the referrer field's render component for a table row.

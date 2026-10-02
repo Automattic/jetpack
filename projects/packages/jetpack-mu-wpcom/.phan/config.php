@@ -17,6 +17,12 @@ return make_phan_config(
 		'exclude_file_list'               => array(
 			'tests/lib/class-wpcom-features.php',
 			'tests/lib/class-store-sandbox.php',
+			// Redefines get_blog_lang_code, which the wpcom stubs already declare.
+			'tests/php/features/ai-launchpad/fixtures/simple-site-stubs.php',
+			// Redefines Jetpack_Server_Version, which the wpcom stubs already declare.
+			'tests/php/features/wpcom-endpoints/fixtures/class-jetpack-server-version.php',
+			// Redefines is_suspended, which the wpcom stubs already declare.
+			'tests/php/features/wpcom-endpoints/fixtures/wpcom-functions.php',
 		),
 		'exclude_file_regex'              => array(
 			'build/',

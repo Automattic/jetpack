@@ -21,6 +21,16 @@ export type {
 	AuthorSummaryResponse,
 } from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
+export {
+	fetchStatsArchivesRows,
+	fetchStatsClicksRows,
+	fetchStatsFileDownloadsRows,
+	fetchStatsReferrersRows,
+	fetchStatsSearchTermsReport,
+	fetchStatsTopAuthorsRows,
+	fetchStatsTopPostsRows,
+	fetchStatsVideoPlaysRows,
+} from './queries/fetch-stats-report-rows';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	aggregateStatsDrilldownRows,
@@ -77,6 +87,7 @@ export {
 	getAllowedIntervalsForPreset,
 	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
+	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';
@@ -129,6 +140,7 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,

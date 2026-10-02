@@ -13,10 +13,12 @@ import { useCallback, useEffect, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { ReportTableEmptyState } from './report-empty-state';
 import { ReportPageSection } from './report-page-layout';
 import styles from './report-records-table.module.scss';
 import './report-records-table.scss';
-import type { ComponentProps, ReactElement, ReactNode } from 'react';
+import { useTableRevalidating } from './use-table-revalidating';
+import type { ComponentProps, ReactElement } from 'react';
 
 const DEFAULT_PER_PAGE_SIZES = [ 10, 25, 50, 100 ];
 
@@ -36,7 +38,6 @@ const GenericDataViews = DataViews as unknown as < Item >( props: {
 	paginationInfo: { totalItems: number; totalPages: number };
 	defaultLayouts?: SupportedLayouts;
 	actions?: Action< Item >[];
-	empty?: ReactNode;
 	searchLabel?: string;
 	config?: { perPageSizes: number[] };
 	isItemClickable?: ( item: Item ) => boolean;
@@ -56,14 +57,14 @@ export interface ReportRecordsTableProps< Item > {
 	getItemId: ( item: Item ) => string;
 	/** Initial view overrides (default sort, visible fields, page size, …). */
 	initialView?: Partial< View >;
-	/** Show DataViews' loading state. */
+	/** Whether rows for the current params are still loading. */
 	isLoading?: boolean;
+	/** Whether the rows on screen are revalidating; ignored while there are none, so an empty report keeps its empty state. */
+	isFetching?: boolean;
 	/** Accessible label for the search input. */
 	searchLabel?: string;
 	/** Optional row actions. */
 	actions?: Action< Item >[];
-	/** Custom empty state. */
-	empty?: ReactNode;
 	/** Page size choices (defaults to 10/25/50/100). */
 	perPageSizes?: number[];
 	/**
@@ -96,7 +97,8 @@ export interface ReportRecordsTableProps< Item > {
  * the selected range, so no server round-trip is needed.
  *
  * The module page supplies the data and field config; this owns the view
- * state, so every report table behaves the same.
+ * state, so every report table behaves the same. With no rows it renders the
+ * report's loading or empty state in its place.
  *
  * @param {ReportRecordsTableProps} props - The component props.
  * @return The records table section.
@@ -107,9 +109,9 @@ export function ReportRecordsTable< Item >( {
 	getItemId,
 	initialView,
 	isLoading = false,
+	isFetching = false,
 	searchLabel,
 	actions,
-	empty,
 	perPageSizes = DEFAULT_PER_PAGE_SIZES,
 	onChangeView,
 	onChangePageItems,
@@ -125,8 +127,19 @@ export function ReportRecordsTable< Item >( {
 				search: '',
 				// DataViews renders only the columns listed in `view.fields` —
 				// there is no "all fields" default — so seed it with every
-				// configured field. `initialView` can still narrow it.
-				fields: fields.map( field => field.id ),
+				// configured field. `initialView` can still narrow it. A primary
+				// field (title, media, description) has its own column, so listing
+				// it here would draw it twice.
+				fields: fields
+					.map( field => field.id )
+					.filter(
+						id =>
+							! [
+								initialView?.titleField,
+								initialView?.mediaField,
+								initialView?.descriptionField,
+							].includes( id )
+					),
 				...initialView,
 			} ) as View
 	);
@@ -149,6 +162,13 @@ export function ReportRecordsTable< Item >( {
 		onChangePageItems?.( pageItems );
 	}, [ onChangePageItems, pageItems ] );
 
+	const isRevalidating = useTableRevalidating( isFetching );
+
+	// A filter the API applies server-side can scope the rows to none, and the table carries the control that clears it.
+	if ( data.length === 0 && ! view.filters?.length ) {
+		return <ReportTableEmptyState isLoading={ isLoading } />;
+	}
+
 	return (
 		<ReportPageSection className={ styles.root }>
 			<GenericDataViews< Item >
@@ -157,11 +177,10 @@ export function ReportRecordsTable< Item >( {
 				fields={ fields }
 				data={ pageItems }
 				getItemId={ getItemId }
-				isLoading={ isLoading }
+				isLoading={ isLoading || isRevalidating }
 				paginationInfo={ paginationInfo }
 				defaultLayouts={ { table: {} } }
 				actions={ actions }
-				empty={ empty }
 				searchLabel={ searchLabel }
 				config={ { perPageSizes } }
 				isItemClickable={ isItemClickable }

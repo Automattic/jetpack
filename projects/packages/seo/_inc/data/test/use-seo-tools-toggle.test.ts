@@ -31,7 +31,7 @@ describe( 'useSeoToolsToggle', () => {
 	// can't be made to spy on `location.reload` (`window.location` is
 	// non-configurable and can't be redefined), so the call surfaces as a
 	// "Not implemented: navigation" `console.error`. Silence it here so the
-	// strict `@wordpress/jest-console` guard doesn't flag it; the success-path
+	// strict `jetpack-js-tools` console guard doesn't flag it; the success-path
 	// tests assert the deterministic, observable behavior instead — `apiFetch`
 	// was POSTed with the right payload and no error notice was raised.
 	let consoleErrorSpy: ReturnType< typeof jest.spyOn >;

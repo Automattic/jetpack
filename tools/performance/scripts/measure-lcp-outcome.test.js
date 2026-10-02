@@ -15,14 +15,21 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 import {
 	buildSummary,
+	captureNavigationMetrics,
+	initializeLoadObservers,
 	computeRunOutcome,
 	finalizeMeasurement,
 	findIncompleteSummaryFields,
 	resolveScenarioSet,
 } from './measure-lcp.js';
-import { tcEscape, reportSkippedScenarios } from './run-performance-tests.js';
+import {
+	checkWordPressInstances,
+	tcEscape,
+	reportSkippedScenarios,
+} from './run-performance-tests.js';
 import { SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -85,6 +92,91 @@ test( 'resolveScenarioSet matches exactly one scenario by cliName', () => {
 	const myJetpack = resolveScenarioSet( 'my-jetpack', SCENARIOS );
 	assert.equal( myJetpack.length, 1 );
 	assert.equal( myJetpack[ 0 ].key, 'myJetpack' );
+} );
+
+test( 'the targeted Dashboard control fails alone and skips alongside a measured Dashboard', () => {
+	const [ control ] = resolveScenarioSet( 'no-jetpack', SCENARIOS );
+	assert.equal( control.key, 'jetpackConnected-noJetpack' );
+	assert.equal( control.optional, true );
+	assert.equal( control.dockerService, 'wordpress-no-jetpack' );
+	assert.equal( control.wpPath, '/var/www/html/no-jetpack' );
+	assert.equal( control.path, undefined );
+	const measurements = { jetpackConnected: ok, [ control.key ]: failed };
+	const outcome = computeRunOutcome( measurements, SCENARIOS );
+	assert.equal( outcome.exitCode, 0 );
+	assert.deepEqual( outcome.optionalFailures, [ control.name ] );
+	assert.equal( computeRunOutcome( { [ control.key ]: failed }, [ control ] ).exitCode, 1 );
+} );
+
+test( 'instance readiness ignores optional controls but fails for an unready required instance', async t => {
+	const urls = [];
+	t.mock.method( console, 'log', () => {} );
+	t.mock.method( console, 'error', () => {} );
+	t.mock.method( globalThis, 'fetch', async url => {
+		urls.push( url );
+		return { ok: true, text: async () => 'user_login user_pass' };
+	} );
+	const required = { ...REQUIRED, defaultUrl: 'http://required.test' };
+	const control = { ...OPT_A, defaultUrl: 'http://control.test' };
+	assert.equal( await checkWordPressInstances( [ required, control ] ), true );
+	assert.deepEqual( urls, [ 'http://required.test/wp-login.php' ] );
+	t.mock.method( globalThis, 'fetch', async () => {
+		throw new Error( 'unready' );
+	} );
+	assert.equal( await checkWordPressInstances( [ required, control ] ), false );
+} );
+
+test( 'connection simulation skips the control regardless of latency environment', t => {
+	const php = spawnSync( 'php', [ '--version' ] );
+	if ( php.error?.code === 'ENOENT' ) {
+		t.skip( 'PHP CLI is needed to execute the simulator bootstrap' );
+		return;
+	}
+	const simulator = path.join( SCRIPTS_DIR, '../docker/mu-plugins/simulate-wpcom-connection.php' );
+	for ( const [ control, latency ] of [
+		[ false, undefined ],
+		[ false, '0' ],
+		[ false, '200' ],
+		[ true, undefined ],
+		[ true, '0' ],
+		[ true, '200' ],
+	] ) {
+		const env = { ...process.env };
+		delete env.WPCOM_SIMULATED_LATENCY_MS;
+		if ( latency !== undefined ) {
+			env.WPCOM_SIMULATED_LATENCY_MS = latency;
+		}
+		const result = spawnSync(
+			'php',
+			[
+				'-r',
+				`define( 'ABSPATH', '/' );
+				${ control ? "define( 'JETPACK_PERFORMANCE_NO_JETPACK_CONTROL', true );" : '' }
+				$hooks = array();
+				function add_filter( $name ) { $GLOBALS['hooks'][] = $name; }
+				function add_action( $name ) { $GLOBALS['hooks'][] = $name; }
+				require $argv[1];
+				echo json_encode( array( 'class' => class_exists( 'Jetpack_WPCom_Connection_Simulator' ), 'hooks' => $hooks ) );`,
+				simulator,
+			],
+			{ env, encoding: 'utf8' }
+		);
+		assert.equal( result.status, 0, result.stderr );
+		const actual = JSON.parse( result.stdout );
+		assert.equal( actual.class, ! control );
+		assert.deepEqual(
+			actual.hooks,
+			control
+				? []
+				: [
+						'jetpack_offline_mode',
+						'pre_option_jetpack_offline_mode',
+						'plugins_loaded',
+						'jetpack_modules_loaded',
+						'pre_http_request',
+					]
+		);
+	}
 } );
 
 test( 'resolveScenarioSet throws on an unknown filter, listing the valid values', () => {
@@ -151,11 +243,15 @@ test( 'empty measurements: exit 1 (backstop behind the validated filter)', () =>
 test( 'findIncompleteSummaryFields returns [] for a complete summary', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const summary = {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: 300,
 		lcp: { median: 300 },
 		ttfb: { median: 200 },
 		fcp: { median: 500 },
 		decodedBytesKB: { median: 8229 },
+		tbt: { median: 0 },
 	};
 	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [] );
 } );
@@ -168,10 +264,14 @@ test( 'findIncompleteSummaryFields names a posted field whose block the summary 
 	// optional field blanking the required Dashboard's post with no warning naming it.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const summary = {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: 300,
 		lcp: { median: 300 },
 		fcp: { median: 500 },
 		decodedBytesKB: { median: 8229 },
+		tbt: { median: 0 },
 	};
 	assert.deepEqual( findIncompleteSummaryFields( forms, summary ), [ 'ttfb' ] );
 	// A block that exists but has no finite median is just as unusable as a missing block.
@@ -195,9 +295,42 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 	// check must flag it so the measure step records a scenario error, not a green partial.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const iterations = [
-		{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
-		{ lcp: 310, metrics: { ttfb: null, fcp: 510, decodedBytesKB: 8229 } },
-		{ lcp: 305, metrics: { ttfb: null, fcp: 505, decodedBytesKB: 8229 } },
+		{
+			lcp: 300,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: 200,
+				fcp: 500,
+				decodedBytesKB: 8229,
+				tbt: 0,
+			},
+		},
+		{
+			lcp: 310,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: null,
+				fcp: 510,
+				decodedBytesKB: 8229,
+				tbt: 0,
+			},
+		},
+		{
+			lcp: 305,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: null,
+				fcp: 505,
+				decodedBytesKB: 8229,
+				tbt: 0,
+			},
+		},
 	];
 	const summary = buildSummary( iterations, 3 );
 	assert.equal( summary.ttfb, undefined, 'precondition: the majority rule dropped ttfb' );
@@ -219,8 +352,30 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 	// posting shapes.
 	const summary = buildSummary(
 		[
-			{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
-			{ lcp: 310, metrics: { ttfb: 210, fcp: 510, decodedBytesKB: 8229 } },
+			{
+				lcp: 300,
+				metrics: {
+					wpTotal: 100,
+					wpMemoryUsage: 20971520,
+					wpDbQueries: 42,
+					ttfb: 200,
+					fcp: 500,
+					decodedBytesKB: 8229,
+					tbt: 0,
+				},
+			},
+			{
+				lcp: 310,
+				metrics: {
+					wpTotal: 100,
+					wpMemoryUsage: 20971520,
+					wpDbQueries: 42,
+					ttfb: 210,
+					fcp: 510,
+					decodedBytesKB: 8229,
+					tbt: 0,
+				},
+			},
 		],
 		2
 	);
@@ -235,7 +390,15 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 const healthyIteration = i => ( {
 	iteration: i,
 	lcp: 300 + i,
-	metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 },
+	metrics: {
+		wpTotal: 100,
+		wpMemoryUsage: 20971520,
+		wpDbQueries: 42,
+		ttfb: 200,
+		fcp: 500,
+		decodedBytesKB: 8229,
+		tbt: 0,
+	},
 } );
 
 test( 'finalizeMeasurement returns the measurement for healthy iterations', () => {
@@ -254,6 +417,96 @@ test( 'finalizeMeasurement throws when every iteration failed', () => {
 		() => finalizeMeasurement( forms, [ { iteration: 1, error: 'boom' } ], 1, 'u' ),
 		/All iterations failed/
 	);
+} );
+
+const backendHeader = 'wp-total;dur=100.5, wp-memory-usage;dur=20971520, wp-db-queries;dur=42';
+const navigationResponse = header => ( {
+	headerValue: async name => {
+		assert.equal( name, 'server-timing' );
+		return header;
+	},
+	url: () => 'http://fixture/wp-admin/',
+	status: () => 200,
+} );
+
+test( 'navigation capture merges parsed backend values into browser metrics', async () => {
+	const scenario = SCENARIOS.find( s => s.key === 'jetpackConnected' );
+	const browser = { lcp: 300, ttfb: 200, fcp: 500, decodedBytesKB: 8229 };
+	const capture = await captureNavigationMetrics(
+		navigationResponse( backendHeader ),
+		scenario,
+		browser
+	);
+	assert.deepEqual( capture.metrics, {
+		...browser,
+		wpTotal: 100.5,
+		wpMemoryUsage: 20971520,
+		wpDbQueries: 42,
+	} );
+	assert.equal( capture.serverTimingHeader, backendHeader );
+	assert.equal( capture.navigationStatus, 200 );
+	assert.equal( capture.navigationUrl, 'http://fixture/wp-admin/' );
+	assert.equal( capture.serverTimingError, undefined );
+	assert.deepEqual( browser, { lcp: 300, ttfb: 200, fcp: 500, decodedBytesKB: 8229 } );
+} );
+
+test( 'browser-only scenarios do not require a backend header', async () => {
+	const response = navigationResponse( null );
+	response.headerValue = () => assert.fail( 'backend header should not be read' );
+	const capture = await captureNavigationMetrics(
+		response,
+		{ metrics: [ { field: 'lcp' } ] },
+		{ lcp: 300 }
+	);
+	assert.deepEqual( capture.metrics, { lcp: 300 } );
+	assert.equal( capture.serverTimingError, undefined );
+} );
+
+test( 'backend capture failures preserve browser samples and use the per-field majority', async () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	for ( const failedCaptures of [ 2, 3 ] ) {
+		const results = await Promise.all(
+			[ 1, 2, 3, 4, 5 ].map( async i => {
+				let header = backendHeader;
+				if ( i <= failedCaptures ) {
+					header = i === 1 ? null : 'wp-total;dur=bad';
+				}
+				return {
+					iteration: i,
+					lcp: 300 + i,
+					...( await captureNavigationMetrics( navigationResponse( header ), forms, {
+						lcp: 300 + i,
+						ttfb: 200,
+						fcp: 500,
+						decodedBytesKB: 8229,
+						tbt: 0,
+					} ) ),
+				};
+			} )
+		);
+		for ( const result of results.slice( 0, failedCaptures ) ) {
+			assert.match( result.serverTimingError, /Missing|Invalid/ );
+			assert.equal( result.navigationStatus, 200 );
+			assert.equal( result.error, undefined );
+			for ( const field of [ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ] ) {
+				assert.equal( result.metrics[ field ], undefined );
+			}
+		}
+		const summary = buildSummary( results, 5 );
+		assert.equal( summary.successfulIterations, 5 );
+		assert.equal( summary.lcp.median, 303 );
+		assert.equal( summary.ttfb.median, 200 );
+		assert.equal( summary.fcp.median, 500 );
+		assert.equal( summary.decodedBytesKB.median, 8229 );
+		if ( failedCaptures === 2 ) {
+			assert.equal( finalizeMeasurement( forms, results, 5, 'url' ).summary.wpTotal.median, 101 );
+		} else {
+			assert.throws(
+				() => finalizeMeasurement( forms, results, 5, 'url' ),
+				/missing posted field\(s\): wpTotal, wpMemoryUsage, wpDbQueries/
+			);
+		}
+	}
 } );
 
 test( 'finalizeMeasurement throws on a partial summary, naming the dropped field', () => {
@@ -379,4 +632,209 @@ test( 'reportSkippedScenarios warns readably (no TeamCity message) on a missing/
 	const malformed = captureConsole( () => reportSkippedScenarios( badFile ) );
 	assert.deepEqual( malformed.log, [] );
 	assert.match( malformed.warn[ 0 ], /Could not read results/ );
+} );
+
+/** Execute the browser initializer with a controllable observer implementation. */
+function longTaskHarness( {
+	supported = true,
+	observeError = false,
+	drainError = false,
+	disconnectError = false,
+	synchronousEntries,
+} = {} ) {
+	const descriptors = Object.fromEntries(
+		[ 'window', 'performance', 'PerformanceObserver' ].map( key => [
+			key,
+			Object.getOwnPropertyDescriptor( globalThis, key ),
+		] )
+	);
+	const browserWindow = {};
+	let longTaskObserver;
+	class Observer {
+		static supportedEntryTypes = supported ? [ 'longtask' ] : [];
+		constructor( callback ) {
+			this.callback = callback;
+			this.pending = [];
+		}
+		observe( options ) {
+			if ( options.type === 'longtask' ) {
+				assert.equal( options.buffered, true );
+				longTaskObserver = this;
+				if ( observeError ) {
+					throw new Error( 'capture failed' );
+				}
+				if ( synchronousEntries ) {
+					this.callback( { getEntries: () => synchronousEntries } );
+				}
+			}
+		}
+		takeRecords() {
+			if ( drainError ) {
+				throw new Error( 'drain failed' );
+			}
+			return this.pending.splice( 0 );
+		}
+		disconnect() {
+			this.disconnected = true;
+			if ( disconnectError ) {
+				throw new Error( 'disconnect failed' );
+			}
+		}
+	}
+	try {
+		Object.defineProperties( globalThis, {
+			window: { value: browserWindow, configurable: true },
+			performance: { value: { setResourceTimingBufferSize() {} }, configurable: true },
+			PerformanceObserver: { value: Observer, configurable: true },
+		} );
+		initializeLoadObservers();
+	} finally {
+		for ( const [ key, descriptor ] of Object.entries( descriptors ) ) {
+			if ( descriptor ) {
+				Object.defineProperty( globalThis, key, descriptor );
+			} else {
+				delete globalThis[ key ];
+			}
+		}
+	}
+	return { finalize: browserWindow.__finalizeLongTasks, observer: longTaskObserver };
+}
+
+test( 'load TBT includes pre-paint tasks, drains pending records and excludes tasks beyond cutoff', () => {
+	const { finalize, observer } = longTaskHarness();
+	const early = { startTime: 0, duration: 120 };
+	observer.callback( { getEntries: () => [ early, { startTime: 130, duration: 40 } ] } );
+	observer.pending = [
+		{ startTime: 200, duration: 80 },
+		{ startTime: 200, duration: 100 },
+		{ startTime: 250, duration: 50 },
+		{ startTime: 280, duration: 60 },
+		{ startTime: 400, duration: 100 },
+	];
+	assert.deepEqual( finalize( 300 ), {
+		tbt: 150,
+		longTasks: [
+			early,
+			{ startTime: 130, duration: 40 },
+			{ startTime: 200, duration: 80 },
+			{ startTime: 200, duration: 100 },
+			{ startTime: 250, duration: 50 },
+		],
+	} );
+	assert.deepEqual( observer.pending, [] );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'serialized load observers capture long tasks without module globals', () => {
+	const browserWindow = {};
+	class Observer {
+		static supportedEntryTypes = [ 'longtask' ];
+		observe() {}
+		takeRecords() {
+			return [
+				{ startTime: 0, duration: 120 },
+				{ startTime: 200, duration: 80 },
+				{ startTime: 280, duration: 60 },
+			];
+		}
+		disconnect() {}
+	}
+	runInNewContext( '(' + initializeLoadObservers.toString() + ')()', {
+		window: browserWindow,
+		performance: { setResourceTimingBufferSize() {} },
+		PerformanceObserver: Observer,
+	} );
+	const capture = browserWindow.__finalizeLongTasks( 300 );
+	assert.equal( capture.tbt, 100 );
+	assert.equal( capture.longTasks.length, 2 );
+} );
+
+test( 'working empty capture is zero; unsupported or failed capture is missing', () => {
+	assert.deepEqual( longTaskHarness().finalize( 300 ), { tbt: 0, longTasks: [] } );
+	for ( const [ options, longTaskError ] of [
+		[ { supported: false }, 'unsupported' ],
+		[ { observeError: true }, 'observe-threw' ],
+		[ { drainError: true }, 'finalizer-threw' ],
+	] ) {
+		assert.deepEqual( longTaskHarness( options ).finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError,
+		} );
+	}
+} );
+
+test( 'a throwing long-task callback remains missing after a later successful callback', () => {
+	const { finalize, observer } = longTaskHarness();
+	observer.callback( {
+		getEntries() {
+			throw new Error( 'callback failed' );
+		},
+	} );
+	observer.callback( { getEntries: () => [ { startTime: 0, duration: 120 } ] } );
+	assert.deepEqual( finalize( 300 ), {
+		tbt: null,
+		longTasks: null,
+		longTaskError: 'callback-threw',
+	} );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'non-finite or negative long-task timings are missing data', () => {
+	for ( const entry of [
+		{ startTime: NaN, duration: 120 },
+		{ startTime: 0, duration: NaN },
+		{ startTime: -1, duration: 120 },
+		{ startTime: 0, duration: -1 },
+	] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ entry ];
+		assert.deepEqual( finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-entry',
+		} );
+	}
+} );
+
+test( 'a non-finite load-finalization cutoff is missing data', () => {
+	for ( const cutoff of [ undefined, NaN, Infinity ] ) {
+		const { finalize, observer } = longTaskHarness();
+		observer.pending = [ { startTime: 0, duration: 120 } ];
+		assert.deepEqual( finalize( cutoff ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-cutoff',
+		} );
+		assert.equal( observer.disconnected, true );
+	}
+} );
+
+test( 'long-task entries delivered synchronously during observe are preserved', () => {
+	const early = { startTime: 0, duration: 120 };
+	const { finalize } = longTaskHarness( { synchronousEntries: [ early ] } );
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+} );
+
+test( 'a disconnect failure does not discard the long-task capture', () => {
+	const { finalize, observer } = longTaskHarness( { disconnectError: true } );
+	const early = { startTime: 0, duration: 120 };
+	observer.pending = [ early ];
+	assert.deepEqual( finalize( 300 ), { tbt: 70, longTasks: [ early ] } );
+	assert.equal( observer.disconnected, true );
+} );
+
+test( 'TBT preserves zero in summary and requires a majority for optional-page posting', () => {
+	const forms = SCENARIOS.find( scenario => scenario.key === 'formsResponses' );
+	const results = [ 1, 2, 3 ].map( healthyIteration );
+	assert.equal( finalizeMeasurement( forms, results, 3, 'u' ).summary.tbt.median, 0 );
+	results[ 1 ].metrics.tbt = null;
+	results[ 2 ].metrics.tbt = null;
+	assert.equal( buildSummary( results, 3 ).tbt, undefined );
+	assert.throws(
+		() => finalizeMeasurement( forms, results, 3, 'u' ),
+		/missing posted field\(s\): tbt/
+	);
+	const dashboard = SCENARIOS.find( scenario => scenario.key === 'jetpackConnected' );
+	assert.doesNotThrow( () => finalizeMeasurement( dashboard, results, 3, 'u' ) );
 } );

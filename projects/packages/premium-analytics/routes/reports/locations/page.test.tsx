@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
 	ReportCsvAction,
@@ -31,6 +32,11 @@ jest.mock( './config', () => {
 		useLocationsReportRecords: jest.fn(),
 	};
 } );
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	usePrefetchViewerCountry: jest.fn(),
+} ) );
 
 jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
@@ -288,7 +294,7 @@ describe( 'LocationsReportPage', () => {
 		render( <LocationsReportPage /> );
 
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { isLoading: true } )
+			expect.objectContaining( { isLoading: false, isFetching: true } )
 		);
 	} );
 
@@ -311,6 +317,34 @@ describe( 'LocationsReportPage', () => {
 		await userEvent.setup().click( screen.getByRole( 'button', { name: 'Retry' } ) );
 
 		expect( records.refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'hides the map when the period has no rows', () => {
+		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.queryByTestId( 'locations-map' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the map mounted while the first rows load', () => {
+		mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
+
+		render( <LocationsReportPage /> );
+
+		expect( screen.getByTestId( 'locations-map' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the map when a picked country has no rows', () => {
+		mockTabState( 'regions' );
+		mockRecords();
+
+		render( <LocationsReportPage /> );
+		mockRecords( { table: { rows: [], isLoading: false, isFetching: false } } );
+		pickCountry( 'DE' );
+
+		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'regions', expect.anything(), 'DE' );
+		expect( screen.getByTestId( 'locations-map' ) ).toBeInTheDocument();
 	} );
 
 	// The Countries tab is already the whole country list, so scoping it to one
@@ -396,6 +430,16 @@ describe( 'LocationsReportPage', () => {
 		expect( useRecordsMock ).toHaveBeenLastCalledWith( 'cities', expect.anything(), undefined );
 	} );
 	describe( 'map', () => {
+		// The map waits for the country, so the lookup has to start with the page,
+		// not with the map.
+		it( "starts the viewer's country lookup while the rows are still loading", () => {
+			mockRecords( { table: { rows: [], isLoading: true, isFetching: true } } );
+
+			render( <LocationsReportPage /> );
+
+			expect( usePrefetchViewerCountry ).toHaveBeenCalled();
+		} );
+
 		it( 'plots the tab own rows at the tab granularity', () => {
 			mockTabState( 'cities' );
 			mockRecords();
