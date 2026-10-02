@@ -443,7 +443,7 @@ test( 'cancels a scheduled regeneration while disabled and schedules it again on
 			wpApiSettings.root,
 			'https://example.org',
 			wpApiSettings.nonce,
-			{ signal: expect.any( AbortSignal ) }
+			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
 		);
 	} finally {
 		jest.useRealTimers();
