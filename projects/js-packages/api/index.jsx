@@ -46,7 +46,9 @@ function JetpackRestApiClient( root, nonce ) {
 				'Content-type': 'application/json',
 			} ),
 		},
-		cacheBusterCallback = addCacheBuster;
+		cacheBusterCallback = addCacheBuster,
+		nonceRefresh = null;
+	const rejectedNonces = new Set();
 
 	const methods = {
 		setApiRoot( newRoot ) {
@@ -64,6 +66,10 @@ function JetpackRestApiClient( root, nonce ) {
 			wpcomOriginApiUrl = newRoot;
 		},
 		setApiNonce( newNonce ) {
+			// Callers that re-apply the page-load nonce on every request would otherwise undo a refresh.
+			if ( rejectedNonces.has( newNonce ) ) {
+				return;
+			}
 			headers = {
 				'X-WP-Nonce': newNonce,
 			};
@@ -527,7 +533,7 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @return {Promise<Response>} - the http request promise
 	 */
 	function getRequest( route, params ) {
-		return fetch( cacheBusterCallback( route ), params );
+		return fetchWithNonceRecovery( cacheBusterCallback( route ), params );
 	}
 
 	/**
@@ -539,7 +545,51 @@ function JetpackRestApiClient( root, nonce ) {
 	 * @return {Promise<Response>} - the http response promise
 	 */
 	function postRequest( route, params, body ) {
-		return fetch( route, Object.assign( {}, params, body ) ).catch( catchNetworkErrors );
+		return fetchWithNonceRecovery( route, Object.assign( {}, params, body ) ).catch(
+			catchNetworkErrors
+		);
+	}
+
+	/**
+	 * Fetch, and if the REST nonce has gone stale, refresh it and retry once, as `@wordpress/api-fetch` does.
+	 *
+	 * @param {string} url    - the URL
+	 * @param {object} params - the fetch params
+	 * @return {Promise<Response>} - the http response promise
+	 */
+	async function fetchWithNonceRecovery( url, params ) {
+		const response = await fetch( url, params );
+		if ( ! ( await isInvalidNonceResponse( response ) ) ) {
+			return response;
+		}
+
+		const freshNonce = await refreshNonce();
+		if ( ! freshNonce ) {
+			return response;
+		}
+
+		if ( params.headers?.[ 'X-WP-Nonce' ] ) {
+			rejectedNonces.add( params.headers[ 'X-WP-Nonce' ] );
+		}
+		methods.setApiNonce( freshNonce );
+		return fetch( url, {
+			...params,
+			headers: { ...params.headers, 'X-WP-Nonce': freshNonce },
+		} );
+	}
+
+	/**
+	 * Fetch a fresh REST nonce, sharing one request between concurrent callers.
+	 *
+	 * @return {Promise<string|null>} - the new nonce, or null if it could not be fetched
+	 */
+	function refreshNonce() {
+		if ( ! nonceRefresh ) {
+			nonceRefresh = fetchFreshNonce().finally( () => {
+				nonceRefresh = null;
+			} );
+		}
+		return nonceRefresh;
 	}
 
 	/**
@@ -580,6 +630,69 @@ function JetpackRestApiClient( root, nonce ) {
 const restApi = new JetpackRestApiClient();
 
 export default restApi;
+
+const NONCE_REFRESH_TIMEOUT_MS = 10000;
+const NONCE_PATTERN = /^[a-z0-9]+$/i;
+
+/**
+ * Check whether core rejected the request because its REST nonce is no longer valid.
+ *
+ * @param {Response} response - the API response
+ * @return {Promise<boolean>} - whether the nonce was rejected
+ */
+async function isInvalidNonceResponse( response ) {
+	if ( response?.status !== 403 || typeof response.clone !== 'function' ) {
+		return false;
+	}
+	try {
+		// Read a clone so the caller can still consume the body.
+		const json = await response.clone().json();
+		return json?.code === 'rest_cookie_invalid_nonce';
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Get the URL that returns a fresh REST nonce, preferring the one core configures for api-fetch.
+ *
+ * @return {string|null} - the nonce endpoint, or null outside wp-admin
+ */
+function getNonceEndpoint() {
+	if ( globalThis.wp?.apiFetch?.nonceEndpoint ) {
+		return globalThis.wp.apiFetch.nonceEndpoint;
+	}
+	if ( globalThis.ajaxurl ) {
+		return addQueryArgs( globalThis.ajaxurl, { action: 'rest-nonce' } );
+	}
+	return null;
+}
+
+/**
+ * Fetch a fresh REST nonce from core's `rest-nonce` Ajax action.
+ *
+ * @return {Promise<string|null>} - the new nonce, or null if it could not be fetched
+ */
+async function fetchFreshNonce() {
+	const endpoint = getNonceEndpoint();
+	if ( ! endpoint ) {
+		return null;
+	}
+	try {
+		const response = await fetch( endpoint, {
+			credentials: 'same-origin',
+			signal: AbortSignal.timeout( NONCE_REFRESH_TIMEOUT_MS ),
+		} );
+		if ( ! response.ok ) {
+			return null;
+		}
+		// A PHP notice or a login page can come back with a 200; storing it would break every later request.
+		const nonce = ( await response.text() ).trim();
+		return NONCE_PATTERN.test( nonce ) ? nonce : null;
+	} catch {
+		return null;
+	}
+}
 
 /**
  * Check the status of the response. Throw an error if it was not OK
