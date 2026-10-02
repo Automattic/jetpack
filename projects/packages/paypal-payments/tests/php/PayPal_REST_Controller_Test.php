@@ -32,6 +32,18 @@ class PayPal_REST_Controller_Test extends TestCase {
 	use PayPal_Tracks_Events;
 
 	/**
+	 * Every OAuth scope a seller grants when they accept the referral.
+	 */
+	private const SCOPES = array(
+		'https://uri.paypal.com/services/payments/realtimepayment',
+		'https://uri.paypal.com/services/payments/partnerfee',
+		'https://uri.paypal.com/services/payments/refund',
+		'https://uri.paypal.com/services/customer/merchant-integrations/read',
+		'https://uri.paypal.com/services/payments/payment/authcapture',
+		'https://uri.paypal.com/services/checkout/payment-resources/readwrite',
+	);
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
@@ -113,6 +125,22 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'message' => 'OK',
 			),
 			'body'     => wp_json_encode( $body, JSON_UNESCAPED_SLASHES ),
+		);
+	}
+
+	/**
+	 * The OAuth integrations on a merchant integration record.
+	 *
+	 * @param array $scopes Scope URIs the seller granted.
+	 * @return array
+	 */
+	private function oauth_integrations( array $scopes = self::SCOPES ) {
+		return array(
+			array(
+				'oauth_third_party' => array(
+					array( 'scopes' => $scopes ),
+				),
+			),
 		);
 	}
 
@@ -703,9 +731,10 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
 					array(
-						'merchant_id'   => 'MERCHANT1',
-						'tracking_id'   => 'woo-ncps-1234-1',
-						'primary_email' => 'junior@sports.com',
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'primary_email'      => 'junior@sports.com',
+						'oauth_integrations' => $this->oauth_integrations(),
 					)
 				),
 				'/paypal/platform/request'              => $this->http_response(
@@ -2230,8 +2259,9 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'/paypal/platform/merchant-integration' => $this->http_response(
 					200,
 					array(
-						'merchant_id' => 'MERCHANT1',
-						'tracking_id' => 'woo-ncps-1234-1',
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'oauth_integrations' => $this->oauth_integrations(),
 					)
 				),
 				'/paypal/platform/request'              => $this->http_response(

@@ -22,6 +22,18 @@ use PHPUnit\Framework\TestCase;
 class PayPal_Partner_Onboarding_Test extends TestCase {
 
 	/**
+	 * Every OAuth scope a seller grants when they accept the referral.
+	 */
+	private const SCOPES = array(
+		'https://uri.paypal.com/services/payments/realtimepayment',
+		'https://uri.paypal.com/services/payments/partnerfee',
+		'https://uri.paypal.com/services/payments/refund',
+		'https://uri.paypal.com/services/customer/merchant-integrations/read',
+		'https://uri.paypal.com/services/payments/payment/authcapture',
+		'https://uri.paypal.com/services/checkout/payment-resources/readwrite',
+	);
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
@@ -114,9 +126,26 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 					'payments_receivable'     => true,
 					'primary_email_confirmed' => true,
 					'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+					'oauth_integrations'      => $this->oauth_integrations(),
 				),
 				$overrides
 			)
+		);
+	}
+
+	/**
+	 * The OAuth integrations on a merchant integration record.
+	 *
+	 * @param array $scopes Scope URIs the seller granted.
+	 * @return array
+	 */
+	private function oauth_integrations( array $scopes = self::SCOPES ) {
+		return array(
+			array(
+				'oauth_third_party' => array(
+					array( 'scopes' => $scopes ),
+				),
+			),
 		);
 	}
 
