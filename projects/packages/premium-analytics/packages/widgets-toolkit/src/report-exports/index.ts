@@ -29,6 +29,17 @@ export { commentsAuthorsCsvExporter, commentsPostsCsvExporter, toCommentRows } f
 export { EMAILS_REPORT_ROW_LIMIT, emailsCsvExporter } from './emails';
 export { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from './tags';
 export {
+	LOCATIONS_GEO_MODES,
+	buildLocationRows,
+	getLocationsReportQueryParams,
+	getLocationsReportSection,
+	locationsCsvExporter,
+	supportsLocationsCountryFilter,
+	type LocationRow,
+	type LocationsReportSection,
+	type LocationsScope,
+} from './locations';
+export {
 	aggregateUtmRows,
 	getUtmDimensionLabel,
 	getUtmReportQueryParams,
