@@ -447,13 +447,16 @@ $band-ground: #f8f8f8;
 }
 
 // Round, like the filter pills beside them.
-// A segmented control: one soft track, the active layout a tile inside it.
+// A segmented control: one soft track, the active layout a tile inside it. The
+// padding takes the compact (32px) buttons to the search box's 40px height.
+$view-group-padding: 4px;
+
 .view-group {
 	background: var(--wpds-color-background-interactive-neutral-weak-active);
 	// The buttons' radius plus the track's padding, so the corners nest.
-	border-radius: calc(var(--wpds-border-radius-md) + 2px);
+	border-radius: calc(var(--wpds-border-radius-md) + #{$view-group-padding});
 	gap: 2px;
-	padding: 2px;
+	padding: $view-group-padding;
 }
 
 // Rounded like the feature icons beside them.
