@@ -72,7 +72,15 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 		isOptionsOpen,
 		isDialogOpen,
 	} = useContext( CommentSignals );
-	const { mustLogIn, identity, strings, avatarUrl, maxLength, blocks } = JetpackComments;
+	const {
+		mustLogIn,
+		identity,
+		strings,
+		avatarUrl,
+		maxLength,
+		blocks,
+		editor: labels,
+	} = JetpackComments;
 	const isSubmitting = useRef( false );
 	const boxRef = useRef< HTMLDivElement >( null );
 	const textareaRef = useRef< HTMLTextAreaElement >( null );
@@ -94,7 +102,11 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				.then( ( { mountEditor } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
-						labels: { blockTools: strings.blockTools },
+						// A page cached before this bundle shipped keeps the toolbar name among the strings.
+						labels: labels ?? {
+							blockTools: ( strings as { blockTools?: string } ).blockTools ?? '',
+							embedUrl: '',
+						},
 						focus,
 						placeholder,
 						onChange: content => ( commentValue.value = content ),
@@ -104,7 +116,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				} )
 				.catch( () => setEditor( 'failed' ) );
 		},
-		[ blocks, editor, placeholder, strings, commentValue ]
+		[ blocks, editor, placeholder, labels, commentValue ]
 	);
 
 	const onFocus = useCallback( () => {

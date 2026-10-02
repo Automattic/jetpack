@@ -863,6 +863,9 @@ class Jetpack_Mu_Wpcom {
 		if ( class_exists( '\Automattic\Jetpack\Comments\Checkpoint_Endpoint' ) ) {
 			\Automattic\Jetpack\Comments\Checkpoint_Endpoint::init();
 		}
+		if ( class_exists( '\Automattic\Jetpack\Comments\Embeds' ) ) {
+			\Automattic\Jetpack\Comments\Embeds::init();
+		}
 	}
 
 	/**
