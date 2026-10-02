@@ -6365,6 +6365,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				imageId: undefined,
 			} );
 		} );
+
+		// The image stays on the site, so any address works.
+		it( 'shows an http image without a warning', async () => {
+			renderForm( { imageUrl: 'http://example.com/previous.png', imageId: 7 } );
+			await formIsUp();
+
+			expect( details().getByRole( 'img', { name: 'Test Widget' } ) ).toHaveAttribute(
+				'src',
+				'http://example.com/previous.png'
+			);
+			expect( details().queryByTestId( 'notice' ) ).not.toBeInTheDocument();
+		} );
 	} );
 
 	// A key of validationErrors has to reach both the save gate and a control's `help`,

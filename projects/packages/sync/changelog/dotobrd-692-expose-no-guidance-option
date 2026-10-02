@@ -1,0 +1,4 @@
+Significance: patch
+Type: removed
+
+Remove the AI Launchpad options from the default synced options; WordPress.com's Atomic sites sync them through the WordPress.com Site Helper.

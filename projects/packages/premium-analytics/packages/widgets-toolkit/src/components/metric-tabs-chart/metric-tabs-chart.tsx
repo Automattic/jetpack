@@ -490,7 +490,7 @@ export function MetricTabsChart( {
 	// oscillates the width around grid snap boundaries fast enough to freeze the page.
 	const [ width, setWidth ] = useState< number >();
 	const hasMeasuredRef = useRef( false );
-	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >();
+	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >( undefined );
 	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
 		const rect = entries[ 0 ]?.contentRect;
 		if ( ! rect ) {

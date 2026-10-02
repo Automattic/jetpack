@@ -542,6 +542,75 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertSame( $tracking_id, $body['tracking_id'] );
 	}
 
+	/**
+	 * Test that the referral carries the BN code the site resolved, as PayPal certifies against.
+	 */
+	public function test_referral_carries_the_sites_partner_attribution_id() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->token_response(),
+				'/v2/customer/partner-referrals' => $this->referral_response(),
+			),
+			$requests
+		);
+
+		$request = $this->signup_link_request( 'sandbox' );
+		$request->set_param( 'partner_attribution_id', 'My_Sandbox-BN' );
+		$this->endpoint->generate_signup_link( $request );
+
+		$this->assertSame( 'My_Sandbox-BN', end( $requests )['args']['headers']['PayPal-Partner-Attribution-Id'] );
+	}
+
+	/**
+	 * Test that a site which sends no BN code gets a referral without the header.
+	 */
+	public function test_referral_omits_the_attribution_header_without_a_code() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token'               => $this->token_response(),
+				'/v2/customer/partner-referrals' => $this->referral_response(),
+			),
+			$requests
+		);
+
+		$this->endpoint->generate_signup_link( $this->signup_link_request( 'sandbox' ) );
+
+		$this->assertArrayNotHasKey( 'PayPal-Partner-Attribution-Id', end( $requests )['args']['headers'] );
+	}
+
+	/**
+	 * Test that a BN code is reduced to the characters PayPal accepts.
+	 */
+	public function test_partner_attribution_id_is_sanitized() {
+		$this->assertSame( 'Woo_BN-1', $this->endpoint->sanitize_partner_attribution_id( 'Woo _BN-1 ?&' ) );
+		$this->assertSame( '', $this->endpoint->sanitize_partner_attribution_id( array( 'x' ) ) );
+	}
+
+	/**
+	 * A created referral, as PayPal answers it.
+	 *
+	 * @return array
+	 */
+	private function referral_response() {
+		return $this->http_response(
+			201,
+			array(
+				'links' => array(
+					array(
+						'rel'  => 'action_url',
+						'href' => 'https://www.sandbox.paypal.com/merchantsignup/x',
+					),
+				),
+			)
+		);
+	}
+
 	// --- Calling site ---
 
 	/**

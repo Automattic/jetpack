@@ -17,6 +17,7 @@ import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 import {
 	buildSummary,
+	captureNavigationMetrics,
 	computeRunOutcome,
 	finalizeMeasurement,
 	findIncompleteSummaryFields,
@@ -151,6 +152,9 @@ test( 'empty measurements: exit 1 (backstop behind the validated filter)', () =>
 test( 'findIncompleteSummaryFields returns [] for a complete summary', () => {
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const summary = {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: 300,
 		lcp: { median: 300 },
 		ttfb: { median: 200 },
@@ -168,6 +172,9 @@ test( 'findIncompleteSummaryFields names a posted field whose block the summary 
 	// optional field blanking the required Dashboard's post with no warning naming it.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const summary = {
+		wpTotal: { median: 100 },
+		wpMemoryUsage: { median: 20971520 },
+		wpDbQueries: { median: 42 },
 		median: 300,
 		lcp: { median: 300 },
 		fcp: { median: 500 },
@@ -195,9 +202,39 @@ test( 'a majority-rule field drop in buildSummary is caught as incomplete', () =
 	// check must flag it so the measure step records a scenario error, not a green partial.
 	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
 	const iterations = [
-		{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
-		{ lcp: 310, metrics: { ttfb: null, fcp: 510, decodedBytesKB: 8229 } },
-		{ lcp: 305, metrics: { ttfb: null, fcp: 505, decodedBytesKB: 8229 } },
+		{
+			lcp: 300,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: 200,
+				fcp: 500,
+				decodedBytesKB: 8229,
+			},
+		},
+		{
+			lcp: 310,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: null,
+				fcp: 510,
+				decodedBytesKB: 8229,
+			},
+		},
+		{
+			lcp: 305,
+			metrics: {
+				wpTotal: 100,
+				wpMemoryUsage: 20971520,
+				wpDbQueries: 42,
+				ttfb: null,
+				fcp: 505,
+				decodedBytesKB: 8229,
+			},
+		},
 	];
 	const summary = buildSummary( iterations, 3 );
 	assert.equal( summary.ttfb, undefined, 'precondition: the majority rule dropped ttfb' );
@@ -219,8 +256,28 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 	// posting shapes.
 	const summary = buildSummary(
 		[
-			{ lcp: 300, metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 } },
-			{ lcp: 310, metrics: { ttfb: 210, fcp: 510, decodedBytesKB: 8229 } },
+			{
+				lcp: 300,
+				metrics: {
+					wpTotal: 100,
+					wpMemoryUsage: 20971520,
+					wpDbQueries: 42,
+					ttfb: 200,
+					fcp: 500,
+					decodedBytesKB: 8229,
+				},
+			},
+			{
+				lcp: 310,
+				metrics: {
+					wpTotal: 100,
+					wpMemoryUsage: 20971520,
+					wpDbQueries: 42,
+					ttfb: 210,
+					fcp: 510,
+					decodedBytesKB: 8229,
+				},
+			},
 		],
 		2
 	);
@@ -235,7 +292,14 @@ test( "buildSummary mirrors the lcp block flat on the summary root (the ['lcp'] 
 const healthyIteration = i => ( {
 	iteration: i,
 	lcp: 300 + i,
-	metrics: { ttfb: 200, fcp: 500, decodedBytesKB: 8229 },
+	metrics: {
+		wpTotal: 100,
+		wpMemoryUsage: 20971520,
+		wpDbQueries: 42,
+		ttfb: 200,
+		fcp: 500,
+		decodedBytesKB: 8229,
+	},
 } );
 
 test( 'finalizeMeasurement returns the measurement for healthy iterations', () => {
@@ -254,6 +318,95 @@ test( 'finalizeMeasurement throws when every iteration failed', () => {
 		() => finalizeMeasurement( forms, [ { iteration: 1, error: 'boom' } ], 1, 'u' ),
 		/All iterations failed/
 	);
+} );
+
+const backendHeader = 'wp-total;dur=100.5, wp-memory-usage;dur=20971520, wp-db-queries;dur=42';
+const navigationResponse = header => ( {
+	headerValue: async name => {
+		assert.equal( name, 'server-timing' );
+		return header;
+	},
+	url: () => 'http://fixture/wp-admin/',
+	status: () => 200,
+} );
+
+test( 'navigation capture merges parsed backend values into browser metrics', async () => {
+	const scenario = SCENARIOS.find( s => s.key === 'jetpackConnected' );
+	const browser = { lcp: 300, ttfb: 200, fcp: 500, decodedBytesKB: 8229 };
+	const capture = await captureNavigationMetrics(
+		navigationResponse( backendHeader ),
+		scenario,
+		browser
+	);
+	assert.deepEqual( capture.metrics, {
+		...browser,
+		wpTotal: 100.5,
+		wpMemoryUsage: 20971520,
+		wpDbQueries: 42,
+	} );
+	assert.equal( capture.serverTimingHeader, backendHeader );
+	assert.equal( capture.navigationStatus, 200 );
+	assert.equal( capture.navigationUrl, 'http://fixture/wp-admin/' );
+	assert.equal( capture.serverTimingError, undefined );
+	assert.deepEqual( browser, { lcp: 300, ttfb: 200, fcp: 500, decodedBytesKB: 8229 } );
+} );
+
+test( 'browser-only scenarios do not require a backend header', async () => {
+	const response = navigationResponse( null );
+	response.headerValue = () => assert.fail( 'backend header should not be read' );
+	const capture = await captureNavigationMetrics(
+		response,
+		{ metrics: [ { field: 'lcp' } ] },
+		{ lcp: 300 }
+	);
+	assert.deepEqual( capture.metrics, { lcp: 300 } );
+	assert.equal( capture.serverTimingError, undefined );
+} );
+
+test( 'backend capture failures preserve browser samples and use the per-field majority', async () => {
+	const forms = SCENARIOS.find( s => s.key === 'formsResponses' );
+	for ( const failedCaptures of [ 2, 3 ] ) {
+		const results = await Promise.all(
+			[ 1, 2, 3, 4, 5 ].map( async i => {
+				let header = backendHeader;
+				if ( i <= failedCaptures ) {
+					header = i === 1 ? null : 'wp-total;dur=bad';
+				}
+				return {
+					iteration: i,
+					lcp: 300 + i,
+					...( await captureNavigationMetrics( navigationResponse( header ), forms, {
+						lcp: 300 + i,
+						ttfb: 200,
+						fcp: 500,
+						decodedBytesKB: 8229,
+					} ) ),
+				};
+			} )
+		);
+		for ( const result of results.slice( 0, failedCaptures ) ) {
+			assert.match( result.serverTimingError, /Missing|Invalid/ );
+			assert.equal( result.navigationStatus, 200 );
+			assert.equal( result.error, undefined );
+			for ( const field of [ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ] ) {
+				assert.equal( result.metrics[ field ], undefined );
+			}
+		}
+		const summary = buildSummary( results, 5 );
+		assert.equal( summary.successfulIterations, 5 );
+		assert.equal( summary.lcp.median, 303 );
+		assert.equal( summary.ttfb.median, 200 );
+		assert.equal( summary.fcp.median, 500 );
+		assert.equal( summary.decodedBytesKB.median, 8229 );
+		if ( failedCaptures === 2 ) {
+			assert.equal( finalizeMeasurement( forms, results, 5, 'url' ).summary.wpTotal.median, 101 );
+		} else {
+			assert.throws(
+				() => finalizeMeasurement( forms, results, 5, 'url' ),
+				/missing posted field\(s\): wpTotal, wpMemoryUsage, wpDbQueries/
+			);
+		}
+	}
 } );
 
 test( 'finalizeMeasurement throws on a partial summary, naming the dropped field', () => {

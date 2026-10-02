@@ -236,7 +236,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 ### `getDefaultIntervalForPeriod( preset, from, to )`
 
-Returns the default (finest allowed) interval for a preset / date range.
+Returns the default interval for a preset / date range: the first one it allows.
 
 **Parameters:**
 
@@ -419,7 +419,7 @@ This package exports the following public API:
 
 - `prefetchReport` - Prefetch data for routes
 - `normalizeReportParams` - Normalize and validate parameters
-- `getDefaultIntervalForPeriod` - Default (finest) interval for a preset / range
+- `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
 - `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range

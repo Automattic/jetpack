@@ -19,6 +19,7 @@ use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Connection\XMLRPC_Async_Call;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
+use Automattic\Jetpack\Newsletter\Urls as Newsletter_Urls;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
@@ -150,7 +151,7 @@ class Jetpack_Subscriptions {
 		add_filter(
 			'jetpack_module_configuration_url_subscriptions',
 			function () {
-				return Jetpack::admin_url( array( 'page' => 'jetpack-newsletter' ) );
+				return Newsletter_Urls::get_newsletter_settings_url();
 			}
 		);
 

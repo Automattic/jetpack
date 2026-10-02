@@ -3,6 +3,7 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { QueryClientProvider } from '@tanstack/react-query';
+import { fireEvent, waitFor } from '@testing-library/react';
 import type { ReactNode } from 'react';
 
 export { mockWordPressRoute } from '../tests/js/route-test-utils';
@@ -15,7 +16,7 @@ export function queryClientWrapper( { children }: { children: ReactNode } ) {
 /**
  * Capture the files the CSV helpers save; jsdom can neither create object URLs nor navigate.
  *
- * @return The saved files, a reader for one file's lines, and a restore for `afterEach`.
+ * @return The saved files, a click that waits for one, a reader for the first file's lines, and a restore for `afterEach`.
  */
 export function captureCsvDownloads() {
 	const files: { filename: string; blob: Blob }[] = [];
@@ -41,8 +42,15 @@ export function captureCsvDownloads() {
 
 	return {
 		files,
-		lines: async ( index = 0 ) =>
-			( await files[ index ].blob.text() ).replace( '﻿', '' ).split( '\n' ),
+		clickAndSave: async ( button: HTMLElement ) => {
+			// user.click returns before the button clears its busy state, leaving that update outside act().
+			fireEvent.click( button );
+			await waitFor( () => {
+				expect( files ).toHaveLength( 1 );
+				expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' );
+			} );
+		},
+		lines: async () => ( await files[ 0 ].blob.text() ).replace( '\ufeff', '' ).split( '\n' ),
 		restore: () => {
 			clickSpy.mockRestore();
 			window.URL.createObjectURL = originalCreateObjectURL;

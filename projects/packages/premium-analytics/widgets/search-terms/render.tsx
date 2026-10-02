@@ -31,7 +31,7 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
  */
 function SearchTermsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
+	const { data, isLoading, isFetching, isError, isPrimaryError, error, hasComparison, refetch } =
 		useSearchTermViews( {
 			reportParams,
 			max: WIDGET_ROW_LIMIT,
@@ -64,7 +64,7 @@ function SearchTermsInner() {
 					<ReportLink report="search-terms" />
 					<ExporterCsvDownloadButton
 						exporter={ searchTermsCsvExporter }
-						status={ { isLoading, isFetching, isError } }
+						status={ { isLoading, isFetching, isError: isPrimaryError } }
 						rowCount={ rows.length }
 					/>
 				</>

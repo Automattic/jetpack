@@ -1,13 +1,15 @@
 /**
  * External dependencies
  */
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 import {
 	AnalyticsQueryClientProvider,
 	GlobalErrorProvider,
 	queryClient,
 } from '@jetpack-premium-analytics/data';
+import { useSectionTab } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
@@ -17,6 +19,7 @@ import ClicksReportPage from '../../routes/reports/clicks/page';
 import CommentsReportPage from '../../routes/reports/comments/page';
 import DownloadsReportPage from '../../routes/reports/downloads/page';
 import EmailsReportPage from '../../routes/reports/emails/page';
+import PostsReportPage from '../../routes/reports/posts/page';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
 import TagsReportPage from '../../routes/reports/tags/page';
@@ -32,9 +35,10 @@ import ReferrersWidget from '../../widgets/referrers/render';
 import SearchTermsWidget from '../../widgets/search-terms/render';
 import TagsWidget from '../../widgets/tags/render';
 import { captureCsvDownloads } from '../../widgets/test-utils';
+import TopPostsWidget from '../../widgets/top-posts/render';
 import VideoPressWidget from '../../widgets/videopress/render';
 import { setMockRouteSearch } from './route-test-utils';
-import type { ReactElement, ReactNode } from 'react';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 jest.mock(
@@ -50,6 +54,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
 	useDashboardLink: () => '/',
 	useReportDateFilters: () => ( {} ),
+	useSectionTab: jest.fn(),
 } ) );
 jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
@@ -57,7 +62,6 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsBreadcrumbs: () => null,
 	StatsPageIcon: () => null,
 } ) );
-// Only page chrome is stubbed; the CSV hook, action, and button run for real.
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
 	ReportDrilldownTable: () => null,
@@ -73,6 +77,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 } ) );
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
+const mockUseSectionTab = jest.mocked( useSectionTab );
 
 // Comparison on: the report fetches it, the export must not need it.
 const REPORT_PARAMS = {
@@ -84,6 +89,34 @@ const REPORT_PARAMS = {
 };
 
 const RESPONSES: Record< string, unknown > = {
+	'stats/top-posts': {
+		date: '2026-03-10',
+		days: {},
+		summary: {
+			postviews: Array.from( { length: 12 }, ( _, index ) => ( {
+				id: index + 1,
+				href: `https://example.com/post-${ index + 1 }/`,
+				date: '2026-03-01',
+				title: `Post ${ index + 1 }`,
+				type: 'post',
+				views: ( ( index * 7 ) % 12 ) + 1,
+			} ) ),
+			total_views: 78,
+		},
+	},
+	'stats/archives': {
+		date: '2026-03-10',
+		period: 'day',
+		summary: {
+			tag: Array.from( { length: 12 }, ( _, index ) => ( {
+				href: `https://example.com/tag/tag-${ index }/`,
+				value: `tag-${ index }`,
+				views: 80 - index,
+			} ) ),
+			cat: [ { href: 'https://example.com/category/updates/', value: 'updates', views: 201 } ],
+			tax: { topics: [ { href: 'https://example.com/topics/wp/', value: 'wp', views: 5 } ] },
+		},
+	},
 	'stats/file-downloads': {
 		date: '2026-03-10',
 		days: {},
@@ -222,6 +255,91 @@ const RESPONSES: Record< string, unknown > = {
 	},
 };
 
+const CASES: {
+	name: string;
+	Page: ComponentType;
+	widget: ( reportParams: Record< string, string > ) => ReactElement;
+	tab?: string;
+}[] = [
+	{
+		name: 'Posts & pages',
+		Page: PostsReportPage,
+		widget: reportParams => <TopPostsWidget attributes={ { reportParams } } />,
+		tab: 'posts-pages',
+	},
+	{
+		name: 'Archives',
+		Page: PostsReportPage,
+		widget: reportParams => (
+			<TopPostsWidget attributes={ { contentView: 'archives', reportParams } } />
+		),
+		tab: 'archives',
+	},
+	{
+		name: 'File downloads',
+		Page: DownloadsReportPage,
+		widget: reportParams => <FileDownloadsWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Search terms',
+		Page: SearchTermsReportPage,
+		widget: reportParams => <SearchTermsWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Videos',
+		Page: VideosReportPage,
+		widget: reportParams => <VideoPressWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Clicks',
+		Page: ClicksReportPage,
+		widget: reportParams => <ClicksWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Referrers',
+		Page: ReferrersReportPage,
+		widget: reportParams => <ReferrersWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Authors',
+		Page: AuthorsReportPage,
+		widget: reportParams => <AuthorsWidget attributes={ { reportParams } } />,
+	},
+];
+
+// A 403 is not retried, so the query settles as failed at once.
+const FORBIDDEN = { status: 403, code: 'forbidden', message: 'Forbidden' };
+
+/**
+ * Answer a Stats request with the fixture for its endpoint.
+ *
+ * @param path - The requested proxy path.
+ * @return The fixture response.
+ */
+function respond( path: string ) {
+	return Promise.resolve(
+		Object.entries( RESPONSES ).find( ( [ endpoint ] ) => path.includes( endpoint ) )?.[ 1 ] ?? {
+			date: '2026-03-10',
+			days: {},
+			summary: {},
+		}
+	);
+}
+
+/**
+ * Wrap a page or widget in the providers the dashboard mounts it under.
+ *
+ * @param ui - The page or widget.
+ * @return The wrapped element.
+ */
+function withProviders( ui: ReactElement ) {
+	return (
+		<AnalyticsQueryClientProvider>
+			<GlobalErrorProvider>{ ui }</GlobalErrorProvider>
+		</AnalyticsQueryClientProvider>
+	);
+}
+
 describe( 'Widget and report CSV parity', () => {
 	let downloads: ReturnType< typeof captureCsvDownloads >;
 
@@ -229,18 +347,9 @@ describe( 'Widget and report CSV parity', () => {
 		jest.useFakeTimers();
 		queryClient.clear();
 		setMockRouteSearch( REPORT_PARAMS );
+		mockUseSectionTab.mockReturnValue( [ 'posts-pages', jest.fn() ] );
 		mockApiFetch.mockReset();
-		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-			Promise.resolve(
-				Object.entries( RESPONSES ).find( ( [ endpoint ] ) =>
-					path.includes( endpoint )
-				)?.[ 1 ] ?? {
-					date: '2026-03-10',
-					days: {},
-					summary: {},
-				}
-			)
-		);
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => respond( path ) );
 		downloads = captureCsvDownloads();
 	} );
 
@@ -256,15 +365,10 @@ describe( 'Widget and report CSV parity', () => {
 	 * @return The saved file's name and contents.
 	 */
 	async function download( ui: ReactElement ) {
-		const view = render(
-			<AnalyticsQueryClientProvider>
-				<GlobalErrorProvider>{ ui }</GlobalErrorProvider>
-			</AnalyticsQueryClientProvider>
-		);
+		const view = render( withProviders( ui ) );
+		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
 
-		// eslint-disable-next-line testing-library/prefer-user-event
-		fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
-		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+		await downloads.clickAndSave( button );
 
 		const [ saved ] = downloads.files.splice( 0 );
 		const file = { filename: saved.filename, csv: await saved.blob.text() };
@@ -273,24 +377,51 @@ describe( 'Widget and report CSV parity', () => {
 		return file;
 	}
 
-	it.each( [
-		[ 'File downloads', DownloadsReportPage, FileDownloadsWidget ],
-		[ 'Search terms', SearchTermsReportPage, SearchTermsWidget ],
-		[ 'Videos', VideosReportPage, VideoPressWidget ],
-		[ 'Clicks', ClicksReportPage, ClicksWidget ],
-		[ 'Referrers', ReferrersReportPage, ReferrersWidget ],
-		[ 'Authors', AuthorsReportPage, AuthorsWidget ],
-	] as const )(
-		'downloads the same %s file from the widget as from the report page',
-		async ( _name, ReportPage, Widget ) => {
-			const reportFile = await download( <ReportPage /> );
+	it.each( CASES )(
+		'downloads the same $name file from the widget as from the report page',
+		async ( { Page, widget, tab } ) => {
+			if ( tab ) {
+				mockUseSectionTab.mockReturnValue( [ tab, jest.fn() ] );
+			}
+
+			const reportFile = await download( <Page /> );
 			queryClient.clear();
-			const widgetFile = await download(
-				<Widget attributes={ { reportParams: REPORT_PARAMS } } />
-			);
+			const widgetFile = await download( widget( REPORT_PARAMS ) );
 
 			expect( widgetFile ).toEqual( reportFile );
-			expect( widgetFile.csv.replace( '﻿', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
+			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
+		}
+	);
+
+	it( 'reuses the report page cached rows for the widget download', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await download( <PostsReportPage /> );
+
+		render( withProviders( CASES[ 0 ].widget( REPORT_PARAMS ) ) );
+		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+		const callsBeforeClick = mockApiFetch.mock.calls.length;
+
+		await user.click( button );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledTimes( callsBeforeClick );
+	} );
+
+	it.each( CASES )(
+		'keeps the $name download when only the comparison request fails',
+		async ( { widget } ) => {
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				path.includes( '2026-02' ) ? Promise.reject( FORBIDDEN ) : respond( path )
+			);
+
+			render( withProviders( widget( REPORT_PARAMS ) ) );
+
+			await expect(
+				screen.findByRole( 'button', { name: /Download CSV/ } )
+			).resolves.toBeInTheDocument();
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringContaining( '2026-02' ) } )
+			);
 		}
 	);
 
@@ -303,7 +434,10 @@ describe( 'Widget and report CSV parity', () => {
 	] as const )(
 		'downloads the same all-time %s from the widget as from the report page',
 		async ( filename, ReportPage, Widget, section ) => {
-			setMockRouteSearch( section ? { ...REPORT_PARAMS, section } : REPORT_PARAMS );
+			if ( section ) {
+				mockUseSectionTab.mockReturnValue( [ section, jest.fn() ] );
+			}
+
 			const reportFile = await download( <ReportPage /> );
 			queryClient.clear();
 			const widgetFile = await download(

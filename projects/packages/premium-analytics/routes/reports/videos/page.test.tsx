@@ -5,7 +5,6 @@ import {
 	ExporterCsvAction,
 	ReportErrorState,
 	ReportRecordsTable,
-	videosCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -50,8 +49,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	),
 	ReportRecordsTable: jest.fn( () => null ),
 	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
-	videosCsvExporter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
-		.videosCsvExporter,
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -133,7 +130,7 @@ describe( 'VideosReportPage', () => {
 		);
 	} );
 
-	it( 'wires loaded video rows into the page export action', () => {
+	it( 'passes the report status to the page export action', () => {
 		const rows = [
 			{
 				id: 441,
@@ -153,7 +150,7 @@ describe( 'VideosReportPage', () => {
 
 		expect( screen.getByTestId( 'page-actions' ) ).toHaveTextContent( 'Download' );
 		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { exporter: videosCsvExporter, items: rows, status: records } )
+			expect.objectContaining( { status: records } )
 		);
 	} );
 

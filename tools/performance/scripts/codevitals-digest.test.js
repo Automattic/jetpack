@@ -91,6 +91,24 @@ const spikeSeries = recover => [
  * serve a 404 for every metric).
  */
 const SCENARIOS = {
+	backend: () => ( {
+		metrics: [
+			{ ...metricRow( 401, 'PHP total', 'admin-wp-total-staging' ), unit: 'ms' },
+			{ ...metricRow( 402, 'Peak memory', 'admin-wp-memory-usage-staging' ), unit: 'bytes' },
+			{ ...metricRow( 403, 'DB queries', 'admin-wp-db-queries-staging' ), unit: 'count' },
+		],
+		series: {
+			401: levelSeries( Array( 10 ).fill( 100 ), 120, Array( 10 ).fill( 120 ), 'php' ),
+			402: levelSeries(
+				Array( 10 ).fill( 20971520 ),
+				25165824,
+				Array( 10 ).fill( 25165824 ),
+				'mem'
+			),
+			403: levelSeries( Array( 10 ).fill( 40 ), 48, Array( 10 ).fill( 48 ), 'db' ),
+		},
+		no302: true,
+	} ),
 	levelstep: () => ( {
 		series: { 301: levelSeries( Array( 10 ).fill( 100 ), 300, Array( 10 ).fill( 120 ) ) },
 	} ),
@@ -251,6 +269,22 @@ const SCENARIOS = {
 		values[ 28 ] = 175;
 		return { series: { 301: flaggedSeries( values, [ 20, 29 ], 'tail' ) } };
 	},
+	stalledPending: () => {
+		const fixture = SCENARIOS.groupedPending();
+		fixture.series[ 301 ] = fixture.series[ 301 ].map( row => ( {
+			...row,
+			measuredAt: iso( Date.parse( row.measuredAt ) - 9.5 * D ),
+		} ) );
+		return fixture;
+	},
+	slowPending: () => {
+		const fixture = SCENARIOS.groupedPending();
+		fixture.series[ 301 ] = fixture.series[ 301 ].map( ( row, i ) => ( {
+			...row,
+			measuredAt: iso( NOW - ( 35.5 - i ) * D ),
+		} ) );
+		return fixture;
+	},
 	distinctPending: () => ( {
 		series: {
 			301: flaggedSeries(
@@ -274,6 +308,27 @@ const SCENARIOS = {
 			name: 'N'.repeat( 120 ),
 			unit: 'U'.repeat( 120 ),
 		} ) );
+		return fixture;
+	},
+	oversizeOlderRow: () => {
+		const fixture = SCENARIOS.latecrowd();
+		fixture.metrics = fixture.metrics.slice( 0, 3 );
+		fixture.metrics[ 0 ].key = 'k'.repeat( 4000 );
+		fixture.series = Object.fromEntries( Object.entries( fixture.series ).slice( 0, 3 ) );
+		return fixture;
+	},
+	mixedOlderRows: () => {
+		const fixture = SCENARIOS.latecrowd();
+		fixture.metrics = fixture.metrics.slice( 0, 8 ).map( ( m, i ) => ( {
+			...m,
+			name: i % 2 === 0 ? '&'.repeat( 120 ) : m.name,
+		} ) );
+		for ( const [ i, metric ] of fixture.metrics.entries() ) {
+			fixture.series[ metric.id ] = fixture.series[ metric.id ].map( row => ( {
+				...row,
+				measuredAt: iso( Date.parse( row.measuredAt ) - i * 0.01 * D ),
+			} ) );
+		}
 		return fixture;
 	},
 	groupedsteps: () => {
@@ -1267,6 +1322,16 @@ async function runDigest( scenario, envOverrides = {}, opts = {} ) {
 	}
 }
 
+test( 'digest discovers backend staging metrics and renders their service units', async () => {
+	const result = await runDigest( 'backend', { METRIC_IDS: '' } );
+	assert.equal( result.code, 0, result.err );
+	assert.ok( result.out.includes( '3 sustained regressions' ), result.out );
+	for ( const reading of [ '100→120ms', '20971520→25165824bytes', '40→48count' ] ) {
+		assert.ok( result.out.includes( reading ), result.out );
+	}
+	assert.equal( result.calls.length, 0 );
+} );
+
 test( 'level gate confirms a step with median magnitude and rejects a dip recovery', async () => {
 	const step = await runDigest( 'levelstep' );
 	assert.equal( step.code, 0, step.err );
@@ -1351,6 +1416,30 @@ test( 'an in-window plateau re-flag brings the whole group into the sustained bu
 	for ( const i of [ 20, 24 ] ) assert.ok( r.out.includes( hx( 'cross' + i ) ), r.out );
 } );
 
+test( 'an absorbed in-window pending tail keeps an older confirmed group in the older bucket', async () => {
+	const r = await runDigest( 'stalledPending' );
+	assert.equal( r.code, 1, r.err );
+	const payload = JSON.parse( r.out );
+	assert.ok( payload.text.includes( '0 sustained regression(s)' ), payload.text );
+	assert.ok( payload.text.includes( '1 older confirmed change' ), payload.text );
+	assert.ok( payload.text.includes( 'DATA STALE' ), payload.text );
+	const line = payload.blocks.find( b => b.text?.text.includes( '*1 older' ) ).text.text;
+	assert.ok( line.includes( '2 flags grouped' ), line );
+	for ( const i of [ 20, 29 ] ) assert.ok( line.includes( hx( 'tail' + i ) ), line );
+	assert.ok( ! r.out.includes( 'awaiting confirmation' ), r.out );
+} );
+
+test( 'the older heading describes confirmed commits when an in-window pending member joins', async () => {
+	const r = await runDigest( 'slowPending' );
+	assert.equal( r.code, 0, r.err );
+	const payload = JSON.parse( r.out );
+	assert.ok( payload.text.includes( '1 older confirmed change' ), payload.text );
+	assert.ok( ! payload.text.includes( 'DATA STALE' ), payload.text );
+	const line = payload.blocks.find( b => b.text?.text.includes( '*1 older' ) ).text.text;
+	assert.ok( line.includes( 'confirmed at commits older than the 15d window' ), line );
+	for ( const i of [ 20, 29 ] ) assert.ok( line.includes( hx( 'tail' + i ) ), line );
+} );
+
 test( 'a noisy confirmed plateau does not absorb a smaller pending step', async () => {
 	const r = await runDigest( 'noisyPendingStep' );
 	assert.equal( r.code, 0, r.err );
@@ -1366,6 +1455,15 @@ test( 'a folded re-post does not exclude the original step from localization', a
 	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
 	assert.ok( line.includes( 'single-pair +100.0% (100→200ms)' ), line );
 	assert.ok( line.includes( hx( 'foldstep20' ) ), line );
+} );
+
+test( 'a folded same-time re-post marks the flag but does not label the original commit a re-run', async () => {
+	const r = await runDigest( 'foldedOriginal' );
+	assert.equal( r.code, 0, r.err );
+	const line = JSON.parse( r.out ).blocks.find( b => b.text?.text.startsWith( '•' ) ).text.text;
+	assert.ok( line.includes( '(flag from a re-run)' ), line );
+	assert.ok( line.includes( `/commit/${ hx( 'foldstep20' ) }|` ), line );
+	assert.ok( ! line.includes( '> (re-run)' ), line );
 } );
 
 test( 'adjacent plateau flags p7 group without suppressing the step commit', async () => {
@@ -1476,6 +1574,30 @@ test( 'older rows fit the Slack text limit without cutting links and count omitt
 		( text.match( /<https:/g ) || [] ).length,
 		( text.match( /\|[^>]+>/g ) || [] ).length
 	);
+} );
+
+test( 'an oversize older row does not hide the other rows and is counted as omitted', async () => {
+	const r = await runDigest( 'oversizeOlderRow' );
+	assert.equal( r.code, 0, r.err );
+	const text = JSON.parse( r.out ).blocks.find( b => b.text?.text.includes( '*3 older' ) ).text
+		.text;
+	assert.ok( text.length <= 3000, text.length );
+	for ( const i of [ 1, 2 ] ) assert.ok( text.includes( hx( 'lcf' + i ) ), text );
+	assert.ok( ! text.includes( hx( 'lcf0' ) ), text );
+	assert.ok( text.includes( 'and 1 more' ), text );
+	assert.equal( ( text.match( /<https:/g ) || [] ).length, 4 );
+	assert.equal( ( text.match( /\|[^>]+>/g ) || [] ).length, 4 );
+} );
+
+test( 'ordinary mixed-length overflow keeps the newest contiguous older rows', async () => {
+	const r = await runDigest( 'mixedOlderRows' );
+	assert.equal( r.code, 0, r.err );
+	const text = JSON.parse( r.out ).blocks.find( b => b.text?.text.includes( '*8 older' ) ).text
+		.text;
+	assert.ok( text.length <= 3000, text.length );
+	for ( const i of [ 0, 1, 2, 3 ] ) assert.ok( text.includes( hx( 'lcf' + i ) ), text );
+	for ( const i of [ 4, 5, 6, 7 ] ) assert.ok( ! text.includes( hx( 'lcf' + i ) ), text );
+	assert.ok( text.includes( 'and 4 more' ), text );
 } );
 
 test( 'older bucket reports age and possible repetition', async () => {
