@@ -8,10 +8,13 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Activity_Log\Jetpack_Activity_Log;
+use Automattic\Jetpack\Activity_Log\REST_Controller as Activity_Log_REST_Controller;
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Agents_Manager\Agents_Manager;
 use Automattic\Jetpack\Connection\Initial_State as Connection_Initial_State;
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Current_Plan;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Redirect;
@@ -39,6 +42,13 @@ class Jetpack_AI_Page {
 	 * @var string
 	 */
 	const WP_BUILD_PAGE_ID = 'jetpack-ai-hub';
+
+	/**
+	 * Activity Log actor ID that WordPress.com matches against every MCP agent event.
+	 *
+	 * @var string
+	 */
+	const ALL_AI_AGENTS_ACTOR_ID = 'mcp:*';
 
 	/**
 	 * Whether this request renders through wp-build.
@@ -266,19 +276,6 @@ class Jetpack_AI_Page {
 		$activity_log_site = ( is_string( $site_host ) && '' !== $site_host ) ? $site_host : $site_suffix;
 
 		/*
-		 * On Atomic link to WPCOM activity log; on self-hosted link to the local
-		 * wp-admin page, which only exists while the `activity-log` module is on.
-		 * An empty URL hides the row rather than linking to an unregistered page.
-		 */
-		if ( ( new Host() )->is_woa_site() ) {
-			$activity_log_url = 'https://wordpress.com/activity-log/' . $activity_log_site;
-		} elseif ( ( new Modules() )->is_active( 'activity-log' ) ) {
-			$activity_log_url = admin_url( 'admin.php?page=jetpack-activity-log' );
-		} else {
-			$activity_log_url = '';
-		}
-
-		/*
 		 * Link SEO settings to the dedicated Jetpack SEO page where it exists,
 		 * falling back to the Traffic settings card. Checking the `rsm_jetpack_seo`
 		 * filter is required in addition to the cohort check: is_seo_surface_visible()
@@ -361,23 +358,46 @@ class Jetpack_AI_Page {
 			)
 		);
 
+		// WordPress.com sites use Calypso's log; self-hosted sites use the wp-admin page, which only
+		// exists while the `activity-log` module is on. An empty URL hides the row.
+		$activity_log_filtered = false;
+		if ( $host->is_wpcom_platform() ) {
+			$activity_log_url = 'https://wordpress.com/activity-log/' . $activity_log_site;
+			// Answered by the host, without a remote call.
+			$activity_log_filtered = Current_Plan::supports( 'full-activity-log' );
+		} elseif ( ( new Modules() )->is_active( 'activity-log' ) ) {
+			$activity_log_url = admin_url( 'admin.php?page=' . Jetpack_Activity_Log::PAGE_SLUG );
+			// Filters need paid access. That check can call WordPress.com, so skip it
+			// when the row can't show: offline, or without a linked user.
+			$activity_log_filtered = ! $is_offline_mode
+				&& ! empty( $config['isUserConnected'] )
+				&& Activity_Log_REST_Controller::has_activity_logs_access();
+		} else {
+			$activity_log_url = '';
+		}
+		if ( $activity_log_filtered ) {
+			// add_query_arg() does not encode values.
+			$activity_log_url = add_query_arg( 'actor', rawurlencode( self::ALL_AI_AGENTS_ACTOR_ID ), $activity_log_url );
+		}
+
 		$show_gated_views = ! empty( $config['showGatedViews'] );
 
 		$plan_info = $show_gated_views ? self::get_ai_plan_info() : array( 'name' => '' );
 
 		$settings = array(
-			'blogId'            => $blog_id ? (int) $blog_id : 0,
-			'activityLogUrl'    => $activity_log_url,
-			'seoSettingsUrl'    => $seo_settings_url,
-			'searchSettingsUrl' => self::get_search_settings_url(),
-			'siteAdminUrl'      => admin_url(),
-			'userConnectionUrl' => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
-			'manageUrl'         => esc_url_raw( $config['manageUrl'] ?? '' ),
-			'hasMyJetpack'      => ! empty( $config['hasMyJetpack'] ),
-			'isConnected'       => ! empty( $config['isConnected'] ),
-			'hostAllowsAi'      => ! empty( $config['hostAllowsAi'] ),
-			'masterEnabled'     => ! empty( $config['masterEnabled'] ),
-			'masterForcedOff'   => in_array(
+			'blogId'              => $blog_id ? (int) $blog_id : 0,
+			'activityLogUrl'      => $activity_log_url,
+			'activityLogFiltered' => $activity_log_filtered,
+			'seoSettingsUrl'      => $seo_settings_url,
+			'searchSettingsUrl'   => self::get_search_settings_url(),
+			'siteAdminUrl'        => admin_url(),
+			'userConnectionUrl'   => esc_url_raw( $config['userConnectionUrl'] ?? '' ),
+			'manageUrl'           => esc_url_raw( $config['manageUrl'] ?? '' ),
+			'hasMyJetpack'        => ! empty( $config['hasMyJetpack'] ),
+			'isConnected'         => ! empty( $config['isConnected'] ),
+			'hostAllowsAi'        => ! empty( $config['hostAllowsAi'] ),
+			'masterEnabled'       => ! empty( $config['masterEnabled'] ),
+			'masterForcedOff'     => in_array(
 				$config['masterForcedOff'] ?? '',
 				array(
 					Jetpack_AI_Settings::FORCED_OFF_ROUTE_FILTER,
@@ -386,39 +406,39 @@ class Jetpack_AI_Page {
 				),
 				true
 			) ? $config['masterForcedOff'] : '',
-			'isOfflineMode'     => ! empty( $config['isOfflineMode'] ),
-			'canConnectSite'    => ! empty( $config['canConnectSite'] ),
-			'apiRoot'           => esc_url_raw( rest_url() ),
-			'apiNonce'          => wp_create_nonce( 'wp_rest' ),
-			'pluginUrl'         => plugins_url( '', JETPACK__PLUGIN_FILE ),
+			'isOfflineMode'       => ! empty( $config['isOfflineMode'] ),
+			'canConnectSite'      => ! empty( $config['canConnectSite'] ),
+			'apiRoot'             => esc_url_raw( rest_url() ),
+			'apiNonce'            => wp_create_nonce( 'wp_rest' ),
+			'pluginUrl'           => plugins_url( '', JETPACK__PLUGIN_FILE ),
 			// Images ship from the plugin directory, so the plugin version is what busts their cache.
-			'assetsVersion'     => JETPACK__VERSION,
+			'assetsVersion'       => JETPACK__VERSION,
 			// The redirect entry bakes in the jetpack_ai_yearly product and
 			// a post-checkout return to this page, so both can be
 			// retargeted without shipping a code change.
-			'upgradeUrl'        => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
+			'upgradeUrl'          => Redirect::get_url( 'jetpack-ai-hub-upgrade' ),
 			// The purchase granting AI — the usage card only uses it to pick
 			// the right loading-skeleton shape before the usage fetch lands.
 			// Only looked up when a gated view can render the card.
-			'planName'          => $plan_info['name'],
-			'showFeaturesView'  => $show_gated_views,
-			'showA12sBadge'     => ! empty( $config['showA12sBadge'] ),
+			'planName'            => $plan_info['name'],
+			'showFeaturesView'    => $show_gated_views,
+			'showA12sBadge'       => ! empty( $config['showA12sBadge'] ),
 			// The tab and its Agents Manager sidebar ship disabled by default.
-			'featureFlags'      => array(
+			'featureFlags'        => array(
 				Jetpack_AI_Feature_Flags::SCHEDULED_TASKS => $show_scheduled_tasks_view,
 			),
 			// The usage endpoint proxies as the current user, which needs
 			// their own WordPress.com account linked — not just the site.
-			'isUserConnected'   => ! empty( $config['isUserConnected'] ),
+			'isUserConnected'     => ! empty( $config['isUserConnected'] ),
 			// Tracks audience properties for the jetpack_mcp_* events, per the
 			// Tracks standards for AI product events (AIINT-586). The client
 			// sends them as the strings 'true'/'false' (AIINT-576).
-			'isA11n'            => self::is_current_user_automattician(),
-			'isTest'            => $is_internal_test,
+			'isA11n'              => self::is_current_user_automattician(),
+			'isTest'              => $is_internal_test,
 			// Identity for Tracks; the lookup can call WordPress.com on a
 			// cache miss, so it shares the sender's guard.
-			'tracksUserData'    => $can_send_tracks ? self::get_tracks_user_data() : null,
-			'mcpSettingsApi'    => $config['mcpSettingsApi'] ?? array(),
+			'tracksUserData'      => $can_send_tracks ? self::get_tracks_user_data() : null,
+			'mcpSettingsApi'      => $config['mcpSettingsApi'] ?? array(),
 		);
 
 		wp_add_inline_script(

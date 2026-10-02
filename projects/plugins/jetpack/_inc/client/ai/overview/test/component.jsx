@@ -276,6 +276,29 @@ describe( 'AiOverview', () => {
 		expect( row ).toHaveAttribute( 'href', 'https://example.com/activity' );
 	} );
 
+	test( 'activity log: promises AI agent actions when the link is filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions taken by AI agents on your site.' )
+		).resolves.toBeInTheDocument();
+	} );
+
+	test( 'activity log: describes all actions when the link is not filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered={ false } /> );
+
+		await expect(
+			screen.findByText( 'Review recent actions on your site.' )
+		).resolves.toBeInTheDocument();
+		expect(
+			screen.queryByText( 'Review recent actions taken by AI agents on your site.' )
+		).not.toBeInTheDocument();
+	} );
+
 	test( 'activity log: absent without the MCP preconditions', async () => {
 		apiFetch.mockResolvedValueOnce( freePayload() );
 
@@ -435,6 +458,25 @@ describe( 'AiOverview', () => {
 				is_test: 'false',
 				link_type: 'video',
 				link: 'jetpack-ai-hub-overview-video-connect-claude',
+			},
+		] );
+	} );
+
+	test( 'tracks: an Activity log click records whether the link is filtered', async () => {
+		apiFetch.mockResolvedValueOnce( freePayload() );
+
+		render( <AiOverview { ...PROPS } activityLogFiltered /> );
+		await expect( screen.findByText( 'Available requests' ) ).resolves.toBeInTheDocument();
+
+		await userEvent.click( screen.getByRole( 'link', { name: /Activity log/ } ) );
+		expect( callsFor( 'jetpack_ai_hub_link_click' ) ).toEqual( [
+			{
+				site_type: 'jetpack',
+				is_a11n: 'false',
+				is_test: 'false',
+				link_type: 'activity_log',
+				link: 'activity_log',
+				filtered: 'true',
 			},
 		] );
 	} );
