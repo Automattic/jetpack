@@ -126,6 +126,19 @@ class Admin_Page {
 		// MediaUpload (cover-image-control) reads wp.media.view — only defined after this runs.
 		add_action( 'admin_enqueue_scripts', 'wp_enqueue_media' );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_tracks_transport' ) );
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_i18n_loader' ) );
+	}
+
+	/**
+	 * Enqueue the JS translation loader so the dashboard's init module can download its catalogs.
+	 *
+	 * The loader is registered on every admin page by jetpack-assets but only enqueued when
+	 * something depends on it; the esbuild bundles don't pull it in.
+	 */
+	public static function enqueue_i18n_loader() {
+		if ( wp_script_is( 'wp-jp-i18n-loader', 'registered' ) ) {
+			wp_enqueue_script( 'wp-jp-i18n-loader' );
+		}
 	}
 
 	/**
@@ -269,10 +282,32 @@ class Admin_Page {
 
 		require_once $build_index;
 
+		self::register_script_modules_if_default_scripts_fired();
+
 		WP_Build_Polyfills::register(
 			'jetpack-podcast',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+	}
+
+	/**
+	 * Register the generated script modules now if `wp_default_scripts` has already fired.
+	 *
+	 * The generated registrar hooks `wp_default_scripts`, which has often already fired by
+	 * `admin_menu` on admin requests, so the hook would never run and the dashboard's init
+	 * module (which loads its translations) would be missing from the import map. The
+	 * registrar guards against running twice, so calling it directly is safe either way.
+	 *
+	 * @param string|\Closure $registrar The generated registrar. Defaults to the one wp-build generates.
+	 * @return bool Whether the registrar was called.
+	 */
+	public static function register_script_modules_if_default_scripts_fired( $registrar = 'jetpack_podcast_register_script_modules' ) {
+		if ( ! did_action( 'wp_default_scripts' ) || ! function_exists( 'wp_register_script_module' ) || ! is_callable( $registrar ) ) {
+			return false;
+		}
+
+		$registrar();
+		return true;
 	}
 
 	/**
