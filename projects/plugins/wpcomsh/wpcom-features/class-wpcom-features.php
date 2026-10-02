@@ -414,6 +414,10 @@ class WPCOM_Features {
 	 * Public const for every mapped feature, sorted alphabetically.
 	 */
 	public const AI_ASSISTANT                      = 'ai-assistant';
+	public const AI_CREDITS_BUSINESS               = 'ai-credits-business';
+	public const AI_CREDITS_COMMERCE               = 'ai-credits-commerce';
+	public const AI_CREDITS_PERSONAL               = 'ai-credits-personal';
+	public const AI_CREDITS_PREMIUM                = 'ai-credits-premium';
 	public const AI_SEO_ENHANCER                   = 'ai-seo-enhancer';
 	public const AD_CREDIT_VOUCHERS                = 'ad-credit';
 	public const ADVANCED_SEO                      = 'advanced-seo';
@@ -583,6 +587,26 @@ class WPCOM_Features {
 			self::WPCOM_PERSONAL_AND_HIGHER_PLANS,
 			self::JETPACK_COMPLETE_PLANS,
 			self::JETPACK_PRO_PLANS,
+		),
+		// AI_CREDITS_* - the WordPress Agent's monthly AI credit allowance tier. Trials get no credits.
+		self::AI_CREDITS_BUSINESS               => array(
+			self::WPCOM_BUSINESS_PLANS,
+			self::EXCLUDE_PLANS => array(
+				self::WPCOM_MIGRATION_TRIAL_PLANS,
+				self::WPCOM_HOSTING_TRIAL_PLANS,
+			),
+		),
+		self::AI_CREDITS_COMMERCE               => array(
+			self::WPCOM_ECOMMERCE_PLANS,
+		),
+		self::AI_CREDITS_PERSONAL               => array(
+			self::WPCOM_BLOGGER_PLANS,
+			self::WPCOM_PERSONAL_PLANS,
+			self::WPCOM_STARTER_PLANS,
+		),
+		self::AI_CREDITS_PREMIUM                => array(
+			self::WPCOM_PREMIUM_PLANS,
+			self::WPCOM_PRO_PLANS,
 		),
 		self::AI_SEO_ENHANCER                   => array(
 			self::WPCOM_PREMIUM_PLANS,
