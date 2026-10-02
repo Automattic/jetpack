@@ -100,6 +100,9 @@ pnpm test:run ./specs/forms/submission.test.ts --debug
 
 For more options and detailed documentation, see [Playwright's official docs](https://playwright.dev/docs/running-tests).
 
+The connected-site Jetpack AI Sidebar suite has additional setup and coverage details in
+[`docs/jetpack-ai-sidebar.md`](./docs/jetpack-ai-sidebar.md).
+
 ## Tests Architecture
 
 ### Specs
