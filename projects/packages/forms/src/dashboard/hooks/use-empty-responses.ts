@@ -63,19 +63,20 @@ const DELETE_CHUNK_SIZE = 500;
 
 type DeleteChunkResponse = { deleted?: number; has_more?: boolean };
 
-export type EmptyProgress = { deleted: number; total: number };
+/** `current` counts through the batch in flight, so the first step reads "500 of N", not "0 of N". */
+export type EmptyProgress = { current: number; total: number };
 
 /**
  * Button label shown while a chunked delete is running.
  *
- * @param progress - Responses deleted so far and the total expected.
+ * @param progress - Responses through the current batch, and the total expected.
  * @return Localized label.
  */
 export function getDeletingLabel( progress: EmptyProgress ): string {
 	return sprintf(
-		/* translators: 1: Responses deleted so far. 2: Total responses being deleted. */
+		/* translators: 1: Responses deleted once the current batch finishes. 2: Total responses being deleted. */
 		__( 'Deleting %1$s of %2$s…', 'jetpack-forms' ),
-		formatNumber( progress.deleted ),
+		formatNumber( progress.current ),
 		formatNumber( progress.total )
 	);
 }
@@ -170,14 +171,15 @@ export default function useEmptyResponses( {
 		};
 		let deleted = 0;
 		// Same id as the success notice, so the final message replaces this one.
-		const showProgress = ( current: EmptyProgress ) => {
-			setProgress( current );
+		const showProgress = ( deletedSoFar: number, expected: number ) => {
+			const current = Math.min( deletedSoFar + DELETE_CHUNK_SIZE, expected );
+			setProgress( { current, total: expected } );
 			createInfoNotice(
 				sprintf(
-					/* translators: 1: Responses deleted so far. 2: Total responses being deleted. */
+					/* translators: 1: Responses deleted once the current batch finishes. 2: Total responses being deleted. */
 					__( 'Deleting %1$s of %2$s responses… Keep this page open.', 'jetpack-forms' ),
-					formatNumber( current.deleted ),
-					formatNumber( current.total )
+					formatNumber( current ),
+					formatNumber( expected )
 				),
 				{
 					type: 'snackbar',
@@ -190,7 +192,7 @@ export default function useEmptyResponses( {
 		};
 		// Progress only for bulk deletes; anything that fits in one request just shows the result.
 		if ( total > DELETE_CHUNK_SIZE ) {
-			showProgress( { deleted, total } );
+			showProgress( deleted, total );
 		}
 
 		try {
@@ -208,7 +210,7 @@ export default function useEmptyResponses( {
 				if ( ! response?.has_more || chunkDeleted === 0 ) {
 					break;
 				}
-				showProgress( { deleted, total: Math.max( total, deleted ) } );
+				showProgress( deleted, Math.max( total, deleted ) );
 			}
 
 			const successMessage =

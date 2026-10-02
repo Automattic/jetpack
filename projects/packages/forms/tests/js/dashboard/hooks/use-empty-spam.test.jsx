@@ -330,8 +330,15 @@ describe( 'useEmptySpam', () => {
 
 			expect( deleteCalls() ).toHaveLength( 2 );
 			const noticesDispatch = useDispatch( 'notices' );
-			expect( noticesDispatch.createInfoNotice ).toHaveBeenLastCalledWith(
+			// Each step names the batch in flight: 500 first, then the remaining 200.
+			expect(
+				noticesDispatch.createInfoNotice.mock.calls.map( ( [ message ] ) => message )
+			).toEqual( [
 				'Deleting 500 of 700 responses… Keep this page open.',
+				'Deleting 700 of 700 responses… Keep this page open.',
+			] );
+			expect( noticesDispatch.createInfoNotice ).toHaveBeenLastCalledWith(
+				expect.any( String ),
 				expect.objectContaining( { type: 'snackbar', id: 'empty-spam', explicitDismiss: true } )
 			);
 			expect( noticesDispatch.createSuccessNotice ).toHaveBeenCalledWith(
