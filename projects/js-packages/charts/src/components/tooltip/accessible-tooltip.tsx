@@ -6,7 +6,7 @@ import { useGlobalChartsContext } from '../../providers/chart-context/hooks/use-
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useChartScopeElement, useStandaloneScopeClass } from '../../providers/chart-scope';
 import { resolveCssVariable } from '../../utils';
-import { XyChartTooltip } from './xy-chart-tooltip';
+import { XyChartTooltipOverlay } from './xy-chart-tooltip';
 import type { SeriesData, DataPointDate } from '../../types';
 import type { RenderTooltipParams, XyChartTooltipProps } from '../../visx/types';
 import type { ReactNode } from 'react';
@@ -19,8 +19,8 @@ export type FlattenedTooltipData = {
 	dataPointIndex: number;
 };
 
-// The XY chart tooltip, as LineChart, AreaChart and BarChart render it: place it inside a visx `XYChart`, with `useKeyboardNavigation` for keyboard access.
-interface AccessibleTooltipProps extends Omit<
+/** The XY chart tooltip that LineChart, AreaChart and BarChart render; place it inside a visx `XYChart` with `useKeyboardNavigation`. */
+interface XYChartTooltipProps extends Omit<
 	XyChartTooltipProps< DataPointDate >,
 	'renderTooltip'
 > {
@@ -45,7 +45,7 @@ interface AccessibleTooltipProps extends Omit<
 	mode?: 'individual' | 'group';
 }
 
-export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
+export const XYChartTooltip: React.FC< XYChartTooltipProps > = ( {
 	renderTooltip,
 	selectedIndex,
 	tooltipRef,
@@ -213,7 +213,7 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 	}, [ renderTooltip, selectedIndex, tooltipRef, keyboardFocusedClassName, standaloneScopeClass ] );
 
 	return (
-		<XyChartTooltip
+		<XyChartTooltipOverlay
 			{ ...props }
 			verticalCrosshairStyle={ { ...crosshairStroke, ...verticalCrosshairStyle } }
 			horizontalCrosshairStyle={ { ...crosshairStroke, ...horizontalCrosshairStyle } }
@@ -221,6 +221,9 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		/>
 	);
 };
+
+/** @deprecated Use `XYChartTooltip`. */
+export const AccessibleTooltip = XYChartTooltip;
 
 // Keyboard navigation hook for charts
 interface UseKeyboardNavigationProps {

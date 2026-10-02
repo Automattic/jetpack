@@ -15,7 +15,6 @@ import '@automattic/charts/style.css';
  */
 export {
 	BarChart,
-	BaseTooltip,
 	ConversionFunnelChart,
 	GeoChart,
 	GlobalChartsProvider,
@@ -28,6 +27,7 @@ export {
 	PieChartUnresponsive,
 	PieSemiCircleChart,
 	Sparkline,
+	TooltipBox,
 	buildCalendarHeatmapData,
 	getBucketInfo,
 	lightenHexColor,

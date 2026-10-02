@@ -1,8 +1,7 @@
 // `.surface` is the look alone, for a chart that positions the box itself.
 // The box carries the chart scope class inside TooltipTheme, so these roles
 // resolve for the dark tooltip theme, as in @wordpress/ui's Tooltip popup.
-.surface,
-.tooltip {
+.surface {
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
 	background-color: var(--a8c-charts-color-surface);
 	color: var(--a8c-charts-color-label);
@@ -16,9 +15,4 @@
 	@media (forced-colors: active) {
 		border: var(--wpds-border-width-xs) solid CanvasText;
 	}
-}
-
-.tooltip {
-	position: absolute;
-	transform: translate(-50%, -100%);
 }

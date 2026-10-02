@@ -1,5 +1,5 @@
+import { TooltipBox } from '@jetpack-premium-analytics/externals';
 import { PieChartTooltip } from '../pie-chart-tooltip';
-import { TooltipBox } from './tooltip-box';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof PieChartTooltip > = {

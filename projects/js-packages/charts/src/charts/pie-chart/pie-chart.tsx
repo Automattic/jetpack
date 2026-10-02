@@ -5,8 +5,8 @@ import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
 import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { BaseTooltip } from '../../components/tooltip';
 import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
+import { LabelValueContent } from '../../components/tooltip/private/label-value-content';
 import {
 	useDataWithPercentages,
 	useLegendVisibilityData,
@@ -61,13 +61,13 @@ export type PieChartRenderTooltipParams = {
 
 /**
  * Default tooltip renderer for pie charts.
- * Renders a BaseTooltip with the hovered segment's data.
+ * Renders the default `label: value` tooltip content for the hovered segment.
  *
  * @param {PieChartRenderTooltipParams} params - The tooltip parameters containing the hovered data point
  * @return {ReactNode} The rendered tooltip content
  */
 const renderDefaultPieTooltip = ( { tooltipData }: PieChartRenderTooltipParams ): ReactNode => {
-	return <BaseTooltip data={ tooltipData } top={ 0 } left={ 0 } renderContainer={ false } />;
+	return <LabelValueContent data={ tooltipData } />;
 };
 
 export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
@@ -131,7 +131,7 @@ export interface PieChartProps extends BaseChartProps< DataPointPercentage[] > {
 
 	/**
 	 * Custom render function for tooltip content.
-	 * When provided, replaces the default BaseTooltip with custom content.
+	 * When provided, replaces the default `label: value` tooltip with custom content.
 	 */
 	renderTooltip?: ( params: PieChartRenderTooltipParams ) => ReactNode;
 }

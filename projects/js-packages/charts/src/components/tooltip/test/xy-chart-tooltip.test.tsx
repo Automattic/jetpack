@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react';
 import { BarSeries, LineSeries, TooltipContext, XYChart } from '@visx/xychart';
 import { useContext, useEffect } from 'react';
-import { XyChartTooltip } from '../xy-chart-tooltip';
+import { XyChartTooltipOverlay } from '../xy-chart-tooltip';
 import type { XyChartTooltipProps } from '../../../visx/types';
 import type { EventHandlerParams, XYChartTheme } from '@visx/xychart';
 
@@ -91,7 +91,7 @@ const renderChart = (
 			>
 				<LineSeries dataKey="A" data={ SERIES_A } xAccessor={ xAccessor } yAccessor={ yAccessor } />
 				<LineSeries dataKey="B" data={ SERIES_B } xAccessor={ xAccessor } yAccessor={ yAccessor } />
-				<XyChartTooltip
+				<XyChartTooltipOverlay
 					renderTooltip={ renderTooltip }
 					data-testid="tooltip-box"
 					{ ...tooltipProps }
@@ -101,7 +101,7 @@ const renderChart = (
 		</div>
 	);
 
-describe( 'XyChartTooltip', () => {
+describe( 'XyChartTooltipOverlay', () => {
 	test.each( [
 		[ 'bounded', {} ],
 		[ 'unbounded', { detectBounds: false } ],
@@ -152,6 +152,29 @@ describe( 'XyChartTooltip', () => {
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
 			transform: 'translate(133px, 55px)',
 		} );
+	} );
+
+	test( 'places the unbounded box at the anchor plus the default offsets', async () => {
+		renderChart( { detectBounds: false } );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).toHaveStyle( { position: 'absolute', left: '133px', top: '55px' } );
+		expect( box ).toHaveClass( 'visx-tooltip' );
+	} );
+
+	test( 'places the unbounded box with custom offsets', async () => {
+		renderChart( { detectBounds: false, offsetLeft: 4, offsetTop: 2 } );
+		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
+			left: '127px',
+			top: '47px',
+		} );
+	} );
+
+	test( 'keeps the unstyled unbounded box positioned but drops caller style and zIndex', async () => {
+		renderChart( { detectBounds: false, unstyled: true, style: { background: 'purple' } } );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).toHaveStyle( { position: 'absolute', left: '133px', top: '55px' } );
+		expect( box ).not.toHaveStyle( { background: 'purple' } );
+		expect( box ).not.toHaveStyle( { zIndex: '3' } );
 	} );
 
 	test( 'pins beside placement to the explicit SVG top anchor', async () => {
@@ -276,7 +299,7 @@ describe( 'XyChartTooltip', () => {
 						xAccessor={ bandXAccessor }
 						yAccessor={ bandYAccessor }
 					/>
-					<XyChartTooltip
+					<XyChartTooltipOverlay
 						renderTooltip={ renderBarTooltip }
 						data-testid="tooltip-box"
 						snapTooltipToDatumX
@@ -365,10 +388,14 @@ describe( 'XyChartTooltip', () => {
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( { zIndex: '9' } );
 	} );
 
-	test.each( [ 'auto', 'below-axis' ] as const )(
+	test.each( [
+		[ 'auto', { tooltipPlacement: 'auto' } ],
+		[ 'below-axis', { tooltipPlacement: 'below-axis' } ],
+		[ 'unbounded', { detectBounds: false } ],
+	] as const )(
 		'keeps the %s surface and stacking under a partial style override',
-		async tooltipPlacement => {
-			renderChart( { tooltipPlacement, style: { color: 'red' } } );
+		async ( _name, placementProps ) => {
+			renderChart( { ...placementProps, style: { color: 'red' } } );
 			const box = await screen.findByTestId( 'tooltip-box' );
 			expect( box ).toHaveClass( 'surface' );
 			expect( box ).toHaveStyle( { zIndex: '3', color: 'rgb(255, 0, 0)' } );
