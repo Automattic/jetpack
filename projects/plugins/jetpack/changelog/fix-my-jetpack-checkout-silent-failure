@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Backup and Search: Stop the purchase button from staying busy, and show an error, when setup fails on the connect screen.

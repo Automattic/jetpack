@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Checkout workflow: Stop the busy state and expose a checkoutError when site registration or the product lookup fails.
+Checkout workflow: Stop the busy state and return a checkoutError when site registration or the product lookup fails, and show an error on the Required Plan connect screen.
