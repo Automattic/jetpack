@@ -39,7 +39,8 @@ Adding a way back there reopens a door the dashboard closed on purpose.
 not happen there. `sharing_admin_init()` in `modules/sharedaddy/sharing.php`,
 the one Sharing file wpcom loads (public-api included), calls
 `Initializer::init()` under an `is_wpcom_simple()` guard instead. That
-bridge goes once wpcom registers the screen itself (CM-913).
+bridge goes once wpcom calls `Initializer::init()` itself (CM-913), since it
+registers the REST routes there as well as the screen.
 
 The screen is plain wp-admin chrome. It deliberately does not render inside
 `Jetpack_Admin_Page::wrap_ui()`, which is what keeps this package free of the
@@ -228,7 +229,8 @@ their section. A save switches them before anything else, and if the host
 keeps the module the other way, it answers 409 and writes nothing more. Saving
 them can change `comment_likes.follows_likes_settings` and `placement` in
 `status`, and with them whether `settings` offers `likes_enabled` and `show`,
-so the screen reads `status` again afterwards.
+so the screen reads `status` again afterwards, and sends a setting that only
+then appears in a save of its own.
 
 The routes and `Post_Handler` save through the same writers:
 `Sharing_Options::update()`, `Placement_Section::update()`, the

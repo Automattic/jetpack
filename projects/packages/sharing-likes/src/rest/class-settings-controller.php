@@ -27,9 +27,8 @@ use WP_REST_Server;
 /**
  * Reads and saves every setting the screen shows, and only those.
  *
- * Which settings a site gets follows the PHP screen: a setting its section does not
- * render is left out of reads and refused on writes. That keeps the API from offering
- * a way back where `BLOCK_CALL_TO_ACTION` deliberately has none.
+ * A setting its section does not render is left out of reads and refused on writes,
+ * so the API offers no way back where `BLOCK_CALL_TO_ACTION` deliberately has none.
  */
 final class Settings_Controller extends Controller {
 

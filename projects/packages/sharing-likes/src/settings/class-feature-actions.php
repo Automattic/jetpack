@@ -29,10 +29,8 @@ final class Feature_Actions {
 	/**
 	 * Stop producing a feature's legacy buttons, so the block can take over.
 	 *
-	 * This is a migration, not the section's off switch: it is what the Jetpack
-	 * dashboard's "Switch to the … block" button does, and it leaves the block
-	 * itself untouched. Simple has no modules, so it switches the feature off
-	 * through the settings sharedaddy and Likes read there instead.
+	 * A migration, not the section's off switch: it leaves the block itself untouched.
+	 * Simple has no modules, so it switches the feature off through settings instead.
 	 *
 	 * @param string $feature One of the `Placement_Section::FEATURE_*` constants.
 	 */
@@ -57,8 +55,7 @@ final class Feature_Actions {
 	 * Turn a feature's module back on.
 	 *
 	 * Only for the OFF variant, where no block route exists and nothing else on
-	 * the site will bring the feature back. Sites that can use the block are not
-	 * offered it, matching the Jetpack dashboard.
+	 * the site will bring the feature back.
 	 *
 	 * @param string $feature One of the `Placement_Section::FEATURE_*` constants.
 	 * @return bool Whether the module is now active.

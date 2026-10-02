@@ -12,9 +12,8 @@ namespace Automattic\Jetpack\Sharing_Likes\REST;
 /**
  * The routes the settings screen reads and saves through, on every platform.
  *
- * `wpcom/v2` although the data is the site's own: on WordPress.com Simple, wp-admin
- * `apiFetch` calls go through public-api, which serves only a fixed set of
- * namespaces. `jetpack/v4` or a namespace of our own would 404 there.
+ * `wpcom/v2` because on WordPress.com Simple, wp-admin `apiFetch` goes through public-api,
+ * which serves only a fixed set of namespaces: `jetpack/v4` or our own would 404 there.
  */
 final class Endpoints {
 

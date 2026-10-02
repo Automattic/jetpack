@@ -13,7 +13,8 @@ not admin requests:
 ```
 
 Neither depends on a module being active: the screen and every section on it
-exist whatever the site is running.
+exist whichever modules are on, on any site that is Simple, connected, or in
+offline mode.
 
 It also ships the per-post Likes and Sharing switches the block editor shows, as
 REST fields on every public post type. `Initializer::init()` leaves these out:

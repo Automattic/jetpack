@@ -23,9 +23,8 @@ use WP_REST_Server;
 /**
  * Which variant each section renders, plus "Switch to the … block" and "Turn on".
  *
- * Each action is only accepted from the variant that offers it, so the API opens
- * no door the screen keeps shut. The actions answer with the new status, so the
- * screen can re-render without asking again.
+ * Each action is only accepted from the variant that offers it, and answers with
+ * the new status so the screen can re-render without asking again.
  */
 final class Status_Controller extends Controller {
 

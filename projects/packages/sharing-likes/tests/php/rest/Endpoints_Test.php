@@ -41,7 +41,7 @@ class Endpoints_Test extends BaseTestCase {
 	}
 
 	/**
-	 * WordPress.com Simple serves `wpcom/v2` through public-api, but not `jetpack/v4` or a namespace of our own.
+	 * See `Endpoints` for why the namespace is `wpcom/v2`.
 	 */
 	public function test_every_route_is_under_wpcom_v2(): void {
 		$routes = array_keys( rest_get_server()->get_routes() );
