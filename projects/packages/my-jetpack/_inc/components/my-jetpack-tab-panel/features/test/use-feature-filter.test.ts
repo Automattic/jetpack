@@ -52,8 +52,8 @@ describe( 'getFeatureFilters', () => {
 		expect( getFeatureFilters().every( ( { value } ) => isFeatureFilter( value ) ) ).toBe( true );
 	} );
 
-	it( 'keeps Complete selectable without giving it a pill', () => {
-		expect( isFeatureFilter( 'complete' ) ).toBe( true );
+	it( 'no longer knows Complete, which only the old plan badge could select', () => {
+		expect( isFeatureFilter( 'complete' ) ).toBe( false );
 		expect( getFeatureFilters().map( ( { value } ) => value ) ).not.toContain( 'complete' );
 	} );
 

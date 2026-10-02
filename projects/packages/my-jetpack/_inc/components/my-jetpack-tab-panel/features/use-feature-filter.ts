@@ -2,9 +2,9 @@ import { __ } from '@wordpress/i18n';
 import type { FeatureState } from './feature-state';
 
 export type FeatureFilter =
-	'all' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'complete' | 'growth';
+	'all' | 'active' | 'inactive' | 'included' | 'essential' | 'security' | 'growth';
 
-const PLANS = [ 'security', 'complete', 'growth' ];
+const PLANS = [ 'security', 'growth' ];
 
 export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
 	[ 'all', 'active', 'inactive', 'included', 'essential', ...PLANS ].includes( value );
@@ -12,10 +12,10 @@ export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
 /**
  * The filters offered as pills, in the order they are shown.
  *
- * Complete and Included in plan earn no pill of their own, but a link can still select
- * either — so each joins the list while it is the active one, or the narrow layout's select
- * would have nothing to show. A visit that arrived on Included in plan is about what the
- * site owns, so it swaps the category pills for that one.
+ * Included in plan earns no pill of its own, but a link can still select it — so it joins
+ * the list while it is the active one, or the narrow layout's select would have nothing to
+ * show. A visit that arrived on it is about what the site owns, so it swaps the category
+ * pills for that one.
  *
  * @param active    - The filter in play, if any.
  * @param ownedView - Whether the visit arrived on Included in plan.
@@ -43,9 +43,6 @@ export const getFeatureFilters = (
 				{ value: 'security' as FeatureFilter, label: __( 'Security', 'jetpack-my-jetpack' ) },
 				{ value: 'growth' as FeatureFilter, label: __( 'Growth', 'jetpack-my-jetpack' ) },
 			] ),
-	...( 'complete' === active
-		? [ { value: 'complete' as FeatureFilter, label: __( 'Complete', 'jetpack-my-jetpack' ) } ]
-		: [] ),
 ];
 
 /**
