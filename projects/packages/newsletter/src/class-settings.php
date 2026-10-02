@@ -79,7 +79,6 @@ class Settings {
 		);
 
 		Subscriber_Stats_Controller::register();
-		Onboarding_Controller::register();
 	}
 
 	/**

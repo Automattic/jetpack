@@ -40,24 +40,20 @@ describe( 'Newsletter onboarding Skip settings API', () => {
 		mockGetSiteData.mockReturnValue( { wpcom: { blog_id: 123 } } );
 	} );
 
-	it( 'fetches the projection from the local WordPress settings endpoint', async () => {
-		mockApiFetch.mockResolvedValue( { [ SETTING_NAME ]: [ 'subscribers' ] } );
+	it( 'fetches the projection through the existing local Jetpack settings API', async () => {
+		mockRestApi.fetchSettings.mockResolvedValue( { [ SETTING_NAME ]: [ 'subscribers' ] } );
 
 		await expect( fetchNewsletterOnboardingSkippedSteps() ).resolves.toEqual( [ 'subscribers' ] );
-		expect( mockApiFetch ).toHaveBeenCalledWith( { path: '/wp/v2/settings', method: 'GET' } );
-		expect( mockRestApi.fetchSettings ).not.toHaveBeenCalled();
+		expect( mockRestApi.fetchSettings ).toHaveBeenCalledTimes( 1 );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
-	it( 'adds skipped steps through the local WordPress settings endpoint', async () => {
-		mockApiFetch.mockResolvedValue( { [ SETTING_NAME ]: STEP_IDS } );
+	it( 'adds skipped steps through the existing local Jetpack settings API', async () => {
+		mockRestApi.updateSettings.mockResolvedValue( { [ SETTING_NAME ]: STEP_IDS } );
 
 		await expect( addNewsletterOnboardingSkippedSteps( STEP_IDS ) ).resolves.toEqual( STEP_IDS );
-		expect( mockApiFetch ).toHaveBeenCalledWith( {
-			path: '/wp/v2/settings',
-			method: 'POST',
-			data: { [ SETTING_NAME ]: STEP_IDS },
-		} );
-		expect( mockRestApi.updateSettings ).not.toHaveBeenCalled();
+		expect( mockRestApi.updateSettings ).toHaveBeenCalledWith( { [ SETTING_NAME ]: STEP_IDS } );
+		expect( mockApiFetch ).not.toHaveBeenCalled();
 	} );
 
 	it( 'fetches the projection from the existing Simple settings endpoint', async () => {

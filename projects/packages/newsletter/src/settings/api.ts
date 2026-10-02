@@ -88,19 +88,11 @@ export async function updateSettings(
  * @return {Promise<NewsletterOnboardingStepId[]>} The skipped step IDs
  */
 export async function fetchNewsletterOnboardingSkippedSteps(): Promise< NewsletterOnboardingStepId[] > {
-	const blogId = getBlogId();
-	let settings: Record< string, unknown >;
-
-	if ( isSimpleSite() ) {
-		if ( ! blogId ) {
-			throw new Error( 'The site ID is required to fetch Newsletter onboarding settings.' );
-		}
-		settings = await fetchSettingsViaWpcomApi( blogId );
-	} else {
-		settings = ( await apiFetch( { path: '/wp/v2/settings', method: 'GET' } ) ) as Record< string, unknown >;
+	if ( isSimpleSite() && ! getBlogId() ) {
+		throw new Error( 'The site ID is required to fetch Newsletter onboarding settings.' );
 	}
 
-	return getNewsletterOnboardingSkippedSteps( settings );
+	return getNewsletterOnboardingSkippedSteps( await fetchSettings() );
 }
 
 /**
@@ -112,24 +104,12 @@ export async function fetchNewsletterOnboardingSkippedSteps(): Promise< Newslett
 export async function addNewsletterOnboardingSkippedSteps(
 	stepIds: NewsletterOnboardingStepId[]
 ): Promise< NewsletterOnboardingStepId[] > {
-	const blogId = getBlogId();
-	const updates = { [ NEWSLETTER_ONBOARDING_SKIPPED_STEPS_SETTING ]: stepIds };
-	let settings: Record< string, unknown >;
-
-	if ( isSimpleSite() ) {
-		if ( ! blogId ) {
-			throw new Error( 'The site ID is required to update Newsletter onboarding settings.' );
-		}
-		settings = await updateSettingsViaWpcomApi( updates, blogId );
-	} else {
-		settings = ( await apiFetch( {
-			path: '/wp/v2/settings',
-			method: 'POST',
-			data: updates,
-		} ) ) as Record< string, unknown >;
+	if ( isSimpleSite() && ! getBlogId() ) {
+		throw new Error( 'The site ID is required to update Newsletter onboarding settings.' );
 	}
 
-	return getNewsletterOnboardingSkippedSteps( settings );
+	const updates = { [ NEWSLETTER_ONBOARDING_SKIPPED_STEPS_SETTING ]: stepIds };
+	return getNewsletterOnboardingSkippedSteps( await updateSettings( updates ) );
 }
 
 /**

@@ -484,6 +484,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
+				case \Automattic\Jetpack\Newsletter\Onboarding_Controller::FIELD_NAME:
+					$response[ $setting ] = \Automattic\Jetpack\Newsletter\Onboarding_Controller::get_skipped_steps();
+					break;
+
 				case 'lang_id':
 					if ( ! current_user_can( 'install_languages' ) ) {
 						// The user doesn't have caps to install language packs, so warn the client.
@@ -713,6 +717,16 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $option_attrs );
 
 			switch ( $option ) {
+				case \Automattic\Jetpack\Newsletter\Onboarding_Controller::FIELD_NAME:
+					$skipped_steps = \Automattic\Jetpack\Newsletter\Onboarding_Controller::add_skipped_steps( $value );
+					if ( is_wp_error( $skipped_steps ) ) {
+						return $skipped_steps;
+					}
+
+					$response[ $option ] = $skipped_steps;
+					$updated             = true;
+					break;
+
 				case 'lang_id':
 					if ( ! current_user_can( 'install_languages' ) ) {
 						// We can't affect this setting.
