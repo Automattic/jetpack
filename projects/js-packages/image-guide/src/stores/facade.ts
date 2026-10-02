@@ -1,3 +1,4 @@
+// Temporary Svelte-compatible subscriptions until the React renderer slice.
 import { subscribeToFacts } from './store.ts';
 
 export type Readable< T > = {

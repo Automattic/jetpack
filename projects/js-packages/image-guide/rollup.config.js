@@ -23,6 +23,7 @@ const exportConditions = [ 'jetpack:src' ];
  */
 export default {
 	input: `./src/index.ts`,
+	// Boost relies on this external import so its asset manifest declares wp-data.
 	external: [ '@wordpress/data' ],
 	output: {
 		sourcemap: ! production,

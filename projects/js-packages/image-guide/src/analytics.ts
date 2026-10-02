@@ -54,11 +54,14 @@ export default class ImageGuideAnalytics {
 		imageStore: MeasurableImageStore
 	): Promise< ImageProperties > {
 		return new Promise( resolve => {
+			let unsubscribe = () => {};
+			let emitted = false;
 			// Wait until the image is loaded and then track the state.
-			observe(
+			unsubscribe = observe(
 				() => selectors.getImageFacts( imageStore.id ).loading,
 				loading => {
-					if ( ! loading ) {
+					if ( ! loading && ! emitted ) {
+						emitted = true;
 						const {
 							oversizedRatio,
 							fileSize,
@@ -90,12 +93,14 @@ export default class ImageGuideAnalytics {
 						} );
 
 						resolve( props );
+						unsubscribe();
 					}
 				},
 				undefined,
 				undefined,
 				imageStore.id
 			);
+			if ( emitted ) unsubscribe();
 		} );
 	}
 

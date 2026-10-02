@@ -3,6 +3,7 @@ import { commands, selectors, type ImageFacts } from './store.ts';
 import { MeasurableImage } from '../MeasurableImage.ts';
 import type { Dimensions, Weight } from '../MeasurableImage.ts';
 
+/** Own per-image measurements, source tracking and the weight cache outside reducer state. */
 export class MeasurableImageStore {
 	readonly fileSize: Writable< Dimensions >;
 	readonly fileWeight: Writable< Weight >;
@@ -70,6 +71,7 @@ export class MeasurableImageStore {
 		);
 	}
 
+	/** Read current image facts and derived measurements without activating fetching. */
 	public getSnapshot() {
 		return {
 			...selectors.getImageFacts( this.id ),
@@ -79,6 +81,7 @@ export class MeasurableImageStore {
 		};
 	}
 
+	/** Fetch the current source's weight when a measurement consumer becomes active. */
 	public activate() {
 		this.maybeUpdateWeight();
 	}

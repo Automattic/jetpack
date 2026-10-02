@@ -254,6 +254,12 @@ it( 'emits one image outcome after a rejected weight fetch without analytics ret
 	await outcome;
 	await Promise.resolve();
 	expect( measurable.getWeight ).toHaveBeenCalledTimes( 1 );
+	for ( let hover = 0; hover < 2; hover++ ) {
+		const stop = controller.potentialSavings.subscribe( () => {} );
+		await Promise.resolve();
+		stop();
+	}
+	expect( measurable.getWeight ).toHaveBeenCalledTimes( 3 );
 	expect( track ).toHaveBeenCalledTimes( 1 );
 	expect( track.mock.calls[ 0 ][ 0 ] ).toBe( 'image_guide_image_outcome' );
 	expect( controller.getSnapshot() ).toMatchObject( {
