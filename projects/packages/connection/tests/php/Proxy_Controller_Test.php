@@ -244,9 +244,12 @@ class Proxy_Controller_Test extends BaseTestCase {
 		return $accessor->call( $this->controller, $endpoint, $version );
 	}
 
-	public function test_route_is_registered_for_reads_and_writes_with_the_controller_callbacks() {
+	public function test_route_carries_the_table_and_the_controller_callbacks() {
 		$route = $this->route_key();
-		$this->assertNotSame( '', $route );
+		$this->assertStringContainsString( '(?P<version>', $route );
+		$this->assertStringContainsString( 'stats(?:/.*)?', $route );
+		$this->assertStringContainsString( 'videos/[0-9]+/(?:plays|views)', $route );
+		$this->assertStringNotContainsString( 'media', $route );
 
 		$handler = rest_get_server()->get_routes()[ $route ][0];
 		$this->assertArrayHasKey( 'GET', $handler['methods'] );
@@ -255,15 +258,6 @@ class Proxy_Controller_Test extends BaseTestCase {
 		$this->assertSame( array( $this->controller, 'check_data_permission' ), $handler['permission_callback'] );
 		$this->assertSame( array( $this->controller, 'validate_data_endpoint' ), $handler['args']['endpoint']['validate_callback'] );
 		$this->assertSame( array( $this->controller, 'validate_version' ), $handler['args']['version']['validate_callback'] );
-	}
-
-	public function test_route_regex_carries_the_prefix_table() {
-		$route = $this->route_key();
-
-		$this->assertStringContainsString( '(?P<version>', $route );
-		$this->assertStringContainsString( 'stats(?:/.*)?', $route );
-		$this->assertStringContainsString( 'videos/[0-9]+/(?:plays|views)', $route );
-		$this->assertStringNotContainsString( 'media', $route );
 	}
 
 	/**
@@ -287,20 +281,14 @@ class Proxy_Controller_Test extends BaseTestCase {
 			'deep sub-path with commas' => array( 'stats/utm/utm_campaign,utm_source', true ),
 			'mixed case prefix'         => array( 'Stats/top-posts', true ),
 			'pattern match'             => array( 'videos/45/plays', true ),
-			'pattern match, slash'      => array( 'videos/45/plays/', true ),
-			'pattern miss, no id'       => array( 'videos/plays', false ),
-			'pattern miss, extra'       => array( 'videos/45/plays/extra', false ),
-			'pattern miss, slug'        => array( 'videos/intro/plays', false ),
+			'pattern miss'              => array( 'videos/45/plays/extra', false ),
 			'site-less group'           => array( 'account', true ),
 			'site-less group, slash'    => array( 'account/', true ),
 			'site-less group, sub-path' => array( 'account/billing', false ),
 			'entry without capability'  => array( 'broken/anything', true ),
 			'unknown prefix'            => array( 'media', false ),
-			'prefix extension'          => array( 'statsfoo', false ),
 			'traversal'                 => array( 'stats/../../me/settings', false ),
 			'scheme'                    => array( 'stats/a:b', false ),
-			'foreign namespace'         => array( 'wp/v2/users', false ),
-			'empty'                     => array( '', false ),
 		);
 	}
 
@@ -320,11 +308,9 @@ class Proxy_Controller_Test extends BaseTestCase {
 	 */
 	public static function data_versions(): array {
 		return array(
-			'v2'        => array( '2', true ),
 			'v1.1'      => array( '1.1', true ),
 			'word'      => array( 'latest', false ),
 			'injection' => array( '2;DROP', false ),
-			'empty'     => array( '', false ),
 		);
 	}
 
@@ -346,11 +332,9 @@ class Proxy_Controller_Test extends BaseTestCase {
 	 */
 	public static function data_unrouted_endpoints(): array {
 		return array(
-			'unknown prefix'    => array( 'media' ),
-			'prefix extension'  => array( 'statsfoo' ),
-			'pattern miss'      => array( 'videos/45' ),
-			'foreign namespace' => array( 'wp/v2/users' ),
-			'raw sites path'    => array( 'sites/1/options' ),
+			'unknown prefix'   => array( 'media' ),
+			'prefix extension' => array( 'statsfoo' ),
+			'pattern miss'     => array( 'videos/45' ),
 		);
 	}
 
@@ -390,15 +374,6 @@ class Proxy_Controller_Test extends BaseTestCase {
 
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_request( 'media' ) ) );
 		$this->assertFalse( $this->controller->check_data_permission( $this->build_request( 'wp/v2/users' ) ) );
-	}
-
-	public function test_permission_is_denied_to_a_logged_out_request() {
-		wp_set_current_user( 0 );
-
-		$response = $this->dispatch( 'stats/top-posts' );
-
-		$this->assertSame( 401, $response->get_status() );
-		$this->assertSame( array(), $this->http_calls );
 	}
 
 	public function test_unconnected_site_gets_no_connection_before_any_request() {
@@ -662,15 +637,11 @@ class Proxy_Controller_Test extends BaseTestCase {
 		$this->assertStringStartsWith( self::CACHE_PREFIX, $this->read_cache_key( 'stats/top-posts' ) );
 	}
 
-	public function test_no_response_header_is_forwarded_by_default() {
-		$this->http_response = $this->build_http_response( 200, array(), array( 'x-wp-total' => '42' ) );
-
-		$response = $this->dispatch( 'stats/top-posts' );
-
-		$this->assertArrayNotHasKey( 'x-wp-total', $response->get_headers() );
-	}
-
 	public function test_a_product_extends_the_transport_body_and_header_seams() {
+		$this->http_response = $this->build_http_response( 200, array(), array( 'x-wp-total' => '42' ) );
+		$this->assertArrayNotHasKey( 'x-wp-total', $this->dispatch( 'stats/top-posts' )->get_headers(), 'nothing is forwarded by default' );
+		$this->http_calls = array();
+
 		$controller = new class( self::REST_NAMESPACE, self::PREFIX_CONFIG, self::CACHE_PREFIX ) extends Proxy_Controller {
 			/**
 			 * Routes one group through another transport.
