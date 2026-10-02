@@ -133,6 +133,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint(
 			'jetpack_subscriptions_login_navigation_enabled' => '(bool) Whether the Subscriber Login block navigation placement is enabled',
 			'jetpack_subscriptions_subscribe_navigation_enabled' => '(Bool) Whether the Subscribe block navigation placement is enabled',
 			'wpcom_ai_site_prompt'                      => '(string) User input in the AI site prompt',
+			'jetpack_newsletter_onboarding_skipped_steps' => '(array) Newsletter onboarding step IDs to skip',
 			'jetpack_waf_automatic_rules'               => '(bool) Whether the WAF should enforce automatic firewall rules',
 			'jetpack_waf_ip_allow_list'                 => '(string) List of IP addresses to always allow',
 			'jetpack_waf_ip_allow_list_enabled'         => '(bool) Whether the IP allow list is enabled',
@@ -490,6 +491,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						'jetpack_gravatar_in_email'        => (bool) get_option( 'jetpack_gravatar_in_email', true ),
 						'jetpack_author_in_email'          => (bool) get_option( 'jetpack_author_in_email', true ),
 						'jetpack_post_date_in_email'       => (bool) get_option( 'jetpack_post_date_in_email', true ),
+						'jetpack_newsletter_onboarding_skipped_steps' => \Automattic\Jetpack\Newsletter\Onboarding_Controller::get_skipped_steps(),
 						'wpcom_newsletter_categories'      => $newsletter_category_ids,
 						'wpcom_newsletter_categories_enabled' => (bool) get_option( 'wpcom_newsletter_categories_enabled' ),
 						'sm_enabled'                       => (bool) get_option( 'sm_enabled' ),
@@ -1351,6 +1353,21 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$updated[ $key ] = (int) (bool) $value;
 					break;
 
+				case 'jetpack_newsletter_onboarding_skipped_steps':
+					$raw_steps = $unfiltered_input[ $key ] ?? null;
+					if ( ! is_array( $raw_steps ) || array_values( $raw_steps ) !== $raw_steps ) {
+						return new WP_Error(
+							'rest_invalid_param',
+							__( 'Skipped newsletter onboarding steps must be an array of step IDs.', 'jetpack' ),
+							array( 'status' => 400 )
+						);
+					}
+					$skipped_steps = \Automattic\Jetpack\Newsletter\Onboarding_Controller::add_skipped_steps( $raw_steps );
+					if ( is_wp_error( $skipped_steps ) ) {
+						return $skipped_steps;
+					}
+					$updated[ $key ] = $skipped_steps;
+					break;
 				case 'sm_enabled':
 					update_option( 'sm_enabled', (int) (bool) $value );
 					$updated[ $key ] = (int) (bool) $value;

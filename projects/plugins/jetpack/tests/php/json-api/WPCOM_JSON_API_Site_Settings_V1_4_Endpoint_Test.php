@@ -521,6 +521,102 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 		$this->assertSame( array( 'hide_free_tier' => false ), get_option( 'subscription_options' ) );
 	}
 
+	public function test_get_settings_returns_empty_newsletter_skip_projection_without_creating_defaults() {
+		$controller = new \Automattic\Jetpack\Newsletter\Onboarding_Controller();
+
+		$response = $this->make_get_request();
+
+		$this->assertSame( array(), $response['settings'][ $controller::FIELD_NAME ] );
+		$this->assertFalse( get_option( $controller::FIELD_NAME, false ) );
+		foreach ( $controller::STEP_IDS as $step_id ) {
+			$this->assertFalse( get_option( $controller::get_option_name( $step_id ), false ) );
+		}
+	}
+
+	public function test_get_settings_projects_newsletter_skip_options_without_creating_defaults() {
+		$controller = new \Automattic\Jetpack\Newsletter\Onboarding_Controller();
+		add_option( $controller::get_option_name( 'send_newsletter' ), true, '', false );
+		add_option( $controller::get_option_name( 'subscribe_form' ), true, '', false );
+
+		$response = $this->make_get_request();
+
+		$this->assertSame( array( 'subscribe_form', 'send_newsletter' ), $response['settings'][ $controller::FIELD_NAME ] );
+		$this->assertFalse( get_option( $controller::FIELD_NAME, false ) );
+		$this->assertFalse( get_option( $controller::get_option_name( 'subscribers' ), false ) );
+	}
+
+	public function test_post_settings_adds_newsletter_skips_and_empty_post_does_not_clear_them() {
+		$controller = new \Automattic\Jetpack\Newsletter\Onboarding_Controller();
+
+		$response = $this->make_post_request(
+			wp_json_encode( array( $controller::FIELD_NAME => array( 'send_newsletter', 'subscribe_form' ) ), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertSame( array( 'subscribe_form', 'send_newsletter' ), $response['updated'][ $controller::FIELD_NAME ] );
+		$this->assertTrue( (bool) get_option( $controller::get_option_name( 'subscribe_form' ) ) );
+		$this->assertTrue( (bool) get_option( $controller::get_option_name( 'send_newsletter' ) ) );
+		$this->assertFalse( get_option( $controller::FIELD_NAME, false ) );
+
+		$empty_response = $this->make_post_request(
+			wp_json_encode( array( $controller::FIELD_NAME => array() ), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertSame( array( 'subscribe_form', 'send_newsletter' ), $empty_response['updated'][ $controller::FIELD_NAME ] );
+	}
+
+	public function test_post_settings_stores_newsletter_skips_without_autoloading_options() {
+		$controller = new \Automattic\Jetpack\Newsletter\Onboarding_Controller();
+		$response   = $this->make_post_request(
+			wp_json_encode( array( $controller::FIELD_NAME => array( 'subscribe_form', 'subscribers', 'send_newsletter' ) ), JSON_UNESCAPED_SLASHES )
+		);
+
+		$this->assertSame( array( 'subscribe_form', 'subscribers', 'send_newsletter' ), $response['updated'][ $controller::FIELD_NAME ] );
+		foreach ( $controller::STEP_IDS as $step_id ) {
+			$this->assertArrayNotHasKey( $controller::get_option_name( $step_id ), wp_load_alloptions() );
+		}
+	}
+
+	public function test_post_settings_reports_newsletter_skip_write_failures() {
+		$controller  = new \Automattic\Jetpack\Newsletter\Onboarding_Controller();
+		$option_name = $controller::get_option_name( 'subscribe_form' );
+		add_option( $option_name, false, '', false );
+
+		$response = $this->make_post_request(
+			wp_json_encode( array( $controller::FIELD_NAME => array( 'subscribe_form' ) ), JSON_UNESCAPED_SLASHES )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 500, $response->get_error_data()['status'] );
+	}
+
+	public function test_post_settings_rejects_invalid_newsletter_skip_ids_without_partial_writes() {
+		$controller = new \Automattic\Jetpack\Newsletter\Onboarding_Controller();
+		$response   = $this->make_post_request(
+			wp_json_encode( array( $controller::FIELD_NAME => array( 'subscribe_form', 'start' ) ), JSON_UNESCAPED_SLASHES )
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertFalse( get_option( $controller::get_option_name( 'subscribe_form' ), false ) );
+		$this->assertFalse( get_option( $controller::get_option_name( 'subscribers' ), false ) );
+		$this->assertFalse( get_option( $controller::get_option_name( 'send_newsletter' ), false ) );
+
+		$malformed = $this->make_post_request(
+			wp_json_encode( array( $controller::FIELD_NAME => 'subscribe_form' ), JSON_UNESCAPED_SLASHES )
+		);
+		$this->assertInstanceOf( WP_Error::class, $malformed );
+		$this->assertFalse( get_option( $controller::get_option_name( 'subscribe_form' ), false ) );
+	}
+
+	public function test_post_settings_requires_site_admin_for_newsletter_skips() {
+		$controller = new \Automattic\Jetpack\Newsletter\Onboarding_Controller();
+		$response   = $this->make_post_request(
+			wp_json_encode( array( $controller::FIELD_NAME => array( 'subscribe_form' ) ), JSON_UNESCAPED_SLASHES ),
+			'subscriber'
+		);
+
+		$this->assertInstanceOf( WP_Error::class, $response );
+		$this->assertSame( 403, $response->get_error_data() );
+		$this->assertFalse( get_option( $controller::get_option_name( 'subscribe_form' ), false ) );
+	}
+
 	/**
 	 * Returns the response of a successful GET request to `sites/%s/settings`.
 	 */
@@ -570,12 +666,12 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 	 *
 	 * @param string $setting The json encoded POST request body containing the test setting key and value.
 	 */
-	public function make_post_request( $setting ) {
+	public function make_post_request( $setting, $role = 'administrator' ) {
 		global $blog_id;
 
 		$admin = self::factory()->user->create_and_get(
 			array(
-				'role' => 'administrator',
+				'role' => $role,
 			)
 		);
 
@@ -675,6 +771,7 @@ class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint_Test extends WP_UnitTestCase {
 					'page_on_front'                        => '(string) The page ID of the page to use as the site\'s homepage. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'page_for_posts'                       => '(string) The page ID of the page to use as the site\'s posts page. It will apply only if \'show_on_front\' is set to \'page\'.',
 					'subscription_options'                 => '(array) Array of options used in subscription email templates and the Subscribe block: \'invitation\', \'welcome\', \'comment_follow\' and \'subscribe_modal_heading\' strings.',
+					'jetpack_newsletter_onboarding_skipped_steps' => '(array) Newsletter onboarding step IDs to skip.',
 					'mcp_abilities'                        => '(array) List of MCP Abilities',
 				),
 
