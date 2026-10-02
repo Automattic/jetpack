@@ -46,7 +46,12 @@ test.each( [ { status: 'loading' as const, isRunning: true }, { hasScores: false
 		expect( screen.getByText( 'Calculating score…' ) ).toBeVisible();
 		expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
+		const progress = within( screen.getByTestId( 'score-bar' ) ).getByRole( 'progressbar', {
+			hidden: true,
+		} );
+		expect( progress ).toHaveAttribute( 'aria-label', 'Testing site speed' );
+		expect( progress ).not.toHaveAttribute( 'value' );
+		expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
 	}
 );
 
@@ -97,4 +102,27 @@ test( 'retains scores during a plain refetch, matching the card', () => {
 		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText( '80' )
 	).toBeVisible();
 	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
+} );
+
+test( 'reveals completed scores in both surfaces with a motion-safe CSS entry', () => {
+	const { rerender } = render(
+		<>
+			<ScoreCards scores={ state.scores } isRunning />
+			<ScoreBar state={ { ...state, isRunning: true } } />
+		</>
+	);
+	expect( screen.getAllByRole( 'status' ) ).toHaveLength( 1 );
+	rerender(
+		<>
+			<ScoreCards scores={ state.scores } isScoreReady />
+			<ScoreBar state={ state } isScoreReady />
+		</>
+	);
+	for ( const score of screen.getAllByText( '80' ) ) {
+		// eslint-disable-next-line testing-library/no-node-access -- Both surfaces attach CSS entry to a score ancestor.
+		expect( score.closest( '.jetpack-boost-score-ready' ) ).not.toBeNull();
+	}
+	const overall = within( screen.getByTestId( 'score-bar' ) ).getByText( 'C' );
+	// eslint-disable-next-line testing-library/no-node-access -- The overall grade owns one condensed entry.
+	expect( overall.closest( '.jetpack-boost-score-ready' ) ).not.toBeNull();
 } );

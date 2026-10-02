@@ -2,7 +2,7 @@ import { getScoreMovementPercentage } from '@automattic/jetpack-boost-score-api'
 import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
@@ -10,6 +10,7 @@ import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
 import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import HistoryChartCard from './history-chart-card';
 import HistoryUpsell from './history-upsell';
+import { getScoreDisplayState } from './lib/score-utils';
 import { bucketHistoryDays } from './lib/history-days';
 import {
 	OVERVIEW_MODULES_CHANGE_EVENT,
@@ -108,6 +109,53 @@ function OverviewContent( {
 	const isLoading = scoreState.status === 'loading';
 	const scoreCardRef = useRef< HTMLDivElement >( null );
 	const { slot, isAboveViewport } = useScoreCardVisibility( scoreCardRef, isVisible && online );
+	const displayState = getScoreDisplayState( scoreState );
+	const [ isScoreReady, setScoreReady ] = useState( false );
+	const previousDisplay = useRef( {
+		displayState,
+		isRunning: scoreState.isRunning,
+		isVisible,
+		isAboveViewport,
+	} );
+
+	useLayoutEffect( () => {
+		const previous = previousDisplay.current;
+		if (
+			scoreState.status !== 'loaded' ||
+			displayState !== 'scores' ||
+			previous.isVisible !== isVisible ||
+			previous.isAboveViewport !== isAboveViewport
+		) {
+			setScoreReady( false );
+		} else if ( previous.displayState === 'generating' && previous.isRunning && isVisible ) {
+			setScoreReady( ! window.matchMedia( '(prefers-reduced-motion: reduce)' ).matches );
+		}
+		previousDisplay.current = {
+			displayState,
+			isRunning: scoreState.isRunning,
+			isVisible,
+			isAboveViewport,
+		};
+	}, [ displayState, scoreState.status, scoreState.isRunning, isVisible, isAboveViewport ] );
+
+	useEffect( () => {
+		const card = scoreCardRef.current;
+		const finishEntry = ( event: AnimationEvent ) => {
+			if ( event.animationName === 'jetpack-boost-score-entry' ) {
+				setScoreReady( false );
+			}
+		};
+		for ( const surface of [ card, slot ] ) {
+			surface?.addEventListener( 'animationend', finishEntry );
+			surface?.addEventListener( 'animationcancel', finishEntry );
+		}
+		return () => {
+			for ( const surface of [ card, slot ] ) {
+				surface?.removeEventListener( 'animationend', finishEntry );
+				surface?.removeEventListener( 'animationcancel', finishEntry );
+			}
+		};
+	}, [ slot ] );
 
 	useEffect( () => {
 		const onModulesChange = ( event: Event ) => {
@@ -206,9 +254,10 @@ function OverviewContent( {
 			{ isVisible &&
 				isAboveViewport &&
 				slot &&
-				createPortal( <ScoreBar state={ scoreState } />, slot ) }
+				createPortal( <ScoreBar state={ scoreState } isScoreReady={ isScoreReady } />, slot ) }
 			<div ref={ scoreCardRef }>
 				<ScoreCards
+					isScoreReady={ isScoreReady && isVisible }
 					headingRef={ scoreHeadingRef }
 					scores={ scoreState.scores }
 					isLoading={ isLoading }
