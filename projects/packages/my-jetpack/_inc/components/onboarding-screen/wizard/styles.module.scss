@@ -10,60 +10,26 @@
  */
 $rail-width: 300px;
 
-/*
- * How tall the sheet gets before it stops growing and starts centring. Past
- * this the sheet only adds white: at an 1800px window the content sat in the
- * top quarter and the rest was a blank cliff.
- *
- * Measured against the tallest step, the feature list, at the width the panel
- * leaves it: its content, the body's 48 of padding, a 73px footer, the column's
- * 56px offset, and this element's own 32 of inset. Re-measure it if that step
- * grows — a sheet a few pixels short is a scroll container with nowhere to go,
- * which moves the heading under anyone who nudges the wheel.
- *
- * It only holds for the copy as written. A longer translation scrolls, which is
- * the designed behaviour and not this number's job to prevent.
- */
-$sheet-max-height: 944px;
 $panel-width: 38%;
 
 /*
- * The one departure from the prototype on this screen, and deliberate: the
- * prototype drops its panel at Tailwind's `lg` (1024px), but it has no rail.
- * The rail changes the arithmetic. The panel is $panel-width of the whole grid
- * and the rail takes $rail-width off what is left, so the content frame is
- * `W * (1 - $panel-width) - $rail-width - 2 * $canvas-inset`: at 1024px that is
- * 239px and all four benefits wrap onto two lines.
- *
- * Measured rather than derived, because the first attempt at this number was
- * wrong: the panel is a share of the WHOLE grid, not of what the rail leaves,
- * so 1200px still gives only a 412px frame and two benefits still wrap. The
- * frame clears the benefit copy at 1280px (461.6px), which is where it sits.
+ * Wider than the prototype's 1024px, which has no rail: the frame is
+ * `W * (1 - $panel-width) - $rail-width - 2 * $canvas-inset`, and the panel is
+ * a share of the WHOLE grid, so the benefit copy only stops wrapping at 1280.
  */
 $panel-breakpoint: 1280px;
 
 /*
  * Where the rail stops being a column and becomes a header bar. Its own
- * breakpoint, because it and the panel were sharing one and the panel's is the
- * wider of the two: between 782 and 1279 the rail collapsed along with the
- * panel and took the step navigation with it, on windows with room for both the
- * rail and the sheet.
- *
- * 960 rather than lower: $rail-width is 300, the sheet's own column is 470, and
- * two $canvas-inset either side. 300 + 470 + 64 is 834, and the frame needs
- * more than the column to not read as a slot, so the next round hundred that
- * clears it comfortably is where it sits.
+ * breakpoint, not the panel's: sharing one collapsed the step navigation
+ * between 782 and 1279, on windows with room for both the rail and the sheet.
  */
 $rail-breakpoint: 960px;
 
 /*
  * The narrowest the sheet's own column may get before the panel stops taking
- * its share. Without it the panel's 38% came straight off the frame, so the
- * step column was WIDER at 1279 than at 1280: 947 down to 461, which is less
- * than $step-column-width and the reading measure narrowed as the window grew.
- *
- * 566 is that column plus what sits either side of it: the body's 2 x 32 of
- * padding and the canvas's 2 x 16 of inset.
+ * its share: without it the step column was WIDER at 1279 than at 1280. 566 is
+ * $step-column-width plus the body's 2 x 32 padding and 2 x 16 of canvas inset.
  */
 $frame-min-width: 566px;
 
@@ -79,91 +45,41 @@ $row-glyph-gap: 14px;
 $row-min-height: 56px;
 
 /*
- * The panel's display copy. The prototype sizes it off the viewport, at
- * `clamp(26px,2.3vw,40px)` (components/onboarding/brand-panel.tsx:72), and the
- * same rule reads much smaller here: its panel is 44% of a screen with no
- * rail, ours is $panel-width of a grid that carries one.
- *
- * So the size is a share of the panel instead. .brand-panel__inner is the
- * query container, and 1cqw is 1% of its content box, which $panel-copy-inset
- * below makes exactly the copy block's own width. A line renders at `ratio`
- * times the font size, and the widest ratio across the four steps is 7.9208,
- * "Grow your audience." in panel-type.ts, so landing that line on 72% of the
- * block is 72 / 7.9208, or 9.09cqw. At a 1440px viewport the block is 451.2px,
- * the size is 41.0px, and that line is 324.8px wide: 72.0% of the block.
- *
- * 72% and not the 80% this started at, which put the widest line 8px from the
- * inset and read as touching it. The prototype's own widest line is 38% of its
- * panel; 72% is the compromise, because the size was raised deliberately.
- *
- * The clamp only guards the ends. 26px is the prototype's own floor, below a
- * window the panel is hidden at anyway; 72px is reached at 792px of block,
- * which is where $panel-copy-max-width stops it too.
- *
- * The line height is a unitless ratio rather than a token because the size it
- * multiplies is fluid.
- */
-$panel-copy-size-min: 26px;
-$panel-copy-size-fluid: 9.09cqw;
-$panel-copy-size-max: 72px;
-$panel-copy-line-height: 1.16;
-
-/*
- * The copy's inset from the panel's edge, from the prototype's `inset-x-10` on
+ * The panel's inset from its own edge, from the prototype's `inset-x-10` on
  * components/onboarding/brand-panel.tsx — Tailwind's 10, so 2.5rem. No WPDS
- * padding token is 40px. It replaces the inner's inline padding rather than
- * nesting inside it, so the container-query box and the copy block are one
- * width and the 72% above is measured against the block itself.
+ * padding token is 40px.
  */
-$panel-copy-inset: 40px;
+$panel-inset: 40px;
 
 /*
  * The panel's foot is deeper than its head, from the prototype's `pb-14` on
- * brand-panel.tsx — Tailwind's 14, so 56px. It is what stops the display line
- * reading as if it has slipped off the panel. The padding scale stops at 32
+ * brand-panel.tsx — Tailwind's 14, so 56px. The padding scale stops at 32
  * (--wpds-dimension-padding-3xl), so there is no step above it.
  */
-$panel-copy-bottom-inset: 56px;
+$panel-bottom-inset: 56px;
 
 /*
- * The measure's ceiling, so a very wide panel cannot sprawl the line. It is
- * the width at which the clamp caps out — 72px / 9.09% — so the two limits
- * land together and the widest line stays at 72% past it.
- */
-$panel-copy-max-width: 792px;
-
-/*
- * The three stops of the shared gradient artwork, read off the linearGradient
- * in testimonials/slide-01-gradient.tsx — the same SVG this panel draws as its
- * glow. Named here so the mesh, the panel artwork and that SVG cannot drift
- * apart. The composition's fourth colour, the ground, is already a variable:
- * --jp-green-90, #003010.
+ * The three stops of testimonials/slide-01-gradient.tsx, the SVG this panel
+ * draws as its glow, named so the mesh and the artwork cannot drift from it.
+ * The fourth colour, the ground, is already --jp-green-90.
  */
 $brand-gradient-green-bright: #48ff50;
 $brand-gradient-green-mid: #108642;
 $brand-gradient-blue: #2e38fa;
 
 /*
- * The mesh gradient: four blurred blobs drifting behind the glow, built as
- * MESH-GRADIENT.md specifies. Nothing here has a token — the WPDS motion
- * durations stop in the hundreds of milliseconds and this is a half-minute
- * field, and a blur radius has no scale at all.
- *
- * The periods are primes, so the four never visibly re-align: the shortest
- * cycle they share is 17 x 19 x 23 x 29 seconds, about 48 hours. They were
- * 37/47/59, which showed roughly one pass before anyone had read the screen.
+ * Four blurred blobs drifting behind the glow, on prime periods so they never
+ * visibly re-align. Keep them this short:
+ * at 17/19/23/29 the field could not be seen moving behind a 64px blur.
  */
-$mesh-period-1: 17s;
-$mesh-period-2: 19s;
-$mesh-period-3: 23s;
-$mesh-period-4: 29s;
+$mesh-period-1: 7s;
+$mesh-period-2: 11s;
+$mesh-period-3: 13s;
+$mesh-period-4: 17s;
 
 /*
  * Blur is what makes four circles read as one field, so it is large next to
- * the blobs. The opacities are set by the mint copy's contrast, measured on
- * the composited background at the worst alignment of all four cycles rather
- * than at one frame: 7.87:1 on a 680px panel, 8.00:1 on a 900px one, against
- * a 7:1 floor. The mask below is what buys the headroom to be this bright.
+ * the blobs. Nothing reads over them now, so the opacities are free.
  */
 $mesh-blur: 64px;
 $mesh-opacity-bright: 0.34;
@@ -171,48 +87,30 @@ $mesh-opacity-mid: 0.8;
 $mesh-opacity-blue: 0.58;
 $mesh-opacity-deep: 0.62;
 
-/*
- * A stencil rather than a colour, and the reason the blobs can be this bright:
- * the field is opaque over the top 62% and drops to $mesh-mask-floor by 77%,
- * which is where the display copy starts on the shortest panel the breakpoint
- * allows. A floor rather than nothing, so the lower third still moves. What
- * the fade uncovers is the same ground the mesh paints, so it has no edge.
- *
- * It is a mask and not a per-blob drift limit because blur() is a fixed radius:
- * a percentage travel limit that clears the copy at 900px fails at 680px, where
- * the same 64px of soft edge covers half as much again of the panel. The mask
- * is in percentages of the panel, so it is the only one of the two that scales.
- */
-$mesh-mask-floor: 0.56;
-$mesh-mask-low: rgba(0, 0, 0, $mesh-mask-floor);
-$mesh-mask: linear-gradient(to bottom, #000 0%, #000 62%, $mesh-mask-low 77%);
+// The publish-everywhere composition's own width, straight off the Figma frame.
+// It is landscape where the panel is portrait, so the width leads and it is
+// never scaled past the size it was drawn at.
+$everywhere-width: 773px;
 
-/*
- * The panel artwork. Its width is the prototype's own proportion: 560px of art
- * (`max-w-[560px]`) in its 728px panel, so 77%.
- *
- * The draw-in runs 1.4s there (app/globals.css, `.panel-draw`). The nearest
- * WPDS duration is --wpds-motion-duration-xl at 400ms, far too fast to read as
- * drawing, so the prototype's value is kept.
- */
-$panel-art-width: 77%;
+// The data-in composition's own height, straight off the Figma frame. It is a
+// ceiling, not a size: the piece shrinks into a shorter panel but is never
+// scaled past the size it was drawn at.
+$data-in-height: 779px;
+
+// The artwork's share of the panel, and the prototype's own draw. The nearest
+// WPDS duration is 400ms, far too fast to read as drawing.
+$panel-art-width: 68%;
 $panel-art-draw-duration: 1.4s;
 
 /*
- * The prototype's easing, on everything ported from it. Not a WPDS token, and
- * the difference is the whole point. The expressive token is
- * cubic-bezier(0.25, 0, 0, 1), which starts at a standstill, so a box opening
- * on it crawls and then snaps. This one leaves at full speed and decelerates
- * into the end, which is what reads as smooth.
+ * The prototype's easing, on everything ported from it. Not the expressive
+ * WPDS token, which starts at a standstill and so crawls then snaps.
  */
 $house-easing: cubic-bezier(0.23, 1, 0.32, 1);
 
 /*
- * The prototype's column entrance, copied from its `.appear` rule: 0.5s on a
- * symmetric curve, from a 15px rise and an opacity of 0.001 rather than 0. The
- * near-zero start keeps the element composited from the first frame, so the
- * rise never hitches. Reduced motion drops to a 0.4s fade, which is what the
- * prototype does too.
+ * The prototype's `.appear` rule. The opacity starts at 0.001 rather than 0 to
+ * keep the element composited from the first frame, so the rise never hitches.
  */
 $appear-easing: cubic-bezier(0.44, 0, 0.56, 1);
 $appear-duration: 0.5s;
@@ -220,17 +118,9 @@ $appear-rise: 15px;
 $appear-reduced-duration: 0.4s;
 
 /*
- * The panel copy's own entrance, from the prototype's `.panel-line`: same 0.5s
- * but on the house curve and a 14px rise, one line 0.08s behind the last.
- */
-$panel-line-rise: 14px;
-$panel-line-step: 0.08s;
-
-/*
- * The question column's measure. The surface-width scale steps 400, 560, 720,
- * and it sat on 720 — wider than the start screen's own 448, so the two read as
- * different pages. 470 keeps the feature rows' two-line descriptions from
- * clamping harder than they already do, which 400 would not.
+ * The question column's measure. Off the surface-width scale, whose steps are
+ * 400, 560 and 720: 720 read as a different page from the start screen's 448,
+ * and 400 clamps the feature rows' two-line descriptions harder still.
  */
 $step-column-width: 470px;
 
@@ -241,6 +131,21 @@ $step-column-width: 470px;
  * WPDS step is 56px — the padding scale stops at 32.
  */
 $step-column-offset: 56px;
+
+/*
+ * The block that centres in the sheet, so the heading lands on the same pixel
+ * whatever the step is: the tallest step measured, with $step-column-offset
+ * above and below. Re-measure it if the feature step grows — there is no slack.
+ */
+$content-block-height: 670px + 2 * $step-column-offset;
+
+/*
+ * The seat the free-text field sits in, held open before the field is there: an
+ * input, on the padding above it. Without it the rows below absorb its height
+ * too, and the row that opens the field jumps out from under the pointer that
+ * chose it.
+ */
+$freetext-slot: calc(var(--wpds-dimension-padding-lg) + var(--wpds-dimension-size-lg));
 
 /*
  * The feature row's icon tile. Was the prototype's `size-12`, 48px; at that
@@ -272,7 +177,6 @@ $feature-glyph-offset: 3px;
  */
 $option-cascade-duration: 0.3s;
 $option-cascade-rise: 10px;
-$option-cascade-base: 0.12s;
 $option-cascade-step: 0.05s;
 
 /*
@@ -284,15 +188,23 @@ $wave-base: 0.1s;
 $wave-step: 0.08s;
 
 /*
- * The finish screen's badge and the discs washing out from behind it. Scales,
- * durations and delays are the prototype's, measured. The reference it came
- * from used 28, 34 and 30, which on a full-width sheet is the whole window
- * turning green rather than a bloom.
+ * The cascade starts where the list's own wave does, not before it. At the
+ * prototype's 0.12 the rows were rising inside a list that had not begun to
+ * move, so each row carried two rises at once and the list read as mush.
+ *
+ * After the waves, because Sass resolves in source order.
+ */
+$option-cascade-base: $wave-base + 2 * $wave-step;
+
+/*
+ * The finish badge and the discs washing out from behind it, the prototype's
+ * own timings. Each reach is a share of the window's longest side, not a
+ * multiple of the badge, which cannot track a screen. `.finish` clips.
  */
 $finish-badge-size: 64px;
-$finish-wash-1: 12;
-$finish-wash-2: 15;
-$finish-wash-3: 13;
+$finish-wash-reach-1: 1.12;
+$finish-wash-reach-2: 1.36;
+$finish-wash-reach-3: 1.2;
 $finish-wash-duration-1: 1.4s;
 $finish-wash-duration-2: 1.8s;
 $finish-wash-duration-3: 1.6s;
@@ -317,9 +229,8 @@ $connected-wash-duration-2: 1.5s;
 
 /*
  * The free-text field's reveal. The prototype grows the row's height and lags
- * the opacity behind it; ours takes its space in one frame and only fades,
- * which was Adam's call on 25 Sep. Nothing grows, so nothing can read as slow,
- * and the field needs no clipping, which is what sliced its focus ring in half.
+ * the opacity; ours takes its space in one frame and only fades, so nothing can
+ * read as slow and nothing clips, which is what sliced its focus ring in half.
  */
 $freetext-fade-duration: 0.16s;
 
@@ -391,14 +302,14 @@ $rail-row-min-height: 40px;
  */
 .canvas {
 	display: flex;
-	align-self: center;
 
 	min-inline-size: 0;
 	min-block-size: 0;
 
-	// A height, not a maximum: a maximum lets the sheet size to its content, and
-	// then it is a different height on every step and the footer moves with it.
-	block-size: min(100%, #{$sheet-max-height});
+	// The window, less the shell's own gutter. A height, not a maximum: a maximum
+	// lets the sheet size to its content, and then it is a different height on
+	// every step and the footer moves with it.
+	block-size: 100%;
 	padding: $canvas-inset;
 
 	/*
@@ -469,15 +380,16 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * The icon-only exit control, sized the way @wordpress/ui's own icon buttons
- * are: square, at the compact height.
+ * The way out of the takeover. Padded so the hover surface is a shape around
+ * the control, and pulled back by the same amount so the mark still lines up
+ * with the rail title under it.
  */
 .exit {
-	--wp-ui-button-aspect-ratio: 1;
-	--wp-ui-button-min-width: unset;
-	--wp-ui-button-padding-inline: 0;
+	--wp-ui-button-padding-inline: var(--wpds-dimension-padding-md);
 
 	align-self: flex-start;
+	margin-inline-start: calc(-1 * var(--wpds-dimension-padding-md));
+	margin-block-end: var(--wpds-dimension-gap-md);
 }
 
 /*
@@ -524,8 +436,7 @@ $rail-row-min-height: 40px;
 
 	/*
 	 * The one value on this rail that does not match core, and deliberate: the
-	 * Site Editor sets 13px on `.edit-site-sidebar-navigation-item` and the
-	 * labels read too small at it. Adam's call, 23 Sep: one step up the scale.
+	 * Site Editor's 13px reads too small here, so this is one step up the scale.
 	 * The line height is pinned with it so the taller text still sits inside
 	 * $rail-row-min-height alongside the row's 24px glyph.
 	 */
@@ -555,14 +466,9 @@ $rail-row-min-height: 40px;
 	}
 
 	/*
-	 * Item's own styles paint every descendant path with currentColor. That
-	 * lands on the path itself, so it beats the fill:none the two ring glyphs
-	 * carry on their <svg>, and the rings fill in solid: `published` reads as a
-	 * disc with its tick lost inside it.
-	 *
-	 * Only the paths the icon leaves undeclared are handed back to the <svg>,
-	 * so the rings open up again while the half fill `drafts` asks for by
-	 * attribute, and the dashed ring, are left alone.
+	 * Item paints every descendant path with currentColor, which beats the
+	 * fill:none the ring glyphs carry on their <svg> and fills them in solid.
+	 * Handing back only the undeclared paths leaves the half and dashed rings.
 	 */
 	svg path:not([fill]) {
 		fill: inherit;
@@ -603,24 +509,17 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * Top-anchored, not centred. An auto top margin moved the heading 147px between
- * steps 2 and 3 and 135px back again, and the step change only reads as a
- * sequence if the heading holds its place through the swap. The bottom margin
- * stays auto so a short step does not stretch.
+ * Centred as a block of one height, never as its own content: the content is a
+ * different height on each step, and centring that moved the heading 147px.
+ * The clamp to 100% keeps a short window from scrolling onto its own tail.
  */
 .panel-content {
 	inline-size: 100%;
 	max-inline-size: $step-column-width;
-	margin-block: $step-column-offset auto;
+	min-block-size: min(#{$content-block-height}, 100%);
+	margin-block: auto;
 	margin-inline: auto;
-	animation-name: step-enter;
-	animation-duration: $appear-duration;
-	animation-timing-function: $house-easing;
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-		animation-duration: $appear-reduced-duration;
-	}
+	padding-block-start: $step-column-offset;
 }
 
 @keyframes step-enter {
@@ -651,12 +550,11 @@ $rail-row-min-height: 40px;
 
 	@media (min-width: $panel-breakpoint) {
 		display: block;
-		align-self: center;
 		min-block-size: 0;
 
-		// Sized with the sheet, or the two stop being the same object on a tall
-		// window: one card and one full-height column beside it.
-		block-size: min(100%, #{$sheet-max-height});
+		// Full height, with the sheet. The artwork takes whatever the window
+		// gives it, so this is the one column that can absorb any amount.
+		block-size: 100%;
 		padding: var(--wpds-dimension-padding-lg);
 		padding-inline-start: 0;
 	}
@@ -666,18 +564,12 @@ $rail-row-min-height: 40px;
 	display: flex;
 	position: relative;
 	flex-direction: column;
-	justify-content: flex-end;
 	block-size: 100%;
 
-	// The query container the display copy is sized against, so the copy tracks
-	// the panel rather than the viewport. Its inline size comes from the grid,
-	// never from its contents, which is what inline-size containment requires.
-	container-type: inline-size;
-	padding-block: var(--wpds-dimension-padding-3xl) $panel-copy-bottom-inset;
+	padding-block: var(--wpds-dimension-padding-3xl) $panel-bottom-inset;
 
-	// The prototype's own inset, and the width the display copy is measured
-	// against; see $panel-copy-inset.
-	padding-inline: $panel-copy-inset;
+	// The prototype's own inset.
+	padding-inline: $panel-inset;
 
 	// The frame's radius, not one step below it: the panel sits beside the frame
 	// at the same scale, and two radii read as two unrelated surfaces.
@@ -697,7 +589,6 @@ $rail-row-min-height: 40px;
 	isolation: isolate;
 	background: var(--jp-green-90);
 
-	mask-image: $mesh-mask;
 	pointer-events: none;
 }
 
@@ -750,9 +641,8 @@ $rail-row-min-height: 40px;
 
 /*
  * The fourth, low and to the trailing edge, so the field has a centre to move
- * around rather than reading as three discs stacked at the top. This is the
- * one the mask only ever damps, never hides, so it takes the mid green: the
- * bright green would cost the copy its contrast from here.
+ * around rather than reading as three discs stacked at the top. Mid green,
+ * because the bright green this low reads as a second light source.
  */
 .brand-panel__blob--4 {
 	inset-block-start: 44%;
@@ -792,10 +682,10 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * The artwork sits in the panel's upper area and takes the free space, which
- * is what keeps it off the copy anchored at the foot.
+ * Where artwork sits in the panel: the free space under the glow, centred, and
+ * allowed to shrink. Shared by all three pieces that can occupy it.
  */
-.brand-panel__art {
+@mixin panel-artwork {
 	display: flex;
 	position: relative;
 	z-index: 2;
@@ -803,6 +693,11 @@ $rail-row-min-height: 40px;
 	align-items: center;
 	justify-content: center;
 	min-block-size: 0;
+}
+
+.brand-panel__art {
+
+	@include panel-artwork;
 
 	// The one place the artwork's hairline colour lives; its paths inherit it.
 	color: $brand-gradient-green-bright;
@@ -812,6 +707,43 @@ $rail-row-min-height: 40px;
 	inline-size: $panel-art-width;
 	max-block-size: 100%;
 	block-size: auto;
+}
+
+/*
+ * A site being run, on the step that asks what the site is for. It is landscape
+ * where the panel is portrait, so the width leads and the height follows, never
+ * scaled past the size it was drawn at.
+ */
+.everywhere {
+
+	@include panel-artwork;
+
+	svg {
+		inline-size: 100%;
+		max-inline-size: $everywhere-width;
+		block-size: auto;
+		max-block-size: 100%;
+	}
+}
+
+/*
+ * The plugins feeding the screen, on the features step. Portrait like the
+ * panel, so the height leads and the width follows.
+ *
+ * The flow keeps looping, as it does on the marketing page, by leaving
+ * `--flow-runs` unset. The composition carries its own stylesheet, so
+ * nothing here reaches inside it.
+ */
+.data-in {
+
+	@include panel-artwork;
+
+	svg {
+		inline-size: auto;
+		max-inline-size: 100%;
+		block-size: 100%;
+		max-block-size: $data-in-height;
+	}
 }
 
 /*
@@ -844,64 +776,6 @@ $rail-row-min-height: 40px;
 		animation-duration: var(--wpds-motion-duration-xl);
 		animation-timing-function: var(--wpds-motion-easing-subtle);
 		animation-fill-mode: both;
-	}
-}
-
-/*
- * The lines are outlines sized in em, so this font-size is what scales them:
- * a share of the panel's own width, which no token can express.
- */
-.brand-panel__copy {
-	position: relative;
-	z-index: 3;
-	margin: 0;
-	max-inline-size: $panel-copy-max-width;
-	color: var(--jp-green-mint);
-	font-size: clamp($panel-copy-size-min, $panel-copy-size-fluid, $panel-copy-size-max);
-	line-height: $panel-copy-line-height;
-}
-
-.brand-panel__line {
-	display: block;
-	opacity: 0;
-	animation-name: panel-line;
-	animation-duration: $appear-duration;
-	animation-timing-function: $house-easing;
-	animation-fill-mode: forwards;
-
-	// Sibling-counted rather than nth-child: the visually hidden copy shares the
-	// parent and would otherwise take the first line's place in the stagger.
-	& + & {
-		animation-delay: $panel-line-step;
-	}
-
-	// The start screen's copy runs to three lines, so the stagger has to keep
-	// climbing; one selector per line, because a sibling combinator cannot
-	// count. The multiplier is the line's position, not a duration of its own.
-	& + & + & {
-		animation-delay: 2 * $panel-line-step;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-	}
-
-	// Block, or the inline SVG sits on a baseline and leaves a descender gap.
-	svg {
-		display: block;
-	}
-}
-
-@keyframes panel-line {
-
-	from {
-		opacity: 0;
-		transform: translateY($panel-line-rise);
-	}
-
-	to {
-		opacity: 1;
-		transform: translateY(0);
 	}
 }
 
@@ -954,11 +828,11 @@ $rail-row-min-height: 40px;
 	}
 
 	33% {
-		transform: translate3d(22%, 19%, 0);
+		transform: translate3d(35%, 30%, 0);
 	}
 
 	66% {
-		transform: translate3d(-18%, 9%, 0);
+		transform: translate3d(-29%, 14%, 0);
 	}
 
 	to {
@@ -973,11 +847,11 @@ $rail-row-min-height: 40px;
 	}
 
 	33% {
-		transform: translate3d(-20%, -12%, 0);
+		transform: translate3d(-32%, -19%, 0);
 	}
 
 	66% {
-		transform: translate3d(13%, -21%, 0);
+		transform: translate3d(21%, -34%, 0);
 	}
 
 	to {
@@ -992,11 +866,11 @@ $rail-row-min-height: 40px;
 	}
 
 	33% {
-		transform: translate3d(26%, -14%, 0);
+		transform: translate3d(42%, -22%, 0);
 	}
 
 	66% {
-		transform: translate3d(10%, 16%, 0);
+		transform: translate3d(16%, 26%, 0);
 	}
 
 	to {
@@ -1011,11 +885,11 @@ $rail-row-min-height: 40px;
 	}
 
 	33% {
-		transform: translate3d(-24%, 11%, 0);
+		transform: translate3d(-38%, 18%, 0);
 	}
 
 	66% {
-		transform: translate3d(16%, -17%, 0);
+		transform: translate3d(26%, -27%, 0);
 	}
 
 	to {
@@ -1037,11 +911,6 @@ $rail-row-min-height: 40px;
 /*
  * The prototype's own `text-[28px] sm:text-[32px]`: at 32 the longest heading
  * runs to four lines on a phone.
- *
- * Chained for weight, not for scoping. Heading writes its size as a runtime
- * style at `:is(h1,…).heading`, which is (0,1,1), so a lone class of ours loses
- * and the rule silently did nothing — the same trap already recorded on
- * .rail-title and .start-title.
  */
 @media (max-width: $phone-breakpoint) {
 
@@ -1063,11 +932,18 @@ $rail-row-min-height: 40px;
 .step-options {
 	display: flex;
 	flex-direction: column;
+	flex-grow: 1;
+
+	// Only while the field is not there. Once it is, it is the seat.
+	&:not(:has(+ .step-freetext)) {
+		margin-block-end: $freetext-slot;
+	}
 }
 
 .step-option {
 	display: flex;
 	align-items: center;
+	flex-grow: 1;
 	gap: $row-glyph-gap;
 	min-block-size: $row-min-height;
 
@@ -1122,11 +998,7 @@ $rail-row-min-height: 40px;
 	}
 }
 
-/*
- * The field an option opens. Grid rows rather than height, which cannot animate
- * to `auto`; the inner element needs its own `min-block-size: 0` or the track
- * refuses to collapse below the content.
- */
+// The field an option opens.
 .step-freetext {
 	padding-block-start: var(--wpds-dimension-padding-lg);
 	animation: fade-in $freetext-fade-duration var(--wpds-motion-easing-subtle) both;
@@ -1200,11 +1072,14 @@ $rail-row-min-height: 40px;
 		transition: none;
 	}
 
-	// The prototype's own 16, not the glyph's natural 24: beside a 15px label a
-	// 24px tick is the biggest thing in the row.
+	/*
+	 * The step above the prototype's own 16, which was too quiet to read as the
+	 * answer to the question. Not the glyph's natural 24, which beside a 15px
+	 * label is the biggest thing in the row.
+	 */
 	svg {
-		inline-size: var(--wpds-dimension-size-2xs);
-		block-size: var(--wpds-dimension-size-2xs);
+		inline-size: var(--wpds-dimension-size-xs);
+		block-size: var(--wpds-dimension-size-xs);
 		fill: currentColor;
 	}
 
@@ -1224,6 +1099,8 @@ $rail-row-min-height: 40px;
 .feature-rows {
 	display: flex;
 	flex-direction: column;
+	flex-grow: 1;
+	min-block-size: 0;
 
 	// Ruled at the top, where it separates the list from the line above it, and
 	// between the rows. Not under the last one: nothing follows it but the sheet's
@@ -1350,16 +1227,73 @@ $rail-row-min-height: 40px;
 	text-wrap: pretty;
 }
 
+
 /*
- * The finish step takes the whole sheet. Hiding the rail and the panel here
- * rather than not rendering them keeps the grid and the region landmarks intact
- * for the steps either side of it.
+ * The two steps that share the block. Each stretches to fill it, so the heading
+ * lands on the same pixel on both and the shorter one spends the difference on
+ * its own rows instead of leaving it at its foot. The start and finish screens
+ * each replace the block, so this would fight the rules they carry.
  */
+.layout:not(.layout--start):not(.layout--finish) {
+
+	.panel-content {
+		display: flex;
+		flex-direction: column;
+
+		/*
+		 * The offset again, under the content. A spacer rather than padding
+		 * because it gives its height back on a window too short for the block,
+		 * before the step starts to scroll.
+		 */
+		&::after {
+			content: "";
+			flex: 0 1 $step-column-offset;
+		}
+	}
+}
+
+/* The chain the stretch runs down, named rather than reached for
+ * structurally: a `> *` here also catches the connected notice. */
+.step-body {
+	flex-grow: 1;
+	min-block-size: 0;
+}
+
+.step-answer {
+	display: flex;
+	flex-direction: column;
+	flex-grow: 1;
+	min-block-size: 0;
+}
+
+/*
+ * The start screen is one screen rather than a step in a sequence, so it
+ * centres in the sheet instead of sitting in the block that holds the heading
+ * still across the steps that follow. In that block it was top-anchored and
+ * read high: 236px of white above it and 471 below.
+ */
+.layout--start {
+
+	.panel-content {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		min-block-size: 100%;
+		padding-block-start: 0;
+	}
+}
+
 .layout--finish {
 
-	.rail,
-	.brand-panel {
-		display: none;
+	/*
+	 * The finish screen replaces the sheet rather than sitting in it, so it does
+	 * not take the reading column every other step is measured in. `.finish` is
+	 * what clips the wash discs, and inside a 470px column it clipped them to a
+	 * 470px band down the middle of the page. The reading measure is kept by
+	 * `.finish-column` inside it, where it belongs.
+	 */
+	.panel-content {
+		max-inline-size: none;
 	}
 
 	.canvas {
@@ -1382,54 +1316,8 @@ $rail-row-min-height: 40px;
 		flex-grow: 1;
 		min-block-size: 0;
 		margin-block: 0;
+		padding-block-start: 0;
 	}
-}
-
-/* --------------------------------------------------------- finish step */
-
-.finish-rows {
-	display: flex;
-	flex-direction: column;
-	margin: 0;
-	padding: 0;
-	list-style: none;
-}
-
-.finish-row {
-	display: flex;
-	align-items: baseline;
-	justify-content: space-between;
-	gap: var(--wpds-dimension-gap-lg);
-	padding-block: var(--wpds-dimension-padding-md);
-	animation: option-cascade $option-cascade-duration $house-easing both;
-	animation-delay: calc(#{$option-cascade-base} + var(--row-index) * #{$option-cascade-step});
-
-	@media (prefers-reduced-motion: reduce) {
-		animation-name: fade-in;
-	}
-
-	& + & {
-		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral-weak);
-	}
-}
-
-.finish-row__name {
-	color: var(--wpds-color-foreground-content-neutral);
-}
-
-.finish-row__state {
-	flex-shrink: 0;
-	color: var(--wpds-color-foreground-content-neutral-weak);
-}
-
-/*
- * The one row state that has to be read rather than skimmed, so it takes the
- * error foreground rather than the weak neutral the others sit in.
- */
-.finish-row__state--failed {
-	flex-shrink: 0;
-	color: var(--wpds-color-foreground-content-error);
-	font-weight: var(--wpds-typography-font-weight-emphasis);
 }
 
 /* --------------------------------------------------------- finish step */
@@ -1442,11 +1330,13 @@ $rail-row-min-height: 40px;
 .finish {
 	display: flex;
 
-	// The wash discs end at 12 to 15 times the badge and stay there, frozen by
-	// their fill mode, so below about 1024px they drag the sheet sideways onto
-	// blank white. Clipped rather than hidden: the column itself still has to
-	// scroll vertically on a short window.
-	overflow-x: clip;
+	/*
+	 * The wash discs are frozen at full reach by their fill mode, so they stay
+	 * scrollable overflow long after fading out: sideways onto blank white,
+	 * downwards up to 500px of dead scroll. Clipped rather than hidden, so
+	 * nothing tries to scroll to them.
+	 */
+	overflow: clip;
 	min-block-size: 100%;
 	align-items: center;
 	justify-content: center;
@@ -1510,9 +1400,9 @@ $rail-row-min-height: 40px;
 }
 
 /*
- * Three discs washing outward from behind the mark. Under reduced motion they
- * are not rendered at all, which is why the component asks in JavaScript rather
- * than leaving it to a media query.
+ * Three discs washing outward from behind the mark. Not rendered at all under
+ * reduced motion, which is a different render rather than a shorter animation,
+ * so the component asks in JavaScript rather than in a media query.
  */
 .finish-wash {
 	position: absolute;
@@ -1521,7 +1411,7 @@ $rail-row-min-height: 40px;
 	animation: finish-wash $finish-wash-duration-1 ease-out both;
 	animation-delay: $wave-base + 0.1s;
 	filter: blur(6px);
-	--finish-wash-scale: #{$finish-wash-1};
+	--finish-wash-scale: calc(#{$finish-wash-reach-1} * 100vmax / #{$finish-badge-size});
 
 	// The alpha rides on the colour, as the prototype has it. It cannot sit on
 	// `opacity`, because that is the property the keyframe drives to 0.
@@ -1533,7 +1423,7 @@ $rail-row-min-height: 40px;
 	animation-delay: $wave-base + 0.2s;
 	background: color-mix(in sRGB, var(--jp-green-50) 15%, transparent);
 	filter: blur(8px);
-	--finish-wash-scale: #{$finish-wash-2};
+	--finish-wash-scale: calc(#{$finish-wash-reach-2} * 100vmax / #{$finish-badge-size});
 }
 
 .finish-wash--3 {
@@ -1541,7 +1431,7 @@ $rail-row-min-height: 40px;
 	animation-delay: $wave-base + 0.4s;
 	background: color-mix(in sRGB, var(--jp-white) 30%, transparent);
 	filter: blur(6px);
-	--finish-wash-scale: #{$finish-wash-3};
+	--finish-wash-scale: calc(#{$finish-wash-reach-3} * 100vmax / #{$finish-badge-size});
 }
 
 .finish-title {
@@ -1756,9 +1646,13 @@ $rail-row-min-height: 40px;
 	}
 }
 
-// Named rather than written per element, because four screens now use them.
+/*
+ * The heading leads. It used to wait $wave-base like everything else, and since
+ * nothing else is on screen yet that was a blank sheet for the length of it —
+ * the outgoing step is gone the instant the step changes.
+ */
 .wave-1 {
-	animation-delay: $wave-base;
+	animation-delay: 0s;
 }
 
 .wave-2 {
@@ -1850,17 +1744,9 @@ $rail-row-min-height: 40px;
 
 /*
  * The contrast-safe green, not the identity green: #069e08 fails AA for white
- * text at body size. Worn by all three of the wizard's forward controls, so it
- * holds the colour alone and each of them keeps its own size and shape.
- *
- * The label is white rather than the brand default #eff0f2, which is 4.11:1 on
- * --jp-green-50 and fails AA for a 15px label. White on it is 4.70:1.
- *
- * The disabled pair is overridden too. The brand default lands on #8d8d8d
- * over #e6e6e6, 2.7:1, which is the grey on grey Adam flagged; the weak
- * interactive pair below is #707070 over #ededed, 4.2:1, and is the darkest
- * muted foreground on the scale — the next one down is #1e1e1e, which would
- * read as live.
+ * text at body size. White label rather than the brand default #eff0f2, which
+ * is 4.11:1 on --jp-green-50 against white's 4.70:1. The disabled pair is
+ * overridden for the same reason: the brand default is 2.7:1, this one 4.2:1.
  */
 .primary-green {
 	--wp-ui-button-background-color: var(--jp-green-50);

@@ -10,12 +10,14 @@ import {
 import { __, sprintf } from '@wordpress/i18n';
 import { border, chevronLeft, chevronRight, drafts, published, wordpress } from '@wordpress/icons';
 import { ThemeProvider } from '@wordpress/theme';
-import { Button, Icon, LinkButton, Stack, Text, Tooltip, VisuallyHidden } from '@wordpress/ui';
+import { Button, Icon, LinkButton, Stack, Text } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useCallback, useEffect, useId, useRef, useState, useMemo } from 'react';
 import { Slide01Gradient } from '../../testimonials/slide-01-gradient';
 import { assignLocation } from './assign-location';
 import { ConnectedNotice } from './connected-notice';
+import { DataInArt } from './data-in';
+import { EverywhereArt } from './everywhere';
 import {
 	canContinue,
 	isLastStep,
@@ -25,9 +27,12 @@ import {
 	settleOnboarding,
 	TOTAL_STEPS,
 	wizardSteps,
+	type SettleOutcome,
+	type WizardState,
+	type WizardStep,
+	type WizardStepKind,
 } from './lib';
 import { PanelArt } from './panel-art';
-import { PANEL_LINES } from './panel-type';
 import { ChoiceStep } from './steps/choice-step';
 import { FeaturesStep } from './steps/features-step';
 import { FinishStep } from './steps/finish-step';
@@ -36,7 +41,6 @@ import styles from './styles.module.scss';
 import { useJustConnected } from './use-just-connected';
 import { readSavedRun, useSavedRun } from './use-saved-run';
 import { useApplySetupModules, useSetupModules } from './use-setup-modules';
-import type { SettleOutcome, WizardState, WizardStep } from './lib';
 import type { SetupModuleResult } from './use-setup-modules';
 import type { MouseEvent } from 'react';
 
@@ -57,22 +61,10 @@ const SHELL_BACKGROUND = '#1e1e1e';
  */
 const CONTENT_BACKGROUND = '#fcfcfc';
 
-/*
- * Söhne Breit's own metrics, in font units: the hhea ascent, and the line box
- * the generator measured every ratio against. Font coordinates are y-up, so the
- * box starts at -ascent and the glyphs are flipped back with scale(1, -1).
- */
-const TYPE_ASCENT = 1037;
-const TYPE_BOX = 1326;
-
 /**
- * WordPress's own post-status icons: done = published (the ring with a tick),
- * current = drafts (the half-filled ring), upcoming = border (the dashed ring).
- * The glyph reports where the user is, not what the step is about.
- *
- * Read off the current step, never off the furthest one reached: a step the user
- * reached and then stepped back from is ahead of them again, so it is upcoming,
- * and a step never visited can never take the tick.
+ * WordPress's own post-status icons: done = published, current = drafts,
+ * upcoming = border. Read off the current step, never the furthest one reached,
+ * so a step stepped back from is ahead of the user again.
  *
  * @param index   - The step the row stands for.
  * @param current - The step the user is on.
@@ -86,6 +78,29 @@ function stepGlyph( index: number, current: number ) {
 	return index === current ? drafts : border;
 }
 
+/**
+ * The artwork that belongs beside a step.
+ *
+ * The panel takes the subject of the step it is next to: a site being run on the
+ * step that asks what the site is for, the plugins feeding the screen on the step
+ * that asks which to switch on, and the mark everywhere else.
+ *
+ * @param props      - The component props.
+ * @param props.kind - The kind of step the panel is beside.
+ * @return The artwork for that step.
+ */
+function PanelArtwork( { kind }: { kind: WizardStepKind } ) {
+	if ( kind === 'question' ) {
+		return <EverywhereArt />;
+	}
+
+	if ( kind === 'features' ) {
+		return <DataInArt />;
+	}
+
+	return <PanelArt animate />;
+}
+
 type WizardProps = {
 	// Where skipping the wizard lands. The admin menu is hidden here, so leaving is never
 	// more than one click.
@@ -96,8 +111,6 @@ type WizardProps = {
 
 /**
  * The onboarding wizard's shell: the step rail, the questions, and the brand panel.
- *
- * Stage 1 owns the frame and the step machine only — no connection, and placeholder steps.
  *
  * The rail is built from the components the Site Editor's own sidebar uses:
  * `NavigableRegion`, `ItemGroup`/`Item`, `Stack`, `Icon`, and `FlexBlock`, inside
@@ -288,12 +301,10 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 	const isFinish = meta.kind === 'finish';
 
 	/*
-	 * Continue is in the same place on every step, so the second half of a double
-	 * click landed on the NEXT step's Continue and the step between them was never
-	 * seen: double-clicking on the site question applied all six modules without
-	 * ever showing them. `detail` is the click count within the browser's own
-	 * double-click window, so this refuses exactly that second press and nothing
-	 * else — a deliberate second click comes back as 1, and Enter as 0.
+	 * Continue sits in the same place on every step, so the second half of a
+	 * double click landed on the NEXT step's and skipped the one between. `detail`
+	 * is the count inside the browser's own double-click window, so this refuses
+	 * that press alone: a deliberate second click is 1, and Enter is 0.
 	 */
 	const handleContinue = useCallback(
 		( event: MouseEvent< HTMLElement > ) => {
@@ -311,7 +322,6 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 		[ isFeatures, handleApplyAndContinue, handleNext ]
 	);
 
-	const panelLines = PANEL_LINES[ step ];
 	const state: WizardState = useMemo(
 		() => ( { choices, freeText: siteTypeDetail } ),
 		[ choices, siteTypeDetail ]
@@ -371,7 +381,13 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 
 	return (
 		<ThemeProvider color={ { background: SHELL_BACKGROUND } }>
-			<div className={ clsx( styles.layout, isFinish && styles[ 'layout--finish' ] ) }>
+			<div
+				className={ clsx(
+					styles.layout,
+					isStart && styles[ 'layout--start' ],
+					isFinish && styles[ 'layout--finish' ]
+				) }
+			>
 				{ /*
 				 * The sidebar region, as the Site Editor builds it: a NavigableRegion
 				 * holding the screen's exit control, title, and navigation.
@@ -380,35 +396,21 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 					<NavigableRegion ariaLabel={ wizardTitle } className={ styles.rail }>
 						<div className={ styles[ 'rail-head' ] }>
 							{ /*
-							 * Icon plus tooltip, as the Site Editor's own back control does it:
-							 * the aria-label is what a screen reader reads, and the popup is the
-							 * only thing a mouse user gets, since the mark alone says nothing.
-							 * Rendered AS the link rather than around it, or the trigger would
-							 * wrap one control in another.
+							 * The words are on the control rather than in a tooltip. The mark
+							 * alone says nothing, and a tooltip is the one affordance a touch
+							 * user never gets — on the screen that takes over their admin, the
+							 * way back has to be readable without hovering it.
 							 */ }
-							<Tooltip.Root>
-								<Tooltip.Trigger
-									render={
-										<LinkButton
-											variant="minimal"
-											tone="neutral"
-											size="compact"
-											href={ dashboardUrl }
-											aria-label={ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
-											className={ styles.exit }
-										>
-											<LinkButton.Icon icon={ wordpress } />
-										</LinkButton>
-									}
-								/>
-								{ /*
-								 * Beside the mark, not under it: the rail title sits directly
-								 * below and a popup on that side lands on top of the words.
-								 */ }
-								<Tooltip.Popup positioner={ <Tooltip.Positioner side="right" sideOffset={ 4 } /> }>
-									{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
-								</Tooltip.Popup>
-							</Tooltip.Root>
+							<LinkButton
+								variant="minimal"
+								tone="neutral"
+								size="compact"
+								href={ dashboardUrl }
+								className={ styles.exit }
+							>
+								<LinkButton.Icon icon={ wordpress } />
+								{ __( 'Back to WordPress', 'jetpack-my-jetpack' ) }
+							</LinkButton>
 
 							<Heading level={ 2 } size="title" className={ styles[ 'rail-title' ] }>
 								{ wizardTitle }
@@ -419,7 +421,7 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 						</div>
 
 						{ /*
-						 * The <nav> itself is hidden below the panel breakpoint, so the collapsed
+						 * The <nav> itself is hidden below the rail breakpoint, so the collapsed
 						 * rail leaves no empty landmark behind, only its header.
 						 */ }
 						<nav
@@ -585,41 +587,14 @@ export function Wizard( { exitUrl, dashboardUrl }: WizardProps ) {
 								/>
 
 								{ /*
-								 * Drawn in on every step, and keyed so it draws again on each one:
-								 * the animation is CSS, so replaying it means a fresh element. The
-								 * prototype keeps this to its start screen because its other panels
-								 * carry a stage the art would compete with. Ours carry the art, so
-								 * there is nothing for it to compete with.
+								 * Deliberately NOT keyed by step. The mark is the same object on the
+								 * start and finish steps, and keying would remount it on every
+								 * Continue and replay its draw, saying something changed when
+								 * nothing had. The two compositions do still mount and unmount as
+								 * their own step comes and goes, so returning to a step replays it,
+								 * which is what returning to a step should look like.
 								 */ }
-								<PanelArt key={ `art-${ meta.id }` } animate />
-								{ /* Keyed by step so each line rises again when the copy is swapped. */ }
-								<p key={ meta.id } className={ styles[ 'brand-panel__copy' ] }>
-									{ /*
-									 * The lines are drawn as outlines, so the words themselves are
-									 * carried here — one sentence per step, not one per line.
-									 */ }
-									<VisuallyHidden render={ <span /> }>
-										{ panelLines.map( line => line.text ).join( ' ' ) }
-									</VisuallyHidden>
-
-									{ panelLines.map( line => (
-										<span key={ line.text } className={ styles[ 'brand-panel__line' ] }>
-											<svg
-												viewBox={ `0 ${ -TYPE_ASCENT } ${ line.ratio * TYPE_BOX } ${ TYPE_BOX }` }
-												style={ { inlineSize: `${ line.ratio }em`, blockSize: '1em' } }
-												fill="currentColor"
-												aria-hidden="true"
-												focusable="false"
-											>
-												<g
-													transform="scale(1, -1)"
-													// eslint-disable-next-line react/no-danger -- Generated by tools/generate-panel-type.py from the font's outlines; no user input reaches it.
-													dangerouslySetInnerHTML={ { __html: line.path } }
-												/>
-											</svg>
-										</span>
-									) ) }
-								</p>
+								<PanelArtwork kind={ meta.kind } />
 							</div>
 						</div>
 					</ThemeProvider>

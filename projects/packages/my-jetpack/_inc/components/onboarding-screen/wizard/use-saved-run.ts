@@ -25,13 +25,9 @@ export type SavedRun = {
 /**
  * What was read back at the start of this page load, if anything.
  *
- * Session storage, not local: the run belongs to this visit. Coming back to
- * wp-admin next week to a half-finished wizard would be worse than starting it
- * again, and the connection round trip is inside one session either way.
- *
- * What became of the modules is deliberately not kept. It is the outcome of a
- * request this page load never made, and showing it again would be reporting
- * work that did not happen here.
+ * Session storage, not local: the run belongs to this visit, and the connection
+ * round trip is inside one session either way. What became of the modules is
+ * deliberately not kept — it is the outcome of a request this page never made.
  *
  * @return The saved run, or null when there is nothing to restore.
  */

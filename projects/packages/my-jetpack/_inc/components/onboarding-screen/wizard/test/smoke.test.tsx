@@ -1,9 +1,9 @@
+import { readFileSync } from 'node:fs';
 import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { bell, chartBar, border, drafts, published } from '@wordpress/icons';
 import { Children, isValidElement } from 'react';
 import { startBenefits } from '../lib';
-import { PANEL_LINES } from '../panel-type';
 import { Wizard } from '../wizard';
 import type { UserEvent } from '@testing-library/user-event';
 import type { ReactElement, ReactNode } from 'react';
@@ -194,14 +194,6 @@ const GLYPH_BY_PATH: Record< string, string > = {
 const railGlyph = ( name: string ) =>
 	// eslint-disable-next-line testing-library/no-node-access
 	GLYPH_BY_PATH[ railStep( name ).querySelector( 'svg path' )?.getAttribute( 'd' ) ?? '' ];
-
-// The panel's lines are outlined SVG, so the words live in one visually hidden
-// block per step, read as a sentence rather than as fragments.
-const PANEL_COPY = Object.values( PANEL_LINES ).map( lines =>
-	lines.map( line => line.text ).join( ' ' )
-);
-
-const panelCopy = ( step: number ) => screen.getByText( PANEL_COPY[ step ] );
 
 // A question step needs a choice before Continue is live; the feature step starts
 // with every row answered. The start step is not advanced this way: it leaves
@@ -496,6 +488,88 @@ describe( 'Wizard resume after connecting', () => {
 	} );
 } );
 
+/*
+ * The two compositions are injected as raw markup and marked aria-hidden, as
+ * decoration should be, so there is no accessible query for either. Both are
+ * counted off the DOM by the id their own stylesheets target.
+ */
+const onScreen = ( id: string ) =>
+	// eslint-disable-next-line testing-library/no-node-access -- See above.
+	document.querySelectorAll( `#${ id }` ).length;
+
+const isDecorative = ( id: string ) =>
+	// eslint-disable-next-line testing-library/no-node-access -- See above.
+	Boolean( document.querySelector( `#${ id }` )?.closest( '[aria-hidden="true"]' ) );
+
+describe( 'What the brand panel is showing', () => {
+	/*
+	 * The panel takes the subject of the step beside it: a site being run on the
+	 * step that asks what the site is for, the plugins feeding the screen on the
+	 * step that asks which to switch on.
+	 */
+	it( 'shows a site being run on the step that asks what the site is for', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( onScreen( 'ev-scene' ) ).toBe( 1 );
+		expect( isDecorative( 'ev-scene' ) ).toBe( true );
+
+		await advance( user, 1 );
+		expect( onScreen( 'ev-scene' ) ).toBe( 0 );
+	} );
+
+	it( 'shows the plugins feeding the screen on the feature step, and only there', async () => {
+		const { user } = setupWizard( { isUserConnected: true } );
+
+		expect( onScreen( 'di-scene' ) ).toBe( 0 );
+
+		await advance( user, 1 );
+		expect( onScreen( 'di-scene' ) ).toBe( 1 );
+		expect( isDecorative( 'di-scene' ) ).toBe( true );
+
+		await advance( user, 1 );
+		expect( onScreen( 'di-scene' ) ).toBe( 0 );
+	} );
+
+	/*
+	 * Read off the source, not the DOM: Jest stubs the Sass module, so no rule of
+	 * ours is ever applied and a computed property comes back empty. The flow is
+	 * meant to keep running here, which it does by leaving `--flow-runs` unset —
+	 * an absence no rendered assertion can see.
+	 */
+	it( 'lets the composition keep looping', () => {
+		const sheet = readFileSync( `${ __dirname }/../styles.module.scss`, 'utf8' );
+		const from = sheet.indexOf( '.data-in {' );
+
+		expect( from ).toBeGreaterThan( -1 );
+
+		// Count braces from the rule's OWN opening one to its match. Stopping at the
+		// first `}` instead stops at the end of the nested `svg` block, so
+		// `--flow-runs` set anywhere after it went unnoticed.
+		const open = sheet.indexOf( '{', from );
+		let depth = 0;
+		let end = open;
+
+		while ( end < sheet.length ) {
+			if ( sheet[ end ] === '{' ) {
+				depth++;
+			} else if ( sheet[ end ] === '}' ) {
+				depth--;
+
+				if ( depth === 0 ) {
+					break;
+				}
+			}
+
+			end++;
+		}
+
+		const rule = sheet.slice( from, end + 1 );
+
+		expect( rule ).toMatch( /svg\s*\{/ );
+		expect( rule ).not.toMatch( /--flow-runs/ );
+	} );
+} );
+
 describe( 'Wizard shell', () => {
 	it( 'sends the rail out to WordPress and the footer back to My Jetpack', () => {
 		setupWizard();
@@ -505,9 +579,6 @@ describe( 'Wizard shell', () => {
 
 		expect( railExit ).toHaveAttribute( 'href', dashboardUrl );
 		expect( skip ).toHaveAttribute( 'href', exitUrl );
-
-		// Two exits, two destinations: the rail leaves Jetpack, the footer stays in it.
-		expect( railExit.getAttribute( 'href' ) ).not.toBe( skip.getAttribute( 'href' ) );
 	} );
 
 	it( 'lists every step in the rail, marking the current one', () => {
@@ -533,11 +604,6 @@ describe( 'Wizard shell', () => {
 		expect( railGlyph( 'Your site' ) ).toBe( 'upcoming' );
 		expect( railGlyph( 'What you need' ) ).toBe( 'upcoming' );
 		expect( railGlyph( 'Finish' ) ).toBe( 'upcoming' );
-
-		// Nothing is done before anything has been left.
-		expect( [ 'Connect', 'Your site', 'What you need', 'Finish' ].map( railGlyph ) ).not.toContain(
-			'done'
-		);
 	} );
 
 	it( 'reads the glyphs off the current step, not off the furthest one reached', async () => {
@@ -578,7 +644,7 @@ describe( 'Wizard shell', () => {
 		const { user } = setupWizard( { isUserConnected: true } );
 
 		await advance( user, 1 );
-		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
+		expect( heading() ).toHaveTextContent( 'What we recommend' );
 
 		await user.click( railStep( 'Your site' ) );
 		expect( heading() ).toHaveTextContent( "What's this site for?" );
@@ -599,7 +665,6 @@ describe( 'Wizard shell', () => {
 		await advance( user, 2 );
 
 		expect( screen.queryByRole( 'navigation' ) ).not.toBeInTheDocument();
-		expect( screen.queryByText( PANEL_COPY[ 3 ] ) ).not.toBeInTheDocument();
 	} );
 
 	/*
@@ -664,54 +729,6 @@ describe( 'Wizard shell', () => {
 		expect( screen.getByRole( 'link', { name: 'Go to My Jetpack' } ) ).toHaveAttribute(
 			'href',
 			exitUrl
-		);
-	} );
-
-	it( 'gives every step its own panel copy, and shows only the current one', async () => {
-		const { user } = setupWizard( { isUserConnected: true } );
-
-		expect( panelCopy( 1 ) ).toBeInTheDocument();
-		expect( screen.queryByText( PANEL_COPY[ 0 ] ) ).not.toBeInTheDocument();
-
-		// Stops at the feature step: the finish step has no panel to carry copy.
-		for ( const step of [ 2 ] ) {
-			await advance( user, 1 );
-			expect( panelCopy( step ) ).toBeInTheDocument();
-			expect( screen.queryByText( PANEL_COPY[ step - 1 ] ) ).not.toBeInTheDocument();
-		}
-	} );
-
-	it( 'draws the lines as outlines, flipped out of y-up font coordinates', () => {
-		setupWizard();
-
-		// eslint-disable-next-line testing-library/no-node-access
-		const svgs = Array.from( panelCopy( 0 ).parentElement?.querySelectorAll( 'svg' ) ?? [] );
-
-		// One per line, and hidden: the words are carried by the copy above
-		// instead. Counted off the data, because the start screen's copy is
-		// three lines where every other step's is two.
-		expect( svgs ).toHaveLength( PANEL_LINES[ 0 ].length );
-		expect( svgs.every( svg => svg.getAttribute( 'aria-hidden' ) === 'true' ) ).toBe( true );
-
-		// The box is the font's, and the flip is what keeps the glyphs right way up.
-		expect( svgs[ 0 ] ).toHaveAttribute(
-			'viewBox',
-			expect.stringMatching( /^0 -1037 [\d.]+ 1326$/ )
-		);
-		expect(
-			// eslint-disable-next-line testing-library/no-node-access
-			svgs.map( svg => svg.querySelector( 'g' )?.getAttribute( 'transform' ) )
-		).toEqual( PANEL_LINES[ 0 ].map( () => 'scale(1, -1)' ) );
-	} );
-
-	it( 'joins the three start-screen lines into one hidden sentence', () => {
-		setupWizard();
-
-		// The start screen's copy runs to three lines where every other step's
-		// runs to two, and the three are read as one sentence, not as fragments.
-		expect( PANEL_LINES[ 0 ] ).toHaveLength( 3 );
-		expect( panelCopy( 0 ) ).toHaveTextContent(
-			'Grow your audience. Speed up your site. Keep it secure.'
 		);
 	} );
 } );
@@ -840,7 +857,7 @@ describe( 'Clicking Continue twice', () => {
 		await user.click( screen.getByRole( 'radio', { name: 'A blog or publication' } ) );
 		await user.dblClick( screen.getByRole( 'button', { name: 'Continue' } ) );
 
-		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
+		expect( heading() ).toHaveTextContent( 'What we recommend' );
 		expect( mockApply ).not.toHaveBeenCalled();
 	} );
 
@@ -869,7 +886,7 @@ describe( 'Coming back to a run in progress', () => {
 		unmount();
 		setupWizard( { isUserConnected: true } );
 
-		expect( heading() ).toHaveTextContent( "Here's what we recommend for your site" );
+		expect( heading() ).toHaveTextContent( 'What we recommend' );
 		expect( screen.getByText( /For a store, these matter most/ ) ).toBeInTheDocument();
 	} );
 
@@ -991,9 +1008,7 @@ describe( 'The feature step', () => {
 		await user.click( screen.getByRole( 'button', { name: 'Continue' } ) );
 
 		expect( screen.queryByText( /matter most/ ) ).not.toBeInTheDocument();
-		expect(
-			screen.getByText( 'Turn off anything you would rather not have.' )
-		).toBeInTheDocument();
+		expect( screen.getByText( 'Turn off any you don’t need.' ) ).toBeInTheDocument();
 	} );
 
 	it( 'lists the modules with Jetpack’s own names, every one switched on', async () => {
