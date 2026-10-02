@@ -1486,7 +1486,7 @@
             "dist": {
                 "type": "path",
                 "url": "../../packages/jetpack-mu-wpcom",
-                "reference": "eb1f0d903d2c44a2f9e7204655ce68e57c52009c"
+                "reference": "7d4219c9eb55f85610f28c8de29e728fc6ce28b5"
             },
             "require": {
                 "automattic/block-delimiter": "@dev",
@@ -1519,6 +1519,7 @@
                 "automattic/jetpack-podcast": "@dev",
                 "automattic/jetpack-premium-analytics": "@dev",
                 "automattic/jetpack-test-environment": "@dev",
+                "automattic/jetpack-videopress": "@dev",
                 "automattic/phpunit-select-config": "@dev",
                 "brain/monkey": "^2.6.2",
                 "yoast/phpunit-polyfills": "^4.0.0"
@@ -1543,7 +1544,8 @@
                 "dependencies": {
                     "test-only": [
                         "packages/premium-analytics",
-                        "packages/ads"
+                        "packages/ads",
+                        "packages/videopress"
                     ]
                 }
             },

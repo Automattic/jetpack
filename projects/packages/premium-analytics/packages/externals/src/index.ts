@@ -42,6 +42,7 @@ export {
 	type DataPointPercentage,
 	type GeoChartError,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapColumn,

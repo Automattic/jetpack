@@ -4256,6 +4256,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).toHaveClass( 'jetpack-paypal-payment-buttons__shared-link-note' );
 		} );
 
+		it( 'tells the merchant when the read fails for any reason but a deleted payment', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( {
+					code: 'paypal_api_error',
+					message: 'PayPal authentication failed (HTTP 401): Client Authentication failed',
+					data: { status: 401 },
+				} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			const notice = await screen.findByText(
+				'This payment link could not be loaded from PayPal: PayPal authentication failed (HTTP 401): Client Authentication failed Changes to it will not be saved until it loads. Reload the post to try again.'
+			);
+			expect( notice ).toHaveAttribute( 'data-status', 'error' );
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
 		it( 'does not read the payment while PayPal is disconnected', async () => {
 			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
 
@@ -5376,9 +5397,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( expected );
 		} );
 
-		// The toggle resets the mode and both amounts. The address checkbox it also hides
-		// stays put, since PayPal stores that one whether or not shipping is on.
-		it( 'resets the mode and both fees when shipping goes off', async () => {
+		// The toggle hides the address checkbox too, and PayPal keeps asking buyers for an
+		// address the merchant can no longer see unless it goes off with the rest.
+		it( 'resets the mode, both fees and the address checkbox when shipping goes off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingMode: 'QUANTITY',
@@ -5393,6 +5414,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				shippingMode: 'FLAT',
 				shippingValue: '',
 				shippingAdditionalValue: '',
+				collectShippingAddress: false,
+			} );
+		} );
+
+		it( 'keeps collecting the address when shipping goes off under a profile tax', async () => {
+			const user = userEvent.setup();
+			await renderShipping( {
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: true,
+			} );
+
+			await user.click( screen.getByLabelText( 'Add shipping' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				shippingEnabled: false,
+				shippingMode: 'FLAT',
+				shippingValue: '',
+				shippingAdditionalValue: '',
+				collectShippingAddress: true,
 			} );
 		} );
 
@@ -6364,6 +6406,18 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				imageUrl: undefined,
 				imageId: undefined,
 			} );
+		} );
+
+		// The image stays on the site, so any address works.
+		it( 'shows an http image without a warning', async () => {
+			renderForm( { imageUrl: 'http://example.com/previous.png', imageId: 7 } );
+			await formIsUp();
+
+			expect( details().getByRole( 'img', { name: 'Test Widget' } ) ).toHaveAttribute(
+				'src',
+				'http://example.com/previous.png'
+			);
+			expect( details().queryByTestId( 'notice' ) ).not.toBeInTheDocument();
 		} );
 	} );
 

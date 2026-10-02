@@ -7,7 +7,7 @@ import { useRegenerateCriticalCssAction } from '$features/critical-css/lib/store
 import Module from '$features/module/module';
 import { useModuleSurface } from '$features/module/surface';
 import PremiumTooltip from '$features/premium-tooltip/premium-tooltip';
-import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
+import UpgradeNotice from '$features/upgrade-cta/upgrade-notice';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import styles from './critical-css-module.module.scss';
 
@@ -75,9 +75,8 @@ const CriticalCssModule = () => {
 		>
 			<CriticalCssMeta />
 
-			<InterstitialModalCTA
+			<UpgradeNotice
 				identifier="critical-css"
-				showLicenseKeyLink
 				description={
 					isModern
 						? _x( 'Save time and unlock automatic Critical CSS generation.', '', 'jetpack-boost' )

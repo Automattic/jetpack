@@ -38,7 +38,6 @@ const OTHER_CONNECTION_ERRORS = {
 const mockConnection = ( connectionErrors: object = CONNECTION_ERRORS ) =>
 	useConnection.mockReturnValue( {
 		connectionErrors,
-		connectionHealthErrors: {},
 		connectionOwner: { id: 123, displayName: 'Owner' },
 		userConnectionData: { currentUser: { id: 123 } },
 		isRegistered: true,

@@ -209,6 +209,8 @@
 	h3 {
 		margin-top: 0;
 		margin-bottom: 8px;
+		// Core's .interface-complementary-area h3 rule would otherwise show "PAYPAL".
+		text-transform: none;
 	}
 
 	p {

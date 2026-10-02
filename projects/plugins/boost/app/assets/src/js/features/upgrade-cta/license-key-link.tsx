@@ -18,7 +18,7 @@ export function useCanRedeemLicenseKey(): boolean {
 	const premiumFeatures = usePremiumFeatures();
 	const hasPlan = premiumFeatures && premiumFeatures.length > 0;
 
-	// Legacy keeps its own BoostAdminPage header button; modern moves redemption beside the prompts.
+	// Legacy uses its own BoostAdminPage header button for license redemption.
 	return (
 		detectMode() === 'modern' &&
 		! isWoaHosting() &&

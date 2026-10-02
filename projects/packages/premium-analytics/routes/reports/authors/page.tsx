@@ -5,13 +5,13 @@ import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
 	ReportDrilldownTable,
-	ReportCsvAction,
+	ExporterCsvAction,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
-	useReportCsvExport,
+	authorsCsvExporter,
 	useReportRetry,
-	type CsvColumn,
+	type AuthorRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -21,7 +21,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getAuthorName, getAuthorsFields, useAuthorsReportRecords, type AuthorRow } from './config';
+import { getAuthorsFields, useAuthorsReportRecords } from './config';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -57,18 +57,6 @@ const RECORDS_VIEW = {
 };
 
 /**
- * Keep nested posts identifiable after the table hierarchy is flattened into CSV rows.
- *
- * @param item - The author or nested post row.
- * @return The author name or author-qualified post title.
- */
-function getAuthorCsvLabel( item: AuthorRow ): string {
-	return item.parentName
-		? `${ getAuthorName( item.parentName ) } > ${ item.label }`
-		: getAuthorName( item.label );
-}
-
-/**
  * Premium Analytics Authors report page component.
  *
  * @return The Authors report page.
@@ -82,26 +70,6 @@ function AuthorsReport(): JSX.Element {
 		() => getAuthorsFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
-	const csvColumns = useMemo< CsvColumn< AuthorRow >[] >(
-		() => [
-			{
-				label: __( 'Author / post', 'jetpack-premium-analytics-pkg' ),
-				getValue: getAuthorCsvLabel,
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'top-authors',
-		range: reportParams,
-		status: records,
-	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.authors;
@@ -122,9 +90,12 @@ function AuthorsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ authorsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
