@@ -354,6 +354,12 @@ class Contact_Form_Plugin {
 		wp_register_style( 'grunion.css', Jetpack_Forms::plugin_url() . '../dist/contact-form/css/grunion.css', array(), \JETPACK__VERSION );
 		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 
+		/*
+		 * Late enough that the theme and Global Styles have been resolved, early enough
+		 * that grunion.css has not been printed yet.
+		 */
+		add_action( 'wp_enqueue_scripts', array( __CLASS__, 'add_global_styles_label_css' ), 20 );
+
 		wp_register_style(
 			'jetpack-forms-layout',
 			Jetpack_Forms::plugin_url() . '../dist/contact-form/css/jetpack-forms-layout.css',
@@ -402,6 +408,142 @@ class Contact_Form_Plugin {
 			Form_Editor::init();
 			Form_Preview::init();
 		}
+	}
+
+	/**
+	 * Return the merged Global Styles for the `label` element, or an empty array.
+	 *
+	 * `wp_get_global_styles()` is deliberately not used here for two reasons. It reads
+	 * core's resolver, which sanitizes away any element it does not know about, and core
+	 * only learns about `label` in WP 7.1 — before that the value is always empty even
+	 * though the Gutenberg plugin is emitting `label { ... }` on the page. It also returns
+	 * the *entire* styles tree when the requested path is missing, rather than nothing,
+	 * which reads as "the site set every property".
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array Style object for the label element, keyed as in theme.json.
+	 */
+	private static function get_global_styles_label_object() {
+		$resolver = class_exists( 'WP_Theme_JSON_Resolver_Gutenberg' )
+			? 'WP_Theme_JSON_Resolver_Gutenberg'
+			: 'WP_Theme_JSON_Resolver';
+
+		if ( ! class_exists( $resolver ) || ! method_exists( $resolver, 'get_merged_data' ) ) {
+			return array();
+		}
+
+		$data = $resolver::get_merged_data()->get_raw_data();
+
+		return isset( $data['styles']['elements']['label'] ) && is_array( $data['styles']['elements']['label'] )
+			? $data['styles']['elements']['label']
+			: array();
+	}
+
+	/**
+	 * Let Global Styles' `label` element reach form labels, and mirror it onto grouped fields.
+	 *
+	 * Global Styles emits `label { ... }` at specificity (0,0,1), because `label` is an
+	 * element-only selector and so is not wrapped in `:root :where()`. The form's own
+	 * defaults in grunion.css sit at (0,1,0), so `font-weight` and `margin` set in Global
+	 * Styles never reach a form label.
+	 *
+	 * Lowering those defaults instead would hand every form label to any theme that styles
+	 * `label` at all, which measurably changes existing sites, so the defaults stay put and
+	 * we only step aside when the site has actually set label styles.
+	 *
+	 * Up to two rules are emitted:
+	 *
+	 * 1. Re-assert, at our own specificity, only the properties the generic label rule in
+	 *    grunion.scss would otherwise win. Printed after grunion.css, so it takes the tie.
+	 *    Scoped to the field label so it cannot flatten the exemptions that sit at that same
+	 *    specificity -- consent text, checkbox option labels, and the inset labels used by
+	 *    the Outlined and Animated styles, which carry their own classes instead.
+	 * 2. Mirror the full style object onto `legend.grunion-field-label`. Grouped fields
+	 *    render their group label as a `<legend>`, which `label { ... }` cannot match, so
+	 *    without this a multi-choice field's label is the only unstyled label in the form.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return void
+	 */
+	public static function add_global_styles_label_css() {
+		$css = self::build_global_styles_label_css( self::get_global_styles_label_object() );
+
+		if ( '' === $css ) {
+			return;
+		}
+
+		wp_add_inline_style( 'grunion.css', $css );
+	}
+
+	/**
+	 * Build the label CSS for a Global Styles `label` style object.
+	 *
+	 * Split from the enqueue glue so the emitted CSS can be asserted directly. Core only
+	 * learns about the `label` element in WP 7.1, so on any earlier version the resolver
+	 * sanitizes it away and this is unreachable through Global Styles alone.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param array $label Style object for the label element, keyed as in theme.json.
+	 * @return string CSS, or an empty string when there is nothing to emit.
+	 */
+	private static function build_global_styles_label_css( $label ) {
+		if ( ! function_exists( 'wp_style_engine_get_styles' ) || empty( $label ) || ! is_array( $label ) ) {
+			return '';
+		}
+
+		/*
+		 * `declarations` is the raw property map; only the engine's `css` output is run
+		 * through wp_strip_all_tags() and safecss_filter_attr(). Theme-origin theme.json is
+		 * never passed through remove_insecure_properties(), so a value carrying `}` would
+		 * otherwise close the rule and admit arbitrary selectors. Read the map to decide
+		 * what is contested, but never emit from it unfiltered.
+		 */
+		$legend_selector = '.contact-form :where(legend.grunion-field-label)';
+		$mirror          = wp_style_engine_get_styles( $label, array( 'selector' => $legend_selector ) );
+		$declarations    = isset( $mirror['declarations'] ) ? $mirror['declarations'] : array();
+		if ( empty( $declarations ) ) {
+			return '';
+		}
+
+		$css = '';
+
+		/*
+		 * The properties grunion.scss:130-134 sets on labels and legends -- `font-weight` and
+		 * `margin-bottom` -- plus the `margin` shorthand, which theme.json emits instead of
+		 * longhands when `spacing.margin` is a string and which would otherwise leave the
+		 * label and the legend spaced differently. Any property added to that rule must be
+		 * added here too.
+		 */
+		$contested = array( 'font-weight', 'margin', 'margin-bottom' );
+		$reassert  = array();
+		foreach ( $contested as $property ) {
+			if ( isset( $declarations[ $property ] ) ) {
+				/*
+				 * safecss_filter_attr() is a property allowlist plus a character blocklist
+				 * (\ ( & = } and /*); it does not remove HTML, so a value of `600</style>`
+				 * survives it intact and would close the inline style element early. Strip
+				 * tags first, which is what the style engine does before filtering its own
+				 * `css` output.
+				 */
+				$reassert[] = $property . ':' . wp_strip_all_tags( $declarations[ $property ], true );
+			}
+		}
+
+		if ( ! empty( $reassert ) ) {
+			$filtered = safecss_filter_attr( implode( ';', $reassert ) );
+			if ( '' !== $filtered ) {
+				$css .= '.contact-form :is(:where(label.grunion-field-label:not(.consent):not(.checkbox):not(.checkbox-multiple):not(.radio)),:where(legend.grunion-field-label)){' . $filtered . '}';
+			}
+		}
+
+		if ( ! empty( $mirror['css'] ) ) {
+			$css .= $mirror['css'];
+		}
+
+		return $css;
 	}
 
 	/**
