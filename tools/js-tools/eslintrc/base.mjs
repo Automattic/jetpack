@@ -268,6 +268,8 @@ export function makeBaseConfig( configurl, opts = {} ) {
 				},
 			},
 			rules: {
+				'@wordpress/use-recommended-components': 'error',
+
 				// Set domain from opts, with a bogus default in case it's omitted.
 				'@wordpress/i18n-text-domain': [
 					'error',
