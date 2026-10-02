@@ -71,6 +71,26 @@ class SchemaNodeIdsTest extends TestCase {
 	}
 
 	/**
+	 * The site-Person id is the site root plus a stable `#person` fragment — the
+	 * person a personal site represents, distinct from a per-author Person id
+	 * (which anchors to the author archive).
+	 */
+	public function test_site_person_id_anchors_to_the_site_root() {
+		add_filter(
+			'home_url',
+			static function () {
+				return 'https://example.test/';
+			}
+		);
+
+		$this->assertSame( 'https://example.test/#person', Schema_Node_Ids::site_person() );
+		$this->assertNotSame(
+			Schema_Node_Ids::site_person(),
+			Schema_Node_Ids::person( 123, 'jane-doe' )
+		);
+	}
+
+	/**
 	 * Author entity ids anchor to the author archive URL.
 	 */
 	public function test_author_ids_anchor_to_the_author_archive() {
