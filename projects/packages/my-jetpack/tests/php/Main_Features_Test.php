@@ -550,6 +550,20 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
+	 * Marked per plan, not per feature: a site on one bundle still has the others to buy,
+	 * so only the plan it holds stops being a link to its own checkout.
+	 */
+	public function test_plan_badges_mark_only_the_plan_the_site_holds() {
+		$this->own( array( 'jetpack_growth_yearly' ) );
+
+		$plans = array_column( Main_Features::get_features(), 'plans', 'slug' );
+		$owned = array_column( $plans['newsletter'], 'owned', 'slug' );
+
+		$this->assertTrue( $owned['growth'] );
+		$this->assertFalse( $owned['complete'] );
+	}
+
+	/**
 	 * A site that already pays for a feature is not told to buy a plan before it can use it.
 	 */
 	public function test_setup_note_is_dropped_for_a_site_that_pays() {

@@ -501,7 +501,7 @@ class Main_Features {
 	 * call a plan the same thing.
 	 *
 	 * @param array $definition One feature's catalog entry.
-	 * @return array List of slug/name pairs.
+	 * @return array List of slug/name/owned triples.
 	 */
 	private static function get_plan_badges( $definition ) {
 		$badges = array();
@@ -511,8 +511,10 @@ class Main_Features {
 
 			if ( $bundle_class ) {
 				$badges[] = array(
-					'slug' => $slug,
-					'name' => $bundle_class::get_title(),
+					'slug'  => $slug,
+					'name'  => $bundle_class::get_title(),
+					// Per plan, not per feature: a site on Growth still has Complete to buy.
+					'owned' => $bundle_class::has_paid_plan_for_product(),
 				);
 			}
 		}
