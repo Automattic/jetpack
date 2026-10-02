@@ -347,10 +347,8 @@ export const SCENARIOS = [
 		envVar: 'WP_JETPACK_CONNECTED_URL',
 		defaultUrl: 'http://localhost:8083',
 		header: 'Jetpack Settings (simulated WP.com connection)',
-		path: '/wp-admin/admin.php?page=jetpack#/settings',
-		// A settings card with a control proves Settings content rendered, even while data loads.
+		path: '/wp-admin/admin.php?page=jetpack-settings#/settings',
 		waitForSelector: '.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])',
-		// The PHP redirect document canonicalizes the legacy slug, retaining the hash.
 		expectUrlIncludes: 'page=jetpack-settings',
 		expectUrlHash: '#/settings',
 		// Observed 105–106 resources; 74 retains about 70% of the minimum rendered load.

@@ -612,7 +612,7 @@ test( 'Settings extracts four typed staging metrics and rejects wrong routes or 
 		} ) )
 	);
 	assert.equal( scenario.optional, true );
-	assert.equal( scenario.path, '/wp-admin/admin.php?page=jetpack#/settings' );
+	assert.equal( scenario.path, '/wp-admin/admin.php?page=jetpack-settings#/settings' );
 	assert.equal(
 		scenario.waitForSelector,
 		'.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])'
@@ -2228,8 +2228,16 @@ test( 'dry payload carries exactly twelve typed staging backend keys with intege
 			/wp-(before-template|template)/.test( key )
 		)
 	);
-	for ( const key of [ 'jetpackConnected', 'formsResponses', 'myJetpack' ] ) {
-		const scenario = SCENARIOS.find( entry => entry.key === key );
+	const backendScenarios = SCENARIOS.filter( scenario =>
+		scenario.metrics.some( metric =>
+			[ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ].includes( metric.field )
+		)
+	);
+	assert.deepEqual(
+		backendScenarios.map( scenario => scenario.key ),
+		[ 'jetpackConnected', 'formsResponses', 'myJetpack' ]
+	);
+	for ( const scenario of backendScenarios ) {
 		for ( const [ field, unit ] of [
 			[ 'wpTotal', 'ms' ],
 			[ 'wpMemoryUsage', 'bytes' ],

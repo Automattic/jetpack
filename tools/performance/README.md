@@ -120,7 +120,7 @@ The digest auto-discovers these staging ids from their first post unless `METRIC
 
 ### `jetpackSettings` — Jetpack Settings (simulated connection)
 
-Measures `/wp-admin/admin.php?page=jetpack#/settings` on the same connected instance. The PHP redirect document canonicalizes the legacy slug to `jetpack-settings`, preserving `#/settings`; the measured reload must retain that slug and exact hash. A visible `.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])` proves that Settings content rendered. Cards can appear while data is still loading, so capture completeness also relies on network settling and the resource-count floor derived from rendered Settings captures. The measured reload uses the existing warm-cache policy.
+Measures `/wp-admin/admin.php?page=jetpack-settings#/settings` on the same connected instance. The measured reload must retain the canonical slug and exact hash. A visible `.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])` proves that Settings content rendered. Cards can appear while data is still loading, so capture completeness also relies on network settling and the resource-count floor derived from rendered Settings captures. The measured reload uses the existing warm-cache policy.
 
 | CodeVitals key                                                   | Field            | Type             | Description                       |
 | ---------------------------------------------------------------- | ---------------- | ---------------- | --------------------------------- |
@@ -129,13 +129,13 @@ Measures `/wp-admin/admin.php?page=jetpack#/settings` on the same connected inst
 | `jetpack-settings-connection-sim-firstContentfulPaint-staging`   | `fcp`            | `fcp`            | Settings FCP (ms)                 |
 | `jetpack-settings-connection-sim-decodedBytesKB-staging`         | `decodedBytesKB` | `decodedBytesKB` | Summed resource decoded size (KB) |
 
-This scenario is optional and uses staging keys. Local verification (`SCENARIO=jetpack-settings pnpm test -- --skip-codevitals`, then `pnpm report:dry`) does not enroll or post them. The service owner must register all four staging keys before this commit merges: merging starts live posting in scheduled builds, and unregistered keys are silently dropped. Follow the staging review below before production enrollment. For digest watch-list control, see `METRIC_IDS` under [Digest environment variables](#digest-environment-variables). At promotion, register the production keys and retire the staging IDs with the service owner, updating any `METRIC_IDS` override so inactive staging series do not become staleness alerts.
+This scenario is optional and uses staging keys. Local verification (`SCENARIO=jetpack-settings pnpm test -- --skip-codevitals`, then `pnpm report:dry`) does not enroll or post them. The service owner must register all four staging keys within `STALENESS_DAYS` of the first scheduled build that runs the scenario. Unregistered keys are dropped, not rejected. Follow the staging review below before production enrollment. At promotion, register the production keys and retire the staging IDs with the service owner. Update any [`METRIC_IDS` override](#digest-environment-variables) so inactive staging series do not become staleness alerts.
 
 #### Settings connection notices — attribution note
 
-The fixture renders Settings controls alongside both an “Outbound HTTPS not working” notice and a broken-connection notice with a “Restore Connection” button. The simulator's HTTPS-test response causes the first notice; its simulated secret appears to cause the second. The selector verifies Settings content despite them. This is the measured fixture state. Correcting the simulator will remove the notices and shift the Settings series; such a shared-fixture change requires its own before/after measurements. Settle whether to retain this baseline or correct the simulator before promoting the keys to production.
+The fixture renders Settings controls alongside both an “Outbound HTTPS not working” notice and a broken-connection notice with a “Restore Connection” button. The simulator's HTTPS-test response causes the first notice; its simulated secret appears to cause the second. The selector verifies Settings content despite them. This fixture state uses the wp-build Settings renderer. Correcting the simulator will remove the notices and shift the Settings series; such a shared-fixture change requires its own before/after measurements. Settle whether to retain this baseline or correct the simulator before promoting the keys to production.
 
-A local diagnostic identified the Security message heading (“Your site is protected by Jetpack. You’ll be notified if anything needs attention.”) as the final LCP element. Navigation also waits for a blocking licensing-counts request that the simulator delays by its configured latency (200 ms by default), so Settings TTFB includes that artificial delay. Later plans and tracking requests incur their own simulated delays after navigation.
+The final LCP element is the Security message heading (“Your site is protected by Jetpack. You’ll be notified if anything needs attention.”). Navigation also waits for a blocking licensing-counts request that the simulator delays by its configured latency (200 ms by default), so Settings TTFB includes that artificial delay. Later plans and tracking requests incur their own simulated delays after navigation.
 
 ### Offline-mode flip — attribution note
 
@@ -183,7 +183,7 @@ All timing differences stayed inside the local digest noise bars (TTFB 5.64–11
 Accepted as-is (mock realism is tracked in BOOST-456, not fixed here):
 
 - The page's `wpcom/v2/jetpack-partners` call falls through to the mu-plugin's generic `{"success":true}` fallback and logs a `[WPCom Simulator] Unhandled endpoint (using fallback response): …/jetpack-partners` line each load. This is expected fixture noise, not an error.
-- Calls scoped under `/sites/{id}/...` (stats, protect scan, videopress) are shadowed by the mock's `/sites/123456789` site-info branch (it precedes the `/stats/*` branches in the first-match chain) and receive site-info-shaped 200s — semantically wrong, so those cards render empty. Deterministic; fine for trend tracking.
+- Calls scoped under `/sites/{id}/...` (stats, protect scan, videopress) are shadowed by the mock's `/sites/999999999` site-info branch (it precedes the `/stats/*` branches in the first-match chain) and receive site-info-shaped 200s — semantically wrong, so those cards render empty. Deterministic; fine for trend tracking.
 
 ## How It Works
 
@@ -277,8 +277,8 @@ Post a new metric to a `-staging` CodeVitals key first (e.g. `…-timeToFirstByt
 
 A scenario that measures a specific admin page (a `path` + `waitForSelector`, like `formsResponses`) can declare optional guards so a mis-captured page never reaches its permanent keys. Each fails the iteration closed — a failed capture posts nothing rather than a wrong number.
 
-- **`expectUrlIncludes`** — a substring the page's final URL must contain after every redirect settles. For Forms, it catches the server redirect that strips the pinned `p=/responses/inbox`. A URL check alone cannot prove the SPA rendered the requested content: Forms uses its visible layout selector, and Settings uses a settings card with a control plus an exact hash guard. Selectors must be verified against rendered content rather than guessed from the app mount point.
-- **`expectUrlHash`** — an exact final hash, including `#`, checked after route and resource settling. Settings uses it to reject other tabs and routes that merely start with `#/settings`. The rendered-content selector independently proves that Settings controls appeared.
+- **`expectUrlIncludes`** — a substring the page's final URL must contain after every redirect settles. A URL check alone cannot prove the requested content rendered; verify the readiness selector against rendered content rather than the app mount point.
+- **`expectUrlHash`** — an exact final hash, including `#`, checked after route and resource settling. Rejects routes that merely start with the expected hash.
 - **`minResourceCount`** — an iteration whose capture returns fewer resources than a healthy load is dropped from the sample; if every iteration falls short the run posts nothing. The current values live in `scenarios.js` (the single source of truth, with per-page derivations) rather than being restated here where they would drift. This is a **count** floor, not an "editor asset is present" check: the bundle-size metric is meant to fall when the editor lazy-loads, which removes a few large files rather than the bulk of the count, so a count floor catches a truncated capture without clipping the legitimate improvement. Scope: the floor catches captures _below_ its value; a capture between the floor and the real count relies on the readiness settle (see the `formsResponses` readiness note above) and `SANITY_RANGES`.
 
 ### Per-scenario failure isolation

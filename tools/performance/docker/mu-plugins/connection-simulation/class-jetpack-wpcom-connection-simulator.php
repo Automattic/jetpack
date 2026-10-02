@@ -39,7 +39,14 @@ class Jetpack_WPCom_Connection_Simulator {
 	 *
 	 * @var int
 	 */
-	private $fake_site_id = 123456789;
+	private $fake_site_id = 999999999;
+
+	/**
+	 * Fake WordPress.com user ID.
+	 *
+	 * @var int
+	 */
+	private $fake_user_id = 999999999999;
 
 	/**
 	 * Modules that are safe to activate without a real WordPress.com connection.
@@ -145,7 +152,7 @@ class Jetpack_WPCom_Connection_Simulator {
 				'%s.%s.%d',
 				wp_generate_password( 32, false ),
 				wp_generate_password( 32, false ),
-				$admin_user->ID
+				$this->fake_user_id
 			);
 
 			Jetpack_Options::update_option(
@@ -321,7 +328,7 @@ class Jetpack_WPCom_Connection_Simulator {
 			$matched_handler = true;
 			// User info endpoint.
 			$response_body = array(
-				'ID'           => 1,
+				'ID'           => $this->fake_user_id,
 				'display_name' => 'Test User',
 				'username'     => 'testuser',
 				'email'        => 'test@example.com',
