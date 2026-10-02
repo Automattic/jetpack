@@ -16,4 +16,10 @@
 	.components-menu-group + .components-menu-group {
 		border-top-color: var(--wpds-color-stroke-surface-neutral);
 	}
+
+	// The items ring on any :focus, and opening moves focus onto one, so a mouse
+	// open would ring the applied option as if it were a fresh pick.
+	.components-menu-item__button:focus:not(:focus-visible) {
+		outline: none;
+	}
 }
