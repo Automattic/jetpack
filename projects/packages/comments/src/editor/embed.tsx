@@ -1,5 +1,10 @@
 /* @jsxImportSource react */
-import { BlockControls, BlockIcon, useBlockProps } from '@wordpress/block-editor';
+import {
+	BlockControls,
+	BlockIcon,
+	store as blockEditorStore,
+	useBlockProps,
+} from '@wordpress/block-editor';
 import { embedContentIcon } from '@wordpress/block-library/build-module/embed/icons.mjs';
 import {
 	createBlock,
@@ -17,6 +22,7 @@ import {
 	ToolbarGroup,
 	VisuallyHidden,
 } from '@wordpress/components';
+import { useSelect } from '@wordpress/data';
 import { renderToString, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import type { EditorLabels } from '../shared/types';
@@ -27,7 +33,10 @@ const NAME = 'core/embed';
 type Attributes = { url?: string };
 /** What the preview route answers: core's proxy shape. */
 type Preview = { html?: string; scripts?: string[] };
-type EditProps = BlockEditProps< Attributes > & { onReplace: ( blocks: Block | Block[] ) => void };
+type EditProps = BlockEditProps< Attributes > & {
+	onReplace: ( blocks: Block | Block[] ) => void;
+	insertBlocksAfter: ( blocks: Block | Block[] ) => void;
+};
 
 let labels: EditorLabels;
 
@@ -43,14 +52,35 @@ const hostOf = ( url: string ) => {
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
 
-const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: EditProps ) => {
+const Edit = ( {
+	attributes: { url },
+	clientId,
+	setAttributes,
+	isSelected,
+	onReplace,
+	insertBlocksAfter,
+}: EditProps ) => {
 	const [ draft, setDraft ] = useState( url ?? '' );
 	const [ editing, setEditing ] = useState( ! url );
 	const [ preview, setPreview ] = useState< Preview | null >( null );
 	const [ interactive, setInteractive ] = useState( false );
-	const replace = useRef( onReplace );
-	replace.current = onReplace;
+	const isLast = useSelect(
+		select => ! select( blockEditorStore ).getNextBlockClientId( clientId ),
+		[ clientId ]
+	);
+	// Read inside the effects below, which key on the URL alone.
+	const latest = useRef( { isSelected, isLast, onReplace, insertBlocksAfter } );
+	latest.current = { isSelected, isLast, onReplace, insertBlocksAfter };
 	const blockProps = useBlockProps();
+
+	// A pasted or chosen embed gets a line after it, with the caret there: the block list
+	// hides its own "add a block" line while a block is selected, which leaves nowhere to type.
+	useEffect( () => {
+		const { isSelected: selected, isLast: last, insertBlocksAfter: insertAfter } = latest.current;
+		if ( url && selected && last ) {
+			insertAfter( createBlock( 'core/paragraph' ) );
+		}
+	}, [ url ] );
 
 	// A URL the site will not embed becomes a link, with no fuss: most links in a comment are just links.
 	useEffect( () => {
@@ -72,7 +102,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 				if ( data?.html ) {
 					setPreview( data );
 				} else {
-					replace.current( toParagraph( url ) );
+					latest.current.onReplace( toParagraph( url ) );
 				}
 			} );
 
