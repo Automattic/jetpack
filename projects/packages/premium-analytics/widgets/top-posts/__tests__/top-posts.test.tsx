@@ -290,10 +290,8 @@ describe( 'TopPostsWidget', () => {
 		} );
 
 		async function downloadCsvLines() {
-			const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
-			await user.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
-
-			await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+			const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+			await downloads.clickAndSave( button );
 
 			return downloads.lines();
 		}

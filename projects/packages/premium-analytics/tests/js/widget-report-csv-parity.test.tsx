@@ -305,11 +305,10 @@ describe( 'Widget and report CSV parity', () => {
 	 * @return The saved file's name and contents.
 	 */
 	async function download( ui: ReactElement ) {
-		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
 		const view = render( withProviders( ui ) );
+		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
 
-		await user.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
-		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+		await downloads.clickAndSave( button );
 
 		const [ saved ] = downloads.files.splice( 0 );
 		const file = { filename: saved.filename, csv: await saved.blob.text() };
