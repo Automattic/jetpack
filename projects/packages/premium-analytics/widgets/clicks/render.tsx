@@ -232,10 +232,8 @@ function ClicksInner() {
 		...reportParams,
 		max: WIDGET_ROW_LIMIT,
 	} as StatsReportParams;
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } = useStatsClicks(
-		statsParams,
-		{ maxRows: WIDGET_ROW_LIMIT }
-	);
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+		useStatsClicks( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
 		() => ( comparisonRows?.rows ?? [] ).map( toClickRow ),
@@ -306,7 +304,7 @@ function ClicksInner() {
 				<ReportLink report="clicks" />
 				<ExporterCsvDownloadButton
 					exporter={ clicksCsvExporter }
-					status={ { isLoading, isFetching, isError } }
+					status={ { isLoading, isFetching, isError: primary.isError } }
 					rowCount={ rows.length }
 				/>
 			</WidgetFooter>

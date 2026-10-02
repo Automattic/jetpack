@@ -135,7 +135,7 @@ export function FileDownloadsLeaderboard( {
 
 function FileDownloadsInner() {
 	const { reportParams } = useWidgetRootContext();
-	const { comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
+	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, refetch } =
 		useStatsFileDownloads( reportParams as StatsReportParams, { maxRows: WIDGET_ROW_LIMIT } );
 
 	const rows = useMemo(
@@ -172,7 +172,7 @@ function FileDownloadsInner() {
 				<ReportLink report="downloads" />
 				<ExporterCsvDownloadButton
 					exporter={ fileDownloadsCsvExporter }
-					status={ { isLoading, isFetching, isError } }
+					status={ { isLoading, isFetching, isError: primary.isError } }
 					rowCount={ rows.length }
 				/>
 			</WidgetFooter>

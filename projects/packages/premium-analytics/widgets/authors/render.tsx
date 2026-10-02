@@ -224,7 +224,7 @@ function AuthorsReport() {
 				<ReportLink report="authors" />
 				<ExporterCsvDownloadButton
 					exporter={ authorsCsvExporter }
-					status={ { isLoading: isInitialLoading, isFetching, isError } }
+					status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
 					rowCount={ rows.length }
 				/>
 			</WidgetFooter>
