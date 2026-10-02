@@ -170,7 +170,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$instance['alt_text']          = wp_strip_all_tags( $new_instance['alt_text'] ?? '' );
 		$instance['img_title']         = wp_strip_all_tags( $new_instance['img_title'] ?? '' );
 		$instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ?? '' ), $allowed_caption_html );
-		$instance['align']             = $new_instance['align'] ?? '';
+		$instance['align']             = $new_instance['align'] ?? 'none';
 		$instance['link']              = esc_url( trim( $new_instance['link'] ?? '' ) );
 		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
 
