@@ -6,6 +6,7 @@ import {
 	useBlockProps,
 	store as blockEditorStore,
 } from '@wordpress/block-editor';
+import { createBlock, getDefaultBlockName } from '@wordpress/blocks';
 import { Button, Placeholder, Spinner, withNotices, ResizableBox } from '@wordpress/components';
 import { compose } from '@wordpress/compose';
 import { useDispatch, useSelect } from '@wordpress/data';
@@ -50,6 +51,7 @@ const MapEdit = ( {
 	notices,
 	isSelected,
 	noticeOperations,
+	clientId,
 } ) => {
 	const {
 		address,
@@ -64,14 +66,19 @@ const MapEdit = ( {
 	} = attributes;
 
 	const { toggleSelection } = useDispatch( 'core/block-editor' );
+	const { insertBlock } = useDispatch( blockEditorStore );
 
-	const { isPreviewMode } = useSelect( select => {
-		const { getSettings } = select( blockEditorStore );
-		const settings = getSettings();
-		return {
-			isPreviewMode: settings.isPreviewMode,
-		};
-	}, [] );
+	const { isPreviewMode, blockIndex } = useSelect(
+		select => {
+			const { getSettings, getBlockIndex } = select( blockEditorStore );
+			const settings = getSettings();
+			return {
+				isPreviewMode: settings.isPreviewMode,
+				blockIndex: getBlockIndex( clientId ),
+			};
+		},
+		[ clientId ]
+	);
 
 	const [ addPointVisibility, setAddPointVisibility ] = useState( false );
 	const [ apiState, setApiState ] = useState( API_STATE_LOADING );
@@ -80,7 +87,25 @@ const MapEdit = ( {
 	const [ apiKeySource, setApiKeySource ] = useState( null );
 	const [ apiRequestOutstanding, setApiRequestOutstanding ] = useState( null );
 	const mapRef = useRef( null );
-	const blockProps = useBlockProps();
+
+	const onKeyDown = event => {
+		if ( [ 'INPUT', 'TEXTAREA', 'BUTTON' ].includes( event.target.tagName ) ) {
+			return;
+		}
+
+		if (
+			event.key === 'Enter' &&
+			! event.shiftKey &&
+			! event.ctrlKey &&
+			! event.altKey &&
+			! event.metaKey
+		) {
+			event.preventDefault();
+			insertBlock( createBlock( getDefaultBlockName() ), blockIndex + 1 );
+		}
+	};
+
+	const blockProps = useBlockProps( { onKeyDown } );
 	const { className } = blockProps;
 
 	const mapStyle = getActiveStyleName( styles, className );
