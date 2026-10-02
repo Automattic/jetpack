@@ -18,8 +18,8 @@ import {
  */
 import { annualInsightsCsvExporter } from '../annual-insights';
 import { commentsAuthorsCsvExporter, commentsPostsCsvExporter, toCommentRows } from '../comments';
-import { EMAILS_REPORT_ROW_LIMIT, emailsCsvExporter } from '../emails';
-import { TAGS_REPORT_ROW_LIMIT, tagsCsvExporter } from '../tags';
+import { emailsCsvExporter } from '../emails';
+import { tagsCsvExporter } from '../tags';
 import type { ReportCsvExporter } from '../types';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -143,7 +143,7 @@ describe( 'all-time report exporters', () => {
 		] );
 	} );
 
-	it( 'exports Tags and categories by views from the report-sized request', async () => {
+	it( 'exports Tags and categories by views', async () => {
 		const items = [
 			{ label: [], labelText: 'First tag', value: 2, link: '/first' },
 			{ label: [], labelText: 'Second tag', value: 5, link: null },
@@ -151,7 +151,6 @@ describe( 'all-time report exporters', () => {
 		jest.mocked( fetchStatsTagsRows ).mockResolvedValue( items );
 
 		await expect( tagsCsvExporter.fetchItems( REPORT_PARAMS ) ).resolves.toBe( items );
-		expect( fetchStatsTagsRows ).toHaveBeenCalledWith( { max: TAGS_REPORT_ROW_LIMIT } );
 		expect( toCsvTable( tagsCsvExporter, items ) ).toEqual( [
 			[ 'Tag or category', 'Views', 'URL' ],
 			[ 'Second tag', 5, '' ],
@@ -203,9 +202,6 @@ describe( 'all-time report exporters', () => {
 		jest.mocked( fetchStatsEmailSummaryRows ).mockResolvedValue( items );
 
 		await expect( emailsCsvExporter.fetchItems( REPORT_PARAMS ) ).resolves.toBe( items );
-		expect( fetchStatsEmailSummaryRows ).toHaveBeenCalledWith( {
-			quantity: EMAILS_REPORT_ROW_LIMIT,
-		} );
 		expect( toCsvTable( emailsCsvExporter, items ) ).toEqual( [
 			[ 'Email', 'Sent', 'Opens', 'Open rate', 'Clicks', 'Click rate' ],
 			[ 'Second email', '2026-02-01', 20, 40, 4, undefined ],

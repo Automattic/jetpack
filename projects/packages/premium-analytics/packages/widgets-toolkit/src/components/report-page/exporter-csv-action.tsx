@@ -19,8 +19,7 @@ type ExporterCsvActionProps< TItem, TRow > = {
 	/** The report's loaded table rows. */
 	items: TItem[];
 	status: ReportCsvExportStatus;
-	/** Required when the exporter has a date range. */
-	reportParams?: ReportParams;
+	reportParams: ReportParams;
 };
 
 /** Report header action that saves the settled rows through the report's exporter. */

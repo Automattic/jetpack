@@ -120,10 +120,8 @@ export async function fetchStatsUtmRows(
 	return mergeStatsUtmComparisonRows( report, undefined ).rows;
 }
 
-/** Fetch every year the Annual insights report lists. */
 export async function fetchStatsInsightsYears(): Promise< StatsInsightsYear[] > {
 	const report = await fetchReport( statsInsightsQuery() );
-	// The sanitizer returns a bare object for a payload it does not recognize.
 	return report.years ?? [];
 }
 
@@ -132,13 +130,11 @@ export function fetchStatsComments(): Promise< StatsCommentsResponse > {
 	return fetchReport( statsCommentsQuery() );
 }
 
-/** Fetch the tags and categories the Tags report lists, up to `max`. */
 export async function fetchStatsTagsRows( params: StatsTagsParams ): Promise< StatsTagsItem[] > {
 	const report = await fetchReport( statsTagsQuery( params ) );
 	return report.data?.[ 0 ]?.items ?? [];
 }
 
-/** Fetch the latest emails the Emails report lists, up to `quantity`. */
 export async function fetchStatsEmailSummaryRows(
 	params: StatsEmailSummaryParams
 ): Promise< StatsEmailSummaryItem[] > {

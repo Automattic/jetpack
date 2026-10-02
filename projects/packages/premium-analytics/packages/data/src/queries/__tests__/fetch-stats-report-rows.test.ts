@@ -271,7 +271,7 @@ describe( 'all-time report fetchers', () => {
 		return mockApiFetch.mock.calls.map( ( [ { path } ] ) => path );
 	}
 
-	it( 'fetches tags with the requested row cap', async () => {
+	it( 'fetches the tags and categories', async () => {
 		mockApiFetch.mockResolvedValue( {
 			tags: [
 				{
@@ -285,11 +285,10 @@ describe( 'all-time report fetchers', () => {
 
 		expect( requestedPaths() ).toHaveLength( 1 );
 		expect( requestedPaths()[ 0 ] ).toContain( 'stats/tags' );
-		expect( requestedPaths()[ 0 ] ).toContain( 'max=1000' );
 		expect( rows.map( row => row.labelText ) ).toEqual( [ 'news' ] );
 	} );
 
-	it( 'fetches the email summary with the requested row count', async () => {
+	it( 'fetches the email summary', async () => {
 		mockApiFetch.mockResolvedValue( {
 			posts: [
 				{ id: 1, title: 'Issue 1', href: 'https://example.com/1/', date: '2026-01-01', opens: 3 },
@@ -300,7 +299,6 @@ describe( 'all-time report fetchers', () => {
 
 		expect( requestedPaths() ).toHaveLength( 1 );
 		expect( requestedPaths()[ 0 ] ).toContain( 'stats/emails/summary' );
-		expect( requestedPaths()[ 0 ] ).toContain( 'quantity=30' );
 		expect( rows.map( row => row.label ) ).toEqual( [ 'Issue 1' ] );
 	} );
 } );

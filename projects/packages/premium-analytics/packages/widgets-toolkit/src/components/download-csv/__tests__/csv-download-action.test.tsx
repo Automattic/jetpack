@@ -94,4 +94,16 @@ describe( 'useExporterCsvAction', () => {
 		} );
 		expect( result.current ).toBeNull();
 	} );
+
+	it( 'stops holding the button once a failed download settles', async () => {
+		jest.mocked( downloadReportCsv ).mockRejectedValue( new Error( 'Upstream API unavailable.' ) );
+		const { result, rerender } = renderHook(
+			( { status } ) => useExporterCsvAction( { exporter, status, rowCount: 3 } ),
+			{ wrapper, initialProps: { status: SETTLED } }
+		);
+
+		await act( () => result.current.callback() );
+		rerender( { status: { ...SETTLED, isFetching: true } } );
+		expect( result.current ).toBeNull();
+	} );
 } );

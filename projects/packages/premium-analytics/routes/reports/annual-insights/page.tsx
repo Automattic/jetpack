@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
@@ -56,6 +57,7 @@ function getAnnualInsightRowId( item: StatsInsightsYear ): string {
  */
 function AnnualInsightsReport(): JSX.Element {
 	const records = useAnnualInsightsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
 	const retry = useReportRetry( records.refetch );
 
@@ -70,6 +72,7 @@ function AnnualInsightsReport(): JSX.Element {
 					exporter={ annualInsightsCsvExporter }
 					items={ records.rows }
 					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
 		>

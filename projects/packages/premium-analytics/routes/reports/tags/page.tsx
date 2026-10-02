@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
@@ -46,6 +47,7 @@ const RECORDS_VIEW = {
  */
 function TagsReport(): JSX.Element {
 	const records = useTagsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getTagsFields(), [] );
 	const retry = useReportRetry( records.refetch );
 
@@ -56,7 +58,12 @@ function TagsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				<ExporterCsvAction exporter={ tagsCsvExporter } items={ records.rows } status={ records } />
+				<ExporterCsvAction
+					exporter={ tagsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() }>

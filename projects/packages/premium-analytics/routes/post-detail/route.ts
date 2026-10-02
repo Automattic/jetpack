@@ -4,7 +4,6 @@
 import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
-	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
 import {
 	pickDashboardOriginParams,
@@ -14,6 +13,7 @@ import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
+import { seedDetailDateParams } from '../detail-date-seed';
 import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { resolveTabId } from './config';
@@ -83,9 +83,7 @@ export const route = {
 
 			// Allowlist this page's own params instead of spreading `currentSearch`
 			// wholesale; the report origin stays so the breadcrumb survives.
-			const reportParams = normalizeReportParams(
-				currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
-			);
+			const reportParams = seedDetailDateParams( currentSearch, postId );
 			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
 				...reportParams,
@@ -94,12 +92,6 @@ export const route = {
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 				post_id: postId,
 			};
-
-			/*
-			 * Comparison params ride along untouched: this page renders no
-			 * comparison, but the breadcrumb's dashboard link carries the URL state
-			 * back out, so stripping them would lose the setting on a round trip.
-			 */
 
 			throw redirect( {
 				to: '/post/$postId',

@@ -21,6 +21,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import {
 	getCommentsFields,
 	getCommentsReportTabs,
@@ -62,6 +63,7 @@ function CommentsReport(): JSX.Element {
 	const tabs = useMemo( () => getCommentsReportTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveTabId );
 	const records = useCommentsReportRecords( activeTab );
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getCommentsFields( activeTab ), [ activeTab ] );
 	const retry = useReportRetry( records.refetch );
 
@@ -76,6 +78,7 @@ function CommentsReport(): JSX.Element {
 					exporter={ activeTab === 'posts' ? commentsPostsCsvExporter : commentsAuthorsCsvExporter }
 					items={ records.rows }
 					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
 		>
