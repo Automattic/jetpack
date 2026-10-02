@@ -4,7 +4,6 @@ import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
-import useCheckoutErrorNotice from '../../hooks/use-checkout-error-notice';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 
 interface ProductInterstitialModalCtaProps {
@@ -62,21 +61,17 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
-	const {
-		run: mainCheckoutRedirect,
-		hasCheckoutStarted: hasMainCheckoutStarted,
-		checkoutError,
-	} = useProductCheckoutWorkflow( {
-		productSlug,
-		redirectUrl: checkoutRedirectUrl,
-		siteSuffix,
-		adminUrl,
-		connectAfterCheckout: true,
-		from: 'my-jetpack',
-		quantity,
-		useBlogIdSuffix: true,
-	} );
-	useCheckoutErrorNotice( checkoutError );
+	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug,
+			redirectUrl: checkoutRedirectUrl,
+			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
+			from: 'my-jetpack',
+			quantity,
+			useBlogIdSuffix: true,
+		} );
 
 	const isDisabled = disabled || isProductLoading;
 	const isLoading = isProductLoading || hasMainCheckoutStarted;

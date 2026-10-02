@@ -15,7 +15,6 @@ import { Fragment, useCallback, useState, useEffect } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import useAnalytics from '../../hooks/use-analytics';
-import useCheckoutErrorNotice from '../../hooks/use-checkout-error-notice';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import LoadingBlock from '../loading-block';
 import ProductDetailButton from '../product-detail-button';
@@ -161,37 +160,29 @@ const ProductDetailCard = ( {
 
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
 
-	const {
-		run: mainCheckoutRedirect,
-		hasCheckoutStarted: hasMainCheckoutStarted,
-		checkoutError: mainCheckoutError,
-	} = useProductCheckoutWorkflow( {
-		productSlug: wpcomProductSlug,
-		redirectUrl: checkoutRedirectUrl,
-		siteSuffix,
-		adminUrl,
-		connectAfterCheckout: true,
-		from: 'my-jetpack',
-		quantity,
-		useBlogIdSuffix: true,
-	} );
+	const { run: mainCheckoutRedirect, hasCheckoutStarted: hasMainCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomProductSlug,
+			redirectUrl: checkoutRedirectUrl,
+			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
+			from: 'my-jetpack',
+			quantity,
+			useBlogIdSuffix: true,
+		} );
 
-	const {
-		run: trialCheckoutRedirect,
-		hasCheckoutStarted: hasTrialCheckoutStarted,
-		checkoutError: trialCheckoutError,
-	} = useProductCheckoutWorkflow( {
-		productSlug: wpcomFreeProductSlug,
-		redirectUrl: checkoutRedirectUrl,
-		siteSuffix,
-		adminUrl,
-		connectAfterCheckout: true,
-		from: 'my-jetpack',
-		quantity,
-		useBlogIdSuffix: true,
-	} );
-
-	useCheckoutErrorNotice( mainCheckoutError || trialCheckoutError );
+	const { run: trialCheckoutRedirect, hasCheckoutStarted: hasTrialCheckoutStarted } =
+		useProductCheckoutWorkflow( {
+			productSlug: wpcomFreeProductSlug,
+			redirectUrl: checkoutRedirectUrl,
+			siteSuffix,
+			adminUrl,
+			connectAfterCheckout: true,
+			from: 'my-jetpack',
+			quantity,
+			useBlogIdSuffix: true,
+		} );
 
 	// Suppported products icons.
 	const icons = isBundleUpsell
