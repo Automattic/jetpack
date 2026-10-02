@@ -330,10 +330,9 @@ class Jetpack_AI_Page {
 		$config = apply_filters(
 			'jetpack_ai_admin_config',
 			array(
-				// The Overview and Features views launch on non-VIP self-hosted sites first.
+				// The Overview and Features views launch on self-hosted sites first.
 				// Keep this filterable so hosts can close them independently.
-				'showGatedViews'    => ! $host->is_vip_site()
-					&& ( ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ) ),
+				'showGatedViews'    => ! $host->is_wpcom_platform() || ( $host->is_woa_site() && $is_internal_test ),
 				'showA12sBadge'     => $host->is_woa_site() && $is_internal_test,
 				// The same verdicts the feature-settings endpoint reports. That call
 				// exists for the AI Features toggles; the notice must not wait on it.
