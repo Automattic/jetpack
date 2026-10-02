@@ -184,6 +184,26 @@ describe( 'HeatmapChart', () => {
 		).toHaveLength( 4 );
 	} );
 
+	test( 'paints the legend on the same scale as the cells', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } primaryColor="#3858e9">
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		for ( const swatch of screen.getAllByTestId( 'heatmap-legend-swatch' ) ) {
+			for ( const end of [ 'low', 'high' ] ) {
+				const property = `--a8c-charts-color-heatmap-${ end }`;
+				expect( swatch.style.getPropertyValue( property ) ).toBe(
+					grid.style.getPropertyValue( property )
+				);
+			}
+		}
+	} );
+
 	test( 'ArrowDown moves focus within a column, ArrowRight moves to next column', async () => {
 		renderChart( { rowLabels: [ 'Mon', 'Tue', 'Wed' ] } );
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
@@ -421,6 +441,25 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#abcdef' );
 	} );
 
+	test( 'sets the fill scale ends derived from the primary color', () => {
+		renderChart( { primaryColor: '#3858e9' } );
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#798ef0' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
+	} );
+
+	test( 'paints a zero as an empty cell, still announcing its value', () => {
+		renderChart();
+		const zero = screen.getByRole( 'gridcell', { name: 'W2: 0' } );
+
+		expect( zero ).not.toHaveClass( 'heatmap-chart__cell--filled' );
+		expect( zero.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe( '' );
+		expect( screen.getByRole( 'gridcell', { name: 'W1: 1' } ) ).toHaveClass(
+			'heatmap-chart__cell--filled'
+		);
+	} );
+
 	test( 'falls back to the first palette slot when no primaryColor prop is set', () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-series-1', '#0a0b0c' );
@@ -481,9 +520,9 @@ const mockRects = () =>
 	} );
 
 describe( 'HeatmapChart value text contrast', () => {
-	// Extent 0..100, so each value is its own intensity in hundredths.
+	// The low end, a mid-tone, and the high end of the scale.
 	const scale: HeatmapColumn[] = [
-		{ label: 'W1', data: [ { value: 0 }, { value: 85 }, { value: 100 } ] },
+		{ label: 'W1', data: [ { value: 1 }, { value: 30 }, { value: 100 } ] },
 	];
 
 	let injectedStyle: HTMLStyleElement | null = null;
@@ -509,14 +548,14 @@ describe( 'HeatmapChart value text contrast', () => {
 	test( 'picks the label role that reaches AA on light and dark cells', () => {
 		renderScale();
 
-		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
 	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
 		renderScale();
 
-		expect( screen.getByText( '85' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '30' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 	} );
 
 	test( 'reads the label roles once data arrives after an empty first render', () => {
@@ -554,7 +593,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'translucent-heatmap' );
 
-		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
 		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
@@ -577,7 +616,7 @@ describe( 'HeatmapChart value text contrast', () => {
 		);
 
 		expect( screen.getByText( '7' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
-		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+		expect( screen.getByText( '1' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
 	} );
 
 	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
@@ -588,7 +627,7 @@ describe( 'HeatmapChart value text contrast', () => {
 
 		renderScale( 'pinned-heatmap' );
 
-		[ '0', '85', '100' ].forEach( value =>
+		[ '1', '30', '100' ].forEach( value =>
 			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
 				exact: true,
 			} )

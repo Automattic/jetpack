@@ -28,10 +28,12 @@ import { pickLabelTextColorForFill, resolveLabelRoles } from '../private/label-t
 import { withResponsive } from '../private/with-responsive';
 import styles from './heatmap-chart.module.scss';
 import {
+	getHeatmapScale,
 	getValueExtent,
 	getNormalizedValue,
 	HeatmapContext,
 	HeatmapLegend,
+	isEmptyValue,
 	isPresent,
 	resolveColumnGroups,
 } from './private';
@@ -48,10 +50,6 @@ import type { HeatmapChartProps, HeatmapTooltipData } from './types';
 import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
 import type { ResponsiveConfig } from '../private/with-responsive';
 import type { CSSProperties, FC } from 'react';
-
-// Mirrors the color-mix floor in heatmap-chart.module.scss (.heatmap-chart__cell--filled):
-// the rendered fill is the primary mixed over the chart background at 0.15 + 0.85 * intensity.
-const CELL_MIX_FLOOR = 0.15;
 
 // `label` is the stylesheet's default, so it needs no modifier.
 const CELL_VALUE_MODIFIER: Record< LabelTextColor, string | undefined > = {
@@ -139,21 +137,20 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		resolveCssVariable
 	);
 
-	// Choose text color from the blended fill, not the raw value.
-	// If either color cannot resolve to hex, keep the stylesheet's default role.
+	// If either color cannot resolve to hex, the stylesheet falls back to its own blend.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
-	const cellMix =
-		isValidHexColor( primaryHex ) && isValidHexColor( chartBackgroundHex )
-			? { primary: hexToRgb( primaryHex ), background: hexToRgb( chartBackgroundHex ) }
-			: null;
+	const scale = useMemo(
+		() =>
+			isValidHexColor( primaryHex ) && isValidHexColor( chartBackgroundHex )
+				? getHeatmapScale( primaryHex, chartBackgroundHex )
+				: null,
+		[ primaryHex, chartBackgroundHex ]
+	);
+	// Choose text color from the fill the cell paints, mirroring .heatmap-chart__cell--filled.
 	const cellTextColor = ( intensity: number ): LabelTextColor =>
-		cellMix
+		scale
 			? pickLabelTextColorForFill(
-					blendRgb(
-						cellMix.primary,
-						cellMix.background,
-						CELL_MIX_FLOOR + ( 1 - CELL_MIX_FLOOR ) * intensity
-					),
+					blendRgb( hexToRgb( scale.high ), hexToRgb( scale.low ), intensity ),
 					labelRoles,
 					'label'
 				)
@@ -171,8 +168,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, primaryColorHex } ),
-		[ extent, primaryColorHex ]
+		() => ( { extent, primaryColorHex, scale } ),
+		[ extent, primaryColorHex, scale ]
 	);
 
 	const columns = data.length;
@@ -397,6 +394,10 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		.join( ' ' );
 	const gridStyle: Record< string, string | number > = {
 		'--a8c-charts-color-heatmap-primary': primaryColorHex,
+		...( scale && {
+			'--a8c-charts-color-heatmap-low': scale.low,
+			'--a8c-charts-color-heatmap-high': scale.high,
+		} ),
 		gridTemplateColumns: `auto ${ columnTracks }`,
 		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })${
 			hasGroups ? ' auto' : ''
@@ -548,7 +549,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 										const value = cell?.value ?? null;
 										const present = isPresent( value );
 										// A summary cell is on another scale, so it takes no fill.
-										const filled = present && ! column.summary;
+										const filled = present && ! column.summary && ! isEmptyValue( value, extent );
 										const normalized = filled ? getNormalizedValue( value, extent ) : 0;
 										const info = buildTooltipData( columnIndex, rowIndex );
 										const accessibleLabel = `${ cellName( info ) }: ${
