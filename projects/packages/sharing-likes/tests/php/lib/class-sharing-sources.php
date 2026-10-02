@@ -125,7 +125,7 @@ class Share_Custom extends Sharing_Advanced_Source {
 	 * @param array $data Name, URL and icon.
 	 */
 	public function update_options( array $data ) {
-		$name = trim( stripslashes( $data['name'] ) );
+		$name = trim( wp_html_excerpt( wp_kses( stripslashes( $data['name'] ), array() ), 30 ) );
 		$url  = trim( esc_url_raw( $data['url'] ) );
 		$icon = trim( esc_url_raw( $data['icon'] ) );
 

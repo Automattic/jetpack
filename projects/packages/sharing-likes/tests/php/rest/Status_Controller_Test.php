@@ -153,6 +153,34 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertSame( Section_State::BLOCK_CALL_TO_ACTION, $response->get_data()['likes']['state'] );
 	}
 
+	public function test_switching_sharing_to_the_block_on_simple_empties_the_services_through_sharing_service(): void {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->given_block_routes();
+		$GLOBALS['sharing_likes_test_services'] = array( 'x' );
+		update_option(
+			'sharing-services',
+			array(
+				'visible' => array( 'x' ),
+				'hidden'  => array(),
+			)
+		);
+		$announced = did_action( 'sharing_get_services_state' );
+
+		$response = $this->request( 'POST', 'sharing/switch-to-block' );
+		unset( $GLOBALS['sharing_likes_test_services'] );
+
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame( $announced + 1, did_action( 'sharing_get_services_state' ) );
+		$this->assertSame(
+			array(
+				'visible' => array(),
+				'hidden'  => array(),
+			),
+			get_option( 'sharing-services' )
+		);
+		$this->assertSame( Section_State::BLOCK_CALL_TO_ACTION, $response->get_data()['sharing']['state'] );
+	}
+
 	/**
 	 * Only the sharing section offers the switch here, so nothing may reach the likes one.
 	 */

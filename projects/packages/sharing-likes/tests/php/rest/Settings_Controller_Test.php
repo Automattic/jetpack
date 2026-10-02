@@ -152,9 +152,6 @@ class Settings_Controller_Test extends BaseTestCase {
 		$this->assertTrue( $data['disable_resources'] );
 	}
 
-	/**
-	 * The label is stored through `wp_kses()`, which encodes a bare `&`.
-	 */
 	public function test_reads_the_label_decoded(): void {
 		$this->given_both_features_running();
 		update_option( 'sharing-options', array( 'global' => array( 'sharing_label' => 'Share &amp; enjoy' ) ) );
@@ -199,9 +196,6 @@ class Settings_Controller_Test extends BaseTestCase {
 		$this->assertSame( array( 'page' ), $saved['show'] );
 	}
 
-	/**
-	 * `set_global_options()` unslashes the label, as it was written for `$_POST`.
-	 */
 	public function test_saving_the_label_keeps_its_backslashes(): void {
 		$this->given_both_features_running();
 
@@ -239,12 +233,27 @@ class Settings_Controller_Test extends BaseTestCase {
 	public function test_saving_writes_nothing_it_was_not_sent(): void {
 		$this->given_both_features_running();
 		update_option( 'disabled_likes', 1 );
+		$stored = array( 'global' => array( 'button_style' => 'icon' ) );
+		update_option( 'sharing-options', $stored );
 
 		$this->request( 'POST', 'settings', array( 'twitter_site_tag' => 'jetpack' ) );
 
 		$this->assertArrayNotHasKey( 'sharing_likes_test_global_options', $GLOBALS );
 		$this->assertSame( '1', (string) get_option( 'disabled_likes' ) );
-		$this->assertFalse( get_option( 'sharing-options' ) );
+		$this->assertSame( $stored, get_option( 'sharing-options' ) );
+	}
+
+	public function test_leaves_out_the_site_tag_while_twitter_cards_are_off(): void {
+		$this->given_both_features_running();
+		add_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$data     = $this->request( 'GET', 'settings' )->get_data();
+		$response = $this->request( 'POST', 'settings', array( 'twitter_site_tag' => 'jetpack' ) );
+		remove_filter( 'jetpack_disable_twitter_cards', '__return_true' );
+
+		$this->assertArrayNotHasKey( 'twitter_site_tag', $data );
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertFalse( get_option( Twitter_Site_Tag::OPTION ) );
 	}
 
 	public function test_rejects_null_rather_than_saving_it_as_off_or_empty(): void {
@@ -470,7 +479,9 @@ class Settings_Controller_Test extends BaseTestCase {
 
 		$this->assertArrayHasKey( 'comment_likes_enabled', $data );
 		$this->assertArrayNotHasKey( 'likes_enabled', $data );
+		$this->assertArrayNotHasKey( 'reblogs_enabled', $data );
 		$this->assertArrayNotHasKey( 'show', $data );
+		$this->assertSame( 400, $this->request( 'POST', 'settings', array( 'reblogs_enabled' => true ) )->get_status() );
 	}
 
 	public function test_rejects_an_unknown_button_style(): void {

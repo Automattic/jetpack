@@ -81,11 +81,50 @@ class Services_Controller_Test extends BaseTestCase {
 	}
 
 	public function test_services_are_unavailable_while_the_sharing_section_does_not_configure(): void {
+		$this->create();
+		$stored = get_option( 'sharing-options' );
 		$this->given_modules( array() );
 
 		$this->assertSame( 409, $this->request( 'GET', 'services' )->get_status() );
 		$this->assertSame( 409, $this->create()->get_status() );
-		$this->assertFalse( get_option( 'sharing-options' ) );
+		$this->assertSame(
+			409,
+			$this->request(
+				'POST',
+				'services',
+				array(
+					'visible' => array( 'x' ),
+					'hidden'  => array(),
+				)
+			)->get_status()
+		);
+		$this->assertSame( 409, $this->request( 'POST', 'services/custom/custom-1000', array( 'name' => 'Renamed' ) )->get_status() );
+		$this->assertSame( 409, $this->request( 'DELETE', 'services/custom/custom-1000' )->get_status() );
+		$this->assertSame( $stored, get_option( 'sharing-options' ) );
+		$this->assertFalse( get_option( 'sharing-services' ) );
+	}
+
+	public function test_flags_a_deprecated_service(): void {
+		$GLOBALS['sharing_likes_test_services'][] = 'deprecated';
+
+		$services = array_column( $this->request( 'GET', 'services' )->get_data()['services'], 'deprecated', 'id' );
+
+		$this->assertTrue( $services['deprecated'] );
+		$this->assertFalse( $services['x'] );
+	}
+
+	public function test_saving_services_drops_unknown_ones_and_any_listed_twice(): void {
+		$data = $this->request(
+			'POST',
+			'services',
+			array(
+				'visible' => array( 'x', 'unknown' ),
+				'hidden'  => array( 'x', 'email' ),
+			)
+		)->get_data();
+
+		$this->assertSame( array( 'x' ), $data['visible'] );
+		$this->assertSame( array( 'email' ), $data['hidden'] );
 	}
 
 	public function test_lists_the_enabled_services_and_every_available_one(): void {
@@ -162,11 +201,8 @@ class Services_Controller_Test extends BaseTestCase {
 		$this->assertContains( 'custom-1000', array_column( $this->request( 'GET', 'services' )->get_data()['services'], 'id' ) );
 	}
 
-	/**
-	 * The name is stored through `wp_kses()`, which encodes a bare `&`.
-	 */
 	public function test_lists_custom_service_names_decoded(): void {
-		$this->create( 'Tom &amp; Jerry' );
+		$this->create( 'Tom & Jerry' );
 
 		$this->assertContains( 'Tom & Jerry', array_column( $this->request( 'GET', 'services' )->get_data()['services'], 'name' ) );
 	}
@@ -196,9 +232,6 @@ class Services_Controller_Test extends BaseTestCase {
 		$this->assertSame( 'https://example.com/icon.png', get_option( 'sharing-options' )['custom-1000']['icon'] );
 	}
 
-	/**
-	 * `Share_Custom::update_options()` unslashes the name, as it was written for `$_POST`.
-	 */
 	public function test_editing_a_custom_service_keeps_backslashes_in_its_name(): void {
 		$this->create();
 

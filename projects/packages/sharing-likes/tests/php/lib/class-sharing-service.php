@@ -12,10 +12,6 @@ require_once __DIR__ . '/class-sharing-sources.php';
 /**
  * A `Sharing_Service` that records the global options rather than saving them,
  * and offers only the services a test asks for.
- *
- * The real one ships with the Jetpack plugin's Sharing module, which this
- * package does not depend on. Validating the payload is that class's job, so
- * the tests here only assert what the handler hands over.
  */
 class Sharing_Service {
 
@@ -49,6 +45,12 @@ class Sharing_Service {
 	 * @param array $hidden  Service IDs behind the "More" button.
 	 */
 	public function set_blog_services( array $visible, array $hidden ) {
+		$available = array_keys( $this->get_all_services_blog() );
+		$visible   = array_intersect( $visible, $available );
+		$hidden    = array_diff( array_intersect( $hidden, $available ), $visible );
+
+		do_action( 'sharing_get_services_state', compact( 'visible', 'hidden' ) );
+
 		return update_option( 'sharing-services', compact( 'visible', 'hidden' ) );
 	}
 
@@ -108,7 +110,7 @@ class Sharing_Service {
 	 * @return Share_Custom|false
 	 */
 	public function new_service( $label, $url, $icon ) {
-		$label = trim( $label );
+		$label = trim( wp_html_excerpt( wp_kses( $label, array() ), 30 ) );
 		$url   = trim( esc_url_raw( $url ) );
 		$icon  = trim( esc_url_raw( $icon ) );
 
@@ -167,24 +169,32 @@ class Sharing_Service {
 	}
 
 	/**
-	 * The stored global options over the real class's defaults.
+	 * The stored global options, or the real class's defaults when none are stored.
+	 *
+	 * The real class also saves those defaults on that first read.
 	 *
 	 * @return array
 	 */
 	public function get_global_options() {
 		$options = get_option( 'sharing-options' );
-		$global  = is_array( $options ) && isset( $options['global'] ) && is_array( $options['global'] ) ? $options['global'] : array();
 
-		$global = array_merge(
-			array(
-				'button_style' => 'icon-text',
-				'open_links'   => 'same',
-				'show'         => array( 'post', 'page' ),
-			),
-			$global
-		);
+		if ( is_array( $options ) && isset( $options['global'] ) && is_array( $options['global'] ) ) {
+			$global = $options['global'];
+		} else {
+			$global = array(
+				'button_style'  => 'icon-text',
+				'sharing_label' => false,
+				'open_links'    => 'same',
+				'show'          => array( 'post', 'page' ),
+				'custom'        => array(),
+			);
+		}
 
-		if ( ! isset( $global['sharing_label'] ) || false === $global['sharing_label'] ) {
+		if ( ! isset( $global['show'] ) ) {
+			$global['show'] = array( 'post', 'page' );
+		}
+
+		if ( ! isset( $global['sharing_label'] ) || false === $global['sharing_label'] || 'Share this:' === $global['sharing_label'] ) {
 			$global['sharing_label'] = $this->default_sharing_label;
 		}
 
