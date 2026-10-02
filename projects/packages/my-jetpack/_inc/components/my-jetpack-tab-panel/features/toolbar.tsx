@@ -79,7 +79,9 @@ function ViewButton( { value, current, onSelect }: ViewButtonProps ) {
 		<IconButton
 			icon={ value === 'grid' ? category : blockTable }
 			label={ value === 'grid' ? gridLabel : listLabel }
-			variant={ isActive ? 'solid' : 'minimal' }
+			// Minimal either way: the design system paints a pressed neutral minimal button
+			// with the same strong fill `solid` would, and documents aria-pressed for this variant.
+			variant="minimal"
 			tone="neutral"
 			size="compact"
 			aria-pressed={ isActive }
