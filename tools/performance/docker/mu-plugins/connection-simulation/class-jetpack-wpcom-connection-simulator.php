@@ -152,7 +152,7 @@ class Jetpack_WPCom_Connection_Simulator {
 				'%s.%s.%d',
 				wp_generate_password( 32, false ),
 				wp_generate_password( 32, false ),
-				$this->fake_user_id
+				$admin_user->ID
 			);
 
 			Jetpack_Options::update_option(
