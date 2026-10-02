@@ -1,4 +1,5 @@
 import type { Integration, IntegrationCardData } from '../../../../../types/index.ts';
+import type { GoogleSheetsData } from '../components/google-sheets-sync-controls.tsx';
 import type { ReactNode } from 'react';
 
 export type CardItem = {
@@ -26,6 +27,11 @@ export type EditorFormAttributes = {
 	mailpoet?: { enabledForForm?: boolean; listId?: string };
 	hostingerReach?: { enabledForForm?: boolean; groupName?: string };
 	salesforceData?: { sendToSalesforce?: boolean; organizationId?: string };
+	// One definition, imported rather than restated: these two shapes had already
+	// drifted on `userId`, which is the field WordPress.com resolves the Google
+	// account from.
+	googleSheetsData?: GoogleSheetsData;
+	formTitle?: string;
 };
 
 // Shared environment/context used when rendering integrations

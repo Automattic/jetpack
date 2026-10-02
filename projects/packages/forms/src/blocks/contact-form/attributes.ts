@@ -52,6 +52,10 @@ export default {
 			organizationId: '',
 		},
 	},
+	googleSheetsData: {
+		type: 'object',
+		default: {},
+	},
 	mailpoet: {
 		type: 'object',
 		default: {
