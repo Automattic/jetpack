@@ -46,6 +46,7 @@ $jp-sidebar-width-folded: 36px;                // .folded preference OR .auto-fo
 $jp-sidebar-width-nav-unification: 272px;      // body.is-nav-unification (WP.com wp-admin)
 $jp-admin-bar-height-desktop: 32px;
 $jp-admin-bar-height-mobile: 46px;
+$jp-overlay-scrollbar-reserve: 15px;           // room for an overlay window scrollbar
 
 // Viewport breakpoints WP itself uses:
 //   ≤ 960px → WP toggles `.auto-fold` on <body>, narrows the sidebar to 36px
@@ -145,6 +146,16 @@ $jp-breakpoint-mobile: 782px;
 
 		&.is-nav-unification:not(.folded) #wpbody-content {
 			inset-inline-start: $jp-sidebar-width-nav-unification;
+		}
+	}
+
+	// A sidebar taller than the viewport makes core drop `.sticky-menu` and
+	// scroll the window. An overlay window scrollbar would cover the middle's
+	// own; `100vw - 100%` is 0 only when the window scrollbar is an overlay.
+	@media (min-width: #{$jp-breakpoint-mobile + 1px}) {
+
+		&:not(.sticky-menu) #wpbody-content {
+			inset-inline-end: max(0px, #{$jp-overlay-scrollbar-reserve} - (100vw - 100%));
 		}
 	}
 
