@@ -832,6 +832,34 @@ test( 'dry-run with all three scenarios present posts 22 keys, including My Jetp
 	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
 } );
 
+test( 'dry-run adds six separate staging control keys and preserves all connected keys', async () => {
+	const file = writeResults( 120, { forms: { tbt: 75 }, myJetpack: { tbt: 120 } } );
+	const baseline = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	data.measurements[ 'jetpackConnected-noJetpack' ] = {
+		summary: {
+			...jetpackSummary( { lcp: 160, ttfb: 80, fcp: 140 } ),
+			wpTotal: { median: 75 },
+			wpMemoryUsage: { median: 16777216 },
+			wpDbQueries: { median: 25 },
+		},
+	};
+	fs.writeFileSync( file, JSON.stringify( data ) );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.posted, false );
+	assert.equal( result.validationFailed, false );
+	assert.deepEqual( result.payload.metrics, {
+		...baseline.payload.metrics,
+		'wp-admin-dashboard-noJetpack-largestContentfulPaint-staging': 160,
+		'wp-admin-dashboard-noJetpack-timeToFirstByte-staging': 80,
+		'wp-admin-dashboard-noJetpack-firstContentfulPaint-staging': 140,
+		'wp-admin-dashboard-noJetpack-wp-total-staging': 75,
+		'wp-admin-dashboard-noJetpack-wp-memory-usage-staging': 16777216,
+		'wp-admin-dashboard-noJetpack-wp-db-queries-staging': 25,
+	} );
+	assert.equal( Object.keys( result.payload.metrics ).length, 28 );
+} );
+
 test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {
 	// The append-only guarantee end to end: one out-of-range decoded value (52000 > max 51200)
 	// fails its sanity check, the per-run atomic gate commits to posting nothing, and fetch is
@@ -2097,21 +2125,26 @@ test( 'Server-Timing rejects missing, duplicate and invalid durations', () => {
 	);
 } );
 
-test( 'dry payload carries exactly nine typed staging backend keys with integer bytes and counts', async () => {
-	const result = await silenced( () =>
-		postToCodeVitals( writeResults( 120, { forms: {}, myJetpack: {} } ), { dryRun: true } )
-	);
+test( 'dry payload carries exactly twelve typed staging backend keys with integer bytes and counts', async () => {
+	const file = writeResults( 120, { forms: {}, myJetpack: {} } );
+	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	data.measurements[ 'jetpackConnected-noJetpack' ] = { summary: jetpackSummary() };
+	fs.writeFileSync( file, JSON.stringify( data ) );
+	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
+	assert.equal( result.posted, false );
+	assert.equal( result.validationFailed, false );
 	const prefixes = [
 		'wp-admin-dashboard-connection-sim',
 		'forms-responses-connection-sim',
 		'my-jetpack-connection-sim',
+		'wp-admin-dashboard-noJetpack',
 	];
 	for ( const prefix of prefixes ) {
 		assert.equal( result.payload.metrics[ `${ prefix }-wp-total-staging` ], 100 );
 		assert.equal( result.payload.metrics[ `${ prefix }-wp-memory-usage-staging` ], 20971520 );
 		assert.equal( result.payload.metrics[ `${ prefix }-wp-db-queries-staging` ], 42 );
 	}
-	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 28 );
 	assert.ok(
 		! Object.keys( result.payload.metrics ).some( key =>
 			/wp-(before-template|template)/.test( key )
