@@ -4256,6 +4256,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			).toHaveClass( 'jetpack-paypal-payment-buttons__shared-link-note' );
 		} );
 
+		it( 'tells the merchant when the read fails for any reason but a deleted payment', async () => {
+			apiFetch.mockImplementation( ( { path } ) => {
+				if ( path.endsWith( '/connection' ) ) {
+					return Promise.resolve( { connected: true, environment: 'sandbox' } );
+				}
+				return Promise.reject( {
+					code: 'paypal_api_error',
+					message: 'PayPal authentication failed (HTTP 401): Client Authentication failed',
+					data: { status: 401 },
+				} );
+			} );
+
+			render( <Edit attributes={ attributes } setAttributes={ setAttributes } clientId="a" /> );
+
+			const notice = await screen.findByText(
+				'This payment link could not be loaded from PayPal: PayPal authentication failed (HTTP 401): Client Authentication failed Changes to it will not be saved until it loads. Reload the post to try again.'
+			);
+			expect( notice ).toHaveAttribute( 'data-status', 'error' );
+			expect( setAttributes ).not.toHaveBeenCalled();
+		} );
+
 		it( 'does not read the payment while PayPal is disconnected', async () => {
 			apiFetch.mockResolvedValue( { connected: false, environment: 'sandbox' } );
 
