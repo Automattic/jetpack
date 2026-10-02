@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+PayPal Payment Buttons: Show PayPal's notice in the editor when the seller's account can't receive payments or the email isn't confirmed, and stop the connection when PayPal didn't grant the needed permissions.
