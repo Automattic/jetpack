@@ -61,6 +61,17 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The proxy route registers lazily, before the default-priority REST registrants, and its cache
+	 * prefix joins the cleanup outside REST requests.
+	 */
+	public function test_init_hooks_the_proxy_on_rest_requests_and_its_cleanup_prefix() {
+		Analytics_Dashboard::init();
+
+		$this->assertSame( 0, has_action( 'rest_api_init', array( Api_Proxy_Controller::class, 'init' ) ) );
+		$this->assertSame( 10, has_filter( 'jetpack_stats_transient_cleanup_prefixes', array( Api_Proxy_Controller::class, 'register_transient_cleanup_prefix' ) ) );
+	}
+
+	/**
 	 * The section carries the package's label, order, availability and layout.
 	 */
 	public function test_registers_the_ads_section_with_its_layout() {
