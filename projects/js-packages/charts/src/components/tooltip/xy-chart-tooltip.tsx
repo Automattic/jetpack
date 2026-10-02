@@ -1,12 +1,8 @@
-import { Tooltip } from '@visx/tooltip';
 import { DataContext, TooltipContext } from '@visx/xychart';
-import clsx from 'clsx';
 import { useCallback, useContext, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
-import styles from './base-tooltip.module.scss';
 import { BoundedTooltip, TOOLTIP_Z_INDEX } from './private/bounded-tooltip';
-import { TooltipTheme } from './private/tooltip-theme';
+import { TooltipBox } from './tooltip-box';
 import type {
 	CrosshairStyle,
 	RenderTooltipGlyphProps,
@@ -217,30 +213,43 @@ const XyChartTooltipContent = < Datum extends object >( {
 	const marginTop = margin?.top ?? 0;
 	const marginLeft = margin?.left ?? 0;
 
-	const TooltipComponent = detectBounds || tooltipPlacement !== 'auto' ? BoundedTooltip : Tooltip;
 	const boxStyle: CSSProperties = { zIndex, ...style };
-	// BoundedTooltip themes its own box.
-	const themesOwnBox = TooltipComponent === Tooltip && ! tooltipProps.unstyled;
-	const box = (
-		<TooltipComponent
-			left={ tooltipLeft }
-			top={
-				tooltipPlacement === 'below-axis'
-					? marginTop + innerHeight + ( margin?.bottom ?? 0 )
-					: ( tooltipAnchorTop ?? tooltipTop )
-			}
-			style={ boxStyle }
-			applyPositionStyle
-			{ ...tooltipProps }
-			className={ clsx(
-				themesOwnBox && [ CHART_SCOPE_CLASS, styles.surface ],
-				tooltipProps.className
-			) }
-			{ ...( tooltipPlacement !== 'auto' && { placement: tooltipPlacement } ) }
-		>
-			{ tooltipContent }
-		</TooltipComponent>
-	);
+	const { offsetLeft = 10, offsetTop = 10, unstyled, className, ...boxProps } = tooltipProps;
+	const anchorTop =
+		tooltipPlacement === 'below-axis'
+			? marginTop + innerHeight + ( margin?.bottom ?? 0 )
+			: ( tooltipAnchorTop ?? tooltipTop );
+	const box =
+		detectBounds || tooltipPlacement !== 'auto' ? (
+			<BoundedTooltip
+				left={ tooltipLeft }
+				top={ anchorTop }
+				offsetLeft={ offsetLeft }
+				offsetTop={ offsetTop }
+				unstyled={ unstyled }
+				className={ className }
+				style={ boxStyle }
+				{ ...boxProps }
+				{ ...( tooltipPlacement !== 'auto' && { placement: tooltipPlacement } ) }
+			>
+				{ tooltipContent }
+			</BoundedTooltip>
+		) : (
+			<TooltipBox
+				role="presentation"
+				unstyled={ unstyled }
+				className={ className }
+				style={ {
+					position: 'absolute',
+					left: ( tooltipLeft ?? 0 ) + offsetLeft,
+					top: ( anchorTop ?? 0 ) + offsetTop,
+					...( ! unstyled && boxStyle ),
+				} }
+				{ ...boxProps }
+			>
+				{ tooltipContent }
+			</TooltipBox>
+		);
 
 	return (
 		<>
@@ -273,8 +282,7 @@ const XyChartTooltipContent = < Datum extends object >( {
 				) }
 				{ glyphs }
 			</g>
-			{ container &&
-				createPortal( themesOwnBox ? <TooltipTheme>{ box }</TooltipTheme> : box, container ) }
+			{ container && createPortal( box, container ) }
 		</>
 	);
 };
