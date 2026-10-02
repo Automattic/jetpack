@@ -587,6 +587,11 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 			get_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY ),
 			'The tracking ID is single-use and must be deleted after a successful lookup.'
 		);
+		$this->assertSame(
+			'woo-ncps-1234-1700000000',
+			PayPal_Partner_Onboarding::get_referral_tracking_id(),
+			'The tracking ID is kept as proof the site referred the seller.'
+		);
 
 		// The lookup named the tracking ID, and nothing went to PayPal from the site.
 		$lookup = $requests[0]['url'];
@@ -615,6 +620,8 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertTrue( $result );
 		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
 		$this->assertStringContainsString( 'merchant_id=MERCHANT1', $requests[0]['url'] );
+		// With no session, the record's latest tracking ID, which WordPress.com checked, is kept.
+		$this->assertSame( 'woo-ncps-1234-1700000000', PayPal_Partner_Onboarding::get_referral_tracking_id() );
 	}
 
 	/**
@@ -716,6 +723,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertFalse( PayPal_OAuth::is_connected(), 'A failed onboarding must not leave the site looking connected.' );
 		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
 		$this->assertEmpty( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
+		$this->assertSame( '', PayPal_Partner_Onboarding::get_referral_tracking_id() );
 	}
 
 	/**
@@ -800,6 +808,26 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		$this->assertStringContainsString( 'merchant_id=MERCHANT1', $requests[0]['url'] );
 		$this->assertStringNotContainsString( 'paypal.com', $requests[0]['url'] );
+		$this->assertStringNotContainsString( 'tracking_id=', $requests[0]['url'] );
+	}
+
+	/**
+	 * Test that a status check presents the site's own tracking ID, so a seller connected elsewhere too still resolves.
+	 */
+	public function test_check_merchant_status_presents_the_referral_tracking_id() {
+		$this->set_up_referred_merchant();
+		update_option( PayPal_Partner_Onboarding::REFERRAL_TRACKING_ID_OPTION_KEY, 'woo-ncps-1234-1700000000', false );
+		$requests = array();
+		$this->mock_http_routes(
+			array( '/paypal/platform/merchant-integration' => $this->merchant_integration() ),
+			$requests
+		);
+
+		$result = PayPal_Partner_Onboarding::check_merchant_status();
+
+		$this->assertIsArray( $result );
+		$this->assertStringContainsString( 'merchant_id=MERCHANT1', $requests[0]['url'] );
+		$this->assertStringContainsString( 'tracking_id=woo-ncps-1234-1700000000', $requests[0]['url'] );
 	}
 
 	/**
@@ -903,6 +931,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'test_merchant' );
 		update_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY, 'junior@sports.com' );
 		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD );
+		update_option( PayPal_Partner_Onboarding::REFERRAL_TRACKING_ID_OPTION_KEY, 'woo-ncps-1234-1' );
 
 		PayPal_Partner_Onboarding::cleanup();
 
@@ -910,6 +939,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY ) );
 		$this->assertFalse( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
+		$this->assertFalse( get_option( PayPal_Partner_Onboarding::REFERRAL_TRACKING_ID_OPTION_KEY ) );
 	}
 
 	/**
