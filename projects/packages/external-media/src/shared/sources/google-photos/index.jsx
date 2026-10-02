@@ -26,7 +26,6 @@ function GooglePhotos( props ) {
 		setAuthenticated,
 	} = props;
 
-	const [ cachedSessionId ] = useState( getGooglePhotosPickerCachedSessionId() );
 	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
 	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
 	const [ isAuthUpgradeRequired, setIsAuthUpgradeRequired ] = useState( false );
@@ -53,6 +52,7 @@ function GooglePhotos( props ) {
 		if ( ! isAuthenticated ) {
 			sessionRequestId.current++; // Drop the result of any request still in flight.
 			setSessionRequest( 'idle' );
+			setIsCachedSessionChecked( false );
 		}
 	}, [ isAuthenticated ] );
 
@@ -82,18 +82,21 @@ function GooglePhotos( props ) {
 
 	// Check if the user has a cached session
 	useEffect( () => {
-		if ( pickerFeatureEnabled && isAuthenticated && ! isAuthUpgradeRequired ) {
-			Promise.resolve( cachedSessionId )
-				.then( id => ( id ? fetchPickerSession( id ) : id ) )
-				.finally( () => setIsCachedSessionChecked( true ) );
+		if ( ! pickerFeatureEnabled || ! isAuthenticated || isAuthUpgradeRequired ) {
+			return;
 		}
-	}, [
-		isAuthenticated,
-		pickerFeatureEnabled,
-		isAuthUpgradeRequired,
-		cachedSessionId,
-		fetchPickerSession,
-	] );
+
+		// Read the cookie now: a disconnect since mount clears it.
+		const cachedSessionId = getGooglePhotosPickerCachedSessionId();
+		let isCurrent = true;
+		Promise.resolve( cachedSessionId && fetchPickerSession( cachedSessionId ) )
+			.catch( () => null )
+			.then( () => isCurrent && setIsCachedSessionChecked( true ) );
+
+		return () => {
+			isCurrent = false;
+		};
+	}, [ isAuthenticated, pickerFeatureEnabled, isAuthUpgradeRequired, fetchPickerSession ] );
 
 	// Create a new picker session if the cached session is not accurate
 	// or if the session has expired
