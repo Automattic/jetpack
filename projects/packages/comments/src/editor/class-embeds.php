@@ -135,14 +135,17 @@ class Embeds extends WP_REST_Controller {
 
 		// Each lookup is a request to a provider on the visitor's behalf. Thirty in ten minutes covers
 		// a reader trying links, not a script. The object cache counts atomically; a site without a
-		// persistent one falls back to a transient, which a parallel burst can slip past.
-		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$key = 'embed_previews_' . md5( $ip );
+		// persistent one, or one that cannot be reached, falls back to a transient, which a parallel burst can slip past.
+		$ip    = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key   = 'embed_previews_' . md5( $ip );
+		$count = false;
 
 		if ( wp_using_ext_object_cache() ) {
 			wp_cache_add( $key, 0, 'jetpack_comments', 10 * MINUTE_IN_SECONDS );
-			$count = (int) wp_cache_incr( $key, 1, 'jetpack_comments' );
-		} else {
+			$count = wp_cache_incr( $key, 1, 'jetpack_comments' );
+		}
+
+		if ( false === $count ) {
 			$count = (int) get_transient( 'jetpack_comments_' . $key ) + 1;
 			set_transient( 'jetpack_comments_' . $key, $count, 10 * MINUTE_IN_SECONDS );
 		}
@@ -224,7 +227,7 @@ class Embeds extends WP_REST_Controller {
 		if ( ! $url ) {
 			$raw  = trim( html_entity_decode( $raw, ENT_QUOTES ) );
 			$link = esc_url_raw( $raw, array( 'http', 'https' ) );
-			$text = $link ? '<a href="' . esc_url( $link ) . '">' . esc_html( $link ) . '</a>' : esc_html( $raw );
+			$text = $link ? '<a href="' . esc_url( $link ) . '" rel="nofollow ugc">' . esc_html( $link ) . '</a>' : esc_html( $raw );
 
 			if ( '' === $text ) {
 				return null;

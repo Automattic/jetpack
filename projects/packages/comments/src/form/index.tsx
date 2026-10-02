@@ -95,8 +95,12 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				.then( ( { mountEditor } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
-						// A page cached before this bundle shipped carries no editor object.
-						labels: labels ?? { blockTools: '', embedUrl: '' },
+						// A page cached before this bundle shipped keeps the accessible names among the strings.
+						labels: labels ?? {
+							blockTools: ( strings as { blockTools?: string } ).blockTools ?? '',
+							addBlock: ( strings as { addBlock?: string } ).addBlock ?? '',
+							embedUrl: '',
+						},
 						// Read once the editor renders, after the click has placed the textarea's caret.
 						focus: focus
 							? () => ( clicked.current ? textareaRef.current!.selectionStart : -1 )
