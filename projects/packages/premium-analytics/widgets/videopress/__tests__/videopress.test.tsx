@@ -104,7 +104,6 @@ describe( 'VideoPressWidget', () => {
 		const link = await screen.findByRole( 'link', { name: /Legacy video/ } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/legacy/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( link ).toHaveAttribute( 'title', 'Legacy video' );
 		expect(
 			screen.queryByRole( 'link', { name: /Open Legacy video in a new tab/ } )

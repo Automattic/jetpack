@@ -28,7 +28,8 @@ export type ExternalLinkProps = {
 
 /**
  * Link that leaves the current view: it opens in a new tab and carries the
- * design system's outbound marker.
+ * design system's outbound marker. No `rel` is set, as Gutenberg decided for
+ * new-tab links: https://github.com/WordPress/gutenberg/issues/26914
  *
  * @return The external link.
  */
@@ -40,15 +41,7 @@ export function ExternalLink( {
 	title,
 }: ExternalLinkProps ): JSX.Element {
 	return (
-		<Link
-			className={ className }
-			href={ href }
-			variant={ variant }
-			openInNewTab
-			// The design system sets `target="_blank"` without a `rel`.
-			rel="noopener noreferrer"
-			title={ title }
-		>
+		<Link className={ className } href={ href } variant={ variant } openInNewTab title={ title }>
 			{ children }
 		</Link>
 	);

@@ -9,7 +9,7 @@ const meta: Meta< typeof ExternalLink > = {
 		docs: {
 			description: {
 				component:
-					'Link to a page outside the dashboard. It opens in a new tab, sets `rel="noopener noreferrer"`, and carries the design system\'s outbound marker.',
+					"Link to a page outside the dashboard. It opens in a new tab and carries the design system's outbound marker.",
 			},
 		},
 	},

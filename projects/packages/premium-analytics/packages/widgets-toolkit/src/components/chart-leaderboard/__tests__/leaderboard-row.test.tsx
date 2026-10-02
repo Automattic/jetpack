@@ -151,7 +151,6 @@ describe( 'buildLeaderboardRow', () => {
 
 		const link = screen.getByRole( 'link', { name: /Alice/ } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/alice' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute( 'alt', '' );
 		expect( row ).not.toHaveProperty( 'onClick' );
 	} );

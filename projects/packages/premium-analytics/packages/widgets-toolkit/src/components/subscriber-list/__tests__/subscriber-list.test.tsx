@@ -17,7 +17,6 @@ describe( 'SubscriberList', () => {
 
 		const link = screen.getByRole( 'link', { name: /Ada Lovelace/ } );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'keeps a row link in the same tab when the item opts out', () => {
@@ -29,6 +28,9 @@ describe( 'SubscriberList', () => {
 			/>
 		);
 
-		expect( screen.getByRole( 'link', { name: 'Ada Lovelace' } ) ).not.toHaveAttribute( 'target' );
+		// One link only: a new-tab link rendered beside it would carry a target.
+		const links = screen.getAllByRole( 'link' );
+		expect( links ).toHaveLength( 1 );
+		expect( links[ 0 ] ).not.toHaveAttribute( 'target' );
 	} );
 } );

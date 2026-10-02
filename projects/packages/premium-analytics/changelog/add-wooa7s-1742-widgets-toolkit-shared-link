@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Widgets toolkit: Add shared internal and external link components, and set rel on every link that opens in a new tab.
+Widgets toolkit: Share the internal and external link markup between components, and stop setting rel on links that open in a new tab.

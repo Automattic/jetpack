@@ -113,7 +113,6 @@ describe( 'videos fields', () => {
 		const link = screen.getByRole( 'link', { name: 'Launch video(opens in a new tab)' } );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/video/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'does not create a detail link for a non-positive ID', () => {
