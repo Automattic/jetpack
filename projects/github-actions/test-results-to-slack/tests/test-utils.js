@@ -30,6 +30,7 @@ export function setInputData( options ) {
 		rulesConfigurationPath,
 		playwrightReportPath,
 		playwrightOutputDir,
+		xunitReportPath,
 	} = options;
 
 	if ( ghToken ) {
@@ -82,6 +83,12 @@ export function setInputData( options ) {
 
 	if ( playwrightOutputDir ) {
 		process.env.INPUT_PLAYWRIGHT_OUTPUT_DIR = playwrightOutputDir;
+	}
+
+	if ( xunitReportPath ) {
+		process.env.INPUT_XUNIT_REPORT_PATH = xunitReportPath;
+	} else {
+		delete process.env.INPUT_XUNIT_REPORT_PATH;
 	}
 }
 
