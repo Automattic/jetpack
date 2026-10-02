@@ -14,7 +14,10 @@ import {
 	useGlobalChartsContext,
 	GlobalChartsContext,
 } from '../../providers';
-import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
+import {
+	BACKGROUND_FALLBACK,
+	CATALOG_POINTERS,
+} from '../../providers/chart-context/private/catalog-pointers';
 import { blendRgb, hexToRgb } from '../../providers/chart-context/private/perceptual-color';
 import { resolveOpaqueHex } from '../../providers/chart-context/private/resolve-opaque-hex';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
@@ -130,11 +133,12 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor,
 	} );
 
-	// The cell blend substitutes this role at the cell; this read happens at the scope
-	// element, so an override on the chart's own class makes the two disagree. CHARTS-255.
-	const chartBackgroundHex = resolveOpaqueHex( CATALOG_POINTERS.background, scopeElement );
+	// Read at the scope element, so an override on the chart's own class reaches neither the
+	// fill scale nor the text color (CHARTS-255). See-through counts as white, as for the palette.
+	const chartBackgroundHex =
+		resolveOpaqueHex( CATALOG_POINTERS.background, scopeElement ) ?? BACKGROUND_FALLBACK;
 
-	// If either color cannot resolve to an opaque hex, the stylesheet falls back to its own blend.
+	// If the primary cannot resolve to hex, the stylesheet falls back to its own blend.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const scale = useMemo(
 		() =>

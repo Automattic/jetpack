@@ -449,7 +449,7 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
 	} );
 
-	test( 'leaves the scale to the stylesheet on a see-through background', () => {
+	test( 'builds the scale for white on a see-through background, as the palette does', () => {
 		const scope = document.createElement( 'div' );
 		scope.style.setProperty( '--a8c-charts-color-background', 'transparent' );
 		document.body.appendChild( scope );
@@ -462,8 +462,8 @@ describe( 'HeatmapChart', () => {
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '' );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#798ef0' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
 
 		document.body.removeChild( scope );
 	} );
