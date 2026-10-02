@@ -10,7 +10,6 @@ return array(
 	// Blocks.
 	'Block: %s',
 	'Block: Paragraph',
-	'Add default block',
 	'Type / to choose a block',
 	'Empty block; start writing or type forward slash to choose a block',
 	'List text',

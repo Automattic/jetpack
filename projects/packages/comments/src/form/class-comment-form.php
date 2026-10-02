@@ -404,6 +404,7 @@ class Comment_Form {
 			$strings = array(
 				'reply'               => _x( 'Reply', 'verb', 'jetpack-comments' ),
 				'blockTools'          => __( 'Block tools', 'jetpack-comments' ),
+				'addParagraph'        => __( 'Add a paragraph', 'jetpack-comments' ),
 				'commentLabel'        => _x( 'Comment', 'noun', 'jetpack-comments' ),
 				'replyLabel'          => _x( 'Reply', 'noun', 'jetpack-comments' ),
 				/* translators: The empty comment box's placeholder. The form adds "..." after it. */

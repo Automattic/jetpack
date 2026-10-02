@@ -27,7 +27,6 @@ import {
 	useRef,
 } from '@wordpress/element';
 import '@wordpress/format-library';
-import { __ } from '@wordpress/i18n';
 import { unregisterFormatType } from '@wordpress/rich-text';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
@@ -59,8 +58,8 @@ const settings = {
 
 type EditorProps = {
 	initialContent: string;
-	/** The toolbar's accessible name, translated in PHP. */
-	labels: { blockTools: string };
+	/** Accessible names, translated in PHP. */
+	labels: { blockTools: string; addParagraph: string };
 	focus: boolean;
 	placeholder: string;
 	onChange: ( content: string ) => void;
@@ -105,7 +104,7 @@ const FocusOnMount = () => {
 };
 
 // Core's appender shows only in an empty editor, which strands the caret in a last code block.
-const Appender = () => {
+const Appender = ( { label }: { label: string } ) => {
 	const isNeeded = useSelect( select => {
 		const { getBlockOrder, getBlockName } = select( blockEditorStore );
 		const last = getBlockOrder().at( -1 );
@@ -141,8 +140,7 @@ const Appender = () => {
 		<div
 			role="button"
 			tabIndex={ 0 }
-			// eslint-disable-next-line @wordpress/i18n-text-domain -- Core's string, from strings.php.
-			aria-label={ __( 'Add default block' ) }
+			aria-label={ label }
 			className="jetpack-comments__appender"
 			// WritingFlow turns editable for a selection across blocks.
 			contentEditable={ false }
@@ -243,7 +241,7 @@ const Editor = ( {
 							<ObserveTyping>
 								<BlockList />
 							</ObserveTyping>
-							<Appender />
+							<Appender label={ labels.addParagraph } />
 						</WritingFlow>
 					</BlockTools>
 				</WritingArea>

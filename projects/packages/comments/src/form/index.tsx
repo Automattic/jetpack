@@ -94,7 +94,7 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				.then( ( { mountEditor } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
-						labels: { blockTools: strings.blockTools },
+						labels: { blockTools: strings.blockTools, addParagraph: strings.addParagraph },
 						focus,
 						placeholder,
 						onChange: content => ( commentValue.value = content ),
