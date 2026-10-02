@@ -496,6 +496,8 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 		$this->assertInstanceOf( WP_Error::class, $result );
 		$this->assertSame( 'paypal_token_failed', $result->get_error_code() );
 		$this->assertSame( 502, $result->get_error_data()['status'] );
+		// Only PayPal's answers get logged.
+		$this->assertSame( array(), $this->logged );
 	}
 
 	/**
@@ -1385,6 +1387,60 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding_Test extends \WorDBless\BaseT
 			),
 			$this->logged
 		);
+	}
+
+	/**
+	 * Test that a token exchange error is logged.
+	 */
+	public function test_a_token_exchange_error_is_logged() {
+		$this->sign_request_as( self::SITE_ID );
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->http_response(
+					401,
+					array(
+						'error'             => 'invalid_client',
+						'error_description' => 'Client Authentication failed',
+					),
+					array( 'PayPal-Debug-Id' => 'header-token401' )
+				),
+			)
+		);
+
+		$this->endpoint->forward_request( $this->forward_request() );
+
+		// The entry lists only these fields, keeping the client secret out of the log.
+		$this->assertSame(
+			array(
+				array(
+					'debug_id' => 'header-token401',
+					'status'   => 401,
+					'method'   => 'POST',
+					'path'     => '/v1/oauth2/token',
+					'site_id'  => self::SITE_ID,
+				),
+			),
+			$this->logged
+		);
+	}
+
+	/**
+	 * Test that a 200 token exchange skips logging, even with an empty body.
+	 */
+	public function test_a_token_exchange_200_skips_logging() {
+		$this->connect_site();
+		$this->store_platform_credentials();
+		$this->mock_http_routes(
+			array(
+				'/v1/oauth2/token' => $this->http_response( 200, array() ),
+			)
+		);
+
+		$result = $this->endpoint->generate_signup_link( $this->signup_link_request() );
+
+		$this->assertSame( 'paypal_token_error', $result->get_error_code() );
+		$this->assertSame( array(), $this->logged );
 	}
 
 	// --- Referral creation ---

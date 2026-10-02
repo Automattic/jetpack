@@ -1086,8 +1086,12 @@ class WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding extends WP_REST_Controller {
 			);
 		}
 
-		$status_code = wp_remote_retrieve_response_code( $response );
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		$data        = self::decode_body( $response );
+
+		if ( 200 !== $status_code ) {
+			$this->log_paypal_error( $response, $status_code, 'POST', self::PAYPAL_TOKEN_ENDPOINT );
+		}
 
 		if ( 200 !== $status_code || empty( $data['access_token'] ) ) {
 			return new WP_Error(
