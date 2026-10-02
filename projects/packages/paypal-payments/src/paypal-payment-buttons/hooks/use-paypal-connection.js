@@ -8,11 +8,23 @@ import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { store as blockEditorStore } from '@wordpress/block-editor';
 import { useSelect } from '@wordpress/data';
-import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
+import {
+	useState,
+	useEffect,
+	useCallback,
+	useMemo,
+	useRef,
+	useSyncExternalStore,
+} from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { API_BASE } from '../utils/api-base';
 import { forgetExistingLinks } from '../utils/existing-links';
-import { forgetMerchantStatus, loadMerchantStatus } from '../utils/merchant-status';
+import {
+	forgetMerchantStatus,
+	getMerchantNotices,
+	loadMerchantStatus,
+	subscribeToMerchantStatus,
+} from '../utils/merchant-status';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
@@ -172,6 +184,7 @@ export function usePayPalConnection() {
 		select => select( blockEditorStore ).getSettings().isPreviewMode,
 		[]
 	);
+	const merchantNotices = useSyncExternalStore( subscribeToMerchantStatus, getMerchantNotices );
 
 	/**
 	 * Check PayPal connection status on mount.
@@ -693,6 +706,8 @@ export function usePayPalConnection() {
 		connectionLoading,
 		partnerAttributionId,
 		accountEmail,
+		// The post's blocks show the account status; previews get an empty list.
+		merchantNotices: isPreviewMode ? [] : merchantNotices,
 		showReconnect,
 		setShowReconnect,
 		signupUrl,

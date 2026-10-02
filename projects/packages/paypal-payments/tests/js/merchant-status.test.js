@@ -4,30 +4,16 @@
  * @package
  */
 
-import { store as noticesStore } from '@wordpress/notices';
 import { broadcastConnectionChange } from '../../src/paypal-payment-buttons/hooks/use-paypal-connection';
 import {
 	forgetMerchantStatus,
+	getMerchantNotices,
 	loadMerchantStatus,
+	subscribeToMerchantStatus,
 } from '../../src/paypal-payment-buttons/utils/merchant-status';
 const apiFetch = require( '@wordpress/api-fetch' );
 
-const mockCreateWarningNotice = jest.fn();
-const mockRemoveNotice = jest.fn();
-const mockDispatch = jest.fn( () => ( {
-	createWarningNotice: mockCreateWarningNotice,
-	removeNotice: mockRemoveNotice,
-} ) );
-
-jest.mock( '@wordpress/data', () => ( {
-	dispatch: ( ...args ) => mockDispatch( ...args ),
-} ) );
-
-jest.mock( '@wordpress/notices', () => ( { store: { name: 'core/notices' } } ) );
-// The connection hook reads isPreviewMode from this store; the real one needs all of @wordpress/data.
-jest.mock( '@wordpress/block-editor', () => ( { store: { name: 'core/block-editor' } } ) );
-
-// Sample notices; the module shows whatever the server sends. The editor tests use PayPal's wording.
+// Sample notices; the module passes on whatever the server sends. The editor tests use PayPal's wording.
 const OLD_ACCOUNT = 'Confirm the old account’s email.';
 const NEW_ACCOUNT = 'The new account cannot receive payments.';
 
@@ -39,14 +25,22 @@ const NEW_ACCOUNT = 'The new account cannot receive payments.';
 const settle = () => new Promise( resolve => setTimeout( resolve ) );
 
 describe( 'merchant status', () => {
+	const listener = jest.fn();
+	let unsubscribe;
+
 	beforeEach( () => {
 		forgetMerchantStatus();
 		jest.clearAllMocks();
 		apiFetch.mockReset();
 		apiFetch.mockResolvedValue( { notices: [ OLD_ACCOUNT ] } );
+		unsubscribe = subscribeToMerchantStatus( listener );
 	} );
 
-	it( 'reads the status and shows the warning once, however many blocks ask', async () => {
+	afterEach( () => {
+		unsubscribe();
+	} );
+
+	it( 'reads the status once and keeps its notices, however many blocks ask', async () => {
 		loadMerchantStatus();
 		loadMerchantStatus();
 		await settle();
@@ -55,25 +49,26 @@ describe( 'merchant status', () => {
 
 		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
 		expect( apiFetch ).toHaveBeenCalledWith( { path: '/wpcom/v2/paypal/onboarding/status' } );
-		expect( mockCreateWarningNotice ).toHaveBeenCalledTimes( 1 );
+		expect( getMerchantNotices() ).toEqual( [ OLD_ACCOUNT ] );
+		expect( listener ).toHaveBeenCalledTimes( 1 );
 	} );
 
-	it( 'shows the notice as a dismissible editor warning with a fixed id', async () => {
+	it( 'keeps the notices empty before the read and for an account in good standing', async () => {
+		expect( getMerchantNotices() ).toEqual( [] );
+
+		apiFetch.mockResolvedValue( { notices: [] } );
 		loadMerchantStatus();
 		await settle();
 
-		expect( mockDispatch ).toHaveBeenCalledWith( noticesStore );
-		expect( mockCreateWarningNotice ).toHaveBeenCalledWith( OLD_ACCOUNT, {
-			id: 'jetpack-paypal-merchant-status',
-			isDismissible: true,
-		} );
+		expect( getMerchantNotices() ).toEqual( [] );
+		expect( listener ).not.toHaveBeenCalled();
 	} );
 
 	it.each( [
 		[ '5xx', { code: 'paypal_api_error', data: { status: 503 } } ],
 		[ 'network', new TypeError( 'Failed to fetch' ) ],
 		[ '403', { code: 'paypal_merchant_not_for_site', data: { status: 403 } } ],
-	] )( 'skips the warning and the retry when the read fails (%s)', async ( _, error ) => {
+	] )( 'keeps the notices empty and reads once when the read fails (%s)', async ( _, error ) => {
 		apiFetch.mockRejectedValue( error );
 
 		loadMerchantStatus();
@@ -82,32 +77,45 @@ describe( 'merchant status', () => {
 		await settle();
 
 		expect( apiFetch ).toHaveBeenCalledTimes( 1 );
-		expect( mockCreateWarningNotice ).not.toHaveBeenCalled();
+		expect( getMerchantNotices() ).toEqual( [] );
+		expect( listener ).not.toHaveBeenCalled();
 	} );
 
-	it( 'takes the old warning down on a new connection, and shows the new account’s', async () => {
+	it( 'clears the old notices on a new connection, then reads the new account’s', async () => {
 		loadMerchantStatus();
 		await settle();
 		apiFetch.mockResolvedValue( { notices: [ NEW_ACCOUNT ] } );
 
 		broadcastConnectionChange( true );
 
-		expect( mockRemoveNotice ).toHaveBeenCalledWith( 'jetpack-paypal-merchant-status' );
+		expect( getMerchantNotices() ).toEqual( [] );
 
 		loadMerchantStatus();
 		await settle();
 
 		expect( apiFetch ).toHaveBeenCalledTimes( 2 );
-		expect( mockCreateWarningNotice.mock.calls.map( ( [ message ] ) => message ) ).toEqual( [
-			OLD_ACCOUNT,
-			NEW_ACCOUNT,
-		] );
+		expect( getMerchantNotices() ).toEqual( [ NEW_ACCOUNT ] );
+		expect( listener ).toHaveBeenCalledTimes( 3 );
 	} );
 
-	it( 'takes the warning down on a disconnect', () => {
+	it( 'clears the notices on a disconnect', async () => {
+		loadMerchantStatus();
+		await settle();
+
 		broadcastConnectionChange( false );
 
-		expect( mockRemoveNotice ).toHaveBeenCalledWith( 'jetpack-paypal-merchant-status' );
+		expect( getMerchantNotices() ).toEqual( [] );
+		expect( listener ).toHaveBeenCalledTimes( 2 );
+	} );
+
+	it( 'stops calling a listener once it unsubscribes', async () => {
+		unsubscribe();
+
+		loadMerchantStatus();
+		await settle();
+		forgetMerchantStatus();
+
+		expect( listener ).not.toHaveBeenCalled();
 	} );
 
 	it( 'drops the old account’s read when it answers after a connection change', async () => {
@@ -128,8 +136,6 @@ describe( 'merchant status', () => {
 		await settle();
 
 		expect( apiFetch ).toHaveBeenCalledTimes( 2 );
-		expect( mockCreateWarningNotice.mock.calls.map( ( [ message ] ) => message ) ).toEqual( [
-			NEW_ACCOUNT,
-		] );
+		expect( getMerchantNotices() ).toEqual( [ NEW_ACCOUNT ] );
 	} );
 } );

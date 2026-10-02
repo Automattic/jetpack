@@ -105,6 +105,16 @@ class PayPal_Partner_Onboarding {
 	);
 
 	/**
+	 * PayPal's website for each environment, linked from the account status notices.
+	 *
+	 * @var array<string, string>
+	 */
+	private const PAYPAL_URLS = array(
+		'sandbox'    => 'https://www.sandbox.paypal.com',
+		'production' => 'https://www.paypal.com',
+	);
+
+	/**
 	 * Get the onboarded merchant's PayPal merchant ID.
 	 *
 	 * @return string The merchant ID, or empty string if not onboarded.
@@ -460,12 +470,14 @@ class PayPal_Partner_Onboarding {
 			return $status;
 		}
 
+		$paypal_url = self::PAYPAL_URLS[ PayPal_OAuth::get_environment() ] ?? self::PAYPAL_URLS['production'];
+
 		// PayPal requires this wording and order.
 		if ( ! $status['primary_email_confirmed'] ) {
 			$status['notices'][] = sprintf(
 				/* translators: %s: URL of the PayPal business profile settings page. */
 				__( 'Attention: Please confirm your email address on %s in order to receive payments! You currently cannot receive payments.', 'jetpack-paypal-payments' ),
-				'https://www.paypal.com/businessprofile/settings'
+				$paypal_url . '/businessprofile/settings'
 			);
 		}
 
@@ -473,7 +485,7 @@ class PayPal_Partner_Onboarding {
 			$status['notices'][] = sprintf(
 				/* translators: %s: URL of the PayPal website. */
 				__( 'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to %s for more information.', 'jetpack-paypal-payments' ),
-				'https://www.paypal.com'
+				$paypal_url
 			);
 		}
 

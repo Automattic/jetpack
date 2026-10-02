@@ -896,7 +896,7 @@ class PayPal_REST_Controller_Test extends TestCase {
 				'primary_email_confirmed' => false,
 				'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
 				'notices'                 => array(
-					'Attention: Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.',
+					'Attention: Please confirm your email address on https://www.sandbox.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.',
 				),
 			),
 			$response->get_data()

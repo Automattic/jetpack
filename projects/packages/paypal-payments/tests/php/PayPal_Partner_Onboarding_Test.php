@@ -59,6 +59,16 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	private const RECEIVABLE_NOTICE = 'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to https://www.paypal.com for more information.';
 
 	/**
+	 * PayPal's required notice when primary_email_confirmed is false, for a sandbox account.
+	 */
+	private const SANDBOX_EMAIL_NOTICE = 'Attention: Please confirm your email address on https://www.sandbox.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.';
+
+	/**
+	 * PayPal's required notice when payments_receivable is false, for a sandbox account.
+	 */
+	private const SANDBOX_RECEIVABLE_NOTICE = 'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to https://www.sandbox.paypal.com for more information.';
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
@@ -1162,17 +1172,19 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Test that each false flag adds PayPal's notice for it, email first.
+	 * Test that each false flag adds PayPal's notice for it, email first, linking to PayPal for the site's environment.
 	 *
 	 * @dataProvider provide_account_flags
 	 *
 	 * @param bool     $payments_receivable     PayPal's payments_receivable flag.
 	 * @param bool     $primary_email_confirmed PayPal's primary_email_confirmed flag.
 	 * @param string[] $notices                 The notices expected, in order.
+	 * @param string   $environment             The PayPal environment the site is on.
 	 */
 	#[DataProvider( 'provide_account_flags' )]
-	public function test_check_merchant_status_adds_a_notice_for_each_false_flag( bool $payments_receivable, bool $primary_email_confirmed, array $notices ) {
+	public function test_check_merchant_status_adds_a_notice_for_each_false_flag( bool $payments_receivable, bool $primary_email_confirmed, array $notices, string $environment ) {
 		$this->set_up_referred_merchant();
+		PayPal_OAuth::set_environment( $environment );
 		$this->mock_http_routes(
 			array(
 				'/paypal/platform/merchant-integration' => $this->merchant_integration(
@@ -1190,16 +1202,17 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * PayPal's account flags and the notices expected for them.
+	 * PayPal's account flags and the notices expected for them in each environment.
 	 *
-	 * @return array<string, array{0: bool, 1: bool, 2: string[]}>
+	 * @return array<string, array{0: bool, 1: bool, 2: string[], 3: string}>
 	 */
 	public static function provide_account_flags() {
 		return array(
-			'both true'                      => array( true, true, array() ),
-			'primary_email_confirmed false'  => array( true, false, array( self::EMAIL_NOTICE ) ),
-			'payments_receivable false'      => array( false, true, array( self::RECEIVABLE_NOTICE ) ),
-			'both false, email notice first' => array( false, false, array( self::EMAIL_NOTICE, self::RECEIVABLE_NOTICE ) ),
+			'both true'                      => array( true, true, array(), 'production' ),
+			'primary_email_confirmed false'  => array( true, false, array( self::EMAIL_NOTICE ), 'production' ),
+			'payments_receivable false'      => array( false, true, array( self::RECEIVABLE_NOTICE ), 'production' ),
+			'both false, email notice first' => array( false, false, array( self::EMAIL_NOTICE, self::RECEIVABLE_NOTICE ), 'production' ),
+			'both false, sandbox links'      => array( false, false, array( self::SANDBOX_EMAIL_NOTICE, self::SANDBOX_RECEIVABLE_NOTICE ), 'sandbox' ),
 		);
 	}
 

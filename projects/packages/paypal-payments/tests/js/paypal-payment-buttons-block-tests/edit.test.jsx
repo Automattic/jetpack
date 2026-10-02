@@ -130,15 +130,7 @@ const mockSavePost = jest.fn( () => postSaved() );
 let mockIsSavingPost = false;
 // Whether the block renders in an inserter or pattern preview. Set per test.
 let mockIsPreviewMode = false;
-// merchant-status.js shows its warning with plain dispatch, outside React.
-const mockCreateWarningNotice = jest.fn();
-const mockRemoveNotice = jest.fn();
-const mockDispatch = jest.fn( () => ( {
-	createWarningNotice: mockCreateWarningNotice,
-	removeNotice: mockRemoveNotice,
-} ) );
 jest.mock( '@wordpress/data', () => ( {
-	dispatch: ( ...args ) => mockDispatch( ...args ),
 	useDispatch: () => ( {
 		__unstableMarkNextChangeAsNotPersistent: mockMarkNotPersistent,
 		savePost: mockSavePost,
@@ -150,7 +142,6 @@ jest.mock( '@wordpress/data', () => ( {
 		} ) ),
 } ) );
 jest.mock( '@wordpress/editor', () => ( { store: 'core/editor' } ) );
-jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 
 // The real snackbar dispatches to @wordpress/notices, so in jsdom the call is all
 // there is to assert on.
@@ -413,7 +404,7 @@ jest.mock( '@wordpress/components', () => ( {
 	SVG: ( { children, ...rest } ) => <svg { ...rest }>{ children }</svg>,
 	Path: props => <path { ...props } />,
 	Notice: ( { children, status, isDismissible, onDismiss, actions } ) => (
-		<div data-testid="notice" data-status={ status }>
+		<div data-testid="notice" data-status={ status } data-dismissible={ isDismissible }>
 			{ children }
 			{ actions?.map( action => (
 				<button key={ action.label } onClick={ action.onClick }>
@@ -659,11 +650,24 @@ afterAll( () => {
 	removeAction( 'editor.savePost', 'jetpack/paypal-payment-buttons/post-saves' );
 } );
 
-// PayPal's required wording, as /onboarding/status returns it.
+// PayPal's required wording, as /onboarding/status returns it for a sandbox account...
 const EMAIL_NOTICE =
+	'Attention: Please confirm your email address on https://www.sandbox.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.';
+// ...and for a production one.
+const PRODUCTION_EMAIL_NOTICE =
 	'Attention: Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.';
-const PAYMENTS_NOTICE =
+const PRODUCTION_PAYMENTS_NOTICE =
 	'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to https://www.paypal.com for more information.';
+
+/**
+ * Get the account status warnings on the canvas, one per block.
+ *
+ * @return {HTMLElement[]} The warnings.
+ */
+const accountStatusNotices = () =>
+	screen
+		.queryAllByTestId( 'notice' )
+		.filter( notice => notice.textContent.startsWith( 'Attention:' ) );
 
 describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 	const setAttributes = jest.fn();
@@ -1818,12 +1822,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			} );
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-			await waitFor( () =>
-				expect( mockCreateWarningNotice ).toHaveBeenCalledWith( EMAIL_NOTICE, {
-					id: 'jetpack-paypal-merchant-status',
-					isDismissible: true,
-				} )
-			);
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			expect( accountStatusNotices()[ 0 ] ).toHaveTextContent( EMAIL_NOTICE );
 		} );
 
 		it( 'closes the overlay on Escape', async () => {
@@ -7342,41 +7342,61 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		const statusCalls = () =>
 			apiFetch.mock.calls.filter( ( [ { path } ] ) => path.endsWith( '/onboarding/status' ) );
 
-		it( 'shows the account status warning when a connected block loads', async () => {
+		it( 'shows the account status warning on the block canvas, outside the sidebar', async () => {
 			mockStatus();
-			// forgetMerchantStatus() in beforeEach already dispatched to the notices store.
-			mockDispatch.mockClear();
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await waitFor( () =>
-				expect( mockCreateWarningNotice ).toHaveBeenCalledWith( EMAIL_NOTICE, {
-					id: 'jetpack-paypal-merchant-status',
-					isDismissible: true,
-				} )
-			);
-			// Only the warning dispatched.
-			expect( mockDispatch.mock.calls ).toEqual( [ [ 'core/notices' ] ] );
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			const notice = accountStatusNotices()[ 0 ];
+			expect( notice ).toHaveAttribute( 'data-status', 'warning' );
+			expect( notice ).toHaveTextContent( EMAIL_NOTICE );
+			expect(
+				within( screen.getByTestId( 'inspector-controls' ) ).queryByText( /Attention:/ )
+			).not.toBeInTheDocument();
+			expect( notice ).toHaveAttribute( 'data-dismissible', 'false' );
 			expect( statusCalls() ).toEqual( [ [ { path: '/wpcom/v2/paypal/onboarding/status' } ] ] );
 		} );
 
-		it( 'shows both notices in one warning', async () => {
+		it( 'links the PayPal address in the warning, opening in a new tab', async () => {
+			mockStatus();
+
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			const link = within( accountStatusNotices()[ 0 ] ).getByRole( 'link' );
+			expect( link ).toHaveAttribute(
+				'href',
+				'https://www.sandbox.paypal.com/businessprofile/settings'
+			);
+			expect( link ).toHaveTextContent( 'https://www.sandbox.paypal.com/businessprofile/settings' );
+			expect( link ).toHaveAttribute( 'target', '_blank' );
+		} );
+
+		it( 'shows both notices in one warning, each address linked', async () => {
 			mockStatus( {
-				status: { notices: [ EMAIL_NOTICE, PAYMENTS_NOTICE ] },
+				connection: {
+					connected: true,
+					environment: 'production',
+					onboarding_method: 'partner_referrals',
+				},
+				status: { notices: [ PRODUCTION_EMAIL_NOTICE, PRODUCTION_PAYMENTS_NOTICE ] },
 			} );
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await waitFor( () => expect( mockCreateWarningNotice ).toHaveBeenCalled() );
-			expect( mockCreateWarningNotice.mock.calls ).toEqual( [
-				[
-					`${ EMAIL_NOTICE } ${ PAYMENTS_NOTICE }`,
-					{ id: 'jetpack-paypal-merchant-status', isDismissible: true },
-				],
-			] );
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+			expect( accountStatusNotices()[ 0 ] ).toHaveTextContent(
+				`${ PRODUCTION_EMAIL_NOTICE } ${ PRODUCTION_PAYMENTS_NOTICE }`
+			);
+			expect(
+				within( accountStatusNotices()[ 0 ] )
+					.getAllByRole( 'link' )
+					.map( link => link.getAttribute( 'href' ) )
+			).toEqual( [ 'https://www.paypal.com/businessprofile/settings', 'https://www.paypal.com' ] );
 		} );
 
-		it( 'reads the status once, and warns once, however many blocks the post has', async () => {
+		it( 'reads the status once and shows the warning on every block in the post', async () => {
 			mockStatus();
 
 			render(
@@ -7388,9 +7408,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			);
 
 			await waitFor( () => expect( screen.getAllByLabelText( 'Product Name' ) ).toHaveLength( 3 ) );
-			await waitFor( () => expect( mockCreateWarningNotice ).toHaveBeenCalled() );
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 3 ) );
 			expect( statusCalls() ).toHaveLength( 1 );
-			expect( mockCreateWarningNotice ).toHaveBeenCalledTimes( 1 );
 		} );
 
 		it( 'skips the warning for an account in good standing', async () => {
@@ -7400,7 +7419,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			await waitFor( () => expect( statusCalls() ).toHaveLength( 1 ) );
-			expect( mockCreateWarningNotice ).not.toHaveBeenCalled();
+			expect( accountStatusNotices() ).toHaveLength( 0 );
 		} );
 
 		it.each( [
@@ -7414,7 +7433,6 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await waitFor( () => expect( statusCalls() ).toHaveLength( 1 ) );
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
-			expect( mockCreateWarningNotice ).not.toHaveBeenCalled();
 			expect( mockToast ).not.toHaveBeenCalled();
 			expect( screen.queryByTestId( 'notice' ) ).not.toBeInTheDocument();
 		} );
@@ -7425,14 +7443,11 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
-			await waitFor( () => expect( mockCreateWarningNotice ).toHaveBeenCalled() );
-			mockRemoveNotice.mockClear();
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
 			await user.click( screen.getByRole( 'button', { name: /Disconnect PayPal/i } ) );
 			await user.click( screen.getByTestId( 'confirm-dialog-confirm' ) );
 
-			await waitFor( () =>
-				expect( mockRemoveNotice ).toHaveBeenCalledWith( 'jetpack-paypal-merchant-status' )
-			);
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 0 ) );
 		} );
 
 		// The inserter previews block.json's example in any post.
@@ -7444,7 +7459,24 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 			await expect( screen.findByLabelText( 'Product Name' ) ).resolves.toBeInTheDocument();
 			expect( statusCalls() ).toHaveLength( 0 );
-			expect( mockCreateWarningNotice ).not.toHaveBeenCalled();
+			expect( accountStatusNotices() ).toHaveLength( 0 );
+		} );
+
+		it( 'shows the warning on the post’s block and leaves it out of a block preview', async () => {
+			mockStatus();
+			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
+			await waitFor( () => expect( accountStatusNotices() ).toHaveLength( 1 ) );
+
+			mockIsPreviewMode = true;
+			const { container: preview } = render(
+				<Edit attributes={ {} } setAttributes={ setAttributes } />
+			);
+
+			await expect(
+				within( preview ).findByLabelText( 'Product Name' )
+			).resolves.toBeInTheDocument();
+			expect( within( preview ).queryAllByTestId( 'notice' ) ).toHaveLength( 0 );
+			expect( statusCalls() ).toHaveLength( 1 );
 		} );
 
 		it( 'skips the status read while the site is disconnected', async () => {
