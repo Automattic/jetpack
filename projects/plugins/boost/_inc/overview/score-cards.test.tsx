@@ -34,12 +34,12 @@ test( 'the Overall information popover shows the summary sentence and every grad
 	expect( dialog ).not.toHaveTextContent( /general idea/ );
 	expect( popover.getAllByRole( 'table' ) ).toHaveLength( 2 );
 	for ( const [ grade, range ] of [
-		[ 'A', '90+' ],
-		[ 'B', '75 - 90' ],
-		[ 'C', '50 - 75' ],
-		[ 'D', '35 - 50' ],
-		[ 'E', '25 - 35' ],
-		[ 'F', '0 - 25' ],
+		[ 'A', 'Over 90' ],
+		[ 'B', 'Over 75 to 90' ],
+		[ 'C', 'Over 50 to 75' ],
+		[ 'D', 'Over 35 to 50' ],
+		[ 'E', 'Over 25 to 35' ],
+		[ 'F', '25 or below' ],
 	] ) {
 		const row = within( popover.getByRole( 'row', { name: `${ grade } ${ range }` } ) );
 		expect( row.getByRole( 'cell', { name: range } ) ).toBeVisible();
