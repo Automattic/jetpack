@@ -7,7 +7,8 @@ describe( 'TooltipBox', () => {
 		render( <TooltipBox>Content</TooltipBox> );
 		const box = screen.getByRole( 'tooltip' );
 		expect( box ).toHaveTextContent( 'Content' );
-		expect( box ).toHaveClass( 'visx-tooltip', 'surface', 'a8c-charts-scope' );
+		expect( box ).toHaveClass( 'visx-tooltip', 'surface', 'a8c-charts-tooltip-scope' );
+		expect( box ).not.toHaveClass( 'a8c-charts-scope' );
 	} );
 
 	it( 'leaves positioning to the caller', () => {
@@ -34,7 +35,7 @@ describe( 'TooltipBox', () => {
 		);
 		const box = screen.getByRole( 'tooltip' );
 		expect( box ).not.toHaveClass( 'surface' );
-		expect( box ).not.toHaveClass( 'a8c-charts-scope' );
+		expect( box ).not.toHaveClass( 'a8c-charts-tooltip-scope' );
 		expect( box ).toHaveClass( 'visx-tooltip' );
 		expect( box ).toHaveStyle( { left: '5px' } );
 	} );

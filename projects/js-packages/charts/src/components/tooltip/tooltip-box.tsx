@@ -1,6 +1,6 @@
 import clsx from 'clsx';
 import { forwardRef } from 'react';
-import { CHART_SCOPE_CLASS } from '../../styles/chart-scope-class';
+import { TOOLTIP_SCOPE_CLASS } from '../../styles/chart-scope-class';
 import styles from './base-tooltip.module.scss';
 import { TooltipTheme } from './private/tooltip-theme';
 import type { HTMLAttributes } from 'react';
@@ -26,7 +26,7 @@ export const TooltipBox = forwardRef< HTMLDivElement, TooltipBoxProps >(
 				role={ role }
 				className={ clsx(
 					'visx-tooltip',
-					! unstyled && [ CHART_SCOPE_CLASS, styles.surface ],
+					! unstyled && [ TOOLTIP_SCOPE_CLASS, styles.surface ],
 					className
 				) }
 				{ ...rest }
