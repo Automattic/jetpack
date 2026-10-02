@@ -13,32 +13,20 @@ import { render } from '@testing-library/react';
  */
 import { useAnnualInsightsReportRecords } from './annual-insights/config';
 import AnnualInsightsReportPage from './annual-insights/page';
-import { useAuthorsReportRecords } from './authors/config';
-import AuthorsReportPage from './authors/page';
-import { useClicksReportRecords } from './clicks/config';
-import ClicksReportPage from './clicks/page';
 import { useCommentFollowersReportRecords } from './comment-followers/config';
 import CommentFollowersReportPage from './comment-followers/page';
 import { useCommentsReportRecords } from './comments/config';
 import CommentsReportPage from './comments/page';
-import { useDownloadsReportRecords } from './downloads/config';
-import DownloadsReportPage from './downloads/page';
 import { useEarningsReportRecords } from './earnings/config';
 import EarningsReportPage from './earnings/page';
 import { useEmailsReportRecords } from './emails/config';
 import EmailsReportPage from './emails/page';
 import { useLocationsReportRecords } from './locations/config';
 import LocationsReportPage from './locations/page';
-import { useReferrersReportRecords } from './referrers/config';
-import ReferrersReportPage from './referrers/page';
-import { useSearchTermsReportRecords } from './search-terms/config';
-import SearchTermsReportPage from './search-terms/page';
 import { useTagsReportRecords } from './tags/config';
 import TagsReportPage from './tags/page';
 import { useUtmReportRecords } from './utm/config';
 import UtmReportPage from './utm/page';
-import { useVideosReportRecords } from './videos/config';
-import VideosReportPage from './videos/page';
 import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -63,14 +51,7 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsPageIcon: () => null,
 } ) );
 
-// `ExporterCsvAction` imports this module directly, so the root mock alone would not reach it.
-jest.mock( '../../packages/widgets-toolkit/src/components/report-page/report-csv-action', () => ( {
-	ReportCsvAction: jest.fn( () => null ),
-} ) );
-
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
-	const exporters = jest.requireActual( '../../packages/widgets-toolkit/src/report-exports' );
-
 	const Container = ( {
 		actions,
 		children,
@@ -91,16 +72,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 	);
 
 	return {
-		ExporterCsvAction: jest.requireActual(
-			'../../packages/widgets-toolkit/src/components/report-page/exporter-csv-action'
-		).ExporterCsvAction,
 		MetricValue: () => null,
-		authorsCsvExporter: exporters.authorsCsvExporter,
-		clicksCsvExporter: exporters.clicksCsvExporter,
-		fileDownloadsCsvExporter: exporters.fileDownloadsCsvExporter,
-		referrersCsvExporter: exporters.referrersCsvExporter,
-		searchTermsCsvExporter: exporters.searchTermsCsvExporter,
-		videosCsvExporter: exporters.videosCsvExporter,
 		// The real status map, so the Earnings history case asserts the label a
 		// reader gets rather than one the mock was told to return.
 		getEarningsStatus: jest.requireActual(
@@ -110,9 +82,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 			'../../packages/widgets-toolkit/src/helpers/format-email-rate'
 		).getKnownEmailRate,
 		getWordAdsHistoryFields: () => [],
-		ReportCsvAction: jest.requireMock(
-			'../../packages/widgets-toolkit/src/components/report-page/report-csv-action'
-		).ReportCsvAction,
+		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
 		ReportErrorState: () => null,
 		ReportLocationsMap: () => null,
@@ -182,16 +152,6 @@ jest.mock( './earnings/config', () => ( {
 	useEarningsReportRecords: jest.fn(),
 } ) );
 
-jest.mock( './authors/config', () => ( {
-	getAuthorsFields: () => [],
-	useAuthorsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './clicks/config', () => ( {
-	getClicksFields: () => [],
-	useClicksReportRecords: jest.fn(),
-} ) );
-
 jest.mock( './comment-followers/config', () => ( {
 	getCommentFollowersFields: () => [],
 	useCommentFollowersReportRecords: jest.fn(),
@@ -203,11 +163,6 @@ jest.mock( './comments/config', () => ( {
 	getTabLabel: ( id: string ) => ( id === 'authors' ? 'Authors' : id ),
 	resolveTabId: ( value: string | undefined ) => value ?? 'authors',
 	useCommentsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './downloads/config', () => ( {
-	getDownloadsFields: () => [],
-	useDownloadsReportRecords: jest.fn(),
 } ) );
 
 jest.mock( './emails/config', () => ( {
@@ -227,25 +182,10 @@ jest.mock( './locations/config', () => ( {
 	useLocationsReportRecords: jest.fn(),
 } ) );
 
-jest.mock( './referrers/config', () => ( {
-	getReferrerFields: () => [],
-	useReferrersReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './search-terms/config', () => ( {
-	getSearchTermsFields: () => [],
-	useSearchTermsReportRecords: jest.fn(),
-} ) );
-
 jest.mock( './tags/config', () => ( {
 	getTagRowId: ( item: { labelText: string } ) => item.labelText,
 	getTagsFields: () => [],
 	useTagsReportRecords: jest.fn(),
-} ) );
-
-jest.mock( './videos/config', () => ( {
-	getVideosFields: () => [],
-	useVideosReportRecords: jest.fn(),
 } ) );
 
 jest.mock( './utm/config', () => ( {
@@ -257,19 +197,13 @@ jest.mock( './utm/config', () => ( {
 } ) );
 
 const useAnnualInsightsReportRecordsMock = jest.mocked( useAnnualInsightsReportRecords );
-const useAuthorsReportRecordsMock = jest.mocked( useAuthorsReportRecords );
-const useClicksReportRecordsMock = jest.mocked( useClicksReportRecords );
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
 const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
-const useDownloadsReportRecordsMock = jest.mocked( useDownloadsReportRecords );
 const useEarningsReportRecordsMock = jest.mocked( useEarningsReportRecords );
 const useEmailsReportRecordsMock = jest.mocked( useEmailsReportRecords );
 const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
-const useReferrersReportRecordsMock = jest.mocked( useReferrersReportRecords );
-const useSearchTermsReportRecordsMock = jest.mocked( useSearchTermsReportRecords );
 const useTagsReportRecordsMock = jest.mocked( useTagsReportRecords );
 const useUtmReportRecordsMock = jest.mocked( useUtmReportRecords );
-const useVideosReportRecordsMock = jest.mocked( useVideosReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
@@ -279,12 +213,6 @@ const reportStatus = {
 	isFetching: false,
 	isError: false,
 	refetch: jest.fn(),
-};
-
-const chart = {
-	primary: [],
-	comparison: undefined,
-	isLoading: false,
 };
 
 type ExportOptions = {
@@ -321,30 +249,6 @@ function expectCsvExport(
 	const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
 	expect( actionProps.rows ).toEqual( expectedRows );
 	expect( actionProps.filename ).toBe( 'report.csv' );
-	expect( actionProps.columns.map( column => column.getValue( actionProps.rows[ 0 ] ) ) ).toEqual(
-		expectedValues
-	);
-}
-
-/**
- * Render a report and assert what its exporter hands the CSV action.
- *
- * @param Page           - Report page component.
- * @param filenamePrefix - Expected filename prefix.
- * @param expectedRows   - Expected export rows, in order.
- * @param expectedValues - Expected CSV values for the first row.
- */
-function expectExporterCsvExport(
-	Page: ComponentType,
-	filenamePrefix: string,
-	expectedRows: unknown[],
-	expectedValues: unknown[]
-) {
-	render( <Page /> );
-
-	const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
-	expect( actionProps.rows ).toEqual( expectedRows );
-	expect( actionProps.filename.startsWith( `${ filenamePrefix }-` ) ).toBe( true );
 	expect( actionProps.columns.map( column => column.getValue( actionProps.rows[ 0 ] ) ) ).toEqual(
 		expectedValues
 	);
@@ -450,40 +354,6 @@ describe( 'report CSV exports', () => {
 		] );
 	} );
 
-	it( 'configures the Clicks export with parent rows in hierarchy order', () => {
-		const group = { id: 'social', clickedUrl: 'Social', isGroup: true, clicks: 10 };
-		const lowerRow = {
-			id: 'social|a',
-			parentId: 'social',
-			clickedUrl: 'https://example.com/a',
-			isGroup: false,
-			clicks: 3,
-		};
-		const higherRow = {
-			id: 'social|b',
-			parentId: 'social',
-			clickedUrl: 'https://example.com/b',
-			isGroup: false,
-			clicks: 7,
-		};
-		useClicksReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			chart,
-			rows: [ group, higherRow, lowerRow ],
-		} as unknown as ReturnType< typeof useClicksReportRecords > );
-
-		expectExporterCsvExport(
-			ClicksReportPage,
-			'clicks',
-			[
-				{ ...group, group: '' },
-				{ ...higherRow, group: 'social' },
-				{ ...lowerRow, group: 'social' },
-			],
-			[ 'Social', '', 10 ]
-		);
-	} );
-
 	it( 'configures the Comments Subscribers export', () => {
 		const rows = [
 			{ id: 1, label: 'First post', followers: 2, link: '/first', value: 2, children: null },
@@ -518,25 +388,6 @@ describe( 'report CSV exports', () => {
 			'comments-authors',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ 'Second author', 5, '/second' ]
-		);
-	} );
-
-	it( 'configures the File downloads export', () => {
-		const rows = [
-			{ label: 'First file', shortLabel: 'first.pdf', downloads: 2, link: '/first.pdf' },
-			{ label: 'Second file', shortLabel: 'second.pdf', downloads: 5, link: '/second.pdf' },
-		];
-		useDownloadsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			chart,
-			rows,
-		} as unknown as ReturnType< typeof useDownloadsReportRecords > );
-
-		expectExporterCsvExport(
-			DownloadsReportPage,
-			'file-downloads',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'second.pdf', 5, '/second.pdf' ]
 		);
 	} );
 
@@ -612,74 +463,6 @@ describe( 'report CSV exports', () => {
 		] );
 	} );
 
-	it( 'configures the Referrers export in hierarchy order', () => {
-		const rows = [
-			{ id: 'search', label: 'Search', views: 10 },
-			{
-				id: 'search|first',
-				parentId: 'search',
-				label: 'First source',
-				parentLabel: 'Search',
-				views: 2,
-				link: '/first',
-			},
-			{ id: 'social', label: 'Social', views: 5 },
-		];
-		useReferrersReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as ReturnType< typeof useReferrersReportRecords > );
-
-		expectExporterCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
-	} );
-
-	it( 'configures the Videos export by plays', () => {
-		const rows = [
-			{ id: 1, label: 'Low', plays: 1, impressions: 4, watch_time: 0.5, retention_rate: 20 },
-			{
-				id: 2,
-				label: 'Intro',
-				plays: 5,
-				impressions: 9,
-				watch_time: 2,
-				retention_rate: 60,
-				link: 'https://example.com/v/',
-			},
-		];
-		useVideosReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as unknown as ReturnType< typeof useVideosReportRecords > );
-
-		expectExporterCsvExport(
-			VideosReportPage,
-			'videos',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 2, 'Intro', 5, 9, 2, 60, 'https://example.com/v/' ]
-		);
-	} );
-
-	it( 'configures the Authors export with author-qualified posts', () => {
-		const rows = [
-			{ id: 'id:1', label: 'Ana', views: 9, isGroup: true, avatarUrl: null },
-			{
-				id: 'id:1|post:id:11',
-				parentId: 'id:1',
-				label: 'Hello',
-				views: 9,
-				isGroup: false,
-				avatarUrl: null,
-				parentName: 'Ana',
-			},
-		];
-		useAuthorsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			rows,
-		} as unknown as ReturnType< typeof useAuthorsReportRecords > );
-
-		expectExporterCsvExport( AuthorsReportPage, 'top-authors', rows, [ 'Ana', 9 ] );
-	} );
-
 	it( 'configures the Locations export', () => {
 		const rows = [
 			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 2 },
@@ -709,28 +492,6 @@ describe( 'report CSV exports', () => {
 			'locations-countries',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ 'Australia', 5 ]
-		);
-	} );
-
-	it( 'configures the Search terms export', () => {
-		const rows = [
-			{ id: 'first', term: 'first term', views: 2 },
-			{ id: 'second', term: 'second term', views: 5 },
-		];
-		useSearchTermsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			chart,
-			table: {
-				...reportStatus,
-				rows,
-			},
-		} as unknown as ReturnType< typeof useSearchTermsReportRecords > );
-
-		expectExporterCsvExport(
-			SearchTermsReportPage,
-			'search-terms',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'second term', 5 ]
 		);
 	} );
 

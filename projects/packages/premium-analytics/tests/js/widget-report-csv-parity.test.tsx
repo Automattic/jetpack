@@ -1,0 +1,368 @@
+/**
+ * External dependencies
+ */
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import apiFetch from '@wordpress/api-fetch';
+import {
+	AnalyticsQueryClientProvider,
+	GlobalErrorProvider,
+	queryClient,
+} from '@jetpack-premium-analytics/data';
+import { useSectionTab } from '@jetpack-premium-analytics/routing';
+/**
+ * Internal dependencies
+ */
+import AuthorsReportPage from '../../routes/reports/authors/page';
+import ClicksReportPage from '../../routes/reports/clicks/page';
+import DownloadsReportPage from '../../routes/reports/downloads/page';
+import PostsReportPage from '../../routes/reports/posts/page';
+import ReferrersReportPage from '../../routes/reports/referrers/page';
+import SearchTermsReportPage from '../../routes/reports/search-terms/page';
+import VideosReportPage from '../../routes/reports/videos/page';
+import AuthorsWidget from '../../widgets/authors/render';
+import ClicksWidget from '../../widgets/clicks/render';
+import FileDownloadsWidget from '../../widgets/file-downloads/render';
+import ReferrersWidget from '../../widgets/referrers/render';
+import SearchTermsWidget from '../../widgets/search-terms/render';
+import { captureCsvDownloads } from '../../widgets/test-utils';
+import TopPostsWidget from '../../widgets/top-posts/render';
+import VideoPressWidget from '../../widgets/videopress/render';
+import { setMockRouteSearch } from './route-test-utils';
+import type { ComponentType, ReactElement, ReactNode } from 'react';
+
+jest.mock( '@wordpress/api-fetch', () => jest.fn() );
+jest.mock(
+	'@wordpress/route',
+	() => jest.requireActual( './route-test-utils' ).mockWordPressRoute
+);
+jest.mock( '@wordpress/admin-ui', () => ( { Breadcrumbs: () => null } ) );
+jest.mock( '@automattic/jetpack-script-data', () => ( {
+	...jest.requireActual( '@automattic/jetpack-script-data' ),
+	getScriptData: () => undefined,
+} ) );
+jest.mock( '@jetpack-premium-analytics/routing', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/routing' ),
+	useDashboardLink: () => '/',
+	useReportDateFilters: () => ( {} ),
+	useSectionTab: jest.fn(),
+} ) );
+jest.mock( '@jetpack-premium-analytics/ui', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/ui' ),
+	DateFiltersPanel: () => null,
+	StatsBreadcrumbs: () => null,
+	StatsPageIcon: () => null,
+} ) );
+jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ),
+	ReportDrilldownTable: () => null,
+	ReportRecordsTable: () => null,
+	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
+	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
+		<>
+			{ actions }
+			{ children }
+		</>
+	),
+	ReportPageTabs: () => null,
+} ) );
+
+const mockApiFetch = apiFetch as unknown as jest.Mock;
+const mockUseSectionTab = jest.mocked( useSectionTab );
+
+// Comparison on: the report fetches it, the export must not need it.
+const REPORT_PARAMS = {
+	from: '2026-03-01',
+	to: '2026-03-10',
+	comp: '1',
+	compare_from: '2026-02-01',
+	compare_to: '2026-02-10',
+};
+
+const RESPONSES: Record< string, unknown > = {
+	'stats/top-posts': {
+		date: '2026-03-10',
+		days: {},
+		summary: {
+			postviews: Array.from( { length: 12 }, ( _, index ) => ( {
+				id: index + 1,
+				href: `https://example.com/post-${ index + 1 }/`,
+				date: '2026-03-01',
+				title: `Post ${ index + 1 }`,
+				type: 'post',
+				views: ( ( index * 7 ) % 12 ) + 1,
+			} ) ),
+			total_views: 78,
+		},
+	},
+	'stats/archives': {
+		date: '2026-03-10',
+		period: 'day',
+		summary: {
+			tag: Array.from( { length: 12 }, ( _, index ) => ( {
+				href: `https://example.com/tag/tag-${ index }/`,
+				value: `tag-${ index }`,
+				views: 80 - index,
+			} ) ),
+			cat: [ { href: 'https://example.com/category/updates/', value: 'updates', views: 201 } ],
+			tax: { topics: [ { href: 'https://example.com/topics/wp/', value: 'wp', views: 5 } ] },
+		},
+	},
+	'stats/file-downloads': {
+		date: '2026-03-10',
+		days: {},
+		summary: {
+			files: Array.from( { length: 12 }, ( _, index ) => ( {
+				filename: `file-${ index }.pdf`,
+				relative_url: `/file-${ index }.pdf`,
+				downloads: ( ( index * 5 ) % 12 ) + 1,
+			} ) ),
+		},
+	},
+	'stats/search-terms': {
+		date: '2026-03-10',
+		days: {},
+		summary: {
+			search_terms: Array.from( { length: 12 }, ( _, index ) => ( {
+				term: `term ${ index }`,
+				views: ( ( index * 7 ) % 12 ) + 1,
+			} ) ),
+			encrypted_search_terms: 6,
+		},
+	},
+	'stats/video-plays': {
+		date: '2026-03-10',
+		period: 'day',
+		summary: {
+			plays: Array.from( { length: 12 }, ( _, index ) => ( {
+				post_id: index + 1,
+				title: `Video ${ index + 1 }`,
+				url: `https://example.com/video/${ index + 1 }/`,
+				plays: ( ( index * 5 ) % 12 ) + 1,
+				impressions: 20,
+				watch_time: 1.5,
+				retention_rate: 40,
+			} ) ),
+		},
+	},
+	'stats/clicks': {
+		date: '2026-03-10',
+		days: {},
+		summary: {
+			clicks: [
+				{
+					name: 'wordpress.org',
+					views: 30,
+					children: [
+						{ name: 'wordpress.org/a', views: 20, url: 'https://wordpress.org/a' },
+						{ name: 'wordpress.org/b', views: 10, url: 'https://wordpress.org/b' },
+					],
+				},
+				...Array.from( { length: 11 }, ( _, index ) => ( {
+					name: `site-${ index }.com`,
+					views: 12 - index,
+					url: `https://site-${ index }.com/`,
+				} ) ),
+			],
+		},
+	},
+	'stats/referrers': {
+		date: '2026-03-10',
+		days: {},
+		summary: {
+			groups: Array.from( { length: 12 }, ( _, index ) => ( {
+				group: `Group ${ index }`,
+				name: `Group ${ index }`,
+				total: 40 - index,
+				results: [
+					{ name: `Source ${ index }`, views: 40 - index, url: `https://s${ index }.com/` },
+				],
+			} ) ),
+		},
+	},
+	'stats/top-authors': {
+		date: '2026-03-10',
+		period: 'day',
+		summary: {
+			authors: Array.from( { length: 12 }, ( _, index ) => ( {
+				author_id: index + 1,
+				name: `Author ${ index + 1 }`,
+				views: 50 - index,
+				avatar: null,
+				posts: [ { id: 100 + index, title: `Post ${ index }`, url: null, views: 50 - index } ],
+			} ) ),
+		},
+	},
+};
+
+const CASES: {
+	name: string;
+	Page: ComponentType;
+	widget: ( reportParams: Record< string, string > ) => ReactElement;
+	tab?: string;
+}[] = [
+	{
+		name: 'Posts & pages',
+		Page: PostsReportPage,
+		widget: reportParams => <TopPostsWidget attributes={ { reportParams } } />,
+		tab: 'posts-pages',
+	},
+	{
+		name: 'Archives',
+		Page: PostsReportPage,
+		widget: reportParams => (
+			<TopPostsWidget attributes={ { contentView: 'archives', reportParams } } />
+		),
+		tab: 'archives',
+	},
+	{
+		name: 'File downloads',
+		Page: DownloadsReportPage,
+		widget: reportParams => <FileDownloadsWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Search terms',
+		Page: SearchTermsReportPage,
+		widget: reportParams => <SearchTermsWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Videos',
+		Page: VideosReportPage,
+		widget: reportParams => <VideoPressWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Clicks',
+		Page: ClicksReportPage,
+		widget: reportParams => <ClicksWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Referrers',
+		Page: ReferrersReportPage,
+		widget: reportParams => <ReferrersWidget attributes={ { reportParams } } />,
+	},
+	{
+		name: 'Authors',
+		Page: AuthorsReportPage,
+		widget: reportParams => <AuthorsWidget attributes={ { reportParams } } />,
+	},
+];
+
+// A 403 is not retried, so the query settles as failed at once.
+const FORBIDDEN = { status: 403, code: 'forbidden', message: 'Forbidden' };
+
+/**
+ * Answer a Stats request with the fixture for its endpoint.
+ *
+ * @param path - The requested proxy path.
+ * @return The fixture response.
+ */
+function respond( path: string ) {
+	return Promise.resolve(
+		Object.entries( RESPONSES ).find( ( [ endpoint ] ) => path.includes( endpoint ) )?.[ 1 ] ?? {
+			date: '2026-03-10',
+			days: {},
+			summary: {},
+		}
+	);
+}
+
+/**
+ * Wrap a page or widget in the providers the dashboard mounts it under.
+ *
+ * @param ui - The page or widget.
+ * @return The wrapped element.
+ */
+function withProviders( ui: ReactElement ) {
+	return (
+		<AnalyticsQueryClientProvider>
+			<GlobalErrorProvider>{ ui }</GlobalErrorProvider>
+		</AnalyticsQueryClientProvider>
+	);
+}
+
+describe( 'Widget and report CSV parity', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads >;
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		setMockRouteSearch( REPORT_PARAMS );
+		mockUseSectionTab.mockReturnValue( [ 'posts-pages', jest.fn() ] );
+		mockApiFetch.mockReset();
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) => respond( path ) );
+		downloads = captureCsvDownloads();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		downloads.restore();
+	} );
+
+	/**
+	 * Render a page or widget, click its Download CSV action, and capture the saved file.
+	 *
+	 * @param ui - The page or widget to render.
+	 * @return The saved file's name and contents.
+	 */
+	async function download( ui: ReactElement ) {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const view = render( withProviders( ui ) );
+
+		await user.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		const [ saved ] = downloads.files.splice( 0 );
+		const file = { filename: saved.filename, csv: await saved.blob.text() };
+		view.unmount();
+
+		return file;
+	}
+
+	it.each( CASES )(
+		'downloads the same $name file from the widget as from the report page',
+		async ( { Page, widget, tab } ) => {
+			if ( tab ) {
+				mockUseSectionTab.mockReturnValue( [ tab, jest.fn() ] );
+			}
+
+			const reportFile = await download( <Page /> );
+			queryClient.clear();
+			const widgetFile = await download( widget( REPORT_PARAMS ) );
+
+			expect( widgetFile ).toEqual( reportFile );
+			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
+		}
+	);
+
+	it( 'reuses the report page cached rows for the widget download', async () => {
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await download( <PostsReportPage /> );
+
+		render( withProviders( CASES[ 0 ].widget( REPORT_PARAMS ) ) );
+		const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+		const callsBeforeClick = mockApiFetch.mock.calls.length;
+
+		await user.click( button );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		expect( mockApiFetch ).toHaveBeenCalledTimes( callsBeforeClick );
+	} );
+
+	it.each( CASES )(
+		'keeps the $name download when only the comparison request fails',
+		async ( { widget } ) => {
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				path.includes( '2026-02' ) ? Promise.reject( FORBIDDEN ) : respond( path )
+			);
+
+			render( withProviders( widget( REPORT_PARAMS ) ) );
+
+			await expect(
+				screen.findByRole( 'button', { name: /Download CSV/ } )
+			).resolves.toBeInTheDocument();
+			expect( mockApiFetch ).toHaveBeenCalledWith(
+				expect.objectContaining( { path: expect.stringContaining( '2026-02' ) } )
+			);
+		}
+	);
+} );
