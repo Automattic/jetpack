@@ -5,6 +5,7 @@ import {
 	mergeStatsArchivesComparisonRows,
 	mergeStatsClicksComparisonRows,
 	mergeStatsFileDownloadsComparisonRows,
+	mergeStatsLocationsComparisonRows,
 	mergeStatsReferrersComparisonRows,
 	mergeStatsTopAuthorsComparisonRows,
 	mergeStatsTopPostsComparisonRows,
@@ -16,6 +17,7 @@ import {
 	type StatsEmailSummaryItem,
 	type StatsFileDownloadsComparisonItem,
 	type StatsInsightsYear,
+	type StatsLocationsComparisonItem,
 	type StatsNormalizedReport,
 	type StatsReferrersComparisonItem,
 	type StatsSearchTermsItem,
@@ -33,6 +35,7 @@ import { statsCommentsQuery } from './stats-comments-query';
 import { statsEmailSummaryQuery, type StatsEmailSummaryParams } from './stats-email-summary-query';
 import { statsFileDownloadsQuery } from './stats-file-downloads-query';
 import { statsInsightsQuery } from './stats-insights-query';
+import { statsLocationsQuery, type StatsLocationsParams } from './stats-locations-query';
 import { statsReferrersQuery } from './stats-referrers-query';
 import { statsSearchTermsQuery } from './stats-search-terms-query';
 import { statsTagsQuery, type StatsTagsParams } from './stats-tags-query';
@@ -71,6 +74,14 @@ export async function fetchStatsFileDownloadsRows(
 ): Promise< StatsFileDownloadsComparisonItem[] > {
 	const report = await fetchReport( statsFileDownloadsQuery( withoutComparison( params ) ) );
 	return mergeStatsFileDownloadsComparisonRows( report, undefined ).rows;
+}
+
+/** Fetch every location row for a report window, inside its country or region filter. */
+export async function fetchStatsLocationsRows(
+	params: StatsLocationsParams
+): Promise< StatsLocationsComparisonItem[] > {
+	const report = await fetchReport( statsLocationsQuery( withoutComparison( params ) ) );
+	return mergeStatsLocationsComparisonRows( report, undefined ).rows;
 }
 
 /** Fetch the raw search-terms report; its Unknown row is built by the caller. */
