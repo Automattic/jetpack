@@ -113,7 +113,13 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 					$error_code = 'no_package';
 				}
 
-				return new WP_Error( $error_code, $message, 400 );
+				$error = new WP_Error( $error_code, $message, 400 );
+
+				if ( 'folder_exists' === $error_code ) {
+					$this->add_folder_exists_data( $error, $skin, $upgrader );
+				}
+
+				return $error;
 			}
 
 			if ( empty( $plugin ) ) {
@@ -127,6 +133,64 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 		}
 
 		return new WP_Error( 'no_plugin_installed' );
+	}
+
+	/**
+	 * Attach the conflicting plugin's identity to a folder_exists rejection.
+	 *
+	 * It rides along as a second 'additional_data' entry because the API drops extra
+	 * WP_Error properties; the first entry still defines code, message and status.
+	 *
+	 * @param WP_Error        $error    Error to augment, modified in place.
+	 * @param object          $skin     Upgrader skin.
+	 * @param Plugin_Upgrader $upgrader Upgrader holding the uploaded zip's headers.
+	 * @return void
+	 */
+	protected function add_folder_exists_data( WP_Error $error, $skin, $upgrader ) {
+		$slug = $this->get_folder_exists_slug( $skin );
+		if ( '' === $slug ) {
+			return;
+		}
+
+		$data        = array( 'plugin_slug' => $slug );
+		$plugin_data = is_array( $upgrader->new_plugin_data ?? null ) ? $upgrader->new_plugin_data : array();
+
+		if ( ! empty( $plugin_data['Version'] ) && is_scalar( $plugin_data['Version'] ) ) {
+			$data['plugin_version'] = (string) $plugin_data['Version'];
+		}
+
+		if ( ! empty( $plugin_data['Name'] ) && is_scalar( $plugin_data['Name'] ) ) {
+			$data['plugin_name'] = (string) $plugin_data['Name'];
+		}
+
+		$error->add( 'additional_data', '', $data );
+	}
+
+	/**
+	 * Derive the slug of the plugin folder install_package() refused to overwrite.
+	 *
+	 * The skin's get_main_error_*() methods discard the error data, so the destination
+	 * path has to come off $skin->result.
+	 *
+	 * @param object $skin Upgrader skin.
+	 * @return string The slug, or '' when one could not be derived.
+	 */
+	protected function get_folder_exists_slug( $skin ) {
+		$result = $skin->result ?? null;
+		if ( ! $result instanceof WP_Error ) {
+			return '';
+		}
+
+		$destination = $result->get_error_data( 'folder_exists' );
+		if ( ! is_string( $destination ) || '' === $destination ) {
+			return '';
+		}
+
+		// Basename only, so no filesystem layout leaks. The pattern is the one
+		// plugins/replace enforces, so every slug returned here is usable there.
+		$slug = strtolower( basename( untrailingslashit( $destination ) ) );
+
+		return preg_match( '/^[a-z0-9][a-z0-9_-]*$/', $slug ) ? $slug : '';
 	}
 }
 
