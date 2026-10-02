@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-REST API: Serve the WordPress.com data proxy from the shared jetpack-wpcom-proxy package. Route and behaviour unchanged.
+REST API: Serve the WordPress.com data proxy from the connection package's Proxy_Controller. Route and behaviour unchanged.

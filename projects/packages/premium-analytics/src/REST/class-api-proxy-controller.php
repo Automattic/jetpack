@@ -7,8 +7,8 @@
 
 namespace Automattic\Jetpack\PremiumAnalytics\REST;
 
+use Automattic\Jetpack\Connection\Proxy_Controller;
 use Automattic\Jetpack\Constants;
-use Automattic\Jetpack\WPCOM_Proxy\Proxy_Controller;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Request;

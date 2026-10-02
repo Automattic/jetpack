@@ -2,13 +2,11 @@
 /**
  * REST controller that proxies allowlisted requests to the WordPress.com API.
  *
- * @package automattic/jetpack-wpcom-proxy
+ * @package automattic/jetpack-connection
  */
 
-namespace Automattic\Jetpack\WPCOM_Proxy;
+namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Client;
-use Automattic\Jetpack\Connection\Manager;
 use Jetpack_Options;
 use WP_Error;
 use WP_REST_Controller;
@@ -27,10 +25,10 @@ use WP_REST_Server;
  * The product owning the route declares the prefixes it exposes (see {@see __construct()});
  * the blog token is never forwarded outside that table. A product with needs beyond the
  * table overrides {@see request()}, {@see prepare_body()} or {@see extract_forwarded_headers()}.
+ *
+ * @since $$next-version$$
  */
 class Proxy_Controller extends WP_REST_Controller {
-
-	const PACKAGE_VERSION = '0.1.0-alpha';
 
 	/**
 	 * Per-prefix configuration, the single source of truth for every proxied endpoint group.
@@ -153,7 +151,7 @@ class Proxy_Controller extends WP_REST_Controller {
 						'validate_callback' => array( $this, 'validate_data_endpoint' ),
 					),
 					'version'  => array(
-						'description'       => __( 'WordPress.com API version to forward to (e.g. 1.1, 1.2, 2).', 'jetpack-wpcom-proxy' ),
+						'description'       => __( 'WordPress.com API version to forward to (e.g. 1.1, 1.2, 2).', 'jetpack-connection' ),
 						'type'              => 'string',
 						'required'          => true,
 						'validate_callback' => array( $this, 'validate_version' ),
@@ -277,7 +275,7 @@ class Proxy_Controller extends WP_REST_Controller {
 		if ( 'GET' !== $method && ! ( 'POST' === $method && $this->is_write_allowed( $endpoint ) ) ) {
 			return new WP_Error(
 				'rest_read_only',
-				__( 'This endpoint is read-only.', 'jetpack-wpcom-proxy' ),
+				__( 'This endpoint is read-only.', 'jetpack-connection' ),
 				array( 'status' => 405 )
 			);
 		}
@@ -406,7 +404,7 @@ class Proxy_Controller extends WP_REST_Controller {
 		if ( ! ( new Manager( $this->connection_slug ) )->is_connected() ) {
 			return new WP_Error(
 				'no_connection',
-				__( 'Please connect Jetpack to load your data.', 'jetpack-wpcom-proxy' ),
+				__( 'Please connect Jetpack to load your data.', 'jetpack-connection' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -433,7 +431,7 @@ class Proxy_Controller extends WP_REST_Controller {
 		} catch ( \Exception $e ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error processing the request.', 'jetpack-wpcom-proxy' ),
+				__( 'Error processing the request.', 'jetpack-connection' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -441,7 +439,7 @@ class Proxy_Controller extends WP_REST_Controller {
 		if ( is_wp_error( $response ) ) {
 			return new WP_Error(
 				'api_error',
-				__( 'Error communicating with the data service.', 'jetpack-wpcom-proxy' ),
+				__( 'Error communicating with the data service.', 'jetpack-connection' ),
 				array( 'status' => 500 )
 			);
 		}
@@ -511,7 +509,7 @@ class Proxy_Controller extends WP_REST_Controller {
 		if ( 200 === $status && null === $data && JSON_ERROR_NONE !== json_last_error() ) {
 			return new WP_Error(
 				'api_error',
-				__( 'The data service returned an unreadable response.', 'jetpack-wpcom-proxy' ),
+				__( 'The data service returned an unreadable response.', 'jetpack-connection' ),
 				array( 'status' => 502 )
 			);
 		}

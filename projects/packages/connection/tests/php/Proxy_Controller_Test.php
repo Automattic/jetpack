@@ -2,12 +2,11 @@
 /**
  * Tests for Proxy_Controller.
  *
- * @package automattic/jetpack-wpcom-proxy
+ * @package automattic/jetpack-connection
  */
 
-namespace Automattic\Jetpack\WPCOM_Proxy;
+namespace Automattic\Jetpack\Connection;
 
-use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -19,7 +18,7 @@ use WP_REST_Server;
 /**
  * Drives the proxy through a synthetic prefix table, from the REST server down to the HTTP layer.
  *
- * @covers \Automattic\Jetpack\WPCOM_Proxy\Proxy_Controller
+ * @covers \Automattic\Jetpack\Connection\Proxy_Controller
  */
 #[CoversClass( Proxy_Controller::class )]
 class Proxy_Controller_Test extends BaseTestCase {
@@ -87,7 +86,7 @@ class Proxy_Controller_Test extends BaseTestCase {
 		Constants::set_constant( 'JETPACK__WPCOM_JSON_API_BASE', 'https://public-api.wordpress.com' );
 		\Jetpack_Options::update_option( 'id', 4242 );
 		\Jetpack_Options::update_option( 'blog_token', 'blog_token.secret' );
-		( new Connection_Manager() )->reset_connection_status();
+		( new Manager() )->reset_connection_status();
 
 		$this->http_calls    = array();
 		$this->http_response = $this->build_http_response( 200, array( 'ok' => true ) );
@@ -112,7 +111,7 @@ class Proxy_Controller_Test extends BaseTestCase {
 
 		\Jetpack_Options::delete_option( 'blog_token' );
 		\Jetpack_Options::delete_option( 'id' );
-		( new Connection_Manager() )->reset_connection_status();
+		( new Manager() )->reset_connection_status();
 		Constants::clear_single_constant( 'JETPACK__WPCOM_JSON_API_BASE' );
 
 		global $wp_rest_server;
@@ -404,7 +403,7 @@ class Proxy_Controller_Test extends BaseTestCase {
 
 	public function test_unconnected_site_gets_no_connection_before_any_request() {
 		\Jetpack_Options::delete_option( 'blog_token' );
-		( new Connection_Manager() )->reset_connection_status();
+		( new Manager() )->reset_connection_status();
 
 		$response = $this->dispatch( 'stats/top-posts' );
 
@@ -499,7 +498,7 @@ class Proxy_Controller_Test extends BaseTestCase {
 		$this->dispatch( 'stats/top-posts' );
 
 		\Jetpack_Options::delete_option( 'blog_token' );
-		( new Connection_Manager() )->reset_connection_status();
+		( new Manager() )->reset_connection_status();
 
 		$response = $this->dispatch( 'stats/top-posts' );
 
