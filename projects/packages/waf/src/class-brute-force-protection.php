@@ -675,7 +675,7 @@ class Brute_Force_Protection {
 	 */
 	public static function ip_is_whitelisted( $ip ) {
 		_deprecated_function( __METHOD__, 'waf-0.11.0', __CLASS__ . '::ip_is_allowed' );
-		return self::ip_is_allowed( $ip );
+		return self::instance()->ip_is_allowed( $ip );
 	}
 
 	/**
@@ -774,7 +774,7 @@ class Brute_Force_Protection {
 	 */
 	public static function is_current_ip_whitelisted() {
 		_deprecated_function( __METHOD__, 'waf-0.11.0', __CLASS__ . '::is_current_ip_allowed' );
-		return self::is_current_ip_allowed();
+		return self::instance()->is_current_ip_allowed();
 	}
 
 	/**
