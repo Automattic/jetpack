@@ -1,8 +1,10 @@
 import { Group } from '@visx/group';
 import { Pie } from '@visx/shape';
 import { useTooltip } from '@visx/tooltip';
+import { color as d3Color } from '@visx/vendor/d3-color';
 import clsx from 'clsx';
-import { useCallback, useContext, useMemo, useRef } from 'react';
+import isEqual from 'fast-deep-equal';
+import { useCallback, useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
 import { BaseTooltip } from '../../components/tooltip';
 import { BoundedTooltip } from '../../components/tooltip/private/bounded-tooltip';
@@ -19,13 +21,15 @@ import {
 	useGlobalChartsTheme,
 	GlobalChartsContext,
 } from '../../providers';
+import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
-import { attachSubComponents, resolveFontSize } from '../../utils';
+import { attachSubComponents, createCssVariableResolver, resolveFontSize } from '../../utils';
 import { getStringWidth } from '../../visx/text';
 import { Center } from '../private/center';
 import { ChartSVG, ChartHTML, useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
 import { ChartLayout } from '../private/chart-layout';
+import { pickLabelTextColor, resolveLabelRoles } from '../private/label-text-color';
 import { RadialWipeAnimation } from '../private/radial-wipe-animation/';
 import { getAllHiddenMessage, SvgEmptyState } from '../private/svg-empty-state';
 import { withResponsive, ResponsiveConfig } from '../private/with-responsive';
@@ -38,7 +42,8 @@ import type {
 	Optional,
 } from '../../types';
 import type { ChartComponentWithComposition } from '../private/chart-composition';
-import type { SVGProps, MouseEvent, ReactNode, FC } from 'react';
+import type { LabelRoles, LabelTextColor } from '../private/label-text-color';
+import type { JSX, SVGProps, MouseEvent, ReactNode, FC } from 'react';
 
 /**
  * Parameters passed to the renderTooltip function for pie charts.
@@ -161,6 +166,14 @@ const validateData = ( data: DataPointPercentage[] ) => {
 	return { isValid: true, message: '' };
 };
 
+// `label-inverse` is the stylesheet's default, so it needs no modifier.
+const LABEL_TEXT_MODIFIER: Record< LabelTextColor, string | undefined > = {
+	label: styles[ 'pie-chart__label-text--on-light' ],
+	'label-inverse': undefined,
+	black: styles[ 'pie-chart__label-text--black' ],
+	white: styles[ 'pie-chart__label-text--white' ],
+};
+
 /**
  * Renders a pie or donut chart using the provided data.
  *
@@ -202,6 +215,12 @@ const PieChartInternal = ( {
 	// The tooltip renders inside this element, so pointer coordinates are taken relative to it.
 	const containerRef = useRef< HTMLDivElement >( null );
 
+	// The element the chart's own `className` lands on, so an override set there reaches this
+	// decision the same way it reaches CSS.
+	const rootRef = useRef< HTMLDivElement >( null );
+	// Null until read, and while a label plate is set: text on the plate keeps the inverse role.
+	const [ labelRoles, setLabelRoles ] = useState< LabelRoles | null >( null );
+
 	const onMouseLeave = useCallback( () => {
 		if ( ! withTooltips ) {
 			return;
@@ -209,7 +228,24 @@ const PieChartInternal = ( {
 		hideTooltip();
 	}, [ withTooltips, hideTooltip ] );
 
-	const { getElementStyles, isSeriesVisible } = useGlobalChartsContext();
+	const { getElementStyles, isSeriesVisible, isColorPaletteResolved } = useGlobalChartsContext();
+	const { isValid, message } = validateData( data );
+
+	// Skipped when labels are off, or before the chart's own root element mounts (the invalid-data
+	// branch renders a plain div, so `rootRef` is not yet attached).
+	useLayoutEffect( () => {
+		if ( ! showLabels || ! rootRef.current ) {
+			return;
+		}
+
+		const resolve = createCssVariableResolver( rootRef.current );
+		const rawLabelBackground = resolve( CATALOG_POINTERS.labelBackground );
+		// A plate value d3 cannot parse (CSS Color 4 syntax, say) is still one CSS paints, so it counts.
+		const plateColor = rawLabelBackground ? d3Color( rawLabelBackground ) : null;
+		const hasPlate = rawLabelBackground ? ! plateColor || plateColor.opacity > 0 : false;
+		const next = hasPlate ? null : resolveLabelRoles( resolve );
+		setLabelRoles( previous => ( isEqual( previous, next ) ? previous : next ) );
+	}, [ showLabels, className, isColorPaletteResolved, isValid ] );
 
 	// Calculate percentages from values (single source of truth)
 	const dataWithPercentages = useDataWithPercentages( data );
@@ -229,8 +265,6 @@ const PieChartInternal = ( {
 
 	// Create legend items using legendData (has recalculated percentages for visible items)
 	const legendItems = useChartLegendItems( legendData, legendOptions );
-
-	const { isValid, message } = validateData( data );
 
 	// Process children to extract compound components
 	const { svgChildren, htmlChildren, legendChildren, otherChildren } = useChartChildren(
@@ -309,6 +343,7 @@ const PieChartInternal = ( {
 				legendElement={ legendElement }
 				legendChildren={ legendChildren }
 				gap={ gap }
+				rootRef={ rootRef }
 				className={ clsx(
 					'pie-chart',
 					styles[ 'pie-chart' ],
@@ -405,11 +440,12 @@ const PieChartInternal = ( {
 														} );
 													};
 
+													const fill = accessors.fill( arc.data );
 													const pathProps: SVGProps< SVGPathElement > & {
 														'data-testid'?: string;
 													} = {
 														d: pie.path( arc ) || '',
-														fill: accessors.fill( arc.data ),
+														fill,
 														'data-testid': 'pie-segment',
 													};
 
@@ -446,7 +482,13 @@ const PieChartInternal = ( {
 																		pointerEvents="none"
 																	/>
 																	<text
-																		className={ styles[ 'pie-chart__label-text' ] }
+																		className={ clsx(
+																			styles[ 'pie-chart__label-text' ],
+																			LABEL_TEXT_MODIFIER[
+																				pickLabelTextColor( fill, labelRoles, 'label-inverse' )
+																			]
+																		) }
+																		data-testid="pie-label"
 																		x={ centroidX }
 																		y={ centroidY }
 																		dy=".33em"

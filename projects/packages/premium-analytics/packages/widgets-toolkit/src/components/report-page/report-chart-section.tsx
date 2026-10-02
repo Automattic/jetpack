@@ -1,54 +1,19 @@
 /**
  * External dependencies
  */
-import { Icon, Popover, Text, VisuallyHidden } from '@jetpack-premium-analytics/externals';
+import { Icon, Text } from '@jetpack-premium-analytics/externals';
 import { Button } from '@wordpress/components';
 import { __, sprintf } from '@wordpress/i18n';
-import { chevronDown, chevronUp, info } from '@wordpress/icons';
+import { chevronDown, chevronUp } from '@wordpress/icons';
 import clsx from 'clsx';
 import { useId, useState } from 'react';
 /**
  * Internal dependencies
  */
+import { InfoTip } from '../info-tip';
 import styles from './report-chart-section.module.scss';
 import { ReportPageSection } from './report-page-layout';
 import type { ComponentProps, ReactElement, ReactNode } from 'react';
-
-interface ReportChartHelpProps {
-	/** The section heading the tip belongs to, used to name the trigger. */
-	title: string;
-	children: ReactNode;
-}
-
-/**
- * The "what am I looking at" tip beside a chart heading.
- *
- * @param {ReportChartHelpProps} props - The component props.
- * @return The info tip.
- */
-function ReportChartHelp( { title, children }: ReportChartHelpProps ) {
-	/* translators: %s is the name of the chart the tip explains. */
-	const label = sprintf( __( 'About %s', 'jetpack-premium-analytics-pkg' ), title );
-
-	return (
-		<Popover.Root>
-			<Popover.Trigger
-				openOnHover
-				delay={ 200 }
-				closeDelay={ 200 }
-				aria-label={ label }
-				className={ styles.help }
-			>
-				<Icon icon={ info } size={ 20 } />
-			</Popover.Trigger>
-			<Popover.Popup className={ styles.helpPopup }>
-				<Popover.Arrow />
-				<VisuallyHidden render={ <Popover.Title /> }>{ label }</VisuallyHidden>
-				<Popover.Description>{ children }</Popover.Description>
-			</Popover.Popup>
-		</Popover.Root>
-	);
-}
 
 export interface ReportChartSectionProps {
 	/** Section heading. Omit for a chart the report title already names. */
@@ -109,7 +74,13 @@ export function ReportChartSection( {
 										</Text>
 									) : null }
 									{ title && help ? (
-										<ReportChartHelp title={ title }>{ help }</ReportChartHelp>
+										<InfoTip
+											openOnHover
+											/* translators: %s is the name of the chart the tip explains. */
+											label={ sprintf( __( 'About %s', 'jetpack-premium-analytics-pkg' ), title ) }
+										>
+											{ help }
+										</InfoTip>
 									) : null }
 								</div>
 								{ controls ? <div className={ styles.controls }>{ controls }</div> : null }

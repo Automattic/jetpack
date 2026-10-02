@@ -14,6 +14,7 @@ namespace Automattic\Jetpack\SEO;
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 
 /**
  * Registers the SEO admin menu and loads the wp-build dashboard bundle.
@@ -103,12 +104,32 @@ class Admin_Page {
 			return;
 		}
 
-		// Hooked either side of load_wp_build(), so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
+		self::load_wp_build_with_screen_alias();
+		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
+	}
+
+	/**
+	 * Load wp-build with the screen ID aliased across its generated enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @return void
+	 */
+	private static function load_wp_build_with_screen_alias() {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () {
+					self::load_wp_build();
+				}
+			);
+			return;
+		}
+
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
 		self::load_wp_build();
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
-		add_filter( 'jetpack_admin_js_script_data', array( __CLASS__, 'inject_script_data' ) );
 	}
 
 	/**

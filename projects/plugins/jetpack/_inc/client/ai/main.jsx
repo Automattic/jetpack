@@ -13,11 +13,13 @@
  * MCP hub as the landing view and no tab bar.
  */
 
-import { AdminPage, GlobalNotices, useGlobalNotices } from '@automattic/jetpack-components';
+import { AdminPage, JitmSlot } from '@automattic/jetpack-components';
 import { useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import { useDispatch } from '@wordpress/data';
 import { Suspense, lazy, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight, Icon } from '@wordpress/icons';
+import { store as noticesStore } from '@wordpress/notices';
 import { Badge, Notice, Stack, Tabs } from '@wordpress/ui';
 import ChunkErrorBoundary from './components/chunk-error-boundary/index';
 import LoadingSpinner from './components/loading-spinner/index';
@@ -35,6 +37,7 @@ import { useMcpSettings } from './mcp/use-mcp-settings';
 import { getSiteLevelEnabled } from './mcp/utils';
 import McpWrite from './mcp/write';
 import AiOverview from './overview';
+import { EVENTS, recordAiHubEvent } from './tracks';
 
 // Split into its own chunk: only this tab uses DataViews and the AI client.
 const ScheduledTasks = lazy(
@@ -195,15 +198,14 @@ export default function App() {
 		userConnectionUrl = 'admin.php?page=my-jetpack#/connection',
 		manageUrl = 'admin.php?page=my-jetpack#/products',
 		hasMyJetpack = true,
+		canConnectSite = true,
 		isOfflineMode = false,
 		showFeaturesView = false,
 		showA12sBadge = false,
 	} = window?.jetpackAiSettings ?? {};
 	const [ view, setView ] = useState( getViewFromHash );
-	// Save feedback goes through the shared GlobalNotices snackbars (the
-	// design-system SnackbarList behind @wordpress/notices): transient,
-	// auto-dismissing, no page-level styling needed.
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	// Save feedback goes through the snackbars boot's layout renders.
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 	const { hasConnectionError } = useConnectionErrorNotice();
 	const mcpViewedRecorded = useRef( false );
 	// Strict false: older page data (undefined) must not read as unlinked.
@@ -263,6 +265,12 @@ export default function App() {
 	const activeTab = view.split( '/' )[ 0 ];
 
 	useEffect( () => {
+		if ( showFeaturesView ) {
+			recordAiHubEvent( EVENTS.VIEWED, { tab: activeTab } );
+		}
+	}, [ activeTab, showFeaturesView ] );
+
+	useEffect( () => {
 		if ( ! isLoading && hasMcpAccess && isMcpContext && ! mcpViewedRecorded.current ) {
 			mcpViewedRecorded.current = true;
 			// blog_id is attached automatically by the analytics library from
@@ -280,6 +288,7 @@ export default function App() {
 				// makes the store replace the previous outcome for this surface,
 				// so retries never show stale results alongside fresh ones.
 				createErrorNotice( __( 'Failed to save MCP settings. Please try again.', 'jetpack' ), {
+					type: 'snackbar',
 					id: 'jetpack-mcp-save-status',
 					explicitDismiss: true,
 				} );
@@ -297,6 +306,7 @@ export default function App() {
 					// The shared id keeps this surface last-outcome-wins: a
 					// success replaces a sticky error from an earlier attempt.
 					createSuccessNotice( __( 'Your AI settings have been saved.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 					} );
 					return true;
@@ -304,6 +314,7 @@ export default function App() {
 				() => {
 					// Errors must not auto-vanish before they're read.
 					createErrorNotice( __( 'Failed to save AI settings. Please try again.', 'jetpack' ), {
+						type: 'snackbar',
 						id: 'jetpack-ai-save-status',
 						explicitDismiss: true,
 					} );
@@ -423,6 +434,8 @@ export default function App() {
 					</Tabs.Root>
 				</div>
 			) }
+			{ /* Outside the padded content div, so it takes the page gutter via `inset`. */ }
+			<JitmSlot inset />
 			<div
 				className={ `jetpack-ai-admin__content${
 					view === 'scheduled-tasks' ? ' jetpack-ai-admin__content--scheduled-tasks' : ''
@@ -431,7 +444,6 @@ export default function App() {
 				{ isSubView && (
 					<BackEyebrow label={ VIEW_TITLES[ activeTab ] } onNavigate={ navigateToParent } />
 				) }
-				<GlobalNotices />
 
 				<PageNotice
 					state={ noticeState }
@@ -439,6 +451,7 @@ export default function App() {
 					userConnectionUrl={ userConnectionUrl }
 					manageUrl={ manageUrl }
 					hasMyJetpack={ hasMyJetpack }
+					canConnectSite={ canConnectSite }
 				/>
 
 				{ isMcpContext && (
@@ -531,6 +544,7 @@ export default function App() {
 							<AiFeatures
 								settings={ aiSettings }
 								isUserConnected={ isUserConnected }
+								masterForcedOff={ masterForcedOff }
 								savingKeys={ aiSavingKeys }
 								onUpdate={ handleAiSettingsUpdate }
 							/>

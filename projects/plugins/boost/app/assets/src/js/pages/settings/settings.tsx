@@ -13,10 +13,16 @@ import MinifyJs from '$features/minify-js/minify-js';
 import { ModuleSurfaceProvider } from '$features/module/surface';
 import PageCacheModule from '$features/page-cache/page-cache';
 import RenderBlockingJs from '$features/render-blocking-js/render-blocking-js';
+import { useRef } from 'react';
+import { recordBoostEvent } from '$lib/utils/analytics';
+import { useSettingsExposure, useSettingsVisit } from '$lib/utils/use-settings-exposure';
+import type { SettingsGroup } from '$lib/utils/use-settings-exposure';
 import styles from './settings.module.scss';
 import type { ComponentProps, ReactNode } from 'react';
 
 const Group = ( {
+	group,
+	visit,
 	title,
 	description,
 	summary,
@@ -24,48 +30,74 @@ const Group = ( {
 	defaultOpen = true,
 	children,
 }: {
+	group: SettingsGroup;
+	visit: ReturnType< typeof useSettingsVisit >;
 	title: string;
 	description?: string;
 	summary?: ReactNode;
 	icon: ComponentProps< typeof Icon >[ 'icon' ];
 	defaultOpen?: boolean;
 	children: ReactNode;
-} ) => (
-	<CollapsibleCard.Root defaultOpen={ defaultOpen }>
-		<CollapsibleCard.Header render={ <h2 /> }>
-			<Stack direction="column" gap="md">
-				<Stack direction="row" align="center" gap="sm" wrap="wrap">
-					<Card.Title>
-						<Stack direction="row" align="center" gap="sm">
-							<Icon icon={ icon } />
-							{ title }
-						</Stack>
-					</Card.Title>
-					{ summary && (
-						<CollapsibleCard.HeaderDescription>{ summary }</CollapsibleCard.HeaderDescription>
+} ) => {
+	const header = useRef< HTMLHeadingElement >( null );
+	const openState = useRef( defaultOpen );
+	useSettingsExposure( header, { visit, group, open: openState } );
+
+	return (
+		<CollapsibleCard.Root
+			defaultOpen={ defaultOpen }
+			// WordPress forwards Base UI event details, but its callback type omits them.
+			onOpenChange={ ( open, eventDetails?: { reason: string } ) => {
+				openState.current = open;
+				if ( eventDetails?.reason === 'trigger-press' ) {
+					recordBoostEvent( 'settings_group_toggle', { group, status: open ? 'open' : 'close' } );
+				}
+			} }
+		>
+			<CollapsibleCard.Header ref={ header } render={ <h3 /> }>
+				<Stack direction="column" gap="md">
+					<Stack direction="row" align="center" gap="sm" wrap="wrap">
+						<Card.Title>
+							<Stack direction="row" align="center" gap="sm">
+								<Icon icon={ icon } />
+								{ title }
+							</Stack>
+						</Card.Title>
+						{ summary && (
+							<CollapsibleCard.HeaderDescription>{ summary }</CollapsibleCard.HeaderDescription>
+						) }
+					</Stack>
+					{ description && (
+						<CollapsibleCard.HeaderDescription>{ description }</CollapsibleCard.HeaderDescription>
 					) }
 				</Stack>
-				{ description && (
-					<CollapsibleCard.HeaderDescription>{ description }</CollapsibleCard.HeaderDescription>
-				) }
-			</Stack>
-		</CollapsibleCard.Header>
-		<CollapsibleCard.Content>
-			<Stack direction="column" gap="xl" className={ styles.rows }>
-				{ children }
-			</Stack>
-		</CollapsibleCard.Content>
-	</CollapsibleCard.Root>
-);
+			</CollapsibleCard.Header>
+			<CollapsibleCard.Content>
+				<Stack direction="column" gap="xl" className={ styles.rows }>
+					{ children }
+				</Stack>
+			</CollapsibleCard.Content>
+		</CollapsibleCard.Root>
+	);
+};
 
-const Settings = () => {
+const Settings = ( { active = true }: { active?: boolean } ) => {
 	const summary = useCornerstoneSummary( false );
+	const section = useRef< HTMLDivElement >( null );
+	const visit = useSettingsVisit( active );
+	useSettingsExposure( section, { visit } );
 
 	return (
 		<ModuleSurfaceProvider value="row">
-			<Stack direction="column" gap="xl" className={ styles.settings }>
+			<Stack ref={ section } direction="column" gap="xl" className={ styles.settings }>
 				<Group
-					title={ __( 'Cornerstone pages', 'jetpack-boost' ) }
+					group="cornerstone_pages"
+					visit={ visit }
+					title={ __( 'Cornerstone Pages', 'jetpack-boost' ) }
+					description={ __(
+						'Choose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
+						'jetpack-boost'
+					) }
 					summary={ summary }
 					icon={ desktop }
 					defaultOpen={ false }
@@ -73,6 +105,8 @@ const Settings = () => {
 					<CornerstonePagesCard />
 				</Group>
 				<Group
+					group="page_loading"
+					visit={ visit }
 					title={ __( 'Page loading', 'jetpack-boost' ) }
 					description={ __(
 						'Manage how your page content is loaded for visitors.',
@@ -86,6 +120,8 @@ const Settings = () => {
 					<RenderBlockingJs />
 				</Group>
 				<Group
+					group="code_optimization"
+					visit={ visit }
 					title={ __( 'Code optimization', 'jetpack-boost' ) }
 					description={ __( 'Reduce the code needed to load your site.', 'jetpack-boost' ) }
 					icon={ code }
@@ -94,6 +130,8 @@ const Settings = () => {
 					<MinifyCss />
 				</Group>
 				<Group
+					group="images"
+					visit={ visit }
 					title={ __( 'Images', 'jetpack-boost' ) }
 					description={ __(
 						'Tools to load and deliver images more efficiently.',

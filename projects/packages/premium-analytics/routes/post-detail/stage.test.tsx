@@ -3,7 +3,11 @@ import {
 	useRaisePeriodChange,
 	useReportScope,
 } from '@jetpack-premium-analytics/data';
-import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
+import {
+	PRESET_ALL_TIME,
+	computePrimaryRange,
+	createTZDateFromParts,
+} from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -13,6 +17,7 @@ import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+let mockDateFilterOverrides: Record< string, unknown > = {};
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -42,6 +47,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		timeZone: 'UTC',
 		interval: 'day',
 		intervalOptions: [ 'day', 'week' ],
+		...mockDateFilterOverrides,
 	} ),
 } ) );
 
@@ -211,13 +217,15 @@ jest.mock( '@wordpress/route', () => ( {
 
 jest.mock( './components', () => ( {
 	postHeaderSlots: ( {
+		summary,
 		variant,
 		performanceRange,
 	}: {
+		summary: { isLoading?: boolean };
 		variant?: string;
 		performanceRange?: { from?: Date; to?: Date };
 	} ) => ( {
-		title: 'Post summary',
+		title: summary.isLoading ? 'Loading summary' : 'Post summary',
 		subTitle: (
 			<>
 				<span data-testid="header-variant">{ variant }</span>
@@ -230,6 +238,9 @@ jest.mock( './components', () => ( {
 } ) );
 
 let mockActiveTab = 'traffic';
+let mockEmailNotSent = false;
+let mockEmailSendPending = false;
+let mockFixedLayout: unknown[] = [];
 
 // The pinned email scope the stage hands to the tabs hook and the header.
 const mockEmailScope = {
@@ -264,7 +275,9 @@ jest.mock( './hooks', () => ( {
 		],
 		activeTab: mockActiveTab,
 		setActiveTab: jest.fn(),
-		layout: [],
+		layout: mockFixedLayout,
+		isEmailNotSent: mockEmailNotSent,
+		isEmailSendPending: mockEmailSendPending,
 	} ) ),
 } ) );
 
@@ -305,6 +318,8 @@ describe( 'post detail stage', () => {
 		jest.clearAllMocks();
 		mockSearch = { from: '2026-06-01', to: '2026-06-16', post_id: '41' };
 		mockActiveTab = 'traffic';
+		mockEmailNotSent = false;
+		mockEmailSendPending = false;
 	} );
 
 	it( 'shows the date filter on the traffic tab', () => {
@@ -330,7 +345,60 @@ describe( 'post detail stage', () => {
 			'2026-06-22T00:00:00.000Z'
 		);
 		// The tabs hook receives the pinned params for the email tabs' widgets.
-		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith( 41, mockEmailScope.reportParams, false );
+		expect( mockUsePostDetailTabs ).toHaveBeenCalledWith(
+			41,
+			mockEmailScope.reportParams,
+			false,
+			'post'
+		);
+	} );
+
+	it( 'replaces an email tab’s header and widgets with the not-sent state for a post never sent', () => {
+		mockActiveTab = 'email-opens';
+		mockEmailNotSent = true;
+		mockSummary();
+
+		render( stage() );
+
+		// The email header would claim a send date the post never had.
+		expect( screen.queryByText( 'Post summary' ) ).not.toBeInTheDocument();
+		expect( screen.getByText( 'This post hasn’t been sent as a newsletter' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: /Learn more/ } ) ).toHaveAttribute(
+			'href',
+			'https://jetpack.com/support/newsletter/'
+		);
+	} );
+
+	it( 'keeps the email header a skeleton while the send check is pending', () => {
+		mockActiveTab = 'email-opens';
+		mockEmailSendPending = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Loading summary' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Post summary' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'draws the Post traffic header while the send check is pending', () => {
+		mockEmailSendPending = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the Post traffic tab’s header for a post never sent', () => {
+		mockEmailNotSent = true;
+		mockSummary();
+
+		render( stage() );
+
+		expect( screen.getByText( 'Post summary' ) ).toBeInTheDocument();
+		expect(
+			screen.queryByText( 'This post hasn’t been sent as a newsletter' )
+		).not.toBeInTheDocument();
 	} );
 
 	it( 'draws attention to a period a card set, and lets it go once shown', async () => {
@@ -614,4 +682,54 @@ describe( 'post detail stage', () => {
 			expect( breadcrumbs.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
 		}
 	);
+} );
+
+describe( 'post detail stage on the provisional all-time window', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockSearch = { post_id: '41' };
+		mockActiveTab = 'traffic';
+		mockFixedLayout = [ { uuid: 'card', type: 'jpa/card' } ];
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC' ),
+		};
+	} );
+
+	afterEach( () => {
+		mockFixedLayout = [];
+		mockDateFilterOverrides = {};
+	} );
+
+	it( 'holds the range tab until all time anchors on the publish day', () => {
+		mockSummary( { isLoading: true, publishedDate: undefined } );
+
+		render( stage() );
+
+		expect( mockUseTabLayout ).toHaveBeenLastCalledWith( expect.anything(), 'traffic', [] );
+	} );
+
+	it( 'keeps an email tab composed, since it reports over the send window', () => {
+		mockActiveTab = 'email-opens';
+		mockSummary( { isLoading: true, publishedDate: undefined } );
+
+		render( stage() );
+
+		expect( mockUseTabLayout ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			'email-opens',
+			mockFixedLayout
+		);
+	} );
+
+	it( 'offers Retry in place of the widgets when the publish day cannot load', async () => {
+		const refetch = jest.fn();
+		mockSummary( { isError: true, publishedDate: undefined, refetch } );
+
+		render( stage() );
+
+		expect( screen.queryByText( 'Post widgets without comparison' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
 } );

@@ -288,7 +288,7 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
 		// The site language and the copy written into pages, for the public-facing content.
-		$this->assertSame( get_locale(), $data['site']['language'] );
+		$this->assertSame( wpcom_ai_launchpad_site_locale(), $data['site']['language'] );
 		// The reader's own language, which the AI writes the task subtitles in.
 		$this->assertSame( determine_locale(), $data['user_language'] );
 		$this->assertSame( wpcom_ai_launchpad_site_copy(), $data['site']['copy'] );

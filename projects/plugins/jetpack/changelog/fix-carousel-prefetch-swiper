@@ -1,4 +1,0 @@
-Significance: patch
-Type: other
-
-Carousel: Prefetch the Swiper library so the first click on a gallery image does not wait for it.

@@ -26,6 +26,7 @@
  * @package automattic/jetpack
  */
 
+use Automattic\Jetpack\Plugin\Admin_Chrome_Logo;
 use Automattic\Jetpack\Plugin\Footer_Links;
 use Automattic\Jetpack\Redirect;
 use Automattic\Jetpack\Status;
@@ -39,16 +40,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Wires the unified Jetpack header, footer and contained layout onto Akismet's admin pages.
  */
 class Akismet_Admin_Chrome {
-
-	/**
-	 * The green Jetpack logo mark, sized via the `height` attribute by callers.
-	 *
-	 * @param int $height Pixel height of the logo.
-	 * @return string SVG markup.
-	 */
-	private function jetpack_logo( $height ) {
-		return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" height="' . (int) $height . '" class="jp-akismet-logo" aria-hidden="true"><path fill="#069e08" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z"></path></svg>';
-	}
 
 	/**
 	 * The Akismet logo mark — the green rounded square with the white "A", taken from
@@ -344,7 +335,7 @@ class Akismet_Admin_Chrome {
 		?>
 		<footer class="jp-akismet-footer jetpack-footer" aria-label="<?php esc_attr_e( 'Jetpack', 'jetpack' ); ?>" role="contentinfo">
 			<div class="jp-akismet-footer__logo">
-				<?php echo $this->jetpack_logo( 16 ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
+				<?php echo Admin_Chrome_Logo::render( 16, 'jp-akismet-logo' ); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- static SVG. ?>
 				<span><?php esc_html_e( 'Jetpack', 'jetpack' ); ?></span>
 			</div>
 			<?php if ( ! ( new Host() )->is_wpcom_platform() && Footer_Links::is_my_jetpack_available() ) : ?>

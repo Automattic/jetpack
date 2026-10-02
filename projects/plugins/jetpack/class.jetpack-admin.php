@@ -72,6 +72,7 @@ class Jetpack_Admin {
 		add_action( 'admin_init', array( $jetpack_react, 'react_redirects' ), 0 );
 		add_action( 'admin_menu', array( $jetpack_react, 'add_actions' ), 998 );
 		add_action( 'admin_menu', array( $jetpack_react, 'remove_jetpack_menu' ), 2000 );
+		add_action( 'admin_menu', array( $jetpack_settings, 'maybe_load_wp_build' ), 1 );
 		add_action( 'jetpack_admin_menu', array( $jetpack_settings, 'add_actions' ) );
 		add_action( 'jetpack_admin_menu', array( $this, 'admin_menu_debugger' ) );
 		add_action( 'jetpack_admin_menu', array( $fallback_page, 'add_actions' ) );

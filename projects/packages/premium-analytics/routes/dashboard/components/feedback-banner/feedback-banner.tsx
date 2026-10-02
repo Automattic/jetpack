@@ -9,6 +9,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { useFeedbackBanner } from '../../hooks/use-feedback-banner';
 import styles from './feedback-banner.module.scss';
+import type { JSX } from 'react';
 
 type FeedbackBannerProps = {
 	/**
@@ -30,7 +31,7 @@ export function FeedbackBanner( { enabled }: FeedbackBannerProps ): JSX.Element 
 	} );
 
 	const message = __(
-		"Tell us what's better, what's worse, and what you miss about the new Traffic and Insights tabs.",
+		"Tell us what's better, what's worse, and what you miss about the new Stats.",
 		'jetpack-premium-analytics-pkg'
 	);
 

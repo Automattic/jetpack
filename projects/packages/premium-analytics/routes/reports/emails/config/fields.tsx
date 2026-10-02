@@ -3,7 +3,13 @@
  */
 import { parseSiteDateTime } from '@jetpack-premium-analytics/datetime';
 import { formatDate, formatMetricValue } from '@jetpack-premium-analytics/formatters';
-import { formatEmailRate, PostDetailLink } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	compareOptionalNumbers,
+	formatEmailRate,
+	getKnownEmailRate,
+	PostDetailLink,
+	type EmailRateSignals,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -33,6 +39,30 @@ function formatSentDate( value: unknown ): string {
 
 	return date ? formatDate( date ) : '—';
 }
+
+/**
+ * The counts behind a summary row's open rate.
+ *
+ * @param item - The email summary row.
+ * @return The open rate's signals.
+ */
+export const getOpensRateSignals = ( item: StatsEmailSummaryItem ): EmailRateSignals => ( {
+	total: item.opens,
+	unique: item.unique_opens,
+	sends: item.total_sends,
+} );
+
+/**
+ * The counts behind a summary row's click rate.
+ *
+ * @param item - The email summary row.
+ * @return The click rate's signals.
+ */
+export const getClicksRateSignals = ( item: StatsEmailSummaryItem ): EmailRateSignals => ( {
+	total: item.clicks,
+	unique: item.unique_clicks,
+	sends: item.total_sends,
+} );
 
 /**
  * The display title for an email summary row, tolerating a non-string label.
@@ -108,15 +138,10 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 		{
 			id: 'opens_rate',
 			label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
-			getValue: ( { item } ) => item.opens_rate,
+			getValue: ( { item } ) => getKnownEmailRate( item.opens_rate, getOpensRateSignals( item ) ),
+			sort: compareOptionalNumbers,
 			render: ( { item } ) => (
-				<>
-					{ formatEmailRate( item.opens_rate, {
-						total: item.opens,
-						unique: item.unique_opens,
-						sends: item.total_sends,
-					} ) }
-				</>
+				<>{ formatEmailRate( item.opens_rate, getOpensRateSignals( item ) ) }</>
 			),
 		},
 		{
@@ -128,15 +153,10 @@ export function getEmailsFields(): Field< StatsEmailSummaryItem >[] {
 		{
 			id: 'clicks_rate',
 			label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
-			getValue: ( { item } ) => item.clicks_rate,
+			getValue: ( { item } ) => getKnownEmailRate( item.clicks_rate, getClicksRateSignals( item ) ),
+			sort: compareOptionalNumbers,
 			render: ( { item } ) => (
-				<>
-					{ formatEmailRate( item.clicks_rate, {
-						total: item.clicks,
-						unique: item.unique_clicks,
-						sends: item.total_sends,
-					} ) }
-				</>
+				<>{ formatEmailRate( item.clicks_rate, getClicksRateSignals( item ) ) }</>
 			),
 		},
 	];

@@ -23,8 +23,16 @@ const connectionSelectors = {
 	getConnectedPlugins: state => state.connectedPlugins || [],
 	getConnectionOwner: state => state.connectionOwner || null,
 	getConnectionErrors: state => state.connectionErrors || [],
-	getConnectionHealthErrors: state => state.connectionHealthErrors || {},
 	getIsOfflineMode: state => state.isOfflineMode || false,
+
+	/*
+	 * Protected owner. Each is `null` when the server withheld it from a viewer who cannot manage
+	 * the connection, which is not the same as `false`: a caller that must tell "no" from "cannot
+	 * say" compares against null rather than treating the value as a boolean.
+	 */
+	getHasProtectedOwner: state => state.hasProtectedOwner ?? null,
+	getRequiresProtectedOwner: state => state.requiresProtectedOwner ?? null,
+	getUseDefaultProtectedOwnerUi: state => state.useDefaultProtectedOwnerUi ?? null,
 
 	getWpcomUser,
 	getBlogId,

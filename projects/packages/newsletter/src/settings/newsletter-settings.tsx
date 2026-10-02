@@ -35,6 +35,7 @@ import {
 	WelcomeEmailSection,
 } from './sections';
 import type { NewsletterSettings } from './types';
+import type { JSX } from 'react';
 
 /**
  * Normalize settings from API response.
@@ -128,8 +129,8 @@ export type NewsletterSettingsBodyProps = {
  * byte-for-byte identical.
  *
  * Snackbar dispatch goes straight to `@wordpress/notices`'s
- * `noticesStore` — the wp-build polyfills already render a `SnackbarList`
- * for us, and the legacy app wraps the body with its own `<GlobalNotices />`
+ * `noticesStore` — the wp-build polyfills already render `SnackbarNotices`
+ * for us, and the legacy app mounts its own `<SnackbarNotices />`
  * surface, so both paths see the same snackbars without a shared rendering
  * primitive.
  *
@@ -188,9 +189,8 @@ export function NewsletterSettingsBody( {
 	// Get newsletter script data.
 	const newsletterScriptData = useMemo( () => getNewsletterScriptData(), [] );
 
-	// Snackbar notices via core data — `type: 'snackbar'` matches what the
-	// legacy `useGlobalNotices` defaulted to, so both legacy and modernized
-	// surfaces render the same snackbars.
+	// Snackbar notices via core data — `type: 'snackbar'` is required so
+	// both legacy and modernized surfaces render them in SnackbarNotices.
 	const { createNotice } = useDispatch( noticesStore );
 	const createSuccessNotice = useCallback(
 		( content: string ) => createNotice( 'success', content, { type: 'snackbar' } ),

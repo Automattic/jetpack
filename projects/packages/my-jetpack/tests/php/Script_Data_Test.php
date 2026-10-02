@@ -84,13 +84,13 @@ class Script_Data_Test extends BaseTestCase {
 	 */
 	public function test_adds_the_products_section() {
 		$filter = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
-		$this->assertNull( Initializer::add_admin_script_data( array() )['myJetpack']['productsSection'] );
+		$this->assertSame( 'features', Initializer::add_admin_script_data( array() )['myJetpack']['productsSection']['slug'] );
 
-		add_filter( $filter, '__return_true' );
+		add_filter( $filter, '__return_false' );
 		$data = Initializer::add_admin_script_data( array() );
 		remove_all_filters( $filter );
 
-		$this->assertSame( 'features', $data['myJetpack']['productsSection']['slug'] );
+		$this->assertNull( $data['myJetpack']['productsSection'] );
 	}
 
 	/**

@@ -3,7 +3,12 @@
  */
 import { renderHook } from '@testing-library/react';
 import { getSettings, setSettings } from '@wordpress/date';
-import { DETAIL_SURFACE_PRESETS, dateToISOStringWithTZ } from '@jetpack-premium-analytics/datetime';
+import {
+	DETAIL_SURFACE_PRESETS,
+	PRESET_ALL_TIME,
+	computePrimaryRange,
+	dateToISOStringWithTZ,
+} from '@jetpack-premium-analytics/datetime';
 /**
  * Internal dependencies
  */
@@ -47,14 +52,16 @@ describe( 'useDetailDateControls', () => {
 			useDetailDateControls( '2026-07-08 00:29:35', filters() )
 		);
 
-		expect( result.current ).toMatchObject( {
+		expect( result.current.dateControls ).toMatchObject( {
 			presetIds: DETAIL_SURFACE_PRESETS,
 			withIntervalControl: false,
 		} );
 		// Unset, not false: the panel's own default is what offers Custom range.
-		expect( result.current ).not.toHaveProperty( 'withCustomRange' );
+		expect( result.current.dateControls ).not.toHaveProperty( 'withCustomRange' );
 		// Half past midnight in Taipei, not in the runner's zone.
-		expect( result.current.allTimeStart?.toISOString() ).toBe( '2026-07-07T16:29:35.000Z' );
+		expect( result.current.dateControls.allTimeStart?.toISOString() ).toBe(
+			'2026-07-07T16:29:35.000Z'
+		);
 	} );
 
 	it( 'reads an offset-bearing publish instant as given', () => {
@@ -62,16 +69,19 @@ describe( 'useDetailDateControls', () => {
 			useDetailDateControls( '2026-07-08 10:29:35Z', filters() )
 		);
 
-		expect( result.current.allTimeStart?.toISOString() ).toBe( '2026-07-08T10:29:35.000Z' );
+		expect( result.current.dateControls.allTimeStart?.toISOString() ).toBe(
+			'2026-07-08T10:29:35.000Z'
+		);
 	} );
 
 	it( 'leaves all time unanchored while the publish date is unknown or unreadable', () => {
 		expect(
-			renderHook( () => useDetailDateControls( undefined, filters() ) ).result.current.allTimeStart
+			renderHook( () => useDetailDateControls( undefined, filters() ) ).result.current.dateControls
+				.allTimeStart
 		).toBeUndefined();
 		expect(
 			renderHook( () => useDetailDateControls( 'not a date', filters() ) ).result.current
-				.allTimeStart
+				.dateControls.allTimeStart
 		).toBeUndefined();
 	} );
 
@@ -129,5 +139,47 @@ describe( 'useDetailDateControls', () => {
 		);
 
 		expect( replaceRange ).not.toHaveBeenCalled();
+	} );
+} );
+
+describe( 'useDetailDateControls anchoring', () => {
+	const PUBLISHED = new Date( '2026-07-08T00:00:00+08:00' );
+	const PROVISIONAL = computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE );
+	const ANCHORED = computePrimaryRange( PRESET_ALL_TIME, TIME_ZONE, { startDate: PUBLISHED } );
+
+	it.each( [
+		[ 'holds widgets while the start is still loading', undefined, PROVISIONAL, true, true ],
+		[ 'releases them once the start will not arrive', undefined, PROVISIONAL, false, false ],
+		[ 'holds them until the range moves to the start', PUBLISHED, PROVISIONAL, false, true ],
+		[ 'releases them once anchored', PUBLISHED, ANCHORED, false, false ],
+		[
+			'never holds a reload already anchored while the start loads',
+			undefined,
+			ANCHORED,
+			true,
+			false,
+		],
+	] )( '%s', ( _case, start, appliedRange, isStartPending, expected ) => {
+		const { result } = renderHook( () =>
+			useDetailDateControls(
+				start?.toISOString(),
+				filters( { appliedPresetId: 'all-time', appliedRange } ),
+				isStartPending
+			)
+		);
+
+		expect( result.current.isAnchoringAllTime ).toBe( expected );
+	} );
+
+	it( 'never holds a range that is not all time', () => {
+		const { result } = renderHook( () =>
+			useDetailDateControls(
+				undefined,
+				filters( { appliedPresetId: 'last-7-days', appliedRange: PROVISIONAL } ),
+				true
+			)
+		);
+
+		expect( result.current.isAnchoringAllTime ).toBe( false );
 	} );
 } );

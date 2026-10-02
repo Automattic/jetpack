@@ -52,6 +52,31 @@ const attributes = {
 };
 
 describe( 'buildRequestData', () => {
+	describe( 'integration_mode', () => {
+		// BUTTON mode is what makes PayPal answer with the SDK snippet.
+		it( 'sends BUTTON mode for a stacked block', () => {
+			expect(
+				buildRequestData( { ...attributes, format: 'STACKED' }, true ).integration_mode
+			).toBe( 'BUTTON' );
+		} );
+
+		// Two blocks can share one payment, and a downgrade drops the code_snippets
+		// the stacked one draws from.
+		it( 'keeps the mode the payment already has', () => {
+			expect(
+				buildRequestData( { ...attributes, format: 'LINK', integrationMode: 'BUTTON' }, true )
+					.integration_mode
+			).toBe( 'BUTTON' );
+		} );
+
+		it( 'falls back to LINK before the payment has been read', () => {
+			expect(
+				buildRequestData( { ...attributes, format: 'LINK', integrationMode: '' }, true )
+					.integration_mode
+			).toBe( 'LINK' );
+		} );
+	} );
+
 	it( 'sends every field the block models, with the option prices in the product currency', () => {
 		expect( buildRequestData( attributes, true ) ).toEqual( {
 			type: 'BUY_NOW',
@@ -63,7 +88,6 @@ describe( 'buildRequestData', () => {
 					name: 'Widget',
 					description: 'A fine widget.',
 					product_id: 'SKU-1',
-					image_url: 'https://example.com/widget.png',
 					variants: {
 						dimensions: [
 							{
@@ -130,11 +154,15 @@ describe( 'buildRequestData', () => {
 		expect( item ).not.toHaveProperty( 'variants' );
 	} );
 
-	it( 'leaves the image out when the block has none', () => {
-		const item = buildRequestData( { ...attributes, imageUrl: undefined }, true ).line_items[ 0 ];
-
-		expect( item ).not.toHaveProperty( 'image_url' );
-	} );
+	// The image stays on the site.
+	it.each( [ 'https://example.com/widget.png', 'http://example.com/widget.png', undefined ] )(
+		'leaves the image out when it is %p',
+		imageUrl => {
+			expect(
+				buildRequestData( { ...attributes, imageUrl }, true ).line_items[ 0 ]
+			).not.toHaveProperty( 'image_url' );
+		}
+	);
 
 	// PayPal renders its own label to the buyer, so the merchant's string goes
 	// nowhere - and requiring one threw the whole tax away.

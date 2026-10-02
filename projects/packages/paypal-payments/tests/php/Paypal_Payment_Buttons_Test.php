@@ -7,19 +7,45 @@
 
 namespace Automattic\Jetpack\PaypalPayments;
 
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+
+require_once __DIR__ . '/trait-paypal-resource-fixtures.php';
+require_once __DIR__ . '/trait-paypal-tracks-events.php';
 
 /**
  * Class Paypal_Payment_Buttons_Test
  *
  * @coversDefaultClass Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons
  * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Payment_Buttons
+ * @covers \Automattic\Jetpack\PaypalPayments\PayPal_Tracks
  */
 #[CoversClass( PayPal_Payment_Buttons::class )]
+#[CoversClass( PayPal_Tracks::class )]
 class Paypal_Payment_Buttons_Test extends TestCase {
+
+	use PayPal_Resource_Fixtures;
+	use PayPal_Tracks_Events;
+
+	/**
+	 * The `jetpack_stats_extra` calls made so far, as key and value pairs.
+	 *
+	 * @var array[]
+	 */
+	private $stats_extras = array();
+
+	/**
+	 * Give the site the blog id Tracks events carry, and capture the view counter.
+	 */
+	protected function setUp(): void {
+		parent::setUp();
+		// Constants::set_constant() only fakes IS_WPCOM, so blog_id comes from the Jetpack `id` option.
+		\Jetpack_Options::update_option( 'id', 1234 );
+		add_action( 'jetpack_stats_extra', array( $this, 'capture_stats_extra' ), 10, 2 );
+	}
 
 	/**
 	 * Clean up after each test.
@@ -33,7 +59,34 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		\WP_Block_Supports::$block_to_render = null;
 
 		remove_all_filters( self::FLAG_FILTER );
+		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
+		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
+		wp_set_current_user( 0 );
+		PayPal_OAuth::delete_credentials();
 		Feature_Flags::reset();
+
+		// The Tracks cases change the request, the query and the user.
+		unset( $GLOBALS['jetpack_paypal_test_captured_events'], $_GET['theme_preview'] );
+		Constants::clear_constants();
+		remove_filter( 'wp_doing_ajax', '__return_true' );
+		remove_action( 'jetpack_stats_extra', array( $this, 'capture_stats_extra' ), 10 );
+		set_current_screen( 'front' );
+		// WP_Query::init() leaves is_embed set, so start from a fresh query.
+		$GLOBALS['wp_query']     = new \WP_Query();
+		$GLOBALS['wp_customize'] = null;
+		delete_option( PayPal_OAuth::ENVIRONMENT_OPTION_KEY );
+		delete_option( PayPal_API_Client::DELETED_RESOURCES_OPTION );
+		\Jetpack_Options::delete_option( 'id' );
+	}
+
+	/**
+	 * Record a `jetpack_stats_extra` call.
+	 *
+	 * @param string $key   The stat group.
+	 * @param string $value The stat.
+	 */
+	public function capture_stats_extra( $key, $value ) {
+		$this->stats_extras[] = array( $key, $value );
 	}
 
 	/**
@@ -161,6 +214,23 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
+	 * Content can render before the visible pass, so a legacy stacked button draws its
+	 * container and render call on every render.
+	 */
+	public function test_a_legacy_stacked_button_renders_on_every_pass() {
+		$attributes = array(
+			'buttonType'     => 'stacked',
+			'scriptSrc'      => 'https://www.paypal.com/sdk/js?client-id=test',
+			'hostedButtonId' => 'LEGACYTWICE',
+		);
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' ) . PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertSame( 2, substr_count( $html, 'id="paypal-container-LEGACYTWICE"' ) );
+		$this->assertSame( 2, $this->count_render_calls( 'LEGACYTWICE' ) );
+	}
+
+	/**
 	 * A `file:` asset field here makes core register the editor bundle a second time,
 	 * on top of the copy load_editor_scripts() already enqueues.
 	 */
@@ -242,172 +312,586 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that valid PayPal URLs pass through unchanged.
+	 * An API-managed block on a BUTTON-mode payment.
 	 *
-	 * @dataProvider valid_paypal_urls_provider
-	 *
-	 * @param string $url The URL to test.
+	 * @param array $extra Attributes to add or override.
+	 * @return array
 	 */
-	#[DataProvider( 'valid_paypal_urls_provider' )]
-	public function test_valid_paypal_urls_pass_through( $url ) {
-		$result = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url );
+	private function stacked_attributes( array $extra = array() ) {
+		return array_merge(
+			array(
+				'isApiManaged' => true,
+				'format'       => 'STACKED',
+				'resourceId'   => 'PLB-STACKED1',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-STACKED1',
+				'productName'  => 'Widget',
+				'price'        => '10.00',
+				'currencyCode' => 'USD',
+				'scriptSrc'    => 'https://www.paypal.com/sdk/js?client-id=abc',
+			),
+			$extra
+		);
+	}
 
-		$this->assertNotFalse( $result, "URL should not return false: $url" );
+	public function test_render_block_stacked_draws_the_sdk_container() {
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
 
-		// Parse both URLs to compare hosts
-		$original_parsed = wp_parse_url( $url );
-		$result_parsed   = wp_parse_url( $result );
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
-		$this->assertEquals( $original_parsed['host'], $result_parsed['host'], "Host should remain unchanged for valid PayPal URL: $url" );
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $html );
+		// PayPal draws the whole card, so the block adds nothing around the container.
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__button', $html );
 	}
 
 	/**
-	 * Data provider for valid PayPal URLs.
-	 *
-	 * @return array
+	 * The block path puts the block wrapper around PayPal's container.
 	 */
-	public static function valid_paypal_urls_provider() {
-		return array(
-			'paypal.com'                              => array( 'https://www.paypal.com/sdk/js' ),
-			'paypal.com subdomain'                    => array( 'https://www.paypal.com/sdk/js?client-id=test' ),
-			'paypal.com subdomain with escaped query' => array( 'https://www.paypal.com/sdk/js?client-id=test&amp;currency=USD' ),
-			'sandbox.paypal.com'                      => array( 'https://www.sandbox.paypal.com/sdk/js' ),
-			'sandbox.paypal.com with query'           => array( 'https://www.sandbox.paypal.com/sdk/js?client-id=test&currency=USD' ),
-			'www.paypal.com'                          => array( 'https://www.paypal.com/webapps/xoplatform' ),
-			'www.sandbox.paypal.com'                  => array( 'https://www.sandbox.paypal.com/webapps/xoplatform' ),
+	public function test_render_block_stacked_wraps_the_container_in_the_block_wrapper() {
+		register_block_type_from_metadata(
+			dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons',
+			array( 'render_callback' => array( PayPal_Payment_Buttons::class, 'render_block' ) )
+		);
+
+		$html = do_blocks(
+			'<!-- wp:jetpack/paypal-payment-buttons ' . wp_json_encode(
+				$this->stacked_attributes(
+					array(
+						'resourceId'  => 'PLB-WRAP1',
+						'paymentLink' => 'https://www.paypal.com/ncp/payment/PLB-WRAP1',
+					)
+				),
+				JSON_UNESCAPED_SLASHES
+			) . ' /-->'
+		);
+
+		unregister_block_type( 'jetpack/paypal-payment-buttons' );
+
+		$this->assertMatchesRegularExpression(
+			'#class="[^"]*wp-block-jetpack-paypal-payment-buttons[^"]*"[^>]*><div id="paypal-container-PLB-WRAP1"></div></div>#',
+			$html
+		);
+	}
+
+	public function test_render_block_stacked_falls_back_to_the_single_button_on_an_empty_script_src() {
+		// PayPal grants the mode per account, and an empty scriptSrc means it has yet
+		// to. The editor says so on every save, and the published page still has to sell.
+		$attributes = $this->stacked_attributes( array( 'scriptSrc' => '' ) );
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__button', $html );
+		$this->assertStringNotContainsString( 'paypal-container-', $html );
+	}
+
+	public function test_render_block_stacked_falls_back_when_the_script_src_is_off_paypal() {
+		$attributes = $this->stacked_attributes( array( 'scriptSrc' => 'https://evil.example.com/sdk.js' ) );
+		$this->set_up_block_render_context( $attributes );
+
+		$html = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__button', $html );
+		$this->assertStringNotContainsString( 'evil.example.com', $html );
+	}
+
+	public function test_render_block_stacked_draws_the_container_on_every_render() {
+		// Content can render before the visible pass, so every pass keeps the container.
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		$first  = PayPal_Payment_Buttons::render_block( $attributes, '' );
+		$second = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $first );
+		$this->assertStringContainsString( 'id="paypal-container-PLB-STACKED1"', $second );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__button', $second );
+		$this->assertSame( 2, $this->count_render_calls( 'PLB-STACKED1' ) );
+	}
+
+	public function test_legacy_and_api_managed_stacked_blocks_share_one_sdk_tag() {
+		$attributes = $this->stacked_attributes();
+		$this->set_up_block_render_context( $attributes );
+
+		PayPal_Payment_Buttons::render_block( $attributes, '' );
+		PayPal_Payment_Buttons::render_block(
+			array(
+				'buttonType'     => 'stacked',
+				'scriptSrc'      => 'https://www.paypal.com/sdk/js?client-id=abc',
+				'hostedButtonId' => 'LEGACY1',
+			),
+			''
+		);
+
+		ob_start();
+		wp_scripts()->do_items( array( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE ) );
+		$html = (string) ob_get_clean();
+
+		$this->assertSame( 1, substr_count( $html, 'src="https://www.paypal.com/sdk/js' ) );
+		$this->assertSame( 1, substr_count( $html, 'data-namespace=' ) );
+		$this->assertSame( 1, substr_count( $html, 'data-paypal-partner-attribution-id=' ) );
+		$this->assertSame( 1, $this->count_render_calls( 'PLB-STACKED1' ) );
+		$this->assertSame( 1, $this->count_render_calls( 'LEGACY1' ) );
+	}
+
+	/**
+	 * Count the queued HostedButtons render calls for a button id.
+	 *
+	 * @param string $hosted_button_id The hosted button id.
+	 * @return int
+	 */
+	private function count_render_calls( $hosted_button_id ) {
+		$after = (array) wp_scripts()->get_data( PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE, 'after' );
+		return substr_count( implode( '', $after ), '.render("#paypal-container-' . $hosted_button_id . '")' );
+	}
+
+	public function test_tag_paypal_sdk_script_adds_the_namespace_and_the_partner_attribution_id() {
+		$tag = PayPal_Payment_Buttons::tag_paypal_sdk_script(
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+			'<script src="https://www.paypal.com/sdk/js"></script>',
+			PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE
+		);
+
+		$this->assertStringContainsString( 'data-namespace="paypal_payment_buttons"', $tag );
+		$this->assertStringContainsString(
+			'data-paypal-partner-attribution-id="' . PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID . '"',
+			$tag
+		);
+	}
+
+	public function test_tag_paypal_sdk_script_leaves_other_scripts_alone() {
+		// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+		$other = '<script src="https://example.com/app.js"></script>';
+
+		$this->assertSame( $other, PayPal_Payment_Buttons::tag_paypal_sdk_script( $other, 'some-other-handle' ) );
+	}
+
+	public function test_sdk_host_endpoint_waits_for_the_feature_flag() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION ) );
+
+		remove_all_actions( 'init' );
+	}
+
+	public function test_sdk_host_endpoint_is_registered_once_the_flag_is_on() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse(
+			has_action( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION ),
+			'The editor cannot draw the stacked preview without this endpoint.'
+		);
+		// The frame is for logged-in editors, so the nopriv twin stays off.
+		$this->assertFalse(
+			has_action( 'admin_post_nopriv_' . PayPal_Payment_Buttons::SDK_HOST_ACTION )
+		);
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::SDK_HOST_ACTION );
+	}
+
+	public function test_sdk_host_styles_include_both_sizing_rules() {
+		// Losing either rule clips every stacked card in the editor.
+		$print = new \ReflectionMethod( PayPal_Payment_Buttons::class, 'print_sdk_host_styles' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$print->setAccessible( true );
+		}
+
+		ob_start();
+		$print->invoke( null );
+		$css = preg_replace( '/\s+/', ' ', (string) ob_get_clean() );
+
+		$this->assertStringContainsString( 'body { margin: 0; }', $css );
+		$this->assertStringContainsString( 'body > div { display: flow-root; }', $css );
+	}
+
+	public function test_sdk_host_url_points_at_the_admin_post_action() {
+		$this->assertStringContainsString(
+			'action=' . PayPal_Payment_Buttons::SDK_HOST_ACTION,
+			PayPal_Payment_Buttons::get_sdk_host_url()
 		);
 	}
 
 	/**
-	 * Test that invalid URLs are rejected and return false.
+	 * Both states of the API-managed buttons flag.
 	 *
-	 * @dataProvider invalid_urls_provider
-	 *
-	 * @param string $url The URL to test.
+	 * @return array<string, array<int, bool>>
 	 */
-	#[DataProvider( 'invalid_urls_provider' )]
-	public function test_invalid_urls_are_rejected( $url ) {
-		$result = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url );
-		$this->assertFalse( $result, "URL should return false: $url" );
-	}
-
-	/**
-	 * Data provider for invalid URLs.
-	 *
-	 * @return array
-	 */
-	public static function invalid_urls_provider() {
+	public static function provide_flag_states() {
 		return array(
-			'empty string'              => array( '' ),
-			'attacker domain'           => array( 'https://attacker.example/x.js' ),
-			'attacker with paypal name' => array( 'https://paypal.com.evil.com/script.js' ),
-			'subdomain injection'       => array( 'https://evilpaypal.com/script.js' ),
-			'javascript protocol'       => array( 'javascript:alert(1)' ),
-			'data protocol'             => array( 'data:text/html,<script>alert(1)</script>' ),
-			'no host'                   => array( '/script.js' ),
-			'malformed url'             => array( 'not-a-url' ),
-			'paypal typo domain'        => array( 'https://paypai.com/script.js' ),
-			'different TLD'             => array( 'https://paypal.co/script.js' ),
+			'flag on'  => array( true ),
+			'flag off' => array( false ),
 		);
 	}
 
 	/**
-	 * Test that paths are preserved when sanitizing URLs.
+	 * Any editor user loads the editor script data, so it has only the SDK host URL. The
+	 * client id comes with an admin's read of a payment.
+	 *
+	 * @dataProvider provide_flag_states
+	 *
+	 * @param bool $enabled Whether the flag is on.
 	 */
-	public function test_paths_are_preserved() {
-		// Valid PayPal URL with path
-		$valid_url = 'https://www.paypal.com/sdk/js/some/deep/path.js';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+	#[DataProvider( 'provide_flag_states' )]
+	public function test_editor_script_data_has_only_the_sdk_host_url( $enabled ) {
+		add_filter( self::FLAG_FILTER, $enabled ? '__return_true' : '__return_false' );
+		PayPal_OAuth::store_credentials( 'stored-client-id', 'stored-client-secret' );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( '/sdk/js/some/deep/path.js', $result_parsed['path'] );
+		PayPal_Payment_Buttons::load_editor_scripts();
+
+		$this->assertSame(
+			array(
+				'window.jetpackPayPalPayments = ' . wp_json_encode(
+					array(
+						'sdkHostUrl'          => PayPal_Payment_Buttons::get_sdk_host_url(),
+						'onboardingReturnUrl' => PayPal_Payment_Buttons::get_onboarding_return_url(),
+					),
+					JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+				) . ';',
+			),
+			array_values( array_filter( (array) wp_scripts()->get_data( 'jp-paypal-payments-ncps-blocks', 'before' ) ) )
+		);
 	}
 
 	/**
-	 * Test that query parameters are preserved when sanitizing URLs.
+	 * PayPal reaches the return page from its own popup, which need not carry the
+	 * login cookie, so it has to answer logged-out requests as well.
 	 */
-	public function test_query_parameters_are_preserved() {
-		// Valid PayPal URL with query params
-		$valid_url = 'https://www.paypal.com/sdk/js?client-id=test&currency=USD&locale=en_US&amp;foo=bar';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+	public function test_onboarding_return_endpoint_answers_logged_in_and_logged_out_requests() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+		remove_all_actions( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'client-id=test&currency=USD&locale=en_US&foo=bar', $result_parsed['query'] );
+		PayPal_Payment_Buttons::register_feature_flags();
+		add_filter( self::FLAG_FILTER, '__return_true' );
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertNotFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+		$this->assertNotFalse( has_action( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+		remove_all_actions( 'admin_post_nopriv_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+	}
+
+	public function test_onboarding_return_endpoint_waits_for_the_feature_flag() {
+		remove_all_actions( 'init' );
+		remove_all_actions( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION );
+
+		PayPal_Payment_Buttons::register_feature_flags();
+
+		PayPal_Payment_Buttons::init_admin();
+		do_action( 'init' );
+
+		$this->assertFalse( has_action( 'admin_post_' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION ) );
+
+		remove_all_actions( 'init' );
+	}
+
+	public function test_onboarding_return_url_points_at_the_admin_post_action() {
+		$this->assertStringContainsString(
+			'action=' . PayPal_Payment_Buttons::ONBOARDING_RETURN_ACTION,
+			PayPal_Payment_Buttons::get_onboarding_return_url()
+		);
+		// PayPal caps return_url at 127 characters.
+		$this->assertLessThanOrEqual( 127, strlen( PayPal_Payment_Buttons::get_onboarding_return_url() ) );
 	}
 
 	/**
-	 * Test that fragments are stripped when sanitizing URLs.
-	 * PayPal SDK URLs don't use fragments, so they are not preserved.
+	 * The return page relays PayPal's query string to the editor and nothing else:
+	 * no site data goes on a page that answers logged-out requests.
 	 */
-	public function test_fragments_are_stripped() {
-		// Valid PayPal URL with fragment
-		$valid_url = 'https://www.paypal.com/sdk/js#section';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+	public function test_onboarding_return_page_relays_paypal_query_to_a_same_origin_window() {
+		PayPal_OAuth::store_credentials( 'stored-client-id', 'stored-client-secret' );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed );
+		$markup = PayPal_Payment_Buttons::onboarding_return_markup();
+
+		$this->assertStringContainsString( '"' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '"', $markup );
+		$this->assertStringContainsString( 'merchantIdInPayPal', $markup );
+		$this->assertStringContainsString( 'postMessage( message, window.location.origin )', $markup );
+		// The popup has no opener once it has been through paypal.com, so the
+		// channel is the delivery that counts.
+		$this->assertStringContainsString( 'new BroadcastChannel( "' . PayPal_Payment_Buttons::ONBOARDING_RETURN_MESSAGE . '" )', $markup );
+		$this->assertStringNotContainsString( 'stored-client', $markup );
 	}
 
 	/**
-	 * Test that all URL components work together.
+	 * The return page handler serves the markup covered above.
 	 */
-	public function test_all_url_components_together() {
-		// Valid PayPal URL with all components (fragment and port are stripped)
-		$valid_url = 'https://www.paypal.com:443/sdk/js?client-id=test&currency=USD&amp;foo=bar#init';
-		$result    = PayPal_Payment_Buttons::sanitize_paypal_script_url( $valid_url );
+	public function test_onboarding_return_page_is_served() {
+		/**
+		 * Stop at the first esc_html() in the markup, before the page reaches its exit().
+		 *
+		 * @return never
+		 * @throws \RuntimeException Always.
+		 */
+		$stop_at_the_markup = static function () {
+			throw new \RuntimeException( 'markup' );
+		};
+		$stopped_at         = null;
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'] );
-		$this->assertEquals( 'https', $result_parsed['scheme'] );
-		$this->assertEquals( '/sdk/js', $result_parsed['path'] );
-		$this->assertEquals( 'client-id=test&currency=USD&foo=bar', $result_parsed['query'] );
-		$this->assertArrayNotHasKey( 'fragment', $result_parsed, 'Fragment should be stripped' );
+		add_filter( 'esc_html', $stop_at_the_markup );
+
+		ob_start();
+		try {
+			PayPal_Payment_Buttons::render_onboarding_return();
+		} catch ( \RuntimeException $e ) {
+			$stopped_at = $e->getMessage();
+		} finally {
+			ob_end_clean();
+			remove_filter( 'esc_html', $stop_at_the_markup );
+		}
+
+		$this->assertSame( 'markup', $stopped_at );
 	}
 
 	/**
-	 * Test that HTTP scheme is upgraded to HTTPS.
+	 * The arguments wp_die() was last called with.
+	 *
+	 * @var array|null
 	 */
-	public function test_http_is_upgraded_to_https() {
-		// Valid PayPal URL with http should be upgraded to https
-		$http_url = 'http://www.paypal.com/sdk/js';
-		$result   = PayPal_Payment_Buttons::sanitize_paypal_script_url( $http_url );
+	private $wp_die_args = null;
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'https', $result_parsed['scheme'], 'HTTP should be upgraded to HTTPS' );
+	/**
+	 * A wp_die() handler that throws instead of ending the process, so the refusal
+	 * can be asserted on.
+	 *
+	 * @return callable
+	 */
+	public function throwing_wp_die_handler() {
+		/**
+		 * Record the wp_die() call and throw where it would have exited.
+		 *
+		 * @param string $message The wp_die() message.
+		 * @param string $title   The wp_die() title.
+		 * @param array  $args    The wp_die() arguments.
+		 * @return never
+		 * @throws \RuntimeException Always.
+		 */
+		return function ( $message, $title, $args ) {
+			$this->wp_die_args = array_merge(
+				array(
+					'message' => $message,
+					'title'   => $title,
+				),
+				$args
+			);
+			throw new \RuntimeException( 'wp_die' );
+		};
 	}
 
 	/**
-	 * Test that the XSS attack from the security report is mitigated.
+	 * Where run_sdk_host() stopped: 'wp_die' or 'markup'.
+	 *
+	 * @var string|null
 	 */
-	public function test_xss_attack_is_mitigated() {
-		$malicious_url = 'https://attacker.example/malicious.js';
-		$result        = PayPal_Payment_Buttons::sanitize_paypal_script_url( $malicious_url );
+	private $sdk_host_stopped_at = null;
 
-		$this->assertFalse( $result, 'Malicious URL should be rejected' );
+	/**
+	 * Run render_sdk_host() and return what it emitted.
+	 *
+	 * Both of its exits have to be caught. wp_die() ends the process, so its handler is
+	 * swapped for one that throws, and the page itself ends in exit(), so the esc_html()
+	 * on the <title> throws instead. Everything up to the title is within reach that way.
+	 *
+	 * @return string The markup emitted before the run was stopped.
+	 */
+	private function run_sdk_host() {
+		$this->wp_die_args         = null;
+		$this->sdk_host_stopped_at = null;
+
+		// The refusal copy goes through esc_html too, so let that one string past and a
+		// denied request still reaches wp_die(). Everything else the page escapes stops
+		// the run here, so a title copy change keeps working.
+		$stop_at_the_markup = static function ( $safe_text, $text ) {
+			if ( 'Sorry, you are not allowed to access this page.' !== $text ) {
+				throw new \RuntimeException( 'markup' );
+			}
+			return $safe_text;
+		};
+
+		add_filter( 'wp_die_handler', array( $this, 'throwing_wp_die_handler' ) );
+		add_filter( 'esc_html', $stop_at_the_markup, 10, 2 );
+
+		ob_start();
+		try {
+			PayPal_Payment_Buttons::render_sdk_host();
+		} catch ( \RuntimeException $e ) {
+			$this->sdk_host_stopped_at = $e->getMessage();
+		} finally {
+			$markup = ob_get_clean();
+			remove_filter( 'esc_html', $stop_at_the_markup, 10 );
+			remove_filter( 'wp_die_handler', array( $this, 'throwing_wp_die_handler' ) );
+		}
+
+		return $markup;
+	}
+
+	public function test_sdk_host_turns_away_a_logged_out_visitor() {
+		wp_set_current_user( 0 );
+
+		$markup = $this->run_sdk_host();
+
+		$this->assertSame(
+			'wp_die',
+			$this->sdk_host_stopped_at,
+			'Stopped in the markup: run_sdk_host() lets only the refusal copy past esc_html, so it has to match.'
+		);
+		$this->assertSame( 403, $this->wp_die_args['response'] ?? null );
+		$this->assertNotEmpty( $this->wp_die_args['message'] ?? '', 'A refusal has to say why.' );
+		$this->assertSame( '', $markup, 'A refusal serves no markup.' );
+	}
+
+	public function test_sdk_host_serves_the_frame_to_an_editor() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'sdk-host-editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+
+		$markup = $this->run_sdk_host();
+
+		$this->assertSame( 'markup', $this->sdk_host_stopped_at, 'An editor gets the frame.' );
+		$this->assertStringContainsString( '<!DOCTYPE html>', $markup );
+		$this->assertStringContainsString( '<meta charset=', $markup );
+		// The page has to include the stylesheet, not just be able to emit one.
+		$this->assertStringContainsString( 'display: flow-root;', $markup );
 	}
 
 	/**
-	 * Test that trailing dots in hostnames are normalized.
-	 * FQDNs can technically end with a dot (DNS root), so www.paypal.com. should be treated as www.paypal.com
+	 * Test that sanitize_paypal_script_url() returns what the shared URL table pins for
+	 * this side.
+	 *
+	 * The other half runs in tests/js/validation.test.js against sanitizePayPalUrl(). The
+	 * two are meant to be mirrors, so a rebuild that lands on one side only fails here.
+	 * The host list they share is pinned by test_paypal_host_allow_lists_are_in_sync()
+	 * instead.
+	 *
+	 * @dataProvider provide_url_parity_cases
+	 * @param string       $url      The URL a block attribute carries.
+	 * @param string|false $expected What this side has to return.
 	 */
-	public function test_trailing_dot_is_normalized() {
-		// Test with trailing dot
-		$url_with_dot = 'https://www.paypal.com./sdk/js';
-		$result       = PayPal_Payment_Buttons::sanitize_paypal_script_url( $url_with_dot );
+	#[DataProvider( 'provide_url_parity_cases' )]
+	public function test_sanitize_paypal_script_url_matches_the_shared_url_table( $url, $expected ) {
+		$this->assertSame( $expected, PayPal_Payment_Buttons::sanitize_paypal_script_url( $url ) );
+	}
 
-		$this->assertNotFalse( $result, 'URL with trailing dot should be accepted' );
+	/**
+	 * Test that the canvas checks the same PayPal hosts the published page does.
+	 *
+	 * The url-parity.json table covers the URLs, not the host list: a fifth host added on
+	 * one side only would still pass every row in it. The two lists are compared outright
+	 * instead, as Conditional_Logic_Parity_Test does in the forms package.
+	 */
+	public function test_paypal_host_allow_lists_are_in_sync() {
+		$path = __DIR__ . '/../../src/paypal-payment-buttons/utils/validation.js';
+		$this->assertFileExists( $path, 'validation.js moved; update this test to match.' );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'www.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped' );
+		$source = (string) file_get_contents( $path );
 
-		// Test sandbox with trailing dot
-		$sandbox_with_dot = 'https://sandbox.paypal.com./sdk/js';
-		$result           = PayPal_Payment_Buttons::sanitize_paypal_script_url( $sandbox_with_dot );
+		$matched = preg_match( '/export const ALLOWED_PAYPAL_DOMAINS = \[(.*?)\];/s', $source, $block );
+		$this->assertSame( 1, $matched, 'Could not locate ALLOWED_PAYPAL_DOMAINS in validation.js.' );
 
-		$this->assertNotFalse( $result, 'Sandbox URL with trailing dot should be accepted' );
+		preg_match_all( "/^\s*'([\w.-]+)',/m", $block[1], $matches );
+		$canvas = $matches[1];
+		$this->assertNotEmpty( $canvas, 'No hosts parsed from validation.js.' );
 
-		$result_parsed = wp_parse_url( $result );
-		$this->assertEquals( 'sandbox.paypal.com', $result_parsed['host'], 'Trailing dot should be stripped from sandbox' );
+		$published = PayPal_API_Client::ALLOWED_PAYPAL_DOMAINS;
+
+		sort( $canvas );
+		sort( $published );
+
+		$this->assertSame( $published, $canvas, 'Host drift between validation.js and PayPal_API_Client.' );
+	}
+
+	/**
+	 * Read one of the fixtures the JS suite also reads.
+	 *
+	 * A renamed or malformed fixture would otherwise leave a provider empty and the run
+	 * green, so every table the caller is about to read is checked first.
+	 *
+	 * @param string   $name   The file name under tests/fixtures.
+	 * @param string[] $tables The tables the caller reads.
+	 * @throws \RuntimeException When the fixture is unreadable or a table is missing.
+	 * @return array The decoded fixture.
+	 */
+	private static function load_parity_fixture( $name, array $tables ) {
+		$path    = __DIR__ . '/../fixtures/' . $name;
+		$fixture = json_decode( (string) file_get_contents( $path ), true );
+
+		// Checked before the loop, not inside it: an empty $tables would otherwise skip
+		// every check and hand the caller back whatever json_decode() made of the file.
+		if ( ! is_array( $fixture ) ) {
+			throw new \RuntimeException( 'Could not read ' . $path );
+		}
+
+		foreach ( $tables as $table ) {
+			if ( empty( $fixture[ $table ] ) ) {
+				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
+			}
+		}
+
+		return $fixture;
+	}
+
+	/**
+	 * The shared URL fixture, read from the file the JS suite reads.
+	 *
+	 * @throws \RuntimeException When the fixture is unreadable or has duplicate names.
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_url_parity_cases() {
+		$fixture = self::load_parity_fixture(
+			'url-parity.json',
+			array( 'accepted', 'rejected', 'strictEditor', 'parserSplit' )
+		);
+
+		$cases = array();
+
+		foreach ( $fixture['accepted'] as $case ) {
+			$cases[ 'accepts ' . $case['name'] ] = array( $case['url'], $case['sanitized'] );
+		}
+
+		foreach ( $fixture['rejected'] as $case ) {
+			$cases[ 'refuses ' . $case['name'] ] = array( $case['url'], false );
+		}
+
+		// Where the two sides part company. Each case pins this side's answer as well as
+		// the canvas's, so closing a gap fails just as loudly as opening one.
+		foreach ( array( 'strictEditor', 'parserSplit' ) as $table ) {
+			foreach ( $fixture[ $table ] as $case ) {
+				$cases[ $table . ': ' . $case['name'] ] = array( $case['url'], $case['php'] );
+			}
+		}
+
+		// A duplicate name would silently drop a case.
+		$expected = count( $fixture['accepted'] ) + count( $fixture['rejected'] )
+			+ count( $fixture['strictEditor'] ) + count( $fixture['parserSplit'] );
+
+		if ( count( $cases ) !== $expected ) {
+			throw new \RuntimeException( 'url-parity.json has duplicate case names' );
+		}
+
+		return $cases;
 	}
 
 	/**
@@ -570,13 +1054,14 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 */
 	public function test_render_block_labels_the_button_with_button_text() {
 		$attributes = array(
-			'isApiManaged' => true,
-			'resourceId'   => 'PLB-LABEL1',
-			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-LABEL1',
-			'productName'  => 'Widget',
-			'price'        => '10.00',
-			'currencyCode' => 'USD',
-			'buttonText'   => 'Checkout',
+			'isApiManaged'        => true,
+			'resourceId'          => 'PLB-LABEL1',
+			'paymentLink'         => 'https://www.paypal.com/ncp/payment/PLB-LABEL1',
+			'productName'         => 'Widget',
+			'price'               => '10.00',
+			'currencyCode'        => 'USD',
+			'buttonText'          => 'Checkout',
+			'buttonShowPoweredBy' => true,
 		);
 
 		$this->set_up_block_render_context( $attributes );
@@ -587,7 +1072,10 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'<span class="jetpack-paypal-button__button-text">Checkout</span>',
 			$result
 		);
-		$this->assertStringNotContainsString( 'jetpack-paypal-button__logo', $result );
+		// The wordmark belongs to the attribution line, not the button face.
+		$this->assertSame( 1, preg_match( '#<a [^>]*jetpack-paypal-button__checkout-link.*?</a>#s', $result, $button ) );
+		$this->assertStringNotContainsString( 'jetpack-paypal-button__logo', $button[0] );
+		$this->assertStringContainsString( 'jetpack-paypal-button__logo', $result );
 	}
 
 	/**
@@ -614,12 +1102,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the product card takes the margin and nothing else.
-	 *
-	 * Width and Border go on the button, so a revert that put them back on the
-	 * card has to fail here.
+	 * Test that Width sizes the card and Border stays on the button.
 	 */
-	public function test_render_button_leaves_width_and_border_off_the_card() {
+	public function test_render_button_puts_width_on_the_card_and_border_on_the_button() {
 		$result = $this->render_button_format(
 			array(
 				'blockWidth' => '75%',
@@ -630,17 +1115,25 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			)
 		);
 
-		$this->assertMatchesRegularExpression(
-			'/<div class="jetpack-paypal-button" style="margin-top:8px;">/',
-			$result
+		// The card takes Width and drops a margin left over from QR.
+		$this->assertSame(
+			array(
+				'max-width' => '100%',
+				'width'     => '75%',
+			),
+			$this->read_style( $result, 'class="jetpack-paypal-button"' )
+		);
+		$this->assertSame(
+			array( 'border-radius' => '6px' ),
+			$this->read_style( $result, 'class="jetpack-paypal-button__checkout-link wp-element-button"' )
 		);
 	}
 
 	/**
-	 * Test that the attribution line is off until the merchant asks for it.
+	 * Test that the attribution line is hidden when buttonShowPoweredBy is false.
 	 */
-	public function test_render_button_hides_the_attribution_by_default() {
-		$result = $this->render_button_format( array() );
+	public function test_render_button_hides_the_attribution_when_unchecked() {
+		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => false ) );
 
 		$this->assertStringNotContainsString( 'jetpack-paypal-button__attribution', $result );
 		// Positive control: the button itself still rendered.
@@ -648,15 +1141,37 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	}
 
 	/**
-	 * Test that buttonShowPoweredBy draws the attribution line.
+	 * Test that buttonShowPoweredBy draws "Powered by" and the PayPal wordmark.
+	 *
+	 * The word PayPal stays as text for screen readers, and style.scss draws it
+	 * as the wordmark.
 	 */
 	public function test_render_button_shows_the_attribution_when_asked() {
 		$result = $this->render_button_format( array( 'buttonShowPoweredBy' => true ) );
 
 		$this->assertStringContainsString(
-			'<p class="jetpack-paypal-button__attribution">Powered by PayPal</p>',
+			'<p class="jetpack-paypal-button__attribution">Powered by <span class="jetpack-paypal-button__logo">PayPal</span></p>',
 			$result
 		);
+	}
+
+	/**
+	 * Test that a block saved without buttonShowPoweredBy shows the attribution line.
+	 *
+	 * The editor leaves out attributes that match their block.json default.
+	 */
+	public function test_render_button_shows_the_attribution_by_default() {
+		register_block_type_from_metadata(
+			dirname( __DIR__, 2 ) . '/src/paypal-payment-buttons',
+			array( 'render_callback' => array( PayPal_Payment_Buttons::class, 'render_block' ) )
+		);
+
+		$html = do_blocks( '<!-- wp:jetpack/paypal-payment-buttons {"isApiManaged":true,"resourceId":"PLB-DEFAULT","paymentLink":"https://www.paypal.com/ncp/payment/PLB-DEFAULT"} /-->' );
+
+		unregister_block_type( 'jetpack/paypal-payment-buttons' );
+
+		$this->assertStringContainsString( '<p class="jetpack-paypal-button__attribution">', $html );
+		$this->assertStringContainsString( 'jetpack-paypal-button__logo', $html );
 	}
 
 	/**
@@ -1271,8 +1786,9 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * Test that the published page emits what the canvas emits.
 	 *
 	 * The other half of this table runs in tests/js/block-styles.test.js against
-	 * getMarginStyle(), getWidthAndBorderStyle(), getButtonStyle() and getTextStyle(). A value one side
-	 * drops and the other keeps is a divergence between the canvas and the published page, so it fails here.
+	 * getMarginStyle(), getWidthAndBorderStyle(), getWidthStyle(), getButtonStyle()
+	 * and getTextStyle(). A value one side drops and the other keeps is a
+	 * divergence between the canvas and the published page, so it fails here.
 	 *
 	 * @dataProvider provide_style_parity_cases
 	 * @param array  $attributes   The block attributes.
@@ -1314,6 +1830,71 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		ksort( $declarations );
 		$this->assertSame( $declarations, $actual );
+	}
+
+	/**
+	 * Test that the product card matches the editor preview.
+	 *
+	 * The same cases run against the preview in paypal-button-preview.test.jsx.
+	 *
+	 * @dataProvider provide_product_card_parity_cases
+	 * @param array       $attributes The block attributes.
+	 * @param string|null $card       The card's markup, or null for no card.
+	 */
+	#[DataProvider( 'provide_product_card_parity_cases' )]
+	public function test_render_block_product_card_matches_the_editor_preview( $attributes, $card ) {
+		$attributes = array_merge(
+			array(
+				'isApiManaged' => true,
+				'resourceId'   => 'PLB-CARD',
+				'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-CARD',
+				'format'       => 'BUTTON',
+			),
+			$attributes
+		);
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		// Positive control: the block itself rendered.
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $result );
+
+		if ( null === $card ) {
+			$this->assertStringNotContainsString( 'class="jetpack-paypal-button__product"', $result );
+			return;
+		}
+
+		// Each case lists the full card markup, so a match covers the whole card.
+		$this->assertStringContainsString( $card, $result );
+		$this->assertSame( 1, substr_count( $result, 'class="jetpack-paypal-button__product"' ) );
+	}
+
+	/**
+	 * Product card cases shared with the JS preview test.
+	 *
+	 * @throws \RuntimeException When the file is unreadable or repeats a case name.
+	 * @return array<string, array<int, mixed>>
+	 */
+	public static function provide_product_card_parity_cases() {
+		$path    = __DIR__ . '/../fixtures/product-card-parity.json';
+		$fixture = json_decode( (string) file_get_contents( $path ), true );
+
+		if ( ! is_array( $fixture ) || empty( $fixture['cases'] ) ) {
+			throw new \RuntimeException( 'Could not read cases from ' . $path );
+		}
+
+		$cases = array();
+		foreach ( $fixture['cases'] as $case ) {
+			$cases[ $case['name'] ] = array( $case['attributes'], $case['card'] );
+		}
+
+		// A repeated name would overwrite an earlier case.
+		if ( count( $cases ) !== count( $fixture['cases'] ) ) {
+			throw new \RuntimeException( 'product-card-parity.json has duplicate case names' );
+		}
+
+		return $cases;
 	}
 
 	/**
@@ -1419,22 +2000,20 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 	 * @return array<string, array<int, mixed>>
 	 */
 	public static function provide_style_parity_cases() {
-		$path    = __DIR__ . '/../fixtures/style-parity.json';
-		$fixture = json_decode( (string) file_get_contents( $path ), true );
-
-		foreach ( array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' ) as $table ) {
-			if ( ! is_array( $fixture ) || empty( $fixture[ $table ] ) ) {
-				throw new \RuntimeException( 'Could not read ' . $table . ' from ' . $path );
-			}
-		}
+		$fixture = self::load_parity_fixture(
+			'style-parity.json',
+			array( 'cases', 'textCases', 'rejectedCases', 'rejectedTextCases', 'buttonCases' )
+		);
 
 		$cases = array();
 
 		// The QR splits across two elements: the card takes margin, the frame
-		// inside it takes Width and the stroke. The JS half reads the same field.
+		// inside it takes Width and the stroke. The button card takes Width alone.
+		// The JS half reads the same field.
 		$targets = array(
-			'card'  => 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"',
-			'frame' => 'class="jetpack-paypal-button__qr-frame"',
+			'card'       => array( 'class="jetpack-paypal-button jetpack-paypal-button--qr-format"', 'QR' ),
+			'frame'      => array( 'class="jetpack-paypal-button__qr-frame"', 'QR' ),
+			'buttonCard' => array( 'class="jetpack-paypal-button"', 'BUTTON' ),
 		);
 
 		foreach ( $fixture['cases'] as $case ) {
@@ -1444,11 +2023,13 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 				throw new \RuntimeException( 'Unknown target on style-parity case: ' . $case['name'] );
 			}
 
+			list( $selector, $format ) = $targets[ $case['target'] ];
+
 			$cases[ $case['name'] ] = array(
 				$case['attributes'],
 				$case['declarations'],
-				$targets[ $case['target'] ],
-				'QR',
+				$selector,
+				$format,
 			);
 		}
 
@@ -1467,15 +2048,15 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		}
 
 		// The canvas refuses these too, so no element on either side may emit a
-		// declaration. Run against the button as well: width and border are emitted
-		// a second time there, onto a different element.
+		// declaration. Run against the button as well: the border is emitted a
+		// second time there, onto a different element.
 		foreach ( $fixture['rejectedCases'] as $case ) {
-			foreach ( $targets as $target => $selector ) {
+			foreach ( $targets as $target => list( $selector, $format ) ) {
 				$cases[ 'refuses ' . $case['name'] . ' on the ' . $target ] = array(
 					$case['attributes'],
 					array(),
 					$selector,
-					'QR',
+					$format,
 				);
 			}
 
@@ -1514,8 +2095,7 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			);
 		}
 
-		// A renamed or malformed fixture would otherwise yield an empty provider
-		// and a green run.
+		// A duplicate name would silently drop a case.
 		$expected = count( $fixture['cases'] )
 			+ count( $fixture['rejectedCases'] ) * ( count( $targets ) + 1 )
 			+ count( $fixture['buttonCases'] )
@@ -1581,13 +2161,18 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 	/**
 	 * Test that a hostile width cannot smuggle declarations either.
+	 *
+	 * @dataProvider provide_width_formats
+	 * @param string $format  The display format to render.
+	 * @param string $control A class the format renders.
 	 */
-	public function test_render_block_refuses_a_hostile_width() {
+	#[DataProvider( 'provide_width_formats' )]
+	public function test_render_block_refuses_a_hostile_width( $format, $control ) {
 		$attributes = array(
 			'isApiManaged' => true,
 			'resourceId'   => 'PLB-WIDTH',
 			'paymentLink'  => 'https://www.paypal.com/ncp/payment/PLB-WIDTH',
-			'format'       => 'QR',
+			'format'       => $format,
 			'blockWidth'   => '50%;background-image:url(https://evil.example/x.png)',
 		);
 
@@ -1597,7 +2182,19 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 
 		$this->assertStringNotContainsString( 'evil.example', $result );
 		$this->assertStringNotContainsString( 'max-width', $result );
-		$this->assertStringContainsString( 'jetpack-paypal-button__qr-canvas', $result );
+		$this->assertStringContainsString( $control, $result );
+	}
+
+	/**
+	 * The formats that take Width, each with a class it renders.
+	 *
+	 * @return array<string, array<int, string>>
+	 */
+	public static function provide_width_formats() {
+		return array(
+			'QR'     => array( 'QR', 'jetpack-paypal-button__qr-canvas' ),
+			'BUTTON' => array( 'BUTTON', 'jetpack-paypal-button__checkout-link' ),
+		);
 	}
 
 	/**
@@ -1708,6 +2305,72 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 			'https://evil.example.com/pay',
 			PayPal_Payment_Buttons::add_partner_attribution( 'https://evil.example.com/pay' )
 		);
+	}
+
+	public function test_get_partner_attribution_id_defaults_to_the_production_code() {
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_is_ignored_in_production() {
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_overrides_the_code_in_sandbox() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sandbox_BN' );
+
+		$this->assertSame( 'Sandbox_BN', PayPal_Payment_Buttons::get_partner_attribution_id() );
+		$this->assertStringContainsString(
+			'at_code=Sandbox_BN',
+			PayPal_Payment_Buttons::add_partner_attribution( 'https://www.paypal.com/ncp/payment/ABC123' )
+		);
+
+		$tag = PayPal_Payment_Buttons::tag_paypal_sdk_script(
+			// phpcs:ignore WordPress.WP.EnqueuedResources.NonEnqueuedScript -- A fixture of PayPal's snippet, not an enqueue.
+			'<script src="https://www.sandbox.paypal.com/sdk/js"></script>',
+			PayPal_Payment_Buttons::SDK_SCRIPT_HANDLE
+		);
+		$this->assertStringContainsString( 'data-paypal-partner-attribution-id="Sandbox_BN"', $tag );
+	}
+
+	/**
+	 * @dataProvider provide_unusable_sandbox_partner_attribution_values
+	 *
+	 * @param mixed $value What the filter returns.
+	 */
+	#[DataProvider( 'provide_unusable_sandbox_partner_attribution_values' )]
+	public function test_sandbox_partner_attribution_filter_falls_back_on_unusable_values( $value ) {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => $value );
+
+		$this->assertSame(
+			PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
+			PayPal_Payment_Buttons::get_partner_attribution_id()
+		);
+	}
+
+	public static function provide_unusable_sandbox_partner_attribution_values() {
+		return array(
+			'empty string'      => array( '' ),
+			'null'              => array( null ),
+			'array'             => array( array( 'Sandbox_BN' ) ),
+			'only unsafe chars' => array( '"><>& ' ),
+		);
+	}
+
+	public function test_sandbox_partner_attribution_filter_strips_unsafe_characters() {
+		PayPal_OAuth::set_environment( 'sandbox' );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'Sand"box <BN>&' );
+
+		$this->assertSame( 'SandboxBN', PayPal_Payment_Buttons::get_partner_attribution_id() );
 	}
 
 	// --- Per-option pricing display ---
@@ -2002,5 +2665,519 @@ class Paypal_Payment_Buttons_Test extends TestCase {
 		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
 
 		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">$9.99</span>', $result );
+	}
+
+	/**
+	 * Test that a link priced per option shows "From" the cheapest option above the option prices.
+	 */
+	public function test_render_block_lists_option_prices_under_a_from_headline() {
+		$attributes = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+
+		$this->set_up_block_render_context( $attributes );
+
+		$result = PayPal_Payment_Buttons::render_block( $attributes, '' );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__product-price">From $24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$24.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$29.50</span>', $result );
+		$this->assertStringContainsString( 'jetpack-paypal-button__variant-price">$34.50</span>', $result );
+		$this->assertSame( 3, substr_count( $result, 'jetpack-paypal-button__variant-price' ) );
+	}
+
+	// --- format_price ---
+
+	/**
+	 * Test that format_price puts the symbol before the price, including 0.
+	 */
+	public function test_format_price_adds_the_symbol() {
+		$this->assertSame( '$29.99', PayPal_Payment_Buttons::format_price( '29.99', 'USD' ) );
+		$this->assertSame( '$0', PayPal_Payment_Buttons::format_price( '0', 'USD' ) );
+		$this->assertSame( 'XYZ5', PayPal_Payment_Buttons::format_price( '5', 'XYZ' ) );
+	}
+
+	/**
+	 * Test that format_price returns '' for a blank price.
+	 *
+	 * @dataProvider provide_blank_prices
+	 *
+	 * @param mixed $price A blank price.
+	 */
+	#[DataProvider( 'provide_blank_prices' )]
+	public function test_format_price_is_empty_for_a_blank_price( $price ) {
+		$this->assertSame( '', PayPal_Payment_Buttons::format_price( $price, 'USD' ) );
+	}
+
+	/**
+	 * Blank prices.
+	 *
+	 * @return array<string, array{0: mixed}>
+	 */
+	public static function provide_blank_prices() {
+		return array(
+			'empty'      => array( '' ),
+			'whitespace' => array( '  ' ),
+			'null'       => array( null ),
+		);
+	}
+
+	// --- link_price ---
+
+	/**
+	 * Test that link_price shows a product price of 0.
+	 */
+	public function test_link_price_shows_a_product_price_of_zero() {
+		$attributes = array(
+			'price'        => '0',
+			'currencyCode' => 'USD',
+		);
+
+		$this->assertSame( '$0', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price is empty when the product and options are unpriced.
+	 */
+	public function test_link_price_is_empty_for_an_unpriced_link() {
+		$attributes = array(
+			'price'           => '',
+			'currencyCode'    => 'USD',
+			'variantsEnabled' => true,
+			'variants'        => array(
+				'dimensions' => array(
+					array(
+						'name'    => 'Size',
+						'primary' => true,
+						'options' => array(
+							array( 'label' => 'Small' ),
+							array( 'label' => 'Large' ),
+						),
+					),
+				),
+			),
+		);
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( array() ) );
+	}
+
+	/**
+	 * Test that link_price ignores option prices while options are off, since only enabled options go to PayPal.
+	 */
+	public function test_link_price_ignores_option_prices_when_options_are_off() {
+		$attributes                    = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+		$attributes['variantsEnabled'] = false;
+
+		$this->assertSame( '', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that link_price uses the option prices over a stale product price.
+	 */
+	public function test_link_price_uses_option_prices_over_a_stale_product_price() {
+		$attributes          = PayPal_Attribute_Mapper::api_response_to_attributes( self::get_per_option_resource() );
+		$attributes['price'] = '9.99';
+
+		$this->assertSame( 'From $24.50', PayPal_Payment_Buttons::link_price( $attributes ) );
+	}
+
+	/**
+	 * Test that resource_price formats the price of a PayPal payment resource.
+	 *
+	 * @dataProvider provide_priced_resources
+	 *
+	 * @param array  $resource A payment resource.
+	 * @param string $expected The formatted price.
+	 */
+	#[DataProvider( 'provide_priced_resources' )]
+	public function test_resource_price_formats_a_paypal_resource( $resource, $expected ) {
+		$this->assertSame( $expected, PayPal_Payment_Buttons::resource_price( $resource ) );
+	}
+
+	/**
+	 * Payment resources as PayPal returns them, and the price each one charges.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_priced_resources() {
+		return array(
+			'product price'  => array( self::get_product_price_resource(), '$11.00' ),
+			'priced options' => array( self::get_per_option_resource(), 'From $24.50' ),
+			'yen options'    => array( self::get_per_option_yen_resource(), 'From ¥1000' ),
+			'unpriced'       => array( array( 'line_items' => array( array( 'name' => 'Test' ) ) ), '' ),
+			'id only'        => array( array( 'id' => 'PLB-EMPTY' ), '' ),
+		);
+	}
+
+	// --- Sharing buttons ---
+
+	/**
+	 * A published post, for the sharing filter to look at.
+	 *
+	 * @param string $content The post content.
+	 * @return \WP_Post
+	 */
+	private function published_post( $content ) {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'   => 'Sharing',
+				'post_content' => $content,
+				'post_status'  => 'publish',
+			)
+		);
+
+		return get_post( $post_id );
+	}
+
+	public function test_sharing_is_enabled_on_a_post_with_the_block() {
+		$post = $this->published_post( '<!-- wp:jetpack/paypal-payment-buttons /-->' );
+
+		$this->assertTrue( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, $post ) );
+
+		wp_delete_post( $post->ID, true );
+	}
+
+	public function test_sharing_is_left_as_it_was_elsewhere() {
+		$post = $this->published_post( '<!-- wp:paragraph --><p>No buttons here.</p><!-- /wp:paragraph -->' );
+
+		$this->assertFalse( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, $post ) );
+		$this->assertFalse( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( false, null ) );
+		$this->assertTrue( PayPal_Payment_Buttons::enable_sharing_on_payment_pages( true, $post ) );
+
+		wp_delete_post( $post->ID, true );
+	}
+
+	// --- Tracks events ---
+
+	/**
+	 * Log a viewer in.
+	 *
+	 * @return int The user id.
+	 */
+	private function log_in() {
+		$user_id = username_exists( 'testviewer_payment_buttons' );
+		if ( ! $user_id ) {
+			$user_id = wp_insert_user(
+				array(
+					'user_login' => 'testviewer_payment_buttons',
+					'user_pass'  => wp_generate_password(),
+					'role'       => 'subscriber',
+				)
+			);
+		}
+
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Test that a logged-in view on Simple records one event, as the viewer.
+	 */
+	public function test_render_records_a_logged_in_view_on_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$user_id = $this->log_in();
+		PayPal_OAuth::set_environment( 'sandbox' );
+
+		$this->render_button_format(
+			array(
+				'format'          => 'LINK',
+				'integrationMode' => 'LINK',
+			)
+		);
+
+		$events = $GLOBALS['jetpack_paypal_test_captured_events'] ?? array();
+		$this->assertCount( 1, $events );
+		$this->assertSame( $user_id, $events[0]['user']->ID );
+		$this->assertSame( 'jetpack_paypal_button_rendered', $events[0]['event_name'] );
+		$this->assertSame(
+			array(
+				'environment'      => 'sandbox',
+				'format'           => 'LINK',
+				'integration_mode' => 'LINK',
+				'blog_id'          => 1234,
+				'platform'         => 'simple',
+			),
+			$events[0]['properties']
+		);
+	}
+
+	/**
+	 * Test that each block on a page records its own event.
+	 *
+	 * On wpcom, identical events from one page can merge into one. The test stub records every call.
+	 */
+	public function test_render_records_each_block() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$this->render_button_format( array() );
+		$this->render_button_format(
+			array(
+				'resourceId'  => 'PLB-BUTTON2',
+				'paymentLink' => 'https://www.paypal.com/ncp/payment/PLB-BUTTON2',
+			)
+		);
+
+		$this->assertCount( 2, $this->recorded_events() );
+	}
+
+	/**
+	 * Test that `format` is the allowlisted attribute, even when the block draws another format.
+	 *
+	 * @dataProvider provide_recorded_formats
+	 *
+	 * @param array  $attributes The block's format attributes.
+	 * @param string $expected   The format the event carries.
+	 */
+	#[DataProvider( 'provide_recorded_formats' )]
+	public function test_render_records_the_allowlisted_format( $attributes, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$this->render_button_format( $attributes );
+
+		$properties = $this->recorded_events()[0]['properties'] ?? array();
+		$this->assertArrayHasKey( 'format', $properties, 'Expected an event.' );
+		$this->assertSame( $expected, $properties['format'] );
+	}
+
+	/**
+	 * Format attributes and the format each one records.
+	 *
+	 * @return array<string, array{0: array, 1: string}>
+	 */
+	public static function provide_recorded_formats() {
+		$script_src = 'https://www.paypal.com/sdk/js?client-id=abc';
+
+		return array(
+			'stacked'                  => array(
+				array(
+					'format'    => 'STACKED',
+					'scriptSrc' => $script_src,
+				),
+				'STACKED',
+			),
+			// Draws the single button, but the merchant chose STACKED.
+			'stacked without script'   => array( array( 'format' => 'STACKED' ), 'STACKED' ),
+			'unknown, drawn as button' => array( array( 'format' => 'CHECKOUT' ), 'BUTTON' ),
+		);
+	}
+
+	/**
+	 * Test that only the two known integration modes are sent.
+	 *
+	 * @dataProvider provide_integration_modes
+	 *
+	 * @param string      $integration_mode The block's integrationMode.
+	 * @param string|null $expected         The recorded integration_mode, or null when left out.
+	 */
+	#[DataProvider( 'provide_integration_modes' )]
+	public function test_render_allowlists_the_integration_mode( $integration_mode, $expected ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$this->render_button_format( array( 'integrationMode' => $integration_mode ) );
+
+		$properties = $this->recorded_events()[0]['properties'] ?? array();
+		$this->assertArrayHasKey( 'format', $properties, 'Expected an event.' );
+		$this->assertSame( $expected, $properties['integration_mode'] ?? null );
+	}
+
+	/**
+	 * Values of integrationMode, and what the event carries for each.
+	 *
+	 * @return array<string, array{0: string, 1: string|null}>
+	 */
+	public static function provide_integration_modes() {
+		return array(
+			'BUTTON'      => array( 'BUTTON', 'BUTTON' ),
+			'the default' => array( '', null ),
+			'a hand-edit' => array( '</script><script>alert(1)</script>', null ),
+		);
+	}
+
+	/**
+	 * Test that each untracked context skips the event, while the block still renders.
+	 *
+	 * @dataProvider provide_untracked_contexts
+	 *
+	 * @param string $context The request context to render in.
+	 */
+	#[DataProvider( 'provide_untracked_contexts' )]
+	public function test_render_skips_the_event_in_an_untracked_context( $context ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+		$this->enter_context( $context );
+
+		$html = $this->render_button_format( array() );
+
+		// Positive control: the block still rendered.
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertSame( array(), $this->recorded_events() );
+	}
+
+	/**
+	 * Request contexts that skip the event.
+	 *
+	 * The is_frontend() check alone covers REST, feed, AJAX, admin, WP-CLI and wpcom CLI.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_untracked_contexts() {
+		return array(
+			'logged out'     => array( 'logged out' ),
+			'REST'           => array( 'REST_REQUEST' ),
+			'feed'           => array( 'is_feed' ),
+			'AJAX'           => array( 'ajax' ),
+			'admin'          => array( 'admin' ),
+			'WP-CLI'         => array( 'WP_CLI' ),
+			'wpcom CLI'      => array( 'WPCOM_CLI_SCRIPT' ),
+			'preview'        => array( 'is_preview' ),
+			'Customizer'     => array( 'customizer' ),
+			'theme preview'  => array( 'theme_preview' ),
+			'framed preview' => array( 'IFRAME_REQUEST' ),
+			'not found'      => array( 'is_404' ),
+			'embed'          => array( 'is_embed' ),
+		);
+	}
+
+	/**
+	 * Put the request into one of provide_untracked_contexts()'s contexts.
+	 *
+	 * @param string $context The context.
+	 */
+	private function enter_context( $context ) {
+		global $wp_customize;
+
+		switch ( $context ) {
+			case 'logged out':
+				wp_set_current_user( 0 );
+				break;
+			case 'REST_REQUEST':
+			case 'WP_CLI':
+			case 'WPCOM_CLI_SCRIPT':
+			case 'IFRAME_REQUEST':
+				Constants::set_constant( $context, true );
+				break;
+			case 'is_feed':
+			case 'is_preview':
+			case 'is_404':
+			case 'is_embed':
+				$GLOBALS['wp_query']->$context = true;
+				break;
+			case 'ajax':
+				// Infinite Scroll's later pages. A DOING_AJAX constant would leak into later tests.
+				add_filter( 'wp_doing_ajax', '__return_true' );
+				break;
+			case 'admin':
+				set_current_screen( 'dashboard' );
+				break;
+			case 'customizer':
+				require_once ABSPATH . WPINC . '/class-wp-customize-manager.php';
+				$wp_customize = new \WP_Customize_Manager();
+				$previewing   = new \ReflectionProperty( $wp_customize, 'previewing' );
+				if ( PHP_VERSION_ID < 80100 ) {
+					$previewing->setAccessible( true );
+				}
+				$previewing->setValue( $wp_customize, true );
+				break;
+			case 'theme_preview':
+				$_GET['theme_preview'] = 'true';
+				break;
+		}
+	}
+
+	/**
+	 * Test that a logged-in view off Simple bumps only the view counter, since the Tracks call would block the page there.
+	 */
+	public function test_render_bumps_only_the_view_counter_off_simple() {
+		$this->log_in();
+
+		$this->render_button_format( array() );
+
+		$this->assertSame( array(), $this->recorded_events() );
+		$this->assertSame( array( array( 'block_view', 'paypal_payment_buttons' ) ), $this->stats_extras );
+	}
+
+	/**
+	 * Test that a logged-out view on Simple bumps the view counter.
+	 */
+	public function test_render_bumps_the_view_counter_logged_out() {
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		$this->render_button_format( array() );
+
+		$this->assertSame( array( array( 'block_view', 'paypal_payment_buttons' ) ), $this->stats_extras );
+	}
+
+	/**
+	 * Test that the Tracks call stays server-side, out of the block markup.
+	 */
+	public function test_render_keeps_tracking_out_of_the_markup() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$html = $this->render_button_format( array( 'integrationMode' => 'LINK' ) );
+
+		$this->assertStringContainsString( 'jetpack-paypal-button__checkout-link', $html );
+		$this->assertStringNotContainsString( '_tkq', $html );
+		$this->assertStringNotContainsString( 'jetpack_paypal', $html );
+	}
+
+	/**
+	 * Test that a dropped block skips both the event and the view counter.
+	 *
+	 * @dataProvider provide_unrendered_blocks
+	 *
+	 * @param array $attributes Attributes that make the render return early.
+	 */
+	#[DataProvider( 'provide_unrendered_blocks' )]
+	public function test_render_skips_tracking_for_a_dropped_block( $attributes ) {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+		PayPal_API_Client::remember_deleted_resource( 'PLB-BUTTON-GONE' );
+
+		$this->render_button_format( $attributes );
+
+		$this->assertSame( array(), $this->recorded_events() );
+		$this->assertSame( array(), $this->stats_extras );
+	}
+
+	/**
+	 * Blocks that hit one of the render's early returns.
+	 *
+	 * @return array<string, array{0: array}>
+	 */
+	public static function provide_unrendered_blocks() {
+		return array(
+			'empty link'      => array( array( 'paymentLink' => '' ) ),
+			'deleted link'    => array(
+				array(
+					'resourceId'  => 'PLB-BUTTON-GONE',
+					'paymentLink' => 'https://www.paypal.com/ncp/payment/PLB-BUTTON-GONE',
+				),
+			),
+			'off-PayPal link' => array( array( 'paymentLink' => 'https://evil.example.com/pay' ) ),
+		);
+	}
+
+	/**
+	 * Test that a paste-code block skips the event.
+	 */
+	public function test_render_skips_the_event_for_a_paste_code_block() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->log_in();
+
+		$html = PayPal_Payment_Buttons::render_block(
+			array(
+				'buttonType'     => 'single',
+				'hostedButtonId' => 'LEGACYTRACKED',
+				'buttonText'     => 'Buy',
+			),
+			''
+		);
+
+		$this->assertStringContainsString( 'LEGACYTRACKED', $html );
+		$this->assertSame( array(), $this->recorded_events() );
 	}
 }

@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add a REST route to read and change the Stats settings, for the Settings tab in the Stats dashboard.

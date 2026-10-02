@@ -73,7 +73,6 @@ class Options_Module_Test extends BaseTestCase {
 			'id'              => 1,
 			'protected_owner' => array(
 				'wpcom_user_id' => 4242,
-				'locked'        => true,
 			),
 		);
 

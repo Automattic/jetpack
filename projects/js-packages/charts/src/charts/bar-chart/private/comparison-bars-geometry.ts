@@ -3,9 +3,8 @@ export type ComparisonRect = { x: number; y: number; width: number; height: numb
 type ValueScale = ( ( v: number ) => number ) & { range: () => unknown[] };
 
 /**
- * Output position of a value scale's baseline: zero if in-domain, else the
- * nearest range edge. Mirrors visx's getScaleBaseline so comparison shadows
- * sit on the same baseline as primary bars.
+ * Mirrors visx's getScaleBaseline so comparison shadows and primary bars
+ * share the same baseline, including out-of-domain zero values.
  *
  * @param {ValueScale} scale - The continuous value scale.
  * @return {number} The baseline output position in pixels.
@@ -20,9 +19,7 @@ export function getValueScaleBaseline( scale: ValueScale ): number {
 			? Math.min( Math.max( minOutput, maybeZero ), maxOutput )
 			: maxOutput;
 	}
-	return Number.isFinite( maybeZero )
-		? Math.min( Math.max( maybeZero, minOutput ), maxOutput )
-		: minOutput;
+	return Number.isFinite( maybeZero ) ? Math.max( maybeZero, minOutput ) : minOutput;
 }
 
 /**

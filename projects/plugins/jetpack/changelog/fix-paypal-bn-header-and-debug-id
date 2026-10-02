@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+PayPal Payment Buttons: Show PayPal's debug ID in API error messages so failed requests can be traced with PayPal support.

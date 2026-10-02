@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch;
 use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
@@ -115,86 +116,86 @@ class Sharing_Admin {
 	/**
 	 * Save changes to sharing settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests() instead.
 	 *
 	 * @return void
 	 */
 	public function process_requests() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::process_requests' );
 	}
 
 	/**
 	 * Register Sharing settings menu page in Settings > Sharing.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu() instead.
 	 *
 	 * @return void
 	 */
 	public function subscription_menu() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::register_menu' );
 	}
 
 	/**
 	 * Save changes to sharing services via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_save_services() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_services' );
 	}
 
 	/**
 	 * Create a new custom sharing service via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_new_service() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_new_service' );
 	}
 
 	/**
 	 * Delete a sharing service via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_delete_service() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_delete_service' );
 	}
 
 	/**
 	 * Save changes to sharing settings via AJAX.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options() instead.
 	 *
 	 * @return void
 	 */
 	public function ajax_save_options() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::ajax_save_options' );
 	}
 
 	/**
 	 * Display a preview of a sharing service.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview() instead.
 	 *
 	 * @param object $service Sharing service object.
 	 *
 	 * @return void
 	 */
 	public function output_preview( $service ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_preview' );
 	}
 
 	/**
 	 * Display a specific sharing service.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service() instead.
 	 *
 	 * @param string $id            Service unique ID.
 	 * @param object $service       Sharing service.
@@ -203,104 +204,96 @@ class Sharing_Admin {
 	 * @return void
 	 */
 	public function output_service( $id, $service, $show_dropdown = false ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::output_service' );
 	}
 
 	/**
 	 * Display admin UI within a Jetpack header and footer.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function wrapper_admin_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Sharing settings inner page structure.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render() instead.
 	 *
 	 * @return void
 	 */
 	public function management_page() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page::render' );
 	}
 
 	/**
 	 * Check if we should encourage to use the site editor instead of the legacy sharing settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Environment instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Environment instead.
 	 *
 	 * @return bool
 	 */
 	public function should_use_site_editor() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Environment' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Environment' );
 		return false;
 	}
 
 	/**
 	 * Display services admin UI for settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render() instead.
 	 *
 	 * @return void
 	 */
 	public function services_config_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Services_Config::render' );
 	}
 
 	/**
 	 * Display sharing block admin UI for settings.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function sharing_block_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
 	}
 
 	/**
 	 * Display the "Go to the site editor" prompt.
 	 *
-	 * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
+	 * @deprecated 16.3 Use Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render() instead.
 	 *
 	 * @return void
 	 */
 	public function site_editor_prompt_display() {
-		_deprecated_function( __METHOD__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
+		_deprecated_function( __METHOD__, 'jetpack-16.3', 'Automattic\Jetpack\Sharing_Likes\Settings\Sharing_Section::render' );
 	}
 }
 
 /**
  * Callback to get the value for the jetpack_sharing_enabled field.
  *
- * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 1, we disable sharing on the post, regardless of the global setting.
- * It is not possible to enable sharing on a post if it is disabled globally.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value() instead.
  *
  * @param array $post The post object.
  *
  * @return bool
  */
 function jetpack_post_sharing_get_value( array $post ) {
-	if ( ! isset( $post['id'] ) ) {
-		return false;
-	}
-
-	// if sharing IS disabled on this post, enabled=false, so negate the meta
-	return ! get_post_meta( $post['id'], 'sharing_disabled', true );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value' );
+	return Post_Sharing_Switch::get_value( $post );
 }
 
 /**
  * Callback to set sharing_disabled post_meta when the
  * jetpack_sharing_enabled field is updated.
  *
- * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 1, we disable sharing on the post, regardless of the global setting.
- * It is not possible to enable sharing on a post if it is disabled globally.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value() instead.
  *
  * @param bool    $enable_sharing Should sharing be enabled on this post.
  * @param WP_Post $post_object    The post object.
@@ -308,51 +301,21 @@ function jetpack_post_sharing_get_value( array $post ) {
  * @return int|bool
  */
 function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
-	if ( $enable_sharing ) {
-		// delete the override if we want to enable sharing
-		return delete_post_meta( $post_object->ID, 'sharing_disabled' );
-	} else {
-		return update_post_meta( $post_object->ID, 'sharing_disabled', true );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value' );
+	return Post_Sharing_Switch::update_value( $enable_sharing, $post_object );
 }
 
 /**
  * Add Sharing post_meta to the REST API Post response.
  *
- * @action rest_api_init
- * @uses register_rest_field
- * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field() instead.
  */
 function jetpack_post_sharing_register_rest_field() {
-	$post_types = get_post_types( array( 'public' => true ) );
-	foreach ( $post_types as $post_type ) {
-		register_rest_field(
-			$post_type,
-			'jetpack_sharing_enabled',
-			array(
-				'get_callback'    => 'jetpack_post_sharing_get_value',
-				'update_callback' => 'jetpack_post_sharing_update_value',
-				'schema'          => array(
-					'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
-					'type'        => 'boolean',
-				),
-			)
-		);
-
-		/**
-		 * Ensures all public internal post-types support `sharing`
-		 * This feature support flag is used by the REST API and Gutenberg.
-		 */
-		add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field' );
+	Post_Sharing_Switch::register_rest_field();
 }
 
-// Add Sharing post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_sharing_register_rest_field' );
-
-// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
-// restapi_theme_init because they depend on theme support, so let's also hook to that
-add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+Post_Sharing_Switch::init();
 
 /**
  * Initialize sharing settings in WP Admin.

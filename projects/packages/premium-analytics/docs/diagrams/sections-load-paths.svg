@@ -38,7 +38,7 @@
   <text class="muted" x="515" y="82" text-anchor="middle">before init</text>
   <rect class="box" x="840" y="42" width="150" height="56" rx="4"/>
   <text class="title" x="915" y="66" text-anchor="middle">script data filter</text>
-  <text class="mono" x="915" y="82" text-anchor="middle">preview_sections</text>
+  <text class="mono" x="915" y="82" text-anchor="middle">sections</text>
   <polyline class="edge" points="425,70 445,70" marker-end="url(#arrow)"/>
   <polyline class="edge" points="585,70 605,70" marker-end="url(#arrow)"/>
   <polyline class="edge" points="820,70 840,70" marker-end="url(#arrow)"/>

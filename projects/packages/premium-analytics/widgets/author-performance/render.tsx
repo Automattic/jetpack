@@ -4,6 +4,7 @@
 import { STATS_CHART_BUCKET_PERIODS, toAuthorId } from '@jetpack-premium-analytics/data';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -15,7 +16,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -59,6 +60,9 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 			{
 				key: 'views',
 				label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+				countLabel: count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
 				value: current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 			},
@@ -94,6 +98,7 @@ function AuthorPerformanceInner( { chartType }: AuthorPerformanceInnerProps ) {
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

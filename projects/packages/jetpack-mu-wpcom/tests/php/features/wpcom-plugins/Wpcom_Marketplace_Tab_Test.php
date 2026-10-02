@@ -105,6 +105,9 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	public function tear_down() {
 		delete_transient( Marketplace_Catalog::LIST_CACHE_KEY );
 		remove_filter( self::FLAG_FILTER, '__return_true' );
+		wp_set_current_user( 0 );
+		\Jetpack_Options::delete_option( 'id' );
+		delete_site_transient( 'update_plugins' );
 
 		parent::tear_down();
 	}
@@ -287,16 +290,50 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The tab renders its own grid, so it has no listing to serve through the plugin
-	 * API. Anything still asking for one is a .org query and not ours to answer.
+	 * The tab's own query is answered from the catalog, in sales order, on one page.
 	 */
-	public function test_plugins_api_does_not_answer_listings() {
+	public function test_plugins_api_lists_the_catalog_for_the_tab() {
 		$this->enable_tab();
-		$this->seed_catalog( array( 'gravityforms' => Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+		$this->seed_catalog(
+			array(
+				'gravityforms' => $this->priced_card(),
+				'second'       => array_merge( $this->priced_card(), array( 'slug' => 'second' ) ),
+			)
+		);
 
-		$this->assertFalse(
+		$result = wpcom_marketplace_serve_plugins_api( false, 'query_plugins', (object) array( 'wpcom_marketplace' => true ) );
+
+		$this->assertSame( array( 'gravityforms', 'second' ), array_column( $result->plugins, 'slug' ) );
+		$this->assertSame( 2, $result->info['results'] );
+		$this->assertSame( 1, $result->info['pages'] );
+	}
+
+	/**
+	 * Core's list table shows an unreadable catalog as its own error, with a Try Again button.
+	 */
+	public function test_plugins_api_reports_an_empty_catalog() {
+		$this->enable_tab();
+		$this->seed_catalog( array() );
+
+		$this->assertInstanceOf(
+			WP_Error::class,
 			wpcom_marketplace_serve_plugins_api( false, 'query_plugins', (object) array( 'wpcom_marketplace' => true ) )
 		);
+	}
+
+	/**
+	 * Core has no query for a tab it does not know, so the tab asks for the whole catalog.
+	 */
+	public function test_table_args_ask_for_the_whole_catalog_on_one_page() {
+		$this->assertFalse( wpcom_marketplace_table_args( false ), 'Flag off.' );
+
+		$this->enable_tab();
+		$this->seed_catalog( array( 'gravityforms' => $this->priced_card() ) );
+		$args = wpcom_marketplace_table_args( false );
+
+		$this->assertTrue( $args['wpcom_marketplace'] );
+		$this->assertSame( 1, $args['page'] );
+		$this->assertSame( 1, $args['per_page'] );
 	}
 
 	/**
@@ -772,7 +809,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The card's action buys the plugin, at the one term the tab sells.
+	 * The card's action buys the plugin, at the one term the tab sells, styled as core's Install Now.
 	 */
 	public function test_button_targets_yearly_checkout() {
 		require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -782,7 +819,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 
 		$this->assertStringContainsString( 'gravityforms_yearly', $button );
 		$this->assertStringNotContainsString( 'gravityforms_monthly', $button );
-		$this->assertStringContainsString( 'button-primary', $button );
+		$this->assertStringContainsString( 'class="button button-compact"', $button );
 		$this->assertStringContainsString( 'Purchase', $button );
 	}
 
@@ -815,22 +852,38 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * The switcher is gone. A control for the whole screen was a lot of furniture
-	 * for a choice that belongs to one purchase, and checkout offers the term there.
+	 * The tab is core's list table, inside #plugin-filter with the intro, which core's live search empties.
 	 */
-	public function test_no_billing_switcher_is_rendered() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+	public function test_the_tab_draws_cores_list_table_inside_the_form() {
+		global $wp_list_table;
 
-		$this->enable_tab();
-		$this->seed_catalog( array( 'gravityforms' => $this->priced_card() ) );
+		$previous      = $wp_list_table;
+		$wp_list_table = new class() {
+			/**
+			 * Stands in for core's cards.
+			 */
+			public function display() {
+				echo '<div id="the-list">cards</div>';
+			}
+		};
 
 		ob_start();
-		wpcom_marketplace_render_grid();
+		wpcom_marketplace_render_table();
 		$html = ob_get_clean();
 
-		$this->assertStringNotContainsString( 'wpcom-marketplace-billing', $html );
-		$this->assertStringNotContainsString( 'billing=', $html );
+		$wp_list_table = $previous;
+
+		$this->assertMatchesRegularExpression( '#^<form id="plugin-filter" method="post"><p class="wpcom-marketplace-intro">.+</p><div id="the-list">cards</div></form>$#s', $html );
+	}
+
+	/**
+	 * Both price rows, as one string.
+	 *
+	 * @param array $card Normalized product data.
+	 * @return string
+	 */
+	private function price_html( array $card ) {
+		return trim( implode( ' ', wpcom_marketplace_price_rows( $card ) ) );
 	}
 
 	/**
@@ -877,9 +930,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 * is ever charged.
 	 */
 	public function test_the_headline_is_the_yearly_price_with_the_saving() {
-		ob_start();
-		wpcom_marketplace_render_price( $this->priced_card() );
-		$html = self::squash( ob_get_clean() );
+		$html = $this->price_html( $this->priced_card() );
 
 		$this->assertStringContainsString( '$132.00', $html );
 		$this->assertStringContainsString( '/year', $html );
@@ -902,12 +953,10 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 * second option the reader could pick here, and the button only buys the year.
 	 */
 	public function test_the_monthly_price_is_shown_as_a_comparison() {
-		ob_start();
-		wpcom_marketplace_render_price( $this->priced_card() );
-		$html = self::squash( ob_get_clean() );
+		$html = $this->price_html( $this->priced_card() );
 
 		$this->assertStringContainsString( '$13.00/month if billed monthly', $html );
-		$this->assertStringContainsString( 'wpcom-marketplace-card__alternative', $html );
+		$this->assertStringContainsString( 'wpcom-marketplace-card__note', $html );
 		$this->assertStringNotContainsString( 'or $13.00', $html );
 	}
 
@@ -919,9 +968,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$card = $this->priced_card();
 		unset( $card['wpcom_pricing']['monthly'] );
 
-		ob_start();
-		wpcom_marketplace_render_price( $card );
-		$html = self::squash( ob_get_clean() );
+		$html = $this->price_html( $card );
 
 		$this->assertStringContainsString( '$132.00', $html );
 		$this->assertStringContainsString( '/year', $html );
@@ -935,9 +982,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		$card = $this->priced_card();
 		unset( $card['wpcom_pricing']['yearly'] );
 
-		ob_start();
-		wpcom_marketplace_render_price( $card );
-		$html = self::squash( ob_get_clean() );
+		$html = $this->price_html( $card );
 
 		$this->assertStringContainsString( '$13.00', $html );
 		$this->assertStringContainsString( '/month', $html );
@@ -953,9 +998,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		// A year that costs twelve months: nothing saved.
 		$card['wpcom_saving'] = 0;
 
-		ob_start();
-		wpcom_marketplace_render_price( $card );
-		$html = ob_get_clean();
+		$html = $this->price_html( $card );
 
 		$this->assertStringNotContainsString( 'wpcom-marketplace-card__saving', $html );
 	}
@@ -964,10 +1007,7 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	 * A product we cannot price still renders, minus the price block.
 	 */
 	public function test_an_unpriced_product_renders_no_price_block() {
-		ob_start();
-		wpcom_marketplace_render_price( Marketplace_Catalog::to_card( self::PRODUCT ) );
-
-		$this->assertSame( '', ob_get_clean() );
+		$this->assertSame( '', $this->price_html( Marketplace_Catalog::to_card( self::PRODUCT ) ) );
 	}
 
 	/**
@@ -988,73 +1028,43 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 		// Nothing to compare against.
 		$this->assertSame( 0, Marketplace_Catalog::yearly_saving( array( 'yearly' => array( 'cost' => 132.0 ) ) ) );
 
-		// A year that costs more than twelve months is not a saving.
+		// A year that costs more than twelve months is not a saving. This is Nelio:
+		// $2,748 a year against $99 a month.
 		$this->assertSame(
 			0,
 			Marketplace_Catalog::yearly_saving(
 				array(
-					'yearly'  => array( 'cost' => 200.0 ),
-					'monthly' => array( 'cost' => 10.0 ),
+					'yearly'  => array( 'cost' => 2748.0 ),
+					'monthly' => array( 'cost' => 99.0 ),
+				)
+			)
+		);
+
+		// And a gap too large to be two billing terms of one product is refused
+		// rather than stated. This is MailPoet: $312 a year against $140 a month,
+		// which the arithmetic calls 81% off.
+		$this->assertSame(
+			0,
+			Marketplace_Catalog::yearly_saving(
+				array(
+					'yearly'  => array( 'cost' => 312.0 ),
+					'monthly' => array( 'cost' => 140.0 ),
 				)
 			)
 		);
 	}
 
 	/**
-	 * The card carries what a reader needs to choose: who made it, what it does,
-	 * what it costs, and a way to see more.
+	 * Cut at a word, near the 150 characters WordPress.org allows, so cards stay core's height.
 	 */
-	public function test_card_renders_its_parts() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+	public function test_long_descriptions_are_cut_to_wordpress_org_length() {
+		$card                      = $this->priced_card();
+		$card['short_description'] = str_repeat( 'Forms for every project. ', 12 );
 
-		ob_start();
-		wpcom_marketplace_render_card( $this->priced_card() );
-		$html = self::squash( ob_get_clean() );
+		$description = wpcom_marketplace_card_description( $card );
 
-		$this->assertStringContainsString( 'Gravity Forms', $html );
-		$this->assertStringContainsString( 'By Gravity Forms', $html );
-		$this->assertStringContainsString( 'Build custom forms', $html );
-		$this->assertStringContainsString( '$132.00', $html );
-		$this->assertStringContainsString( 'gravityforms_yearly', $html );
-
-		// The modal is core's, and it is reached the way core reaches it.
-		$this->assertStringContainsString( 'thickbox open-plugin-details-modal', $html );
-		$this->assertStringContainsString( 'tab=plugin-information', $html );
-	}
-
-	/**
-	 * The category gives a reader something to orient by between the author and the
-	 * description. 54 of the 56 live products carry one.
-	 */
-	public function test_card_shows_the_category() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-
-		$card                   = $this->priced_card();
-		$card['wpcom_category'] = 'SEO';
-
-		ob_start();
-		wpcom_marketplace_render_card( $card );
-		$html = self::squash( ob_get_clean() );
-
-		$this->assertStringContainsString( 'wpcom-marketplace-card__category', $html );
-		$this->assertStringContainsString( 'SEO', $html );
-	}
-
-	/**
-	 * Nothing is rendered for a product with no category worth showing, rather than
-	 * an empty line that would push its card out of step with the row.
-	 */
-	public function test_card_omits_an_absent_category() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
-
-		ob_start();
-		wpcom_marketplace_render_card( $this->priced_card() );
-		$html = ob_get_clean();
-
-		$this->assertStringNotContainsString( 'wpcom-marketplace-card__category', $html );
+		$this->assertLessThanOrEqual( 151, mb_strlen( $description ) );
+		$this->assertStringEndsWith( 'project…', $description );
 	}
 
 	/**
@@ -1084,61 +1094,150 @@ class Wpcom_Marketplace_Tab_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A malformed product is skipped rather than rendered as an empty card.
+	 * A referral card, as the store shapes one: variations priced like anything else,
+	 * with the product type as the only thing saying it is not ours to sell.
+	 *
+	 * @return array
 	 */
-	public function test_card_without_a_slug_is_skipped() {
-		ob_start();
-		wpcom_marketplace_render_card( array( 'name' => 'Nameless' ) );
+	private function referral_card() {
+		$card = $this->priced_card();
 
-		$this->assertSame( '', ob_get_clean() );
+		$card['wpcom_pricing']['yearly']['type']  = 'saas_plugin';
+		$card['wpcom_pricing']['monthly']['type'] = 'saas_plugin';
+		$card['wpcom_referral_url']               = 'https://example.com/vendor-pricing';
+
+		return $card;
 	}
 
 	/**
-	 * The grid draws every product, in the order the catalog supplied them.
+	 * The product type is what marks a referral. Nothing about the shape of the
+	 * payload does: it carries variations and prices like any other product.
 	 */
-	public function test_grid_renders_a_card_per_product() {
-		require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+	public function test_a_saas_product_type_marks_a_referral() {
+		$this->assertTrue( Marketplace_Catalog::is_referral( $this->referral_card() ) );
+		$this->assertFalse( Marketplace_Catalog::is_referral( $this->priced_card() ) );
+		$this->assertFalse( Marketplace_Catalog::is_referral( Marketplace_Catalog::to_card( self::PRODUCT ) ) );
+	}
 
-		$this->enable_tab();
-		$this->seed_catalog(
+	/**
+	 * The store's figures for a referral are not what the vendor charges.
+	 */
+	public function test_a_referral_starts_for_free_instead_of_showing_a_price() {
+		$html = $this->price_html( $this->referral_card() );
+
+		$this->assertStringContainsString( 'Start for free', $html );
+		$this->assertStringNotContainsString( '$', $html );
+		$this->assertStringNotContainsString( 'Save', $html );
+	}
+
+	/**
+	 * Signs in a local user linked to WordPress.com account 12345, on blog 67890.
+	 *
+	 * @return void
+	 */
+	private function sign_in_wpcom_user() {
+		$user_id = wp_insert_user(
 			array(
-				'gravityforms' => $this->priced_card(),
-				'second'       => array_merge(
-					$this->priced_card(),
-					array(
-						'slug' => 'second',
-						'name' => 'Second Plugin',
-					)
-				),
+				'user_login' => 'referred',
+				'user_pass'  => 'password',
+				'role'       => 'administrator',
 			)
 		);
 
-		ob_start();
-		wpcom_marketplace_render_grid();
-		$html = ob_get_clean();
-
-		$this->assertSame( 2, substr_count( $html, 'wpcom-marketplace-card ' ) );
-		$this->assertStringContainsString( '2 items', $html );
-		$this->assertLessThan(
-			strpos( $html, 'Second Plugin' ),
-			strpos( $html, 'Gravity Forms' ),
-			'The catalog arrives ranked by sales, so the grid must not reorder it.'
-		);
+		update_user_meta( $user_id, 'wpcom_user_id', '12345' );
+		wp_set_current_user( $user_id );
+		\Jetpack_Options::update_option( 'id', 67890 );
 	}
 
 	/**
-	 * An unreadable catalog says so rather than rendering an empty screen.
+	 * Checkout cannot complete a referral, so the action goes to the vendor instead.
 	 */
-	public function test_grid_reports_an_empty_catalog() {
-		$this->enable_tab();
-		$this->seed_catalog( array() );
+	public function test_a_referral_links_to_the_vendor_not_checkout() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 
-		ob_start();
-		wpcom_marketplace_render_grid();
-		$html = ob_get_clean();
+		$this->sign_in_wpcom_user();
 
-		$this->assertStringContainsString( 'notice', $html );
-		$this->assertStringNotContainsString( 'wpcom-marketplace-grid', $html );
+		$button = wpcom_marketplace_card_button( $this->referral_card() );
+
+		$this->assertStringContainsString( 'https://example.com/vendor-pricing?uuid=12345%2B67890', $button );
+		$this->assertStringContainsString( 'Get started', $button );
+		$this->assertStringNotContainsString( 'noreferrer', $button );
+		$this->assertStringNotContainsString( 'wordpress.com/checkout', $button );
+		$this->assertStringNotContainsString( 'Purchase', $button );
+	}
+
+	/**
+	 * The vendor reads the account and site from `uuid`, so it has to arrive as one value.
+	 */
+	public function test_the_referral_url_names_the_account_and_site() {
+		\Jetpack_Options::update_option( 'id', 67890 );
+
+		$card                       = $this->referral_card();
+		$card['wpcom_referral_url'] = 'https://example.com/new?p=155&partner=wpcom';
+
+		$this->assertSame(
+			'https://example.com/new?p=155&partner=wpcom&uuid=12345%2B67890',
+			Marketplace_Catalog::referral_url( $card, 12345 )
+		);
+		$this->assertSame( '', Marketplace_Catalog::referral_url( $card, 0 ) );
+	}
+
+	/**
+	 * A referral without the site's blog id would reach the vendor naming no site.
+	 */
+	public function test_the_referral_url_needs_a_blog_id() {
+		$this->assertSame( '', Marketplace_Catalog::referral_url( $this->referral_card(), 12345 ) );
+	}
+
+	/**
+	 * Without an account to refer, the vendor could not match the order, so Calypso takes over.
+	 */
+	public function test_a_referral_with_no_account_to_refer_goes_to_the_product_page() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		\Jetpack_Options::update_option( 'id', 67890 );
+
+		$button = wpcom_marketplace_card_button( $this->referral_card() );
+
+		$this->assertStringContainsString( 'https://wordpress.com/plugins/gravityforms/', $button );
+		$this->assertStringNotContainsString( 'uuid=', $button );
+		$this->assertStringNotContainsString( 'vendor-pricing', $button );
+	}
+
+	/**
+	 * With nowhere to send someone, no action is better than one that goes nowhere.
+	 */
+	public function test_a_referral_without_a_vendor_url_renders_no_action() {
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+
+		$card                       = $this->referral_card();
+		$card['wpcom_referral_url'] = '';
+
+		$this->assertSame( '', wpcom_marketplace_card_button( $card ) );
+	}
+
+	/**
+	 * The referral URL comes through from the endpoint's own field.
+	 */
+	public function test_the_referral_url_is_read_from_the_payload() {
+		$card = Marketplace_Catalog::to_card(
+			array_merge( self::PRODUCT, array( 'saas_landing_page' => 'https://example.com/vendor' ) )
+		);
+
+		$this->assertSame( 'https://example.com/vendor', $card['wpcom_referral_url'] );
+		$this->assertSame( '', Marketplace_Catalog::to_card( self::PRODUCT )['wpcom_referral_url'] );
+	}
+
+	/**
+	 * Tracks rides along with the tab, and only the tab.
+	 */
+	public function test_the_tab_loads_its_tracks_script() {
+		wpcom_marketplace_render_tab();
+		remove_filter( 'admin_body_class', 'wpcom_marketplace_body_class' );
+
+		$this->assertTrue( wp_script_is( 'jetpack-mu-wpcom-wpcom-marketplace-tab', 'enqueued' ) );
 	}
 }

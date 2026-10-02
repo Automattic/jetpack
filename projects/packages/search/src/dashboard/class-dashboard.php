@@ -13,6 +13,7 @@ use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Tracking;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
+use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Screen_Id;
 /**
  * Responsible for adding a search dashboard to wp-admin.
  *
@@ -129,16 +130,12 @@ class Dashboard {
 			return;
 		}
 
-		$build_index = dirname( __DIR__, 2 ) . '/build/build.php';
+		$build_index = $this->wp_build_index();
 		if ( ! file_exists( $build_index ) ) {
 			return;
 		}
 
-		// Hooked on either side of the require, so the alias holds only for the generated
-		// enqueue check it registers at the same priority.
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
-		require_once $build_index;
-		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+		self::require_wp_build_with_screen_alias( $build_index );
 
 		// wp-build hooks module registration to wp_default_scripts, which has already
 		// fired by admin_menu — call it directly or the init module never registers.
@@ -150,6 +147,41 @@ class Dashboard {
 			'jetpack-search',
 			array_merge( WP_Build_Polyfills::SCRIPT_HANDLES, WP_Build_Polyfills::MODULE_IDS )
 		);
+	}
+
+	/**
+	 * Require the generated build file with the screen ID aliased across its enqueue check.
+	 *
+	 * @see WP_Build_Screen_Id::load_with_alias()
+	 * @param string $build_index Path to the generated `build.php`.
+	 * @return void
+	 */
+	private static function require_wp_build_with_screen_alias( $build_index ) {
+		// Fallback: an older wp-build-polyfills under the jetpack-autoloader may predate load_with_alias().
+		if ( method_exists( WP_Build_Screen_Id::class, 'load_with_alias' ) ) {
+			WP_Build_Screen_Id::load_with_alias(
+				array( __CLASS__, 'alias_screen_id_for_wp_build' ),
+				array( __CLASS__, 'restore_screen_id_after_wp_build' ),
+				function () use ( $build_index ) {
+					require_once $build_index;
+				}
+			);
+			return;
+		}
+
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'alias_screen_id_for_wp_build' ) );
+		require_once $build_index;
+		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'restore_screen_id_after_wp_build' ) );
+	}
+
+	/**
+	 * Path to the generated build entry point. A seam, like the render function below:
+	 * tests point it at a stub so this runs without the package being built.
+	 *
+	 * @return string
+	 */
+	protected function wp_build_index() {
+		return dirname( __DIR__, 2 ) . '/build/build.php';
 	}
 
 	/**

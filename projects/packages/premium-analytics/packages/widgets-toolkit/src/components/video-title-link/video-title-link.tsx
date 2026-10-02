@@ -4,6 +4,7 @@
 import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
+import type { JSX } from 'react';
 
 export type VideoTitleLinkProps = {
 	id?: number | string;

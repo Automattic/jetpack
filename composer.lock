@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "2f5be28b601750a275a56095b4bae984",
+    "content-hash": "4bd694bc71b9ddac978e20d736af2a58",
     "packages": [],
     "packages-dev": [
         {
@@ -1073,16 +1073,16 @@
         },
         {
             "name": "php-stubs/woocommerce-stubs",
-            "version": "v11.1.1",
+            "version": "v11.1.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-stubs/woocommerce-stubs.git",
-                "reference": "b34e5fa17f177b89f486b639c41e57d78a44d4cd"
+                "reference": "06dfedfe33a46a12db99fd343b80f1f2f11e64f6"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/b34e5fa17f177b89f486b639c41e57d78a44d4cd",
-                "reference": "b34e5fa17f177b89f486b639c41e57d78a44d4cd",
+                "url": "https://api.github.com/repos/php-stubs/woocommerce-stubs/zipball/06dfedfe33a46a12db99fd343b80f1f2f11e64f6",
+                "reference": "06dfedfe33a46a12db99fd343b80f1f2f11e64f6",
                 "shasum": ""
             },
             "require": {
@@ -1111,9 +1111,9 @@
             ],
             "support": {
                 "issues": "https://github.com/php-stubs/woocommerce-stubs/issues",
-                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v11.1.1"
+                "source": "https://github.com/php-stubs/woocommerce-stubs/tree/v11.1.2"
             },
-            "time": "2026-09-18T13:07:48+00:00"
+            "time": "2026-09-22T23:29:58+00:00"
         },
         {
             "name": "php-stubs/wordpress-stubs",
@@ -2033,16 +2033,16 @@
         },
         {
             "name": "sirbrillig/phpcs-changed",
-            "version": "v2.13.0",
+            "version": "v3.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/sirbrillig/phpcs-changed.git",
-                "reference": "a369fce181a5064b6150708c3b0a1045c518a248"
+                "reference": "92e6615c7d2fb85c3e7e5aa6807006f256ec2e2f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/a369fce181a5064b6150708c3b0a1045c518a248",
-                "reference": "a369fce181a5064b6150708c3b0a1045c518a248",
+                "url": "https://api.github.com/repos/sirbrillig/phpcs-changed/zipball/92e6615c7d2fb85c3e7e5aa6807006f256ec2e2f",
+                "reference": "92e6615c7d2fb85c3e7e5aa6807006f256ec2e2f",
                 "shasum": ""
             },
             "require": {
@@ -2081,9 +2081,9 @@
             "description": "Run phpcs on files, but only report warnings/errors from lines which were changed.",
             "support": {
                 "issues": "https://github.com/sirbrillig/phpcs-changed/issues",
-                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v2.13.0"
+                "source": "https://github.com/sirbrillig/phpcs-changed/tree/v3.1.0"
             },
-            "time": "2026-04-26T18:04:30+00:00"
+            "time": "2026-09-22T17:59:38+00:00"
         },
         {
             "name": "sirbrillig/phpcs-variable-analysis",
