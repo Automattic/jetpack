@@ -2461,6 +2461,9 @@ importers:
       '@automattic/jetpack-idc':
         specifier: workspace:*
         version: link:../../js-packages/idc
+      '@wordpress/components':
+        specifier: 40.1.0
+        version: 40.1.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@wordpress/data':
         specifier: 10.55.0
         version: 10.55.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)

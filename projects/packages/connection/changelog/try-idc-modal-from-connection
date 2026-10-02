@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Safe Mode screen: show it in a modal on pages that hide admin notices, such as the new Jetpack dashboards.
