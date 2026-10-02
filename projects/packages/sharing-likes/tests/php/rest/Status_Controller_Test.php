@@ -93,8 +93,8 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertSame( '', $data['site_editor_url'] );
 	}
 
-	public function test_status_reports_likes_unsupported_without_a_connection(): void {
-		$this->given_connection( false );
+	public function test_status_reports_likes_unsupported_in_offline_mode(): void {
+		$this->given_offline_mode();
 
 		$this->assertFalse( $this->request( 'GET', 'status' )->get_data()['likes']['supported'] );
 	}
@@ -206,26 +206,14 @@ class Status_Controller_Test extends BaseTestCase {
 		$this->assertSame( array(), $this->active_modules() );
 	}
 
-	public function test_likes_actions_are_refused_without_a_connection(): void {
-		$this->given_connection( false );
+	public function test_likes_actions_are_refused_in_offline_mode(): void {
+		$this->given_offline_mode();
 		$this->given_modules( array() );
 
 		$response = $this->request( 'POST', 'likes/activate' );
 
 		$this->assertSame( 409, $response->get_status() );
-		$this->assertSame( array(), $this->active_modules() );
-	}
-
-	/**
-	 * `Modules::activate()` refuses every module on these sites, so the screen shows no button.
-	 */
-	public function test_turning_sharing_on_is_refused_without_a_connection_or_offline_mode(): void {
-		$this->given_connection( false );
-		$this->given_modules( array() );
-
-		$response = $this->request( 'POST', 'sharing/activate' );
-
-		$this->assertSame( 409, $response->get_status() );
+		$this->assertSame( 'rest_sharing_likes_action_unavailable', $response->get_data()['code'] );
 		$this->assertSame( array(), $this->active_modules() );
 	}
 

@@ -213,7 +213,9 @@ React screen: `settings`, `status`, `services`, the custom services, and
 `<feature>/switch-to-block` and `<feature>/activate`. `Endpoints` explains the
 namespace. `Initializer::init()` registers the routes outside its `is_admin()`
 branch, since REST requests are not admin requests, and whether or not the
-Sharing, Likes and Comment Likes modules are active.
+Sharing, Likes and Comment Likes modules are active. Where the screen itself
+does not exist (`Environment::settings_screen_supported()`), every route
+answers 409.
 
 The routes offer what the PHP screen shows and nothing else. A setting whose
 section does not render it is missing from reads, and a write that includes it

@@ -160,8 +160,8 @@ final class Status_Controller extends Controller {
 	private static function refuse_unless( string $feature, string $state ): ?WP_Error {
 		$is_likes = Placement_Section::FEATURE_LIKES === $feature;
 
-		// Without the connection (or offline mode) their modules need, neither section offers an action.
-		if ( $is_likes ? ! Environment::likes_supported() : ! Environment::legacy_sharing_supported() ) {
+		// Offline mode keeps the screen, but loads no Likes module for the section to act on.
+		if ( $is_likes && ! Environment::likes_supported() ) {
 			$current = null;
 		} else {
 			$current = $is_likes ? Likes_Section::state() : Sharing_Section::state();

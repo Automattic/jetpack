@@ -361,10 +361,6 @@ class Settings_Controller_Test extends BaseTestCase {
 		$this->assertArrayHasKey( 'comment_likes_enabled', $this->request( 'GET', 'settings' )->get_data() );
 	}
 
-	public function test_leaves_out_comment_likes_without_a_connection(): void {
-		$this->assertArrayNotHasKey( 'comment_likes_enabled', $this->request( 'GET', 'settings' )->get_data() );
-	}
-
 	/**
 	 * Offline mode keeps a connected site's tokens, but loads no module that needs a connection.
 	 */
