@@ -54,6 +54,29 @@ class Publicize_Test extends BaseTestCase {
 		$this->deprecated[] = $function_name;
 	}
 
+	public function test_collapse_duplicate_post_meta_ignores_other_keys() {
+		$publicize = new Publicize();
+		$post_id   = 123;
+		add_post_meta( $post_id, 'other_key', 'value' );
+		// @phan-suppress-next-line PhanPluginDuplicateAdjacentStatement -- Duplicate rows are the fixture.
+		add_post_meta( $post_id, 'other_key', 'value' );
+
+		$this->assertNull( $publicize->collapse_duplicate_post_meta( null, $post_id, 'other_key', 'value', '' ) );
+		$this->assertCount( 2, get_post_meta( $post_id, 'other_key', false ) );
+	}
+
+	public function test_collapse_duplicate_post_meta_ignores_single_row_and_prev_value() {
+		$publicize = new Publicize();
+		$post_id   = 123;
+		add_post_meta( $post_id, '_wpas_mess', 'one' );
+
+		$this->assertNull( $publicize->collapse_duplicate_post_meta( null, $post_id, '_wpas_mess', 'two', '' ) );
+
+		add_post_meta( $post_id, '_wpas_mess', 'one' );
+		$this->assertNull( $publicize->collapse_duplicate_post_meta( null, $post_id, '_wpas_mess', 'two', 'one' ) );
+		$this->assertCount( 2, get_post_meta( $post_id, '_wpas_mess', false ) );
+	}
+
 	public function test_does_not_hook_the_sharing_settings_screen() {
 		$publicize = new Publicize();
 

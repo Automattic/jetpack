@@ -1,5 +1,5 @@
-import { getClickCsvGroup } from './get-click-csv-group';
-import type { ClickRow } from './fields';
+import { getClickCsvGroup } from '../clicks';
+import type { ClickRow } from '../clicks';
 
 describe( 'getClickCsvGroup', () => {
 	it.each( [

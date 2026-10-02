@@ -34,8 +34,8 @@ jest.mock( './modern-settings', () => {
 	const NoticeManager = jest.requireActual( '$features/notice/manager' ).default;
 	return {
 		__esModule: true,
-		default: ( { hidden }: { hidden?: boolean } ) => (
-			<div data-testid="settings" hidden={ hidden }>
+		default: ( { hidden, active = true }: { hidden?: boolean; active?: boolean } ) => (
+			<div data-testid="settings" data-active={ String( active ) } hidden={ hidden }>
 				<NoticeManager />
 			</div>
 		),
@@ -141,6 +141,16 @@ describe( 'ModernApp', () => {
 
 		expect( within( slots.subpage ).getByText( 'cache-debug-log' ) ).toBeTruthy();
 		expect( within( slots.settings ).getByTestId( 'settings' ) ).toBe( settingsNode );
+	} );
+
+	it( 'deactivates Settings exposure on a subpage and reactivates it on return', () => {
+		const { slots } = renderApp();
+		const settings = within( slots.settings ).getByTestId( 'settings' );
+		expect( settings.dataset.active ).toBe( 'true' );
+		goTo( '#/cache-debug-log' );
+		expect( settings.dataset.active ).toBe( 'false' );
+		goTo( SETTINGS_ARG );
+		expect( settings.dataset.active ).toBe( 'true' );
 	} );
 
 	it( 'renders one sub-page at a time', () => {
