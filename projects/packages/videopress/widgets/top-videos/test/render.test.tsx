@@ -2,6 +2,7 @@
  * External dependencies
  */
 import { render, screen } from '@testing-library/react';
+import { video as videoIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
@@ -30,6 +31,7 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		return children;
 	},
 	describeError: ( ...args: unknown[] ) => mockDescribeError( ...args ),
+	getVideoPosterUrl: ( poster?: string ) => poster && `${ poster }?resize=100%2C56`,
 	useStatsVideoPlays: ( ...args: unknown[] ) => mockUseStatsVideoPlays( ...args ),
 	useWidgetRootContext: () => ( { reportParams: { from: '2026-06-01', to: '2026-06-16' } } ),
 } ) );
@@ -46,6 +48,7 @@ const videoPlays = ( overrides: Record< string, unknown > = {} ) => ( {
 				link: 'https://example.com/a/',
 				plays: 100,
 				previousPlays: 80,
+				poster: 'https://i0.wp.com/v/a.jpg',
 			},
 			{ id: 102, label: 'Teaser', link: null, plays: 40 },
 		],
@@ -95,6 +98,13 @@ describe( 'Top videos widget', () => {
 				label: 'Walkthrough',
 				value: 100,
 				previousValue: 80,
+				media: {
+					kind: 'thumbnail',
+					url: 'https://i0.wp.com/v/a.jpg?resize=100%2C56',
+					alt: '',
+					aspectRatio: '16/9',
+					fallbackIcon: videoIcon,
+				},
 				action: { kind: 'videoLink', id: 101, href: 'https://example.com/a/' },
 			},
 			{
@@ -102,6 +112,13 @@ describe( 'Top videos widget', () => {
 				label: 'Teaser',
 				value: 40,
 				previousValue: undefined,
+				media: {
+					kind: 'thumbnail',
+					url: undefined,
+					alt: '',
+					aspectRatio: '16/9',
+					fallbackIcon: videoIcon,
+				},
 				action: { kind: 'videoLink', id: 102, href: null },
 			},
 		] );

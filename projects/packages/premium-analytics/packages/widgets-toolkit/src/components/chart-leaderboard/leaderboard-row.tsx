@@ -107,25 +107,32 @@ export function resolveLeaderboardRowAction(
  * @return A single label element accepted by `LeaderboardEntry.label`.
  */
 export function LeaderboardRow( { label, media, action }: LeaderboardRowProps ): ReactElement {
-	// Title-link rows carry no media, so the row chrome goes on the title element.
+	// Title-link rows put the row chrome on the link itself.
 	if ( action.kind === 'postLink' || action.kind === 'videoLink' ) {
 		const TitleLink = action.kind === 'postLink' ? PostTitleLink : VideoTitleLink;
+		const titleLinkProps = {
+			id: action.id,
+			label,
+			link: action.href,
+			search: action.search,
+			title: label,
+			classNames: {
+				internal: styles.rowLink,
+				external: styles.rowLink,
+				plain: styles.row,
+				text: styles.label,
+			},
+		};
 
-		return (
-			<TitleLink
-				id={ action.id }
-				label={ label }
-				link={ action.href }
-				search={ action.search }
-				title={ label }
-				classNames={ {
-					internal: styles.rowLink,
-					external: styles.rowLink,
-					plain: styles.row,
-					text: styles.label,
-				} }
-			/>
-		);
+		if ( action.kind === 'videoLink' && media.kind !== 'none' ) {
+			return (
+				<VideoTitleLink { ...titleLinkProps }>
+					<LeaderboardLabel label={ label } media={ media } decorativeMedia />
+				</VideoTitleLink>
+			);
+		}
+
+		return <TitleLink { ...titleLinkProps } />;
 	}
 
 	const content = (

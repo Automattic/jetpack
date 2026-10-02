@@ -127,7 +127,7 @@ export {
 	type PostHighlightCardMetric,
 	type PostHighlightCardProps,
 } from './post-highlight-card';
-export { VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
+export { VideoDetailLink, VideoTitleLink, type VideoTitleLinkProps } from './video-title-link';
 export {
 	SubscriberList,
 	SubscriberListSkeleton,

@@ -11,12 +11,21 @@ import { useState } from 'react';
 import styles from './leaderboard-label.module.scss';
 import type { ComponentProps } from 'react';
 
+type IconGlyph = ComponentProps< typeof Icon >[ 'icon' ];
+
 export type LeaderboardRowMedia =
 	| { kind: 'avatar'; url?: string; name: string }
 	| { kind: 'favicon'; url?: string }
 	| { kind: 'flag'; url?: string; country: string }
-	| { kind: 'thumbnail'; url?: string; alt: string }
-	| { kind: 'icon'; icon: ComponentProps< typeof Icon >[ 'icon' ] }
+	| {
+			kind: 'thumbnail';
+			url?: string;
+			alt: string;
+			aspectRatio?: '1/1' | '16/9';
+			/** Drawn in place of the grey placeholder when there is no image or it fails to load. */
+			fallbackIcon?: IconGlyph;
+	  }
+	| { kind: 'icon'; icon: IconGlyph }
 	| { kind: 'none' };
 
 export type LeaderboardLabelProps = {
@@ -68,7 +77,7 @@ function getMediaDetails(
 		case 'thumbnail':
 			return {
 				alt: media.alt,
-				className: styles.thumbnail,
+				className: media.aspectRatio === '16/9' ? styles.thumbnailWide : styles.thumbnail,
 				fallback: 'placeholder' as const,
 				url: media.url,
 			};
@@ -88,8 +97,12 @@ export function LeaderboardLabel( {
 	const [ failedImageUrl, setFailedImageUrl ] = useState< string >();
 	const mediaDetails =
 		media.kind === 'none' || media.kind === 'icon' ? null : getMediaDetails( media );
+	const fallbackIcon = media.kind === 'thumbnail' ? media.fallbackIcon : undefined;
+	const showsFallbackIcon =
+		Boolean( fallbackIcon ) && ( ! mediaDetails?.url || mediaDetails.url === failedImageUrl );
 	const shouldRenderImage =
 		mediaDetails &&
+		! showsFallbackIcon &&
 		( mediaDetails.fallback === 'placeholder' || Boolean( mediaDetails.url ) ) &&
 		( mediaDetails.fallback !== 'hidden' || mediaDetails.url !== failedImageUrl );
 
@@ -103,11 +116,19 @@ export function LeaderboardLabel( {
 			{ media.kind === 'icon' && (
 				<Icon icon={ media.icon } size={ 20 } className={ styles.icon } />
 			) }
+			{ showsFallbackIcon && (
+				<span
+					className={ clsx( styles.media, styles.mediaPlaceholder ) }
+					data-testid="leaderboard-thumbnail-placeholder"
+				>
+					<Icon icon={ fallbackIcon } size={ 16 } />
+				</span>
+			) }
 			{ shouldRenderImage && (
 				<img
 					src={ mediaDetails.url || DEFAULT_IMAGE_URL }
 					onError={ event => {
-						if ( mediaDetails.fallback === 'hidden' ) {
+						if ( mediaDetails.fallback === 'hidden' || fallbackIcon ) {
 							setFailedImageUrl( mediaDetails.url );
 							return;
 						}

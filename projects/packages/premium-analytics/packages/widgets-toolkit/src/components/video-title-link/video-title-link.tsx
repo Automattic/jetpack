@@ -4,7 +4,7 @@
 import { Link as UiLink } from '@jetpack-premium-analytics/externals';
 import { safeHttpUrl } from '@jetpack-premium-analytics/ui';
 import { Link } from '@wordpress/route';
-import type { JSX } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type VideoTitleLinkProps = {
 	id?: number | string;
@@ -20,7 +20,53 @@ export type VideoTitleLinkProps = {
 		text?: string;
 	};
 	title?: string;
+	/** Replaces the default label text inside the link or plain wrapper. */
+	children?: ReactNode;
 };
+
+export type VideoDetailLinkProps = {
+	videoId: number;
+	search?: VideoTitleLinkProps[ 'search' ];
+	className?: string;
+	title?: string;
+	tabIndex?: number;
+	'aria-hidden'?: boolean;
+	children: ReactNode;
+};
+
+/**
+ * Render children as a link to the internal video detail page.
+ */
+export function VideoDetailLink( {
+	videoId,
+	search,
+	className,
+	title,
+	tabIndex,
+	'aria-hidden': ariaHidden,
+	children,
+}: VideoDetailLinkProps ): JSX.Element {
+	// `UiLink` renders the router link so the anchor keeps the design
+	// system's unlayered guard, without which wp-admin repaints it blue.
+	return (
+		<UiLink
+			className={ className }
+			variant="unstyled"
+			title={ title }
+			tabIndex={ tabIndex }
+			aria-hidden={ ariaHidden }
+			render={
+				<Link
+					to="/video/$videoId"
+					params={ { videoId: String( videoId ) } as unknown as never }
+					search={ search as unknown as never }
+				/>
+			}
+		>
+			{ children }
+		</UiLink>
+	);
+}
 
 /**
  * Render a video title as an internal detail link, an external fallback link, or plain
@@ -33,28 +79,21 @@ export function VideoTitleLink( {
 	search,
 	classNames,
 	title,
+	children,
 }: VideoTitleLinkProps ): JSX.Element {
 	const videoId = Number( id );
-	const text = <span className={ classNames?.text }>{ label }</span>;
+	const content = children ?? <span className={ classNames?.text }>{ label }</span>;
 
 	if ( Number.isInteger( videoId ) && videoId > 0 ) {
-		// `UiLink` renders the router link so the anchor keeps the design
-		// system's unlayered guard, without which wp-admin repaints it blue.
 		return (
-			<UiLink
+			<VideoDetailLink
+				videoId={ videoId }
+				search={ search }
 				className={ classNames?.internal }
-				variant="unstyled"
 				title={ title }
-				render={
-					<Link
-						to="/video/$videoId"
-						params={ { videoId: String( videoId ) } as unknown as never }
-						search={ search as unknown as never }
-					/>
-				}
 			>
-				{ text }
-			</UiLink>
+				{ content }
+			</VideoDetailLink>
 		);
 	}
 
@@ -74,14 +113,14 @@ export function VideoTitleLink( {
 				rel="noopener noreferrer"
 				title={ title }
 			>
-				{ text }
+				{ content }
 			</UiLink>
 		);
 	}
 
 	return (
 		<span className={ classNames?.plain } title={ title }>
-			{ text }
+			{ content }
 		</span>
 	);
 }

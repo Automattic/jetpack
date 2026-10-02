@@ -13,6 +13,7 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
+import { video as videoIcon } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -48,6 +49,13 @@ function toLeaderboardRow( row: VideoPlaysRow ): LeaderboardRowInput {
 		label: row.label,
 		value: row.plays,
 		previousValue: row.previousPlays,
+		media: {
+			kind: 'thumbnail',
+			url: row.posterUrl,
+			alt: '',
+			aspectRatio: '16/9',
+			fallbackIcon: videoIcon,
+		},
 		action: { kind: 'videoLink', id: row.id, href: row.link },
 	};
 }

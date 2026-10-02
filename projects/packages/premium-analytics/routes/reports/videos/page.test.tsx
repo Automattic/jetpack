@@ -125,6 +125,7 @@ describe( 'VideosReportPage', () => {
 
 		const { fields, initialView } = reportRecordsTableMock.mock.calls[ 0 ][ 0 ];
 		expect( initialView ).toMatchObject( { titleField: 'label', mediaField: 'poster' } );
+		expect( initialView.layout ).toMatchObject( { aspectRatio: '16/9' } );
 		expect( fields.map( field => field.id ) ).toEqual(
 			expect.arrayContaining( [ 'label', 'poster' ] )
 		);
