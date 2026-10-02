@@ -45,13 +45,13 @@ Each scenario posts its metrics in a single CodeVitals call per run (one per `me
 
 Readiness (FORMS-729): this scenario is the one that does **not** use `networkidle` — the page's `canUser` OPTIONS probe to `/wp/v2/settings` can stay pending forever in the local fixture, which would black-hole every navigation. It sets `loadState: 'load'` and readiness is carried by the visible `.boot-layout` selector, the hydration wait, and an **in-flight-aware resource settle**: the completed-resource count must hold steady while an in-flight-request ledger (which excludes only that one known-stuck probe) reads zero — `networkidle`'s own quiet + nothing-in-flight guarantee, minus the request that breaks it. If either signal is still active at the settle's deadline the iteration fails closed. The settle proves quiescence, and shares `networkidle`'s inherent blind spot for a gap before the page issues its next resource wave; in that gap the working defense is the settle's ~1s-quiet requirement (double `networkidle`'s 500ms), with `minResourceCount` catching captures below its floor (the wide `decodedBytesKB` sanity range cannot catch an undercount). See the comments on the scenario in `scenarios.js` for the full mechanics.
 
-| CodeVitals key                                             | Field            | Type             | Description                                               |
-| ---------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
-| `forms-responses-connection-sim-largestContentfulPaint`    | `lcp`            | `lcp`            | Forms responses LCP                                       |
-| `forms-responses-connection-sim-timeToFirstByte`           | `ttfb`           | `ttfb`           | Forms responses TTFB                                      |
-| `forms-responses-connection-sim-firstContentfulPaint`      | `fcp`            | `fcp`            | Forms responses FCP                                       |
-| `forms-responses-connection-sim-decodedBytesKB`            | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
-| `forms-responses-connection-sim-totalBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
+| CodeVitals key                                            | Field            | Type             | Description                                               |
+| --------------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `forms-responses-connection-sim-largestContentfulPaint`   | `lcp`            | `lcp`            | Forms responses LCP                                       |
+| `forms-responses-connection-sim-timeToFirstByte`          | `ttfb`           | `ttfb`           | Forms responses TTFB                                      |
+| `forms-responses-connection-sim-firstContentfulPaint`     | `fcp`            | `fcp`            | Forms responses FCP                                       |
+| `forms-responses-connection-sim-decodedBytesKB`           | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| `forms-responses-connection-sim-loadBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
 
 #### Bundle size (`decodedBytesKB`) — what it measures, and why not build output
 
@@ -68,13 +68,13 @@ Readiness (FORMS-729): this scenario is the one that does **not** use `networkid
 
 The page mounts a React app: PHP emits an empty `<div id="my-jetpack-container">` and `createRoot` renders `MyJetpackScreen` into it. The scenario waits for `#my-jetpack-container .jp-admin-page` (a non-hashed class from `@automattic/jetpack-components` `AdminPage`, present only after React renders) and for the container to hydrate before measuring, so LCP and the resource payload reflect the rendered page, not the empty shell.
 
-| CodeVitals key                                        | Field            | Type             | Description                                               |
-| ----------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
-| `my-jetpack-connection-sim-largestContentfulPaint`    | `lcp`            | `lcp`            | My Jetpack LCP                                            |
-| `my-jetpack-connection-sim-timeToFirstByte`           | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
-| `my-jetpack-connection-sim-firstContentfulPaint`      | `fcp`            | `fcp`            | My Jetpack FCP                                            |
-| `my-jetpack-connection-sim-decodedBytesKB`            | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
-| `my-jetpack-connection-sim-totalBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
+| CodeVitals key                                       | Field            | Type             | Description                                               |
+| ---------------------------------------------------- | ---------------- | ---------------- | --------------------------------------------------------- |
+| `my-jetpack-connection-sim-largestContentfulPaint`   | `lcp`            | `lcp`            | My Jetpack LCP                                            |
+| `my-jetpack-connection-sim-timeToFirstByte`          | `ttfb`           | `ttfb`           | My Jetpack TTFB                                           |
+| `my-jetpack-connection-sim-firstContentfulPaint`     | `fcp`            | `fcp`            | My Jetpack FCP                                            |
+| `my-jetpack-connection-sim-decodedBytesKB`           | `decodedBytesKB` | `decodedBytesKB` | Bundle size: summed per-resource `decodedBodySize`, in KB |
+| `my-jetpack-connection-sim-loadBlockingTime-staging` | `tbt`            | `tbt`            | Load blocking time, in ms (staging)                       |
 
 The four existing metrics post straight to production keys under the same owner waiver as the Dashboard and Forms keys (see Safeguards → Staging keys).
 

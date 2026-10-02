@@ -52,6 +52,7 @@ function initializeLoadObservers() {
 
 	let observer = null;
 	let entries = null;
+	let longTaskError = 'unsupported';
 	const record = tasks => {
 		for ( const task of tasks ) {
 			entries.push( { startTime: task.startTime, duration: task.duration } );
@@ -59,11 +60,13 @@ function initializeLoadObservers() {
 	};
 	try {
 		if ( PerformanceObserver.supportedEntryTypes.includes( 'longtask' ) ) {
+			longTaskError = null;
 			observer = new PerformanceObserver( list => {
 				try {
 					record( list.getEntries() );
 				} catch {
 					entries = null;
+					longTaskError = 'callback-threw';
 				}
 			} );
 			entries = [];
@@ -71,12 +74,16 @@ function initializeLoadObservers() {
 		}
 	} catch {
 		entries = null;
+		longTaskError = 'observe-threw';
 	}
 
 	window.__finalizeLongTasks = cutoff => {
 		try {
-			if ( entries === null || ! Number.isFinite( cutoff ) ) {
-				return { tbt: null, longTasks: null };
+			if ( entries === null ) {
+				return { tbt: null, longTasks: null, longTaskError };
+			}
+			if ( ! Number.isFinite( cutoff ) ) {
+				return { tbt: null, longTasks: null, longTaskError: 'invalid-cutoff' };
 			}
 			// Flush completed tasks whose observer callback has not run yet.
 			record( observer.takeRecords() );
@@ -89,7 +96,7 @@ function initializeLoadObservers() {
 						task.duration < 0
 				)
 			) {
-				return { tbt: null, longTasks: null };
+				return { tbt: null, longTasks: null, longTaskError: 'invalid-entry' };
 			}
 			const longTasks = entries.filter( task => task.startTime + task.duration <= cutoff );
 			return {
@@ -97,7 +104,7 @@ function initializeLoadObservers() {
 				longTasks,
 			};
 		} catch {
-			return { tbt: null, longTasks: null };
+			return { tbt: null, longTasks: null, longTaskError: 'finalizer-threw' };
 		} finally {
 			try {
 				observer?.disconnect();
@@ -296,6 +303,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				const blocking = window.__finalizeLongTasks?.( loadFinalizedAt ) ?? {
 					tbt: null,
 					longTasks: null,
+					longTaskError: 'finalizer-missing',
 				};
 
 				// Disconnect observer to finalize LCP
@@ -335,7 +343,9 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 
 				return {
 					loadFinalizedAt,
-					...blocking,
+					tbt: blocking.tbt,
+					longTasks: blocking.longTasks,
+					longTaskError: blocking.longTaskError,
 
 					// LCP - primary metric
 					lcp: lcp,
@@ -412,7 +422,7 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				})`
 			);
 			console.log(
-				`    TBT: ${ Number.isFinite( metrics.tbt ) ? `${ metrics.tbt.toFixed( 2 ) }ms` : 'missing' } (long tasks: ${
+				`    TBT: ${ Number.isFinite( metrics.tbt ) ? `${ metrics.tbt.toFixed( 2 ) }ms` : `missing (${ metrics.longTaskError })` } (long tasks: ${
 					metrics.longTasks?.length ?? 'missing'
 				})`
 			);
@@ -460,8 +470,10 @@ const SUMMARY_FIELDS = [
  * @return {Promise<object>} Merged metrics and navigation diagnostics.
  */
 async function captureNavigationMetrics( response, scenario, metrics ) {
+	const { longTaskError, ...browserMetrics } = metrics;
 	const capture = {
-		metrics: { ...metrics },
+		metrics: browserMetrics,
+		...( longTaskError ? { longTaskError } : {} ),
 		navigationUrl: response?.url() ?? null,
 		navigationStatus: response?.status() ?? null,
 	};
@@ -474,7 +486,7 @@ async function captureNavigationMetrics( response, scenario, metrics ) {
 	}
 	try {
 		capture.serverTimingHeader = ( await response?.headerValue( 'server-timing' ) ) ?? null;
-		capture.metrics = { ...metrics, ...parseServerTiming( capture.serverTimingHeader ) };
+		capture.metrics = { ...browserMetrics, ...parseServerTiming( capture.serverTimingHeader ) };
 	} catch ( error ) {
 		capture.serverTimingError = error.message;
 	}

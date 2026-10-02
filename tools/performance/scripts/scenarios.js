@@ -192,7 +192,7 @@ export const SCENARIOS = [
 			},
 			{
 				field: 'tbt',
-				codevitalsKey: 'forms-responses-connection-sim-totalBlockingTime-staging',
+				codevitalsKey: 'forms-responses-connection-sim-loadBlockingTime-staging',
 				type: 'tbt',
 				unit: 'ms',
 			},
@@ -282,7 +282,7 @@ export const SCENARIOS = [
 			},
 			{
 				field: 'tbt',
-				codevitalsKey: 'my-jetpack-connection-sim-totalBlockingTime-staging',
+				codevitalsKey: 'my-jetpack-connection-sim-loadBlockingTime-staging',
 				type: 'tbt',
 				unit: 'ms',
 			},

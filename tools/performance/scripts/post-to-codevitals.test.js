@@ -61,8 +61,8 @@ const MJ_LCP_KEY = 'my-jetpack-connection-sim-largestContentfulPaint';
 const MJ_TTFB_KEY = 'my-jetpack-connection-sim-timeToFirstByte';
 const MJ_FCP_KEY = 'my-jetpack-connection-sim-firstContentfulPaint';
 const MJ_DECODED_KEY = 'my-jetpack-connection-sim-decodedBytesKB';
-const FORMS_TBT_KEY = 'forms-responses-connection-sim-totalBlockingTime-staging';
-const MJ_TBT_KEY = 'my-jetpack-connection-sim-totalBlockingTime-staging';
+const FORMS_TBT_KEY = 'forms-responses-connection-sim-loadBlockingTime-staging';
+const MJ_TBT_KEY = 'my-jetpack-connection-sim-loadBlockingTime-staging';
 
 /**
  * Build the nested per-field summary the multi-metric jetpackConnected scenario reads.

@@ -15,6 +15,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
+import { runInNewContext } from 'node:vm';
 import {
 	buildSummary,
 	captureNavigationMetrics,
@@ -635,10 +636,42 @@ test( 'load TBT includes pre-paint tasks, drains pending records and excludes ta
 	assert.equal( observer.disconnected, true );
 } );
 
+test( 'serialized load observers capture long tasks without module globals', () => {
+	const browserWindow = {};
+	class Observer {
+		static supportedEntryTypes = [ 'longtask' ];
+		observe() {}
+		takeRecords() {
+			return [
+				{ startTime: 0, duration: 120 },
+				{ startTime: 200, duration: 80 },
+				{ startTime: 280, duration: 60 },
+			];
+		}
+		disconnect() {}
+	}
+	runInNewContext( '(' + initializeLoadObservers.toString() + ')()', {
+		window: browserWindow,
+		performance: { setResourceTimingBufferSize() {} },
+		PerformanceObserver: Observer,
+	} );
+	const capture = browserWindow.__finalizeLongTasks( 300 );
+	assert.equal( capture.tbt, 100 );
+	assert.equal( capture.longTasks.length, 2 );
+} );
+
 test( 'working empty capture is zero; unsupported or failed capture is missing', () => {
 	assert.deepEqual( longTaskHarness().finalize( 300 ), { tbt: 0, longTasks: [] } );
-	for ( const options of [ { supported: false }, { observeError: true }, { drainError: true } ] ) {
-		assert.deepEqual( longTaskHarness( options ).finalize( 300 ), { tbt: null, longTasks: null } );
+	for ( const [ options, longTaskError ] of [
+		[ { supported: false }, 'unsupported' ],
+		[ { observeError: true }, 'observe-threw' ],
+		[ { drainError: true }, 'finalizer-threw' ],
+	] ) {
+		assert.deepEqual( longTaskHarness( options ).finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError,
+		} );
 	}
 } );
 
@@ -650,7 +683,11 @@ test( 'a throwing long-task callback remains missing after a later successful ca
 		},
 	} );
 	observer.callback( { getEntries: () => [ { startTime: 0, duration: 120 } ] } );
-	assert.deepEqual( finalize( 300 ), { tbt: null, longTasks: null } );
+	assert.deepEqual( finalize( 300 ), {
+		tbt: null,
+		longTasks: null,
+		longTaskError: 'callback-threw',
+	} );
 	assert.equal( observer.disconnected, true );
 } );
 
@@ -663,7 +700,11 @@ test( 'non-finite or negative long-task timings are missing data', () => {
 	] ) {
 		const { finalize, observer } = longTaskHarness();
 		observer.pending = [ entry ];
-		assert.deepEqual( finalize( 300 ), { tbt: null, longTasks: null } );
+		assert.deepEqual( finalize( 300 ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-entry',
+		} );
 	}
 } );
 
@@ -671,7 +712,11 @@ test( 'a non-finite load-finalization cutoff is missing data', () => {
 	for ( const cutoff of [ undefined, NaN, Infinity ] ) {
 		const { finalize, observer } = longTaskHarness();
 		observer.pending = [ { startTime: 0, duration: 120 } ];
-		assert.deepEqual( finalize( cutoff ), { tbt: null, longTasks: null } );
+		assert.deepEqual( finalize( cutoff ), {
+			tbt: null,
+			longTasks: null,
+			longTaskError: 'invalid-cutoff',
+		} );
 		assert.equal( observer.disconnected, true );
 	}
 } );
