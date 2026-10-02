@@ -2,7 +2,7 @@ import '@testing-library/jest-dom';
 import {
 	currentUserCan,
 	getAdminUrl,
-	getScriptData,
+	getMyJetpackUrl,
 	isSimpleSite,
 } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
@@ -17,7 +17,7 @@ jest.mock( '../use-help-tracking', () => ( {
 
 const mockCurrentUserCan = currentUserCan as jest.MockedFunction< typeof currentUserCan >;
 const mockGetAdminUrl = getAdminUrl as jest.MockedFunction< typeof getAdminUrl >;
-const mockGetScriptData = getScriptData as jest.MockedFunction< typeof getScriptData >;
+const mockGetMyJetpackUrl = getMyJetpackUrl as jest.MockedFunction< typeof getMyJetpackUrl >;
 const mockIsSimpleSite = isSimpleSite as jest.MockedFunction< typeof isSimpleSite >;
 const mockIsJetpackPluginActive = isJetpackPluginActive as jest.MockedFunction<
 	typeof isJetpackPluginActive
@@ -28,9 +28,11 @@ describe( 'HelpFooter', () => {
 		jest.clearAllMocks();
 		mockCurrentUserCan.mockReturnValue( true );
 		mockGetAdminUrl.mockImplementation( path => `https://example.com/wp-admin/${ path }` );
+		mockGetMyJetpackUrl.mockImplementation(
+			( path = '' ) => `https://example.com/wp-admin/admin.php?page=my-jetpack${ path }`
+		);
 		mockIsJetpackPluginActive.mockReturnValue( true );
 		mockIsSimpleSite.mockReturnValue( false );
-		mockGetScriptData.mockReturnValue( undefined );
 	} );
 
 	it( 'shows the Useful links section for an admin with the Jetpack plugin active', () => {
@@ -41,20 +43,7 @@ describe( 'HelpFooter', () => {
 		expect( screen.getByRole( 'link', { name: 'Debug information' } ) ).toBeInTheDocument();
 	} );
 
-	it( 'links All Jetpack modules to the modules page when the Features tab is off', () => {
-		render( <HelpFooter /> );
-
-		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(
-			'href',
-			'https://example.com/wp-admin/admin.php?page=jetpack_modules'
-		);
-	} );
-
-	it( 'links All Jetpack modules to the Features list view when the Features tab is on', () => {
-		mockGetScriptData.mockReturnValue( {
-			myJetpack: { productsSection: { slug: 'features', label: 'Features' } },
-		} as unknown as ReturnType< typeof getScriptData > );
-
+	it( 'sends All Jetpack modules to the Features list view', () => {
 		render( <HelpFooter /> );
 
 		expect( screen.getByRole( 'link', { name: 'All Jetpack modules' } ) ).toHaveAttribute(

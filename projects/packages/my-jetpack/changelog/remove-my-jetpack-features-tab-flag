@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove the my-jetpack-features-tab feature flag, and the Initializer methods and productsSection script data that depended on it.

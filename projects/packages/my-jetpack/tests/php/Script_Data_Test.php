@@ -80,20 +80,6 @@ class Script_Data_Test extends BaseTestCase {
 	}
 
 	/**
-	 * Footers on every Jetpack admin page link to the products tab from script data.
-	 */
-	public function test_adds_the_products_section() {
-		$filter = 'jetpack_feature_flag_enabled_' . Initializer::FEATURES_TAB_FEATURE_FLAG;
-		$this->assertSame( 'features', Initializer::add_admin_script_data( array() )['myJetpack']['productsSection']['slug'] );
-
-		add_filter( $filter, '__return_false' );
-		$data = Initializer::add_admin_script_data( array() );
-		remove_all_filters( $filter );
-
-		$this->assertNull( $data['myJetpack']['productsSection'] );
-	}
-
-	/**
 	 * Covers requests other than the My Jetpack page's own.
 	 */
 	public function test_the_image_base_url_is_registered_off_the_my_jetpack_page() {

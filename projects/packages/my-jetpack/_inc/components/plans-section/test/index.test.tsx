@@ -20,9 +20,8 @@ jest.mock( '../../../utils/get-purchase-plan-url', () => ( {
 	__esModule: true,
 	default: () => 'https://example.org/purchase',
 } ) );
-let mockProductsSection: { slug: string; label: string } | null = null;
 jest.mock( '@automattic/jetpack-script-data', () => ( {
-	getScriptData: () => ( { myJetpack: { productsSection: mockProductsSection } } ),
+	getScriptData: () => ( { myJetpack: {} } ),
 	getMyJetpackUrl: ( path = '' ) =>
 		`https://example.org/wp-admin/admin.php?page=my-jetpack${ path }`,
 } ) );
@@ -76,7 +75,6 @@ describe( 'PlansSection', () => {
 		} as ReturnType< typeof useProduct > );
 
 		setPurchases( [] );
-		mockProductsSection = null;
 	} );
 
 	describe( 'the license activation link', () => {
@@ -114,24 +112,42 @@ describe( 'PlansSection', () => {
 	describe( 'the "View included features" link', () => {
 		beforeEach( () => setPurchases( [ buildPurchase( 'Jetpack Security' ) ] ) );
 
-		it( 'points at the Products tab', () => {
+		const ownBundles = ( ...owned: string[] ) =>
+			mockUseProduct.mockImplementation(
+				slug =>
+					( {
+						detail: { hasPaidPlanForProduct: owned.includes( slug ) },
+					} ) as ReturnType< typeof useProduct >
+			);
+		const includedFeaturesHref = () =>
+			screen.getByRole( 'link', { name: 'View included features' } ).getAttribute( 'href' );
+		const base = 'https://example.org/wp-admin/admin.php?page=my-jetpack#/features';
+
+		it( 'points at the unfiltered Features tab when no bundle is owned', () => {
 			render( <PlansSection /> );
 
-			expect( screen.getByRole( 'link', { name: 'View included features' } ) ).toHaveAttribute(
-				'href',
-				'https://example.org/wp-admin/admin.php?page=my-jetpack#/products?filter=included'
-			);
+			expect( includedFeaturesHref() ).toBe( base );
 		} );
 
-		it( 'points at the Features tab once it replaces Products', () => {
-			mockProductsSection = { slug: 'features', label: 'Features' };
-
+		it.each( [ 'security', 'growth' ] )( 'filters the Features tab to %s', bundle => {
+			ownBundles( bundle );
 			render( <PlansSection /> );
 
-			expect( screen.getByRole( 'link', { name: 'View included features' } ) ).toHaveAttribute(
-				'href',
-				'https://example.org/wp-admin/admin.php?page=my-jetpack#/features?filter=included'
-			);
+			expect( includedFeaturesHref() ).toBe( `${ base }?filter=${ bundle }` );
+		} );
+
+		it( 'filters to Complete, which includes the other bundles', () => {
+			ownBundles( 'complete', 'security', 'growth' );
+			render( <PlansSection /> );
+
+			expect( includedFeaturesHref() ).toBe( `${ base }?filter=complete` );
+		} );
+
+		it( 'does not filter when Security and Growth are both owned', () => {
+			ownBundles( 'security', 'growth' );
+			render( <PlansSection /> );
+
+			expect( includedFeaturesHref() ).toBe( base );
 		} );
 	} );
 } );
