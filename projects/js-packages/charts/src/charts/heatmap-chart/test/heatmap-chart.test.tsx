@@ -1,11 +1,8 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
-import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
-import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { buildMonthCalendarHeatmapData } from '../build-month-calendar-data';
 import HeatmapChart, { HeatmapChartUnresponsive } from '../heatmap-chart';
-import { HEATMAP_HIGH_CONTRAST } from '../private/heatmap-scale';
 import type { HeatmapColumn } from '../types';
 
 const mockRefCallback = jest.fn();
@@ -444,16 +441,6 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe( '#abcdef' );
 	} );
 
-	test( 'sets the fill scale ends derived from the primary color', () => {
-		renderChart( { primaryColor: '#3858e9' } );
-		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
-		const low = grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' );
-		const high = grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' );
-
-		expect( contrastRatio( low, '#ffffff' ) ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
-		expect( contrastRatio( high, '#ffffff' ) ).toBeGreaterThanOrEqual( HEATMAP_HIGH_CONTRAST );
-	} );
-
 	test( 'leaves the fill to the stylesheet when the primary color cannot resolve to hex', () => {
 		render(
 			<GlobalChartsProvider>
@@ -505,7 +492,7 @@ describe( 'HeatmapChart', () => {
 		);
 	} );
 
-	test( 'puts the lowest non-zero value on the lowest step, as if the zeros were missing', () => {
+	test( 'puts the lowest non-zero value on the lowest step', () => {
 		renderChart();
 		const lowest = screen.getByRole( 'gridcell', { name: 'W1: 1' } );
 

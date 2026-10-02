@@ -34,7 +34,6 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
 			}
 		}
 	}
-	// A zero only takes a place on the scale beside negatives.
 	if ( hasZero && min < 0 ) {
 		max = Math.max( max, 0 );
 	}

@@ -2,20 +2,17 @@ import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/privat
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { mixHexColors, relativeLuminance } from '../../../utils/color-utils';
 
-/** Contrast against the background that the scale's highest step aims for, so its steps stay apart. */
+/** Contrast the highest step aims for against the background, so the steps stay apart. */
 export const HEATMAP_HIGH_CONTRAST = 9;
 
 const STEPS = 200;
 
 export type HeatmapScale = {
-	/** Fill of the lowest value on the scale. */
 	low: string;
-	/** Fill of the highest value on the scale. */
 	high: string;
 };
 
-// The first hex from `from` toward `to` reaching `target` against `background`. Measured on the
-// rounded hex the browser paints, so an endpoint cannot land a hair under its threshold.
+// Measured on the rounded hex the browser paints, so an endpoint never lands under its threshold.
 const firstReaching = ( from: string, to: string, background: string, target: number ) => {
 	for ( let step = 0; step <= STEPS; step++ ) {
 		const color = mixHexColors( from, to, step / STEPS );
@@ -27,8 +24,8 @@ const firstReaching = ( from: string, to: string, background: string, target: nu
 };
 
 /**
- * The two ends of the heatmap fill scale, derived from the primary color so every scale clears
- * the same contrast against its background, whatever the theme color or mode.
+ * The two ends of the heatmap fill scale: 3:1 against the background at the low end,
+ * toward 9:1 at the high end.
  *
  * @param primary    - The resolved primary color, as six-digit hex.
  * @param background - The resolved chart background, as six-digit hex.
@@ -46,9 +43,8 @@ export const getHeatmapScale = ( primary: string, background: string ): HeatmapS
 	const low = primaryStandsOut
 		? firstReaching( background, primary, background, MIN_BACKGROUND_CONTRAST )
 		: firstReaching( primary, extreme, background, MIN_BACKGROUND_CONTRAST );
-	// Starts at the primary itself, so a primary already past 9:1 is kept as is.
 	const high = firstReaching( primary, extreme, background, HEATMAP_HIGH_CONTRAST );
 
-	// `low` always resolves: the primary itself, or black or white (4.58:1 on any background).
+	// Only `high` can miss: black or white tops out near 4.58:1 on a mid-tone background.
 	return { low: low ?? extreme, high: high ?? extreme };
 };

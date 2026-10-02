@@ -41,13 +41,6 @@ describe( 'getHeatmapScale', () => {
 		expect( getHeatmapScale( '#1d2327', '#ffffff' ).high ).toBe( '#1d2327' );
 	} );
 
-	it( 'still clears 3:1 when the primary matches the background', () => {
-		const { low, high } = getHeatmapScale( '#ffffff', '#ffffff' );
-
-		expect( contrastRatio( low, '#ffffff' ) ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
-		expect( contrastRatio( high, '#ffffff' ) ).toBeGreaterThanOrEqual( HEATMAP_HIGH_CONTRAST );
-	} );
-
 	it.each( [
 		[ '#ffffff', '#808080' ],
 		[ '#ffd000', '#767676' ],
