@@ -425,51 +425,60 @@ test( 'ignores a pending report from a superseded request', async () => {
 	expect( result.current[ 0 ].isRunning ).toBe( false );
 } );
 
-/* eslint-disable jest/no-conditional-expect, testing-library/no-unnecessary-act */
-type PendingOpts = { onPending?: () => void };
 const fresh = { current: { mobile: 66, desktop: 77 }, noBoost: null, isStale: false };
 const acceptThen = ( outcome: Promise< typeof fresh > ) =>
 	jest
 		.mocked( requestSpeedScores )
-		.mockImplementationOnce( async ( _f, _r, _u, _n, opts?: PendingOpts ) => {
-			opts?.onPending?.();
+		.mockImplementationOnce( async ( _force, _root, _url, _nonce, options ) => {
+			options?.onPending?.();
 			return outcome;
 		} );
 
-test.each( [ 'error', 'automatic', 'landed', 'elsewhere' ] )(
-	'accepted-path guard: %s',
-	async scenario => {
-		const completed = jest.fn();
-		const { result } = renderHook( () => useSpeedScores( undefined, true, completed ), {
-			wrapper,
-		} );
-		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
-		if ( scenario === 'error' ) {
-			acceptThen( Promise.reject( new Error( 'Service unavailable' ) ) );
-			await act( async () => result.current[ 1 ]( true, { userStarted: true } ) );
-			await act( async () => result.current[ 1 ]() );
-			expect( completed ).toHaveBeenCalledTimes( 0 );
-		} else if ( scenario === 'automatic' ) {
-			acceptThen( new Promise( () => {} ) );
-			act( () => {
-				void result.current[ 1 ]( true, { userStarted: true } );
-			} );
-			await act( async () => {} );
-			await act( async () => result.current[ 1 ]( true ) );
-			expect( completed ).toHaveBeenCalledTimes( 0 );
-		} else if ( scenario === 'landed' ) {
-			acceptThen( Promise.resolve( fresh ) );
-			await act( async () => result.current[ 1 ]( true, { userStarted: true } ) );
-			expect( completed ).toHaveBeenCalledTimes( 1 );
-			await act( async () => result.current[ 1 ]() );
-			expect( completed ).toHaveBeenCalledTimes( 1 );
-		} else {
-			acceptThen( Promise.resolve( fresh ) );
-			await act( async () => result.current[ 1 ]() );
-			acceptThen( Promise.resolve( fresh ) );
-			await act( async () => result.current[ 1 ]( true ) );
-			expect( completed ).toHaveBeenCalledTimes( 0 );
-		}
-	}
-);
-/* eslint-enable jest/no-conditional-expect, testing-library/no-unnecessary-act */
+async function renderLoaded() {
+	const completed = jest.fn();
+	const { result } = renderHook( () => useSpeedScores( undefined, true, completed ), {
+		wrapper,
+	} );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	return {
+		completed,
+		refresh: ( ...args: Parameters< ( typeof result.current )[ 1 ] > ) =>
+			result.current[ 1 ]( ...args ),
+	};
+}
+
+test( 'does not announce an accepted user run that fails, nor the cached read after it', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( Promise.reject( new Error( 'Service unavailable' ) ) );
+	await act( async () => refresh( true, { userStarted: true } ) );
+	await act( async () => refresh() );
+	expect( completed ).not.toHaveBeenCalled();
+} );
+
+test( 'does not announce an accepted user run that an automatic refresh supersedes', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( new Promise( () => {} ) );
+	await act( async () => {
+		void refresh( true, { userStarted: true } );
+	} );
+	await act( async () => refresh( true ) );
+	expect( completed ).not.toHaveBeenCalled();
+} );
+
+test( 'announces an accepted user run once, not again on the next cached read', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( Promise.resolve( fresh ) );
+	await act( async () => refresh( true, { userStarted: true } ) );
+	expect( completed ).toHaveBeenCalledTimes( 1 );
+	await act( async () => refresh() );
+	expect( completed ).toHaveBeenCalledTimes( 1 );
+} );
+
+test( 'does not announce a run started elsewhere when an automatic refresh follows', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( Promise.resolve( fresh ) );
+	await act( async () => refresh() );
+	acceptThen( Promise.resolve( fresh ) );
+	await act( async () => refresh( true ) );
+	expect( completed ).not.toHaveBeenCalled();
+} );
