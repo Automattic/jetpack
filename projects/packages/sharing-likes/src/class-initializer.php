@@ -20,8 +20,10 @@ final class Initializer {
 
 	/**
 	 * Package version.
+	 *
+	 * No visibility keyword: `tools/project-version.sh` only matches `const PACKAGE_VERSION = '…';`.
 	 */
-	public const PACKAGE_VERSION = '0.1.1';
+	const PACKAGE_VERSION = '0.1.1';
 
 	/**
 	 * Whether `init()` already ran in this request.
