@@ -1,15 +1,17 @@
 import { getScoreLetter } from '@automattic/jetpack-boost-score-api';
-import { CardDivider, Spinner } from '@wordpress/components';
+import { CardDivider } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, info, mobile } from '@wordpress/icons';
-import { Button, Card, Notice, Stack, Popover, Text, VisuallyHidden } from '@wordpress/ui';
+import { Button, Card, Notice, Popover, VisuallyHidden } from '@wordpress/ui';
 import clsx from 'clsx';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import GradeExplanation from './grade-explanation';
 import { getOverallScoreTier, getScoreDisplayState } from './lib/score-utils';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
 import type { ReactNode, RefObject } from 'react';
+import './score-ready.scss';
 
 type Props = {
 	scores: SpeedScoresSet;
@@ -19,6 +21,7 @@ type Props = {
 	error?: Error | null;
 	onRetry?: () => void;
 	isVisible?: boolean;
+	isScoreReady?: boolean;
 	headingRef?: RefObject< HTMLHeadingElement >;
 };
 
@@ -30,12 +33,14 @@ export default function ScoreCards( {
 	error,
 	onRetry,
 	isVisible = true,
+	isScoreReady = false,
 	headingRef,
 }: Props ) {
 	const internalTitleRef = useRef< HTMLHeadingElement >( null );
 	const titleRef = headingRef ?? internalTitleRef;
 	const hasFocus = useRef( false );
-	const showOverlay = getScoreDisplayState( { isRunning, hasScores, error } ) === 'generating';
+	const displayState = getScoreDisplayState( { isRunning, hasScores, error } );
+	const showOverlay = displayState === 'generating';
 	const [ announceCalculating, setAnnounceCalculating ] = useState( false );
 	useEffect( () => {
 		setAnnounceCalculating( Boolean( showOverlay ) );
@@ -64,13 +69,18 @@ export default function ScoreCards( {
 		</Card.Content>
 	);
 	const calculating = (
-		<Card.Content className="jetpack-boost-overview__scores-status" role="status">
-			{ showOverlay && (
-				<Stack direction="row" justify="center" align="center" gap="md">
-					<Spinner />
-					<Text>{ announceCalculating && __( 'Calculating…', 'jetpack-boost' ) }</Text>
-				</Stack>
-			) }
+		<Card.Content
+			className={ clsx( 'jetpack-boost-overview__scores-status', {
+				'jetpack-boost-overview__scores-status--generating': showOverlay,
+			} ) }
+		>
+			<IndeterminateProgress
+				label={ __( 'Testing site speed', 'jetpack-boost' ) }
+				isGenerating={ showOverlay }
+				live
+			>
+				{ showOverlay && announceCalculating && __( 'Calculating…', 'jetpack-boost' ) }
+			</IndeterminateProgress>
 		</Card.Content>
 	);
 	let body: ReactNode;
@@ -89,6 +99,7 @@ export default function ScoreCards( {
 					<div
 						className={ clsx( 'jetpack-boost-overview__score-row', {
 							'jetpack-boost-overview__score-row--hidden': showOverlay,
+							'jetpack-boost-score-ready': isScoreReady && displayState === 'scores',
 						} ) }
 						aria-busy={ isLoading }
 					>

@@ -63,6 +63,7 @@
 	pointer-events: none;
 
 	.jetpack-boost-overview__scores-status {
+		inline-size: 100%;
 		padding-block: 0;
 	}
 }
@@ -186,15 +187,11 @@
 }
 
 .jetpack-boost-overview__scores-status {
-	padding-block: calc(2 * var(--wpds-dimension-padding-3xl));
+	padding-block: 0;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
-	&:empty {
-		padding-block: 0;
-	}
-
-	.components-spinner {
-		margin: 0;
+	&--generating {
+		padding-block: calc(2 * var(--wpds-dimension-padding-3xl));
 	}
 }
 

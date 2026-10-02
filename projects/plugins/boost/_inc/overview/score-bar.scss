@@ -64,10 +64,6 @@
 		color: var(--wpds-color-foreground-content-error-weak);
 	}
 
-	.components-spinner {
-		margin: 0;
-	}
-
 	&__meter {
 		flex: 1;
 		block-size: var(--wpds-dimension-size-5xs);
@@ -112,13 +108,5 @@
 		&__dot {
 			display: inline-block;
 		}
-	}
-}
-
-@media (prefers-reduced-motion: reduce) {
-
-	.jetpack-boost-score-bar .components-spinner,
-	.jetpack-boost-score-bar .components-spinner * {
-		animation: none;
 	}
 }
