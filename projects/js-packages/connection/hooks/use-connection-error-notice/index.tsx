@@ -53,10 +53,8 @@ export default function useConnectionErrorNotice( {
 	customActions = null,
 	reconnectTrackingEvent,
 	navigate,
-	includeHealthErrors = false,
 }: ConnectionErrorProps = {} ): UseConnectionErrorNoticeResult {
-	const { connectionErrors, connectionHealthErrors, connectionOwner, userConnectionData } =
-		useConnection( {} );
+	const { connectionErrors, connectionOwner, userConnectionData } = useConnection( {} );
 	const { restoreConnection, isRestoringConnection, restoreConnectionError } =
 		useRestoreConnection();
 
@@ -64,26 +62,14 @@ export default function useConnectionErrorNotice( {
 	// effects and memos off it (My Jetpack re-sets its notice whenever these
 	// change identity), so each derivation is memoized: a fresh array or object
 	// every render would re-fire that work on renders where nothing moved.
-	const errorMap: ConnectionErrorMap = useMemo( () => {
-		// connectionErrors is typed as Array<string|object> but is actually a nested
-		// object at runtime; the store selector can also fall back to `[]`. Normalize
-		// to a map so the returned value is honest to the ConnectionErrorMap contract.
-		const storedErrorMap: ConnectionErrorMap = isConnectionErrorMap( connectionErrors )
-			? connectionErrors
-			: {};
-		// `connectionHealthErrors` is typed as a `ConnectionErrorMap` at the store
-		// boundary (selector defaults to `{}`, never an array), so no normalization
-		// is needed — just guard against a caller that never populated the slot.
-		// Only consumers that opted in (i.e. actually ran the probe) inherit it; for
-		// everyone else the shared health slot is invisible.
-		const healthErrorMap: ConnectionErrorMap = includeHealthErrors
-			? ( connectionHealthErrors ?? {} )
-			: {};
 
-		// Precedence: real WPCOM-reported store errors win; health-check failures are
-		// the fallback so a broken connection still surfaces when the store is empty.
-		return Object.keys( storedErrorMap ).length ? storedErrorMap : healthErrorMap;
-	}, [ connectionErrors, connectionHealthErrors, includeHealthErrors ] );
+	// connectionErrors is typed as Array<string|object> but is actually a nested
+	// object at runtime; the store selector can also fall back to `[]`. Normalize
+	// to a map so the returned value is honest to the ConnectionErrorMap contract.
+	const errorMap: ConnectionErrorMap = useMemo(
+		() => ( isConnectionErrorMap( connectionErrors ) ? connectionErrors : {} ),
+		[ connectionErrors ]
+	);
 
 	const currentUserId = userConnectionData?.currentUser?.id;
 

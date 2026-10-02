@@ -853,6 +853,10 @@ class Jetpack {
 			return;
 		}
 
+		if ( ! self::is_module_active( 'backup' ) ) {
+			return;
+		}
+
 		/**
 		 * Filters whether the Jetpack plugin offers its bundled Backup dashboard.
 		 *

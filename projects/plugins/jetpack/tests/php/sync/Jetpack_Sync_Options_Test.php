@@ -256,6 +256,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'videopress_private_enabled_for_site'          => false,
 			'videopress_auto_subtitles_disabled'           => true,
 			'videopress_player_preload_disabled'           => true,
+			'videopress_share_menu_disabled'               => true,
 			'videopress_playlist_index'                    => array(
 				'pineapple' => array(
 					'title'       => 'pineapple',
@@ -281,6 +282,7 @@ class Jetpack_Sync_Options_Test extends Jetpack_Sync_TestBase {
 			'wpcom_reader_views_enabled'                   => true,
 			'wpcom_site_setup'                             => '',
 			'jetpack_verbum_subscription_modal'            => true,
+			'enable_blocks_comments'                       => '1',
 			'jetpack_blocks_disabled'                      => false,
 			'wpcom_ai_site_prompt'                         => '',
 			'reader_chat'                                  => false,

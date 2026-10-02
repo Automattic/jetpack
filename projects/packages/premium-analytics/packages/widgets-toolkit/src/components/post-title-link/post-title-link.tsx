@@ -35,7 +35,7 @@ export type PostTitleLinkProps = {
 
 	/**
 	 * Search parameters for the detail route. Pass the shared report window from
-	 * `pickReportDateParams()` so the detail page opens on the same date range.
+	 * `pickReportDateParams()` so the detail page's breadcrumbs return to it.
 	 */
 	search?: Record< string, unknown >;
 

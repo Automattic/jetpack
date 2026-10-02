@@ -24,6 +24,12 @@ describe( 'LogOutDialog', () => {
 		render( <LogOutDialog onConfirm={ noop } onCancel={ noop } /> );
 
 		expect( screen.getByRole( 'dialog', { name: 'Log out from PayPal' } ) ).toBeInTheDocument();
+		// PayPal's certification checklist prescribes this sentence, word for word.
+		expect(
+			screen.getByText(
+				'Disconnecting your PayPal account will prevent you from offering PayPal services and products on your website. Do you wish to continue?'
+			)
+		).toBeInTheDocument();
 		expect(
 			screen.getByText(
 				'You won’t be able to add, edit, or view payment buttons while using WordPress after you log out of PayPal.'

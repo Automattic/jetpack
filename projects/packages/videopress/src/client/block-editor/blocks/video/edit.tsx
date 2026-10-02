@@ -265,7 +265,7 @@ export default function VideoPressEdit( {
 	 */
 	const [ generatingPreviewCounter, setGeneratingPreviewCounter ] = useState( 0 );
 
-	const rePreviewAttemptTimer = useRef< ReturnType< typeof setTimeout > | void >();
+	const rePreviewAttemptTimer = useRef< ReturnType< typeof setTimeout > | void >( undefined );
 
 	/**
 	 * Clean the generating process timer.

@@ -97,6 +97,7 @@
 		flex-wrap: wrap;
 		min-height: 48px;
 		padding-inline: 6px;
+		background: none;
 		line-height: 0;
 
 		// Room for a list's nine buttons in one row on a phone.
@@ -315,6 +316,11 @@
 		}
 	}
 
+	// Past a theme's `input:focus` border; the backdrop draws the real one.
+	.components-input-control__input {
+		border: 0 !important;
+	}
+
 	.components-input-control__container:focus-within .components-input-control__backdrop {
 		outline: 2px solid var(--wp-admin-theme-color);
 		outline-offset: 2px;
@@ -360,6 +366,20 @@
 	}
 }
 
+// Past a theme that fills every button with !important, seasonal variants and
+// all (`body.winter button:hover`), so three classes deep.
+.jetpack-comments .jetpack-comments__editor .components-button {
+	background: none !important;
+
+	&.is-primary {
+		background: var(--wp-admin-theme-color) !important;
+	}
+
+	&.is-primary:hover:not(:disabled) {
+		background: var(--wp-admin-theme-color-darker-10) !important;
+	}
+}
+
 // Tooltips render at the end of the page body, outside the editor.
 .components-tooltip {
 	z-index: 1000002;
@@ -388,7 +408,7 @@
 	border: 0 !important;
 }
 
-// Across the top of the box, opening and closing with the footer. Hidden, not
+// Across the top of the box, opening and closing with it. Hidden, not
 // just collapsed, so nothing inside a closed one takes focus.
 .jetpack-comments__toolbar {
 	display: grid;

@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Widgets: Catch various PHP warnings when params are incomplete.

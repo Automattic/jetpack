@@ -1,40 +1,54 @@
 /**
  * Internal dependencies
  */
-import { downloadReportCsv } from '../../report-exports/download-report-csv';
-import { useWidgetRootContext } from '../widget-root';
+import {
+	eraseExporterRowTypes,
+	reportCsvExporters,
+	type ExportableReport,
+} from '../../report-exports/by-report';
+import { useExporterCsvAction, type UseExporterCsvActionOptions } from './csv-download-action';
 import { CsvDownloadButton, type CsvDownloadButtonProps } from './csv-download-button';
-import { isReportCsvReady, type ReportCsvExportStatus } from './use-report-csv-export';
 import type { ReportCsvExporter } from '../../report-exports/types';
 
 type ExporterCsvDownloadButtonProps< TItem, TRow > = Omit<
 	CsvDownloadButtonProps,
-	'onDownload'
-> & {
-	exporter: ReportCsvExporter< TItem, TRow >;
-	/** The widget's own request state for the active range. */
-	status: ReportCsvExportStatus;
-	/** How many rows the widget shows; an empty widget offers no download. */
-	rowCount: number;
-};
+	'onDownload' | 'label' | 'icon'
+> &
+	Omit< UseExporterCsvActionOptions< TItem, TRow >, 'exporter' > & {
+		/**
+		 * The linked report's exporter. A widget outside the dashboard names the report instead.
+		 */
+		exporter?: ReportCsvExporter< TItem, TRow >;
+		/**
+		 * Id of the linked report, e.g. `videos`, for a widget that holds no exporter.
+		 */
+		report?: ExportableReport;
+	};
 
 /** Widget action that downloads the linked report's full CSV once the widget's rows settle. */
 export function ExporterCsvDownloadButton< TItem, TRow >( {
 	exporter,
+	report,
 	status,
 	rowCount,
 	...buttonProps
 }: ExporterCsvDownloadButtonProps< TItem, TRow > ) {
-	const { reportParams } = useWidgetRootContext();
+	const action = useExporterCsvAction( {
+		exporter: exporter ? eraseExporterRowTypes( exporter ) : report && reportCsvExporters[ report ],
+		status,
+		rowCount,
+	} );
 
-	if ( ! isReportCsvReady( status, rowCount ) ) {
+	if ( ! action ) {
 		return null;
 	}
 
 	return (
 		<CsvDownloadButton
 			{ ...buttonProps }
-			onDownload={ () => downloadReportCsv( exporter, reportParams ) }
+			label={ action.label }
+			icon={ action.icon }
+			onDownload={ action.callback }
 		/>
 	);
 }

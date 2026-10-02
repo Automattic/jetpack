@@ -581,6 +581,80 @@ function protectedOwnerIsEstablished() {
 }
 
 /**
+ * Whether the viewer can give up this site's protected ownership.
+ *
+ * Only the confirmed owner, and only once ownership is settled: every pending state already
+ * offers its own slot, and releasing from one of those would unlock a lock nobody holds yet.
+ *
+ * @return {boolean} True when the release row should be shown.
+ */
+function canReleaseProtectedOwner() {
+	// Holding the connection too, which is the gate the release endpoint applies: a settled site
+	// has the anchored owner there, and a shared binding alone would earn a 403.
+	return (
+		protectedOwnerIsEstablished() &&
+		Boolean( protectedOwner?.viewerIsConfirmedOwner ) &&
+		Boolean( currentUser?.isOwner )
+	);
+}
+
+/**
+ * Release-ownership row, shown under the confirmed owner's own account.
+ *
+ * @param {object}  props        - Component props.
+ * @param {boolean} props.isBusy - Whether another account action is in progress (disables the link).
+ * @return {object} React element.
+ */
+function ReleaseOwnershipSection( { isBusy = false } ) {
+	const [ isReleaseOpen, setIsReleaseOpen ] = useState( false );
+	const [ releaseError, setReleaseError ] = useState( null );
+	const Release = window.JetpackConnection?.ProtectedOwnerRelease;
+
+	return createElement(
+		VStack,
+		{ spacing: 3, className: 'jetpack-connector__section' },
+		createElement(
+			Button,
+			{
+				variant: 'link',
+				className: 'jetpack-connector__inline-action',
+				disabled: isBusy || isOfflineMode,
+				onClick: () => {
+					if ( ! window.JetpackConnection?.ProtectedOwnerRelease ) {
+						setReleaseError(
+							__(
+								'Could not open the release dialog. Reload the page and try again.',
+								'jetpack-connection'
+							)
+						);
+						return;
+					}
+					setReleaseError( null );
+					setIsReleaseOpen( true );
+				},
+			},
+			__( 'Release ownership', 'jetpack-connection' )
+		),
+		releaseError
+			? createElement( ErrorNotice, {
+					message: releaseError,
+					onDismiss: () => setReleaseError( null ),
+				} )
+			: null,
+		isReleaseOpen && Release
+			? createElement( Release, {
+					isOpen: true,
+					apiRoot,
+					apiNonce,
+					subject: subjectNoun,
+					onClose: () => setIsReleaseOpen( false ),
+					onReleased: () => window.location.reload(),
+				} )
+			: null
+	);
+}
+
+/**
  * Protected-owner slot.
  *
  * @return {object} React element.
@@ -1457,6 +1531,11 @@ function ExpandedDetails( { isConnecting = false, onConnect = null } ) {
 										: __( 'Disconnect account', 'jetpack-connection' )
 								),
 				} )
+			: null,
+
+		// Release link, directly under the confirmed owner's own account row.
+		canReleaseProtectedOwner()
+			? createElement( ReleaseOwnershipSection, { isBusy: isUnlinking || isDisconnecting } )
 			: null,
 
 		// Connect prompt (only when the viewing admin is NOT linked).

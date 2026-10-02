@@ -14,6 +14,10 @@ use Automattic\Jetpack\WP_Abilities\Registrar;
 use Jetpack;
 use Jetpack_IXR_Client;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Registers Jetpack Downtime Monitor abilities with the WordPress Abilities API.
  *

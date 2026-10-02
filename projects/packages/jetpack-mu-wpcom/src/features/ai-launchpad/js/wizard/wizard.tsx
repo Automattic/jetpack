@@ -32,8 +32,6 @@ interface Props {
 	initialSiteName?: string;
 	// Existing site tagline (blogdescription). Pre-fills the Brief description.
 	initialIntent?: string;
-	// The site's front-end URL, used to key the Calypso My Home URL on Skip.
-	siteUrl?: string;
 	// The site language, forwarded to the wizard payload and the AI call, which writes the drafts in it.
 	locale?: string;
 	// The account language, which the AI writes the task subtitles in.
@@ -52,7 +50,6 @@ interface Props {
  * @param props                 - Component props.
  * @param props.initialSiteName - Existing site title used to pre-fill Name.
  * @param props.initialIntent   - Existing site tagline used to pre-fill the description.
- * @param props.siteUrl         - The site's front-end URL (for the Skip redirect).
  * @param props.locale          - Site language forwarded to the payload.
  * @param props.uiLocale        - Account language the task subtitles are written in.
  * @param props.copy            - Site-language copy for the fallback drafts.
@@ -62,7 +59,6 @@ interface Props {
 export function Wizard( {
 	initialSiteName = '',
 	initialIntent = '',
-	siteUrl,
 	locale = 'en',
 	uiLocale = locale,
 	copy,
@@ -140,9 +136,8 @@ export function Wizard( {
 		}
 	};
 
-	// Skipping opts out of the AI Launchpad entirely: dismiss it server-side (which reverts
-	// the site to the regular launchpad surfaces) and leave for Calypso My Home. Calypso keys
-	// sites by their front-end host, so prefer the site URL over the wp-admin request host.
+	// Skipping opts out of the AI Launchpad entirely: dismiss it server-side (which leaves the
+	// site with no setup guidance) and leave for the wp-admin dashboard.
 	const handleSkip = async () => {
 		setSkipping( true );
 		trackWizardStepSkipped( { step: stepName } );
@@ -151,13 +146,8 @@ export function Wizard( {
 		} catch {
 			// Still navigate away: a failed dismiss write must not trap the user in the wizard.
 		}
-		let siteHost = window.location.hostname;
-		try {
-			siteHost = siteUrl ? new URL( siteUrl ).hostname : siteHost;
-		} catch {
-			// Malformed site URL: keep the request host.
-		}
-		window.location.href = 'https://wordpress.com/home/' + siteHost;
+		// Relative to the wizard's own admin.php?page=site-setup-wp-admin URL, so this resolves to the dashboard.
+		window.location.href = 'index.php';
 	};
 
 	return (

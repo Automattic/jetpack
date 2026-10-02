@@ -32,6 +32,90 @@ function loadCalibration() {
 // Load calibration at module init
 const calibration = loadCalibration();
 
+/** Install fresh load observers before scripts execute on each navigation. */
+/* eslint-disable no-undef -- This runs in browser context via Playwright. */
+function initializeLoadObservers() {
+	// Keep resource captures complete beyond the browser's default 250-entry buffer.
+	performance.setResourceTimingBufferSize( 10000 );
+	window.__lcpEntries = [];
+	window.__lcpObserver = new PerformanceObserver( list => {
+		for ( const entry of list.getEntries() ) {
+			window.__lcpEntries.push( {
+				startTime: entry.startTime,
+				element: entry.element?.tagName || 'unknown',
+				size: entry.size,
+				url: entry.url,
+			} );
+		}
+	} );
+	window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
+
+	let observer = null;
+	let entries = null;
+	let longTaskError = 'unsupported';
+	const record = tasks => {
+		for ( const task of tasks ) {
+			entries.push( { startTime: task.startTime, duration: task.duration } );
+		}
+	};
+	try {
+		if ( PerformanceObserver.supportedEntryTypes.includes( 'longtask' ) ) {
+			longTaskError = null;
+			observer = new PerformanceObserver( list => {
+				try {
+					record( list.getEntries() );
+				} catch {
+					entries = null;
+					longTaskError = 'callback-threw';
+				}
+			} );
+			entries = [];
+			observer.observe( { type: 'longtask', buffered: true } );
+		}
+	} catch {
+		entries = null;
+		longTaskError = 'observe-threw';
+	}
+
+	window.__finalizeLongTasks = cutoff => {
+		try {
+			if ( entries === null ) {
+				return { tbt: null, longTasks: null, longTaskError };
+			}
+			if ( ! Number.isFinite( cutoff ) ) {
+				return { tbt: null, longTasks: null, longTaskError: 'invalid-cutoff' };
+			}
+			// Flush completed tasks whose observer callback has not run yet.
+			record( observer.takeRecords() );
+			if (
+				entries.some(
+					task =>
+						! Number.isFinite( task.startTime ) ||
+						! Number.isFinite( task.duration ) ||
+						task.startTime < 0 ||
+						task.duration < 0
+				)
+			) {
+				return { tbt: null, longTasks: null, longTaskError: 'invalid-entry' };
+			}
+			const longTasks = entries.filter( task => task.startTime + task.duration <= cutoff );
+			return {
+				tbt: longTasks.reduce( ( sum, task ) => sum + Math.max( 0, task.duration - 50 ), 0 ),
+				longTasks,
+			};
+		} catch {
+			return { tbt: null, longTasks: null, longTaskError: 'finalizer-threw' };
+		} finally {
+			try {
+				observer?.disconnect();
+			} catch {
+				// Cleanup failure must not discard the captured result.
+			}
+		}
+	};
+}
+/* eslint-enable no-undef */
+
 /**
  * Measure browser timings, runtime bundle size and configured backend fields for a scenario.
  *
@@ -113,39 +197,14 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 		try {
 			console.log( `  Iteration ${ i + 1 }/${ iterations }...` );
 
-			// Step 0: Set up LCP capture and the enlarged Resource Timing buffer via addInitScript.
+			// Step 0: Install buffered LCP/long-task capture and the enlarged Resource Timing buffer.
 			// This injects code that runs BEFORE any page script on EVERY navigation from here on
 			// (login, warm-up and the measured reload — each document gets a fresh copy, so the
 			// reload's __lcpEntries never contain earlier pages' entries). Installed before the
 			// FIRST navigation on purpose: the warm-up resource-count settle reads the timing
 			// buffer, and the browser's 250-entry default would silently cap (and false-settle)
 			// the count once the page's real load grows past it.
-			/* eslint-disable no-undef -- This runs in browser context via Playwright */
-			await context.addInitScript( () => {
-				// This runs in the browser context before page load
-
-				// Raise the Resource Timing buffer well above the default 250 entries. This metric
-				// exists to watch a GROWING count of @wordpress/* editor module files, so the
-				// measured quantity and the default cap would collide exactly as the tracked
-				// regression worsens — past 250 the tail would drop and the decoded-bytes sum would
-				// silently under-count. (~91 resources today; this is headroom, not a live fix.)
-				performance.setResourceTimingBufferSize( 10000 );
-
-				window.__lcpEntries = [];
-				window.__lcpObserver = new PerformanceObserver( list => {
-					const entries = list.getEntries();
-					for ( const entry of entries ) {
-						window.__lcpEntries.push( {
-							startTime: entry.startTime,
-							element: entry.element?.tagName || 'unknown',
-							size: entry.size,
-							url: entry.url,
-						} );
-					}
-				} );
-				window.__lcpObserver.observe( { type: 'largest-contentful-paint', buffered: true } );
-			} );
-			/* eslint-enable no-undef */
+			await context.addInitScript( initializeLoadObservers );
 
 			// Step 1: Log in to WordPress (not measured)
 			await page.goto( `${ url }/wp-login.php`, {
@@ -240,6 +299,13 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 			// Collect all metrics
 			/* eslint-disable no-undef -- This runs in browser context via Playwright */
 			const metrics = await page.evaluate( () => {
+				const loadFinalizedAt = performance.now();
+				const blocking = window.__finalizeLongTasks?.( loadFinalizedAt ) ?? {
+					tbt: null,
+					longTasks: null,
+					longTaskError: 'finalizer-missing',
+				};
+
 				// Disconnect observer to finalize LCP
 				if ( window.__lcpObserver ) {
 					window.__lcpObserver.disconnect();
@@ -276,6 +342,11 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 				const fp = paintEntries.find( p => p.name === 'first-paint' );
 
 				return {
+					loadFinalizedAt,
+					tbt: blocking.tbt,
+					longTasks: blocking.longTasks,
+					longTaskError: blocking.longTaskError,
+
 					// LCP - primary metric
 					lcp: lcp,
 					lcpElement: lcpElement,
@@ -350,6 +421,11 @@ async function measureLCP( url, username, password, iterations = 5, scenario = {
 					metrics.lcpEntriesCount
 				})`
 			);
+			console.log(
+				`    TBT: ${ Number.isFinite( metrics.tbt ) ? `${ metrics.tbt.toFixed( 2 ) }ms` : `missing (${ metrics.longTaskError })` } (long tasks: ${
+					metrics.longTasks?.length ?? 'missing'
+				})`
+			);
 		} catch ( error ) {
 			console.error( `  Iteration ${ i + 1 } failed:`, error.message );
 			results.push( {
@@ -379,6 +455,7 @@ const SUMMARY_FIELDS = [
 	'ttfb',
 	'fcp',
 	'decodedBytesKB',
+	'tbt',
 	'wpTotal',
 	'wpMemoryUsage',
 	'wpDbQueries',
@@ -393,8 +470,10 @@ const SUMMARY_FIELDS = [
  * @return {Promise<object>} Merged metrics and navigation diagnostics.
  */
 async function captureNavigationMetrics( response, scenario, metrics ) {
+	const { longTaskError, ...browserMetrics } = metrics;
 	const capture = {
-		metrics: { ...metrics },
+		metrics: browserMetrics,
+		...( longTaskError ? { longTaskError } : {} ),
 		navigationUrl: response?.url() ?? null,
 		navigationStatus: response?.status() ?? null,
 	};
@@ -407,7 +486,7 @@ async function captureNavigationMetrics( response, scenario, metrics ) {
 	}
 	try {
 		capture.serverTimingHeader = ( await response?.headerValue( 'server-timing' ) ) ?? null;
-		capture.metrics = { ...metrics, ...parseServerTiming( capture.serverTimingHeader ) };
+		capture.metrics = { ...browserMetrics, ...parseServerTiming( capture.serverTimingHeader ) };
 	} catch ( error ) {
 		capture.serverTimingError = error.message;
 	}
@@ -990,7 +1069,9 @@ async function main() {
 	console.log(
 		'  2. Reload the scenario page (Dashboard, or a targeted admin page) for a clean load'
 	);
-	console.log( '  3. Measure LCP, TTFB, FCP, runtime bundle size and configured backend fields' );
+	console.log(
+		'  3. Measure LCP, TTFB, FCP, load TBT, runtime bundle size and configured backend fields'
+	);
 	console.log( '' );
 	console.log( 'Configuration:' );
 	for ( const scenario of SCENARIOS ) {
@@ -1019,7 +1100,11 @@ async function main() {
 				scenario
 			);
 			console.log(
-				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms\n`
+				`✓ ${ scenario.name } median LCP: ${ measurements[ scenario.key ].summary.median }ms; median TBT: ${
+					measurements[ scenario.key ].summary.tbt
+						? `${ measurements[ scenario.key ].summary.tbt.median }ms`
+						: 'missing'
+				}\n`
 			);
 		} catch ( error ) {
 			console.error( `✗ ${ scenario.name } measurement failed:`, error.message, '\n' );
@@ -1041,7 +1126,11 @@ async function main() {
 			continue;
 		}
 		if ( measurement && ! measurement.error ) {
-			console.log( `  ${ scenario.name }: ${ measurement.summary.median }ms` );
+			console.log(
+				`  ${ scenario.name }: median LCP ${ measurement.summary.median }ms; median TBT ${
+					measurement.summary.tbt ? `${ measurement.summary.tbt.median }ms` : 'missing'
+				}`
+			);
 		} else if ( scenario.optional ) {
 			console.log(
 				`  ${ scenario.name }: FAILED (optional — build continues, its keys skip this build) - ${
@@ -1135,6 +1224,7 @@ export {
 	measureLCP,
 	captureNavigationMetrics,
 	parseServerTiming,
+	initializeLoadObservers,
 	resolveResultsGit,
 	buildSummary,
 	findIncompleteSummaryFields,

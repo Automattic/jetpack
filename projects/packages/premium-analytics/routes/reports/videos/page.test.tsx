@@ -2,10 +2,9 @@
  * External dependencies
  */
 import {
-	ReportCsvAction,
+	ExporterCsvAction,
 	ReportErrorState,
 	ReportRecordsTable,
-	useReportCsvExport,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -49,8 +48,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 		</>
 	),
 	ReportRecordsTable: jest.fn( () => null ),
-	ReportCsvAction: jest.fn( () => <button>Download</button> ),
-	useReportCsvExport: jest.fn(),
+	ExporterCsvAction: jest.fn( () => <button>Download</button> ),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -69,8 +67,7 @@ jest.mock( '@wordpress/route', () => ( {
 } ) );
 
 const useRecordsMock = jest.mocked( useVideosReportRecords );
-const useReportCsvExportMock = jest.mocked( useReportCsvExport );
-const reportCsvActionMock = jest.mocked( ReportCsvAction );
+const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
 const getVideosFieldsMock = jest.mocked( getVideosFields );
 const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
@@ -107,11 +104,6 @@ function buildRecords( overrides: Partial< ReturnType< typeof useVideosReportRec
 describe( 'VideosReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: false,
-			rows: [],
-			filename: 'videos',
-		} );
 	} );
 
 	it( 'renders the records table when the report succeeds', () => {
@@ -138,7 +130,7 @@ describe( 'VideosReportPage', () => {
 		);
 	} );
 
-	it( 'wires loaded video rows into the page export action', () => {
+	it( 'passes the report status to the page export action', () => {
 		const rows = [
 			{
 				id: 441,
@@ -153,48 +145,12 @@ describe( 'VideosReportPage', () => {
 		];
 		const records = buildRecords( { rows } );
 		useRecordsMock.mockReturnValue( records );
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: true,
-			rows,
-			filename: 'videos-2026-06-01_2026-06-30',
-		} );
 
 		render( <VideosReportPage /> );
 
 		expect( screen.getByTestId( 'page-actions' ) ).toHaveTextContent( 'Download' );
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
-			expect.objectContaining( {
-				rows,
-				filenamePrefix: 'videos',
-				status: records,
-				sort: expect.any( Function ),
-			} )
-		);
-
-		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.label ) ).toEqual( [
-			'Video ID',
-			'Video',
-			'Plays',
-			'Impressions',
-			'Watch time (hours)',
-			'Retention rate (%)',
-			'URL',
-		] );
-		expect( columns.map( column => column.getValue( rows[ 0 ] ) ) ).toEqual( [
-			441,
-			'Demo',
-			13,
-			22,
-			0.04,
-			64.5,
-			'https://example.com/video/441',
-		] );
-		expect( reportCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( {
-				rows,
-				filename: 'videos-2026-06-01_2026-06-30',
-			} )
+		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
+			expect.objectContaining( { status: records } )
 		);
 	} );
 

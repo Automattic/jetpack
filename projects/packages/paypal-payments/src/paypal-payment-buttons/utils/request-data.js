@@ -62,7 +62,6 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 		currencyCode,
 		productDescription,
 		productId,
-		imageUrl,
 		returnUrl,
 		variantsEnabled,
 		variants,
@@ -118,8 +117,6 @@ export function buildRequestData( attributes, usesVariantPricing ) {
 						} ),
 				...( productDescription ? { description: productDescription } : {} ),
 				...( productId?.trim() ? { product_id: productId.trim() } : {} ),
-				// The block owns the image: leaving it out here removes it at PayPal.
-				...( imageUrl ? { image_url: imageUrl } : {} ),
 				...( variantsEnabled && variants
 					? { variants: withCurrency( variants, currencyCode || 'USD' ) }
 					: {} ),
