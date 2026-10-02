@@ -201,8 +201,9 @@ describe( 'report row fetchers', () => {
 			},
 		} );
 
-		const rows = await fetchStatsVideoPlaysRows( VIDEO_SUMMARY );
+		const rows = await fetchStatsVideoPlaysRows( { ...VIDEO_SUMMARY, period: 'month' } );
 
+		expect( requestedPaths()[ 0 ] ).toContain( 'period=day' );
 		expect( requestedPaths()[ 0 ] ).toContain( 'complete_stats=1' );
 		expect( rows.map( row => row.plays ) ).toEqual( [ 5 ] );
 	} );
