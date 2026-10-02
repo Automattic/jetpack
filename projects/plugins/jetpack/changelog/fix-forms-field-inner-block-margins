@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Contact Form: fix block spacing and alignment inside forms, and let a step's blocks be aligned.
