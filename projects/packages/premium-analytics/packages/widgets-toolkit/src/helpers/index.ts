@@ -58,13 +58,11 @@ export {
 	buildCsv,
 	buildCsvDateRangeFilename,
 	saveCsv,
-	withComparisonColumns,
 	type CsvColumn,
 	type CsvDateRange,
 } from './build-csv';
 export { sharePercentage } from './share-percentage';
 export { getCombinedPeriodMax } from './get-combined-period-max';
-export { getVideoKey, getVideoLabel } from './video-plays';
 export { describeError } from './describe-error';
 export { summaryCount } from './summary-count';
 export { toDay } from './to-day';
@@ -85,7 +83,13 @@ export {
 	type CalendarHeatmapLayoutInput,
 	type FitWeekColumnsInput,
 } from './calendar-heatmap-layout';
-export { formatEmailRate, isEmailRateKnown, type EmailRateSignals } from './format-email-rate';
+export { compareOptionalNumbers } from './compare-optional-numbers';
+export {
+	formatEmailRate,
+	getKnownEmailRate,
+	isEmailRateKnown,
+	type EmailRateSignals,
+} from './format-email-rate';
 export { formatViewCount } from './format-view-count';
 export { MONTHS_IN_YEAR, monthOrder, type MonthKey } from './month-key';
 export {
@@ -100,8 +104,7 @@ export { monthRange, yearRange, type PeriodBounds } from './period-range';
 export { siteChartFormatting } from './site-chart-formatting';
 export { formatComparisonSeriesLabel } from './format-comparison-series-label';
 export { formatTooltipPointLabel } from './format-tooltip-point-label';
-export { resolveSeriesNames, type ResolvedSeriesNames } from './resolve-series-names';
-export { appendTooltipExtras, resolveTooltipNames } from './tooltip-extras';
+export { appendTooltipExtras, resolveTooltipUnits, type TooltipUnit } from './tooltip-extras';
 export {
 	buildDenseDaySeries,
 	resolveCalendarHeatmapGridStart,

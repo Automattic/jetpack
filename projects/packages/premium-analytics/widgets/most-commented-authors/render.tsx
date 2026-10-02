@@ -3,35 +3,27 @@
  */
 import { useStatsCommentsRows } from '@jetpack-premium-analytics/data';
 import {
-	LeaderboardChart,
-	LeaderboardSkeleton,
+	Leaderboard,
 	ReportLink,
 	WIDGET_ROW_LIMIT,
-	WidgetFooter,
 	WidgetRoot,
-	WidgetState,
-	buildLeaderboardRow,
 	describeError,
-	sharePercentage,
-	type LeaderboardChartData,
+	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { commentAuthorAvatar } from '@wordpress/icons';
-import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
 import { type MostCommentedAuthorsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type MostCommentedAuthorsRenderAttributes = MostCommentedAuthorsAttributes &
 	Partial< ReportParamsFieldAttributes >;
-type MostCommentedAuthorsWidgetProps = WidgetRenderProps< MostCommentedAuthorsRenderAttributes >;
 
-const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
+type MostCommentedAuthorsWidgetProps = WidgetRenderProps< MostCommentedAuthorsRenderAttributes >;
 
 /**
  * Counts come from the all-time `stats/comments` report, so there is no date
@@ -43,64 +35,47 @@ function MostCommentedAuthorsInner() {
 		max: WIDGET_ROW_LIMIT,
 	} );
 
-	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = Math.max( ...rows.map( row => row.value ), 0 );
-
-		return rows.map( row => ( {
-			id: row.id,
-			// The author link is constructed locally by the data layer (a relative
-			// `edit-comments.php` filter), so it needs no scheme guard — which
-			// would reject it as relative anyway.
-			...buildLeaderboardRow( {
+	const leaderboardRows = useMemo< LeaderboardRowInput[] >(
+		() =>
+			rows.map( row => ( {
+				id: row.id,
 				label: row.label,
+				value: row.value,
 				media: { kind: 'avatar', url: row.avatarUrl, name: row.label },
+				// The author link is constructed locally by the data layer (a relative
+				// `edit-comments.php` filter), so it needs no scheme guard — which
+				// would reject it as relative anyway.
 				action: row.link ? { kind: 'link', href: row.link } : { kind: 'static' },
-			} ),
-			currentValue: row.value,
-			currentShare: sharePercentage( row.value, maxValue ),
-		} ) );
-	}, [ rows ] );
+			} ) ),
+		[ rows ]
+	);
 
 	return (
-		<Stack className={ styles.root }>
-			<div className={ styles.content }>
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					isError={ isError }
-					isEmpty={ rows.length === 0 }
-					error={ describeError( error, {
-						retryDescription: __(
-							"We couldn't load comment authors. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						onRetry: refetch,
-					} ) }
-					empty={ {
-						icon: commentAuthorAvatar,
-						description: __(
-							'No one has commented on your site yet.',
-							'jetpack-premium-analytics-pkg'
-						),
-					} }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<LeaderboardChart
-						data={ leaderboardData }
-						withOverlayLabel
-						showLegend={ false }
-						dataFormat={ DATA_FORMAT }
-					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
+		<Leaderboard
+			rows={ leaderboardRows }
+			status={ { isLoading, isFetching, isError, refetch } }
+			error={ describeError( error, {
+				retryDescription: __(
+					"We couldn't load comment authors. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				onRetry: refetch,
+			} ) }
+			empty={ {
+				icon: commentAuthorAvatar,
+				description: __(
+					'No one has commented on your site yet.',
+					'jetpack-premium-analytics-pkg'
+				),
+			} }
+			footer={
 				<ReportLink
 					report="comments"
 					section="authors"
 					ariaLabel={ __( 'See the comment authors report', 'jetpack-premium-analytics-pkg' ) }
 				/>
-			</WidgetFooter>
-		</Stack>
+			}
+		/>
 	);
 }
 

@@ -9,6 +9,7 @@
  * @since 0.8.0
  */
 
+import { useAnalytics } from '@automattic/jetpack-shared-extension-utils';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import {
 	BlockControls,
@@ -33,7 +34,7 @@ import {
 	ToolbarButton,
 	ToolbarGroup,
 } from '@wordpress/components';
-import { useDispatch } from '@wordpress/data';
+import { useDispatch, useSelect } from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import {
 	createInterpolateElement,
@@ -42,6 +43,7 @@ import {
 	useEffect,
 	useMemo,
 	useRef,
+	useSyncExternalStore,
 } from '@wordpress/element';
 import { __, isRTL, sprintf } from '@wordpress/i18n';
 import { chevronLeft, chevronRight } from '@wordpress/icons';
@@ -72,9 +74,11 @@ import { SUPPORTED_CURRENCIES } from './utils/currencies';
 import { CURRENCY_SYMBOLS, getPricePlaceholder, getPriceStep } from './utils/currency-symbols';
 import { markExistingLinksDirty, removeExistingLink } from './utils/existing-links';
 import { withPartnerAttribution } from './utils/partner-attribution';
+import { getPostSaveCount, subscribeToPostSaves } from './utils/register-save-sync';
 import {
 	isSameValue,
 	PAYMENT_ATTRIBUTES,
+	PAYPAL_SET_ATTRIBUTES,
 	RESOURCE_ATTRIBUTES,
 	resetToDefaults,
 	turnGateOff,
@@ -97,9 +101,13 @@ import {
 // Button type is always 'single' — the hosted payment page handles
 // payment method selection (PayPal, cards, wallets, etc.).
 
-// What the form edits: the payment's own attributes and the block's image, which
-// is sent with them.
-const FORM_FIELDS = [ ...RESOURCE_ATTRIBUTES, 'imageUrl', 'imageId' ];
+// What the form edits: the payment's attributes the merchant sets, and the block's
+// image, which stays on the site.
+const FORM_FIELDS = [
+	...RESOURCE_ATTRIBUTES.filter( key => ! PAYPAL_SET_ATTRIBUTES.includes( key ) ),
+	'imageUrl',
+	'imageId',
+];
 const formFieldsOf = attributes =>
 	Object.fromEntries( FORM_FIELDS.map( key => [ key, attributes[ key ] ] ) );
 
@@ -251,9 +259,8 @@ export default function ApiManagedEdit( {
 
 	const blockProps = useBlockProps();
 
-	// Separate __() calls keep each msgid literal for the minifier.
-	const labelConnected = __( 'PayPal Connected', 'jetpack-paypal-payments' );
-	const labelDisconnected = __( 'PayPal Disconnected', 'jetpack-paypal-payments' );
+	// Identifies this bundle's Tracks events with the connected user.
+	useAnalytics();
 
 	const {
 		isConnected,
@@ -287,6 +294,7 @@ export default function ApiManagedEdit( {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	} = usePayPalConnection();
@@ -420,10 +428,7 @@ export default function ApiManagedEdit( {
 
 	const returnUrlError = errorFor( 'returnUrl' );
 
-	// Whether the form is valid: no validation errors on required fields or variants.
-	// Derived over the errors rather than listed field by field, so a new one cannot be
-	// forgotten here. returnUrl stays out of the gate - a bad one warns and still saves,
-	// as it always has - which is what ADVISORY_ERROR_KEYS carries.
+	// Valid once every field, option group and customer note is free of errors.
 	const isFormValid =
 		! hasBlockingError( validationErrors ) &&
 		variantErrors.length === 0 &&
@@ -433,6 +438,7 @@ export default function ApiManagedEdit( {
 		resource,
 		isBusy,
 		linkDeleted,
+		readError,
 		paymentChanged,
 		dismissPaymentChanged,
 		handleDeleteButton,
@@ -577,31 +583,42 @@ export default function ApiManagedEdit( {
 	const showDetails = hasButton && ! isEditing;
 	const showSwitch = hasButton && isSwitching;
 
-	// The form's fields as it opened, so leaving with them changed can ask first.
-	// Retaken when PayPal's own values arrive while the form is open: those are not
-	// the merchant's changes.
+	// The form's fields as last opened or saved, so leaving with them changed can ask
+	// first. Retaken when PayPal's own values come in while the form is open.
 	const formOpenedWith = useRef( null );
 	const latestAttributes = useRef( attributes );
 	latestAttributes.current = attributes;
+	const postSaves = useSyncExternalStore( subscribeToPostSaves, getPostSaveCount );
 	useEffect( () => {
 		if ( isEditing ) {
 			formOpenedWith.current = formFieldsOf( latestAttributes.current );
 		}
-	}, [ isEditing, paymentChanged ] );
-	const hasUnsavedChanges =
-		isEditing &&
-		!! formOpenedWith.current &&
-		FORM_FIELDS.some(
-			key => ! isSameValue( key, attributes[ key ], formOpenedWith.current[ key ] )
-		);
+	}, [ isEditing, paymentChanged, postSaves ] );
 	const [ showUnsavedConfirm, setShowUnsavedConfirm ] = useState( false );
-	const [ isSavingPost, setIsSavingPost ] = useState( false );
+	// A post save while the dialog is open saves the changes it asks about, so leave.
+	const dialogOpen = useRef( showUnsavedConfirm );
+	dialogOpen.current = showUnsavedConfirm;
+	useEffect( () => {
+		if ( dialogOpen.current ) {
+			setShowUnsavedConfirm( false );
+			setIsEditing( false );
+		}
+	}, [ postSaves ] );
+	const [ isSavingFromModal, setIsSavingFromModal ] = useState( false );
+	// savePost() returns at once while another save runs, so the dialog's buttons stay
+	// disabled until it ends.
+	const isSavingPost = useSelect( select => select( editorStore ).isSavingPost(), [] );
 	const { savePost } = useDispatch( editorStore );
 
 	/**
 	 * Back from the form to the details, asking first when there is something to lose.
+	 * Compared on the click, since the snapshot is retaken in an effect after the render.
 	 */
 	const leaveForm = () => {
+		const hasUnsavedChanges = FORM_FIELDS.some(
+			key => ! isSameValue( key, attributes[ key ], formOpenedWith.current[ key ] )
+		);
+
 		if ( hasUnsavedChanges ) {
 			setShowUnsavedConfirm( true );
 		} else {
@@ -610,7 +627,7 @@ export default function ApiManagedEdit( {
 	};
 
 	/**
-	 * Put the link back as the form found it, and leave.
+	 * Put the form back as it was last opened, saved or read from PayPal, and leave.
 	 */
 	const discardChanges = () => {
 		setAttributes( formOpenedWith.current );
@@ -623,11 +640,15 @@ export default function ApiManagedEdit( {
 	 * it is saved. The editor reports the save and anything that went wrong in it.
 	 */
 	const saveChanges = async () => {
-		setIsSavingPost( true );
+		const saves = getPostSaveCount();
+		setIsSavingFromModal( true );
 		await savePost();
-		setIsSavingPost( false );
+		setIsSavingFromModal( false );
 		setShowUnsavedConfirm( false );
-		setIsEditing( false );
+		// savePost() resolves on a failed save too, so leave only if the save count went up.
+		if ( getPostSaveCount() > saves ) {
+			setIsEditing( false );
+		}
 	};
 
 	// The changed-at-PayPal warning is done once the merchant leaves the details
@@ -866,6 +887,7 @@ export default function ApiManagedEdit( {
 						handleClientSecretChange={ handleClientSecretChange }
 						clientIdWarning={ clientIdWarning }
 						handleConnect={ handleConnect }
+						recordWizardStarted={ recordWizardStarted }
 						fetchSignupLink={ fetchSignupLink }
 					/>
 				</InspectorControls>
@@ -982,18 +1004,6 @@ export default function ApiManagedEdit( {
 			) }
 		</Notice>
 	) : null;
-
-	const connectionStatus = (
-		<span
-			className={ `jetpack-paypal-payment-buttons__status-dot ${
-				isConnected
-					? 'jetpack-paypal-payment-buttons__status-dot--connected'
-					: 'jetpack-paypal-payment-buttons__status-dot--disconnected'
-			}` }
-		/>
-	);
-
-	const connectionLabel = isConnected ? labelConnected : labelDisconnected;
 
 	const linkStep = (
 		<ExistingLinksStep
@@ -1159,14 +1169,6 @@ export default function ApiManagedEdit( {
 					{ imageUrl ? (
 						<div className="jetpack-paypal-payment-buttons__image-preview">
 							<img src={ imageUrl } alt={ productName || '' } />
-							{ ! /^https:\/\//i.test( imageUrl ) && (
-								<Notice status="warning" isDismissible={ false }>
-									{ __(
-										'PayPal only shows images served from a public HTTPS address, so this one will not appear at checkout.',
-										'jetpack-paypal-payments'
-									) }
-								</Notice>
-							) }
 							<div className="jetpack-paypal-payment-buttons__image-actions">
 								<MediaUploadCheck>
 									<MediaUpload
@@ -1447,8 +1449,16 @@ export default function ApiManagedEdit( {
 					label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
 					help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
 					checked={ shippingEnabled }
+					// A profile tax still needs the address once shipping is off, so that one stays on.
 					onChange={ value =>
-						setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
+						setAttributes(
+							value
+								? { shippingEnabled: true }
+								: {
+										...turnGateOff( 'shippingEnabled' ),
+										...( addressIsRequired ? { collectShippingAddress: true } : {} ),
+									}
+						)
 					}
 					disabled={ isBusy }
 				/>
@@ -1595,7 +1605,11 @@ export default function ApiManagedEdit( {
 					</>
 				) }
 			</PanelBody>
-			<PanelBody title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) } initialOpen={ false }>
+			{ /* Opens itself on a return URL error. */ }
+			<PanelBody
+				title={ __( 'URL Redirect', 'jetpack-paypal-payments' ) }
+				initialOpen={ !! validationErrors.returnUrl }
+			>
 				{ /* URLInput takes no onBlur, so the wrapper catches it as it bubbles, and
 				     carries the error class too. URLInput gets exactly one class - it appends
 				     `__suggestions` to whatever it is given, and a second one in there
@@ -1608,7 +1622,8 @@ export default function ApiManagedEdit( {
 						label={ __( 'Return URL (optional)', 'jetpack-paypal-payments' ) }
 						className="jetpack-paypal-payment-buttons__return-url"
 						value={ returnUrl || '' }
-						onChange={ value => setAttributes( { returnUrl: value } ) }
+						// Pasted URLs often bring a stray space at either end.
+						onChange={ value => setAttributes( { returnUrl: value.trim() } ) }
 						required={ false }
 						disabled={ isBusy }
 						help={
@@ -1643,65 +1658,66 @@ export default function ApiManagedEdit( {
 			{ accountHeader }
 			{ formatControls }
 
-			<div className="jetpack-paypal-payment-buttons__preview">
-				<div className="jetpack-paypal-payment-buttons__preview-status">
-					{ connectionStatus }
-					{ connectionLabel }
-					{ environment === 'sandbox' && (
-						<span className="jetpack-paypal-payment-buttons__sandbox-badge">
-							{ __( 'Sandbox', 'jetpack-paypal-payments' ) }
-						</span>
+			{ /* The inspector only mounts when the block is selected, so notices about a
+			     broken block go on the canvas. */ }
+			{ disconnectedNotice }
+
+			{ linkDeleted && (
+				<Notice status="warning" isDismissible={ false }>
+					{ __(
+						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
+						'jetpack-paypal-payments'
 					) }
-				</div>
+				</Notice>
+			) }
 
-				{ /* The inspector only mounts when the block is selected, so notices about a
-				     broken block go on the canvas. */ }
-				{ disconnectedNotice }
-
-				{ linkDeleted && (
-					<Notice status="warning" isDismissible={ false }>
-						{ __(
-							'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
+			{ readError && (
+				<Notice status="error" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %s: the error message from PayPal. */
+						__(
+							'This payment link could not be loaded from PayPal: %s Changes to it will not be saved until it loads. Reload the post to try again.',
 							'jetpack-paypal-payments'
-						) }
-					</Notice>
-				) }
+						),
+						readError
+					) }
+				</Notice>
+			) }
 
-				{ showLinkStep ? (
-					<p className="jetpack-paypal-payment-buttons__links-hint">
-						{ __(
-							'Choose a payment link you already have, or create a new one, in the block settings.',
-							'jetpack-paypal-payments'
-						) }
-					</p>
-				) : (
-					<PayPalButtonPreview
-						format={ activeFormat }
-						productName={ productName }
-						price={ price }
-						currencyCode={ currencyCode }
-						productDescription={ productDescription }
-						paymentLink={ paymentLink }
-						variantsEnabled={ variantsEnabled }
-						variants={ variants }
-						imageUrl={ imageUrl }
-						partnerAttributionId={ partnerAttributionId }
-						buttonText={ buttonText }
-						linkText={ linkText }
-						qrShowCaption={ qrShowCaption }
-						qrCaption={ qrCaption }
-						attributes={ attributes }
-						resource={ resource }
-						isSelected={ isSelected }
-					/>
-				) }
-			</div>
+			{ showLinkStep ? (
+				<p className="jetpack-paypal-payment-buttons__links-hint">
+					{ __(
+						'Choose a payment link you already have, or create a new one, in the block settings.',
+						'jetpack-paypal-payments'
+					) }
+				</p>
+			) : (
+				<PayPalButtonPreview
+					format={ activeFormat }
+					productName={ productName }
+					price={ price }
+					currencyCode={ currencyCode }
+					productDescription={ productDescription }
+					paymentLink={ paymentLink }
+					variantsEnabled={ variantsEnabled }
+					variants={ variants }
+					imageUrl={ imageUrl }
+					partnerAttributionId={ partnerAttributionId }
+					buttonText={ buttonText }
+					linkText={ linkText }
+					qrShowCaption={ qrShowCaption }
+					qrCaption={ qrCaption }
+					attributes={ attributes }
+					resource={ resource }
+					isSelected={ isSelected }
+				/>
+			) }
 
 			{ confirmDialogs }
 			{ showUnsavedConfirm && (
 				<UnsavedChangesDialog
 					canSave={ isFormValid }
-					isSaving={ isSavingPost }
+					isSaving={ isSavingFromModal || isSavingPost }
 					onSave={ saveChanges }
 					onDiscard={ discardChanges }
 					onCancel={ () => setShowUnsavedConfirm( false ) }

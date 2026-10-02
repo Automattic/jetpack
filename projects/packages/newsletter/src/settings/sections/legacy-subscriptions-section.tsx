@@ -14,6 +14,7 @@ import { Card, Text } from '@wordpress/ui';
 import { Toggle, ToggleWithEditorLink } from '../components/toggle';
 import { getNewsletterScriptData } from '../script-data';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 const ACTION_BAR_SUPPORT_URL = 'https://wordpress.com/support/action-bar/';
 

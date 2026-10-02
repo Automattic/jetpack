@@ -111,7 +111,7 @@ describe( 'ReportCsvDownloadButton', () => {
 
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 		expect( warn ).toHaveBeenCalledWith(
-			'ReportCsvDownloadButton requires reportParams or a surrounding WidgetRoot.'
+			'useServerReportCsvAction requires reportParams or a surrounding WidgetRoot.'
 		);
 
 		warn.mockRestore();

@@ -42,6 +42,7 @@ export {
 	type DataPointPercentage,
 	type GeoChartError,
 	type GeoData,
+	type GeoDisplayMode,
 	type GoogleDataTableColumn,
 	type GoogleDataTableRow,
 	type HeatmapColumn,
@@ -86,6 +87,7 @@ export {
 	Tabs,
 	Text,
 	TextareaControl,
+	Tooltip,
 	VisuallyHidden,
 } from '@wordpress/ui';
 

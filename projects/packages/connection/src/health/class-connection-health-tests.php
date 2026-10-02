@@ -205,58 +205,6 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 	}
 
 	/**
-	 * Test that the server is able to send an outbound HTTP communication.
-	 *
-	 * @return array
-	 */
-	protected function test__outbound_http() {
-		$name     = 'test__outbound_http';
-		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		if ( ! $api_base ) {
-			$api_base = Utils::DEFAULT_JETPACK__API_BASE;
-		}
-		$request = wp_remote_get( preg_replace( '/^https:/', 'http:', $api_base ) . 'test/1/' );
-		$code    = wp_remote_retrieve_response_code( $request );
-
-		if ( 200 === (int) $code ) {
-			return self::passing_test( array( 'name' => $name ) );
-		}
-
-		return self::failing_test(
-			array(
-				'name'              => $name,
-				'short_description' => $this->helper_enable_outbound_requests( 'HTTP' ),
-			)
-		);
-	}
-
-	/**
-	 * Test that the server is able to send an outbound HTTPS communication.
-	 *
-	 * @return array
-	 */
-	protected function test__outbound_https() {
-		$name     = 'test__outbound_https';
-		$api_base = Constants::get_constant( 'JETPACK__API_BASE' );
-		if ( ! $api_base ) {
-			$api_base = Utils::DEFAULT_JETPACK__API_BASE;
-		}
-		$request = wp_remote_get( preg_replace( '/^http:/', 'https:', $api_base ) . 'test/1/' );
-		$code    = wp_remote_retrieve_response_code( $request );
-
-		if ( 200 === (int) $code ) {
-			return self::passing_test( array( 'name' => $name ) );
-		}
-
-		return self::failing_test(
-			array(
-				'name'              => $name,
-				'short_description' => $this->helper_enable_outbound_requests( 'HTTPS' ),
-			)
-		);
-	}
-
-	/**
 	 * Check for an Identity Crisis.
 	 *
 	 * @return array
@@ -369,7 +317,8 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 		$name  = 'test__connection_token_health';
 		$valid = ( new Tokens() )->validate_blog_token();
 
-		if ( ! $valid ) {
+		// A WP_Error, meaning the check could not run, is truthy.
+		if ( true !== $valid ) {
 			return self::connection_failing_test( $name, __( 'The site token used to authenticate with WordPress.com could not be validated.', 'jetpack-connection' ) );
 		}
 
@@ -564,15 +513,33 @@ class Connection_Health_Tests extends Connection_Health_Test_Base {
 			$this->clear_ssl_verification_error();
 		}
 
+		// WP.com could not complete the test (a transport failure it could not classify — e.g.
+		// a timeout, or a dev/sandbox site it cannot reach back). That neither confirms nor
+		// disproves the connection, so don't present it as a definitive failure with a reconnect
+		// CTA — skip, as we already do for a cURL timeout on the outgoing request.
+		if ( is_object( $result ) && ! empty( $result->inconclusive ) ) {
+			return self::skipped_test(
+				array(
+					'name'              => $name,
+					'short_description' => __( 'WordPress.com could not complete the connection test. This is usually temporary.', 'jetpack-connection' ),
+				)
+			);
+		}
+
 		$message = isset( $result->message ) && '' !== $result->message
 			? $result->message
 			: __( 'Connection test failed.', 'jetpack-connection' );
 
-		$message .= ' ' . sprintf(
-			/* translators: %s is the HTTP status code returned by WordPress.com. */
-			__( '(status code: %s)', 'jetpack-connection' ),
-			$status_code
-		);
+		// Append the status code only when it adds signal: a 200 means the request itself
+		// succeeded (the failure is in the connection, not the transport), so "(status code: 200)"
+		// is confusing noise.
+		if ( 200 !== (int) $status_code ) {
+			$message .= ' ' . sprintf(
+				/* translators: %s is the HTTP status code returned by WordPress.com. */
+				__( '(status code: %s)', 'jetpack-connection' ),
+				$status_code
+			);
+		}
 
 		return self::connection_failing_test( $name, $message );
 	}

@@ -480,6 +480,122 @@ const mockRects = () =>
 		} as DOMRect;
 	} );
 
+describe( 'HeatmapChart value text contrast', () => {
+	// Extent 0..100, so each value is its own intensity in hundredths.
+	const scale: HeatmapColumn[] = [
+		{ label: 'W1', data: [ { value: 0 }, { value: 85 }, { value: 100 } ] },
+	];
+
+	let injectedStyle: HTMLStyleElement | null = null;
+
+	afterEach( () => {
+		injectedStyle?.remove();
+		injectedStyle = null;
+	} );
+
+	const renderScale = ( className?: string ) =>
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					data={ scale }
+					primaryColor="#3858e9"
+					className={ className }
+				/>
+			</GlobalChartsProvider>
+		);
+
+	test( 'picks the label role that reaches AA on light and dark cells', () => {
+		renderScale();
+
+		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
+	test( 'falls back to black on a mid-tone cell where neither role reaches AA', () => {
+		renderScale();
+
+		expect( screen.getByText( '85' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+	} );
+
+	test( 'reads the label roles once data arrives after an empty first render', () => {
+		const { rerender } = render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ [] } primaryColor="#3858e9" />
+			</GlobalChartsProvider>
+		);
+
+		rerender(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ scale } primaryColor="#3858e9" />
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
+	test( 'falls back to black or white when a label role uses syntax it cannot read', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.modern-heatmap { --a8c-charts-color-label-inverse: rgb(255 255 255); }';
+		document.head.appendChild( injectedStyle );
+
+		renderScale( 'modern-heatmap' );
+
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--white' );
+	} );
+
+	test( 'measures a translucent label role as it paints over each cell', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.translucent-heatmap { --a8c-charts-color-label: rgba(30, 30, 30, 0.3); }';
+		document.head.appendChild( injectedStyle );
+
+		renderScale( 'translucent-heatmap' );
+
+		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--black' );
+		expect( screen.getByText( '100' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
+	test( 'leaves a summary value, which sits on no fill, on the default role', () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.swapped-heatmap { --a8c-charts-color-label: #f0f0f0; --a8c-charts-color-label-inverse: #1e1e1e; }';
+		document.head.appendChild( injectedStyle );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart
+					width={ 500 }
+					height={ 300 }
+					className="swapped-heatmap"
+					primaryColor="#3858e9"
+					data={ [ ...scale, { label: 'Total', summary: true, data: [ { value: 7 } ] } ] }
+				/>
+			</GlobalChartsProvider>
+		);
+
+		expect( screen.getByText( '7' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
+		expect( screen.getByText( '0' ) ).toHaveClass( 'heatmap-chart__cell-value--inverse' );
+	} );
+
+	test( "keeps one color when both label roles are set to it on the chart's own class", () => {
+		injectedStyle = document.createElement( 'style' );
+		injectedStyle.textContent =
+			'.pinned-heatmap { --a8c-charts-color-label: #767676; --a8c-charts-color-label-inverse: #767676; }';
+		document.head.appendChild( injectedStyle );
+
+		renderScale( 'pinned-heatmap' );
+
+		[ '0', '85', '100' ].forEach( value =>
+			expect( screen.getByText( value ) ).toHaveClass( 'heatmap-chart__cell-value', {
+				exact: true,
+			} )
+		);
+	} );
+} );
+
 describe( 'HeatmapChart keyboard tooltip', () => {
 	test( 'opens on the selected cell without row labels', async () => {
 		renderChart( { withTooltips: true } );
@@ -494,7 +610,7 @@ describe( 'HeatmapChart keyboard tooltip', () => {
 } );
 
 describe( 'HeatmapChart tooltip position', () => {
-	// Restore only this spy: `restoreAllMocks` would also unspy jest-console, and
+	// Restore only this spy: `restoreAllMocks` would also unspy the console guard, and
 	// every later `toHaveWarned` in the file would find no spy.
 	let rects: jest.SpyInstance;
 	afterEach( () => {

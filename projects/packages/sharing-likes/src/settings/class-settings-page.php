@@ -13,7 +13,8 @@ namespace Automattic\Jetpack\Sharing_Likes\Settings;
  * Registers Settings > Sharing and renders its sections.
  *
  * Registration does not depend on any module being active, so the screen and
- * every section on it exist whatever the site is running.
+ * every section on it exist whatever the site is running, as long as it can
+ * run them at all: see `Environment::settings_screen_supported()`.
  */
 final class Settings_Page {
 
@@ -22,6 +23,11 @@ final class Settings_Page {
 	 * existing links and bookmarks keep working.
 	 */
 	public const SLUG = 'sharing';
+
+	/**
+	 * Query argument a save adds when the Comment Likes switch did not take.
+	 */
+	public const COMMENT_LIKES_UNCHANGED = 'comment-likes-unchanged';
 
 	/**
 	 * Hook the screen up.
@@ -34,6 +40,10 @@ final class Settings_Page {
 	 * Add the submenu entry under Settings.
 	 */
 	public static function register_menu(): void {
+		if ( ! Environment::settings_screen_supported() ) {
+			return;
+		}
+
 		add_submenu_page(
 			'options-general.php',
 			__( 'Sharing Settings', 'jetpack-sharing-likes' ),
@@ -58,11 +68,12 @@ final class Settings_Page {
 		$sections = array(
 			array( Sharing_Section::class, 'render' ),
 			array( Likes_Section::class, 'render' ),
+			array( Comment_Likes_Section::class, 'render' ),
 		);
 
 		$sharing_state = Sharing_Section::state();
 
-		if ( Section_State::shows_placement( $sharing_state, Likes_Section::state() ) ) {
+		if ( Section_State::shows_placement( $sharing_state, Likes_Section::state(), Environment::comment_likes_follow_likes_settings() ) ) {
 			$sections[] = array( Placement_Section::class, 'render' );
 		}
 
@@ -106,6 +117,14 @@ final class Settings_Page {
 			'<div class="updated"><p>%s</p></div>',
 			esc_html__( 'Settings have been saved', 'jetpack-sharing-likes' )
 		);
+
+		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- only decides whether to print a warning.
+		if ( isset( $_GET[ self::COMMENT_LIKES_UNCHANGED ] ) ) {
+			printf(
+				'<div class="error"><p>%s</p></div>',
+				esc_html__( 'Comment Likes could not be switched on or off on this site.', 'jetpack-sharing-likes' )
+			);
+		}
 	}
 
 	/**

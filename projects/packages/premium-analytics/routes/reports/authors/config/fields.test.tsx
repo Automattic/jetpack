@@ -7,7 +7,7 @@ import { render, screen } from '@testing-library/react';
  */
 import { getMockRouteLinkUrl, setMockRouteSearch } from '../../../../tests/js/route-test-utils';
 import { getAuthorsFields } from './fields';
-import type { AuthorRow } from './aggregate';
+import type { AuthorRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const author: AuthorRow = {
 	id: 'id:42',

@@ -18,7 +18,7 @@ jest.mock( '@wordpress/route', () => ( {
 	// Models `search`, which the real Link renders into the href rather than onto
 	// the DOM node. A bare `<a { ...rest }>` mock only survives while the `ls`
 	// fixtures carry no `id`; give one an id and the object reaches a DOM node
-	// and `@wordpress/jest-console` fails the suite on React's unknown-prop warning.
+	// and the `jetpack-js-tools` console guard fails the test on React's unknown-prop warning.
 	Link: ( {
 		children,
 		to,

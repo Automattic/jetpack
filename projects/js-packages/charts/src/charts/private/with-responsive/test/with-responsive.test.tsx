@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { ChartScopeContext } from '../../../../providers/chart-scope';
 import { withResponsive } from '../index';
 import type { BaseChartProps } from '../../../../types';
+import type { JSX } from 'react';
 
 // Mock the useParentSize hook
 jest.mock( '@visx/responsive', () => ( {

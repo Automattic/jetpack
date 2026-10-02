@@ -6,8 +6,9 @@ import {
 } from '../pending-notice';
 
 const mockCreateSuccessNotice = jest.fn();
-jest.mock( '@automattic/jetpack-components', () => ( {
-	useGlobalNotices: () => ( { createSuccessNotice: mockCreateSuccessNotice } ),
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	useDispatch: () => ( { createSuccessNotice: mockCreateSuccessNotice } ),
 } ) );
 
 describe( 'pending-notice', () => {
@@ -33,7 +34,9 @@ describe( 'pending-notice', () => {
 
 		renderHook( () => useReplayPendingNotice() );
 
-		expect( mockCreateSuccessNotice ).toHaveBeenCalledWith( 'Forms activated successfully!' );
+		expect( mockCreateSuccessNotice ).toHaveBeenCalledWith( 'Forms activated successfully!', {
+			type: 'snackbar',
+		} );
 	} );
 
 	it( 'shows no notice when none is pending', () => {

@@ -100,6 +100,7 @@ function fakeDeps( respond ) {
 		updateBlockAttributes: jest.fn(),
 		reportError: jest.fn(),
 		reportHeldBack: jest.fn(),
+		reportSaved: jest.fn(),
 	};
 }
 
@@ -122,9 +123,17 @@ describe( 'isReadyForPayPal', () => {
 		);
 	} );
 
-	// A bad URL warns, it has never blocked saving.
-	it( 'lets a bad return URL through', () => {
-		expect( isReadyForPayPal( { ...product, returnUrl: 'http://example.com' } ) ).toBe( true );
+	// The server answers it with a 400.
+	it( 'holds back a scheme-relative return URL', () => {
+		expect( heldBackReason( { ...product, returnUrl: '//example.com/thanks' } ) ).toBe(
+			'Return URL must be a valid URL (e.g., https://example.com/thank-you).'
+		);
+	} );
+
+	it( 'accepts an http return URL', () => {
+		expect( isReadyForPayPal( { ...product, returnUrl: 'http://example.com/thanks' } ) ).toBe(
+			true
+		);
 	} );
 
 	it( 'ignores a stale product price once the options carry their own', () => {
@@ -441,6 +450,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
 			integrationMode: 'LINK',
 		} );
+		expect( deps.reportSaved ).toHaveBeenCalledWith( true );
 	} );
 
 	describe( 'stacked buttons PayPal has yet to grant', () => {
@@ -459,6 +469,8 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.objectContaining( { clientId: 'a' } ),
 				unavailable
 			);
+			// The payment was still created.
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ true ] ] );
 		} );
 
 		it( 'stores the SDK URL a create brings back, and stays quiet', async () => {
@@ -537,6 +549,8 @@ describe( 'syncBlocksBeforeSave', () => {
 				'There was an issue saving your stacked buttons. Please try again.'
 			);
 			expect( deps.reportError ).not.toHaveBeenCalledWith( expect.anything(), unavailable );
+			// The PUT still went through.
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
 		} );
 
 		it( 'leaves a link block alone when the read-back is missing', async () => {
@@ -604,12 +618,15 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			await syncBlocksBeforeSave( [ block ], deps );
 			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
 
 			// The body is unchanged, so the sync short-circuits and the block still
 			// has an empty scriptSrc.
 			deps.reportError.mockClear();
 			await syncBlocksBeforeSave( [ block ], deps );
 			expect( deps.reportError ).toHaveBeenCalledWith( expect.anything(), unavailable );
+			// Only the first save sent a PUT.
+			expect( deps.reportSaved ).toHaveBeenCalledTimes( 1 );
 
 			// PayPal grants it. A changed body gets through, and the message stops.
 			scriptSrc = 'https://www.paypal.com/sdk/js?client-id=abc';
@@ -644,6 +661,7 @@ describe( 'syncBlocksBeforeSave', () => {
 		expect( changed ).toBe( false );
 		expect( deps.request ).not.toHaveBeenCalled();
 		expect( deps.reportError ).not.toHaveBeenCalled();
+		expect( deps.reportSaved ).not.toHaveBeenCalled();
 		expect( deps.reportHeldBack ).toHaveBeenCalledWith(
 			{ clientId: 'a', attributes: { ...product, price: '' } },
 			'Price is required.'
@@ -725,6 +743,8 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( item ).not.toHaveProperty( 'handling' );
 			expect( item ).not.toHaveProperty( 'discounts' );
 			expect( deps.updateBlockAttributes ).not.toHaveBeenCalled();
+			// The read recorded no values, so the PUT counts as a change.
+			expect( deps.reportSaved ).toHaveBeenCalledWith( false );
 		} );
 
 		describe( 'sharing a payment with a stacked block', () => {
@@ -886,7 +906,7 @@ describe( 'syncBlocksBeforeSave', () => {
 
 			// A 404 replaces the payment, and the create goes out in the block's own mode
 			// rather than the shared one.
-			it( 'creates the sibling a replacement payment in its own mode', async () => {
+			it( "recreates the sibling's payment in its own mode", async () => {
 				const deps = fakeDeps( options =>
 					options.method === 'PUT'
 						? Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
@@ -895,10 +915,13 @@ describe( 'syncBlocksBeforeSave', () => {
 
 				await syncBlocksBeforeSave( [ stackedBlock, sibling ], deps );
 
-				const created = deps.requests.filter( r => r.method === 'POST' );
-				expect( created.map( r => r.data.integration_mode ).sort() ).toEqual( [
-					'BUTTON',
-					'LINK',
+				const created = deps.requests
+					.filter( r => r.method === 'POST' )
+					.map( r => [ r.data.integration_mode, r.data.recreated ] )
+					.sort();
+				expect( created ).toEqual( [
+					[ 'BUTTON', true ],
+					[ 'LINK', true ],
 				] );
 			} );
 
@@ -934,6 +957,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: saved } ], deps );
 			expect( deps.requests ).toHaveLength( 1 );
+			expect( deps.reportSaved ).toHaveBeenCalledTimes( 1 );
 
 			await syncBlocksBeforeSave(
 				[ { clientId: 'a', attributes: { ...saved, price: '31.00' } } ],
@@ -970,6 +994,28 @@ describe( 'syncBlocksBeforeSave', () => {
 					paymentLink: 'https://www.paypal.com/ncp/payment/PLB-NEW1',
 				} )
 			);
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ true ] ] );
+		} );
+
+		it( 'flags only the replacement for a deleted payment as recreated', async () => {
+			const deps = fakeDeps( options =>
+				options.method === 'POST'
+					? Promise.resolve( { id: 'PLB-NEW1' } )
+					: Promise.reject( { code: 'paypal_api_resource_not_found', data: { status: 404 } } )
+			);
+
+			await syncBlocksBeforeSave(
+				[
+					{ clientId: 'a', attributes: saved },
+					{ clientId: 'b', attributes: { ...product, productName: 'Other Widget' } },
+				],
+				deps
+			);
+
+			const created = name =>
+				deps.requests.find( r => r.method === 'POST' && r.data.line_items[ 0 ].name === name ).data;
+			expect( created( 'Test Widget' ).recreated ).toBe( true );
+			expect( created( 'Other Widget' ) ).not.toHaveProperty( 'recreated' );
 		} );
 
 		it( 'swaps the deleted link for the new one in the list of existing links', async () => {
@@ -1007,6 +1053,8 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.stringContaining( 'PayPal turned the payment down.' )
 			);
 			expect( deps.updateBlockAttributes ).toHaveBeenCalledWith( 'b', expect.anything() );
+			// Only the create went through.
+			expect( deps.reportSaved.mock.calls ).toEqual( [ [ true ] ] );
 		} );
 	} );
 
@@ -1027,6 +1075,7 @@ describe( 'syncBlocksBeforeSave', () => {
 			expect( changed ).toBe( false );
 			expect( deps.request ).not.toHaveBeenCalled();
 			expect( deps.reportError ).not.toHaveBeenCalled();
+			expect( deps.reportSaved ).not.toHaveBeenCalled();
 			expect( deps.reportHeldBack ).toHaveBeenCalledWith(
 				{ clientId: 'a', attributes: saved },
 				unread
@@ -1128,6 +1177,29 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.objectContaining( { price: expect.anything() } )
 			);
 		} );
+
+		// The image stays on the site, so the second save matches what the create sent.
+		it( 'sends only the create when the next save changes just the image', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: product } ], deps );
+			await syncBlocksBeforeSave(
+				[
+					{
+						clientId: 'a',
+						attributes: {
+							...product,
+							resourceId: 'PLB-NEW1',
+							imageUrl: 'https://example.test/widget.png',
+						},
+					},
+				],
+				deps
+			);
+
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST' ] );
+			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
+		} );
 	} );
 } );
 
@@ -1135,7 +1207,6 @@ describe( 'syncBlocksBeforeSave', () => {
 describe( 'the card revision', () => {
 	const saved = { ...product, isApiManaged: true, resourceId: 'PLB-1' };
 	const echo = () => Promise.resolve( {} );
-	const image = { imageUrl: 'https://example.test/widget.png' };
 
 	/**
 	 * Save one block per change, each pointed at PLB-1.
@@ -1179,7 +1250,6 @@ describe( 'the card revision', () => {
 	it.each( [
 		[ 'the values are unchanged', {} ],
 		[ 'only the format changes', { format: 'LINK' } ],
-		[ 'only the image changes', image ],
 	] )( 'stays put when %s', async ( _label, change ) => {
 		const deps = await save( [ change ] );
 
@@ -1211,7 +1281,7 @@ describe( 'the card revision', () => {
 	// the next save counts any PUT as a change.
 	it( 'goes up for every PUT after a save has written the payment', async () => {
 		await save( [ { productName: 'Deluxe Widget' }, {} ] );
-		await save( [ { productName: 'Deluxe Widget' }, image ] );
+		await save( [ {}, {} ] );
 
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 2 );
 	} );
@@ -1240,7 +1310,7 @@ describe( 'the card revision', () => {
 	} );
 
 	// The block takes the create response: variants without the editor keys, and the price
-	// as PayPal formats it.
+	// as PayPal formats it. A switch to stacked sends BUTTON, so the second save is a PUT.
 	it( 'stays put when the save after a create writes back the created values', async () => {
 		const variants = variantsWithPrices( priced );
 		const block = {
@@ -1256,9 +1326,108 @@ describe( 'the card revision', () => {
 			[ { clientId: 'a', attributes: { ...block, price: '30' } } ],
 			deps
 		);
-		await syncBlocksBeforeSave( [ { clientId: 'a', attributes: { ...taken, ...image } } ], deps );
+		await syncBlocksBeforeSave(
+			[ { clientId: 'a', attributes: { ...taken, format: 'STACKED' } } ],
+			deps
+		);
 
 		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
 		expect( getCardRevision( 'PLB-NEW1' ) ).toBe( 0 );
+	} );
+} );
+
+describe( 'reportSaved after a PUT', () => {
+	const saved = { ...product, isApiManaged: true, resourceId: 'PLB-1' };
+	const echo = () => Promise.resolve( {} );
+
+	/**
+	 * Save one block per change, each pointed at PLB-1.
+	 *
+	 * @param {Array} changes - Attributes each block changes, one entry per block.
+	 * @return {Promise<object>} The deps the save ran with.
+	 */
+	const save = async changes => {
+		const deps = fakeDeps( echo );
+		await syncBlocksBeforeSave(
+			changes.map( ( change, i ) => ( {
+				clientId: `block-${ i }`,
+				attributes: { ...saved, ...change },
+			} ) ),
+			deps
+		);
+		return deps;
+	};
+
+	beforeEach( () => {
+		recordPaymentRead( 'block-0', 'PLB-1', product );
+		recordPaymentRead( 'block-1', 'PLB-1', product );
+	} );
+
+	// The first save after a reload PUTs every block, changed or not.
+	it.each( [
+		[ 'nothing changed', {} ],
+		[ 'only a format with the same mode changed', { format: 'QR' } ],
+	] )( 'skips reportSaved when %s', async ( _label, change ) => {
+		const deps = await save( [ change ] );
+
+		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'PUT' ] );
+		expect( deps.reportSaved ).not.toHaveBeenCalled();
+	} );
+
+	it( 'skips reportSaved for a stacked block and its sibling on a payment already in BUTTON mode', async () => {
+		const button = { ...product, integrationMode: 'BUTTON' };
+		recordPaymentRead( 'block-0', 'PLB-1', button );
+		recordPaymentRead( 'block-1', 'PLB-1', button );
+
+		const deps = await save( [
+			{ format: 'STACKED', integrationMode: 'BUTTON' },
+			{ format: 'LINK', integrationMode: 'BUTTON' },
+		] );
+
+		expect( deps.requests.map( r => r.data.integration_mode ) ).toEqual( [ 'BUTTON', 'BUTTON' ] );
+		expect( deps.reportSaved ).not.toHaveBeenCalled();
+	} );
+
+	it( 'calls reportSaved for a changed price', async () => {
+		const deps = await save( [ { price: '31.00' } ] );
+
+		expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
+	} );
+
+	// Only the mode sent changes.
+	it( 'calls reportSaved for a switch to stacked and keeps the card revision', async () => {
+		const deps = await save( [ { format: 'STACKED' } ] );
+
+		expect( deps.requests[ 0 ].data.integration_mode ).toBe( 'BUTTON' );
+		expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
+		expect( getCardRevision( 'PLB-1' ) ).toBe( 0 );
+	} );
+
+	it( 'calls reportSaved once when one of two blocks sharing a payment changes it', async () => {
+		const deps = await save( [ {}, { price: '31.00' } ] );
+
+		expect( deps.requests ).toHaveLength( 2 );
+		expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
+	} );
+
+	// The first PUT drops the read to compare with.
+	it( 'calls reportSaved for a second changed save in the same page load', async () => {
+		await save( [ { price: '31.00' } ] );
+		const deps = await save( [ { price: '32.00' } ] );
+
+		expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
+	} );
+
+	// A read that 404s records the payment without its values.
+	it( 'calls reportSaved for a PUT to a payment read without its values', async () => {
+		recordPaymentRead( 'block-0', 'PLB-2' );
+		const deps = fakeDeps( echo );
+
+		await syncBlocksBeforeSave(
+			[ { clientId: 'block-0', attributes: { ...saved, resourceId: 'PLB-2' } } ],
+			deps
+		);
+
+		expect( deps.reportSaved.mock.calls ).toEqual( [ [ false ] ] );
 	} );
 } );

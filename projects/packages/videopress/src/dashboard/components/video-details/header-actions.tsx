@@ -9,6 +9,7 @@ type Props = {
 	/** GUID of the video, for the add-to-content hand-off. Absent on local items. */
 	guid?: string;
 	canSave: boolean;
+	showMenu?: boolean;
 	onSave: () => void;
 	onManageCaptions: () => void;
 	onDownload: () => void;
@@ -30,6 +31,7 @@ type Props = {
  * @param props                  - Component props.
  * @param props.guid             - VideoPress GUID, when the video has one.
  * @param props.canSave          - Whether the form has unsaved changes.
+ * @param props.showMenu         - Whether the video has registered and supports menu actions.
  * @param props.onSave           - Called when the Save button is activated.
  * @param props.onManageCaptions - Called when "Manage subtitles" is selected.
  * @param props.onDownload       - Called when "Download file" is selected.
@@ -39,6 +41,7 @@ type Props = {
 export default function HeaderActions( {
 	guid,
 	canSave,
+	showMenu = true,
 	onSave,
 	onManageCaptions,
 	onDownload,
@@ -50,43 +53,45 @@ export default function HeaderActions( {
 			<Button size="compact" disabled={ ! canSave } onClick={ onSave }>
 				{ __( 'Save', 'jetpack-videopress-pkg' ) }
 			</Button>
-			<DropdownMenu
-				icon={ moreVertical }
-				label={ __( 'More actions', 'jetpack-videopress-pkg' ) }
-				toggleProps={ { size: 'compact' } }
-			>
-				{ ( { onClose } ) => (
-					<MenuGroup>
-						<MenuItem
-							onClick={ () => {
-								onManageCaptions();
-								onClose();
-							} }
-						>
-							{ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
-						</MenuItem>
-						<MenuItem
-							icon={ download }
-							onClick={ () => {
-								onDownload();
-								onClose();
-							} }
-						>
-							{ __( 'Download file', 'jetpack-videopress-pkg' ) }
-						</MenuItem>
-						<MenuItem
-							isDestructive
-							icon={ trash }
-							onClick={ () => {
-								onDelete();
-								onClose();
-							} }
-						>
-							{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
-						</MenuItem>
-					</MenuGroup>
-				) }
-			</DropdownMenu>
+			{ showMenu && (
+				<DropdownMenu
+					icon={ moreVertical }
+					label={ __( 'More actions', 'jetpack-videopress-pkg' ) }
+					toggleProps={ { size: 'compact' } }
+				>
+					{ ( { onClose } ) => (
+						<MenuGroup>
+							<MenuItem
+								onClick={ () => {
+									onManageCaptions();
+									onClose();
+								} }
+							>
+								{ __( 'Manage subtitles', 'jetpack-videopress-pkg' ) }
+							</MenuItem>
+							<MenuItem
+								icon={ download }
+								onClick={ () => {
+									onDownload();
+									onClose();
+								} }
+							>
+								{ __( 'Download file', 'jetpack-videopress-pkg' ) }
+							</MenuItem>
+							<MenuItem
+								isDestructive
+								icon={ trash }
+								onClick={ () => {
+									onDelete();
+									onClose();
+								} }
+							>
+								{ __( 'Delete video', 'jetpack-videopress-pkg' ) }
+							</MenuItem>
+						</MenuGroup>
+					) }
+				</DropdownMenu>
+			) }
 		</Stack>
 	);
 }

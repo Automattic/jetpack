@@ -112,6 +112,14 @@ function useCriticalCssAction<
 					return result.state;
 				}
 
+				if (
+					action === 'set-provider-css' &&
+					( result.state.status === 'error' ||
+						result.state.providers.some( provider => provider.status === 'error' ) )
+				) {
+					return result.state;
+				}
+
 				const message = result.error || __( 'Critical CSS action failed', 'jetpack-boost' );
 				return criticalCssErrorState( message );
 			},

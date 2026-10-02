@@ -1,7 +1,15 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { buildMetricTab } from '../build-metric-tab';
+
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
 
 describe( 'buildMetricTab', () => {
 	it( 'reads the headline from summary, not by re-summing the data points', () => {
@@ -34,6 +42,20 @@ describe( 'buildMetricTab', () => {
 		expect( tab.dataFormat ).toBe( dataFormat );
 	} );
 
+	it( 'passes countLabel through unchanged', () => {
+		const tab = buildMetricTab( {
+			primary: { summary: { views: 1 }, data: [] },
+			comparison: undefined,
+			hasComparison: false,
+			field: 'views',
+			label: 'Views',
+			countLabel: views,
+			zone: 'UTC',
+		} );
+
+		expect( tab.countLabel ).toBe( views );
+	} );
+
 	it( 'maps one point per row, oldest first, with a real Date', () => {
 		const tab = buildMetricTab( {
 			primary: {
@@ -55,6 +77,26 @@ describe( 'buildMetricTab', () => {
 		expect( tab.current[ 1 ].value ).toBe( 20 );
 		expect( tab.current[ 0 ].date ).toBeInstanceOf( Date );
 		expect( tab.current[ 0 ].date.getTime() ).toBeLessThan( tab.current[ 1 ].date.getTime() );
+	} );
+
+	it( 'keeps a null reading as a gap and still reads a missing field as zero', () => {
+		const tab = buildMetricTab( {
+			primary: {
+				summary: { cpm: 4 },
+				data: [
+					{ date_start: '2026-05-01', cpm: null },
+					{ date_start: '2026-05-02', cpm: 0 },
+					{ date_start: '2026-05-03' },
+				],
+			},
+			comparison: undefined,
+			hasComparison: false,
+			field: 'cpm',
+			label: 'CPM',
+			zone: 'UTC',
+		} );
+
+		expect( tab.current.map( point => point.value ) ).toEqual( [ null, 0, 0 ] );
 	} );
 
 	it( 'includes real previous-period values when comparison is on and has rows', () => {

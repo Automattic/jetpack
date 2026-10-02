@@ -9,7 +9,7 @@ type Props = {
 
 export default function GradeExplanation( {
 	description = __(
-		"Your Overall Score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance.",
+		"Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices. It gives a general idea of your site's overall performance.",
 		'jetpack-boost'
 	),
 	descriptionComponent: Description = 'p',

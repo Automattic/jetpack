@@ -67,3 +67,18 @@ export const EuropeanCountries: Story = {
 		data: viewsByEuropeanCountry,
 	},
 };
+
+export const CityMarkers: Story = {
+	args: {
+		...Default.args,
+		displayMode: 'markers',
+		data: [
+			[ 'Latitude', 'Longitude', 'City', 'Views' ],
+			[ 18.5204, 73.8567, 'Pune', 5650 ],
+			[ 40.7128, -74.006, 'New York', 2400 ],
+			[ 51.5074, -0.1278, 'London', 1200 ],
+			[ -33.8688, 151.2093, 'Sydney', 480 ],
+			[ -23.5505, -46.6333, 'São Paulo', 150 ],
+		],
+	},
+};

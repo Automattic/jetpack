@@ -8,6 +8,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import EmailTimeSeriesWidget from '../render';
+import type { ReactNode } from 'react';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -18,24 +19,30 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-metric-count={ metrics.length }
 			data-metric-label={ metrics[ 0 ]?.label }
+			data-count-labels={ `${ metrics[ 0 ]?.countLabel?.( 1 ) }|${ metrics[ 0 ]?.countLabel?.( 2 ) }` }
 			data-metric-total={ String( metrics[ 0 ]?.value ) }
 			data-values={ metrics[ 0 ]?.current.map( point => point.value ).join( ',' ) }
 			data-days={ metrics[ 0 ]?.current.map( point => point.date.getDate() ).join( ',' ) }
 			data-chart-type={ String( chartType ) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -91,6 +98,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Opens' );
+		expect( chart ).toHaveAttribute( 'data-count-labels', '%s Open|%s Opens' );
 		expect( chart ).toHaveAttribute( 'data-values', '10,5,7' );
 		expect( chart ).toHaveAttribute( 'data-metric-total', '22' );
 		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
@@ -153,6 +161,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
 		expect( chart ).toHaveAttribute( 'data-metric-label', 'Clicks' );
+		expect( chart ).toHaveAttribute( 'data-count-labels', '%s Click|%s Clicks' );
 		expect( chart ).toHaveAttribute( 'data-values', '3' );
 
 		const requestedPath = mockApiFetch.mock.calls[ 0 ][ 0 ].path as string;
@@ -300,7 +309,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		expect( chart ).toHaveAttribute( 'data-values', '4,15' );
 	} );
 
-	it( 'renders the empty state when the timeline has no buckets', async () => {
+	it( 'answers a timeline with no buckets inside the chart, not with a widget-level empty state', async () => {
 		mockApiFetch.mockResolvedValue( {
 			timeline: { unit: 'day', fields: [ 'date', 'opens_count' ], data: [] },
 		} );
@@ -315,9 +324,9 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
-		expect( screen.queryByTestId( 'metric-tabs-chart' ) ).not.toBeInTheDocument();
+		expect( screen.getByTestId( 'metric-tabs-chart' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows loading instead of the stale empty state once a new range drags on', async () => {
@@ -345,7 +354,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		);
 
 		await expect(
-			screen.findByText( 'No activity for this email in this period.' )
+			screen.findByText( 'We couldn’t find results for this time period.' )
 		).resolves.toBeInTheDocument();
 
 		// The skeleton waits out the shared delay, so drive it rather than
@@ -373,7 +382,7 @@ describe( 'EmailTimeSeriesWidget', () => {
 		// it gives way to the skeleton.
 		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect(
-			screen.queryByText( 'No activity for this email in this period.' )
+			screen.queryByText( 'We couldn’t find results for this time period.' )
 		).not.toBeInTheDocument();
 		jest.useRealTimers();
 	} );

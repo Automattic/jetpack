@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Payment Buttons: Stop collecting a shipping address once shipping is turned off, instead of keeping the hidden checkbox ticked.

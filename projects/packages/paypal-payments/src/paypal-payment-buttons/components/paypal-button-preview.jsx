@@ -23,6 +23,7 @@ import {
 	getMarginStyle,
 	getTextStyle,
 	getWidthAndBorderStyle,
+	getWidthStyle,
 	isOutlineButton,
 } from '../utils/block-styles';
 import { formatPrice } from '../utils/currency-symbols';
@@ -183,7 +184,7 @@ function ButtonPreview( {
 	return (
 		<div
 			className="jetpack-paypal-button jetpack-paypal-button-preview"
-			style={ getMarginStyle( attributes ) }
+			style={ getWidthStyle( attributes ) }
 		>
 			{ /* Product image */ }
 			{ imageUrl && (

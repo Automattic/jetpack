@@ -59,8 +59,7 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Override the Registrar lifecycle so the backup abilities only register
 	 * on sites that actually have a Jetpack Backup product provisioned.
-	 * Mirrors the gating done in the Jetpack dashboard / My Jetpack — there's
-	 * no point exposing tool surfaces an agent can never use, and on free
+	 * There's no point exposing tool surfaces an agent can never use, and on free
 	 * sites the upstream wpcom endpoints either silently accept writes (e.g.
 	 * `request-backup` reported `enqueued: true`) or return null payloads
 	 * that confuse callers.
@@ -93,16 +92,10 @@ class Backup_Abilities extends Registrar {
 	/**
 	 * Is the Jetpack Backup product actually loaded on this site?
 	 *
-	 * Defaults to `My_Jetpack\Products\Backup::is_active()` — the same
-	 * boolean the Jetpack dashboard uses to decide whether the Backup
-	 * product is usable. That returns true when the plugin is active and
-	 * the site has a Backup plan (covering `STATUS_ACTIVE`,
-	 * `STATUS_EXPIRING_SOON`, and the `STATUS_NEEDS_ATTENTION__*` states),
-	 * and false for `STATUS_EXPIRED`, `STATUS_NEEDS_PLAN`,
-	 * `STATUS_MODULE_DISABLED`, and the connection-error states. The plan
-	 * lookup is cached for 15s in `MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY`,
-	 * so the cost on a real wpcom call is paid at most once per 15 seconds
-	 * across the whole My Jetpack surface.
+	 * True when a plugin that ships Backup is active and the site has a Backup plan. Deliberately
+	 * not `My_Jetpack\Products\Backup::is_active()`: that also follows the backup module, which only
+	 * switches the wp-admin dashboard, while backups keep running on WordPress.com. The plan lookup
+	 * is cached in `MY_JETPACK_SITE_FEATURES_TRANSIENT_KEY`.
 	 *
 	 * The `jetpack_backup_abilities_should_load` filter lets consumers and
 	 * tests override the answer without round-tripping through the My
@@ -111,11 +104,13 @@ class Backup_Abilities extends Registrar {
 	 * @return bool
 	 */
 	private static function backup_is_loaded(): bool {
-		$default = class_exists( My_Jetpack_Backup::class ) && My_Jetpack_Backup::is_active();
+		$default = class_exists( My_Jetpack_Backup::class )
+			&& My_Jetpack_Backup::is_plugin_active()
+			&& My_Jetpack_Backup::has_any_plan_for_product();
 
 		/**
 		 * Filters whether the Jetpack Backup abilities should register on
-		 * this site. Defaults to `My_Jetpack\Products\Backup::is_active()`.
+		 * this site. Defaults to whether Backup's plugin is active and the site has a Backup plan.
 		 *
 		 * @since 0.1.0
 		 *

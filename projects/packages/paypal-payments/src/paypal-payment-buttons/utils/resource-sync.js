@@ -11,12 +11,9 @@
 import metadata from '../block.json';
 
 /**
- * Attributes the PayPal payment is the source of truth for. Everything else
- * (image, format, colors, button text) belongs to the block. The image is sent
- * to PayPal but never read back: its attachment id has no PayPal counterpart,
- * and PayPal silently drops an image it cannot fetch.
+ * Attributes that come from PayPal, which the form leaves out.
  */
-export const RESOURCE_ATTRIBUTES = [
+export const PAYPAL_SET_ATTRIBUTES = [
 	'paymentLink',
 	// The payment's own integration_mode, so a LINK or QR block re-sends it as it is.
 	'integrationMode',
@@ -24,6 +21,15 @@ export const RESOURCE_ATTRIBUTES = [
 	// path shares the attribute, and its blocks have neither resourceId nor isApiManaged,
 	// so the read-back GET leaves them alone.
 	'scriptSrc',
+];
+
+/**
+ * Attributes the PayPal payment is the source of truth for. Everything else
+ * (image, format, colors, button text) belongs to the block. The image stays on
+ * the site.
+ */
+export const RESOURCE_ATTRIBUTES = [
+	...PAYPAL_SET_ATTRIBUTES,
 	'productName',
 	'price',
 	'currencyCode',
@@ -70,7 +76,12 @@ export const GATED_ATTRIBUTES = {
 	taxEnabled: [ 'taxType', 'taxName', 'taxValue' ],
 	handlingEnabled: [ 'handlingValue' ],
 	discountEnabled: [ 'discountType', 'discountValue' ],
-	shippingEnabled: [ 'shippingMode', 'shippingValue', 'shippingAdditionalValue' ],
+	shippingEnabled: [
+		'shippingMode',
+		'shippingValue',
+		'shippingAdditionalValue',
+		'collectShippingAddress',
+	],
 };
 
 /**

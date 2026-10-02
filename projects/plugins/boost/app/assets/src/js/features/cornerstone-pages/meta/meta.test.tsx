@@ -1,4 +1,5 @@
 import { ModuleSurfaceProvider } from '$features/module/surface';
+import { MODERN_ROOT_ID } from '$lib/modern/mode';
 /* No jest-dom or user-event in this project. */
 /* eslint-disable jest-dom/prefer-in-document, jest-dom/prefer-to-have-attribute, jest-dom/prefer-to-have-value, testing-library/prefer-user-event */
 import { fireEvent, render, screen } from '@testing-library/react';
@@ -29,9 +30,8 @@ jest.mock( '$features/notice/context', () => ( {
 } ) );
 jest.mock(
 	'$features/upgrade-cta/interstitial-modal-cta',
-	() => ( props: { description: string; showLicenseKeyLink?: boolean } ) => (
-		<div data-license-link={ String( !! props.showLicenseKeyLink ) }>{ props.description }</div>
-	)
+	() =>
+		( { description }: { description: string } ) => <div>{ description }</div>
 );
 jest.mock( '$lib/stores/premium-features', () => ( {
 	usePremiumFeatures: () => mockPremiumFeatures,
@@ -52,7 +52,7 @@ let mockProperties:
 	| undefined;
 let mockPremiumFeatures: string[];
 
-describe( 'Cornerstone pages meta', () => {
+describe( 'Cornerstone Pages meta', () => {
 	beforeEach( () => {
 		mockProperties = {
 			max_pages: 5,
@@ -62,7 +62,13 @@ describe( 'Cornerstone pages meta', () => {
 		};
 		mockPremiumFeatures = [];
 		( globalThis as unknown as { Jetpack_Boost: unknown } ).Jetpack_Boost = {
-			site: { url: 'https://example.com/' },
+			site: {
+				url: 'https://example.com/',
+				online: true,
+				myJetpack: true,
+				addLicense: true,
+				host: 'other',
+			},
 		};
 		jest.clearAllMocks();
 	} );
@@ -98,9 +104,8 @@ describe( 'Cornerstone pages meta', () => {
 
 	it( 'offers the premium page limit only to free sites with loaded properties', () => {
 		const { rerender } = render( <CornerstonePagesUpgradeCTA /> );
-		const prompt = screen.getByText( 'Premium users can add up to 10 cornerstone pages.' );
+		const prompt = screen.getByText( 'Premium users can add up to 10 Cornerstone Pages.' );
 		expect( prompt ).toBeTruthy();
-		expect( prompt.getAttribute( 'data-license-link' ) ).toBe( 'true' );
 
 		mockPremiumFeatures = [ 'cornerstone-10-pages' ];
 		rerender( <CornerstonePagesUpgradeCTA /> );
@@ -119,18 +124,41 @@ describe( 'Cornerstone pages meta', () => {
 		expect( screen.getByRole( 'textbox' ) ).toBeTruthy();
 	} );
 
+	it( 'keeps the premium list editor short on the modern surface only', () => {
+		mockPremiumFeatures = [ 'cornerstone-10-pages' ];
+		const rows = () => ( screen.getByRole( 'textbox' ) as HTMLTextAreaElement ).rows;
+		const view = render(
+			<ModuleSurfaceProvider value="row">
+				<CornerstonePagesEditor />
+			</ModuleSurfaceProvider>
+		);
+		expect( rows() ).toBe( 5 );
+		view.rerender(
+			<ModuleSurfaceProvider value="block">
+				<CornerstonePagesEditor />
+			</ModuleSurfaceProvider>
+		);
+		expect( rows() ).toBe( 10 );
+	} );
+
 	test( 'uses shorter modern Cornerstone copy and preserves the legacy description and upsell', () => {
+		render( <div id={ MODERN_ROOT_ID } data-testid="dashboard-root" /> );
 		const view = render(
 			<ModuleSurfaceProvider value="row">
 				<CornerstonePagesDescription />
 				<CornerstonePagesUpgradeCTA />
-			</ModuleSurfaceProvider>
+			</ModuleSurfaceProvider>,
+			{ container: screen.getByTestId( 'dashboard-root' ) }
 		);
 		expect(
 			screen.getByText( /Add your most important pages for targeted optimizations/ )
 		).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn more/ } ) ).toBeTruthy();
-		expect( screen.getByText( 'Add up to 10 cornerstone pages.' ) ).toBeTruthy();
+		expect( screen.getByText( 'Add up to 10 Cornerstone Pages.' ) ).toBeTruthy();
+		expect( screen.getByRole( 'link', { name: 'Upgrade now' } ).getAttribute( 'href' ) ).toBe(
+			'admin.php?page=my-jetpack#/add-boost'
+		);
+		expect( screen.queryByRole( 'link', { name: 'Use license key' } ) ).toBeNull();
 		view.rerender(
 			<ModuleSurfaceProvider value="block">
 				<CornerstonePagesDescription />
@@ -143,6 +171,6 @@ describe( 'Cornerstone pages meta', () => {
 			)
 		).toBeTruthy();
 		expect( screen.getByRole( 'link', { name: /^Learn More/ } ) ).toBeTruthy();
-		expect( screen.getByText( 'Premium users can add up to 10 cornerstone pages.' ) ).toBeTruthy();
+		expect( screen.getByText( 'Premium users can add up to 10 Cornerstone Pages.' ) ).toBeTruthy();
 	} );
 } );

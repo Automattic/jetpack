@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Action Bar: Only show the Subscribe button once the site has published at least two posts.

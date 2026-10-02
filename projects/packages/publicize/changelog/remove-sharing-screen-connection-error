@@ -1,4 +1,0 @@
-Significance: patch
-Type: removed
-
-Remove the connection-error notice from Settings > Sharing, which loaded a whole wp-admin screen inside the connection popup.

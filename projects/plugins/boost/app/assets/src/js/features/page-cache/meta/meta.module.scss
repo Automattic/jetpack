@@ -59,6 +59,16 @@
 				color: var(--gray-60);
 				font-weight: 400;
 			}
+
+			&[data-except-content] .description {
+				font-size: var(--wpds-typography-font-size-md);
+				line-height: var(--wpds-typography-line-height-sm);
+
+				// Same specificity as the `.has-error` rule above, so keep the error red.
+				&:not(.error-message) {
+					color: var(--wpds-color-foreground-content-neutral-weak);
+				}
+			}
 		}
 
 		.button {
@@ -76,24 +86,11 @@
 	}
 }
 
-.example-wrapper {
-	position: relative;
-	display: inline;
-
-	.example-button {
-		position: relative;
-		z-index: 10;
-	}
-
-	.tooltip-wrapper {
-		position: absolute;
-		top: 0;
-		left: -10px;
-		z-index: 9;
-	}
-}
-
 .tooltip:global(.icon-tooltip-container) :global(.components-popover__content) {
 	width: 150px;
 	color: var(--jp-black);
+}
+
+.example-trigger :global(.icon-tooltip-anchor) {
+	inset-inline-start: -10px;
 }

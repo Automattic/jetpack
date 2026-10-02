@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Add loadI18nManifest() to cache another build's i18n manifest by URL, so its lazy bundles can load catalogs on demand.

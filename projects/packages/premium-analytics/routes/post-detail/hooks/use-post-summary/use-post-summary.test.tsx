@@ -79,6 +79,8 @@ function mockStatsPost( post?: Record< string, unknown >, isLoading = false, isE
 	mockUseStatsPost.mockReturnValue( {
 		data: post ? { post } : undefined,
 		isLoading,
+		isPending: isLoading,
+		isPaused: false,
 		isError,
 	} as unknown as ReturnType< typeof useStatsPost > );
 }
@@ -118,6 +120,7 @@ describe( 'usePostSummary', () => {
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
 			isError: false,
+			refetch: expect.any( Function ),
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
 		expect( mockGetEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', POST_ID, {
@@ -179,6 +182,39 @@ describe( 'usePostSummary', () => {
 		expect( result.current.url ).toBeUndefined();
 		expect( result.current.imageUrl ).toBeUndefined();
 		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'reports a first load paused offline or in a hidden tab as loading', () => {
+		mockUseStatsPost.mockReturnValue( {
+			data: undefined,
+			isLoading: false,
+			isPending: true,
+			isPaused: true,
+			isError: false,
+		} as unknown as ReturnType< typeof useStatsPost > );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current.isLoading ).toBe( true );
+	} );
+
+	it( 'keeps a loaded post when a background refetch fails', () => {
+		mockStatsPost( { post_title: 'Hello', post_type: 'post' }, false, true );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current ).toMatchObject( { title: 'Hello', isError: false } );
+	} );
+
+	it( 'reports a failed load with no post as an error', () => {
+		mockStatsPost( undefined, false, true );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current.isError ).toBe( true );
 	} );
 
 	it( 'skips the entity lookups for an invalid post ID', () => {

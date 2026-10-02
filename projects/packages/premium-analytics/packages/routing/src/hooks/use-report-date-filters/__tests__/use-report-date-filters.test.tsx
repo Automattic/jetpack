@@ -405,6 +405,73 @@ describe( 'useReportDateFilters', () => {
 		expect( result.current.appliedPresetId ).toBe( 'last-7-days' );
 	} );
 
+	it( 'resets the interval to the new preset default when the user picks a different preset', () => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () =>
+			result.current.onChange(
+				{
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
+				},
+				'last-month'
+			)
+		);
+		act( () => result.current.onApply() );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-month', interval: 'day' } );
+	} );
+
+	it( 'keeps the chosen interval when the user edits the range by hand', () => {
+		const { result, rerender } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () =>
+			result.current.onChange(
+				{
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-07-10T23:59:59.999Z', 'UTC' ),
+				},
+				'custom'
+			)
+		);
+		act( () => result.current.onApply() );
+		rerender();
+
+		expect( mockSearch ).toMatchObject( { preset: 'custom', interval: 'week' } );
+	} );
+
+	it( 'keeps the chosen interval when a reconciliation swaps the preset', () => {
+		const { result } = renderDateFilters( {
+			from: '2026-07-01T00:00:00.000+00:00',
+			to: '2026-07-30T23:59:59.999+00:00',
+			preset: 'last-30-days',
+			interval: 'week',
+		} );
+
+		act( () =>
+			result.current.replaceRange(
+				{
+					from: new TZDate( '2026-06-01T00:00:00.000Z', 'UTC' ),
+					to: new TZDate( '2026-06-30T23:59:59.999Z', 'UTC' ),
+				},
+				'last-month'
+			)
+		);
+
+		expect( mockSearch ).toMatchObject( { preset: 'last-month', interval: 'week' } );
+	} );
+
 	it( 'stores a computed range exactly as given when asked', () => {
 		const { result } = renderDateFilters( { preset: 'last-30-days' } );
 		const range = {

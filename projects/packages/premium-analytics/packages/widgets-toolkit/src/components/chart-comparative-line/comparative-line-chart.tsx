@@ -26,8 +26,7 @@ import {
 	getPinnedYTicks,
 	getYTickFormat,
 	dateFormatForResolution,
-	resolveSeriesNames,
-	resolveTooltipNames,
+	resolveTooltipUnits,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { ChartTooltip } from '../chart-tooltip';
@@ -199,7 +198,6 @@ export function ComparativeLineChart( {
 		[ stylesProp, series ]
 	);
 
-	const { seriesNames } = useMemo( () => resolveSeriesNames( series ), [ series ] );
 	// A metric's two periods collapse into one item; a single static Comparison period
 	// item explains the dashed overlay instead.
 	const legendConfig = useMemo(
@@ -207,9 +205,9 @@ export function ComparativeLineChart( {
 		[ legendInteractive ]
 	);
 
-	const tooltipNames = useMemo(
-		() => resolveTooltipNames( seriesNames, tooltipExtras ),
-		[ seriesNames, tooltipExtras ]
+	const tooltipUnits = useMemo(
+		() => resolveTooltipUnits( series, tooltipExtras ),
+		[ series, tooltipExtras ]
 	);
 
 	// Comparison points share the primary series' dates, so the tooltip reads back
@@ -219,13 +217,15 @@ export function ComparativeLineChart( {
 			datum: { date: Date; realDate?: Date },
 			_index: number,
 			key: string,
-			value: string
+			value: string | null,
+			rawValue: number | null
 		): string => {
 			const displayDate = datum.realDate ?? datum.date;
 			const date = formatTooltipDate( displayDate, tooltipDateFormat );
-			return formatTooltipPointLabel( value, tooltipNames.get( key ) ?? key, date );
+			const unit = tooltipUnits.get( key );
+			return formatTooltipPointLabel( value, unit?.name ?? key, date, rawValue, unit?.countLabel );
 		},
-		[ tooltipNames, formatTooltipDate, tooltipDateFormat ]
+		[ tooltipUnits, formatTooltipDate, tooltipDateFormat ]
 	);
 
 	// `resolvedStyles` follows `series`; the tooltip's rows need not, so pair them
