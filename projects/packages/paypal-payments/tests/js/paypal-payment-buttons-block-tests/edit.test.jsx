@@ -5376,9 +5376,9 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			expect( setAttributes ).toHaveBeenCalledWith( expected );
 		} );
 
-		// The toggle resets the mode and both amounts. The address checkbox it also hides
-		// stays put, since PayPal stores that one whether or not shipping is on.
-		it( 'resets the mode and both fees when shipping goes off', async () => {
+		// The toggle hides the address checkbox too, and PayPal keeps asking buyers for an
+		// address the merchant can no longer see unless it goes off with the rest.
+		it( 'resets the mode, both fees and the address checkbox when shipping goes off', async () => {
 			const user = userEvent.setup();
 			await renderShipping( {
 				shippingMode: 'QUANTITY',
@@ -5393,6 +5393,27 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				shippingMode: 'FLAT',
 				shippingValue: '',
 				shippingAdditionalValue: '',
+				collectShippingAddress: false,
+			} );
+		} );
+
+		it( 'keeps collecting the address when shipping goes off under a profile tax', async () => {
+			const user = userEvent.setup();
+			await renderShipping( {
+				taxEnabled: true,
+				taxType: 'PREFERENCE',
+				taxValue: '',
+				collectShippingAddress: true,
+			} );
+
+			await user.click( screen.getByLabelText( 'Add shipping' ) );
+
+			expect( setAttributes ).toHaveBeenCalledWith( {
+				shippingEnabled: false,
+				shippingMode: 'FLAT',
+				shippingValue: '',
+				shippingAdditionalValue: '',
+				collectShippingAddress: true,
 			} );
 		} );
 
