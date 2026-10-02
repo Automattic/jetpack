@@ -38,6 +38,7 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		Constants::clear_constants();
 
 		remove_all_filters( 'pre_http_request' );
+		remove_all_filters( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER );
 	}
 
 	/**
@@ -335,9 +336,9 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	}
 
 	/**
-	 * Test that the site sends only where PayPal returns the seller; WordPress.com builds the referral.
+	 * Test that the site sends only where PayPal returns the seller and its BN code; WordPress.com builds the referral.
 	 */
-	public function test_generate_signup_link_sends_only_the_return_url() {
+	public function test_generate_signup_link_sends_the_return_url_and_the_attribution_id() {
 		$this->set_up_connected_site();
 		$requests = array();
 		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
@@ -348,11 +349,27 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 
 		$this->assertSame(
 			array(
-				'environment' => 'sandbox',
-				'return_url'  => 'https://example.com/return',
+				'environment'            => 'sandbox',
+				'return_url'             => 'https://example.com/return',
+				'partner_attribution_id' => PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID,
 			),
 			$body
 		);
+	}
+
+	/**
+	 * Test that a sandbox referral carries the BN code the sandbox filter resolves.
+	 */
+	public function test_generate_signup_link_sends_the_sandbox_attribution_id() {
+		$this->set_up_connected_site();
+		$requests = array();
+		$this->mock_wpcom_signup_link( $this->signup_link_success(), $requests );
+		add_filter( PayPal_Payment_Buttons::SANDBOX_PARTNER_ATTRIBUTION_FILTER, fn() => 'My_Sandbox_BN' );
+
+		PayPal_Partner_Onboarding::generate_signup_link( 'https://example.com/return', 'sandbox' );
+
+		$body = (array) json_decode( end( $requests )['args']['body'], true );
+		$this->assertSame( 'My_Sandbox_BN', $body['partner_attribution_id'] );
 	}
 
 	/**

@@ -257,6 +257,49 @@ describe( 'ProductCardAction', () => {
 		expect( reloadPage ).toHaveBeenCalled();
 	} );
 
+	it( 'offers a plan holder with the module off the toggle, not a purchase link', async () => {
+		render(
+			<MemoryRouter>
+				<ProductCardAction
+					product={ buildProduct( {
+						slug: 'backup',
+						name: 'VaultPress Backup',
+						status: 'module_disabled',
+						hasPaidPlanForProduct: true,
+					} ) }
+					module={ { available: true, activated: false } as unknown as MyJetpackModule }
+				/>
+			</MemoryRouter>
+		);
+
+		expect( screen.queryByRole( 'button', { name: 'Learn more' } ) ).not.toBeInTheDocument();
+		expect( screen.getByRole( 'checkbox' ) ).not.toBeChecked();
+
+		await userEvent.click( screen.getByRole( 'checkbox' ) );
+
+		expect( mockActivate ).toHaveBeenCalled();
+		expect( reloadPage ).toHaveBeenCalled();
+	} );
+
+	it( 'still offers the purchase link when the module is off and there is no plan', () => {
+		render(
+			<MemoryRouter>
+				<ProductCardAction
+					product={ buildProduct( {
+						slug: 'backup',
+						name: 'VaultPress Backup',
+						status: 'module_disabled',
+						hasPaidPlanForProduct: false,
+					} ) }
+					module={ { available: true, activated: false } as unknown as MyJetpackModule }
+				/>
+			</MemoryRouter>
+		);
+
+		expect( screen.getByRole( 'button', { name: 'Learn more' } ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'checkbox' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'does not reload the page when toggling a product with no admin menu changes', async () => {
 		render(
 			<ProductCardAction

@@ -507,7 +507,7 @@ class PayPal_REST_Controller {
 
 		// The editor appends this to payment links it copies to the clipboard,
 		// so those links are attributed the same way the rendered button is.
-		$status['partner_attribution_id'] = PayPal_Payment_Buttons::PAYPAL_PARTNER_ATTRIBUTION_ID;
+		$status['partner_attribution_id'] = PayPal_Payment_Buttons::get_partner_attribution_id();
 
 		return new WP_REST_Response( $status, 200 );
 	}
@@ -1033,7 +1033,6 @@ class PayPal_REST_Controller {
 			'integration_mode' => $resource_data['integration_mode'],
 			'currency'         => strtoupper( $currency ),
 			'has_variants'     => ! empty( $line_item['variants'] ),
-			'has_image'        => ! empty( $line_item['image_url'] ),
 		);
 	}
 
@@ -1110,11 +1109,6 @@ class PayPal_REST_Controller {
 							'required' => true,
 						),
 						'description'              => array(
-							'type'     => 'string',
-							'required' => false,
-						),
-						// Shown on the PayPal checkout. The sanitizer keeps it only when HTTPS.
-						'image_url'                => array(
 							'type'     => 'string',
 							'required' => false,
 						),
@@ -1293,15 +1287,6 @@ class PayPal_REST_Controller {
 			if ( ! empty( $item['description'] ) ) {
 				// The control is a textarea, so keep the line breaks PayPal stores.
 				$clean_item['description'] = sanitize_textarea_field( $item['description'] );
-			}
-
-			// PayPal fetches the image itself, so anything but a public HTTPS URL is
-			// dropped rather than rejected: an http:// site can still save its button.
-			if ( ! empty( $item['image_url'] ) ) {
-				$image_url = esc_url_raw( (string) $item['image_url'], array( 'https' ) );
-				if ( 0 === strpos( $image_url, 'https://' ) ) {
-					$clean_item['image_url'] = $image_url;
-				}
 			}
 			if ( ! empty( $item['quantity'] ) ) {
 				$clean_item['quantity'] = (string) max( 1, absint( $item['quantity'] ) );
@@ -1514,10 +1499,27 @@ class PayPal_REST_Controller {
 			$status = 503;
 		}
 
+		$rest_data = array( 'status' => $status );
+
+		// PayPal's debug ID is what their support resolves a failed request by, so
+		// keep it for the editor and record it. Send only the code, not the message.
+		if ( ! empty( $data['paypal_debug_id'] ) ) {
+			$rest_data['paypal_debug_id'] = $data['paypal_debug_id'];
+			PayPal_Tracks::record_event(
+				'jetpack_paypal_api_error',
+				array(
+					'environment' => PayPal_OAuth::get_environment(),
+					'error_code'  => $error->get_error_code(),
+					'status'      => (int) $status,
+					'debug_id'    => $data['paypal_debug_id'],
+				)
+			);
+		}
+
 		return new WP_Error(
 			$error->get_error_code(),
 			$error->get_error_message(),
-			array( 'status' => $status )
+			$rest_data
 		);
 	}
 }

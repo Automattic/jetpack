@@ -35,9 +35,9 @@ export function createSignals( formSettings: FormSettings ) {
 	// Whether core keeps a guest's details; saved ones were saved with consent.
 	const rememberDetails = signal( initial.kind === 'guest' );
 
-	// The bar under the text box with the commenter and the submit, the row the
-	// chevron drops below it, and the dialog that asks who they are.
-	const isFooterOpen = signal( false );
+	// The box with its block toolbar, the row the chevron drops below it, and
+	// the dialog that asks who they are.
+	const isBoxOpen = signal( false );
 	const isOptionsOpen = signal( false );
 	const isDialogOpen = signal( false );
 	const isEditingDetails = signal( false );
@@ -53,7 +53,7 @@ export function createSignals( formSettings: FormSettings ) {
 		details,
 		commenter,
 		rememberDetails,
-		isFooterOpen,
+		isBoxOpen,
 		isOptionsOpen,
 		isDialogOpen,
 		isEditingDetails,

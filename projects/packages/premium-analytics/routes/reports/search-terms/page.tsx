@@ -8,10 +8,10 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
+	searchTermsCsvExporter,
 	useReportRetry,
-	type CsvColumn,
+	type SearchTermRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -21,7 +21,7 @@ import { __ } from '@wordpress/i18n';
 import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
-import { getSearchTermsFields, useSearchTermsReportRecords, type SearchTermRow } from './config';
+import { getSearchTermsFields, useSearchTermsReportRecords } from './config';
 import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
@@ -46,8 +46,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortSearchTermCsvRows = ( a: SearchTermRow, b: SearchTermRow ) => b.views - a.views;
-
 /**
  * Premium Analytics Search terms report page.
  *
@@ -61,24 +59,6 @@ export default function SearchTermsReportPage(): JSX.Element {
 		() => getSearchTermsFields( records.table.hasComparison ),
 		[ records.table.hasComparison ]
 	);
-	const csvColumns = useMemo< CsvColumn< SearchTermRow >[] >(
-		() => [
-			{ label: __( 'Search term', 'jetpack-premium-analytics-pkg' ), getValue: row => row.term },
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.table.rows,
-		filenamePrefix: 'search-terms',
-		range: reportParams,
-		status: records.table,
-		sort: sortSearchTermCsvRows,
-	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 
 	const { getLabel } = REPORTS[ 'search-terms' ];
@@ -99,9 +79,12 @@ export default function SearchTermsReportPage(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ searchTermsCsvExporter }
+					items={ records.table.rows }
+					status={ records.table }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>

@@ -59,11 +59,22 @@ class PayPal_Payment_Buttons {
 	private const QR_SIZE = 200;
 
 	/**
-	 * PayPal partner attribution ID used for tracking.
+	 * PayPal partner attribution ID (BN code) used for tracking in production.
+	 *
+	 * Read it through `get_partner_attribution_id()`, which swaps in the
+	 * sandbox code when the site is connected to the sandbox.
 	 *
 	 * @var string
 	 */
 	public const PAYPAL_PARTNER_ATTRIBUTION_ID = 'WooNCPS_Ecom_Wordpress';
+
+	/**
+	 * Filter hook for overriding the BN code while connected to the sandbox.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public const SANDBOX_PARTNER_ATTRIBUTION_FILTER = 'jetpack_paypal_sandbox_partner_attribution_id';
 
 	/**
 	 * Feature flag gating the API-managed buttons: the connection wizard, the
@@ -722,7 +733,38 @@ class PayPal_Payment_Buttons {
 			return $url;
 		}
 
-		return add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized );
+		return add_query_arg( 'at_code', self::get_partner_attribution_id(), $sanitized );
+	}
+
+	/**
+	 * Get the partner attribution ID (BN code) for the current environment.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The BN code, safe to place in a URL query or an HTML attribute.
+	 */
+	public static function get_partner_attribution_id() {
+		if ( 'sandbox' !== PayPal_OAuth::get_environment() ) {
+			return self::PAYPAL_PARTNER_ATTRIBUTION_ID;
+		}
+
+		/**
+		 * Filters the PayPal partner attribution ID (BN code) while the site is
+		 * connected to the PayPal sandbox. PayPal issues a sandbox account its
+		 * own BN code, which the production one does not match.
+		 *
+		 * The production BN code is not filterable.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $partner_attribution_id The BN code. Defaults to the production code.
+		 */
+		$filtered = apply_filters( self::SANDBOX_PARTNER_ATTRIBUTION_FILTER, self::PAYPAL_PARTNER_ATTRIBUTION_ID );
+
+		// BN codes are alphanumeric with underscores and hyphens; anything else is dropped.
+		$sanitized = is_string( $filtered ) ? preg_replace( '/[^A-Za-z0-9_-]/', '', $filtered ) : '';
+
+		return '' === $sanitized ? self::PAYPAL_PARTNER_ATTRIBUTION_ID : $sanitized;
 	}
 
 	/**
@@ -1067,7 +1109,7 @@ class PayPal_Payment_Buttons {
 
 		// ─── BUTTON format (default): existing full button card ──────────
 
-		// Product image. PayPal receives it too, as the line item's image_url.
+		// Product image (WordPress-side only, not sent to PayPal).
 		$image_html = '';
 		if ( ! empty( $image_url ) ) {
 			$image_html = sprintf(
@@ -1359,7 +1401,7 @@ class PayPal_Payment_Buttons {
 		// The SDK's own attribution channel, separate from the payment link's at_code —
 		// the Payment Links API takes attribution as a query parameter instead.
 		if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
-			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
+			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::get_partner_attribution_id() . '" src=$2', $tag );
 		}
 
 		return $tag;

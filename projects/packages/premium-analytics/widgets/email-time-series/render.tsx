@@ -75,8 +75,7 @@ type EmailTimeSeriesReportProps = {
 
 /**
  * Draws the selected email's opens or clicks timeline. Comparison report
- * params are ignored (no period-over-period here) but left in the URL so
- * dashboard state survives the round trip.
+ * params are ignored: there is no period-over-period view here.
  */
 function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();

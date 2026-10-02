@@ -9,7 +9,7 @@ import GradeExplanation from './grade-explanation';
 import { getScoreTier } from './lib/score-utils';
 import ScoreCard from './score-card';
 import type { SpeedScoresSet } from './lib/use-speed-scores';
-import type { ReactNode } from 'react';
+import type { ReactNode, RefObject } from 'react';
 
 type Props = {
 	scores: SpeedScoresSet;
@@ -19,6 +19,7 @@ type Props = {
 	error?: Error | null;
 	onRetry?: () => void;
 	isVisible?: boolean;
+	headingRef?: RefObject< HTMLHeadingElement >;
 };
 
 export default function ScoreCards( {
@@ -29,8 +30,10 @@ export default function ScoreCards( {
 	error,
 	onRetry,
 	isVisible = true,
+	headingRef,
 }: Props ) {
-	const titleRef = useRef< HTMLHeadingElement >( null );
+	const internalTitleRef = useRef< HTMLHeadingElement >( null );
+	const titleRef = headingRef ?? internalTitleRef;
 	const hasFocus = useRef( false );
 	const showCalculating = isRunning || ! hasScores;
 	const showOverlay = showCalculating && ! error;
@@ -42,7 +45,7 @@ export default function ScoreCards( {
 		if ( showCalculating && ! error && hasFocus.current ) {
 			titleRef.current?.focus();
 		}
-	}, [ showCalculating, error ] );
+	}, [ showCalculating, error, titleRef ] );
 	const { current } = scores;
 	const grade = getScoreLetter( current.mobile, current.desktop );
 	const noBoost = ! scores.isStale ? scores.noBoost : null;

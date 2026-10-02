@@ -1613,6 +1613,21 @@ class Manager {
 	}
 
 	/**
+	 * Give up this site's protected ownership with WordPress.com.
+	 *
+	 * Split from `release_protected_owner()` so the decision it drives can be exercised without a
+	 * network. The identity travels in the signature rather than the payload, so WordPress.com
+	 * decides whether the caller is the owner it holds.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return array|null The record, or null when WordPress.com could not answer.
+	 */
+	protected function relinquish_protected_owner_record() {
+		return $this->request_protected_owner_record( '/release' );
+	}
+
+	/**
 	 * Call this site's protected-owner resource on WordPress.com, signed as the current user.
 	 *
 	 * @since 9.8.1
@@ -1687,6 +1702,12 @@ class Manager {
 			);
 		}
 
+		// A stored binding that already disagrees with the anchor is enough to refuse. WordPress.com
+		// is still asked when this user has no binding, because that answer is what names them.
+		if ( $this->local_anchor_names_someone_else( (int) Utils::get_wpcom_user_id( $user_id ) ) ) {
+			return $this->protected_owner_claimed_by_other();
+		}
+
 		// WordPress.com is asked before anything is written here. It owns the record, so a claim it
 		// has not accepted must not leave a locked anchor behind on this site.
 		$record = $this->assert_protected_owner_record();
@@ -1704,11 +1725,7 @@ class Manager {
 		// Somebody else already holds this site. Beyond support there is no way past this, which is
 		// the point: an owner that could be overwritten by the next claimant protects nobody.
 		if ( 'locked_to_other' === $record['status'] ) {
-			return new WP_Error(
-				'protected_owner_claimed_by_other',
-				__( 'This site is already protected by a different WordPress.com account. Contact support.', 'jetpack-connection' ),
-				array( 'status' => 409 )
-			);
+			return $this->protected_owner_claimed_by_other();
 		}
 
 		// Only an accepted claim is anchored: any other verdict is refused, even one carrying an ID.
@@ -1718,6 +1735,11 @@ class Manager {
 				__( 'Could not confirm the protected owner with WordPress.com.', 'jetpack-connection' ),
 				array( 'status' => 400 )
 			);
+		}
+
+		// A `recorded` answer must not replace an anchor that already names a different account.
+		if ( $this->local_anchor_names_someone_else( (int) $record['wpcom_user_id'] ) ) {
+			return $this->protected_owner_claimed_by_other();
 		}
 
 		// Store the binding the anchor will be compared against, so the gate reads local state from
@@ -1737,6 +1759,139 @@ class Manager {
 		\Jetpack_Options::update_option( 'master_user', $user_id );
 
 		return true;
+	}
+
+	/**
+	 * Release the protected owner, leaving ownership open to any connected administrator.
+	 *
+	 * WordPress.com holds the record, so it is cleared there first. An anchor dropped only here
+	 * would leave WordPress.com refusing every later claim as `locked_to_other`, locking the site
+	 * to nobody rather than unlocking it.
+	 *
+	 * Leaves `master_user` alone: releasing the lock does not change who the owner is.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error True on success, WP_Error otherwise.
+	 */
+	public function release_protected_owner() {
+		// Authorization precedes everything else, so an unauthorized caller cannot use the
+		// refusals below to learn whether this site is protected or by whom.
+		if ( ! current_user_can( 'jetpack_connect' ) ) {
+			return new WP_Error(
+				'protected_owner_forbidden',
+				__( 'You do not have permission to manage the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 403 )
+			);
+		}
+
+		// Nothing anchored is already released, so repeating the call is not an error. It can also
+		// be an anchor lost while WordPress.com kept its record, which this site cannot tell apart
+		// and cannot recover from alone — hence a warning rather than silence.
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			wp_trigger_error(
+				__METHOD__,
+				'Released with no protected owner on record. If WordPress.com still holds one, this site can no longer claim it back.',
+				E_USER_WARNING
+			);
+
+			return true;
+		}
+
+		// A local hint that spares an obvious refusal a round trip. WordPress.com is asked anyway
+		// whenever this passes, and its answer is the one that decides.
+		if ( Utils::get_wpcom_user_id( get_current_user_id() ) !== (int) $anchor['wpcom_user_id'] ) {
+			return $this->protected_owner_release_refused();
+		}
+
+		$record = $this->relinquish_protected_owner_record();
+
+		// Fail closed: unreachable, refused, or a WordPress.com that does not implement the call.
+		// Clearing on silence would unlock a site WordPress.com still holds.
+		if ( ! is_array( $record ) || empty( $record['status'] ) ) {
+			return new WP_Error(
+				'protected_owner_unreleased',
+				__( 'Could not reach WordPress.com to release the protected owner.', 'jetpack-connection' ),
+				array( 'status' => 503 )
+			);
+		}
+
+		if ( 'not_owner' === $record['status'] ) {
+			return $this->protected_owner_release_refused();
+		}
+
+		// `no_owner` is WordPress.com reporting it holds nothing to release, which is the state
+		// this call asks for, so the stale anchor here clears alongside an accepted release.
+		if ( ! in_array( $record['status'], array( 'released', 'no_owner' ), true ) ) {
+			return new WP_Error(
+				'protected_owner_not_released',
+				__( 'Could not release the protected owner with WordPress.com.', 'jetpack-connection' ),
+				array( 'status' => 400 )
+			);
+		}
+
+		$cleared = $this->clear_protected_owner();
+
+		// WordPress.com has already let go, so a local delete that failed is unfinished cleanup
+		// rather than a release that did not happen. Retrying is what fixes it: reconcile only
+		// runs when somebody authorizes, and WordPress.com now answers this call with `no_owner`.
+		if ( is_wp_error( $cleared ) && 'protected_owner_not_cleared' === $cleared->get_error_code() ) {
+			return new WP_Error(
+				'protected_owner_not_cleared',
+				__( 'Ownership was released with WordPress.com, but this site could not finish clearing it. Try again.', 'jetpack-connection' ),
+				array( 'status' => 500 )
+			);
+		}
+
+		return $cleared;
+	}
+
+	/**
+	 * The refusal for a caller who is not the owner WordPress.com holds.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_Error
+	 */
+	private function protected_owner_release_refused() {
+		return new WP_Error(
+			'protected_owner_not_owner',
+			__( 'Only the confirmed owner can release ownership of this site.', 'jetpack-connection' ),
+			array( 'status' => 403 )
+		);
+	}
+
+	/**
+	 * Whether a WordPress.com user id would replace the stored anchor.
+	 *
+	 * Zero means this user is not named yet, so it is not a conflict.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int $wpcom_user_id WordPress.com user the claim would anchor.
+	 * @return bool
+	 */
+	private function local_anchor_names_someone_else( $wpcom_user_id ) {
+		$anchor = Protected_Owner::get_locked();
+
+		return $anchor && $wpcom_user_id && (int) $anchor['wpcom_user_id'] !== (int) $wpcom_user_id;
+	}
+
+	/**
+	 * The support path for a site a different account already protects.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_Error
+	 */
+	private function protected_owner_claimed_by_other() {
+		return new WP_Error(
+			'protected_owner_claimed_by_other',
+			__( 'This site is already protected by a different WordPress.com account. Contact support.', 'jetpack-connection' ),
+			array( 'status' => 409 )
+		);
 	}
 
 	/**
@@ -1948,6 +2103,8 @@ class Manager {
 	 *
 	 * @since 1.29.0
 	 * @since 9.3.0 Refused while ownership is locked.
+	 * @since $$next-version$$ The anchored owner passes the lock, and moving the site off them
+	 *                         releases the anchor.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *
@@ -1956,7 +2113,7 @@ class Manager {
 	public function update_connection_owner( $new_owner_id ) {
 		// Answered before the arguments are validated: no candidate is valid while ownership is
 		// locked, and an argument error would suggest a retry that cannot work.
-		if ( ! $this->is_ownership_transferable() ) {
+		if ( ! $this->is_ownership_transferable() && ! $this->current_user_may_move_locked_ownership() ) {
 			return new WP_Error(
 				'ownership_locked',
 				__( 'The connection owner is locked on this site.', 'jetpack-connection' ),
@@ -2002,6 +2159,8 @@ class Manager {
 			// Clear the memoized connection owner ID since it changed
 			self::$connection_owner_id = null;
 
+			$this->release_anchor_after_transfer( $new_owner_id, $owner_updated_wpcom );
+
 			// Track it.
 			( new Tracking() )->record_user_event( 'set_connection_owner_success' );
 
@@ -2015,13 +2174,97 @@ class Manager {
 	}
 
 	/**
+	 * Whether the current user may move the connection despite a locked anchor.
+	 *
+	 * The anchor protects an identity, so the owner it names is the one person it is not against.
+	 *
+	 * A local hint rather than proof of who that is: the binding is not unique site-wide, and the
+	 * anchored owner is often not the connection owner here — taking a site back from an agency is
+	 * the point — so there is no stronger identity to check. WordPress.com decides, marking a
+	 * switch `po_signed` only when the signing token belongs to the owner of record.
+	 *
+	 * A consumer locking ownership through the filter is a separate refusal that still applies to
+	 * everybody, so it is re-read here with the anchor out of the way.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return bool
+	 */
+	private function current_user_may_move_locked_ownership() {
+		$anchor  = Protected_Owner::get_locked();
+		$user_id = get_current_user_id();
+
+		if ( ! $anchor || ! $user_id ) {
+			return false;
+		}
+
+		// Both halves, as everywhere else the binding is trusted: it outlives the token, so a
+		// disconnected user can still carry the anchored ID.
+		if ( ! $this->is_user_connected( $user_id ) ) {
+			return false;
+		}
+
+		// This user's own binding, never a search for whoever holds the anchored ID, which would
+		// hand the site to the first match.
+		if ( Utils::get_wpcom_user_id( $user_id ) !== (int) $anchor['wpcom_user_id'] ) {
+			return false;
+		}
+
+		/** This filter is documented in projects/packages/connection/src/class-manager.php */
+		return (bool) apply_filters( 'jetpack_connection_ownership_transferable', true );
+	}
+
+	/**
+	 * Drop the anchor once the site has left the owner it names.
+	 *
+	 * Do not make this clear more eagerly. An anchor dropped while WordPress.com kept its own
+	 * locks the site to nobody, and `reconcile_protected_owner()` returns before asking when
+	 * there is no local anchor left to repair it with. The reverse mistake costs nothing.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param int        $new_owner_id The local user who now holds the connection.
+	 * @param true|array $accepted     What WordPress.com answered the switch with: a report of
+	 *                                 what it did where available, otherwise a bare `true`.
+	 */
+	private function release_anchor_after_transfer( $new_owner_id, $accepted ) {
+		$anchor = Protected_Owner::get_locked();
+
+		if ( ! $anchor ) {
+			return;
+		}
+
+		// WordPress.com resolves the new owner itself and knows what it kept, so where it reports
+		// what it did, that report is the whole answer.
+		if ( is_array( $accepted ) ) {
+			if ( ! empty( $accepted['released'] ) ) {
+				Protected_Owner::clear();
+			}
+
+			return;
+		}
+
+		// A bare `true` says only that the switch happened, leaving who the site went to as the
+		// best guess available. A zero is "could not determine", which covers the owner taking the
+		// site back — the case WordPress.com keeps its record for.
+		$new_owner_wpcom_id = $this->resolve_wpcom_user_id( $new_owner_id );
+
+		if ( $new_owner_wpcom_id && $new_owner_wpcom_id !== (int) $anchor['wpcom_user_id'] ) {
+			Protected_Owner::clear();
+		}
+	}
+
+	/**
 	 * Request to WPCOM to update the connection owner.
 	 *
 	 * @since 1.29.0
+	 * @since $$next-version$$ Returns what WordPress.com answered rather than casting it, so a
+	 *                         report of what the switch did can be read. Still falsy on failure.
 	 *
 	 * @param int $new_owner_id The ID of the user to become the connection owner.
 	 *
-	 * @return bool Whether the ownership transfer was successful.
+	 * @return bool|array False if the transfer failed, otherwise what WordPress.com answered:
+	 *                    `true`, or a non-empty report such as `array( 'released' => bool )`.
 	 */
 	public function update_connection_owner_wpcom( $new_owner_id ) {
 		// Notify WPCOM about the connection owner change.
@@ -2040,7 +2283,15 @@ class Manager {
 			return false;
 		}
 
-		return (bool) $xml->getResponse();
+		$response = $xml->getResponse();
+
+		// An array is the switch reporting what it did, and an empty one reports nothing rather
+		// than refusing — a bare `true` by another name. Only a falsy non-array is a refusal.
+		if ( is_array( $response ) ) {
+			return empty( $response ) ? true : $response;
+		}
+
+		return (bool) $response;
 	}
 
 	/**
