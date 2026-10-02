@@ -197,12 +197,16 @@ test( 'shows the stock button loading treatment while a user speed test runs', a
 } );
 
 test( 'announces a user run through the card status without a second button announcement', async () => {
-	renderOverview();
+	const { container } = renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
 	mockSpeak.mockClear();
 	jest.mocked( requestSpeedScores ).mockReturnValueOnce( new Promise( () => {} ) );
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
-	await waitFor( () => expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' ) );
+	const card = within(
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
+	);
+	await waitFor( () => expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' ) );
 	expect( mockSpeak ).not.toHaveBeenCalled();
 } );
 
@@ -213,13 +217,17 @@ test( 'shows a run already in progress when the Overview opens', async () => {
 			options?.onPending?.();
 			return new Promise( () => {} );
 		} );
-	renderOverview();
+	const { container } = renderOverview();
 	await waitFor( () =>
 		expect( screen.getByRole( 'button', { name: 'Run speed test' } ) ).toHaveClass(
 			/__is-loading$/
 		)
 	);
-	expect( screen.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
+	const card = within(
+		// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access
+		container.querySelector< HTMLElement >( '.jetpack-boost-overview__scores-card' )!
+	);
+	expect( card.getByRole( 'status' ) ).toHaveTextContent( 'Calculating…' );
 } );
 
 test( 'clears the busy button after a rejected speed test request', async () => {
