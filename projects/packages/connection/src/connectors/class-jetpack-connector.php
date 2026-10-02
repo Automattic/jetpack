@@ -11,6 +11,7 @@
 
 namespace Automattic\Jetpack\Connection;
 
+use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Identity_Crisis;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Status;
@@ -128,6 +129,11 @@ class Jetpack_Connector {
 		);
 		wp_enqueue_script_module( static::MODULE_ID );
 
+		// Assets::enqueue_script also loads the stylesheet registered with the handle.
+		if ( static::should_enqueue_protected_owner_dialogs( new Manager() ) ) {
+			Assets::enqueue_script( 'jetpack-connection' );
+		}
+
 		add_filter(
 			'script_module_data_' . static::MODULE_ID,
 			array( static::class, 'get_connector_data' )
@@ -179,6 +185,11 @@ class Jetpack_Connector {
 			$data['connectionOwner'] = static::get_connection_owner_data( $manager );
 		}
 
+		$protected_owner = static::get_protected_owner_card_state( $manager );
+		if ( null !== $protected_owner ) {
+			$data['protectedOwner'] = $protected_owner;
+		}
+
 		$host              = new Host();
 		$data['isWoaSite'] = $host->is_woa_site();
 		$data['isVipSite'] = $host->is_vip_site();
@@ -225,6 +236,75 @@ class Jetpack_Connector {
 			'isDevelopmentSite'              => (bool) Status::is_development_site(),
 			'possibleDynamicSiteUrlDetected' => (bool) Identity_Crisis::detect_possible_dynamic_site_url(),
 		);
+	}
+
+	/**
+	 * Protected-owner state for the connector card.
+	 *
+	 * Omitted when nothing requests a protected owner and no anchor is stored,
+	 * so the card keeps its current account sections. The status is
+	 * Manager::resolve_protected_owner_state(), which the card switches on.
+	 *
+	 * `viewerIsConfirmedOwner` is that method's `is_current_user_the_po`. It tells the recovery
+	 * copy apart: an owner whose own token broke is asked to reconnect, not to connect.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Manager $manager Connection manager instance.
+	 * @return array{status: string, viewerIsConfirmedOwner: bool}|null
+	 */
+	private static function get_protected_owner_card_state( $manager ) {
+		$requires = $manager->requires_protected_owner();
+		$anchor   = Protected_Owner::get_locked();
+
+		if ( ! $requires && ! $anchor ) {
+			return null;
+		}
+
+		$state = $manager->resolve_protected_owner_state();
+
+		// No anchor and this viewer cannot confirm: leave the card as it is.
+		if ( ! $anchor && Manager::PO_STATE_NOT_ELIGIBLE === $state['status'] ) {
+			return null;
+		}
+
+		return array(
+			'status'                 => $state['status'],
+			'viewerIsConfirmedOwner' => $state['is_current_user_the_po'],
+		);
+	}
+
+	/**
+	 * Whether the card can open one of the shared protected-owner dialogs.
+	 *
+	 * Confirming is only reachable for a connected administrator, on a site that has asked for a
+	 * protected owner and does not have one yet. Releasing is only reachable for the confirmed
+	 * owner, and deliberately does not depend on a consumer still asking: a site has to be able
+	 * to give up a lock after the plugin that wanted it is gone.
+	 *
+	 * Both read the one state call rather than asking again, so neither adds a WordPress.com
+	 * round trip to a screen load.
+	 *
+	 * The card always uses the package dialogs. `jetpack_connection_protected_owner_default_ui`
+	 * is for a consumer's own surface, not this one.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param Manager $manager Connection manager instance.
+	 * @return bool
+	 */
+	private static function should_enqueue_protected_owner_dialogs( $manager ) {
+		$state = $manager->resolve_protected_owner_state();
+
+		if ( $manager->requires_protected_owner() && Manager::PO_STATE_CAN_ESTABLISH === $state['status'] ) {
+			return true;
+		}
+
+		// `RE_EVALUATE` is the anchored state where the connection owner matches the anchor, so
+		// pinning the viewer to that owner is the same gate the release endpoint applies — a
+		// matching binding alone would offer a dialog the endpoint then refuses.
+		return Manager::PO_STATE_RE_EVALUATE === $state['status']
+			&& get_current_user_id() === (int) $manager->get_connection_owner_id();
 	}
 
 	/**

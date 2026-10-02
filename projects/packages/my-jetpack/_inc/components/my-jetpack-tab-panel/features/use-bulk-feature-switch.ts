@@ -58,10 +58,18 @@ function getSwitch( state: FeatureState ): { type: 'module' | 'plugin'; slug: st
 		: { type: 'plugin', slug: control.kind === 'plugin' ? control.plugin : '' };
 }
 
+/** What a bulk run came back with, counted against what it actually sent. */
+export type BulkOutcome = {
+	// Rows already in the asked-for state are dropped before the request, so this is not
+	// how many were selected.
+	attempted: number;
+	failed: string[];
+};
+
 /**
  * Switch many features on or off at once, in one request, with one notice for the lot.
  *
- * @return The handler, which resolves to the slugs of the features that failed, and whether a bulk switch is running.
+ * @return The handler, which resolves to what the run attempted and what failed, and whether a bulk switch is running.
  */
 export function useBulkFeatureSwitch() {
 	const queryClient = useQueryClient();
@@ -70,13 +78,13 @@ export function useBulkFeatureSwitch() {
 	const [ isRunning, setIsRunning ] = useState( false );
 
 	const run = useCallback(
-		async ( states: FeatureState[], active: boolean ): Promise< string[] > => {
+		async ( states: FeatureState[], active: boolean ): Promise< BulkOutcome > => {
 			const targets = states.filter(
 				state => isBulkSwitchable( state ) && ( state.status === 'active' ) !== active
 			);
 
 			if ( ! targets.length ) {
-				return [];
+				return { attempted: 0, failed: [] };
 			}
 
 			const switches = targets.map( getSwitch );
@@ -168,7 +176,7 @@ export function useBulkFeatureSwitch() {
 				setIsRunning( false );
 			}
 
-			return failedSlugs;
+			return { attempted: targets.length, failed: failedSlugs };
 		},
 		[ createErrorNotice, createSuccessNotice, fetchModules, queryClient ]
 	);

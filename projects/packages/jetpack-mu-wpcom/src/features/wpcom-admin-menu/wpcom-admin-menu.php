@@ -8,14 +8,13 @@
  */
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
-use Automattic\Jetpack\Jetpack_Mu_Wpcom\Launchpad_Personalization_Experiment;
 use Automattic\Jetpack\Modules;
 use Automattic\Jetpack\Newsletter\Settings as Newsletter_Settings;
 use Automattic\Jetpack\Podcast\Admin_Page as Podcast_Admin_Page;
 use Automattic\Jetpack\Redirect;
 
 require_once __DIR__ . '/../../common/wpcom-callout.php';
-require_once __DIR__ . '/../../common/class-launchpad-personalization-experiment.php';
+require_once __DIR__ . '/../../common/launchpad-no-guidance.php';
 
 /**
  * Checks if the current user has a WordPress.com account connected.
@@ -104,10 +103,8 @@ function wpcom_add_my_home_menu() {
 		return;
 	}
 
-	// The no_guidance launchpad-personalization variation gets no My Home at all: these
-	// users work from the wp-admin dashboard. Removing the menu item here also removes it
-	// from the Calypso sidebar, which is built from this menu via the admin-menu endpoint.
-	if ( 'no_guidance' === Launchpad_Personalization_Experiment::get_variation() ) {
+	// No-guidance sites get no My Home at all; removing it here also drops it from the Calypso sidebar.
+	if ( wpcom_launchpad_is_no_guidance() ) {
 		return;
 	}
 
@@ -385,8 +382,10 @@ function wpcom_add_jetpack_submenu() {
 		null // @phan-suppress-current-line PhanTypeMismatchArgumentProbablyReal -- Core should ideally document null for no-callback arg. https://core.trac.wordpress.org/ticket/52539.
 	);
 
-	// Jetpack > Backup.
+	// Jetpack > Backup. Calypso owns the nav, so hide the Jetpack plugin's own `jetpack-backup`
+	// entry; hidden rather than removed, so links into that page keep working.
 	wpcom_hide_submenu_page( 'jetpack', esc_url( Redirect::get_url( 'calypso-backups' ) ) );
+	wpcom_hide_submenu_page( 'jetpack', 'jetpack-backup' );
 	add_submenu_page(
 		'jetpack',
 		/** "Backup" is a product name, do not translate. */
@@ -454,7 +453,6 @@ function wpcom_add_jetpack_submenu() {
 			class_exists( '\WPCOM_Features' ) &&
 			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
 		) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
 		}
 

@@ -26,10 +26,11 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import {
 	getEarningsReportTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveSection,
 	useEarningsReportRecords,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -139,7 +140,7 @@ function EarningsReport(): JSX.Element {
 		>
 			{ /* No date filters: the `wordads/earnings` endpoint is all-time, and the Ads tab has no global date controls. */ }
 			<ReportPageLayout
-				title={ getTabTitle( tab ) }
+				title={ getTabLabel( tab ) }
 				tabs={
 					tabs.length > 1 ? (
 						<ReportPageTabs tabs={ tabs } value={ tab } onChange={ setActiveTab } />
@@ -158,6 +159,7 @@ function EarningsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getEarningsRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search earnings history', 'jetpack-premium-analytics-pkg' ) }
 					/>

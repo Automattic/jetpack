@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Widgets toolkit: Keep the hover underline on the ReportLink text when it renders text with a badge beside it.

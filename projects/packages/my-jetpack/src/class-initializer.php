@@ -46,7 +46,7 @@ class Initializer {
 	 *
 	 * @var string
 	 */
-	const PACKAGE_VERSION = '6.6.0';
+	const PACKAGE_VERSION = '6.7.1';
 
 	/**
 	 * Handle for the classic script that carries the React initial state.
@@ -199,6 +199,7 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		$position    = defined( Admin_Menu::class . '::POSITION_FIRST' ) ? Admin_Menu::POSITION_FIRST : -10;
 		$menu_slug   = 'my-jetpack';
 		$page_suffix = Admin_Menu::add_menu(
 			__( 'My Jetpack', 'jetpack-my-jetpack' ),
@@ -206,7 +207,7 @@ class Initializer {
 			'edit_posts',
 			$menu_slug,
 			array( __CLASS__, 'admin_page' ),
-			Admin_Menu::POSITION_FIRST
+			$position
 		);
 		add_action( 'load-' . $page_suffix, array( __CLASS__, 'admin_init' ) );
 		// Users who can edit posts but have no Jetpack menu get an admin_page_ hook instead.
@@ -889,7 +890,6 @@ class Initializer {
 	public static function register_rest_endpoints() {
 		new REST_Products();
 		new REST_Purchases();
-		new REST_Zendesk_Chat();
 		( new REST_Jetpack_AI_JWT() )->register_rest_route();
 		new REST_Recommendations_Evaluation();
 

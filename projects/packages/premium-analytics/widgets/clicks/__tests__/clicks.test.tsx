@@ -3,10 +3,12 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import ClicksWidget, { toClickRows, toClickRowsWithComparison } from '../render';
 import type { StatsClicksItem, StatsNormalizedReport } from '@jetpack-premium-analytics/data';
 
@@ -364,5 +366,60 @@ describe( 'toClickRows', () => {
 		// The row still lists — rejecting the URL must not drop the data.
 		expect( row.label ).toBe( 'evil.example' );
 		expect( row.href ).toBeUndefined();
+	} );
+} );
+
+describe( 'ClicksWidget CSV export', () => {
+	let downloads: ReturnType< typeof captureCsvDownloads >;
+
+	const FULL_REPORT = {
+		...CLICKS_RESPONSE,
+		summary: {
+			clicks: [
+				...CLICKS_RESPONSE.summary.clicks,
+				...Array.from( { length: 11 }, ( _, index ) => ( {
+					name: `site-${ index + 1 }.com`,
+					views: 10 - index,
+					url: `https://site-${ index + 1 }.com/`,
+				} ) ),
+			],
+		},
+	};
+
+	beforeEach( () => {
+		jest.useFakeTimers();
+		queryClient.clear();
+		mockApiFetch.mockReset();
+		downloads = captureCsvDownloads();
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			Promise.resolve( path.includes( 'max=0' ) ? FULL_REPORT : CLICKS_RESPONSE )
+		);
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+		downloads.restore();
+	} );
+
+	it( 'downloads the whole Clicks report while drilled into one link', async () => {
+		render(
+			<ClicksWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+		);
+
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		await user.click(
+			await screen.findByRole( 'button', { name: /view clicked links for wordpress\.org/i } )
+		);
+		await expect(
+			screen.findByRole( 'button', { name: /view all clicks/i } )
+		).resolves.toBeInTheDocument();
+		await user.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+		await waitFor( () => expect( downloads.files ).toHaveLength( 1 ) );
+
+		const lines = await downloads.lines();
+		expect( lines[ 0 ] ).toBe( '"Clicked URL","Group","Clicks"' );
+		expect( lines ).toContain( '"https://jetpack.com/","jetpack.com","18"' );
+		expect( lines ).toHaveLength( 15 );
+		expect( downloads.files[ 0 ].filename ).toBe( 'clicks-2026-03-01_2026-03-10.csv' );
 	} );
 } );

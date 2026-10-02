@@ -1,6 +1,6 @@
 {
 	"name": "@automattic/jetpack-forms",
-	"version": "8.2.0",
+	"version": "8.2.2",
 	"private": true,
 	"description": "Jetpack Forms",
 	"homepage": "https://github.com/Automattic/jetpack/tree/HEAD/projects/packages/forms/#readme",
@@ -90,7 +90,7 @@
 		"react-router": "7.18.2",
 		"react-transition-group": "^4.4.5",
 		"semver": "7.7.3",
-		"webpack": "5.107.2",
+		"webpack": "5.111.1",
 		"webpack-cli": "7.2.1"
 	},
 	"devDependencies": {

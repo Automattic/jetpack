@@ -67,11 +67,21 @@ export function MoreFeatures( {
 					{ group.label }
 				</Text>
 				{ isList ? (
-					<FeatureList states={ group.states } selection={ selection } showIcon={ false } />
+					<FeatureList
+						states={ group.states }
+						selection={ selection }
+						showIcon={ false }
+						origin="more_features"
+					/>
 				) : (
 					<div className={ styles[ 'feature-grid' ] }>
 						{ group.states.map( state => (
-							<FeatureItem key={ state.feature.slug } state={ state } showIcon={ false } />
+							<FeatureItem
+								key={ state.feature.slug }
+								state={ state }
+								showIcon={ false }
+								origin="more_features"
+							/>
 						) ) }
 					</div>
 				) }

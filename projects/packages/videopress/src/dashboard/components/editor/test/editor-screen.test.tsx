@@ -1,26 +1,30 @@
 /* eslint-disable testing-library/prefer-user-event -- Media, browser navigation, and document shortcuts need native events. */
-import { useGlobalNotices } from '@automattic/jetpack-components/global-notices';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { useDispatch } from '@wordpress/data';
 import { useNavigate } from '@wordpress/route';
 import { useRestoreOriginal } from '../../../hooks/use-restore-original';
 import { useRetryVideoProcessing } from '../../../hooks/use-retry-video-processing';
-import {
-	useSaveVideoCopy,
-	useVideoCopyStatus,
-	VideoCopyRejectedError,
-} from '../../../hooks/use-save-video-copy';
-import { EditsConflictError, useSaveVideoEdits } from '../../../hooks/use-save-video-edits';
+import { useSaveVideoEdits } from '../../../hooks/use-save-video-edits';
 import { useVideoEdits } from '../../../hooks/use-video-edits';
 import { makeLibraryItem } from '../../../test-utils/library-item';
 import { createTestWrapper } from '../../../test-utils/query-client-wrapper';
 import TrimCutEditor from '../editor-screen';
-import type { SaveVideoCopyResponse } from '../../../hooks/use-save-video-copy';
 import type { EditsJob, VideoEdits } from '../../../types/edits';
 import type { ReactNode } from 'react';
 
-jest.mock( '@automattic/jetpack-components/global-notices', () => ( {
-	useGlobalNotices: jest.fn(),
+jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
+jest.mock( '@wordpress/data', () => ( {
+	combineReducers: jest.fn( reducers => reducers ),
+	createReduxStore: jest.fn( () => ( { name: 'mock-store' } ) ),
+	createSelector: jest.fn( selector => selector ),
+	keyedReducer: jest.fn( ( _key, reducer ) => reducer ),
+	register: jest.fn(),
+	select: jest.fn( () => ( {} ) ),
+	dispatch: jest.fn( () => ( {} ) ),
+	useSelect: jest.fn( () => ( {} ) ),
+	useRegistry: jest.fn( () => ( { select: jest.fn(), dispatch: jest.fn() } ) ),
+	useDispatch: jest.fn(),
 } ) );
 jest.mock( '@automattic/jetpack-components/admin-page', () => ( {
 	__esModule: true,
@@ -57,14 +61,6 @@ jest.mock( '../../../hooks/use-save-video-edits', () => ( {
 	...jest.requireActual( '../../../hooks/use-save-video-edits' ),
 	useSaveVideoEdits: jest.fn(),
 } ) );
-jest.mock( '../../../hooks/use-save-video-copy', () => ( {
-	...jest.requireActual( '../../../hooks/use-save-video-copy' ),
-	useSaveVideoCopy: jest.fn(),
-	useVideoCopyStatus: jest.fn(),
-} ) );
-jest.mock( '../create-copy-request-id', () => ( {
-	createCopyRequestId: () => '8b3d1700-1234-4567-89ab-123456789abc',
-} ) );
 jest.mock( '../preview/preview-player', () => {
 	const { forwardRef, useImperativeHandle } = jest.requireActual( 'react' );
 	return {
@@ -100,9 +96,7 @@ const video = makeLibraryItem( { guid: 'clip123', durationSeconds: 10 } );
 const save = jest.fn();
 const restore = jest.fn();
 const retryProcessing = jest.fn();
-const copy = jest.fn();
 const refetch = jest.fn();
-const refetchCopy = jest.fn();
 const navigate = jest.fn();
 const successNotice = jest.fn();
 const errorNotice = jest.fn();
@@ -141,20 +135,6 @@ function setEdits( changes: Partial< VideoEdits > = {} ) {
 }
 
 /**
- * Supply the separately polled copy job.
- *
- * @param data    - Copy response, if the request can be found.
- * @param isError - Whether polling failed.
- */
-function setCopyStatus( data?: SaveVideoCopyResponse, isError = false ) {
-	jest.mocked( useVideoCopyStatus ).mockReturnValue( {
-		data,
-		isError,
-		refetch: refetchCopy,
-	} as never );
-}
-
-/**
  * Report the original video's metadata through the media boundary.
  *
  * @param duration - Original duration in seconds.
@@ -185,40 +165,11 @@ function renderEditor( ready = true ) {
 	};
 }
 
-/**
- * Submit a copy using the actual timeline and save dialog.
- *
- * @param user - User interaction controller.
- */
-async function saveCopy( user: ReturnType< typeof userEvent.setup > ) {
-	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-	await user.click( screen.getByRole( 'radio', { name: 'Save as new video' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Save as new video' } ) );
-}
-
-/**
- * Build a polled response for the submitted copy request.
- *
- * @param job - Current copy job.
- * @return The source and destination copy identifiers.
- */
-function copyResponse( job: EditsJob = processingJob ): SaveVideoCopyResponse {
-	return {
-		source_guid: video.guid,
-		request_id: copy.mock.calls[ 0 ][ 0 ].requestId,
-		guid: null,
-		attachment_id: null,
-		job,
-	};
-}
-
 beforeEach( () => {
-	sessionStorage.clear();
 	jest.clearAllMocks();
 	confirmNavigation = jest.spyOn( window, 'confirm' ).mockReturnValue( false );
 	jest.mocked( useNavigate ).mockReturnValue( navigate );
-	jest.mocked( useGlobalNotices ).mockReturnValue( {
+	jest.mocked( useDispatch ).mockReturnValue( {
 		createSuccessNotice: successNotice,
 		createErrorNotice: errorNotice,
 	} as never );
@@ -233,17 +184,14 @@ beforeEach( () => {
 		job: idleJob,
 		updated: '2026-09-20T00:00:00Z',
 	} );
-	setCopyStatus();
 	jest.mocked( useSaveVideoEdits ).mockReturnValue( { mutateAsync: save } as never );
 	jest
 		.mocked( useRetryVideoProcessing )
 		.mockReturnValue( { mutateAsync: retryProcessing } as never );
 	retryProcessing.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
 	jest.mocked( useRestoreOriginal ).mockReturnValue( { mutateAsync: restore } as never );
-	jest.mocked( useSaveVideoCopy ).mockReturnValue( { mutateAsync: copy } as never );
 	save.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
 	restore.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
-	copy.mockResolvedValue( undefined );
 } );
 
 afterEach( () => {
@@ -296,13 +244,15 @@ it( 'submits the current edits against their loaded revision and waits for the c
 	const { user, refresh } = renderEditor();
 	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
 	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+	expect( screen.getByRole( 'dialog', { name: 'Update video?' } ) ).toHaveTextContent(
+		'Existing chapters may need to be adjusted'
+	);
 	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
 	expect( save ).toHaveBeenCalledWith( {
 		guid: video.guid,
 		baseRevision: 2,
 		operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
 	} );
-	expect( copy ).not.toHaveBeenCalled();
 	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
 	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
 		'aria-disabled',
@@ -324,7 +274,7 @@ it( 'submits the current edits against their loaded revision and waits for the c
 		job: { ...processingJob, status: 'complete' },
 	} );
 	refresh();
-	expect( successNotice ).toHaveBeenCalledWith( 'Video edits applied.' );
+	expect( successNotice ).toHaveBeenCalledWith( 'Video edits applied.', { type: 'snackbar' } );
 	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
 		'aria-disabled',
 		'true'
@@ -380,7 +330,6 @@ it( 'retries an accepted save that failed while its unchanged draft remains in t
 	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 	expect( retryProcessing ).toHaveBeenCalledWith( { guid: video.guid, jobId: processingJob.id } );
 	expect( save ).toHaveBeenCalledTimes( 1 );
-	expect( copy ).not.toHaveBeenCalled();
 } );
 
 it( 'keeps a modified draft saveable without retrying older stored instructions', async () => {
@@ -495,293 +444,6 @@ it( 'disables edits after a source error but still permits discarding the draft'
 	expect( screen.getByRole( 'dialog', { name: 'Discard changes?' } ) ).toBeInTheDocument();
 } );
 
-it( 'creates a separate video and navigates only once its attachment is ready', async () => {
-	const { user, refresh } = renderEditor();
-	await saveCopy( user );
-	expect( copy ).toHaveBeenCalledWith( {
-		guid: video.guid,
-		baseRevision: 2,
-		operations: [ { type: 'cut', start_ms: 0, end_ms: 2000 } ],
-		requestId: '8b3d1700-1234-4567-89ab-123456789abc',
-		title: `${ video.title } (edited)`,
-	} );
-	setCopyStatus( copyResponse() );
-	refresh();
-	expect(
-		screen.getByText( 'Your current video stays unchanged.', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( screen.getByRole( 'button', { name: 'Chapters' } ) ).toBeDisabled();
-	await user.click( screen.getByRole( 'button', { name: 'Chapters' } ) );
-	expect( selectTool ).not.toHaveBeenCalled();
-	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
-	const complete = copyResponse( { ...processingJob, status: 'complete' } );
-	setCopyStatus( complete );
-	refresh();
-	expect( navigate ).not.toHaveBeenCalled();
-	setCopyStatus( { ...complete, guid: 'copy123', attachment_id: 99 } );
-	refresh();
-	expect( successNotice ).toHaveBeenCalledWith(
-		'New video created. The original video is unchanged.'
-	);
-	expect( navigate ).toHaveBeenCalledWith( { href: '/video/99' } );
-	expect( screen.getByRole( 'button', { name: 'Discard changes' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	setCopyStatus( { ...complete, guid: 'copy123', attachment_id: 99 } );
-	refresh();
-	expect( navigate ).toHaveBeenCalledTimes( 1 );
-	expect( successNotice ).toHaveBeenCalledTimes( 1 );
-	expect( save ).not.toHaveBeenCalled();
-	expect( restore ).not.toHaveBeenCalled();
-} );
-
-it( 'keeps an unconfirmed copy locked and retries the same captured request', async () => {
-	copy.mockRejectedValue( new Error( 'Connection lost' ) );
-	const { user } = renderEditor();
-	await saveCopy( user );
-	expect(
-		screen.getByText( 'We could not confirm the new video’s status.', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'Discard changes' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
-	expect( copy ).toHaveBeenCalledTimes( 2 );
-	expect( copy.mock.calls[ 1 ][ 0 ] ).toBe( copy.mock.calls[ 0 ][ 0 ] );
-	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
-	expect( save ).not.toHaveBeenCalled();
-} );
-
-it( 'allows polling after an accepted copy status request fails without offering a second submission', async () => {
-	const { user, refresh } = renderEditor();
-	await saveCopy( user );
-	setCopyStatus( undefined, true );
-	refresh();
-	expect(
-		screen.getByText( 'We could not confirm the new video’s status.', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
-	expect( copy ).toHaveBeenCalledTimes( 1 );
-} );
-
-it( 'keeps a recoverable attachment error locked and offers a safe retry', async () => {
-	const { user, refresh } = renderEditor();
-	await saveCopy( user );
-	setCopyStatus(
-		copyResponse( {
-			...processingJob,
-			status: 'failed',
-			error: { code: 'copy_attachment_unconfirmed', message: 'Attachment response lost.' },
-		} )
-	);
-	refresh();
-	expect(
-		screen.getByText( 'We could not confirm the new video’s status.', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
-	expect( copy.mock.calls[ 1 ][ 0 ] ).toBe( copy.mock.calls[ 0 ][ 0 ] );
-	expect( screen.queryByRole( 'button', { name: 'Dismiss' } ) ).not.toBeInTheDocument();
-} );
-
-it( 'distinguishes a created copy from a failed transcode', async () => {
-	const { user, refresh } = renderEditor();
-	await saveCopy( user );
-	setCopyStatus( {
-		...copyResponse( {
-			...processingJob,
-			status: 'failed',
-			error: { code: 'transcode_failed', message: 'Transcoding failed.' },
-		} ),
-		guid: 'copy1234',
-		attachment_id: 99,
-	} );
-	refresh();
-	expect(
-		screen.getByText( 'The new video was created, but its edits could not be processed.', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( navigate ).not.toHaveBeenCalled();
-	expect( screen.getByRole( 'button', { name: 'Dismiss' } ) ).toBeInTheDocument();
-} );
-
-it.each( [ 'Dismiss', 'Save' ] )(
-	'preserves the draft after a failed copy when choosing %s',
-	async action => {
-		const { user, refresh } = renderEditor();
-		await saveCopy( user );
-		setCopyStatus(
-			copyResponse( {
-				...processingJob,
-				status: 'failed',
-				error: { code: 'transcode_failed', message: 'Transcoding failed.' },
-			} )
-		);
-		refresh();
-		expect(
-			screen.getByText( 'Your current video and edits are unchanged.', {
-				exact: false,
-				ignore: '.a11y-speak-region, .a11y-speak-region *',
-			} )
-		).toBeInTheDocument();
-		await user.click( screen.getByRole( 'button', { name: action } ) );
-		expect(
-			screen.queryByText( 'Your current video and edits are unchanged.', {
-				exact: false,
-				ignore: '.a11y-speak-region, .a11y-speak-region *',
-			} )
-		).not.toBeInTheDocument();
-		if ( action === 'Save' ) {
-			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
-		}
-		expect( screen.getByRole( 'button', { name: 'Save' } ) ).not.toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
-		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( save ).not.toHaveBeenCalled();
-	}
-);
-
-it( 'requires reloading the source after a copy revision conflict', async () => {
-	setEdits( {
-		can_restore_original: true,
-		operations: [ { type: 'trim', start_ms: 0, end_ms: 9000 } ],
-	} );
-	copy.mockRejectedValue( new EditsConflictError( 'Source changed.', 3 ) );
-	const { user } = renderEditor();
-	expect( screen.getByRole( 'button', { name: 'More actions' } ) ).toBeInTheDocument();
-	await saveCopy( user );
-	expect(
-		screen.getByText( 'The source video changed.', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( screen.getByRole( 'button', { name: 'Undo' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( screen.queryByRole( 'button', { name: 'More actions' } ) ).not.toBeInTheDocument();
-	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-	expect( copy ).toHaveBeenCalledTimes( 1 );
-	await user.click( screen.getByRole( 'button', { name: 'Reload latest' } ) );
-	expect( refetch ).not.toHaveBeenCalled();
-	await user.click(
-		within( screen.getByRole( 'dialog' ) ).getByRole( 'button', { name: 'Reload latest' } )
-	);
-	expect( refetch ).toHaveBeenCalledTimes( 1 );
-	expect(
-		screen.queryByText( 'The source video changed.', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).not.toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( screen.getByRole( 'button', { name: 'More actions' } ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-} );
-
-it( 'prevents duplicate submission and edits while copy acceptance is pending', async () => {
-	copy.mockReturnValue( new Promise( () => {} ) );
-	const { user } = renderEditor();
-	await saveCopy( user );
-	expect(
-		screen.getByText( 'Creating your new video', {
-			exact: false,
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'Check status' } ) ).not.toBeInTheDocument();
-	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Discard changes' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-	expect( copy ).toHaveBeenCalledTimes( 1 );
-} );
-
-it.each( [ 'Dismiss', 'Save' ] )(
-	'preserves the draft after a rejected copy when choosing %s',
-	async action => {
-		copy.mockRejectedValue(
-			new VideoCopyRejectedError( 'quota_exceeded', 'Not enough video storage.' )
-		);
-		const { user } = renderEditor();
-		await saveCopy( user );
-		expect(
-			screen.getByText( 'Not enough video storage.', {
-				exact: false,
-				ignore: '.a11y-speak-region, .a11y-speak-region *',
-			} )
-		).toBeInTheDocument();
-		expect( screen.getByRole( 'button', { name: 'New cut' } ) ).not.toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
-		await user.click( screen.getByRole( 'button', { name: action } ) );
-		expect(
-			screen.queryByText( 'Not enough video storage.', {
-				exact: false,
-				ignore: '.a11y-speak-region, .a11y-speak-region *',
-			} )
-		).not.toBeInTheDocument();
-		if ( action === 'Save' ) {
-			await user.click( screen.getByRole( 'button', { name: 'Cancel' } ) );
-		}
-		await user.click( screen.getByRole( 'button', { name: 'Undo' } ) );
-		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
-		);
-		expect( save ).not.toHaveBeenCalled();
-	}
-);
-
 it( 'shows indeterminate server progress and does not offer edits during processing', () => {
 	setEdits( { can_restore_original: true, job: processingJob } );
 	renderEditor();
@@ -863,36 +525,25 @@ it( 'suspends editor shortcuts until the save dialog is dismissed', async () => 
 	);
 } );
 
-it.each( [ 'update', 'copy' ] )(
-	'stops warning on navigation after an accepted %s save',
-	async mode => {
-		const { user, refresh } = renderEditor();
-		if ( mode === 'copy' ) {
-			await saveCopy( user );
-		} else {
-			await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-			await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-			await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
-		}
-		const event = new Event( 'beforeunload', { cancelable: true } );
-		window.dispatchEvent( event );
-		expect( event.defaultPrevented ).toBe( false );
-		await user.click( screen.getByRole( 'tab', { name: 'Details' } ) );
-		expect( confirmNavigation ).not.toHaveBeenCalled();
+it( 'stops warning on navigation after an accepted save', async () => {
+	const { user, refresh } = renderEditor();
+	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
+	const event = new Event( 'beforeunload', { cancelable: true } );
+	window.dispatchEvent( event );
+	expect( event.defaultPrevented ).toBe( false );
+	await user.click( screen.getByRole( 'tab', { name: 'Details' } ) );
+	expect( confirmNavigation ).not.toHaveBeenCalled();
 
-		if ( mode === 'copy' ) {
-			setCopyStatus( copyResponse( { ...processingJob, status: 'failed' } ) );
-		} else {
-			setEdits( { job: { ...processingJob, status: 'failed' } } );
-		}
-		refresh();
-		const failedEvent = new Event( 'beforeunload', { cancelable: true } );
-		window.dispatchEvent( failedEvent );
-		expect( failedEvent.defaultPrevented ).toBe( true );
-	}
-);
+	setEdits( { job: { ...processingJob, status: 'failed' } } );
+	refresh();
+	const failedEvent = new Event( 'beforeunload', { cancelable: true } );
+	window.dispatchEvent( failedEvent );
+	expect( failedEvent.defaultPrevented ).toBe( true );
+} );
 
-it( 'keeps a processing copy in the editor and unlocks it when the job completes', () => {
+it( 'keeps a processing video in the editor and unlocks it when the job completes', () => {
 	const processingVideo = { ...video, durationSeconds: 0, isProcessing: true };
 	setEdits( { job: processingJob } );
 	const { rerender } = render(
@@ -944,51 +595,7 @@ it( 'shows the failed job and retained original when attachment metadata never f
 	expect( screen.queryByText( 'Video processing placeholder' ) ).not.toBeInTheDocument();
 } );
 
-it( 'restores the pending copy draft after returning to the source editor', async () => {
-	const { user, unmount } = renderEditor();
-	await saveCopy( user );
-	unmount();
-	renderEditor();
-	expect( screen.getByRole( 'button', { name: 'New cut' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( screen.getAllByRole( 'slider', { name: /Cut/ } ) ).toHaveLength( 2 );
-	const event = new Event( 'beforeunload', { cancelable: true } );
-	window.dispatchEvent( event );
-	expect( event.defaultPrevented ).toBe( false );
-	expect( copy ).toHaveBeenCalledTimes( 1 );
-} );
-
-it( 'continues to warn if a copy submission has not been confirmed', async () => {
-	copy.mockRejectedValueOnce( new Error( 'Connection interrupted' ) );
-	const { user } = renderEditor();
-	await saveCopy( user );
-	const event = new Event( 'beforeunload', { cancelable: true } );
-	window.dispatchEvent( event );
-	expect( event.defaultPrevented ).toBe( true );
-} );
-
-it( 'detects source edits made while a pending copy was away from the editor', async () => {
-	const { user, unmount } = renderEditor();
-	await saveCopy( user );
-	unmount();
-	setEdits( { revision: 3, operations: [ { type: 'trim', start_ms: 1000, end_ms: 9000 } ] } );
-	setCopyStatus( copyResponse( { ...processingJob, status: 'failed' } ) );
-	renderEditor();
-	expect(
-		screen.getByText( 'This video was edited somewhere else since you opened the editor.', {
-			ignore: '.a11y-speak-region, .a11y-speak-region *',
-		} )
-	).toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-		'aria-disabled',
-		'true'
-	);
-	expect( screen.getAllByRole( 'slider', { name: /Cut/ } ) ).toHaveLength( 2 );
-} );
-
-it( 'retries a failed copy after returning with missing playback metadata', async () => {
+it( 'retries a failed edit after returning with missing playback metadata', async () => {
 	setEdits( { can_retry: true, job: { ...processingJob, status: 'failed' } } );
 	const user = userEvent.setup();
 	render(

@@ -303,20 +303,43 @@ class Subscriber_Stats_Controller_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'newsletter/stats', $url );
 	}
 
-	public function test_subscribers_route_rejects_year_unit() {
+	public function test_subscribers_route_accepts_year_unit() {
 		$this->login_as_admin();
+		$captured = null;
+		add_filter(
+			'jetpack_newsletter_stats_pre_request',
+			function ( $response, $endpoint, $query_args ) use ( &$captured ) {
+				$this->assertNull( $response );
+				$this->assertSame( 'subscribers', $endpoint );
+				$captured = $query_args;
+
+				return array( 'posts' => array() );
+			},
+			10,
+			3
+		);
+
 		$request = new WP_REST_Request( 'GET', '/wpcom/v2/newsletter/stats/subscribers' );
 		$request->set_query_params(
 			array(
-				'date' => gmdate( 'Y-m-d' ),
-				'unit' => 'year',
+				'date'     => gmdate( 'Y-m-d' ),
+				'unit'     => 'year',
+				'quantity' => 3,
 			)
 		);
 
 		$response = rest_get_server()->dispatch( $request );
 
-		$this->assertSame( 400, $response->get_status() );
-		$this->assertSame( 'rest_invalid_param', $response->get_data()['code'] );
+		$this->assertSame( 200, $response->get_status() );
+		$this->assertSame(
+			array(
+				'unit'        => 'year',
+				'quantity'    => 3,
+				'date'        => gmdate( 'Y-m-d' ),
+				'stat_fields' => 'subscribers,subscribers_paid',
+			),
+			$captured
+		);
 	}
 
 	public function test_emails_summary_forwards_declared_defaults() {

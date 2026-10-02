@@ -1,8 +1,8 @@
-import { useGlobalNotices } from '@automattic/jetpack-components';
 import { store as modulesStore } from '@automattic/jetpack-shared-stores';
 import { FormToggle } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import { __, sprintf } from '@wordpress/i18n';
+import { store as noticesStore } from '@wordpress/notices';
 import { useCallback } from 'react';
 import { requestModuleSwitch } from '../../data/module-switch';
 import { moduleSwitchKey, useRequestedSwitch } from '../../data/requested-switch-state';
@@ -19,6 +19,8 @@ export type ModuleToggleProps = {
 	describedby?: string;
 	/** False keeps the page in place, leaving the sidebar to catch up on the next load. */
 	reloadAfterToggle?: boolean;
+	/** Called with what the click asked for, for surfaces that record their own events. */
+	onSwitch?: ( active: boolean ) => void;
 };
 
 // Modules that register a server-rendered wp-admin sidebar item. Toggling them
@@ -43,7 +45,7 @@ export function useModuleActivation(
 	{ reload = true }: { reload?: boolean } = {}
 ) {
 	const { updateJetpackModuleStatus: toggleModule } = useDispatch( modulesStore );
-	const { createSuccessNotice, createErrorNotice } = useGlobalNotices();
+	const { createSuccessNotice, createErrorNotice } = useDispatch( noticesStore );
 
 	const storeIsUpdating = useSelect(
 		select => select( modulesStore ).isModuleUpdating( $module.module ),
@@ -77,7 +79,7 @@ export function useModuleActivation(
 								__( '%s has been deactivated.', 'jetpack-my-jetpack' ),
 								$module.name
 							);
-				createSuccessNotice( message );
+				createSuccessNotice( message, { type: 'snackbar' } );
 			} else {
 				const message =
 					action === 'activation'
@@ -92,7 +94,7 @@ export function useModuleActivation(
 								$module.name
 							);
 
-				createErrorNotice( message );
+				createErrorNotice( message, { type: 'snackbar' } );
 			}
 		},
 		[ $module.module, $module.name, createErrorNotice, createSuccessNotice ]
@@ -138,6 +140,7 @@ export function ModuleToggle( {
 	module: $module,
 	describedby,
 	reloadAfterToggle = true,
+	onSwitch,
 }: ModuleToggleProps ) {
 	const { setModuleActive, isUpdating, isActive } = useModuleActivation( $module, {
 		reload: reloadAfterToggle,
@@ -145,10 +148,16 @@ export function ModuleToggle( {
 	const blockThemeMigration = getBlockThemeMigration( $module );
 
 	const onChange = useCallback(
-		( event: ChangeEvent< HTMLInputElement > ) => setModuleActive( event.target.checked ),
-		[ setModuleActive ]
+		( event: ChangeEvent< HTMLInputElement > ) => {
+			onSwitch?.( event.target.checked );
+			setModuleActive( event.target.checked );
+		},
+		[ onSwitch, setModuleActive ]
 	);
-	const deactivateModule = useCallback( () => setModuleActive( false ), [ setModuleActive ] );
+	const deactivateModule = useCallback( () => {
+		onSwitch?.( false );
+		setModuleActive( false );
+	}, [ onSwitch, setModuleActive ] );
 
 	if ( blockThemeMigration ) {
 		// The stored value, not the asked-for one: the two branches are different actions,

@@ -89,11 +89,12 @@ class Admin_Menu_Test extends TestCase {
 	public function setUp(): void {
 		parent::setUp();
 		// A leftover top-level `jetpack` makes core add a second parent copy to the submenu.
-		global $menu, $submenu, $_parent_pages, $_registered_pages;
+		global $menu, $submenu, $_parent_pages, $_registered_pages, $admin_page_hooks;
 		$menu              = array();
 		$submenu           = array();
 		$_parent_pages     = array();
 		$_registered_pages = array();
+		$admin_page_hooks  = array();
 		delete_option( 'jetpack_active_plan' );
 		delete_option( 'jetpack_site_products' );
 		update_option( 'jetpack_options', array( 'id' => 123456 ) );
@@ -120,6 +121,8 @@ class Admin_Menu_Test extends TestCase {
 		wp_deregister_style( Admin_Menu::HIDE_CORE_NOTICES_HANDLE );
 		wp_dequeue_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
 		wp_deregister_style( Admin_Menu::DESIGN_TOKENS_HANDLE );
+		wp_dequeue_script( 'wp-theme' );
+		wp_deregister_script( 'wp-theme' );
 	}
 
 	/**
@@ -137,17 +140,18 @@ class Admin_Menu_Test extends TestCase {
 
 		static $top_registered = false;
 
+		add_menu_page(
+			'Jetpack',
+			'Jetpack',
+			'edit_posts',
+			'jetpack',
+			'__return_null',
+			'div',
+			3
+		);
+
 		if ( ! $top_registered ) {
 			$top_registered = true;
-			add_menu_page(
-				'Jetpack',
-				'Jetpack',
-				'edit_posts',
-				'jetpack',
-				'__return_null',
-				'div',
-				3
-			);
 
 			$user_id = wp_insert_user(
 				array(
@@ -200,6 +204,23 @@ class Admin_Menu_Test extends TestCase {
 			has_action( 'load-' . $hook . '-network', array( Admin_Menu::class, 'hide_core_admin_notices' ) ),
 			'Expected the network-admin load hook to hide core admin notices to be registered.'
 		);
+	}
+
+	/**
+	 * A page core registers as admin_page_<slug>, for a user without the Jetpack menu, gets the same hooks.
+	 */
+	public function test_add_menu_covers_the_admin_page_fallback_hook() {
+		wp_set_current_user( self::$editor_user_id );
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		Admin_Menu::add_menu( 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+		$wp_suffix = add_submenu_page( 'jetpack', 'Test', 'Test', 'edit_posts', 'fallback_menu', '__return_null' );
+
+		$this->assertSame( 'admin_page_fallback_menu', $wp_suffix );
+		$this->assertNotFalse( has_action( 'load-' . $wp_suffix, array( Admin_Menu::class, 'hide_core_admin_notices' ) ) );
+		Admin_Menu::maybe_enqueue_design_tokens( $wp_suffix );
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
 	}
 
 	/**
@@ -604,6 +625,37 @@ class Admin_Menu_Test extends TestCase {
 		do_action( 'admin_menu' );
 
 		$this->assertUpgradeMenuItemAbsent();
+	}
+
+	/**
+	 * Bundled tokens enqueue when Core has not registered the wp-theme style.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_falls_back_when_wp_theme_style_is_unregistered() {
+		wp_dequeue_style( 'wp-theme' );
+		wp_deregister_style( 'wp-theme' );
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
+		$this->assertFalse( wp_style_is( 'wp-theme', 'registered' ) );
+	}
+
+	/**
+	 * Core/Gutenberg's wp-theme style is used when that handle is registered.
+	 *
+	 * @return void
+	 */
+	public function test_enqueue_design_tokens_uses_wp_theme_when_registered() {
+		if ( ! wp_style_is( 'wp-theme', 'registered' ) ) {
+			wp_register_style( 'wp-theme', 'https://example.com/wp-theme.css', array(), '7.1' );
+		}
+
+		Admin_Menu::enqueue_design_tokens();
+
+		$this->assertTrue( wp_style_is( 'wp-theme', 'enqueued' ) );
+		$this->assertFalse( wp_style_is( Admin_Menu::DESIGN_TOKENS_HANDLE, 'enqueued' ) );
 	}
 
 	/**

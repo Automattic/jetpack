@@ -8,9 +8,11 @@ import { getBlockThemeMigration } from '../../../utils/block-theme-migration';
 import { getActivationStatusLabel } from '../utils';
 import { FeatureAction } from './feature-action';
 import { FeatureIcon } from './feature-icon';
+import { FeatureInstallNotice } from './feature-install-notice';
 import styles from './styles.module.scss';
 import { getDeprecatedModules } from './use-more-features';
 import type { FeatureState } from './feature-state';
+import type { FeatureActionOrigin } from './features-tracking-context';
 import type { MyJetpackModule } from '../../../types';
 import type { ReactNode } from 'react';
 
@@ -39,6 +41,7 @@ type FeatureItemProps = {
 	leading?: ReactNode;
 	className?: string;
 	showIcon?: boolean;
+	origin?: FeatureActionOrigin;
 };
 
 /**
@@ -54,6 +57,7 @@ type FeatureItemProps = {
  * @param {ReactNode}        props.leading   - A control before the icon, raised above the click target.
  * @param {string}           props.className - Extra class for the card.
  * @param {boolean}          props.showIcon  - False drops the icon tile.
+ * @param {string}           props.origin    - Which list this card sits in.
  * @return The rendered component.
  */
 export function FeatureItem( {
@@ -62,6 +66,7 @@ export function FeatureItem( {
 	leading,
 	className,
 	showIcon = true,
+	origin,
 }: FeatureItemProps ) {
 	const { feature } = state;
 	const isActive = state.status === 'active';
@@ -150,6 +155,8 @@ export function FeatureItem( {
 				<Text variant="body-md" className={ styles[ 'feature-item__description' ] }>
 					{ migration?.notice ?? feature.description }
 				</Text>
+
+				<FeatureInstallNotice state={ state } />
 			</span>
 
 			<span className={ styles[ 'feature-action-slot' ] }>
@@ -165,7 +172,11 @@ export function FeatureItem( {
 						{ __( 'Configure', 'jetpack-my-jetpack' ) }
 					</Link>
 				) }
-				<FeatureAction state={ state } describedby={ migration ? undefined : statusId } />
+				<FeatureAction
+					state={ state }
+					origin={ origin }
+					describedby={ migration ? undefined : statusId }
+				/>
 			</span>
 
 			{ /* Left under the stretched title on purpose: it points at the card's own

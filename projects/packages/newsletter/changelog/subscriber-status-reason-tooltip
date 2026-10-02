@@ -1,4 +1,0 @@
-Significance: minor
-Type: added
-
-Subscribers: Label "Not sending" subscribers as "Bounced" or "Emails paused", with the reason in a tooltip.

@@ -80,6 +80,24 @@ describe( 'FeatureDelivery', () => {
 		expect( screen.getByText( /Built into Jetpack/ ) ).toBeInTheDocument();
 	} );
 
+	it( 'says why an install is blocked instead of what Install would do', () => {
+		render(
+			<FeatureDelivery
+				state={ {
+					...installedPlugin,
+					control: { kind: 'install-plugin', plugin: 'akismet', blocked: 'not_permitted' },
+				} }
+			/>
+		);
+
+		expect(
+			screen.getByText(
+				'Your account can’t install plugins. Ask a site administrator to install Akismet Anti-spam.'
+			)
+		).toBeInTheDocument();
+		expect( screen.queryByText( /Installing adds/ ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'links the installed plugin it will switch on', () => {
 		render( <FeatureDelivery state={ installedPlugin } /> );
 

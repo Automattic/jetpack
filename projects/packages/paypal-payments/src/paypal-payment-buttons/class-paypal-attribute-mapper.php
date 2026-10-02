@@ -261,10 +261,6 @@ class PayPal_Attribute_Mapper {
 				$attributes['productDescription'] = sanitize_textarea_field( $line_item['description'] );
 			}
 
-			if ( ! empty( $line_item['image_url'] ) ) {
-				$attributes['imageUrl'] = esc_url_raw( $line_item['image_url'] );
-			}
-
 			if ( isset( $line_item['product_id'] ) && '' !== $line_item['product_id'] ) {
 				$attributes['productId'] = sanitize_text_field( $line_item['product_id'] );
 			}

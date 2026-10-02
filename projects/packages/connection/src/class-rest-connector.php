@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\Connection;
 use Automattic\Jetpack\Connection\Webhooks\Authorize_Redirect;
 use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Redirect;
+use Automattic\Jetpack\Roles;
 use Automattic\Jetpack\Status;
 use Jetpack_XMLRPC_Server;
 use WP_Error;
@@ -342,6 +343,28 @@ class REST_Connector {
 						'required'    => true,
 					),
 				),
+			)
+		);
+
+		// Confirm the current user as the protected owner. Not the connection-owner change above.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/protect',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'protect_connection_owner' ),
+				'permission_callback' => array( static::class, 'protect_connection_owner_permission_check' ),
+			)
+		);
+
+		// Release the protected owner, leaving ownership open to any connected administrator.
+		register_rest_route(
+			'jetpack/v4',
+			'/connection/owner/release',
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => array( static::class, 'release_connection_owner' ),
+				'permission_callback' => array( static::class, 'release_connection_owner_permission_check' ),
 			)
 		);
 	}
@@ -750,7 +773,7 @@ class REST_Connector {
 	 * limits them to refreshing their own user token.
 	 *
 	 * @since 1.15.0
-	 * @since $$next-version$$ Also allows 'jetpack_connect_user'.
+	 * @since 9.8.0 Also allows 'jetpack_connect_user'.
 	 *
 	 * @return bool|WP_Error Whether user has the capability 'jetpack_reconnect' or 'jetpack_connect_user'.
 	 */
@@ -775,7 +798,7 @@ class REST_Connector {
 	 * The endpoint tried to partially or fully reconnect the website to WP.com.
 	 *
 	 * @since 1.15.0
-	 * @since $$next-version$$ Users without 'jetpack_reconnect' only refresh their own user token.
+	 * @since 9.8.0 Users without 'jetpack_reconnect' only refresh their own user token.
 	 *
 	 * @return \WP_REST_Response|WP_Error
 	 */
@@ -941,17 +964,8 @@ class REST_Connector {
 			? (bool) $request['is_connection_owner']
 			: ( new Manager() )->get_connection_owner_id() === $user_id;
 
+		// Tokens::update_user_token() fires jetpack_updated_user_token itself.
 		( new Tokens() )->update_user_token( $user_id, $request['user_token'], $is_connection_owner );
-
-		/**
-		 * Fires when the user token gets successfully replaced.
-		 *
-		 * @since 1.29.0
-		 *
-		 * @param int $user_id User ID.
-		 * @param string $token New user token.
-		 */
-		do_action( 'jetpack_updated_user_token', $user_id, $request['user_token'] );
 
 		return rest_ensure_response(
 			array(
@@ -1080,6 +1094,130 @@ class REST_Connector {
 		}
 
 		return new WP_Error( 'invalid_user_permission_set_connection_owner', self::get_user_permissions_error_msg(), array( 'status' => rest_authorization_required_code() ) );
+	}
+
+	/**
+	 * Confirm the current user as the protected owner.
+	 *
+	 * The claim is always for the signed-in user. A caller cannot name someone else.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function protect_connection_owner() {
+		$result = ( new Manager() )->set_protected_owner( get_current_user_id() );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Whether the current user may confirm a protected owner.
+	 *
+	 * A connected administrator qualifies, and only while a consumer is requesting a protected
+	 * owner. Holding the connection owner slot does not matter.
+	 *
+	 * `requires_protected_owner()` is documented as a momentary answer, but it is the only opt-in
+	 * signal there is, so a consumer that surfaces a confirmation must keep answering true for as
+	 * long as it is on screen. One that flips to false between render and submit turns its own
+	 * link into a 403.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function protect_connection_owner_permission_check() {
+		$user_id   = get_current_user_id();
+		$admin_cap = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$manager   = new Manager();
+
+		if (
+			$user_id
+			&& current_user_can( 'jetpack_connect' )
+			&& $admin_cap
+			&& current_user_can( $admin_cap )
+			&& $manager->is_user_connected( $user_id )
+			&& $manager->requires_protected_owner()
+		) {
+			return true;
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_protect_owner',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
+	}
+
+	/**
+	 * Release the protected owner for this site.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return WP_REST_Response|WP_Error
+	 */
+	public static function release_connection_owner() {
+		$result = ( new Manager() )->release_protected_owner();
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		return rest_ensure_response(
+			array(
+				'code' => 'success',
+			)
+		);
+	}
+
+	/**
+	 * Whether the current user may release the protected owner.
+	 *
+	 * Only the confirmed owner qualifies. WordPress.com is asked again before anything is cleared,
+	 * and its answer is the one that decides.
+	 *
+	 * Deliberately not gated on `requires_protected_owner()`, unlike confirming: a consumer that
+	 * has stopped asking must not strand a site holding a lock it can no longer release.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return true|WP_Error
+	 */
+	public static function release_connection_owner_permission_check() {
+		$user_id   = get_current_user_id();
+		$admin_cap = ( new Roles() )->translate_role_to_cap( 'administrator' );
+		$manager   = new Manager();
+
+		if (
+			$user_id
+			&& current_user_can( 'jetpack_connect' )
+			&& $admin_cap
+			&& current_user_can( $admin_cap )
+			&& $manager->is_user_connected( $user_id )
+		) {
+			// `RE_EVALUATE` settles that the connection owner matches the anchor, so pinning this
+			// user to that owner is what makes it their identity. A matching binding would not:
+			// Premium Content writes the same key directly, so the IDs are not unique site-wide.
+			$state = $manager->resolve_protected_owner_state();
+
+			if ( Manager::PO_STATE_RE_EVALUATE === $state['status'] && $user_id === (int) $manager->get_connection_owner_id() ) {
+				return true;
+			}
+		}
+
+		return new WP_Error(
+			'invalid_user_permission_release_owner',
+			self::get_user_permissions_error_msg(),
+			array( 'status' => rest_authorization_required_code() )
+		);
 	}
 
 	/**

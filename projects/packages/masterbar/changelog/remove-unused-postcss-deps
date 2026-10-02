@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Remove unused postcss-custom-properties and @csstools/postcss-global-data dependencies.
+

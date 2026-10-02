@@ -132,4 +132,26 @@ describe( 'Stats insights normalizer', () => {
 		expect( report ).not.toHaveProperty( 'dayOfWeek' );
 		expect( report ).toMatchObject( { hourOfDay: 19, hourPercent: 5 } );
 	} );
+	it( 'reports no peak for the payload a site with no views gets', () => {
+		const report = sanitizeStatsInsightsResponse( {
+			highest_day_of_week: 0,
+			highest_day_percent: 0,
+			highest_hour: 0,
+			highest_hour_percent: 0,
+			hourly_views: { 0: 0, 1: 0 },
+			years: [ { year: '2026', total_posts: 3 } ],
+		} );
+
+		expect( report ).not.toHaveProperty( 'dayOfWeek' );
+		expect( report ).not.toHaveProperty( 'percent' );
+		expect( report ).not.toHaveProperty( 'hourOfDay' );
+		expect( report ).not.toHaveProperty( 'hourPercent' );
+		expect( report.years ).toHaveLength( 1 );
+	} );
+
+	it( 'keeps a real Monday peak', () => {
+		expect(
+			sanitizeStatsInsightsResponse( { highest_day_of_week: 0, highest_day_percent: 31.4 } )
+		).toMatchObject( { dayOfWeek: 0, percent: 31 } );
+	} );
 } );

@@ -24,7 +24,7 @@
 		"@wordpress/theme": "2.0.0",
 		"@wordpress/ui": "0.21.0",
 		"@wordpress/url": "4.54.0",
-		"markdown-it": "14.2.0"
+		"markdown-it": "14.3.1"
 	},
 	"route": {
 		"path": "/",

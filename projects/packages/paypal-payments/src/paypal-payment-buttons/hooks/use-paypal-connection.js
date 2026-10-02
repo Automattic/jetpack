@@ -4,6 +4,7 @@
  * @package
  */
 
+import jetpackAnalytics from '@automattic/jetpack-analytics';
 import apiFetch from '@wordpress/api-fetch'; // eslint-disable-line import/no-unresolved
 import { useState, useEffect, useCallback, useMemo, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -12,6 +13,8 @@ import { forgetExistingLinks } from '../utils/existing-links';
 import {
 	ONBOARD_CALLBACK_NAME,
 	ONBOARDING_FRAME_SHELL,
+	ONBOARDING_RETURN_MESSAGE,
+	getOnboardingReturnUrl,
 	loadPartnerScript,
 	waitForAnchorBinding,
 } from '../utils/paypal-partner-sdk';
@@ -24,6 +27,25 @@ import { getUserFriendlyError } from '../utils/validation';
  * mount, so the block that made the change broadcasts it to its siblings.
  */
 export const CONNECTION_CHANGED_EVENT = 'jetpack-paypal-payments-connection-changed';
+
+/**
+ * Completion errors that only mean "the seller has not finished", which a
+ * completion attempt made on closing the overlay must not report.
+ */
+const QUIET_COMPLETION_ERRORS = [ 'paypal_merchant_not_found', 'paypal_onboarding_no_session' ];
+
+/**
+ * Run a teardown step on the onboarding frame, which may be on paypal.com by now.
+ *
+ * @param {Function} step - Touches the frame's window.
+ */
+function releaseFrame( step ) {
+	try {
+		step();
+	} catch {
+		// The browser refuses a cross-origin frame; what we set on it went with our page.
+	}
+}
 
 /**
  * Tell the other blocks on this page that the site-wide PayPal connection
@@ -93,6 +115,10 @@ export function usePayPalConnection() {
 
 	// Partner Referrals onboarding state.
 	const [ isCompletingOnboarding, setIsCompletingOnboarding ] = useState( false );
+	const isCompletingRef = useRef( false );
+	// Read live by the return listener, which is not re-subscribed on every change.
+	const onboardingRequestedRef = useRef( onboardingRequested );
+	onboardingRequestedRef.current = onboardingRequested;
 
 	// Wizard step state: 'welcome' | 'dashboard' | 'credentials' | 'success'
 	// Persisted in localStorage so navigating away and back doesn't reset the wizard.
@@ -227,6 +253,10 @@ export function usePayPalConnection() {
 	const handleConnect = useCallback( () => {
 		setConnectError( null );
 		setIsConnecting( true );
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_connection_attempted', {
+			environment,
+			method: 'manual',
+		} );
 
 		apiFetch( {
 			path: `${ API_BASE }/connect`,
@@ -255,25 +285,49 @@ export function usePayPalConnection() {
 			} );
 	}, [ clientId, clientSecret, environment ] );
 
+	// Kept here rather than in the wizard, which unmounts on deselect.
+	const wizardStartedRef = useRef( false );
+
 	/**
-	 * Hand PayPal's auth code to the server to exchange for seller credentials.
+	 * Record the merchant's first click in the wizard, once per block.
+	 */
+	const recordWizardStarted = useCallback( () => {
+		if ( wizardStartedRef.current ) {
+			return;
+		}
+
+		wizardStartedRef.current = true;
+		jetpackAnalytics.tracks.recordEvent( 'jetpack_paypal_wizard_started', {
+			environment,
+			partner_referrals_available: partnerReferralsAvailable,
+		} );
+	}, [ environment, partnerReferralsAvailable ] );
+
+	/**
+	 * Tell the server the merchant finished at PayPal, so it can record them.
+	 *
+	 * PayPal's third-party flow hands the SDK callback nothing to identify the
+	 * seller by; the server finds them through the referral it created. The
+	 * merchant ID goes along only when a caller has it, from the return URL
+	 * this flow never sees.
 	 *
 	 * Registered under the same name on the top window and on the frame's window,
 	 * so both registrations finish onboarding the same way.
 	 */
-	const completeOnboarding = useCallback( ( authCode, sharedId, merchantIdInPayPal = '' ) => {
+	const completeOnboarding = useCallback( ( merchantIdInPayPal = '', { quiet = false } = {} ) => {
+		// The return page reports on the channel and by postMessage, so one return arrives twice.
+		if ( isCompletingRef.current ) {
+			return;
+		}
+		isCompletingRef.current = true;
 		setIsCompletingOnboarding( true );
 
 		apiFetch( {
 			path: `${ API_BASE }/onboarding/complete`,
 			method: 'POST',
 			data: {
-				auth_code: authCode,
-				shared_id: sharedId,
-				// Optional: PayPal reports the merchant ID on the return URL,
-				// which this flow never sees. The server falls back to the
-				// payer_id that comes back with the credentials.
 				merchant_id_in_paypal: merchantIdInPayPal || '',
+				quiet,
 			},
 		} )
 			.then( response => {
@@ -286,6 +340,13 @@ export function usePayPalConnection() {
 				broadcastConnectionChange( true );
 			} )
 			.catch( err => {
+				// A quiet attempt is one nobody asked for, made in case the seller
+				// finished without the return page reaching us. No seller yet is
+				// the expected answer then, not an error to show.
+				if ( quiet && QUIET_COMPLETION_ERRORS.includes( err?.code ) ) {
+					return;
+				}
+
 				// The referral has been through PayPal, so it cannot be reopened.
 				// Drop it, or the next Connect click reuses a spent link.
 				setOnboardingRequested( false );
@@ -294,6 +355,7 @@ export function usePayPalConnection() {
 				setConnectErrorDismissed( false );
 			} )
 			.finally( () => {
+				isCompletingRef.current = false;
 				setIsCompletingOnboarding( false );
 			} );
 	}, [] );
@@ -302,13 +364,59 @@ export function usePayPalConnection() {
 	 * Expose the completion callback for PayPal's SDK to call by name.
 	 */
 	useEffect( () => {
-		window[ ONBOARD_CALLBACK_NAME ] = ( authCode, sharedId ) =>
-			completeOnboarding( authCode, sharedId );
+		window[ ONBOARD_CALLBACK_NAME ] = () => completeOnboarding();
 
 		return () => {
 			delete window[ ONBOARD_CALLBACK_NAME ];
 		};
 	}, [ completeOnboarding ] );
+
+	/**
+	 * Finish onboarding when the plugin's return page reports back.
+	 *
+	 * PayPal's third-party flow does not call the SDK callback; it navigates to
+	 * the return URL, in its popup or in the onboarding frame. The page reports
+	 * on a BroadcastChannel, which is same-origin and needs no opener: the
+	 * editor document is cross-origin isolated, so the popup has none once it
+	 * has been through paypal.com. A window message is the fallback for the
+	 * frame case, listened for on this window and on the frame's.
+	 */
+	useEffect( () => {
+		const handleReturnData = data => {
+			// Every block in every tab hears the broadcast; only the one that opened PayPal finishes.
+			if ( data?.type !== ONBOARDING_RETURN_MESSAGE || ! onboardingRequestedRef.current ) {
+				return;
+			}
+
+			completeOnboarding( data.merchantIdInPayPal || '' );
+		};
+
+		const handleReturnMessage = event => {
+			if ( event.origin !== window.location.origin ) {
+				return;
+			}
+
+			handleReturnData( event.data );
+		};
+
+		const channel =
+			typeof BroadcastChannel === 'undefined'
+				? null
+				: new BroadcastChannel( ONBOARDING_RETURN_MESSAGE );
+		if ( channel ) {
+			channel.onmessage = event => handleReturnData( event.data );
+		}
+
+		const targets = new Set( [ window, frameNode?.contentWindow ].filter( Boolean ) );
+		targets.forEach( target => target.addEventListener( 'message', handleReturnMessage ) );
+
+		return () => {
+			channel?.close();
+			targets.forEach( target =>
+				releaseFrame( () => target.removeEventListener( 'message', handleReturnMessage ) )
+			);
+		};
+	}, [ frameNode, completeOnboarding ] );
 
 	/**
 	 * Fetch the referral link.
@@ -324,14 +432,16 @@ export function usePayPalConnection() {
 			path: `${ API_BASE }/onboarding/signup-link`,
 			method: 'POST',
 			data: {
-				return_url: window.location.href,
+				// The plugin's own page, never the editor: PayPal navigates to it
+				// from inside the onboarding frame.
+				return_url: getOnboardingReturnUrl(),
 				environment,
 			},
 		} )
 			.then( response => {
 				// `displayMode=minibrowser` is what makes PayPal render the flow in
-				// the SDK's lightbox and report the auth code back through the
-				// callback, rather than treating this as a plain redirect.
+				// the SDK's lightbox and report completion through the callback,
+				// rather than treating this as a plain redirect.
 				const url = new URL( response.action_url );
 				url.searchParams.set( 'displayMode', 'minibrowser' );
 				setSignupUrl( url.toString() );
@@ -416,8 +526,7 @@ export function usePayPalConnection() {
 		frameDocument.close();
 
 		// The SDK resolves the callback by name against whichever realm it runs in.
-		frameWindow[ ONBOARD_CALLBACK_NAME ] = ( authCode, sharedId ) =>
-			completeOnboarding( authCode, sharedId );
+		frameWindow[ ONBOARD_CALLBACK_NAME ] = () => completeOnboarding();
 
 		/*
 		 * Left visible on purpose: render() skips hidden elements, so a hidden
@@ -483,10 +592,10 @@ export function usePayPalConnection() {
 
 		return () => {
 			cancelled = true;
-			binding?.cancel();
+			releaseFrame( () => binding?.cancel() );
 			setIsSdkReady( false );
 			onboardingLinkRef.current = null;
-			delete frameWindow[ ONBOARD_CALLBACK_NAME ];
+			releaseFrame( () => delete frameWindow[ ONBOARD_CALLBACK_NAME ] );
 		};
 	}, [ frameNode, signupUrl, environment, completeOnboarding ] );
 
@@ -511,11 +620,19 @@ export function usePayPalConnection() {
 	 * PayPal's lightbox has its own close control, but it tells us nothing, so
 	 * the overlay needs an exit of ours as well. The referral goes with it, and
 	 * clearing it makes the prefetch ask for a new one.
+	 *
+	 * The seller may have finished without the return page reaching us, so a
+	 * close with PayPal open also asks the server whether they did. That answer
+	 * is quiet: "no seller yet" is what a plain cancel gets.
 	 */
 	const cancelOnboarding = useCallback( () => {
 		setOnboardingRequested( false );
 		setSignupUrl( '' );
-	}, [] );
+
+		if ( isOverlayOpen ) {
+			completeOnboarding( '', { quiet: true } );
+		}
+	}, [ isOverlayOpen, completeOnboarding ] );
 
 	/**
 	 * Escape closes the overlay.
@@ -579,6 +696,7 @@ export function usePayPalConnection() {
 		handleClientSecretChange,
 		clientIdWarning,
 		handleConnect,
+		recordWizardStarted,
 		fetchSignupLink,
 		cancelOnboarding,
 	};

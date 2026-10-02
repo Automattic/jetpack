@@ -6,7 +6,7 @@ import {
 	ReportScopeProvider,
 	useSettlePeriodChange,
 } from '@jetpack-premium-analytics/data';
-import { LinkButton } from '@jetpack-premium-analytics/externals';
+import { Button, LinkButton, Stack, Text } from '@jetpack-premium-analytics/externals';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import {
 	DateFiltersPanel,
@@ -19,6 +19,7 @@ import {
 import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
+	DetailPageEmptyState,
 	DetailPageLayout,
 	DetailPageSection,
 	DetailPageShell,
@@ -29,7 +30,7 @@ import {
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { useParams } from '@wordpress/route';
-import { WidgetDashboard } from '@wordpress/widget-dashboard';
+import { WidgetDashboard, type DashboardWidget } from '@wordpress/widget-dashboard';
 import { DETAIL_GRID } from '../grid';
 import { useDetailBreadcrumbs } from '../use-detail-breadcrumbs';
 import { useDetailDateControls } from '../use-detail-date-controls';
@@ -40,12 +41,15 @@ import { postHeaderSlots } from './components';
 import { EMAIL_TAB_IDS, POST_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useEmailTabScope, usePostDetailTabs, usePostSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
 // Its own preferences scope: the routes are separate packages, and the detail
 // surfaces' stored arrangements have no reason to share a namespace.
 const PREFERENCES_SCOPE = 'jetpack-premium-analytics/post-detail';
+
+const NO_WIDGETS: DashboardWidget[] = [];
 
 /**
  * Premium Analytics post/page detail page stage component.
@@ -66,7 +70,11 @@ function PostDetail(): JSX.Element {
 
 	// The resource, date range, and comparison all live in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
+		summary.publishedDate,
+		dateFilters,
+		summary.isLoading || summary.isError
+	);
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -104,13 +112,18 @@ function PostDetail(): JSX.Element {
 		activeTab,
 		setActiveTab,
 		layout: fixedLayout,
-	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked );
+		isEmailNotSent,
+		isEmailSendPending,
+	} = usePostDetailTabs( postId, emailScope?.reportParams, emailScopeBlocked, summary.type );
 
-	// The stored per-tab arrangement, layered over the fixed composition.
+	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
+
+	// The stored per-tab arrangement, layered over the fixed composition. The URL
+	// range tab waits for all time to anchor, as the email tabs wait for their window.
 	const { layout, setLayout, resetLayout } = useStoredDetailLayout(
 		PREFERENCES_SCOPE,
 		activeTab,
-		fixedLayout
+		! isEmailTab && isAnchoringAllTime ? NO_WIDGETS : fixedLayout
 	);
 
 	// Each tab is its own layout, so leaving the tab, by click, Back, or a deep
@@ -130,7 +143,13 @@ function PostDetail(): JSX.Element {
 		surface: 'post_detail',
 	} );
 
-	const isEmailTab = EMAIL_TAB_IDS.includes( activeTab );
+	// The email header names the send ("Email sent on…"), so a post that was
+	// never sent gets the page-level state in place of the header and widgets.
+	const showNotSent = isEmailTab && isEmailNotSent;
+	// Until the send check answers, the email header stays a skeleton, so it
+	// never names a send that the not-sent state then replaces.
+	const headerSummary =
+		isEmailTab && isEmailSendPending ? { ...summary, isLoading: true } : summary;
 
 	const widgetModules = useWidgetModules();
 	const resolveWidgetModule = useWidgetModuleResolver( widgetModules );
@@ -157,6 +176,24 @@ function PostDetail(): JSX.Element {
 	// suggest a choice they do not offer; the range stays in the URL so the Post
 	// traffic tab keeps its selection. The design has no comparison on this page
 	// either — the panel reads that from the scope the stage declares.
+	// Without the publish day, all time has no start to report from.
+	const anchorErrorNotice =
+		! isEmailTab && isAnchoringAllTime && summary.isError ? (
+			<DetailPageSection>
+				<Stack direction="column" align="flex-start" gap="sm">
+					<Text>
+						{ __(
+							"We couldn't load this post. Please try again in a moment.",
+							'jetpack-premium-analytics-pkg'
+						) }
+					</Text>
+					<Button variant="outline" onClick={ summary.refetch }>
+						{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
+					</Button>
+				</Stack>
+			</DetailPageSection>
+		) : null;
+
 	const dateFiltersPanel = isEmailTab ? null : (
 		<DateFiltersPanel
 			{ ...dateFilters }
@@ -223,19 +260,48 @@ function PostDetail(): JSX.Element {
 						 */ }
 						<DetailPageLayout
 							tabs={ <SectionTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
-							header={ postHeaderSlots( {
-								summary,
-								variant: isEmailTab ? 'email' : 'post',
-								performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
-							} ) }
+							header={
+								showNotSent
+									? undefined
+									: postHeaderSlots( {
+											summary: headerSummary,
+											variant: isEmailTab ? 'email' : 'post',
+											performanceRange: isEmailTab ? emailScope?.range : dateFilters.appliedRange,
+										} )
+							}
 							controls={ dateFiltersPanel }
 							returnToTopKey={ attentionId }
 						>
-							{ /* Keyed by tab: each tab is its own layout, so the grid mounts
-							     fresh rather than reflowing one arrangement into the next. */ }
-							<DetailPageSection key={ activeTab }>
-								<WidgetDashboard.Widgets />
-							</DetailPageSection>
+							{ showNotSent ? (
+								<DetailPageEmptyState
+									title={ __(
+										'This post hasn’t been sent as a newsletter',
+										'jetpack-premium-analytics-pkg'
+									) }
+									description={ __(
+										'Newsletter can help you reach subscribers in their inbox.',
+										'jetpack-premium-analytics-pkg'
+									) }
+									actions={
+										<LinkButton
+											variant="outline"
+											size="compact"
+											href="https://jetpack.com/support/newsletter/"
+											openInNewTab
+										>
+											{ __( 'Learn more', 'jetpack-premium-analytics-pkg' ) }
+										</LinkButton>
+									}
+								/>
+							) : (
+								( anchorErrorNotice ?? (
+									/* Keyed by tab: each tab is its own layout, so the grid mounts
+									   fresh rather than reflowing one arrangement into the next. */
+									<DetailPageSection key={ activeTab }>
+										<WidgetDashboard.Widgets />
+									</DetailPageSection>
+								) )
+							) }
 						</DetailPageLayout>
 					</DetailPageShell>
 				</WidgetDashboard>
@@ -256,7 +322,7 @@ export function stage(): JSX.Element {
 		<AnalyticsQueryClientProvider>
 			{ /*
 			 * The page names no compared period, so nothing below may fetch or draw
-			 * one. The params stay on the URL for the breadcrumb to carry back out.
+			 * one, even when a hand-edited URL carries comparison params.
 			 */ }
 			<ReportScopeProvider offersComparison={ false }>
 				<PeriodChangeSignalProvider>

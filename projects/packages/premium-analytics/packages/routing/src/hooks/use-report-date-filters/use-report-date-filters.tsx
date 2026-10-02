@@ -157,6 +157,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 				nextRange,
 				nextPresetId,
 				exactRange: options?.exactRange,
+				resetIntervalOnPresetChange: true,
 				effective,
 			} );
 

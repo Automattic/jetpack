@@ -10,7 +10,7 @@ import {
 import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	buildReportLink,
-	pickReportDateParams,
+	pickReportNavigationParams,
 	useReportDateFilters,
 } from '@jetpack-premium-analytics/routing';
 import { DateFiltersPanel, StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
@@ -41,6 +41,7 @@ import { authorHeaderSlots } from './components';
 import { AUTHOR_DETAIL_LAYOUT, AUTHOR_DETAIL_WIDGET_TYPE_ALIASES } from './config';
 import { useAuthorSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -82,7 +83,7 @@ function AuthorDetail(): JSX.Element {
 	// Stats credits page and product views to the author too, and those can predate
 	// it. WOOA7S-2137 anchors it on the author's first published content instead.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( undefined, dateFilters );
+	const { dateControls } = useDetailDateControls( undefined, dateFilters );
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -107,7 +108,7 @@ function AuthorDetail(): JSX.Element {
 	}, [ applyDateRange, trackedOnApply ] );
 
 	const search = useSearch( { strict: false } ) as Record< string, unknown > | undefined;
-	const reportSearch = pickReportDateParams( search );
+	const reportSearch = pickReportNavigationParams( search );
 
 	const canRenderWidgets = ! summary.isLoading && ! summary.isError && ! summary.isNotFound;
 

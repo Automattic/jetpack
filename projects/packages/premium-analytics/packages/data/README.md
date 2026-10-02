@@ -236,7 +236,7 @@ Normalizes and validates report parameters, providing defaults when needed.
 
 ### `getDefaultIntervalForPeriod( preset, from, to )`
 
-Returns the default (finest allowed) interval for a preset / date range.
+Returns the default interval for a preset / date range: the first one it allows.
 
 **Parameters:**
 
@@ -265,6 +265,23 @@ allowed; otherwise returns the range default.
 - `from`: `string`
 - `to`: `string`
 - `current`: `string | undefined` - Candidate interval to keep when still allowed
+
+**Returns:** `IntervalType`
+
+### `resolveIntervalForPresetChange( currentPreset, nextPreset, from, to, currentInterval? )`
+
+Returns a valid interval for a range picked while `currentPreset` was active.
+Switching to a different named preset returns that preset's default; any other
+change (same preset, `custom`, no preset) keeps `currentInterval` when still
+allowed.
+
+**Parameters:**
+
+- `currentPreset`: `PrimaryPresetId | undefined`
+- `nextPreset`: `PrimaryPresetId | undefined`
+- `from`: `string`
+- `to`: `string`
+- `currentInterval`: `string | undefined` - Candidate interval to keep when still allowed
 
 **Returns:** `IntervalType`
 
@@ -402,8 +419,9 @@ This package exports the following public API:
 
 - `prefetchReport` - Prefetch data for routes
 - `normalizeReportParams` - Normalize and validate parameters
-- `getDefaultIntervalForPeriod` - Default (finest) interval for a preset / range
+- `getDefaultIntervalForPeriod` - Default interval for a preset / range
 - `resolveIntervalForRange` - Keep a still-valid candidate interval, else the range default
+- `resolveIntervalForPresetChange` - Reset to the preset default on a named-preset switch, else keep a still-valid interval
 - `needsReportDateParamsSeed` - Whether report date params are incomplete or the interval is invalid for the range
 
 ### Core Settings

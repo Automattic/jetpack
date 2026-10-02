@@ -125,10 +125,12 @@ const Stage = () => {
 		if ( lastTrackedTab.current === activeTab ) {
 			return;
 		}
+		const previousTab = lastTrackedTab.current;
 		lastTrackedTab.current = activeTab;
 		analytics.tracks.recordEvent( 'jetpack_newsletter_tab_view', {
 			site_type: getSiteType(),
 			tab: activeTab,
+			...( previousTab ? { previous_tab: previousTab } : {} ),
 		} );
 	}, [ activeTab ] );
 

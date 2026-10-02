@@ -3,6 +3,7 @@
  */
 import {
 	getDatePart,
+	PRESET_CUSTOM,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_24_HOURS,
 	PRESET_LAST_30_DAYS,
@@ -53,8 +54,11 @@ function getAllowedIntervalsByRange( from: string, to: string ): IntervalType[] 
 	// No bucket between month and year: Stats has no quarterly one.
 	if ( daysDiff >= 1095 ) {
 		return [ 'month', 'year' ];
-	} else if ( daysDiff >= 365 ) {
+	} else if ( daysDiff > 366 ) {
 		return [ 'month' ];
+	} else if ( daysDiff >= 365 ) {
+		// Months by default; weeks stay on offer for a single year, leap or not.
+		return [ 'month', 'week' ];
 	} else if ( daysDiff >= 90 ) {
 		return [ 'week', 'month' ];
 	} else if ( daysDiff >= 28 ) {
@@ -104,7 +108,7 @@ export function getAllowedIntervalsForPreset(
 		case PRESET_LAST_12_MONTHS:
 		case PRESET_LAST_365_DAYS:
 		case PRESET_LAST_YEAR:
-			return [ 'month' ];
+			return [ 'month', 'week' ];
 		default:
 			return getAllowedIntervalsByRange( from, to );
 	}
@@ -129,6 +133,30 @@ export function resolveIntervalForRange(
 	}
 
 	return allowed[ 0 ] ?? 'day';
+}
+
+/**
+ * Resolve the interval for a range picked while `currentPreset` was active.
+ *
+ * A different named preset starts from its own default; any other change
+ * carries `currentInterval` unless the new range disallows it.
+ */
+export function resolveIntervalForPresetChange(
+	currentPreset: PrimaryPresetId | undefined,
+	nextPreset: PrimaryPresetId | undefined,
+	from: string,
+	to: string,
+	currentInterval?: string
+): IntervalType {
+	const switchesNamedPreset =
+		!! nextPreset && nextPreset !== PRESET_CUSTOM && nextPreset !== currentPreset;
+
+	return resolveIntervalForRange(
+		nextPreset,
+		from,
+		to,
+		switchesNamedPreset ? undefined : currentInterval
+	);
 }
 
 /** Default interval for a preset / date range. */

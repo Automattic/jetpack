@@ -52,7 +52,7 @@ class AI_Launchpad_Tracks_Props_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'web', $props['channel'] );
 		$this->assertSame( 'dashboard', $props['surface'] );
 		$this->assertSame( 'admin.php', $props['screen'] );
-		$this->assertSame( 'experiment_wpcom_launchpad_personalization_202607_v1', $props['ref'] );
+		$this->assertSame( 'ai_launchpad', $props['ref'] );
 		$this->assertSame( 'ai_launchpad', $props['agent_name'] );
 		$this->assertSame( \Automattic\Jetpack\Jetpack_Mu_Wpcom::PACKAGE_VERSION, $props['agent_version'] );
 	}
