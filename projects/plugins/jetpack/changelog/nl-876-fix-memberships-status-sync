@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Memberships: Fix memberships/status endpoint to keep the has-connected-account site option in sync with the Stripe connection state reported by WPCOM.
