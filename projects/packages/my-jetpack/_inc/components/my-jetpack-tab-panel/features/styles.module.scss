@@ -674,11 +674,15 @@ $band-props: (
 	inline-size: 100%;
 	object-fit: contain;
 	opacity: 0;
-	transition: opacity 200ms ease-out;
+	transform: translateY(-0.75rem);
+	transition:
+		opacity 250ms ease-out,
+		transform 350ms var(--wpds-motion-easing-expressive);
 }
 
 .modal-band__image--loaded {
 	opacity: 1;
+	transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -696,13 +700,6 @@ $band-props: (
 	svg {
 		fill: currentColor;
 	}
-}
-
-.modal-band__skeleton {
-	block-size: 100%;
-	inset: 0;
-	position: absolute;
-	inline-size: 100%;
 }
 
 // A lone control over artwork earns a 44px hit target; the visual stays 32px.
