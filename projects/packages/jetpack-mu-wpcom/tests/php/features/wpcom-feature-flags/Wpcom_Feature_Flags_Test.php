@@ -92,12 +92,9 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * Make the request look like a proxied Automattician request on Atomic.
+	 * Make the request look like a verified proxied Automattician request on Atomic.
 	 *
-	 * The detection cookie has to say "not a support session" out loud. The gate
-	 * fails closed on a missing verdict, so the proxy constant alone is not enough
-	 * — which is what test_gate_rejects_atomic_request_without_a_detection_result
-	 * pins.
+	 * The cookie is what unlocks saving; the proxy constant alone only shows the screen.
 	 */
 	private function simulate_proxied_atomic_request() {
 		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
@@ -161,46 +158,41 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 	}
 
 	/**
-	 * A support session also arrives through the proxy, but it is driven by a
-	 * Happiness Engineer acting for the site owner rather than by an
-	 * Automattician testing unreleased work. It must not open the panel.
+	 * The screen shows whenever the "PROXIED V2" banner does, even when the
+	 * SameSite=Strict detection cookie was dropped on a cross-site navigation.
 	 */
-	public function test_gate_rejects_atomic_support_session() {
+	public function test_gate_passes_for_proxied_request_without_a_detection_result() {
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue( Wpcom_Feature_Flags::is_a11n() );
+	}
+
+	/**
+	 * Without a stored verdict nothing rules out a support session, so saving stays shut.
+	 */
+	public function test_save_gate_rejects_atomic_request_without_a_detection_result() {
+		$this->login_as_admin();
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertTrue( Wpcom_Feature_Flags::current_user_can_manage() );
+		$this->assertFalse( Wpcom_Feature_Flags::current_user_can_save() );
+		$this->assertSame( Wpcom_Feature_Flags::SAVE_BLOCKED_UNVERIFIED, Wpcom_Feature_Flags::get_save_block_reason() );
+	}
+
+	public function test_save_gate_rejects_atomic_support_session() {
+		$this->login_as_admin();
 		$this->simulate_proxied_atomic_request();
 		$_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] = 'true';
 
-		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
+		$this->assertFalse( Wpcom_Feature_Flags::current_user_can_save() );
+		$this->assertSame( Wpcom_Feature_Flags::SAVE_BLOCKED_SUPPORT_SESSION, Wpcom_Feature_Flags::get_save_block_reason() );
 	}
 
-	/**
-	 * The proxy alone is not enough: without a stored detection result there is
-	 * nothing ruling out a support session, so the gate must stay shut.
-	 *
-	 * The wpcomsh detector reports a missing cookie as "not a support session",
-	 * which is the wrong default to build an authorization gate on: the cookie
-	 * expires on wpcom's schedule, is SameSite=Strict so a cross-site navigation
-	 * omits it, and can simply be deleted. Trusting that answer let the support
-	 * session this gate exists to exclude walk straight through it.
-	 */
-	public function test_gate_rejects_atomic_request_without_a_detection_result() {
-		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+	public function test_save_gate_passes_for_proxied_request_with_a_negative_detection_result() {
+		$this->login_as_admin();
+		$this->simulate_proxied_atomic_request();
 
-		$this->assertArrayNotHasKey(
-			\WPCOMSH_Support_Session_Detect::COOKIE_NAME,
-			$_COOKIE,
-			'Guard: this test is meaningless if a detection result is present.'
-		);
-		$this->assertFalse( Wpcom_Feature_Flags::is_a11n() );
-	}
-
-	/**
-	 * A positive "not a support session" verdict is what opens the Atomic gate.
-	 */
-	public function test_gate_passes_for_proxied_request_with_a_negative_detection_result() {
-		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
-		$_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] = 'false';
-
-		$this->assertTrue( Wpcom_Feature_Flags::is_a11n() );
+		$this->assertTrue( Wpcom_Feature_Flags::current_user_can_save() );
 	}
 
 	/**
@@ -900,6 +892,85 @@ class Wpcom_Feature_Flags_Test extends \WorDBless\BaseTestCase {
 		$this->expectException( \RuntimeException::class );
 
 		Wpcom_Feature_Flags::render_admin_page();
+	}
+
+	public function test_save_handler_rejects_an_unverified_session() {
+		$this->login_as_admin();
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$saved = Wpcom_Feature_Flags::handle_save(
+			array(
+				'_wpnonce'   => wp_create_nonce( Wpcom_Feature_Flags::NONCE_ACTION ),
+				'flag_state' => array( 'my-feature' => 'on' ),
+			)
+		);
+
+		$this->assertFalse( $saved );
+		$this->assertSame( array(), Wpcom_Feature_Flags::get_overrides() );
+	}
+
+	public function test_admin_page_registered_for_an_unverified_session() {
+		$this->login_as_admin();
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$this->assertNotFalse( Wpcom_Feature_Flags::register_admin_page() );
+	}
+
+	public function test_unverified_screen_offers_verification_and_disables_saving() {
+		$this->login_as_admin();
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'Verify this session', $output );
+		$this->assertStringContainsString( 'href="' . esc_url( Wpcom_Feature_Flags::get_verification_url() ) . '"', $output );
+		$this->assertMatchesRegularExpression( '/<input[^>]*type="submit"[^>]*disabled/', $output );
+	}
+
+	public function test_verified_screen_leaves_saving_enabled() {
+		$this->become_automattician_admin();
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringNotContainsString( 'Verify this session', $output );
+		$this->assertDoesNotMatchRegularExpression( '/<input[^>]*type="submit"[^>]*disabled/', $output );
+	}
+
+	public function test_support_session_screen_explains_and_disables_saving() {
+		$this->become_automattician_admin();
+		$_COOKIE[ \WPCOMSH_Support_Session_Detect::COOKIE_NAME ] = 'true';
+
+		$output = $this->render_admin_page();
+
+		$this->assertStringContainsString( 'disabled during a support session', $output );
+		$this->assertStringNotContainsString( 'Verify this session', $output );
+		$this->assertMatchesRegularExpression( '/<input[^>]*type="submit"[^>]*disabled/', $output );
+	}
+
+	/**
+	 * The detector only honours a /wp-login.php return path, so the round trip
+	 * has to go through it and name the screen as redirect_to.
+	 */
+	public function test_verification_url_round_trips_through_the_detector_to_the_screen() {
+		$this->login_as_admin();
+		Constants::set_constant( 'AT_PROXIED_REQUEST', true );
+
+		$url = Wpcom_Feature_Flags::get_verification_url();
+		wp_parse_str( (string) wp_parse_url( $url, PHP_URL_QUERY ), $query );
+
+		$this->assertSame( \WPCOMSH_Support_Session_Detect::DETECTION_URI, wp_parse_url( $url, PHP_URL_PATH ) );
+		$this->assertSame( 1, wp_verify_nonce( $query['nonce'], \WPCOMSH_Support_Session_Detect::NONCE_ACTION ) );
+		$this->assertSame( \WPCOMSH_Support_Session_Detect::LOGIN_PATH, wp_parse_url( $query['redirect'], PHP_URL_PATH ) );
+
+		wp_parse_str( (string) wp_parse_url( $query['redirect'], PHP_URL_QUERY ), $login_query );
+		$this->assertArrayHasKey( \WPCOMSH_Support_Session_Detect::QUERY_PARAM_TO_SHORT_CIRCUIT, $login_query );
+		$this->assertSame( admin_url( 'tools.php?page=' . Wpcom_Feature_Flags::PAGE_SLUG ), $login_query['redirect_to'] );
+	}
+
+	public function test_no_verification_url_once_a_verdict_is_stored() {
+		$this->become_automattician_admin();
+
+		$this->assertSame( '', Wpcom_Feature_Flags::get_verification_url() );
 	}
 
 	/**
