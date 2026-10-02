@@ -81,6 +81,7 @@ function ViewButton( { value, current, onSelect }: ViewButtonProps ) {
 			label={ value === 'grid' ? gridLabel : listLabel }
 			variant={ isActive ? 'solid' : 'minimal' }
 			tone="neutral"
+			size="compact"
 			aria-pressed={ isActive }
 			className={ styles[ 'view-button' ] }
 			onClick={ onClick }
