@@ -65,7 +65,8 @@ const EmptySpamButton = ( {
 				size="compact"
 				accessibleWhenDisabled
 				disabled={ isEmpty || isEmptying }
-				icon={ isEmptying ? <DeletingSpinner /> : trash }
+				icon={ progress ? <DeletingSpinner /> : trash }
+				isBusy={ isEmptying && ! progress }
 				aria-busy={ isEmptying }
 				label={ isEmpty ? __( 'Spam is already empty.', 'jetpack-forms' ) : '' }
 				onClick={ openConfirmDialog }

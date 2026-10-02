@@ -341,6 +341,54 @@ describe( 'useEmptySpam', () => {
 			expect( result.current.progress ).toBeNull();
 		} );
 
+		it.each( [
+			[ 500, false ],
+			[ 501, true ],
+		] )( 'with %i responses, shows progress: %s', async ( total, showsProgress ) => {
+			useInboxDataModule.default.mockReturnValue( {
+				totalItemsSpam: total,
+				selectedResponsesCount: 0,
+				currentQuery: { status: 'spam' },
+			} );
+			let resolveChunk;
+			apiFetchModule.default.mockImplementationOnce(
+				() => new Promise( resolve => ( resolveChunk = resolve ) )
+			);
+
+			const { result } = renderHook( () => useEmptySpam() );
+			let done;
+			act( () => {
+				done = result.current.onConfirmEmptying();
+			} );
+
+			const noticesDispatch = useDispatch( 'notices' );
+			expect( noticesDispatch.createInfoNotice ).toHaveBeenCalledTimes( showsProgress ? 1 : 0 );
+			expect( result.current.progress !== null ).toBe( showsProgress );
+
+			await act( async () => {
+				resolveChunk( { deleted: total, has_more: false } );
+				await done;
+			} );
+		} );
+
+		it( 'switches progress on when a small delete needs another chunk', async () => {
+			apiFetchModule.default
+				.mockImplementationOnce( () => Promise.resolve( { deleted: 500, has_more: true } ) )
+				.mockImplementationOnce( () => Promise.resolve( { deleted: 3, has_more: false } ) );
+
+			const { result } = renderHook( () => useEmptySpam() );
+			await act( async () => {
+				await result.current.onConfirmEmptying();
+			} );
+
+			const noticesDispatch = useDispatch( 'notices' );
+			expect( noticesDispatch.createInfoNotice ).toHaveBeenCalledTimes( 1 );
+			expect( noticesDispatch.createInfoNotice ).toHaveBeenCalledWith(
+				'Deleting 500 of 500 responses… Keep this page open.',
+				expect.anything()
+			);
+		} );
+
 		it( 'stops when a chunk deletes nothing, even if has_more is set', async () => {
 			apiFetchModule.default.mockImplementation( () =>
 				Promise.resolve( { deleted: 0, has_more: true } )

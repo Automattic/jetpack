@@ -47,7 +47,8 @@ const EmptyTrashButton = ( {
 				size="compact"
 				accessibleWhenDisabled
 				disabled={ isEmpty || isEmptying }
-				icon={ isEmptying ? <DeletingSpinner /> : trash }
+				icon={ progress ? <DeletingSpinner /> : trash }
+				isBusy={ isEmptying && ! progress }
 				aria-busy={ isEmptying }
 				label={ isEmpty ? __( 'Trash is already empty.', 'jetpack-forms' ) : '' }
 				onClick={ openConfirmDialog }

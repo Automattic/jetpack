@@ -188,7 +188,10 @@ export default function useEmptyResponses( {
 				}
 			);
 		};
-		showProgress( { deleted, total } );
+		// Progress only for bulk deletes; anything that fits in one request just shows the result.
+		if ( total > DELETE_CHUNK_SIZE ) {
+			showProgress( { deleted, total } );
+		}
 
 		try {
 			// Delete in chunks so a large queue never outlives a single request's timeout.
