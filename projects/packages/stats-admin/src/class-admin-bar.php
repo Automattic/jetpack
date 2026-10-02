@@ -135,7 +135,7 @@ class Admin_Bar {
 	 *
 	 * @return string
 	 */
-	public static function get_dashboard_url() {
+	private static function get_dashboard_url() {
 		/**
 		 * Filters a link to a Stats page, so a newer analytics dashboard can claim it.
 		 *

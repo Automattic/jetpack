@@ -85,7 +85,6 @@ class Analytics_Test extends TestCase {
 		remove_all_actions( 'rest_api_init' );
 		remove_all_actions( 'admin_menu' );
 		remove_all_filters( 'jetpack_admin_js_script_data' );
-		remove_all_filters( 'jetpack_stats_post_list_column_url' );
 		remove_all_filters( 'jetpack_stats_url' );
 		remove_all_filters( 'rest_post_dispatch' );
 		remove_all_filters( 'jetpack_stats_transient_cleanup_prefixes' );
@@ -190,9 +189,6 @@ class Analytics_Test extends TestCase {
 			Analytics::init();
 		}
 
-		$this->assertNotFalse(
-			has_filter( 'jetpack_stats_post_list_column_url', array( Post_List_Link::class, 'filter_url' ) )
-		);
 		$this->assertNotFalse(
 			has_filter( 'jetpack_stats_url', array( Stats_Links::class, 'filter_url' ) )
 		);

@@ -111,4 +111,14 @@ class Stats_Links_Test extends BaseTestCase {
 
 		$this->assertSame( self::LEGACY_URL, Stats_Links::filter_url( self::LEGACY_URL, array( 'view' => 'dashboard' ) ) );
 	}
+
+	/**
+	 * A site can grant Stats access to a non-administrator, and the dashboard honours that grant, so the link has to follow it too.
+	 */
+	public function test_view_stats_reader_is_sent_to_the_dashboard() {
+		$user_id = $this->login_as( 'editor' );
+		$this->grant_view_stats_to( $user_id );
+
+		$this->assertSame( self::DASHBOARD_URL, Stats_Links::filter_url( self::LEGACY_URL, array( 'view' => 'dashboard' ) ) );
+	}
 }
