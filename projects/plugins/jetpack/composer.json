@@ -87,8 +87,8 @@
 		"phpunit": [
 			"tests/action-phpunit.sh"
 		],
-		"test-js": "pnpm concurrently 'pnpm:test-adminpage' 'pnpm:test-extensions'",
-		"test-js-coverage": "tests/action-test-js-coverage.sh",
+		"test-js": "tests/action-test-js.sh",
+		"test-js-coverage": "tests/action-test-js.sh --coverage",
 		"test-php": [
 			"@php tools/build-module-headings-translations.php",
 			"tests/action-test-php.sh"
