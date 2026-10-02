@@ -1218,7 +1218,7 @@ class PayPal_Payment_Buttons {
 				. sprintf(
 					/* translators: %s: the PayPal wordmark */
 					esc_html__( 'Powered by %s', 'jetpack-paypal-payments' ),
-					'<span class="jetpack-paypal-button__logo">PayPal</span>'
+					'<img class="jetpack-paypal-button__logo" src="' . esc_url( plugins_url( 'images/paypal-wordmark-color.svg', __FILE__ ) ) . '" alt="PayPal" width="42" height="15" />'
 				)
 				. '</p>';
 
