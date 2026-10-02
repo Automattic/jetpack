@@ -638,10 +638,6 @@ class Proxy_Controller_Test extends BaseTestCase {
 	}
 
 	public function test_a_product_extends_the_transport_body_and_header_seams() {
-		$this->http_response = $this->build_http_response( 200, array(), array( 'x-wp-total' => '42' ) );
-		$this->assertArrayNotHasKey( 'x-wp-total', $this->dispatch( 'stats/top-posts' )->get_headers(), 'nothing is forwarded by default' );
-		$this->http_calls = array();
-
 		$controller = new class( self::REST_NAMESPACE, self::PREFIX_CONFIG, self::CACHE_PREFIX ) extends Proxy_Controller {
 			/**
 			 * Routes one group through another transport.
@@ -694,6 +690,10 @@ class Proxy_Controller_Test extends BaseTestCase {
 		$write->set_body( '{"a":1}' );
 		$controller->handle_data_request( $write );
 		$this->assertSame( '{"rewritten":true}', $this->http_calls[0]['args']['body'] );
+
+		// The base controller forwards no header unless a product asks for it.
+		$this->http_response = $this->build_http_response( 200, array(), array( 'x-wp-total' => '42' ) );
+		$this->assertArrayNotHasKey( 'x-wp-total', $this->dispatch( 'stats/top-posts' )->get_headers() );
 	}
 
 	/**
