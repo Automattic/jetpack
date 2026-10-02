@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Return the Stats breadcrumb to the dashboard tab a report or detail page was opened from, instead of always to Traffic.

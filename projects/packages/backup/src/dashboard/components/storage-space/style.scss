@@ -1,0 +1,160 @@
+// The storage section sits above the Overview's two-pane grid rather
+// than inside it: `.jpb-overview` is a two-column grid at >= 961px, so a
+// child would be auto-placed into the layout and push the detail pane
+// onto its own row. Same reason the status banners are siblings.
+.jpb-storage-space {
+	inline-size: 100%;
+	margin-block-end: 24px;
+
+	// `<Text render={ <hN /> }>` renders a real heading, which inherits
+	// wp-admin's own heading margins. Reset both so the gap to the bar is
+	// this file's decision. Matched by class, not by tag: a tag selector
+	// stops matching the moment the heading's level changes, which is what
+	// happened when the outline went `h3` to `h2` — the rule died,
+	// `@wordpress/ui`'s `:is(h1,…,h6).heading` default supplied `margin: 0`,
+	// and the 12px gap to the meter vanished while the placeholder below
+	// went on reserving it. `&__heading` alone is a single class (0,1,0) and
+	// loses to that `@wordpress/ui` rule, which is (0,1,1) — `:is()` takes
+	// the specificity of its most specific argument, all type selectors here.
+	// Doubling it to `.jpb-storage-space .jpb-storage-space__heading` is
+	// (0,2,0) and wins outright: no source-order dependency, no
+	// `!important`. Same trick as `& &__bar` below. The tag selector this
+	// replaced was itself (0,1,1) — it tied and won on
+	// source order, which is why it worked and why nothing recorded that it
+	// was load-bearing.
+	& &__heading {
+		margin-block: 0 12px;
+	}
+
+	// Stands in for the heading while the two storage requests are in
+	// flight. Matches the rendered heading's line box and its gap to the
+	// bar exactly (measured: 20px + 12px), so the real section replaces it
+	// without moving anything below it.
+	&__heading-placeholder {
+		block-size: 20px;
+		inline-size: 160px;
+		margin-block-end: 12px;
+	}
+
+	// The usage readings under the bar. `Stack` owns the row itself —
+	// direction, gap, wrapping and alignment all come from the primitive,
+	// written as inline styles — so the only thing left here is how far
+	// the row sits from the meter above it.
+	&__details {
+		margin-block-start: 8px;
+	}
+
+	// Stands in for that row while the requests are in flight. Matches the
+	// gap and the `body-md` line box it replaces (8px + 20px), and is
+	// deliberately narrower than the track so the pair does not read as a
+	// second meter stacked under the first.
+	&__details-placeholder {
+		block-size: 20px;
+		inline-size: 240px;
+		margin-block-start: 8px;
+	}
+
+	// `Stack` owns the column and its gap, so all that is left is how far
+	// the pair sits from the row above — the same 8px the readings sit
+	// from the meter.
+	&__upsell {
+		margin-block-start: 8px;
+	}
+}
+
+// Deliberately not nested inside `.jpb-storage-space`: `Popover.Popup`
+// portals its content out, so a nested selector would never match.
+.jpb-storage-space__help-popup {
+	// Without a cap the popup is as wide as its longest sentence, which on
+	// a wide screen is a single line running most of the viewport.
+	max-inline-size: 320px;
+}
+
+.jpb-storage-meter {
+	// `ProgressBar`'s root *is* the track, and it ships 1.5px tall with a
+	// 160px intrinsic width — sized for an inline loading indicator, not
+	// a storage meter. Everything below re-sizes it into a full-width bar.
+	// Deliberately nested rather than written flat.
+	// `@wordpress/components` styles the track through a runtime-injected
+	// emotion class of equal specificity, and emotion appends to `<head>`
+	// after the bundled stylesheet — so a flat `&__bar` rule would lose on
+	// source order no matter where this file sits in the build. One extra
+	// class wins it without reaching for `!important`.
+	& &__bar {
+		block-size: 24px;
+		inline-size: 100%;
+		border-radius: 12px;
+		background-color: var(--wpds-color-background-track-neutral);
+
+		// The filled portion. `ProgressBar` renders it as the track's only
+		// `div` child; the sibling `<progress>` is the visually-hidden
+		// element that carries the value for assistive technology.
+		> div {
+			// Rounded on the leading edge, flat on the trailing one, so a
+			// partly-filled bar reads as a level rather than as a pill
+			// floating in a groove. Logical corners keep that correct in
+			// RTL, where the fill grows from the right.
+			border-radius: 0;
+			border-start-start-radius: 12px;
+			border-end-start-radius: 12px;
+
+			// Some storage is always in use, so keep a radius-sized floor
+			// or the leading corner has nothing to round.
+			min-inline-size: 12px;
+
+			// And a radius-sized ceiling below 100%, so the flat trailing
+			// edge never reaches the track's rounded end and leaves a
+			// square corner poking out of it. Lifted at `--full` below.
+			max-inline-size: calc(100% - 12px);
+		}
+	}
+
+	// Level colours. Legacy's palette was hardcoded Jetpack hex tokens
+	// (`--jp-black`, `--jp-yellow-20`, `--jp-red-40`), none of which are
+	// declared on a modernized page; these are the design-system
+	// equivalents this dashboard already uses elsewhere. No fallbacks:
+	// the design-system build injects those, and hand-written ones go
+	// stale. Colour only — nothing here touches geometry, see `--complete`.
+	& &__bar--neutral > div {
+		background-color: var(--wpds-color-background-interactive-neutral-strong);
+	}
+
+	// The one literal here, and deliberately so. This is legacy's warning
+	// yellow (`--jp-yellow-20`), kept identical so the same site reads the
+	// same with the flag on or off. It cannot be spelled as that token:
+	// the `--jp-*` set is declared by a stylesheet the legacy admin page
+	// enqueues and this route does not, so `var(--jp-yellow-20)` here
+	// computes to nothing, the declaration is dropped, and the fill
+	// silently falls back to `<ProgressBar>`'s near-black default — the
+	// Normal colour, on a bar whose whole job is to not look normal.
+	// The design system has no vivid caution *fill*: its caution family is
+	// two pale tints, a muted tan and this olive
+	// (`--wpds-color-foreground-content-caution-weak`, #826a00), none of
+	// them a saturated yellow. Worth raising with the design-system folks
+	// rather than working around a third time.
+	& &__bar--caution > div {
+		background-color: #f0c930;
+	}
+
+	& &__bar--error > div {
+		background-color: var(--wpds-color-background-interactive-error-strong);
+	}
+
+	// Stands in for the bar itself, at the same height and radius.
+	& &__placeholder {
+		block-size: 24px;
+		inline-size: 100%;
+		border-radius: 12px;
+	}
+
+	// Geometry only, and applied on the measurement rather than the level.
+	// A bar that reaches the end can take the track's own rounding on both
+	// ends and give up the trailing-edge buffer; a bar that does not must
+	// keep the flat trailing edge, whatever colour it is carrying.
+	// `BackupsDiscarded` is why this is separate: it wears the error fill
+	// at any percentage.
+	& &__bar--complete > div {
+		border-radius: 12px;
+		max-inline-size: none;
+	}
+}

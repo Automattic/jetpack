@@ -1,6 +1,6 @@
 import { useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
 import { __ } from '@wordpress/i18n';
-import { Button } from '@wordpress/ui';
+import { Button, LinkButton } from '@wordpress/ui';
 import { useCallback, type FC } from 'react';
 import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -77,26 +77,16 @@ const ProductInterstitialModalCta: FC< ProductInterstitialModalCtaProps > = ( {
 	const isLoading = isProductLoading || hasMainCheckoutStarted;
 	const label = buttonLabel || __( 'Upgrade', 'jetpack-my-jetpack' );
 
-	if ( href ) {
+	if ( href && ! isDisabled && ! isLoading ) {
 		return (
-			<Button
+			<LinkButton
 				variant="solid"
-				loading={ isLoading }
+				href={ href }
+				openInNewTab={ isExternalLink }
 				onClick={ mainCheckoutRedirect }
-				disabled={ isDisabled }
-				nativeButton={ false }
-				render={
-					<a
-						href={ href }
-						{ ...( isExternalLink && {
-							target: '_blank',
-							rel: 'noopener noreferrer',
-						} ) }
-					/>
-				}
 			>
 				{ label }
-			</Button>
+			</LinkButton>
 		);
 	}
 

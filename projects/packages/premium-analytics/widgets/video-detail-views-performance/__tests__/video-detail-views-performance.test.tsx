@@ -4,6 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,26 +19,27 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
-		pointsAreWallClocks,
+		empty,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
-		pointsAreWallClocks?: boolean;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
 			data-chart-type={ String( chartType ) }
-			data-wall-clocks={ String( pointsAreWallClocks ) }
 			data-metrics={ JSON.stringify(
 				metrics.map( metric => ( {
 					key: metric.key,
 					label: metric.label,
+					countLabels: [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ],
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
@@ -45,7 +47,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -58,6 +62,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 type ChartedMetric = {
 	key: string;
 	label: string;
+	countLabels: ( string | null )[];
 	value: number;
 	format?: string;
 	values: number[];
@@ -73,11 +78,9 @@ function chartedMetrics( chart: HTMLElement ): ChartedMetric[] {
 }
 
 /**
- * Builds a raw `statType=all` response (wpcom #229903): per-day tuples named
- * by `fields`, with impressions/watch-time columns derived from the plays the
- * test cares about and an explicit per-day retention rate, plus canonical
- * totals over the window. The retention total is play-weighted server-side, so
- * the fixture computes the same weighting.
+ * Raw `statType=all` response shape (wpcom #229903): per-day tuples, with
+ * impressions/watch-time derived from plays. The retention total is
+ * play-weighted server-side, so the fixture computes the same weighting.
  */
 function buildSingleVideoResponse( data: Array< [ string, number, number? ] > ) {
 	const totalPlays = data.reduce( ( sum, [ , plays ] ) => sum + plays, 0 );
@@ -136,8 +139,7 @@ const PRIMARY_WINDOW_RESPONSE = buildSingleVideoResponse( [
 ] );
 
 // A 28-day window, the shortest that allows a weekly interval: `WidgetRoot`
-// normalizes report params through `resolveIntervalForRange`, so an interval
-// the range disallows is coerced away before the widget ever sees it.
+// normalizes report params, coercing away an interval the range disallows.
 const WEEKLY_WINDOW_PARAMS = {
 	...DEFAULT_PARAMS,
 	from: '2026-06-22T00:00:00.000+08:00',
@@ -174,21 +176,22 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			'Hours watched',
 			'Retention rate',
 		] );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two returned days; the headline is the response's canonical total.
 		const [ views, impressions, watchTime, retention ] = metrics;
 		expect( views.values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		expect( views.value ).toBe( 12 );
+		expect( views.countLabels ).toEqual( [ '%s View', '%s Views' ] );
+		expect( impressions.countLabels ).toEqual( [ '%s Impression', '%s Impressions' ] );
 		expect( impressions.values ).toEqual( [ 0, 10, 0, 14, 0, 0, 0 ] );
 		expect( impressions.value ).toBe( 24 );
 		expect( watchTime.values ).toEqual( [ 0, 1.25, 0, 1.75, 0, 0, 0 ] );
 		expect( watchTime.value ).toBe( 3 );
 
-		// Retention charts as a fraction for the percentage format: each day's
-		// rate is its own weight group, and zero-play days have no measured
-		// retention. The headline comes from the server total, play-weighted.
+		// Retention charts as a fraction for the percentage format; zero-play days
+		// have no measured retention, and the headline is the server's play-weighted total.
 		expect( retention.format ).toBe( 'percentage' );
 		expect( retention.values ).toEqual( [ 0, 0.4, 0, 0.6, 0, 0, 0 ] );
 		expect( retention.value ).toBeCloseTo( ( 5 * 40 + 7 * 60 ) / 12 / 100, 10 );
@@ -201,18 +204,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( requestedPaths ).toHaveLength( 1 );
 		expect( requestedPaths[ 0 ] ).toContain( 'statType=all' );
 		expect( requestedPaths[ 0 ] ).toContain( 'period=day' );
-		// The unmodified report params: the request shape is shared with the rest
-		// of the page (see use-video-metrics), so this pins the exact shape rather
-		// than just the calendar day.
+		// The unmodified report params: the request shape is shared with the rest of
+		// the page (see use-video-metrics), so this pins the exact shape, not just the day.
 		const requestedParams = new URLSearchParams( requestedPaths[ 0 ].split( '?' )[ 1 ] );
 		expect( requestedParams.get( 'start_date' ) ).toBe( WINDOW_PARAMS.from );
 		expect( requestedParams.get( 'date' ) ).toBe( WINDOW_PARAMS.to );
 	} );
 
-	// Pinned west of UTC on purpose: under a UTC runner the wall-clock reading
-	// and an instant reading coincide, so this would pass either way. `TZ` is
-	// not on the typed env shape, hence the cast.
-	it( 'builds bucket points as the wall clocks the buckets name, declared to the chart', async () => {
+	// Pinned west of UTC: under a UTC runner the site and runner readings coincide,
+	// so this would pass either way. `TZ` isn't on the typed env shape.
+	it( 'builds bucket points on the bucket days the site names', async () => {
 		const env = process.env as Record< string, string | undefined >;
 		const runnerTimeZone = env.TZ;
 		env.TZ = 'America/Los_Angeles';
@@ -227,11 +228,9 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			);
 
 			const chart = await screen.findByTestId( 'metric-tabs-chart' );
-			// A site-midnight instant for this UTC+8 window would read back as the
-			// previous day in Los Angeles; the wall-clock reading keeps every
-			// label on the bucket it names.
+			// Reading this UTC+8 window's midnights in Los Angeles would report the
+			// previous day.
 			expect( chartedMetrics( chart )[ 0 ].days ).toEqual( [ 1, 2, 3, 4, 5, 6, 7 ] );
-			expect( chart ).toHaveAttribute( 'data-wall-clocks', 'true' );
 		} finally {
 			if ( runnerTimeZone === undefined ) {
 				delete env.TZ;
@@ -259,17 +258,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( retention.values[ 2 ] ).toBe( 0 );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
 
 		render(
 			<VideoDetailViewsPerformanceWidget
-				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } }
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } }
 			/>
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single-period series', async () => {
@@ -280,10 +279,8 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 				attributes={ {
 					reportParams: {
 						...WINDOW_PARAMS,
-						// Comparison params pass through the video detail URL untouched
-						// (dashboard state survives the round trip), so a widget
-						// receiving them must neither fetch a second window nor draw
-						// an overlay — the page renders no comparison.
+						// The video detail URL carries comparison params through untouched,
+						// but the page renders no comparison, so the widget must ignore them.
 						comp: '1',
 						compare_from: '2026-06-24T00:00:00.000+08:00',
 						compare_to: '2026-06-30T23:59:59.999+08:00',
@@ -329,6 +326,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( metrics[ 0 ].value ).toBe( 12 );
 	} );
 
+	it( 'shows the no-results message in the chart for a window without views', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( {} ) );
+
+		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
+	} );
+
 	it( 'renders the scopeless empty state and makes no request without a video scope', async () => {
 		render( <VideoDetailViewsPerformanceWidget attributes={ {} } /> );
 
@@ -343,9 +350,8 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 	} );
 
 	it( 'shows the error state with a Retry action when the fetch fails', async () => {
-		// A 403 skips React Query's retry backoff so the error surfaces
-		// immediately; the `no_connection` code keeps `describeError` on the
-		// retryable branch (a broken Jetpack connection can heal).
+		// A 403 skips React Query's retry backoff so the error surfaces immediately;
+		// `no_connection` keeps `describeError` on the retryable branch.
 		mockApiFetch.mockRejectedValue( { status: 403, code: 'no_connection', message: 'Forbidden' } );
 
 		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );

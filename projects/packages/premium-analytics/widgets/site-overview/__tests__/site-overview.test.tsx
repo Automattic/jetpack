@@ -64,7 +64,7 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( '17' ) ).toBeInTheDocument();
 	} );
 
-	it( 'exposes the exact total on hover while the tile shows a shortened count', async () => {
+	it( 'keeps the exact total behind the shortened count', async () => {
 		mockApiFetch.mockResolvedValue( { ...SUMMARY_RESPONSE, views: 18400 } );
 
 		render(
@@ -73,11 +73,8 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		// The tile abbreviates the count…
-		await expect( screen.findByText( '18K' ) ).resolves.toBeInTheDocument();
-		// …and its hover title carries the exact total, formatted through the
-		// package formatter so tile and title agree on the app locale.
-		expect( screen.getByTitle( '18,400' ) ).toBeInTheDocument();
+		await expect( screen.findByText( '18.4K' ) ).resolves.toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '18,400' ) ).toBeInTheDocument();
 	} );
 
 	it( 'explains the per-day visitor aggregation on the Visitors tile', async () => {
@@ -95,7 +92,7 @@ describe( 'SiteOverviewWidget', () => {
 		expect( screen.getByText( /Sum of daily visitors/ ) ).toBeInTheDocument();
 	} );
 
-	it( 'shows the empty state when every visible metric is zero', async () => {
+	it( 'shows zeros, not an empty state, when every visible metric is zero', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...SUMMARY_RESPONSE,
 			views: 0,
@@ -110,10 +107,8 @@ describe( 'SiteOverviewWidget', () => {
 			/>
 		);
 
-		await expect(
-			screen.findByText( 'No stats recorded for this period.' )
-		).resolves.toBeInTheDocument();
-		expect( screen.queryByText( 'Views' ) ).not.toBeInTheDocument();
+		await expect( screen.findAllByText( '0' ) ).resolves.toHaveLength( 4 );
+		expect( screen.getByText( 'Views' ) ).toBeInTheDocument();
 	} );
 
 	it( 'shows the error state with a Retry action that refetches', async () => {
@@ -209,9 +204,8 @@ describe( 'SiteOverviewWidget', () => {
 		expect( requestedPaths.some( path => path.includes( 'date=2026-03-10' ) ) ).toBe( true );
 		expect( requestedPaths.some( path => path.includes( 'date=2026-02-10' ) ) ).toBe( true );
 
-		// Each tile derives its delta from the same metric in the comparison
-		// response, so distinct metrics show distinct period-over-period changes
-		// rather than one shared value: views 420 vs 300 rises, likes 48 vs 60 falls.
+		// Distinct metrics must show distinct deltas, not one shared value: views
+		// 420 vs 300 rises, likes 48 vs 60 falls.
 		await expect( screen.findByText( '+40%' ) ).resolves.toBeInTheDocument();
 		expect( screen.getByText( '-20%' ) ).toBeInTheDocument();
 	} );
@@ -244,11 +238,11 @@ describe( 'SiteOverviewWidget', () => {
 		);
 
 		// March's total is not April's, so it gives way to the skeleton.
-		await expect( screen.findByRole( 'status' ) ).resolves.toBeInTheDocument();
+		await expect( screen.findByTestId( 'widget-skeleton' ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByText( '420' ) ).not.toBeInTheDocument();
 
 		resolveNextPeriod?.();
 		await expect( screen.findByText( '999' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 } );

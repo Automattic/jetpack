@@ -130,9 +130,7 @@ describe( 'useXZoom', () => {
 	} );
 
 	test( 'leaves domain null when the X scale has no invert function', () => {
-		const chartRef = makeChartRef( {
-			/* no invert */
-		} );
+		const chartRef = makeChartRef( { /* no invert */ } );
 		const { result } = renderHook( () => useXZoom< number >( { enabled: true, chartRef } ) );
 
 		act( () => result.current.handlers.onPointerDown( makeParams( 100 ) ) );

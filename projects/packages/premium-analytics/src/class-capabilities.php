@@ -2,16 +2,9 @@
 /**
  * Who may see the Premium Analytics dashboard.
  *
- * Jetpack Stats lets a site grant non-administrators access through the
- * `view_stats` meta capability, and this dashboard replaces that UI, so it has
- * to honour the same grant. `add_menu_page()` takes a single capability string,
- * so the "manage_options OR view_stats" rule lives in a meta capability of our
- * own rather than being spelled out at each call site.
- *
- * A class rather than a function file so every consumer reaches it through the
- * autoloader: gating lives in files loaded on several different paths, and a
- * `require_once` in each of them is a dependency to keep in sync (and an
- * unmeasurable line of coverage) for no benefit.
+ * Jetpack Stats grants non-administrators access via the `view_stats` meta capability; this
+ * dashboard must honour that grant, and add_menu_page() takes one capability string — hence a
+ * meta capability of our own.
  *
  * @package automattic/jetpack-premium-analytics
  */
@@ -33,9 +26,8 @@ class Capabilities {
 	/**
 	 * Hooks the dashboard's meta capability mapping.
 	 *
-	 * Called from WordPress-aware entry points, never at load time: this class is
-	 * autoloaded in contexts where WordPress — and add_filter() — isn't there.
-	 * Idempotent, so overlapping callers are free to call it.
+	 * Called from WordPress-aware entry points, never at load time: this class is autoloaded where
+	 * WordPress — and add_filter() — isn't there. Idempotent, so overlapping callers may call it freely.
 	 *
 	 * @return void
 	 */
@@ -58,11 +50,8 @@ class Capabilities {
 	/**
 	 * Maps the dashboard capability to the primitives that grant it.
 	 *
-	 * `view_stats` alone would track Stats more closely, but it only means
-	 * anything once the Stats package has hooked its own `map_meta_cap` — which
-	 * `Analytics::init_wpcom_simple()` never does. Without the `manage_options`
-	 * arm, an unmapped `view_stats` would take the dashboard away from
-	 * administrators too, which is worse than the gap this closes.
+	 * `view_stats` alone would track Stats more closely, but it only works once Stats hooks its
+	 * own `map_meta_cap` — which Analytics::init_wpcom_simple() never does, locking out administrators too.
 	 *
 	 * @param string[] $caps    Primitive capabilities required of the user.
 	 * @param string   $cap     Capability being checked.
@@ -93,11 +82,8 @@ class Capabilities {
 	/**
 	 * Whether the current user may read the store reports.
 	 *
-	 * "Store reports" is everything the proxy serves from its `analytics` prefix —
-	 * WooCommerce's own reporting data. Mirrors the capability
-	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces
-	 * there (Capabilities_Test pins the two together); surfaces backed by the prefix
-	 * are hidden from readers who fail it, since all they could collect is 403s.
+	 * "Store reports" is everything the proxy serves from its `analytics` prefix, mirroring what
+	 * {@see \Automattic\Jetpack\PremiumAnalytics\REST\Api_Proxy_Controller} enforces there (pinned by Capabilities_Test).
 	 *
 	 * @return bool
 	 */

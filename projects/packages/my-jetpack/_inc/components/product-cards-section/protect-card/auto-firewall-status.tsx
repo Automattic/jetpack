@@ -1,13 +1,15 @@
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import {
+	protectCardShieldInactive as ShieldInactive,
+	protectCardShieldOff as ShieldOff,
+	protectCardShieldSuccess as ShieldSuccess,
+} from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
-import ShieldInactive from './assets/shield-inactive.svg';
-import ShieldOff from './assets/shield-off.svg';
-import ShieldSuccess from './assets/shield-success.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 

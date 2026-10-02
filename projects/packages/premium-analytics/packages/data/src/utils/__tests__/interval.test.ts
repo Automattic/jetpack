@@ -5,6 +5,7 @@ import {
 	getAllowedIntervalsForPreset,
 	getDaysBetweenInclusive,
 	getDefaultIntervalForPeriod,
+	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from '../interval';
 import { needsReportDateParamsSeed } from '../search';
@@ -16,19 +17,16 @@ describe( 'getDaysBetweenInclusive', () => {
 	} );
 
 	it( 'counts an offset-bearing range exactly as its bare equivalent', () => {
-		// Request params are no longer trimmed to a bare day before reaching
-		// here. Left unextracted, the ISO datetime concatenates into an invalid
-		// date, the NaN guard returns 1, and every range silently collapses to a
-		// single day.
+		// Offset-bearing params reach here untrimmed; without the NaN guard the
+		// ISO datetime would parse invalid and every range would collapse to 1 day.
 		expect(
 			getDaysBetweenInclusive( '2026-06-01T00:00:00.000-07:00', '2026-06-07T23:59:59.999-07:00' )
 		).toBe( 7 );
 	} );
 
 	it( 'reads the site-local calendar day at either offset extreme', () => {
-		// 23:00 on 2026-06-30 at -07:00 is already 2026-07-01 in UTC, and 00:30
-		// on 2026-06-01 at +13:00 is still 2026-05-31 there. Counting off the UTC
-		// day would add a bucket at one end and drop one at the other.
+		// -07:00 at 23:00 is already the next UTC day; +13:00 at 00:30 is still
+		// the previous one. Counting off the UTC day would misplace a bucket either way.
 		expect(
 			getDaysBetweenInclusive( '2026-06-01T00:00:00.000-07:00', '2026-06-30T23:00:00.000-07:00' )
 		).toBe( 30 );
@@ -106,6 +104,102 @@ describe( 'resolveIntervalForRange', () => {
 				'2026-06-07T23:59:59.999Z'
 			)
 		).toEqual( [ 'day' ] );
+	} );
+
+	it( 'never offers quarters on the year-length ranges', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'last-12-months',
+				'2025-07-01T00:00:00.000Z',
+				'2026-06-30T23:59:59.999Z'
+			)
+		).toEqual( [ 'month', 'week' ] );
+		expect( getAllowedIntervalsForPreset( 'last-365-days', 'a', 'b' ) ).toEqual( [
+			'month',
+			'week',
+		] );
+		expect( getAllowedIntervalsForPreset( 'last-year', 'a', 'b' ) ).toEqual( [ 'month', 'week' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'all-time',
+				'2020-01-01T00:00:00.000Z',
+				'2026-06-30T23:59:59.999Z'
+			)
+		).toEqual( [ 'month', 'year' ] );
+	} );
+
+	it( 'keeps months as the default on a year-length preset, with weeks on offer', () => {
+		for ( const preset of [ 'last-12-months', 'last-365-days', 'last-year' ] as const ) {
+			expect( resolveIntervalForRange( preset, 'a', 'b' ) ).toBe( 'month' );
+			expect( resolveIntervalForRange( preset, 'a', 'b', 'week' ) ).toBe( 'week' );
+		}
+	} );
+
+	// The year surface carries a `year-YYYY` preset the switch does not know, so
+	// its list comes from the range instead and needs its own guard.
+	it( 'offers months and weeks on a year-length range with no matching preset', () => {
+		expect(
+			getAllowedIntervalsForPreset(
+				'year-2025',
+				'2025-01-01T00:00:00.000Z',
+				'2025-12-31T23:59:59.999Z'
+			)
+		).toEqual( [ 'month', 'week' ] );
+		expect(
+			getAllowedIntervalsForPreset(
+				'year-2024',
+				'2024-01-01T00:00:00.000Z',
+				'2024-12-31T23:59:59.999Z'
+			)
+		).toEqual( [ 'month', 'week' ] );
+		expect(
+			resolveIntervalForRange(
+				'year-2025',
+				'2025-01-01T00:00:00.000Z',
+				'2025-12-31T23:59:59.999Z',
+				'quarter'
+			)
+		).toBe( 'month' );
+	} );
+
+	// A year picked on the calendar reaches the range path, so a week chosen on
+	// a year-length preset has to survive there too.
+	it( 'keeps a weekly interval on a year-length custom range', () => {
+		expect(
+			resolveIntervalForRange(
+				'custom',
+				'2024-10-01T00:00:00.000Z',
+				'2025-09-30T23:59:59.999Z',
+				'week'
+			)
+		).toBe( 'week' );
+	} );
+
+	it( 'flips the default from weeks to months where a range reaches a year', () => {
+		const from = '2025-01-01T00:00:00.000Z';
+
+		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-30T23:59:59.999Z' ) ).toEqual( [
+			'week',
+			'month',
+		] );
+		expect( getAllowedIntervalsForPreset( 'custom', from, '2025-12-31T23:59:59.999Z' ) ).toEqual( [
+			'month',
+			'week',
+		] );
+	} );
+
+	it( 'drops weeks once a range outgrows a year', () => {
+		const from = '2025-01-01T00:00:00.000Z';
+		const to = '2026-01-02T23:59:59.999Z';
+
+		expect( getAllowedIntervalsForPreset( 'custom', from, to ) ).toEqual( [ 'month' ] );
+		expect( resolveIntervalForRange( 'custom', from, to, 'week' ) ).toBe( 'month' );
+	} );
+
+	it( 'coerces a stored quarter onto the range default', () => {
+		expect(
+			resolveIntervalForRange( 'last-12-months', '2025-07-01', '2026-06-30', 'quarter' )
+		).toBe( 'month' );
 	} );
 
 	it( 'defaults when no current interval is provided', () => {
@@ -203,5 +297,45 @@ describe( 'needsReportDateParamsSeed', () => {
 				interval: 'month',
 			} )
 		).toBe( true );
+	} );
+} );
+
+describe( 'resolveIntervalForPresetChange', () => {
+	it( 'starts a different named preset from its own default', () => {
+		expect(
+			resolveIntervalForPresetChange(
+				'year-to-date',
+				'last-30-days',
+				'2026-06-01',
+				'2026-06-30',
+				'week'
+			)
+		).toBe( 'day' );
+	} );
+
+	it( 'carries the interval when the preset is unchanged', () => {
+		expect(
+			resolveIntervalForPresetChange(
+				'last-30-days',
+				'last-30-days',
+				'2026-06-01',
+				'2026-06-30',
+				'week'
+			)
+		).toBe( 'week' );
+	} );
+
+	it( 'carries the interval into a custom range or a range with no preset', () => {
+		for ( const next of [ 'custom', undefined ] as const ) {
+			expect(
+				resolveIntervalForPresetChange( 'last-30-days', next, '2026-06-01', '2026-06-30', 'week' )
+			).toBe( 'week' );
+		}
+	} );
+
+	it( 'still coerces a carried interval the new range disallows', () => {
+		expect(
+			resolveIntervalForPresetChange( 'last-30-days', 'custom', '2026-06-01', '2026-06-07', 'week' )
+		).toBe( 'day' );
 	} );
 } );

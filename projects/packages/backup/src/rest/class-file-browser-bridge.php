@@ -220,6 +220,9 @@ class File_Browser_Bridge {
 	 * WPCOM's signed-URL stream endpoint doesn't send CORS headers, so
 	 * the browser can't fetch it directly.
 	 *
+	 * Answers `content`, `is_text` and `truncated`; `content` is null unless
+	 * `is_text`. A binary or capped body is not an error — both answer 200.
+	 *
 	 * VaultPress stores file content per the file's own snapshot
 	 * `period` — the timestamp when the file last changed — not by the
 	 * parent backup's rewindId. Files don't get re-snapshotted every
@@ -280,12 +283,18 @@ class File_Browser_Bridge {
 			return Rest_Controller::transport_error( $url_response, 'backup_file_content_url_failed' );
 		}
 
-		$url_status = wp_remote_retrieve_response_code( $url_response );
+		// Cast because `wp_remote_retrieve_response_code()` hands back
+		// whatever the transport put there, and a numeric string fails the
+		// strict comparison below — routing a perfectly good response into
+		// the failure branch, where `upstream_error()`'s clamp then reports
+		// it as a 500. Same reasoning at every bridge; the long version is
+		// on `Rest_Controller::upstream_error()`.
+		$url_status = (int) wp_remote_retrieve_response_code( $url_response );
 		if ( 200 !== $url_status ) {
-			return new WP_Error(
+			return Rest_Controller::upstream_error(
+				$url_response,
 				'backup_file_content_url_failed',
-				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $url_status ) && $url_status > 0 ? $url_status : 500 )
+				__( 'Could not resolve file download URL.', 'jetpack-backup-pkg' )
 			);
 		}
 
@@ -322,16 +331,91 @@ class File_Browser_Bridge {
 			return Rest_Controller::transport_error( $stream_response, 'backup_file_content_stream_failed' );
 		}
 
-		$stream_status = wp_remote_retrieve_response_code( $stream_response );
+		// Cast, as at the signed-URL lookup above — and this is the call
+		// where it bites hardest, because the response body on the success
+		// side is the previewed file itself. Uncast, a `'200'` from a
+		// transport that reports statuses as strings took the branch below
+		// with the file's own bytes in hand: the preview the reader asked
+		// for was discarded and reported as a 500.
+		$stream_status = (int) wp_remote_retrieve_response_code( $stream_response );
 		if ( 200 !== $stream_status ) {
-			return new WP_Error(
+			// The one failure here whose reason does not come from the JSON
+			// API. This response is the storage host's, not WordPress.com's,
+			// so two caveats ride along with reusing the shared wrapper.
+			//
+			// Its error bodies are usually XML, which `upstream_reason()`
+			// reads nothing out of; asking anyway costs one `json_decode`
+			// on a path that has already failed, and the host does
+			// sometimes answer in JSON. When it does, the reason is filed
+			// under a key named `wpcom`, which misnames its origin — worth
+			// knowing before anyone reads that field as WordPress.com's.
+			return Rest_Controller::upstream_error(
+				$stream_response,
 				'backup_file_content_stream_failed',
-				__( 'Could not fetch file content.', 'jetpack-backup-pkg' ),
-				array( 'status' => is_int( $stream_status ) && $stream_status > 0 ? $stream_status : 500 )
+				__( 'Could not fetch file content.', 'jetpack-backup-pkg' )
 			);
 		}
 
-		return rest_ensure_response( array( 'content' => wp_remote_retrieve_body( $stream_response ) ) );
+		$body = wp_remote_retrieve_body( $stream_response );
+
+		// A body at the cap is reported truncated even in the rare case where
+		// the file ends exactly there — the transport cannot tell the two apart.
+		$truncated = strlen( $body ) >= self::PREVIEW_MAX_BYTES;
+		if ( $truncated ) {
+			$body = self::drop_partial_trailing_character( $body );
+		}
+
+		// Bytes that are not text must never go out as `content`: the REST
+		// server's `wp_json_encode()` sanity fallback re-encodes invalid UTF-8
+		// into `?`, so a 200 would hand the reader a corrupted file as if it
+		// were the real one.
+		$is_text = self::is_text( $body );
+
+		return rest_ensure_response(
+			array(
+				'content'   => $is_text ? $body : null,
+				'is_text'   => $is_text,
+				'truncated' => $truncated,
+			)
+		);
+	}
+
+	/**
+	 * Whether a fetched body can be shown in a text preview.
+	 *
+	 * A NUL byte is valid UTF-8 but does not occur in text, so rejecting it
+	 * also catches UTF-16 and the binaries that happen to decode cleanly.
+	 *
+	 * @param string $body The fetched body.
+	 * @return bool
+	 */
+	private static function is_text( $body ) {
+		if ( false !== strpos( $body, "\0" ) ) {
+			return false;
+		}
+		// A `//u` pattern fails to match on exactly the bytes `json_encode()`
+		// rejects, and unlike mbstring, PCRE cannot be absent from a host.
+		return 1 === preg_match( '//u', $body );
+	}
+
+	/**
+	 * Drop a character the byte cap cut in half.
+	 *
+	 * The transport counts bytes, so the cut can land inside a multi-byte
+	 * sequence and leave a text file looking like binary. A UTF-8 character
+	 * is at most four bytes, so at most three can be left over.
+	 *
+	 * @param string $body The capped body.
+	 * @return string
+	 */
+	private static function drop_partial_trailing_character( $body ) {
+		for ( $dropped = 0; $dropped < 3 && '' !== $body; $dropped++ ) {
+			if ( self::is_text( $body ) ) {
+				break;
+			}
+			$body = substr( $body, 0, -1 );
+		}
+		return $body;
 	}
 
 	/**
@@ -339,6 +423,12 @@ class File_Browser_Bridge {
 	 * WPCOM JSON. Wraps transport failures and non-200 responses alike
 	 * with bridge-level error codes the front-end branches on, so cURL's
 	 * own text never reaches the reader.
+	 *
+	 * Both wrappers keep what WordPress.com actually said one level down,
+	 * under `transport` and `wpcom` respectively, so `$message` names the
+	 * operation and the reason survives beside it rather than replacing
+	 * it. The client frames the two together when the reason is one only
+	 * a sentence can carry.
 	 *
 	 * @param array|\WP_Error $response The wp_remote_* response.
 	 * @param string          $code     Error code for a transport failure or a non-200.
@@ -349,13 +439,10 @@ class File_Browser_Bridge {
 		if ( is_wp_error( $response ) ) {
 			return Rest_Controller::transport_error( $response, $code );
 		}
-		$status_code = wp_remote_retrieve_response_code( $response );
+		// Cast, as at every other bridge — see `get_file_content()` above.
+		$status_code = (int) wp_remote_retrieve_response_code( $response );
 		if ( 200 !== $status_code ) {
-			return new WP_Error(
-				$code,
-				$message,
-				array( 'status' => is_int( $status_code ) && $status_code > 0 ? $status_code : 500 )
-			);
+			return Rest_Controller::upstream_error( $response, $code, $message );
 		}
 		return rest_ensure_response( json_decode( wp_remote_retrieve_body( $response ), true ) );
 	}

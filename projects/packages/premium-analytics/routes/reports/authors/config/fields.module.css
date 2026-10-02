@@ -5,3 +5,9 @@
 	border-radius: 50%;
 	object-fit: cover;
 }
+
+.name {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}

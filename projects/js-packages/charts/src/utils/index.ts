@@ -1,6 +1,9 @@
 // Chart composition utilities
 export { attachSubComponents } from './create-composition';
 
+// Date bucket classification
+export { getBucketInfo } from './bucket-info';
+
 // Date parsing utilities
 export { parseAsLocalDate } from './date-parsing';
 
@@ -10,6 +13,7 @@ export type { MetricValueType } from './format-metric-value';
 export { formatPercentage } from './format-percentage';
 
 // Chart measurement utilities
+export { getEdgeTickWidths } from './get-edge-tick-widths';
 export { getLongestTickWidth } from './get-longest-tick-width';
 
 // Style and theming utilities

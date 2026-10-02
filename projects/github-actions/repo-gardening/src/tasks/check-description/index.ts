@@ -193,7 +193,7 @@ async function getCheckComment(
 	const comments = await getComments( octokit, owner, repo, number );
 	for ( const comment of comments ) {
 		if (
-			comment.user.login === 'github-actions[bot]' &&
+			comment.user?.login === 'github-actions[bot]' &&
 			comment.body.includes( '**Thank you for your PR!**' )
 		) {
 			commentID = comment.id;
@@ -508,6 +508,11 @@ async function checkDescription(
 	payload: PullRequestEvent,
 	octokit: OctokitClient
 ): Promise< void > {
+	if ( ! payload.pull_request.user ) {
+		debug( `check-description: No user supplied in pull_request event. Aborting.` );
+		return;
+	}
+
 	const {
 		number,
 		user: { login: author },

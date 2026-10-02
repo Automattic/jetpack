@@ -140,12 +140,12 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 								/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
 								__( 'Your %s URL is too long.', 'jetpack-podcast' ),
 								app.name
-						  )
+							)
 						: sprintf(
 								/* translators: %s: podcast directory name (e.g. "Apple Podcasts"). */
 								__( 'Enter a valid %s URL.', 'jetpack-podcast' ),
 								app.name
-						  )
+							)
 				);
 				return;
 			}
@@ -242,11 +242,11 @@ const SubmitModal = ( { app, feedUrl, onClose, onFirstSave }: PodcastAppModalPro
 										'jetpack-podcast'
 									),
 									app.name
-							  )
+								)
 							: __(
 									'Set your post category in the Settings tab to generate your RSS feed URL.',
 									'jetpack-podcast'
-							  ) }
+								) }
 					</Text>
 					{ feedUrl && (
 						<Button

@@ -8,12 +8,14 @@
 /**
  * A function.
  *
- * Without Jetpack-NoWP, the function name would be complained about but the call to `array_key_first` is ok.
+ * Without Jetpack-NoWP, the function name would be complained about but the call to `array_last` is ok.
  * With it, vice versa.
+ *
+ * (or would be if PHPCompatibility had been released at all recently)
  *
  * @param array $value Value.
  * @return mixed
  */
 function doTheThing( $value ) {
-	return array_key_first( $value );
+	return array_last( $value );
 }

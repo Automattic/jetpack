@@ -77,7 +77,7 @@ describe( 'AI route stage', () => {
 
 		Stage();
 		const ai = {
-			enhancer: { available: true, enabled: false },
+			enhancer: { available: true, enabled: false, aiSeoEnabled: true },
 			llmsTxt: { enabled: true, url: 'https://example.com/llms.txt', canServe: true },
 			crawlers: { catalog: [], overrides: {} },
 		};

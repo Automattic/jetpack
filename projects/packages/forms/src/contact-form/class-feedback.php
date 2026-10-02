@@ -634,6 +634,24 @@ class Feedback {
 		$file_data_array = is_array( $raw_data )
 			? array_map(
 				function ( $json_str ) {
+					/*
+					 * The entries come straight from $_POST, so any of them may be an array: a request
+					 * carrying `field[1][x]=y` reaches here with a nested array where a JSON string is
+					 * expected, and stripslashes() raises an uncaught TypeError on PHP 8. Nothing above
+					 * this catches it, so an anonymous visitor could crash the submission with a 500.
+					 *
+					 * Contact_Form_Field::validate() sanitizes its own copy — which turns a nested array
+					 * into '' — but that copy is not the one read here.
+					 */
+					if ( ! is_string( $json_str ) ) {
+						return array(
+							'file_id' => '',
+							'name'    => '',
+							'size'    => 0,
+							'type'    => '',
+						);
+					}
+
 					$decoded = json_decode( stripslashes( $json_str ), true );
 					return array(
 						'file_id' => isset( $decoded['file_id'] ) ? sanitize_text_field( $decoded['file_id'] ) : '',
@@ -2291,7 +2309,7 @@ class Feedback {
 		// and then had its answer dropped -- the silently discarded answer this feature is
 		// supposed to make impossible.
 		//
-		// Returns an empty array when the flag is off, so there is nothing extra to guard.
+		// Returns an empty array when conditional logic does not apply, so there is nothing extra to guard.
 		$visibility = $form->get_resolved_field_visibility();
 
 		$i = 1;

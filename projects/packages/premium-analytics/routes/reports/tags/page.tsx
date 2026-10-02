@@ -20,6 +20,7 @@ import { __ } from '@wordpress/i18n';
 import { REPORTS } from '../registry';
 import { getTagRowId, getTagsFields, useTagsReportRecords } from './config';
 import type { StatsTagsItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: views sort descending, the label column absorbs
@@ -40,10 +41,9 @@ const sortTagCsvRows = ( a: StatsTagsItem, b: StatsTagsItem ) => b.value - a.val
 /**
  * Premium Analytics Tags & categories report page component.
  *
- * The `stats/tags` endpoint reports one flat all-time list and ignores
- * date-window parameters (verified against WPCOM; Calypso never sends date
- * params here either), so the page composes only the breadcrumb header and
- * records table: no date filters, tabs, or performance chart.
+ * `stats/tags` returns one flat list over the seven days ending yesterday and ignores
+ * date-window params, so this page has no date filters, tabs, or performance chart —
+ * just the header and records table.
  *
  * @return The Tags & categories report page.
  */
@@ -73,26 +73,19 @@ function TagsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.tags;
+	const { getLabel } = REPORTS.tags;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __( 'Your most visited tags and categories.', 'jetpack-premium-analytics-pkg' ) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-				 * status, so a failed refetch over cached rows would otherwise leave
-				 * stale data on screen with no notice and no way to retry.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load tags and categories', 'jetpack-premium-analytics-pkg' ) }
@@ -104,6 +97,7 @@ function TagsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getTagRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search tags and categories', 'jetpack-premium-analytics-pkg' ) }
 					/>

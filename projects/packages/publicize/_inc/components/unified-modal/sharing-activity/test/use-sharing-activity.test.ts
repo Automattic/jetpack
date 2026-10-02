@@ -198,7 +198,7 @@ describe( 'useSharingActivity', () => {
 		expect( item.displayName ).toBe( 'LinkedIn User' );
 
 		// Type assertion since we verified activityType above
-		const scheduledItem = item as import('../types').ScheduledActivityItem;
+		const scheduledItem = item as import( '../types' ).ScheduledActivityItem;
 		expect( scheduledItem.scheduleId ).toBe( 10 );
 	} );
 

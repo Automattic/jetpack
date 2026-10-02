@@ -3,8 +3,8 @@ import { FC, ReactNode } from 'react';
 type WelcomeTourImageProps = {
 	nonAnimatedSrc: string | ReactNode;
 	nonAnimatedSrc2x: string | ReactNode;
-	animatedSrc: string;
-	animatedSrc2x: string;
+	animatedSrc: string | undefined;
+	animatedSrc2x: string | undefined;
 	width?: number;
 	height?: number;
 	className?: string;
@@ -19,6 +19,11 @@ const WelcomeTourImage: FC< WelcomeTourImageProps > = ( {
 	width = 400,
 	height = 260,
 } ) => {
+	// `assetUrl()` found no base, so a srcset would request `undefined` from /wp-admin/.
+	if ( ! animatedSrc || ! nonAnimatedSrc ) {
+		return null;
+	}
+
 	return (
 		<picture className={ className }>
 			<source

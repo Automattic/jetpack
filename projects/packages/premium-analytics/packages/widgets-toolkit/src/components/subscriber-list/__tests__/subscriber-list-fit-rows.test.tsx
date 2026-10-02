@@ -26,11 +26,9 @@ const makeItems = ( count: number ): SubscriberListItem[] =>
 	} ) );
 
 /**
- * Mocks the element geometry that JSDOM does not calculate.
- *
- * The roster root is the measured box and the footer takes room from the rows,
- * mirroring the stylesheet: the root is clamped to the tile, `.list` flexes,
- * and `.more` does not shrink.
+ * Mocks the element geometry JSDOM does not calculate: the roster root is the
+ * measured box, and the footer takes room from the rows, mirroring the
+ * stylesheet (root clamped to tile, `.list` flexes, `.more` does not shrink).
  *
  * @param tileHeight - Starting height of the roster root.
  * @return Handle for resizing the roster and restoring the globals.
@@ -138,6 +136,22 @@ describe( 'SubscriberList fitRows', () => {
 		render( <SubscriberList items={ makeItems( 10 ) } /> );
 
 		expect( footerText() ).toBe( '6 more' );
+	} );
+
+	it( 'counts only the hidden rows when the total is unknown', () => {
+		layout = mockLayout( tileFor( 4, false ) );
+		const items = makeItems( 10 );
+		const { rerender } = render( <SubscriberList items={ items } moreCount={ null } /> );
+
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '7 more' );
+
+		rerender( <SubscriberList items={ items } moreCount={ 20 } /> );
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '27 more' );
+
+		rerender( <SubscriberList items={ items } moreCount={ null } /> );
+		expect( footerText() ).toBe( '7 more' );
 	} );
 
 	it( 'refits when the tile is resized', () => {

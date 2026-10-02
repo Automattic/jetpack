@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Dashboard: stop greeting people who already have videos as new when they arrive on a video link in a fresh browser.

@@ -9,6 +9,7 @@ import apiFetch from '@wordpress/api-fetch';
  * Internal dependencies
  */
 import EmailBreakdownWidget from '../render';
+import emailBreakdownWidgetType from '../widget';
 
 jest.mock( '@wordpress/api-fetch', () => jest.fn() );
 
@@ -41,15 +42,15 @@ jest.mock( '@wordpress/route', () => jest.requireActual( '../../test-utils' ).mo
 
 const mockApiFetch = apiFetch as unknown as jest.Mock;
 
-// Raw WPCOM fieldless all-time shapes the email breakdown sanitizer reads. Each
-// per-breakdown endpoint returns only its own payload key, mirroring Calypso
-// fetching `link` and `user-content-link` separately and merging.
+// Raw all-time shapes as WPCOM returns them: each endpoint returns only its own
+// payload key, with `fields` naming the `[ label, count ]` columns.
 const COUNTRY_RESPONSE = {
 	countries: {
 		data: [
 			[ 'US', 1840 ],
 			[ 'GB', 720 ],
 		],
+		fields: [ 'country', 'opens_count' ],
 	},
 	'countries-info': {
 		US: { country_full: 'United States' },
@@ -57,20 +58,25 @@ const COUNTRY_RESPONSE = {
 	},
 };
 
-// `some-other-internal` aggregates into the catch-all row and outranks every other
-// row by value, so the fixture proves that row is pinned last across the merge
-// rather than just landing there.
+// `some-other-internal` aggregates into the catch-all row and outranks every
+// other row, so the fixture proves that row is pinned last, not merely sorted last.
+// `user_link` counts the same clicks the user-content endpoint lists by URL.
 const INTERNAL_LINKS_RESPONSE = {
 	links: {
 		data: [
+			[ 'user_link', 512 ],
 			[ 'post-url', 640 ],
 			[ 'some-other-internal', 900 ],
 		],
+		fields: [ 'link_desc', 'clicks_count' ],
 	},
 };
 
 const USER_CONTENT_LINKS_RESPONSE = {
-	'user-content-links': { data: [ [ 'https://example.com/spring-sale', 512 ] ] },
+	'user-content-links': {
+		data: [ [ 'https://example.com/spring-sale', 512 ] ],
+		fields: [ 'url', 'clicks_count' ],
+	},
 };
 
 /**
@@ -142,6 +148,7 @@ describe( 'EmailBreakdownWidget', () => {
 					`C${ index }`,
 					rowCount - index,
 				] ),
+				fields: [ 'country', 'clicks_count' ],
 			},
 			'countries-info': Object.fromEntries(
 				Array.from( { length: rowCount }, ( _, index ) => [
@@ -211,12 +218,14 @@ describe( 'EmailBreakdownWidget', () => {
 		// Known internal link types are mapped to display labels; unknown ones are
 		// aggregated into "Other".
 		expect( screen.getByText( 'Post URL' ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'post-url' ) ).not.toBeInTheDocument();
+		expect( screen.queryByText( 'user_link' ) ).not.toBeInTheDocument();
 		const otherRow = screen.getByText( 'Other' );
 		expect( otherRow ).toBeInTheDocument();
+		expect( screen.getByText( '900' ) ).toBeInTheDocument();
 
-		// The catch-all row stays pinned last after the two breakdowns are merged
-		// and re-sorted, even though it holds the highest value. The two nodes sit in
-		// separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
+		// The catch-all row stays pinned last despite holding the highest value.
+		// Separate rows, so the position mask is exactly PRECEDING or FOLLOWING.
 		expect( otherRow.compareDocumentPosition( link ) ).toBe( Node.DOCUMENT_POSITION_PRECEDING );
 
 		// The links view fetches both clicks breakdowns, matching Calypso.
@@ -230,10 +239,8 @@ describe( 'EmailBreakdownWidget', () => {
 	} );
 
 	it( 'shows the error state when one of the two links-view queries fails on first load', async () => {
-		// The `link` breakdown fails (non-retryable 403 so React Query surfaces the
-		// error immediately) while `user-content-link` succeeds. Half a merged list
-		// with no error would silently hide the internal link types, so the widget
-		// must surface the error (with Retry) instead of the incomplete rows.
+		// 403 is non-retryable, so React Query surfaces the error immediately. Half
+		// a merged list with no error would silently hide the internal link types.
 		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
 			path.includes( '/user-content-link' )
 				? Promise.resolve( USER_CONTENT_LINKS_RESPONSE )
@@ -296,7 +303,9 @@ describe( 'EmailBreakdownWidget', () => {
 		// Built by concatenation so the literal does not trip the no-script-url lint rule.
 		const unsafeUrl = 'javascript' + ':alert(1)';
 		mockApiFetch.mockImplementation(
-			linksViewFetchMock( { 'user-content-links': { data: [ [ unsafeUrl, 99 ] ] } } )
+			linksViewFetchMock( {
+				'user-content-links': { data: [ [ unsafeUrl, 99 ] ], fields: [ 'url', 'clicks_count' ] },
+			} )
 		);
 
 		render(
@@ -311,5 +320,15 @@ describe( 'EmailBreakdownWidget', () => {
 		// The label still renders so the row is visible, but not as an anchor.
 		await expect( screen.findByText( unsafeUrl ) ).resolves.toBeInTheDocument();
 		expect( screen.queryByRole( 'link', { name: /alert/ } ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'EmailBreakdown widget type', () => {
+	it( 'declares no drawer-only attribute, so the host renders no settings button', () => {
+		// Mirrors the host's predicate: the settings button appears as soon as any
+		// attribute is not exposed inline (`relevance: 'high'`).
+		expect(
+			emailBreakdownWidgetType.attributes.every( attribute => attribute.relevance === 'high' )
+		).toBe( true );
 	} );
 } );

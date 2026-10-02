@@ -3,7 +3,13 @@
 	"title": "Most popular time",
 	"description": "The day of week and hour of day when your site gets the most views.",
 	"help": {
-		"content": "The day of week and hour of day when your site gets the most views."
+		"content": "The day of the week and the hour of the day when your site is viewed most, with each one's share of your views.",
+		"links": [
+			{
+				"label": "Learn more",
+				"href": "https://wordpress.com/support/stats/learn-insights-about-your-website/"
+			}
+		]
 	},
 	"category": "stats",
 	"presentation": "framed"

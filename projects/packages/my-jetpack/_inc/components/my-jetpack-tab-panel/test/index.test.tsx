@@ -1,8 +1,9 @@
 import '@testing-library/jest-dom';
-import { currentUserCan, isSimpleSite } from '@automattic/jetpack-script-data';
+import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
+	MY_JETPACK_SECTION_FEATURES,
 	MY_JETPACK_SECTION_HELP,
 	MY_JETPACK_SECTION_OVERVIEW,
 	MY_JETPACK_SECTION_PRODUCTS,
@@ -13,6 +14,7 @@ import { MyJetpackTabPanel } from '../index';
 // them exercises the real section/validation/default logic rather than a stub.
 jest.mock( '@automattic/jetpack-script-data', () => ( {
 	currentUserCan: jest.fn(),
+	getScriptData: jest.fn(),
 	isSimpleSite: jest.fn(),
 } ) );
 
@@ -20,7 +22,9 @@ jest.mock( '@automattic/jetpack-script-data', () => ( {
 // `onTabSelect` gate and the keyed-remount effect run for real against it.
 const mockNavigate = jest.fn();
 let mockSection: string | undefined;
+let mockSearch = '';
 jest.mock( 'react-router', () => ( {
+	useLocation: () => ( { search: mockSearch } ),
 	useNavigate: () => mockNavigate,
 	useParams: () => ( { section: mockSection } ),
 } ) );
@@ -56,6 +60,8 @@ beforeEach( () => {
 	mockCurrentUserCan.mockReturnValue( true );
 	mockIsSimpleSite.mockReturnValue( false );
 	mockSection = undefined;
+	mockSearch = '';
+	( getScriptData as jest.Mock ).mockReturnValue( undefined );
 } );
 
 describe( 'MyJetpackTabPanel', () => {
@@ -126,5 +132,39 @@ describe( 'MyJetpackTabPanel', () => {
 			} )
 		);
 		expect( mockNavigate ).toHaveBeenCalledWith( `/${ MY_JETPACK_SECTION_HELP }` );
+	} );
+
+	it( 'redirects the legacy Products hash to Features, keeping its query', async () => {
+		( getScriptData as jest.Mock ).mockReturnValue( {
+			myJetpack: { productsSection: { slug: MY_JETPACK_SECTION_FEATURES, label: 'Features' } },
+		} );
+		mockSection = MY_JETPACK_SECTION_PRODUCTS;
+		mockSearch = '?filter=included';
+
+		render( <MyJetpackTabPanel /> );
+		await expect( screen.findByRole( 'tab', { selected: true } ) ).resolves.toHaveTextContent(
+			'Features'
+		);
+
+		expect( mockNavigate ).toHaveBeenCalledWith(
+			`/${ MY_JETPACK_SECTION_FEATURES }?filter=included`,
+			{ replace: true }
+		);
+		expect( callsFor( 'jetpack_myjetpack_tab_click' ) ).toHaveLength( 0 );
+	} );
+
+	it( 'redirects a Features hash back to Products while the flag is off, keeping its query', async () => {
+		mockSection = MY_JETPACK_SECTION_FEATURES;
+		mockSearch = '?filter=included';
+
+		render( <MyJetpackTabPanel /> );
+		await expect( screen.findByRole( 'tab', { selected: true } ) ).resolves.toHaveTextContent(
+			'Products'
+		);
+
+		expect( mockNavigate ).toHaveBeenCalledWith(
+			`/${ MY_JETPACK_SECTION_PRODUCTS }?filter=included`,
+			{ replace: true }
+		);
 	} );
 } );

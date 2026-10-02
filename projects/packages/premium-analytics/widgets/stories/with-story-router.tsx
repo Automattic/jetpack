@@ -6,12 +6,29 @@ import {
 	createRootRoute,
 	createRoute,
 	createRouter,
-	RouterContextProvider,
+	RouterProvider,
 } from '@tanstack/react-router';
+import { createContext, useContext } from 'react';
 import type { Decorator } from '@storybook/react';
 import type { ReactNode } from 'react';
 
-const rootRoute = createRootRoute();
+/*
+ * The story is rendered *by* the router, since a widget reading the report
+ * window off the URL needs an active match. The root route does it, not the
+ * dashboard route: the routes below carry no component, so a link click moving
+ * the memory history onto one would otherwise unmount the story.
+ */
+const storyChildren = createContext< ReactNode >( null );
+
+function StoryRoute() {
+	return useContext( storyChildren );
+}
+
+const rootRoute = createRootRoute( { component: StoryRoute } );
+const dashboardRoute = createRoute( {
+	getParentRoute: () => rootRoute,
+	path: '/',
+} );
 const reportRoute = createRoute( {
 	getParentRoute: () => rootRoute,
 	path: '/reports/$report',
@@ -21,7 +38,7 @@ const postDetailRoute = createRoute( {
 	path: '/post/$postId',
 } );
 const storyRouter = createRouter( {
-	routeTree: rootRoute.addChildren( [ reportRoute, postDetailRoute ] ),
+	routeTree: rootRoute.addChildren( [ dashboardRoute, reportRoute, postDetailRoute ] ),
 	history: createMemoryHistory( { initialEntries: [ '/' ] } ),
 	// TanStack's options type requires strictNullChecks, which this package does not enable.
 } as never );
@@ -32,7 +49,11 @@ const storyRouter = createRouter( {
  * real href shapes as the app.
  */
 export function StoryRouterProvider( { children }: { children: ReactNode } ) {
-	return <RouterContextProvider router={ storyRouter }>{ children }</RouterContextProvider>;
+	return (
+		<storyChildren.Provider value={ children }>
+			<RouterProvider router={ storyRouter } />
+		</storyChildren.Provider>
+	);
 }
 
 export const withStoryRouter: Decorator = Story => (

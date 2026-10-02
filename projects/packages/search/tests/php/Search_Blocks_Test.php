@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Search;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -306,6 +307,49 @@ class Search_Blocks_Test extends TestCase {
 			'empty/unknown'     => array( '', false ),
 			// No WC_VERSION constant in the test process, so the default path reads unsupported.
 			'default no WC'     => array( null, false ),
+		);
+	}
+
+	/**
+	 * @dataProvider provider_widget_area_hiding_blocks
+	 *
+	 * @param bool        $sidebar_registered Whether the legacy Overlay sidebar is registered.
+	 * @param string|null $screen_id          Current admin screen, or null for none.
+	 * @param bool        $expect_overlay     Whether the Overlay sidebar is expected, rather than null.
+	 */
+	#[DataProvider( 'provider_widget_area_hiding_blocks' )]
+	public function test_widget_area_hiding_blocks( bool $sidebar_registered, ?string $screen_id, bool $expect_overlay ) {
+		if ( $sidebar_registered ) {
+			register_sidebar( array( 'id' => Instant_Search::INSTANT_SEARCH_SIDEBAR ) );
+		}
+		if ( null !== $screen_id ) {
+			set_current_screen( $screen_id );
+		}
+
+		try {
+			$this->assertSame(
+				$expect_overlay ? Instant_Search::INSTANT_SEARCH_SIDEBAR : null,
+				Search_Blocks::widget_area_hiding_blocks()
+			);
+		} finally {
+			unregister_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR );
+			unset( $GLOBALS['current_screen'] );
+		}
+	}
+
+	/**
+	 * Cases for `test_widget_area_hiding_blocks`.
+	 *
+	 * @return array<string, array{0: bool, 1: string|null, 2: bool}>
+	 */
+	public static function provider_widget_area_hiding_blocks(): array {
+		return array(
+			'overlay sidebar, widgets screen'    => array( true, 'widgets', true ),
+			'overlay sidebar, customizer'        => array( true, 'customize', true ),
+			'overlay sidebar, post editor'       => array( true, 'post', false ),
+			'overlay sidebar, no screen'         => array( true, null, false ),
+			'no overlay sidebar, widgets screen' => array( false, 'widgets', false ),
+			'no overlay sidebar, customizer'     => array( false, 'customize', false ),
 		);
 	}
 
@@ -1398,6 +1442,36 @@ class Search_Blocks_Test extends TestCase {
 	}
 
 	/**
+	 * Pass the AI restriction to the editor independently of the plan.
+	 */
+	public function test_editor_ai_flag_respects_host_restrictions() {
+		$cleanup = $this->stub_editor_asset_file( array() );
+		$handle  = 'jetpack-search-blocks-register';
+		try {
+			foreach ( array( true, false ) as $allowed ) {
+				$filter = $allowed ? '__return_true' : '__return_false';
+				add_filter( 'wp_supports_ai', $filter );
+				Constants::set_constant( 'WP_AI_SUPPORT', $allowed );
+				Search_Blocks::enqueue_editor_assets();
+
+				$scripts = wp_scripts()->get_data( $handle, 'before' );
+				$config  = json_decode( substr( end( $scripts ), strlen( 'window.JetpackSearchBlocksConfig = ' ), -1 ), true );
+				$this->assertIsArray( $config );
+				$this->assertSame( $allowed, $config['aiMasterEnabled'] );
+
+				remove_filter( 'wp_supports_ai', $filter );
+				wp_deregister_script( $handle );
+			}
+		} finally {
+			remove_filter( 'wp_supports_ai', '__return_true' );
+			remove_filter( 'wp_supports_ai', '__return_false' );
+			Constants::clear_single_constant( 'WP_AI_SUPPORT' );
+			wp_deregister_script( $handle );
+			$cleanup();
+		}
+	}
+
+	/**
 	 * The `wp_body_open` registration itself stays unconditional (SEARCH-299)
 	 * — the module gate lives inside the callback instead.
 	 */
@@ -1456,9 +1530,7 @@ class Search_Blocks_Test extends TestCase {
 	private function registered_script_modules(): array {
 		$modules  = wp_script_modules();
 		$property = new \ReflectionProperty( $modules, 'registered' );
-		// PHP 7.2–8.0 require setAccessible(true) to read a private prop via
-		// Reflection; 8.1 made it a no-op and 8.5 deprecates the call. Gate
-		// on the version so the package's PHP 7.2–8.5 matrix stays green.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$property->setAccessible( true );
 		}
@@ -3444,9 +3516,7 @@ class Search_Blocks_Test extends TestCase {
 	 */
 	private function invoke_protected( string $method, ...$args ) {
 		$ref = new \ReflectionMethod( Search_Blocks::class, $method );
-		// setAccessible() became a no-op in 8.1 and was deprecated in 8.5,
-		// but the package supports PHP 7.2+ where the call is still required
-		// for ReflectionMethod::invoke() to reach a protected method.
+		// @todo Remove this call once we no longer need to support PHP <8.1.
 		if ( PHP_VERSION_ID < 80100 ) {
 			$ref->setAccessible( true );
 		}

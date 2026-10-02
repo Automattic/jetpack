@@ -42,8 +42,7 @@ interface SalesByCouponStoryControls {
 type SalesByCouponStoryProps = SalesByCouponWidgetProps & SalesByCouponStoryControls;
 
 interface SalesByCouponDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SalesByCouponStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SalesByCouponStoryControls {}
 
 function getSalesByCouponAttributes(
 	withComparison = false,

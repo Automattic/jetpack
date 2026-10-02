@@ -1,40 +1,34 @@
 .ai-launchpad-tailored-list {
-
 	// Centered content column: heading + progress, then a tasks | preview grid.
 	&__layout {
-		max-width: 960px;
+		max-width: var(--wpds-dimension-surface-width-2xl);
 		margin: 0 auto;
-		padding: clamp(24px, 8vh, 96px) 24px 48px;
+		padding:
+			clamp(var(--wpds-dimension-padding-2xl), 8vh, 96px)
+			var(--wpds-dimension-padding-2xl) 48px;
 	}
 
-	@media (max-width: 782px) {
+	@media ( max-width: 782px ) {
 
 		&__layout {
-			padding: 24px 16px 32px;
+			padding:
+				var(--wpds-dimension-padding-2xl) var(--wpds-dimension-padding-lg)
+				var(--wpds-dimension-padding-3xl);
 		}
 	}
 
 	&__heading {
-		margin-bottom: 24px;
-	}
-
-	&__title-heading {
-		margin: 0;
-		font-size: 32px;
-		line-height: 1.2;
-		font-weight: 500;
+		margin-block-end: var(--wpds-dimension-gap-xl);
 	}
 
 	&__progress {
-		margin: 8px 0 0;
-		color: #757575;
-		font-size: 14px;
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	&__columns {
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
-		gap: 32px;
+		gap: var(--wpds-dimension-gap-2xl);
 		align-items: start;
 
 		// Reserve the preview track only when there's a preview to show.
@@ -44,7 +38,7 @@
 	}
 
 	// Stack the preview under the tasks on narrow screens.
-	@media (max-width: 782px) {
+	@media ( max-width: 782px ) {
 
 		&__columns.has-preview {
 			grid-template-columns: 1fr;
@@ -53,31 +47,18 @@
 
 	// The task column: a padded grey container so the white cards read as a
 	// grouped checklist.
-	display: flex;
-	flex-direction: column;
-	gap: 8px;
-	padding: 8px;
-	background: #f6f7f7;
-	border-radius: 8px;
+	padding: var(--wpds-dimension-padding-sm);
+	background: var(--wpds-color-background-surface-neutral-weak);
+	border-radius: var(--wpds-border-radius-lg);
 
 	// Tighten the Card padding for compact rows; zero the header→content margin
 	// (re-added on the subtitle, so a collapsed card shows no gap).
 	&__card {
-		--wp-ui-card-padding: 16px;
+		--wp-ui-card-padding: var(--wpds-dimension-padding-lg);
 		--wp-ui-card-header-content-margin: 0;
 	}
 
-	// The icon + title row inside the clickable card header.
-	&__header-inner {
-		display: flex;
-		align-items: center;
-		gap: 8px;
-		min-width: 0;
-	}
-
 	&__title {
-		font-weight: 500;
-		font-size: 14px;
 		color: var(--wpds-color-foreground-interactive-neutral);
 
 		&.is-done {
@@ -104,15 +85,10 @@
 	}
 
 	// Re-creates the header→content gap zeroed above; clipped when collapsed.
+	// Padding, not margin: Text's unlayered `p` defense zeroes margins.
 	&__subtitle {
-		margin: 8px 0 16px;
-		color: #757575;
-	}
-
-	&__actions {
-		display: flex;
-		align-items: center;
-		gap: 8px;
+		padding-block: var(--wpds-dimension-gap-sm) var(--wpds-dimension-gap-lg);
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	// A locked preview of a task that isn't reachable yet: title and lock icon are
@@ -127,15 +103,9 @@
 
 	// The "available once…" line shown in place of the actions on a disabled card.
 	&__hint {
-		margin: 0 0 8px;
+		padding-block-end: var(--wpds-dimension-gap-sm);
 		font-style: italic;
-		color: #757575;
-	}
-
-	// The site-preview card in the right column.
-	&__preview {
-		display: flex;
-		flex-direction: column;
+		color: var(--wpds-color-foreground-content-neutral-weak);
 	}
 
 	// A frame holding a desktop-width iframe scaled to 0.25 (4× the frame) so it
@@ -147,9 +117,9 @@
 		max-width: 300px;
 		aspect-ratio: 4 / 3;
 		overflow: hidden;
-		border: 1px solid #e0e0e0;
-		border-radius: 8px;
-		background: #f6f7f7;
+		border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+		border-radius: var(--wpds-border-radius-lg);
+		background: var(--wpds-color-background-surface-neutral-weak);
 
 		// Reveal the "Edit site" overlay on hover or when the button is focused.
 		&.is-editable {
@@ -173,7 +143,7 @@
 		justify-content: center;
 		background: rgba(0, 0, 0, 0.55);
 		opacity: 0;
-		transition: opacity 120ms ease;
+		transition: opacity var(--wpds-motion-duration-sm) var(--wpds-motion-easing-subtle);
 
 		// The Button renders as a link; wp-admin's unlayered `a { color }` would win
 		// over its layered foreground color, so re-assert it with an unlayered rule.
@@ -203,42 +173,24 @@
 		pointer-events: none;
 	}
 
-	&__preview-title {
-		margin: 12px 0 2px;
-		font-weight: 600;
-		font-size: 15px;
-	}
-
 	&__preview-link {
-		font-size: 13px;
+		font-size: var(--wpds-typography-font-size-md);
+		line-height: var(--wpds-typography-line-height-sm);
 	}
 
 	// Full-width on mobile; placed after the base rule to win at the breakpoint.
-	@media (max-width: 782px) {
+	@media ( max-width: 782px ) {
 
 		&__preview-frame {
 			max-width: none;
 		}
 	}
 
-	// Loading placeholders standing in for the task cards.
+	// Loading placeholders standing in for the task cards: white and rounded like
+	// the cards, so they show against the grey column.
 	&__skeleton-bar {
-		display: block;
 		height: 56px;
-		border-radius: 4px;
-		background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 37%, #f0f0f0 63%);
-		background-size: 400% 100%;
-		animation: ai-launchpad-shimmer 1.4s ease infinite;
-	}
-}
-
-@keyframes ai-launchpad-shimmer {
-
-	0% {
-		background-position: 100% 0;
-	}
-
-	100% {
-		background-position: 0 0;
+		border-radius: var(--wpds-border-radius-lg);
+		background-color: var(--wpds-color-background-surface-neutral-strong);
 	}
 }

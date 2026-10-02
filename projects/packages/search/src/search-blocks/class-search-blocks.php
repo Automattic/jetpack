@@ -453,7 +453,7 @@ class Search_Blocks {
 	 */
 	public static function woocommerce_version_supported( ?string $version = null ): bool {
 		// `constant()` keeps static analysis happy — WC isn't a dependency here.
-		$version = $version ?? ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
+		$version ??= ( defined( 'WC_VERSION' ) ? (string) constant( 'WC_VERSION' ) : '' );
 		return '' !== $version && version_compare( $version, self::MIN_WOOCOMMERCE_VERSION, '>=' );
 	}
 
@@ -684,6 +684,7 @@ class Search_Blocks {
 					'isWooCommerceBlocksEnabled' => self::woocommerce_blocks_enabled(),
 					'woocommerceOnlyBlocks'      => self::woocommerce_only_block_names(),
 					'supportsPaidSearch'         => self::supports_paid_search(),
+					'aiMasterEnabled'            => AI_Answers::host_allows_ai() && AI_Answers::is_master_enabled(),
 					'supportedCustomTaxonomies'  => self::supported_custom_taxonomies(),
 					'customTaxonomyMap'          => (object) self::custom_taxonomy_map(),
 					// Resolved the same way `search-results/render.php` resolves the
@@ -691,11 +692,32 @@ class Search_Blocks {
 					// visitors won't actually get.
 					'defaultResultsPerPage'      => Helper::resolve_results_per_page(),
 					'maxResultsPerPage'          => Helper::get_max_posts_per_page(),
+					'hideFromWidgetArea'         => self::widget_area_hiding_blocks(),
 				),
 				JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
 			) . ';',
 			'before'
 		);
+	}
+
+	/**
+	 * The widget area whose inserter must not offer the Search blocks, if the current screen edits widgets.
+	 *
+	 * The legacy Overlay's sidebar renders on `wp_footer`, after a block theme has printed the importmap, so a block's view module can't resolve `jetpack-search/store` and never hydrates.
+	 *
+	 * @since 8.2.0
+	 *
+	 * @return string|null Sidebar ID, or null when no area needs hiding.
+	 */
+	public static function widget_area_hiding_blocks(): ?string {
+		if ( ! is_registered_sidebar( Instant_Search::INSTANT_SEARCH_SIDEBAR ) || ! function_exists( 'get_current_screen' ) ) {
+			return null;
+		}
+		$screen = get_current_screen();
+		if ( ! $screen || ! in_array( $screen->id, array( 'widgets', 'customize' ), true ) ) {
+			return null;
+		}
+		return Instant_Search::INSTANT_SEARCH_SIDEBAR;
 	}
 
 	/**

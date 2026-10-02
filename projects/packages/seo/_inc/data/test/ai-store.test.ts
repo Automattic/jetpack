@@ -17,7 +17,7 @@ describe( 'ai-store', () => {
 
 	it( 'replaces the enhancer state on setEnhancer', () => {
 		const registry = makeRegistry();
-		const next = { available: true, enabled: true };
+		const next = { available: true, enabled: true, aiSeoEnabled: false };
 		registry.dispatch( aiStore ).setEnhancer( next );
 		expect( registry.select( aiStore ).getEnhancer() ).toEqual( next );
 	} );

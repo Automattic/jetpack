@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+My Jetpack: Fix the dashboard failing to load on WordPress.com-hosted sites.

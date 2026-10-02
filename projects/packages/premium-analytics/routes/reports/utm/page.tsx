@@ -24,13 +24,13 @@ import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
 	getReportUtmTabs,
-	getTabTitle,
 	getUtmFields,
 	getUtmTabLabel,
 	resolveSection,
 	useUtmReportRecords,
 	type UtmReportRow,
 } from './config';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -109,9 +109,19 @@ function UtmReport(): JSX.Element {
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	}
+
 	return (
 		<ReportPageShell
-			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
@@ -121,16 +131,11 @@ function UtmReport(): JSX.Element {
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getUtmTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load UTM data', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
+				{ tableReplacement ?? (
 					<ReportDrilldownTable< UtmReportRow >
 						key={ activeTab }
 						data={ records.rows }
@@ -138,9 +143,12 @@ function UtmReport(): JSX.Element {
 						getItemId={ getUtmRowId }
 						getItemParentId={ getUtmRowParentId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search UTM values', 'jetpack-premium-analytics-pkg' ) }
 						hideLevelMarkers
+						collapsible
+						defaultExpanded="none"
 					/>
 				) }
 			</ReportPageLayout>

@@ -120,7 +120,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.enterCornerstonePageUrl( testUrls );
 
 		await expect(
-			page.getByText( 'You can add only 1 cornerstone page URL' ),
+			page.getByText( 'You can add only 1 Cornerstone Page URL' ),
 			'Should show limit error for free plan'
 		).toBeVisible();
 
@@ -177,7 +177,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.enterCornerstonePageUrl( elevenPages );
 
 		await expect(
-			page.getByText( 'You can add up to 10 cornerstone page URLs' ),
+			page.getByText( 'You can add up to 10 Cornerstone Page URLs' ),
 			'Should show limit error for premium plan'
 		).toBeVisible();
 
@@ -195,7 +195,7 @@ test.describe( 'Cornerstone Pages', () => {
 		await jetpackBoostPage.openCornerstonePagesPanel();
 
 		await expect(
-			page.getByText( 'Premium users can add up to 10 cornerstone pages' ),
+			page.getByText( 'Premium users can add up to 10 Cornerstone Pages' ),
 			'Upgrade CTA should be visible on free plan'
 		).toBeVisible();
 	} );

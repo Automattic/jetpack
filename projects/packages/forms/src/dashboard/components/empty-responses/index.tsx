@@ -6,7 +6,7 @@ import { useSelect, useDispatch } from '@wordpress/data';
 import { createInterpolateElement, useCallback, useMemo } from '@wordpress/element';
 import { __, _n, sprintf } from '@wordpress/i18n';
 import { caution, page, search, shield, trash } from '@wordpress/icons';
-import { Button, EmptyState, Link } from '@wordpress/ui';
+import { Button, EmptyState, Link, LinkButton } from '@wordpress/ui';
 /**
  * Internal dependencies
  */
@@ -261,9 +261,9 @@ const EmptyResponses = ( {
 				</EmptyState.Description>
 				{ notCollectingEditUrl && (
 					<EmptyState.Actions>
-						<Button variant="outline" render={ <a href={ notCollectingEditUrl } /> }>
+						<LinkButton variant="outline" href={ notCollectingEditUrl }>
 							{ __( 'Choose where responses go', 'jetpack-forms' ) }
-						</Button>
+						</LinkButton>
 					</EmptyState.Actions>
 				) }
 			</EmptyState.Root>

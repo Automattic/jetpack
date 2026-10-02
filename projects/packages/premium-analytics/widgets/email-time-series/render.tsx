@@ -9,20 +9,22 @@ import {
 	STATS_CHART_BUCKET_PERIODS,
 	type StatsEmailTimeSeriesReport,
 } from '@jetpack-premium-analytics/data';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import { reports } from '@jetpack-premium-analytics/icons';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
 	WidgetState,
 	defaultPeriodForInterval,
-	toChartDate,
 	useWidgetRootContext,
+	type CountLabel,
 	type MetricTab,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
@@ -51,8 +53,18 @@ const METRIC_FIELDS: Record< EmailTimeSeriesMetric, 'opens_count' | 'clicks_coun
 
 function metricLabel( metric: EmailTimeSeriesMetric ): string {
 	return metric === 'clicks'
-		? __( 'Total clicks', 'jetpack-premium-analytics-pkg' )
-		: __( 'Total opens', 'jetpack-premium-analytics-pkg' );
+		? __( 'Clicks', 'jetpack-premium-analytics-pkg' )
+		: __( 'Opens', 'jetpack-premium-analytics-pkg' );
+}
+
+function metricCountLabel( metric: EmailTimeSeriesMetric ): CountLabel {
+	return metric === 'clicks'
+		? count =>
+				/* translators: %s: number of clicks. */
+				_n( '%s Click', '%s Clicks', count, 'jetpack-premium-analytics-pkg' )
+		: count =>
+				/* translators: %s: number of opens. */
+				_n( '%s Open', '%s Opens', count, 'jetpack-premium-analytics-pkg' );
 }
 
 type EmailTimeSeriesReportProps = {
@@ -62,13 +74,8 @@ type EmailTimeSeriesReportProps = {
 };
 
 /**
- * Fetches the selected email's opens or clicks timeline over the dashboard
- * date range and draws it with the window total as the metric headline. The
- * endpoint reports daily buckets; weekly/monthly intervals aggregate them
- * client-side. Only the active metric's query runs. The post detail design
- * has no period-over-period comparison, so comparison report params are
- * ignored — they ride along in the URL untouched so dashboard state survives
- * the round trip, and every widget on this page disregards them.
+ * Draws the selected email's opens or clicks timeline. Comparison report
+ * params are ignored: there is no period-over-period view here.
  */
 function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProps ) {
 	const { reportParams } = useWidgetRootContext();
@@ -110,26 +117,25 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 		} );
 	}, [ report, period, field ] );
 
-	// One metric: the headline is the window total (the timeline is summed per
-	// bucket, so the sum of buckets is the range's opens/clicks). Point dates are
-	// wall clocks, read back via `pointsAreWallClocks` (rationale in
-	// `chart-date.ts`).
+	// The headline is the window total: buckets are per-period sums, so their sum
+	// is the range's opens/clicks.
 	const metricTabs = useMemo< MetricTab[] >( () => {
-		const points = ( chartReport?.data ?? [] ).map( point => ( {
-			date: toChartDate( point.date_start ),
-			value: Number( point[ field ] ?? 0 ),
-		} ) );
+		const points = ( chartReport?.data ?? [] ).flatMap( point => {
+			const date = resolveBucketStamp( point.date_start, active.timezone );
+
+			return date ? [ { date, value: Number( point[ field ] ?? 0 ) } ] : [];
+		} );
 
 		return [
 			{
 				key: field,
 				label: metricLabel( metric ),
+				countLabel: metricCountLabel( metric ),
 				value: points.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current: points,
 			},
 		];
-	}, [ chartReport, field, metric ] );
-	const hasPoints = ( chartReport?.data?.length ?? 0 ) > 0;
+	}, [ chartReport, field, metric, active.timezone ] );
 
 	return (
 		<div className={ styles.root }>
@@ -137,7 +143,8 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				isLoading={ active.isLoading }
 				isFetching={ active.isFetching }
 				isError={ active.isError }
-				isEmpty={ ! hasSelection || ! hasPoints }
+				// The timeline zero-fills every bucket of a window without opens or clicks, so that emptiness is judged inside the chart; only a missing email empties the widget.
+				isEmpty={ ! hasSelection }
 				error={ {
 					description: __(
 						"We couldn't load this email's timeline. Please try again in a moment.",
@@ -147,12 +154,10 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 				} }
 				empty={ {
 					icon: reports,
-					description: hasSelection
-						? __( 'No activity for this email in this period.', 'jetpack-premium-analytics-pkg' )
-						: __(
-								'Open an email report to see its timeline here.',
-								'jetpack-premium-analytics-pkg'
-						  ),
+					description: __(
+						'Open an email report to see its timeline here.',
+						'jetpack-premium-analytics-pkg'
+					),
 				} }
 				// The chart is the whole content here, so its block replaces the
 				// generic stacked lines.
@@ -162,7 +167,7 @@ function EmailTimeSeriesReport( { metric, chartType }: EmailTimeSeriesReportProp
 					metrics={ metricTabs }
 					dataFormat={ DATA_FORMAT }
 					chartType={ chartType }
-					pointsAreWallClocks
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

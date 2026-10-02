@@ -75,7 +75,7 @@ function ExternalConnection( { service } ) {
 					'Connecting…',
 					'jetpack-external-connections',
 					/* dummy arg to avoid bad minification */ 0
-			  );
+				);
 	} else {
 		buttonText = isConnected
 			? __( 'Disconnect', 'jetpack-external-connections' )
@@ -83,7 +83,7 @@ function ExternalConnection( { service } ) {
 					'Connect',
 					'jetpack-external-connections',
 					/* dummy arg to avoid bad minification */ 0
-			  );
+				);
 	}
 
 	const ExtraSettings = applyFilters( 'jetpack.externalConnections.extraSettings', null, service );

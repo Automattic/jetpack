@@ -129,14 +129,6 @@ var three = "three";';
 	 * via the hook and still falls back to the original rather than white-screening.
 	 */
 	public function test_js_reports_error_subclasses_and_falls_back() {
-		// The stdClass-to-string cast only raises a catchable \Error on PHP 7.4+;
-		// on 7.2/7.3 it is a recoverable error PHPUnit surfaces as an \Exception, so
-		// the catch(\Error) arm is genuinely unreachable there. Skip rather than
-		// assert a path the older runtimes cannot take.
-		if ( PHP_VERSION_ID < 70400 ) {
-			$this->markTestSkipped( 'Requires PHP 7.4+: the \Error catch arm is unreachable on older versions.' );
-		}
-
 		// A non-stringable object makes the minifier constructor raise an \Error
 		// ("Object of class stdClass could not be converted to string"). The point
 		// is the catch(\Error) arm and its distinct hook reason, not this specific

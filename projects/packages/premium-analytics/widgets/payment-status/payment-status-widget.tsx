@@ -71,7 +71,7 @@ export function PaymentStatusWidget() {
 					showLegend={ true }
 					dataFormat={ {
 						type: 'currency',
-						options: { useMultipliers: true, decimals: 1 },
+						options: { useMultipliers: true },
 					} }
 					maxSize={ null }
 					withTooltips

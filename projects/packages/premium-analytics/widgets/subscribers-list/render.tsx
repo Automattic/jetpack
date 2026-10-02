@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { getScriptData, getSiteData, isWpcomPlatformSite } from '@automattic/jetpack-script-data';
 import {
 	getStatsReportItems,
 	useStatsFollowers,
@@ -13,6 +14,8 @@ import {
 	SubscriberList,
 	SubscriberListSkeleton,
 	WIDGET_ROW_LIMIT,
+	WidgetFooter,
+	WidgetFooterLink,
 	WidgetRoot,
 	WidgetState,
 	type ReportParamsFieldAttributes,
@@ -23,8 +26,37 @@ import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
+import styles from './style.module.css';
 import type { SubscribersListAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
+
+/** Base URL for the site's subscriber pages on WordPress.com or Jetpack Cloud. */
+function getSubscribersBaseUrl() {
+	// Only wp-admin supplies the slug; other mounts get no link.
+	const siteSlug = getSiteData()?.suffix;
+
+	if ( ! siteSlug ) {
+		return null;
+	}
+
+	// Simple and WoA both go to WordPress.com, matching the wp-admin Subscribers
+	// menu and the Newsletter widget.
+	const host = isWpcomPlatformSite() ? 'https://wordpress.com' : 'https://cloud.jetpack.com';
+
+	return `${ host }/subscribers/${ siteSlug }`;
+}
+
+/** Newsletter Subscribers tab URL with one subscriber's details open. */
+function getSubscriberTabUrl( subscribersUrl: string, subscriptionId: number ) {
+	const url = new URL( subscribersUrl, window.location.href );
+	// The Newsletter page reads its route and search only from `p`.
+	const [ path, query = '' ] = ( url.searchParams.get( 'p' ) ?? '/' ).split( '?' );
+	const routeSearch = new URLSearchParams( query );
+	routeSearch.set( 'subscriber', String( subscriptionId ) );
+	url.searchParams.set( 'p', `${ path }?${ routeSearch }` );
+
+	return url.toString();
+}
 
 /**
  * Flattens the designated `useStatsFollowers` report into the rows the roster
@@ -34,6 +66,21 @@ function toSubscriberItems(
 	report: StatsNormalizedReport< StatsFollowersItem > | undefined
 ): SubscriberListItem[] {
 	const items = getStatsReportItems( report );
+	// Null when subscribers are managed off wp-admin or the user cannot open the tab.
+	const subscribersUrl = getScriptData()?.newsletter?.subscribersUrl;
+	const subscribersBaseUrl = subscribersUrl ? null : getSubscribersBaseUrl();
+
+	const getHref = ( subscriptionId?: number ) => {
+		if ( ! subscriptionId ) {
+			return null;
+		}
+
+		if ( subscribersUrl ) {
+			return getSubscriberTabUrl( subscribersUrl, subscriptionId );
+		}
+
+		return subscribersBaseUrl ? `${ subscribersBaseUrl }/${ subscriptionId }` : null;
+	};
 
 	return items.map( ( item, index ) => ( {
 		// Subscription id is the stable key; fall back to the row index so two
@@ -41,15 +88,15 @@ function toSubscriberItems(
 		id: item.subscription_id ?? `row-${ index }`,
 		name: item.label,
 		avatarUrl: item.icon,
-		href: item.link,
+		// `link` is unreliable: the subscriber's own site on some payloads, a
+		// user-ID Calypso link that 404s on others.
+		href: getHref( item.subscription_id ),
+		openInNewTab: ! subscribersUrl,
 		secondaryText: formatRelativeSince( item.date_subscribed ),
 	} ) );
 }
 
 type SubscribersRosterProps = {
-	/**
-	 * Subscriber rows to render.
-	 */
 	items?: SubscriberListItem[];
 	/**
 	 * Number of subscribers beyond those in `items`. Rows the roster hides to
@@ -59,26 +106,14 @@ type SubscribersRosterProps = {
 };
 
 /**
- * Presentational subscriber roster. The card title ("Latest Subscribers") is
- * rendered by the dashboard host from the widget's `title`, so this body
- * renders the list only; loading, error, and empty are handled by
- * `<WidgetState>` in the data-connected `SubscribersReport`. Takes
- * already-fetched rows via props so Storybook can exercise the populated state
- * without an analytics backend.
- *
- * Renders `<SubscriberList>` directly: an intermediate wrapper has auto height,
- * which stops the roster's percentage height resolving against the tile and
- * disables row fitting.
+ * Presentational subscriber roster; title comes from the widget host, not here.
+ * Renders `<SubscriberList>` directly — an intermediate wrapper breaks row fitting.
  */
 export const SubscribersRoster = ( { items = [], moreCount = 0 }: SubscribersRosterProps ) => (
 	<SubscriberList items={ items } moreCount={ moreCount } />
 );
 
-/**
- * Fetches the latest subscribers through the designated `useStatsFollowers`
- * Stats hook and hands the normalized rows to the presentational roster, with
- * the loading / error / empty states rendered through `<WidgetState>`.
- */
+/** Fetches subscribers via `useStatsFollowers` and renders the roster through `<WidgetState>`. */
 function SubscribersReport() {
 	const { data, isLoading, isFetching, isError, refetch } = useStatsFollowers( {
 		type: 'all',
@@ -97,9 +132,8 @@ function SubscribersReport() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The query keeps the prior response via `placeholderData`, so a failed
-			// refetch leaves rows on screen; only surface the error when there is
-			// nothing to show.
+			// `placeholderData` keeps stale rows after a failed refetch; only surface
+			// the error when nothing is on screen.
 			isError={ items.length === 0 && isError }
 			isEmpty={ items.length === 0 }
 			renderLoading={ <SubscriberListSkeleton rows={ WIDGET_ROW_LIMIT } /> }
@@ -126,9 +160,22 @@ type SubscribersListWidgetProps = WidgetRenderProps< SubscribersListRenderAttrib
 
 /** The followers query does not use dashboard report parameters. */
 export default function SubscribersList( { attributes = {} }: SubscribersListWidgetProps ) {
+	const manageSubscribersUrl = getScriptData()?.newsletter?.subscribersUrl;
+
 	return (
 		<WidgetRoot attributes={ attributes }>
-			<SubscribersReport />
+			<div className={ styles.root }>
+				<div className={ styles.content }>
+					<SubscribersReport />
+				</div>
+				<WidgetFooter>
+					{ manageSubscribersUrl && (
+						<WidgetFooterLink href={ manageSubscribersUrl }>
+							{ __( 'Manage subscribers', 'jetpack-premium-analytics-pkg' ) }
+						</WidgetFooterLink>
+					) }
+				</WidgetFooter>
+			</div>
 		</WidgetRoot>
 	);
 }

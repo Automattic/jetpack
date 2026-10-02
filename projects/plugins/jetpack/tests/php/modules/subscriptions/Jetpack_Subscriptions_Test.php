@@ -4,6 +4,7 @@ require_once JETPACK__PLUGIN_DIR . 'modules/subscriptions.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/premium-content/_inc/subscription-service/include.php';
 require_once JETPACK__PLUGIN_DIR . 'modules/memberships/class-jetpack-memberships.php';
 require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/subscriptions/subscriptions.php';
+require_once JETPACK__PLUGIN_DIR . 'extensions/blocks/paywall/paywall.php';
 
 use Automattic\Jetpack\Extensions\Premium_Content\JWT;
 use Automattic\Jetpack\Extensions\Premium_Content\Subscription_Service\Abstract_Token_Subscription_Service;
@@ -18,6 +19,7 @@ use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_CONTAINS_PAYWALL
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS;
 use const Automattic\Jetpack\Extensions\Subscriptions\META_NAME_FOR_POST_TIER_ID_SETTINGS;
+use const Automattic\Jetpack\Extensions\Subscriptions\NEWSLETTER_COLUMN_ID;
 
 define( 'EARN_JWT_SIGNING_KEY', 'whatever=' );
 
@@ -30,6 +32,8 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	protected $admin_user_id;
 	protected $plan_id;
 	protected $product_id = 1234;
+
+	const PAYWALL_POST_CONTENT = "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->\n\n<!-- wp:jetpack/paywall /-->\n\n<!-- wp:paragraph -->\n<p>Subscriber part</p>\n<!-- /wp:paragraph -->";
 
 	public function set_up() {
 		parent::set_up();
@@ -46,6 +50,9 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		remove_all_filters( 'earn_get_user_subscriptions_for_site_id' );
 		remove_all_filters( 'jetpack_is_connection_ready' );
 		remove_all_filters( 'pre_http_request' );
+
+		// Status\Cache is a process-wide static that WP_UnitTestCase does not reset.
+		\Automattic\Jetpack\Status\Cache::clear();
 
 		parent::tear_down();
 	}
@@ -189,6 +196,97 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create();
 		wp_publish_post( $post_id );
 		$this->assertEmpty( get_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true ) );
+	}
+
+	/**
+	 * @return array
+	 */
+	public static function paywall_access_level_provider() {
+		$without_paywall = "<!-- wp:paragraph -->\n<p>Everything is free</p>\n<!-- /wp:paragraph -->";
+
+		return array(
+			'paywall block, no access set'           => array( self::PAYWALL_POST_CONTENT, null, 'subscribers', true ),
+			'paywall block, access everybody'        => array( self::PAYWALL_POST_CONTENT, 'everybody', 'subscribers', true ),
+			'paywall block, access paid subscribers' => array( self::PAYWALL_POST_CONTENT, 'paid_subscribers', 'paid_subscribers', true ),
+			'no paywall block, no access set'        => array( $without_paywall, null, 'everybody', false ),
+			'no paywall block, access everybody'     => array( $without_paywall, 'everybody', 'everybody', false ),
+		);
+	}
+
+	/**
+	 * Posts saved outside the block editor must still be gated by their Paywall block.
+	 *
+	 * @param string      $content            Post content.
+	 * @param string|null $stored_access      Access level stored on the post, or null for none.
+	 * @param string      $expected_access    Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $expected_paywalled Whether the post is flagged as containing paywalled content.
+	 * @dataProvider paywall_access_level_provider
+	 */
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_paywall_block_gates_post_without_access_level( $content, $stored_access, $expected_access, $expected_paywalled ) {
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
+		}
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		\Automattic\Jetpack\Extensions\Subscriptions\add_paywalled_content_post_meta( $post_id, get_post( $post_id ) );
+
+		$this->assertSame( (string) $stored_access, get_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, true ) );
+		$this->assertSame( $expected_access, Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertSame( $expected_paywalled, (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+	}
+
+	/**
+	 * The Newsletter column in the posts list shows the access level visitors get, not the raw meta.
+	 *
+	 * @param string      $content            Post content.
+	 * @param string|null $stored_access      Access level stored on the post, or null for none.
+	 * @param string      $expected_access    Access level expected from Jetpack_Memberships::get_post_access_level().
+	 * @param bool        $expected_paywalled Paywalled-content flag, covered by the test above.
+	 * @dataProvider paywall_access_level_provider
+	 */
+	#[DataProvider( 'paywall_access_level_provider' )]
+	public function test_newsletter_column_shows_effective_access_level( $content, $stored_access, $expected_access, $expected_paywalled ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		$labels = array(
+			'everybody'        => 'Everybody',
+			'subscribers'      => 'Subscribers',
+			'paid_subscribers' => 'Paid Subscribers',
+		);
+
+		$post_id = $this->factory->post->create( array( 'post_content' => $content ) );
+		if ( null !== $stored_access ) {
+			update_post_meta( $post_id, META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS, $stored_access );
+		}
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		ob_start();
+		\Automattic\Jetpack\Extensions\Subscriptions\render_newsletter_access_rows( NEWSLETTER_COLUMN_ID, $post_id );
+		$this->assertSame( $labels[ $expected_access ], ob_get_clean() );
+	}
+
+	/**
+	 * Removing the Paywall block makes a post with no stored access level public again.
+	 */
+	public function test_removing_paywall_block_ungates_post() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		register_subscription_block();
+
+		$post_id = $this->factory->post->create( array( 'post_content' => self::PAYWALL_POST_CONTENT ) );
+		Jetpack_Memberships::clear_post_access_level_cache();
+		$this->assertSame( 'subscribers', Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertTrue( (bool) get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
+
+		wp_update_post(
+			array(
+				'ID'           => $post_id,
+				'post_content' => "<!-- wp:paragraph -->\n<p>Free part</p>\n<!-- /wp:paragraph -->",
+			)
+		);
+		Jetpack_Memberships::clear_post_access_level_cache();
+
+		$this->assertSame( 'everybody', Jetpack_Memberships::get_post_access_level( $post_id ) );
+		$this->assertEmpty( get_post_meta( $post_id, META_NAME_CONTAINS_PAYWALLED_CONTENT, true ) );
 	}
 
 	/**
@@ -923,124 +1021,72 @@ class Jetpack_Subscriptions_Test extends WP_UnitTestCase {
 	}
 
 	/**
-	 * On self-hosted Jetpack, the transitional Subscribers announcement page is
-	 * registered by add_subscribers_menu() when the modernization filter is on.
-	 */
-	public function test_announcement_menu_is_added_on_self_hosted_when_modernization_filter_on() {
-		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
-		if ( ! class_exists( $announcement_class ) ) {
-			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
-		}
-
-		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
-
-		// Self-hosted: not a wpcom platform (IS_WPCOM is not defined).
-		// The announcement is also gated on the site-ID cutoff, so give the site
-		// an ID that predates the Subscribers move.
-		$this->set_announcement_site_id( $announcement_class::SITE_ID_CUTOFF - 1 );
-		delete_option( $announcement_class::REMOVED_OPTION );
-		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
-		remove_all_actions( $load_hook );
-
-		Jetpack_Subscriptions::init()->add_subscribers_menu();
-
-		$this->assertNotFalse(
-			has_action( $load_hook ),
-			'The Subscribers announcement menu should be registered on self-hosted Jetpack when the modernization filter is on.'
-		);
-
-		remove_all_actions( $load_hook );
-		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
-		$this->clear_announcement_site_id();
-	}
-
-	/**
-	 * Sites registered at or after the Subscribers move never saw the old
-	 * placement, so add_subscribers_menu() must not register the announcement
-	 * page for them — not even as the bare fallback.
-	 */
-	public function test_announcement_menu_is_not_added_above_site_id_cutoff() {
-		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
-		if ( ! class_exists( $announcement_class ) ) {
-			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
-		}
-
-		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
-
-		// Same setup as the self-hosted test above, but with a site ID at the
-		// cutoff — the bound is exclusive, so this site must not get the page.
-		$this->set_announcement_site_id( $announcement_class::SITE_ID_CUTOFF );
-		delete_option( $announcement_class::REMOVED_OPTION );
-		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
-		remove_all_actions( $load_hook );
-
-		Jetpack_Subscriptions::init()->add_subscribers_menu();
-
-		$this->assertFalse(
-			has_action( $load_hook ),
-			'Sites at or above the site-ID cutoff must not get the Subscribers announcement menu.'
-		);
-
-		remove_all_actions( $load_hook );
-		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
-		$this->clear_announcement_site_id();
-	}
-
-	/**
-	 * Give the site a WPCOM site ID and refresh the cached connection status, so
-	 * Subscribers_Announcement::is_enabled() sees it.
+	 * Collect the `load-jetpack_page_*` hooks currently registered, one per page.
 	 *
-	 * @param int $site_id The site ID to store.
+	 * Admin_Menu::add_menu() defers add_submenu_page() to admin_menu but registers this
+	 * action synchronously, so it is the only trace a direct call leaves behind. It adds
+	 * a `-network` variant per page too, which is dropped here so one page counts once.
+	 *
+	 * @return array List of hook names.
 	 */
-	private function set_announcement_site_id( $site_id ) {
-		Jetpack_Options::update_option( 'id', $site_id );
-		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+	private function get_jetpack_page_load_hooks() {
+		return array_values(
+			array_filter(
+				array_keys( $GLOBALS['wp_filter'] ),
+				static function ( $hook ) {
+					return str_starts_with( $hook, 'load-jetpack_page_' ) && ! str_ends_with( $hook, '-network' );
+				}
+			)
+		);
 	}
 
 	/**
-	 * Drop the site ID set by set_announcement_site_id() so it cannot leak into
-	 * later tests in this class.
+	 * Put the site in the state the legacy Calypso shortcut requires: online, with a
+	 * connected user, and not a WordPress.com platform.
 	 */
-	private function clear_announcement_site_id() {
-		Jetpack_Options::delete_option( 'id' );
-		( new \Automattic\Jetpack\Connection\Manager() )->reset_connection_status();
+	private function set_up_connected_self_hosted_site() {
+		wp_set_current_user( $this->admin_user_id );
+		Jetpack_Options::update_option( 'id', 12345 );
+		Jetpack_Options::update_option( 'master_user', $this->admin_user_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $this->admin_user_id => "dummy.usertoken.{$this->admin_user_id}" ) );
+
+		add_filter( 'jetpack_offline_mode', '__return_false', 99 );
+		\Automattic\Jetpack\Status\Cache::clear();
 	}
 
 	/**
-	 * On WordPress.com (Simple and WoA) the announcement page is owned by
-	 * jetpack-mu-wpcom's wpcom-admin-menu, so add_subscribers_menu() must NOT
-	 * register it — otherwise Atomic, where both run, gets a duplicate entry and
-	 * double page-view tracking.
+	 * The modernization filter defaults on, so the unified Newsletter page owns the
+	 * Subscribers tab and add_subscribers_menu() registers no page at all.
 	 */
-	public function test_announcement_menu_is_not_added_on_wpcom_platform() {
-		$announcement_class = 'Automattic\Jetpack\Newsletter\Subscribers_Announcement';
-		if ( ! class_exists( $announcement_class ) ) {
-			$this->markTestSkipped( 'Newsletter Subscribers_Announcement class is not available.' );
-		}
+	public function test_subscribers_menu_registers_nothing_when_modernization_filter_on() {
+		$this->set_up_connected_self_hosted_site();
 
-		$load_hook = 'load-jetpack_page_' . $announcement_class::PAGE_SLUG;
-
-		// Simulate a wpcom platform (Simple/WoA). Give the site a qualifying ID so
-		// this asserts the platform check specifically — without it the site-ID
-		// gate would suppress the menu first and the test would pass for the
-		// wrong reason.
-		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
-		$this->set_announcement_site_id( $announcement_class::SITE_ID_CUTOFF - 1 );
-		delete_option( $announcement_class::REMOVED_OPTION );
-		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_true' );
-		remove_all_actions( $load_hook );
-
+		$before = $this->get_jetpack_page_load_hooks();
 		Jetpack_Subscriptions::init()->add_subscribers_menu();
 
-		$this->assertFalse(
-			has_action( $load_hook ),
-			'On wpcom platforms the announcement menu is owned by jetpack-mu-wpcom; add_subscribers_menu() should not register it.'
+		$this->assertSame(
+			$before,
+			$this->get_jetpack_page_load_hooks(),
+			'No Subscribers page should be registered while the Newsletter modernization filter is on.'
 		);
+	}
 
-		// Cleanup so the simulated platform does not leak into later tests.
-		remove_all_actions( $load_hook );
-		remove_all_filters( 'rsm_jetpack_ui_modernization_newsletter' );
-		$this->clear_announcement_site_id();
-		\Automattic\Jetpack\Constants::clear_single_constant( 'IS_WPCOM' );
+	/**
+	 * Witness for the assertion above: with the modernization filter off the same call
+	 * does register the legacy Calypso shortcut, so its absence there is the filter
+	 * taking effect rather than a harness that registers nothing either way.
+	 */
+	public function test_subscribers_menu_registers_legacy_link_when_modernization_filter_off() {
+		$this->set_up_connected_self_hosted_site();
+		add_filter( 'rsm_jetpack_ui_modernization_newsletter', '__return_false' );
+		// The Calypso shortcut sits below a second gate that also defaults on.
+		add_filter( 'jetpack_wp_admin_subscriber_management_enabled', '__return_false' );
+
+		$before = $this->get_jetpack_page_load_hooks();
+		Jetpack_Subscriptions::init()->add_subscribers_menu();
+		$new = array_values( array_diff( $this->get_jetpack_page_load_hooks(), $before ) );
+
+		$this->assertCount( 1, $new, 'The legacy Calypso Subscribers shortcut should be registered.' );
+		$this->assertStringContainsString( 'jetpack-menu-jetpack-manage-subscribers', $new[0] );
 	}
 }

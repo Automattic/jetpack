@@ -1,0 +1,39 @@
+.jpb-file-info-dialog {
+
+	// `Dialog` centres on the viewport and knows nothing about wp-admin's sidebar.
+	// Unlayered, which is what beats `@layer wp-ui` here — specificity would not.
+	&__popup {
+		// Physical, because it overrides `Dialog`'s own `left` + `translate(-50%)`.
+		// Only the offset is asymmetric; the centring it rides on is not.
+		left: calc(50% + var(--jpb-admin-menu-width, 0px) / 2);
+		// `min()`, not a bare value: same property as the `large` cap, so replacing
+		// it outright would drop the 960px ceiling and balloon on wide screens.
+		max-width: min(var(--wpds-dimension-surface-width-2xl), calc(100vw - var(--jpb-admin-menu-width, 0px) - 2 * var(--viewport-inset)));
+
+		&:dir(rtl) {
+			left: calc(50% - var(--jpb-admin-menu-width, 0px) / 2);
+		}
+	}
+
+	// Same shape as the card's header, in the chrome that has less room:
+	// `Dialog.Header`'s close icon cannot shrink, and `.popup` hides overflow.
+	&__title {
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
+	&__body {
+		display: flex;
+		flex-direction: column;
+		gap: 12px;
+	}
+
+	// No `max-height`, unlike the card's: the dialog exists because the panel
+	// could not give the preview room, so the popup's own height is the limit.
+	&__preview {
+		overflow-x: auto;
+		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
+		border-radius: 4px;
+		padding: 12px;
+	}
+}

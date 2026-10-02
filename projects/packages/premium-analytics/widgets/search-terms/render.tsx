@@ -2,34 +2,28 @@
  * External dependencies
  */
 import {
+	ExporterCsvDownloadButton,
 	WIDGET_ROW_LIMIT,
-	calculateDelta,
-	describeError,
-	getCombinedPeriodMax,
-	LeaderboardChart,
-	LeaderboardSkeleton,
+	Leaderboard,
 	ReportLink,
-	WidgetFooter,
 	WidgetRoot,
-	WidgetState,
-	sharePercentage,
+	describeError,
+	searchTermsCsvExporter,
 	useWidgetRootContext,
-	type LeaderboardChartData,
+	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { search } from '@jetpack-premium-analytics/icons';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
-import { Stack, Text } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
-import styles from './style.module.css';
 import useSearchTermViews from './use-search-term-views';
 import { type SearchTermsAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type SearchTermsRenderAttributes = Partial< ReportParamsFieldAttributes > & SearchTermsAttributes;
+
 type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
 
 /**
@@ -37,81 +31,45 @@ type SearchTermsWidgetProps = WidgetRenderProps< SearchTermsRenderAttributes >;
  */
 function SearchTermsInner() {
 	const { reportParams } = useWidgetRootContext();
-
-	const { data, isLoading, isFetching, isError, error, hasComparison, refetch } =
+	const { data, isLoading, isFetching, isError, isPrimaryError, error, hasComparison, refetch } =
 		useSearchTermViews( {
 			reportParams,
 			max: WIDGET_ROW_LIMIT,
 		} );
 
-	const leaderboardData = useMemo< LeaderboardChartData >( () => {
-		const maxValue = getCombinedPeriodMax(
-			data.map( term => term.views ),
-			hasComparison ? data.map( term => term.previousViews ) : []
-		);
-
-		return data.map( ( term, index ) => {
-			const previousViews = term.previousViews;
-
-			return {
+	const rows = useMemo< LeaderboardRowInput[] >(
+		() =>
+			data.map( ( term, index ) => ( {
 				id: `${ index }-${ term.label }`,
-				label: (
-					<Stack align="center" className={ styles.itemLabel }>
-						<Text className={ styles.itemLabelText }>{ term.label }</Text>
-					</Stack>
-				),
-				currentValue: term.views,
-				previousValue: previousViews,
-				currentShare: sharePercentage( term.views, maxValue ),
-				previousShare:
-					hasComparison && previousViews !== undefined
-						? sharePercentage( previousViews, maxValue )
-						: undefined,
-				delta:
-					hasComparison && previousViews !== undefined
-						? calculateDelta( term.views, previousViews )
-						: undefined,
-			};
-		} );
-	}, [ data, hasComparison ] );
+				label: term.label,
+				value: term.views,
+				previousValue: term.previousViews,
+			} ) ),
+		[ data ]
+	);
 
 	return (
-		<Stack className={ styles.root }>
-			<div className={ styles.content }>
-				<WidgetState
-					isLoading={ isLoading }
-					isFetching={ isFetching }
-					isError={ isError }
-					isEmpty={ data.length === 0 }
-					error={ describeError( error, {
-						retryDescription: __(
-							"We couldn't load search terms. Please try again in a moment.",
-							'jetpack-premium-analytics-pkg'
-						),
-						onRetry: refetch,
-					} ) }
-					empty={ {
-						icon: search,
-						description: __( 'No search terms in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
-					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
-				>
-					<LeaderboardChart
-						data={ leaderboardData }
-						withComparison={ hasComparison }
-						withOverlayLabel
-						showLegend={ false }
-						dataFormat={ {
-							type: 'number',
-							options: { useMultipliers: true, decimals: 0 },
-						} }
+		<Leaderboard
+			rows={ rows }
+			status={ { isLoading, isFetching, isError, hasComparison, refetch } }
+			error={ describeError( error, {
+				retryDescription: __(
+					"We couldn't load search terms. Please try again in a moment.",
+					'jetpack-premium-analytics-pkg'
+				),
+				onRetry: refetch,
+			} ) }
+			footer={
+				<>
+					<ReportLink report="search-terms" />
+					<ExporterCsvDownloadButton
+						exporter={ searchTermsCsvExporter }
+						status={ { isLoading, isFetching, isError: isPrimaryError } }
+						rowCount={ rows.length }
 					/>
-				</WidgetState>
-			</div>
-			<WidgetFooter>
-				<ReportLink report="search-terms" />
-			</WidgetFooter>
-		</Stack>
+				</>
+			}
+		/>
 	);
 }
 

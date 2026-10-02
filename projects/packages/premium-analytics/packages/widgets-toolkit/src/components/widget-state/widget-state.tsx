@@ -21,9 +21,11 @@ export interface WidgetStateError {
 	actions?: Array< { label: string; onClick: () => void } >;
 }
 
+/** A widget's own empty state, for a case the generic "no results for this time period" state does not describe, such as a scope prompt or a fixed window. */
 export interface WidgetStateEmpty {
+	/** No icon when omitted: the generic magnifier belongs to the generic copy. */
 	icon?: ComponentProps< typeof Icon >[ 'icon' ];
-	/** Defaults to "No data in this period." when omitted. */
+	/** Defaults to the generic "We couldn’t find results for this time period." when omitted. */
 	description?: string;
 }
 
@@ -42,6 +44,7 @@ export interface WidgetStateProps {
 	isError: boolean;
 	isEmpty: boolean;
 	error?: WidgetStateError;
+	/** Omit for the generic "no results for this time period" state. */
 	empty?: WidgetStateEmpty;
 	/** Optional content-shaped loading override; defaults to `GenericSkeleton`. */
 	renderLoading?: ReactNode;
@@ -83,14 +86,8 @@ export function WidgetState( {
 		}
 	};
 
-	// Every branch but the ready one unmounts the children, and a drill-down or a
-	// range change reaches the skeleton by definition — both take the row the
-	// reader activated with them, and the browser hands focus to <body>, where the
-	// next Tab restarts at the top of the page. Catch it on the root instead.
-	//
-	// Deliberately unconditional: a branch change is the common way to lose the
-	// focused element, but not the only one — new rows arriving under unchanged
-	// params unmount it just the same, without any branch change to key on.
+	// Deliberately unconditional — every non-ready branch unmounts the children and
+	// drops focus to <body>, including a same-branch row swap under unchanged params.
 	useLayoutEffect( () => {
 		const target = focusedInside.current;
 		const root = rootRef.current;
@@ -103,9 +100,8 @@ export function WidgetState( {
 		if ( target.isConnected ) {
 			return;
 		}
-		// Gone either way, so stop tracking it now. Held past the render that
-		// dropped it, it would let the next fall to <body> anywhere on the page
-		// pull focus in here.
+		// Held past the render that dropped it, it would let the next fall to <body>
+		// anywhere on the page pull focus in here.
 		focusedInside.current = null;
 		// Step in only for focus this widget just dropped: focus that went
 		// anywhere but <body> is not ours to move.
@@ -119,9 +115,8 @@ export function WidgetState( {
 	let body: ReactNode;
 
 	if ( isError ) {
-		// Vertical centering lives in the stylesheet (`safe center`), not the
-		// `justify` prop: the prop's inline style would beat the class rule and
-		// reintroduce the unreachable-top overflow on short tiles.
+		// Vertical centering lives in the stylesheet (`safe center`), not the `justify`
+		// prop, whose inline style would beat it and clip the top on short tiles.
 		body = (
 			<Stack className={ styles.state } direction="column" gap="lg" align="center" role="alert">
 				<Icon size={ 40 } className={ styles.stateIcon } icon={ errorStateIcon } />
@@ -155,14 +150,7 @@ export function WidgetState( {
 	} else if ( isEmpty ) {
 		body = (
 			<ChartEmptyState
-				// No default icon: the caller opts in via `empty.icon`. Keeping the
-				// component icon-agnostic avoids a domain-specific default (e.g. a
-				// chart glyph on a non-chart widget) and stays visually distinct from
-				// the error state, which always carries its own glyph. `null`
-				// suppresses `ChartEmptyState`'s own `cautionFilled` default.
-				icon={ empty?.icon ?? null }
-				// `ChartEmptyState` supplies the "No data in this period." default when
-				// `description` is omitted — keep that copy in one place.
+				icon={ empty ? ( empty.icon ?? null ) : undefined }
 				text={ empty?.description }
 			/>
 		);

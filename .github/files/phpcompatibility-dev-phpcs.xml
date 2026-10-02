@@ -9,5 +9,9 @@
 		<!-- Doesn't hurt anything, earlier versions ignore attributes. -->
 		<exclude name="PHPCompatibility.Attributes.NewAttributes.Found" />
 		<exclude name="PHPCompatibility.Attributes.NewAttributes.PHPUnitAttributeFound" />
+
+		<!-- We're not ready for 8.6 yet, and pinning 480 call sites to the pre-8.6 character
+		     set is worse than letting them pick up \f. https://wiki.php.net/rfc/trim_form_feed -->
+		<exclude name="PHPCompatibility.ParameterValues.NewTrimCharactersDefault.NotSet" />
 	</rule>
 </ruleset>

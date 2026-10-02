@@ -9,7 +9,6 @@ import type { WidgetAttributeField } from '@wordpress/widget-primitives';
  * Internal dependencies
  */
 import type { StatsUtmParam } from '@jetpack-premium-analytics/data';
-import { SelectField } from '@jetpack-premium-analytics/fields';
 
 /**
  * Widget attributes shape.
@@ -25,13 +24,9 @@ export type UtmInsightsAttributes = {
 };
 
 /**
- * UTM Insights widget type definition.
- *
- * Shows traffic breakdown by UTM parameter via the PA proxy at
- * `stats/utm/{utmParam}`. The active dimension is the `utmDimension`
- * attribute (`relevance: 'high'`), so the widget host renders its
- * control. Date range comes from WidgetRoot's reportParams (the
- * shared dashboard date picker).
+ * Shows traffic breakdown by UTM parameter via `stats/utm/{utmParam}`. The
+ * active dimension is `utmDimension` (`relevance: 'high'`), so the widget
+ * host renders its control.
  */
 export default {
 	icon: megaphone,
@@ -39,8 +34,7 @@ export default {
 		{
 			id: 'utmDimension',
 			label: __( 'UTM parameter', 'jetpack-premium-analytics-pkg' ),
-			type: 'text',
-			Edit: SelectField,
+			type: 'jpa/select',
 			elements: [
 				{
 					label: __( 'Source / Medium', 'jetpack-premium-analytics-pkg' ),

@@ -5,9 +5,8 @@ import {
 	StatsResponseShapeError,
 } from '../api-error';
 
-// Two envelopes reach the client: our own `WP_Error` responses
-// (`{ code, message, data: { status } }`) and WPCOM pass-through errors
-// (`{ error, message }`, with the status attached separately by the fetch layer).
+// Two error envelopes reach the client: our own `WP_Error` shape
+// (`{ code, data: { status } }`) and WPCOM pass-through (`{ error, message }`).
 
 describe( 'getApiErrorStatus', () => {
 	it( 'returns status from a top-level status property', () => {
@@ -83,10 +82,8 @@ describe( 'shouldRetryApiError', () => {
 	} );
 
 	it( 'does not auto-retry a sanitizer parse failure', () => {
-		// The request itself succeeded; retrying it verbatim reproduces the same
-		// unparsable response instead of a different one. A manual Retry (e.g. a
-		// still-undeployed endpoint) is the mechanism that actually changes the
-		// outcome, so this must not eat the automatic-retry budget.
+		// Retrying verbatim reproduces the same unparsable response; only a
+		// manual Retry (e.g. after a redeploy) can actually change the outcome.
 		expect( shouldRetryApiError( 0, new StatsResponseShapeError( 'bad shape' ) ) ).toBe( false );
 	} );
 

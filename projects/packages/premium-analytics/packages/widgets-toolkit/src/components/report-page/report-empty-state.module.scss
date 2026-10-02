@@ -1,0 +1,6 @@
+// The root caps its width, so it needs auto inline margins to centre.
+.root {
+	flex: 1 0 auto;
+	justify-content: center;
+	margin-inline: auto;
+}

@@ -47,7 +47,7 @@ class PersistentList {
 
 		$handle = fopen( $file_path, 'w+' );
 		foreach ( $this->items as $item ) {
-			fputcsv( $handle, $item->to_csv_array() );
+			fputcsv( $handle, $item->to_csv_array(), ',', '"', '' );
 		}
 		rewind( $handle );
 		$contents = stream_get_contents( $handle );

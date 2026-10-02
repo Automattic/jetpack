@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Pass `undefined` explicitly to `useRef()` in preparation for React 19, which makes the arg non-optional.
+
+

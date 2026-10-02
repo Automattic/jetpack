@@ -1,6 +1,6 @@
 ---
 description: Review a Jetpack pull request for bugs, security, performance, convention compliance, and test coverage
-allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(gh auth:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git fetch:*), Bash(git worktree:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(grep:*), Bash(timeout:*), Bash(mktemp:*), Read, Glob, Grep, Agent
+allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh pr list:*), Bash(gh auth:*), Bash(jp test:*), Bash(jp docker:*), Bash(jp phan:*), Bash(jp build:*), Bash(jp install:*), Bash(git fetch:*), Bash(git worktree:*), Bash(git branch:*), Bash(git log:*), Bash(git diff:*), Bash(git rev-parse:*), Bash(grep:*), Bash(awk:*), Bash(timeout:*), Bash(mktemp:*), Read, Glob, Grep, Agent
 ---
 
 Review a Jetpack pull request for code quality, bugs, security, performance, Jetpack conventions, and test adequacy.
@@ -129,12 +129,14 @@ Note: `AGENTS.md` is already loaded in your context via the CLAUDE.md `@AGENTS.m
 | Backward compat | yes | yes | yes |
 | Cross-package version skew (optional-sibling calls) | yes | yes | yes |
 | Phan suppressions / baseline growth (from diff) | yes | yes | yes |
+| Comment repetition / provenance rot (from diff) | yes | yes | yes |
 | Error handling | no | yes | yes |
 | Feature gating | no | yes | yes |
 | HTML / a11y / RTL | no | if has_html/has_css | yes |
 | Translations | no | if has_strings | yes |
 | Copy consistency (grep codebase) | no | no | yes |
 | Code simplicity / WP reuse | no | yes | yes |
+| Comment budget | yes | yes | yes |
 | WP/PHP version compat | no | yes | yes |
 
 ---
@@ -255,6 +257,97 @@ gh pr diff <PR> | grep -nE '^\+.*@phan-(suppress|file-suppress)'
 
 ---
 
+#### Comment repetition and provenance rot (all depths — diff-visible, needs no file reading)
+
+`AGENTS.md` § Comments already covers both of these — "Provenance that rots" and "The same
+explanation in more than one place", the last two of its five bullets — and is in your context.
+Apply it; do not restate it in the review. The point to hold on to: **neither has anything to do
+with length.** A duplicated rationale and a "before this PR…" note are routinely one line,
+comfortably inside any budget. "It is only a line or two" is therefore never a reason to
+discharge one of these — judge the claim the comment makes, not the room it takes.
+
+- **The same explanation in more than one place.** N copies drift independently, so a reader
+  cannot tell which one is current.
+- **Provenance that rots.** True when written and silently false later: the tree's former state,
+  an alternative this PR rejected, upstream file-and-line citations, benchmark numbers, counts.
+
+Get the candidate list, then judge each entry — the script decides nothing:
+
+```bash
+gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-rot.awk
+```
+
+Run this from the **monorepo root** — it needs only the working directory, since the script path
+is repo-relative — not from the thorough-depth `mktemp -d` worktree: the diff comes from `gh`, so
+nothing needs checking out, and the PR head may predate the script.
+`awk -f <script> -v show_rules=1 </dev/null` prints the rot signals it matches on.
+
+*Repeated explanation* — two reports. **Repeated explanation** groups identical comment lines;
+**Shared phrasing** catches the same idea reworded, by finding a distinctive run of words two
+comments reuse across different line breaks — and identical comments whose lines are each too
+short for the first report. Both are the same violation and triage the same way:
+
+- **Discard** — boilerplate that slipped past the substance floor, two mirrors that genuinely
+  have to be read independently (a TS type describing a payload its PHP producer also documents),
+  or a file docblock and the class docblock below it saying the same thing, which PHPCS requires
+  separately.
+- **`[suggestion]`** — the default, and it is only a review if it names the owner. AGENTS.md's
+  tie-break is the file that owns the thing: the implementation over its tests, the source of
+  truth over its mirror, the shared helper over each of its callers. Say which copy stays, then
+  say what the other sites get instead — usually nothing, occasionally a four-word pointer.
+  "This is duplicated" with no proposed cut is not a finding.
+- **`[blocker]`** — the copies no longer say the same thing: they give different reasons, cite
+  different mechanisms, or one has been updated and the others not. At most one can be right, so
+  the rest are now wrong about the code and a reader cannot tell which.
+
+Most **Shared phrasing** hits pair an implementation with its own test, which is the tie-break's
+first case: the implementation owns the explanation and the test gets nothing. A parameter's
+docblock likewise owns what that parameter costs — a call site passing it repeats the mechanism
+and should keep only its own local reason for the value it passes.
+
+*Provenance that rots* — the report gives the whole comment, the signal that fired, and a range:
+
+- **Discard** — a durable pointer (an issue or PR link, an upstream permalink pinned to a tag or
+  SHA) or a number the code actually enforces rather than an observation about it. Also `history`
+  on the purpose sense of "used to" — `a schema used to validate`, `values used to render` — which
+  is its commonest false positive and reads nothing like the past tense the rule is after.
+- **`[suggestion]`** — the default. Give the replacement, not just the objection: keep the
+  invariant, cut the history. "Calling this inside the while loop caused ~20 flushes per file"
+  becomes "Once per file, not per batch — flushing here wipes the options group." Same warning,
+  no expiry date.
+- **`[blocker]`** — it has already rotted: the cited line, count, or behaviour is wrong at this
+  SHA, so the comment now misleads.
+
+One rot shape the script cannot see, so read for it: **a present-tense contrast with an
+alternative that is not in the tree** — "Through `Constants` rather than `defined()` directly",
+"X instead of Y". Once merged, Y is nowhere a reader can reach, so the sentence describes code
+that does not exist. The tell is the comment conceding the difference does not matter
+("identical in production", "behaves the same"): that is a design note justifying the change,
+which belongs in the PR description. Keep only the half that stands on its own — usually a
+one-line gotcha: `// Constants:: so a test can override it.`
+
+What survives is a live constraint rather than a comparison. "Deep imports rather than the
+`../../utils` barrel, which pulls the social store in" names a consequence that still applies,
+to code a reader can still reach. Detection was measured and rejected: `rather than` alone fires
+on 17 of 25 merged PRs, mostly on comments like that one.
+
+Known limitations — every one is a silent failure, so keep reading the diff yourself:
+
+- **A paraphrase that shares no long phrase is invisible.** Matching is verbatim on a line, or an
+  8-word run two comments reuse. Reworded with different words throughout, it scores about 0.2 on
+  token overlap — and a near-duplicate threshold low enough to catch that pairs up any two
+  comments in the same subsystem, so it is deliberately not attempted.
+- **Added comments are only compared with each other.** A fresh copy of an explanation that
+  already exists in the tree is invisible. At thorough depth, grep a distinctive fragment:
+  `grep -rn "<six distinctive words>" projects/`.
+- **Whole-line comments in code files only.** Trailing `foo(); // note` is skipped, as are `.md`,
+  `.json`, changelog entries, and vendored or generated trees.
+- **A brief comment can fall below both floors.** The verbatim report tests each line (40 chars,
+  6 words), the phrase report the joined block (8 words, 45 chars). A copy-paste of very short
+  lines that is itself short clears neither, and is reported nowhere.
+
+---
+
 #### Code simplicity, WP/PHP compatibility, and reuse (standard + thorough)
 
 *WordPress/Gutenberg reuse:*
@@ -284,7 +377,44 @@ grep 'MIN_PHP_VERSION' .github/versions.sh
 ```
 - Verify PHP syntax/builtins are available at the minimum version
 - Check project's own `composer.json` `require.php` — may differ from monorepo default
-- Common traps (non-exhaustive): typed properties (7.4+), arrow functions (7.4+), named args (8.0+), match (8.0+), `str_contains()`/`str_starts_with()`/`str_ends_with()` (8.0+, polyfilled by WP since 5.9 — check project's minimum WP version), enums (8.1+), readonly properties (8.1+), `array_is_list()` (8.1+, NOT polyfilled by WP), readonly classes (8.2+), `json_validate()` (8.3+)
+- Common traps (non-exhaustive): named args (8.0+), match (8.0+), `str_contains()`/`str_starts_with()`/`str_ends_with()` (8.0+, polyfilled by WP since 5.9 — check project's minimum WP version), enums (8.1+), readonly properties (8.1+), `array_is_list()` (8.1+, NOT polyfilled by WP), readonly classes (8.2+), `json_validate()` (8.3+)
+
+---
+
+#### Comment budget (all depths — diff-visible, needs no file reading)
+
+`AGENTS.md` § Comments is the rule and is already in your context. Apply it; do not restate it in
+the review. It leaves two things to settle here:
+
+- **The unit.** The budget is *per comment*, so report over-budget **blocks**. A share-of-the-diff
+  percentage measures something the rule does not define and is not comparable against it.
+- **What counts.** Only prose. `/**`, `*/`, `@param`, `@return`, `translators:`, `phpcs:ignore`
+  and `eslint-disable` are mandatory scaffolding, so a compliant PHP docblock is already several
+  lines before it says anything. Budget: a summary (1–2 lines) plus at most 2 more.
+
+Get the candidate list, then judge each entry — the script decides nothing:
+
+```bash
+gh pr diff <PR> | awk -f .agents/skills/jetpack-review-pr/scripts/comment-budget.awk
+```
+
+It prints `path:line<TAB>N prose lines (M total)` for blocks over 4 prose lines. `line` is where
+*this PR's* added prose starts, which is mid-block when the PR edited an existing comment. It reads
+code files only — a `*` or `#` means something else in Markdown, `readme.txt` and CSS — so prose in
+docs never appears and still needs your eyes.
+
+- **Discard** — within budget once scaffolding is excluded, or a license header, generated file,
+  or vendored code.
+- **`[suggestion]`** — over budget. Name the shape (design essay / mechanic repeated on one member
+  of a list / copy-paste-survivable background / provenance that rots / the same explanation in
+  two places) and give the shorter version. "Too long" with no concrete cut is not a review.
+- **`[blocker]`** — the comment contradicts the code it describes.
+
+Read the shape of the output, not just its length. A few large blocks are incidents — file them
+individually. Many blocks clustered just over budget are a habit — say so once with two or three
+examples rather than filing fifteen near-identical findings. Check whether the untouched
+neighbours are already written that way; if they are, say so, because that makes it a
+direction-of-travel note rather than a regression this PR introduced.
 
 ### 5. Cross-project dependency check
 
@@ -407,7 +537,9 @@ Review depth: **<depth>** (<lines> lines, <N> projects)
 ### RTL Issues
 ### Translation Issues
 ### Copy Review
+### Comment Repetition / Provenance Rot
 ### Code Simplicity / WordPress Reuse
+### Comment Budget
 ### Dependency Changes
 ### PHP / WordPress Version Compatibility
 ### Feature Gating

@@ -10,7 +10,11 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import { FIXTURE_SITE_TIME_ZONE } from '../../../__fixtures__/wp-date-settings';
+import { siteChartFormatting } from '../../../helpers';
 import { useChartTheme } from '../../../hooks';
+import { applyFixtureSiteSettings } from '../../../stories/fixture-site';
+import { ReportEmptyState } from '../report-empty-state';
 import { ReportPageLayout } from '../report-page-layout';
 import { ReportPageShell } from '../report-page-shell';
 import { ReportPerformanceChart } from '../report-performance-chart';
@@ -20,6 +24,8 @@ import type { IntervalType, StatsTimeSeriesReport } from '@jetpack-premium-analy
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { Decorator, Meta, StoryObj } from '@storybook/react';
 import type { ComponentProps, ReactNode } from 'react';
+
+applyFixtureSiteSettings();
 
 /**
  * Build a deterministic 30-day visits report fixture. `offsetDays` shifts the
@@ -121,6 +127,7 @@ const POST_FIELDS: Field< PostRow >[] = [
 interface ReportPageStoryControls {
 	withComparison: boolean;
 	isLoading: boolean;
+	isEmpty?: boolean;
 }
 
 /**
@@ -134,7 +141,11 @@ interface ReportPageStoryControls {
 function StoryChartProviders( { children }: { children: ReactNode } ) {
 	const chartTheme = useChartTheme();
 
-	return <GlobalChartsProvider theme={ chartTheme }>{ children }</GlobalChartsProvider>;
+	return (
+		<GlobalChartsProvider theme={ chartTheme } { ...siteChartFormatting() }>
+			{ children }
+		</GlobalChartsProvider>
+	);
 }
 
 const withChartProviders: Decorator = Story => (
@@ -157,7 +168,7 @@ function StoryBreadcrumbs() {
 	);
 }
 
-const STORY_TIMEZONE = 'America/New_York';
+const STORY_TIMEZONE = FIXTURE_SITE_TIME_ZONE;
 const STORY_RANGE = computePrimaryRange( 'last-30-days', STORY_TIMEZONE );
 
 // Stand-in for `useReportDateFilters`, which needs a mounted router. Inert:
@@ -174,12 +185,12 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
 	onChange: () => {},
 	onComparisonChange: () => {},
 	onIntervalChange: () => {},
-	onStep: () => {},
 	onApply: () => {},
 	onCancel: () => {},
 	canApply: false,
 	timeZone: STORY_TIMEZONE,
 	replaceRange: () => {},
+	drillDown: () => {},
 };
 
 /**
@@ -189,13 +200,12 @@ const STORY_DATE_FILTERS: ReportDateFilters = {
  * @param {ReportPageStoryControls} props - The story controls.
  * @return The composed report page.
  */
-function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryControls ) {
+function ComposedReportPage( { withComparison, isLoading, isEmpty }: ReportPageStoryControls ) {
 	const [ interval, setInterval ] = useState< IntervalType >( 'day' );
 
 	return (
 		<ReportPageShell
 			breadcrumbs={ <StoryBreadcrumbs /> }
-			subTitle="All your posts and archive pages."
 			actions={ <Button variant="secondary">Download</Button> }
 		>
 			<ReportPageLayout title="Posts & Pages" dateFilters={ STORY_DATE_FILTERS }>
@@ -203,38 +213,43 @@ function ComposedReportPage( { withComparison, isLoading }: ReportPageStoryContr
 					primary={ PRIMARY_REPORT }
 					comparison={ withComparison ? COMPARISON_REPORT : undefined }
 					isLoading={ isLoading }
+					timezone="UTC"
 					interval={ interval }
 					onIntervalChange={ setInterval }
 				/>
-				<ReportRecordsTable
-					data={ POSTS }
-					fields={ POST_FIELDS }
-					getItemId={ ( item: PostRow ) => item.id }
-					isLoading={ isLoading }
-					initialView={ {
-						sort: { field: 'views', direction: 'desc' },
-						titleField: 'title',
-						fields: [ 'views' ],
-					} }
-					searchLabel="Search posts"
-					isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
-					renderItemLink={ ( { item, className, children, ...linkProps } ) => (
-						<a
-							{ ...linkProps }
-							className={ [ className, item.isExternal ? styles.externalLink : '' ]
-								.filter( Boolean )
-								.join( ' ' ) }
-							href={ item.link }
-							target={ item.isExternal ? '_blank' : undefined }
-							rel={ item.isExternal ? 'noopener noreferrer' : undefined }
-						>
-							{ children }
-							{ item.isExternal ? (
-								<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
-							) : null }
-						</a>
-					) }
-				/>
+				{ isEmpty ? (
+					<ReportEmptyState />
+				) : (
+					<ReportRecordsTable
+						data={ POSTS }
+						fields={ POST_FIELDS }
+						getItemId={ ( item: PostRow ) => item.id }
+						isLoading={ isLoading }
+						initialView={ {
+							sort: { field: 'views', direction: 'desc' },
+							titleField: 'title',
+							fields: [ 'views' ],
+						} }
+						searchLabel="Search posts"
+						isItemClickable={ ( item: PostRow ) => Boolean( item.link ) }
+						renderItemLink={ ( { item, className, children, ...linkProps } ) => (
+							<a
+								{ ...linkProps }
+								className={ [ className, item.isExternal ? styles.externalLink : '' ]
+									.filter( Boolean )
+									.join( ' ' ) }
+								href={ item.link }
+								target={ item.isExternal ? '_blank' : undefined }
+								rel={ item.isExternal ? 'noopener noreferrer' : undefined }
+							>
+								{ children }
+								{ item.isExternal ? (
+									<Icon className={ styles.externalIcon } icon={ external } size={ 16 } />
+								) : null }
+							</a>
+						) }
+					/>
+				) }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
@@ -247,6 +262,7 @@ const meta = {
 	argTypes: {
 		withComparison: { control: 'boolean' },
 		isLoading: { control: 'boolean' },
+		isEmpty: { control: 'boolean' },
 	},
 	decorators: [ withChartProviders ],
 	parameters: {
@@ -254,7 +270,7 @@ const meta = {
 		docs: {
 			description: {
 				component:
-					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs, description, actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportPerformanceChart` (multi-metric visits chart with metric show/hide and interval control), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
+					'The shared report-page framework: `ReportPageShell` (the page header — breadcrumbs and actions), `ReportPageLayout` (optional tabs, the `SectionHeader` carrying the report title and its date controls, and the stacked sections), `ReportChartSection` (a chart card with the control below it that collapses it, and the optional heading, icon and info tip a chart names itself with — shared by every chart above a records table), `ReportPerformanceChart` (multi-metric visits chart with metric show/hide and interval control), and `ReportRecordsTable` (Core DataViews table with client-side search/sort/pagination). Module report pages compose these with their own data hook and field config.',
 			},
 		},
 	},
@@ -280,4 +296,13 @@ export const Default: Story = {
 export const Loading: Story = {
 	render: args => <ComposedReportPage { ...args } />,
 	args: { withComparison: false, isLoading: true },
+};
+
+/**
+ * The selected period returned no rows, so the empty state replaces the
+ * records table.
+ */
+export const EmptyPeriod: Story = {
+	render: args => <ComposedReportPage { ...args } />,
+	args: { withComparison: false, isLoading: false, isEmpty: true },
 };

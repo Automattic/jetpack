@@ -7,6 +7,7 @@ import {
 } from '@jetpack-premium-analytics/data';
 import {
 	BOOKINGS_FILTER,
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -38,9 +39,10 @@ type StorePerformanceRenderAttributes = StorePerformanceAttributes &
 
 type StorePerformanceRenderProps = WidgetRenderProps< StorePerformanceRenderAttributes >;
 
-/** The `{ primary, comparison }` pair every report hook returns. */
-type ReportPair< H extends ( ...args: never[] ) => { primary: unknown; comparison: unknown } > =
-	Pick< ReturnType< H >, 'primary' | 'comparison' >;
+/** The `{ primary, comparison }` pair every report hook returns, plus the zone it read them in. */
+type ReportPair<
+	H extends ( ...args: never[] ) => { primary: unknown; comparison: unknown; timezone: string },
+> = Pick< ReturnType< H >, 'primary' | 'comparison' | 'timezone' >;
 
 type DataSources = {
 	general: ReportPair< typeof useReportOrders >;
@@ -146,6 +148,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 			primary: dataSources.visitors.primary.data ?? getDefaultVisitorsReportData(),
 			comparison: dataSources.visitors.comparison.data ?? getDefaultVisitorsReportData(),
 			metricKey: metric.metricKey,
+			zone: dataSources.visitors.timezone,
 			emptyDataFallback: 'empty-array',
 		} );
 	}
@@ -155,6 +158,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 			primary: dataSources.conversion.primary.data ?? getDefaultConversionReportData(),
 			comparison: dataSources.conversion.comparison.data ?? getDefaultConversionReportData(),
 			metricKey: metric.metricKey,
+			zone: dataSources.conversion.timezone,
 			emptyDataFallback: 'empty-array',
 		} );
 	}
@@ -164,6 +168,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 			primary: dataSources.customers.primary.data ?? getDefaultCustomersReportData(),
 			comparison: dataSources.customers.comparison.data ?? getDefaultCustomersReportData(),
 			metricKey: metric.metricKey,
+			zone: dataSources.customers.timezone,
 			emptyDataFallback: 'empty-array',
 		} );
 	}
@@ -174,6 +179,7 @@ function buildSeriesForMetric( metric: StorePerformanceMetric, dataSources: Data
 		primary: source.primary.data ?? getDefaultOrdersReportData(),
 		comparison: source.comparison.data ?? getDefaultOrdersReportData(),
 		metricKey: metric.metricKey,
+		zone: source.timezone,
 		emptyDataFallback: 'empty-array',
 	} );
 }
@@ -203,10 +209,8 @@ function StorePerformanceContent() {
 		() => [ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ],
 		[ generalReport, bookingsReport, visitorsReport, conversionReport, customersReport ]
 	);
-	// Gate the error per report — each metric tab has its own report, so a failed
-	// one must surface an error rather than render as an empty chart beside the
-	// others. Placeholder data keeps a report's rows on a transient refetch failure,
-	// so a report with data is not errored.
+	// Gate the error per report so a failed one surfaces beside the others' charts
+	// instead of rendering empty; placeholder data spares a report that still has rows.
 	const isError = reports.some( report => report.isError && ! report.hasData );
 	// Retry re-runs every metric report, not only the failed one.
 	const refetch = useCallback(
@@ -271,15 +275,36 @@ function StorePerformanceContent() {
 
 	const dataSources: DataSources = useMemo(
 		() => ( {
-			general: { primary, comparison },
-			booking: { primary: bookingsPrimary, comparison: bookingsComparison },
-			visitors: { primary: visitorsPrimary, comparison: visitorsComparison },
-			conversion: { primary: conversionPrimary, comparison: conversionComparison },
-			customers: { primary: customersPrimary, comparison: customersComparison },
+			general: { primary, comparison, timezone: generalReport.timezone },
+			booking: {
+				primary: bookingsPrimary,
+				comparison: bookingsComparison,
+				timezone: bookingsReport.timezone,
+			},
+			visitors: {
+				primary: visitorsPrimary,
+				comparison: visitorsComparison,
+				timezone: visitorsReport.timezone,
+			},
+			conversion: {
+				primary: conversionPrimary,
+				comparison: conversionComparison,
+				timezone: conversionReport.timezone,
+			},
+			customers: {
+				primary: customersPrimary,
+				comparison: customersComparison,
+				timezone: customersReport.timezone,
+			},
 		} ),
 		[
 			primary,
 			comparison,
+			generalReport.timezone,
+			bookingsReport.timezone,
+			visitorsReport.timezone,
+			conversionReport.timezone,
+			customersReport.timezone,
 			bookingsPrimary,
 			bookingsComparison,
 			visitorsPrimary,
@@ -306,6 +331,7 @@ function StorePerformanceContent() {
 					previous: series[ 1 ]?.data,
 					dataFormat: getFormatByMetricKey( metric.metricKey ),
 					description: metric.description,
+					countLabel: metric.countLabel,
 				};
 			} ),
 		[ enrichedMetrics, dataSources ]
@@ -336,6 +362,7 @@ function StorePerformanceContent() {
 					metrics={ metricTabs }
 					dataFormat={ DEFAULT_DATA_FORMAT }
 					groupLabel={ __( 'Store metric', 'jetpack-premium-analytics-pkg' ) }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>

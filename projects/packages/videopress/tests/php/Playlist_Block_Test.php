@@ -49,6 +49,7 @@ class Playlist_Block_Test extends BaseTestCase {
 	 */
 	protected function tear_down() {
 		\WP_Block_Supports::$block_to_render = null;
+		delete_option( 'videopress_player_preload_disabled' );
 
 		$registry = \WP_Block_Type_Registry::get_instance();
 		if ( $registry->is_registered( 'videopress/playlist' ) ) {
@@ -146,6 +147,8 @@ class Playlist_Block_Test extends BaseTestCase {
 		// First entry is marked current.
 		$this->assertStringContainsString( 'videopress-playlist__select is-current', $markup );
 		$this->assertStringContainsString( 'aria-current="true"', $markup );
+		$this->assertStringNotContainsString( 'hide-player', $markup );
+		$this->assertStringContainsString( '>Up next<', $markup );
 
 		// The count · runtime meta line lives in the list header, next to "Up next".
 		$this->assertStringContainsString(
@@ -161,6 +164,14 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'data-title="Video 1"', $markup );
 		$this->assertStringContainsString( '>Video 2<', $markup );
 		$this->assertStringNotContainsString( '<img', $markup );
+
+		// Every thumb carries the hidden lock placeholder the view script shows
+		// when a private video's thumbnail can't be authorized for the viewer.
+		$this->assertSame( 2, substr_count( $markup, 'videopress-playlist__entry-lock"' ) );
+		$this->assertStringContainsString(
+			'<span class="videopress-playlist__entry-lock-label">Private video</span>',
+			$markup
+		);
 	}
 
 	/**
@@ -186,6 +197,52 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'evil.example', $markup );
 		$this->assertStringNotContainsString( '<img', $markup );
 		$this->assertStringContainsString( '>Video 1<', $markup );
+	}
+
+	/**
+	 * The title heading inner block renders above the playlist body.
+	 */
+	public function test_render_title_heading() {
+		$heading = '<h2 class="wp-block-heading">Summer trip</h2>';
+		$markup  = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'playlistTitle' => 'Summer trip' ) ),
+			"\n" . $heading . "\n"
+		);
+
+		$this->assertStringContainsString(
+			'><div class="videopress-playlist__heading">' . $heading . '</div><div class="videopress-playlist__body">',
+			$markup
+		);
+	}
+
+	/**
+	 * No heading renders when the toggle is off, the title is empty, or no
+	 * heading was saved with the post.
+	 */
+	public function test_render_title_heading_omitted() {
+		$heading = '<h2 class="wp-block-heading">Summer trip</h2>';
+
+		$toggled_off = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'playlistTitle'     => 'Summer trip',
+					'showPlaylistTitle' => false,
+				)
+			),
+			$heading
+		);
+		$empty_title = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'playlistTitle' => ' ' ) ),
+			'<h2 class="wp-block-heading"></h2>'
+		);
+		$not_saved   = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'playlistTitle' => 'Summer trip' ) )
+		);
+
+		foreach ( array( $toggled_off, $empty_title, $not_saved ) as $markup ) {
+			$this->assertStringNotContainsString( 'videopress-playlist__heading', $markup );
+			$this->assertStringNotContainsString( '<h2', $markup );
+		}
 	}
 
 	/**
@@ -240,6 +297,93 @@ class Playlist_Block_Test extends BaseTestCase {
 		$this->assertStringContainsString( 'hide-durations', $markup );
 		$this->assertStringContainsString( 'hide-runtime', $markup );
 		$this->assertStringContainsString( '<span class="videopress-playlist__entry-number">01</span>', $markup );
+	}
+
+	/**
+	 * Without the player the entries link to their VideoPress pages in a new tab.
+	 */
+	public function test_render_without_player_links_entries_to_videopress() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes( array( 'showPlayer' => false ) )
+		);
+
+		$this->assertStringContainsString( 'hide-player', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__stage', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__iframe', $markup );
+		$this->assertStringNotContainsString( 'videopress.com/embed/', $markup );
+		$this->assertStringNotContainsString( 'data-embed-url', $markup );
+
+		$this->assertStringContainsString(
+			'<a class="videopress-playlist__select" href="https://videopress.com/v/abcDEF12" target="_blank" rel="noopener noreferrer" data-guid="abcDEF12"',
+			$markup
+		);
+		$this->assertStringContainsString( 'href="https://videopress.com/v/ghiJKL34"', $markup );
+		$this->assertStringNotContainsString( '<button', $markup );
+		$this->assertSame( 2, substr_count( $markup, '</a></li>' ) );
+
+		// Nothing is playing: no current entry, no progress counter, and the rail
+		// header no longer announces what is "up next".
+		$this->assertStringNotContainsString( 'is-current', $markup );
+		$this->assertStringNotContainsString( 'aria-current', $markup );
+		$this->assertStringNotContainsString( 'videopress-playlist__list-progress', $markup );
+		$this->assertStringContainsString( '>Playlist<', $markup );
+		$this->assertStringNotContainsString( '>Up next<', $markup );
+
+		// The list header keeps the count · runtime line, and the grid layout its runtime row.
+		$this->assertStringContainsString( '<span class="videopress-playlist__count">2 videos</span>', $markup );
+		$this->assertStringContainsString(
+			'<div class="videopress-playlist__now"><span class="videopress-playlist__now-runtime">2 videos · 19 min</span></div>',
+			$markup
+		);
+	}
+
+	/**
+	 * A hidden player set to show on click renders click-to-play entries and an
+	 * empty, hidden stage for the view script to reveal.
+	 */
+	public function test_render_hidden_player_revealed_on_click() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'showPlayer'       => false,
+					'entryClickAction' => 'show-player',
+				)
+			)
+		);
+
+		$this->assertStringContainsString( 'hide-player', $markup );
+		$this->assertStringContainsString( '<div class="videopress-playlist__stage" hidden>', $markup );
+		$this->assertStringContainsString(
+			'<iframe class="videopress-playlist__iframe" title="Video 1" allowfullscreen',
+			$markup
+		);
+
+		// Entries play in the block's player, but none is playing yet.
+		$this->assertSame( 2, substr_count( $markup, 'data-embed-url="https://videopress.com/embed/' ) );
+		$this->assertStringNotContainsString( 'href=', $markup );
+		$this->assertStringNotContainsString( 'is-current', $markup );
+		$this->assertStringNotContainsString( 'aria-current', $markup );
+
+		// The progress counter is there for once the player shows; CSS hides it until then.
+		$this->assertStringContainsString( 'videopress-playlist__list-progress', $markup );
+		$this->assertStringContainsString( '>Playlist<', $markup );
+	}
+
+	/**
+	 * An unknown click action falls back to opening entries in a new tab.
+	 */
+	public function test_render_hidden_player_ignores_unknown_click_action() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block(
+			$this->attributes(
+				array(
+					'showPlayer'       => false,
+					'entryClickAction' => 'popup',
+				)
+			)
+		);
+
+		$this->assertStringNotContainsString( 'videopress-playlist__stage', $markup );
+		$this->assertSame( 2, substr_count( $markup, 'target="_blank"' ) );
 	}
 
 	/**
@@ -305,6 +449,21 @@ class Playlist_Block_Test extends BaseTestCase {
 		);
 		$this->assertStringContainsString( 'data-autoplay-next="1"', $loop_only );
 		$this->assertStringContainsString( 'data-loop="1"', $loop_only );
+	}
+
+	/**
+	 * The site-wide preload opt-out rides on every embed URL: the player and the entries.
+	 */
+	public function test_render_honors_site_preload_opt_out() {
+		$markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes() );
+		$this->assertSame( 3, substr_count( $markup, 'preloadContent=metadata' ) );
+		$this->assertStringNotContainsString( 'preloadContent=none', $markup );
+
+		update_option( 'videopress_player_preload_disabled', true );
+
+		$markup = VideoPress_Initializer::render_videopress_playlist_block( $this->attributes() );
+		$this->assertSame( 3, substr_count( $markup, 'preloadContent=none' ) );
+		$this->assertStringNotContainsString( 'preloadContent=metadata', $markup );
 	}
 
 	/**

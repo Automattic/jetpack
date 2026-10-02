@@ -8,10 +8,10 @@ import { render, screen } from '@testing-library/react';
 import { MetricSparklineSkeleton } from '../metric-sparkline-skeleton';
 
 describe( 'MetricSparklineSkeleton', () => {
-	it( 'draws the headline and the sparkline band in a status region', () => {
+	it( 'draws the headline and the sparkline band', () => {
 		render( <MetricSparklineSkeleton /> );
 
-		expect( screen.getByRole( 'status' ) ).toBeInTheDocument();
+		expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'skeleton-metric-value' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'skeleton-chart-block' ) ).toBeInTheDocument();
 	} );

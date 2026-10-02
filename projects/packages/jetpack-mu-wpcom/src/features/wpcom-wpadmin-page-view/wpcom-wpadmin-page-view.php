@@ -98,7 +98,7 @@ function wpcom_track_customizer_from_frontend() {
 	<script type="text/javascript">
 		_tkq = window._tkq || [];
 		_tkq.push( [ 'identifyUser', <?php echo (int) $current_user->ID; ?>, '<?php echo esc_js( $current_user->user_login ); ?>' ] );
-		_tkq.push( [ 'recordEvent', 'wpcom_customize_loaded_from_frontend' ] );
+		_tkq.push( [ 'recordEvent', 'wpcom_customize_loaded_from_frontend', { blog_id: '<?php echo (int) \get_wpcom_blog_id(); ?>' } ] );
 	</script>
 	<?php
 }

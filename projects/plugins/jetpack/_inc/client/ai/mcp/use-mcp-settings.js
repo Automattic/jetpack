@@ -10,32 +10,117 @@ import apiFetch from '@wordpress/api-fetch';
 import { useCallback, useEffect, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 
-const ENDPOINT = '/wpcom/v2/jetpack-ai/mcp-settings';
+const DEFAULT_API = {
+	path: '/wpcom/v2/jetpack-ai/mcp-settings',
+	format: 'jetpack',
+};
+
+/**
+ * Convert the native WordPress.com MCP response to the Hub's settings shape.
+ *
+ * @param {object} data   - Native endpoint response.
+ * @param {number} blogId - Current site ID.
+ * @return {object} AI Hub MCP settings response.
+ */
+export function normalizeWpcomMcpSettings( data, blogId ) {
+	if ( ! data?.has_mcp_plan ) {
+		return { has_mcp_access: false, mcp_abilities: {} };
+	}
+
+	const account = {};
+	const site = {};
+	for ( const ability of data?.abilities ?? [] ) {
+		if ( ! ability?.name ) {
+			continue;
+		}
+
+		account[ ability.name ] = ability;
+		if ( ability.site_context ) {
+			site[ ability.name ] = ability;
+		}
+	}
+
+	const siteLevelEnabled = data?.site_level_enabled === true;
+	const userOverrides = data?.user_overrides ?? {};
+
+	return {
+		has_mcp_access: true,
+		mcp_abilities: {
+			account,
+			site,
+			sites: [
+				{
+					blog_id: Number( blogId ),
+					site_level_enabled: siteLevelEnabled,
+					abilities: userOverrides.abilities ?? {},
+					group_intents: userOverrides.group_intents ?? {},
+				},
+			],
+			site_level_enabled_default: siteLevelEnabled,
+			groups: data?.groups ?? [],
+		},
+	};
+}
+
+/**
+ * Convert a partial Hub update to the native WordPress.com endpoint shape.
+ *
+ * @param {object} update - Partial Hub MCP settings update.
+ * @return {object} Native WordPress.com update body.
+ */
+export function prepareWpcomMcpUpdate( update ) {
+	const site = update?.sites?.[ 0 ] ?? {};
+	const data = {};
+
+	for ( const key of [ 'site_level_enabled', 'abilities', 'group_intents' ] ) {
+		if ( Object.hasOwn( site, key ) ) {
+			data[ key ] = site[ key ];
+		}
+	}
+
+	return data;
+}
 
 /**
  * Hook that loads and exposes MCP settings for the current site.
  *
- * @return {{ isLoading: boolean, isSaving: boolean, mcpAbilities: Object|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
+ * @param {object}  [options]      - Hook options.
+ * @param {boolean} [options.skip] - Skip the fetch and expose empty state (for callers
+ *                                 that know the request cannot succeed).
+ * @return {{ isLoading: boolean, savingToolIds: Set, mcpAbilities: Object|null, hasMcpAccess: boolean|null, error: string|null, updateMcpAbilities: Function }} MCP settings state and updater.
  */
-export function useMcpSettings() {
-	const [ isLoading, setIsLoading ] = useState( true );
+export function useMcpSettings( { skip = false } = {} ) {
+	const { blogId = 0, mcpSettingsApi = DEFAULT_API } = window?.jetpackAiSettings ?? {};
+	const endpoint = mcpSettingsApi.path ?? DEFAULT_API.path;
+	const usesWpcomApi = mcpSettingsApi.format === 'wpcom';
+	const [ isLoading, setIsLoading ] = useState( ! skip );
 	const [ savingToolIds, setSavingToolIds ] = useState( () => new Set() );
 	const [ mcpAbilities, setMcpAbilities ] = useState( null );
 	const [ hasMcpAccess, setHasMcpAccess ] = useState( null );
 	const [ error, setError ] = useState( null );
 
 	useEffect( () => {
+		if ( skip ) {
+			// Clear state so nothing from an earlier fetch lingers.
+			setIsLoading( false );
+			setSavingToolIds( new Set() );
+			setMcpAbilities( null );
+			setHasMcpAccess( null );
+			setError( null );
+			return;
+		}
 		let cancelled = false;
 		setIsLoading( true );
-		apiFetch( { path: ENDPOINT } )
+		apiFetch( { path: endpoint } )
 			.then( data => {
 				if ( ! cancelled ) {
-					setMcpAbilities( data?.mcp_abilities ?? {} );
+					const response = usesWpcomApi ? normalizeWpcomMcpSettings( data, blogId ) : data;
+					setMcpAbilities( response?.mcp_abilities ?? {} );
 					// has_mcp_access is explicitly set by the PHP proxy.
 					// Fall back to checking whether any account tools were returned.
 					setHasMcpAccess(
-						data?.has_mcp_access !== false &&
-							Object.keys( data?.mcp_abilities?.account ?? {} ).length > 0
+						response?.has_mcp_access !== false &&
+							Object.keys( response?.mcp_abilities?.account ?? {} ).length > 0
 					);
 					setError( null );
 				}
@@ -53,7 +138,7 @@ export function useMcpSettings() {
 		return () => {
 			cancelled = true;
 		};
-	}, [] );
+	}, [ blogId, endpoint, usesWpcomApi, skip ] );
 
 	/**
 	 * Send a partial mcp_abilities update.
@@ -79,12 +164,13 @@ export function useMcpSettings() {
 			} );
 
 			return apiFetch( {
-				path: ENDPOINT,
+				path: endpoint,
 				method: 'POST',
-				data: { mcp_abilities: update },
+				data: usesWpcomApi ? prepareWpcomMcpUpdate( update ) : { mcp_abilities: update },
 			} )
 				.then( data => {
-					setMcpAbilities( data?.mcp_abilities ?? mcpAbilities );
+					const response = usesWpcomApi ? normalizeWpcomMcpSettings( data, blogId ) : data;
+					setMcpAbilities( response?.mcp_abilities ?? mcpAbilities );
 					setError( null );
 				} )
 				.catch( err => {
@@ -99,7 +185,7 @@ export function useMcpSettings() {
 					} );
 				} );
 		},
-		[ mcpAbilities ]
+		[ blogId, endpoint, mcpAbilities, usesWpcomApi ]
 	);
 
 	return { isLoading, savingToolIds, mcpAbilities, hasMcpAccess, error, updateMcpAbilities };

@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-08-26
+### Removed
+- Minimum supported PHP version is now 7.4. [#51515]
+
 ## [3.0.15] - 2026-06-15
 ### Changed
 - Internal updates.
@@ -277,6 +281,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Create Jetpack Redirect package
 
+[4.0.0]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.15...v4.0.0
 [3.0.15]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.14...v3.0.15
 [3.0.14]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.13...v3.0.14
 [3.0.13]: https://github.com/Automattic/jetpack-redirect/compare/v3.0.12...v3.0.13

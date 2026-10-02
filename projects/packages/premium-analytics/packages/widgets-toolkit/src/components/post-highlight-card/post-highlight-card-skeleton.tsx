@@ -12,15 +12,10 @@ import styles from './post-highlight-card-skeleton.module.scss';
 const STAT_COUNT = 3;
 
 /**
- * Loading shape for `PostHighlightCard`: the post's title lines above its row
- * of stat tiles.
- *
- * The design prototype leads with a thumbnail, but the card renders its
- * featured image only when the post has one, and hides it below a 520px cell
- * either way — so a thumbnail placeholder would resolve to nothing in most
- * cells, which is the layout jump the shape exists to prevent.
- *
- * @return The rendered skeleton.
+ * Loading shape for `PostHighlightCard`: the post's title lines above its row of stat
+ * tiles. No thumbnail placeholder, unlike the design prototype: the card hides its
+ * featured image below a 520px cell, so the placeholder would cause the very jump the
+ * shape exists to prevent.
  */
 export function PostHighlightCardSkeleton() {
 	return (

@@ -136,7 +136,7 @@ describe( 'PlanUsageWidget', () => {
 		render( <PlanUsageWidget attributes={ {} } /> );
 
 		await expect( screen.findByText( '6,200 / 10,000 views' ) ).resolves.toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'leaves the meter on screen through a background refetch (WOOA7S-1934)', async () => {
@@ -161,7 +161,7 @@ describe( 'PlanUsageWidget', () => {
 		await waitFor( () =>
 			expect( screen.getAllByRole( 'generic', { busy: true } ) ).toHaveLength( 1 )
 		);
-		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
 		expect( screen.getByText( '6,200 / 10,000 views' ) ).toBeInTheDocument();
 
 		await act( async () => {

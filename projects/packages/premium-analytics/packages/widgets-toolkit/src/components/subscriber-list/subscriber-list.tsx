@@ -33,6 +33,11 @@ export type SubscriberListItem = {
 	 */
 	href?: string | null;
 	/**
+	 * Open `href` in a new tab. Pass false for links that stay in wp-admin.
+	 * @default true
+	 */
+	openInNewTab?: boolean;
+	/**
 	 * Right-aligned secondary text, e.g. a relative "since" time.
 	 */
 	secondaryText?: string;
@@ -40,19 +45,13 @@ export type SubscriberListItem = {
 
 export type SubscriberListProps = {
 	items?: SubscriberListItem[];
-	/**
-	 * Empty-state message shown when there are no rows.
-	 */
 	emptyStateText?: string;
+	/** Rows beyond `items`; null when unknown, so the "N more" footer counts only hidden rows. */
+	moreCount?: number | null;
 	/**
-	 * Number of additional rows not included in `items`.
-	 */
-	moreCount?: number;
-	/**
-	 * Show only the whole rows that fit the available height instead of letting
-	 * the roster grow and the widget host scroll it. Hidden rows are added to
-	 * the "N more" footer, so the footer can appear with `moreCount` at zero.
-	 * Requires an ancestor with a definite height.
+	 * Show only the whole rows that fit the available height, rather than letting the
+	 * host scroll the roster. Hidden rows join the "N more" footer, so the footer can
+	 * appear with `moreCount` at zero. Requires an ancestor with a definite height.
 	 * @default true
 	 */
 	fitRows?: boolean;
@@ -65,12 +64,9 @@ const DEFAULT_AVATAR_URL =
 	'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50"><circle cx="25" cy="25" r="25" fill="%23e5e7eb"/></svg>';
 
 /**
- * A roster of people — avatar, name, and an optional relative-time secondary
- * line per row, with an optional "N more" footer. Used by list-style Stats
- * widgets (e.g. the Subscribers card) where rows are ordered by recency rather
- * than ranked by a metric, so a bar leaderboard would not fit.
- * @param {SubscriberListProps} props - The component props.
- * @return The rendered list, or the empty state.
+ * A roster of people — avatar, name, and an optional relative-time secondary line per
+ * row. For Stats widgets whose rows are ordered by recency rather than ranked by a
+ * metric, where a bar leaderboard would not fit.
  */
 export function SubscriberList( {
 	items = [],
@@ -79,14 +75,15 @@ export function SubscriberList( {
 	fitRows = true,
 	className,
 }: SubscriberListProps ) {
-	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, moreCount > 0 );
+	const knownMoreCount = moreCount ?? 0;
+	const { listRef, fittedCount } = useFittedRosterRows( fitRows, items.length, knownMoreCount > 0 );
 
 	if ( items.length === 0 ) {
 		return <ChartEmptyState text={ emptyStateText } />;
 	}
 
 	// Include fetched rows hidden by the fitting logic.
-	const hiddenCount = moreCount + ( items.length - fittedCount );
+	const hiddenCount = knownMoreCount + ( items.length - fittedCount );
 
 	return (
 		<Stack
@@ -127,7 +124,7 @@ export function SubscriberList( {
 										className={ styles.name }
 										href={ href }
 										variant="unstyled"
-										openInNewTab
+										openInNewTab={ item.openInNewTab ?? true }
 										title={ item.name }
 									>
 										{ item.name }

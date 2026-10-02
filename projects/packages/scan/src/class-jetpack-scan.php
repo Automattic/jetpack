@@ -206,7 +206,11 @@ class Jetpack_Scan {
 			'manage_options',
 			self::PAGE_SLUG,
 			$render,
-			6
+			null,
+			array(
+				'product' => 'scan',
+				'key'     => 'jetpack-scan',
+			)
 		);
 
 		if ( $page_suffix ) {

@@ -59,7 +59,36 @@ let errorTimeout = null;
 // Must match Feedback::FORM_FILL_DURATION_FIELD in src/contact-form/class-feedback.php.
 const FORM_FILL_DURATION_FIELD = 'jetpack_form_fill_duration';
 
-const updateField = ( fieldId, value, showFieldError = false, validatorCallback = null ) => {
+/**
+ * Validate a field value, preferring a validator its module registered.
+ *
+ * A field module that registers `state.validators[ type ]` owns validation for that type
+ * outright — including the empty/required check — and it applies on every update, not just on
+ * blur. Types with no registered validator fall through to the shared `validateField()` helper.
+ *
+ * SCOPE CONTRACT: a validator is called from two different places, and they do not see the same
+ * context. `registerField()` runs from `callbacks.initializeField`, bound on the field wrapper;
+ * `actions.updateField()` runs from whichever element the user interacted with, which is usually
+ * a descendant. Because Interactivity API context only inherits downwards, a validator that
+ * reads `getContext()` cannot rely on anything a descendant provides — during registration those
+ * keys are undefined. Validators should derive their answer from the `value`, `isRequired` and
+ * `extra` arguments, and any `getContext()` read must tolerate missing keys.
+ *
+ * @param {string}  type       - The field type.
+ * @param {*}       value      - The value to validate.
+ * @param {boolean} isRequired - Whether the field is required.
+ * @param {*}       extra      - The field's extra configuration.
+ * @return {string} The validation result.
+ */
+const validate = ( type, value, isRequired, extra ) => {
+	const validator = state.validators?.[ type ];
+
+	return validator
+		? validator( value, isRequired, extra )
+		: validateField( type, value, isRequired, extra );
+};
+
+const updateField = ( fieldId, value, showFieldError = false ) => {
 	const context = getContext();
 	let field = context.fields[ fieldId ];
 
@@ -71,9 +100,7 @@ const updateField = ( fieldId, value, showFieldError = false, validatorCallback 
 	if ( field ) {
 		const { type, isRequired, extra } = field;
 		field.value = value;
-		field.error = validatorCallback
-			? validatorCallback( value, isRequired, extra )
-			: validateField( type, value, isRequired, extra );
+		field.error = validate( type, value, isRequired, extra );
 		field.showFieldError = showFieldError;
 	}
 };
@@ -145,7 +172,7 @@ const registerField = (
 			value,
 			isRequired,
 			extra,
-			error: validateField( type, value, isRequired, extra ),
+			error: validate( type, value, isRequired, extra ),
 			step: context?.step ? context.step : 1,
 			isOtherSelected,
 			otherLabel,
@@ -508,14 +535,7 @@ const { state, actions } = store( NAMESPACE, {
 
 	actions: {
 		updateField: ( fieldId, value, showFieldError ) => {
-			const context = getContext();
-			const { fieldType } = context;
-			updateField(
-				fieldId,
-				value,
-				showFieldError,
-				showFieldError ? state.validators?.[ fieldType ] : null
-			);
+			updateField( fieldId, value, showFieldError );
 		},
 		updateFieldValue: ( fieldId, value ) => {
 			actions.updateField( fieldId, value );
@@ -675,7 +695,7 @@ const { state, actions } = store( NAMESPACE, {
 		 * Start the fill timer on the submitter's first interaction with the form.
 		 *
 		 * Bound to `focusin` on the form wrapper, which covers every focusable control. File
-		 * drag-and-drop fires no focus event, so `jetpack/field-file` calls this directly.
+		 * drag-and-drop fires no focus event, so the file field module calls this directly.
 		 *
 		 * Uses `performance.now()` rather than `Date.now()`: it is monotonic, so a wall-clock
 		 * step backward mid-fill cannot produce a negative duration. Compared against null

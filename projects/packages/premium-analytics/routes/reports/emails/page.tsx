@@ -8,6 +8,7 @@ import {
 	ReportPageShell,
 	ReportRecordsTable,
 	ReportCsvAction,
+	getKnownEmailRate,
 	useReportCsvExport,
 	useReportRetry,
 	type CsvColumn,
@@ -18,8 +19,14 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
-import { getEmailsFields, useEmailsReportRecords } from './config';
+import {
+	getClicksRateSignals,
+	getEmailsFields,
+	getOpensRateSignals,
+	useEmailsReportRecords,
+} from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: newest emails first (matching the endpoint's
@@ -53,13 +60,9 @@ function getEmailRowId( item: StatsEmailSummaryItem ): string {
 }
 
 /**
- * Premium Analytics Emails report page component.
- *
- * The summary endpoint reports across the whole lifetime of the site and
- * caps its row count at 30, so the page composes only the breadcrumb header
- * and records table: no date filters, tabs, or performance chart. Each row's
- * title links into the post detail page's Email opens tab — the per-email
- * detail surface.
+ * All-time summary capped at 30 rows, so only the breadcrumb header and records table
+ * render — no date filters, tabs, or performance chart. Row titles link to the post
+ * detail page's Email opens tab.
  *
  * @return The Emails report page.
  */
@@ -79,12 +82,12 @@ function EmailsReport(): JSX.Element {
 			{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), getValue: row => row.opens },
 			{
 				label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.opens_rate,
+				getValue: row => getKnownEmailRate( row.opens_rate, getOpensRateSignals( row ) ),
 			},
 			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
 			{
 				label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.clicks_rate,
+				getValue: row => getKnownEmailRate( row.clicks_rate, getClicksRateSignals( row ) ),
 			},
 		],
 		[]
@@ -101,29 +104,19 @@ function EmailsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.emails;
+	const { getLabel } = REPORTS.emails;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __(
-				'Open and click performance of your latest emails.',
-				'jetpack-premium-analytics-pkg'
-			) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-				 * status, so a failed refetch over cached rows would otherwise leave
-				 * stale data on screen with no notice and no way to retry.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
@@ -135,6 +128,7 @@ function EmailsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getEmailRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
 					/>

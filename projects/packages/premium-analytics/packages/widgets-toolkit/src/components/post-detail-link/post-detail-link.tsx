@@ -3,7 +3,7 @@
  */
 import { createDetailLinkSearch } from '@jetpack-premium-analytics/routing';
 import { Link } from '@wordpress/route';
-import type { ReactNode } from 'react';
+import type { JSX, ReactNode } from 'react';
 
 export type PostDetailLinkProps = {
 	/**

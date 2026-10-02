@@ -28,12 +28,11 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportCsvAction: () => null,
+	ExporterCsvAction: () => null,
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportRecordsTable: jest.fn( () => null ),
-	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'file-downloads' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
 } ) );
 
@@ -88,10 +87,8 @@ describe( 'DownloadsReportPage', () => {
 	} );
 
 	it( 'keeps the rows on screen while a background refetch is in flight', () => {
-		// The queries carry `placeholderData`, so a refetch triggered by a date or
-		// comparison change still has the previous rows. Handing the table an empty
-		// set would drop the user's search, sorting, and page position mid-refetch,
-		// so the rows stay mounted and only the loading state reflects the refetch.
+		// `placeholderData` keeps the previous rows during a refetch, so search/sort/
+		// page position survive a date or comparison change instead of resetting.
 		useRecordsMock.mockReturnValue( {
 			isError: false,
 			refetch: jest.fn(),
@@ -106,7 +103,8 @@ describe( 'DownloadsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				data: [ row ],
-				isLoading: true,
+				isLoading: false,
+				isFetching: true,
 			} )
 		);
 	} );

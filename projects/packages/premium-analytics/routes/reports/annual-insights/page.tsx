@@ -20,6 +20,7 @@ import { __ } from '@wordpress/i18n';
 import { REPORTS } from '../registry';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 const RECORDS_VIEW = {
 	sort: { field: 'year', direction: 'desc' as const },
@@ -33,6 +34,8 @@ const RECORDS_VIEW = {
 			avg_likes: { align: 'end' as const },
 			total_words: { align: 'end' as const },
 			avg_words: { align: 'end' as const },
+			total_images: { align: 'end' as const },
+			avg_images: { align: 'end' as const },
 		},
 	},
 };
@@ -89,6 +92,14 @@ function AnnualInsightsReport(): JSX.Element {
 				label: __( 'Avg words per post', 'jetpack-premium-analytics-pkg' ),
 				getValue: row => row.avg_words,
 			},
+			{
+				label: __( 'Total images', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.total_images,
+			},
+			{
+				label: __( 'Avg images per post', 'jetpack-premium-analytics-pkg' ),
+				getValue: row => row.avg_images,
+			},
 		],
 		[]
 	);
@@ -104,28 +115,19 @@ function AnnualInsightsReport(): JSX.Element {
 	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS[ 'annual-insights' ];
+	const { getLabel } = REPORTS[ 'annual-insights' ];
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __(
-				'Year-by-year publishing and engagement totals.',
-				'jetpack-premium-analytics-pkg'
-			) }
 			actions={
 				canExport ? (
 					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
 				) : undefined
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-				 * request would otherwise look like a legitimate empty report.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
 					<ReportErrorState
 						title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics-pkg' ) }
@@ -137,6 +139,7 @@ function AnnualInsightsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getAnnualInsightRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics-pkg' ) }
 					/>

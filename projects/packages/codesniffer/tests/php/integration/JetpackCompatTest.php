@@ -74,7 +74,7 @@ EOF;
 			'VariableAnalysis.CodeAnalysis.VariableAnalysis',
 			'WordPress.WhiteSpace.ControlStructureSpacing',
 		);
-		Config::setConfigData( 'testVersion', '7.2-' );
+		Config::setConfigData( 'testVersion', '7.4-' );
 
 		$ruleset = new Ruleset( $config );
 		$dummy   = new DummyFile( $src, $ruleset, $config );
@@ -101,35 +101,26 @@ EOF;
 	 * @return \Generator<array>
 	 */
 	public static function provide_standards() {
-		$lines1 = array(
-			' 2 | ERROR | Trailing comma\'s are not allowed in function calls in PHP 7.2 or earlier (PHPCompatibility.Syntax.NewFunctionCallTrailingComma.FoundInFunctionCall)',
-			' 3 | ERROR | null coalesce equal operator (??=) is not present in PHP version 7.3 or earlier (PHPCompatibility.Operators.NewOperators.t_coalesce_equalFound)',
-		);
+		$lines1 = array();
 
 		yield array( 'Jetpack', self::SRC1, $lines1 );
-		yield array( 'Jetpack-Compat-73', self::SRC1, array_slice( $lines1, 1 ) );
-		yield array( 'Jetpack-Compat-74', self::SRC1, array_slice( $lines1, 2 ) );
-		yield array( 'Jetpack-Compat-80', self::SRC1, array_slice( $lines1, 3 ) );
-		yield array( 'Jetpack-Compat-81', self::SRC1, array_slice( $lines1, 4 ) );
-		yield array( 'Jetpack-Compat-82', self::SRC1, array_slice( $lines1, 5 ) );
-		yield array( 'Jetpack-Compat-83', self::SRC1, array_slice( $lines1, 6 ) );
-		yield array( 'Jetpack-Compat-84', self::SRC1, array_slice( $lines1, 7 ) );
-		yield array( 'Jetpack-Compat-85', self::SRC1, array_slice( $lines1, 8 ) );
+		yield array( 'Jetpack-Compat-80', self::SRC1, array_slice( $lines1, 1 ) );
+		yield array( 'Jetpack-Compat-81', self::SRC1, array_slice( $lines1, 2 ) );
+		yield array( 'Jetpack-Compat-82', self::SRC1, array_slice( $lines1, 3 ) );
+		yield array( 'Jetpack-Compat-83', self::SRC1, array_slice( $lines1, 4 ) );
+		yield array( 'Jetpack-Compat-84', self::SRC1, array_slice( $lines1, 5 ) );
+		yield array( 'Jetpack-Compat-85', self::SRC1, array_slice( $lines1, 6 ) );
 
 		$lines2 = array(
-			' 3 | WARNING | INI directive \'session.cookie_samesite\' is not present in PHP version 7.2 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.session_cookie_samesiteFound)',
-			' 4 | WARNING | INI directive \'opcache.cache_id\' is not present in PHP version 7.3 or earlier (PHPCompatibility.IniDirectives.NewIniDirectives.opcache_cache_idFound)',
 			// TODO: More lines for 8.0+ once PHPCompatibility 10 finally releases.
 		);
 
 		yield array( 'Jetpack', self::SRC2, $lines2 );
-		yield array( 'Jetpack-Compat-73', self::SRC2, array_slice( $lines2, 1 ) );
-		yield array( 'Jetpack-Compat-74', self::SRC2, array_slice( $lines2, 2 ) );
-		yield array( 'Jetpack-Compat-80', self::SRC2, array_slice( $lines2, 3 ) );
-		yield array( 'Jetpack-Compat-81', self::SRC2, array_slice( $lines2, 4 ) );
-		yield array( 'Jetpack-Compat-82', self::SRC2, array_slice( $lines2, 5 ) );
-		yield array( 'Jetpack-Compat-83', self::SRC2, array_slice( $lines2, 6 ) );
-		yield array( 'Jetpack-Compat-84', self::SRC2, array_slice( $lines2, 7 ) );
-		yield array( 'Jetpack-Compat-85', self::SRC2, array_slice( $lines2, 8 ) );
+		yield array( 'Jetpack-Compat-80', self::SRC2, array_slice( $lines2, 1 ) );
+		yield array( 'Jetpack-Compat-81', self::SRC2, array_slice( $lines2, 2 ) );
+		yield array( 'Jetpack-Compat-82', self::SRC2, array_slice( $lines2, 3 ) );
+		yield array( 'Jetpack-Compat-83', self::SRC2, array_slice( $lines2, 4 ) );
+		yield array( 'Jetpack-Compat-84', self::SRC2, array_slice( $lines2, 5 ) );
+		yield array( 'Jetpack-Compat-85', self::SRC2, array_slice( $lines2, 6 ) );
 	}
 }

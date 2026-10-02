@@ -8,8 +8,9 @@
 namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Feature_Flags\Feature_Flags;
 use Automattic\Jetpack\Newsletter\Settings;
-use Automattic\Jetpack\Newsletter\Subscribers_Announcement;
+use Automattic\Jetpack\Newsletter\Subscriber_Stats_Controller;
 use Automattic\Jetpack\WP_Build_Polyfills\WP_Build_Polyfills;
 use PHPUnit\Framework\Attributes\CoversClass;
 use WorDBless\BaseTestCase;
@@ -23,13 +24,22 @@ use WorDBless\BaseTestCase;
 class Settings_Test extends BaseTestCase {
 
 	/**
+	 * The screen enter_newsletter_admin_request() replaced, or false if it has not run.
+	 *
+	 * @var \WP_Screen|null|false
+	 */
+	private $previous_screen = false;
+
+	/**
 	 * Set up before each test.
 	 */
 	public function set_up() {
 		parent::set_up();
 
 		// Reset the in-process Host platform cache so per-test constants take effect.
+		\Automattic\Jetpack\Constants::clear_constants();
 		\Automattic\Jetpack\Status\Cache::clear();
+		Feature_Flags::reset();
 
 		// Reset the static initialized flag between tests.
 		$reflection = new \ReflectionClass( Settings::class );
@@ -39,6 +49,17 @@ class Settings_Test extends BaseTestCase {
 		}
 		$property->setValue( null, false );
 
+		// Reset Subscriber_Stats_Controller's own static registration guard, and the
+		// rest_api_init hook it may have attached in an earlier test, so route
+		// presence assertions don't depend on test execution order.
+		$stats_reflection = new \ReflectionClass( Subscriber_Stats_Controller::class );
+		$stats_property   = $stats_reflection->getProperty( 'registered' );
+		if ( PHP_VERSION_ID < 80100 ) {
+			$stats_property->setAccessible( true );
+		}
+		$stats_property->setValue( null, false );
+		remove_all_actions( 'rest_api_init' );
+
 		// Clear any existing hooks.
 		remove_all_actions( 'admin_menu' );
 		remove_all_actions( 'admin_init' );
@@ -46,16 +67,13 @@ class Settings_Test extends BaseTestCase {
 		remove_all_actions( 'current_screen' );
 		remove_all_filters( 'jetpack_module_configuration_url_subscriptions' );
 		remove_all_filters( 'jetpack_active_modules' );
+		remove_all_filters( 'jetpack_feature_flag_enabled' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
 
 		// Clear the load action registered by add_wp_admin_menu on success.
 		remove_all_actions( 'load-jetpack_page_jetpack-newsletter' );
-
-		// Clear the Subscribers announcement handlers. Without this a test that
-		// registers them leaks into the next one, and a test asserting they are
-		// absent would pass or fail on ordering rather than on the site-ID gate.
-		remove_all_actions( 'wp_ajax_' . Subscribers_Announcement::TOGGLE_ACTION );
-		remove_all_actions( 'admin_post_' . Subscribers_Announcement::GO_ACTION );
+		remove_all_actions( 'load-admin_page_jetpack-newsletter' );
 	}
 
 	/**
@@ -67,9 +85,21 @@ class Settings_Test extends BaseTestCase {
 		( new Connection_Manager() )->reset_connection_status();
 
 		unset( $_GET['page'] );
+		wp_set_current_user( 0 );
+
+		// Writing_Prompt_Widget_Test relies on the `dashboard` screen an earlier test here leaves behind.
+		if ( false !== $this->previous_screen ) {
+			$GLOBALS['current_screen'] = $this->previous_screen;
+			$this->previous_screen     = false;
+		}
+
 		remove_all_filters( Settings::MODERNIZATION_FILTER );
+		remove_all_filters( 'jetpack_show_newsletter_menu_item' );
 		remove_all_filters( 'site_url' );
 		remove_all_filters( 'home_url' );
+		remove_all_filters( 'jetpack_feature_flag_enabled' );
+		remove_all_filters( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG );
+		Feature_Flags::reset();
 
 		// Dequeue any scripts that may have leaked into globals during the test.
 		wp_dequeue_script( 'jp-tracks' );
@@ -232,6 +262,104 @@ class Settings_Test extends BaseTestCase {
 			self::call_private_static_is_modernized(),
 			'A consumer filter returning false must take precedence over the modernization default.'
 		);
+	}
+
+	/**
+	 * Test that the Overview feature flag is registered disabled by default.
+	 */
+	public function test_register_feature_flags_registers_overview_disabled_by_default() {
+		Settings::register_feature_flags();
+
+		$this->assertSame(
+			array(
+				'default'     => false,
+				'description' => 'Enable the Newsletter Overview and Stats tabs.',
+				'owner'       => 'jetpack-newsletter',
+				'name'        => Settings::OVERVIEW_FEATURE_FLAG,
+			),
+			Feature_Flags::get( Settings::OVERVIEW_FEATURE_FLAG )
+		);
+	}
+
+	/**
+	 * Test that script data exposes the disabled Overview feature flag.
+	 */
+	public function test_add_script_data_exposes_overview_disabled_by_default() {
+		Settings::register_feature_flags();
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertFalse( $data['newsletter']['overviewEnabled'] );
+	}
+
+	/**
+	 * Test that script data exposes an enabled Overview feature flag.
+	 */
+	public function test_add_script_data_exposes_enabled_overview() {
+		Settings::register_feature_flags();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
+
+		$data = ( new Settings() )->add_script_data( array() );
+
+		$this->assertTrue( $data['newsletter']['overviewEnabled'] );
+	}
+
+	/**
+	 * Test that the Stats REST routes are not registered while the Overview flag
+	 * that also gates them is disabled (the default).
+	 *
+	 * Unlike Overview's own UI chrome, Stats exposes real subscriber/email data
+	 * over REST, so the routes themselves — not just the UI — must stay
+	 * unregistered while off. Stats is a temporary standalone page that shares
+	 * Overview's flag rather than getting its own.
+	 */
+	public function test_register_feature_flags_does_not_register_stats_routes_when_overview_disabled() {
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
+	}
+
+	/**
+	 * Test that the Stats REST routes are registered once the shared Overview
+	 * flag is enabled.
+	 */
+	public function test_register_feature_flags_registers_stats_routes_when_overview_enabled() {
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
+	}
+
+	public function test_does_not_register_stats_routes_on_wpcom_simple() {
+		\Automattic\Jetpack\Constants::set_constant( 'IS_WPCOM', true );
+		\Automattic\Jetpack\Status\Cache::clear();
+		add_filter( 'jetpack_feature_flag_enabled_' . Settings::OVERVIEW_FEATURE_FLAG, '__return_true' );
+
+		global $wp_rest_server;
+		$wp_rest_server = new \WP_REST_Server();
+
+		Settings::register_feature_flags();
+		do_action( 'rest_api_init' );
+
+		$routes = rest_get_server()->get_routes();
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/subscribers', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/emails/summary', $routes );
+		$this->assertArrayNotHasKey( '/wpcom/v2/newsletter/stats/recent-posts', $routes );
 	}
 
 	/**
@@ -441,7 +569,7 @@ class Settings_Test extends BaseTestCase {
 	/**
 	 * `maybe_load_wp_build` is hooked at admin_menu priority 1 on every request,
 	 * but it must short-circuit unless the visitor is on `?page=jetpack-newsletter`.
-	 * It registers a `current_screen` listener as the easy-to-observe side effect.
+	 * It registers the screen alias on `admin_enqueue_scripts` as the easy-to-observe side effect.
 	 */
 	public function test_maybe_load_wp_build_short_circuits_off_newsletter_admin_request() {
 		unset( $_GET['page'] );
@@ -449,7 +577,7 @@ class Settings_Test extends BaseTestCase {
 		Settings::maybe_load_wp_build();
 
 		$this->assertFalse(
-			has_action( 'current_screen', array( Settings::class, 'alias_screen_id_for_wp_build' ) ),
+			has_action( 'admin_enqueue_scripts', array( Settings::class, 'alias_screen_id_for_wp_build' ) ),
 			'maybe_load_wp_build must not register the screen alias when no admin page is requested.'
 		);
 	}
@@ -466,45 +594,199 @@ class Settings_Test extends BaseTestCase {
 		Settings::maybe_load_wp_build();
 
 		$this->assertFalse(
-			has_action( 'current_screen', array( Settings::class, 'alias_screen_id_for_wp_build' ) ),
+			has_action( 'admin_enqueue_scripts', array( Settings::class, 'alias_screen_id_for_wp_build' ) ),
 			'maybe_load_wp_build must not register the screen alias when modernization is disabled.'
 		);
 	}
 
-	/**
-	 * `alias_screen_id_for_wp_build` rewrites the current screen's id so wp-build's
-	 * auto-generated `<page>-wp-admin` enqueue check passes. The slug we expose
-	 * to admins stays `jetpack-newsletter`, but wp-build expects
-	 * `jetpack-newsletter-dashboard` — the alias hides the mismatch.
-	 *
-	 * @phan-suppress PhanTypeMismatchArgumentProbablyReal -- stdClass stands in for WP_Screen; the production code only requires an object with an `id` property, and instantiating WP_Screen in unit tests is impractical.
-	 */
-	public function test_alias_screen_id_rewrites_current_screen_id() {
-		$screen      = (object) array( 'id' => 'jetpack_page_jetpack-newsletter' );
-		$original_id = $screen->id;
+	public function test_maybe_load_wp_build_hooks_the_screen_alias_around_the_generated_check() {
+		$this->enter_newsletter_admin_request();
 
-		Settings::alias_screen_id_for_wp_build( $screen );
+		Settings::maybe_load_wp_build();
 
-		$this->assertSame(
-			'jetpack-newsletter-dashboard',
-			$screen->id,
-			'alias must rewrite the screen id so wp-build enqueue checks pass.'
-		);
-		$this->assertNotSame( $original_id, $screen->id );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Settings::class, 'alias_screen_id_for_wp_build' ) ) );
+		$this->assertSame( 10, has_action( 'admin_enqueue_scripts', array( Settings::class, 'restore_screen_id_after_wp_build' ) ) );
+		$this->assertFalse( has_action( 'current_screen', array( Settings::class, 'alias_screen_id_for_wp_build' ) ) );
+	}
+
+	public function test_screen_id_is_restored_after_admin_enqueue_scripts() {
+		$this->enter_newsletter_admin_request();
+
+		Settings::maybe_load_wp_build();
+		do_action( 'current_screen', get_current_screen() );
+		do_action( 'admin_enqueue_scripts', 'jetpack_page_jetpack-newsletter' );
+
+		$this->assertSame( 'jetpack_page_jetpack-newsletter', get_current_screen()->id );
+	}
+
+	public function test_alias_screen_id_round_trip() {
+		$this->enter_newsletter_admin_request();
+		Settings::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-newsletter', get_current_screen()->id );
+
+		Settings::alias_screen_id_for_wp_build();
+		$this->assertSame( 'jetpack-newsletter-dashboard', get_current_screen()->id );
+
+		Settings::restore_screen_id_after_wp_build();
+		$this->assertSame( 'jetpack_page_jetpack-newsletter', get_current_screen()->id );
+
+		unset( $GLOBALS['current_screen'] );
+		Settings::alias_screen_id_for_wp_build();
+		Settings::restore_screen_id_after_wp_build();
 	}
 
 	/**
-	 * The alias is called from the `current_screen` action, which can pass null
-	 * before the screen is set. The guard must accept that without warning.
-	 *
-	 * @phan-suppress PhanTypeMismatchArgumentProbablyReal -- the whole point of this test is to drive non-WP_Screen values through the `is_object()` guard.
+	 * A hidden menu item registers under another screen ID.
 	 */
-	public function test_alias_screen_id_is_noop_for_non_object_input() {
-		// Calling with null/false/string must not warn or throw.
-		Settings::alias_screen_id_for_wp_build( null );
-		Settings::alias_screen_id_for_wp_build( false );
-		Settings::alias_screen_id_for_wp_build( 'not-a-screen' );
+	public function test_hidden_menu_item_registers_under_its_own_screen() {
+		$this->connect_site_with_subscriptions();
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'newsletter_admin_' . wp_rand( 1, PHP_INT_MAX ),
+					'user_pass'  => 'password',
+					'role'       => 'administrator',
+				)
+			)
+		);
+		add_filter( 'jetpack_show_newsletter_menu_item', '__return_false' );
 
-		$this->expectNotToPerformAssertions();
+		$settings = new Settings();
+		$settings->add_wp_admin_menu();
+
+		$this->assertNotFalse( has_action( 'load-admin_page_jetpack-newsletter', array( $settings, 'admin_init' ) ) );
+	}
+
+	/**
+	 * Both dashboards render the JITM slot, so neither opts its screen out.
+	 */
+	public function test_dashboard_keeps_jitms() {
+		$this->connect_site_with_subscriptions();
+
+		( new Settings() )->add_wp_admin_menu();
+
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
+
+		add_filter( Settings::MODERNIZATION_FILTER, '__return_false' );
+
+		( new Settings() )->add_wp_admin_menu();
+
+		$this->assertTrue( apply_filters( 'jetpack_display_jitms_on_screen', true, 'jetpack_page_jetpack-newsletter' ) );
+	}
+
+	/**
+	 * Connect the site and turn the subscriptions module on, so add_wp_admin_menu() registers the page.
+	 */
+	private function connect_site_with_subscriptions() {
+		\Jetpack_Options::update_option( 'id', 1234 );
+		\Jetpack_Options::update_option( 'blog_token', 'test_token.secret' );
+		( new Connection_Manager() )->reset_connection_status();
+		add_filter( 'jetpack_active_modules', array( $this, 'mock_subscriptions_active' ) );
+	}
+
+	/**
+	 * Put the request on the Newsletter admin page.
+	 */
+	private function enter_newsletter_admin_request() {
+		$this->previous_screen = $GLOBALS['current_screen'] ?? null;
+		set_current_screen( 'jetpack_page_jetpack-newsletter' );
+		$_GET['page'] = 'jetpack-newsletter';
+	}
+
+	/**
+	 * Capture where redirect_retired_subscribers_page() sends the request.
+	 *
+	 * The method ends in `wp_safe_redirect()` + `exit`, so the redirect is intercepted
+	 * at the `wp_redirect` filter and aborted with an exception before either headers
+	 * or the exit are reached.
+	 *
+	 * @return string|null The redirect target, or null if no redirect happened.
+	 */
+	private function capture_retired_subscribers_redirect() {
+		$redirect = null;
+
+		$capture = /** @return never */ function ( $location ) use ( &$redirect ) {
+			$redirect = $location;
+			throw new \RuntimeException( 'redirected' );
+		};
+
+		add_filter( 'wp_redirect', $capture );
+
+		try {
+			Settings::redirect_retired_subscribers_page();
+		} catch ( \RuntimeException $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
+			// Expected — stands in for the `exit` after the redirect.
+		} finally {
+			remove_filter( 'wp_redirect', $capture );
+		}
+
+		return $redirect;
+	}
+
+	/**
+	 * Give the current user the capability the retired page required.
+	 *
+	 * @return void
+	 */
+	private function set_up_admin_user() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'newsletter_settings_admin_' . wp_rand(),
+				'user_pass'  => 'password',
+				'user_email' => 'newsletter-settings-admin-' . wp_rand() . '@example.com',
+				'role'       => 'administrator',
+			)
+		);
+		if ( is_wp_error( $user_id ) ) {
+			$this->fail( $user_id->get_error_message() );
+		}
+		wp_set_current_user( $user_id );
+	}
+
+	/**
+	 * A bookmark for the retired Subscribers page lands on Newsletter.
+	 */
+	public function test_retired_subscribers_page_redirects_to_newsletter() {
+		$this->set_up_admin_user();
+		$_GET['page'] = Settings::RETIRED_SUBSCRIBERS_PAGE_SLUG;
+
+		$this->assertSame(
+			admin_url( 'admin.php?page=' . Settings::ADMIN_PAGE_SLUG ),
+			$this->capture_retired_subscribers_redirect()
+		);
+	}
+
+	/**
+	 * Witness for the assertion above: the capture harness returns null when nothing
+	 * redirects, so an asserted null is the slug check and not a blind spot.
+	 */
+	public function test_other_pages_are_not_redirected() {
+		$this->set_up_admin_user();
+		$_GET['page'] = Settings::ADMIN_PAGE_SLUG;
+
+		$this->assertNull( $this->capture_retired_subscribers_redirect() );
+	}
+
+	/**
+	 * Nobody without `manage_options` could open the retired page, so they keep
+	 * WordPress's own denial instead of being bounced to a page they also cannot see.
+	 */
+	public function test_retired_subscribers_page_is_not_redirected_without_the_capability() {
+		wp_set_current_user( 0 );
+		$_GET['page'] = Settings::RETIRED_SUBSCRIBERS_PAGE_SLUG;
+
+		$this->assertNull( $this->capture_retired_subscribers_redirect() );
+	}
+
+	/**
+	 * The redirect has to be wired up, not just callable.
+	 */
+	public function test_init_hooks_registers_the_retired_subscribers_redirect() {
+		( new Settings() )->init_hooks();
+
+		$this->assertSame(
+			1,
+			has_action( 'admin_menu', array( Settings::class, 'redirect_retired_subscribers_page' ) )
+		);
 	}
 }

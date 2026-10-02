@@ -146,7 +146,7 @@ function OpenTableEdit( {
 			: [
 					'button' === fromStyle ? 'button' : 'standard',
 					'button' === fromStyle ? 'standard' : fromStyle,
-			  ];
+				];
 
 	const blockPreview = styleOverride => {
 		const [ type, theme ] = getTypeAndTheme( styleOverride ? styleOverride : style );

@@ -1,11 +1,12 @@
-import { scaleBand } from '@visx/scale';
 import { DataContext } from '@visx/xychart';
 import { useContext } from 'react';
+import { createGroupScale } from './band-scale';
 import { computeComparisonRect, getValueScaleBaseline } from './comparison-bars-geometry';
 import {
 	DEFAULT_COMPARISON_OPACITY,
 	DEFAULT_COMPARISON_WIDTH_FACTOR,
 } from './comparison-constants';
+import type { BandScale } from './band-scale';
 import type { ElementStyles, GetElementStylesParams } from '../../../providers';
 import type { DataPointDate, SeriesData } from '../../../types';
 import type { FC, ReactNode } from 'react';
@@ -26,10 +27,8 @@ export type ComparisonSeriesEntry = {
 
 // Minimal shape we need from visx scales — avoids spreading `any` while
 // remaining compatible with both band and continuous scale return types.
-type AnyScale = ( ( input: unknown ) => number ) & {
-	bandwidth?: () => number;
-	range: () => unknown[];
-};
+type AnyScale = ( ( input: unknown ) => number ) &
+	Partial< Pick< BandScale, 'bandwidth' > > & { range: () => unknown[] };
 
 // Renders translucent "shadow" bars for comparison series behind their paired primary bars.
 // IMPORTANT: each comparison datum's category key (label or date) must exactly match a key
@@ -73,11 +72,7 @@ export const ComparisonBars: FC< {
 	}
 
 	// Rebuild visx's inner group scale exactly as BarGroup does.
-	const groupScale = scaleBand( {
-		domain: primaryKeys,
-		range: [ 0, bandwidth ],
-		padding: groupPadding,
-	} );
+	const groupScale = createGroupScale( primaryKeys, bandwidth, groupPadding );
 	const slotThickness = groupScale.bandwidth();
 	const baseline = getValueScaleBaseline( valueScale );
 

@@ -8,7 +8,7 @@ import { render } from '@testing-library/react';
  */
 import { useClicksReportRecords } from './config';
 import ClicksReportPage from './page';
-import type { ClickRow } from './config';
+import type { ClickRow } from '@jetpack-premium-analytics/widgets-toolkit';
 import type { ReactNode } from 'react';
 
 jest.mock( './config', () => ( {
@@ -29,12 +29,11 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportCsvAction: () => null,
+	ExporterCsvAction: () => null,
 	ReportDrilldownTable: jest.fn( () => null ),
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
-	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'clicks' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
 } ) );
 
@@ -93,17 +92,14 @@ describe( 'ClicksReportPage', () => {
 	} );
 
 	it( 'keeps the rows on screen while a background refetch is in flight', () => {
-		// The queries carry `placeholderData`, so a refetch triggered by a date or
-		// comparison change still has the previous rows. Handing the table an empty
-		// set would drop the user's search, sorting, page position, and the expanded
-		// state of every click group mid-refetch, so the rows stay mounted and only
-		// the loading state reflects the refetch.
+		// `placeholderData` keeps the previous rows during a refetch, so search/sort/
+		// expanded state survive a date or comparison change instead of resetting.
 		mockRecords( { isFetching: true } );
 
 		render( <ClicksReportPage /> );
 
 		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: true } )
+			expect.objectContaining( { data: [ row ], isLoading: false, isFetching: true } )
 		);
 	} );
 
@@ -113,7 +109,12 @@ describe( 'ClicksReportPage', () => {
 		render( <ClicksReportPage /> );
 
 		expect( reportDrilldownTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { data: [ row ], isLoading: false } )
+			expect.objectContaining( {
+				data: [ row ],
+				isLoading: false,
+				collapsible: true,
+				defaultExpanded: 'none',
+			} )
 		);
 	} );
 } );

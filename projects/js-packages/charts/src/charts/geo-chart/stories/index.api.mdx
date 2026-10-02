@@ -18,6 +18,8 @@ Main component for rendering geographical data on an interactive world map using
 | `aspectRatio` | `number` | - | Height-to-width ratio (e.g. `0.625`) for responsive charts; the chart is contained within its parent on both axes. Used when `width`/`height` are omitted. |
 | `region` | `GeoRegion` | `'world'` | Region to display. Use `'world'` for a global view or any ISO 3166-1 alpha-2 country code (e.g., `'US'`) |
 | `resolution` | `GeoResolution` | `'countries'` | Map resolution: `'countries'`, `'provinces'` (state/province level, use with a specific region), or `'metros'` (US only) |
+| `displayMode` | `GeoDisplayMode` | `'regions'` | `'regions'` shades each area the rows name; `'markers'` draws a circle per row, placed by name or by `[ latitude, longitude ]` in the first two columns |
+| `domain` | `string` | - | ISO 3166-1 alpha-2 code of the country whose viewpoint sets the disputed borders (e.g., `'IN'`). Google's default borders apply when omitted |
 | `onError` | `(error: GeoChartError) => void` | - | Callback fired when Google Charts emits a chart error, including draw errors Google renders into the chart container (e.g. a missing map file) |
 | `className` | `string` | - | Additional CSS class name for the chart container |
 | `chartId` | `string` | - | Custom chart identifier for accessibility |
@@ -31,6 +33,8 @@ interface GeoChartProps
   data: GeoData;
   region?: GeoRegion;
   resolution?: GeoResolution;
+  displayMode?: GeoDisplayMode;
+  domain?: string;
   onError?: (error: GeoChartError) => void;
   renderPlaceholder?: () => React.ReactNode;
 }
@@ -84,13 +88,16 @@ Errors reach `onError` from two paths: the Google ChartWrapper `error` event, an
 
 ## Theme Properties
 
-The following properties can be customized via the theme system:
+The color axis range is the first series palette color, set in CSS as `--a8c-charts-color-series-1` rather than through the theme object. See [The Series Palette](?path=/docs/js-packages-charts-library-providers-globalchartsprovider--docs).
 
-| Property | Type | Default | Description |
-| -------- | ---- | ------- | ----------- |
-| `colors[0]` | `string` | `'#98C8DF'` | Primary color used for data visualization (color axis range) |
-| `backgroundColor` | `string` | `'var(--a8c-charts-color-background, #fff)'` | Background color of the map |
-| `geoChart.featureFillColor` | `string` | `'var(--a8c-charts-color-surface-secondary, #f4f4f4)'` | Fill color for countries without data values |
+The remaining colors are catalog roles, declared in CSS:
+
+| Role | Paints | Default |
+| ---- | ------ | ------- |
+| `--a8c-charts-color-background` | Behind the map | `#fff` |
+| `--a8c-charts-color-surface-secondary` | Countries without data values | `#f4f4f4` |
+
+Google Charts takes a config object rather than painting the DOM, so both are read as resolved hex at render. A change to either needs a re-render before the map follows it.
 
 ## Country Identification
 
@@ -148,9 +155,9 @@ The chart uses Google Charts' default **Mercator projection** for world map visu
 
 Colors are automatically scaled using Google Charts' `colorAxis` option:
 
-- **Colors**: Configured as a gradient from a light version of the theme's primary color to the full primary color
+- **Colors**: Configured as a gradient from a light version of the first palette color to the full color
 - **Data mapping**: Countries with higher values appear with more saturated colors
-- **Dataless regions**: Countries without data use the `geoChart.featureFillColor` theme property
+- **Dataless regions**: Countries without data use `--a8c-charts-color-surface-secondary`
 
 ## Google Charts Options
 
@@ -158,10 +165,10 @@ The component configures the following Google Charts options internally:
 
 | Option | Value | Description |
 | ------ | ----- | ----------- |
-| `colorAxis.colors` | `[lightColor, fullColor]` | Gradient from lightened (80% blend with white) to full theme color |
-| `backgroundColor` | Theme value | Map background color |
-| `datalessRegionColor` | Theme value | Color for countries without data |
-| `defaultColor` | Theme value | Default region color |
+| `colorAxis.colors` | `[lightColor, fullColor]` | Gradient from lightened (80% blend with white) to `--a8c-charts-color-series-1` |
+| `backgroundColor` | `--a8c-charts-color-background` | Map background color |
+| `datalessRegionColor` | `--a8c-charts-color-surface-secondary` | Color for countries without data |
+| `defaultColor` | `--a8c-charts-color-surface-secondary` | Default region color |
 | `tooltip.trigger` | `'focus'` | Show tooltip on focus/hover |
 | `legend` | `'none'` | Hide the color legend |
 | `keepAspectRatio` | `true` | Maintain the map's aspect ratio within dimensions |

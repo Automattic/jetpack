@@ -12,6 +12,24 @@ const wpcom_profile_settings_modify_language_section = () => {
 	}
 };
 
+const wpcom_profile_settings_modify_username_section = () => {
+	const section = document.querySelector( '.user-user-login-wrap' )?.querySelector( 'td' );
+	const settingsLink = window.wpcomProfileSettingsLinkToWpcom?.username?.link;
+	const settingsLinkText = window.wpcomProfileSettingsLinkToWpcom?.username?.text;
+	if ( section && settingsLink && settingsLinkText ) {
+		const notice = document.createElement( 'p' );
+		notice.className = 'description';
+		notice.innerHTML = `<a href="${ settingsLink }">${ settingsLinkText }</a>`;
+		section.appendChild( notice );
+	}
+
+	const field = section?.querySelector( 'input' );
+	if ( field ) {
+		field.classList.add( 'hidden' );
+	}
+	section?.querySelector( 'span.description' )?.remove();
+};
+
 const wpcom_profile_settings_modify_name_section = () => {
 	const table = document.querySelector( '.user-user-login-wrap' )?.parentElement;
 
@@ -40,7 +58,6 @@ const wpcom_profile_settings_modify_name_section = () => {
 	}
 
 	[
-		'.user-user-login-wrap',
 		'.user-first-name-wrap',
 		'.user-last-name-wrap',
 		'.user-nickname-wrap',
@@ -133,6 +150,7 @@ const wpcom_profile_settings_modify_password_section = () => {
 
 document.addEventListener( 'DOMContentLoaded', () => {
 	wpcom_profile_settings_modify_language_section();
+	wpcom_profile_settings_modify_username_section();
 	wpcom_profile_settings_modify_name_section();
 	wpcom_profile_settings_modify_email_section();
 	wpcom_profile_settings_modify_website_section();

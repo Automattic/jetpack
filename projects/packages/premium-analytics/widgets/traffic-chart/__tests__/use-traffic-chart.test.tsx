@@ -87,10 +87,9 @@ function routeRequests( comparison?: ComparisonFixtures ) {
 }
 
 /**
- * The `stats/visits` requests the hook issued. `apiFetch` is mocked wholesale, so
- * it also records core-data's own `/wp/v2/settings` traffic (the site timezone
- * resolves through it) — counting raw calls would make these assertions depend on
- * when that happens to be warmed.
+ * The `stats/visits` requests the hook issued. `apiFetch` is mocked wholesale
+ * and also records core-data's `/wp/v2/settings` traffic, so raw call counts
+ * would depend on when that warms.
  *
  * @return One path per visits request, in call order.
  */
@@ -106,11 +105,16 @@ function wrapper( { children }: { children: ReactNode } ) {
 
 describe( 'useTrafficChart', () => {
 	beforeEach( () => {
+		jest.useFakeTimers();
 		// The data package's query client is a module-level singleton; drop its
 		// cache so each test starts from a fresh fetch.
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		routeRequests();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
 	} );
 
 	it( 'builds one tab per metric in canonical order, with summary totals', async () => {
@@ -125,14 +129,39 @@ describe( 'useTrafficChart', () => {
 			'comments',
 			'likes',
 		] );
-		// This only proves `value` is each metric's correct total (not a
-		// hardcoded or swapped field) — sanitizeStatsTimeSeriesResponse derives
-		// the summary by summing these same rows, so it can't tell a
-		// summary-read apart from a re-sum of the points.
+		// Proves `value` is each metric's correct total, not that it's read from the
+		// summary field — sanitizeStatsTimeSeriesResponse sums these same rows either way.
 		expect( metrics[ 0 ].value ).toBe( 2000 );
 		expect( metrics[ 1 ].value ).toBe( 1500 );
 		expect( metrics[ 2 ].value ).toBe( 20 );
 		expect( metrics[ 3 ].value ).toBe( 50 );
+	} );
+
+	it( 'pairs Views with Visitors, starting Views hidden only on the Visitors tab', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		const [ views, visitors ] = result.current.metrics;
+		expect( views ).toMatchObject( { counterpartKey: 'visitors' } );
+		expect( visitors ).toMatchObject( { counterpartKey: 'views' } );
+		expect( views.counterpartHidden ).toBeUndefined();
+		expect( visitors.counterpartHidden ).toBe( true );
+	} );
+
+	it( 'pluralizes the tooltip unit of each metric', async () => {
+		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
+
+		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+		expect(
+			result.current.metrics.map( metric => [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ] )
+		).toEqual( [
+			[ '%s View', '%s Views' ],
+			[ '%s Visitor', '%s Visitors' ],
+			[ '%s Comment', '%s Comments' ],
+			[ '%s Like', '%s Likes' ],
+		] );
 	} );
 
 	it( 'maps one chart point per period, oldest first', async () => {
@@ -183,9 +212,8 @@ describe( 'useTrafficChart', () => {
 		expect( byKey.views.previous ).toHaveLength( 1 );
 	} );
 
-	// The misleading-zero guard: an empty comparison response must read as "no
-	// previous period", not as a previous total of 0 (which would render a
-	// -100% delta against a real current value).
+	// Misleading-zero guard: an empty comparison response must read as "no
+	// previous period", not a previous total of 0 (would render a false -100% delta).
 	it( 'omits the previous period when the comparison request returns no rows', async () => {
 		// Shared between the views/visitors and likes/comments requests below, so
 		// `fields` names neither pair specifically; `data: []` means it's never read.
@@ -209,14 +237,26 @@ describe( 'useTrafficChart', () => {
 	} );
 
 	describe( 'hourly', () => {
-		const HOURLY_RANGE: ReportParams = {
-			from: '2026-06-15T00:00:00+00:00',
-			to: '2026-06-15T23:59:59+00:00',
+		const DAY_RANGE: ReportParams = {
+			from: '2026-06-15T00:00:00.000+00:00',
+			to: '2026-06-15T23:59:59.999+00:00',
 			interval: 'hour',
 		};
 
-		// `stats/visits` fills Views alone at this grain, so the hook must not ask
-		// for the rest, and must say why they are missing rather than show a zero.
+		// "Last 24 hours": daily buckets would cover up to two whole days.
+		const ROLLING_RANGE: ReportParams = {
+			from: '2026-06-14T13:00:00.000+00:00',
+			to: '2026-06-15T12:59:59.999+00:00',
+			interval: 'hour',
+		};
+
+		const LONG_PARTIAL_RANGE: ReportParams = {
+			from: '2026-06-12T13:00:00.000+00:00',
+			to: '2026-06-15T12:59:59.999+00:00',
+			interval: 'hour',
+		};
+
+		// `stats/visits` fills Views alone at this grain.
 		const HOURLY_VIEWS_RESPONSE = {
 			unit: 'hour',
 			fields: [ 'period', 'views' ],
@@ -226,40 +266,92 @@ describe( 'useTrafficChart', () => {
 			],
 		};
 
+		const DAILY_TOTALS_RESPONSE = {
+			unit: 'day',
+			fields: [ 'period', 'visitors', 'likes', 'comments' ],
+			data: [ [ '2026-06-15', 9, 3, 2 ] ],
+		};
+
 		beforeEach( () => {
-			mockApiFetch.mockImplementation( () => Promise.resolve( HOURLY_VIEWS_RESPONSE ) );
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				Promise.resolve(
+					path.includes( 'unit=day' ) ? DAILY_TOTALS_RESPONSE : HOURLY_VIEWS_RESPONSE
+				)
+			);
 		} );
 
-		it( 'requests only Views, as hourly buckets covering the range', async () => {
-			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+		it( 'asks for the other metrics as a daily total when the range covers whole days', async () => {
+			const { result } = renderHook( () => useTrafficChart( DAY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const paths = visitsPaths();
+			expect( paths ).toHaveLength( 2 );
+			const hourly = paths.find( path => path.includes( 'unit=hour' ) );
+			const daily = paths.find( path => path.includes( 'unit=day' ) );
+			// The endpoint counts the hourly buckets from these two, so they have
+			// to reach it with their time of day intact.
+			expect( hourly ).toContain(
+				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00.000+00:00' ) }`
+			);
+			expect( hourly ).toMatch( /stat_fields=views(&|$)/ );
+			expect( daily ).toContain(
+				`stat_fields=${ encodeURIComponent( 'visitors,likes,comments' ) }`
+			);
+		} );
+
+		it( 'shows the daily totals on the cards without drawing them on the hourly axis', async () => {
+			const { result } = renderHook( () => useTrafficChart( DAY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			const [ views, visitors, comments, likes ] = result.current.metrics;
+			expect( views.value ).toBe( 100 );
+			expect( views.current ).toHaveLength( 2 );
+			expect( views.seriesUnavailable ).toBeUndefined();
+
+			expect( [ visitors.value, comments.value, likes.value ] ).toEqual( [ 9, 2, 3 ] );
+			for ( const metric of [ visitors, likes, comments ] ) {
+				expect( metric.unavailable ).toBeUndefined();
+				expect( metric.seriesUnavailable ).toBe( "Hourly data isn't available for this metric." );
+				expect( metric.current ).toEqual( [] );
+			}
+		} );
+
+		it( 'keeps the hourly Views chart when the daily totals request fails', async () => {
+			mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
+				path.includes( 'unit=day' )
+					? Promise.reject( { error: 'unauthorized', status: 403 } )
+					: Promise.resolve( HOURLY_VIEWS_RESPONSE )
+			);
+
+			const { result } = renderHook( () => useTrafficChart( DAY_RANGE, 'hour' ), { wrapper } );
+
+			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
+
+			expect( result.current.isError ).toBe( false );
+			const [ views, visitors, comments, likes ] = result.current.metrics;
+			expect( views.current ).toHaveLength( 2 );
+			for ( const metric of [ visitors, comments, likes ] ) {
+				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
+			}
+		} );
+
+		it.each( [
+			[ 'a rolling day', ROLLING_RANGE ],
+			[ 'a partial range longer than two days', LONG_PARTIAL_RANGE ],
+		] )( 'requests only Views for %s', async ( _label, range ) => {
+			const { result } = renderHook( () => useTrafficChart( range, 'hour' ), { wrapper } );
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
 			const paths = visitsPaths();
 			expect( paths ).toHaveLength( 1 );
 			expect( paths[ 0 ] ).toContain( 'unit=hour' );
-			// The endpoint counts the hourly buckets from these two, so they have
-			// to reach it with their time of day intact.
-			expect( paths[ 0 ] ).toContain(
-				`start_date=${ encodeURIComponent( '2026-06-15T00:00:00+00:00' ) }`
-			);
-			expect( paths[ 0 ] ).toContain(
-				`date=${ encodeURIComponent( '2026-06-15T23:59:59+00:00' ) }`
-			);
-			expect( paths[ 0 ] ).toContain( 'stat_fields=views' );
 			expect( paths[ 0 ] ).not.toContain( 'visitors' );
-		} );
-
-		it( 'marks the metrics the endpoint cannot serve, leaving Views with its points', async () => {
-			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
-
-			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
 			const [ views, visitors, likes, comments ] = result.current.metrics;
 			expect( views.unavailable ).toBeUndefined();
-			expect( views.value ).toBe( 100 );
-			expect( views.current ).toHaveLength( 2 );
-
 			for ( const metric of [ visitors, likes, comments ] ) {
 				expect( metric.unavailable ).toBe( "Hourly data isn't available for this metric." );
 			}
@@ -268,7 +360,7 @@ describe( 'useTrafficChart', () => {
 		// A manual refetch would ignore `enabled`; `useReport` gates its combined
 		// refetch on it, so the skipped request stays skipped through a retry.
 		it( 'still asks for Views alone when the retry action runs', async () => {
-			const { result } = renderHook( () => useTrafficChart( HOURLY_RANGE, 'hour' ), { wrapper } );
+			const { result } = renderHook( () => useTrafficChart( ROLLING_RANGE, 'hour' ), { wrapper } );
 
 			await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 

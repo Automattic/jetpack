@@ -35,8 +35,7 @@ interface VisitorsByLocationStoryControls {
 type VisitorsByLocationStoryProps = VisitorsByLocationWidgetProps & VisitorsByLocationStoryControls;
 
 interface VisitorsByLocationDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		VisitorsByLocationStoryControls {}
+	extends WidgetDashboardWithWidgetControls, VisitorsByLocationStoryControls {}
 
 const withWidgetCanvas: Decorator = Story => (
 	<GlobalErrorProvider>

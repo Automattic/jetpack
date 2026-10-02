@@ -26,6 +26,7 @@ interface SearchTermViewsState {
 	isLoading: boolean;
 	isFetching: boolean;
 	isError: boolean;
+	isPrimaryError: boolean;
 	error: unknown;
 	hasComparison: boolean;
 	refetch: () => void;
@@ -43,6 +44,7 @@ export default function useSearchTermViews( {
 	max,
 }: UseSearchTermViewsArgs ): SearchTermViewsState {
 	const {
+		primary,
 		comparisonRows,
 		comparison,
 		hasComparison,
@@ -74,6 +76,7 @@ export default function useSearchTermViews( {
 		isLoading,
 		isFetching,
 		isError: showError,
+		isPrimaryError: primary.isError,
 		error: showError ? error : null,
 		hasComparison: comparisonUsable,
 		refetch,

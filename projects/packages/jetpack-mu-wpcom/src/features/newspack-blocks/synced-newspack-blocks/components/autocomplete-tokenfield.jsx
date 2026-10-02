@@ -73,11 +73,7 @@ class AutocompleteTokenField extends Component {
 	 */
 	getLabelsForValues( values ) {
 		const { validValues } = this.state;
-		return values.reduce(
-			( accumulator, value ) =>
-				validValues[ value ] ? [ ...accumulator, validValues[ value ] ] : accumulator,
-			[]
-		);
+		return values.reduce( ( accumulator, value ) => ( validValues[ value ] ? [ ...accumulator, validValues[ value ] ] : accumulator ), [] );
 	}
 
 	/**

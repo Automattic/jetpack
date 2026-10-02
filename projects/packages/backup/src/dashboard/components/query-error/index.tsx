@@ -8,9 +8,10 @@ type Props = {
 	title: string;
 	/**
 	 * The query's error, when there is one. Nullable because not every
-	 * failure produces one: a route that answers a non-200 with a bare
-	 * `null` body is served as HTTP 200, so the request resolves and the
-	 * caller's only evidence is its own derived state. Those callers still
+	 * failure produces one: a route that cannot decode WordPress.com's
+	 * answer still returns a bare `null` body served as HTTP 200, so the
+	 * request resolves and the caller's only evidence is its own derived
+	 * state. Those callers still
 	 * need to report the failure — they just have no detail line to add.
 	 */
 	error?: Error | null;

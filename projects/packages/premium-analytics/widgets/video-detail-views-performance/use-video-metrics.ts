@@ -7,14 +7,15 @@ import {
 	type StatsChartBucketPeriod,
 	type StatsSingleVideoDataPoint,
 } from '@jetpack-premium-analytics/data';
+import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
 import {
-	toChartDate,
 	toDay,
+	type CountLabel,
 	type DataFormat,
 	type MetricTab,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import {
 	addDays,
 	eachDayOfInterval,
@@ -88,11 +89,9 @@ type BucketWindow = {
 };
 
 /**
- * Extract a `YYYY-MM-DD` window from ISO report params, or undefined when
- * either bound is missing/malformed (`toDay` also rejects calendar-invalid
- * days before they reach `parseISO()`/`each*OfInterval()`, which throw on
- * them). The endpoint's day keys are date-only, so comparing date prefixes
- * keeps the slice timezone-stable.
+ * Extracts a `YYYY-MM-DD` window from ISO report params, or undefined when a
+ * bound is missing/malformed — `toDay` rejects invalid days before they'd
+ * reach `parseISO()`/`each*OfInterval()`, which throw on them.
  */
 function toDayWindow( from?: string, to?: string ): DayWindow | undefined {
 	const fromDay = toDay( from );
@@ -142,10 +141,9 @@ function calendarBucketWindows(
 }
 
 /**
- * Sum a daily series into zero-filled bucket totals keyed by bucket date. The
- * endpoint returns a contiguous daily `{ period, value }` array for the
- * requested window, so bucketing only sums the returned days and zero-fills
- * whatever the response is missing.
+ * Sums a daily series into zero-filled bucket totals. The endpoint returns a
+ * contiguous daily array for the window, so this only sums returned days and
+ * zero-fills what's missing.
  */
 function bucketTotals(
 	points: StatsSingleVideoDataPoint[],
@@ -165,31 +163,24 @@ function bucketTotals(
 }
 
 /**
- * Turn bucket totals into chart points.
- *
- * The bucket keys are plain site-local calendar dates, and the chart lays
- * points out and labels the axis through the browser's timezone — so the keys
- * are read as wall clocks with `toChartDate`, and the widget declares
- * `pointsAreWallClocks` to the chart (rationale in `chart-date.ts`). A real
- * site-midnight instant here would shift the label a day for any viewer west
- * of the site.
+ * Turns bucket totals into chart points.
  */
 function toBucketPoints(
 	buckets: BucketWindow[],
-	totals: Map< string, number >
+	totals: Map< string, number >,
+	zone: string
 ): VideoMetricPoint[] {
-	return buckets.map( bucket => ( {
-		date: toChartDate( bucket.date ),
-		value: totals.get( bucket.date ) ?? 0,
-	} ) );
+	return buckets.flatMap( bucket => {
+		const date = resolveBucketStamp( bucket.date, zone );
+
+		return date ? [ { date, value: totals.get( bucket.date ) ?? 0 } ] : [];
+	} );
 }
 
 /**
- * Weight each day's retention rate by that day's plays, so a bucket's value is
- * the retention of its combined plays rather than a raw average of days. The
- * daily rates arrive as percentages; the returned fractions match the tab's
- * percentage format. A bucket with no plays has no measured retention — it
- * stays at 0.
+ * Weights each day's retention by that day's plays, so a bucket reflects the
+ * retention of its combined plays, not a raw average of days. Rates arrive as
+ * percentages; returned fractions match the tab's format. No plays → 0.
  */
 function playWeightedRetention(
 	rates: StatsSingleVideoDataPoint[],
@@ -217,17 +208,9 @@ function playWeightedRetention(
 }
 
 /**
- * Fetch the scoped video's metric tabs for the dashboard's report params. The
- * `stats/video/{id}` endpoint takes its window from `period`/`start_date`/
- * `date` (wpcom #229903); the request uses `statType=all` with the raw report
- * params so it stays one request for the whole page, and each returned metric
- * series becomes a chart tab. Headlines come from the response's canonical
- * whole-range `total`s — including the play-weighted retention rate the daily
- * series alone cannot reproduce — falling back to the bucketed sums when a
- * total is missing. The video detail design has no period-over-period
- * comparison, so comparison report params are ignored — they ride along in the
- * URL untouched so dashboard state survives the round trip, and every widget
- * on this page disregards them.
+ * Fetches metric tabs via one `stats/video/{id}` `statType=all` report,
+ * headlined by the response's canonical totals (falling back to bucketed
+ * sums). Comparison params are ignored: the video page has no period-over-period view.
  */
 export default function useVideoMetrics(
 	videoId: number,
@@ -238,7 +221,7 @@ export default function useVideoMetrics(
 		() => toDayWindow( reportParams.from, reportParams.to ),
 		[ reportParams.from, reportParams.to ]
 	);
-	const { data, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
+	const { data, timezone, isLoading, isFetching, isError, error, refetch } = useStatsSingleVideo(
 		videoId,
 		{ from: reportParams.from, to: reportParams.to, period: 'day', statType: 'all' },
 		{ enabled: !! primaryWindow }
@@ -256,15 +239,17 @@ export default function useVideoMetrics(
 			label: string,
 			points: StatsSingleVideoDataPoint[],
 			serverTotal: number | undefined,
-			dataFormat: DataFormat
+			dataFormat: DataFormat,
+			countLabel?: CountLabel
 		): MetricTab => {
-			const current = toBucketPoints( buckets, bucketTotals( points, buckets ) );
+			const current = toBucketPoints( buckets, bucketTotals( points, buckets ), timezone );
 			return {
 				key,
 				label,
 				value: serverTotal ?? current.reduce( ( sum, point ) => sum + point.value, 0 ),
 				current,
 				dataFormat,
+				countLabel,
 			};
 		};
 
@@ -274,7 +259,10 @@ export default function useVideoMetrics(
 				__( 'Views', 'jetpack-premium-analytics-pkg' ),
 				playsSeries,
 				total?.plays,
-				COUNT_FORMAT
+				COUNT_FORMAT,
+				count =>
+					/* translators: %s: number of views. */
+					_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' )
 			),
 		];
 
@@ -287,7 +275,10 @@ export default function useVideoMetrics(
 					__( 'Impressions', 'jetpack-premium-analytics-pkg' ),
 					data.series.impressions,
 					total?.impressions,
-					COUNT_FORMAT
+					COUNT_FORMAT,
+					count =>
+						/* translators: %s: number of impressions. */
+						_n( '%s Impression', '%s Impressions', count, 'jetpack-premium-analytics-pkg' )
 				)
 			);
 		}
@@ -306,14 +297,16 @@ export default function useVideoMetrics(
 			const rates = data.series.retention_rate;
 			const current = toBucketPoints(
 				buckets,
-				playWeightedRetention( rates, playsSeries, buckets )
+				playWeightedRetention( rates, playsSeries, buckets ),
+				timezone
 			);
 			// Headline fallback: the same play-weighting over the whole window as
 			// one bucket. The server total is canonical when present.
 			const windowBucket = primaryWindow ? { date: primaryWindow.from, ...primaryWindow } : null;
 			const windowRate = windowBucket
-				? playWeightedRetention( rates, playsSeries, [ windowBucket ] ).get( windowBucket.date ) ??
-				  0
+				? ( playWeightedRetention( rates, playsSeries, [ windowBucket ] ).get(
+						windowBucket.date
+					) ?? 0 )
 				: 0;
 			tabs.push( {
 				key: 'retention-rate',
@@ -325,7 +318,7 @@ export default function useVideoMetrics(
 		}
 
 		return tabs;
-	}, [ data, period, primaryWindow ] );
+	}, [ data, period, primaryWindow, timezone ] );
 
 	return {
 		metrics,

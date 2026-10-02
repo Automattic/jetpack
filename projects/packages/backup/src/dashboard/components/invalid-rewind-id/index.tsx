@@ -43,7 +43,7 @@ export default function InvalidRewindId( { prefix, title, body }: Props ) {
 				</Link>
 				<Card.Root className={ `${ prefix }__card` }>
 					<Stack direction="column" gap="xs">
-						<Text variant="heading-md" render={ <h3 /> }>
+						<Text variant="heading-md" render={ <h2 /> }>
 							{ title }
 						</Text>
 						<Text variant="body-sm" className="jpb-text-muted">

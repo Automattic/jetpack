@@ -12,6 +12,14 @@ namespace Automattic\Jetpack\VideoPress;
  */
 class Initializer {
 
+	/**
+	 * Bounds of the Latest Videos Playlist block's "Number of videos" setting;
+	 * the editor control uses the same range.
+	 */
+	const LATEST_VIDEOS_PLAYLIST_MIN_COUNT     = 1;
+	const LATEST_VIDEOS_PLAYLIST_MAX_COUNT     = 20;
+	const LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT = 5;
+
 	const JETPACK_VIDEOPRESS_IFRAME_API_HANDLER = 'jetpack-videopress-iframe-api';
 
 	/**
@@ -128,6 +136,7 @@ class Initializer {
 			new WPCOM_REST_API_V2_Endpoint_VideoPress_Caption_Tracks();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Field();
 			new WPCOM_REST_API_V2_Attachment_VideoPress_Data();
+			new WPCOM_REST_API_V2_Endpoint_VideoPress_Edits();
 		};
 		add_action( 'rest_api_init', $register_rest_api_v2_endpoints, 0 );
 		add_action( 'restapi_theme_init', $register_rest_api_v2_endpoints, 0 );
@@ -195,6 +204,9 @@ class Initializer {
 		Initial_State::init();
 		XMLRPC::init();
 		Block_Editor_Content::init();
+		Channel::init();
+		Playlist_Index::init();
+		Analytics_Dashboard::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
@@ -216,6 +228,11 @@ class Initializer {
 			add_action( 'rest_api_init', array( $rest_endpoint, 'init' ), 0 );
 		}
 		self::register_oembed_providers();
+
+		// In inline mode a VideoPress URL never needs the oEmbed round trip: skip
+		// the fetch, and swap iframes already cached in post meta for a placeholder.
+		add_filter( 'pre_oembed_result', array( __CLASS__, 'maybe_pre_oembed_inline_player' ), 10, 2 );
+		add_filter( 'embed_oembed_html', array( __CLASS__, 'maybe_render_oembed_inline_player' ), 5, 4 );
 
 		// Enqueuethe VideoPress Iframe API script in the front-end.
 		add_filter( 'embed_oembed_html', array( __CLASS__, 'enqueue_videopress_iframe_api_script' ), 10, 4 );
@@ -272,6 +289,25 @@ class Initializer {
 
 		// Register Video Playlist block.
 		self::register_videopress_playlist_block();
+
+		// Register Latest Videos Playlist block.
+		self::register_videopress_latest_videos_playlist_block();
+
+		// Register All Playlists block.
+		self::register_videopress_all_playlists_block();
+	}
+
+	/**
+	 * Register the All Playlists block, which lists the site's Video Playlist
+	 * blocks from the playlist index.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_all_playlists_block( $metadata_file = null ) {
+		All_Playlists_Block::register( $metadata_file );
 	}
 
 	/**
@@ -288,11 +324,14 @@ class Initializer {
 	public static function render_videopress_video_block( $block_attributes, $content, $block ) {
 		global $wp_embed;
 
-		// Pre-build and cache the GUID list for this post to optimize authorization checks.
-		// This is called once per page render and caches GUIDs from all VideoPress blocks
-		// (including those in synced patterns), allowing fast O(1) lookups during token requests.
+		// Pre-build and cache the GUID list for this post to optimize authorization checks,
+		// and record the GUID actually being rendered: by render time WordPress has expanded
+		// synced patterns, templates, and template parts, so this covers embedding contexts
+		// the static content scan cannot see.
 		$post_id = $block->context['postId'] ?? get_the_ID();
-		if ( ! empty( $post_id ) ) {
+		if ( ! empty( $post_id ) && isset( $block_attributes['guid'] ) && is_string( $block_attributes['guid'] ) ) {
+			Access_Control::ensure_post_guids_cached( absint( $post_id ), $block_attributes['guid'] );
+		} elseif ( ! empty( $post_id ) ) {
 			Access_Control::build_and_cache_post_guids( absint( $post_id ) );
 		}
 
@@ -413,7 +452,22 @@ class Initializer {
 		$video_wrapper         = '';
 		$video_wrapper_classes = 'jetpack-videopress-player__wrapper';
 
-		if ( $videopress_url ) {
+		// Preview on hover drives the player through the iframe API, so it keeps the iframe.
+		if ( $guid && ! $is_poh_enabled && Inline_Player::is_enabled() ) {
+			$video_wrapper = sprintf(
+				'<div class="%s">%s</div>',
+				$video_wrapper_classes,
+				Inline_Player::render(
+					$guid,
+					Inline_Player::get_player_options( $block_attributes ),
+					$block_attributes['videoRatio'] ?? null,
+					array(
+						'poster' => Inline_Player::get_poster_url( $guid, $block_attributes ),
+						'title'  => $block_attributes['title'] ?? '',
+					)
+				)
+			);
+		} elseif ( $videopress_url ) {
 			$videopress_url = wp_kses_post( $videopress_url );
 
 			/*
@@ -478,7 +532,7 @@ class Initializer {
 		$premium_block_plan_id    = isset( $block->context['premium-content/planId'] ) ? intval( $block->context['premium-content/planId'] ) : 0;
 		$is_premium_content_child = isset( $block->context['isPremiumContentChild'] ) ? (bool) $block->context['isPremiumContentChild'] : false;
 		$maybe_premium_script     = '';
-		if ( $is_premium_content_child ) {
+		if ( $is_premium_content_child && is_string( $guid ) ) {
 			Access_Control::instance()->set_guid_subscription( $guid, $premium_block_plan_id );
 			$escaped_guid         = wp_json_encode( $guid, JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP );
 			$script_content       = "if ( ! window.__guidsToPlanIds ) { window.__guidsToPlanIds = {}; }; window.__guidsToPlanIds[$escaped_guid] = $premium_block_plan_id;";
@@ -612,13 +666,82 @@ class Initializer {
 	}
 
 	/**
+	 * Register the Latest Videos Playlist block.
+	 *
+	 * It reuses the Video Playlist block's registered view script and styles, so
+	 * it is only registered once that block is. Its inner Video Playlist block is
+	 * the editor canvas only: the front end renders the newest videos fresh.
+	 *
+	 * @param string|null $metadata_file Path to the block.json metadata file. Defaults to the
+	 *                                   package build output; tests can point it at a fixture.
+	 *
+	 * @return void
+	 */
+	public static function register_videopress_latest_videos_playlist_block( $metadata_file = null ) {
+		if ( ! \WP_Block_Type_Registry::get_instance()->is_registered( 'videopress/playlist' ) ) {
+			return;
+		}
+
+		if ( null === $metadata_file ) {
+			$metadata_file = __DIR__ . '/../build/block-editor/blocks/latest-videos-playlist/block.json';
+		}
+
+		if ( ! file_exists( $metadata_file ) ) {
+			return;
+		}
+
+		$metadata = json_decode(
+			// phpcs:ignore WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents
+			file_get_contents( $metadata_file )
+		);
+
+		if ( empty( $metadata->name )
+			|| \WP_Block_Type_Registry::get_instance()->is_registered( $metadata->name )
+		) {
+			return;
+		}
+
+		register_block_type(
+			$metadata_file,
+			array(
+				'render_callback'   => array( __CLASS__, 'render_videopress_latest_videos_playlist_block' ),
+				'skip_inner_blocks' => true,
+			)
+		);
+	}
+
+	/**
+	 * Latest Videos Playlist block render callback: the newest VideoPress videos
+	 * on the site, rendered by the Video Playlist block's callback.
+	 *
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Current block markup, unused: the inner block is never rendered.
+	 * @param \WP_Block|null $block            Current block.
+	 *
+	 * @return string Block markup, or an empty string when the site has no VideoPress videos.
+	 */
+	public static function render_videopress_latest_videos_playlist_block( $block_attributes, $content = '', $block = null ) {
+		$count = isset( $block_attributes['count'] ) && is_numeric( $block_attributes['count'] )
+			? (int) $block_attributes['count']
+			: self::LATEST_VIDEOS_PLAYLIST_DEFAULT_COUNT;
+		$count = max( self::LATEST_VIDEOS_PLAYLIST_MIN_COUNT, min( self::LATEST_VIDEOS_PLAYLIST_MAX_COUNT, $count ) );
+
+		$block_attributes['videos'] = Data::get_latest_videopress_playlist_entries( $count );
+
+		// Dynamic playlists have no title of their own, so no heading either.
+		unset( $block_attributes['playlistTitle'], $block_attributes['showPlaylistTitle'] );
+
+		return self::render_videopress_playlist_block( $block_attributes, '', $block );
+	}
+
+	/**
 	 * Sanitize the playlist block's videos attribute into rendering-ready entries.
 	 *
 	 * @param mixed $videos Raw attribute value.
 	 *
 	 * @return array Entries with guid, title, durationMs, height and poster keys.
 	 */
-	private static function sanitize_playlist_entries( $videos ) {
+	public static function sanitize_playlist_entries( $videos ) {
 		if ( ! is_array( $videos ) ) {
 			return array();
 		}
@@ -661,7 +784,7 @@ class Initializer {
 	private static function playlist_embed_url( $guid, $autoplay, $muted = false ) {
 		$args = array(
 			'cover'          => 1,
-			'preloadContent' => 'metadata',
+			'preloadContent' => Data::get_videopress_player_preload_disabled() ? 'none' : 'metadata',
 			'autoPlay'       => $autoplay ? 1 : 0,
 		);
 		if ( $muted ) {
@@ -746,15 +869,25 @@ class Initializer {
 	/**
 	 * Video Playlist block render callback.
 	 *
-	 * @param array $block_attributes Block attributes.
+	 * @param array          $block_attributes Block attributes.
+	 * @param string         $content          Rendered inner blocks: the title heading, when there is one.
+	 * @param \WP_Block|null $block            Current block.
 	 *
 	 * @return string Block markup, or an empty string when the playlist has no playable entries.
 	 */
-	public static function render_videopress_playlist_block( $block_attributes ) {
+	public static function render_videopress_playlist_block( $block_attributes, $content = '', $block = null ) {
 		$entries = self::sanitize_playlist_entries( $block_attributes['videos'] ?? null );
 
 		if ( ! $entries ) {
 			return '';
+		}
+
+		// Record the rendered GUIDs in the post's cached GUID list so private playlist
+		// entries pass the playback authorization check, including when the playlist
+		// sits inside a synced pattern, template, or template part.
+		$post_id = $block->context['postId'] ?? get_the_ID();
+		if ( ! empty( $post_id ) ) {
+			Access_Control::ensure_post_guids_cached( absint( $post_id ), array_column( $entries, 'guid' ) );
 		}
 
 		$enabled = function ( $key, $default_value = true ) use ( $block_attributes ) {
@@ -765,6 +898,12 @@ class Initializer {
 			? $block_attributes['layout']
 			: 'side-rail';
 
+		$show_player = $enabled( 'showPlayer' );
+		// A hidden player can still be revealed by the first click on an entry.
+		$reveal_player  = ! $show_player
+			&& isset( $block_attributes['entryClickAction'] )
+			&& 'show-player' === $block_attributes['entryClickAction'];
+		$has_player     = $show_player || $reveal_player;
 		$show_thumbnail = $enabled( 'showThumbnail' );
 		$show_title     = $enabled( 'showTitle' );
 		$show_res       = $enabled( 'showResolution' );
@@ -776,6 +915,9 @@ class Initializer {
 		$classes = array( 'videopress-playlist', 'is-layout-' . $layout );
 		if ( $enabled( 'darkPlayer', false ) ) {
 			$classes[] = 'is-dark';
+		}
+		if ( ! $show_player ) {
+			$classes[] = 'hide-player';
 		}
 		if ( ! $show_thumbnail ) {
 			$classes[] = 'hide-thumbnails';
@@ -805,6 +947,15 @@ class Initializer {
 		$total_timecode = self::playlist_timecode( $total_ms );
 		/* translators: %d: number of videos in the playlist. */
 		$count_label = sprintf( _n( '%d video', '%d videos', $count, 'jetpack-videopress-pkg' ), $count );
+
+		/*
+		 * Hidden placeholder shown (via the button's is-locked class) when the view
+		 * script cannot authorize a private video's thumbnail for the viewer.
+		 */
+		$lock_markup = '<span class="videopress-playlist__entry-lock">'
+			. '<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><path d="M17 10h-1.2V7.3c0-2.1-1.7-3.8-3.8-3.8-2.1 0-3.8 1.7-3.8 3.8V10H7c-.6 0-1 .4-1 1v8c0 .6.4 1 1 1h10c.6 0 1-.4 1-1v-8c0-.6-.4-1-1-1Zm-2.7 0H9.7V7.3c0-1.3 1-2.3 2.3-2.3 1.3 0 2.3 1 2.3 2.3V10Z"/></svg>'
+			. '<span class="videopress-playlist__entry-lock-label">' . esc_html__( 'Private video', 'jetpack-videopress-pkg' ) . '</span>'
+			. '</span>';
 
 		$items = '';
 		foreach ( $entries as $index => $entry ) {
@@ -845,25 +996,55 @@ class Initializer {
 				? sprintf( '<span class="videopress-playlist__entry-duration">%s</span>', esc_html( $timecode ) )
 				: '';
 
+			if ( $has_player ) {
+				$is_current  = $show_player && 0 === $index;
+				$entry_open  = sprintf(
+					'<button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">',
+					$is_current ? ' is-current' : '',
+					$is_current ? ' aria-current="true"' : '',
+					esc_attr( $entry['guid'] ),
+					esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details ),
+					esc_attr( $progress )
+				);
+				$entry_close = '</button>';
+			} else {
+				// No player to load the video into: the entry opens its VideoPress page instead.
+				$entry_open = sprintf(
+					'<a class="videopress-playlist__select" href="%1$s" target="_blank" rel="noopener noreferrer" data-guid="%2$s" data-title="%3$s" data-position="%4$s" data-details="%5$s">',
+					/**
+					 * Filters where a playlist entry opens when the block has no player.
+					 *
+					 * @since $$next-version$$
+					 *
+					 * @param string $url  The video's page on videopress.com.
+					 * @param string $guid The video GUID.
+					 */
+					esc_url( apply_filters( 'videopress_playlist_entry_url', 'https://videopress.com/v/' . $entry['guid'], $entry['guid'] ) ),
+					esc_attr( $entry['guid'] ),
+					esc_attr( $title ),
+					esc_attr( $position ),
+					esc_attr( $details )
+				);
+				$entry_close = '</a>';
+			}
+
 			$items .= sprintf(
-				'<li class="videopress-playlist__entry"><button type="button" class="videopress-playlist__select%1$s"%2$s data-guid="%3$s" data-embed-url="%4$s" data-title="%5$s" data-position="%6$s" data-details="%7$s" data-progress="%8$s">' .
-					'%9$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%10$s</span>%11$s</span>' .
-					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%12$s</span><span class="videopress-playlist__entry-meta">%13$s%14$s</span></span>' .
-					'</button></li>',
-				0 === $index ? ' is-current' : '',
-				0 === $index ? ' aria-current="true"' : '',
-				esc_attr( $entry['guid'] ),
-				esc_url( self::playlist_embed_url( $entry['guid'], true, $muted ) ),
-				esc_attr( $title ),
-				esc_attr( $position ),
-				esc_attr( $details ),
-				esc_attr( $progress ),
+				'<li class="videopress-playlist__entry">%1$s' .
+					'%2$s<span class="videopress-playlist__entry-thumb"><span class="videopress-playlist__entry-flag">%3$s</span>%4$s%5$s</span>' .
+					'<span class="videopress-playlist__entry-body"><span class="videopress-playlist__entry-title">%6$s</span><span class="videopress-playlist__entry-meta">%7$s%8$s</span></span>' .
+					'%9$s</li>',
+				$entry_open,
 				$number_markup,
 				esc_html__( 'Playing', 'jetpack-videopress-pkg' ),
+				$lock_markup,
 				$time_markup,
 				esc_html( $title ),
 				$resolution_markup,
-				$duration_markup
+				$duration_markup,
+				$entry_close
 			);
 		}
 
@@ -892,15 +1073,28 @@ class Initializer {
 			)
 			: '';
 
-		$stage_markup = sprintf(
-			'<div class="videopress-playlist__stage">' .
-				'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
-			esc_attr( $first_title ),
-			esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
-			$now_markup
-		);
+		if ( $show_player ) {
+			$stage_markup = sprintf(
+				'<div class="videopress-playlist__stage">' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" src="%2$s" allowfullscreen allow="clipboard-write"></iframe></div>%3$s</div>',
+				esc_attr( $first_title ),
+				esc_url( self::playlist_embed_url( $first['guid'], false, $muted ) ),
+				$now_markup
+			);
+		} elseif ( $reveal_player ) {
+			// No src: nothing loads until the view script reveals the stage on a click.
+			$stage_markup = sprintf(
+				'<div class="videopress-playlist__stage" hidden>' .
+					'<div class="videopress-playlist__player"><iframe class="videopress-playlist__iframe" title="%1$s" allowfullscreen allow="clipboard-write"></iframe></div></div>%2$s',
+				esc_attr( $first_title ),
+				$now_markup
+			);
+		} else {
+			// Without a player only the grid layout's runtime line remains of the stage.
+			$stage_markup = $now_markup;
+		}
 
-		$progress_markup = '' !== $total_timecode
+		$progress_markup = $has_player && '' !== $total_timecode
 			? sprintf(
 				'<span class="videopress-playlist__list-progress">%s</span>',
 				/* translators: 1: position of the current video. 2: number of videos. 3: total playlist timecode. */
@@ -914,7 +1108,9 @@ class Initializer {
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--rail">%1$s</span>' .
 				'<span class="videopress-playlist__list-label videopress-playlist__list-label--strip">%2$s</span>%3$s%4$s</div>' .
 				'<ol class="videopress-playlist__entries">%5$s</ol></div>',
-			esc_html__( 'Up next', 'jetpack-videopress-pkg' ),
+			$show_player
+				? esc_html__( 'Up next', 'jetpack-videopress-pkg' )
+				: esc_html__( 'Playlist', 'jetpack-videopress-pkg' ),
 			/* translators: %s: number of videos in the playlist, e.g. "5 videos". */
 			esc_html( sprintf( __( 'Playlist — %s', 'jetpack-videopress-pkg' ), $count_label ) ),
 			$list_meta_markup,
@@ -953,9 +1149,19 @@ class Initializer {
 
 		$wrapper_attributes = get_block_wrapper_attributes( $wrapper_extra_attributes );
 
+		// The Heading inner block saved with the post; an empty title renders none.
+		$playlist_title = isset( $block_attributes['playlistTitle'] ) && is_string( $block_attributes['playlistTitle'] )
+			? trim( $block_attributes['playlistTitle'] )
+			: '';
+		$content        = is_string( $content ) ? trim( $content ) : '';
+		$heading_markup = $enabled( 'showPlaylistTitle' ) && '' !== $playlist_title && '' !== $content
+			? '<div class="videopress-playlist__heading">' . $content . '</div>'
+			: '';
+
 		return sprintf(
-			'<figure %1$s><div class="videopress-playlist__body">%2$s%3$s</div></figure>',
+			'<figure %1$s>%2$s<div class="videopress-playlist__body">%3$s%4$s</div></figure>',
 			$wrapper_attributes,
+			$heading_markup,
 			$stage_markup,
 			$list_markup
 		);
@@ -973,7 +1179,7 @@ class Initializer {
 	 * @return string|false
 	 */
 	public static function enqueue_videopress_iframe_api_script( $cache, $url, $attr, $post_ID ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
-		if ( Utils::is_videopress_url( $url ) ) {
+		if ( Utils::is_videopress_url( $url ) && ! Inline_Player::is_enabled() ) {
 			// Enqueue the VideoPress IFrame API in the front-end.
 			wp_enqueue_script(
 				self::JETPACK_VIDEOPRESS_IFRAME_API_HANDLER,
@@ -985,5 +1191,63 @@ class Initializer {
 		}
 
 		return $cache;
+	}
+
+	/**
+	 * Short-circuit the oEmbed request for VideoPress URLs when the inline player is on.
+	 *
+	 * @param null|string $result The oEmbed result, null to let WordPress fetch it.
+	 * @param string      $url    The URL being embedded.
+	 * @return null|string Inline player markup, or the untouched result.
+	 */
+	public static function maybe_pre_oembed_inline_player( $result, $url ) {
+		$inline = self::render_inline_player_for_url( $url );
+
+		return null === $inline ? $result : $inline;
+	}
+
+	/**
+	 * Replace a VideoPress oEmbed iframe (fresh or cached) with an inline player when the inline player is on.
+	 *
+	 * @param string|false $cache   The oEmbed HTML.
+	 * @param string       $url     The URL being embedded.
+	 * @param array        $attr    Shortcode attributes.
+	 * @param int          $post_ID Post ID.
+	 * @return string|false Inline player markup, or the untouched HTML.
+	 */
+	public static function maybe_render_oembed_inline_player( $cache, $url, $attr, $post_ID = null ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
+		if ( ! is_string( $cache ) || false === strpos( $cache, '<iframe' ) ) {
+			return $cache;
+		}
+
+		$inline = self::render_inline_player_for_url( $url );
+
+		return null === $inline ? $cache : $inline;
+	}
+
+	/**
+	 * Build inline player markup for a videopress.com URL, honoring the player parameters in its query string.
+	 *
+	 * @param string $url The URL being embedded.
+	 * @return string|null Markup, or null when the URL is not a VideoPress video or the inline player is off.
+	 */
+	private static function render_inline_player_for_url( $url ) {
+		if ( ! Inline_Player::is_enabled() ) {
+			return null;
+		}
+
+		$guid = Utils::extract_videopress_guid_from_url( $url );
+		if ( null === $guid ) {
+			return null;
+		}
+
+		$attributes = Inline_Player::get_attributes_from_embed_url( $url );
+
+		return Inline_Player::render(
+			$guid,
+			Inline_Player::get_player_options( $attributes ),
+			null,
+			array( 'poster' => Inline_Player::get_poster_url( $guid, $attributes ) )
+		);
 	}
 }

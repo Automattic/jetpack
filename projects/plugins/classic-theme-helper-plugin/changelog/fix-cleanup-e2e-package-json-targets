@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Remove `.ci.targets` from `tests/e2e/package.json`, apparently obsolete since #28913
+
+

@@ -1,7 +1,10 @@
 /**
  * External dependencies
  */
-import { type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
+import {
+	usePostThumbnails,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
@@ -11,12 +14,13 @@ import {
 	ReportPageTabs,
 	ReportDrilldownTable,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
+	archivesCsvExporter,
+	postsPagesCsvExporter,
 	useReportRetry,
-	type CsvColumn,
+	type ArchiveRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
@@ -25,24 +29,20 @@ import { route } from '../package.json';
 import { REPORTS } from '../registry';
 import { useReportParams } from '../use-report-params';
 import {
-	buildArchiveCsvRows,
 	getArchivesFields,
 	getPostsFields,
 	getReportPostsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveTabId,
 	usePostsReportRecords,
-	type ArchiveRow,
 } from './config';
+import type { JSX } from 'react';
 
-// Every report is served by the single dynamic route, so route-level hooks read
-// from the shared `/reports/$report` path and navigations target it with the
-// `posts` param.
+// Every report shares the single dynamic route, so route-level hooks and
+// navigations target this path with the `posts` param.
 const ROUTE_FROM = route.path;
 
-type ReportCsvRow = StatsTopPostsComparisonItem | ArchiveRow;
-
-const sortReportCsvRows = ( a: ReportCsvRow, b: ReportCsvRow ) => b.views - a.views;
+const EMPTY_POST_ROWS: StatsTopPostsComparisonItem[] = [];
 
 /**
  * Stable row id for the records table — the post ID, or the label for rows
@@ -76,36 +76,29 @@ function getArchiveRowParentId( item: ArchiveRow ): string | undefined {
 }
 
 /**
- * Shared initial view for both tabs' records tables: sorted by views, with the
- * title absorbing all spare width so the metric columns shrink to their
- * content and read right-aligned — table-layout auto otherwise stretches an
- * arbitrary column to fill the table.
+ * Shared initial view for both tabs, sorted by views. The title is the primary
+ * column on both, and absorbs the spare width so the metric column shrinks to content.
  */
 const RECORDS_VIEW = {
 	sort: { field: 'views', direction: 'desc' as const },
 	layout: {
 		styles: {
-			title: { width: '100%' },
 			views: { align: 'end' as const },
 		},
 	},
 };
 
+const POSTS_VIEW = { ...RECORDS_VIEW, titleField: 'title', mediaField: 'thumbnail' };
+
 /**
- * Premium Analytics Posts & Pages report page component.
- *
- * The second-level "view all" report for the Posts & Pages traffic module,
- * composed on the shared report-page framework: breadcrumb header, internal
- * Posts & Pages / Archives tabs, the shared date-range + comparison picker,
- * and a Core DataViews table of the active tab's records by views for the
- * selected range. Post titles drill into the post/page detail route.
+ * Second-level "view all" report for the Posts & Pages traffic module. Post titles
+ * drill into the post/page detail route.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */
 function PostsReport(): JSX.Element {
-	// The route guard guarantees the report window params are seeded, so the
-	// URL search is the single source of truth for dates, interval, and
-	// comparison — resolve it with the same normalizer the widgets use.
+	// The route guard guarantees the window params are seeded, so URL search is the
+	// single source of truth — resolve it with the same normalizer the widgets use.
 	const reportParams = useReportParams();
 
 	const tabs = useMemo( () => getReportPostsTabs(), [] );
@@ -113,49 +106,45 @@ function PostsReport(): JSX.Element {
 
 	const records = usePostsReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
+	const [ visiblePostRows, setVisiblePostRows ] = useState< StatsTopPostsComparisonItem[] >( [] );
+	const handleVisiblePostRowsChange = useCallback( ( rows: StatsTopPostsComparisonItem[] ) => {
+		// Preserve the array when only thumbnail-backed fields changed, or this callback loops.
+		setVisiblePostRows( previous =>
+			previous.length === rows.length && previous.every( ( row, index ) => row === rows[ index ] )
+				? previous
+				: rows
+		);
+	}, [] );
+	const thumbnailUrls = usePostThumbnails(
+		activeTab === 'posts-pages' ? visiblePostRows : EMPTY_POST_ROWS
+	);
 
 	const postsFields = useMemo(
-		() => getPostsFields( records.posts.hasComparison, activeTab ),
-		[ activeTab, records.posts.hasComparison ]
+		() => getPostsFields( records.posts.hasComparison, activeTab, thumbnailUrls ),
+		[ activeTab, records.posts.hasComparison, thumbnailUrls ]
 	);
 	const archivesFields = useMemo(
 		() => getArchivesFields( records.archives.hasComparison ),
 		[ records.archives.hasComparison ]
 	);
 
-	const csvColumns = useMemo< CsvColumn< ReportCsvRow >[] >(
-		() => [
-			{
-				label: __( 'Title', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => String( row.label ?? '' ),
-			},
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const activeRecords = activeTab === 'posts-pages' ? records.posts : records.archives;
-
-	const csvExportRows = useMemo< ReportCsvRow[] >(
-		() =>
-			activeTab === 'posts-pages'
-				? records.posts.rows
-				: buildArchiveCsvRows( records.archives.rows ),
-		[ activeTab, records.posts.rows, records.archives.rows ]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport< ReportCsvRow >( {
-		rows: csvExportRows,
-		filenamePrefix: activeTab === 'posts-pages' ? 'top-posts' : 'archives',
-		range: reportParams,
-		status: activeRecords,
-		// Archives are already ordered depth-first by views within each group;
-		// sorting the flattened rows again would interleave the groups.
-		sort: activeTab === 'posts-pages' ? sortReportCsvRows : undefined,
-	} );
+	// One element per tab: the two exporters' row types cannot share one generic call.
+	const csvAction =
+		activeTab === 'posts-pages' ? (
+			<ExporterCsvAction
+				exporter={ postsPagesCsvExporter }
+				items={ records.posts.rows }
+				status={ records.posts }
+				reportParams={ reportParams }
+			/>
+		) : (
+			<ExporterCsvAction
+				exporter={ archivesCsvExporter }
+				items={ records.archives.items }
+				status={ records.archives }
+				reportParams={ reportParams }
+			/>
+		);
 
 	// Date-range state lives in the URL search params, staged and committed by
 	// the shared date-filter controller — same model as the dashboard.
@@ -172,9 +161,11 @@ function PostsReport(): JSX.Element {
 				data={ records.posts.rows }
 				fields={ postsFields }
 				getItemId={ getPostRowId }
-				isLoading={ records.posts.isLoading || records.posts.isFetching }
-				initialView={ RECORDS_VIEW }
+				isLoading={ records.posts.isLoading }
+				isFetching={ records.posts.isFetching }
+				initialView={ POSTS_VIEW }
 				searchLabel={ __( 'Search posts', 'jetpack-premium-analytics-pkg' ) }
+				onChangePageItems={ handleVisiblePostRowsChange }
 			/>
 		) : (
 			<ReportDrilldownTable< ArchiveRow >
@@ -183,7 +174,8 @@ function PostsReport(): JSX.Element {
 				fields={ archivesFields }
 				getItemId={ getArchiveRowId }
 				getItemParentId={ getArchiveRowParentId }
-				isLoading={ records.archives.isLoading || records.archives.isFetching }
+				isLoading={ records.archives.isLoading }
+				isFetching={ records.archives.isFetching }
 				initialView={ RECORDS_VIEW }
 				searchLabel={ __( 'Search archives', 'jetpack-premium-analytics-pkg' ) }
 				hideLevelMarkers
@@ -192,42 +184,37 @@ function PostsReport(): JSX.Element {
 
 	const { getLabel } = REPORTS.posts;
 
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<ReportErrorState
+				title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
+				onRetry={ retry }
+			/>
+		);
+	}
+
 	return (
 		<ReportPageShell
-			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
-			subTitle={ __( 'All your posts and archive pages.', 'jetpack-premium-analytics-pkg' ) }
-			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
-			}
+			actions={ csvAction }
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
+				title={ getTabLabel( activeTab ) }
 				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load posts', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					recordsTable
-				) }
+				{ tableReplacement ?? recordsTable }
 			</ReportPageLayout>
 		</ReportPageShell>
 	);
 }
 
 /**
- * Posts & Pages report page (default export for the report registry).
- *
- * React Query and global errors are provided by the `/reports/$report` stage,
- * which renders this lazily via the registry's `load` — the page mounts no
- * providers of its own.
+ * Registry entry point; React Query and error handling come from the
+ * `/reports/$report` stage that renders this lazily.
  *
  * @return {JSX.Element} The Posts & Pages report page.
  */

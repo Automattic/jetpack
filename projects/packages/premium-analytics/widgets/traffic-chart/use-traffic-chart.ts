@@ -8,8 +8,10 @@ import {
 	type StatsVisitsResponse,
 	type StatsVisitsStatFields,
 } from '@jetpack-premium-analytics/data';
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { endOfDay, isEqual, startOfDay } from 'date-fns';
 /**
  * Internal dependencies
  */
@@ -29,10 +31,23 @@ export type TrafficPeriod = TrafficChartGranularity;
 
 /**
  * The metrics `stats/visits` fills at the hourly grain. The rest come back
- * `null` there, so they are surfaced as unavailable rather than as zeroes, and
- * their request is skipped.
+ * `null` there, so their chart is surfaced as unavailable rather than as zeroes.
  */
 const HOURLY_METRICS = new Set< TrafficChartMetricId >( [ 'views' ] );
+
+/**
+ * Whether a range starts and ends on day boundaries, so daily buckets add up to
+ * exactly the range. A rolling window such as "Last 24 hours" does not.
+ *
+ * @param reportParams - The dashboard range.
+ * @return Whether the range covers whole days.
+ */
+function coversWholeDays( reportParams: ReportParams ): boolean {
+	const from = localTZDate( reportParams.from );
+	const to = localTZDate( reportParams.to );
+
+	return isEqual( from, startOfDay( from ) ) && isEqual( to, endOfDay( to ) );
+}
 
 /**
  * Normalized traffic chart state: one metric tab per traffic field plus the
@@ -57,19 +72,19 @@ function toVisitsParams(
 }
 
 /**
- * Fetch the traffic time series for the dashboard's report params. Views and
- * visitors ride one request, likes and comments a second — split (rather than a
- * single four-field request) because the visits endpoint's latency grows with
- * the number of requested fields, so two smaller requests resolve faster in
- * parallel. Mirrors how Calypso's chart tabs fetch each pair. The likes and
- * comments request is skipped entirely at the hourly grain, which cannot fill
- * either field.
+ * Views/visitors and likes/comments ride separate requests — the visits
+ * endpoint's latency grows with requested fields, so two smaller requests
+ * resolve faster in parallel, mirroring Calypso's chart tabs.
+ *
+ * At the hourly grain the second request asks for daily buckets instead, so the
+ * cards still show the totals the hourly series cannot carry, as Calypso does.
  */
 export default function useTrafficChart(
 	reportParams: ReportParams,
 	period: TrafficPeriod
 ): TrafficChartState {
 	const isHourly = period === 'hour';
+	const hasDailyTotals = isHourly && coversWholeDays( reportParams );
 	const isServed = useCallback(
 		( metricId: TrafficChartMetricId ) => ! isHourly || HOURLY_METRICS.has( metricId ),
 		[ isHourly ]
@@ -82,50 +97,86 @@ export default function useTrafficChart(
 		[ reportParams, period, isHourly ]
 	);
 	const likesCommentsParams = useMemo(
-		() => toVisitsParams( reportParams, 'likes,comments', period ),
-		[ reportParams, period ]
+		() =>
+			isHourly
+				? toVisitsParams( reportParams, 'visitors,likes,comments', 'day' )
+				: toVisitsParams( reportParams, 'likes,comments', period ),
+		[ reportParams, period, isHourly ]
 	);
 
 	const viewsVisitors = useStatsVisits( viewsVisitorsParams );
-	const likesComments = useStatsVisits( likesCommentsParams, { enabled: ! isHourly } );
+	const likesComments = useStatsVisits( likesCommentsParams, {
+		enabled: ! isHourly || hasDailyTotals,
+	} );
 
 	const vvPrimary = viewsVisitors.primary.data as StatsVisitsResponse | undefined;
 	const vvComparison = viewsVisitors.comparison.data as StatsVisitsResponse | undefined;
 	const vvHasComparison = viewsVisitors.hasComparison;
+	const vvZone = viewsVisitors.timezone;
 	const lcPrimary = likesComments.primary.data as StatsVisitsResponse | undefined;
 	const lcComparison = likesComments.comparison.data as StatsVisitsResponse | undefined;
 	const lcHasComparison = likesComments.hasComparison;
+	const lcZone = likesComments.timezone;
+
+	// Gate the error per query so a failed one surfaces beside the other's populated
+	// tabs instead of rendering empty; placeholder data spares a query that still has rows.
+	const viewsVisitorsFailed = viewsVisitors.isError && ! vvPrimary?.data?.length;
+	const likesCommentsFailed = likesComments.isError && ! lcPrimary?.data?.length;
+	// The daily totals only fill cards, so losing them must not hide the hourly Views chart.
+	const showsDailyTotals = hasDailyTotals && ! likesCommentsFailed;
 
 	// One tab per metric, in canonical definition order.
 	const metrics = useMemo(
 		() =>
 			TRAFFIC_CHART_METRICS.map( metric => {
-				const isViewsVisitors = metric.id === 'views' || metric.id === 'visitors';
-				return {
+				// At the hourly grain visitors move to the daily request.
+				const isFirst = metric.id === 'views' || ( metric.id === 'visitors' && ! isHourly );
+				const tab = {
 					...buildMetricTab( {
-						primary: isViewsVisitors ? vvPrimary : lcPrimary,
-						comparison: isViewsVisitors ? vvComparison : lcComparison,
-						hasComparison: isViewsVisitors ? vvHasComparison : lcHasComparison,
+						primary: isFirst ? vvPrimary : lcPrimary,
+						comparison: isFirst ? vvComparison : lcComparison,
+						hasComparison: isFirst ? vvHasComparison : lcHasComparison,
 						field: metric.id,
 						label: metric.label,
+						countLabel: metric.countLabel,
+						zone: isFirst ? vvZone : lcZone,
 					} ),
 					counterpartKey: 'counterpartId' in metric ? metric.counterpartId : undefined,
-					...( isServed( metric.id )
-						? {}
-						: {
-								unavailable: __(
-									"Hourly data isn't available for this metric.",
-									'jetpack-premium-analytics-pkg'
-								),
-						  } ),
+					counterpartHidden: 'counterpartHidden' in metric ? metric.counterpartHidden : undefined,
 				};
+
+				if ( isServed( metric.id ) ) {
+					return tab;
+				}
+
+				const reason = __(
+					"Hourly data isn't available for this metric.",
+					'jetpack-premium-analytics-pkg'
+				);
+
+				// The daily buckets feed the card total only; drawn on the hourly axis
+				// they would read as a single spike.
+				return showsDailyTotals
+					? { ...tab, current: [], previous: undefined, seriesUnavailable: reason }
+					: { ...tab, unavailable: reason };
 			} ),
-		[ isServed, vvPrimary, vvComparison, vvHasComparison, lcPrimary, lcComparison, lcHasComparison ]
+		[
+			isServed,
+			isHourly,
+			showsDailyTotals,
+			vvPrimary,
+			vvComparison,
+			vvHasComparison,
+			vvZone,
+			lcPrimary,
+			lcComparison,
+			lcHasComparison,
+			lcZone,
+		]
 	);
 
-	// Depend on the underlying refetch callbacks (each a stable `useReport`
-	// `useCallback`), not the fresh result objects, so this stays stable across
-	// renders.
+	// Depend on the underlying refetch callbacks (stable `useReport` `useCallback`s),
+	// not the fresh result objects, so this stays stable across renders.
 	const { refetch: refetchViewsVisitors } = viewsVisitors;
 	const { refetch: refetchLikesComments } = likesComments;
 	const refetch = useCallback( () => {
@@ -133,13 +184,7 @@ export default function useTrafficChart(
 		refetchLikesComments();
 	}, [ refetchViewsVisitors, refetchLikesComments ] );
 
-	// Gate the error per query — the two independent queries back separate tabs, so
-	// one failing on first load must surface an error rather than render as empty
-	// tabs beside the other's populated chart. `placeholderData` keeps a query's
-	// prior rows on a transient refetch failure, so a query with rows is not errored.
-	const isError =
-		( viewsVisitors.isError && ! vvPrimary?.data?.length ) ||
-		( likesComments.isError && ! lcPrimary?.data?.length );
+	const isError = viewsVisitorsFailed || ( likesCommentsFailed && ! isHourly );
 
 	return {
 		metrics,

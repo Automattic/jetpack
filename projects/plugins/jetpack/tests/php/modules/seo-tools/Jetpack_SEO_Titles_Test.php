@@ -181,4 +181,61 @@ class Jetpack_SEO_Titles_Test extends WP_UnitTestCase {
 			}
 		}
 	}
+
+	/**
+	 * The site-settings API accepts '' as "clear this page type"; it must be stored
+	 * as the empty list every reader expects.
+	 */
+	public function test_sanitize_title_formats_stores_a_cleared_page_type_as_an_empty_list() {
+		$sanitized = Jetpack_SEO_Titles::sanitize_title_formats(
+			array(
+				'front_page' => '',
+				'posts'      => array(
+					array(
+						'type'  => 'string',
+						'value' => '<b>Bold</b> | ',
+					),
+					array(
+						'type'  => 'token',
+						'value' => 'post_title',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( array(), $sanitized['front_page'] );
+		$this->assertSame( 'Bold | ', $sanitized['posts'][0]['value'] );
+		$this->assertSame( 'post_title', $sanitized['posts'][1]['value'] );
+	}
+
+	/**
+	 * A '' already stored for an untouched page type is repaired on the next save.
+	 */
+	public function test_update_title_formats_repairs_a_stored_empty_string() {
+		update_option(
+			Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
+			array(
+				'front_page' => '',
+				'posts'      => array(),
+				'pages'      => array(),
+				'groups'     => array(),
+				'archives'   => array(),
+			)
+		);
+
+		$result = Jetpack_SEO_Titles::update_title_formats(
+			array(
+				'pages' => array(
+					array(
+						'type'  => 'token',
+						'value' => 'page_title',
+					),
+				),
+			)
+		);
+
+		$this->assertSame( array(), $result['front_page'] );
+		$this->assertSame( 'page_title', $result['pages'][0]['value'] );
+		$this->assertSame( array(), get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION )['front_page'] );
+	}
 }

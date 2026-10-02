@@ -43,8 +43,8 @@ export type OnboardingCounts = {
  * @return Both counts and whether they have settled.
  */
 export function useOnboardingCounts(): OnboardingCounts {
-	const videoPress = useLibrary( VIDEOPRESS_COUNT_VIEW );
-	const local = useLibrary( LOCAL_COUNT_VIEW );
+	const videoPress = useLibrary( VIDEOPRESS_COUNT_VIEW, { poll: false } );
+	const local = useLibrary( LOCAL_COUNT_VIEW, { poll: false } );
 
 	return {
 		videoPressCount: videoPress.paginationInfo?.totalItems ?? 0,

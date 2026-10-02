@@ -48,6 +48,7 @@ export {
 	sanitizeStatsTimeSeriesResponse,
 	sanitizeStatsEmailTimeSeriesResponse,
 } from './time-series';
+export { toStatsBucketWindowParams, windowEndHour, type StatsBucketFilter } from './bucket-window';
 export { sanitizeStatsVisitsResponse } from './visits';
 export { sanitizeStatsHourOfDayResponse } from './hour-of-day';
 export { sanitizeStatsInsightsResponse } from './insights';
@@ -65,11 +66,7 @@ export {
 export { sanitizeStatsStreakResponse } from './streak';
 export { sanitizeStatsTagsResponse } from './tags';
 export { mergeStatsDevicesComparisonRows, sanitizeStatsDevicesResponse } from './devices';
-export {
-	sanitizeStatsWordAdsStatsResponse,
-	sanitizeStatsWordAdsEarningsResponse,
-	sliceWordAdsStatsReport,
-} from './wordads';
+export { sanitizeStatsWordAdsStatsResponse, sanitizeStatsWordAdsEarningsResponse } from './wordads';
 export { sanitizeStatsSingleVideoResponse } from './single-video';
 export { sanitizeStatsSummaryResponse } from './summary';
 export type { StatsTopPostsComparisonItem, StatsTopPostsItem } from './top-posts';
@@ -103,7 +100,11 @@ export type {
 	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './highlights';
-export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
+export type {
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+	StatsLocationsItem,
+} from './locations';
 export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
 export type {
 	StatsInsightsHourlyViews,

@@ -1,6 +1,9 @@
 import { renderHook } from '@testing-library/react';
 import { useSearch } from '@wordpress/route';
-import { createReportOriginSearch } from '@jetpack-premium-analytics/routing';
+import {
+	createReportOriginSearch,
+	toReportOriginWindowParams,
+} from '@jetpack-premium-analytics/routing';
 import { useDetailBreadcrumbs } from './use-detail-breadcrumbs';
 
 jest.mock( '@wordpress/route', () => ( {
@@ -12,14 +15,18 @@ const mockUseSearch = useSearch as jest.MockedFunction< typeof useSearch >;
 const REPORT_WINDOW = { from: '2026-06-01', to: '2026-06-16' };
 
 /**
- * Point the mocked router at a search object, optionally carrying an origin.
+ * Point the mocked router at a detail page on all time that was opened from
+ * `REPORT_WINDOW`, optionally carrying an origin.
  *
  * @param report  - The referring report id.
  * @param section - The referring report's section.
  */
 function mockSearch( report?: string, section?: string ) {
 	mockUseSearch.mockReturnValue( {
-		...REPORT_WINDOW,
+		from: '2020-03-04',
+		to: '2026-06-16',
+		preset: 'all-time',
+		...toReportOriginWindowParams( REPORT_WINDOW ),
 		post_id: '42',
 		...( report ? createReportOriginSearch( report, section ) : {} ),
 	} as never );
@@ -108,10 +115,8 @@ describe( 'useDetailBreadcrumbs', () => {
 		expect( result.current ).toEqual( [ { label: 'Detail title' } ] );
 	} );
 
-	// `?origin=videos` outlives the feature: it survives in shared URLs, browser
-	// history, and bookmarks taken before a site turned VideoPress off. A known
-	// but unavailable report must be as unlinkable as an unknown one, or the crumb
-	// points at a page the route guard bounces straight back to the dashboard.
+	// `?origin=videos` can outlive VideoPress being turned off, so an unavailable
+	// report must be as unlinkable as an unknown one — else the crumb outruns the guard.
 	it( 'drops the videos crumb on a site without VideoPress', () => {
 		setVideoPress( false );
 		mockSearch( 'videos' );

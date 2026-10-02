@@ -85,6 +85,16 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		expect( screen.queryByRole( 'button', { name: 'Bing' } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'puts the toggle after the title', () => {
+		renderTable( { collapsible: true } );
+		const toggle = screen.getByRole( 'button', { name: 'Search Engines' } );
+
+		/* eslint-disable testing-library/no-node-access -- DOM order is the assertion. */
+		expect( toggle.previousSibling?.textContent ).toBe( 'Search Engines' );
+		expect( toggle.parentElement?.lastElementChild ).toBe( toggle );
+		/* eslint-enable testing-library/no-node-access */
+	} );
+
 	it( 'names the toggle from the row value when the field has no getValue', () => {
 		// DataViews' own default: a field without `getValue` reads `item[field.id]`.
 		const bare: Field< Row >[] = [
@@ -225,5 +235,86 @@ describe( 'DataViewsDrilldownNative collapse', () => {
 		// nobody can see.
 		expect( screen.queryByRole( 'button', { name: 'Next page' } ) ).not.toBeInTheDocument();
 		expect( renderedRows() ).toHaveLength( 2 );
+	} );
+} );
+
+/** Flat rows labelled `Row 1`…`Row n`. */
+function flatRows( count: number ): Row[] {
+	return Array.from( { length: count }, ( _, index ) => ( {
+		id: String( index + 1 ),
+		referrer: `Row ${ index + 1 }`,
+		views: count - index,
+	} ) );
+}
+
+const flatTable = ( count: number ) => (
+	<DataViewsDrilldownNative< Row >
+		data={ flatRows( count ) }
+		fields={ fields }
+		getItemId={ item => item.id }
+		getItemParentId={ item => item.parentId }
+		initialView={ { fields: [ 'referrer', 'views' ], perPage: 10 } }
+		searchLabel="Search referrers"
+	/>
+);
+
+describe( 'DataViewsDrilldownNative pagination', () => {
+	// This table slices its own rows, so the reader's page survives a refetch the
+	// same way the flat tables' does, and a smaller result strands them past the
+	// end with the pagination hidden.
+	it( 'falls back to the last page when a refetch leaves the current one out of range', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( flatTable( 25 ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		expect( screen.getByText( 'Row 21' ) ).toBeInTheDocument();
+
+		rerender( flatTable( 8 ) );
+
+		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByText( 'Row 8' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the pagination controls agreeing with the rows it fell back to', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( flatTable( 25 ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+
+		rerender( flatTable( 12 ) );
+
+		await expect( screen.findByText( 'Row 11' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'combobox', { name: /page/i } ) ).toHaveValue( '2' );
+	} );
+
+	it( 'stays where it fell back to when a later result grows again', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( flatTable( 25 ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+
+		rerender( flatTable( 8 ) );
+		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
+
+		rerender( flatTable( 25 ) );
+
+		await expect( screen.findByText( 'Row 1' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 21' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'leaves a page that is still in range alone', async () => {
+		const user = userEvent.setup();
+		const { rerender } = render( flatTable( 25 ) );
+
+		await user.click( screen.getByRole( 'button', { name: 'Next page' } ) );
+		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
+
+		rerender( flatTable( 22 ) );
+
+		await expect( screen.findByText( 'Row 11' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByText( 'Row 1' ) ).not.toBeInTheDocument();
 	} );
 } );

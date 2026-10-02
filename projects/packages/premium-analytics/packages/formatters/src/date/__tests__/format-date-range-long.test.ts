@@ -10,10 +10,8 @@ import { EN_US_SETTINGS } from '../__fixtures__/wp-date-settings';
 import { formatDateRangeLong } from '../format-date-range-long';
 
 /**
- * The zone both frames are pinned to: `date-fns` reads a `TZDate`'s own zone
- * for day boundaries, and `dateI18n` renders in the site's. Production keeps
- * the two in step because the range carries the site's zone; the fixtures pin
- * the site to UTC, so the dates are built there too.
+ * `date-fns` reads a `TZDate`'s own zone for day boundaries and `dateI18n`
+ * renders in the site's; the fixtures pin the site to UTC, so dates are built there.
  */
 const TEST_TIMEZONE = 'UTC';
 
@@ -85,9 +83,8 @@ describe( 'formatDateRangeLong', () => {
 	} );
 
 	it( 'names a rolling 24-hour window by the day it ends on', () => {
-		// The window straddles two calendar days; naming both ends would
-		// overstate its reach, and the day the reading is taken on is the one
-		// it is about.
+		// The window straddles two calendar days; the day the reading is taken on
+		// is the one it is about.
 		expect(
 			formatDateRangeLong(
 				{
@@ -176,9 +173,8 @@ describe( 'formatDateRangeLong', () => {
 	} );
 
 	it( 'keeps the calendar shape for a running year still inside its first week', () => {
-		// Measured, this is a 3-day window and would lead with weekdays and
-		// drop the year — a shape the selection loses again the moment it
-		// grows past a week.
+		// Measured, this is a 3-day window and would lead with weekdays and drop
+		// the year.
 		const range = { from: at( 2026, 1, 1 ), to: endOf( 2026, 1, 3 ) };
 
 		expect( formatDateRangeLong( range, { referenceYear: 2026, calendarScale: true } ) ).toBe(

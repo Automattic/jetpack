@@ -1,0 +1,5 @@
+Significance: patch
+Type: fixed
+Comment: Fix a one-second race in the expiry-banner test's purchase fixture; test-only change
+
+

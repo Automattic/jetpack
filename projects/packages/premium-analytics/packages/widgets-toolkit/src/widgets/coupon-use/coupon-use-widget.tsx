@@ -38,9 +38,8 @@ export function CouponUseWidget() {
 		<WidgetState
 			isLoading={ isLoading }
 			isFetching={ isFetching }
-			// The report queries keep the previous period's data as placeholders
-			// across range changes, so only surface the error when there is
-			// nothing to show.
+			// The report queries keep placeholders from the previous period across
+			// range changes, so only surface the error when nothing is left to show.
 			isError={ isError && ! hasData }
 			isEmpty={ isEmptyPieChartData( chartData ) }
 			error={ {
@@ -65,7 +64,7 @@ export function CouponUseWidget() {
 					legendData={ legendData }
 					dataFormat={ {
 						type: 'currency',
-						options: { useMultipliers: true, decimals: 0 },
+						options: { useMultipliers: true },
 					} }
 					maxSize={ null }
 					withTooltips

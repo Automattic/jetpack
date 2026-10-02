@@ -6,16 +6,11 @@
 	overflow: hidden;
 }
 
-.backLink {
+.trail {
 	order: 1;
-	align-self: center;
-	min-inline-size: 0;
-	margin-inline-end: auto;
-	margin-block-end: 0;
 }
 
 .content {
-	position: relative;
 	display: flex;
 	flex-direction: column;
 	flex: 1 1 0;
@@ -30,7 +25,6 @@
 }
 
 .stateArea {
-	position: relative;
 	flex: 1 1 0;
 	min-height: 0;
 }
@@ -67,6 +61,11 @@
 	display: flex;
 	align-items: center;
 	overflow: hidden;
+
+	/* A wide cell leaves the map height-constrained, so it is drawn edge to edge
+	 * and its bottom lands on the footer divider. Reserve the gap here: the
+	 * chart's aspectRatio caps the width but still fills the full height. */
+	padding-block: var(--wpds-dimension-gap-md);
 }
 
 /* Very narrow containers: hide the map and collapse to a single leaderboard
@@ -79,7 +78,7 @@
 		align-items: stretch;
 	}
 
-	.backLink {
+	.trail {
 		order: 2;
 	}
 

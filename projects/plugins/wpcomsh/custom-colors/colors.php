@@ -1550,7 +1550,7 @@ class Colors_Manager_Common {
 				unset( $rule[2] );
 				// back compat for non-rgba browsers
 				$css  .= self::css_rule( $rule, $color );
-				$color = $working_color->toCSS( 'rgba', intval( $number ) );
+				$color = $working_color->toCSS( 'rgba', $number );
 			}
 		}
 
