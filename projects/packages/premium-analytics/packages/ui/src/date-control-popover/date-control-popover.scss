@@ -17,9 +17,10 @@
 		border-top-color: var(--wpds-color-stroke-surface-neutral);
 	}
 
-	// The items ring on any :focus, and opening moves focus onto one, so a mouse
-	// open would ring the applied option as if it were a fresh pick.
+	// Items ring on :focus (box-shadow before WP 7.1), and opening focuses one,
+	// so a mouse open would ring the applied option like a fresh pick.
 	.components-menu-item__button:focus:not(:focus-visible) {
 		outline: none;
+		box-shadow: none;
 	}
 }

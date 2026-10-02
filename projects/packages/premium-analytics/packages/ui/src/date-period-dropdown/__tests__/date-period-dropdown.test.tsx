@@ -134,6 +134,18 @@ describe( 'DatePeriodDropdown', () => {
 		);
 	} );
 
+	it( 'focuses the menu surface rather than an option on a touch open', async () => {
+		const user = userEvent.setup();
+		renderDropdown();
+
+		await user.pointer( {
+			keys: '[TouchA]',
+			target: screen.getByRole( 'button', { name: 'Last 30 days' } ),
+		} );
+
+		await waitFor( () => expect( screen.getByRole( 'dialog' ) ).toHaveFocus() );
+	} );
+
 	it( 'applies a period on click, with no Apply step', async () => {
 		const user = userEvent.setup();
 		const { onSelect } = renderDropdown();

@@ -56,12 +56,15 @@ export function DateControlPopover( {
 	const descriptionId = useId();
 	const popupRef = useRef< HTMLDivElement >( null );
 
-	// Opens on the applied option, the way a native select does; with none applied, on the first.
+	// Opens on the applied option, the way a native select does, else on the first. A touch
+	// open keeps the default of focusing the popup itself, which this callback replaces.
 	const focusAppliedOption = useCallback(
-		() =>
-			popupRef.current?.querySelector< HTMLElement >(
-				'[role="menuitemradio"][aria-checked="true"]'
-			) ?? true,
+		( interactionType: string ) =>
+			( interactionType === 'touch'
+				? popupRef.current
+				: popupRef.current?.querySelector< HTMLElement >(
+						'[role="menuitemradio"][aria-checked="true"]'
+					) ) ?? true,
 		[]
 	);
 
