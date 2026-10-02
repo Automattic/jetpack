@@ -132,15 +132,23 @@ A section owns its default layout. The registration passes the instances, built 
 
 `Dashboard_Section::get_default_layout()` runs the declared array through `jetpack_premium_analytics_dashboard_default_layout` with the section id and the section, and returns whatever comes back as a list.
 
-Two kinds of callbacks hook that filter. A plugin adds an instance to a section it does not own, switching on `$section_id`:
+Two kinds of callbacks hook that filter. A plugin adds an instance to a section it does not own, switching on `$section_id`. This is the shape of `Analytics_Dashboard::add_default_layout_instance()` in `projects/packages/videopress/src/class-analytics-dashboard.php`, which seeds Top videos into Traffic:
 
 ```php
 add_filter(
 	'jetpack_premium_analytics_dashboard_default_layout',
 	static function ( $layout, $section_id ) {
-		if ( 'analytics/traffic' === $section_id ) {
-			$layout[] = get_dashboard_default_widget_instance( 'videopress-top-videos', 'videopress/top-videos', 8, 1, 2 );
+		if ( 'analytics/traffic' !== $section_id || ! is_array( $layout ) ) {
+			return $layout;
 		}
+
+		foreach ( $layout as $item ) {
+			if ( 'default-videopress-widget-instance' === ( $item['uuid'] ?? null ) ) {
+				return $layout;
+			}
+		}
+
+		$layout[] = get_dashboard_default_widget_instance( 'default-videopress-widget-instance', 'videopress/top-videos', 8, 1, 2 );
 
 		return $layout;
 	},
@@ -148,6 +156,8 @@ add_filter(
 	2
 );
 ```
+
+The callback leaves a layout alone that already holds the instance; the real one also matches the type, current or former, since the package seeded the same instance before the widget moved. It does not check `WIDGET_API_VERSION`: the sections REST route hydrates layouts before the widget contract loads, and the policy below drops the instance on a site where the type never registers.
 
 The package removes the instances the site cannot serve at priority 100, `remove_unsupported_default_layout_items()` over `get_widget_support_context()`. A persisted layout keeps such an instance as a removable ghost widget, but a default must not seed one. Running late means an instance a plugin added gets the same treatment as a bundled one.
 
@@ -199,20 +209,29 @@ They read the slug through `get_registered_by_slug()` when the package offers it
 
 ### The layout
 
-Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers (see [Dashboard widget types](dashboard-widgets.md#a-real-consumer-the-ads-widgets)). The standalone `premium-analytics` plugin has no registrant, and no Ads section.
+Both register the same layout, `Analytics_Dashboard::get_default_layout()`, of the `wordads/*` widget types the same class registers (see [Dashboard widget types](dashboard-widgets.md#two-real-consumers)). The standalone `premium-analytics` plugin has no registrant, and no Ads section.
+
+## A second consumer: a widget inside a bundled section
+
+The VideoPress package owns no section. It owns one widget type, `videopress/top-videos`, and a place for it in the Traffic default layout, through the filter above. Who calls its registrants follows the Ads shape: `Initializer::active_initialization()` where VideoPress is active outside the WordPress.com platform, `jetpack-mu-wpcom` on Simple and Atomic where the plan includes VideoPress (`src/features/premium-analytics/videopress-widgets.php`).
+
+The seed runs at priority 10 and asks nothing about the contract version. Whether the instance survives is decided here: the rename at 99 maps a former name, the policy at 100 drops a type that never registered. A consumer that seeds a bundled section's default therefore needs no guard of its own, only an idempotent callback.
+
+The widget it seeds is the registrant's story, in [Dashboard widget types](dashboard-widgets.md#two-real-consumers).
 
 ## Where the tests are
 
-| Behaviour                                                                                          | Test                                                                                                                                                |
-| -------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Registry rules, hydration and the action, the built-in sections, the sections route and its schema | `tests/php/Dashboard_Section_Test.php`                                                                                                              |
-| Default-layout primitives, the filter and the package's policy, the bundled layouts                | `tests/php/Dashboard_Layout_Test.php`                                                                                                               |
-| The WordAds module's registrant                                                                    | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`                                                             |
-| The Ads package's registrants, with and without the widget contract loaded                         | `projects/packages/ads/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/ads/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php` |
-| The WordPress.com registrant                                                                       | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php`                                                  |
-| The REST entry point WordPress.com calls                                                           | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                       |
-| Navigation, active section, stored layouts, section heading                                        | `routes/dashboard/**/*.test.ts(x)`                                                                                                                  |
-| Reports behind a hidden section                                                                    | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                |
+| Behaviour                                                                                                           | Test                                                                                                                                                                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Registry rules, hydration and the action, the built-in sections, the sections route and its schema                  | `tests/php/Dashboard_Section_Test.php`                                                                                                                                                                                                                                   |
+| Default-layout primitives, the filter and the package's policy, the bundled layouts                                 | `tests/php/Dashboard_Layout_Test.php`                                                                                                                                                                                                                                    |
+| The WordAds module's registrant                                                                                     | `projects/plugins/jetpack/tests/php/modules/wordads/WordAds_Premium_Analytics_Test.php`                                                                                                                                                                                  |
+| The Ads package's registrants, with and without the widget contract loaded                                          | `projects/packages/ads/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/ads/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`                                                                                                                      |
+| The WordPress.com registrant                                                                                        | `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Wordads_Section_Test.php`                                                                                                                                                                       |
+| The VideoPress package's layout seed, with and without the widget contract loaded, and its WordPress.com registrant | `projects/packages/videopress/tests/php/Analytics_Dashboard_Test.php`, `projects/packages/videopress/tests/php/Analytics_Dashboard_Without_Widget_Types_Test.php`, `projects/packages/jetpack-mu-wpcom/tests/php/features/premium-analytics/Videopress_Widgets_Test.php` |
+| The REST entry point WordPress.com calls                                                                            | `tests/php/Dashboard_Support_Routes_Test.php`                                                                                                                                                                                                                            |
+| Navigation, active section, stored layouts, section heading                                                         | `routes/dashboard/**/*.test.ts(x)`                                                                                                                                                                                                                                       |
+| Reports behind a hidden section                                                                                     | `routes/reports/registry.test.ts`, `tests/js/site-readiness.test.ts`                                                                                                                                                                                                     |
 
 ## Not covered here
 
