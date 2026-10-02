@@ -14,15 +14,8 @@ import * as list from '@wordpress/block-library/build-module/list/index.mjs';
 import * as listItem from '@wordpress/block-library/build-module/list-item/index.mjs';
 import * as paragraph from '@wordpress/block-library/build-module/paragraph/index.mjs';
 import * as quote from '@wordpress/block-library/build-module/quote/index.mjs';
-import {
-	createBlock,
-	isUnmodifiedDefaultBlock,
-	parse,
-	serialize,
-	setDefaultBlockName,
-	type Block,
-} from '@wordpress/blocks';
-import { Button, Popover, SlotFillProvider } from '@wordpress/components';
+import { createBlock, parse, serialize, setDefaultBlockName, type Block } from '@wordpress/blocks';
+import { Popover, SlotFillProvider } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
 	Component,
@@ -37,7 +30,7 @@ import '@wordpress/format-library';
 import { unregisterFormatType } from '@wordpress/rich-text';
 import { history } from './history';
 import { BlockToolbar } from './toolbar';
-import type { KeyboardEvent, MouseEvent, ReactNode } from 'react';
+import type { KeyboardEvent, ReactNode } from 'react';
 
 import './style.scss';
 
@@ -66,7 +59,7 @@ const settings = {
 type EditorProps = {
 	initialContent: string;
 	/** Accessible names, translated in PHP. */
-	labels: { blockTools: string; addParagraph: string };
+	labels: { blockTools: string; addBlock: string };
 	focus: boolean;
 	placeholder: string;
 	onChange: ( content: string ) => void;
@@ -108,58 +101,6 @@ const FocusOnMount = () => {
 	}, [ last, selectBlock ] );
 
 	return null;
-};
-
-// The "+" from @wordpress/icons, a large package for one icon.
-const plus = (
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		viewBox="0 0 24 24"
-		width="24"
-		height="24"
-		aria-hidden="true"
-		focusable="false"
-	>
-		<path d="M11 12.5V17.5H12.5V12.5H17.5V11H12.5V6H11V11H6V12.5H11Z" />
-	</svg>
-);
-
-// Core's appender shows only in an empty editor, which strands the caret in a last code block.
-// Hidden under an empty paragraph, so clicks don't stack them.
-const Appender = ( { label }: { label: string } ) => {
-	const isNeeded = useSelect( select => {
-		const { getBlockOrder, getBlock } = select( blockEditorStore );
-		const last = getBlock( getBlockOrder().at( -1 ) ?? '' );
-
-		return !! last && ! isUnmodifiedDefaultBlock( last, 'content' );
-	}, [] );
-	const { insertDefaultBlock, clearSelectedBlock } = useDispatch( blockEditorStore );
-	const onClick = useCallback( () => insertDefaultBlock(), [ insertDefaultBlock ] );
-	// Or WritingFlow takes Enter here to split the block above.
-	const onFocus = useCallback( () => clearSelectedBlock(), [ clearSelectedBlock ] );
-	// A click goes straight to a new block, without the toolbar closing in between.
-	const onMouseDown = useCallback(
-		( event: MouseEvent< HTMLButtonElement > ) => event.preventDefault(),
-		[]
-	);
-
-	if ( ! isNeeded ) {
-		return null;
-	}
-
-	return (
-		// WritingFlow turns editable for a selection across blocks.
-		<div className="jetpack-comments__appender" contentEditable={ false }>
-			<Button
-				icon={ plus }
-				label={ label }
-				size="small"
-				onClick={ onClick }
-				onFocus={ onFocus }
-				onMouseDown={ onMouseDown }
-			/>
-		</div>
-	);
 };
 
 type WritingAreaProps = { undo: () => void; redo: () => void; children: ReactNode };
@@ -243,7 +184,7 @@ const Editor = ( {
 				{ focus && <FocusOnMount /> }
 				<WritingArea undo={ undo } redo={ redo }>
 					<div className="jetpack-comments__toolbar">
-						<BlockToolbar label={ labels.blockTools } />
+						<BlockToolbar labels={ labels } />
 					</div>
 					{ /* In the page, not an iframe, so the blocks wear the theme's type. */ }
 					<BlockTools>
@@ -251,7 +192,6 @@ const Editor = ( {
 							<ObserveTyping>
 								<BlockList />
 							</ObserveTyping>
-							<Appender label={ labels.addParagraph } />
 						</WritingFlow>
 					</BlockTools>
 				</WritingArea>

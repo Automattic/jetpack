@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
-Comment: Let commenters add a paragraph after a code block, list, or quote in the unreleased block editor.
+Comment: Add a "+" block menu to the toolbar of the unreleased block editor.
 

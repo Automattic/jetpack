@@ -475,14 +475,6 @@
 	.is-root-container > :last-child {
 		margin-block-end: 0;
 	}
-
-	.jetpack-comments__appender {
-		margin-block-start: 8px;
-
-		.components-button {
-			box-shadow: inset 0 0 0 1px currentColor;
-		}
-	}
 }
 
 // Over the theme's paragraph and list styles; code keeps the theme's monospace.

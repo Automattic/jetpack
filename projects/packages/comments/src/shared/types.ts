@@ -68,7 +68,7 @@ export type FormSettings = {
 
 export type Strings = {
 	blockTools: string;
-	addParagraph: string;
+	addBlock: string;
 	reply: string;
 	commentLabel: string;
 	replyLabel: string;
@@ -131,6 +131,6 @@ declare global {
 		/** Core's translations for the editor, handed over before the chunk loads. */
 		jetpackCommentsEditorLocale?: LocaleData;
 		/** The editor's accessible names on the edit-comment screen, translated in PHP. */
-		jetpackCommentsEditorLabels?: { blockTools: string; addParagraph: string };
+		jetpackCommentsEditorLabels?: { blockTools: string; addBlock: string };
 	}
 }

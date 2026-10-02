@@ -229,8 +229,8 @@ class Block_Editor {
 		);
 
 		$labels = array(
-			'blockTools'   => __( 'Block tools', 'jetpack-comments' ),
-			'addParagraph' => __( 'Add a paragraph', 'jetpack-comments' ),
+			'blockTools' => __( 'Block tools', 'jetpack-comments' ),
+			'addBlock'   => __( 'Add block', 'jetpack-comments' ),
 		);
 
 		wp_add_inline_script(
