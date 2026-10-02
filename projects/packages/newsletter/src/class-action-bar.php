@@ -133,13 +133,16 @@ class Action_Bar {
 		// Render this in the user's language.
 		self::switch_to_user_locale();
 
-		$status_message = false;
+		$status_message    = false;
+		$status_subscribed = false;
+
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Status flag set by the subscribe.wordpress.com redirect.
 		$blogsub = isset( $_GET['blogsub'] ) ? sanitize_key( wp_unslash( $_GET['blogsub'] ) ) : '';
 		switch ( $blogsub ) {
 			case 'confirming':
-				$status_message  = '<h3>' . __( 'Thanks', 'jetpack-newsletter' ) . '</h3>';
-				$status_message .= '<div>' .
+				$status_subscribed = true;
+				$status_message    = '<h3>' . __( 'Thanks', 'jetpack-newsletter' ) . '</h3>';
+				$status_message   .= '<div>' .
 					wp_kses(
 						sprintf(
 							/* translators: %s is the URL of the support contact page. */
@@ -155,7 +158,8 @@ class Action_Bar {
 					'</div>';
 				break;
 			case 'subscribed':
-				$status_message = '<div>' . __( 'You’re already subscribed to this site!', 'jetpack-newsletter' ) . '</div>';
+				$status_subscribed = true;
+				$status_message    = '<div>' . __( 'You’re already subscribed to this site!', 'jetpack-newsletter' ) . '</div>';
 				break;
 			case 'flooded':
 				$status_message =
@@ -163,15 +167,17 @@ class Action_Bar {
 					sprintf(
 						/* translators: %s is a link with its text (Subscription Manager) translated separately */
 						__( 'You already have several pending email subscriptions. Approve or delete a few through your %s before attempting to subscribe to more blogs.', 'jetpack-newsletter' ),
-						'<a href="https://subscribe.wordpress.com/">' . __( 'Subscription Manager', 'jetpack-newsletter' ) . '</a>'
+						'<a href="https://subscribe.wordpress.com/" target="_blank" rel="noopener noreferrer">' . __( 'Subscription Manager', 'jetpack-newsletter' ) . '</a>'
 					) .
 					'</div>';
 				break;
 			case 'pending':
-				$status_message = '<div>' . __( 'You already have a pending subscription, we just sent you another email, click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don’t get it', 'jetpack-newsletter' ) . '</div>';
+				$status_subscribed = true;
+				$status_message    = '<div>' . __( 'You already have a pending subscription, we just sent you another email, click the link or <a href="https://en.support.wordpress.com/contact/">contact us</a> if you don’t get it', 'jetpack-newsletter' ) . '</div>';
 				break;
 			case 'confirmed':
-				$status_message = '<div>' . __( 'Congrats, you’re subscribed! You’ll get an email with the details of your subscription and an unsubscribe link', 'jetpack-newsletter' ) . '</div>';
+				$status_subscribed = true;
+				$status_message    = '<div>' . __( 'Congrats, you’re subscribed! You’ll get an email with the details of your subscription and an unsubscribe link', 'jetpack-newsletter' ) . '</div>';
 				break;
 		}
 
@@ -192,6 +198,7 @@ class Action_Bar {
 			'nonce'            => wp_create_nonce( 'manage_subscription' ),
 			'isLoggedIn'       => is_user_logged_in(),
 			'statusMessage'    => $status_message,
+			'statusSubscribed' => $status_subscribed,
 			'subsEmailDefault' => self::email_default( $current_user ),
 			'proxyScriptUrl'   => 'https://s0.wp.com/wp-content/js/wpcom-proxy-request.js?ver=20211021',
 		);

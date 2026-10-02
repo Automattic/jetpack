@@ -723,16 +723,19 @@
 	}
 
 	/**
-	 * Flip the button to Subscribed and open the follow popover with a message.
+	 * Open the follow popover with a message, flipping the button to Subscribed when the subscribe went through.
 	 *
-	 * @param {string} message - HTML to show inside the popover.
+	 * @param {string}  message    - HTML to show inside the popover.
+	 * @param {boolean} subscribed - Whether the subscribe went through.
 	 */
-	function showActionBarStatusMessage( message ) {
-		const followLink = actionbar.querySelector( '.actnbr-actn-follow' );
-		const unfollowLink = actionbar.querySelector( '.actnbr-actn-following' );
+	function showActionBarStatusMessage( message, subscribed ) {
+		if ( subscribed ) {
+			const followLink = actionbar.querySelector( '.actnbr-actn-follow' );
+			const unfollowLink = actionbar.querySelector( '.actnbr-actn-following' );
 
-		followLink && followLink.classList.add( 'no-display' );
-		unfollowLink && unfollowLink.classList.remove( 'no-display' );
+			followLink && followLink.classList.add( 'no-display' );
+			unfollowLink && unfollowLink.classList.remove( 'no-display' );
+		}
 
 		const msgEl = actionbar.querySelector( '.actnbr-follow-bubble .actnbr-message' );
 
@@ -762,6 +765,6 @@
 
 	// Message from the subscribe.wordpress.com redirect, once every handler above exists.
 	if ( fbd.statusMessage ) {
-		showActionBarStatusMessage( fbd.statusMessage );
+		showActionBarStatusMessage( fbd.statusMessage, !! fbd.statusSubscribed );
 	}
 } )();
