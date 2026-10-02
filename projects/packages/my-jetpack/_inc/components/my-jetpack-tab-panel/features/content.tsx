@@ -288,16 +288,16 @@ function FeaturesTabContent() {
 		// Clears the search: a term in play replaces the grid outright, so a pill picked
 		// while searching would otherwise light up and change nothing.
 		( next: FeatureFilter ) => {
-			// The pills stay clickable while active, and picking the one already in play
-			// changes nothing to report.
-			if ( next !== filter ) {
+			// Picking the pill already in play changes nothing to report, unless a search is
+			// running: no pill reads as selected then, so the click does narrow the grid.
+			if ( next !== filter || search ) {
 				tracking?.trackFilterChange( next, counts[ next ] ?? 0 );
 			}
 
 			forgetPendingSearch();
 			updateParams( { filter: next === 'all' ? null : next, search: null } );
 		},
-		[ counts, filter, forgetPendingSearch, tracking, updateParams ]
+		[ counts, filter, forgetPendingSearch, search, tracking, updateParams ]
 	);
 
 	const onViewChange = useCallback(

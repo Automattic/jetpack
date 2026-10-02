@@ -72,6 +72,18 @@ describe( 'getFeatureFilters', () => {
 		expect( values( 'all', true ) ).toEqual( [ 'all', 'active', 'inactive', 'included' ] );
 	} );
 
+	it( 'still gives Included in plan a pill when a link selects it mid-visit', () => {
+		expect( getFeatureFilters( 'included' ).map( ( { value } ) => value ) ).toEqual( [
+			'all',
+			'active',
+			'inactive',
+			'included',
+			'essential',
+			'security',
+			'growth',
+		] );
+	} );
+
 	it( 'rejects a filter the grid does not know', () => {
 		expect( isFeatureFilter( 'bundle' ) ).toBe( false );
 	} );

@@ -85,8 +85,10 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 
 	const pluginName = feature.plugin_name || feature.name;
 	const note = getNote( state, pluginName );
+	// A blocked install never reaches the next step, so naming it would only mislead.
+	const setupNote = getInstallBlockReason( state ) ? '' : feature.setup_note;
 
-	if ( ! note && ! feature.setup_note ) {
+	if ( ! note && ! setupNote ) {
 		return null;
 	}
 
@@ -106,7 +108,7 @@ export function FeatureDelivery( { state }: FeatureDeliveryProps ) {
 						} ) }
 					</Text>
 				) : null }
-				{ feature.setup_note ? <Text variant="body-sm">{ feature.setup_note }</Text> : null }
+				{ setupNote ? <Text variant="body-sm">{ setupNote }</Text> : null }
 			</Stack>
 		</Stack>
 	);

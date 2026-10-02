@@ -114,6 +114,8 @@ export function UpgradeButton( { state }: UpgradeButtonProps ) {
 			onClick={ onUpgrade }
 			variant="outline"
 			size="compact"
+			// Upselling is not what the modal is open to reach, so focus skips it.
+			data-feature-upgrade
 			aria-label={ sprintf(
 				/* translators: %s is a product name, such as "Jetpack Akismet Anti-spam". */
 				__( 'Upgrade to %s', 'jetpack-my-jetpack' ),

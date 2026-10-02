@@ -12,10 +12,10 @@ export const isFeatureFilter = ( value: string ): value is FeatureFilter =>
 /**
  * The filters offered as pills, in the order they are shown.
  *
- * Complete earns no pill of its own, but an old link can still select it — so it joins the
- * list while it is the active one, or the narrow layout's select would have nothing to show.
- * A visit that arrived on Included in plan is about what the site owns, so it swaps the
- * category pills for that one; no other visit offers it.
+ * Complete and Included in plan earn no pill of their own, but a link can still select
+ * either — so each joins the list while it is the active one, or the narrow layout's select
+ * would have nothing to show. A visit that arrived on Included in plan is about what the
+ * site owns, so it swaps the category pills for that one.
  *
  * @param active    - The filter in play, if any.
  * @param ownedView - Whether the visit arrived on Included in plan.
@@ -28,7 +28,7 @@ export const getFeatureFilters = (
 	{ value: 'all', label: __( 'All', 'jetpack-my-jetpack' ) },
 	{ value: 'active', label: __( 'Active', 'jetpack-my-jetpack' ) },
 	{ value: 'inactive', label: __( 'Inactive', 'jetpack-my-jetpack' ) },
-	...( ownedView
+	...( ownedView || 'included' === active
 		? [
 				{
 					value: 'included' as FeatureFilter,

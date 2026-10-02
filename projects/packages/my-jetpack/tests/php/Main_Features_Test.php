@@ -526,6 +526,7 @@ class Main_Features_Test extends TestCase {
 	public function test_setup_note_is_dropped_for_a_site_that_pays() {
 		$notes = array_column( Main_Features::get_features(), 'setup_note', 'slug' );
 		$this->assertNotSame( '', $notes['backup'] );
+		$this->assertNotSame( '', $notes['search'] );
 
 		$this->own( array( 'jetpack_complete' ) );
 

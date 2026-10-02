@@ -111,6 +111,21 @@ describe( 'FeatureDelivery', () => {
 		expect( screen.queryByText( /Installing adds/ ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'leaves out what to expect next when the install is blocked', () => {
+		render(
+			<FeatureDelivery
+				state={ {
+					...installedPlugin,
+					feature: { ...installedPlugin.feature, setup_note: 'Choose a plan next.' },
+					control: { kind: 'install-plugin', plugin: 'akismet', blocked: 'not_permitted' },
+				} }
+			/>
+		);
+
+		expect( screen.getByText( /can’t install plugins/ ) ).toBeInTheDocument();
+		expect( screen.queryByText( 'Choose a plan next.' ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'links the installed plugin it will switch on', () => {
 		render( <FeatureDelivery state={ installedPlugin } /> );
 

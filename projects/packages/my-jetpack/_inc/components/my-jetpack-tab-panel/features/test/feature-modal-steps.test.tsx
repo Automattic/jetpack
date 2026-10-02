@@ -131,6 +131,40 @@ describe( 'FeatureModal stepping', () => {
 		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
 	} );
 
+	it( 'waits for the real action rather than focusing Upgrade, which renders before it', async () => {
+		const pending = {
+			...state,
+			status: 'inactive',
+			feature: {
+				...state.feature,
+				upgrade: { path: '/add-forms', name: 'Jetpack Forms' },
+			},
+		} as FeatureState;
+		const modal = ( current: FeatureState ) => (
+			<FeatureModal
+				state={ current }
+				position={ 1 }
+				total={ 1 }
+				onStep={ jest.fn() }
+				onClose={ jest.fn() }
+			/>
+		);
+		const { rerender } = render( modal( pending ) );
+
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Close' } ) ).toHaveFocus() );
+		expect( screen.getByRole( 'link', { name: /Upgrade/ } ) ).not.toHaveFocus();
+
+		rerender(
+			modal( {
+				...pending,
+				status: 'active',
+				feature: { ...pending.feature, manage_url: '/forms' },
+			} as FeatureState )
+		);
+
+		expect( screen.getByRole( 'link', { name: 'Open' } ) ).toHaveFocus();
+	} );
+
 	it( 'resets a failed band image when stepping to a feature with its own', () => {
 		const withScreenshot = ( slug: string, name: string ) =>
 			( {

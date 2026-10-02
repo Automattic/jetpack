@@ -144,13 +144,15 @@ export function FeatureModal( {
 	const steppedToRef = useRef< string | null >( null );
 
 	// The header's action, which is what the modal is open in order to reach — not the
-	// first link in the body.
+	// first link in the body, and not Upgrade, which renders before the switch arrives.
 	const findAction = useCallback( () => {
 		const actions = popupRef.current?.querySelector( '[data-feature-actions]' );
 
 		return Array.from( actions?.querySelectorAll< HTMLElement >( 'button, a[href]' ) ?? [] ).find(
 			element =>
-				! element.hasAttribute( 'disabled' ) && element.getAttribute( 'aria-disabled' ) !== 'true'
+				! element.hasAttribute( 'disabled' ) &&
+				element.getAttribute( 'aria-disabled' ) !== 'true' &&
+				! element.hasAttribute( 'data-feature-upgrade' )
 		);
 	}, [] );
 

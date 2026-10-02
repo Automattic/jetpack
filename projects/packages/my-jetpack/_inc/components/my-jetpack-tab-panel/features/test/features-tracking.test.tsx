@@ -615,6 +615,16 @@ describe( 'What is not worth an event', () => {
 		expect( eventNames() ).not.toContain( 'jetpack_myjetpack_features_filter_change' );
 	} );
 
+	it( 'reports that same pick while a search is running, which the search was hiding', async () => {
+		renderAt( '/features?filter=active&search=boost' );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^Active/ } ) );
+
+		expect( lastEvent( 'jetpack_myjetpack_features_filter_change' ) ).toMatchObject( {
+			filter: 'active',
+		} );
+	} );
+
 	it( 'says nothing when the layout already in play is picked again', async () => {
 		renderAt( '/features?view=list' );
 
