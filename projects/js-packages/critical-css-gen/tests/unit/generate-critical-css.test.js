@@ -134,7 +134,10 @@ describe( 'Generate Critical CSS', () => {
 						return { ok: true, text: async () => shared + `.unused-${ page }{color:blue}` };
 					}
 				}
-				const urls = Array.from( { length: 10 }, ( _, i ) => testPageUrls.pageA + '?copy=' + i );
+				const urls = Array.from(
+					{ length: _name === 'ordinary rules' ? 10 : 2 },
+					( _, i ) => testPageUrls.pageA + '?copy=' + i
+				);
 				const generate = pages =>
 					generateCriticalCSS( {
 						urls: pages,

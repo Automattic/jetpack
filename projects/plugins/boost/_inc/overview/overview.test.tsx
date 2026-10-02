@@ -916,9 +916,7 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 				...scores,
 				current: { desktop: 95, mobile: 85 },
 			} );
-			if ( scenario === 'delayed save' ) {
-				jest.useFakeTimers();
-			}
+			jest.useFakeTimers();
 			fireEvent.click( screen.getByRole( 'button', { name: 'Defer Non-Essential JavaScript' } ) );
 			await waitFor( () => expect( fetchSpy ).toHaveBeenCalledTimes( 1 ) );
 			if ( scenario === 'unrelated save' ) {
@@ -932,11 +930,10 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 			}
 			if ( scenario === 'delayed save' ) {
 				await act( async () => {
-					jest.advanceTimersByTime( 2500 );
+					await jest.advanceTimersByTimeAsync( 2500 );
 				} );
 			}
 			expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-			jest.useRealTimers();
 			await act( async () => finishSave() );
 			await waitFor( () => expect( savedModules.defer_js.active ).toBe( true ) );
 			await waitFor( () =>
@@ -948,7 +945,10 @@ test.each( [ 'immediate save', 'stale GET', 'delayed save', 'normalized save', '
 				} );
 			}
 			view.rerender( dashboard( true ) );
-			await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible(), { timeout: 4000 } );
+			await act( async () => {
+				await jest.advanceTimersByTimeAsync( 2000 );
+			} );
+			await waitFor( () => expect( screen.getByText( '95' ) ).toBeVisible() );
 			expect( client.getQueryData( [ 'modules_state' ] ) ).toEqual( savedModules );
 			expect( fetchSpy ).toHaveBeenCalledTimes( 1 );
 			expect( fetchSpy ).toHaveBeenCalledWith(
