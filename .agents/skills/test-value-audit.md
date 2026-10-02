@@ -13,6 +13,8 @@ Work in the order below. CI time comes from suites that load or run repeatedly, 
 
 ## 1. Measure
 
+Read the project's test setup first: the test scripts in `package.json`, the Jest config, and the project's `AGENTS.md`. Note any paths that run more than once and any suite grouping, and follow the project's rules when removing or merging a file.
+
 Record the "before" state: the test count, and the time per suite and per configuration (`jest --json`: `numTotalTests`, and `endTime - startTime` for each entry in `testResults`). Rank the suites by time × number of runs, and work through them in that order.
 
 ## 2. Configuration first
@@ -24,7 +26,7 @@ These changes save the most CI time and need little or no mutation:
 
 ## 3. Triage by reading
 
-Read the source, its tests, and its consumers (`git grep` each export), and look across layers (widget, hook, shared toolkit). Some verdicts need no mutant. Decide them by reading:
+Read the source, its tests, and its consumers (`git grep` each export), and look across layers (component, hook, shared library). Some verdicts need no mutant. Decide them by reading:
 
 - Same input and same expected value as another test: remove.
 - Asserts only a type, a fixture shape, or a constant: remove.
@@ -52,17 +54,11 @@ node <repo>/.agents/skills/test-value-audit/mutate.mjs mutants.json \
 - Gaps.
 - Before and after numbers, measured.
 
-Apply the changes only when asked: one PR per widget, route, or package.
-
-## Premium Analytics
-
-- `test-tz` in `package.json` reruns its paths in two more timezones. To test a path, leak the machine zone (for example, change `Date.UTC` to `new Date`) and compare UTC against the other zones.
-- CI runs grouped suites (`tests/groups/README.md`). When removing or merging a file, update its group import and run `tests/js/test-groups.test.ts`.
-- A path argument turns grouping off. To measure in CI's grouped mode, use `--testPathPatterns=<x>`. `test-tz` passes paths, so it always runs ungrouped.
+Apply the changes only when asked: one PR per module or feature area.
 
 ## Tests that look covered but are not
 
 - `objectContaining` against a fixture that already holds the asserted value.
 - `toBeInstanceOf( Date )`, `toBeDefined()`, or `length > 0` asserted in place of the actual value.
 - A leap-year rule tested over a range that contains no February 29.
-- A "site timezone" test whose formatter always uses the date's own zone.
+- A test that varies an input the code path ignores, such as a timezone the formatter never reads.

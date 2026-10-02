@@ -1,5 +1,5 @@
 Significance: patch
 Type: changed
-Comment: Document a test grouping pitfall.
+Comment: Document test grouping and timezone-suite notes for agents.
 
 
