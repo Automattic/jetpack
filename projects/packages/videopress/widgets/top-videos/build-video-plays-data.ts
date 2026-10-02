@@ -1,8 +1,8 @@
 /**
- * External dependencies
+ * Internal dependencies
  */
-import { getVideoKey, getVideoLabel } from '@jetpack-premium-analytics/widgets-toolkit';
-import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
+import { getVideoKey, getVideoLabel } from './video-plays';
+import type { StatsVideoPlaysComparisonItem } from '@automattic/jetpack-premium-analytics-sdk';
 
 /**
  * A single video row with its presentation fields resolved, built from the
@@ -10,7 +10,7 @@ import type { StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/d
  */
 export type VideoPlaysRow = {
 	/**
-	 * Attachment post ID used by the internal video-detail route.
+	 * Attachment post ID used by the dashboard's video detail route.
 	 */
 	id?: number;
 	/**
@@ -32,7 +32,7 @@ export type VideoPlaysRow = {
 	plays: number;
 	/**
 	 * Play count for the comparison period. `undefined` when the video has no
-	 * matching comparison row — distinct from a real zero, so the chart can
+	 * matching comparison row, distinct from a real zero, so the chart can
 	 * suppress the row's delta instead of fabricating one.
 	 */
 	previousPlays: number | undefined;
@@ -42,6 +42,9 @@ export type VideoPlaysRow = {
  * Maps merged video-plays rows from the Stats data layer onto normalized rows
  * ready for the leaderboard. Comparison matching already happened in the data
  * layer; this only resolves the display key, label, and link.
+ *
+ * @param videos - Merged video-plays rows.
+ * @return Rows ready for the leaderboard.
  */
 export function toVideoPlaysRows( videos: StatsVideoPlaysComparisonItem[] = [] ): VideoPlaysRow[] {
 	return videos.map( video => {

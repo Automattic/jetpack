@@ -1,40 +1,47 @@
 /**
  * External dependencies
  */
-import { useStatsVideoPlays } from '@jetpack-premium-analytics/data';
 import {
 	ExporterCsvDownloadButton,
 	Leaderboard,
 	ReportLink,
-	WIDGET_ROW_LIMIT,
 	WidgetRoot,
 	describeError,
+	useStatsVideoPlays,
 	useWidgetRootContext,
-	videosCsvExporter,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+} from '@automattic/jetpack-premium-analytics-sdk';
 import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
  */
 import { toVideoPlaysRows, type VideoPlaysRow } from './build-video-plays-data';
-import type { VideoPressAttributes } from './widget';
+import type { TopVideosAttributes } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
 
+// Videos the widget asks for. The leaderboard applies the dashboard's own cap to what it shows.
+const TOP_VIDEOS_LIMIT = 10;
+
 // The dashboard injects its date range and comparison state through
 // `reportParams`; the widget has no settings of its own.
-type VideoPressRenderAttributes = VideoPressAttributes & Partial< ReportParamsFieldAttributes >;
+type TopVideosRenderAttributes = TopVideosAttributes & Partial< ReportParamsFieldAttributes >;
 
-type VideoPressWidgetProps = WidgetRenderProps< VideoPressRenderAttributes > & {
+type TopVideosWidgetProps = WidgetRenderProps< TopVideosRenderAttributes > & {
 	/**
 	 * Dashboard error handler.
 	 */
 	setError?: ComponentProps< typeof WidgetRoot >[ 'setError' ];
 };
 
+/**
+ * Maps a normalized video row to a leaderboard row.
+ *
+ * @param row - Normalized video row.
+ * @return The leaderboard row.
+ */
 function toLeaderboardRow( row: VideoPlaysRow ): LeaderboardRowInput {
 	return {
 		id: row.key,
@@ -46,20 +53,22 @@ function toLeaderboardRow( row: VideoPlaysRow ): LeaderboardRowInput {
 }
 
 /**
- * Fetches the video-plays report through the Jetpack Stats hook and renders the
+ * Fetches the video-plays report through the dashboard's Stats hook and renders the
  * rows as a leaderboard.
+ *
+ * @return The widget content.
  */
-function VideoPressReport() {
+function TopVideosReport() {
 	const { reportParams } = useWidgetRootContext();
 	const statsParams = useMemo(
-		() => ( { ...reportParams, max: WIDGET_ROW_LIMIT } ),
+		() => ( { ...reportParams, max: TOP_VIDEOS_LIMIT } ),
 		[ reportParams ]
 	);
 
 	// The hook merges comparison rows and gates `hasComparison` on at least one
 	// visible row having a match, so the chart never fabricates vs-zero deltas.
 	const { primary, comparisonRows, hasComparison, isLoading, isFetching, isError, error, refetch } =
-		useStatsVideoPlays( statsParams, { maxRows: WIDGET_ROW_LIMIT } );
+		useStatsVideoPlays( statsParams, { maxRows: TOP_VIDEOS_LIMIT } );
 
 	const rows = useMemo(
 		() => toVideoPlaysRows( comparisonRows?.rows ?? [] ).map( toLeaderboardRow ),
@@ -84,7 +93,7 @@ function VideoPressReport() {
 			error={ describeError( error, {
 				retryDescription: __(
 					"We couldn't load video plays. Please try again in a moment.",
-					'jetpack-premium-analytics-pkg'
+					'jetpack-videopress-pkg'
 				),
 				onRetry: refetch,
 			} ) }
@@ -92,7 +101,7 @@ function VideoPressReport() {
 				<>
 					<ReportLink report="videos" />
 					<ExporterCsvDownloadButton
-						exporter={ videosCsvExporter }
+						report="videos"
 						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
 						rowCount={ rows.length }
 					/>
@@ -102,10 +111,18 @@ function VideoPressReport() {
 	);
 }
 
-export default function VideoPress( { attributes = {}, setError }: VideoPressWidgetProps ) {
+/**
+ * The Top videos widget: a leaderboard of the site's most played VideoPress videos.
+ *
+ * @param props            - Widget render props.
+ * @param props.attributes - Widget attributes, with the report params the dashboard injects.
+ * @param props.setError   - Dashboard error handler.
+ * @return The widget.
+ */
+export default function TopVideos( { attributes = {}, setError }: TopVideosWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError }>
-			<VideoPressReport />
+			<TopVideosReport />
 		</WidgetRoot>
 	);
 }

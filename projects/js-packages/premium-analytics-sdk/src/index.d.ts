@@ -15,6 +15,7 @@ export declare function useWidgetRootContext(): any;
 export declare const WidgetState: AnyComponent;
 export declare const WidgetFooter: AnyComponent;
 export declare const ReportLink: AnyComponent;
+export declare const ExporterCsvDownloadButton: AnyComponent;
 export declare function describeError( ...args: any[] ): any;
 
 // Charts and metrics.

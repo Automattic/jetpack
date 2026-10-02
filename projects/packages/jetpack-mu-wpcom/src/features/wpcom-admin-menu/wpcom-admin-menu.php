@@ -456,7 +456,6 @@ function wpcom_add_jetpack_submenu() {
 			class_exists( '\WPCOM_Features' ) &&
 			wpcom_site_has_feature( \WPCOM_Features::VIDEOPRESS )
 		) {
-			// @phan-suppress-next-line PhanUndeclaredClassMethod -- class_exists guarded above; provided by sibling autoloader.
 			\Automattic\Jetpack\VideoPress\Admin_UI::add_wp_admin_submenu();
 		}
 

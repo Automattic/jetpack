@@ -43,7 +43,8 @@ function useCsvDownloadAction(
 }
 
 export type UseExporterCsvActionOptions< TItem, TRow > = {
-	exporter: ReportCsvExporter< TItem, TRow >;
+	/** Without one there is no download to offer. */
+	exporter?: ReportCsvExporter< TItem, TRow >;
 	/** The widget's request state for the active range; the error is the primary period's alone. */
 	status: ReportCsvExportStatus;
 	/** How many rows the widget shows; an empty widget offers no download. */
@@ -59,7 +60,9 @@ export function useExporterCsvAction< TItem, TRow >( {
 	const { reportParams } = useWidgetRootContext();
 
 	return useCsvDownloadAction(
-		isReportCsvReady( status, rowCount ) ? () => downloadReportCsv( exporter, reportParams ) : null
+		exporter && isReportCsvReady( status, rowCount )
+			? () => downloadReportCsv( exporter, reportParams )
+			: null
 	);
 }
 
