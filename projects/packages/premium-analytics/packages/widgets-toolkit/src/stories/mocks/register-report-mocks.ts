@@ -43,6 +43,7 @@ import {
 	mockSearchTermsComparisonData,
 	mockSingleVideoData,
 	mockTagsData,
+	buildTopAuthorsDaysData,
 	mockTopAuthorsData,
 	mockTopAuthorsComparisonData,
 	mockSiteSummary,
@@ -52,7 +53,7 @@ import {
 	mockPostLikesData,
 	mockStatsSummaryData,
 	mockStatsSummaryComparisonData,
-	mockStatsSubscribersCountsData,
+	buildStatsSubscribersCountsData,
 	mockPlanUsageData,
 	buildEmailRateResponse,
 	buildEmailTimelineResponse,
@@ -246,6 +247,20 @@ export function setReportMockResponse( pathFragment: string, response: unknown |
 	} else {
 		mockResponseOverrides.set( pathFragment, response );
 	}
+	resetForcedStateQueries();
+}
+
+let mockSitePaidSubscribers = 0;
+
+/**
+ * Sets how many paid subscribers the mocked site has. One switch for
+ * `subscribers/counts` and the `stats/subscribers` series, so widgets reading
+ * either cannot disagree about whether the site sells subscriptions.
+ *
+ * @param count - Paid subscribers; 0 for a site with none.
+ */
+export function setMockSitePaidSubscribers( count: number ): void {
+	mockSitePaidSubscribers = Math.max( 0, count );
 	resetForcedStateQueries();
 }
 
@@ -788,6 +803,28 @@ function buildFollowersResponse( max: number ) {
 }
 
 /**
+ * The mocked subscriber totals on `day`, shared by `stats/subscribers` and `subscribers/counts` so the two agree.
+ *
+ * @param day - The day to total.
+ * @return Email and WordPress.com subscribers, and paid subscribers.
+ */
+function mockSubscribersOn( day: Date ) {
+	// Anchor growth to a fixed day so totals stay in a realistic range and stay
+	// continuous across the current/previous windows.
+	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
+	const absDay = Math.floor( day.getTime() / DAY_MS );
+	// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
+	// the previous-period series stays out of phase and its dashed line diverges visibly.
+	const trend = ( absDay - anchorDay ) * 9;
+	const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
+	const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
+	const paid = mockSitePaidSubscribers
+		? Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) )
+		: 0;
+	return { subscribers, paid };
+}
+
+/**
  * Builds the stats/subscribers time-series response. Values are anchored to each
  * bucket's absolute date so the current window trends above the previous one
  * (continuous across both windows, wavy so the comparison overlay reads clearly);
@@ -800,10 +837,6 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 	const unit = query.get( 'unit' ) || 'day';
 	const quantity = Math.max( 1, Math.min( 60, parseInt( query.get( 'quantity' ) || '30', 10 ) ) );
 	const endDate = parseDateParam( query.get( 'date' ), new Date() );
-
-	// Anchor growth to a fixed day so totals stay in a realistic range and stay
-	// continuous across the current/previous windows.
-	const anchorDay = Math.floor( Date.now() / DAY_MS ) - 400;
 	const stepDays = unit === 'week' ? 7 : 1;
 
 	const rows = Array.from( { length: quantity }, ( _, index ) => {
@@ -829,13 +862,7 @@ function buildSubscribersResponse( query: URLSearchParams ) {
 			period = bucket.toISOString().slice( 0, 10 );
 		}
 
-		const absDay = Math.floor( bucket.getTime() / DAY_MS );
-		// Upward trend plus a ~44-day wave that doesn't align with a 30-day window, so
-		// the previous-period series stays out of phase and its dashed line diverges visibly.
-		const trend = ( absDay - anchorDay ) * 9;
-		const wave = 420 * Math.sin( absDay / 7 ) + 180 * Math.cos( absDay / 11 );
-		const subscribers = Math.max( 0, Math.round( 900 + trend + wave ) );
-		const paid = Math.max( 0, Math.round( subscribers * 0.32 + 120 * Math.sin( absDay / 6 ) ) );
+		const { subscribers, paid } = mockSubscribersOn( bucket );
 
 		return [ period, subscribers, paid ];
 	} );
@@ -1171,10 +1198,24 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 			return nextIsComparison( 'stats/search-terms' )
 				? mockSearchTermsComparisonData
 				: mockSearchTermsData;
-		case '/top-authors':
+		case '/top-authors': {
+			// The author detail chart asks for period buckets; everything else summarizes.
+			const endDate = getQueryParam( requestPath, 'date' )?.slice( 0, 10 );
+			const startDate = getQueryParam( requestPath, 'start_date' )?.slice( 0, 10 );
+			if ( getQueryParam( requestPath, 'summarize' ) === '0' && startDate && endDate ) {
+				const period = getQueryParam( requestPath, 'period' );
+
+				return buildTopAuthorsDaysData(
+					startDate,
+					endDate,
+					period === 'week' || period === 'month' ? period : 'day'
+				);
+			}
+
 			return nextIsComparison( 'stats/top-authors' )
 				? mockTopAuthorsComparisonData
 				: mockTopAuthorsData;
+		}
 		case '/tags':
 			// The Stats `tags` endpoint has no comparison period, so the same
 			// primary fixture is returned for every request.
@@ -1197,7 +1238,7 @@ function routeStatsReport( subPath: string, requestPath: string ): unknown {
 function getQueryParam( requestPath: string, key: string ): string | undefined {
 	const query = requestPath.split( '?' )[ 1 ];
 
-	return query ? new URLSearchParams( query ).get( key ) ?? undefined : undefined;
+	return query ? ( new URLSearchParams( query ).get( key ) ?? undefined ) : undefined;
 }
 
 /**
@@ -1523,7 +1564,7 @@ const reportMocksMiddleware: APIFetchMiddleware = async ( options: APIFetchOptio
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_COUNTS_PATH ) ) {
-		return mockStatsSubscribersCountsData;
+		return buildStatsSubscribersCountsData( mockSubscribersOn( new Date() ) );
 	}
 
 	if ( requestPath.startsWith( STATS_SUBSCRIBERS_PATH ) ) {

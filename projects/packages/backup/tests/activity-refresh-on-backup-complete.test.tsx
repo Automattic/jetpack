@@ -34,8 +34,6 @@ import { BACKUPS_POLL_INTERVAL_MS } from '../src/dashboard/hooks/use-backups';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-const SETTLE = { timeout: 10000 };
-
 const OLD_REWIND = '1786644531.100';
 const NEW_REWIND = '1786644532.200';
 
@@ -163,7 +161,7 @@ describe( 'A backup finishing while the Overview is open', () => {
 		// The running backup is reported alongside the list, not in place
 		// of it, because the site already has a restore point.
 		await expect(
-			screen.findByRole( 'heading', { name: 'Older backup complete' }, SETTLE )
+			screen.findByRole( 'heading', { name: 'Older backup complete' } )
 		).resolves.toBeInTheDocument();
 		// Settle the opening burst of requests before counting, so the
 		// baseline is a resting value rather than one mid-flight.
@@ -181,12 +179,8 @@ describe( 'A backup finishing while the Overview is open', () => {
 		];
 		await pollAndSettle();
 
-		await waitFor(
-			() =>
-				expect(
-					within( activityList() ).getByText( 'Newest backup complete' )
-				).toBeInTheDocument(),
-			SETTLE
+		await waitFor( () =>
+			expect( within( activityList() ).getByText( 'Newest backup complete' ) ).toBeInTheDocument()
 		);
 
 		// Let a second refetch happen if one was going to, so the count

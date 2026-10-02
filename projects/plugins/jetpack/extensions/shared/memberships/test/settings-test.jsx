@@ -1,9 +1,14 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { store as blockEditorStore } from '@wordpress/block-editor';
 import * as wpData from '@wordpress/data';
 import { store as editorStore } from '@wordpress/editor';
 import { store as membershipProductsStore } from '../../../store/membership-products';
-import { META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS } from '../constants';
+import {
+	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
+	META_NAME_FOR_POST_LEVEL_ACCESS_SETTINGS,
+	META_NAME_FOR_POST_TIER_ID_SETTINGS,
+} from '../constants';
 import {
 	getAccessDescription,
 	getReachForAccessLevelKey,
@@ -313,6 +318,28 @@ describe( 'NewsletterAccessRadioButtons', () => {
 				screen.queryByRole( 'link', { name: /turn on paid subscribers/i } )
 			).not.toBeInTheDocument();
 		} );
+
+		test( 'saves the chosen tier as a number', async () => {
+			const user = userEvent.setup();
+			const tierProducts = [
+				{ id: 1, title: 'Basic', price: 5, interval: '1 month' },
+				{ id: 2, title: 'Premium', price: 10, interval: '1 month' },
+			];
+			mockUseEntityProp.mockReturnValue( [
+				{ [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 2 },
+				mockSetPostMeta,
+			] );
+
+			renderPanel( { accessLevel: 'paid_subscribers' }, { tierProducts } );
+
+			expect( screen.getByRole( 'radio', { name: 'Premium' } ) ).toBeChecked();
+
+			await user.click( screen.getByRole( 'radio', { name: 'Basic' } ) );
+
+			expect( mockSetPostMeta ).toHaveBeenCalledWith(
+				expect.objectContaining( { [ META_NAME_FOR_POST_TIER_ID_SETTINGS ]: 1 } )
+			);
+		} );
 	} );
 
 	describe( 'when the post has a paywall block', () => {
@@ -461,21 +488,16 @@ describe( 'NewsletterAccessDocumentSettings', () => {
 	const createMockSelect =
 		( { blocks = [] } = {} ) =>
 		store => {
-			if ( store === 'jetpack/membership-products' ) {
+			if ( store === membershipProductsStore ) {
 				return {
 					isApiStateLoading: () => false,
 					getConnectUrl: () => null,
-					getNewsletterTierProducts: () => [],
-				};
-			}
-			if ( store === 'core/block-editor' ) {
-				return { getBlocks: () => blocks };
-			}
-			if ( store === membershipProductsStore ) {
-				return {
 					getSubscriberCounts: () => ( { totalSubscribers: 10, paidSubscribers: 2 } ),
 					getNewsletterTierProducts: () => [],
 				};
+			}
+			if ( store === blockEditorStore ) {
+				return { getBlocks: () => blocks };
 			}
 			if ( store === editorStore ) {
 				return {
@@ -568,12 +590,34 @@ describe( 'NewsletterEmailDocumentSettings', () => {
 		expect( container ).toBeEmptyDOMElement();
 	} );
 
-	test( 'renders toggle when post is not already sent', () => {
+	test( 'renders toggle when post is not already sent', async () => {
 		mockUseSelect.mockImplementation( selector =>
 			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
 		);
 
 		render( <NewsletterEmailDocumentSettings /> );
-		expect( screen.getByLabelText( /Send as email to subscribers/i ) ).toBeInTheDocument();
+		await expect(
+			screen.findByRole( 'checkbox', { name: 'Send this post to subscribers' } )
+		).resolves.toBeInTheDocument();
+	} );
+
+	test( 'turning the toggle off stores "don’t email" in post meta and saves the post', async () => {
+		const user = userEvent.setup();
+		const setPostMeta = jest.fn();
+		mockUseEntityProp.mockReturnValue( [ {}, setPostMeta ] );
+		mockUseSelect.mockImplementation( selector =>
+			selector( createMockSelect( { email_sent_at: null, stats_on_send: null } ) )
+		);
+
+		render( <NewsletterEmailDocumentSettings /> );
+		const toggle = screen.getByRole( 'checkbox', { name: 'Send this post to subscribers' } );
+		expect( toggle ).toBeChecked();
+
+		await user.click( toggle );
+
+		expect( setPostMeta ).toHaveBeenCalledWith( {
+			[ META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS ]: true,
+		} );
+		expect( mockSaveEditedEntityRecord ).toHaveBeenCalledWith( 'postType', 'post', 1 );
 	} );
 } );

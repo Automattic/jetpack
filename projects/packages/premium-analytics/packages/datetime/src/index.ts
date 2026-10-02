@@ -6,6 +6,12 @@ export {
 } from './get-comparison-range';
 export type { ComparisonRangeOptions } from './get-comparison-range';
 
+/**
+ * Re-exported so a consumer naming a `DateRange` bound does not have to take a
+ * direct dependency on `@date-fns/tz`.
+ */
+export type { TZDate } from '@date-fns/tz';
+
 export {
 	createTZDateFromParts,
 	toLocalTZ,
@@ -21,9 +27,6 @@ export { INTERVAL_TYPES, isIntervalType, type IntervalType } from './interval';
 
 export { getDateRangeSpan, type DateRangeSpan, type DateRangeSpanUnit } from './date-range-span';
 
-export { stepDateRange, canStepForward, type StepDirection } from './step-date-range';
-export { completeToDateRange, clampRangeEndToToday } from './to-date-range';
-
 export { drillDateRange } from './drill-date-range';
 
 export { toBucketStamp, resolveBucketStamp } from './bucket-stamp';
@@ -38,6 +41,7 @@ export {
 	formatDatePartWithTime,
 	getDateIntervalDateParts,
 	getDatePart,
+	parseExactLabel,
 	type DateIntervalDateParts,
 	type DateIntervalPeriod,
 } from './date';
@@ -52,7 +56,9 @@ export {
 	PRESET_LAST_30_DAYS,
 	PRESET_LAST_90_DAYS,
 	PRESET_LAST_365_DAYS,
+	PRESET_MONTH_TO_DATE,
 	PRESET_LAST_MONTH,
+	PRESET_YEAR_TO_DATE,
 	PRESET_LAST_12_MONTHS,
 	PRESET_LAST_YEAR,
 	PRESET_CUSTOM,

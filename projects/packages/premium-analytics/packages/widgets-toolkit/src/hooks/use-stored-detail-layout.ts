@@ -110,7 +110,7 @@ function applyStoredLayout( stored: StoredWidget[], fixed: DashboardWidget[] ): 
 								...( fixedWidget.attributes as Attributes | undefined ),
 								...entry.attributes,
 							},
-					  }
+						}
 					: {} ),
 			},
 		];

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix the Latest comments widget counting pingbacks and trackbacks in its remaining comments count.

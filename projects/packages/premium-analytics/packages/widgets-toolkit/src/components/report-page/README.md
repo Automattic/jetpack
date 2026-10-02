@@ -13,7 +13,7 @@ const label = __( 'All pages' );
 	breadcrumbs={ <StatsBreadcrumbs items={ [ { label } ] } /> }
 	actions={ downloadButton }
 >
-	<ReportPageLayout title={ getTabTitle( activeTab ) } dateFilters={ dateFilters }>
+	<ReportPageLayout title={ getTabLabel( activeTab ) } dateFilters={ dateFilters }>
 		<ReportPerformanceChart
 			primary={ visits.primary.data }
 			comparison={ visits.hasComparison ? visits.comparison.data : undefined }
@@ -35,18 +35,40 @@ const label = __( 'All pages' );
 
 - **`ReportPageShell`** — the outer `Page` shell: the shared Jetpack visual,
   Stats breadcrumbs and page-level actions.
-- **`ReportPageLayout`** — the report content scaffold: optional internal tabs,
-  the section header, and stacked sections.
+- **`ReportPageLayout`** — the scroll area below the page header: optional
+  internal tabs, the section header pinned at its top, and stacked sections.
   `ReportPageSection` is the bordered card each section renders in.
 
+- **`ReportChartSection`** — a chart in its own card, with the control below it
+  that collapses the card. Every chart above a records table renders through it, so
+  the toggle reads and behaves the same on every report. It also carries the
+  optional heading, icon and info tip a chart names itself with. The collapsed
+  state lasts as long as the section stays mounted: hiding a chart is a per-visit
+  preference, not a stored one. The chart stays mounted while collapsed so the
+  card animates shut, and the stylesheet takes it out of the tab order.
 - **`ReportPerformanceChart`** — the multi-metric visits chart
   (Views/Visitors/Comments/Likes via `useStatsVisits` `stat_fields`), with a
-  metric show/hide menu, the time-bucket selector (owned by the page — it
-  changes the query), and a collapse toggle. With exactly one visible metric
-  and comparison data, the previous period draws as a dashed overlay.
+  metric show/hide menu and the time-bucket selector (owned by the page — it
+  changes the query). With exactly one visible metric and comparison data, the
+  previous period draws as a dashed overlay.
+- **`ReportLocationsMap`** — the Locations report's map of views by location,
+  over the rows the records table already fetched. It renders the shared
+  `LocationsGeoChart`, which the Locations dashboard widget also uses.
 - **`ReportRecordsTable`** — a Core DataViews table over the module's
   summarized rows; search, sorting, column config, and pagination run
   client-side via `filterSortAndPaginate`.
+- **`ReportThumbnail`** — a records-table row thumbnail for the view's
+  `mediaField`, falling back to `fallbackIcon` when there is none or it fails
+  to load. DataViews draws it beside the `titleField` in its fixed 32px box.
+- **`REPORT_TITLE_LINK_CLASS_NAMES`** — the `classNames` to pass a
+  `PostTitleLink` or `VideoTitleLink` rendered in a records table's
+  `titleField`, so a long title ellipsizes and keeps its outbound marker.
+- **`ReportEmptyState`** — replaces the records table when the report returned
+  no rows. `ReportRecordsTable` and `ReportDrilldownTable` render it
+  themselves, from the `data` they get before their own search, so a search
+  that matches nothing keeps the table's "No results", and so does a filter
+  that scoped the rows to none. The copy mentions "this
+  time period" only inside a `ReportPageLayout` that has date filters.
 - **`ReportPageTabs`** — the presentational tab bar for report pages with
   multiple views (the `tabs` slot above). It renders `{ id, label }` triggers
   and reports selection upward; panel children render inside the same `Tabs.Root`
@@ -69,21 +91,14 @@ The picker offers the range alone — no interval control, no comparison. Both
 stay on the URL untouched, so the dashboard keeps them. Declaring this per
 report is WOOA7S-1952.
 
-A report page carries three names:
-
-| name          | where it shows          | example                     |
-| ------------- | ----------------------- | --------------------------- |
-| report label  | the trailing breadcrumb | `All pages`                 |
-| tab label     | the tab strip           | `Posts & Pages`, `Archives` |
-| section title | the header's `h2`       | `Posts & Pages report`      |
-
-The first two come from `routes/reports/registry.ts` (`getLabel`) and the tab
-set. `title` is the third: `getTabTitle( activeTab )` on a tabbed report, which
-falls back to the tab's label, and the report's `getTitle()` otherwise.
+The header's `h2` reuses a name the page already shows: the open tab's label
+on a tabbed report (`getTabLabel( activeTab )`, e.g. `Posts & Pages`), and the
+report's own label from `routes/reports/registry.ts` otherwise (`All pages`).
 
 Omit `dateFilters` on a report with no date window; the header is then the title
-alone. It does not pin, unlike the dashboard's — that lives in the surface's own
-CSS (`routes/dashboard/stage.module.scss`).
+alone. It pins at the top of the layout's scroll area and condenses on scroll,
+as the dashboard's does: the layout only declares the timeline scope the
+header's own pin marker publishes into.
 
 Pass `StatsBreadcrumbs` from `@jetpack-premium-analytics/ui` to the shell's
 `breadcrumbs` slot. It owns the leading `Stats` crumb and links it back to the

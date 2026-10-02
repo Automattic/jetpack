@@ -1,4 +1,0 @@
-Significance: patch
-Type: deprecated
-
-Deprecate Admin_Page::MENU_POSITION; the Jetpack submenu now orders its internal pages alphabetically.

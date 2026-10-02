@@ -541,7 +541,7 @@ const AiScreen: FC< Props > = ( { form, searchEnginesVisible, onManageVisibility
 									: __(
 											'AI SEO is turned off for this site, so nothing is generated. Your choice is saved and applies again when AI SEO is turned back on.',
 											'jetpack-seo'
-									  )
+										)
 							}
 							__nextHasNoMarginBottom
 						/>

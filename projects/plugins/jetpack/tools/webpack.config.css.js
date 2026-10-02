@@ -47,7 +47,7 @@ const sharedWebpackConfig = {
 					{
 						loader: 'postcss-loader',
 						options: {
-							postcssOptions: { plugins: [ require( 'autoprefixer' ) ] },
+							postcssOptions: { config: path.join( __dirname, 'postcss.config.js' ) },
 						},
 					},
 					{

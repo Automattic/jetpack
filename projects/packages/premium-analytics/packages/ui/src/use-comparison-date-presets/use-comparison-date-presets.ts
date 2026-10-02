@@ -4,13 +4,10 @@
 import {
 	getComparisonOptions,
 	type ComparisonOption,
+	type DateRange,
 	type PrimaryPresetId,
 } from '@jetpack-premium-analytics/datetime';
 import { useMemo } from 'react';
-/**
- * Internal dependencies
- */
-import type { DateRange } from '../date-range-popover/date-range-filter';
 
 /**
  * A comparison option offered for the primary range, as the dropdown consumes

@@ -106,14 +106,12 @@ export default function useTagViews( { max }: UseTagViewsArgs ): TagViewsState {
 				// keys on its archive URL, a grouped row on its combined label (which
 				// the drill-down already treats as the row's unique id).
 				const parentId = item.link ?? item.labelText;
-				const children = ( item.children ?? [] ).map(
-					( child ): TagChildView => ( {
-						id: child.link ?? `${ parentId }-${ child.label }`,
-						label: child.label,
-						labelIcon: child.labelIcon,
-						link: child.link,
-					} )
-				);
+				const children = ( item.children ?? [] ).map( ( child ): TagChildView => ( {
+					id: child.link ?? `${ parentId }-${ child.label }`,
+					label: child.label,
+					labelIcon: child.labelIcon,
+					link: child.link,
+				} ) );
 
 				return {
 					id: parentId,

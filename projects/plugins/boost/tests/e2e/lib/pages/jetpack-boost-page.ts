@@ -278,7 +278,7 @@ export default class JetpackBoostPage {
 	async addCornerstonePage( url: string ) {
 		await this.enterCornerstonePageUrl( url );
 		await this.page.getByRole( 'button', { name: 'Save' } ).first().click();
-		await this.expectNoticeToBeVisible( 'Cornerstone pages saved' );
+		await this.expectNoticeToBeVisible( 'Cornerstone Pages saved' );
 	}
 
 	/**

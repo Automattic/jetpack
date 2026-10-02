@@ -5,6 +5,57 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.1] - 2026-09-29
+### Changed
+- Use core SnackbarNotices instead of Jetpack GlobalNotices. [#52193]
+
+### Fixed
+- Dashboard: Stop logging a console error about missing Jetpack configuration. [#52809]
+
+## [0.17.0] - 2026-09-28
+### Added
+- Action Bar: Add the WordPress.com front-end Action Bar, loading on WordPress.com Simple sites only. [#52201] [#52818]
+- Add the Subscribers tab URL to the admin script data, or `null` when the current user cannot open it. [#52604]
+- Subscribers: Label "Not sending" subscribers as "Bounced" or "Emails paused", with the reason in a tooltip. [#52676]
+
+### Changed
+- Daily Writing Prompt: Send an answer straight to the Block editor when this browser has opted out of Write, whichever surface the answer came from. [#52380]
+- Format stats metrics and open/click rates with locale-aware number formatters. [#52817]
+- Use the shared wp-build-polyfills helper to order the screen-ID alias around wp-build's generated enqueue check. [#52583]
+
+### Removed
+- Subscribers: Remove the temporary subscriber count notice on WordPress.com sites. [#52763]
+
+### Fixed
+- Clarify failed subscriber import guidance when no confirmation email arrives. [#52831]
+- Footer: Hide Products and Help links when My Jetpack is unavailable. [#52557]
+- Settings: Warn when no site owner is connected to WordPress.com, and disable the form. [#52810]
+- Show Jetpack in-dashboard messages on the dashboard again. [#52641]
+- Subscribers: Show the earliest subscription date for subscribers with both an email and a WordPress.com subscription. [#52576]
+
+## [0.16.0] - 2026-09-21
+### Changed
+- Daily Writing Prompt: Stop offering the Write editor after a switch to the Block editor. [#52230]
+- Exclude source map files from the distributed package. [#52304]
+- Update package dependencies. [#52187]
+
+### Fixed
+- Dashboard: Restore the admin screen ID after the wp-build enqueue check. [#52471]
+
+## [0.15.0] - 2026-09-15
+### Added
+- Daily Writing Prompt: Add a "Freshly Pressed" tab listing the posts WordPress.com is currently featuring. [#52077]
+- Subscribers: Show a dismissible notice on WordPress.com sites explaining why subscriber counts may have changed. [#52233]
+- Subscriptions: Add an Action Bar visibility toggle on WordPress.com Simple sites. [#52136]
+
+### Changed
+- Hide the Newsletter sidebar item when Newsletter is not active. [#52156]
+- Update package dependencies. [#52200] [#52297]
+
+## [0.14.1] - 2026-09-09
+### Changed
+- Sidebar: Sort Jetpack menu items alphabetically, pinning My Jetpack to the top and external links and Settings to the bottom. [#52003]
+
 ## [0.14.0] - 2026-09-08
 ### Changed
 - Update package dependencies. [#51701]
@@ -355,6 +406,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Update package dependencies. [#46143]
 
+[0.17.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.17.0...v0.17.1
+[0.17.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.16.0...v0.17.0
+[0.16.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.1...v0.15.0
+[0.14.1]: https://github.com/Automattic/jetpack-newsletter/compare/v0.14.0...v0.14.1
 [0.14.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.7...v0.13.0
 [0.12.7]: https://github.com/Automattic/jetpack-newsletter/compare/v0.12.6...v0.12.7

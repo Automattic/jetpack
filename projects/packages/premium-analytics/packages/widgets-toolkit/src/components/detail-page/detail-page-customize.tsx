@@ -1,19 +1,27 @@
-import { Badge, Icon, IconButton, Menu, Stack } from '@jetpack-premium-analytics/externals';
+import { Badge, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
-import { moreVertical, pencil } from '@wordpress/icons';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useTrackCustomize, type TrackingSurface } from '../../hooks/use-track-event';
+import { PageOptionsMenu } from '../page-options-menu';
+import { ResetLayoutAction } from '../reset-layout';
 import type { CanPerformDashboardOperation, DashboardWidget } from '@wordpress/widget-dashboard';
 import type { ReactNode } from 'react';
 
 export type DetailPageCustomize = {
 	/** Whether the page is in customize mode. */
 	isCustomizing: boolean;
+	/** Whether Customize is on offer: a layout on show, and customization enabled. */
+	canCustomize: boolean;
 	/** The policy for `WidgetDashboard.Policy`. */
 	canPerform: CanPerformDashboardOperation;
 	/** Enters customize mode; the page options menu's Customize entry. */
 	startCustomizing: () => void;
+	/** Resets the layout on show and leaves customize mode; the menu's Reset to default entry. */
+	resetToDefault: () => void;
 	/** For `WidgetDashboard`'s `onEditChange`: its Cancel and Done report back here. */
 	onEditChange: ( nextEditMode: boolean ) => void;
+	/** For `WidgetDashboard`'s `onLayoutChange`: stores the layout via `options.onLayoutChange`. */
+	onLayoutChange: ( nextLayout: DashboardWidget[] ) => void;
 };
 
 export type DetailPageCustomizeOptions = {
@@ -26,25 +34,36 @@ export type DetailPageCustomizeOptions = {
 	layoutId?: string;
 	/** Whether there is anything to customize; going false ends customize mode. */
 	enabled?: boolean;
+	/** Resets the stored layout; what `resetToDefault` calls before leaving customize mode. */
+	onLayoutReset?: () => void;
+	/** Stores a committed layout. */
+	onLayoutChange?: ( nextLayout: DashboardWidget[] ) => void;
+	/** The page, for the customize Tracks events. */
+	surface?: TrackingSurface;
 };
 
 /**
  * Customize mode for a detail page: the reader may rearrange the fixed
- * composition's cards, never add or remove them (WOOA7S-1622). Customize is
- * offered by the page options menu, not the dashboard's own button, and Reset
- * only joins Cancel and Done while customizing (WOOA7S-2033).
+ * composition's cards, never add or remove them (WOOA7S-1622). Customize and
+ * Reset to default are the page options menu's, not the dashboard's own actions;
+ * Reset is offered while customizing only, and leaves the mode (WOOA7S-2033).
  *
- * @param layout           - The layout on show; while empty, edit mode cannot be entered.
- * @param options          - Which layout this is, and whether it can be customized at all.
- * @param options.layoutId - Names the layout on show; a change ends customize mode.
- * @param options.enabled  - Whether there is anything to customize.
+ * @param {DashboardWidget[]}          layout  - The layout on show; while empty, edit mode cannot be entered.
+ * @param {DetailPageCustomizeOptions} options - Which layout this is, and whether it can be customized at all.
  * @return The mode, the policy, and the transitions.
  */
 export function useDetailPageCustomize(
 	layout: DashboardWidget[],
-	{ layoutId, enabled = true }: DetailPageCustomizeOptions = {}
+	{
+		layoutId,
+		enabled = true,
+		onLayoutReset,
+		onLayoutChange,
+		surface,
+	}: DetailPageCustomizeOptions = {}
 ): DetailPageCustomize {
 	const [ isCustomizing, setIsCustomizing ] = useState( false );
+	const track = useTrackCustomize( surface );
 
 	// An empty layout makes the dashboard request edit mode on its own (its
 	// empty state invites customization); a detail page is only empty while a
@@ -61,39 +80,59 @@ export function useDetailPageCustomize(
 		}
 	}, [ canCustomize ] );
 
-	const canPerform = useCallback< CanPerformDashboardOperation >(
-		request => {
-			switch ( request.operation ) {
-				case 'customize':
-				case 'insert':
-				case 'remove':
-					return false;
-				case 'reset':
-					return isCustomizing;
-				default:
-					return true;
-			}
-		},
-		[ isCustomizing ]
-	);
-
-	const startCustomizing = useCallback( () => {
-		if ( canCustomize ) {
-			setIsCustomizing( true );
+	const canPerform = useCallback< CanPerformDashboardOperation >( request => {
+		switch ( request.operation ) {
+			case 'customize':
+			case 'insert':
+			case 'remove':
+			case 'reset':
+				return false;
+			default:
+				return true;
 		}
-	}, [ canCustomize ] );
+	}, [] );
 
 	const onEditChange = useCallback(
 		( nextEditMode: boolean ) => {
 			if ( nextEditMode && ! canCustomize ) {
 				return;
 			}
+			if ( nextEditMode ) {
+				track.start();
+			} else {
+				track.exit();
+			}
 			setIsCustomizing( nextEditMode );
 		},
-		[ canCustomize ]
+		[ canCustomize, track ]
 	);
 
-	return { isCustomizing, canPerform, startCustomizing, onEditChange };
+	const startCustomizing = useCallback( () => onEditChange( true ), [ onEditChange ] );
+
+	const handleLayoutChange = useCallback(
+		( nextLayout: DashboardWidget[] ) => {
+			track.layoutChange( layout, nextLayout );
+			onLayoutChange?.( nextLayout );
+		},
+		[ layout, onLayoutChange, track ]
+	);
+
+	// The dashboard's own reset did the same: reset, then leave the mode.
+	const resetToDefault = useCallback( () => {
+		track.reset();
+		onLayoutReset?.();
+		setIsCustomizing( false );
+	}, [ onLayoutReset, track ] );
+
+	return {
+		isCustomizing,
+		canCustomize,
+		canPerform,
+		startCustomizing,
+		resetToDefault,
+		onEditChange,
+		onLayoutChange: handleLayoutChange,
+	};
 }
 
 export type DetailPageBreadcrumbsProps = {
@@ -126,7 +165,10 @@ export function DetailPageBreadcrumbs( { isCustomizing, children }: DetailPageBr
 
 export type DetailPageActionsProps = {
 	isCustomizing: boolean;
-	onCustomize: () => void;
+	/** Enters customize mode; Customize is on offer only when given. */
+	onCustomize?: () => void;
+	/** Resets the layout to default; the Reset button shows while customizing, only when given. */
+	onReset?: () => void | Promise< void >;
 	/**
 	 * The dashboard's own actions, `<WidgetDashboard.Actions />`, created by the route.
 	 * Each bundle carries its own copy of `@wordpress/widget-dashboard`, so one rendered
@@ -139,13 +181,15 @@ export type DetailPageActionsProps = {
 
 /**
  * The actions slot of a detail page. Idle, it holds the page's own actions
- * and the page options menu with Customize; customizing, the dashboard's own
- * Cancel, Done and overflow (with Reset to default) take it over. Either swap
- * unmounts the focused control, so focus is moved onto the incoming ones.
+ * and the page options menu, Customize included; customizing, the dashboard's
+ * own Cancel and Done take the actions' place, Reset to default beside them,
+ * and the menu stays, less Customize. Leaving unmounts the focused control, so
+ * focus is moved back onto the menu trigger.
  *
  * @param props                - Component props.
  * @param props.isCustomizing  - Whether the page is in customize mode.
  * @param props.onCustomize    - Called when the reader picks Customize.
+ * @param props.onReset        - Called when the reader confirms Reset to default.
  * @param props.editingActions - The dashboard's own actions, shown while customizing.
  * @param props.children       - The page's own actions.
  * @return The slot content.
@@ -153,6 +197,7 @@ export type DetailPageActionsProps = {
 export function DetailPageActions( {
 	isCustomizing,
 	onCustomize,
+	onReset,
 	editingActions,
 	children,
 }: DetailPageActionsProps ) {
@@ -164,42 +209,17 @@ export function DetailPageActions( {
 			return;
 		}
 		wasCustomizing.current = isCustomizing;
-		// Entering: the first enabled dashboard action. Leaving: the menu trigger.
-		const target = frame.current?.querySelector< HTMLElement >(
-			isCustomizing ? 'button:not([disabled])' : '[aria-haspopup="menu"]'
-		);
-		target?.focus();
+		// Entering, the menu closes onto its own trigger; leaving needs a hand.
+		if ( ! isCustomizing ) {
+			frame.current?.querySelector< HTMLElement >( '[aria-haspopup="menu"]' )?.focus();
+		}
 	}, [ isCustomizing ] );
-
-	if ( isCustomizing ) {
-		return (
-			<Stack ref={ frame } direction="row" align="center" gap="sm">
-				{ editingActions }
-			</Stack>
-		);
-	}
 
 	return (
 		<Stack ref={ frame } direction="row" align="center" gap="sm">
-			{ children }
-			<Menu.Root>
-				<Menu.Trigger
-					render={
-						<IconButton
-							icon={ moreVertical }
-							label={ __( 'Page options', 'jetpack-premium-analytics-pkg' ) }
-							variant="minimal"
-							tone="brand"
-							size="compact"
-						/>
-					}
-				/>
-				<Menu.Popup positioner={ <Menu.Positioner align="end" /> }>
-					<Menu.Item prefix={ <Icon icon={ pencil } /> } onClick={ onCustomize }>
-						<Menu.ItemLabel>{ __( 'Customize', 'jetpack-premium-analytics-pkg' ) }</Menu.ItemLabel>
-					</Menu.Item>
-				</Menu.Popup>
-			</Menu.Root>
+			{ isCustomizing ? editingActions : children }
+			{ isCustomizing && onReset && <ResetLayoutAction onReset={ onReset } /> }
+			<PageOptionsMenu onCustomize={ isCustomizing ? undefined : onCustomize } />
 		</Stack>
 	);
 }

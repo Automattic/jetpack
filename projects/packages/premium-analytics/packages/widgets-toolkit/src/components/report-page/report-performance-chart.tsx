@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import { Text } from '@jetpack-premium-analytics/externals';
-import { Button, DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
-import { __ } from '@wordpress/i18n';
+import { DropdownMenu, MenuGroup, MenuItem, SelectControl } from '@wordpress/components';
+import { __, _n } from '@wordpress/i18n';
 import { check, moreVertical } from '@wordpress/icons';
 import { useMemo, useState } from 'react';
 /**
@@ -12,7 +11,7 @@ import { useMemo, useState } from 'react';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { WidgetLoadingOverlay } from '../widget-loading-overlay';
-import { ReportPageSection } from './report-page-layout';
+import { ReportChartSection } from './report-chart-section';
 import styles from './report-performance-chart.module.scss';
 import { buildReportMetricSeries } from './utils/build-report-metric-series';
 import type { ReportChartMetric } from './types';
@@ -41,10 +40,34 @@ const DEFAULT_INTERVAL_OPTIONS: IntervalType[] = [ 'day', 'week', 'month' ];
  */
 function getDefaultMetrics(): ReportChartMetric[] {
 	return [
-		{ key: 'views', label: __( 'Views', 'jetpack-premium-analytics-pkg' ) },
-		{ key: 'visitors', label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ) },
-		{ key: 'comments', label: __( 'Comments', 'jetpack-premium-analytics-pkg' ) },
-		{ key: 'likes', label: __( 'Likes', 'jetpack-premium-analytics-pkg' ) },
+		{
+			key: 'views',
+			label: __( 'Views', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of views. */
+				_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			key: 'visitors',
+			label: __( 'Visitors', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of visitors. */
+				_n( '%s Visitor', '%s Visitors', count, 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			key: 'comments',
+			label: __( 'Comments', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of comments. */
+				_n( '%s Comment', '%s Comments', count, 'jetpack-premium-analytics-pkg' ),
+		},
+		{
+			key: 'likes',
+			label: __( 'Likes', 'jetpack-premium-analytics-pkg' ),
+			countLabel: count =>
+				/* translators: %s: number of likes. */
+				_n( '%s Like', '%s Likes', count, 'jetpack-premium-analytics-pkg' ),
+		},
 	];
 }
 
@@ -95,7 +118,6 @@ export function ReportPerformanceChart( {
 }: ReportPerformanceChartProps ) {
 	const allMetrics = useMemo( () => metrics ?? getDefaultMetrics(), [ metrics ] );
 	const [ hiddenMetricKeys, setHiddenMetricKeys ] = useState< string[] >( [] );
-	const [ isChartHidden, setIsChartHidden ] = useState( false );
 
 	const visibleMetrics = useMemo(
 		() => allMetrics.filter( metric => ! hiddenMetricKeys.includes( metric.key ) ),
@@ -128,12 +150,10 @@ export function ReportPerformanceChart( {
 	} ) );
 
 	return (
-		<ReportPageSection className={ styles.root }>
-			<div className={ styles.header }>
-				<Text variant="heading-md" render={ <h3 /> }>
-					{ title }
-				</Text>
-				<div className={ styles.controls }>
+		<ReportChartSection
+			title={ title }
+			controls={
+				<>
 					{ controls }
 					<SelectControl
 						__next40pxDefaultSize
@@ -168,31 +188,19 @@ export function ReportPerformanceChart( {
 							</MenuGroup>
 						) }
 					</DropdownMenu>
-				</div>
+				</>
+			}
+		>
+			<div className={ styles.chart }>
+				{ ( ! isLoading || series.length > 0 ) && (
+					<ComparativeLineChart
+						series={ series }
+						styles={ seriesStyles }
+						dataFormat={ dataFormat }
+					/>
+				) }
+				{ isLoading && <WidgetLoadingOverlay /> }
 			</div>
-			{ ! isChartHidden && (
-				<div className={ styles.chart }>
-					{ ( ! isLoading || series.length > 0 ) && (
-						<ComparativeLineChart
-							series={ series }
-							styles={ seriesStyles }
-							dataFormat={ dataFormat }
-						/>
-					) }
-					{ isLoading && <WidgetLoadingOverlay /> }
-				</div>
-			) }
-			<div className={ styles.footer }>
-				<Button
-					variant="tertiary"
-					size="compact"
-					onClick={ () => setIsChartHidden( current => ! current ) }
-				>
-					{ isChartHidden
-						? __( 'Show chart', 'jetpack-premium-analytics-pkg' )
-						: __( 'Hide chart', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
-			</div>
-		</ReportPageSection>
+		</ReportChartSection>
 	);
 }

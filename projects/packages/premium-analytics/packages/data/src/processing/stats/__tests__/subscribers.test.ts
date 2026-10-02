@@ -35,6 +35,22 @@ describe( 'Stats subscribers normalizers', () => {
 		] );
 	} );
 
+	it( 'keeps a null count as null rather than parsing it to zero', () => {
+		const result = sanitizeStatsSubscribersResponse( {
+			unit: 'month',
+			fields: [ 'period', 'subscribers', 'subscribers_paid' ],
+			data: [
+				[ '2026-04', 0, 0 ],
+				[ '2026-03', null, null ],
+			],
+		} );
+
+		expect( result.data ).toEqual( [
+			expect.objectContaining( { subscribers: null, subscribers_paid: null } ),
+			expect.objectContaining( { subscribers: 0, subscribers_paid: 0 } ),
+		] );
+	} );
+
 	it( 'normalizes subscribers counts by flattening the raw counts object', () => {
 		expect( sanitizeStatsSubscribersCountsResponse( subscribersCountsFixture ) ).toEqual( {
 			total_subscribers: 42,

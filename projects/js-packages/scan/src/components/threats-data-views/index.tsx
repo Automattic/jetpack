@@ -20,6 +20,7 @@ import {
 	useMemo,
 	useRef,
 	useState,
+	type JSX,
 	type ReactElement,
 	type ReactNode,
 } from 'react';
@@ -391,7 +392,7 @@ export default function ThreatsDataViews( {
 								return <ThreatSeverityBadge severity={ item.severity } />;
 							},
 						},
-				  ]
+					]
 				: [] ),
 			...( dataFields.includes( 'signature' )
 				? [
@@ -404,7 +405,7 @@ export default function ThreatsDataViews( {
 								return item.signature || '';
 							},
 						},
-				  ]
+					]
 				: [] ),
 			...( dataFields.includes( 'firstDetected' )
 				? [
@@ -423,7 +424,7 @@ export default function ThreatsDataViews( {
 								) : null;
 							},
 						},
-				  ]
+					]
 				: [] ),
 			...( dataFields.includes( 'fixedOn' )
 				? [
@@ -442,7 +443,7 @@ export default function ThreatsDataViews( {
 								) : null;
 							},
 						},
-				  ]
+					]
 				: [] ),
 			...( dataFields.includes( 'fixable' )
 				? [
@@ -471,7 +472,7 @@ export default function ThreatsDataViews( {
 								return <ThreatFixerButton threat={ item } onClick={ onFixThreats } />;
 							},
 						},
-				  ]
+					]
 				: [] ),
 		];
 

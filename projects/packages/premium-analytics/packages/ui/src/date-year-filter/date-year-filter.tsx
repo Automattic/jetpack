@@ -4,6 +4,7 @@
 import {
 	computePrimaryRange,
 	getYearSurfacePresets,
+	type DateRange,
 	type DateRangePreset,
 	type PrimaryPresetId,
 	type YearSurfacePresetId,
@@ -17,7 +18,6 @@ import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 /**
  * Internal dependencies
  */
-import type { DateRange } from '../date-range-popover';
 import './date-year-filter.scss';
 
 export type DateYearFilterProps = {

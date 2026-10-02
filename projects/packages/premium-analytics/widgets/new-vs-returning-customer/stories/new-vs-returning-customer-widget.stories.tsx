@@ -36,8 +36,7 @@ type NewVsReturningCustomerStoryProps = NewVsReturningCustomerWidgetProps &
 	NewVsReturningCustomerStoryControls;
 
 interface NewVsReturningCustomerDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		NewVsReturningCustomerStoryControls {}
+	extends WidgetDashboardWithWidgetControls, NewVsReturningCustomerStoryControls {}
 
 function getNewVsReturningCustomerAttributes(
 	withComparison = false,

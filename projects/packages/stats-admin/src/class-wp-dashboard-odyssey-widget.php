@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Stats_Admin;
 
+use Automattic\Jetpack\Modules;
+
 /**
  * Responsible for loading Jetpack Stats widget for WP Dashboard.
  *
@@ -14,6 +16,43 @@ namespace Automattic\Jetpack\Stats_Admin;
  */
 class WP_Dashboard_Odyssey_Widget {
 	const DASHBOARD_WIDGET_ID = 'jetpack_summary_widget';
+
+	/**
+	 * Add the widget to the WordPress dashboard of a connected site with Stats active.
+	 *
+	 * Hook it to `wp_dashboard_setup`.
+	 *
+	 * @return bool Whether the widget was added.
+	 */
+	public static function register_widget() {
+		/**
+		 * Filter whether the Jetpack Stats dashboard widget should be shown to the current user.
+		 * By default, the dashboard widget is shown to users who can manage options or view Stats.
+		 *
+		 * @module stats
+		 * @since-jetpack 11.9
+		 *
+		 * @param bool Whether to show the widget to the current user.
+		 */
+		if ( ! apply_filters( 'jetpack_stats_dashboard_widget_show_to_user', current_user_can( 'manage_options' ) || current_user_can( 'view_stats' ) ) ) {
+			return false;
+		}
+
+		if ( ! Main::is_site_connected() || ! ( new Modules() )->is_active( 'stats' ) ) {
+			return false;
+		}
+
+		$widget = new self();
+		wp_add_dashboard_widget(
+			self::DASHBOARD_WIDGET_ID,
+			/** "Stats" is a product name, do not translate. */
+			'Jetpack Stats',
+			array( $widget, 'render' )
+		);
+		$widget->maybe_load_admin_scripts();
+
+		return true;
+	}
 
 	/**
 	 * Renders the widget and fires a dashboard widget action.

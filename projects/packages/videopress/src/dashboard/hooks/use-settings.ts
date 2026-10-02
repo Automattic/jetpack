@@ -5,6 +5,8 @@ type ApiSettings = {
 	videopress_videos_private_for_site: boolean;
 	videopress_auto_subtitles_disabled: boolean;
 	videopress_player_preload_disabled: boolean;
+	videopress_inline_player_enabled: boolean;
+	videopress_share_menu_disabled: boolean;
 	site_is_private: boolean;
 	site_type: string;
 };
@@ -13,6 +15,8 @@ export type Settings = {
 	videoPressVideosPrivateForSite: boolean;
 	videoPressAutoSubtitlesDisabled: boolean;
 	videoPressPlayerPreloadDisabled: boolean;
+	videoPressInlinePlayerEnabled: boolean;
+	videoPressShareMenuDisabled: boolean;
 	siteIsPrivate: boolean;
 	siteType: string;
 };
@@ -23,6 +27,8 @@ export type SettingsPatch = Partial<
 		| 'videoPressVideosPrivateForSite'
 		| 'videoPressAutoSubtitlesDisabled'
 		| 'videoPressPlayerPreloadDisabled'
+		| 'videoPressInlinePlayerEnabled'
+		| 'videoPressShareMenuDisabled'
 	>
 >;
 
@@ -72,6 +78,8 @@ function fromApi( raw: ApiSettings ): Settings {
 		videoPressVideosPrivateForSite: raw.videopress_videos_private_for_site,
 		videoPressAutoSubtitlesDisabled: raw.videopress_auto_subtitles_disabled,
 		videoPressPlayerPreloadDisabled: raw.videopress_player_preload_disabled,
+		videoPressInlinePlayerEnabled: raw.videopress_inline_player_enabled,
+		videoPressShareMenuDisabled: raw.videopress_share_menu_disabled,
 		siteIsPrivate: raw.site_is_private,
 		siteType: raw.site_type,
 	};
@@ -109,6 +117,8 @@ export function useUpdateSettings() {
 					| 'videopress_videos_private_for_site'
 					| 'videopress_auto_subtitles_disabled'
 					| 'videopress_player_preload_disabled'
+					| 'videopress_inline_player_enabled'
+					| 'videopress_share_menu_disabled'
 				>
 			> = {};
 			if ( patch.videoPressVideosPrivateForSite !== undefined ) {
@@ -119,6 +129,12 @@ export function useUpdateSettings() {
 			}
 			if ( patch.videoPressPlayerPreloadDisabled !== undefined ) {
 				data.videopress_player_preload_disabled = patch.videoPressPlayerPreloadDisabled;
+			}
+			if ( patch.videoPressInlinePlayerEnabled !== undefined ) {
+				data.videopress_inline_player_enabled = patch.videoPressInlinePlayerEnabled;
+			}
+			if ( patch.videoPressShareMenuDisabled !== undefined ) {
+				data.videopress_share_menu_disabled = patch.videoPressShareMenuDisabled;
 			}
 			if ( Object.keys( data ).length === 0 ) {
 				return;

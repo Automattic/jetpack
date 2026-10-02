@@ -12,8 +12,8 @@ export type StatsSubscribersRawResponse = {
 
 export type StatsSubscribersDataPoint = StatsNormalizedDataPoint & {
 	value: number;
-	subscribers?: number;
-	subscribers_paid?: number;
+	subscribers?: number | null;
+	subscribers_paid?: number | null;
 };
 
 export type StatsSubscribersResponse = StatsNormalizedReport & {

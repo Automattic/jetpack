@@ -1,13 +1,15 @@
 import { formatNumberCompact } from '@automattic/number-formatters';
 import { __ } from '@wordpress/i18n';
 import clsx from 'clsx';
+import {
+	protectCardShieldOff as ShieldOff,
+	protectCardShieldPartial as ShieldPartial,
+} from '../../../assets/inline-svgs';
 import useProduct from '../../../data/products/use-product';
 import useMyJetpackConnection from '../../../hooks/use-my-jetpack-connection';
 import { isJetpackPluginActive } from '../../../utils/is-jetpack-plugin-active';
 import { InfoTooltip } from '../../info-tooltip';
 import baseStyles from '../style.module.scss';
-import ShieldOff from './assets/shield-off.svg';
-import ShieldPartial from './assets/shield-partial.svg';
 import { useProtectTooltipCopy } from './use-protect-tooltip-copy';
 import type { FC } from 'react';
 

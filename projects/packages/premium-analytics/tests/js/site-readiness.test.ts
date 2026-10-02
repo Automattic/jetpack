@@ -2,7 +2,7 @@
  * Internal dependencies
  */
 import {
-	isDashboardSectionInPreviewScope,
+	isDashboardSectionAvailable,
 	isPremiumAnalyticsInitialSyncFinished,
 	isPremiumAnalyticsSiteConnected,
 	isVideoPressAvailable,
@@ -81,11 +81,11 @@ describe( 'Premium Analytics site readiness', () => {
 		expect( isVideoPressAvailable() ).toBe( false );
 	} );
 
-	it( 'reads the exposed tabs from the published scope', () => {
-		setScriptData( { premium_analytics: { preview_sections: [ 'traffic' ] } } );
+	it( 'reads the exposed tabs from the published list', () => {
+		setScriptData( { premium_analytics: { sections: [ 'traffic' ] } } );
 
-		expect( isDashboardSectionInPreviewScope( 'traffic' ) ).toBe( true );
-		expect( isDashboardSectionInPreviewScope( 'insights' ) ).toBe( false );
+		expect( isDashboardSectionAvailable( 'traffic' ) ).toBe( true );
+		expect( isDashboardSectionAvailable( 'insights' ) ).toBe( false );
 	} );
 
 	it.each( [
@@ -94,12 +94,12 @@ describe( 'Premium Analytics site readiness', () => {
 	] )( 'exposes every tab when %s', ( _case, data ) => {
 		setScriptData( data );
 
-		expect( isDashboardSectionInPreviewScope( 'insights' ) ).toBe( true );
+		expect( isDashboardSectionAvailable( 'insights' ) ).toBe( true );
 	} );
 
-	it( 'exposes no tab when the published scope is empty', () => {
-		setScriptData( { premium_analytics: { preview_sections: [] } } );
+	it( 'exposes no tab when the published list is empty', () => {
+		setScriptData( { premium_analytics: { sections: [] } } );
 
-		expect( isDashboardSectionInPreviewScope( 'traffic' ) ).toBe( false );
+		expect( isDashboardSectionAvailable( 'traffic' ) ).toBe( false );
 	} );
 } );

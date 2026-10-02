@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Features: add the ability to explicity check if feature is available on legacy gating

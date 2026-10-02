@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { resolveIntervalForRange, type ReportQueryParams } from '@jetpack-premium-analytics/data';
 import {
-	endOfDayTZ,
-	isSelectablePreset,
-	reportingTimeZone,
+	resolveIntervalForPresetChange,
+	resolveIntervalForRange,
+	type ReportQueryParams,
+} from '@jetpack-premium-analytics/data';
+import {
 	type ComparisonPresetId,
 	type DateRange,
 	type PrimaryPresetId,
@@ -14,7 +15,7 @@ import {
  * Internal dependencies
  */
 import { deriveComparisonRange } from '../../search/comparison';
-import { encodeDateToSearchParam } from '../../search/date-range';
+import { encodeRangeToSearchParams } from '../../search/date-range';
 
 /**
  * The report search params the date filters read and stage.
@@ -43,6 +44,12 @@ type BuildRangePatchArgs = {
 	exactRange?: boolean;
 
 	/**
+	 * Start a different named preset from its own default interval, for a
+	 * preset the user picked.
+	 */
+	resetIntervalOnPresetChange?: boolean;
+
+	/**
 	 * The current effective search params, used to re-derive the comparison
 	 * range and to resolve the interval for the next range.
 	 */
@@ -62,33 +69,29 @@ export function buildRangePatch( {
 	nextRange,
 	nextPresetId,
 	exactRange,
+	resetIntervalOnPresetChange,
 	effective,
 }: BuildRangePatchArgs ): ReportQuerySearchParams | null {
 	const patch: ReportQuerySearchParams = {};
 
 	if ( nextRange?.from && nextRange.to ) {
-		/*
-		 * Preset/exact ranges are authoritative and skip end-of-day adjustment;
-		 * calendar edits stage midnight `to`, adjusted to the *site's* end of day —
-		 * date-fns' bare `endOfDay` would use the browser's and stretch the range.
-		 */
-		const rangeFrom = encodeDateToSearchParam( nextRange.from );
-		const rangeTo = encodeDateToSearchParam(
-			exactRange || isSelectablePreset( nextPresetId )
-				? nextRange.to
-				: endOfDayTZ( nextRange.to, reportingTimeZone() )
+		const { from: rangeFrom, to: rangeTo } = encodeRangeToSearchParams(
+			{ from: nextRange.from, to: nextRange.to },
+			{ presetId: nextPresetId, exactRange }
 		);
 		patch.from = rangeFrom;
 		patch.to = rangeTo;
 
-		// The interval carries across the change; the new range's rules decide
-		// whether it survives or coerces to the finest allowed.
-		patch.interval = resolveIntervalForRange(
-			nextPresetId,
-			rangeFrom,
-			rangeTo,
-			effective.interval
-		);
+		// Without the reset, the interval carries unless the new range disallows it.
+		patch.interval = resetIntervalOnPresetChange
+			? resolveIntervalForPresetChange(
+					effective.preset,
+					nextPresetId,
+					rangeFrom,
+					rangeTo,
+					effective.interval
+				)
+			: resolveIntervalForRange( nextPresetId, rangeFrom, rangeTo, effective.interval );
 
 		// Loose `comp` check: an unquoted URL delivers number 1, not '1'. The
 		// preset being staged measures the new range, not the one it replaces.

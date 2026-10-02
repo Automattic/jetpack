@@ -13,7 +13,7 @@ use Automattic\Jetpack\Publicize\Publicize_Utils as Utils;
 use Automattic\Jetpack\Status\Host;
 
 /**
- * Only user facing pieces of Publicize are found here.
+ * Classic editor integration: the Publicize metabox on the post screen, and its assets.
  */
 class Publicize_UI {
 	/**
@@ -24,7 +24,7 @@ class Publicize_UI {
 	public $publicize;
 
 	/**
-	 * URL to Sharing settings page in wordpress.com
+	 * URL of the admin page where Publicize connections are managed.
 	 *
 	 * @var string
 	 */
@@ -58,99 +58,7 @@ class Publicize_UI {
 		add_action( 'admin_head-post.php', array( $this, 'post_page_metabox_assets' ) );
 		add_action( 'admin_head-post-new.php', array( $this, 'post_page_metabox_assets' ) );
 
-		// Management of publicize (sharing screen, ajax/lightbox popup, and metabox on post screen).
 		add_action( 'post_submitbox_misc_actions', array( $this, 'post_page_metabox' ) );
-	}
-
-	/**
-	 * If the ShareDaddy plugin is not active we need to add the sharing settings page to the menu still
-	 *
-	 * @deprecated 0.42.3
-	 */
-	public function sharing_menu() {
-		add_submenu_page(
-			'options-general.php',
-			esc_html__( 'Sharing Settings', 'jetpack-publicize-pkg' ),
-			esc_html__( 'Sharing', 'jetpack-publicize-pkg' ),
-			'publish_posts',
-			'sharing',
-			array( $this, 'wrapper_admin_page' )
-		);
-	}
-
-	/**
-	 * Add admin page with wrapper.
-	 *
-	 * @deprecated 0.42.3
-	 */
-	public function wrapper_admin_page() {
-		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
-			\Jetpack_Admin_Page::wrap_ui( array( $this, 'management_page' ) );
-		}
-	}
-
-	/**
-	 * Management page to load if Sharedaddy is not active so the 'pre_admin_screen_sharing' action exists.
-	 *
-	 * @deprecated 0.42.3
-	 */
-	public function management_page() {
-		?>
-		<div class="wrap">
-			<div class="icon32" id="icon-options-general"><br /></div>
-			<h1><?php esc_html_e( 'Sharing Settings', 'jetpack-publicize-pkg' ); ?></h1>
-
-			<?php
-			/** This action is documented in modules/sharedaddy/sharing.php */
-			do_action( 'pre_admin_screen_sharing' );
-			?>
-		</div>
-		<?php
-	}
-
-	/**
-	 * Styling for the sharing screen and popups
-	 * JS for the options and switching
-	 *
-	 * @deprecated 0.42.3
-	 */
-	public function load_assets() {
-		if ( class_exists( 'Jetpack_Admin_Page' ) ) {
-			\Jetpack_Admin_Page::load_wrapper_styles();
-		}
-	}
-
-	/**
-	 * Lists the current user's publicized accounts for the blog
-	 * looks exactly like Publicize v1 for now, UI and functionality updates will come after the move to keyring
-	 *
-	 * @deprecated 0.42.3
-	 */
-	public function admin_page() {
-		?>
-		<h2 id="publicize"><?php esc_html_e( 'Jetpack Social', 'jetpack-publicize-pkg' ); ?></h2>
-		<p><?php esc_html_e( 'Connect social media services to automatically share new posts.', 'jetpack-publicize-pkg' ); ?></p>
-		<h4>
-			<?php
-			printf(
-				wp_kses(
-					/* translators: %s is the link to the Publicize page in Calypso */
-					__( "We've made some updates to Jetpack Social. Please visit the <a href='%s' class='jptracks' data-jptracks-name='legacy_publicize_settings'>WordPress.com sharing page</a> to manage your Jetpack Social connections or use the button below.", 'jetpack-publicize-pkg' ),
-					array(
-						'a' => array(
-							'href'               => array(),
-							'class'              => array(),
-							'data-jptracks-name' => array(),
-						),
-					)
-				),
-				esc_url( $this->publicize->publicize_connections_url() )
-			);
-			?>
-		</h4>
-
-		<a href="<?php echo esc_url( $this->publicize->publicize_connections_url() ); ?>" class="button button-primary jptracks" data-jptracks-name='legacy_publicize_settings'><?php esc_html_e( 'Jetpack Social Settings', 'jetpack-publicize-pkg' ); ?></a>
-		<?php
 	}
 
 	/**

@@ -20,6 +20,16 @@ import {
 	libraryThumbUrl,
 } from 'wpcom-write/image-format';
 import {
+	createEmptyQuote,
+	insertLeadingParagraph,
+	isCaretAtQuoteStart,
+	isCaretAtStartOfFirstLine,
+	keepSelectionAcross,
+	liftFirstQuoteLine,
+	unwrapQuote,
+	wrapLooseQuoteContent,
+} from 'wpcom-write/quote-editing';
+import {
 	parsePostId,
 	escapeAttr,
 	rgbToHex,
@@ -52,6 +62,19 @@ const AUTOSAVE_INTERVAL_MS = 30000; // 30 seconds.
 const AUTOSAVE_MESSAGE_DURATION_MS = 2000;
 const AUTOSAVE_STORAGE_KEY = 'wpcom-write-autosave-draft';
 const ANON_DRAFT_STORAGE_KEY = 'wpcom-write-anon-draft';
+
+// Marks the one-off "you're using Write" note as already shown in this browser.
+const EDITOR_NOTE_STORAGE_KEY = 'wpcom-write-editor-note-seen';
+
+// Marks this browser as having left Write for the Block editor. Written to a
+// cookie, the only store write.php can read, and to localStorage, the only one
+// that survives Safari's seven-day cap on script-set cookies (ITP 2.1).
+// Also read by projects/packages/newsletter/src/writing-prompt/prompt-panel.jsx,
+// from a package that does not depend on this one: the name is all they share.
+const BLOCK_EDITOR_PREFERRED_KEY = 'wpcom-write-block-editor-preferred';
+
+// Chromium and Firefox clamp cookie lifetime to 400 days; more is a no-op.
+const BLOCK_EDITOR_PREFERRED_MAX_AGE = 400 * 24 * 60 * 60;
 
 /**
  * Whether the editor is running on a logged-out page that opts into the
@@ -242,6 +265,74 @@ function clearAnonDraft() {
 		window.localStorage.removeItem( ANON_DRAFT_STORAGE_KEY );
 	} catch {
 		// No-op: if we can't clear it, the worst case is a stale recovery banner next visit.
+	}
+}
+
+/**
+ * Whether this browser has already been shown the one-off editor note.
+ *
+ * Reports "seen" when storage is unreadable: a visitor whose dismissal can
+ * never be recorded is better off never being shown the note.
+ *
+ * @return {boolean} True if the note has been shown, or cannot be tracked.
+ */
+function hasSeenEditorNote() {
+	try {
+		return window.localStorage.getItem( EDITOR_NOTE_STORAGE_KEY ) !== null;
+	} catch {
+		return true;
+	}
+}
+
+/**
+ * Record that this browser has been shown the editor note.
+ */
+function markEditorNoteSeen() {
+	try {
+		window.localStorage.setItem( EDITOR_NOTE_STORAGE_KEY, '1' );
+	} catch {
+		// No-op: worst case the note shows again on the next visit.
+	}
+}
+
+/**
+ * Record that this browser chose the Block editor over Write.
+ *
+ * `Secure` is conditional, the JS counterpart of the `is_ssl()` our setcookie()
+ * calls pass: unconditional, it would drop the cookie on an http:// sandbox.
+ */
+function markBlockEditorPreferred() {
+	try {
+		window.localStorage.setItem( BLOCK_EDITOR_PREFERRED_KEY, '1' );
+	} catch {
+		// No-op: the cookie below is the fallback, where it is available.
+	}
+	try {
+		document.cookie =
+			BLOCK_EDITOR_PREFERRED_KEY +
+			'=1; path=/; max-age=' +
+			BLOCK_EDITOR_PREFERRED_MAX_AGE +
+			'; SameSite=Lax' +
+			( window.location.protocol === 'https:' ? '; Secure' : '' );
+	} catch {
+		// No-op: worst case the prompt widget keeps offering Write.
+	}
+}
+
+// Click-away listener for the first-visit note, mirroring the topbar popovers.
+let editorNoteCloseHandler = null;
+
+/**
+ * Hide the first-visit note and detach its click-away listener.
+ *
+ * Callers record their own Tracks reason, so the funnel can tell "Got it" from
+ * the block-editor switch from a click elsewhere.
+ */
+function hideEditorNote() {
+	state.showEditorNote = false;
+	if ( editorNoteCloseHandler ) {
+		document.removeEventListener( 'click', editorNoteCloseHandler );
+		editorNoteCloseHandler = null;
 	}
 }
 
@@ -1498,7 +1589,7 @@ function convertToBlocks( html ) {
 			// comment attributes (see serializeAttributes in @wordpress/blocks).
 			const jsonAttr = Object.keys( attrs ).length
 				? ' ' +
-				  JSON.stringify( attrs )
+					JSON.stringify( attrs )
 						.replaceAll( '\\\\', '\\u005c' )
 						.replaceAll( '--', '\\u002d\\u002d' )
 						.replaceAll( '<', '\\u003c' )
@@ -2415,8 +2506,13 @@ function insertNewBlock( tag ) {
 	const content = getContent();
 	if ( ! content ) return;
 
-	const newEl = document.createElement( tag );
-	newEl.innerHTML = '<br>';
+	let newEl;
+	if ( tag === 'blockquote' ) {
+		newEl = createEmptyQuote( document );
+	} else {
+		newEl = document.createElement( tag );
+		newEl.innerHTML = '<br>';
+	}
 
 	// Find the block containing the slash command by scanning direct children.
 	// Include headings and blockquotes so slash commands work inside them.
@@ -2439,7 +2535,7 @@ function insertNewBlock( tag ) {
 	}
 
 	// Place cursor inside the new element.
-	placeCursorAt( newEl );
+	placeCursorAt( newEl.querySelector( 'p' ) || newEl );
 
 	clearSlashActive();
 	state.showSlashMenu = false;
@@ -2518,11 +2614,10 @@ function applyMarkdownListShortcut( paragraph, listTag ) {
  * @param {HTMLElement} paragraph - The paragraph to convert.
  */
 function applyMarkdownQuoteShortcut( paragraph ) {
-	const blockquote = document.createElement( 'blockquote' );
-	blockquote.innerHTML = '<br>';
+	const blockquote = createEmptyQuote( document );
 	paragraph.after( blockquote );
 	paragraph.remove();
-	placeCursorAt( blockquote );
+	placeCursorAt( blockquote.firstChild );
 	state.formatQuote = true;
 }
 
@@ -3564,8 +3659,13 @@ const { state } = store( 'wpcom-write', {
 				const content = getContent();
 				if ( content ) {
 					content.focus();
-					// Ensure the cursor starts inside a paragraph.
-					if ( ! content.querySelector( 'p' ) ) {
+					// Give a post that opens with a quote or heading a line to write above it.
+					const leading = insertLeadingParagraph( content );
+					if ( leading ) {
+						placeCursorAt( leading );
+						pushToUndoHistory();
+					} else if ( ! content.querySelector( 'p' ) ) {
+						// Ensure the cursor starts inside a paragraph.
 						document.execCommand( 'formatBlock', false, 'p' );
 					}
 				}
@@ -3976,34 +4076,22 @@ const { state } = store( 'wpcom-write', {
 				}
 			}
 
-			// Backspace in an empty blockquote: convert it back to a paragraph.
-			// Must run before the first-block Backspace guard below, otherwise the
-			// guard swallows Backspace when the quote is the editor's first block
-			// (e.g. just after the `>` markdown shortcut on a fresh post), leaving
-			// the user with no way to remove the quote.
+			// Backspace at the start of a quote's first line: move that line out,
+			// above the quote, as the block editor does. Writers use this to add text
+			// above a quote that opens the post (e.g. a writing prompt), so it must
+			// run before the first-block Backspace guard below.
 			if ( event.key === 'Backspace' ) {
 				const sel = window.getSelection();
-				if ( sel.rangeCount && sel.isCollapsed && ! getActiveCite() ) {
-					const bq = getActiveBlockquote();
-					if ( bq ) {
-						// Ignore the <cite> placeholder when checking for empty body.
-						const probe = bq.cloneNode( true );
-						const probeCite = probe.querySelector( 'cite' );
-						if ( probeCite ) {
-							probeCite.remove();
-						}
-						if ( probe.textContent.trim() === '' ) {
-							event.preventDefault();
-							flushUndoDebounce();
-							const p = document.createElement( 'p' );
-							p.innerHTML = '<br>';
-							bq.after( p );
-							bq.remove();
-							placeCursorAt( p );
-							state.formatQuote = false;
-							pushToUndoHistory();
-							return;
-						}
+				const bq = sel.rangeCount ? getActiveBlockquote() : null;
+				if ( bq && isCaretAtQuoteStart( bq, sel.getRangeAt( 0 ) ) ) {
+					flushUndoDebounce();
+					const line = liftFirstQuoteLine( bq );
+					if ( line ) {
+						event.preventDefault();
+						placeCursorAt( line );
+						state.formatQuote = false;
+						pushToUndoHistory();
+						return;
 					}
 				}
 			}
@@ -4024,14 +4112,13 @@ const { state } = store( 'wpcom-write', {
 						while ( block && block.parentNode !== content ) {
 							block = block.parentNode;
 						}
-						if ( block && block === content.firstElementChild ) {
-							const beforeRange = document.createRange();
-							beforeRange.setStart( block, 0 );
-							beforeRange.setEnd( range.startContainer, range.startOffset );
-							if ( beforeRange.toString() === '' ) {
-								event.preventDefault();
-								return;
-							}
+						if (
+							block &&
+							block === content.firstElementChild &&
+							isCaretAtStartOfFirstLine( block, range )
+						) {
+							event.preventDefault();
+							return;
 						}
 					}
 				}
@@ -4608,20 +4695,36 @@ const { state } = store( 'wpcom-write', {
 		// --- Block formatting ---
 
 		formatQuote() {
+			flushUndoDebounce();
 			if ( state.formatQuote ) {
 				if ( ! exitListAndApplyBlock( 'p' ) ) {
-					document.execCommand( 'formatBlock', false, 'p' );
+					const bq = getActiveBlockquote();
+					if ( bq ) {
+						keepSelectionAcross( window.getSelection(), () => unwrapQuote( bq ) );
+					} else {
+						document.execCommand( 'formatBlock', false, 'p' );
+					}
 				}
 				state.formatQuote = false;
 			} else {
 				if ( ! exitListAndApplyBlock( 'blockquote' ) ) {
 					document.execCommand( 'formatBlock', false, 'blockquote' );
 				}
+				const bq = getActiveBlockquote();
+				if ( bq ) {
+					keepSelectionAcross( window.getSelection(), () => {
+						wrapLooseQuoteContent( bq );
+						return bq.querySelector( 'p' ) || bq;
+					} );
+				}
 				state.formatQuote = true;
 				state.formatHeading = false;
 			}
 			state.formatUList = false;
 			state.formatOList = false;
+			// unwrapQuote fires no input event, and formatBlock's is still debounced.
+			flushUndoDebounce();
+			pushToUndoHistory();
 		},
 
 		// --- Link ---
@@ -6028,6 +6131,86 @@ const { state } = store( 'wpcom-write', {
 			state.showRecoveryBanner = false;
 		},
 
+		// --- First-visit editor note ---
+
+		/**
+		 * Dismiss the first-visit note and hand focus to the writing area.
+		 */
+		dismissEditorNote() {
+			hideEditorNote();
+			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+				action: 'got_it',
+				source: state.source || '',
+			} );
+			const content = getContent();
+			if ( content ) {
+				content.focus();
+				// Park the caret after anything the server seeded — a bare focus()
+				// collapses to the start, i.e. inside a blogging prompt's quote.
+				placeCursorAtEnd( content );
+			}
+		},
+
+		/**
+		 * Leave for the block editor from the note or the Tips panel.
+		 *
+		 * Both offer the switch before anyone has typed, where openInBlockEditor()
+		 * would answer "Please write something" instead. A new post with nothing
+		 * in it has nothing worth saving, so hand it straight to a blank
+		 * post-new.php, forwarding the prompt so the block editor seeds it as it
+		 * always has. Anything already on screen — including a seeded prompt the
+		 * visitor has not touched — goes through the save, so the block editor
+		 * opens on the same words rather than on a fresh post.
+		 *
+		 * Taking either of those two ways out stops prompt answers coming back
+		 * here: the widget stops offering Write, and write.php diverts a prompt
+		 * answer that arrives anyway. The kebab's openInBlockEditor() is exempt
+		 * — a per-post escape hatch, not a choice of editor.
+		 */
+		switchToBlockEditor() {
+			if ( isAnon() ) {
+				return;
+			}
+			markBlockEditorPreferred();
+			state.showHelp = false;
+			if ( ! state.editPostId && ! hasWritableContent() ) {
+				allowLeave = true;
+				window.location.href =
+					state.adminUrl +
+					'post-new.php' +
+					( state.answerPromptId
+						? '?answer_prompt=' + encodeURIComponent( state.answerPromptId )
+						: '' );
+				return;
+			}
+			const { actions: a } = store( 'wpcom-write' );
+			a.openInBlockEditor();
+		},
+
+		/**
+		 * Dismiss the note by leaving for the block editor.
+		 *
+		 * Lets the pixel dispatch first: switchToBlockEditor() navigates
+		 * synchronously on an untouched new post, which is the common case here.
+		 */
+		async openInBlockEditorFromNote() {
+			hideEditorNote();
+			await recordTracksEventBeforeUnload( 'wpcom_write_editor_note_dismissed', {
+				action: 'block_editor',
+				source: state.source || '',
+			} );
+			const { actions: a } = store( 'wpcom-write' );
+			a.switchToBlockEditor();
+		},
+
+		handleEditorNoteKeyDown( event ) {
+			if ( event.key === 'Escape' ) {
+				event.preventDefault();
+				const { actions: a } = store( 'wpcom-write' );
+				a.dismissEditorNote();
+			}
+		},
+
 		// --- Unsupported content warning ---
 		goBack() {
 			const sameOrigin =
@@ -6606,6 +6789,48 @@ const autosaveReady = setInterval( () => {
 		if ( savedDraftId && String( state.editPostId ) === savedDraftId ) {
 			localStorage.removeItem( AUTOSAVE_STORAGE_KEY );
 		}
+	}
+
+	// Introduce the editor once per browser, unless a modal already owns the
+	// screen (the unsupported-content warning, or a post picker opened by a
+	// server-side error) — those are blocking and would fight for focus.
+	if (
+		! isAnon() &&
+		! state.unsupportedWarning &&
+		! state.openPostError &&
+		! hasSeenEditorNote()
+	) {
+		markEditorNoteSeen();
+		state.showEditorNote = true;
+		recordTracksEvent( 'wpcom_write_editor_note_shown', { source: state.source || '' } );
+		// Focus the dialog itself, not a control inside it: screen readers then
+		// read the label and the message, and Tab still reaches every action.
+		// The note arrives a beat after the page does, so leave the caret where it
+		// is if the visitor has already started typing.
+		requestAnimationFrame( () => {
+			const note = document.querySelector( '.bw-editor-note' );
+			if ( ! note || note.ownerDocument.activeElement?.closest( '.bw-title, .bw-content' ) ) {
+				return;
+			}
+			note.focus();
+		} );
+
+		// The note overlaps the topbar menus it points at, so a click anywhere
+		// else has to clear it the way the other popovers do.
+		editorNoteCloseHandler = e => {
+			if ( e.target.closest( '.bw-editor-note' ) ) return;
+			hideEditorNote();
+			recordTracksEvent( 'wpcom_write_editor_note_dismissed', {
+				action: 'clicked_away',
+				source: state.source || '',
+			} );
+		};
+		setTimeout( () => {
+			// Escape could already have closed the note in the meantime.
+			if ( editorNoteCloseHandler ) {
+				document.addEventListener( 'click', editorNoteCloseHandler );
+			}
+		}, 0 );
 	}
 
 	// Populate relative dates in the post picker draft list.

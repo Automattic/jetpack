@@ -29,6 +29,7 @@ import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
+import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -46,7 +47,7 @@ export default function PricingInterstitial( { slug } ) {
 	const { detail, isLoading: isProductLoading } = useProduct( slug );
 	const { detail: bundleDetail, isLoading: isBundleLoading } = useProduct( config?.bundle );
 	const { recordEvent } = useAnalytics();
-	const { onClickGoBack } = useGoBack( { slug, fallback: '/products' } );
+	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
 	const myJetpackCheckoutUri = getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
@@ -106,7 +107,7 @@ export default function PricingInterstitial( { slug } ) {
 					// Calculate monthly prices from annual if needed
 					fullPricePerMonth: detail.pricingForUi.tiers.upgraded.fullPrice / 12,
 					discountPricePerMonth: detail.pricingForUi.tiers.upgraded.discountPrice / 12,
-			  }
+				}
 			: detail?.pricingForUi;
 	}, [ detail?.pricingForUi ] );
 
@@ -150,7 +151,7 @@ export default function PricingInterstitial( { slug } ) {
 				tier = null,
 				hasDiscount = false,
 			} = options || {};
-			const productSlug = customSlug ? customSlug : config?.bundle ?? slug;
+			const productSlug = customSlug ? customSlug : ( config?.bundle ?? slug );
 			recordEvent( 'jetpack_myjetpack_product_interstitial_add_link_click', {
 				product: productSlug,
 				product_slug: getProductSlugForTrackEvent( isFreePlan ),
@@ -384,7 +385,7 @@ export default function PricingInterstitial( { slug } ) {
 			breadcrumbs={
 				<GoBackLink
 					onClick={ handleGoBack }
-					to="/products"
+					to={ getProductsSectionPath() }
 					label={ __( 'My Jetpack', 'jetpack-my-jetpack' ) }
 				/>
 			}

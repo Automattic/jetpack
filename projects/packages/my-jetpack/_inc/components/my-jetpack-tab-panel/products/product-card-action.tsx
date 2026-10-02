@@ -14,6 +14,7 @@ import { ProductCamelCase } from '../../../data/types';
 import { getMyJetpackWindowInitialState } from '../../../data/utils/get-my-jetpack-window-state';
 import { useInterstitialsState } from '../../../hooks/use-interstitials-state';
 import { MyJetpackModule } from '../../../types';
+import { getModuleStatus } from '../../modules-list/utils';
 import { PRODUCT_STATUSES } from '../../product-card';
 import { setPendingSuccessNotice } from './pending-notice';
 import { useProductFiltersContext } from './products-tracking-context';
@@ -95,12 +96,12 @@ function ActivationToggle( {
 							/* translators: %s is the product name */
 							__( '%s deactivated successfully!', 'jetpack-my-jetpack' ),
 							product.name
-					  )
+						)
 					: sprintf(
 							/* translators: %s is the product name */
 							__( '%s activated successfully!', 'jetpack-my-jetpack' ),
 							product.name
-					  )
+						)
 			);
 			reloadPage();
 		};
@@ -121,12 +122,12 @@ function ActivationToggle( {
 								/* translators: %s is the product name */
 								__( 'Deactivate %s', 'jetpack-my-jetpack' ),
 								product.name
-						  )
+							)
 						: sprintf(
 								/* translators: %s is the product name */
 								__( 'Activate %s', 'jetpack-my-jetpack' ),
 								product.name
-						  )
+							)
 				}
 			/>
 		</Flex>
@@ -144,6 +145,10 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 	const { data: interstitials } = useInterstitialsState();
 	const reloadOnToggle = PRODUCTS_NEEDING_RELOAD_AFTER_TOGGLE.includes( product.slug );
 	const { showAiModuleToggle = false } = getMyJetpackWindowInitialState( 'myJetpackFlags' );
+
+	if ( $module?.override ) {
+		return <Badge intent="medium">{ getModuleStatus( $module ).reason }</Badge>;
+	}
 
 	// Forms and AI surface the activation toggle directly instead of a "Learn more"
 	// upsell link. Forms is a free module with no interstitial; AI is the site-wide
@@ -184,6 +189,18 @@ export function ProductCardAction( { product, module: $module }: ProductCardActi
 			<ActivationToggle
 				product={ product }
 				active={ product.standalonePluginInfo.isStandaloneActive }
+				reloadOnToggle={ reloadOnToggle }
+			/>
+		);
+	}
+
+	// A plan holder who switched the module off turns it back on here, rather than being sent to buy it again.
+	if ( product.status === PRODUCT_STATUSES.MODULE_DISABLED && product.hasPaidPlanForProduct ) {
+		return (
+			<ActivationToggle
+				product={ product }
+				active={ false }
+				disabled={ ! $module?.available }
 				reloadOnToggle={ reloadOnToggle }
 			/>
 		);

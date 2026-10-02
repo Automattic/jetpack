@@ -1,6 +1,7 @@
 import { DataViewsDrilldownNative } from '../dataviews-drilldown-native';
 import type { DataViewRenderFieldProps, Field } from '@jetpack-premium-analytics/externals';
 import type { Meta, StoryObj } from '@storybook/react';
+import type { JSX } from 'react';
 
 type ReferrerRow = {
 	id: string;
@@ -563,7 +564,7 @@ export const LongGroupTitle: Story = {
 				? {
 						...row,
 						referrer: `${ row.referrer } and Aggregators, Syndication Partners and Every Other Long-Winded Category Name a Site Might Report`,
-				  }
+					}
 				: row
 		),
 	},

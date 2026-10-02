@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Dashboard: hide the date controls while customizing the layout, instead of disabling them.

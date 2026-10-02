@@ -148,6 +148,30 @@ class Jetpack_Ai_Product_Test extends TestCase {
 	}
 
 	/**
+	 * Tests that is_activated() honors the jetpack_ai_enabled filter, as is_active() does.
+	 */
+	public function test_jetpack_ai_is_not_activated_when_filter_off() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		\Jetpack::activate_module( 'ai' );
+
+		add_filter( 'jetpack_ai_enabled', '__return_false', 99 );
+
+		$this->assertFalse( Jetpack_Ai::is_activated() );
+	}
+
+	/**
+	 * Tests that is_activated() is true once the filter allows AI and the module is on.
+	 */
+	public function test_jetpack_ai_is_activated_when_filter_on_and_module_active() {
+		activate_plugins( 'jetpack/jetpack.php' );
+		\Jetpack::activate_module( 'ai' );
+
+		add_filter( 'jetpack_ai_enabled', '__return_true', 99 );
+
+		$this->assertTrue( Jetpack_Ai::is_activated() );
+	}
+
+	/**
 	 * Tests that get_status() reports the module as disabled when the 'ai' module
 	 * is inactive, even with the plugin active and the site fully connected.
 	 */

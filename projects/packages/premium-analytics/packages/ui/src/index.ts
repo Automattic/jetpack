@@ -6,10 +6,11 @@ export {
 	processHierarchyLevels,
 	withHierarchyContext,
 } from './dataviews-drilldown-native';
-export { DateFiltersPanel } from './date-filters-panel';
+export { DateFiltersPanel, type DateFiltersPanelProps } from './date-filters-panel';
 export { DateIntervalDropdown } from './date-interval-dropdown';
 export { DatePeriodDropdown } from './date-period-dropdown';
-export { DatePeriodNavigation } from './date-period-navigation';
+export type { DateControlTriggerProps } from './utils/date-control-trigger';
+export { PeriodChangeStatus } from './period-change-status';
 export { DateYearFilter, type DateYearFilterProps } from './date-year-filter';
 export {
 	OnboardingWelcomeModal,
@@ -17,6 +18,7 @@ export {
 	type OnboardingWelcomeModalProps,
 } from './onboarding-welcome-modal';
 export { safeHttpUrl } from './utils/safe-http-url';
+export { tagRowGlyph } from './utils/tag-row-glyph';
 export {
 	SectionTabPanel,
 	SectionTabs,

@@ -189,6 +189,16 @@ abstract class TestCase extends PHPUnit_TestCase {
 			);
 		}
 
+		if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false && strpos( $url, 'include_details=true' ) !== false ) {
+			return array(
+				'response' => array(
+					'code'    => 200,
+					'message' => 'ok',
+				),
+				'body'     => '{"opt_in_new_stats":{"show":true,"status":null,"postponed_count":0,"next_show_at":null},"opt_out_new_stats":{"show":true,"status":null,"postponed_count":0,"next_show_at":null},"new_stats_feedback":{"show":false,"status":"postponed","postponed_count":1,"next_show_at":1788000000},"traffic_page_settings":{"show":false,"status":"dismissed","postponed_count":2,"next_show_at":null}}',
+			);
+		}
+
 		if ( strpos( $url, '/jetpack-stats-dashboard/notices' ) !== false ) {
 			return array(
 				'response' => array(

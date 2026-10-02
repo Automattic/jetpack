@@ -18,6 +18,7 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 		{
 			uuid: 'post-views',
 			type: 'jpa/post-views',
+			attributes: { chartType: 'bar' },
 			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
@@ -41,9 +42,9 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			placement: { width: 1, height: 2, order: 5 },
 		},
 		{
-			uuid: 'post-traffic-activity',
-			// Full width: the heatmap lays a whole year out across its columns.
-			type: 'jpa/post-traffic-activity',
+			uuid: 'post-all-time-traffic',
+			// Full width: the table lays twelve months out across its columns.
+			type: 'jpa/post-all-time-traffic',
 			placement: { width: PA_COLUMN_COUNT, height: 2, order: 6 },
 		},
 	],
@@ -90,30 +91,29 @@ export const POST_DETAIL_TAB_LAYOUTS: Record< PostDetailTabId, DashboardWidget[]
 			uuid: 'email-clicks-trend',
 			type: 'jpa/email-time-series--total-clicks',
 			attributes: { metric: 'clicks' },
-			placement: { width: 2, height: 2, order: 2 },
-		},
-		{
-			uuid: 'email-clicks-devices',
-			type: 'jpa/email-breakdown--platforms-clicks',
-			attributes: { view: 'devices', metric: 'clicks' },
-			placement: { width: 1, height: 2, order: 3 },
-		},
-		{
-			uuid: 'email-clicks-clients',
-			type: 'jpa/email-breakdown--clients-clicks',
-			attributes: { view: 'clients', metric: 'clicks' },
-			placement: { width: 1, height: 2, order: 4 },
+			placement: { width: PA_COLUMN_COUNT, height: 2, order: 2 },
 		},
 		{
 			uuid: 'email-clicks-countries',
 			// Keep width: 2 — the map unmounts below a 720px container floor.
 			type: 'jpa/email-breakdown--location-clicks',
 			attributes: { view: 'countries', metric: 'clicks', showMap: true },
-			placement: { width: 2, height: 2, order: 5 },
+			placement: { width: 2, height: 2, order: 3 },
+		},
+		{
+			uuid: 'email-clicks-devices',
+			type: 'jpa/email-breakdown--platforms-clicks',
+			attributes: { view: 'devices', metric: 'clicks' },
+			placement: { width: 1, height: 2, order: 4 },
+		},
+		{
+			uuid: 'email-clicks-clients',
+			type: 'jpa/email-breakdown--clients-clicks',
+			attributes: { view: 'clients', metric: 'clicks' },
+			placement: { width: 1, height: 2, order: 5 },
 		},
 		{
 			uuid: 'email-clicks-links',
-			// Two of three columns, per the design; the last row is left open.
 			type: 'jpa/email-breakdown--top-links',
 			attributes: { view: 'links', metric: 'clicks' },
 			placement: { width: 2, height: 2, order: 6 },

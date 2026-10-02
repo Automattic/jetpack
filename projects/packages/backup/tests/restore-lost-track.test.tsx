@@ -44,8 +44,6 @@ import { queryClient } from '../src/dashboard/data/query-client';
 
 const CONNECTED = { isRegistered: true, hasConnectedOwner: true, isUserConnected: true };
 
-const SETTLE = { timeout: 10000 };
-
 const RESTORE_ID = 912682;
 
 /**
@@ -94,7 +92,7 @@ beforeEach( () => {
  */
 async function findMessage() {
 	await expect(
-		screen.findAllByText( /We've lost track of this restore/, undefined, SETTLE )
+		screen.findAllByText( /We've lost track of this restore/ )
 	).resolves.not.toHaveLength( 0 );
 }
 
@@ -102,7 +100,7 @@ async function findMessage() {
  * Start a restore with the default six-of-six checklist.
  */
 async function startRestore() {
-	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ }, SETTLE ) );
+	await userEvent.click( await screen.findByRole( 'button', { name: /Confirm restore/ } ) );
 }
 
 describe( 'a restore that has gone out of sight', () => {
@@ -178,9 +176,7 @@ describe( 'a restore that definitely is not running', () => {
 
 		// `findAllBy` for the same reason as `findMessage`: `Notice` mirrors
 		// its text into the live region.
-		await expect(
-			screen.findAllByText( 'Restore aborted.', undefined, SETTLE )
-		).resolves.not.toHaveLength( 0 );
+		await expect( screen.findAllByText( 'Restore aborted.' ) ).resolves.not.toHaveLength( 0 );
 		expect( screen.getByRole( 'button', { name: /Try again/ } ) ).toBeInTheDocument();
 		expect( screen.getByText( 'Error notice' ) ).toBeInTheDocument();
 	} );

@@ -1,3 +1,4 @@
+import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { SectionHeader } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 import { videoHeaderSlots } from './video-header-slots';
@@ -16,8 +17,8 @@ const SUMMARY: VideoSummary = {
 // UTC-anchored: the sentence renders in the site zone, so a browser-local
 // `Date` would name the previous day in zones west of it.
 const PERFORMANCE_RANGE = {
-	from: new Date( Date.UTC( 2026, 6, 9 ) ),
-	to: new Date( Date.UTC( 2026, 6, 15 ) ),
+	from: toLocalTZ( Date.UTC( 2026, 6, 9 ), 'UTC' ),
+	to: toLocalTZ( Date.UTC( 2026, 6, 15 ), 'UTC' ),
 };
 
 /**
@@ -27,7 +28,7 @@ const PERFORMANCE_RANGE = {
  * @return The render result.
  */
 function renderHeader( args: Parameters< typeof videoHeaderSlots >[ 0 ] ) {
-	return render( <SectionHeader headingLevel={ 1 } { ...videoHeaderSlots( args ) } /> );
+	return render( <SectionHeader { ...videoHeaderSlots( args ) } /> );
 }
 
 describe( 'videoHeaderSlots', () => {
@@ -37,7 +38,7 @@ describe( 'videoHeaderSlots', () => {
 			performanceRange: PERFORMANCE_RANGE,
 		} );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Launch recap' );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Launch recap' );
 		expect(
 			screen.getByText(
 				'Video uploaded on Jan 10, 2026. Performance from Jul 9, 2026 to Jul 15, 2026'
@@ -54,7 +55,7 @@ describe( 'videoHeaderSlots', () => {
 	it( 'names an untitled video rather than leaving the page without a heading', () => {
 		renderHeader( { summary: { ...SUMMARY, title: '   ' } } );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( 'Untitled video' );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( 'Untitled video' );
 	} );
 
 	it.each( [
@@ -66,7 +67,7 @@ describe( 'videoHeaderSlots', () => {
 			performanceRange: PERFORMANCE_RANGE,
 		} );
 
-		expect( screen.getByRole( 'heading', { level: 1 } ) ).toHaveTextContent( heading );
+		expect( screen.getByRole( 'heading', { level: 2 } ) ).toHaveTextContent( heading );
 		expect( screen.queryByText( /Performance from/ ) ).not.toBeInTheDocument();
 	} );
 

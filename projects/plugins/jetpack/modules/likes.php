@@ -21,6 +21,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -102,28 +103,10 @@ class Jetpack_Likes {
 		}
 
 		add_filter( 'jetpack_module_configuration_url_likes', array( $this, 'jetpack_likes_configuration_url' ) );
-		add_action( 'admin_print_scripts-settings_page_sharing', array( $this, 'load_jp_css' ) );
-		add_filter( 'sharing_show_buttons_on_row_start', array( $this, 'configuration_target_area' ) );
 
-		$publicize_active  = Jetpack::is_module_active( 'publicize' );
 		$sharedaddy_active = Jetpack::is_module_active( 'sharedaddy' );
 
-		if ( $this->settings->needs_own_sharing_menu( $sharedaddy_active ) ) {
-			/*
-			 * Sharedaddy is what registers Settings > Sharing, and it is off, so we
-			 * register that screen ourselves; our settings are displayed on it.
-			 */
-			add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
-		} elseif ( $publicize_active && ! $sharedaddy_active ) {
-			// we have a sharing page but not the global options area.
-			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
-			add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
-		}
-
 		if ( ! $sharedaddy_active ) {
-			add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
-			add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
-			add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
 			add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );
 		} else {
 			add_filter( 'sharing_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
@@ -136,8 +119,6 @@ class Jetpack_Likes {
 
 		add_action( 'save_post', array( $this->settings, 'meta_box_save' ) );
 		add_action( 'edit_attachment', array( $this->settings, 'meta_box_save' ) );
-		add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_init' ), 20 );
-		add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_callback' ), 20 );
 	}
 
 	/**
@@ -170,12 +151,26 @@ class Jetpack_Likes {
 
 	/**
 	 * Loads Jetpack's CSS on the sharing page so we can use .jetpack-targetable
+	 *
+	 * @deprecated 16.3 Settings > Sharing is a plain WordPress settings screen now.
+	 *
+	 * @return void
 	 */
 	public function load_jp_css() {
-		/**
-		* Do we really need `admin_styles`? With the new admin UI, it's breaking some bits.
-		* Jetpack::init()->admin_styles();
-		*/
+		_deprecated_function( __METHOD__, 'jetpack-16.3' );
+	}
+
+	/**
+	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
+	 *
+	 * @deprecated 16.3 The Likes settings have a section of their own on Settings > Sharing.
+	 *
+	 * @param string $html row heading for the sharedaddy "which page" setting.
+	 * @return string The unchanged $html.
+	 */
+	public function configuration_target_area( $html = '' ) {
+		_deprecated_function( __METHOD__, 'jetpack-16.3' );
+		return $html;
 	}
 
 	/**
@@ -212,18 +207,7 @@ class Jetpack_Likes {
 	}
 
 	/**
-	 * Adds in the jetpack-targetable class so when we visit sharing#likes our like settings get highlighted by a yellow box
-	 *
-	 * @param string $html row heading for the sharedaddy "which page" setting.
-	 * @return string $html with the jetpack-targetable class and likes id. tbody gets closed after the like settings
-	 */
-	public function configuration_target_area( $html = '' ) {
-		$html = "<tbody id='likes' class='jetpack-targetable'>" . $html;
-		return $html;
-	}
-
-	/**
-	 * Options to be added to the discussion page (see also admin_settings_init, etc below for Sharing settings page)
+	 * Options to be added to the discussion page. The Sharing settings live in Sharing_Likes\Settings\Likes_Section.
 	 */
 	public function admin_discussion_likes_settings_init() {
 		// Add a temporary section, until we can move the setting out of there and with the rest of the email notification settings.
@@ -508,99 +492,42 @@ class Jetpack_Likes {
 /**
  * Callback to get the value for the jetpack_likes_enabled field.
  *
- * Warning: this behavior is somewhat complicated!
- * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 0, we disable likes on the post, regardless of the global setting.
- * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value() instead.
  *
  * @param array $post - post data we're checking.
  *
- * @return bool
+ * @return bool|null
  */
 function jetpack_post_likes_get_value( array $post ) {
-	if ( ! isset( $post['id'] ) ) {
-		return false;
-	}
-
-	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
-
-	/** This filter is documented in modules/jetpack-likes-settings.php */
-	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-
-	// An empty string: post meta was not set, so go with the global setting.
-	if ( '' === $post_likes_switched ) {
-		return $sitewide_likes_enabled;
-	} elseif ( '0' === $post_likes_switched ) { // User overrode the global setting to disable likes.
-		return false;
-	} elseif ( '1' === $post_likes_switched ) { // User overrode the global setting to enable likes.
-		return true;
-	}
-	// No default fallback, let's stay explicit.
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value' );
+	return Post_Likes_Switch::get_value( $post );
 }
 
 /**
  * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
  *
- * Warning: this behavior is somewhat complicated!
- * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 0, we disable likes on the post, regardless of the global setting.
- * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value() instead.
  *
  * @param bool   $enable_post_likes - checks if post likes are enabled.
  * @param object $post_object - object containing post data.
+ *
+ * @return int|bool
  */
 function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
-	/** This filter is documented in modules/jetpack-likes-settings.php */
-	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-
-	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
-
-	if ( $should_switch_status ) {
-		// Set the meta to 0 if the user wants to disable likes, 1 if user wants to enable.
-		$switch_like_status = ( $enable_post_likes ? 1 : 0 );
-		return update_post_meta( $post_object->ID, 'switch_like_status', $switch_like_status );
-	} else {
-		// Unset the meta otherwise.
-		return delete_post_meta( $post_object->ID, 'switch_like_status' );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value' );
+	return Post_Likes_Switch::update_value( $enable_post_likes, $post_object );
 }
 
 /**
  * Add Likes post_meta to the REST API Post response.
  *
- * @action rest_api_init
- * @uses register_rest_field
- * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field() instead.
  */
 function jetpack_post_likes_register_rest_field() {
-	$post_types = get_post_types( array( 'public' => true ) );
-	foreach ( $post_types as $post_type ) {
-		register_rest_field(
-			$post_type,
-			'jetpack_likes_enabled',
-			array(
-				'get_callback'    => 'jetpack_post_likes_get_value',
-				'update_callback' => 'jetpack_post_likes_update_value',
-				'schema'          => array(
-					'description' => __( 'Are Likes enabled?', 'jetpack' ),
-					'type'        => 'boolean',
-				),
-			)
-		);
-
-		/**
-		 * Ensures all public internal post-types support `likes`
-		 * This feature support flag is used by the REST API and Gutenberg.
-		 */
-		add_post_type_support( $post_type, 'jetpack-post-likes' );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field' );
+	Post_Likes_Switch::register_rest_field();
 }
 
-// Add Likes post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
-
-// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
-// restapi_theme_init because they depend on theme support, so let's also hook to that.
-add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+Post_Likes_Switch::init();
 
 Jetpack_Likes::init();

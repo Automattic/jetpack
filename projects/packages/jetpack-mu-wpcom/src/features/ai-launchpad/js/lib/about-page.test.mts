@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { createAboutPage } from './about-page.ts';
+import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 
 type PageData = { title: string; content: string; status: string; meta: object };
 type PageRequest = { path: string; method: string; data: PageData };
@@ -24,6 +25,7 @@ describe( 'createAboutPage', () => {
 		const { fetcher, requests } = stubFetcher();
 		const result = await createAboutPage(
 			{ title: 'About Alpine Notes', paragraphs: [ 'Who we are.', 'Come <hike> with us.' ] },
+			ENGLISH_SITE_COPY,
 			fetcher
 		);
 
@@ -41,7 +43,7 @@ describe( 'createAboutPage', () => {
 
 	it( 'creates an empty "About" shell when the output predates the draft field', async () => {
 		const { fetcher, requests } = stubFetcher();
-		const result = await createAboutPage( undefined, fetcher );
+		const result = await createAboutPage( undefined, ENGLISH_SITE_COPY, fetcher );
 
 		assert.equal( result.page_id, 42 );
 		assert.equal( requests[ 0 ].data.title, 'About' );

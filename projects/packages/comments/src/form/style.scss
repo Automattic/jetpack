@@ -1,123 +1,171 @@
-/**
- * The comment form: one bordered card holding the textarea, the identity block
- * and the submit row, each divided by a rule.
- */
-
-.jetpack-comments {
-	--jetpack-comments-font-color: rgba(0, 0, 0, 0.8);
-	--jetpack-comments-border-color: #dcdcde;
-	--jetpack-comments-background-color: rgba(255, 255, 255, 0.6);
-	--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.6);
-	--jetpack-comments-accent-color: var(--wp-components-color-accent, var(--wp-admin-theme-color, #0675c4));
-	--jetpack-comments-accent-hover-color: var(--wp-components-color-accent-darker-10, var(--wp-admin-theme-color-darker-10, #055d9c));
-	--jetpack-comments-accent-text-color: var(--wp-components-color-accent-inverted, #fff);
-	--jetpack-comments-disabled-color: #a7aaad;
-
-	&.light {
-		--jetpack-comments-font-color: #3c434a;
-		--jetpack-comments-background-color: #fff;
-		--jetpack-comments-content-background-color: #fff;
-	}
-
-	&.dark {
-		--jetpack-comments-font-color: rgba(255, 255, 255, 0.8);
-		--jetpack-comments-border-color: rgba(255, 255, 255, 0.2);
-		--jetpack-comments-background-color: rgba(0, 0, 0, 0.7);
-		--jetpack-comments-content-background-color: rgba(255, 255, 255, 0.1);
-	}
-
-	color: var(--jetpack-comments-font-color);
-	background-color: var(--jetpack-comments-background-color);
-	border: 1px solid var(--jetpack-comments-border-color);
-	font-family: var(--wp--preset--font-family--system-font, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif);
-	font-size: 16px;
-
-	*,
-	*::before,
-	*::after {
-		box-sizing: border-box;
-	}
+// The plain form inside stays unseen until the script mounts the app or
+// leaves it in place, so the swap does not flash. A noscript style reveals it.
+.jetpack-comments:not(.is-mounted):not(.is-plain) {
+	visibility: hidden;
 }
 
-.jetpack-comments__textarea {
-	all: initial;
-	box-sizing: border-box;
+.jetpack-comments.is-mounted {
+	--jetpack-comments-pad: 1em;
+}
+
+// One box around the textarea and the submit row, in the post's own colours.
+// Nested to outrank a block theme's rules.
+.jetpack-comments .jetpack-comments__box {
+	position: relative;
+	border: 2px solid currentColor;
+	overflow-anchor: none;
+}
+
+// Three classes: block themes reach it with two classes and a tag.
+.jetpack-comments .jetpack-comments__box .jetpack-comments__textarea {
 	display: block;
+	box-sizing: border-box;
 	inline-size: 100%;
-	max-inline-size: 100%;
-	min-block-size: 96px;
-	padding: 16px;
-	margin: 0;
-	border: none;
-	background: transparent;
-	color: var(--jetpack-comments-font-color);
-	font-family: inherit;
-	font-size: 16px;
-	font-weight: 400;
-	line-height: 1.4;
-	white-space: pre-wrap;
-	overflow-wrap: break-word;
-	overflow: hidden;
+	// A few lines, padding included, as the editor has; field-sizing ignores rows.
+	min-block-size: 5lh;
+	field-sizing: content;
+	padding: var(--jetpack-comments-pad);
 	resize: none;
-	outline: none;
 
-	&::placeholder {
-		color: var(--jetpack-comments-font-color);
-		opacity: 0.8;
+	&[hidden] {
+		display: none;
 	}
 
-	&:focus-visible {
-		outline: 1px solid var(--jetpack-comments-accent-color);
-		outline-offset: -1px;
+	// The shade the editor gives its own placeholder, so the handoff keeps it.
+	&::placeholder {
+		color: currentColor;
+		opacity: 0.62;
+	}
+
+	// Pinned: themes reach for a textarea's border with every kind of selector.
+	&,
+	&:focus {
+		border: 0 !important;
+		background: transparent !important;
+		box-shadow: none !important;
+		color: inherit;
+		outline: none !important;
 	}
 }
 
-.jetpack-comments__footer {
+// The placeholder, over the textarea while the editor downloads, its dots
+// bouncing one after another.
+.jetpack-comments__loading {
+	position: absolute;
+	inset-block-start: var(--jetpack-comments-pad);
+	inset-inline-start: var(--jetpack-comments-pad);
+	font-family: var(--jetpack-comments-font-family, inherit);
+	font-size: var(--jetpack-comments-font-size, inherit);
+	line-height: var(--jetpack-comments-line-height, inherit);
+	opacity: 0.62;
+	pointer-events: none;
+}
+
+.jetpack-comments__loading span {
+	display: inline-block;
+	animation: jetpack-comments-bounce 1s ease-in-out infinite;
+
+	@media (prefers-reduced-motion: reduce) {
+		animation: none;
+	}
+}
+
+.jetpack-comments__loading span:nth-child(2) {
+	animation-delay: 0.15s;
+}
+
+.jetpack-comments__loading span:nth-child(3) {
+	animation-delay: 0.3s;
+}
+
+@keyframes jetpack-comments-bounce {
+
+	0%,
+	60%,
+	100% {
+		transform: none;
+	}
+
+	30% {
+		transform: translateY(-0.3em);
+	}
+}
+
+// The options below the box slide open and closed. Hidden, not just collapsed,
+// so nothing inside a closed one takes focus.
+.jetpack-comments__options {
+	display: grid;
+	grid-template-rows: 0fr;
+	visibility: hidden;
+	transition:
+		grid-template-rows 0.25s ease-in-out,
+		visibility 0s linear 0.25s;
+
+	&.is-open {
+		grid-template-rows: 1fr;
+		visibility: visible;
+		transition:
+			grid-template-rows 0.25s ease-in-out,
+			visibility 0s;
+	}
+}
+
+// Reversed so the submit precedes the identity line in the DOM, and Tab
+// reaches it straight from the textarea; wrapped in reverse too, so the
+// identity line stacks above the submit.
+.jetpack-comments__actions {
+	display: flex;
+	flex-flow: row-reverse wrap-reverse;
+	align-items: center;
+	gap: 12px;
+	padding: 0 var(--jetpack-comments-pad) var(--jetpack-comments-pad);
+}
+
+// Its own row, under the submit it disables.
+.jetpack-comments__too-long {
+	flex-basis: 100%;
+	margin: 0;
+}
+
+// Shares the row with the submit down to 10em; below that it wraps above it.
+.jetpack-comments__identity {
 	display: flex;
 	align-items: center;
-	gap: 10px;
-	padding: 16px;
-	border-block-start: 1px solid var(--jetpack-comments-border-color);
-	justify-content: flex-end;
+	gap: 0.75em;
+	flex: 1 1 10em;
 }
 
-.jetpack-comments__submit {
-	all: unset;
-	display: inline-block;
-	padding: 7px 20px;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	background: var(--jetpack-comments-accent-color);
-	color: var(--jetpack-comments-accent-text-color);
-	font-family: inherit;
-	font-size: 14px;
-	text-align: center;
-	text-decoration: none;
-	text-shadow: none;
+// A flex item, so the button sits on no text baseline and centres with
+// the avatar. Pinned against a theme's spacing around its own submit.
+.jetpack-comments .jetpack-comments__submit {
+	display: flex;
+	margin: 0 !important;
+	padding: 0 !important;
+
+	input {
+
+		&:not(:focus, :active) {
+			margin: 0 !important;
+		}
+
+		// Its top margin let through, for a theme that trades the bottom border
+		// for it as the button is pressed; pinned, the row would jump.
+		&:is(:focus, :active) {
+			margin-inline: 0 !important;
+			margin-block-end: 0 !important;
+		}
+
+		&:disabled {
+			cursor: not-allowed;
+		}
+	}
+}
+
+.jetpack-comments__visually-hidden {
+	position: absolute;
+	inline-size: 1px;
+	block-size: 1px;
+	overflow: hidden;
+	clip-path: inset(50%);
 	white-space: nowrap;
-	cursor: pointer;
-
-	&:disabled {
-		background: transparent;
-		border-color: var(--jetpack-comments-border-color);
-		color: var(--jetpack-comments-disabled-color);
-		cursor: not-allowed;
-	}
-
-	&:not(:disabled):hover {
-		background: var(--jetpack-comments-accent-hover-color);
-	}
-
-	&:focus-visible {
-		outline: 2px solid var(--jetpack-comments-accent-color);
-		outline-offset: 1px;
-	}
-
-	&.is-busy {
-		cursor: progress;
-	}
-}
-
-.jetpack-comments__fields {
-	display: contents;
 }

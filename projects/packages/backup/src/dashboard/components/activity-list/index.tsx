@@ -200,11 +200,17 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 	);
 
 	// A remembered page can outlive its log, and DataViews hides the footer at one
-	// page — so nothing on screen would offer a way back. `totalPages` falls back to
-	// 1, so in flight, paused offline and failed all read as a one-page log; a
-	// literal 0 survives that `??`, which is what `>= 1` guards against.
+	// page — so nothing on screen would offer a way back. `totalPages` is null in
+	// flight, paused offline and failed; a literal 0 is what `>= 1` guards against.
 	useEffect( () => {
-		if ( ! isFetching && ! isPaused && ! error && totalPages >= 1 && page > totalPages ) {
+		if (
+			! isFetching &&
+			! isPaused &&
+			! error &&
+			totalPages !== null &&
+			totalPages >= 1 &&
+			page > totalPages
+		) {
 			onChangeView( { ...view, page: totalPages } );
 		}
 	}, [ isFetching, isPaused, error, totalPages, page, view, onChangeView ] );
@@ -309,7 +315,9 @@ export default function ActivityList( { selectedId, onSelect, view, onChangeView
 				fields={ fields }
 				view={ view }
 				onChangeView={ handleChangeView }
-				paginationInfo={ { totalItems, totalPages } }
+				// Typed as a number upstream, but the page clamp treats null as "unknown":
+				// https://github.com/WordPress/gutenberg/pull/82244
+				paginationInfo={ { totalItems, totalPages: totalPages as number } }
 				defaultLayouts={ { list: {} } }
 				getItemId={ getRowId }
 				selection={ selection }

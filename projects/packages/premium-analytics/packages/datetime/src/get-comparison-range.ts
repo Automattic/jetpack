@@ -13,35 +13,57 @@ import {
 	isLastDayOfMonth,
 	isSameDay,
 	startOfDay,
-	startOfMonth,
 	subDays,
 	subMilliseconds,
 	subMonths,
 	subWeeks,
 	subYears,
 } from 'date-fns';
+import { daysInWeek } from 'date-fns/constants';
 /**
  * Internal dependencies
  */
 import { completeToDateRange } from './to-date-range';
 import type { PrimaryPresetId } from './presets/types';
+import type { TZDate } from '@date-fns/tz';
 
-export type DateRange = { from?: Date; to?: Date };
+/**
+ * An inclusive range of instants, each anchored to the zone it was read in.
+ *
+ * Zoned rather than plain, so `getDateRangeSpan` cuts day boundaries on the
+ * site's clock; a plain `Date` cuts them on the browser's and lands a day out.
+ */
+export type DateRange = { from?: TZDate; to?: TZDate };
 
 export const COMPARISON_PREVIOUS_PERIOD = 'previous-period' as const;
+export const COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK =
+	'previous-period-match-day-of-week' as const;
 export const COMPARISON_PREVIOUS_WEEK = 'previous-week' as const;
 export const COMPARISON_PREVIOUS_MONTH = 'previous-month' as const;
 export const COMPARISON_PREVIOUS_YEAR = 'previous-year' as const;
+export const COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK =
+	'previous-year-match-day-of-week' as const;
 
 /**
- * All comparison preset identifiers, in display order.
+ * All comparison preset identifiers, in display order: each weekday-aligned
+ * variant sits under its calendar sibling.
  */
 export const COMPARISON_PRESETS = [
 	COMPARISON_PREVIOUS_PERIOD,
+	COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK,
 	COMPARISON_PREVIOUS_WEEK,
 	COMPARISON_PREVIOUS_MONTH,
 	COMPARISON_PREVIOUS_YEAR,
+	COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK,
 ] as const;
+
+const WEEKS_PER_YEAR = 52;
+
+/**
+ * Days the weekday-aligned year shifts by, and so the longest reference it can
+ * be offered for without the comparison overlapping it.
+ */
+export const WEEKDAY_YEAR_SHIFT_DAYS = WEEKS_PER_YEAR * daysInWeek;
 
 export type ComparisonPresetId = ( typeof COMPARISON_PRESETS )[ number ];
 
@@ -62,8 +84,33 @@ export function isComparisonPresetId( value: unknown ): value is ComparisonPrese
  * @param to   - Range end.
  * @return The inclusive day count.
  */
-function getInclusiveDayCount( from: Date, to: Date ): number {
+function getInclusiveDayCount( from: TZDate, to: TZDate ): number {
 	return differenceInDays( to, from ) + 1;
+}
+
+/**
+ * Days a weekday-aligned preset shifts by: 52 whole weeks for the year, the
+ * fewest whole weeks that clear the reference for the period.
+ *
+ * @param from     - Reference start.
+ * @param to       - Reference end.
+ * @param presetId - The comparison preset.
+ * @return The shift in days, or `undefined` for a calendar preset.
+ */
+function getWeekAlignedShiftDays(
+	from: TZDate,
+	to: TZDate,
+	presetId: ComparisonPresetId
+): number | undefined {
+	if ( presetId === COMPARISON_PREVIOUS_YEAR_MATCH_DAY_OF_WEEK ) {
+		return WEEKDAY_YEAR_SHIFT_DAYS;
+	}
+
+	if ( presetId !== COMPARISON_PREVIOUS_PERIOD_MATCH_DAY_OF_WEEK ) {
+		return undefined;
+	}
+
+	return Math.ceil( getInclusiveDayCount( from, to ) / daysInWeek ) * daysInWeek;
 }
 
 /**
@@ -71,15 +118,15 @@ function getInclusiveDayCount( from: Date, to: Date ): number {
  * whole number of months. Detected by round trip against the day after the
  * range ends, and again from the start stepped back by that count: a start a
  * month step cannot undo (31 January two months back clamps to 30 November)
- * measures in days, the way the step arrows measure it. Shared by the
- * previous-period shift and its label, so both take the same branch; unlike
+ * measures in days instead. Shared by the previous-period shift and its
+ * label, so both take the same branch; unlike
  * `getDateRangeSpan`, a single month counts.
  *
  * @param from - Range start.
  * @param to   - Range end.
  * @return The month count, or null.
  */
-export function getWholeMonthCount( from: Date, to: Date ): number | null {
+export function getWholeMonthCount( from: TZDate, to: TZDate ): number | null {
 	const isDayAligned =
 		from.getTime() === startOfDay( from ).getTime() && to.getTime() === endOfDay( to ).getTime();
 
@@ -114,11 +161,16 @@ export type ComparisonRangeOptions = {
  *
  * - Day boundaries are resolved in the frame of the incoming dates; pass TZDate
  *   instances for site-local math.
+ * - A range starting on the 1st compares with the same calendar dates a month
+ *   or a year earlier (a whole month with the whole month before it); any
+ *   other partial-month range keeps its day count.
  * - Whole months are detected from the range shape alone, so a rolling window
  *   that happens to land on one also compares calendar-to-calendar.
  * - `previous-period` ends the day before the reference starts; a reference
  *   still running its final month stops as many days short, so the two windows
  *   are the same length.
+ * - The `match-day-of-week` variants shift by whole weeks only (52 for the
+ *   year), so the comparison starts on the same weekday as the reference.
  *
  * @param reference - The reference range to compare against (must include both `from` and `to`).
  * @param presetId  - One of the supported preset identifiers.
@@ -141,11 +193,34 @@ export function getComparisonRangeFromPreset(
 		refFrom.getTime() === startOfDay( refFrom ).getTime() &&
 		refTo.getTime() === endOfDay( refTo ).getTime();
 
+	// Annotated: a nested `date-fns` call has no contextual type to infer the
+	// zoned subclass from, and would widen the result back to a plain `Date`.
+	const clampDayBound = ( date: TZDate, bound: 0 | 1 ): TZDate =>
+		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
+
+	// A weekday-aligned preset is a whole-week shift of the dates as read,
+	// whatever preset or month shape the reference came from.
+	const weekAlignedShiftDays = getWeekAlignedShiftDays( refFrom, refTo, presetId );
+	if ( weekAlignedShiftDays !== undefined ) {
+		if ( ! isDayAligned ) {
+			const to = subDays( refTo, weekAlignedShiftDays );
+			return {
+				from: subMilliseconds( to, differenceInMilliseconds( refTo, refFrom ) ),
+				to,
+			};
+		}
+
+		return {
+			from: clampDayBound( subDays( refFrom, weekAlignedShiftDays ), 0 ),
+			to: clampDayBound( subDays( refTo, weekAlignedShiftDays ), 1 ),
+		};
+	}
+
 	// Sub-day windows shift only their end, then rebuild `from` from the original
 	// duration: a calendar shift clamps day-of-month and would collapse the window.
 	if ( ! isDayAligned ) {
 		const windowMs = differenceInMilliseconds( refTo, refFrom );
-		let to: Date;
+		let to: TZDate;
 
 		if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
 			// Both ends are inclusive, so the window lasts `windowMs + 1`; shifting
@@ -166,9 +241,6 @@ export function getComparisonRangeFromPreset(
 			to,
 		};
 	}
-
-	const clampDayBound = ( date: Date, bound: 0 | 1 ) =>
-		bound === 1 ? endOfDay( startOfDay( date ) ) : startOfDay( date );
 
 	if ( presetId === COMPARISON_PREVIOUS_PERIOD ) {
 		// Measured on the window a to-date preset covers once its running month
@@ -213,11 +285,13 @@ export function getComparisonRangeFromPreset(
 	if ( presetId === COMPARISON_PREVIOUS_MONTH || presetId === COMPARISON_PREVIOUS_YEAR ) {
 		const shiftBack = presetId === COMPARISON_PREVIOUS_MONTH ? subMonths : subYears;
 
-		// Keep whole-month comparisons aligned to calendar boundaries.
-		if ( isFirstDayOfMonth( refFrom ) && isLastDayOfMonth( refTo ) ) {
+		// A 1st-of-month start keeps its calendar dates (whole months on month bounds):
+		// a day-count rebuild across a leap February starts Year to date on 31 December.
+		if ( isFirstDayOfMonth( refFrom ) ) {
+			const shiftedTo = shiftBack( refTo, 1 );
 			return {
-				from: clampDayBound( startOfMonth( shiftBack( refFrom, 1 ) ), 0 ),
-				to: clampDayBound( endOfMonth( shiftBack( refTo, 1 ) ), 1 ),
+				from: clampDayBound( shiftBack( refFrom, 1 ), 0 ),
+				to: clampDayBound( isLastDayOfMonth( refTo ) ? endOfMonth( shiftedTo ) : shiftedTo, 1 ),
 			};
 		}
 

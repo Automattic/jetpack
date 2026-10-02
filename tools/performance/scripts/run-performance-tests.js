@@ -152,7 +152,7 @@ function discoverDynamicPorts() {
 			} );
 
 			if ( portOutput ) {
-				// Output is like "0.0.0.0:32789" - extract the port
+				// Output is like "127.0.0.1:32789" - extract the port
 				const port = portOutput.trim().split( ':' ).pop();
 				const url = `http://localhost:${ port }`;
 				process.env[ scenario.envVar ] = url;
@@ -209,9 +209,7 @@ function updateWordPressUrls() {
 			);
 			console.log( `  ✓ ${ scenario.name }: ${ url }` );
 		} catch ( err ) {
-			console.warn(
-				`  ⚠ Warning: Could not update URLs for ${ scenario.name }: ${ err.message }`
-			);
+			console.warn( `  ⚠ Warning: Could not update URLs for ${ scenario.name }: ${ err.message }` );
 		}
 	}
 
@@ -384,12 +382,12 @@ function checkPlugin() {
 }
 
 /** Check if WordPress instances are ready and installed. */
-async function checkWordPressInstances() {
+async function checkWordPressInstances( scenarios = SCENARIOS ) {
 	console.log( 'Checking WordPress instances...' );
 
 	let allReady = true;
 
-	for ( const scenario of SCENARIOS ) {
+	for ( const scenario of scenarios.filter( item => ! item.optional ) ) {
 		const url = getScenarioUrl( scenario );
 		const controller = new AbortController();
 		const timeout = setTimeout( () => controller.abort(), 5000 );
@@ -680,6 +678,7 @@ if ( isDirectInvocation( import.meta.filename, process.argv[ 1 ] ) ) {
 }
 
 export {
+	checkWordPressInstances,
 	shouldFailBuildOnPostError,
 	getGitInfo,
 	resolveCommitTimestampEnv,

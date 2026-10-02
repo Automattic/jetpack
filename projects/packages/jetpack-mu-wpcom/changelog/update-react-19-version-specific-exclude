@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Gutenberg: Skip the React 19 experiment only on extension versions that are still incompatible.

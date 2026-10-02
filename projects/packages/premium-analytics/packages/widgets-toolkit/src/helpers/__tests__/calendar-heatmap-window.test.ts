@@ -1,97 +1,9 @@
 /**
  * Internal dependencies
  */
-import {
-	buildDenseDaySeries,
-	resolveCalendarHeatmapGridStart,
-	resolveCalendarHeatmapWindow,
-} from '../calendar-heatmap-window';
+import { buildDenseDaySeries, resolveCalendarHeatmapGridStart } from '../calendar-heatmap-window';
 
 const TODAY = '2026-08-10';
-
-describe( 'resolveCalendarHeatmapWindow', () => {
-	describe( 'maxDays — the shared cap', () => {
-		it( 'caps an all-time range to the most recent year', () => {
-			expect(
-				resolveCalendarHeatmapWindow(
-					{ from: '2021-01-01', to: '2026-08-10' },
-					{ maxDays: 366 },
-					TODAY
-				)
-			).toEqual( { startDate: '2025-08-10', endDate: '2026-08-10' } );
-		} );
-
-		it( 'keeps a selected leap year whole', () => {
-			expect(
-				resolveCalendarHeatmapWindow(
-					{ from: '2024-01-01', to: '2024-12-31' },
-					{ maxDays: 366 },
-					TODAY
-				)
-			).toEqual( { startDate: '2024-01-01', endDate: '2024-12-31' } );
-		} );
-
-		it( 'keeps a selected common year whole', () => {
-			expect(
-				resolveCalendarHeatmapWindow(
-					{ from: '2025-01-01', to: '2025-12-31' },
-					{ maxDays: 366 },
-					TODAY
-				)
-			).toEqual( { startDate: '2025-01-01', endDate: '2025-12-31' } );
-		} );
-
-		it( 'does not reach back past the start of a partial current year', () => {
-			expect(
-				resolveCalendarHeatmapWindow(
-					{ from: '2026-01-01', to: '2026-08-10' },
-					{ maxDays: 366 },
-					TODAY
-				)
-			).toEqual( { startDate: '2026-01-01', endDate: '2026-08-10' } );
-		} );
-
-		it( 'never extends a short range', () => {
-			expect(
-				resolveCalendarHeatmapWindow(
-					{ from: '2026-08-01', to: '2026-08-10' },
-					{ maxDays: 366 },
-					TODAY
-				)
-			).toEqual( { startDate: '2026-08-01', endDate: '2026-08-10' } );
-		} );
-	} );
-
-	it( 'reads only the calendar day from an offset-bearing timestamp', () => {
-		expect(
-			resolveCalendarHeatmapWindow(
-				{ from: '2026-01-01T00:00:00+08:00', to: '2026-08-10T23:59:59+08:00' },
-				{ maxDays: 366 },
-				TODAY
-			)
-		).toEqual( { startDate: '2026-01-01', endDate: '2026-08-10' } );
-	} );
-
-	it( 'falls back to today when the range has no end', () => {
-		expect( resolveCalendarHeatmapWindow( { from: '2026-08-01' }, {}, TODAY ) ).toEqual( {
-			startDate: '2026-08-01',
-			endDate: TODAY,
-		} );
-	} );
-
-	it( 'uses the supplied end when the range has no start', () => {
-		expect( resolveCalendarHeatmapWindow( { to: '2026-03-01' }, {}, TODAY ) ).toEqual( {
-			startDate: '2026-03-01',
-			endDate: '2026-03-01',
-		} );
-	} );
-
-	it( 'collapses to the end date when the range is inverted and unbounded', () => {
-		expect(
-			resolveCalendarHeatmapWindow( { from: '2026-09-01', to: '2026-08-10' }, {}, TODAY )
-		).toEqual( { startDate: '2026-08-10', endDate: '2026-08-10' } );
-	} );
-} );
 
 describe( 'buildDenseDaySeries', () => {
 	it( 'emits one point per day of the window', () => {

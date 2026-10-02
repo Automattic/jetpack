@@ -9,6 +9,10 @@ interface DisconnectSurveyProps {
 	onSubmit?: ( answerId: string, answerText: string ) => void;
 	/** If the survey feedback is currently being saved/ submitted. */
 	isSubmittingFeedback?: boolean;
+	/** Whether to offer the "couldn't connect" answer, for sites that never connected a user. */
+	showConnectionOption?: boolean;
+	/** Label for the submit button. */
+	submitLabel?: string;
 }
 
 /**
@@ -18,7 +22,7 @@ interface DisconnectSurveyProps {
  * @return {import('react').ReactNode} - DisconnectSurvey component.
  */
 const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
-	const { onSubmit, isSubmittingFeedback } = props;
+	const { onSubmit, isSubmittingFeedback, showConnectionOption, submitLabel } = props;
 	// The `name` shared by every radio in the survey, which is what groups them
 	// into one radio group. Generated per instance rather than hard-coded, so
 	// that two surveys on a page (though unlikely) stay separate groups with unique input IDs.
@@ -27,6 +31,14 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 	const [ customResponse, setCustomResponse ] = useState( '' );
 
 	const options = [
+		...( showConnectionOption
+			? [
+					{
+						id: 'could-not-connect',
+						answerText: __( "I couldn't get it to connect.", 'jetpack-connection-js' ),
+					},
+				]
+			: [] ),
 		{
 			id: 'troubleshooting',
 			answerText: __(
@@ -165,12 +177,13 @@ const DisconnectSurvey = ( props: DisconnectSurveyProps ) => {
 				>
 					{ isSubmittingFeedback
 						? __( 'Submitting…', 'jetpack-connection-js' )
-						: __(
+						: submitLabel ||
+							__(
 								'Submit Feedback',
 								'jetpack-connection-js',
 								// @ts-expect-error Dummy arg to avoid bad minification; ignored at runtime.
 								0
-						  ) }
+							) }
 				</Button>
 			</p>
 		</Fragment>

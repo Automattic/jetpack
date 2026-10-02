@@ -9,12 +9,13 @@ import {
 	PricingTableItem,
 	ProductPrice,
 } from '@automattic/jetpack-components';
-import { useConnection, useProductCheckoutWorkflow } from '@automattic/jetpack-connection';
+import { useConnection } from '@automattic/jetpack-connection';
 import { __, sprintf } from '@wordpress/i18n';
 import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import useVideoPressCheckout from '../../../hooks/use-videopress-checkout';
 import { usePlan } from '../../hooks/use-plan';
 
 const PricingPage = ( { onRedirecting } ) => {
@@ -29,7 +30,7 @@ const PricingPage = ( { onRedirecting } ) => {
 	} );
 	const [ isConnecting, setIsConnecting ] = useState( false );
 
-	const { run, hasCheckoutStarted } = useProductCheckoutWorkflow( {
+	const { run, hasCheckoutStarted } = useVideoPressCheckout( {
 		siteSuffix,
 		productSlug: yearlyPrice?.slug,
 		redirectUrl: adminUri,
@@ -51,7 +52,7 @@ const PricingPage = ( { onRedirecting } ) => {
 										/* translators: %1$s: the discount amount */
 										__( '%1$s%% off', 'jetpack-videopress-pkg' ),
 										String( yearlyPrice.discount )
-								  )
+									)
 								: null
 						}
 						legend={ __( '/month, billed yearly', 'jetpack-videopress-pkg' ) }

@@ -1,6 +1,7 @@
 // See README.md before adding a suite to this group.
 
 import '../../packages/ui/src/date-range-input/__tests__/date-range-input.test';
+import '../../packages/ui/src/date-range-popover/__tests__/date-range-filter.test';
 import '../../packages/ui/src/date-year-filter/__tests__/date-year-filter.test';
 import '../../packages/ui/src/section-header/__tests__/section-header.test';
 import '../../packages/ui/src/spotlight-step/__tests__/spotlight-step.test';

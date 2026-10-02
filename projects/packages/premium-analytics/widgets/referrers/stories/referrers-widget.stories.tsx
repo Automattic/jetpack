@@ -36,8 +36,7 @@ interface ReferrersStoryControls {
 }
 
 interface ReferrersDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		ReferrersStoryControls {}
+	extends WidgetDashboardWithWidgetControls, ReferrersStoryControls {}
 
 function renderReferrersWidget( { withComparison }: ReferrersStoryControls ) {
 	return (
@@ -137,8 +136,8 @@ export const Error: Story = {
 };
 
 /**
- * Resolved with no rows: the widget shows its empty state (the neutral globe
- * glyph and "No referrers in this period.").
+ * Resolved with no rows: the widget shows the generic empty state (the magnifier
+ * glyph and "We couldn’t find results for this time period.").
  */
 export const Empty: Story = {
 	render: () => renderReferrersOnPreset( 'last-365-days' ),

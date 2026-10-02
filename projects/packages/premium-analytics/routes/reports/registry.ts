@@ -6,10 +6,11 @@ import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { isDashboardSectionInPreviewScope, isVideoPressAvailable } from '../site-readiness';
+import { isDashboardSectionAvailable, isVideoPressAvailable } from '../site-readiness';
 // Import from `config/tabs` directly, not the `config` barrel — it re-exports JSX,
 // and `route.ts` imports this registry in `beforeLoad`, which must stay React-free.
 import { resolveTabId as resolveCommentsTabId } from './comments/config/tabs';
+import { resolveSection as resolveEarningsSection } from './earnings/config/tabs';
 import { resolveSection as resolveLocationsSection } from './locations/config/tabs';
 import { resolveTabId } from './posts/config/tabs';
 import { resolveSection as resolveUtmSection } from './utm/config/tabs';
@@ -36,16 +37,10 @@ export type ReportDefinition = {
 	dashboardSection: DashboardSectionSlug;
 
 	/**
-	 * What the report is called from outside itself: its own trailing crumb,
-	 * and the crumb linking back to it from a detail page. `All pages`.
+	 * The report's name: its trailing crumb, the crumb back to it from a detail
+	 * page, and the heading over its records on an untabbed report. `All pages`.
 	 */
 	getLabel: () => string;
-
-	/**
-	 * Heading for the report's records: `Referrers report`. Unused on a tabbed
-	 * report, which heads each section from its tab.
-	 */
-	getTitle: () => string;
 
 	/**
 	 * Resolve a raw `?section=` value to a section this report owns, falling back
@@ -80,35 +75,30 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'annual-insights',
 		dashboardSection: 'insights',
 		getLabel: () => __( 'Annual insights', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Annual insights report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './annual-insights/page' ),
 	},
 	authors: {
 		id: 'authors',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Top authors', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Top authors report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './authors/page' ),
 	},
 	'comment-followers': {
 		id: 'comment-followers',
 		dashboardSection: 'subscribers',
 		getLabel: () => __( 'Comments Subscribers', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Comments Subscribers report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './comment-followers/page' ),
 	},
 	clicks: {
 		id: 'clicks',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Clicks', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Clicks report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './clicks/page' ),
 	},
 	comments: {
 		id: 'comments',
 		dashboardSection: 'insights',
 		getLabel: () => __( 'All comments', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'All comments report', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveCommentsTabId,
 		load: () => import( './comments/page' ),
 	},
@@ -116,24 +106,28 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'downloads',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'File downloads', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'File downloads report', 'jetpack-premium-analytics-pkg' ),
 		// Download tracking is WPCOM-only, so Calypso shows the module on Simple
 		// sites only; mirrors the gate in `src/widget-type-support.php`.
 		isAvailable: isSimpleSite,
 		load: () => import( './downloads/page' ),
 	},
+	earnings: {
+		id: 'earnings',
+		dashboardSection: 'ads',
+		getLabel: () => __( 'Earnings history', 'jetpack-premium-analytics-pkg' ),
+		resolveSection: resolveEarningsSection,
+		load: () => import( './earnings/page' ),
+	},
 	emails: {
 		id: 'emails',
 		dashboardSection: 'subscribers',
 		getLabel: () => __( 'Emails', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Emails report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './emails/page' ),
 	},
 	locations: {
 		id: 'locations',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'All locations', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'All locations report', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveLocationsSection,
 		load: () => import( './locations/page' ),
 	},
@@ -141,7 +135,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'posts',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'All pages', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'All pages report', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveTabId,
 		load: () => import( './posts/page' ),
 	},
@@ -149,21 +142,18 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'search-terms',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Search terms', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Search terms report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './search-terms/page' ),
 	},
 	tags: {
 		id: 'tags',
 		dashboardSection: 'insights',
 		getLabel: () => __( 'Tags & categories', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Tags & categories report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './tags/page' ),
 	},
 	videos: {
 		id: 'videos',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Videos', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Videos report', 'jetpack-premium-analytics-pkg' ),
 		// Play counts only exist for VideoPress-hosted videos; mirrors the gate in
 		// `src/widget-type-support.php`.
 		isAvailable: isVideoPressAvailable,
@@ -173,7 +163,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'utm',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'All UTM values', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'All UTM values report', 'jetpack-premium-analytics-pkg' ),
 		resolveSection: resolveUtmSection,
 		load: () => import( './utm/page' ),
 	},
@@ -181,7 +170,6 @@ export const REPORTS: Record< string, ReportDefinition > = {
 		id: 'referrers',
 		dashboardSection: 'traffic',
 		getLabel: () => __( 'Referrers', 'jetpack-premium-analytics-pkg' ),
-		getTitle: () => __( 'Referrers report', 'jetpack-premium-analytics-pkg' ),
 		load: () => import( './referrers/page' ),
 	},
 };
@@ -194,7 +182,7 @@ export const REPORTS: Record< string, ReportDefinition > = {
  *
  * @param id - The `$report` path segment (may be missing on a malformed URL).
  * @return The matching definition, or `undefined` when the id is missing, unknown, or in a
- * section the preview hides.
+ * section the dashboard does not expose.
  */
 export function getReportDefinition( id: string | undefined ): ReportDefinition | undefined {
 	const definition = id && Object.hasOwn( REPORTS, id ) ? REPORTS[ id ] : undefined;
@@ -203,7 +191,7 @@ export function getReportDefinition( id: string | undefined ): ReportDefinition 
 		return undefined;
 	}
 
-	if ( definition && ! isDashboardSectionInPreviewScope( definition.dashboardSection ) ) {
+	if ( definition && ! isDashboardSectionAvailable( definition.dashboardSection ) ) {
 		return undefined;
 	}
 

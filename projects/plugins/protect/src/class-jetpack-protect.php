@@ -140,8 +140,7 @@ class Jetpack_Protect {
 
 		REST_Controller::init();
 		My_Jetpack_Initializer::init();
-		// Activity Log. Idempotent, so it no-ops when the Jetpack plugin already
-		// initialized the package on this request.
+		// Activity Log. No-ops while the `activity-log` module is off.
 		Jetpack_Activity_Log::initialize();
 		Site_Health::init();
 
@@ -173,7 +172,12 @@ class Jetpack_Protect {
 			'Protect', // "Protect" is a product name, do not translate.
 			'manage_options',
 			'jetpack-protect',
-			array( $this, 'plugin_settings_page' )
+			array( $this, 'plugin_settings_page' ),
+			null,
+			array(
+				'product' => 'protect',
+				'key'     => 'jetpack-protect',
+			)
 		);
 
 		add_action( 'load-' . $page_suffix, array( $this, 'enqueue_admin_scripts' ) );

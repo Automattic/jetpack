@@ -261,7 +261,7 @@ const evaluateRuleValue = (
 ): boolean | null => {
 	const operator = rule.operator;
 	const needsValue = operatorNeedsValue( operator );
-	const expected = needsValue ? rule.value ?? '' : '';
+	const expected = needsValue ? ( rule.value ?? '' ) : '';
 
 	// An operator that compares against something, given nothing to compare against, cannot
 	// say anything -- so the rule is ignored rather than evaluated against an empty string.

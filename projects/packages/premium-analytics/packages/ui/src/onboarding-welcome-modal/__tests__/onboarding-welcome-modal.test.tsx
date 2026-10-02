@@ -15,7 +15,9 @@ describe( 'OnboardingWelcomeModal', () => {
 	it( 'introduces the new experience with the tour as the primary action', () => {
 		renderModal();
 
-		const dialog = screen.getByRole( 'dialog', { name: 'Welcome to the new Traffic page' } );
+		const dialog = screen.getByRole( 'dialog', {
+			name: 'Welcome to the new Stats',
+		} );
 		expect( dialog ).toBeInTheDocument();
 		expect( dialog ).toHaveTextContent(
 			"we'll keep adding new tabs and features in regular updates."
@@ -56,5 +58,16 @@ describe( 'OnboardingWelcomeModal', () => {
 
 		expect( onDismiss ).toHaveBeenCalledTimes( 1 );
 		expect( onDismiss ).toHaveBeenCalledWith( 'escape' );
+	} );
+
+	it( 'stays open on a click outside, without counting a dismissal', async () => {
+		const { onDismiss } = renderModal();
+
+		await userEvent.click( document.body );
+
+		expect(
+			screen.getByRole( 'dialog', { name: 'Welcome to the new Stats' } )
+		).toBeInTheDocument();
+		expect( onDismiss ).not.toHaveBeenCalled();
 	} );
 } );

@@ -10,6 +10,7 @@ import { __ } from '@wordpress/i18n';
 import { Link } from '@wordpress/ui';
 import { addQueryArgs } from '@wordpress/url';
 import type { NewsletterSettings } from '../types';
+import type { JSX } from 'react';
 
 interface ToggleProps {
 	data: NewsletterSettings;
@@ -19,6 +20,8 @@ interface ToggleProps {
 	linkText?: string;
 	isExternal?: boolean;
 	onLinkClick?: () => void;
+	/** Show the toggle checked when the stored value is false, for negatively named settings. */
+	invert?: boolean;
 }
 
 /**
@@ -36,6 +39,7 @@ interface ToggleProps {
  * @param {string}   props.linkText    - Text for the link. Omit for a plain toggle.
  * @param {boolean}  props.isExternal  - Whether the link is external (default: true)
  * @param {Function} props.onLinkClick - Optional callback when link is clicked
+ * @param {boolean}  props.invert      - Whether to display the negation of the stored value (default: false)
  * @return {JSX.Element} The toggle control, with a link in the label when `url`/`linkText` are set.
  */
 export function Toggle( {
@@ -46,17 +50,18 @@ export function Toggle( {
 	linkText,
 	isExternal = true,
 	onLinkClick,
+	invert = false,
 }: ToggleProps ): JSX.Element {
+	const value = !! ( data as Record< string, unknown > )[ field.id ];
+
 	const handleChange = useCallback( () => {
-		onChange( {
-			[ field.id ]: ! ( data as Record< string, unknown > )[ field.id ],
-		} as DeepPartial< NewsletterSettings > );
-	}, [ data, field.id, onChange ] );
+		onChange( { [ field.id ]: ! value } as DeepPartial< NewsletterSettings > );
+	}, [ value, field.id, onChange ] );
 
 	return (
 		<ToggleControl
 			__nextHasNoMarginBottom
-			checked={ !! ( data as Record< string, unknown > )[ field.id ] }
+			checked={ invert ? ! value : value }
 			onChange={ handleChange }
 			label={
 				url && linkText ? (
