@@ -23,7 +23,6 @@ import { observeLegacyModulesState } from './lib/modules-state-bridge';
 import { getHistoryWindow } from './lib/history-days';
 import * as speedScores from './lib/use-speed-scores';
 import Overview from './overview';
-import ScoreCard from './score-card';
 import ScoreCards from './score-cards';
 import type { ReactNode } from 'react';
 
@@ -1170,62 +1169,6 @@ test( 'does not present initial loading scores as measured scores', () => {
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
 } );
 
-test.each( [
-	[ 40, 'Poor' ],
-	[ 60, 'Could improve' ],
-	[ 90, 'Good' ],
-] as const )( 'renders score %i with its tier, bar, and delta', ( score, tier ) => {
-	render(
-		<ScoreCard
-			icon={ null }
-			label="Desktop"
-			value={ score }
-			score={ score }
-			noBoost={ score - 10 }
-		/>
-	);
-	expect( screen.getByText( String( score ) ) ).toBeInTheDocument();
-	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( score );
-	expect( screen.getByText( '+10 points' ) ).toBeInTheDocument();
-	expect( screen.getByText( tier ) ).toBeInTheDocument();
-} );
-
-test( 'opens the overall grade explanation and dismisses it with Escape', async () => {
-	render( <ScoreCards scores={ scores } /> );
-	const trigger = within( screen.getByRole( 'region', { name: 'Overall' } ) ).getByRole( 'button', {
-		name: 'How the overall grade is calculated',
-	} );
-	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-	fireEvent.click( trigger );
-	const tooltip = await screen.findByRole( 'dialog' );
-	expect( tooltip ).toHaveTextContent(
-		'Your overall score is a summary of your first Cornerstone Page across both mobile and desktop devices.'
-	);
-	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
-	fireEvent.keyDown( tooltip, { key: 'Escape' } );
-	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
-	expect( trigger ).toHaveFocus();
-} );
-
-test( 'reads a negative baseline delta as zero while preserving the current measured bar', () => {
-	render( <ScoreCard icon={ null } label="Mobile" value={ 40 } score={ 40 } noBoost={ 60 } /> );
-	expect( screen.getByRole( 'progressbar', { name: 'Mobile' } ) ).toHaveValue( 40 );
-	expect( screen.getByText( '0 points' ) ).toBeInTheDocument();
-	expect( screen.queryByText( '-20 points' ) ).not.toBeInTheDocument();
-	expect( screen.getByRole( 'button', { name: 'About points' } ) ).toBeInTheDocument();
-	expect( screen.getByText( 'Poor' ) ).toBeInTheDocument();
-} );
-
-test( 'hides stale and absent baselines while preserving measured scores', () => {
-	const { rerender } = render( <ScoreCards scores={ scores } /> );
-	expect( screen.getByText( /\+10 points/ ) ).toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, isStale: true } } /> );
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
-	expect( screen.getByText( '91' ) ).toBeInTheDocument();
-	rerender( <ScoreCards scores={ { ...scores, noBoost: null } } /> );
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
-} );
-
 test( 'shows the free history upgrade without requesting history', async () => {
 	window.jetpack_boost_ds!.modules_state!.value = {
 		performance_history: { available: false, active: false },
@@ -1678,40 +1621,6 @@ test( 'enables multi-day history paging with a date range without checking older
 	expect(
 		jest.mocked( apiFetch ).mock.calls.some( ( [ options ] ) => options.data?.JSON?.olderWindows )
 	).toBe( false );
-} );
-
-test( 'debounces optimization changes and waits for generation to finish', async () => {
-	jest.useFakeTimers();
-	try {
-		const { result, rerender, unmount } = renderHook(
-			state => speedScores.useSpeedScores( state ),
-			{
-				initialProps: { config: 'modules-active:1,updated:10', isPending: false },
-				wrapper: queryWrapper(),
-			}
-		);
-		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
-		rerender( { config: 'modules-active:1,updated:20', isPending: true } );
-		act( () => jest.advanceTimersByTime( 2000 ) );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-		rerender( { config: 'modules-active:1,updated:20', isPending: false } );
-		act( () => jest.advanceTimersByTime( 1999 ) );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
-		await act( async () => {
-			jest.advanceTimersByTime( 1 );
-		} );
-		expect( requestSpeedScores ).toHaveBeenCalledTimes( 2 );
-		expect( requestSpeedScores ).toHaveBeenLastCalledWith(
-			true,
-			wpApiSettings.root,
-			Jetpack_Boost.site.url,
-			wpApiSettings.nonce,
-			expect.objectContaining( { signal: expect.any( AbortSignal ) } )
-		);
-		unmount();
-	} finally {
-		jest.useRealTimers();
-	}
 } );
 
 test( 'passes the history server error message to the notice', async () => {

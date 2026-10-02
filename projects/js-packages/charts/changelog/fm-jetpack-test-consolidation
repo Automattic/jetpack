@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Check crosshair style assignments with the compiler instead of Jest.
+
+

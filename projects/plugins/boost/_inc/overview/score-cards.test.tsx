@@ -23,7 +23,11 @@ test( 'the Overall information popover shows the summary sentence and every grad
 		);
 	}
 	expect( screen.queryByRole( 'table' ) ).not.toBeInTheDocument();
-	fireEvent.click( screen.getByRole( 'button', { name: 'How the overall grade is calculated' } ) );
+	expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+	const trigger = within( screen.getByRole( 'region', { name: 'Overall' } ) ).getByRole( 'button', {
+		name: 'How the overall grade is calculated',
+	} );
+	fireEvent.click( trigger );
 	const dialog = await screen.findByRole( 'dialog', { name: 'Overall grade' } );
 	const popover = within( dialog );
 	expect(
@@ -44,6 +48,10 @@ test( 'the Overall information popover shows the summary sentence and every grad
 		const row = within( popover.getByRole( 'row', { name: `${ grade } ${ range }` } ) );
 		expect( row.getByRole( 'cell', { name: range } ) ).toBeVisible();
 	}
+	expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+	fireEvent.keyDown( dialog, { key: 'Escape' } );
+	await waitFor( () => expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument() );
+	expect( trigger ).toHaveFocus();
 } );
 
 test( 'the legacy grade explanation keeps its full default description', () => {
@@ -81,15 +89,15 @@ test.each( [
 );
 
 test.each( [
-	[ 75, 'Good', 'good' ],
+	[ 90, 'Good', 'good' ],
 	[ 60, 'Could improve', 'medium' ],
 	[ 40, 'Poor', 'poor' ],
-] )( 'renders device score %s with its tier and progress color', ( score, label, tier ) => {
+] )( 'renders device score %s with its tier, progress color, and delta', ( score, label, tier ) => {
 	render(
 		<ScoreCards
 			scores={ {
 				current: { mobile: Number( score ), desktop: Number( score ) },
-				noBoost: null,
+				noBoost: { mobile: Number( score ) - 10, desktop: Number( score ) - 10 },
 				isStale: false,
 			} }
 		/>
@@ -99,6 +107,8 @@ test.each( [
 		expect( card.getByText( String( label ) ) ).toHaveClass(
 			`jetpack-boost-overview__tier--${ tier }`
 		);
+		expect( card.getByText( String( score ) ) ).toBeVisible();
+		expect( card.getByText( '+10 points' ) ).toBeVisible();
 		const progress = card.getByRole( 'progressbar', { name: device } );
 		expect( progress ).toHaveValue( Number( score ) );
 		// eslint-disable-next-line testing-library/no-node-access -- ProgressBar applies color classes to its wrapper.
@@ -110,14 +120,14 @@ test.each( [
 } );
 
 test.each( [
-	[ 'positive', 70, '+10 points', 'informational' ],
-	[ 'zero', 80, '0 points', 'none' ],
-	[ 'negative', 90, '0 points', 'none' ],
-] )( 'shows a %s delta badge', ( _description, baseline, label, intent ) => {
+	[ 'positive', 70, '+10 points', 'informational', 80, 'Good' ],
+	[ 'zero', 80, '0 points', 'none', 80, 'Good' ],
+	[ 'negative', 60, '0 points', 'none', 40, 'Poor' ],
+] )( 'shows a %s delta badge', ( _description, baseline, label, intent, score, tierLabel ) => {
 	render(
 		<ScoreCards
 			scores={ {
-				current: { desktop: 80, mobile: 80 },
+				current: { desktop: Number( score ), mobile: Number( score ) },
 				noBoost: { desktop: Number( baseline ), mobile: Number( baseline ) },
 				isStale: false,
 			} }
@@ -126,21 +136,36 @@ test.each( [
 	const card = within( screen.getByRole( 'region', { name: 'Desktop' } ) );
 	expect( card.getByText( label ) ).toBeVisible();
 	expect( card.getByText( label ) ).toHaveClass( new RegExp( `__is-${ intent }-intent$` ) );
+	expect( card.getByRole( 'progressbar', { name: 'Desktop' } ) ).toHaveValue( Number( score ) );
+	expect( card.getByText( tierLabel ) ).toBeVisible();
+	expect( card.getByRole( 'button', { name: 'About points' } ) ).toBeVisible();
+	expect( card.queryByText( '-20 points' ) ).not.toBeInTheDocument();
 } );
 
-test( 'hides unknown and stale deltas', () => {
+test( 'hides unknown and stale deltas while retaining measured scores', () => {
 	const scores = {
-		current: { desktop: 80, mobile: 60 },
-		noBoost: null,
+		current: { desktop: 91, mobile: 61 },
+		noBoost: { desktop: 81, mobile: 61 },
 		isStale: false,
 	};
 	const { rerender } = render( <ScoreCards scores={ scores } /> );
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'About points' } ) ).not.toBeInTheDocument();
-	rerender(
-		<ScoreCards scores={ { ...scores, noBoost: { desktop: 70, mobile: 50 }, isStale: true } } />
-	);
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
+	expect( screen.getByText( '+10 points' ) ).toBeVisible();
+	for ( const unavailable of [
+		{ ...scores, isStale: true },
+		{ ...scores, noBoost: null },
+	] ) {
+		rerender( <ScoreCards scores={ unavailable } /> );
+		expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'About points' } ) ).not.toBeInTheDocument();
+		for ( const [ device, score ] of [
+			[ 'Desktop', 91 ],
+			[ 'Mobile', 61 ],
+		] as const ) {
+			const card = within( screen.getByRole( 'region', { name: device } ) );
+			expect( card.getByText( String( score ) ) ).toBeVisible();
+			expect( card.getByRole( 'progressbar', { name: device } ) ).toHaveValue( score );
+		}
+	}
 } );
 
 test( 'opens the points explanation beside the badge', async () => {
