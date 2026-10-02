@@ -188,8 +188,9 @@ class Api_Proxy_Controller_Test extends BaseTestCase {
 
 	public function test_repeated_read_is_served_from_the_cache() {
 		$this->dispatch( 'wordads/earnings' );
-		$this->dispatch( 'wordads/earnings' );
+		$this->assertCount( 1, $this->http_urls );
 
+		$this->dispatch( 'wordads/earnings' );
 		$this->assertCount( 1, $this->http_urls );
 	}
 
