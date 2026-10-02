@@ -14,7 +14,11 @@ jest.mock( '../search-results', () => props => {
 	lastSearchResultsProps = props;
 	return <div data-testid="search-results" />;
 } );
-jest.mock( '../overlay', () => ( { children } ) => <div data-testid="overlay">{ children }</div> );
+let lastOverlayProps = {};
+jest.mock( '../overlay', () => props => {
+	lastOverlayProps = props;
+	return <div data-testid="overlay">{ props.children }</div>;
+} );
 jest.mock( '../customizer-event-handler', () => () => null );
 jest.mock( '../dom-event-handler', () => () => null );
 
@@ -23,7 +27,9 @@ jest.mock( 'react-redux', () => ( {
 } ) );
 
 jest.mock( '../../store/actions', () => ( {} ) );
-jest.mock( '../../store/selectors', () => ( {} ) );
+jest.mock( '../../store/selectors', () => ( {
+	getSort: jest.requireActual( '../../store/selectors' ).getSort,
+} ) );
 
 import { act, render } from '@testing-library/react';
 import * as React from 'react';
@@ -158,6 +164,11 @@ describe( 'SearchApp — isQueryPending', () => {
 		const utils = render(
 			<SearchApp { ...defaultProps } searchQuery="foo" makeSearchRequest={ makeSearchRequest } />
 		);
+		// Let the mount-time request for "foo" settle first.
+		act( () => {
+			jest.advanceTimersByTime( 250 );
+		} );
+		makeSearchRequest.mockClear();
 		utils.rerender(
 			<SearchApp { ...defaultProps } searchQuery="" makeSearchRequest={ makeSearchRequest } />
 		);
@@ -191,5 +202,101 @@ describe( 'SearchApp — isQueryPending', () => {
 
 		expect( makeSearchRequest ).toHaveBeenCalledTimes( 1 );
 		expect( lastSearchResultsProps.isQueryPending ).toBe( false );
+	} );
+} );
+
+describe( 'SearchApp — mount', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it.each( [ true, false ] )(
+		'does not dispatch while constructing (shouldIntegrateWithDom: %s)',
+		shouldIntegrateWithDom => {
+			// The store is seeded at the mount site instead. See ../../../../AGENTS.md.
+			const initializeQueryValues = jest.fn();
+			const disableQueryStringIntegration = jest.fn();
+
+			const app = new SearchApp( {
+				...defaultProps,
+				shouldIntegrateWithDom,
+				initializeQueryValues,
+				disableQueryStringIntegration,
+			} );
+
+			expect( app ).toBeInstanceOf( SearchApp );
+			expect( initializeQueryValues ).not.toHaveBeenCalled();
+			expect( disableQueryStringIntegration ).not.toHaveBeenCalled();
+		}
+	);
+
+	it( 'opens the overlay for a deep link in the Customizer', () => {
+		const makeSearchRequest = jest.fn();
+		render(
+			<SearchApp
+				{ ...defaultProps }
+				shouldIntegrateWithDom={ true }
+				isInCustomizer={ true }
+				hasActiveQuery={ true }
+				searchQuery="block"
+				makeSearchRequest={ makeSearchRequest }
+			/>
+		);
+
+		act( () => {
+			jest.advanceTimersByTime( 250 );
+		} );
+
+		expect( lastOverlayProps.isVisible ).toBe( true );
+		expect( makeSearchRequest ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'seeds static filters once when a deep link opens the overlay', () => {
+		window.JetpackInstantSearchOptions = {
+			staticFilters: [ { filter_id: 'group_id', selected: 'a' } ],
+		};
+		const setStaticFilter = jest.fn();
+
+		try {
+			render(
+				<SearchApp
+					{ ...defaultProps }
+					shouldIntegrateWithDom={ true }
+					hasActiveQuery={ true }
+					searchQuery="block"
+					overlayOptions={ { ...defaultProps.overlayOptions, enableFilteringOpensOverlay: true } }
+					makeSearchRequest={ jest.fn() }
+					setStaticFilter={ setStaticFilter }
+				/>
+			);
+		} finally {
+			delete window.JetpackInstantSearchOptions;
+		}
+
+		expect( setStaticFilter ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'requests results for a sort-only deep link without opening the overlay', () => {
+		const makeSearchRequest = jest.fn();
+		render(
+			<SearchApp
+				{ ...defaultProps }
+				shouldIntegrateWithDom={ true }
+				sort="newest"
+				searchQuery={ null }
+				makeSearchRequest={ makeSearchRequest }
+			/>
+		);
+
+		act( () => {
+			jest.advanceTimersByTime( 250 );
+		} );
+
+		expect( makeSearchRequest ).toHaveBeenCalledTimes( 1 );
+		expect( lastOverlayProps.isVisible ).toBe( false );
 	} );
 } );
