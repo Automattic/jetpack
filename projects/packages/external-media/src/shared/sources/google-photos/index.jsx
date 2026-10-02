@@ -1,6 +1,5 @@
-import moment from 'moment';
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { getGooglePhotosPickerCachedSessionId } from '../../media-service';
+import apiFetch from '@wordpress/api-fetch';
+import { useEffect, useState } from 'react';
 import { MediaSource } from '../../media-service/types';
 import withMedia from '../with-media';
 import GooglePhotosAuth from './google-photos-auth';
@@ -8,6 +7,7 @@ import GooglePhotosAuthUpgrade from './google-photos-auth-upgrade';
 import GooglePhotosLoading from './google-photos-loading';
 import GooglePhotosMedia from './google-photos-media';
 import GooglePhotosPickerButton from './google-photos-picker-button';
+import useGooglePhotosPickerSession from './use-google-photos-picker-session';
 import './style.scss';
 
 /**
@@ -17,49 +17,30 @@ import './style.scss';
  * @return {import('react').ReactElement} - JSX Element
  */
 function GooglePhotos( props ) {
-	const {
-		isAuthenticated,
-		pickerSession,
-		createPickerSession,
-		fetchPickerSession,
-		getPickerStatus,
-		setAuthenticated,
-	} = props;
+	const { isAuthenticated, setAuthenticated, noticeOperations } = props;
 
 	const [ pickerFeatureEnabled, setPickerFeatureEnabled ] = useState( null );
-	const [ isCachedSessionChecked, setIsCachedSessionChecked ] = useState( false );
 	const [ isAuthUpgradeRequired, setIsAuthUpgradeRequired ] = useState( false );
-	const [ sessionRequest, setSessionRequest ] = useState( 'idle' ); // 'idle' | 'pending' | 'failed'
-	const sessionRequestId = useRef( 0 );
 
 	const isLoadingState = pickerFeatureEnabled === null;
-	const isPickerSessionAccurate = pickerSession !== null && ! ( 'code' in pickerSession );
-	const isSessionExpired =
-		pickerSession?.expireTime && moment( pickerSession.expireTime ).isBefore( new Date() );
 
-	const requestPickerSession = useCallback( () => {
-		const requestId = ++sessionRequestId.current;
-		setSessionRequest( 'pending' );
-		return createPickerSession().then( session => {
-			if ( requestId === sessionRequestId.current ) {
-				setSessionRequest( session ? 'idle' : 'failed' );
-			}
-			return session;
-		} );
-	}, [ createPickerSession ] );
-
-	// A failed request shouldn't block the new session after a disconnect and reconnect.
-	useEffect( () => {
-		if ( ! isAuthenticated ) {
-			sessionRequestId.current++; // Drop the result of any request still in flight.
-			setSessionRequest( 'idle' );
-			setIsCachedSessionChecked( false );
-		}
-	}, [ isAuthenticated ] );
+	const {
+		pickerSession,
+		isSessionPending,
+		isSessionFailed,
+		requestPickerSession,
+		deletePickerSession,
+	} = useGooglePhotosPickerSession( {
+		isAuthenticated,
+		isReady: !! pickerFeatureEnabled && isAuthenticated && ! isAuthUpgradeRequired,
+		noticeOperations,
+	} );
 
 	// Check if the picker feature is enabled and the connection status
 	useEffect( () => {
-		getPickerStatus().then( picker => {
+		apiFetch( {
+			path: '/wpcom/v2/external-media/connection/google_photos/picker_status',
+		} ).then( picker => {
 			setPickerFeatureEnabled( picker.enabled );
 
 			switch ( picker.connection_status ) {
@@ -79,54 +60,7 @@ function GooglePhotos( props ) {
 					break;
 			}
 		} );
-	}, [ isAuthenticated, getPickerStatus, setAuthenticated ] );
-
-	// Check if the user has a cached session
-	useEffect( () => {
-		if ( ! pickerFeatureEnabled || ! isAuthenticated || isAuthUpgradeRequired ) {
-			return;
-		}
-
-		// Read the cookie now: a disconnect since mount clears it.
-		const cachedSessionId = getGooglePhotosPickerCachedSessionId();
-		if ( ! cachedSessionId ) {
-			setIsCachedSessionChecked( true );
-			return;
-		}
-
-		let isCurrent = true;
-		fetchPickerSession( cachedSessionId )
-			.catch( () => null )
-			.then( () => isCurrent && setIsCachedSessionChecked( true ) );
-
-		return () => {
-			isCurrent = false;
-		};
-	}, [ isAuthenticated, pickerFeatureEnabled, isAuthUpgradeRequired, fetchPickerSession ] );
-
-	// Create a new picker session if the cached session is not accurate
-	// or if the session has expired
-	useEffect( () => {
-		if (
-			pickerFeatureEnabled &&
-			isCachedSessionChecked &&
-			isAuthenticated &&
-			! isAuthUpgradeRequired &&
-			sessionRequest === 'idle' &&
-			( ! isPickerSessionAccurate || isSessionExpired )
-		) {
-			requestPickerSession();
-		}
-	}, [
-		pickerFeatureEnabled,
-		sessionRequest,
-		isAuthUpgradeRequired,
-		isCachedSessionChecked,
-		isPickerSessionAccurate,
-		isAuthenticated,
-		isSessionExpired,
-		requestPickerSession,
-	] );
+	}, [ isAuthenticated, setAuthenticated ] );
 
 	if ( isLoadingState ) {
 		return <GooglePhotosLoading { ...props } />;
@@ -144,8 +78,9 @@ function GooglePhotos( props ) {
 		return (
 			<GooglePhotosPickerButton
 				{ ...props }
-				isSessionPending={ sessionRequest === 'pending' }
-				isSessionFailed={ sessionRequest === 'failed' }
+				pickerSession={ pickerSession }
+				isSessionPending={ isSessionPending }
+				isSessionFailed={ isSessionFailed }
 				onRetry={ requestPickerSession }
 			/>
 		);
@@ -155,7 +90,9 @@ function GooglePhotos( props ) {
 		<GooglePhotosMedia
 			pickerFeatureEnabled={ pickerFeatureEnabled }
 			{ ...props }
+			pickerSession={ pickerSession }
 			createPickerSession={ requestPickerSession }
+			deletePickerSession={ deletePickerSession }
 		/>
 	);
 }

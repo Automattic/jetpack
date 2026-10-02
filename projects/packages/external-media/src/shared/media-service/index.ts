@@ -292,14 +292,6 @@ export const setGooglePhotosPickerSession = ( session: PickerSession ) => {
 };
 
 /**
- * Get Google Photos Picker session
- * @return {PickerSession} Media URL.
- */
-export const getGooglePhotosPickerSession = () => {
-	return select( mediaStore ).mediaPhotosPickerSession();
-};
-
-/**
  * Set Google Photos Picker session id to cookies
  * @param {string|null} sessionId - Session id
  */

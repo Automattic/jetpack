@@ -3,7 +3,6 @@ import { Button } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 import { Icon, external } from '@wordpress/icons';
 import clsx from 'clsx';
-import { useEffect } from 'react';
 import GooglePhotosAccount from './google-photos-account';
 
 /**
@@ -16,7 +15,6 @@ export default function GooglePhotosPickerButton( props ) {
 	const {
 		className,
 		pickerSession,
-		fetchPickerSession,
 		setAuthenticated,
 		account,
 		isSessionPending,
@@ -32,17 +30,6 @@ export default function GooglePhotosPickerButton( props ) {
 		}
 		pickerSession?.pickerUri && window.open( pickerSession.pickerUri );
 	};
-
-	useEffect( () => {
-		// The current session is being replaced, so there is nothing worth polling.
-		if ( isSessionPending || isSessionFailed ) {
-			return;
-		}
-		const interval = setInterval( () => {
-			pickerSession?.id && fetchPickerSession( pickerSession.id ).catch( () => {} );
-		}, 3000 );
-		return () => clearInterval( interval );
-	}, [ fetchPickerSession, pickerSession?.id, isSessionPending, isSessionFailed ] );
 
 	return (
 		<div className={ clsx( className, 'jetpack-external-media__google-photos-picker' ) }>
