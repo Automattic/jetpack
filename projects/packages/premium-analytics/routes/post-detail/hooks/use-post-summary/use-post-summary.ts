@@ -22,7 +22,7 @@ export type PostSummary = {
 	url?: string;
 	/** Whether the underlying stats request is still resolving. */
 	isLoading: boolean;
-	/** Whether the underlying stats request failed. */
+	/** Whether the stats request failed without a post to show. */
 	isError: boolean;
 	/** Re-runs the failed request, for the error state's Retry action. */
 	refetch: () => void;
@@ -122,7 +122,8 @@ export function usePostSummary( postId: number ): PostSummary {
 		url: url ?? carriedUrl,
 		// React Query calls a first load paused offline or in a hidden tab not loading.
 		isLoading: isLoading || ( isPending && isPaused ),
-		isError,
+		// A failed background refetch keeps the loaded post, so only a missing one is an error.
+		isError: isError && ! post,
 		refetch: retry,
 	};
 }

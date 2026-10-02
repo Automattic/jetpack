@@ -150,6 +150,27 @@ describe( 'origin window params', () => {
 		).toEqual( { ref_preset: 'last-7-days', ref_compare_preset: 'previous-year' } );
 	} );
 
+	it( 'returns a custom comparison by its dates', () => {
+		const comparison = { compare_from: '2025-01-01', compare_to: '2025-01-07' };
+		const stored = toReportOriginWindowParams( {
+			...normalizeReportParams( { preset: 'last-7-days' } ),
+			...comparison,
+			comp: '1',
+		} );
+
+		expect( stored ).toEqual( {
+			ref_preset: 'last-7-days',
+			ref_compare_from: '2025-01-01',
+			ref_compare_to: '2025-01-07',
+		} );
+		expect.assertions( 3 );
+		expectLink( buildDashboardLink( { post_id: '42', ...stored } ), '/', {
+			preset: 'last-7-days',
+			...comparison,
+			comp: '1',
+		} );
+	} );
+
 	it( 'stores nothing for an all-time window', () => {
 		expect(
 			toReportOriginWindowParams( { from: '2020-03-04', to: '2026-01-31', preset: 'all-time' } )

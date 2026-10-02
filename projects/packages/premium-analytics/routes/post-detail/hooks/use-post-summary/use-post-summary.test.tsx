@@ -199,6 +199,24 @@ describe( 'usePostSummary', () => {
 		expect( result.current.isLoading ).toBe( true );
 	} );
 
+	it( 'keeps a loaded post when a background refetch fails', () => {
+		mockStatsPost( { post_title: 'Hello', post_type: 'post' }, false, true );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current ).toMatchObject( { title: 'Hello', isError: false } );
+	} );
+
+	it( 'reports a failed load with no post as an error', () => {
+		mockStatsPost( undefined, false, true );
+		mockEntities( {} );
+
+		const { result } = renderHook( () => usePostSummary( POST_ID ) );
+
+		expect( result.current.isError ).toBe( true );
+	} );
+
 	it( 'skips the entity lookups for an invalid post ID', () => {
 		mockStatsPost( { post_title: 'Homepage', post_type: 'post' } );
 		mockEntities( { 'post:0': { link: 'https://example.com/' } } );
