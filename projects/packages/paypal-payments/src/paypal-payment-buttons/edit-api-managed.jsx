@@ -1448,8 +1448,16 @@ export default function ApiManagedEdit( {
 					label={ __( 'Add shipping', 'jetpack-paypal-payments' ) }
 					help={ __( 'Set shipping fees and get address', 'jetpack-paypal-payments' ) }
 					checked={ shippingEnabled }
+					// A profile tax still needs the address once shipping is off, so that one stays on.
 					onChange={ value =>
-						setAttributes( value ? { shippingEnabled: true } : turnGateOff( 'shippingEnabled' ) )
+						setAttributes(
+							value
+								? { shippingEnabled: true }
+								: {
+										...turnGateOff( 'shippingEnabled' ),
+										...( addressIsRequired ? { collectShippingAddress: true } : {} ),
+									}
+						)
 					}
 					disabled={ isBusy }
 				/>
