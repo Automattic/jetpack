@@ -179,6 +179,93 @@ function renderOverview() {
 	return { ...view, client };
 }
 
+describe( 'score bar', () => {
+	let intersect: IntersectionObserverCallback;
+	const disconnect = jest.fn();
+	const observer = jest.fn( ( callback: IntersectionObserverCallback ) => {
+		intersect = callback;
+		return { observe: jest.fn(), disconnect };
+	} );
+	const original = window.IntersectionObserver;
+
+	beforeEach( () => {
+		window.IntersectionObserver = observer as unknown as typeof IntersectionObserver;
+	} );
+
+	afterEach( () => {
+		window.IntersectionObserver = original;
+	} );
+
+	async function renderDashboard() {
+		const client = createQueryClient();
+		const onHeaderActionChange = jest.fn();
+		const dashboard = ( isVisible: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<div className="jp-admin-page__page">
+					<header data-testid="dashboard-header">Boost header</header>
+					<div style={ { overflowY: 'auto' } } data-testid="dashboard-scroller">
+						<Overview isVisible={ isVisible } onHeaderActionChange={ onHeaderActionChange } />
+					</div>
+				</div>
+			</QueryClientProvider>
+		);
+		const view = render( dashboard( true ) );
+		await expect( screen.findByRole( 'region', { name: 'Desktop' } ) ).resolves.toBeVisible();
+		return { hide: () => view.rerender( dashboard( false ) ) };
+	}
+
+	const entry = ( isIntersecting: boolean, bottom: number ) =>
+		( {
+			isIntersecting,
+			boundingClientRect: { bottom },
+			rootBounds: { top: 100 },
+		} ) as IntersectionObserverEntry;
+
+	const report = ( ...entries: IntersectionObserverEntry[] ) =>
+		act( () => intersect( entries, {} as IntersectionObserver ) );
+
+	test( 'renders into a slot between the header and the scroller it observes', async () => {
+		await renderDashboard();
+		const scroller = screen.getByTestId( 'dashboard-scroller' );
+		// eslint-disable-next-line testing-library/no-node-access
+		const slot = screen.getByTestId( 'dashboard-header' ).nextElementSibling;
+		expect( slot ).toHaveClass( 'jetpack-boost-score-bar-slot' );
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( slot?.nextElementSibling ).toBe( scroller );
+		expect( observer ).toHaveBeenCalledWith( expect.any( Function ), {
+			root: scroller,
+			threshold: 0,
+		} );
+		report( entry( false, 39 ) );
+		expect( slot ).toContainElement( screen.getByTestId( 'score-bar' ) );
+	} );
+
+	test( 'shows only while the latest entry has the card above the scroller', async () => {
+		await renderDashboard();
+		report( entry( false, 1200 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( true, 364 ), entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		report( entry( false, 39 ), entry( true, 364 ) );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+	} );
+
+	test( 'removes the bar, its slot and the observer when the Overview is hidden', async () => {
+		const { hide } = await renderDashboard();
+		report( entry( false, 39 ) );
+		expect( screen.getByTestId( 'score-bar' ) ).toBeVisible();
+		hide();
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		// eslint-disable-next-line testing-library/no-node-access
+		expect( screen.getByTestId( 'dashboard-header' ).nextElementSibling ).toBe(
+			screen.getByTestId( 'dashboard-scroller' )
+		);
+		expect( disconnect ).toHaveBeenCalledTimes( 1 );
+	} );
+} );
+
 test( 'shows the stock button loading treatment while a user speed test runs', async () => {
 	renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();
@@ -1075,7 +1162,10 @@ test( 'does not present initial loading scores as measured scores', () => {
 	expect( screen.queryByText( '81' ) ).not.toBeInTheDocument();
 	expect( screen.getByText( 'Calculating…' ) ).toBeVisible();
 	expect( screen.queryByRole( 'region', { name: 'Desktop' } ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'progressbar', { name: 'Desktop' } ) ).not.toBeInTheDocument();
+	expect( screen.getByRole( 'progressbar', { name: 'Testing site speed' } ) ).not.toHaveAttribute(
+		'value'
+	);
 	fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
 	expect( requestSpeedScores ).toHaveBeenCalledTimes( 1 );
 } );
@@ -1940,4 +2030,132 @@ test( 'legacy rating preserves the threshold boundary, destination and both trac
 	jest.mocked( useLegacyAlertState ).mockReturnValue( [ true, dismiss ] );
 	rerender( <PopOut scoreChange={ 6 } /> );
 	expect( screen.getByText( 'Your site got faster', { selector: 'h3' } ) ).not.toBeVisible();
+} );
+
+test.each( [ 'animationend', 'animationcancel' ] )(
+	'consumes the ready signal on %s and keeps saved scores static across hidden toggles',
+	async eventType => {
+		const client = createQueryClient();
+		const dashboard = ( isVisible: boolean ) => (
+			<QueryClientProvider client={ client }>
+				<div hidden={ ! isVisible }>
+					<OverviewWithHeader isVisible={ isVisible } />
+				</div>
+			</QueryClientProvider>
+		);
+		const { rerender } = render( dashboard( true ) );
+		const desktop = await screen.findByRole( 'region', { name: 'Desktop' } );
+		// eslint-disable-next-line testing-library/no-node-access -- The score row receives the shared entry signal.
+		const row = desktop.closest( '.jetpack-boost-overview__score-row' )!;
+		const completeRun = async () => {
+			let complete!: ( value: typeof scores ) => void;
+			jest.mocked( requestSpeedScores ).mockImplementationOnce(
+				() =>
+					new Promise( resolve => {
+						complete = resolve;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			await act( async () => complete( scores ) );
+		};
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		await completeRun();
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		fireEvent(
+			row,
+			Object.assign( new Event( eventType, { bubbles: true } ), {
+				animationName: 'jetpack-boost-score-entry',
+			} )
+		);
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		rerender( dashboard( false ) );
+		rerender( dashboard( true ) );
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		await completeRun();
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		rerender( dashboard( false ) );
+		rerender( dashboard( true ) );
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+	}
+);
+
+test( 'shares one ready signal with the condensed bar and does not replay it on scroll remount', async () => {
+	/* eslint-disable testing-library/no-node-access */
+	let intersect!: IntersectionObserverCallback;
+	const original = window.IntersectionObserver;
+	window.IntersectionObserver = jest.fn( callback => {
+		intersect = callback;
+		return { observe: jest.fn(), disconnect: jest.fn() };
+	} ) as unknown as typeof IntersectionObserver;
+	const client = createQueryClient();
+	const { unmount } = render(
+		<QueryClientProvider client={ client }>
+			<div className="jp-admin-page__page">
+				<header>Boost header</header>
+				<div style={ { overflowY: 'auto' } }>
+					<OverviewWithHeader />
+				</div>
+			</div>
+		</QueryClientProvider>
+	);
+	try {
+		const desktop = await screen.findByRole( 'region', { name: 'Desktop' } );
+		const row = desktop.closest( '.jetpack-boost-overview__score-row' )!;
+		const scroll = ( above: boolean ) =>
+			act( () =>
+				intersect(
+					[
+						{
+							isIntersecting: ! above,
+							boundingClientRect: { bottom: above ? 0 : 300 },
+							rootBounds: { top: 100 },
+						} as IntersectionObserverEntry,
+					],
+					{} as IntersectionObserver
+				)
+			);
+		const completeRun = async () => {
+			let complete!: ( value: typeof scores ) => void;
+			jest.mocked( requestSpeedScores ).mockImplementationOnce(
+				() =>
+					new Promise( resolve => {
+						complete = resolve;
+					} )
+			);
+			fireEvent.click( screen.getByRole( 'button', { name: 'Run speed test' } ) );
+			await act( async () => complete( scores ) );
+		};
+		scroll( true );
+		let bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		await completeRun();
+		const overall = bar.querySelector( '.jetpack-boost-score-bar__overall' )!;
+		expect( overall ).toHaveClass( 'jetpack-boost-score-ready' );
+		expect( bar.querySelectorAll( '.jetpack-boost-score-ready' ) ).toHaveLength( 3 );
+		expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
+		fireEvent(
+			overall,
+			Object.assign( new Event( 'animationend', { bubbles: true } ), {
+				animationName: 'jetpack-boost-score-entry',
+			} )
+		);
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		scroll( false );
+		scroll( true );
+		bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		await completeRun();
+		expect( bar.querySelectorAll( '.jetpack-boost-score-ready' ) ).toHaveLength( 3 );
+		scroll( false );
+		expect( screen.queryByTestId( 'score-bar' ) ).not.toBeInTheDocument();
+		scroll( true );
+		bar = screen.getByTestId( 'score-bar' );
+		expect( bar.querySelector( '.jetpack-boost-score-ready' ) ).toBeNull();
+		expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
+	} finally {
+		unmount();
+		window.IntersectionObserver = original;
+	}
+	/* eslint-enable testing-library/no-node-access */
 } );
