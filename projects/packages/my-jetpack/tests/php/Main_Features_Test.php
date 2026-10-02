@@ -17,7 +17,7 @@ class Main_Features_Test extends TestCase {
 	 */
 	public function test_every_feature_carries_the_required_fields() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
-			foreach ( array( 'name', 'description', 'long_description', 'icon', 'image', 'info_url', 'docs_url', 'delivery' ) as $key ) {
+			foreach ( array( 'name', 'description', 'long_description', 'icon', 'info_url', 'docs_url', 'delivery' ) as $key ) {
 				$this->assertNotEmpty( $feature[ $key ] ?? null, "Feature {$slug} has no {$key}." );
 			}
 
@@ -105,13 +105,24 @@ class Main_Features_Test extends TestCase {
 	}
 
 	/**
-	 * These are rendered as links and images straight into the page, so a typo'd or
+	 * Every feature's artwork ships with the package, under the name its URL points at.
+	 */
+	public function test_every_feature_has_a_bundled_image() {
+		foreach ( Main_Features::get_features() as $feature ) {
+			$path = 'components/my-jetpack-tab-panel/features/images/' . $feature['slug'] . '.webp';
+
+			$this->assertFileExists( dirname( __DIR__, 2 ) . '/_inc/' . $path, "Feature {$feature['slug']} has no image." );
+			$this->assertStringEndsWith( $path, $feature['screenshot'] );
+		}
+	}
+
+	/**
+	 * These are rendered as links straight into the page, so a typo'd or
 	 * non-https value would ship a broken card or a mixed-content warning.
 	 */
 	public function test_urls_are_absolute_https() {
 		foreach ( Main_Features::get_feature_definitions() as $slug => $feature ) {
 			$urls = array(
-				'image'      => $feature['image'],
 				'info_url'   => $feature['info_url'],
 				'docs_url'   => $feature['docs_url'],
 				'plugin_url' => $feature['delivery']['plugin_url'] ?? '',

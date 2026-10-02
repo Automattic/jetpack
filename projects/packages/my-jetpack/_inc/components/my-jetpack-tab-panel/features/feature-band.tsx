@@ -1,6 +1,5 @@
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon } from '@wordpress/ui';
-import { addQueryArgs } from '@wordpress/url';
 import clsx from 'clsx';
 import { useCallback, useState } from 'react';
 import { getFeatureIcon } from './icons';
@@ -11,7 +10,7 @@ type FeatureBandProps = {
 };
 
 /**
- * The artwork across the top of a feature's modal, served from jetpack.com.
+ * The artwork across the top of a feature's modal, bundled with this package.
  *
  * The band paints its own ground, so a missing or moved image leaves the feature's
  * glyph on it rather than a hole, and a loading one leaves just the ground.
@@ -40,13 +39,11 @@ export function FeatureBand( { feature }: FeatureBandProps ) {
 			className={ clsx( styles[ 'modal-band__image' ], {
 				[ styles[ 'modal-band__image--loaded' ] ]: hasLoaded,
 			} ) }
-			// jetpack.com resizes on request; the full files are several times the band's size.
-			src={ addQueryArgs( feature.screenshot, { w: 600 } ) }
+			src={ feature.screenshot }
 			onLoad={ onLoad }
 			onError={ onError }
 			decoding="async"
 			fetchPriority="high"
-			referrerPolicy="no-referrer"
 			alt={ sprintf(
 				/* translators: %s is the feature name. */
 				__( '%s in use', 'jetpack-my-jetpack' ),
