@@ -367,7 +367,11 @@
 }
 
 .vp-video-details__upload-bar {
+	--wp-components-color-foreground: #fff;
 	inline-size: 70%;
+	block-size: 4px;
+	background-color: rgb(255 255 255 / 40%);
+	text-align: start;
 }
 
 .vp-video-details__upload-status {
