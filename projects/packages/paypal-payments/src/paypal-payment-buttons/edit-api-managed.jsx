@@ -438,6 +438,7 @@ export default function ApiManagedEdit( {
 		resource,
 		isBusy,
 		linkDeleted,
+		readError,
 		paymentChanged,
 		dismissPaymentChanged,
 		handleDeleteButton,
@@ -1666,6 +1667,19 @@ export default function ApiManagedEdit( {
 					{ __(
 						'This payment link was deleted from PayPal, so the published button shows nothing. Updating the post creates a new link with a new URL and QR code. Remove the block instead if you no longer sell this.',
 						'jetpack-paypal-payments'
+					) }
+				</Notice>
+			) }
+
+			{ readError && (
+				<Notice status="error" isDismissible={ false }>
+					{ sprintf(
+						/* translators: %s: the error message from PayPal. */
+						__(
+							'This payment link could not be loaded from PayPal: %s Changes to it will not be saved until it loads. Reload the post to try again.',
+							'jetpack-paypal-payments'
+						),
+						readError
 					) }
 				</Notice>
 			) }
