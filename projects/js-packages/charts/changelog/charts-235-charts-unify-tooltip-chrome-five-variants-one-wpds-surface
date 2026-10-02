@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Tooltips: Draw every chart tooltip on one dark surface that matches the WordPress design system tooltip. `--a8c-charts-color-tooltip-surface` now sets that surface for every chart. For a light tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in `tooltipStyle`: LineChart no longer adds a dark background when `tooltipStyle` sets only `color`. A custom `renderGlyph` can now receive a `var()` color instead of a hex when the series has no palette color. Custom `renderTooltip` content that sets its own text color or draws its own card may need updating for the dark box. ConversionFunnelChart gains `tooltipStyle` to restyle the box itself.

@@ -91,7 +91,6 @@ export function MonthCalendarHeatmap( {
 				ariaLabel={ ariaLabel }
 				primaryColor="var(--wp-admin-theme-color, #3858e9)"
 				withTooltips
-				tooltipVariant="dark"
 				renderTooltip={ renderTooltip }
 				className={ styles.chart }
 			>

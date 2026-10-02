@@ -126,6 +126,59 @@ describe( 'BoundedTooltip', () => {
 		jest.restoreAllMocks();
 	} );
 
+	test( 'draws the package surface, not the visx default box', () => {
+		render(
+			<BoundedTooltip left={ 10 } top={ 10 } data-testid="box">
+				content
+			</BoundedTooltip>
+		);
+		const box = screen.getByTestId( 'box' );
+		expect( box ).toHaveClass( 'surface' );
+		expect( box ).not.toHaveStyle( { backgroundColor: 'white' } );
+		// toHaveStyle can't assert an absent inline style; box.style reads the empty string directly.
+		// eslint-disable-next-line jest-dom/prefer-to-have-style
+		expect( box.style.boxShadow ).toBe( '' );
+		// eslint-disable-next-line jest-dom/prefer-to-have-style
+		expect( box.style.padding ).toBe( '' );
+	} );
+
+	test( 'keeps a caller class beside the surface', () => {
+		render(
+			<BoundedTooltip left={ 10 } top={ 10 } className="extra" data-testid="box">
+				content
+			</BoundedTooltip>
+		);
+		expect( screen.getByTestId( 'box' ) ).toHaveClass( 'surface', 'extra' );
+	} );
+
+	test( 'drops the surface when unstyled', () => {
+		render(
+			<BoundedTooltip left={ 10 } top={ 10 } unstyled data-testid="box">
+				content
+			</BoundedTooltip>
+		);
+		expect( screen.getByTestId( 'box' ) ).not.toHaveClass( 'surface' );
+		expect( screen.getByTestId( 'box' ) ).not.toHaveClass( 'a8c-charts-scope' );
+	} );
+
+	test( 're-declares the chart catalog on a styled box, so its roles resolve for the tooltip theme', () => {
+		render(
+			<BoundedTooltip left={ 10 } top={ 10 } data-testid="box">
+				content
+			</BoundedTooltip>
+		);
+		expect( screen.getByTestId( 'box' ) ).toHaveClass( 'a8c-charts-scope', 'surface' );
+	} );
+
+	test( 'lets an inline style override the surface', () => {
+		render(
+			<BoundedTooltip left={ 10 } top={ 10 } style={ { background: 'red' } } data-testid="box">
+				content
+			</BoundedTooltip>
+		);
+		expect( screen.getByTestId( 'box' ) ).toHaveStyle( { background: 'red' } );
+	} );
+
 	test( 'keeps the box inside an overflow-hidden ancestor that is wider than the wrapper', () => {
 		// Card at x=400 (400 wide, overflow hidden); plot wrapper at x=440, 346 wide.
 		jest.spyOn( Element.prototype, 'getBoundingClientRect' ).mockImplementation( function (
@@ -209,7 +262,7 @@ describe( 'BoundedTooltip', () => {
 				left: `${ pointerLeft }px`,
 				top: '-6px',
 				width: '12px',
-				height: '6px',
+				height: '7px',
 			} );
 			expect( screen.getByTestId( 'tooltip-axis-pointer' ) ).toHaveAttribute(
 				'aria-hidden',

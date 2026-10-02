@@ -140,54 +140,26 @@ describe( 'LineChart', () => {
 			} );
 		}
 	);
-	test.each( [
-		[
-			{ color: 'white' },
-			'rgb(255, 255, 255)',
-			'var(--a8c-charts-color-tooltip-surface, rgb(0 0 0 / 85%))',
-			{ color: 'rgb(255, 255, 255)' },
-		],
-		[ { backgroundColor: 'white' }, 'var(--a8c-charts-color-label)', 'rgb(255, 255, 255)', {} ],
-		[ { background: 'white' }, 'var(--a8c-charts-color-label)', 'white', {} ],
-		[
-			{ color: 'white', background: 'black' },
-			'rgb(255, 255, 255)',
-			'black',
-			{ color: 'rgb(255, 255, 255)' },
-		],
-	] )(
-		'applies directional tooltip color defaults: %j',
-		async ( tooltipStyle, color, background, containerColorStyle ) => {
-			const user = userEvent.setup();
-			const defaults = document.createElement( 'style' );
-			defaults.textContent = `.line-chart__tooltip {
-				color: var(--a8c-charts-color-label);
-				background: var(--a8c-charts-color-surface);
-			}`;
-			renderWithTheme( { tooltipStyle } );
-			const chart = screen.getByTestId( 'line-chart' );
-			chart.appendChild( defaults );
-			chart.style.setProperty( '--a8c-charts-color-label', '#000' );
-			chart.style.setProperty( '--a8c-charts-color-label-axis', '#aaa' );
-			chart.style.setProperty( '--a8c-charts-color-surface', '#fff' );
-			screen.getByRole( 'grid', { name: /line chart/i } ).focus();
-			await user.keyboard( '{ArrowRight}' );
+	test( 'passes a color-only tooltipStyle through with no background added', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { tooltipStyle: { color: 'white' } } );
+		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
 
-			const content = screen.getByTestId( 'line-chart-tooltip-content' );
-			expect( content ).toHaveStyle( {
-				color,
-				[ 'backgroundColor' in tooltipStyle ? 'background-color' : 'background' ]:
-					'background' in tooltipStyle || 'backgroundColor' in tooltipStyle
-						? background
-						: 'var(--a8c-charts-color-surface)',
-			} );
-			const container = screen.getByTestId( 'bounded-tooltip' );
-			expect( container ).toHaveStyle( {
-				...containerColorStyle,
-				[ 'background' in tooltipStyle ? 'background' : 'background-color' ]: background,
-			} );
-		}
-	);
+		const box = screen.getByTestId( 'bounded-tooltip' );
+		expect( box ).toHaveStyle( { color: 'rgb(255, 255, 255)' } );
+		expect( box ).not.toHaveAttribute( 'style', expect.stringContaining( 'background' ) );
+	} );
+
+	test( 'paints a tooltipStyle background on the box, not on the default content', async () => {
+		const user = userEvent.setup();
+		renderWithTheme( { tooltipStyle: { background: 'black' } } );
+		screen.getByRole( 'grid', { name: /line chart/i } ).focus();
+		await user.keyboard( '{ArrowRight}' );
+
+		expect( screen.getByTestId( 'bounded-tooltip' ) ).toHaveStyle( { background: 'black' } );
+		expect( screen.getByTestId( 'line-chart-tooltip-content' ) ).not.toHaveAttribute( 'style' );
+	} );
 
 	test( 'preserves the existing tooltip colors for noncolor overrides', async () => {
 		const user = userEvent.setup();

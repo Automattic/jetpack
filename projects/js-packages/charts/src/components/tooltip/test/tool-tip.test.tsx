@@ -36,6 +36,11 @@ describe( 'BaseTooltip', () => {
 		} );
 	} );
 
+	test( 'renders the standalone container on the tooltip chrome', () => {
+		render( <BaseTooltip { ...defaultProps } /> );
+		expect( screen.getByRole( 'tooltip' ) ).toHaveClass( 'tooltip' );
+	} );
+
 	test( 'handles missing valueDisplay', () => {
 		const propsWithoutDisplay = {
 			...defaultProps,
