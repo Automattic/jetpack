@@ -69,7 +69,8 @@ class Embeds extends WP_REST_Controller {
 	}
 
 	/**
-	 * Whether the editor offers the embed block.
+	 * Whether the editor offers the embed block. The route is registered on every WordPress.com
+	 * site, so this is also what keeps it closed where the comment form is not on.
 	 *
 	 * @return bool
 	 */
@@ -81,7 +82,7 @@ class Embeds extends WP_REST_Controller {
 		 *
 		 * @param bool $enabled Whether to offer it. Default true, wherever the block editor is on.
 		 */
-		return Block_Editor::is_enabled() && (bool) apply_filters( 'jetpack_comments_block_editor_embeds', true );
+		return Comments::is_enabled() && Block_Editor::is_enabled() && (bool) apply_filters( 'jetpack_comments_block_editor_embeds', true );
 	}
 
 	/**
