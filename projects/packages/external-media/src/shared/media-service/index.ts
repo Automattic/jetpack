@@ -305,7 +305,7 @@ export const getGooglePhotosPickerSession = () => {
 export const setGooglePhotosPickeCachedSessionId = ( sessionId: string | null ) => {
 	wpCookies.set(
 		GOOGLE_PHOTOS_PICKER_SESSION,
-		sessionId,
+		sessionId ?? '', // wpCookies would store null as the string "null".
 		604800, // 7 days
 		'/',
 		`.${ window.location.hostname.split( '.' ).slice( -2 ).join( '.' ) }`

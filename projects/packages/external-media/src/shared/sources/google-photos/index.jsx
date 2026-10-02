@@ -88,8 +88,13 @@ function GooglePhotos( props ) {
 
 		// Read the cookie now: a disconnect since mount clears it.
 		const cachedSessionId = getGooglePhotosPickerCachedSessionId();
+		if ( ! cachedSessionId ) {
+			setIsCachedSessionChecked( true );
+			return;
+		}
+
 		let isCurrent = true;
-		Promise.resolve( cachedSessionId && fetchPickerSession( cachedSessionId ) )
+		fetchPickerSession( cachedSessionId )
 			.catch( () => null )
 			.then( () => isCurrent && setIsCachedSessionChecked( true ) );
 

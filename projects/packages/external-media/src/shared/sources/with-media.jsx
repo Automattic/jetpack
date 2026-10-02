@@ -88,12 +88,17 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 				}
 			};
 
-			// Bumped on disconnect so picker session responses for the old connection are dropped.
-			pickerSessionGeneration = 0;
+			// Picker session requests only touch the store while their controller is still current.
+			pickerSessionController = new window.AbortController();
+
+			supersedePickerSessionRequests = () => {
+				this.pickerSessionController.abort();
+				this.pickerSessionController = new window.AbortController();
+			};
 
 			setAuthenticated = isAuthenticated => {
 				if ( ! isAuthenticated && mediaSource === MediaSource.GooglePhotos ) {
-					this.pickerSessionGeneration++;
+					this.supersedePickerSessionRequests();
 					setGooglePhotosPickerSession( null );
 				}
 				this.setState( { isAuthenticated } );
@@ -279,12 +284,14 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			// Resolves null on failure, after showing an error notice.
 			createPickerSession = () => {
 				const { noticeOperations } = this.props;
-				const generation = this.pickerSessionGeneration;
+				this.supersedePickerSessionRequests();
+				const { signal } = this.pickerSessionController;
 				noticeOperations.removeAllNotices();
 
 				return apiFetch( {
 					path: '/wpcom/v2/external-media/session/google_photos',
 					method: 'POST',
+					signal,
 				} )
 					.then( response => {
 						if ( 'code' in response ) {
@@ -293,14 +300,16 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						return response;
 					} )
 					.then( session => {
-						if ( generation !== this.pickerSessionGeneration ) {
+						if ( signal.aborted ) {
 							return null;
 						}
+						// Drop polls of the previous session that started while this request was pending.
+						this.supersedePickerSessionRequests();
 						setGooglePhotosPickerSession( session );
 						return session;
 					} )
 					.catch( () => {
-						if ( generation !== this.pickerSessionGeneration ) {
+						if ( signal.aborted ) {
 							return null;
 						}
 						noticeOperations.createErrorNotice(
@@ -314,11 +323,12 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 			};
 
 			fetchPickerSession = sessionId => {
-				const generation = this.pickerSessionGeneration;
+				const { signal } = this.pickerSessionController;
 
 				return apiFetch( {
 					path: `/wpcom/v2/external-media/session/google_photos/${ sessionId }`,
 					method: 'GET',
+					signal,
 				} )
 					.then( response => {
 						if ( 'code' in response ) {
@@ -327,7 +337,7 @@ export default function withMedia( mediaSource = MediaSource.Unknown, mediaOptio
 						return response;
 					} )
 					.then( session => {
-						if ( generation === this.pickerSessionGeneration ) {
+						if ( ! signal.aborted ) {
 							setGooglePhotosPickerSession( session );
 						}
 						return session;
