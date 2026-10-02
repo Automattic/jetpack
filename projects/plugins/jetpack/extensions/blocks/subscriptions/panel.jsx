@@ -17,22 +17,11 @@ import {
 import { useLayoutEffect, useRef, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { external, Icon } from '@wordpress/icons';
-import {
-	accessOptions,
-	META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS,
-} from '../../shared/memberships/constants';
+import { META_NAME_FOR_POST_DONT_EMAIL_TO_SUBS } from '../../shared/memberships/constants';
 import { useAccessLevel, isNewsletterFeatureEnabled } from '../../shared/memberships/edit';
-import {
-	NewsletterAccessDocumentSettings,
-	NewsletterEmailDocumentSettings,
-} from '../../shared/memberships/settings';
-import SubscribersAffirmation from '../../shared/memberships/subscribers-affirmation';
-import {
-	getShowMisconfigurationWarning,
-	MisconfigurationWarning,
-} from '../../shared/memberships/utils';
 import { store as membershipProductsStore } from '../../store/membership-products';
 import { NewsletterTestEmailModal } from './email-preview';
+import NewsletterOverview, { NewsletterOverviewTitle } from './newsletter-overview';
 
 import './panel.scss';
 
@@ -95,15 +84,15 @@ function NewsletterRepublishTracker() {
 	return null;
 }
 
-function NewsletterEditorSettingsPanel( { accessLevel } ) {
+function NewsletterPostSettingsPanel( props ) {
 	return (
 		<PluginDocumentSettingPanel
 			className="jetpack-subscribe-newsletter-panel"
-			title={ __( 'Audience', 'jetpack' ) }
+			title={ <NewsletterOverviewTitle accessLevel={ props.accessLevel } /> }
 			icon={ <JetpackEditorPanelLogo /> }
 			name="jetpack-subscribe-newsletters-editor-panel"
 		>
-			<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
+			<NewsletterOverview { ...props } />
 		</PluginDocumentSettingPanel>
 	);
 }
@@ -127,7 +116,7 @@ const NewsletterDisabledNotice = () => {
 	}
 
 	return (
-		<Notice status="info" isDismissible={ false } className="edit-post-post-visibility__notice">
+		<Notice status="warning" isDismissible={ false } className="edit-post-post-visibility__notice">
 			{ message }
 		</Notice>
 	);
@@ -159,51 +148,21 @@ const NewsletterDisabledPanels = () => (
 	</>
 );
 
-function NewsletterPrePublishSettingsPanel( { accessLevel, showPreviewModal } ) {
-	const postVisibility = useSelect( select => select( editorStore ).getEditedPostVisibility() );
-	const showMisconfigurationWarning = getShowMisconfigurationWarning( postVisibility, accessLevel );
-
+function NewsletterPrePublishSettingsPanel( props ) {
 	return (
-		<>
-			<PluginPrePublishPanel
-				initialOpen
-				name="jetpack-subscribe-access-panel"
-				className="jetpack-subscribe-newsletters-panel"
-				title={
-					<>
-						{ __( 'Audience:', 'jetpack' ) }
-						{ accessLevel && (
-							<span className={ 'jetpack-subscribe-post-publish-panel__heading' }>
-								{ accessOptions[ accessLevel ].label }
-							</span>
-						) }
-					</>
-				}
-				icon={ <JetpackEditorPanelLogo /> }
-			>
-				<NewsletterAccessDocumentSettings accessLevel={ accessLevel } />
-			</PluginPrePublishPanel>
-			<PluginPrePublishPanel
-				initialOpen
-				name="jetpack-subscribe-newsletters-panel"
-				title={ __( 'Newsletter', 'jetpack' ) }
-				icon={ <JetpackEditorPanelLogo /> }
-			>
-				<NewsletterEmailDocumentSettings />
-				{ showMisconfigurationWarning ? (
-					<MisconfigurationWarning />
-				) : (
-					<SubscribersAffirmation prePublish={ true } accessLevel={ accessLevel } />
-				) }
-				<Button variant="link" onClick={ showPreviewModal }>
-					{ __( 'Send test email', 'jetpack' ) }
-				</Button>
-			</PluginPrePublishPanel>
-		</>
+		<PluginPrePublishPanel
+			initialOpen
+			name="jetpack-subscribe-newsletters-panel"
+			className="jetpack-subscribe-newsletters-panel"
+			title={ <NewsletterOverviewTitle accessLevel={ props.accessLevel } /> }
+			icon={ <JetpackEditorPanelLogo /> }
+		>
+			<NewsletterOverview { ...props } prePublish />
+		</PluginPrePublishPanel>
 	);
 }
 
-function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
+function NewsletterPostPublishSettingsPanel( props ) {
 	const { isStripeConnected } = useSelect( select => {
 		const { getConnectUrl } = select( membershipProductsStore );
 		return {
@@ -215,12 +174,12 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 		<>
 			<PluginPostPublishPanel
 				initialOpen
-				title={ __( 'Newsletter', 'jetpack' ) }
+				title={ <NewsletterOverviewTitle accessLevel={ props.accessLevel } /> }
 				className="jetpack-subscribe-newsletters-panel jetpack-subscribe-post-publish-panel"
 				icon={ <JetpackEditorPanelLogo /> }
 				name="jetpack-subscribe-newsletters-postpublish-panel"
 			>
-				<SubscribersAffirmation accessLevel={ accessLevel } />
+				<NewsletterOverview { ...props } />
 			</PluginPostPublishPanel>
 
 			{ ! isStripeConnected && (
@@ -258,7 +217,7 @@ function NewsletterPostPublishSettingsPanel( { accessLevel } ) {
 	);
 }
 
-export default function SubscribePanels() {
+export default function SubscribePanels( { openPreviewModal } ) {
 	const postType = useSelect( select => select( editorStore ).getCurrentPostType(), [] );
 	const [ isModalOpen, setIsModalOpen ] = useState( false );
 
@@ -280,18 +239,29 @@ export default function SubscribePanels() {
 		return <NewsletterDisabledPanels />;
 	}
 
+	// Each panel records its own event, so sidebar clicks aren't counted as pre-publish ones.
+	const overviewProps = {
+		accessLevel,
+		openPreviewModal,
+		openTestEmailModal: () => {
+			tracks.recordEvent( 'jetpack_newsletter_test_email_opened', { source: 'newsletter_panel' } );
+			setIsModalOpen( true );
+		},
+	};
+	const openPrePublishTestEmailModal = () => {
+		tracks.recordEvent( 'jetpack_send_email_preview_prepublish_preview_button' );
+		setIsModalOpen( true );
+	};
+
 	return (
 		<>
 			<NewsletterRepublishTracker />
-			<NewsletterEditorSettingsPanel accessLevel={ accessLevel } />
+			<NewsletterPostSettingsPanel { ...overviewProps } />
 			<NewsletterPrePublishSettingsPanel
-				accessLevel={ accessLevel }
-				showPreviewModal={ () => {
-					tracks.recordEvent( 'jetpack_send_email_preview_prepublish_preview_button' );
-					setIsModalOpen( true );
-				} }
+				{ ...overviewProps }
+				openTestEmailModal={ openPrePublishTestEmailModal }
 			/>
-			<NewsletterPostPublishSettingsPanel accessLevel={ accessLevel } />
+			<NewsletterPostPublishSettingsPanel { ...overviewProps } />
 			<NewsletterTestEmailModal isOpen={ isModalOpen } onClose={ () => setIsModalOpen( false ) } />
 		</>
 	);
