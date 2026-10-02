@@ -168,6 +168,70 @@ function renderOverview() {
 	return { ...view, client };
 }
 
+test( 'wires the score summary below the header, uses the latest intersection and removes the slot when hidden', async () => {
+	/* eslint-disable testing-library/no-node-access */
+	let intersect: IntersectionObserverCallback;
+	const disconnect = jest.fn();
+	const original = window.IntersectionObserver;
+	const observer = jest.fn( callback => {
+		intersect = callback;
+		return { observe: jest.fn(), disconnect };
+	} );
+	window.IntersectionObserver = observer as unknown as typeof IntersectionObserver;
+	const client = createQueryClient();
+	const onHeaderActionChange = jest.fn();
+	const dashboard = ( isVisible = true ) => (
+		<QueryClientProvider client={ client }>
+			<div className="jp-admin-page__page">
+				<header data-testid="dashboard-header">Boost header</header>
+				<div style={ { overflowY: 'auto' } } data-testid="dashboard-scroller">
+					<Overview isVisible={ isVisible } onHeaderActionChange={ onHeaderActionChange } />
+				</div>
+			</div>
+		</QueryClientProvider>
+	);
+	const { rerender, unmount } = render( dashboard() );
+	try {
+		await expect( screen.findByRole( 'region', { name: 'Desktop' } ) ).resolves.toBeVisible();
+		const header = screen.getByTestId( 'dashboard-header' );
+		const slot = header.nextElementSibling;
+		expect( slot ).toHaveClass( 'jetpack-boost-score-bar-slot' );
+		expect( slot?.nextElementSibling ).toBe( screen.getByTestId( 'dashboard-scroller' ) );
+		expect( observer ).toHaveBeenCalledWith( expect.any( Function ), {
+			root: screen.getByTestId( 'dashboard-scroller' ),
+			threshold: 0,
+		} );
+		const entry = ( isIntersecting: boolean, bottom: number ) =>
+			( {
+				isIntersecting,
+				boundingClientRect: { bottom },
+				rootBounds: { top: 100 },
+			} ) as IntersectionObserverEntry;
+		act( () => intersect( [ entry( false, 1200 ) ], {} as IntersectionObserver ) );
+		expect( screen.queryByLabelText( 'Site speed summary' ) ).not.toBeInTheDocument();
+		act( () =>
+			intersect( [ entry( true, 364 ), entry( false, 39 ) ], {} as IntersectionObserver )
+		);
+		expect( screen.getByLabelText( 'Site speed summary' ) ).toBeVisible();
+		expect( slot ).toContainElement( screen.getByLabelText( 'Site speed summary' ) );
+		act( () =>
+			intersect( [ entry( false, 39 ), entry( true, 364 ) ], {} as IntersectionObserver )
+		);
+		expect( screen.queryByLabelText( 'Site speed summary' ) ).not.toBeInTheDocument();
+		act( () => intersect( [ entry( false, 39 ) ], {} as IntersectionObserver ) );
+		expect( screen.getByLabelText( 'Site speed summary' ) ).toBeVisible();
+		rerender( dashboard( false ) );
+		expect( screen.queryByLabelText( 'Site speed summary' ) ).not.toBeInTheDocument();
+		expect( slot ).not.toBeInTheDocument();
+		expect( header.nextElementSibling ).toBe( screen.getByTestId( 'dashboard-scroller' ) );
+		expect( disconnect ).toHaveBeenCalledTimes( 1 );
+	} finally {
+		unmount();
+		window.IntersectionObserver = original;
+	}
+	/* eslint-enable testing-library/no-node-access */
+} );
+
 test( 'shows the stock button loading treatment while a user speed test runs', async () => {
 	renderOverview();
 	await expect( screen.findByText( '91' ) ).resolves.toBeTruthy();

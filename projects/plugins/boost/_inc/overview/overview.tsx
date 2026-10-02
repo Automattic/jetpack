@@ -3,6 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { __ } from '@wordpress/i18n';
 import { Button, Notice } from '@wordpress/ui';
 import { useCallback, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
@@ -27,6 +28,8 @@ import {
 	usePerformanceHistory,
 } from './lib/use-performance-history';
 import { useSpeedScores } from './lib/use-speed-scores';
+import { useScoreCardVisibility } from './lib/use-score-card-visibility';
+import ScoreBar from './score-bar';
 import ScoreCards from './score-cards';
 import './overview.scss';
 import type { ReactNode } from 'react';
@@ -95,6 +98,8 @@ function OverviewContent( {
 	const queryClient = useQueryClient();
 	const online = isSiteOnline();
 	const isLoading = scoreState.status === 'loading';
+	const scoreCardRef = useRef< HTMLDivElement >( null );
+	const { slot, isAboveViewport } = useScoreCardVisibility( scoreCardRef, isVisible && online );
 
 	useEffect( () => {
 		const onModulesChange = ( event: Event ) => {
@@ -190,16 +195,22 @@ function OverviewContent( {
 
 	return (
 		<div className="jetpack-boost-overview">
-			<ScoreCards
-				headingRef={ scoreHeadingRef }
-				scores={ scoreState.scores }
-				isLoading={ isLoading }
-				isRunning={ scoreState.isRunning }
-				hasScores={ scoreState.hasScores }
-				error={ scoreState.error }
-				onRetry={ () => onRefresh( 'score_card' ) }
-				isVisible={ isVisible }
-			/>
+			{ isVisible &&
+				isAboveViewport &&
+				slot &&
+				createPortal( <ScoreBar state={ scoreState } />, slot ) }
+			<div ref={ scoreCardRef }>
+				<ScoreCards
+					headingRef={ scoreHeadingRef }
+					scores={ scoreState.scores }
+					isLoading={ isLoading }
+					isRunning={ scoreState.isRunning }
+					hasScores={ scoreState.hasScores }
+					error={ scoreState.error }
+					onRetry={ () => onRefresh( 'score_card' ) }
+					isVisible={ isVisible }
+				/>
+			</div>
 			<ScoreAlert
 				onBeforeHide={ () => scoreHeadingRef.current?.focus() }
 				scoreChange={
