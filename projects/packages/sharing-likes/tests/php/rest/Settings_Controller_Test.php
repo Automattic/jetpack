@@ -247,6 +247,26 @@ class Settings_Controller_Test extends BaseTestCase {
 		$this->assertFalse( get_option( 'sharing-options' ) );
 	}
 
+	public function test_rejects_null_rather_than_saving_it_as_off_or_empty(): void {
+		$this->given_both_features_running();
+		update_option( Twitter_Site_Tag::OPTION, 'jetpack' );
+
+		$response = $this->request(
+			'POST',
+			'settings',
+			array(
+				'likes_enabled'    => null,
+				'twitter_site_tag' => null,
+				'show'             => null,
+			)
+		);
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertEmpty( get_option( 'disabled_likes' ) );
+		$this->assertSame( 'jetpack', get_option( Twitter_Site_Tag::OPTION ) );
+		$this->assertFalse( get_option( 'sharing-options' ) );
+	}
+
 	public function test_saving_turns_likes_off_and_back_on(): void {
 		$this->given_both_features_running();
 

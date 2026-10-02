@@ -54,7 +54,13 @@ final class Settings_Controller extends Controller {
 					'methods'             => WP_REST_Server::EDITABLE,
 					'callback'            => array( $this, 'update_item' ),
 					'permission_callback' => array( $this, 'permission_check' ),
-					'args'                => $this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE ),
+					// Core skips its validate callback for `null`, then sanitizes it to `false` or `''`; this one validates first.
+					'args'                => array_map(
+						function ( $arg ) {
+							return array_merge( $arg, array( 'sanitize_callback' => 'rest_parse_request_arg' ) );
+						},
+						$this->get_endpoint_args_for_item_schema( WP_REST_Server::EDITABLE )
+					),
 				),
 			)
 		);
