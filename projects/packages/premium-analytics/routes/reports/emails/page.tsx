@@ -17,6 +17,7 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
 import type { JSX } from 'react';
@@ -58,6 +59,7 @@ function getEmailRowId( item: StatsEmailSummaryItem ): string {
  */
 function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getEmailsFields(), [] );
 	const retry = useReportRetry( records.refetch );
 
@@ -72,6 +74,7 @@ function EmailsReport(): JSX.Element {
 					exporter={ emailsCsvExporter }
 					items={ records.rows }
 					status={ records }
+					reportParams={ reportParams }
 				/>
 			}
 		>
