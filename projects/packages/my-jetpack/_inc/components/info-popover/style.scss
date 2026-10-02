@@ -1,21 +1,17 @@
 .my-jetpack-info-popover {
 	max-inline-size: 320px;
 
-	// Unstyled so hover shows no background; the focus ring is ours to keep.
+	// A plain trigger around the icon, as in the design system's Infotip pattern.
 	&__trigger {
 		display: inline-flex;
 		align-items: center;
 		gap: calc(var(--spacing-base) / 4);
 		padding: 0;
-		border-radius: 2px;
+		border: none;
+		border-radius: var(--wpds-border-radius-sm);
+		background: none;
 		color: var(--jp-gray-50);
-		cursor: pointer;
-
-		// The info glyph's circle fills 2/3 of its box, so 21px draws a 14px circle.
-		svg {
-			width: 21px;
-			height: 21px;
-		}
+		cursor: var(--wpds-cursor-control);
 
 		&:hover {
 			color: var(--jp-gray-100);

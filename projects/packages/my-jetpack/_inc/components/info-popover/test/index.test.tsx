@@ -1,7 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { Button } from '@wordpress/ui';
 import { InfoPopover } from '../';
 import useAnalytics from '../../../hooks/use-analytics';
 
@@ -78,20 +77,25 @@ describe( 'InfoPopover', () => {
 		expect( recordEvent ).not.toHaveBeenCalled();
 	} );
 
-	it( 'opens from a custom trigger', async () => {
+	it( 'opens on hover', async () => {
+		renderPopover();
+
+		await userEvent.hover( screen.getByRole( 'button', TRIGGER ) );
+
+		await expect( screen.findByRole( 'dialog' ) ).resolves.toHaveAccessibleName( TITLE );
+	} );
+
+	it( 'shows trigger content under a custom label', async () => {
 		renderPopover( {
-			trigger: (
-				<Button variant="unstyled" aria-label="2 failed backups. More about backups">
-					2
-				</Button>
-			),
+			triggerLabel: '2 failed backups. More about backups',
+			triggerContent: 2,
 		} );
 
 		expect( screen.queryByRole( 'button', TRIGGER ) ).not.toBeInTheDocument();
-		await userEvent.click(
-			screen.getByRole( 'button', { name: '2 failed backups. More about backups' } )
-		);
+		const trigger = screen.getByRole( 'button', { name: '2 failed backups. More about backups' } );
+		expect( trigger ).toHaveTextContent( '2' );
 
+		await userEvent.click( trigger );
 		await expect( screen.findByRole( 'dialog' ) ).resolves.toHaveAccessibleName( TITLE );
 	} );
 } );

@@ -1,6 +1,4 @@
 import { __, _n, sprintf } from '@wordpress/i18n';
-import { info } from '@wordpress/icons';
-import { Button } from '@wordpress/ui';
 import { useMemo } from 'react';
 import {
 	protectCardShieldOff as ShieldOff,
@@ -93,25 +91,18 @@ const ThreatStatus: FC< ThreatStatusProps > = ( { data, numThreats, criticalThre
 							has_paid_plan: true,
 							threats: numThreats,
 						} }
-						trigger={
-							<Button
-								variant="unstyled"
-								className="my-jetpack-info-popover__trigger my-jetpack-info-popover__trigger--critical"
-								aria-label={ sprintf(
-									/* translators: %d is the number of critical threats found by the last scan. */
-									_n(
-										'%d critical threat. More about threats',
-										'%d critical threats. More about threats',
-										criticalThreatCount,
-										'jetpack-my-jetpack'
-									),
-									criticalThreatCount
-								) }
-							>
-								<Button.Icon icon={ info } />
-								{ criticalThreatCount }
-							</Button>
-						}
+						critical
+						triggerContent={ criticalThreatCount }
+						triggerLabel={ sprintf(
+							/* translators: %d is the number of critical threats found by the last scan. */
+							_n(
+								'%d critical threat. More about threats',
+								'%d critical threats. More about threats',
+								criticalThreatCount,
+								'jetpack-my-jetpack'
+							),
+							criticalThreatCount
+						) }
 					/>
 				</div>
 				<div className="value-section__data">
