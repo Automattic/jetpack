@@ -154,6 +154,29 @@ describe( 'XyChartTooltip', () => {
 		} );
 	} );
 
+	test( 'places the unbounded box at the anchor plus the default offsets', async () => {
+		renderChart( { detectBounds: false } );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).toHaveStyle( { position: 'absolute', left: '133px', top: '55px' } );
+		expect( box ).toHaveClass( 'visx-tooltip' );
+	} );
+
+	test( 'places the unbounded box with custom offsets', async () => {
+		renderChart( { detectBounds: false, offsetLeft: 4, offsetTop: 2 } );
+		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {
+			left: '127px',
+			top: '47px',
+		} );
+	} );
+
+	test( 'keeps the unstyled unbounded box positioned but drops caller style and zIndex', async () => {
+		renderChart( { detectBounds: false, unstyled: true, style: { background: 'purple' } } );
+		const box = await screen.findByTestId( 'tooltip-box' );
+		expect( box ).toHaveStyle( { position: 'absolute', left: '133px', top: '55px' } );
+		expect( box ).not.toHaveStyle( { background: 'purple' } );
+		expect( box ).not.toHaveStyle( { zIndex: '3' } );
+	} );
+
 	test( 'pins beside placement to the explicit SVG top anchor', async () => {
 		renderChart( { tooltipPlacement: 'beside', tooltipAnchorTop: 20, snapTooltipToDatumY: true } );
 		await expect( screen.findByTestId( 'tooltip-box' ) ).resolves.toHaveStyle( {

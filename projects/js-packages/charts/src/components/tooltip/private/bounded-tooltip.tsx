@@ -15,7 +15,6 @@ export type BoundedTooltipProps = Omit< TooltipBoxProps, 'children' > & {
 	offsetLeft?: number;
 	offsetTop?: number;
 	placement?: TooltipPlacement;
-	applyPositionStyle?: boolean;
 };
 
 const DEFAULT_OFFSET = 10;
@@ -145,17 +144,16 @@ export const getBoundedPosition = ( {
  * Re-measures on every render, so a box whose content changes width between
  * two hovers is placed for its current size.
  *
- * @param props                    - `TooltipBox` props plus placement.
- * @param props.left               - Anchor x, in wrapper coordinates.
- * @param props.top                - Anchor y, in wrapper coordinates.
- * @param props.offsetLeft         - Gap between the anchor and the box, horizontally.
- * @param props.offsetTop          - Gap between the anchor and the box, vertically.
- * @param props.style              - Inline overrides on the surface; ignored when `unstyled`.
- * @param props.unstyled           - Drop the surface and `style`, leaving the box bare.
- * @param props.className          - Extra classes beside the surface.
- * @param props.children           - Box content.
- * @param props.placement          - Below-axis, beside without vertical flipping, or automatic flipping.
- * @param props.applyPositionStyle - Accepted and dropped so visx's prop never reaches the DOM.
+ * @param props            - `TooltipBox` props plus placement.
+ * @param props.left       - Anchor x, in wrapper coordinates.
+ * @param props.top        - Anchor y, in wrapper coordinates.
+ * @param props.offsetLeft - Gap between the anchor and the box, horizontally.
+ * @param props.offsetTop  - Gap between the anchor and the box, vertically.
+ * @param props.style      - Inline overrides on the surface; ignored when `unstyled`.
+ * @param props.unstyled   - Drop the surface and `style`, leaving the box bare.
+ * @param props.className  - Extra classes beside the surface.
+ * @param props.children   - Box content.
+ * @param props.placement  - Below-axis, beside without vertical flipping, or automatic flipping.
  * @return The tooltip box.
  */
 export const BoundedTooltip = ( {
@@ -168,8 +166,6 @@ export const BoundedTooltip = ( {
 	className,
 	children,
 	placement = 'auto',
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	applyPositionStyle,
 	...rest
 }: BoundedTooltipProps ) => {
 	const nodeRef = useRef< HTMLDivElement >( null );
