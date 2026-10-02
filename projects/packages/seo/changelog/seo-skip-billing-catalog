@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Stop resolving the WordPress.com plan catalog on every request when checking whether the SEO surface is available.
