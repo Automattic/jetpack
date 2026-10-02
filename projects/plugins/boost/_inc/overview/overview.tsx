@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef } from 'react';
 import ScoreAlert from './score-alert';
 import ErrorBoundary from '../../app/assets/src/js/features/error-boundary/error-boundary';
 import { recordBoostEvent } from '../../app/assets/src/js/lib/utils/analytics';
+import { SPEED_TEST_COMPLETE_EVENT } from '../runtime-contract';
 import HistoryChartCard from './history-chart-card';
 import HistoryUpsell from './history-upsell';
 import { bucketHistoryDays } from './lib/history-days';
@@ -75,7 +76,14 @@ function OverviewContent( {
 	const scoreHeadingRef = useRef< HTMLHeadingElement >( null );
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
-	const [ scoreState, refreshScores ] = useSpeedScores( refreshState, scoresEnabled );
+	const onUserRunComplete = useCallback( () => {
+		window.dispatchEvent( new Event( SPEED_TEST_COMPLETE_EVENT ) );
+	}, [] );
+	const [ scoreState, refreshScores ] = useSpeedScores(
+		refreshState,
+		scoresEnabled,
+		onUserRunComplete
+	);
 	const historyAvailable = modules.data?.performance_history?.available === true;
 	const needsUpgrade = modules.data !== undefined && ! historyAvailable;
 	const { range, olderRanges, dayCount, onPrevious, onNext, canGoNext } = useHistoryRange();
@@ -122,7 +130,7 @@ function OverviewContent( {
 	const onRefresh = useCallback(
 		( source: 'header' | 'score_card' ) => {
 			recordBoostEvent( 'speed_score_refresh_clicked', { source } );
-			refreshScores( true );
+			void refreshScores( true, { userStarted: true } );
 		},
 		[ refreshScores ]
 	);
