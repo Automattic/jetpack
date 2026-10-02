@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Stop the Get Jetpack Search button from staying busy and show an error when setup fails.
