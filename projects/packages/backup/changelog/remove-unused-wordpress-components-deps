@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Remove unused @wordpress/components dependency from route packages.
+
+

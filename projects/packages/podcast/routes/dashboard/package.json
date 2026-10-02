@@ -7,7 +7,6 @@
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@types/react": "18.3.31",
 		"@wordpress/api-fetch": "7.55.0",
-		"@wordpress/components": "40.1.0",
 		"@wordpress/compose": "8.8.0",
 		"@wordpress/core-data": "8.0.0",
 		"@wordpress/data": "10.55.0",
