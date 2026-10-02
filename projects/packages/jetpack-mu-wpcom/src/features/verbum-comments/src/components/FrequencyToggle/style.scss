@@ -79,6 +79,8 @@
 		}
 
 		span {
+			// Themes style `.text` (e.g. Fusion's reply form); reset all.
+			all: unset;
 			display: flex;
 			align-items: center;
 			font-weight: 500;
