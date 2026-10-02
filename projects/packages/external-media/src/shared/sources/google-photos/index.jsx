@@ -40,10 +40,11 @@ function GooglePhotos( props ) {
 	const requestPickerSession = useCallback( () => {
 		const requestId = ++sessionRequestId.current;
 		setSessionRequest( 'pending' );
-		createPickerSession().then( session => {
+		return createPickerSession().then( session => {
 			if ( requestId === sessionRequestId.current ) {
 				setSessionRequest( session ? 'idle' : 'failed' );
 			}
+			return session;
 		} );
 	}, [ createPickerSession ] );
 
@@ -150,7 +151,13 @@ function GooglePhotos( props ) {
 		);
 	}
 
-	return <GooglePhotosMedia pickerFeatureEnabled={ pickerFeatureEnabled } { ...props } />;
+	return (
+		<GooglePhotosMedia
+			pickerFeatureEnabled={ pickerFeatureEnabled }
+			{ ...props }
+			createPickerSession={ requestPickerSession }
+		/>
+	);
 }
 
 export default withMedia( MediaSource.GooglePhotos, { modalSize: 'fill' } )( GooglePhotos );
