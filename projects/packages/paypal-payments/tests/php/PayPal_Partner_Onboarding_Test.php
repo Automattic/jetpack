@@ -10,6 +10,7 @@ namespace Automattic\Jetpack\PaypalPayments;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -32,6 +33,20 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		'https://uri.paypal.com/services/payments/payment/authcapture',
 		'https://uri.paypal.com/services/checkout/payment-resources/readwrite',
 	);
+
+	/**
+	 * The known PAYMENT scopes. Any one of them is enough.
+	 */
+	private const PAYMENT_SCOPES = array(
+		'https://uri.paypal.com/services/payments/realtimepayment',
+		'https://uri.paypal.com/services/payments/partnerfee',
+		'https://uri.paypal.com/services/payments/payment/authcapture',
+	);
+
+	/**
+	 * The error a seller sees after declining a permission the block needs.
+	 */
+	private const PERMISSIONS_MESSAGE = "PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.";
 
 	/**
 	 * Clean up after each test.
@@ -788,6 +803,220 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_onboarding_no_merchant_id', $result->get_error_code() );
 		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
+	 * Test that a seller with empty scopes is refused before anything is written.
+	 *
+	 * @dataProvider provide_records_with_empty_scopes
+	 *
+	 * @param array $record PayPal's merchant integration record.
+	 */
+	#[DataProvider( 'provide_records_with_empty_scopes' )]
+	public function test_complete_onboarding_refuses_a_seller_with_empty_scopes( array $record ) {
+		$this->set_up_connected_site();
+		PayPal_OAuth::store_credentials( 'old_client_id', 'old_client_secret' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response( 200, $record ),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			),
+			$requests
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_onboarding_missing_scopes', $result->get_error_code() );
+		$this->assertSame( self::PERMISSIONS_MESSAGE, $result->get_error_message() );
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+
+		// The pasted credentials stay, and the seller options stay empty.
+		$this->assertSame(
+			array(
+				'client_id'     => 'old_client_id',
+				'client_secret' => 'old_client_secret',
+			),
+			PayPal_OAuth::get_credentials()
+		);
+		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY ) );
+		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY ) );
+		$this->assertFalse( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
+
+		// The tracking ID stays, so the seller can connect again.
+		$this->assertSame( 'woo-ncps-1234-1700000000', get_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY ) );
+
+		// Only the merchant integration lookup ran.
+		$this->assertCount( 1, $requests );
+		$this->assertStringContainsString( '/paypal/platform/merchant-integration', $requests[0]['url'] );
+	}
+
+	/**
+	 * Merchant integration records whose scopes are empty or absent.
+	 *
+	 * @return array<string, array{0: array}>
+	 */
+	public static function provide_records_with_empty_scopes() {
+		return array(
+			'empty scopes'          => array(
+				array(
+					'merchant_id'        => 'MERCHANT1',
+					'oauth_integrations' => array( array( 'oauth_third_party' => array( array( 'scopes' => array() ) ) ) ),
+				),
+			),
+			'no oauth_integrations' => array( array( 'merchant_id' => 'MERCHANT1' ) ),
+		);
+	}
+
+	/**
+	 * Test that each requested feature needs at least one of its known scopes.
+	 *
+	 * @dataProvider provide_declined_features
+	 *
+	 * @param array $declined The known scopes of the feature the seller declined.
+	 */
+	#[DataProvider( 'provide_declined_features' )]
+	public function test_complete_onboarding_requires_a_scope_for_each_feature( array $declined ) {
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$requests = array();
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
+					array( 'oauth_integrations' => $this->oauth_integrations( array_values( array_diff( self::SCOPES, $declined ) ) ) )
+				),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			),
+			$requests
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding();
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_onboarding_missing_scopes', $result->get_error_code() );
+		$this->assertSame( self::PERMISSIONS_MESSAGE, $result->get_error_message() );
+		$this->assertFalse( get_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY ) );
+		$this->assertFalse( get_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY ) );
+		$this->assertCount( 1, $requests );
+	}
+
+	/**
+	 * Each requested feature, with all its known scopes.
+	 *
+	 * @return array<string, array{0: string[]}>
+	 */
+	public static function provide_declined_features() {
+		return array(
+			'PAYMENT'                     => array( self::PAYMENT_SCOPES ),
+			'REFUND'                      => array( array( 'https://uri.paypal.com/services/payments/refund' ) ),
+			'ACCESS_MERCHANT_INFORMATION' => array( array( 'https://uri.paypal.com/services/customer/merchant-integrations/read' ) ),
+			'PAYMENT_LINKS_AND_BUTTONS'   => array( array( 'https://uri.paypal.com/services/checkout/payment-resources/readwrite' ) ),
+		);
+	}
+
+	/**
+	 * Test that one known PAYMENT scope is enough.
+	 *
+	 * @dataProvider provide_payment_scopes
+	 *
+	 * @param string $scope The only PAYMENT scope the seller granted.
+	 */
+	#[DataProvider( 'provide_payment_scopes' )]
+	public function test_complete_onboarding_accepts_one_payment_scope( string $scope ) {
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+		$granted   = array_values( array_diff( self::SCOPES, self::PAYMENT_SCOPES ) );
+		$granted[] = $scope;
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
+					array( 'oauth_integrations' => $this->oauth_integrations( $granted ) )
+				),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			)
+		);
+
+		$this->assertTrue( PayPal_Partner_Onboarding::complete_onboarding() );
+		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
+	 * Each known PAYMENT scope.
+	 *
+	 * @return array<string, array{0: string}>
+	 */
+	public static function provide_payment_scopes() {
+		$scopes = array();
+		foreach ( self::PAYMENT_SCOPES as $scope ) {
+			$scopes[ $scope ] = array( $scope );
+		}
+
+		return $scopes;
+	}
+
+	/**
+	 * Test that scopes from every oauth_integrations and oauth_third_party entry count together.
+	 */
+	public function test_complete_onboarding_combines_scopes_across_oauth_entries() {
+		$this->set_up_connected_site();
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1700000000', 1800 );
+
+		// The features are split across entries.
+		list( $refund, $merchant_read, $links ) = array_values( array_diff( self::SCOPES, self::PAYMENT_SCOPES ) );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
+					array(
+						'oauth_integrations' => array(
+							array( 'oauth_third_party' => array( array( 'scopes' => array( $refund ) ) ) ),
+							array(
+								'oauth_third_party' => array(
+									array( 'scopes' => array( $merchant_read ) ),
+									array( 'scopes' => array_merge( self::PAYMENT_SCOPES, array( $links ) ) ),
+								),
+							),
+						),
+					)
+				),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			)
+		);
+
+		$this->assertTrue( PayPal_Partner_Onboarding::complete_onboarding() );
+		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
+	}
+
+	/**
+	 * Test that empty scopes are refused when payments_receivable and primary_email_confirmed are false, and the connected seller stays.
+	 */
+	public function test_complete_onboarding_refuses_empty_scopes_and_keeps_the_connected_seller() {
+		$this->set_up_referred_merchant();
+		update_option( PayPal_Partner_Onboarding::MERCHANT_EMAIL_OPTION_KEY, 'junior@sports.com', false );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
+					array(
+						'merchant_id'             => 'MERCHANT2',
+						'primary_email'           => 'other@sports.com',
+						'payments_receivable'     => false,
+						'primary_email_confirmed' => false,
+						'oauth_integrations'      => $this->oauth_integrations( array() ),
+					)
+				),
+				'/paypal/platform/request'              => $this->platform_response( 200, array( 'resources' => array() ) ),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::complete_onboarding( 'MERCHANT2' );
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_onboarding_missing_scopes', $result->get_error_code() );
+		$this->assertSame( self::PERMISSIONS_MESSAGE, $result->get_error_message() );
+		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertSame( 'junior@sports.com', PayPal_Partner_Onboarding::get_merchant_email() );
+		$this->assertTrue( PayPal_Partner_Onboarding::is_platform_managed() );
 	}
 
 	// --- check_merchant_status ---

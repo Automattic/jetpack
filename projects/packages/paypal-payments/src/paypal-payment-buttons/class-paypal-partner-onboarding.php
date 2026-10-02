@@ -85,6 +85,26 @@ class PayPal_Partner_Onboarding {
 	const ONBOARDING_METHOD = 'partner_referrals';
 
 	/**
+	 * Known PayPal scopes for each feature the WordPress.com referral requests.
+	 *
+	 * The keys must match WPCOM_REST_API_V2_Endpoint_PayPal_Onboarding::ONBOARDING_FEATURES.
+	 * PayPal publishes no feature-to-scope map, so these come from a seller who
+	 * approved every permission.
+	 *
+	 * @var array<string, string[]>
+	 */
+	private const FEATURE_SCOPES = array(
+		'PAYMENT'                     => array(
+			'https://uri.paypal.com/services/payments/realtimepayment',
+			'https://uri.paypal.com/services/payments/partnerfee',
+			'https://uri.paypal.com/services/payments/payment/authcapture',
+		),
+		'REFUND'                      => array( 'https://uri.paypal.com/services/payments/refund' ),
+		'ACCESS_MERCHANT_INFORMATION' => array( 'https://uri.paypal.com/services/customer/merchant-integrations/read' ),
+		'PAYMENT_LINKS_AND_BUTTONS'   => array( 'https://uri.paypal.com/services/checkout/payment-resources/readwrite' ),
+	);
+
+	/**
 	 * Get the onboarded merchant's PayPal merchant ID.
 	 *
 	 * @return string The merchant ID, or empty string if not onboarded.
@@ -343,6 +363,15 @@ class PayPal_Partner_Onboarding {
 			return $integration;
 		}
 
+		// Checked before anything is written, so a declined permission leaves the site as it was.
+		if ( ! self::has_required_scopes( $integration ) ) {
+			return new \WP_Error(
+				'paypal_onboarding_missing_scopes',
+				__( "PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.", 'jetpack-paypal-payments' ),
+				array( 'status' => 403 )
+			);
+		}
+
 		$merchant_id = sanitize_text_field( (string) ( $integration['merchant_id'] ?? $merchant_id ) );
 		if ( '' === $merchant_id ) {
 			return new \WP_Error(
@@ -422,6 +451,29 @@ class PayPal_Partner_Onboarding {
 			'primary_email_confirmed' => ! empty( $data['primary_email_confirmed'] ),
 			'products'                => $data['products'] ?? array(),
 		);
+	}
+
+	/**
+	 * Whether the seller granted at least one known scope for every requested feature.
+	 *
+	 * @param array $integration PayPal's merchant integration record.
+	 * @return bool
+	 */
+	private static function has_required_scopes( array $integration ) {
+		$scopes = array();
+		foreach ( (array) ( $integration['oauth_integrations'] ?? array() ) as $oauth_integration ) {
+			foreach ( (array) ( $oauth_integration['oauth_third_party'] ?? array() ) as $third_party ) {
+				$scopes = array_merge( $scopes, (array) ( $third_party['scopes'] ?? array() ) );
+			}
+		}
+
+		foreach ( self::FEATURE_SCOPES as $feature_scopes ) {
+			if ( ! array_intersect( $feature_scopes, $scopes ) ) {
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	/**

@@ -759,6 +759,61 @@ class PayPal_REST_Controller_Test extends TestCase {
 	}
 
 	/**
+	 * Test that empty scopes return the permissions error and record a failed connection.
+	 */
+	public function test_onboarding_complete_returns_the_permissions_error_for_empty_scopes() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		set_transient( PayPal_Partner_Onboarding::TRACKING_ID_TRANSIENT_KEY, 'woo-ncps-1234-1', 1800 );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'        => 'MERCHANT1',
+						'tracking_id'        => 'woo-ncps-1234-1',
+						'oauth_integrations' => $this->oauth_integrations( array() ),
+					)
+				),
+				'/paypal/platform/request'              => $this->http_response(
+					200,
+					array(
+						'status' => 200,
+						'body'   => wp_json_encode( array( 'resources' => array() ), JSON_UNESCAPED_SLASHES ),
+					)
+				),
+			)
+		);
+
+		$result = PayPal_REST_Controller::handle_onboarding_complete(
+			new \WP_REST_Request( 'POST', '/wpcom/v2/paypal/onboarding/complete' )
+		);
+
+		$this->assertInstanceOf( \WP_Error::class, $result );
+		$this->assertSame( 'paypal_onboarding_missing_scopes', $result->get_error_code() );
+		$this->assertSame(
+			"PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.",
+			$result->get_error_message()
+		);
+		$this->assertSame( 403, $result->get_error_data()['status'] );
+		$this->assertEmpty( PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertSame(
+			array(
+				array(
+					'event_name' => 'jetpack_paypal_connection_failed',
+					'properties' => array(
+						'environment' => 'sandbox',
+						'method'      => 'partner_referrals',
+						'error_code'  => 'paypal_onboarding_missing_scopes',
+					),
+				),
+			),
+			$this->recorded_events()
+		);
+	}
+
+	/**
 	 * Test that pasting credentials replaces a seller referred earlier.
 	 */
 	public function test_connect_replaces_a_referred_seller() {
