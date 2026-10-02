@@ -14,7 +14,14 @@ import * as list from '@wordpress/block-library/build-module/list/index.mjs';
 import * as listItem from '@wordpress/block-library/build-module/list-item/index.mjs';
 import * as paragraph from '@wordpress/block-library/build-module/paragraph/index.mjs';
 import * as quote from '@wordpress/block-library/build-module/quote/index.mjs';
-import { createBlock, parse, serialize, setDefaultBlockName, type Block } from '@wordpress/blocks';
+import {
+	createBlock,
+	isUnmodifiedDefaultBlock,
+	parse,
+	serialize,
+	setDefaultBlockName,
+	type Block,
+} from '@wordpress/blocks';
 import { Button, Popover, SlotFillProvider } from '@wordpress/components';
 import { useDispatch, useSelect } from '@wordpress/data';
 import {
@@ -118,12 +125,13 @@ const plus = (
 );
 
 // Core's appender shows only in an empty editor, which strands the caret in a last code block.
+// Hidden under an empty paragraph, so clicks don't stack them.
 const Appender = ( { label }: { label: string } ) => {
 	const isNeeded = useSelect( select => {
-		const { getBlockOrder, getBlockName } = select( blockEditorStore );
-		const last = getBlockOrder().at( -1 );
+		const { getBlockOrder, getBlock } = select( blockEditorStore );
+		const last = getBlock( getBlockOrder().at( -1 ) ?? '' );
 
-		return !! last && getBlockName( last ) !== paragraph.name;
+		return !! last && ! isUnmodifiedDefaultBlock( last, 'content' );
 	}, [] );
 	const { insertDefaultBlock, clearSelectedBlock } = useDispatch( blockEditorStore );
 	const onClick = useCallback( () => insertDefaultBlock(), [ insertDefaultBlock ] );
