@@ -35,6 +35,10 @@ type EditProps = BlockEditProps< Attributes > & {
 
 let labels: EditorLabels;
 
+// Module scope, where Terser cannot fold the two calls into one `_x( failed ? … : … )`.
+const embedLabel = _x( 'Embed', 'button label', 'default' );
+const retryLabel = _x( 'Try again', 'button label', 'default' );
+
 // The server already vetted the URL; a parse failure here should cost the block, not the editor.
 const hostOf = ( url: string ) => {
 	try {
@@ -59,8 +63,8 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 	replace.current = onReplace;
 	const blockProps = useBlockProps();
 
-	// A URL the site will not embed becomes a link, with no fuss: most links in a comment are just
-	// links. Anything else, a rate limit or a dropped request, keeps the block so the reader can retry.
+	// A URL the site will not embed, or a route it closes, becomes a link, with no fuss: most links in
+	// a comment are just links. A rate limit or a dropped request keeps the block so the reader can retry.
 	useEffect( () => {
 		if ( ! url ) {
 			return;
@@ -143,9 +147,7 @@ const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: Ed
 							onChange={ onInput }
 						/>
 						<Button __next40pxDefaultSize variant="primary" type="submit">
-							{ failed
-								? _x( 'Try again', 'button label', 'default' )
-								: _x( 'Embed', 'button label', 'default' ) }
+							{ failed ? retryLabel : embedLabel }
 						</Button>
 					</form>
 				</Placeholder>
@@ -224,7 +226,7 @@ export const registerEmbedBlock = ( editorLabels: EditorLabels ) => {
 				{
 					type: 'raw',
 					isMatch: ( node: Node ) =>
-						node.nodeName === 'P' && /^https:\/\/\S+$/i.test( node.textContent?.trim() ?? '' ),
+						node.nodeName === 'P' && /^https?:\/\/\S+$/i.test( node.textContent?.trim() ?? '' ),
 					transform: ( node: Node ) => createBlock( NAME, { url: node.textContent!.trim() } ),
 				},
 			],
