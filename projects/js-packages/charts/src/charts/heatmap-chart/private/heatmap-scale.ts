@@ -1,8 +1,6 @@
+import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
-import { mixHexColors } from '../../../utils/color-utils';
-
-/** WCAG 1.4.11: the lowest filled cell must stand out from the chart background. */
-export const HEATMAP_LOW_CONTRAST = 3;
+import { mixHexColors, relativeLuminance } from '../../../utils/color-utils';
 
 /** How far the scale runs past the low end, so its steps stay apart. */
 export const HEATMAP_HIGH_CONTRAST = 9;
@@ -37,22 +35,29 @@ const firstReaching = ( from: string, to: string, background: string, target: nu
  * @return The scale ends, as six-digit hex.
  */
 export const getHeatmapScale = ( primary: string, background: string ): HeatmapScale => {
-	// Black or white, whichever contrasts more with the background: the way the scale deepens.
-	const extreme =
-		contrastRatio( '#000000', background ) >= contrastRatio( '#ffffff', background )
-			? '#000000'
-			: '#ffffff';
 	const primaryContrast = contrastRatio( primary, background );
+	const primaryStandsOut = primaryContrast >= MIN_BACKGROUND_CONTRAST;
+	// The scale deepens to black or white on the primary's own side of the background, so it never
+	// crosses it. A primary too close to the background takes whichever contrasts more.
+	let extreme: string;
+	if ( primaryStandsOut ) {
+		extreme =
+			relativeLuminance( primary ) > relativeLuminance( background ) ? '#ffffff' : '#000000';
+	} else {
+		extreme =
+			contrastRatio( '#000000', background ) >= contrastRatio( '#ffffff', background )
+				? '#000000'
+				: '#ffffff';
+	}
 
-	const low =
-		primaryContrast >= HEATMAP_LOW_CONTRAST
-			? firstReaching( background, primary, background, HEATMAP_LOW_CONTRAST )
-			: firstReaching( primary, extreme, background, HEATMAP_LOW_CONTRAST );
+	const low = primaryStandsOut
+		? firstReaching( background, primary, background, MIN_BACKGROUND_CONTRAST )
+		: firstReaching( primary, extreme, background, MIN_BACKGROUND_CONTRAST );
 	const high =
 		primaryContrast >= HEATMAP_HIGH_CONTRAST
 			? primary
 			: firstReaching( primary, extreme, background, HEATMAP_HIGH_CONTRAST );
 
-	// Black or white reaches 4.58:1 on any background, so only `high` can run out of room.
+	// `low` always resolves: the primary itself, or black or white (4.58:1 on any background).
 	return { low: low ?? extreme, high: high ?? extreme };
 };

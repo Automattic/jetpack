@@ -449,6 +449,25 @@ describe( 'HeatmapChart', () => {
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
 	} );
 
+	test( 'leaves the scale to the stylesheet on a see-through background', () => {
+		const scope = document.createElement( 'div' );
+		scope.style.setProperty( '--a8c-charts-color-background', 'transparent' );
+		document.body.appendChild( scope );
+
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } primaryColor="#3858e9" />
+			</GlobalChartsProvider>,
+			{ container: scope }
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '' );
+
+		document.body.removeChild( scope );
+	} );
+
 	test( 'paints a zero as an empty cell, still announcing its value', () => {
 		renderChart();
 		const zero = screen.getByRole( 'gridcell', { name: 'W2: 0' } );

@@ -16,10 +16,11 @@ import {
 } from '../../providers';
 import { CATALOG_POINTERS } from '../../providers/chart-context/private/catalog-pointers';
 import { blendRgb, hexToRgb } from '../../providers/chart-context/private/perceptual-color';
+import { resolveOpaqueHex } from '../../providers/chart-context/private/resolve-opaque-hex';
 import { useStandaloneScopeClass } from '../../providers/chart-scope';
 import { attachSubComponents } from '../../utils';
 import { isValidHexColor, normalizeColorToHex } from '../../utils/color-utils';
-import { createCssVariableResolver, resolveCssVariable } from '../../utils/resolve-css-var';
+import { createCssVariableResolver } from '../../utils/resolve-css-var';
 import { Center } from '../private/center';
 import { useChartChildren } from '../private/chart-composition';
 import { ChartInstanceContext } from '../private/chart-instance-context';
@@ -131,13 +132,9 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	// The cell blend substitutes this role at the cell; this read happens at the scope
 	// element, so an override on the chart's own class makes the two disagree. CHARTS-255.
-	const chartBackgroundHex = normalizeColorToHex(
-		CATALOG_POINTERS.background,
-		scopeElement,
-		resolveCssVariable
-	);
+	const chartBackgroundHex = resolveOpaqueHex( CATALOG_POINTERS.background, scopeElement );
 
-	// If either color cannot resolve to hex, the stylesheet falls back to its own blend.
+	// If either color cannot resolve to an opaque hex, the stylesheet falls back to its own blend.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const scale = useMemo(
 		() =>

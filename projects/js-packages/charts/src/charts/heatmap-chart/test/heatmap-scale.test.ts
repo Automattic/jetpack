@@ -1,9 +1,7 @@
+import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
 import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
-import {
-	getHeatmapScale,
-	HEATMAP_HIGH_CONTRAST,
-	HEATMAP_LOW_CONTRAST,
-} from '../private/heatmap-scale';
+import { mixHexColors } from '../../../utils/color-utils';
+import { getHeatmapScale, HEATMAP_HIGH_CONTRAST } from '../private/heatmap-scale';
 
 // The wp-admin scheme colors, then the pre-7.0 ones, which include a sunrise below 3:1 on white.
 const PRIMARIES = [
@@ -27,8 +25,8 @@ describe.each( [
 		const { low } = getHeatmapScale( primary, background );
 		const contrast = contrastRatio( low, background );
 
-		expect( contrast ).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
-		expect( contrast ).toBeLessThan( HEATMAP_LOW_CONTRAST + 0.1 );
+		expect( contrast ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
+		expect( contrast ).toBeLessThan( MIN_BACKGROUND_CONTRAST + 0.1 );
 	} );
 
 	it.each( PRIMARIES )( 'runs the scale of %s out to 9:1', primary => {
@@ -46,8 +44,23 @@ describe( 'getHeatmapScale', () => {
 	it( 'still clears 3:1 when the primary matches the background', () => {
 		const { low, high } = getHeatmapScale( '#ffffff', '#ffffff' );
 
-		expect( contrastRatio( low, '#ffffff' ) ).toBeGreaterThanOrEqual( HEATMAP_LOW_CONTRAST );
+		expect( contrastRatio( low, '#ffffff' ) ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
 		expect( contrastRatio( high, '#ffffff' ) ).toBeGreaterThanOrEqual( HEATMAP_HIGH_CONTRAST );
+	} );
+
+	it.each( [
+		[ '#ffffff', '#808080' ],
+		[ '#ffd000', '#767676' ],
+		[ '#3858e9', '#808080' ],
+		[ '#1e1e1e', '#999999' ],
+	] )( 'keeps every step of %s at 3:1 on a mid-gray %s', ( primary, background ) => {
+		const { low, high } = getHeatmapScale( primary, background );
+
+		for ( let step = 0; step <= 20; step++ ) {
+			expect(
+				contrastRatio( mixHexColors( low, high, step / 20 ), background )
+			).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
+		}
 	} );
 
 	it( 'ends on black or white when the background leaves no room for 9:1', () => {
