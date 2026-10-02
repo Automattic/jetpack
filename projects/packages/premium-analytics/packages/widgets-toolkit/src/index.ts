@@ -207,6 +207,7 @@ export {
 	aggregateAuthorRows,
 	aggregateClickRows,
 	aggregateSearchTermRows,
+	aggregateUtmRows,
 	annualInsightsCsvExporter,
 	archivesCsvExporter,
 	authorsCsvExporter,
@@ -224,6 +225,9 @@ export {
 	getAuthorsReportQueryParams,
 	getPostsReportQueryParams,
 	getSummarizedReportQueryParams,
+	getUtmDimensionLabel,
+	getUtmReportQueryParams,
+	getUtmReportSection,
 	getVideosReportQueryParams,
 	postsPagesCsvExporter,
 	referrersCsvExporter,
@@ -231,12 +235,15 @@ export {
 	TAGS_REPORT_ROW_LIMIT,
 	tagsCsvExporter,
 	toCommentRows,
+	utmCsvExporters,
 	videosCsvExporter,
 	type ArchiveRow,
 	type AuthorRow,
 	type ClickRow,
 	type ReferrerRecord,
 	type SearchTermRow,
+	type UtmReportRow,
+	type UtmReportSection,
 } from './report-exports';
 
 /**

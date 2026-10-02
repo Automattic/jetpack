@@ -9,10 +9,10 @@ import {
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
 	useReportRetry,
-	type CsvColumn,
+	utmCsvExporters,
+	type UtmReportRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -28,7 +28,6 @@ import {
 	getUtmTabLabel,
 	resolveSection,
 	useUtmReportRecords,
-	type UtmReportRow,
 } from './config';
 import type { JSX } from 'react';
 
@@ -68,16 +67,6 @@ function getUtmRowParentId( item: UtmReportRow ): string | undefined {
 }
 
 /**
- * Keep nested posts identifiable after the UTM hierarchy is flattened into CSV rows.
- *
- * @param item - The UTM parent or nested post row.
- * @return The UTM value or UTM-qualified post title.
- */
-function getUtmCsvLabel( item: UtmReportRow ): string {
-	return item.groupLabel ? `${ item.groupLabel } > ${ item.label }` : item.label;
-}
-
-/**
  * Premium Analytics UTM report page.
  *
  * @return The UTM report page.
@@ -89,23 +78,6 @@ function UtmReport(): JSX.Element {
 	const records = useUtmReportRecords( activeTab, reportParams );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo( () => getUtmFields( activeTab ), [ activeTab ] );
-	const csvColumns = useMemo< CsvColumn< UtmReportRow >[] >(
-		() => [
-			{ label: getUtmTabLabel( activeTab ), getValue: getUtmCsvLabel },
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-		],
-		[ activeTab ]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: `utm-${ activeTab }`,
-		range: reportParams,
-		status: records,
-	} );
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.utm;
 
@@ -125,9 +97,12 @@ function UtmReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ utmCsvExporters[ activeTab ] }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout

@@ -1,8 +1,23 @@
-import { aggregateUtmRows } from './aggregate';
-import type {
-	StatsUtmComparisonItem,
-	StatsUtmComparisonTopPostItem,
+/**
+ * External dependencies
+ */
+import {
+	fetchStatsUtmRows,
+	type ReportParams,
+	type StatsUtmComparisonItem,
+	type StatsUtmComparisonTopPostItem,
 } from '@jetpack-premium-analytics/data';
+/**
+ * Internal dependencies
+ */
+import { aggregateUtmRows, getUtmReportSection, utmCsvExporters } from '../utm';
+
+jest.mock( '@jetpack-premium-analytics/data', () => ( {
+	...jest.requireActual( '@jetpack-premium-analytics/data' ),
+	fetchStatsUtmRows: jest.fn(),
+} ) );
+
+const REPORT_PARAMS = { from: '2026-03-01', to: '2026-03-10', interval: 'day' } as ReportParams;
 
 /**
  * Build a nested post fixture.
@@ -100,6 +115,45 @@ describe( 'UTM report aggregate', () => {
 				views: 18,
 				isGroup: true,
 			} ),
+		] );
+	} );
+} );
+
+describe( 'utmCsvExporters', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+	} );
+
+	it.each( [
+		[ 'source-medium', 'utm_source,utm_medium', 'Source / Medium' ],
+		[
+			'campaign-source-medium',
+			'utm_campaign,utm_source,utm_medium',
+			'Campaign / Source / Medium',
+		],
+		[ 'source', 'utm_source', 'Source' ],
+		[ 'medium', 'utm_medium', 'Medium' ],
+		[ 'campaign', 'utm_campaign', 'Campaign' ],
+	] as const )( 'exports the full %s report', async ( section, utmParam, label ) => {
+		jest.mocked( fetchStatsUtmRows ).mockResolvedValue( [ makeUtmItem() ] );
+		const exporter = utmCsvExporters[ section ];
+
+		const rows = exporter.toCsvRows( await exporter.fetchItems( REPORT_PARAMS ) );
+		const columns = exporter.getColumns();
+
+		expect( fetchStatsUtmRows ).toHaveBeenCalledWith( {
+			...REPORT_PARAMS,
+			max: 0,
+			summarize: 0,
+			query_top_posts: true,
+			utmParam,
+		} );
+		expect( getUtmReportSection( utmParam ) ).toBe( section );
+		expect( exporter.filenamePrefix ).toBe( `utm-${ section }` );
+		expect( columns.map( column => column.label ) ).toEqual( [ label, 'Views' ] );
+		expect( rows.map( row => columns.map( column => column.getValue( row ) ) ) ).toEqual( [
+			[ 'newsletter / email', 18 ],
+			[ 'newsletter / email > Landing page', 12 ],
 		] );
 	} );
 } );

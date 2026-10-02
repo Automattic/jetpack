@@ -33,6 +33,7 @@ export {
 	fetchStatsTagsRows,
 	fetchStatsTopAuthorsRows,
 	fetchStatsTopPostsRows,
+	fetchStatsUtmRows,
 	fetchStatsVideoPlaysRows,
 } from './queries/fetch-stats-report-rows';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
