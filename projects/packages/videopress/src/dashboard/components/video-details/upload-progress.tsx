@@ -63,6 +63,9 @@ export default function UploadProgress( { status, fileName, progress = 0, onRetr
 				<span role={ failed ? 'alert' : 'status' }>{ messages[ status ] }</span>
 			</VisuallyHidden>
 			<Text className="vp-video-details__upload-name">{ fileName }</Text>
+			<Text className="vp-video-details__upload-status" aria-hidden="true">
+				{ message }
+			</Text>
 			{ ! failed && (
 				<ProgressBar
 					className="vp-video-details__upload-bar"
@@ -70,9 +73,6 @@ export default function UploadProgress( { status, fileName, progress = 0, onRetr
 					value={ uploading ? Math.round( progress * 100 ) : undefined }
 				/>
 			) }
-			<Text className="vp-video-details__upload-status" aria-hidden="true">
-				{ message }
-			</Text>
 			{ failed && onRetry && (
 				<Button variant="outline" onClick={ onRetry }>
 					{ retryLabels[ status ] }
