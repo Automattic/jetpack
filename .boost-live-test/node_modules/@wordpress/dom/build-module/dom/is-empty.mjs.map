@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/dom/is-empty.js"],
-  "sourcesContent": ["/**\n * Recursively checks if an element is empty. An element is not empty if it\n * contains text or contains elements with attributes such as images.\n *\n * @param {Element} element The element to check.\n *\n * @return {boolean} Whether or not the element is empty.\n */\nexport default function isEmpty( element ) {\n\tswitch ( element.nodeType ) {\n\t\tcase element.TEXT_NODE:\n\t\t\t// We cannot use \\s since it includes special spaces which we want\n\t\t\t// to preserve.\n\t\t\treturn /^[ \\f\\n\\r\\t\\v\\u00a0]*$/.test( element.nodeValue || '' );\n\t\tcase element.ELEMENT_NODE:\n\t\t\tif ( element.hasAttributes() ) {\n\t\t\t\treturn false;\n\t\t\t} else if ( ! element.hasChildNodes() ) {\n\t\t\t\treturn true;\n\t\t\t}\n\n\t\t\treturn /** @type {Element[]} */ (\n\t\t\t\tArray.from( element.childNodes )\n\t\t\t).every( isEmpty );\n\t\tdefault:\n\t\t\treturn true;\n\t}\n}\n"],
-  "mappings": ";AAQe,SAAR,QAA0B,SAAU;AAC1C,UAAS,QAAQ,UAAW;AAAA,IAC3B,KAAK,QAAQ;AAGZ,aAAO,yBAAyB,KAAM,QAAQ,aAAa,EAAG;AAAA,IAC/D,KAAK,QAAQ;AACZ,UAAK,QAAQ,cAAc,GAAI;AAC9B,eAAO;AAAA,MACR,WAAY,CAAE,QAAQ,cAAc,GAAI;AACvC,eAAO;AAAA,MACR;AAEA;AAAA;AAAA,QACC,MAAM,KAAM,QAAQ,UAAW,EAC9B,MAAO,OAAQ;AAAA;AAAA,IAClB;AACC,aAAO;AAAA,EACT;AACD;",
-  "names": []
-}

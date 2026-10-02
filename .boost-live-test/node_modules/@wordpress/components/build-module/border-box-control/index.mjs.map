@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/border-box-control/index.ts"],
-  "sourcesContent": ["export { default as BorderBoxControl } from './border-box-control/component';\nexport { useBorderBoxControl } from './border-box-control/hook';\nexport { hasSplitBorders, isEmptyBorder, isDefinedBorder } from './utils';"],
-  "mappings": ";AAAA,SAAoB,WAAXA,gBAAmC;AAC5C,SAAS,2BAA2B;AACpC,SAAS,iBAAiB,eAAe,uBAAuB;",
-  "names": ["default"]
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/data-transfer.js"],
-  "sourcesContent": ["/**\n * Gets all files from a DataTransfer object.\n *\n * @param {DataTransfer} dataTransfer DataTransfer object to inspect.\n *\n * @return {File[]} An array containing all files.\n */\nexport function getFilesFromDataTransfer( dataTransfer ) {\n\tconst files = Array.from( dataTransfer.files );\n\n\tArray.from( dataTransfer.items ).forEach( ( item ) => {\n\t\tconst file = item.getAsFile();\n\n\t\tif (\n\t\t\tfile &&\n\t\t\t! files.find(\n\t\t\t\t( { name, type, size } ) =>\n\t\t\t\t\tname === file.name &&\n\t\t\t\t\ttype === file.type &&\n\t\t\t\t\tsize === file.size\n\t\t\t)\n\t\t) {\n\t\t\tfiles.push( file );\n\t\t}\n\t} );\n\n\treturn files;\n}\n"],
-  "mappings": ";AAOO,SAAS,yBAA0B,cAAe;AACxD,QAAM,QAAQ,MAAM,KAAM,aAAa,KAAM;AAE7C,QAAM,KAAM,aAAa,KAAM,EAAE,QAAS,CAAE,SAAU;AACrD,UAAM,OAAO,KAAK,UAAU;AAE5B,QACC,QACA,CAAE,MAAM;AAAA,MACP,CAAE,EAAE,MAAM,MAAM,KAAK,MACpB,SAAS,KAAK,QACd,SAAS,KAAK,QACd,SAAS,KAAK;AAAA,IAChB,GACC;AACD,YAAM,KAAM,IAAK;AAAA,IAClB;AAAA,EACD,CAAE;AAEF,SAAO;AACR;",
-  "names": []
-}

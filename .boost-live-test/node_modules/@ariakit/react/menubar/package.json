@@ -1,8 +1,0 @@
-{
-  "name": "@ariakit/react/menubar",
-  "private": true,
-  "sideEffects": false,
-  "main": "../cjs/menubar.cjs",
-  "module": "../esm/menubar.js",
-  "types": "../cjs/menubar.d.ts"
-}

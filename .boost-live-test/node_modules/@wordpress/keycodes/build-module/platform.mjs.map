@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/platform.ts"],
-  "sourcesContent": ["/**\n * Return true if platform is MacOS.\n *\n * @param _window window object by default; used for DI testing.\n *\n * @return True if MacOS; false otherwise.\n */\nexport function isAppleOS( _window?: Window ): boolean {\n\tif ( ! _window ) {\n\t\tif ( typeof window === 'undefined' ) {\n\t\t\treturn false;\n\t\t}\n\n\t\t_window = window;\n\t}\n\n\tconst { platform } = _window.navigator;\n\n\treturn (\n\t\tplatform.indexOf( 'Mac' ) !== -1 ||\n\t\t[ 'iPad', 'iPhone' ].includes( platform )\n\t);\n}\n"],
-  "mappings": ";AAOO,SAAS,UAAW,SAA4B;AACtD,MAAK,CAAE,SAAU;AAChB,QAAK,OAAO,WAAW,aAAc;AACpC,aAAO;AAAA,IACR;AAEA,cAAU;AAAA,EACX;AAEA,QAAM,EAAE,SAAS,IAAI,QAAQ;AAE7B,SACC,SAAS,QAAS,KAAM,MAAM,MAC9B,CAAE,QAAQ,QAAS,EAAE,SAAU,QAAS;AAE1C;",
-  "names": []
-}

@@ -1,1 +1,0 @@
-{"version":3,"file":"types.d.ts","sourceRoot":"","sources":["../../src/badge/types.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,KAAK,cAAc,EAAE,MAAM,gBAAgB,CAAC;AAErD,MAAM,WAAW,UAAW,SAAQ,cAAc,CAAE,MAAM,CAAE;IAC3D;;OAEG;IACH,QAAQ,EAAE,MAAM,CAAC;IAEjB;;;;OAIG;IACH,MAAM,CAAC,EACJ,MAAM,GACN,QAAQ,GACR,KAAK,GACL,QAAQ,GACR,eAAe,GACf,OAAO,GACP,MAAM,CAAC;CACV"}

@@ -1,2 +1,0 @@
-export * from "./index.mjs";
-export { arrow, autoPlacement, autoUpdate, computePosition, detectOverflow, flip, getOverflowAncestors, hide, inline, limitShift, offset, platform, shift, size } from '@floating-ui/react-dom';

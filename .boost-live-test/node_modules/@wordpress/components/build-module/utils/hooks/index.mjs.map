@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../src/utils/hooks/index.js"],
-  "sourcesContent": ["export { default as useControlledState } from './use-controlled-state';\nexport { default as useUpdateEffect } from './use-update-effect';\nexport { useControlledValue } from './use-controlled-value';\nexport { useCx } from './use-cx';"],
-  "mappings": ";AAAA,SAAoB,WAAXA,gBAAqC;AAC9C,SAAoB,WAAXA,gBAAkC;AAC3C,SAAS,0BAA0B;AACnC,SAAS,aAAa;",
-  "names": ["default"]
-}

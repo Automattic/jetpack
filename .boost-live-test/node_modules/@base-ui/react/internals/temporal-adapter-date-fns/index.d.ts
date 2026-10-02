@@ -1,1 +1,0 @@
-export { TemporalAdapterDateFns } from "./TemporalAdapterDateFns.js";

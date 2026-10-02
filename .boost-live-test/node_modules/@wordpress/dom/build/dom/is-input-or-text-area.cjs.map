@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/dom/is-input-or-text-area.js"],
-  "sourcesContent": ["/**\n * @param {Element} element\n * @return {element is HTMLInputElement | HTMLTextAreaElement} Whether the element is an input or textarea\n */\nexport default function isInputOrTextArea( element ) {\n\treturn element.tagName === 'INPUT' || element.tagName === 'TEXTAREA';\n}\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAIe,SAAR,kBAAoC,SAAU;AACpD,SAAO,QAAQ,YAAY,WAAW,QAAQ,YAAY;AAC3D;",
-  "names": []
-}

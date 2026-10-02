@@ -1,3 +1,0 @@
-import type { CompositeTypeaheadProps } from './types';
-export declare const CompositeTypeahead: import("react").ForwardRefExoticComponent<CompositeTypeaheadProps & Omit<Omit<import("react").DetailedHTMLProps<import("react").HTMLAttributes<HTMLDivElement>, HTMLDivElement>, "ref">, "as" | keyof CompositeTypeaheadProps> & import("react").RefAttributes<HTMLDivElement>>;
-//# sourceMappingURL=typeahead.d.ts.map

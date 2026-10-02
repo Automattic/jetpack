@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/duotone-picker/index.ts"],
-  "sourcesContent": ["export { default as DuotonePicker } from './duotone-picker';\nexport { default as DuotoneSwatch } from './duotone-swatch';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,4BAAyC;AACzC,4BAAyC;",
-  "names": []
-}

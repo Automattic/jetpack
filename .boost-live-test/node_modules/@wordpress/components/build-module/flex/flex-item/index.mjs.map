@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../src/flex/flex-item/index.ts"],
-  "sourcesContent": ["export { default } from './component';\nexport { useFlexItem } from './hook';"],
-  "mappings": ";AAAA,SAAS,WAAAA,gBAAe;AACxB,SAAS,mBAAmB;",
-  "names": ["default"]
-}

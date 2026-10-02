@@ -1,2 +1,0 @@
-export declare function getDefaultLabelId(id: string | null | undefined): string | undefined;
-export declare function resolveAriaLabelledBy(fieldLabelId: string | undefined, localLabelId: string | undefined): string | undefined;

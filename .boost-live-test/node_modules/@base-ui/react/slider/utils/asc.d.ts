@@ -1,1 +1,0 @@
-export declare function asc(a: number, b: number): number;

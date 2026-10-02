@@ -1,1 +1,0 @@
-{"private":true,"dependencies":{"@wordpress/api-fetch":"^7.55.0","@wordpress/components":"^40.1.0","@wordpress/i18n":"^6.28.0","@wordpress/icons":"^16.0.0","@wordpress/ui":"^0.22.0","clsx":"^2.1.1","esbuild":"^0.28.2","playwright":"^1.63.0","react":"^18.3.1","react-dom":"^18.3.1","sass":"^1.105.1"}}

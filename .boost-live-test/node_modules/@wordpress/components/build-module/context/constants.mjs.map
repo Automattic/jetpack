@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/context/constants.js"],
-  "sourcesContent": ["export const COMPONENT_NAMESPACE = 'data-wp-component';\nexport const CONNECTED_NAMESPACE = 'data-wp-c16t';\n\n/**\n * Special key where the connected namespaces are stored.\n * This is attached to Context connected components as a static property.\n */\nexport const CONNECT_STATIC_NAMESPACE = '__contextSystemKey__';"],
-  "mappings": ";AAAO,IAAM,sBAAsB;AAC5B,IAAM,sBAAsB;AAM5B,IAAM,2BAA2B;",
-  "names": []
-}

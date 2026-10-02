@@ -1,1 +1,0 @@
-{"version":3,"file":"thunk-middleware.d.ts","sourceRoot":"","sources":["../../src/redux-store/thunk-middleware.ts"],"names":[],"mappings":"AAAA,OAAO,KAAK,EAAE,UAAU,EAAE,MAAM,OAAO,CAAC;AAExC,MAAM,CAAC,OAAO,UAAU,qBAAqB,CAAE,IAAI,EAAE,OAAO,GAAI,UAAU,CAQzE"}

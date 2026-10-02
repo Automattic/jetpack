@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/get-fragment.ts"],
-  "sourcesContent": ["/**\n * Returns the fragment part of the URL.\n *\n * @param url The full URL\n *\n * @example\n * ```js\n * const fragment1 = getFragment( 'http://localhost:8080/this/is/a/test?query=true#fragment' ); // '#fragment'\n * const fragment2 = getFragment( 'https://wordpress.org#another-fragment?query=true' ); // '#another-fragment'\n * ```\n *\n * @return The fragment part of the URL.\n */\nexport function getFragment( url: string ): string | void {\n\tconst matches = /^\\S+?(#[^\\s\\?]*)/.exec( url );\n\tif ( matches ) {\n\t\treturn matches[ 1 ];\n\t}\n}\n"],
-  "mappings": ";AAaO,SAAS,YAAa,KAA6B;AACzD,QAAM,UAAU,mBAAmB,KAAM,GAAI;AAC7C,MAAK,SAAU;AACd,WAAO,QAAS,CAAE;AAAA,EACnB;AACD;",
-  "names": []
-}

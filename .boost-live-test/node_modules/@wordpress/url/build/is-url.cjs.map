@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/is-url.ts"],
-  "sourcesContent": ["/**\n * Determines whether the given string looks like a URL.\n *\n * @param url The string to scrutinise.\n *\n * @example\n * ```js\n * const isURL = isURL( 'https://wordpress.org' ); // true\n * ```\n *\n * @see https://url.spec.whatwg.org/\n * @see https://url.spec.whatwg.org/#valid-url-string\n *\n * @return Whether or not it looks like a URL.\n */\nexport function isURL( url: string ): boolean {\n\t// A URL can be considered value if the `URL` constructor is able to parse\n\t// it. The constructor throws an error for an invalid URL.\n\ttry {\n\t\tnew URL( url );\n\t\treturn true;\n\t} catch {\n\t\treturn false;\n\t}\n}\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAeO,SAAS,MAAO,KAAuB;AAG7C,MAAI;AACH,QAAI,IAAK,GAAI;AACb,WAAO;AAAA,EACR,QAAQ;AACP,WAAO;AAAA,EACR;AACD;",
-  "names": []
-}

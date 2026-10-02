@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/modal/context.ts"],
-  "sourcesContent": ["import { createContext } from '@wordpress/element';\n\n// Used to track and dismiss the prior modal when another opens unless nested.\n\nexport const ModalContext = createContext(new Set());\nModalContext.displayName = 'ModalContext';"],
-  "mappings": ";AAAA,SAAS,qBAAqB;AAIvB,IAAM,eAAe,cAAc,oBAAI,IAAI,CAAC;AACnD,aAAa,cAAc;",
-  "names": []
-}

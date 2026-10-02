@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../src/toggle-group-control/toggle-group-control-option-icon/index.ts"],
-  "sourcesContent": ["export { default as ToggleGroupControlOptionIcon } from './component';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAwD;",
-  "names": []
-}

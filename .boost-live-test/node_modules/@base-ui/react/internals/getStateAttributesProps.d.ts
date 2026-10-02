@@ -1,2 +1,0 @@
-export type StateAttributesMapping<State> = { [Property in keyof State]?: (state: State[Property]) => Record<string, string> | null };
-export declare function getStateAttributesProps<State extends Record<string, any>>(state: State, customMapping?: StateAttributesMapping<State>): Record<string, string>;

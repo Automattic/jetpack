@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/is-empty.js"],
-  "sourcesContent": ["/** @typedef {import('./types').RichTextValue} RichTextValue */\n\n/**\n * Check if a Rich Text value is Empty, meaning it contains no text or any\n * objects (such as images).\n *\n * @param {RichTextValue} value Value to use.\n *\n * @return {boolean} True if the value is empty, false if not.\n */\nexport function isEmpty( { text } ) {\n\treturn text.length === 0;\n}\n"],
-  "mappings": ";AAUO,SAAS,QAAS,EAAE,KAAK,GAAI;AACnC,SAAO,KAAK,WAAW;AACxB;",
-  "names": []
-}

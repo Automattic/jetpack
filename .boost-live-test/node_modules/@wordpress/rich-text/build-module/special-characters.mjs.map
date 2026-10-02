@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/special-characters.js"],
-  "sourcesContent": ["/**\n * Object replacement character, used as a placeholder for objects.\n */\nexport const OBJECT_REPLACEMENT_CHARACTER = '\\ufffc';\n\n/**\n * Zero width non-breaking space, used as padding in the editable DOM tree when\n * it is empty otherwise.\n */\nexport const ZWNBSP = '\\ufeff';\n"],
-  "mappings": ";AAGO,IAAM,+BAA+B;AAMrC,IAAM,SAAS;",
-  "names": []
-}

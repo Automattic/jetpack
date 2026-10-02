@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/view/index.js"],
-  "sourcesContent": ["export const View = 'div';\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,IAAM,OAAO;",
-  "names": []
-}

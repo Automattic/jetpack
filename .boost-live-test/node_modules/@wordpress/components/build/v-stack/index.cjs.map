@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/v-stack/index.ts"],
-  "sourcesContent": ["export { default as VStack } from './component';\nexport { useVStack } from './hook';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAkC;AAClC,kBAA0B;",
-  "names": []
-}

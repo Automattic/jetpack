@@ -1,1 +1,0 @@
-export * as PreviewCard from "./index.parts.mjs";

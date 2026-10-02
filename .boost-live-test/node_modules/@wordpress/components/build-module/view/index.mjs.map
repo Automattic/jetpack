@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/view/index.ts"],
-  "sourcesContent": ["export { default as View } from './component';"],
-  "mappings": ";AAAA,SAAoB,WAAXA,gBAAuB;",
-  "names": ["default"]
-}

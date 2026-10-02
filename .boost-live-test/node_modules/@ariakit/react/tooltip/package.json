@@ -1,8 +1,0 @@
-{
-  "name": "@ariakit/react/tooltip",
-  "private": true,
-  "sideEffects": false,
-  "main": "../cjs/tooltip.cjs",
-  "module": "../esm/tooltip.js",
-  "types": "../cjs/tooltip.d.ts"
-}

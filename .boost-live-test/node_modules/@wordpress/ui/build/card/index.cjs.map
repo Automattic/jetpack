@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/card/index.ts"],
-  "sourcesContent": ["import { Root } from './root';\nimport { Header } from './header';\nimport { Content } from './content';\nimport { FullBleed } from './full-bleed';\nimport { Title } from './title';\n\nexport { Root, Header, Content, FullBleed, Title };\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,kBAAqB;AACrB,oBAAuB;AACvB,qBAAwB;AACxB,wBAA0B;AAC1B,mBAAsB;",
-  "names": []
-}

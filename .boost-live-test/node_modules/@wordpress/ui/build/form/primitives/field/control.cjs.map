@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../src/form/primitives/field/control.tsx"],
-  "sourcesContent": ["import { Field as _Field } from '@base-ui/react/field';\nimport { forwardRef } from '@wordpress/element';\nimport type { FieldControlProps } from './types';\n\nexport const Control = forwardRef< HTMLInputElement, FieldControlProps >(\n\tfunction Control( props, ref ) {\n\t\treturn <_Field.Control ref={ ref } { ...props } />;\n\t}\n);\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,mBAAgC;AAChC,qBAA2B;AAKlB;AAFF,IAAM,cAAU;AAAA,EACtB,SAASA,SAAS,OAAO,KAAM;AAC9B,WAAO,4CAAC,aAAAC,MAAO,SAAP,EAAe,KAAc,GAAG,OAAQ;AAAA,EACjD;AACD;",
-  "names": ["Control", "_Field"]
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/index.ts"],
-  "sourcesContent": ["export { default as Icon } from './icon';\n\n// The ./library module is generated upon building this package. Make sure you\n// run `build`, otherwise tools won't be able to resolve this import.\nexport * from './library';\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,kBAAgC;AAIhC,0BAAc,gCAJd;",
-  "names": []
-}

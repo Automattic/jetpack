@@ -1,8 +1,0 @@
-{
-  "name": "@ariakit/react/select",
-  "private": true,
-  "sideEffects": false,
-  "main": "../cjs/select.cjs",
-  "module": "../esm/select.js",
-  "types": "../cjs/select.d.ts"
-}

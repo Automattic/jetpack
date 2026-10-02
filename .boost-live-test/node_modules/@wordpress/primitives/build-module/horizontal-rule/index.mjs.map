@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/horizontal-rule/index.js"],
-  "sourcesContent": ["export const HorizontalRule = 'hr';\n"],
-  "mappings": ";AAAO,IAAM,iBAAiB;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/tabs/index.ts"],
-  "sourcesContent": ["import { List } from './list';\nimport { Panel } from './panel';\nimport { Root } from './root';\nimport { Tab } from './tab';\n\nexport { Root, List, Panel, Tab };\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,kBAAqB;AACrB,mBAAsB;AACtB,kBAAqB;AACrB,iBAAoB;",
-  "names": []
-}

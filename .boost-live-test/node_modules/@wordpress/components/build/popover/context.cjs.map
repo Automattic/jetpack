@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/popover/context.ts"],
-  "sourcesContent": ["import { createContext } from '@wordpress/element';\nexport const slotNameContext = createContext(undefined);\nslotNameContext.displayName = '__unstableSlotNameContext';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,qBAA8B;AACvB,IAAM,sBAAkB,8BAAc,MAAS;AACtD,gBAAgB,cAAc;",
-  "names": []
-}

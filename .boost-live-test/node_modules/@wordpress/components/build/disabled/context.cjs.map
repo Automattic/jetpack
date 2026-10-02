@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/disabled/context.ts"],
-  "sourcesContent": ["import { createContext } from '@wordpress/element';\nconst Context = createContext(false);\nContext.displayName = 'DisabledContext';\nexport default Context;"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,qBAA8B;AAC9B,IAAM,cAAU,8BAAc,KAAK;AACnC,QAAQ,cAAc;AACtB,IAAO,kBAAQ;",
-  "names": []
-}

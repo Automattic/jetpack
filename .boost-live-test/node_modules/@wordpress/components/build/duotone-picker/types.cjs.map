@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/duotone-picker/types.ts"],
-  "sourcesContent": ["export {};"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

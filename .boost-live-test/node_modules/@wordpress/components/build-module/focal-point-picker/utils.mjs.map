@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/focal-point-picker/utils.ts"],
-  "sourcesContent": ["export const INITIAL_BOUNDS = {\n  width: 200,\n  height: 170\n};\nconst VIDEO_EXTENSIONS = ['avi', 'mpg', 'mpeg', 'mov', 'mp4', 'm4v', 'ogg', 'ogv', 'webm', 'wmv'];\n\n/**\n * Gets the extension of a file name.\n *\n * @param filename The file name.\n * @return  The extension of the file name.\n */\nexport function getExtension(filename = '') {\n  const parts = filename.split('.');\n  return parts[parts.length - 1];\n}\n\n/**\n * Checks if a file is a video.\n *\n * @param filename The file name.\n * @return Whether the file is a video.\n */\nexport function isVideoType(filename = '') {\n  if (!filename) {\n    return false;\n  }\n  return filename.startsWith('data:video/') || VIDEO_EXTENSIONS.includes(getExtension(filename));\n}\n\n/**\n * Transforms a fraction value to a percentage value.\n *\n * @param fraction The fraction value.\n * @return A percentage value.\n */\nexport function fractionToPercentage(fraction) {\n  return Math.round(fraction * 100);\n}"],
-  "mappings": ";AAAO,IAAM,iBAAiB;AAAA,EAC5B,OAAO;AAAA,EACP,QAAQ;AACV;AACA,IAAM,mBAAmB,CAAC,OAAO,OAAO,QAAQ,OAAO,OAAO,OAAO,OAAO,OAAO,QAAQ,KAAK;AAQzF,SAAS,aAAa,WAAW,IAAI;AAC1C,QAAM,QAAQ,SAAS,MAAM,GAAG;AAChC,SAAO,MAAM,MAAM,SAAS,CAAC;AAC/B;AAQO,SAAS,YAAY,WAAW,IAAI;AACzC,MAAI,CAAC,UAAU;AACb,WAAO;AAAA,EACT;AACA,SAAO,SAAS,WAAW,aAAa,KAAK,iBAAiB,SAAS,aAAa,QAAQ,CAAC;AAC/F;AAQO,SAAS,qBAAqB,UAAU;AAC7C,SAAO,KAAK,MAAM,WAAW,GAAG;AAClC;",
-  "names": []
-}

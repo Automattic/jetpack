@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/autocomplete/types.ts"],
-  "sourcesContent": ["export {};"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

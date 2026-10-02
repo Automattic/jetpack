@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/toolbar/index.js"],
-  "sourcesContent": ["export { default as Toolbar } from './toolbar';\nexport { default as ToolbarButton } from './toolbar-button';\nexport { default as ToolbarContext } from './toolbar-context';\nexport { default as ToolbarDropdownMenu } from './toolbar-dropdown-menu';\nexport { default as ToolbarGroup } from './toolbar-group';\nexport { default as ToolbarItem } from './toolbar-item';"],
-  "mappings": ";AAAA,SAAoB,WAAXA,gBAA0B;AACnC,SAAoB,WAAXA,gBAAgC;AACzC,SAAoB,WAAXA,gBAAiC;AAC1C,SAAoB,WAAXA,gBAAsC;AAC/C,SAAoB,WAAXA,gBAA+B;AACxC,SAAoB,WAAXA,gBAA8B;",
-  "names": ["default"]
-}

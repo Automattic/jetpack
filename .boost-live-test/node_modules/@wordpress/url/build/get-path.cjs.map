@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/get-path.ts"],
-  "sourcesContent": ["/**\n * Returns the path part of the URL.\n *\n * @param url The full URL.\n *\n * @example\n * ```js\n * const path1 = getPath( 'http://localhost:8080/this/is/a/test?query=true' ); // 'this/is/a/test'\n * const path2 = getPath( 'https://wordpress.org/help/faq/' ); // 'help/faq'\n * ```\n *\n * @return The path part of the URL.\n */\nexport function getPath( url: string ): string | void {\n\tconst matches =\n\t\t/^[^\\/\\s:]+:(?:\\/\\/)?[^\\/\\s#?]+[\\/]([^\\s#?]+)[#?]{0,1}\\S*$/.exec( url );\n\tif ( matches ) {\n\t\treturn matches[ 1 ];\n\t}\n}\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAaO,SAAS,QAAS,KAA6B;AACrD,QAAM,UACL,4DAA4D,KAAM,GAAI;AACvE,MAAK,SAAU;AACd,WAAO,QAAS,CAAE;AAAA,EACnB;AACD;",
-  "names": []
-}

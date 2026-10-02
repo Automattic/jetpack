@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/tools-panel/index.ts"],
-  "sourcesContent": ["export { default as ToolsPanel } from './tools-panel';\nexport { default as ToolsPanelItem } from './tools-panel-item';\nexport { ToolsPanelContext } from './context';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,yBAAsC;AACtC,8BAA0C;AAC1C,qBAAkC;",
-  "names": []
-}

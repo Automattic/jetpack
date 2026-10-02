@@ -1,1 +1,0 @@
-export * as Drawer from "./index.parts.mjs";

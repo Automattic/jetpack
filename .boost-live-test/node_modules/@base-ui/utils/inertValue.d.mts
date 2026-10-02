@@ -1,1 +1,0 @@
-export declare function inertValue(value?: boolean): boolean | undefined;

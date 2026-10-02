@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../src/card/card-media/index.ts"],
-  "sourcesContent": ["export { default } from './component';\nexport { useCardMedia } from './hook';"],
-  "mappings": ";AAAA,SAAS,WAAAA,gBAAe;AACxB,SAAS,oBAAoB;",
-  "names": ["default"]
-}

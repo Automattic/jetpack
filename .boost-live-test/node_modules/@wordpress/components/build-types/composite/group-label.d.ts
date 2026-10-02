@@ -1,3 +1,0 @@
-import type { CompositeGroupLabelProps } from './types';
-export declare const CompositeGroupLabel: import("react").ForwardRefExoticComponent<CompositeGroupLabelProps & Omit<Omit<import("react").DetailedHTMLProps<import("react").HTMLAttributes<HTMLDivElement>, HTMLDivElement>, "ref">, "as" | keyof CompositeGroupLabelProps> & import("react").RefAttributes<HTMLDivElement>>;
-//# sourceMappingURL=group-label.d.ts.map

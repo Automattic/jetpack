@@ -1,1 +1,0 @@
-export declare function getOffset(element: Element | null, prop: 'margin' | 'padding', axis: 'x' | 'y'): number;

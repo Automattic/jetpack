@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../src/form/primitives/input/types.ts"],
-  "sourcesContent": ["import type { Input } from '@base-ui/react/input';\nimport type { InputLayoutProps } from '../input-layout/types';\nimport type { ComponentProps } from '../../../utils/types';\n\nexport type InputProps = Omit<\n\tComponentProps< typeof Input >,\n\t'value' | 'defaultValue' | 'type' | 'disabled' | 'prefix' | 'size'\n> &\n\tPick< InputLayoutProps, 'prefix' | 'suffix' > & {\n\t\t/**\n\t\t * Whether the field is disabled.\n\t\t */\n\t\tdisabled?: boolean;\n\t} & {\n\t\t/**\n\t\t * The type of the input element.\n\t\t */\n\t\ttype?: Input.Props[ 'type' ];\n\t\t/**\n\t\t * The default value to use in uncontrolled mode.\n\t\t */\n\t\tdefaultValue?: Input.Props[ 'defaultValue' ];\n\t\t/**\n\t\t * The value to use in controlled mode.\n\t\t */\n\t\tvalue?: Input.Props[ 'value' ];\n\t\t/**\n\t\t * The size of the field.\n\t\t */\n\t\tsize?: Exclude< InputLayoutProps[ 'size' ], 'small' >;\n\t};\n"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

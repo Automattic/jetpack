@@ -1,1 +1,0 @@
-export * as Slider from "./index.parts.mjs";

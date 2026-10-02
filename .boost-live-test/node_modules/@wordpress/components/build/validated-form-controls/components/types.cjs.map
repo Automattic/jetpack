@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../src/validated-form-controls/components/types.ts"],
-  "sourcesContent": ["export {};"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

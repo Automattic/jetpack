@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/is-valid-protocol.ts"],
-  "sourcesContent": ["/**\n * Tests if a url protocol is valid.\n *\n * @param protocol The url protocol.\n *\n * @example\n * ```js\n * const isValid = isValidProtocol( 'https:' ); // true\n * const isNotValid = isValidProtocol( 'https :' ); // false\n * ```\n *\n * @return True if the argument is a valid protocol (e.g. http:, tel:).\n */\nexport function isValidProtocol( protocol: string ): boolean {\n\tif ( ! protocol ) {\n\t\treturn false;\n\t}\n\treturn /^[a-z\\-.\\+]+[0-9]*:$/i.test( protocol );\n}\n"],
-  "mappings": ";AAaO,SAAS,gBAAiB,UAA4B;AAC5D,MAAK,CAAE,UAAW;AACjB,WAAO;AAAA,EACR;AACA,SAAO,wBAAwB,KAAM,QAAS;AAC/C;",
-  "names": []
-}

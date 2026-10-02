@@ -1,8 +1,0 @@
-{
-  "name": "@ariakit/react/disclosure",
-  "private": true,
-  "sideEffects": false,
-  "main": "../cjs/disclosure.cjs",
-  "module": "../esm/disclosure.js",
-  "types": "../cjs/disclosure.d.ts"
-}

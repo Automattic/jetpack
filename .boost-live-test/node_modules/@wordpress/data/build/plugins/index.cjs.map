@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/plugins/index.ts"],
-  "sourcesContent": ["export { default as persistence } from './persistence';\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,yBAAuC;",
-  "names": []
-}

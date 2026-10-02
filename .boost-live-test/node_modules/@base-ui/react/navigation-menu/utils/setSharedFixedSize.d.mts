@@ -1,1 +1,0 @@
-export declare function setSharedFixedSize(popupElement: HTMLElement, positionerElement: HTMLElement, width: number, height: number): void;

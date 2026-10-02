@@ -1,8 +1,0 @@
-{
-  "name": "@ariakit/react/menu",
-  "private": true,
-  "sideEffects": false,
-  "main": "../cjs/menu.cjs",
-  "module": "../esm/menu.js",
-  "types": "../cjs/menu.d.ts"
-}

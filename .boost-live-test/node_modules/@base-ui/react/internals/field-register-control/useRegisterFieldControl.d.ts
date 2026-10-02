@@ -1,2 +1,0 @@
-import type { FieldControlRegistration } from "./useFieldControlRegistration.js";
-export declare function useRegisterFieldControl(controlRef: FieldControlRegistration['controlRef'], id: FieldControlRegistration['id'], value: FieldControlRegistration['value'], getFormValueOverride?: FieldControlRegistration['getValue'], enabled?: boolean, name?: FieldControlRegistration['name']): void;

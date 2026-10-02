@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/visually-hidden/types.ts"],
-  "sourcesContent": ["export {};"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

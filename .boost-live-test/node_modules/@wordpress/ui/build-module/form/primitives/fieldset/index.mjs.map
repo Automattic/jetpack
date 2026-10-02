@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../src/form/primitives/fieldset/index.ts"],
-  "sourcesContent": ["import { FieldsetRoot as Root } from './root';\nimport { FieldsetLegend as Legend } from './legend';\nimport { FieldsetDescription as Description } from './description';\nimport { FieldsetDetails as Details } from './details';\n\nexport { Root, Legend, Description, Details };\n"],
-  "mappings": ";AAAA,SAAS,gBAAgB,YAAY;AACrC,SAAS,kBAAkB,cAAc;AACzC,SAAS,uBAAuB,mBAAmB;AACnD,SAAS,mBAAmB,eAAe;",
-  "names": []
-}

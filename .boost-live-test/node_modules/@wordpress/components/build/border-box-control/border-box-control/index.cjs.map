@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../src/border-box-control/border-box-control/index.ts"],
-  "sourcesContent": ["export { default as BorderBoxControl } from './component';\nexport { useBorderBoxControl } from './hook';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAA4C;AAC5C,kBAAoC;",
-  "names": []
-}

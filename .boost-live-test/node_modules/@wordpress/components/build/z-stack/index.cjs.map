@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/z-stack/index.ts"],
-  "sourcesContent": ["export { default as ZStack } from './component';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAkC;",
-  "names": []
-}

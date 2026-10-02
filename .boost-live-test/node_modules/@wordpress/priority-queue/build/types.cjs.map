@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/types.ts"],
-  "sourcesContent": ["export type RequestIdleCallbackCallback = (\n\t/**\n\t * @param timeOrDeadline - IdleDeadline object or a timestamp number.\n\t */\n\ttimeOrDeadline: IdleDeadline | number\n) => void;\n"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

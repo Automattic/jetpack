@@ -1,1 +1,0 @@
-export declare const DRAWER_CONTENT_ATTRIBUTE = "data-drawer-content";

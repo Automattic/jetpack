@@ -1,3 +1,0 @@
-import type { TriggerButtonProps } from './types';
-export declare const TriggerButton: import("react").ForwardRefExoticComponent<TriggerButtonProps & Omit<Omit<import("react").DetailedHTMLProps<import("react").ButtonHTMLAttributes<HTMLButtonElement>, HTMLButtonElement>, "ref">, "as" | keyof TriggerButtonProps> & import("react").RefAttributes<HTMLDivElement>>;
-//# sourceMappingURL=trigger-button.d.ts.map

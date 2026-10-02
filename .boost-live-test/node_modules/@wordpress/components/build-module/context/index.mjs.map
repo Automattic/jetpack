@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/context/index.ts"],
-  "sourcesContent": ["export { ContextSystemProvider, useComponentsContext } from './context-system-provider';\nexport { contextConnect, contextConnectWithoutRef, hasConnectNamespace, getConnectNamespace } from './context-connect';\nexport { useContextSystem } from './use-context-system';\nexport * from './wordpress-component';"],
-  "mappings": ";AAAA,SAAS,uBAAuB,4BAA4B;AAC5D,SAAS,gBAAgB,0BAA0B,qBAAqB,2BAA2B;AACnG,SAAS,wBAAwB;AACjC,cAAc;",
-  "names": []
-}

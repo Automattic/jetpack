@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/tooltip/context.ts"],
-  "sourcesContent": ["import { createContext } from '@wordpress/element';\nexport const TooltipInternalContext = createContext({\n  isNestedInTooltip: false\n});\nTooltipInternalContext.displayName = 'TooltipInternalContext';"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,qBAA8B;AACvB,IAAM,6BAAyB,8BAAc;AAAA,EAClD,mBAAmB;AACrB,CAAC;AACD,uBAAuB,cAAc;",
-  "names": []
-}

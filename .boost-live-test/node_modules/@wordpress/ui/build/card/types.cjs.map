@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/card/types.ts"],
-  "sourcesContent": ["import type { ReactNode } from 'react';\nimport type { ComponentProps } from '../utils/types';\n\nexport interface RootProps extends ComponentProps< 'div' > {\n\t/**\n\t * The content to be rendered inside the card.\n\t */\n\tchildren?: ReactNode;\n}\n\nexport interface HeaderProps extends ComponentProps< 'div' > {\n\t/**\n\t * The content to be rendered inside the header.\n\t */\n\tchildren?: ReactNode;\n}\n\nexport interface ContentProps extends ComponentProps< 'div' > {\n\t/**\n\t * The content to be rendered inside the content area.\n\t */\n\tchildren?: ReactNode;\n}\n\nexport interface FullBleedProps extends ComponentProps< 'div' > {\n\t/**\n\t * The content to be rendered edge-to-edge, breaking out of the\n\t * card's padding.\n\t */\n\tchildren?: ReactNode;\n}\n\nexport interface TitleProps extends ComponentProps< 'div' > {\n\t/**\n\t * The title text for the card.\n\t */\n\tchildren?: ReactNode;\n}\n"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

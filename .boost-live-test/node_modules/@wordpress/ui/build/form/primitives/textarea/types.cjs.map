@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../../../src/form/primitives/textarea/types.ts"],
-  "sourcesContent": ["import type { InputProps } from '../input/types';\nimport type { ComponentProps } from '../../../utils/types';\n\nexport type TextareaProps = Omit<\n\tComponentProps< 'textarea' >,\n\t'disabled' | 'rows' | 'value' | 'defaultValue'\n> &\n\tPick<\n\t\tInputProps,\n\t\t'value' | 'defaultValue' | 'onValueChange' | 'disabled'\n\t> & {\n\t\t/**\n\t\t * The number of rows the textarea should contain.\n\t\t *\n\t\t * @default 4\n\t\t */\n\t\trows?: React.ComponentProps< 'textarea' >[ 'rows' ];\n\t};\n"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

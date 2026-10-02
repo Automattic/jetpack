@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/dom/get-range-height.js"],
-  "sourcesContent": ["/**\n * Gets the height of the range without ignoring zero width rectangles, which\n * some browsers ignore when creating a union.\n *\n * @param {Range} range The range to check.\n * @return {number | undefined} Height of the range or undefined if the range has no client rectangles.\n */\nexport default function getRangeHeight( range ) {\n\tconst rects = Array.from( range.getClientRects() );\n\n\tif ( ! rects.length ) {\n\t\treturn;\n\t}\n\n\tconst highestTop = Math.min( ...rects.map( ( { top } ) => top ) );\n\tconst lowestBottom = Math.max( ...rects.map( ( { bottom } ) => bottom ) );\n\n\treturn lowestBottom - highestTop;\n}\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAOe,SAAR,eAAiC,OAAQ;AAC/C,QAAM,QAAQ,MAAM,KAAM,MAAM,eAAe,CAAE;AAEjD,MAAK,CAAE,MAAM,QAAS;AACrB;AAAA,EACD;AAEA,QAAM,aAAa,KAAK,IAAK,GAAG,MAAM,IAAK,CAAE,EAAE,IAAI,MAAO,GAAI,CAAE;AAChE,QAAM,eAAe,KAAK,IAAK,GAAG,MAAM,IAAK,CAAE,EAAE,OAAO,MAAO,MAAO,CAAE;AAExE,SAAO,eAAe;AACvB;",
-  "names": []
-}

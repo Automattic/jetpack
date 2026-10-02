@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/context/wordpress-component.ts"],
-  "sourcesContent": ["export {};"],
-  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
-  "names": []
-}

@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/create-element.js"],
-  "sourcesContent": ["/**\n * Parse the given HTML into a body element.\n *\n * Note: The current implementation will return a shared reference, reset on\n * each call to `createElement`. Therefore, you should not hold a reference to\n * the value to operate upon asynchronously, as it may have unexpected results.\n *\n * @param {HTMLDocument} document The HTML document to use to parse.\n * @param {string}       html     The HTML to parse.\n *\n * @return {HTMLBodyElement} Body element with parsed HTML.\n */\nexport function createElement( { implementation }, html ) {\n\t// Because `createHTMLDocument` is an expensive operation, and with this\n\t// function being internal to `rich-text` (full control in avoiding a risk\n\t// of asynchronous operations on the shared reference), a single document\n\t// is reused and reset for each call to the function.\n\tif ( ! createElement.body ) {\n\t\tcreateElement.body = implementation.createHTMLDocument( '' ).body;\n\t}\n\n\tcreateElement.body.innerHTML = html;\n\n\treturn createElement.body;\n}\n"],
-  "mappings": ";AAYO,SAAS,cAAe,EAAE,eAAe,GAAG,MAAO;AAKzD,MAAK,CAAE,cAAc,MAAO;AAC3B,kBAAc,OAAO,eAAe,mBAAoB,EAAG,EAAE;AAAA,EAC9D;AAEA,gBAAc,KAAK,YAAY;AAE/B,SAAO,cAAc;AACtB;",
-  "names": []
-}

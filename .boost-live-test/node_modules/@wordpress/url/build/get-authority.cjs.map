@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../src/get-authority.ts"],
-  "sourcesContent": ["/**\n * Returns the authority part of the URL.\n *\n * @param url The full URL.\n *\n * @example\n * ```js\n * const authority1 = getAuthority( 'https://wordpress.org/help/' ); // 'wordpress.org'\n * const authority2 = getAuthority( 'https://localhost:8080/test/' ); // 'localhost:8080'\n * ```\n *\n * @return The authority part of the URL.\n */\nexport function getAuthority( url: string ): string | void {\n\tconst matches = /^[^\\/\\s:]+:(?:\\/\\/)?\\/?([^\\/\\s#?]+)[\\/#?]{0,1}\\S*$/.exec(\n\t\turl\n\t);\n\tif ( matches ) {\n\t\treturn matches[ 1 ];\n\t}\n}\n"],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAaO,SAAS,aAAc,KAA6B;AAC1D,QAAM,UAAU,qDAAqD;AAAA,IACpE;AAAA,EACD;AACA,MAAK,SAAU;AACd,WAAO,QAAS,CAAE;AAAA,EACnB;AACD;",
-  "names": []
-}

@@ -1,1 +1,0 @@
-export declare function getSliderValue(valueInput: number, index: number, min: number, max: number, range: boolean, values: readonly number[]): number | number[];

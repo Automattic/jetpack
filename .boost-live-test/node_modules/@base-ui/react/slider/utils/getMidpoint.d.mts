@@ -1,1 +1,0 @@
-export declare function getMidpoint(element: HTMLElement, vertical: boolean): number;

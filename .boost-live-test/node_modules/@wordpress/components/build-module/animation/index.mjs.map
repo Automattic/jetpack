@@ -1,7 +1,0 @@
-{
-  "version": 3,
-  "sources": ["../../src/animation/index.tsx"],
-  "sourcesContent": ["/**\n * Framer Motion is used to create animated, interactive interfaces. The package is roughly ~30kb so\n * this should ideally be loaded once across all Gutenberg packages. To give ourselves more flexibility\n * in trying animation options, we avoid making this public API.\n *\n * @see https://www.framer.com/docs/animation/\n */\n\nexport { motion as __unstableMotion, AnimatePresence as __unstableAnimatePresence } from 'framer-motion';"],
-  "mappings": ";AAQA,SAAmB,QAAqC,uBAAiC;",
-  "names": []
-}
