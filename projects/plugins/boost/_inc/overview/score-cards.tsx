@@ -21,6 +21,7 @@ type Props = {
 	error?: Error | null;
 	onRetry?: () => void;
 	isVisible?: boolean;
+	isScoreReady?: boolean;
 };
 
 export default function ScoreCards( {
@@ -31,6 +32,7 @@ export default function ScoreCards( {
 	error,
 	onRetry,
 	isVisible = true,
+	isScoreReady = false,
 }: Props ) {
 	const titleRef = useRef< HTMLHeadingElement >( null );
 	const hasFocus = useRef( false );
@@ -64,12 +66,18 @@ export default function ScoreCards( {
 		</Card.Content>
 	);
 	const calculating = (
-		<Card.Content className="jetpack-boost-overview__scores-status" role="status">
-			{ showOverlay && (
-				<IndeterminateProgress label={ __( 'Testing site speed', 'jetpack-boost' ) }>
-					{ announceCalculating && __( 'Calculating…', 'jetpack-boost' ) }
-				</IndeterminateProgress>
-			) }
+		<Card.Content
+			className={ clsx( 'jetpack-boost-overview__scores-status', {
+				'jetpack-boost-overview__scores-status--generating': showOverlay,
+			} ) }
+		>
+			<IndeterminateProgress
+				label={ __( 'Testing site speed', 'jetpack-boost' ) }
+				isGenerating={ showOverlay }
+				live
+			>
+				{ showOverlay && announceCalculating && __( 'Calculating…', 'jetpack-boost' ) }
+			</IndeterminateProgress>
 		</Card.Content>
 	);
 	let body: ReactNode;
@@ -88,7 +96,7 @@ export default function ScoreCards( {
 					<div
 						className={ clsx( 'jetpack-boost-overview__score-row', {
 							'jetpack-boost-overview__score-row--hidden': showOverlay,
-							'jetpack-boost-score-ready': displayState === 'scores',
+							'jetpack-boost-score-ready': isScoreReady && displayState === 'scores',
 						} ) }
 						aria-busy={ isLoading }
 					>

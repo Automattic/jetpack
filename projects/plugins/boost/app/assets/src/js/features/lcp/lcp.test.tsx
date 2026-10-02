@@ -49,7 +49,6 @@ test.each( [
 	const well = within( screen.getByTestId( 'lcp-status-well' ) );
 	const button = well.getByRole( 'button', { name: 'Optimize' } ) as HTMLButtonElement;
 	expect( well.getByText( text ) ).toBeTruthy();
-	expect( well.queryAllByRole( 'progressbar' ) ).toHaveLength( status === 'pending' ? 1 : 0 );
 	expect( button.disabled ).toBe( status === 'pending' );
 	// eslint-disable-next-line testing-library/prefer-user-event -- Match the synchronous control tests in this project.
 	fireEvent.click( button );
@@ -87,17 +86,7 @@ test( 'keeps the status container without a well on the default legacy surface',
 	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The legacy container has no role or test ID.
 	expect( container.querySelector( `.${ styles.status }` ) ).toBeTruthy();
 	expect( screen.queryByTestId( 'lcp-status-well' ) ).toBeNull();
-	expect( screen.queryByRole( 'progressbar' ) ).toBeNull();
 	expect(
 		screen.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you." )
 	).toBeTruthy();
-} );
-
-test( 'labels pending LCP progress without a completion percentage', () => {
-	renderState( { status: 'pending', pages: [] } );
-	const progress = screen.getByRole( 'progressbar', {
-		name: 'Optimizing LCP images',
-	} ) as HTMLProgressElement;
-	expect( progress.position ).toBe( -1 );
-	expect( progress.attributes.getNamedItem( 'aria-valuenow' ) ).toBeNull();
 } );

@@ -3,6 +3,7 @@ import { ProgressBar } from '@wordpress/components';
 import { __, _x } from '@wordpress/i18n';
 import { Icon, dashboard, desktop, mobile } from '@wordpress/icons';
 import { Badge, Text, VisuallyHidden } from '@wordpress/ui';
+import clsx from 'clsx';
 import IndeterminateProgress from '../../app/assets/src/js/features/ui/indeterminate-progress/indeterminate-progress';
 import {
 	formatScoreDelta,
@@ -16,7 +17,13 @@ import type { SpeedScoreState } from './lib/use-speed-scores';
 import './score-bar.scss';
 import './score-ready.scss';
 
-export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
+export default function ScoreBar( {
+	state,
+	isScoreReady = false,
+}: {
+	state: SpeedScoreState;
+	isScoreReady?: boolean;
+} ) {
 	const { scores } = state;
 	const displayState = getScoreDisplayState( state );
 	const overallTier = getOverallScoreTier( scores );
@@ -38,7 +45,11 @@ export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
 				</div>
 			) : (
 				<>
-					<div className="jetpack-boost-score-bar__overall jetpack-boost-score-ready">
+					<div
+						className={ clsx( 'jetpack-boost-score-bar__overall', {
+							'jetpack-boost-score-ready': isScoreReady,
+						} ) }
+					>
 						<Icon icon={ dashboard } className="jetpack-boost-overview__score-icon" />
 						<VisuallyHidden>
 							{ _x( 'Overall', 'combined speed score grade', 'jetpack-boost' ) }
@@ -63,7 +74,9 @@ export default function ScoreBar( { state }: { state: SpeedScoreState } ) {
 						return (
 							<div
 								key={ device }
-								className="jetpack-boost-score-bar__device jetpack-boost-score-ready"
+								className={ clsx( 'jetpack-boost-score-bar__device', {
+									'jetpack-boost-score-ready': isScoreReady,
+								} ) }
 							>
 								<Icon
 									icon={ device === 'desktop' ? desktop : mobile }

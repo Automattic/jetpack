@@ -230,7 +230,9 @@ test( 'shows one calculating status instead of the score sections before scores 
 	const progress = screen.getByRole( 'progressbar', { name: 'Testing site speed' } );
 	expect( progress ).not.toHaveAttribute( 'value' );
 	expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
-	expect( screen.getAllByRole( 'status' ) ).toHaveLength( 1 );
+	expect(
+		within( screen.getByRole( 'status' ) ).queryByRole( 'progressbar' )
+	).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'region' ) ).not.toBeInTheDocument();
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
 } );
@@ -259,7 +261,9 @@ test( 'overlays calculating while retaining hidden scores and restores the row o
 	const row = desktop.closest( '.jetpack-boost-overview__score-row' );
 	expect( row ).toHaveClass( 'jetpack-boost-overview__score-row--hidden' );
 	expect( row ).not.toHaveClass( 'jetpack-boost-score-ready' );
-	rerender( <ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } /> );
+	rerender(
+		<ScoreCards scores={ { ...scores, current: { desktop: 90, mobile: 70 } } } isScoreReady />
+	);
 	expect( row ).toHaveClass( 'jetpack-boost-score-ready' );
 	expect( screen.getByRole( 'progressbar', { name: 'Desktop' } ) ).toBe( desktop );
 	expect( desktop ).toBeVisible();

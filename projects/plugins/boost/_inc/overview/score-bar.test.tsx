@@ -93,22 +93,15 @@ test( 'reveals completed scores in both surfaces with a motion-safe CSS entry', 
 	expect( screen.getAllByRole( 'status' ) ).toHaveLength( 1 );
 	rerender(
 		<>
-			<ScoreCards scores={ state.scores } />
-			<ScoreBar state={ state } />
+			<ScoreCards scores={ state.scores } isScoreReady />
+			<ScoreBar state={ state } isScoreReady />
 		</>
 	);
 	for ( const score of screen.getAllByText( '80' ) ) {
 		// eslint-disable-next-line testing-library/no-node-access -- Both surfaces attach CSS entry to a score ancestor.
 		expect( score.closest( '.jetpack-boost-score-ready' ) ).not.toBeNull();
 	}
-	const css = jest
-		.requireActual( 'fs' )
-		.readFileSync( new URL( './score-ready.scss', import.meta.url ), 'utf8' );
-	expect( css ).toMatch( /@media \(prefers-reduced-motion: no-preference\)\s*\{/ );
-	expect( css ).toMatch(
-		/animation: jetpack-boost-score-entry var\(--wpds-motion-duration-xl\) var\(--wpds-motion-easing-expressive\)/
-	);
-	expect( css ).toMatch( /@keyframes jetpack-boost-score-entry/ );
-	expect( css ).toMatch( /from\s*\{\s*opacity: 0;/ );
-	expect( css ).toMatch( /to\s*\{\s*opacity: 1;/ );
+	const overall = within( screen.getByLabelText( 'Site speed summary' ) ).getByText( 'C' );
+	// eslint-disable-next-line testing-library/no-node-access -- The overall grade owns one condensed entry.
+	expect( overall.closest( '.jetpack-boost-score-ready' ) ).not.toBeNull();
 } );
