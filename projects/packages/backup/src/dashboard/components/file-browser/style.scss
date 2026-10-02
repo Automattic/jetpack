@@ -37,6 +37,8 @@
 		// a definite min like `minmax(100%, max-content)` caps at the scrollport.
 		display: grid;
 		grid-template-columns: minmax(max-content, 1fr);
+		// Shares the card's row; `normal` stretches rows to the card's height.
+		align-content: start;
 		overflow-x: auto;
 	}
 
