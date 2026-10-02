@@ -4,7 +4,7 @@ import { useCallback, useRef, useState } from 'react';
 import { LineChartUnresponsive } from '../../../charts/line-chart/line-chart';
 import { GlobalChartsProvider } from '../../../providers';
 import { ChartScopeContext } from '../../../providers/chart-scope';
-import { useKeyboardNavigation } from '../accessible-tooltip';
+import { AccessibleTooltip, XYChartTooltip, useKeyboardNavigation } from '../accessible-tooltip';
 import type { ReactNode } from 'react';
 
 // A real chart is the harness rather than the subject: the crosshairs render only once visx has a data context and an open tooltip. The unresponsive export is what lets the test own the scope element — `withResponsive` otherwise provides its own wrapper as the scope.
@@ -48,7 +48,11 @@ const openTooltip = async () => {
 	return screen.getByTestId( 'xy-chart-tooltip-crosshair-vertical' );
 };
 
-describe( 'AccessibleTooltip', () => {
+describe( 'XYChartTooltip', () => {
+	it( 'keeps AccessibleTooltip as an alias', () => {
+		expect( AccessibleTooltip ).toBe( XYChartTooltip );
+	} );
+
 	// The stroke is read at the scope element, not inherited through the DOM; see TOKENS.md#the-svg-bridge.
 	it( 'reads the grid role from the scope element', async () => {
 		const scope = document.createElement( 'div' );

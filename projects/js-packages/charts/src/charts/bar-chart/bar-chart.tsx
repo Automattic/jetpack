@@ -4,7 +4,7 @@ import { __, sprintf } from '@wordpress/i18n';
 import clsx from 'clsx';
 import { useCallback, useContext, useState, useRef, useMemo } from 'react';
 import { Legend, useChartLegendItems } from '../../components/legend';
-import { AccessibleTooltip, useKeyboardNavigation } from '../../components/tooltip';
+import { XYChartTooltip, useKeyboardNavigation } from '../../components/tooltip';
 import {
 	useXYChartTheme,
 	useChartDataTransform,
@@ -783,7 +783,7 @@ const BarChartInternal: FC< BarChartProps > = ( {
 										) }
 
 										{ withTooltips && (
-											<AccessibleTooltip
+											<XYChartTooltip
 												tooltipPlacement={ tooltipPlacement }
 												tooltipAnchorTop={ tooltipAnchorTop }
 												style={ tooltipStyle }
