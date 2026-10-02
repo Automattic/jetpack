@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { renderHook } from '@testing-library/react';
+import { act, renderHook } from '@testing-library/react';
 /**
  * Internal dependencies
  */
@@ -62,10 +62,48 @@ describe( 'useExporterCsvAction', () => {
 			{ wrapper }
 		);
 
-		await expect( result.current?.callback() ).resolves.toBeUndefined();
+		await act( () => expect( result.current?.callback() ).resolves.toBeUndefined() );
 		expect( mockCreateErrorNotice ).toHaveBeenCalledWith( 'Upstream API unavailable.', {
 			type: 'snackbar',
 			explicitDismiss: true,
 		} );
+	} );
+
+	it( 'stays available while its own download refetches the widget query', async () => {
+		let finishDownload: () => void = () => {};
+		jest.mocked( downloadReportCsv ).mockReturnValue(
+			new Promise< void >( resolve => {
+				finishDownload = resolve;
+			} )
+		);
+		const { result, rerender } = renderHook(
+			( { status } ) => useExporterCsvAction( { exporter, status, rowCount: 3 } ),
+			{ wrapper, initialProps: { status: SETTLED } }
+		);
+
+		let download: Promise< unknown >;
+		act( () => {
+			download = result.current.callback();
+		} );
+		rerender( { status: { ...SETTLED, isFetching: true } } );
+		expect( result.current ).not.toBeNull();
+
+		await act( async () => {
+			finishDownload();
+			await download;
+		} );
+		expect( result.current ).toBeNull();
+	} );
+
+	it( 'stops holding the button once a failed download settles', async () => {
+		jest.mocked( downloadReportCsv ).mockRejectedValue( new Error( 'Upstream API unavailable.' ) );
+		const { result, rerender } = renderHook(
+			( { status } ) => useExporterCsvAction( { exporter, status, rowCount: 3 } ),
+			{ wrapper, initialProps: { status: SETTLED } }
+		);
+
+		await act( () => result.current.callback() );
+		rerender( { status: { ...SETTLED, isFetching: true } } );
+		expect( result.current ).toBeNull();
 	} );
 } );

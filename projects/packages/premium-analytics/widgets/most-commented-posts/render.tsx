@@ -13,6 +13,8 @@ import {
 	WidgetState,
 	describeError,
 	sharePercentage,
+	ExporterCsvDownloadButton,
+	commentsPostsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -98,6 +100,11 @@ function MostCommentedPostsInner() {
 					report="comments"
 					section="posts"
 					ariaLabel={ __( 'See the commented posts report', 'jetpack-premium-analytics-pkg' ) }
+				/>
+				<ExporterCsvDownloadButton
+					exporter={ commentsPostsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ rows.length }
 				/>
 			</WidgetFooter>
 		</Stack>

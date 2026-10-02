@@ -7,7 +7,7 @@ import {
 	queryClient,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
@@ -162,5 +162,31 @@ describe( 'AnnualHighlightsWidget', () => {
 
 		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
 		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
+	} );
+
+	it( 'keeps the download available after a failed download of stale highlights', async () => {
+		jest.useFakeTimers();
+		try {
+			renderWidget();
+			await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+
+			act( () => {
+				jest.advanceTimersByTime( 6 * 60 * 1000 );
+			} );
+			mockApiFetch.mockRejectedValue( { code: 'server_error', data: { status: 500 } } );
+			// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+			fireEvent.click( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).not.toHaveAttribute(
+					'aria-disabled',
+					'true'
+				)
+			);
+			expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 } );

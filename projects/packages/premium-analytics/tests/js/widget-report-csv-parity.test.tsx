@@ -13,18 +13,27 @@ import { useSectionTab } from '@jetpack-premium-analytics/routing';
 /**
  * Internal dependencies
  */
+import AnnualInsightsReportPage from '../../routes/reports/annual-insights/page';
 import AuthorsReportPage from '../../routes/reports/authors/page';
 import ClicksReportPage from '../../routes/reports/clicks/page';
+import CommentsReportPage from '../../routes/reports/comments/page';
 import DownloadsReportPage from '../../routes/reports/downloads/page';
+import EmailsReportPage from '../../routes/reports/emails/page';
 import PostsReportPage from '../../routes/reports/posts/page';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
+import TagsReportPage from '../../routes/reports/tags/page';
 import VideosReportPage from '../../routes/reports/videos/page';
+import AnnualHighlightsWidget from '../../widgets/annual-highlights/render';
 import AuthorsWidget from '../../widgets/authors/render';
 import ClicksWidget from '../../widgets/clicks/render';
+import EmailsWidget from '../../widgets/emails/render';
 import FileDownloadsWidget from '../../widgets/file-downloads/render';
+import MostCommentedAuthorsWidget from '../../widgets/most-commented-authors/render';
+import MostCommentedPostsWidget from '../../widgets/most-commented-posts/render';
 import ReferrersWidget from '../../widgets/referrers/render';
 import SearchTermsWidget from '../../widgets/search-terms/render';
+import TagsWidget from '../../widgets/tags/render';
 import { captureCsvDownloads } from '../../widgets/test-utils';
 import TopPostsWidget from '../../widgets/top-posts/render';
 import VideoPressWidget from '../../widgets/videopress/render';
@@ -192,6 +201,57 @@ const RESPONSES: Record< string, unknown > = {
 				posts: [ { id: 100 + index, title: `Post ${ index }`, url: null, views: 50 - index } ],
 			} ) ),
 		},
+	},
+	'stats/insights': {
+		years: Array.from( { length: 12 }, ( _, index ) => ( {
+			year: String( 2015 + index ),
+			total_posts: index + 1,
+			total_comments: index * 2,
+			avg_comments: 2,
+			total_likes: index * 3,
+			avg_likes: 3,
+			total_words: index * 100,
+			avg_words: 100.5,
+			total_images: index,
+			avg_images: 1,
+		} ) ),
+	},
+	'stats/comments': {
+		authors: Array.from( { length: 12 }, ( _, index ) => ( {
+			name: `Commenter ${ index }`,
+			comments: ( ( index * 5 ) % 12 ) + 1,
+			link: `?user_id=${ index + 1 }`,
+			gravatar: null,
+		} ) ),
+		posts: Array.from( { length: 12 }, ( _, index ) => ( {
+			id: index + 1,
+			name: `Commented post ${ index }`,
+			comments: ( ( index * 7 ) % 12 ) + 1,
+			link: `https://example.com/post-${ index }/`,
+		} ) ),
+	},
+	'stats/tags': {
+		tags: Array.from( { length: 12 }, ( _, index ) => ( {
+			tags: [
+				{ type: 'tag', name: `tag-${ index }`, link: `https://example.com/tag/${ index }/` },
+			],
+			views: ( ( index * 5 ) % 12 ) + 1,
+		} ) ),
+	},
+	'stats/emails/summary': {
+		posts: Array.from( { length: 12 }, ( _, index ) => ( {
+			id: index + 1,
+			title: `Issue ${ index }`,
+			href: `https://example.com/issue-${ index }/`,
+			date: `2026-0${ ( index % 9 ) + 1 }-1${ index % 10 }`,
+			opens: 10 + index,
+			clicks: index,
+			opens_rate: 25,
+			clicks_rate: 5,
+			unique_opens: 8,
+			unique_clicks: index ? 1 : 0,
+			total_sends: 40,
+		} ) ),
 	},
 };
 
@@ -362,6 +422,31 @@ describe( 'Widget and report CSV parity', () => {
 			expect( mockApiFetch ).toHaveBeenCalledWith(
 				expect.objectContaining( { path: expect.stringContaining( '2026-02' ) } )
 			);
+		}
+	);
+
+	it.each( [
+		[ 'annual-insights.csv', AnnualInsightsReportPage, AnnualHighlightsWidget, undefined ],
+		[ 'comments-authors.csv', CommentsReportPage, MostCommentedAuthorsWidget, 'authors' ],
+		[ 'comments-posts.csv', CommentsReportPage, MostCommentedPostsWidget, 'posts' ],
+		[ 'tags-and-categories.csv', TagsReportPage, TagsWidget, undefined ],
+		[ 'emails.csv', EmailsReportPage, EmailsWidget, undefined ],
+	] as const )(
+		'downloads the same all-time %s from the widget as from the report page',
+		async ( filename, ReportPage, Widget, section ) => {
+			if ( section ) {
+				mockUseSectionTab.mockReturnValue( [ section, jest.fn() ] );
+			}
+
+			const reportFile = await download( <ReportPage /> );
+			queryClient.clear();
+			const widgetFile = await download(
+				<Widget attributes={ { reportParams: REPORT_PARAMS } } />
+			);
+
+			expect( widgetFile ).toEqual( reportFile );
+			expect( widgetFile.filename ).toBe( filename );
+			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
 		}
 	);
 } );

@@ -29,6 +29,8 @@ jest.mock( '@wordpress/admin-ui', () => ( {
 } ) );
 
 jest.mock( '@wordpress/route', () => ( {
+	...jest.requireActual( '@wordpress/route' ),
+	useSearch: () => ( {} ),
 	Link: ( { children }: { children: ReactNode } ) => <a href="/post">{ children }</a>,
 } ) );
 

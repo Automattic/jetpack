@@ -1,2 +1,2 @@
-export { getClicksRateSignals, getEmailsFields, getOpensRateSignals } from './fields';
+export { getEmailsFields } from './fields';
 export { useEmailsReportRecords } from './use-report-records';

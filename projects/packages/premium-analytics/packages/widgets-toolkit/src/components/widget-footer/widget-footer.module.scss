@@ -1,3 +1,6 @@
+// How far a compact icon button, centred on the link's line, reaches past it.
+$action-overhang: calc(( var(--wpds-dimension-size-md) - var(--wpds-typography-line-height-sm) ) / 2);
+
 .footer {
 	display: flex;
 	align-items: center;
@@ -7,7 +10,12 @@
 	border-block-start:
 		var(--wpds-border-width-xs) solid
 		var(--wpds-color-stroke-surface-neutral-weak);
-	padding-block-start: var(--wpds-dimension-padding-lg);
+	// One line of actions, with the overhang moved from the top padding to the
+	// bottom: the footer keeps its height and stays clear of the widget's clip.
+	box-sizing: content-box;
+	block-size: var(--wpds-typography-line-height-sm);
+	padding-block: calc(var(--wpds-dimension-padding-lg) - #{$action-overhang}) $action-overhang;
+	white-space: nowrap;
 }
 
 .footer:empty {

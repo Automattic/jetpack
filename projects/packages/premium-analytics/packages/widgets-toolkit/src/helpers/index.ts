@@ -87,7 +87,9 @@ export {
 export { compareOptionalNumbers } from './compare-optional-numbers';
 export {
 	formatEmailRate,
+	getClicksRateSignals,
 	getKnownEmailRate,
+	getOpensRateSignals,
 	isEmailRateKnown,
 	type EmailRateSignals,
 } from './format-email-rate';
