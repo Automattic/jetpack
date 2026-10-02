@@ -27,6 +27,7 @@ export type ReportQueryParams = Partial<
 		RequestReportSessionsByDeviceParams
 >;
 
+export { disableDashboard } from './dashboard-enablement';
 export { fetchReportOrders } from './report-orders-fetch';
 export {
 	fetchReportOrderAttributionSummary,

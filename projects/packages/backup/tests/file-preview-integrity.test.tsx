@@ -16,11 +16,11 @@ import type { FileNodeFile } from '../src/dashboard/types/file-tree';
 const noop = () => {};
 
 const FILE: FileNodeFile = {
-	name: 'error.log',
-	path: '/error.log',
+	name: 'error.txt',
+	path: '/error.txt',
 	type: 'file',
 	period: '1786644531',
-	manifestPath: 'f5:/error.log',
+	manifestPath: 'f5:/error.txt',
 };
 
 const UNAVAILABLE = 'Preview unavailable for this file.';

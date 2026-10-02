@@ -1719,7 +1719,7 @@ function wpcom_launchpad_get_newsletter_settings_url() {
 		return \Automattic\Jetpack\Newsletter\Urls::get_newsletter_settings_url();
 	}
 
-	return admin_url( 'admin.php?page=jetpack-newsletter' );
+	return admin_url( 'admin.php?page=jetpack-newsletter&p=' . rawurlencode( '/?tab=settings' ) );
 }
 
 /**

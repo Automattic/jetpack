@@ -6,11 +6,14 @@ import {
 	useStatsTopPosts,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
+import {
+	buildArchiveRows,
+	getPostsReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 /**
  * Internal dependencies
  */
-import { buildArchiveRows } from './fields';
 import type { ReportPostsTabId } from './tabs';
 
 /**
@@ -24,13 +27,7 @@ export function usePostsReportRecords( activeTab: ReportPostsTabId, reportParams
 	const isPostsTab = activeTab === 'posts-pages';
 
 	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			period: 'day',
-			summarize: 1,
-			skip_archives: 1,
-		} ),
+		() => getPostsReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const posts = useStatsTopPosts( recordsParams, { enabled: isPostsTab } );
@@ -38,10 +35,11 @@ export function usePostsReportRecords( activeTab: ReportPostsTabId, reportParams
 
 	const activeReport = isPostsTab ? posts : archives;
 	const postRows = posts.comparisonRows?.rows ?? [];
-	const archiveRows = useMemo(
-		() => buildArchiveRows( archives.comparisonRows?.rows ?? [] ),
+	const archiveItems = useMemo(
+		() => archives.comparisonRows?.rows ?? [],
 		[ archives.comparisonRows ]
 	);
+	const archiveRows = useMemo( () => buildArchiveRows( archiveItems ), [ archiveItems ] );
 
 	return {
 		isError: activeReport.isError,
@@ -54,6 +52,7 @@ export function usePostsReportRecords( activeTab: ReportPostsTabId, reportParams
 			isError: posts.isError,
 		},
 		archives: {
+			items: archiveItems,
 			rows: archiveRows,
 			hasComparison: archives.hasComparison,
 			isLoading: archives.isLoading,

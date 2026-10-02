@@ -30,7 +30,7 @@ const BOOTSTRAP = {
 		channel: 'web',
 		surface: 'dashboard',
 		screen: 'admin.php',
-		ref: 'experiment_wpcom_launchpad_personalization_202607_v1',
+		ref: 'ai_launchpad',
 		site_type: 'simple',
 		agent_name: 'ai_launchpad',
 		agent_version: '6.10.1',

@@ -528,10 +528,12 @@ type BlockStyleProperties = {
 	 * becomes
 	 * `{ '--colorComment': string | undefined; }`
 	 */
-	[ key in `--${ keyof Pick<
-		Attributes,
-		Extract< keyof Attributes, `color${ Capitalize< string > }` >
-	> }` ]-?: string | undefined;
+	[
+		key in `--${ keyof Pick<
+			Attributes,
+			Extract< keyof Attributes, `color${ Capitalize< string > }` >
+		> }`
+	]-?: string | undefined;
 } & {
 	'--line-numbers-start-at'?: string;
 	'--line-number-gutter-width'?: string;
@@ -570,9 +572,8 @@ function blockStyle( attributes: Attributes ): BlockStyleProperties {
 	}
 
 	if ( attributes.backgroundColor ) {
-		properties[
-			'--colorBackground'
-		] = `var( --wp--preset--color--${ attributes.backgroundColor } )`;
+		properties[ '--colorBackground' ] =
+			`var( --wp--preset--color--${ attributes.backgroundColor } )`;
 	} else if ( attributes.style?.color?.background ) {
 		properties[ '--colorBackground' ] = attributes.style.color.background;
 	}

@@ -9,10 +9,11 @@ import { withModuleSettingsFormHelpers } from 'components/module-settings/with-m
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import SupportLink from 'components/support-link';
 import TextInput from 'components/text-input';
 import GoogleVerificationService from './verification-services/google';
 
-class VerificationServicesComponent extends Component {
+export class VerificationServicesComponent extends Component {
 	static serviceIds = {
 		google: 'google-site-verification',
 		bing: 'msvalidate.01',
@@ -26,7 +27,7 @@ class VerificationServicesComponent extends Component {
 			return '';
 		}
 
-		if ( ! /^[a-z0-9_-]+$/i.test( content ) ) {
+		if ( ! /^(?!.*[<>"'])[!-~]+$/.test( content ) ) {
 			// User is probably editing the content
 			return content;
 		}
@@ -36,9 +37,11 @@ class VerificationServicesComponent extends Component {
 			return content;
 		}
 
+		const escapedContent = content.replace( /&(?!(?:#\d+|#x[\da-f]+|[a-z][\da-z]*);)/gi, '&amp;' );
+
 		return `<meta name="${
 			VerificationServicesComponent.serviceIds?.[ serviceName ] ?? ''
-		}" content="${ content }" />`;
+		}" content="${ escapedContent }" />`;
 	}
 
 	getSiteVerificationValue( service ) {
@@ -90,6 +93,7 @@ class VerificationServicesComponent extends Component {
 							'jetpack'
 						),
 						link: getRedirectUrl( 'jetpack-support-site-verification-tools' ),
+						wpcomLink: 'https://wordpress.com/support/site-verification-services/',
 					} }
 				>
 					<ModuleToggle
@@ -111,7 +115,12 @@ class VerificationServicesComponent extends Component {
 							),
 							{
 								b: <strong />,
-								support: <a href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) } />,
+								support: (
+									<SupportLink
+										href={ getRedirectUrl( 'jetpack-support-site-verification-tools' ) }
+										wpcomLink="https://wordpress.com/support/site-verification-services/"
+									/>
+								),
 								google: (
 									<Link
 										openInNewTab

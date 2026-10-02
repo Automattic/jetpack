@@ -1,5 +1,7 @@
 vendor/
 node_modules/
 build/
+build-module
+/routes/**/.content-entry.js
 .cache/
 wordpress

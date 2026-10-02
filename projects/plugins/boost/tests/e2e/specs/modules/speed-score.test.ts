@@ -21,6 +21,10 @@ test.describe( 'Speed Score feature', () => {
 	test( 'The Speed Scores should be able to refresh', async ( { jetpackBoostPage } ) => {
 		await jetpackBoostPage.visit();
 		await jetpackBoostPage.expectScoreToBeVisible();
+		// The optional pop-out stays mounted off-screen when scores have not changed.
+		await jetpackBoostPage.page
+			.getByRole( 'button', { name: 'Do not show me again' } )
+			.dispatchEvent( 'click' );
 		// Set up network listener before clicking Refresh; the test depends on the refresh
 		// having completed before we re-assert score visibility, so wait on the response.
 		const refreshResponsePromise = jetpackBoostPage.waitForScoreRefreshResponse();

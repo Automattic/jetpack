@@ -30,7 +30,7 @@ jobs:
     name: "Manage labels and assignees"
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name
-    timeout-minutes: 15  # 2026-09-04: Temporary, pnpm/action-setup is taking up to 7 minutes.
+    timeout-minutes: 5  # 2026-05-21: Successful runs take 1–2 minutes.
 
     # See above.
     concurrency:
@@ -42,7 +42,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: Setup tools
-        uses: ./.github/actions/tool-setup
+        uses: $/.github/actions/tool-setup
 
       - name: Building Action
         env:

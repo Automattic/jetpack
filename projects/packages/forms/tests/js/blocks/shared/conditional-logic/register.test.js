@@ -1,10 +1,8 @@
 import { jest } from '@jest/globals';
 import { hasFilter, removeFilter } from '@wordpress/hooks';
 
-const mockHasFeatureFlag = jest.fn( () => true );
-
 await jest.unstable_mockModule( '@automattic/jetpack-shared-extension-utils', () => ( {
-	hasFeatureFlag: ( ...args ) => mockHasFeatureFlag( ...args ),
+	hasFeatureFlag: () => true,
 } ) );
 
 /**
@@ -30,7 +28,7 @@ await jest.unstable_mockModule( '../../../../../src/blocks/contact-form/child-bl
 	],
 } ) );
 
-const { FEATURE_FLAG, FILTER_NAMESPACE, isConditionalLogicField, registerConditionalLogicFilter } =
+const { FILTER_NAMESPACE, isConditionalLogicField, registerConditionalLogicFilter } =
 	await import( '../../../../../src/blocks/shared/conditional-logic/register.jsx' );
 
 describe( 'conditional logic registration', () => {
@@ -74,15 +72,13 @@ describe( 'conditional logic registration', () => {
 	describe( 'filter registration', () => {
 		afterEach( () => {
 			removeFilter( 'editor.BlockEdit', FILTER_NAMESPACE );
-			mockHasFeatureFlag.mockReturnValue( true );
 		} );
 
-		it( 'registers the BlockEdit filter when the feature flag is on', () => {
+		it( 'registers the BlockEdit filter', () => {
 			removeFilter( 'editor.BlockEdit', FILTER_NAMESPACE );
 
 			expect( registerConditionalLogicFilter() ).toBe( true );
 			expect( hasFilter( 'editor.BlockEdit', FILTER_NAMESPACE ) ).toBeTruthy();
-			expect( mockHasFeatureFlag ).toHaveBeenCalledWith( FEATURE_FLAG );
 		} );
 
 		// Regression: this module ships in both dist/blocks/editor.js and
@@ -96,14 +92,6 @@ describe( 'conditional logic registration', () => {
 			expect( registerConditionalLogicFilter() ).toBe( false );
 			expect( registerConditionalLogicFilter() ).toBe( false );
 			expect( hasFilter( 'editor.BlockEdit', FILTER_NAMESPACE ) ).toBeTruthy();
-		} );
-
-		it( 'does not register at all when the feature flag is off', () => {
-			removeFilter( 'editor.BlockEdit', FILTER_NAMESPACE );
-			mockHasFeatureFlag.mockReturnValue( false );
-
-			expect( registerConditionalLogicFilter() ).toBe( false );
-			expect( hasFilter( 'editor.BlockEdit', FILTER_NAMESPACE ) ).toBeFalsy();
 		} );
 	} );
 } );

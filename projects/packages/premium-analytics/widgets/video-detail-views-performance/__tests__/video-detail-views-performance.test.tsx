@@ -4,6 +4,7 @@
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
+import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
@@ -18,15 +19,18 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	MetricTabsChart: ( {
 		metrics,
 		chartType,
+		empty,
 	}: {
 		metrics: {
 			key: string;
 			label: string;
 			value: number;
 			current: { date: Date; value: number }[];
+			countLabel?: ( count: number ) => string;
 			dataFormat?: { type: string };
 		}[];
 		chartType?: string;
+		empty?: ReactNode;
 	} ) => (
 		<div
 			data-testid="metric-tabs-chart"
@@ -35,6 +39,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 				metrics.map( metric => ( {
 					key: metric.key,
 					label: metric.label,
+					countLabels: [ metric.countLabel?.( 1 ), metric.countLabel?.( 2 ) ],
 					value: metric.value,
 					format: metric.dataFormat?.type,
 					values: metric.current.map( point => point.value ),
@@ -42,7 +47,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 					days: metric.current.map( point => point.date.getDate() ),
 				} ) )
 			) }
-		/>
+		>
+			{ empty }
+		</div>
 	),
 } ) );
 
@@ -55,6 +62,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 type ChartedMetric = {
 	key: string;
 	label: string;
+	countLabels: ( string | null )[];
 	value: number;
 	format?: string;
 	values: number[];
@@ -168,13 +176,15 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 			'Hours watched',
 			'Retention rate',
 		] );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
 
 		// One point per calendar day of the 7-day window, zero-filled around the
 		// two returned days; the headline is the response's canonical total.
 		const [ views, impressions, watchTime, retention ] = metrics;
 		expect( views.values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		expect( views.value ).toBe( 12 );
+		expect( views.countLabels ).toEqual( [ '%s View', '%s Views' ] );
+		expect( impressions.countLabels ).toEqual( [ '%s Impression', '%s Impressions' ] );
 		expect( impressions.values ).toEqual( [ 0, 10, 0, 14, 0, 0, 0 ] );
 		expect( impressions.value ).toBe( 24 );
 		expect( watchTime.values ).toEqual( [ 0, 1.25, 0, 1.75, 0, 0, 0 ] );
@@ -248,17 +258,17 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( retention.values[ 2 ] ).toBe( 0 );
 	} );
 
-	it( 'draws bars when the chartType attribute says so', async () => {
+	it( 'draws a line when the chartType attribute says so', async () => {
 		mockApiFetch.mockImplementation( respondByWindow( { '2026-07-01': PRIMARY_WINDOW_RESPONSE } ) );
 
 		render(
 			<VideoDetailViewsPerformanceWidget
-				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'bar' } }
+				attributes={ { reportParams: WINDOW_PARAMS, chartType: 'line' } }
 			/>
 		);
 
 		const chart = await screen.findByTestId( 'metric-tabs-chart' );
-		expect( chart ).toHaveAttribute( 'data-chart-type', 'bar' );
+		expect( chart ).toHaveAttribute( 'data-chart-type', 'line' );
 	} );
 
 	it( 'ignores comparison report params: one request, single-period series', async () => {
@@ -314,6 +324,16 @@ describe( 'VideoDetailViewsPerformanceWidget', () => {
 		expect( metrics[ 0 ].values ).toEqual( [ 0, 5, 0, 7, 0, 0, 0 ] );
 		// No `total` in the response, so the headline falls back to the bucketed sum.
 		expect( metrics[ 0 ].value ).toBe( 12 );
+	} );
+
+	it( 'shows the no-results message in the chart for a window without views', async () => {
+		mockApiFetch.mockImplementation( respondByWindow( {} ) );
+
+		render( <VideoDetailViewsPerformanceWidget attributes={ { reportParams: WINDOW_PARAMS } } /> );
+
+		await expect(
+			screen.findByText( 'We couldn’t find results for this time period.' )
+		).resolves.toBeInTheDocument();
 	} );
 
 	it( 'renders the scopeless empty state and makes no request without a video scope', async () => {

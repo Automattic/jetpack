@@ -15,11 +15,13 @@ vendor/jetpack-autoloader/**                    production-include
 vendor/tedivm/**                                production-include
 vendor/matthiasmullie/**                        production-include
 vendor/wikimedia/aho-corasick/**                production-include
+/build/**                                       production-include
 
 # Files to exclude from the mirror repo, but included in the monorepo.
 # (see also entries in the monorepo root .gitattributes)
 # Remember to end all directories with `/**` to properly tag every file.
 /app/assets/src/**                              production-exclude
+/app/modules/**/src/**                          production-exclude
 /app/assets/dist/**/*.js.map                    production-exclude
 /docs/**                                        production-exclude
 /.editorconfig                                  production-exclude
@@ -28,3 +30,8 @@ vendor/wikimedia/aho-corasick/**                production-include
 /rollup.config.js                               production-exclude
 /rollup-tsconfig.json                           production-exclude
 /tsconfig.eslint.json                           production-exclude
+/build/**/*.map                                 production-exclude
+/_inc/**                                        production-exclude
+/packages/**                                    production-exclude
+/routes/**                                      production-exclude
+/tsconfig.dashboard.json                        production-exclude

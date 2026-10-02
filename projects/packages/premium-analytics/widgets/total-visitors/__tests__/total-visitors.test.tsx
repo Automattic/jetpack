@@ -75,21 +75,20 @@ describe( 'TotalVisitorsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '291.9K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
 		expect( screen.getByTestId( 'sparkline' ) ).toHaveAttribute(
 			'data-points',
 			'100000,100000,91900'
 		);
 	} );
 
-	it( 'exposes the unabbreviated total for hover and assistive technology', () => {
+	it( 'exposes the unabbreviated total to assistive technology', () => {
 		mockUseStatsVisits.mockReturnValue( visitsResult( REPORT ) );
 
 		renderWidget();
 
-		expect( screen.getByTitle( '291,900' ) ).toBeInTheDocument();
 		expect( screen.getByText( '291,900' ) ).toBeInTheDocument();
-		expect( screen.getByText( '291.9K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
+		expect( screen.getByText( '292K' ) ).toHaveAttribute( 'aria-hidden', 'true' );
 	} );
 
 	it( 'does not force a decimal when the total is not abbreviated', () => {
@@ -136,7 +135,28 @@ describe( 'TotalVisitorsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( 'No visitors in this period.' ) ).toBeInTheDocument();
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
+		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'renders the empty state for a zero-filled range, not a flat sparkline', () => {
+		mockUseStatsVisits.mockReturnValue(
+			visitsResult( {
+				summary: { visitors: 0 },
+				data: [
+					{ date_start: '2026-07-01', views: 0, visitors: 0 },
+					{ date_start: '2026-07-02', views: 0, visitors: 0 },
+				],
+			} )
+		);
+
+		renderWidget();
+
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 		expect( screen.queryByTestId( 'sparkline' ) ).not.toBeInTheDocument();
 	} );
 
@@ -171,7 +191,7 @@ describe( 'TotalVisitorsWidget', () => {
 
 		renderWidget();
 
-		expect( screen.getByText( '291.9K' ) ).toBeInTheDocument();
+		expect( screen.getByText( '292K' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

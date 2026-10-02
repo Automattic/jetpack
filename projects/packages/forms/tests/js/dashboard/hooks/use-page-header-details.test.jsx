@@ -75,6 +75,7 @@ await jest.unstable_mockModule( '../../../../src/dashboard/components/edit-form-
 } ) );
 await jest.unstable_mockModule( '../../../../src/dashboard/components/empty-spam-button', () => ( {
 	default: () => null,
+	labelForScope: () => 'Delete spam',
 } ) );
 await jest.unstable_mockModule(
 	'../../../../src/dashboard/components/empty-spam-button/confirmation-modal',
@@ -121,6 +122,7 @@ await jest.unstable_mockModule( '../../../../src/dashboard/hooks/use-empty-spam'
 		isConfirmDialogOpen: false,
 		totalItemsSpam: 0,
 		selectedResponsesCount: 0,
+		scope: { mode: 'all', count: 0, params: {} },
 	} ),
 } ) );
 
@@ -176,6 +178,7 @@ let mockFormRecord = { title: { rendered: 'My Form' }, status: 'publish' };
 await jest.unstable_mockModule( '@wordpress/data', () => ( {
 	createReduxStore: jest.fn( () => 'mock-store' ),
 	register: jest.fn(),
+	select: jest.fn(),
 	useSelect: jest.fn( callback => {
 		const fakeSelect = () => ( {
 			getEntityRecord: () => mockFormRecord,
@@ -223,9 +226,8 @@ await jest.unstable_mockModule(
 
 // ── Import hook under test (after all mocks) ────────────────────────────────
 
-const usePageHeaderDetailsModule = await import(
-	'../../../../src/dashboard/wp-build/hooks/use-page-header-details'
-);
+const usePageHeaderDetailsModule =
+	await import( '../../../../src/dashboard/wp-build/hooks/use-page-header-details' );
 const usePageHeaderDetails = usePageHeaderDetailsModule.default;
 
 // ── Helpers ─────────────────────────────────────────────────────────────────

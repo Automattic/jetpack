@@ -7,6 +7,8 @@
 
 namespace Automattic\Jetpack\Jetpack_Mu_Wpcom\NUX;
 
+use Automattic\Jetpack\Status;
+
 require_once __DIR__ . '/../../utils.php';
 
 /**
@@ -84,6 +86,42 @@ class WPCOM_Block_Editor_NUX {
 			"var recommendedTagsModalOptions = $recommended_tags_modal_options;",
 			'before'
 		);
+
+		/**
+		 * Enqueue the site visibility panel options.
+		 */
+		$site_visibility_panel_options = wp_json_encode(
+			array(
+				'isComingSoon'        => self::is_coming_soon(),
+				'canChangeVisibility' => current_user_can( 'manage_options' ),
+				'settingsUrl'         => admin_url( 'options-reading.php' ),
+			),
+			JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP
+		);
+
+		wp_add_inline_script(
+			$handle,
+			"var siteVisibilityPanelOptions = $site_visibility_panel_options;",
+			'before'
+		);
+	}
+
+	/**
+	 * Whether the site is Coming Soon.
+	 *
+	 * Status finds the WordPress.com global and the public Coming Soon option, but on Atomic the
+	 * equivalent function is namespaced by wpcomsh, which is where the legacy private-site flavor
+	 * of Coming Soon lives.
+	 *
+	 * @return bool
+	 */
+	private static function is_coming_soon() {
+		if ( ( new Status() )->is_coming_soon() ) {
+			return true;
+		}
+
+		// @phan-suppress-next-line PhanUndeclaredFunction -- Only called where wpcomsh defines it.
+		return function_exists( '\Private_Site\site_is_coming_soon' ) && \Private_Site\site_is_coming_soon();
 	}
 
 	/**
@@ -109,6 +147,10 @@ class WPCOM_Block_Editor_NUX {
 		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-recommended-tags-modal-controller.php';
 		$recommended_tags_modal_controller = new WP_REST_WPCOM_Block_Editor_Recommended_Tags_Modal_Controller();
 		$recommended_tags_modal_controller->register_rest_route();
+
+		require_once __DIR__ . '/class-wp-rest-wpcom-block-editor-four-for-four-controller.php';
+		$four_for_four_controller = new WP_REST_WPCOM_Block_Editor_Four_For_Four_Controller();
+		$four_for_four_controller->register_rest_route();
 	}
 }
 add_action( 'init', array( __NAMESPACE__ . '\WPCOM_Block_Editor_NUX', 'init' ) );

@@ -100,7 +100,11 @@ export type {
 	StatsHighlightsRawResponse,
 	StatsHighlightsResponse,
 } from './highlights';
-export type { StatsLocationsComparisonItem, StatsLocationsItem } from './locations';
+export type {
+	StatsLocationCoordinates,
+	StatsLocationsComparisonItem,
+	StatsLocationsItem,
+} from './locations';
 export type { StatsVideoPlaysComparisonItem, StatsVideoPlaysItem } from './video-plays';
 export type {
 	StatsInsightsHourlyViews,

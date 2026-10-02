@@ -8,6 +8,7 @@ import { copySmall, check } from '@wordpress/icons';
  * Internal dependencies
  */
 import useCopyConfirmation from '../../../hooks/use-copy-confirmation';
+import type { JSX } from 'react';
 import './style.scss';
 
 type CopyClipboardButtonProps = {

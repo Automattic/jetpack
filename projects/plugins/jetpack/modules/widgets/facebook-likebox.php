@@ -217,13 +217,13 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	public function update( $new_instance, $old_instance ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable
 		$instance = array();
 
-		$instance['title'] = trim( wp_strip_all_tags( stripslashes( $new_instance['title'] ) ) );
+		$instance['title'] = trim( wp_strip_all_tags( stripslashes( $new_instance['title'] ?? '' ) ) );
 
 		// Set up widget values.
 		$instance['like_args'] = array(
-			'href'         => trim( wp_strip_all_tags( stripslashes( $new_instance['href'] ) ) ),
-			'width'        => (int) $new_instance['width'],
-			'height'       => (int) $new_instance['height'],
+			'href'         => trim( wp_strip_all_tags( stripslashes( $new_instance['href'] ?? '' ) ) ),
+			'width'        => (int) ( $new_instance['width'] ?? $this->default_width ),
+			'height'       => (int) ( $new_instance['height'] ?? $this->default_height ),
 			'show_faces'   => isset( $new_instance['show_faces'] ),
 			'stream'       => isset( $new_instance['stream'] ),
 			'cover'        => isset( $new_instance['cover'] ),

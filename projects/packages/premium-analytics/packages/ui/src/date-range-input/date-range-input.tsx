@@ -5,6 +5,7 @@ import {
 	createTZDateFromParts,
 	formatToTimezoneNaiveString,
 	getDatePart,
+	type TZDate,
 } from '@jetpack-premium-analytics/datetime';
 import { FormField, Input, Stack } from '@jetpack-premium-analytics/externals';
 import { __ } from '@wordpress/i18n';
@@ -24,12 +25,12 @@ type DateRangeInputProps = Pick<
 
 type DateInputProps = Pick< DateRangeInputProps, 'timeZone' > & {
 	label: string;
-	date?: Date;
-	onChange: ( date?: Date ) => void;
+	date?: TZDate;
+	onChange: ( date?: TZDate ) => void;
 };
 
 const formatToString = ( date: Date | undefined, timeZone: string ) =>
-	date ? getDatePart( formatToTimezoneNaiveString( date, timeZone ) ) ?? '' : '';
+	date ? ( getDatePart( formatToTimezoneNaiveString( date, timeZone ) ) ?? '' ) : '';
 
 function parseFromString( dateString: string, timeZone: string ) {
 	const [ year, month, day ] = dateString.split( '-' ).map( x => Number( x ) );

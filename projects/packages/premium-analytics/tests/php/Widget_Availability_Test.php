@@ -13,7 +13,7 @@ use PHPUnit\Framework\Attributes\CoversFunction;
 use WorDBless\BaseTestCase;
 
 require_once __DIR__ . '/../../src/widget-types.php';
-require_once __DIR__ . '/../../src/dashboard-sections.php';
+require_once __DIR__ . '/../../src/default-dashboard-sections.php';
 require_once __DIR__ . '/../../src/widget-availability.php';
 
 /**
@@ -75,7 +75,7 @@ class Widget_Availability_Test extends BaseTestCase {
 				'category' => 'traffic',
 			),
 			array(
-				'name'     => 'jpa/videopress',
+				'name'     => 'jpa/video-detail-embeds',
 				'category' => 'stats',
 			),
 			array(
@@ -88,6 +88,22 @@ class Widget_Availability_Test extends BaseTestCase {
 			),
 			array(
 				'name'     => 'jpa/plan-usage',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/total-views',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/total-visitors',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/popular-days',
+				'category' => 'stats',
+			),
+			array(
+				'name'     => 'jpa/popular-hours',
 				'category' => 'stats',
 			),
 			array(
@@ -192,6 +208,19 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * The period widgets are held back regardless of host or features (WOOA7S-2020).
+	 */
+	public function test_type_policy_removes_period_widgets_everywhere() {
+		$period = array( 'jpa/total-views', 'jpa/total-visitors', 'jpa/popular-days', 'jpa/popular-hours' );
+
+		foreach ( $period as $name ) {
+			$this->assertNotContains( $name, $this->available_names( false, false ), $name );
+			$this->assertNotContains( $name, $this->available_names( true, true ), $name );
+		}
+		$this->assertContains( 'jpa/hello-world', $this->available_names( false, false ) );
+	}
+
+	/**
 	 * Without VideoPress, every gated video widget is unavailable.
 	 */
 	public function test_type_policy_removes_video_widgets_without_videopress() {
@@ -227,7 +256,7 @@ class Widget_Availability_Test extends BaseTestCase {
 	public function test_type_policy_keeps_video_widgets_with_videopress() {
 		$names = $this->available_names( false, true );
 
-		$this->assertContains( 'jpa/videopress', $names );
+		$this->assertContains( 'jpa/video-detail-embeds', $names );
 		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
@@ -294,6 +323,17 @@ class Widget_Availability_Test extends BaseTestCase {
 	}
 
 	/**
+	 * Same guard for the held period widgets: each names a real manifest.
+	 */
+	public function test_period_widget_types_match_the_manifest() {
+		$names = $this->manifest_widget_names();
+
+		foreach ( PERIOD_WIDGET_TYPES as $held ) {
+			$this->assertContains( $held, $names, "$held is held back but no manifest declares it." );
+		}
+	}
+
+	/**
 	 * The registry callback drops the video widgets when VideoPress is absent.
 	 */
 	public function test_registry_callback_removes_video_widgets_without_videopress() {
@@ -302,7 +342,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertNotContains( 'jpa/videopress', $names );
+		$this->assertNotContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**
@@ -320,7 +360,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertNotContains( 'jpa/videopress', $names, 'An active module does not stand in for the plan feature on Atomic.' );
+		$this->assertNotContains( 'jpa/video-detail-views-performance', $names, 'An active module does not stand in for the plan feature on Atomic.' );
 
 		$GLOBALS['jpa_test_wpcom_features'] = array( 'videopress' );
 
@@ -329,7 +369,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertContains( 'jpa/videopress', $names, 'The plan feature brings the video widgets back on Atomic.' );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names, 'The plan feature brings the video widgets back on Atomic.' );
 	}
 
 	/**
@@ -343,7 +383,7 @@ class Widget_Availability_Test extends BaseTestCase {
 			'name'
 		);
 
-		$this->assertContains( 'jpa/videopress', $names );
+		$this->assertContains( 'jpa/video-detail-views-performance', $names );
 	}
 
 	/**

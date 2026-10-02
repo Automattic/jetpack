@@ -9,6 +9,7 @@ namespace Automattic\Jetpack\Newsletter\Tests;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Newsletter\Freshly_Pressed;
 use Automattic\Jetpack\Newsletter\Writing_Prompt_Widget;
 use Automattic\Jetpack\Status\Cache as Status_Cache;
 use PHPUnit\Framework\Attributes\CoversClass;
@@ -49,6 +50,9 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 	public function tear_down() {
 		wp_set_current_user( 0 );
 		unset( $GLOBALS['wp_meta_boxes'] );
+
+		remove_all_filters( 'pre_http_request' );
+		delete_transient( Freshly_Pressed::TRANSIENT_KEY );
 
 		remove_all_filters( 'jetpack_options' );
 		remove_all_filters( 'jetpack_offline_mode' );
@@ -214,6 +218,46 @@ class Writing_Prompt_Widget_Test extends BaseTestCase {
 		Writing_Prompt_Widget::register_widget();
 
 		$this->assertArrayNotHasKey( 'dashboard', $GLOBALS['wp_meta_boxes'] );
+	}
+
+	/**
+	 * Test that the Freshly Pressed posts reach the widget script.
+	 */
+	public function test_add_script_data_includes_freshly_pressed_posts() {
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return array(
+					'response' => array( 'code' => 200 ),
+					'body'     => wp_json_encode(
+						array(
+							'posts' => array(
+								array(
+									'ID'      => 12,
+									'site_ID' => 34,
+									'title'   => 'A freshly pressed post',
+								),
+							),
+						),
+						JSON_UNESCAPED_SLASHES
+					),
+				);
+			}
+		);
+
+		$data = Writing_Prompt_Widget::add_script_data( array() );
+
+		$this->assertSame(
+			array(
+				array(
+					'title'     => 'A freshly pressed post',
+					'permalink' => 'https://wordpress.com/reader/blogs/34/posts/12?algo=freshly-pressed&ref=dashboard_widget',
+					'blog_id'   => 34,
+					'post_id'   => 12,
+				),
+			),
+			$data['newsletter']['freshlyPressed']
+		);
 	}
 
 	/**

@@ -11,6 +11,7 @@
 
 use Automattic\Jetpack\Blocks;
 use Automattic\Jetpack\Extensions\AIChat;
+use Automattic\Jetpack\Search\Plan;
 
 require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-chat/ai-chat.php';
 
@@ -20,6 +21,7 @@ require_once JETPACK__PLUGIN_DIR . '/extensions/blocks/ai-chat/ai-chat.php';
 class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	use \Automattic\Jetpack\PHPUnit\WP_UnitTestCase_Fix;
 	use \Activates_Ai_Module;
+	use \Reads_Block_Availability;
 
 	const BLOCK_NAME = 'jetpack/ai-chat';
 
@@ -36,6 +38,7 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	public function set_up() {
 		parent::set_up();
 
+		Jetpack_Gutenberg::reset();
 		add_filter( 'jetpack_offline_mode', '__return_false' );
 		$this->simulate_connected_owner();
 		// Off-Simple the `ai` module is the AI master switch; activate it so the
@@ -62,9 +65,13 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		$this->deactivate_ai_module_for_test();
 		unset( $_SERVER['A8C_PROXIED_REQUEST'] );
 		remove_filter( 'jetpack_ai_enabled', '__return_false' );
+		remove_filter( 'wp_supports_ai', '__return_false' );
 		remove_filter( 'jetpack_offline_mode', '__return_false' );
 		delete_option( 'jetpack_ai_enabled' );
 		$this->disconnect_owner();
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		remove_filter( 'pre_http_request', array( $this, 'fail_on_http_request' ) );
+		Jetpack_Gutenberg::reset();
 
 		parent::tear_down();
 	}
@@ -88,6 +95,13 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	}
 
 	/**
+	 * Fail if rendering the block tries to fetch plan data.
+	 */
+	public function fail_on_http_request() {
+		$this->fail( 'Rendering AI Chat must not request plan data.' );
+	}
+
+	/**
 	 * Registered on a connected site with default settings.
 	 */
 	public function test_registers_when_connected_and_enabled() {
@@ -97,27 +111,65 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 	}
 
 	/**
-	 * The jetpack_ai_enabled master filter turns the block off.
+	 * The jetpack_ai_enabled master filter keeps the block registered, so its
+	 * render callback still runs, but reports it to the editor as off.
 	 */
-	public function test_not_registered_when_ai_disabled() {
+	public function test_registered_but_unavailable_when_ai_disabled() {
 		add_filter( 'jetpack_ai_enabled', '__return_false' );
 
 		AIChat\register_block();
 
-		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ) );
+
+		$availability = $this->get_block_availability( 'ai-chat' );
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+
+		$html = do_blocks( '<!-- wp:jetpack/ai-chat --><div class="wp-block-jetpack-ai-chat"></div><!-- /wp:jetpack/ai-chat -->' );
+		$this->assertSame( '', trim( $html ) );
 	}
 
 	/**
-	 * The AI master switch option turns the block off.
+	 * The AI master switch keeps saved blocks available to the editor.
 	 */
-	public function test_not_registered_when_master_option_off() {
+	public function test_reports_disabled_when_master_option_off() {
 		// Off-Simple the master is the `ai` module; turn it off there.
 		$this->force_master_enforcement_for_test();
 		$this->deactivate_ai_module_for_test();
 
 		AIChat\register_block();
 
-		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ) );
+
+		$availability = $this->get_block_availability( 'ai-chat' );
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+	}
+
+	/**
+	 * Host restrictions show the disabled placeholder.
+	 */
+	public function test_reports_unavailable_when_host_disallows_ai() {
+		add_filter( 'wp_supports_ai', '__return_false' );
+
+		AIChat\register_block();
+
+		$this->assertTrue( Blocks::is_registered( self::BLOCK_NAME ) );
+		$availability = $this->get_block_availability( 'ai-chat' );
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'ai_disabled', $availability['unavailable_reason'] );
+		$this->assertSame( '', AIChat\load_assets( array() ) );
+	}
+
+	/**
+	 * With AI on, the front end gets the chat container the view script mounts into.
+	 */
+	public function test_renders_container_when_ai_enabled() {
+		AIChat\register_block();
+
+		$html = do_blocks( '<!-- wp:jetpack/ai-chat --><div class="wp-block-jetpack-ai-chat"></div><!-- /wp:jetpack/ai-chat -->' );
+
+		$this->assertStringContainsString( 'id="jetpack-ai-chat"', $html );
 	}
 
 	/**
@@ -129,5 +181,35 @@ class AI_Chat_Block_Test extends \WP_UnitTestCase {
 		AIChat\register_block();
 
 		$this->assertFalse( Blocks::is_registered( self::BLOCK_NAME ) );
+
+		$availability = $this->get_block_availability( 'ai-chat' );
+		$this->assertFalse( $availability['available'] );
+		$this->assertSame( 'missing_module', $availability['unavailable_reason'] );
+	}
+
+	/**
+	 * Published blocks still render on free plans; the editor shows the
+	 * upgrade prompt for authors.
+	 */
+	public function test_load_assets_renders_on_free_plan() {
+		update_option(
+			Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY,
+			array(
+				'supports_instant_search' => true,
+				'effective_subscription'  => array( 'product_slug' => Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG ),
+			)
+		);
+
+		$this->assertStringContainsString( 'id="jetpack-ai-chat"', AIChat\load_assets( array() ) );
+	}
+
+	/**
+	 * A missing plan option must not cause a front-end plan request.
+	 */
+	public function test_load_assets_renders_without_plan_info() {
+		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		add_filter( 'pre_http_request', array( $this, 'fail_on_http_request' ) );
+
+		$this->assertStringContainsString( 'id="jetpack-ai-chat"', AIChat\load_assets( array() ) );
 	}
 }

@@ -10,7 +10,6 @@ import {
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
-import { scheduled } from '@wordpress/icons';
 import { useMemo } from 'react';
 /**
  * Internal dependencies
@@ -52,13 +51,9 @@ function PopularHoursReport() {
 									'jetpack-premium-analytics-pkg'
 								),
 								onRetry: refetch,
-						  } )
+							} )
 						: null
 				}
-				empty={ {
-					icon: scheduled,
-					description: __( 'No views in this period.', 'jetpack-premium-analytics-pkg' ),
-				} }
 			>
 				<PeakDistribution
 					label={ peak?.label ?? '' }

@@ -1,0 +1,99 @@
+/**
+ * All Playlists block — editor styles.
+ *
+ * The canvas reuses the front-end stylesheet (view.scss); these rules cover
+ * the loading skeleton and the empty state.
+ */
+
+.videopress-all-playlists-editor {
+
+	// Cards link to their posts on the front end; in the canvas a click
+	// selects the block instead.
+	.videopress-all-playlists__item a {
+		pointer-events: none;
+	}
+
+	.wp-block-videopress-all-playlists {
+		margin: 0;
+	}
+
+	// The heading inner block's list wrapper takes the heading's place in
+	// the header.
+	.videopress-all-playlists__heading {
+		flex: 1 1 auto;
+		min-inline-size: 0;
+	}
+
+	&__control {
+		margin-block-start: 14px;
+	}
+
+	&__skeleton {
+		display: grid;
+		grid-template-columns: repeat(3, minmax(0, 1fr));
+		gap: 18px;
+	}
+
+	&__skeleton-card {
+		display: flex;
+		flex-direction: column;
+		gap: 9px;
+	}
+
+	&__skeleton-poster {
+		aspect-ratio: 16 / 9;
+		border-radius: 6px;
+		background: linear-gradient(100deg, #ededed 30%, #f8f8f8 50%, #ededed 70%);
+		background-size: 200% 100%;
+		animation: videopress-all-playlists-shimmer 1.4s ease-in-out infinite;
+	}
+
+	&__skeleton-line {
+		block-size: 10px;
+		inline-size: 90%;
+		border-radius: 2px;
+		background: #f2f2f2;
+
+		&.is-short {
+			block-size: 8px;
+			inline-size: 70%;
+			background: #eee;
+		}
+	}
+
+	&__empty {
+		display: flex;
+		flex-direction: column;
+		gap: 5px;
+		padding: 26px 20px;
+		border: 1px dashed #c4c4c4;
+		border-radius: 4px;
+		background: #fbfbfb;
+		text-align: center;
+	}
+
+	&__empty-title {
+		font-size: 14px;
+		font-weight: 500;
+		line-height: 1.3;
+	}
+
+	&__empty-help {
+		max-inline-size: 300px;
+		margin: 0 auto;
+		font-size: 12.5px;
+		line-height: 1.5;
+		color: #757575;
+	}
+}
+
+@keyframes videopress-all-playlists-shimmer {
+
+	from {
+		background-position: 100% 0;
+	}
+
+	to {
+		background-position: -100% 0;
+	}
+}

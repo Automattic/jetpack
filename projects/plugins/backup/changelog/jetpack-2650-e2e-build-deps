@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Build the js-packages the Jetpack plugin's wp-build route needs in the e2e build.
+
+

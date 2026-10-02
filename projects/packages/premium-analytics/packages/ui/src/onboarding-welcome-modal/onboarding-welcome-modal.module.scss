@@ -21,9 +21,9 @@
 	z-index: 1;
 }
 
-// Below this height the stage would push Get started out of the popup, so the
-// copy and the button take the room instead, and the close icon goes back to
-// its neutral colors over the white popup.
+// Below this height the stage would push the tour button out of the popup,
+// so the copy and the button take the room instead, and the close icon goes
+// back to its neutral colors over the white popup.
 @media (max-height: 600px) {
 
 	.close {

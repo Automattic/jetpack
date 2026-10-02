@@ -314,7 +314,7 @@ jest.mock( '../../../lib/video-tracks/caption-tracks', () => ( {
 					_videopress_source_track_kind: track.kind,
 					_videopress_source_track_src_lang: track.srcLang,
 					_videopress_source_track_src: track.src,
-			  }
+				}
 			: {},
 	saveCaptionTrack: jest.fn(),
 } ) );

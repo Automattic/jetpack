@@ -14,7 +14,7 @@ import SearchSuggestionsControl from 'components/search-suggestions-control';
 import InstantSearchUpsellNudge from 'components/upsell-nudge';
 import { STORE_ID } from 'store';
 
-import 'scss/rna-styles.scss';
+import '../../scss/rna-styles.scss';
 import './style.scss';
 
 const SEARCH_DESCRIPTION = __(
@@ -168,7 +168,9 @@ export default function SearchModuleControl( {
 					<ReaderChatControl
 						isAvailable={ isReaderChatControlAvailable }
 						isEnabled={ isReaderChatEnabled }
-						isSaving={ isSavingEitherOption || isDisabledFromOverLimit }
+						isSaving={
+							isSavingEitherOption || ( isDisabledFromOverLimit && ! isReaderChatEnabled )
+						}
 						guidelinesUrl={ readerChatGuidelinesUrl }
 						updateOptions={ updateOptions }
 					/>

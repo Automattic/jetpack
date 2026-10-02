@@ -1,4 +1,3 @@
-import { CURRENCIES } from '@automattic/format-currency';
 import ProductPrice from '../index.tsx';
 import type { StoryFn, Meta } from '@storybook/react';
 
@@ -8,7 +7,7 @@ const meta: Meta< typeof ProductPrice > = {
 	argTypes: {
 		currency: {
 			control: { type: 'select' },
-			options: Object.keys( CURRENCIES ),
+			options: Intl.supportedValuesOf( 'currency' ),
 		},
 		variant: {
 			control: { type: 'select' },

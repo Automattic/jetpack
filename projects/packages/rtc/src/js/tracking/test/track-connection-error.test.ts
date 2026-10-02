@@ -16,9 +16,8 @@ jest.unstable_mockModule( '../../notices/room-limit', () => ( {
 	isRoomLimitBreached: isRoomLimitBreachedMock,
 } ) );
 
-const { withConnectionErrorTracking, registerConnectionErrorTracking } = await import(
-	'../track-connection-error'
-);
+const { withConnectionErrorTracking, registerConnectionErrorTracking } =
+	await import( '../track-connection-error' );
 
 type StatusListener = ( status: unknown ) => void;
 

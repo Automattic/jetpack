@@ -25,8 +25,12 @@ export type EditorSelect = {
 	getCurrentPostType?: () => string | undefined;
 };
 
+export type WordPressAgentNoticeAction = 'open' | 'enable';
+
 export type WordPressAgentNoticeEventProperties = TracksAudienceProperties & {
 	placement: WordPressAgentNoticePlacement;
+	// Which action button a click event came from; absent on dismissals.
+	action?: WordPressAgentNoticeAction;
 	// The family's settled editor value, present while the core/editor store is registered.
 	surface?: 'block_editor';
 	site_type: SiteType;

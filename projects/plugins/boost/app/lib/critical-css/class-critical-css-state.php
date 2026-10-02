@@ -128,6 +128,35 @@ class Critical_CSS_State {
 	}
 
 	/**
+	 * Report an oversized result for each URL in its provider.
+	 *
+	 * @since $$next-version$$
+	 * @param string $provider_key The provider key.
+	 * @return bool|WP_Error True on success, WP_Error on failure.
+	 */
+	public function set_provider_payload_too_large( $provider_key ) {
+		if ( empty( $this->state['providers'] ) ) {
+			return new WP_Error( 'invalid_provider_key', 'No providers exist' );
+		}
+		$provider_index = array_search( $provider_key, array_column( $this->state['providers'], 'key' ), true );
+		if ( false === $provider_index ) {
+			return new WP_Error( 'invalid_provider_key', 'Invalid provider key' );
+		}
+		$errors = array();
+		foreach ( $this->state['providers'][ $provider_index ]['urls'] as $url ) {
+			$errors[] = array(
+				'url'     => $url,
+				'type'    => 'PayloadTooLargeError',
+				'message' => __( 'The generated Critical CSS exceeds the 512 KiB inline limit and was not saved.', 'jetpack-boost' ),
+			);
+		}
+		$this->state['providers'][ $provider_index ]['status'] = self::PROVIDER_STATES['error'];
+		$this->state['providers'][ $provider_index ]['errors'] = $errors;
+		$this->maybe_set_generated();
+		return true;
+	}
+
+	/**
 	 * Set a provider's state to success.
 	 *
 	 * @param string $provider_key The provider key.

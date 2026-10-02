@@ -7,6 +7,7 @@ import { __ } from '@wordpress/i18n';
  */
 import { fetchReportConversionRate } from '../../api/report-conversion-rate-fetch';
 import { safeParseInt } from '../../utils/parsing';
+import { withBucketStamps } from '../utils';
 import type { Override } from '../../utils/types';
 
 type ReportsConversionRateByDateResponse = Awaited<
@@ -26,7 +27,8 @@ type SanitizedConversionRateByDateItem = Override<
 >;
 
 function sanitizeConversionRateItem(
-	item: RawConversionRateReportDataItem
+	item: RawConversionRateReportDataItem,
+	zone: string
 ): SanitizedConversionRateByDateItem {
 	const activeSessionsNum = safeParseInt( item.active_sessions );
 	const visitorsNum = safeParseInt( item.visitors );
@@ -39,7 +41,7 @@ function sanitizeConversionRateItem(
 	const conversionRate = activeSessionsNum > 0 ? completedCheckoutNum / activeSessionsNum : 0;
 
 	return {
-		...item,
+		...withBucketStamps( item, zone ),
 		active_sessions: activeSessionsNum,
 		visitors: visitorsNum,
 		with_cart_addition: withCartAdditionNum,
@@ -68,7 +70,8 @@ type SanitizedConversionRateByDateResponse = {
  * as the `data` array items, so we can use the same mapper function for both.
  */
 export const sanitizeReportConversionRateResponse = (
-	response: ReportsConversionRateByDateResponse
+	response: ReportsConversionRateByDateResponse,
+	zone: string
 ): SanitizedConversionRateByDateResponse => {
 	// Handle cases where response might not have the expected structure
 	const defaultSummary = {
@@ -81,7 +84,7 @@ export const sanitizeReportConversionRateResponse = (
 		date_end: '',
 	};
 
-	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary );
+	const sanitizedSummary = sanitizeConversionRateItem( response?.summary || defaultSummary, zone );
 
 	const steps: FunnelStep[] = [
 		{
@@ -121,7 +124,9 @@ export const sanitizeReportConversionRateResponse = (
 
 	return {
 		summary: sanitizedSummary,
-		data: response?.data ? response.data.map( sanitizeConversionRateItem ) : [],
+		data: response?.data
+			? response.data.map( item => sanitizeConversionRateItem( item, zone ) )
+			: [],
 		steps,
 		overallRate: sanitizedSummary.conversion_rate,
 	};

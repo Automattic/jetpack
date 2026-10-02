@@ -9,9 +9,8 @@ const apiFetch = jest.fn( () => Promise.resolve( {} ) );
 // and import the subject afterwards.
 jest.unstable_mockModule( '@wordpress/api-fetch', () => ( { default: apiFetch } ) );
 
-const { deleteResponse, saveResponse } = await import(
-	'../../../src/dashboard/response-records.ts'
-);
+const { deleteResponse, saveResponse } =
+	await import( '../../../src/dashboard/response-records.ts' );
 
 describe( 'response records', () => {
 	beforeEach( () => {

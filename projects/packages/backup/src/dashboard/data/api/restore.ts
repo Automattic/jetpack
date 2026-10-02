@@ -4,17 +4,16 @@ import type { RestoreItems } from '../../types/restore';
 /**
  * Lifecycle of a restore, as the bridge reports it.
  *
- * Deliberately not WPCOM's own vocabulary. Upstream says
- * `running | success | fail | aborted | success-with-errors`; the bridge
- * maps those to these, reports a not-yet-visible restore as `queued`, and
- * anything it does not recognise as `unknown` rather than guessing. See
- * `Restore_Bridge::STATUS_MAP`.
+ * Deliberately not WPCOM's own vocabulary, which the bridge owns the
+ * translation of — see `Restore_Bridge::STATUS_MAP`.
  *
- * `unknown` exists so a status WPCOM adds later degrades into "keep
- * asking for a while" instead of a progress bar frozen at whatever
- * percentage happened to arrive first.
+ * `not-found` and `queued` render the same and mean opposite things:
+ * upstream has no record of the restore, versus upstream is holding one.
+ * `unknown` is a spelling WPCOM added that we do not know yet, kept live
+ * so it degrades into "keep asking" rather than a frozen progress bar.
  */
 export type RestoreStatus =
+	| 'not-found'
 	| 'queued'
 	| 'running'
 	| 'finished'
@@ -88,10 +87,9 @@ const SUCCEEDED_ROW_STATUSES = new Set( [ 'finished', 'success' ] );
 /**
  * One row of `GET /jetpack/v4/restores` — the last ten restores, any state.
  *
- * `when` is WordPress.com's own ISO-8601 timestamp and is compared only
- * against other rows', never against the browser's clock: a browser
- * minutes ahead of the server would otherwise reject the restore it had
- * just started, and recovery would fail for the whole session.
+ * `when` must be read through `parseRestoreWhen`, never `Date.parse`, and
+ * `pickLiveRestore` ranks rows only against each other: a browser ahead of the
+ * server would otherwise reject the restore it had just started.
  *
  * `settled` and `succeeded` are the quarantined readings of the row's
  * `status` — see `SETTLED_ROW_STATUSES` and `SUCCEEDED_ROW_STATUSES`. The
@@ -114,8 +112,32 @@ export type RecentRestore = {
 	succeeded: boolean;
 };
 
+/** A trailing `Z` or `±HH:MM` — the only thing that makes `when` self-describing. */
+const HAS_ZONE_DESIGNATOR = /(?:Z|[+-]\d{2}:?\d{2})$/i;
+
+/**
+ * A row's `when` as an instant, or null when it cannot be read.
+ *
+ * WordPress.com stamps most rows `YYYY-MM-DD HH:MM:SS` in UTC with no zone
+ * marker, which `Date` would read in the browser's zone — three hours out on GMT-3.
+ *
+ * @param when - The row's raw `when` value.
+ * @return Milliseconds since the epoch, or null.
+ */
+export function parseRestoreWhen( when: string ): number | null {
+	const trimmed = when?.trim();
+	if ( ! trimmed ) {
+		return null;
+	}
+	const stamped = HAS_ZONE_DESIGNATOR.test( trimmed )
+		? trimmed
+		: `${ trimmed.replace( ' ', 'T' ) }Z`;
+	const ms = Date.parse( stamped );
+	return Number.isNaN( ms ) ? null : ms;
+}
+
 /** Statuses that mean the restore is still going, or might be. */
-const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
+const LIVE_STATUSES: RestoreStatus[] = [ 'not-found', 'queued', 'running', 'unknown' ];
 
 /**
  * Whether a status reading ends the poll.
@@ -125,6 +147,35 @@ const LIVE_STATUSES: RestoreStatus[] = [ 'queued', 'running', 'unknown' ];
  */
 export function isTerminal( status: RestoreStatus | undefined ): boolean {
 	return status !== undefined && ! LIVE_STATUSES.includes( status );
+}
+
+/**
+ * Whether WordPress.com answered about this restore at all.
+ *
+ * `unknown` counts: the bridge mints it only for a status string upstream
+ * did send and we do not map, where `not-found` is a 404 and proof of
+ * nothing. Excluding it put a live restore under a spelling WPCOM added
+ * on a five-minute fuse.
+ *
+ * @param status - The status the bridge reported, if any.
+ * @return True when the reading is evidence rather than silence.
+ */
+export function isSignOfLife( status: RestoreStatus | undefined ): boolean {
+	return status === 'running' || status === 'queued' || status === 'unknown';
+}
+
+/**
+ * Whether a restore is actually under way.
+ *
+ * Stricter than `isSignOfLife`: an `unknown` reading proves upstream has
+ * a record but not that it is still running, and adopting a finished
+ * restore withholds the form with nothing left to give it back.
+ *
+ * @param status - The status the bridge reported, if any.
+ * @return True when upstream is holding a live restore.
+ */
+export function isRestoreInFlight( status: RestoreStatus | undefined ): boolean {
+	return status === 'running' || status === 'queued';
 }
 
 /**
@@ -146,7 +197,7 @@ export function isTerminal( status: RestoreStatus | undefined ): boolean {
  * @param target    - The rewind id this screen submitted.
  * @return True when both name the same backup.
  */
-function sameRewindId( candidate: string, target: string ): boolean {
+export function sameRewindId( candidate: string, target: string ): boolean {
 	if ( ! candidate || ! target ) {
 		return false;
 	}
@@ -195,10 +246,8 @@ export function pickLiveRestore(
 			row => ! row.settled && ( rewindId === null || sameRewindId( row.rewind_id, rewindId ) )
 		)
 		.sort( ( a, b ) => {
-			const at = Date.parse( a.when );
-			const bt = Date.parse( b.when );
-			const av = Number.isNaN( at ) ? -Infinity : at;
-			const bv = Number.isNaN( bt ) ? -Infinity : bt;
+			const av = parseRestoreWhen( a.when ) ?? -Infinity;
+			const bv = parseRestoreWhen( b.when ) ?? -Infinity;
 			// Restore ids are handed out in order, so they break a tie
 			// between two rows stamped in the same second.
 			return bv === av ? b.restore_id - a.restore_id : bv - av;
@@ -296,7 +345,7 @@ export async function fetchRecentRestores(): Promise< RecentRestore[] | null > {
  * Two reads, because the collection alone cannot answer it: its rows
  * carry a status in a vocabulary that is not ours, so a row is only a
  * candidate until the status route — which speaks the vocabulary the
- * bridge maps — confirms it is `running`.
+ * bridge maps — confirms upstream is holding it.
  *
  * Deliberately separate from `useAdoptedRestore`, which asks the same
  * question at mount through two cached queries so its confirmation
@@ -312,5 +361,5 @@ export async function fetchRunningRestore(): Promise< RecentRestore | null > {
 		return null;
 	}
 	const status = await fetchRestoreStatus( candidate.restore_id );
-	return 'running' === status.status ? candidate : null;
+	return isRestoreInFlight( status.status ) ? candidate : null;
 }

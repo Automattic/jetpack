@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Posting activity: Count published posts by the site's calendar day rather than the UTC one.

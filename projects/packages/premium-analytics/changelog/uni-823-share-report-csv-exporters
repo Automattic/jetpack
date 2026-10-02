@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+Comment: Move six report CSV exports into shared exporters the widgets can reuse; the report downloads are unchanged.
+

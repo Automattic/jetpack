@@ -69,7 +69,7 @@ export function VisitorsByLocationWidget() {
 			? ( {
 					region,
 					resolution: 'provinces',
-			  } as const )
+				} as const )
 			: {};
 
 	const geoChart = (

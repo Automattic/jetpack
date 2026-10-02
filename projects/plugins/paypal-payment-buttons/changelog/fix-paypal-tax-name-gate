@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix tax collection turning itself off. An empty tax name made the block and then the REST route throw the whole tax away.

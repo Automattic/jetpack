@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Extensions\VideoPress_Video;
 
+use Automattic\Jetpack\VideoPress\Channel as VideoPress_Pkg_Channel;
 use Automattic\Jetpack\VideoPress\Initializer as VideoPress_Pkg_Initializer;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -21,21 +22,50 @@ add_action(
 	}
 );
 
-// Register the videopress/video block.
-add_action(
-	'init',
-	function () {
-		$extensions                            = \Jetpack_Gutenberg::get_extensions();
-		$is_videopress_video_extension_enabled = in_array( 'videopress/video', $extensions, true );
+/**
+ * Register the VideoPress blocks.
+ *
+ * Named so tests can invoke it directly without re-running the global init action.
+ *
+ * @param string|null $playlist_metadata_file         Path to the playlist block.json; null uses the package default.
+ * @param string|null $latest_videos_playlist_metadata_file Path to the latest videos playlist block.json; null uses the package default.
+ */
+function register_videopress_blocks( $playlist_metadata_file = null, $latest_videos_playlist_metadata_file = null ) {
+	$extensions                            = \Jetpack_Gutenberg::get_extensions();
+	$is_videopress_video_extension_enabled = in_array( 'videopress/video', $extensions, true );
 
-		if (
-			$is_videopress_video_extension_enabled &&
-			method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_video_block' )
-		) {
-			VideoPress_Pkg_Initializer::register_videopress_video_block();
-		}
+	if (
+		$is_videopress_video_extension_enabled &&
+		method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_video_block' )
+	) {
+		VideoPress_Pkg_Initializer::register_videopress_video_block();
 	}
-);
+
+	// The playlist block has its own VideoPress-module-active guard inside
+	// register_videopress_playlist_block(), so register it unconditionally here.
+	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_playlist_block' ) ) {
+		VideoPress_Pkg_Initializer::register_videopress_playlist_block( $playlist_metadata_file );
+	}
+
+	// Depends on the playlist block above: it registers only once that one is.
+	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_latest_videos_playlist_block' ) ) {
+		VideoPress_Pkg_Initializer::register_videopress_latest_videos_playlist_block( $latest_videos_playlist_metadata_file );
+	}
+
+	// The All Playlists block only registers once the playlist block has.
+	if ( method_exists( 'Automattic\Jetpack\VideoPress\Initializer', 'register_videopress_all_playlists_block' ) ) {
+		VideoPress_Pkg_Initializer::register_videopress_all_playlists_block();
+	}
+}
+// Ignore the empty argument supplied by do_action( 'init' ) so metadata uses the package default.
+add_action( 'init', __NAMESPACE__ . '\register_videopress_blocks', 10, 0 );
+
+// The channel feature ( video durations and views, Query Loop filters, channel block
+// bindings ) registers itself on init when the theme opts in; WordPress.com does not
+// run the package initializer, so it starts here as well.
+if ( method_exists( 'Automattic\Jetpack\VideoPress\Channel', 'init' ) ) {
+	VideoPress_Pkg_Channel::init();
+}
 
 // Register the `v6-video-frame-poster` extension.
 add_action(

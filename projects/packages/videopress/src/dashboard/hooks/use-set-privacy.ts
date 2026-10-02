@@ -54,7 +54,7 @@ export function useSetPrivacy() {
 				const message =
 					reason instanceof Error
 						? reason.message
-						: ( reason as { message?: string } )?.message ?? String( reason );
+						: ( ( reason as { message?: string } )?.message ?? String( reason ) );
 				failed.push( { id, message } );
 			} );
 

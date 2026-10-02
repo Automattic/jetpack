@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from '@wordpress/el
 import { __, sprintf } from '@wordpress/i18n';
 import { Icon, cloud, download as downloadIcon, arrowLeft } from '@wordpress/icons';
 import { Link, useParams, useSearch } from '@wordpress/route';
-import { Button, Card, Stack, Text } from '@wordpress/ui';
+import { Button, Card, LinkButton, Stack, Text } from '@wordpress/ui';
 import DashboardLayout from '../components/dashboard-layout';
 import InvalidRewindId from '../components/invalid-rewind-id';
 import RestoreItemsChecklist from '../components/restore-items-checklist';
@@ -205,14 +205,16 @@ export default function DownloadScreen() {
 							<Notice status="success" isDismissible={ false }>
 								{ __( 'Your download is ready.', 'jetpack-backup-pkg' ) }
 							</Notice>
-							<a
+							<LinkButton
 								className="jpb-download__link"
+								variant="solid"
 								href={ state.downloadUrl }
 								download
 								rel="noreferrer"
 							>
+								<Icon icon={ downloadIcon } size={ 18 } />
 								{ __( 'Download the file', 'jetpack-backup-pkg' ) }
-							</a>
+							</LinkButton>
 							{ /*
 							 * WPCOM signs the archive URL with an expiry. Saying
 							 * when it lapses is the difference between coming back

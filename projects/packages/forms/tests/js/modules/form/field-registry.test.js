@@ -255,9 +255,8 @@ describe( 'Form field registry', () => {
 			// file field module, so the shared helper deliberately has no `file` branch. If this
 			// starts returning a file-specific error, the branch came back and the module's
 			// validator is now dead code.
-			const { validateField } = await import(
-				'../../../../src/contact-form/js/validate-helper.js'
-			);
+			const { validateField } =
+				await import( '../../../../src/contact-form/js/validate-helper.js' );
 
 			expect( validateField( 'file', [ { error: 'boom', isUploaded: false } ], true ) ).toBe(
 				'yes'

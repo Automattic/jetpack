@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Firewall: Avoid a 500 error for visitors on the IP block list when the firewall runs before WordPress.

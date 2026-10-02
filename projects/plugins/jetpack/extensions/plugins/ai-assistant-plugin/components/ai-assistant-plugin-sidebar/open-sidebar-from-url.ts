@@ -32,8 +32,7 @@ export function openJetpackSidebar(): void {
 	// Addressed as a string on purpose: importing the edit-post store object
 	// would register it as a side effect in editors that don't have it.
 	const editPostDispatch = dispatch( 'core/edit-post' ) as
-		| { openGeneralSidebar?: ( sidebar: string ) => void }
-		| undefined;
+		{ openGeneralSidebar?: ( sidebar: string ) => void } | undefined;
 
 	editPostDispatch?.openGeneralSidebar?.( JETPACK_SIDEBAR_IDENTIFIER );
 }

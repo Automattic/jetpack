@@ -66,8 +66,8 @@ export function resolveProductValueLabel( state, config, filterValue ) {
 		}
 		const template =
 			stars === 1
-				? state?.strings?.ratingStarsAndUpSingle ?? '%d star and up'
-				: state?.strings?.ratingStarsAndUpPlural ?? '%d stars and up';
+				? ( state?.strings?.ratingStarsAndUpSingle ?? '%d star and up' )
+				: ( state?.strings?.ratingStarsAndUpPlural ?? '%d stars and up' );
 		return template.replace( '%d', String( stars ) );
 	}
 	return null;

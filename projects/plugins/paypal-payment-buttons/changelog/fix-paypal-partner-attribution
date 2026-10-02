@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Include the PayPal partner attribution code in every copied and emailed payment link, matching the link the published button uses.

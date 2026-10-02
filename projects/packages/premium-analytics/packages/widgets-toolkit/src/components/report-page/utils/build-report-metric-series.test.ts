@@ -1,4 +1,8 @@
 /**
+ * External dependencies
+ */
+import { _n } from '@wordpress/i18n';
+/**
  * Internal dependencies
  */
 import { buildReportMetricSeries } from './build-report-metric-series';
@@ -44,21 +48,28 @@ const COMPARISON = report(
 	'05'
 );
 
+const ZONE = 'Asia/Tokyo';
+
 const VIEWS = { key: 'views', label: 'Views' };
 const VISITORS = { key: 'visitors', label: 'Visitors' };
 
+const views = ( count: number ) =>
+	/* translators: %s: number of views. */
+	_n( '%s View', '%s Views', count, 'jetpack-premium-analytics-pkg' );
+
 describe( 'buildReportMetricSeries', () => {
 	it( 'returns no series without primary data', () => {
-		expect( buildReportMetricSeries( { metrics: [ VIEWS ] } ) ).toEqual( [] );
-		expect( buildReportMetricSeries( { primary: report( [] ), metrics: [ VIEWS ] } ) ).toEqual(
-			[]
-		);
+		expect( buildReportMetricSeries( { metrics: [ VIEWS ], zone: ZONE } ) ).toEqual( [] );
+		expect(
+			buildReportMetricSeries( { primary: report( [] ), metrics: [ VIEWS ], zone: ZONE } )
+		).toEqual( [] );
 	} );
 
 	it( 'builds one metric-labelled series per visible metric', () => {
 		const series = buildReportMetricSeries( {
 			primary: PRIMARY,
 			metrics: [ VIEWS, VISITORS ],
+			zone: ZONE,
 		} );
 
 		expect( series ).toHaveLength( 2 );
@@ -73,6 +84,7 @@ describe( 'buildReportMetricSeries', () => {
 			primary: PRIMARY,
 			comparison: COMPARISON,
 			metrics: [ VIEWS, VISITORS ],
+			zone: ZONE,
 		} );
 
 		expect( series ).toHaveLength( 2 );
@@ -84,6 +96,7 @@ describe( 'buildReportMetricSeries', () => {
 			primary: PRIMARY,
 			comparison: COMPARISON,
 			metrics: [ VIEWS ],
+			zone: ZONE,
 		} );
 
 		expect( series ).toHaveLength( 2 );
@@ -102,6 +115,7 @@ describe( 'buildReportMetricSeries', () => {
 			primary: PRIMARY,
 			comparison: COMPARISON,
 			metrics: [ VIEWS ],
+			zone: ZONE,
 		} );
 
 		// Sharing a group and leading with the metric is what collapses the two
@@ -110,10 +124,28 @@ describe( 'buildReportMetricSeries', () => {
 		expect( series.map( entry => entry.group ) ).toEqual( [ 'views', 'views' ] );
 	} );
 
+	it( "carries each metric's count label, alone or beside others", () => {
+		const single = buildReportMetricSeries( {
+			primary: PRIMARY,
+			comparison: COMPARISON,
+			metrics: [ { ...VIEWS, countLabel: views } ],
+			zone: ZONE,
+		} );
+		const several = buildReportMetricSeries( {
+			primary: PRIMARY,
+			metrics: [ { ...VIEWS, countLabel: views }, VISITORS ],
+			zone: ZONE,
+		} );
+
+		expect( single[ 0 ].countLabel ).toBe( views );
+		expect( several.map( item => item.countLabel ) ).toEqual( [ views, undefined ] );
+	} );
+
 	it( 'treats missing metric fields as zero', () => {
 		const series = buildReportMetricSeries( {
 			primary: report( [ { views: 10 } ] ),
 			metrics: [ VISITORS ],
+			zone: ZONE,
 		} );
 
 		expect( series[ 0 ].data.map( point => point.value ) ).toEqual( [ 0 ] );

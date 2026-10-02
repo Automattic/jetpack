@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Block editor: Stop saying a published post is live while the site is Coming Soon, and link to the Site visibility setting.

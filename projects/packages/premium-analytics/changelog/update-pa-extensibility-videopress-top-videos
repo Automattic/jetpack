@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Dashboard: Move the Top videos widget to the VideoPress package, which registers it and seeds it into the Traffic section.

@@ -1,8 +1,9 @@
 export { buildLocationRows } from './aggregate';
 export { getLocationFields, type LocationRow, type LocationsCountryOption } from './fields';
 export {
+	GEO_MODES,
 	getReportLocationsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveSection,
 	supportsCountryFilter,
 	type ReportLocationsTabId,

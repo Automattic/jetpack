@@ -63,7 +63,7 @@ export function buildReportExportBody( params: DownloadReportParams ): ReportExp
 			? {
 					compare_from: params.compareFrom,
 					compare_to: params.compareTo,
-			  }
+				}
 			: {} ),
 	};
 }
@@ -82,7 +82,7 @@ export async function exportReport( params: ExportReportParams ): Promise< Expor
 			? {
 					compare_from: params.compareFrom,
 					compare_to: params.compareTo,
-			  }
+				}
 			: {} ),
 	};
 

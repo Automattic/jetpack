@@ -119,6 +119,16 @@ Sites that are not allowed are skipped, so we do not write an option platform-wi
 
 ## Layer 1 — this directory (`wpcom_enable_rtc`, priority 10)
 
+> **Switched off since September 2026 (DOTCOM-18664).** `wpcom_enable_rtc()`
+> returns `false` before any of the checks below unless the
+> `wpcom_rtc_rollout_enabled` filter returns `true`. RTC has no Product
+> prioritization, and Gutenberg is removing the `wp.sync` global the PingHub
+> transport is built against. The gating is kept so the rollout can be restored
+> by flipping that filter. P2 and WP for Teams sites are unaffected: Layer 2
+> allows them on HTTP polling, which does not use `wp.sync`.
+>
+> When the rollout is enabled, the rules are:
+
 `wpcom_enable_rtc()` returns true only when **all** of these hold, and then the
 site falls into a rollout:
 
@@ -161,8 +171,8 @@ filters at priority 20, so it runs **after** Layer 1 and gets the last word:
 | Site type            | Allowed when…                                                            | Default transport |
 | -------------------- | ----------------------------------------------------------------------- | ----------------- |
 | **P2 / WP-for-Teams**| Not in the disallow list (force-enabled by the wpcom layer)             | `http-polling`    |
-| **Simple** (`IS_WPCOM`) | Has `real-time-collaboration` feature (Personal+) + Gutenberg ≥ 22.7 | `pinghub`         |
-| **Atomic** (`IS_ATOMIC`)| Same feature + Gutenberg ≥ 22.7; sticker switches transport          | `http-polling`, or `pinghub` with `wpcom-features-edge` |
+| **Simple** (`IS_WPCOM`) | Rollout off (DOTCOM-18664). When on: `real-time-collaboration` feature (Personal+) + Gutenberg ≥ 22.7 | `pinghub`         |
+| **Atomic** (`IS_ATOMIC`)| Rollout off (DOTCOM-18664). When on: same feature + Gutenberg ≥ 22.7; sticker switches transport | `http-polling`, or `pinghub` with `wpcom-features-edge` |
 | **Self-hosted Jetpack** | Not gated here. `jetpack_rtc_enabled` is `false` unless a plugin opts in | n/a            |
 
 In every case the admin still has to turn the option on, and the disallow list

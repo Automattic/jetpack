@@ -26,6 +26,7 @@ export function buildLocationRows(
 			countryFull: item.countryFull ?? item.countryCode ?? '',
 			views: item.views,
 			previousViews: item.previousViews,
+			coordinates: item.coordinates,
 		};
 	} );
 }

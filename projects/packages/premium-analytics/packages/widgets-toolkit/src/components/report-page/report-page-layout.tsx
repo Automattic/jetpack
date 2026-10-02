@@ -3,6 +3,7 @@
  */
 import { DateFiltersPanel, SectionHeader } from '@jetpack-premium-analytics/ui';
 import clsx from 'clsx';
+import { createContext, useContext } from 'react';
 /**
  * Internal dependencies
  */
@@ -10,8 +11,19 @@ import styles from './report-page-layout.module.scss';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 import type { ReactNode } from 'react';
 
+const ReportHasPeriodContext = createContext( false );
+
+/**
+ * Whether the report around the caller has a date window, so copy can speak of "this time period" only where one exists.
+ *
+ * @return True only inside a `ReportPageLayout` with date filters.
+ */
+export function useReportHasPeriod(): boolean {
+	return useContext( ReportHasPeriodContext );
+}
+
 export interface ReportPageLayoutProps {
-	/** Heading for the section on screen: `Posts & pages report`. */
+	/** Heading for the section on screen: `Posts & Pages`. */
 	title: string;
 	/** Date-filter controller, from `useReportDateFilters`. Omit on a report with no date window. */
 	dateFilters?: ReportDateFilters;
@@ -22,7 +34,8 @@ export interface ReportPageLayoutProps {
 }
 
 /**
- * Second-level report page scaffold: tabs, section header, and stacked
+ * Second-level report page scaffold: the scroll area below the page header,
+ * holding the tabs, the section header pinned at its top, and the stacked
  * sections. The header shows only the range — interval/comparison controls
  * are hidden, not cleared, so they survive on the URL.
  *
@@ -33,10 +46,12 @@ export function ReportPageLayout( { title, dateFilters, tabs, children }: Report
 	return (
 		<div className={ styles.root }>
 			{ tabs }
-			<SectionHeader title={ title }>
+			<SectionHeader title={ title } pinned>
 				{ dateFilters ? <DateFiltersPanel { ...dateFilters } /> : null }
 			</SectionHeader>
-			<div className={ styles.sections }>{ children }</div>
+			<ReportHasPeriodContext.Provider value={ !! dateFilters }>
+				<div className={ styles.sections }>{ children }</div>
+			</ReportHasPeriodContext.Provider>
 		</div>
 	);
 }
