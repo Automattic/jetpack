@@ -163,8 +163,7 @@ describe( 'FeatureModal stepping', () => {
 		rerender( modal( withScreenshot( 'podcast', 'Podcast' ) ) );
 
 		expect( screen.getByAltText( 'Podcast in use' ) ).toBeInTheDocument();
-		// React 18 warns about `fetchPriority`; the jest-console matcher types aren't visible to this package.
-		// @ts-expect-error -- toHaveErrored is registered globally by @wordpress/jest-console.
+		// React 18 warns about `fetchPriority`.
 		expect( console ).toHaveErrored();
 	} );
 
