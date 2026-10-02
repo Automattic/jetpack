@@ -9,7 +9,8 @@ export type FeatureActionType = 'install' | 'activate' | 'deactivate';
 export type BulkActionType = 'activate' | 'deactivate';
 
 /** What emptied the grid, in the order the empty states are checked. */
-export type EmptyStateReason = 'no-catalog' | 'search' | 'active' | 'inactive' | 'none';
+export type EmptyStateReason =
+	'no-catalog' | 'search' | 'active' | 'inactive' | 'included' | 'none';
 
 /** The way out an empty state offers, whichever one it is showing. */
 export type EmptyStateAction = 'reload' | 'support_search' | 'explore_all';
