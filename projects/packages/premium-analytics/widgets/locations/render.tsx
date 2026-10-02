@@ -58,6 +58,14 @@ const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
 };
 const DEFAULT_GEO_GRANULARITY: GeoGranularity = 'country';
 
+// The last level that finished loading, which a drill-down keeps on screen until the next one does.
+type SettledLevel = {
+	drillKey: string;
+	paramsKey: string;
+	data: LocationView[];
+	hasComparison: boolean;
+};
+
 type LocationsInnerProps = {
 	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
@@ -93,16 +101,33 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			: undefined,
 	} );
 
-	// The drill-down level the rows on screen belong to, which lags behind while the next level loads.
 	const drillKey = JSON.stringify( drillDownPath ?? null );
-	const [ shownDrillKey, setShownDrillKey ] = useState( drillKey );
-	if ( ! isLoading && shownDrillKey !== drillKey ) {
-		setShownDrillKey( drillKey );
+	const paramsKey = JSON.stringify( reportParams );
+	const [ settled, setSettled ] = useState< SettledLevel | null >( null );
+	if (
+		! isLoading &&
+		( settled?.drillKey !== drillKey ||
+			settled.paramsKey !== paramsKey ||
+			settled.data !== data ||
+			settled.hasComparison !== hasComparison )
+	) {
+		setSettled( { drillKey, paramsKey, data, hasComparison } );
 	}
-	// A drill-down keeps the previous level's rows on screen, dimmed, instead of the skeleton.
-	const isDrilling = isLoading && shownDrillKey !== drillKey && data.length > 0;
+	// Held whole rather than read off `data`: with a comparison, the two queries land separately
+	// and mix levels. A params change is not a drill-down and still gets the skeleton.
+	const heldLevel =
+		isLoading &&
+		settled &&
+		settled.paramsKey === paramsKey &&
+		settled.drillKey !== drillKey &&
+		settled.data.length > 0
+			? settled
+			: null;
+	const isDrilling = heldLevel !== null;
+	const listData = heldLevel?.data ?? data;
+	const listHasComparison = heldLevel?.hasComparison ?? hasComparison;
 
-	// The previous level's rows would land on the wrong map, so the map waits empty for the new ones.
+	// The held level's rows would land on the wrong map, so the map waits empty for the new ones.
 	const geoRows = useMemo(
 		(): LocationsGeoRow[] =>
 			( isDrilling ? [] : data )
@@ -155,11 +180,11 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		};
 
 		const maxValue = getCombinedPeriodMax(
-			data.map( location => location.value ),
-			hasComparison ? data.map( location => location.previousValue ) : []
+			listData.map( location => location.value ),
+			listHasComparison ? listData.map( location => location.previousValue ) : []
 		);
 
-		return data.map( location => {
+		return listData.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
 			const previousValue = location.previousValue;
 
@@ -178,16 +203,16 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 				previousValue,
 				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
-					hasComparison && previousValue !== undefined
+					listHasComparison && previousValue !== undefined
 						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
-					hasComparison && previousValue !== undefined
+					listHasComparison && previousValue !== undefined
 						? calculateDelta( location.value, previousValue )
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, hasComparison, isDrilling, setDrillDownPath ] );
+	}, [ listData, geoMode, listHasComparison, isDrilling, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -236,7 +261,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					isLoading={ isLoading && ! isDrilling }
 					isFetching={ isFetching }
 					isError={ isError }
-					isEmpty={ data.length === 0 }
+					isEmpty={ listData.length === 0 }
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
@@ -258,7 +283,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 								data={ leaderboardData }
 								loading={ isDrilling }
 								withOverlayLabel
-								withComparison={ hasComparison }
+								withComparison={ listHasComparison }
 								showLegend={ false }
 								dataFormat={ {
 									type: 'number',
