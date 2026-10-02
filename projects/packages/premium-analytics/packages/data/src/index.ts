@@ -21,7 +21,16 @@ export type {
 	AuthorSummaryResponse,
 } from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
-export { fetchStatsArchivesRows, fetchStatsTopPostsRows } from './queries/fetch-stats-report-rows';
+export {
+	fetchStatsArchivesRows,
+	fetchStatsClicksRows,
+	fetchStatsFileDownloadsRows,
+	fetchStatsReferrersRows,
+	fetchStatsSearchTermsReport,
+	fetchStatsTopAuthorsRows,
+	fetchStatsTopPostsRows,
+	fetchStatsVideoPlaysRows,
+} from './queries/fetch-stats-report-rows';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	aggregateStatsDrilldownRows,

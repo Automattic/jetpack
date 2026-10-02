@@ -13,6 +13,8 @@ import { render } from '@testing-library/react';
  */
 import { useAnnualInsightsReportRecords } from './annual-insights/config';
 import AnnualInsightsReportPage from './annual-insights/page';
+import { useAuthorsReportRecords } from './authors/config';
+import AuthorsReportPage from './authors/page';
 import { useClicksReportRecords } from './clicks/config';
 import ClicksReportPage from './clicks/page';
 import { useCommentFollowersReportRecords } from './comment-followers/config';
@@ -35,6 +37,8 @@ import { useTagsReportRecords } from './tags/config';
 import TagsReportPage from './tags/page';
 import { useUtmReportRecords } from './utm/config';
 import UtmReportPage from './utm/page';
+import { useVideosReportRecords } from './videos/config';
+import VideosReportPage from './videos/page';
 import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -59,7 +63,14 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 	StatsPageIcon: () => null,
 } ) );
 
+// `ExporterCsvAction` imports this module directly, so the root mock alone would not reach it.
+jest.mock( '../../packages/widgets-toolkit/src/components/report-page/report-csv-action', () => ( {
+	ReportCsvAction: jest.fn( () => null ),
+} ) );
+
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
+	const exporters = jest.requireActual( '../../packages/widgets-toolkit/src/report-exports' );
+
 	const Container = ( {
 		actions,
 		children,
@@ -80,7 +91,16 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 	);
 
 	return {
+		ExporterCsvAction: jest.requireActual(
+			'../../packages/widgets-toolkit/src/components/report-page/exporter-csv-action'
+		).ExporterCsvAction,
 		MetricValue: () => null,
+		authorsCsvExporter: exporters.authorsCsvExporter,
+		clicksCsvExporter: exporters.clicksCsvExporter,
+		fileDownloadsCsvExporter: exporters.fileDownloadsCsvExporter,
+		referrersCsvExporter: exporters.referrersCsvExporter,
+		searchTermsCsvExporter: exporters.searchTermsCsvExporter,
+		videosCsvExporter: exporters.videosCsvExporter,
 		// The real status map, so the Earnings history case asserts the label a
 		// reader gets rather than one the mock was told to return.
 		getEarningsStatus: jest.requireActual(
@@ -90,7 +110,9 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 			'../../packages/widgets-toolkit/src/helpers/format-email-rate'
 		).getKnownEmailRate,
 		getWordAdsHistoryFields: () => [],
-		ReportCsvAction: jest.fn( () => null ),
+		ReportCsvAction: jest.requireMock(
+			'../../packages/widgets-toolkit/src/components/report-page/report-csv-action'
+		).ReportCsvAction,
 		ReportDrilldownTable: () => null,
 		ReportErrorState: () => null,
 		ReportLocationsMap: () => null,
@@ -160,8 +182,12 @@ jest.mock( './earnings/config', () => ( {
 	useEarningsReportRecords: jest.fn(),
 } ) );
 
+jest.mock( './authors/config', () => ( {
+	getAuthorsFields: () => [],
+	useAuthorsReportRecords: jest.fn(),
+} ) );
+
 jest.mock( './clicks/config', () => ( {
-	getClickCsvGroup: () => 'Social',
 	getClicksFields: () => [],
 	useClicksReportRecords: jest.fn(),
 } ) );
@@ -217,6 +243,11 @@ jest.mock( './tags/config', () => ( {
 	useTagsReportRecords: jest.fn(),
 } ) );
 
+jest.mock( './videos/config', () => ( {
+	getVideosFields: () => [],
+	useVideosReportRecords: jest.fn(),
+} ) );
+
 jest.mock( './utm/config', () => ( {
 	getReportUtmTabs: () => [ { id: 'source-medium', label: 'Source / medium' } ],
 	getUtmFields: () => [],
@@ -226,6 +257,7 @@ jest.mock( './utm/config', () => ( {
 } ) );
 
 const useAnnualInsightsReportRecordsMock = jest.mocked( useAnnualInsightsReportRecords );
+const useAuthorsReportRecordsMock = jest.mocked( useAuthorsReportRecords );
 const useClicksReportRecordsMock = jest.mocked( useClicksReportRecords );
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
 const useCommentsReportRecordsMock = jest.mocked( useCommentsReportRecords );
@@ -237,6 +269,7 @@ const useReferrersReportRecordsMock = jest.mocked( useReferrersReportRecords );
 const useSearchTermsReportRecordsMock = jest.mocked( useSearchTermsReportRecords );
 const useTagsReportRecordsMock = jest.mocked( useTagsReportRecords );
 const useUtmReportRecordsMock = jest.mocked( useUtmReportRecords );
+const useVideosReportRecordsMock = jest.mocked( useVideosReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
@@ -288,6 +321,30 @@ function expectCsvExport(
 	const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
 	expect( actionProps.rows ).toEqual( expectedRows );
 	expect( actionProps.filename ).toBe( 'report.csv' );
+	expect( actionProps.columns.map( column => column.getValue( actionProps.rows[ 0 ] ) ) ).toEqual(
+		expectedValues
+	);
+}
+
+/**
+ * Render a report and assert what its exporter hands the CSV action.
+ *
+ * @param Page           - Report page component.
+ * @param filenamePrefix - Expected filename prefix.
+ * @param expectedRows   - Expected export rows, in order.
+ * @param expectedValues - Expected CSV values for the first row.
+ */
+function expectExporterCsvExport(
+	Page: ComponentType,
+	filenamePrefix: string,
+	expectedRows: unknown[],
+	expectedValues: unknown[]
+) {
+	render( <Page /> );
+
+	const actionProps = reportCsvActionMock.mock.calls.at( -1 )?.[ 0 ] as ExportActionProps;
+	expect( actionProps.rows ).toEqual( expectedRows );
+	expect( actionProps.filename.startsWith( `${ filenamePrefix }-` ) ).toBe( true );
 	expect( actionProps.columns.map( column => column.getValue( actionProps.rows[ 0 ] ) ) ).toEqual(
 		expectedValues
 	);
@@ -415,13 +472,13 @@ describe( 'report CSV exports', () => {
 			rows: [ group, higherRow, lowerRow ],
 		} as unknown as ReturnType< typeof useClicksReportRecords > );
 
-		expectCsvExport(
+		expectExporterCsvExport(
 			ClicksReportPage,
 			'clicks',
 			[
 				{ ...group, group: '' },
-				{ ...higherRow, group: 'Social' },
-				{ ...lowerRow, group: 'Social' },
+				{ ...higherRow, group: 'social' },
+				{ ...lowerRow, group: 'social' },
 			],
 			[ 'Social', '', 10 ]
 		);
@@ -475,7 +532,7 @@ describe( 'report CSV exports', () => {
 			rows,
 		} as unknown as ReturnType< typeof useDownloadsReportRecords > );
 
-		expectCsvExport(
+		expectExporterCsvExport(
 			DownloadsReportPage,
 			'file-downloads',
 			[ rows[ 1 ], rows[ 0 ] ],
@@ -573,7 +630,54 @@ describe( 'report CSV exports', () => {
 			rows,
 		} as ReturnType< typeof useReferrersReportRecords > );
 
-		expectCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
+		expectExporterCsvExport( ReferrersReportPage, 'referrers', rows, [ 'Search', '', 10, '' ] );
+	} );
+
+	it( 'configures the Videos export by plays', () => {
+		const rows = [
+			{ id: 1, label: 'Low', plays: 1, impressions: 4, watch_time: 0.5, retention_rate: 20 },
+			{
+				id: 2,
+				label: 'Intro',
+				plays: 5,
+				impressions: 9,
+				watch_time: 2,
+				retention_rate: 60,
+				link: 'https://example.com/v/',
+			},
+		];
+		useVideosReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			rows,
+		} as unknown as ReturnType< typeof useVideosReportRecords > );
+
+		expectExporterCsvExport(
+			VideosReportPage,
+			'videos',
+			[ rows[ 1 ], rows[ 0 ] ],
+			[ 2, 'Intro', 5, 9, 2, 60, 'https://example.com/v/' ]
+		);
+	} );
+
+	it( 'configures the Authors export with author-qualified posts', () => {
+		const rows = [
+			{ id: 'id:1', label: 'Ana', views: 9, isGroup: true, avatarUrl: null },
+			{
+				id: 'id:1|post:id:11',
+				parentId: 'id:1',
+				label: 'Hello',
+				views: 9,
+				isGroup: false,
+				avatarUrl: null,
+				parentName: 'Ana',
+			},
+		];
+		useAuthorsReportRecordsMock.mockReturnValue( {
+			...reportStatus,
+			rows,
+		} as unknown as ReturnType< typeof useAuthorsReportRecords > );
+
+		expectExporterCsvExport( AuthorsReportPage, 'top-authors', rows, [ 'Ana', 9 ] );
 	} );
 
 	it( 'configures the Locations export', () => {
@@ -622,7 +726,7 @@ describe( 'report CSV exports', () => {
 			},
 		} as unknown as ReturnType< typeof useSearchTermsReportRecords > );
 
-		expectCsvExport(
+		expectExporterCsvExport(
 			SearchTermsReportPage,
 			'search-terms',
 			[ rows[ 1 ], rows[ 0 ] ],
