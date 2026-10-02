@@ -76,6 +76,7 @@ function OverviewContent( {
 	onHeaderActionChange,
 	focusFallback,
 }: Props & { focusFallback: () => void } ) {
+	const scoreHeadingRef = useRef< HTMLHeadingElement >( null );
 	const modules = useModulesState();
 	const refreshState = useScoreRefreshState( modules.data );
 	const [ scoreState, refreshScores ] = useSpeedScores( refreshState, scoresEnabled );
@@ -192,6 +193,8 @@ function OverviewContent( {
 				variant="solid"
 				size="compact"
 				disabled={ isLoading }
+				loading={ scoreState.isRunning }
+				loadingAnnouncement=""
 				onClick={ () => onRefresh( 'header' ) }
 			>
 				{ __( 'Run speed test', 'jetpack-boost' ) }
@@ -205,7 +208,15 @@ function OverviewContent( {
 			}
 			onHeaderActionChange( null );
 		};
-	}, [ isVisible, online, isLoading, onRefresh, onHeaderActionChange, focusFallback ] );
+	}, [
+		isVisible,
+		online,
+		isLoading,
+		scoreState.isRunning,
+		onRefresh,
+		onHeaderActionChange,
+		focusFallback,
+	] );
 
 	if ( ! online ) {
 		return (
@@ -239,6 +250,7 @@ function OverviewContent( {
 			<div ref={ scoreCardRef }>
 				<ScoreCards
 					isScoreReady={ isScoreReady && isVisible }
+					headingRef={ scoreHeadingRef }
 					scores={ scoreState.scores }
 					isLoading={ isLoading }
 					isRunning={ scoreState.isRunning }
@@ -249,6 +261,7 @@ function OverviewContent( {
 				/>
 			</div>
 			<ScoreAlert
+				onBeforeHide={ () => scoreHeadingRef.current?.focus() }
 				scoreChange={
 					scoreState.status === 'loaded' &&
 					! scoreState.scores.isStale &&

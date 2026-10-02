@@ -1,4 +1,4 @@
-import { aggregateAuthorRows } from './aggregate';
+import { aggregateAuthorRows } from '../authors';
 import type {
 	StatsDrilldownSourceReport,
 	StatsNormalizedReport,

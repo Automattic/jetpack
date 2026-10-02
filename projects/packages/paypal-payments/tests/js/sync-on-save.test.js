@@ -1177,6 +1177,29 @@ describe( 'syncBlocksBeforeSave', () => {
 				expect.objectContaining( { price: expect.anything() } )
 			);
 		} );
+
+		// The image stays on the site, so the second save matches what the create sent.
+		it( 'sends only the create when the next save changes just the image', async () => {
+			const deps = fakeDeps();
+
+			await syncBlocksBeforeSave( [ { clientId: 'a', attributes: product } ], deps );
+			await syncBlocksBeforeSave(
+				[
+					{
+						clientId: 'a',
+						attributes: {
+							...product,
+							resourceId: 'PLB-NEW1',
+							imageUrl: 'https://example.test/widget.png',
+						},
+					},
+				],
+				deps
+			);
+
+			expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST' ] );
+			expect( deps.reportHeldBack ).not.toHaveBeenCalled();
+		} );
 	} );
 } );
 
@@ -1184,7 +1207,6 @@ describe( 'syncBlocksBeforeSave', () => {
 describe( 'the card revision', () => {
 	const saved = { ...product, isApiManaged: true, resourceId: 'PLB-1' };
 	const echo = () => Promise.resolve( {} );
-	const image = { imageUrl: 'https://example.test/widget.png' };
 
 	/**
 	 * Save one block per change, each pointed at PLB-1.
@@ -1228,7 +1250,6 @@ describe( 'the card revision', () => {
 	it.each( [
 		[ 'the values are unchanged', {} ],
 		[ 'only the format changes', { format: 'LINK' } ],
-		[ 'only the image changes', image ],
 	] )( 'stays put when %s', async ( _label, change ) => {
 		const deps = await save( [ change ] );
 
@@ -1260,7 +1281,7 @@ describe( 'the card revision', () => {
 	// the next save counts any PUT as a change.
 	it( 'goes up for every PUT after a save has written the payment', async () => {
 		await save( [ { productName: 'Deluxe Widget' }, {} ] );
-		await save( [ { productName: 'Deluxe Widget' }, image ] );
+		await save( [ {}, {} ] );
 
 		expect( getCardRevision( 'PLB-1' ) ).toBe( 2 );
 	} );
@@ -1289,7 +1310,7 @@ describe( 'the card revision', () => {
 	} );
 
 	// The block takes the create response: variants without the editor keys, and the price
-	// as PayPal formats it.
+	// as PayPal formats it. A switch to stacked sends BUTTON, so the second save is a PUT.
 	it( 'stays put when the save after a create writes back the created values', async () => {
 		const variants = variantsWithPrices( priced );
 		const block = {
@@ -1305,7 +1326,10 @@ describe( 'the card revision', () => {
 			[ { clientId: 'a', attributes: { ...block, price: '30' } } ],
 			deps
 		);
-		await syncBlocksBeforeSave( [ { clientId: 'a', attributes: { ...taken, ...image } } ], deps );
+		await syncBlocksBeforeSave(
+			[ { clientId: 'a', attributes: { ...taken, format: 'STACKED' } } ],
+			deps
+		);
 
 		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
 		expect( getCardRevision( 'PLB-NEW1' ) ).toBe( 0 );
@@ -1339,10 +1363,9 @@ describe( 'reportSaved after a PUT', () => {
 		recordPaymentRead( 'block-1', 'PLB-1', product );
 	} );
 
-	// The first save after a reload PUTs every block. The image is sent but never compared.
+	// The first save after a reload PUTs every block, changed or not.
 	it.each( [
 		[ 'nothing changed', {} ],
-		[ 'only the image changed', { imageUrl: 'https://example.test/widget.png' } ],
 		[ 'only a format with the same mode changed', { format: 'QR' } ],
 	] )( 'skips reportSaved when %s', async ( _label, change ) => {
 		const deps = await save( [ change ] );
@@ -1362,33 +1385,6 @@ describe( 'reportSaved after a PUT', () => {
 		] );
 
 		expect( deps.requests.map( r => r.data.integration_mode ) ).toEqual( [ 'BUTTON', 'BUTTON' ] );
-		expect( deps.reportSaved ).not.toHaveBeenCalled();
-	} );
-
-	// The create records what PayPal made as the read to compare with.
-	it( 'skips reportSaved for an image-only PUT after a create', async () => {
-		const deps = fakeDeps( ( { method } ) =>
-			Promise.resolve( 'POST' === method ? { id: 'PLB-NEW1', attributes: product } : {} )
-		);
-		await syncBlocksBeforeSave( [ { clientId: 'c', attributes: product } ], deps );
-		deps.reportSaved.mockClear();
-
-		await syncBlocksBeforeSave(
-			[
-				{
-					clientId: 'c',
-					attributes: {
-						...product,
-						isApiManaged: true,
-						resourceId: 'PLB-NEW1',
-						imageUrl: 'https://example.test/widget.png',
-					},
-				},
-			],
-			deps
-		);
-
-		expect( deps.requests.map( r => r.method ) ).toEqual( [ 'POST', 'PUT' ] );
 		expect( deps.reportSaved ).not.toHaveBeenCalled();
 	} );
 
