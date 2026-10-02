@@ -8,6 +8,7 @@
 namespace A8C\FSE;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Connection\Utils as Connection_Utils;
 use Automattic\Jetpack\Constants;
 
 /**
@@ -160,9 +161,8 @@ class Survicate {
 	/**
 	 * The current user's WordPress.com user ID, or null when they have none.
 	 *
-	 * On Atomic the local user ID differs from the WordPress.com one, so it comes
-	 * from the SSO user meta or the connection; null is an admin created on the
-	 * site itself.
+	 * Meta first: most SSO users on Atomic hold no Jetpack token, which the
+	 * connection resolver requires; it is the fallback that persists the binding.
 	 *
 	 * @return int|null
 	 */
@@ -176,17 +176,12 @@ class Survicate {
 			return $user_id;
 		}
 
-		$wpcom_user_id = get_user_meta( $user_id, 'wpcom_user_id', true );
-		if ( is_numeric( $wpcom_user_id ) && (int) $wpcom_user_id > 0 ) {
-			return (int) $wpcom_user_id;
+		$wpcom_user_id = Connection_Utils::get_wpcom_user_id( $user_id );
+		if ( ! $wpcom_user_id ) {
+			$wpcom_user_id = ( new Connection_Manager() )->resolve_wpcom_user_id( $user_id );
 		}
 
-		$user_data = ( new Connection_Manager() )->get_connected_user_data( $user_id );
-		if ( ! is_array( $user_data ) || empty( $user_data['ID'] ) || ! is_numeric( $user_data['ID'] ) ) {
-			return null;
-		}
-
-		return (int) $user_data['ID'];
+		return $wpcom_user_id > 0 ? $wpcom_user_id : null;
 	}
 
 	/**
