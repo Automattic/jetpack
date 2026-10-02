@@ -120,7 +120,7 @@ The digest auto-discovers these staging ids from their first post unless `METRIC
 
 ### `jetpackSettings` — Jetpack Settings (simulated connection)
 
-Measures `/wp-admin/admin.php?page=jetpack-settings#/settings` on the same connected instance. The measured reload must retain the canonical slug and exact hash. A visible `.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])` proves that Settings content rendered. Cards can appear while data is still loading, so capture completeness also relies on network settling and the resource-count floor derived from rendered Settings captures. The measured reload uses the existing warm-cache policy.
+Measures `/wp-admin/admin.php?page=jetpack-settings#/settings` on the same connected instance. The measured reload must land on a URL containing `page=jetpack-settings` and the exact `#/settings` hash. A visible `.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])` proves that Settings content rendered. Cards can appear while data is still loading, so capture completeness also relies on network settling and the resource-count floor derived from rendered Settings captures. The measured reload uses the existing warm-cache policy.
 
 | CodeVitals key                                                   | Field            | Type             | Description                       |
 | ---------------------------------------------------------------- | ---------------- | ---------------- | --------------------------------- |
@@ -133,7 +133,7 @@ This scenario is optional and uses staging keys. Local verification (`SCENARIO=j
 
 #### Settings connection notices — attribution note
 
-The fixture renders Settings controls alongside both an “Outbound HTTPS not working” notice and a broken-connection notice with a “Restore Connection” button. The simulator's HTTPS-test response causes the first notice; its simulated secret appears to cause the second. The selector verifies Settings content despite them. This fixture state uses the wp-build Settings renderer. Correcting the simulator will remove the notices and shift the Settings series; such a shared-fixture change requires its own before/after measurements. Settle whether to retain this baseline or correct the simulator before promoting the keys to production.
+The fixture renders Settings controls alongside both an “Outbound HTTPS not working” notice and a broken-connection notice with a “Restore Connection” button. The simulator's HTTPS-test response causes the first notice; its simulated secret appears to cause the second. The selector verifies Settings content despite them. This fixture state uses the wp-build Settings renderer selected by `jetpack-settings-wp-build`. Correcting the simulator will remove the notices and shift the Settings series; such a shared-fixture change requires its own before/after measurements. Settle whether to retain this baseline or correct the simulator before promoting the keys to production.
 
 The final LCP element is the Security message heading (“Your site is protected by Jetpack. You’ll be notified if anything needs attention.”). Navigation also waits for a blocking licensing-counts request that the simulator delays by its configured latency (200 ms by default), so Settings TTFB includes that artificial delay. Later plans and tracking requests incur their own simulated delays after navigation.
 
@@ -142,6 +142,10 @@ The final LCP element is the Security message heading (“Your site is protected
 This tooling flips `jetpack_offline_mode` off install-wide (required for My Jetpack, condition 1 above). Because all connected scenarios share one WordPress install, this shifts what the **existing** `wp-admin-dashboard-connection-sim-*` and `forms-responses-connection-sim-*` trends measure at the commit it lands: Jetpack runs more code paths when it is not offline. Locally measured before/after on the Dashboard scenario (the one existing scenario that measures cleanly here — see the Forms note below) was small: LCP 140→140 ms, TTFB 57→60 ms, FCP 140→140 ms, decodedBytesKB 4098→4205, resources 89→98. The timing metrics move within noise; the real signal is +9 resources / +107 KB decoded (the extra non-offline code paths). Expect a one-time baseline level shift of that order at the landing commit — every later point measures the non-offline fixture, so the trend settles at the new level rather than returning to the old one. It is a measurement-boundary change, not an ongoing regression.
 
 The `forms-responses-*` trends could not be measured before/after locally at the time this landed: the Forms page's `canUser` OPTIONS probe to `/wp/v2/settings` stalls in the local headless-Chromium fixture (later tracing for FORMS-729 showed the server answers in milliseconds — a browser-side delivery stall, local-only, with offline on or off), so under the scenario's original `networkidle` gate every iteration timed out. FORMS-729 has since moved the Forms scenario to `loadState: 'load'` plus a fail-closed resource-count settle (see `scenarios.js`), which measures cleanly despite the stall. Flagged here so a Forms-trend gap around this commit is not mistaken for a regression.
+
+### Simulated connection IDs — attribution note
+
+The simulator's fake site ID changes from `123456789` to `999999999` and its `/me` user ID from `1` to `999999999999` to distinguish simulated connection identities from ordinary account IDs. Earlier Settings and existing-scenario captures cited as within measured noise predate this change, so its effect has not been measured on its own.
 
 ### Admin backend metrics (`Server-Timing`)
 
