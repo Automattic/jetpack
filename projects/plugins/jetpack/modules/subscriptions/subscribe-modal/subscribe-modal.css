@@ -26,7 +26,9 @@ body.jetpack-subscribe-modal-open {
 	overflow: hidden;
 	top: 100%;
 	background-color: #fefefe;
-	margin: 15% auto;
+
+	/* Percentage block margins scale with viewport width. */
+	margin: min(15%, 15vh) auto;
 	width: 100%;
 	max-width: 600px;
 	border-radius: 10px;
@@ -50,7 +52,7 @@ body.jetpack-subscribe-modal-open {
 	text-wrap: pretty;
 }
 
-@media screen and (max-width: 640px) {
+@media screen and ( max-width: 640px ) {
 
 	.jetpack-subscribe-modal__modal-content {
 		width: 94%;
