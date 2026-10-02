@@ -1,7 +1,7 @@
-import { BaseTooltip } from '@jetpack-premium-analytics/externals';
 import { formatDate } from '@jetpack-premium-analytics/formatters';
 import { formatTooltipPointLabel } from '../../../helpers';
 import { ChartTooltip, type TooltipStyle } from '../chart-tooltip';
+import { TooltipBox } from './tooltip-box';
 import type { Meta, StoryObj } from '@storybook/react';
 
 const meta: Meta< typeof ChartTooltip > = {
@@ -15,17 +15,6 @@ const meta: Meta< typeof ChartTooltip > = {
 
 export default meta;
 type Story = StoryObj< typeof ChartTooltip >;
-
-const IN_FLOW = { position: 'static', transform: 'none' } as const;
-
-/**
- * The charts tooltip box, taken out of its absolute position so the story can center it.
- */
-const TooltipWrapper = ( { children }: { children: React.ReactNode } ) => (
-	<BaseTooltip top={ 0 } left={ 0 } style={ IN_FLOW }>
-		{ children }
-	</BaseTooltip>
-);
 
 /**
  * Line chart styles - solid and dashed lines
@@ -70,7 +59,7 @@ const getDateLabel = ( datum: LineDatum, index: number ): string => {
  */
 export const LineIndicatorTwoSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -98,7 +87,7 @@ export const LineIndicatorTwoSeries: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -115,7 +104,7 @@ export const LineIndicatorTwoSeries: Story = {
  */
 export const LineIndicatorThreeSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -152,7 +141,7 @@ export const LineIndicatorThreeSeries: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -169,7 +158,7 @@ export const LineIndicatorThreeSeries: Story = {
  */
 export const RectIndicatorTwoSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -195,7 +184,7 @@ export const RectIndicatorTwoSeries: Story = {
 				seriesStyles={ BAR_SERIES_STYLES }
 				indicatorType="rect"
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -212,7 +201,7 @@ export const RectIndicatorTwoSeries: Story = {
  */
 export const RectIndicatorSingleSeries: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -230,7 +219,7 @@ export const RectIndicatorSingleSeries: Story = {
 				seriesStyles={ BAR_SERIES_STYLES }
 				indicatorType="rect"
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -246,7 +235,7 @@ export const RectIndicatorSingleSeries: Story = {
  */
 export const NumberFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -274,7 +263,7 @@ export const NumberFormat: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -290,7 +279,7 @@ export const NumberFormat: Story = {
  */
 export const PercentageFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -318,7 +307,7 @@ export const PercentageFormat: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -334,7 +323,7 @@ export const PercentageFormat: Story = {
  */
 export const CurrencyFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -353,7 +342,7 @@ export const CurrencyFormat: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -369,7 +358,7 @@ export const CurrencyFormat: Story = {
  */
 export const CustomStyles: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -405,7 +394,7 @@ export const CustomStyles: Story = {
 				indicatorType="line"
 				getLabel={ getDateLabel }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -421,7 +410,7 @@ export const CustomStyles: Story = {
  */
 export const MissingReading: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<ChartTooltip
 				tooltipData={ {
 					datumByKey: {
@@ -449,7 +438,7 @@ export const MissingReading: Story = {
 					formatTooltipPointLabel( value, key, formatDate( datum.realDate ?? datum.date ) )
 				}
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
