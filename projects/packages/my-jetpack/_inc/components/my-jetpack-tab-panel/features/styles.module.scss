@@ -447,13 +447,19 @@ $band-ground: #f8f8f8;
 }
 
 // Round, like the filter pills beside them.
+// A segmented control: one soft track, the active layout a tile inside it.
 .view-group {
-	gap: 0;
+	background: var(--wpds-color-background-interactive-neutral-weak-active);
+	// The buttons' radius plus the track's padding, so the corners nest.
+	border-radius: calc(var(--wpds-border-radius-md) + 2px);
+	gap: 2px;
+	padding: 2px;
 }
 
-// Square, borderless and touching, so the two read as one control.
+// Rounded like the feature icons beside them.
 .view-button {
-	border-radius: 0;
+	border-color: transparent;
+	border-radius: var(--wpds-border-radius-md);
 }
 
 .feature-list {
