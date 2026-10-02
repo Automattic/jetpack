@@ -79,7 +79,7 @@ if ( is_admin() ) {
 	\Automattic\Jetpack\Plugin\Jetpack_Script_Data::configure();
 }
 
-// Settings > Sharing and its REST routes exist whichever modules are active.
+// Settings > Sharing and its REST routes exist even with the Sharing, Likes and Comment Likes modules off.
 \Automattic\Jetpack\Sharing_Likes\Initializer::init();
 
 // Play nice with https://wp-cli.org/.

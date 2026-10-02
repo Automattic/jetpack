@@ -10,10 +10,11 @@ Likes), the shared placement section, the extras section, and the form handling 
 them. It also serves the same settings over REST, under `src/rest/`.
 `Initializer::init()` wires both up: the REST routes on every request, the
 screen in wp-admin. The Jetpack plugin calls it from `load-jetpack.php`, so the
-screen and every section on it exist whichever modules are active. The menu
-itself only registers where `Environment::settings_screen_supported()` holds (Simple, a connected site, or
-offline mode): anywhere else neither the modules nor their blocks load, so
-the screen would have nothing to offer.
+screen and every section on it exist even with the Sharing, Likes and Comment
+Likes modules off. The menu itself only registers where
+`Environment::settings_screen_supported()` holds (Simple, a connected site, or
+offline mode): anywhere else neither the modules nor their blocks load, so the
+screen would have nothing to offer.
 
 `Section_State` decides which of four variants a section renders. `Environment`
 reads the site facts it needs. Everything else renders.
@@ -210,8 +211,8 @@ request carries.
 React screen: `settings`, `status`, `services`, the custom services, and
 `<feature>/switch-to-block` and `<feature>/activate`. `Endpoints` explains the
 namespace. `Initializer::init()` registers the routes outside its `is_admin()`
-branch, since REST requests are not admin requests, and whatever the modules
-are doing.
+branch, since REST requests are not admin requests, and whether or not the
+Sharing, Likes and Comment Likes modules are active.
 
 The routes offer what the PHP screen shows and nothing else. A setting whose
 section does not render it is missing from reads, and a write that includes it

@@ -14,14 +14,12 @@ use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
 
 /**
- * Wires up Settings > Sharing and the REST routes behind it, whichever modules are active.
+ * Wires up Settings > Sharing and the REST routes behind it, even with the Sharing, Likes and Comment Likes modules off.
  */
 final class Initializer {
 
 	/**
 	 * Package version.
-	 *
-	 * No visibility keyword: `tools/project-version.sh` only matches `const PACKAGE_VERSION = '…';`.
 	 */
 	const PACKAGE_VERSION = '0.1.1';
 
