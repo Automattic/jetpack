@@ -41,9 +41,8 @@ type PostTitleProps = {
 
 /**
  * Render a post row's title. Rows with an ID drill into the internal post/page
- * detail page, carrying the report's current date window so the detail page
- * opens on the range being inspected; the public URL is the external fallback
- * for rows without one.
+ * detail page, carrying the report's current date window for its breadcrumbs
+ * to return to; the public URL is the external fallback for rows without one.
  *
  * The API sends no URL for homepage rows, so they fall back to the site home
  * resolved from core settings. They never take the detail page: the homepage
