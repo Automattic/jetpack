@@ -29,7 +29,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 	if ( ! context ) {
 		return null;
 	}
-	const { primaryColorHex, scale } = context;
+	const { fillVars } = context;
 	const labelStyle = legend.labelStyles;
 
 	return (
@@ -57,11 +57,7 @@ export const HeatmapLegend: FC< HeatmapLegendProps > = ( {
 							className={ styles[ 'heatmap-chart__legend-swatch' ] }
 							style={
 								{
-									'--a8c-charts-color-heatmap-primary': primaryColorHex,
-									...( scale && {
-										'--a8c-charts-color-heatmap-low': scale.low,
-										'--a8c-charts-color-heatmap-high': scale.high,
-									} ),
+									...fillVars,
 									'--a8c-charts-heatmap-cell-intensity': intensity,
 								} as CSSProperties
 							}

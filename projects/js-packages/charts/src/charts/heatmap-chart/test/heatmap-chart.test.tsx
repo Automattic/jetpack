@@ -1,8 +1,11 @@
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GlobalChartsProvider } from '../../../providers';
+import { MIN_BACKGROUND_CONTRAST } from '../../../providers/chart-context/private/palette-generator';
+import { contrastRatio } from '../../../providers/chart-context/private/perceptual-color';
 import { buildMonthCalendarHeatmapData } from '../build-month-calendar-data';
 import HeatmapChart, { HeatmapChartUnresponsive } from '../heatmap-chart';
+import { HEATMAP_HIGH_CONTRAST } from '../private/heatmap-scale';
 import type { HeatmapColumn } from '../types';
 
 const mockRefCallback = jest.fn();
@@ -195,7 +198,7 @@ describe( 'HeatmapChart', () => {
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 
 		for ( const swatch of screen.getAllByTestId( 'heatmap-legend-swatch' ) ) {
-			for ( const end of [ 'low', 'high' ] ) {
+			for ( const end of [ 'primary', 'low', 'high' ] ) {
 				const property = `--a8c-charts-color-heatmap-${ end }`;
 				expect( swatch.style.getPropertyValue( property ) ).toBe(
 					grid.style.getPropertyValue( property )
@@ -444,9 +447,32 @@ describe( 'HeatmapChart', () => {
 	test( 'sets the fill scale ends derived from the primary color', () => {
 		renderChart( { primaryColor: '#3858e9' } );
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const low = grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' );
+		const high = grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' );
 
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#798ef0' );
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
+		expect( contrastRatio( low, '#ffffff' ) ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
+		expect( contrastRatio( high, '#ffffff' ) ).toBeGreaterThanOrEqual( HEATMAP_HIGH_CONTRAST );
+	} );
+
+	test( 'leaves the fill to the stylesheet when the primary color cannot resolve to hex', () => {
+		render(
+			<GlobalChartsProvider>
+				<HeatmapChart width={ 500 } height={ 300 } data={ data } primaryColor="oklch(0.6 0.2 260)">
+					<HeatmapChart.Legend />
+				</HeatmapChart>
+			</GlobalChartsProvider>
+		);
+		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
+		const swatches = screen.getAllByTestId( 'heatmap-legend-swatch' );
+
+		for ( const element of [ grid, ...swatches ] ) {
+			expect( element.style.getPropertyValue( '--a8c-charts-color-heatmap-primary' ) ).toBe(
+				'oklch(0.6 0.2 260)'
+			);
+			expect( element.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '' );
+			expect( element.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '' );
+		}
+		expect( screen.getByText( '4' ) ).toHaveClass( 'heatmap-chart__cell-value', { exact: true } );
 	} );
 
 	test( 'builds the scale for white on a see-through background, as the palette does', () => {
@@ -477,6 +503,13 @@ describe( 'HeatmapChart', () => {
 		expect( screen.getByRole( 'gridcell', { name: 'W1: 1' } ) ).toHaveClass(
 			'heatmap-chart__cell--filled'
 		);
+	} );
+
+	test( 'puts the lowest non-zero value on the lowest step, as if the zeros were missing', () => {
+		renderChart();
+		const lowest = screen.getByRole( 'gridcell', { name: 'W1: 1' } );
+
+		expect( lowest.style.getPropertyValue( '--a8c-charts-heatmap-cell-intensity' ) ).toBe( '0' );
 	} );
 
 	test( 'falls back to the first palette slot when no primaryColor prop is set', () => {

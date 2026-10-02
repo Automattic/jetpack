@@ -142,10 +142,18 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const scale = useMemo(
 		() =>
-			isValidHexColor( primaryHex ) && isValidHexColor( chartBackgroundHex )
-				? getHeatmapScale( primaryHex, chartBackgroundHex )
-				: null,
+			isValidHexColor( primaryHex ) ? getHeatmapScale( primaryHex, chartBackgroundHex ) : null,
 		[ primaryHex, chartBackgroundHex ]
+	);
+	const fillVars = useMemo(
+		() => ( {
+			'--a8c-charts-color-heatmap-primary': primaryColorHex,
+			...( scale && {
+				'--a8c-charts-color-heatmap-low': scale.low,
+				'--a8c-charts-color-heatmap-high': scale.high,
+			} ),
+		} ),
+		[ primaryColorHex, scale ]
 	);
 	// Choose text color from the fill the cell paints, mirroring .heatmap-chart__cell--filled.
 	const cellTextColor = ( intensity: number ): LabelTextColor =>
@@ -169,8 +177,8 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 
 	const extent = useMemo( () => getValueExtent( data ), [ data ] );
 	const heatmapContext = useMemo< HeatmapContextValue >(
-		() => ( { extent, primaryColorHex, scale } ),
-		[ extent, primaryColorHex, scale ]
+		() => ( { extent, fillVars } ),
+		[ extent, fillVars ]
 	);
 
 	const columns = data.length;
@@ -394,11 +402,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		)
 		.join( ' ' );
 	const gridStyle: Record< string, string | number > = {
-		'--a8c-charts-color-heatmap-primary': primaryColorHex,
-		...( scale && {
-			'--a8c-charts-color-heatmap-low': scale.low,
-			'--a8c-charts-color-heatmap-high': scale.high,
-		} ),
+		...fillVars,
 		gridTemplateColumns: `auto ${ columnTracks }`,
 		gridTemplateRows: `${ hasColumnLabels ? 'auto ' : '' }repeat(${ rows }, ${ rowTrack })${
 			hasGroups ? ' auto' : ''
