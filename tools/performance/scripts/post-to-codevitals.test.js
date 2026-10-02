@@ -590,6 +590,68 @@ test( 'the myJetpack scenario retains production keys and adds staging TBT', () 
 	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 64 }, scenario ) );
 } );
 
+test( 'Settings extracts four typed staging metrics and rejects wrong routes or partial captures', () => {
+	const scenario = SCENARIOS.find( s => s.key === 'jetpackSettings' );
+	const summary = {
+		lcp: { median: 400 },
+		ttfb: { median: 60 },
+		fcp: { median: 200 },
+		decodedBytesKB: { median: 6800 },
+	};
+	assert.deepEqual(
+		extractScenarioMetrics( scenario, summary ),
+		[
+			[ 'largestContentfulPaint', 'lcp', 400 ],
+			[ 'timeToFirstByte', 'ttfb', 60 ],
+			[ 'firstContentfulPaint', 'fcp', 200 ],
+			[ 'decodedBytesKB', 'decodedBytesKB', 6800 ],
+		].map( ( [ suffix, type, value ] ) => ( {
+			key: `jetpack-settings-connection-sim-${ suffix }-staging`,
+			type,
+			value,
+		} ) )
+	);
+	assert.equal( scenario.optional, true );
+	assert.equal( scenario.path, '/wp-admin/admin.php?page=jetpack-settings#/settings' );
+	assert.equal(
+		scenario.waitForSelector,
+		'.jp-settings-container .jp-form-settings-card:has(input[type="checkbox"])'
+	);
+	assert.equal( scenario.expectUrlIncludes, 'page=jetpack-settings' );
+	assert.doesNotThrow( () =>
+		assertExpectedUrl(
+			'http://localhost/wp-admin/admin.php?page=jetpack-settings#/settings',
+			scenario.expectUrlIncludes,
+			scenario.expectUrlHash
+		)
+	);
+	assert.throws(
+		() =>
+			assertExpectedUrl(
+				'http://localhost/wp-admin/admin.php?page=my-jetpack#/settings',
+				scenario.expectUrlIncludes,
+				scenario.expectUrlHash
+			),
+		/Wrong page: expected URL to include/
+	);
+	for ( const hash of [ '', '#/security', '#/settings-other' ] ) {
+		assert.throws(
+			() =>
+				assertExpectedUrl(
+					`http://localhost/?page=jetpack${ hash }`,
+					null,
+					scenario.expectUrlHash
+				),
+			/Wrong page: expected hash/
+		);
+	}
+	assert.throws(
+		() => assertCaptureComplete( { totalRequests: 73 }, scenario ),
+		/Incomplete capture/
+	);
+	assert.doesNotThrow( () => assertCaptureComplete( { totalRequests: 74 }, scenario ) );
+} );
+
 test( 'every scenario declares an explicit failure policy; the Dashboard stays required', () => {
 	// FORMS-728: computeRunOutcome reads `optional` off every scenario, so the flag must be
 	// an explicit boolean — a missing flag would silently classify a scenario as required
@@ -817,11 +879,17 @@ test( 'dry-run with both scenarios present posts 14 keys, including zero Forms s
 	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
 } );
 
-test( 'dry-run with all three scenarios present posts 22 keys, including My Jetpack staging TBT', async () => {
+test( 'dry-run with all five scenarios posts 11 production keys and 21 staging keys', async () => {
 	const file = writeResults( 120, {
 		forms: { decodedBytesKB: 8229 },
 		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860, tbt: 120 },
 	} );
+	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	results.measurements[ 'jetpackConnected-noJetpack' ] = { summary: jetpackSummary() };
+	results.measurements.jetpackSettings = {
+		summary: formsSummary( { lcp: 1060, ttfb: 327, fcp: 684, decodedBytesKB: 6782 } ),
+	};
+	fs.writeFileSync( file, JSON.stringify( results ) );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
 	assert.equal( result.payload.metrics[ MJ_LCP_KEY ], 640 );
@@ -829,7 +897,26 @@ test( 'dry-run with all three scenarios present posts 22 keys, including My Jetp
 	assert.equal( result.payload.metrics[ MJ_FCP_KEY ], 560 );
 	assert.equal( result.payload.metrics[ MJ_DECODED_KEY ], 5860 );
 	assert.equal( result.payload.metrics[ MJ_TBT_KEY ], 120 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 22 );
+	assert.deepEqual(
+		Object.entries( result.payload.metrics ).filter( ( [ key ] ) =>
+			key.startsWith( 'jetpack-settings-' )
+		),
+		[
+			[ 'jetpack-settings-connection-sim-largestContentfulPaint-staging', 1060 ],
+			[ 'jetpack-settings-connection-sim-timeToFirstByte-staging', 327 ],
+			[ 'jetpack-settings-connection-sim-firstContentfulPaint-staging', 684 ],
+			[ 'jetpack-settings-connection-sim-decodedBytesKB-staging', 6782 ],
+		]
+	);
+	assert.equal( Object.keys( result.payload.metrics ).length, 32 );
+	assert.equal(
+		Object.keys( result.payload.metrics ).filter( key => ! key.endsWith( '-staging' ) ).length,
+		11
+	);
+	assert.equal(
+		Object.keys( result.payload.metrics ).filter( key => key.endsWith( '-staging' ) ).length,
+		21
+	);
 } );
 
 test( 'dry-run adds six separate staging control keys and preserves all connected keys', async () => {
@@ -2150,7 +2237,16 @@ test( 'dry payload carries exactly twelve typed staging backend keys with intege
 			/wp-(before-template|template)/.test( key )
 		)
 	);
-	for ( const scenario of SCENARIOS ) {
+	const backendScenarios = SCENARIOS.filter( scenario =>
+		scenario.metrics.some( metric =>
+			[ 'wpTotal', 'wpMemoryUsage', 'wpDbQueries' ].includes( metric.field )
+		)
+	);
+	assert.deepEqual(
+		backendScenarios.map( scenario => scenario.key ),
+		[ 'jetpackConnected', 'formsResponses', 'myJetpack', 'jetpackConnected-noJetpack' ]
+	);
+	for ( const scenario of backendScenarios ) {
 		for ( const [ field, unit ] of [
 			[ 'wpTotal', 'ms' ],
 			[ 'wpMemoryUsage', 'bytes' ],
