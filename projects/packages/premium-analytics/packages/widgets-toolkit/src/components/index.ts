@@ -13,7 +13,6 @@ export {
 	ComparativeLineChart,
 	type ComparativeLineChartSeries,
 	type SeriesStyle,
-	type TooltipExtraPoint,
 	type TooltipExtraSeries,
 } from './chart-comparative-line';
 export {

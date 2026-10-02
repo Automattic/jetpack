@@ -429,8 +429,6 @@ describe( 'useTrafficChart tooltip extras', () => {
 		const [ ratio, posts ] = views.tooltipExtras ?? [];
 		expect( ratio.data ).toHaveLength( 1 );
 		expect( ratio.data[ 0 ].value ).toBeCloseTo( 1.33, 2 );
-		expect( posts.data ).toEqual( [
-			expect.objectContaining( { value: 1, tooltipText: 'Post published: Hello world' } ),
-		] );
+		expect( posts.data ).toEqual( [ expect.objectContaining( { value: 1 } ) ] );
 	} );
 } );

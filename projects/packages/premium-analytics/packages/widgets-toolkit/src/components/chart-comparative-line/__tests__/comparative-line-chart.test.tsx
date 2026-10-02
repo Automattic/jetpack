@@ -185,18 +185,17 @@ function recordedProps(): RecordedLineProps {
  * The label the tooltip puts on a point, at a given series index. Index 0 is the
  * current period; anything higher is a comparison series.
  *
- * @param datum             - The hovered point.
- * @param datum.date        - The axis date it is plotted on.
- * @param datum.realDate    - Its own date, when it belongs to a comparison series.
- * @param datum.tooltipText - Its own row text, when it is not a number.
- * @param index             - Its series index.
- * @param key               - The series it belongs to.
- * @param value             - Its value, as the tooltip spelled it out.
- * @param rawValue          - The number `value` spells.
+ * @param datum          - The hovered point.
+ * @param datum.date     - The axis date it is plotted on.
+ * @param datum.realDate - Its own date, when it belongs to a comparison series.
+ * @param index          - Its series index.
+ * @param key            - The series it belongs to.
+ * @param value          - Its value, as the tooltip spelled it out.
+ * @param rawValue       - The number `value` spells.
  * @return The rendered row label.
  */
 function tooltipLabelFor(
-	datum: { date: Date; realDate?: Date; tooltipText?: string },
+	datum: { date: Date; realDate?: Date },
 	index = 0,
 	key = 'Views',
 	value = '100',
@@ -456,34 +455,6 @@ describe( 'ComparativeLineChart', () => {
 		expect( tooltipLabelFor( { date: JULY_1 }, 0, 'Views', '1', 1 ) ).toBe(
 			'1 Views · July 1, 2026'
 		);
-	} );
-
-	// A row that is not a number, such as the posts published that day, reads its
-	// own text in place of the value and unit, and still ends with the date.
-	it( "reads a point's own text when it carries one", () => {
-		setSettings( siteSettingsIn( 'Asia/Tokyo' ) );
-		render(
-			<ComparativeLineChart
-				series={ SERIES }
-				dataFormat={ DATA_FORMAT }
-				tooltipExtras={ [
-					{
-						label: 'Posts published',
-						data: [ { date: JULY_1, value: 1, tooltipText: 'Post published: Hello world' } ],
-					},
-				] }
-			/>
-		);
-
-		expect(
-			tooltipLabelFor(
-				{ date: JULY_1, tooltipText: 'Post published: Hello world' },
-				1,
-				'Posts published',
-				'1',
-				1
-			)
-		).toBe( 'Post published: Hello world · July 1, 2026' );
 	} );
 
 	it( 'names rows by series on a multi-metric chart with no comparison', () => {

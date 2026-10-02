@@ -2,26 +2,13 @@
  * External dependencies
  */
 import { resolveBucketStamp } from '@jetpack-premium-analytics/datetime';
-import { __, _n, sprintf } from '@wordpress/i18n';
+import { __, _n } from '@wordpress/i18n';
 import type { StatsVisitsResponse } from '@jetpack-premium-analytics/data';
-import type {
-	TooltipExtraPoint,
-	TooltipExtraSeries,
-} from '@jetpack-premium-analytics/widgets-toolkit';
+import type { TooltipExtraSeries } from '@jetpack-premium-analytics/widgets-toolkit';
 
 const VIEWS_PER_VISITOR_FORMAT = { type: 'average' as const };
 
-/** Titles are listed up to here; past it the row carries a count, as classic Stats does. */
-const MAX_LISTED_TITLES = 2;
-
-/** The bucket's `post_titles` strings; an untitled post arrives as `''` and still counts, as in classic Stats. */
-function postTitlesOf( point: Record< string, unknown > ): string[] {
-	const titles = point.post_titles;
-
-	return Array.isArray( titles )
-		? titles.filter( ( title ): title is string => typeof title === 'string' )
-		: [];
-}
+type ExtraPoints = TooltipExtraSeries[ 'data' ];
 
 function numberOf( point: Record< string, unknown >, field: string ): number | undefined {
 	const value = point[ field ];
@@ -29,77 +16,97 @@ function numberOf( point: Record< string, unknown >, field: string ): number | u
 	return typeof value === 'number' ? value : undefined;
 }
 
-/**
- * The rows classic Stats adds under the traffic chart's tooltip: views per
- * visitor, and the posts published in the bucket. Both are read from the
- * `stats/visits` report the Views and Visitors tabs already fetch.
- *
- * @param report - The current-period views/visitors report, with `post_titles` requested.
- * @param zone   - The report's reporting timezone.
- * @return The extra series, each omitted when no bucket has a reading for it.
- */
-export function buildTrafficTooltipExtras(
-	report: StatsVisitsResponse | undefined,
-	zone: string
-): TooltipExtraSeries[] {
-	const viewsPerVisitor: TooltipExtraPoint[] = [];
-	const postsPublished: TooltipExtraPoint[] = [];
+const postsPublishedLabel: NonNullable< TooltipExtraSeries[ 'countLabel' ] > = count =>
+	/* translators: %s: number of posts published. */
+	_n( '%s Post published', '%s Posts published', count, 'jetpack-premium-analytics-pkg' );
 
-	for ( const point of report?.data ?? [] ) {
-		const date = resolveBucketStamp( point.date_start, zone );
-		if ( ! date ) {
-			continue;
+/**
+ * Read one period's views per visitor and posts published, bucket by bucket.
+ *
+ * @param report    - The period's views/visitors report, with `post_titles` requested.
+ * @param zone      - The report's reporting timezone.
+ * @param axisDates - For a comparison period, the current period's bucket dates: each
+ *                  bucket is read at the current bucket in the same position.
+ * @return The points of both rows, and the period's own bucket dates.
+ */
+function readPeriod(
+	report: StatsVisitsResponse | undefined,
+	zone: string,
+	axisDates?: Array< Date | undefined >
+) {
+	const viewsPerVisitor: ExtraPoints = [];
+	const postsPublished: ExtraPoints = [];
+	const dates = ( report?.data ?? [] ).map( point => resolveBucketStamp( point.date_start, zone ) );
+
+	( report?.data ?? [] ).forEach( ( point, index ) => {
+		const ownDate = dates[ index ];
+		const date = axisDates ? axisDates[ index ] : ownDate;
+		if ( ! date || ! ownDate ) {
+			return;
 		}
+		// `realDate` is the date the tooltip row reads; `date` only places it.
+		const stamp = axisDates ? { date, realDate: ownDate } : { date };
 
 		const views = numberOf( point, 'views' );
 		const visitors = numberOf( point, 'visitors' );
 		// A ratio with no visitors has nothing to say, as in classic Stats.
 		if ( views !== undefined && visitors !== undefined && visitors > 0 ) {
-			viewsPerVisitor.push( { date, value: views / visitors } );
+			viewsPerVisitor.push( { ...stamp, value: views / visitors } );
 		}
 
-		const titles = postTitlesOf( point );
-		if ( titles.length ) {
-			postsPublished.push( {
-				date,
-				value: titles.length,
-				// Listed only when every post has a title to list; an untitled one leaves the count.
-				tooltipText:
-					titles.length <= MAX_LISTED_TITLES && titles.every( title => title !== '' )
-						? sprintf(
-								/* translators: %s: the titles of the posts published that day, comma separated. */
-								_n(
-									'Post published: %s',
-									'Posts published: %s',
-									titles.length,
-									'jetpack-premium-analytics-pkg'
-								),
-								titles.join( ', ' )
-							)
-						: undefined,
-			} );
+		// An untitled post arrives as `''` and still counts, as in classic Stats.
+		const posts = Array.isArray( point.post_titles ) ? point.post_titles.length : 0;
+		if ( posts ) {
+			postsPublished.push( { ...stamp, value: posts } );
 		}
-	}
+	} );
 
-	const extras: TooltipExtraSeries[] = [];
+	return { viewsPerVisitor, postsPublished, dates };
+}
 
-	if ( viewsPerVisitor.length ) {
-		extras.push( {
+/**
+ * The rows classic Stats adds under the traffic chart's tooltip: views per
+ * visitor, and the number of posts published in the bucket. Both are read from
+ * the `stats/visits` report the Views and Visitors tabs already fetch.
+ *
+ * @param report     - The current-period views/visitors report, with `post_titles` requested.
+ * @param zone       - The report's reporting timezone.
+ * @param comparison - The comparison-period report, when a comparison is on.
+ * @return The extra series, each omitted when no bucket has a reading for it; a
+ *         comparison row follows its current-period row.
+ */
+export function buildTrafficTooltipExtras(
+	report: StatsVisitsResponse | undefined,
+	zone: string,
+	comparison?: StatsVisitsResponse
+): TooltipExtraSeries[] {
+	const current = readPeriod( report, zone );
+	const previous = comparison ? readPeriod( comparison, zone, current.dates ) : undefined;
+
+	const rows: TooltipExtraSeries[] = [
+		{
 			label: __( 'Views per visitor', 'jetpack-premium-analytics-pkg' ),
-			data: viewsPerVisitor,
+			data: current.viewsPerVisitor,
 			dataFormat: VIEWS_PER_VISITOR_FORMAT,
-		} );
-	}
-
-	if ( postsPublished.length ) {
-		extras.push( {
+		},
+		{
+			label: __( 'Views per visitor', 'jetpack-premium-analytics-pkg' ),
+			key: 'views-per-visitor-comparison',
+			data: previous?.viewsPerVisitor ?? [],
+			dataFormat: VIEWS_PER_VISITOR_FORMAT,
+		},
+		{
 			label: __( 'Posts published', 'jetpack-premium-analytics-pkg' ),
-			data: postsPublished,
-			countLabel: count =>
-				/* translators: %s: number of posts published. */
-				_n( '%s Post published', '%s Posts published', count, 'jetpack-premium-analytics-pkg' ),
-		} );
-	}
+			data: current.postsPublished,
+			countLabel: postsPublishedLabel,
+		},
+		{
+			label: __( 'Posts published', 'jetpack-premium-analytics-pkg' ),
+			key: 'posts-published-comparison',
+			data: previous?.postsPublished ?? [],
+			countLabel: postsPublishedLabel,
+		},
+	];
 
-	return extras;
+	return rows.filter( row => row.data.length );
 }

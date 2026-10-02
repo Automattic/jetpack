@@ -24,21 +24,14 @@ export type ComparativeLineChartSeries = SeriesData & {
 };
 
 /**
- * A point of a series the tooltip reads out but does not draw. Only such a
- * point may carry its own text, read in place of the value and unit for a row
- * that is not a number: `Post published: Hello world`. The date still follows.
- */
-export type TooltipExtraPoint = ComparativeDatePointDate & {
-	tooltipText?: string;
-};
-
-/**
  * A series the tooltip reads out but the chart does not draw: its point for the
  * hovered date joins the rows, named after `label` and formatted its own way.
  */
 export type TooltipExtraSeries = {
 	label: string;
-	data: TooltipExtraPoint[];
+	/** Row key, for two extras that share a label (a period and its comparison). Defaults to `label`. */
+	key?: string;
+	data: ComparativeDatePointDate[];
 	/** Falls back to the chart's `dataFormat`. */
 	dataFormat?: DataFormat;
 	countLabel?: CountLabel;

@@ -130,8 +130,9 @@ export default function useTrafficChart(
 	// Views per visitor and the posts published, read out under the Views and
 	// Visitors tabs the way classic Stats does; the other tabs list their own metric only.
 	const trafficTooltipExtras = useMemo(
-		() => buildTrafficTooltipExtras( vvPrimary, vvZone ),
-		[ vvPrimary, vvZone ]
+		() =>
+			buildTrafficTooltipExtras( vvPrimary, vvZone, vvHasComparison ? vvComparison : undefined ),
+		[ vvPrimary, vvZone, vvComparison, vvHasComparison ]
 	);
 
 	// One tab per metric, in canonical definition order.

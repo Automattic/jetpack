@@ -73,6 +73,30 @@ describe( 'appendTooltipExtras', () => {
 		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY } );
 	} );
 
+	it( 'keys an extra by its own key, so two can share a label', () => {
+		const previous = {
+			label: 'Average CPM',
+			key: 'cpm-previous',
+			data: [ { date: JULY_1, value: 0.1 } ],
+			dataFormat: CURRENCY,
+		};
+		const { tooltipData, supplementaryRows } = appendTooltipExtras( hoveredAt( JULY_1 ), [
+			CPM,
+			previous,
+		] );
+
+		expect( Object.keys( tooltipData?.datumByKey ?? {} ) ).toEqual( [
+			'Views',
+			'Average CPM',
+			'cpm-previous',
+		] );
+		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY, 'cpm-previous': CURRENCY } );
+		expect( resolveTooltipUnits( [], [ CPM, previous ] ).get( 'cpm-previous' ) ).toEqual( {
+			name: 'Average CPM',
+			countLabel: undefined,
+		} );
+	} );
+
 	it( 'returns the data untouched without extras or a hovered point', () => {
 		const data = hoveredAt( JULY_1 );
 
