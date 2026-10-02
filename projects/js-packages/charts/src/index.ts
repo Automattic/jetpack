@@ -97,7 +97,7 @@ export type { LineStyles, GridStyles, EventHandlerParams } from '@visx/xychart';
 export { useLeaderboardLegendItems } from './charts/leaderboard-chart/hooks';
 
 // Previously available via '@automattic/charts/tooltip', '@automattic/charts/legend'
-export { AccessibleTooltip } from './components/tooltip';
+export { AccessibleTooltip, XYChartTooltip } from './components/tooltip';
 export type {
 	BaseTooltipProps,
 	TooltipBoxProps,

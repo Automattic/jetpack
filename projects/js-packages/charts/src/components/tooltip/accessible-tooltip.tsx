@@ -19,8 +19,8 @@ export type FlattenedTooltipData = {
 	dataPointIndex: number;
 };
 
-// The XY chart tooltip, as LineChart, AreaChart and BarChart render it: place it inside a visx `XYChart`, with `useKeyboardNavigation` for keyboard access.
-interface AccessibleTooltipProps extends Omit<
+// `XYChartTooltip`: the XY chart tooltip, as LineChart, AreaChart and BarChart render it: place it inside a visx `XYChart`, with `useKeyboardNavigation` for keyboard access.
+interface XYChartTooltipProps extends Omit<
 	XyChartTooltipProps< DataPointDate >,
 	'renderTooltip'
 > {
@@ -45,7 +45,7 @@ interface AccessibleTooltipProps extends Omit<
 	mode?: 'individual' | 'group';
 }
 
-export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
+export const XYChartTooltip: React.FC< XYChartTooltipProps > = ( {
 	renderTooltip,
 	selectedIndex,
 	tooltipRef,
@@ -221,6 +221,9 @@ export const AccessibleTooltip: React.FC< AccessibleTooltipProps > = ( {
 		/>
 	);
 };
+
+/** @deprecated Use `XYChartTooltip`; the old name implied the other chart tooltips were not accessible. */
+export const AccessibleTooltip = XYChartTooltip;
 
 // Keyboard navigation hook for charts
 interface UseKeyboardNavigationProps {

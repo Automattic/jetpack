@@ -817,7 +817,7 @@ describe( 'AreaChart', () => {
 	} );
 
 	describe( 'Hover glyphs', () => {
-		// Trigger the AccessibleTooltip's keyboard nav so a tooltip is opened
+		// Trigger the XYChartTooltip's keyboard nav so a tooltip is opened
 		// against a known datum index, which is the only reliable way to
 		// surface the visx TooltipContext state in a jsdom environment.
 		const focusFirstDatum = async () => {
