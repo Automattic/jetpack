@@ -80,8 +80,7 @@ class AI_Launchpad {
 	/**
 	 * Whether the current site is eligible for the AI Launchpad.
 	 *
-	 * Gate: enabled for the site (see is_enabled_for_site()) and not dismissed (skipping the
-	 * wizard dismisses it, leaving the site with no setup guidance).
+	 * Gate: enabled for the site (see is_enabled_for_site(), which also excludes a dismissed AI Launchpad).
 	 *
 	 * @return bool
 	 */
@@ -89,8 +88,7 @@ class AI_Launchpad {
 		static $eligible = null;
 
 		if ( null === $eligible ) {
-			$eligible = self::is_enabled_for_site()
-				&& ! get_option( \AI_Launchpad_REST::OPTION_DISMISSED );
+			$eligible = self::is_enabled_for_site();
 		}
 
 		return $eligible;
