@@ -30,6 +30,7 @@ svg.jb-ig-checkmark {
 	transform: translateY(2px);
 }
 
+// Enlarge the hover target beyond the visible bubble.
 .interaction-area.jb-ig-bubble {
 	padding: 15px;
 	margin-block-start: -15px;
@@ -228,6 +229,7 @@ a.documentation.jb-ig-popup {
 	z-index: 9000;
 }
 
+// Override theme typography.
 .guide.jb-ig-main {
 	font-size: 15px !important;
 	font-family:
@@ -259,6 +261,7 @@ a.documentation.jb-ig-popup {
 }
 
 #jetpack-boost-guide-bar.ab-item.jb-ig-toggle {
+	// Override the admin bar's display rule.
 	display: flex;
 	gap: 10px;
 	align-items: center;
