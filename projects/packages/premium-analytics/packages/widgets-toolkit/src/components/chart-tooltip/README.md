@@ -139,7 +139,7 @@ Uses `RectShape` from the chart library. Supports:
 
 ## Styling
 
-The tooltip is content only. The chart draws the box around it: the shared `@automattic/charts` tooltip box, the same for every chart. Rows inherit its text color.
+The tooltip is content only. The chart draws the box around it: the shared `@automattic/charts` tooltip box, the same for every chart. The box re-themes the design system tokens inside it for its dark surface, so row text that reads the neutral foreground token stays readable.
 
 ## Used By
 
