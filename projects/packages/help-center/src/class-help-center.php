@@ -84,6 +84,13 @@ class Help_Center {
 	private $is_forum_site = false;
 
 	/**
+	 * Whether the current site is the wordpress.com homepage or a locale marketing (Landpack) site.
+	 *
+	 * @var bool
+	 */
+	private $is_wpcom_landing_site = false;
+
+	/**
 	 * The purchases of the current site.
 	 *
 	 * @var array
@@ -106,9 +113,11 @@ class Help_Center {
 			$this->purchases = wp_list_filter( wpcom_get_site_purchases(), array( 'product_type' => 'bundle' ) );
 		}
 
-		$blog_id               = get_current_blog_id();
-		$this->is_forum_site   = defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true );
-		$this->is_support_site = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || $this->is_forum_site;
+		$blog_id                     = get_current_blog_id();
+		$this->is_forum_site         = defined( 'WPCOM_FORUM_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_FORUM_BLOG_IDS, true );
+		$this->is_support_site       = ( defined( 'WPCOM_SUPPORT_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_SUPPORT_BLOG_IDS, true ) ) || $this->is_forum_site;
+		$this->is_wpcom_landing_site = ( ( new Host() )->is_wpcom_simple() && 1 === $blog_id )
+			|| ( defined( 'WPCOM_LANDPACK_BLOG_IDS' ) && in_array( $blog_id, (array) WPCOM_LANDPACK_BLOG_IDS, true ) );
 
 		// Always register REST API endpoints.
 		add_action( 'rest_api_init', array( $this, 'register_rest_api' ) );
@@ -706,18 +715,27 @@ class Help_Center {
 	}
 
 	/**
-	 * Returns true if...
-	 * 1. The current user can edit posts.
-	 * 2. The current user is a member of the blog.
-	 * 3. The current request is not in the admin.
-	 * 4. The current request is not in the block editor.
+	 * Returns true if the current request is not in the admin, the block editor, or a P2 site, and either...
+	 * 1. The current user can edit posts and is a member of the blog, or
+	 * 2. The current user is logged in and this is a wordpress.com landing site.
 	 *
 	 * @return bool True if the this is being loaded on the frontend.
 	 */
 	public function is_loading_on_frontend() {
-		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
+		if ( is_admin() || $this->is_block_editor() ) {
+			return false;
+		}
 
-		return ! is_admin() && ! $this->is_block_editor() && $can_edit_posts;
+		$is_p2 = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
+		if ( $is_p2 ) {
+			return false;
+		}
+
+		if ( $this->is_wpcom_landing_site ) {
+			return is_user_logged_in();
+		}
+
+		return current_user_can( 'edit_posts' ) && is_user_member_of_blog();
 	}
 
 	/**
@@ -731,7 +749,7 @@ class Help_Center {
 	 * @return string
 	 */
 	public function get_help_center_url() {
-		return 'https://wordpress.com/help?help-center=home';
+		return 'https://my.wordpress.com/sites?help-center=home';
 	}
 
 	/**
@@ -809,9 +827,6 @@ class Help_Center {
 
 		require_once ABSPATH . 'wp-admin/includes/screen.php';
 
-		$can_edit_posts = current_user_can( 'edit_posts' ) && is_user_member_of_blog();
-		$is_p2          = str_contains( get_stylesheet(), 'pub/p2' ) || function_exists( '\WPForTeams\is_wpforteams_site' ) && is_wpforteams_site( get_current_blog_id() );
-
 		/**
 		 * Filters whether to load the logged-out Help Center bundle on the current frontend request.
 		 *
@@ -827,10 +842,9 @@ class Help_Center {
 
 		// We will show the help center icon in the admin bar when;
 		// 1. On wp-admin
-		// 2. On the front end of the site if the current user can edit posts
-		// 3. On the front end of the site and the theme is not P2
-		// 4. If it is the frontend we show the disconnected version of the help center.
-		if ( ! is_admin() && ( ! $can_edit_posts || $is_p2 ) && ! $this->is_support_site && ! $should_load_logged_out ) {
+		// 2. On the front end of the site if is_loading_on_frontend()
+		// 3. If it is the frontend we show the disconnected version of the help center.
+		if ( ! is_admin() && ! $this->is_loading_on_frontend() && ! $this->is_support_site && ! $should_load_logged_out ) {
 			return null;
 		}
 
