@@ -31,16 +31,15 @@ export default function useGooglePhotosPickerSession( {
 	const [ status, setStatus ] = useState( 'idle' ); // 'idle' | 'pending' | 'failed'
 
 	// Session requests only update state while their controller is current; replacing it cancels them.
-	const controller = useRef( null );
+	const controller = useRef( new window.AbortController() );
 
 	const supersedeRequests = useCallback( () => {
-		controller.current?.abort();
+		controller.current.abort();
 		controller.current = new window.AbortController();
 		return controller.current.signal;
 	}, [] );
 
 	const fetchPickerSession = useCallback( sessionId => {
-		controller.current ??= new window.AbortController();
 		const { signal } = controller.current;
 
 		return apiFetch( { path: `${ SESSION_PATH }/${ sessionId }`, signal } )
@@ -97,12 +96,11 @@ export default function useGooglePhotosPickerSession( {
 	// Forget the previous account's session so a reconnect starts fresh.
 	useEffect( () => {
 		if ( ! isAuthenticated ) {
-			controller.current?.abort();
-			controller.current = null;
+			supersedeRequests();
 			setGooglePhotosPickerSession( null );
 			setStatus( 'idle' );
 		}
-	}, [ isAuthenticated ] );
+	}, [ isAuthenticated, supersedeRequests ] );
 
 	// Reuse the session saved in the cookie while it's still valid; otherwise create one.
 	const ensurePickerSession = useCallback( () => {
