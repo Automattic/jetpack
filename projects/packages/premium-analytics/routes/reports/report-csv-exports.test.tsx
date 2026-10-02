@@ -15,8 +15,6 @@ import { useCommentFollowersReportRecords } from './comment-followers/config';
 import CommentFollowersReportPage from './comment-followers/page';
 import { useEarningsReportRecords } from './earnings/config';
 import EarningsReportPage from './earnings/page';
-import { useLocationsReportRecords } from './locations/config';
-import LocationsReportPage from './locations/page';
 import type { ComponentType, ReactNode } from 'react';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
@@ -72,7 +70,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 		ReportCsvAction: jest.fn( () => null ),
 		ReportDrilldownTable: () => null,
 		ReportErrorState: () => null,
-		ReportLocationsMap: () => null,
 		ReportPageLayout: Container,
 		ReportPageSection: Container,
 		ReportPageShell: Container,
@@ -139,19 +136,8 @@ jest.mock( './comment-followers/config', () => ( {
 	useCommentFollowersReportRecords: jest.fn(),
 } ) );
 
-jest.mock( './locations/config', () => ( {
-	GEO_MODES: jest.requireActual( './locations/config' ).GEO_MODES,
-	getLocationFields: () => [],
-	getReportLocationsTabs: () => [ { id: 'countries', label: 'Countries' } ],
-	getTabLabel: ( id: string ) => ( id === 'countries' ? 'Countries' : id ),
-	resolveSection: ( value: string | undefined ) => value ?? 'countries',
-	supportsCountryFilter: ( tab: string ) => tab !== 'countries',
-	useLocationsReportRecords: jest.fn(),
-} ) );
-
 const useCommentFollowersReportRecordsMock = jest.mocked( useCommentFollowersReportRecords );
 const useEarningsReportRecordsMock = jest.mocked( useEarningsReportRecords );
-const useLocationsReportRecordsMock = jest.mocked( useLocationsReportRecords );
 const useSectionTabMock = jest.mocked( useSectionTab );
 const useReportCsvExportMock = jest.mocked( useReportCsvExport );
 const reportCsvActionMock = jest.mocked( ReportCsvAction );
@@ -275,38 +261,6 @@ describe( 'report CSV exports', () => {
 			'comment-subscribers',
 			[ rows[ 1 ], rows[ 0 ] ],
 			[ 'Second post', 5, '/second' ]
-		);
-	} );
-
-	it( 'configures the Locations export', () => {
-		const rows = [
-			{ id: 'IN:India', label: 'India', countryCode: 'IN', countryFull: 'India', views: 2 },
-			{
-				id: 'AU:Australia',
-				label: 'Australia',
-				countryCode: 'AU',
-				countryFull: 'Australia',
-				views: 5,
-			},
-		];
-		useSectionTabMock.mockReturnValue( [ 'countries', jest.fn() ] as unknown as ReturnType<
-			typeof useSectionTab
-		> );
-		useLocationsReportRecordsMock.mockReturnValue( {
-			...reportStatus,
-			hasComparison: false,
-			countries: { options: [] },
-			table: {
-				...reportStatus,
-				rows,
-			},
-		} as unknown as ReturnType< typeof useLocationsReportRecords > );
-
-		expectCsvExport(
-			LocationsReportPage,
-			'locations-countries',
-			[ rows[ 1 ], rows[ 0 ] ],
-			[ 'Australia', 5 ]
 		);
 	} );
 } );
