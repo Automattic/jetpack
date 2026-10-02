@@ -157,6 +157,8 @@ jp test js <project>            # JS tests (skipped if not defined)
 jp phan <project>               # Static analysis
 ```
 
+Before adding a test, name the realistic bug it catches that no existing test does; no answer, no test. One test per behavior: add an `it.each` row instead of copying a test. A failing coverage check alone is not a reason to add one; say why in the PR and use the `Covered by non-unit tests` label. See `docs/automated-testing.md` § "What a test must earn", and the `test-value-audit` skill for auditing existing tests.
+
 ### PHP Testing
 
 - `jp test php` works for most projects. A few plugins that require a full WordPress copy (`plugins/jetpack` and `plugins/wpcomsh`) use `jp docker phpunit` instead.
