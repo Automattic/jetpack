@@ -62,11 +62,11 @@ describe( 'withoutPluginForcedOverrides', () => {
 	} );
 
 	it( 'follows a product to the module it runs when the slugs differ', () => {
-		const modules = { vaultpress: mod( 'vaultpress', 'active' ) };
+		const modules = { publicize: mod( 'publicize', 'active' ) };
 
-		const result = withoutPluginForcedOverrides( modules, { backup: product( 'backup', true ) } );
+		const result = withoutPluginForcedOverrides( modules, { social: product( 'social', true ) } );
 
-		expect( result.vaultpress.override ).toBe( false );
+		expect( result.publicize.override ).toBe( false );
 	} );
 
 	it( 'leaves a module with no standalone plugin alone', () => {

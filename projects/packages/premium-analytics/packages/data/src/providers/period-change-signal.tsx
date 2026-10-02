@@ -134,7 +134,7 @@ export function useSettlePeriodChange(
 ): number | undefined {
 	const { signal, settle } = useContext( PeriodChangeSignalContext );
 	const [ attention, setAttention ] = useState< Attention >();
-	const observed = useRef< string >();
+	const observed = useRef< string >( undefined );
 	const appliedKey = rangeKey( appliedRange );
 	const observation = `${ surface }|${ appliedKey ?? '' }`;
 

@@ -1,25 +1,21 @@
 /**
  * External dependencies
  */
-import {
-	type StatsVideoPlaysItem,
-	type StatsVideoPlaysComparisonItem,
-} from '@jetpack-premium-analytics/data';
+import { type StatsVideoPlaysComparisonItem } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportEmptyState,
 	ReportErrorState,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
+	videosCsvExporter,
 	useReportRetry,
-	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
+import { type JSX } from 'react';
 /**
  * Internal dependencies
  */
@@ -64,8 +60,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortVideoCsvRows = ( a: StatsVideoPlaysItem, b: StatsVideoPlaysItem ) => b.plays - a.plays;
-
 /**
  * Premium Analytics Videos report page.
  *
@@ -79,48 +73,6 @@ function VideosReport(): JSX.Element {
 		() => getVideosFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
-	const csvColumns = useMemo< CsvColumn< StatsVideoPlaysItem >[] >(
-		() => [
-			{
-				label: __( 'Video ID', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.id ?? '',
-			},
-			{
-				label: __( 'Video', 'jetpack-premium-analytics-pkg' ),
-				getValue: row =>
-					typeof row.label === 'string' && row.label
-						? row.label
-						: __( 'Untitled video', 'jetpack-premium-analytics-pkg' ),
-			},
-			{ label: __( 'Plays', 'jetpack-premium-analytics-pkg' ), getValue: row => row.plays },
-			{
-				label: __( 'Impressions', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.impressions,
-			},
-			{
-				label: __( 'Watch time (hours)', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.watch_time,
-			},
-			{
-				label: __( 'Retention rate (%)', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.retention_rate,
-			},
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'videos',
-		range: reportParams,
-		status: records,
-		sort: sortVideoCsvRows,
-	} );
-	const isTableLoading = records.isLoading || records.isFetching;
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.videos;
@@ -134,8 +86,6 @@ function VideosReport(): JSX.Element {
 				onRetry={ retry }
 			/>
 		);
-	} else if ( ! records.isLoading && records.rows.length === 0 ) {
-		tableReplacement = <ReportEmptyState />;
 	}
 
 	return (
@@ -143,9 +93,12 @@ function VideosReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ videosCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>
@@ -154,7 +107,8 @@ function VideosReport(): JSX.Element {
 						data={ records.rows }
 						fields={ fields }
 						getItemId={ getVideoRowId }
-						isLoading={ isTableLoading }
+						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search videos', 'jetpack-premium-analytics-pkg' ) }
 					/>

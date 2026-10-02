@@ -363,6 +363,21 @@ describe( 'Stats query factories', () => {
 		] );
 	} );
 
+	it( 'includes filter_by_region alongside the country it scopes', () => {
+		const query = statsLocationsQuery( {
+			from: '2026-06-16',
+			to: '2026-06-16',
+			interval: 'day',
+			geoMode: 'city',
+			filter_by_country: 'US',
+			filter_by_region: 'Minnesota',
+		} );
+
+		expect( query.queryKey[ 5 ] ).toEqual(
+			expect.objectContaining( { filter_by_country: 'US', filter_by_region: 'Minnesota' } )
+		);
+	} );
+
 	it( 'omits filter_by_country from query params when not provided', () => {
 		const query = statsLocationsQuery( {
 			from: '2026-06-16',
@@ -372,6 +387,7 @@ describe( 'Stats query factories', () => {
 		} );
 
 		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'filter_by_country' );
+		expect( query.queryKey[ 5 ] ).not.toHaveProperty( 'filter_by_region' );
 	} );
 
 	it( 'builds location query keys from geoMode', () => {

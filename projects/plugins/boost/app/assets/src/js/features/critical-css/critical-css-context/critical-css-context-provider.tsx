@@ -183,8 +183,13 @@ export function useLocalCriticalCssGenerator( autoStart = true ) {
 						}
 					},
 
-					setProviderCss: ( key: string, css: string ) => {
-						return saving( setProviderCssAction.mutateAsync( { key, css: maskContent( css ) } ) );
+					setProviderCss: async ( key: string, css: string ) => {
+						const state = await saving(
+							setProviderCssAction.mutateAsync( { key, css: maskContent( css ) } )
+						);
+						return state.providers.some(
+							provider => provider.key === key && provider.status === 'success'
+						);
 					},
 
 					setProviderErrors: ( key: string, errors: CriticalCssErrorDetails[] ) =>

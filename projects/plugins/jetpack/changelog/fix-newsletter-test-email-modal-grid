@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Newsletter: Fix the Send a test email modal stacking its address field above the Send button.

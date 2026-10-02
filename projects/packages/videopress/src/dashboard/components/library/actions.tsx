@@ -14,9 +14,7 @@ type Api = {
 	manageCaptions: ( item: LibraryItem ) => void;
 };
 
-// Allowlist on 'idle' (matching TitleText and ThumbnailField) rather than a
-// blocklist of known in-flight statuses, so any future status is excluded
-// from row actions by default instead of silently slipping through.
+// Server actions require a completed video; upload drafts only support editing and retrying.
 const isVideoPressIdle = ( item: LibraryItem ) =>
 	item.type === 'videopress' && item.upload.status === 'idle';
 
@@ -78,7 +76,7 @@ export function buildLibraryActions( api: Api ): Action< LibraryItem >[] {
 			label: __( 'Edit details', 'jetpack-videopress-pkg' ),
 			isPrimary: true,
 			supportsBulk: false,
-			isEligible: isVideoPressIdle,
+			isEligible: item => item.id.startsWith( 'upload-' ) || isVideoPressIdle( item ),
 			callback: items => {
 				const [ item ] = items;
 				if ( item ) {

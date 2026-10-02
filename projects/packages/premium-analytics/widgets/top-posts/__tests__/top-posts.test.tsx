@@ -11,6 +11,7 @@ import type { ReactNode } from 'react';
 /**
  * Internal dependencies
  */
+import { captureCsvDownloads } from '../../test-utils';
 import TopPostsWidget from '../render';
 
 jest.mock( '@automattic/jetpack-script-data', () => ( {
@@ -276,67 +277,57 @@ describe( 'TopPostsWidget', () => {
 	} );
 
 	describe( 'CSV export', () => {
-		let blobs: Blob[];
-		let clickSpy: jest.SpyInstance;
-		let originalCreateObjectURL: typeof window.URL.createObjectURL;
-		let originalRevokeObjectURL: typeof window.URL.revokeObjectURL;
+		let downloads: ReturnType< typeof captureCsvDownloads >;
 
 		beforeEach( () => {
-			blobs = [];
-			originalCreateObjectURL = window.URL.createObjectURL;
-			originalRevokeObjectURL = window.URL.revokeObjectURL;
-			// jsdom defines neither, so `jest.spyOn` has nothing to wrap.
-			const createObjectURL = jest.fn( ( blob: Blob ) => {
-				blobs.push( blob );
-				return 'blob:mock';
-			} );
-			const revokeObjectURL = jest.fn();
-			window.URL.createObjectURL = createObjectURL;
-			window.URL.revokeObjectURL = revokeObjectURL;
-			// An anchor click would reach jsdom's unimplemented navigation.
-			clickSpy = jest.spyOn( HTMLAnchorElement.prototype, 'click' ).mockImplementation( () => {} );
+			jest.useFakeTimers();
+			downloads = captureCsvDownloads();
 		} );
 
 		afterEach( () => {
-			clickSpy.mockRestore();
-			window.URL.createObjectURL = originalCreateObjectURL;
-			window.URL.revokeObjectURL = originalRevokeObjectURL;
+			jest.useRealTimers();
+			downloads.restore();
 		} );
 
 		async function downloadCsvLines() {
-			// This package does not depend on @testing-library/user-event.
-			// eslint-disable-next-line testing-library/prefer-user-event
-			fireEvent.click( await screen.findByRole( 'button', { name: /Download CSV/ } ) );
+			const button = await screen.findByRole( 'button', { name: /Download CSV/ } );
+			await downloads.clickAndSave( button );
 
-			await waitFor( () => expect( blobs ).toHaveLength( 1 ) );
-
-			return ( await blobs[ 0 ].text() ).replace( '\ufeff', '' ).split( '\n' );
+			return downloads.lines();
 		}
 
-		it( 'appends the previous-period column when a comparison is active', async () => {
-			const overlappingComparison = {
-				date: '2026-02-10',
+		it( 'downloads the full Posts & pages report instead of the rows on screen', async () => {
+			const fullReport = {
+				date: '2026-03-10',
 				days: {},
 				summary: {
-					postviews: [
-						{
-							id: 1,
-							href: 'https://example.com/hello-world/',
-							date: '2026-02-01',
-							title: 'Hello World Post',
-							type: 'post',
-							views: 20,
-						},
-					],
-					total_views: 20,
+					postviews: Array.from( { length: 12 }, ( _, index ) => ( {
+						id: index + 1,
+						href: `https://example.com/post-${ index + 1 }/`,
+						date: '2026-03-01',
+						title: `Post ${ index + 1 }`,
+						type: 'post',
+						views: 100 - index,
+					} ) ),
+					total_views: 1134,
 				},
 			};
 			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
-				Promise.resolve(
-					path.includes( 'date=2026-02-10' ) ? overlappingComparison : TOP_POSTS_RESPONSE
-				)
+				Promise.resolve( path.includes( 'max=0' ) ? fullReport : TOP_POSTS_RESPONSE )
 			);
 
+			render(
+				<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+			);
+
+			const lines = await downloadCsvLines();
+
+			expect( lines[ 0 ] ).toBe( '"Title","Views","URL"' );
+			expect( lines[ 1 ] ).toBe( '"Post 1","100","https://example.com/post-1/"' );
+			expect( lines ).toHaveLength( 13 );
+		} );
+
+		it( 'leaves previous-period columns and the comparison request out of the download', async () => {
 			render(
 				<TopPostsWidget
 					attributes={ {
@@ -350,30 +341,51 @@ describe( 'TopPostsWidget', () => {
 					} }
 				/>
 			);
+			await expect(
+				screen.findByRole( 'button', { name: /Download CSV/ } )
+			).resolves.toBeInTheDocument();
+			const callsBeforeDownload = mockApiFetch.mock.calls.length;
 
 			const lines = await downloadCsvLines();
 
-			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL","Views (Previous Period)"' );
-			expect( lines[ 1 ] ).toBe(
-				'"Hello World Post","42","post","https://example.com/hello-world/","20"'
-			);
-			// About Page sits outside the comparison period's top rows, which is
-			// unmeasured rather than zero views.
-			expect( lines[ 2 ] ).toBe( '"About Page","7","page","https://example.com/about/",""' );
+			expect( lines[ 0 ] ).toBe( '"Title","Views","URL"' );
+			const downloadPaths = mockApiFetch.mock.calls
+				.slice( callsBeforeDownload )
+				.map( ( [ { path } ] ) => path );
+			expect( downloadPaths ).toHaveLength( 1 );
+			expect( downloadPaths[ 0 ] ).toContain( 'max=0' );
+			expect( downloadPaths[ 0 ] ).not.toContain( '2026-02' );
 		} );
 
-		it( 'omits the previous-period column when no comparison is active', async () => {
-			// The default range turns the comparison on, so this range is explicit.
+		it( 'downloads the archives report from the Archives view', async () => {
+			const archivesResponse = {
+				date: '2026-03-10',
+				period: 'day',
+				summary: {
+					tag: [ { href: 'https://example.com/tag/video/', value: 'video', views: 80 } ],
+				},
+			};
+			mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+				Promise.resolve( path.includes( 'stats/archives' ) ? archivesResponse : TOP_POSTS_RESPONSE )
+			);
+
 			render(
-				<TopPostsWidget attributes={ { reportParams: { from: '2026-03-01', to: '2026-03-10' } } } />
+				<TopPostsWidget
+					attributes={ {
+						contentView: 'archives',
+						reportParams: { from: '2026-03-01', to: '2026-03-10' },
+					} }
+				/>
 			);
 
 			const lines = await downloadCsvLines();
 
-			expect( lines[ 0 ] ).toBe( '"Title","Views","Type","URL"' );
-			expect( lines[ 1 ] ).toBe(
-				'"Hello World Post","42","post","https://example.com/hello-world/"'
-			);
+			expect( lines ).toEqual( [
+				'"Title","Views","URL"',
+				'"Tags","80",""',
+				'"Tags > video","80","https://example.com/tag/video/"',
+			] );
+			expect( downloads.files[ 0 ].filename ).toBe( 'archives-2026-03-01_2026-03-10.csv' );
 		} );
 	} );
 

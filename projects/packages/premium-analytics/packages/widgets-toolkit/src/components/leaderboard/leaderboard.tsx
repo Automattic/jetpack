@@ -3,7 +3,7 @@
  */
 import { Stack } from '@jetpack-premium-analytics/externals';
 import { __, sprintf } from '@wordpress/i18n';
-import { useCallback, useEffect, useMemo, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, type JSX, type ReactNode } from 'react';
 /**
  * Internal dependencies
  */

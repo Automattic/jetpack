@@ -9,7 +9,10 @@ namespace Automattic\Jetpack\PaypalPayments;
 
 use Automattic\Jetpack\Assets;
 use Automattic\Jetpack\Blocks;
+use Automattic\Jetpack\Constants;
 use Automattic\Jetpack\Feature_Flags\Feature_Flags;
+use Automattic\Jetpack\Status\Host;
+use Automattic\Jetpack\Status\Request;
 
 /**
  * Class PayPal_Payment_Buttons
@@ -56,11 +59,22 @@ class PayPal_Payment_Buttons {
 	private const QR_SIZE = 200;
 
 	/**
-	 * PayPal partner attribution ID used for tracking.
+	 * PayPal partner attribution ID (BN code) used for tracking in production.
+	 *
+	 * Read it through `get_partner_attribution_id()`, which swaps in the
+	 * sandbox code when the site is connected to the sandbox.
 	 *
 	 * @var string
 	 */
 	public const PAYPAL_PARTNER_ATTRIBUTION_ID = 'WooNCPS_Ecom_Wordpress';
+
+	/**
+	 * Filter hook for overriding the BN code while connected to the sandbox.
+	 *
+	 * @since $$next-version$$
+	 * @var string
+	 */
+	public const SANDBOX_PARTNER_ATTRIBUTION_FILTER = 'jetpack_paypal_sandbox_partner_attribution_id';
 
 	/**
 	 * Feature flag gating the API-managed buttons: the connection wizard, the
@@ -719,7 +733,38 @@ class PayPal_Payment_Buttons {
 			return $url;
 		}
 
-		return add_query_arg( 'at_code', self::PAYPAL_PARTNER_ATTRIBUTION_ID, $sanitized );
+		return add_query_arg( 'at_code', self::get_partner_attribution_id(), $sanitized );
+	}
+
+	/**
+	 * Get the partner attribution ID (BN code) for the current environment.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @return string The BN code, safe to place in a URL query or an HTML attribute.
+	 */
+	public static function get_partner_attribution_id() {
+		if ( 'sandbox' !== PayPal_OAuth::get_environment() ) {
+			return self::PAYPAL_PARTNER_ATTRIBUTION_ID;
+		}
+
+		/**
+		 * Filters the PayPal partner attribution ID (BN code) while the site is
+		 * connected to the PayPal sandbox. PayPal issues a sandbox account its
+		 * own BN code, which the production one does not match.
+		 *
+		 * The production BN code is not filterable.
+		 *
+		 * @since $$next-version$$
+		 *
+		 * @param string $partner_attribution_id The BN code. Defaults to the production code.
+		 */
+		$filtered = apply_filters( self::SANDBOX_PARTNER_ATTRIBUTION_FILTER, self::PAYPAL_PARTNER_ATTRIBUTION_ID );
+
+		// BN codes are alphanumeric with underscores and hyphens; anything else is dropped.
+		$sanitized = is_string( $filtered ) ? preg_replace( '/[^A-Za-z0-9_-]/', '', $filtered ) : '';
+
+		return '' === $sanitized ? self::PAYPAL_PARTNER_ATTRIBUTION_ID : $sanitized;
 	}
 
 	/**
@@ -960,6 +1005,11 @@ class PayPal_Payment_Buttons {
 
 		self::register_hooks();
 
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'block_view', 'paypal_payment_buttons' );
+
+		self::record_render( $format, $attributes['integrationMode'] ?? '' );
+
 		// Only the standalone QR format draws a code.
 		if ( 'QR' === $format ) {
 			self::enqueue_qr_script();
@@ -1059,7 +1109,7 @@ class PayPal_Payment_Buttons {
 
 		// ─── BUTTON format (default): existing full button card ──────────
 
-		// Product image. PayPal receives it too, as the line item's image_url.
+		// Product image (WordPress-side only, not sent to PayPal).
 		$image_html = '';
 		if ( ! empty( $image_url ) ) {
 			$image_html = sprintf(
@@ -1208,6 +1258,47 @@ class PayPal_Payment_Buttons {
 	}
 
 	/**
+	 * Record a logged-in front-end view of a block, on Simple only.
+	 *
+	 * Elsewhere the Tracks call blocks the page.
+	 * Skips the pages wpcom stats skip, plus framed previews and embeds.
+	 *
+	 * @since $$next-version$$
+	 *
+	 * @param string $format           The block's format, as allowlisted before the draw.
+	 * @param mixed  $integration_mode The block's integrationMode attribute.
+	 * @return void
+	 */
+	private static function record_render( $format, $integration_mode ) {
+		if (
+			! ( new Host() )->is_wpcom_simple()
+			|| ! Request::is_frontend( false )
+			|| is_preview()
+			|| is_customize_preview()
+			|| is_404()
+			|| is_embed()
+			// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only: skips the site preview.
+			|| ( isset( $_GET['theme_preview'] ) && 'true' === $_GET['theme_preview'] )
+			|| Constants::is_true( 'IFRAME_REQUEST' )
+			|| ! is_user_logged_in()
+		) {
+			return;
+		}
+
+		$properties = array(
+			'environment' => PayPal_OAuth::get_environment(),
+			'format'      => $format,
+		);
+
+		// A free-text attribute, so only the two known modes are sent.
+		if ( in_array( $integration_mode, array( 'LINK', 'BUTTON' ), true ) ) {
+			$properties['integration_mode'] = $integration_mode;
+		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_button_rendered', $properties );
+	}
+
+	/**
 	 * Find the cheapest per-option price in the primary dimension.
 	 *
 	 * PayPal only prices the primary dimension, so an amount left on any other
@@ -1310,7 +1401,7 @@ class PayPal_Payment_Buttons {
 		// The SDK's own attribution channel, separate from the payment link's at_code —
 		// the Payment Links API takes attribution as a query parameter instead.
 		if ( false === strpos( $tag, 'data-paypal-partner-attribution-id' ) ) {
-			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::PAYPAL_PARTNER_ATTRIBUTION_ID . '" src=$2', $tag );
+			$tag = preg_replace( '/(\s+)src=([\'"])/', '$1 data-paypal-partner-attribution-id="' . self::get_partner_attribution_id() . '" src=$2', $tag );
 		}
 
 		return $tag;
@@ -1401,7 +1492,7 @@ class PayPal_Payment_Buttons {
 <form action="%2$s" method="post" target="_blank" style="display:inline-grid;justify-items:center;align-content:start;gap:0.5rem;">
   <input class="pp-%1$s" type="submit" value="%3$s" />
   <img src="https://www.paypalobjects.com/images/Debit_Credit_APM.svg" alt="cards" />
-  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="paypal" style="height:0.875rem;vertical-align:middle;"/></section>
+  <section style="font-size: 0.75rem;"> Powered by <img src="https://www.paypalobjects.com/paypal-ui/logos/svg/paypal-wordmark-color.svg" alt="PayPal" style="height:0.875rem;vertical-align:middle;"/></section>
 </form>
 </div>',
 				$payment_id,

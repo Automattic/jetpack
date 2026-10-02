@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Send the partner attribution ID, as resolved for the site's environment, with every Connect with PayPal referral.

@@ -38,6 +38,7 @@ import { videoHeaderSlots } from './components';
 import { VIDEO_DETAIL_LAYOUT } from './config';
 import { useVideoSummary } from './hooks';
 import { route } from './package.json';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -68,7 +69,11 @@ function VideoDetail(): JSX.Element {
 
 	// The applied report date range lives in the URL search params.
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
-	const dateControls = useDetailDateControls( summary.publishedDate, dateFilters );
+	const { dateControls, isAnchoringAllTime } = useDetailDateControls(
+		summary.publishedDate,
+		dateFilters,
+		summary.isLoading || summary.isError
+	);
 	const { onChange: changeDateRange, onApply: applyDateRange } = dateFilters;
 	const { trackedOnChange, trackedOnApply } = useTrackedDateRangeApply(
 		{
@@ -207,7 +212,7 @@ function VideoDetail(): JSX.Element {
 							/>
 						}
 					>
-						{ canRenderWidgets ? (
+						{ canRenderWidgets && ! isAnchoringAllTime ? (
 							<DetailPageSection>
 								<WidgetDashboard.Widgets />
 							</DetailPageSection>
@@ -231,7 +236,7 @@ export function stage(): JSX.Element {
 			<GlobalErrorProvider>
 				{ /*
 				 * The page names no compared period, so nothing below may fetch or draw
-				 * one. The params stay on the URL for the breadcrumb to carry back out.
+				 * one, even when a hand-edited URL carries comparison params.
 				 */ }
 				<ReportScopeProvider offersComparison={ false }>
 					<VideoDetail />

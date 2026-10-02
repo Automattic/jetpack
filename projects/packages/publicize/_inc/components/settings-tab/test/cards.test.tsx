@@ -4,6 +4,7 @@ import { createReduxStore, RegistryProvider, createRegistry } from '@wordpress/d
 import ContentCreationCard from '../content-creation-card';
 import CustomizeLinksCard from '../customize-links-card';
 import CustomizeMediaCard from '../customize-media-card';
+import type { JSX } from 'react';
 
 const SOCIAL_STORE = 'jetpack-social';
 

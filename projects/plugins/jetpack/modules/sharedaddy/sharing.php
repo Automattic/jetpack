@@ -8,6 +8,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch;
 use Automattic\Jetpack\Sharing_Likes\Settings\Post_Handler;
 use Automattic\Jetpack\Sharing_Likes\Settings\Services_Config;
 use Automattic\Jetpack\Sharing_Likes\Settings\Settings_Page;
@@ -277,30 +278,22 @@ class Sharing_Admin {
 /**
  * Callback to get the value for the jetpack_sharing_enabled field.
  *
- * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 1, we disable sharing on the post, regardless of the global setting.
- * It is not possible to enable sharing on a post if it is disabled globally.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value() instead.
  *
  * @param array $post The post object.
  *
  * @return bool
  */
 function jetpack_post_sharing_get_value( array $post ) {
-	if ( ! isset( $post['id'] ) ) {
-		return false;
-	}
-
-	// if sharing IS disabled on this post, enabled=false, so negate the meta
-	return ! get_post_meta( $post['id'], 'sharing_disabled', true );
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::get_value' );
+	return Post_Sharing_Switch::get_value( $post );
 }
 
 /**
  * Callback to set sharing_disabled post_meta when the
  * jetpack_sharing_enabled field is updated.
  *
- * When the sharing_disabled post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 1, we disable sharing on the post, regardless of the global setting.
- * It is not possible to enable sharing on a post if it is disabled globally.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value() instead.
  *
  * @param bool    $enable_sharing Should sharing be enabled on this post.
  * @param WP_Post $post_object    The post object.
@@ -308,51 +301,21 @@ function jetpack_post_sharing_get_value( array $post ) {
  * @return int|bool
  */
 function jetpack_post_sharing_update_value( $enable_sharing, $post_object ) {
-	if ( $enable_sharing ) {
-		// delete the override if we want to enable sharing
-		return delete_post_meta( $post_object->ID, 'sharing_disabled' );
-	} else {
-		return update_post_meta( $post_object->ID, 'sharing_disabled', true );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::update_value' );
+	return Post_Sharing_Switch::update_value( $enable_sharing, $post_object );
 }
 
 /**
  * Add Sharing post_meta to the REST API Post response.
  *
- * @action rest_api_init
- * @uses register_rest_field
- * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field() instead.
  */
 function jetpack_post_sharing_register_rest_field() {
-	$post_types = get_post_types( array( 'public' => true ) );
-	foreach ( $post_types as $post_type ) {
-		register_rest_field(
-			$post_type,
-			'jetpack_sharing_enabled',
-			array(
-				'get_callback'    => 'jetpack_post_sharing_get_value',
-				'update_callback' => 'jetpack_post_sharing_update_value',
-				'schema'          => array(
-					'description' => __( 'Are sharing buttons enabled?', 'jetpack' ),
-					'type'        => 'boolean',
-				),
-			)
-		);
-
-		/**
-		 * Ensures all public internal post-types support `sharing`
-		 * This feature support flag is used by the REST API and Gutenberg.
-		 */
-		add_post_type_support( $post_type, 'jetpack-sharing-buttons' );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Sharing_Switch::register_rest_field' );
+	Post_Sharing_Switch::register_rest_field();
 }
 
-// Add Sharing post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_sharing_register_rest_field' );
-
-// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
-// restapi_theme_init because they depend on theme support, so let's also hook to that
-add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+Post_Sharing_Switch::init();
 
 /**
  * Initialize sharing settings in WP Admin.

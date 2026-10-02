@@ -31,10 +31,8 @@ export const SCENARIOS = [
 		//   codevitalsKey — the exact CodeVitals metric key to post to
 		//   type          — the SANITY_RANGES key; REQUIRED, drives the range check in
 		//                   post-to-codevitals.js. A keyed metric with no type is refused.
-		// When introducing a NEW metric, post it to a `-staging` key first (e.g.
-		// `…-timeToFirstByte-staging`) for 2-3 builds, inspect it in the CodeVitals UI, then
-		// rename to the production key. See the "Safeguards" section of README.md for the
-		// full convention. (LCP/TTFB/FCP below post straight to production keys by decision.)
+		// See README.md "Staging keys" and "Admin backend metrics" for enrollment requirements.
+		// LCP/TTFB/FCP below use production keys under the existing staging waiver.
 		metrics: [
 			{
 				field: 'lcp',
@@ -50,6 +48,24 @@ export const SCENARIOS = [
 				field: 'fcp',
 				codevitalsKey: 'wp-admin-dashboard-connection-sim-firstContentfulPaint',
 				type: 'fcp',
+			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'wp-admin-dashboard-connection-sim-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
 			},
 		],
 		postToCodeVitals: true,
@@ -128,10 +144,8 @@ export const SCENARIOS = [
 		// lazy-loading the editor removes a few large files, not the bulk of the count (see the
 		// assertCaptureComplete docblock), so this does not clip that legitimate drop.
 		minResourceCount: 64,
-		// These four post straight to PRODUCTION keys — the `-staging` window in the README
-		// Safeguards is deliberately waived here (owner decision). The substitute for that window is
-		// the SANITY_RANGES + all-or-nothing gate plus manual sign-off before the first live post;
-		// the dry-run's stdDev-0 shows repeatability, not correctness, so it is not the safeguard.
+		// The first four metrics retain their waiver of the staging window (owner decision).
+		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
 				field: 'lcp',
@@ -157,6 +171,30 @@ export const SCENARIOS = [
 				field: 'decodedBytesKB',
 				codevitalsKey: 'forms-responses-connection-sim-decodedBytesKB',
 				type: 'decodedBytesKB',
+			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'forms-responses-connection-sim-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'forms-responses-connection-sim-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'forms-responses-connection-sim-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
+			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'forms-responses-connection-sim-loadBlockingTime-staging',
+				type: 'tbt',
+				unit: 'ms',
 			},
 		],
 		postToCodeVitals: true,
@@ -185,10 +223,9 @@ export const SCENARIOS = [
 		// (the async product cards can settle after a quiet gap). The minResourceCount floor below
 		// is the backstop against gross truncation.
 		//
-		// Requires offline mode OFF (Status::is_offline_mode() gates
-		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
-		// offline by default): the simulate-wpcom-connection mu-plugin flips it. See the README
-		// offline-mode attribution note.
+		// Localhost defaults to offline mode, which blocks My Jetpack initialization.
+		// connection-simulation/class-jetpack-wpcom-connection-simulator.php disables it;
+		// see the README offline-mode attribution note.
 		path: '/wp-admin/admin.php?page=my-jetpack',
 		waitForSelector:
 			'#my-jetpack-container .jp-admin-page, #my-jetpack-dashboard-wp-admin-app .jp-admin-page',
@@ -198,10 +235,8 @@ export const SCENARIOS = [
 		// capture can't post an in-range but undercounted decodedBytesKB. Set to ~70% of the observed
 		// count (count-based, not asset-based) so it only catches gross capture truncation.
 		minResourceCount: 64,
-		// These four post straight to PRODUCTION keys — the `-staging` window in the README
-		// Safeguards is deliberately waived here (owner decision, Liam 2026-07-08), same rationale
-		// and substitute guardrails (SANITY_RANGES + all-or-nothing gate + manual sign-off) as the
-		// wp-admin-dashboard and forms-responses keys.
+		// The first four metrics retain their waiver of the staging window (owner decision).
+		// TBT and backend metrics keep the staging window; see README Safeguards for the waiver's substitute guards.
 		metrics: [
 			{
 				field: 'lcp',
@@ -226,10 +261,81 @@ export const SCENARIOS = [
 				codevitalsKey: 'my-jetpack-connection-sim-decodedBytesKB',
 				type: 'decodedBytesKB',
 			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'my-jetpack-connection-sim-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'my-jetpack-connection-sim-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'my-jetpack-connection-sim-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
+			},
+			{
+				field: 'tbt',
+				codevitalsKey: 'my-jetpack-connection-sim-loadBlockingTime-staging',
+				type: 'tbt',
+				unit: 'ms',
+			},
 		],
 		postToCodeVitals: true,
 		// A failure here logs loudly and skips this scenario's keys for the build, but never
 		// blocks the required Dashboard scenario from posting (see the flag's docs above).
+		optional: true,
+	},
+	{
+		key: 'jetpackConnected-noJetpack',
+		name: 'Dashboard (Jetpack deactivated)',
+		cliName: 'no-jetpack',
+		dockerService: 'wordpress-no-jetpack',
+		wpPath: '/var/www/html/no-jetpack',
+		envVar: 'WP_NO_JETPACK_URL',
+		defaultUrl: 'http://localhost:8084',
+		header: 'Dashboard Control (Jetpack Present but Deactivated)',
+		metrics: [
+			{
+				field: 'lcp',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-largestContentfulPaint-staging',
+				type: 'lcp',
+			},
+			{
+				field: 'ttfb',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-timeToFirstByte-staging',
+				type: 'ttfb',
+			},
+			{
+				field: 'fcp',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-firstContentfulPaint-staging',
+				type: 'fcp',
+			},
+			{
+				field: 'wpTotal',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-wp-total-staging',
+				type: 'wpTotal',
+				unit: 'ms',
+			},
+			{
+				field: 'wpMemoryUsage',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-wp-memory-usage-staging',
+				type: 'wpMemoryUsage',
+				unit: 'bytes',
+			},
+			{
+				field: 'wpDbQueries',
+				codevitalsKey: 'wp-admin-dashboard-noJetpack-wp-db-queries-staging',
+				type: 'wpDbQueries',
+				unit: 'count',
+			},
+		],
+		postToCodeVitals: true,
 		optional: true,
 	},
 ];
@@ -248,6 +354,9 @@ export const SANITY_RANGES = {
 	lcp: { min: 100, max: 60000 }, // <100ms is suspicious; >60s means the page never loaded.
 	ttfb: { min: 10, max: 10000 }, // <10ms is unrealistic; >10s means server failure.
 	fcp: { min: 50, max: 30000 },
+	wpTotal: { min: 10, max: 60000 },
+	wpMemoryUsage: { min: 1048576, max: 536870912 },
+	wpDbQueries: { min: 1, max: 10000 },
 	tbt: { min: 0, max: 10000 }, // Can legitimately be 0; >10s is catastrophic.
 	cls: { min: 0, max: 5 }, // >5 would mean the page is unusable.
 	// Summed per-resource decodedBodySize, in KB. This row now guards two scenarios: the Forms
