@@ -210,7 +210,7 @@ function playWeightedRetention(
 /**
  * Fetches metric tabs via one `stats/video/{id}` `statType=all` report,
  * headlined by the response's canonical totals (falling back to bucketed
- * sums). Comparison params are ignored but left in the URL for round-trip state.
+ * sums). Comparison params are ignored: the video page has no period-over-period view.
  */
 export default function useVideoMetrics(
 	videoId: number,

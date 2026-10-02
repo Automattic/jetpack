@@ -26,7 +26,8 @@ export type VideoSummary = {
  * @return The resolved video summary.
  */
 export function useVideoSummary( videoId: number ): VideoSummary {
-	const { data, isLoading, isError, isSuccess, refetch } = useStatsSingleVideo( videoId );
+	const { data, isLoading, isPending, isPaused, isError, isSuccess, refetch } =
+		useStatsSingleVideo( videoId );
 	const post = data?.post;
 	const hasValidId = Number.isInteger( post?.id ) && Number( post?.id ) > 0;
 	// Require a `video/` prefix so non-video IDs (images, posts, pages) resolve to
@@ -47,7 +48,8 @@ export function useVideoSummary( videoId: number ): VideoSummary {
 		// The poster is remote report data used verbatim as an image source, so
 		// it goes through the shared http(s) guard like every other report URL.
 		posterUrl: safeHttpUrl( post?.poster ) ?? undefined,
-		isLoading,
+		// Counts a paused first load, as `usePostSummary` does.
+		isLoading: isLoading || ( isPending && isPaused ),
 		isError,
 		isNotFound: isSuccess && ( ! hasValidId || ! isVideoMimeType ),
 		refetch: retry,
