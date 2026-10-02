@@ -254,13 +254,13 @@ describe( 'Settings exposure and group interactions', () => {
 
 	it( 'waits for the whole header before recording group exposure', () => {
 		render( <Settings /> );
-		exposeHeaders( 0.99 );
+		exposeHeaders( 0.98 );
 		expect(
 			jest
 				.mocked( recordBoostEvent )
 				.mock.calls.filter( ( [ name ] ) => name === 'settings_group_view' )
 		).toEqual( [] );
-		exposeHeaders();
+		exposeHeaders( 0.99 );
 		expect(
 			jest
 				.mocked( recordBoostEvent )

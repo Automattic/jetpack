@@ -4,6 +4,9 @@ import type { RefObject } from 'react';
 
 export type SettingsGroup = 'cornerstone_pages' | 'page_loading' | 'code_optimization' | 'images';
 
+// Fractional layout and browser zoom can keep a fully visible element's ratio just under 1.
+const FULLY_VISIBLE = 0.99;
+
 type SettingsVisit = { active: boolean; seen: Set< string > };
 type ExposureOptions = { visit: SettingsVisit } & (
 	{ group: SettingsGroup; open: RefObject< boolean > } | { group?: never; open?: never }
@@ -59,7 +62,9 @@ export function useSettingsExposure(
 		};
 		const observe = () => {
 			const height = element.getBoundingClientRect().height;
-			const threshold = group ? 1 : Math.min( 1, window.innerHeight / 10 / Math.max( height, 1 ) );
+			const threshold = group
+				? FULLY_VISIBLE
+				: Math.min( FULLY_VISIBLE, window.innerHeight / 10 / Math.max( height, 1 ) );
 			observer?.disconnect();
 			visible = false;
 			const next = new IntersectionObserver(
