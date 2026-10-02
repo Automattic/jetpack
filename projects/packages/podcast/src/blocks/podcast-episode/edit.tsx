@@ -654,7 +654,7 @@ export default function PodcastEpisodeEdit( { attributes, setAttributes, context
 						</MediaUploadCheck>
 						<p className="components-base-control__help">
 							{ __(
-								'Defaults to the post’s featured image, then the show cover art from Settings → Writing → Podcasting.',
+								'Defaults to the post’s featured image, then the show cover art from the Podcast settings.',
 								'jetpack-podcast'
 							) }
 						</p>
