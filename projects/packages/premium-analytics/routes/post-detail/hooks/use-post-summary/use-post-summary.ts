@@ -78,6 +78,8 @@ export function usePostSummary( postId: number ): PostSummary {
 		fields: [ 'post' ],
 	} );
 	const post = data?.post;
+	// A failed background refetch keeps the loaded post, so only a missing one is an error.
+	const hasFailed = isError && ! post;
 	const type = post?.post_type;
 	const imageUrl = usePostThumbnail( postId, type );
 
@@ -124,9 +126,8 @@ export function usePostSummary( postId: number ): PostSummary {
 		url: url ?? carriedUrl,
 		// React Query calls a first load paused offline or in a hidden tab not loading.
 		isLoading: isLoading || ( isPending && isPaused ),
-		// A failed background refetch keeps the loaded post, so only a missing one is an error.
-		isError: isError && ! post,
-		error,
+		isError: hasFailed,
+		error: hasFailed ? error : null,
 		refetch: retry,
 	};
 }

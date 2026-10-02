@@ -73,15 +73,14 @@ function mockEntities( records: Record< EntityKey, unknown > ) {
  *
  * @param post      - The raw post row, or `undefined` for a query with no data.
  * @param isLoading - Whether the query is still resolving.
- * @param isError   - Whether the query failed.
  */
-function mockStatsPost( post?: Record< string, unknown >, isLoading = false, isError = false ) {
+function mockStatsPost( post?: Record< string, unknown >, isLoading = false ) {
 	mockUseStatsPost.mockReturnValue( {
 		data: post ? { post } : undefined,
 		isLoading,
 		isPending: isLoading,
 		isPaused: false,
-		isError,
+		isError: false,
 	} as unknown as ReturnType< typeof useStatsPost > );
 }
 
@@ -120,6 +119,7 @@ describe( 'usePostSummary', () => {
 			url: 'https://example.com/hello-world/',
 			isLoading: false,
 			isError: false,
+			error: null,
 			refetch: expect.any( Function ),
 		} );
 		expect( mockUsePostThumbnail ).toHaveBeenCalledWith( POST_ID, 'post' );
@@ -200,12 +200,19 @@ describe( 'usePostSummary', () => {
 	} );
 
 	it( 'keeps a loaded post when a background refetch fails', () => {
-		mockStatsPost( { post_title: 'Hello', post_type: 'post' }, false, true );
+		mockUseStatsPost.mockReturnValue( {
+			data: { post: { post_title: 'Hello', post_type: 'post' } },
+			isLoading: false,
+			isPending: false,
+			isPaused: false,
+			isError: true,
+			error: { status: 500 },
+		} as unknown as ReturnType< typeof useStatsPost > );
 		mockEntities( {} );
 
 		const { result } = renderHook( () => usePostSummary( POST_ID ) );
 
-		expect( result.current ).toMatchObject( { title: 'Hello', isError: false } );
+		expect( result.current ).toMatchObject( { title: 'Hello', isError: false, error: null } );
 	} );
 
 	it( 'reports a failed load with no post as an error, with the request error', () => {

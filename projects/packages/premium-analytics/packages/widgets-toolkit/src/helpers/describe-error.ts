@@ -11,11 +11,9 @@ import { __ } from '@wordpress/i18n';
  */
 import type { WidgetStateError } from '../components/widget-state';
 
-/** `error` when something failed; `info` when the request answered and the answer is a fact, such as no access. */
-export type DescribedErrorIntent = 'error' | 'info';
-
 export interface DescribedError extends WidgetStateError {
-	intent: DescribedErrorIntent;
+	/** `error` when something failed; `info` when the request answered and the answer is a fact, such as no access. */
+	intent: 'error' | 'info';
 }
 
 interface DescribeErrorOptions {

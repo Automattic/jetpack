@@ -12,7 +12,7 @@ export interface DetailPageNoticeProps extends Pick<
 	DescribedError,
 	'intent' | 'description' | 'actions'
 > {
-	/** A way out of the page, such as back to its report; `render` takes the router link. */
+	/** A way out of the page, such as back to its report; `render` is a childless router link, as its children would replace `label`. */
 	link?: { label: string; render: ReactElement };
 }
 
