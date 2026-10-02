@@ -7344,6 +7344,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 
 		it( 'shows the account status warning when a connected block loads', async () => {
 			mockStatus();
+			// forgetMerchantStatus() in beforeEach already dispatched to the notices store.
+			mockDispatch.mockClear();
 
 			render( <Edit attributes={ {} } setAttributes={ setAttributes } /> );
 
@@ -7353,7 +7355,8 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 					isDismissible: true,
 				} )
 			);
-			expect( mockDispatch ).toHaveBeenCalledWith( 'core/notices' );
+			// Only the warning dispatched.
+			expect( mockDispatch.mock.calls ).toEqual( [ [ 'core/notices' ] ] );
 			expect( statusCalls() ).toEqual( [ [ { path: '/wpcom/v2/paypal/onboarding/status' } ] ] );
 		} );
 
