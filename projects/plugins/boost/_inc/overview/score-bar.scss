@@ -64,6 +64,23 @@
 		color: var(--wpds-color-foreground-content-error-weak);
 	}
 
+	&__failed {
+		display: flex;
+		align-items: center;
+		gap: var(--wpds-dimension-gap-xs);
+		margin-inline-start: auto;
+		min-inline-size: 0;
+		color: var(--wpds-color-foreground-content-error-weak);
+		fill: currentColor;
+	}
+
+	&__failed-label {
+		overflow: hidden;
+		color: inherit;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+
 	.components-spinner {
 		margin: 0;
 	}
@@ -105,7 +122,8 @@
 		}
 
 		&__band,
-		&__meter {
+		&__meter,
+		&__failed-label {
 			display: none;
 		}
 

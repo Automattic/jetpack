@@ -50,13 +50,37 @@ test.each( [ { status: 'loading' as const, isRunning: true }, { hasScores: false
 	}
 );
 
-test( 'shows an error instead of generating or scores without another alert', () => {
+test( 'shows an error instead of generating when no scores have loaded', () => {
 	render(
-		<ScoreBar state={ { ...state, status: 'error', error: new Error( 'Refresh failed' ) } } />
+		<ScoreBar
+			state={ {
+				...state,
+				status: 'error',
+				hasScores: false,
+				error: new Error( 'Request failed' ),
+			} }
+		/>
 	);
 	expect( screen.getByText( 'Failed to load speed scores' ) ).toBeVisible();
-	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
 	expect( screen.queryByRole( 'alert', { hidden: true } ) ).not.toBeInTheDocument();
+} );
+
+test( 'keeps the previous scores after a failed refresh and marks the failure', () => {
+	const error = new Error( 'Refresh failed' );
+	render(
+		<>
+			<ScoreCards scores={ state.scores } hasScores error={ error } />
+			<ScoreBar state={ { ...state, status: 'error', error } } />
+		</>
+	);
+	const bar = within( screen.getByTestId( 'score-bar' ) );
+	expect( bar.getByText( '80' ) ).toBeVisible();
+	expect( bar.getByText( 'Failed to load speed scores' ) ).toBeVisible();
+	expect( bar.getByText( '+10' ) ).toBeVisible();
+	expect(
+		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText( '80' )
+	).toBeVisible();
 } );
 
 test( 'retains scores during a plain refetch, matching the card', () => {
