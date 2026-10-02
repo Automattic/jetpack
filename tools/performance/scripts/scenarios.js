@@ -223,10 +223,9 @@ export const SCENARIOS = [
 		// (the async product cards can settle after a quiet gap). The minResourceCount floor below
 		// is the backstop against gross truncation.
 		//
-		// Requires offline mode OFF (Status::is_offline_mode() gates
-		// Initializer::should_initialize(); localhost has no dot so the fixture is "local" =
-		// offline by default): the simulate-wpcom-connection mu-plugin flips it. See the README
-		// offline-mode attribution note.
+		// Localhost defaults to offline mode, which blocks My Jetpack initialization.
+		// connection-simulation/class-jetpack-wpcom-connection-simulator.php disables it;
+		// see the README offline-mode attribution note.
 		path: '/wp-admin/admin.php?page=my-jetpack',
 		waitForSelector:
 			'#my-jetpack-container .jp-admin-page, #my-jetpack-dashboard-wp-admin-app .jp-admin-page',

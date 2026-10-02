@@ -152,7 +152,7 @@ function discoverDynamicPorts() {
 			} );
 
 			if ( portOutput ) {
-				// Output is like "0.0.0.0:32789" - extract the port
+				// Output is like "127.0.0.1:32789" - extract the port
 				const port = portOutput.trim().split( ':' ).pop();
 				const url = `http://localhost:${ port }`;
 				process.env[ scenario.envVar ] = url;

@@ -126,14 +126,21 @@ test( 'instance readiness ignores optional controls but fails for an unready req
 	assert.equal( await checkWordPressInstances( [ required, control ] ), false );
 } );
 
-test( 'connection simulation bootstraps only when its connected environment variable is set', t => {
+test( 'connection simulation skips the control regardless of latency environment', t => {
 	const php = spawnSync( 'php', [ '--version' ] );
 	if ( php.error?.code === 'ENOENT' ) {
 		t.skip( 'PHP CLI is needed to execute the simulator bootstrap' );
 		return;
 	}
 	const simulator = path.join( SCRIPTS_DIR, '../docker/mu-plugins/simulate-wpcom-connection.php' );
-	for ( const latency of [ undefined, '0', '200' ] ) {
+	for ( const [ control, latency ] of [
+		[ false, undefined ],
+		[ false, '0' ],
+		[ false, '200' ],
+		[ true, undefined ],
+		[ true, '0' ],
+		[ true, '200' ],
+	] ) {
 		const env = { ...process.env };
 		delete env.WPCOM_SIMULATED_LATENCY_MS;
 		if ( latency !== undefined ) {
@@ -144,6 +151,7 @@ test( 'connection simulation bootstraps only when its connected environment vari
 			[
 				'-r',
 				`define( 'ABSPATH', '/' );
+				${ control ? "define( 'JETPACK_PERFORMANCE_NO_JETPACK_CONTROL', true );" : '' }
 				$hooks = array();
 				function add_filter( $name ) { $GLOBALS['hooks'][] = $name; }
 				function add_action( $name ) { $GLOBALS['hooks'][] = $name; }
@@ -155,10 +163,10 @@ test( 'connection simulation bootstraps only when its connected environment vari
 		);
 		assert.equal( result.status, 0, result.stderr );
 		const actual = JSON.parse( result.stdout );
-		assert.equal( actual.class, latency !== undefined );
+		assert.equal( actual.class, ! control );
 		assert.deepEqual(
 			actual.hooks,
-			latency === undefined
+			control
 				? []
 				: [
 						'jetpack_offline_mode',

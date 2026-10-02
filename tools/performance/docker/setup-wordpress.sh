@@ -27,10 +27,9 @@ setup_instance() {
     local db_name=$4
     local activate_jetpack=$5
 
-    if [ "$activate_jetpack" = "true" ]; then
-        export WPCOM_SIMULATED_LATENCY_MS="${WPCOM_SIMULATED_LATENCY_MS:-200}"
-    else
-        unset WPCOM_SIMULATED_LATENCY_MS
+    local control_config=""
+    if [ "$activate_jetpack" = "false" ]; then
+        control_config="define( 'JETPACK_PERFORMANCE_NO_JETPACK_CONTROL', true );"
     fi
 
     echo ""
@@ -98,10 +97,11 @@ define( 'WP_DEBUG', false );
 // render makes synchronous calls to api.wordpress.org (browse-happy / version /
 // update checks); on CI agents without egress those hang to a ~10s timeout and
 // dominate the LCP measurement. Blocking external HTTP makes them fail fast.
-// The wpcom connection simulator (mu-plugins/simulate-wpcom-connection.php)
+// The wpcom connection simulator (connection-simulation/class-jetpack-wpcom-connection-simulator.php)
 // short-circuits via the pre_http_request filter, which WordPress runs before
 // this block check, so the simulated connection still resolves.
 define( 'WP_HTTP_BLOCK_EXTERNAL', true );
+$control_config
 
 if ( ! defined( 'ABSPATH' ) ) {
     define( 'ABSPATH', __DIR__ . '/' );
@@ -139,7 +139,7 @@ WPCONFIG
         wp eval 'class_exists( "Jetpack_WPCom_Connection_Simulator" ) || WP_CLI::error( "Connection simulator did not bootstrap" );' --path="$wp_path" || return 1
     else
         wp plugin deactivate jetpack --path="$wp_path" || return 1
-        wp eval 'if ( ! file_exists( WP_PLUGIN_DIR . "/jetpack/jetpack.php" ) || ! file_exists( WPMU_PLUGIN_DIR . "/simulate-wpcom-connection.php" ) || false !== getenv( "WPCOM_SIMULATED_LATENCY_MS" ) || is_plugin_active( "jetpack/jetpack.php" ) || class_exists( "Jetpack" ) || class_exists( "Jetpack_WPCom_Connection_Simulator" ) ) { WP_CLI::error( "Invalid deactivated Jetpack control" ); }' --path="$wp_path" || return 1
+        wp eval 'if ( ! file_exists( WP_PLUGIN_DIR . "/jetpack/jetpack.php" ) || ! file_exists( WPMU_PLUGIN_DIR . "/simulate-wpcom-connection.php" ) || is_plugin_active( "jetpack/jetpack.php" ) || class_exists( "Jetpack" ) || class_exists( "Jetpack_WPCom_Connection_Simulator" ) ) { WP_CLI::error( "Invalid deactivated Jetpack control" ); }' --path="$wp_path" || return 1
     fi
 
     # Flush rewrite rules
@@ -168,7 +168,7 @@ if [ $db_attempt -gt $max_db_attempts ]; then
 fi
 
 echo ""
-echo "Setting up WordPress instance..."
+echo "Setting up WordPress instances..."
 echo "NOTE: WordPress container is not running yet - WP-CLI has exclusive database access"
 echo ""
 
@@ -188,7 +188,7 @@ setup_instance \
     "wp_no_jetpack" \
     "false" || {
         # A failed control must not remain measurable with an invalid plugin state.
-        rm -f /var/www/html/no-jetpack/wp-config.php
+        printf '%s\n' '<?php http_response_code( 503 ); exit;' > /var/www/html/no-jetpack/wp-config.php || exit 1
         echo "  ⚠ Warning: Optional Dashboard control setup failed; required measurements continue"
     }
 

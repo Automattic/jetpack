@@ -8,7 +8,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-if ( false === getenv( 'WPCOM_SIMULATED_LATENCY_MS' ) ) {
+if ( defined( 'JETPACK_PERFORMANCE_NO_JETPACK_CONTROL' ) ) {
 	return;
 }
 

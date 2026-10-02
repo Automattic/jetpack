@@ -11,7 +11,7 @@
  * 4. Activates additional Jetpack modules that work without real connection
  *
  * Environment variables:
- * - WPCOM_SIMULATED_LATENCY_MS: Latency to add to each WP.com request (default: 200)
+ * - WPCOM_SIMULATED_LATENCY_MS: Latency to add to each WP.com request (200 ms when unset)
  *
  * @package Jetpack_Performance_Testing
  *
@@ -45,11 +45,8 @@ class Jetpack_WPCom_Connection_Simulator {
 	 * Modules that are safe to activate without a real WordPress.com connection.
 	 * These modules work locally without external dependencies.
 	 *
-	 * This list is install-wide: one WordPress install serves every scenario, so a module added
-	 * for one page also loads for the others. `contact-form` is needed only by the formsResponses
-	 * scenario (it registers the wp-build Forms responses dashboard), but it therefore also runs
-	 * on the jetpackConnected Dashboard page and shifts that scenario's live LCP/TTFB/FCP baseline
-	 * by one step at the commit it lands. Weigh that before adding another scenario-specific module.
+	 * All connected scenarios share one install, so page-specific modules also load on the
+	 * connected Dashboard and can shift its baseline; the deactivated control is separate.
 	 *
 	 * @var array
 	 */
@@ -74,8 +71,8 @@ class Jetpack_WPCom_Connection_Simulator {
 		// contains no dot, so Status::is_local_site() treats it as a local site and Jetpack
 		// enters offline mode. Offline mode blocks My Jetpack from initializing at all
 		// (Initializer::should_initialize()), yet this fixture explicitly simulates a
-		// production, connected site. This is install-wide: flipping it shifts what EVERY
-		// scenario measures (Jetpack runs more code paths when not offline) — see the
+		// production, connected site. This is install-wide: flipping it shifts what every
+		// connected scenario measures (Jetpack runs more code paths when not offline) — see the
 		// offline-mode attribution note in README.md.
 		//
 		// Two filters are needed because Status::is_offline_mode() falls back to the stored

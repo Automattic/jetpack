@@ -94,6 +94,7 @@ services:
         condition: service_started
       wordpress-no-jetpack:
         condition: service_started
+        required: false
     environment:
       WORDPRESS_DB_HOST: db
       WORDPRESS_DB_USER: root
