@@ -238,6 +238,7 @@ class Proxy_Controller_Test extends BaseTestCase {
 	 */
 	private function read_cache_key( $endpoint, $version = '1.1' ) {
 		$accessor = function ( string $e, string $v ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
 			return $this->cache_key_for( $this->build_data_path( $e ), $v, $this->base_for_version( $v ), array() );
 		};
 
@@ -604,6 +605,7 @@ class Proxy_Controller_Test extends BaseTestCase {
 
 	public function test_write_matchers_cover_a_sub_tree_or_an_exact_endpoint() {
 		$accessor = function ( string $e ) {
+			// @phan-suppress-next-line PhanUndeclaredMethod -- rebound to the controller via Closure::call() below.
 			return $this->is_write_allowed( $e );
 		};
 
