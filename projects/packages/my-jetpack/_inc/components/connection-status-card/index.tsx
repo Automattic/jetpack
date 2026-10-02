@@ -1,7 +1,7 @@
 import {
-	CONNECTION_STORE_ID,
 	ConnectionErrorDetails,
 	getReconnectErrorMessage,
+	initConnectionStore,
 	ManageConnectionDialog,
 	useConnectionErrorNotice,
 } from '@automattic/jetpack-connection';
@@ -50,7 +50,8 @@ const ConnectionStatusCard: ConnectionStatusCardType = ( {
 	const { lifecycleStats } = getMyJetpackWindowInitialState();
 	const { recordEvent } = useAnalytics();
 	const [ isManageConnectionDialogOpen, setIsManageConnectionDialogOpen ] = useState( false );
-	const { setConnectionStatus, setUserIsConnecting } = useDispatch( CONNECTION_STORE_ID );
+	const connectionStore = initConnectionStore();
+	const { setConnectionStatus, setUserIsConnecting } = useDispatch( connectionStore );
 	const connectUserFn = onConnectUser || setUserIsConnecting;
 	const avatar = userConnectionData.currentUser?.wpcomUser?.avatar;
 

@@ -14,7 +14,8 @@
 	"author": "Automattic",
 	"sideEffects": true,
 	"exports": {
-		".": "./index.js"
+		".": "./index.js",
+		"./connection": "./src/store/connection/index.jsx"
 	},
 	"scripts": {
 		"test": "jest",
@@ -22,6 +23,7 @@
 		"typecheck": "tsgo --noEmit"
 	},
 	"dependencies": {
+		"@automattic/jetpack-api": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
 		"@wordpress/api-fetch": "7.55.0",
 		"@wordpress/data": "10.55.0"

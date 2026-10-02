@@ -1,5 +1,5 @@
 import '@testing-library/jest-dom';
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID, initConnectionStore } from '@automattic/jetpack-connection';
 import { render, renderHook, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useSelect } from '@wordpress/data';
@@ -110,6 +110,8 @@ const setConnectionStore = ( {
 	connectionErrors = {},
 	connectionOwner = null,
 } = {} ) => {
+	// The store registers lazily now; register it before stubbing it.
+	initConnectionStore();
 	let storeSelect;
 	renderHook( () => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) ), [] ), {
 		wrapper: Providers,

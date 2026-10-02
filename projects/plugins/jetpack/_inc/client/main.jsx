@@ -1,6 +1,6 @@
 import restApi from '@automattic/jetpack-api';
 import { getRedirectUrl } from '@automattic/jetpack-components';
-import { ConnectScreen, CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { ConnectScreen, initConnectionStore } from '@automattic/jetpack-connection';
 // The extension is required: esbuild does not complete package `exports` subpaths.
 import ConnectScreenBody from '@automattic/jetpack-my-jetpack/components/connection-screen/body.tsx';
 import { withDispatch } from '@wordpress/data';
@@ -423,9 +423,10 @@ export default connect(
 	} )
 )(
 	withDispatch( dispatch => {
+		const connectionStore = initConnectionStore();
 		return {
 			setConnectionStatus: connectionStatus => {
-				dispatch( CONNECTION_STORE_ID ).setConnectionStatus( connectionStatus );
+				dispatch( connectionStore ).setConnectionStatus( connectionStatus );
 			},
 		};
 	} )( props => <Main { ...props } location={ useLocation() } navigate={ useNavigate() } /> )

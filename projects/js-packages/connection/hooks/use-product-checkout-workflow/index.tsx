@@ -5,8 +5,9 @@ import debugFactory from 'debug';
 import { useEffect, useState, useMemo } from 'react';
 import useConnection from '../../components/use-connection';
 import getCalypsoOrigin from '../../helpers/get-calypso-origin';
-import { STORE_ID } from '../../state/store.jsx';
+import { initConnectionStore } from '../../state/store.jsx';
 import type { UseProductCheckoutWorkflowProps } from './types';
+import type { StoreDescriptor } from '@wordpress/data';
 
 const debug = debugFactory( 'jetpack:connection:useProductCheckoutWorkflow' );
 
@@ -46,12 +47,19 @@ export default function useProductCheckoutWorkflow(
 	debug( 'redirectUrl is %s', redirectUrl );
 	debug( 'siteSuffix is %s', siteSuffix );
 	debug( 'from is %s', from );
+
+	// Register the connection store lazily and use the returned descriptor so
+	// the store can't be selected/dispatched without being initialized first.
+	// Idempotent across consumers.
+	const connectionStore = initConnectionStore();
+
 	const [ hasCheckoutStarted, setCheckoutStarted ] = useState( false );
-	const { registerSite } = useDispatch( STORE_ID );
+	const { registerSite } = useDispatch( connectionStore );
 
 	const blogID = useSelect(
-		select => ( select( STORE_ID ) as { getBlogId: () => string } ).getBlogId(),
-		[]
+		( select: ( store: StoreDescriptor ) => Record< string, ( ...args: unknown[] ) => unknown > ) =>
+			select( connectionStore ).getBlogId() as string,
+		[ connectionStore ]
 	);
 	debug( 'blogID is %s', blogID ?? 'undefined' );
 

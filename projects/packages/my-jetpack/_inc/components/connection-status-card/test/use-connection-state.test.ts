@@ -1,4 +1,8 @@
-import { CONNECTION_STORE_ID, useConnectionErrorNotice } from '@automattic/jetpack-connection';
+import {
+	CONNECTION_STORE_ID,
+	initConnectionStore,
+	useConnectionErrorNotice,
+} from '@automattic/jetpack-connection';
 import { renderHook } from '@testing-library/react';
 import { useSelect } from '@wordpress/data';
 import Providers from '../../../providers';
@@ -31,6 +35,8 @@ const setConnectionStore = ( {
 	connectionErrors = {},
 	connectionOwner = null,
 }: StoreOverrides = {} ) => {
+	// The store registers lazily now; register it before stubbing it.
+	initConnectionStore();
 	let storeSelect: StoreSelect;
 	renderHook(
 		() => useSelect( select => ( storeSelect = select( CONNECTION_STORE_ID ) as StoreSelect ) ),

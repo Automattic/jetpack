@@ -686,6 +686,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data
+      '@automattic/jetpack-shared-stores':
+        specifier: workspace:*
+        version: link:../jetpack-shared-stores
       '@wordpress/base-styles':
         specifier: 13.1.0
         version: 13.1.0
@@ -1053,6 +1056,9 @@ importers:
 
   projects/js-packages/jetpack-shared-stores:
     dependencies:
+      '@automattic/jetpack-api':
+        specifier: workspace:*
+        version: link:../api
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../script-data

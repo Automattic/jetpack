@@ -17,7 +17,7 @@ jest.mock( '@automattic/jetpack-analytics', () => ( {
 } ) );
 
 // Imports must come after the jest.mock factory above.
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { CONNECTION_STORE_ID, initConnectionStore } from '@automattic/jetpack-connection';
 import { act, renderHook } from '@testing-library/react';
 import { dispatch, select } from '@wordpress/data';
 import useAnalytics from '../index';
@@ -50,6 +50,8 @@ function connectionActions() {
 }
 
 beforeEach( () => {
+	// The store registers lazily now; register it before driving it.
+	initConnectionStore();
 	mockInitialize.mockClear();
 	mockRecordEvent.mockClear();
 

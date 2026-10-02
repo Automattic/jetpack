@@ -1,30 +1,15 @@
-/* eslint-disable no-console */
-
-import { getScriptData } from '@automattic/jetpack-script-data';
-import actions from './actions';
-import controls from './controls';
-import reducer from './reducers';
-import resolvers from './resolvers';
-import selectors from './selectors';
-import storeHolder from './store-holder';
-import STORE_ID from './store-id';
-
-const initialState = window.JP_CONNECTION_INITIAL_STATE || getScriptData()?.connection;
-
-if ( ! initialState ) {
-	console.error(
-		'Jetpack Connection package: Initial state is missing. Check documentation to see how to use the Connection composer package to set up the initial state.'
-	);
-}
-
-storeHolder.mayBeInit( STORE_ID, {
-	__experimentalUseThunks: true,
-	reducer,
-	actions,
-	selectors,
-	resolvers,
-	controls,
-	initialState: initialState || {},
-} );
-
-export { STORE_ID };
+/**
+ * Back-compat re-export.
+ *
+ * The `jetpack-connection` store moved to `@automattic/jetpack-shared-stores`
+ * so it is built into a single externalized bundle and registered only once.
+ * It is exposed on the package's `/connection` subpath and registers lazily via
+ * `initConnectionStore()` rather than as an import side effect, so consumers
+ * that don't use the connection store never register it. This shim preserves
+ * the historical `./state/store` import path (the `STORE_ID` name) and exposes
+ * the initializer.
+ */
+export {
+	CONNECTION_STORE_ID as STORE_ID,
+	initConnectionStore,
+} from '@automattic/jetpack-shared-stores/connection';

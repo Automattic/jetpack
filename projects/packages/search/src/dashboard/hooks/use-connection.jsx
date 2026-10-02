@@ -1,4 +1,4 @@
-import { CONNECTION_STORE_ID } from '@automattic/jetpack-connection';
+import { initConnectionStore } from '@automattic/jetpack-connection';
 import { useSelect } from '@wordpress/data';
 import { STORE_ID as SEARCH_STORE_ID } from 'store';
 
@@ -8,14 +8,18 @@ import { STORE_ID as SEARCH_STORE_ID } from 'store';
  * @return {object} connectionStatus, isFullyConnected
  */
 export default function useConnection() {
-	const connectionStatus = useSelect( select => ( {
-		siteIsRegistering: select( CONNECTION_STORE_ID ).getSiteIsRegistering(),
-		userIsConnecting: select( CONNECTION_STORE_ID ).getUserIsConnecting(),
-		userConnectionData: select( CONNECTION_STORE_ID ).getUserConnectionData(),
-		connectedPlugins: select( CONNECTION_STORE_ID ).getConnectedPlugins(),
-		connectionErrors: select( CONNECTION_STORE_ID ).getConnectionErrors(),
-		...select( CONNECTION_STORE_ID ).getConnectionStatus(),
-	} ) );
+	const connectionStore = initConnectionStore();
+	const connectionStatus = useSelect(
+		select => ( {
+			siteIsRegistering: select( connectionStore ).getSiteIsRegistering(),
+			userIsConnecting: select( connectionStore ).getUserIsConnecting(),
+			userConnectionData: select( connectionStore ).getUserConnectionData(),
+			connectedPlugins: select( connectionStore ).getConnectedPlugins(),
+			connectionErrors: select( connectionStore ).getConnectionErrors(),
+			...select( connectionStore ).getConnectionStatus(),
+		} ),
+		[ connectionStore ]
+	);
 	const isWpcom = useSelect( select => select( SEARCH_STORE_ID ).isWpcom(), [] );
 
 	const isFullyConnected =
