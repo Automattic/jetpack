@@ -16,15 +16,14 @@ const state: SpeedScoreState = {
 
 test( 'shows the shared grade, device scores and baseline-relative compact badges', () => {
 	render( <ScoreBar state={ state } /> );
-	const bar = within( screen.getByLabelText( 'Site speed summary' ) );
+	const bar = within( screen.getByTestId( 'score-bar' ) );
 	expect( bar.getByText( 'C' ) ).toBeVisible();
 	expect( bar.getByText( 'Good' ) ).toBeVisible();
-	expect( bar.getByLabelText( 'Desktop' ) ).toHaveValue( 80 );
-	expect( bar.getByLabelText( 'Mobile' ) ).toHaveValue( 68 );
+	const [ desktop, mobile ] = bar.getAllByRole( 'progressbar', { hidden: true } );
+	expect( desktop ).toHaveValue( 80 );
+	expect( mobile ).toHaveValue( 68 );
 	expect( bar.getByText( '+10' ) ).toBeVisible();
 	expect( bar.getByText( '0' ) ).toBeVisible();
-	expect( bar.getByText( '+10 points' ) ).toBeInTheDocument();
-	expect( bar.getByText( '0 points' ) ).toBeInTheDocument();
 } );
 
 test.each( [ true, false ] )( 'omits unavailable comparisons (stale=%s)', isStale => {
@@ -36,7 +35,8 @@ test.each( [ true, false ] )( 'omits unavailable comparisons (stale=%s)', isStal
 			} }
 		/>
 	);
-	expect( screen.queryByText( /points/ ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '+10' ) ).not.toBeInTheDocument();
+	expect( screen.queryByText( '0' ) ).not.toBeInTheDocument();
 } );
 
 test.each( [ { status: 'loading' as const, isRunning: true }, { hasScores: false } ] )(
@@ -45,8 +45,8 @@ test.each( [ { status: 'loading' as const, isRunning: true }, { hasScores: false
 		render( <ScoreBar state={ { ...state, ...pending } } /> );
 		expect( screen.getByText( 'Calculating score…' ) ).toBeVisible();
 		expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'status' ) ).not.toBeInTheDocument();
-		expect( screen.queryByRole( 'progressbar' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'status', { hidden: true } ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'progressbar', { hidden: true } ) ).not.toBeInTheDocument();
 	}
 );
 
@@ -56,7 +56,7 @@ test( 'shows an error instead of generating or scores without another alert', ()
 	);
 	expect( screen.getByText( 'Failed to load speed scores' ) ).toBeVisible();
 	expect( screen.queryByText( '80' ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'alert' ) ).not.toBeInTheDocument();
+	expect( screen.queryByRole( 'alert', { hidden: true } ) ).not.toBeInTheDocument();
 } );
 
 test( 'retains scores during a plain refetch, matching the card', () => {
@@ -66,12 +66,11 @@ test( 'retains scores during a plain refetch, matching the card', () => {
 			<ScoreBar state={ { ...state, status: 'loading' } } />
 		</>
 	);
-	const bar = screen.getByLabelText( 'Site speed summary' );
+	const bar = screen.getByTestId( 'score-bar' );
 	expect( bar ).toHaveAttribute( 'aria-hidden', 'true' );
 	expect( within( bar ).getByText( '80' ) ).toBeVisible();
 	expect(
 		within( screen.getByRole( 'region', { name: 'Desktop' } ) ).getByText( '80' )
 	).toBeVisible();
 	expect( screen.queryByText( 'Calculating score…' ) ).not.toBeInTheDocument();
-	expect( screen.queryByRole( 'region', { name: 'Site speed summary' } ) ).not.toBeInTheDocument();
 } );
