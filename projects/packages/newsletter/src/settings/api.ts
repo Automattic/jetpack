@@ -12,6 +12,13 @@ import apiFetch from '@wordpress/api-fetch';
 
 let apiInitialized = false;
 
+const NEWSLETTER_ONBOARDING_SKIPPED_STEPS_SETTING = 'jetpack_newsletter_onboarding_skipped_steps';
+
+/**
+ * Newsletter Overview checklist step IDs accepted by the Skip setting.
+ */
+export type NewsletterOnboardingStepId = 'subscribe_form' | 'subscribers' | 'send_newsletter';
+
 /**
  * Initialize the REST API with data from JetpackScriptData.
  * Only needed for non-Simple sites. Call this before making API requests.
@@ -73,6 +80,63 @@ export async function updateSettings(
 	// For non-Simple sites, use the standard API
 	initializeApi();
 	return restApi.updateSettings( updates );
+}
+
+/**
+ * Fetch the per-site Newsletter Overview steps skipped on the current site.
+ *
+ * @return {Promise<NewsletterOnboardingStepId[]>} The skipped step IDs
+ */
+export async function fetchNewsletterOnboardingSkippedSteps(): Promise< NewsletterOnboardingStepId[] > {
+	if ( isSimpleSite() && ! getBlogId() ) {
+		throw new Error( 'The site ID is required to fetch Newsletter onboarding settings.' );
+	}
+
+	return getNewsletterOnboardingSkippedSteps( await fetchSettings() );
+}
+
+/**
+ * Add step IDs to the per-site Newsletter Overview Skip setting.
+ *
+ * @param {NewsletterOnboardingStepId[]} stepIds The step IDs to add
+ * @return {Promise<NewsletterOnboardingStepId[]>} The skipped step IDs
+ */
+export async function addNewsletterOnboardingSkippedSteps(
+	stepIds: NewsletterOnboardingStepId[]
+): Promise< NewsletterOnboardingStepId[] > {
+	if ( isSimpleSite() && ! getBlogId() ) {
+		throw new Error( 'The site ID is required to update Newsletter onboarding settings.' );
+	}
+
+	const updates = { [ NEWSLETTER_ONBOARDING_SKIPPED_STEPS_SETTING ]: stepIds };
+	return getNewsletterOnboardingSkippedSteps( await updateSettings( updates ) );
+}
+
+/**
+ * Read and validate the Newsletter onboarding setting returned by a REST endpoint.
+ *
+ * @param {Record<string, unknown>} settings REST settings response
+ * @return {NewsletterOnboardingStepId[]} The skipped step IDs
+ */
+function getNewsletterOnboardingSkippedSteps(
+	settings: Record< string, unknown >
+): NewsletterOnboardingStepId[] {
+	const value = settings[ NEWSLETTER_ONBOARDING_SKIPPED_STEPS_SETTING ];
+	if ( ! Array.isArray( value ) || ! value.every( isNewsletterOnboardingStepId ) ) {
+		throw new Error( 'The Newsletter onboarding Skip setting was missing or invalid.' );
+	}
+
+	return value;
+}
+
+/**
+ * Check whether a value is a supported Newsletter onboarding step ID.
+ *
+ * @param {unknown} value The value to check
+ * @return {boolean} Whether the value is supported
+ */
+function isNewsletterOnboardingStepId( value: unknown ): value is NewsletterOnboardingStepId {
+	return value === 'subscribe_form' || value === 'subscribers' || value === 'send_newsletter';
 }
 
 /**

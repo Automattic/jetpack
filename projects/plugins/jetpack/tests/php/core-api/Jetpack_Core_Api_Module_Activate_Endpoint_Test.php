@@ -1,5 +1,6 @@
 <?php
 
+use Automattic\Jetpack\Newsletter\Onboarding_Controller;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 
@@ -13,8 +14,7 @@ require_once JETPACK__PLUGIN_DIR . '/tests/php/lib/Jetpack_REST_TestCase.php';
 #[CoversClass( Jetpack_Core_API_Data::class )]
 class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCase {
 	/**
-	 * These tests call update_data() directly, bypassing the permission callback that
-	 * guards it in production. Writing settings requires an administrator.
+	 * Direct update_data() tests bypass the permission callback that guards the endpoint in production.
 	 */
 	public function set_up() {
 		parent::set_up();
@@ -22,6 +22,15 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 		wp_set_current_user(
 			self::factory()->user->create( array( 'role' => 'administrator' ) )
 		);
+	}
+
+	public function tear_down() {
+		foreach ( Onboarding_Controller::STEP_IDS as $step_id ) {
+			delete_option( Onboarding_Controller::get_option_name( $step_id ) );
+		}
+		delete_option( Onboarding_Controller::FIELD_NAME );
+		delete_option( 'jetpack_blocks_disabled' );
+		parent::tear_down();
 	}
 
 	/**
@@ -83,6 +92,169 @@ class Jetpack_Core_Api_Module_Activate_Endpoint_Test extends Jetpack_REST_TestCa
 
 		$this->assertTrue( isset( $settings->data[ $option_name ] ) );
 		$this->assertTrue( $settings->data[ $option_name ] );
+	}
+
+	public function test_newsletter_skip_setting_is_in_v4_registry_schema() {
+		$settings = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' );
+		$setting  = $settings[ Onboarding_Controller::FIELD_NAME ];
+
+		$this->assertSame( 'array', $setting['type'] );
+		$this->assertSame( array(), $setting['default'] );
+		$this->assertSame( 'settings', $setting['jp_group'] );
+		$this->assertSame( Onboarding_Controller::STEP_IDS, $setting['items']['enum'] );
+		$this->assertTrue( is_callable( $setting['validate_callback'] ) );
+		$this->assertArrayHasKey(
+			Onboarding_Controller::FIELD_NAME,
+			Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' )
+		);
+
+		$routes     = $this->server->get_routes();
+		$post_route = array();
+		foreach ( $routes['/jetpack/v4/settings'] as $route ) {
+			if ( isset( $route['methods']['POST'] ) ) {
+				$post_route = $route;
+				break;
+			}
+		}
+		$this->assertArrayHasKey( Onboarding_Controller::FIELD_NAME, $post_route['args'] );
+	}
+
+	public function test_v4_settings_get_projects_skip_options_without_writing_defaults() {
+		$setting_name = Onboarding_Controller::FIELD_NAME;
+		$settings     = ( new Jetpack_Core_API_Data() )->get_all_options()->get_data();
+
+		$this->assertSame( array(), $settings[ $setting_name ] );
+		$this->assertFalse( get_option( $setting_name, false ) );
+		foreach ( Onboarding_Controller::STEP_IDS as $step_id ) {
+			$this->assertFalse( get_option( Onboarding_Controller::get_option_name( $step_id ), false ) );
+		}
+
+		add_option( Onboarding_Controller::get_option_name( 'send_newsletter' ), true, '', false );
+		add_option( Onboarding_Controller::get_option_name( 'subscribe_form' ), true, '', false );
+		$settings = ( new Jetpack_Core_API_Data() )->get_all_options()->get_data();
+
+		$this->assertSame( array( 'subscribe_form', 'send_newsletter' ), $settings[ $setting_name ] );
+		$this->assertFalse( get_option( $setting_name, false ) );
+	}
+
+	public function test_v4_settings_post_adds_skips_and_empty_update_does_not_clear_them() {
+		$setting_name = Onboarding_Controller::FIELD_NAME;
+		$request      = new WP_REST_Request();
+		$request->set_body_params( array( $setting_name => array( 'send_newsletter', 'subscribers' ) ) );
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'subscribers', 'send_newsletter' ), $result->get_data()[ $setting_name ] );
+		foreach ( array( 'subscribers', 'send_newsletter' ) as $step_id ) {
+			$this->assertTrue( (bool) get_option( Onboarding_Controller::get_option_name( $step_id ) ) );
+		}
+		$this->assertFalse( get_option( $setting_name, false ) );
+		wp_cache_delete( 'alloptions', 'options' );
+		foreach ( Onboarding_Controller::STEP_IDS as $step_id ) {
+			$this->assertArrayNotHasKey( Onboarding_Controller::get_option_name( $step_id ), wp_load_alloptions() );
+		}
+
+		$request = new WP_REST_Request();
+		$request->set_body_params( array( $setting_name => array() ) );
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertSame( 200, $result->get_status() );
+		$this->assertSame( array( 'subscribers', 'send_newsletter' ), $result->get_data()[ $setting_name ] );
+	}
+
+	public function test_v4_settings_post_rejects_mixed_valid_and_invalid_skip_ids_before_writing() {
+		$request = new WP_REST_Request();
+		$request->set_body_params(
+			array(
+				Onboarding_Controller::FIELD_NAME => array( 'subscribe_form', 'invalid_step' ),
+			)
+		);
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 400, $result->get_error_data()['status'] );
+		foreach ( Onboarding_Controller::STEP_IDS as $step_id ) {
+			$this->assertFalse( get_option( Onboarding_Controller::get_option_name( $step_id ), false ) );
+		}
+		$this->assertFalse( get_option( Onboarding_Controller::FIELD_NAME, false ) );
+	}
+
+	public function test_v4_settings_route_rejects_invalid_skip_ids_before_updating_other_settings() {
+		$user = wp_get_current_user();
+		$user->add_cap( 'jetpack_admin_page' );
+		$user->add_cap( 'jetpack_configure_modules' );
+		$request = new WP_REST_Request( 'POST', '/jetpack/v4/settings' );
+		$request->set_body_params(
+			array(
+				'jetpack_blocks_disabled'             => true,
+				Onboarding_Controller::FIELD_NAME => array( 'subscribe_form', 'invalid_step' ),
+			)
+		);
+
+		$response = $this->server->dispatch( $request );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertFalse( get_option( 'jetpack_blocks_disabled', false ) );
+		foreach ( Onboarding_Controller::STEP_IDS as $step_id ) {
+			$this->assertFalse( get_option( Onboarding_Controller::get_option_name( $step_id ), false ) );
+		}
+	}
+
+	public function test_v4_settings_post_returns_individual_option_write_errors() {
+		$failed_option = Onboarding_Controller::get_option_name( 'subscribe_form' );
+		add_option( $failed_option, false, '', false );
+		$request = new WP_REST_Request();
+		$request->set_body_params( array( Onboarding_Controller::FIELD_NAME => array( 'subscribe_form' ) ) );
+
+		$result = ( new Jetpack_Core_API_Data() )->update_data( $request );
+
+		$this->assertInstanceOf( WP_Error::class, $result );
+		$this->assertSame( 'newsletter_onboarding_skip_write_failed', $result->get_error_code() );
+		$this->assertSame( 500, $result->get_error_data()['status'] );
+		$this->assertFalse( get_option( Onboarding_Controller::FIELD_NAME, false ) );
+	}
+
+	public function test_newsletter_skip_options_are_isolated_per_site() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'This test requires the Jetpack multisite test suite.' );
+		}
+
+		$main_site_id = get_current_blog_id();
+		$site_id      = self::factory()->blog->create();
+		$this->assertNotSame( $main_site_id, $site_id );
+
+		try {
+			switch_to_blog( $site_id );
+			$this->assertSame( array(), Onboarding_Controller::get_skipped_steps() );
+			$this->assertSame( array( 'subscribers' ), Onboarding_Controller::add_skipped_steps( array( 'subscribers' ) ) );
+		} finally {
+			restore_current_blog();
+			wpmu_delete_blog( $site_id, true );
+		}
+
+		$this->assertSame( array(), Onboarding_Controller::get_skipped_steps() );
+	}
+
+	public function test_v4_settings_capabilities_match_the_existing_endpoint() {
+		$user_id = self::factory()->user->create( array( 'role' => 'subscriber' ) );
+		$user    = get_user_by( 'id', $user_id );
+		wp_set_current_user( $user_id );
+
+		$endpoint = new Jetpack_Core_API_Data();
+		$get       = new WP_REST_Request( 'GET', '/jetpack/v4/settings/' );
+		$post      = new WP_REST_Request( 'POST', '/jetpack/v4/settings' );
+
+		$this->assertFalse( $endpoint->can_request( $get ) );
+		$this->assertFalse( $endpoint->can_request( $post ) );
+
+		$user->add_cap( 'jetpack_admin_page' );
+		$this->assertTrue( $endpoint->can_request( $get ) );
+		$this->assertFalse( $endpoint->can_request( $post ) );
+
+		$user->add_cap( 'jetpack_configure_modules' );
+		$this->assertTrue( $endpoint->can_request( $post ) );
 	}
 
 	/**

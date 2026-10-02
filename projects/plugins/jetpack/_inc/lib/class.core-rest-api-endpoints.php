@@ -2075,6 +2075,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'subscriptions',
 			),
+			\Automattic\Jetpack\Newsletter\Onboarding_Controller::FIELD_NAME => array(
+				'description'       => esc_html__( 'Newsletter onboarding steps skipped for this site.', 'jetpack' ),
+				'type'              => 'array',
+				'items'             => array(
+					'type' => 'string',
+					'enum' => \Automattic\Jetpack\Newsletter\Onboarding_Controller::STEP_IDS,
+				),
+				'default'           => array(),
+				'validate_callback' => \Automattic\Jetpack\Newsletter\Onboarding_Controller::class . '::validate_skipped_steps',
+				'jp_group'          => 'settings',
+			),
 			'wpcom_newsletter_send_default'             => array(
 				'description'       => esc_html__( 'Whether to send newsletter emails by default when publishing a post', 'jetpack' ),
 				'type'              => 'boolean',
