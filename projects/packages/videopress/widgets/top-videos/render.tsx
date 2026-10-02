@@ -9,7 +9,6 @@ import {
 	describeError,
 	useStatsVideoPlays,
 	useWidgetRootContext,
-	videosCsvExporter,
 	type LeaderboardRowInput,
 	type ReportParamsFieldAttributes,
 } from '@automattic/jetpack-premium-analytics-sdk';
@@ -102,7 +101,7 @@ function TopVideosReport() {
 				<>
 					<ReportLink report="videos" />
 					<ExporterCsvDownloadButton
-						exporter={ videosCsvExporter }
+						report="videos"
 						status={ { isLoading: isInitialLoading, isFetching, isError: primary.isError } }
 						rowCount={ rows.length }
 					/>

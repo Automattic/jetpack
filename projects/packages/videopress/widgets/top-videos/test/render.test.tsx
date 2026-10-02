@@ -9,6 +9,7 @@ import TopVideos from '../render';
 import type { ReactNode } from 'react';
 
 const mockLeaderboard = jest.fn();
+const mockDownloadButton = jest.fn();
 const mockWidgetRoot = jest.fn();
 const mockUseStatsVideoPlays = jest.fn();
 const mockDescribeError = jest.fn();
@@ -20,6 +21,10 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 		return <div>{ props.footer }</div>;
 	},
 	ReportLink: ( { report }: { report: string } ) => <a href={ `#${ report }` }>View all</a>,
+	ExporterCsvDownloadButton: ( props: Record< string, unknown > ) => {
+		mockDownloadButton( props );
+		return <button>Download CSV</button>;
+	},
 	WidgetRoot: ( { children, ...props }: { children: ReactNode } ) => {
 		mockWidgetRoot( props );
 		return children;
@@ -32,7 +37,7 @@ jest.mock( '@automattic/jetpack-premium-analytics-sdk', () => ( {
 const refetch = jest.fn();
 
 const videoPlays = ( overrides: Record< string, unknown > = {} ) => ( {
-	primary: { isPending: false },
+	primary: { isPending: false, isError: false },
 	comparisonRows: {
 		rows: [
 			{
@@ -155,5 +160,16 @@ describe( 'Top videos widget', () => {
 		render( <TopVideos attributes={ {} } /> );
 
 		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute( 'href', '#videos' );
+	} );
+
+	it( 'offers the Videos report CSV from the footer, by report id', () => {
+		render( <TopVideos attributes={ {} } /> );
+
+		expect( screen.getByRole( 'button', { name: 'Download CSV' } ) ).toBeInTheDocument();
+		expect( mockDownloadButton ).toHaveBeenCalledWith( {
+			report: 'videos',
+			status: { isLoading: false, isFetching: false, isError: false },
+			rowCount: 2,
+		} );
 	} );
 } );

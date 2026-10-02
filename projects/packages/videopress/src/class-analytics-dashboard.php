@@ -53,10 +53,10 @@ class Analytics_Dashboard {
 	const TEXTDOMAIN = 'jetpack-videopress-pkg';
 
 	/**
-	 * Lowest widget contract the build works against: the Leaderboard component and the video
-	 * plays hook the widget imports reached the SDK in 1.2.0.
+	 * Lowest widget contract the build works against: the CSV download action the widget imports
+	 * reached the SDK in 1.3.0.
 	 */
-	const MIN_WIDGET_API_VERSION = '1.2.0';
+	const MIN_WIDGET_API_VERSION = '1.3.0';
 
 	/**
 	 * Hook the registrant on the dashboard's registry action and the seed on its layout filter.
