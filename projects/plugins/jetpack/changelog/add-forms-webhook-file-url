@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Forms: Add a link to each uploaded file and to the response in webhook data, which open for logged-in editors.
