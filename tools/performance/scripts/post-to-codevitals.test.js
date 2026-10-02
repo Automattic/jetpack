@@ -879,12 +879,13 @@ test( 'dry-run with both scenarios present posts 14 keys, including zero Forms s
 	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
 } );
 
-test( 'dry-run with all four scenarios posts 11 production keys and 15 staging keys', async () => {
+test( 'dry-run with all five scenarios posts 11 production keys and 21 staging keys', async () => {
 	const file = writeResults( 120, {
 		forms: { decodedBytesKB: 8229 },
 		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860, tbt: 120 },
 	} );
 	const results = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	results.measurements[ 'jetpackConnected-noJetpack' ] = { summary: jetpackSummary() };
 	results.measurements.jetpackSettings = {
 		summary: formsSummary( { lcp: 1060, ttfb: 327, fcp: 684, decodedBytesKB: 6782 } ),
 	};
@@ -907,7 +908,15 @@ test( 'dry-run with all four scenarios posts 11 production keys and 15 staging k
 			[ 'jetpack-settings-connection-sim-decodedBytesKB-staging', 6782 ],
 		]
 	);
-	assert.equal( Object.keys( result.payload.metrics ).length, 26 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 32 );
+	assert.equal(
+		Object.keys( result.payload.metrics ).filter( key => ! key.endsWith( '-staging' ) ).length,
+		11
+	);
+	assert.equal(
+		Object.keys( result.payload.metrics ).filter( key => key.endsWith( '-staging' ) ).length,
+		21
+	);
 } );
 
 test( 'dry-run adds six separate staging control keys and preserves all connected keys', async () => {
@@ -2235,7 +2244,7 @@ test( 'dry payload carries exactly twelve typed staging backend keys with intege
 	);
 	assert.deepEqual(
 		backendScenarios.map( scenario => scenario.key ),
-		[ 'jetpackConnected', 'formsResponses', 'myJetpack' ]
+		[ 'jetpackConnected', 'formsResponses', 'myJetpack', 'jetpackConnected-noJetpack' ]
 	);
 	for ( const scenario of backendScenarios ) {
 		for ( const [ field, unit ] of [
