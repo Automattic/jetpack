@@ -183,10 +183,17 @@ $focus-ring-width: var(--wpds-border-width-focus);
 	font-size: var(--wpds-typography-font-size-md);
 }
 
-// Light text on fills dark enough to out-contrast dark text (decided in JS from
-// the blended fill luminance).
-.heatmap-chart__cell--strong .heatmap-chart__cell-value {
+// Chosen per cell in JS from the blended fill; see pickLabelTextColorForFill.
+.heatmap-chart__cell-value--inverse {
 	color: var(--a8c-charts-color-label-inverse);
+}
+
+.heatmap-chart__cell-value--black {
+	color: #000;
+}
+
+.heatmap-chart__cell-value--white {
+	color: #fff;
 }
 
 .heatmap-chart__legend-label {

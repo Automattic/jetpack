@@ -12,13 +12,8 @@ import { page as pageIcon, post as postIcon } from '@wordpress/icons';
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import {
-	buildArchiveCsvRows,
-	buildArchiveRows,
-	getArchivesFields,
-	getPostsFields,
-	type ArchiveRow,
-} from './fields';
+import { getArchivesFields, getPostsFields } from './fields';
+import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useSiteHomeUrl: jest.fn(),
@@ -307,125 +302,5 @@ describe( 'archive rows', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'falls back to Untitled for an archive row with an empty label', () => {
-		expect( buildArchiveRows( [ { label: '', value: 5, children: null } ] )[ 0 ].label ).toBe(
-			'Untitled'
-		);
-	} );
-
-	it( 'gives every archive type the API returns a human-readable group label', () => {
-		const archiveTypes = [
-			'author',
-			'cat',
-			'date',
-			'err',
-			'home',
-			'multiple',
-			'other',
-			'post_type',
-			'search',
-			'tag',
-			'tax',
-			// An archive type added after this ships falls back to its key,
-			// capitalized — the API sends some of these shouty.
-			'FEED',
-		];
-
-		expect(
-			buildArchiveRows(
-				archiveTypes.map( archiveType => ( { label: archiveType, value: 5, children: null } ) )
-			).map( row => row.label )
-		).toEqual( [
-			'Authors',
-			'Categories',
-			'Dates',
-			'Error',
-			'Homepage (Latest posts)',
-			'Aggregated',
-			'Others',
-			'Post types',
-			'Searches',
-			'Tags',
-			'Taxonomies',
-			'Feed',
-		] );
-	} );
-
-	it( 'qualifies a nested archive row with its full ancestor path for export', () => {
-		const rows = buildArchiveRows( [
-			{
-				label: 'tax',
-				value: 30,
-				children: [
-					{
-						label: 'post_tag',
-						value: 30,
-						children: [
-							{
-								label: 'Analytics',
-								value: 30,
-								link: 'https://example.com/tag/analytics/',
-								children: null,
-							},
-						],
-					},
-				],
-			},
-		] );
-
-		expect( buildArchiveCsvRows( rows ).map( row => row.label ) ).toEqual( [
-			'Taxonomies',
-			'Taxonomies > Post tag',
-			'Taxonomies > Post tag > Analytics',
-		] );
-	} );
-
-	it( 'preserves the archive hierarchy and uses standard archive labels', () => {
-		expect(
-			buildArchiveRows( [
-				{
-					label: 'tax',
-					value: 30,
-					children: [
-						{
-							label: 'post_tag',
-							value: 30,
-							children: [
-								{
-									label: 'Analytics',
-									value: 30,
-									link: 'https://example.com/tag/analytics/',
-									children: null,
-								},
-							],
-						},
-					],
-				},
-			] )
-		).toEqual( [
-			{
-				id: 'tax-0',
-				label: 'Taxonomies',
-				views: 30,
-				isGroup: true,
-			},
-			{
-				id: 'tax-0-0',
-				parentId: 'tax-0',
-				label: 'Post tag',
-				views: 30,
-				isGroup: true,
-			},
-			{
-				id: 'tax-0-0-0',
-				parentId: 'tax-0-0',
-				label: 'Analytics',
-				views: 30,
-				link: 'https://example.com/tag/analytics/',
-				isGroup: false,
-			},
-		] );
 	} );
 } );

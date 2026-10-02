@@ -154,7 +154,7 @@ function get_traffic_section_default_layout() {
 			1,
 			2
 		),
-		// Row 4: UTM insights + clicks + VideoPress (sites running VideoPress only).
+		// Row 4: UTM insights + clicks; the VideoPress package seeds Top videos at order 8.
 		get_dashboard_default_widget_instance(
 			'default-utm-insights-widget-instance',
 			'jpa/utm-insights',
@@ -169,13 +169,6 @@ function get_traffic_section_default_layout() {
 			'default-clicks-widget-instance',
 			'jpa/clicks',
 			7,
-			1,
-			2
-		),
-		get_dashboard_default_widget_instance(
-			'default-videopress-widget-instance',
-			'jpa/videopress',
-			8,
 			1,
 			2
 		),

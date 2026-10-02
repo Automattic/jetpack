@@ -33,7 +33,13 @@ function Subscriptions( { searchTerm, isSubscriptionsModuleFound, siteAdminUrl }
 						'jetpack'
 					) }
 				</p>
-				<Button href={ `${ siteAdminUrl }admin.php?page=jetpack-newsletter` } primary rna>
+				<Button
+					href={ `${ siteAdminUrl }admin.php?page=jetpack-newsletter&p=${ encodeURIComponent(
+						'/?tab=settings'
+					) }` }
+					primary
+					rna
+				>
 					{ __( 'Go to Newsletter Settings', 'jetpack' ) }
 				</Button>
 			</Card>

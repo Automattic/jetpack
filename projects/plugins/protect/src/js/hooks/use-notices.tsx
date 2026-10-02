@@ -4,7 +4,7 @@ import { Link } from '@wordpress/ui';
 import { createContext, useCallback, useContext, useState } from 'react';
 import { FREE_PLUGIN_SUPPORT_URL, PAID_PLUGIN_SUPPORT_URL } from '../constants';
 import usePlan from './use-plan';
-import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
+import type { JSX, Dispatch, FC, ReactNode, SetStateAction } from 'react';
 
 interface NoticeState {
 	message?: string | JSX.Element;

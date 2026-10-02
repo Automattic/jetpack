@@ -11,4 +11,3 @@ import '../../routes/detail-header.test';
 import '../../routes/post-detail/components/post-header-slots/post-header-slots.test';
 import '../../routes/post-detail/config/tab-layouts.test';
 import '../../routes/post-detail/config/widget-variants.test';
-import '../../routes/reports/authors/config/aggregate.test';

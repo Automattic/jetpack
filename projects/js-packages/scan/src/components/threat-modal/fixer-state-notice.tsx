@@ -2,6 +2,7 @@ import { __ } from '@wordpress/i18n';
 import { useMemo } from 'react';
 import styles from './styles.module.scss';
 import ThreatNotice from './threat-notice.tsx';
+import type { JSX } from 'react';
 
 /**
  * FixerStateNotice component

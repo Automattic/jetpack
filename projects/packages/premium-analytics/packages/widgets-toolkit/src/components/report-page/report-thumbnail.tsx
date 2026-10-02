@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { Icon } from '@jetpack-premium-analytics/externals';
-import { useCallback, useState, type ComponentProps } from 'react';
+import { useCallback, useState, type ComponentProps, type JSX } from 'react';
 /**
  * Internal dependencies
  */

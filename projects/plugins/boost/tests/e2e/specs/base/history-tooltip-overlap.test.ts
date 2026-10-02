@@ -697,10 +697,25 @@ test( 'Score cards show calculating and failed states inside the card', async ( 
 	await expect( calculating.getByRole( 'heading', { name: 'Your site speed' } ) ).toBeVisible();
 	const status = calculating.getByRole( 'status' );
 	await expect( status.getByText( 'Calculating…' ) ).toHaveCSS( 'color', 'rgb(112, 112, 112)' );
-	await expect( status.locator( '.components-spinner' ) ).toHaveCount( 1 );
-	const spinner = ( await status.locator( '.components-spinner' ).boundingBox() )!;
-	const label = ( await status.getByText( 'Calculating…' ).boundingBox() )!;
-	expect( Math.abs( label.x - ( spinner.x + spinner.width ) ) ).toBeCloseTo( 12, 0 );
+	await expect( status ).toHaveText( 'Calculating…' );
+	await expect( status.getByRole( 'progressbar' ) ).toHaveCount( 0 );
+	await expect( calculating.locator( '.components-spinner' ) ).toHaveCount( 0 );
+	const progress = calculating.getByRole( 'progressbar', { name: 'Testing site speed' } );
+	await expect( progress ).toHaveCount( 1 );
+	await expect( progress ).not.toHaveAttribute( 'value' );
+	await expect( progress ).not.toHaveAttribute( 'aria-valuenow' );
+	await expect( progress ).toHaveJSProperty( 'position', -1 );
+	const track = ( await progress.locator( '..' ).boundingBox() )!;
+	const label = ( await status.boundingBox() )!;
+	expect( track.width ).toBeGreaterThan( 0 );
+	expect( track.height ).toBeGreaterThan( 0 );
+	expect( track.y ).toBeGreaterThan( label.y + label.height );
+	const group = ( await status.locator( '..' ).boundingBox() )!;
+	const body = ( await calculating
+		.locator( '.jetpack-boost-overview__scores-status' )
+		.boundingBox() )!;
+	expect( group.x + group.width / 2 ).toBeCloseTo( body.x + body.width / 2, 0 );
+	expect( group.y + group.height / 2 ).toBeCloseTo( body.y + body.height / 2, 0 );
 	await expect( calculating.getByRole( 'region' ) ).toHaveCount( 0 );
 	await expect( failed.getByText( 'Failed to load speed scores' ) ).toBeVisible();
 	await expect( failed.getByText( 'Timed out while waiting for speed-score.' ) ).toBeVisible();

@@ -48,6 +48,20 @@ class PayPal_Admin_Page {
 	const EMBED_SCAN_LIMIT = 100;
 
 	/**
+	 * PayPal's merchant activity list, per environment.
+	 */
+	const TRANSACTIONS_URLS = array(
+		'sandbox'    => 'https://www.sandbox.paypal.com/unifiedtransactions/',
+		'production' => 'https://www.paypal.com/unifiedtransactions/',
+	);
+
+	/**
+	 * PayPal's help article on issuing a refund. Nothing here refunds through the API, so
+	 * PayPal's certification asks that sellers be pointed at how to do it themselves.
+	 */
+	const REFUND_HELP_URL = 'https://www.paypal.com/us/cshelp/article/how-do-i-issue-a-refund-help101';
+
+	/**
 	 * The confirmation shown before a payment link is deleted from the admin.
 	 *
 	 * Deleting a link orphans every published block embedding it, so the
@@ -299,6 +313,15 @@ class PayPal_Admin_Page {
 			);
 		} else {
 			set_transient( 'paypal_admin_notice_' . get_current_user_id(), self::deleted_link_notice( $resource_id ), 30 );
+
+			PayPal_Tracks::record_event(
+				'jetpack_paypal_button_deleted',
+				array(
+					'environment'  => PayPal_OAuth::get_environment(),
+					'source'       => 'admin',
+					'already_gone' => false,
+				)
+			);
 		}
 
 		wp_safe_redirect( admin_url( 'admin.php?page=' . self::PAGE_SLUG ) );
@@ -349,6 +372,11 @@ class PayPal_Admin_Page {
 				align-items: center;
 				justify-content: space-between;
 				margin-bottom: 12px;
+			}
+			.paypal-admin-header__account {
+				display: flex;
+				align-items: center;
+				gap: 8px;
 			}
 			.paypal-disconnected-notice {
 				max-width: 600px;
@@ -556,11 +584,24 @@ class PayPal_Admin_Page {
 
 		$status = PayPal_OAuth::get_connection_status();
 		if ( ! empty( $status['connected'] ) ) {
+			$environment = $status['environment'] ?? 'production';
+			echo '<div class="paypal-admin-header__account">';
 			printf(
 				'<span class="paypal-status-badge paypal-status-active">%s — %s</span>',
 				esc_html__( 'Connected', 'jetpack-paypal-payments' ),
-				esc_html( ucfirst( $status['environment'] ?? 'production' ) )
+				esc_html( ucfirst( $environment ) )
 			);
+			printf(
+				'<a href="%s" class="button" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( self::TRANSACTIONS_URLS[ $environment ] ?? self::TRANSACTIONS_URLS['production'] ),
+				esc_html__( 'View transactions', 'jetpack-paypal-payments' )
+			);
+			printf(
+				'<a href="%s" class="button" target="_blank" rel="noopener noreferrer">%s</a>',
+				esc_url( self::REFUND_HELP_URL ),
+				esc_html__( 'How to issue a refund', 'jetpack-paypal-payments' )
+			);
+			echo '</div>';
 		}
 
 		echo '</div>';
@@ -581,6 +622,8 @@ class PayPal_Admin_Page {
 			echo '</div>';
 			return;
 		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_admin_page_viewed', array( 'environment' => PayPal_OAuth::get_environment() ) );
 
 		// List table.
 		$table = new PayPal_Payment_Links_List_Table();
@@ -664,6 +707,8 @@ class PayPal_Admin_Page {
 			);
 			return;
 		}
+
+		PayPal_Tracks::record_event( 'jetpack_paypal_admin_detail_viewed', array( 'environment' => PayPal_OAuth::get_environment() ) );
 
 		$line_item = $resource['line_items'][0] ?? array();
 		$name      = $line_item['name'] ?? $resource_id;

@@ -12,6 +12,7 @@ import { store as noticesStore } from '@wordpress/notices';
  */
 import CommentItem from './comment-item';
 import type { FeedbackComment } from '../../../types';
+import type { JSX } from 'react';
 import './style.scss';
 
 export type FeedbackCommentsProps = {

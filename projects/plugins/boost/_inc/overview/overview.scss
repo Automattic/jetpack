@@ -4,11 +4,15 @@
 @use "@wordpress/base-styles/breakpoints" as wpbreakpoints;
 @use "@wordpress/base-styles/mixins" as wpmixins;
 
+.jp-admin-page__page,
 .jetpack-boost-overview {
 	--jetpack-boost-score-good: var(--wpds-color-foreground-content-success-weak);
 	// Marks only: under 3:1 on white, so medium tier text keeps warning-weak.
 	--jetpack-boost-score-medium: var(--jp-orange-20);
 	--jetpack-boost-score-poor: var(--wpds-color-foreground-content-error-weak);
+}
+
+.jetpack-boost-overview {
 	--jetpack-boost-history-empty: var(--wpds-color-stroke-surface-neutral);
 	--jetpack-boost-history-axis: var(--wpds-color-foreground-content-neutral-weak);
 	// The surface width token intentionally sets the chart height.
@@ -47,9 +51,30 @@
 	flex-shrink: 0;
 }
 
+.jetpack-boost-overview__scores-area {
+	position: relative;
+}
+
+.jetpack-boost-overview__scores-overlay {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	pointer-events: none;
+
+	.jetpack-boost-overview__scores-status {
+		inline-size: 100%;
+		padding-block: 0;
+	}
+}
+
 .jetpack-boost-overview__score-row {
 	display: grid;
 	grid-template-columns: repeat(3, minmax(0, 1fr));
+
+	&--hidden {
+		visibility: hidden;
+	}
 
 	@media ( max-width: wpbreakpoints.$break-medium ) {
 		grid-template-columns: minmax(0, 1fr);
@@ -162,11 +187,11 @@
 }
 
 .jetpack-boost-overview__scores-status {
-	padding-block: calc(2 * var(--wpds-dimension-padding-3xl));
+	padding-block: 0;
 	color: var(--wpds-color-foreground-content-neutral-weak);
 
-	.components-spinner {
-		margin: 0;
+	&--generating {
+		padding-block: calc(2 * var(--wpds-dimension-padding-3xl));
 	}
 }
 

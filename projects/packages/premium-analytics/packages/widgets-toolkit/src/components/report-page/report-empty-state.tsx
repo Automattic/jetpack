@@ -1,20 +1,24 @@
 /**
  * External dependencies
  */
-import { EmptyState, Icon } from '@jetpack-premium-analytics/externals';
+import { EmptyState, Icon, Stack } from '@jetpack-premium-analytics/externals';
 import { search } from '@jetpack-premium-analytics/icons';
+import { Spinner } from '@wordpress/components';
 import { __ } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import styles from './report-empty-state.module.scss';
+import { useReportHasPeriod } from './report-page-layout';
 
 /**
- * Replace report sections when the selected period has no rows, centred in the space `ReportPageLayout` leaves below its section header.
+ * Replace report sections when the report has no rows, centred in the space `ReportPageLayout` leaves below its section header.
  *
  * @return The report empty state.
  */
 export function ReportEmptyState() {
+	const hasPeriod = useReportHasPeriod();
+
 	return (
 		<EmptyState.Root className={ styles.root }>
 			<EmptyState.Visual>
@@ -24,8 +28,29 @@ export function ReportEmptyState() {
 				{ __( 'No data found', 'jetpack-premium-analytics-pkg' ) }
 			</EmptyState.Title>
 			<EmptyState.Description>
-				{ __( 'We couldn’t find results for this time period.', 'jetpack-premium-analytics-pkg' ) }
+				{ hasPeriod
+					? __( 'We couldn’t find results for this time period.', 'jetpack-premium-analytics-pkg' )
+					: __( 'We couldn’t find any results.', 'jetpack-premium-analytics-pkg' ) }
 			</EmptyState.Description>
 		</EmptyState.Root>
 	);
+}
+
+/**
+ * What a report table renders in its place while it has no rows, so the table's search and settings stay off screen until rows arrive.
+ *
+ * @param {object}  props           - The component props.
+ * @param {boolean} props.isLoading - Whether rows for the current params are still loading.
+ * @return The loading or empty state.
+ */
+export function ReportTableEmptyState( { isLoading }: { isLoading: boolean } ) {
+	if ( isLoading ) {
+		return (
+			<Stack className={ styles.root } align="center" justify="center">
+				<Spinner />
+			</Stack>
+		);
+	}
+
+	return <ReportEmptyState />;
 }
