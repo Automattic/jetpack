@@ -494,6 +494,21 @@ describe( 'Widget and report CSV parity', () => {
 		}
 	);
 
+	it( 'keeps the UTM download when only the comparison request fails', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( '2026-02' ) ? Promise.reject( FORBIDDEN ) : respond( path )
+		);
+
+		render( withProviders( <UtmInsightsWidget attributes={ { reportParams: REPORT_PARAMS } } /> ) );
+
+		await expect(
+			screen.findByRole( 'button', { name: /Download CSV/ } )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '2026-02' ) } )
+		);
+	} );
+
 	it( 'downloads the whole UTM report from a widget drilled into one value', async () => {
 		mockUseSectionTab.mockReturnValue( [ 'source-medium', jest.fn() ] );
 		const reportFile = await download( <UtmReportPage /> );
