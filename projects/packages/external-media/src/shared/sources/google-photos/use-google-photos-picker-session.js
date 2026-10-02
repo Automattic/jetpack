@@ -99,8 +99,9 @@ export default function useGooglePhotosPickerSession( {
 			supersedeRequests();
 			setGooglePhotosPickerSession( null );
 			setStatus( 'idle' );
+			noticeOperations.removeAllNotices();
 		}
-	}, [ isAuthenticated, supersedeRequests ] );
+	}, [ isAuthenticated, supersedeRequests, noticeOperations ] );
 
 	// Reuse the session saved in the cookie while it's still valid; otherwise create one.
 	const ensurePickerSession = useCallback( () => {
