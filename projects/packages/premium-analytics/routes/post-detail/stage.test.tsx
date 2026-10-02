@@ -729,7 +729,28 @@ describe( 'post detail stage on the provisional all-time window', () => {
 		render( stage() );
 
 		expect( screen.queryByText( 'Post widgets without comparison' ) ).not.toBeInTheDocument();
+		// An `error` notice announces assertively.
+		expect(
+			screen.getByText( "We couldn't load this post. Please try again in a moment.", {
+				selector: '#a11y-speak-assertive',
+			} )
+		).toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers no Retry when the publish day is denied, as an info notice', () => {
+		mockSummary( {
+			isError: true,
+			error: { code: 'rest_forbidden', status: 403 },
+			publishedDate: undefined,
+		} );
+
+		render( stage() );
+
+		expect(
+			screen.getByText( "You don't have access to this data.", { selector: '#a11y-speak-polite' } )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

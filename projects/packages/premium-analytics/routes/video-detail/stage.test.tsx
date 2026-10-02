@@ -234,17 +234,63 @@ describe( 'video detail stage', () => {
 		delete window.JetpackScriptData;
 	} );
 
+	/**
+	 * Find the notice's announcement: `Notice` speaks `info` politely and `error` assertively.
+	 *
+	 * @param text       - The announced message.
+	 * @param politeness - The live region it should land in.
+	 * @return The live region.
+	 */
+	function getAnnouncement( text: string, politeness: 'polite' | 'assertive' ): HTMLElement {
+		return screen.getByText( text, { selector: `#a11y-speak-${ politeness }` } );
+	}
+
+	/**
+	 * Find the notice's visible message, apart from its live-region copy.
+	 *
+	 * @param text - The message.
+	 * @return The message element.
+	 */
+	function getNoticeText( text: string ): HTMLElement {
+		return screen.getByText( text, { ignore: '.a11y-speak-region, script, style' } );
+	}
+
 	it( 'shows a not-found state with a date-preserving link back to Videos', () => {
 		mockSummary( { isNotFound: true } );
 
 		render( stage() );
 
-		expect( screen.getByText( "We couldn't find this video." ) ).toBeInTheDocument();
+		expect( getNoticeText( "We couldn't find this video." ) ).toBeInTheDocument();
+		expect( getAnnouncement( "We couldn't find this video.", 'polite' ) ).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Videos' } ) ).toHaveAttribute(
 			'href',
 			'/reports/videos?from=2026-06-01&to=2026-06-16'
 		);
 		expect( getSummaryHeading( 'Video not found' ) ).toBeInTheDocument();
+	} );
+
+	it( 'offers Retry in place of the widgets when the video fails to load', async () => {
+		mockSummary( { isError: true, error: { status: 500 } } );
+
+		render( stage() );
+
+		expect(
+			getAnnouncement( "We couldn't load this video. Please try again in a moment.", 'assertive' )
+		).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers no Retry when the video is denied', () => {
+		mockSummary( { isError: true, error: { code: 'rest_forbidden', status: 403 } } );
+
+		render( stage() );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getAnnouncement( "You don't have access to this data.", 'polite' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
 	it.each( [

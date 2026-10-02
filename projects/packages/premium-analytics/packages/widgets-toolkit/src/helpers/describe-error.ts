@@ -11,6 +11,13 @@ import { __ } from '@wordpress/i18n';
  */
 import type { WidgetStateError } from '../components/widget-state';
 
+/** `error` when something failed; `info` when the request answered and the answer is a fact, such as no access. */
+export type DescribedErrorIntent = 'error' | 'info';
+
+export interface DescribedError extends WidgetStateError {
+	intent: DescribedErrorIntent;
+}
+
 interface DescribeErrorOptions {
 	retryDescription: string;
 	onRetry: () => void;
@@ -30,20 +37,23 @@ interface DescribeErrorOptions {
 export function describeError(
 	error: unknown,
 	{ retryDescription, onRetry }: DescribeErrorOptions
-): WidgetStateError {
+): DescribedError {
 	if ( error instanceof StatsResponseShapeError ) {
 		return {
+			intent: 'error',
 			description: __( 'This data is unavailable right now.', 'jetpack-premium-analytics-pkg' ),
 		};
 	}
 
 	if ( isAccessDenied( error ) ) {
 		return {
+			intent: 'info',
 			description: __( "You don't have access to this data.", 'jetpack-premium-analytics-pkg' ),
 		};
 	}
 
 	return {
+		intent: 'error',
 		description: retryDescription,
 		actions: [
 			{

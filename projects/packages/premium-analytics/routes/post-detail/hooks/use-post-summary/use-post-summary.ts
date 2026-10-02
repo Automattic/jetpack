@@ -24,6 +24,8 @@ export type PostSummary = {
 	isLoading: boolean;
 	/** Whether the stats request failed without a post to show. */
 	isError: boolean;
+	/** The failed request's error, for `describeError` to tell access denied from a retryable failure. */
+	error: unknown;
 	/** Re-runs the failed request, for the error state's Retry action. */
 	refetch: () => void;
 };
@@ -71,7 +73,7 @@ function useCarriedPostUrl(): string | undefined {
 export function usePostSummary( postId: number ): PostSummary {
 	// The header only needs the post row, so scope the query to the `post` field
 	// instead of pulling the full stats payload.
-	const { data, isLoading, isPending, isPaused, isError, refetch } = useStatsPost( {
+	const { data, isLoading, isPending, isPaused, isError, error, refetch } = useStatsPost( {
 		postId,
 		fields: [ 'post' ],
 	} );
@@ -124,6 +126,7 @@ export function usePostSummary( postId: number ): PostSummary {
 		isLoading: isLoading || ( isPending && isPaused ),
 		// A failed background refetch keeps the loaded post, so only a missing one is an error.
 		isError: isError && ! post,
+		error,
 		refetch: retry,
 	};
 }

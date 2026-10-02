@@ -174,6 +174,7 @@ export {
 	DETAIL_HEADER_GLYPH_SIZE,
 	DetailPageEmptyState,
 	DetailPageLayout,
+	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
 	useDetailPageCustomize,
@@ -182,6 +183,7 @@ export {
 	type DetailPageCustomize,
 	type DetailPageHeaderSlots,
 	type DetailPageLayoutProps,
+	type DetailPageNoticeProps,
 	type DetailPageSectionProps,
 	type DetailPageShellProps,
 } from './detail-page';

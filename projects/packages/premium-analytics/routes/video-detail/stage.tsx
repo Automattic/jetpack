@@ -6,7 +6,6 @@ import {
 	GlobalErrorProvider,
 	ReportScopeProvider,
 } from '@jetpack-premium-analytics/data';
-import { Button, Stack, Text } from '@jetpack-premium-analytics/externals';
 import {
 	pickReportNavigationParams,
 	useReportDateFilters,
@@ -16,11 +15,14 @@ import {
 	DetailPageActions,
 	DetailPageBreadcrumbs,
 	DetailPageLayout,
+	DetailPageNotice,
 	DetailPageSection,
 	DetailPageShell,
+	describeError,
 	useDetailPageCustomize,
 	useStoredDetailLayout,
 	useTrackedDateRangeApply,
+	type DetailPageNoticeProps,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -136,35 +138,31 @@ function VideoDetail(): JSX.Element {
 
 	// The reason a video is missing goes below the header, where the widgets
 	// would have been.
-	let notice: JSX.Element | null = null;
+	let notice: DetailPageNoticeProps | null = null;
 
 	if ( summary.isError ) {
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>
-					{ __(
-						"We couldn't load this video. Please try again in a moment.",
-						'jetpack-premium-analytics-pkg'
-					) }
-				</Text>
-				<Button variant="outline" onClick={ summary.refetch }>
-					{ __( 'Retry', 'jetpack-premium-analytics-pkg' ) }
-				</Button>
-			</Stack>
-		);
+		notice = describeError( summary.error, {
+			retryDescription: __(
+				"We couldn't load this video. Please try again in a moment.",
+				'jetpack-premium-analytics-pkg'
+			),
+			onRetry: summary.refetch,
+		} );
 	} else if ( summary.isNotFound ) {
-		notice = (
-			<Stack direction="column" align="flex-start" gap="sm">
-				<Text>{ __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ) }</Text>
-				<Link
-					to="/reports/$report"
-					params={ { report: 'videos' } as unknown as never }
-					search={ reportSearch as unknown as never }
-				>
-					{ __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ) }
-				</Link>
-			</Stack>
-		);
+		notice = {
+			intent: 'info',
+			description: __( "We couldn't find this video.", 'jetpack-premium-analytics-pkg' ),
+			link: {
+				label: __( 'Back to Videos', 'jetpack-premium-analytics-pkg' ),
+				render: (
+					<Link
+						to="/reports/$report"
+						params={ { report: 'videos' } as unknown as never }
+						search={ reportSearch as unknown as never }
+					/>
+				),
+			},
+		};
 	}
 
 	return (
@@ -217,7 +215,11 @@ function VideoDetail(): JSX.Element {
 								<WidgetDashboard.Widgets />
 							</DetailPageSection>
 						) : null }
-						{ notice ? <DetailPageSection>{ notice }</DetailPageSection> : null }
+						{ notice ? (
+							<DetailPageSection>
+								<DetailPageNotice { ...notice } />
+							</DetailPageSection>
+						) : null }
 					</DetailPageLayout>
 				</DetailPageShell>
 			</WidgetDashboard>
