@@ -49,6 +49,16 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 	private const PERMISSIONS_MESSAGE = "PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.";
 
 	/**
+	 * PayPal's required notice when primary_email_confirmed is false.
+	 */
+	private const EMAIL_NOTICE = 'Attention: Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.';
+
+	/**
+	 * PayPal's required notice when payments_receivable is false.
+	 */
+	private const RECEIVABLE_NOTICE = 'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to https://www.paypal.com for more information.';
+
+	/**
 	 * Clean up after each test.
 	 */
 	protected function tearDown(): void {
@@ -1149,6 +1159,116 @@ class PayPal_Partner_Onboarding_Test extends TestCase {
 		$this->assertInstanceOf( \WP_Error::class, $result );
 		$this->assertEquals( 'paypal_merchant_status_error', $result->get_error_code() );
 		$this->assertEquals( 404, $result->get_error_data()['status'] );
+	}
+
+	/**
+	 * Test that each false flag adds PayPal's notice for it, email first.
+	 *
+	 * @dataProvider provide_account_flags
+	 *
+	 * @param bool     $payments_receivable     PayPal's payments_receivable flag.
+	 * @param bool     $primary_email_confirmed PayPal's primary_email_confirmed flag.
+	 * @param string[] $notices                 The notices expected, in order.
+	 */
+	#[DataProvider( 'provide_account_flags' )]
+	public function test_check_merchant_status_adds_a_notice_for_each_false_flag( bool $payments_receivable, bool $primary_email_confirmed, array $notices ) {
+		$this->set_up_referred_merchant();
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
+					array(
+						'payments_receivable'     => $payments_receivable,
+						'primary_email_confirmed' => $primary_email_confirmed,
+					)
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::check_merchant_status();
+
+		$this->assertSame( $notices, $result['notices'] );
+	}
+
+	/**
+	 * PayPal's account flags and the notices expected for them.
+	 *
+	 * @return array<string, array{0: bool, 1: bool, 2: string[]}>
+	 */
+	public static function provide_account_flags() {
+		return array(
+			'both true'                      => array( true, true, array() ),
+			'primary_email_confirmed false'  => array( true, false, array( self::EMAIL_NOTICE ) ),
+			'payments_receivable false'      => array( false, true, array( self::RECEIVABLE_NOTICE ) ),
+			'both false, email notice first' => array( false, false, array( self::EMAIL_NOTICE, self::RECEIVABLE_NOTICE ) ),
+		);
+	}
+
+	/**
+	 * Test that empty or absent scopes return only the permissions message, and the seller stays connected.
+	 *
+	 * @dataProvider provide_records_with_empty_scopes
+	 *
+	 * @param array $record PayPal's merchant integration record, with both flags missing.
+	 */
+	#[DataProvider( 'provide_records_with_empty_scopes' )]
+	public function test_check_merchant_status_returns_only_the_permissions_message_for_empty_scopes( array $record ) {
+		$this->set_up_referred_merchant();
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response( 200, $record ),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::check_merchant_status();
+
+		$this->assertSame(
+			array(
+				'merchant_id'             => 'MERCHANT1',
+				'payments_receivable'     => false,
+				'primary_email_confirmed' => false,
+				'products'                => array(),
+				'notices'                 => array( self::PERMISSIONS_MESSAGE ),
+			),
+			$result
+		);
+		$this->assertSame( 'MERCHANT1', PayPal_Partner_Onboarding::get_merchant_id() );
+		$this->assertTrue( PayPal_Partner_Onboarding::is_platform_managed() );
+	}
+
+	/**
+	 * Test that a connected seller who declined a feature gets only the permissions message.
+	 *
+	 * @dataProvider provide_declined_features
+	 *
+	 * @param array $declined The known scopes of the feature the seller declined.
+	 */
+	#[DataProvider( 'provide_declined_features' )]
+	public function test_check_merchant_status_requires_a_scope_for_each_feature( array $declined ) {
+		$this->set_up_referred_merchant();
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->merchant_integration(
+					array(
+						'payments_receivable'     => false,
+						'primary_email_confirmed' => false,
+						'oauth_integrations'      => $this->oauth_integrations( array_values( array_diff( self::SCOPES, $declined ) ) ),
+					)
+				),
+			)
+		);
+
+		$result = PayPal_Partner_Onboarding::check_merchant_status();
+
+		$this->assertSame(
+			array(
+				'merchant_id'             => 'MERCHANT1',
+				'payments_receivable'     => false,
+				'primary_email_confirmed' => false,
+				'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+				'notices'                 => array( self::PERMISSIONS_MESSAGE ),
+			),
+			$result
+		);
 	}
 
 	// --- cleanup ---

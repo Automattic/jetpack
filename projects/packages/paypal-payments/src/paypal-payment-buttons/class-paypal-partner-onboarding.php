@@ -367,7 +367,7 @@ class PayPal_Partner_Onboarding {
 		if ( ! self::has_required_scopes( $integration ) ) {
 			return new \WP_Error(
 				'paypal_onboarding_missing_scopes',
-				__( "PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.", 'jetpack-paypal-payments' ),
+				self::get_missing_scopes_message(),
 				array( 'status' => 403 )
 			);
 		}
@@ -423,7 +423,8 @@ class PayPal_Partner_Onboarding {
 	/**
 	 * Check the merchant's integration status with PayPal.
 	 *
-	 * Verifies that the merchant can receive payments and has confirmed email.
+	 * Verifies that the merchant can receive payments and has confirmed email,
+	 * and lists the notices to show the seller.
 	 *
 	 * @return array|\WP_Error Integration status array, or WP_Error.
 	 */
@@ -445,12 +446,47 @@ class PayPal_Partner_Onboarding {
 
 		self::cache_merchant_email( $data );
 
-		return array(
+		$status = array(
 			'merchant_id'             => $merchant_id,
 			'payments_receivable'     => ! empty( $data['payments_receivable'] ),
 			'primary_email_confirmed' => ! empty( $data['primary_email_confirmed'] ),
 			'products'                => $data['products'] ?? array(),
+			'notices'                 => array(),
 		);
+
+		// Missing permissions take priority over the account flags, so show only that message.
+		if ( ! self::has_required_scopes( $data ) ) {
+			$status['notices'][] = self::get_missing_scopes_message();
+			return $status;
+		}
+
+		// PayPal requires this wording and order.
+		if ( ! $status['primary_email_confirmed'] ) {
+			$status['notices'][] = sprintf(
+				/* translators: %s: URL of the PayPal business profile settings page. */
+				__( 'Attention: Please confirm your email address on %s in order to receive payments! You currently cannot receive payments.', 'jetpack-paypal-payments' ),
+				'https://www.paypal.com/businessprofile/settings'
+			);
+		}
+
+		if ( ! $status['payments_receivable'] ) {
+			$status['notices'][] = sprintf(
+				/* translators: %s: URL of the PayPal website. */
+				__( 'Attention: You currently cannot receive payments due to restriction on your PayPal account. Please reach out to PayPal Customer Support or connect to %s for more information.', 'jetpack-paypal-payments' ),
+				'https://www.paypal.com'
+			);
+		}
+
+		return $status;
+	}
+
+	/**
+	 * The message asking the seller to connect again and approve all permissions.
+	 *
+	 * @return string Translated message.
+	 */
+	private static function get_missing_scopes_message() {
+		return __( "PayPal didn't grant the permissions this block needs. Connect again and approve all permissions.", 'jetpack-paypal-payments' );
 	}
 
 	/**

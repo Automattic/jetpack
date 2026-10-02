@@ -860,6 +860,49 @@ class PayPal_REST_Controller_Test extends TestCase {
 		$this->assertEquals( 'paypal_no_merchant_info', $result->get_error_code() );
 	}
 
+	/**
+	 * Test that merchant status returns PayPal's notice for an unconfirmed email.
+	 */
+	public function test_merchant_status_returns_the_email_notice() {
+		wp_set_current_user( self::factory_create_admin_user() );
+		$this->set_up_blog_connection();
+		PayPal_OAuth::set_environment( 'sandbox' );
+		update_option( PayPal_Partner_Onboarding::MERCHANT_ID_OPTION_KEY, 'MERCHANT1', false );
+		update_option( PayPal_Partner_Onboarding::ONBOARDING_METHOD_OPTION_KEY, PayPal_Partner_Onboarding::ONBOARDING_METHOD, false );
+		$this->mock_http_routes(
+			array(
+				'/paypal/platform/merchant-integration' => $this->http_response(
+					200,
+					array(
+						'merchant_id'             => 'MERCHANT1',
+						'primary_email'           => 'junior@sports.com',
+						'payments_receivable'     => true,
+						'primary_email_confirmed' => false,
+						'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+						'oauth_integrations'      => $this->oauth_integrations(),
+					)
+				),
+			)
+		);
+		$this->register_paypal_routes();
+
+		$response = rest_get_server()->dispatch( new \WP_REST_Request( 'GET', '/wpcom/v2/paypal/onboarding/status' ) );
+
+		$this->assertSame( 200, $response->get_status(), wp_json_encode( $response->get_data(), JSON_UNESCAPED_SLASHES ) );
+		$this->assertSame(
+			array(
+				'merchant_id'             => 'MERCHANT1',
+				'payments_receivable'     => true,
+				'primary_email_confirmed' => false,
+				'products'                => array( array( 'name' => 'EXPRESS_CHECKOUT' ) ),
+				'notices'                 => array(
+					'Attention: Please confirm your email address on https://www.paypal.com/businessprofile/settings in order to receive payments! You currently cannot receive payments.',
+				),
+			),
+			$response->get_data()
+		);
+	}
+
 	// --- Button read routes ---
 
 	/**

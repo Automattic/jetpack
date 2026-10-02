@@ -1,4 +1,4 @@
 Significance: minor
 Type: added
 
-Show PayPal's notice in the editor when the seller's account can't receive payments or the email isn't confirmed, and stop the connection when PayPal didn't grant the needed permissions.
+Warn in the editor when the seller's PayPal email is unconfirmed, the account is restricted from receiving payments, or permissions the block needs are missing, and refuse new connections that lack those permissions.
