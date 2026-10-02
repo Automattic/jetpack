@@ -22,13 +22,14 @@ import {
 	type LocationsGeoRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo, useState } from '@wordpress/element';
+import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
  */
 import styles from './style.module.css';
+import useHeldLevel from './use-held-level';
 import useLocationViews, { type GeoMode, type LocationView } from './use-location-views';
 import { type LocationsAttributes } from './widget';
 /**
@@ -58,14 +59,6 @@ const REPORT_SECTIONS: Record< GeoGranularity, LocationsReportSection > = {
 };
 const DEFAULT_GEO_GRANULARITY: GeoGranularity = 'country';
 
-// The last level that finished loading, which a drill-down keeps on screen until the next one does.
-type SettledLevel = {
-	drillKey: string;
-	paramsKey: string;
-	data: LocationView[];
-	hasComparison: boolean;
-};
-
 type LocationsInnerProps = {
 	geoGranularity: NonNullable< LocationsAttributes[ 'geoGranularity' ] >;
 };
@@ -92,7 +85,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		geoMode = drillDownPath.region ? 'city' : 'region';
 	}
 
-	const { data, hasComparison, isLoading, isFetching, isError, refetch } = useLocationViews( {
+	const views = useLocationViews( {
 		reportParams,
 		max: WIDGET_ROW_LIMIT,
 		geoMode,
@@ -101,36 +94,13 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			: undefined,
 	} );
 
-	const drillKey = JSON.stringify( drillDownPath ?? null );
-	const paramsKey = JSON.stringify( reportParams );
-	const [ settled, setSettled ] = useState< SettledLevel | null >( null );
-	if (
-		! isLoading &&
-		( settled?.drillKey !== drillKey ||
-			settled.paramsKey !== paramsKey ||
-			settled.data !== data ||
-			settled.hasComparison !== hasComparison )
-	) {
-		setSettled( { drillKey, paramsKey, data, hasComparison } );
-	}
-	// Held whole rather than read off `data`: with a comparison, the two queries land separately
-	// and mix levels. A params change is not a drill-down and still gets the skeleton.
-	const heldLevel =
-		isLoading &&
-		settled &&
-		settled.paramsKey === paramsKey &&
-		settled.drillKey !== drillKey &&
-		settled.data.length > 0
-			? settled
-			: null;
-	const isDrilling = heldLevel !== null;
-	const listData = heldLevel?.data ?? data;
-	const listHasComparison = heldLevel?.hasComparison ?? hasComparison;
+	const { isLoading, isFetching, isError, refetch } = views;
+	const { data, hasComparison, isHeld } = useHeldLevel( { ...views, drillDownPath, reportParams } );
 
 	// The held level's rows would land on the wrong map, so the map waits empty for the new ones.
 	const geoRows = useMemo(
 		(): LocationsGeoRow[] =>
-			( isDrilling ? [] : data )
+			( isHeld ? [] : data )
 				.filter( location => location.countryCode )
 				.map( location => ( {
 					label: location.label,
@@ -139,14 +109,14 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					countryFull: location.countryFull,
 					coordinates: location.coordinates,
 				} ) ),
-		[ data, isDrilling ]
+		[ data, isHeld ]
 	);
 
 	const leaderboardData = useMemo( () => {
 		const getDrillDownAction = ( location: LocationView ) => {
 			// The previous level's rows would drill with the new level's mode. Dropping the
 			// buttons also unmounts a focused one, which `WidgetState` catches.
-			if ( isDrilling || ! location.countryCode ) {
+			if ( isHeld || ! location.countryCode ) {
 				return { kind: 'static' as const };
 			}
 
@@ -180,11 +150,11 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 		};
 
 		const maxValue = getCombinedPeriodMax(
-			listData.map( location => location.value ),
-			listHasComparison ? listData.map( location => location.previousValue ) : []
+			data.map( location => location.value ),
+			hasComparison ? data.map( location => location.previousValue ) : []
 		);
 
-		return listData.map( location => {
+		return data.map( location => {
 			const imageUrl = flagUrl( location.countryCode );
 			const previousValue = location.previousValue;
 
@@ -203,16 +173,16 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 				previousValue,
 				currentShare: sharePercentage( location.value, maxValue ),
 				previousShare:
-					listHasComparison && previousValue !== undefined
+					hasComparison && previousValue !== undefined
 						? sharePercentage( previousValue, maxValue )
 						: undefined,
 				delta:
-					listHasComparison && previousValue !== undefined
+					hasComparison && previousValue !== undefined
 						? calculateDelta( location.value, previousValue )
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ listData, geoMode, listHasComparison, isDrilling, setDrillDownPath ] );
+	}, [ data, geoMode, hasComparison, isHeld, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -258,10 +228,10 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			{ bodyHeader }
 			<div className={ styles.stateArea }>
 				<WidgetState
-					isLoading={ isLoading && ! isDrilling }
+					isLoading={ isLoading && ! isHeld }
 					isFetching={ isFetching }
 					isError={ isError }
-					isEmpty={ listData.length === 0 }
+					isEmpty={ data.length === 0 }
 					error={ {
 						description: __(
 							"We couldn't load location data. Please try again in a moment.",
@@ -277,13 +247,13 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 							className={ styles.leaderboardPanel }
 							// React 18 strips a boolean `inert`; the string form is what renders.
 							// @ts-expect-error `inert` is not in the React 18 types.
-							inert={ isDrilling ? 'true' : undefined }
+							inert={ isHeld ? 'true' : undefined }
 						>
 							<LeaderboardChart
 								data={ leaderboardData }
-								loading={ isDrilling }
+								loading={ isHeld }
 								withOverlayLabel
-								withComparison={ listHasComparison }
+								withComparison={ hasComparison }
 								showLegend={ false }
 								dataFormat={ {
 									type: 'number',

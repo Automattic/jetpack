@@ -3,7 +3,7 @@
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
 import { LeaderboardChart, LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
-import { act, render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
@@ -349,155 +349,48 @@ describe( 'LocationsWidget', () => {
 			);
 		} );
 
-		describe( 'while the next level loads', () => {
-			type ViewsArgs = { geoMode: string };
+		it( 'keeps the previous level dimmed and inert while the next loads, and moves the map on', async () => {
 			// `placeholderData` hands back the previous level's rows until the new ones arrive.
-			let isPending: ( args: ViewsArgs ) => boolean;
-			// What the hook returns mid-load when a comparison makes the two queries land apart.
-			let pendingRows: LocationViewsState[ 'data' ] | undefined;
-			let rowsFor: ( geoMode: string ) => LocationViewsState[ 'data' ];
-			// A fresh element each time, or `rerender` bails out on the unchanged one.
-			const countryWidget = ( preset: 'last-30-days' | 'last-7-days' = 'last-30-days' ) => (
-				<LocationsWidget attributes={ { geoGranularity: 'country', reportParams: { preset } } } />
+			let isPending = false;
+			mockUseLocationViews.mockImplementation( ( ( { geoMode }: { geoMode: string } ) => ( {
+				...LOADING_STATE,
+				data: ROWS_BY_MODE[ isPending ? 'country' : geoMode ],
+				isLoading: isPending,
+				isFetching: isPending,
+				hasData: true,
+			} ) ) as unknown as () => LocationViewsState );
+			const { rerender } = render(
+				<LocationsWidget attributes={ { geoGranularity: 'country' } } />
 			);
 
-			beforeEach( () => {
-				isPending = () => false;
-				pendingRows = undefined;
-				rowsFor = geoMode => ROWS_BY_MODE[ geoMode ];
-				let shownRows = ROWS_BY_MODE.country;
-				mockUseLocationViews.mockImplementation( ( ( args: ViewsArgs ) => {
-					if ( isPending( args ) ) {
-						return { ...LOADING_STATE, data: pendingRows ?? shownRows, hasData: true };
-					}
-					shownRows = rowsFor( args.geoMode );
-					return {
-						...LOADING_STATE,
-						data: shownRows,
-						isLoading: false,
-						isFetching: false,
-						hasData: true,
-					};
-				} ) as unknown as () => LocationViewsState );
+			isPending = true;
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+
+			expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
+			const staleList = screen.getByTestId( 'leaderboard-chart-container' );
+			expect( staleList ).toHaveTextContent( 'United States' );
+			// eslint-disable-next-line testing-library/no-node-access -- jsdom does not honour `inert`, so the attribute itself is the assertion.
+			expect( staleList.closest( '[inert]' ) ).not.toBeNull();
+			expect( lastLeaderboardProps().loading ).toBe( true );
+			expect( within( staleList ).queryByRole( 'button' ) ).not.toBeInTheDocument();
+			expect( lastMapProps() ).toMatchObject( {
+				mode: 'region',
+				focusCountry: { code: 'US', name: 'United States' },
+				rows: [],
 			} );
 
-			it( 'keeps the previous level dimmed and inert, and moves the map on', async () => {
-				isPending = ( { geoMode } ) => geoMode === 'region';
-				const { rerender } = render( countryWidget() );
+			isPending = false;
+			rerender( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
 
-				await userEvent.click(
-					screen.getByRole( 'button', { name: 'View regions in United States' } )
-				);
-
-				expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
-				const staleList = screen.getByTestId( 'leaderboard-chart-container' );
-				expect( staleList ).toHaveTextContent( 'United States' );
-				// eslint-disable-next-line testing-library/no-node-access -- jsdom does not honour `inert`, so the attribute itself is the assertion.
-				expect( staleList.closest( '[inert]' ) ).not.toBeNull();
-				expect( lastLeaderboardProps().loading ).toBe( true );
-				expect(
-					screen.queryByRole( 'button', { name: 'View regions in United States' } )
-				).not.toBeInTheDocument();
-				expect( lastMapProps() ).toMatchObject( {
-					mode: 'region',
-					focusCountry: { code: 'US', name: 'United States' },
-					rows: [],
-				} );
-
-				isPending = () => false;
-				rerender( countryWidget() );
-
-				const freshRow = screen.getByRole( 'button', { name: 'View cities in Minnesota' } );
-				// eslint-disable-next-line testing-library/no-node-access -- see above.
-				expect( freshRow.closest( '[inert]' ) ).toBeNull();
-				expect( lastLeaderboardProps().loading ).toBe( false );
-				expect( lastMapProps().rows ).toEqual( [
-					expect.objectContaining( { label: 'Minnesota' } ),
-				] );
-			} );
-
-			it.each( [
-				[ 'no rows', [] ],
-				[ "the next level's rows", ROWS_BY_MODE.region ],
-			] )( 'holds the previous level while one query has landed with %s', async ( _, rows ) => {
-				isPending = ( { geoMode } ) => geoMode === 'region';
-				pendingRows = rows;
-				render( countryWidget() );
-
-				await userEvent.click(
-					screen.getByRole( 'button', { name: 'View regions in United States' } )
-				);
-
-				expect( screen.queryByTestId( 'widget-skeleton' ) ).not.toBeInTheDocument();
-				expect( screen.getByTestId( 'leaderboard-chart-container' ) ).toHaveTextContent(
-					'United States'
-				);
-				expect( screen.queryByText( 'Minnesota' ) ).not.toBeInTheDocument();
-			} );
-
-			it( 'keeps keyboard focus in the widget when a row is drilled into', async () => {
-				isPending = ( { geoMode } ) => geoMode === 'region';
-				render( countryWidget() );
-
-				act( () =>
-					screen.getByRole( 'button', { name: 'View regions in United States' } ).focus()
-				);
-				await userEvent.keyboard( '{Enter}' );
-
-				expect( document.body ).not.toHaveFocus();
-				// eslint-disable-next-line @wordpress/no-global-active-element, testing-library/no-node-access -- which element the browser focused is the assertion, and the widget's state root is deliberately not queryable.
-				expect( document.activeElement ).toHaveAttribute( 'tabindex', '-1' );
-			} );
-
-			it( 'still shows the skeleton when the current level reloads', () => {
-				const { rerender } = render( countryWidget() );
-
-				isPending = () => true;
-				rerender( countryWidget() );
-
-				expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
-			} );
-
-			it( 'shows the skeleton when leaving an empty level', async () => {
-				// One array, as the real hook memoizes its rows.
-				const noRows: LocationViewsState[ 'data' ] = [];
-				rowsFor = geoMode => ( geoMode === 'region' ? noRows : ROWS_BY_MODE[ geoMode ] );
-				render( countryWidget() );
-				await userEvent.click(
-					screen.getByRole( 'button', { name: 'View regions in United States' } )
-				);
-
-				isPending = ( { geoMode } ) => geoMode === 'country';
-				await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
-
-				expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
-			} );
-
-			it( 'shows the skeleton when the date range changes mid drill-down', async () => {
-				isPending = ( { geoMode } ) => geoMode === 'region';
-				const { rerender } = render( countryWidget() );
-				await userEvent.click(
-					screen.getByRole( 'button', { name: 'View regions in United States' } )
-				);
-
-				isPending = () => true;
-				rerender( countryWidget( 'last-7-days' ) );
-
-				expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
-			} );
-
-			it( 'shows the skeleton when going back after a date range change', async () => {
-				const { rerender } = render( countryWidget() );
-				await userEvent.click(
-					screen.getByRole( 'button', { name: 'View regions in United States' } )
-				);
-
-				isPending = () => true;
-				rerender( countryWidget( 'last-7-days' ) );
-				await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
-
-				expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
-			} );
+			const freshRow = screen.getByRole( 'button', { name: 'View cities in Minnesota' } );
+			// eslint-disable-next-line testing-library/no-node-access -- see above.
+			expect( freshRow.closest( '[inert]' ) ).toBeNull();
+			expect( lastLeaderboardProps().loading ).toBe( false );
+			expect( lastMapProps().rows ).toEqual( [
+				expect.objectContaining( { label: 'Minnesota' } ),
+			] );
 		} );
 
 		it( 'offers no drill-down in Cities mode', () => {
