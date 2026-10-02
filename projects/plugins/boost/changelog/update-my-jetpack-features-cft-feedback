@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-My Jetpack: Restore the Features tab's "Included in plan" view, keep Upgrade in view in feature details, and return to the feature after checkout.
+My Jetpack: Restore the Features tab's "Included in plan" view, keep Upgrade in view in feature details, return to the feature after checkout, and show the feature artwork without loading it from jetpack.com.
