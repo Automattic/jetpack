@@ -25,7 +25,11 @@ import {
 	findIncompleteSummaryFields,
 	resolveScenarioSet,
 } from './measure-lcp.js';
-import { tcEscape, reportSkippedScenarios } from './run-performance-tests.js';
+import {
+	checkWordPressInstances,
+	tcEscape,
+	reportSkippedScenarios,
+} from './run-performance-tests.js';
 import { SCENARIOS } from './scenarios.js';
 
 const SCRIPTS_DIR = path.dirname( fileURLToPath( import.meta.url ) );
@@ -88,6 +92,91 @@ test( 'resolveScenarioSet matches exactly one scenario by cliName', () => {
 	const myJetpack = resolveScenarioSet( 'my-jetpack', SCENARIOS );
 	assert.equal( myJetpack.length, 1 );
 	assert.equal( myJetpack[ 0 ].key, 'myJetpack' );
+} );
+
+test( 'the targeted Dashboard control fails alone and skips alongside a measured Dashboard', () => {
+	const [ control ] = resolveScenarioSet( 'no-jetpack', SCENARIOS );
+	assert.equal( control.key, 'jetpackConnected-noJetpack' );
+	assert.equal( control.optional, true );
+	assert.equal( control.dockerService, 'wordpress-no-jetpack' );
+	assert.equal( control.wpPath, '/var/www/html/no-jetpack' );
+	assert.equal( control.path, undefined );
+	const measurements = { jetpackConnected: ok, [ control.key ]: failed };
+	const outcome = computeRunOutcome( measurements, SCENARIOS );
+	assert.equal( outcome.exitCode, 0 );
+	assert.deepEqual( outcome.optionalFailures, [ control.name ] );
+	assert.equal( computeRunOutcome( { [ control.key ]: failed }, [ control ] ).exitCode, 1 );
+} );
+
+test( 'instance readiness ignores optional controls but fails for an unready required instance', async t => {
+	const urls = [];
+	t.mock.method( console, 'log', () => {} );
+	t.mock.method( console, 'error', () => {} );
+	t.mock.method( globalThis, 'fetch', async url => {
+		urls.push( url );
+		return { ok: true, text: async () => 'user_login user_pass' };
+	} );
+	const required = { ...REQUIRED, defaultUrl: 'http://required.test' };
+	const control = { ...OPT_A, defaultUrl: 'http://control.test' };
+	assert.equal( await checkWordPressInstances( [ required, control ] ), true );
+	assert.deepEqual( urls, [ 'http://required.test/wp-login.php' ] );
+	t.mock.method( globalThis, 'fetch', async () => {
+		throw new Error( 'unready' );
+	} );
+	assert.equal( await checkWordPressInstances( [ required, control ] ), false );
+} );
+
+test( 'connection simulation skips the control regardless of latency environment', t => {
+	const php = spawnSync( 'php', [ '--version' ] );
+	if ( php.error?.code === 'ENOENT' ) {
+		t.skip( 'PHP CLI is needed to execute the simulator bootstrap' );
+		return;
+	}
+	const simulator = path.join( SCRIPTS_DIR, '../docker/mu-plugins/simulate-wpcom-connection.php' );
+	for ( const [ control, latency ] of [
+		[ false, undefined ],
+		[ false, '0' ],
+		[ false, '200' ],
+		[ true, undefined ],
+		[ true, '0' ],
+		[ true, '200' ],
+	] ) {
+		const env = { ...process.env };
+		delete env.WPCOM_SIMULATED_LATENCY_MS;
+		if ( latency !== undefined ) {
+			env.WPCOM_SIMULATED_LATENCY_MS = latency;
+		}
+		const result = spawnSync(
+			'php',
+			[
+				'-r',
+				`define( 'ABSPATH', '/' );
+				${ control ? "define( 'JETPACK_PERFORMANCE_NO_JETPACK_CONTROL', true );" : '' }
+				$hooks = array();
+				function add_filter( $name ) { $GLOBALS['hooks'][] = $name; }
+				function add_action( $name ) { $GLOBALS['hooks'][] = $name; }
+				require $argv[1];
+				echo json_encode( array( 'class' => class_exists( 'Jetpack_WPCom_Connection_Simulator' ), 'hooks' => $hooks ) );`,
+				simulator,
+			],
+			{ env, encoding: 'utf8' }
+		);
+		assert.equal( result.status, 0, result.stderr );
+		const actual = JSON.parse( result.stdout );
+		assert.equal( actual.class, ! control );
+		assert.deepEqual(
+			actual.hooks,
+			control
+				? []
+				: [
+						'jetpack_offline_mode',
+						'pre_option_jetpack_offline_mode',
+						'plugins_loaded',
+						'jetpack_modules_loaded',
+						'pre_http_request',
+					]
+		);
+	}
 } );
 
 test( 'resolveScenarioSet throws on an unknown filter, listing the valid values', () => {
