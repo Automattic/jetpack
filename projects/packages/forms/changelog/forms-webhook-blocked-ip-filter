@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Webhooks: Add the jetpack_forms_webhook_blocked_ip filter, so a site can allow a webhook destination Forms would otherwise reject.
