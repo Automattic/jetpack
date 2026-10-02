@@ -125,16 +125,22 @@ class Embeds extends WP_REST_Controller {
 		}
 
 		// Each lookup is a request to a provider on the visitor's behalf. Thirty in ten minutes covers
-		// a reader trying links, not a script. Transients, so a site with no object cache has a limit too.
-		$ip        = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
-		$count_key = 'jetpack_comments_embed_previews_' . md5( $ip );
-		$count     = (int) get_transient( $count_key );
+		// a reader trying links, not a script. The object cache counts atomically; a site without a
+		// persistent one falls back to a transient, which a parallel burst can slip past.
+		$ip  = isset( $_SERVER['REMOTE_ADDR'] ) ? sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : '';
+		$key = 'embed_previews_' . md5( $ip );
 
-		if ( $count >= 30 ) {
-			return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
+		if ( wp_using_ext_object_cache() ) {
+			wp_cache_add( $key, 0, 'jetpack_comments', 10 * MINUTE_IN_SECONDS );
+			$count = (int) wp_cache_incr( $key, 1, 'jetpack_comments' );
+		} else {
+			$count = (int) get_transient( 'jetpack_comments_' . $key ) + 1;
+			set_transient( 'jetpack_comments_' . $key, $count, 10 * MINUTE_IN_SECONDS );
 		}
 
-		set_transient( $count_key, $count + 1, 10 * MINUTE_IN_SECONDS );
+		if ( $count > 30 ) {
+			return new WP_Error( 'rate_limited', __( 'Too many requests. Please wait a moment and try again.', 'jetpack-comments' ), array( 'status' => 429 ) );
+		}
 
 		$oembed = _wp_oembed_get_object();
 		$args   = array_merge( wp_embed_defaults( $url ), array( 'discover' => false ) );

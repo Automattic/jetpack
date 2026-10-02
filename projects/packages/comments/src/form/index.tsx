@@ -102,7 +102,8 @@ const CommentForm = ( { form }: { form: HTMLFormElement } ) => {
 				.then( ( { mountEditor } ) => {
 					mountEditor( editorRef.current!, {
 						initialContent: commentValue.peek(),
-						labels,
+						// A page cached before this bundle shipped carries no editor object.
+						labels: labels ?? { blockTools: '', embedUrl: '' },
 						focus,
 						placeholder,
 						onChange: content => ( commentValue.value = content ),
