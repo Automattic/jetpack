@@ -15,6 +15,7 @@ declare global {
 			// '' | '1'; the boolean form is allowed for a future JSON channel.
 			// Optional so payloads from a build predating the gate still typecheck.
 			chaptersEditorEnabled?: boolean | '' | '1';
+			trimCutEnabled?: boolean | '' | '1';
 			jetpackVideoPressSettingUrl: string;
 			imagesURLBase: string;
 			playerBridgeUrl: string;
