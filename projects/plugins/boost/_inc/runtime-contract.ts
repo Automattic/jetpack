@@ -19,7 +19,7 @@ export type Tab = 'overview' | 'settings';
 
 export const LOCATION_CHANGE_EVENT = 'jetpack-boost:location-change';
 
-// Successful user-started runs only; no payload or replay, so listen from page load.
+// Successful user-started runs only; no payload.
 export const SPEED_TEST_COMPLETE_EVENT = 'jetpack-boost:speed-test-complete';
 
 /** Everything that means the location changed; the chassis dispatches the custom one. */
