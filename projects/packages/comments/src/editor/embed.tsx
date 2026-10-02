@@ -1,10 +1,5 @@
 /* @jsxImportSource react */
-import {
-	BlockControls,
-	BlockIcon,
-	store as blockEditorStore,
-	useBlockProps,
-} from '@wordpress/block-editor';
+import { BlockControls, BlockIcon, useBlockProps } from '@wordpress/block-editor';
 import { embedContentIcon } from '@wordpress/block-library/build-module/embed/icons.mjs';
 import {
 	createBlock,
@@ -22,7 +17,6 @@ import {
 	ToolbarGroup,
 	VisuallyHidden,
 } from '@wordpress/components';
-import { useSelect } from '@wordpress/data';
 import { renderToString, useCallback, useEffect, useRef, useState } from '@wordpress/element';
 import { __, _x, sprintf } from '@wordpress/i18n';
 import type { EditorLabels } from '../shared/types';
@@ -37,7 +31,6 @@ type Preview = { html?: string; scripts?: string[] };
 type Lookup = Preview | 'unsupported' | null;
 type EditProps = BlockEditProps< Attributes > & {
 	onReplace: ( blocks: Block | Block[] ) => void;
-	insertBlocksAfter: ( blocks: Block | Block[] ) => void;
 };
 
 let labels: EditorLabels;
@@ -54,37 +47,17 @@ const hostOf = ( url: string ) => {
 const toParagraph = ( url: string ) =>
 	createBlock( 'core/paragraph', { content: renderToString( <a href={ url }>{ url }</a> ) } );
 
-const Edit = ( {
-	attributes: { url },
-	clientId,
-	setAttributes,
-	isSelected,
-	onReplace,
-	insertBlocksAfter,
-}: EditProps ) => {
+const Edit = ( { attributes: { url }, setAttributes, isSelected, onReplace }: EditProps ) => {
 	const [ draft, setDraft ] = useState( url ?? '' );
 	const [ editing, setEditing ] = useState( ! url );
 	const [ preview, setPreview ] = useState< Preview | null >( null );
 	const [ failed, setFailed ] = useState( false );
 	const [ attempt, setAttempt ] = useState( 0 );
 	const [ interactive, setInteractive ] = useState( false );
-	const isLast = useSelect(
-		select => ! select( blockEditorStore ).getNextBlockClientId( clientId ),
-		[ clientId ]
-	);
-	// Read inside the effects below, which key on the URL alone.
-	const latest = useRef( { isSelected, isLast, onReplace, insertBlocksAfter } );
-	latest.current = { isSelected, isLast, onReplace, insertBlocksAfter };
+	// Read inside the effect below, which keys on the URL alone.
+	const replace = useRef( onReplace );
+	replace.current = onReplace;
 	const blockProps = useBlockProps();
-
-	// A pasted or chosen embed gets a line after it, with the caret there: the block list
-	// hides its own "add a block" line while a block is selected, which leaves nowhere to type.
-	useEffect( () => {
-		const { isSelected: selected, isLast: last, insertBlocksAfter: insertAfter } = latest.current;
-		if ( url && selected && last ) {
-			insertAfter( createBlock( 'core/paragraph' ) );
-		}
-	}, [ url ] );
 
 	// A URL the site will not embed becomes a link, with no fuss: most links in a comment are just
 	// links. Anything else, a rate limit or a dropped request, keeps the block so the reader can retry.
@@ -111,7 +84,7 @@ const Edit = ( {
 					return;
 				}
 				if ( data === 'unsupported' ) {
-					latest.current.onReplace( toParagraph( url ) );
+					replace.current( toParagraph( url ) );
 				} else if ( data?.html ) {
 					setPreview( data );
 				} else {
