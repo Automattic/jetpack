@@ -1,0 +1,5 @@
+Significance: patch
+Type: changed
+Comment: Update a test mock for the new checkoutError field.
+
+
