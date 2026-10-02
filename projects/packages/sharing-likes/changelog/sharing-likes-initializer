@@ -1,4 +1,4 @@
 Significance: patch
 Type: changed
 
-Add Initializer::init() to set up the settings screen and its REST routes in one call, and move PACKAGE_VERSION to it.
+Add Initializer::init() to set up the settings screen and its REST routes in one call. PACKAGE_VERSION moves to it, replacing the Sharing_Likes class.
