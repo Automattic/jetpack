@@ -28,6 +28,7 @@ export {
 	fetchStatsEmailSummaryRows,
 	fetchStatsFileDownloadsRows,
 	fetchStatsInsightsYears,
+	fetchStatsLocationsRows,
 	fetchStatsReferrersRows,
 	fetchStatsSearchTermsReport,
 	fetchStatsTagsRows,
@@ -36,6 +37,7 @@ export {
 	fetchStatsUtmRows,
 	fetchStatsVideoPlaysRows,
 } from './queries/fetch-stats-report-rows';
+export { type StatsLocationsParams } from './queries/stats-locations-query';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	aggregateStatsDrilldownRows,

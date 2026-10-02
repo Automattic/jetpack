@@ -2,16 +2,13 @@
  * External dependencies
  */
 import { defineReportTabs } from '@jetpack-premium-analytics/routing';
+import {
+	supportsLocationsCountryFilter,
+	type LocationsReportSection,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
 
-export type ReportLocationsTabId = 'countries' | 'regions' | 'cities';
-
-/** The geo mode each tab reports on, as the API and the map both name it. */
-export const GEO_MODES = {
-	countries: 'country',
-	regions: 'region',
-	cities: 'city',
-} as const;
+export type ReportLocationsTabId = LocationsReportSection;
 
 const DEFAULT_TAB_ID: ReportLocationsTabId = 'countries';
 
@@ -46,14 +43,5 @@ export const resolveSection = reportLocationsTabs.resolve;
 /** Get the translated label for a tab, which also heads its section. */
 export const getTabLabel = reportLocationsTabs.getTabLabel;
 
-/**
- * Whether a tab can be scoped to a single country.
- *
- * The Countries tab is already the full country list, so it has no filter.
- *
- * @param tab - The active Locations report tab.
- * @return Whether to show the country filter.
- */
-export function supportsCountryFilter( tab: ReportLocationsTabId ): boolean {
-	return tab !== 'countries';
-}
+/** Whether a tab can be scoped to a single country. */
+export const supportsCountryFilter = supportsLocationsCountryFilter;
