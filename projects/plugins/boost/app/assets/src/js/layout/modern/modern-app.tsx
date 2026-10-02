@@ -29,7 +29,7 @@ const ModernRoutes = ( { subpageSlot }: ModernAppProps ) => {
 
 	return (
 		<>
-			<ModernSettings hidden={ redirecting } />
+			<ModernSettings hidden={ redirecting } active={ ! route.subpage } />
 			{ route.subpage &&
 				! redirecting &&
 				createPortal( <ModernSubpage subpage={ route.subpage } />, subpageSlot ) }
