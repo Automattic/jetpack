@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Widgets toolkit: Add a Leaderboard component that renders ranked rows with their states, shares and deltas; Top videos, Search terms and Most commented authors use it.

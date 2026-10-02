@@ -14,5 +14,6 @@ if ( class_exists( 'WPCOM_Features' ) ) {
  */
 class WPCOM_Features {
 	const GLOBAL_STYLES           = 'global-styles';
+	const PRIORITY_SUPPORT        = 'priority_support';
 	const REAL_TIME_COLLABORATION = 'real-time-collaboration';
 }

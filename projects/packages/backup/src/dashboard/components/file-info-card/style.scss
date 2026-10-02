@@ -1,13 +1,6 @@
-.jpb-file-info-card {
-	padding: 16px;
-	display: flex;
-	flex-direction: column;
-	gap: 12px;
-
-	&__header {
-		padding-bottom: 8px;
-		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
-	}
+// Shared by both chromes: `FileInfoMeta` and `PreviewBody` render the same
+// markup inside the card's column and inside `<FileInfoDialog>`.
+.jpb-file-info {
 
 	&__meta {
 		display: flex;
@@ -39,25 +32,56 @@
 		word-break: break-all;
 	}
 
-	&__preview-note {
+	&__note {
 		margin-block: 0 8px;
 		margin-inline: 0;
 	}
 
+	&__code {
+		margin: 0;
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		font-size: 12px;
+		line-height: 1.5;
+		white-space: pre-wrap;
+		// `anywhere` breaks the unbroken runs — minified JS, base64 — that
+		// `pre-wrap` alone will not.
+		overflow-wrap: anywhere;
+		// Belt behind the wrapping, and it lives here rather than on the
+		// card's panel (`overflow-x: hidden`): an RTL panel cannot scroll to
+		// a `dir="ltr"` box's inline-start overflow.
+		overflow-x: auto;
+		color: var(--wp-components-color-foreground, #1e1e1e);
+	}
+}
+
+.jpb-file-info-card {
+	padding: 16px;
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+
+	&__header {
+		padding-bottom: 8px;
+		border-bottom: 1px solid var(--wp-components-color-gray-200, #e0e0e0);
+	}
+
+	// Filenames offer no break at `.` or `_`, so a long stem pushes the close
+	// button past `Card.Root`'s `overflow: clip` and out of reach.
+	&__header-title {
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+
+	&__header-close {
+		flex-shrink: 0;
+	}
+
 	&__preview {
 		max-height: 320px;
-		overflow: auto;
+		overflow-y: auto;
+		overflow-x: hidden;
 		background-color: var(--wp-components-color-background-secondary, #f7f7f7);
 		border-radius: 4px;
 		padding: 12px;
-
-		pre {
-			margin: 0;
-			font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-			font-size: 12px;
-			line-height: 1.5;
-			white-space: pre;
-			color: var(--wp-components-color-foreground, #1e1e1e);
-		}
 	}
 }

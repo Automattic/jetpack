@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Fix Update deleting payment configuration set outside the block. An update is a full replacement at PayPal, so a SKU, shipping rate, handling fee or discount set anywhere else was silently dropped, and address collection was forced back on.

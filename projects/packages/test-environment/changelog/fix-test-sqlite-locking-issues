@@ -1,4 +1,0 @@
-Significance: patch
-Type: fixed
-
-Use separate sqlite databases for each test to avoid locking issues.

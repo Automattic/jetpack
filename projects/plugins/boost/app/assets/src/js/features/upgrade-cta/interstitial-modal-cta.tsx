@@ -3,6 +3,7 @@ import { ProductInterstitialMyJetpack } from '@automattic/jetpack-my-jetpack/com
 import boostImage from '@automattic/jetpack-my-jetpack/components/product-interstitial/assets/boost.webp';
 import { __ } from '@wordpress/i18n';
 import UpgradeCTA from '$features/upgrade-cta/upgrade-cta';
+import { canOfferUpgrade } from '../../../../../../_inc/overview/lib/use-modules-state';
 import type { ReactNode } from 'react';
 
 type InterstitialModalCTAProps = {
@@ -16,6 +17,11 @@ const InterstitialModalCTA = ( {
 	identifier,
 	customModalTrigger,
 }: InterstitialModalCTAProps ) => {
+	// Mounting the modal fetches products from My Jetpack.
+	if ( ! canOfferUpgrade() ) {
+		return null;
+	}
+
 	const learnMoreUrl = getRedirectUrl( 'jetpack-boost-interstitial-modal-learn-more' );
 
 	return (

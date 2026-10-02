@@ -6,7 +6,7 @@ import { setSettings } from '@wordpress/date';
  * Internal dependencies
  */
 import { EN_US_SETTINGS, ES_ES_SETTINGS, settingsFor } from '../__fixtures__/wp-date-settings';
-import { formatDate, formatMondayFirstWeekday, formatWeekday } from '../format-date';
+import { formatDate, formatMondayFirstWeekday, formatMonth, formatWeekday } from '../format-date';
 
 // Midnight UTC, matching the fixtures' timezone, so no day shift is in play.
 const JUNE_21 = new Date( '2025-06-21T00:00:00+00:00' );
@@ -23,6 +23,15 @@ describe( 'formatDate', () => {
 
 		it( 'defaults to "medium"', () => {
 			expect( formatDate( JUNE_21 ) ).toBe( 'June 21, 2025' );
+		} );
+
+		it( 'names a month, full and abbreviated', () => {
+			expect( formatMonth( 0 ) ).toBe( 'January' );
+			expect( formatMonth( 11, { short: true } ) ).toBe( 'Dec' );
+		} );
+
+		it( 'returns an empty string for a month index out of range', () => {
+			expect( formatMonth( 12 ) ).toBe( '' );
 		} );
 
 		it( 'formats "short" as the site format without its year', () => {
@@ -74,6 +83,11 @@ describe( 'formatDate', () => {
 		it( 'formats a weekday in the site locale', () => {
 			expect( formatWeekday( 6 ) ).toBe( 'sábado' );
 		} );
+
+		it( 'names a month in the site locale, not the browser one', () => {
+			expect( formatMonth( 5 ) ).toBe( 'junio' );
+			expect( formatMonth( 5, { short: true } ) ).toBe( 'jun' );
+		} );
 	} );
 
 	it( 'falls back to the site format when removing the year leaves nothing', () => {
@@ -98,6 +112,25 @@ describe( 'formatDate', () => {
 		setSettings( EN_US_SETTINGS );
 
 		expect( formatDate( JUNE_21, 'dateTime' ) ).toBe( 'June 21, 2025 12:00 am' );
+	} );
+
+	it( 'renders the calendar day the instant falls on in the reporting timezone', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: -4, offsetFormatted: '-4', string: 'America/New_York', abbr: 'EDT' },
+		} );
+
+		// 22:00 the evening before, in New York.
+		expect( formatDate( new Date( '2025-06-21T02:00:00Z' ), 'medium' ) ).toBe( 'June 20, 2025' );
+	} );
+
+	it( 'renders in a site zone configured as a bare offset', () => {
+		setSettings( {
+			...EN_US_SETTINGS,
+			timezone: { offset: 5.5, offsetFormatted: '5.5', string: '', abbr: '' },
+		} );
+
+		expect( formatDate( new Date( '2025-06-20T20:00:00Z' ), 'medium' ) ).toBe( 'June 21, 2025' );
 	} );
 } );
 

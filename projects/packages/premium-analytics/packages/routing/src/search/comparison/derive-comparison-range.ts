@@ -1,15 +1,14 @@
 /**
  * External dependencies
  */
+import { normalizeReportParams } from '@jetpack-premium-analytics/data';
 import {
-	normalizeReportParams,
 	dateToISOStringWithLocalTZ,
-	localTZDate,
-} from '@jetpack-premium-analytics/data';
-import {
 	getComparisonOptions,
 	isComparisonPresetId,
-	siteTimeZone,
+	isPrimaryPreset,
+	localTZDate,
+	reportingTimeZone,
 	type ComparisonPresetId,
 } from '@jetpack-premium-analytics/datetime';
 
@@ -29,9 +28,11 @@ const toComparisonPresetId = ( value?: string ): ComparisonPresetId | undefined 
 
 /**
  * Resolve the comparison params for the main range, in the site timezone: the
- * active preset where the range still offers it, else the previous period, so
- * a range change never strands a comparison the picker cannot name. Returns
- * ISO strings with the site offset, plus the preset they came from.
+ * active preset where the range still offers it (by name or as an alias), else
+ * the previous period, so a range change never strands a comparison the picker
+ * cannot name. The primary preset travels along, so a to-date preset's previous
+ * period is its previous whole period rather than a day count. Returns ISO
+ * strings with the site offset, plus the preset they came from.
  *
  * @param opts - Report params carrying the main range and comparison state.
  * @return The comparison params, or undefined when comparison is off or the range unreadable.
@@ -54,7 +55,7 @@ export function deriveComparisonRange( opts: ReportParams ):
 	 * site zone here too — a raw instant would put a date-only deep link on UTC
 	 * midnight, a different calendar day than the picker shows.
 	 */
-	const timezone = siteTimeZone();
+	const timezone = reportingTimeZone();
 	const reference = {
 		from: localTZDate( opts.from, timezone ),
 		to: localTZDate( opts.to, timezone ),
@@ -64,14 +65,20 @@ export function deriveComparisonRange( opts: ReportParams ):
 		return undefined;
 	}
 
-	const options = getComparisonOptions( reference );
+	const options = getComparisonOptions( reference, {
+		primaryPresetId: isPrimaryPreset( opts.preset ) ? opts.preset : undefined,
+	} );
 	const presetId = toComparisonPresetId( opts.compare_preset );
 
-	// A preset the range doesn't offer — or an id from an old link — falls back
-	// to the previous period, which every range offers, so the comparison
-	// intent survives a range change.
+	// A preset the menu folded into another entry for naming the same window
+	// takes that entry's window but keeps its own id, so it comes back once the
+	// range offers it again; one the range cannot offer at all — or an id from
+	// an old link — falls back to the previous period, which every range offers.
 	const option =
-		options.find( candidate => candidate.id === presetId ) ??
+		( presetId &&
+			options.find(
+				candidate => candidate.id === presetId || candidate.aliases.includes( presetId )
+			) ) ||
 		options.find( candidate => candidate.id === 'previous-period' );
 
 	if ( ! option ) {
@@ -81,6 +88,6 @@ export function deriveComparisonRange( opts: ReportParams ):
 	return {
 		compare_from: dateToISOStringWithLocalTZ( option.range.from ),
 		compare_to: dateToISOStringWithLocalTZ( option.range.to ),
-		compare_preset: option.id,
+		compare_preset: presetId && option.aliases.includes( presetId ) ? presetId : option.id,
 	};
 }

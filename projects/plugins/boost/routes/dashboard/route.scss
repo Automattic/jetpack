@@ -1,0 +1,24 @@
+@use "../../app/assets/src/css/main/mixins";
+
+#jb-settings-tab-mount,
+#jb-subpage-mount {
+	min-inline-size: 0;
+}
+
+.jetpack-boost-dashboard__loading {
+	display: flex;
+	justify-content: center;
+	padding-block: var(--wpds-dimension-padding-2xl);
+}
+
+.jetpack-boost-dashboard__settings {
+
+	@include mixins.content-column;
+
+	margin-block-start: var(--wpds-dimension-gap-2xl);
+	scroll-margin-block-start: var(--wpds-dimension-padding-2xl);
+}
+
+.jetpack-boost-dashboard__settings > .jetpack-boost-dashboard__heading {
+	margin-block: 0 var(--wpds-dimension-gap-xl);
+}

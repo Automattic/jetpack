@@ -15,8 +15,15 @@ use Automattic\Jetpack\Search\TestCase as Search_TestCase;
 class Settings_Test extends Search_TestCase {
 	use Toggles_Ai_Master;
 
+	public function setUp(): void {
+		parent::setUp();
+		// Default to a paid plan; tests exercising the gate override this.
+		Search_Blocks::set_supports_paid_search_for_testing( true );
+	}
+
 	public function tearDown(): void {
 		$this->remove_ai_master_filters();
+		Search_Blocks::reset_supports_paid_search_cache();
 		parent::tearDown();
 	}
 
@@ -80,6 +87,27 @@ class Settings_Test extends Search_TestCase {
 		$setting = $registered[ Options::OPTION_PREFIX . 'enable_sort' ];
 		$this->assertEquals( 'boolean', $setting['type'] );
 		$this->assertTrue( $setting['default'] );
+	}
+
+	/**
+	 * SEARCH-342: closes the /wp/v2/settings bypass via sanitize_option().
+	 */
+	public function test_sanitize_ai_answers_enabled_rejects_true_without_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		$this->assertFalse( Settings::sanitize_ai_answers_enabled( true ) );
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	public function test_sanitize_ai_answers_enabled_allows_true_with_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( true );
+		$this->assertTrue( Settings::sanitize_ai_answers_enabled( true ) );
+		Search_Blocks::reset_supports_paid_search_cache();
+	}
+
+	public function test_sanitize_ai_answers_enabled_allows_false_without_paid_plan() {
+		Search_Blocks::set_supports_paid_search_for_testing( false );
+		$this->assertFalse( Settings::sanitize_ai_answers_enabled( false ) );
+		Search_Blocks::reset_supports_paid_search_cache();
 	}
 
 	public function test_settings_register_all_settings_have_show_in_rest() {

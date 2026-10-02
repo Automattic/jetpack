@@ -44,8 +44,6 @@ const REWIND_ID = '1786663613.9425';
 const RESTORE_ID = 912682;
 const DOWNLOAD_ID = 5150;
 
-const SETTLE = { timeout: 10000 };
-
 /**
  * A restore-status payload in the shape the bridge projects.
  *
@@ -103,7 +101,7 @@ function arrange( {
  * @param name - The submit button's accessible name.
  */
 async function submit( name: RegExp ) {
-	await userEvent.click( await screen.findByRole( 'button', { name }, SETTLE ) );
+	await userEvent.click( await screen.findByRole( 'button', { name } ) );
 }
 
 /**
@@ -116,7 +114,7 @@ async function submit( name: RegExp ) {
  * @return The progress bar.
  */
 async function progressBarNamed( name: string ) {
-	return screen.findByRole( 'progressbar', { name }, SETTLE );
+	return screen.findByRole( 'progressbar', { name } );
 }
 
 beforeEach( () => {

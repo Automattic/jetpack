@@ -56,6 +56,9 @@ describe( 'CustomInputs', () => {
 
 		render( <CustomInputs service={ { id: 'bluesky' } } /> );
 
+		expect( screen.getByRole( 'textbox', { name: /Bluesky handle/i } ) ).toHaveValue(
+			'me.bsky.social'
+		);
 		// The Notice renders the message and @wordpress/a11y mirrors it into a
 		// live region, so the copy appears more than once — assert it's present.
 		expect(

@@ -35,7 +35,8 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 #### React Frontend (`_inc/`)
 
-- **Main App** (`admin.jsx`): Entry point with React Router setup
+- **Main App** (`app.jsx`): React Router setup, rendered by the wp-build route in `routes/dashboard/`
+- **Onboarding** (`onboarding.jsx`): Webpack entry for the full-screen onboarding takeover
 - **Components** (`components/`): Reusable UI components for product cards, screens, and interstitials
 - **Data Layer** (`data/`): Custom hooks and API integration using React Query (see [Data Layer Documentation](./_inc/data/README.md))
 - **Context** (`context/`): Global state management for notices and values
@@ -130,7 +131,8 @@ To disable the licensing UI at `/wp-admin/admin.php?page=my-jetpack#/add-license
 
 ### React Files
 
-- `_inc/admin.jsx` - Main React application entry point
+- `_inc/app.jsx` - Main React application, rendered by `routes/dashboard/stage.tsx`
+- `_inc/onboarding.jsx` - Onboarding takeover entry point
 - `_inc/providers.tsx` - Context providers wrapper
 - `_inc/constants.ts` - Route definitions and constants
 - `_inc/components/my-jetpack-screen/` - Main dashboard screen

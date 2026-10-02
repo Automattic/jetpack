@@ -3,7 +3,7 @@
  */
 import restApi from '@automattic/jetpack-api';
 import { getScriptData } from '@automattic/jetpack-script-data';
-import { createReduxStore, register } from '@wordpress/data';
+import { createReduxStore, register, select } from '@wordpress/data';
 /**
  * Internal dependencies
  */
@@ -23,6 +23,25 @@ export const CONNECTION_STORE_ID = STORE_ID;
 
 /** @type {import('@wordpress/data').StoreDescriptor | undefined} */
 let store;
+
+/**
+ * Explains a duplicate registration, which is a build problem rather than a runtime one.
+ *
+ * @param {string} storeId - The store that was already registered.
+ * @return {string} The message to log.
+ */
+function duplicateRegistrationMessage( storeId ) {
+	return [
+		`Jetpack Connection: the "${ storeId }" store was already registered by another script on this page, so this copy was skipped.`,
+		'',
+		'Nothing is broken — the first registration is used — but two scripts on this page each carry their own copy of the connection store, so it ships to visitors more than once.',
+		'',
+		'The usual cause is a script that bundles @automattic/jetpack-shared-stores, or an older @automattic/jetpack-connection that still inlined the store, instead of depending on the shared "jetpack-shared-stores" script.',
+		'',
+		"To fix: import the store from '@automattic/jetpack-shared-stores/connection' (or use the @automattic/jetpack-connection package root), then rebuild.",
+		'See defaultRequestMap in js-packages/webpack-config/src/webpack.js for the mapping.',
+	].join( '\n' );
+}
 
 /**
  * Initialize and register the Jetpack connection data store.
@@ -78,6 +97,17 @@ export function initConnectionStore() {
 		controls,
 		initialState: initialState || {},
 	} );
+
+	/*
+	 * `store` is module state, so it only guards this copy. The registry is global and shared by
+	 * every script on the page, so ask it too; `register` would keep the existing store anyway.
+	 */
+	if ( select( STORE_ID ) ) {
+		// eslint-disable-next-line no-console
+		console.error( duplicateRegistrationMessage( STORE_ID ) );
+		return store;
+	}
+
 	register( store );
 
 	return store;

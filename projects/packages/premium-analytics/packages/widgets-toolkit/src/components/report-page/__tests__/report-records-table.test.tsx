@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
  * Internal dependencies
  */
+import { ReportPageLayout } from '../report-page-layout';
 import { ReportRecordsTable } from '../report-records-table';
 import type { Field, View } from '@jetpack-premium-analytics/externals';
 
@@ -40,6 +41,7 @@ const fields: Field< Row >[] = [
 const INITIAL_VIEW: Partial< View > = { fields: [ 'label', 'views' ] };
 
 const onChangeView = jest.fn();
+const onChangePageItems = jest.fn();
 
 /**
  * Mount the table with one filter-only, primary-filter field.
@@ -52,6 +54,7 @@ function mountTable() {
 			getItemId={ item => item.id }
 			initialView={ INITIAL_VIEW }
 			onChangeView={ onChangeView }
+			onChangePageItems={ onChangePageItems }
 		/>
 	);
 }
@@ -76,6 +79,28 @@ describe( 'ReportRecordsTable', () => {
 		expect( screen.getByRole( 'columnheader', { name: /Location/ } ) ).toBeInTheDocument();
 	} );
 
+	it( 'draws the title field once, as the primary column', () => {
+		render(
+			<ReportRecordsTable< Row >
+				data={ rows }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ { titleField: 'label' } }
+			/>
+		);
+
+		expect( screen.getAllByText( 'Maharashtra' ) ).toHaveLength( 1 );
+		// eslint-disable-next-line testing-library/no-node-access -- The class is DataViews' only mark of the primary column.
+		expect( screen.getByText( 'Maharashtra' ).closest( '.dataviews-title-field' ) ).not.toBeNull();
+		expect( screen.getByRole( 'columnheader', { name: /Views/ } ) ).toBeInTheDocument();
+	} );
+
+	it( 'reports the initial visible page outwards', async () => {
+		mountTable();
+
+		await waitFor( () => expect( onChangePageItems ).toHaveBeenLastCalledWith( rows ) );
+	} );
+
 	// The page needs the chosen value to reach its data request, because the
 	// API applies this kind of filter server-side.
 	it( 'reports the chosen filter value outwards', async () => {
@@ -94,6 +119,7 @@ describe( 'ReportRecordsTable', () => {
 				expect.objectContaining( { field: 'country', operator: 'is', value: 'IN' } ),
 			] )
 		);
+		await waitFor( () => expect( onChangePageItems ).toHaveBeenLastCalledWith( [ rows[ 0 ] ] ) );
 	} );
 } );
 
@@ -182,6 +208,34 @@ describe( 'ReportRecordsTable pagination', () => {
 		expect( reportedViews.mock.calls.at( -1 )?.[ 0 ] ).toMatchObject( { page: 2 } );
 	} );
 
+	it( 'reports the new visible rows after pagination', async () => {
+		const user = userEvent.setup();
+		const reportedItems = jest.fn();
+		render(
+			<ReportRecordsTable< NumberedRow >
+				data={ numberedRows( 25 ) }
+				fields={ NUMBERED_FIELDS }
+				getItemId={ item => item.id }
+				perPageSizes={ [ 10 ] }
+				onChangePageItems={ reportedItems }
+			/>
+		);
+
+		await waitFor( () =>
+			expect( reportedItems ).toHaveBeenLastCalledWith(
+				expect.arrayContaining( [ expect.objectContaining( { id: '1' } ) ] )
+			)
+		);
+
+		await goToPage( user, 2 );
+
+		await waitFor( () =>
+			expect( reportedItems ).toHaveBeenLastCalledWith(
+				expect.arrayContaining( [ expect.objectContaining( { id: '11' } ) ] )
+			)
+		);
+	} );
+
 	it( 'stays where it fell back to when a later result grows again', async () => {
 		const user = userEvent.setup();
 		const { rerender } = render( numberedTable( 25 ) );
@@ -207,5 +261,119 @@ describe( 'ReportRecordsTable pagination', () => {
 
 		expect( screen.getByText( 'Row 11' ) ).toBeInTheDocument();
 		expect( screen.queryByText( 'Row 1' ) ).not.toBeInTheDocument();
+	} );
+} );
+
+describe( 'ReportRecordsTable with no rows', () => {
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	/**
+	 * Mount the table over `data`.
+	 *
+	 * @param data             - The report rows.
+	 * @param props            - Other table props for the case under test.
+	 * @param props.isLoading  - Whether the rows are still loading.
+	 * @param props.isFetching - Whether the rows on screen are revalidating.
+	 * @return The render result.
+	 */
+	function mountRows( data: Row[], props: { isLoading?: boolean; isFetching?: boolean } = {} ) {
+		return render(
+			<ReportRecordsTable< Row >
+				data={ data }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ INITIAL_VIEW }
+				{ ...props }
+			/>
+		);
+	}
+
+	it( 'replaces the table with the empty state when the report has no rows', () => {
+		mountRows( [] );
+
+		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+		expect( screen.getByText( 'We couldn’t find any results.' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'searchbox' ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'shows no search box or empty state while the first rows load', () => {
+		mountRows( [], { isLoading: true } );
+
+		expect( screen.queryByRole( 'searchbox' ) ).not.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the empty state while the same period revalidates', () => {
+		mountRows( [], { isFetching: true } );
+
+		expect( screen.getByRole( 'heading', { name: 'No data found' } ) ).toBeInTheDocument();
+	} );
+
+	it( 'shows cached rows that mount already revalidating', () => {
+		mountRows( rows, { isFetching: true } );
+
+		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
+	} );
+
+	it( 'keeps the rows on screen and marks the table busy while they revalidate', () => {
+		const { rerender } = mountRows( rows );
+
+		rerender(
+			<ReportRecordsTable< Row >
+				data={ rows }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ INITIAL_VIEW }
+				isFetching
+			/>
+		);
+
+		expect( screen.getByText( 'Maharashtra' ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'table' ) ).toHaveAttribute( 'aria-busy', 'true' );
+	} );
+
+	it( 'keeps the table while a filter has scoped the rows to none', () => {
+		render(
+			<ReportRecordsTable< Row >
+				data={ [] }
+				fields={ fields }
+				getItemId={ item => item.id }
+				initialView={ {
+					...INITIAL_VIEW,
+					filters: [ { field: 'country', operator: 'is', value: 'US' } ],
+				} }
+			/>
+		);
+
+		expect( screen.getByRole( 'searchbox' ) ).toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'keeps the table and its "No results" when a search matches no rows', async () => {
+		jest.useFakeTimers();
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		mountRows( rows );
+
+		await user.type( screen.getByRole( 'searchbox' ), 'no such place' );
+
+		await expect( screen.findByText( 'No results' ) ).resolves.toBeInTheDocument();
+		expect( screen.queryByRole( 'heading', { name: 'No data found' } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'does not mention a time period on a report without date filters', () => {
+		render(
+			<ReportPageLayout title="Tags & categories report">
+				<ReportRecordsTable< Row >
+					data={ [] }
+					fields={ fields }
+					getItemId={ item => item.id }
+					initialView={ INITIAL_VIEW }
+				/>
+			</ReportPageLayout>
+		);
+
+		expect( screen.getByText( 'We couldn’t find any results.' ) ).toBeInTheDocument();
 	} );
 } );

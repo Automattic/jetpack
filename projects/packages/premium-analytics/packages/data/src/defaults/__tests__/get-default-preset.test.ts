@@ -86,3 +86,26 @@ describe( 'getDefaultPreset', () => {
 		expect( getDefaultPreset( '2025-04-01T00:00:00Z' ) ).toBe( 'today' );
 	} );
 } );
+
+describe( 'getDefaultQueryParams - comparison', () => {
+	beforeEach( () => {
+		jest.useFakeTimers();
+		jest.setSystemTime( new Date( '2026-08-20T12:00:00.000Z' ) );
+	} );
+
+	afterEach( () => {
+		jest.useRealTimers();
+	} );
+
+	it( 'compares the 12-month preset with the same window twelve months back', () => {
+		// Twelve months back from the first, ending on the same day of the
+		// month the reference has reached, so the two cover the same 354 days.
+		expect( getDefaultQueryParams( true, 'last-12-months' ) ).toMatchObject( {
+			from: '2025-09-01T00:00:00.000+00:00',
+			to: '2026-08-20T23:59:59.999+00:00',
+			compare_from: '2024-09-01T00:00:00.000+00:00',
+			compare_to: '2025-08-20T23:59:59.999+00:00',
+			compare_preset: 'previous-period',
+		} );
+	} );
+} );

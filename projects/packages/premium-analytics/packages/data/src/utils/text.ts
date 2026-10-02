@@ -17,5 +17,5 @@ function decodeHtmlEntities( value: string ): string {
 export function decodeHtmlText< T >( value: T ): T | string;
 export function decodeHtmlText( value: unknown, fallback: string ): string;
 export function decodeHtmlText< T >( value: T, fallback?: string ): T | string {
-	return typeof value === 'string' ? decodeHtmlEntities( value ) : fallback ?? value;
+	return typeof value === 'string' ? decodeHtmlEntities( value ) : ( fallback ?? value );
 }

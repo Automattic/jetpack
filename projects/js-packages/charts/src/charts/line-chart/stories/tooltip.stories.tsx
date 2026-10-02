@@ -89,3 +89,127 @@ Custom.args = {
 		);
 	},
 };
+
+const renderWideTooltip =
+	( minWidth: number ) =>
+	( { tooltipData }: RenderTooltipParams< DataPointDate > ) => {
+		const nearestDatum = tooltipData?.nearestDatum?.datum;
+		if ( ! nearestDatum ) return null;
+
+		return (
+			<div style={ { minWidth } }>
+				<strong>{ nearestDatum.date?.toLocaleDateString() }</strong>
+				<div>
+					{ Object.entries( tooltipData?.datumByKey || {} )
+						.map( ( [ key, { datum } ] ) => `${ key }: ${ datum.value }` )
+						.join( ' · ' ) }
+				</div>
+			</div>
+		);
+	};
+
+type ClippingCardArgs = {
+	cardWidth: number;
+	tooltipMinWidth: number;
+};
+
+// A card that cuts its overflow off, like a dashboard widget. The chart fills
+// the card's content box, so the tooltip has only the card's padding to spare.
+const ClippingCardTemplate: StoryFn< ClippingCardArgs > = ( { cardWidth, tooltipMinWidth } ) => (
+	<div
+		style={ {
+			width: cardWidth,
+			padding: 24,
+			boxSizing: 'border-box',
+			overflow: 'hidden',
+			border: '1px solid #ccc',
+			borderRadius: 8,
+		} }
+	>
+		<h4 style={ { margin: '0 0 12px' } }>Card with overflow: hidden</h4>
+		<LineChart
+			{ ...tooltipStoryArgs }
+			width={ cardWidth - 48 }
+			height={ 220 }
+			renderTooltip={ renderWideTooltip( tooltipMinWidth ) }
+		/>
+	</div>
+);
+
+export const InsideClippingCard: StoryObj< ClippingCardArgs > = ClippingCardTemplate.bind( {} );
+InsideClippingCard.args = {
+	cardWidth: 400,
+	tooltipMinWidth: 260,
+};
+InsideClippingCard.parameters = {
+	docs: {
+		description: {
+			story:
+				'The box is wider than half the chart, so near the middle it fits on neither side. It leaves the chart and stops at the edge of the card instead of being cut off.',
+		},
+	},
+};
+
+export const WiderThanClippingCard: StoryObj< ClippingCardArgs > = ClippingCardTemplate.bind( {} );
+WiderThanClippingCard.args = {
+	cardWidth: 240,
+	tooltipMinWidth: 320,
+};
+WiderThanClippingCard.parameters = {
+	docs: {
+		description: {
+			story:
+				'The box is wider than the whole card. It is pinned to the left edge of the card, so its start is always visible, and the card cuts the rest off. Nothing inside the chart can render outside an ancestor that hides its overflow.',
+		},
+	},
+};
+
+export const BelowAxis: StoryObj< typeof LineChart > = Template.bind( {} );
+BelowAxis.args = {
+	...tooltipStoryArgs,
+	height: 220,
+	tooltipPlacement: 'below-axis',
+	tooltipStyle: {
+		background: 'var(--a8c-charts-color-tooltip-surface)',
+		color: 'var(--a8c-charts-color-label-inverse)',
+	},
+	renderTooltip: renderWideTooltip( 120 ),
+	withTooltipCrosshairs: {
+		showVertical: true,
+		verticalStyle: { strokeWidth: 40, strokeOpacity: 0.12 },
+	},
+};
+BelowAxis.parameters = {
+	docs: {
+		description: {
+			story:
+				'Hover a datum or focus the chart and use the arrow keys. A broad translucent crosshair highlights the active column. The tooltip stays below the x-axis label band and can extend past the chart. Its pointer touches the bottom of that band. At horizontal edges, the panel shifts while its pointer stays anchored to the datum.',
+		},
+	},
+};
+
+export const BelowAxisDefaultRenderer: StoryObj< typeof LineChart > = Template.bind( {} );
+BelowAxisDefaultRenderer.args = {
+	...BelowAxis.args,
+	renderTooltip: undefined,
+};
+BelowAxisDefaultRenderer.parameters = {
+	docs: {
+		description: {
+			story:
+				'See [Below-Axis Tooltips](?path=/docs/js-packages-charts-library-charts-line-chart--docs#below-axis-tooltips) for default renderer styling.',
+		},
+	},
+};
+
+export const BelowAxisBackgroundOnly: StoryObj< typeof LineChart > = Template.bind( {} );
+BelowAxisBackgroundOnly.args = {
+	...BelowAxisDefaultRenderer.args,
+	tooltipStyle: { background: '#fff' },
+};
+
+export const BelowAxisColorOnly: StoryObj< typeof LineChart > = Template.bind( {} );
+BelowAxisColorOnly.args = {
+	...BelowAxisDefaultRenderer.args,
+	tooltipStyle: { color: 'var(--a8c-charts-color-label-inverse)' },
+};

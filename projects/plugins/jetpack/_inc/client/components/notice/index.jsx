@@ -1,10 +1,7 @@
+import { Notice } from '@wordpress/ui';
 import clsx from 'clsx';
 import PropTypes from 'prop-types';
 import { Component } from 'react';
-import Gridicon from 'components/gridicon';
-import onKeyDownCallback from 'utils/onkeydown-callback';
-
-import './style.scss';
 
 const noop = () => {};
 
@@ -30,8 +27,9 @@ export default class SimpleNotice extends Component {
 			PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) ),
 		] ),
-		icon: PropTypes.string,
+		title: PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 		onDismissClick: PropTypes.func,
+		dismissText: PropTypes.string,
 		className: PropTypes.string,
 		display: PropTypes.bool,
 	};
@@ -50,28 +48,19 @@ export default class SimpleNotice extends Component {
 		}
 	}
 
-	getIcon = () => {
-		let icon;
-
+	getIntent = () => {
 		switch ( this.props.status ) {
 			case 'is-info':
-				icon = 'info';
-				break;
+				return 'info';
 			case 'is-success':
-				icon = 'checkmark';
-				break;
+				return 'success';
 			case 'is-error':
-				icon = 'notice';
-				break;
+				return 'error';
 			case 'is-warning':
-				icon = 'notice';
-				break;
+				return 'warning';
 			default:
-				icon = 'info';
-				break;
+				return 'neutral';
 		}
-
-		return icon;
 	};
 
 	clearText = text => {
@@ -85,45 +74,38 @@ export default class SimpleNotice extends Component {
 		const {
 			children,
 			className,
-			icon,
 			isCompact,
 			onDismissClick,
 			showDismiss = ! isCompact, // by default, show on normal notices, don't show on compact ones
-			status,
 			text,
+			title,
 			dismissText,
 			display,
 		} = this.props;
-		const classes = clsx( 'dops-notice', status, className, {
-			'is-compact': isCompact,
-			'is-dismissable': showDismiss,
-			'is-hidden': ! display,
-		} );
+
+		// `text` marks the caller as using the two-slot form, where children are the
+		// actions. Without it, children are the body.
+		const body = text ? this.clearText( text ) : children;
+		const actions = text ? children : null;
 
 		return (
-			<div className={ classes }>
-				<span className="dops-notice__icon-wrapper">
-					<Gridicon className="dops-notice__icon" icon={ icon || this.getIcon() } size={ 24 } />
-				</span>
-				<span className="dops-notice__content">
-					<span className="dops-notice__text">{ text ? this.clearText( text ) : children }</span>
-				</span>
-				{ text ? children : null }
-				{ showDismiss && (
-					<span
-						role="button"
-						onKeyDown={ onKeyDownCallback( onDismissClick ) }
-						tabIndex="0"
-						className="dops-notice__dismiss"
-						onClick={ onDismissClick }
-					>
-						<Gridicon icon="cross" size={ 24 } />
-						<span className="dops-notice__screen-reader-text screen-reader-text">
-							{ dismissText }
-						</span>
-					</span>
+			<Notice.Root
+				intent={ this.getIntent() }
+				// `Notice.Root`'s own class is a CSS-module hash, so page styles need
+				// `jp-notice`. `is-hidden` keeps `display` hiding the notice rather than
+				// unmounting it: children like NoticeActionReconnect track on mount.
+				className={ clsx( 'jp-notice', className, { 'is-hidden': ! display } ) }
+				// The legacy notice never announced. Several of these are permanent, and
+				// the ones that should announce already sit in an aria-live container.
+				spokenMessage={ null }
+			>
+				{ title ? <Notice.Title>{ title }</Notice.Title> : null }
+				{ ( body || body === 0 ) && (
+					<Notice.Description render={ <div /> }>{ body }</Notice.Description>
 				) }
-			</div>
+				{ actions ? <Notice.Actions>{ actions }</Notice.Actions> : null }
+				{ showDismiss && <Notice.CloseIcon label={ dismissText } onClick={ onDismissClick } /> }
+			</Notice.Root>
 		);
 	}
 }

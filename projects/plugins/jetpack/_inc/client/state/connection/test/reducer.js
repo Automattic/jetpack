@@ -4,7 +4,6 @@ import {
 	user as userReducer,
 	requests as requestsReducer,
 	connectionRequests,
-	hasSeenWCConnectionModal,
 	isConnectionOwnerName,
 } from '../reducer';
 
@@ -227,16 +226,6 @@ describe( 'requests reducer', () => {
 	} );
 } );
 
-describe( '#hasSeenWCConnectionModal', () => {
-	test( 'should set hasSeenWCConnectionModal to true when', () => {
-		const stateIn = {};
-		const action = {
-			type: 'JETPACK_CONNECTION_HAS_SEEN_WC_CONNECTION_MODAL',
-		};
-		const stateOut = hasSeenWCConnectionModal( stateIn, action );
-		expect( stateOut ).toBe( true );
-	} );
-} );
 describe( 'isConnectionOwnerName Selector', () => {
 	test( 'returns the connection owner name if it exists', () => {
 		const state = {

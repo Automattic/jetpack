@@ -16,14 +16,17 @@ import { useCallback, useEffect, useId, useMemo, useRef, useState } from 'react'
 /**
  * Internal dependencies
  */
-import { formatComparisonSeriesLabel, fromChartDate } from '../../helpers';
+import { formatComparisonSeriesLabel, isEmptyChartData, type ChartBaseline } from '../../helpers';
 import { useSeriesStyles } from '../../hooks';
 import { ComparativeBarChart } from '../chart-comparative-bar';
 import { ComparativeLineChart } from '../chart-comparative-line';
 import { MetricWithComparison } from '../metric-with-comparison';
 import styles from './metric-tabs-chart.module.scss';
-import type { DataFormat } from '../../types';
-import type { ComparativeLineChartSeries } from '../chart-comparative-line/types';
+import type { CountLabel, DataFormat } from '../../types';
+import type {
+	ComparativeLineChartSeries,
+	TooltipExtraSeries,
+} from '../chart-comparative-line/types';
 import type { ComponentProps, CSSProperties, ReactNode } from 'react';
 
 /**
@@ -50,7 +53,8 @@ type ChartActivateParams = Parameters<
 
 export interface MetricTabDatum {
 	date: Date;
-	value: number;
+	/** Null for a bucket with no reading, which the chart draws as a gap. */
+	value: number | null;
 }
 
 /**
@@ -71,20 +75,38 @@ export interface MetricTab {
 	previous?: MetricTabDatum[];
 	/** Per-metric format override (e.g. percentage); falls back to the chart-level `dataFormat`. */
 	dataFormat?: DataFormat;
+	countLabel?: CountLabel;
 	/** Optional explanatory text, surfaced as the card's tooltip. */
 	description?: string;
 	/**
-	 * Key of the metric to draw beside this one, hidden until the reader reveals it
-	 * from the legend. A key naming no metric in the list, the metric itself, or an
-	 * `unavailable` metric, is ignored.
+	 * Key of the metric to draw beside this one, visible from the start unless
+	 * `counterpartHidden` is set. A key naming no metric in the list, the metric
+	 * itself, or a metric without a series, is ignored.
 	 */
 	counterpartKey?: string;
+	/** Start the counterpart hidden, so the legend offers it as a one-click comparison. */
+	counterpartHidden?: boolean;
 	/**
-	 * Why this metric has no data at the current bucket size. Set it and the card
+	 * Why this metric has no data for the current window. Set it and the card
 	 * shows a placeholder instead of a value, and the chart the reason instead of
 	 * a flat zero line. The tab stays selectable, so the reason is reachable.
 	 */
 	unavailable?: string;
+	/**
+	 * Why the chart has no series for this metric while the card still shows its
+	 * value: a total the endpoint serves, but not at this bucket size.
+	 */
+	seriesUnavailable?: string;
+}
+
+/**
+ * Whether a metric has a series the chart can draw.
+ *
+ * @param metric - The metric to check.
+ * @return False when the metric, or only its series, is unavailable.
+ */
+function hasSeries( metric: MetricTab ): boolean {
+	return ! metric.unavailable && ! metric.seriesUnavailable;
 }
 
 /**
@@ -114,25 +136,26 @@ export interface MetricTabsChartProps {
 	 */
 	tickResolution?: TickResolution;
 	/**
-	 * Whether each point's date is a Stats bucket's wall clock rather than a real
-	 * instant; wall clocks are re-anchored via `fromChartDate` before a label reads
-	 * them. Full rationale in `chart-date.ts`.
-	 */
-	pointsAreWallClocks?: boolean;
-	/**
 	 * A click on the plot, or Enter on the keyboard-selected point, carrying the
 	 * date of that bucket. Omit to leave the chart non-interactive.
 	 */
 	onDatumClick?: ( date: Date ) => void;
+	/**
+	 * Which metrics the tooltip reads out at the hovered date: the drawn one
+	 * (`active`, the default), or every metric in the list (`all`), the way the
+	 * classic WordAds chart lists ads served, CPM and revenue whichever tab is up.
+	 */
+	tooltipMetrics?: 'active' | 'all';
+	/**
+	 * Where a line chart's value axis starts; see `ComparativeLineChart`. Bars
+	 * pick their own baseline; see `ComparativeBarChart`.
+	 */
+	baseline?: ChartBaseline;
+	/**
+	 * Drawn in the plot, in place of the chart, for a metric with no non-zero reading in either period, so a window without data does not read as a flat zero line. The tabs stay, showing their zeros. Omit to draw that line.
+	 */
+	empty?: ReactNode;
 }
-
-/**
- * Resolves a chart point's date to the instant its label should name. Which one
- * applies is the producer's to declare, through `pointsAreWallClocks`.
- */
-type ReadPointDate = ( date: Date ) => Date;
-
-const asInstant: ReadPointDate = date => date;
 
 /**
  * Build the chart series for a metric: current period plus, when present, the
@@ -148,7 +171,7 @@ function buildSeries(
 	chartType: MetricTabsChartType
 ): ComparativeLineChartSeries[] {
 	const series: ComparativeLineChartSeries[] = [
-		{ label: metric.label, group: metric.key, data: metric.current },
+		{ label: metric.label, group: metric.key, data: metric.current, countLabel: metric.countLabel },
 	];
 
 	if ( metric.previous?.length ) {
@@ -167,7 +190,7 @@ function buildSeries(
 								fromOpacity: 0,
 								toOpacity: 0,
 							},
-					  },
+						},
 		} );
 	}
 
@@ -176,30 +199,55 @@ function buildSeries(
 
 /**
  * The chart for a single metric — the current period with its previous-period
- * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it but
- * seeded hidden, so the legend offers it as a one-click comparison.
+ * overlay, drawn as lines or bars. A `counterpart` is drawn alongside it, seeded
+ * hidden only when the metric sets `counterpartHidden`.
  *
  * @return The chart for the metric.
  */
 function MetricChart( {
 	metric,
 	counterpart,
+	metrics,
+	tooltipMetrics,
 	dataFormat,
 	chartType,
 	chartId,
 	tickResolution,
-	readPointDate,
 	onDatumClick,
+	baseline,
+	empty,
 }: {
 	metric: MetricTab;
 	counterpart?: MetricTab;
+	metrics: MetricTab[];
+	tooltipMetrics: 'active' | 'all';
 	dataFormat: DataFormat;
 	chartType: MetricTabsChartType;
+	baseline?: ChartBaseline;
 	chartId: string;
 	tickResolution?: TickResolution;
-	readPointDate: ReadPointDate;
 	onDatumClick?: ( date: Date ) => void;
+	empty?: ReactNode;
 } ) {
+	// Every other metric's current period, each in its own format. A counterpart
+	// is included too: the chart lists a drawn series once, so revealing it from
+	// the legend does not duplicate its row, and hiding it again lists it as a
+	// supplementary row instead. Memoised so the chart's tooltip memos hold.
+	const tooltipExtras = useMemo( (): TooltipExtraSeries[] | undefined => {
+		if ( tooltipMetrics !== 'all' ) {
+			return undefined;
+		}
+
+		return metrics
+			.filter( candidate => candidate.key !== metric.key && hasSeries( candidate ) )
+			.map( candidate => ( {
+				label: candidate.label,
+				data: candidate.current,
+				dataFormat: candidate.dataFormat ?? dataFormat,
+				countLabel: candidate.countLabel,
+			} ) );
+	}, [ metrics, metric.key, tooltipMetrics, dataFormat ] );
+
 	const { series, defaultHiddenSeries } = useMemo( () => {
 		const active = buildSeries( metric, chartType );
 
@@ -210,12 +258,12 @@ function MetricChart( {
 		const paired = buildSeries( counterpart, chartType );
 		return {
 			series: [ ...active, ...paired ],
-			defaultHiddenSeries: paired.map( item => item.label ),
+			defaultHiddenSeries: metric.counterpartHidden ? paired.map( item => item.label ) : undefined,
 		};
 	}, [ metric, counterpart, chartType ] );
 	const formatTooltipDate = useCallback(
-		( date: Date, format: DateFormatName ) => formatDate( readPointDate( date ), format ),
-		[ readPointDate ]
+		( date: Date, format: DateFormatName ) => formatDate( date, format ),
+		[]
 	);
 
 	const pointerDownRef = useRef< { x: number; y: number } | null >( null );
@@ -227,10 +275,10 @@ function MetricChart( {
 			const date = ( datum as { date?: unknown } | undefined )?.date;
 
 			if ( date instanceof Date ) {
-				onDatumClick?.( readPointDate( date ) );
+				onDatumClick?.( date );
 			}
 		},
-		[ onDatumClick, readPointDate ]
+		[ onDatumClick ]
 	);
 
 	const handlePointerDown = useCallback( ( { svgPoint }: ChartPointerParams ) => {
@@ -272,7 +320,7 @@ function MetricChart( {
 				onPointerDown: handlePointerDown,
 				onPointerUp: handlePointerUp,
 				onDatumActivate: handleActivate,
-		  }
+			}
 		: {};
 
 	// Resolved from the chart theme so the lines and the tooltip glyphs match. Bars
@@ -284,8 +332,21 @@ function MetricChart( {
 	// periods collapsed — and clicking it would only empty the chart.
 	const legendInteractive = !! counterpart;
 
-	if ( metric.unavailable ) {
-		return <div className={ styles.unavailableChart }>{ metric.unavailable }</div>;
+	if ( ! hasSeries( metric ) ) {
+		return (
+			<div className={ styles.unavailableChart }>
+				{ metric.unavailable ?? metric.seriesUnavailable }
+			</div>
+		);
+	}
+
+	// The other metrics' hover readout keeps the graph up while any of them has data.
+	if (
+		empty &&
+		isEmptyChartData( [ { data: metric.current }, { data: metric.previous ?? [] } ] ) &&
+		isEmptyChartData( tooltipExtras ?? [] )
+	) {
+		return <>{ empty }</>;
 	}
 
 	return chartType === 'bar' ? (
@@ -297,6 +358,7 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -310,6 +372,8 @@ function MetricChart( {
 			legendInteractive={ legendInteractive }
 			tickResolution={ tickResolution }
 			formatTooltipDate={ formatTooltipDate }
+			tooltipExtras={ tooltipExtras }
+			baseline={ baseline }
 			compactWhenShort
 			{ ...drillHandlers }
 		/>
@@ -389,10 +453,11 @@ export function MetricTabsChart( {
 	controls,
 	groupLabel = __( 'Select metric', 'jetpack-premium-analytics-pkg' ),
 	tickResolution,
-	pointsAreWallClocks = false,
 	onDatumClick,
+	tooltipMetrics = 'active',
+	baseline,
+	empty,
 }: MetricTabsChartProps ) {
-	const readPointDate = pointsAreWallClocks ? fromChartDate : asInstant;
 	const [ selectedKey, setSelectedKey ] = useState( defaultMetricKey ?? metrics[ 0 ]?.key );
 
 	// The chart seeds its hidden series once per chart ID, so a stable ID would leave
@@ -412,7 +477,7 @@ export function MetricTabsChart( {
 
 			// A counterpart with nothing to report at this bucket size would reveal as
 			// a flat zero line for a series the request never asked for.
-			return counterpart?.unavailable ? undefined : counterpart;
+			return counterpart && hasSeries( counterpart ) ? counterpart : undefined;
 		},
 		[ metrics ]
 	);
@@ -425,7 +490,7 @@ export function MetricTabsChart( {
 	// oscillates the width around grid snap boundaries fast enough to freeze the page.
 	const [ width, setWidth ] = useState< number >();
 	const hasMeasuredRef = useRef( false );
-	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >();
+	const flipTimerRef = useRef< ReturnType< typeof setTimeout > >( undefined );
 	const measureRef = useResizeObserver< HTMLDivElement >( entries => {
 		const rect = entries[ 0 ]?.contentRect;
 		if ( ! rect ) {
@@ -480,12 +545,15 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ activeMetric }
 						counterpart={ counterpartFor( activeMetric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
+						baseline={ baseline }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( activeMetric ) }
 						tickResolution={ tickResolution }
-						readPointDate={ readPointDate }
 						onDatumClick={ onDatumClick }
+						empty={ empty }
 					/>
 				</div>
 			</div>
@@ -550,12 +618,15 @@ export function MetricTabsChart( {
 						<MetricChart
 							metric={ activeMetric }
 							counterpart={ counterpartFor( activeMetric ) }
+							metrics={ metrics }
+							tooltipMetrics={ tooltipMetrics }
+							baseline={ baseline }
 							dataFormat={ dataFormat }
 							chartType={ chartType }
 							chartId={ chartIdFor( activeMetric ) }
 							tickResolution={ tickResolution }
-							readPointDate={ readPointDate }
 							onDatumClick={ onDatumClick }
+							empty={ empty }
 						/>
 					) }
 				</div>
@@ -596,12 +667,15 @@ export function MetricTabsChart( {
 					<MetricChart
 						metric={ metric }
 						counterpart={ counterpartFor( metric ) }
+						metrics={ metrics }
+						tooltipMetrics={ tooltipMetrics }
+						baseline={ baseline }
 						dataFormat={ dataFormat }
 						chartType={ chartType }
 						chartId={ chartIdFor( metric ) }
 						tickResolution={ tickResolution }
-						readPointDate={ readPointDate }
 						onDatumClick={ onDatumClick }
+						empty={ empty }
 					/>
 				</Tabs.Panel>
 			) ) }

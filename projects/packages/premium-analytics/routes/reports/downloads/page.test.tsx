@@ -28,12 +28,11 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
-	ReportCsvAction: () => null,
+	ExporterCsvAction: () => null,
 	ReportErrorState: () => null,
 	ReportPageLayout: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportPageShell: ( { children }: { children: ReactNode } ) => <>{ children }</>,
 	ReportRecordsTable: jest.fn( () => null ),
-	useReportCsvExport: () => ( { canExport: false, rows: [], filename: 'file-downloads' } ),
 	useReportRetry: ( refetch: () => unknown ) => refetch,
 } ) );
 
@@ -104,7 +103,8 @@ describe( 'DownloadsReportPage', () => {
 		expect( reportRecordsTableMock.mock.calls[ 0 ][ 0 ] ).toEqual(
 			expect.objectContaining( {
 				data: [ row ],
-				isLoading: true,
+				isLoading: false,
+				isFetching: true,
 			} )
 		);
 	} );

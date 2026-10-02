@@ -10,11 +10,7 @@ import {
 	Button,
 	Col,
 } from '@automattic/jetpack-components';
-import {
-	useProductCheckoutWorkflow,
-	useConnectionErrorNotice,
-	ConnectionError,
-} from '@automattic/jetpack-connection';
+import { useConnectionErrorNotice, ConnectionError } from '@automattic/jetpack-connection';
 import { FormFileUpload } from '@wordpress/components';
 import { useViewportMatch } from '@wordpress/compose';
 import { __ } from '@wordpress/i18n';
@@ -24,6 +20,7 @@ import { useState } from 'react';
 /**
  * Internal dependencies
  */
+import useVideoPressCheckout from '../../../hooks/use-videopress-checkout';
 import { fileInputExtensions } from '../../../utils/video-extensions';
 import useAnalyticsTracks from '../../hooks/use-analytics-tracks';
 import { useDashboardVideos } from '../../hooks/use-dashboard-videos';
@@ -31,6 +28,7 @@ import { usePermission } from '../../hooks/use-permission';
 import { usePlan } from '../../hooks/use-plan';
 import useSelectVideoFiles from '../../hooks/use-select-video-files';
 import { NeedUserConnectionGlobalNotice } from '../global-notice';
+import PageSubTitle from '../page-subtitle';
 import PricingSection from '../pricing-section';
 import { ConnectSiteSettingsSection as SettingsSection } from '../site-settings-section';
 import { ConnectVideoStorageMeter } from '../video-storage-meter';
@@ -74,7 +72,7 @@ const Admin = () => {
 	return (
 		<AdminPage
 			title={ 'VideoPress' /** "VideoPress" is a product name, do not translate. */ }
-			subTitle={ __( 'Professional quality, ad-free video hosting.', 'jetpack-videopress-pkg' ) }
+			subTitle={ <PageSubTitle /> }
 		>
 			<div
 				className={ clsx( styles[ 'files-overlay' ], {
@@ -120,7 +118,7 @@ const Admin = () => {
 							<Container horizontalSpacing={ 6 } horizontalGap={ 3 }>
 								{ hasConnectionError && (
 									<Col>
-										<ConnectionError />
+										<ConnectionError trackingContext="videopress" />
 									</Col>
 								) }
 
@@ -233,7 +231,7 @@ const UpgradeTrigger = ( { hasUsedVideo = false }: { hasUsedVideo: boolean } ) =
 
 	const { product, hasVideoPressPurchase, isFetchingFeatures } = usePlan();
 	// eslint-disable-next-line @wordpress/no-unused-vars-before-return -- @todo Start extending jetpack-js-tools/eslintrc/react in eslintrc, then we can remove this disable comment.
-	const { run } = useProductCheckoutWorkflow( {
+	const { run } = useVideoPressCheckout( {
 		siteSuffix,
 		productSlug: product.productSlug,
 		redirectUrl: adminUri,

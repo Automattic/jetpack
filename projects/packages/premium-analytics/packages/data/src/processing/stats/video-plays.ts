@@ -28,6 +28,8 @@ export type StatsVideoPlaysItem = StatsNormalizedItemBase & {
 	watch_time: number;
 	retention_rate: number;
 	link: string | null;
+	/** Poster-frame URL, absent when the video has none or is private. */
+	poster?: string;
 	actions?: StatsItemAction[];
 	children: null;
 };
@@ -65,6 +67,7 @@ export function sanitizeStatsVideoPlaysResponse(
 		watch_time: safeParseFloat( item.watch_time ),
 		retention_rate: safeParseFloat( item.retention_rate ),
 		link: typeof item.url === 'string' ? item.url : null,
+		...( typeof item.poster === 'string' && item.poster !== '' ? { poster: item.poster } : {} ),
 		actions: typeof item.url === 'string' ? [ { type: 'link', data: item.url } ] : [],
 		children: null,
 	} );
@@ -95,7 +98,7 @@ export function sanitizeStatsVideoPlaysResponse(
 			? {
 					...normalizeStatsSummary( summarySource, videoDataKeys ),
 					...getStatsSummaryIntervalFields( query, response ),
-			  }
+				}
 			: {},
 		data: summaryData.length
 			? summaryData

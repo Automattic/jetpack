@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { DashboardSectionProvider } from '../../../hooks/use-dashboard-origin-search';
 import { useWidgetRootContext } from '../../widget-root';
 import { ReportLink } from '../report-link';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -112,5 +113,32 @@ describe( 'ReportLink', () => {
 				'section'
 			)
 		).toBe( 'posts-pages' );
+	} );
+
+	it( 'names the dashboard tab the report should return to', () => {
+		render(
+			<DashboardSectionProvider section="insights">
+				<ReportLink report="tags" />
+			</DashboardSectionProvider>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'View all' } );
+		const search = new URL( link.getAttribute( 'href' ) ?? '', 'https://example.com' ).searchParams;
+		expect( search.get( 'ds' ) ).toBe( 'insights' );
+		expect( search.has( 'section' ) ).toBe( false );
+	} );
+
+	it( 'renders children after the label, outside the element that carries the underline', () => {
+		render(
+			<ReportLink report="earnings" label="Adjustments">
+				<span data-testid="count">2</span>
+			</ReportLink>
+		);
+
+		const link = screen.getByRole( 'link', { name: 'Adjustments 2' } );
+		const label = screen.getByText( 'Adjustments' );
+		expect( link ).toContainElement( label );
+		expect( label ).not.toBe( link );
+		expect( label ).not.toContainElement( screen.getByTestId( 'count' ) );
 	} );
 } );

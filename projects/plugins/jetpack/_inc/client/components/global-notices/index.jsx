@@ -69,10 +69,10 @@ class NoticesList extends Component {
 		//and from the old component. When all notices are moved to redux store, this component
 		//needs to be updated.
 		noticesList = noticesList.concat(
-			this.props.storeNotices.map( function ( notice, index ) {
+			this.props.storeNotices.map( function ( notice ) {
 				return (
 					<SimpleNotice
-						key={ 'notice-' + index }
+						key={ notice.instanceId }
 						status={ notice.status }
 						duration={ notice.duration || null }
 						showDismiss={ notice.showDismiss }

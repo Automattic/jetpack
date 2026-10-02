@@ -41,6 +41,10 @@
 
 	.components-button {
 		margin-block: 10px;
+
+		&.is-primary {
+			text-decoration: none;
+		}
 	}
 }
 

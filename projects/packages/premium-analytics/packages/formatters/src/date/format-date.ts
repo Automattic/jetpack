@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { dateI18n, getSettings } from '@wordpress/date';
 /**
  * Internal dependencies
@@ -84,7 +85,7 @@ function formatFor( name: DateFormatName ): string {
 }
 
 /**
- * Format a date in the site's locale and timezone.
+ * Format a date in the site's locale and the reporting timezone.
  *
  * Month and weekday names come from WordPress's translation tables and the
  * ordering from `date_format`, so dates match wp-admin rather than the browser.
@@ -94,7 +95,7 @@ function formatFor( name: DateFormatName ): string {
  * @return The formatted date.
  */
 export const formatDate = ( date: DateInput, name: DateFormatName = 'medium' ): string =>
-	dateI18n( formatFor( name ), date );
+	dateI18n( formatFor( name ), date, reportingTimeZone() );
 
 /**
  * Return a full weekday name in the site's locale.
@@ -120,6 +121,24 @@ export const formatWeekday = ( weekday: number ): string => {
  */
 export const formatMondayFirstWeekday = ( weekday: number ): string =>
 	formatWeekday( ( weekday + 1 ) % 7 );
+
+/**
+ * Return a month name in the site's locale.
+ *
+ * Read from WordPress's own translation tables, like `formatWeekday`, so the
+ * months match the rest of wp-admin rather than the browser's locale.
+ *
+ * @param month         - Zero-based month index (`0` = January).
+ * @param options       - Naming options.
+ * @param options.short - Pick the abbreviated name.
+ * @return The localized month name.
+ */
+export const formatMonth = ( month: number, options: { short?: boolean } = {} ): string => {
+	const { l10n } = getSettings();
+	const months = ( options.short ? l10n.monthsShort : l10n.months ) as string[];
+
+	return months?.[ month ] ?? '';
+};
 
 /** 12-hour clock tokens, zero-padded and not. */
 const TWELVE_HOUR_TOKENS = new Set( [ 'g', 'h' ] );

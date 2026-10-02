@@ -2,6 +2,22 @@
 
 ### This is a list detailing changes for the Jetpack RNA Components package releases.
 
+## [2.0.0] - 2026-09-23
+### Removed
+- Remove methods only the retired Jetpack dashboard used. [#52513]
+
+## [1.0.35] - 2026-09-18
+### Changed
+- Update package dependencies. [#52187]
+
+## [1.0.34] - 2026-09-15
+### Changed
+- Update package dependencies. [#52297]
+
+## [1.0.33] - 2026-09-08
+### Changed
+- Update package dependencies. [#51701]
+
 ## [1.0.32] - 2026-07-20
 ### Changed
 - Update package dependencies. [#50529]
@@ -551,6 +567,10 @@
 - Add the API methods left behind by the previous PR.
 - Initial release of jetpack-api package
 
+[2.0.0]: https://github.com/Automattic/jetpack-api/compare/v1.0.35...v2.0.0
+[1.0.35]: https://github.com/Automattic/jetpack-api/compare/v1.0.34...v1.0.35
+[1.0.34]: https://github.com/Automattic/jetpack-api/compare/v1.0.33...v1.0.34
+[1.0.33]: https://github.com/Automattic/jetpack-api/compare/v1.0.32...v1.0.33
 [1.0.32]: https://github.com/Automattic/jetpack-api/compare/v1.0.31...v1.0.32
 [1.0.31]: https://github.com/Automattic/jetpack-api/compare/v1.0.30...v1.0.31
 [1.0.30]: https://github.com/Automattic/jetpack-api/compare/v1.0.29...v1.0.30

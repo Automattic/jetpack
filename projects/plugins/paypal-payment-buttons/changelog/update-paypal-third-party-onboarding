@@ -1,0 +1,4 @@
+Significance: minor
+Type: changed
+
+Connect with PayPal no longer stores API credentials on the site; PayPal calls for referred sellers are made through WordPress.com.

@@ -65,6 +65,7 @@ class Current_Plan {
 				'core/audio',
 				'multistep-form',
 				'form-webhooks',
+				'form-conditional-logic',
 			),
 		),
 		'personal' => array(

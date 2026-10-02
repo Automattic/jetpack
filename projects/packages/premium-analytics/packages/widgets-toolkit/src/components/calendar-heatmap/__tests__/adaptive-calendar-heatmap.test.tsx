@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import { GlobalChartsProvider } from '@jetpack-premium-analytics/externals';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 /**
@@ -41,50 +42,54 @@ function chartFor( {
 	height,
 	period = PERIOD,
 	valueByDay = VALUE_BY_DAY,
+	locale,
 }: {
 	width: number;
 	height: number;
 	period?: { startDate: string; endDate: string };
 	valueByDay?: Record< string, number | null >;
+	locale?: string;
 } ) {
 	const restoreTileSize = stubTileSize( width, height );
 	let view;
 
 	try {
 		view = render(
-			<AdaptiveCalendarHeatmap valueByDay={ valueByDay } period={ period }>
-				{ ( chartProps: AdaptiveCalendarHeatmapChartProps ) => (
-					<div
-						data-testid="chart"
-						data-columns={ chartProps.data.length }
-						data-show-values={ String( Boolean( chartProps.showValues ) ) }
-						data-width={ String( chartProps.width ) }
-						data-height={ String( chartProps.height ) }
-						data-last-visible-label={
-							chartProps.data
+			<GlobalChartsProvider locale={ locale }>
+				<AdaptiveCalendarHeatmap valueByDay={ valueByDay } period={ period }>
+					{ ( chartProps: AdaptiveCalendarHeatmapChartProps ) => (
+						<div
+							data-testid="chart"
+							data-columns={ chartProps.data.length }
+							data-show-values={ String( Boolean( chartProps.showValues ) ) }
+							data-width={ String( chartProps.width ) }
+							data-height={ String( chartProps.height ) }
+							data-last-visible-label={
+								chartProps.data
+									.flatMap( column => column.data )
+									.filter( cell => ! cell.hidden && ! cell.placeholder )
+									.map( cell => cell.label )
+									.slice( -1 )[ 0 ]
+							}
+							data-values={ chartProps.data
 								.flatMap( column => column.data )
-								.filter( cell => ! cell.hidden && ! cell.placeholder )
-								.map( cell => cell.label )
-								.slice( -1 )[ 0 ]
-						}
-						data-values={ chartProps.data
-							.flatMap( column => column.data )
-							.filter( cell => cell.value !== null )
-							.map( cell => `${ cell.label }:${ cell.value }` )
-							.join( '|' ) }
-						data-placeholders={ String(
-							chartProps.data.flatMap( column => column.data ).filter( cell => cell.placeholder )
-								.length
-						) }
-						data-first-real-label={
-							chartProps.data
-								.flatMap( column => column.data )
-								.filter( cell => ! cell.hidden && ! cell.placeholder )
-								.map( cell => cell.label )[ 0 ]
-						}
-					/>
-				) }
-			</AdaptiveCalendarHeatmap>
+								.filter( cell => cell.value !== null )
+								.map( cell => `${ cell.label }:${ cell.value }` )
+								.join( '|' ) }
+							data-placeholders={ String(
+								chartProps.data.flatMap( column => column.data ).filter( cell => cell.placeholder )
+									.length
+							) }
+							data-first-real-label={
+								chartProps.data
+									.flatMap( column => column.data )
+									.filter( cell => ! cell.hidden && ! cell.placeholder )
+									.map( cell => cell.label )[ 0 ]
+							}
+						/>
+					) }
+				</AdaptiveCalendarHeatmap>
+			</GlobalChartsProvider>
 		);
 	} finally {
 		restoreTileSize();
@@ -162,6 +167,18 @@ describe( 'AdaptiveCalendarHeatmap', () => {
 		// June is still where the grid ends.
 		expect( chart.values ).toBe( 'Mon, Jun 2, 2025:120' );
 		expect( chart.lastVisibleLabel ).toBe( 'Mon, Jun 30, 2025' );
+	} );
+
+	it( "writes the labels in the provider's locale", () => {
+		const chart = chartFor( {
+			width: 1000,
+			height: ONE_ROW_TILE_HEIGHT,
+			period: ONE_MONTH,
+			locale: 'de-DE',
+		} );
+
+		expect( chart.values ).toBe( 'Mo., 2. Juni 2025:120' );
+		expect( chart.lastVisibleLabel ).toBe( 'Mo., 30. Juni 2025' );
 	} );
 
 	it( 'makes the unfetched weeks filler, not no-data cells', () => {

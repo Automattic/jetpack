@@ -11,7 +11,7 @@ import { useMemo } from 'react';
 import { buildTimeSeriesChartData } from '../../helpers';
 import { MetricComparisonWidget } from '../../widgets/metric-comparison';
 import { WidgetState } from '../widget-state';
-import type { DataFormat } from '../../types';
+import type { CountLabel, DataFormat } from '../../types';
 
 type ReportData = {
 	summary: {
@@ -31,6 +31,8 @@ type ReportData = {
 type ReportHookResult = {
 	primary: { data?: ReportData };
 	comparison: { data?: ReportData };
+	/** The zone both reports were built and normalized under. */
+	timezone: string;
 	isLoading: boolean;
 	isFetching: boolean;
 	hasData: boolean;
@@ -70,6 +72,8 @@ export type ReportMetricWidgetProps = {
 	 * ranges `buildTimeSeriesChartData` labels the series with.
 	 */
 	seriesLabel?: string;
+
+	seriesCountLabel?: CountLabel;
 };
 
 /**
@@ -83,6 +87,7 @@ export function ReportMetricWidget( {
 	emptyStateText,
 	errorText,
 	seriesLabel,
+	seriesCountLabel,
 }: ReportMetricWidgetProps ) {
 	const { getElementStyles } = useGlobalChartsContext();
 
@@ -101,8 +106,10 @@ export function ReportMetricWidget( {
 		},
 		comparison: comparisonData,
 		metricKey,
+		zone: data.timezone,
 		emptyDataFallback: 'empty-array',
 		label: seriesLabel,
+		countLabel: seriesCountLabel,
 	} );
 
 	const seriesStyles = useMemo(

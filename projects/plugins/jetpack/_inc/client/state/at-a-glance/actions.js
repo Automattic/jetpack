@@ -133,13 +133,13 @@ export const checkAkismetKey = ( apiKey = '' ) => {
 							type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
 							akismet: isAkismetKeyValid,
 						} );
-				  } )
+					} )
 				: restApi.checkAkismetKeyTyped( apiKey ).then( isAkismetKeyValid => {
 						dispatch( {
 							type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
 							akismet: isAkismetKeyValid,
 						} );
-				  } );
+					} );
 		return response.catch( error => {
 			dispatch( {
 				type: AKISMET_KEY_CHECK_FETCH_FAIL,

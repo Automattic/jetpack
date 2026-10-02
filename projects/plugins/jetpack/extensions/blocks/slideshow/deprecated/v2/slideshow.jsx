@@ -207,7 +207,7 @@ class Slideshow extends Component {
 						? {
 								delay: this.props.delay * 1000,
 								disableOnInteraction: false,
-						  }
+							}
 						: false,
 				effect: this.props.effect,
 				loop: true,

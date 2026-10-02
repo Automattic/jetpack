@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
+import { ENGLISH_SITE_COPY } from './site-copy.fixture.mts';
 import { createVideoPage } from './video-page.ts';
 
 type PageData = { title: string; content: string; status: string; meta: object };
@@ -32,7 +33,11 @@ function blockNames( content: string ): string[] {
 describe( 'createVideoPage', () => {
 	it( 'creates a marked draft page: a heading, the AI intro, and one empty video block', async () => {
 		const { fetcher, requests } = stubFetcher();
-		const result = await createVideoPage( 'Every glaze test, filmed start to finish.', fetcher );
+		const result = await createVideoPage(
+			'Every glaze test, filmed start to finish.',
+			ENGLISH_SITE_COPY,
+			fetcher
+		);
 
 		assert.deepEqual( result, { page_id: 42, edit_url: '/wp-admin/post.php?post=42&action=edit' } );
 		const request = requests[ 0 ];
@@ -69,7 +74,7 @@ describe( 'createVideoPage', () => {
 		// So: nothing on this page points anywhere. If someone later "improves" the page by reaching
 		// for a pattern or dropping in an example clip, this fails first and loudly.
 		const { fetcher, requests } = stubFetcher();
-		await createVideoPage( 'Watch the studio at work.', fetcher );
+		await createVideoPage( 'Watch the studio at work.', ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.ok( ! /https?:|\/\//.test( content ), 'the page points at a URL' );
@@ -105,7 +110,7 @@ describe( 'createVideoPage', () => {
 		// every site that cannot use it — and the CTA on the sites that kept it would still open a
 		// block half of them have never been sold. A namespaced block delimiter is the tell.
 		const { fetcher, requests } = stubFetcher();
-		await createVideoPage( undefined, fetcher );
+		await createVideoPage( undefined, ENGLISH_SITE_COPY, fetcher );
 
 		assert.deepEqual( blockNames( requests[ 0 ].data.content ), [ 'heading', 'video' ] );
 	} );
@@ -119,7 +124,7 @@ describe( 'createVideoPage', () => {
 		// attribute). It also means three of them would be three identical grey cards to scroll past
 		// and delete, where three blank event entries cost two lines each.
 		const { fetcher, requests } = stubFetcher();
-		await createVideoPage( 'Watch the studio at work.', fetcher );
+		await createVideoPage( 'Watch the studio at work.', ENGLISH_SITE_COPY, fetcher );
 		const content = requests[ 0 ].data.content;
 
 		assert.equal( blockNames( content ).filter( name => 'video' === name ).length, 1 );
@@ -135,7 +140,7 @@ describe( 'createVideoPage', () => {
 		// we just created for them. `<figure class="wp-block-video"></figure>` — what core/video's own
 		// save() emits with no src — parses to isValid=true.
 		const { fetcher, requests } = stubFetcher();
-		await createVideoPage( undefined, fetcher );
+		await createVideoPage( undefined, ENGLISH_SITE_COPY, fetcher );
 
 		assert.ok( ! requests[ 0 ].data.content.includes( 'wp:video /-->' ) );
 		assert.match( requests[ 0 ].data.content, /<figure class="wp-block-video"><\/figure>/ );
@@ -143,7 +148,11 @@ describe( 'createVideoPage', () => {
 
 	it( 'escapes the AI-written intro rather than emitting it as markup', async () => {
 		const { fetcher, requests } = stubFetcher();
-		await createVideoPage( 'Takes <all> the guesswork out & shows the misfires.', fetcher );
+		await createVideoPage(
+			'Takes <all> the guesswork out & shows the misfires.',
+			ENGLISH_SITE_COPY,
+			fetcher
+		);
 
 		assert.match(
 			requests[ 0 ].data.content,
@@ -157,7 +166,7 @@ describe( 'createVideoPage', () => {
 		// video block is what the task is for, so the page must arrive with it either way.
 		for ( const intro of [ undefined, '', '   ' ] ) {
 			const { fetcher, requests } = stubFetcher();
-			await createVideoPage( intro, fetcher );
+			await createVideoPage( intro, ENGLISH_SITE_COPY, fetcher );
 
 			const content = requests[ 0 ].data.content;
 			assert.ok( content.includes( '<!-- wp:video -->' ), 'the video block must survive' );

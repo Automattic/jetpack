@@ -1,0 +1,4 @@
+Significance: minor
+Type: removed
+
+Remove the `includeHealthErrors` option from `useConnectionErrorNotice` and `ConnectionError`, along with the connection health-check store state and selector. `runConnectionHealthCheck` is now a deprecated no-op.

@@ -39,8 +39,7 @@ type BookingsRevenueByCustomerTypeStoryProps = BookingsRevenueByCustomerTypeRend
 	BookingsRevenueByCustomerTypeStoryControls;
 
 interface BookingsRevenueByCustomerTypeDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		BookingsRevenueByCustomerTypeStoryControls {}
+	extends WidgetDashboardWithWidgetControls, BookingsRevenueByCustomerTypeStoryControls {}
 
 function getBookingsRevenueByCustomerTypeAttributes(
 	withComparison = false,

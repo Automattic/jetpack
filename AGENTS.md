@@ -119,7 +119,10 @@ Five shapes exceed the budget however well they explain themselves:
 - **Provenance that rots** — upstream file-and-line citations, "before this PR…", benchmark
   numbers, mutation-testing counts. A stable link survives; a line number does not.
 - **The same explanation in more than one place.** Put it in the file that owns the thing,
-  nowhere else. N copies drift independently, so a reader cannot tell which is current.
+  nowhere else. N copies drift independently, so a reader cannot tell which is current. This is
+  the one rule here you cannot check from the file you are typing in: before writing a rationale,
+  grep a distinctive phrase from it. If one already exists, don't add the second — improve the
+  first where it lives.
 
 Keep every functional annotation regardless: `@param`, `@return`, `@covers`, `translators:`,
 `phpcs:ignore`, `eslint-disable`, `@ts-expect-error`. Those are required tooling or load-bearing
@@ -225,7 +228,7 @@ jp dependencies list js-packages/components --add-dependents --extra build --no-
 
 Then narrow that list. A widely-shared js-package can list well over a dozen plugins; add an entry for one only when a user of *that plugin* could notice the change. Skip it when:
 
-- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product, and they read about it in that product's changelog. Check that the card really is the only route, though: `js-packages/boost-score-api` sits behind the Boost card, but `plugins/jetpack` also calls it straight from At a Glance, so a change there reaches Jetpack plugin users too.
+- **The change belongs to another product and this plugin only contains it via a My Jetpack product card.** A change to a My Jetpack product card belongs in the changelogs of the plugins that ship that product. Every other plugin renders the card only for someone who already has that product, and they read about it in that product's changelog. Check that the card really is the only route, though: `packages/waf` sits behind the Protect card, but `plugins/jetpack` also runs the firewall itself and configures it from Settings › Security, so a change there reaches Jetpack plugin users too.
 - **The plugin never reaches the changed code.** `js-packages/components` is a build dependency of nearly every plugin in the monorepo, but `DiffViewer` reaches only `plugins/protect`.
 - **It is reachable only under conditions the plugin never creates** — a module it does not register, a plan or product it does not sell, or a host it does not run on. Check the gate rather than the dependency, because the same code can qualify for one plugin and not another: the WordPress.com-only paths in `packages/masterbar` never run on a self-hosted site, but they are the whole reason `plugins/wpcomsh` bundles the package.
 - **The plugin's changelog is not a product record.** `starter-plugin` is a scaffolding template, and `mu-wpcom-plugin` is the wrapper that exists so `packages/jetpack-mu-wpcom` can be deployed to WordPress.com Simple at all (it doubles as a test plugin for the package). Nobody installs either one, so nobody reads either changelog to find out what changed on their site — what a Simple site owner would notice belongs in the package's own entry. Keep this one narrow: it is about those two, not about any plugin you have not heard of.
@@ -343,10 +346,13 @@ Before introducing new dependencies:
 - Check for reusable components, utilities, or hooks in shared packages
 - Review existing WordPress core and Jetpack APIs
 - Prioritize internal packages and APIs over external dependencies
+- When plugin PHP code calls a newly added shared-package method, guard it with `method_exists()` and preserve a backward-compatible fallback.
+- Another plugin may load an older class before all Jetpack autoloaders register, or through a different or higher-priority autoloader.
 
 ## Common Pitfalls
 
 - **Do NOT edit WordPress core files** — all changes must be in plugins/packages
+- **WordPress.com uses a partial Jetpack bootstrap** — it can load selected Jetpack files, including defusioned JSON API endpoints, without running `load-jetpack.php`. Code used by those endpoints must explicitly load non-autoloaded dependencies and tolerate host-defined global functions. Test the WordPress.com bootstrap path separately when changing those dependencies.
 - **Git merge conflicts**: after resolving, use `git commit --no-edit --no-verify` — pre-commit hooks can make unintended changes to merge commit files
 - **Do NOT hand-edit generated Phan stubs** — `.phan/stubs/wpcom-stubs.php` (and other generated stub files) are regenerated from the wpcom repo; any manual edit is overwritten. See *Referencing wpcom-only symbols from Jetpack* below.
 

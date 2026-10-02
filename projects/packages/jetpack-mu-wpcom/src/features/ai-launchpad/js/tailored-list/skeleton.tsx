@@ -1,3 +1,5 @@
+import { Skeleton, Stack } from '@wordpress/ui';
+
 const PLACEHOLDER_COUNT = 5;
 
 /**
@@ -8,14 +10,10 @@ const PLACEHOLDER_COUNT = 5;
  */
 export function TailoredListSkeleton() {
 	return (
-		<div className="ai-launchpad-tailored-list">
+		<Stack direction="column" gap="sm" className="ai-launchpad-tailored-list">
 			{ Array.from( { length: PLACEHOLDER_COUNT } ).map( ( _, index ) => (
-				<span
-					key={ index }
-					className="ai-launchpad-tailored-list__skeleton-bar"
-					aria-hidden="true"
-				/>
+				<Skeleton key={ index } className="ai-launchpad-tailored-list__skeleton-bar" />
 			) ) }
-		</div>
+		</Stack>
 	);
 }

@@ -76,7 +76,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		( new \Automattic\Jetpack\Connection\Manager( 'jetpack' ) )->reset_connection_status();
 		delete_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
 		delete_option( 'launch-status' );
-		unregister_setting( 'general', 'reader_chat' );
+		unregister_setting( 'jetpack_search', 'reader_chat' );
 		$GLOBALS['wp_scripts'] = $this->saved_wp_scripts;
 		$GLOBALS['wp_styles']  = $this->saved_wp_styles;
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -137,6 +137,7 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 		}
 
 		$wpcom_plan_info_class::$supports_search = true;
+		$wpcom_plan_info_class::$is_free         = false;
 
 		$wpcom_plan_info_class::$disabled_due_to_overage = false;
 
@@ -289,6 +290,8 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 	 * Test that register_settings() registers reader_chat without a proxied rollout gate.
 	 */
 	public function test_register_settings_registers_reader_chat_setting() {
+		global $new_allowed_options;
+
 		Jetpack_Reader_Chat::register_settings();
 		$registered_settings = get_registered_settings();
 
@@ -306,6 +309,9 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			$registered_settings['reader_chat']['description'] ?? '',
 			'reader_chat description should use the Site Chat name.'
 		);
+		$this->assertSame( 'jetpack_search', $registered_settings['reader_chat']['group'] );
+		$this->assertContains( 'reader_chat', $new_allowed_options['jetpack_search'] ?? array() );
+		$this->assertNotContains( 'reader_chat', $new_allowed_options['general'] ?? array() );
 	}
 
 	// ──────────────────────────────────────────────────
@@ -502,6 +508,39 @@ class Jetpack_Reader_Chat_Test extends WP_UnitTestCase {
 			wp_script_is( 'jetpack-reader-chat', 'enqueued' ),
 			'Script should not be enqueued when cached Search plan info is missing.'
 		);
+	}
+
+	public function test_enqueue_scripts_skips_free_search_plan() {
+		$this->override_ai_features( true );
+		$plan_info = get_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY );
+		$plan_info['effective_subscription']['product_slug'] = Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG;
+		update_option( Plan::JETPACK_SEARCH_PLAN_INFO_OPTION_KEY, $plan_info );
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'jetpack-reader-chat', 'enqueued' ) );
+	}
+
+	public function test_enqueue_scripts_skips_forced_free_plan() {
+		$this->override_ai_features( true );
+		$_GET['free_plan'] = '1';
+		try {
+			Jetpack_Reader_Chat::enqueue_scripts();
+			$this->assertFalse( wp_script_is( 'jetpack-reader-chat', 'enqueued' ) );
+		} finally {
+			unset( $_GET['free_plan'] );
+		}
+	}
+
+	public function test_enqueue_scripts_skips_wpcom_simple_free_search_plan() {
+		$this->register_wpcom_plan_info_test_double();
+		Constants::set_constant( 'IS_WPCOM', true );
+		$this->override_ai_features( true );
+		\Jetpack\Search\Plan_Info::$is_free = true;
+
+		Jetpack_Reader_Chat::enqueue_scripts();
+
+		$this->assertFalse( wp_script_is( 'jetpack-reader-chat', 'enqueued' ) );
 	}
 
 	/**

@@ -48,7 +48,14 @@ function MostCommentedPostsInner() {
 
 		return rows.map( row => ( {
 			id: row.id,
-			label: <LeaderboardPostLabel id={ row.postId } label={ row.label } link={ row.link } />,
+			label: (
+				<LeaderboardPostLabel
+					id={ row.postId }
+					label={ row.label }
+					link={ row.link }
+					origin={ { report: 'comments', section: 'posts' } }
+				/>
+			),
 			currentValue: row.value,
 			currentShare: sharePercentage( row.value, maxValue ),
 		} ) );

@@ -7,6 +7,7 @@ import { __, sprintf } from '@wordpress/i18n';
  * Internal dependencies
  */
 import styles from './fields.module.css';
+import type { StatsLocationCoordinates } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
 export type LocationRow = {
@@ -16,6 +17,7 @@ export type LocationRow = {
 	countryFull: string;
 	views: number;
 	previousViews?: number;
+	coordinates?: StatsLocationCoordinates;
 };
 
 const VIEWS_DATA_FORMAT = {
@@ -64,7 +66,7 @@ export function getLocationFields(
 					enableSorting: false,
 					getValue: ( { item } ) => item.countryCode ?? '',
 				},
-		  ]
+			]
 		: [];
 
 	return [

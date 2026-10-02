@@ -56,7 +56,7 @@ export function SeoEnhancer( {
 		return blocks.length
 			? getAllBlocks().filter(
 					block => block.name === 'core/image' && block.attributes.url && ! block.attributes.alt
-			  )
+				)
 			: [];
 	}, [ blocks ] );
 

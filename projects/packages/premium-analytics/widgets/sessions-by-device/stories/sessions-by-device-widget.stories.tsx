@@ -35,8 +35,7 @@ interface SessionsByDeviceStoryControls {
 type SessionsByDeviceStoryProps = SessionsByDeviceWidgetProps & SessionsByDeviceStoryControls;
 
 interface SessionsByDeviceDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		SessionsByDeviceStoryControls {}
+	extends WidgetDashboardWithWidgetControls, SessionsByDeviceStoryControls {}
 
 function getSessionsByDeviceAttributes(
 	withComparison = false,

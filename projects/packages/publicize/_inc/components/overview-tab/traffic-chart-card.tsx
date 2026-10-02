@@ -20,6 +20,7 @@ import { buildSeries } from '../../utils/traffic-series';
 import './traffic-chart-card.scss';
 import { buildMockReferrers } from './traffic-mock';
 import type { Connection, TrafficInterval } from '../../social-store/types';
+import type { JSX } from 'react';
 
 const CHART_HEIGHT = 240;
 
@@ -110,7 +111,7 @@ export default function TrafficChartCard(): JSX.Element {
 					'jetpack-publicize-pkg'
 				),
 				planName
-		  )
+			)
 		: genericUpgradeText;
 
 	const onIntervalChange = useCallback(

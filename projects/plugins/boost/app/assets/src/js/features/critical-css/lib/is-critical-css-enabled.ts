@@ -1,4 +1,4 @@
-import { ModulesState } from '$features/module/lib/stores';
+import type { ModulesState } from '../../module/lib/stores';
 
 export const isCriticalCssEnabled = ( modulesState: ModulesState | undefined ) => {
 	if ( modulesState?.cloud_css?.available ) {

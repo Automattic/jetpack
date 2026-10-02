@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Make the Delete spam button act on the selected responses or the current filter, show how many responses it will delete, and delete large queues in chunks with progress.

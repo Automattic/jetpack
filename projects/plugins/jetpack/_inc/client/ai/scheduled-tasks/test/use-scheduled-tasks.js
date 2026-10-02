@@ -1,8 +1,11 @@
-import { requestJwt } from '@automattic/jetpack-ai-client';
+import requestJwt from '@automattic/jetpack-ai-client/jwt';
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { useScheduledTasks } from '../use-scheduled-tasks';
 
-jest.mock( '@automattic/jetpack-ai-client', () => ( { requestJwt: jest.fn() } ) );
+jest.mock( '@automattic/jetpack-ai-client/jwt', () => ( {
+	__esModule: true,
+	default: jest.fn(),
+} ) );
 
 const response = body => Promise.resolve( { ok: true, json: () => Promise.resolve( body ) } );
 

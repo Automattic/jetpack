@@ -1,0 +1,68 @@
+// The four arrangements `pickMetricTileLayout` writes to `data-layout`, shared
+// by the loaded grid and its skeleton so the two land in the same place. The
+// including file adds its own dressing: dividers, type, stand-in widths.
+@mixin layouts {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-sm);
+	min-block-size: 100%;
+
+	/* Compact: rows at their own height, the tail scrolling or clipped. */
+	&[data-layout="compact"] {
+		gap: var(--wpds-dimension-gap-xs);
+		min-block-size: 0;
+	}
+
+	&[data-layout="compact"] .tile {
+		flex: none;
+		padding-block: var(--wpds-dimension-padding-sm);
+		padding-inline: var(--wpds-dimension-padding-md);
+	}
+
+	/* Stacked: the rows share the body height evenly. */
+	&[data-layout="stacked"] .tile {
+		flex: 1 1 0;
+		min-block-size: 0;
+		padding-inline: var(--wpds-dimension-padding-lg);
+	}
+
+	/* Row and grid: centered tiles with the label above the value. */
+	&[data-layout="row"],
+	&[data-layout="grid"] {
+		gap: var(--wpds-dimension-gap-md);
+	}
+
+	&[data-layout="row"] .tile,
+	&[data-layout="grid"] .tile {
+		flex-direction: column;
+		justify-content: center;
+		gap: var(--wpds-dimension-gap-sm);
+		text-align: center;
+	}
+
+	&[data-layout="row"] {
+		flex-direction: row;
+	}
+
+	&[data-layout="row"] .tile {
+		flex: 1 1 0;
+		padding-block: var(--wpds-dimension-padding-md);
+		padding-inline: var(--wpds-dimension-padding-lg);
+	}
+
+	&[data-layout="grid"] {
+		display: grid;
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-auto-rows: minmax(0, 1fr);
+	}
+
+	&[data-layout="grid"] .tile {
+		padding: var(--wpds-dimension-padding-lg);
+	}
+
+	/* An odd count leaves the last row half empty, so the trailing tile takes
+	 * the whole row instead. */
+	&[data-layout="grid"] .tile:last-child:nth-child(odd) {
+		grid-column: 1 / -1;
+	}
+}

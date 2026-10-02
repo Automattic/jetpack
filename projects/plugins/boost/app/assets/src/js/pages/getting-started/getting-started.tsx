@@ -3,10 +3,12 @@ import { Snackbar } from '@wordpress/components';
 import { getUpgradeURL, useConnection } from '$lib/stores/connection';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import { BoostPricingTable } from '$features/boost-pricing-table/boost-pricing-table';
+import { detectMode } from '$lib/modern/mode';
+import LicenseKeyLink from '$features/upgrade-cta/license-key-link';
 import BoostAdminPage from '$layout/boost-admin-page/boost-admin-page';
 import styles from './getting-started.module.scss';
 import { useGettingStarted } from '$lib/stores/getting-started';
-import { useNavigate } from 'react-router';
+import { useBoostNavigation } from '$lib/navigation/navigation-context';
 import { __ } from '@wordpress/i18n';
 import { usePremiumFeatures } from '$lib/stores/premium-features';
 import { useSingleModuleState } from '$features/module/lib/stores';
@@ -15,7 +17,7 @@ import type { FC } from 'react';
 const GettingStarted: FC = () => {
 	const [ selectedPlan, setSelectedPlan ] = useState< 'free' | 'premium' | false >( false );
 	const [ snackbarMessage, setSnackbarMessage ] = useState< string >( '' );
-	const navigate = useNavigate();
+	const { returnToSettings } = useBoostNavigation();
 
 	const {
 		site: { domain },
@@ -42,13 +44,13 @@ const GettingStarted: FC = () => {
 				if ( ! isPremium ) {
 					setCriticalCssState( true );
 				}
-				navigate( '/', { replace: true } );
+				returnToSettings( { replace: true } );
 			}
 		}
 	}, [
 		domain,
 		isPremium,
-		navigate,
+		returnToSettings,
 		selectedPlan,
 		setCriticalCssState,
 		shouldGetStarted,
@@ -80,7 +82,7 @@ const GettingStarted: FC = () => {
 	}
 
 	return (
-		<BoostAdminPage>
+		<BoostAdminPage showActivateLicense={ detectMode() !== 'modern' }>
 			<div id="jb-dashboard" className="jb-dashboard jb-dashboard--main">
 				<div className="jb-section jb-section--alt">
 					<div className="jb-container">
@@ -91,6 +93,7 @@ const GettingStarted: FC = () => {
 								chosenFreePlan={ selectedPlan === 'free' }
 								chosenPaidPlan={ selectedPlan === 'premium' }
 							/>
+							<LicenseKeyLink className={ styles[ 'license-key-link' ] } />
 							{ snackbarMessage !== '' && (
 								<Snackbar
 									children={ snackbarMessage }

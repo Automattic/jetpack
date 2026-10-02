@@ -1,5 +1,6 @@
-import { Button, Notice } from '@automattic/jetpack-components';
+import { Button } from '@automattic/jetpack-components';
 import { __ } from '@wordpress/i18n';
+import { Notice } from '@wordpress/ui';
 import { useCallback, useEffect } from 'react';
 import useSeoOptIn from '../../data/use-seo-opt-in';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
@@ -54,16 +55,15 @@ export default function SeoOptInCard() {
 	];
 
 	return (
-		<Notice
-			level="info"
-			hideCloseButton={ true }
-			title={ __( 'A fresh way to manage your SEO', 'jetpack-my-jetpack' ) }
-			actions={ actions }
-		>
-			{ __(
-				'Jetpack SEO now has a dedicated dashboard to manage sitemaps, search-engine visibility, social previews, and site verification — all in one place. Switch over whenever you like; your existing settings come with you.',
-				'jetpack-my-jetpack'
-			) }
-		</Notice>
+		<Notice.Root intent="info">
+			<Notice.Title>{ __( 'A fresh way to manage your SEO', 'jetpack-my-jetpack' ) }</Notice.Title>
+			<Notice.Description>
+				{ __(
+					'Jetpack SEO now has a dedicated dashboard to manage sitemaps, search-engine visibility, social previews, and site verification — all in one place. Switch over whenever you like; your existing settings come with you.',
+					'jetpack-my-jetpack'
+				) }
+			</Notice.Description>
+			<Notice.Actions>{ actions }</Notice.Actions>
+		</Notice.Root>
 	);
 }

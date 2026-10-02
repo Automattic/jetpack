@@ -1,5 +1,6 @@
 import apiFetch from '@wordpress/api-fetch';
-import { paragraphsToBlocks } from './paragraph-blocks.ts';
+import { blockAttributes, headingBlock, paragraphsToBlocks } from './paragraph-blocks.ts';
+import type { SiteCopy } from './types.ts';
 
 interface CreatedPage {
 	id: number;
@@ -23,11 +24,13 @@ interface CreatedPage {
  * not even as a placeholder.
  */
 
-// Untranslated placeholder heading, in the same class as the "About", "Gallery" and "Contact" page
-// titles: jetpack-mu-wpcom's JS strings are not extracted for translation, and the AI intro beside it is
-// English-only for now. The user lands in the editor on it, which is where it gets changed.
-const HEADING_BLOCK =
-	'<!-- wp:heading --><h2 class="wp-block-heading">Upcoming events</h2><!-- /wp:heading -->';
+type EventsCopy = Pick<
+	SiteCopy,
+	| 'events_page_title'
+	| 'events_page_heading'
+	| 'event_name_placeholder'
+	| 'event_details_placeholder'
+>;
 
 /**
  * One blank event: a name, and a line for when and where it happens.
@@ -42,10 +45,20 @@ const HEADING_BLOCK =
  * A heading and a paragraph rather than a list, because the event name is a heading in every sense —
  * it is what the page's outline should show, and it is what a visitor scans for. The pair is also the
  * unit of deletion: an unused entry is two adjacent blocks to select and remove.
+ *
+ * @param copy - The site-language placeholders.
+ * @return The serialized blocks for one entry.
  */
-const EVENT_ENTRY_BLOCKS = `<!-- wp:heading {"level":3,"placeholder":"Event name"} --><h3 class="wp-block-heading"></h3><!-- /wp:heading -->
+function eventEntryBlocks( copy: EventsCopy ): string {
+	return `<!-- wp:heading ${ blockAttributes( {
+		level: 3,
+		placeholder: copy.event_name_placeholder,
+	} ) } --><h3 class="wp-block-heading"></h3><!-- /wp:heading -->
 
-<!-- wp:paragraph {"placeholder":"Date, time, and place"} --><p></p><!-- /wp:paragraph -->`;
+<!-- wp:paragraph ${ blockAttributes( {
+		placeholder: copy.event_details_placeholder,
+	} ) } --><p></p><!-- /wp:paragraph -->`;
+}
 
 /**
  * How many blank entries to leave.
@@ -62,28 +75,30 @@ const EVENT_ENTRY_COUNT = 3;
  * @param intro   - The AI-written opening line, or undefined for an output persisted before
  *                `page_intros` existed and for a run where the model omitted the key. The page is
  *                then created without an intro paragraph — the scaffold is what the task is for.
+ * @param copy    - The site-language copy for the title, heading, and placeholders.
  * @param fetcher - Injectable request handler, so the node:test suite can stub the REST call.
  * @return The created page id and its editor URL.
  */
 export async function createEventsPage(
 	intro: string | undefined,
+	copy: EventsCopy,
 	fetcher: ( options: Parameters< typeof apiFetch >[ 0 ] ) => Promise< unknown > = apiFetch
 ): Promise< { page_id: number; edit_url: string } > {
 	const line = intro?.trim();
-	const blocks = [ HEADING_BLOCK ];
+	const blocks = [ headingBlock( copy.events_page_heading ) ];
 	if ( line ) {
 		// Through the shared helper, so the AI text is escaped exactly as the About and first-post
 		// drafts escape theirs.
 		blocks.push( paragraphsToBlocks( [ line ] ) );
 	}
-	blocks.push( ...Array( EVENT_ENTRY_COUNT ).fill( EVENT_ENTRY_BLOCKS ) );
+	blocks.push( ...Array( EVENT_ENTRY_COUNT ).fill( eventEntryBlocks( copy ) ) );
 
 	const page = ( await fetcher( {
 		path: '/wp/v2/pages',
 		method: 'POST',
 		data: {
-			// Untranslated placeholder title, like core's "Auto Draft" and the About/Gallery/Contact pages.
-			title: 'Events',
+			// Placeholder title, like core's "Auto Draft" and the About/Gallery/Contact pages.
+			title: copy.events_page_title,
 			content: blocks.join( '\n\n' ),
 			status: 'draft',
 			// Tag as the AI Launchpad page so the server-side listener can complete the task on publish.

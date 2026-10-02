@@ -38,20 +38,22 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 	 */
 	public function get_page_hook() {
 		/*
-		 * In Offline Mode the cloud dashboard and My Jetpack don't initialize, so
-		 * surface the Modules page as a visible, first-position item under the
-		 * Jetpack top-level menu. This makes the top-level "Jetpack" menu land on
-		 * Modules (instead of the first cloud page, e.g. AI) while leaving the
-		 * "Settings" item free to point at the real settings dashboard.
+		 * In Offline Mode My Jetpack does not initialize, so nothing holds the top slot and
+		 * WordPress points the top-level "Jetpack" link at whichever item sorts first. Pin
+		 * Modules above the alphabetical run so that link lands here rather than on whatever
+		 * feature page happens to sort first. Only reachable offline, where My Jetpack's -10
+		 * is never registered.
 		 */
 		if ( ( new Status() )->is_offline_mode() ) {
+			$position = defined( Admin_Menu::class . '::POSITION_FIRST_FALLBACK' ) ? Admin_Menu::POSITION_FIRST_FALLBACK : -5;
+
 			return Admin_Menu::add_menu(
 				__( 'Jetpack Settings', 'jetpack' ),
 				__( 'Modules', 'jetpack' ),
 				'jetpack_manage_modules',
 				'jetpack_modules',
 				array( $this, 'render' ),
-				1
+				$position
 			);
 		}
 
@@ -113,6 +115,8 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		echo $noscript_notice; //phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
 		?>
 
+		<!-- Core relocates other plugins' notices to just after this marker. -->
+		<div class="wrap"><div class="wp-header-end"></div></div>
 		<div class="jetpack-module-list">
 			<?php if ( $is_offline_mode ) : ?>
 				<div class="wrap">

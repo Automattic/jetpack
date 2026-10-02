@@ -238,7 +238,7 @@ export function workspaceReducer( state: WorkspaceState, action: WorkspaceAction
 								String( block.attributes?.text ?? '' ).trim()
 							),
 							...action.cueBlocks,
-					  ]
+						]
 					: action.cueBlocks;
 			return { ...state, cueBlocks, isTextImportOpen: false, textImportValue: '' };
 		}

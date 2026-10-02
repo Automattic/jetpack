@@ -15,12 +15,10 @@ const dateSettings = getDateSettings();
 type BadgeIntent = React.ComponentProps< typeof Badge >[ 'intent' ];
 
 /**
- * Render a video's title. For idle VideoPress videos it's a link-styled button
- * that opens the video's Details (mirroring Core); for every other state it's a
- * plain span so uploading/failed/local rows stay non-navigable.
+ * Open details for uploaded videos and temporary upload drafts.
  *
  * @param props      - Component props.
- * @param props.item - The library item rendered by this cell.
+ * @param props.item - The library item.
  * @return The title element.
  */
 const TitleText = ( { item }: { item: LibraryItem } ) => {
@@ -30,7 +28,7 @@ const TitleText = ( { item }: { item: LibraryItem } ) => {
 	// `title` attributes expose the full text on hover; the elements
 	// themselves truncate with an ellipsis (see &__title-link /
 	// &__title-text in style.scss).
-	if ( type === 'videopress' && upload.status === 'idle' ) {
+	if ( id.startsWith( 'upload-' ) || ( type === 'videopress' && upload.status === 'idle' ) ) {
 		return (
 			<button
 				type="button"
@@ -128,7 +126,7 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 						__( '%1$s: %2$s', 'jetpack-videopress-pkg' ),
 						summary,
 						cause
-				  )
+					)
 				: summary,
 		};
 	} else if ( isProcessing ) {
@@ -140,7 +138,7 @@ const TitleCell = ( { item }: { item: LibraryItem } ) => {
 							/* translators: %d: transcoding progress percentage */
 							__( 'Processing %d%%', 'jetpack-videopress-pkg' ),
 							processingProgress
-					  )
+						)
 					: __( 'Processing', 'jetpack-videopress-pkg' ),
 		};
 	} else if ( type === 'local' ) {

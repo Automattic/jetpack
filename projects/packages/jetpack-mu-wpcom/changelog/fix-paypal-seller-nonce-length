@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+PayPal Payment Buttons: include PayPal's own error details when it rejects a partner referral, so a failed connection says what was wrong.

@@ -2,10 +2,35 @@ export { AnalyticsQueryClientProvider, queryClient } from './providers/query-cli
 export { GlobalErrorProvider, useGlobalError } from './providers/global-error-context';
 export { globalErrorManager, type GlobalErrorType } from './providers/global-error-manager';
 export { ReportScopeProvider, useReportScope, type ReportScope } from './providers/report-scope';
+export {
+	PERIOD_CHANGE_ATTENTION_MS,
+	PeriodChangeSignalProvider,
+	postSurface,
+	useRaisePeriodChange,
+	useSettlePeriodChange,
+} from './providers/period-change-signal';
 export * from './hooks';
-export { latestPostQuery, postContentQuery } from './queries/latest-post-query';
+export { ensureDashboardEntities } from './entities/dashboard-entities';
+export { latestPostQuery, postContentQuery, postsContentQuery } from './queries/latest-post-query';
 export type { LatestPost, LatestPostResponse } from './processing/latest-post';
+export { authorSummaryQuery } from './queries/author-summary-query';
+export { authorPostsQuery } from './queries/author-posts-query';
+export type {
+	AuthorPostsRecord,
+	AuthorSummaryRecord,
+	AuthorSummaryResponse,
+} from './processing/author';
 export { statsInsightsQuery } from './queries/stats-insights-query';
+export {
+	fetchStatsArchivesRows,
+	fetchStatsClicksRows,
+	fetchStatsFileDownloadsRows,
+	fetchStatsReferrersRows,
+	fetchStatsSearchTermsReport,
+	fetchStatsTopAuthorsRows,
+	fetchStatsTopPostsRows,
+	fetchStatsVideoPlaysRows,
+} from './queries/fetch-stats-report-rows';
 export { type StatsVideoPlaysSummaryParams } from './queries/stats-video-plays-summary-query';
 export {
 	aggregateStatsDrilldownRows,
@@ -36,19 +61,19 @@ export {
 	type ReportPresetId,
 } from './utils/search';
 export {
-	dateToISOStringWithLocalTZ,
 	ensureCoreSettingsReady,
-	localTZDate,
 	hasProductFilters,
 	isSelectablePreset,
 	computeDateRangeFromPreset,
 	getApiErrorCode,
 	getApiErrorStatus,
+	findAuthorRow,
 	isAccessDenied,
 	isUserRetryableError,
 	saveBlob,
 	shouldRetryApiError,
 	StatsResponseShapeError,
+	toAuthorId,
 	toPostId,
 	useSiteHomeUrl,
 	withoutComparison,
@@ -62,6 +87,7 @@ export {
 	getAllowedIntervalsForPreset,
 	getDateFormatFromInterval,
 	getDefaultIntervalForPeriod,
+	resolveIntervalForPresetChange,
 	resolveIntervalForRange,
 } from './utils/interval';
 export type { IntervalType } from './utils/interval';
@@ -74,6 +100,8 @@ export {
 	type StoreInfo,
 } from './defaults';
 export { downloadReport, exportReport, fetchStatsProxy, getStatsProxyPath } from './api';
+export { disableDashboard } from './api';
+export { submitStatsUserFeedback, type StatsFeedbackRating, type StatsUserFeedback } from './api';
 export type {
 	DownloadReportParams,
 	DownloadReportResponse,
@@ -112,6 +140,7 @@ export type {
 	StatsFollowersRawItem,
 	StatsFollowersRawResponse,
 	StatsItemAction,
+	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 	StatsLocationsItem,
 	StatsNormalizedDataPoint,

@@ -43,9 +43,8 @@ jest.spyOn( global, 'cancelAnimationFrame' ).mockImplementation( () => {
 	rafCallback = null;
 } );
 
-const { useSyncedFormLoader } = await import(
-	'../../../src/blocks/contact-form/hooks/use-synced-form-loader.ts'
-);
+const { useSyncedFormLoader } =
+	await import( '../../../src/blocks/contact-form/hooks/use-synced-form-loader.ts' );
 
 describe( 'useSyncedFormLoader', () => {
 	const defaultProps = {

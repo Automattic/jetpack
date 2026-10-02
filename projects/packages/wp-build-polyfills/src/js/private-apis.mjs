@@ -11,3 +11,5 @@ export * from '@wordpress/private-apis';
 
 // Removed in 1.54.0 (DataViews 18.1 no longer opts in); WordPress 7.0's DataViews still does.
 allowCoreModule( '@wordpress/dataviews' );
+// Removed in 1.55.0; WordPress 7.0's reusable-blocks still opts in.
+allowCoreModule( '@wordpress/reusable-blocks' );
