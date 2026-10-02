@@ -57,6 +57,7 @@ class Defaults {
 		'disabled_likes',
 		'disabled_reblogs',
 		'disallowed_keys',
+		'enable_blocks_comments',
 		'enable_header_ad',
 		'gmt_offset',
 		'gravatar_disable_hovercards',

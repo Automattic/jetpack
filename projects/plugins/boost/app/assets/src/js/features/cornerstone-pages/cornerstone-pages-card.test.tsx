@@ -71,6 +71,7 @@ describe( 'CornerstonePagesCard', () => {
 		fireEvent.click( screen.getByRole( 'button', { name: /Customize pages list/ } ) );
 
 		expect( recordBoostEvent ).toHaveBeenCalledWith( 'cornerstone_pages_panel_toggle', {
+			panel_scope: 'editor',
 			status: 'open',
 		} );
 	} );

@@ -105,10 +105,11 @@ test( 'keeps offline sites idle, including manual refresh', async () => {
 } );
 
 test( 'retains scores on refresh failure and recovers on retry', async () => {
-	const { result } = renderHook( () => useSpeedScores(), { wrapper } );
+	const completed = jest.fn();
+	const { result } = renderHook( () => useSpeedScores( undefined, true, completed ), { wrapper } );
 	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
 	jest.mocked( requestSpeedScores ).mockRejectedValueOnce( new Error( 'Service unavailable' ) );
-	await act( async () => result.current[ 1 ]( true ) );
+	await act( async () => result.current[ 1 ]( true, { userStarted: true } ) );
 	expect( result.current[ 0 ] ).toEqual(
 		expect.objectContaining( {
 			status: 'error',
@@ -117,9 +118,10 @@ test( 'retains scores on refresh failure and recovers on retry', async () => {
 			scores: { current: { mobile: 81, desktop: 91 }, noBoost: null, isStale: false },
 		} )
 	);
-	await act( async () => result.current[ 1 ]( true ) );
+	await act( async () => result.current[ 1 ]() );
 	expect( result.current[ 0 ].status ).toBe( 'loaded' );
 	expect( result.current[ 0 ].error ).toBeUndefined();
+	expect( completed ).not.toHaveBeenCalled();
 } );
 
 test.each( [ false, true ] )(
@@ -136,7 +138,7 @@ test.each( [ false, true ] )(
 					resolveRequest = resolve;
 				} )
 		);
-		let request!: Promise< void >;
+		let request!: ReturnType< ( typeof result.current )[ 1 ] >;
 		act( () => {
 			request = result.current[ 1 ]( regenerate );
 		} );
@@ -155,6 +157,42 @@ test.each( [ false, true ] )(
 			isRunning: false,
 			scores: nextScores,
 		} );
+	}
+);
+
+test.each( [ 'cancelled', 'superseded', 'empty' ] )(
+	'does not report success for a %s score request',
+	async scenario => {
+		const completed = jest.fn();
+		const { result, unmount } = renderHook( () => useSpeedScores( undefined, true, completed ), {
+			wrapper,
+		} );
+		await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+		let resolveRequest!: ( value: Awaited< ReturnType< typeof requestSpeedScores > > ) => void;
+		jest.mocked( requestSpeedScores ).mockImplementationOnce(
+			() =>
+				new Promise( resolve => {
+					resolveRequest = resolve;
+				} )
+		);
+		let request!: ReturnType< ( typeof result.current )[ 1 ] >;
+		await act( async () => {
+			request = result.current[ 1 ]( true, { userStarted: true } );
+		} );
+		const signal = jest.mocked( requestSpeedScores ).mock.lastCall![ 4 ]!.signal;
+		if ( scenario === 'cancelled' ) {
+			unmount();
+		} else if ( scenario === 'superseded' ) {
+			await act( async () => {
+				await result.current[ 1 ]( true );
+			} );
+		}
+		await act( async () => {
+			resolveRequest( scenario === 'empty' ? undefined : result.current[ 0 ].scores );
+			await request;
+		} );
+		expect( signal?.aborted ).toBe( scenario !== 'empty' );
+		expect( completed ).not.toHaveBeenCalled();
 	}
 );
 
@@ -448,4 +486,62 @@ test( 'cancels a scheduled regeneration while disabled and schedules it again on
 	} finally {
 		jest.useRealTimers();
 	}
+} );
+
+const fresh = { current: { mobile: 66, desktop: 77 }, noBoost: null, isStale: false };
+const acceptThen = ( outcome: Promise< typeof fresh > ) =>
+	jest
+		.mocked( requestSpeedScores )
+		.mockImplementationOnce( async ( _force, _root, _url, _nonce, options ) => {
+			options?.onPending?.();
+			return outcome;
+		} );
+
+async function renderLoaded() {
+	const completed = jest.fn();
+	const { result } = renderHook( () => useSpeedScores( undefined, true, completed ), {
+		wrapper,
+	} );
+	await waitFor( () => expect( result.current[ 0 ].status ).toBe( 'loaded' ) );
+	return {
+		completed,
+		refresh: ( ...args: Parameters< ( typeof result.current )[ 1 ] > ) =>
+			result.current[ 1 ]( ...args ),
+	};
+}
+
+test( 'does not announce an accepted user run that fails, nor the cached read after it', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( Promise.reject( new Error( 'Service unavailable' ) ) );
+	await act( async () => refresh( true, { userStarted: true } ) );
+	await act( async () => refresh() );
+	expect( completed ).not.toHaveBeenCalled();
+} );
+
+test( 'does not announce an accepted user run that an automatic refresh supersedes', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( new Promise( () => {} ) );
+	await act( async () => {
+		void refresh( true, { userStarted: true } );
+	} );
+	await act( async () => refresh( true ) );
+	expect( completed ).not.toHaveBeenCalled();
+} );
+
+test( 'announces an accepted user run once, not again on the next cached read', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( Promise.resolve( fresh ) );
+	await act( async () => refresh( true, { userStarted: true } ) );
+	expect( completed ).toHaveBeenCalledTimes( 1 );
+	await act( async () => refresh() );
+	expect( completed ).toHaveBeenCalledTimes( 1 );
+} );
+
+test( 'does not announce a run started elsewhere when an automatic refresh follows', async () => {
+	const { completed, refresh } = await renderLoaded();
+	acceptThen( Promise.resolve( fresh ) );
+	await act( async () => refresh() );
+	acceptThen( Promise.resolve( fresh ) );
+	await act( async () => refresh( true ) );
+	expect( completed ).not.toHaveBeenCalled();
 } );
