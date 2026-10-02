@@ -251,6 +251,31 @@ class Action_Bar {
 	}
 
 	/**
+	 * Where the bar's post stats link goes.
+	 *
+	 * @param int    $post_id           The post.
+	 * @param int    $site_id           The site's blog ID.
+	 * @param string $site_slug         The site slug in Calypso URLs.
+	 * @param bool   $use_calypso_links Whether the site links to Calypso instead of wp-admin.
+	 * @return string
+	 */
+	private static function get_post_stats_url( $post_id, $site_id, $site_slug, $use_calypso_links ) {
+		$url = $use_calypso_links
+			? sprintf( 'https://wordpress.com/stats/post/%d/%s', $post_id, $site_slug )
+			: admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, $site_id ) );
+
+		/** This filter is documented in projects/packages/stats-admin/src/class-admin-bar.php */
+		return apply_filters(
+			'jetpack_stats_url',
+			$url,
+			array(
+				'view' => 'post',
+				'id'   => $post_id,
+			)
+		);
+	}
+
+	/**
 	 * Whether this is a WordPress.com VIP site. False anywhere the wpcom helper is missing.
 	 *
 	 * @return bool
@@ -677,11 +702,7 @@ class Action_Bar {
 				}
 			}
 
-			if ( $should_use_calypso_links ) {
-				$stats_link = sprintf( 'https://wordpress.com/stats/post/%d/%s', $post_id, $site_slug );
-			} else {
-				$stats_link = admin_url( sprintf( 'admin.php?page=stats#!/stats/post/%d/%d', $post_id, $site_id ) );
-			}
+			$stats_link = self::get_post_stats_url( $post_id, $site_id, $site_slug, $should_use_calypso_links );
 		}
 
 		$referer = '';

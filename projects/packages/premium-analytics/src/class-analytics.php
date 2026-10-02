@@ -195,8 +195,8 @@ class Analytics {
 
 		self::register_script_data();
 
-		// The posts and pages list tables link their views column here.
-		Post_List_Link::register();
+		// Stats links elsewhere (post list table, admin bar, action bar) open this dashboard.
+		Stats_Links::register();
 	}
 
 	/**
