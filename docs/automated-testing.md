@@ -40,8 +40,6 @@ A test earns its place when it fails when behavior breaks, stays green through a
 
 Keep regression tests for fixed bugs, and favor logic-heavy code: date math, data transforms, parsing, permissions. When unsure a test can fail, break the code on purpose and run it.
 
-Background: [Test Desiderata](https://testdesiderata.com/), [Software Engineering at Google, ch. 12](https://abseil.io/resources/swe-book/html/ch12.html).
-
 ## PHPUnit tests
 
 These tests are used to test both plugins and packages code. Depending on developer need, they could act as a unit tests by mocking any external dependencies and apis and testing units in isolation, or they could be used as integration tests, with real WordPress installation and database.
