@@ -73,6 +73,14 @@ class Search_Activate_Free_Test extends TestCase {
 		$this->request_bodies  = array();
 		$this->wpcom_responses = array();
 		add_filter( 'pre_http_request', array( $this, 'answer_as_wpcom' ), 10, 3 );
+
+		/*
+		 * Through the filters, not the option: they run after Modules::get_available()'s memo.
+		 * Without search listed as available, is_active() is false, so update_experience() bails
+		 * before writing Overlay — the experience the grant is supposed to default a fresh site to.
+		 */
+		add_filter( 'jetpack_get_available_modules', array( $this, 'add_search_available_module' ) );
+		add_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_search_standalone_module' ) );
 	}
 
 	/**
@@ -80,6 +88,8 @@ class Search_Activate_Free_Test extends TestCase {
 	 */
 	public function tearDown(): void {
 		remove_filter( 'pre_http_request', array( $this, 'answer_as_wpcom' ) );
+		remove_filter( 'jetpack_get_available_modules', array( $this, 'add_search_available_module' ) );
+		remove_filter( 'jetpack_get_available_standalone_modules', array( $this, 'add_search_standalone_module' ) );
 		Constants::clear_constants();
 		WorDBless_Options::init()->clear_options();
 		WorDBless_Users::init()->clear_all_users();
@@ -104,6 +114,28 @@ class Search_Activate_Free_Test extends TestCase {
 		return count( $this->wpcom_responses ) > 1
 			? array_shift( $this->wpcom_responses )
 			: reset( $this->wpcom_responses );
+	}
+
+	/**
+	 * Add Search to the version-keyed available modules list.
+	 *
+	 * @param array $modules Available modules, keyed by slug with the introducing version.
+	 * @return array
+	 */
+	public function add_search_available_module( $modules ) {
+		$modules['search'] = '1.0';
+		return $modules;
+	}
+
+	/**
+	 * Add Search to the standalone available modules list, as a loaded Search package does.
+	 *
+	 * @param array $modules Available standalone module slugs.
+	 * @return array
+	 */
+	public function add_search_standalone_module( $modules ) {
+		$modules[] = 'search';
+		return $modules;
 	}
 
 	/**
