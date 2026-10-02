@@ -8,7 +8,7 @@
 namespace Automattic\Jetpack\PremiumAnalytics;
 
 /**
- * Sends links to Stats pages (the admin bar, the newsletter action bar) to the matching
+ * Sends links to Stats pages (the admin bar, the post list Views column, the newsletter action bar) to the matching
  * dashboard page instead.
  *
  * @since $$next-version$$
@@ -18,7 +18,7 @@ class Stats_Links {
 	/**
 	 * Claim the links. Idempotent, like the other register() calls.
 	 *
-	 * Outside the admin-chrome gate on purpose: the admin bar and the action bar also render on the front end.
+	 * Outside the admin-chrome gate on purpose: the admin bar and the action bar also render on the front end, and Quick Edit re-renders the Views column over AJAX.
 	 *
 	 * @return void
 	 */

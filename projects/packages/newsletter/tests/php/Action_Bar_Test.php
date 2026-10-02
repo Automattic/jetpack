@@ -179,39 +179,56 @@ class Action_Bar_Test extends BaseTestCase {
 		$this->assertStringNotContainsString( 'actnbr-actn-follow', $this->render() );
 	}
 
-	public function test_post_stats_url_opens_stats_in_wp_admin_without_calypso_links() {
-		$this->assertSame(
-			admin_url( 'admin.php?page=stats#!/stats/post/12/345' ),
-			Action_Bar::get_post_stats_url( 12, 345, 'example.org', false )
+	public function test_post_stats_link_can_be_claimed_through_the_stats_url_filter() {
+		$post_id = wp_insert_post(
+			array(
+				'post_title'  => 'Stats link post',
+				'post_status' => 'publish',
+			)
 		);
-	}
-
-	public function test_post_stats_url_opens_calypso_with_calypso_links() {
-		$this->assertSame(
-			'https://wordpress.com/stats/post/12/example.org',
-			Action_Bar::get_post_stats_url( 12, 345, 'example.org', true )
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'action-bar-admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
 		);
-	}
+		wp_set_current_user( $user_id );
 
-	public function test_post_stats_url_can_be_claimed_through_the_stats_url_filter() {
-		$received = null;
+		global $wp_query, $post;
+		$original_query        = $wp_query;
+		$wp_query              = new \WP_Query();
+		$wp_query->is_singular = true;
+		$wp_query->is_single   = true;
+		$post                  = get_post( $post_id );
+
+		$received_url  = '';
+		$received_args = null;
 		add_filter(
 			'jetpack_stats_url',
-			function ( $url, $args ) use ( &$received ) {
-				$received = $args;
+			function ( $url, $args ) use ( &$received_url, &$received_args ) {
+				$received_url  = $url;
+				$received_args = $args;
 				return 'https://example.org/new-stats';
 			},
 			10,
 			2
 		);
 
-		$this->assertSame( 'https://example.org/new-stats', Action_Bar::get_post_stats_url( 12, 345, 'example.org', true ) );
+		$html = $this->render();
+
+		$wp_query = $original_query;
+		$post     = null;
+		wp_set_current_user( 0 );
+
+		$this->assertStringContainsString( '<a href="https://example.org/new-stats">', $html );
+		$this->assertStringContainsString( 'admin.php?page=stats#!/stats/post/' . $post_id . '/', $received_url );
 		$this->assertSame(
 			array(
 				'view' => 'post',
-				'id'   => 12,
+				'id'   => $post_id,
 			),
-			$received
+			$received_args
 		);
 	}
 }
