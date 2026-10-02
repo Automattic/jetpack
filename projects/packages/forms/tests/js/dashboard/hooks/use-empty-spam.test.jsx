@@ -148,7 +148,7 @@ describe( 'useEmptySpam', () => {
 		expect( result.current.scope.mode ).toBe( 'filtered' );
 		expect( result.current.scope.params ).toEqual( {
 			search: 'viagra',
-			parent: 7,
+			parent: '7',
 			source: 99,
 			before: '2026-09-30T23:59:59',
 			after: '2026-09-01T00:00:00',

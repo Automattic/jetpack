@@ -7,6 +7,7 @@ import { useMemo } from '@wordpress/element';
  * Internal dependencies
  */
 import { store as dashboardStore } from '../store/index';
+import getResponseFilterParams from './get-response-filter-params';
 import useEmptyResponses, {
 	type EmptyScope,
 	type EmptyScopeMode,
@@ -21,14 +22,6 @@ type UseEmptySpamReturn = Omit< UseEmptyResponsesReturn, 'totalItems' > & {
 	totalItemsSpam: number;
 	scope: EmptySpamScope;
 };
-
-const toInt = ( value: unknown ): number | undefined => {
-	const n = typeof value === 'string' ? parseInt( value, 10 ) : Number( value );
-	return Number.isFinite( n ) && n > 0 ? n : undefined;
-};
-
-const nonEmptyString = ( value: unknown ): string | undefined =>
-	typeof value === 'string' && value !== '' ? value : undefined;
 
 /**
  * Hook to manage empty spam functionality with scope awareness.
@@ -76,34 +69,7 @@ export default function useEmptySpam( {
 			};
 		}
 
-		const params: Record< string, unknown > = {};
-		const search = nonEmptyString( currentQuery?.search );
-		if ( search ) {
-			params.search = search;
-		}
-		const parent = toInt( currentQuery?.parent );
-		if ( parent ) {
-			params.parent = parent;
-		}
-		const source = toInt( currentQuery?.source );
-		if ( source ) {
-			params.source = source;
-		}
-		const before = nonEmptyString( currentQuery?.before );
-		if ( before ) {
-			params.before = before;
-		}
-		const after = nonEmptyString( currentQuery?.after );
-		if ( after ) {
-			params.after = after;
-		}
-		if ( currentQuery?.is_unread !== undefined ) {
-			params.is_unread = Boolean( currentQuery.is_unread );
-		}
-		if ( currentQuery?.is_test !== undefined ) {
-			params.is_test = Boolean( currentQuery.is_test );
-		}
-
+		const params = getResponseFilterParams( currentQuery );
 		if ( Object.keys( params ).length > 0 ) {
 			return { mode: 'filtered', count: totalItemsListed, params };
 		}

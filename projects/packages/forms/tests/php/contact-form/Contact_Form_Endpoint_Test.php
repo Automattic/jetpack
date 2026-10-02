@@ -841,6 +841,45 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		}
 	}
 
+	public function test_delete_feedback_trash_failure_reports_progress_and_removes_source_filter_hooks() {
+		$deletable = $this->insert_feedback_with_status( 'spam' );
+		$blocked   = $this->insert_feedback_with_status( 'spam' );
+
+		// WorDBless runs no SQL, so hand the delete loop its IDs directly.
+		$inject = function ( $posts, $query ) use ( $deletable, $blocked ) {
+			return 'feedback' === $query->get( 'post_type' ) ? array( $deletable, $blocked ) : $posts;
+		};
+		$block  = function ( $check, $post ) use ( $blocked ) {
+			return $post->ID === $blocked ? false : $check;
+		};
+		add_filter( 'posts_pre_query', $inject, 10, 2 );
+		add_filter( 'pre_delete_post', $block, 10, 2 );
+
+		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+		$request->set_param( 'status', 'spam' );
+		$request->set_param( 'source', 42 );
+		$response = $this->server->dispatch( $request );
+
+		remove_filter( 'posts_pre_query', $inject, 10 );
+		remove_filter( 'pre_delete_post', $block, 10 );
+
+		$this->assertSame( 400, $response->get_status() );
+		$this->assertSame( 1, $response->get_data()['deleted'] );
+
+		$found_source_sql = false;
+		$capture          = function ( $results, $query ) use ( &$found_source_sql ) {
+			if ( strpos( $query, 'source_meta' ) !== false ) {
+				$found_source_sql = true;
+			}
+			return $results;
+		};
+		add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
+		$this->server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/feedback' ) );
+		remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
+
+		$this->assertFalse( $found_source_sql, 'Source filter must not leak past a failed delete.' );
+	}
+
 	public function test_delete_feedback_trash_removes_source_filter_hooks() {
 		list( $response ) = $this->dispatch_trash_and_capture_queries(
 			array(

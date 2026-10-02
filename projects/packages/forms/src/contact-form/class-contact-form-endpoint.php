@@ -1305,10 +1305,6 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 	/**
 	 * Builds the REST args for the scope-aware `/trash` endpoint.
 	 *
-	 * Scope is either an explicit list of `post_ids`, or the set of filters the
-	 * inbox list view exposes (search / source / date range / read-unread / test).
-	 * When `post_ids` is present, filter params are ignored.
-	 *
 	 * @param string[] $allowed_statuses Statuses that may be operated on.
 	 * @param string   $default_status   Default status if none is provided.
 	 * @return array
