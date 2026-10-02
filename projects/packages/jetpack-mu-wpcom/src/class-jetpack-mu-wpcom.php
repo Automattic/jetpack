@@ -411,6 +411,9 @@ class Jetpack_Mu_Wpcom {
 		require_once __DIR__ . '/features/wpcom-unified-admin-page-view/wpcom-unified-admin-page-view.php';
 		require_once __DIR__ . '/features/wpcom-widgets/wpcom-widgets.php';
 		require_once __DIR__ . '/features/wpcom-wpadmin-page-view/wpcom-wpadmin-page-view.php';
+		if ( Constants::is_true( 'IS_ATOMIC' ) ) {
+			require_once __DIR__ . '/features/wpme-oembed/wpme-oembed.php';
+		}
 
 		require_once __DIR__ . '/features/write/write.php';
 

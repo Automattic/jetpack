@@ -1,0 +1,4 @@
+Significance: minor
+Type: added
+
+Add classes that register the per-post Likes and Sharing switches in the REST API.

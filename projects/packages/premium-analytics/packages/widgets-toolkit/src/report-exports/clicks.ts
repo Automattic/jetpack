@@ -215,8 +215,7 @@ export const clicksCsvExporter: ReportCsvExporter< ClickRow, ClickCsvRow > = {
 				{ items: await fetchStatsClicksRows( getSummarizedReportQueryParams( reportParams ) ) },
 			],
 		} ),
-	toCsvRows: items =>
-		items.map( row => ( { ...row, group: row.isGroup ? '' : getClickCsvGroup( row ) } ) ),
+	toCsvRows: items => items.map( row => ( { ...row, group: getClickCsvGroup( row ) } ) ),
 	getColumns: () => [
 		{
 			label: __( 'Clicked URL', 'jetpack-premium-analytics-pkg' ),

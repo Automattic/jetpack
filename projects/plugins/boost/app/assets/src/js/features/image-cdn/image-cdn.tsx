@@ -4,7 +4,7 @@ import ImageCdnLiar from '$features/image-cdn/image-cdn-liar/image-cdn-liar';
 import QualitySettings from '$features/image-cdn/quality-settings/quality-settings';
 import { useSingleModuleState } from '$features/module/lib/stores';
 import Module from '$features/module/module';
-import InterstitialModalCTA from '$features/upgrade-cta/interstitial-modal-cta';
+import UpgradeNotice from '$features/upgrade-cta/upgrade-notice';
 
 const ImageCdn = () => {
 	const legacyDescription = __(
@@ -29,9 +29,8 @@ const ImageCdn = () => {
 			description={ <p>{ isModern ? modernDescription : legacyDescription }</p> }
 		>
 			{ ! hasPremiumCdnFeatures && (
-				<InterstitialModalCTA
+				<UpgradeNotice
 					identifier="image-cdn"
-					showLicenseKeyLink
 					description={ __( 'Auto-resize lazy images and adjust their quality.', 'jetpack-boost' ) }
 				/>
 			) }

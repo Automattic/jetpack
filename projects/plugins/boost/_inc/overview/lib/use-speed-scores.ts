@@ -38,8 +38,8 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 		scores: { current: { mobile: 0, desktop: 0 }, noBoost: null, isStale: false },
 	} );
 	const requestId = useRef( 0 );
-	const requestController = useRef< AbortController >();
-	const lastConfig = useRef< string >();
+	const requestController = useRef< AbortController >( undefined );
+	const lastConfig = useRef< string >( undefined );
 	const cancelPending = useCallback( () => {
 		++requestId.current;
 		requestController.current?.abort();
@@ -65,7 +65,15 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 					wpApiSettings.root,
 					url,
 					wpApiSettings.nonce,
-					{ signal: controller.signal }
+					{
+						signal: controller.signal,
+						// A run started elsewhere (another tab, before a subpage visit) is still a run.
+						onPending: () => {
+							if ( id === requestId.current ) {
+								setState( previous => ( { ...previous, isRunning: true } ) );
+							}
+						},
+					}
 				);
 				if ( id === requestId.current && scores ) {
 					setState( { status: 'loaded', hasScores: true, isRunning: false, scores } );
@@ -90,6 +98,8 @@ export function useSpeedScores( refreshState?: ScoreRefreshState, enabled = true
 	useEffect( () => {
 		if ( online && enabled ) {
 			refresh();
+		} else if ( online && ! enabled ) {
+			setState( previous => ( previous.isRunning ? { ...previous, isRunning: false } : previous ) );
 		} else if ( ! online ) {
 			setState( previous => ( {
 				...previous,

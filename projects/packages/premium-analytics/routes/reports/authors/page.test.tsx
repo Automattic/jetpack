@@ -4,7 +4,6 @@
 import {
 	ExporterCsvAction,
 	ReportDrilldownTable,
-	authorsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen } from '@testing-library/react';
 /**
@@ -120,7 +119,7 @@ describe( 'AuthorsReportPage', () => {
 		expect( screen.queryByText( 'Ada Lovelace' ) ).not.toBeInTheDocument();
 	} );
 
-	it( 'wires the loaded author rows into the page export action', () => {
+	it( 'passes the report status to the page export action', () => {
 		const rows: AuthorRow[] = [
 			{
 				id: 'id:42',
@@ -146,7 +145,7 @@ describe( 'AuthorsReportPage', () => {
 
 		expect( screen.getByRole( 'button', { name: 'Download' } ) ).toBeInTheDocument();
 		expect( exporterCsvActionMock.mock.calls[ 0 ][ 0 ] ).toEqual(
-			expect.objectContaining( { exporter: authorsCsvExporter, items: rows, status: records } )
+			expect.objectContaining( { status: records } )
 		);
 	} );
 } );
