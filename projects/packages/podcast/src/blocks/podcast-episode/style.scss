@@ -32,6 +32,11 @@ $jetpack-podcast-episode-gap: 16px;
 		// what the feed serves (Photon center-crops covers to 1:1).
 		img {
 			inline-size: 100%;
+			// The rendered img carries width/height attributes (from
+			// wp_get_attachment_image(), and image CDNs inject their own);
+			// an attribute height would defeat the aspect-ratio, so keep
+			// the block size automatic.
+			block-size: auto;
 			aspect-ratio: 1;
 			object-fit: cover;
 			border-radius: calc(#{$jetpack-podcast-episode-radius} - 2px);

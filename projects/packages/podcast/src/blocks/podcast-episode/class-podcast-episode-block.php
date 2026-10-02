@@ -197,6 +197,37 @@ class Podcast_Episode_Block {
 	}
 
 	/**
+	 * Resolve the attachment ID backing the cover art, mirroring the URL
+	 * fallback chain in resolve_cover_art_url(): episode override → post
+	 * featured image → show-level `podcasting_image_id` option. Returns 0
+	 * when the winning source is a bare URL with no local attachment (e.g.
+	 * externally hosted cover art), so callers can fall back to plain
+	 * markup for it.
+	 *
+	 * @param array    $attributes Block attributes.
+	 * @param \WP_Post $post       Episode post.
+	 * @return int
+	 */
+	private static function resolve_cover_art_id( array $attributes, $post ) {
+		if ( isset( $attributes['coverArt'] ) && is_array( $attributes['coverArt'] ) && ! empty( $attributes['coverArt']['url'] ) ) {
+			$override_id = isset( $attributes['coverArt']['id'] ) ? (int) $attributes['coverArt']['id'] : 0;
+			return $override_id && wp_attachment_is_image( $override_id ) ? $override_id : 0;
+		}
+
+		$featured_id = (int) get_post_thumbnail_id( $post );
+		if ( $featured_id && wp_attachment_is_image( $featured_id ) ) {
+			return $featured_id;
+		}
+
+		if ( '' !== (string) get_option( 'podcasting_image', '' ) ) {
+			$show_id = (int) get_option( 'podcasting_image_id', 0 );
+			return $show_id && wp_attachment_is_image( $show_id ) ? $show_id : 0;
+		}
+
+		return 0;
+	}
+
+	/**
 	 * Render callback. Full player in every context so the RSS feed carries it
 	 * (how the WPCOM Reader shows it on Atomic/Jetpack). Email uses render_email().
 	 *
@@ -298,8 +329,25 @@ class Podcast_Episode_Block {
 		$show_email     = (string) get_option( 'podcasting_email', '' );
 
 		// Resolve cover art unconditionally so schema always carries the image;
-		// `$show_poster` only gates the visible figure/poster.
+		// `$show_poster` only gates the visible figure/poster. Schema keeps the
+		// full-size URL; the visible poster serves a sized rendition when the
+		// cover art is backed by a local attachment.
 		$image_url = self::resolve_cover_art_url( $attributes, $post, 'full' );
+		$image_id  = self::resolve_cover_art_id( $attributes, $post );
+
+		$poster_img = $image_id ? wp_get_attachment_image(
+			$image_id,
+			'medium_large',
+			false,
+			array(
+				'alt'      => '',
+				'itemprop' => 'image',
+				'loading'  => 'lazy',
+				// The poster renders at 160px except on small screens, where
+				// it spans the card (max-width 600px media query in the CSS).
+				'sizes'    => '(max-width: 600px) 100vw, 160px',
+			)
+		) : '';
 
 		$media_object_type = 'video' === $media_type ? 'VideoObject' : 'AudioObject';
 
@@ -314,12 +362,16 @@ class Podcast_Episode_Block {
 				<?php endif; ?>
 				<?php if ( $image_url && $show_poster ) : ?>
 					<figure class="jetpack-podcast-episode__poster">
-						<img
-							src="<?php echo esc_url( $image_url ); ?>"
-							alt=""
-							itemprop="image"
-							loading="lazy"
-						/>
+						<?php if ( '' !== $poster_img ) : ?>
+							<?php echo $poster_img; // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- wp_get_attachment_image() returns escaped markup. ?>
+						<?php else : ?>
+							<img
+								src="<?php echo esc_url( $image_url ); ?>"
+								alt=""
+								itemprop="image"
+								loading="lazy"
+							/>
+						<?php endif; ?>
 					</figure>
 				<?php elseif ( $image_url ) : ?>
 					<meta itemprop="image" content="<?php echo esc_url( $image_url ); ?>" />
