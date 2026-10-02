@@ -367,11 +367,10 @@ function LoadedModal( props: TrimCutModalProps ) {
  * @return The trim-and-cut modal.
  */
 export default function TrimCutModal( props: TrimCutModalProps ) {
+	const modal = <LoadedModal { ...props } />;
 	return (
 		<QueryClientProvider client={ client }>
-			<ThemeProvider>
-				<LoadedModal { ...props } />
-			</ThemeProvider>
+			{ ThemeProvider ? <ThemeProvider>{ modal }</ThemeProvider> : modal }
 		</QueryClientProvider>
 	);
 }

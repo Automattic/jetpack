@@ -12,7 +12,16 @@ import { makeLibraryItem } from '../../../test-utils/library-item';
 import type { EditsJob, VideoEdits } from '../../../types/edits';
 
 jest.mock( '../../../hooks/use-video', () => ( { useVideo: jest.fn() } ) );
-jest.mock( '@wordpress/theme', () => ( { ThemeProvider: ( { children } ) => children } ) );
+let mockHasThemeProvider = true;
+jest.mock( '@wordpress/theme', () => {
+	const actual = jest.requireActual( '@wordpress/theme' );
+	return {
+		...actual,
+		get ThemeProvider() {
+			return mockHasThemeProvider ? actual.ThemeProvider : undefined;
+		},
+	};
+} );
 jest.mock( '@wordpress/notices', () => ( { store: 'core/notices' } ) );
 jest.mock( '@wordpress/data', () => ( {
 	combineReducers: jest.fn( reducers => reducers ),
@@ -188,98 +197,104 @@ beforeEach( () => {
 	save.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
 	restore.mockResolvedValue( { guid: video.guid, revision: 2, job: processingJob } );
 } );
-it( 'confirms unsaved edits on close and Escape without dismissing the modal on cancel', async () => {
-	const { user } = await renderEditor();
-	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
-	expect( onClose ).not.toHaveBeenCalled();
-	await user.click(
-		within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel' } )
-	);
-	expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
-	await user.keyboard( '{Escape}' );
-	await user.click(
-		within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Discard' } )
-	);
-	expect( onClose ).toHaveBeenCalledTimes( 1 );
-	expect( save ).not.toHaveBeenCalled();
-} );
+describe.each( [ true, false ] )( 'with public ThemeProvider: %s', hasThemeProvider => {
+	beforeEach( () => {
+		mockHasThemeProvider = hasThemeProvider;
+	} );
 
-it( 'blocks close during submission but allows leaving after processing is accepted', async () => {
-	let accept: ( value: unknown ) => void;
-	save.mockImplementation(
-		() =>
-			new Promise( resolve => {
-				accept = resolve;
-			} )
-	);
-	const { user } = await renderEditor();
-	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
-	expect( onClose ).not.toHaveBeenCalled();
-	await act( async () => accept( { guid: video.guid, revision: 2, job: processingJob } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
-	expect( onClose ).toHaveBeenCalledTimes( 1 );
-	expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
-	expect( save ).toHaveBeenCalledWith(
-		expect.objectContaining( { guid: video.guid, baseRevision: 2 } )
-	);
-} );
-
-it( 'preserves unsaved edits when submission fails', async () => {
-	save.mockRejectedValue( new Error( 'Network error' ) );
-	const { user } = await renderEditor();
-	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
-	await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
-	await waitFor( () => expect( errorNotice ).toHaveBeenCalled() );
-	await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
-	expect( screen.getByRole( 'alertdialog' ) ).toBeInTheDocument();
-	expect( onClose ).not.toHaveBeenCalled();
-} );
-
-it( 'refreshes the block preview once a job completes', async () => {
-	setEdits( { job: processingJob } );
-	const { refresh } = await renderEditor();
-	expect( onProcessed ).not.toHaveBeenCalled();
-	setEdits( { job: { ...processingJob, status: 'complete' }, revision: 3 } );
-	refresh();
-	expect( onProcessed ).toHaveBeenCalledTimes( 1 );
-	refresh();
-	expect( onProcessed ).toHaveBeenCalledTimes( 1 );
-} );
-
-it( 'keeps undo shortcuts inside the modal', async () => {
-	const { user } = await renderEditor();
-	await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
-	const documentKey = jest.fn();
-	document.addEventListener( 'keydown', documentKey );
-	try {
-		fireEvent.keyDown( screen.getByLabelText( 'Original video preview' ), {
-			key: 'z',
-			ctrlKey: true,
-		} );
-		expect( documentKey ).not.toHaveBeenCalled();
-		expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
-			'aria-disabled',
-			'true'
+	it( 'confirms unsaved edits on close and Escape without dismissing the modal on cancel', async () => {
+		const { user } = await renderEditor();
+		await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( onClose ).not.toHaveBeenCalled();
+		await user.click(
+			within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Cancel' } )
 		);
-	} finally {
-		document.removeEventListener( 'keydown', documentKey );
-	}
-} );
+		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
+		await user.keyboard( '{Escape}' );
+		await user.click(
+			within( screen.getByRole( 'alertdialog' ) ).getByRole( 'button', { name: 'Discard' } )
+		);
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+		expect( save ).not.toHaveBeenCalled();
+	} );
 
-it( 'rejects attachment metadata belonging to another video', async () => {
-	jest
-		.mocked( useVideo )
-		.mockReturnValue( { video: { ...video, guid: 'other' }, isError: false, refetch } as never );
-	await renderEditor( false );
-	expect(
-		within( screen.getByRole( 'dialog' ) ).getByText(
-			'Video information could not be loaded. Please try again.'
-		)
-	).toBeInTheDocument();
-	expect( screen.queryByRole( 'button', { name: 'New cut' } ) ).not.toBeInTheDocument();
+	it( 'blocks close during submission but allows leaving after processing is accepted', async () => {
+		let accept: ( value: unknown ) => void;
+		save.mockImplementation(
+			() =>
+				new Promise( resolve => {
+					accept = resolve;
+				} )
+		);
+		const { user } = await renderEditor();
+		await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( onClose ).not.toHaveBeenCalled();
+		await act( async () => accept( { guid: video.guid, revision: 2, job: processingJob } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( onClose ).toHaveBeenCalledTimes( 1 );
+		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
+		expect( save ).toHaveBeenCalledWith(
+			expect.objectContaining( { guid: video.guid, baseRevision: 2 } )
+		);
+	} );
+
+	it( 'preserves unsaved edits when submission fails', async () => {
+		save.mockRejectedValue( new Error( 'Network error' ) );
+		const { user } = await renderEditor();
+		await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Save' } ) );
+		await user.click( screen.getByRole( 'button', { name: 'Update video' } ) );
+		await waitFor( () => expect( errorNotice ).toHaveBeenCalled() );
+		await user.click( screen.getByRole( 'button', { name: 'Close' } ) );
+		expect( screen.getByRole( 'alertdialog' ) ).toBeInTheDocument();
+		expect( onClose ).not.toHaveBeenCalled();
+	} );
+
+	it( 'refreshes the block preview once a job completes', async () => {
+		setEdits( { job: processingJob } );
+		const { refresh } = await renderEditor();
+		expect( onProcessed ).not.toHaveBeenCalled();
+		setEdits( { job: { ...processingJob, status: 'complete' }, revision: 3 } );
+		refresh();
+		expect( onProcessed ).toHaveBeenCalledTimes( 1 );
+		refresh();
+		expect( onProcessed ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'keeps undo shortcuts inside the modal', async () => {
+		const { user } = await renderEditor();
+		await user.click( screen.getByRole( 'button', { name: 'New cut' } ) );
+		const documentKey = jest.fn();
+		document.addEventListener( 'keydown', documentKey );
+		try {
+			fireEvent.keyDown( screen.getByLabelText( 'Original video preview' ), {
+				key: 'z',
+				ctrlKey: true,
+			} );
+			expect( documentKey ).not.toHaveBeenCalled();
+			expect( screen.getByRole( 'button', { name: 'Save' } ) ).toHaveAttribute(
+				'aria-disabled',
+				'true'
+			);
+		} finally {
+			document.removeEventListener( 'keydown', documentKey );
+		}
+	} );
+
+	it( 'rejects attachment metadata belonging to another video', async () => {
+		jest
+			.mocked( useVideo )
+			.mockReturnValue( { video: { ...video, guid: 'other' }, isError: false, refetch } as never );
+		await renderEditor( false );
+		expect(
+			within( screen.getByRole( 'dialog' ) ).getByText(
+				'Video information could not be loaded. Please try again.'
+			)
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'New cut' } ) ).not.toBeInTheDocument();
+	} );
 } );
