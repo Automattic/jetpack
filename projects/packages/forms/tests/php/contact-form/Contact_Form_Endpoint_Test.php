@@ -794,6 +794,7 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		$this->assertStringContainsString( '2026-09-01', $queries[0] );
 		$this->assertStringContainsString( "comment_status = 'open'", $queries[0] );
 		$this->assertStringContainsString( Feedback::IS_TEST_META_KEY, $queries[0] );
+		$this->assertStringContainsString( "meta_value = '1'", $queries[0] );
 	}
 
 	public function test_delete_feedback_trash_form_preview_filter_excludes_real_responses() {
@@ -841,43 +842,107 @@ class Contact_Form_Endpoint_Test extends TestCase {
 		}
 	}
 
+	public function test_delete_feedback_trash_limit_deletes_in_chunks_until_nothing_is_left() {
+		$ids = array(
+			$this->insert_feedback_with_status( 'spam' ),
+			$this->insert_feedback_with_status( 'spam' ),
+			$this->insert_feedback_with_status( 'spam' ),
+		);
+
+		// WorDBless runs no SQL, so serve the remaining IDs, honoring the batch size.
+		$inject = function ( $posts, $query ) use ( $ids ) {
+			if ( 'feedback' !== $query->get( 'post_type' ) ) {
+				return $posts;
+			}
+			$remaining = array_values( array_filter( $ids, 'get_post' ) );
+			return array_slice( $remaining, 0, (int) $query->get( 'posts_per_page' ) );
+		};
+		add_filter( 'posts_pre_query', $inject, 10, 2 );
+
+		$chunks = array();
+		for ( $i = 0; $i < 3; $i++ ) {
+			$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+			$request->set_param( 'status', 'spam' );
+			$request->set_param( 'limit', 2 );
+			$chunks[] = $this->server->dispatch( $request )->get_data();
+			if ( ! end( $chunks )['has_more'] ) {
+				break;
+			}
+		}
+
+		remove_filter( 'posts_pre_query', $inject, 10 );
+
+		$this->assertSame(
+			array(
+				array(
+					'deleted'  => 2,
+					'has_more' => true,
+				),
+				array(
+					'deleted'  => 1,
+					'has_more' => false,
+				),
+			),
+			$chunks
+		);
+		$this->assertSame( array(), array_filter( $ids, 'get_post' ) );
+	}
+
 	public function test_delete_feedback_trash_failure_reports_progress_and_removes_source_filter_hooks() {
 		$deletable = $this->insert_feedback_with_status( 'spam' );
 		$blocked   = $this->insert_feedback_with_status( 'spam' );
 
 		// WorDBless runs no SQL, so hand the delete loop its IDs directly.
-		$inject = function ( $posts, $query ) use ( $deletable, $blocked ) {
+		$inject    = function ( $posts, $query ) use ( $deletable, $blocked ) {
 			return 'feedback' === $query->get( 'post_type' ) ? array( $deletable, $blocked ) : $posts;
 		};
-		$block  = function ( $check, $post ) use ( $blocked ) {
-			return $post->ID === $blocked ? false : $check;
+			$block = function ( $check, $post ) use ( $blocked ) {
+				return $post->ID === $blocked ? false : $check;
+			};
+			add_filter( 'posts_pre_query', $inject, 10, 2 );
+			add_filter( 'pre_delete_post', $block, 10, 2 );
+
+			$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
+			$request->set_param( 'status', 'spam' );
+			$request->set_param( 'source', 42 );
+			$response = $this->server->dispatch( $request );
+
+			remove_filter( 'posts_pre_query', $inject, 10 );
+			remove_filter( 'pre_delete_post', $block, 10 );
+
+			$this->assertSame( 400, $response->get_status() );
+			$this->assertSame( 1, $response->get_data()['deleted'] );
+
+			$found_source_sql = false;
+			$capture          = function ( $results, $query ) use ( &$found_source_sql ) {
+				if ( strpos( $query, 'source_meta' ) !== false ) {
+					$found_source_sql = true;
+				}
+				return $results;
+			};
+			add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
+			$this->server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/feedback' ) );
+			remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
+
+			$this->assertFalse( $found_source_sql, 'Source filter must not leak past a failed delete.' );
+	}
+
+	public function test_delete_feedback_trash_failure_names_the_trash_flow() {
+		$trashed = $this->insert_feedback_with_status( 'trash' );
+		$inject  = function ( $posts, $query ) use ( $trashed ) {
+			return 'feedback' === $query->get( 'post_type' ) ? array( $trashed ) : $posts;
 		};
 		add_filter( 'posts_pre_query', $inject, 10, 2 );
-		add_filter( 'pre_delete_post', $block, 10, 2 );
+		add_filter( 'pre_delete_post', '__return_false' );
 
-		$request = new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' );
-		$request->set_param( 'status', 'spam' );
-		$request->set_param( 'source', 42 );
-		$response = $this->server->dispatch( $request );
+		$response = $this->server->dispatch( new WP_REST_Request( 'DELETE', '/wp/v2/feedback/trash' ) );
 
 		remove_filter( 'posts_pre_query', $inject, 10 );
-		remove_filter( 'pre_delete_post', $block, 10 );
+		remove_filter( 'pre_delete_post', '__return_false' );
 
 		$this->assertSame( 400, $response->get_status() );
-		$this->assertSame( 1, $response->get_data()['deleted'] );
-
-		$found_source_sql = false;
-		$capture          = function ( $results, $query ) use ( &$found_source_sql ) {
-			if ( strpos( $query, 'source_meta' ) !== false ) {
-				$found_source_sql = true;
-			}
-			return $results;
-		};
-		add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
-		$this->server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/feedback' ) );
-		remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
-
-		$this->assertFalse( $found_source_sql, 'Source filter must not leak past a failed delete.' );
+		$this->assertSame( 'Failed to empty trash.', $response->get_data()['error'] );
+		$this->assertSame( 0, $response->get_data()['deleted'] );
 	}
 
 	public function test_delete_feedback_trash_removes_source_filter_hooks() {
@@ -896,11 +961,11 @@ class Contact_Form_Endpoint_Test extends TestCase {
 			}
 			return $results;
 		};
-		add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
-		$this->server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/feedback' ) );
-		remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
+			add_filter( 'wordbless_wpdb_query_results', $capture, 10, 2 );
+			$this->server->dispatch( new WP_REST_Request( 'GET', '/wp/v2/feedback' ) );
+			remove_filter( 'wordbless_wpdb_query_results', $capture, 10 );
 
-		$this->assertFalse( $found_source_sql, 'Source filter must not leak past the delete request.' );
+			$this->assertFalse( $found_source_sql, 'Source filter must not leak past the delete request.' );
 	}
 
 	/**

@@ -42,4 +42,24 @@ describe( 'EmptySpamConfirmationModal', () => {
 		await waitFor( () => expect( onCancel ).toHaveBeenCalledTimes( 1 ) );
 		expect( onConfirm ).not.toHaveBeenCalled();
 	} );
+
+	it.each( [
+		[ 'selection', 3, 'Delete 3 selected spam responses?' ],
+		[ 'filtered', 26, 'Delete 26 matching spam responses?' ],
+		[ 'all', 1, 'Delete 1 spam response?' ],
+	] )( 'titles the %s scope with its count', async ( scopeMode, count, title ) => {
+		render(
+			<EmptySpamConfirmationModal
+				isOpen
+				onCancel={ jest.fn() }
+				onConfirm={ jest.fn() }
+				scopeMode={ scopeMode }
+				count={ count }
+			/>
+		);
+
+		await expect(
+			screen.findByRole( 'alertdialog', { name: title } )
+		).resolves.toBeInTheDocument();
+	} );
 } );

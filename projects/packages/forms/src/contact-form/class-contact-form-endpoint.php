@@ -1433,18 +1433,18 @@ class Contact_Form_Endpoint extends \WP_REST_Posts_Controller {
 
 			$is_test = $request->get_param( 'is_test' );
 			if ( null !== $is_test ) {
-				$query_args['meta_query'] = array(
-					$is_test
-						? array(
-							'key'     => Feedback::IS_TEST_META_KEY,
-							'value'   => '1',
-							'compare' => '=',
-						)
-						: array(
-							'key'     => Feedback::IS_TEST_META_KEY,
-							'compare' => 'NOT EXISTS',
-						),
+				$is_test_clause = array(
+					'key'     => Feedback::IS_TEST_META_KEY,
+					'compare' => 'NOT EXISTS',
 				);
+				if ( $is_test ) {
+					$is_test_clause = array(
+						'key'     => Feedback::IS_TEST_META_KEY,
+						'value'   => '1',
+						'compare' => '=',
+					);
+				}
+				$query_args['meta_query'] = array( $is_test_clause );
 			}
 		}
 
