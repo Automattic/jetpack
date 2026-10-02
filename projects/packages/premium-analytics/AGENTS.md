@@ -43,7 +43,7 @@ src/default-dashboard-sections.php      # the package's own sections, registered
 docs/dashboard-sections.md              # how a section is registered, served and rendered (diagrams)
 src/widget-types.php                    # widget type API: registry helpers, metadata, availability filters
 docs/dashboard-widgets.md               # how a widget type is registered, served and imported (diagram)
-src/REST/class-api-proxy-controller.php # the WPCOM data proxy (PREFIX_CONFIG)
+src/REST/class-api-proxy-controller.php # the WPCOM data proxy: PREFIX_CONFIG on connection's Proxy_Controller
 src/REST/class-notices-controller.php   # /notices route
 src/Sync/                               # PA glue for the shared woocommerce_analytics sync module
 packages/data/src/api/                  # frontend fetch helpers (apiFetch)
@@ -113,7 +113,10 @@ Two local REST surfaces; almost all data comes from WordPress.com via one agnost
 
 `GET|POST /jetpack-premium-analytics/v1/proxy/v<version>/<prefix>/<sub-path>` forwards to
 `public-api.wordpress.com/.../sites/<blog-id>/<prefix>/<sub-path>` signed as the connected blog
-(no cross-origin or user-authed call).
+(no cross-origin or user-authed call). The route, allowlist, cache and errors come from the
+connection package's `Proxy_Controller` (`docs/proxy-controller.md` there); this package contributes
+the table and three dashboard-only overrides (unsigned forwards, the `user_email` body rewrite,
+pagination headers).
 
 - `<version>` is the WPCOM version (`1.1`, `1.2`, `2`); base derives from it (`v2`→`wpcom/`,
   `v1.x`→`rest/`). Use the version the old call used — the proxy does not normalise.
