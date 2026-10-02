@@ -96,6 +96,8 @@ class Admin_Bar {
 				'id'    => 'stats',
 				'href'  => self::get_dashboard_url(),
 				'title' => "<div><img fetchpriority='low' loading='lazy' decoding='async' src='$img_src' srcset='$img_src 1x, $img_src_2x 2x' width='112' height='24' alt='$alt' title='$title'></div>",
+				// A client that reads the admin bar as data, like the omnibar, shows this instead of the image markup.
+				'meta'  => array( 'menu_title' => __( 'Stats', 'jetpack-stats-admin' ) ),
 			)
 		);
 	}

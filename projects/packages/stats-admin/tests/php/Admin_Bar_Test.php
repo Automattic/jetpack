@@ -128,6 +128,12 @@ class Admin_Bar_Test extends Stats_TestCase {
 		$this->assertStringContainsString( 'page=stats', $node->title, 'The chart image is still served by Stats.' );
 	}
 
+	public function test_chart_gives_a_text_label_to_clients_that_cannot_show_its_image() {
+		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
+
+		$this->assertSame( 'Stats', $this->render_chart_node()->meta['menu_title'] );
+	}
+
 	public function test_chart_hidden_when_admin_bar_setting_is_off() {
 		add_filter( 'user_has_cap', array( $this, 'grant_view_stats' ) );
 		Stats_Options::set_option( 'admin_bar', false );
