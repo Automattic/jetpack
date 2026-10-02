@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/form/primitives/field/item.tsx"],
+  "sourcesContent": ["import { Field as _Field } from '@base-ui/react/field';\nimport { forwardRef } from '@wordpress/element';\nimport type { FieldItemProps } from './types';\n\nexport const Item: React.ForwardRefExoticComponent<\n\tFieldItemProps & React.RefAttributes< HTMLDivElement >\n> = forwardRef( function Item( props, ref ) {\n\treturn <_Field.Item ref={ ref } { ...props } />;\n} );\n"],
+  "mappings": ";AAAA,SAAS,SAAS,cAAc;AAChC,SAAS,kBAAkB;AAMnB;AAHD,IAAM,OAET,WAAY,SAASA,MAAM,OAAO,KAAM;AAC3C,SAAO,oBAAC,OAAO,MAAP,EAAY,KAAc,GAAG,OAAQ;AAC9C,CAAE;",
+  "names": ["Item"]
+}

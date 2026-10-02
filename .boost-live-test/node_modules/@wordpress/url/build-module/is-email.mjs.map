@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/is-email.ts"],
+  "sourcesContent": ["const EMAIL_REGEXP =\n\t/^(mailto:)?[a-z0-9._%+-]+@[a-z0-9][a-z0-9.-]*\\.[a-z]{2,63}$/i;\n\n/**\n * Determines whether the given string looks like an email.\n *\n * @param email The string to scrutinise.\n *\n * @example\n * ```js\n * const isEmail = isEmail( 'hello@wordpress.org' ); // true\n * ```\n *\n * @return Whether or not it looks like an email.\n */\nexport function isEmail( email: string ): boolean {\n\treturn EMAIL_REGEXP.test( email );\n}\n"],
+  "mappings": ";AAAA,IAAM,eACL;AAcM,SAAS,QAAS,OAAyB;AACjD,SAAO,aAAa,KAAM,KAAM;AACjC;",
+  "names": []
+}

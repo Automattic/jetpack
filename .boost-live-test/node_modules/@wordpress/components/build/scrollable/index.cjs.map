@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/scrollable/index.ts"],
+  "sourcesContent": ["export { default as Scrollable } from './component';\nexport * from './hook';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAsC;AACtC,+BAAc,uBADd;",
+  "names": []
+}

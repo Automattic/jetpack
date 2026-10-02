@@ -1,0 +1,1 @@
+var GradientParser = (window.GradientParser || {});

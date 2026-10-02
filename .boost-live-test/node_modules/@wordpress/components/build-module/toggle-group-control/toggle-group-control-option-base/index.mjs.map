@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/toggle-group-control/toggle-group-control-option-base/index.ts"],
+  "sourcesContent": ["export { default as ToggleGroupControlOptionBase } from './component';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAA+C;",
+  "names": ["default"]
+}

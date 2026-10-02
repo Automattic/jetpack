@@ -1,0 +1,27 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - master # Trigger workflow on pushes to the master branch
+  pull_request: # Trigger workflow on any pull request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x] # Test on multiple Node.js versions
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm' # Enable caching for npm dependencies
+    - name: Install dependencies
+      run: npm install
+    - name: Run tests
+      run: npm test

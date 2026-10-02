@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/utils.ts"],
+  "sourcesContent": ["/**\n * Checks if the provided WP element is empty.\n *\n * @param element WP element to check.\n * @return True when an element is considered empty.\n */\nexport const isEmptyElement = ( element: unknown ): boolean => {\n\tif ( typeof element === 'number' ) {\n\t\treturn false;\n\t}\n\n\tif ( typeof element?.valueOf() === 'string' || Array.isArray( element ) ) {\n\t\treturn ! ( element as { length: number } ).length;\n\t}\n\n\treturn ! element;\n};\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAMO,IAAM,iBAAiB,CAAE,YAA+B;AAC9D,MAAK,OAAO,YAAY,UAAW;AAClC,WAAO;AAAA,EACR;AAEA,MAAK,OAAO,SAAS,QAAQ,MAAM,YAAY,MAAM,QAAS,OAAQ,GAAI;AACzE,WAAO,CAAI,QAAgC;AAAA,EAC5C;AAEA,SAAO,CAAE;AACV;",
+  "names": []
+}

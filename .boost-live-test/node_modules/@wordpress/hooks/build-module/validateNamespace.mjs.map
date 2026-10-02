@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/validateNamespace.ts"],
+  "sourcesContent": ["/**\n * Validate a namespace string.\n *\n * @param namespace The namespace to validate - should take the form\n *                  `vendor/plugin/function`.\n *\n * @return Whether the namespace is valid.\n */\nfunction validateNamespace( namespace: string ): boolean {\n\tif ( 'string' !== typeof namespace || '' === namespace ) {\n\t\t// eslint-disable-next-line no-console\n\t\tconsole.error( 'The namespace must be a non-empty string.' );\n\t\treturn false;\n\t}\n\n\tif ( ! /^[a-zA-Z][a-zA-Z0-9_.\\-\\/]*$/.test( namespace ) ) {\n\t\t// eslint-disable-next-line no-console\n\t\tconsole.error(\n\t\t\t'The namespace can only contain numbers, letters, dashes, periods, underscores and slashes.'\n\t\t);\n\t\treturn false;\n\t}\n\n\treturn true;\n}\n\nexport default validateNamespace;\n"],
+  "mappings": ";AAQA,SAAS,kBAAmB,WAA6B;AACxD,MAAK,aAAa,OAAO,aAAa,OAAO,WAAY;AAExD,YAAQ,MAAO,2CAA4C;AAC3D,WAAO;AAAA,EACR;AAEA,MAAK,CAAE,+BAA+B,KAAM,SAAU,GAAI;AAEzD,YAAQ;AAAA,MACP;AAAA,IACD;AACA,WAAO;AAAA,EACR;AAEA,SAAO;AACR;AAEA,IAAO,4BAAQ;",
+  "names": []
+}

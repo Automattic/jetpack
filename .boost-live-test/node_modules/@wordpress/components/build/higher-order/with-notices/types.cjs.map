@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/higher-order/with-notices/types.ts"],
+  "sourcesContent": ["export {};"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

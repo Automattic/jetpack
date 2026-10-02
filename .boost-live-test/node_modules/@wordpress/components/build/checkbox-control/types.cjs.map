@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/checkbox-control/types.ts"],
+  "sourcesContent": ["export {};"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

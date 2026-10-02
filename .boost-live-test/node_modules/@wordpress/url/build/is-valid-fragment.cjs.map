@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/is-valid-fragment.ts"],
+  "sourcesContent": ["/**\n * Checks for invalid characters within the provided fragment.\n *\n * @param fragment The url fragment.\n *\n * @example\n * ```js\n * const isValid = isValidFragment( '#valid-fragment' ); // true\n * const isNotValid = isValidFragment( '#invalid-#fragment' ); // false\n * ```\n *\n * @return True if the argument contains a valid fragment.\n */\nexport function isValidFragment( fragment: string ): boolean {\n\tif ( ! fragment ) {\n\t\treturn false;\n\t}\n\treturn /^#[^\\s#?\\/]*$/.test( fragment );\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAaO,SAAS,gBAAiB,UAA4B;AAC5D,MAAK,CAAE,UAAW;AACjB,WAAO;AAAA,EACR;AACA,SAAO,gBAAgB,KAAM,QAAS;AACvC;",
+  "names": []
+}

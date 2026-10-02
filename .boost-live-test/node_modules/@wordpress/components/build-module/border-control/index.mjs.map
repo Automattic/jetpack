@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/border-control/index.ts"],
+  "sourcesContent": ["export { default as BorderControl } from './border-control/component';\nexport { useBorderControl } from './border-control/hook';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAAgC;AACzC,SAAS,wBAAwB;",
+  "names": ["default"]
+}

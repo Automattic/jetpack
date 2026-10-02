@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/tools-panel/tools-panel/index.ts"],
+  "sourcesContent": ["export { default } from './component';\nexport { useToolsPanel } from './hook';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAwB;AACxB,kBAA8B;",
+  "names": []
+}

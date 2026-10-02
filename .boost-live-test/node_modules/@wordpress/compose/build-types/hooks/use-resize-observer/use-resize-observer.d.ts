@@ -1,0 +1,2 @@
+export declare function useResizeObserver<T extends HTMLElement>(callback: ResizeObserverCallback, resizeObserverOptions?: ResizeObserverOptions): (element?: T | null) => void;
+//# sourceMappingURL=use-resize-observer.d.ts.map

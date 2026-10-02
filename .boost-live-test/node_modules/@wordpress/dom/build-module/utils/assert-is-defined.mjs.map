@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/utils/assert-is-defined.ts"],
+  "sourcesContent": ["export function assertIsDefined< T >(\n\tval: T,\n\tname: string\n): asserts val is NonNullable< T > {\n\tif (\n\t\tprocess.env.NODE_ENV !== 'production' &&\n\t\t( val === undefined || val === null )\n\t) {\n\t\tthrow new Error(\n\t\t\t`Expected '${ name }' to be defined, but received ${ val }`\n\t\t);\n\t}\n}\n"],
+  "mappings": ";AAAO,SAAS,gBACf,KACA,MACkC;AAClC,MACC,QAAQ,IAAI,aAAa,iBACvB,QAAQ,UAAa,QAAQ,OAC9B;AACD,UAAM,IAAI;AAAA,MACT,aAAc,IAAK,iCAAkC,GAAI;AAAA,IAC1D;AAAA,EACD;AACD;",
+  "names": []
+}

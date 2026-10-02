@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/get-protocol.ts"],
+  "sourcesContent": ["/**\n * Returns the protocol part of the URL.\n *\n * @param url The full URL.\n *\n * @example\n * ```js\n * const protocol1 = getProtocol( 'tel:012345678' ); // 'tel:'\n * const protocol2 = getProtocol( 'https://wordpress.org' ); // 'https:'\n * ```\n *\n * @return  The protocol part of the URL.\n */\nexport function getProtocol( url: string ): string | void {\n\tconst matches = /^([^\\s:]+:)/.exec( url );\n\tif ( matches ) {\n\t\treturn matches[ 1 ];\n\t}\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAaO,SAAS,YAAa,KAA6B;AACzD,QAAM,UAAU,cAAc,KAAM,GAAI;AACxC,MAAK,SAAU;AACd,WAAO,QAAS,CAAE;AAAA,EACnB;AACD;",
+  "names": []
+}

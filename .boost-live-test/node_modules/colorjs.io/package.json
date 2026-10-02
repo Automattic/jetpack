@@ -1,0 +1,135 @@
+{
+	"name": "colorjs.io",
+	"version": "0.7.1",
+	"description": "Let’s get serious about color",
+	"files": [
+		"dist/",
+		"src/",
+		"types/src/",
+		"types/index.d.ts"
+	],
+	"exports": {
+		".": {
+			"import": {
+				"types": "./types/index.d.ts",
+				"default": "./src/index.js"
+			},
+			"require": {
+				"types": "./types/index.d.ts",
+				"default": "./dist/color.cjs"
+			}
+		},
+		"./fn": {
+			"import": {
+				"types": "./types/src/index-fn.d.ts",
+				"default": "./src/index-fn.js"
+			},
+			"require": {
+				"types": "./types/src/index-fn.d.ts",
+				"default": "./dist/color-fn.cjs"
+			}
+		},
+		"./spaces": {
+			"import": {
+				"types": "./types/src/spaces/index.d.ts",
+				"default": "./src/spaces/index.js"
+			}
+		},
+		"./src/*": {
+			"import": {
+				"types": "./types/src/*",
+				"default": "./src/*"
+			}
+		},
+		"./dist/*": "./dist/*"
+	},
+	"typesVersions": {
+		"*": {
+			"fn": [
+				"./types/src/index-fn.d.ts"
+			]
+		}
+	},
+	"types": "./types",
+	"type": "module",
+	"main": "./dist/color.cjs",
+	"module": "./src/index.js",
+	"directories": {
+		"test": "tests"
+	},
+	"scripts": {
+		"test": "npx htest ./test",
+		"dtslint": "dtslint --expectOnly types",
+		"eslint": "eslint . --ext .js --ext .ts --ext .cjs",
+		"prettier": "prettier --cache **/*.{js,ts,cjs}",
+		"lint": "run-s build:space-accessors \"prettier -- --write src\" \"eslint -- --fix\" build:ts dtslint",
+		"lint:ci": "run-s build:space-accessors \"eslint -- --max-warnings 0\" build:ts dtslint",
+		"build:html": "npx @11ty/eleventy --config=_build/eleventy.js",
+		"watch:html": "npx @11ty/eleventy --config=_build/eleventy.js --serve",
+		"build:js": "rollup -c _build/rollup.config.js",
+		"watch:js": "rollup -c _build/rollup.config.js --watch",
+		"build:ts": "node ./scripts/copy-declarations.js && tsc || exit 0",
+		"watch:ts": "tsc --watch",
+		"build:apidocs": "npx typedoc",
+		"watch:apidocs": "npx typedoc --watch",
+		"build:js:legacy": "rollup -c _build/rollup.legacy.config.js",
+		"build:space-accessors": "node ./scripts/generate-space-accessor-types.js",
+		"build": "run-s build:apidocs build:html build:js build:ts build:js:legacy build:space-accessors",
+		"watch": "run-p watch:*",
+		"prepack": "npm run build",
+		"release": "release-it"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/color-js/color.js.git"
+	},
+	"keywords": [
+		"color"
+	],
+	"contributors": [
+		"Lea Verou",
+		"Chris Lilley"
+	],
+	"funding": {
+		"type": "opencollective",
+		"url": "https://opencollective.com/color"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/color-js/color.js/issues"
+	},
+	"homepage": "https://colorjs.io",
+	"devDependencies": {
+		"@11ty/eleventy": "^3.0.0",
+		"@babel/core": "^7.24.0",
+		"@babel/preset-env": "^7.24.0",
+		"@definitelytyped/dtslint": "0.0.182",
+		"@rollup/plugin-babel": "^6.0.4",
+		"@rollup/plugin-commonjs": "^25.0.7",
+		"@rollup/plugin-node-resolve": "^15.2.3",
+		"@typescript-eslint/eslint-plugin": "latest",
+		"@typescript-eslint/parser": "latest",
+		"acorn": "latest",
+		"brep": "^0.0.9",
+		"core-js": "^3.36.0",
+		"eslint": "latest",
+		"htest.dev": ">=0.0.20",
+		"mathjs": "^12.4.0",
+		"npm-run-all": "^4.1.5",
+		"prettier": "^3.4.2",
+		"prettier-plugin-brace-style": "^0.8.1",
+		"prettier-plugin-merge": "^0.8.0",
+		"prettier-plugin-space-before-function-paren": "^0.0.9",
+		"release-it": "^17.1.1",
+		"rollup": "^4.12.0",
+		"typedoc": "^0.26.11",
+		"typedoc-plugin-rename-defaults": "^0.7.3",
+		"typescript": "^5.5.4"
+	},
+	"sideEffects": [
+		"./src/index.js",
+		"./src/spaces/index.js",
+		"./src/CATs.js",
+		"./src/space-accessors.js"
+	]
+}

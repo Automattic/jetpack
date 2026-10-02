@@ -1,0 +1,181 @@
+import _formatErrorMessage from "@base-ui/utils/formatErrorMessage";
+import * as React from 'react';
+import { useMergedRefs, useMergedRefsN } from '@base-ui/utils/useMergedRefs';
+import { getReactElementRef } from '@base-ui/utils/getReactElementRef';
+import { mergeObjects } from '@base-ui/utils/mergeObjects';
+import { warn } from '@base-ui/utils/warn';
+import { EMPTY_OBJECT } from '@base-ui/utils/empty';
+import { getStateAttributesProps } from "./getStateAttributesProps.mjs";
+import { resolveClassName } from "../utils/resolveClassName.mjs";
+import { resolveStyle } from "../utils/resolveStyle.mjs";
+import { mergeProps, mergePropsN, mergeClassNames } from "../merge-props/index.mjs";
+import { createElement as _createElement } from "react";
+/**
+ * Renders a Base UI element.
+ *
+ * @param element The default HTML element to render. Can be overridden by the `render` prop.
+ * @param componentProps An object containing the `render` and `className` props to be used for element customization. Other props are ignored.
+ * @param params Additional parameters for rendering the element.
+ */
+export function useRenderElement(element, componentProps, params = {}) {
+  let renderProp = componentProps.render;
+  if (params.enabled !== false) {
+    // A pending lazy element suspends when unwrapped, so leave it wrapped while disabled.
+    renderProp = unwrapLazyRenderProp(renderProp);
+  }
+  const outProps = useRenderElementProps(componentProps, params, renderProp);
+  if (params.enabled === false) {
+    return null;
+  }
+  const state = params.state ?? EMPTY_OBJECT;
+  return evaluateRenderProp(element, renderProp, outProps, state);
+}
+
+/**
+ * Computes render element final props.
+ */
+function useRenderElementProps(componentProps, params, renderProp) {
+  const {
+    className: classNameProp,
+    style: styleProp
+  } = componentProps;
+  const {
+    state = EMPTY_OBJECT,
+    ref,
+    props,
+    stateAttributesMapping,
+    enabled = true
+  } = params;
+  const className = enabled ? resolveClassName(classNameProp, state) : undefined;
+  const style = enabled ? resolveStyle(styleProp, state) : undefined;
+  const stateProps = enabled ? getStateAttributesProps(state, stateAttributesMapping) : EMPTY_OBJECT;
+  const resolvedProps = enabled && props ? resolveRenderFunctionProps(props) : undefined;
+
+  // Ensure outProps is always a new mutable object when enabled, never EMPTY_OBJECT.
+  // This prevents potential TypeError when setting ref, className, or style properties,
+  // since EMPTY_OBJECT is frozen and mutations would fail in strict mode.
+  const outProps = enabled ? mergeObjects(stateProps, resolvedProps) ?? {} : EMPTY_OBJECT;
+
+  // SAFETY: The `useMergedRefs` functions use a single hook to store the same value,
+  // switching between them at runtime is safe. If this assertion fails, React will
+  // throw at runtime anyway.
+  // This also skips the `useMergedRefs` call on the server, which is fine because
+  // refs are not used on the server side.
+  /* eslint-disable react-hooks/rules-of-hooks */
+  if (typeof document !== 'undefined') {
+    if (!enabled) {
+      // Called only to keep the hook order stable when disabled; the merged ref is unused.
+      void useMergedRefs(null, null);
+    } else if (Array.isArray(ref)) {
+      outProps.ref = useMergedRefsN([outProps.ref, getReactElementRef(renderProp), ...ref]);
+    } else {
+      outProps.ref = useMergedRefs(outProps.ref, getReactElementRef(renderProp), ref);
+    }
+  }
+  if (!enabled) {
+    return EMPTY_OBJECT;
+  }
+  if (className !== undefined) {
+    outProps.className = mergeClassNames(outProps.className, className);
+  }
+  if (style !== undefined) {
+    outProps.style = mergeObjects(outProps.style, style);
+  }
+  return outProps;
+}
+function resolveRenderFunctionProps(props) {
+  if (Array.isArray(props)) {
+    return mergePropsN(props);
+  }
+  return mergeProps(undefined, props);
+}
+
+// The symbol React uses internally for lazy components
+// https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/shared/ReactSymbols.js#L31
+//
+// TODO delete once https://github.com/react/react/issues/32392 is fixed
+const REACT_LAZY_TYPE = Symbol.for('react.lazy');
+const COMPONENT_IDENTIFIER_PATTERN = /^[A-Z][A-Za-z0-9$]*$/;
+const LOWERCASE_CHARACTER_PATTERN = /[a-z]/;
+
+// Workaround for https://github.com/react/react/issues/32392
+// The Flight client hands over a lazy wrapper in place of a render element created in a
+// Server Component. The wrapper exposes no `.props` or `.ref`, so it must be unwrapped
+// before those are read. This works because the toArray() logic unwraps the lazy
+// element type in
+// https://github.com/react/react/blob/a0566250b210499b4c5677f5ac2eedbd71d51a1b/packages/react/src/ReactChildren.js#L186
+function unwrapLazyRenderProp(render) {
+  // `$$typeof` is a React internal, absent from the public element types.
+  if (render?.$$typeof !== REACT_LAZY_TYPE) {
+    return render;
+  }
+  // Keep the wrapper unless it unwraps to an element, so an invalid render prop is still
+  // reported as one instead of silently falling back to the default element.
+  const unwrapped = React.Children.toArray(render)[0];
+  return /*#__PURE__*/React.isValidElement(unwrapped) ? unwrapped : render;
+}
+function evaluateRenderProp(element, render, props, state) {
+  if (render) {
+    if (typeof render === 'function') {
+      if (process.env.NODE_ENV !== 'production') {
+        warnIfRenderPropLooksLikeComponent(render);
+      }
+      return render(props, state);
+    }
+    const mergedProps = mergeProps(props, render.props);
+    mergedProps.ref = props.ref;
+
+    // There is a high number of indirections, the error message thrown by React.cloneElement() is
+    // hard to use for developers, this logic provides a better context.
+    //
+    // Our general guideline is to never change the control flow depending on the environment.
+    // However, React.cloneElement() throws if React.isValidElement() is false,
+    // so we can throw before with custom message.
+    if (process.env.NODE_ENV !== 'production') {
+      if (! /*#__PURE__*/React.isValidElement(render)) {
+        // TODO: fix mui/no-guarded-throw
+        // eslint-disable-next-line mui/no-guarded-throw
+        throw new Error(['Base UI: The `render` prop was provided an invalid React element as `React.isValidElement(render)` is `false`.', 'A valid React element must be provided to the `render` prop because it is cloned with props to replace the default element.', 'https://base-ui.com/r/invalid-render-prop'].join('\n'));
+      }
+    }
+    return /*#__PURE__*/React.cloneElement(render, mergedProps);
+  }
+  if (element) {
+    if (typeof element === 'string') {
+      return renderTag(element, props);
+    }
+  }
+  // Unreachable, but the typings on `useRenderElement` need to be reworked
+  // to annotate it correctly.
+  throw new Error(process.env.NODE_ENV !== "production" ? 'Base UI: Render element or function are not defined.' : _formatErrorMessage(8));
+}
+function warnIfRenderPropLooksLikeComponent(renderFn) {
+  const functionName = renderFn.name;
+  if (functionName.length === 0) {
+    return;
+  }
+  if (!COMPONENT_IDENTIFIER_PATTERN.test(functionName)) {
+    return;
+  }
+  if (!LOWERCASE_CHARACTER_PATTERN.test(functionName)) {
+    return;
+  }
+  warn(`The \`render\` prop received a function named \`${functionName}\` that starts with an uppercase letter.`, 'This usually means a React component was passed directly as `render={Component}`.', 'Base UI calls `render` as a plain function, which can break the Rules of Hooks during reconciliation.', 'If this is an intentional render callback, rename it to start with a lowercase letter.', 'Use `render={<Component />}` or `render={(props) => <Component {...props} />}` instead.', 'https://base-ui.com/r/invalid-render-prop');
+}
+function renderTag(Tag, props) {
+  if (Tag === 'button') {
+    return /*#__PURE__*/_createElement("button", {
+      type: "button",
+      ...props,
+      key: props.key
+    });
+  }
+  if (Tag === 'img') {
+    return /*#__PURE__*/_createElement("img", {
+      alt: "",
+      ...props,
+      key: props.key
+    });
+  }
+  return /*#__PURE__*/React.createElement(Tag, props);
+}

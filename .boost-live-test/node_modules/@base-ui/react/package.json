@@ -1,0 +1,1236 @@
+{
+  "name": "@base-ui/react",
+  "version": "1.8.0",
+  "author": "MUI Team",
+  "description": "Base UI is a library of headless ('unstyled') React components and low-level hooks. You gain complete control over your app's CSS and accessibility features.",
+  "license": "MIT",
+  "keywords": [
+    "react",
+    "react-component",
+    "mui",
+    "unstyled",
+    "base-ui",
+    "a11y"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mui/base-ui.git",
+    "directory": "packages/react"
+  },
+  "bugs": {
+    "url": "https://github.com/mui/base-ui/issues"
+  },
+  "homepage": "https://base-ui.com",
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/mui-org"
+  },
+  "dependencies": {
+    "@babel/runtime": "^7.29.7",
+    "@floating-ui/react-dom": "^2.1.9",
+    "@floating-ui/utils": "^0.2.12",
+    "use-sync-external-store": "^1.6.0",
+    "@base-ui/utils": "0.4.0"
+  },
+  "peerDependencies": {
+    "@date-fns/tz": "^1.2.0",
+    "@types/react": "^17 || ^18 || ^19",
+    "date-fns": "^4.0.0",
+    "react": "^17 || ^18 || ^19",
+    "react-dom": "^17 || ^18 || ^19"
+  },
+  "peerDependenciesMeta": {
+    "@date-fns/tz": {
+      "optional": true
+    },
+    "@types/react": {
+      "optional": true
+    },
+    "date-fns": {
+      "optional": true
+    }
+  },
+  "sideEffects": false,
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "type": "commonjs",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": {
+        "types": "./index.d.mts",
+        "default": "./index.mjs"
+      },
+      "require": {
+        "types": "./index.d.ts",
+        "default": "./index.js"
+      },
+      "default": {
+        "types": "./index.d.mts",
+        "default": "./index.mjs"
+      }
+    },
+    "./accordion": {
+      "import": {
+        "types": "./accordion/index.d.mts",
+        "default": "./accordion/index.mjs"
+      },
+      "require": {
+        "types": "./accordion/index.d.ts",
+        "default": "./accordion/index.js"
+      },
+      "default": {
+        "types": "./accordion/index.d.mts",
+        "default": "./accordion/index.mjs"
+      }
+    },
+    "./alert-dialog": {
+      "import": {
+        "types": "./alert-dialog/index.d.mts",
+        "default": "./alert-dialog/index.mjs"
+      },
+      "require": {
+        "types": "./alert-dialog/index.d.ts",
+        "default": "./alert-dialog/index.js"
+      },
+      "default": {
+        "types": "./alert-dialog/index.d.mts",
+        "default": "./alert-dialog/index.mjs"
+      }
+    },
+    "./autocomplete": {
+      "import": {
+        "types": "./autocomplete/index.d.mts",
+        "default": "./autocomplete/index.mjs"
+      },
+      "require": {
+        "types": "./autocomplete/index.d.ts",
+        "default": "./autocomplete/index.js"
+      },
+      "default": {
+        "types": "./autocomplete/index.d.mts",
+        "default": "./autocomplete/index.mjs"
+      }
+    },
+    "./avatar": {
+      "import": {
+        "types": "./avatar/index.d.mts",
+        "default": "./avatar/index.mjs"
+      },
+      "require": {
+        "types": "./avatar/index.d.ts",
+        "default": "./avatar/index.js"
+      },
+      "default": {
+        "types": "./avatar/index.d.mts",
+        "default": "./avatar/index.mjs"
+      }
+    },
+    "./button": {
+      "import": {
+        "types": "./button/index.d.mts",
+        "default": "./button/index.mjs"
+      },
+      "require": {
+        "types": "./button/index.d.ts",
+        "default": "./button/index.js"
+      },
+      "default": {
+        "types": "./button/index.d.mts",
+        "default": "./button/index.mjs"
+      }
+    },
+    "./checkbox": {
+      "import": {
+        "types": "./checkbox/index.d.mts",
+        "default": "./checkbox/index.mjs"
+      },
+      "require": {
+        "types": "./checkbox/index.d.ts",
+        "default": "./checkbox/index.js"
+      },
+      "default": {
+        "types": "./checkbox/index.d.mts",
+        "default": "./checkbox/index.mjs"
+      }
+    },
+    "./checkbox-group": {
+      "import": {
+        "types": "./checkbox-group/index.d.mts",
+        "default": "./checkbox-group/index.mjs"
+      },
+      "require": {
+        "types": "./checkbox-group/index.d.ts",
+        "default": "./checkbox-group/index.js"
+      },
+      "default": {
+        "types": "./checkbox-group/index.d.mts",
+        "default": "./checkbox-group/index.mjs"
+      }
+    },
+    "./collapsible": {
+      "import": {
+        "types": "./collapsible/index.d.mts",
+        "default": "./collapsible/index.mjs"
+      },
+      "require": {
+        "types": "./collapsible/index.d.ts",
+        "default": "./collapsible/index.js"
+      },
+      "default": {
+        "types": "./collapsible/index.d.mts",
+        "default": "./collapsible/index.mjs"
+      }
+    },
+    "./combobox": {
+      "import": {
+        "types": "./combobox/index.d.mts",
+        "default": "./combobox/index.mjs"
+      },
+      "require": {
+        "types": "./combobox/index.d.ts",
+        "default": "./combobox/index.js"
+      },
+      "default": {
+        "types": "./combobox/index.d.mts",
+        "default": "./combobox/index.mjs"
+      }
+    },
+    "./csp-provider": {
+      "import": {
+        "types": "./csp-provider/index.d.mts",
+        "default": "./csp-provider/index.mjs"
+      },
+      "require": {
+        "types": "./csp-provider/index.d.ts",
+        "default": "./csp-provider/index.js"
+      },
+      "default": {
+        "types": "./csp-provider/index.d.mts",
+        "default": "./csp-provider/index.mjs"
+      }
+    },
+    "./context-menu": {
+      "import": {
+        "types": "./context-menu/index.d.mts",
+        "default": "./context-menu/index.mjs"
+      },
+      "require": {
+        "types": "./context-menu/index.d.ts",
+        "default": "./context-menu/index.js"
+      },
+      "default": {
+        "types": "./context-menu/index.d.mts",
+        "default": "./context-menu/index.mjs"
+      }
+    },
+    "./dialog": {
+      "import": {
+        "types": "./dialog/index.d.mts",
+        "default": "./dialog/index.mjs"
+      },
+      "require": {
+        "types": "./dialog/index.d.ts",
+        "default": "./dialog/index.js"
+      },
+      "default": {
+        "types": "./dialog/index.d.mts",
+        "default": "./dialog/index.mjs"
+      }
+    },
+    "./direction-provider": {
+      "import": {
+        "types": "./direction-provider/index.d.mts",
+        "default": "./direction-provider/index.mjs"
+      },
+      "require": {
+        "types": "./direction-provider/index.d.ts",
+        "default": "./direction-provider/index.js"
+      },
+      "default": {
+        "types": "./direction-provider/index.d.mts",
+        "default": "./direction-provider/index.mjs"
+      }
+    },
+    "./drawer": {
+      "import": {
+        "types": "./drawer/index.d.mts",
+        "default": "./drawer/index.mjs"
+      },
+      "require": {
+        "types": "./drawer/index.d.ts",
+        "default": "./drawer/index.js"
+      },
+      "default": {
+        "types": "./drawer/index.d.mts",
+        "default": "./drawer/index.mjs"
+      }
+    },
+    "./field": {
+      "import": {
+        "types": "./field/index.d.mts",
+        "default": "./field/index.mjs"
+      },
+      "require": {
+        "types": "./field/index.d.ts",
+        "default": "./field/index.js"
+      },
+      "default": {
+        "types": "./field/index.d.mts",
+        "default": "./field/index.mjs"
+      }
+    },
+    "./fieldset": {
+      "import": {
+        "types": "./fieldset/index.d.mts",
+        "default": "./fieldset/index.mjs"
+      },
+      "require": {
+        "types": "./fieldset/index.d.ts",
+        "default": "./fieldset/index.js"
+      },
+      "default": {
+        "types": "./fieldset/index.d.mts",
+        "default": "./fieldset/index.mjs"
+      }
+    },
+    "./form": {
+      "import": {
+        "types": "./form/index.d.mts",
+        "default": "./form/index.mjs"
+      },
+      "require": {
+        "types": "./form/index.d.ts",
+        "default": "./form/index.js"
+      },
+      "default": {
+        "types": "./form/index.d.mts",
+        "default": "./form/index.mjs"
+      }
+    },
+    "./input": {
+      "import": {
+        "types": "./input/index.d.mts",
+        "default": "./input/index.mjs"
+      },
+      "require": {
+        "types": "./input/index.d.ts",
+        "default": "./input/index.js"
+      },
+      "default": {
+        "types": "./input/index.d.mts",
+        "default": "./input/index.mjs"
+      }
+    },
+    "./menu": {
+      "import": {
+        "types": "./menu/index.d.mts",
+        "default": "./menu/index.mjs"
+      },
+      "require": {
+        "types": "./menu/index.d.ts",
+        "default": "./menu/index.js"
+      },
+      "default": {
+        "types": "./menu/index.d.mts",
+        "default": "./menu/index.mjs"
+      }
+    },
+    "./menubar": {
+      "import": {
+        "types": "./menubar/index.d.mts",
+        "default": "./menubar/index.mjs"
+      },
+      "require": {
+        "types": "./menubar/index.d.ts",
+        "default": "./menubar/index.js"
+      },
+      "default": {
+        "types": "./menubar/index.d.mts",
+        "default": "./menubar/index.mjs"
+      }
+    },
+    "./merge-props": {
+      "import": {
+        "types": "./merge-props/index.d.mts",
+        "default": "./merge-props/index.mjs"
+      },
+      "require": {
+        "types": "./merge-props/index.d.ts",
+        "default": "./merge-props/index.js"
+      },
+      "default": {
+        "types": "./merge-props/index.d.mts",
+        "default": "./merge-props/index.mjs"
+      }
+    },
+    "./meter": {
+      "import": {
+        "types": "./meter/index.d.mts",
+        "default": "./meter/index.mjs"
+      },
+      "require": {
+        "types": "./meter/index.d.ts",
+        "default": "./meter/index.js"
+      },
+      "default": {
+        "types": "./meter/index.d.mts",
+        "default": "./meter/index.mjs"
+      }
+    },
+    "./navigation-menu": {
+      "import": {
+        "types": "./navigation-menu/index.d.mts",
+        "default": "./navigation-menu/index.mjs"
+      },
+      "require": {
+        "types": "./navigation-menu/index.d.ts",
+        "default": "./navigation-menu/index.js"
+      },
+      "default": {
+        "types": "./navigation-menu/index.d.mts",
+        "default": "./navigation-menu/index.mjs"
+      }
+    },
+    "./number-field": {
+      "import": {
+        "types": "./number-field/index.d.mts",
+        "default": "./number-field/index.mjs"
+      },
+      "require": {
+        "types": "./number-field/index.d.ts",
+        "default": "./number-field/index.js"
+      },
+      "default": {
+        "types": "./number-field/index.d.mts",
+        "default": "./number-field/index.mjs"
+      }
+    },
+    "./otp-field": {
+      "import": {
+        "types": "./otp-field/index.d.mts",
+        "default": "./otp-field/index.mjs"
+      },
+      "require": {
+        "types": "./otp-field/index.d.ts",
+        "default": "./otp-field/index.js"
+      },
+      "default": {
+        "types": "./otp-field/index.d.mts",
+        "default": "./otp-field/index.mjs"
+      }
+    },
+    "./popover": {
+      "import": {
+        "types": "./popover/index.d.mts",
+        "default": "./popover/index.mjs"
+      },
+      "require": {
+        "types": "./popover/index.d.ts",
+        "default": "./popover/index.js"
+      },
+      "default": {
+        "types": "./popover/index.d.mts",
+        "default": "./popover/index.mjs"
+      }
+    },
+    "./preview-card": {
+      "import": {
+        "types": "./preview-card/index.d.mts",
+        "default": "./preview-card/index.mjs"
+      },
+      "require": {
+        "types": "./preview-card/index.d.ts",
+        "default": "./preview-card/index.js"
+      },
+      "default": {
+        "types": "./preview-card/index.d.mts",
+        "default": "./preview-card/index.mjs"
+      }
+    },
+    "./progress": {
+      "import": {
+        "types": "./progress/index.d.mts",
+        "default": "./progress/index.mjs"
+      },
+      "require": {
+        "types": "./progress/index.d.ts",
+        "default": "./progress/index.js"
+      },
+      "default": {
+        "types": "./progress/index.d.mts",
+        "default": "./progress/index.mjs"
+      }
+    },
+    "./radio": {
+      "import": {
+        "types": "./radio/index.d.mts",
+        "default": "./radio/index.mjs"
+      },
+      "require": {
+        "types": "./radio/index.d.ts",
+        "default": "./radio/index.js"
+      },
+      "default": {
+        "types": "./radio/index.d.mts",
+        "default": "./radio/index.mjs"
+      }
+    },
+    "./radio-group": {
+      "import": {
+        "types": "./radio-group/index.d.mts",
+        "default": "./radio-group/index.mjs"
+      },
+      "require": {
+        "types": "./radio-group/index.d.ts",
+        "default": "./radio-group/index.js"
+      },
+      "default": {
+        "types": "./radio-group/index.d.mts",
+        "default": "./radio-group/index.mjs"
+      }
+    },
+    "./scroll-area": {
+      "import": {
+        "types": "./scroll-area/index.d.mts",
+        "default": "./scroll-area/index.mjs"
+      },
+      "require": {
+        "types": "./scroll-area/index.d.ts",
+        "default": "./scroll-area/index.js"
+      },
+      "default": {
+        "types": "./scroll-area/index.d.mts",
+        "default": "./scroll-area/index.mjs"
+      }
+    },
+    "./select": {
+      "import": {
+        "types": "./select/index.d.mts",
+        "default": "./select/index.mjs"
+      },
+      "require": {
+        "types": "./select/index.d.ts",
+        "default": "./select/index.js"
+      },
+      "default": {
+        "types": "./select/index.d.mts",
+        "default": "./select/index.mjs"
+      }
+    },
+    "./separator": {
+      "import": {
+        "types": "./separator/index.d.mts",
+        "default": "./separator/index.mjs"
+      },
+      "require": {
+        "types": "./separator/index.d.ts",
+        "default": "./separator/index.js"
+      },
+      "default": {
+        "types": "./separator/index.d.mts",
+        "default": "./separator/index.mjs"
+      }
+    },
+    "./slider": {
+      "import": {
+        "types": "./slider/index.d.mts",
+        "default": "./slider/index.mjs"
+      },
+      "require": {
+        "types": "./slider/index.d.ts",
+        "default": "./slider/index.js"
+      },
+      "default": {
+        "types": "./slider/index.d.mts",
+        "default": "./slider/index.mjs"
+      }
+    },
+    "./switch": {
+      "import": {
+        "types": "./switch/index.d.mts",
+        "default": "./switch/index.mjs"
+      },
+      "require": {
+        "types": "./switch/index.d.ts",
+        "default": "./switch/index.js"
+      },
+      "default": {
+        "types": "./switch/index.d.mts",
+        "default": "./switch/index.mjs"
+      }
+    },
+    "./tabs": {
+      "import": {
+        "types": "./tabs/index.d.mts",
+        "default": "./tabs/index.mjs"
+      },
+      "require": {
+        "types": "./tabs/index.d.ts",
+        "default": "./tabs/index.js"
+      },
+      "default": {
+        "types": "./tabs/index.d.mts",
+        "default": "./tabs/index.mjs"
+      }
+    },
+    "./toast": {
+      "import": {
+        "types": "./toast/index.d.mts",
+        "default": "./toast/index.mjs"
+      },
+      "require": {
+        "types": "./toast/index.d.ts",
+        "default": "./toast/index.js"
+      },
+      "default": {
+        "types": "./toast/index.d.mts",
+        "default": "./toast/index.mjs"
+      }
+    },
+    "./toggle": {
+      "import": {
+        "types": "./toggle/index.d.mts",
+        "default": "./toggle/index.mjs"
+      },
+      "require": {
+        "types": "./toggle/index.d.ts",
+        "default": "./toggle/index.js"
+      },
+      "default": {
+        "types": "./toggle/index.d.mts",
+        "default": "./toggle/index.mjs"
+      }
+    },
+    "./toggle-group": {
+      "import": {
+        "types": "./toggle-group/index.d.mts",
+        "default": "./toggle-group/index.mjs"
+      },
+      "require": {
+        "types": "./toggle-group/index.d.ts",
+        "default": "./toggle-group/index.js"
+      },
+      "default": {
+        "types": "./toggle-group/index.d.mts",
+        "default": "./toggle-group/index.mjs"
+      }
+    },
+    "./toolbar": {
+      "import": {
+        "types": "./toolbar/index.d.mts",
+        "default": "./toolbar/index.mjs"
+      },
+      "require": {
+        "types": "./toolbar/index.d.ts",
+        "default": "./toolbar/index.js"
+      },
+      "default": {
+        "types": "./toolbar/index.d.mts",
+        "default": "./toolbar/index.mjs"
+      }
+    },
+    "./tooltip": {
+      "import": {
+        "types": "./tooltip/index.d.mts",
+        "default": "./tooltip/index.mjs"
+      },
+      "require": {
+        "types": "./tooltip/index.d.ts",
+        "default": "./tooltip/index.js"
+      },
+      "default": {
+        "types": "./tooltip/index.d.mts",
+        "default": "./tooltip/index.mjs"
+      }
+    },
+    "./types": {
+      "import": {
+        "types": "./types/index.d.mts",
+        "default": "./types/index.mjs"
+      },
+      "require": {
+        "types": "./types/index.d.ts",
+        "default": "./types/index.js"
+      },
+      "default": {
+        "types": "./types/index.d.mts",
+        "default": "./types/index.mjs"
+      }
+    },
+    "./unstable-use-media-query": {
+      "import": {
+        "types": "./unstable-use-media-query/index.d.mts",
+        "default": "./unstable-use-media-query/index.mjs"
+      },
+      "require": {
+        "types": "./unstable-use-media-query/index.d.ts",
+        "default": "./unstable-use-media-query/index.js"
+      },
+      "default": {
+        "types": "./unstable-use-media-query/index.d.mts",
+        "default": "./unstable-use-media-query/index.mjs"
+      }
+    },
+    "./use-render": {
+      "import": {
+        "types": "./use-render/index.d.mts",
+        "default": "./use-render/index.mjs"
+      },
+      "require": {
+        "types": "./use-render/index.d.ts",
+        "default": "./use-render/index.js"
+      },
+      "default": {
+        "types": "./use-render/index.d.mts",
+        "default": "./use-render/index.mjs"
+      }
+    },
+    "./internals/composite": {
+      "import": {
+        "types": "./internals/composite/index.d.mts",
+        "default": "./internals/composite/index.mjs"
+      },
+      "require": {
+        "types": "./internals/composite/index.d.ts",
+        "default": "./internals/composite/index.js"
+      },
+      "default": {
+        "types": "./internals/composite/index.d.mts",
+        "default": "./internals/composite/index.mjs"
+      }
+    },
+    "./internals/constants": {
+      "import": {
+        "types": "./internals/constants.d.mts",
+        "default": "./internals/constants.mjs"
+      },
+      "require": {
+        "types": "./internals/constants.d.ts",
+        "default": "./internals/constants.js"
+      },
+      "default": {
+        "types": "./internals/constants.d.mts",
+        "default": "./internals/constants.mjs"
+      }
+    },
+    "./internals/createBaseUIEventDetails": {
+      "import": {
+        "types": "./internals/createBaseUIEventDetails.d.mts",
+        "default": "./internals/createBaseUIEventDetails.mjs"
+      },
+      "require": {
+        "types": "./internals/createBaseUIEventDetails.d.ts",
+        "default": "./internals/createBaseUIEventDetails.js"
+      },
+      "default": {
+        "types": "./internals/createBaseUIEventDetails.d.mts",
+        "default": "./internals/createBaseUIEventDetails.mjs"
+      }
+    },
+    "./internals/csp-context": {
+      "import": {
+        "types": "./internals/csp-context/index.d.mts",
+        "default": "./internals/csp-context/index.mjs"
+      },
+      "require": {
+        "types": "./internals/csp-context/index.d.ts",
+        "default": "./internals/csp-context/index.js"
+      },
+      "default": {
+        "types": "./internals/csp-context/index.d.mts",
+        "default": "./internals/csp-context/index.mjs"
+      }
+    },
+    "./internals/direction-context": {
+      "import": {
+        "types": "./internals/direction-context/index.d.mts",
+        "default": "./internals/direction-context/index.mjs"
+      },
+      "require": {
+        "types": "./internals/direction-context/index.d.ts",
+        "default": "./internals/direction-context/index.js"
+      },
+      "default": {
+        "types": "./internals/direction-context/index.d.mts",
+        "default": "./internals/direction-context/index.mjs"
+      }
+    },
+    "./internals/field-constants": {
+      "import": {
+        "types": "./internals/field-constants/index.d.mts",
+        "default": "./internals/field-constants/index.mjs"
+      },
+      "require": {
+        "types": "./internals/field-constants/index.d.ts",
+        "default": "./internals/field-constants/index.js"
+      },
+      "default": {
+        "types": "./internals/field-constants/index.d.mts",
+        "default": "./internals/field-constants/index.mjs"
+      }
+    },
+    "./internals/field-register-control": {
+      "import": {
+        "types": "./internals/field-register-control/index.d.mts",
+        "default": "./internals/field-register-control/index.mjs"
+      },
+      "require": {
+        "types": "./internals/field-register-control/index.d.ts",
+        "default": "./internals/field-register-control/index.js"
+      },
+      "default": {
+        "types": "./internals/field-register-control/index.d.mts",
+        "default": "./internals/field-register-control/index.mjs"
+      }
+    },
+    "./internals/field-root-context": {
+      "import": {
+        "types": "./internals/field-root-context/index.d.mts",
+        "default": "./internals/field-root-context/index.mjs"
+      },
+      "require": {
+        "types": "./internals/field-root-context/index.d.ts",
+        "default": "./internals/field-root-context/index.js"
+      },
+      "default": {
+        "types": "./internals/field-root-context/index.d.mts",
+        "default": "./internals/field-root-context/index.mjs"
+      }
+    },
+    "./internals/filter": {
+      "import": {
+        "types": "./internals/filter.d.mts",
+        "default": "./internals/filter.mjs"
+      },
+      "require": {
+        "types": "./internals/filter.d.ts",
+        "default": "./internals/filter.js"
+      },
+      "default": {
+        "types": "./internals/filter.d.mts",
+        "default": "./internals/filter.mjs"
+      }
+    },
+    "./internals/itemEquality": {
+      "import": {
+        "types": "./internals/itemEquality.d.mts",
+        "default": "./internals/itemEquality.mjs"
+      },
+      "require": {
+        "types": "./internals/itemEquality.d.ts",
+        "default": "./internals/itemEquality.js"
+      },
+      "default": {
+        "types": "./internals/itemEquality.d.mts",
+        "default": "./internals/itemEquality.mjs"
+      }
+    },
+    "./internals/form-context": {
+      "import": {
+        "types": "./internals/form-context/index.d.mts",
+        "default": "./internals/form-context/index.mjs"
+      },
+      "require": {
+        "types": "./internals/form-context/index.d.ts",
+        "default": "./internals/form-context/index.js"
+      },
+      "default": {
+        "types": "./internals/form-context/index.d.mts",
+        "default": "./internals/form-context/index.mjs"
+      }
+    },
+    "./internals/getDisabledMountTransitionStyles": {
+      "import": {
+        "types": "./internals/getDisabledMountTransitionStyles.d.mts",
+        "default": "./internals/getDisabledMountTransitionStyles.mjs"
+      },
+      "require": {
+        "types": "./internals/getDisabledMountTransitionStyles.d.ts",
+        "default": "./internals/getDisabledMountTransitionStyles.js"
+      },
+      "default": {
+        "types": "./internals/getDisabledMountTransitionStyles.d.mts",
+        "default": "./internals/getDisabledMountTransitionStyles.mjs"
+      }
+    },
+    "./internals/getStateAttributesProps": {
+      "import": {
+        "types": "./internals/getStateAttributesProps.d.mts",
+        "default": "./internals/getStateAttributesProps.mjs"
+      },
+      "require": {
+        "types": "./internals/getStateAttributesProps.d.ts",
+        "default": "./internals/getStateAttributesProps.js"
+      },
+      "default": {
+        "types": "./internals/getStateAttributesProps.d.mts",
+        "default": "./internals/getStateAttributesProps.mjs"
+      }
+    },
+    "./internals/labelable-provider": {
+      "import": {
+        "types": "./internals/labelable-provider/index.d.mts",
+        "default": "./internals/labelable-provider/index.mjs"
+      },
+      "require": {
+        "types": "./internals/labelable-provider/index.d.ts",
+        "default": "./internals/labelable-provider/index.js"
+      },
+      "default": {
+        "types": "./internals/labelable-provider/index.d.mts",
+        "default": "./internals/labelable-provider/index.mjs"
+      }
+    },
+    "./internals/noop": {
+      "import": {
+        "types": "./internals/noop.d.mts",
+        "default": "./internals/noop.mjs"
+      },
+      "require": {
+        "types": "./internals/noop.d.ts",
+        "default": "./internals/noop.js"
+      },
+      "default": {
+        "types": "./internals/noop.d.mts",
+        "default": "./internals/noop.mjs"
+      }
+    },
+    "./internals/reasons": {
+      "import": {
+        "types": "./internals/reasons.d.mts",
+        "default": "./internals/reasons.mjs"
+      },
+      "require": {
+        "types": "./internals/reasons.d.ts",
+        "default": "./internals/reasons.js"
+      },
+      "default": {
+        "types": "./internals/reasons.d.mts",
+        "default": "./internals/reasons.mjs"
+      }
+    },
+    "./internals/resolveValueLabel": {
+      "import": {
+        "types": "./internals/resolveValueLabel.d.mts",
+        "default": "./internals/resolveValueLabel.mjs"
+      },
+      "require": {
+        "types": "./internals/resolveValueLabel.d.ts",
+        "default": "./internals/resolveValueLabel.js"
+      },
+      "default": {
+        "types": "./internals/resolveValueLabel.d.mts",
+        "default": "./internals/resolveValueLabel.mjs"
+      }
+    },
+    "./internals/RequestQueue": {
+      "import": {
+        "types": "./internals/RequestQueue.d.mts",
+        "default": "./internals/RequestQueue.mjs"
+      },
+      "require": {
+        "types": "./internals/RequestQueue.d.ts",
+        "default": "./internals/RequestQueue.js"
+      },
+      "default": {
+        "types": "./internals/RequestQueue.d.mts",
+        "default": "./internals/RequestQueue.mjs"
+      }
+    },
+    "./internals/serializeValue": {
+      "import": {
+        "types": "./internals/serializeValue.d.mts",
+        "default": "./internals/serializeValue.mjs"
+      },
+      "require": {
+        "types": "./internals/serializeValue.d.ts",
+        "default": "./internals/serializeValue.js"
+      },
+      "default": {
+        "types": "./internals/serializeValue.d.mts",
+        "default": "./internals/serializeValue.mjs"
+      }
+    },
+    "./internals/stateAttributesMapping": {
+      "import": {
+        "types": "./internals/stateAttributesMapping.d.mts",
+        "default": "./internals/stateAttributesMapping.mjs"
+      },
+      "require": {
+        "types": "./internals/stateAttributesMapping.d.ts",
+        "default": "./internals/stateAttributesMapping.js"
+      },
+      "default": {
+        "types": "./internals/stateAttributesMapping.d.mts",
+        "default": "./internals/stateAttributesMapping.mjs"
+      }
+    },
+    "./internals/temporal": {
+      "import": {
+        "types": "./internals/temporal/index.d.mts",
+        "default": "./internals/temporal/index.mjs"
+      },
+      "require": {
+        "types": "./internals/temporal/index.d.ts",
+        "default": "./internals/temporal/index.js"
+      },
+      "default": {
+        "types": "./internals/temporal/index.d.mts",
+        "default": "./internals/temporal/index.mjs"
+      }
+    },
+    "./internals/temporal-adapter-date-fns": {
+      "import": {
+        "types": "./internals/temporal-adapter-date-fns/index.d.mts",
+        "default": "./internals/temporal-adapter-date-fns/index.mjs"
+      },
+      "require": {
+        "types": "./internals/temporal-adapter-date-fns/index.d.ts",
+        "default": "./internals/temporal-adapter-date-fns/index.js"
+      },
+      "default": {
+        "types": "./internals/temporal-adapter-date-fns/index.d.mts",
+        "default": "./internals/temporal-adapter-date-fns/index.mjs"
+      }
+    },
+    "./internals/temporal-adapter-luxon": {
+      "import": {
+        "types": "./internals/temporal-adapter-luxon/index.d.mts",
+        "default": "./internals/temporal-adapter-luxon/index.mjs"
+      },
+      "require": {
+        "types": "./internals/temporal-adapter-luxon/index.d.ts",
+        "default": "./internals/temporal-adapter-luxon/index.js"
+      },
+      "default": {
+        "types": "./internals/temporal-adapter-luxon/index.d.mts",
+        "default": "./internals/temporal-adapter-luxon/index.mjs"
+      }
+    },
+    "./internals/TimeoutManager": {
+      "import": {
+        "types": "./internals/TimeoutManager.d.mts",
+        "default": "./internals/TimeoutManager.mjs"
+      },
+      "require": {
+        "types": "./internals/TimeoutManager.d.ts",
+        "default": "./internals/TimeoutManager.js"
+      },
+      "default": {
+        "types": "./internals/TimeoutManager.d.mts",
+        "default": "./internals/TimeoutManager.mjs"
+      }
+    },
+    "./internals/types": {
+      "import": {
+        "types": "./internals/types.d.mts",
+        "default": "./internals/types.mjs"
+      },
+      "require": {
+        "types": "./internals/types.d.ts",
+        "default": "./internals/types.js"
+      },
+      "default": {
+        "types": "./internals/types.d.mts",
+        "default": "./internals/types.mjs"
+      }
+    },
+    "./internals/use-button": {
+      "import": {
+        "types": "./internals/use-button/index.d.mts",
+        "default": "./internals/use-button/index.mjs"
+      },
+      "require": {
+        "types": "./internals/use-button/index.d.ts",
+        "default": "./internals/use-button/index.js"
+      },
+      "default": {
+        "types": "./internals/use-button/index.d.mts",
+        "default": "./internals/use-button/index.mjs"
+      }
+    },
+    "./internals/useBaseUiId": {
+      "import": {
+        "types": "./internals/useBaseUiId.d.mts",
+        "default": "./internals/useBaseUiId.mjs"
+      },
+      "require": {
+        "types": "./internals/useBaseUiId.d.ts",
+        "default": "./internals/useBaseUiId.js"
+      },
+      "default": {
+        "types": "./internals/useBaseUiId.d.mts",
+        "default": "./internals/useBaseUiId.mjs"
+      }
+    },
+    "./internals/useAnchorPositioning": {
+      "import": {
+        "types": "./internals/useAnchorPositioning.d.mts",
+        "default": "./internals/useAnchorPositioning.mjs"
+      },
+      "require": {
+        "types": "./internals/useAnchorPositioning.d.ts",
+        "default": "./internals/useAnchorPositioning.js"
+      },
+      "default": {
+        "types": "./internals/useAnchorPositioning.d.mts",
+        "default": "./internals/useAnchorPositioning.mjs"
+      }
+    },
+    "./internals/useAnimationsFinished": {
+      "import": {
+        "types": "./internals/useAnimationsFinished.d.mts",
+        "default": "./internals/useAnimationsFinished.mjs"
+      },
+      "require": {
+        "types": "./internals/useAnimationsFinished.d.ts",
+        "default": "./internals/useAnimationsFinished.js"
+      },
+      "default": {
+        "types": "./internals/useAnimationsFinished.d.mts",
+        "default": "./internals/useAnimationsFinished.mjs"
+      }
+    },
+    "./internals/useOpenChangeComplete": {
+      "import": {
+        "types": "./internals/useOpenChangeComplete.d.mts",
+        "default": "./internals/useOpenChangeComplete.mjs"
+      },
+      "require": {
+        "types": "./internals/useOpenChangeComplete.d.ts",
+        "default": "./internals/useOpenChangeComplete.js"
+      },
+      "default": {
+        "types": "./internals/useOpenChangeComplete.d.mts",
+        "default": "./internals/useOpenChangeComplete.mjs"
+      }
+    },
+    "./internals/usePressAndHold": {
+      "import": {
+        "types": "./internals/usePressAndHold.d.mts",
+        "default": "./internals/usePressAndHold.mjs"
+      },
+      "require": {
+        "types": "./internals/usePressAndHold.d.ts",
+        "default": "./internals/usePressAndHold.js"
+      },
+      "default": {
+        "types": "./internals/usePressAndHold.d.mts",
+        "default": "./internals/usePressAndHold.mjs"
+      }
+    },
+    "./internals/useRenderElement": {
+      "import": {
+        "types": "./internals/useRenderElement.d.mts",
+        "default": "./internals/useRenderElement.mjs"
+      },
+      "require": {
+        "types": "./internals/useRenderElement.d.ts",
+        "default": "./internals/useRenderElement.js"
+      },
+      "default": {
+        "types": "./internals/useRenderElement.d.mts",
+        "default": "./internals/useRenderElement.mjs"
+      }
+    },
+    "./internals/useValueChanged": {
+      "import": {
+        "types": "./internals/useValueChanged.d.mts",
+        "default": "./internals/useValueChanged.mjs"
+      },
+      "require": {
+        "types": "./internals/useValueChanged.d.ts",
+        "default": "./internals/useValueChanged.js"
+      },
+      "default": {
+        "types": "./internals/useValueChanged.d.mts",
+        "default": "./internals/useValueChanged.mjs"
+      }
+    },
+    "./internals/useTransitionStatus": {
+      "import": {
+        "types": "./internals/useTransitionStatus.d.mts",
+        "default": "./internals/useTransitionStatus.mjs"
+      },
+      "require": {
+        "types": "./internals/useTransitionStatus.d.ts",
+        "default": "./internals/useTransitionStatus.js"
+      },
+      "default": {
+        "types": "./internals/useTransitionStatus.d.mts",
+        "default": "./internals/useTransitionStatus.mjs"
+      }
+    }
+  },
+  "imports": {
+    "#test-utils": "./test/index.ts",
+    "#formatErrorMessage": "@base-ui/utils/formatErrorMessage",
+    "#prehydration/tabs/indicator": {
+      "browser": {
+        "import": {
+          "types": "./internals/prehydrationScript.stub.d.mts",
+          "default": "./internals/prehydrationScript.stub.mjs"
+        },
+        "require": {
+          "types": "./internals/prehydrationScript.stub.d.ts",
+          "default": "./internals/prehydrationScript.stub.js"
+        },
+        "default": {
+          "types": "./internals/prehydrationScript.stub.d.mts",
+          "default": "./internals/prehydrationScript.stub.mjs"
+        }
+      },
+      "default": {
+        "import": {
+          "types": "./tabs/indicator/prehydrationScript.min.d.mts",
+          "default": "./tabs/indicator/prehydrationScript.min.mjs"
+        },
+        "require": {
+          "types": "./tabs/indicator/prehydrationScript.min.d.ts",
+          "default": "./tabs/indicator/prehydrationScript.min.js"
+        },
+        "default": {
+          "types": "./tabs/indicator/prehydrationScript.min.d.mts",
+          "default": "./tabs/indicator/prehydrationScript.min.mjs"
+        }
+      }
+    },
+    "#prehydration/slider/thumb": {
+      "browser": {
+        "import": {
+          "types": "./internals/prehydrationScript.stub.d.mts",
+          "default": "./internals/prehydrationScript.stub.mjs"
+        },
+        "require": {
+          "types": "./internals/prehydrationScript.stub.d.ts",
+          "default": "./internals/prehydrationScript.stub.js"
+        },
+        "default": {
+          "types": "./internals/prehydrationScript.stub.d.mts",
+          "default": "./internals/prehydrationScript.stub.mjs"
+        }
+      },
+      "default": {
+        "import": {
+          "types": "./slider/thumb/prehydrationScript.min.d.mts",
+          "default": "./slider/thumb/prehydrationScript.min.mjs"
+        },
+        "require": {
+          "types": "./slider/thumb/prehydrationScript.min.d.ts",
+          "default": "./slider/thumb/prehydrationScript.min.js"
+        },
+        "default": {
+          "types": "./slider/thumb/prehydrationScript.min.d.mts",
+          "default": "./slider/thumb/prehydrationScript.min.mjs"
+        }
+      }
+    }
+  },
+  "main": "./index.js",
+  "types": "./index.d.ts"
+}

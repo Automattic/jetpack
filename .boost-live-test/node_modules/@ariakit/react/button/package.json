@@ -1,0 +1,8 @@
+{
+  "name": "@ariakit/react/button",
+  "private": true,
+  "sideEffects": false,
+  "main": "../cjs/button.cjs",
+  "module": "../esm/button.js",
+  "types": "../cjs/button.d.ts"
+}

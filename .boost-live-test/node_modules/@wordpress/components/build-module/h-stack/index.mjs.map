@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/h-stack/index.ts"],
+  "sourcesContent": ["export { default as HStack } from './component';\nexport { useHStack } from './hook';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAAyB;AAClC,SAAS,iBAAiB;",
+  "names": ["default"]
+}

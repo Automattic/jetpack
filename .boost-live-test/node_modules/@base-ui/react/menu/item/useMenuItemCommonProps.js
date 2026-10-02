@@ -1,0 +1,92 @@
+"use strict";
+'use client';
+
+var _interopRequireWildcard = require("@babel/runtime/helpers/interopRequireWildcard").default;
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.useMenuItemCommonProps = useMenuItemCommonProps;
+var React = _interopRequireWildcard(require("react"));
+var _platform = require("@base-ui/utils/platform");
+var _reasons = require("../../internals/reasons");
+var _ContextMenuRootContext = require("../../context-menu/root/ContextMenuRootContext");
+var _dispatchClickWithModifiers = require("../../utils/dispatchClickWithModifiers");
+/**
+ * Returns common props shared by all menu item types.
+ * This hook extracts the shared logic for id, role, tabIndex, onKeyDown,
+ * onMouseMove, onClick, and onMouseUp handlers.
+ */
+function useMenuItemCommonProps(params) {
+  const {
+    closeOnClick,
+    highlighted,
+    id,
+    nodeId,
+    store,
+    typingRef,
+    itemRef,
+    itemMetadata
+  } = params;
+  const {
+    events: menuEvents
+  } = store.useState('floatingTreeRoot');
+  const open = store.useState('open');
+  const contextMenuContext = (0, _ContextMenuRootContext.useContextMenuRootContext)(true);
+  const isContextMenu = contextMenuContext !== undefined;
+  return React.useMemo(() => ({
+    id,
+    role: 'menuitem',
+    tabIndex: open && highlighted ? 0 : -1,
+    onKeyDown(event) {
+      if (event.key === ' ' && typingRef?.current) {
+        event.preventDefault();
+      }
+    },
+    onMouseMove(event) {
+      if (!nodeId) {
+        return;
+      }
+
+      // Inform the floating tree that a menu item within this menu was hovered/moved over
+      // so unrelated descendant submenus can be closed.
+      menuEvents.emit('itemhover', {
+        nodeId,
+        target: event.currentTarget
+      });
+    },
+    onClick(event) {
+      if (closeOnClick) {
+        menuEvents.emit('close', {
+          domEvent: event,
+          reason: _reasons.REASONS.itemPress
+        });
+      }
+    },
+    onMouseUp(event) {
+      if (contextMenuContext) {
+        const initialCursorPoint = contextMenuContext.initialCursorPointRef.current;
+        contextMenuContext.initialCursorPointRef.current = null;
+        if (isContextMenu && initialCursorPoint && Math.abs(event.clientX - initialCursorPoint.x) <= 1 && Math.abs(event.clientY - initialCursorPoint.y) <= 1) {
+          return;
+        }
+
+        // On non-macOS platforms, this mouseup belongs to the right-click gesture
+        // that opened the context menu, so it must not activate an item.
+        if (isContextMenu && !_platform.platform.os.mac && event.button === 2) {
+          return;
+        }
+      }
+      if (itemRef.current && store.context.allowMouseUpTriggerRef.current && (!isContextMenu || event.button === 2)) {
+        // This fires whenever the user clicks on the trigger, moves the cursor, and releases it over the item.
+        // We trigger the click and override the `closeOnClick` preference to always close the menu.
+        if (itemMetadata.type === 'regular-item') {
+          // `detail: 1` marks this as a mouse-gesture click so MenuRoot doesn't
+          // treat it as a keyboard activation (`detail === 0` → `data-instant`).
+          (0, _dispatchClickWithModifiers.dispatchClickWithModifiers)(itemRef.current, event, {
+            detail: 1
+          });
+        }
+      }
+    }
+  }), [closeOnClick, highlighted, id, menuEvents, nodeId, open, store, typingRef, itemRef, contextMenuContext, isContextMenu, itemMetadata]);
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/dom/is-element.js"],
+  "sourcesContent": ["/**\n * @param {Node | null | undefined} node\n * @return {node is Element} True if node is an Element node\n */\nexport default function isElement( node ) {\n\treturn !! node && node.nodeType === node.ELEMENT_NODE;\n}\n"],
+  "mappings": ";AAIe,SAAR,UAA4B,MAAO;AACzC,SAAO,CAAC,CAAE,QAAQ,KAAK,aAAa,KAAK;AAC1C;",
+  "names": []
+}

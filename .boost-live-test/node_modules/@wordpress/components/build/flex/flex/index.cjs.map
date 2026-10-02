@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/flex/flex/index.ts"],
+  "sourcesContent": ["export { default } from './component';\nexport { useFlex } from './hook';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAwB;AACxB,kBAAwB;",
+  "names": []
+}

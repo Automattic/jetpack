@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/dialog/trigger.tsx"],
+  "sourcesContent": ["import { Dialog as _Dialog } from '@base-ui/react/dialog';\nimport { forwardRef } from '@wordpress/element';\nimport type { TriggerProps } from './types';\n\n/**\n * Renders a button that opens the dialog popup when clicked.\n */\nconst Trigger = forwardRef< HTMLButtonElement, TriggerProps >(\n\tfunction DialogTrigger( props, ref ) {\n\t\treturn <_Dialog.Trigger ref={ ref } { ...props } />;\n\t}\n);\n\nexport { Trigger };\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,oBAAkC;AAClC,qBAA2B;AAQlB;AAFT,IAAM,cAAU;AAAA,EACf,SAAS,cAAe,OAAO,KAAM;AACpC,WAAO,4CAAC,cAAAA,OAAQ,SAAR,EAAgB,KAAc,GAAG,OAAQ;AAAA,EAClD;AACD;",
+  "names": ["_Dialog"]
+}

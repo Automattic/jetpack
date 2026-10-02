@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/components/registry-provider/index.ts"],
+  "sourcesContent": ["export { default as RegistryProvider, RegistryConsumer } from './context';\nexport { default as useRegistry } from './use-registry';\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,qBAA8D;AAC9D,0BAAuC;",
+  "names": []
+}

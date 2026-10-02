@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/redux-store/thunk-middleware.ts"],
+  "sourcesContent": ["import type { Middleware } from 'redux';\n\nexport default function createThunkMiddleware( args: unknown ): Middleware {\n\treturn () => ( next ) => ( action ) => {\n\t\tif ( typeof action === 'function' ) {\n\t\t\treturn action( args );\n\t\t}\n\n\t\treturn next( action );\n\t};\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEe,SAAR,sBAAwC,MAA4B;AAC1E,SAAO,MAAM,CAAE,SAAU,CAAE,WAAY;AACtC,QAAK,OAAO,WAAW,YAAa;AACnC,aAAO,OAAQ,IAAK;AAAA,IACrB;AAEA,WAAO,KAAM,MAAO;AAAA,EACrB;AACD;",
+  "names": []
+}

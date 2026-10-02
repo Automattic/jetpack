@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/heading/index.ts"],
+  "sourcesContent": ["export { default as Heading } from './component';\nexport { useHeading } from './hook';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAmC;AACnC,kBAA2B;",
+  "names": []
+}

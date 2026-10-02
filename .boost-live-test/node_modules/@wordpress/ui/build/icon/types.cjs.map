@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/icon/types.ts"],
+  "sourcesContent": ["export type IconProps = React.ComponentProps< 'svg' > & {\n\t/**\n\t * The icon to render, which must be an svg element or an `SVG` from `@wordpress/primitives`.\n\t *\n\t * In most cases, you should use an icon from\n\t * [the `@wordpress/icons` package](https://wordpress.github.io/gutenberg/?path=/story/icons-icon--library).\n\t */\n\ticon: React.ReactElement< React.ComponentProps< 'svg' > >;\n\t/**\n\t * The size (width and height) of the icon.\n\t * @default 24\n\t */\n\tsize?: number;\n};\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

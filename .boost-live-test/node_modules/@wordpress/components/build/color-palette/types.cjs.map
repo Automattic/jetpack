@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/color-palette/types.ts"],
+  "sourcesContent": ["export {};"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/escape-greater.ts"],
+  "sourcesContent": ["/**\n * Returns a string with greater-than sign replaced.\n *\n * Note that if a resolution for Trac#45387 comes to fruition, it is no longer\n * necessary for `__unstableEscapeGreaterThan` to exist.\n *\n * See: https://core.trac.wordpress.org/ticket/45387\n *\n * @param value Original string.\n *\n * @return Escaped string.\n */\nexport default function __unstableEscapeGreaterThan( value: string ): string {\n\treturn value.replace( />/g, '&gt;' );\n}\n"],
+  "mappings": ";AAYe,SAAR,4BAA8C,OAAwB;AAC5E,SAAO,MAAM,QAAS,MAAM,MAAO;AACpC;",
+  "names": []
+}

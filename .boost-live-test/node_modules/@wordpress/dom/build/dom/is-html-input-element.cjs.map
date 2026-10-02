@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/dom/is-html-input-element.js"],
+  "sourcesContent": ["/**\n * @param {Node} node\n * @return {node is HTMLInputElement} Whether the node is an HTMLInputElement.\n */\nexport default function isHTMLInputElement( node ) {\n\treturn node?.nodeName === 'INPUT';\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAIe,SAAR,mBAAqC,MAAO;AAClD,SAAO,MAAM,aAAa;AAC3B;",
+  "names": []
+}

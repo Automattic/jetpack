@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/date-time/constants.ts"],
+  "sourcesContent": ["export const TIMEZONELESS_FORMAT = 'Y-m-d\\\\TH:i:s';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,IAAM,sBAAsB;",
+  "names": []
+}

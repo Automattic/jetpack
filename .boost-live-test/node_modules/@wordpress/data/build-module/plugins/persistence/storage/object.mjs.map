@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/plugins/persistence/storage/object.ts"],
+  "sourcesContent": ["import type { StorageInterface } from '../../../types';\n\nlet objectStorage: Record< string, string > | undefined;\n\nconst storage: StorageInterface & { clear: VoidFunction } = {\n\tgetItem( key: string ): string | null {\n\t\tif ( ! objectStorage || ! objectStorage[ key ] ) {\n\t\t\treturn null;\n\t\t}\n\n\t\treturn objectStorage[ key ];\n\t},\n\tsetItem( key: string, value: string ) {\n\t\tif ( ! objectStorage ) {\n\t\t\tstorage.clear();\n\t\t}\n\n\t\tobjectStorage![ key ] = String( value );\n\t},\n\tclear() {\n\t\tobjectStorage = Object.create( null );\n\t},\n};\n\nexport default storage;\n"],
+  "mappings": ";AAEA,IAAI;AAEJ,IAAM,UAAsD;AAAA,EAC3D,QAAS,KAA6B;AACrC,QAAK,CAAE,iBAAiB,CAAE,cAAe,GAAI,GAAI;AAChD,aAAO;AAAA,IACR;AAEA,WAAO,cAAe,GAAI;AAAA,EAC3B;AAAA,EACA,QAAS,KAAa,OAAgB;AACrC,QAAK,CAAE,eAAgB;AACtB,cAAQ,MAAM;AAAA,IACf;AAEA,kBAAgB,GAAI,IAAI,OAAQ,KAAM;AAAA,EACvC;AAAA,EACA,QAAQ;AACP,oBAAgB,uBAAO,OAAQ,IAAK;AAAA,EACrC;AACD;AAEA,IAAO,iBAAQ;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/store/actions.js"],
+  "sourcesContent": ["/**\n * Returns an action object used in signalling that format types have been\n * added.\n * Ignored from documentation as registerFormatType should be used instead from @wordpress/rich-text\n *\n * @ignore\n *\n * @param {Array|Object} formatTypes Format types received.\n *\n * @return {Object} Action object.\n */\nexport function addFormatTypes( formatTypes ) {\n\treturn {\n\t\ttype: 'ADD_FORMAT_TYPES',\n\t\tformatTypes: Array.isArray( formatTypes )\n\t\t\t? formatTypes\n\t\t\t: [ formatTypes ],\n\t};\n}\n\n/**\n * Returns an action object used to remove a registered format type.\n *\n * Ignored from documentation as unregisterFormatType should be used instead from @wordpress/rich-text\n *\n * @ignore\n *\n * @param {string|Array} names Format name.\n *\n * @return {Object} Action object.\n */\nexport function removeFormatTypes( names ) {\n\treturn {\n\t\ttype: 'REMOVE_FORMAT_TYPES',\n\t\tnames: Array.isArray( names ) ? names : [ names ],\n\t};\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAWO,SAAS,eAAgB,aAAc;AAC7C,SAAO;AAAA,IACN,MAAM;AAAA,IACN,aAAa,MAAM,QAAS,WAAY,IACrC,cACA,CAAE,WAAY;AAAA,EAClB;AACD;AAaO,SAAS,kBAAmB,OAAQ;AAC1C,SAAO;AAAA,IACN,MAAM;AAAA,IACN,OAAO,MAAM,QAAS,KAAM,IAAI,QAAQ,CAAE,KAAM;AAAA,EACjD;AACD;",
+  "names": []
+}

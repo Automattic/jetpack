@@ -1,0 +1,8 @@
+{
+  "name": "@ariakit/react/combobox",
+  "private": true,
+  "sideEffects": false,
+  "main": "../cjs/combobox.cjs",
+  "module": "../esm/combobox.js",
+  "types": "../cjs/combobox.d.ts"
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/stack/index.ts"],
+  "sourcesContent": ["export { Stack } from './stack';\n"],
+  "mappings": ";AAAA,SAAS,aAAa;",
+  "names": []
+}

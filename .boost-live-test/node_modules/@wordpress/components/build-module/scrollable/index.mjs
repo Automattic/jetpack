@@ -1,0 +1,7 @@
+// packages/components/src/scrollable/index.ts
+import { default as default2 } from "./component.mjs";
+export * from "./hook.mjs";
+export {
+  default2 as Scrollable
+};
+//# sourceMappingURL=index.mjs.map

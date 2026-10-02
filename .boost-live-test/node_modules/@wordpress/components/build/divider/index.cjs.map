@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/divider/index.ts"],
+  "sourcesContent": ["export { default as Divider } from './component';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAmC;",
+  "names": []
+}

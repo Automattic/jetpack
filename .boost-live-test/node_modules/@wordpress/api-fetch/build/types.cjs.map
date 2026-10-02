@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/types.ts"],
+  "sourcesContent": ["export interface APIFetchOptions< Parse extends boolean = boolean >\n\textends RequestInit {\n\t// Override headers, we only accept it as an object due to the `nonce` middleware\n\theaders?: Record< string, string >;\n\tpath?: string;\n\turl?: string;\n\t/**\n\t * @default true\n\t */\n\tparse?: Parse;\n\tdata?: any;\n\tnamespace?: string;\n\tendpoint?: string;\n}\n\nexport type FetchHandler< Parse extends boolean = boolean > = (\n\tnextOptions: APIFetchOptions< Parse >\n) => Promise< any >;\n\nexport type APIFetchMiddleware< Parse extends boolean = boolean > = (\n\toptions: APIFetchOptions< Parse >,\n\tnext: FetchHandler< Parse >\n) => Promise< any >;\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

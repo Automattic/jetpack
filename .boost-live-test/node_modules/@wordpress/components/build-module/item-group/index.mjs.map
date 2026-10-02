@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/item-group/index.ts"],
+  "sourcesContent": ["export { default as Item } from './item';\nexport { default as ItemGroup } from './item-group';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAAuB;AAChC,SAAoB,WAAXA,gBAA4B;",
+  "names": ["default"]
+}

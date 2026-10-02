@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/components/use-dispatch/index.ts"],
+  "sourcesContent": ["export { default as useDispatch } from './use-dispatch';\nexport { default as useDispatchWithMap } from './use-dispatch-with-map';\n"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAA8B;AACvC,SAAoB,WAAXA,gBAAqC;",
+  "names": ["default"]
+}

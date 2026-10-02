@@ -1,0 +1,10 @@
+export * as Dialog from "./index.parts.js";
+export type * from "./root/DialogRoot.js";
+export type * from "./trigger/DialogTrigger.js";
+export type * from "./portal/DialogPortal.js";
+export type * from "./popup/DialogPopup.js";
+export type * from "./backdrop/DialogBackdrop.js";
+export type * from "./title/DialogTitle.js";
+export type * from "./description/DialogDescription.js";
+export type * from "./close/DialogClose.js";
+export type * from "./viewport/DialogViewport.js";

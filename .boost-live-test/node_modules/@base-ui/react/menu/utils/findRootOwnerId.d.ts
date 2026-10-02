@@ -1,0 +1,1 @@
+export declare function findRootOwnerId(node: Node): string | undefined;

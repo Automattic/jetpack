@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/truncate/index.ts"],
+  "sourcesContent": ["export { default as Truncate } from './component';\nexport { default as useTruncate } from './hook';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAA2B;AACpC,SAAoB,WAAXA,gBAA8B;",
+  "names": ["default"]
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/border-control/border-control-style-picker/index.ts"],
+  "sourcesContent": ["export { default } from './component';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAwB;",
+  "names": []
+}

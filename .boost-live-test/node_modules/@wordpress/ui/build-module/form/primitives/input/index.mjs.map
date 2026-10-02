@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/form/primitives/input/index.ts"],
+  "sourcesContent": ["export { Input } from './input';\n"],
+  "mappings": ";AAAA,SAAS,aAAa;",
+  "names": []
+}

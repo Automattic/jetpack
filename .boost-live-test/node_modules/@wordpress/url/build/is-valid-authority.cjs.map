@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/is-valid-authority.ts"],
+  "sourcesContent": ["/**\n * Checks for invalid characters within the provided authority.\n *\n * @param authority A string containing the URL authority.\n *\n * @example\n * ```js\n * const isValid = isValidAuthority( 'wordpress.org' ); // true\n * const isNotValid = isValidAuthority( 'wordpress#org' ); // false\n * ```\n *\n * @return True if the argument contains a valid authority.\n */\nexport function isValidAuthority( authority: string ): boolean {\n\tif ( ! authority ) {\n\t\treturn false;\n\t}\n\treturn /^[^\\s#?]+$/.test( authority );\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAaO,SAAS,iBAAkB,WAA6B;AAC9D,MAAK,CAAE,WAAY;AAClB,WAAO;AAAA,EACR;AACA,SAAO,aAAa,KAAM,SAAU;AACrC;",
+  "names": []
+}

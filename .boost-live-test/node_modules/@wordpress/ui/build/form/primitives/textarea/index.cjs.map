@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../../src/form/primitives/textarea/index.ts"],
+  "sourcesContent": ["export { Textarea } from './textarea';\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,sBAAyB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/border-box-control/border-box-control-linked-button/index.ts"],
+  "sourcesContent": ["export { default } from './component';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAwB;",
+  "names": []
+}

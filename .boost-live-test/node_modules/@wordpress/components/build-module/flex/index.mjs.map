@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/flex/index.ts"],
+  "sourcesContent": ["export { default as Flex, useFlex } from './flex';\nexport { default as FlexItem, useFlexItem } from './flex-item';\nexport { default as FlexBlock, useFlexBlock } from './flex-block';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,UAAiB,eAAe;AACzC,SAAoB,WAAXA,UAAqB,mBAAmB;AACjD,SAAoB,WAAXA,UAAsB,oBAAoB;",
+  "names": ["default"]
+}

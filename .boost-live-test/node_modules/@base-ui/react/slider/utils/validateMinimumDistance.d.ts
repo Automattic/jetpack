@@ -1,0 +1,1 @@
+export declare function validateMinimumDistance(values: number | readonly number[], step: number, minStepsBetweenValues: number): boolean;

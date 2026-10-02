@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/text/index.ts"],
+  "sourcesContent": ["export { default as Text } from './component';\nexport { default as useText } from './hook';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAgC;AAChC,kBAAmC;",
+  "names": []
+}

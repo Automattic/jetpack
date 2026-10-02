@@ -1,0 +1,1 @@
+export declare function useValueChanged<T>(value: T, onChange: (previousValue: T) => void): void;

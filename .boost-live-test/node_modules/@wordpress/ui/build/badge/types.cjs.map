@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/badge/types.ts"],
+  "sourcesContent": ["import { type ComponentProps } from '../utils/types';\n\nexport interface BadgeProps extends ComponentProps< 'span' > {\n\t/**\n\t * The text to display in the badge.\n\t */\n\tchildren: string;\n\n\t/**\n\t * The semantic intent of the badge, communicating its meaning through color.\n\t *\n\t * @default \"none\"\n\t */\n\tintent?:\n\t\t| 'high'\n\t\t| 'medium'\n\t\t| 'low'\n\t\t| 'stable'\n\t\t| 'informational'\n\t\t| 'draft'\n\t\t| 'none';\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

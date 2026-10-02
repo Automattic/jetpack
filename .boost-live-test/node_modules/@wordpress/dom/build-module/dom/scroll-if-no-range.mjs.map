@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/dom/scroll-if-no-range.js"],
+  "sourcesContent": ["/**\n * If no range range can be created or it is outside the container, the element\n * may be out of view, so scroll it into view and try again.\n *\n * @param {HTMLElement} container  The container to scroll.\n * @param {boolean}     alignToTop True to align to top, false to bottom.\n * @param {Function}    callback   The callback to create the range.\n *\n * @return {?Range} The range returned by the callback.\n */\nexport function scrollIfNoRange( container, alignToTop, callback ) {\n\tlet range = callback();\n\n\t// If no range range can be created or it is outside the container, the\n\t// element may be out of view.\n\tif (\n\t\t! range ||\n\t\t! range.startContainer ||\n\t\t! container.contains( range.startContainer )\n\t) {\n\t\tcontainer.scrollIntoView( alignToTop );\n\t\trange = callback();\n\n\t\tif (\n\t\t\t! range ||\n\t\t\t! range.startContainer ||\n\t\t\t! container.contains( range.startContainer )\n\t\t) {\n\t\t\treturn null;\n\t\t}\n\t}\n\n\treturn range;\n}\n"],
+  "mappings": ";AAUO,SAAS,gBAAiB,WAAW,YAAY,UAAW;AAClE,MAAI,QAAQ,SAAS;AAIrB,MACC,CAAE,SACF,CAAE,MAAM,kBACR,CAAE,UAAU,SAAU,MAAM,cAAe,GAC1C;AACD,cAAU,eAAgB,UAAW;AACrC,YAAQ,SAAS;AAEjB,QACC,CAAE,SACF,CAAE,MAAM,kBACR,CAAE,UAAU,SAAU,MAAM,cAAe,GAC1C;AACD,aAAO;AAAA,IACR;AAAA,EACD;AAEA,SAAO;AACR;",
+  "names": []
+}

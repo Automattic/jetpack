@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/is-phone-number.ts"],
+  "sourcesContent": ["const PHONE_REGEXP = /^(tel:)?(\\+)?\\d{6,15}$/;\n\n/**\n * Determines whether the given string looks like a phone number.\n *\n * @param phoneNumber The string to scrutinize.\n *\n * @example\n * ```js\n * const isPhoneNumber = isPhoneNumber('+1 (555) 123-4567'); // true\n * ```\n *\n * @return Whether or not it looks like a phone number.\n */\nexport function isPhoneNumber( phoneNumber: string ): boolean {\n\t// Remove any separator from phone number.\n\tphoneNumber = phoneNumber.replace( /[-.() ]/g, '' );\n\treturn PHONE_REGEXP.test( phoneNumber );\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,IAAM,eAAe;AAcd,SAAS,cAAe,aAA+B;AAE7D,gBAAc,YAAY,QAAS,YAAY,EAAG;AAClD,SAAO,aAAa,KAAM,WAAY;AACvC;",
+  "names": []
+}

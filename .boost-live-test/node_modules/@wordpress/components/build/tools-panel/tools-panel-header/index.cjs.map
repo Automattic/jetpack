@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/tools-panel/tools-panel-header/index.ts"],
+  "sourcesContent": ["export { default } from './component';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAwB;",
+  "names": []
+}

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/icon-button/index.ts"],
+  "sourcesContent": ["export { IconButton } from './icon-button';\n"],
+  "mappings": ";AAAA,SAAS,kBAAkB;",
+  "names": []
+}

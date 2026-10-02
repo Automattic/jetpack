@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../src/hooks/use-focus-on-mount/index.ts"],"names":[],"mappings":"AAIA;;;;;;;;;;;;;;;;;;;;;;;GAuBG;AACH,wBAAgB,eAAe,CAC9B,YAAY,GAAE,eAAe,CAAC,IAAqB,mDA+DnD;AAED,yBAAiB,eAAe,CAAC;IAChC,KAAY,IAAI,GAAG,OAAO,GAAG,cAAc,GAAG,mBAAmB,CAAC;CAClE"}

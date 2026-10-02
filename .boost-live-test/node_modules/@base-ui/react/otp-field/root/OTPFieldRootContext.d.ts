@@ -1,0 +1,31 @@
+import * as React from 'react';
+import type { OTPFieldRoot, OTPFieldRootState } from "./OTPFieldRoot.js";
+import type { OTPFieldInputState } from "../input/OTPFieldInput.js";
+export interface OTPFieldRootContext {
+  activeIndex: number;
+  autoComplete: string | undefined;
+  disabled: boolean;
+  form: string | undefined;
+  focusInput: (index: number) => void;
+  queueFocusInput: (index: number, value: string) => void;
+  getInputId: (index: number) => string | undefined;
+  handleInputBlur: (event: React.FocusEvent<HTMLInputElement>) => void;
+  handleInputFocus: (index: number, event: React.FocusEvent<HTMLInputElement>) => void;
+  inputMode: React.HTMLAttributes<HTMLInputElement>['inputMode'];
+  inputAriaLabelledBy: string | undefined;
+  invalid: boolean | undefined;
+  length: number;
+  mask: boolean;
+  pattern: string | undefined;
+  reportValueInvalid: (value: string, details: OTPFieldRoot.InvalidEventDetails) => void;
+  readOnly: boolean;
+  required: boolean;
+  normalizeValue: ((value: string) => string) | undefined;
+  setValue: (value: string, details: OTPFieldRoot.ChangeEventDetails) => string | null;
+  state: OTPFieldRootState;
+  validationType: OTPFieldRoot.ValidationType;
+  value: string;
+}
+export declare const OTPFieldRootContext: React.Context<OTPFieldRootContext | undefined>;
+export declare function useOTPFieldRootContext(): OTPFieldRootContext;
+export declare function getOTPFieldInputState(state: OTPFieldRootState, value: string, index: number): OTPFieldInputState;

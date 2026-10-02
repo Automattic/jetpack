@@ -1,0 +1,8 @@
+{
+  "name": "@ariakit/react/tab",
+  "private": true,
+  "sideEffects": false,
+  "main": "../cjs/tab.cjs",
+  "module": "../esm/tab.js",
+  "types": "../cjs/tab.d.ts"
+}

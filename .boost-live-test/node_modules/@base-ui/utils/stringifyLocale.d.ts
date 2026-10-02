@@ -1,0 +1,1 @@
+export declare function stringifyLocale(locale?: Intl.LocalesArgument): string;

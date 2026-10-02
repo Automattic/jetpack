@@ -1,0 +1,1 @@
+export declare const OPEN_DELAY = 300;

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/spacer/index.ts"],
+  "sourcesContent": ["export { default as Spacer } from './component';\nexport { useSpacer } from './hook';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAAyB;AAClC,SAAS,iBAAiB;",
+  "names": ["default"]
+}

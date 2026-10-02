@@ -1,0 +1,1 @@
+export declare function useOnFirstRender(fn: Function): void;

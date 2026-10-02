@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/utils/breakpoint-values.js"],
+  "sourcesContent": ["export default {\n  huge: '1440px',\n  wide: '1280px',\n  'x-large': '1080px',\n  large: '960px',\n  // admin sidebar auto folds\n  medium: '782px',\n  // Adminbar goes big.\n  small: '600px',\n  mobile: '480px',\n  'zoomed-in': '280px'\n};"],
+  "mappings": ";AAAA,IAAO,4BAAQ;AAAA,EACb,MAAM;AAAA,EACN,MAAM;AAAA,EACN,WAAW;AAAA,EACX,OAAO;AAAA;AAAA,EAEP,QAAQ;AAAA;AAAA,EAER,OAAO;AAAA,EACP,QAAQ;AAAA,EACR,aAAa;AACf;",
+  "names": []
+}

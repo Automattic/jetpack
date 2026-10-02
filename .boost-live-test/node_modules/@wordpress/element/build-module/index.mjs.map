@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/index.ts"],
+  "sourcesContent": ["export { default as createInterpolateElement } from './create-interpolate-element';\nexport * from './react';\nexport * from './react-platform';\nexport * from './utils';\nexport { default as Platform } from './platform';\nexport { default as renderToString } from './serialize';\nexport { default as RawHTML } from './raw-html';\n"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAA2C;AACpD,cAAc;AACd,cAAc;AACd,cAAc;AACd,SAAoB,WAAXA,gBAA2B;AACpC,SAAoB,WAAXA,gBAAiC;AAC1C,SAAoB,WAAXA,gBAA0B;",
+  "names": ["default"]
+}

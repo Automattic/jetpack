@@ -1,0 +1,396 @@
+import * as React from 'react';
+import { ReactStore } from '@base-ui/utils/store';
+import { type TooltipRoot } from "../root/TooltipRoot.js";
+import type { AdaptiveOriginMiddleware } from "../../utils/adaptiveOriginConstants.js";
+import { PopupStoreContext, PopupStoreState, type PopupTriggerStoreKeys } from "../../utils/popups/index.js";
+export type State<Payload> = PopupStoreState<Payload> & {
+  disabled: boolean;
+  instantType: 'delay' | 'dismiss' | 'focus' | undefined;
+  isInstantPhase: boolean;
+  trackCursorAxis: 'none' | 'x' | 'y' | 'both';
+  disableHoverablePopup: boolean;
+  openChangeReason: TooltipRoot.ChangeEventReason | null;
+  closeOnClick: boolean;
+  closeDelay: number;
+  adaptiveOrigin: AdaptiveOriginMiddleware | undefined;
+};
+export type Context = PopupStoreContext<TooltipRoot.ChangeEventDetails> & {
+  readonly popupRef: React.RefObject<HTMLElement | null>;
+};
+declare const selectors: {
+  open: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => boolean;
+  mounted: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => boolean;
+  transitionStatus: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => import("../../internals/useTransitionStatus.js").TransitionStatus;
+  floatingRootContext: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => import("../../floating-ui-react/components/FloatingRootStore.js").FloatingRootStore;
+  triggerCount: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => number;
+  preventUnmountingOnClose: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => boolean;
+  payload: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => unknown;
+  activeTriggerId: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => string | null;
+  activeTriggerElement: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => Element | null;
+  popupId: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => string | undefined;
+  isTriggerActive: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }, triggerId: string | undefined) => boolean;
+  isOpenedByTrigger: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }, triggerId: string | undefined) => boolean;
+  isMountedByTrigger: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }, triggerId: string | undefined) => boolean;
+  triggerProps: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }, isActive: boolean) => import("../../index.js").HTMLProps;
+  triggerPopupId: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }, triggerId: string | undefined) => string | undefined;
+  popupProps: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => import("../../index.js").HTMLProps;
+  popupElement: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => HTMLElement | null;
+  positionerElement: (state: {
+    open: boolean;
+    readonly openProp: boolean | undefined;
+    mounted: boolean;
+    transitionStatus: import("../../internals/useTransitionStatus.js").TransitionStatus;
+    floatingRootContext: import("../../floating-ui-react/index.js").FloatingRootContext;
+    floatingId: string | undefined;
+    triggerCount: number;
+    preventUnmountingOnClose: boolean;
+    payload: unknown;
+    activeTriggerId: string | null;
+    activeTriggerElement: Element | null;
+    readonly triggerIdProp: string | null | undefined;
+    popupElement: HTMLElement | null;
+    positionerElement: HTMLElement | null;
+    activeTriggerProps: import("../../index.js").HTMLProps;
+    inactiveTriggerProps: import("../../index.js").HTMLProps;
+    popupProps: import("../../index.js").HTMLProps;
+  }) => HTMLElement | null;
+  disabled: (state: State<unknown>) => boolean;
+  instantType: (state: State<unknown>) => "delay" | "dismiss" | "focus" | undefined;
+  isInstantPhase: (state: State<unknown>) => boolean;
+  trackCursorAxis: (state: State<unknown>) => "both" | "none" | "x" | "y";
+  disableHoverablePopup: (state: State<unknown>) => boolean;
+  lastOpenChangeReason: (state: State<unknown>) => import("../index.js").TooltipRootChangeEventReason | null;
+  closeOnClick: (state: State<unknown>) => boolean;
+  closeDelay: (state: State<unknown>) => number;
+  adaptiveOrigin: (state: State<unknown>) => AdaptiveOriginMiddleware | undefined;
+};
+type Selectors = typeof selectors;
+/**
+ * The store view that detached handle-backed triggers read from. Both the real `TooltipStore` and
+ * the inert fallback store satisfy it, so a trigger can read from whichever store the handle
+ * currently exposes. Narrowed to the members a trigger actually uses — the trigger-data members plus
+ * `setOpen`/`cancelPendingOpen` (called directly by the trigger) and `useSyncedValue` — so the
+ * exposed surface can't bypass the open-change pipeline; on the detached fallback store every one of
+ * these mutations is a no-op.
+ */
+export type TooltipHandleStore<Payload> = Pick<TooltipStore<Payload>, PopupTriggerStoreKeys | 'setOpen' | 'cancelPendingOpen' | 'useSyncedValue'>;
+export declare class TooltipStore<Payload> extends ReactStore<Readonly<State<Payload>>, Context, Selectors> {
+  constructor(initialState: Partial<State<Payload>>, floatingId: string | undefined, nested: boolean);
+  setOpen: (nextOpen: boolean, eventDetails: Omit<TooltipRoot.ChangeEventDetails, 'preventUnmountOnClose'>) => void;
+  cancelPendingOpen(event: MouseEvent | PointerEvent): void;
+}
+/**
+ * Creates the inert fallback store used by detached handle-backed triggers while no `Tooltip.Root`
+ * is attached. It preserves a tooltip-specific trigger registry in context so detached triggers can
+ * register before migrating to the live root store. `setOpen`/`cancelPendingOpen` are no-ops
+ * (matching the inert reads/writes of `NullStore`), so a trigger can call them from hover/click
+ * handlers while detached without any effect.
+ */
+export declare function createNullTooltipStore<Payload>(): TooltipHandleStore<Payload>;
+export {};

@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/is-valid-path.ts"],
+  "sourcesContent": ["/**\n * Checks for invalid characters within the provided path.\n *\n * @param path The URL path.\n *\n * @example\n * ```js\n * const isValid = isValidPath( 'test/path/' ); // true\n * const isNotValid = isValidPath( '/invalid?test/path/' ); // false\n * ```\n *\n * @return True if the argument contains a valid path\n */\nexport function isValidPath( path: string ): boolean {\n\tif ( ! path ) {\n\t\treturn false;\n\t}\n\treturn /^[^\\s#?]+$/.test( path );\n}\n"],
+  "mappings": ";AAaO,SAAS,YAAa,MAAwB;AACpD,MAAK,CAAE,MAAO;AACb,WAAO;AAAA,EACR;AACA,SAAO,aAAa,KAAM,IAAK;AAChC;",
+  "names": []
+}

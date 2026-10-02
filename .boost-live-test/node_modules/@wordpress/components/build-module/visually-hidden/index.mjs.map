@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/visually-hidden/index.ts"],
+  "sourcesContent": ["export { default as VisuallyHidden } from './component';"],
+  "mappings": ";AAAA,SAAoB,WAAXA,gBAAiC;",
+  "names": ["default"]
+}

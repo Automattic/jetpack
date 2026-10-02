@@ -1,0 +1,1 @@
+export declare function valueToPercent(value: number, min: number, max: number): number;

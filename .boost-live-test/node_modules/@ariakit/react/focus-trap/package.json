@@ -1,0 +1,8 @@
+{
+  "name": "@ariakit/react/focus-trap",
+  "private": true,
+  "sideEffects": false,
+  "main": "../cjs/focus-trap.cjs",
+  "module": "../esm/focus-trap.js",
+  "types": "../cjs/focus-trap.d.ts"
+}

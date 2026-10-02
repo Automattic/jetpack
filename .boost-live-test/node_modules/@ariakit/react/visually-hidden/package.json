@@ -1,0 +1,8 @@
+{
+  "name": "@ariakit/react/visually-hidden",
+  "private": true,
+  "sideEffects": false,
+  "main": "../cjs/visually-hidden.cjs",
+  "module": "../esm/visually-hidden.js",
+  "types": "../cjs/visually-hidden.d.ts"
+}

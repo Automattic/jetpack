@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/is-valid-query-string.ts"],
+  "sourcesContent": ["/**\n * Checks for invalid characters within the provided query string.\n *\n * @param queryString The query string.\n *\n * @example\n * ```js\n * const isValid = isValidQueryString( 'query=true&another=false' ); // true\n * const isNotValid = isValidQueryString( 'query=true?another=false' ); // false\n * ```\n *\n * @return True if the argument contains a valid query string.\n */\nexport function isValidQueryString( queryString: string ): boolean {\n\tif ( ! queryString ) {\n\t\treturn false;\n\t}\n\treturn /^[^\\s#?\\/]+$/.test( queryString );\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAaO,SAAS,mBAAoB,aAA+B;AAClE,MAAK,CAAE,aAAc;AACpB,WAAO;AAAA,EACR;AACA,SAAO,eAAe,KAAM,WAAY;AACzC;",
+  "names": []
+}

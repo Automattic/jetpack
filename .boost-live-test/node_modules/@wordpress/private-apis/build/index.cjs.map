@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/index.ts"],
+  "sourcesContent": ["export { __dangerousOptInToUnstableAPIsOnlyForCoreModules } from './implementation';\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,4BAAiE;",
+  "names": []
+}

@@ -1,0 +1,1 @@
+{"version":3,"file":"contrast.d.ts","sourceRoot":"","sources":["../../src/contrast.js"],"names":[],"mappings":"AAKA,+CAA+C;AAG/C,4DAA4D;AAE5D;;;;;;;;GAQG;AACH,6CAPW,UAAU,cACV,UAAU,KACV,UAAU,GAAG,CAAC;IAAE,SAAS,EAAE,UAAU,CAAA;CAAE,GAAG,MAAM,CAAC,MAAM,EAAE,GAAG,CAAC,CAAC,GAE5D,MAAM,CA6BlB;yBArCa,OAAO,YAAY,EAAE,UAAU;gCAHb,YAAY"}

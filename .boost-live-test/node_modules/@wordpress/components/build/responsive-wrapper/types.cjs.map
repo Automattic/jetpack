@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/responsive-wrapper/types.ts"],
+  "sourcesContent": ["export {};"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

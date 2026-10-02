@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/slice.js"],
+  "sourcesContent": ["/** @typedef {import('./types').RichTextValue} RichTextValue */\n\n/**\n * Slice a Rich Text value from `startIndex` to `endIndex`. Indices are\n * retrieved from the selection if none are provided. This is similar to\n * `String.prototype.slice`.\n *\n * @param {RichTextValue} value        Value to modify.\n * @param {number}        [startIndex] Start index.\n * @param {number}        [endIndex]   End index.\n *\n * @return {RichTextValue} A new extracted value.\n */\nexport function slice( value, startIndex = value.start, endIndex = value.end ) {\n\tconst { formats, replacements, text } = value;\n\n\tif ( startIndex === undefined || endIndex === undefined ) {\n\t\treturn { ...value };\n\t}\n\n\treturn {\n\t\tformats: formats.slice( startIndex, endIndex ),\n\t\treplacements: replacements.slice( startIndex, endIndex ),\n\t\ttext: text.slice( startIndex, endIndex ),\n\t};\n}\n"],
+  "mappings": ";AAaO,SAAS,MAAO,OAAO,aAAa,MAAM,OAAO,WAAW,MAAM,KAAM;AAC9E,QAAM,EAAE,SAAS,cAAc,KAAK,IAAI;AAExC,MAAK,eAAe,UAAa,aAAa,QAAY;AACzD,WAAO,EAAE,GAAG,MAAM;AAAA,EACnB;AAEA,SAAO;AAAA,IACN,SAAS,QAAQ,MAAO,YAAY,QAAS;AAAA,IAC7C,cAAc,aAAa,MAAO,YAAY,QAAS;AAAA,IACvD,MAAM,KAAK,MAAO,YAAY,QAAS;AAAA,EACxC;AACD;",
+  "names": []
+}

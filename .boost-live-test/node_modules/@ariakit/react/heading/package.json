@@ -1,0 +1,8 @@
+{
+  "name": "@ariakit/react/heading",
+  "private": true,
+  "sideEffects": false,
+  "main": "../cjs/heading.cjs",
+  "module": "../esm/heading.js",
+  "types": "../cjs/heading.d.ts"
+}

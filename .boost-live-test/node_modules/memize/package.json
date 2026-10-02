@@ -1,0 +1,61 @@
+{
+	"name": "memize",
+	"version": "2.1.1",
+	"description": "Unabashedly-barebones memoization library with an aim toward speed",
+	"type": "module",
+	"main": "dist/index.js",
+	"exports": {
+		"import": "./dist/index.js",
+		"require": "./dist/index.cjs"
+	},
+	"scripts": {
+		"build": "npm run build:bundle && npm run build:types",
+		"build:bundle": "rollup -c rollup.config.js",
+		"build:types": "tsc -b tsconfig.decl.json && tsc -b tsconfig.decl.cts.json",
+		"test:unit": "NODE_ENV=test mocha",
+		"test:lint": "eslint .",
+		"test:types": "tsc -b",
+		"test": "npm run test:unit && npm run test:lint && npm run test:types",
+		"prebenchmark": "npm install --no-save benchmark memoizee moize ramda underscore lodash fast-memoize lru-memoize memoizejs memoizerific cli-table2 ora",
+		"benchmark": "node benchmark",
+		"prepublishOnly": "npm test && npm run build"
+	},
+	"files": [
+		"dist"
+	],
+	"keywords": [
+		"memoize",
+		"memoization",
+		"memoisation",
+		"cache"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/aduth/memize.git"
+	},
+	"bugs": {
+		"url": "https://github.com/aduth/memize/issues"
+	},
+	"author": {
+		"name": "Andrew Duthie",
+		"email": "andrew@andrewduthie.com",
+		"url": "https://andrewduthie.com"
+	},
+	"license": "MIT",
+	"devDependencies": {
+		"@aduth/eslint-config": "^4.4.1",
+		"@rollup/plugin-replace": "^5.0.2",
+		"@types/chai": "^4.3.5",
+		"@types/mocha": "^10.0.1",
+		"@types/node": "^20.1.3",
+		"chai": "^4.3.7",
+		"eslint": "^8.40.0",
+		"eslint-config-prettier": "^8.8.0",
+		"eslint-plugin-prettier": "^4.2.1",
+		"mocha": "^10.2.0",
+		"prettier": "^2.8.8",
+		"rollup": "^3.21.6",
+		"sinon": "^15.0.4",
+		"typescript": "^5.0.4"
+	}
+}

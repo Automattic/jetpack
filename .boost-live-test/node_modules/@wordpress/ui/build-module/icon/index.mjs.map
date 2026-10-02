@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/icon/index.ts"],
+  "sourcesContent": ["export { Icon } from './icon';\n"],
+  "mappings": ";AAAA,SAAS,YAAY;",
+  "names": []
+}

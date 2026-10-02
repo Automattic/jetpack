@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../../src/card/card-body/index.ts"],
+  "sourcesContent": ["export { default } from './component';\nexport { useCardBody } from './hook';"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,uBAAwB;AACxB,kBAA4B;",
+  "names": []
+}

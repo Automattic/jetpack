@@ -1,0 +1,8 @@
+{
+  "name": "@ariakit/react/portal",
+  "private": true,
+  "sideEffects": false,
+  "main": "../cjs/portal.cjs",
+  "module": "../esm/portal.js",
+  "types": "../cjs/portal.d.ts"
+}

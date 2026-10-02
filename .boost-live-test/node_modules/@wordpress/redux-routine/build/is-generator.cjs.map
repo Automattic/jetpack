@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/is-generator.ts"],
+  "sourcesContent": ["/**\n * Returns true if the given object is a generator, or false otherwise.\n *\n * @see https://www.ecma-international.org/ecma-262/6.0/#sec-generator-objects\n *\n * @param object Object to test.\n *\n * @return Whether object is a generator.\n */\nexport default function isGenerator( object: any ): object is Generator {\n\t// Check that iterator (next) and iterable (Symbol.iterator) interfaces are satisfied.\n\t// These checks seem to be compatible with several generator helpers as well as the native implementation.\n\treturn (\n\t\t!! object &&\n\t\ttypeof object[ Symbol.iterator ] === 'function' &&\n\t\ttypeof object.next === 'function'\n\t);\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AASe,SAAR,YAA8B,QAAmC;AAGvE,SACC,CAAC,CAAE,UACH,OAAO,OAAQ,OAAO,QAAS,MAAM,cACrC,OAAO,OAAO,SAAS;AAEzB;",
+  "names": []
+}

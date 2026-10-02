@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/visually-hidden/types.ts"],
+  "sourcesContent": ["import type { ComponentProps } from '../utils/types';\n\nexport interface VisuallyHiddenProps extends ComponentProps< 'div' > {\n\t/**\n\t * The content to be rendered inside the component.\n\t */\n\tchildren?: React.ReactNode;\n}\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

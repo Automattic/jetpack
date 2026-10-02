@@ -1,0 +1,1 @@
+export declare function isElementDisabled(element: HTMLElement | null): boolean;

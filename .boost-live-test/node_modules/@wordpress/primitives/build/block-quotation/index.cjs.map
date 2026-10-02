@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/block-quotation/index.js"],
+  "sourcesContent": ["export const BlockQuotation = 'blockquote';\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAO,IAAM,iBAAiB;",
+  "names": []
+}

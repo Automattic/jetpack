@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/utils/get-node-text.ts"],
+  "sourcesContent": ["const getNodeText = node => {\n  if (node === null) {\n    return '';\n  }\n  switch (typeof node) {\n    case 'string':\n    case 'number':\n      return node.toString();\n    case 'object':\n      {\n        if (node instanceof Array) {\n          return node.map(getNodeText).join('');\n        }\n        if ('props' in node) {\n          return getNodeText(node.props.children);\n        }\n        return '';\n      }\n    default:\n      return '';\n  }\n};\nexport default getNodeText;"],
+  "mappings": ";AAAA,IAAM,cAAc,UAAQ;AAC1B,MAAI,SAAS,MAAM;AACjB,WAAO;AAAA,EACT;AACA,UAAQ,OAAO,MAAM;AAAA,IACnB,KAAK;AAAA,IACL,KAAK;AACH,aAAO,KAAK,SAAS;AAAA,IACvB,KAAK,UACH;AACE,UAAI,gBAAgB,OAAO;AACzB,eAAO,KAAK,IAAI,WAAW,EAAE,KAAK,EAAE;AAAA,MACtC;AACA,UAAI,WAAW,MAAM;AACnB,eAAO,YAAY,KAAK,MAAM,QAAQ;AAAA,MACxC;AACA,aAAO;AAAA,IACT;AAAA,IACF;AACE,aAAO;AAAA,EACX;AACF;AACA,IAAO,wBAAQ;",
+  "names": []
+}

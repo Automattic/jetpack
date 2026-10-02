@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/tabs/types.ts"],
+  "sourcesContent": ["import type { ReactNode } from 'react';\nimport type { Tabs as _Tabs } from '@base-ui/react/tabs';\nimport type { ComponentProps } from '../utils/types';\n\nexport type TabRootProps = ComponentProps< typeof _Tabs.Root > & {\n\t/**\n\t * The content to be rendered inside the component.\n\t */\n\tchildren?: ReactNode;\n};\n\nexport type TabListProps = ComponentProps< typeof _Tabs.List > & {\n\t/**\n\t * The content to be rendered inside the component.\n\t */\n\tchildren?: ReactNode;\n\t/**\n\t * The visual variant of the tab list.\n\t * @default \"default\"\n\t */\n\tvariant?: 'minimal' | 'default';\n};\n\nexport type TabProps = ComponentProps< typeof _Tabs.Tab > & {\n\t/**\n\t * The content to be rendered inside the component.\n\t */\n\tchildren?: ReactNode;\n};\n\nexport type TabPanelProps = ComponentProps< typeof _Tabs.Panel > & {\n\t/**\n\t * The content to be rendered inside the component.\n\t */\n\tchildren?: ReactNode;\n};\n"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

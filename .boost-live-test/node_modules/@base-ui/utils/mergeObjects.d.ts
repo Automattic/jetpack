@@ -1,0 +1,1 @@
+export declare function mergeObjects<A extends object | undefined, B extends object | undefined>(a: A, b: B): NonNullable<A> | NonNullable<B> | (A & B) | undefined;

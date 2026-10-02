@@ -1,0 +1,2 @@
+import type { ToastManagerUpdateOptions } from "../useToastManager.mjs";
+export declare function resolvePromiseOptions<T, Data extends object>(options: string | ToastManagerUpdateOptions<Data> | ((result: T) => string | ToastManagerUpdateOptions<Data>), result?: T): ToastManagerUpdateOptions<Data>;

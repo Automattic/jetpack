@@ -1,0 +1,61 @@
+{
+  "name": "gradient-parser",
+  "version": "1.2.0",
+  "description": "Parse CSS3 gradient definitions and return an AST.",
+  "author": {
+    "name": "Rafael Carcicio",
+    "email": "rafael@caricio.com",
+    "url": "https://github.com/rafaelcaricio"
+  },
+  "homepage": "https://github.com/rafaelcaricio/gradient-parser",
+  "bugs": {
+    "url": "https://github.com/rafaelcaricio/gradient-parser/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "http://rafaelcaricio.mit-license.org"
+    }
+  ],
+  "maintainers": [],
+  "contributors": [],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/rafaelcaricio/gradient-parser.git"
+  },
+  "main": "build/node.js",
+  "module": "build/esm.mjs",
+  "types": "index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./build/esm.mjs",
+      "require": "./build/node.js",
+      "types": "./index.d.ts"
+    }
+  },
+  "scripts": {
+    "test": "mocha spec/**/*.js",
+    "pretest": "npm run build",
+    "build": "node build.js",
+    "build:node": "node build.js --node",
+    "build:web": "node build.js --web",
+    "build:minify": "node build.js --minify",
+    "start": "python3 -m http.server 3000",
+    "prepublish": "npm run build"
+  },
+  "keywords": [
+    "library",
+    "css",
+    "css3",
+    "parser",
+    "gradient"
+  ],
+  "devDependencies": {
+    "expect.js": "^0.3.1",
+    "esbuild": "^0.25.0",
+    "mocha": "^10.3.0"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  }
+}

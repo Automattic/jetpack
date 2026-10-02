@@ -1,0 +1,59 @@
+{
+  "name": "is-plain-object",
+  "description": "Returns true if an object was created by the `Object` constructor, or Object.create(null).",
+  "version": "5.1.0",
+  "homepage": "https://github.com/jonschlinkert/is-plain-object",
+  "author": "Jon Schlinkert (https://github.com/jonschlinkert)",
+  "contributors": [
+    "Jon Schlinkert (http://twitter.com/jonschlinkert)",
+    "Osman Nuri Okumuş (http://onokumus.com)",
+    "Steven Vachon (https://svachon.com)",
+    "(https://github.com/wtgtybhertgeghgtwtg)",
+    "Bogdan Chadkin (https://github.com/TrySound)"
+  ],
+  "repository": "jonschlinkert/is-plain-object",
+  "bugs": {
+    "url": "https://github.com/jonschlinkert/is-plain-object/issues"
+  },
+  "license": "MIT",
+  "main": "dist/is-plain-object.js",
+  "module": "dist/is-plain-object.mjs",
+  "types": "is-plain-object.d.ts",
+  "files": [
+    "is-plain-object.d.ts",
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/is-plain-object.mjs",
+      "require": "./dist/is-plain-object.js",
+      "types": "./is-plain-object.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {
+    "build": "rollup is-plain-object.js --format cjs --file dist/is-plain-object.js && rollup is-plain-object.js --format esm --file dist/is-plain-object.mjs",
+    "test": "node test.js",
+    "prepare": "npm run build"
+  },
+  "devDependencies": {
+    "rollup": "^4.62.5"
+  },
+  "keywords": [
+    "check",
+    "is",
+    "is-object",
+    "isobject",
+    "javascript",
+    "kind",
+    "kind-of",
+    "object",
+    "plain",
+    "type",
+    "typeof",
+    "value"
+  ]
+}

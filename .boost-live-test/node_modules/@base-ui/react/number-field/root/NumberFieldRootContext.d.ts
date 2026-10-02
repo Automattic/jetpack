@@ -1,0 +1,32 @@
+import * as React from 'react';
+import type { NumberFieldRoot, NumberFieldRootState } from "./NumberFieldRoot.js";
+import type { EventWithOptionalKeyState, IncrementValueParameters } from "../utils/types.js";
+export type InputMode = 'numeric' | 'decimal' | 'text';
+export interface NumberFieldRootContext {
+  minWithDefault: number;
+  maxWithDefault: number;
+  id: string | undefined;
+  setValue: (value: number | null, details: NumberFieldRoot.ChangeEventDetails) => boolean;
+  getStepAmount: (event?: EventWithOptionalKeyState) => number;
+  incrementValue: (amount: number, params: IncrementValueParameters) => boolean;
+  inputRef: React.RefObject<HTMLInputElement | null>;
+  focusInput: () => void;
+  allowInputSyncRef: React.RefObject<boolean | null>;
+  formatOptionsRef: React.RefObject<Intl.NumberFormatOptions | undefined>;
+  valueRef: React.RefObject<number | null>;
+  lastChangedValueRef: React.RefObject<number | null>;
+  hasPendingCommitRef: React.RefObject<boolean>;
+  name: string | undefined;
+  nameProp: string | undefined;
+  inputMode: InputMode;
+  getAllowedNonNumericKeys: () => Set<string>;
+  min: number | undefined;
+  max: number | undefined;
+  setInputValue: React.Dispatch<React.SetStateAction<string>>;
+  locale: Intl.LocalesArgument;
+  setIsScrubbing: React.Dispatch<React.SetStateAction<boolean>>;
+  state: NumberFieldRootState;
+  onValueCommitted: (value: number | null, eventDetails: NumberFieldRoot.CommitEventDetails) => void;
+}
+export declare const NumberFieldRootContext: React.Context<NumberFieldRootContext | undefined>;
+export declare function useNumberFieldRootContext(): NumberFieldRootContext;

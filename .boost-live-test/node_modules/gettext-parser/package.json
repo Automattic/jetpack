@@ -1,0 +1,45 @@
+{
+  "name": "gettext-parser",
+  "description": "Parse and compile gettext po and mo files to/from json, nothing more, nothing less",
+  "version": "1.4.0",
+  "author": "Andris Reinman",
+  "contributors": [
+    {
+      "name": "Sam Hauglustaine"
+    }
+  ],
+  "homepage": "http://github.com/smhg/gettext-parser",
+  "repository": {
+    "type": "git",
+    "url": "http://github.com/smhg/gettext-parser.git"
+  },
+  "scripts": {
+    "lint": "eslint lib/*.js test/*.js index.js",
+    "test": "mocha",
+    "preversion": "npm run lint && npm test",
+    "postversion": "git push && git push --tags"
+  },
+  "main": "./index",
+  "license": "MIT",
+  "dependencies": {
+    "encoding": "^0.1.12",
+    "safe-buffer": "^5.1.1"
+  },
+  "devDependencies": {
+    "chai": "^3.5.0",
+    "eslint": "^4.3.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^6.0.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "mocha": "^3.5.3"
+  },
+  "keywords": [
+    "i18n",
+    "l10n",
+    "gettext",
+    "mo",
+    "po"
+  ]
+}

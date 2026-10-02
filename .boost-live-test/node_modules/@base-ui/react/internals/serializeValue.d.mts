@@ -1,0 +1,1 @@
+export declare function serializeValue(value: unknown): string;

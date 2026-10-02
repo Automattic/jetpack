@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/index.ts"],
+  "sourcesContent": ["export { sprintf } from './sprintf';\nexport * from './create-i18n';\nexport type * from './types';\nexport {\n\tdefault as defaultI18n,\n\tsetLocaleData,\n\tresetLocaleData,\n\tgetLocaleData,\n\tsubscribe,\n\t__,\n\t_x,\n\t_n,\n\t_nx,\n\tisRTL,\n\thasTranslation,\n} from './default-i18n';\n"],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA,qBAAwB;AACxB,0BAAc,8BADd;AAGA,0BAYO;",
+  "names": []
+}

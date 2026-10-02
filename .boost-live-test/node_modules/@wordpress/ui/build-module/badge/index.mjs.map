@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/badge/index.ts"],
+  "sourcesContent": ["export { Badge } from './badge';\n"],
+  "mappings": ";AAAA,SAAS,aAAa;",
+  "names": []
+}

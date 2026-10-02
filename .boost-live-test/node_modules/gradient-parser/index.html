@@ -1,0 +1,12 @@
+<html>
+  <head>
+    <script src="build/web.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        document.body.innerHTML = '<pre>'+ JSON.stringify(GradientParser.parse('radial-gradient(ellipse cover, rgb(0, 57, 115), rgb(229, 229, 190))'), null, 2) +'</pre>';
+      });
+    </script>
+  </head>
+  <body>
+  </body>
+</html>

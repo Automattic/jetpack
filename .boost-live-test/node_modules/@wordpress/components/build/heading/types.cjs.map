@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../../src/heading/types.ts"],
+  "sourcesContent": ["export {};"],
+  "mappings": ";;;;;;;;;;;;;;;;AAAA;AAAA;",
+  "names": []
+}

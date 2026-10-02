@@ -1,0 +1,7 @@
+{
+  "version": 3,
+  "sources": ["../src/validateHookName.ts"],
+  "sourcesContent": ["/**\n * Validate a hookName string.\n *\n * @param hookName The hook name to validate. Should be a non empty string containing\n *                 only numbers, letters, dashes, periods and underscores. Also,\n *                 the hook name cannot begin with `__`.\n *\n * @return Whether the hook name is valid.\n */\nfunction validateHookName( hookName: string ): boolean {\n\tif ( 'string' !== typeof hookName || '' === hookName ) {\n\t\t// eslint-disable-next-line no-console\n\t\tconsole.error( 'The hook name must be a non-empty string.' );\n\t\treturn false;\n\t}\n\n\tif ( /^__/.test( hookName ) ) {\n\t\t// eslint-disable-next-line no-console\n\t\tconsole.error( 'The hook name cannot begin with `__`.' );\n\t\treturn false;\n\t}\n\n\tif ( ! /^[a-zA-Z][a-zA-Z0-9_.-]*$/.test( hookName ) ) {\n\t\t// eslint-disable-next-line no-console\n\t\tconsole.error(\n\t\t\t'The hook name can only contain numbers, letters, dashes, periods and underscores.'\n\t\t);\n\t\treturn false;\n\t}\n\n\treturn true;\n}\n\nexport default validateHookName;\n"],
+  "mappings": ";AASA,SAAS,iBAAkB,UAA4B;AACtD,MAAK,aAAa,OAAO,YAAY,OAAO,UAAW;AAEtD,YAAQ,MAAO,2CAA4C;AAC3D,WAAO;AAAA,EACR;AAEA,MAAK,MAAM,KAAM,QAAS,GAAI;AAE7B,YAAQ,MAAO,uCAAwC;AACvD,WAAO;AAAA,EACR;AAEA,MAAK,CAAE,4BAA4B,KAAM,QAAS,GAAI;AAErD,YAAQ;AAAA,MACP;AAAA,IACD;AACA,WAAO;AAAA,EACR;AAEA,SAAO;AACR;AAEA,IAAO,2BAAQ;",
+  "names": []
+}
