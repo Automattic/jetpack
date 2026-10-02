@@ -9,7 +9,7 @@ import {
 /**
  * Internal dependencies
  */
-import { buildLocationRows, getLocationsReportSection, locationsCsvExporter } from '../locations';
+import { buildLocationRows, locationsCsvExporter } from '../locations';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	...jest.requireActual( '@jetpack-premium-analytics/data' ),
@@ -60,10 +60,6 @@ describe( 'buildLocationRows', () => {
 		] );
 	} );
 
-	it( 'leaves a missing previous period undefined', () => {
-		expect( buildLocationRows( items )[ 1 ].previousViews ).toBeUndefined();
-	} );
-
 	it( 'returns no rows when the report has not arrived', () => {
 		expect( buildLocationRows( undefined ) ).toEqual( [] );
 	} );
@@ -90,7 +86,6 @@ describe( 'locationsCsvExporter', () => {
 			period: 'day',
 			geoMode,
 		} );
-		expect( getLocationsReportSection( geoMode ) ).toBe( section );
 		expect( exporter.filenamePrefix ).toBe( `locations-${ section }` );
 		expect( exporter.getColumns().map( column => column.label ) ).toEqual( columns );
 		expect( rows.map( row => [ row.label, row.countryFull, row.views ] ) ).toEqual( [

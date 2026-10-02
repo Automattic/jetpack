@@ -2,11 +2,8 @@
  * External dependencies
  */
 import { defineReportTabs } from '@jetpack-premium-analytics/routing';
-import {
-	supportsLocationsCountryFilter,
-	type LocationsReportSection,
-} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __ } from '@wordpress/i18n';
+import type { LocationsReportSection } from '@jetpack-premium-analytics/widgets-toolkit';
 
 export type ReportLocationsTabId = LocationsReportSection;
 
@@ -42,6 +39,3 @@ export const resolveSection = reportLocationsTabs.resolve;
 
 /** Get the translated label for a tab, which also heads its section. */
 export const getTabLabel = reportLocationsTabs.getTabLabel;
-
-/** Whether a tab can be scoped to a single country. */
-export const supportsCountryFilter = supportsLocationsCountryFilter;

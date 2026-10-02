@@ -13,8 +13,6 @@ import { __, sprintf } from '@wordpress/i18n';
 import styles from './fields.module.css';
 import type { Field } from '@jetpack-premium-analytics/externals';
 
-export type { LocationRow };
-
 const VIEWS_DATA_FORMAT = {
 	type: 'number',
 	options: { decimals: 0, useMultipliers: false },

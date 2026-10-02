@@ -14,6 +14,7 @@ import {
 	ReportPageTabs,
 	ReportRecordsTable,
 	locationsCsvExporter,
+	supportsLocationsCountryFilter,
 	useReportRetry,
 	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
@@ -30,7 +31,6 @@ import {
 	getReportLocationsTabs,
 	getTabLabel,
 	resolveSection,
-	supportsCountryFilter,
 	useLocationsReportRecords,
 	type LocationRow,
 	type ReportLocationsTabId,
@@ -107,7 +107,7 @@ export default function LocationsReportPage(): JSX.Element {
 	const fields = useMemo(
 		() =>
 			getLocationFields(
-				supportsCountryFilter( activeTab ) ? records.countries.options : undefined,
+				supportsLocationsCountryFilter( activeTab ) ? records.countries.options : undefined,
 				records.hasComparison
 			),
 		[ activeTab, records.countries.options, records.hasComparison ]

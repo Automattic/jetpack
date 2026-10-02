@@ -7,6 +7,7 @@ import type {
 	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 } from '@jetpack-premium-analytics/data';
+import type { LocationsScope } from '@jetpack-premium-analytics/widgets-toolkit';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -22,17 +23,6 @@ export interface LocationView {
 	previousValue?: number;
 	region: string;
 	coordinates?: StatsLocationCoordinates;
-}
-
-interface LocationFilter {
-	/**
-	 * ISO country code.
-	 */
-	country: string;
-	/**
-	 * Region name, such as a state or province.
-	 */
-	region?: string;
 }
 
 interface UseLocationViewsArgs {
@@ -51,7 +41,7 @@ interface UseLocationViewsArgs {
 	/**
 	 * Country, or a region inside it, to narrow the rows to.
 	 */
-	filter?: LocationFilter;
+	filter?: LocationsScope;
 }
 
 interface LocationViewsState {

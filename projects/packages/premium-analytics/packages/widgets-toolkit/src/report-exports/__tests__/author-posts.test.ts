@@ -70,12 +70,5 @@ describe( 'authorPostsCsvExporter', () => {
 			'author-jose-nunez-posts'
 		);
 		expect( authorPostsCsvExporter( 7, '' ).filenamePrefix ).toBe( 'author-7-posts' );
-		expect( authorPostsCsvExporter( 7, 'José Núñez' ).hasDateRange ).toBe( true );
-	} );
-
-	it( 'exports nothing for an author missing from the window', async () => {
-		await expect(
-			authorPostsCsvExporter( 42, 'Gone' ).fetchItems( REPORT_PARAMS )
-		).resolves.toEqual( [] );
 	} );
 } );

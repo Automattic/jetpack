@@ -132,6 +132,18 @@ describe( 'LocationsWidget', () => {
 		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
 	} );
 
+	it( 'offers no download when the period has no rows', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			isLoading: false,
+			isFetching: false,
+		} );
+
+		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'links to the Locations report', () => {
 		render( <LocationsWidget attributes={ {} } /> );
 
@@ -156,6 +168,21 @@ describe( 'LocationsWidget', () => {
 			expect.stringContaining( `section=${ section }` )
 		);
 	} );
+
+	it.each( [ 'toString', 'cities' ] )(
+		'falls back to Countries for the stored granularity %s',
+		geoGranularity => {
+			render( <LocationsWidget attributes={ { geoGranularity } as never } /> );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { geoMode: 'country' } )
+			);
+			expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'section=countries' )
+			);
+		}
+	);
 
 	// Regions mode is worldwide until a row is drilled into.
 	it( 'requests unfiltered region rows in Regions mode', () => {

@@ -4,7 +4,6 @@ export {
 	getReportLocationsTabs,
 	getTabLabel,
 	resolveSection,
-	supportsCountryFilter,
 	type ReportLocationsTabId,
 } from './tabs';
 export { useLocationsReportRecords } from './use-report-records';
