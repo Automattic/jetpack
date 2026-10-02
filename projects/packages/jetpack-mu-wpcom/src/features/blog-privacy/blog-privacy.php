@@ -6,7 +6,8 @@
  * * WordPress Core (all sites: `blog_privacy_selector`, `blog_public`)
  * * wpcomsh (WoA: Private Site feature)
  * * WP.com (simple: `blog_public`)
- * * This jetpack-mu-wpcom feature (WoA, simple: `wpcom_data_sharing_opt_out` robots.txt user agent blocks)
+ * * This jetpack-mu-wpcom feature (WoA, simple: `wpcom_data_sharing_opt_out` robots.txt user agent
+ *   blocks, and `noindex` on WordPress.com staging sites)
  *
  * @package automattic/jetpack-mu-wpcom
  */
@@ -88,3 +89,60 @@ function remove_og_tags() {
 }
 
 add_action( 'wp_head', __NAMESPACE__ . '\remove_og_tags', 0 );
+
+/**
+ * Whether this is a WordPress.com staging site, e.g. `staging-c603-mysite.wpcomstaging.com`.
+ *
+ * Checks the URL, not the `wpcom_is_staging_site` option: pulling staging into production
+ * copies the option, but not the URL.
+ *
+ * @return bool
+ */
+function is_wpcom_staging_site(): bool {
+	$host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
+
+	// The suffix keeps custom domains like `staging-tools.com` out.
+	return str_starts_with( $host, 'staging-' ) && str_ends_with( $host, '.wpcomstaging.com' );
+}
+
+/**
+ * Send `X-Robots-Tag: noindex, nofollow` on staging sites.
+ *
+ * Ignores `blog_public` on purpose: staging copies it from production, so it is often public.
+ *
+ * @param array $headers Headers.
+ * @return array Filtered headers.
+ */
+function add_staging_site_robots_header( $headers ) {
+	if ( is_wpcom_staging_site() ) {
+		$headers['X-Robots-Tag'] = 'noindex, nofollow';
+	}
+
+	return $headers;
+}
+
+add_filter( 'wp_headers', __NAMESPACE__ . '\\add_staging_site_robots_header' );
+
+/**
+ * Add `noindex, nofollow` to the robots meta tag on staging sites.
+ *
+ * Backup for the header above, in case an SEO plugin rewrites the page head.
+ *
+ * @param array $robots Associative array of robots directives.
+ * @return array Filtered directives.
+ */
+function add_staging_site_robots_directives( $robots ) {
+	if ( ! is_wpcom_staging_site() ) {
+		return $robots;
+	}
+
+	// Remove these, or the tag would say "index, noindex".
+	unset( $robots['index'], $robots['follow'] );
+
+	$robots['noindex']  = true;
+	$robots['nofollow'] = true;
+
+	return $robots;
+}
+
+add_filter( 'wp_robots', __NAMESPACE__ . '\\add_staging_site_robots_directives', 100 );
