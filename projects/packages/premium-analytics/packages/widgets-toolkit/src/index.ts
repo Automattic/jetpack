@@ -210,6 +210,7 @@ export {
 	aggregateUtmRows,
 	annualInsightsCsvExporter,
 	archivesCsvExporter,
+	authorPostsCsvExporter,
 	authorsCsvExporter,
 	buildArchiveRows,
 	buildLocationRows,

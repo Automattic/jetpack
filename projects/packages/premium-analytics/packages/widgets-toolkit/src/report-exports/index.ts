@@ -17,6 +17,7 @@ export {
 export { getVideosReportQueryParams, videosCsvExporter } from './videos';
 export {
 	aggregateAuthorRows,
+	authorPostsCsvExporter,
 	authorsCsvExporter,
 	getAuthorName,
 	getAuthorsReportQueryParams,
