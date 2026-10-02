@@ -22,7 +22,7 @@ import {
 	type LocationsGeoRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { useCallback, useMemo } from '@wordpress/element';
+import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
@@ -93,9 +93,19 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			: undefined,
 	} );
 
+	// The drill-down level the rows on screen belong to, which lags behind while the next level loads.
+	const drillKey = JSON.stringify( drillDownPath ?? null );
+	const [ shownDrillKey, setShownDrillKey ] = useState( drillKey );
+	if ( ! isLoading && shownDrillKey !== drillKey ) {
+		setShownDrillKey( drillKey );
+	}
+	// A drill-down keeps the previous level's rows on screen, dimmed, instead of the skeleton.
+	const isDrilling = isLoading && shownDrillKey !== drillKey && data.length > 0;
+
+	// The previous level's rows would land on the wrong map, so the map waits empty for the new ones.
 	const geoRows = useMemo(
 		(): LocationsGeoRow[] =>
-			data
+			( isDrilling ? [] : data )
 				.filter( location => location.countryCode )
 				.map( location => ( {
 					label: location.label,
@@ -104,12 +114,14 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					countryFull: location.countryFull,
 					coordinates: location.coordinates,
 				} ) ),
-		[ data ]
+		[ data, isDrilling ]
 	);
 
 	const leaderboardData = useMemo( () => {
 		const getDrillDownAction = ( location: LocationView ) => {
-			if ( ! location.countryCode ) {
+			// The previous level's rows would drill with the new level's mode. Dropping the
+			// buttons also unmounts a focused one, which `WidgetState` catches.
+			if ( isDrilling || ! location.countryCode ) {
 				return { kind: 'static' as const };
 			}
 
@@ -175,7 +187,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 						: undefined,
 			};
 		} ) as LeaderboardChartData;
-	}, [ data, geoMode, hasComparison, setDrillDownPath ] );
+	}, [ data, geoMode, hasComparison, isDrilling, setDrillDownPath ] );
 
 	// From a Countries-mode region, Back returns to that country's regions.
 	const parentCountry =
@@ -221,7 +233,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 			{ bodyHeader }
 			<div className={ styles.stateArea }>
 				<WidgetState
-					isLoading={ isLoading }
+					isLoading={ isLoading && ! isDrilling }
 					isFetching={ isFetching }
 					isError={ isError }
 					isEmpty={ data.length === 0 }
@@ -236,9 +248,15 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					} }
 				>
 					<div className={ styles.chartArea }>
-						<div className={ styles.leaderboardPanel }>
+						<div
+							className={ styles.leaderboardPanel }
+							// React 18 strips a boolean `inert`; the string form is what renders.
+							// @ts-expect-error `inert` is not in the React 18 types.
+							inert={ isDrilling ? 'true' : undefined }
+						>
 							<LeaderboardChart
 								data={ leaderboardData }
+								loading={ isDrilling }
 								withOverlayLabel
 								withComparison={ hasComparison }
 								showLegend={ false }
