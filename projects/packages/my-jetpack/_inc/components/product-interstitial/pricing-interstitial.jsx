@@ -30,7 +30,7 @@ import { useInterstitialsState } from '../../hooks/use-interstitials-state';
 import useMyJetpackConnection from '../../hooks/use-my-jetpack-connection';
 import useMyJetpackNavigate from '../../hooks/use-my-jetpack-navigate';
 import GoBackLink from '../go-back-link';
-import { getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
+import { getFeatureCheckoutReturnUrl, getProductsSectionPath } from '../my-jetpack-tab-panel/utils';
 import { getProductConfigs } from './config';
 import ProductInterstitial from './product-interstitial';
 import { reloadIfActivationChangesAdminMenu } from './reload-after-activation';
@@ -50,7 +50,7 @@ export default function PricingInterstitial( { slug } ) {
 	const { recordEvent } = useAnalytics();
 	const { onClickGoBack } = useGoBack( { slug, fallback: getProductsSectionPath() } );
 	const { activate, isPending: isActivating } = useActivatePlugins( slug );
-	const myJetpackCheckoutUri = getMyJetpackUrl();
+	const myJetpackCheckoutUri = getFeatureCheckoutReturnUrl() || getMyJetpackUrl();
 	const { siteIsRegistering, handleRegisterSite } = useMyJetpackConnection( {
 		skipUserConnection: true,
 		redirectUri: detail?.postActivationUrl || null,
