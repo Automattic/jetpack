@@ -50,6 +50,27 @@ describe( 'useLocationViews', () => {
 		] );
 	} );
 
+	it( 'returns the same rows across renders, which the widget holds by reference', async () => {
+		const views = [ { location: 'Japan', country_code: 'JP', views: 5 } ];
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-16',
+			days: { '2026-06-16': { views } },
+			summary: { views },
+			'country-info': { JP: { country_full: 'Japan' } },
+		} );
+
+		const { result, rerender } = renderHook(
+			() => useLocationViews( { reportParams: getDefaultQueryParams( false ), max: 10 } ),
+			{ wrapper: queryClientWrapper }
+		);
+		await waitFor( () => expect( result.current.data ).toHaveLength( 1 ) );
+		const rows = result.current.data;
+
+		rerender();
+
+		expect( result.current.data ).toBe( rows );
+	} );
+
 	it( 'sends the region filter alongside its country', async () => {
 		mockApiFetch.mockResolvedValue( {} );
 

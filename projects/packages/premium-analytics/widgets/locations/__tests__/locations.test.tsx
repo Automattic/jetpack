@@ -355,6 +355,7 @@ describe( 'LocationsWidget', () => {
 			let isPending: ( args: ViewsArgs ) => boolean;
 			// What the hook returns mid-load when a comparison makes the two queries land apart.
 			let pendingRows: LocationViewsState[ 'data' ] | undefined;
+			let rowsFor: ( geoMode: string ) => LocationViewsState[ 'data' ];
 			// A fresh element each time, or `rerender` bails out on the unchanged one.
 			const countryWidget = ( preset: 'last-30-days' | 'last-7-days' = 'last-30-days' ) => (
 				<LocationsWidget attributes={ { geoGranularity: 'country', reportParams: { preset } } } />
@@ -363,12 +364,13 @@ describe( 'LocationsWidget', () => {
 			beforeEach( () => {
 				isPending = () => false;
 				pendingRows = undefined;
+				rowsFor = geoMode => ROWS_BY_MODE[ geoMode ];
 				let shownRows = ROWS_BY_MODE.country;
 				mockUseLocationViews.mockImplementation( ( ( args: ViewsArgs ) => {
 					if ( isPending( args ) ) {
 						return { ...LOADING_STATE, data: pendingRows ?? shownRows, hasData: true };
 					}
-					shownRows = ROWS_BY_MODE[ args.geoMode ];
+					shownRows = rowsFor( args.geoMode );
 					return {
 						...LOADING_STATE,
 						data: shownRows,
@@ -452,6 +454,21 @@ describe( 'LocationsWidget', () => {
 
 				isPending = () => true;
 				rerender( countryWidget() );
+
+				expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
+			} );
+
+			it( 'shows the skeleton when leaving an empty level', async () => {
+				// One array, as the real hook memoizes its rows.
+				const noRows: LocationViewsState[ 'data' ] = [];
+				rowsFor = geoMode => ( geoMode === 'region' ? noRows : ROWS_BY_MODE[ geoMode ] );
+				render( countryWidget() );
+				await userEvent.click(
+					screen.getByRole( 'button', { name: 'View regions in United States' } )
+				);
+
+				isPending = ( { geoMode } ) => geoMode === 'country';
+				await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
 
 				expect( screen.getByTestId( 'widget-skeleton' ) ).toBeInTheDocument();
 			} );
