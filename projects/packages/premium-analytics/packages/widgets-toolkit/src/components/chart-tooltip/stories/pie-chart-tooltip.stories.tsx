@@ -1,7 +1,6 @@
-import { BaseTooltip } from '@jetpack-premium-analytics/externals';
 import { PieChartTooltip } from '../pie-chart-tooltip';
+import { TooltipBox } from './tooltip-box';
 import type { Meta, StoryObj } from '@storybook/react';
-import type { ReactNode } from 'react';
 
 const meta: Meta< typeof PieChartTooltip > = {
 	title: 'Packages/Premium Analytics/Widgets Toolkit/Components/PieChartTooltip',
@@ -15,23 +14,12 @@ const meta: Meta< typeof PieChartTooltip > = {
 export default meta;
 type Story = StoryObj< typeof PieChartTooltip >;
 
-const IN_FLOW = { position: 'static', transform: 'none' } as const;
-
-/**
- * The charts tooltip box, taken out of its absolute position so the story can center it.
- */
-const TooltipWrapper = ( { children }: { children: ReactNode } ) => (
-	<BaseTooltip top={ 0 } left={ 0 } style={ IN_FLOW }>
-		{ children }
-	</BaseTooltip>
-);
-
 /**
  * NumberFormat: Pie tooltip with number formatting.
  */
 export const NumberFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<PieChartTooltip
 				tooltipData={ {
 					label: 'Completed',
@@ -40,7 +28,7 @@ export const NumberFormat: Story = {
 				} }
 				dataFormat={ { type: 'number' } }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -57,7 +45,7 @@ export const NumberFormat: Story = {
  */
 export const CurrencyFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<PieChartTooltip
 				tooltipData={ {
 					label: 'Online Sales',
@@ -69,7 +57,7 @@ export const CurrencyFormat: Story = {
 					options: { useMultipliers: true, decimals: 0 },
 				} }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -85,7 +73,7 @@ export const CurrencyFormat: Story = {
  */
 export const PercentageFormat: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<PieChartTooltip
 				tooltipData={ {
 					label: 'Conversion Rate',
@@ -94,7 +82,7 @@ export const PercentageFormat: Story = {
 				} }
 				dataFormat={ { type: 'percentage' } }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
@@ -110,7 +98,7 @@ export const PercentageFormat: Story = {
  */
 export const CustomColor: Story = {
 	render: () => (
-		<TooltipWrapper>
+		<TooltipBox>
 			<PieChartTooltip
 				tooltipData={ {
 					label: 'Cancelled',
@@ -119,7 +107,7 @@ export const CustomColor: Story = {
 				} }
 				dataFormat={ { type: 'number' } }
 			/>
-		</TooltipWrapper>
+		</TooltipBox>
 	),
 	parameters: {
 		docs: {
