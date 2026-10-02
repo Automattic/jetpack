@@ -109,10 +109,10 @@ class Block_Editor {
 		 *
 		 * @since $$next-version$$
 		 *
-		 * @param bool $enabled Whether to offer the block editor. Default false, unless the
-		 *                      "blocks in comments" Discussion setting is on.
+		 * @param bool $enabled Whether to offer the block editor. Default true, unless WordPress.com's
+		 *                      "blocks in comments" Discussion setting is off.
 		 */
-		return (bool) apply_filters( 'jetpack_comments_block_editor', (bool) get_option( 'enable_blocks_comments', false ) );
+		return (bool) apply_filters( 'jetpack_comments_block_editor', (bool) get_option( 'enable_blocks_comments', true ) );
 	}
 
 	/**

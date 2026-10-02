@@ -164,7 +164,7 @@ class Jetpack_Comments_Settings {
 		?>
 
 		<label>
-			<input name="enable_blocks_comments" type="checkbox" value="1" <?php checked( (bool) get_option( 'enable_blocks_comments' ) ); ?>>
+			<input name="enable_blocks_comments" type="checkbox" value="1" <?php checked( (bool) get_option( 'enable_blocks_comments', true ) ); ?>>
 			<?php esc_html_e( 'Enable blocks in comments', 'jetpack' ); ?>
 		</label>
 
