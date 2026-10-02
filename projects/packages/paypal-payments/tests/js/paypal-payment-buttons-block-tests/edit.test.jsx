@@ -1175,7 +1175,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 				sidebar.getByRole( 'heading', { name: 'Connect your PayPal account' } )
 			).toBeInTheDocument();
 			expect(
-				sidebar.getByText( 'Create a link or button directly in the editor - no code required' )
+				sidebar.getByText( 'Create a link or button directly in the editor - no code required.' )
 			).toBeInTheDocument();
 			expect( sidebar.getByLabelText( 'Use sandbox (testing)' ) ).toBeInTheDocument();
 		} );
