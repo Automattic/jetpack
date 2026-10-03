@@ -1,4 +1,4 @@
 Significance: minor
 Type: changed
 
-Account Protection: Do not activate the module when Protect is activated. Existing sites keep their current setting.
+Account Protection: Stop turning the feature on automatically when Protect is activated. Sites where it is already on keep it on.
