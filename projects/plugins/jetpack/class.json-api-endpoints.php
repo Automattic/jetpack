@@ -469,6 +469,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Parse a query string without risking PHP's max_input_vars truncation warning.
 	 *
+	 * When the input has more variables than max_input_vars allows, nothing is parsed and
+	 * $result is set to an empty array, instead of parsing a silently truncated subset.
+	 * The variable count is approximate: it counts '&' separators, so empty segments
+	 * (`a=1&&b=2`) are over-counted and other arg_separator.input characters such as ';'
+	 * are not counted. Over-counting rejects early, which is the safe direction.
+	 *
 	 * @param string $input  The query string to parse.
 	 * @param array  $result Parsed key/value pairs are written here.
 	 */
