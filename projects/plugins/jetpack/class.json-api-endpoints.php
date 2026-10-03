@@ -467,6 +467,30 @@ abstract class WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Parse a query string without risking PHP's max_input_vars truncation warning.
+	 *
+	 * When the input has more variables than max_input_vars allows, nothing is parsed and
+	 * $result is set to an empty array, instead of parsing a silently truncated subset.
+	 * The variable count is approximate: it counts '&' separators, so empty segments
+	 * (`a=1&&b=2`) are over-counted and other arg_separator.input characters such as ';'
+	 * are not counted. Over-counting rejects early, which is the safe direction.
+	 *
+	 * @param string $input  The query string to parse.
+	 * @param array  $result Parsed key/value pairs are written here.
+	 */
+	private function safe_parse_str( $input, &$result ) {
+		$max_input_vars = (int) ini_get( 'max_input_vars' );
+
+		// 0 is a real limit (allow zero vars) here, not a sentinel for "no limit".
+		if ( substr_count( $input, '&' ) >= $max_input_vars ) {
+			$result = array();
+			return;
+		}
+
+		wp_parse_str( $input, $result );
+	}
+
+	/**
 	 * Get POST body data.
 	 *
 	 * @param bool $return_default_values Whether to include default values in the response.
@@ -504,12 +528,12 @@ abstract class WPCOM_JSON_API_Endpoint {
 				$return = json_decode( $input, true );
 
 				if ( $return === null ) {
-					wp_parse_str( $input, $return );
+					$this->safe_parse_str( $input, $return );
 				}
 
 				break;
 			default:
-				wp_parse_str( $input, $return );
+				$this->safe_parse_str( $input, $return );
 				break;
 		}
 
