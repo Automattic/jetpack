@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router';
 import { FeaturesContent } from '../content';
@@ -131,6 +131,43 @@ describe( 'FeaturesContent', () => {
 		expect(
 			screen.getByRole( 'heading', { name: 'We couldn’t load your features.' } )
 		).toBeVisible();
+	} );
+
+	it( 'leaves every filter pill unpressed while a search covers all features', () => {
+		renderAt( '/features?filter=growth&search=stats' );
+
+		const pills = within( screen.getByRole( 'group', { name: 'Filter features' } ) );
+
+		expect( pills.getByRole( 'button', { name: /^Growth/ } ) ).toBeInTheDocument();
+		expect( pills.queryAllByRole( 'button', { pressed: true } ) ).toHaveLength( 0 );
+	} );
+
+	it( 'drops the category pills for a visit that arrived on Included in plan, until it leaves the tab', async () => {
+		const { unmount } = renderAt( '/features?filter=included' );
+
+		const pillNames = () =>
+			within( screen.getByRole( 'group', { name: 'Filter features' } ) )
+				.getAllByRole( 'button' )
+				.map( pill => pill.textContent?.replace( /\d+$/, '' ) );
+
+		expect( pillNames() ).toEqual( [ 'All', 'Active', 'Inactive', 'Included in plan' ] );
+
+		await userEvent.click( screen.getByRole( 'button', { name: /^All/ } ) );
+
+		expect( pillNames() ).toEqual( [ 'All', 'Active', 'Inactive', 'Included in plan' ] );
+
+		// A fresh mount is a new visit to the tab, which offers the usual pills again.
+		unmount();
+		renderAt( '/features' );
+
+		expect( pillNames() ).toEqual( [
+			'All',
+			'Active',
+			'Inactive',
+			'Essential',
+			'Security',
+			'Growth',
+		] );
 	} );
 
 	it( 'shows the grid by default and switches to the list from the toolbar', async () => {

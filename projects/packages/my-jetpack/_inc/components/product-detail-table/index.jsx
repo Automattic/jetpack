@@ -17,6 +17,7 @@ import useProduct from '../../data/products/use-product';
 import { getMyJetpackWindowInitialState } from '../../data/utils/get-my-jetpack-window-state';
 import { useRedirectToReferrer } from '../../hooks/use-redirect-to-referrer';
 import LoadingBlock from '../loading-block';
+import { getFeatureCheckoutReturnUrl } from '../my-jetpack-tab-panel/utils';
 import styles from './style.module.scss';
 
 /**
@@ -95,6 +96,7 @@ const ProductDetailTableColumn = ( {
 	 * Function to handle the redirect URL selection.
 	 * - postCheckoutUrl is the URL provided by the product API and is the preferred URL
 	 * - referrerURL is the referrer URL, in case the redirect_to_referrer flag was provided
+	 * - the feature's details, when the pricing page was opened from one
 	 * - myJetpackCheckoutUri is the default URL
 	 */
 	const getCheckoutRedirectUrl = useCallback( () => {
@@ -110,7 +112,7 @@ const ProductDetailTableColumn = ( {
 			return referrerURL;
 		}
 
-		return myJetpackCheckoutUri;
+		return getFeatureCheckoutReturnUrl() || myJetpackCheckoutUri;
 	}, [ feature, postCheckoutUrlsByFeature, postCheckoutUrl, referrerURL, myJetpackCheckoutUri ] );
 
 	const checkoutRedirectUrl = getCheckoutRedirectUrl();
