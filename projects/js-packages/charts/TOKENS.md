@@ -4,7 +4,7 @@
 
 ## How it resolves
 
-`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
+`src/styles/chart-scope.scss` declares the whole catalog once, on the `GlobalChartsProvider` wrapper, via `:where(.a8c-charts-scope, .a8c-charts-tooltip-scope)`. `:where()` keeps the rule at zero specificity, so a consumer rule targeting that same element wins without `!important`. It is declared on the wrapper rather than `:root` because `@wordpress/theme`'s `ThemeProvider` emits its generated `--wpds-*` ramp as inline styles on its own wrapper div — a `:root` declaration would miss a `ThemeProvider` entirely.
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
@@ -15,7 +15,7 @@ The tooltip box is the exception, and on purpose. Like the `@wordpress/ui` Toolt
 Catalog entries normally map to WPDS tokens. Source writes these mappings bare; the LightningCSS plugin in `tsdown.config.ts` injects the WPDS spec value as a fallback into `dist/`:
 
 ```scss
-:where(.a8c-charts-scope) {
+:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
 	--a8c-charts-color-grid: var(--wpds-color-stroke-surface-neutral);
 }
 ```
