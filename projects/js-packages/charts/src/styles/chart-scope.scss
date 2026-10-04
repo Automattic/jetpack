@@ -10,7 +10,9 @@
 // the same element wins. Chart roots deliberately do NOT re-declare these: an
 // element's own declaration beats an inherited one, so re-declaring lower down
 // would shadow a consumer override set inside the provider tree.
-:where(.a8c-charts-scope) {
+// The tooltip box re-declares the catalog under its own class, so a rule on
+// .a8c-charts-scope does not land on the dark box.
+:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
 	// The series palette. GlobalChartsProvider resolves these five slots at its
 	// wrapper and seeds ColorCache with whatever resolves; a slot that resolves
 	// to nothing is skipped, so setting only slots 1 and 3 gives a two-color
@@ -49,8 +51,8 @@
 	--a8c-charts-color-trend-down: var(--wpds-color-foreground-content-error-weak);
 	--a8c-charts-color-trend-neutral: var(--wpds-color-foreground-content-neutral-weak);
 	--a8c-charts-color-background: var(--wpds-color-background-surface-neutral-strong);
-	// Surfaces floating over the chart — tooltips, the annotation label, the
-	// zoom-reset control. Same WPDS token as --a8c-charts-color-background but
+	// Surfaces floating over the chart — the annotation label, the zoom-reset
+	// control. Same WPDS token as --a8c-charts-color-background but
 	// deliberately not derived from it, so either can move without the other.
 	--a8c-charts-color-surface: var(--wpds-color-background-surface-neutral-strong);
 	--a8c-charts-color-surface-secondary: var(--wpds-color-background-surface-neutral-weak);
@@ -88,7 +90,7 @@
 
 @media (forced-colors: active) {
 
-	:where(.a8c-charts-scope) {
+	:where(.a8c-charts-scope, .a8c-charts-tooltip-scope) {
 		--a8c-charts-color-label-axis: CanvasText;
 		--a8c-charts-color-grid: GrayText;
 		--a8c-charts-color-axis-x: GrayText;

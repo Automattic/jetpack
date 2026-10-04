@@ -1,7 +1,7 @@
 import { Tooltip } from '@visx/tooltip';
 import clsx from 'clsx';
 import { useLayoutEffect, useRef, useState } from 'react';
-import { CHART_SCOPE_CLASS } from '../../../styles/chart-scope-class';
+import { TOOLTIP_SCOPE_CLASS } from '../../../styles/chart-scope-class';
 import styles from '../base-tooltip.module.scss';
 import { TooltipTheme } from './tooltip-theme';
 import type { TooltipPlacement } from '../../../visx/types';
@@ -217,7 +217,7 @@ export const BoundedTooltip = ( {
 		<Tooltip
 			ref={ nodeRef }
 			data-testid="bounded-tooltip"
-			className={ clsx( ! unstyled && [ CHART_SCOPE_CLASS, styles.surface ], className ) }
+			className={ clsx( ! unstyled && [ TOOLTIP_SCOPE_CLASS, styles.surface ], className ) }
 			style={ {
 				position: 'absolute',
 				left: 0,
