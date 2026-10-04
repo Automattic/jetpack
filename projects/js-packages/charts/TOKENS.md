@@ -8,7 +8,7 @@
 
 Chart roots deliberately do *not* carry the `a8c-charts-scope` class. Custom properties inherit down the tree, and an element only shadows an inherited value by re-declaring it, so a chart root that re-declared the catalog would beat an override set between it and the provider — closing off the one place consumers are meant to set overrides. This inheritance rule drives every precedence question below.
 
-The tooltip box is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries the class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and an override set on the chart does not reach the box. A consumer rule that targets `.a8c-charts-scope` itself does reach it, so scope such a rule to your own wrapper. An `unstyled` box gets neither the theme nor the class.
+The tooltip box is the exception, and on purpose. Like the `@wordpress/ui` Tooltip popup, it renders inside its own `ThemeProvider`, seeded with `--a8c-charts-color-tooltip-surface`, and carries its own `a8c-charts-tooltip-scope` class, so it re-declares the catalog under that dark theme. Every role read inside the box resolves for the dark surface, whatever theme the chart is in, and neither an override set on the chart nor a rule on `.a8c-charts-scope` reaches the box. To override a role inside every tooltip, target `.a8c-charts-tooltip-scope`. An `unstyled` box gets neither the theme nor the class.
 
 `TrendIndicator` and `BaseLegend` carry the class only when no provider is above them (`useStandaloneScopeClass()`), so inside a provider they inherit its overrides like the chart they belong to.
 
@@ -99,7 +99,7 @@ The scope element is the wrapper a chart is rendered into, which sits **above** 
 
 The x axis and tick roles share grid's WPDS token but stay distinct roles, so the three can be themed independently.
 
-`--a8c-charts-color-tooltip-surface` is the color the tooltip theme is generated from, as `@wordpress/ui` seeds its Tooltip popup with `#1e1e1e`. Set it on the provider wrapper to retheme every tooltip: the box surface, its text and every role inside follow. To recolor one chart's tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in that chart's `tooltipStyle`.
+`--a8c-charts-color-tooltip-surface` is the color the tooltip theme is generated from, as `@wordpress/ui` seeds its Tooltip popup with `#1e1e1e`. Set it on the provider wrapper to retheme every tooltip, light or dark: the box surface, its text, every catalog role and every `--wpds-*` token inside follow. It must be an opaque sRGB color; anything else falls back to `#1e1e1e`. To recolor one chart's tooltip, repoint `--a8c-charts-color-surface` and `--a8c-charts-color-label` in that chart's `tooltipStyle`. That moves only those two roles: content that reads a `--wpds-*` token keeps the dark theme's value.
 
 ### One pair of roles per axis
 
