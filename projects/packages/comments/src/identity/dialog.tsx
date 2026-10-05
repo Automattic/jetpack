@@ -282,9 +282,10 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		),
 		guest: (
 			<>
-				<h2 className="jetpack-comments__dialog-heading">{ strings.createProfile }</h2>
-				<p className="jetpack-comments__dialog-intro">{ strings.intro }</p>
-				<DetailsFields emailTaken={ emailTaken } />
+				<p id="intro" className="jetpack-comments__dialog-intro">
+					{ strings.intro }
+				</p>
+				<DetailsFields emailTaken={ emailTaken } introId="intro" />
 				{ switches }
 			</>
 		),
@@ -419,14 +420,27 @@ const LogIn = ( {
  *
  * @param props            - Component props.
  * @param props.emailTaken - Whether the email belongs to a WordPress.com account.
+ * @param props.introId    - The intro describing the fields, read with the first one.
  * @return The fields and the save switch.
  */
-const DetailsFields = ( { emailTaken }: { emailTaken: boolean } ) => {
+const DetailsFields = ( { emailTaken, introId }: { emailTaken: boolean; introId?: string } ) => {
 	const { details, rememberDetails } = useContext( CommentSignals );
 	const { strings, requireNameEmail } = JetpackComments;
 	const fields = [
-		{ field: 'author' as const, type: 'text', autoComplete: 'name', label: strings.name },
-		{ field: 'email' as const, type: 'email', autoComplete: 'email', label: strings.email },
+		{
+			field: 'author' as const,
+			type: 'text',
+			autoComplete: 'name',
+			label: strings.name,
+			describedBy: introId,
+		},
+		{
+			field: 'email' as const,
+			type: 'email',
+			autoComplete: 'email',
+			label: strings.email,
+			describedBy: 'email-notes',
+		},
 		{ field: 'url' as const, type: 'url', autoComplete: 'url', label: strings.website },
 	];
 
@@ -443,7 +457,7 @@ const DetailsFields = ( { emailTaken }: { emailTaken: boolean } ) => {
 						type={ input.type }
 						autoComplete={ input.autoComplete }
 						className="jetpack-comments__input"
-						aria-describedby={ field === 'email' ? 'email-notes' : undefined }
+						aria-describedby={ input.describedBy }
 						aria-invalid={ field === 'email' && emailTaken ? 'true' : undefined }
 						required={ requireNameEmail && field !== 'url' }
 						value={ details.value[ field ] }
