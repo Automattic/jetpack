@@ -4,12 +4,12 @@
 import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useSectionTab } from '@jetpack-premium-analytics/routing';
 import {
-	ReportCsvAction,
+	ExporterCsvAction,
 	ReportErrorState,
 	ReportLocationsMap,
 	ReportPageTabs,
 	ReportRecordsTable,
-	useReportCsvExport,
+	locationsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -52,6 +52,14 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 } ) );
 
 jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
+	ExporterCsvAction: jest.fn( () => null ),
+	LOCATIONS_GEO_MODES: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.LOCATIONS_GEO_MODES,
+	locationsCsvExporter: jest.fn(
+		jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' ).locationsCsvExporter
+	),
+	supportsLocationsCountryFilter: jest.requireActual( '@jetpack-premium-analytics/widgets-toolkit' )
+		.supportsLocationsCountryFilter,
 	flagUrl: ( countryCode: string ) => `https://example.com/${ countryCode }.svg`,
 	ReportErrorState: jest.fn( ( { title, onRetry }: { title: string; onRetry: () => void } ) => (
 		<div data-testid="report-error-state">
@@ -65,7 +73,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 			{ children }
 		</>
 	),
-	ReportCsvAction: jest.fn( () => <button>Download</button> ),
 	ReportPageShell: ( { actions, children }: { actions?: ReactNode; children: ReactNode } ) => (
 		<>
 			{ actions }
@@ -77,7 +84,6 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => ( {
 	// the props the page hands them matter.
 	ReportLocationsMap: jest.fn( () => <div data-testid="locations-map" /> ),
 	ReportRecordsTable: jest.fn( () => <div data-testid="records-table" /> ),
-	useReportCsvExport: jest.fn(),
 	useReportRetry: ( refetch: () => unknown ) => () => {
 		void refetch();
 	},
@@ -101,8 +107,8 @@ const reportErrorStateMock = jest.mocked( ReportErrorState );
 const reportPageTabsMock = jest.mocked( ReportPageTabs );
 const reportRecordsTableMock = jest.mocked( ReportRecordsTable );
 const reportLocationsMapMock = jest.mocked( ReportLocationsMap );
-const reportCsvActionMock = jest.mocked( ReportCsvAction );
-const useReportCsvExportMock = jest.mocked( useReportCsvExport );
+const exporterCsvActionMock = jest.mocked( ExporterCsvAction );
+const locationsCsvExporterMock = jest.mocked( locationsCsvExporter );
 
 // Set by `mockTabState`, so a test can move the tab the way the URL does.
 let setTabFromUrl: ( tab: ReportLocationsTabId ) => void;
@@ -208,60 +214,33 @@ describe( 'LocationsReportPage', () => {
 	beforeEach( () => {
 		jest.clearAllMocks();
 		mockTabState( 'countries' );
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: false,
-			rows: [],
-			filename: 'locations-countries',
-		} );
 	} );
 
-	it( 'offers a CSV export of the active tab', () => {
+	it( 'exports the active tab through its shared exporter', () => {
 		mockTabState( 'regions' );
 		const records = mockRecords();
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: true,
-			rows: [ row ],
-			filename: 'locations-regions-2026-06-01_2026-06-30',
-		} );
 
 		render( <LocationsReportPage /> );
 
-		expect( screen.getByRole( 'button', { name: 'Download' } ) ).toBeInTheDocument();
-		expect( useReportCsvExportMock ).toHaveBeenCalledWith(
+		expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'regions', undefined );
+		expect( exporterCsvActionMock ).toHaveBeenLastCalledWith(
 			expect.objectContaining( {
-				rows: records.table.rows,
-				filenamePrefix: 'locations-regions',
+				exporter: expect.objectContaining( { filenamePrefix: 'locations-regions' } ),
+				items: records.table.rows,
 				status: records.table,
-			} )
+			} ),
+			expect.anything()
 		);
-
-		const { columns, rows: exportRows } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.label ) ).toEqual( [ 'Location', 'Country', 'Views' ] );
-		expect( exportRows.map( item => columns.map( column => column.getValue( item ) ) ) ).toEqual( [
-			[ 'Australia', 'Australia', 15 ],
-		] );
 	} );
 
-	it( 'omits the country column from the Countries export', () => {
-		mockRecords();
-		useReportCsvExportMock.mockReturnValue( {
-			canExport: true,
-			rows: [ row ],
-			filename: 'locations-countries-2026-06-01_2026-06-30',
-		} );
-
-		render( <LocationsReportPage /> );
-
-		const { columns } = reportCsvActionMock.mock.calls[ 0 ][ 0 ];
-		expect( columns.map( column => column.label ) ).toEqual( [ 'Location', 'Views' ] );
-	} );
-
-	it( 'hides the CSV export until the rows are settled', () => {
+	it( 'scopes the export to the country picked in the table', () => {
+		mockTabState( 'cities' );
 		mockRecords();
 
 		render( <LocationsReportPage /> );
+		pickCountry( 'US' );
 
-		expect( screen.queryByRole( 'button', { name: 'Download' } ) ).not.toBeInTheDocument();
+		expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'cities', { country: 'US' } );
 	} );
 
 	it( 'hands the active tab rows to the records table', () => {

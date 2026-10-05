@@ -2,7 +2,11 @@
  * External dependencies
  */
 import { queryClient } from '@jetpack-premium-analytics/data';
-import { LeaderboardChart, LocationsGeoChart } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	LeaderboardChart,
+	LocationsGeoChart,
+	locationsCsvExporter,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
@@ -48,6 +52,7 @@ jest.mock( '@jetpack-premium-analytics/widgets-toolkit', () => {
 	return {
 		...actual,
 		LocationsGeoChart: jest.fn( () => <div data-testid="geo-chart" /> ),
+		locationsCsvExporter: jest.fn( actual.locationsCsvExporter ),
 		// Spied, because CSS modules resolve to nothing here and its `loading` dimming is a class.
 		LeaderboardChart: jest.fn( actual.LeaderboardChart ),
 	};
@@ -69,6 +74,7 @@ const LOADING_STATE: LocationViewsState = {
 
 const mockUseLocationViews = jest.fn( () => LOADING_STATE );
 const locationsGeoChartMock = jest.mocked( LocationsGeoChart );
+const locationsCsvExporterMock = jest.mocked( locationsCsvExporter );
 
 /** Read the props of the map's latest render. */
 function lastMapProps() {
@@ -113,6 +119,39 @@ describe( 'LocationsWidget', () => {
 		}
 	} );
 
+	it( 'offers no download while the rows on screen are still loading', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			data: [
+				{
+					key: 'US:United States',
+					label: 'United States',
+					countryCode: 'US',
+					countryFull: 'United States',
+					value: 10,
+					region: '',
+				},
+			],
+			hasData: true,
+		} );
+
+		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
+	it( 'offers no download when the period has no rows', () => {
+		mockUseLocationViews.mockReturnValue( {
+			...LOADING_STATE,
+			isLoading: false,
+			isFetching: false,
+		} );
+
+		render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+		expect( screen.queryByRole( 'button', { name: /Download CSV/ } ) ).not.toBeInTheDocument();
+	} );
+
 	it( 'links to the Locations report', () => {
 		render( <LocationsWidget attributes={ {} } /> );
 
@@ -137,6 +176,21 @@ describe( 'LocationsWidget', () => {
 			expect.stringContaining( `section=${ section }` )
 		);
 	} );
+
+	it.each( [ 'toString', 'cities' ] )(
+		'falls back to Countries for the stored granularity %s',
+		geoGranularity => {
+			render( <LocationsWidget attributes={ { geoGranularity } as never } /> );
+
+			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
+				expect.objectContaining( { geoMode: 'country' } )
+			);
+			expect( screen.getByRole( 'link', { name: 'View all' } ) ).toHaveAttribute(
+				'href',
+				expect.stringContaining( 'section=countries' )
+			);
+		}
+	);
 
 	// Regions mode is worldwide until a row is drilled into.
 	it( 'requests unfiltered region rows in Regions mode', () => {
@@ -347,6 +401,33 @@ describe( 'LocationsWidget', () => {
 			expect( mockUseLocationViews ).toHaveBeenLastCalledWith(
 				expect.objectContaining( { geoMode: 'region', filter: undefined } )
 			);
+		} );
+
+		it( 'scopes the download to the place the widget is drilled into', async () => {
+			render( <LocationsWidget attributes={ { geoGranularity: 'country' } } /> );
+
+			expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'countries', undefined );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'regions', {
+				country: 'US',
+				region: undefined,
+			} );
+
+			await userEvent.click( screen.getByRole( 'button', { name: 'View cities in Minnesota' } ) );
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'cities', {
+				country: 'US',
+				region: 'Minnesota',
+			} );
+
+			await userEvent.click(
+				screen.getByRole( 'button', { name: 'View regions in United States' } )
+			);
+			await userEvent.click( screen.getByRole( 'button', { name: 'View all locations' } ) );
+			expect( locationsCsvExporterMock ).toHaveBeenLastCalledWith( 'countries', undefined );
 		} );
 
 		it( 'keeps the previous level dimmed and inert while the next loads, and moves the map on', async () => {

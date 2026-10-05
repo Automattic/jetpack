@@ -1,24 +1,17 @@
 /**
  * External dependencies
  */
-import { flagUrl, MetricWithComparison } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	flagUrl,
+	MetricWithComparison,
+	type LocationRow,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { __, sprintf } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
 import styles from './fields.module.css';
-import type { StatsLocationCoordinates } from '@jetpack-premium-analytics/data';
 import type { Field } from '@jetpack-premium-analytics/externals';
-
-export type LocationRow = {
-	id: string;
-	label: string;
-	countryCode?: string;
-	countryFull: string;
-	views: number;
-	previousViews?: number;
-	coordinates?: StatsLocationCoordinates;
-};
 
 const VIEWS_DATA_FORMAT = {
 	type: 'number',
