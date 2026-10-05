@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Stop calling guest details a profile, and say they are saved in this browser.

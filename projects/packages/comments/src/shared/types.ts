@@ -79,7 +79,6 @@ export type Strings = {
 	emailHint: string;
 	emailHasAccount: string;
 	website: string;
-	createProfile: string;
 	intro: string;
 	continueAsGuest: string;
 	postWithoutSaving: string;
