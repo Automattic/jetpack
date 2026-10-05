@@ -21,6 +21,7 @@ export {
 	type ComparativeBarChartSeries,
 } from './chart-comparative-bar';
 export { Legend, type LegendItem } from './legend';
+export { ChartsProvider } from './charts-provider';
 export {
 	WidgetRoot,
 	WidgetRootContext,
