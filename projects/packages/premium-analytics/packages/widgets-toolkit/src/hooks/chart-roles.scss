@@ -15,6 +15,7 @@
 	// Seeds every tooltip from the chart surface: dark text on light.
 	--a8c-charts-color-tooltip-surface: var(--a8c-charts-color-surface);
 
+	// Tighter than the package default; the conversion funnel reads it too.
 	--a8c-charts-border-radius-bar: var(--wpds-border-radius-sm);
 }
 

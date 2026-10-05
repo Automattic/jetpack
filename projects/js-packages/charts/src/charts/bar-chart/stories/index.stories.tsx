@@ -960,7 +960,7 @@ const radiusSeries: SeriesData[] = [
 	},
 ];
 
-const findRoundedBars = ( panel: HTMLElement ) =>
+const findBars = ( panel: HTMLElement ) =>
 	waitFor( () => {
 		const primary = panel.querySelector< SVGRectElement >( 'rect.visx-bar' );
 		const comparison = within( panel ).getByTestId( 'bar-chart-comparison-1-0' );
@@ -1006,7 +1006,7 @@ export const BarRadius: Story = {
 		const radii: string[] = [];
 
 		for ( const testId of [ 'bar-radius-default', 'bar-radius-overridden' ] ) {
-			const { primary, comparison } = await findRoundedBars( canvas.getByTestId( testId ) );
+			const { primary, comparison } = await findBars( canvas.getByTestId( testId ) );
 			const role = getComputedStyle( primary )
 				.getPropertyValue( '--a8c-charts-border-radius-bar' )
 				.trim();
