@@ -11,7 +11,7 @@ The chart tooltip box: the dark surface every chart tooltip draws. Use it to dra
 
 ## Overview
 
-`TooltipBox` renders a `div` with the chart tooltip surface, the chart scope class, the dark tooltip theme and the `visx-tooltip` class. It does not position itself. Place it with `style` or a wrapper.
+`TooltipBox` renders a `div` with the chart tooltip surface, the `a8c-charts-tooltip-scope` class, the dark tooltip theme and the `visx-tooltip` class. It does not position itself. Place it with `style` or a wrapper.
 
 <Source
 	language="tsx"
@@ -48,7 +48,7 @@ The box sets no position. Place it with `style`, or put it inside a positioned w
 - **`role`**: Defaults to `"tooltip"`. Pass another value to replace it.
 - **`className`**: Added beside the surface classes, so your class does not remove the default look.
 - **`style`**: Passed to the box. It is kept when `unstyled` is set.
-- **`unstyled`**: Drops the surface, the chart scope class and the dark theme.
+- **`unstyled`**: Drops the surface, the `a8c-charts-tooltip-scope` class and the dark theme.
 - **`ref`**: Forwarded to the box element.
 
 ## Unstyled

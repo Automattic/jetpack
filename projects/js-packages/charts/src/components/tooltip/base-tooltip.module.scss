@@ -1,5 +1,5 @@
 // `.surface` is the look alone, for a chart that positions the box itself.
-// The box carries the chart scope class inside TooltipTheme, so these roles
+// The box carries the tooltip scope class inside TooltipTheme, so these roles
 // resolve for the dark tooltip theme, as in @wordpress/ui's Tooltip popup.
 .surface {
 	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-sm);
