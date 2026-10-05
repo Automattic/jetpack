@@ -2,6 +2,7 @@
 import { jest } from '@jest/globals';
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
+import ImageGuideAnalytics from '../src/analytics.ts';
 import { MeasurableImage } from '../src/MeasurableImage.ts';
 import { MeasurableImageStore } from '../src/stores/MeasurableImageStore.ts';
 import { commands } from '../src/stores/store.ts';
@@ -36,7 +37,8 @@ afterEach( () => {
 
 it( 'persists the toolbar toggle and emits the existing UI state event', async () => {
 	const track = jest.fn();
-	await act( async () => root.render( <AdminBarToggle href="/guide" tracksCallback={ track } /> ) );
+	ImageGuideAnalytics.setTracksCallback( track );
+	await act( async () => root.render( <AdminBarToggle href="/guide" /> ) );
 	const link = target.querySelector( 'a' );
 	expect( link ).toHaveTextContent( 'Image Guide: Active' );
 	act( () => link.dispatchEvent( new MouseEvent( 'click', { bubbles: true, cancelable: true } ) ) );

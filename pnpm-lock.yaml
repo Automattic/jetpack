@@ -977,7 +977,7 @@ importers:
     dependencies:
       '@wordpress/data':
         specifier: 10.55.0
-        version: 10.55.0(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 10.55.0(@types/react-dom@18.3.7(@types/react@18.3.31))(@types/react@18.3.31)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     devDependencies:
       '@babel/core':
         specifier: ^7.0.0
@@ -1015,6 +1015,9 @@ importers:
       '@types/react':
         specifier: 18.3.31
         version: 18.3.31
+      '@types/react-dom':
+        specifier: 18.3.7
+        version: 18.3.7(@types/react@18.3.31)
       '@typescript/native-preview':
         specifier: 7.0.0-dev.20260707.2
         version: 7.0.0-dev.20260707.2
@@ -1039,18 +1042,9 @@ importers:
       rollup-plugin-postcss:
         specifier: 4.0.2
         version: 4.0.2(postcss@8.5.23)
-      rollup-plugin-svelte:
-        specifier: 7.2.2
-        version: 7.2.2(rollup@3.30.0)(svelte@5.57.1)
       sass:
         specifier: npm:sass-embedded@^1.97.2
         version: sass-embedded@1.97.3
-      svelte:
-        specifier: 5.57.1
-        version: 5.57.1
-      svelte-preprocess:
-        specifier: 6.0.5
-        version: 6.0.5(@babel/core@7.29.7)(postcss@8.5.23)(sass-embedded@1.97.3)(svelte@5.57.1)(typescript@6.0.3)
       tslib:
         specifier: 2.8.1
         version: 2.8.1

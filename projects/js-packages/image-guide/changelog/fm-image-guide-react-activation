@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Use React to render the Image Guide overlay.

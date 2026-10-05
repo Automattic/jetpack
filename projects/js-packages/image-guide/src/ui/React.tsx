@@ -6,7 +6,7 @@ import {
 	useState,
 	useSyncExternalStore,
 } from 'react';
-import ImageGuideAnalytics, { type TracksCallback } from '../analytics.ts';
+import ImageGuideAnalytics from '../analytics.ts';
 import { MeasurableImageStore } from '../stores/MeasurableImageStore.ts';
 import { commands, selectors, subscribeToFacts } from '../stores/store.ts';
 import type { GuideSize } from '../types.ts';
@@ -82,18 +82,8 @@ function External() {
 	);
 }
 
-export function AdminBarToggle( {
-	href,
-	tracksCallback,
-}: {
-	href: string;
-	tracksCallback: TracksCallback;
-} ) {
+export function AdminBarToggle( { href }: { href: string } ) {
 	const state = useGuideState();
-	useLayoutEffect(
-		() => ImageGuideAnalytics.setTracksCallback( tracksCallback ),
-		[ tracksCallback ]
-	);
 	const toggle = useCallback( ( event: React.MouseEvent< HTMLAnchorElement > ) => {
 		event.preventDefault();
 		commands.cycleGuideState();
@@ -107,7 +97,7 @@ export function AdminBarToggle( {
 			onClick={ toggle }
 		>
 			<JetpackLogo />
-			<span>Image Guide: { selectors.getGuideLabel() }</span>
+			<span>{ `Image Guide: ${ selectors.getGuideLabel() }` }</span>
 		</a>
 	);
 }
@@ -273,15 +263,11 @@ export function Popup( {
 				</div>
 				<div className="jb-ig-popup row">
 					<div className="label">Expected Dimensions</div>
-					<div className="value">
-						{ expectedSize.width } x { expectedSize.height }
-					</div>
+					<div className="value">{ `${ expectedSize.width } x ${ expectedSize.height }` }</div>
 				</div>
 				<div className="jb-ig-popup row">
 					<div className="label">Size on screen</div>
-					<div className="value">
-						{ sizeOnPage.width } x { sizeOnPage.height }
-					</div>
+					<div className="value">{ `${ sizeOnPage.width } x ${ sizeOnPage.height }` }</div>
 				</div>
 				<div className="jb-ig-popup row">
 					<div className="label">Image Size</div>
