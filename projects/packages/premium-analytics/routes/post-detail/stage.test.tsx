@@ -12,6 +12,7 @@ import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolki
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -729,7 +730,29 @@ describe( 'post detail stage on the provisional all-time window', () => {
 		render( stage() );
 
 		expect( screen.queryByText( 'Post widgets without comparison' ) ).not.toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this post. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
 		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers no Retry when the publish day is denied, as an info notice', () => {
+		mockSummary( {
+			isError: true,
+			error: { code: 'rest_forbidden', status: 403 },
+			publishedDate: undefined,
+		} );
+
+		render( stage() );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "You don't have access to this data.", 'polite' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 } );

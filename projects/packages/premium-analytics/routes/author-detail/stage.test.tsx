@@ -2,6 +2,7 @@ import { useReportScope } from '@jetpack-premium-analytics/data';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { useAuthorSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
@@ -285,7 +286,10 @@ describe( 'author detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByText( "We couldn't find this author." ) ).toBeInTheDocument();
+		expect( getNoticeText( "We couldn't find this author." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "We couldn't find this author.", 'polite' )
+		).toBeInTheDocument();
 		expect( screen.getByRole( 'link', { name: 'Back to Authors' } ) ).toHaveAttribute(
 			'href',
 			'/reports/authors?from=2026-06-01&to=2026-06-16'
@@ -306,6 +310,12 @@ describe( 'author detail stage', () => {
 		expect( breadcrumbs.getAllByRole( 'listitem' ) ).toHaveLength( 3 );
 
 		expect( screen.queryByText( 'Author widgets' ) ).not.toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this author. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
 
 		await user.click( screen.getByRole( 'button', { name: 'Retry' } ) );
 		expect( refetch ).toHaveBeenCalledTimes( 1 );
@@ -320,7 +330,10 @@ describe( 'author detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "You don't have access to this data.", 'polite' )
+		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 
@@ -333,7 +346,10 @@ describe( 'author detail stage', () => {
 
 		render( stage() );
 
-		expect( screen.getByText( "This site doesn't share author profiles." ) ).toBeInTheDocument();
+		expect( getNoticeText( "This site doesn't share author profiles." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "This site doesn't share author profiles.", 'polite' )
+		).toBeInTheDocument();
 		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
 	} );
 

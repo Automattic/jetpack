@@ -1,0 +1,4 @@
+Significance: patch
+Type: enhancement
+
+Premium Analytics: Show load errors and missing items on author, post, and video details in a notice, and stop offering Retry when access is denied.
