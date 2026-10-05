@@ -1,7 +1,7 @@
 <?php
 /**
- * Module Name: Protect Dashboard
- * Module Description: Adds a Protect page to the Jetpack sidebar.
+ * Module Name: Protect
+ * Module Description: Security tools that keep your site safe and sound, from posts to plugins.
  * Sort Order: 4
  * First Introduced: 16.4
  * Requires Connection: Yes
