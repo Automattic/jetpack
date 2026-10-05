@@ -156,7 +156,7 @@ The palette is resolved per provider, so one `ColorCache` and one group-to-color
 
 The motion pair carries the one-shot reveal a data mark plays on first paint, across all six charts that animate in. It deliberately does **not** cover interaction motion: hover and transition timings read `--wpds-motion-*` directly, as interface chrome rather than a chart role.
 
-`--a8c-charts-border-radius-bar` rounds the bars of the bar chart, bar list chart and conversion funnel. Bar charts apply it as the CSS `rx` property, so it rounds all four corners of a bar, and an override on any ancestor of the chart applies.
+`--a8c-charts-border-radius-bar` rounds the bars of the bar chart, bar list chart and conversion funnel. Bar charts apply it as the CSS `rx` property, so it rounds all four corners of a bar. It resolves in CSS at the bar, so an override set anywhere inside the provider tree applies, the chart's own class included; see [Precedence](#precedence) for overrides above the provider.
 
 The elevation fallbacks hold the values their removed `--wpds-elevation-*` tokens used to resolve to, until a replacement exists.
 
