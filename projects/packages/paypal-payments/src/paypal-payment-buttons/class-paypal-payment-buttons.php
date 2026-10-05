@@ -1616,7 +1616,10 @@ class PayPal_Payment_Buttons {
 			target.postMessage( message, window.location.origin );
 		} catch ( e ) {}
 	}
-	if ( ! framed ) {
+	if ( framed ) {
+		// In the editor frame the note would sit over the post while onboarding is completed.
+		document.getElementById( "note" ).hidden = true;
+	} else {
 		window.close();
 	}
 } )();',
@@ -1625,7 +1628,7 @@ class PayPal_Payment_Buttons {
 
 		return '<!DOCTYPE html><html><head><meta charset="' . esc_attr( get_option( 'blog_charset' ) ) . '" />'
 			. '<title>' . esc_html__( 'Returning to your site', 'jetpack-paypal-payments' ) . '</title></head>'
-			. '<body><p>' . esc_html__( 'You can close this window and return to the editor.', 'jetpack-paypal-payments' ) . '</p>'
+			. '<body><p id="note">' . esc_html__( 'You can close this window and return to the editor.', 'jetpack-paypal-payments' ) . '</p>'
 			. '<script>' . $script . '</script></body></html>';
 	}
 

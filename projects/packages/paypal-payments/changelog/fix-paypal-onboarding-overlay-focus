@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Payment Buttons: Keep keyboard focus on the PayPal onboarding overlay while it is open, return it to the Connect button on close, and hide Close once the seller has finished at PayPal.
