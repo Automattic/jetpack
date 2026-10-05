@@ -22,6 +22,7 @@ import {
 	type LocationsGeoRow,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
+import { Disabled } from '@wordpress/components';
 import { useCallback, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
 import { Stack } from '@jetpack-premium-analytics/externals';
@@ -245,12 +246,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 					} }
 				>
 					<div className={ styles.chartArea }>
-						<div
-							className={ styles.leaderboardPanel }
-							// React 18 strips a boolean `inert`; the string form is what renders.
-							// @ts-expect-error `inert` is not in the React 18 types.
-							inert={ isHeld ? 'true' : undefined }
-						>
+						<Disabled isDisabled={ isHeld } className={ styles.leaderboardPanel }>
 							<LeaderboardChart
 								data={ leaderboardData }
 								loading={ isHeld }
@@ -263,7 +259,7 @@ function LocationsInner( { geoGranularity }: LocationsInnerProps ) {
 								} }
 								className={ styles.leaderboard }
 							/>
-						</div>
+						</Disabled>
 						<div className={ styles.geoChart }>
 							<LocationsGeoChart
 								rows={ geoRows }
