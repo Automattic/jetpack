@@ -31,11 +31,13 @@ function DateYearFilterWithState( {
 	startYear,
 	isCompact,
 	containerElement,
+	disabled,
 }: {
 	initialPreset?: PrimaryPresetId;
 	startYear?: number;
 	isCompact?: boolean;
 	containerElement?: HTMLElement | null;
+	disabled?: boolean;
 } ) {
 	const [ presetId, setPresetId ] = useState< PrimaryPresetId >( initialPreset );
 
@@ -47,6 +49,7 @@ function DateYearFilterWithState( {
 			startYear={ startYear }
 			isCompact={ isCompact }
 			containerElement={ containerElement }
+			disabled={ disabled }
 		/>
 	);
 }
@@ -105,6 +108,14 @@ export const MeasuredContainer: Story = {
 			</div>
 		),
 	],
+};
+
+// Greyed out but still focusable: the dashboard while its layout is being
+// customized.
+export const Disabled: Story = {
+	render: () => (
+		<DateYearFilterWithState initialPreset={ `year-${ new Date().getFullYear() }` } disabled />
+	),
 };
 
 // An explicit `isCompact` overrides the measurement, for hosts that own the

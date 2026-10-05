@@ -2,14 +2,15 @@ import { select } from '@wordpress/data';
 import { createRoot, createElement } from '@wordpress/element';
 import BlockSuggestionActions from '../components/block-suggestion-actions';
 import BlockSuggestionButtons from '../components/block-suggestion-buttons';
-import EmptyStateBanner from '../components/empty-state-banner';
 import ReadMoreLink from '../components/read-more-link';
 import SectionGenerateButton from '../components/section-generate-button';
 import SuggestAllButton from '../components/suggest-all-button';
 import SuggestionActions from '../components/suggestion-actions';
 import SuggestionBadge from '../components/suggestion-badge';
 import UpgradeNotice from '../components/upgrade-notice';
+import WelcomeBanner from '../components/welcome-banner';
 import { VALID_SECTIONS } from '../constants';
+import { getTextareaBox } from './dom';
 import { getBlockModalTextarea, startDraftTracking } from './drafts';
 
 // Each injection point tracks both the DOM container and its React root.
@@ -175,7 +176,7 @@ function runAll() {
 				? {
 						parent: row,
 						className: 'jetpack-content-guidelines-ai__header-container',
-				  }
+					}
 				: null;
 		},
 		SuggestAllButton
@@ -199,7 +200,7 @@ function runAll() {
 						parent: subtitle,
 						className: 'jetpack-content-guidelines-ai__read-more-container',
 						tag: 'span',
-				  }
+					}
 				: null;
 		},
 		ReadMoreLink
@@ -215,13 +216,13 @@ function runAll() {
 						parent: list.parentElement,
 						before: list,
 						className: 'jetpack-content-guidelines-ai__upgrade-notice-container',
-				  }
+					}
 				: null;
 		},
 		UpgradeNotice
 	);
 
-	// Empty state banner.
+	// Welcome banner.
 	inject(
 		'banner',
 		() => {
@@ -231,10 +232,10 @@ function runAll() {
 						parent: list.parentElement,
 						before: list,
 						className: 'jetpack-content-guidelines-ai__banner-container',
-				  }
+					}
 				: null;
 		},
-		EmptyStateBanner
+		WelcomeBanner
 	);
 
 	// Per-section injections. Sections are matched by the stable `data-slug`
@@ -282,46 +283,53 @@ function runAll() {
 							before: chevron,
 							className: 'jetpack-content-guidelines-ai__badge-container',
 							tag: 'span',
-					  }
+						}
 					: null;
 			},
 			SuggestionBadge,
 			{ slug }
 		);
 
-		// Suggestion actions (diff + accept/dismiss) at top of form.
+		// Newer Gutenberg right-aligns [Clear][Save], older left-aligns [Save][Clear].
+		// Our section button and Accept/Dismiss follow the same layout.
+		const saveButton = form.querySelector( 'button[type="submit"]' );
+		const hStack = saveButton?.parentElement;
+		const isSaveLast = hStack?.lastElementChild === saveButton;
+
+		// Suggestion actions (diff + accept/dismiss) right after the textarea box,
+		// so the diff takes the textarea's exact place under the field label.
 		inject(
 			`actions-${ slug }`,
 			() => {
-				const vStack = form.firstElementChild;
-				return vStack
+				const textarea = form.querySelector( 'textarea' );
+				const box = textarea && getTextareaBox( textarea );
+				return box
 					? {
-							parent: vStack,
-							before: vStack.firstChild,
+							parent: box.parentElement,
+							before: box.nextSibling,
 							className: 'jetpack-content-guidelines-ai__actions-container',
-					  }
+						}
 					: null;
 			},
 			SuggestionActions,
-			{ slug }
+			{ slug, isSaveLast }
 		);
 
-		// Per-section generate button next to the Save button (the form's
-		// primary submit button lives in an HStack with the Clear button).
+		// Per-section generate button in the form's Save/Clear row, on the side
+		// away from Save so Save stays at the row's outer edge.
 		inject(
 			`button-${ slug }`,
-			() => {
-				const saveButton = form.querySelector( 'button[type="submit"]' );
-				const hStack = saveButton?.parentElement;
-				return hStack
+			() =>
+				hStack
 					? {
 							parent: hStack,
+							before: isSaveLast ? hStack.firstElementChild : null,
 							className: 'jetpack-content-guidelines-ai__section-button-container',
-					  }
-					: null;
-			},
+						}
+					: null,
 			SectionGenerateButton,
-			{ slug }
+			// Newer Gutenberg's row has bare "Clear" and "Save", so use short labels.
+			{ slug, isShortLabel: isSaveLast }
 		);
 	}
 
@@ -361,7 +369,7 @@ function runAll() {
 						parent: field,
 						before: textareaInput,
 						className: 'jetpack-content-guidelines-ai__block-actions-container',
-				  }
+					}
 				: null;
 		},
 		BlockSuggestionActions,
@@ -381,7 +389,7 @@ function runAll() {
 						parent: vStack,
 						before: actionsBar,
 						className: 'jetpack-content-guidelines-ai__block-suggestion-buttons-container',
-				  }
+					}
 				: null;
 		},
 		BlockSuggestionButtons,

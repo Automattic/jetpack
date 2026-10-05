@@ -9,6 +9,10 @@ namespace Automattic\Jetpack\Forms\ContactForm;
 
 use Automattic\Jetpack\Forms\Jetpack_Forms;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Feedback field class.
  *
@@ -16,6 +20,16 @@ use Automattic\Jetpack\Forms\Jetpack_Forms;
  */
 class Feedback_Field {
 	use Country_Code_Utils;
+
+	/**
+	 * Maximum number of rating icons to render.
+	 *
+	 * The scale is visitor input, so every renderer that loops over it needs this bound.
+	 * Mirrors `MAX_RATING_ICONS` in `blocks/field-rating/rating-icons.js`.
+	 *
+	 * @var int
+	 */
+	const MAX_RATING_ICONS = 10;
 
 	/**
 	 * Cached admin theme color.
@@ -380,6 +394,10 @@ class Feedback_Field {
 		if ( $rating > $max ) {
 			return $this->value;
 		}
+
+		$max    = min( $max, self::MAX_RATING_ICONS );
+		$rating = min( $rating, $max );
+
 		// Get icon style from meta data (defaults to 'stars').
 		$icon_style = $this->get_meta_key_value( 'iconStyle' );
 		if ( empty( $icon_style ) ) {
@@ -636,6 +654,9 @@ class Feedback_Field {
 		if ( $max <= 0 ) {
 			return $this->render_email_default();
 		}
+
+		$max    = min( $max, self::MAX_RATING_ICONS );
+		$rating = min( $rating, $max );
 
 		$stars = '';
 		for ( $i = 1; $i <= $max; $i++ ) {

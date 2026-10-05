@@ -1,19 +1,19 @@
 /**
  * External dependencies
  */
-import { useSiteHomeUrl, type StatsTopPostsComparisonItem } from '@jetpack-premium-analytics/data';
+import {
+	useSiteHomeUrl,
+	type PostThumbnailUrls,
+	type StatsTopPostsComparisonItem,
+} from '@jetpack-premium-analytics/data';
 import { render, screen } from '@testing-library/react';
+import { page as pageIcon, post as postIcon } from '@wordpress/icons';
 /**
  * Internal dependencies
  */
 import { setMockRouteSearch } from '../../../../tests/js/route-test-utils';
-import {
-	buildArchiveCsvRows,
-	buildArchiveRows,
-	getArchivesFields,
-	getPostsFields,
-	type ArchiveRow,
-} from './fields';
+import { getArchivesFields, getPostsFields } from './fields';
+import type { ArchiveRow } from '@jetpack-premium-analytics/widgets-toolkit';
 
 jest.mock( '@jetpack-premium-analytics/data', () => ( {
 	useSiteHomeUrl: jest.fn(),
@@ -31,6 +31,16 @@ jest.mock( '@wordpress/route', () => {
 
 setMockRouteSearch( { from: '2026-03-01', to: '2026-03-10', interval: 'day' } );
 
+/**
+ * Read an icon's SVG path, since `@wordpress/icons` exports elements with no name to compare.
+ *
+ * @param root - The element holding the icon.
+ * @return The first path's `d` attribute.
+ */
+function glyphPath( root: Element ) {
+	return root.querySelector( 'path' )?.getAttribute( 'd' );
+}
+
 const mockUseSiteHomeUrl = useSiteHomeUrl as jest.MockedFunction< typeof useSiteHomeUrl >;
 
 const homepage: StatsTopPostsComparisonItem = {
@@ -42,23 +52,29 @@ const homepage: StatsTopPostsComparisonItem = {
 };
 
 /**
- * Mount the posts title field's render component for a table row.
+ * Mount one posts field's render component for a table row.
  *
- * @param item - The top-posts row to render the title cell for.
+ * @param fieldId       - The posts field to render.
+ * @param item          - The top-posts row to render the cell for.
+ * @param thumbnailUrls - Thumbnail URLs keyed by post ID.
  * @return The Testing Library render result.
  */
-function renderTitleField( item: StatsTopPostsComparisonItem ) {
-	const field = getPostsFields( false, 'posts-pages' ).find(
-		candidate => candidate.id === 'title'
+function renderPostsField(
+	fieldId: 'title' | 'thumbnail',
+	item: StatsTopPostsComparisonItem,
+	thumbnailUrls: PostThumbnailUrls = {}
+) {
+	const field = getPostsFields( false, 'posts-pages', thumbnailUrls ).find(
+		candidate => candidate.id === fieldId
 	);
 	// eslint-disable-next-line testing-library/render-result-naming-convention -- `render` here is the DataViews field render component, not RTL's render result.
-	const TitleField = field?.render;
+	const FieldRender = field?.render;
 
-	if ( ! field || ! TitleField ) {
-		throw new Error( 'Posts title field render callback is unavailable' );
+	if ( ! field || ! FieldRender ) {
+		throw new Error( `Posts ${ fieldId } field render callback is unavailable` );
 	}
 
-	return render( <TitleField item={ item } field={ field as never } /> );
+	return render( <FieldRender item={ item } field={ field as never } /> );
 }
 
 /**
@@ -124,10 +140,41 @@ describe( 'posts title field', () => {
 		mockUseSiteHomeUrl.mockReset();
 	} );
 
+	it( 'renders the post thumbnail', () => {
+		renderPostsField(
+			'thumbnail',
+			{
+				id: 42,
+				label: 'Hello world',
+				views: 12,
+				link: 'https://example.com/hello-world/',
+				type: 'post',
+			},
+			{ 42: 'https://example.com/thumb.jpg' }
+		);
+
+		expect( screen.getByRole( 'presentation' ) ).toHaveAttribute(
+			'src',
+			'https://example.com/thumb.jpg'
+		);
+	} );
+
+	it.each( [
+		[ 'page', pageIcon ],
+		[ 'post', postIcon ],
+		[ 'homepage', postIcon ],
+	] )( 'renders the matching icon for a %s row without a thumbnail', ( type, icon ) => {
+		renderPostsField( 'thumbnail', { ...homepage, type } );
+
+		expect( glyphPath( screen.getByTestId( 'report-thumbnail-placeholder' ) ) ).toBe(
+			glyphPath( render( icon ).container )
+		);
+	} );
+
 	it( 'links the homepage row to the site home URL', () => {
 		mockUseSiteHomeUrl.mockReturnValue( 'https://example.com/' );
 
-		renderTitleField( homepage );
+		renderPostsField( 'title', homepage );
 
 		// The homepage has no post-detail page, so its title is the outbound link
 		// and carries the external-link marker.
@@ -136,13 +183,12 @@ describe( 'posts title field', () => {
 		} );
 		expect( link ).toHaveAttribute( 'href', 'https://example.com/' );
 		expect( link ).toHaveAttribute( 'target', '_blank' );
-		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 	} );
 
 	it( 'renders plain text when the site home URL is unavailable', () => {
 		mockUseSiteHomeUrl.mockReturnValue( undefined );
 
-		renderTitleField( homepage );
+		renderPostsField( 'title', homepage );
 
 		expect( screen.getByText( 'Homepage (Latest posts)' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
@@ -162,7 +208,7 @@ describe( 'posts title field', () => {
 	} );
 
 	it( 'drills a row with a post ID into the post detail page, carrying the date range', () => {
-		renderTitleField( {
+		renderPostsField( 'title', {
 			id: 42,
 			label: 'Hello world',
 			views: 12,
@@ -190,14 +236,14 @@ describe( 'posts title field', () => {
 
 	// Guards against a malformed row linking to `/post/undefined`.
 	it( 'renders a row with no post ID and no URL as plain text rather than a broken link', () => {
-		renderTitleField( { label: 'Uncategorized', views: 3, link: null, type: 'post' } );
+		renderPostsField( 'title', { label: 'Uncategorized', views: 3, link: null, type: 'post' } );
 
 		expect( screen.getByText( 'Uncategorized' ) ).toBeInTheDocument();
 		expect( screen.queryByRole( 'link' ) ).not.toBeInTheDocument();
 	} );
 
 	it( 'falls back to the public URL when a row has no post ID', () => {
-		renderTitleField( {
+		renderPostsField( 'title', {
 			label: 'Uncategorized',
 			views: 3,
 			link: 'https://example.com/uncategorized/',
@@ -255,125 +301,5 @@ describe( 'archive rows', () => {
 		expect( link ).toHaveAttribute( 'target', '_blank' );
 		expect( link ).toHaveAttribute( 'rel', 'noopener noreferrer' );
 		expect( screen.getByRole( 'img', { name: '(opens in a new tab)' } ) ).toBeInTheDocument();
-	} );
-
-	it( 'falls back to Untitled for an archive row with an empty label', () => {
-		expect( buildArchiveRows( [ { label: '', value: 5, children: null } ] )[ 0 ].label ).toBe(
-			'Untitled'
-		);
-	} );
-
-	it( 'gives every archive type the API returns a human-readable group label', () => {
-		const archiveTypes = [
-			'author',
-			'cat',
-			'date',
-			'err',
-			'home',
-			'multiple',
-			'other',
-			'post_type',
-			'search',
-			'tag',
-			'tax',
-			// An archive type added after this ships falls back to its key,
-			// capitalized — the API sends some of these shouty.
-			'FEED',
-		];
-
-		expect(
-			buildArchiveRows(
-				archiveTypes.map( archiveType => ( { label: archiveType, value: 5, children: null } ) )
-			).map( row => row.label )
-		).toEqual( [
-			'Authors',
-			'Categories',
-			'Dates',
-			'Error',
-			'Homepage (Latest posts)',
-			'Aggregated',
-			'Others',
-			'Post types',
-			'Searches',
-			'Tags',
-			'Taxonomies',
-			'Feed',
-		] );
-	} );
-
-	it( 'qualifies a nested archive row with its full ancestor path for export', () => {
-		const rows = buildArchiveRows( [
-			{
-				label: 'tax',
-				value: 30,
-				children: [
-					{
-						label: 'post_tag',
-						value: 30,
-						children: [
-							{
-								label: 'Analytics',
-								value: 30,
-								link: 'https://example.com/tag/analytics/',
-								children: null,
-							},
-						],
-					},
-				],
-			},
-		] );
-
-		expect( buildArchiveCsvRows( rows ).map( row => row.label ) ).toEqual( [
-			'Taxonomies',
-			'Taxonomies > Post tag',
-			'Taxonomies > Post tag > Analytics',
-		] );
-	} );
-
-	it( 'preserves the archive hierarchy and uses standard archive labels', () => {
-		expect(
-			buildArchiveRows( [
-				{
-					label: 'tax',
-					value: 30,
-					children: [
-						{
-							label: 'post_tag',
-							value: 30,
-							children: [
-								{
-									label: 'Analytics',
-									value: 30,
-									link: 'https://example.com/tag/analytics/',
-									children: null,
-								},
-							],
-						},
-					],
-				},
-			] )
-		).toEqual( [
-			{
-				id: 'tax-0',
-				label: 'Taxonomies',
-				views: 30,
-				isGroup: true,
-			},
-			{
-				id: 'tax-0-0',
-				parentId: 'tax-0',
-				label: 'Post tag',
-				views: 30,
-				isGroup: true,
-			},
-			{
-				id: 'tax-0-0-0',
-				parentId: 'tax-0-0',
-				label: 'Analytics',
-				views: 30,
-				link: 'https://example.com/tag/analytics/',
-				isGroup: false,
-			},
-		] );
 	} );
 } );

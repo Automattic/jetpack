@@ -1,18 +1,23 @@
 /**
  * External dependencies
  */
+import { usePrefetchViewerCountry } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters, useSectionTab } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportCsvAction,
-	ReportErrorState,
+	ExporterCsvAction,
+	LOCATIONS_GEO_MODES,
+	PageNotice,
+	describeError,
+	ReportLocationsMap,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportPageTabs,
 	ReportRecordsTable,
-	useReportCsvExport,
+	locationsCsvExporter,
+	supportsLocationsCountryFilter,
 	useReportRetry,
-	type CsvColumn,
+	type LocationsGeoRow,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useCallback, useMemo, useState } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -25,14 +30,14 @@ import { useReportParams } from '../use-report-params';
 import {
 	getLocationFields,
 	getReportLocationsTabs,
-	getTabTitle,
+	getTabLabel,
 	resolveSection,
-	supportsCountryFilter,
 	useLocationsReportRecords,
 	type LocationRow,
 	type ReportLocationsTabId,
 } from './config';
 import type { View } from '@jetpack-premium-analytics/externals';
+import type { JSX } from 'react';
 
 const ROUTE_FROM = route.path;
 
@@ -61,8 +66,8 @@ const RECORDS_VIEW = {
 
 const COUNTRY_FILTER_FIELD = 'country';
 
-// Match the table's own default order, so the file reads like the screen.
-const sortLocationCsvRows = ( a: LocationRow, b: LocationRow ) => b.views - a.views;
+/** The country picked in the records table, and the tab it was picked on. */
+type PickedCountry = { tab: ReportLocationsTabId; code: string };
 
 /**
  * Read the picked country out of a records-table view.
@@ -82,101 +87,136 @@ function getCountryFilter( view: View ): string {
  * @return The Locations report page.
  */
 export default function LocationsReportPage(): JSX.Element {
+	usePrefetchViewerCountry();
 	const reportParams = useReportParams();
 	const tabs = useMemo( () => getReportLocationsTabs(), [] );
 	const [ activeTab, setActiveTab ] = useSectionTab( ROUTE_FROM, resolveSection );
-	const [ countryFilter, setCountryFilter ] = useState( '' );
+	// The tab lives on the URL, so Back and Forward move it without the tab strip's
+	// change event. Keying the picked country to the tab it was picked on clears it
+	// whichever way the tab moved, and resetting during render keeps the stale pair
+	// out of the request this render makes.
+	const [ pickedCountry, setPickedCountry ] = useState< PickedCountry >( {
+		tab: activeTab,
+		code: '',
+	} );
+	if ( pickedCountry.tab !== activeTab && pickedCountry.code ) {
+		setPickedCountry( { tab: activeTab, code: '' } );
+	}
+	const countryFilter = pickedCountry.tab === activeTab ? pickedCountry.code : '';
 	const records = useLocationsReportRecords( activeTab, reportParams, countryFilter || undefined );
 	const retry = useReportRetry( records.refetch );
 	const fields = useMemo(
 		() =>
 			getLocationFields(
-				supportsCountryFilter( activeTab ) ? records.countries.options : undefined,
+				supportsLocationsCountryFilter( activeTab ) ? records.countries.options : undefined,
 				records.hasComparison
 			),
 		[ activeTab, records.countries.options, records.hasComparison ]
 	);
-	// Region and city names repeat across countries. On screen the flag tells
-	// them apart; a CSV needs its own column.
-	const csvColumns = useMemo< CsvColumn< LocationRow >[] >(
-		() => [
-			{ label: __( 'Location', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-			...( supportsCountryFilter( activeTab )
-				? [
-						{
-							label: __( 'Country', 'jetpack-premium-analytics-pkg' ),
-							getValue: ( row: LocationRow ) => row.countryFull,
-						},
-				  ]
-				: [] ),
-			{ label: __( 'Views', 'jetpack-premium-analytics-pkg' ), getValue: row => row.views },
-		],
-		[ activeTab ]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.table.rows,
-		// The tabs export different lists, so each gets its own filename.
-		filenamePrefix: `locations-${ activeTab }`,
-		range: reportParams,
-		status: records.table,
-		sort: sortLocationCsvRows,
-	} );
-
-	// Country filter doesn't carry between tabs: Countries can't be scoped, and
-	// cities/regions vary per tab, so clear it on tab change.
-	const handleTabChange = useCallback(
-		( tab: ReportLocationsTabId ) => {
-			setCountryFilter( '' );
-			setActiveTab( tab );
-		},
-		[ setActiveTab ]
+	const csvExporter = useMemo(
+		() => locationsCsvExporter( activeTab, countryFilter ? { country: countryFilter } : undefined ),
+		[ activeTab, countryFilter ]
 	);
 
 	// The API scopes the rows, so the picked country has to reach the request.
-	const handleChangeView = useCallback( ( view: View ) => {
-		setCountryFilter( getCountryFilter( view ) );
-	}, [] );
+	const handleChangeView = useCallback(
+		( view: View ) => {
+			const code = getCountryFilter( view );
+
+			setPickedCountry( previous =>
+				previous.tab === activeTab && previous.code === code ? previous : { tab: activeTab, code }
+			);
+		},
+		[ activeTab ]
+	);
+
+	// The map plots the rows the table already fetched, so it costs no request
+	// of its own. Rows the API left without a country cannot be placed on it.
+	const geoRows = useMemo(
+		(): LocationsGeoRow[] =>
+			records.table.rows
+				.filter( ( row ): row is LocationRow & { countryCode: string } => !! row.countryCode )
+				.map( row => ( {
+					label: row.label,
+					value: row.views,
+					countryCode: row.countryCode,
+					countryFull: row.countryFull,
+					coordinates: row.coordinates,
+				} ) ),
+		[ records.table.rows ]
+	);
+	const focusCountry = useMemo( () => {
+		if ( ! countryFilter ) {
+			return undefined;
+		}
+
+		const country = records.countries.options.find( option => option.code === countryFilter );
+
+		return { code: countryFilter, name: country?.label ?? countryFilter };
+	}, [ countryFilter, records.countries.options ] );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const tableIsLoading = records.table.isLoading || records.table.isFetching;
 	const { getLabel } = REPORTS.locations;
+	// Stays mounted while the rows load, so a map the user collapsed stays collapsed.
+	const showMap = !! countryFilter || records.table.rows.length > 0 || records.table.isLoading;
+
+	let tableReplacement: JSX.Element | undefined;
+
+	if ( records.isError ) {
+		tableReplacement = (
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load locations. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
+			/>
+		);
+	}
 
 	return (
 		<ReportPageShell
-			tabbed
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ csvExporter }
+					items={ records.table.rows }
+					status={ records.table }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout
-				title={ getTabTitle( activeTab ) }
-				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ handleTabChange } /> }
+				title={ getTabLabel( activeTab ) }
+				tabs={ <ReportPageTabs tabs={ tabs } value={ activeTab } onChange={ setActiveTab } /> }
 				dateFilters={ dateFilters }
 			>
-				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load locations', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
-					/>
-				) : (
-					<ReportRecordsTable< LocationRow >
-						key={ activeTab }
-						data={ records.table.rows }
-						fields={ fields }
-						getItemId={ getLocationRowId }
-						isLoading={ tableIsLoading }
-						initialView={ RECORDS_VIEW }
-						searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
-						onChangeView={ handleChangeView }
-					/>
+				{ tableReplacement ?? (
+					<>
+						{ showMap && (
+							<ReportLocationsMap
+								rows={ geoRows }
+								mode={ LOCATIONS_GEO_MODES[ activeTab ] }
+								focusCountry={ focusCountry }
+								isLoading={ tableIsLoading }
+							/>
+						) }
+						<ReportRecordsTable< LocationRow >
+							key={ activeTab }
+							data={ records.table.rows }
+							fields={ fields }
+							getItemId={ getLocationRowId }
+							isLoading={ records.table.isLoading }
+							isFetching={ records.table.isFetching }
+							initialView={ RECORDS_VIEW }
+							searchLabel={ __( 'Search locations', 'jetpack-premium-analytics-pkg' ) }
+							onChangeView={ handleChangeView }
+						/>
+					</>
 				) }
 			</ReportPageLayout>
 		</ReportPageShell>

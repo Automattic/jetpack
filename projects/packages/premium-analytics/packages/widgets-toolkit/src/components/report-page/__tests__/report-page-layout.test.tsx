@@ -1,11 +1,13 @@
 /**
  * External dependencies
  */
+import { toLocalTZ } from '@jetpack-premium-analytics/datetime';
 import { DateFiltersPanel } from '@jetpack-premium-analytics/ui';
 import { render, screen } from '@testing-library/react';
 /**
  * Internal dependencies
  */
+import { ReportEmptyState } from '../report-empty-state';
 import { ReportPageLayout } from '../report-page-layout';
 import type { ReportDateFilters } from '@jetpack-premium-analytics/routing';
 
@@ -18,14 +20,14 @@ jest.mock( '@jetpack-premium-analytics/ui', () => ( {
 const dateFiltersPanelMock = jest.mocked( DateFiltersPanel );
 
 const APPLIED_RANGE = {
-	from: new Date( Date.UTC( 2024, 0, 8 ) ),
-	to: new Date( Date.UTC( 2024, 0, 14, 23, 59, 59, 999 ) ),
+	from: toLocalTZ( Date.UTC( 2024, 0, 8 ), 'UTC' ),
+	to: toLocalTZ( Date.UTC( 2024, 0, 14, 23, 59, 59, 999 ), 'UTC' ),
 };
 
 // A draft over the applied window, so the controller reaches the panel mid-edit.
 const STAGED_RANGE = {
-	from: new Date( Date.UTC( 2019, 0, 7 ) ),
-	to: new Date( Date.UTC( 2019, 0, 13, 23, 59, 59, 999 ) ),
+	from: toLocalTZ( Date.UTC( 2019, 0, 7 ), 'UTC' ),
+	to: toLocalTZ( Date.UTC( 2019, 0, 13, 23, 59, 59, 999 ), 'UTC' ),
 };
 
 /** A controller mid-edit: a staged range and comparison over an applied window. */
@@ -43,7 +45,6 @@ function buildDateFilters(): ReportDateFilters {
 		onChange: jest.fn(),
 		onComparisonChange: jest.fn(),
 		onIntervalChange: jest.fn(),
-		onStep: jest.fn(),
 		onApply: jest.fn(),
 		onCancel: jest.fn(),
 		canApply: true,
@@ -99,6 +100,18 @@ describe( 'ReportPageLayout', () => {
 		expect( panelProps.interval ).toBe( 'week' );
 		expect( dateFilters.onComparisonChange ).not.toHaveBeenCalled();
 		expect( dateFilters.onIntervalChange ).not.toHaveBeenCalled();
+	} );
+
+	it( 'tells the empty state its report has a time period', () => {
+		render(
+			<ReportPageLayout title="Posts & Pages" dateFilters={ buildDateFilters() }>
+				<ReportEmptyState />
+			</ReportPageLayout>
+		);
+
+		expect(
+			screen.getByText( 'We couldn’t find results for this time period.' )
+		).toBeInTheDocument();
 	} );
 
 	it( 'mounts no date picker on a report with no date window', () => {

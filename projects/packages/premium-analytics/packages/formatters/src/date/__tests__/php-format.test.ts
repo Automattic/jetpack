@@ -1,7 +1,7 @@
 /**
  * Internal dependencies
  */
-import { withShortMonth, withWeekday, withoutYear } from '../php-format';
+import { withShortMonth, withWeekday, withoutDay, withoutYear } from '../php-format';
 
 describe( 'withoutYear', () => {
 	// Real `date_format` defaults taken from the WordPress core language packs,
@@ -113,5 +113,56 @@ describe( 'withWeekday', () => {
 		// the weekday token, so both formats still need a weekday put in front.
 		expect( withWeekday( 'j \\d\\e F \\d\\e Y' ) ).toBe( 'l, j \\d\\e F \\d\\e Y' );
 		expect( withWeekday( '\\l\\a j F' ) ).toBe( 'l, \\l\\a j F' );
+	} );
+} );
+
+describe( 'withoutDay', () => {
+	it( 'drops a day and the separator that follows it', () => {
+		expect( withoutDay( 'F j, Y' ) ).toBe( 'F Y' );
+	} );
+
+	it( 'drops a trailing day and the separator that introduces it', () => {
+		expect( withoutDay( 'Y-m-d' ) ).toBe( 'Y-m' );
+	} );
+
+	it( 'removes the day from an all-numeric format', () => {
+		expect( withoutDay( 'd/m/Y' ) ).toBe( 'm/Y' );
+	} );
+
+	it( 'drops the words a leading day introduces', () => {
+		// es_ES. The first "de" belongs to the day, the second to the year.
+		expect( withoutDay( 'j \\d\\e F \\d\\e Y' ) ).toBe( 'F \\d\\e Y' );
+	} );
+
+	it( 'drops the ordinal suffix along with the day it trails', () => {
+		expect( withoutDay( 'jS F Y' ) ).toBe( 'F Y' );
+	} );
+
+	it( 'drops the ordinal dot of a day-first numeric format', () => {
+		// Finnish and Czech. The dot marks the day as ordinal, so it goes too.
+		expect( withoutDay( 'j.n.Y' ) ).toBe( 'n.Y' );
+		expect( withoutDay( 'j. n. Y' ) ).toBe( 'n. Y' );
+	} );
+
+	it( 'drops a prefix bound to the month by the day it needed', () => {
+		// he_IL. "בF" reads "in March", which only a dated form asks for.
+		expect( withoutDay( 'j בF Y' ) ).toBe( 'F Y' );
+	} );
+
+	it( 'drops the weekday, which names no month either', () => {
+		expect( withoutDay( 'l, F j, Y' ) ).toBe( 'F Y' );
+		expect( withoutDay( 'D, d M Y' ) ).toBe( 'M Y' );
+	} );
+
+	it( 'leaves an escaped day character alone', () => {
+		expect( withoutDay( '\\j F Y' ) ).toBe( '\\j F Y' );
+	} );
+
+	it( 'returns the format unchanged when it carries no day', () => {
+		expect( withoutDay( 'F Y' ) ).toBe( 'F Y' );
+	} );
+
+	it( 'returns an empty string when the format is only a day', () => {
+		expect( withoutDay( 'j' ) ).toBe( '' );
 	} );
 } );

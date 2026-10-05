@@ -16,3 +16,5 @@ define( 'WP_DEBUG', true );
 \Automattic\Jetpack\Test_Environment::init();
 
 require_once __DIR__ . '/stubs/class-store-product-list.php';
+require_once __DIR__ . '/stubs/class-wpcom-features.php';
+require_once __DIR__ . '/stubs/functions-wpcom-features.php';

@@ -1,4 +1,4 @@
-import { isWpcomPlatformSite, getAdminUrl } from '@automattic/jetpack-script-data';
+import { isWpcomPlatformSite, getAdminUrl, getScriptData } from '@automattic/jetpack-script-data';
 import { __ } from '@wordpress/i18n';
 import { Stack, Text, Link } from '@wordpress/ui';
 import clsx from 'clsx';
@@ -27,11 +27,18 @@ declare global {
 const JetpackFooter: FC< JetpackFooterProps > = ( { className, menu, ...otherProps } ) => {
 	let items: JetpackFooterMenuItem[] = [];
 
-	if ( ! isWpcomPlatformSite() && ! window?.JetpackNetworkAdminData ) {
+	if (
+		getScriptData()?.myJetpack?.isAvailable === true &&
+		! isWpcomPlatformSite() &&
+		! window?.JetpackNetworkAdminData
+	) {
+		// Published by My Jetpack, whose products tab can be renamed Features.
+		const productsSection = getScriptData()?.myJetpack?.productsSection;
+
 		items = [
 			{
-				label: __( 'Products', 'jetpack-components' ),
-				href: getAdminUrl( 'admin.php?page=my-jetpack#/products' ),
+				label: productsSection?.label ?? __( 'Products', 'jetpack-components' ),
+				href: getAdminUrl( `admin.php?page=my-jetpack#/${ productsSection?.slug ?? 'products' }` ),
 			},
 			{
 				label: __( 'Help', 'jetpack-components' ),

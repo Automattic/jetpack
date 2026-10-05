@@ -25,6 +25,7 @@ export const CATEGORY_CARDS_AND_MODULES: {
 		modules: [
 			// No prettier please
 			'account-protection',
+			'activity-log',
 			'monitor',
 			'notes',
 			'sso',
@@ -111,7 +112,6 @@ export const PRODUCT_ICONS: {
 export const PRODUCT_MODULES: {
 	[ Key in JetpackProductWithCard ]?: JetpackModuleSlug;
 } = {
-	backup: 'vaultpress',
 	social: 'publicize',
 	'jetpack-forms': 'contact-form',
 	'jetpack-ai': 'ai',

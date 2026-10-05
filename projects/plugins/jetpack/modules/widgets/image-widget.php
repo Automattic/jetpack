@@ -165,17 +165,17 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		$instance = $old_instance;
 
-		$instance['title']             = wp_strip_all_tags( $new_instance['title'] );
-		$instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
-		$instance['alt_text']          = wp_strip_all_tags( $new_instance['alt_text'] );
-		$instance['img_title']         = wp_strip_all_tags( $new_instance['img_title'] );
-		$instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ), $allowed_caption_html );
-		$instance['align']             = $new_instance['align'];
-		$instance['link']              = esc_url( trim( $new_instance['link'] ) );
+		$instance['title']             = wp_strip_all_tags( $new_instance['title'] ?? '' );
+		$instance['img_url']           = esc_url( trim( $new_instance['img_url'] ?? '' ) );
+		$instance['alt_text']          = wp_strip_all_tags( $new_instance['alt_text'] ?? '' );
+		$instance['img_title']         = wp_strip_all_tags( $new_instance['img_title'] ?? '' );
+		$instance['caption']           = wp_kses( stripslashes( $new_instance['caption'] ?? '' ), $allowed_caption_html );
+		$instance['align']             = $new_instance['align'] ?? 'none';
+		$instance['link']              = esc_url( trim( $new_instance['link'] ?? '' ) );
 		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
 
-		$new_img_width  = absint( $new_instance['img_width'] );
-		$new_img_height = absint( $new_instance['img_height'] );
+		$new_img_width  = absint( $new_instance['img_width'] ?? 0 );
+		$new_img_height = absint( $new_instance['img_height'] ?? 0 );
 
 		if ( ! empty( $instance['img_url'] ) && 0 === $new_img_width && 0 === $new_img_height ) {
 			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout.

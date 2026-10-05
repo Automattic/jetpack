@@ -13,6 +13,10 @@ namespace Automattic\Jetpack\Paypal_Payments;
 use WP_Error;
 use WP_REST_Posts_Controller;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Extends WP_REST_Posts_Controller to disable create, update, and delete operations.
  */

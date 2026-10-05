@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+WordPress.com /sites endpoint: report the AI Launchpad state from site settings only, and treat a skipped AI Launchpad as no guidance.

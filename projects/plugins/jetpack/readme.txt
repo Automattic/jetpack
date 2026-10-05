@@ -1,7 +1,7 @@
 === Jetpack - WP Security, Backup, Speed, & Growth ===
 Contributors: automattic, adamkheckler, adrianmoldovanwp, aduth, akirk, allendav, alternatekev, andy, annamcphee, annezazu, apeatling, arcangelini, arsihasi, azaozz, barry, batmoo, beaulebens, bindlegirl, biskobe, bjorsch, blobaugh, brbrr, brileyhooper, cainm, cena, cfinke, cgastrell, chaselivingston, chellycat, clickysteve, csonnek, danielbachhuber, daniloercoli, davoraltman, delawski, designsimply, dkmyta, dllh, dlocc, drawmyface, dsmart, dun2mis, dzver, ebinnion, egregor, eliorivero, enej, eoigal, erania-pinnera, ethitter, fgiannar, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, joen, jblz, jeffgolenski, jeherve, jennywp, jenia, jessefriedman, jgs, jkudish, jmdodd, joanrho, johnjamesjacoby, jshreve, kbrownkd, keoshi, koke, kraftbj, lancewillett, leogermani, lhkowalski, lschuyler, macmanx, martinremy, matt, mattwiebe, matveb, maverick3x6, mcsf, mdawaffe, mdbitz, MichaelArestad, migueluy, miguelxavierpenha, mikeyarce, mkaz, nancythanki, nickmomrik, njweller, nunyvega, obenland, oskosk, pento, professor44, rachelsquirrel, rdcoll, renatoagds, retrofox, richardmtl, richardmuscat, robertbpugh, roccotripaldi, ryanc413, samhotchkiss, samiff, scarstocea, scottsweb, sdixon194, sdquirk, sermitr, simison, stephdau, thehenridev, tmoorewp, tyxla, Viper007Bond, westi, williamvianas, wpkaren, yoavf, zinigor
 Tags: Security, backup, malware, scan, performance
-Stable tag: 16.2-a.3
+Stable tag: 16.3-a.7
 Requires at least: 7.0
 Requires PHP: 7.4
 Tested up to: 7.1
@@ -326,47 +326,23 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.2-a.3 - 2026-08-25
+### 16.3-a.7 - 2026-09-29
 #### Enhancements
-- Akismet: Link the settings page header logo and title to the Akismet settings page.
-- Forms: On small screens, show only the response and its actions instead of a table that scrolls sideways.
-- Forms: On small screens, the View action now opens a response the same way tapping its title does.
-- Forms: Show each form field as a column when viewing a single form's responses.
-- Forms: Show progress while a new form's editor opens, and report it when creating a form fails.
-- My Jetpack: Show what Paid Stats actually adds — UTM tracking, device stats, and region & city locations — instead of commercial use.
-- Premium Analytics: Add an Ads dashboard section showing WordAds earnings and performance.
-- Premium Analytics: Add referrer groups that open folded and expand on demand in the Referrers report.
-- Premium Analytics: Click Visitors in the Traffic chart legend to compare it against Views without leaving the metric. Chart legends now name the metric rather than the date range.
-- Premium Analytics: Name comparison dates in the dashboard header, omit weekdays from ranges longer than a week, and omit the year when it matches the current range.
-- Premium Analytics: Offer only the groupings the selected date range supports in the chart's Group by control.
-- Premium Analytics: Show the latest emails sent as a plain list of subjects and rates.
-- Stats: Add a Popular hours widget showing the busiest hour and its daily average views.
-- Stats: Link the post list views column to the analytics post detail page when the new dashboard is enabled.
-- Stats: Set the chart interval once for the whole page instead of per chart widget.
-- VideoPress: Redesign the video details page with grouped details, a wider layout, side-by-side player and settings, thumbnail tiles, collapsible sections, and an Add to content action.
+- Backup: Show the VaultPress Backup dashboard in wp-admin, instead of linking out to Jetpack Cloud.
+- Settings: Show the updated Settings page to sites in right-to-left languages.
+- VideoPress: Add a "Show player" setting to the playlist blocks; when off, clicking a video opens it on VideoPress.
 
 #### Bug fixes
-- AI: Auto-activate the AI module on sites running a 16.2 prerelease build.
-- AI: Keep the editor working when another plugin loads an older copy of the Status package.
-- Charts: Draw labels at the design system's font weight and size.
-- Contact Form: Remove the classic-theme editor margin between a field's label and its input.
-- Forms: Allow a single response to scroll when it is taller than the screen.
-- Forms: Apply the name typed when creating a form, and stop a dismissed save from reporting into a reopened dialog.
-- Forms: Prevent an error that could stop responses from loading when a file upload field was stored without any file data.
-- My Jetpack: Always label the license activation link "Activate a license", including on sites with a plan but no activated licenses.
-- My Jetpack: Stop the Stats dashboard from asking which plan you want again after Start for Free was already chosen.
-- Premium Analytics: Compare date ranges against a previous month or year of the same length while keeping whole-calendar-month comparisons aligned by month.
-- Premium Analytics: Compute date-filter day boundaries in the site's timezone, so visitors west of the site timezone no longer get stretched ranges or wrong chart buckets.
-- Premium Analytics: Fix charts getting stuck on their loading skeleton after switching a control that turns one of the underlying requests off.
-- Premium Analytics: Fix report and chart dates that could read a day off for sites away from UTC.
-- Premium Analytics: Label chart points by the bucket they name rather than by the viewer's time zone, and format axis ticks and tooltips at the series' declared bucket size.
-- Premium Analytics: Label Subscribers chart and email timeline points by the bucket they name rather than by the viewer's time zone.
-- Premium Analytics: Show the dashboard right away instead of a sync screen, and flag the Store section's numbers as incomplete while store data is still syncing.
-- Premium Analytics: Start the Traffic chart's Group by control from the dashboard's interval, and replace Auto with hourly grouping.
-- Stats: Keep excluding a visitor IP address from tracking when it is written in another form.
-- Stats: Report the same visitor address the rest of Jetpack resolves on sites with a trusted IP header configured.
-- Stats: Stop recording a malformed visitor IP address.
-- VideoPress: Fix a timeout error when updating a video poster from the media library.
+- Blocks: Show the selected style in the Calendly and Eventbrite style pickers.
+- Connection: Reconnect only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt.
+- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.
+- Mailchimp: Show progress and explain what is missing when re-checking the connection from the block.
+- Newsletter: Fix a fatal error when a theme's preset list is a single value instead of a list.
+- Newsletter: Restrict posts to subscribers when a Paywall block is saved outside the block editor.
+- Search: Show the connection error at the top of the dashboard on every tab.
+- Settings: Keep the Copy button on the left and show the start of URLs in copy fields for right-to-left languages.
+- VideoPress: Ask before deleting videos, and warn before leaving the page while an upload is running.
+- VideoPress: Keep the "Learn more" support link up to date through the redirect service.
 
 --------
 

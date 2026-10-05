@@ -1,5 +1,6 @@
 /// <reference types="node" />
 import { readFileSync } from 'node:fs';
+import lightningcssDsTokenFallbacks from '@wordpress/theme/lightningcss-plugins/lightningcss-ds-token-fallbacks';
 import { defineConfig } from 'tsdown';
 import { assertChartsScopeEmitted } from './tools/assert-charts-scope-emitted.ts';
 import { assertNoDynamicRequire } from './tools/assert-no-dynamic-require.ts';
@@ -39,6 +40,9 @@ export default defineConfig( {
 		fileName: 'index.css',
 		modules: {
 			generateScopedName: 'a8ccharts-[hash]-[local]',
+		},
+		lightningcss: {
+			visitor: lightningcssDsTokenFallbacks,
 		},
 	},
 	plugins: [ removeDataTestId() ],

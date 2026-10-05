@@ -7,6 +7,7 @@
 
 namespace Automattic\Jetpack\Forms\ContactForm;
 
+use Automattic\Jetpack\Constants;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use WorDBless\BaseTestCase;
@@ -859,5 +860,61 @@ EOT
 
 		// Cleanup
 		wp_set_current_user( $original_user->ID );
+	}
+
+	/**
+	 * Every form pattern, including Lead Capture, is registered off WordPress.com.
+	 */
+	public function test_register_pattern_registers_lead_capture_off_wpcom() {
+		$this->unregister_form_patterns();
+
+		Util::register_pattern();
+
+		$registry = \WP_Block_Patterns_Registry::get_instance();
+		$this->assertTrue( $registry->is_registered( 'newsletter-form' ), 'Lead Capture should be registered off WordPress.com' );
+		$this->assertTrue( $registry->is_registered( 'contact-form' ) );
+
+		$this->unregister_form_patterns();
+	}
+
+	/**
+	 * On WordPress.com the Subscribe block owns newsletter signups, so the Lead Capture pattern is
+	 * skipped there just like the matching block variation. Every other form pattern still ships.
+	 */
+	public function test_register_pattern_skips_lead_capture_on_wpcom_platform() {
+		$this->unregister_form_patterns();
+		Constants::set_constant( 'IS_WPCOM', true );
+
+		Util::register_pattern();
+
+		$registry = \WP_Block_Patterns_Registry::get_instance();
+		$this->assertFalse( $registry->is_registered( 'newsletter-form' ), 'Lead Capture should not be registered on WordPress.com' );
+		$this->assertTrue( $registry->is_registered( 'contact-form' ) );
+		$this->assertTrue( $registry->is_registered( 'rsvp-form' ) );
+
+		Constants::clear_single_constant( 'IS_WPCOM' );
+		$this->unregister_form_patterns();
+	}
+
+	/**
+	 * Clears the form patterns from the global registry so each registration test starts clean.
+	 */
+	private function unregister_form_patterns() {
+		$registry = \WP_Block_Patterns_Registry::get_instance();
+		$names    = array(
+			'contact-form',
+			'newsletter-form',
+			'rsvp-form',
+			'registration-form',
+			'appointment-form',
+			'feedback-form',
+			'salesforce-lead-form',
+		);
+
+		foreach ( $names as $name ) {
+			if ( $registry->is_registered( $name ) ) {
+				unregister_block_pattern( $name );
+			}
+		}
 	}
 }

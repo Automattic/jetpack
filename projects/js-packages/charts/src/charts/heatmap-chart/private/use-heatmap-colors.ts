@@ -4,7 +4,8 @@ export const isPresent = ( value: number | null | undefined ): value is number =
 	value !== null && value !== undefined && ! isNaN( value );
 
 /**
- * Get the min and max values from heatmap data, ignoring null/NaN.
+ * Get the min and max values from heatmap data, ignoring null/NaN. Summary
+ * columns stay out: a roll-up on the scale would flatten every real cell.
  * @param data - The heatmap columns
  * @return Tuple of [min, max] values
  */
@@ -12,6 +13,9 @@ export const getValueExtent = ( data: HeatmapColumn[] ): [ number, number ] => {
 	let min = Infinity;
 	let max = -Infinity;
 	for ( const column of data ) {
+		if ( column.summary ) {
+			continue;
+		}
 		for ( const cell of column.data ) {
 			if ( ! isPresent( cell.value ) ) {
 				continue;

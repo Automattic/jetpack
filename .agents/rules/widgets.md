@@ -18,9 +18,9 @@ directly from a widget: that inlines the entire charting stack (charts, visx, re
 into the widget's render bundle. If a chart component isn't exposed yet, re-export it from
 the toolkit's "Charts passthrough" section.
 
-Design-system components (`@wordpress/ui`, `@wordpress/dataviews`, `@automattic/ui`) come
-from `@jetpack-premium-analytics/externals`, the passthrough script module, for the same
-reason. ESLint enforces both rules; see `packages/externals/README.md`.
+Design-system components (`@wordpress/ui`, `@wordpress/dataviews`) come from
+`@jetpack-premium-analytics/externals`, the passthrough script module, for the same reason.
+ESLint enforces both rules; see `packages/externals/README.md`.
 
 The render component is bound by `WidgetRenderProps<Item>` from
 `@wordpress/widget-primitives`: it receives only `{ attributes, setAttributes }`.
@@ -97,6 +97,6 @@ without them still falls back to it — the section date state this widget no lo
 follows. So the outer component defaults the attribute
 (`attributes.reportParams ?? DEFAULT_REPORT_PARAMS`) and wraps `WidgetRoot` in the scope
 its body supports (`<ReportScopeProvider offersComparison={ false }>` for a report with
-no comparison). `widgets/wordads-chart-tabs/` is the reference.
+no comparison). `projects/packages/ads/widgets/wordads-chart-tabs/` is the reference.
 
 <!-- TODO: link to the canonical widget API declaration (contract types). -->

@@ -17,7 +17,7 @@ import { ORDER_ATTRIBUTION_VIEWS } from '../api/report-order-attribution-summary
 import { getDefaultQueryParams } from '../defaults';
 import { resolveIntervalForRange, type IntervalType } from './interval';
 import { computeDateRangeFromPreset } from './preset-date-range';
-import { toPostId } from './to-post-id';
+import { toAuthorId, toPostId } from './to-post-id';
 import type { DateType } from './types';
 import type { FilterCondition } from '../types/filter-condition';
 
@@ -55,6 +55,7 @@ export type ReportParams = {
 	section?: string;
 	date_type?: DateType; // For filtering by different date fields (created, paid, completed)
 	post_id?: string | number; // Scopes a report to a single post/page (detail page). String from the URL; numeric at the query layer.
+	author_id?: string | number; // Scopes a report to a single author (author detail page). Same string/number split as `post_id`.
 };
 
 type PartialComparisonFields = Partial<
@@ -88,9 +89,7 @@ export function normalizeReportParams(
 	search?: NormalizeReportParamsArgType,
 	defaultPreset?: PresetType
 ): ReportParams {
-	const defaults = defaultPreset
-		? getDefaultQueryParams( true, defaultPreset )
-		: getDefaultQueryParams( true );
+	const defaults = getDefaultQueryParams( false, defaultPreset );
 
 	let preset: ReportPresetId | undefined;
 	if (
@@ -127,6 +126,7 @@ export function normalizeReportParams(
 	const interval = resolveIntervalForRange( preset, from, to, search?.interval );
 
 	const postId = toPostId( search?.post_id );
+	const authorId = toAuthorId( search?.author_id );
 
 	const normalized: ReportParams = {
 		from,
@@ -135,21 +135,19 @@ export function normalizeReportParams(
 		preset,
 		...( typeof search?.period === 'string' ? { period: search.period } : {} ),
 		date_type: search?.date_type ?? 'created',
-		// Preserve the post_id scope so detail-page widgets stay bound to their
-		// post; drop an invalid one so a hand-edited deep link can't reach Stats.
+		// Preserve the post_id / author_id scope so detail-page widgets stay bound
+		// to their resource; drop an invalid one so a hand-edited deep link can't
+		// reach Stats.
 		...( postId > 0 ? { post_id: postId } : {} ),
+		...( authorId > 0 ? { author_id: authorId } : {} ),
 	};
 
+	// Comparison only ever comes from the URL. A fresh load carries none: the
+	// dashboard compares nothing until the user picks a comparison.
 	if ( search && hasComparisonEnabled( search ) ) {
 		normalized.compare_from = search.compare_from;
 		normalized.compare_to = search.compare_to;
 		normalized.compare_preset = search.compare_preset;
-		normalized.comp = '1';
-	} else if ( ! search?.from && hasComparisonEnabled( defaults ) ) {
-		// Fresh load (missing primary params) - apply default comparison
-		normalized.compare_from = defaults.compare_from;
-		normalized.compare_to = defaults.compare_to;
-		normalized.compare_preset = defaults.compare_preset;
 		normalized.comp = '1';
 	}
 

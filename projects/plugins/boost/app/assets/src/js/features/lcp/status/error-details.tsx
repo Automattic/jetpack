@@ -82,11 +82,11 @@ const PageError = ( { url, error }: PageErrorProps ) => {
 						// so a redirect target containing `<`/`>` renders as inert text instead of
 						// corrupting the createInterpolateElement token structure.
 						{ url: <strong>{ meta.finalUrl }</strong> }
-				  )
+					)
 				: __(
 						'This page redirected during analysis, so Boost could not measure its LCP. Remove it from your Cornerstone Pages, or make sure it loads without redirecting.',
 						'jetpack-boost'
-				  );
+					);
 		}
 
 		return sprintf(

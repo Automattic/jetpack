@@ -1,6 +1,10 @@
 export type FileNodeBase = {
 	name: string;
 	path: string;
+	// The opaque `id` from `/rewind/backup/ls` — base64 of the volume-prefixed
+	// manifest path, and the only form a granular download can name entries by.
+	// Optional upstream, and an entry without one cannot be requested.
+	id?: string;
 };
 
 export type FolderNode = FileNodeBase & {

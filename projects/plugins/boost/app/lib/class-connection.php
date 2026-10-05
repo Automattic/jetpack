@@ -11,6 +11,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 
 use Automattic\Jetpack\Connection\Manager;
 use Automattic\Jetpack\Terms_Of_Service;
+use Automattic\Jetpack_Boost\Data_Sync\Performance_History_Entry;
 
 /**
  * Class Connection
@@ -130,6 +131,7 @@ class Connection {
 		if ( ! is_wp_error( $result ) ) {
 			Analytics::record_user_event( 'established_connection' );
 			Premium_Features::clear_cache();
+			Performance_History_Entry::clear_cache();
 		}
 
 		return $result;

@@ -11,6 +11,11 @@ use Automattic\Jetpack\Connection\Client;
 use Automattic\Jetpack\Device_Detection\User_Agent_Info;
 use Automattic\Jetpack\Forms\Dashboard\Dashboard as Forms_Dashboard;
 use WP_Post;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Handles the response for a contact form submission.
  *
@@ -2309,7 +2314,7 @@ class Feedback {
 		// and then had its answer dropped -- the silently discarded answer this feature is
 		// supposed to make impossible.
 		//
-		// Returns an empty array when the flag is off, so there is nothing extra to guard.
+		// Returns an empty array when conditional logic does not apply, so there is nothing extra to guard.
 		$visibility = $form->get_resolved_field_visibility();
 
 		$i = 1;

@@ -3,6 +3,7 @@
  */
 import { STATS_CHART_BUCKET_PERIODS, toPostId } from '@jetpack-premium-analytics/data';
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -81,7 +82,7 @@ function VideoDetailViewsPerformanceInner( { chartType }: VideoDetailViewsPerfor
 					dataFormat={ COUNT_FORMAT }
 					chartType={ chartType }
 					groupLabel={ groupLabel }
-					pointsAreWallClocks
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>
@@ -97,7 +98,7 @@ export default function VideoDetailViewsPerformance( {
 	attributes = {},
 }: VideoDetailViewsPerformanceWidgetProps ) {
 	// Coerce unknown persisted values to the default.
-	const chartType = attributes?.chartType === 'bar' ? 'bar' : 'line';
+	const chartType = attributes?.chartType === 'line' ? 'line' : 'bar';
 
 	return (
 		<WidgetRoot attributes={ attributes }>

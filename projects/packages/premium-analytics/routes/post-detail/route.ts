@@ -4,14 +4,17 @@
 import {
 	ensureCoreSettingsReady,
 	needsReportDateParamsSeed,
-	normalizeReportParams,
 } from '@jetpack-premium-analytics/data';
-import { pickReportOriginParams } from '@jetpack-premium-analytics/routing';
+import {
+	pickDashboardOriginParams,
+	pickReportOriginParams,
+} from '@jetpack-premium-analytics/routing';
 import { redirect } from '@wordpress/route';
 /**
  * Internal dependencies
  */
-import { ensureDashboardEntities } from '../dashboard-entities';
+import { seedDetailDateParams } from '../detail-date-seed';
+import { getReportDefinition } from '../reports/registry';
 import { isPremiumAnalyticsSiteConnected } from '../site-readiness';
 import { resolveTabId } from './config';
 
@@ -32,8 +35,7 @@ function isValidPostId( value: string | undefined ): value is string {
  * Route lifecycle for the post/page detail page.
  *
  * `post_id` is seeded from the route param so every widget on the page is scoped
- * to this single resource. The widget-modules entity is registered here too, so
- * a direct deep link resolves widget types without visiting the dashboard first.
+ * to this single resource.
  */
 export const route = {
 	beforeLoad: async ( {
@@ -42,6 +44,12 @@ export const route = {
 	}: { params?: PostDetailParams; search?: PostDetailSearch } = {} ) => {
 		if ( ! isPremiumAnalyticsSiteConnected() ) {
 			throw redirect( { to: '/connect' } );
+		}
+
+		// This is the All pages report's detail page, so it follows that report out of
+		// scope rather than declaring a tab of its own.
+		if ( ! getReportDefinition( 'posts' ) ) {
+			throw redirect( { to: '/' } );
 		}
 
 		// A malformed path param would render site-wide stats under a
@@ -75,20 +83,15 @@ export const route = {
 
 			// Allowlist this page's own params instead of spreading `currentSearch`
 			// wholesale; the report origin stays so the breadcrumb survives.
+			const reportParams = seedDetailDateParams( currentSearch, postId );
+			delete reportParams.author_id;
 			const seeded: Record< string, unknown > = {
-				...normalizeReportParams(
-					currentSearch as Parameters< typeof normalizeReportParams >[ 0 ]
-				),
+				...reportParams,
 				...pickReportOriginParams( currentSearch ),
+				...pickDashboardOriginParams( currentSearch ),
 				...( resolvedSection ? { section: resolvedSection } : {} ),
 				post_id: postId,
 			};
-
-			/*
-			 * Comparison params ride along untouched: this page renders no
-			 * comparison, but the breadcrumb's dashboard link carries the URL state
-			 * back out, so stripping them would lose the setting on a round trip.
-			 */
 
 			throw redirect( {
 				to: '/post/$postId',
@@ -102,7 +105,5 @@ export const route = {
 				search: seeded as unknown as never,
 			} );
 		}
-
-		ensureDashboardEntities();
 	},
 };

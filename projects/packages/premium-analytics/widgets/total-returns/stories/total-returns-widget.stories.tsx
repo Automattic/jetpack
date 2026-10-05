@@ -36,8 +36,7 @@ interface TotalReturnsStoryControls {
 type TotalReturnsStoryProps = TotalReturnsWidgetProps & TotalReturnsStoryControls;
 
 interface TotalReturnsDashboardStoryProps
-	extends WidgetDashboardWithWidgetControls,
-		TotalReturnsStoryControls {}
+	extends WidgetDashboardWithWidgetControls, TotalReturnsStoryControls {}
 
 function getTotalReturnsAttributes(
 	withComparison = false,

@@ -22,5 +22,4 @@ export type ProductSection = {
  * Rendered as a uniform compact row in the search results list.
  */
 export type SearchResultItem =
-	| { kind: 'card'; card: CardItem }
-	| { kind: 'module'; module: MyJetpackModule };
+	{ kind: 'card'; card: CardItem } | { kind: 'module'; module: MyJetpackModule };

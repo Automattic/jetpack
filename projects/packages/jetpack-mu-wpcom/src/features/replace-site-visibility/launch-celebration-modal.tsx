@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import CelebrateLaunchModal from '../../common/celebrate-launch/celebrate-launch-modal';
 import {
-	CELEBRATE_LAUNCH_PARAM,
+	hasCelebrateLaunchParam,
 	withoutCelebrateLaunchParam,
 } from '../../common/celebrate-launch/celebrate-launch-url';
 
@@ -14,7 +14,7 @@ interface Props {
 
 const LaunchCelebrationModal = ( { siteDomain, homeUrl, sitePlan, hasCustomDomain }: Props ) => {
 	const [ showCelebrateLaunchModal, setShowCelebrateLaunchModal ] = useState( () =>
-		new URL( window.location.href ).searchParams.has( CELEBRATE_LAUNCH_PARAM )
+		hasCelebrateLaunchParam( window.location.href )
 	);
 
 	// Strip the param on mount so the celebration shows exactly once. This lives on

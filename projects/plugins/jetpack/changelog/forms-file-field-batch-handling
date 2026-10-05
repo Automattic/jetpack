@@ -1,4 +1,0 @@
-Significance: patch
-Type: bugfix
-
-Forms: fix several problems with adding more than one file at once to the file upload field, and with uploads that stall or fail.

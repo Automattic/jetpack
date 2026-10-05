@@ -1,6 +1,9 @@
+import getRedirectUrl from '@automattic/jetpack-components/tools/jp-redirect';
 import { ProgressBar } from '@wordpress/components';
+import { createInterpolateElement } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { Stack, Text } from '@wordpress/ui';
+import { Link, Stack, Text } from '@wordpress/ui';
+import { useSiteSuffix } from '../../hooks/use-connection';
 import { ContactSupportLine } from './index';
 import './style.scss';
 import type { BackupsState } from '../../types/backup';
@@ -39,7 +42,15 @@ export default function BackupStatusBanner( { progress }: Props ) {
 			<Text variant="body-sm" aria-live="polite">
 				{ __( 'Your backup will be ready soon', 'jetpack-backup-pkg' ) }
 			</Text>
-			<ProgressBar className="jpb-backup-status-banner__bar" value={ progress } />
+			{ /*
+			 * Named because neither the line above nor the percentage beside it
+			 * is associated with the bar — see `tests/progress-bar-names.test.tsx`.
+			 */ }
+			<ProgressBar
+				className="jpb-backup-status-banner__bar"
+				value={ progress }
+				aria-label={ __( 'Backing up your site', 'jetpack-backup-pkg' ) }
+			/>
 			<Text variant="body-sm" className="jpb-text-muted">
 				{ sprintf(
 					/* translators: %d: how much of the running backup is complete, as a percentage. */
@@ -108,6 +119,38 @@ export function BackupTroubleBanner( { state }: { state: BackupsState } ) {
 			</Text>
 			<Text variant="body-sm">
 				<ContactSupportLine />
+			</Text>
+		</Stack>
+	);
+}
+
+/**
+ * Strip shown when the backup that made the site `complete` finished with
+ * some files missing.
+ *
+ * @return The rendered banner.
+ */
+export function BackupWarningsBanner() {
+	const siteSuffix = useSiteSuffix();
+
+	return (
+		<Stack className="jpb-backup-warnings-banner" direction="column" gap="xs" role="status">
+			<Text variant="body-sm">
+				{ createInterpolateElement(
+					__(
+						'Backup is completed with some files missing. See your <a>backup in the cloud</a> for more details.',
+						'jetpack-backup-pkg'
+					),
+					{
+						a: (
+							<Link
+								openInNewTab
+								// Omitted rather than passed as undefined — see `useSiteSuffix`.
+								href={ getRedirectUrl( 'jetpack-backup', siteSuffix ? { site: siteSuffix } : {} ) }
+							/>
+						),
+					}
+				) }
 			</Text>
 		</Stack>
 	);

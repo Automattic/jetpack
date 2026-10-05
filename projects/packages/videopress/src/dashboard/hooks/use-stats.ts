@@ -142,7 +142,7 @@ export function videoPlaysQueryOptions( params: StatsQueryParams ) {
 							complete_stats: true,
 							check_stats_module: false,
 							...params,
-					  } )
+						} )
 					: addQueryArgs( REST_PATH, { period: 'day', ...params } ),
 			} ),
 	} );

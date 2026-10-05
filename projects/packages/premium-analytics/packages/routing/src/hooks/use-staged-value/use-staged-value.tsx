@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 
 type AnyObject = Record< string, unknown >;
 
@@ -44,13 +44,19 @@ function sameValue( a: unknown, b: unknown ) {
 	);
 }
 
+function definedKeys( o: AnyObject ) {
+	return Object.keys( o ).filter( k => o[ k ] !== undefined );
+}
+
+// A key held as `undefined` is counted out: the URL binding serializes it away,
+// so a draft that cleared one equals a store that never carried it (WOOA7S-2039).
 function sameValues( a: AnyObject, b: AnyObject ) {
 	if ( a === b ) {
 		return true;
 	}
 
-	const ak = Object.keys( a );
-	if ( ak.length !== Object.keys( b ).length ) {
+	const ak = definedKeys( a );
+	if ( ak.length !== definedKeys( b ).length ) {
 		return false;
 	}
 
@@ -72,32 +78,57 @@ export function useStagedValue< TValue extends AnyObject, TCommitOptions = void 
 	onCommit: ( staged: TValue, patch: Partial< TValue >, options?: TCommitOptions ) => void
 ): UseStagedValueReturn< TValue, TCommitOptions > {
 	/*
-	 * A control can stage and commit in the same tick — `DateRangeFilter` does
-	 * that to apply a quick preset — so `commit` reads these refs, not the state
-	 * React has only queued, which would leave the store a click behind.
+	 * The draft is a patch over the store, never a copy of it: a `revert` queued
+	 * before a commit lands must not write the pre-commit value back (WOOA7S-2064).
 	 */
-	const stagedRef = useRef< TValue >( committed );
-	const patchRef = useRef< Partial< TValue > >( {} );
-	const [ staged, setStaged ] = useState< TValue >( committed );
+	const [ patch, setPatch ] = useState< Partial< TValue > >( {} );
 
 	/*
-	 * Realign when a committed value arrives from outside, or the next commit
-	 * puts the stale draft back over it. Held in state, not a ref: React may run
-	 * this render twice and throw the first away, and a ref written during the
-	 * discarded pass would swallow the realign it just decided on.
+	 * A control can stage and commit in the same tick — `DatePeriodDropdown` does
+	 * that to apply a quick preset — so `stage` and `commit` read the patch from a
+	 * ref, not the state React has only queued, which would leave the store a
+	 * click behind.
+	 */
+	const patchRef = useRef< Partial< TValue > >( {} );
+
+	// Those callbacks hold no `committed` dep, so they read it here. Writing this
+	// during render is safe: the realign below never reads it.
+	const committedRef = useRef< TValue >( committed );
+	committedRef.current = committed;
+
+	/*
+	 * Realign when a committed value arrives from outside; otherwise the next
+	 * commit puts the stale draft back over it. Held in state, not a ref: React
+	 * may run this render twice and throw the first away, and a ref written
+	 * during the discarded pass would swallow the realign it just decided on.
 	 */
 	const [ lastCommitted, setLastCommitted ] = useState< TValue >( committed );
 	if ( ! sameValues( lastCommitted, committed ) ) {
 		setLastCommitted( committed );
-		stagedRef.current = committed;
 		patchRef.current = {};
-		setStaged( committed );
+		setPatch( patchRef.current );
 	}
 
-	const stage = useCallback( ( patch: Partial< TValue > ) => {
-		stagedRef.current = { ...stagedRef.current, ...patch };
-		patchRef.current = { ...patchRef.current, ...patch };
-		setStaged( stagedRef.current );
+	const staged = useMemo( () => ( { ...committed, ...patch } ), [ committed, patch ] );
+
+	/*
+	 * A patch that only clears keys the draft does not carry changes nothing, so
+	 * dropping it here keeps `commit` from pushing a history entry for a no-op.
+	 */
+	const stage = useCallback( ( next: Partial< TValue > ) => {
+		const draft = { ...committedRef.current, ...patchRef.current } as AnyObject;
+		const changes = Object.fromEntries(
+			Object.entries( next ).filter(
+				( [ key, value ] ) => value !== undefined || draft[ key ] !== undefined
+			)
+		) as Partial< TValue >;
+
+		if ( Object.keys( changes ).length === 0 ) {
+			return;
+		}
+
+		patchRef.current = { ...patchRef.current, ...changes };
+		setPatch( patchRef.current );
 	}, [] );
 
 	const commit = useCallback(
@@ -106,16 +137,19 @@ export function useStagedValue< TValue extends AnyObject, TCommitOptions = void 
 				return;
 			}
 
-			onCommit( stagedRef.current, patchRef.current, options );
+			onCommit( { ...committedRef.current, ...patchRef.current }, patchRef.current, options );
 		},
 		[ onCommit ]
 	);
 
 	const revert = useCallback( () => {
-		stagedRef.current = committed;
+		if ( Object.keys( patchRef.current ).length === 0 ) {
+			return;
+		}
+
 		patchRef.current = {};
-		setStaged( committed );
-	}, [ committed ] );
+		setPatch( patchRef.current );
+	}, [] );
 
 	const isDirty = Object.keys( patchRef.current ).length > 0 && ! sameValues( staged, committed );
 

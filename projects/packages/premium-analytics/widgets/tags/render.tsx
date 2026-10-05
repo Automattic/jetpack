@@ -15,14 +15,16 @@ import {
 	resolveLeaderboardRowAction,
 	safeHttpUrl,
 	sharePercentage,
+	tagRowGlyph,
 	useWidgetDrillDown,
+	ExporterCsvDownloadButton,
+	tagsCsvExporter,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { tag as tagIllustration } from '@jetpack-premium-analytics/icons';
 import { useEffect, useMemo } from '@wordpress/element';
 import { __, sprintf } from '@wordpress/i18n';
-import { category, tag as tagGlyph } from '@wordpress/icons';
 import { Stack } from '@jetpack-premium-analytics/externals';
 /**
  * Internal dependencies
@@ -34,10 +36,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 
 type TagsRenderAttributes = Partial< ReportParamsFieldAttributes > & TagsAttributes;
 type TagsWidgetProps = WidgetRenderProps< TagsRenderAttributes >;
-
-// The Stats sanitizer marks a category with the `folder` glyph key; every other
-// row is a tag.
-const rowGlyph = ( labelIcon: string ) => ( labelIcon === 'folder' ? category : tagGlyph );
 
 interface TagGroupMembersProps {
 	/**
@@ -58,7 +56,7 @@ function TagGroupMembers( { members }: TagGroupMembersProps ) {
 				<LeaderboardRow
 					key={ member.id }
 					label={ member.label }
-					media={ { kind: 'icon', icon: rowGlyph( member.labelIcon ) } }
+					media={ { kind: 'icon', icon: tagRowGlyph( member.labelIcon ) } }
 					action={ resolveLeaderboardRowAction( {
 						href: safeHttpUrl( member.link ) ?? undefined,
 						hasChildren: false,
@@ -83,7 +81,7 @@ function TagsInner() {
 	} = useWidgetDrillDown< string >();
 
 	const selectedGroup = useMemo(
-		() => ( selectedLabel ? data.find( row => row.label === selectedLabel ) ?? null : null ),
+		() => ( selectedLabel ? ( data.find( row => row.label === selectedLabel ) ?? null ) : null ),
 		[ data, selectedLabel ]
 	);
 
@@ -107,7 +105,7 @@ function TagsInner() {
 				// their members instead. Single tag/category rows link out directly.
 				...buildLeaderboardRow( {
 					label: row.label,
-					media: { kind: 'icon', icon: rowGlyph( row.labelIcon ) },
+					media: { kind: 'icon', icon: tagRowGlyph( row.labelIcon ) },
 					action: resolveLeaderboardRowAction( {
 						href: safeHttpUrl( row.link ) ?? undefined,
 						hasChildren: isGroup,
@@ -182,6 +180,11 @@ function TagsInner() {
 			</div>
 			<WidgetFooter>
 				<ReportLink report="tags" />
+				<ExporterCsvDownloadButton
+					exporter={ tagsCsvExporter }
+					status={ { isLoading, isFetching, isError } }
+					rowCount={ data.length }
+				/>
 			</WidgetFooter>
 		</Stack>
 	);

@@ -9,7 +9,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
 use Automattic\Jetpack\Constants;
+use Automattic\Jetpack\Partner_Coupon;
 use Automattic\Jetpack\Status\Cache as StatusCache;
+use Jetpack_Options;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\PreserveGlobalState;
 use PHPUnit\Framework\Attributes\RunInSeparateProcess;
@@ -24,6 +26,10 @@ class Initializer_Test extends BaseTestCase {
 	 */
 	public function set_up() {
 		$this->reset_state();
+
+		// WorDBless boots no plugin, so nothing has run Manager::configure(). Without its
+		// mapping, `jetpack_connect` resolves to no capability at all, for every user.
+		add_filter( 'map_meta_cap', array( new Connection_Manager(), 'jetpack_connection_custom_caps' ), 1, 4 );
 	}
 
 	/**
@@ -43,6 +49,13 @@ class Initializer_Test extends BaseTestCase {
 		Constants::clear_constants();
 		StatusCache::clear();
 		unset( $_GET['step'], $_GET['showCouponRedemption'] );
+		wp_set_current_user( 0 );
+		Jetpack_Options::delete_option( array( 'id', 'blog_token', 'master_user', 'user_tokens', Partner_Coupon::$coupon_option ) );
+		remove_all_filters( 'jetpack_partner_coupon_supported_partners' );
+		remove_all_filters( 'jetpack_partner_coupon_supported_presets' );
+		remove_all_filters( 'jetpack_partner_coupon_products' );
+		remove_all_filters( 'jetpack_my_jetpack_should_initialize' );
+		remove_all_filters( 'jetpack_offline_mode' );
 
 		// Connection_Manager memoizes is_connected() in a process-wide static that
 		// WorDBless teardown does not reset. The admin_init tests that depend on that
@@ -51,6 +64,42 @@ class Initializer_Test extends BaseTestCase {
 		// state. The reset is kept as defense-in-depth for any future shared-process
 		// test in this file that reads connection state.
 		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * An editor with no Jetpack parent menu still reaches admin_init() through the fallback hook.
+	 *
+	 * The page is hand-registered with no jetpack parent, which is what makes core fall back to the
+	 * admin_page_ name; without the Jetpack plugin, admin-ui registers that parent for every editor.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_editor_page_loads_without_a_jetpack_parent_menu() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'my_jetpack_editor',
+					'user_pass'  => 'password',
+					'role'       => 'editor',
+				)
+			)
+		);
+		add_filter( 'jetpack_offline_mode', '__return_false' );
+		$GLOBALS['menu']             = array();
+		$GLOBALS['submenu']          = array();
+		$GLOBALS['admin_page_hooks'] = array();
+		Initializer::add_my_jetpack_menu_item();
+		$hook = add_submenu_page( 'jetpack', 'My Jetpack', 'My Jetpack', 'edit_posts', 'my-jetpack', array( Initializer::class, 'admin_page' ) );
+		$this->assertSame( 'admin_page_my-jetpack', $hook );
+		$enqueue = array( Initializer::class, 'enqueue_scripts' );
+		$this->assertFalse( has_action( 'admin_enqueue_scripts', $enqueue ) );
+
+		do_action( 'load-' . $hook ); // phpcs:ignore WordPress.NamingConventions.ValidHookName.UseUnderscores -- WordPress core page-load hook.
+
+		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', $enqueue ), 'Expected the page load to reach admin_init().' );
 	}
 
 	/**
@@ -129,25 +178,9 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The admin page marks the container with the onboarding route when
-	 * onboarding is requested and available.
+	 * The admin page renders the onboarding container when onboarding is requested and available.
 	 */
-	public function test_admin_page_renders_onboarding_route_when_available() {
-		$_GET['step'] = 'onboarding';
-
-		ob_start();
-		Initializer::admin_page();
-		$output = ob_get_clean();
-
-		$this->assertStringContainsString( 'data-route="onboarding"', $output );
-	}
-
-	/**
-	 * The admin page never marks the container with the onboarding route on
-	 * WordPress.com Simple sites, even when the redirect did not run.
-	 */
-	public function test_admin_page_does_not_render_onboarding_route_on_wpcom_simple() {
-		Constants::set_constant( 'IS_WPCOM', true );
+	public function test_admin_page_renders_the_onboarding_container_when_available() {
 		$_GET['step'] = 'onboarding';
 
 		ob_start();
@@ -155,7 +188,21 @@ class Initializer_Test extends BaseTestCase {
 		$output = ob_get_clean();
 
 		$this->assertStringContainsString( 'id="my-jetpack-container"', $output );
-		$this->assertStringNotContainsString( 'data-route', $output );
+	}
+
+	/**
+	 * The admin page never renders the onboarding container on WordPress.com Simple sites,
+	 * even when the redirect did not run.
+	 */
+	public function test_admin_page_does_not_render_the_onboarding_container_on_wpcom_simple() {
+		Constants::set_constant( 'IS_WPCOM', true );
+		$_GET['step'] = 'onboarding';
+
+		ob_start();
+		Initializer::admin_page();
+		$output = ob_get_clean();
+
+		$this->assertStringNotContainsString( 'my-jetpack-container', $output );
 	}
 
 	/**
@@ -179,6 +226,8 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_admin_init_redirects_disconnected_site_to_onboarding() {
+		$this->log_in_as_admin();
+
 		$location = $this->capture_admin_init_redirect();
 
 		$this->assertNotNull( $location, 'Expected admin_init() to redirect.' );
@@ -200,6 +249,7 @@ class Initializer_Test extends BaseTestCase {
 	#[RunInSeparateProcess]
 	#[PreserveGlobalState( false )]
 	public function test_admin_init_redirects_onboarding_request_home_on_wpcom_simple() {
+		$this->log_in_as_admin();
 		Constants::set_constant( 'IS_WPCOM', true );
 		$_GET['step'] = 'onboarding';
 
@@ -211,14 +261,53 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
+	 * A user who cannot connect the site is left on the dashboard instead of onboarding.
+	 *
+	 * Onboarding's only action is the register endpoint, which answers anyone without
+	 * `jetpack_connect` with a 403 — so sending them there would be a dead end.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_keeps_a_user_who_cannot_connect_off_onboarding() {
+		$this->log_in_as_editor();
+
+		$this->assertFalse( current_user_can( 'jetpack_connect' ) );
+		$this->assertNull( $this->capture_admin_init_redirect() );
+	}
+
+	/**
+	 * A user who cannot connect is sent back to the dashboard if they ask for onboarding.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_bounces_a_user_who_cannot_connect_off_an_onboarding_request() {
+		$this->log_in_as_editor();
+		$_GET['step'] = 'onboarding';
+
+		$location = $this->capture_admin_init_redirect();
+
+		$this->assertNotNull( $location, 'Expected a redirect away from onboarding.' );
+		$this->assertStringContainsString( 'page=my-jetpack', $location );
+		$this->assertStringNotContainsString( 'step=onboarding', $location );
+	}
+
+	/**
 	 * Run Initializer::admin_init() and capture the redirect it attempts.
 	 *
 	 * The wp_redirect filter throws so the exit() that follows the redirect
 	 * call never runs; the location is captured before the throw.
 	 *
+	 * @param callable|null $trigger What reaches admin_init(), for callers testing a route into it.
+	 *                               Defaults to calling it directly.
 	 * @return string|null The redirect location, or null when no redirect happened.
 	 */
-	private function capture_admin_init_redirect() {
+	private function capture_admin_init_redirect( ?callable $trigger = null ) {
 		$location = null;
 		$capture  =
 			/** @return never */
@@ -226,10 +315,11 @@ class Initializer_Test extends BaseTestCase {
 				$location = $redirect_location;
 				throw new \Exception( 'Intercepted redirect to skip exit().' );
 			};
+		$trigger  = $trigger === null ? array( Initializer::class, 'admin_init' ) : $trigger;
 
 		add_filter( 'wp_redirect', $capture );
 		try {
-			Initializer::admin_init();
+			$trigger();
 		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch -- Expected: thrown by the capture filter above.
 		} finally {
 			remove_filter( 'wp_redirect', $capture );
@@ -239,16 +329,290 @@ class Initializer_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The AI card's pre-release toggle flag follows the Jetpack plugin's
-	 * internal-testing helper.
+	 * The AI card keeps its legacy action without a compatible Jetpack plugin.
 	 */
-	public function test_my_jetpack_flags_gate_the_ai_module_toggle() {
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = true;
-		$this->assertTrue( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
-
-		$GLOBALS['jetpack_mock_internal_testing_environment'] = false;
+	public function test_my_jetpack_flags_hide_the_ai_module_toggle_without_compatible_jetpack() {
 		$this->assertFalse( Initializer::get_my_jetpack_flags()['showAiModuleToggle'] );
+	}
 
-		unset( $GLOBALS['jetpack_mock_internal_testing_environment'] );
+	/**
+	 * No coupon, no coupon screen.
+	 */
+	public function test_partner_coupon_screen_is_null_without_a_coupon() {
+		$this->log_in_as_admin();
+		$this->pretend_jetpack_plugin_is_active();
+
+		$this->assertNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * An unregistered site with a coupon gets the screen, with the Jetpack plugin's images.
+	 */
+	public function test_partner_coupon_screen_shows_while_no_owner_is_connected() {
+		$this->log_in_as_admin();
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+
+		$screen = Initializer::get_partner_coupon_screen();
+
+		$this->assertIsArray( $screen );
+		$this->assertSame( 'JPTST_JPTA_abc123', $screen['coupon']['coupon_code'] );
+		$this->assertSame( plugins_url( '', WP_PLUGIN_DIR . '/jetpack/jetpack.php' ), $screen['assetBaseUrl'] );
+	}
+
+	/**
+	 * A blog token without a connected owner still gets the screen (the gate is has_connected_owner()).
+	 */
+	public function test_partner_coupon_screen_shows_with_a_blog_token_but_no_owner() {
+		$this->log_in_as_admin();
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		( new Connection_Manager() )->reset_connection_status();
+
+		$this->assertNotNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * A connected owner only sees the screen when a link asks for it.
+	 */
+	public function test_partner_coupon_screen_is_null_for_a_connected_owner_without_the_param() {
+		$this->connect_owner( $this->log_in_as_admin() );
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+
+		$this->assertNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * The JITM and partner links carry showCouponRedemption for connected owners.
+	 */
+	public function test_partner_coupon_screen_shows_for_a_connected_owner_with_the_param() {
+		$this->connect_owner( $this->log_in_as_admin() );
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+		$_GET['showCouponRedemption'] = '1';
+
+		$this->assertNotNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * Only administrators can redeem.
+	 */
+	public function test_partner_coupon_screen_is_null_for_non_admins() {
+		wp_set_current_user(
+			wp_insert_user(
+				array(
+					'user_login' => 'coupon_editor',
+					'user_pass'  => 'pass',
+					'role'       => 'editor',
+				)
+			)
+		);
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+
+		$this->assertNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * Where My Jetpack is off (WoA non-classic, VIP, host filters) the coupon screen is dropped.
+	 */
+	public function test_partner_coupon_screen_is_null_where_my_jetpack_is_off() {
+		$this->log_in_as_admin();
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+		add_filter( 'jetpack_my_jetpack_should_initialize', '__return_false' );
+
+		$this->assertNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * Offline sites never show the coupon screen.
+	 */
+	public function test_partner_coupon_screen_is_null_offline() {
+		$this->log_in_as_admin();
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		StatusCache::clear();
+
+		$this->assertNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * Without the Jetpack plugin there are no coupon images to show.
+	 *
+	 * Separate process: the mock Jetpack plugin other tests activate defines the constant for real.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_partner_coupon_screen_is_null_without_the_jetpack_plugin() {
+		$this->log_in_as_admin();
+		$this->set_up_partner_coupon();
+
+		$this->assertFalse( defined( 'JETPACK__PLUGIN_FILE' ) );
+		$this->assertNull( Initializer::get_partner_coupon_screen() );
+	}
+
+	/**
+	 * The coupon's connect screen replaces onboarding.
+	 */
+	public function test_onboarding_yields_to_the_partner_coupon_screen() {
+		$this->log_in_as_admin();
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+
+		$this->assertFalse( Initializer::is_onboarding_available() );
+	}
+
+	/**
+	 * An unregistered coupon site stays on My Jetpack instead of going to onboarding.
+	 *
+	 * Separate process for the same reason as the other admin_init() tests.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_keeps_an_unconnected_coupon_site_off_onboarding() {
+		$this->log_in_as_admin();
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+		$this->block_http();
+
+		$this->assertNull( $this->capture_admin_init_redirect() );
+	}
+
+	/**
+	 * The showCouponRedemption param no longer bounces to the legacy dashboard.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_admin_init_no_longer_bounces_coupon_redemption_to_page_jetpack() {
+		$this->connect_owner( $this->log_in_as_admin() );
+		$this->pretend_jetpack_plugin_is_active();
+		$this->set_up_partner_coupon();
+		$this->block_http();
+		$_GET['showCouponRedemption'] = '1';
+
+		$this->assertNull( $this->capture_admin_init_redirect() );
+	}
+
+	/**
+	 * Log in as a fresh administrator.
+	 *
+	 * @return int The user ID.
+	 */
+	private function log_in_as_admin() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'coupon_admin',
+				'user_pass'  => 'pass',
+				'role'       => 'administrator',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Log in as a fresh editor, who has the page's capability but not the connection's.
+	 *
+	 * @return int The user ID.
+	 */
+	private function log_in_as_editor() {
+		$user_id = wp_insert_user(
+			array(
+				'user_login' => 'my_jetpack_editor',
+				'user_pass'  => 'pass',
+				'role'       => 'editor',
+			)
+		);
+		wp_set_current_user( $user_id );
+
+		return $user_id;
+	}
+
+	/**
+	 * Pretend the Jetpack plugin is active, which is what supplies the coupon's images.
+	 */
+	private function pretend_jetpack_plugin_is_active() {
+		Constants::set_constant( 'JETPACK__PLUGIN_FILE', WP_PLUGIN_DIR . '/jetpack/jetpack.php' );
+	}
+
+	/**
+	 * Store a coupon that Partner_Coupon::get_coupon() accepts.
+	 */
+	private function set_up_partner_coupon() {
+		add_filter(
+			'jetpack_partner_coupon_supported_partners',
+			static function () {
+				return array(
+					'JPTST' => array(
+						'name' => 'Jetpack Test Partner',
+						'logo' => array(
+							'src'    => '/images/ionos-logo.jpg',
+							'width'  => 119,
+							'height' => 32,
+						),
+					),
+				);
+			}
+		);
+		add_filter(
+			'jetpack_partner_coupon_supported_presets',
+			static function () {
+				return array( 'JPTA' => 'jetpack_backup_daily' );
+			}
+		);
+		add_filter(
+			'jetpack_partner_coupon_products',
+			static function () {
+				return array(
+					array(
+						'title'       => 'Jetpack Backup',
+						'slug'        => 'jetpack_backup_daily',
+						'description' => 'Backups.',
+						'features'    => array( 'Daily backups' ),
+					),
+				);
+			}
+		);
+		Jetpack_Options::update_option( Partner_Coupon::$coupon_option, 'JPTST_JPTA_abc123' );
+	}
+
+	/**
+	 * Register the site and connect the given user as its owner.
+	 *
+	 * @param int $user_id The owner.
+	 */
+	private function connect_owner( $user_id ) {
+		Jetpack_Options::update_option( 'id', 1234 );
+		Jetpack_Options::update_option( 'blog_token', 'asdasd.123123' );
+		Jetpack_Options::update_option( 'master_user', $user_id );
+		Jetpack_Options::update_option( 'user_tokens', array( $user_id => "honey.badger.$user_id" ) );
+		( new Connection_Manager() )->reset_connection_status();
+	}
+
+	/**
+	 * Fail every HTTP request fast.
+	 */
+	private function block_http() {
+		add_filter(
+			'pre_http_request',
+			static function () {
+				return new \WP_Error( 'http_blocked', 'Blocked in tests.' );
+			}
+		);
 	}
 }

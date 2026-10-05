@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Launch site: Show the launch celebration in wp-admin when the launch flow returns with celebrateLaunch.

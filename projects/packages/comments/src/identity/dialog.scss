@@ -1,0 +1,286 @@
+@use "@wordpress/base-styles/colors";
+@use "@wordpress/base-styles/variables";
+
+// Core's own look, from the same tokens wp-admin's components use. The theme
+// has no say: the dialog renders in a shadow root and inherits nothing.
+$accent: #3858e9;
+$accent-hover: #2145e6;
+
+:host {
+	all: initial;
+}
+
+.jetpack-comments__dialog {
+	box-sizing: border-box;
+	inline-size: min(100% - 32px, 480px);
+	max-block-size: calc(100% - 32px);
+	padding: variables.$grid-unit-30;
+	border: 0;
+	border-radius: variables.$radius-medium;
+	background: colors.$white;
+	box-shadow: variables.$elevation-large;
+	color: colors.$gray-900;
+	font-family: variables.$default-font;
+	font-size: 16px;
+	line-height: 1.5;
+
+	&::backdrop {
+		background: rgba(colors.$black, 0.35);
+	}
+
+	* {
+		box-sizing: border-box;
+	}
+
+	.jetpack-comments__dialog-header {
+		display: flex;
+		align-items: center;
+		gap: variables.$grid-unit-15;
+	}
+
+	.jetpack-comments__site-icon {
+		flex-shrink: 0;
+		border-radius: variables.$radius-round;
+	}
+
+	.jetpack-comments__dialog-title {
+		flex: 1;
+		font-size: 20px;
+		font-weight: 600;
+		line-height: 1.3;
+	}
+
+	.jetpack-comments__dialog-close {
+		display: inline-flex;
+		padding: variables.$grid-unit-05;
+		border: 0;
+		border-radius: variables.$radius-small;
+		background: none;
+		color: inherit;
+		cursor: pointer;
+
+		&:hover {
+			color: $accent;
+		}
+
+		&:focus-visible {
+			outline: 2px solid $accent;
+			outline-offset: 1px;
+		}
+	}
+
+	.jetpack-comments__dialog-intro {
+		margin: variables.$grid-unit-30 0;
+		color: colors.$gray-800;
+		text-align: center;
+	}
+
+	.jetpack-comments__field {
+		margin-block-start: variables.$grid-unit-20;
+	}
+
+	.jetpack-comments__label,
+	.jetpack-comments__help,
+	.jetpack-comments__notice {
+		display: block;
+	}
+
+	.jetpack-comments__label {
+		margin-block-end: variables.$grid-unit-10;
+		font-weight: 500;
+	}
+
+	.jetpack-comments__input {
+		display: block;
+		inline-size: 100%;
+		block-size: 44px;
+		padding: 6px variables.$grid-unit-15;
+		border: variables.$border-width solid colors.$gray-400;
+		border-radius: variables.$radius-small;
+		font-family: inherit;
+		// Fonts smaller than 16px make mobile Safari zoom.
+		font-size: 16px;
+
+		&:focus {
+			border-color: $accent;
+			box-shadow: 0 0 0 1px $accent;
+			outline: 0;
+		}
+
+		&[aria-invalid="true"] {
+			border-color: colors.$alert-red;
+			box-shadow: 0 0 0 1px colors.$alert-red;
+		}
+	}
+
+	.jetpack-comments__help {
+		margin-block-start: variables.$grid-unit-10;
+		color: colors.$gray-700;
+		font-style: italic;
+	}
+
+	.jetpack-comments__notice {
+		margin-block-start: variables.$grid-unit-10;
+		padding: variables.$grid-unit-10 variables.$grid-unit-15;
+		border-inline-start: 4px solid colors.$alert-red;
+		background: colors.$gray-100;
+	}
+
+	// Verbum's switch, drawn on the checkbox itself rather than a sibling, so the
+	// click lands on the control.
+	.jetpack-comments__toggle {
+		display: flex;
+		gap: variables.$grid-unit-15;
+		align-items: flex-start;
+		padding: variables.$grid-unit-05 0;
+		cursor: pointer;
+
+		input {
+			appearance: none;
+			box-sizing: content-box;
+			flex-shrink: 0;
+			position: relative;
+			inline-size: 36px;
+			block-size: 18px;
+			margin: 2px 0 0;
+			border: 1px solid colors.$gray-900;
+			border-radius: 9px;
+			cursor: pointer;
+
+			&::before {
+				content: "";
+				position: absolute;
+				inset-block-start: 2px;
+				inset-inline-start: 2px;
+				inline-size: 14px;
+				block-size: 14px;
+				border-radius: 50%;
+				background: colors.$gray-900;
+				transition:
+					inset-inline-start 0.3s,
+					background 0.3s;
+			}
+
+			&:checked {
+				background: colors.$gray-900;
+
+				// Logical, so the knob travels the right way in either direction.
+				&::before {
+					inset-inline-start: 20px;
+					background: colors.$white;
+				}
+			}
+
+			&:focus-visible {
+				outline: 1px solid $accent;
+				outline-offset: 2px;
+			}
+		}
+	}
+
+	.jetpack-comments__field + .jetpack-comments__toggle {
+		margin-block-start: variables.$grid-unit-30;
+	}
+
+	.jetpack-comments__dialog-actions {
+		display: grid;
+		justify-items: center;
+		gap: variables.$grid-unit-05;
+		margin-block-start: variables.$grid-unit-30;
+	}
+
+	.jetpack-comments__button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: variables.$grid-unit-15;
+		block-size: 40px;
+		padding: 0 variables.$grid-unit-30;
+		border: 0;
+		border-radius: variables.$radius-small;
+		font-family: inherit;
+		font-size: 16px;
+		line-height: 1;
+		cursor: pointer;
+
+		&.is-primary {
+			background: $accent;
+			color: colors.$white;
+
+			&:hover:not(:disabled) {
+				background: $accent-hover;
+			}
+
+			&:disabled {
+				opacity: 0.5;
+				cursor: not-allowed;
+			}
+		}
+
+		&.is-secondary {
+			background: colors.$white;
+			box-shadow: inset 0 0 0 1px $accent;
+			color: $accent;
+
+			&:hover {
+				box-shadow: inset 0 0 0 1px $accent-hover;
+				color: $accent-hover;
+			}
+		}
+
+		&.is-link {
+			padding: 0;
+			background: none;
+			color: $accent;
+			text-decoration: underline;
+
+			&:hover {
+				color: $accent-hover;
+			}
+		}
+
+		&:focus-visible {
+			box-shadow: 0 0 0 2px colors.$white, 0 0 0 4px $accent;
+			outline: 2px solid transparent;
+		}
+
+		svg {
+			inline-size: 20px;
+			block-size: 20px;
+		}
+	}
+
+	// The ways through, stacked full width.
+	.jetpack-comments__sign-in {
+		display: grid;
+		gap: variables.$grid-unit-20;
+		margin-block-start: variables.$grid-unit-30;
+
+		.is-link {
+			justify-self: center;
+		}
+	}
+
+	.jetpack-comments__signing-in {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: variables.$grid-unit-10;
+	}
+
+	.jetpack-comments__spinner {
+		inline-size: 16px;
+		block-size: 16px;
+		border: 2px solid colors.$gray-300;
+		border-inline-start-color: $accent;
+		border-radius: variables.$radius-round;
+		animation: jetpack-comments-spin 1s linear infinite;
+	}
+}
+
+@keyframes jetpack-comments-spin {
+
+	to {
+		transform: rotate(360deg);
+	}
+}

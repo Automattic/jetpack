@@ -1,14 +1,10 @@
 // A sibling of `.jpb-overview` rather than a child: that element is a
 // two-column grid at >= 961px, so a third child would be auto-placed.
 .jpb-next-scheduled-backup {
-	// `Text` renders a `<span>`, and vertical margins do not apply to an
-	// inline box. `margin-block-end` still computes to 16px, so reading the
-	// computed style alone would say this was working.
-	display: block;
-
-	// And why the element stays a `<span>`: `@wordpress/ui`'s global-CSS
-	// defense is unlayered and matches `p` at (0,1,1), outranking a plain
-	// class selector and dropping this margin silently. 16px rather than
+	// Why the row is rendered as a `<div>` rather than left as `Text`'s
+	// default `<span>`: vertical margins do not apply to an inline box, and
+	// `margin-block-end` still computes to 16px on one — so reading the
+	// computed style alone would say this was working. 16px rather than
 	// legacy's 24px because the storage section below carries its own.
 	margin-block-end: 16px;
 

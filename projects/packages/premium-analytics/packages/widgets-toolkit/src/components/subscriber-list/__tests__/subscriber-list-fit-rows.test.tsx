@@ -138,6 +138,22 @@ describe( 'SubscriberList fitRows', () => {
 		expect( footerText() ).toBe( '6 more' );
 	} );
 
+	it( 'counts only the hidden rows when the total is unknown', () => {
+		layout = mockLayout( tileFor( 4, false ) );
+		const items = makeItems( 10 );
+		const { rerender } = render( <SubscriberList items={ items } moreCount={ null } /> );
+
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '7 more' );
+
+		rerender( <SubscriberList items={ items } moreCount={ 20 } /> );
+		expect( visibleNames() ).toHaveLength( 3 );
+		expect( footerText() ).toBe( '27 more' );
+
+		rerender( <SubscriberList items={ items } moreCount={ null } /> );
+		expect( footerText() ).toBe( '7 more' );
+	} );
+
 	it( 'refits when the tile is resized', () => {
 		layout = mockLayout( tileFor( 4 ) );
 

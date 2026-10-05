@@ -25,6 +25,7 @@ Main component for displaying conversion funnel visualizations.
 | `renderStepRate` | `(props: StepRateRenderProps) => ReactNode` | - | Custom render function for step rates |
 | `renderMainMetric` | `(props: MainMetricRenderProps) => ReactNode` | - | Custom render function for main metric section |
 | `renderTooltip` | `(props: TooltipRenderProps) => ReactNode` | - | Custom render function for tooltip content |
+| `tooltipStyle` | `CSSProperties` | - | Inline styles merged over the tooltip box defaults |
 
 ## FunnelStep Type
 
@@ -64,6 +65,7 @@ interface TooltipRenderProps {
 	index: number;
 	top: number;
 	left: number;
+	/** @deprecated The tooltip box draws the package surface; this is no longer set. */
 	className?: string;
 }
 ```

@@ -1,0 +1,4 @@
+Significance: patch
+Type: changed
+
+Show PayPal's debug ID in API error messages and record it, so failed requests can be traced with PayPal support.

@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Expiry notices: stop offering a renewal to admins who did not buy the plan, since only the purchasing account can renew it. They now see why instead, and never the modal; that includes admins with no WordPress.com account, who previously got the legacy notice. The renewal link names the subscription, and every event carries an is_plan_owner prop.

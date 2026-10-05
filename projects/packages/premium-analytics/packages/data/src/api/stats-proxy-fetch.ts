@@ -194,7 +194,7 @@ function isPlainErrorBody( body: unknown ): body is Record< string, unknown > {
  * @param response - The failed response.
  * @return The error value to throw.
  */
-async function normalizeErrorResponse( response: Response ): Promise< unknown > {
+export async function normalizeErrorResponse( response: Response ): Promise< unknown > {
 	const { status } = response;
 
 	let body: unknown;

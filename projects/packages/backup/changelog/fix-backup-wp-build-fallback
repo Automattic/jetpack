@@ -1,5 +1,0 @@
-Significance: patch
-Type: fixed
-Comment: Backup: fall back to the legacy dashboard when the modernization filter is on but the wp-build dashboard is missing, instead of rendering a blank page. No-op when the modernization filter is off.
-
-

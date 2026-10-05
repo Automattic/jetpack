@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Catch PHP warnings when data doesn't match expected shape.

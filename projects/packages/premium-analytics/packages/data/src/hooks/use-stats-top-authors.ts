@@ -16,6 +16,11 @@ type StatsTopAuthorsOptions = UseStatsOptions & {
 	maxRows?: number;
 };
 
+/**
+ * The `stats/top-authors` report. It has no author filter and caps `max` at 20
+ * authors per period, so a single-author caller reads its row out of the whole
+ * report, and an author missing from a bucket may only have ranked below the cap.
+ */
 export const useStatsTopAuthors = createStatsListReportHook<
 	StatsReportParams,
 	StatsNormalizedReport< StatsTopAuthorsItem >,

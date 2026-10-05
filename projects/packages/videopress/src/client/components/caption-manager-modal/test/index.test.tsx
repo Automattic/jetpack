@@ -314,7 +314,7 @@ jest.mock( '../../../lib/video-tracks/caption-tracks', () => ( {
 					_videopress_source_track_kind: track.kind,
 					_videopress_source_track_src_lang: track.srcLang,
 					_videopress_source_track_src: track.src,
-			  }
+				}
 			: {},
 	saveCaptionTrack: jest.fn(),
 } ) );
@@ -1898,7 +1898,7 @@ describe( 'CaptionManagerModal', () => {
 		expect( preview.src ).toContain( 'metadata_token=playback-token-123' );
 	} );
 
-	it( 'falls back to a tokenless embed when the playback token fetch fails', async () => {
+	it( 'falls back to a tokenless embed and warns when the playback token fetch fails', async () => {
 		const user = userEvent.setup();
 		( getMediaToken as jest.Mock ).mockRejectedValueOnce( new Error( 'no token' ) );
 		render(
@@ -1914,5 +1914,6 @@ describe( 'CaptionManagerModal', () => {
 		const preview = ( await screen.findByTitle( 'Video preview' ) ) as HTMLIFrameElement;
 		expect( preview.src ).toContain( 'https://video.wordpress.com/embed/abc123' );
 		expect( preview.src ).not.toContain( 'metadata_token' );
+		expect( screen.getByText( /may not play because its access token/ ) ).toBeInTheDocument();
 	} );
 } );

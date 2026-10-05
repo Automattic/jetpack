@@ -7,7 +7,7 @@ import {
 	queryClient,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
-import { render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import apiFetch from '@wordpress/api-fetch';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 /**
@@ -38,7 +38,7 @@ const mockApiFetch = apiFetch as unknown as jest.Mock;
 
 // Built relative to today: hardcoded years would silently move the no-attribute
 // default off the data after New Year. The package test script pins TZ=UTC, which
-// is what the widget's `siteTimeZone()` also resolves to under jsdom.
+// is what the widget's `reportingTimeZone()` also resolves to under jsdom.
 const CURRENT_YEAR = new Date().getFullYear();
 const PREVIOUS_YEAR = CURRENT_YEAR - 1;
 
@@ -133,7 +133,7 @@ describe( 'AnnualHighlightsWidget', () => {
 		expect( container ).toHaveTextContent( 'Words900' );
 	} );
 
-	it( 'shows the empty state for a year the site did not publish in', async () => {
+	it( 'shows zeros, not an empty state, for a year the site did not publish in', async () => {
 		mockApiFetch.mockResolvedValue( {
 			...INSIGHTS_PAYLOAD,
 			// Only last year has a row, so the current-year default has none.
@@ -142,9 +142,15 @@ describe( 'AnnualHighlightsWidget', () => {
 
 		renderWidget();
 
-		await expect(
-			screen.findByText( 'No highlights for this year.' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
+	} );
+
+	it( 'links to the Annual insights report', async () => {
+		renderWidget();
+
+		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'View all' } ) ).toBeInTheDocument();
 	} );
 
 	it( 'survives a payload the sanitizer rejects', async () => {
@@ -154,8 +160,31 @@ describe( 'AnnualHighlightsWidget', () => {
 
 		renderWidget();
 
-		await expect(
-			screen.findByText( 'No highlights for this year.' )
-		).resolves.toBeInTheDocument();
+		await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+		expect( screen.getAllByText( '0' ) ).toHaveLength( 4 );
+	} );
+
+	it( 'keeps focus on the download after a failed download of stale highlights', async () => {
+		jest.useFakeTimers();
+		try {
+			renderWidget();
+			await expect( screen.findByText( 'Posts' ) ).resolves.toBeInTheDocument();
+
+			act( () => {
+				jest.advanceTimersByTime( 6 * 60 * 1000 );
+			} );
+			mockApiFetch.mockRejectedValue( { code: 'server_error', data: { status: 500 } } );
+			const button = screen.getByRole( 'button', { name: /Download CSV/ } );
+			act( () => button.focus() );
+			// eslint-disable-next-line testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package.
+			fireEvent.click( button );
+			await waitFor( () => expect( mockApiFetch ).toHaveBeenCalledTimes( 2 ) );
+
+			await waitFor( () => expect( button ).not.toHaveAttribute( 'aria-disabled', 'true' ) );
+			expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toHaveFocus();
+			expect( screen.getByText( 'Posts' ) ).toBeInTheDocument();
+		} finally {
+			jest.useRealTimers();
+		}
 	} );
 } );

@@ -33,8 +33,7 @@ type SeoScriptData = {
  */
 export function getPreloaded< T >( path: string ): T | undefined {
 	return ( getScriptData() as SeoScriptData | undefined )?.seo?.preload?.[ path ]?.body as
-		| T
-		| undefined;
+		T | undefined;
 }
 
 /**

@@ -3,14 +3,14 @@
  */
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	annualInsightsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,8 +18,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getAnnualInsightsFields, useAnnualInsightsReportRecords } from './config';
 import type { StatsInsightsYear } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 const RECORDS_VIEW = {
 	sort: { field: 'year', direction: 'desc' as const },
@@ -33,12 +35,11 @@ const RECORDS_VIEW = {
 			avg_likes: { align: 'end' as const },
 			total_words: { align: 'end' as const },
 			avg_words: { align: 'end' as const },
+			total_images: { align: 'end' as const },
+			avg_images: { align: 'end' as const },
 		},
 	},
 };
-
-const sortAnnualInsightsCsvRows = ( a: StatsInsightsYear, b: StatsInsightsYear ) =>
-	Number( b.year ) - Number( a.year );
 
 /**
  * Get the DataViews row id for an Annual insights row.
@@ -57,75 +58,35 @@ function getAnnualInsightRowId( item: StatsInsightsYear ): string {
  */
 function AnnualInsightsReport(): JSX.Element {
 	const records = useAnnualInsightsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getAnnualInsightsFields(), [] );
-	const csvColumns = useMemo< CsvColumn< StatsInsightsYear >[] >(
-		() => [
-			{ label: __( 'Year', 'jetpack-premium-analytics-pkg' ), getValue: row => row.year },
-			{
-				label: __( 'Total posts', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_posts,
-			},
-			{
-				label: __( 'Total comments', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_comments,
-			},
-			{
-				label: __( 'Avg comments per post', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.avg_comments,
-			},
-			{
-				label: __( 'Total likes', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_likes,
-			},
-			{
-				label: __( 'Avg likes per post', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.avg_likes,
-			},
-			{
-				label: __( 'Total words', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.total_words,
-			},
-			{
-				label: __( 'Avg words per post', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.avg_words,
-			},
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'annual-insights',
-		status: records,
-		sort: sortAnnualInsightsCsvRows,
-	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS[ 'annual-insights' ];
+	const { getLabel } = REPORTS[ 'annual-insights' ];
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ annualInsightsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s empty state is row-count based, so a failed
-				 * request would otherwise look like a legitimate empty report.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load annual insights', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
+					<PageNotice
+						{ ...describeError( records.error, {
+							retryDescription: __(
+								"We couldn't load annual insights. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							onRetry: retry,
+						} ) }
 					/>
 				) : (
 					<ReportRecordsTable< StatsInsightsYear >
@@ -133,6 +94,7 @@ function AnnualInsightsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getAnnualInsightRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search annual insights', 'jetpack-premium-analytics-pkg' ) }
 					/>

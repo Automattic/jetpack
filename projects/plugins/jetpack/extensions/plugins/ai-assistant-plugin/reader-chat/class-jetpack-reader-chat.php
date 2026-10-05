@@ -18,10 +18,15 @@
 namespace Automattic\Jetpack\Extensions\AiAssistantPlugin;
 
 use Automattic\Jetpack\Connection\Manager as Connection_Manager;
+use Automattic\Jetpack\Search\Helper as Search_Helper;
 use Automattic\Jetpack\Search\Plan;
 use Automattic\Jetpack\Status;
 use Automattic\Jetpack\Status\Host;
 use Jetpack_Options;
+
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
 
 const READER_CHAT_JS_URL                  = 'https://widgets.wp.com/agents-manager/reader-chat.min.js';
 const READER_CHAT_ASSET_TRANSIENT         = 'jetpack_reader_chat_asset';
@@ -82,7 +87,7 @@ class Jetpack_Reader_Chat {
 	 */
 	public static function register_settings(): void {
 		register_setting(
-			'general',
+			'jetpack_search',
 			'reader_chat',
 			array(
 				'type'              => 'boolean',
@@ -440,7 +445,10 @@ class Jetpack_Reader_Chat {
 			$wpcom_plan_info_class = '\Jetpack\Search\Plan_Info';
 			if ( class_exists( $wpcom_plan_info_class ) ) {
 				$plan_info = new $wpcom_plan_info_class( $blog_id );
-				return $plan_info->supports_search() && ! $plan_info->is_disabled_due_to_overage();
+				return $plan_info->supports_search()
+					&& method_exists( $plan_info, 'is_free_search_plan' )
+					&& ! $plan_info->is_free_search_plan()
+					&& ! $plan_info->is_disabled_due_to_overage();
 			}
 		}
 
@@ -453,7 +461,9 @@ class Jetpack_Reader_Chat {
 			return false;
 		}
 
-		return ! empty( $plan_info['supports_search'] )
+		return ! Search_Helper::is_forced_free_plan()
+			&& ! empty( $plan_info['supports_search'] )
+			&& ( $plan_info['effective_subscription']['product_slug'] ?? null ) !== Plan::JETPACK_SEARCH_FREE_PRODUCT_SLUG
 			&& empty( $plan_info['plan_usage']['must_upgrade'] );
 	}
 

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import {
+	ChartEmptyState,
 	MetricTabsChart,
 	MetricTabsChartSkeleton,
 	WidgetRoot,
@@ -10,7 +11,6 @@ import {
 	defaultPeriodForInterval,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { reports } from '@jetpack-premium-analytics/icons';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { __ } from '@wordpress/i18n';
 import { useCallback } from 'react';
@@ -19,7 +19,7 @@ import { useCallback } from 'react';
  */
 import styles from './style.module.css';
 import useTrafficChart from './use-traffic-chart';
-import { TRAFFIC_PERIODS } from './widget';
+import { TRAFFIC_PERIODS, defaultChartType } from './widget';
 import type { TrafficChartAttributes, TrafficChartGranularity, TrafficChartType } from './widget';
 import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 import type { ComponentProps } from 'react';
@@ -39,9 +39,9 @@ const DATA_FORMAT = {
 
 type TrafficChartInnerProps = {
 	/**
-	 * How to draw the selected metric. `MetricTabsChart` owns the default.
+	 * How to draw the selected metric.
 	 */
-	chartType?: TrafficChartType;
+	chartType: TrafficChartType;
 };
 
 /**
@@ -73,9 +73,6 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 		refetch,
 	} = useTrafficChart( reportParams, period );
 	const groupLabel = __( 'Traffic metric', 'jetpack-premium-analytics-pkg' );
-	// A metric the endpoint can't serve at this bucket size carries its own
-	// explanation, so it must not count toward emptiness and hide that message.
-	const servedMetrics = metricTabs.filter( metric => ! metric.unavailable );
 
 	return (
 		<div className={ styles.root }>
@@ -85,21 +82,14 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 				// `useTrafficChart` already gates `isError` per query on that query
 				// having no rows, so a transient refetch failure keeps the chart.
 				isError={ isError }
-				// `[].every()` is true, so the length check keeps an all-unavailable chart
-				// out of the empty state, which would replace those explanations with "no data".
-				isEmpty={
-					servedMetrics.length > 0 && servedMetrics.every( metric => metric.current.length === 0 )
-				}
+				// `stats/visits` zero-fills every bucket of an idle window, so emptiness is judged per metric inside the chart, where the tabs keep showing their zeros.
+				isEmpty={ false }
 				error={ {
 					description: __(
 						"We couldn't load traffic data. Please try again in a moment.",
 						'jetpack-premium-analytics-pkg'
 					),
 					actions: [ { label: __( 'Retry', 'jetpack-premium-analytics-pkg' ), onClick: refetch } ],
-				} }
-				empty={ {
-					icon: reports,
-					description: __( 'No traffic data in this period.', 'jetpack-premium-analytics-pkg' ),
 				} }
 				renderLoading={ <MetricTabsChartSkeleton /> }
 			>
@@ -109,8 +99,8 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 					chartType={ chartType }
 					groupLabel={ groupLabel }
 					tickResolution={ period }
-					pointsAreWallClocks
 					onDatumClick={ openBucket }
+					empty={ <ChartEmptyState /> }
 				/>
 			</WidgetState>
 		</div>
@@ -120,7 +110,7 @@ function TrafficChartInner( { chartType }: TrafficChartInnerProps ) {
 export default function TrafficChart( { attributes = {}, setError }: TrafficChartWidgetProps ) {
 	return (
 		<WidgetRoot attributes={ attributes } setError={ setError } options={ { from: '/' } }>
-			<TrafficChartInner chartType={ attributes.chartType } />
+			<TrafficChartInner chartType={ attributes.chartType ?? defaultChartType() } />
 		</WidgetRoot>
 	);
 }

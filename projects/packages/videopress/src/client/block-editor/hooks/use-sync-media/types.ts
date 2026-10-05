@@ -9,6 +9,8 @@ export type UseSyncMedia = {
 	error: Error | null;
 	isOverwriteChapterAllowed: boolean;
 	isGeneratingPoster: boolean;
+	posterError: string | null;
+	retryPosterGeneration: () => Promise< void >;
 	videoBelongToSite: boolean;
 };
 

@@ -3,14 +3,14 @@
  */
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	ExporterCsvAction,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
 	useReportRetry,
-	type CsvColumn,
+	emailsCsvExporter,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -18,8 +18,10 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import { REPORTS } from '../registry';
+import { useReportParams } from '../use-report-params';
 import { getEmailsFields, useEmailsReportRecords } from './config';
 import type { StatsEmailSummaryItem } from '@jetpack-premium-analytics/data';
+import type { JSX } from 'react';
 
 /**
  * Initial records-table view: newest emails first (matching the endpoint's
@@ -38,9 +40,6 @@ const RECORDS_VIEW = {
 		},
 	},
 };
-
-const sortEmailCsvRows = ( a: StatsEmailSummaryItem, b: StatsEmailSummaryItem ) =>
-	String( b.date ?? '' ).localeCompare( String( a.date ?? '' ) );
 
 /**
  * Stable row id for the records table.
@@ -61,65 +60,35 @@ function getEmailRowId( item: StatsEmailSummaryItem ): string {
  */
 function EmailsReport(): JSX.Element {
 	const records = useEmailsReportRecords();
+	const reportParams = useReportParams();
 	const fields = useMemo( () => getEmailsFields(), [] );
-	const csvColumns = useMemo< CsvColumn< StatsEmailSummaryItem >[] >(
-		() => [
-			{
-				label: __( 'Email', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => String( row.label ?? '' ),
-			},
-			{
-				label: __( 'Sent', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => String( row.date ?? '' ),
-			},
-			{ label: __( 'Opens', 'jetpack-premium-analytics-pkg' ), getValue: row => row.opens },
-			{
-				label: __( 'Open rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.opens_rate,
-			},
-			{ label: __( 'Clicks', 'jetpack-premium-analytics-pkg' ), getValue: row => row.clicks },
-			{
-				label: __( 'Click rate', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.clicks_rate,
-			},
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'emails',
-		status: records,
-		sort: sortEmailCsvRows,
-	} );
 	const retry = useReportRetry( records.refetch );
 
-	const { getLabel, getTitle } = REPORTS.emails;
+	const { getLabel } = REPORTS.emails;
 
 	return (
 		<ReportPageShell
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ emailsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
-			<ReportPageLayout title={ getTitle() }>
-				{ /*
-				 * The error state replaces the table rather than sitting beside it:
-				 * `ReportRecordsTable`'s `empty` renders on row count, not fetch
-				 * status, so a failed refetch over cached rows would otherwise leave
-				 * stale data on screen with no notice and no way to retry.
-				 */ }
+			<ReportPageLayout title={ getLabel() }>
 				{ records.isError ? (
-					<ReportErrorState
-						title={ __( 'Unable to load emails', 'jetpack-premium-analytics-pkg' ) }
-						onRetry={ retry }
+					<PageNotice
+						{ ...describeError( records.error, {
+							retryDescription: __(
+								"We couldn't load emails. Please try again in a moment.",
+								'jetpack-premium-analytics-pkg'
+							),
+							onRetry: retry,
+						} ) }
 					/>
 				) : (
 					<ReportRecordsTable< StatsEmailSummaryItem >
@@ -127,6 +96,7 @@ function EmailsReport(): JSX.Element {
 						fields={ fields }
 						getItemId={ getEmailRowId }
 						isLoading={ records.isLoading }
+						isFetching={ records.isFetching }
 						initialView={ RECORDS_VIEW }
 						searchLabel={ __( 'Search emails', 'jetpack-premium-analytics-pkg' ) }
 					/>

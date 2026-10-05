@@ -287,6 +287,12 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( home_url(), $data['site']['url'] );
 		$this->assertSame( get_bloginfo( 'name' ), $data['site']['title'] );
 		$this->assertSame( get_bloginfo( 'description' ), $data['site']['description'] );
+		// The site language and the copy written into pages, for the public-facing content.
+		$this->assertSame( wpcom_ai_launchpad_site_locale(), $data['site']['language'] );
+		// The reader's own language, which the AI writes the task subtitles in.
+		$this->assertSame( determine_locale(), $data['user_language'] );
+		$this->assertSame( wpcom_ai_launchpad_site_copy(), $data['site']['copy'] );
+		$this->assertSame( 'Contact', $data['site']['copy']['contact_page_title'] );
 
 		$this->assertCount( 6, $data['tasks'] );
 
@@ -880,7 +886,6 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$payload['inferred'] = array(
 			'goal'       => 'write',
 			'brand_name' => 'Alpine Notes',
-			'tagline'    => 'Hiking stories from Jane Doe of 12 Elm Street.',
 			'niche'      => 'hiking',
 		);
 		// A gate-hidden pick (woo without WooCommerce), a remapped pick, and a hallucinated id the write path
@@ -911,12 +916,11 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		);
 		$this->assertIsArray( $captured );
 
-		// Only the intended fields, and never the user's own words: brand_name (echoes the title) and tagline
-		// (drafted from the description) are stripped from inferred.
+		// Only the intended fields, and never the user's own words: brand_name echoes the title, so it is
+		// stripped from inferred.
 		$this->assertSame( array( 'source', 'inferred', 'selected', 'rendered', 'dropped', 'added' ), array_keys( $captured ) );
 		$this->assertSame( 'ai', $captured['source'] );
 		$this->assertArrayNotHasKey( 'brand_name', $captured['inferred'] );
-		$this->assertArrayNotHasKey( 'tagline', $captured['inferred'] );
 		$this->assertSame( 'write', $captured['inferred']['goal'] );
 		$this->assertSame( 'hiking', $captured['inferred']['niche'] );
 
@@ -2064,7 +2068,8 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 				'goal'        => 'write',
 				'site_name'   => 'Alpine Notes',
 				'description' => 'Personal blog about long-distance hiking in the Alps.',
-				'locale'      => 'en',
+				'locale'      => 'fr_FR',
+				'ui_locale'   => 'it_IT',
 			)
 		);
 
@@ -2076,7 +2081,10 @@ class AI_Launchpad_REST_Test extends \WorDBless\BaseTestCase {
 		$this->assertSame( 'write', $option['goal'] );
 		$this->assertSame( 'Alpine Notes', $option['site_name'] );
 		$this->assertSame( 'Personal blog about long-distance hiking in the Alps.', $option['description'] );
-		$this->assertSame( 'en', $option['locale'] );
+		// Both languages are recorded: the drafts were written in the site's, the subtitles in the
+		// account language of whoever ran the wizard.
+		$this->assertSame( 'fr_FR', $option['locale'] );
+		$this->assertSame( 'it_IT', $option['ui_locale'] );
 		$this->assertIsInt( $option['generated_at'] );
 	}
 

@@ -10,7 +10,7 @@ const meta: Meta< typeof PostHighlightCardSkeleton > = {
 		docs: {
 			description: {
 				component:
-					"Loading shape for `PostHighlightCard`, passed through `WidgetState`'s `renderLoading` by the Latest post and Most popular post widgets.",
+					"Loading shape for `PostHighlightCard`, passed through `WidgetState`'s `renderLoading` by the Latest post and Popular post widgets.",
 			},
 		},
 	},

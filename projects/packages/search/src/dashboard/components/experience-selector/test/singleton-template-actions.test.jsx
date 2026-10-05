@@ -1,27 +1,9 @@
 // Hoisted mocks — must precede component imports so the component file's own
-// dependency chain doesn't pull in the real @wordpress/components / ui / data
-// modules at test time.
-/* eslint-disable testing-library/prefer-user-event -- @testing-library/user-event is not a direct dep of this package; fireEvent is intentional. */
+// dependency chain doesn't pull in the real @wordpress/data store at test time.
 
 jest.mock( '@wordpress/data', () => ( {
 	useDispatch: jest.fn(),
 	useSelect: jest.fn(),
-} ) );
-
-jest.mock( '@wordpress/components', () => ( {
-	__esModule: true,
-	__experimentalConfirmDialog: ( { isOpen, onConfirm, onCancel, confirmButtonText, children } ) =>
-		isOpen ? (
-			<div role="dialog" aria-label="confirm">
-				<div>{ children }</div>
-				<button onClick={ onCancel }>Cancel</button>
-				<button onClick={ onConfirm }>{ confirmButtonText }</button>
-			</div>
-		) : null,
-} ) );
-
-jest.mock( '@wordpress/ui', () => ( {
-	Stack: ( { children, ...rest } ) => <div { ...rest }>{ children }</div>,
 } ) );
 
 jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-singleton-template-actions-test' } ), {
@@ -30,7 +12,8 @@ jest.mock( 'store', () => ( { STORE_ID: 'jetpack-search-singleton-template-actio
 
 /* eslint-disable import/order -- mocks above must hoist before imports */
 import { useDispatch, useSelect } from '@wordpress/data';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import SingletonTemplateActions from '../singleton-template-actions.jsx';
 /* eslint-enable import/order */
 
@@ -97,20 +80,34 @@ describe( 'SingletonTemplateActions', () => {
 		expect( screen.queryByText( 'Restore default' ) ).not.toBeInTheDocument();
 	} );
 
-	test( 'opens the confirm dialog when the Restore default link is clicked', () => {
+	test( 'opens the confirm dialog on Cancel when the Restore default link is clicked', async () => {
 		render( <SingletonTemplateActions { ...labels } config={ baseConfig } /> );
-		expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
-		fireEvent.click( screen.getByText( 'Restore default' ) );
-		expect( screen.getByRole( 'dialog' ) ).toBeInTheDocument();
-		expect(
-			screen.getByText( 'Restore the bundled Search overlay template?' )
-		).toBeInTheDocument();
+		expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument();
+		await userEvent.click( screen.getByText( 'Restore default' ) );
+		await expect(
+			screen.findByRole( 'alertdialog', {
+				name: 'Restore default',
+				description: labels.restoreConfirmMessage,
+			} )
+		).resolves.toBeInTheDocument();
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
+	} );
+
+	test( 'closes without a DELETE when Enter is pressed on open', async () => {
+		render( <SingletonTemplateActions { ...labels } config={ baseConfig } /> );
+		await userEvent.click( screen.getByText( 'Restore default' ) );
+		await waitFor( () => expect( screen.getByRole( 'button', { name: 'Cancel' } ) ).toHaveFocus() );
+		await userEvent.keyboard( '{Enter}' );
+
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
+		expect( global.fetch ).not.toHaveBeenCalled();
+		expect( screen.getByText( 'Restore default' ) ).toBeInTheDocument();
 	} );
 
 	test( 'DELETEs the wpcom-origin URL + nonce, fires success notice, hides the link', async () => {
 		render( <SingletonTemplateActions { ...labels } config={ baseConfig } /> );
-		fireEvent.click( screen.getByText( 'Restore default' ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Restore default' } ) );
+		await userEvent.click( screen.getByText( 'Restore default' ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Restore default' } ) );
 
 		await waitFor( () => expect( global.fetch ).toHaveBeenCalledTimes( 1 ) );
 		const [ url, options ] = global.fetch.mock.calls[ 0 ];
@@ -128,6 +125,7 @@ describe( 'SingletonTemplateActions', () => {
 		await waitFor( () =>
 			expect( screen.queryByText( 'Restore default' ) ).not.toBeInTheDocument()
 		);
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		expect( errorNotice ).not.toHaveBeenCalled();
 	} );
 
@@ -138,8 +136,8 @@ describe( 'SingletonTemplateActions', () => {
 				config={ { ...baseConfig, postType: 'a slug/with weird chars' } }
 			/>
 		);
-		fireEvent.click( screen.getByText( 'Restore default' ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Restore default' } ) );
+		await userEvent.click( screen.getByText( 'Restore default' ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Restore default' } ) );
 
 		await waitFor( () => expect( global.fetch ).toHaveBeenCalledTimes( 1 ) );
 		const [ url ] = global.fetch.mock.calls[ 0 ];
@@ -158,10 +156,11 @@ describe( 'SingletonTemplateActions', () => {
 			} )
 		);
 		render( <SingletonTemplateActions { ...labels } config={ baseConfig } /> );
-		fireEvent.click( screen.getByText( 'Restore default' ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Restore default' } ) );
+		await userEvent.click( screen.getByText( 'Restore default' ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Restore default' } ) );
 
 		await waitFor( () => expect( errorNotice ).toHaveBeenCalledWith( 'Template is locked.' ) );
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 		expect( successNotice ).not.toHaveBeenCalled();
 		// Failed DELETE leaves the link in place so the admin can retry.
 		expect( screen.getByText( 'Restore default' ) ).toBeInTheDocument();
@@ -177,13 +176,14 @@ describe( 'SingletonTemplateActions', () => {
 			} )
 		);
 		render( <SingletonTemplateActions { ...labels } config={ baseConfig } /> );
-		fireEvent.click( screen.getByText( 'Restore default' ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Restore default' } ) );
+		await userEvent.click( screen.getByText( 'Restore default' ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Restore default' } ) );
 
 		await waitFor( () => expect( errorNotice ).toHaveBeenCalledWith( labels.errorMessage ) );
+		await waitFor( () => expect( screen.queryByRole( 'alertdialog' ) ).not.toBeInTheDocument() );
 	} );
 
-	test( 'does not fire fetch when wpcomOriginApiUrl is missing', () => {
+	test( 'does not fire fetch when wpcomOriginApiUrl is missing', async () => {
 		useSelect.mockImplementation( callback =>
 			callback( () => ( {
 				getWpcomOriginApiUrl: () => null,
@@ -191,8 +191,8 @@ describe( 'SingletonTemplateActions', () => {
 			} ) )
 		);
 		render( <SingletonTemplateActions { ...labels } config={ baseConfig } /> );
-		fireEvent.click( screen.getByText( 'Restore default' ) );
-		fireEvent.click( screen.getByRole( 'button', { name: 'Restore default' } ) );
+		await userEvent.click( screen.getByText( 'Restore default' ) );
+		await userEvent.click( await screen.findByRole( 'button', { name: 'Restore default' } ) );
 		expect( global.fetch ).not.toHaveBeenCalled();
 	} );
 } );

@@ -21,10 +21,12 @@ import {
 	sharePercentage,
 	useWidgetDrillDown,
 	useWidgetRootContext,
+	ExporterCsvDownloadButton,
+	getUtmReportSection,
+	utmCsvExporters,
 	type LeaderboardChartData,
 	type ReportParamsFieldAttributes,
 } from '@jetpack-premium-analytics/widgets-toolkit';
-import { megaphone } from '@jetpack-premium-analytics/icons';
 /**
  * Internal dependencies
  */
@@ -40,13 +42,6 @@ import type { WidgetRenderProps } from '@wordpress/widget-primitives';
 type UtmInsightsRenderAttributes = UtmInsightsAttributes & Partial< ReportParamsFieldAttributes >;
 type UtmInsightsWidgetProps = WidgetRenderProps< UtmInsightsRenderAttributes >;
 
-type UtmReportSection =
-	| 'source-medium'
-	| 'campaign-source-medium'
-	| 'source'
-	| 'medium'
-	| 'campaign';
-
 const DATA_FORMAT = { type: 'number' as const, options: { useMultipliers: true, decimals: 0 } };
 
 const DEFAULT_UTM_DIMENSION: StatsUtmParam = 'utm_source,utm_medium';
@@ -57,29 +52,14 @@ type UtmInsightsInnerProps = {
 	 */
 	utmDimension: StatsUtmParam;
 	/**
-	 * Whether to render the "View all" footer link.
+	 * Whether to render the footer: View all and Download CSV.
 	 */
 	showReportLink: boolean;
 };
 
-/** Map a widget dimension to a section supported by the UTM report. */
-function getUtmReportSection( utmDimension: StatsUtmParam ): UtmReportSection {
-	switch ( utmDimension ) {
-		case 'utm_source,utm_medium':
-			return 'source-medium';
-		case 'utm_campaign,utm_source,utm_medium':
-			return 'campaign-source-medium';
-		case 'utm_source':
-			return 'source';
-		case 'utm_medium':
-			return 'medium';
-		case 'utm_campaign':
-			return 'campaign';
-	}
-}
-
 function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerProps ) {
 	const { reportParams } = useWidgetRootContext();
+	const reportSection = getUtmReportSection( utmDimension );
 	const {
 		drillDownItem: selectedUtmLabel,
 		drillDown: selectUtmLabel,
@@ -104,7 +84,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 	);
 	const isDrillDown = !! selectedUtm?.children?.length;
 	const activeData = useMemo(
-		() => ( isDrillDown ? selectedUtm?.children ?? [] : data ),
+		() => ( isDrillDown ? ( selectedUtm?.children ?? [] ) : data ),
 		[ data, isDrillDown, selectedUtm ]
 	);
 	const withComparison = isDrillDown ? !! selectedUtm?.childrenHaveComparison : hasComparison;
@@ -138,9 +118,13 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									id={ postRow.postId }
 									label={ postRow.label }
 									link={ postRow.href }
+									origin={ {
+										report: 'utm',
+										section: reportSection,
+									} }
 								/>
 							),
-					  }
+						}
 					: buildLeaderboardRow( {
 							label: item.label,
 							media: { kind: 'none' },
@@ -155,7 +139,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 									),
 								},
 							} ),
-					  } ) ),
+						} ) ),
 				currentValue: item.value,
 				currentShare: sharePercentage( item.value, maxValue ),
 				previousValue,
@@ -169,7 +153,7 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						: undefined,
 			};
 		} );
-	}, [ activeData, isDrillDown, selectUtmLabel, withComparison ] );
+	}, [ activeData, isDrillDown, reportSection, selectUtmLabel, withComparison ] );
 
 	const backLink = isDrillDown ? (
 		<WidgetBackLink
@@ -195,10 +179,6 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 						),
 						onRetry: refetch,
 					} ) }
-					empty={ {
-						icon: megaphone,
-						description: __( 'No UTM data in this period.', 'jetpack-premium-analytics-pkg' ),
-					} }
 					renderLoading={ <LeaderboardSkeleton rows={ WIDGET_ROW_LIMIT } /> }
 				>
 					<LeaderboardChart
@@ -212,7 +192,12 @@ function UtmInsightsInner( { utmDimension, showReportLink }: UtmInsightsInnerPro
 			</div>
 			{ showReportLink && (
 				<WidgetFooter>
-					<ReportLink report="utm" section={ getUtmReportSection( utmDimension ) } />
+					<ReportLink report="utm" section={ reportSection } />
+					<ExporterCsvDownloadButton
+						exporter={ utmCsvExporters[ reportSection ] }
+						status={ { isLoading, isFetching, isError } }
+						rowCount={ data.length }
+					/>
 				</WidgetFooter>
 			) }
 		</>

@@ -30,12 +30,12 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 					__( 'Episode dashboard included with %s', 'jetpack-podcast' ),
 					planName
-			  )
+				)
 			: sprintf(
 					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 					__( 'Episode stats included with %s', 'jetpack-podcast' ),
 					planName
-			  );
+				);
 	const description =
 		variant === 'episodes'
 			? sprintf(
@@ -45,12 +45,12 @@ const LockedPreview = ( { variant }: LockedPreviewProps ) => {
 						'jetpack-podcast'
 					),
 					planName
-			  )
+				)
 			: sprintf(
 					/* translators: %s is the plan name, e.g. "Growth" or "Premium". */
 					__( 'Upgrade to %s to see downloads by episode, app, and country.', 'jetpack-podcast' ),
 					planName
-			  );
+				);
 
 	return (
 		<div className="podcast-locked-preview" role="region" aria-labelledby={ titleId }>

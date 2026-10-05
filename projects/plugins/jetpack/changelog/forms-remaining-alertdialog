@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+Forms: Start the Delete permanently and Mark as spam confirmations on Cancel, so pressing Enter no longer permanently deletes a form or marks a response as spam.

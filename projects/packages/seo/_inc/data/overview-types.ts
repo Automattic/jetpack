@@ -4,6 +4,8 @@
 
 export interface SiteVisibility {
 	search_engines_visible: boolean;
+	// See `SettingsResponse['site_is_private']`.
+	site_is_private: boolean;
 	sitemap_active: boolean;
 	seo_tools_active: boolean;
 }
