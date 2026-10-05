@@ -15,7 +15,7 @@ export class DialogHost extends HTMLElement {
 
 /**
  * Asks a commenter who they are on their way to posting, plus any subscribe options
- * the host offers. A saved guest opens it alone to edit their details.
+ * the host offers.
  *
  * A form leaves out fields in a shadow root, so this hands the comment form what
  * to post through its host instead. The save switch adds core's cookies-consent
@@ -30,13 +30,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		formSettings,
 		details,
 		isEmptyComment,
-		isPosting,
 		commentParent,
 		commenter,
 		rememberDetails,
 		isDialogOpen,
-		isEditingDetails,
-		logIn: logInHandle,
+		forget,
 	} = useContext( CommentSignals );
 	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
@@ -48,57 +46,48 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	// Straight to the fields when they are the only way through.
 	const firstStep = identity.canSignIn ? 'choose' : 'guest';
 	const [ step, setStep ] = useState< 'choose' | 'guest' | 'subscribe' >( firstStep );
-	const [ subscribed, setSubscribed ] = useState< Record< string, boolean > >( () =>
+	const defaultSubscribed = () =>
 		Object.fromEntries(
 			formSettings.subscriptions.map( ( { name, checked } ) => [ name, checked ] )
-		)
-	);
-	// Subscribe options are offered once, when a reader logs in or gives their email. A choice
-	// made with nothing to post waits here for their next comment, then is gone.
-	const [ heldChoice, setHeldChoice ] = useState< string[] | null >( null );
-	// Opened from "Change details": about who they are, so nothing here posts the comment.
-	const [ detailsOnly, setDetailsOnly ] = useState( false );
+		);
+	const [ subscribed, setSubscribed ] = useState< Record< string, boolean > >( defaultSubscribed );
+	const posting = ! isEmptyComment.value;
 
-	// Which page shows: the step, or the details page when opened from "Change details".
-	const page = isEditingDetails.value ? 'details' : step;
-	const showFields = page === 'guest' || page === 'details';
+	const showFields = step === 'guest';
+	// Offered once, with the comment that brings a reader in; later comments skip the dialog.
 	const showToggles =
 		formSettings.subscriptions.length > 0 &&
 		isDialogOpen.value &&
-		( page === 'guest' || page === 'subscribe' );
+		posting &&
+		( step === 'guest' || step === 'subscribe' );
 	const chosen = formSettings.subscriptions
 		.filter( ( { name } ) => subscribed[ name ] )
 		.map( ( { name } ) => name );
 	const guest =
 		( commenter.value.kind === 'guest' || commenter.value.kind === 'unknown' ) && ! mustLogIn;
-	const posting = ! isEmptyComment.value && ! detailsOnly;
 	const enteredEmail = details.value.email;
 
-	// Reset on close, not open, so a log-in from the footer can open it straight on the switches.
+	// Reset on close, so the next reader starts from the host's defaults.
 	useEffect( () => {
 		const element = dialog.current;
 
 		if ( isDialogOpen.value ) {
-			if ( isEditingDetails.peek() ) {
-				setDetailsOnly( true );
-			}
-
 			if ( ! element?.open ) {
 				element!.showModal();
 			}
 		} else {
 			element?.close();
 			setStep( firstStep );
-			setDetailsOnly( false );
+			setSubscribed( defaultSubscribed() );
 		}
 	}, [ isDialogOpen.value ] );
 
 	// The button that turned the page is gone, so focus goes to the new page's first control.
 	useEffect( () => {
-		if ( page !== 'choose' ) {
+		if ( step !== 'choose' ) {
 			dialog.current?.querySelector( 'input' )?.focus();
 		}
-	}, [ page ] );
+	}, [ step ] );
 
 	// Whether the email belongs to a WordPress.com account, half a second after it stops
 	// changing: each check counts against a rate limit, and a late answer for an old value is dropped.
@@ -124,16 +113,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		};
 	}, [ enteredEmail, showFields ] );
 
-	// The comment that carries a held choice uses it up. Effects run after the browser
-	// has read the form's fields, so the choice still goes with that comment.
-	useEffect( () => {
-		if ( isPosting.value ) {
-			setHeldChoice( null );
-		}
-	}, [ isPosting.value ] );
-
-	// From the footer rather than on the way to posting: sign in, but post nothing.
-	const logIn = async ( fromDialog = true ) => {
+	const logIn = async () => {
 		setSignInStatus( 'pending' );
 
 		// Cancel closes the popup, which settles this as cancelled.
@@ -156,37 +136,32 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		}
 
 		// One identity at a time: a saved guest is forgotten when they log in.
-		saveGuest( null );
-		details.value = { author: '', email: '', url: '' };
-		rememberDetails.value = false;
+		forget();
 		commenter.value = {
 			kind: 'wordpress',
 			name: result.name,
 			avatar: result.avatar,
 			code: result.code,
 		};
-		isEditingDetails.value = false;
+
+		if ( isEmptyComment.peek() ) {
+			isDialogOpen.value = false;
+			return;
+		}
 
 		if ( formSettings.subscriptions.length ) {
 			setStep( 'subscribe' );
-			setDetailsOnly( detailsOnly || ! fromDialog );
-			isDialogOpen.value = true;
 			return;
 		}
 
 		isDialogOpen.value = false;
 
 		// A timeout, so the render that puts the sign-in code in the form lands first.
-		if ( fromDialog && ! detailsOnly && ! isEmptyComment.peek() ) {
-			window.setTimeout( () => internals.form?.requestSubmit() );
-		}
+		window.setTimeout( () => internals.form?.requestSubmit() );
 	};
-
-	logInHandle.current = logIn;
 
 	const close = () => {
 		isDialogOpen.value = false;
-		isEditingDetails.value = false;
 	};
 
 	// Posting with "No, thanks" sends nothing of theirs: no details, no subscriptions.
@@ -201,8 +176,9 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			Object.entries( details.value ).forEach( ( [ name, value ] ) => data.append( name, value ) );
 		}
 
-		// Chosen here, or held from when they saved their details with nothing to post.
-		( showToggles ? chosen : heldChoice )?.forEach( name => data.append( name, 'subscribe' ) );
+		if ( showToggles ) {
+			chosen.forEach( name => data.append( name, 'subscribe' ) );
+		}
 
 		if ( consent ) {
 			data.append( 'wp-comment-cookies-consent', 'yes' );
@@ -216,17 +192,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
-		// Nothing written yet, or here to change who they are: save, do not post.
+		// Nothing written yet: save, do not post.
 		if ( ! posting ) {
-			if ( showToggles ) {
-				setHeldChoice( chosen );
-			}
-
-			if ( page === 'subscribe' ) {
-				isDialogOpen.value = false;
-				return;
-			}
-
 			// Saved with consent, or cleared without it, as core does after a comment.
 			saveGuest( rememberDetails.peek() ? details.value : null );
 
@@ -288,12 +255,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 				{ switches }
 			</>
 		),
-		details: (
-			<>
-				{ identity.canSignIn && <div className="jetpack-comments__sign-in">{ logInOrWait }</div> }
-				<DetailsFields emailTaken={ emailTaken } />
-			</>
-		),
 		subscribe: switches,
 	};
 
@@ -337,8 +298,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 							</svg>
 						</button>
 					</div>
-					{ pages[ page ] }
-					{ page !== 'choose' && (
+					{ pages[ step ] }
+					{ step !== 'choose' && (
 						<div className="jetpack-comments__dialog-actions">
 							<button
 								type="submit"

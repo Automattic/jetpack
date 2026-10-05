@@ -285,8 +285,8 @@ class Comment_Form {
 			'postId'        => $post_id,
 			'loginUrl'      => wp_login_url( $permalink ),
 			// wp_logout_url() runs the URL through esc_html(), which encodes single quotes too.
-			// None on WordPress.com, where the site's session is the reader's whole WordPress.com login.
-			'logoutUrl'     => is_user_logged_in() && ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
+			// On WordPress.com this logs the reader out of WordPress.com entirely, as Verbum did.
+			'logoutUrl'     => is_user_logged_in() ? html_entity_decode( wp_logout_url( $permalink ), ENT_QUOTES ) : '',
 			'submit'        => array(
 				'id'        => $args['id_submit'] ?? 'submit',
 				'name'      => $args['name_submit'] ?? 'submit',
@@ -423,7 +423,6 @@ class Comment_Form {
 				'saveDetails'         => __( 'Save my name, email, and website for the next time I comment.', 'jetpack-comments' ),
 				'close'               => __( 'Close', 'jetpack-comments' ),
 				'options'             => __( 'Options', 'jetpack-comments' ),
-				'changeDetails'       => __( 'Change details', 'jetpack-comments' ),
 				'manageSubscriptions' => __( 'Manage subscription', 'jetpack-comments' ),
 				'mustLogIn'           => __( 'You must be logged in to post a comment.', 'jetpack-comments' ),
 				'logIn'               => __( 'Log in', 'jetpack-comments' ),
