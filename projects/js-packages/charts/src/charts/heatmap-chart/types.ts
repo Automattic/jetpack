@@ -1,7 +1,7 @@
 import type { BaseChartProps } from '../../types';
 import type { CSSProperties, ReactNode } from 'react';
 
-/** A single heatmap cell. `value: null` marks an empty cell. */
+/** A single heatmap cell. `value: null` marks an empty cell, as does a zero when no value is negative. */
 export type HeatmapCell = {
 	/** Per-cell label used in the tooltip / accessible name. */
 	label?: string;

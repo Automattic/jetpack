@@ -18,16 +18,19 @@ const PRIMARIES = [
 ];
 
 describe.each( [
-	[ 'light', '#ffffff' ],
-	[ 'dark', '#1e1e1e' ],
-] )( 'getHeatmapScale on a %s background', ( _mode, background ) => {
-	it.each( PRIMARIES )( 'keeps the lowest step of %s at 3:1, no darker than needed', primary => {
-		const { low } = getHeatmapScale( primary, background );
-		const contrast = contrastRatio( low, background );
+	[ 'light', '#ffffff', '#f0f0f0' ],
+	[ 'dark', '#242424', '#272727' ],
+] )( 'getHeatmapScale on a %s background', ( _mode, background, emptyCell ) => {
+	it.each( PRIMARIES )(
+		'keeps the lowest step of %s at 3:1 against the background and empty cell, no further',
+		primary => {
+			const { low } = getHeatmapScale( primary, background, emptyCell );
+			const contrasts = [ contrastRatio( low, background ), contrastRatio( low, emptyCell ) ];
 
-		expect( contrast ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
-		expect( contrast ).toBeLessThan( MIN_BACKGROUND_CONTRAST + 0.1 );
-	} );
+			expect( Math.min( ...contrasts ) ).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
+			expect( Math.min( ...contrasts ) ).toBeLessThan( MIN_BACKGROUND_CONTRAST + 0.1 );
+		}
+	);
 
 	it.each( PRIMARIES )( 'runs the scale of %s out to 9:1', primary => {
 		const { high } = getHeatmapScale( primary, background );
@@ -54,6 +57,12 @@ describe( 'getHeatmapScale', () => {
 				contrastRatio( mixHexColors( low, high, step / 20 ), background )
 			).toBeGreaterThanOrEqual( MIN_BACKGROUND_CONTRAST );
 		}
+	} );
+
+	it( 'falls back to the background alone when no step clears the empty cell too', () => {
+		expect( getHeatmapScale( '#3858e9', '#ffffff', '#000000' ) ).toEqual(
+			getHeatmapScale( '#3858e9', '#ffffff' )
+		);
 	} );
 
 	it( 'ends on black or white when the background leaves no room for 9:1', () => {

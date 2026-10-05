@@ -137,13 +137,16 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 	// fill scale nor the text color (CHARTS-255). See-through counts as white, as for the palette.
 	const chartBackgroundHex =
 		resolveOpaqueHex( CATALOG_POINTERS.background, scopeElement ) ?? BACKGROUND_FALLBACK;
+	const emptyCellHex = resolveOpaqueHex( CATALOG_POINTERS.track, scopeElement );
 
 	// If the primary cannot resolve to hex, the stylesheet falls back to its own blend.
 	const primaryHex = normalizeColorToHex( primaryColorHex );
 	const scale = useMemo(
 		() =>
-			isValidHexColor( primaryHex ) ? getHeatmapScale( primaryHex, chartBackgroundHex ) : null,
-		[ primaryHex, chartBackgroundHex ]
+			isValidHexColor( primaryHex )
+				? getHeatmapScale( primaryHex, chartBackgroundHex, emptyCellHex )
+				: null,
+		[ primaryHex, chartBackgroundHex, emptyCellHex ]
 	);
 	const fillVars = useMemo(
 		() => ( {

@@ -1,4 +1,4 @@
 Significance: minor
 Type: fixed
 
-Heatmap chart: Keep the lowest step of the color scale at 3:1 contrast against the chart background in every theme, deepen the highest step to 9:1, and draw zeros in data without negative values as empty cells.
+Heatmap chart: Keep the lowest step of the color scale at 3:1 contrast against the chart background and empty cells in every theme, deepen the highest step to 9:1, and draw zeros in data without negative values as empty cells.

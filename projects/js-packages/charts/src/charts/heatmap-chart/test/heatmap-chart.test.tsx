@@ -475,7 +475,7 @@ describe( 'HeatmapChart', () => {
 		);
 		const grid = screen.getByRole( 'grid', { name: /heatmap/i } );
 
-		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#798ef0' );
+		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-low' ) ).toBe( '#6c83ef' );
 		expect( grid.style.getPropertyValue( '--a8c-charts-color-heatmap-high' ) ).toBe( '#283ea5' );
 
 		document.body.removeChild( scope );
