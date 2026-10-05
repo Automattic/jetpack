@@ -6,12 +6,15 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Modules;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
 }
 
 require_once JETPACK__PLUGIN_DIR . '_inc/lib/admin-pages/class-jetpack-wp-build-page.php';
+require_once __DIR__ . '/interface-jetpack-protect-dashboard-section.php';
+require_once __DIR__ . '/class-jetpack-protect-dashboard-threats.php';
 
 /**
  * Registers the Protect sidebar item and renders its wp-build route.
@@ -35,6 +38,13 @@ class Jetpack_Protect_Dashboard {
 	const WP_BUILD_PAGE_ID = 'jetpack-protect-hub';
 
 	/**
+	 * Registered sections, keyed by section key.
+	 *
+	 * @var Jetpack_Protect_Dashboard_Section[]
+	 */
+	private static $sections = array();
+
+	/**
 	 * Wire the hooks. Runs only while the `protect-dashboard` module is active.
 	 *
 	 * @return void
@@ -43,6 +53,71 @@ class Jetpack_Protect_Dashboard {
 		add_action( 'admin_menu', array( __CLASS__, 'maybe_load_wp_build' ), 1 );
 		// Before Admin_Menu registers its items at 1000, and after the Protect plugin adds its own on `_admin_menu`.
 		add_action( 'admin_menu', array( __CLASS__, 'add_menu' ), 999 );
+		add_action( 'rest_api_init', array( __CLASS__, 'register_rest_routes' ) );
+
+		// Each feature lives in its own file and registers itself, so features can land independently.
+		$section_files = glob( __DIR__ . '/sections/class-*.php' );
+		foreach ( is_array( $section_files ) ? $section_files : array() as $section_file ) {
+			require_once $section_file;
+		}
+	}
+
+	/**
+	 * Add a section to the dashboard.
+	 *
+	 * @param Jetpack_Protect_Dashboard_Section $section The section.
+	 * @return void
+	 */
+	public static function register_section( Jetpack_Protect_Dashboard_Section $section ) {
+		self::$sections[ $section->get_key() ] = $section;
+	}
+
+	/**
+	 * Register every section's REST routes.
+	 *
+	 * @return void
+	 */
+	public static function register_rest_routes() {
+		foreach ( self::$sections as $section ) {
+			$section->register_routes();
+		}
+	}
+
+	/**
+	 * Each section's state, keyed by section key.
+	 *
+	 * @return array
+	 */
+	public static function get_initial_state() {
+		$state = array();
+		foreach ( self::$sections as $key => $section ) {
+			$state[ $key ] = $section->get_state();
+		}
+		return $state;
+	}
+
+	/**
+	 * Whether the current user may see and use the dashboard's REST routes.
+	 *
+	 * @return bool
+	 */
+	public static function can_manage() {
+		return current_user_can( 'manage_options' );
+	}
+
+	/**
+	 * Whether a module can run on this site, and whether it is on.
+	 *
+	 * @param string $module Module slug.
+	 * @return array
+	 */
+	public static function get_module_state( $module ) {
+		$modules = new Modules();
+
+		return array(
+			'available' => $modules->is_module( $module ),
+			'active'    => $modules->is_active( $module ),
+		);
 	}
 
 	/**
@@ -93,6 +168,9 @@ class Jetpack_Protect_Dashboard {
 	public static function render() {
 		$render_fn = 'jetpack_plugin_' . str_replace( '-', '_', self::WP_BUILD_PAGE_ID ) . '_wp_admin_render_page';
 		if ( function_exists( $render_fn ) ) {
+			wp_print_inline_script_tag(
+				'window.jetpackProtectDashboard = ' . wp_json_encode( (object) self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+			);
 			$render_fn();
 			return;
 		}

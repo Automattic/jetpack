@@ -1,0 +1,51 @@
+@use "@automattic/jetpack-base-styles/admin-page-layout" as *;
+
+// Shared Jetpack layout: fixed header and tab strip, scrolling middle.
+body.jetpack_page_jetpack-protect,
+body.toplevel_page_jetpack-protect {
+
+	@include jetpack-admin-page-layout-wp-build;
+}
+
+.jp-protect-dashboard__body {
+	box-sizing: border-box;
+	width: 100%;
+	max-width: 1184px;
+	margin-inline: auto;
+	padding: 24px;
+}
+
+.jp-protect-dashboard__cards {
+	display: flex;
+	flex-direction: column;
+	gap: var(--wpds-dimension-gap-lg);
+}
+
+.jp-protect-card {
+	overflow: hidden;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--wpds-color-background-surface-neutral);
+
+	&__header,
+	&__row {
+		padding: 16px 24px;
+	}
+
+	&__row {
+		border-block-start: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	}
+
+	&__muted {
+		color: var(--wpds-color-foreground-content-neutral-weak);
+	}
+
+	&__subheading {
+		margin: 0;
+		font-weight: 500;
+	}
+
+	&__stat-value.is-warning {
+		color: #8a6116;
+	}
+}

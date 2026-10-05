@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8f59b8dcd3034cfaa02277b260237ac0",
+    "content-hash": "d91c4ee230c801317c2b83153137e339",
     "packages": [
         {
             "name": "automattic/block-delimiter",
@@ -6541,6 +6541,8 @@
         "automattic/jetpack-post-list": 20,
         "automattic/jetpack-post-media": 20,
         "automattic/jetpack-premium-analytics": 20,
+        "automattic/jetpack-protect-models": 20,
+        "automattic/jetpack-protect-status": 20,
         "automattic/jetpack-publicize": 20,
         "automattic/jetpack-redirect": 20,
         "automattic/jetpack-roles": 20,

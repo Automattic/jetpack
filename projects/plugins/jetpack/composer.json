@@ -52,6 +52,8 @@
 		"automattic/jetpack-post-list": "@dev",
 		"automattic/jetpack-post-media": "@dev",
 		"automattic/jetpack-premium-analytics": "@dev",
+		"automattic/jetpack-protect-models": "@dev",
+		"automattic/jetpack-protect-status": "@dev",
 		"automattic/jetpack-publicize": "@dev",
 		"automattic/jetpack-redirect": "@dev",
 		"automattic/jetpack-roles": "@dev",
