@@ -156,7 +156,7 @@ export default function useProductCheckoutWorkflow(
 	 * @param {object}   [event]              - Event that dispatched run.
 	 * @param {Function} event.preventDefault - Prevents the default event behavior.
 	 * @param {string}   redirect             - A possible redirect URL to go to after the checkout.
-	 * @return {void} Nothing.
+	 * @return {Promise<void>|void} Never rejects: a failure sets `checkoutError` instead.
 	 */
 	const run = ( event?: { preventDefault: () => void }, redirect: string | null = null ) => {
 		event && event.preventDefault();
