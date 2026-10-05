@@ -14,7 +14,6 @@ import { __ } from '@wordpress/i18n';
  * Internal dependencies
  */
 import type { ReportCsvExporter } from './types';
-import type { CsvColumn } from '../helpers/build-csv';
 
 /** One Comments group's rows, with remote post permalinks guarded. */
 export function toCommentRows(
@@ -40,22 +39,19 @@ function commentsCsvExporter(
 		hasDateRange: false,
 		fetchItems: async () => toCommentRows( await fetchStatsComments(), group ),
 		toCsvRows: items => items,
-		getColumns: () => {
-			const columns: CsvColumn< StatsCommentsRow >[] = [
-				{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
-				{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
-			];
-
-			// Author links are relative wp-admin filters that can carry a guest's email.
-			if ( group === 'posts' ) {
-				columns.push( {
-					label: __( 'URL', 'jetpack-premium-analytics-pkg' ),
-					getValue: row => row.link ?? '',
-				} );
-			}
-
-			return columns;
-		},
+		getColumns: () => [
+			{ label: __( 'Name', 'jetpack-premium-analytics-pkg' ), getValue: row => row.label },
+			{ label: __( 'Comments', 'jetpack-premium-analytics-pkg' ), getValue: row => row.value },
+			// No URL for authors: their links only work on the site and can embed a guest's email.
+			...( group === 'posts'
+				? [
+						{
+							label: __( 'URL', 'jetpack-premium-analytics-pkg' ),
+							getValue: ( row: StatsCommentsRow ) => row.link ?? '',
+						},
+					]
+				: [] ),
+		],
 	};
 }
 

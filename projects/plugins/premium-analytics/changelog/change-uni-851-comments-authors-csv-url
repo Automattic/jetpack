@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Drop the URL column from the comment authors CSV, which held wp-admin links that only work on the site and guest commenters' email addresses.
+Drop the URL column from the comment authors CSV, since its links only worked on the site and could expose guest commenters' email addresses.
