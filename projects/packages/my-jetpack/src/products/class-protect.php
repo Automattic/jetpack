@@ -111,6 +111,22 @@ class Protect extends Hybrid_Product {
 	public static $plugin_slug = 'jetpack-protect';
 
 	/**
+	 * Activate local product steps without scheduling connected modules offline.
+	 *
+	 * @since $$next-version$$
+	 * @param bool|WP_Error $current_result The plugin activation result.
+	 * @param bool          $local Whether to keep activation local.
+	 * @return bool|WP_Error
+	 */
+	public static function do_product_specific_activation( $current_result, $local = false ) {
+		if ( $local ) {
+			// Protect's deferred admin hook would activate connected modules on the next request.
+			delete_option( static::$plugin_slug . '_activated' );
+		}
+		return parent::do_product_specific_activation( $current_result, $local );
+	}
+
+	/**
 	 * The category of the product
 	 *
 	 * @var string

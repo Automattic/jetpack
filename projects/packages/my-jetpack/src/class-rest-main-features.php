@@ -274,6 +274,12 @@ class REST_Main_Features {
 			return true;
 		}
 
+		if ( $active && Initializer::is_offline_features_enabled()
+			&& ! in_array( $slug, $modules->get_available( false, false, false, false ), true )
+		) {
+			return new WP_Error( 'switch_failed', __( 'Could not be switched on. It may need a Jetpack connection, or a plan that includes it.', 'jetpack-my-jetpack' ) );
+		}
+
 		// Gotcha: activate() still redirects and exits when a legacy plugin it replaces (such as
 		// stats/stats.php) is active, which ends this request, as it does Jetpack's own route.
 		$switched = $active ? $modules->activate( $slug, false, false ) : $modules->deactivate( $slug );
@@ -431,7 +437,11 @@ class REST_Main_Features {
 		// A refusal is not fatal here — the plugin is on either way, so failing the request
 		// would contradict the state it returns and invite a retry of what already happened.
 		if ( $product_class ) {
-			$product_class::do_product_specific_activation( true );
+			if ( is_subclass_of( $product_class, Hybrid_Product::class ) ) {
+				$product_class::do_product_specific_activation( true, Initializer::is_offline_features_enabled() );
+			} else {
+				$product_class::do_product_specific_activation( true );
+			}
 		}
 
 		return true;

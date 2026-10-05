@@ -137,6 +137,8 @@ class Initializer_Test extends BaseTestCase {
 		$this->assertSame( $network_admin, REST_Main_Features::permissions_callback() );
 		$this->assertSame( $network_admin, isset( Initializer::add_admin_script_data( array() )['myJetpack']['offlineFeatures'] ) );
 		$this->assertTrue( Initializer::should_initialize() );
+		Initializer::add_my_jetpack_menu_item();
+		$this->assertSame( $network_admin, false !== has_action( 'load-admin_page_my-jetpack', array( Initializer::class, 'admin_init' ) ) );
 		$this->assert_offline_page_permission( $network_admin );
 	}
 

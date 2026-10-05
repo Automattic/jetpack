@@ -617,11 +617,12 @@ class Search extends Hybrid_Product {
 	 * Activates the product. Try to enable instant search after the Search module was enabled.
 	 *
 	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @param bool          $local Skip connected Search setup.
 	 * @return bool|WP_Error
 	 */
-	public static function do_product_specific_activation( $product_activation ) {
-		$product_activation = parent::do_product_specific_activation( $product_activation );
-		if ( is_wp_error( $product_activation ) ) {
+	public static function do_product_specific_activation( $product_activation, $local = false ) {
+		$product_activation = parent::do_product_specific_activation( $product_activation, $local );
+		if ( is_wp_error( $product_activation ) || $local ) {
 			return $product_activation;
 		}
 

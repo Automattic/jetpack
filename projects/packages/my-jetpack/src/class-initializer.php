@@ -244,6 +244,10 @@ class Initializer {
 	 * @return void
 	 */
 	public static function add_my_jetpack_menu_item() {
+		if ( self::is_offline_features_enabled() && ! REST_Main_Features::permissions_callback() ) {
+			return;
+		}
+
 		$position    = defined( Admin_Menu::class . '::POSITION_FIRST' ) ? Admin_Menu::POSITION_FIRST : -10;
 		$menu_slug   = 'my-jetpack';
 		$page_suffix = Admin_Menu::add_menu(

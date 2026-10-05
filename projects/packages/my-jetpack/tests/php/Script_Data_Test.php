@@ -27,6 +27,7 @@ class Script_Data_Test extends BaseTestCase {
 		\Automattic\Jetpack\Status\Cache::clear();
 		add_filter( 'jetpack_offline_mode', '__return_true' );
 		try {
+			$this->assertFalse( Initializer::should_initialize() );
 			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
 			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			$this->assertArrayNotHasKey( 'offlineFeatures', Initializer::add_admin_script_data( array() )['myJetpack'] );
@@ -117,6 +118,7 @@ class Script_Data_Test extends BaseTestCase {
 			$before = Initializer::add_admin_script_data( array() );
 			add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
 			$this->assertSame( $before, Initializer::add_admin_script_data( array() ) );
+			$this->assertSame( Main_Features::get_state(), REST_Main_Features::get_state()->get_data() );
 			$this->assertTrue( Initializer::should_initialize() );
 		} finally {
 			remove_all_filters( 'jetpack_offline_mode' );

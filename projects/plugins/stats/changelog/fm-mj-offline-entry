@@ -1,4 +1,3 @@
-Significance: minor
-Type: added
-
-My Jetpack: Add an opt-in Features page for managing local features in offline mode.
+Significance: patch
+Type: changed
+Comment: Prepare gated offline Features entry; it remains unreleased and disabled by default.

@@ -102,9 +102,10 @@ abstract class Hybrid_Product extends Product {
 	 * Activates the product. If the Hybrid product has declared a jetpack module name, let's try to activate it if Jetpack plugin is active
 	 *
 	 * @param bool|WP_Error $product_activation Is the result of the top level activation actions. You probably won't do anything if it is an WP_Error.
+	 * @param bool          $local Skip plan reads and activate only modules that work locally.
 	 * @return bool|WP_Error
 	 */
-	public static function do_product_specific_activation( $product_activation ) {
+	public static function do_product_specific_activation( $product_activation, $local = false ) {
 
 		if ( is_wp_error( $product_activation ) ) {
 			// If we failed to install the stand-alone plugin because the package was not found, let's try and install Jetpack plugin instead.
@@ -121,9 +122,13 @@ abstract class Hybrid_Product extends Product {
 		}
 
 		if ( ! empty( static::$module_name ) ) {
+			if ( $local && ! in_array( static::$module_name, ( new Modules() )->get_available( false, false, false, false ), true ) ) {
+				return true;
+			}
+
 			// Only activate the module if the plan supports it
 			// We don't want to throw an error for a missing plan here since we try activation before purchase
-			if ( static::$requires_plan && ! static::has_any_plan_for_product() ) {
+			if ( ! $local && static::$requires_plan && ! static::has_any_plan_for_product() ) {
 				return true;
 			}
 

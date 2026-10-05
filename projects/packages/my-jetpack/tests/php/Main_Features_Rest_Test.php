@@ -5,6 +5,9 @@ namespace Automattic\Jetpack\My_Jetpack;
 use Automattic\Jetpack\Connection\Tokens;
 use Automattic\Jetpack\Current_Plan;
 use Jetpack_Options;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\PreserveGlobalState;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use PHPUnit\Framework\TestCase;
 use WorDBless\Options as WorDBless_Options;
 use WorDBless\Users as WorDBless_Users;
@@ -154,7 +157,34 @@ class Main_Features_Rest_Test extends TestCase {
 		$this->assertSame( Main_Features::PLUGIN_INACTIVE, $this->boost_status( $deactivated ) );
 	}
 
-	public function test_offline_plugin_switch_returns_local_state_with_copied_credentials() {
+	/**
+	 * @dataProvider offline_plugin_switches
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param string $plugin Plugin slug.
+	 * @param bool   $bulk Whether to use the bulk route.
+	 */
+	#[DataProvider( 'offline_plugin_switches' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_plugin_switch_returns_local_state_with_copied_credentials( $plugin, $bulk ) {
+		$file        = null;
+		$original    = null;
+		$created_dir = false;
+		if ( $plugin !== 'jetpack-boost' ) {
+			$folder      = WP_PLUGIN_DIR . '/' . $plugin;
+			$created_dir = ! is_dir( $folder );
+			if ( $created_dir ) {
+				mkdir( $folder );
+			}
+			$file     = $folder . '/' . $plugin . '.php';
+			$original = file_exists( $file ) ? file_get_contents( $file ) : null;
+			file_put_contents( $file, "<?php\n/** Plugin Name: Offline switch fixture */\n" );
+			wp_cache_delete( 'plugins', 'plugins' );
+		}
+		if ( $plugin === 'jetpack-boost' ) {
+			update_option( 'jb_get_started', true );
+		}
 		\Automattic\Jetpack\Connection\Utils::init_default_constants();
 		Jetpack_Options::update_option( 'blog_token', 'copiedkey.copiedsecret' );
 		\Automattic\Jetpack\Status\Cache::clear();
@@ -170,12 +200,31 @@ class Main_Features_Rest_Test extends TestCase {
 			\Automattic\Jetpack\Connection\Client::wpcom_json_api_request_as_blog( '/sites/123', '1.1' );
 			$this->assertCount( 1, $attempts, 'The signed control must reach the tripwire.' );
 			$attempts  = array();
-			$activated = $this->send( 'jetpack-boost', 'activate' );
+			$activated = $bulk ? $this->send_bulk(
+				array(
+					'active'  => true,
+					'plugins' => array( $plugin ),
+				)
+			) : $this->send( $plugin, 'activate' );
 			$this->assertSame( 200, $activated->get_status() );
-			$this->assertSame( Main_Features::get_state( true ), $activated->get_data() );
-			$this->assertSame( Main_Features::PLUGIN_ACTIVE, $this->boost_status( $activated ) );
+			$state = $bulk ? $activated->get_data()['state'] : $activated->get_data();
+			$this->assertSame( Main_Features::get_state( true ), $state );
+			$this->assertSame( Main_Features::PLUGIN_ACTIVE, Main_Features::get_plugin_status( $plugin ) );
+			if ( $plugin === 'jetpack-boost' ) {
+				$this->assertFalse( get_option( 'jb_get_started', 'not_started' ) );
+			}
 			$this->assertSame( array(), $attempts );
 		} finally {
+			if ( $file ) {
+				if ( null !== $original ) {
+					file_put_contents( $file, $original );
+				} else {
+					unlink( $file );
+				}
+				if ( $created_dir ) {
+					rmdir( dirname( $file ) );
+				}
+			}
 			remove_filter( 'pre_http_request', $tripwire, 10 );
 			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
 			remove_all_filters( 'jetpack_offline_mode' );
@@ -183,6 +232,68 @@ class Main_Features_Rest_Test extends TestCase {
 		}
 	}
 
+	/** @return array Offline plugin/route cases. */
+	public static function offline_plugin_switches() {
+		return array(
+			'Boost single'  => array( 'jetpack-boost', false ),
+			'Boost bulk'    => array( 'jetpack-boost', true ),
+			'Backup single' => array( 'jetpack-backup', false ),
+			'Backup bulk'   => array( 'jetpack-backup', true ),
+			'Search single' => array( 'jetpack-search', false ),
+			'Search bulk'   => array( 'jetpack-search', true ),
+		);
+	}
+
+	/**
+	 * @dataProvider offline_module_routes
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 * @param bool   $plugin_route Whether to switch the Protect plugin or a module.
+	 * @param string $module Module slug.
+	 * @param bool   $active Whether the module should activate.
+	 */
+	#[DataProvider( 'offline_module_routes' )]
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_offline_module_activation_respects_connection_requirement( $plugin_route, $module, $active ) {
+		add_filter( 'jetpack_offline_mode', '__return_true' );
+		add_filter( 'jetpack_my_jetpack_offline_features', '__return_true' );
+		\Automattic\Jetpack\Status\Cache::clear();
+		$available = function ( $modules, $requires_connection ) { // phpcs:ignore VariableAnalysis.CodeAnalysis.VariableAnalysis.UnusedVariable -- WordPress filter signature.
+			return false === $requires_connection ? array( 'markdown' ) : array( 'protect', 'markdown' );
+		};
+		add_filter( 'jetpack_get_available_standalone_modules', $available, 10, 2 );
+		add_filter( 'user_has_cap', array( $this, 'grant_manage_modules' ) );
+		try {
+			if ( $plugin_route ) {
+				add_option( 'jetpack-protect_activated', true );
+				Products\Protect::do_product_specific_activation( true, true );
+				$this->assertFalse( get_option( 'jetpack-protect_activated' ) );
+			} else {
+				$this->send_bulk(
+					array(
+						'active'  => true,
+						'modules' => array( $module ),
+					)
+				);
+			}
+			$this->assertSame( $active, ( new \Automattic\Jetpack\Modules() )->is_active( $module ) );
+		} finally {
+			remove_filter( 'jetpack_get_available_standalone_modules', $available, 10 );
+			remove_all_filters( 'jetpack_offline_mode' );
+			remove_all_filters( 'jetpack_my_jetpack_offline_features' );
+			\Automattic\Jetpack\Status\Cache::clear();
+		}
+	}
+
+	/** @return array Protect activation entry points. */
+	public static function offline_module_routes() {
+		return array(
+			'Protect product step' => array( true, 'protect', false ),
+			'Protect bulk module'  => array( false, 'protect', false ),
+			'local bulk module'    => array( false, 'markdown', true ),
+		);
+	}
 	/**
 	 * Switching a plugin on has to run the product's own activation step too, or a
 	 * product that needs more than its plugin comes up half on.
