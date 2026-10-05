@@ -360,7 +360,7 @@ describe( 'Wizard shell', () => {
 	it( 'sends the rail out to WordPress and the footer back to My Jetpack', () => {
 		setupWizard();
 
-		const railExit = screen.getByRole( 'link', { name: 'Back to WordPress' } );
+		const railExit = screen.getByRole( 'link', { name: 'Back to your WordPress site' } );
 		const skip = screen.getByRole( 'link', { name: 'Skip setup' } );
 
 		expect( railExit ).toHaveAttribute( 'href', dashboardUrl );
