@@ -1153,6 +1153,39 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 		}
 
 		/**
+		 * Give every frame realm an open() with a fixed answer, from before the
+		 * hook wraps it.
+		 *
+		 * jsdom has no open() of its own. Patched through the contentWindow
+		 * getter like watchAnchorClicks, so it is in place by the time the hook
+		 * reads the realm.
+		 *
+		 * @param {*} result - What open() hands back: null for a blocked popup.
+		 * @return {jest.Mock} The open() PayPal's SDK would call.
+		 */
+		function stubPopups( result ) {
+			const open = jest.fn( () => result );
+			const patched = new WeakSet();
+			const realGetter = Object.getOwnPropertyDescriptor(
+				window.HTMLIFrameElement.prototype,
+				'contentWindow'
+			).get;
+
+			jest
+				.spyOn( window.HTMLIFrameElement.prototype, 'contentWindow', 'get' )
+				.mockImplementation( function () {
+					const frameWindow = realGetter.call( this );
+					if ( frameWindow && ! patched.has( frameWindow ) ) {
+						patched.add( frameWindow );
+						frameWindow.open = open;
+					}
+					return frameWindow;
+				} );
+
+			return open;
+		}
+
+		/**
 		 * Every signup-link request the block has sent.
 		 *
 		 * @return {Array} The matching apiFetch calls.
@@ -1953,6 +1986,49 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await user.keyboard( '{Escape}' );
 
 			expect( editor ).toHaveBeenCalled();
+		} );
+
+		it( 'tells the merchant when the browser blocks PayPal’s window, and keeps the referral', async () => {
+			const user = userEvent.setup();
+			const open = stubPopups( null );
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			// What PayPal's SDK does with the click: open its mini-browser.
+			act( () => {
+				frame.contentWindow.open( 'https://www.sandbox.paypal.com/merchantsignup/x', 'PPFrame' );
+			} );
+
+			expect( open ).toHaveBeenCalled();
+			await waitFor( () =>
+				expect( frame ).not.toHaveClass( 'jetpack-paypal-onboarding-frame--active' )
+			);
+			expect( screen.getByText( /blocked PayPal’s window/ ) ).toBeInTheDocument();
+			// PayPal never opened, so the link is unspent: same frame, no new referral.
+			expect( frame ).toBeInTheDocument();
+			expect( signupLinkCalls() ).toHaveLength( 1 );
+
+			// The next click opens it straight away, and the notice goes with the attempt.
+			await user.click( screen.getByRole( 'button', { name: /Connect PayPal/i } ) );
+
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+			expect( screen.queryByText( /blocked PayPal’s window/ ) ).not.toBeInTheDocument();
+			expect( signupLinkCalls() ).toHaveLength( 1 );
+		} );
+
+		it( 'leaves the overlay up when PayPal’s window opens', async () => {
+			stubPopups( { focus: () => {} } );
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			const frame = await openActiveOverlay();
+
+			act( () => {
+				frame.contentWindow.open( 'https://www.sandbox.paypal.com/merchantsignup/x', 'PPFrame' );
+			} );
+
+			expect( frame ).toHaveClass( 'jetpack-paypal-onboarding-frame--active' );
+			expect( screen.queryByText( /blocked PayPal’s window/ ) ).not.toBeInTheDocument();
 		} );
 
 		it( 'leaves the overlay up for keys that are not Escape', async () => {

@@ -227,6 +227,8 @@ export default function ConnectionWizard( {
 									environment,
 									method: 'partner_referrals',
 								} );
+								// A notice from the last attempt belongs to that attempt.
+								setConnectError( null );
 								setOnboardingRequested( true );
 							} }
 							isBusy={ isOpeningPayPal || isCompletingOnboarding }
