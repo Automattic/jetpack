@@ -920,10 +920,10 @@ class Jetpack_Memberships {
 			'posts_per_page' => 1,
 		);
 
-		// We want to see if user has any plan marked as a newsletter set up.
+		// We want to see if user has any newsletter tier set up.
 		if ( 'newsletter' === $type ) {
-			$query['meta_key']   = 'jetpack_memberships_site_subscriber';
-			$query['meta_value'] = true;
+			$query['meta_key']   = 'jetpack_memberships_type';
+			$query['meta_value'] = self::$type_tier;
 		}
 
 		$plans = get_posts( $query );
