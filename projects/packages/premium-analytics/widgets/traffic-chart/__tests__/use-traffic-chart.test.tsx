@@ -379,12 +379,20 @@ describe( 'useTrafficChart', () => {
 } );
 
 describe( 'useTrafficChart tooltip extras', () => {
+	const VIEWS_VISITORS = {
+		unit: 'month',
+		fields: [ 'period', 'views', 'visitors' ],
+		data: [
+			[ '2026-05', 1200, 900 ],
+			[ '2026-06', 800, 0 ],
+		],
+	};
 	const WITH_POSTS = {
 		unit: 'month',
-		fields: [ 'period', 'views', 'visitors', 'post_titles' ],
+		fields: [ 'period', 'likes', 'comments', 'post_titles' ],
 		data: [
-			[ '2026-05', 1200, 900, [ 'Hello world' ] ],
-			[ '2026-06', 800, 0, [] ],
+			[ '2026-05', 30, 12, [ 'Hello world' ] ],
+			[ '2026-06', 20, 8, [] ],
 		],
 	};
 
@@ -393,7 +401,7 @@ describe( 'useTrafficChart tooltip extras', () => {
 		queryClient.clear();
 		mockApiFetch.mockReset();
 		mockApiFetch.mockImplementation( ( { path = '' }: { path?: string } ) =>
-			Promise.resolve( path.includes( 'views' ) ? WITH_POSTS : LIKES_COMMENTS_RESPONSE )
+			Promise.resolve( path.includes( 'views' ) ? VIEWS_VISITORS : WITH_POSTS )
 		);
 	} );
 
@@ -401,13 +409,15 @@ describe( 'useTrafficChart tooltip extras', () => {
 		jest.useRealTimers();
 	} );
 
-	it( 'asks the views request for the post titles too', async () => {
+	it( 'asks the likes and comments request for the post titles, not the views one', async () => {
 		const { result } = renderHook( () => useTrafficChart( RANGE, 'month' ), { wrapper } );
 
 		await waitFor( () => expect( result.current.isFetching ).toBe( false ) );
 
-		expect( visitsPaths()[ 0 ] ).toContain(
-			`stat_fields=${ encodeURIComponent( 'views,visitors,post_titles' ) }`
+		const [ views, likesComments ] = visitsPaths();
+		expect( views ).toContain( `stat_fields=${ encodeURIComponent( 'views,visitors' ) }` );
+		expect( likesComments ).toContain(
+			`stat_fields=${ encodeURIComponent( 'likes,comments,post_titles' ) }`
 		);
 	} );
 
@@ -425,7 +435,6 @@ describe( 'useTrafficChart tooltip extras', () => {
 		expect( comments.tooltipExtras ).toBeUndefined();
 		expect( likes.tooltipExtras ).toBeUndefined();
 
-		// One row per bucket that has a reading: no ratio without visitors, no post row without posts.
 		const [ ratio, posts ] = views.tooltipExtras ?? [];
 		expect( ratio.data ).toHaveLength( 1 );
 		expect( ratio.data[ 0 ].value ).toBeCloseTo( 1.33, 2 );

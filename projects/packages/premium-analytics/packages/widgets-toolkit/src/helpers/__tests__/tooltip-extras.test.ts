@@ -5,7 +5,7 @@ import { _n } from '@wordpress/i18n';
 /**
  * Internal dependencies
  */
-import { appendTooltipExtras, resolveTooltipUnits } from '../tooltip-extras';
+import { appendTooltipExtras, previousRowKey, resolveTooltipUnits } from '../tooltip-extras';
 
 const JULY_1 = new Date( '2026-07-01T00:00:00Z' );
 const JULY_2 = new Date( '2026-07-02T00:00:00Z' );
@@ -73,25 +73,29 @@ describe( 'appendTooltipExtras', () => {
 		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY } );
 	} );
 
-	it( 'keys an extra by its own key, so two can share a label', () => {
-		const previous = {
-			label: 'Average CPM',
-			key: 'cpm-previous',
-			data: [ { date: JULY_1, value: 0.1 } ],
-			dataFormat: CURRENCY,
-		};
+	it( "appends an extra's comparison point right after it, read under the same label", () => {
+		const withPrevious = { ...CPM, previous: [ { date: JULY_1, realDate: JULY_2, value: 0.1 } ] };
 		const { tooltipData, supplementaryRows } = appendTooltipExtras( hoveredAt( JULY_1 ), [
-			CPM,
-			previous,
+			withPrevious,
+			REVENUE,
 		] );
+		const previousKey = previousRowKey( 'Average CPM' );
 
 		expect( Object.keys( tooltipData?.datumByKey ?? {} ) ).toEqual( [
 			'Views',
 			'Average CPM',
-			'cpm-previous',
+			previousKey,
+			'Revenue',
 		] );
-		expect( supplementaryRows ).toEqual( { 'Average CPM': CURRENCY, 'cpm-previous': CURRENCY } );
-		expect( resolveTooltipUnits( [], [ CPM, previous ] ).get( 'cpm-previous' ) ).toEqual( {
+		expect( tooltipData?.datumByKey?.[ previousKey ] ).toMatchObject( {
+			datum: { realDate: JULY_2, value: 0.1 },
+		} );
+		expect( supplementaryRows ).toEqual( {
+			'Average CPM': CURRENCY,
+			[ previousKey ]: CURRENCY,
+			Revenue: undefined,
+		} );
+		expect( resolveTooltipUnits( [], [ withPrevious ] ).get( previousKey ) ).toEqual( {
 			name: 'Average CPM',
 			countLabel: undefined,
 		} );

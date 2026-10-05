@@ -93,16 +93,17 @@ export default function useTrafficChart(
 
 	// Memoize each request's params (as sibling Stats widgets do) so the query key
 	// is stable across renders. `post_titles` feeds the tooltip's posts-published
-	// row; the hourly report has none to give, so it is not asked for it.
+	// row; it rides with likes and comments so a slow or failed post lookup cannot
+	// take the Views chart down with it. The hourly report has no titles to give.
 	const viewsVisitorsParams = useMemo(
-		() => toVisitsParams( reportParams, isHourly ? 'views' : 'views,visitors,post_titles', period ),
+		() => toVisitsParams( reportParams, isHourly ? 'views' : 'views,visitors', period ),
 		[ reportParams, period, isHourly ]
 	);
 	const likesCommentsParams = useMemo(
 		() =>
 			isHourly
 				? toVisitsParams( reportParams, 'visitors,likes,comments', 'day' )
-				: toVisitsParams( reportParams, 'likes,comments', period ),
+				: toVisitsParams( reportParams, 'likes,comments,post_titles', period ),
 		[ reportParams, period, isHourly ]
 	);
 
@@ -131,8 +132,23 @@ export default function useTrafficChart(
 	// Visitors tabs the way classic Stats does; the other tabs list their own metric only.
 	const trafficTooltipExtras = useMemo(
 		() =>
-			buildTrafficTooltipExtras( vvPrimary, vvZone, vvHasComparison ? vvComparison : undefined ),
-		[ vvPrimary, vvZone, vvComparison, vvHasComparison ]
+			buildTrafficTooltipExtras(
+				{ views: vvPrimary, posts: isHourly ? undefined : lcPrimary },
+				vvZone,
+				vvHasComparison
+					? { views: vvComparison, posts: lcHasComparison ? lcComparison : undefined }
+					: undefined
+			),
+		[
+			vvPrimary,
+			vvZone,
+			vvComparison,
+			vvHasComparison,
+			lcPrimary,
+			lcComparison,
+			lcHasComparison,
+			isHourly,
+		]
 	);
 
 	// One tab per metric, in canonical definition order.
