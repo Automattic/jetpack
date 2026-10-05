@@ -50,7 +50,6 @@ function buildDateFilters(): ReportDateFilters {
 		canApply: true,
 		timeZone: 'UTC',
 		replaceRange: jest.fn(),
-		drillDown: jest.fn(),
 	};
 }
 

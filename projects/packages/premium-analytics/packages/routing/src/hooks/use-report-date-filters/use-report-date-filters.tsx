@@ -6,12 +6,7 @@ import {
 	hasComparisonEnabled,
 	resolveIntervalForRange,
 } from '@jetpack-premium-analytics/data';
-import {
-	drillDateRange,
-	PRESET_CUSTOM,
-	reportingTimeZone,
-	toLocalTZ,
-} from '@jetpack-premium-analytics/datetime';
+import { reportingTimeZone } from '@jetpack-premium-analytics/datetime';
 import { useCallback, useMemo } from 'react';
 /**
  * Internal dependencies
@@ -73,13 +68,6 @@ export type ReportDateFilters = {
 	onComparisonChange: ( range: DateRange | undefined, presetId?: ComparisonPresetId ) => void;
 	onIntervalChange: ( interval: IntervalType ) => void;
 
-	/**
-	 * Open the chart bucket containing a date, narrowing to the next finer
-	 * interval. `interval` is the bucket size the chart drew; defaults to the
-	 * applied interval.
-	 */
-	drillDown: ( date: Date, interval?: IntervalType ) => void;
-
 	onApply: () => void;
 	onCancel: () => void;
 	canApply: boolean;
@@ -122,12 +110,10 @@ function toPickerRange( from: string | undefined, to: string | undefined, timeZo
  * everything `DateFiltersPanel` needs. Shared by every analytics page that
  * mounts the panel so the staged-search behavior stays identical across them.
  *
- * @param from - The route path the search params are bound to (e.g. `/`). Omit
- *             to bind to whichever route is matched, as a widget must: it
- *             renders on any page that hosts it.
+ * @param from - The route path the search params are bound to (e.g. `/`).
  * @return Props for `DateFiltersPanel`.
  */
-export function useReportDateFilters< TFrom extends string >( from?: TFrom ): ReportDateFilters {
+export function useReportDateFilters< TFrom extends string >( from: TFrom ): ReportDateFilters {
 	const { committed, effective, stage, commit, revert, isDirty } = useStagedSearch<
 		ReportQuerySearchParams,
 		TFrom
@@ -219,7 +205,7 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 	);
 
 	// What the widgets are drawing, for the surfaces that describe them rather
-	// than the picker — the chart the drill-down reads its buckets from.
+	// than the picker.
 	const appliedInterval = useMemo(
 		() =>
 			resolveIntervalForRange(
@@ -267,57 +253,6 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		[ stage, commit, hasPrimaryDraft ]
 	);
 
-	/*
-	 * Commits and pushes a history entry, so Back exits a drill-down. Reads the
-	 * applied range/interval, not the staged one: the chart draws what's
-	 * applied, so the click belongs to that window.
-	 */
-	const drillDown = useCallback(
-		( date: Date, bucketInterval: IntervalType = appliedInterval ) => {
-			/*
-			 * Re-anchored to the site zone first: `drillDateRange` closes a bucket
-			 * on the clock of the date passed in, and a plain instant would cut it
-			 * on the browser's clock instead.
-			 */
-			const drilled = drillDateRange(
-				toLocalTZ( date, timeZone ),
-				bucketInterval,
-				toLocalTZ( undefined, timeZone )
-			);
-
-			if ( ! drilled?.from || ! drilled.to ) {
-				return;
-			}
-
-			/*
-			 * Kept inside the applied window: a bucket at either edge of the chart
-			 * is usually a partial one, and opening it whole would widen the report
-			 * past the range the user asked for.
-			 */
-			const clampedFrom =
-				appliedRange.from && drilled.from < appliedRange.from ? appliedRange.from : drilled.from;
-			const clampedTo =
-				appliedRange.to && drilled.to > appliedRange.to ? appliedRange.to : drilled.to;
-
-			if ( clampedFrom.getTime() >= clampedTo.getTime() ) {
-				return;
-			}
-
-			const patch = buildRangePatch( {
-				nextRange: { from: clampedFrom, to: clampedTo },
-				nextPresetId: PRESET_CUSTOM,
-				exactRange: true,
-				effective,
-			} );
-
-			if ( patch ) {
-				stage( patch );
-				commit();
-			}
-		},
-		[ appliedInterval, appliedRange, commit, effective, stage, timeZone ]
-	);
-
 	const onApply = useCallback( () => commit(), [ commit ] );
 	const onCancel = useCallback( () => revert(), [ revert ] );
 
@@ -351,7 +286,6 @@ export function useReportDateFilters< TFrom extends string >( from?: TFrom ): Re
 		onChange,
 		onComparisonChange,
 		onIntervalChange,
-		drillDown,
 		onApply,
 		onCancel,
 		canApply: isDirty,

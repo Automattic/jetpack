@@ -1,7 +1,11 @@
 /**
+ * External dependencies
+ */
+import { localTZDate } from '@jetpack-premium-analytics/datetime';
+/**
  * Internal dependencies
  */
-import { monthRange, yearRange } from '../period-range';
+import { bucketRange, monthRange, yearRange } from '../period-range';
 
 const bounds = {
 	lifeStartsAt: new Date( '2026-04-10T16:27:32Z' ),
@@ -75,5 +79,47 @@ describe( 'yearRange', () => {
 
 	it( 'has nothing to open for a year after today', () => {
 		expect( yearRange( 2027, bounds ) ).toBeNull();
+	} );
+} );
+
+describe( 'bucketRange', () => {
+	const clock = { timeZone: 'UTC', now: new Date( '2027-01-01T00:00:00Z' ) };
+	const window = {
+		from: localTZDate( '2022-01-01T00:00:00.000Z', 'UTC' ),
+		to: localTZDate( '2026-12-31T23:59:59.999Z', 'UTC' ),
+	};
+
+	it.each( [
+		[ 'day', '2026-07-21T13:45:00Z', '2026-07-21T00:00:00.000Z', '2026-07-21T23:59:59.999Z' ],
+		[ 'week', '2026-07-22T00:00:00Z', '2026-07-20T00:00:00.000Z', '2026-07-26T23:59:59.999Z' ],
+		[ 'month', '2026-02-14T00:00:00Z', '2026-02-01T00:00:00.000Z', '2026-02-28T23:59:59.999Z' ],
+		[ 'year', '2024-05-09T00:00:00Z', '2024-01-01T00:00:00.000Z', '2024-12-31T23:59:59.999Z' ],
+	] as const )( 'opens the %s bucket holding the date', ( interval, date, from, to ) => {
+		expect( bucketRange( new Date( date ), interval, window, clock ) ).toEqual( {
+			from: new Date( from ),
+			to: new Date( to ),
+		} );
+	} );
+
+	it( 'opens nothing for an hourly bucket, the finest reading there is', () => {
+		expect( bucketRange( new Date( '2026-07-21T13:00:00Z' ), 'hour', window, clock ) ).toBeNull();
+	} );
+
+	it( 'cuts a partial edge bucket to the window', () => {
+		const midWeek = { from: localTZDate( '2026-07-22T00:00:00.000Z', 'UTC' ), to: window.to };
+
+		expect( bucketRange( new Date( '2026-07-23T00:00:00Z' ), 'week', midWeek, clock ) ).toEqual( {
+			from: midWeek.from,
+			to: new Date( '2026-07-26T23:59:59.999Z' ),
+		} );
+	} );
+
+	it( 'opens nothing for a bucket outside the window', () => {
+		const july = {
+			from: localTZDate( '2026-07-01T00:00:00.000Z', 'UTC' ),
+			to: localTZDate( '2026-07-30T23:59:59.999Z', 'UTC' ),
+		};
+
+		expect( bucketRange( new Date( '2026-09-05T00:00:00Z' ), 'day', july, clock ) ).toBeNull();
 	} );
 } );
