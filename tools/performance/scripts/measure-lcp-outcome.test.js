@@ -824,7 +824,7 @@ test( 'a disconnect failure does not discard the long-task capture', () => {
 	assert.equal( observer.disconnected, true );
 } );
 
-test( 'TBT preserves zero in summary and requires a majority for optional-page posting', () => {
+test( 'TBT preserves zero and requires a majority for posted Dashboard and optional-page metrics', () => {
 	const forms = SCENARIOS.find( scenario => scenario.key === 'formsResponses' );
 	const results = [ 1, 2, 3 ].map( healthyIteration );
 	assert.equal( finalizeMeasurement( forms, results, 3, 'u' ).summary.tbt.median, 0 );
@@ -836,5 +836,8 @@ test( 'TBT preserves zero in summary and requires a majority for optional-page p
 		/missing posted field\(s\): tbt/
 	);
 	const dashboard = SCENARIOS.find( scenario => scenario.key === 'jetpackConnected' );
-	assert.doesNotThrow( () => finalizeMeasurement( dashboard, results, 3, 'u' ) );
+	assert.throws(
+		() => finalizeMeasurement( dashboard, results, 3, 'u' ),
+		/missing posted field\(s\): tbt/
+	);
 } );

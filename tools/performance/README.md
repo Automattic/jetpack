@@ -29,7 +29,7 @@ The test suite is designed to run in TeamCity.
 
 ## Metrics
 
-Each scenario posts its metrics in a single CodeVitals call per run (one per `metrics` entry in `scenarios.js`). Each metric reads its value from `summary.<field>.median` and is range-checked against its `type` in `SANITY_RANGES` before posting.
+All scenarios and Dashboard overhead deltas share one CodeVitals call per run. Each absolute metric reads `summary.<field>.median` and is range-checked against its `type` in `SANITY_RANGES` before posting.
 
 ### `jetpackConnected` — wp-admin Dashboard (simulated connection)
 
@@ -112,7 +112,7 @@ A buffered Long Tasks observer is installed before page scripts on every navigat
 
 **Pre-FCP tasks are included. This is not Lighthouse TBT:** conventional TBT measures a post-FCP interval; this harness measures the full initial load through its own cutoff. Later interaction tasks are excluded. CPU throttling and warm-cache policy are unchanged. Downloaded JavaScript that never executes contributes no blocking time.
 
-A working observer with no long tasks records zero; unsupported or failed capture records `null`, with the cause in `longTaskError`, never a fabricated zero. `summary.tbt` uses the existing strict-majority finite-sample rule and rounded millisecond statistics. Without a strict majority of finite TBT samples, Forms or My Jetpack is incomplete: its optional failure policy skips all eight keys for that build, including its four production keys. An out-of-range TBT median refuses the whole post, including Dashboard keys. Dashboard TBT remains diagnostic in the results and summary and has no posted key.
+A working observer with no long tasks records zero; unsupported or failed capture records `null`, with the cause in `longTaskError`, never a fabricated zero. `summary.tbt` uses the existing strict-majority finite-sample rule and rounded millisecond statistics. Without a strict majority of finite TBT samples, a scenario is incomplete and follows its optional/required failure policy. An out-of-range TBT median refuses the whole post. Both Dashboard scenarios now post TBT staging keys alongside their overhead delta.
 
 Forms and My Jetpack use `-staging` TBT keys and remain optional. Register both TBT keys with unit `ms` before the first live post. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms.
 
@@ -170,7 +170,7 @@ Each field maps to `<prefix>-wp-total-staging`, `<prefix>-wp-memory-usage-stagin
 
 These twelve keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
 
-Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including instrumentation and, for connected scenarios, the simulated connection. Overhead deltas require a separate change.
+Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including instrumentation and, for connected scenarios, the simulated connection.
 
 Buffering can move TTFB to the shutdown flush. Ten interleaved pre/post runs of five iterations on one pinned fixture (PHP 8.2, CPU 3.85x, mock latency 200 ms) gave these medians of run medians:
 
@@ -181,6 +181,29 @@ Buffering can move TTFB to the shutdown flush. Ten interleaved pre/post runs of 
 | My Jetpack | 81.5 → 79                | 907 → 876               | 446 → 430               | 8757 → 8757                |
 
 All timing differences stayed inside the local digest noise bars (TTFB 5.64–11.46 ms; LCP 22.30–103.47 ms). This evidence cannot exclude smaller effects or predict CI-host behavior; inspect the three `timeToFirstByte` series at the landing commit. Peak memory rose about 131 KB across 20 candidate runs; the cause was not established, so its MAD describes drift as well as noise. Staging builds and measured per-key floors remain necessary.
+
+### Dashboard overhead deltas
+
+For each field below, subtract the `jetpackConnected-noJetpack` median from the `jetpackConnected` median in the same results file. These are differences of medians, not medians of paired iterations. All eight deltas and their absolute inputs share the run's POST, commit hash and timestamp. No other scenario has deltas.
+
+If either side is absent, failed, or lacks a field summary because it missed the strict-majority finite-sample floor, skip that field's delta and log the reason; never substitute zero. Existing absolute-metric failure policies still apply, including refusing the whole POST for a failed required scenario or a sanity failure. Signed deltas, including negative values and measured zero differences, are valid. Each delta has a symmetric sanity range in `SANITY_RANGES`; an absurd delta is logged, excluded and triggers the atomic sanity gate.
+
+Register all twelve new keys below with the listed units: eight deltas and four Dashboard decoded-size/TBT absolutes. All twelve new keys use `-staging`; registration and production promotion are separate work. Dashboard decoded-size absolutes allow 1–51200 KB because the core-only control can be smaller than the app scenarios.
+
+| CodeVitals key                                                      | Field            | Unit  |
+| ------------------------------------------------------------------- | ---------------- | ----- |
+| `wp-admin-dashboard-connection-sim-decodedBytesKB-staging`          | `decodedBytesKB` | KB    |
+| `wp-admin-dashboard-connection-sim-loadBlockingTime-staging`        | `tbt`            | ms    |
+| `wp-admin-dashboard-noJetpack-decodedBytesKB-staging`               | `decodedBytesKB` | KB    |
+| `wp-admin-dashboard-noJetpack-loadBlockingTime-staging`             | `tbt`            | ms    |
+| `wp-admin-dashboard-jetpackOverhead-largestContentfulPaint-staging` | `lcp`            | ms    |
+| `wp-admin-dashboard-jetpackOverhead-timeToFirstByte-staging`        | `ttfb`           | ms    |
+| `wp-admin-dashboard-jetpackOverhead-firstContentfulPaint-staging`   | `fcp`            | ms    |
+| `wp-admin-dashboard-jetpackOverhead-decodedBytesKB-staging`         | `decodedBytesKB` | KB    |
+| `wp-admin-dashboard-jetpackOverhead-loadBlockingTime-staging`       | `tbt`            | ms    |
+| `wp-admin-dashboard-jetpackOverhead-wp-total-staging`               | `wpTotal`        | ms    |
+| `wp-admin-dashboard-jetpackOverhead-wp-memory-usage-staging`        | `wpMemoryUsage`  | bytes |
+| `wp-admin-dashboard-jetpackOverhead-wp-db-queries-staging`          | `wpDbQueries`    | count |
 
 ### Known fixture behavior on the My Jetpack page
 
