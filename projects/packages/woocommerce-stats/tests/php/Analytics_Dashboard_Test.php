@@ -78,10 +78,20 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$this->assertSame( 40, $section->order );
 		$this->assertTrue( $section->requires_sync );
 		$this->assertTrue( $section->is_available() );
-		$types = array_column( $section->get_default_layout(), 'type' );
-		$this->assertContains( Analytics_Dashboard::ORDERS_OVER_TIME_TYPE, $types );
-		$this->assertContains( 'jpa/store-performance', $types );
-		$this->assertNotContains( 'jpa/orders-over-time', $types );
+		$this->assertSame(
+			array(
+				'jpa/store-performance',
+				'jpa/total-sales-over-time',
+				'jpa/conversion-rate',
+				Analytics_Dashboard::ORDERS_OVER_TIME_TYPE,
+				'jpa/average-order-value',
+				'jpa/top-performing-products',
+				'jpa/new-vs-returning-customer',
+				'jpa/payment-status',
+				'jpa/orders-fulfillment',
+			),
+			array_column( $section->get_default_layout(), 'type' )
+		);
 	}
 
 	/**

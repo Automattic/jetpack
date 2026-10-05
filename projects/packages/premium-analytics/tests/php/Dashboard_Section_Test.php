@@ -1178,20 +1178,6 @@ class Dashboard_Section_Test extends BaseTestCase {
 		$this->assertSame( array( false, false, false ), $requires_sync );
 	}
 
-	/**
-	 * The WooCommerce section is not this package's, so addressing it here is a 404.
-	 */
-	public function test_woocommerce_section_is_not_found_from_the_route() {
-		$this->enable_every_section();
-
-		register_default_dashboard_sections();
-
-		$section = get_available_dashboard_section_for_route( DASHBOARD_NAME, 'woocommerce-analytics/store' );
-
-		$this->assertInstanceOf( \WP_Error::class, $section );
-		$this->assertSame( 'dashboard_section_not_found', $section->get_error_code() );
-	}
-
 	public function test_available_section_slugs_list_every_available_tab() {
 		$this->enable_every_section();
 
