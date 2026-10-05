@@ -385,12 +385,6 @@ describe( 'ComparativeLineChart', () => {
 		);
 	} );
 
-	it( 'gives the tooltip box a minimum width', () => {
-		render( <ComparativeLineChart series={ PAIRED_SERIES } dataFormat={ DATA_FORMAT } /> );
-
-		expect( recordedProps() ).toMatchObject( { tooltipStyle: { minWidth: 200 } } );
-	} );
-
 	it( 'collapses a metric into one legend item and asks for the comparison item', () => {
 		render( <ComparativeLineChart series={ SERIES_WITH_COMPARISON } dataFormat={ DATA_FORMAT } /> );
 

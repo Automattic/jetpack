@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Charts: Keep comparison tooltips at least 200px wide and paint them above the metric tabs.
+Charts: Paint the metric tabs chart's tooltip above the metric tabs.

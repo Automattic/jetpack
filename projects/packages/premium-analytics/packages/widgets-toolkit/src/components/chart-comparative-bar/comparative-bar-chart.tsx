@@ -31,7 +31,7 @@ import {
 import { resolvePrimarySeriesByGroup } from '../../helpers/resolve-series-names';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
 import { alignSeriesDates } from '../chart-comparative-line/utils';
-import { CHART_TOOLTIP_BOX_STYLE, ChartTooltip } from '../chart-tooltip';
+import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-bar-chart.module.scss';
 import type { ComparativeBarChartSeries } from './types';
 import type { DataFormat } from '../../types';
@@ -361,7 +361,6 @@ export function ComparativeBarChart( {
 				showLegend={ false }
 				withTooltips={ hasTooltipRows }
 				renderTooltip={ renderTooltip }
-				tooltipStyle={ CHART_TOOLTIP_BOX_STYLE }
 				onPointerDown={ onPointerDown }
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }

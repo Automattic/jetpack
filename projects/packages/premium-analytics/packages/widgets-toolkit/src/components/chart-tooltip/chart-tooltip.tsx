@@ -11,9 +11,6 @@ import { TooltipRow } from './tooltip-row';
 import { exactFormatOf, isChartDatumEntry } from './utils';
 import type { DataFormat } from '../../types';
 
-/** The chart's `tooltipStyle`, so a row's label and date stay on one line. */
-export const CHART_TOOLTIP_BOX_STYLE = { minWidth: 200 } as const;
-
 /** Swatch box per indicator type; a supplementary row's spacer takes the width. */
 const INDICATOR_SIZE = {
 	line: { width: 16, height: 15 },

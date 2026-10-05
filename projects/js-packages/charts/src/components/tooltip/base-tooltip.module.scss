@@ -12,6 +12,9 @@
 	line-height: 1.4;
 	box-shadow: var(--a8c-charts-elevation-sm, 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005);
 	pointer-events: none;
+	// Beats a host `max-width` on `.visx-tooltip`, even an `!important`
+	// one: WordPress.com's Help Center caps it at 150px.
+	min-width: fit-content;
 
 	@media (forced-colors: active) {
 		border: var(--wpds-border-width-xs) solid CanvasText;

@@ -259,12 +259,6 @@ describe( 'ComparativeBarChart', () => {
 		expect( recordedOptions().axis.x.tickFormat ).toBeUndefined();
 	} );
 
-	it( 'gives the tooltip box a minimum width', () => {
-		render( <ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } /> );
-
-		expect( recordedProps() ).toMatchObject( { tooltipStyle: { minWidth: 200 } } );
-	} );
-
 	it( 'passes an x tickFormat when one is requested', () => {
 		render(
 			<ComparativeBarChart series={ SERIES } dataFormat={ DATA_FORMAT } tickFormat="short" />

@@ -1,4 +1,4 @@
 Significance: patch
 Type: fixed
 
-Fix narrow comparison chart tooltips, and metric tab text showing through a tooltip.
+Fix chart tooltips wrapping into a narrow column on WordPress.com, and metric tab text showing through a tooltip.

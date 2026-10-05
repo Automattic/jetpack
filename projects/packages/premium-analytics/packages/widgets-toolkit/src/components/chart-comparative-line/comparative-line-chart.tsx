@@ -29,7 +29,7 @@ import {
 	resolveTooltipUnits,
 } from '../../helpers';
 import { useLockedPrimaryLegendItems } from '../../hooks/use-locked-primary-legend-items';
-import { CHART_TOOLTIP_BOX_STYLE, ChartTooltip } from '../chart-tooltip';
+import { ChartTooltip } from '../chart-tooltip';
 import styles from './comparative-line-chart.module.scss';
 import { alignSeriesDates } from './utils';
 import type { ComparativeLineChartSeries, SeriesStyle, TooltipExtraSeries } from './types';
@@ -353,7 +353,6 @@ export function ComparativeLineChart( {
 				withGradientFill
 				withTooltips={ !! renderTooltip && hasTooltipRows }
 				renderTooltip={ renderTooltip }
-				tooltipStyle={ CHART_TOOLTIP_BOX_STYLE }
 				onPointerDown={ onPointerDown }
 				onPointerUp={ onPointerUp }
 				onDatumActivate={ onDatumActivate }
