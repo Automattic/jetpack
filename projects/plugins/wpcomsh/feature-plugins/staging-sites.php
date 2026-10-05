@@ -150,27 +150,13 @@ function wpcomsh_disable_pingback_ui_on_staging() {
 add_action( 'admin_print_footer_scripts', 'wpcomsh_disable_pingback_ui_on_staging' );
 
 /**
- * Whether the site URL is a staging address, like `staging-c603-mysite.wpcomstaging.com`.
- *
- * Not the `wpcom_is_staging_site` option: pulling staging into production copies it.
- *
- * @return bool
- */
-function wpcomsh_is_staging_site_url() {
-	$host = strtolower( (string) wp_parse_url( home_url(), PHP_URL_HOST ) );
-
-	// The suffix excludes custom domains like `staging-tools.com`.
-	return str_starts_with( $host, 'staging-' ) && str_ends_with( $host, '.wpcomstaging.com' );
-}
-
-/**
  * Tells search engines not to index staging sites, even when `blog_public` allows it.
  *
  * @param array $headers Headers.
  * @return array Filtered headers.
  */
 function wpcomsh_add_staging_site_robots_header( $headers ) {
-	if ( wpcomsh_is_staging_site_url() ) {
+	if ( wpcomsh_is_staging_environment() ) {
 		$headers['X-Robots-Tag'] = 'noindex, nofollow';
 	}
 
@@ -185,7 +171,7 @@ add_filter( 'wp_headers', 'wpcomsh_add_staging_site_robots_header' );
  * @return array Filtered directives.
  */
 function wpcomsh_add_staging_site_robots_directives( $robots ) {
-	if ( ! wpcomsh_is_staging_site_url() ) {
+	if ( ! wpcomsh_is_staging_environment() ) {
 		return $robots;
 	}
 
