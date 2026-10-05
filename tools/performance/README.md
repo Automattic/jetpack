@@ -112,9 +112,9 @@ A buffered Long Tasks observer is installed before page scripts on every navigat
 
 **Pre-FCP tasks are included. This is not Lighthouse TBT:** conventional TBT measures a post-FCP interval; this harness measures the full initial load through its own cutoff. Later interaction tasks are excluded. CPU throttling and warm-cache policy are unchanged. Downloaded JavaScript that never executes contributes no blocking time.
 
-A working observer with no long tasks records zero; unsupported or failed capture records `null`, with the cause in `longTaskError`, never a fabricated zero. `summary.tbt` uses the existing strict-majority finite-sample rule and rounded millisecond statistics. Without a strict majority of finite TBT samples, a scenario is incomplete and follows its optional/required failure policy. An out-of-range TBT median refuses the whole post. Both Dashboard scenarios now post TBT staging keys alongside their overhead delta.
+A working observer with no long tasks records zero; unsupported or failed capture records `null`, with the cause in `longTaskError`, never a fabricated zero. `summary.tbt` uses the existing strict-majority finite-sample rule and rounded millisecond statistics. Without a strict majority of finite TBT samples, a scenario that posts TBT absolutes is incomplete and follows its optional/required failure policy. An out-of-range TBT median refuses the whole post. Dashboard TBT remains diagnostic and supplies the overhead delta when both summaries have enough finite samples.
 
-Forms and My Jetpack use `-staging` TBT keys and remain optional. Register both TBT keys with unit `ms` before the first live post. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms.
+Forms and My Jetpack use `-staging` TBT keys and remain optional. Hold registration of both TBT keys until the digest accepts zero-baseline TBT; use unit `ms` when registered. The existing production-key waiver does not apply to TBT: inspect 2–3 staging builds before separate production enrollment. The expected healthy 0–500 ms is context, not a clip; the sanity range remains 0–10000 ms.
 
 The digest auto-discovers these staging ids from their first post unless `METRIC_IDS` overrides discovery. Its current gate reports "Unusable level baseline" and exits non-zero when a flagged series has a complete pre-window with a non-positive median. Live posting of these keys depends on the digest accepting zero-baseline TBT. At production promotion, have the CodeVitals owner retire the staging id from discovery, or supply a complete `METRIC_IDS` allow-list excluding it; otherwise its stopped series produces stale-data warnings.
 
@@ -168,7 +168,7 @@ Each field maps to `<prefix>-wp-total-staging`, `<prefix>-wp-memory-usage-stagin
 | My Jetpack (`myJetpack`)                         | `my-jetpack-connection-sim`         |
 | Dashboard control (`jetpackConnected-noJetpack`) | `wp-admin-dashboard-noJetpack`      |
 
-These twelve keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
+These twelve backend keys are staging candidates, with no production enrollment or staging waiver. Register units as `ms`, `bytes` and `count` respectively: digest auto-discovery reads service metadata and uses those units, so no `METRIC_IDS` list change is needed. Registration, 2–3 staging builds, owner review and empirically measured per-key regression floors precede production promotion. Keep any deployment overrides intentional and retire staging IDs when promoted; auto-discovery also watches registered staging IDs for staleness.
 
 Admin pages have no front-end template boundary, so this capture does not emit `wp-before-template` or `wp-template`. These are absolute request costs, including instrumentation and, for connected scenarios, the simulated connection.
 
@@ -184,18 +184,14 @@ All timing differences stayed inside the local digest noise bars (TTFB 5.64–11
 
 ### Dashboard overhead deltas
 
-For each field below, subtract the `jetpackConnected-noJetpack` median from the `jetpackConnected` median in the same results file. These are differences of medians, not medians of paired iterations. All eight deltas and their absolute inputs share the run's POST, commit hash and timestamp. No other scenario has deltas.
+For each field below, subtract the `jetpackConnected-noJetpack` median from the `jetpackConnected` median in the same results file. These are differences of medians, not medians of paired iterations. All eight deltas and the existing Dashboard absolutes share the run's POST, commit hash and timestamp. Dashboard TBT and decoded size supply deltas from their summaries without adding absolute keys or completeness requirements. No other scenario has deltas.
 
-If either side is absent, failed, or lacks a field summary because it missed the strict-majority finite-sample floor, skip that field's delta and log the reason; never substitute zero. Existing absolute-metric failure policies still apply, including refusing the whole POST for a failed required scenario or a sanity failure. Signed deltas, including negative values and measured zero differences, are valid. Each delta has a symmetric sanity range in `SANITY_RANGES`; an absurd delta is logged, excluded and triggers the atomic sanity gate.
+A field below its strict-majority finite-sample floor skips only that field's delta. An absent or failed side skips all Dashboard deltas; each skip is logged, and zero is never substituted. Existing absolute-metric failure policies still apply, including refusing the whole POST for a failed required scenario or a sanity failure. Signed deltas, including negative values and measured zero differences, are valid. Each input must pass its absolute sanity range; connected decoded size requires at least 1000 KB, while the core-only control allows 1 KB. Delta bounds will be set from the first staging builds.
 
-Register all twelve new keys below with the listed units: eight deltas and four Dashboard decoded-size/TBT absolutes. All twelve new keys use `-staging`; registration and production promotion are separate work. Dashboard decoded-size absolutes allow 1–51200 KB because the core-only control can be smaller than the app scenarios.
+The eight new delta keys below use `-staging`. Do not register them or any Dashboard TBT key until the digest accepts non-positive baselines; signed series can otherwise break the weekly digest and invert change flags. Registration with the listed units and production promotion are separate work.
 
 | CodeVitals key                                                      | Field            | Unit  |
 | ------------------------------------------------------------------- | ---------------- | ----- |
-| `wp-admin-dashboard-connection-sim-decodedBytesKB-staging`          | `decodedBytesKB` | KB    |
-| `wp-admin-dashboard-connection-sim-loadBlockingTime-staging`        | `tbt`            | ms    |
-| `wp-admin-dashboard-noJetpack-decodedBytesKB-staging`               | `decodedBytesKB` | KB    |
-| `wp-admin-dashboard-noJetpack-loadBlockingTime-staging`             | `tbt`            | ms    |
 | `wp-admin-dashboard-jetpackOverhead-largestContentfulPaint-staging` | `lcp`            | ms    |
 | `wp-admin-dashboard-jetpackOverhead-timeToFirstByte-staging`        | `ttfb`           | ms    |
 | `wp-admin-dashboard-jetpackOverhead-firstContentfulPaint-staging`   | `fcp`            | ms    |

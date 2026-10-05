@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { inspect } from 'node:util';
 import {
 	buildSummary,
+	finalizeMeasurement,
 	parseServerTiming,
 	resolveResultsGit,
 	assertCaptureComplete,
@@ -895,10 +896,11 @@ test( 'Dashboard overhead preserves negative values', () => {
 		pair[ 'jetpackConnected-noJetpack' ],
 		pair.jetpackConnected,
 	];
+	pair.jetpackConnected.summary.decodedBytesKB.median = 2000;
 	pair[ 'jetpackConnected-noJetpack' ].summary.tbt.median = 15;
 	const { metrics, validationFailed } = dashboardDeltas( pair );
 	assert.equal( validationFailed, false );
-	assert.deepEqual( Object.values( metrics ), [ -20, -70, -300, -3710, -15, -25, -4194304, -17 ] );
+	assert.deepEqual( Object.values( metrics ), [ -20, -70, -300, -2210, -15, -25, -4194304, -17 ] );
 } );
 
 test( 'Dashboard overhead skips and logs either unavailable side or a field below its sample floor', async () => {
@@ -930,26 +932,36 @@ test( 'Dashboard overhead skips and logs either unavailable side or a field belo
 	);
 } );
 
-test( 'an absurd Dashboard delta is logged and excluded from the payload', async () => {
-	const file = writeResults( 60101 );
-	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
-	data.measurements[ 'jetpackConnected-noJetpack' ] =
-		dashboardPair()[ 'jetpackConnected-noJetpack' ];
-	fs.writeFileSync( file, JSON.stringify( data ) );
-	const errors = [];
-	const result = await silenced( () => {
-		console.error = message => errors.push( message );
-		return postToCodeVitals( file, { dryRun: true } );
-	} );
-	assert.equal( result.validationFailed, true );
-	assert.equal(
-		result.payload.metrics[ 'wp-admin-dashboard-jetpackOverhead-largestContentfulPaint-staging' ],
-		undefined
-	);
-	assert.ok( errors.some( message => /jetpackOverhead.*60001.*outside/.test( message ) ) );
+test( 'Dashboard deltas reject out-of-range absolute inputs, including connected decoded size', async () => {
+	for ( const [ field, value ] of [
+		[ 'lcp', 60101 ],
+		[ 'decodedBytesKB', 999 ],
+	] ) {
+		const pair = dashboardPair();
+		pair.jetpackConnected.summary[ field ].median = value;
+		const errors = [];
+		const result = await silenced( () => {
+			console.error = message => errors.push( message );
+			return dashboardDeltas( pair );
+		} );
+		assert.equal( result.validationFailed, true );
+		assert.equal( Object.keys( result.metrics ).length, 7 );
+		assert.ok( errors.some( message => /input to.*jetpackOverhead.*outside/.test( message ) ) );
+	}
 } );
 
-test( 'dry-run posts all eight Dashboard metrics into the payload, nothing rejected', async () => {
+test( 'Dashboard deltas have no additional bounds on differences of valid absolute inputs', () => {
+	const pair = dashboardPair();
+	pair.jetpackConnected.summary.lcp.median = SANITY_RANGES.lcp.max;
+	const result = dashboardDeltas( pair );
+	assert.equal( result.validationFailed, false );
+	assert.equal(
+		result.metrics[ 'wp-admin-dashboard-jetpackOverhead-largestContentfulPaint-staging' ],
+		59900
+	);
+} );
+
+test( 'dry-run posts all six Dashboard absolutes into the payload, nothing rejected', async () => {
 	const file = writeResults( 120, { ttfb: 150, fcp: 400 } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.posted, false ); // dry run never posts
@@ -958,10 +970,10 @@ test( 'dry-run posts all eight Dashboard metrics into the payload, nothing rejec
 	assert.equal( result.payload.metrics[ LCP_KEY ], 120 );
 	assert.equal( result.payload.metrics[ TTFB_KEY ], 150 );
 	assert.equal( result.payload.metrics[ FCP_KEY ], 400 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 8 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 6 );
 } );
 
-test( 'dry-run with both scenarios present posts 16 keys, including zero Forms staging TBT', async () => {
+test( 'dry-run with both scenarios present posts 14 keys, including zero Forms staging TBT', async () => {
 	const file = writeResults( 120, { forms: { decodedBytesKB: 8229 } } );
 	const result = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	assert.equal( result.validationFailed, false );
@@ -970,10 +982,10 @@ test( 'dry-run with both scenarios present posts 16 keys, including zero Forms s
 	assert.equal( result.payload.metrics[ FORMS_FCP_KEY ], 500 );
 	assert.equal( result.payload.metrics[ FORMS_DECODED_KEY ], 8229 );
 	assert.equal( result.payload.metrics[ FORMS_TBT_KEY ], 0 );
-	assert.equal( Object.keys( result.payload.metrics ).length, 16 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 14 );
 } );
 
-test( 'dry-run with all five scenarios posts 11 production keys and 33 staging keys', async () => {
+test( 'dry-run with all five scenarios posts 11 production keys and 29 staging keys', async () => {
 	const file = writeResults( 120, {
 		forms: { decodedBytesKB: 8229 },
 		myJetpack: { lcp: 640, ttfb: 220, fcp: 560, decodedBytesKB: 5860, tbt: 120 },
@@ -1002,18 +1014,18 @@ test( 'dry-run with all five scenarios posts 11 production keys and 33 staging k
 			[ 'jetpack-settings-connection-sim-decodedBytesKB-staging', 6782 ],
 		]
 	);
-	assert.equal( Object.keys( result.payload.metrics ).length, 44 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 40 );
 	assert.equal(
 		Object.keys( result.payload.metrics ).filter( key => ! key.endsWith( '-staging' ) ).length,
 		11
 	);
 	assert.equal(
 		Object.keys( result.payload.metrics ).filter( key => key.endsWith( '-staging' ) ).length,
-		33
+		29
 	);
 } );
 
-test( 'dry-run adds eight staging control keys and preserves all connected keys', async () => {
+test( 'dry-run adds six staging control keys and preserves all connected keys', async () => {
 	const file = writeResults( 120, { forms: { tbt: 75 }, myJetpack: { tbt: 120 } } );
 	const baseline = await silenced( () => postToCodeVitals( file, { dryRun: true } ) );
 	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
@@ -1040,14 +1052,12 @@ test( 'dry-run adds eight staging control keys and preserves all connected keys'
 			'wp-admin-dashboard-noJetpack-largestContentfulPaint-staging': 160,
 			'wp-admin-dashboard-noJetpack-timeToFirstByte-staging': 80,
 			'wp-admin-dashboard-noJetpack-firstContentfulPaint-staging': 140,
-			'wp-admin-dashboard-noJetpack-decodedBytesKB-staging': 4210,
-			'wp-admin-dashboard-noJetpack-loadBlockingTime-staging': 0,
 			'wp-admin-dashboard-noJetpack-wp-total-staging': 75,
 			'wp-admin-dashboard-noJetpack-wp-memory-usage-staging': 16777216,
 			'wp-admin-dashboard-noJetpack-wp-db-queries-staging': 25,
 		}
 	);
-	assert.equal( Object.keys( result.payload.metrics ).length, 40 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 36 );
 } );
 
 test( 'a live run with an out-of-range Forms decodedBytesKB posts nothing and never calls fetch', async () => {
@@ -1375,7 +1385,7 @@ test( 'a required measurement with no summary fails closed, not a TypeError cras
 
 // --- live POST branch (fetch stubbed; never touches the network) ---
 
-test( 'a live POST carries Dashboard deltas and their absolute inputs together', async () => {
+test( 'a live POST carries Dashboard deltas and the existing absolutes together', async () => {
 	const file = writeResults( 120 );
 	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
 	data.measurements = dashboardPair();
@@ -1405,7 +1415,7 @@ test( 'a live POST carries Dashboard deltas and their absolute inputs together',
 		assert.equal( sentMetrics[ TTFB_KEY ], 150 );
 		assert.equal( sentMetrics[ FCP_KEY ], 400 );
 		assert.equal( postCount, 1 );
-		assert.equal( Object.keys( sentMetrics ).length, 24 );
+		assert.equal( Object.keys( sentMetrics ).length, 20 );
 		for ( const scenario of SCENARIOS.filter( s => Object.hasOwn( data.measurements, s.key ) ) ) {
 			for ( const { field, codevitalsKey } of scenario.metrics ) {
 				assert.equal(
@@ -1419,6 +1429,65 @@ test( 'a live POST carries Dashboard deltas and their absolute inputs together',
 				Object.entries( sentMetrics ).filter( ( [ key ] ) => key.includes( 'jetpackOverhead' ) )
 			),
 			dashboardDeltas( data.measurements ).metrics
+		);
+	} finally {
+		global.fetch = origFetch;
+	}
+} );
+
+test( 'Dashboard TBT below its sample floor skips only its delta and still posts production keys', async () => {
+	const file = writeResults( 120, { forms: {}, myJetpack: {} } );
+	const data = JSON.parse( fs.readFileSync( file, 'utf8' ) );
+	Object.assign( data.measurements, dashboardPair() );
+	const scenario = SCENARIOS.find( s => s.key === 'jetpackConnected' );
+	const metrics = Object.fromEntries(
+		Object.entries( jetpackSummary() )
+			.filter( ( [ , value ] ) => Number.isFinite( value?.median ) )
+			.map( ( [ field, value ] ) => [ field, value.median ] )
+	);
+	data.measurements.jetpackConnected = finalizeMeasurement(
+		scenario,
+		Array.from( { length: 5 }, ( _, i ) => ( {
+			lcp: 120,
+			metrics: { ...metrics, tbt: i < 2 ? 10 : null },
+		} ) ),
+		5,
+		'http://fixture.test/wp-admin/'
+	);
+	assert.equal( data.measurements.jetpackConnected.summary.tbt, undefined );
+	fs.writeFileSync( file, JSON.stringify( data ) );
+	const origFetch = global.fetch;
+	let sentMetrics;
+	global.fetch = async ( _, init ) => {
+		sentMetrics = JSON.parse( init.body ).metrics;
+		return { ok: true, json: async () => ( { ok: true } ) };
+	};
+	const warnings = [];
+	try {
+		const result = await silenced( () => {
+			console.warn = message => warnings.push( message );
+			return postToCodeVitals( file, {
+				codeVitalsUrl: 'https://codevitals.test',
+				codeVitalsToken: 'tok',
+			} );
+		} );
+		assert.equal( result.posted, true );
+		assert.equal( result.validationFailed, false );
+		assert.equal(
+			Object.keys( sentMetrics ).filter( key => ! key.endsWith( '-staging' ) ).length,
+			11
+		);
+		assert.equal(
+			Object.keys( sentMetrics ).filter( key => key.includes( 'jetpackOverhead' ) ).length,
+			7
+		);
+		assert.equal(
+			sentMetrics[ 'wp-admin-dashboard-jetpackOverhead-loadBlockingTime-staging' ],
+			undefined
+		);
+		assert.equal(
+			warnings.filter( message => /skipping Dashboard delta/.test( message ) ).length,
+			1
 		);
 	} finally {
 		global.fetch = origFetch;
@@ -2352,7 +2421,7 @@ test( 'dry payload carries exactly twelve typed staging backend keys with intege
 		assert.equal( result.payload.metrics[ `${ prefix }-wp-memory-usage-staging` ], 20971520 );
 		assert.equal( result.payload.metrics[ `${ prefix }-wp-db-queries-staging` ], 42 );
 	}
-	assert.equal( Object.keys( result.payload.metrics ).length, 40 );
+	assert.equal( Object.keys( result.payload.metrics ).length, 36 );
 	assert.ok(
 		! Object.keys( result.payload.metrics ).some( key =>
 			/wp-(before-template|template)/.test( key )

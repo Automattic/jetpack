@@ -443,23 +443,30 @@ function dashboardDeltas( measurements ) {
 	const metrics = {};
 	let validationFailed = false;
 	for ( const { field, codevitalsKey, type } of DASHBOARD_DELTA_METRICS ) {
-		// buildSummary omits fields below its strict-majority sample floor.
+		// A field below buildSummary's sample floor skips only that field's delta.
 		if ( pair.some( m => ! m || m.error || ! Number.isFinite( m.summary?.[ field ]?.median ) ) ) {
 			console.warn(
 				`Warning: skipping Dashboard delta "${ codevitalsKey }": missing or failed side, or "${ field }" below its sample floor.`
 			);
 			continue;
 		}
-		const value = pair[ 0 ].summary[ field ].median - pair[ 1 ].summary[ field ].median;
-		const check = checkSanityRange( type, value );
-		if ( ! check.ok ) {
+		const values = pair.map( m => m.summary[ field ].median );
+		const check = values
+			.map( ( value, side ) =>
+				checkSanityRange(
+					type === 'decodedBytesKB' && side === 1 ? 'dashboardDecodedBytesKB' : type,
+					value
+				)
+			)
+			.find( result => ! result.ok );
+		if ( check ) {
 			console.error(
-				`✗ Sanity check failed for "${ codevitalsKey }": ${ check.reason }. Skipping this delta.`
+				`✗ Sanity check failed for an input to "${ codevitalsKey }": ${ check.reason }. Skipping this delta.`
 			);
 			validationFailed = true;
 			continue;
 		}
-		metrics[ codevitalsKey ] = value;
+		metrics[ codevitalsKey ] = values[ 0 ] - values[ 1 ];
 	}
 	return { metrics, validationFailed };
 }

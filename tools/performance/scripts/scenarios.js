@@ -50,16 +50,6 @@ export const SCENARIOS = [
 				type: 'fcp',
 			},
 			{
-				field: 'decodedBytesKB',
-				codevitalsKey: 'wp-admin-dashboard-connection-sim-decodedBytesKB-staging',
-				type: 'dashboardDecodedBytesKB',
-			},
-			{
-				field: 'tbt',
-				codevitalsKey: 'wp-admin-dashboard-connection-sim-loadBlockingTime-staging',
-				type: 'tbt',
-			},
-			{
 				field: 'wpTotal',
 				codevitalsKey: 'wp-admin-dashboard-connection-sim-wp-total-staging',
 				type: 'wpTotal',
@@ -327,16 +317,6 @@ export const SCENARIOS = [
 				type: 'fcp',
 			},
 			{
-				field: 'decodedBytesKB',
-				codevitalsKey: 'wp-admin-dashboard-noJetpack-decodedBytesKB-staging',
-				type: 'dashboardDecodedBytesKB',
-			},
-			{
-				field: 'tbt',
-				codevitalsKey: 'wp-admin-dashboard-noJetpack-loadBlockingTime-staging',
-				type: 'tbt',
-			},
-			{
 				field: 'wpTotal',
 				codevitalsKey: 'wp-admin-dashboard-noJetpack-wp-total-staging',
 				type: 'wpTotal',
@@ -425,14 +405,6 @@ export const SANITY_RANGES = {
 	decodedBytesKB: { min: 1000, max: 51200 },
 	// The core-only Dashboard control can be smaller than the rendered apps above.
 	dashboardDecodedBytesKB: { min: 1, max: 51200 },
-	lcpDelta: { min: -60000, max: 60000 },
-	ttfbDelta: { min: -10000, max: 10000 },
-	fcpDelta: { min: -30000, max: 30000 },
-	decodedBytesKBDelta: { min: -51200, max: 51200 },
-	tbtDelta: { min: -10000, max: 10000 },
-	wpTotalDelta: { min: -60000, max: 60000 },
-	wpMemoryUsageDelta: { min: -536870912, max: 536870912 },
-	wpDbQueriesDelta: { min: -10000, max: 10000 },
 };
 
 export const DASHBOARD_DELTA_METRICS = [
@@ -447,7 +419,7 @@ export const DASHBOARD_DELTA_METRICS = [
 ].map( ( [ field, suffix ] ) => ( {
 	field,
 	codevitalsKey: `wp-admin-dashboard-jetpackOverhead-${ suffix }-staging`,
-	type: `${ field }Delta`,
+	type: field,
 } ) );
 
 /**
