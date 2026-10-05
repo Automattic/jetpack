@@ -54,6 +54,17 @@ export declare const PRESET_LAST_7_DAYS: string;
 export declare const PRESET_LAST_30_DAYS: string;
 export declare const PRESET_LAST_12_MONTHS: string;
 
+// Generic report access. A product package builds its own report hook on these and does not
+// publish that hook here. The WordAds hooks below are the provisional shape this replaces.
+export declare function useReport( ...args: any[] ): any;
+export declare function fetchReport< TResponse = any >( ...args: any[] ): Promise< TResponse >;
+export declare function resolveReportTimeZone( ...args: any[] ): string;
+export declare function toBucketStamp( raw: string | undefined, zone: string ): string;
+
+// Report metric kind: a single metric over time, comparison included, until that kind is declared.
+export declare const ReportMetricWidget: AnyComponent;
+export declare const ReportCsvDownloadButton: AnyComponent;
+
 // Data. The WordAds hooks are provisional: they move to the Ads package once the SDK exposes the
 // generic report hooks they are built on.
 export declare function useStatsWordAdsStats( ...args: any[] ): any;
