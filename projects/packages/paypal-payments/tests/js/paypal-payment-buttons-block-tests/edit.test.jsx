@@ -316,6 +316,7 @@ jest.mock( '@wordpress/components', () => ( {
 				children,
 				onClick,
 				disabled,
+				accessibleWhenDisabled,
 				variant,
 				isBusy,
 				isDestructive,
@@ -329,10 +330,12 @@ jest.mock( '@wordpress/components', () => ( {
 			},
 			ref
 		) => (
+			// Like the real one, accessibleWhenDisabled keeps a disabled button focusable.
 			<button
 				ref={ ref }
-				onClick={ onClick }
-				disabled={ disabled }
+				onClick={ disabled ? undefined : onClick }
+				disabled={ disabled && ! accessibleWhenDisabled }
+				aria-disabled={ disabled && accessibleWhenDisabled ? true : undefined }
 				data-variant={ variant }
 				data-busy={ isBusy }
 				data-size={ size }
@@ -1571,7 +1574,7 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			// The merchant clicked and nothing has opened yet, so the button has
 			// to show it heard them.
 			const connect = screen.getByRole( 'button', { name: /Connecting/i } );
-			expect( connect ).toBeDisabled();
+			expect( connect ).toHaveAttribute( 'aria-disabled', 'true' );
 			expect( connect ).toHaveAttribute( 'data-busy', 'true' );
 		} );
 
@@ -1856,6 +1859,71 @@ describe( 'PayPalPaymentButtonsEdit (V2)', () => {
 			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.not.toHaveClass(
 				'jetpack-paypal-onboarding-frame--active'
 			);
+		} );
+
+		it( 'moves focus to the close button when the overlay opens', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			expect( screen.getByRole( 'button', { name: 'Close PayPal onboarding' } ) ).toHaveFocus();
+		} );
+
+		it( 'sends focus back to the close button when it leaves the overlay', async () => {
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+
+			// Tab out of the overlay lands on the editor behind PayPal's window.
+			act( () => screen.getByRole( 'button', { name: /Connect PayPal/i } ).focus() );
+
+			expect( screen.getByRole( 'button', { name: 'Close PayPal onboarding' } ) ).toHaveFocus();
+		} );
+
+		it( 'returns focus to the Connect button when the overlay closes', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			await user.keyboard( '{Escape}' );
+
+			await waitFor( () =>
+				expect( screen.getByRole( 'button', { name: /Connect PayPal/i } ) ).toHaveFocus()
+			);
+		} );
+
+		it( 'announces the overlay as a dialog only while it is up', async () => {
+			const user = userEvent.setup();
+			mockPlatformMode( { action_url: 'https://www.sandbox.paypal.com/merchantsignup/x' } );
+
+			await openActiveOverlay();
+			expect( screen.getByRole( 'dialog', { name: 'PayPal onboarding' } ) ).toBeInTheDocument();
+
+			await user.keyboard( '{Escape}' );
+
+			// The frame is mounted hidden the rest of the time; an empty dialog
+			// there is announced with nothing in it.
+			await expect( screen.findByTitle( 'PayPal onboarding' ) ).resolves.toBeInTheDocument();
+			expect( screen.queryByRole( 'dialog' ) ).not.toBeInTheDocument();
+		} );
+
+		it( 'hides the close button once the seller is done, while onboarding is being completed', async () => {
+			mockPlatformMode( {
+				action_url: 'https://www.sandbox.paypal.com/merchantsignup/x',
+				complete: new Promise( () => {} ),
+			} );
+
+			const frame = await openActiveOverlay();
+
+			await act( async () => {
+				window.jetpackPayPalOnboardComplete();
+			} );
+
+			// A Close left up here cancels a signup the seller just finished.
+			expect( frame ).toBeInTheDocument();
+			expect(
+				screen.queryByRole( 'button', { name: 'Close PayPal onboarding' } )
+			).not.toBeInTheDocument();
 		} );
 
 		it( 'shows the close button only while the overlay is up', async () => {
