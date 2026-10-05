@@ -17,11 +17,13 @@ let reauth = false;
  * The window opens synchronously, inside the click, so a popup blocker lets it
  * through; the URL is filled in once it is known to be fresh.
  *
- * @param onOpen - Receives the window, so the caller can close it on Cancel.
+ * @param onOpen    - Receives the window, so the caller can close it on Cancel.
+ * @param switching - Whether a WordPress.com commenter is changing accounts, which also needs the provider to ask again.
  * @return How it ended.
  */
 export const signIn = async (
-	onOpen: ( popup: Window | null ) => void
+	onOpen: ( popup: Window | null ) => void,
+	switching = false
 ): Promise< CheckpointResult > => {
 	const width = 475;
 	const height = 800;
@@ -67,7 +69,7 @@ export const signIn = async (
 	}
 
 	// Outside the signature, so it can be added here.
-	popup.location.href = reauth ? `${ connect.url }&reauth=1` : connect.url;
+	popup.location.href = reauth || switching ? `${ connect.url }&reauth=1` : connect.url;
 
 	return new Promise< CheckpointResult >( resolve => {
 		let timer = 0;
@@ -141,6 +143,8 @@ export const logOut = async (): Promise< boolean > => {
 		const response = await fetch( logoutUrl, {
 			method: 'POST',
 			credentials: 'same-origin',
+			// Outlives the page, for a switch that posts a comment straight after.
+			keepalive: true,
 			body: new URLSearchParams( { action: logoutAction } ),
 		} );
 

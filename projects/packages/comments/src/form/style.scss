@@ -91,25 +91,6 @@
 	}
 }
 
-// The options below the box slide open and closed. Hidden, not just collapsed,
-// so nothing inside a closed one takes focus.
-.jetpack-comments__options {
-	display: grid;
-	grid-template-rows: 0fr;
-	visibility: hidden;
-	transition:
-		grid-template-rows 0.25s ease-in-out,
-		visibility 0s linear 0.25s;
-
-	&.is-open {
-		grid-template-rows: 1fr;
-		visibility: visible;
-		transition:
-			grid-template-rows 0.25s ease-in-out,
-			visibility 0s;
-	}
-}
-
 // Reversed so the submit precedes the identity line in the DOM, and Tab
 // reaches it straight from the textarea; wrapped in reverse too, so the
 // identity line stacks above the submit.
@@ -125,14 +106,6 @@
 .jetpack-comments__too-long {
 	flex-basis: 100%;
 	margin: 0;
-}
-
-// Shares the row with the submit down to 10em; below that it wraps above it.
-.jetpack-comments__identity {
-	display: flex;
-	align-items: center;
-	gap: 0.75em;
-	flex: 1 1 10em;
 }
 
 // A flex item, so the button sits on no text baseline and centres with

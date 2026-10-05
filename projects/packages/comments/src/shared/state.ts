@@ -2,7 +2,6 @@ import { signal, computed } from '@preact/signals';
 import { createContext } from 'preact';
 import { readDraft } from '../form/draft';
 import { readPassport } from '../identity/checkpoint/passport';
-import { saveGuest } from './guest';
 import type { Details, FormSettings, Commenter } from './types';
 
 /**
@@ -36,18 +35,9 @@ export function createSignals( formSettings: FormSettings ) {
 	// Whether core keeps a guest's details; saved ones were saved with consent.
 	const rememberDetails = signal( initial.kind === 'guest' );
 
-	// The box with its block toolbar, the row the chevron drops below it, and
-	// the dialog that asks who they are.
+	// The box with its block toolbar, and the dialog that asks who they are.
 	const isBoxOpen = signal( false );
-	const isOptionsOpen = signal( false );
 	const isDialogOpen = signal( false );
-
-	const forget = () => {
-		saveGuest( null );
-		details.value = { author: '', email: '', url: '' };
-		rememberDetails.value = false;
-		commenter.value = { kind: 'unknown' };
-	};
 
 	return {
 		formSettings,
@@ -59,9 +49,7 @@ export function createSignals( formSettings: FormSettings ) {
 		commenter,
 		rememberDetails,
 		isBoxOpen,
-		isOptionsOpen,
 		isDialogOpen,
-		forget,
 	} as const;
 }
 

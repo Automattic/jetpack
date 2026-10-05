@@ -196,7 +196,8 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 	}
 
 	/**
-	 * Forget the reader who sent this: their passport and any saved guest details. Does not return.
+	 * Revoke the passport of the reader who sent this. Guest details are the page's to clear, as core's
+	 * cookies are readable there, and one cleared here could land after the page saves new ones. Does not return.
 	 *
 	 * @return void
 	 */
@@ -210,20 +211,6 @@ class Checkpoint_Endpoint extends WP_REST_Controller {
 		}
 
 		Passport::revoke();
-
-		foreach ( array( 'comment_author_', 'comment_author_email_', 'comment_author_url_' ) as $cookie ) {
-			setcookie(
-				$cookie . COOKIEHASH,
-				' ',
-				array(
-					'expires'  => time() - YEAR_IN_SECONDS,
-					'path'     => COOKIEPATH,
-					'domain'   => COOKIE_DOMAIN,
-					'secure'   => is_ssl(),
-					'httponly' => true,
-				)
-			);
-		}
 
 		wp_send_json_success( array( 'logged_out' => true ), 200, JSON_UNESCAPED_SLASHES );
 	}

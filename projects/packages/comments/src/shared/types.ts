@@ -85,12 +85,13 @@ export type Strings = {
 	save: string;
 	saveDetails: string;
 	close: string;
-	options: string;
 	manageSubscriptions: string;
 	mustLogIn: string;
 	logIn: string;
 	logInWithWordPress: string;
 	logOut: string;
+	editProfile: string;
+	change: string;
 	addYourName: string;
 	cancel: string;
 	signInFailed: string;
@@ -113,11 +114,12 @@ export type Settings = {
 	/** Empty when the site shows no avatars. */
 	avatarUrl: string;
 	site: { name: string; iconUrl: string };
-	/** URLs are empty where the host offers no subscriptions. */
-	manageSubscriptions: { url: string; byEmail: boolean; signedInUrl: string };
+	/** Empty where the host offers no subscriptions. */
+	manageSubscriptionsUrl: string;
 	strings: Strings;
 	commenter: Details;
-	user: { name: string } | null;
+	/** Empty `editProfileUrl` for a user who may not edit their own profile, as core's link would be. */
+	user: { name: string; editProfileUrl: string } | null;
 	identity: IdentitySettings;
 };
 

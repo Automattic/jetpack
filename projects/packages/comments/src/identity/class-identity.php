@@ -54,7 +54,10 @@ class Identity {
 		if ( is_user_logged_in() ) {
 			$user                  = wp_get_current_user();
 			$settings['avatarUrl'] = html_entity_decode( (string) get_avatar_url( $user->ID, array( 'size' => 80 ) ), ENT_QUOTES );
-			$settings['user']      = array( 'name' => $user->display_name );
+			$settings['user']      = array(
+				'name'           => $user->display_name,
+				'editProfileUrl' => get_edit_user_link(),
+			);
 
 			return $settings;
 		}

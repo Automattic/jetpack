@@ -1,7 +1,7 @@
 import { useContext, useEffect, useRef, useState } from 'preact/hooks';
 import { saveGuest } from '../shared/guest';
 import { CommentSignals } from '../shared/state';
-import { emailHasAccount, signIn } from './checkpoint/checkpoint';
+import { emailHasAccount, logOut, signIn } from './checkpoint/checkpoint';
 import './dialog.scss';
 
 /**
@@ -34,7 +34,6 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		commenter,
 		rememberDetails,
 		isDialogOpen,
-		forget,
 	} = useContext( CommentSignals );
 	const { site, strings, mustLogIn, requireNameEmail, identity } = JetpackComments;
 	const dialog = useRef< HTMLDialogElement >( null );
@@ -73,12 +72,29 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			if ( ! element?.open ) {
 				element!.showModal();
 			}
-		} else {
-			element?.close();
-			setStep( firstStep );
-			setSubscribed( defaultSubscribed() );
+			return;
 		}
+
+		if ( element?.open ) {
+			element.close();
+
+			// The control that opened it can be gone, as when a switch leaves no one signed in.
+			// The page reports focus left in the shadow root as the host, which sits inside the form.
+			if (
+				( element.getRootNode() as ShadowRoot ).activeElement ||
+				! internals.form?.contains( element.ownerDocument.activeElement )
+			) {
+				internals.form?.querySelector< HTMLElement >( '.jetpack-comments__identity a' )?.focus();
+			}
+		}
+
+		setStep( firstStep );
+		setSubscribed( defaultSubscribed() );
 	}, [ isDialogOpen.value ] );
+
+	// A WordPress.com commenter keeps their passport until they finish switching away from it.
+	const switching = commenter.value.kind === 'wordpress';
+	const leaving = switching && isDialogOpen.value && step === 'guest';
 
 	// The button that turned the page is gone, so focus goes to the new page's first control.
 	useEffect( () => {
@@ -117,7 +133,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		// Cancel closes the popup, which settles this as cancelled.
 		const result = await signIn( opened => {
 			popup.current = opened;
-		} );
+		}, switching );
 
 		popup.current = null;
 
@@ -133,8 +149,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			return;
 		}
 
-		// One identity at a time: a saved guest is forgotten when they log in.
-		forget();
+		// One identity at a time: a saved guest is forgotten when they log in. A previous
+		// sign-in's passport is left to the comment, whose new one replaces it.
+		saveGuest( null );
+		details.value = { author: '', email: '', url: '' };
+		rememberDetails.value = false;
 		commenter.value = {
 			kind: 'wordpress',
 			name: result.name,
@@ -170,7 +189,7 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 			return data;
 		}
 
-		if ( guest ) {
+		if ( guest || leaving ) {
 			Object.entries( details.value ).forEach( ( [ name, value ] ) => data.append( name, value ) );
 		}
 
@@ -190,6 +209,11 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 	const submit = ( event: Event ) => {
 		event.preventDefault();
 
+		// The switch commits here, so closing the dialog leaves the sign-in as it was.
+		if ( leaving ) {
+			logOut();
+		}
+
 		if ( ! posting ) {
 			// Saved with consent, or cleared without it, as core does after a comment.
 			saveGuest( rememberDetails.peek() ? details.value : null );
@@ -205,9 +229,20 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 		const anonymous = ( event as SubmitEvent ).submitter?.getAttribute( 'name' ) === 'anonymous';
 
 		// Read as the comment form submits, then dropped, so a blocked submit leaves no consent behind.
-		internals.setFormValue( formValue( showFields && rememberDetails.peek(), anonymous ) );
-		internals.form?.requestSubmit();
-		internals.setFormValue( formValue( false ) );
+		const send = () => {
+			internals.setFormValue( formValue( showFields && rememberDetails.peek(), anonymous ) );
+			internals.form?.requestSubmit();
+			internals.setFormValue( formValue( false ) );
+		};
+
+		if ( ! leaving ) {
+			send();
+			return;
+		}
+
+		// A timeout, so the render that drops the passport field lands first.
+		commenter.value = { kind: 'unknown' };
+		window.setTimeout( send );
 	};
 
 	const logInOrWait = (
@@ -235,8 +270,8 @@ export const Dialog = ( { internals }: { internals: ElementInternals } ) => {
 							{ strings.continueAsGuest }
 						</button>
 					) }
-					{ /* Only with a comment to post, and where core takes one with no name. */ }
-					{ posting && ! mustLogIn && ! requireNameEmail && (
+					{ /* Only with a comment to post, where core takes one with no name, and not from a sign-in, whose passport would still post. */ }
+					{ posting && guest && ! requireNameEmail && (
 						<button type="submit" name="anonymous" className="jetpack-comments__button is-link">
 							{ strings.postWithoutSaving }
 						</button>
