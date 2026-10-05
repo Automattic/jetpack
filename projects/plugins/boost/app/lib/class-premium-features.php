@@ -5,6 +5,7 @@ namespace Automattic\Jetpack_Boost\Lib;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
 use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
+use Automattic\Jetpack_Boost\Modules\Module;
 use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 
 class Premium_Features {
@@ -28,20 +29,19 @@ class Premium_Features {
 	 * @since $$next-version$$
 	 */
 	public static function enable_cloud_css_after_upgrade() {
-		if ( false === get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
-			// Cached empty features may represent an API failure rather than a free plan.
-			$available_features = Boost_API::get( 'features' );
-			if ( ! is_array( $available_features ) ) {
-				return;
-			}
-			Transient::set( self::TRANSIENT_KEY, $available_features, 3 * DAY_IN_SECONDS );
+		$verified = null;
+		$features = self::get_features( $verified );
+		if ( ! $verified ) {
+			return;
 		}
-
-		$has_cloud_css = self::has_feature( self::CLOUD_CSS );
+		$has_cloud_css = in_array( self::CLOUD_CSS, $features, true );
 
 		// The first observation is a baseline, so existing premium sites keep their setting.
 		add_option( self::CLOUD_CSS_BASELINE_OPTION, $has_cloud_css ? 'premium' : 'free', '', false );
 		if ( ! $has_cloud_css || 'free' !== get_option( self::CLOUD_CSS_BASELINE_OPTION ) ) {
+			return;
+		}
+		if ( ! ( new Module( new Cloud_CSS() ) )->is_available() ) {
 			return;
 		}
 
@@ -64,8 +64,15 @@ class Premium_Features {
 		return false;
 	}
 
-	public static function get_features() {
+	/**
+	 * Get features and report whether the feature response was valid.
+	 *
+	 * @param bool|null $verified Receives whether the unfiltered response was valid.
+	 * @return string[]
+	 */
+	public static function get_features( &$verified = null ) {
 		$available_features = Transient::get( self::TRANSIENT_KEY, false );
+		$verified           = is_array( $available_features );
 		$all_features       = array(
 			self::CLOUD_CSS,
 			self::IMAGE_CDN_LIAR,
@@ -77,6 +84,7 @@ class Premium_Features {
 
 		if ( ! is_array( $available_features ) ) {
 			$available_features = Boost_API::get( 'features' );
+			$verified           = is_array( $available_features );
 			if ( ! is_array( $available_features ) ) {
 				$available_features = array();
 			}

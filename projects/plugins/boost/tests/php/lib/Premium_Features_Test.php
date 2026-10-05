@@ -2,49 +2,45 @@
 
 namespace Automattic\Jetpack_Boost\Tests\Lib;
 
-use Automattic\Jetpack\Boost_Core\Contracts\Boost_API_Client;
+use Automattic\Jetpack\Admin_UI\Admin_Menu;
 use Automattic\Jetpack\Boost_Core\Lib\Boost_API;
 use Automattic\Jetpack\Boost_Core\Lib\Transient;
+use Automattic\Jetpack_Boost\Admin\Admin;
+use Automattic\Jetpack_Boost\Data_Sync\Modules_State_Entry;
+use Automattic\Jetpack_Boost\Lib\Analytics;
+use Automattic\Jetpack_Boost\Lib\Critical_CSS\Regenerate;
 use Automattic\Jetpack_Boost\Lib\Premium_Features;
 use Automattic\Jetpack_Boost\Lib\Status;
+use Automattic\Jetpack_Boost\Modules\Module;
+use Automattic\Jetpack_Boost\Modules\Modules_Setup;
+use Automattic\Jetpack_Boost\Modules\Optimizations\Cloud_CSS\Cloud_CSS;
 use Automattic\Jetpack_Boost\Tests\Base_TestCase;
 use Brain\Monkey\Actions;
-use Brain\Monkey\Filters;
 use Brain\Monkey\Functions;
 use Mockery;
 
 class Premium_Features_Test extends Base_TestCase {
 	private $options      = array();
-	private $premium      = false;
 	private $api_response = array();
-	private $previous_client;
-	private $client_property;
+	private $api_calls;
+	private $original_get;
 
 	protected function set_up() {
 		parent::set_up();
 		$this->options      = array();
-		$this->premium      = false;
+		$this->api_calls    = 0;
+		$this->original_get = $_GET;
 		$this->api_response = array();
 		if ( ! defined( 'DAY_IN_SECONDS' ) ) {
 			define( 'DAY_IN_SECONDS', 86400 );
 		}
-		Functions\when( 'wp_parse_args' )->alias(
-			function ( $args, $defaults ) {
-				return array_merge( $defaults, (array) $args );
-			}
-		);
-		$client = Mockery::mock( Boost_API_Client::class );
-		$client->shouldReceive( 'get' )->andReturnUsing(
+		\Patchwork\redefine(
+			Boost_API::class . '::get',
 			function () {
+				++$this->api_calls;
 				return $this->api_response;
 			}
 		);
-		$this->client_property = new \ReflectionProperty( Boost_API::class, 'api_client' );
-		if ( PHP_VERSION_ID < 80100 ) {
-			$this->client_property->setAccessible( true );
-		}
-		$this->previous_client = $this->client_property->getValue();
-		$this->client_property->setValue( null, $client );
 		Functions\when( 'sanitize_title' )->returnArg();
 		Functions\when( 'post_type_exists' )->justReturn( true );
 		Functions\when( 'get_option' )->alias(
@@ -74,68 +70,134 @@ class Premium_Features_Test extends Base_TestCase {
 			}
 		);
 		Transient::set( Premium_Features::TRANSIENT_KEY, array(), 3600 );
-		Filters\expectApplied( 'jetpack_boost_has_feature_cloud-critical-css' )->andReturnUsing(
-			function () {
-				return $this->premium;
-			}
-		);
 	}
 
 	protected function tear_down() {
-		$this->client_property->setValue( null, $this->previous_client );
+		$_GET = $this->original_get;
 		parent::tear_down();
+	}
+
+	private function observe_cached_plan( $features ) {
+		Transient::set( Premium_Features::TRANSIENT_KEY, $features, 3600 );
+		Premium_Features::enable_cloud_css_after_upgrade();
 	}
 
 	public function test_enables_cloud_css_when_feature_first_appears() {
 		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'cloud_css', true );
-		Premium_Features::enable_cloud_css_after_upgrade();
-		$this->premium = true;
-		Premium_Features::enable_cloud_css_after_upgrade();
-
+		$this->observe_cached_plan( array() );
+		$this->observe_cached_plan( array( Premium_Features::CLOUD_CSS ) );
 		$this->assertTrue( ( new Status( 'cloud_css' ) )->get() );
 		$this->assertTrue( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
 	}
 
 	public function test_manual_disable_survives_refresh_and_plan_lapse_and_return() {
 		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'cloud_css', true );
-		Premium_Features::enable_cloud_css_after_upgrade();
-		$this->premium = true;
-		Premium_Features::enable_cloud_css_after_upgrade();
+		$this->observe_cached_plan( array() );
+		$this->observe_cached_plan( array( Premium_Features::CLOUD_CSS ) );
 		( new Status( 'cloud_css' ) )->set( false );
 		update_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION, false );
-		Premium_Features::clear_cache();
-		Transient::set( Premium_Features::TRANSIENT_KEY, array(), 3600 );
-		Premium_Features::enable_cloud_css_after_upgrade();
-		$this->premium = false;
-		Premium_Features::enable_cloud_css_after_upgrade();
-		$this->premium = true;
-		Premium_Features::enable_cloud_css_after_upgrade();
-
+		$this->observe_cached_plan( array( Premium_Features::CLOUD_CSS ) );
+		$this->observe_cached_plan( array() );
+		$this->observe_cached_plan( array( Premium_Features::CLOUD_CSS ) );
 		$this->assertFalse( ( new Status( 'cloud_css' ) )->get() );
 		$this->assertFalse( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
 	}
 
 	public function test_free_site_keeps_cloud_css_off_without_confirmation() {
 		Actions\expectDone( 'jetpack_boost_module_status_updated' )->never();
-		Premium_Features::enable_cloud_css_after_upgrade();
-
+		$this->observe_cached_plan( array() );
 		$this->assertFalse( ( new Status( 'cloud_css' ) )->get() );
 		$this->assertFalse( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
 	}
 
-	public function test_existing_premium_site_keeps_cloud_css_off_even_after_plan_returns() {
-		Actions\expectDone( 'jetpack_boost_module_status_updated' )->never();
+	public function test_failed_fetch_is_cached_without_recording_a_baseline() {
 		$this->api_response = false;
+		Premium_Features::clear_cache();
 		Premium_Features::enable_cloud_css_after_upgrade();
+		for ( $request = 0; $request < 3; ++$request ) {
+			Premium_Features::get_features();
+		}
+		$this->assertSame( 1, $this->api_calls );
 		$this->assertFalse( get_option( Premium_Features::CLOUD_CSS_BASELINE_OPTION ) );
 		$this->api_response = array( Premium_Features::CLOUD_CSS );
-		$this->premium      = true;
+		Premium_Features::clear_cache();
 		Premium_Features::enable_cloud_css_after_upgrade();
-		$this->premium = false;
-		Premium_Features::enable_cloud_css_after_upgrade();
-		$this->premium = true;
-		Premium_Features::enable_cloud_css_after_upgrade();
+		$this->assertFalse( ( new Status( 'cloud_css' ) )->get() );
+	}
 
+	public function test_force_disabled_module_keeps_the_upgrade_unclaimed() {
+		Premium_Features::enable_cloud_css_after_upgrade();
+		Transient::set( Premium_Features::TRANSIENT_KEY, array( Premium_Features::CLOUD_CSS ), 3600 );
+		$_GET[ Module::DISABLE_MODULE_QUERY_VAR ] = 'all';
+		Premium_Features::enable_cloud_css_after_upgrade();
+		$this->assertFalse( get_option( Premium_Features::CLOUD_CSS_ACTIVATED_OPTION ) );
+	}
+
+	public function test_registered_boost_page_refreshes_stale_plan_before_module_state_and_requests_generation() {
+		$modules   = new class() extends Modules_Setup {
+			public function get_available_modules() {
+				$cloud = new Module( new Cloud_CSS() );
+				return $cloud->is_available() ? array( 'cloud_css' => $cloud ) : array();
+			}
+			public function get_available_submodules() {
+				return array();
+			}
+			public function can_module_run( $module ) {
+				return $module->is_available();
+			}
+		};
+		$requested = 0;
+		\Patchwork\redefine(
+			Regenerate::class . '::start',
+			function () use ( &$requested ) {
+				++$requested;
+			}
+		);
+		\Patchwork\redefine( Analytics::class . '::record_user_event', \Patchwork\always( null ) );
+		Actions\expectDone( 'jetpack_boost_module_status_updated' )->once()->with( 'cloud_css', true )->whenHappen(
+			function ( $slug, $active ) use ( $modules ) {
+				$modules->on_module_status_update( $slug, $active );
+			}
+		);
+		\Patchwork\redefine( Admin_Menu::class . '::add_menu', \Patchwork\always( 'boost-test-page' ) );
+		Functions\when( '__' )->returnArg();
+		Functions\when( 'is_admin' )->justReturn( false );
+		Functions\when( 'current_user_can' )->justReturn( true );
+		if ( ! defined( 'JETPACK_BOOST_SLUG' ) ) {
+			define( 'JETPACK_BOOST_SLUG', 'jetpack-boost' );
+		}
+		$callback = null;
+		Actions\expectAdded( 'load-boost-test-page' )->once()->with(
+			Mockery::on(
+				function ( $handler ) use ( &$callback ) {
+					$callback = $handler;
+					return is_callable( $handler );
+				}
+			)
+		);
+		( new Admin() )->handle_admin_menu();
+		$this->assertIsCallable( $callback );
+		$callback();
+		$entry = new Modules_State_Entry( array( Cloud_CSS::class ) );
+		$entry->get();
+		$this->api_response = array( Premium_Features::CLOUD_CSS );
+		$callback();
+		$this->assertSame(
+			array(
+				'active'    => true,
+				'available' => true,
+			),
+			$entry->get()['cloud_css']
+		);
+		$this->assertTrue( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
+		$this->assertSame( 1, $requested );
+	}
+
+	public function test_existing_premium_site_keeps_cloud_css_off_even_after_plan_returns() {
+		Actions\expectDone( 'jetpack_boost_module_status_updated' )->never();
+		$this->observe_cached_plan( array( Premium_Features::CLOUD_CSS ) );
+		$this->observe_cached_plan( array() );
+		$this->observe_cached_plan( array( Premium_Features::CLOUD_CSS ) );
 		$this->assertFalse( ( new Status( 'cloud_css' ) )->get() );
 		$this->assertFalse( get_option( Premium_Features::CLOUD_CSS_NOTICE_OPTION ) );
 	}

@@ -1,19 +1,25 @@
-import { render, screen } from '@testing-library/react';
+/* eslint-disable testing-library/prefer-user-event, jest-dom/prefer-in-document */
+import { fireEvent, render, screen } from '@testing-library/react';
 import { useDataSync } from '@automattic/jetpack-react-data-sync-client';
 import { getUpgradeURL } from '$lib/stores/connection';
 import PurchaseSuccess from './purchase-success';
+import CloudCssUpgradeNotice from '$features/critical-css/cloud-css-upgrade-notice';
+
+const mockContinue = jest.fn();
 
 jest.mock( '@automattic/jetpack-react-data-sync-client', () => ( { useDataSync: jest.fn() } ) );
 jest.mock( '@automattic/jetpack-components', () => ( {
 	getRedirectUrl: () => 'https://jetpack.com/boost/',
-	Button: () => null,
+	Button: ( { children, onClick }: { children: React.ReactNode; onClick: () => void } ) => (
+		<button onClick={ onClick }>{ children }</button>
+	),
 } ) );
 jest.mock( '$layout/card-page/card-page', () => ( {
 	__esModule: true,
 	default: ( { children }: { children: React.ReactNode } ) => <div>{ children }</div>,
 } ) );
 jest.mock( '$lib/navigation/navigation-context', () => ( {
-	useBoostNavigation: () => ( { returnToSettings: jest.fn() } ),
+	useBoostNavigation: () => ( { returnToSettings: mockContinue } ),
 } ) );
 
 it.each( [
@@ -22,13 +28,17 @@ it.each( [
 ] )(
 	'preserves the legacy return with Cloud CSS active=$active',
 	( { active, pending, writes } ) => {
+		mockContinue.mockClear();
 		const enable = jest.fn();
-		const clearNotice = jest.fn();
+		let noticePending = pending;
+		const clearNotice = jest.fn( value => {
+			noticePending = value;
+		} );
 		jest.mocked( useDataSync ).mockImplementation( ( _namespace, key ) => {
 			return (
 				key === 'modules_state'
 					? [ { data: { cloud_css: { active, available: true } } }, { mutate: enable } ]
-					: [ { data: pending }, { mutate: clearNotice } ]
+					: [ { data: noticePending }, { mutate: clearNotice } ]
 			) as never;
 		} );
 		Object.assign( globalThis, { Jetpack_Boost: { assetPath: '/', site: { host: 'other' } } } );
@@ -37,7 +47,7 @@ it.each( [
 		expect( checkout.searchParams.get( 'redirect_to' ) ).toBe(
 			'admin.php?page=jetpack-boost#/purchase-successful'
 		);
-		render( <PurchaseSuccess /> );
+		const view = render( <PurchaseSuccess /> );
 		expect( enable ).toHaveBeenCalledTimes( writes );
 		const mutationOptions = expect.any( Object );
 		expect( enable.mock.calls ).toEqual(
@@ -48,5 +58,11 @@ it.each( [
 		expect(
 			screen.getAllByText( 'Congratulations! Your Jetpack Boost is Now Upgraded!' )
 		).toHaveLength( 1 );
+		fireEvent.click( screen.getByRole( 'button', { name: 'Continue' } ) );
+		expect( mockContinue ).toHaveBeenCalledTimes( 1 );
+		view.rerender( <CloudCssUpgradeNotice /> );
+		expect(
+			screen.queryByText( 'Congratulations! Your Jetpack Boost is Now Upgraded!' )
+		).toBeNull();
 	}
 );

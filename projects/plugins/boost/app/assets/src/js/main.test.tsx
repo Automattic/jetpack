@@ -71,7 +71,9 @@ jest.mock( '$layout/boost-admin-page/boost-admin-page', () => ( {
 jest.mock( '$layout/settings-page/support/support', () => () => null );
 jest.mock( '$layout/settings-page/tips/tips', () => () => null );
 jest.mock( '$features/notice/manager', () => () => null );
-jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => () => null );
+jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => () => (
+	<div data-testid="upgrade-confirmation" />
+) );
 jest.mock( './pages/index', () => ( {
 	__esModule: true,
 	default: function Settings() {
@@ -109,6 +111,7 @@ it( 'keeps a rolled-back failed run stopped after leaving and returning to legac
 	const generator = jest.mocked( runLocalGenerator );
 	generator.mockReturnValue( new AbortController() );
 	render( <Main /> );
+	expect( screen.getByTestId( 'upgrade-confirmation' ) ).toBeTruthy();
 	await waitFor( () => expect( generator ).toHaveBeenCalled() );
 	const runs = generator.mock.calls.length;
 	const callbacks = generator.mock.calls[ runs - 1 ][ 2 ];

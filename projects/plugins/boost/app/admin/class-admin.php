@@ -202,6 +202,9 @@ class Admin {
 	public function admin_init() {
 		// Clear premium features cache when the plugin settings page is loaded.
 		Premium_Features::clear_cache();
+		if ( current_user_can( 'manage_options' ) ) {
+			Premium_Features::enable_cloud_css_after_upgrade();
+		}
 
 		add_action( 'admin_enqueue_scripts', array( My_Jetpack_Initializer::class, 'enqueue_scripts' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );

@@ -5,7 +5,9 @@ import { StrictMode } from 'react';
 import { recordBoostEvent } from '$lib/utils/analytics';
 import Settings from './settings';
 
-jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => () => null );
+jest.mock( '$features/critical-css/cloud-css-upgrade-notice', () => () => (
+	<div data-testid="upgrade-confirmation" />
+) );
 
 /* Each module stub prints its name so the test can assert the order. */
 jest.mock( '$features/cornerstone-pages/cornerstone-pages', () => ( {
@@ -63,6 +65,7 @@ const modulesIn = ( heading: string ) => {
 describe( 'Settings', () => {
 	it( 'renders the designed cards in order, each holding its modules', () => {
 		render( <Settings /> );
+		expect( screen.getByTestId( 'upgrade-confirmation' ) ).toBeTruthy();
 
 		expect( screen.getAllByRole( 'button' ).map( button => button.textContent ) ).toEqual( [
 			'Cornerstone PagesAdded: HomepageChoose the pages that matter most on your site so Boost can give them its most targeted optimizations.',
@@ -208,6 +211,7 @@ describe( 'Settings exposure and group interactions', () => {
 				<Settings active={ false } />
 			</StrictMode>
 		);
+		expect( screen.queryByTestId( 'upgrade-confirmation' ) ).toBeNull();
 		exposeHeaders();
 		expect( recordBoostEvent ).toHaveBeenCalledTimes( 6 );
 		view.rerender(
