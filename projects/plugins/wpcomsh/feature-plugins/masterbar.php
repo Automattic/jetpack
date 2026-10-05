@@ -45,6 +45,11 @@ function wpcomsh_mimic_admin_page_load() {
 		// Valid requests will exit before here, but ensure custom code doesn't handle things poorly.
 		add_action(
 			'wp',
+			/**
+			 * Rejects the request.
+			 *
+			 * @return never
+			 */
 			function () {
 				status_header( 400 );
 				exit;
