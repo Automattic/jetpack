@@ -105,6 +105,14 @@ a stalled CI runner can push the update past `waitFor`'s 1s deadline and flake t
 driving `userEvent` also need `userEvent.setup( { advanceTimers: jest.advanceTimersByTime } )`.
 See `widgets/posting-activity/__tests__/posting-activity.test.tsx`.
 
+### Test runs that cost more than one pass
+
+- `test-tz` in `package.json` reruns its paths in two more timezones. List a path there only if
+  one of its tests fails outside UTC when the machine zone leaks in (e.g. `Date.UTC` → `new Date`).
+- CI runs suites grouped (`tests/groups/README.md`). Removing or merging a member means updating
+  its group import. A path argument runs ungrouped. To keep CI's grouping, match the group file:
+  `pnpm run test --testPathPatterns=<group file>` (no `--`, which turns the flag into a filter).
+
 ## API
 
 Two local REST surfaces; almost all data comes from WordPress.com via one agnostic proxy.
