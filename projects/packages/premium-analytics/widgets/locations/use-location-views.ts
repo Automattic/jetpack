@@ -7,7 +7,10 @@ import type {
 	StatsLocationCoordinates,
 	StatsLocationsComparisonItem,
 } from '@jetpack-premium-analytics/data';
-import type { LocationsScope } from '@jetpack-premium-analytics/widgets-toolkit';
+import {
+	getLocationsScopeParams,
+	type LocationsScope,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 
 export type GeoMode = 'country' | 'region' | 'city';
 
@@ -88,8 +91,7 @@ export default function useLocationViews( {
 		...reportParams,
 		geoMode,
 		max,
-		...( filter ? { filter_by_country: filter.country } : {} ),
-		...( filter?.region ? { filter_by_region: filter.region } : {} ),
+		...getLocationsScopeParams( filter ),
 	};
 
 	const { comparisonRows, hasComparison, isLoading, isFetching, hasData, isError, refetch } =

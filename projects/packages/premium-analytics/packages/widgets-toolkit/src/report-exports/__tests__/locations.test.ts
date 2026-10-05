@@ -120,4 +120,13 @@ describe( 'locationsCsvExporter', () => {
 			filter_by_region: 'Minnesota',
 		} );
 	} );
+
+	it( 'names the file after the scope', () => {
+		expect( locationsCsvExporter( 'regions', { country: 'FR' } ).filenamePrefix ).toBe(
+			'locations-regions-fr'
+		);
+		expect(
+			locationsCsvExporter( 'cities', { country: 'FR', region: 'Île-de-France' } ).filenamePrefix
+		).toBe( 'locations-cities-fr-ile-de-france' );
+	} );
 } );

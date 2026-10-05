@@ -661,6 +661,7 @@ describe( 'Widget and report CSV parity', () => {
 		);
 
 		expect( widgetFile ).toEqual( reportFile );
+		expect( widgetFile.filename ).toContain( 'locations-regions-us-' );
 		expect( widgetFile.csv ).not.toContain( 'Ontario' );
 		expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( 12 );
 	} );
@@ -674,7 +675,7 @@ describe( 'Widget and report CSV parity', () => {
 			}
 		);
 
-		expect( widgetFile.filename ).toBe( 'locations-cities-2026-03-01_2026-03-10.csv' );
+		expect( widgetFile.filename ).toBe( 'locations-cities-us-minnesota-2026-03-01_2026-03-10.csv' );
 		expect( widgetFile.csv ).toContain( 'Minnesota city 10' );
 		expect( widgetFile.csv ).not.toContain( 'Austin' );
 		expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( 12 );

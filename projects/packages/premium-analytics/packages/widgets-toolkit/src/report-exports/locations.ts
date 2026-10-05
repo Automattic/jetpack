@@ -9,6 +9,7 @@ import {
 	type StatsLocationsParams,
 } from '@jetpack-premium-analytics/data';
 import { __ } from '@wordpress/i18n';
+import { cleanForSlug } from '@wordpress/url';
 /**
  * Internal dependencies
  */
@@ -94,6 +95,15 @@ export function getLocationsReportQueryParams(
 		summarize: 1,
 		period: 'day',
 		geoMode: LOCATIONS_GEO_MODES[ section ],
+		...getLocationsScopeParams( scope ),
+	};
+}
+
+/** The Stats query params that narrow the rows to a scope. */
+export function getLocationsScopeParams(
+	scope?: LocationsScope
+): Pick< StatsLocationsParams, 'filter_by_country' | 'filter_by_region' > {
+	return {
 		...( scope ? { filter_by_country: scope.country } : {} ),
 		...( scope?.region ? { filter_by_region: scope.region } : {} ),
 	};
@@ -107,7 +117,10 @@ export function locationsCsvExporter(
 	scope?: LocationsScope
 ): ReportCsvExporter< LocationRow, LocationRow > {
 	return {
-		filenamePrefix: `locations-${ section }`,
+		filenamePrefix: [ 'locations', section, scope?.country, scope?.region ]
+			.map( part => cleanForSlug( part ?? '' ) )
+			.filter( Boolean )
+			.join( '-' ),
 		hasDateRange: true,
 		fetchItems: async reportParams =>
 			buildLocationRows(

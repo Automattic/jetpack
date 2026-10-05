@@ -34,6 +34,7 @@ export {
 	buildLocationRows,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsScopeParams,
 	locationsCsvExporter,
 	supportsLocationsCountryFilter,
 	type LocationRow,

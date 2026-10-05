@@ -227,6 +227,7 @@ export {
 	getAuthorsReportQueryParams,
 	getLocationsReportQueryParams,
 	getLocationsReportSection,
+	getLocationsScopeParams,
 	getPostsReportQueryParams,
 	getSummarizedReportQueryParams,
 	getUtmDimensionLabel,
