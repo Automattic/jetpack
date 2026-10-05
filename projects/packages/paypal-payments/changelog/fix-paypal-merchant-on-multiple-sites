@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Payment Buttons: Let a seller connect the same PayPal account on more than one site, by keeping the tracking ID each site was referred with and presenting it on every call made through WordPress.com.
