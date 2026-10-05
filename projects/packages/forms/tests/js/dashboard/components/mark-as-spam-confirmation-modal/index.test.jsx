@@ -2,7 +2,7 @@
  * External dependencies
  */
 import { describe, expect, it, jest } from '@jest/globals';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 const { default: MarkAsSpamConfirmationModal } =
@@ -52,5 +52,15 @@ describe( 'MarkAsSpamConfirmationModal', () => {
 		expect( onCancel ).not.toHaveBeenCalled();
 		expect( screen.getByRole( 'alertdialog' ) ).toBeInTheDocument();
 		await waitFor( () => expect( screen.getByRole( 'button', { name: 'OK' } ) ).toBeEnabled() );
+	} );
+
+	it( 'shows the error the confirm handler returns', async () => {
+		const { onCancel } = renderModal( jest.fn( async () => ( { error: 'Could not save.' } ) ) );
+
+		await userEvent.click( await screen.findByRole( 'button', { name: 'OK' } ) );
+
+		const dialog = screen.getByRole( 'alertdialog' );
+		await expect( within( dialog ).findByText( 'Could not save.' ) ).resolves.toBeInTheDocument();
+		expect( onCancel ).not.toHaveBeenCalled();
 	} );
 } );

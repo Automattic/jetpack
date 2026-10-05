@@ -12,7 +12,7 @@ import type { JSX } from 'react';
 interface MarkAsSpamConfirmationModalProps {
 	isOpen: boolean;
 	onCancel: () => void;
-	onConfirm: () => Promise< void >;
+	onConfirm: () => Promise< void | { error: string } >;
 	message: string;
 }
 
@@ -22,7 +22,7 @@ interface MarkAsSpamConfirmationModalProps {
  * @param {object}   props           - Component props.
  * @param {boolean}  props.isOpen    - Whether the modal is open.
  * @param {Function} props.onCancel  - Function to call when the user cancels.
- * @param {Function} props.onConfirm - Function to call when the user confirms. It must close the modal by setting `isOpen` to false once it succeeds.
+ * @param {Function} props.onConfirm - Function to call when the user confirms. It must close the modal by setting `isOpen` to false once it succeeds, or resolve to `{ error }` to show that message instead.
  * @param {string}   props.message   - The confirmation question.
  * @return {JSX.Element} The confirmation modal.
  */
