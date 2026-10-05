@@ -2,7 +2,11 @@
 	"version": "1.0.0",
 	"private": true,
 	"dependencies": {
-		"@wordpress/admin-ui": "2.10.0"
+		"@automattic/jetpack-components": "workspace:*",
+		"@wordpress/admin-ui": "2.10.0",
+		"@wordpress/i18n": "6.28.0",
+		"@wordpress/icons": "16.0.0",
+		"@wordpress/ui": "0.22.0"
 	},
 	"route": {
 		"path": "/",

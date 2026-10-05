@@ -1,0 +1,4 @@
+Significance: patch
+Type: other
+
+Protect: Add Scan, Monitor, Firewall and Login protection sections to the feature-flagged Protect dashboard.

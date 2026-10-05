@@ -6,6 +6,9 @@
  */
 
 use Automattic\Jetpack\Admin_UI\Admin_Menu;
+use Automattic\Jetpack\Modules;
+use Automattic\Jetpack\My_Jetpack\Products\Scan;
+use Automattic\Jetpack\Redirect;
 
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 0 );
@@ -93,6 +96,9 @@ class Jetpack_Protect_Dashboard {
 	public static function render() {
 		$render_fn = 'jetpack_plugin_' . str_replace( '-', '_', self::WP_BUILD_PAGE_ID ) . '_wp_admin_render_page';
 		if ( function_exists( $render_fn ) ) {
+			wp_print_inline_script_tag(
+				'window.jetpackProtectDashboard = ' . wp_json_encode( self::get_initial_state(), JSON_UNESCAPED_SLASHES | JSON_HEX_TAG | JSON_HEX_AMP ) . ';'
+			);
 			$render_fn();
 			return;
 		}
@@ -100,6 +106,45 @@ class Jetpack_Protect_Dashboard {
 		printf(
 			'<div class="wrap"><h1>Protect</h1><div class="notice notice-error"><p>%s</p></div></div>',
 			esc_html__( 'The Protect dashboard could not be loaded because its assets are missing.', 'jetpack' )
+		);
+	}
+
+	/**
+	 * What each dashboard section shows: whether its feature runs here, and where to manage it.
+	 *
+	 * @return array
+	 */
+	public static function get_initial_state() {
+		$has_scan = class_exists( Scan::class ) && method_exists( Scan::class, 'has_paid_plan_for_product' )
+			&& Scan::has_paid_plan_for_product();
+
+		return array(
+			'scan'            => array(
+				'available' => true,
+				'active'    => $has_scan,
+				'url'       => $has_scan
+					? Redirect::get_url( 'my-jetpack-manage-scan' )
+					: admin_url( 'admin.php?page=my-jetpack#/add-scan' ),
+			),
+			'monitor'         => self::get_module_state( 'monitor' ),
+			'firewall'        => self::get_module_state( 'waf' ),
+			'loginProtection' => self::get_module_state( 'protect' ),
+		);
+	}
+
+	/**
+	 * Whether a module can run on this site and is on, with the Settings screen that switches it.
+	 *
+	 * @param string $module Module slug.
+	 * @return array
+	 */
+	private static function get_module_state( $module ) {
+		$modules = new Modules();
+
+		return array(
+			'available' => $modules->is_module( $module ),
+			'active'    => $modules->is_active( $module ),
+			'url'       => admin_url( 'admin.php?page=jetpack#/security' ),
 		);
 	}
 }
