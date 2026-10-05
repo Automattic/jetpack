@@ -1,4 +1,0 @@
-Significance: minor
-Type: changed
-
-PayPal Payment Buttons: onboard sellers as a third-party integration, so PayPal calls are made through WordPress.com and no credentials are stored on the site.

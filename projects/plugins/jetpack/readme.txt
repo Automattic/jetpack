@@ -326,23 +326,88 @@ Jetpack Backup can do a full website migration to a new host, migrate theme file
 
 
 == Changelog ==
-### 16.3-a.7 - 2026-09-29
+### 16.3-beta - 2026-10-05
 #### Enhancements
-- Backup: Show the VaultPress Backup dashboard in wp-admin, instead of linking out to Jetpack Cloud.
-- Settings: Show the updated Settings page to sites in right-to-left languages.
-- VideoPress: Add a "Show player" setting to the playlist blocks; when off, clicking a video opens it on VideoPress.
+- Activity Log: Show the connection error notice only when a connection error has been recorded.
+- AI: Use WordPress Design System colors in the AI admin, assistant, and image generator.
+- Backup: Add a Backup module, so the Backup dashboard and its menu item can be turned off from My Jetpack.
+- Charts: Show Stats, Newsletter, Social, Podcast and VideoPress chart tooltips on the dark WordPress design system tooltip surface.
+- Comments: Add a setting to turn blocks in comments on or off, on the Discussion settings page and in Jetpack settings.
+- External Media: Update the Pexels logo in the media source menu.
+- Forms: Make the Delete spam button act on selected responses or the current filter, show how many responses will be deleted, and empty large spam or trash folders in chunks with progress.
+- Forms: Show or hide a field based on the answer to another field. On WordPress.com, this requires a Business plan or higher.
+- My Jetpack: Show product cards flat, without a drop shadow.
+- Newsletter: Add a Days, Weeks, Months, and Years control to the subscribers chart, with arrows to move through earlier periods.
+- Newsletter: List the Action Bar in the Site Editor's "Added by Newsletter settings" note, and show the note when a page or post is shown inside its template.
+- Newsletter: Pick readable text, link and heading colors to go with the email background you choose.
+- Newsletter: Redesign the Jetpack Newsletter sidebar with Email, Newsletter categories, and Audience panels.
+- PayPal Payment Buttons: Keep the product image on the site instead of sending it to PayPal.
+- PayPal Payment Buttons: Link sellers to their PayPal transactions and to PayPal's refund instructions from the block's account menu and the Payment Links admin page.
+- PayPal Payment Buttons: Route PayPal calls through WordPress.com, so no API credentials are stored on the site.
+- PayPal Payment Buttons: Show PayPal's debug ID in API error messages so failed requests can be traced with PayPal support.
+- PayPal Payment Buttons: Use PayPal's official logos, unmodified, and match the connect wizard to the design.
+- PayPal Payment Buttons: Warn in the editor when the PayPal account cannot receive payments or lacks required permissions, and refuse connections without them.
+- Premium Analytics: Add a Download CSV action to more widgets that saves the full report for the selected dates.
+- Premium Analytics: Add drill-down from a region to its cities in Top locations.
+- Premium Analytics: Add the weekly chart interval to year-long date ranges such as Last 12 months.
+- Premium Analytics: Add video thumbnails to the Videos report, drop "report" from report headings, and label the export button "Download CSV".
+- Premium Analytics: Download the full report from the Top pages widget instead of the rows on screen, and add the download to its Archives view.
+- Premium Analytics: Keep Top locations on screen while drilling into a country or region.
+- Premium Analytics: Offer adding and removing widgets on the dashboard.
+- Premium Analytics: Open post and video details on All time, return to the previous date range from the breadcrumbs, and rearrange the Email clicks tab to match the design.
+- Premium Analytics: Show load errors and missing items on author, post, and video details in a notice, and stop offering Retry when access is denied.
+- Premium Analytics: Show Posts & Pages and Videos report titles in bold beside a fixed-size thumbnail.
+- Premium Analytics: Show the Earnings History widget's adjustments link as text with a count badge.
+- Search: Skip the $0 checkout when activating the free Search plan.
+- VideoPress: Add a setting to turn off sharing for every video on the site.
+- VideoPress: Add support for editing video details while uploads are in progress.
+- VideoPress: Give every video its own page for themes that support it, and add a "Show the video being viewed" option to the video block.
+- VideoPress: Show the Video Playlist block's title as an editable heading above the playlist, with a setting to turn it off.
+- VideoPress: Warn in the caption manager when a private video's preview may not play.
 
 #### Bug fixes
-- Blocks: Show the selected style in the Calendly and Eventbrite style pickers.
-- Connection: Reconnect only the owner's account instead of disconnecting every user, and clear the broken-connection notice on the first attempt.
-- Connection: Stop users who cannot set up the site connection from becoming the connection owner when the owner's connection is missing.
-- Mailchimp: Show progress and explain what is missing when re-checking the connection from the block.
-- Newsletter: Fix a fatal error when a theme's preset list is a single value instead of a list.
-- Newsletter: Restrict posts to subscribers when a Paywall block is saved outside the block editor.
-- Search: Show the connection error at the top of the dashboard on every tab.
-- Settings: Keep the Copy button on the left and show the start of URLs in copy fields for right-to-left languages.
-- VideoPress: Ask before deleting videos, and warn before leaving the page while an upload is running.
-- VideoPress: Keep the "Learn more" support link up to date through the redirect service.
+- Admin: Hide default WordPress admin notices and load design tokens on Jetpack pages that non-admin users open before the site is connected or while it is in offline mode.
+- AI: Hide feature links when code turns AI features off, as when the site owner turns them off.
+- AI: Keep the Jetpack AI menu item when AI is switched off, so the MCP and Connectors tab stays reachable.
+- AI blocks: Show a consistent placeholder in the editor when Jetpack AI is turned off.
+- Blocks: Show upgrade nudges for paid blocks and SEO settings in the editor's brand colors instead of pink.
+- Calendly: Make the block preview interactive in the editor once the block is selected.
+- Comments API: Return the real total in `found` when a post's comments are filtered by type or date, instead of -1.
+- Connection: Stop Site Health from reporting false connection failures, and stop prompting a reconnect when the WordPress.com connection test is inconclusive.
+- External Media: Make the featured image picker fill the sidebar width.
+- Forms: Start the Delete permanently and Mark as spam confirmations on Cancel, so pressing Enter no longer permanently deletes a form or marks a response as spam.
+- Forms: Start the Empty trash and Delete spam confirmations on Cancel and show Delete in red, so pressing Enter no longer permanently deletes every response in that folder.
+- Google Fonts: Preserve theme and user font sources and process only needed catalogue font faces on the front end.
+- Google Photos: Show an error with a retry option when the picker cannot be opened, instead of loading indefinitely.
+- Likes: Let Comment Likes be turned on for a single post in the block editor while Like buttons are off.
+- Mailchimp: Save the chosen audience right away, so the block works without also saving the Writing settings.
+- My Jetpack: Fix overlapping and misaligned stats on the Protect card.
+- My Jetpack: Show a switch instead of a purchase link for a product you own whose module is turned off.
+- Newsletter: Fix the Send a test email modal stacking its address field above the Send button.
+- Newsletter: Open settings links on the Settings tab.
+- Newsletter: Remove the stray "Session expired" message from the email design canvas.
+- Newsletter: Show an error with a retry button when subscriber details fail to load.
+- PayPal Payment Buttons: Keep keyboard focus on the PayPal onboarding overlay while it is open, return it to the Connect button on close, and hide Close once the seller has finished at PayPal.
+- PayPal Payment Buttons: Spell "PayPal" with its own capitalization in the connect wizard headings and the wordmark's alt text.
+- PayPal Payment Buttons: Stop collecting a shipping address once shipping is turned off, instead of keeping the hidden checkbox ticked.
+- PayPal Payment Buttons: Tell the merchant when a payment link could not be loaded from PayPal, instead of silently showing stale details.
+- PayPal Payment Buttons: Tell the merchant when the browser blocks PayPal's onboarding window, instead of failing silently, and let the next Connect click open it.
+- Premium Analytics: Fix the Latest comments widget counting pingbacks and trackbacks in its remaining comments count.
+- Premium Analytics: Fix the post comments count, the most popular time, and unnamed countries showing wrong values when Stats has no data for them.
+- Premium Analytics: Keep the numbers inside traffic heatmap cells readable on mid-tone colors.
+- Premium Analytics: Open the date menus on the applied option instead of the first one.
+- Premium Analytics: Show report load errors in a notice across the report, without Retry when access is denied.
+- Premium Analytics: Show the "No data found" state on every report with no rows, and stop the table search and settings from showing while an empty report loads.
+- Premium Analytics: Show the traffic chart with the type chosen in the previous Stats, or as bars by default.
+- Premium Analytics: Show views per visitor and the number of posts published in the Traffic chart tooltip.
+- Premium Analytics: Use the default chart interval when switching to a different date preset, instead of keeping the previous preset's.
+- Search: Show the AI Answer disabled notice when the host turns off AI, and hide the block from the inserter whenever Jetpack AI is off.
+- Search: Start the experience switch and Restore default confirmations on Cancel, so pressing Enter no longer switches the search experience or deletes a customized template.
+- Social: Fix publishing failing with a share message database error, which also prevented newsletters and social shares from being sent.
+- Social: Let a Facebook or Instagram connection with no Page or account saved pick one when reconnecting.
+- Stats: Stop showing free-plan paywalls in wp-admin on a site whose plan already includes those stats.
+- VideoPress: Fix upgrades on WordPress.com sites by offering the Business plan.
+- VideoPress: Offer an upgrade action in the video block when uploads require a paid plan.
 
 --------
 
