@@ -63,8 +63,8 @@ class Users_Connection_Admin_Test extends TestCase {
 		remove_all_filters( 'views_users' );
 		remove_all_filters( 'users_list_table_query_args' );
 		remove_all_actions( 'restrict_manage_users' );
+		remove_all_filters( 'users_pre_query' );
 
-		Users_Connection_Admin_Double::$connected_count = 0;
 		unset( $_GET[ Users_Connection_Admin::VIEW_QUERY_ARG ] );
 
 		$GLOBALS['wp_styles']  = null;
@@ -237,19 +237,34 @@ class Users_Connection_Admin_Test extends TestCase {
 	}
 
 	/**
-	 * Render the view against a given connected-user count.
+	 * Answer the count's WP_User_Query with the given IDs.
 	 *
-	 * The real count queries, and WorDBless does not run WP_User_Query, so the view would
-	 * always render as empty and the assertions below would pass for the wrong reason.
+	 * WorDBless runs no user query, so the count would always be zero and every assertion
+	 * below would pass for the wrong reason. `users_pre_query` is WordPress's own
+	 * short-circuit, so the counting code still runs exactly as it does in production.
 	 *
-	 * @param int   $count Count to report.
+	 * @param int[] $ids IDs the query should return.
+	 */
+	private function answer_user_query_with( array $ids ) {
+		add_filter(
+			'users_pre_query',
+			static function () use ( $ids ) {
+				return $ids;
+			}
+		);
+	}
+
+	/**
+	 * Render the view with the count query answered by the given IDs.
+	 *
+	 * @param int[] $ids   IDs the count query should return.
 	 * @param array $views Views to filter.
 	 * @return array
 	 */
-	private function views_with_count( $count, $views = array() ) {
-		Users_Connection_Admin_Double::$connected_count = $count;
+	private function views_counting( array $ids, $views = array() ) {
+		$this->answer_user_query_with( $ids );
 
-		return Users_Connection_Admin_Double::add_connected_view( $views );
+		return Users_Connection_Admin::add_connected_view( $views );
 	}
 
 	/**
@@ -326,7 +341,10 @@ class Users_Connection_Admin_Test extends TestCase {
 	 * The view is offered with a count once somebody is connected.
 	 */
 	public function test_connected_view_is_added_with_a_count() {
-		$views = $this->views_with_count( 2, array( 'all' => '<a href="users.php">All</a>' ) );
+		$first  = $this->connect_user( 'connected_one' );
+		$second = $this->connect_user( 'connected_two' );
+
+		$views = $this->views_counting( array( $first, $second ), array( 'all' => '<a href="users.php">All</a>' ) );
 
 		$this->assertArrayHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
 		$this->assertStringContainsString( 'Connected', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
@@ -338,9 +356,36 @@ class Users_Connection_Admin_Test extends TestCase {
 	 * Nobody connected is a member of this site, so the view would only ever be empty.
 	 */
 	public function test_connected_view_is_absent_without_connected_users() {
-		$views = $this->views_with_count( 0, array( 'all' => '<a href="users.php">All</a>' ) );
+		$this->connect_user( 'removed_from_this_site' );
+
+		$views = $this->views_counting( array(), array( 'all' => '<a href="users.php">All</a>' ) );
 
 		$this->assertArrayNotHasKey( Users_Connection_Admin::VIEW_CONNECTED, $views );
+	}
+
+	/**
+	 * The count asks only for the token holders, and only for their IDs.
+	 */
+	public function test_the_count_query_is_scoped_to_token_holders() {
+		$first  = $this->connect_user( 'connected_one' );
+		$second = $this->connect_user( 'connected_two' );
+
+		$query_vars = null;
+		add_filter(
+			'users_pre_query',
+			static function ( $results, $query ) use ( &$query_vars ) {
+				$query_vars = $query->query_vars;
+
+				return array();
+			},
+			10,
+			2
+		);
+
+		Users_Connection_Admin::add_connected_view( array() );
+
+		$this->assertSame( array( $first, $second ), $query_vars['include'] );
+		$this->assertSame( 'ID', $query_vars['fields'] );
 	}
 
 	/**
@@ -374,8 +419,9 @@ class Users_Connection_Admin_Test extends TestCase {
 	 */
 	public function test_connected_view_takes_the_current_highlight_from_all() {
 		$this->activate_connected_view();
+		$connected = $this->connect_user( 'connected_one' );
 
-		$views = $this->views_with_count( 1, array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' ) );
+		$views = $this->views_counting( array( $connected ), array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' ) );
 
 		$this->assertStringContainsString( 'class="current"', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
 		$this->assertStringNotContainsString( 'class="current"', $views['all'] );
@@ -386,7 +432,9 @@ class Users_Connection_Admin_Test extends TestCase {
 	 * The view is just one of the links until it is selected.
 	 */
 	public function test_connected_view_is_not_current_by_default() {
-		$views = $this->views_with_count( 1, array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' ) );
+		$connected = $this->connect_user( 'connected_one' );
+
+		$views = $this->views_counting( array( $connected ), array( 'all' => '<a href="users.php" class="current" aria-current="page">All</a>' ) );
 
 		$this->assertStringNotContainsString( 'class="current"', $views[ Users_Connection_Admin::VIEW_CONNECTED ] );
 		$this->assertStringContainsString( 'class="current"', $views['all'] );

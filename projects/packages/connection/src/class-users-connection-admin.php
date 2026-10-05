@@ -188,7 +188,7 @@ class Users_Connection_Admin {
 	 * @return string[]
 	 */
 	public static function add_connected_view( $views ) {
-		$count = static::count_connected_users();
+		$count = self::count_connected_users();
 
 		if ( ! $count ) {
 			return $views;
@@ -222,13 +222,11 @@ class Users_Connection_Admin {
 	 * still on the network — `remove_user_from_blog()` does not fire `deleted_user`, so
 	 * the token survives — is counted out, as are IDs with no user left at all.
 	 *
-	 * Protected so tests can supply a count without a database.
-	 *
 	 * @since $$next-version$$
 	 *
 	 * @return int
 	 */
-	protected static function count_connected_users() {
+	private static function count_connected_users() {
 		$ids = self::get_connected_user_ids();
 
 		if ( ! $ids ) {
