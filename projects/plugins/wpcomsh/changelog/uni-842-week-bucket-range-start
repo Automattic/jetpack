@@ -1,0 +1,4 @@
+Significance: patch
+Type: fixed
+
+Premium Analytics: Label a week that the selected date range cuts through with the range's own start or end date, so weekly charts no longer show a day outside the range.
