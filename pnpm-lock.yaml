@@ -4131,6 +4131,9 @@ importers:
       '@automattic/jetpack-script-data':
         specifier: workspace:*
         version: link:../../js-packages/script-data
+      '@automattic/jetpack-woocommerce-stats':
+        specifier: workspace:*
+        version: link:../woocommerce-stats
       '@automattic/number-formatters':
         specifier: workspace:*
         version: link:../../js-packages/number-formatters
@@ -5330,6 +5333,28 @@ importers:
       webpack-cli:
         specifier: 7.2.1
         version: 7.2.1(webpack@5.111.1)
+
+  projects/packages/woocommerce-stats:
+    dependencies:
+      '@jetpack-premium-analytics/data':
+        specifier: link:../premium-analytics/packages/data
+        version: link:../premium-analytics/packages/data
+      '@tanstack/react-query':
+        specifier: 5.102.8
+        version: 5.102.8(react@18.3.1)
+      '@wordpress/i18n':
+        specifier: 6.28.0
+        version: 6.28.0
+      react:
+        specifier: 18.3.1
+        version: 18.3.1
+    devDependencies:
+      '@typescript/native-preview':
+        specifier: 7.0.0-dev.20260707.2
+        version: 7.0.0-dev.20260707.2
+      typescript:
+        specifier: 6.0.3
+        version: 6.0.3
 
   projects/packages/wp-build-polyfills:
     dependencies:

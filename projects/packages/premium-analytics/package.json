@@ -43,6 +43,7 @@
 		"@automattic/jetpack-analytics": "workspace:*",
 		"@automattic/jetpack-connection": "workspace:*",
 		"@automattic/jetpack-script-data": "workspace:*",
+		"@automattic/jetpack-woocommerce-stats": "workspace:*",
 		"@automattic/number-formatters": "workspace:*",
 		"@date-fns/tz": "1.5.0",
 		"@jetpack-premium-analytics/data": "link:packages/data",

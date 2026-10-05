@@ -1,0 +1,96 @@
+/**
+ * Internal dependencies
+ */
+import { withBucketStamps } from '@jetpack-premium-analytics/data/src/processing/utils';
+import { safeParseInt } from '@jetpack-premium-analytics/data/src/utils/parsing';
+import { fetchReportBookings } from '../../api/report-bookings-fetch';
+import type { Override } from '@jetpack-premium-analytics/data/src/utils/types';
+
+type ReportsBookingsByDateResponse = Awaited< ReturnType< typeof fetchReportBookings > >;
+type RawBookingsReportDataItem = ReportsBookingsByDateResponse[ 'data' ][ number ];
+type RawBookingsReportSummaryItem = ReportsBookingsByDateResponse[ 'summary' ];
+
+type SanitizedBookingsByDateItem = Override<
+	RawBookingsReportDataItem,
+	{
+		status_unpaid: number;
+		status_pending_confirmation: number;
+		status_confirmed: number;
+		status_paid: number;
+		status_cancelled: number;
+		status_complete: number;
+		attendance_status_booked: number;
+		attendance_status_no_show: number;
+		attendance_status_checked_in: number;
+	}
+>;
+
+type SanitizedBookingsSummaryItem = Override<
+	RawBookingsReportSummaryItem,
+	{
+		status_unpaid: number;
+		status_pending_confirmation: number;
+		status_confirmed: number;
+		status_paid: number;
+		status_cancelled: number;
+		status_complete: number;
+		attendance_status_booked: number;
+		attendance_status_no_show: number;
+		attendance_status_checked_in: number;
+	}
+>;
+
+function sanitizeBookingItem(
+	item: RawBookingsReportDataItem,
+	zone: string
+): SanitizedBookingsByDateItem {
+	return {
+		...withBucketStamps( item, zone ),
+		status_unpaid: safeParseInt( item.status_unpaid ),
+		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
+		status_confirmed: safeParseInt( item.status_confirmed ),
+		status_paid: safeParseInt( item.status_paid ),
+		status_cancelled: safeParseInt( item.status_cancelled ),
+		status_complete: safeParseInt( item.status_complete ),
+		attendance_status_booked: safeParseInt( item.attendance_status_booked ),
+		attendance_status_no_show: safeParseInt( item.attendance_status_no_show ),
+		attendance_status_checked_in: safeParseInt( item.attendance_status_checked_in ),
+	};
+}
+
+function sanitizeBookingSummaryItem(
+	item: RawBookingsReportSummaryItem,
+	zone: string
+): SanitizedBookingsSummaryItem {
+	return {
+		...withBucketStamps( item, zone ),
+		status_unpaid: safeParseInt( item.status_unpaid ),
+		status_pending_confirmation: safeParseInt( item.status_pending_confirmation ),
+		status_confirmed: safeParseInt( item.status_confirmed ),
+		status_paid: safeParseInt( item.status_paid ),
+		status_cancelled: safeParseInt( item.status_cancelled ),
+		status_complete: safeParseInt( item.status_complete ),
+		attendance_status_booked: safeParseInt( item.attendance_status_booked ),
+		attendance_status_no_show: safeParseInt( item.attendance_status_no_show ),
+		attendance_status_checked_in: safeParseInt( item.attendance_status_checked_in ),
+	};
+}
+
+type SanitizedBookingsByDateResponse = {
+	summary: SanitizedBookingsSummaryItem;
+	data: SanitizedBookingsByDateItem[];
+};
+
+/**
+ * The `summary` and `data` items have different structures (summary lacks time_interval),
+ * so we use different sanitizer functions for each.
+ */
+export const sanitizeReportBookingsResponse = (
+	response: ReportsBookingsByDateResponse,
+	zone: string
+): SanitizedBookingsByDateResponse => {
+	return {
+		summary: sanitizeBookingSummaryItem( response.summary, zone ),
+		data: response.data.map( item => sanitizeBookingItem( item, zone ) ),
+	};
+};

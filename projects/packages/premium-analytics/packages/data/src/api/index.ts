@@ -49,8 +49,8 @@ export type {
 	ExportReportParams,
 	ExportReportResponse,
 } from './report-export-fetch';
+export { fetchReport } from '@automattic/jetpack-woocommerce-stats';
 export {
-	fetchReport,
 	fetchStatsProxy,
 	getStatsProxyPath,
 	type StatsProxyFetchParams,

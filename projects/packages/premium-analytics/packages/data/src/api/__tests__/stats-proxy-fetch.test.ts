@@ -1,11 +1,12 @@
 /**
  * External dependencies
  */
+import { fetchReport } from '@automattic/jetpack-woocommerce-stats';
 import apiFetch from '@wordpress/api-fetch';
 /**
  * Internal dependencies
  */
-import { fetchReport, fetchStatsProxy, getStatsProxyPath } from '../stats-proxy-fetch';
+import { fetchStatsProxy, getStatsProxyPath } from '../stats-proxy-fetch';
 
 jest.mock( '@wordpress/api-fetch' );
 

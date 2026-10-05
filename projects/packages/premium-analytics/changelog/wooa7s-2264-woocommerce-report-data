@@ -1,0 +1,3 @@
+Significance: patch
+Type: changed
+Comment: Read WooCommerce analytics reports through the WooCommerce stats package. Behavior is unchanged.

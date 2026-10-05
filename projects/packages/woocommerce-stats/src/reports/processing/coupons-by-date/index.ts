@@ -1,0 +1,89 @@
+/**
+ * Internal dependencies
+ */
+import { withBucketStamps } from '@jetpack-premium-analytics/data/src/processing/utils';
+import { safeParseFloat, safeParseInt } from '@jetpack-premium-analytics/data/src/utils/parsing';
+import { fetchReportCouponsByDate } from '../../api/report-coupons-by-date-fetch';
+import type { Override } from '@jetpack-premium-analytics/data/src/utils/types';
+
+type ReportsCouponsByDateResponse = Awaited< ReturnType< typeof fetchReportCouponsByDate > >;
+type RawSummary = ReportsCouponsByDateResponse[ 'summary' ];
+type RawDataItem = ReportsCouponsByDateResponse[ 'data' ][ number ];
+
+type SanitizedCouponsByDateSummary = Override<
+	RawSummary,
+	{
+		total_orders: number;
+		orders_with_coupon: number;
+		orders_without_coupon: number;
+		total_sales: number;
+		sales_with_coupon: number;
+		sales_without_coupon: number;
+		total_discount_amount: number;
+		net_sales_after_discount: number;
+		coupon_usage_percentage: number;
+	}
+>;
+
+type SanitizedCouponsByDateDataItem = Override<
+	RawDataItem,
+	{
+		total_orders: number;
+		orders_with_coupon: number;
+		orders_without_coupon: number;
+		total_sales: number;
+		sales_with_coupon: number;
+		sales_without_coupon: number;
+		total_discount_amount: number;
+		net_sales_after_discount: number;
+		coupon_usage_percentage: number;
+	}
+>;
+
+type SanitizedCouponsByDateResponse = {
+	summary: SanitizedCouponsByDateSummary;
+	data: SanitizedCouponsByDateDataItem[];
+};
+
+function sanitizeItem( item: RawDataItem, zone: string ): SanitizedCouponsByDateDataItem {
+	return {
+		...withBucketStamps( item, zone ),
+		total_orders: safeParseInt( item.total_orders ),
+		orders_with_coupon: safeParseInt( item.orders_with_coupon ),
+		orders_without_coupon: safeParseInt( item.orders_without_coupon ),
+		total_sales: safeParseFloat( item.total_sales ),
+		sales_with_coupon: safeParseFloat( item.sales_with_coupon ),
+		sales_without_coupon: safeParseFloat( item.sales_without_coupon ),
+		total_discount_amount: safeParseFloat( item.total_discount_amount ),
+		net_sales_after_discount: safeParseFloat( item.net_sales_after_discount ),
+		coupon_usage_percentage: safeParseFloat( item.coupon_usage_percentage ),
+	};
+}
+
+function sanitizeSummary( summary: RawSummary, zone: string ): SanitizedCouponsByDateSummary {
+	// safeParseFloat/safeParseInt fall back to 0 for missing fields (e.g. an
+	// empty-range response with an empty `summary`), so the widget reaches its
+	// empty state instead of charting NaN values.
+	return {
+		...withBucketStamps( summary, zone ),
+		total_orders: safeParseInt( summary.total_orders ),
+		orders_with_coupon: safeParseInt( summary.orders_with_coupon ),
+		orders_without_coupon: safeParseInt( summary.orders_without_coupon ),
+		total_sales: safeParseFloat( summary.total_sales ),
+		sales_with_coupon: safeParseFloat( summary.sales_with_coupon ),
+		sales_without_coupon: safeParseFloat( summary.sales_without_coupon ),
+		total_discount_amount: safeParseFloat( summary.total_discount_amount ),
+		net_sales_after_discount: safeParseFloat( summary.net_sales_after_discount ),
+		coupon_usage_percentage: safeParseFloat( summary.coupon_usage_percentage ),
+	};
+}
+
+export const sanitizeReportCouponsByDateResponse = (
+	response: ReportsCouponsByDateResponse,
+	zone: string
+): SanitizedCouponsByDateResponse => {
+	return {
+		summary: sanitizeSummary( response.summary, zone ),
+		data: response.data.map( item => sanitizeItem( item, zone ) ),
+	};
+};

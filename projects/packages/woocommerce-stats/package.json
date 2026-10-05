@@ -1,0 +1,25 @@
+{
+	"name": "@automattic/jetpack-woocommerce-stats",
+	"version": "0.1.0-alpha",
+	"private": true,
+	"description": "WooCommerce reports for the Premium Analytics dashboard.",
+	"license": "GPL-2.0-or-later",
+	"author": "Automattic",
+	"type": "module",
+	"main": "src/reports/index.ts",
+	"types": "src/reports/index.ts",
+	"sideEffects": false,
+	"scripts": {
+		"typecheck": "tsgo --noEmit"
+	},
+	"dependencies": {
+		"@jetpack-premium-analytics/data": "link:../premium-analytics/packages/data",
+		"@tanstack/react-query": "5.102.8",
+		"@wordpress/i18n": "6.28.0",
+		"react": "18.3.1"
+	},
+	"devDependencies": {
+		"@typescript/native-preview": "7.0.0-dev.20260707.2",
+		"typescript": "6.0.3"
+	}
+}

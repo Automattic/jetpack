@@ -6,6 +6,7 @@
 		// type-checking + IDE. At build time, wp-build maps the same specifier to
 		// the script module it bundles from `packages/<dir>`, keeping the two in sync.
 		"paths": {
+			"@jetpack-premium-analytics/data/src/*": [ "./packages/data/src/*" ],
 			"@jetpack-premium-analytics/*": [ "./packages/*/src" ]
 		}
 	},

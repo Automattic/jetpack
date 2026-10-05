@@ -1,0 +1,9 @@
+{
+	"extends": "jetpack-js-tools/tsconfig.base.json",
+	"compilerOptions": {
+		"paths": {
+			"@jetpack-premium-analytics/data/src/*": [ "../premium-analytics/packages/data/src/*" ]
+		}
+	},
+	"include": [ "src/reports/**/*" ]
+}

@@ -69,7 +69,7 @@ import type { APIFetchMiddleware, APIFetchOptions } from '@wordpress/api-fetch';
 
 /**
  * Base path for Woo analytics report requests. Matches the non-Simple path
- * built by `fetchReport()` in the data package (`@jetpack-premium-analytics/data`).
+ * built by `fetchReport()` in `@automattic/jetpack-woocommerce-stats`.
  */
 const API_BASE = '/jetpack-premium-analytics/v1/proxy/v2/analytics/reports';
 const STATS_FOLLOWERS_PATH = '/jetpack-premium-analytics/v1/proxy/v1.1/stats/followers';
