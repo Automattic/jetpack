@@ -9,17 +9,17 @@ use Automattic\Jetpack\Status\Host;
 use Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard;
 
 /**
- * Hands the WooCommerce section and its widget types to the Premium Analytics dashboard.
+ * Hands the WooCommerce section to the Premium Analytics dashboard.
  *
- * The section, its layout and the widgets live in the jetpack-woocommerce-stats package. On the
- * WordPress.com platform jetpack-mu-wpcom registers them, and this registrant stays out.
+ * The section and its layout live in the jetpack-woocommerce-stats package. On the WordPress.com
+ * platform jetpack-mu-wpcom registers it, and this registrant stays out.
  *
  * @since $$next-version$$
  */
 class WooCommerce_Stats_Premium_Analytics {
 
 	/**
-	 * Hook the package's registrants on the dashboard's registry actions.
+	 * Hook the package's registrant on the dashboard's section registry.
 	 *
 	 * @return void
 	 */

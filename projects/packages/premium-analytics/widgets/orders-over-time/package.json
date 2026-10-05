@@ -1,10 +1,10 @@
 {
-	"name": "@automattic/jetpack-woocommerce-stats-widget-orders-over-time",
+	"name": "@automattic/jetpack-premium-analytics-widget-orders-over-time",
 	"version": "0.1.0-alpha",
 	"private": true,
 	"type": "module",
 	"dependencies": {
-		"@automattic/jetpack-premium-analytics-sdk": "workspace:*",
+		"@jetpack-premium-analytics/widgets-toolkit": "link:../../packages/widgets-toolkit",
 		"@wordpress/i18n": "^6.9.0",
 		"@wordpress/icons": "^16.0.0",
 		"@wordpress/widget-primitives": "0.7.0",

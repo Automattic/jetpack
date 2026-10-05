@@ -1,6 +1,6 @@
 {
 	"name": "automattic/jetpack-woocommerce-stats",
-	"description": "WooCommerce: the WooCommerce section and widgets of the Premium Analytics dashboard.",
+	"description": "WooCommerce: the WooCommerce section of the Premium Analytics dashboard.",
 	"type": "jetpack-library",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -21,12 +21,6 @@
 		]
 	},
 	"scripts": {
-		"build-development": "pnpm run build",
-		"build-production": "pnpm run build-production",
-		"watch": [
-			"Composer\\Config::disableProcessTimeout",
-			"pnpm run watch"
-		],
 		"phpunit": [
 			"phpunit-select-config phpunit.#.xml.dist --colors=always"
 		],

@@ -1,12 +1,12 @@
 # WooCommerce stats
 
-The WooCommerce section of the Premium Analytics dashboard: the section registration, its default layout, and the widget types the section renders, built here with wp-build and resolved against the dashboard's shared modules through its import map.
+The WooCommerce section of the Premium Analytics dashboard. This package registers the section and its default layout. The widgets in that layout still belong to the dashboard package.
 
-The package decides nothing about who gets the section. The Jetpack plugin calls `Analytics_Dashboard::init()` outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrants on Simple and Atomic. Availability — WooCommerce active, the store-reports capability, and the store-section flag — stays on the section itself.
+The package decides nothing about who gets the section. The Jetpack plugin calls `Analytics_Dashboard::init()` outside the WordPress.com platform; `jetpack-mu-wpcom` calls the registrant on Simple and Atomic. Availability — WooCommerce active, the store-reports capability, and the store-section flag — stays on the section itself.
 
 ## Using this package in your WordPress plugin
 
-Require it with Composer, build it (`pnpm run build`), and call `\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init()` before `init`. The registrations happen when the dashboard's registries hydrate, so the call is inert on a site without the dashboard.
+Require it with Composer and call `\Automattic\Jetpack\WooCommerceStats\Analytics_Dashboard::init()` before `init`. The registration happens when the dashboard's section registry hydrates, so the call is inert on a site without the dashboard.
 
 ## Security
 

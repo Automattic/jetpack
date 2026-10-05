@@ -15,26 +15,3 @@ if ( empty( $_SERVER['SCRIPT_FILENAME'] ) ) {
 }
 
 \Automattic\Jetpack\Test_Environment::init();
-
-// Stand-in for the manifest accessor wp-build generates.
-if ( ! function_exists( 'jetpack_woocommerce_stats_get_registered_widget_modules' ) ) {
-	/**
-	 * Manifest stand-in.
-	 *
-	 * @return array[]
-	 */
-	function jetpack_woocommerce_stats_get_registered_widget_modules() {
-		return array(
-			array(
-				'name'          => 'woocommerce-analytics/orders-over-time',
-				'dir_name'      => 'orders-over-time',
-				'title'         => 'Orders over time',
-				'category'      => 'orders',
-				'presentation'  => 'framed',
-				'render_module' => 'jetpack-woocommerce-stats/widgets/orders-over-time/render',
-				'widget_module' => 'jetpack-woocommerce-stats/widgets/orders-over-time/widget',
-				'textdomain'    => null,
-			),
-		);
-	}
-}
