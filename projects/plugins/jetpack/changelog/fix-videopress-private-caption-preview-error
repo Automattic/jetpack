@@ -1,0 +1,4 @@
+Significance: patch
+Type: bugfix
+
+VideoPress: Warn in the caption manager when a private video's preview may not play.
