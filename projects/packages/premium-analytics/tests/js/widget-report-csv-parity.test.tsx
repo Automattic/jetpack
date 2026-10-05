@@ -23,6 +23,7 @@ import PostsReportPage from '../../routes/reports/posts/page';
 import ReferrersReportPage from '../../routes/reports/referrers/page';
 import SearchTermsReportPage from '../../routes/reports/search-terms/page';
 import TagsReportPage from '../../routes/reports/tags/page';
+import UtmReportPage from '../../routes/reports/utm/page';
 import AnnualHighlightsWidget from '../../widgets/annual-highlights/render';
 import AuthorsWidget from '../../widgets/authors/render';
 import ClicksWidget from '../../widgets/clicks/render';
@@ -35,6 +36,7 @@ import SearchTermsWidget from '../../widgets/search-terms/render';
 import TagsWidget from '../../widgets/tags/render';
 import { captureCsvDownloads } from '../../widgets/test-utils';
 import TopPostsWidget from '../../widgets/top-posts/render';
+import UtmInsightsWidget from '../../widgets/utm-insights/render';
 import { setMockRouteSearch } from './route-test-utils';
 import type { ComponentType, ReactElement, ReactNode } from 'react';
 
@@ -86,7 +88,7 @@ const REPORT_PARAMS = {
 	compare_to: '2026-02-10',
 };
 
-const RESPONSES: Record< string, unknown > = {
+const RESPONSES: Record< string, unknown | ( ( path: string ) => unknown ) > = {
 	'stats/top-posts': {
 		date: '2026-03-10',
 		days: {},
@@ -222,6 +224,23 @@ const RESPONSES: Record< string, unknown > = {
 			views: ( ( index * 5 ) % 12 ) + 1,
 		} ) ),
 	},
+	// Honors `max` as the endpoint does, so a download reusing the widget's 10-row query fails.
+	'stats/utm/': ( path: string ) => {
+		const max = Number( new URL( path, 'https://example.com' ).searchParams.get( 'max' ) );
+		const values = Array.from( { length: 12 }, ( _, index ) => [
+			JSON.stringify( [ `source-${ index }`, 'email' ] ),
+			( ( index * 5 ) % 12 ) + 1,
+		] ).sort( ( a, b ) => Number( b[ 1 ] ) - Number( a[ 1 ] ) );
+
+		return {
+			top_utm_values: Object.fromEntries( values.slice( 0, max > 0 ? max : undefined ) ),
+			top_posts: {
+				[ JSON.stringify( [ 'source-7', 'email' ] ) ]: [
+					{ id: 41, title: 'Landing page', views: 3, href: 'https://example.com/landing/' },
+				],
+			},
+		};
+	},
 	'stats/emails/summary': {
 		posts: Array.from( { length: 12 }, ( _, index ) => ( {
 			id: index + 1,
@@ -297,12 +316,14 @@ const FORBIDDEN = { status: 403, code: 'forbidden', message: 'Forbidden' };
  * @return The fixture response.
  */
 function respond( path: string ) {
+	const response = Object.entries( RESPONSES ).find( ( [ endpoint ] ) =>
+		path.includes( endpoint )
+	)?.[ 1 ];
+
 	return Promise.resolve(
-		Object.entries( RESPONSES ).find( ( [ endpoint ] ) => path.includes( endpoint ) )?.[ 1 ] ?? {
-			date: '2026-03-10',
-			days: {},
-			summary: {},
-		}
+		typeof response === 'function'
+			? response( path )
+			: ( response ?? { date: '2026-03-10', days: {}, summary: {} } )
 	);
 }
 
@@ -429,4 +450,62 @@ describe( 'Widget and report CSV parity', () => {
 			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ).length ).toBeGreaterThan( 11 );
 		}
 	);
+
+	it.each( [
+		[ 'source-medium', 'utm_source,utm_medium' ],
+		[ 'campaign-source-medium', 'utm_campaign,utm_source,utm_medium' ],
+		[ 'source', 'utm_source' ],
+		[ 'medium', 'utm_medium' ],
+		[ 'campaign', 'utm_campaign' ],
+	] as const )(
+		'downloads the same UTM %s file from the widget as from the report page',
+		async ( section, utmDimension ) => {
+			mockUseSectionTab.mockReturnValue( [ section, jest.fn() ] );
+			const reportFile = await download( <UtmReportPage /> );
+			queryClient.clear();
+			const widgetFile = await download(
+				<UtmInsightsWidget attributes={ { reportParams: REPORT_PARAMS, utmDimension } } />
+			);
+
+			expect( widgetFile ).toEqual( reportFile );
+			expect( widgetFile.filename ).toContain( `utm-${ section }-` );
+			// 12 values and one post: more than the widget's 10 rows.
+			expect( widgetFile.csv.replace( '\ufeff', '' ).split( '\n' ) ).toHaveLength( 14 );
+		}
+	);
+
+	it( 'keeps the UTM download when only the comparison request fails', async () => {
+		mockApiFetch.mockImplementation( ( { path }: { path: string } ) =>
+			path.includes( '2026-02' ) ? Promise.reject( FORBIDDEN ) : respond( path )
+		);
+
+		render( withProviders( <UtmInsightsWidget attributes={ { reportParams: REPORT_PARAMS } } /> ) );
+
+		await expect(
+			screen.findByRole( 'button', { name: /Download CSV/ } )
+		).resolves.toBeInTheDocument();
+		expect( mockApiFetch ).toHaveBeenCalledWith(
+			expect.objectContaining( { path: expect.stringContaining( '2026-02' ) } )
+		);
+	} );
+
+	it( 'downloads the whole UTM report from a widget drilled into one value', async () => {
+		mockUseSectionTab.mockReturnValue( [ 'source-medium', jest.fn() ] );
+		const reportFile = await download( <UtmReportPage /> );
+		queryClient.clear();
+
+		const user = userEvent.setup( { advanceTimers: jest.advanceTimersByTime } );
+		const view = render(
+			withProviders( <UtmInsightsWidget attributes={ { reportParams: REPORT_PARAMS } } /> )
+		);
+		await user.click(
+			await screen.findByRole( 'button', { name: 'View posts for source-7 / email' } )
+		);
+		await expect( screen.findByText( 'All UTM insights' ) ).resolves.toBeInTheDocument();
+		await downloads.clickAndSave( screen.getByRole( 'button', { name: /Download CSV/ } ) );
+
+		const [ saved ] = downloads.files.splice( 0 );
+		view.unmount();
+		expect( { filename: saved.filename, csv: await saved.blob.text() } ).toEqual( reportFile );
+	} );
 } );

@@ -8,6 +8,7 @@ import {
 	mergeStatsReferrersComparisonRows,
 	mergeStatsTopAuthorsComparisonRows,
 	mergeStatsTopPostsComparisonRows,
+	mergeStatsUtmComparisonRows,
 	mergeStatsVideoPlaysComparisonRows,
 	type StatsArchivesComparisonItem,
 	type StatsClicksComparisonItem,
@@ -21,6 +22,7 @@ import {
 	type StatsTagsItem,
 	type StatsTopAuthorsComparisonItem,
 	type StatsTopPostsComparisonItem,
+	type StatsUtmComparisonItem,
 	type StatsVideoPlaysComparisonItem,
 } from '../processing/stats';
 import { queryClient } from '../providers/query-client-provider';
@@ -36,6 +38,7 @@ import { statsSearchTermsQuery } from './stats-search-terms-query';
 import { statsTagsQuery, type StatsTagsParams } from './stats-tags-query';
 import { statsTopAuthorsQuery } from './stats-top-authors-query';
 import { statsTopPostsQuery } from './stats-top-posts-query';
+import { statsUtmQuery, type StatsUtmParams } from './stats-utm-query';
 import { statsVideoPlaysReportQuery } from './stats-video-plays-query';
 import type { StatsReportParams } from './stats-query';
 
@@ -107,6 +110,14 @@ export async function fetchStatsTopAuthorsRows(
 ): Promise< StatsTopAuthorsComparisonItem[] > {
 	const report = await fetchReport( statsTopAuthorsQuery( withoutComparison( params ) ) );
 	return mergeStatsTopAuthorsComparisonRows( report, undefined ).rows;
+}
+
+/** Fetch every UTM value and its top posts for a report window. */
+export async function fetchStatsUtmRows(
+	params: StatsUtmParams
+): Promise< StatsUtmComparisonItem[] > {
+	const report = await fetchReport( statsUtmQuery( withoutComparison( params ) ) );
+	return mergeStatsUtmComparisonRows( report, undefined ).rows;
 }
 
 export async function fetchStatsInsightsYears(): Promise< StatsInsightsYear[] > {
