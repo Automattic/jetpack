@@ -1,21 +1,18 @@
 /**
  * External dependencies
  */
-import {
-	type StatsFileDownloadsItem,
-	type StatsFileDownloadsComparisonItem,
-} from '@jetpack-premium-analytics/data';
+import { type StatsFileDownloadsComparisonItem } from '@jetpack-premium-analytics/data';
 import { useReportDateFilters } from '@jetpack-premium-analytics/routing';
 import { StatsBreadcrumbs, StatsPageIcon } from '@jetpack-premium-analytics/ui';
 import {
-	ReportErrorState,
+	PageNotice,
+	describeError,
 	ReportPageLayout,
 	ReportPageShell,
 	ReportRecordsTable,
-	ReportCsvAction,
-	useReportCsvExport,
+	ExporterCsvAction,
+	fileDownloadsCsvExporter,
 	useReportRetry,
-	type CsvColumn,
 } from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
@@ -50,9 +47,6 @@ const RECORDS_VIEW = {
 	},
 };
 
-const sortDownloadCsvRows = ( a: StatsFileDownloadsItem, b: StatsFileDownloadsItem ) =>
-	b.downloads - a.downloads;
-
 /**
  * File downloads report page.
  *
@@ -66,31 +60,6 @@ function DownloadsReport(): JSX.Element {
 		() => getDownloadsFields( records.hasComparison ),
 		[ records.hasComparison ]
 	);
-	const csvColumns = useMemo< CsvColumn< StatsFileDownloadsItem >[] >(
-		() => [
-			{
-				label: __( 'File', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.shortLabel ?? String( row.label ?? '' ),
-			},
-			{
-				label: __( 'Downloads', 'jetpack-premium-analytics-pkg' ),
-				getValue: row => row.downloads,
-			},
-			{ label: __( 'URL', 'jetpack-premium-analytics-pkg' ), getValue: row => row.link ?? '' },
-		],
-		[]
-	);
-	const {
-		canExport,
-		rows: csvRows,
-		filename: csvFilename,
-	} = useReportCsvExport( {
-		rows: records.rows,
-		filenamePrefix: 'file-downloads',
-		range: reportParams,
-		status: records,
-		sort: sortDownloadCsvRows,
-	} );
 
 	const dateFilters = useReportDateFilters( ROUTE_FROM );
 	const { getLabel } = REPORTS.downloads;
@@ -99,9 +68,14 @@ function DownloadsReport(): JSX.Element {
 
 	if ( records.isError ) {
 		tableReplacement = (
-			<ReportErrorState
-				title={ __( 'Unable to load file downloads', 'jetpack-premium-analytics-pkg' ) }
-				onRetry={ retry }
+			<PageNotice
+				{ ...describeError( records.error, {
+					retryDescription: __(
+						"We couldn't load file downloads. Please try again in a moment.",
+						'jetpack-premium-analytics-pkg'
+					),
+					onRetry: retry,
+				} ) }
 			/>
 		);
 	}
@@ -111,9 +85,12 @@ function DownloadsReport(): JSX.Element {
 			visual={ <StatsPageIcon /> }
 			breadcrumbs={ <StatsBreadcrumbs items={ [ { label: getLabel() } ] } /> }
 			actions={
-				canExport ? (
-					<ReportCsvAction columns={ csvColumns } rows={ csvRows } filename={ csvFilename } />
-				) : undefined
+				<ExporterCsvAction
+					exporter={ fileDownloadsCsvExporter }
+					items={ records.rows }
+					status={ records }
+					reportParams={ reportParams }
+				/>
 			}
 		>
 			<ReportPageLayout title={ getLabel() } dateFilters={ dateFilters }>

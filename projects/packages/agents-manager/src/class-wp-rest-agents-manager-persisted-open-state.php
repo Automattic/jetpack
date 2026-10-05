@@ -7,6 +7,10 @@
 
 namespace Automattic\Jetpack\Agents_Manager;
 
+if ( ! defined( 'ABSPATH' ) ) {
+	exit( 0 );
+}
+
 /**
  * Class WP_REST_Agents_Manager_Persisted_Open_State.
  */

@@ -1,4 +1,9 @@
-import { currentUserCan, getScriptData, isSimpleSite } from '@automattic/jetpack-script-data';
+import {
+	currentUserCan,
+	getMyJetpackUrl,
+	getScriptData,
+	isSimpleSite,
+} from '@automattic/jetpack-script-data';
 import { __, sprintf } from '@wordpress/i18n';
 import {
 	MY_JETPACK_SECTION_FEATURES,
@@ -39,6 +44,38 @@ export function getProductsSectionTitle() {
  */
 export function getProductsSectionPath( search = '' ) {
 	return `/${ getProductsSection() }${ search }`;
+}
+
+// Carried by a pricing page opened from a feature's details, so checkout can return there.
+const RETURN_FEATURE_PARAM = 'return_feature';
+
+/**
+ * Link to a pricing page that sends checkout back to a feature's details.
+ *
+ * @param path    - The pricing route, such as `/add-social`.
+ * @param feature - The feature's slug.
+ * @return The hash link.
+ */
+export function getFeaturePricingHref( path: string, feature: string ) {
+	return `#${ path }?${ new URLSearchParams( { [ RETURN_FEATURE_PARAM ]: feature } ) }`;
+}
+
+/**
+ * Where checkout returns to when the pricing page was opened from a feature's details.
+ *
+ * Read from the hash rather than the router, so the detail cards outside a route can use it.
+ *
+ * @param hash - The page's location hash.
+ * @return The admin URL of the feature's details, or an empty string.
+ */
+export function getFeatureCheckoutReturnUrl( hash = window.location.hash ) {
+	const feature = new URLSearchParams( hash.split( '?' )[ 1 ] ?? '' ).get( RETURN_FEATURE_PARAM );
+
+	return feature
+		? getMyJetpackUrl(
+				`#${ getProductsSectionPath( `?${ new URLSearchParams( { feature } ) }` ) }`
+			)
+		: '';
 }
 
 /**

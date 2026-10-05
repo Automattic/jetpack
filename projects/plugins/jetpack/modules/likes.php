@@ -21,6 +21,7 @@
 // phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- TODO: Move classes to appropriately-named class files.
 
 use Automattic\Jetpack\Assets;
+use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch;
 use Automattic\Jetpack\Status\Host;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -491,99 +492,42 @@ class Jetpack_Likes {
 /**
  * Callback to get the value for the jetpack_likes_enabled field.
  *
- * Warning: this behavior is somewhat complicated!
- * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 0, we disable likes on the post, regardless of the global setting.
- * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value() instead.
  *
  * @param array $post - post data we're checking.
  *
- * @return bool
+ * @return bool|null
  */
 function jetpack_post_likes_get_value( array $post ) {
-	if ( ! isset( $post['id'] ) ) {
-		return false;
-	}
-
-	$post_likes_switched = get_post_meta( $post['id'], 'switch_like_status', true );
-
-	/** This filter is documented in modules/jetpack-likes-settings.php */
-	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-
-	// An empty string: post meta was not set, so go with the global setting.
-	if ( '' === $post_likes_switched ) {
-		return $sitewide_likes_enabled;
-	} elseif ( '0' === $post_likes_switched ) { // User overrode the global setting to disable likes.
-		return false;
-	} elseif ( '1' === $post_likes_switched ) { // User overrode the global setting to enable likes.
-		return true;
-	}
-	// No default fallback, let's stay explicit.
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::get_value' );
+	return Post_Likes_Switch::get_value( $post );
 }
 
 /**
  * Callback to set switch_like_status post_meta when jetpack_likes_enabled is updated.
  *
- * Warning: this behavior is somewhat complicated!
- * When the switch_like_status post_meta is unset, we follow the global setting in Sharing.
- * When it is set to 0, we disable likes on the post, regardless of the global setting.
- * When it is set to 1, we enable likes on the post, regardless of the global setting.
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value() instead.
  *
  * @param bool   $enable_post_likes - checks if post likes are enabled.
  * @param object $post_object - object containing post data.
+ *
+ * @return int|bool
  */
 function jetpack_post_likes_update_value( $enable_post_likes, $post_object ) {
-	/** This filter is documented in modules/jetpack-likes-settings.php */
-	$sitewide_likes_enabled = (bool) apply_filters( 'wpl_is_enabled_sitewide', ! get_option( 'disabled_likes' ) );
-
-	$should_switch_status = $enable_post_likes !== $sitewide_likes_enabled;
-
-	if ( $should_switch_status ) {
-		// Set the meta to 0 if the user wants to disable likes, 1 if user wants to enable.
-		$switch_like_status = ( $enable_post_likes ? 1 : 0 );
-		return update_post_meta( $post_object->ID, 'switch_like_status', $switch_like_status );
-	} else {
-		// Unset the meta otherwise.
-		return delete_post_meta( $post_object->ID, 'switch_like_status' );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::update_value' );
+	return Post_Likes_Switch::update_value( $enable_post_likes, $post_object );
 }
 
 /**
  * Add Likes post_meta to the REST API Post response.
  *
- * @action rest_api_init
- * @uses register_rest_field
- * @link https://developer.wordpress.org/rest-api/extending-the-rest-api/modifying-responses/
+ * @deprecated $$next-version$$ Use Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field() instead.
  */
 function jetpack_post_likes_register_rest_field() {
-	$post_types = get_post_types( array( 'public' => true ) );
-	foreach ( $post_types as $post_type ) {
-		register_rest_field(
-			$post_type,
-			'jetpack_likes_enabled',
-			array(
-				'get_callback'    => 'jetpack_post_likes_get_value',
-				'update_callback' => 'jetpack_post_likes_update_value',
-				'schema'          => array(
-					'description' => __( 'Are Likes enabled?', 'jetpack' ),
-					'type'        => 'boolean',
-				),
-			)
-		);
-
-		/**
-		 * Ensures all public internal post-types support `likes`
-		 * This feature support flag is used by the REST API and Gutenberg.
-		 */
-		add_post_type_support( $post_type, 'jetpack-post-likes' );
-	}
+	_deprecated_function( __FUNCTION__, 'jetpack-$$next-version$$', 'Automattic\Jetpack\Sharing_Likes\Post_Likes_Switch::register_rest_field' );
+	Post_Likes_Switch::register_rest_field();
 }
 
-// Add Likes post_meta to the REST API Post response.
-add_action( 'rest_api_init', 'jetpack_post_likes_register_rest_field' );
-
-// Some CPTs (e.g. Jetpack portfolios and testimonials) get registered with
-// restapi_theme_init because they depend on theme support, so let's also hook to that.
-add_action( 'restapi_theme_init', 'jetpack_post_likes_register_rest_field', 20 );
+Post_Likes_Switch::init();
 
 Jetpack_Likes::init();

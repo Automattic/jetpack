@@ -20,7 +20,7 @@ jest.mock( './lib/stores/lcp-state', () => ( {
 jest.mock( '$lib/utils/analytics', () => ( { recordBoostEvent: jest.fn() } ) );
 
 const mutate = jest.fn();
-const mockState = ( state: LcpState ) => {
+const mockState = ( state: LcpState | undefined ) => {
 	jest
 		.mocked( useLcpState )
 		.mockReturnValue( [ { data: state } ] as unknown as ReturnType< typeof useLcpState > );
@@ -29,7 +29,7 @@ const mockState = ( state: LcpState ) => {
 		.mockReturnValue( { mutate } as unknown as ReturnType< typeof useOptimizeLcpAction > );
 };
 
-const renderState = ( state: LcpState ) => {
+const renderState = ( state: LcpState | undefined ) => {
 	mockState( state );
 	render(
 		<ModuleSurfaceProvider value="row">
@@ -49,10 +49,26 @@ test.each( [
 	const well = within( screen.getByTestId( 'lcp-status-well' ) );
 	const button = well.getByRole( 'button', { name: 'Optimize' } ) as HTMLButtonElement;
 	expect( well.getByText( text ) ).toBeTruthy();
+	expect( well.queryAllByRole( 'progressbar' ) ).toHaveLength( status === 'pending' ? 1 : 0 );
 	expect( button.disabled ).toBe( status === 'pending' );
 	// eslint-disable-next-line testing-library/prefer-user-event -- Match the synchronous control tests in this project.
 	fireEvent.click( button );
 	expect( mutate ).toHaveBeenCalledTimes( status === 'pending' ? 0 : 1 );
+} );
+
+test( 'labels pending progress without reporting a completion percentage', () => {
+	renderState( { status: 'pending', pages: [] } );
+	const progress = screen.getByRole( 'progressbar', {
+		name: 'Optimizing LCP images',
+	} ) as HTMLProgressElement;
+	expect( progress.position ).toBe( -1 );
+	expect( progress.attributes.getNamedItem( 'aria-valuenow' ) ).toBeNull();
+} );
+
+test( 'does not show progress while the LCP state is loading', () => {
+	renderState( undefined );
+	const well = within( screen.getByTestId( 'lcp-status-well' ) );
+	expect( well.queryByRole( 'progressbar' ) ).toBeNull();
 } );
 
 test( 'keeps the issues notice and its expandable details beside the analyzed status', () => {
@@ -86,6 +102,7 @@ test( 'keeps the status container without a well on the default legacy surface',
 	// eslint-disable-next-line testing-library/no-container, testing-library/no-node-access -- The legacy container has no role or test ID.
 	expect( container.querySelector( `.${ styles.status }` ) ).toBeTruthy();
 	expect( screen.queryByTestId( 'lcp-status-well' ) ).toBeNull();
+	expect( screen.queryByRole( 'progressbar' ) ).toBeNull();
 	expect(
 		screen.getByText( "Jetpack Boost is optimizing your Cornerstone Page's LCP for you." )
 	).toBeTruthy();

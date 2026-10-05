@@ -6,12 +6,11 @@ import {
 	useStatsSearchTerms,
 	type ReportParams,
 } from '@jetpack-premium-analytics/data';
+import {
+	aggregateSearchTermRows,
+	getSummarizedReportQueryParams,
+} from '@jetpack-premium-analytics/widgets-toolkit';
 import { useMemo } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
-/**
- * Internal dependencies
- */
-import { aggregateSearchTermRows } from './aggregate';
 
 /**
  * Fetch and derive the table records for the Search terms report.
@@ -20,18 +19,11 @@ import { aggregateSearchTermRows } from './aggregate';
  * @return Table records.
  */
 export function useSearchTermsReportRecords( reportParams: ReportParams ) {
-	// Match legacy Stats' full custom-range request for client-side search, sort, and paging.
 	const recordsParams = useMemo(
-		() => ( {
-			...reportParams,
-			max: 0,
-			summarize: 1,
-			period: 'day',
-		} ),
+		() => getSummarizedReportQueryParams( reportParams ),
 		[ reportParams ]
 	);
 	const report = useStatsSearchTerms( recordsParams );
-	const unknownLabel = __( 'Unknown search terms', 'jetpack-premium-analytics-pkg' );
 	const comparisonEnabled = hasComparisonEnabled( reportParams );
 	const comparisonSettled =
 		comparisonEnabled &&
@@ -46,16 +38,16 @@ export function useSearchTermsReportRecords( reportParams: ReportParams ) {
 		() =>
 			aggregateSearchTermRows(
 				report.primary.data,
-				unknownLabel,
 				comparisonSettled ? report.comparison.data : undefined
 			),
-		[ comparisonSettled, report.primary.data, report.comparison.data, unknownLabel ]
+		[ comparisonSettled, report.primary.data, report.comparison.data ]
 	);
 
 	return {
 		// A comparison-only failure still renders the table with primary rows
 		// and no deltas, via the comparisonSettled guard above.
 		isError: report.primary.isError,
+		error: report.primary.error,
 		refetch: report.refetch,
 		table: {
 			...table,

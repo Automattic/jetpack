@@ -58,6 +58,11 @@ Leave suites that pin their own environment ungrouped too. Jest reads the
 group file, so a member asking for `node` silently gets the group's jsdom and
 fails on whatever it wanted `node` for. The guard test reports this.
 
+Wrap a member's top-level `beforeEach` / `afterEach` in a `describe` first. At
+the top level they become hooks of the whole group file, so a member pinning the
+clock with `jest.useFakeTimers().setSystemTime()` resets every other member's
+clock. The guard test does not see this.
+
 A suite that declares no `jest.mock()` at all is compatible with every other
 such suite, whatever it covers — `mixed-no-mocks` collects the ones from areas
 too small for a group of their own.

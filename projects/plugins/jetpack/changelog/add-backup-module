@@ -1,0 +1,4 @@
+Significance: minor
+Type: enhancement
+
+Backup: Add a Backup module, so the Backup dashboard and its menu item can be turned off from My Jetpack.

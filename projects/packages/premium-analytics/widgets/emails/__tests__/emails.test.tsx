@@ -3,7 +3,7 @@
  */
 import { getDefaultQueryParams, queryClient } from '@jetpack-premium-analytics/data';
 import { WidgetRoot } from '@jetpack-premium-analytics/widgets-toolkit';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import apiFetch from '@wordpress/api-fetch';
 /**
@@ -222,5 +222,26 @@ describe( 'EmailsList', () => {
 		expect( url.searchParams.get( 'post_url' ) ).toBe( 'https://example.com/api-newsletter/' );
 		expect( url.searchParams.get( 'section' ) ).toBe( 'email-opens' );
 		expect( url.searchParams.get( 'ref' ) ).toBe( 'emails' );
+	} );
+
+	it( 'keeps the download beside the rows a failed refetch leaves on screen', async () => {
+		mockApiFetch.mockResolvedValue( {
+			date: '2026-06-30',
+			posts: [ { id: 71, title: 'API newsletter', opens: 30, total_sends: 100 } ],
+		} );
+		render(
+			<Emails attributes={ { reportParams: getDefaultQueryParams( false, 'last-7-days' ) } } />
+		);
+		await expect(
+			screen.findByRole( 'link', { name: 'API newsletter' } )
+		).resolves.toBeInTheDocument();
+
+		mockApiFetch.mockRejectedValue( { code: 'not_found', data: { status: 404 } } );
+		await act( () => queryClient.refetchQueries() );
+		// React Query notifies its observers on the next macrotask.
+		await act( () => new Promise( resolve => setTimeout( resolve, 0 ) ) );
+
+		expect( screen.getByRole( 'link', { name: 'API newsletter' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'button', { name: /Download CSV/ } ) ).toBeInTheDocument();
 	} );
 } );

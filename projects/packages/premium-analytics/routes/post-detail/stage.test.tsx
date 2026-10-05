@@ -3,16 +3,22 @@ import {
 	useRaisePeriodChange,
 	useReportScope,
 } from '@jetpack-premium-analytics/data';
-import { createTZDateFromParts } from '@jetpack-premium-analytics/datetime';
+import {
+	PRESET_ALL_TIME,
+	computePrimaryRange,
+	createTZDateFromParts,
+} from '@jetpack-premium-analytics/datetime';
 import { useStoredDetailLayout } from '@jetpack-premium-analytics/widgets-toolkit';
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { useCallback } from 'react';
+import { getNoticeAnnouncement, getNoticeText } from '../../tests/js/notice-test-utils';
 import { usePostDetailTabs, usePostSummary } from './hooks';
 import { stage } from './stage';
 import type { ReactNode } from 'react';
 
 let mockSearch: Record< string, unknown > = {};
+let mockDateFilterOverrides: Record< string, unknown > = {};
 
 // The dashboard props the stage handed to the (mocked) WidgetDashboard.
 let mockDashboardProps: {
@@ -42,6 +48,7 @@ jest.mock( '@jetpack-premium-analytics/routing', () => ( {
 		timeZone: 'UTC',
 		interval: 'day',
 		intervalOptions: [ 'day', 'week' ],
+		...mockDateFilterOverrides,
 	} ),
 } ) );
 
@@ -234,6 +241,7 @@ jest.mock( './components', () => ( {
 let mockActiveTab = 'traffic';
 let mockEmailNotSent = false;
 let mockEmailSendPending = false;
+let mockFixedLayout: unknown[] = [];
 
 // The pinned email scope the stage hands to the tabs hook and the header.
 const mockEmailScope = {
@@ -268,7 +276,7 @@ jest.mock( './hooks', () => ( {
 		],
 		activeTab: mockActiveTab,
 		setActiveTab: jest.fn(),
-		layout: [],
+		layout: mockFixedLayout,
 		isEmailNotSent: mockEmailNotSent,
 		isEmailSendPending: mockEmailSendPending,
 	} ) ),
@@ -675,4 +683,76 @@ describe( 'post detail stage', () => {
 			expect( breadcrumbs.queryByRole( 'heading', { level: 1 } ) ).not.toBeInTheDocument();
 		}
 	);
+} );
+
+describe( 'post detail stage on the provisional all-time window', () => {
+	beforeEach( () => {
+		jest.clearAllMocks();
+		mockSearch = { post_id: '41' };
+		mockActiveTab = 'traffic';
+		mockFixedLayout = [ { uuid: 'card', type: 'jpa/card' } ];
+		mockDateFilterOverrides = {
+			appliedPresetId: PRESET_ALL_TIME,
+			appliedRange: computePrimaryRange( PRESET_ALL_TIME, 'UTC' ),
+		};
+	} );
+
+	afterEach( () => {
+		mockFixedLayout = [];
+		mockDateFilterOverrides = {};
+	} );
+
+	it( 'holds the range tab until all time anchors on the publish day', () => {
+		mockSummary( { isLoading: true, publishedDate: undefined } );
+
+		render( stage() );
+
+		expect( mockUseTabLayout ).toHaveBeenLastCalledWith( expect.anything(), 'traffic', [] );
+	} );
+
+	it( 'keeps an email tab composed, since it reports over the send window', () => {
+		mockActiveTab = 'email-opens';
+		mockSummary( { isLoading: true, publishedDate: undefined } );
+
+		render( stage() );
+
+		expect( mockUseTabLayout ).toHaveBeenLastCalledWith(
+			expect.anything(),
+			'email-opens',
+			mockFixedLayout
+		);
+	} );
+
+	it( 'offers Retry in place of the widgets when the publish day cannot load', async () => {
+		const refetch = jest.fn();
+		mockSummary( { isError: true, publishedDate: undefined, refetch } );
+
+		render( stage() );
+
+		expect( screen.queryByText( 'Post widgets without comparison' ) ).not.toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement(
+				"We couldn't load this post. Please try again in a moment.",
+				'assertive'
+			)
+		).toBeInTheDocument();
+		await userEvent.click( screen.getByRole( 'button', { name: 'Retry' } ) );
+		expect( refetch ).toHaveBeenCalledTimes( 1 );
+	} );
+
+	it( 'offers no Retry when the publish day is denied', () => {
+		mockSummary( {
+			isError: true,
+			error: { code: 'rest_forbidden', status: 403 },
+			publishedDate: undefined,
+		} );
+
+		render( stage() );
+
+		expect( getNoticeText( "You don't have access to this data." ) ).toBeInTheDocument();
+		expect(
+			getNoticeAnnouncement( "You don't have access to this data.", 'assertive' )
+		).toBeInTheDocument();
+		expect( screen.queryByRole( 'button', { name: 'Retry' } ) ).not.toBeInTheDocument();
+	} );
 } );

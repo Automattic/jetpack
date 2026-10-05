@@ -206,6 +206,7 @@ class Initializer {
 		Block_Editor_Content::init();
 		Channel::init();
 		Playlist_Index::init();
+		Analytics_Dashboard::init();
 
 		/*
 		 * These endpoints only add their routes on REST init, so defer calling
