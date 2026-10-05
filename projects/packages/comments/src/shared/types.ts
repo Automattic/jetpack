@@ -87,7 +87,6 @@ export type Strings = {
 	saveDetails: string;
 	close: string;
 	options: string;
-	changeDetails: string;
 	manageSubscriptions: string;
 	mustLogIn: string;
 	logIn: string;
