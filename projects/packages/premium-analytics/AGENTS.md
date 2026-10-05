@@ -734,11 +734,10 @@ area. Notes:
 - `isFetching` draws nothing — it only marks the widget `aria-busy`. A revalidation of unchanged
   params leaves the right numbers on screen, and blanking them reports a refresh nobody asked for
   (WOOA7S-1934). Nothing unmounts, so children keep their own state and keyboard focus.
-- Every other branch _does_ unmount the children, and a drill-down reaches the skeleton by
-  definition (it changes the params). `<WidgetState>` catches the focus that would otherwise fall
-  to `<body>` and parks it on its own root, so the next Tab continues from the widget instead of
-  the top of the page. Widgets need do nothing for this, but drill-down rows must be real
-  focusable controls for it to have anything to catch.
+- Every other branch _does_ unmount the children. `<WidgetState>` catches the focus that would
+  otherwise fall to `<body>` and parks it on its own root, so the next Tab continues from the
+  widget instead of the top of the page. Widgets need do nothing for this, but drill-down rows
+  must be real focusable controls for it to have anything to catch.
 - When a view hook masks `isError` (e.g. `rows.length === 0 && isError` to keep placeholder
   rows), gate `error` with the same predicate (`error: showError ? error : null`) so the two
   fields can't disagree.
