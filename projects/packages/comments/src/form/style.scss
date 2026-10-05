@@ -116,6 +116,7 @@
 	padding: 0 !important;
 
 	input {
+		cursor: pointer;
 
 		&:not(:focus, :active) {
 			margin: 0 !important;
@@ -128,8 +129,15 @@
 			margin-block-end: 0 !important;
 		}
 
+		// Outlined in the post's text colour rather than faded, since a fill
+		// seen through the page behind it turns muddy. Pinned past a theme's own.
 		&:disabled {
-			cursor: not-allowed;
+			border-color: transparent !important;
+			background: transparent !important;
+			box-shadow: inset 0 0 0 1px currentColor !important;
+			color: inherit !important;
+			opacity: 1 !important;
+			cursor: default;
 		}
 	}
 }
