@@ -24,10 +24,11 @@
 	padding-block-start: var(--wpds-dimension-gap-xs);
 }
 
-// The comparison column, set apart by a rule.
+// The comparison column, set apart by a rule. The box re-themes the stroke
+// tokens for its dark surface too faintly to see, so the rule follows the text.
 .table th + th,
 .table td + td {
-	border-inline-start: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+	border-inline-start: 1px solid color-mix(in sRGB, currentColor 30%, transparent);
 	padding-inline-start: var(--wpds-dimension-gap-md);
 }
 
