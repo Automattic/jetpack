@@ -24,7 +24,6 @@ namespace Automattic\Jetpack\Sync\Modules;
 
 use Automattic\WooCommerce\Admin\API\Reports\Coupons\DataStore as CouponsDataStore;
 use Automattic\WooCommerce\Admin\API\Reports\Orders\Stats\DataStore as OrderStatsDataStore;
-use Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils;
 use Automattic\WooCommerce\Utilities\FeaturesUtil;
 use Automattic\WooCommerce\Utilities\OrderUtil;
 use DateTimeZone;
@@ -33,6 +32,7 @@ use WC_Coupon;
 use WC_DateTime;
 use WC_Order;
 use WC_Order_Factory;
+use WC_Order_Refund;
 use WC_Tax;
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -678,13 +678,16 @@ class WooCommerce_Analytics extends Module {
 			return $order_stats_data_from_db;
 		}
 
+		// Before the row below: datetime_to_object() moves the order's own dates into the site's current offset.
+		$filtered_core_columns = self::get_filtered_core_columns( $order );
+
 		$order_fulfillment_status = null;
 		// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
 		if ( is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && OrderStatsDataStore::has_fulfillment_status_column() ) {
 			$order_stats_item         = $this->get_order_stats_item( $order->get_id() );
 			$order_fulfillment_status = $order_stats_item['fulfillment_status'] ?? null;
-		} elseif ( is_callable( array( FulfillmentUtils::class, 'get_order_fulfillment_status' ) ) && $order instanceof WC_Order ) {
-			$fulfillment_status       = FulfillmentUtils::get_order_fulfillment_status( $order );
+		} elseif ( self::get_fulfillment_utils_class() && $order instanceof WC_Order ) {
+			$fulfillment_status       = self::get_fulfillment_utils_class()::get_order_fulfillment_status( $order );
 			$order_fulfillment_status = 'no_fulfillments' !== $fulfillment_status ? $fulfillment_status : null;
 		}
 
@@ -710,29 +713,159 @@ class WooCommerce_Analytics extends Module {
 			'fulfillment_status' => $order_fulfillment_status,
 		);
 
+		$order_stats_data = array_merge( $order_stats_data, $filtered_core_columns );
+
+		// Mirrors the refund block of WooCommerce's Orders\Stats\DataStore::update().
 		if ( 'shop_order_refund' === $order->get_type() ) {
 			$parent_order = wc_get_order( $order->get_parent_id() );
-			if ( $parent_order ) {
+			// Refunds attach to the original order. Skip if the parent is another refund.
+			if ( $parent_order && ! $parent_order instanceof WC_Order_Refund ) {
 				$order_stats_data['parent_id'] = $parent_order->get_id();
+				// Core uses the parent's status here; keep the refund's own, which the WooCommerce Analytics plugin writes to core's row.
+				$order_stats_data['status'] = self::normalize_order_status( $order->get_status() );
 
-				$refund_type = $order->get_meta( '_refund_type' );
-				if ( 'full' === $refund_type && self::uses_new_full_refund_data() ) {
-					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
+				$refund_type               = $order->get_meta( '_refund_type' );
+				$uses_new_full_refund_data = self::uses_new_full_refund_data();
+				$use_parent_refund_amounts = $uses_new_full_refund_data && (
+					'full' === $refund_type
+					|| self::should_split_full_refund_using_parent_order( $order, $parent_order )
+				);
+				if ( $use_parent_refund_amounts ) {
 					$order_stats_data['num_items_sold'] = -1 * self::get_num_items_sold( $parent_order );
+					$order_stats_data['tax_total']      = -1 * $parent_order->get_total_tax();
 					$order_stats_data['net_total']      = -1 * self::get_net_total( $parent_order );
 					$order_stats_data['shipping_total'] = -1 * (float) $parent_order->get_shipping_total();
+
+					// Subtract what earlier refunds recorded, so this row only holds the remainder.
+					foreach ( $parent_order->get_refunds() as $prior_refund ) {
+						if ( $prior_refund->get_id() === $order->get_id() ) {
+							continue;
+						}
+						$order_stats_data['num_items_sold'] -= self::get_num_items_sold( $prior_refund );
+						$order_stats_data['tax_total']      -= (float) $prior_refund->get_total_tax();
+						$order_stats_data['net_total']      -= self::get_net_total( $prior_refund );
+						$order_stats_data['shipping_total'] -= (float) $prior_refund->get_shipping_total();
+					}
 				}
 			}
-			/**
-			 * Set date_completed and date_paid the same as date_created to avoid problems
-			 * when they are being used to sort the data, as refunds don't have them filled
-			 */
-			$date_created_gmt                   = self::datetime_to_object( $order->get_date_created() );
-			$order_stats_data['date_completed'] = $date_created_gmt;
-			$order_stats_data['date_paid']      = $date_created_gmt;
+			// Refunds have no paid or completed date; backfill each from date_created, but only where the parent has it.
+			// Before WooCommerce 11.2 core always backfills, and the checksum compares both dates.
+			$dates_follow_parent                = $parent_order instanceof WC_Order && self::refund_dates_follow_parent();
+			$order_stats_data['date_completed'] = $dates_follow_parent && ! $parent_order->get_date_completed() ? null : $order_stats_data['date_created'];
+			$order_stats_data['date_paid']      = $dates_follow_parent && ! $parent_order->get_date_paid() ? null : $order_stats_data['date_created'];
 		}
 
 		return $order_stats_data;
+	}
+
+	/**
+	 * Apply core's woocommerce_analytics_update_order_stats_data filter to the columns core passes it.
+	 *
+	 * @param WC_Abstract_Order $order The order or refund.
+	 * @return array The core columns a callback changed, in this module's format.
+	 */
+	private static function get_filtered_core_columns( $order ) {
+		// Same keys and formats as core's update(), so callbacks see what they see there.
+		$data = array(
+			'order_id'           => $order->get_id(),
+			'parent_id'          => $order->get_parent_id(),
+			'date_created'       => $order->get_date_created() ? $order->get_date_created()->date( 'Y-m-d H:i:s' ) : null,
+			'date_paid'          => $order->get_date_paid() ? $order->get_date_paid()->date( 'Y-m-d H:i:s' ) : null,
+			'date_completed'     => $order->get_date_completed() ? $order->get_date_completed()->date( 'Y-m-d H:i:s' ) : null,
+			'date_created_gmt'   => $order->get_date_created() ? gmdate( 'Y-m-d H:i:s', $order->get_date_created()->getTimestamp() ) : null,
+			'num_items_sold'     => self::get_num_items_sold( $order ),
+			'total_sales'        => $order->get_total(),
+			'tax_total'          => $order->get_total_tax(),
+			'shipping_total'     => $order->get_shipping_total(),
+			'net_total'          => self::get_net_total( $order ),
+			'status'             => self::normalize_order_status( $order->get_status() ),
+			'customer_id'        => $order->get_report_customer_id(),
+			'returning_customer' => $order->is_returning_customer(),
+		);
+
+		if (
+			is_callable( array( FeaturesUtil::class, 'feature_is_enabled' ) ) && FeaturesUtil::feature_is_enabled( 'fulfillments' )
+			// @phan-suppress-next-line PhanUndeclaredStaticMethod -- Guarded by is_callable(); absent from the older WooCommerce stubs used by the "old Woo" Phan job.
+			&& is_callable( array( OrderStatsDataStore::class, 'has_fulfillment_status_column' ) ) && true === OrderStatsDataStore::has_fulfillment_status_column()
+			&& self::get_fulfillment_utils_class() && $order instanceof WC_Order
+		) {
+			$order_fulfillment_status   = self::get_fulfillment_utils_class()::get_order_fulfillment_status( $order );
+			$data['fulfillment_status'] = ( 'no_fulfillments' !== $order_fulfillment_status ) ? $order_fulfillment_status : null;
+		}
+
+		/** This filter is documented in WooCommerce's src/Admin/API/Reports/Orders/Stats/DataStore.php */
+		$filtered = apply_filters( 'woocommerce_analytics_update_order_stats_data', $data, $order );
+		if ( ! is_array( $filtered ) ) {
+			return array();
+		}
+
+		// Only changed columns are returned, so the row is untouched when no callback changes anything.
+		$changed = array();
+		foreach ( $data as $key => $value ) {
+			if ( 'date_created_gmt' === $key || ! array_key_exists( $key, $filtered ) || $filtered[ $key ] === $value ) {
+				continue;
+			}
+			$new_value = $filtered[ $key ];
+			if ( in_array( $key, array( 'date_created', 'date_paid', 'date_completed' ), true ) ) {
+				// Core's strings are in the site timezone; reading them in today's fixed offset would shift them across DST.
+				$new_value = self::datetime_to_object( is_string( $new_value ) ? wc_string_to_datetime( $new_value ) : $new_value );
+			}
+			$changed[ $key ] = $new_value;
+		}
+
+		return $changed;
+	}
+
+	/**
+	 * Get WooCommerce's FulfillmentUtils class, which moved from Internal to Admin\Features in WooCommerce 11.0.
+	 *
+	 * @return string|null The class name, or null when WooCommerce has neither.
+	 */
+	private static function get_fulfillment_utils_class() {
+		foreach ( array( 'Automattic\WooCommerce\Admin\Features\Fulfillments\FulfillmentUtils', 'Automattic\WooCommerce\Internal\Fulfillments\FulfillmentUtils' ) as $class ) {
+			if ( is_callable( array( $class, 'get_order_fulfillment_status' ) ) ) {
+				return $class;
+			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Whether WooCommerce leaves a refund's paid and completed dates empty when its parent order has none.
+	 *
+	 * @return bool
+	 */
+	private static function refund_dates_follow_parent() {
+		return defined( 'WC_VERSION' ) && version_compare( WC_VERSION, '11.2', '>=' );
+	}
+
+	/**
+	 * Whether this refund is a single lump-sum refund for the full order. Copied from WooCommerce's Orders\Stats\DataStore, where it is private.
+	 *
+	 * @param WC_Abstract_Order $refund       Refund order.
+	 * @param WC_Abstract_Order $parent_order Parent order (not a refund).
+	 * @return bool
+	 */
+	private static function should_split_full_refund_using_parent_order( $refund, $parent_order ) {
+		// The parent must be the original order, not another refund.
+		if ( ! $parent_order instanceof WC_Order || 'shop_order_refund' === $parent_order->get_type() ) {
+			return false;
+		}
+
+		if ( self::get_num_items_sold( $refund ) > 0 ) {
+			return false;
+		}
+
+		$parent_refunds = $parent_order->get_refunds();
+		if ( 1 !== count( $parent_refunds ) ) {
+			return false;
+		}
+
+		$refund_total = wc_format_decimal( abs( (float) $refund->get_total() ) );
+		$order_total  = wc_format_decimal( (float) $parent_order->get_total() );
+
+		return $refund_total === $order_total;
 	}
 
 	/**
@@ -756,7 +889,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get number of items sold among all orders.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return int
 	 */
 	protected static function get_num_items_sold( $order ) {
@@ -773,7 +906,7 @@ class WooCommerce_Analytics extends Module {
 	/**
 	 * Get the net amount from an order without shipping, tax, or refunds.
 	 *
-	 * @param WC_Order $order WC_Order object.
+	 * @param WC_Abstract_Order $order Order or refund.
 	 * @return float
 	 */
 	protected static function get_net_total( $order ) {

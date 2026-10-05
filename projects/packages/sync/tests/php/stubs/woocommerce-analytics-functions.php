@@ -49,3 +49,27 @@ if ( ! function_exists( 'wc_timezone_offset' ) ) {
 		return 19800;
 	}
 }
+
+if ( ! function_exists( 'wc_format_decimal' ) ) {
+	/**
+	 * Format a number as WooCommerce does for a float with no decimal places given.
+	 *
+	 * @param mixed $number Number.
+	 * @return string
+	 */
+	function wc_format_decimal( $number ) {
+		return rtrim( rtrim( sprintf( '%.6f', (float) $number ), '0' ), '.' );
+	}
+}
+
+if ( ! function_exists( 'wc_string_to_datetime' ) ) {
+	/**
+	 * Read a date string in the site timezone, a named zone with DST unlike the fixed wc_timezone_offset() above.
+	 *
+	 * @param string $time_string Date string.
+	 * @return WC_DateTime
+	 */
+	function wc_string_to_datetime( $time_string ) {
+		return new WC_DateTime( $time_string, new DateTimeZone( 'Europe/Amsterdam' ) );
+	}
+}

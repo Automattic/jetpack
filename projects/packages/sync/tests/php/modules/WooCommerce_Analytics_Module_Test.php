@@ -50,6 +50,8 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 	 * Runs after every test in this class.
 	 */
 	protected function tearDown(): void {
+		unset( $GLOBALS['jetpack_sync_test_orders'], $GLOBALS['jetpack_sync_test_old_full_refund_data'] );
+		remove_all_filters( 'woocommerce_analytics_update_order_stats_data' );
 		remove_filter( 'jetpack_sync_options_whitelist', array( $this->module, 'add_woocommerce_analytics_options_whitelist' ), 10 );
 		remove_filter( 'jetpack_sync_post_meta_whitelist', array( $this->module, 'add_woocommerce_analytics_post_meta_whitelist' ), 10 );
 		parent::tearDown();
@@ -650,6 +652,535 @@ class WooCommerce_Analytics_Module_Test extends BaseTestCase {
 
 		$this->assertSame( array( 1 ), $ids );
 		$this->assertSame( array( 1 => $half ), $filtered );
+	}
+
+	/**
+	 * A partial refund followed by a full refund does not double-count the returns amount (woocommerce/woocommerce#66320).
+	 */
+	public function test_partial_then_full_refund_does_not_double_count_returns() {
+		$this->load_order_stubs();
+
+		// Order: net 40 (4 x $10 product) + tax 5 + shipping 10 = 55 gross.
+		$order   = $this->get_paid_order();
+		$partial = new \Analytics_Fake_Refund(
+			array(
+				'id'         => 11,
+				'parent_id'  => 10,
+				'total'      => '-20.00',
+				'quantities' => array( -2 ),
+			)
+		);
+		$full    = new \Analytics_Fake_Refund(
+			array(
+				'id'        => 12,
+				'parent_id' => 10,
+				'total'     => '-35.00',
+				'meta'      => array( '_refund_type' => 'full' ),
+			)
+		);
+
+		$order->props['refunds'] = array( $full, $partial );
+
+		$partial_row = $this->get_order_stats_row( $partial, $order );
+		$full_row    = $this->get_order_stats_row( $full, $order );
+
+		$this->assertSame( array( -2, -2 ), array( $partial_row['num_items_sold'], $full_row['num_items_sold'] ) );
+		$this->assertEqualsWithDelta( -20.0, $partial_row['net_total'], 0.001 );
+		$this->assertEqualsWithDelta( -20.0, $full_row['net_total'], 0.001 );
+		$this->assertEqualsWithDelta( -5.0, $full_row['tax_total'], 0.001 );
+		$this->assertEqualsWithDelta( -10.0, $full_row['shipping_total'], 0.001 );
+
+		$returns = 0;
+		foreach ( array( $partial_row, $full_row ) as $row ) {
+			$returns += $row['net_total'] + $row['tax_total'] + $row['shipping_total'];
+		}
+		$this->assertEqualsWithDelta( -55.0, $returns, 0.02 );
+	}
+
+	/**
+	 * A lump-sum refund of a never-paid order has no paid or completed date (woocommerce/woocommerce#67710).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_of_never_paid_order_has_null_date_paid() {
+		$this->load_order_stubs( '11.2.0' );
+
+		$order  = $this->get_paid_order(
+			array(
+				'status'         => 'refunded',
+				'date_paid'      => null,
+				'date_completed' => null,
+			)
+		);
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertNull( $row['date_paid'] );
+		$this->assertNull( $row['date_completed'] );
+	}
+
+	/**
+	 * A refund of a paid order keeps its own creation date as its paid and completed dates (woocommerce/woocommerce#67710).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_of_paid_order_keeps_own_date_paid() {
+		$this->load_order_stubs( '11.2.0' );
+
+		$order  = $this->get_paid_order();
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertEquals( $row['date_created'], $row['date_paid'] );
+		$this->assertEquals( $row['date_created'], $row['date_completed'] );
+		$this->assertSame( '2026-02-01 14:30:00.000000', $row['date_paid']->date );
+	}
+
+	/**
+	 * A refund of a paid but never completed order backfills only the paid date (woocommerce/woocommerce#67710).
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_of_paid_uncompleted_order_backfills_only_date_paid() {
+		$this->load_order_stubs( '11.2.0' );
+
+		$order  = $this->get_paid_order(
+			array(
+				'status'         => 'processing',
+				'date_completed' => null,
+			)
+		);
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertEquals( $row['date_created'], $row['date_paid'] );
+		$this->assertNull( $row['date_completed'] );
+	}
+
+	/**
+	 * Before WooCommerce 11.2, core backfills both dates on every refund, so the sync does too.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_of_never_paid_order_keeps_dates_before_woocommerce_11_2() {
+		$this->load_order_stubs( '11.1.9' );
+
+		$order  = $this->get_paid_order(
+			array(
+				'date_paid'      => null,
+				'date_completed' => null,
+			)
+		);
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertEquals( $row['date_created'], $row['date_paid'] );
+		$this->assertEquals( $row['date_created'], $row['date_completed'] );
+	}
+
+	/**
+	 * A refund keeps its own status, which the WooCommerce Analytics plugin writes over core's parent status.
+	 */
+	public function test_refund_keeps_its_own_status() {
+		$this->load_order_stubs();
+
+		$order  = $this->get_paid_order( array( 'status' => 'refunded' ) );
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertSame( $this->invoke_static_helper( 'normalize_order_status', 'completed' ), $row['status'] );
+	}
+
+	/**
+	 * A sole lump-sum refund of the whole order takes its amounts from the order, as a full refund does.
+	 */
+	public function test_sole_lump_sum_refund_of_order_total_is_split_using_parent_order() {
+		$this->load_order_stubs();
+
+		$order  = $this->get_paid_order();
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertSame( -4, $row['num_items_sold'] );
+		$this->assertEqualsWithDelta( -40.0, $row['net_total'], 0.001 );
+		$this->assertEqualsWithDelta( -5.0, $row['tax_total'], 0.001 );
+		$this->assertEqualsWithDelta( -10.0, $row['shipping_total'], 0.001 );
+	}
+
+	/**
+	 * A partial lump-sum refund keeps its own amounts.
+	 */
+	public function test_partial_lump_sum_refund_keeps_own_amounts() {
+		$this->load_order_stubs();
+
+		$order  = $this->get_paid_order();
+		$refund = $this->get_lump_sum_refund( $order, '-30.00' );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertSame( 0, $row['num_items_sold'] );
+		$this->assertEqualsWithDelta( -30.0, $row['net_total'], 0.001 );
+		$this->assertEqualsWithDelta( 0.0, $row['tax_total'], 0.001 );
+		$this->assertEqualsWithDelta( 0.0, $row['shipping_total'], 0.001 );
+	}
+
+	/**
+	 * A full refund keeps its own amounts while WooCommerce stores full refunds in the old format.
+	 */
+	public function test_full_refund_keeps_own_amounts_with_old_full_refund_data() {
+		$this->load_order_stubs();
+		$GLOBALS['jetpack_sync_test_old_full_refund_data'] = true;
+
+		$order  = $this->get_paid_order();
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$row = $this->get_order_stats_row( $refund, $order );
+
+		$this->assertSame( 0, $row['num_items_sold'] );
+		$this->assertEqualsWithDelta( -55.0, $row['net_total'], 0.001 );
+		$this->assertEqualsWithDelta( 0.0, $row['tax_total'], 0.001 );
+	}
+
+	/**
+	 * A refund whose parent is another refund keeps its own amounts and backfilled dates.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_of_refund_keeps_own_amounts_and_dates() {
+		$this->load_order_stubs( '11.2.0' );
+
+		$parent_refund = new \Analytics_Fake_Refund(
+			array(
+				'id'        => 30,
+				'parent_id' => 10,
+				'total'     => '-55.00',
+			)
+		);
+		$refund        = new \Analytics_Fake_Refund(
+			array(
+				'id'           => 31,
+				'parent_id'    => 30,
+				'total'        => '-5.00',
+				'meta'         => array( '_refund_type' => 'full' ),
+				'date_created' => '2026-02-01 09:00:00',
+			)
+		);
+
+		$row = $this->get_order_stats_row( $refund, $parent_refund );
+
+		$this->assertSame( 30, $row['parent_id'] );
+		$this->assertEqualsWithDelta( -5.0, $row['net_total'], 0.001 );
+		$this->assertEquals( $row['date_created'], $row['date_paid'] );
+		$this->assertEquals( $row['date_created'], $row['date_completed'] );
+	}
+
+	/**
+	 * A refund whose parent order is gone keeps its own amounts and backfilled dates.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_refund_with_missing_parent_keeps_own_amounts_and_dates() {
+		$this->load_order_stubs( '11.2.0' );
+
+		$refund = new \Analytics_Fake_Refund(
+			array(
+				'id'        => 13,
+				'parent_id' => 10,
+				'total'     => '-55.00',
+				'meta'      => array( '_refund_type' => 'full' ),
+			)
+		);
+
+		$row = $this->get_order_stats_row( $refund );
+
+		$this->assertSame( 10, $row['parent_id'] );
+		$this->assertEqualsWithDelta( -55.0, $row['net_total'], 0.001 );
+		$this->assertEquals( $row['date_created'], $row['date_paid'] );
+		$this->assertEquals( $row['date_created'], $row['date_completed'] );
+	}
+
+	/**
+	 * The order stats filter gets the columns, formats and unshifted dates core passes it.
+	 */
+	public function test_order_stats_filter_receives_core_columns() {
+		$this->load_order_stubs();
+
+		$received = null;
+		add_filter(
+			'woocommerce_analytics_update_order_stats_data',
+			static function ( $data ) use ( &$received ) {
+				$received = $data;
+				return $data;
+			}
+		);
+
+		$this->get_order_stats_row( $this->get_paid_order() );
+
+		$this->assertIsArray( $received );
+		$this->assertSame(
+			array( 'order_id', 'parent_id', 'date_created', 'date_paid', 'date_completed', 'date_created_gmt', 'num_items_sold', 'total_sales', 'tax_total', 'shipping_total', 'net_total', 'status', 'customer_id', 'returning_customer' ),
+			array_keys( $received )
+		);
+		$this->assertSame( '2026-01-15 12:00:00', $received['date_created'] );
+		$this->assertSame( '2026-01-15 12:00:00', $received['date_created_gmt'] );
+		$this->assertSame( 4, $received['num_items_sold'] );
+	}
+
+	/**
+	 * Core columns the filter changes reach the row; other keys do not.
+	 */
+	public function test_order_stats_filter_changes_reach_core_columns_only() {
+		$this->load_order_stubs();
+
+		add_filter(
+			'woocommerce_analytics_update_order_stats_data',
+			static function ( $data ) {
+				$data['net_total']      = 12.5;
+				$data['date_created']   = '2026-07-01 10:00:00';
+				$data['date_paid']      = '2026-01-15 13:06:00';
+				$data['date_completed'] = null;
+				$data['total_fees']     = 99;
+				$data['extra']          = 'ignored';
+				return $data;
+			}
+		);
+
+		$row = $this->get_order_stats_row( $this->get_paid_order() );
+
+		$this->assertSame( 12.5, $row['net_total'] );
+		// Read in the site's Europe/Amsterdam timezone (summer +02:00, winter +01:00), then sent at the +05:30 offset.
+		$this->assertSame( '2026-07-01 13:30:00.000000', $row['date_created']->date );
+		$this->assertSame( '2026-01-15 17:36:00.000000', $row['date_paid']->date );
+		$this->assertNull( $row['date_completed'] );
+		$this->assertSame( 0.0, $row['total_fees'] );
+		$this->assertArrayNotHasKey( 'extra', $row );
+		$this->assertArrayNotHasKey( 'date_created_gmt', $row );
+	}
+
+	/**
+	 * A refund keeps its own status even when the order stats filter changes it, as core's refund block overrides it.
+	 */
+	public function test_refund_status_ignores_order_stats_filter() {
+		$this->load_order_stubs();
+
+		add_filter(
+			'woocommerce_analytics_update_order_stats_data',
+			static function ( $data ) {
+				$data['status'] = 'wc-cancelled';
+				return $data;
+			}
+		);
+
+		$order  = $this->get_paid_order();
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$this->assertSame( $this->invoke_static_helper( 'normalize_order_status', 'completed' ), $this->get_order_stats_row( $refund, $order )['status'] );
+	}
+
+	/**
+	 * With fulfillments on, the filter gets core's fulfillment_status (WooCommerce 11.0+ class) and can change it.
+	 *
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
+	 */
+	#[RunInSeparateProcess]
+	#[PreserveGlobalState( false )]
+	public function test_order_stats_filter_receives_fulfillment_status() {
+		$this->load_order_stubs();
+		require_once __DIR__ . '/../stubs/utilities/class-featuresutil.php';
+		require_once __DIR__ . '/../stubs/fulfillments/class-fulfillmentutils.php';
+		require_once __DIR__ . '/../stubs/reports/class-datastore.php';
+
+		// The stored row, written by core after the same filter ran.
+		$original_wpdb   = $GLOBALS['wpdb'];
+		$GLOBALS['wpdb'] = new class() {
+			/**
+			 * Table prefix.
+			 *
+			 * @var string
+			 */
+			public $prefix = 'wp_';
+
+			/**
+			 * Return the query unchanged.
+			 *
+			 * @param string $query Query.
+			 * @return string
+			 */
+			public function prepare( $query ) {
+				return $query;
+			}
+
+			/**
+			 * Return the stored stats row.
+			 *
+			 * @return array
+			 */
+			public function get_row() {
+				return array( 'fulfillment_status' => 'partially_fulfilled' );
+			}
+		};
+
+		$received = null;
+		add_filter(
+			'woocommerce_analytics_update_order_stats_data',
+			static function ( $data ) use ( &$received ) {
+				$received                   = $data;
+				$data['fulfillment_status'] = 'partially_fulfilled';
+				return $data;
+			}
+		);
+
+		$row = null;
+		try {
+			$row = $this->get_order_stats_row( $this->get_paid_order() );
+		} finally {
+			$GLOBALS['wpdb'] = $original_wpdb;
+		}
+
+		$this->assertIsArray( $row );
+		$this->assertIsArray( $received );
+		$this->assertSame( 'fulfilled', $received['fulfillment_status'] );
+		$this->assertSame( 'partially_fulfilled', $row['fulfillment_status'] );
+	}
+
+	/**
+	 * A filter that changes nothing leaves the row as it was.
+	 */
+	public function test_unchanged_order_stats_filter_leaves_row_alone() {
+		$this->load_order_stubs();
+
+		$unfiltered = $this->get_order_stats_row( $this->get_paid_order() );
+
+		add_filter(
+			'woocommerce_analytics_update_order_stats_data',
+			static function ( $data ) {
+				return $data;
+			}
+		);
+
+		$this->assertEquals( $unfiltered, $this->get_order_stats_row( $this->get_paid_order() ) );
+	}
+
+	/**
+	 * The refund block runs after the filter, as in core, so a full refund's amounts win.
+	 */
+	public function test_refund_amounts_override_order_stats_filter() {
+		$this->load_order_stubs();
+
+		add_filter(
+			'woocommerce_analytics_update_order_stats_data',
+			static function ( $data ) {
+				$data['tax_total'] = 99;
+				return $data;
+			}
+		);
+
+		$order  = $this->get_paid_order();
+		$refund = $this->get_lump_sum_refund( $order );
+
+		$this->assertEqualsWithDelta( -5.0, $this->get_order_stats_row( $refund, $order )['tax_total'], 0.001 );
+	}
+
+	/**
+	 * Load the order stubs, defining WC_VERSION when given (only in a separate process).
+	 *
+	 * @param string|null $wc_version WooCommerce version.
+	 */
+	private function load_order_stubs( $wc_version = null ) {
+		require_once __DIR__ . '/../stubs/class-wc-datetime.php';
+		require_once __DIR__ . '/../stubs/woocommerce-analytics-functions.php';
+		require_once __DIR__ . '/../fixtures/class-analytics-fake-order.php';
+		require_once __DIR__ . '/../fixtures/class-analytics-fake-refund.php';
+		require_once __DIR__ . '/../stubs/utilities/class-orderutil.php';
+
+		if ( null !== $wc_version ) {
+			define( 'WC_VERSION', $wc_version );
+		}
+	}
+
+	/**
+	 * Get a paid, completed order: net 40 (4 items) + tax 5 + shipping 10 = 55.
+	 *
+	 * @param array $props Properties to override.
+	 * @return \Analytics_Fake_Order
+	 */
+	private function get_paid_order( array $props = array() ) {
+		return new \Analytics_Fake_Order(
+			array_merge(
+				array(
+					'id'             => 10,
+					'total'          => '55.00',
+					'total_tax'      => '5.00',
+					'shipping_total' => '10.00',
+					'quantities'     => array( 4 ),
+					'date_paid'      => '2026-01-15 12:05:00',
+					'date_completed' => '2026-01-16 08:00:00',
+				),
+				$props
+			)
+		);
+	}
+
+	/**
+	 * Get a lump-sum refund (no line items) as the order's only refund.
+	 *
+	 * @param \Analytics_Fake_Order $order  Parent order.
+	 * @param string                $amount Refund total.
+	 * @return \Analytics_Fake_Refund
+	 */
+	private function get_lump_sum_refund( $order, $amount = '-55.00' ) {
+		$refund = new \Analytics_Fake_Refund(
+			array(
+				'id'           => 20,
+				'parent_id'    => $order->get_id(),
+				'total'        => $amount,
+				'date_created' => '2026-02-01 09:00:00',
+			)
+		);
+
+		$order->props['refunds'] = array( $refund );
+
+		return $refund;
+	}
+
+	/**
+	 * Build the order stats row for an order, with the given orders loadable by wc_get_order().
+	 *
+	 * @param object $order           Order or refund.
+	 * @param object ...$known_orders Orders wc_get_order() can load.
+	 * @return array
+	 */
+	private function get_order_stats_row( $order, ...$known_orders ) {
+		foreach ( $known_orders as $known_order ) {
+			$GLOBALS['jetpack_sync_test_orders'][ $known_order->get_id() ] = $known_order;
+		}
+
+		return $this->invoke_instance_helper( 'get_order_stats_data', $order );
 	}
 
 	/**
