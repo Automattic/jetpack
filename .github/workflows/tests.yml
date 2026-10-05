@@ -217,6 +217,10 @@ jobs:
             ' "${QUEUE[@]}" > "$QUEUEFILE"
           fi
 
+          echo "::group::Queued projects"
+          cat "$QUEUEFILE"
+          echo "::endgroup::"
+
           # There's no way to directly control the number of workers, it has to be hard-coded in this file.
           # So we hard-code the max number of workers GH allows, create a file with N "tokens", and any worker that doesn't get one exits without doing anything.
           # Workers == number of CPUs.
