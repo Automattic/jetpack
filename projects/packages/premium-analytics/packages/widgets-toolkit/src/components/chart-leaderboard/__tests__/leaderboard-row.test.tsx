@@ -220,17 +220,17 @@ describe( 'buildLeaderboardRow', () => {
 		expect( link ).toContainElement( screen.getByRole( 'presentation' ) );
 	} );
 
-	it( 'keeps post rows as a bare title link', () => {
+	it( 'keeps post rows as a bare post title link, even with a thumbnail', () => {
 		const row = buildLeaderboardRow( {
 			label: 'Hello',
-			media: { kind: 'none' },
+			media: { kind: 'thumbnail', url: 'https://example.com/hello.jpg', alt: '' },
 			action: { kind: 'postLink', id: 5, search: {} },
 		} );
 
 		render( row.label );
 
 		expect( screen.queryByRole( 'presentation' ) ).not.toBeInTheDocument();
-		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toBeInTheDocument();
+		expect( screen.getByRole( 'link', { name: 'Hello' } ) ).toHaveAttribute( 'href', '/post/5' );
 	} );
 
 	it( 'returns chart button props for a drill-down without nesting an action', () => {
