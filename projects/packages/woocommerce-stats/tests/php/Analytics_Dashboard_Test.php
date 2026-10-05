@@ -59,7 +59,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * The section carries the WooCommerce label, the store slug, and the dashboard package's widgets.
+	 * The section carries the WooCommerce label, the woocommerce slug, and the dashboard package's widgets.
 	 */
 	public function test_registers_the_woocommerce_section_with_its_layout() {
 		$this->enable_store();
@@ -68,7 +68,7 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 		$section = get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID );
 
 		$this->assertNotNull( $section );
-		$this->assertSame( 'store', $section->slug );
+		$this->assertSame( 'woocommerce', $section->slug );
 		$this->assertSame( 'WooCommerce', $section->label );
 		$this->assertSame( 40, $section->order );
 		$this->assertTrue( $section->requires_sync );
@@ -138,20 +138,25 @@ class Analytics_Dashboard_Test extends BaseTestCase {
 	}
 
 	/**
-	 * An older dashboard package that still registers the section is left alone.
+	 * Another owner of the `woocommerce` slug is left alone.
 	 */
-	public function test_skips_the_section_when_the_store_slug_is_taken() {
-		add_action(
-			Analytics_Dashboard::REGISTER_SECTIONS_ACTION,
-			static function () {
-				register_dashboard_section( DASHBOARD_NAME, 'other/store', array( 'label' => 'Other store' ) );
-			},
-			15
-		);
+	public function test_skips_the_section_when_the_woocommerce_slug_is_taken() {
+		register_dashboard_section( DASHBOARD_NAME, 'other/woocommerce', array( 'label' => 'Other WooCommerce' ) );
 		Analytics_Dashboard::init();
 
 		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
-		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, 'other/store' ) );
+		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, 'other/woocommerce' ) );
+	}
+
+	/**
+	 * An older dashboard package still registers this tab under the `store` slug.
+	 */
+	public function test_skips_the_section_when_an_older_package_holds_the_store_slug() {
+		register_dashboard_section( DASHBOARD_NAME, 'woocommerce/store', array( 'label' => 'Store' ) );
+		Analytics_Dashboard::init();
+
+		$this->assertNull( get_registered_dashboard_section( DASHBOARD_NAME, Analytics_Dashboard::SECTION_ID ) );
+		$this->assertNotNull( get_registered_dashboard_section( DASHBOARD_NAME, 'woocommerce/store' ) );
 	}
 
 	/**

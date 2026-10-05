@@ -28,5 +28,5 @@ function wpcom_premium_analytics_register_woocommerce_section( $registry ) {
 	Analytics_Dashboard::register_section( $registry );
 }
 
-// After the package's own registrant (priority 10), so an existing `store` slug is found and left alone.
+// After the package's own registrant (priority 10), so an existing `woocommerce` or `store` slug is found and left alone.
 add_action( 'jetpack_premium_analytics_register_dashboard_sections', 'wpcom_premium_analytics_register_woocommerce_section', 20 );
