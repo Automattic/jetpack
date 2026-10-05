@@ -3,9 +3,8 @@
 // module, so it needs no runtime cascade and never lands on the DOM.
 $focus-ring-width: var(--wpds-border-width-focus);
 
-// The scale's ends come from JS (getHeatmapScale), which holds the lowest step
-// at 3:1 against the background and the empty cell. Unresolved, the floor is
-// 15% of the primary.
+// JS sets the ends (getHeatmapScale): 3:1 against background and empty cell at
+// the low end. Unresolved, the floor is 15% of the primary.
 $heatmap-fill: color-mix(in sRGB, var(--a8c-charts-color-heatmap-high, var(--a8c-charts-color-heatmap-primary)) calc(var(--a8c-charts-heatmap-cell-intensity) * 100%), var(--a8c-charts-color-heatmap-low, color-mix(in sRGB, var(--a8c-charts-color-heatmap-primary) 15%, var(--a8c-charts-color-background, #fff))));
 
 .heatmap-chart {

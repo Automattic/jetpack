@@ -59,11 +59,18 @@ describe( 'getHeatmapScale', () => {
 		}
 	} );
 
-	it( 'falls back to the background alone when no step clears the empty cell too', () => {
-		expect( getHeatmapScale( '#3858e9', '#ffffff', '#000000' ) ).toEqual(
-			getHeatmapScale( '#3858e9', '#ffffff' )
-		);
-	} );
+	it.each( [
+		[ 'no step clears it', '#ffffff', '#555555' ],
+		[ 'clearing it would pass the high end', '#ffffff', '#767676' ],
+		[ 'clearing it would pass the high end', '#1e1e1e', '#6b6b6b' ],
+	] )(
+		'measures against the background alone when %s (%s, %s)',
+		( _case, background, emptyCell ) => {
+			expect( getHeatmapScale( '#3858e9', background, emptyCell ) ).toEqual(
+				getHeatmapScale( '#3858e9', background )
+			);
+		}
+	);
 
 	it( 'ends on black or white when the background leaves no room for 9:1', () => {
 		expect( getHeatmapScale( '#3858e9', '#808080' ).high ).toBe( '#000000' );

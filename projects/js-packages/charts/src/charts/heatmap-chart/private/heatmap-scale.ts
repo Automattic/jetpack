@@ -53,15 +53,22 @@ export const getHeatmapScale = (
 			firstMeeting( primary, extreme, meets )
 		);
 	};
-	// The lowest step sits beside empty cells, so it has to stand apart from them too.
-	const low =
-		( emptyCell ? lowAgainst( [ background, emptyCell ] ) : null ) ?? lowAgainst( [ background ] );
-	const high = firstMeeting(
-		primary,
-		extreme,
-		color => contrastRatio( color, background ) >= HEATMAP_HIGH_CONTRAST
-	);
-
 	// Only `high` can miss: black or white tops out near 4.58:1 on a mid-tone background.
-	return { low: low ?? extreme, high: high ?? extreme };
+	const high =
+		firstMeeting(
+			primary,
+			extreme,
+			color => contrastRatio( color, background ) >= HEATMAP_HIGH_CONTRAST
+		) ?? extreme;
+
+	// The lowest step sits beside empty cells, so it stands apart from them too, unless an
+	// empty-cell color far from the background would push it past the high end.
+	const againstEmptyCell = emptyCell ? lowAgainst( [ background, emptyCell ] ) : null;
+	const low =
+		againstEmptyCell &&
+		contrastRatio( againstEmptyCell, background ) <= contrastRatio( high, background )
+			? againstEmptyCell
+			: lowAgainst( [ background ] );
+
+	return { low: low ?? extreme, high };
 };

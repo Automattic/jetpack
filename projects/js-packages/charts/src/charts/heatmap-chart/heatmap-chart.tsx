@@ -133,7 +133,7 @@ const HeatmapChartInternal: FC< HeatmapChartProps > = ( {
 		overrideColor: primaryColor,
 	} );
 
-	// Read at the scope element, so an override on the chart's own class reaches neither the
+	// Both read at the scope element, so an override on the chart's own class reaches neither the
 	// fill scale nor the text color (CHARTS-255). See-through counts as white, as for the palette.
 	const chartBackgroundHex =
 		resolveOpaqueHex( CATALOG_POINTERS.background, scopeElement ) ?? BACKGROUND_FALLBACK;
